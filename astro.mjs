@@ -14,16 +14,16 @@ if(!root) {
 const fileProtocolRoot = `file://${root}/`;
 
 async function run() {
-  const magicConfig = (await import(pathJoin(root, 'magicthing.config.mjs'))).default;
-  magicConfig.projectRoot = new URL(magicConfig.projectRoot + '/', fileProtocolRoot);
-  magicConfig.hmxRoot = new URL(magicConfig.hmxRoot + '/', fileProtocolRoot);
+  const astroConfig = (await import(pathJoin(root, 'astro.config.mjs'))).default;
+  astroConfig.projectRoot = new URL(astroConfig.projectRoot + '/', fileProtocolRoot);
+  astroConfig.hmxRoot = new URL(astroConfig.hmxRoot + '/', fileProtocolRoot);
 
 
   // Should use an args parser eventually
   if(process.argv.includes('--generate')) {
-    return generate(magicConfig);
+    return generate(astroConfig);
   } else {
-    return devServer(magicConfig);
+    return devServer(astroConfig);
   }
 }
 

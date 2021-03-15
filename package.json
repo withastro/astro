@@ -1,15 +1,19 @@
 {
-  "name": "hmx-v2",
+  "name": "astro",
   "version": "1.0.0",
   "main": "index.js",
-  "author": "Fred K. Schott",
+  "private": true,
+  "author": "Skypack",
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./magicthing.mjs",
+    ".": "./mastro.mjs",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./h": "./lib/h.js",
     "./render/preact": "./lib/render/preact.js"
+  },
+  "bin": {
+    "astro": "astro.mjs"
   },
   "scripts": {
     "build": "tsc && npm run copy-js",

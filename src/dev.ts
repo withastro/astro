@@ -1,4 +1,4 @@
-import type { MagicConfig } from './@types/magicthing';
+import type { AstroConfig } from './@types/astro';
 import { loadConfiguration, startServer as startSnowpackServer } from 'snowpack';
 import { existsSync, promises as fsPromises } from 'fs';
 import http from 'http';
@@ -11,8 +11,8 @@ const require = createRequire(import.meta.url);
 const hostname = '127.0.0.1';
 const port = 3000;
 
-export default async function(magicConfig: MagicConfig) {
-  const { projectRoot, hmxRoot } = magicConfig;
+export default async function(astroConfig: AstroConfig) {
+  const { projectRoot, hmxRoot } = astroConfig;
 
   const internalPath = new URL('./frontend/', import.meta.url);
   const snowpackConfigPath = new URL('./snowpack.config.js', projectRoot);

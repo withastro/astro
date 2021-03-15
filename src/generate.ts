@@ -1,4 +1,4 @@
-import type { MagicConfig } from './@types/magicthing';
+import type { AstroConfig } from './@types/astro';
 import { loadConfiguration, startServer as startSnowpackServer } from 'snowpack';
 import { promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
@@ -18,10 +18,10 @@ async function* allPages(root: URL): AsyncGenerator<URL, void, unknown> {
   }
 }
 
-export default async function(magicConfig: MagicConfig) {
-  const { projectRoot, hmxRoot } = magicConfig;
+export default async function(astroConfig: AstroConfig) {
+  const { projectRoot, hmxRoot } = astroConfig;
   const pageRoot = new URL('./pages/', hmxRoot);
-  const dist = new URL(magicConfig.dist + '/', projectRoot);
+  const dist = new URL(astroConfig.dist + '/', projectRoot);
 
   const configPath = new URL('./snowpack.config.js', projectRoot).pathname;
   const config = await loadConfiguration({
