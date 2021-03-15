@@ -28,7 +28,7 @@ export default async function(astroConfig: AstroConfig) {
     };
   }
   
-  const config = await loadConfiguration({ 
+  const snowpackConfig = await loadConfiguration({
     root: projectRoot.pathname,
     mount: {
       [hmxRoot.pathname]: '/_hmx',
@@ -37,14 +37,20 @@ export default async function(astroConfig: AstroConfig) {
     plugins: [
       ['hmx-v2/snowpack-plugin', hmxPlugOptions]
     ],
-    //exclude: [`${internalPath.pathname}**/*`],
-    devOptions: {open: 'none', output: 'stream'},
+    devOptions: {
+      open: 'none',
+      output: 'stream',
+      port: 0
+    },
     packageOptions: {
       knownEntrypoints: ['preact-render-to-string'],
       external: ['@vue/server-renderer']
     }
   }, snowpackConfigPath.pathname);
-  const snowpack = await startSnowpackServer({config, lockfile: null});
+  const snowpack = await startSnowpackServer({
+    config: snowpackConfig,
+    lockfile: null
+  });
   const runtime = snowpack.getServerRuntime();
 
   const server = http.createServer(async (req, res) => {
