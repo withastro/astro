@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "private": true,
   "author": "Skypack",
@@ -30,6 +30,7 @@
     "es-module-lexer": "^0.4.1",
     "gray-matter": "^4.0.2",
     "htmlparser2": "^6.0.0",
+    "kleur": "^4.1.4",
     "magic-string": "^0.25.3",
     "micromark": "^2.11.4",
     "micromark-extension-gfm": "^0.3.3",
@@ -37,9 +38,11 @@
     "react-dom": "^17.0.1",
     "snowpack": "^3.1.0-pre.12",
     "svelte": "^3.35.0",
-    "vue": "^3.0.7"
+    "vue": "^3.0.7",
+    "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
+    "@types/yargs-parser": "^20.2.0",
     "copyfiles": "^2.4.1",
     "estree-walker": "^3.0.0",
     "preact": "^10.5.12",
