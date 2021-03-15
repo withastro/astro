@@ -32,7 +32,7 @@ function printHelp() {
   console.error(`  ${colors.bold('astro')} - Futuristic web development tool.
 
   ${colors.bold('Commands:')}
-  astro dev         Run astro in development mode.
+  astro dev         Run Astro in development mode.
   astro build       Build a pre-compiled production version of your site.
 
   ${colors.bold('Flags:')}
