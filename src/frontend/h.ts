@@ -3,6 +3,9 @@ export type HChild = string | undefined | (() => string);
 export type HMXComponent = (props: HProps, ...children: Array<HChild>) => string;
 export type HTag = string | HMXComponent;
 
+const voidTags = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
+  'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+
 function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
   yield `<${tag}`;
   if (attrs) {
@@ -12,6 +15,11 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
     }
   }
   yield '>';
+
+  // Void tags have no children.
+  if(voidTags.has(tag)) {
+    return;
+  }
 
   for (let child of children) {
     // Special: If a child is a function, call it automatically.
