@@ -7,7 +7,6 @@ import eslexer from 'es-module-lexer';
 import micromark from 'micromark';
 import gfmSyntax from 'micromark-extension-gfm';
 import matter from 'gray-matter';
-// @ts-ignore
 import gfmHtml from 'micromark-extension-gfm/html.js';
 import { walk, parse } from './compiler.js';
 import markdownEncode from './markdown-encode.js';
@@ -90,7 +89,7 @@ function getTextFromAttribute(attr: any): string {
 }
 
 function generateAttributes(attrs: Record<string, string>): string {
-  let result: string = '{';
+  let result = '{';
   for (const [key, val] of Object.entries(attrs)) {
     result += JSON.stringify(key) + ':' + val + ',';
   }
@@ -222,7 +221,6 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
   let currentDepth = 0;
 
   walk(ast.html as any, {
-    // @ts-ignore
     enter(node: TemplateNode, parent, prop, index) {
       //   console.log("enter", node.type);
       switch (node.type) {
@@ -331,7 +329,6 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
           throw new Error('Unexpected node type: ' + node.type);
       }
     },
-    // @ts-ignore
     leave(node: TemplateNode, parent, prop, index) {
       //   console.log("leave", node.type);
       switch (node.type) {

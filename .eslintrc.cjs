@@ -9,5 +9,6 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     'prettier/prettier': 'error',
     'prefer-const': 'off',
+    'prefer-rest-params': 'off',
   },
 };
