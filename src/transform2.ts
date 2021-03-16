@@ -153,11 +153,39 @@ function getComponentWrapper(_name: string, { type, url }: { type: string; url: 
   throw new Error('Unknown Component Type: ' + name);
 }
 
+const patternImport = new RegExp(/import(?:["'\s]*([\w*${}\n\r\t, ]+)from\s*)?["'\s]["'\s](.*[@\w_-]+)["'\s].*;$/, 'mg');
+function compileScriptSafe(raw: string, loader:'jsx' | 'tsx'): string {
+  // esbuild treeshakes unused imports. In our case these are components, so let's keep them.
+  const imports: Array<string> = [];
+  raw.replace(patternImport, (value: string) => {
+    imports.push(value);
+    return value;
+  })
+
+  let { code } = transformSync(raw, {
+    loader,
+    jsxFactory: 'h',
+    jsxFragment: 'Fragment',
+    charset: 'utf8',
+  });
+
+  for(let importStatement of imports) {
+    if(!code.includes(importStatement)) {
+      code = importStatement + '\n' + code;
+    }
+  }
+
+  return code;
+}
+
 async function convertHmxToJsx(template: string, compileOptions: CompileOptions) {
   await eslexer.init;
 
   const ast = parse(template, {});
-  const script = ast.instance ? ast.instance.content : "";
+  const script = compileScriptSafe(ast.instance ? ast.instance.content : "", 'tsx');
+
+  // Compile scripts as TypeScript, always
+
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
 
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
@@ -182,12 +210,7 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
       //   console.log("enter", node.type);
       switch (node.type) {
         case 'MustacheTag':
-          let { code } = transformSync(node.expression, {
-            loader: 'jsx',
-            jsxFactory: 'h',
-            jsxFragment: 'Fragment',
-            charset: 'utf8',
-          });
+          let code = compileScriptSafe(node.expression, 'jsx');
 
           let matches: RegExpExecArray[] = [];
           let match: RegExpExecArray | null | undefined;
