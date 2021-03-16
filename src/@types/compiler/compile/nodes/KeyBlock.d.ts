@@ -5,7 +5,7 @@ import TemplateScope from './shared/TemplateScope';
 import { TemplateNode } from '../../interfaces';
 import Node from './shared/Node';
 export default class KeyBlock extends AbstractBlock {
-    type: 'KeyBlock';
-    expression: Expression;
-    constructor(component: Component, parent: Node, scope: TemplateScope, info: TemplateNode);
+  type: 'KeyBlock';
+  expression: Expression;
+  constructor(component: Component, parent: Node, scope: TemplateScope, info: TemplateNode);
 }

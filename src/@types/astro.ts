@@ -1,4 +1,3 @@
-
 export interface AstroConfigRaw {
   dist: string;
   projectRoot: string;

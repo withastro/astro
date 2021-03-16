@@ -31,4 +31,37 @@ import ThenBlock from './ThenBlock';
 import Title from './Title';
 import Transition from './Transition';
 import Window from './Window';
-export declare type INode = Action | Animation | Attribute | AwaitBlock | Binding | Body | CatchBlock | Class | Comment | DebugTag | EachBlock | Element | ElseBlock | EventHandler | Fragment | Head | IfBlock | InlineComponent | KeyBlock | Let | MustacheTag | Options | PendingBlock | RawMustacheTag | Slot | SlotTemplate | DefaultSlotTemplate | Tag | Text | ThenBlock | Title | Transition | Window;
+export declare type INode =
+  | Action
+  | Animation
+  | Attribute
+  | AwaitBlock
+  | Binding
+  | Body
+  | CatchBlock
+  | Class
+  | Comment
+  | DebugTag
+  | EachBlock
+  | Element
+  | ElseBlock
+  | EventHandler
+  | Fragment
+  | Head
+  | IfBlock
+  | InlineComponent
+  | KeyBlock
+  | Let
+  | MustacheTag
+  | Options
+  | PendingBlock
+  | RawMustacheTag
+  | Slot
+  | SlotTemplate
+  | DefaultSlotTemplate
+  | Tag
+  | Text
+  | ThenBlock
+  | Title
+  | Transition
+  | Window;

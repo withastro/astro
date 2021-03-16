@@ -6,7 +6,7 @@ import MustacheTag from '../../nodes/MustacheTag';
 import RawMustacheTag from '../../nodes/RawMustacheTag';
 import { Identifier } from 'estree';
 export default class RawMustacheTagWrapper extends Tag {
-    var: Identifier;
-    constructor(renderer: Renderer, block: Block, parent: Wrapper, node: MustacheTag | RawMustacheTag);
-    render(block: Block, parent_node: Identifier, _parent_nodes: Identifier): void;
+  var: Identifier;
+  constructor(renderer: Renderer, block: Block, parent: Wrapper, node: MustacheTag | RawMustacheTag);
+  render(block: Block, parent_node: Identifier, _parent_nodes: Identifier): void;
 }

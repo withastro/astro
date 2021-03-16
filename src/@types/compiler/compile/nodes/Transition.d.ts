@@ -5,10 +5,10 @@ import TemplateScope from './shared/TemplateScope';
 import { TemplateNode } from '../../interfaces';
 import Element from './Element';
 export default class Transition extends Node {
-    type: 'Transition';
-    name: string;
-    directive: string;
-    expression: Expression;
-    is_local: boolean;
-    constructor(component: Component, parent: Element, scope: TemplateScope, info: TemplateNode);
+  type: 'Transition';
+  name: string;
+  directive: string;
+  expression: Expression;
+  is_local: boolean;
+  constructor(component: Component, parent: Element, scope: TemplateScope, info: TemplateNode);
 }

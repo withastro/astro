@@ -9,15 +9,15 @@ import TemplateScope from './shared/TemplateScope';
 import { INode } from './interfaces';
 import { TemplateNode } from '../../interfaces';
 export default class InlineComponent extends Node {
-    type: 'InlineComponent';
-    name: string;
-    expression: Expression;
-    attributes: Attribute[];
-    bindings: Binding[];
-    handlers: EventHandler[];
-    lets: Let[];
-    children: INode[];
-    scope: TemplateScope;
-    constructor(component: Component, parent: Node, scope: TemplateScope, info: TemplateNode);
-    get slot_template_name(): string;
+  type: 'InlineComponent';
+  name: string;
+  expression: Expression;
+  attributes: Attribute[];
+  bindings: Binding[];
+  handlers: EventHandler[];
+  lets: Let[];
+  children: INode[];
+  scope: TemplateScope;
+  constructor(component: Component, parent: Node, scope: TemplateScope, info: TemplateNode);
+  get slot_template_name(): string;
 }

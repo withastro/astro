@@ -17,4 +17,27 @@ import Title from '../Title';
 import Window from '../Window';
 import { TemplateNode } from '../../../interfaces';
 export declare type Children = ReturnType<typeof map_children>;
-export default function map_children(component: any, parent: any, scope: any, children: TemplateNode[]): (AwaitBlock | Body | Comment | DebugTag | EachBlock | Element | Head | IfBlock | InlineComponent | KeyBlock | MustacheTag | Options | RawMustacheTag | SlotTemplate | Text | Title | Window)[];
+export default function map_children(
+  component: any,
+  parent: any,
+  scope: any,
+  children: TemplateNode[]
+): (
+  | AwaitBlock
+  | Body
+  | Comment
+  | DebugTag
+  | EachBlock
+  | Element
+  | Head
+  | IfBlock
+  | InlineComponent
+  | KeyBlock
+  | MustacheTag
+  | Options
+  | RawMustacheTag
+  | SlotTemplate
+  | Text
+  | Title
+  | Window
+)[];

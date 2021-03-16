@@ -1,15 +1,6 @@
-const [
-  CHARS,
-  TAG_START,
-  TAG_END,
-  END_TAG_START,
-  EQ,
-  EOF,
-  UNKNOWN
-] = Array.from(new Array(20), (x, i) => i + 1);
+const [CHARS, TAG_START, TAG_END, END_TAG_START, EQ, EOF, UNKNOWN] = Array.from(new Array(20), (x, i) => i + 1);
 
-const voidTags = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
-  'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
+const voidTags = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
 type Visitor = (tag: Tag) => Tag;
 
@@ -71,27 +62,27 @@ function createState(code: string, visitor: Visitor): State {
   return {
     code,
     index: 0,
-    visitor
+    visitor,
   };
 }
 
 function* _stringify(tag: Tag): Generator<string, void, unknown> {
   yield '<';
   yield tag.tagName;
-  for(let attr of tag.attributes) {
+  for (let attr of tag.attributes) {
     yield ' ';
     yield `"${attr.name}"`;
-    if(!attr.boolean) {
+    if (!attr.boolean) {
       yield '=';
       yield `"${attr.value}"`;
     }
   }
-  if(!tag.void) {
-    for(let child of tag.children) {
-      if(child.type === 0) {
+  if (!tag.void) {
+    for (let child of tag.children) {
+      if (child.type === 0) {
         yield child.data;
       } else {
-        yield * _stringify(child);
+        yield* _stringify(child);
       }
     }
   }
@@ -99,7 +90,7 @@ function* _stringify(tag: Tag): Generator<string, void, unknown> {
 
 function stringify(tag: Tag) {
   let out = '';
-  for(let chunk of _stringify(tag)) {
+  for (let chunk of _stringify(tag)) {
     out += chunk;
   }
   return out;
@@ -114,7 +105,7 @@ function spliceSlice(str: string, index: number, count: number, add: string) {
     }
   }
 
-  return str.slice(0, index) + (add || "") + str.slice(index + count);
+  return str.slice(0, index) + (add || '') + str.slice(index + count);
 }
 
 function replaceTag(state: State, tag: Tag) {
@@ -131,28 +122,28 @@ function consumeToken(state: State) {
   do {
     const c = stateNext(state);
 
-    if(/\s/.test(c)) {
+    if (/\s/.test(c)) {
       continue;
     }
 
-    if(c === '<') {
+    if (c === '<') {
       return TAG_START;
     }
 
-    if(c === '>') {
+    if (c === '>') {
       return TAG_END;
     }
 
-    if(c === '/') {
+    if (c === '/') {
       return END_TAG_START;
     }
 
-    if(/[a-zA-Z]/.test(c)) {
+    if (/[a-zA-Z]/.test(c)) {
       return CHARS;
     }
 
     return UNKNOWN;
-  } while(stateInBounds(state));
+  } while (stateInBounds(state));
 
   return EOF;
 }
@@ -161,7 +152,7 @@ function consumeText(state: State): Text {
   let start = state.index;
   let data = '';
   let c = stateNext(state);
-  while(stateInBounds(state) && c !== '<') {
+  while (stateInBounds(state) && c !== '<') {
     data += c;
     c = stateNext(state);
   }
@@ -170,14 +161,14 @@ function consumeText(state: State): Text {
     type: 0,
     data,
     start,
-    end: state.index - 1
+    end: state.index - 1,
   };
 }
 
 function consumeTagName(state: State): string {
   let name = '';
   let token = consumeToken(state);
-  while(token === CHARS) {
+  while (token === CHARS) {
     name += stateChar(state);
     token = consumeToken(state);
   }
@@ -186,19 +177,20 @@ function consumeTagName(state: State): string {
 
 function consumeAttribute(state: State): Attribute {
   let start = state.index;
-  let name = '', token;
+  let name = '',
+    token;
   do {
     name += stateChar(state).toLowerCase();
     token = consumeToken(state);
-  } while(token === CHARS);
+  } while (token === CHARS);
 
-  if(token !== EQ) {
+  if (token !== EQ) {
     stateRewind(state);
     return {
       name,
       boolean: true,
       start,
-      end: state.index - 1
+      end: state.index - 1,
     };
   }
 
@@ -206,26 +198,26 @@ function consumeAttribute(state: State): Attribute {
   do {
     value += stateChar(state).toLowerCase();
     token = consumeToken(state);
-  } while(token === CHARS);
+  } while (token === CHARS);
 
   return {
     name,
     value,
     boolean: false,
     start,
-    end: state.index - 1
+    end: state.index - 1,
   };
 }
 
 function consumeChildren(state: State): Array<Tag | Text> {
   const children: Array<Tag | Text> = [];
 
-  childLoop: while(stateInBounds(state)) {
+  childLoop: while (stateInBounds(state)) {
     const token = consumeToken(state);
-    switch(token) {
+    switch (token) {
       case TAG_START: {
         const next = consumeToken(state);
-        if(next === END_TAG_START) {
+        if (next === END_TAG_START) {
           consumeTagName(state);
           consumeToken(state); // >
           break childLoop;
@@ -256,8 +248,8 @@ function consumeTag(state: State): Tag {
   let token = consumeToken(state);
 
   // Collect attributes
-  attrLoop: while(token !== TAG_END) {
-    switch(token) {
+  attrLoop: while (token !== TAG_END) {
+    switch (token) {
       case CHARS: {
         attributes.push(consumeAttribute(state));
         break;
@@ -279,11 +271,11 @@ function consumeTag(state: State): Tag {
     children,
     void: voidTags.has(tagName),
     start,
-    end: state.index - 1
+    end: state.index - 1,
   };
 
   const replacement = state.visitor(node);
-  if(replacement !== node) {
+  if (replacement !== node) {
     replaceTag(state, node);
   }
 
@@ -294,7 +286,7 @@ function consumeDocument(state: State): Document {
   const children: Array<Tag | Text> = consumeChildren(state);
 
   return {
-    children
+    children,
   };
 }
 
