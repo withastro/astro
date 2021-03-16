@@ -38,7 +38,7 @@
     "micromark-extension-gfm": "^0.3.3",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
-    "snowpack": "^3.1.0-pre.12",
+    "snowpack": "^3.1.0-pre.13",
     "svelte": "^3.35.0",
     "vue": "^3.0.7",
     "yargs-parser": "^20.2.7"
