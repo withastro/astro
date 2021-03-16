@@ -8,7 +8,8 @@ import micromark from 'micromark';
 import gfmSyntax from 'micromark-extension-gfm';
 import matter from 'gray-matter';
 import gfmHtml from 'micromark-extension-gfm/html.js';
-import { walk, parse } from './compiler.js';
+import { walk } from 'estree-walker';
+import { parse } from './compiler';
 import markdownEncode from './markdown-encode.js';
 import { preparse } from './parser.js';
 
@@ -201,8 +202,8 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
   //template = runPreparser(template);
 
   const ast = parse(template, {});
+  const script = ast.instance.content;
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
-  const script = ast.instance ? astring.generate(ast.instance.content) : '';
 
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
   const components = Object.fromEntries(
@@ -221,6 +222,7 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
   let currentDepth = 0;
 
   walk(ast.html as any, {
+    // @ts-ignore
     enter(node: TemplateNode, parent, prop, index) {
       //   console.log("enter", node.type);
       switch (node.type) {
@@ -329,6 +331,7 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
           throw new Error('Unexpected node type: ' + node.type);
       }
     },
+    // @ts-ignore
     leave(node: TemplateNode, parent, prop, index) {
       //   console.log("leave", node.type);
       switch (node.type) {

@@ -24,9 +24,11 @@
     "copy-js:watch": "nodemon -w src --ext js --exec 'npm run copy-js'"
   },
   "dependencies": {
+    "@types/estree": "0.0.46",
     "@types/node": "^14.14.31",
     "@vue/server-renderer": "^3.0.7",
     "acorn": "^7.4.0",
+    "acorn-jsx": "^5.3.1",
     "astring": "^1.7.0",
     "cheerio": "^0.22.0",
     "css-tree": "^1.1.2",
@@ -35,6 +37,7 @@
     "gray-matter": "^4.0.2",
     "htmlparser2": "^6.0.0",
     "kleur": "^4.1.4",
+    "locate-character": "^2.0.5",
     "magic-string": "^0.25.3",
     "micromark": "^2.11.4",
     "micromark-extension-gfm": "^0.3.3",
