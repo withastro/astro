@@ -157,8 +157,7 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
   await eslexer.init;
 
   const ast = parse(template, {});
-  debugger;
-  const script = ast.instance.content;
+  const script = ast.instance ? ast.instance.content : "";
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
 
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
