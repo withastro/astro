@@ -11,6 +11,7 @@ import matter from "gray-matter";
 import gfmHtml from "micromark-extension-gfm/html.js";
 import { walk, parse } from "./compiler.js";
 import markdownEncode from './markdown-encode.js';
+import { preparse } from './parser.js';
 
 const { transformSync } = esbuild;
 
@@ -161,11 +162,55 @@ function getComponentWrapper(
   throw new Error("Unknown Component Type: " + name);
 }
 
+function runPreparser(template: string): string {
+  const doc = preparse(template, tag => {
+    if(tag.tagName === 'script') {
+      let isSetup = false;
+      for(let attr of tag.attributes) {
+        if(attr.name === 'hmx' && attr.value === 'setup') {
+          isSetup = true;
+          break;
+        }
+      }
+      if(isSetup && typeof tag.children[0] === 'string') {
+        debugger;
+
+        const content = tag.children[0];
+        let { code } = transformSync(content, {
+          loader: "tsx",
+          jsxFactory: "h",
+          jsxFragment: "Fragment",
+          charset: "utf8",
+        });
+        return {
+          ...tag,
+          children: [{
+            type: 0,
+            data: code,
+            start: 0,
+            end: 0
+          }]
+        };
+      }
+    }
+
+    return tag;
+  });
+
+  // TODO codegen
+
+  return template;
+}
+
 async function convertHmxToJsx(template: string, compileOptions: CompileOptions) {
   await eslexer.init;
+
+  //template = runPreparser(template);
+
   const ast = parse(template, {});
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
   const script = ast.instance ? astring.generate(ast.instance.content) : "";
+
   const [scriptImports] = eslexer.parse(script, "optional-sourcename");
   const components = Object.fromEntries(
     scriptImports.map((imp) => {

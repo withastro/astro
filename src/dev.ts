@@ -35,7 +35,7 @@ export default async function(astroConfig: AstroConfig) {
       [internalPath.pathname]: '/__hmx_internal__'
     },
     plugins: [
-      ['hmx-v2/snowpack-plugin', hmxPlugOptions]
+      ['astro/snowpack-plugin', hmxPlugOptions]
     ],
     devOptions: {
       open: 'none',
