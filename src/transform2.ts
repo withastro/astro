@@ -1,5 +1,3 @@
-import type { TemplateNode } from './@types/compiler/interfaces';
-
 import path from 'path';
 import astring from 'astring';
 import esbuild from 'esbuild';
@@ -11,6 +9,7 @@ import gfmHtml from 'micromark-extension-gfm/html.js';
 import { walk } from 'estree-walker';
 import { parse } from './compiler/index.js';
 import markdownEncode from './markdown-encode.js';
+import { TemplateNode } from './compiler/interfaces.js';
 
 const { transformSync } = esbuild;
 
@@ -154,13 +153,13 @@ function getComponentWrapper(_name: string, { type, url }: { type: string; url: 
 }
 
 const patternImport = new RegExp(/import(?:["'\s]*([\w*${}\n\r\t, ]+)from\s*)?["'\s]["'\s](.*[@\w_-]+)["'\s].*;$/, 'mg');
-function compileScriptSafe(raw: string, loader:'jsx' | 'tsx'): string {
+function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
   // esbuild treeshakes unused imports. In our case these are components, so let's keep them.
   const imports: Array<string> = [];
   raw.replace(patternImport, (value: string) => {
     imports.push(value);
     return value;
-  })
+  });
 
   let { code } = transformSync(raw, {
     loader,
@@ -169,8 +168,8 @@ function compileScriptSafe(raw: string, loader:'jsx' | 'tsx'): string {
     charset: 'utf8',
   });
 
-  for(let importStatement of imports) {
-    if(!code.includes(importStatement)) {
+  for (let importStatement of imports) {
+    if (!code.includes(importStatement)) {
       code = importStatement + '\n' + code;
     }
   }
@@ -182,7 +181,7 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
   await eslexer.init;
 
   const ast = parse(template, {});
-  const script = compileScriptSafe(ast.instance ? ast.instance.content : "", 'tsx');
+  const script = compileScriptSafe(ast.instance ? ast.instance.content : '', 'tsx');
 
   // Compile scripts as TypeScript, always
 
@@ -204,9 +203,8 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
   let currentItemName: string | undefined;
   let currentDepth = 0;
 
-  walk(ast.html as any, {
-    // @ts-ignore
-    enter(node: TemplateNode, parent, prop, index) {
+  walk(ast.html, {
+    enter(node, parent, prop, index) {
       //   console.log("enter", node.type);
       switch (node.type) {
         case 'MustacheTag':
@@ -309,8 +307,7 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
           throw new Error('Unexpected node type: ' + node.type);
       }
     },
-    // @ts-ignore
-    leave(node: TemplateNode, parent, prop, index) {
+    leave(node, parent, prop, index) {
       //   console.log("leave", node.type);
       switch (node.type) {
         case 'Text':
