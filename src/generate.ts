@@ -6,38 +6,39 @@ import { relative as pathRelative } from 'path';
 const { mkdir, readdir, stat, writeFile } = fsPromises;
 
 async function* allPages(root: URL): AsyncGenerator<URL, void, unknown> {
-  for(const filename of await readdir(root)) {
+  for (const filename of await readdir(root)) {
     const fullpath = new URL(filename, root);
     const info = await stat(fullpath);
 
-    if(info.isDirectory()) {
-      yield * allPages(new URL(fullpath + '/'));
+    if (info.isDirectory()) {
+      yield* allPages(new URL(fullpath + '/'));
     } else {
       yield fullpath;
     }
   }
 }
 
-export default async function(astroConfig: AstroConfig) {
+export default async function (astroConfig: AstroConfig) {
   const { projectRoot, hmxRoot } = astroConfig;
   const pageRoot = new URL('./pages/', hmxRoot);
   const dist = new URL(astroConfig.dist + '/', projectRoot);
 
   const configPath = new URL('./snowpack.config.js', projectRoot).pathname;
-  const config = await loadConfiguration({
-    root: projectRoot.pathname,
-    devOptions: 
-      {open: 'none', output: 'stream'
-    }
-  }, configPath);
+  const config = await loadConfiguration(
+    {
+      root: projectRoot.pathname,
+      devOptions: { open: 'none', output: 'stream' },
+    },
+    configPath
+  );
   const snowpack = await startSnowpackServer({
     config,
-    lockfile: null // TODO should this be required?
+    lockfile: null, // TODO should this be required?
   });
 
   const runtime = snowpack.getServerRuntime();
 
-  for await(const filepath of allPages(pageRoot)) {
+  for await (const filepath of allPages(pageRoot)) {
     const rel = pathRelative(hmxRoot.pathname, filepath.pathname); // pages/index.hmx
     const pagePath = `/_hmx/${rel.replace(/\.(hmx|md)/, '.js')}`;
 
@@ -49,7 +50,7 @@ export default async function(astroConfig: AstroConfig) {
 
       await mkdir(outFolder, { recursive: true });
       await writeFile(outPath, html, 'utf-8');
-    } catch(err) {
+    } catch (err) {
       console.error('Unable to generate page', rel);
     }
   }

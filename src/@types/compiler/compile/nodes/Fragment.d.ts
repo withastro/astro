@@ -5,9 +5,9 @@ import TemplateScope from './shared/TemplateScope';
 import { INode } from './interfaces';
 import { TemplateNode } from '../../interfaces';
 export default class Fragment extends Node {
-    type: 'Fragment';
-    block: Block;
-    children: INode[];
-    scope: TemplateScope;
-    constructor(component: Component, info: TemplateNode);
+  type: 'Fragment';
+  block: Block;
+  children: INode[];
+  scope: TemplateScope;
+  constructor(component: Component, info: TemplateNode);
 }

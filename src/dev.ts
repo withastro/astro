@@ -11,15 +11,15 @@ const require = createRequire(import.meta.url);
 const hostname = '127.0.0.1';
 const port = 3000;
 
-export default async function(astroConfig: AstroConfig) {
+export default async function (astroConfig: AstroConfig) {
   const { projectRoot, hmxRoot } = astroConfig;
 
   const internalPath = new URL('./frontend/', import.meta.url);
   const snowpackConfigPath = new URL('./snowpack.config.js', projectRoot);
-  
+
   // Workaround for SKY-251
-  const hmxPlugOptions: {resolve?: (s: string) => string } = {};
-  if(existsSync(new URL('./package-lock.json', projectRoot))) {
+  const hmxPlugOptions: { resolve?: (s: string) => string } = {};
+  if (existsSync(new URL('./package-lock.json', projectRoot))) {
     const pkgLockStr = await readFile(new URL('./package-lock.json', projectRoot), 'utf-8');
     const pkgLock = JSON.parse(pkgLockStr);
     hmxPlugOptions.resolve = (pkgName: string) => {
@@ -27,36 +27,37 @@ export default async function(astroConfig: AstroConfig) {
       return `/_snowpack/pkg/${pkgName}.v${ver}.js`;
     };
   }
-  
-  const snowpackConfig = await loadConfiguration({
-    root: projectRoot.pathname,
-    mount: {
-      [hmxRoot.pathname]: '/_hmx',
-      [internalPath.pathname]: '/__hmx_internal__'
+
+  const snowpackConfig = await loadConfiguration(
+    {
+      root: projectRoot.pathname,
+      mount: {
+        [hmxRoot.pathname]: '/_hmx',
+        [internalPath.pathname]: '/__hmx_internal__',
+      },
+      plugins: [['astro/snowpack-plugin', hmxPlugOptions]],
+      devOptions: {
+        open: 'none',
+        output: 'stream',
+        port: 0,
+      },
+      packageOptions: {
+        knownEntrypoints: ['preact-render-to-string'],
+        external: ['@vue/server-renderer'],
+      },
     },
-    plugins: [
-      ['astro/snowpack-plugin', hmxPlugOptions]
-    ],
-    devOptions: {
-      open: 'none',
-      output: 'stream',
-      port: 0
-    },
-    packageOptions: {
-      knownEntrypoints: ['preact-render-to-string'],
-      external: ['@vue/server-renderer']
-    }
-  }, snowpackConfigPath.pathname);
+    snowpackConfigPath.pathname
+  );
   const snowpack = await startSnowpackServer({
     config: snowpackConfig,
-    lockfile: null
+    lockfile: null,
   });
   const runtime = snowpack.getServerRuntime();
 
   const server = http.createServer(async (req, res) => {
-    const fullurl  = new URL(req.url || '/', 'https://example.org/');
+    const fullurl = new URL(req.url || '/', 'https://example.org/');
     const reqPath = decodeURI(fullurl.pathname);
-    const selectedPage = (reqPath.substr(1) || 'index');
+    const selectedPage = reqPath.substr(1) || 'index';
     console.log(reqPath, selectedPage);
 
     const selectedPageLoc = new URL(`./pages/${selectedPage}.hmx`, hmxRoot);
@@ -67,12 +68,12 @@ export default async function(astroConfig: AstroConfig) {
     if (!existsSync(selectedPageLoc) && !existsSync(selectedPageMdLoc)) {
       try {
         const result = await snowpack.loadUrl(reqPath);
-        if(result.contentType) {
+        if (result.contentType) {
           res.setHeader('Content-Type', result.contentType);
         }
         res.write(result.contents);
         res.end();
-      } catch(err) {
+      } catch (err) {
         console.log('Not found', reqPath);
         res.statusCode = 404;
         res.setHeader('Content-Type', 'text/plain');
@@ -94,5 +95,5 @@ export default async function(astroConfig: AstroConfig) {
 
   server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
-  }); 
+  });
 }

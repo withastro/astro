@@ -1,4 +1,6 @@
-export declare function link<T extends {
+export declare function link<
+  T extends {
     next?: T;
     prev?: T;
-}>(next: T, prev: T): void;
+  }
+>(next: T, prev: T): void;

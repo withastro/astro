@@ -6,8 +6,8 @@ import TemplateScope from './shared/TemplateScope';
 import { TemplateNode } from '../../interfaces';
 import Node from './shared/Node';
 export default class IfBlock extends AbstractBlock {
-    type: 'IfBlock';
-    expression: Expression;
-    else: ElseBlock;
-    constructor(component: Component, parent: Node, scope: TemplateScope, info: TemplateNode);
+  type: 'IfBlock';
+  expression: Expression;
+  else: ElseBlock;
+  constructor(component: Component, parent: Node, scope: TemplateScope, info: TemplateNode);
 }

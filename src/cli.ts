@@ -14,17 +14,20 @@ type Arguments = yargs.Arguments;
 type cliState = 'help' | 'version' | 'dev' | 'build';
 
 function resolveArgs(flags: Arguments): cliState {
-  if(flags.version) {
+  if (flags.version) {
     return 'version';
-  } else if(flags.help) {
+  } else if (flags.help) {
     return 'help';
   }
 
   const cmd = flags._[2];
-  switch(cmd) {
-    case 'dev': return 'dev';
-    case 'build': return 'build';
-    default: return 'help';
+  switch (cmd) {
+    case 'dev':
+      return 'dev';
+    case 'build':
+      return 'build';
+    default:
+      return 'help';
   }
 }
 
@@ -47,7 +50,7 @@ async function printVersion() {
 }
 
 async function loadConfig(rawRoot: string | undefined): Promise<AstroConfig | undefined> {
-  if(typeof rawRoot === 'undefined') {
+  if (typeof rawRoot === 'undefined') {
     rawRoot = process.cwd();
   }
 
@@ -55,7 +58,7 @@ async function loadConfig(rawRoot: string | undefined): Promise<AstroConfig | un
   const fileProtocolRoot = `file://${root}/`;
   const astroConfigPath = pathJoin(root, 'astro.config.mjs');
 
-  if(!existsSync(astroConfigPath)) {
+  if (!existsSync(astroConfigPath)) {
     return undefined;
   }
 
@@ -67,7 +70,7 @@ async function loadConfig(rawRoot: string | undefined): Promise<AstroConfig | un
 
 async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void>) {
   const astroConfig = await loadConfig(rawRoot);
-  if(typeof astroConfig === 'undefined') {
+  if (typeof astroConfig === 'undefined') {
     console.error(colors.red('  An astro.config.mjs file is required.\n'));
     printHelp();
     process.exit(1);
@@ -78,14 +81,14 @@ async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void
 
 const cmdMap = new Map([
   ['build', generate],
-  ['dev', devServer]
+  ['dev', devServer],
 ]);
 
 export async function cli(args: string[]) {
   const flags = yargs(args);
   const state = resolveArgs(flags);
 
-  switch(state) {
+  switch (state) {
     case 'help': {
       printHelp();
       process.exit(1);

@@ -5,7 +5,7 @@ import TemplateScope from './shared/TemplateScope';
 import { TemplateNode } from '../../interfaces';
 import { INode } from './interfaces';
 export default class DebugTag extends Node {
-    type: 'DebugTag';
-    expressions: Expression[];
-    constructor(component: Component, parent: INode, scope: TemplateScope, info: TemplateNode);
+  type: 'DebugTag';
+  expressions: Expression[];
+  constructor(component: Component, parent: INode, scope: TemplateScope, info: TemplateNode);
 }

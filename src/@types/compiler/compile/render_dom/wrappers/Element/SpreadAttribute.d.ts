@@ -1,3 +1,2 @@
 import { BaseAttributeWrapper } from './Attribute';
-export default class SpreadAttributeWrapper extends BaseAttributeWrapper {
-}
+export default class SpreadAttributeWrapper extends BaseAttributeWrapper {}
