@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import entities from './entities';
+import entities from './entities.js';
 
 const windows_1252 = [
 	8364,

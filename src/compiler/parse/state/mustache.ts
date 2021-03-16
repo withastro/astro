@@ -1,11 +1,11 @@
-import read_context from '../read/context';
-import read_expression from '../read/expression';
-import { closing_tag_omitted } from '../utils/html';
-import { whitespace } from '../../utils/patterns';
-import { trim_start, trim_end } from '../../utils/trim';
-import { to_string } from '../utils/node';
-import { Parser } from '../index';
-import { TemplateNode } from '../../interfaces';
+import read_context from '../read/context.js';
+import read_expression from '../read/expression.js';
+import { closing_tag_omitted } from '../utils/html.js';
+import { whitespace } from '../../utils/patterns.js';
+import { trim_start, trim_end } from '../../utils/trim.js';
+import { to_string } from '../utils/node.js';
+import { Parser } from '../index.js';
+import { TemplateNode } from '../../interfaces.js';
 
 type TODO = any;
 

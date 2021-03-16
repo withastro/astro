@@ -1,7 +1,7 @@
 // @ts-nocheck
 
-import { decode_character_references } from '../utils/html';
-import { Parser } from '../index';
+import { decode_character_references } from '../utils/html.js';
+import { Parser } from '../index.js';
 
 export default function text(parser: Parser) {
 	const start = parser.index;

@@ -1,7 +1,7 @@
-import tag from './tag';
-import mustache from './mustache';
-import text from './text';
-import { Parser } from '../index';
+import tag from './tag.js';
+import mustache from './mustache.js';
+import text from './text.js';
+import { Parser } from '../index.js';
 
 export default function fragment(parser: Parser) {
 	if (parser.match('<')) {

@@ -1,14 +1,14 @@
 // @ts-nocheck
 
-import read_expression from '../read/expression';
-import read_script from '../read/script';
-import read_style from '../read/style';
-import { decode_character_references, closing_tag_omitted } from '../utils/html';
-import { is_void } from '../../utils/names';
-import { Parser } from '../index';
-import { Directive, DirectiveType, TemplateNode, Text } from '../../interfaces';
-import fuzzymatch from '../../utils/fuzzymatch';
-import list from '../../utils/list';
+import read_expression from '../read/expression.js';
+import read_script from '../read/script.js';
+import read_style from '../read/style.js';
+import { decode_character_references, closing_tag_omitted } from '../utils/html.js';
+import { is_void } from '../../utils/names.js';
+import { Parser } from '../index.js';
+import { Directive, DirectiveType, TemplateNode, Text } from '../../interfaces.js';
+import fuzzymatch from '../../utils/fuzzymatch.js';
+import list from '../../utils/list.js';
 
 // eslint-disable-next-line no-useless-escape
 const valid_tag_name = /^\!?[a-zA-Z]{1,}:?[a-zA-Z0-9\-]*/;

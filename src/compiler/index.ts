@@ -1,1 +1,1 @@
-export { default as parse } from './parse/index';
+export { default as parse } from './parse/index.js';

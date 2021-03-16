@@ -1,8 +1,8 @@
 // @ts-nocheck
 
-import { parse_expression_at } from '../acorn';
-import { Parser } from '../index';
-import { whitespace } from '../../utils/patterns';
+import { parse_expression_at } from '../acorn.js';
+import { Parser } from '../index.js';
+import { whitespace } from '../../utils/patterns.js';
 // import { Node } from 'estree';
 
 export default function read_expression(parser: Parser): string {

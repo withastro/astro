@@ -1,12 +1,12 @@
 // @ts-nocheck
 
 import { isIdentifierStart, isIdentifierChar } from 'acorn';
-import fragment from './state/fragment';
-import { whitespace } from '../utils/patterns';
-import { reserved } from '../utils/names';
-import full_char_code_at from '../utils/full_char_code_at';
-import { TemplateNode, Ast, ParserOptions, Fragment, Style, Script } from '../interfaces';
-import error from '../utils/error';
+import fragment from './state/fragment.js';
+import { whitespace } from '../utils/patterns.js';
+import { reserved } from '../utils/names.js';
+import full_char_code_at from '../utils/full_char_code_at.js';
+import { TemplateNode, Ast, ParserOptions, Fragment, Style, Script } from '../interfaces.js';
+import error from '../utils/error.js';
 
 type ParserState = (parser: Parser) => (ParserState | void);
 

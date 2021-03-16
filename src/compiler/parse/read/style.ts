@@ -1,6 +1,6 @@
-import { Parser } from '../index';
+import { Parser } from '../index.js';
 import { Node } from 'estree';
-import { Style } from '../../interfaces';
+import { Style } from '../../interfaces.js';
 
 export default function read_style(parser: Parser, start: number, attributes: Node[]): Style {
 	const content_start = parser.index;
