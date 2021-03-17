@@ -3,7 +3,7 @@
 import { locate } from 'locate-character';
 import get_code_frame from './get_code_frame.js';
 
-class CompileError extends Error {
+export class CompileError extends Error {
 	code: string;
 	start: { line: number; column: number };
 	end: { line: number; column: number };

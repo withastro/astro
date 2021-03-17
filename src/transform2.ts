@@ -1,5 +1,6 @@
+import type { LogOptions } from './logger.js';
+
 import path from 'path';
-import astring from 'astring';
 import esbuild from 'esbuild';
 import eslexer from 'es-module-lexer';
 import micromark from 'micromark';
@@ -10,6 +11,7 @@ import { walk } from 'estree-walker';
 import { parse } from './compiler/index.js';
 import markdownEncode from './markdown-encode.js';
 import { TemplateNode } from './compiler/interfaces.js';
+import { defaultLogOptions, info } from './logger.js';
 
 const { transformSync } = esbuild;
 
@@ -22,13 +24,13 @@ interface Attribute {
 }
 
 interface CompileOptions {
+  logging: LogOptions;
   resolve: (p: string) => string;
 }
 
 const defaultCompileOptions: CompileOptions = {
-  resolve(p: string) {
-    return p;
-  },
+  logging: defaultLogOptions,
+  resolve: (p: string) => p
 };
 
 function internalImport(internalPath: string) {
@@ -177,10 +179,12 @@ function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
   return code;
 }
 
-async function convertHmxToJsx(template: string, compileOptions: CompileOptions) {
+async function convertHmxToJsx(template: string, filename: string, compileOptions: CompileOptions) {
   await eslexer.init;
 
-  const ast = parse(template, {});
+  const ast = parse(template, {
+    filename
+  });  
   const script = compileScriptSafe(ast.instance ? ast.instance.content : '', 'tsx');
 
   // Compile scripts as TypeScript, always
@@ -357,7 +361,7 @@ async function convertHmxToJsx(template: string, compileOptions: CompileOptions)
   };
 }
 
-async function convertMdToJsx(contents: string, compileOptions: CompileOptions) {
+async function convertMdToJsx(contents: string, filename: string, compileOptions: CompileOptions) {
   // This doesn't work.
   const { data: _frontmatterData, content } = matter(contents);
   const mdHtml = micromark(content, {
@@ -385,6 +389,7 @@ async function convertMdToJsx(contents: string, compileOptions: CompileOptions) 
     `<script hmx="setup">export function setup() {
       return ${JSON.stringify(setupData)};
   }</script><head></head><body>${mdHtml}</body>`,
+    filename,
     compileOptions
   );
 }
@@ -392,9 +397,9 @@ async function convertMdToJsx(contents: string, compileOptions: CompileOptions) 
 async function transformFromSource(contents: string, filename: string, compileOptions: CompileOptions): Promise<ReturnType<typeof convertHmxToJsx>> {
   switch (path.extname(filename)) {
     case '.hmx':
-      return convertHmxToJsx(contents, compileOptions);
+      return convertHmxToJsx(contents, filename, compileOptions);
     case '.md':
-      return convertMdToJsx(contents, compileOptions);
+      return convertMdToJsx(contents, filename, compileOptions);
     default:
       throw new Error('Not Supported!');
   }

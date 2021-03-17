@@ -1,15 +1,23 @@
 import type { AstroConfig } from './@types/astro';
-import { loadConfiguration, startServer as startSnowpackServer } from 'snowpack';
+import type { LogOptions } from './logger.js';
+import { loadConfiguration, startServer as startSnowpackServer, logger as snowpackLogger } from 'snowpack';
 import { existsSync, promises as fsPromises } from 'fs';
 import http from 'http';
-import { createRequire } from 'module';
+import { relative as pathRelative } from 'path';
+import { defaultLogDestination, info, error, parseError } from './logger.js';
 
 const { readFile } = fsPromises;
 
-const require = createRequire(import.meta.url);
-
 const hostname = '127.0.0.1';
 const port = 3000;
+
+// Disable snowpack from writing to stdout/err.
+snowpackLogger.level = 'silent';
+
+const logging: LogOptions = {
+  level: 'debug',
+  dest: defaultLogDestination
+};
 
 export default async function (astroConfig: AstroConfig) {
   const { projectRoot, hmxRoot } = astroConfig;
@@ -58,7 +66,7 @@ export default async function (astroConfig: AstroConfig) {
     const fullurl = new URL(req.url || '/', 'https://example.org/');
     const reqPath = decodeURI(fullurl.pathname);
     const selectedPage = reqPath.substr(1) || 'index';
-    console.log(reqPath, selectedPage);
+    info(logging, 'access', reqPath);
 
     const selectedPageLoc = new URL(`./pages/${selectedPage}.hmx`, hmxRoot);
     const selectedPageMdLoc = new URL(`./pages/${selectedPage}.md`, hmxRoot);
@@ -74,7 +82,7 @@ export default async function (astroConfig: AstroConfig) {
         res.write(result.contents);
         res.end();
       } catch (err) {
-        console.log('Not found', reqPath);
+        error(logging, 'static', 'Not found', reqPath);
         res.statusCode = 404;
         res.setHeader('Content-Type', 'text/plain');
         res.end('Not Found');
@@ -89,7 +97,18 @@ export default async function (astroConfig: AstroConfig) {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.end(html);
     } catch (err) {
-      console.log(err);
+      switch(err.code) {
+        case 'parse-error': {
+          err.filename = pathRelative(projectRoot.pathname, err.filename);
+          debugger;
+          parseError(logging, err);
+          break;
+        }
+        default: {
+          error(logging, 'running hmx', err);
+          break;
+        }
+      }
     }
   });
 
