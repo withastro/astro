@@ -169,12 +169,11 @@ function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
 
 export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Promise<TransformResult> {
   await eslexer.init;
-  const script = compileScriptSafe(ast.instance ? ast.instance.content : '', 'tsx');
 
   // Compile scripts as TypeScript, always
+  const script = ast.instance ? ast.instance.content : ''; //compileScriptSafe(ast.instance ? ast.instance.content : '', 'tsx');
 
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
-
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
   const components = Object.fromEntries(
     scriptImports.map((imp) => {
