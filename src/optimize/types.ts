@@ -3,7 +3,7 @@ import type { TemplateNode } from '../compiler/interfaces';
 
 export type VisitorFn = (node: TemplateNode) => void;
 
-interface NodeVisitor {
+export interface NodeVisitor {
   enter?: VisitorFn;
   leave?: VisitorFn;
 }

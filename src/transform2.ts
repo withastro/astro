@@ -43,7 +43,7 @@ async function convertHmxToJsx(template: string, opts: ConvertHmxOptions) {
   });
 
   // 2. Optimize the AST
-  optimize(ast, opts);
+  await optimize(ast, opts);
 
   // Turn AST into JSX
   return await codegen(ast, opts);

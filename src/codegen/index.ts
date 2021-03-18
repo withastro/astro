@@ -10,11 +10,11 @@ import { walk } from 'estree-walker';
 const { transformSync } = esbuild;
 
 interface Attribute {
-  start: 574;
-  end: 595;
+  start: number;
+  end: number;
   type: 'Attribute';
-  name: 'class';
-  value: any;
+  name: string;
+  value: any
 }
 
 interface CodeGenOptions {

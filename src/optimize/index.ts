@@ -1,34 +1,36 @@
 import type { Ast, TemplateNode } from '../compiler/interfaces';
-import { Optimizer, VisitorFn } from './types';
+import { NodeVisitor, Optimizer, VisitorFn } from './types';
 import { walk } from 'estree-walker';
 
 import optimizeStyles from './styles.js';
 
 interface VisitorCollection {
-  enter: Map<string, VisitorFn>;
-  leave: Map<string, VisitorFn>;
+  enter: Map<string, VisitorFn[]>;
+  leave: Map<string, VisitorFn[]>;
+}
+
+function addVisitor(visitor: NodeVisitor, collection: VisitorCollection, nodeName: string, event: 'enter' | 'leave') {
+  if(event in visitor) {
+    if(collection[event].has(nodeName)) {
+      collection[event].get(nodeName)!.push(visitor[event]!);
+    }
+
+    collection.enter.set(nodeName, [visitor[event]!]);
+  }
 }
 
 function collectVisitors(optimizer: Optimizer, htmlVisitors: VisitorCollection, cssVisitors: VisitorCollection, finalizers: Array<() => Promise<void>>) {
   if(optimizer.visitors) {
     if(optimizer.visitors.html) {
       for(const [nodeName, visitor] of Object.entries(optimizer.visitors.html)) {
-        if(visitor.enter) {
-          htmlVisitors.enter.set(nodeName, visitor.enter);
-        }
-        if(visitor.leave) {
-          htmlVisitors.enter.set(nodeName, visitor.leave);
-        }
+        addVisitor(visitor, htmlVisitors, nodeName, 'enter');
+        addVisitor(visitor, htmlVisitors, nodeName, 'leave');
       }
     }
     if(optimizer.visitors.css) {
       for(const [nodeName, visitor] of Object.entries(optimizer.visitors.css)) {
-        if(visitor.enter) {
-          cssVisitors.enter.set(nodeName, visitor.enter);
-        }
-        if(visitor.leave) {
-          cssVisitors.enter.set(nodeName, visitor.leave);
-        }
+        addVisitor(visitor, cssVisitors, nodeName, 'enter');
+        addVisitor(visitor, cssVisitors, nodeName, 'leave');
       }
     }
   }
@@ -37,23 +39,27 @@ function collectVisitors(optimizer: Optimizer, htmlVisitors: VisitorCollection, 
 
 function createVisitorCollection() {
   return {
-    enter: new Map<string, VisitorFn>(),
-    leave: new Map<string, VisitorFn>(),
+    enter: new Map<string, VisitorFn[]>(),
+    leave: new Map<string, VisitorFn[]>(),
   };
 }
 
 function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) {
   walk(tmpl, {
-    enter(node: TemplateNode) {
+    enter(node) {
       if(collection.enter.has(node.type)) {
-        const fn = collection.enter.get(node.type)!;
-        fn(node);
+        const fns = collection.enter.get(node.type)!;
+        for(let fn of fns) {
+          fn(node);
+        }
       }
     },
     leave(node) {
       if(collection.leave.has(node.type)) {
-        const fn = collection.leave.get(node.type)!;
-        fn(node);
+        const fns = collection.leave.get(node.type)!;
+        for(let fn of fns) {
+          fn(node);
+        }
       }
     }
   });

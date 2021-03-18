@@ -48,14 +48,4 @@ export default function({ filename, fileID }: { filename: string, fileID: string
       console.log({ styles });
     }
   };
-
-  /*
-  let stylesPromises: any[] = [];
-  walk(ast.css, {
-    enter(node) {
-
-    },
-  });
-  const styles = await Promise.all(stylesPromises); // TODO: clean this up
-  console.log({ styles });*/
 }
