@@ -4,7 +4,6 @@ import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
 import postcssModules from 'postcss-modules';
 import sass from 'sass';
-import { Style } from './compiler/interfaces';
 
 type StyleType = 'text/css' | 'text/scss' | 'text/sass' | 'text/postcss';
 

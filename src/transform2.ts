@@ -360,21 +360,25 @@ async function convertHmxToJsx(template: string, { compileOptions, filename, fil
     },
   });
 
+  let stylesPromises: any[] = [];
   walk(ast.css, {
-    async enter(node) {
+    enter(node) {
       if (node.type !== 'Style') return;
 
       const code = node.content.styles;
       const typeAttr = node.attributes && node.attributes.find(({ name }) => name === 'type');
-      const styles = await transformStyle(code, {
-        type: (typeAttr.value[0] && typeAttr.value[0].raw) || undefined,
-        classNames,
-        filename,
-        fileID,
-      }); // TODO: styles needs to go in <head>
-      console.log({ styles });
+      stylesPromises.push(
+        transformStyle(code, {
+          type: (typeAttr.value[0] && typeAttr.value[0].raw) || undefined,
+          classNames,
+          filename,
+          fileID,
+        })
+      ); // TODO: styles needs to go in <head>
     },
   });
+  const styles = await Promise.all(stylesPromises); // TODO: clean this up
+  console.log({ styles });
 
   // console.log({
   //   additionalImports,
