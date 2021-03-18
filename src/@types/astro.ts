@@ -9,3 +9,8 @@ export interface AstroConfig {
   projectRoot: URL;
   hmxRoot: URL;
 }
+
+export interface JsxItem {
+  name: string;
+  jsx: string;
+}

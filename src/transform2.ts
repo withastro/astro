@@ -12,6 +12,8 @@ import { parse } from './compiler/index.js';
 import markdownEncode from './markdown-encode.js';
 import { TemplateNode } from './compiler/interfaces.js';
 import { defaultLogOptions, info } from './logger.js';
+import { transformStyle } from './style.js';
+import { JsxItem } from './@types/astro.js';
 
 const { transformSync } = esbuild;
 
@@ -30,7 +32,7 @@ interface CompileOptions {
 
 const defaultCompileOptions: CompileOptions = {
   logging: defaultLogOptions,
-  resolve: (p: string) => p
+  resolve: (p: string) => p,
 };
 
 function internalImport(internalPath: string) {
@@ -179,12 +181,12 @@ function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
   return code;
 }
 
-async function convertHmxToJsx(template: string, filename: string, compileOptions: CompileOptions) {
+async function convertHmxToJsx(template: string, { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }) {
   await eslexer.init;
 
   const ast = parse(template, {
-    filename
-  });  
+    filename,
+  });
   const script = compileScriptSafe(ast.instance ? ast.instance.content : '', 'tsx');
 
   // Compile scripts as TypeScript, always
@@ -201,11 +203,12 @@ async function convertHmxToJsx(template: string, filename: string, compileOption
   );
 
   const additionalImports = new Set<string>();
-  let items: { name: string; jsx: string }[] = [];
+  let items: JsxItem[] = [];
   let mode: 'JSX' | 'SCRIPT' | 'SLOT' = 'JSX';
-  let collectionItem: { name: string; jsx: string } | undefined;
+  let collectionItem: JsxItem | undefined;
   let currentItemName: string | undefined;
   let currentDepth = 0;
+  const classNames: Set<string> = new Set();
 
   walk(ast.html, {
     enter(node, parent, prop, index) {
@@ -249,6 +252,7 @@ async function convertHmxToJsx(template: string, filename: string, compileOption
           if (!collectionItem) {
             return;
           }
+          break;
         case 'InlineComponent':
         case 'Element':
           const name: string = node.name;
@@ -262,6 +266,14 @@ async function convertHmxToJsx(template: string, filename: string, compileOption
           if (!collectionItem) {
             collectionItem = { name, jsx: '' };
             items.push(collectionItem);
+          }
+          if (attributes.class) {
+            attributes.class
+              .replace(/^"/, '')
+              .replace(/"$/, '')
+              .split(' ')
+              .map((c) => c.trim())
+              .forEach((c) => classNames.add(c));
           }
           collectionItem.jsx += collectionItem.jsx === '' ? '' : ',';
           const COMPONENT_NAME_SCANNER = /^[A-Z]/;
@@ -282,6 +294,7 @@ async function convertHmxToJsx(template: string, filename: string, compileOption
           if (wrapperImport) {
             additionalImports.add(wrapperImport);
           }
+
           collectionItem.jsx += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
           return;
         case 'Attribute': {
@@ -347,13 +360,31 @@ async function convertHmxToJsx(template: string, filename: string, compileOption
     },
   });
 
-  /*
-  console.log({
-    additionalImports,
-    script,
-    items,
+  let stylesPromises: any[] = [];
+  walk(ast.css, {
+    enter(node) {
+      if (node.type !== 'Style') return;
+
+      const code = node.content.styles;
+      const typeAttr = node.attributes && node.attributes.find(({ name }) => name === 'type');
+      stylesPromises.push(
+        transformStyle(code, {
+          type: (typeAttr.value[0] && typeAttr.value[0].raw) || undefined,
+          classNames,
+          filename,
+          fileID,
+        })
+      ); // TODO: styles needs to go in <head>
+    },
   });
-  */
+  const styles = await Promise.all(stylesPromises); // TODO: clean this up
+  console.log({ styles });
+
+  // console.log({
+  //   additionalImports,
+  //   script,
+  //   items,
+  // });
 
   return {
     script: script + '\n' + Array.from(additionalImports).join('\n'),
@@ -361,7 +392,7 @@ async function convertHmxToJsx(template: string, filename: string, compileOption
   };
 }
 
-async function convertMdToJsx(contents: string, filename: string, compileOptions: CompileOptions) {
+async function convertMdToJsx(contents: string, { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }) {
   // This doesn't work.
   const { data: _frontmatterData, content } = matter(contents);
   const mdHtml = micromark(content, {
@@ -389,24 +420,30 @@ async function convertMdToJsx(contents: string, filename: string, compileOptions
     `<script hmx="setup">export function setup() {
       return ${JSON.stringify(setupData)};
   }</script><head></head><body>${mdHtml}</body>`,
-    filename,
-    compileOptions
+    { compileOptions, filename, fileID }
   );
 }
 
-async function transformFromSource(contents: string, filename: string, compileOptions: CompileOptions): Promise<ReturnType<typeof convertHmxToJsx>> {
+async function transformFromSource(
+  contents: string,
+  { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
+): Promise<ReturnType<typeof convertHmxToJsx>> {
+  const fileID = path.relative(projectRoot, filename);
   switch (path.extname(filename)) {
     case '.hmx':
-      return convertHmxToJsx(contents, filename, compileOptions);
+      return convertHmxToJsx(contents, { compileOptions, filename, fileID });
     case '.md':
-      return convertMdToJsx(contents, filename, compileOptions);
+      return convertMdToJsx(contents, { compileOptions, filename, fileID });
     default:
       throw new Error('Not Supported!');
   }
 }
 
-export async function compilePage(source: string, filename: string, opts: CompileOptions = defaultCompileOptions) {
-  const sourceJsx = await transformFromSource(source, filename, opts);
+export async function compilePage(
+  source: string,
+  { compileOptions = defaultCompileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
+) {
+  const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const headItem = sourceJsx.items.find((item) => item.name === 'head');
   const bodyItem = sourceJsx.items.find((item) => item.name === 'body');
   const headItemJsx = !headItem ? 'null' : headItem.jsx.replace('"head"', 'isRoot ? "head" : Fragment');
@@ -425,8 +462,11 @@ export function body({title, description, props}, child, isRoot) { return (${bod
   };
 }
 
-export async function compileComponent(source: string, filename: string, opts: CompileOptions = defaultCompileOptions) {
-  const sourceJsx = await transformFromSource(source, filename, opts);
+export async function compileComponent(
+  source: string,
+  { compileOptions = defaultCompileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
+) {
+  const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const componentJsx = sourceJsx.items.find((item) => item.name === 'Component');
   if (!componentJsx) {
     throw new Error(`${filename} <Component> expected!`);

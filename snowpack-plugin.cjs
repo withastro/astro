@@ -13,14 +13,15 @@ module.exports = function (snowpackConfig, { resolve } = {}) {
     },
     async load({ filePath }) {
       const { compilePage, compileComponent } = await transformPromise;
+      const projectRoot = snowpackConfig.root;
       const contents = await readFile(filePath, "utf-8");
 
       if (!filePath.includes("/pages/") && !filePath.includes("/layouts/")) {
-        const result = await compileComponent(contents, filePath, { resolve });
+        const result = await compileComponent(contents, { compileOptions: { resolve }, filename: filePath, projectRoot });
         return result.contents;
       }
 
-      const result = await compilePage(contents, filePath, { resolve });
+      const result = await compilePage(contents, { compileOptions: { resolve }, filename: filePath, projectRoot });
 
       try {
             return /* js */ `
