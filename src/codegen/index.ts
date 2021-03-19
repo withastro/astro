@@ -61,7 +61,6 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
         result[attr.name] = JSON.stringify(getTextFromAttribute(val));
         continue;
       default:
-        console.log(val);
         throw new Error('UNKNOWN V');
     }
   }
@@ -75,7 +74,6 @@ function getTextFromAttribute(attr: any): string {
   if (attr.data !== undefined) {
     return attr.data;
   }
-  console.log(attr);
   throw new Error('UNKNOWN attr');
 }
 
@@ -171,7 +169,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   await eslexer.init;
 
   // Compile scripts as TypeScript, always
-  const script = ast.instance ? ast.instance.content : ''; //compileScriptSafe(ast.instance ? ast.instance.content : '', 'tsx');
+  const script = compileScriptSafe(ast.instance ? ast.instance.content : '', 'tsx');
 
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
@@ -192,7 +190,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
 
   walk(ast.html, {
     enter(node: TemplateNode) {
-      //   console.log("enter", node.type);
       switch (node.type) {
         case 'MustacheTag':
           let code = compileScriptSafe(node.expression, 'jsx');
@@ -237,7 +234,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
         case 'Element':
           const name: string = node.name;
           if (!name) {
-            console.log(node);
             throw new Error('AHHHH');
           }
           const attributes = getAttributes(node.attributes);
@@ -297,12 +293,10 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           return;
         }
         default:
-          console.log(node);
           throw new Error('Unexpected node type: ' + node.type);
       }
     },
     leave(node, parent, prop, index) {
-      //   console.log("leave", node.type);
       switch (node.type) {
         case 'Text':
         case 'MustacheTag':
