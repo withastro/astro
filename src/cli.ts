@@ -1,10 +1,10 @@
 import type { AstroConfig } from './@types/astro';
 
 import * as colors from 'kleur/colors';
-import { join as pathJoin, resolve as pathResolve } from 'path';
-import { existsSync, promises as fsPromises } from 'fs';
+import { promises as fsPromises } from 'fs';
 import yargs from 'yargs-parser';
 
+import { loadConfig } from './config.js';
 import generate from './generate.js';
 import devServer from './dev.js';
 
@@ -47,25 +47,6 @@ function printHelp() {
 async function printVersion() {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf-8'));
   console.error(pkg.version);
-}
-
-async function loadConfig(rawRoot: string | undefined): Promise<AstroConfig | undefined> {
-  if (typeof rawRoot === 'undefined') {
-    rawRoot = process.cwd();
-  }
-
-  const root = pathResolve(rawRoot);
-  const fileProtocolRoot = `file://${root}/`;
-  const astroConfigPath = pathJoin(root, 'astro.config.mjs');
-
-  if (!existsSync(astroConfigPath)) {
-    return undefined;
-  }
-
-  const astroConfig: AstroConfig = (await import(astroConfigPath)).default;
-  astroConfig.projectRoot = new URL(astroConfig.projectRoot + '/', fileProtocolRoot);
-  astroConfig.hmxRoot = new URL(astroConfig.hmxRoot + '/', fileProtocolRoot);
-  return astroConfig;
 }
 
 async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void>) {

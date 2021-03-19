@@ -1,6 +1,6 @@
 import type { CompileOptions } from '../@types/compiler';
 import type { Ast, TemplateNode } from '../compiler/interfaces';
-import type { JsxItem, TransformResult } from '../@types/astro.js';
+import type { JsxItem, TransformResult } from '../@types/astro';
 
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';

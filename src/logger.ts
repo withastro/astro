@@ -1,6 +1,7 @@
 import type { CompileError } from './compiler/utils/error.js';
 import { bold, blue, red, grey, underline } from 'kleur/colors';
 import { Writable } from 'stream';
+import { format as utilFormat } from 'util';
 
 type ConsoleStream = Writable & {
   fd: 1 | 2
@@ -21,7 +22,7 @@ export const defaultLogDestination = new Writable({
     }
 
     dest.write(`[${type}] `);
-    dest.write(event.message);
+    dest.write(utilFormat(...event.args));
     dest.write('\n');
 
     callback();
@@ -49,6 +50,7 @@ export interface LogMessage {
   type: string;
   level: LoggerLevel,
   message: string;
+  args: Array<any>;
 }
 
 const levels: Record<LoggerLevel, number> = {
@@ -59,18 +61,13 @@ const levels: Record<LoggerLevel, number> = {
   silent: 90,
 };
 
-export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, type: string, ...messages: Array<any>) {
-  let event: LogMessage = {
+export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, type: string, ...args: Array<any>) {
+  const event: LogMessage = {
     type,
     level,
-    message: ''
+    args,
+    message: '',
   };
-
-  if(messages.length === 1 && typeof messages[0] === 'object') {
-    Object.assign(event, messages[0]);
-  } else {
-    event.message = messages.join(' ');
-  }
 
   // test if this level is enabled or not
   if (levels[opts.level] > levels[level]) {
