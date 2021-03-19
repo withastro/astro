@@ -1,0 +1,97 @@
+[
+  {
+    "name": "The Internet Archive",
+    "img": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Internet_Archive_logo_and_wordmark.svg/1200px-Internet_Archive_logo_and_wordmark.svg.png",
+    "url": "https://github.com/internetarchive/dweb-archive"
+  },
+  {
+    "name": "Alibaba 1688",
+    "img": "https://s.cafebazaar.ir/1/icons/com.alibaba.intl.android.apps.poseidon_512x512.png",
+    "url": "https://www.1688.com"
+  },
+  {
+    "name": "Intel",
+    "img": "https://upload.wikimedia.org/wikipedia/commons/4/4e/Intel_logo_%282006%29.svg",
+    "url": "https://twitter.com/kennethrohde/status/1227273971831332865"
+  },
+  {
+    "name": "CircleHD",
+    "img": "https://www.circlehd.com/img/logo-sm.svg",
+    "url": "https://www.circlehd.com/"
+  },
+  {
+    "name": "Svelvet",
+    "img": "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/237/spool-of-thread_1f9f5.png",
+    "url": "https://github.com/jakedeichert/svelvet"
+  },
+  {
+    "name": "Pika.dev",
+    "img": "https://www.pika.dev/static/img/logo5.svg",
+    "url": "https://www.pika.dev"
+  },
+  {
+    "name": "Toast",
+    "img": "https://www.toast.dev/toast-icon-300.png",
+    "url": "https://www.toast.dev"
+  },
+  {
+    "name": "Maskable.app",
+    "img": "https://maskable.app/favicon/favicon_196.png",
+    "url": "https://maskable.app/"
+  },
+  {
+    "name": "Web Skills",
+    "img": "https://andreasbm.github.io/web-skills/www/icon.svg",
+    "url": "https://andreasbm.github.io/web-skills"
+  },
+  {
+    "name": "SwissDev JavaScript Jobs",
+    "img": "https://static.swissdevjobs.ch/pictures/swissdev-javascript-jobs.svg",
+    "url": "https://swissdevjobs.ch/jobs/JavaScript/All"
+  },
+  {
+    "name": "Tradie Training",
+    "img": "https://tt.edu.au/images/logo.png",
+    "url": "https://tt.edu.au"
+  },
+  {
+    "name": "wemake.services",
+    "img": "https://avatars0.githubusercontent.com/u/19639014?s=200&v=4",
+    "url": "https://github.com/wemake-services"
+  },
+  {
+    "name": "airhacks.com",
+    "img": "https://airhacks.com/logo.svg",
+    "url": "https://airhacks.com"
+  },
+  {
+    "name": "tongdun",
+    "img": "https://www.tongdun.cn/static/favicon.ico",
+    "url": "https://www.tongdun.cn/"
+  },
+  {
+    "name": "Blessing Skin",
+    "img": "https://blessing.netlify.app/logo.png",
+    "url": "https://github.com/bs-community"
+  },
+  {
+    "name": "TRPG Engine",
+    "img": "https://trpgdoc.moonrailgun.com/img/trpg_logo.png",
+    "url": "https://trpgdoc.moonrailgun.com/"
+  },
+  {
+    "name": "SHEIN",
+    "img": "https://sheinsz.ltwebstatic.com/she_dist/images/touch-icon-ipad-144-47ceee2d97.png",
+    "url": "https://www.shein.com/"
+  },
+  {
+    "name": "SeekInnovation",
+    "img": "https://assets.website-files.com/5e2c3e23d2e067287ea582e4/5e6a5bca2d401204ada76b95_SeekInnovationLogoRound_Vector.svg",
+    "url": "https://seekinnovation.at"
+  },
+  {
+    "name": "Vipatra",
+    "img": "https://vigneshksaithal.github.io/img/vipatra-logo-with-text.png",
+    "url": "https://vipatra.in"
+  }
+]

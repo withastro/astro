@@ -1,0 +1,247 @@
+@use '../var' as *;
+
+body {
+  &.is-nav-open {
+    overflow: hidden;
+  }
+}
+
+// Notification
+
+.notification {
+  padding: 0.5rem;
+  color: white;
+  font-weight: bold;
+  background-color: #b224d0;
+  a {
+    color: white;
+    text-decoration: underline;
+  }
+}
+
+// Stub
+.stub {
+  padding: 0.5rem;
+  font-weight: bold;
+  background-color: #f0db4f;
+  a {
+    text-decoration: underline;
+  }
+}
+
+
+
+// Company logos
+img.company-logo {
+  flex: 100%;
+  height: 56px;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.company-logos {
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: -4px;
+  margin-bottom: 24px;
+
+  > a {
+    flex-shrink: 0;
+    margin: 0 4px;
+    padding: 10px;
+    color: #e74c3c;
+    text-decoration: none;
+    opacity: 0.8;
+    filter: grayscale(0.1);
+
+    &:hover {
+      font-weight: normal;
+      text-decoration: underline;
+      opacity: 1;
+      filter: grayscale(0);
+    }
+  }
+
+  > .add-company-button,
+  > .add-star-button {
+    display: flex;
+    align-items: center;
+    color: #555;
+    font-weight: normal;
+    opacity: 1;
+    filter: grayscale(0);
+  }
+
+  > .add-company-button {
+    color: #e74c3c;
+    border-color: #e74c3c;
+  }
+}
+
+// github button
+
+.github-button {
+  display: none;
+}
+
+// grid list
+.grid-list ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  font-size: 18px;
+  font-family: Overpass;
+  font-style: italic;
+  list-style: none;
+}
+
+// highlight
+.highlight,
+.highlight-container {
+  position: relative;
+  font-weight: bold;
+}
+
+.highlight-container {
+  display: inline-block;
+}
+
+.highlight-1 {
+  color: #2ecc71;
+}
+
+.highlight-2 {
+  color: #be2edd;
+}
+
+.highlight-3 {
+  color: #0c8cec;
+}
+
+.highlight-red {
+  color: #2ecc71;
+}
+.highlight-yellow {
+  color: #be2edd;
+}
+.highlight-green {
+  color: #0c8cec;
+}
+
+// Img banner
+.img-banner {
+  display: block;
+  margin: -3rem -1.5rem 0;
+  text-align: center;
+  background: #f0db4f;
+  border-radius: 4px;
+
+  @media (min-width: $breakpoint-m) {
+    height: 100px;
+    margin: 0;
+  }
+
+  img {
+    height: 74px;
+    border: none;
+    box-shadow: none;
+
+    @media (min-width: $breakpoint-m) {
+      height: 100px;
+    }
+  }
+}
+
+//
+.content-title {
+  font-family: $heading;
+  line-height: 1em;
+  letter-spacing: -0.05em;
+}
+h2.content-title {
+  font-size: 3em;
+}
+h3.content-title {
+  font-size: 2em;
+}
+
+// Search form
+.search-form {
+  flex-grow: 1;
+}
+
+// Hidden mobile
+@media (max-width: $breakpoint-m - 1) {
+  .hidden-mobile {
+    display: none !important;
+  }
+  .version-tag {
+    display: none;
+  }
+}
+
+// Frame
+
+.frame {
+  position: relative;
+  margin: 1rem 0;
+  padding: 34px 17px 10px 17px;
+  background-color: #0a5e9d;
+  border-radius: 10px;
+
+  &::before {
+    position: absolute;
+    top: 5px;
+    display: block;
+    content: url(/img/guides/react/buttons.svg);
+  }
+
+  &::after {
+    position: absolute;
+    top: 5px;
+    right: 17px;
+    display: block;
+    content: url(/img/guides/react/snowpack-logo-tiny.svg);
+  }
+}
+
+// Diff markdown blocks
+
+.language-diff .deleted-sign,
+.language-diff .inserted-sign .inserted {
+  user-select: none;
+}
+
+.token.inserted {
+  color: #b5cea8;
+}
+
+.token.deleted {
+  color: #ce9178;
+}
+
+// Anchor links on hover
+.content {
+  h2,
+  h3,
+  h4 {
+    .header-link {
+      margin-left: 0.25rem;
+      color: #2e5e82;
+      font-weight: 100;
+      opacity: 1;
+      transition: opacity 100ms ease-in-out;
+
+      @media (min-width: $breakpoint-m) {
+        opacity: 0;
+      }
+    }
+  }
+
+  h2,
+  h3,
+  h4 {
+    &:hover .header-link {
+      opacity: 1;
+    }
+  }
+}

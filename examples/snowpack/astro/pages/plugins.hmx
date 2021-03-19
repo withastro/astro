@@ -1,0 +1,36 @@
+<script hmx="setup">
+  import news from '../data/news.json';
+  import users from '../data/users.json';
+  import PluginSearchPage from '../components/PluginSearchPage.jsx';
+
+  export function setup({ findContent }) {
+    return {
+      title: 'The Snowpack Plugin Catalog',
+      description: 'Snowpack plugins allow for configuration-minimal tooling integration.',
+      layout: 'layouts/main.hmx',
+      // Using Snowpack? Want to be featured on snowpack.dev?
+      // Add your project, organization, or company to the end of this list!
+      props: {
+        news,
+        users,
+      }
+    };
+  }
+</script>
+
+<head>
+</head>
+  
+<body>
+  <h2 class="content-title">
+    { title }
+  </h2>
+
+  <h3 class="pluginPage-subheading">Customize Snowpack with optimized build plugins.</h3>
+  <p class="pluginPage-intro">To learn more about our plugin system, check out the
+    <a href="/reference/plugins">Plugin API.</a><br />Can't find what you need?
+    <a href="/reference/plugins">Creating your own plugin is easy!</a>
+  </p>
+
+  <PluginSearchPage:dynamic />
+</body>

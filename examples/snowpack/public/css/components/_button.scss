@@ -1,0 +1,42 @@
+@use '../var' as *;
+@use '../animations' as *;
+
+.button {
+  box-sizing: border-box;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  padding: 0.3em 1.5em;
+  font-weight: bold;
+  font-size: 100%;
+  font-size: 22px;
+  font-family: inherit;
+  font-family: 'Overpass', sans-serif;
+  white-space: nowrap;
+  text-align: center;
+  text-decoration: none;
+  vertical-align: middle;
+  background-color: #fefefe;
+  border: 1px solid #666;
+  border-radius: 4px;
+  cursor: pointer;
+  text-decoration: none !important;
+  user-select: none;
+  @include animation-hover-pop;
+
+  &-primary {
+    color: #fff;
+    background: linear-gradient(45deg, #24bf62, #267dd6, #b224d0);
+  }
+}
+
+a.button {
+  text-decoration: none !important;
+  &-primary {
+    color: #fff;
+  }
+}
+
+.button-container {
+  display: flex;
+  flex-wrap: wrap;
+}

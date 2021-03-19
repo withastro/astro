@@ -1,0 +1,66 @@
+
+#loading-message {
+  margin: 1rem;
+  text-align: center;
+}
+.cards {
+  list-style: none;
+  max-width: 600px;
+  padding-left: 0;
+}
+.plugin-icon {
+  height: 52px;
+  width: 52px;
+  opacity: .5;
+  transform: rotate(45deg);
+  /* background: radial-gradient(to top,red,blue); */
+  position: absolute;
+  top: 13px;
+  left: -15px;
+}
+.card:nth-child(3n+2) .plugin-icon {
+  filter: hue-rotate(-60deg);
+}
+.card:nth-child(3n+3) .plugin-icon {
+  filter: hue-rotate(-120deg);
+}
+
+.card {
+  margin: 0.5rem 0.25em;
+  border-radius: 4px;
+  padding: 0.5rem 0.5rem 0.5rem 48px;
+  flex-direction: column;
+  position: relative;
+}
+.card-name {
+  font-weight: 500;
+  margin: 0;
+}
+.card-header {
+  font-size: 1.1447rem;
+}
+.card-descr {
+  line-height: 1.25;
+  margin-top: 0.25em;
+  margin-bottom: 0.25em;
+  max-width: 80ch;
+}
+.card-subtitle {
+  margin: 0;
+  color: #7986a5;
+  font-size: 0.8735804647362989em;
+}
+.sky-form {
+  display: flex;
+  padding: 0.5rem;
+  justify-content: center;
+}
+.sky-btn {
+  background: #2e5e82;
+  color: white;
+  border: none;
+  border-radius: 0 2px 2px 0;
+  font-weight: 500;
+  padding: 0.5rem;
+  font-size: 22px;
+}

@@ -1,0 +1,132 @@
+@use '../var' as *;
+
+/**
+ * Table of Contents (toc)
+ * The left-hand sidebar
+ */
+
+$top-padding: 24px;
+
+%toc-link {
+  position: relative;
+  display: block;
+  color: $white;
+  text-decoration: none;
+  border: none;
+  transition: color 0.3s;
+
+  @media (min-width: $breakpoint-m) {
+    color: $grey;
+  }
+
+  &::before {
+      position: absolute;
+      top: -2px;
+      left: -19px;
+      font-weight: 400;
+      font-size: 26px;
+      line-height: 1;
+      opacity: 0;
+      transition: left .14s ease-out;
+      content: "▸";
+  }
+
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &.active {
+    color: #0c8cec;
+    text-decoration: underline;
+
+    &::before {
+      left: -17px;
+      opacity: 1;
+  }
+  }
+}
+
+.snow-toc {
+  transition: padding 0.2s ease-out, opacity 0.2s ease-in-out;
+
+  // -----------
+  //  Components
+  // -----------
+
+  &-contents {
+    margin: 0;
+    padding: 0;
+    line-height: 1.8;
+    list-style: none;
+  }
+
+  &-link {
+    @extend %toc-link;
+  }
+
+  &-section {
+    + .snow-toc-section {
+      margin-top: 1.5rem;
+    }
+
+    &-header {
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: rgba($white, 0.6);
+      font-weight: 600;
+      font-size: 20px;
+      font-family: $heading;
+      line-height: 1.2em;
+
+      @media (min-width: $breakpoint-m) {
+        color: $dark-grey;
+      }
+    }
+
+    &-items {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+  }
+
+  // ----------
+  //  Modifiers
+  // ----------
+
+  &__subnav {
+    position: static;
+    z-index: 1;
+    padding-top: 2rem;
+    
+    .snow-toc-section-header {
+      color: $dark-grey;
+    }
+
+    hr {
+      display: block;
+      height: 1px;
+      margin: 1rem 0;
+      background-color: $light-grey;
+      border: none;
+      appearance: none;
+    }
+
+    ol {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      line-height: 1.8;
+    }
+
+    a {
+      @extend %toc-link;
+
+      color: $grey;
+    }
+  }
+}

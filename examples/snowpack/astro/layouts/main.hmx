@@ -1,0 +1,31 @@
+<script hmx="setup">
+  import Menu from '../components/Menu.hmx';
+  export function setup() {
+    return {
+      layout: 'layouts/base.hmx',
+      props: {}
+    };
+  }
+</script>
+
+
+<head>
+  <!-- hi -->
+  <slot></slot>
+</head>
+
+<body class="base 2">
+  <div class="container">
+    <section class="snow-view__docs is-full">
+
+      <aside id="nav-primary" class="snow-view-nav">
+        <Menu />
+      </aside>
+
+      <article class="snow-view-main">
+        <slot></slot>
+      </article>
+
+    </section>
+  </div>
+</body>

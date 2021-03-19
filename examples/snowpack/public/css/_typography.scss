@@ -1,0 +1,87 @@
+@use './var' as *;
+
+.content {
+  a {
+    color: #0366d6;
+    text-decoration: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 600;
+    font-family: $heading;
+    line-height: 1.2;
+  }
+
+  h1 {
+    font-size: 3em;
+
+    @media (min-width: 600px) {
+      font-size: 3.25em;
+    }
+  }
+
+  h2 {
+    font-size: 2.75em;
+
+    @media (min-width: 600px) {
+      font-size: 3em;
+    }
+  }
+
+  h3 {
+    font-size: 2em;
+
+    @media (min-width: 600px) {
+      font-size: 2.25em;
+    }
+  }
+
+  h4 {
+    font-size: 1em;
+
+    @media (min-width: 600px) {
+      font-size: 1.2em;
+    }
+  }
+
+  ul li,
+  ol li {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    line-height: 1.6;
+  }
+
+  p {
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+    line-height: 1.7;
+  }
+
+  blockquote {
+    margin: 0;
+    padding: 1rem 2rem;
+    color: #2e5e82;
+    font-weight: 300;
+    font-size: 1.1em;
+    background: linear-gradient(-30deg, #c9efd8, #f9ddff);
+    border-left: none;
+
+    @media (min-width: $breakpoint-m) {
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 2px rgba(50, 127, 177, 0.1),
+        0 1.5rem 3rem rgba(50, 125, 177, 0.1);
+    }
+
+    & *:first-child {
+      margin-top: 0;
+    }
+    & *:last-child {
+      margin-bottom: 0;
+    }
+  }
+}

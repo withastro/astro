@@ -1,0 +1,152 @@
+@use '../var' as *;
+
+/**
+ * Main document view
+ */
+
+$top-padding: 24px;
+
+// Document view
+.snow-view__docs {
+  grid-gap: 1.5rem;
+  grid-template-areas: 'subnav' 'main';
+  grid-template-columns: auto;
+
+  @media (min-width: $breakpoint-m) {
+    display: grid;
+    grid-template-areas:
+      'nav subnav'
+      'nav main';
+    grid-template-columns: 16rem minmax(auto, $breakpoint-m);
+  }
+
+  @media (min-width: $breakpoint-l) {
+    display: grid;
+    grid-template-areas: 'nav main subnav';
+    grid-template-columns: 16rem auto 20rem;
+  }
+
+  &.is-home {
+    margin-top: 1.5rem;
+    margin-bottom: 3rem;
+
+    .snow-view-nav {
+      padding-top: 1.5rem;
+      @media (min-width: $breakpoint-m) {
+        position: static;
+        max-height: inherit;
+      }
+    }
+  }
+  &.is-full {
+    .snow-view-main {
+      grid-row-start: main;
+      grid-row-end: main;
+      grid-column-start: main;
+      grid-column-end: subnav;
+    }
+  }
+
+  &.has-subnav {
+    .snow-view-main .content-title {
+      display: block;
+      @media (max-width: $breakpoint-l) {
+        display: none;
+      }
+    }
+  }
+
+  .content-body {
+    h2,
+    h3 {
+      margin-top: -50px;
+      padding-top: 80px;
+      margin-bottom: 20px;
+    }
+  }
+
+  // -----------
+  //  Components
+  // -----------
+
+  .snow-view-nav {
+    position: fixed;
+    top: $nav-height * 2;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: map-get($map: $layers, $key: 'nav-view');
+    display: none;
+    grid-area: nav;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    overflow: auto;
+    color: $white;
+    background: $dark-blue;
+
+    body.is-nav-open & {
+      display: block;
+    }
+  }
+
+  .snow-view-main {
+    grid-area: main;
+    min-width: 0;
+    padding: $top-padding 0 $top-padding 0;
+  }
+
+  .snow-view-subnav {
+    grid-area: subnav;
+    padding: 90px 0 $top-padding 0;
+    overflow: auto;
+
+    @media (max-width: $breakpoint-l) {
+      padding-top: $top-padding;
+    }
+
+    .content-title {
+      display: none;
+      @media (max-width: $breakpoint-l) {
+        display: block;
+      }
+    }
+  }
+
+  .snow-view-nav {
+    @media (min-width: $breakpoint-m) {
+      position: sticky;
+      top: $nav-height;
+      z-index: 1;
+      display: block;
+      max-height: calc(100vh - #{$nav-height});
+      color: inherit;
+      background: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: $breakpoint-m - 1) {
+      padding-bottom: 2rem;
+
+      &.is-mobile-hidden {
+        overflow: hidden;
+      }
+      &.is-mobile-hidden .snow-toc {
+        padding-top: 0.5rem;
+        opacity: 0;
+      }
+    }
+  }
+
+  .snow-view-subnav {
+    @media (min-width: $breakpoint-l) {
+      position: sticky;
+      top: $nav-height;
+      z-index: 1;
+      display: block;
+      max-height: calc(100vh - #{$nav-height});
+      color: inherit;
+      background: none;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+}

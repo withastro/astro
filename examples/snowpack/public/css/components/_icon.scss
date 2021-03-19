@@ -1,0 +1,21 @@
+/**
+ * Icon
+ * SVG icons and the like
+ */
+
+.snow-icon {
+  display: block;
+  width: 1em;
+  height: 1em;
+  fill: currentColor;
+
+  // ----------
+  //  Modifiers
+  // ----------
+
+  // note: this is just an example; make others!
+  &__lg {
+    width: 2em;
+    height: 2em;
+  }
+}
