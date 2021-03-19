@@ -105,6 +105,7 @@ export default async function (astroConfig: AstroConfig) {
           break;
         }
         default: {
+          console.error(err.code, err);
           error(logging, 'running hmx', err);
           break;
         }

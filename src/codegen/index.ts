@@ -190,7 +190,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   let collectionItem: JsxItem | undefined;
   let currentItemName: string | undefined;
   let currentDepth = 0;
-  const classNames: Set<string> = new Set();
 
   walk(ast.html, {
     enter(node: TemplateNode) {
@@ -275,6 +274,11 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           this.skip();
           return;
         }
+        case 'Style': {
+          const attributes = getAttributes(node.attributes);
+          items.push({ name: 'style', jsx: `h("style", ${attributes ? generateAttributes(attributes) : 'null'}, ${JSON.stringify(node.content.styles)})` });
+          break;
+        }
         case 'Text': {
           const text = getTextFromAttribute(node);
           if (mode === 'SLOT') {
@@ -328,6 +332,9 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
             collectionItem = undefined;
           }
           return;
+        case 'Style': {
+          return;
+        }
         default:
           throw new Error('Unexpected node type: ' + node.type);
       }

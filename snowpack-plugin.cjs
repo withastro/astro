@@ -1,30 +1,33 @@
-const { readFile } = require("fs").promises;
+const { readFile } = require('fs').promises;
 
 // Snowpack plugins must be CommonJS :(
-const transformPromise = import("./lib/transform2.js");
+const transformPromise = import('./lib/transform2.js');
 
 module.exports = function (snowpackConfig, { resolve } = {}) {
   return {
-    name: "snowpack-hmx",
-    knownEntrypoints: ["deepmerge"],
+    name: 'snowpack-hmx',
+    knownEntrypoints: ['deepmerge'],
     resolve: {
-      input: [".hmx", ".md"],
-      output: [".js"],
+      input: ['.hmx', '.md'],
+      output: ['.js'],
     },
     async load({ filePath }) {
       const { compilePage, compileComponent } = await transformPromise;
       const projectRoot = snowpackConfig.root;
-      const contents = await readFile(filePath, "utf-8");
+      const contents = await readFile(filePath, 'utf-8');
 
-      if (!filePath.includes("/pages/") && !filePath.includes("/layouts/")) {
+      if (!filePath.includes('/pages/') && !filePath.includes('/layouts/')) {
         const result = await compileComponent(contents, { compileOptions: { resolve }, filename: filePath, projectRoot });
         return result.contents;
       }
-
-      const result = await compilePage(contents, { compileOptions: { resolve }, filename: filePath, projectRoot });
+      const result = await compilePage(contents, {
+        compileOptions: { resolve },
+        filename: filePath,
+        projectRoot,
+      });
 
       try {
-            return /* js */ `
+        return /* js */ `
             ${result.contents}
 
           export default async (childDatas, childRenderFns) => {
@@ -36,12 +39,12 @@ module.exports = function (snowpackConfig, { resolve } = {}) {
             if (_data.layout) {
               const renderLayout = (await import('/_hmx/layouts/' + _data.layout.replace(/.*layouts\\//, "").replace(/\.hmx$/, '.js'))).default;
               return renderLayout(
-                [...(childDatas || []), _data], 
+                [...(childDatas || []), _data],
                 [...(childRenderFns || []), renderHmx]
               );
             }
             const data = merge.all([_data, ...(childDatas || [])]);
-            let headResult; 
+            let headResult;
             let bodyResult;
             for (const renderFn of (childRenderFns || [])) {
               let headAndBody = await Promise.all([
@@ -54,7 +57,7 @@ module.exports = function (snowpackConfig, { resolve } = {}) {
             return h(Fragment, null, [
               renderHmx.head(data, headResult, true),
               renderHmx.body(data, bodyResult, true),
-            ]); 
+            ]);
           };
           `;
       } catch (err) {

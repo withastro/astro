@@ -1,7 +1,6 @@
-import type { Ast, TemplateNode } from '../compiler/interfaces';
-import { NodeVisitor, Optimizer, VisitorFn } from './types';
 import { walk } from 'estree-walker';
-
+import type { Ast, TemplateNode } from '../compiler/interfaces';
+import { NodeVisitor, Optimizer, VisitorFn } from '../@types/optimizer';
 import optimizeStyles from './styles.js';
 
 interface VisitorCollection {
@@ -10,13 +9,12 @@ interface VisitorCollection {
 }
 
 function addVisitor(visitor: NodeVisitor, collection: VisitorCollection, nodeName: string, event: 'enter' | 'leave') {
-  if (event in visitor) {
-    if (collection[event].has(nodeName)) {
-      collection[event].get(nodeName)!.push(visitor[event]!);
-    }
+  if (typeof visitor[event] !== 'function') return;
+  if (!collection[event]) collection[event] = new Map<string, VisitorFn[]>();
 
-    collection.enter.set(nodeName, [visitor[event]!]);
-  }
+  const visitors = collection[event].get(nodeName) || [];
+  visitors.push(visitor[event] as any);
+  collection[event].set(nodeName, visitors);
 }
 
 function collectVisitors(optimizer: Optimizer, htmlVisitors: VisitorCollection, cssVisitors: VisitorCollection, finalizers: Array<() => Promise<void>>) {
@@ -77,8 +75,8 @@ export async function optimize(ast: Ast, opts: OptimizeOptions) {
 
   collectVisitors(optimizeStyles(opts), htmlVisitors, cssVisitors, finalizers);
 
-  walkAstWithVisitors(ast.html, htmlVisitors);
   walkAstWithVisitors(ast.css, cssVisitors);
+  walkAstWithVisitors(ast.html, htmlVisitors);
 
   // Run all of the finalizer functions in parallel because why not.
   await Promise.all(finalizers.map((fn) => fn()));
