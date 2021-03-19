@@ -1,0 +1,35 @@
+<script hmx="setup">
+  import Subnav from '../components/Subnav.hmx';
+    import { content as Menu } from '../components/Menu.hmx';
+    // import contentful from 'skypack:contentful';
+
+    export default async function ({ params }) {
+        const entry = await contentful.getEntry(params.slug);
+        return { title: entry.fields.title, description: entry.fields.description, layout: 'layouts/base.hmx', props: { entry } };
+    }
+</script>
+
+<div class="container">
+    <section class="snow-view__docs has-subnav">
+
+        <aside id="nav-primary" class="snow-view-nav">
+            <Menu />
+        </aside>
+
+        <Subnav title={title} />
+
+        <article class="snow-view-main">
+            <div class="content">
+                <h2 class="content-title">
+                    {title}
+                </h2>
+                <div class="content-layout">
+                    <div class="content-body">
+                        <ContentfulRichText document={entry.fields.body} />
+                    </div>
+                </div>
+            </div>
+        </article>
+
+    </section>
+</div>

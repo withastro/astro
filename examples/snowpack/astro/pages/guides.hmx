@@ -1,0 +1,76 @@
+<script hmx="setup">
+  import Card from '../components/Card.jsx';
+
+  // mocked for now, to be added later
+  // 1. import {paginate} from 'magicthing';
+  // 2. export default function ({paginate}) {
+  function paginate(options) {
+    if (options.tag === 'guide') {
+      return [
+        {title: 'Test guide 1', href:"#"},
+        {title: 'Test guide 2', href:"#"},
+      ];
+    }
+    if (options.tag === 'communityGuides') {
+      return [{title: 'Test communityGuides', href:"#"}];
+    }
+    return [];
+  }
+  export function setup({/* paginate */}) {
+    return {
+      title: 'Guides',
+      description: "Snowpack's usage and integration guides.",
+      layout: 'layouts/main.hmx',
+      props: {
+        guides: paginate({
+          files: '/posts/guides/*.md',
+          // sort: ((a, b) => new Date(b) - new Date(a)),
+          tag: 'guide',
+          limit: 10,
+          // page: query.page,
+        }),
+        communityGuides: paginate({
+          files: '/posts/guides/*.md',
+          // sort: ((a, b) => new Date(b) - new Date(a)),
+          tag: 'communityGuides',
+          limit: 10,
+        }),
+      }
+    };
+  }
+</script>
+
+<head>
+
+</head>
+
+<body>
+  <h2 class="content-title">
+    {title}
+  </h2>
+
+  <h3 class="content-title">
+    Using Snowpack
+  </h3>
+
+  <div class="content">
+    <ul>
+      {props.guides.map((post) => {
+        return <li><a href={post.href}>{post.title}</a></li>;
+      })}
+    </ul>
+  </div>
+
+  <br/>
+  <br/>
+
+  <h3 class="content-title">
+    Popular Integration Guides
+  </h3>
+
+  <div class="card-grid card-grid-4">
+    {props.communityGuides.map((post) => {
+      return <Card item={post} />;
+    })}
+  </div>
+</body>

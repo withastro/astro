@@ -1,0 +1,68 @@
+<script hmx="setup">
+  import Banner from '../components/Banner.hmx';
+  import Nav from '../components/Nav.hmx';
+  export function setup() {
+    return {
+      title: 'Snowpack',
+      description: 'Snowpack is a lightning-fast frontend build tool, designed for the modern web.',
+      props: {
+        version: '3.0.13',
+      }
+    };
+  }
+</script>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png"/>
+  <link rel="manifest" href="/favicon/site.webmanifest" />
+
+  <!-- Primary Meta Tags -->
+  <title>{title}</title>
+  <meta name="title" content={title} />
+  <meta name="description" content="{description}" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://www.snowpack.dev{props.permalink}"/>
+  <meta property="og:title" content={title}/>
+  <meta property="og:description" content={description}/>
+  <meta property="og:image" content="https://www.snowpack.dev/img/social-2.jpg"/>
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image"/>
+  <meta property="twitter:url" content="https://www.snowpack.dev{props.permalink}"/>
+  <meta property="twitter:title" content={title}/>
+  <meta property="twitter:description" content={description}/>
+  <meta property="twitter:image" content="https://www.snowpack.dev/img/social-2.jpg"/>
+
+  <!-- Global Stylesheets -->
+  <link rel="stylesheet" href="/css/app.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Overpass:wght@400;700;900&display=swap" rel="stylesheet"/>
+
+  <!-- Note: You can then add additional, custom things here as well. -->
+  <!-- if no slot given, assume add to bottom -->
+  <slot></slot>
+</head>
+
+<body class="base 2">
+  <Banner></Banner>
+  <Nav version={props.version} />
+
+  <!-- if no slot given, assume add to bottom -->
+  <slot></slot>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-130280175-9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'UA-130280175-9', { page_path: location.pathname === '/' ? (location.pathname + location.hash) : (location.pathname) });
+  </script>
+</body>

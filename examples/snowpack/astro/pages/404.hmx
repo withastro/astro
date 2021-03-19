@@ -1,0 +1,18 @@
+<script hmx="setup">
+  export function setup() {
+    return {
+      title: '404 - Not Found',
+      layout: 'layouts/main.hmx',
+      props: {
+      }
+    };
+  }
+</script>
+
+<h2 class="content-title">
+  {title}
+</h2>
+
+<div class="content">
+  <a href="/">Go Home</a>
+</div>

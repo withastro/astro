@@ -1,0 +1,97 @@
+.pluginPage {
+  &-count {
+    max-width: 600px;
+    min-height: 24px;
+    margin: 0.5rem 0 1rem;
+    color: rgba(black, 0.6);
+    font-weight: 300;
+    font-size: 1em;
+    font-style: italic;
+    text-align: center;
+
+    @media (min-width: 600px) {
+      font-size: 1.2em;
+    }
+  }
+
+  &-intro {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    text-align: left;
+
+    a {
+      color: #2e5e82;
+    }
+  }
+
+  &-search {
+    display: flex;
+    width: 100%;
+    max-width: 600px;
+
+    &-input {
+      flex-grow: 1;
+      flex-shrink: 0;
+      box-sizing: border-box;
+      padding: 0.25em 0.75em;
+      font-size: 1em;
+      border-width: 1px 0 1px 1px;
+      border-radius: 4px 0 0 4px;
+      box-shadow: 0 0 0 2px rgba(#2e5e82, 0);
+      transition: box-shadow 150ms linear;
+      appearance: none;
+
+      &:focus {
+        border-color: #2e5e82;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(#2e5e82, 1);
+
+        + .pluginPage-search-submit {
+          box-shadow: 0 0 0 2px rgba(#2e5e82, 1);
+        }
+      }
+    }
+
+    &-submit {
+      padding: 0.5em 1em;
+      color: white;
+      font-weight: 700;
+      font-size: 1em;
+      font-family: 'Overpass', sans-serif;
+      background-color: #2e5e82;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      box-shadow: 0 0 0 2px rgba(#2e5e82, 0);
+      transition: box-shadow 150ms linear;
+      appearance: none;
+    }
+  }
+
+  &-subheading {
+    margin-top: -2.5rem;
+    margin-bottom: 0;
+    color: #2e5e82;
+    font-weight: 500;
+    font-size: 1em;
+    font-family: 'Overpass', sans-serif;
+    letter-spacing: -0.02em;
+    text-align: left;
+
+    @media (min-width: 600px) {
+      font-size: 1.5em;
+    }
+  }
+
+  &-zero-heading {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    font-size: 1.4em;
+    text-align: left;
+
+    @media (min-width: 600px) {
+      font-size: 1.5em;
+    }
+  }
+}

@@ -1,0 +1,119 @@
+@use '../var' as *;
+
+.search-form {
+  position: relative;
+  z-index: 1000;
+  display: flex;
+  flex-grow: 1;
+  grid-area: search;
+  margin: 0 6px;
+  > * {
+    flex-grow: 1;
+  }
+
+  @media (min-width: $breakpoint-m) {
+    max-width: 600px;
+  }
+
+  @media (max-width: $breakpoint-m - 1) {
+    & {
+      display: none;
+    }
+    body.is-nav-open & {
+      display: flex;
+    }
+  }
+
+  & .sr-only {
+    display: none;
+  }
+
+  &-hint {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+    padding: 6px 12px;
+    color: #c2ced9;
+    font-size: 16px;
+    pointer-events: none;
+
+    & * {
+      font-family: $code;
+    }
+
+    &::before {
+      display: inline-block;
+      width: 1px;
+      height: 1.5em;
+      margin-right: 0.5em;
+      vertical-align: -35%;
+      background-color: rgba($white, 0.25);
+      content: '';
+    }
+
+    @media (min-width: $breakpoint-m) {
+      display: block;
+    }
+  }
+
+  &-input {
+    flex-grow: 1;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding-top: 0.5rem;
+    padding-right: 1rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    overflow: visible;
+    color: #fff;
+    font-weight: 500;
+    font-size: 100%;
+    font-family: inherit;
+    line-height: inherit;
+    background-color: #446e8f;
+    border-color: rgba($white, 0.25);
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 0.25rem;
+    outline: 0;
+    transition-timing-function: ease-in-out;
+    transition-duration: 0.2s;
+    transition-property: border-color, color;
+    -webkit-font-smoothing: antialiased;
+
+    &:focus {
+      color: white;
+      border-color: rgba($white, 0.75);
+
+      &::placeholder {
+        color: rgba($white, 0.8);
+      }
+    }
+    &::placeholder {
+      color: #c2ced9;
+    }
+
+    &__desktop {
+      display: none;
+
+      @media (min-width: $breakpoint-m) {
+        display: block;
+      }
+    }
+  }
+}
+
+.algolia-autocomplete .ds-dropdown-menu {
+  @media (max-width: $breakpoint-m - 1) {
+    width: 100%;
+    min-width: inherit;
+    max-width: inherit;
+    margin-top: 0.5rem;
+  }
+}
+
+.algolia-autocomplete .ds-dropdown-menu::before {
+  display: none !important;
+}

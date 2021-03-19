@@ -1,0 +1,29 @@
+@use './var' as *;
+
+html,
+body {
+  margin: 0;
+  font-family: $body;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+p {
+  line-height: 1.25;
+}
+
+.header-logo,
+.header-snowpack,
+.header-snowpack-subtitle,
+.pretty-font,
+.version-number {
+  font-weight: 600;
+  font-family: $heading;
+}
