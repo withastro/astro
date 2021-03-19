@@ -29,13 +29,24 @@ const SASS_OPTIONS: Partial<sass.Options> = {
 /** Should be deterministic, given a unique filename */
 function hashFromFilename(filename: string): string {
   const hash = crypto.createHash('sha256');
-  return hash.update(filename.replace(/\\/g, '/')).digest('base64').toString().substr(0, 8);
+  return hash
+    .update(filename.replace(/\\/g, '/'))
+    .digest('base64')
+    .toString()
+    .replace(/[^A-Za-z0-9-]/g, '')
+    .substr(0, 8);
+}
+
+export interface StyleTransformResult {
+  css: string;
+  cssModules: Map<string, string>;
+  type: StyleType;
 }
 
 export async function transformStyle(
   code: string,
   { type, classNames, filename, fileID }: { type?: string; classNames?: Set<string>; filename: string; fileID: string }
-): Promise<{ css: string; cssModules: Map<string, string> }> {
+): Promise<StyleTransformResult> {
   let styleType: StyleType = 'text/css'; // important: assume CSS as default
   if (type) {
     styleType = getStyleType.get(type) || styleType;
@@ -88,5 +99,9 @@ export async function transformStyle(
     .process(css, { from: filename, to: undefined })
     .then((result) => result.css);
 
-  return { css, cssModules };
+  return {
+    css,
+    cssModules,
+    type: styleType,
+  };
 }

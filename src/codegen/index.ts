@@ -190,8 +190,19 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   let collectionItem: JsxItem | undefined;
   let currentItemName: string | undefined;
   let currentDepth = 0;
-  const classNames: Set<string> = new Set();
+  let styleTags: string[] = [];
+  let styleTagsInjected = false; // TODO: improve this
 
+  // 1. Collect styles, if any
+  walk(ast.css, {
+    enter(node: TemplateNode) {
+      if (node.type !== 'Style') return;
+      const attributes = getAttributes(node.attributes);
+      styleTags.push(`h("style", ${attributes ? generateAttributes(attributes) : 'null'}, ${JSON.stringify(node.content.styles)})`);
+    },
+  });
+
+  // 2. Generate JSX
   walk(ast.html, {
     enter(node: TemplateNode) {
       //   console.log("enter", node.type);
@@ -321,6 +332,10 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
         case 'InlineComponent':
           if (!collectionItem) {
             throw new Error('Not possible! CLOSE ' + node.name);
+          }
+          if (!styleTagsInjected && styleTags.length) {
+            collectionItem.jsx += `, ${styleTags.join(', ')}`;
+            styleTagsInjected = true;
           }
           collectionItem.jsx += ')';
           currentDepth--;
