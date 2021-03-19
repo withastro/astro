@@ -1,6 +1,6 @@
 import type { CompileOptions } from '../@types/compiler';
 import type { Ast, TemplateNode } from '../compiler/interfaces';
-import type { JsxItem } from '../@types/astro.js';
+import type { JsxItem, TransformResult } from '../@types/astro.js';
 
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
@@ -14,13 +14,13 @@ interface Attribute {
   end: number;
   type: 'Attribute';
   name: string;
-  value: any
+  value: any;
 }
 
 interface CodeGenOptions {
   compileOptions: CompileOptions;
   filename: string;
-  fileID: string
+  fileID: string;
 }
 
 function internalImport(internalPath: string) {
@@ -144,14 +144,12 @@ function getComponentWrapper(_name: string, { type, url }: { type: string; url: 
   throw new Error('Unknown Component Type: ' + name);
 }
 
-const patternImport = new RegExp(/import(?:["'\s]*([\w*${}\n\r\t, ]+)from\s*)?["'\s]["'\s](.*[@\w_-]+)["'\s].*;$/, 'mg');
 function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
   // esbuild treeshakes unused imports. In our case these are components, so let's keep them.
-  const imports: Array<string> = [];
-  raw.replace(patternImport, (value: string) => {
-    imports.push(value);
-    return value;
-  });
+  const imports = eslexer
+    .parse(raw)[0]
+    .filter(({ d }) => d === -1)
+    .map((i: any) => raw.substring(i.ss, i.se));
 
   let { code } = transformSync(raw, {
     loader,
@@ -169,7 +167,8 @@ function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
   return code;
 }
 
-export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions) {
+export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Promise<TransformResult> {
+  await eslexer.init;
   const script = compileScriptSafe(ast.instance ? ast.instance.content : '', 'tsx');
 
   // Compile scripts as TypeScript, always

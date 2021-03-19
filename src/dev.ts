@@ -16,7 +16,7 @@ snowpackLogger.level = 'silent';
 
 const logging: LogOptions = {
   level: 'debug',
-  dest: defaultLogDestination
+  dest: defaultLogDestination,
 };
 
 export default async function (astroConfig: AstroConfig) {
@@ -97,7 +97,7 @@ export default async function (astroConfig: AstroConfig) {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.end(html);
     } catch (err) {
-      switch(err.code) {
+      switch (err.code) {
         case 'parse-error': {
           err.filename = pathRelative(projectRoot.pathname, err.filename);
           debugger;

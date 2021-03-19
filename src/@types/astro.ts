@@ -14,3 +14,12 @@ export interface JsxItem {
   name: string;
   jsx: string;
 }
+
+export interface TransformResult {
+  script: string;
+  items: JsxItem[];
+}
+
+export interface CompileResult {
+  contents: string;
+}

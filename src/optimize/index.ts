@@ -10,8 +10,8 @@ interface VisitorCollection {
 }
 
 function addVisitor(visitor: NodeVisitor, collection: VisitorCollection, nodeName: string, event: 'enter' | 'leave') {
-  if(event in visitor) {
-    if(collection[event].has(nodeName)) {
+  if (event in visitor) {
+    if (collection[event].has(nodeName)) {
       collection[event].get(nodeName)!.push(visitor[event]!);
     }
 
@@ -20,15 +20,15 @@ function addVisitor(visitor: NodeVisitor, collection: VisitorCollection, nodeNam
 }
 
 function collectVisitors(optimizer: Optimizer, htmlVisitors: VisitorCollection, cssVisitors: VisitorCollection, finalizers: Array<() => Promise<void>>) {
-  if(optimizer.visitors) {
-    if(optimizer.visitors.html) {
-      for(const [nodeName, visitor] of Object.entries(optimizer.visitors.html)) {
+  if (optimizer.visitors) {
+    if (optimizer.visitors.html) {
+      for (const [nodeName, visitor] of Object.entries(optimizer.visitors.html)) {
         addVisitor(visitor, htmlVisitors, nodeName, 'enter');
         addVisitor(visitor, htmlVisitors, nodeName, 'leave');
       }
     }
-    if(optimizer.visitors.css) {
-      for(const [nodeName, visitor] of Object.entries(optimizer.visitors.css)) {
+    if (optimizer.visitors.css) {
+      for (const [nodeName, visitor] of Object.entries(optimizer.visitors.css)) {
         addVisitor(visitor, cssVisitors, nodeName, 'enter');
         addVisitor(visitor, cssVisitors, nodeName, 'leave');
       }
@@ -47,27 +47,27 @@ function createVisitorCollection() {
 function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) {
   walk(tmpl, {
     enter(node) {
-      if(collection.enter.has(node.type)) {
+      if (collection.enter.has(node.type)) {
         const fns = collection.enter.get(node.type)!;
-        for(let fn of fns) {
+        for (let fn of fns) {
           fn(node);
         }
       }
     },
     leave(node) {
-      if(collection.leave.has(node.type)) {
+      if (collection.leave.has(node.type)) {
         const fns = collection.leave.get(node.type)!;
-        for(let fn of fns) {
+        for (let fn of fns) {
           fn(node);
         }
       }
-    }
+    },
   });
 }
 
-interface OptimizeOptions { 
-  filename: string,
-  fileID: string
+interface OptimizeOptions {
+  filename: string;
+  fileID: string;
 }
 
 export async function optimize(ast: Ast, opts: OptimizeOptions) {
@@ -81,5 +81,5 @@ export async function optimize(ast: Ast, opts: OptimizeOptions) {
   walkAstWithVisitors(ast.css, cssVisitors);
 
   // Run all of the finalizer functions in parallel because why not.
-  await Promise.all(finalizers.map(fn => fn()));
+  await Promise.all(finalizers.map((fn) => fn()));
 }

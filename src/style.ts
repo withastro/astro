@@ -85,7 +85,7 @@ export async function transformStyle(
     }),
     autoprefixer(),
   ])
-    .process(css, { from: filename })
+    .process(css, { from: filename, to: undefined })
     .then((result) => result.css);
 
   return { css, cssModules };

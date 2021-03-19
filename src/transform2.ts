@@ -1,12 +1,11 @@
 import type { LogOptions } from './logger.js';
 
 import path from 'path';
-import esbuild from 'esbuild';
-import eslexer from 'es-module-lexer';
 import micromark from 'micromark';
 import gfmSyntax from 'micromark-extension-gfm';
 import matter from 'gray-matter';
 import gfmHtml from 'micromark-extension-gfm/html.js';
+import { CompileResult, TransformResult } from './@types/astro';
 import { parse } from './compiler/index.js';
 import markdownEncode from './markdown-encode.js';
 import { defaultLogOptions } from './logger.js';
@@ -30,12 +29,11 @@ function internalImport(internalPath: string) {
 interface ConvertHmxOptions {
   compileOptions: CompileOptions;
   filename: string;
-  fileID: string
+  fileID: string;
 }
 
-async function convertHmxToJsx(template: string, opts: ConvertHmxOptions) {
+async function convertHmxToJsx(template: string, opts: ConvertHmxOptions): Promise<TransformResult> {
   const { filename } = opts;
-  await eslexer.init;
 
   // 1. Parse
   const ast = parse(template, {
@@ -49,7 +47,10 @@ async function convertHmxToJsx(template: string, opts: ConvertHmxOptions) {
   return await codegen(ast, opts);
 }
 
-async function convertMdToJsx(contents: string, { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }) {
+async function convertMdToJsx(
+  contents: string,
+  { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
+): Promise<TransformResult> {
   // This doesn't work.
   const { data: _frontmatterData, content } = matter(contents);
   const mdHtml = micromark(content, {
@@ -84,7 +85,7 @@ async function convertMdToJsx(contents: string, { compileOptions, filename, file
 async function transformFromSource(
   contents: string,
   { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
-): Promise<ReturnType<typeof convertHmxToJsx>> {
+): Promise<TransformResult> {
   const fileID = path.relative(projectRoot, filename);
   switch (path.extname(filename)) {
     case '.hmx':
@@ -99,8 +100,9 @@ async function transformFromSource(
 export async function compilePage(
   source: string,
   { compileOptions = defaultCompileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
-) {
+): Promise<CompileResult> {
   const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
+
   const headItem = sourceJsx.items.find((item) => item.name === 'head');
   const bodyItem = sourceJsx.items.find((item) => item.name === 'body');
   const headItemJsx = !headItem ? 'null' : headItem.jsx.replace('"head"', 'isRoot ? "head" : Fragment');
@@ -122,7 +124,7 @@ export function body({title, description, props}, child, isRoot) { return (${bod
 export async function compileComponent(
   source: string,
   { compileOptions = defaultCompileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
-) {
+): Promise<CompileResult> {
   const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const componentJsx = sourceJsx.items.find((item) => item.name === 'Component');
   if (!componentJsx) {
