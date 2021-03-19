@@ -17,12 +17,15 @@ interface RuntimeConfig {
 }
 
 type LoadResultSuccess = {
-  statusCode: 200;
-  contents: string | Buffer;
-  contentType?: string | false;
+  statusCode: 200,
+  contents: string | Buffer,
+  contentType?: string | false
 };
-type LoadResultNotFound = { statusCode: 404; error: Error };
-type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'unknown'; error: Error });
+type LoadResultNotFound = { statusCode: 404, error: Error };
+type LoadResultError = { statusCode: 500 } & (
+  { type: 'parse-error'; error: CompileError; } |
+  { type: 'unknown'; error: Error }
+);
 
 export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultError;
 
