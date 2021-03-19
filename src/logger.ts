@@ -1,31 +1,32 @@
 import type { CompileError } from './compiler/utils/error.js';
 import { bold, blue, red, grey, underline } from 'kleur/colors';
 import { Writable } from 'stream';
+import { format as utilFormat } from 'util';
 
 type ConsoleStream = Writable & {
-  fd: 1 | 2
+  fd: 1 | 2;
 };
 
 export const defaultLogDestination = new Writable({
   objectMode: true,
   write(event: LogMessage, _, callback) {
     let dest: ConsoleStream = process.stderr;
-    if(levels[event.level] < levels['error']) {
+    if (levels[event.level] < levels['error']) {
       dest = process.stdout;
     }
     let type = event.type;
-    if(event.level === 'info') {
+    if (event.level === 'info') {
       type = bold(blue(type));
-    } else if(event.level === 'error') {
+    } else if (event.level === 'error') {
       type = bold(red(type));
     }
 
     dest.write(`[${type}] `);
-    dest.write(event.message);
+    dest.write(utilFormat(...event.args));
     dest.write('\n');
 
     callback();
-  }
+  },
 });
 
 interface LogWritable<T> extends Writable {
@@ -37,18 +38,19 @@ export type LoggerEvent = 'debug' | 'info' | 'warn' | 'error';
 
 export interface LogOptions {
   dest: LogWritable<LogMessage>;
-  level: LoggerLevel
+  level: LoggerLevel;
 }
 
 export const defaultLogOptions: LogOptions = {
   dest: defaultLogDestination,
-  level: 'info'
+  level: 'info',
 };
 
 export interface LogMessage {
   type: string;
-  level: LoggerLevel,
+  level: LoggerLevel;
   message: string;
+  args: Array<any>;
 }
 
 const levels: Record<LoggerLevel, number> = {
@@ -59,18 +61,13 @@ const levels: Record<LoggerLevel, number> = {
   silent: 90,
 };
 
-export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, type: string, ...messages: Array<any>) {
-  let event: LogMessage = {
+export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, type: string, ...args: Array<any>) {
+  const event: LogMessage = {
     type,
     level,
-    message: ''
+    args,
+    message: '',
   };
-
-  if(messages.length === 1 && typeof messages[0] === 'object') {
-    Object.assign(event, messages[0]);
-  } else {
-    event.message = messages.join(' ');
-  }
 
   // test if this level is enabled or not
   if (levels[opts.level] > levels[level]) {
@@ -99,20 +96,24 @@ export function error(opts: LogOptions, type: string, ...messages: Array<any>) {
 export function parseError(opts: LogOptions, err: CompileError) {
   let frame = err.frame
     // Switch colons for pipes
-    .replace(/^([0-9]+)(:)/mg, `${bold('$1')} │`)
+    .replace(/^([0-9]+)(:)/gm, `${bold('$1')} │`)
     // Make the caret red.
-    .replace(/(?<=^\s+)(\^)/mg, bold(red(' ^')))
+    .replace(/(?<=^\s+)(\^)/gm, bold(red(' ^')))
     // Add identation
-    .replace(/^/mg, '   ');
+    .replace(/^/gm, '   ');
 
-  error(opts, 'parse-error', `
+  error(
+    opts,
+    'parse-error',
+    `
 
  ${underline(bold(grey(`${err.filename}:${err.start.line}:${err.start.column}`)))}
   
  ${bold(red(`𝘅 ${err.message}`))}
 
 ${frame}
-`);
+`
+  );
 }
 
 // A default logger for when too lazy to pass LogOptions around.
@@ -120,5 +121,5 @@ export const logger = {
   debug: debug.bind(null, defaultLogOptions),
   info: info.bind(null, defaultLogOptions),
   warn: warn.bind(null, defaultLogOptions),
-  error: error.bind(null, defaultLogOptions)
+  error: error.bind(null, defaultLogOptions),
 };

@@ -1,0 +1,15 @@
+<script hmx="setup">
+  export function setup() {
+    return {
+      props: {}
+    }
+  }
+</script>
+
+<head>
+  <!-- Head Stuff -->
+</head>
+
+<body>
+    <h1>Hello world!</h1>
+</body>
