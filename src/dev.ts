@@ -26,7 +26,7 @@ export default async function (astroConfig: AstroConfig) {
   const server = http.createServer(async (req, res) => {
     const result = await runtime.load(req.url);
 
-    switch(result.statusCode) {
+    switch (result.statusCode) {
       case 200: {
         if (result.contentType) {
           res.setHeader('Content-Type', result.contentType);
@@ -45,7 +45,7 @@ export default async function (astroConfig: AstroConfig) {
         break;
       }
       case 500: {
-        switch(result.type) {
+        switch (result.type) {
           case 'parse-error': {
             const err = result.error;
             err.filename = pathRelative(projectRoot.pathname, err.filename);

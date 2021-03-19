@@ -8,21 +8,6 @@ export const xlink = 'http://www.w3.org/1999/xlink';
 export const xml = 'http://www.w3.org/XML/1998/namespace';
 export const xmlns = 'http://www.w3.org/2000/xmlns';
 
-export const valid_namespaces = [
-	'foreign',
-	'html',
-	'mathml',
-	'svg',
-	'xlink',
-	'xml',
-	'xmlns',
-	foreign,
-	html,
-	mathml,
-	svg,
-	xlink,
-	xml,
-	xmlns
-];
+export const valid_namespaces = ['foreign', 'html', 'mathml', 'svg', 'xlink', 'xml', 'xmlns', foreign, html, mathml, svg, xlink, xml, xmlns];
 
 export const namespaces: Record<string, string> = { foreign, html, mathml, svg, xlink, xml, xmlns };

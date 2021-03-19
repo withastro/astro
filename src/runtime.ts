@@ -17,15 +17,12 @@ interface RuntimeConfig {
 }
 
 type LoadResultSuccess = {
-  statusCode: 200,
-  contents: string | Buffer,
-  contentType?: string | false
+  statusCode: 200;
+  contents: string | Buffer;
+  contentType?: string | false;
 };
-type LoadResultNotFound = { statusCode: 404, error: Error };
-type LoadResultError = { statusCode: 500 } & (
-  { type: 'parse-error'; error: CompileError; } |
-  { type: 'unknown'; error: Error }
-);
+type LoadResultNotFound = { statusCode: 404; error: Error };
+type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'unknown'; error: Error });
 
 export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultError;
 
@@ -49,39 +46,38 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
       return {
         statusCode: 200,
-        ...result
+        ...result,
       };
     } catch (err) {
       return {
         statusCode: 404,
-        error: err
+        error: err,
       };
     }
   }
 
   try {
     const mod = await snowpackRuntime.importModule(selectedPageUrl);
-    const html = await mod.exports.default() as string;
+    const html = (await mod.exports.default()) as string;
 
     return {
       statusCode: 200,
-      contents: html
+      contents: html,
     };
   } catch (err) {
-    switch(err.code) {
-
+    switch (err.code) {
       case 'parse-error': {
         return {
           statusCode: 500,
           type: 'parse-error',
-          error: err
+          error: err,
         };
       }
       default: {
         return {
           statusCode: 500,
           type: 'unknown',
-          error: err
+          error: err,
         };
       }
     }
@@ -104,25 +100,23 @@ export async function createRuntime(astroConfig: AstroConfig, logging: LogOption
     };
   }
 
-  const snowpackConfig = await loadConfiguration(
-    {
-      root: projectRoot.pathname,
-      mount: {
-        [hmxRoot.pathname]: '/_hmx',
-        [internalPath.pathname]: '/__hmx_internal__',
-      },
-      plugins: [[new URL('../snowpack-plugin.cjs', import.meta.url).pathname, hmxPlugOptions]],
-      devOptions: {
-        open: 'none',
-        output: 'stream',
-        port: 0,
-      },
-      packageOptions: {
-        knownEntrypoints: ['preact-render-to-string'],
-        external: ['@vue/server-renderer'],
-      },
-    }
-  );
+  const snowpackConfig = await loadConfiguration({
+    root: projectRoot.pathname,
+    mount: {
+      [hmxRoot.pathname]: '/_hmx',
+      [internalPath.pathname]: '/__hmx_internal__',
+    },
+    plugins: [[new URL('../snowpack-plugin.cjs', import.meta.url).pathname, hmxPlugOptions]],
+    devOptions: {
+      open: 'none',
+      output: 'stream',
+      port: 0,
+    },
+    packageOptions: {
+      knownEntrypoints: ['preact-render-to-string'],
+      external: ['@vue/server-renderer'],
+    },
+  });
   const snowpack = await startSnowpackServer({
     config: snowpackConfig,
     lockfile: null,
@@ -133,11 +127,11 @@ export async function createRuntime(astroConfig: AstroConfig, logging: LogOption
     astroConfig,
     logging,
     snowpack,
-    snowpackRuntime
+    snowpackRuntime,
   };
 
   return {
     load: load.bind(null, runtimeConfig),
-    shutdown: () => snowpack.shutdown()
+    shutdown: () => snowpack.shutdown(),
   };
 }
