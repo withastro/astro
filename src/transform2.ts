@@ -126,13 +126,18 @@ export async function compileComponent(
   { compileOptions = defaultCompileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
 ): Promise<CompileResult> {
   const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
-  const componentJsx = sourceJsx.items.find((item) => item.name === 'Component');
-  if (!componentJsx) {
-    throw new Error(`${filename} <Component> expected!`);
-  }
+
+  // throw error if <Component /> missing
+  if (!sourceJsx.items.find(({ name }) => name === 'Component')) throw new Error(`${filename} <Component> expected!`);
+
+  // sort <style> tags first
+  // TODO: remove these and inject in <head>
+  sourceJsx.items.sort((a, b) => (a.name === 'style' && b.name !== 'style' ? -1 : 0));
+
+  // return template
   const modJsx = `
       import { h, Fragment } from '${internalImport('h.js')}';
-      export default function(props) { return h(Fragment, null, ${componentJsx.jsx}); }
+      export default function(props) { return h(Fragment, null, ${sourceJsx.items.map(({ jsx }) => jsx).join(',')}); }
       `.trim();
   return {
     contents: modJsx,

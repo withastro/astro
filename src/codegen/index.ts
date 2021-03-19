@@ -190,19 +190,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   let collectionItem: JsxItem | undefined;
   let currentItemName: string | undefined;
   let currentDepth = 0;
-  let styleTags: string[] = [];
-  let styleTagsInjected = false; // TODO: improve this
 
-  // 1. Collect styles, if any
-  walk(ast.css, {
-    enter(node: TemplateNode) {
-      if (node.type !== 'Style') return;
-      const attributes = getAttributes(node.attributes);
-      styleTags.push(`h("style", ${attributes ? generateAttributes(attributes) : 'null'}, ${JSON.stringify(node.content.styles)})`);
-    },
-  });
-
-  // 2. Generate JSX
   walk(ast.html, {
     enter(node: TemplateNode) {
       //   console.log("enter", node.type);
@@ -286,6 +274,11 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           this.skip();
           return;
         }
+        case 'Style': {
+          const attributes = getAttributes(node.attributes);
+          items.push({ name: 'style', jsx: `h("style", ${attributes ? generateAttributes(attributes) : 'null'}, ${JSON.stringify(node.content.styles)})` });
+          break;
+        }
         case 'Text': {
           const text = getTextFromAttribute(node);
           if (mode === 'SLOT') {
@@ -333,16 +326,15 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           if (!collectionItem) {
             throw new Error('Not possible! CLOSE ' + node.name);
           }
-          if (!styleTagsInjected && styleTags.length) {
-            collectionItem.jsx += `, ${styleTags.join(', ')}`;
-            styleTagsInjected = true;
-          }
           collectionItem.jsx += ')';
           currentDepth--;
           if (currentDepth === 0) {
             collectionItem = undefined;
           }
           return;
+        case 'Style': {
+          return;
+        }
         default:
           throw new Error('Unexpected node type: ' + node.type);
       }

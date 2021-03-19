@@ -20,7 +20,6 @@ module.exports = function (snowpackConfig, { resolve } = {}) {
         const result = await compileComponent(contents, { compileOptions: { resolve }, filename: filePath, projectRoot });
         return result.contents;
       }
-
       const result = await compilePage(contents, {
         compileOptions: { resolve },
         filename: filePath,
