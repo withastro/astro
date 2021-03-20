@@ -21,7 +21,7 @@
     "dev": "concurrently 'tsc --watch' 'npm run copy-js:watch'",
     "format": "prettier -w 'src/**/*.{js,ts}'",
     "copy-js": "copyfiles -u 1 src/*.js lib/",
-    "copy-js:watch": "nodemon -w src --ext js --exec 'npm run copy-js'",
+    "copy-js:watch": "nodemon -w src --ext js -x 'npm run copy-js'",
     "test": "uvu test -i fixtures -i test-utils.js"
   },
   "dependencies": {

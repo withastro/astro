@@ -6,11 +6,9 @@ module.exports = {
     //src: '/_dist_',
   },
   plugins: [
-    [
-      '@snowpack/plugin-sass', { compilerOptions: { style: 'compressed' } },
-    ],
+    ['@snowpack/plugin-sass', { compilerOptions: { style: 'compressed' } }],
     '@snowpack/plugin-svelte',
-    '@snowpack/plugin-vue'
+    '@snowpack/plugin-vue',
   ],
   packageOptions: {
     external: [

@@ -2,12 +2,27 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "start": "astro dev .",
+    "start": "nodemon -w ../../lib -x 'astro dev .'",
     "build": "astro build",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\" && yarn format:css",
     "format:css": "stylelint 'src/**/*.scss' --fix",
     "lint": "prettier --check \"src/**/*.js\""
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.3",
+    "astro": "file:../../",
+    "date-fns": "^2.19.0",
+    "deepmerge": "^4.2.2",
+    "docsearch.js": "^2.6.3",
+    "htm": "^3.0.4",
+    "mdast-util-from-markdown": "^0.8.5",
+    "mdast-util-toc": "^5.1.0",
+    "preact": "^10.5.12",
+    "preact-render-to-string": "^5.1.12",
+    "react": "^17.0.1",
+    "react-dom": "^17.0.1",
+    "vue": "^3.0.7"
   },
   "devDependencies": {
     "@11ty/eleventy": "^0.11.0",
@@ -24,29 +39,15 @@
     "luxon": "^1.25.0",
     "markdown-it": "^12.0.2",
     "markdown-it-anchor": "^6.0.0",
+    "nodemon": "^2.0.7",
     "postcss-cli": "^8.3.0",
     "postcss-preset-env": "^6.7.0",
     "prettier": "^2.0.5",
-    "snowpack": "^3.1.0-pre.11",
+    "snowpack": "^3.1.0-pre.14",
     "stylelint": "^13.8.0",
     "stylelint-config-prettier": "^8.0.2",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^20.0.0",
     "svelte": "^3.35.0"
-  },
-  "dependencies": {
-    "@material-ui/core": "^4.11.3",
-    "astro": "file:../../",
-    "date-fns": "^2.19.0",
-    "deepmerge": "^4.2.2",
-    "docsearch.js": "^2.6.3",
-    "htm": "^3.0.4",
-    "mdast-util-from-markdown": "^0.8.5",
-    "mdast-util-toc": "^5.1.0",
-    "preact": "^10.5.12",
-    "preact-render-to-string": "^5.1.12",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
-    "vue": "^3.0.7"
   }
 }
