@@ -152,11 +152,12 @@ export async function __renderPage({request, children}) {
   
   const isRoot = true;
   const merge = (await import('deepmerge')).default;
+  const fetch = (await import('node-fetch')).default;
 
   // call all children setup scripts, in order, and return.
   let mergedContext = {};
   for (const child of [currentChild, ...children]) {
-    const childSetupResult = await child.setup({request, context: mergedContext});
+    const childSetupResult = await child.setup({request, fetch, context: mergedContext});
     mergedContext = childSetupResult.context ? merge(mergedContext, childSetupResult.context) : mergedContext;
   }
   

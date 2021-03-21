@@ -1,5 +1,6 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
+  
   mount: {
     public: '/',
     //src: '/_dist_',
@@ -12,9 +13,9 @@ module.exports = {
     '@snowpack/plugin-vue'
   ],
   packageOptions: {
-    // Blocked by CSS asset support
-    // source: 'remote',
-    // types: true,
+    external: [
+      'node-fetch'
+    ]
   },
   devOptions: {
     // Eleventy updates multiple files at once, so add a 1000ms delay before we trigger a browser update

@@ -9,7 +9,8 @@
   import news from '../data/news.json';
   import users from '../data/users.json';
 
-  export function setup({ context, request }) {
+  export async function setup({ context, request, fetch }) {
+    const pokemonData = await fetch(`https://pokeapi.co/api/v2/pokemon/ditto`);
     return {
       context: {
         title: 'Community & News',
@@ -18,6 +19,7 @@
         // Add your project, organization, or company to the end of this list!
         news,
         users,
+        pokemonData: await pokemonData.json(),
       }
     }
   }
@@ -35,6 +37,10 @@
   <p>
     Got something that you think we should feature?
     <a href="https://github.com/snowpackjs/snowpack/edit/main/www/_data/news.js">Submit it!</a>
+  </p>
+
+  <p>
+    In case you're curious, the best pokemon is <strong>{context.pokemonData.name}.</strong>
   </p>
 
   <div class="card-grid card-grid-3">
