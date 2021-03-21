@@ -58,7 +58,7 @@ export interface Parser {
 
 export interface Script extends BaseNode {
   type: 'Script';
-  context: string;
+  context: 'runtime' | 'setup';
   content: string;
 }
 
@@ -75,8 +75,8 @@ export interface Style extends BaseNode {
 export interface Ast {
   html: TemplateNode;
   css: Style;
-  instance: Script;
   module: Script;
+  // instance: Script;
 }
 
 export interface Warning {
@@ -93,38 +93,6 @@ export interface Warning {
 export type ModuleFormat = 'esm' | 'cjs';
 
 export type CssHashGetter = (args: { name: string; filename: string | undefined; css: string; hash: (input: string) => string }) => string;
-
-export interface CompileOptions {
-  format?: ModuleFormat;
-  name?: string;
-  filename?: string;
-  generate?: 'dom' | 'ssr' | false;
-
-  sourcemap?: object | string;
-  outputFilename?: string;
-  cssOutputFilename?: string;
-  sveltePath?: string;
-
-  dev?: boolean;
-  accessors?: boolean;
-  immutable?: boolean;
-  hydratable?: boolean;
-  legacy?: boolean;
-  customElement?: boolean;
-  tag?: string;
-  css?: boolean;
-  loopGuardTimeout?: number;
-  namespace?: string;
-  cssHash?: CssHashGetter;
-
-  preserveComments?: boolean;
-  preserveWhitespace?: boolean;
-}
-
-export interface ParserOptions {
-  filename?: string;
-  customElement?: boolean;
-}
 
 export interface Visitor {
   enter: (node: Node) => void;

@@ -1,20 +1,18 @@
-<script hmx="setup">
+<script astro>
   import Menu from '../components/Menu.hmx';
-  export function setup() {
-    return {
-      layout: 'layouts/base.hmx',
-      props: {}
-    };
+  export const layout = 'layouts/base.hmx';
+  export function setup({ context }) {
+    return {};
   }
 </script>
 
 
-<head>
+<slot:head>
   <!-- hi -->
   <slot></slot>
-</head>
+</slot:head>
 
-<body class="base 2">
+<slot:body>
   <div class="container">
     <section class="snow-view__docs is-full">
 
@@ -28,4 +26,4 @@
 
     </section>
   </div>
-</body>
+</slot:body>

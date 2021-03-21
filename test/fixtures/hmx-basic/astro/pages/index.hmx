@@ -1,4 +1,4 @@
-<script hmx="setup">
+<script astro>
   export function setup() {
     return {
       props: {}
@@ -6,10 +6,10 @@
   }
 </script>
 
-<head>
+<slot:head>
   <!-- Head Stuff -->
-</head>
+</slot:head>
 
-<body>
+<slot:body>
     <h1>Hello world!</h1>
-</body>
+</slot:body>

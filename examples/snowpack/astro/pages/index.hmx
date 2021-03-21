@@ -1,22 +1,21 @@
-<script hmx="setup">
+<script astro>
   import Menu from '../components/Menu.hmx';
   import Hero from '../components/Hero.hmx';
-  export function setup() {
-    return {
-      layout: 'layouts/base.hmx',
-      props: {}
-    }
+
+  export const layout = 'layouts/base.hmx';
+  export function setup({context}) {
+    return {}
   }
 </script>
 
-<head>
-  <!-- Head Stuff -->
-</head>
+<slot:head>
+  <meta charset="AAA" />
+</slot:head>
 
-<body>
-    <Hero bar={title}></Hero>
+<slot:body>
+    <Hero bar={context.title}></Hero>
     
-    <div foo={title} class="container" style="margin: 0 auto">
+    <div foo={context.title} class="container" style="margin: 0 auto">
       <section class="snow-view__docs is-full is-home">
   
         <aside id="nav-primary" class="snow-view-nav">
@@ -95,4 +94,4 @@
   
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async="async" defer="defer" src="https://buttons.github.io/buttons.js"></script>
-</body>
+</slot:body>

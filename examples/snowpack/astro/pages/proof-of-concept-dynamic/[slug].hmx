@@ -1,4 +1,4 @@
-<script hmx="setup">
+<script astro>
   import Subnav from '../components/Subnav.hmx';
     import { content as Menu } from '../components/Menu.hmx';
     // import contentful from 'skypack:contentful';
@@ -16,12 +16,12 @@
             <Menu />
         </aside>
 
-        <Subnav title={title} />
+      <Subnav title={context.title} headers={context.content.headers} />
 
         <article class="snow-view-main">
             <div class="content">
                 <h2 class="content-title">
-                    {title}
+                    {context.title}
                 </h2>
                 <div class="content-layout">
                     <div class="content-body">

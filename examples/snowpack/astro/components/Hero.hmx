@@ -1,5 +1,4 @@
-<Component>
-  <div class="hero">
+<div class="hero">
   <div class="section">
     <h1 class="header-snowpack">Snowpack</h1>
     <p class="header-snowpack-subtitle">The faster frontend build tool.</p>
@@ -7,11 +6,15 @@
     <div class="hero-cta">
       <a href="/tutorials/quick-start" class="button button-primary">Get started</a>
       <div style="margin: 0.5rem"></div>
-      <button  id="copy-button" class="copy-button hidden-mobile" data-clipboard-text="npm install snowpack">
+      <button id="copy-button" class="copy-button hidden-mobile" data-clipboard-text="npm install snowpack">
         <span class="faded" style="margin-right: 0.75rem;">$</span>
         <span id="copy-button-text">npm install snowpack</span>
-        <svg style="height: 22px;width: 22px;margin: -0.1rem -0.1rem 0 0.75rem;" aria-hidden="true" focusable="false" data-prefix="far" data-icon="clone" class="svg-inline--fa fa-clone fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512">
-          <path fill="currentColor" d="M464 0H144c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h320c26.51 0 48-21.49 48-48v-48h48c26.51 0 48-21.49 48-48V48c0-26.51-21.49-48-48-48zM362 464H54a6 6 0 0 1-6-6V150a6 6 0 0 1 6-6h42v224c0 26.51 21.49 48 48 48h224v42a6 6 0 0 1-6 6zm96-96H150a6 6 0 0 1-6-6V54a6 6 0 0 1 6-6h308a6 6 0 0 1 6 6v308a6 6 0 0 1-6 6z"></path>
+        <svg style="height: 22px;width: 22px;margin: -0.1rem -0.1rem 0 0.75rem;" aria-hidden="true" focusable="false"
+          data-prefix="far" data-icon="clone" class="svg-inline--fa fa-clone fa-w-16" role="img"
+          xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512">
+          <path fill="currentColor"
+            d="M464 0H144c-26.51 0-48 21.49-48 48v48H48c-26.51 0-48 21.49-48 48v320c0 26.51 21.49 48 48 48h320c26.51 0 48-21.49 48-48v-48h48c26.51 0 48-21.49 48-48V48c0-26.51-21.49-48-48-48zM362 464H54a6 6 0 0 1-6-6V150a6 6 0 0 1 6-6h42v224c0 26.51 21.49 48 48 48h224v42a6 6 0 0 1-6 6zm96-96H150a6 6 0 0 1-6-6V54a6 6 0 0 1 6-6h308a6 6 0 0 1 6 6v308a6 6 0 0 1-6 6z">
+          </path>
         </svg>
       </button>
       <script type="module">
@@ -19,10 +22,10 @@
         const clippy = new Clipboard('.copy-button');
         const copyText = document.getElementById('copy-button').innerHTML;
         clippy.on('success', function (e) {
-        document.getElementById('copy-button').style.minWidth = document.getElementById('copy-button').offsetWidth;
+          document.getElementById('copy-button').style.minWidth = document.getElementById('copy-button').offsetWidth;
           console.info('Trigger:', e);
           document.getElementById('copy-button').innerHTML = '<span>copied to clipboard!</span>';
-           document.getElementById('copy-button').addEventListener("mouseleave", function( event ) {
+          document.getElementById('copy-button').addEventListener("mouseleave", function (event) {
             document.getElementById('copy-button').innerHTML = copyText;
           }, false);
 
@@ -39,9 +42,9 @@
     <div class="hero-cta">
       <!-- Place this tag where you want the button to render. -->
       <div class="hidden-mobile" style="text-align: center; height: 36px;">
-        <a class="github-button" href="https://github.com/snowpackjs/snowpack" data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star snowpackjs/snowpack on GitHub">Star</a >
+        <a class="github-button" href="https://github.com/snowpackjs/snowpack" data-icon="octicon-star"
+          data-size="large" data-show-count="true" aria-label="Star snowpackjs/snowpack on GitHub">Star</a>
       </div>
     </div>
   </div>
 </div>
-</Component>

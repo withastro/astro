@@ -53,6 +53,10 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
       continue;
     }
     const val: TemplateNode = attr.value[0];
+    if (!val) {
+      result[attr.name] = '(' + val + ')';
+      continue;
+    }
     switch (val.type) {
       case 'MustacheTag':
         result[attr.name] = '(' + val.expression + ')';
@@ -143,33 +147,37 @@ function getComponentWrapper(_name: string, { type, url }: { type: string; url: 
 }
 
 function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
+  let compiledCode = compileExpressionSafe(raw, loader);
   // esbuild treeshakes unused imports. In our case these are components, so let's keep them.
   const imports = eslexer
-    .parse(raw)[0]
-    .filter(({ d }) => d === -1)
-    .map((i: any) => raw.substring(i.ss, i.se));
+      .parse(raw)[0]
+      .filter(({ d }) => d === -1)
+      .map((i) => raw.substring(i.ss, i.se));
+  for (let importStatement of imports) {
+      if (!compiledCode.includes(importStatement)) {
+          compiledCode = importStatement + '\n' + compiledCode;
+      }
+  }
+  return compiledCode;
+}
 
+
+function compileExpressionSafe(raw: string, loader: 'jsx' | 'tsx'): string {
   let { code } = transformSync(raw, {
     loader,
     jsxFactory: 'h',
     jsxFragment: 'Fragment',
     charset: 'utf8',
   });
-
-  for (let importStatement of imports) {
-    if (!code.includes(importStatement)) {
-      code = importStatement + '\n' + code;
-    }
-  }
-
   return code;
+
 }
 
 export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Promise<TransformResult> {
   await eslexer.init;
 
   // Compile scripts as TypeScript, always
-  const script = compileScriptSafe(ast.instance ? ast.instance.content : '', 'tsx');
+  const script = compileScriptSafe(ast.module ? ast.module.content : '', 'tsx');
 
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
@@ -182,6 +190,8 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   );
 
   const additionalImports = new Set<string>();
+  let headItem: JsxItem | undefined;
+  let bodyItem: JsxItem | undefined;
   let items: JsxItem[] = [];
   let mode: 'JSX' | 'SCRIPT' | 'SLOT' = 'JSX';
   let collectionItem: JsxItem | undefined;
@@ -192,7 +202,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
     enter(node: TemplateNode) {
       switch (node.type) {
         case 'MustacheTag':
-          let code = compileScriptSafe(node.expression, 'jsx');
+          let code = compileExpressionSafe(node.expression, 'jsx');
 
           let matches: RegExpExecArray[] = [];
           let match: RegExpExecArray | null | undefined;
@@ -230,8 +240,12 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
             return;
           }
           break;
+
+        case 'Head':
+        case 'Body':
         case 'InlineComponent':
-        case 'Element':
+        case 'Title':
+        case 'Element': {
           const name: string = node.name;
           if (!name) {
             throw new Error('AHHHH');
@@ -241,16 +255,22 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           currentItemName = name;
           if (!collectionItem) {
             collectionItem = { name, jsx: '' };
+            if (node.type === 'Head') {
+              collectionItem.jsx += `h(Fragment, null`;
+              headItem = collectionItem;
+              return;
+            }
+            if (node.type === 'Body') {
+              collectionItem.jsx += `h(Fragment, null`;
+              bodyItem = collectionItem;
+              return;
+            }
             items.push(collectionItem);
           }
           collectionItem.jsx += collectionItem.jsx === '' ? '' : ',';
           const COMPONENT_NAME_SCANNER = /^[A-Z]/;
           if (!COMPONENT_NAME_SCANNER.test(name)) {
             collectionItem.jsx += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
-            return;
-          }
-          if (name === 'Component') {
-            collectionItem.jsx += `h(Fragment, null`;
             return;
           }
           const [componentName, componentKind] = name.split(':');
@@ -265,6 +285,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
 
           collectionItem.jsx += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
           return;
+        }
         case 'Attribute': {
           this.skip();
           return;
@@ -293,7 +314,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           return;
         }
         default:
-          throw new Error('Unexpected node type: ' + node.type);
+          throw new Error('Unexpected (enter) node type: ' + node.type);
       }
     },
     leave(node, parent, prop, index) {
@@ -314,6 +335,9 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           if (!collectionItem) {
             return;
           }
+        case 'Head':
+        case 'Body':
+        case 'Title':
         case 'Element':
         case 'InlineComponent':
           if (!collectionItem) {
@@ -329,13 +353,15 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           return;
         }
         default:
-          throw new Error('Unexpected node type: ' + node.type);
+          throw new Error('Unexpected (leave) node type: ' + node.type);
       }
     },
   });
 
   return {
     script: script + '\n' + Array.from(additionalImports).join('\n'),
+    head: headItem,
+    body: bodyItem,
     items,
   };
 }

@@ -1,5 +1,7 @@
-<script hmx="setup">
+<script astro>
   import Card from '../components/Card.jsx';
+
+  export const layout = 'layouts/main.hmx';
 
   // mocked for now, to be added later
   // 1. import {paginate} from 'magicthing';
@@ -7,46 +9,48 @@
   function paginate(options) {
     if (options.tag === 'guide') {
       return [
-        {title: 'Test guide 1', href:"#"},
-        {title: 'Test guide 2', href:"#"},
+        { title: 'Test guide 1', href: "#" },
+        { title: 'Test guide 2', href: "#" },
       ];
     }
     if (options.tag === 'communityGuides') {
-      return [{title: 'Test communityGuides', href:"#"}];
+      return [{ title: 'Test communityGuides', href: "#" }];
     }
     return [];
   }
-  export function setup({/* paginate */}) {
+
+  export function setup({ context, /* paginate */ }) {
     return {
-      title: 'Guides',
-      description: "Snowpack's usage and integration guides.",
-      layout: 'layouts/main.hmx',
-      props: {
-        guides: paginate({
-          files: '/posts/guides/*.md',
-          // sort: ((a, b) => new Date(b) - new Date(a)),
-          tag: 'guide',
-          limit: 10,
-          // page: query.page,
-        }),
-        communityGuides: paginate({
-          files: '/posts/guides/*.md',
-          // sort: ((a, b) => new Date(b) - new Date(a)),
-          tag: 'communityGuides',
-          limit: 10,
-        }),
+      context: {
+        title: 'Guides',
+        description: "Snowpack's usage and integration guides.",
+        props: {
+          guides: paginate({
+            files: '/posts/guides/*.md',
+            // sort: ((a, b) => new Date(b) - new Date(a)),
+            tag: 'guide',
+            limit: 10,
+            // page: query.page,
+          }),
+          communityGuides: paginate({
+            files: '/posts/guides/*.md',
+            // sort: ((a, b) => new Date(b) - new Date(a)),
+            tag: 'communityGuides',
+            limit: 10,
+          }),
+        }
       }
     };
   }
 </script>
 
-<head>
+<slot:head>
 
-</head>
+</slot:head>
 
-<body>
+<slot:body>
   <h2 class="content-title">
-    {title}
+    {context.title}
   </h2>
 
   <h3 class="content-title">
@@ -56,13 +60,13 @@
   <div class="content">
     <ul>
       {props.guides.map((post) => {
-        return <li><a href={post.href}>{post.title}</a></li>;
+      return <li><a href={post.href}>{post.title}</a></li>;
       })}
     </ul>
   </div>
 
-  <br/>
-  <br/>
+  <br />
+  <br />
 
   <h3 class="content-title">
     Popular Integration Guides
@@ -70,7 +74,8 @@
 
   <div class="card-grid card-grid-4">
     {props.communityGuides.map((post) => {
-      return <Card item={post} />;
+    return
+    <Card item={post} />;
     })}
   </div>
-</body>
+</slot:body>

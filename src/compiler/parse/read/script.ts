@@ -7,15 +7,16 @@ import { Node, Program } from 'estree';
 
 const script_closing_tag = '</script>';
 
-function get_context(parser: Parser, attributes: any[], start: number): string {
-  const context = attributes.find((attribute) => attribute.name === 'context');
-  if (!context) return 'default';
+function get_context(parser: Parser, attributes: any[], start: number): 'runtime' | 'setup' {
+  const context = attributes.find((attribute) => attribute.name === 'astro');
+  if (!context) return 'runtime';
+  if (context.value === true) return 'setup';
 
   if (context.value.length !== 1 || context.value[0].type !== 'Text') {
     parser.error(
       {
         code: 'invalid-script',
-        message: 'context attribute must be static',
+        message: 'astro attribute must be static',
       },
       start
     );
@@ -23,11 +24,11 @@ function get_context(parser: Parser, attributes: any[], start: number): string {
 
   const value = context.value[0].data;
 
-  if (value !== 'module') {
+  if (value !== 'setup') {
     parser.error(
       {
         code: 'invalid-script',
-        message: 'If the context attribute is supplied, its value must be "module"',
+        message: 'If the "astro" attribute has a value, its value must be "setup"',
       },
       context.start
     );

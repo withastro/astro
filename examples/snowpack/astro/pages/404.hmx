@@ -1,16 +1,17 @@
-<script hmx="setup">
-  export function setup() {
+<script astro>
+  export const layout = 'layouts/main.hmx';
+
+  export function setup({ context }) {
     return {
-      title: '404 - Not Found',
-      layout: 'layouts/main.hmx',
-      props: {
+      context: {
+        title: '404 - Not Found',
       }
     };
   }
 </script>
 
 <h2 class="content-title">
-  {title}
+  {context.title}
 </h2>
 
 <div class="content">

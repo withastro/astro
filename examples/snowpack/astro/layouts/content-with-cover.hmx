@@ -1,12 +1,14 @@
-<script hmx="setup">
+<script astro>
   import Menu from '../components/Menu.hmx';
   import Subnav from '../components/Subnav.hmx';
-  export function setup() {
-    return {layout: 'layouts/base.hmx', props: {}};
+
+  export const layout = 'layouts/base.hmx';
+  export function setup({ context }) {
+    return {};
   }
 </script>
 
-<head>
+<slot:head>
   <style>
     .cover-wrapper {
       width: 100%;
@@ -47,13 +49,13 @@
   </style>
   
   <slot></slot>
-</head>
+</slot:head>
 
-<body>
+<slot:body>
 
 <div class="cover-wrapper">
-  <img class="cover-blur" src={props.cover} alt=""/>
-  <img class="cover" src={props.cover} alt=""/>
+  <img class="cover-blur" src={context.cover} alt=""/>
+  <img class="cover" src={context.cover} alt=""/>
 </div>
 
 <div class="container">
@@ -66,7 +68,7 @@
     <article class="snow-view-main">
       <div class="content">
         <h2 class="content-title">
-          {title}
+          {context.title}
         </h2>
         <div class="content-layout">
           <div class="content-body">
@@ -76,7 +78,7 @@
       </div>
     </article>
 
-    <Subnav title={title} />
+    <Subnav title={context.title} headers={context.content.headers} />
   </section>
 </div>
-</body>
+</slot:body>

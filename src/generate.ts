@@ -52,6 +52,7 @@ export default async function (astroConfig: AstroConfig) {
       await writeFile(outPath, html, 'utf-8');
     } catch (err) {
       console.error('Unable to generate page', rel);
+      console.error(err);
     }
   }
 

@@ -1,4 +1,3 @@
-<Component>
 <nav class="snow-toc">
   <ol class="snow-toc-contents">
     <li class="snow-toc-section">
@@ -83,4 +82,3 @@
     </li>
   </ol>
 </nav>
-</Component>

@@ -1,33 +1,22 @@
-<script hmx="setup">
+<script astro>
   import Subnav from '../components/Subnav.hmx';
   import Menu from '../components/Menu.hmx';
-  import markdownToAst from "mdast-util-from-markdown";
-  import markdownTableOfContents from "mdast-util-toc";
 
-  export function setup({content}) {
-    const mdAst = markdownToAst(content.source);
-    // This is super gross, and just me trying to get an existing table of contents generator to work
-    // we can either do this internally as helpful sugar, or build a simpler one as a plugin
-    const headingsAst = markdownTableOfContents(mdAst);
-    const headings = headingsAst.map ? headingsAst.map.children.map(ch => {
-      return {depth: 1, url: ch.children[0].children[0].url, text: ch.children[0].children[0].children[0].value};
-    }) : [];
-
-    return { 
-      layout: 'layouts/base.hmx', 
-      props: {
-        headings,
-      } 
+  export const layout = 'layouts/base.hmx';
+  export function setup({ context }) {
+    return {
+      context: {
+      }
     };
   }
 </script>
 
-<head>
+<slot:head>
     
   <slot></slot>
-</head>
+</slot:head>
 
-<body>
+<slot:body>
   <div class="container">
     <section class="snow-view__docs has-subnav">
 
@@ -35,12 +24,12 @@
         <Menu />
       </aside>
 
-      <Subnav title={title} headings={props.headings} />
+      <Subnav title={context.title} headers={context.content.headers} />
 
       <article class="snow-view-main">
         <div class="content">
           <h2 class="content-title">
-            {title}
+            {context.title}
           </h2>
           <div class="content-layout">
             <div class="content-body">
@@ -52,4 +41,4 @@
 
     </section>
   </div>
-</body>
+</slot:body>

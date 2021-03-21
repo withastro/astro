@@ -232,33 +232,34 @@ export default function parse(template: string, options: ParserOptions = {}): As
     );
   }
 
-  const instance_scripts = parser.js.filter((script) => script.context === 'default');
-  const module_scripts = parser.js.filter((script) => script.context === 'module');
+  // const instance_scripts = parser.js.filter((script) => script.context === 'default');
+  // const module_scripts = parser.js.filter((script) => script.context === 'module');
+  const hmx_scripts = parser.js.filter((script) => script.context === 'setup');
 
-  if (instance_scripts.length > 1) {
+  if (hmx_scripts.length > 1) {
     parser.error(
       {
         code: 'invalid-script',
-        message: 'A component can only have one instance-level <script> element',
+        message: 'A component can only have one <script astro> element',
       },
-      instance_scripts[1].start
+      hmx_scripts[1].start
     );
   }
 
-  if (module_scripts.length > 1) {
-    parser.error(
-      {
-        code: 'invalid-script',
-        message: 'A component can only have one <script context="module"> element',
-      },
-      module_scripts[1].start
-    );
-  }
+  // if (module_scripts.length > 1) {
+  //   parser.error(
+  //     {
+  //       code: 'invalid-script',
+  //       message: 'A component can only have one <script context="module"> element',
+  //     },
+  //     module_scripts[1].start
+  //   );
+  // }
 
   return {
     html: parser.html,
     css: parser.css[0],
-    instance: instance_scripts[0],
-    module: module_scripts[0],
+    // instance: instance_scripts[0],
+    module: hmx_scripts[0],
   };
 }

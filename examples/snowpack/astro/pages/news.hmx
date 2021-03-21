@@ -1,31 +1,33 @@
-<script hmx="setup">
+<script astro>
   import Card from '../components/Card.jsx';
   import CompanyLogo from '../components/CompanyLogo.jsx';
   import NewsAssets from '../components/NewsAssets.svelte';
   import NewsTitle from '../components/NewsTitle.vue';
 
+  export const layout = 'layouts/main.hmx';
+
   import news from '../data/news.json';
   import users from '../data/users.json';
 
-  export function setup({ findContent }) {
+  export function setup({ context, request }) {
+    console.log(request);
     return {
-      title: 'Community & News',
-      description: "Snowpack community news and companies that use Snowpack.",
-      layout: 'layouts/main.hmx',
-      // Using Snowpack? Want to be featured on snowpack.dev?
-      // Add your project, organization, or company to the end of this list!
-      props: {
+      context: {
+        title: 'Community & News',
+        description: "Snowpack community news and companies that use Snowpack.",
+        // Using Snowpack? Want to be featured on snowpack.dev?
+        // Add your project, organization, or company to the end of this list!
         news,
         users,
       }
-    };
+    }
   }
 </script>
 
-<head> </head>
+<slot:head> </slot:head>
 
-<body>
-  <NewsTitle title={title} />
+<slot:body>
+  <NewsTitle title={context.title} />
 
   <p>
     Get the latest news, blog posts, and tutorials on Snowpack. <a href="/feed.xml">Also available via RSS.</a>
@@ -45,7 +47,8 @@
         working on!</div>
     </article>
 
-    {props.news.reverse().map((item) => <Card:dynamic item={item} />)}
+    {context.news.reverse().map((item) =>
+    <Card:dynamic item={item} />)}
   </div>
 
   <div class="content">
@@ -54,7 +57,8 @@
 
     <div class="company-logos">
 
-      {props.users.map((user) => <CompanyLogo user={user} />)}
+      {context.users.map((user) =>
+      <CompanyLogo user={user} />)}
 
       <a href="https://github.com/snowpackjs/snowpack/edit/main/www/_template/news.md" target="_blank"
         title="Add Your Project/Company!" class="add-company-button">
@@ -70,4 +74,4 @@
 
     <NewsAssets />
   </div>
-</body>
+</slot:body>

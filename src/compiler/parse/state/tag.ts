@@ -14,13 +14,14 @@ import list from '../../utils/list.js';
 const valid_tag_name = /^\!?[a-zA-Z]{1,}:?[a-zA-Z0-9\-]*/;
 
 const meta_tags = new Map([
-  ['svelte:head', 'Head'],
-  ['svelte:options', 'Options'],
-  ['svelte:window', 'Window'],
-  ['svelte:body', 'Body'],
+  ['slot:head', 'Head'],
+  ['slot:body', 'Body'],
+  // ['astro:options', 'Options'],
+  // ['astro:window', 'Window'],
+  // ['astro:body', 'Body'],
 ]);
 
-const valid_meta_tags = Array.from(meta_tags.keys()).concat('svelte:self', 'svelte:component', 'svelte:fragment');
+const valid_meta_tags = Array.from(meta_tags.keys()); //.concat('astro:self', 'astro:component', 'astro:fragment');
 
 const specials = new Map([
   [
@@ -39,9 +40,10 @@ const specials = new Map([
   ],
 ]);
 
-const SELF = /^svelte:self(?=[\s/>])/;
-const COMPONENT = /^svelte:component(?=[\s/>])/;
-const SLOT = /^svelte:fragment(?=[\s/>])/;
+const SELF = /^astro:self(?=[\s/>])/;
+const COMPONENT = /^astro:component(?=[\s/>])/;
+const SLOT = /^astro:fragment(?=[\s/>])/;
+const HEAD = /^head(?=[\s/>])/;
 
 function parent_is_head(stack) {
   let i = stack.length;
@@ -79,7 +81,7 @@ export default function tag(parser: Parser) {
   if (meta_tags.has(name)) {
     const slug = meta_tags.get(name).toLowerCase();
     if (is_closing_tag) {
-      if ((name === 'svelte:window' || name === 'svelte:body') && parser.current().children.length) {
+      if ((name === 'astro:window' || name === 'astro:body') && parser.current().children.length) {
         parser.error(
           {
             code: `invalid-${slug}-content`,
@@ -115,9 +117,9 @@ export default function tag(parser: Parser) {
 
   const type = meta_tags.has(name)
     ? meta_tags.get(name)
-    : /[A-Z]/.test(name[0]) || name === 'svelte:self' || name === 'svelte:component'
+    : /[A-Z]/.test(name[0]) || name === 'astro:self' || name === 'astro:component'
     ? 'InlineComponent'
-    : name === 'svelte:fragment'
+    : name === 'astro:fragment'
     ? 'SlotTemplate'
     : name === 'title' && parent_is_head(parser.stack)
     ? 'Title'
@@ -197,13 +199,13 @@ export default function tag(parser: Parser) {
     parser.allow_whitespace();
   }
 
-  if (name === 'svelte:component') {
+  if (name === 'astro:component') {
     const index = element.attributes.findIndex((attr) => attr.type === 'Attribute' && attr.name === 'this');
     if (!~index) {
       parser.error(
         {
           code: 'missing-component-definition',
-          message: "<svelte:component> must have a 'this' attribute",
+          message: "<astro:component> must have a 'this' attribute",
         },
         start
       );
@@ -281,27 +283,29 @@ function read_tag_name(parser: Parser) {
       parser.error(
         {
           code: 'invalid-self-placement',
-          message: '<svelte:self> components can only exist inside {#if} blocks, {#each} blocks, or slots passed to components',
+          message: '<astro:self> components can only exist inside {#if} blocks, {#each} blocks, or slots passed to components',
         },
         start
       );
     }
 
-    return 'svelte:self';
+    return 'astro:self';
   }
 
-  if (parser.read(COMPONENT)) return 'svelte:component';
+  if (parser.read(COMPONENT)) return 'astro:component';
 
-  if (parser.read(SLOT)) return 'svelte:fragment';
+  if (parser.read(SLOT)) return 'astro:fragment';
+  
+  if (parser.read(HEAD)) return 'head';
 
   const name = parser.read_until(/(\s|\/|>)/);
 
   if (meta_tags.has(name)) return name;
 
-  if (name.startsWith('svelte:')) {
+  if (name.startsWith('astro:')) {
     const match = fuzzymatch(name.slice(7), valid_meta_tags);
 
-    let message = `Valid <svelte:...> tag names are ${list(valid_meta_tags)}`;
+    let message = `Valid <astro:...> tag names are ${list(valid_meta_tags)}`;
     if (match) message += ` (did you mean '${match}'?)`;
 
     parser.error(

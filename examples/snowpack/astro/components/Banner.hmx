@@ -1,12 +1,10 @@
-<Component>
-  <section class="grid-banner">
-    <div class="notification">
-      <div class="container">
-        Snowpack 3.0 is out now!
-        <a href="/posts/2021-01-13-snowpack-3-0">
-          Read the announcement post →
-        </a>
-      </div>
+<section class="grid-banner">
+  <div class="notification">
+    <div class="container">
+      Snowpack 3.0 is out now!
+      <a href="/posts/2021-01-13-snowpack-3-0">
+        Read the announcement post →
+      </a>
     </div>
-  </section>
-</Component>
+  </div>
+</section>

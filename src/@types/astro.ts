@@ -17,9 +17,12 @@ export interface JsxItem {
 
 export interface TransformResult {
   script: string;
+  head: JsxItem | undefined;
+  body: JsxItem | undefined;
   items: JsxItem[];
 }
 
 export interface CompileResult {
+  result: TransformResult;
   contents: string;
 }

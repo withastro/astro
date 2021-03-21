@@ -1,11 +1,12 @@
-<script hmx="setup">
+<script astro>
   import {format as formatDate, parseISO} from 'date-fns';
-  export function setup() {
-    return { layout: 'layouts/base.hmx', props: {} };
+  export const layout = 'layouts/base.hmx';
+  export function setup({ context }) {
+    return {};
   }
 </script>
 
-<head>
+<slot:head>
   <link rel="stylesheet" href="/css/legacy-post.css" />
   <style>
     .markdown-body img,
@@ -99,10 +100,9 @@
     }
   </style> 
   <slot></slot>
-</head>
+</slot:head>
 
-<body>
-
+<slot:body>
   <div class="grid-extra-space">
     <div class="grid-body-header">
       <svg height="80px" style="padding-left: 8px;" viewBox="0 0 640 512" version="1.1"
@@ -115,7 +115,7 @@
           </g>
         </g>
       </svg>
-      <h1 class="header-snowpack">{title}</h1>
+      <h1 class="header-snowpack">{context.title}</h1>
 
 
       <p>
@@ -140,4 +140,4 @@
         <slot></slot>
       </article>
     </div>
-</body>
+</slot:body>

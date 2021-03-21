@@ -58,7 +58,14 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
   try {
     const mod = await snowpackRuntime.importModule(selectedPageUrl);
-    const html = (await mod.exports.default()) as string;
+    const html = (await mod.exports.__renderPage({
+      request: {
+        host: fullurl.hostname,
+        path: fullurl.pathname,
+        href: fullurl.toString(),
+      },
+      children: [],
+    })) as string;
 
     return {
       statusCode: 200,
