@@ -52,13 +52,12 @@ async function convertMdToJsx(
   { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
 ): Promise<TransformResult> {
   const { data: _frontmatterData, content } = matter(contents);
-  const {headers, headersExtension} = createMarkdownHeadersCollector();
+  const { headers, headersExtension } = createMarkdownHeadersCollector();
   const mdHtml = micromark(content, {
     extensions: [gfmSyntax()],
     htmlExtensions: [gfmHtml, headersExtension],
   });
 
-  console.log("headers", headers);
   const setupContext = {
     ..._frontmatterData,
     content: {

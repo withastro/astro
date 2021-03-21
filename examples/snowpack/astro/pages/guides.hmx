@@ -24,21 +24,19 @@
       context: {
         title: 'Guides',
         description: "Snowpack's usage and integration guides.",
-        props: {
-          guides: paginate({
-            files: '/posts/guides/*.md',
-            // sort: ((a, b) => new Date(b) - new Date(a)),
-            tag: 'guide',
-            limit: 10,
-            // page: query.page,
-          }),
-          communityGuides: paginate({
-            files: '/posts/guides/*.md',
-            // sort: ((a, b) => new Date(b) - new Date(a)),
-            tag: 'communityGuides',
-            limit: 10,
-          }),
-        }
+        guides: paginate({
+          files: '/posts/guides/*.md',
+          // sort: ((a, b) => new Date(b) - new Date(a)),
+          tag: 'guide',
+          limit: 10,
+          // page: query.page,
+        }),
+        communityGuides: paginate({
+          files: '/posts/guides/*.md',
+          // sort: ((a, b) => new Date(b) - new Date(a)),
+          tag: 'communityGuides',
+          limit: 10,
+        }),
       }
     };
   }
@@ -59,7 +57,7 @@
 
   <div class="content">
     <ul>
-      {props.guides.map((post) => {
+      {context.guides.map((post) => {
       return <li><a href={post.href}>{post.title}</a></li>;
       })}
     </ul>
@@ -73,7 +71,7 @@
   </h3>
 
   <div class="card-grid card-grid-4">
-    {props.communityGuides.map((post) => {
+    {context.communityGuides.map((post) => {
     return
     <Card item={post} />;
     })}

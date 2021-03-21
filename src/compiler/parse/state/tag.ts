@@ -295,7 +295,7 @@ function read_tag_name(parser: Parser) {
   if (parser.read(COMPONENT)) return 'astro:component';
 
   if (parser.read(SLOT)) return 'astro:fragment';
-  
+
   if (parser.read(HEAD)) return 'head';
 
   const name = parser.read_until(/(\s|\/|>)/);

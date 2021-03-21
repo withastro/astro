@@ -118,13 +118,13 @@
       <h1 class="header-snowpack">{context.title}</h1>
 
 
-      <p>
-        {props.tagline && <div style="margin-bottom: 1rem;">{props.tagline}</div>}
+      <div>
+        {context.tagline && <div style="margin-bottom: 1rem;">{context.tagline}</div>}
         <div>
-          Published <a href='#published-at'>{formatDate(parseISO(props.date), 'MMMM	d, yyyy')}</a> 
+          Published <a href='#published-at'>{formatDate(parseISO(context.date), 'MMMM	d, yyyy')}</a> 
           by <a href="https://twitter.com/FredKSchott">Fred K. Schott</a>
         </div>
-      </p>
+      </div>
 
       <!-- Place this tag where you want the button to render. -->
       <div class="hidden-mobile" style="text-align: center; margin-top: 0.5rem; filter: scale(2);">

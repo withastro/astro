@@ -150,17 +150,16 @@ function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
   let compiledCode = compileExpressionSafe(raw, loader);
   // esbuild treeshakes unused imports. In our case these are components, so let's keep them.
   const imports = eslexer
-      .parse(raw)[0]
-      .filter(({ d }) => d === -1)
-      .map((i) => raw.substring(i.ss, i.se));
+    .parse(raw)[0]
+    .filter(({ d }) => d === -1)
+    .map((i) => raw.substring(i.ss, i.se));
   for (let importStatement of imports) {
-      if (!compiledCode.includes(importStatement)) {
-          compiledCode = importStatement + '\n' + compiledCode;
-      }
+    if (!compiledCode.includes(importStatement)) {
+      compiledCode = importStatement + '\n' + compiledCode;
+    }
   }
   return compiledCode;
 }
-
 
 function compileExpressionSafe(raw: string, loader: 'jsx' | 'tsx'): string {
   let { code } = transformSync(raw, {
@@ -170,7 +169,6 @@ function compileExpressionSafe(raw: string, loader: 'jsx' | 'tsx'): string {
     charset: 'utf8',
   });
   return code;
-
 }
 
 export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Promise<TransformResult> {
@@ -253,6 +251,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           const attributes = getAttributes(node.attributes);
           currentDepth++;
           currentItemName = name;
+
           if (!collectionItem) {
             collectionItem = { name, jsx: '' };
             if (node.type === 'Head') {
