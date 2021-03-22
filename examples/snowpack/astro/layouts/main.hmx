@@ -6,24 +6,16 @@
   }
 </script>
 
+<div class="container">
+  <section class="snow-view__docs is-full">
 
-<slot:head>
-  <!-- hi -->
-  <slot></slot>
-</slot:head>
+    <aside id="nav-primary" class="snow-view-nav">
+      <Menu />
+    </aside>
 
-<slot:body>
-  <div class="container">
-    <section class="snow-view__docs is-full">
+    <article class="snow-view-main">
+      <slot></slot>
+    </article>
 
-      <aside id="nav-primary" class="snow-view-nav">
-        <Menu />
-      </aside>
-
-      <article class="snow-view-main">
-        <slot></slot>
-      </article>
-
-    </section>
-  </div>
-</slot:body>
+  </section>
+</div>

@@ -7,6 +7,9 @@ import { doc } from './test-utils.js';
 
 const { readdir, stat } = fsPromises;
 
+// Bug: Snowpack config is still loaded relative to the current working directory.
+process.chdir(new URL('../examples/snowpack/', import.meta.url).pathname);
+
 const SnowpackDev = suite('snowpack.dev');
 
 let runtime;
@@ -67,8 +70,10 @@ SnowpackDev('Can load every page', async () => {
     assert.equal(result.statusCode, 200, `Loading ${pathname}`);
   }
 
-  console.error(failed);
-  assert.equal(failed.length, 1, 'Failed pages (1 expected)');
+  if (failed.length > 0) {
+    console.error(failed);
+  }
+  assert.equal(failed.length, 0, 'Failed pages');
 });
 
 SnowpackDev.run();

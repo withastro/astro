@@ -134,7 +134,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
             const code = node.content.styles;
             const typeAttr = (node.attributes || []).find(({ name }: { name: string }) => name === 'type');
             styleNodes.push(node);
-            styleTransformPromises.push(transformStyle(code, { type: (typeAttr.value[0] && typeAttr.value[0].raw) || undefined, filename, fileID }));
+            styleTransformPromises.push(transformStyle(code, { type: (typeAttr && typeAttr.value[0] && typeAttr.value[0].raw) || undefined, filename, fileID }));
 
             // TODO: we should delete the old untransformed <style> node after we’re done.
             // However, the svelte parser left it in ast.css, not ast.html. At the final step, this just gets ignored, so it will be deleted, in a sense.

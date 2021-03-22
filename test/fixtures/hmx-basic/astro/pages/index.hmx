@@ -6,10 +6,8 @@
   }
 </script>
 
-<slot:head>
+<astro:head>
   <!-- Head Stuff -->
-</slot:head>
+</astro:head>
 
-<slot:body>
-    <h1>Hello world!</h1>
-</slot:body>
+<h1>Hello world!</h1>

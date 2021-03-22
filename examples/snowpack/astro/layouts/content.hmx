@@ -11,34 +11,27 @@
   }
 </script>
 
-<slot:head>
-    
-  <slot></slot>
-</slot:head>
+<div class="container">
+  <section class="snow-view__docs has-subnav">
 
-<slot:body>
-  <div class="container">
-    <section class="snow-view__docs has-subnav">
+    <aside id="nav-primary" class="snow-view-nav">
+      <Menu />
+    </aside>
 
-      <aside id="nav-primary" class="snow-view-nav">
-        <Menu />
-      </aside>
+    <Subnav title={context.title} headers={context.content.headers} />
 
-      <Subnav title={context.title} headers={context.content.headers} />
-
-      <article class="snow-view-main">
-        <div class="content">
-          <h2 class="content-title">
-            {context.title}
-          </h2>
-          <div class="content-layout">
-            <div class="content-body">
-              <slot></slot>
-            </div>
+    <article class="snow-view-main">
+      <div class="content">
+        <h2 class="content-title">
+          {context.title}
+        </h2>
+        <div class="content-layout">
+          <div class="content-body">
+            <slot></slot>
           </div>
         </div>
-      </article>
+      </div>
+    </article>
 
-    </section>
-  </div>
-</slot:body>
+  </section>
+</div>

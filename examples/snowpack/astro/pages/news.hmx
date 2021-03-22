@@ -25,58 +25,54 @@
   }
 </script>
 
-<slot:head> </slot:head>
+<NewsTitle title={context.title} />
 
-<slot:body>
-  <NewsTitle title={context.title} />
+<p>
+  Get the latest news, blog posts, and tutorials on Snowpack. <a href="/feed.xml">Also available via RSS.</a>
+</p>
 
-  <p>
-    Get the latest news, blog posts, and tutorials on Snowpack. <a href="/feed.xml">Also available via RSS.</a>
-  </p>
+<p>
+  Got something that you think we should feature?
+  <a href="https://github.com/snowpackjs/snowpack/edit/main/www/_data/news.js">Submit it!</a>
+</p>
 
-  <p>
-    Got something that you think we should feature?
-    <a href="https://github.com/snowpackjs/snowpack/edit/main/www/_data/news.js">Submit it!</a>
-  </p>
+<p>
+  In case you're curious, the best pokemon is <strong>{context.pokemonData.name}.</strong>
+</p>
 
-  <p>
-    In case you're curious, the best pokemon is <strong>{context.pokemonData.name}.</strong>
-  </p>
+<div class="card-grid card-grid-3">
+  <article class="discord-banner">
+    <a href="https://discord.gg/snowpack" style="flex-shrink: 0; height: 48px;"><img alt="Join us on Discord!"
+        src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"
+        style="height: 48px;  border: none; margin-right: 1rem; filter: brightness(1.2) contrast(1.5);" /></a>
+    <div>Join us on Discord to discuss Snowpack, meet other developers in our community, and show off what you’re
+      working on!</div>
+  </article>
 
-  <div class="card-grid card-grid-3">
-    <article class="discord-banner">
-      <a href="https://discord.gg/snowpack" style="flex-shrink: 0; height: 48px;"><img alt="Join us on Discord!"
-          src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"
-          style="height: 48px;  border: none; margin-right: 1rem; filter: brightness(1.2) contrast(1.5);" /></a>
-      <div>Join us on Discord to discuss Snowpack, meet other developers in our community, and show off what you’re
-        working on!</div>
-    </article>
+  {context.news.reverse().map((item) =>
+  <Card:dynamic item={item} />)}
+</div>
 
-    {context.news.reverse().map((item) =>
-    <Card:dynamic item={item} />)}
+<div class="content">
+
+  <h3>Who's Using Snowpack?</h3>
+
+  <div class="company-logos">
+
+    {context.users.map((user) =>
+    <CompanyLogo user={user} />)}
+
+    <a href="https://github.com/snowpackjs/snowpack/edit/main/www/_template/news.md" target="_blank"
+      title="Add Your Project/Company!" class="add-company-button">
+      <svg style="height: 22px; margin-right: 8px;" aria-hidden="true" focusable="false" data-prefix="fas"
+        data-icon="plus" class="company-logo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+        <path fill="currentColor"
+          d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z">
+        </path>
+      </svg>
+      Add your logo
+    </a>
   </div>
 
-  <div class="content">
-
-    <h3>Who's Using Snowpack?</h3>
-
-    <div class="company-logos">
-
-      {context.users.map((user) =>
-      <CompanyLogo user={user} />)}
-
-      <a href="https://github.com/snowpackjs/snowpack/edit/main/www/_template/news.md" target="_blank"
-        title="Add Your Project/Company!" class="add-company-button">
-        <svg style="height: 22px; margin-right: 8px;" aria-hidden="true" focusable="false" data-prefix="fas"
-          data-icon="plus" class="company-logo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
-          <path fill="currentColor"
-            d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z">
-          </path>
-        </svg>
-        Add your logo
-      </a>
-    </div>
-
-    <NewsAssets />
-  </div>
-</slot:body>
+  <NewsAssets />
+</div>

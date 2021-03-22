@@ -189,9 +189,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
 
   const additionalImports = new Set<string>();
   let headItem: JsxItem | undefined;
-  let bodyItem: JsxItem | undefined;
   let items: JsxItem[] = [];
-  let mode: 'JSX' | 'SCRIPT' | 'SLOT' = 'JSX';
   let collectionItem: JsxItem | undefined;
   let currentItemName: string | undefined;
   let currentDepth = 0;
@@ -225,10 +223,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           }
           collectionItem!.jsx += `,(${code.trim().replace(/\;$/, '')})`;
           return;
-        case 'Slot':
-          mode = 'SLOT';
-          collectionItem!.jsx += `,child`;
-          return;
         case 'Comment':
           return;
         case 'Fragment':
@@ -239,8 +233,8 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           }
           break;
 
+        case 'Slot':
         case 'Head':
-        case 'Body':
         case 'InlineComponent':
         case 'Title':
         case 'Element': {
@@ -251,7 +245,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           const attributes = getAttributes(node.attributes);
           currentDepth++;
           currentItemName = name;
-
           if (!collectionItem) {
             collectionItem = { name, jsx: '' };
             if (node.type === 'Head') {
@@ -259,14 +252,13 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
               headItem = collectionItem;
               return;
             }
-            if (node.type === 'Body') {
-              collectionItem.jsx += `h(Fragment, null`;
-              bodyItem = collectionItem;
-              return;
-            }
             items.push(collectionItem);
           }
           collectionItem.jsx += collectionItem.jsx === '' ? '' : ',';
+          if (node.type === 'Slot') {
+            collectionItem.jsx += `(children`;
+            return;
+          }
           const COMPONENT_NAME_SCANNER = /^[A-Z]/;
           if (!COMPONENT_NAME_SCANNER.test(name)) {
             collectionItem.jsx += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
@@ -296,9 +288,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
         }
         case 'Text': {
           const text = getTextFromAttribute(node);
-          if (mode === 'SLOT') {
-            return;
-          }
           if (!text.trim()) {
             return;
           }
@@ -323,17 +312,11 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
         case 'Attribute':
         case 'Comment':
           return;
-        case 'Slot': {
-          const name = node.name;
-          if (name === 'slot') {
-            mode = 'JSX';
-          }
-          return;
-        }
         case 'Fragment':
           if (!collectionItem) {
             return;
           }
+        case 'Slot':
         case 'Head':
         case 'Body':
         case 'Title':
@@ -360,7 +343,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   return {
     script: script + '\n' + Array.from(additionalImports).join('\n'),
     head: headItem,
-    body: bodyItem,
     items,
   };
 }

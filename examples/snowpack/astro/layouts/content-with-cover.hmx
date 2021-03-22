@@ -8,50 +8,45 @@
   }
 </script>
 
-<slot:head>
-  <style>
-    .cover-wrapper {
-      width: 100%;
-      height: 44vh;
-      min-height: 20rem;
-      max-height: 30rem;
-      position: relative;
-      background: #2a85ca40;
-      overflow: hidden;
-    }
-    .cover,
-    .cover-blur {
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0;
-      height: 100%;
-      width: 100%;
-    }
+
+<style>
+  .cover-wrapper {
+    width: 100%;
+    height: 44vh;
+    min-height: 20rem;
+    max-height: 30rem;
+    position: relative;
+    background: #2a85ca40;
+    overflow: hidden;
+  }
+  .cover,
+  .cover-blur {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+  }
+  .cover-blur {
+    object-fit: cover;
+    filter: blur(3px) brightness(1.5);
+    transform: scale(1.1);
+  }
+  .cover {
+    object-fit: contain;
+    filter: brightness(1.5);
+  }
+  @media (max-width: 1200px) {
     .cover-blur {
       object-fit: cover;
-      filter: blur(3px) brightness(1.5);
-      transform: scale(1.1);
     }
     .cover {
-      object-fit: contain;
-      filter: brightness(1.5);
+      object-fit: cover;
     }
-    @media (max-width: 1200px) {
-      .cover-blur {
-        object-fit: cover;
-      }
-      .cover {
-        object-fit: cover;
-      }
-    }
-  </style>
-  
-  <slot></slot>
-</slot:head>
-
-<slot:body>
+  }
+</style>
 
 <div class="cover-wrapper">
   <img class="cover-blur" src={context.cover} alt=""/>
@@ -81,4 +76,3 @@
     <Subnav title={context.title} headers={context.content.headers} />
   </section>
 </div>
-</slot:body>

@@ -14,8 +14,8 @@ import list from '../../utils/list.js';
 const valid_tag_name = /^\!?[a-zA-Z]{1,}:?[a-zA-Z0-9\-]*/;
 
 const meta_tags = new Map([
-  ['slot:head', 'Head'],
-  ['slot:body', 'Body'],
+  ['astro:head', 'Head'],
+  // ['slot:body', 'Body'],
   // ['astro:options', 'Options'],
   // ['astro:window', 'Window'],
   // ['astro:body', 'Body'],

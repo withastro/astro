@@ -78,7 +78,7 @@ async function convertMdToJsx(
       export function setup({context}) {
         return {context: ${stringifiedSetupContext} };
       }
-    </script><slot:head></slot:head><slot:body><section>{${JSON.stringify(mdHtml)}}</section></slot:body>`,
+    </script><section>{${JSON.stringify(mdHtml)}}</section>`,
     { compileOptions, filename, fileID }
   );
 }
@@ -104,9 +104,7 @@ export async function compileComponent(
 ): Promise<CompileResult> {
   const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const headItem = sourceJsx.head;
-  const bodyItem = sourceJsx.body;
   const headItemJsx = !headItem ? 'null' : headItem.jsx;
-  const bodyItemJsx = !bodyItem ? 'null' : bodyItem.jsx;
 
   // sort <style> tags first
   // TODO: remove these and inject in <head>
@@ -120,23 +118,21 @@ ${sourceJsx.script}
 // \`__render()\`: Render the contents of the HMX module. "<slot:*>" elements are not 
 // included (see below).
 import { h, Fragment } from '${internalImport('h.js')}';
-export default function __render(props) { return h(Fragment, null, ${sourceJsx.items.map(({ jsx }) => jsx).join(',')}); }
-
-// <slot:*> render functions
-export function __slothead(context, child) { return h(Fragment, null, ${headItemJsx}); }
-export function __slotbody(context, child) { return h(Fragment, null, ${bodyItemJsx}); }
+export function __slothead(children, context) { return h(Fragment, null, ${headItemJsx}); }
+function __render(props, children, context) { return h(Fragment, null, ${sourceJsx.items.map(({ jsx }) => jsx).join(',')}); }
+export default __render;
 `;
 
-  if (headItemJsx || bodyItemJsx) {
+  if (headItemJsx) {
     modJsx += `
 // \`__renderPage()\`: Render the contents of the HMX module as a page. This is a special flow,
 // triggered by loading a component directly by URL. 
-// If the page exports a defined "layout", then load + render those first. "context", "slot:head",
+// If the page exports a defined "layout", then load + render those first. "context", "astro:head",
 // and "slot:body" should all inherit from parent layouts, merging together in the correct order.
 export async function __renderPage({request, children}) {
   const currentChild = {
     __slothead, 
-    __slotbody, 
+    __render,
     setup: typeof setup === 'undefined' ? (passthrough) => passthrough : setup,
     layout: typeof layout === 'undefined' ? undefined : layout,
   };
@@ -166,12 +162,12 @@ export async function __renderPage({request, children}) {
   let headResult;
   let bodyResult;
   for (const child of children.reverse()) {
-    headResult = await child.__slothead(mergedContext, headResult);
-    bodyResult = await child.__slotbody(mergedContext, bodyResult);
+    headResult = await child.__slothead([headResult], mergedContext);
+    bodyResult = await child.__render(undefined, [bodyResult], mergedContext);
   }
   return h(Fragment, null, [
-    h("head", null, currentChild.__slothead(mergedContext, headResult)),
-    h("body", null, currentChild.__slotbody(mergedContext, bodyResult)),
+    h("head", null, currentChild.__slothead([headResult], mergedContext)),
+    h("body", null, currentChild.__render(undefined, [bodyResult], mergedContext)),
   ]);
 };\n`;
   }

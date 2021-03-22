@@ -42,38 +42,32 @@
   }
 </script>
 
-<slot:head>
+<h2 class="content-title">
+  {context.title}
+</h2>
 
-</slot:head>
+<h3 class="content-title">
+  Using Snowpack
+</h3>
 
-<slot:body>
-  <h2 class="content-title">
-    {context.title}
-  </h2>
-
-  <h3 class="content-title">
-    Using Snowpack
-  </h3>
-
-  <div class="content">
-    <ul>
-      {context.guides.map((post) => {
-      return <li><a href={post.href}>{post.title}</a></li>;
-      })}
-    </ul>
-  </div>
-
-  <br />
-  <br />
-
-  <h3 class="content-title">
-    Popular Integration Guides
-  </h3>
-
-  <div class="card-grid card-grid-4">
-    {context.communityGuides.map((post) => {
-    return
-    <Card item={post} />;
+<div class="content">
+  <ul>
+    {context.guides.map((post) => {
+    return <li><a href={post.href}>{post.title}</a></li>;
     })}
-  </div>
-</slot:body>
+  </ul>
+</div>
+
+<br />
+<br />
+
+<h3 class="content-title">
+  Popular Integration Guides
+</h3>
+
+<div class="card-grid card-grid-4">
+  {context.communityGuides.map((post) => {
+  return
+  <Card item={post} />;
+  })}
+</div>

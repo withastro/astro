@@ -13,19 +13,14 @@
   }
 </script>
 
-<slot:head>
-</slot:head>
+<h2 class="content-title">
+  { context.title }
+</h2>
 
-<slot:body>
-  <h2 class="content-title">
-    { context.title }
-  </h2>
+<h3 class="pluginPage-subheading">Customize Snowpack with optimized build plugins.</h3>
+<p class="pluginPage-intro">To learn more about our plugin system, check out the
+  <a href="/reference/plugins">Plugin API.</a><br />Can't find what you need?
+  <a href="/reference/plugins">Creating your own plugin is easy!</a>
+</p>
 
-  <h3 class="pluginPage-subheading">Customize Snowpack with optimized build plugins.</h3>
-  <p class="pluginPage-intro">To learn more about our plugin system, check out the
-    <a href="/reference/plugins">Plugin API.</a><br />Can't find what you need?
-    <a href="/reference/plugins">Creating your own plugin is easy!</a>
-  </p>
-
-  <PluginSearchPage:dynamic />
-</slot:body>
+<PluginSearchPage:dynamic />
