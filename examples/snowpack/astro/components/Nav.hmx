@@ -1,3 +1,7 @@
+<script astro>
+  export let props: {version: string};
+</script>
+
 <nav class="snow-nav">
   <button id="toc-drawer-button" class="snow-nav-mobile-open" type="button" aria-expanded="false"
     aria-controls="nav-primary">

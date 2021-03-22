@@ -1,21 +1,29 @@
+<script astro>
+  export let props: { 
+    title: string, 
+    inputPath: string, 
+    headers: { text: string, slug: string }[] 
+  };
+</script>
+
 <script type="module" defer src="/js/index.js"></script>
 <aside class="snow-toc snow-toc__subnav snow-view-subnav">
   <h2 class="content-title">
     {props.title}
   </h2>
-  
-  {props.headers.length > 0  && <div>
+
+  {props.headers.length > 0 && <div>
     <h4 class="snow-toc-section-header">On this page</h4>
     <nav class="toc">
       <ol>
         {props.headers.map((heading) => {
-          return <li><a href={"#" + heading.slug}>{heading.text}</a></li>
+        return <li><a href={"#" + heading.slug}>{heading.text}</a></li>
         })}
       </ol>
     </nav>
     <hr />
   </div>}
-  
+
   <h4 class="snow-toc-section-header">Suggest a change</h4>
   <a href="https://github.com/snowpackjs/snowpack/blob/main/www/{props.inputPath}">Edit this page on GitHub</a>
 </aside>
