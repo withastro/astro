@@ -12,6 +12,7 @@ export function createMarkdownHeadersCollector() {
         atxHeading(node: any) {
           currentHeader = {};
           headers.push(currentHeader);
+          this.buffer();
         },
         atxHeadingSequence(node: any) {
           currentHeader.depth = this.sliceSerialize(node).length;
@@ -23,10 +24,10 @@ export function createMarkdownHeadersCollector() {
       exit: {
         atxHeading(node: any) {
           currentHeader.slug = slugger.slug(currentHeader.text);
+          this.resume();
           this.tag(`<h${currentHeader.depth} id="${currentHeader.slug}">`);
           this.raw(currentHeader.text);
           this.tag(`</h${currentHeader.depth}>`);
-
           // console.log(this.sliceSerialize(node));
         },
       } as any,
