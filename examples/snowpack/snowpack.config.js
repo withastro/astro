@@ -15,10 +15,6 @@ module.exports = {
       'node-fetch'
     ]
   },
-  devOptions: {
-    // Eleventy updates multiple files at once, so add a 1000ms delay before we trigger a browser update
-    hmrDelay: 1000,
-  },
   buildOptions: {
     out: '_site',
   },
