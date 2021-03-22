@@ -223,8 +223,8 @@
   }
 </style>
 
-<nav class="snow-nav">
-  <button id="toc-drawer-button" class="snow-nav-mobile-open" type="button" aria-expanded="false"
+<nav class="nav">
+  <button id="toc-drawer-button" class="mobile-open" type="button" aria-expanded="false"
     aria-controls="nav-primary">
     <svg focusable="false" class="snow-icon" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512">
       <title>Toggle mobile menu</title>
@@ -233,7 +233,7 @@
       </path>
     </svg>
   </button>
-  <a class="snow-nav-logo snow-logo" href="/">
+  <a class="logo snow-logo" href="/">
     <svg class="snow-logo-icon" viewbox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink">
       <g transform="translate(-1.000000, 0.000000)" fill-rule="nonzero">
@@ -242,12 +242,12 @@
           id="Shape"></path>
       </g>
     </svg>
-    <span class="snow-logo-type">Snowpack</span>
+    <span class="logo-type">Snowpack</span>
   </a>
-  <div class="search-form">
+  <div class="search">
     <input type="text" name="search" placeholder="Search documentation..." class="search-form-input"
-      id="search-form-input">
-    <span class="search-form-hint">
+      id="search-input">
+    <span class="search-hint">
       <span class="sr-only">Press </span>
       <kbd class="font-sans"><abbr title="Command" style="text-decoration: none;">⌘</abbr></kbd>
       <span class="sr-only"> and </span>
@@ -256,10 +256,10 @@
     </span>
   </div>
   <div style="flex-grow: 1"></div>
-  <a href="https://github.com/snowpackjs/snowpack/releases" target="_blank" class="snow-nav-link snow-nav-version">
+  <a href="https://github.com/snowpackjs/snowpack/releases" target="_blank" class="link version">
     {`v${props.version}`}
   </a>
-  <a href="https://github.com/snowpackjs/snowpack" target="_blank" class="snow-nav-link snow-nav-link__desktop">
+  <a href="https://github.com/snowpackjs/snowpack" target="_blank" class="link link__desktop">
     <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="github" class="snow-icon" role="img"
       xmlns="http://www.w3.org/2000/svg" viewbox="0 0 496 512">
       <path fill="currentColor"
@@ -267,7 +267,7 @@
       </path>
     </svg>
   </a>
-  <a href="https://twitter.com/snowpackjs" target="_blank" class="snow-nav-link snow-nav-link__desktop">
+  <a href="https://twitter.com/snowpackjs" target="_blank" class="link link__desktop">
     <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitter" class="snow-icon" role="img"
       xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512">
       <path fill="currentColor"
@@ -275,7 +275,7 @@
       </path>
     </svg>
   </a>
-  <a href="https://discord.gg/snowpack" target="_blank" class="snow-nav-link snow-nav-link__desktop">
+  <a href="https://discord.gg/snowpack" target="_blank" class="link link__desktop">
     <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="discord" class="snow-icon" role="img"
       xmlns="http://www.w3.org/2000/svg" viewbox="0 0 210 240">
       <path
