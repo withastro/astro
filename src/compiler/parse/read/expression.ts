@@ -8,7 +8,6 @@ import { whitespace } from '../../utils/patterns.js';
 export default function read_expression(parser: Parser): string {
   try {
     const node = parse_expression_at(parser.template, parser.index);
-
     let num_parens = 0;
 
     for (let i = parser.index; i < node.start; i += 1) {

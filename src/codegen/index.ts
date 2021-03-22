@@ -146,8 +146,8 @@ function getComponentWrapper(_name: string, { type, url }: { type: string; url: 
   throw new Error('Unknown Component Type: ' + name);
 }
 
-function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
-  let compiledCode = compileExpressionSafe(raw, loader);
+function compileScriptSafe(raw: string): string {
+  let compiledCode = compileExpressionSafe(raw);
   // esbuild treeshakes unused imports. In our case these are components, so let's keep them.
   const imports = eslexer
     .parse(raw)[0]
@@ -161,9 +161,9 @@ function compileScriptSafe(raw: string, loader: 'jsx' | 'tsx'): string {
   return compiledCode;
 }
 
-function compileExpressionSafe(raw: string, loader: 'jsx' | 'tsx'): string {
+function compileExpressionSafe(raw: string): string {
   let { code } = transformSync(raw, {
-    loader,
+    loader: 'tsx',
     jsxFactory: 'h',
     jsxFragment: 'Fragment',
     charset: 'utf8',
@@ -175,7 +175,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   await eslexer.init;
 
   // Compile scripts as TypeScript, always
-  const script = compileScriptSafe(ast.module ? ast.module.content : '', 'tsx');
+  const script = compileScriptSafe(ast.module ? ast.module.content : '');
 
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
@@ -198,7 +198,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
     enter(node: TemplateNode) {
       switch (node.type) {
         case 'MustacheTag':
-          let code = compileExpressionSafe(node.expression, 'jsx');
+          let code = compileExpressionSafe(node.expression);
 
           let matches: RegExpExecArray[] = [];
           let match: RegExpExecArray | null | undefined;

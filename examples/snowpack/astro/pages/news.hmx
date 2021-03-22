@@ -49,7 +49,7 @@
       working on!</div>
   </article>
 
-  {context.news.reverse().map((item) =>
+  {context.news.reverse().map((item: any) =>
   <Card:dynamic item={item} />)}
 </div>
 
