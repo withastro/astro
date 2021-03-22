@@ -14,32 +14,25 @@ export const parse = (source: string): Node => {
   // });
 };
 
-export const parse_expression_at = (source: string, index: number) => {
+export const parse_expression_at = (source: string, index: number): number => {
   // TODO: Clean up after acorn -> @babel/parser move
   try {
+    // First, try to parse the expression. Unlike acorn, @babel/parser isn't relaxed
+    // enough to just stop after the first expression, so we almost always expect a
+    // parser error here instead. This is expected, so handle it.
     parseExpression(source.slice(index), {
       sourceType: 'module',
       plugins: ['jsx', 'typescript'],
     });
     throw new Error('Parse error.'); // Expected to fail.
   } catch (err) {
-    if (!err.pos) {
-      throw err;
+    if (err.message.startsWith('Unexpected token') && source[index + err.pos] === '}') {
+      return index + err.pos;
     }
-    try {
-      const result = parseExpression(source.slice(index, index + err.pos), {
-        sourceType: 'module',
-        plugins: ['jsx', 'typescript'],
-      });
-      result.start = index;
-      result.end = index + err.pos;
-      return result;
-    } catch (err2) {
-      if (err2.pos) {
-        err2.pos = index + err2.pos;
-      }
-      throw err2;
+    if (err.pos) {
+      err.pos = index + err.pos;
     }
+    throw err;
   }
 };
 // acornJsx.parseExpressionAt(source, index, {
