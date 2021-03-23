@@ -23,7 +23,7 @@ Basics.before(async () => {
 });
 
 Basics.after(async () => {
-  await runtime.shutdown();
+  await runtime && runtime.shutdown();
 });
 
 Basics('Can load hmx page', async () => {
