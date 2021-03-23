@@ -30,7 +30,7 @@ SnowpackDev.before(async () => {
 });
 
 SnowpackDev.after(async () => {
-  await runtime.shutdown();
+  await runtime && runtime.shutdown();
 });
 
 async function* allPageFiles(root) {
