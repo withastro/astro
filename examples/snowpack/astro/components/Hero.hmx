@@ -1,4 +1,4 @@
-<style type="text/scss">
+<style lang="scss">
   @use '../../public/css/var' as *;
 
   .hero {
@@ -51,7 +51,7 @@
     justify-content: center;
     margin: 1.5rem auto 0;
   }
-  
+
   .header-link {
     padding-left: 2px;
   }

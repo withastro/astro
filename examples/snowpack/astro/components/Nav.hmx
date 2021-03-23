@@ -2,7 +2,7 @@
   export let props: { version: string };
 </script>
 
-<style type="text/scss">
+<style lang="scss">
   @use '../../public/css/var' as *;
 
   /**

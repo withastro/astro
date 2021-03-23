@@ -10,7 +10,7 @@
 
 <astro:head>
   <meta charset="AAA" />
-  <style type="text/scss">
+  <style lang="scss">
     @use '../../public/css/var' as *;
 
     .top {

@@ -3,25 +3,26 @@ import path from 'path';
 import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
 import postcssModules from 'postcss-modules';
+import findUp from 'find-up';
 import sass from 'sass';
 import { Optimizer } from '../@types/optimizer';
 import type { TemplateNode } from '../compiler/interfaces';
 
-type StyleType = 'text/css' | 'text/scss' | 'text/sass' | 'text/postcss';
+type StyleType = 'css' | 'scss' | 'sass' | 'postcss';
 
 const getStyleType: Map<string, StyleType> = new Map([
-  ['.css', 'text/css'],
-  ['.pcss', 'text/postcss'],
-  ['.sass', 'text/sass'],
-  ['.scss', 'text/scss'],
-  ['css', 'text/css'],
-  ['postcss', 'text/postcss'],
-  ['sass', 'text/sass'],
-  ['scss', 'text/scss'],
-  ['text/css', 'text/css'],
-  ['text/postcss', 'text/postcss'],
-  ['text/sass', 'text/sass'],
-  ['text/scss', 'text/scss'],
+  ['.css', 'css'],
+  ['.pcss', 'postcss'],
+  ['.sass', 'sass'],
+  ['.scss', 'scss'],
+  ['css', 'css'],
+  ['postcss', 'postcss'],
+  ['sass', 'sass'],
+  ['scss', 'scss'],
+  ['text/css', 'css'],
+  ['text/postcss', 'postcss'],
+  ['text/sass', 'sass'],
+  ['text/scss', 'scss'],
 ]);
 
 const SASS_OPTIONS: Partial<sass.Options> = {
@@ -45,30 +46,42 @@ export interface StyleTransformResult {
   type: StyleType;
 }
 
+// cache node_modules resolutions for each run. saves looking up the same directory over and over again. blown away on exit.
+const nodeModulesMiniCache = new Map<string, string>();
+
 async function transformStyle(code: string, { type, filename, fileID }: { type?: string; filename: string; fileID: string }): Promise<StyleTransformResult> {
-  let styleType: StyleType = 'text/css'; // important: assume CSS as default
+  let styleType: StyleType = 'css'; // important: assume CSS as default
   if (type) {
     styleType = getStyleType.get(type) || styleType;
   }
 
+  // add file path to includePaths
+  let includePaths: string[] = [path.dirname(filename)];
+
+  // include node_modules to includePaths (allows @use-ing node modules, if it can be located)
+  const cachedNodeModulesDir = nodeModulesMiniCache.get(filename);
+  if (cachedNodeModulesDir) {
+    includePaths.push(cachedNodeModulesDir);
+  } else {
+    const nodeModulesDir = await findUp('node_modules', { type: 'directory', cwd: path.dirname(filename) });
+    if (nodeModulesDir) {
+      nodeModulesMiniCache.set(filename, nodeModulesDir);
+      includePaths.push(nodeModulesDir);
+    }
+  }
+
   let css = '';
   switch (styleType) {
-    case 'text/css': {
+    case 'css': {
       css = code;
       break;
     }
-    case 'text/sass':
-    case 'text/scss': {
-      css = sass
-        .renderSync({
-          ...SASS_OPTIONS,
-          data: code,
-          includePaths: [path.dirname(filename)],
-        })
-        .css.toString('utf8');
+    case 'sass':
+    case 'scss': {
+      css = sass.renderSync({ ...SASS_OPTIONS, data: code, includePaths }).css.toString('utf8');
       break;
     }
-    case 'text/postcss': {
+    case 'postcss': {
       css = code; // TODO
       break;
     }
@@ -132,7 +145,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
         Style: {
           enter(node) {
             const code = node.content.styles;
-            const typeAttr = (node.attributes || []).find(({ name }: { name: string }) => name === 'type');
+            const typeAttr = (node.attributes || []).find(({ name }: { name: string }) => name === 'lang');
             styleNodes.push(node);
             styleTransformPromises.push(transformStyle(code, { type: (typeAttr && typeAttr.value[0] && typeAttr.value[0].raw) || undefined, filename, fileID }));
 

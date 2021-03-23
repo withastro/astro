@@ -1,4 +1,4 @@
-<style type="text/scss">
+<style lang="scss">
   .intro {
     margin-top: 1rem;
     margin-bottom: 1rem;
