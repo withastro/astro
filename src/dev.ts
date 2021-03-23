@@ -57,6 +57,8 @@ export default async function (astroConfig: AstroConfig) {
             break;
           }
         }
+        res.statusCode = 500;
+        res.end(formatErrorForBrowser(result.error));
         break;
       }
     }
@@ -65,4 +67,9 @@ export default async function (astroConfig: AstroConfig) {
   server.listen(port, hostname, () => {
     console.log(`Server running at http://${hostname}:${port}/`);
   });
+}
+
+function formatErrorForBrowser(error: Error) {
+  // TODO make this pretty.
+  return error.toString();
 }

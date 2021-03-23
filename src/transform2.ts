@@ -8,6 +8,7 @@ import gfmHtml from 'micromark-extension-gfm/html.js';
 import { CompileResult, TransformResult } from './@types/astro';
 import { parse } from './compiler/index.js';
 import { createMarkdownHeadersCollector } from './micromark-collect-headers.js';
+import { encodeMarkdown } from './micromark-encode.js';
 import { defaultLogOptions } from './logger.js';
 import { optimize } from './optimize/index.js';
 import { codegen } from './codegen/index.js';
@@ -56,7 +57,7 @@ async function convertMdToJsx(
   const mdHtml = micromark(content, {
     allowDangerousHtml: true,
     extensions: [gfmSyntax()],
-    htmlExtensions: [gfmHtml, headersExtension],
+    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension],
   });
 
   const setupContext = {
