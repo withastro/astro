@@ -1,6 +1,7 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { createRuntime } from '../lib/runtime.js';
+import { loadConfig } from '../lib/config.js';
 import { promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
 import { doc } from './test-utils.js';
@@ -15,11 +16,7 @@ const SnowpackDev = suite('snowpack.dev');
 let runtime;
 
 SnowpackDev.before(async () => {
-  const astroConfig = {
-    projectRoot: new URL('../examples/snowpack/', import.meta.url),
-    hmxRoot: new URL('../examples/snowpack/astro/', import.meta.url),
-    dist: './_site',
-  };
+  const astroConfig = await loadConfig(new URL('../examples/snowpack', import.meta.url).pathname);
 
   const logging = {
     level: 'error',
