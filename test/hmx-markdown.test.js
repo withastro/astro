@@ -4,13 +4,13 @@ import { createRuntime } from '../lib/runtime.js';
 import { loadConfig } from '../lib/config.js';
 import { doc } from './test-utils.js';
 
-const React = suite('React Components');
+const HMXMD = suite('HMX Markdown');
 
 let runtime, setupError;
 
-React.before(async () => {
-  const astroConfig = await loadConfig(new URL('./fixtures/react-component', import.meta.url).pathname);
-
+HMXMD.before(async () => {
+  const astroConfig = await loadConfig(new URL('./fixtures/hmx-markdown', import.meta.url).pathname);
+  
   const logging = {
     level: 'error',
     dest: process.stderr
@@ -24,21 +24,22 @@ React.before(async () => {
   }
 });
 
-React.after(async () => {
-  await runtime.shutdown();
+HMXMD.after(async () => {
+  runtime && runtime.shutdown();
 });
 
-React('No error creating the runtime', () => {
+HMXMD('No errors creating a runtime', () => {
   assert.equal(setupError, undefined);
 });
 
-React('Can load hmx page', async () => {
-  const result = await runtime.load('/');
+HMXMD('Can load markdown pages with hmx', async () => {
+  const result = await runtime.load('/post');
 
   assert.equal(result.statusCode, 200);
 
   const $ = doc(result.contents);
-  assert.equal($('h2').text(), 'Hello world!');
+  assert.ok($('#first').length, 'There is a div added in markdown');
+  assert.ok($('#test').length, 'There is a div added via a component from markdown');
 });
 
-React.run();
+HMXMD.run();

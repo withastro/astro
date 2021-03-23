@@ -8,6 +8,7 @@ import gfmHtml from 'micromark-extension-gfm/html.js';
 import { CompileResult, TransformResult } from './@types/astro';
 import { parse } from './compiler/index.js';
 import { createMarkdownHeadersCollector } from './micromark-collect-headers.js';
+import { encodeMarkdown } from './micromark-encode.js';
 import { defaultLogOptions } from './logger.js';
 import { optimize } from './optimize/index.js';
 import { codegen } from './codegen/index.js';
@@ -54,8 +55,9 @@ async function convertMdToJsx(
   const { data: _frontmatterData, content } = matter(contents);
   const { headers, headersExtension } = createMarkdownHeadersCollector();
   const mdHtml = micromark(content, {
+    allowDangerousHtml: true,
     extensions: [gfmSyntax()],
-    htmlExtensions: [gfmHtml, headersExtension],
+    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension],
   });
 
   const setupContext = {
@@ -68,19 +70,26 @@ async function convertMdToJsx(
     },
   };
 
+  let imports = '';
+  for(let [ComponentName, specifier] of Object.entries(_frontmatterData.import || {})) {
+    imports += `import ${ComponentName} from '${specifier}';\n`;
+  }
+
   // </script> can't be anywhere inside of a JS string, otherwise the HTML parser fails.
   // Break it up here so that the HTML parser won't detect it.
   const stringifiedSetupContext = JSON.stringify(setupContext).replace(/\<\/script\>/g, `</scrip" + "t>`);
 
-  return convertHmxToJsx(
-    `<script astro>
-      ${_frontmatterData.layout ? `export const layout = ${JSON.stringify(_frontmatterData.layout)};` : ''}
-      export function setup({context}) {
-        return {context: ${stringifiedSetupContext} };
-      }
-    </script><section>{${JSON.stringify(mdHtml)}}</section>`,
-    { compileOptions, filename, fileID }
-  );
+  const raw =  `<script astro>
+  ${imports}
+  ${_frontmatterData.layout ? `export const layout = ${JSON.stringify(_frontmatterData.layout)};` : ''}
+  export function setup({context}) {
+    return {context: ${stringifiedSetupContext} };
+  }
+</script><section>${mdHtml}</section>`;
+
+  const convertOptions = { compileOptions, filename, fileID };
+
+  return convertHmxToJsx(raw, convertOptions);
 }
 
 async function transformFromSource(

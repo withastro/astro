@@ -10,11 +10,7 @@ module.exports = {
     '@snowpack/plugin-svelte',
     '@snowpack/plugin-vue',
   ],
-  packageOptions: {
-    external: [
-      'node-fetch'
-    ]
-  },
+  packageOptions: {},
   buildOptions: {
     out: '_site',
   },
