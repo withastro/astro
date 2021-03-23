@@ -1,4 +1,46 @@
+<style type="text/scss">
+  .intro {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    text-align: left;
+
+    a {
+      color: #2e5e82;
+    }
+  }
+
+  .subheading {
+    margin-top: -2.5rem;
+    margin-bottom: 0;
+    color: #2e5e82;
+    font-weight: 500;
+    font-size: 1em;
+    font-family: 'Overpass', sans-serif;
+    letter-spacing: -0.02em;
+    text-align: left;
+
+    @media (min-width: 600px) {
+      font-size: 1.5em;
+    }
+  }
+
+  .zero-heading {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    font-size: 1.4em;
+    text-align: left;
+
+    @media (min-width: 600px) {
+      font-size: 1.5em;
+    }
+  }
+</style>
+
 <script astro>
+  import news from '../data/news.json';
+  import users from '../data/users.json';
   import PluginSearchPage from '../components/PluginSearchPage.jsx';
 
   export const layout = 'layouts/main.hmx';
@@ -7,18 +49,20 @@
     return {
       context: {
         title: 'The Snowpack Plugin Catalog',
-        description: 'Snowpack plugins allow for configuration-minimal tooling integration.',
-      }
+        description:
+          'Snowpack plugins allow for configuration-minimal tooling integration.',
+      },
     };
   }
 </script>
 
-<h2 class="content-title">
-  { context.title }
-</h2>
+<h2 class="content-title">{ context.title }</h2>
 
-<h3 class="pluginPage-subheading">Customize Snowpack with optimized build plugins.</h3>
-<p class="pluginPage-intro">To learn more about our plugin system, check out the
+<h3 class="pluginPage-subheading">
+  Customize Snowpack with optimized build plugins.
+</h3>
+<p class="pluginPage-intro">
+  To learn more about our plugin system, check out the
   <a href="/reference/plugins">Plugin API.</a><br />Can't find what you need?
   <a href="/reference/plugins">Creating your own plugin is easy!</a>
 </p>

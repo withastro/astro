@@ -39,20 +39,24 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   const selectedPageMdLoc = new URL(`./pages/${selectedPage}.md`, hmxRoot);
   const selectedPageUrl = `/_hmx/pages/${selectedPage}.js`;
 
-  // Non-hmx pages
+  // Non-hmx pages (file resources)
   if (!existsSync(selectedPageLoc) && !existsSync(selectedPageMdLoc)) {
     try {
       const result = await snowpack.loadUrl(reqPath);
 
+      // success
       return {
         statusCode: 200,
         ...result,
       };
     } catch (err) {
-      return {
-        statusCode: 404,
-        error: err,
-      };
+      // build error
+      if (err.failed) {
+        return { statusCode: 500, type: 'unknown', error: err };
+      }
+
+      // not found
+      return { statusCode: 404, error: err };
     }
   }
 

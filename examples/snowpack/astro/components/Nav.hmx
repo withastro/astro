@@ -1,9 +1,230 @@
 <script astro>
-  export let props: {version: string};
+  export let props: { version: string };
 </script>
 
-<nav class="snow-nav">
-  <button id="toc-drawer-button" class="snow-nav-mobile-open" type="button" aria-expanded="false"
+<style type="text/scss">
+  @use '../../public/css/var' as *;
+
+  /**
+   * Top nav
+   * The thing at the top
+   */
+
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: map-get($map: $layers, $key: 'nav');
+    display: grid;
+    grid-template-areas:
+      'mobile logo version'
+      'search search search';
+    grid-template-rows: $nav-height $nav-height;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    height: $nav-height;
+    padding-right: 0.5rem;
+    padding-left: 0.625rem;
+    color: $white;
+    background-color: $dark-blue;
+
+    body.is-nav-open & {
+      height: $nav-height * 2;
+    }
+
+    @media (min-width: $breakpoint-m) {
+      display: flex;
+      height: $nav-height;
+      padding-left: 0;
+    }
+  }
+
+  .link {
+    display: inline-block;
+    padding: 0.5em;
+    color: $white;
+    font-weight: 500;
+    text-decoration: none;
+    opacity: 0.7;
+    transition: opacity 150ms linear;
+
+    &:focus,
+    &:hover {
+      opacity: 1;
+    }
+
+    &__desktop {
+      display: none;
+
+      @media (min-width: $breakpoint-m) {
+        display: block;
+      }
+    }
+  }
+
+  .logo {
+    display: flex;
+    grid-area: logo;
+    justify-content: center;
+    padding: 0.5rem;
+    color: $white;
+    font-size: 24px;
+    text-decoration: none;
+
+    @media (min-width: $breakpoint-m) {
+      justify-content: flex-start;
+      padding: 0.5rem 1.25rem;
+    }
+  }
+
+  .mobile-open {
+    display: flex;
+    grid-area: mobile;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    color: $white;
+    font-size: 16px;
+    background: none;
+    border: none;
+    appearance: none;
+
+    @media (min-width: $breakpoint-m) {
+      display: none;
+    }
+  }
+
+  .search {
+    position: relative;
+    z-index: 1000;
+    display: flex;
+    flex-grow: 1;
+    grid-area: search;
+    margin: 0 6px;
+    > * {
+      flex-grow: 1;
+    }
+
+    @media (min-width: $breakpoint-m) {
+      max-width: 600px;
+    }
+
+    @media (max-width: $breakpoint-m - 1) {
+      & {
+        display: none;
+      }
+      body.is-nav-open & {
+        display: flex;
+      }
+    }
+
+    & .sr-only {
+      display: none;
+    }
+  }
+
+  .search-hint {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: none;
+    padding: 6px 12px;
+    color: #c2ced9;
+    font-size: 16px;
+    pointer-events: none;
+
+    & * {
+      font-family: $code;
+    }
+
+    &::before {
+      display: inline-block;
+      width: 1px;
+      height: 1.5em;
+      margin-right: 0.5em;
+      vertical-align: -35%;
+      background-color: rgba($white, 0.25);
+      content: '';
+    }
+
+    @media (min-width: $breakpoint-m) {
+      display: block;
+    }
+  }
+
+  .search-input {
+    flex-grow: 1;
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0;
+    padding-top: 0.5rem;
+    padding-right: 1rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    overflow: visible;
+    color: #fff;
+    font-weight: 500;
+    font-size: 100%;
+    font-family: inherit;
+    line-height: inherit;
+    background-color: #446e8f;
+    border-color: rgba($white, 0.25);
+    border-style: solid;
+    border-width: 1px;
+    border-radius: 0.25rem;
+    outline: 0;
+    transition-timing-function: ease-in-out;
+    transition-duration: 0.2s;
+    transition-property: border-color, color;
+    -webkit-font-smoothing: antialiased;
+
+    &:focus {
+      color: white;
+      border-color: rgba($white, 0.75);
+
+      &::placeholder {
+        color: rgba($white, 0.8);
+      }
+    }
+    &::placeholder {
+      color: #c2ced9;
+    }
+
+    &__desktop {
+      display: none;
+
+      @media (min-width: $breakpoint-m) {
+        display: block;
+      }
+    }
+  }
+
+  .version {
+    grid-area: version;
+    margin-left: 0.5em;
+    font-size: 0.8em;
+    font-family: $code;
+    text-align: right;
+
+    @media (min-width: $breakpoint-m) {
+      text-align: left;
+
+      &::after {
+        display: inline-block;
+        width: 1px;
+        height: 1.5em;
+        margin-left: 0.5em;
+        vertical-align: -25%;
+        background-color: rgba($white, 0.25);
+        content: '';
+      }
+    }
+  }
+</style>
+
+<nav class="nav">
+  <button id="toc-drawer-button" class="mobile-open" type="button" aria-expanded="false"
     aria-controls="nav-primary">
     <svg focusable="false" class="snow-icon" role="img" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 448 512">
       <title>Toggle mobile menu</title>
@@ -12,7 +233,7 @@
       </path>
     </svg>
   </button>
-  <a class="snow-nav-logo snow-logo" href="/">
+  <a class="logo snow-logo" href="/">
     <svg class="snow-logo-icon" viewbox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink">
       <g transform="translate(-1.000000, 0.000000)" fill-rule="nonzero">
@@ -21,12 +242,12 @@
           id="Shape"></path>
       </g>
     </svg>
-    <span class="snow-logo-type">Snowpack</span>
+    <span class="logo-type">Snowpack</span>
   </a>
-  <div class="search-form">
+  <div class="search">
     <input type="text" name="search" placeholder="Search documentation..." class="search-form-input"
-      id="search-form-input">
-    <span class="search-form-hint">
+      id="search-input">
+    <span class="search-hint">
       <span class="sr-only">Press </span>
       <kbd class="font-sans"><abbr title="Command" style="text-decoration: none;">⌘</abbr></kbd>
       <span class="sr-only"> and </span>
@@ -35,10 +256,10 @@
     </span>
   </div>
   <div style="flex-grow: 1"></div>
-  <a href="https://github.com/snowpackjs/snowpack/releases" target="_blank" class="snow-nav-link snow-nav-version">
+  <a href="https://github.com/snowpackjs/snowpack/releases" target="_blank" class="link version">
     {`v${props.version}`}
   </a>
-  <a href="https://github.com/snowpackjs/snowpack" target="_blank" class="snow-nav-link snow-nav-link__desktop">
+  <a href="https://github.com/snowpackjs/snowpack" target="_blank" class="link link__desktop">
     <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="github" class="snow-icon" role="img"
       xmlns="http://www.w3.org/2000/svg" viewbox="0 0 496 512">
       <path fill="currentColor"
@@ -46,7 +267,7 @@
       </path>
     </svg>
   </a>
-  <a href="https://twitter.com/snowpackjs" target="_blank" class="snow-nav-link snow-nav-link__desktop">
+  <a href="https://twitter.com/snowpackjs" target="_blank" class="link link__desktop">
     <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="twitter" class="snow-icon" role="img"
       xmlns="http://www.w3.org/2000/svg" viewbox="0 0 512 512">
       <path fill="currentColor"
@@ -54,7 +275,7 @@
       </path>
     </svg>
   </a>
-  <a href="https://discord.gg/snowpack" target="_blank" class="snow-nav-link snow-nav-link__desktop">
+  <a href="https://discord.gg/snowpack" target="_blank" class="link link__desktop">
     <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="discord" class="snow-icon" role="img"
       xmlns="http://www.w3.org/2000/svg" viewbox="0 0 210 240">
       <path
@@ -64,6 +285,7 @@
     </svg>
   </a>
 </nav>
+
 <script>
   function handleMobileNav(evt) {
     evt.preventDefault();

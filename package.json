@@ -21,7 +21,7 @@
     "dev": "concurrently 'tsc --watch' 'npm run copy-js:watch'",
     "format": "prettier -w 'src/**/*.{js,ts}'",
     "copy-js": "copyfiles -u 1 src/*.js lib/",
-    "copy-js:watch": "nodemon -w src --ext js --exec 'npm run copy-js'",
+    "copy-js:watch": "nodemon -w src --ext js -x 'npm run copy-js'",
     "test": "uvu test -i fixtures -i test-utils.js"
   },
   "dependencies": {
@@ -50,7 +50,6 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "sass": "^1.32.8",
-    "snowpack": "^3.1.0-pre.13",
     "svelte": "^3.35.0",
     "vue": "^3.0.7",
     "yargs-parser": "^20.2.7"
@@ -73,6 +72,7 @@
     "preact": "^10.5.12",
     "preact-render-to-string": "^5.1.14",
     "prettier": "^2.2.1",
+    "snowpack": "^3.1.0-pre.14",
     "typescript": "^4.2.3",
     "uvu": "^0.5.1"
   }

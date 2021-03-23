@@ -1,84 +1,130 @@
-<nav class="snow-toc">
-  <ol class="snow-toc-contents">
-    <li class="snow-toc-section">
-      <span class="snow-toc-section-header">Concepts</span>
-      <ol class="snow-toc-section-items">
-        <li>
-          <a class="snow-toc-link" href="/concepts/how-snowpack-works">How Snowpack Works</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/concepts/dev-server">The Dev Server</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/concepts/build-pipeline">The Build Pipeline</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/concepts/hot-module-replacement">Fast Refresh & HMR</a>
-        </li>
+<style type="text/scss">
+  @use '../../public/css/var' as *;
+
+  .toc {
+    transition: padding 0.2s ease-out, opacity 0.2s ease-in-out;
+  }
+
+  .contents {
+    margin: 0;
+    padding: 0;
+    line-height: 1.8;
+    list-style: none;
+  }
+
+  .section {
+    + .section {
+      margin-top: 1.5rem;
+    }
+  }
+
+  .header {
+    margin-top: 0;
+    margin-bottom: 8px;
+    color: rgba($white, 0.6);
+    font-weight: 600;
+    font-size: 20px;
+    font-family: $heading;
+    line-height: 1.2em;
+
+    @media (min-width: $breakpoint-m) {
+      color: $dark-grey;
+    }
+  }
+
+  .items {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .link,
+  .subnav a {
+    position: relative;
+    display: block;
+    color: $white;
+    text-decoration: none;
+    border: none;
+    transition: color 0.3s;
+
+    @media (min-width: $breakpoint-m) {
+      color: $grey;
+    }
+
+    &::before {
+      position: absolute;
+      top: -2px;
+      left: -19px;
+      font-weight: 400;
+      font-size: 26px;
+      line-height: 1;
+      opacity: 0;
+      transition: left 0.14s ease-out;
+      content: '▸';
+    }
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &.active {
+      color: #0c8cec;
+      text-decoration: underline;
+
+      &::before {
+        left: -17px;
+        opacity: 1;
+      }
+    }
+  }
+</style>
+
+<nav class="toc">
+  <ol class="contents">
+    <li class="section">
+      <span class="header">Concepts</span>
+      <ol class="items">
+        <li><a class="link" href="/concepts/how-snowpack-works">How Snowpack Works</a></li>
+        <li><a class="link" href="/concepts/dev-server">The Dev Server</a></li>
+        <li><a class="link" href="/concepts/build-pipeline">The Build Pipeline</a></li>
+        <li><a class="link" href="/concepts/hot-module-replacement">Fast Refresh & HMR</a></li>
       </ol>
     </li>
 
-    <li class="snow-toc-section">
-      <span class="snow-toc-section-header">Getting Started</span>
-      <ol class="snow-toc-section-items">
-        <li>
-          <a class="snow-toc-link" href="/tutorials/quick-start">Quick Start</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/tutorials/getting-started">Getting Started</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/tutorials/react">React</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/tutorials/svelte">Svelte</a>
-        </li>
+    <li class="section">
+      <span class="header">Getting Started</span>
+      <ol class="items">
+        <li><a class="link" href="/tutorials/quick-start">Quick Start</a></li>
+        <li><a class="link" href="/tutorials/getting-started">Getting Started</a></li>
+        <li><a class="link" href="/tutorials/react">React</a></li>
+        <li><a class="link" href="/tutorials/svelte">Svelte</a></li>
       </ol>
     </li>
 
-    <li class="snow-toc-section">
-      <a class="snow-toc-link" href="/guides">
-        <span class="snow-toc-section-header">Guides</span></a>
+    <li class="section">
+      <a class="link" href="/guides"><span class="header">Guides</span></a>
     </li>
 
-    <li class="snow-toc-section">
-      <span class="snow-toc-section-header">Reference</span>
-      <ol class="snow-toc-section-items">
-        <li>
-          <a class="snow-toc-link" href="/reference/configuration">snowpack.config.js</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/reference/cli-command-line-interface">Command Line API</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/reference/javascript-interface">JavaScript API</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/reference/plugins">Plugin API</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/reference/environment-variables">Environment Variables</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/reference/hot-module-replacement">HMR API</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/reference/supported-files">Supported Files</a>
-        </li>
-        <li>
-          <a class="snow-toc-link" href="/reference/common-error-details">Common Errors</a>
-        </li>
+    <li class="section">
+      <span class="header">Reference</span>
+      <ol class="items">
+        <li><a class="link" href="/reference/configuration">snowpack.config.js</a></li>
+        <li><a class="link" href="/reference/cli-command-line-interface">Command Line API</a></li>
+        <li><a class="link" href="/reference/javascript-interface">JavaScript API</a></li>
+        <li><a class="link" href="/reference/plugins">Plugin API</a></li>
+        <li><a class="link" href="/reference/environment-variables">Environment Variables</a></li>
+        <li><a class="link" href="/reference/hot-module-replacement">HMR API</a></li>
+        <li><a class="link" href="/reference/supported-files">Supported Files</a></li>
+        <li><a class="link" href="/reference/common-error-details">Common Errors</a></li>
       </ol>
     </li>
 
-    <li class="snow-toc-section">
-      <a class="snow-toc-link" href="/plugins">
-        <span class="snow-toc-section-header">Plugin Catalog</span></a>
+    <li class="section">
+      <a class="link" href="/plugins"><span class="section-header">Plugin Catalog</span></a>
     </li>
 
-    <li class="snow-toc-section">
-      <a class="snow-toc-link" href="/news">
-        <span class="snow-toc-section-header">Community & News</span></a>
+    <li class="section">
+      <a class="link" href="/news"><span class="section-header">Community & News</span></a>
     </li>
   </ol>
 </nav>

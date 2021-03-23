@@ -4,18 +4,63 @@
 
   export const layout = 'layouts/base.hmx';
   export function setup({ context }) {
-    return {}
+    return {};
   }
 </script>
 
 <astro:head>
   <meta charset="AAA" />
+  <style type="text/scss">
+    @use '../../public/css/var' as *;
+
+    .top {
+      text-align: left;
+    }
+
+    .bullets {
+      display: grid;
+      grid-row-gap: 1em;
+      grid-column-gap: 2em;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      margin: 2.5em 0 !important;
+      padding: 0.1em !important;
+      list-style: none;
+
+      h3 {
+        margin: 0 0 0.25em 0;
+        font-size: 1.25em;
+      }
+    }
+
+    .bullet {
+      display: list-item;
+      padding: 0.25em;
+      border-radius: 4px;
+
+      &::before {
+        display: block;
+        float: left;
+        margin-right: 6px;
+        color: green !important;
+        content: '✅';
+      }
+    }
+
+    .buttons {
+      margin: 2em 0;
+      text-align: center;
+    }
+
+    .feature-button {
+      display: inline-block;
+      margin: 0.5em;
+    }
+  </style>
 </astro:head>
-<Hero bar={context.title}></Hero>
+<Hero bar="{context.title}"></Hero>
 
-<div foo={context.title} class="container" style="margin: 0 auto">
+<div foo="{context.title}" class="container" style="margin: 0 auto">
   <section class="snow-view__docs is-full is-home">
-
     <aside id="nav-primary" class="snow-view-nav">
       <Menu></Menu>
     </aside>
@@ -23,21 +68,36 @@
     <article class="snow-view-main">
       <div class="content">
         <article class="grid-body">
-          <a class="img-banner" href="https://osawards.com/javascript/2020" target="_blank" rel="noopener noreferrer">
-            <img src="/img/JSAwardWinner.png" alt="2020 JavaScript Open Source Award Winner banner" />
+          <a
+            class="img-banner"
+            href="https://osawards.com/javascript/2020"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="/img/JSAwardWinner.png"
+              alt="2020 JavaScript Open Source Award Winner banner"
+            />
           </a>
 
           <div class="content markdown-body feature-list">
             <div class="feature-list-top">
               <p>
-                <strong>Snowpack is a lightning-fast frontend build tool, designed for the modern web.</strong>
-                It is an alternative to heavier, more complex bundlers like webpack or Parcel in your development
-                workflow. Snowpack leverages JavaScript's native module system (<a
-                  href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import">known
-                  as
-                  ESM</a>) to avoid unnecessary work and stay fast no matter how big your project grows.
+                <strong
+                  >Snowpack is a lightning-fast frontend build tool, designed
+                  for the modern web.</strong
+                >
+                It is an alternative to heavier, more complex bundlers like
+                webpack or Parcel in your development workflow. Snowpack
+                leverages JavaScript's native module system (<a
+                  href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import"
+                  >known as ESM</a
+                >) to avoid unnecessary work and stay fast no matter how big
+                your project grows.
               </p>
-              <p>Once you try it, it's impossible to go back to anything else.</p>
+              <p>
+                Once you try it, it's impossible to go back to anything else.
+              </p>
             </div>
 
             <ul class="feature-list-bullets">
@@ -49,23 +109,28 @@
               </li>
               <li class="feature-list-bullet">
                 <h3>Build once, cache forever</h3>
-                Snowpack never builds the same file twice. Powered by JavaScript’s native module system (ESM) in the
-                browser.
+                Snowpack never builds the same file twice. Powered by
+                JavaScript’s native module system (ESM) in the browser.
               </li>
               <li class="feature-list-bullet">
                 <h3>HMR feat. Fast Refresh</h3>
-                No refresh required. See changes reflected instantly in the browser with
-                <a href="/concepts/hot-module-replacement">HMR + Fast Refresh</a>
+                No refresh required. See changes reflected instantly in the
+                browser with
+                <a href="/concepts/hot-module-replacement"
+                  >HMR + Fast Refresh</a
+                >
                 for React, Preact & Svelte.
               </li>
               <li class="feature-list-bullet">
                 <h3>Out-of-the-box support</h3>
-                Enjoy Snowpack's built-in support for JSX, TypeScript, React, Preact, CSS Modules
+                Enjoy Snowpack's built-in support for JSX, TypeScript, React,
+                Preact, CSS Modules
                 <a href="/reference/supported-files">and more.</a>
               </li>
               <li class="feature-list-bullet">
                 <h3>Optimize for production</h3>
-                Build for production with built-in optimizations and plugin support for your favorite bundlers.
+                Build for production with built-in optimizations and plugin
+                support for your favorite bundlers.
               </li>
               <li class="feature-list-bullet">
                 <h3>Plugins? Plugins!</h3>
@@ -77,17 +142,27 @@
             </ul>
 
             <div class="feature-list-buttons">
-              <a href="/tutorials/quick-start" class="button button-primary feature-list-button">Get started</a>
-              <a href="/concepts/how-snowpack-works" class="button feature-list-button">Learn more</a>
+              <a
+                href="/tutorials/quick-start"
+                class="button button-primary feature-list-button"
+                >Get started</a
+              >
+              <a
+                href="/concepts/how-snowpack-works"
+                class="button feature-list-button"
+                >Learn more</a
+              >
             </div>
-
           </div>
         </article>
       </div>
-
     </article>
   </section>
 </div>
 
 <!-- Place this tag in your head or just before your close body tag. -->
-<script async="async" defer="defer" src="https://buttons.github.io/buttons.js"></script>
+<script
+  async="async"
+  defer="defer"
+  src="https://buttons.github.io/buttons.js"
+></script>

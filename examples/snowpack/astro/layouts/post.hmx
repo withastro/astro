@@ -36,20 +36,8 @@
     }
   }
 
-
-
-
   .markdown-body table td:nth-child(1) {
     white-space: nowrap;
-  }
-
-  .grid-body {
-    padding: 4rem 0;
-  }
-
-  .grid-body-header h1 {
-    margin-bottom: 1rem;
-    margin-top: 1rem;
   }
 
   .markdown-body,
@@ -67,7 +55,6 @@
   }
 
   @media (max-width: 860px) {
-
     .markdown-body,
     .toc {
       padding: 1em;
@@ -75,7 +62,6 @@
   }
 
   @media (max-width: 740px) {
-
     .markdown-body img,
     .markdown-body iframe {
       max-width: 108%;
@@ -87,18 +73,17 @@
       padding: 20px 0 0 0;
     }
 
-    .header-snowpack {
-      font-size: 3.5rem;
-      text-align: center;
-    }
+  .header-snowpack {
+    font-size: 3.5rem;
+    text-align: center;
+  }
 
-    .markdown-body h1 {
-      font-size: 3.5em;
-    }
+  .markdown-body h1 {
+    font-size: 3.5em;
+  }
 
-    .markdown-body h3 .header-link {
-      opacity: 1;
-    }
+  .markdown-body h3 .header-link {
+    opacity: 1;
   }
 </style>
 
