@@ -16,14 +16,19 @@ React.before(async () => {
     dest: process.stderr
   };
 
-  runtime = await createRuntime(astroConfig, logging);
+  try {
+    runtime = await createRuntime(astroConfig, logging);
+  } catch(err) {
+    console.error(err);
+    throw err;
+  }
 });
 
 React.after(async () => {
   await runtime.shutdown();
 });
 
-React.only('Can load hmx page', async () => {
+React('Can load hmx page', async () => {
   const result = await runtime.load('/');
 
   assert.equal(result.statusCode, 200);
