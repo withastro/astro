@@ -1,35 +1,39 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { createRuntime } from '../lib/runtime.js';
+import { loadConfig } from '../lib/config.js';
 import { promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
 import { doc } from './test-utils.js';
 
 const { readdir, stat } = fsPromises;
 
-// Bug: Snowpack config is still loaded relative to the current working directory.
-process.chdir(new URL('../examples/snowpack/', import.meta.url).pathname);
-
 const SnowpackDev = suite('snowpack.dev');
 
-let runtime;
+let runtime, cwd;
 
 SnowpackDev.before(async () => {
-  const astroConfig = {
-    projectRoot: new URL('../examples/snowpack/', import.meta.url),
-    hmxRoot: new URL('../examples/snowpack/astro/', import.meta.url),
-    dist: './_site',
-  };
+// Bug: Snowpack config is still loaded relative to the current working directory.
+  cwd = process.cwd();
+  process.chdir(new URL('../examples/snowpack/', import.meta.url).pathname);
+
+  const astroConfig = await loadConfig(new URL('../examples/snowpack', import.meta.url).pathname);
 
   const logging = {
     level: 'error',
     dest: process.stderr,
   };
 
-  runtime = await createRuntime(astroConfig, logging);
+  try {
+    runtime = await createRuntime(astroConfig, logging);
+  } catch(err) {
+    console.error(err);
+    throw err;
+  }
 });
 
 SnowpackDev.after(async () => {
+  process.chdir(cwd);
   await runtime && runtime.shutdown();
 });
 

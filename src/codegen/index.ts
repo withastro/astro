@@ -1,4 +1,5 @@
 import type { CompileOptions } from '../@types/compiler';
+import type { ValidExtensionPlugins } from '../@types/astro';
 import type { Ast, TemplateNode } from '../compiler/interfaces';
 import type { JsxItem, TransformResult } from '../@types/astro';
 
@@ -89,10 +90,34 @@ function generateAttributes(attrs: Record<string, string>): string {
   return result + '}';
 }
 
-function getComponentWrapper(_name: string, { type, url }: { type: string; url: string }, { resolve }: CompileOptions) {
+interface ComponentInfo {
+  type: string;
+  url: string;
+}
+
+const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
+  '.hmx': 'hmx',
+  '.jsx': 'react',
+  '.vue': 'vue',
+  '.svelte': 'svelte'
+};
+
+function getComponentWrapper(_name: string, { type, url }: ComponentInfo, compileOptions: CompileOptions) {
+  const {
+    resolve,
+    extensions = defaultExtensions
+  } = compileOptions;
+
   const [name, kind] = _name.split(':');
-  switch (type) {
-    case '.hmx': {
+
+  const plugin = extensions[type] || defaultExtensions[type];
+
+  if(!plugin) {
+    throw new Error(`No supported plugin found for extension ${type}`);
+  }
+
+  switch (plugin) {
+    case 'hmx': {
       if (kind) {
         throw new Error(`HMX does not support :${kind}`);
       }
@@ -101,7 +126,7 @@ function getComponentWrapper(_name: string, { type, url }: { type: string; url: 
         wrapperImport: ``,
       };
     }
-    case '.jsx': {
+    case 'preact': {
       if (kind === 'dynamic') {
         return {
           wrapper: `__preact_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${resolve('preact')}')`,
@@ -114,7 +139,20 @@ function getComponentWrapper(_name: string, { type, url }: { type: string; url: 
         };
       }
     }
-    case '.svelte': {
+    case 'react': {
+      if (kind === 'dynamic') {
+        return {
+          wrapper: `__react_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${resolve('react')}', '${resolve('react-dom')}')`,
+          wrapperImport: `import {__react_dynamic} from '${internalImport('render/react.js')}';`,
+        };
+      } else {
+        return {
+          wrapper: `__react_static(${name})`,
+          wrapperImport: `import {__react_static} from '${internalImport('render/react.js')}';`,
+        };
+      }
+    }
+    case 'svelte': {
       if (kind === 'dynamic') {
         return {
           wrapper: `__svelte_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.svelte.js'))}, \`http://TEST\${import.meta.url}\`).pathname)`,
@@ -127,7 +165,7 @@ function getComponentWrapper(_name: string, { type, url }: { type: string; url: 
         };
       }
     }
-    case '.vue': {
+    case 'vue': {
       if (kind === 'dynamic') {
         return {
           wrapper: `__vue_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.vue.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${resolve('vue')}')`,

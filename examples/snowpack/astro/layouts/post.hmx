@@ -72,6 +72,7 @@
     .grid-body {
       padding: 20px 0 0 0;
     }
+  }
 
   .header-snowpack {
     font-size: 3.5rem;
