@@ -1,4 +1,4 @@
-import type { HtmlExtension, Token } from 'micromark/dist/shared-types';
+import type { HtmlExtension, Token, Tokenize } from 'micromark/dist/shared-types';
 
 const characterReferences = {
   '"': 'quot',
@@ -17,15 +17,18 @@ function encode(value: string): string {
   });
 }
 
+function encodeToken(this: Record<string, () => void>) {
+  const token: Token = arguments[0];
+  const serialize = (this.sliceSerialize as unknown) as (t: Token) => string;
+  const raw = (this.raw as unknown) as (s: string) => void;
+  const value = serialize(token);
+  raw(encode(value));
+}
+
 const plugin: HtmlExtension = {
   exit: {
-    codeFlowValue() {
-      const token: Token = arguments[0];
-      const serialize = (this.sliceSerialize as unknown) as (t: Token) => string;
-      const raw = (this.raw as unknown) as (s: string) => void;
-      const value = serialize(token);
-      raw(encode(value));
-    },
+    codeTextData: encodeToken,
+    codeFlowValue: encodeToken,
   },
 };
 
