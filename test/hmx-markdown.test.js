@@ -6,7 +6,7 @@ import { doc } from './test-utils.js';
 
 const HMXMD = suite('HMX Markdown');
 
-let runtime;
+let runtime, setupError;
 
 HMXMD.before(async () => {
   const astroConfig = await loadConfig(new URL('./fixtures/hmx-markdown', import.meta.url).pathname);
@@ -20,12 +20,16 @@ HMXMD.before(async () => {
     runtime = await createRuntime(astroConfig, logging);
   } catch(err) {
     console.error(err);
-    throw err;
+    setupError = err;
   }
 });
 
 HMXMD.after(async () => {
   runtime && runtime.shutdown();
+});
+
+HMXMD('No errors creating a runtime', () => {
+  assert.equal(setupError, undefined);
 });
 
 HMXMD('Can load markdown pages with hmx', async () => {

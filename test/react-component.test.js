@@ -6,7 +6,7 @@ import { doc } from './test-utils.js';
 
 const React = suite('React Components');
 
-let runtime;
+let runtime, setupError;
 
 React.before(async () => {
   const astroConfig = await loadConfig(new URL('./fixtures/react-component', import.meta.url).pathname);
@@ -20,12 +20,16 @@ React.before(async () => {
     runtime = await createRuntime(astroConfig, logging);
   } catch(err) {
     console.error(err);
-    throw err;
+    setupError = err;
   }
 });
 
 React.after(async () => {
   await runtime.shutdown();
+});
+
+React('No error creating the runtime', () => {
+  assert.equal(setupError, undefined);
 });
 
 React('Can load hmx page', async () => {
