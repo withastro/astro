@@ -5,10 +5,14 @@ import { promises as fsPromises } from 'fs';
 import yargs from 'yargs-parser';
 
 import { loadConfig } from './config.js';
-import generate from './generate.js';
+import {build} from './build.js';
 import devServer from './dev.js';
 
 const { readFile } = fsPromises;
+const buildAndExit = async (...args: Parameters<typeof build>) => {
+  const ret = await build(...args);
+  process.exit(ret);
+}
 
 type Arguments = yargs.Arguments;
 type cliState = 'help' | 'version' | 'dev' | 'build';
@@ -61,7 +65,7 @@ async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void
 }
 
 const cmdMap = new Map([
-  ['build', generate],
+  ['build', buildAndExit],
   ['dev', devServer],
 ]);
 

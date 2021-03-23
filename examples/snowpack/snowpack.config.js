@@ -15,7 +15,7 @@ module.exports = {
     out: '_site',
   },
   optimize: {
-    bundle: true,
+    bundle: false,
     minify: true,
     target: 'es2018',
   },

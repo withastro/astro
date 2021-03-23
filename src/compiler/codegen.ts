@@ -11,6 +11,7 @@ import babelParser from '@babel/parser';
 import _babelGenerator from '@babel/generator';
 import traverse from '@babel/traverse';
 import { ImportDeclaration,ExportNamedDeclaration,  VariableDeclarator, Identifier, VariableDeclaration } from '@babel/types';
+import { type } from 'node:os';
 
 const babelGenerator: typeof _babelGenerator =
   // @ts-ignore
@@ -100,6 +101,7 @@ function generateAttributes(attrs: Record<string, string>): string {
 interface ComponentInfo {
   type: string;
   url: string;
+  plugin: string | undefined;
 }
 
 const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
@@ -109,12 +111,13 @@ const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
   '.svelte': 'svelte',
 };
 
-function getComponentWrapper(_name: string, { type, url }: ComponentInfo, compileOptions: CompileOptions) {
-  const { resolve, extensions = defaultExtensions } = compileOptions;
+type DynamicImportMap = Map<
+  'vue' | 'react' | 'react-dom' | 'preact',
+  string
+>;
 
+function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo, dynamicImports: DynamicImportMap) {
   const [name, kind] = _name.split(':');
-
-  const plugin = extensions[type] || defaultExtensions[type];
 
   if (!plugin) {
     throw new Error(`No supported plugin found for extension ${type}`);
@@ -133,7 +136,7 @@ function getComponentWrapper(_name: string, { type, url }: ComponentInfo, compil
     case 'preact': {
       if (kind === 'dynamic') {
         return {
-          wrapper: `__preact_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${resolve('preact')}')`,
+          wrapper: `__preact_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get('preact')!}')`,
           wrapperImport: `import {__preact_dynamic} from '${internalImport('render/preact.js')}';`,
         };
       } else {
@@ -146,9 +149,9 @@ function getComponentWrapper(_name: string, { type, url }: ComponentInfo, compil
     case 'react': {
       if (kind === 'dynamic') {
         return {
-          wrapper: `__react_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${resolve(
+          wrapper: `__react_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
             'react'
-          )}', '${resolve('react-dom')}')`,
+          )!}', '${dynamicImports.get('react-dom')!}')`,
           wrapperImport: `import {__react_dynamic} from '${internalImport('render/react.js')}';`,
         };
       } else {
@@ -174,7 +177,7 @@ function getComponentWrapper(_name: string, { type, url }: ComponentInfo, compil
     case 'vue': {
       if (kind === 'dynamic') {
         return {
-          wrapper: `__vue_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.vue.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${resolve('vue')}')`,
+          wrapper: `__vue_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.vue.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get('vue')!}')`,
           wrapperImport: `import {__vue_dynamic} from '${internalImport('render/vue.js')}';`,
         };
       } else {
@@ -186,23 +189,10 @@ function getComponentWrapper(_name: string, { type, url }: ComponentInfo, compil
         };
       }
     }
-  }
-  throw new Error('Unknown Component Type: ' + name);
-}
-
-function compileScriptSafe(raw: string): string {
-  let compiledCode = compileExpressionSafe(raw);
-  // esbuild treeshakes unused imports. In our case these are components, so let's keep them.
-  const imports = eslexer
-    .parse(raw)[0]
-    .filter(({ d }) => d === -1)
-    .map((i) => raw.substring(i.ss, i.se));
-  for (let importStatement of imports) {
-    if (!compiledCode.includes(importStatement)) {
-      compiledCode = importStatement + '\n' + compiledCode;
+    default: {
+      throw new Error(`Unknown component type`);
     }
   }
-  return compiledCode;
 }
 
 function compileExpressionSafe(raw: string): string {
@@ -215,7 +205,30 @@ function compileExpressionSafe(raw: string): string {
   return code;
 }
 
+async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolve: (s: string) => Promise<string>): Promise<DynamicImportMap> {
+  const importMap: DynamicImportMap = new Map();
+  for(let plugin of plugins) {
+    switch(plugin) {
+      case 'vue': {
+        importMap.set('vue', await resolve('vue'));
+        break;
+      }
+      case 'react': {
+        importMap.set('react', await resolve('react'));
+        importMap.set('react-dom', await resolve('react-dom'));
+        break;
+      }
+      case 'preact': {
+        importMap.set('preact', await resolve('preact'));
+        break;
+      }
+    }
+  }
+  return importMap;
+}
+
 export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Promise<TransformResult> {
+  const { extensions = defaultExtensions } = compileOptions;
   await eslexer.init;
 
   const componentImports: ImportDeclaration[] = [];
@@ -225,7 +238,8 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   let script = '';
   let propsStatement: string = '';
   const importExportStatements: Set<string> = new Set();
-  const components: Record<string, { type: string; url: string }> = {};
+  const components: Record<string, { type: string; url: string, plugin: string | undefined }> = {};
+  const componentPlugins = new Set<ValidExtensionPlugins>();
 
   if (ast.module) {
     const program = babelParser.parse(ast.module.content, {
@@ -245,7 +259,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
         if (node.type === 'ExportNamedDeclaration' && node.declaration?.type === 'VariableDeclaration') {
           const declaration = node.declaration.declarations[0];
           if ((declaration.id as Identifier).name === '__layout' || (declaration.id as Identifier).name === '__content') {
-          componentExports.push(node);
+            componentExports.push(node);
           } else {
             componentProps.push(declaration);
           }
@@ -259,7 +273,15 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
       const importUrl = componentImport.source.value;
       const componentType = path.posix.extname(importUrl);
       const componentName = path.posix.basename(importUrl, componentType);
-      components[componentName] = { type: componentType, url: importUrl };
+      const plugin = extensions[componentType] || defaultExtensions[componentType];
+      components[componentName] = {
+        type: componentType,
+        plugin,
+        url: importUrl
+      };
+      if(plugin) {
+        componentPlugins.add(plugin);
+      }
       importExportStatements.add(ast.module.content.slice(componentImport.start!, componentImport.end!));
     }
     for (const componentImport of componentExports) {
@@ -279,6 +301,8 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
     }
     script = propsStatement + babelGenerator(program).code;
   }
+
+  const dynamicImports = await acquireDynamicComponentImports(componentPlugins, compileOptions.resolve);
 
   let items: JsxItem[] = [];
   let collectionItem: JsxItem | undefined;
@@ -304,7 +328,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
             if (!components[componentName]) {
               throw new Error(`Unknown Component: ${componentName}`);
             }
-            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], compileOptions);
+            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], dynamicImports);
             if (wrapperImport) {
               importExportStatements.add(wrapperImport);
             }
@@ -356,7 +380,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           if (!componentImportData) {
             throw new Error(`Unknown Component: ${componentName}`);
           }
-          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], compileOptions);
+          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], dynamicImports);
           if (wrapperImport) {
             importExportStatements.add(wrapperImport);
           }
