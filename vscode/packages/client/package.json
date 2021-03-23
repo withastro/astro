@@ -1,0 +1,17 @@
+{
+ "name": "@astro-vscode/client",
+ "version": "0.1.0",
+ "author": "Skypack",
+ "license": "MIT",
+ "scripts": {
+  "build": "tsc"
+ },
+ "dependencies": {
+  "astro": "file:../../..",
+  "vscode-languageclient": "next",
+  "@astro-vscode/server": "file:../server"
+ },
+ "devDependencies": {
+  "@types/vscode": "latest"
+ }
+}

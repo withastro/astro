@@ -1,0 +1,48 @@
+{
+	"name": "@astro-vscode/core",
+	"displayName": "Astro",
+	"description": "Language support for Astro",
+	"version": "0.1.0",
+	"author": "Skypack",
+	"publisher": "skypack",
+	"license": "MIT",
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -b",
+		"watch": "tsc -b -w"
+	},
+	"engines": {
+		"vscode": "^1.52.0"
+	},
+	"activationEvents": [
+		"onLanguage:astro"
+	],
+	"main": "./packages/client/dist/index.js",
+	"contributes": {
+		"languages": [
+			{
+				"id": "astro",
+				"extensions": [
+					".astro"
+				],
+				"configuration": "./languages/astro-language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "astro",
+				"scopeName": "text.html.astro",
+				"path": "./syntaxes/astro.tmLanguage.json",
+				"embeddedLanguages": {
+					"text.html.astro": "astro",
+					"text.html": "html",
+					"source.css": "css",
+					"source.scss": "scss",
+					"source.sass": "sass",
+					"source.ts": "typescript",
+					"css.embbeded.vue": "css"
+				}
+			}
+		]
+	}
+}

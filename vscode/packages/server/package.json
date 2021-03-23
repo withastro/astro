@@ -1,0 +1,12 @@
+{
+  "name": "@astro-vscode/server",
+  "version": "0.1.0",
+  "author": "Skypack",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "astro": "file:../../"
+  }
+}

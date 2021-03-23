@@ -20,7 +20,8 @@
     "dev": "tsc --watch",
     "lint": "eslint 'src/**/*.{js,ts}'",
     "format": "prettier -w 'src/**/*.{js,ts}'",
-    "test": "uvu test -i fixtures -i test-utils.js"
+    "test": "uvu test -i fixtures -i test-utils.js",
+    "watch:extension": "cd vscode && npm run watch"
   },
   "dependencies": {
     "@babel/generator": "^7.13.9",
