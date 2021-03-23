@@ -38,6 +38,7 @@
     "deepmerge": "^4.2.2",
     "domhandler": "^4.0.0",
     "es-module-lexer": "^0.4.1",
+    "esbuild": "^0.9.6",
     "find-up": "^5.0.0",
     "github-slugger": "^1.3.0",
     "gray-matter": "^4.0.2",
