@@ -19,6 +19,10 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - name: npm install, build, and test
       run: |
+        cd examples/snowpack
+        npm ci
+        cd ../..
+
         npm ci
         npm run build
         npm test
