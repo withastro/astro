@@ -1,0 +1,13 @@
+<script astro>
+  export function setup() {
+    return {
+      props: {}
+    }
+  }
+</script>
+
+<astro:head>
+  <!-- Head Stuff -->
+</astro:head>
+
+<h1>Hello world!</h1>
