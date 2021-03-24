@@ -1,78 +1,88 @@
 ---
-  import Menu from '../components/Menu.astro';
-  import Subnav from '../components/Subnav.astro';
+import Subnav from '../components/Subnav.astro';
+import Menu from '../components/Menu.astro';
+import BaseHead from '../components/BaseHead.astro';
+import BaseLayout from '../components/BaseLayout.astro';
 
-  export const layout = 'layouts/base.astro';
-  export function setup({ context }) {
-    return {};
-  }
+export let content: any;
 ---
 
+<html>
 
-<style>
-  .cover-wrapper {
-    width: 100%;
-    height: 44vh;
-    min-height: 20rem;
-    max-height: 30rem;
-    position: relative;
-    background: #2a85ca40;
-    overflow: hidden;
-  }
-  .cover,
-  .cover-blur {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    height: 100%;
-    width: 100%;
-  }
-  .cover-blur {
-    object-fit: cover;
-    filter: blur(3px) brightness(1.5);
-    transform: scale(1.1);
-  }
-  .cover {
-    object-fit: contain;
-    filter: brightness(1.5);
-  }
-  @media (max-width: 1200px) {
+<head>
+  <style>
+    .cover-wrapper {
+      width: 100%;
+      height: 44vh;
+      min-height: 20rem;
+      max-height: 30rem;
+      position: relative;
+      background: #2a85ca40;
+      overflow: hidden;
+    }
+    .cover,
+    .cover-blur {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      height: 100%;
+      width: 100%;
+    }
     .cover-blur {
       object-fit: cover;
+      filter: blur(3px) brightness(1.5);
+      transform: scale(1.1);
     }
     .cover {
-      object-fit: cover;
+      object-fit: contain;
+      filter: brightness(1.5);
     }
-  }
-</style>
+    @media (max-width: 1200px) {
+      .cover-blur {
+        object-fit: cover;
+      }
+      .cover {
+        object-fit: cover;
+      }
+    }
+  </style>
+  <BaseHead title={content.title} description={content.description} permalink="TODO" />
+</head>
 
-<div class="cover-wrapper">
-  <img class="cover-blur" src={context.cover} alt=""/>
-  <img class="cover" src={context.cover} alt=""/>
-</div>
+<body>
+  <BaseLayout>
 
-<div class="container">
-  <section class="snow-view__docs has-subnav">
+    <div class="cover-wrapper">
+      <img class="cover-blur" src={content.cover} alt=""/>
+      <img class="cover" src={content.cover} alt=""/>
+    </div>
 
-    <aside id="nav-primary" class="snow-view-nav">
-      <Menu />
-    </aside>
+    <div class="container">
+      <section class="snow-view__docs has-subnav">
 
-    <article class="snow-view-main">
-      <div class="content">
-        <h2 class="content-title">
-          {context.title}
-        </h2>
-        <div class="content-layout">
-          <div class="content-body">
-            <slot></slot>
+        <aside id="nav-primary" class="snow-view-nav">
+          <Menu />
+        </aside>
+
+        <article class="snow-view-main">
+          <div class="content">
+            <h2 class="content-title">
+              {content.title}
+            </h2>
+            <div class="content-layout">
+              <div class="content-body">
+                {content.body}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </article>
+        </article>
 
-    <Subnav title={context.title} headers={context.content.headers} />
-  </section>
-</div>
+        <Subnav title={content.title} headers={content.headers} />
+      </section>
+    </div>
+  </BaseLayout>
+</body>
+
+</html>

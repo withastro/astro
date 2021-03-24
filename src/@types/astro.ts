@@ -21,6 +21,7 @@ export interface JsxItem {
 
 export interface TransformResult {
   script: string;
+  props: string[];
   head: JsxItem | undefined;
   items: JsxItem[];
 }

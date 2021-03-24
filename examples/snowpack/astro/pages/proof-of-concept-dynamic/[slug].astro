@@ -1,23 +1,34 @@
 ---
-  import Subnav from '../components/Subnav.astro';
-    import { content as Menu } from '../components/Menu.astro';
-    // import contentful from 'skypack:contentful';
+import Subnav from '../components/Subnav.astro';
+import Menu from '../components/Menu.astro';
+import BaseHead from '../components/BaseHead.astro';
+import BaseLayout from '../components/BaseLayout.astro';
+// import contentful from 'skypack:contentful';
 
-    export default async function ({ params }) {
-        const entry = await contentful.getEntry(params.slug);
-        return { title: entry.fields.title, description: entry.fields.description, layout: 'layouts/base.astro', props: { entry } };
-    }
+let title = 'Community & News';
+let description = 'Snowpack community news and companies that use Snowpack.';
+let entry;
+
+export default async function ({ params }) {
+    entry = await contentful.getEntry(params.slug);
+    return { title: entry.fields.title, description: entry.fields.description, layout: 'layouts/base.astro', props: { entry } };
+}
 ---
 
-<div class="container">
-    <section class="snow-view__docs has-subnav">
+<html>
 
+<head>
+  <BaseHead title={title} description={description} permalink="TODO" />
+</head>
+
+<body>
+  <MainLayout>
+    <div class="container">
+      <section class="snow-view__docs has-subnav">
         <aside id="nav-primary" class="snow-view-nav">
             <Menu />
         </aside>
-
-      <Subnav title={context.title} headers={context.content.headers} />
-
+        <Subnav title={context.title} headers={context.content.headers} />
         <article class="snow-view-main">
             <div class="content">
                 <h2 class="content-title">
@@ -30,6 +41,9 @@
                 </div>
             </div>
         </article>
+      </section>
+    </div>
+  </MainLayout>
+</body>
 
-    </section>
-</div>
+</html>

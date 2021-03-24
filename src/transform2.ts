@@ -131,9 +131,14 @@ ${sourceJsx.script}
 // included (see below).
 import { h, Fragment } from '${internalImport('h.js')}';
 export function __slothead(children, context) { return h(Fragment, null, ${headItemJsx}); }
-function __render(props, children, context) { return h(Fragment, null, ${sourceJsx.items.map(({ jsx }) => jsx).join(',')}); }
+function __render(props, children, context) { 
+  ${sourceJsx.props.map((p) => `${p} = props.${p} ?? ${p};`).join('\n')}
+  return h(Fragment, null, ${sourceJsx.items.map(({ jsx }) => jsx).join(',')}); 
+}
 export default __render;
 `;
+
+console.log(modJsx);
 
   if (headItemJsx) {
     modJsx += `

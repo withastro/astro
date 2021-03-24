@@ -1,0 +1,23 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Menu from './Menu.astro';
+export function setup({ context }) {
+return {};
+}
+---
+
+<BaseLayout>
+  <div class="container">
+    <section class="snow-view__docs is-full">
+
+      <aside id="nav-primary" class="snow-view-nav">
+        <Menu />
+      </aside>
+
+      <article class="snow-view-main">
+        <slot></slot>
+      </article>
+
+    </section>
+  </div>
+</BaseLayout>

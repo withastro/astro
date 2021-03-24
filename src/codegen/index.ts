@@ -215,6 +215,9 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   // Compile scripts as TypeScript, always
   const script = compileScriptSafe(ast.module ? ast.module.content : '');
 
+  // Collect all exported variables for props
+  const scannedExports = eslexer.parse(script)[1].filter(n => n !== 'setup');
+
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
   const components = Object.fromEntries(
@@ -382,5 +385,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
     script: script + '\n' + Array.from(additionalImports).join('\n'),
     head: headItem,
     items,
+    props: scannedExports,
   };
 }

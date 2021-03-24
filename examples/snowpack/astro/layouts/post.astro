@@ -1,127 +1,136 @@
 ---
-  import { format as formatDate, parseISO } from 'date-fns';
-  export const layout = 'layouts/base.astro';
-  export function setup({ context }) {
-    return {};
-  }
+import BaseHead from '../components/BaseHead.astro';
+import BaseLayout from '../components/BaseLayout.astro';
+import { format as formatDate, parseISO } from 'date-fns';
+
+export let content: any;
 ---
 
-<astro:head>
-  <link rel="stylesheet" href="/css/legacy-post.css" />
-</astro:head>
+<html>
 
-<style>
-  .markdown-body img,
-  .markdown-body video,
-  .markdown-body iframe {
-    box-shadow: 0px 5px 12px 0 #CCC;
-    border-radius: 3px;
-    min-width: 130%;
-    width: 130%;
-    margin-left: -15%;
-    margin-right: -15%;
-    margin-top: 4rem;
-    margin-bottom: -1rem;
-  }
-
-  @media (max-width: 860px) {
-
+<head>
+  <style>
     .markdown-body img,
     .markdown-body video,
     .markdown-body iframe {
-      min-width: 100%;
-      margin-left: 0;
-      margin-right: 0;
-      margin-bottom: -2rem;
+      box-shadow: 0px 5px 12px 0 #CCC;
+      border-radius: 3px;
+      min-width: 130%;
+      width: 130%;
+      margin-left: -15%;
+      margin-right: -15%;
+      margin-top: 4rem;
+      margin-bottom: -1rem;
     }
-  }
-
-  .markdown-body table td:nth-child(1) {
-    white-space: nowrap;
-  }
-
-  .markdown-body,
-  .fbody-header {
-    max-width: 840px;
-  }
-
-  .markdown-body {
-    font-size: 18px;
-    margin-bottom: 20vh;
-  }
-
-  .markdown-body h2 {
-    font-size: 1.8em;
-  }
-
-  @media (max-width: 860px) {
+  
+    @media (max-width: 860px) {
+  
+      .markdown-body img,
+      .markdown-body video,
+      .markdown-body iframe {
+        min-width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        margin-bottom: -2rem;
+      }
+    }
+  
+    .markdown-body table td:nth-child(1) {
+      white-space: nowrap;
+    }
+  
     .markdown-body,
-    .toc {
-      padding: 1em;
+    .fbody-header {
+      max-width: 840px;
     }
-  }
-
-  @media (max-width: 740px) {
-    .markdown-body img,
-    .markdown-body iframe {
-      max-width: 108%;
-      margin-left: -4%;
-      margin-right: -4%;
+  
+    .markdown-body {
+      font-size: 18px;
+      margin-bottom: 20vh;
     }
-
-    .grid-body {
-      padding: 20px 0 0 0;
+  
+    .markdown-body h2 {
+      font-size: 1.8em;
     }
-  }
+  
+    @media (max-width: 860px) {
+      .markdown-body,
+      .toc {
+        padding: 1em;
+      }
+    }
+  
+    @media (max-width: 740px) {
+      .markdown-body img,
+      .markdown-body iframe {
+        max-width: 108%;
+        margin-left: -4%;
+        margin-right: -4%;
+      }
+  
+      .grid-body {
+        padding: 20px 0 0 0;
+      }
+    }
+  
+    .header-snowpack {
+      font-size: 3.5rem;
+      text-align: center;
+    }
+  
+    .markdown-body h1 {
+      font-size: 3.5em;
+    }
+  
+    .markdown-body h3 .header-link {
+      opacity: 1;
+    }
+  </style>
+  <BaseHead title={content.title} description={content.description} permalink="TODO" />
+  <link rel="stylesheet" href="/css/legacy-post.css" />
+</head>
 
-  .header-snowpack {
-    font-size: 3.5rem;
-    text-align: center;
-  }
+<body>
+  <BaseLayout>
 
-  .markdown-body h1 {
-    font-size: 3.5em;
-  }
-
-  .markdown-body h3 .header-link {
-    opacity: 1;
-  }
-</style>
-
-<div class="grid-extra-space">
-  <div class="grid-body-header">
-    <svg height="80px" style="padding-left: 8px;" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg"
-      xmlns:xlink="http://www.w3.org/1999/xlink">
-      <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
-        <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill-rule="nonzero">
-          <path
-            d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z"
-            id="Shape"></path>
-        </g>
-      </g>
-    </svg>
-    <h1 class="header-snowpack">{context.title}</h1>
+    <div class="grid-extra-space">
+      <div class="grid-body-header">
+        <svg height="80px" style="padding-left: 8px;" viewBox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink">
+          <g id="Page-1" stroke="none" stroke-width="1" fill="currentColor" fill-rule="evenodd">
+            <g id="mountain-solid" transform="translate(-1.000000, 0.000000)" fill-rule="nonzero">
+              <path
+                d="M635.92,462.7 L347.92,14.7 C342.03,5.54 331.89,0 321,0 C310.11,0 299.97,5.54 294.08,14.7 L6.08,462.7 C-0.250773249,472.547007 -0.699487627,485.064987 4.91,495.34 C10.522069,505.612419 21.2945349,512 33,512 L609,512 C620.71,512 631.48,505.61 637.09,495.33 C642.699457,485.058495 642.250708,472.543372 635.92,462.7 Z M321,91.18 L406.39,224 L321,224 L257,288 L218.94,249.94 L321,91.18 Z"
+                id="Shape"></path>
+            </g>
+          </g>
+        </svg>
+        <h1 class="header-snowpack">{content.title}</h1>
 
 
-    <div>
-      {context.tagline && <div style="margin-bottom: 1rem;">{context.tagline}</div>}
-      <div>
-        Published <a href='#published-at'>{formatDate(parseISO(context.date), 'MMMM d, yyyy')}</a>
-        by <a href="https://twitter.com/FredKSchott">Fred K. Schott</a>
+        <div>
+          {content.tagline && <div style="margin-bottom: 1rem;">{content.tagline}</div>}
+          <div>
+            Published <a href='#published-at'>{formatDate(parseISO(content.date), 'MMMM d, yyyy')}</a>
+            by <a href="https://twitter.com/FredKSchott">Fred K. Schott</a>
+          </div>
+        </div>
+
+        <!-- Place this tag where you want the button to render. -->
+        <div class="hidden-mobile" style="text-align: center; margin-top: 0.5rem; filter: scale(2);">
+          <a class="github-button" href="https://github.com/snowpackjs/snowpack" data-icon="octicon-star" data-size="large"
+            data-show-count="true" aria-label="Star snowpackjs/snowpack on GitHub">Star</a>
+        </div>
+        <!-- Place this tag in your head or just before your close body tag. -->
+        <script defer src="https://buttons.github.io/buttons.js"></script>
       </div>
     </div>
-
-    <!-- Place this tag where you want the button to render. -->
-    <div class="hidden-mobile" style="text-align: center; margin-top: 0.5rem; filter: scale(2);">
-      <a class="github-button" href="https://github.com/snowpackjs/snowpack" data-icon="octicon-star" data-size="large"
-        data-show-count="true" aria-label="Star snowpackjs/snowpack on GitHub">Star</a>
+    <div class="grid-body">
+      <article class="markdown-body">
+        <slot></slot>
+      </article>
     </div>
-    <!-- Place this tag in your head or just before your close body tag. -->
-    <script defer src="https://buttons.github.io/buttons.js"></script>
-  </div>
-</div>
-<div class="grid-body">
-  <article class="markdown-body">
-    <slot></slot>
-  </article>
-</div>
+  </BaseLayout>
+</body>
+
+</html>
