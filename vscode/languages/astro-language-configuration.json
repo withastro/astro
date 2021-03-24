@@ -3,6 +3,7 @@
 		"blockComment": [ "<!--", "-->" ]
 	},
 	"brackets": [
+		["---", "---"],
 		["<!--", "-->"],
 		["<", ">"],
 		["{", "}"],
@@ -17,6 +18,7 @@
 		{ "open": "<!--", "close": "-->", "notIn": [ "comment", "string" ]},
 		{ "open": "/**", "close": " */", "notIn": ["string"] }
 	],
+	"autoCloseBefore": ";:.,=}])>` \n\t",
 	"surroundingPairs": [
 		{ "open": "'", "close": "'" },
 		{ "open": "\"", "close": "\"" },
