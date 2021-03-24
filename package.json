@@ -54,7 +54,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "sass": "^1.32.8",
-    "snowpack": "^3.1.0-pre.14",
+    "snowpack": "^3.1.2",
     "svelte": "^3.35.0",
     "vue": "^3.0.7",
     "yargs-parser": "^20.2.7"
