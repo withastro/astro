@@ -3,6 +3,14 @@
 import { Parser } from '../index.js';
 
 export default function setup(parser: Parser): void {
+  // TODO: Error if not at top of file? currently, we ignore / just treat as text.
+  // if (parser.html.children.length > 0) {
+  //   parser.error({
+  //     code: 'unexpected-token',
+  //     message: 'Frontmatter scripts only supported at the top of file.',
+  //   });
+  // }
+
   const start = parser.index;
   parser.index += 3;
   const content_start = parser.index;

@@ -5,7 +5,7 @@ import text from './text.js';
 import { Parser } from '../index.js';
 
 export default function fragment(parser: Parser) {
-  if (parser.match('---')) {
+  if (parser.html.children.length === 0 && parser.match_regex(/^---/m)) {
     return setup;
   }
 
