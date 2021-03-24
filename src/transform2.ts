@@ -60,17 +60,16 @@ async function convertMdToJsx(
     htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension],
   });
 
-
   // TODO: Warn if reserved word is used in "frontmatterData"
   const contentData: any = {
     ...frontmatterData,
     headers,
     source: content,
     html: mdHtml,
-};
+  };
 
   let imports = '';
-  for(let [ComponentName, specifier] of Object.entries(frontmatterData.import || {})) {
+  for (let [ComponentName, specifier] of Object.entries(frontmatterData.import || {})) {
     imports += `import ${ComponentName} from '${specifier}';\n`;
   }
 
@@ -78,7 +77,7 @@ async function convertMdToJsx(
   // Break it up here so that the HTML parser won't detect it.
   const stringifiedSetupContext = JSON.stringify(contentData).replace(/\<\/script\>/g, `</scrip" + "t>`);
 
-  const raw =  `---
+  const raw = `---
   ${imports}
   ${frontmatterData.layout ? `const __layout = ${JSON.stringify(frontmatterData.layout)};` : ''}
   const __content = ${stringifiedSetupContext};
