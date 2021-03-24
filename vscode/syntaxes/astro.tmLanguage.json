@@ -555,9 +555,6 @@
 			"name": "string.quoted.double.html",
 			"patterns": [
 				{
-					"include": "#astro-interpolations"
-				},
-				{
 					"include": "#entities"
 				}
 			]
@@ -577,9 +574,6 @@
 			],
 			"name": "string.quoted.single.html",
 			"patterns": [
-				{
-					"include": "#astro-interpolations"
-				},
 				{
 					"include": "#entities"
 				}
@@ -665,19 +659,22 @@
 				},
 				{
 					"include": "#string-single-quoted"
+				},
+				{
+					"include": "#astro-interpolations"
 				}
 			]
 		},
 		"astro-interpolations": {
 			"patterns": [
 				{
-					"begin": "\\{\\{?",
+					"begin": "\\{",
 					"beginCaptures": [
 						{
 							"name": "punctuation.definition.generic.begin.html"
 						}
 					],
-					"end": "\\}\\}?",
+					"end": "\\}",
 					"endCaptures": [
 						{
 							"name": "punctuation.definition.generic.end.html"
@@ -686,7 +683,7 @@
 					"name": "expression.embbeded.astro",
 					"patterns": [
 						{
-							"include": "source.ts"
+							"include": "source.tsx"
 						}
 					]
 				}

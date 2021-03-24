@@ -1,5 +1,5 @@
 {
-	"name": "@astro-vscode/core",
+	"name": "astro",
 	"displayName": "Astro",
 	"description": "Language support for Astro",
 	"version": "0.1.0",
@@ -15,8 +15,13 @@
 		"vscode": "^1.52.0"
 	},
 	"activationEvents": [
-		"onLanguage:astro"
+		"*"
 	],
+	"dependencies": {
+		"@astro-vscode/client": "file:./packages/client",
+		"@astro-vscode/server": "file:./packages/server",
+		"typescript": "^4.2.3"
+	},
 	"main": "./packages/client/dist/index.js",
 	"contributes": {
 		"languages": [
@@ -40,6 +45,7 @@
 					"source.scss": "scss",
 					"source.sass": "sass",
 					"source.ts": "typescript",
+					"source.tsx": "typescript",
 					"css.embbeded.vue": "css"
 				}
 			}
