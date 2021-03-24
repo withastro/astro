@@ -3,13 +3,7 @@ import ReactDOMServer from 'react-dom/server';
 
 export function __react_static(ReactComponent: any) {
   return (attrs: Record<string, any>, ...children: any): string => {
-    let html = ReactDOMServer.renderToString(
-      React.createElement(
-        ReactComponent,
-        attrs,
-        children
-      )
-    );
+    let html = ReactDOMServer.renderToString(React.createElement(ReactComponent, attrs, children));
     return html;
   };
 }

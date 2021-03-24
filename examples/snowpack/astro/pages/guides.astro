@@ -1,73 +1,86 @@
 ---
-  import Card from '../components/Card.jsx';
+import Card from '../components/Card.jsx';
+import BaseHead from '../components/BaseHead.astro';
+import MainLayout from '../components/MainLayout.astro';
 
-  export const layout = 'layouts/main.astro';
-
-  // mocked for now, to be added later
-  // 1. import {paginate} from 'magicthing';
-  // 2. export default function ({paginate}) {
-  function paginate(options) {
-    if (options.tag === 'guide') {
-      return [
-        { title: 'Test guide 1', href: "#" },
-        { title: 'Test guide 2', href: "#" },
-      ];
-    }
-    if (options.tag === 'communityGuides') {
-      return [{ title: 'Test communityGuides', href: "#" }];
-    }
-    return [];
+// mocked for now, to be added later
+// 1. import {paginate} from 'magicthing';
+// 2. export default function ({paginate}) {
+function paginate(options) {
+  if (options.tag === 'guide') {
+    return [
+      { title: 'Test guide 1', href: "#" },
+      { title: 'Test guide 2', href: "#" },
+    ];
   }
-
-  export function setup({ context, /* paginate */ }) {
-    return {
-      context: {
-        title: 'Guides',
-        description: "Snowpack's usage and integration guides.",
-        guides: paginate({
-          files: '/posts/guides/*.md',
-          // sort: ((a, b) => new Date(b) - new Date(a)),
-          tag: 'guide',
-          limit: 10,
-          // page: query.page,
-        }),
-        communityGuides: paginate({
-          files: '/posts/guides/*.md',
-          // sort: ((a, b) => new Date(b) - new Date(a)),
-          tag: 'communityGuides',
-          limit: 10,
-        }),
-      }
-    };
+  if (options.tag === 'communityGuides') {
+    return [{ title: 'Test communityGuides', href: "#" }];
   }
+  return [];
+}
+
+let title = 'Guides';
+let description = 'Snowpack\'s usage and integration guides.';
+let guides;
+let communityGuides;
+
+
+export function setup({ /* paginate */ }) {
+  guides = paginate({
+    files: '/posts/guides/*.md',
+    // sort: ((a, b) => new Date(b) - new Date(a)),
+    tag: 'guide',
+    limit: 10,
+    // page: query.page,
+  });
+  communityGuides = paginate({
+    files: '/posts/guides/*.md',
+    // sort: ((a, b) => new Date(b) - new Date(a)),
+    tag: 'communityGuides',
+    limit: 10,
+  });
+  return {};
+}
 ---
 
-<h2 class="content-title">
-  {context.title}
-</h2>
+<html>
 
-<h3 class="content-title">
-  Using Snowpack
-</h3>
+<head>
+  <BaseHead title={title} description={description} permalink="TODO" />
+</head>
 
-<div class="content">
-  <ul>
-    {context.guides.map((post) => {
-    return <li><a href={post.href}>{post.title}</a></li>;
-    })}
-  </ul>
-</div>
+<body>
+  <MainLayout>
+    <h2 class="content-title">
+      {title}
+    </h2>
 
-<br />
-<br />
+    <h3 class="content-title">
+      Using Snowpack
+    </h3>
 
-<h3 class="content-title">
-  Popular Integration Guides
-</h3>
+    <div class="content">
+      <ul>
+        {guides.map((post) => {
+        return <li><a href={post.href}>{post.title}</a></li>;
+        })}
+      </ul>
+    </div>
 
-<div class="card-grid card-grid-4">
-  {context.communityGuides.map((post) => {
-  return
-  <Card item={post} />;
-  })}
-</div>
+    <br />
+    <br />
+
+    <h3 class="content-title">
+      Popular Integration Guides
+    </h3>
+
+    <div class="card-grid card-grid-4">
+      {communityGuides.map((post) => {
+      return
+      <Card item={post} />;
+      })}
+    </div>
+  </MainLayout>
+</body>
+
+</html>

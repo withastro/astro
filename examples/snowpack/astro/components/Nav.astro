@@ -1,5 +1,5 @@
 ---
-  export let props: { version: string };
+export let version: string = '3.1.2';
 ---
 
 <style lang="scss">
@@ -257,7 +257,7 @@
   </div>
   <div style="flex-grow: 1"></div>
   <a href="https://github.com/snowpackjs/snowpack/releases" target="_blank" class="link version">
-    {`v${props.version}`}
+    {`v${version}`}
   </a>
   <a href="https://github.com/snowpackjs/snowpack" target="_blank" class="link link__desktop">
     <svg aria-hidden="true" focusable="false" data-prefix="fab" data-icon="github" class="snow-icon" role="img"

@@ -1,37 +1,45 @@
 ---
-  import Subnav from '../components/Subnav.astro';
-  import Menu from '../components/Menu.astro';
+import Subnav from '../components/Subnav.astro';
+import Menu from '../components/Menu.astro';
+import BaseHead from '../components/BaseHead.astro';
+import BaseLayout from '../components/BaseLayout.astro';
 
-  export const layout = 'layouts/base.astro';
-  export function setup({ context }) {
-    return {
-      context: {
-      }
-    };
-  }
+export let content: any;
 ---
 
-<div class="container">
-  <section class="snow-view__docs has-subnav">
+<html>
 
-    <aside id="nav-primary" class="snow-view-nav">
-      <Menu />
-    </aside>
+<head>
+  <BaseHead title={content.title} description={content.description} permalink="TODO" />
+</head>
 
-    <Subnav title={context.title} headers={context.content.headers} />
+<body>
+  <BaseLayout>
+    <div class="container">
+      <section class="snow-view__docs has-subnav">
 
-    <article class="snow-view-main">
-      <div class="content">
-        <h2 class="content-title">
-          {context.title}
-        </h2>
-        <div class="content-layout">
-          <div class="content-body">
-            <slot></slot>
+        <aside id="nav-primary" class="snow-view-nav">
+          <Menu />
+        </aside>
+
+        <Subnav title={content.title} headers={content.headers} />
+
+        <article class="snow-view-main">
+          <div class="content">
+            <h2 class="content-title">
+              {content.title}
+            </h2>
+            <div class="content-layout">
+              <div class="content-body">
+                <slot></slot>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-    </article>
+        </article>
 
-  </section>
-</div>
+      </section>
+    </div>
+  </BaseLayout>
+</body>
+
+</html>

@@ -1,0 +1,20 @@
+---
+import Banner from './Banner.astro';
+import Nav from './Nav.astro';
+---
+
+<Banner></Banner>
+<Nav />
+
+<slot></slot>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async="async" src="https://www.googletagmanager.com/gtag/js?id=UA-130280175-9"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag('js', new Date());
+  gtag('config', 'UA-130280175-9', { page_path: location.pathname === '/' ? (location.pathname + location.hash) : (location.pathname) });
+</script>

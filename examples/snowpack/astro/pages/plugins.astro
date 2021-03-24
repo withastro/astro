@@ -1,70 +1,72 @@
 ---
-  import news from '../data/news.json';
-  import users from '../data/users.json';
-  import PluginSearchPage from '../components/PluginSearchPage.jsx';
+import PluginSearchPage from '../components/PluginSearchPage.jsx';
+import BaseHead from '../components/BaseHead.astro';
+import MainLayout from '../components/MainLayout.astro';
 
-  export const layout = 'layouts/main.astro';
-
-  export function setup({ context }) {
-    return {
-      context: {
-        title: 'The Snowpack Plugin Catalog',
-        description:
-          'Snowpack plugins allow for configuration-minimal tooling integration.',
-      },
-    };
-  }
+let title = 'The Snowpack Plugin Catalog';
+let description = 'Snowpack plugins allow for configuration-minimal tooling integration.';
 ---
 
-<style lang="scss">
-  .intro {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    line-height: 1.5;
-    text-align: left;
+<html>
 
-    a {
+<head>
+  <BaseHead title={title} description={description} permalink="TODO" />
+  <style lang="scss">
+    .intro {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+      text-align: left;
+
+      a {
+        color: #2e5e82;
+      }
+    }
+
+    .subheading {
+      margin-top: -2.5rem;
+      margin-bottom: 0;
       color: #2e5e82;
+      font-weight: 500;
+      font-size: 1em;
+      font-family: 'Overpass', sans-serif;
+      letter-spacing: -0.02em;
+      text-align: left;
+
+      @media (min-width: 600px) {
+        font-size: 1.5em;
+      }
     }
-  }
 
-  .subheading {
-    margin-top: -2.5rem;
-    margin-bottom: 0;
-    color: #2e5e82;
-    font-weight: 500;
-    font-size: 1em;
-    font-family: 'Overpass', sans-serif;
-    letter-spacing: -0.02em;
-    text-align: left;
+    .zero-heading {
+      margin-top: 1.5rem;
+      margin-bottom: 1.5rem;
+      font-weight: 700;
+      font-size: 1.4em;
+      text-align: left;
 
-    @media (min-width: 600px) {
-      font-size: 1.5em;
+      @media (min-width: 600px) {
+        font-size: 1.5em;
+      }
     }
-  }
+  </style>
+</head>
 
-  .zero-heading {
-    margin-top: 1.5rem;
-    margin-bottom: 1.5rem;
-    font-weight: 700;
-    font-size: 1.4em;
-    text-align: left;
+<body>
+  <MainLayout>
+    <h2 class="content-title">{ title }</h2>
 
-    @media (min-width: 600px) {
-      font-size: 1.5em;
-    }
-  }
-</style>
+    <h3 class="pluginPage-subheading">
+      Customize Snowpack with optimized build plugins.
+    </h3>
+    <p class="pluginPage-intro">
+      To learn more about our plugin system, check out the
+      <a href="/reference/plugins">Plugin API.</a><br />Can't find what you need?
+      <a href="/reference/plugins">Creating your own plugin is easy!</a>
+    </p>
 
-<h2 class="content-title">{ context.title }</h2>
+    <PluginSearchPage:dynamic />
+  </MainLayout>
+</body>
 
-<h3 class="pluginPage-subheading">
-  Customize Snowpack with optimized build plugins.
-</h3>
-<p class="pluginPage-intro">
-  To learn more about our plugin system, check out the
-  <a href="/reference/plugins">Plugin API.</a><br />Can't find what you need?
-  <a href="/reference/plugins">Creating your own plugin is easy!</a>
-</p>
-
-<PluginSearchPage:dynamic />
+</html>

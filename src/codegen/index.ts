@@ -99,20 +99,17 @@ const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
   '.astro': 'astro',
   '.jsx': 'react',
   '.vue': 'vue',
-  '.svelte': 'svelte'
+  '.svelte': 'svelte',
 };
 
 function getComponentWrapper(_name: string, { type, url }: ComponentInfo, compileOptions: CompileOptions) {
-  const {
-    resolve,
-    extensions = defaultExtensions
-  } = compileOptions;
+  const { resolve, extensions = defaultExtensions } = compileOptions;
 
   const [name, kind] = _name.split(':');
 
   const plugin = extensions[type] || defaultExtensions[type];
 
-  if(!plugin) {
+  if (!plugin) {
     throw new Error(`No supported plugin found for extension ${type}`);
   }
 
@@ -142,7 +139,9 @@ function getComponentWrapper(_name: string, { type, url }: ComponentInfo, compil
     case 'react': {
       if (kind === 'dynamic') {
         return {
-          wrapper: `__react_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${resolve('react')}', '${resolve('react-dom')}')`,
+          wrapper: `__react_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${resolve(
+            'react'
+          )}', '${resolve('react-dom')}')`,
           wrapperImport: `import {__react_dynamic} from '${internalImport('render/react.js')}';`,
         };
       } else {
@@ -214,6 +213,9 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
 
   // Compile scripts as TypeScript, always
   const script = compileScriptSafe(ast.module ? ast.module.content : '');
+
+  // Collect all exported variables for props
+  const scannedExports = eslexer.parse(script)[1].filter((n) => n !== 'setup' && n !== 'layout');
 
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
@@ -380,7 +382,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
 
   return {
     script: script + '\n' + Array.from(additionalImports).join('\n'),
-    head: headItem,
     items,
+    props: scannedExports,
   };
 }

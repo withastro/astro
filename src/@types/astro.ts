@@ -11,7 +11,7 @@ export interface AstroConfig {
   dist: string;
   projectRoot: URL;
   astroRoot: URL;
-  extensions?: Record<string, ValidExtensionPlugins>
+  extensions?: Record<string, ValidExtensionPlugins>;
 }
 
 export interface JsxItem {
@@ -21,7 +21,7 @@ export interface JsxItem {
 
 export interface TransformResult {
   script: string;
-  head: JsxItem | undefined;
+  props: string[];
   items: JsxItem[];
 }
 

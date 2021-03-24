@@ -1,9 +1,7 @@
 ---
-  export let props: {
-    title: string,
-    inputPath: string,
-    headers: { text: string, slug: string }[]
-  };
+export let title: string;
+export let inputPath: string;
+export let headers: string;
 ---
 
 <style lang="scss">
@@ -59,12 +57,12 @@
 
 <script type="module" defer src="/js/index.js"></script>
 <aside class="subnav">
-  {props.headers.length > 0 && (
+  {headers.length > 0 && (
     <div>
       <h4 class="header">On this page</h4>
       <nav class="toc">
         <ol>
-          {props.headers.map((heading) => {
+          {headers.map((heading) => {
           return <li><a href={"#" + heading.slug}>{heading.text}</a></li>
           })}
         </ol>
@@ -74,5 +72,5 @@
   )}
 
   <h4 class="header">Suggest a change</h4>
-  <a href="https://github.com/snowpackjs/snowpack/blob/main/www/{props.inputPath}">Edit this page on GitHub</a>
+  <a href="https://github.com/snowpackjs/snowpack/blob/main/www/{inputPath}">Edit this page on GitHub</a>
 </aside>

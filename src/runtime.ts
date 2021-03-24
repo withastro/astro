@@ -69,6 +69,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         href: fullurl.toString(),
       },
       children: [],
+      props: {},
     })) as string;
 
     return {
@@ -103,7 +104,7 @@ export async function createRuntime(astroConfig: AstroConfig, logging: LogOption
   // Workaround for SKY-251
   const astroPlugOptions: {
     resolve?: (s: string) => string;
-    extensions?: Record<string, string>
+    extensions?: Record<string, string>;
   } = { extensions };
   if (existsSync(new URL('./package-lock.json', projectRoot))) {
     const pkgLockStr = await readFile(new URL('./package-lock.json', projectRoot), 'utf-8');
@@ -128,10 +129,7 @@ export async function createRuntime(astroConfig: AstroConfig, logging: LogOption
     },
     packageOptions: {
       knownEntrypoints: ['preact-render-to-string'],
-      external: [
-        '@vue/server-renderer',
-        'node-fetch'
-      ],
+      external: ['@vue/server-renderer', 'node-fetch'],
     },
   });
   const snowpack = await startSnowpackServer({
