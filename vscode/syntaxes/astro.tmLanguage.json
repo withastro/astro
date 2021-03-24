@@ -318,7 +318,7 @@
 					"name": "punctuation.definition.tag.html"
 				}
 			},
-			"name": "source.ts.embedded.html",
+			"name": "source.tsx.embedded.html",
 			"patterns": [
 				{
 					"include": "#tag-stuff"
@@ -336,7 +336,7 @@
 					"end": "(<\/)((?i:script))",
 					"patterns": [
 						{
-							"include": "source.ts"
+							"include": "source.tsx"
 						}
 					]
 				}
@@ -358,7 +358,7 @@
 					"name": "punctuation.definition.tag.html"
 				}
 			},
-			"name": "source.ts.embedded.html",
+			"name": "source.tsx.embedded.html",
 			"patterns": [
 				{
 					"include": "#tag-stuff"
@@ -395,7 +395,7 @@
 							"name": "comment.block.js"
 						},
 						{
-							"include": "source.ts"
+							"include": "source.tsx"
 						}
 					]
 				}
@@ -514,7 +514,7 @@
 			"contentName": "meta.embedded.block.frontmatter",
 			"patterns": [
 				{
-					"include": "source.ts"
+					"include": "source.tsx"
 				}
 			],
 			"end": "(^|\\G)-{3}|\\.{3}\\s*$"
