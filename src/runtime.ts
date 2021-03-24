@@ -1,20 +1,13 @@
-import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, LoadResult as SnowpackLoadResult } from 'snowpack';
-import type { AstroConfig } from './@types/astro';
+import type { AstroConfig, RuntimeConfig } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { CompileError } from './compiler/utils/error.js';
 import { info, error, parseError } from './logger.js';
+import { devStyles, STYLESHEET_URL } from './stylesheet-gen.js';
 
 import { existsSync, promises as fsPromises } from 'fs';
 import { loadConfiguration, startServer as startSnowpackServer } from 'snowpack';
 
 const { readFile } = fsPromises;
-
-interface RuntimeConfig {
-  astroConfig: AstroConfig;
-  logging: LogOptions;
-  snowpack: SnowpackDevServer;
-  snowpackRuntime: SnowpackServerRuntime;
-}
 
 type LoadResultSuccess = {
   statusCode: 200;
@@ -25,6 +18,8 @@ type LoadResultNotFound = { statusCode: 404; error: Error };
 type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'unknown'; error: Error });
 
 export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultError;
+
+const styleCollection: Map<string, string> = new Map();
 
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
   const { logging, snowpack, snowpackRuntime } = config;
@@ -42,6 +37,15 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   // Non-Astro pages (file resources)
   if (!existsSync(selectedPageLoc) && !existsSync(selectedPageMdLoc)) {
     try {
+      // generated styles
+      if (reqPath === STYLESHEET_URL) {
+        return {
+          statusCode: 200,
+          contentType: 'text/css',
+          contents: devStyles(styleCollection),
+        };
+      }
+
       const result = await snowpack.loadUrl(reqPath);
 
       // success

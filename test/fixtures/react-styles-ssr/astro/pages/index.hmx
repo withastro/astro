@@ -1,0 +1,10 @@
+<script astro>
+  import Hello from '../components/Hello.jsx';
+</script>
+
+<astro:head>
+  <!-- Head Stuff -->
+</astro:head>
+
+<h1>My page</h1>
+<Hello name="world" />

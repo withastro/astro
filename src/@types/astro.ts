@@ -1,3 +1,6 @@
+import { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime } from 'snowpack';
+import { LogOptions } from '../logger';
+
 export interface AstroConfigRaw {
   dist: string;
   projectRoot: string;
@@ -17,6 +20,13 @@ export interface AstroConfig {
 export interface JsxItem {
   name: string;
   jsx: string;
+}
+
+export interface RuntimeConfig {
+  astroConfig: AstroConfig;
+  logging: LogOptions;
+  snowpack: SnowpackDevServer;
+  snowpackRuntime: SnowpackServerRuntime;
 }
 
 export interface TransformResult {
