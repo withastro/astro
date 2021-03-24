@@ -53,7 +53,7 @@ export default async function (astroConfig: AstroConfig) {
             break;
           }
           default: {
-            error(logging, 'executing hmx', result.error);
+            error(logging, 'executing astro', result.error);
             break;
           }
         }

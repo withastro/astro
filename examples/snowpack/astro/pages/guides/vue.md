@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: Vue
 tags: communityGuide
 img: '/img/logos/vue.png'

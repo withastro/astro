@@ -52,7 +52,7 @@ async function* allPageFiles(root) {
 
 async function* allPages(root) {
   for await (let fileURL of allPageFiles(root)) {
-    let bare = fileURL.pathname.replace(/\.(hmx|md)$/, '').replace(/index$/, '');
+    let bare = fileURL.pathname.replace(/\.(astro|md)$/, '').replace(/index$/, '');
 
     yield '/' + pathRelative(root.pathname, bare);
   }

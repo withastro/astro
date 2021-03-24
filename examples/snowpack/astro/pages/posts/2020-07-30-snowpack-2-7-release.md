@@ -1,5 +1,5 @@
 ---
-layout: layouts/post.hmx
+layout: layouts/post.astro
 title: Snowpack 2.7
 description: 'A new plugin API plus smaller, faster production builds.'
 tagline: v2.7.0 release post

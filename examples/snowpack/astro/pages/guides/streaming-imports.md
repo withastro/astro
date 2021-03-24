@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: Streaming Imports
 published: true
 stream: Fetch your npm dependencies on-demand from a remote ESM CDN.

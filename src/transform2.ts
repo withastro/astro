@@ -24,16 +24,16 @@ const defaultCompileOptions: CompileOptions = {
 };
 
 function internalImport(internalPath: string) {
-  return `/__hmx_internal__/${internalPath}`;
+  return `/_astro_internal/${internalPath}`;
 }
 
-interface ConvertHmxOptions {
+interface ConvertAstroOptions {
   compileOptions: CompileOptions;
   filename: string;
   fileID: string;
 }
 
-async function convertHmxToJsx(template: string, opts: ConvertHmxOptions): Promise<TransformResult> {
+async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): Promise<TransformResult> {
   const { filename } = opts;
 
   // 1. Parse
@@ -90,17 +90,19 @@ async function convertMdToJsx(
 
   const convertOptions = { compileOptions, filename, fileID };
 
-  return convertHmxToJsx(raw, convertOptions);
+  return convertAstroToJsx(raw, convertOptions);
 }
+
+type SupportedExtensions = '.astro' | '.md';
 
 async function transformFromSource(
   contents: string,
   { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
 ): Promise<TransformResult> {
   const fileID = path.relative(projectRoot, filename);
-  switch (path.extname(filename)) {
-    case '.hmx':
-      return convertHmxToJsx(contents, { compileOptions, filename, fileID });
+  switch (path.extname(filename) as SupportedExtensions) {
+    case '.astro':
+      return convertAstroToJsx(contents, { compileOptions, filename, fileID });
     case '.md':
       return convertMdToJsx(contents, { compileOptions, filename, fileID });
     default:
@@ -125,7 +127,7 @@ export async function compileComponent(
 // <script astro></script>
 ${sourceJsx.script}
 
-// \`__render()\`: Render the contents of the HMX module. "<slot:*>" elements are not 
+// \`__render()\`: Render the contents of the Astro module. "<slot:*>" elements are not 
 // included (see below).
 import { h, Fragment } from '${internalImport('h.js')}';
 export function __slothead(children, context) { return h(Fragment, null, ${headItemJsx}); }
@@ -135,7 +137,7 @@ export default __render;
 
   if (headItemJsx) {
     modJsx += `
-// \`__renderPage()\`: Render the contents of the HMX module as a page. This is a special flow,
+// \`__renderPage()\`: Render the contents of the Astro module as a page. This is a special flow,
 // triggered by loading a component directly by URL. 
 // If the page exports a defined "layout", then load + render those first. "context", "astro:head",
 // and "slot:body" should all inherit from parent layouts, merging together in the correct order.
@@ -149,7 +151,7 @@ export async function __renderPage({request, children}) {
 
   // find all layouts, going up the layout chain.
   if (currentChild.layout) {
-    const layoutComponent = (await import('/_hmx/layouts/' + layout.replace(/.*layouts\\//, "").replace(/\.hmx$/, '.js')));
+    const layoutComponent = (await import('/_astro/layouts/' + layout.replace(/.*layouts\\//, "").replace(/\.astro$/, '.js')));
     return layoutComponent.__renderPage({
       request,
       children: [currentChild, ...children],

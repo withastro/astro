@@ -226,7 +226,7 @@ export default function parse(template: string, options: ParserOptions = {}): As
     parser.error(
       {
         code: 'duplicate-style',
-        message: 'You can only have one <style> tag per HMX file',
+        message: 'You can only have one <style> tag per Astro file',
       },
       parser.css[1].start
     );
@@ -234,15 +234,15 @@ export default function parse(template: string, options: ParserOptions = {}): As
 
   // const instance_scripts = parser.js.filter((script) => script.context === 'default');
   // const module_scripts = parser.js.filter((script) => script.context === 'module');
-  const hmx_scripts = parser.js.filter((script) => script.context === 'setup');
+  const astro_scripts = parser.js.filter((script) => script.context === 'setup');
 
-  if (hmx_scripts.length > 1) {
+  if (astro_scripts.length > 1) {
     parser.error(
       {
         code: 'invalid-script',
         message: 'A component can only have one frontmatter (---) script',
       },
-      hmx_scripts[1].start
+      astro_scripts[1].start
     );
   }
 
@@ -260,6 +260,6 @@ export default function parse(template: string, options: ParserOptions = {}): As
     html: parser.html,
     css: parser.css[0],
     // instance: instance_scripts[0],
-    module: hmx_scripts[0],
+    module: astro_scripts[0],
   };
 }

@@ -32,7 +32,7 @@ React('No error creating the runtime', () => {
   assert.equal(setupError, undefined);
 });
 
-React('Can load hmx page', async () => {
+React('Can load page', async () => {
   const result = await runtime.load('/');
 
   assert.equal(result.statusCode, 200);

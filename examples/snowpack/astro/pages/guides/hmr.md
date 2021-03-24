@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: Hot Module Replacement (HMR)
 description: Enable Snowpack's Hot Module Replacement (HMR) on your development server.
 published: false

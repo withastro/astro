@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: How Snowpack Works
 description: Snowpack serves your application unbundled during development. Each file is built only once and is cached until it changes.
 ---

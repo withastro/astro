@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: 'PostCSS'
 tags: communityGuide
 published: true

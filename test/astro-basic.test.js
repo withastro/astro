@@ -9,8 +9,8 @@ let runtime;
 
 Basics.before(async () => {
   const astroConfig = {
-    projectRoot: new URL('./fixtures/hmx-basic/', import.meta.url),
-    hmxRoot: new URL('./fixtures/hmx-basic/astro/', import.meta.url),
+    projectRoot: new URL('./fixtures/astro-basic/', import.meta.url),
+    hmxRoot: new URL('./fixtures/astro-basic/astro/', import.meta.url),
     dist: './_site'
   };
   
@@ -26,7 +26,7 @@ Basics.after(async () => {
   await runtime && runtime.shutdown();
 });
 
-Basics('Can load hmx page', async () => {
+Basics('Can load page', async () => {
   const result = await runtime.load('/');
 
   assert.equal(result.statusCode, 200);

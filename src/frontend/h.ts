@@ -1,7 +1,7 @@
 export type HProps = Record<string, string> | null | undefined;
 export type HChild = string | undefined | (() => string);
-export type HMXComponent = (props: HProps, ...children: Array<HChild>) => string;
-export type HTag = string | HMXComponent;
+export type AstroComponent = (props: HProps, ...children: Array<HChild>) => string;
+export type HTag = string | AstroComponent;
 
 const voidTags = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
@@ -41,7 +41,7 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
 export async function h(tag: HTag, attrs: HProps, ...pChildren: Array<Promise<HChild>>) {
   const children = await Promise.all(pChildren.flat(Infinity));
   if (typeof tag === 'function') {
-    // We assume it's an hmx component
+    // We assume it's an astro component
     return tag(attrs, ...children);
   }
 

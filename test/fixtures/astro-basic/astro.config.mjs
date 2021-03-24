@@ -1,6 +1,6 @@
 
 export default {
   projectRoot: '.',
-  hmxRoot: './astro',
+  astroRoot: './astro',
   dist: './_site'
 }

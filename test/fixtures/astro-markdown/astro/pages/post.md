@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: My Blog Post
 description: This is a post about some stuff.
 import:

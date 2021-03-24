@@ -28,18 +28,18 @@ export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultErro
 
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
   const { logging, snowpack, snowpackRuntime } = config;
-  const { hmxRoot } = config.astroConfig;
+  const { astroRoot } = config.astroConfig;
 
   const fullurl = new URL(rawPathname || '/', 'https://example.org/');
   const reqPath = decodeURI(fullurl.pathname);
   const selectedPage = reqPath.substr(1) || 'index';
   info(logging, 'access', reqPath);
 
-  const selectedPageLoc = new URL(`./pages/${selectedPage}.hmx`, hmxRoot);
-  const selectedPageMdLoc = new URL(`./pages/${selectedPage}.md`, hmxRoot);
-  const selectedPageUrl = `/_hmx/pages/${selectedPage}.js`;
+  const selectedPageLoc = new URL(`./pages/${selectedPage}.astro`, astroRoot);
+  const selectedPageMdLoc = new URL(`./pages/${selectedPage}.md`, astroRoot);
+  const selectedPageUrl = `/_astro/pages/${selectedPage}.js`;
 
-  // Non-hmx pages (file resources)
+  // Non-Astro pages (file resources)
   if (!existsSync(selectedPageLoc) && !existsSync(selectedPageMdLoc)) {
     try {
       const result = await snowpack.loadUrl(reqPath);
@@ -96,19 +96,19 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 }
 
 export async function createRuntime(astroConfig: AstroConfig, logging: LogOptions) {
-  const { projectRoot, hmxRoot, extensions } = astroConfig;
+  const { projectRoot, astroRoot, extensions } = astroConfig;
 
   const internalPath = new URL('./frontend/', import.meta.url);
 
   // Workaround for SKY-251
-  const hmxPlugOptions: {
+  const astroPlugOptions: {
     resolve?: (s: string) => string;
     extensions?: Record<string, string>
   } = { extensions };
   if (existsSync(new URL('./package-lock.json', projectRoot))) {
     const pkgLockStr = await readFile(new URL('./package-lock.json', projectRoot), 'utf-8');
     const pkgLock = JSON.parse(pkgLockStr);
-    hmxPlugOptions.resolve = (pkgName: string) => {
+    astroPlugOptions.resolve = (pkgName: string) => {
       const ver = pkgLock.dependencies[pkgName].version;
       return `/_snowpack/pkg/${pkgName}.v${ver}.js`;
     };
@@ -117,10 +117,10 @@ export async function createRuntime(astroConfig: AstroConfig, logging: LogOption
   const snowpackConfig = await loadConfiguration({
     root: projectRoot.pathname,
     mount: {
-      [hmxRoot.pathname]: '/_hmx',
-      [internalPath.pathname]: '/__hmx_internal__',
+      [astroRoot.pathname]: '/_astro',
+      [internalPath.pathname]: '/_astro_internal',
     },
-    plugins: [[new URL('../snowpack-plugin.cjs', import.meta.url).pathname, hmxPlugOptions]],
+    plugins: [[new URL('../snowpack-plugin.cjs', import.meta.url).pathname, astroPlugOptions]],
     devOptions: {
       open: 'none',
       output: 'stream',

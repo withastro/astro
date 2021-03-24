@@ -1,16 +1,16 @@
 export interface AstroConfigRaw {
   dist: string;
   projectRoot: string;
-  hmxRoot: string;
+  astroRoot: string;
   jsx?: string;
 }
 
-export type ValidExtensionPlugins = 'hmx' | 'react' | 'preact' | 'svelte' | 'vue';
+export type ValidExtensionPlugins = 'astro' | 'react' | 'preact' | 'svelte' | 'vue';
 
 export interface AstroConfig {
   dist: string;
   projectRoot: URL;
-  hmxRoot: URL;
+  astroRoot: URL;
   extensions?: Record<string, ValidExtensionPlugins>
 }
 

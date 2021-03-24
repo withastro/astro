@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: 'Jest'
 tags: communityGuide
 img: '/img/logos/jest.svg'

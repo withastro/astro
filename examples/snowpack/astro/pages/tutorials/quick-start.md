@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: Quick Start
 description: A very basic guide for developers who want to run Snowpack as quickly as possible.
 ---
