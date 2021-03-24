@@ -125,8 +125,7 @@ ${sourceJsx.script}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from '${internalImport('h.js')}';
-function __render(props, __children) { 
-  const children = __children && __children.join('');
+function __render(props, ...children) { 
   ${sourceJsx.props.map((p) => `${p} = props.${p} ?? ${p};`).join('\n')}
   return h(Fragment, null, ${sourceJsx.items.map(({ jsx }) => jsx).join(',')}); 
 }
