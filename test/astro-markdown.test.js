@@ -4,12 +4,12 @@ import { createRuntime } from '../lib/runtime.js';
 import { loadConfig } from '../lib/config.js';
 import { doc } from './test-utils.js';
 
-const HMXMD = suite('HMX Markdown');
+const Markdown = suite('Astro Markdown');
 
 let runtime, setupError;
 
-HMXMD.before(async () => {
-  const astroConfig = await loadConfig(new URL('./fixtures/hmx-markdown', import.meta.url).pathname);
+Markdown.before(async () => {
+  const astroConfig = await loadConfig(new URL('./fixtures/astro-markdown', import.meta.url).pathname);
   
   const logging = {
     level: 'error',
@@ -24,15 +24,15 @@ HMXMD.before(async () => {
   }
 });
 
-HMXMD.after(async () => {
+Markdown.after(async () => {
   runtime && runtime.shutdown();
 });
 
-HMXMD('No errors creating a runtime', () => {
+Markdown('No errors creating a runtime', () => {
   assert.equal(setupError, undefined);
 });
 
-HMXMD('Can load markdown pages with hmx', async () => {
+Markdown('Can load markdown pages with hmx', async () => {
   const result = await runtime.load('/post');
 
   assert.equal(result.statusCode, 200);
@@ -42,4 +42,4 @@ HMXMD('Can load markdown pages with hmx', async () => {
   assert.ok($('#test').length, 'There is a div added via a component from markdown');
 });
 
-HMXMD.run();
+Markdown.run();

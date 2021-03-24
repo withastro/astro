@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: The Snowpack Guide to connecting your favorite tools
 description: 'How do you use your favorite tools in Snowpack? This Guide will help you get started'
 published: true

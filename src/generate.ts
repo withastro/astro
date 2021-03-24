@@ -19,8 +19,8 @@ async function* allPages(root: URL): AsyncGenerator<URL, void, unknown> {
 }
 
 export default async function (astroConfig: AstroConfig) {
-  const { projectRoot, hmxRoot } = astroConfig;
-  const pageRoot = new URL('./pages/', hmxRoot);
+  const { projectRoot, astroRoot } = astroConfig;
+  const pageRoot = new URL('./pages/', astroRoot);
   const dist = new URL(astroConfig.dist + '/', projectRoot);
 
   const configPath = new URL('./snowpack.config.js', projectRoot).pathname;
@@ -39,11 +39,11 @@ export default async function (astroConfig: AstroConfig) {
   const runtime = snowpack.getServerRuntime();
 
   for await (const filepath of allPages(pageRoot)) {
-    const rel = pathRelative(hmxRoot.pathname, filepath.pathname); // pages/index.hmx
-    const pagePath = `/_hmx/${rel.replace(/\.(hmx|md)/, '.js')}`;
+    const rel = pathRelative(astroRoot.pathname, filepath.pathname); // pages/index.astro
+    const pagePath = `/_astro/${rel.replace(/\.(astro|md)/, '.js')}`;
 
     try {
-      const outPath = new URL('./' + rel.replace(/\.(hmx|md)/, '.html'), dist);
+      const outPath = new URL('./' + rel.replace(/\.(astro|md)/, '.html'), dist);
       const outFolder = new URL('./', outPath);
       const mod = await runtime.importModule(pagePath);
       const html = await mod.exports.default({});

@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: Common Error Details
 description: How to troubleshoot common issues and error messagesm, plus our resources for getting help.
 ---

@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: Preact
 tags: communityGuide
 img: '/img/logos/preact.svg'

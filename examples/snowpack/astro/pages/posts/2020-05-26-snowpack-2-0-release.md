@@ -1,5 +1,5 @@
 ---
-layout: layouts/post.hmx
+layout: layouts/post.astro
 bannerVideo: '/img/extra-space-4.mp4'
 permalink: '/posts/2020-05-26-snowpack-2-0-release/'
 title: Snowpack v2.0

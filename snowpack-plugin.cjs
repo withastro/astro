@@ -5,10 +5,10 @@ const transformPromise = import('./lib/transform2.js');
 
 module.exports = function (snowpackConfig, { resolve, extensions } = {}) {
   return {
-    name: 'snowpack-hmx',
+    name: 'snowpack-astro',
     knownEntrypoints: ['deepmerge'],
     resolve: {
-      input: ['.hmx', '.md'],
+      input: ['.astro', '.md'],
       output: ['.js'],
     },
     async load({ filePath }) {

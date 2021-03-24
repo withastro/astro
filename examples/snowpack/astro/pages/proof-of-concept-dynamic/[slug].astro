@@ -1,11 +1,11 @@
 ---
-  import Subnav from '../components/Subnav.hmx';
-    import { content as Menu } from '../components/Menu.hmx';
+  import Subnav from '../components/Subnav.astro';
+    import { content as Menu } from '../components/Menu.astro';
     // import contentful from 'skypack:contentful';
 
     export default async function ({ params }) {
         const entry = await contentful.getEntry(params.slug);
-        return { title: entry.fields.title, description: entry.fields.description, layout: 'layouts/base.hmx', props: { entry } };
+        return { title: entry.fields.title, description: entry.fields.description, layout: 'layouts/base.astro', props: { entry } };
     }
 ---
 

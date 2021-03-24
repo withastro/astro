@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: Creating Your Own Plugin
 description: Learn the basics of our Plugin API through working examples.
 ---

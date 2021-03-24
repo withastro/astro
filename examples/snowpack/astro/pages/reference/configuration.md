@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.hmx
+layout: layouts/content.astro
 title: snowpack.config.js
 description: The Snowpack configuration API reference.
 ---

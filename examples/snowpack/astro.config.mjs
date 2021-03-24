@@ -1,7 +1,7 @@
 
 export default {
   projectRoot: '.',
-  hmxRoot: './astro',
+  astroRoot: './astro',
   dist: './_site',
   extensions: {
     '.jsx': 'preact'

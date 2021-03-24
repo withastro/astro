@@ -1,5 +1,5 @@
 ---
-layout: layouts/content-with-cover.hmx
+layout: layouts/content-with-cover.astro
 title: 'Getting Started with React'
 description: 'Get started with this in-depth tutorial on how to build React applications and websites with Snowpack and developer tools like React Fast Refresh'
 date: 2020-12-01

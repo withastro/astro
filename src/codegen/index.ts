@@ -25,7 +25,7 @@ interface CodeGenOptions {
 }
 
 function internalImport(internalPath: string) {
-  return `/__hmx_internal__/${internalPath}`;
+  return `/_astro_internal/${internalPath}`;
 }
 
 function getAttributes(attrs: Attribute[]): Record<string, string> {
@@ -96,7 +96,7 @@ interface ComponentInfo {
 }
 
 const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
-  '.hmx': 'hmx',
+  '.astro': 'astro',
   '.jsx': 'react',
   '.vue': 'vue',
   '.svelte': 'svelte'
@@ -117,9 +117,9 @@ function getComponentWrapper(_name: string, { type, url }: ComponentInfo, compil
   }
 
   switch (plugin) {
-    case 'hmx': {
+    case 'astro': {
       if (kind) {
-        throw new Error(`HMX does not support :${kind}`);
+        throw new Error(`Astro does not support :${kind}`);
       }
       return {
         wrapper: name,
