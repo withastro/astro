@@ -20,7 +20,8 @@
 	"dependencies": {
 		"@astro-vscode/client": "file:./packages/client",
 		"@astro-vscode/server": "file:./packages/server",
-		"typescript": "^4.2.3"
+		"typescript": "^4.2.3",
+		"vscode-languageserver": "^7.0.0"
 	},
 	"main": "./packages/client/dist/index.js",
 	"contributes": {
@@ -29,6 +30,9 @@
 				"id": "astro",
 				"extensions": [
 					".astro"
+				],
+				"aliases": [
+					"Astro"
 				],
 				"configuration": "./languages/astro-language-configuration.json"
 			}
@@ -44,8 +48,7 @@
 					"source.css": "css",
 					"source.scss": "scss",
 					"source.sass": "sass",
-					"source.ts": "typescript",
-					"source.tsx": "typescript",
+					"source.tsx": "typescriptreact",
 					"css.embbeded.vue": "css"
 				}
 			}
