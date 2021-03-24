@@ -17,7 +17,7 @@ let pokemonData;
 
 export async function setup({ context, request, fetch }) {
   const pokemonDataReq = await fetch(`https://pokeapi.co/api/v2/pokemon/ditto`);
-  pokemonData = await pokemonData.json();
+  pokemonData = await pokemonDataReq.json();
   return {};
 }
 ---

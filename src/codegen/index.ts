@@ -297,7 +297,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           }
           collectionItem.jsx += collectionItem.jsx === '' ? '' : ',';
           if (node.type === 'Slot') {
-            collectionItem.jsx += `(children`;
+            collectionItem.jsx += `(console.log('XXXA', children), children`;
             return;
           }
           const COMPONENT_NAME_SCANNER = /^[A-Z]/;

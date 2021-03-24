@@ -1,6 +1,6 @@
 export type HProps = Record<string, string> | null | undefined;
 export type HChild = string | undefined | (() => string);
-export type AstroComponent = (props: HProps, ...children: Array<HChild>) => string;
+export type AstroComponent = (props: HProps, children: Array<HChild>) => string;
 export type HTag = string | AstroComponent;
 
 const voidTags = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
@@ -42,12 +42,12 @@ export async function h(tag: HTag, attrs: HProps, ...pChildren: Array<Promise<HC
   const children = await Promise.all(pChildren.flat(Infinity));
   if (typeof tag === 'function') {
     // We assume it's an astro component
-    return tag(attrs, ...children);
+    return tag(attrs, children);
   }
 
   return Array.from(_h(tag, attrs, children)).join('');
 }
 
-export function Fragment(_: HProps, ...children: Array<string>) {
+export function Fragment(_: HProps, children: Array<string>) {
   return children.join('');
 }
