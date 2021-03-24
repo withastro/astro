@@ -8,11 +8,8 @@ export default function setup(parser: Parser): void {
   const content_start = parser.index;
   const setupScriptContent = parser.read_until(/^---/m);
   const content_end = parser.index;
-console.log(setupScriptContent);
   parser.eat('---', true);
   const end = parser.index;
-
-  console.log('XXX', parser.template.slice(end));
   parser.js.push({
     type: 'Script',
     context: 'setup',

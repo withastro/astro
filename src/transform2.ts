@@ -79,13 +79,14 @@ async function convertMdToJsx(
   // Break it up here so that the HTML parser won't detect it.
   const stringifiedSetupContext = JSON.stringify(setupContext).replace(/\<\/script\>/g, `</scrip" + "t>`);
 
-  const raw =  `<script astro>
+  const raw =  `---
   ${imports}
   ${_frontmatterData.layout ? `export const layout = ${JSON.stringify(_frontmatterData.layout)};` : ''}
   export function setup({context}) {
     return {context: ${stringifiedSetupContext} };
   }
-</script><section>${mdHtml}</section>`;
+---
+<section>${mdHtml}</section>`;
 
   const convertOptions = { compileOptions, filename, fileID };
 
