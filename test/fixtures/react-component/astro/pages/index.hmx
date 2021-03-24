@@ -1,6 +1,6 @@
-<script astro>
+---
   import Hello from '../components/Hello.jsx';
-</script>
+---
 
 <astro:head>
   <!-- Head Stuff -->

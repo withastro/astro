@@ -1,4 +1,4 @@
-<script astro>
+---
   import Card from '../components/Card.jsx';
   import CompanyLogo from '../components/CompanyLogo.jsx';
   import NewsAssets from '../components/NewsAssets.svelte';
@@ -23,7 +23,7 @@
       }
     }
   }
-</script>
+---
 
 <NewsTitle title={context.title} />
 

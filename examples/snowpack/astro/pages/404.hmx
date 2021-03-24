@@ -1,4 +1,4 @@
-<script astro>
+---
   export const layout = 'layouts/main.hmx';
 
   export function setup({ context }) {
@@ -8,7 +8,7 @@
       }
     };
   }
-</script>
+---
 
 <h2 class="content-title">
   {context.title}

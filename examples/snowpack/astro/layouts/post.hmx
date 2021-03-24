@@ -1,10 +1,10 @@
-<script astro>
+---
   import { format as formatDate, parseISO } from 'date-fns';
   export const layout = 'layouts/base.hmx';
   export function setup({ context }) {
     return {};
   }
-</script>
+---
 
 <astro:head>
   <link rel="stylesheet" href="/css/legacy-post.css" />

@@ -1,10 +1,10 @@
-<script astro>
+---
   export function setup() {
     return {
       props: {}
     }
   }
-</script>
+---
 
 <astro:head>
   <!-- Head Stuff -->

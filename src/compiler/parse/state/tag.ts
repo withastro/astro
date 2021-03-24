@@ -24,13 +24,14 @@ const meta_tags = new Map([
 const valid_meta_tags = Array.from(meta_tags.keys()); //.concat('astro:self', 'astro:component', 'astro:fragment');
 
 const specials = new Map([
-  [
-    'script',
-    {
-      read: read_script,
-      property: 'js',
-    },
-  ],
+  // Now handled as "setup" in setup.ts
+  // [
+  //   'script',
+  //   {
+  //     read: read_script,
+  //     property: 'js',
+  //   },
+  // ],
   [
     'style',
     {

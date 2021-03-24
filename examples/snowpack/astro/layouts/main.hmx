@@ -1,10 +1,10 @@
-<script astro>
+---
   import Menu from '../components/Menu.hmx';
   export const layout = 'layouts/base.hmx';
   export function setup({ context }) {
     return {};
   }
-</script>
+---
 
 <div class="container">
   <section class="snow-view__docs is-full">

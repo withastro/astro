@@ -1,4 +1,4 @@
-<script astro>
+---
   import Card from '../components/Card.jsx';
 
   export const layout = 'layouts/main.hmx';
@@ -40,7 +40,7 @@
       }
     };
   }
-</script>
+---
 
 <h2 class="content-title">
   {context.title}

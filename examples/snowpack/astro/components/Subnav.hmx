@@ -1,10 +1,10 @@
-<script astro>
+---
   export let props: {
     title: string,
     inputPath: string,
     headers: { text: string, slug: string }[]
   };
-</script>
+---
 
 <style lang="scss">
 @use "../../public/css/var" as *;

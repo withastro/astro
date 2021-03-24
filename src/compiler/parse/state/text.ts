@@ -8,7 +8,7 @@ export default function text(parser: Parser) {
 
   let data = '';
 
-  while (parser.index < parser.template.length && !parser.match('<') && !parser.match('{')) {
+  while (parser.index < parser.template.length && !parser.match('---') && !parser.match('<') && !parser.match('{')) {
     data += parser.template[parser.index++];
   }
 

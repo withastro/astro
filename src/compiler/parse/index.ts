@@ -226,7 +226,7 @@ export default function parse(template: string, options: ParserOptions = {}): As
     parser.error(
       {
         code: 'duplicate-style',
-        message: 'You can only have one top-level <style> tag per component',
+        message: 'You can only have one <style> tag per HMX file',
       },
       parser.css[1].start
     );
@@ -240,7 +240,7 @@ export default function parse(template: string, options: ParserOptions = {}): As
     parser.error(
       {
         code: 'invalid-script',
-        message: 'A component can only have one <script astro> element',
+        message: 'A component can only have one frontmatter (---) script',
       },
       hmx_scripts[1].start
     );

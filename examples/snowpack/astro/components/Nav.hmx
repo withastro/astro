@@ -1,6 +1,6 @@
-<script astro>
+---
   export let props: { version: string };
-</script>
+---
 
 <style lang="scss">
   @use '../../public/css/var' as *;

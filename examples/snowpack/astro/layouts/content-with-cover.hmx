@@ -1,4 +1,4 @@
-<script astro>
+---
   import Menu from '../components/Menu.hmx';
   import Subnav from '../components/Subnav.hmx';
 
@@ -6,7 +6,7 @@
   export function setup({ context }) {
     return {};
   }
-</script>
+---
 
 
 <style>

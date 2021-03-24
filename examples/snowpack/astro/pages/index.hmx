@@ -1,12 +1,12 @@
-<script astro>
-  import Menu from '../components/Menu.hmx';
-  import Hero from '../components/Hero.hmx';
+---
+  import MenuA from '../components/Menu.hmx';
+  import HeroB from '../components/Hero.hmx';
 
   export const layout = 'layouts/base.hmx';
   export function setup({ context }) {
     return {};
   }
-</script>
+---
 
 <astro:head>
   <meta charset="AAA" />

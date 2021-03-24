@@ -1,4 +1,4 @@
-<script astro>
+---
   import Banner from '../components/Banner.hmx';
   import Nav from '../components/Nav.hmx';
   export function setup({ context }) {
@@ -10,7 +10,7 @@
       }
     };
   }
-</script>
+---
 
 <astro:head>
   <meta charset="utf-8" />

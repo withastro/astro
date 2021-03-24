@@ -1,4 +1,4 @@
-<script astro>
+---
   import Subnav from '../components/Subnav.hmx';
   import Menu from '../components/Menu.hmx';
 
@@ -9,7 +9,7 @@
       }
     };
   }
-</script>
+---
 
 <div class="container">
   <section class="snow-view__docs has-subnav">
