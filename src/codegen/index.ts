@@ -216,7 +216,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   const script = compileScriptSafe(ast.module ? ast.module.content : '');
 
   // Collect all exported variables for props
-  const scannedExports = eslexer.parse(script)[1].filter(n => n !== 'setup');
+  const scannedExports = eslexer.parse(script)[1].filter(n => n !== 'setup' && n !== 'layout');
 
   // Todo: Validate that `h` and `Fragment` aren't defined in the script
   const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
@@ -297,7 +297,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           }
           collectionItem.jsx += collectionItem.jsx === '' ? '' : ',';
           if (node.type === 'Slot') {
-            collectionItem.jsx += `(console.log('XXXA', children), children`;
+            collectionItem.jsx += `(children`;
             return;
           }
           const COMPONENT_NAME_SCANNER = /^[A-Z]/;
@@ -383,7 +383,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
 
   return {
     script: script + '\n' + Array.from(additionalImports).join('\n'),
-    head: headItem,
     items,
     props: scannedExports,
   };

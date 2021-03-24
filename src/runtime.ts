@@ -69,6 +69,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         href: fullurl.toString(),
       },
       children: [],
+      props: {},
     })) as string;
 
     return {

@@ -72,7 +72,7 @@ SnowpackDev('Can load every page', async () => {
     }
     const result = await runtime.load(pathname);
     if (result.statusCode === 500) {
-      failed.push(result);
+      failed.push({...result, pathname});
       continue;
     }
     assert.equal(result.statusCode, 200, `Loading ${pathname}`);
