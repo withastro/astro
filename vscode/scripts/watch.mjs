@@ -1,28 +1,21 @@
 import esbuild from 'esbuild';
+import config from './esbuild.config.mjs';
 
 function buildClient() {
   return esbuild.build({
-    entryPoints: ['packages/client/src/index.ts'],
+    ...config,
     watch: true,
-    bundle: true,
+    entryPoints: ['packages/client/src/index.ts'],
     outfile: 'dist/index.js',
-    logLevel: 'error',
-    platform: 'node',
-    format: 'cjs',
-    external: ['vscode', 'vscode-html-languageservice'],
   });
 }
 
 function buildServer() {
   return esbuild.build({
-    entryPoints: ['packages/server/src/index.ts'],
+    ...config,
     watch: true,
-    bundle: true,
+    entryPoints: ['packages/server/src/index.ts'],
     outfile: 'dist/server.js',
-    logLevel: 'error',
-    platform: 'node',
-    format: 'cjs',
-    external: ['vscode', 'vscode-html-languageservice'],
   });
 }
 

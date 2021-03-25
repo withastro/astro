@@ -1,27 +1,20 @@
 import esbuild from 'esbuild';
+import config from './esbuild.config.mjs';
 import { performance } from 'perf_hooks';
 
 function buildClient() {
   return esbuild.build({
+    ...config,
     entryPoints: ['packages/client/src/index.ts'],
-    bundle: true,
     outfile: 'dist/index.js',
-    logLevel: 'error',
-    platform: 'node',
-    format: 'cjs',
-    external: ['vscode', 'vscode-html-languageservice'],
   });
 }
 
 function buildServer() {
   return esbuild.build({
+    ...config,
     entryPoints: ['packages/server/src/index.ts'],
-    logLevel: 'error',
-    bundle: true,
     outfile: 'dist/server.js',
-    platform: 'node',
-    format: 'cjs',
-    external: ['vscode', 'vscode-html-languageservice'],
   });
 }
 
