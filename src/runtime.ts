@@ -74,6 +74,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     })) as string;
 
     // inject styles
+    // TODO: handle this in compiler
     const styleTags = Array.isArray(mod.css) && mod.css.length ? mod.css.reduce((markup, url) => `${markup}\n<link rel="stylesheet" type="text/css" href="${url}" />`, '') : ``;
     if (html.indexOf('</head>') !== -1) {
       html = html.replace('</head>', `${styleTags}</head>`);
