@@ -1,0 +1,64 @@
+{
+	"name": "astro",
+	"displayName": "Astro",
+	"description": "Language support for Astro",
+	"version": "0.1.0",
+	"author": "Astro",
+	"publisher": "astro-build",
+	"license": "MIT",
+	"scripts": {
+		"vscode:prepublish": "npm run build",
+		"bootstrap": "cd packages/client && npm ci && cd ../server && npm ci",
+		"build": "node scripts/build.mjs",
+		"watch": "node scripts/watch.mjs"
+	},
+	"engines": {
+		"vscode": "^1.52.0"
+	},
+	"activationEvents": [
+		"*"
+	],
+	"dependencies": {
+		"vscode-html-languageservice": "^3.0.3"
+	},
+	"devDependencies": {
+		"esbuild": "0.10.0",
+		"@astro-vscode/client": "file:./packages/client",
+		"@astro-vscode/server": "file:./packages/server"
+	},
+	"main": "./dist/index.js",
+	"files": [
+		"dist/",
+		"languages/",
+		"syntaxes/"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "astro",
+				"extensions": [
+					".astro"
+				],
+				"aliases": [
+					"Astro"
+				],
+				"configuration": "./languages/astro-language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "astro",
+				"scopeName": "text.html.astro",
+				"path": "./syntaxes/astro.tmLanguage.json",
+				"embeddedLanguages": {
+					"text.html.astro": "astro",
+					"text.html": "html",
+					"source.css": "css",
+					"source.scss": "scss",
+					"source.sass": "sass",
+					"source.tsx": "typescriptreact"
+				}
+			}
+		]
+	}
+}
