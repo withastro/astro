@@ -63,7 +63,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
   try {
     const mod = await snowpackRuntime.importModule(selectedPageUrl);
-    const html = (await mod.exports.__renderPage({
+    let html = (await mod.exports.__renderPage({
       request: {
         host: fullurl.hostname,
         path: fullurl.pathname,
@@ -72,6 +72,15 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       children: [],
       props: {},
     })) as string;
+
+    // inject styles
+    // TODO: handle this in compiler
+    const styleTags = Array.isArray(mod.css) && mod.css.length ? mod.css.reduce((markup, url) => `${markup}\n<link rel="stylesheet" type="text/css" href="${url}" />`, '') : ``;
+    if (html.indexOf('</head>') !== -1) {
+      html = html.replace('</head>', `${styleTags}</head>`);
+    } else {
+      html = styleTags + html;
+    }
 
     return {
       statusCode: 200,
@@ -99,7 +108,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
 interface RuntimeOptions {
   logging: LogOptions;
-  env: 'dev' | 'build'
+  env: 'dev' | 'build';
 }
 
 export async function createRuntime(astroConfig: AstroConfig, { env, logging }: RuntimeOptions) {
@@ -113,9 +122,7 @@ export async function createRuntime(astroConfig: AstroConfig, { env, logging }: 
     extensions?: Record<string, string>;
   } = {
     extensions,
-    resolve: env === 'dev' ?
-      async (pkgName: string) => snowpack.getUrlForPackage(pkgName) :
-      async (pkgName: string) => `/_snowpack/pkg/${pkgName}.js`
+    resolve: env === 'dev' ? async (pkgName: string) => snowpack.getUrlForPackage(pkgName) : async (pkgName: string) => `/_snowpack/pkg/${pkgName}.js`,
   };
   /*if (existsSync(new URL('./package-lock.json', projectRoot))) {
     const pkgLockStr = await readFile(new URL('./package-lock.json', projectRoot), 'utf-8');

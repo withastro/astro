@@ -10,7 +10,7 @@ import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
 import _babelGenerator from '@babel/generator';
 import traverse from '@babel/traverse';
-import { ImportDeclaration,ExportNamedDeclaration,  VariableDeclarator, Identifier, VariableDeclaration } from '@babel/types';
+import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, VariableDeclaration } from '@babel/types';
 import { type } from 'node:os';
 
 const babelGenerator: typeof _babelGenerator =
@@ -111,10 +111,7 @@ const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
   '.svelte': 'svelte',
 };
 
-type DynamicImportMap = Map<
-  'vue' | 'react' | 'react-dom' | 'preact',
-  string
->;
+type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact', string>;
 
 function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo, dynamicImports: DynamicImportMap) {
   const [name, kind] = _name.split(':');
@@ -136,7 +133,9 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
     case 'preact': {
       if (kind === 'dynamic') {
         return {
-          wrapper: `__preact_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get('preact')!}')`,
+          wrapper: `__preact_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
+            'preact'
+          )!}')`,
           wrapperImport: `import {__preact_dynamic} from '${internalImport('render/preact.js')}';`,
         };
       } else {
@@ -177,7 +176,9 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
     case 'vue': {
       if (kind === 'dynamic') {
         return {
-          wrapper: `__vue_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.vue.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get('vue')!}')`,
+          wrapper: `__vue_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.vue.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
+            'vue'
+          )!}')`,
           wrapperImport: `import {__vue_dynamic} from '${internalImport('render/vue.js')}';`,
         };
       } else {
@@ -207,8 +208,8 @@ function compileExpressionSafe(raw: string): string {
 
 async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolve: (s: string) => Promise<string>): Promise<DynamicImportMap> {
   const importMap: DynamicImportMap = new Map();
-  for(let plugin of plugins) {
-    switch(plugin) {
+  for (let plugin of plugins) {
+    switch (plugin) {
       case 'vue': {
         importMap.set('vue', await resolve('vue'));
         break;
@@ -236,9 +237,9 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   const componentExports: ExportNamedDeclaration[] = [];
 
   let script = '';
-  let propsStatement: string = '';
+  let propsStatement = '';
   const importExportStatements: Set<string> = new Set();
-  const components: Record<string, { type: string; url: string, plugin: string | undefined }> = {};
+  const components: Record<string, { type: string; url: string; plugin: string | undefined }> = {};
   const componentPlugins = new Set<ValidExtensionPlugins>();
 
   if (ast.module) {
@@ -277,9 +278,9 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
       components[componentName] = {
         type: componentType,
         plugin,
-        url: importUrl
+        url: importUrl,
       };
-      if(plugin) {
+      if (plugin) {
         componentPlugins.add(plugin);
       }
       importExportStatements.add(ast.module.content.slice(componentImport.start!, componentImport.end!));
@@ -293,7 +294,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
       for (const componentExport of componentProps) {
         propsStatement += `${(componentExport.id as Identifier).name}`;
         if (componentExport.init) {
-        propsStatement += `= ${babelGenerator(componentExport.init!).code }`;
+          propsStatement += `= ${babelGenerator(componentExport.init!).code}`;
         }
         propsStatement += `,`;
       }
