@@ -1,6 +1,6 @@
 import { walk } from 'estree-walker';
-import type { Ast, TemplateNode } from '../compiler/interfaces';
-import { NodeVisitor, Optimizer, VisitorFn } from '../@types/optimizer';
+import type { Ast, TemplateNode } from '../../parser/interfaces';
+import { NodeVisitor, Optimizer, VisitorFn } from '../../@types/optimizer';
 import optimizeStyles from './styles.js';
 
 interface VisitorCollection {

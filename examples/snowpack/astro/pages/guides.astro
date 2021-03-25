@@ -25,7 +25,6 @@ let guides;
 let communityGuides;
 
 
-export function setup({ /* paginate */ }) {
   guides = paginate({
     files: '/posts/guides/*.md',
     // sort: ((a, b) => new Date(b) - new Date(a)),
@@ -39,8 +38,6 @@ export function setup({ /* paginate */ }) {
     tag: 'communityGuides',
     limit: 10,
   });
-  return {};
-}
 ---
 
 <html>

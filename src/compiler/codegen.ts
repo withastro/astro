@@ -1,13 +1,20 @@
 import type { CompileOptions } from '../@types/compiler';
 import type { ValidExtensionPlugins } from '../@types/astro';
-import type { Ast, TemplateNode } from '../compiler/interfaces';
+import type { Ast, TemplateNode } from '../parser/interfaces';
 import type { JsxItem, TransformResult } from '../@types/astro';
 
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
 import { walk } from 'estree-walker';
+import babelParser from '@babel/parser';
+import _babelGenerator from '@babel/generator';
+import traverse from '@babel/traverse';
+import { ImportDeclaration,ExportNamedDeclaration,  VariableDeclarator, Identifier, VariableDeclaration } from '@babel/types';
 
+const babelGenerator: typeof _babelGenerator =
+  // @ts-ignore
+  _babelGenerator.default;
 const { transformSync } = esbuild;
 
 interface Attribute {
@@ -43,8 +50,8 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
         '(' +
         attr.value
           .map((v: TemplateNode) => {
-            if (v.expression) {
-              return v.expression;
+            if (v.content) {
+              return v.content;
             } else {
               return JSON.stringify(getTextFromAttribute(v));
             }
@@ -60,7 +67,7 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
     }
     switch (val.type) {
       case 'MustacheTag':
-        result[attr.name] = '(' + val.expression + ')';
+        result[attr.name] = '(' + val.content + ')';
         continue;
       case 'Text':
         result[attr.name] = JSON.stringify(getTextFromAttribute(val));
@@ -211,24 +218,68 @@ function compileExpressionSafe(raw: string): string {
 export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Promise<TransformResult> {
   await eslexer.init;
 
-  // Compile scripts as TypeScript, always
-  const script = compileScriptSafe(ast.module ? ast.module.content : '');
+  const componentImports: ImportDeclaration[] = [];
+  const componentProps: VariableDeclarator[] = [];
+  const componentExports: ExportNamedDeclaration[] = [];
 
-  // Collect all exported variables for props
-  const scannedExports = eslexer.parse(script)[1].filter((n) => n !== 'setup' && n !== 'layout');
+  let script = '';
+  let propsStatement: string = '';
+  const importExportStatements: Set<string> = new Set();
+  const components: Record<string, { type: string; url: string }> = {};
 
-  // Todo: Validate that `h` and `Fragment` aren't defined in the script
-  const [scriptImports] = eslexer.parse(script, 'optional-sourcename');
-  const components = Object.fromEntries(
-    scriptImports.map((imp) => {
-      const componentType = path.posix.extname(imp.n!);
-      const componentName = path.posix.basename(imp.n!, componentType);
-      return [componentName, { type: componentType, url: imp.n! }];
-    })
-  );
+  if (ast.module) {
+    const program = babelParser.parse(ast.module.content, {
+      sourceType: 'module',
+      plugins: ['jsx', 'typescript', 'topLevelAwait'],
+    }).program;
 
-  const additionalImports = new Set<string>();
-  let headItem: JsxItem | undefined;
+    const { body } = program;
+    let i = body.length;
+    while (--i >= 0) {
+      const node = body[i];
+      if (node.type === 'ImportDeclaration') {
+        componentImports.push(node);
+        body.splice(i, 1);
+      }
+      if (/^Export/.test(node.type)) {
+        if (node.type === 'ExportNamedDeclaration' && node.declaration?.type === 'VariableDeclaration') {
+          const declaration = node.declaration.declarations[0];
+          if ((declaration.id as Identifier).name === '__layout' || (declaration.id as Identifier).name === '__content') {
+          componentExports.push(node);
+          } else {
+            componentProps.push(declaration);
+          }
+          body.splice(i, 1);
+        }
+        // const replacement = extract_exports(node);
+      }
+    }
+
+    for (const componentImport of componentImports) {
+      const importUrl = componentImport.source.value;
+      const componentType = path.posix.extname(importUrl);
+      const componentName = path.posix.basename(importUrl, componentType);
+      components[componentName] = { type: componentType, url: importUrl };
+      importExportStatements.add(ast.module.content.slice(componentImport.start!, componentImport.end!));
+    }
+    for (const componentImport of componentExports) {
+      importExportStatements.add(ast.module.content.slice(componentImport.start!, componentImport.end!));
+    }
+
+    if (componentProps.length > 0) {
+      propsStatement = 'let {';
+      for (const componentExport of componentProps) {
+        propsStatement += `${(componentExport.id as Identifier).name}`;
+        if (componentExport.init) {
+        propsStatement += `= ${babelGenerator(componentExport.init!).code }`;
+        }
+        propsStatement += `,`;
+      }
+      propsStatement += `} = props;`;
+    }
+    script = propsStatement + babelGenerator(program).code;
+  }
+
   let items: JsxItem[] = [];
   let collectionItem: JsxItem | undefined;
   let currentItemName: string | undefined;
@@ -238,7 +289,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
     enter(node: TemplateNode) {
       switch (node.type) {
         case 'MustacheTag':
-          let code = compileExpressionSafe(node.expression);
+          let code = compileExpressionSafe(node.content);
 
           let matches: RegExpExecArray[] = [];
           let match: RegExpExecArray | null | undefined;
@@ -255,13 +306,14 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
             }
             const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], compileOptions);
             if (wrapperImport) {
-              additionalImports.add(wrapperImport);
+              importExportStatements.add(wrapperImport);
             }
             if (wrapper !== name) {
               code = code.slice(0, match.index + 2) + wrapper + code.slice(match.index + match[0].length - 1);
             }
           }
           collectionItem!.jsx += `,(${code.trim().replace(/\;$/, '')})`;
+          this.skip();
           return;
         case 'Comment':
           return;
@@ -287,11 +339,6 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           currentItemName = name;
           if (!collectionItem) {
             collectionItem = { name, jsx: '' };
-            if (node.type === 'Head') {
-              collectionItem.jsx += `h(Fragment, null`;
-              headItem = collectionItem;
-              return;
-            }
             items.push(collectionItem);
           }
           collectionItem.jsx += collectionItem.jsx === '' ? '' : ',';
@@ -311,7 +358,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           }
           const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], compileOptions);
           if (wrapperImport) {
-            additionalImports.add(wrapperImport);
+            importExportStatements.add(wrapperImport);
           }
 
           collectionItem.jsx += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
@@ -381,8 +428,8 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
   });
 
   return {
-    script: script + '\n' + Array.from(additionalImports).join('\n'),
+    script: script,
+    imports: Array.from(importExportStatements),
     items,
-    props: scannedExports,
   };
 }
