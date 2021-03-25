@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as lsp from 'vscode-languageclient/node';
 
-import * as defaultSettings from './features/defaultSettings';
+import * as defaultSettings from './features/defaultSettings.js';
 
 let docClient: lsp.LanguageClient;
 
@@ -16,7 +16,7 @@ export async function activate(context: vscode.ExtensionContext) {
 }
 
 function createLanguageService(context: vscode.ExtensionContext, mode: 'doc', id: string, name: string, port: number) {
-  const serverModule = context.asAbsolutePath(path.join('packages', 'server', 'dist', 'index.js'));
+  const serverModule = context.asAbsolutePath(path.join('dist', 'server.js'));
   const debugOptions = { execArgv: ['--nolazy', '--inspect=' + port] };
   const serverOptions: lsp.ServerOptions = {
     run: { module: serverModule, transport: lsp.TransportKind.ipc },

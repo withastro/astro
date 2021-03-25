@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "author": "Skypack",
   "license": "MIT",
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc"
   },

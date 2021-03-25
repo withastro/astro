@@ -3,13 +3,14 @@
 	"displayName": "Astro",
 	"description": "Language support for Astro",
 	"version": "0.1.0",
-	"author": "Skypack",
-	"publisher": "skypack",
+	"author": "Astro",
+	"publisher": "astro",
 	"license": "MIT",
 	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -b",
-		"watch": "tsc -b -w"
+		"vscode:prepublish": "npm run build",
+		"bootstrap": "cd packages/client && npm ci && cd ../server && npm ci",
+		"build": "node scripts/build.mjs",
+		"watch": "node scripts/watch.mjs"
 	},
 	"engines": {
 		"vscode": "^1.52.0"
@@ -18,12 +19,19 @@
 		"*"
 	],
 	"dependencies": {
-		"@astro-vscode/client": "file:./packages/client",
-		"@astro-vscode/server": "file:./packages/server",
-		"typescript": "^4.2.3",
-		"vscode-languageserver": "^7.0.0"
+		"vscode-html-languageservice": "^3.0.3"
 	},
-	"main": "./packages/client/dist/index.js",
+	"devDependencies": {
+		"esbuild": "0.10.0",
+		"@astro-vscode/client": "file:./packages/client",
+		"@astro-vscode/server": "file:./packages/server"
+	},
+	"main": "./dist/index.js",
+	"files": [
+		"dist/",
+		"languages/",
+		"syntaxes/"
+	],
 	"contributes": {
 		"languages": [
 			{
@@ -48,8 +56,7 @@
 					"source.css": "css",
 					"source.scss": "scss",
 					"source.sass": "sass",
-					"source.tsx": "typescriptreact",
-					"css.embbeded.vue": "css"
+					"source.tsx": "typescriptreact"
 				}
 			}
 		]
