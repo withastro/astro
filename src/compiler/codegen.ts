@@ -131,6 +131,7 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
       };
     }
     case 'preact': {
+<<<<<<< HEAD
       if (kind === 'dynamic') {
         return {
           wrapper: `__preact_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
@@ -143,6 +144,39 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
           wrapper: `__preact_static(${name})`,
           wrapperImport: `import {__preact_static} from '${internalImport('render/preact.js')}';`,
         };
+=======
+      switch (kind) {
+        case 'load': {
+          return {
+            wrapper: `__preact_load(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
+              'preact'
+            )!}')`,
+            wrapperImport: `import {__preact_load} from '${internalImport('render/preact.js')}';`,
+          };
+        }
+        case 'idle': {
+          return {
+            wrapper: `__preact_idle(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
+              'preact'
+            )!}')`,
+            wrapperImport: `import {__preact_idle} from '${internalImport('render/preact.js')}';`,
+          };
+        }
+        case 'visible': {
+          return {
+            wrapper: `__preact_visible(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
+              'preact'
+            )!}')`,
+            wrapperImport: `import {__preact_visible} from '${internalImport('render/preact.js')}';`,
+          };
+        }
+        default: {
+          return {
+            wrapper: `__preact_static(${name})`,
+            wrapperImport: `import {__preact_static} from '${internalImport('render/preact.js')}';`,
+          };
+        }
+>>>>>>> 81f3b0f (WIP: new hydration methods)
       }
     }
     case 'react': {
