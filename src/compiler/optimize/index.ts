@@ -73,7 +73,13 @@ export async function optimize(ast: Ast, opts: OptimizeOptions) {
   const cssVisitors = createVisitorCollection();
   const finalizers: Array<() => Promise<void>> = [];
 
-  collectVisitors(optimizeStyles(opts), htmlVisitors, cssVisitors, finalizers);
+  const optimizers = [
+    optimizeStyles(opts)
+  ];
+
+  for(const optimizer of optimizers) {
+    collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);
+  }
 
   walkAstWithVisitors(ast.css, cssVisitors);
   walkAstWithVisitors(ast.html, htmlVisitors);

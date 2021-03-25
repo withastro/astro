@@ -15,12 +15,12 @@ import { codegen } from './codegen.js';
 
 interface CompileOptions {
   logging: LogOptions;
-  resolve: (p: string) => string;
+  resolve: (p: string) => Promise<string>;
 }
 
 const defaultCompileOptions: CompileOptions = {
   logging: defaultLogOptions,
-  resolve: (p: string) => p,
+  resolve: (p: string) => Promise.resolve(p),
 };
 
 function internalImport(internalPath: string) {

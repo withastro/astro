@@ -1,7 +1,6 @@
 import { parse_expression_at } from '../acorn.js';
 import { Parser } from '../index.js';
 import { whitespace } from '../../utils/patterns.js';
-// import { Node } from 'estree';
 
 // @ts-ignore
 export default function read_expression(parser: Parser): string {
@@ -35,7 +34,6 @@ export default function read_expression(parser: Parser): string {
     parser.index = index;
 
     return parser.template.substring(start, index);
-    // return node as Node;
   } catch (err) {
     parser.acorn_error(err);
   }

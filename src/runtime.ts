@@ -1,4 +1,4 @@
-import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, LoadResult as SnowpackLoadResult } from 'snowpack';
+import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, LoadResult as SnowpackLoadResult, SnowpackConfig } from 'snowpack';
 import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { CompileError } from './parser/utils/error.js';
@@ -14,6 +14,7 @@ interface RuntimeConfig {
   logging: LogOptions;
   snowpack: SnowpackDevServer;
   snowpackRuntime: SnowpackServerRuntime;
+  snowpackConfig: SnowpackConfig;
 }
 
 type LoadResultSuccess = {
@@ -96,24 +97,34 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   }
 }
 
-export async function createRuntime(astroConfig: AstroConfig, logging: LogOptions) {
+interface RuntimeOptions {
+  logging: LogOptions;
+  env: 'dev' | 'build'
+}
+
+export async function createRuntime(astroConfig: AstroConfig, { env, logging }: RuntimeOptions) {
   const { projectRoot, astroRoot, extensions } = astroConfig;
 
   const internalPath = new URL('./frontend/', import.meta.url);
 
-  // Workaround for SKY-251
+  let snowpack: SnowpackDevServer;
   const astroPlugOptions: {
-    resolve?: (s: string) => string;
+    resolve?: (s: string) => Promise<string>;
     extensions?: Record<string, string>;
-  } = { extensions };
-  if (existsSync(new URL('./package-lock.json', projectRoot))) {
+  } = {
+    extensions,
+    resolve: env === 'dev' ?
+      async (pkgName: string) => snowpack.getUrlForPackage(pkgName) :
+      async (pkgName: string) => `/_snowpack/pkg/${pkgName}.js`
+  };
+  /*if (existsSync(new URL('./package-lock.json', projectRoot))) {
     const pkgLockStr = await readFile(new URL('./package-lock.json', projectRoot), 'utf-8');
     const pkgLock = JSON.parse(pkgLockStr);
     astroPlugOptions.resolve = (pkgName: string) => {
       const ver = pkgLock.dependencies[pkgName].version;
       return `/_snowpack/pkg/${pkgName}.v${ver}.js`;
     };
-  }
+  }*/
 
   const snowpackConfig = await loadConfiguration({
     root: projectRoot.pathname,
@@ -132,7 +143,7 @@ export async function createRuntime(astroConfig: AstroConfig, logging: LogOption
       external: ['@vue/server-renderer', 'node-fetch'],
     },
   });
-  const snowpack = await startSnowpackServer({
+  snowpack = await startSnowpackServer({
     config: snowpackConfig,
     lockfile: null,
   });
@@ -143,9 +154,11 @@ export async function createRuntime(astroConfig: AstroConfig, logging: LogOption
     logging,
     snowpack,
     snowpackRuntime,
+    snowpackConfig,
   };
 
   return {
+    runtimeConfig,
     load: load.bind(null, runtimeConfig),
     shutdown: () => snowpack.shutdown(),
   };

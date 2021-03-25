@@ -1,7 +1,7 @@
----
+<script>
 	//let name = 'world';
 	// TODO make this dynamic?
----
+</script>
 
 <h3>Assets</h3>
 

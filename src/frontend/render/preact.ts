@@ -1,10 +1,13 @@
-import render from 'preact-render-to-string';
-import { h } from 'preact';
+import renderToString from 'preact-render-to-string';
+import { h, render } from 'preact';
 import type { Component } from 'preact';
+
+// This prevents tree-shaking of render.
+Function.prototype(render);
 
 export function __preact_static(PreactComponent: Component) {
   return (attrs: Record<string, any>, ...children: any): string => {
-    let html = render(
+    let html = renderToString(
       h(
         PreactComponent as any, // Preact's types seem wrong...
         attrs,
