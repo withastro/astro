@@ -4,6 +4,16 @@
   padding: 0.5rem 0.5rem 0.5rem 48px;
   flex-direction: column;
   position: relative;
+  display: flex;
+  grid-column: span 1;
+  overflow: hidden;
+  font-family: Open Sans, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+    Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, Segoe UI, Roboto,
+    sans-serif;
+  color: #1a202c;
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+  border: 1px solid #e2e8f0;
 }
 
 .Card:nth-child(3n + 2) .Icon__Plugin {

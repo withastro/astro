@@ -13,7 +13,7 @@ let description = 'Snowpack is a lightning-fast frontend build tool, designed fo
 <head>
   <style lang="scss">
     @use '../../public/css/var' as *;
-    
+
     .top {
       text-align: left;
     }
@@ -27,7 +27,7 @@ let description = 'Snowpack is a lightning-fast frontend build tool, designed fo
       padding: 0.1em !important;
       list-style: none;
 
-      h3 {
+      .bullet-heading {
         margin: 0 0 0.25em 0;
         font-size: 1.25em;
       }
@@ -78,7 +78,8 @@ let description = 'Snowpack is a lightning-fast frontend build tool, designed fo
               </a>
 
               <div class="content markdown-body feature-list">
-                <div class="feature-list-top">
+                <div class="top">
+                  <h2 id="what-is-snowpack%3F">What is Snowpack?</h2>
                   <p>
                     <strong>Snowpack is a lightning-fast frontend build tool, designed
                       for the modern web.</strong>
@@ -95,38 +96,38 @@ let description = 'Snowpack is a lightning-fast frontend build tool, designed fo
                   </p>
                 </div>
 
-                <ul class="feature-list-bullets">
-                  <li class="feature-list-bullet">
-                    <h3>Instant startup</h3>
+                <ul class="bullets">
+                  <li class="bullet">
+                    <h3 class="bullet-heading">Instant startup</h3>
                     Snowpack's unbundled web development server
                     <strong>starts up in 50ms or less</strong>
                     and stays fast in large projects.
                   </li>
-                  <li class="feature-list-bullet">
-                    <h3>Build once, cache forever</h3>
+                  <li class="bullet">
+                    <h3 class="bullet-heading">Build once, cache forever</h3>
                     Snowpack never builds the same file twice. Powered by
                     JavaScript’s native module system (ESM) in the browser.
                   </li>
-                  <li class="feature-list-bullet">
-                    <h3>HMR feat. Fast Refresh</h3>
+                  <li class="bullet">
+                    <h3 class="bullet-heading">HMR feat. Fast Refresh</h3>
                     No refresh required. See changes reflected instantly in the
                     browser with
                     <a href="/concepts/hot-module-replacement">HMR + Fast Refresh</a>
                     for React, Preact & Svelte.
                   </li>
-                  <li class="feature-list-bullet">
-                    <h3>Out-of-the-box support</h3>
+                  <li class="bullet">
+                    <h3 class="bullet-heading">Out-of-the-box support</h3>
                     Enjoy Snowpack's built-in support for JSX, TypeScript, React,
                     Preact, CSS Modules
                     <a href="/reference/supported-files">and more.</a>
                   </li>
-                  <li class="feature-list-bullet">
-                    <h3>Optimize for production</h3>
+                  <li class="bullet">
+                    <h3 class="bullet-heading">Optimize for production</h3>
                     Build for production with built-in optimizations and plugin
                     support for your favorite bundlers.
                   </li>
-                  <li class="feature-list-bullet">
-                    <h3>Plugins? Plugins!</h3>
+                  <li class="bullet">
+                    <h3 class="bullet-heading">Plugins? Plugins!</h3>
                     Babel? Sass? MDX? Browse the entire
                     <a href="/plugins">Snowpack Plugin Catalog</a>
                     to connect your favorite build tool (or
@@ -134,9 +135,9 @@ let description = 'Snowpack is a lightning-fast frontend build tool, designed fo
                   </li>
                 </ul>
 
-                <div class="feature-list-buttons">
-                  <a href="/tutorials/quick-start" class="button button-primary feature-list-button">Get started</a>
-                  <a href="/concepts/how-snowpack-works" class="button feature-list-button">Learn more</a>
+                <div class="buttons">
+                  <a href="/tutorials/quick-start" class="button button-primary feature-button">Get started</a>
+                  <a href="/concepts/how-snowpack-works" class="button feature-button">Learn more</a>
                 </div>
               </div>
             </article>

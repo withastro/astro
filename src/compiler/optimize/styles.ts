@@ -126,6 +126,22 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
       html: {
         Element: {
           enter(node) {
+            if (node.name === 'style') {
+              // Same as ast.css (below)
+              const code = Array.isArray(node.children) ? node.children.map(({ data }: any) => data).join('\n') : '';
+              if (!code) return;
+              const langAttr = (node.attributes || []).find(({ name }: any) => name === 'lang');
+              styleNodes.push(node);
+              styleTransformPromises.push(
+                transformStyle(code, {
+                  type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
+                  filename,
+                  fileID,
+                })
+              );
+              return;
+            }
+
             // Find the root node to inject the <style> tag in later
             if (node.name === 'head') {
               rootNode = node; // If this is <head>, this is what we want. Always take this if found. However, this may not always exist (it won’t for Component subtrees).
@@ -144,10 +160,19 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
       css: {
         Style: {
           enter(node) {
+            // Same as ast.html (above)
+            // Note: this is duplicated from html because of the compiler we‘re using; in a future version we should combine these
+            if (!node.content || !node.content.styles) return;
             const code = node.content.styles;
-            const typeAttr = (node.attributes || []).find(({ name }: { name: string }) => name === 'lang');
+            const langAttr = (node.attributes || []).find(({ name }: any) => name === 'lang');
             styleNodes.push(node);
-            styleTransformPromises.push(transformStyle(code, { type: (typeAttr && typeAttr.value[0] && typeAttr.value[0].raw) || undefined, filename, fileID }));
+            styleTransformPromises.push(
+              transformStyle(code, {
+                type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
+                filename,
+                fileID,
+              })
+            );
 
             // TODO: we should delete the old untransformed <style> node after we’re done.
             // However, the svelte parser left it in ast.css, not ast.html. At the final step, this just gets ignored, so it will be deleted, in a sense.
@@ -167,21 +192,32 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
       // 1. transform <style> tags
       styleTransforms.forEach((result, n) => {
         if (styleNodes[n].attributes) {
-          // Add to global CSS Module class list for step 2
+          // 1a. Add to global CSS Module class list for step 2
           for (const [k, v] of result.cssModules) {
             allCssModules.set(k, v);
           }
 
-          // Update original <style> node with finished results
-          styleNodes[n].attributes = styleNodes[n].attributes.map((attr: any) => {
-            if (attr.name === 'type') {
-              attr.value[0].raw = 'text/css';
-              attr.value[0].data = 'text/css';
-            }
-            return attr;
-          });
+          // 1b. Inject final CSS
+          const isHeadStyle = !styleNodes[n].content;
+          if (isHeadStyle) {
+            // Note: <style> tags in <head> have different attributes/rules, because of the parser. Unknown why
+            (styleNodes[n].children as any) = [{ ...(styleNodes[n].children as any)[0], data: result.css }];
+          } else {
+            styleNodes[n].content.styles = result.css;
+          }
+
+          // 3b. Update <style> attributes
+          const styleTypeIndex = styleNodes[n].attributes.findIndex(({ name }: any) => name === 'type');
+          if (styleTypeIndex !== -1) {
+            console.log(styleNodes[n].attributes[styleTypeIndex]);
+            styleNodes[n].attributes[styleTypeIndex].value[0].raw = 'text/css';
+            styleNodes[n].attributes[styleTypeIndex].value[0].data = 'text/css';
+          } else {
+            styleNodes[n].attributes.push({ name: 'type', type: 'Attribute', value: [{ type: 'Text', raw: 'text/css', data: 'text/css' }] });
+          }
+          const styleLangIndex = styleNodes[n].attributes.findIndex(({ name }: any) => name === 'lang');
+          if (styleLangIndex !== -1) styleNodes[n].attributes.splice(styleLangIndex, 1);
         }
-        styleNodes[n].content.styles = result.css;
       });
 
       // 2. inject finished <style> tags into root node
