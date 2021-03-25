@@ -1,5 +1,5 @@
-import { Node, Program } from 'estree';
-import { SourceMap } from 'magic-string';
+import type { Expression, Program } from '@babel/types';
+import type { SourceMap } from 'magic-string';
 
 interface BaseNode {
   start: number;
@@ -21,7 +21,7 @@ export interface Text extends BaseNode {
 
 export interface MustacheTag extends BaseNode {
   type: 'MustacheTag';
-  expression: string;
+  content: string;
 }
 
 export type DirectiveType = 'Action' | 'Animation' | 'Binding' | 'Class' | 'EventHandler' | 'Let' | 'Ref' | 'Transition';

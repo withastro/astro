@@ -1,5 +1,6 @@
 ---
 import Card from '../components/Card.jsx';
+import PokemonLookup from '../components/PokemonLookup.astro';
 import CompanyLogo from '../components/CompanyLogo.jsx';
 import NewsAssets from '../components/NewsAssets.svelte';
 import NewsTitle from '../components/NewsTitle.vue';
@@ -11,15 +12,8 @@ import MainLayout from '../components/MainLayout.astro';
 import news from '../data/news.json';
 import users from '../data/users.json';
 
-let title = 'Community & News';
-let description = 'Snowpack community news and companies that use Snowpack.';
-let pokemonData;
-
-export async function setup({ context, request, fetch }) {
-  const pokemonDataReq = await fetch(`https://pokeapi.co/api/v2/pokemon/ditto`);
-  pokemonData = await pokemonDataReq.json();
-  return {};
-}
+const title = 'Community & News';
+const description = 'Snowpack community news and companies that use Snowpack.';
 ---
 
 <html>
@@ -40,9 +34,9 @@ export async function setup({ context, request, fetch }) {
       <a href="https://github.com/snowpackjs/snowpack/edit/main/www/_data/news.js">Submit it!</a>
     </p>
 
-    <p>
-      In case you're curious, the best pokemon is <strong>{pokemonData.name}.</strong>
-    </p>
+    <PokemonLookup number={1} />
+    <PokemonLookup number={2} />
+    <PokemonLookup number={3} />
 
     <div class="card-grid card-grid-3">
       <article class="discord-banner">

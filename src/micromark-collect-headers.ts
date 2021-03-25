@@ -28,7 +28,6 @@ export function createMarkdownHeadersCollector() {
           this.tag(`<h${currentHeader.depth} id="${currentHeader.slug}">`);
           this.raw(currentHeader.text);
           this.tag(`</h${currentHeader.depth}>`);
-          // console.log(this.sliceSerialize(node));
         },
       } as any,
     } as any,

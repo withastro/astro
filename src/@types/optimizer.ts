@@ -1,4 +1,4 @@
-import type { TemplateNode } from '../compiler/interfaces';
+import type { TemplateNode } from '../parser/interfaces';
 
 export type VisitorFn = (node: TemplateNode) => void;
 

@@ -1,0 +1,16 @@
+---
+export let number: number;
+
+const pokemonDataReq = await fetch(`https://pokeapi.co/api/v2/pokemon/${number}`);
+const pokemonData = await pokemonDataReq.json();
+---
+
+<style>
+.mb1 { margin-bottom: 1rem; }
+</style>
+
+<div class="notification mb1">
+    <div class="container">
+        Pokemon #{number} is: {pokemonData.name}
+    </div>
+</div>

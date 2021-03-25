@@ -1,7 +1,7 @@
 import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, LoadResult as SnowpackLoadResult } from 'snowpack';
 import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger';
-import type { CompileError } from './compiler/utils/error.js';
+import type { CompileError } from './parser/utils/error.js';
 import { info, error, parseError } from './logger.js';
 
 import { existsSync, promises as fsPromises } from 'fs';

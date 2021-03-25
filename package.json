@@ -16,15 +16,17 @@
     "astro": "astro.mjs"
   },
   "scripts": {
-    "build": "tsc && npm run copy-js",
+    "build": "tsc",
+    "dev": "tsc --watch",
     "lint": "eslint 'src/**/*.{js,ts}'",
-    "dev": "concurrently 'tsc --watch' 'npm run copy-js:watch'",
     "format": "prettier -w 'src/**/*.{js,ts}'",
-    "copy-js": "copyfiles -u 1 src/*.js lib/",
-    "copy-js:watch": "nodemon -w src --ext js -x 'npm run copy-js'",
     "test": "uvu test -i fixtures -i test-utils.js"
   },
   "dependencies": {
+    "@babel/generator": "^7.13.9",
+    "@babel/traverse": "^7.13.0",
+    "@types/babel__generator": "^7.6.2",
+    "@types/babel__traverse": "^7.11.1",
     "@types/estree": "0.0.46",
     "@types/node": "^14.14.31",
     "@types/react": "^17.0.3",

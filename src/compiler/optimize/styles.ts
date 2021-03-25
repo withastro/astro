@@ -5,8 +5,8 @@ import postcss from 'postcss';
 import postcssModules from 'postcss-modules';
 import findUp from 'find-up';
 import sass from 'sass';
-import { Optimizer } from '../@types/optimizer';
-import type { TemplateNode } from '../compiler/interfaces';
+import { Optimizer } from '../../@types/optimizer';
+import type { TemplateNode } from '../../parser/interfaces';
 
 type StyleType = 'css' | 'scss' | 'sass' | 'postcss';
 

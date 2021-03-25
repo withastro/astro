@@ -397,7 +397,7 @@ export default function mustache(parser: Parser) {
     // });
     throw new Error('@debug not yet supported');
   } else {
-    const expression = read_expression(parser);
+    const content = read_expression(parser);
 
     parser.allow_whitespace();
     parser.eat('}', true);
@@ -407,7 +407,7 @@ export default function mustache(parser: Parser) {
       start,
       end: parser.index,
       type: 'MustacheTag',
-      expression,
+      content,
     });
   }
 }
