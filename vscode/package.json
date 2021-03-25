@@ -4,7 +4,7 @@
 	"description": "Language support for Astro",
 	"version": "0.1.0",
 	"author": "Astro",
-	"publisher": "astro",
+	"publisher": "astro-build",
 	"license": "MIT",
 	"scripts": {
 		"vscode:prepublish": "npm run build",
