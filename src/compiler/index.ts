@@ -105,12 +105,11 @@ async function transformFromSource(
   }
 }
 
-
 export async function compileComponent(
   source: string,
   { compileOptions = defaultCompileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
 ): Promise<CompileResult> {
-  const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });  
+  const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const isPage = path.extname(filename) === '.md' || sourceJsx.items.some((item) => item.name === 'html');
   // sort <style> tags first
   sourceJsx.items.sort((a, b) => (a.name === 'style' && b.name !== 'style' ? -1 : 0));
@@ -124,9 +123,9 @@ ${sourceJsx.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from '${internalImport('h.js')}';
-async function __render(props, ...children) { 
+async function __render(props, ...children) {
   ${sourceJsx.script}
-  return h(Fragment, null, ${sourceJsx.items.map(({ jsx }) => jsx).join(',')}); 
+  return h(Fragment, null, ${sourceJsx.items.map(({ jsx }) => jsx).join(',')});
 }
 export default __render;
 `;
@@ -134,9 +133,8 @@ export default __render;
   if (isPage) {
     modJsx += `
 // \`__renderPage()\`: Render the contents of the Astro module as a page. This is a special flow,
-// triggered by loading a component directly by URL. 
+// triggered by loading a component directly by URL.
 export async function __renderPage({request, children, props}) {
-
   const currentChild = {
     setup: typeof setup === 'undefined' ? (passthrough) => passthrough : setup,
     layout: typeof __layout === 'undefined' ? undefined : __layout,
@@ -155,7 +153,7 @@ export async function __renderPage({request, children, props}) {
       props: {content: currentChild.content},
       children: [childBodyResult],
     });
-  } 
+  }
 
   return childBodyResult;
 };\n`;

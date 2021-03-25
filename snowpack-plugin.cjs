@@ -17,7 +17,7 @@ module.exports = function (snowpackConfig, { resolve, extensions } = {}) {
       const contents = await readFile(filePath, 'utf-8');
       const compileOptions = {
         resolve,
-        extensions
+        extensions,
       };
       const result = await compileComponent(contents, { compileOptions, filename: filePath, projectRoot });
       return result.contents;
