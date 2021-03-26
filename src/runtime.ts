@@ -138,12 +138,16 @@ export async function createRuntime(astroConfig: AstroConfig, { env, logging }: 
     mount: {
       [astroRoot.pathname]: '/_astro',
       [internalPath.pathname]: '/_astro_internal',
+      public: '/',
     },
-    plugins: [[new URL('../snowpack-plugin.cjs', import.meta.url).pathname, astroPlugOptions]],
+    plugins: [[new URL('../snowpack-plugin.cjs', import.meta.url).pathname, astroPlugOptions], '@snowpack/plugin-sass', '@snowpack/plugin-svelte', '@snowpack/plugin-vue'],
     devOptions: {
       open: 'none',
       output: 'stream',
       port: 0,
+    },
+    buildOptions: {
+      out: astroConfig.dist,
     },
     packageOptions: {
       knownEntrypoints: ['preact-render-to-string'],

@@ -26,6 +26,9 @@
   "dependencies": {
     "@babel/generator": "^7.13.9",
     "@babel/traverse": "^7.13.0",
+    "@snowpack/plugin-sass": "^1.4.0",
+    "@snowpack/plugin-svelte": "^3.6.0",
+    "@snowpack/plugin-vue": "^2.3.0",
     "@types/babel__generator": "^7.6.2",
     "@types/babel__traverse": "^7.11.1",
     "@types/estree": "0.0.46",
