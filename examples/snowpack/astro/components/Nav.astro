@@ -63,6 +63,7 @@ export let version: string = '3.1.2';
 
   .logo {
     display: flex;
+    align-items: center;
     grid-area: logo;
     justify-content: center;
     padding: 0.5rem;
@@ -74,6 +75,22 @@ export let version: string = '3.1.2';
       justify-content: flex-start;
       padding: 0.5rem 1.25rem;
     }
+  }
+
+  .logo-icon {
+    display: block;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.25em;
+    margin-bottom: 0.15rem;
+    fill: currentColor;
+  }
+
+  .logo-type {
+    font-weight: 700;
+    font-family: $heading;
+    letter-spacing: -0.03em;
+    padding-top: 0.2rem;
   }
 
   .mobile-open {
@@ -233,8 +250,8 @@ export let version: string = '3.1.2';
       </path>
     </svg>
   </button>
-  <a class="logo snow-logo" href="/">
-    <svg class="snow-logo-icon" viewbox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg"
+  <a class="logo" href="/">
+    <svg class="logo-icon" viewbox="0 0 640 512" version="1.1" xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink">
       <g transform="translate(-1.000000, 0.000000)" fill-rule="nonzero">
         <path

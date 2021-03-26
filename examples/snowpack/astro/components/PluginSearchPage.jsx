@@ -1,6 +1,6 @@
 import { h, Fragment } from 'preact';
 import { useEffect, useState } from 'preact/hooks';
-import * as Styles from './PluginSearchPage.module.css';
+import Styles from './PluginSearchPage.module.css';
 
 async function searchPlugins(val) {
   const params3 = new URLSearchParams([
