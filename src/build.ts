@@ -1,10 +1,7 @@
 import type { AstroConfig } from './@types/astro';
 import { defaultLogOptions, LogOptions } from './logger';
 
-import {
-  loadConfiguration,
-  startServer as startSnowpackServer,
-  build as snowpackBuild } from 'snowpack';
+import { loadConfiguration, startServer as startSnowpackServer, build as snowpackBuild } from 'snowpack';
 import { promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
 import { defaultLogDestination, error } from './logger.js';
@@ -25,7 +22,7 @@ async function* allPages(root: URL): AsyncGenerator<URL, void, unknown> {
     if (info.isDirectory()) {
       yield* allPages(new URL(fullpath + '/'));
     } else {
-      if(/\.(astro|md)$/.test(fullpath.pathname)) {
+      if (/\.(astro|md)$/.test(fullpath.pathname)) {
         yield fullpath;
       }
     }
@@ -39,7 +36,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
 
   const runtimeLogging: LogOptions = {
     level: 'error',
-    dest: defaultLogDestination
+    dest: defaultLogDestination,
   };
 
   const runtime = await createRuntime(astroConfig, { logging: runtimeLogging, env: 'build' });
@@ -48,10 +45,9 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   try {
     const result = await snowpackBuild({
       config: snowpackConfig,
-      lockfile: null
+      lockfile: null,
     });
-
-  } catch(err) {
+  } catch (err) {
     error(logging, 'build', err);
     return 1;
   }
@@ -64,8 +60,8 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       const outPath = new URL('./' + rel.replace(/\.(astro|md)/, '.html'), dist);
       const outFolder = new URL('./', outPath);
       const result = await runtime.load(pagePath);
-      
-      if(result.statusCode !== 200) {
+
+      if (result.statusCode !== 200) {
         error(logging, 'generate', result.error || result.statusCode);
         //return 1;
       } else {

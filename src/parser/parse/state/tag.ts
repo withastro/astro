@@ -351,7 +351,7 @@ function read_attribute(parser: Parser, unique_names: Set<string>) {
     parser.allow_whitespace();
 
     if (parser.eat('...')) {
-      const {expression} = read_expression(parser);
+      const { expression } = read_expression(parser);
 
       parser.allow_whitespace();
       parser.eat('}', true);

@@ -73,11 +73,9 @@ export async function optimize(ast: Ast, opts: OptimizeOptions) {
   const cssVisitors = createVisitorCollection();
   const finalizers: Array<() => Promise<void>> = [];
 
-  const optimizers = [
-    optimizeStyles(opts)
-  ];
+  const optimizers = [optimizeStyles(opts)];
 
-  for(const optimizer of optimizers) {
+  for (const optimizer of optimizers) {
     collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);
   }
 
