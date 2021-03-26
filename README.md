@@ -15,7 +15,7 @@ TODO: astro boilerplate
 By default, Astro outputs zero client-side JS. If you'd like to include an interactive component in the client output, you may use any of the following techniques.
 
 - `MyComponent:load` will render `MyComponent` on page load
-- `MyComponent:idle` will use requestIdleCallback to render `MyComponent` as soon as main thread is free
+- `MyComponent:idle` will use `requestIdleCallback` to render `MyComponent` as soon as main thread is free
 - `MyComponent:visible` will use an `IntersectionObserver` to render `MyComponent` when the element enters the viewport
 
 ## 🧞 Development
