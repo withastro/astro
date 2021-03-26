@@ -13,19 +13,19 @@ React.before(async () => {
 
   const logging = {
     level: 'error',
-    dest: process.stderr
+    dest: process.stderr,
   };
 
   try {
     runtime = await createRuntime(astroConfig, logging);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     setupError = err;
   }
 });
 
 React.after(async () => {
-  await runtime.shutdown();
+  (await runtime) && runtime.shutdown();
 });
 
 React('No error creating the runtime', () => {

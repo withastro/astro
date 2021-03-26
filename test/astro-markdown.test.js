@@ -10,22 +10,22 @@ let runtime, setupError;
 
 Markdown.before(async () => {
   const astroConfig = await loadConfig(new URL('./fixtures/astro-markdown', import.meta.url).pathname);
-  
+
   const logging = {
     level: 'error',
-    dest: process.stderr
+    dest: process.stderr,
   };
 
   try {
     runtime = await createRuntime(astroConfig, logging);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     setupError = err;
   }
 });
 
 Markdown.after(async () => {
-  runtime && runtime.shutdown();
+  (await runtime) && runtime.shutdown();
 });
 
 Markdown('No errors creating a runtime', () => {

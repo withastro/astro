@@ -1,6 +1,5 @@
-
 export default {
   projectRoot: '.',
   astroRoot: './astro',
-  dist: './_site'
-}
+  dist: './_site',
+};
