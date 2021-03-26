@@ -13,7 +13,7 @@ const SnowpackDev = suite('snowpack.dev');
 let runtime, cwd, setupError;
 
 SnowpackDev.before(async () => {
-// Bug: Snowpack config is still loaded relative to the current working directory.
+  // Bug: Snowpack config is still loaded relative to the current working directory.
   cwd = process.cwd();
   process.chdir(new URL('../examples/snowpack/', import.meta.url).pathname);
 
@@ -26,7 +26,7 @@ SnowpackDev.before(async () => {
 
   try {
     runtime = await createRuntime(astroConfig, logging);
-  } catch(err) {
+  } catch (err) {
     console.error(err);
     setupError = err;
   }
@@ -34,7 +34,7 @@ SnowpackDev.before(async () => {
 
 SnowpackDev.after(async () => {
   process.chdir(cwd);
-  await runtime && runtime.shutdown();
+  (await runtime) && runtime.shutdown();
 });
 
 async function* allPageFiles(root) {
@@ -72,7 +72,7 @@ SnowpackDev('Can load every page', async () => {
     }
     const result = await runtime.load(pathname);
     if (result.statusCode === 500) {
-      failed.push({...result, pathname});
+      failed.push({ ...result, pathname });
       continue;
     }
     assert.equal(result.statusCode, 200, `Loading ${pathname}`);
