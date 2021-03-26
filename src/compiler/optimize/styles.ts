@@ -182,7 +182,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
       },
     },
     async finalize() {
-      const allCssModules = new Map<string, string>(); // note: this may theoretically have conflicts, but when written, it shouldn’t because we’re processing everything per-component (if we change this to run across the whole document at once, revisit this)
+      const allCssModules: Record<string, string> = {}; // note: this may theoretically have conflicts, but when written, it shouldn’t because we’re processing everything per-component (if we change this to run across the whole document at once, revisit this)
       const styleTransforms = await Promise.all(styleTransformPromises);
 
       if (!rootNode) {
@@ -194,7 +194,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
         if (styleNodes[n].attributes) {
           // 1a. Add to global CSS Module class list for step 2
           for (const [k, v] of result.cssModules) {
-            allCssModules.set(k, v);
+            allCssModules[k] = v;
           }
 
           // 1b. Inject final CSS
@@ -231,16 +231,21 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
           if (node.attributes[j].name !== 'class') continue;
           const attr = node.attributes[j];
           for (let k = 0; k < attr.value.length; k++) {
-            if (attr.value[k].type !== 'Text') continue;
-            const elementClassNames = (attr.value[k].raw as string)
-              .split(' ')
-              .map((c) => {
-                let className = c.trim();
-                return allCssModules.get(className) || className; // if className matches exactly, replace; otherwise keep original
-              })
-              .join(' ');
-            attr.value[k].raw = elementClassNames;
-            attr.value[k].data = elementClassNames;
+            if (attr.value[k].type === 'Text') {
+              // This class is standard HTML (`class="foo"`). Replace only the classes that match
+              const elementClassNames = (attr.value[k].raw as string)
+                .split(' ')
+                .map((c) => {
+                  let className = c.trim();
+                  return allCssModules[className] || className; // if className matches exactly, replace; otherwise keep original
+                })
+                .join(' ');
+              attr.value[k].raw = elementClassNames;
+              attr.value[k].data = elementClassNames;
+            } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
+              // This class is an expression, so it’s more difficult (`className={'some' + 'expression'}`). We pass all CSS Module names to the expression, and let it find a match, if any
+              attr.value[k].content = `(${attr.value[k].content}).split(' ').map((className) => (${JSON.stringify(allCssModules)})[className] || className).join(' ')`;
+            }
           }
         }
       }
