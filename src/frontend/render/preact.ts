@@ -1,30 +1,25 @@
-import renderToString from 'preact-render-to-string';
+import { Renderer, createRenderer } from './renderer';
 import { h, render } from 'preact';
-import type { Component } from 'preact';
+import { renderToString } from 'preact-render-to-string';
 
 // This prevents tree-shaking of render.
 Function.prototype(render);
 
-export function __preact_static(PreactComponent: Component) {
-  return (attrs: Record<string, any>, ...children: any): string => {
-    let html = renderToString(
-      h(
-        PreactComponent as any, // Preact's types seem wrong...
-        attrs,
-        children
-      )
-    );
-    return html;
-  };
-}
+const Preact: Renderer = {
+  renderStatic(Component) {
+    return (props, ...children) => renderToString(h(Component, props, ...children));
+  },
+  imports: {
+    preact: ['render', 'h'],
+  },
+  render({ Component, root, props }) {
+    return `render(h(${Component}, ${props}), ${root})`;
+  },
+};
 
-export function __preact_dynamic(PreactComponent: Component, importUrl: string, preactUrl: string) {
-  const placeholderId = `placeholder_${String(Math.random())}`;
-  return (attrs: Record<string, string>, ...children: any) => {
-    return `<div id="${placeholderId}"></div><script type="module">
-            import {h, render} from '${preactUrl}';
-            import Component from '${importUrl}';
-            render(h(Component, ${JSON.stringify(attrs)}), document.getElementById('${placeholderId}'));
-        </script>`;
-  };
-}
+const renderer = createRenderer(Preact);
+
+export const __preact_static = renderer.static;
+export const __preact_load = renderer.load;
+export const __preact_idle = renderer.idle;
+export const __preact_visible = renderer.visible;

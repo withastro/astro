@@ -1,22 +1,23 @@
+import { Renderer, createRenderer } from './renderer';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 
-export function __react_static(ReactComponent: any) {
-  return (attrs: Record<string, any>, ...children: any): string => {
-    let html = ReactDOMServer.renderToString(React.createElement(ReactComponent, attrs, children));
-    return html;
-  };
-}
+const ReactRenderer: Renderer = {
+  renderStatic(Component) {
+    return (props, ...children) => ReactDOMServer.renderToString(React.createElement(Component, props, children));
+  },
+  imports: {
+    react: ['default as React'],
+    'react-dom': ['default as ReactDOM'],
+  },
+  render({ Component, root, props }) {
+    return `ReactDOM.render(React.createElement(${Component}, ${props}), ${root})`;
+  },
+};
 
-export function __react_dynamic(ReactComponent: any, importUrl: string, reactUrl: string, reactDomUrl: string) {
-  const placeholderId = `placeholder_${String(Math.random())}`;
-  return (attrs: Record<string, string>, ...children: any) => {
-    return `<div id="${placeholderId}"></div><script type="module">
-            import React from '${reactUrl}';
-            import ReactDOM from '${reactDomUrl}';
-            import Component from '${importUrl}';
+const renderer = createRenderer(ReactRenderer);
 
-            ReactDOM.render(React.createElement(Component, ${JSON.stringify(attrs)}), document.getElementById('${placeholderId}'));
-        </script>`;
-  };
-}
+export const __react_static = renderer.static;
+export const __react_load = renderer.load;
+export const __react_idle = renderer.idle;
+export const __react_visible = renderer.visible;

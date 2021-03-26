@@ -120,6 +120,8 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
     throw new Error(`No supported plugin found for extension ${type}`);
   }
 
+  const getComponentUrl = (ext = '.js') => `new URL(${JSON.stringify(url.replace(/\.[^.]+$/, ext))}, \`http://TEST\${import.meta.url\}\`).pathname.replace(/^\\/\\//, '/_astro/')`;
+
   switch (plugin) {
     case 'astro': {
       if (kind) {
@@ -131,64 +133,78 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
       };
     }
     case 'preact': {
-      if (kind === 'dynamic') {
+      if (['load', 'idle', 'visible'].includes(kind)) {
         return {
-          wrapper: `__preact_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
-            'preact'
-          )!}')`,
-          wrapperImport: `import {__preact_dynamic} from '${internalImport('render/preact.js')}';`,
-        };
-      } else {
-        return {
-          wrapper: `__preact_static(${name})`,
-          wrapperImport: `import {__preact_static} from '${internalImport('render/preact.js')}';`,
+          wrapper: `__preact_${kind}(${name}, ${JSON.stringify({
+            componentUrl: getComponentUrl(),
+            componentExport: 'default',
+            frameworkUrls: {
+              preact: dynamicImports.get('preact'),
+            },
+          })})`,
+          wrapperImport: `import {__preact_${kind}} from '${internalImport('render/preact.js')}';`,
         };
       }
+
+      return {
+        wrapper: `__preact_static(${name})`,
+        wrapperImport: `import {__preact_static} from '${internalImport('render/preact.js')}';`,
+      };
     }
     case 'react': {
-      if (kind === 'dynamic') {
+      if (['load', 'idle', 'visible'].includes(kind)) {
         return {
-          wrapper: `__react_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
-            'react'
-          )!}', '${dynamicImports.get('react-dom')!}')`,
-          wrapperImport: `import {__react_dynamic} from '${internalImport('render/react.js')}';`,
-        };
-      } else {
-        return {
-          wrapper: `__react_static(${name})`,
-          wrapperImport: `import {__react_static} from '${internalImport('render/react.js')}';`,
+          wrapper: `__preact_${kind}(${name}, ${JSON.stringify({
+            componentUrl: getComponentUrl(),
+            componentExport: 'default',
+            frameworkUrls: {
+              react: dynamicImports.get('react'),
+              'react-dom': dynamicImports.get('react-dom'),
+            },
+          })})`,
+          wrapperImport: `import {__preact_${kind}} from '${internalImport('render/preact.js')}';`,
         };
       }
+
+      return {
+        wrapper: `__react_static(${name})`,
+        wrapperImport: `import {__react_static} from '${internalImport('render/react.js')}';`,
+      };
     }
     case 'svelte': {
-      if (kind === 'dynamic') {
+      if (['load', 'idle', 'visible'].includes(kind)) {
         return {
-          wrapper: `__svelte_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.svelte.js'))}, \`http://TEST\${import.meta.url}\`).pathname)`,
-          wrapperImport: `import {__svelte_dynamic} from '${internalImport('render/svelte.js')}';`,
-        };
-      } else {
-        return {
-          wrapper: `__svelte_static(${name})`,
-          wrapperImport: `import {__svelte_static} from '${internalImport('render/svelte.js')}';`,
+          wrapper: `__svelte_${kind}(${name}, ${JSON.stringify({
+            componentUrl: getComponentUrl('.svelte.js'),
+            componentExport: 'default',
+          })})`,
+          wrapperImport: `import {__svelte_${kind}} from '${internalImport('render/svelte.js')}';`,
         };
       }
+
+      return {
+        wrapper: `__svelte_static(${name})`,
+        wrapperImport: `import {__svelte_static} from '${internalImport('render/svelte.js')}';`,
+      };
     }
     case 'vue': {
-      if (kind === 'dynamic') {
+      if (['load', 'idle', 'visible'].includes(kind)) {
         return {
-          wrapper: `__vue_dynamic(${name}, new URL(${JSON.stringify(url.replace(/\.[^.]+$/, '.vue.js'))}, \`http://TEST\${import.meta.url}\`).pathname, '${dynamicImports.get(
-            'vue'
-          )!}')`,
-          wrapperImport: `import {__vue_dynamic} from '${internalImport('render/vue.js')}';`,
-        };
-      } else {
-        return {
-          wrapper: `__vue_static(${name})`,
-          wrapperImport: `
-            import {__vue_static} from '${internalImport('render/vue.js')}';
-          `,
+          wrapper: `__vue_${kind}(${name}, ${JSON.stringify({
+            componentUrl: getComponentUrl('.vue.js'),
+            componentExport: 'default',
+            frameworkUrls: {
+              vue: dynamicImports.get('vue'),
+            },
+          })})`,
+          wrapperImport: `import {__vue_${kind}} from '${internalImport('render/vue.js')}';`,
         };
       }
+
+      return {
+        wrapper: `__vue_static(${name})`,
+        wrapperImport: `import {__vue_static} from '${internalImport('render/vue.js')}';`,
+      };
     }
     default: {
       throw new Error(`Unknown component type`);
