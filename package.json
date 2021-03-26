@@ -19,7 +19,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "lint": "eslint 'src/**/*.{js,ts}'",
-    "format": "prettier -w 'src/**/*.{js,ts}'",
+    "format": "prettier -w '{src,test}/**/*.{js,ts}'",
     "test": "uvu test -i fixtures -i test-utils.js",
     "watch:extension": "cd vscode && npm run watch"
   },

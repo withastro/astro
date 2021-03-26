@@ -1,0 +1,28 @@
+name: 'Format Code'
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  node_version: 14
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+      - uses: actions/setup-node@v1
+        with:
+          node-version: ${{ env.node_version }}
+      - run: npm ci
+      - run: npm run format
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: '[ci] npm run format'
+          branch: ${{ github.head_ref }}
+          push_options: --force
