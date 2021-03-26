@@ -38,7 +38,7 @@ export function createRenderer(renderer: Renderer) {
     return (props: Record<string, any>, ...children: any[]) => {
       let value: string;
       try {
-        value = _static(Component)(Object.assign({}, props, { ['data-astro-id']: innerContext['data-astro-id'] }), ...children);
+        value = _static(Component)(props, ...children);
       } catch (e) {
         value = '';
       }
