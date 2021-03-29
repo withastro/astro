@@ -18,5 +18,8 @@ export async function loadConfig(rawRoot: string | undefined): Promise<AstroConf
   const astroConfig: AstroConfig = (await import(astroConfigPath)).default;
   astroConfig.projectRoot = new URL(astroConfig.projectRoot + '/', fileProtocolRoot);
   astroConfig.astroRoot = new URL(astroConfig.astroRoot + '/', fileProtocolRoot);
+  if('public' in astroConfig) {
+    astroConfig.public = new URL(astroConfig.public + '/', fileProtocolRoot);
+  }
   return astroConfig;
 }

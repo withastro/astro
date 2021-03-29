@@ -59,6 +59,7 @@
     "postcss-modules": "^4.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "rollup": "^2.43.1",
     "sass": "^1.32.8",
     "snowpack": "^3.1.2",
     "svelte": "^3.35.0",

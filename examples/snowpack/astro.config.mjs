@@ -2,6 +2,7 @@ export default {
   projectRoot: '.',
   astroRoot: './astro',
   dist: './_site',
+  public: './public',
   extensions: {
     '.jsx': 'preact',
   },
