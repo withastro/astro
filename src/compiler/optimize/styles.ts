@@ -2,11 +2,11 @@ import crypto from 'crypto';
 import path from 'path';
 import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
-import postcssModules from 'postcss-modules';
 import findUp from 'find-up';
 import sass from 'sass';
 import { Optimizer } from '../../@types/optimizer';
 import type { TemplateNode } from '../../parser/interfaces';
+import astroScopedStyles from './postcss-astro-scoped/index.js';
 
 type StyleType = 'css' | 'scss' | 'sass' | 'postcss';
 
@@ -42,14 +42,14 @@ function hashFromFilename(filename: string): string {
 
 export interface StyleTransformResult {
   css: string;
-  cssModules: Map<string, string>;
   type: StyleType;
 }
 
 // cache node_modules resolutions for each run. saves looking up the same directory over and over again. blown away on exit.
 const nodeModulesMiniCache = new Map<string, string>();
 
-async function transformStyle(code: string, { type, filename, fileID }: { type?: string; filename: string; fileID: string }): Promise<StyleTransformResult> {
+/** Convert styles to scoped CSS */
+async function transformStyle(code: string, { type, filename, scopedClass }: { type?: string; filename: string; scopedClass: string }): Promise<StyleTransformResult> {
   let styleType: StyleType = 'css'; // important: assume CSS as default
   if (type) {
     styleType = getStyleType.get(type) || styleType;
@@ -81,38 +81,16 @@ async function transformStyle(code: string, { type, filename, fileID }: { type?:
       css = sass.renderSync({ ...SASS_OPTIONS, data: code, includePaths }).css.toString('utf8');
       break;
     }
-    case 'postcss': {
-      css = code; // TODO
-      break;
-    }
     default: {
-      throw new Error(`Unsupported: <style type="${styleType}">`);
+      throw new Error(`Unsupported: <style lang="${styleType}">`);
     }
   }
 
-  const cssModules = new Map<string, string>();
-
-  css = await postcss([
-    postcssModules({
-      generateScopedName(name: string) {
-        return `${name}__${hashFromFilename(fileID)}`;
-      },
-      getJSON(_: string, json: any) {
-        Object.entries(json).forEach(([k, v]: any) => {
-          if (k !== v) cssModules.set(k, v);
-        });
-      },
-    }),
-    autoprefixer(),
-  ])
+  css = await postcss([astroScopedStyles({ className: scopedClass }), autoprefixer()])
     .process(css, { from: filename, to: undefined })
     .then((result) => result.css);
 
-  return {
-    css,
-    cssModules,
-    type: styleType,
-  };
+  return { css, type: styleType };
 }
 
 export default function ({ filename, fileID }: { filename: string; fileID: string }): Optimizer {
@@ -120,6 +98,8 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
   const styleNodes: TemplateNode[] = []; // <style> tags to be updated
   const styleTransformPromises: Promise<StyleTransformResult>[] = []; // async style transform results to be finished in finalize();
   let rootNode: TemplateNode; // root node which needs <style> tags
+
+  const scopedClass = `astro-${hashFromFilename(fileID)}`; // this *should* generate same hash from fileID every time
 
   return {
     visitors: {
@@ -136,7 +116,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
                 transformStyle(code, {
                   type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                   filename,
-                  fileID,
+                  scopedClass,
                 })
               );
               return;
@@ -170,7 +150,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
               transformStyle(code, {
                 type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                 filename,
-                fileID,
+                scopedClass,
               })
             );
 
@@ -182,7 +162,6 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
       },
     },
     async finalize() {
-      const allCssModules: Record<string, string> = {}; // note: this may theoretically have conflicts, but when written, it shouldn’t because we’re processing everything per-component (if we change this to run across the whole document at once, revisit this)
       const styleTransforms = await Promise.all(styleTransformPromises);
 
       if (!rootNode) {
@@ -192,11 +171,6 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
       // 1. transform <style> tags
       styleTransforms.forEach((result, n) => {
         if (styleNodes[n].attributes) {
-          // 1a. Add to global CSS Module class list for step 2
-          for (const [k, v] of result.cssModules) {
-            allCssModules[k] = v;
-          }
-
           // 1b. Inject final CSS
           const isHeadStyle = !styleNodes[n].content;
           if (isHeadStyle) {
@@ -225,26 +199,22 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
 
       // 3. update HTML classes
       for (let i = 0; i < elementNodes.length; i++) {
-        if (!elementNodes[i].attributes) continue;
-        const node = elementNodes[i];
-        for (let j = 0; j < node.attributes.length; j++) {
-          if (node.attributes[j].name !== 'class') continue;
-          const attr = node.attributes[j];
+        if (!elementNodes[i].attributes) elementNodes[i].attributes = [];
+        const classIndex = elementNodes[i].attributes.findIndex(({ name }: any) => name === 'class');
+        if (classIndex === -1) {
+          // 3a. element has no class="" attribute; add one and append scopedClass
+          elementNodes[i].attributes.push({ name: 'class', type: 'Attribute', value: [{ type: 'Text', raw: scopedClass, data: scopedClass }] });
+        } else {
+          // 3b. element has class=""; append scopedClass
+          const attr = elementNodes[i].attributes[classIndex];
           for (let k = 0; k < attr.value.length; k++) {
             if (attr.value[k].type === 'Text') {
-              // This class is standard HTML (`class="foo"`). Replace only the classes that match
-              const elementClassNames = (attr.value[k].raw as string)
-                .split(' ')
-                .map((c) => {
-                  let className = c.trim();
-                  return allCssModules[className] || className; // if className matches exactly, replace; otherwise keep original
-                })
-                .join(' ');
-              attr.value[k].raw = elementClassNames;
-              attr.value[k].data = elementClassNames;
+              // string literal
+              attr.value[k].raw += ' ' + scopedClass;
+              attr.value[k].data += ' ' + scopedClass;
             } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
-              // This class is an expression, so it’s more difficult (`className={'some' + 'expression'}`). We pass all CSS Module names to the expression, and let it find a match, if any
-              attr.value[k].content = `(${attr.value[k].content}).split(' ').map((className) => (${JSON.stringify(allCssModules)})[className] || className).join(' ')`;
+              // MustageTag
+              attr.value[k].content = `((${attr.value[k].content}) + ' ' + ${scopedClass})`;
             }
           }
         }

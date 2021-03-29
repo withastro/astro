@@ -7,9 +7,16 @@ import SvelteScoped from '../components/SvelteScoped.svelte';
 <html>
   <head>
     <meta charset="UTF-8" />
+    <style lang="scss">
+      .wrapper {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 1200px;
+      }
+    </style>
   </head>
   <body>
-    <div>
+    <div class="wrapper">
       <ReactCSS />
       <VueCSS />
       <SvelteScoped />
