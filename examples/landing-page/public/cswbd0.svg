@@ -40,15 +40,15 @@ viewBox="0 0 256 256" width="64px" height="64px">
     
 <g>
 	
-		<line fill="none" stroke="#666" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="192" y1="168" x2="192" y2="216"/>
+		<line fill="none" stroke="#555" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="192" y1="168" x2="192" y2="216"/>
 	
-		<line fill="none" stroke="#666" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="168" y1="192" x2="216" y2="192"/>
+		<line fill="none" stroke="#555" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="168" y1="192" x2="216" y2="192"/>
 </g>
 <g>
 	
-		<line fill="none" stroke="#EEE" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="6" x1="64" y1="40" x2="64" y2="88"/>
+		<line fill="none" stroke="#999" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="6" x1="64" y1="40" x2="64" y2="88"/>
 	
-		<line fill="none" stroke="#EEE" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="6" x1="40" y1="64" x2="88" y2="64"/>
+		<line fill="none" stroke="#999" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="6" x1="40" y1="64" x2="88" y2="64"/>
 </g>
 
 
