@@ -1,4 +1,5 @@
 import type { LogOptions } from '../logger.js';
+import type { AstroConfig } from '../@types/astro';
 
 import path from 'path';
 import micromark from 'micromark';
@@ -14,14 +15,10 @@ import { optimize } from './optimize/index.js';
 import { codegen } from './codegen.js';
 
 interface CompileOptions {
+  astroConfig: AstroConfig;
   logging: LogOptions;
   resolve: (p: string) => Promise<string>;
 }
-
-const defaultCompileOptions: CompileOptions = {
-  logging: defaultLogOptions,
-  resolve: (p: string) => Promise.resolve(p),
-};
 
 function internalImport(internalPath: string) {
   return `/_astro_internal/${internalPath}`;
@@ -107,7 +104,7 @@ async function transformFromSource(
 
 export async function compileComponent(
   source: string,
-  { compileOptions = defaultCompileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
+  { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
 ): Promise<CompileResult> {
   const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const isPage = path.extname(filename) === '.md' || sourceJsx.items.some((item) => item.name === 'html');

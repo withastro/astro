@@ -1,5 +1,5 @@
 import type { CompileOptions } from '../@types/compiler';
-import type { ValidExtensionPlugins } from '../@types/astro';
+import type { AstroConfig, ValidExtensionPlugins } from '../@types/astro';
 import type { Ast, TemplateNode } from '../parser/interfaces';
 import type { JsxItem, TransformResult } from '../@types/astro';
 
@@ -111,14 +111,25 @@ const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
 
 type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact', string>;
 
-function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo, dynamicImports: DynamicImportMap) {
+interface GetComponentWrapperOptions {
+  filename: string;
+  astroConfig: AstroConfig;
+  dynamicImports: DynamicImportMap;
+}
+function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo, opts: GetComponentWrapperOptions) {
+  const { astroConfig, dynamicImports, filename } = opts;
+  const { astroRoot } = astroConfig;
   const [name, kind] = _name.split(':');
+  const currFileUrl = new URL(`file://${filename}`);
 
   if (!plugin) {
     throw new Error(`No supported plugin found for extension ${type}`);
   }
 
-  const getComponentUrl = (ext = '.js') => `new URL(${JSON.stringify(url.replace(/\.[^.]+$/, ext))}, \`http://TEST\${import.meta.url\}\`).pathname.replace(/^\\/\\//, '/_astro/')`;
+  const getComponentUrl = (ext = '.js') => {
+    const outUrl = new URL(url, currFileUrl);
+    return '/_astro/' + path.posix.relative(astroRoot.pathname, outUrl.pathname).replace(/\.[^.]+$/, ext);
+  };
 
   switch (plugin) {
     case 'astro': {
@@ -242,8 +253,8 @@ async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins
   return importMap;
 }
 
-export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Promise<TransformResult> {
-  const { extensions = defaultExtensions } = compileOptions;
+export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOptions): Promise<TransformResult> {
+  const { extensions = defaultExtensions, astroConfig } = compileOptions;
   await eslexer.init;
 
   const componentImports: ImportDeclaration[] = [];
@@ -343,7 +354,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
             if (!components[componentName]) {
               throw new Error(`Unknown Component: ${componentName}`);
             }
-            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], dynamicImports);
+            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], {astroConfig, dynamicImports, filename});
             if (wrapperImport) {
               importExportStatements.add(wrapperImport);
             }
@@ -395,7 +406,7 @@ export async function codegen(ast: Ast, { compileOptions }: CodeGenOptions): Pro
           if (!componentImportData) {
             throw new Error(`Unknown Component: ${componentName}`);
           }
-          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], dynamicImports);
+          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], {astroConfig, dynamicImports, filename});
           if (wrapperImport) {
             importExportStatements.add(wrapperImport);
           }
