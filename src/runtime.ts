@@ -106,12 +106,17 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   }
 }
 
-interface RuntimeOptions {
-  logging: LogOptions;
-  env: 'dev' | 'build';
+export interface AstroRuntime {
+  runtimeConfig: RuntimeConfig;
+  load: (rawPathname: string | undefined) => Promise<LoadResult>;
+  shutdown: () => Promise<void>;
 }
 
-export async function createRuntime(astroConfig: AstroConfig, { env, logging }: RuntimeOptions) {
+interface RuntimeOptions {
+  logging: LogOptions;
+}
+
+export async function createRuntime(astroConfig: AstroConfig, { logging }: RuntimeOptions): Promise<AstroRuntime> {
   const { projectRoot, astroRoot, extensions } = astroConfig;
 
   const internalPath = new URL('./frontend/', import.meta.url);
@@ -122,16 +127,8 @@ export async function createRuntime(astroConfig: AstroConfig, { env, logging }: 
     extensions?: Record<string, string>;
   } = {
     extensions,
-    resolve: env === 'dev' ? async (pkgName: string) => snowpack.getUrlForPackage(pkgName) : async (pkgName: string) => `/_snowpack/pkg/${pkgName}.js`,
+    resolve: async (pkgName: string) => snowpack.getUrlForPackage(pkgName)
   };
-  /*if (existsSync(new URL('./package-lock.json', projectRoot))) {
-    const pkgLockStr = await readFile(new URL('./package-lock.json', projectRoot), 'utf-8');
-    const pkgLock = JSON.parse(pkgLockStr);
-    astroPlugOptions.resolve = (pkgName: string) => {
-      const ver = pkgLock.dependencies[pkgName].version;
-      return `/_snowpack/pkg/${pkgName}.v${ver}.js`;
-    };
-  }*/
 
   const snowpackConfig = await loadConfiguration({
     root: projectRoot.pathname,

@@ -9,9 +9,7 @@ import path from 'path';
 import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
 import _babelGenerator from '@babel/generator';
-import traverse from '@babel/traverse';
-import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, VariableDeclaration } from '@babel/types';
-import { type } from 'node:os';
+import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
 
 const babelGenerator: typeof _babelGenerator =
   // @ts-ignore

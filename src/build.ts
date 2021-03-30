@@ -1,31 +1,62 @@
 import type { AstroConfig } from './@types/astro';
-import { defaultLogOptions, LogOptions } from './logger';
+import type { LogOptions } from './logger';
+import type { LoadResult } from './runtime';
 
-import { loadConfiguration, startServer as startSnowpackServer, build as snowpackBuild } from 'snowpack';
-import { promises as fsPromises } from 'fs';
+import { existsSync, promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
+import {fdir} from 'fdir';
 import { defaultLogDestination, error } from './logger.js';
 import { createRuntime } from './runtime.js';
+import { bundle, collectDynamicImports } from './build/bundle.js';
+import { collectStatics } from './build/static.js';
 
-const { mkdir, readdir, stat, writeFile } = fsPromises;
+const { mkdir, readdir, readFile, stat, writeFile } = fsPromises;
 
 const logging: LogOptions = {
   level: 'debug',
   dest: defaultLogDestination,
 };
 
-async function* allPages(root: URL): AsyncGenerator<URL, void, unknown> {
+async function* recurseFiles(root: URL): AsyncGenerator<URL, void, unknown> {
   for (const filename of await readdir(root)) {
     const fullpath = new URL(filename, root);
     const info = await stat(fullpath);
 
     if (info.isDirectory()) {
-      yield* allPages(new URL(fullpath + '/'));
+      yield* recurseFiles(new URL(fullpath + '/'));
     } else {
-      if (/\.(astro|md)$/.test(fullpath.pathname)) {
-        yield fullpath;
-      }
+      yield fullpath;
     }
+  }
+}
+
+async function allPages(root: URL) {
+  const api = new fdir().filter(p => /\.(astro|md)$/.test(p))
+    .withFullPaths().crawl(root.pathname);
+  const files = await api.withPromise();
+  return files as string[];
+}
+
+function mergeSet(a: Set<string>, b: Set<string>) {
+  for(let str of b) {
+    a.add(str);
+  }
+  return a;
+}
+
+async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf-8' | null) {
+  const outFolder = new URL('./', outPath);
+  await mkdir(outFolder, { recursive: true });
+  await writeFile(outPath, bytes, encoding || 'binary');
+}
+
+async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'utf-8') {
+  if(result.statusCode !== 200) {
+    error(logging, 'build', result.error || result.statusCode);
+    //return 1;
+  } else {
+    const bytes = result.contents;
+    await writeFilep(outPath, bytes, encoding);
   }
 }
 
@@ -39,38 +70,59 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     dest: defaultLogDestination,
   };
 
-  const runtime = await createRuntime(astroConfig, { logging: runtimeLogging, env: 'build' });
-  const { snowpackConfig } = runtime.runtimeConfig;
+  const runtime = await createRuntime(astroConfig, { logging: runtimeLogging });
+  const { runtimeConfig } = runtime;
+  const { snowpack } = runtimeConfig;
+  const resolve = (pkgName: string) => snowpack.getUrlForPackage(pkgName)
 
-  try {
-    const result = await snowpackBuild({
-      config: snowpackConfig,
-      lockfile: null,
-    });
-  } catch (err) {
-    error(logging, 'build', err);
-    return 1;
-  }
+  const imports = new Set<string>();
+  const statics = new Set<string>();
 
-  for await (const filepath of allPages(pageRoot)) {
+  for (const pathname of await allPages(pageRoot)) {
+    const filepath = new URL(`file://${pathname}`);
     const rel = pathRelative(astroRoot.pathname + '/pages', filepath.pathname); // pages/index.astro
     const pagePath = `/${rel.replace(/\.(astro|md)/, '')}`;
 
     try {
-      const outPath = new URL('./' + rel.replace(/\.(astro|md)/, '.html'), dist);
-      const outFolder = new URL('./', outPath);
+      let relPath = './' + rel.replace(/\.(astro|md)$/, '.html');
+      if(!relPath.endsWith('index.html')) {
+        relPath = relPath.replace(/\.html$/, '/index.html');
+      }
+
+      const outPath = new URL(relPath, dist);
       const result = await runtime.load(pagePath);
 
-      if (result.statusCode !== 200) {
-        error(logging, 'generate', result.error || result.statusCode);
-        //return 1;
-      } else {
-        await mkdir(outFolder, { recursive: true });
-        await writeFile(outPath, result.contents, 'utf-8');
+      await writeResult(result, outPath, 'utf-8');
+      if(result.statusCode === 200) {
+        mergeSet(statics, collectStatics(result.contents.toString('utf-8')));
       }
     } catch (err) {
       error(logging, 'generate', err);
       return 1;
+    }
+
+    mergeSet(imports, await collectDynamicImports(filepath, astroConfig, resolve));
+  }
+
+  await bundle(imports, {dist, runtime, astroConfig});
+
+  for(let url of statics) {
+    const outPath = new URL('.' + url, dist);
+    const result = await runtime.load(url);
+
+    await writeResult(result, outPath, null);
+  }
+
+  if(existsSync(astroConfig.public)) {
+    const pub = astroConfig.public;
+    const publicFiles = (await new fdir().withFullPaths().crawl(pub.pathname).withPromise()) as string[];
+    for(const filepath of publicFiles) {
+      const fileUrl = new URL(`file://${filepath}`)
+      const rel = pathRelative(pub.pathname, fileUrl.pathname);
+      const outUrl = new URL('./' + rel, dist);
+
+      const bytes = await readFile(fileUrl);
+      await writeFilep(outUrl, bytes, null);
     }
   }
 
