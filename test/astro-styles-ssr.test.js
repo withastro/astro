@@ -47,4 +47,24 @@ StylesSSR('Has correct CSS classes', async () => {
   }
 });
 
+StylesSSR('CSS Module support in .astro', async () => {
+  const result = await runtime.load('/');
+  const $ = doc(result.contents);
+
+  let scopedClass;
+
+  // test 1: <style> tag in <head> is transformed
+  const css = $('style')
+    .html()
+    .replace(/\.astro-[A-Za-z0-9-]+/, (match) => {
+      scopedClass = match;
+      return match;
+    }); // remove class hash (should be deterministic / the same every time, but even still don‘t cause this test to flake)
+  assert.equal(css, `.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px}`);
+
+  // test 2: element received .astro-XXXXXX class (this selector will succeed if transformed correctly)
+  const wrapper = $(`.wrapper${scopedClass}`);
+  assert.equal(wrapper.length, 1);
+});
+
 StylesSSR.run();

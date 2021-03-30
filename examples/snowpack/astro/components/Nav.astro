@@ -27,7 +27,7 @@ export let version: string = '3.1.2';
     color: $white;
     background-color: $dark-blue;
 
-    body.is-nav-open & {
+    :global(body.is-nav-open) & {
       height: $nav-height * 2;
     }
 
