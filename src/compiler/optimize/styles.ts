@@ -94,7 +94,6 @@ async function transformStyle(code: string, { type, filename, scopedClass }: { t
 }
 
 export default function ({ filename, fileID }: { filename: string; fileID: string }): Optimizer {
-  const elementNodes: TemplateNode[] = []; //  elements that need CSS Modules class names
   const styleNodes: TemplateNode[] = []; // <style> tags to be updated
   const styleTransformPromises: Promise<StyleTransformResult>[] = []; // async style transform results to be finished in finalize();
   let rootNode: TemplateNode; // root node which needs <style> tags
@@ -106,6 +105,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
       html: {
         Element: {
           enter(node) {
+            // 1. if <style> tag, transform it and continue to next node
             if (node.name === 'style') {
               // Same as ast.css (below)
               const code = Array.isArray(node.children) ? node.children.map(({ data }: any) => data).join('\n') : '';
@@ -122,16 +122,33 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
               return;
             }
 
-            // Find the root node to inject the <style> tag in later
+            // 2. find the root node to inject the <style> tag in later
+            // TODO: remove this when we are injecting <link> tags into <head>
             if (node.name === 'head') {
               rootNode = node; // If this is <head>, this is what we want. Always take this if found. However, this may not always exist (it won’t for Component subtrees).
             } else if (!rootNode) {
               rootNode = node; // If no <head> (yet), then take the first element we come to and assume it‘s the “root” (but if we find a <head> later, then override this per the above)
             }
 
-            for (let attr of node.attributes) {
-              if (attr.name !== 'class') continue;
-              elementNodes.push(node);
+            // 3. add scoped HTML classes
+            if (!node.attributes) node.attributes = [];
+            const classIndex = node.attributes.findIndex(({ name }: any) => name === 'class');
+            if (classIndex === -1) {
+              // 3a. element has no class="" attribute; add one and append scopedClass
+              node.attributes.push({ name: 'class', type: 'Attribute', value: [{ type: 'Text', raw: scopedClass, data: scopedClass }] });
+            } else {
+              // 3b. element has class=""; append scopedClass
+              const attr = node.attributes[classIndex];
+              for (let k = 0; k < attr.value.length; k++) {
+                if (attr.value[k].type === 'Text') {
+                  // string literal
+                  attr.value[k].raw += ' ' + scopedClass;
+                  attr.value[k].data += ' ' + scopedClass;
+                } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
+                  // MustageTag
+                  attr.value[k].content = `((${attr.value[k].content}) + ' ' + ${scopedClass})`;
+                }
+              }
             }
           },
         },
@@ -195,30 +212,8 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
       });
 
       // 2. inject finished <style> tags into root node
+      // TODO: pull out into <link> tags for deduping
       rootNode.children = [...styleNodes, ...(rootNode.children || [])];
-
-      // 3. update HTML classes
-      for (let i = 0; i < elementNodes.length; i++) {
-        if (!elementNodes[i].attributes) elementNodes[i].attributes = [];
-        const classIndex = elementNodes[i].attributes.findIndex(({ name }: any) => name === 'class');
-        if (classIndex === -1) {
-          // 3a. element has no class="" attribute; add one and append scopedClass
-          elementNodes[i].attributes.push({ name: 'class', type: 'Attribute', value: [{ type: 'Text', raw: scopedClass, data: scopedClass }] });
-        } else {
-          // 3b. element has class=""; append scopedClass
-          const attr = elementNodes[i].attributes[classIndex];
-          for (let k = 0; k < attr.value.length; k++) {
-            if (attr.value[k].type === 'Text') {
-              // string literal
-              attr.value[k].raw += ' ' + scopedClass;
-              attr.value[k].data += ' ' + scopedClass;
-            } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
-              // MustageTag
-              attr.value[k].content = `((${attr.value[k].content}) + ' ' + ${scopedClass})`;
-            }
-          }
-        }
-      }
     },
   };
 }
