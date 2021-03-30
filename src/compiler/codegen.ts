@@ -354,7 +354,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
             if (!components[componentName]) {
               throw new Error(`Unknown Component: ${componentName}`);
             }
-            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], {astroConfig, dynamicImports, filename});
+            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
             if (wrapperImport) {
               importExportStatements.add(wrapperImport);
             }
@@ -406,7 +406,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
           if (!componentImportData) {
             throw new Error(`Unknown Component: ${componentName}`);
           }
-          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], {astroConfig, dynamicImports, filename});
+          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
           if (wrapperImport) {
             importExportStatements.add(wrapperImport);
           }
