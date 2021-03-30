@@ -2,12 +2,14 @@ import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, LoadRes
 import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { CompileError } from './parser/utils/error.js';
-import { info, error, parseError } from './logger.js';
+import { info } from './logger.js';
 
-import { existsSync, promises as fsPromises } from 'fs';
-import { loadConfiguration, startServer as startSnowpackServer } from 'snowpack';
-
-const { readFile } = fsPromises;
+import { existsSync } from 'fs';
+import {
+  loadConfiguration,
+  logger as snowpackLogger,
+  startServer as startSnowpackServer
+} from 'snowpack';
 
 interface RuntimeConfig {
   astroConfig: AstroConfig;
@@ -26,6 +28,9 @@ type LoadResultNotFound = { statusCode: 404; error: Error };
 type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'unknown'; error: Error });
 
 export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultError;
+
+// Disable snowpack from writing to stdout/err.
+snowpackLogger.level = 'silent';
 
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
   const { logging, snowpack, snowpackRuntime } = config;
@@ -130,13 +135,18 @@ export async function createRuntime(astroConfig: AstroConfig, { logging }: Runti
     resolve: async (pkgName: string) => snowpack.getUrlForPackage(pkgName),
   };
 
+  const mountOptions = {
+    [astroRoot.pathname]: '/_astro',
+    [internalPath.pathname]: '/_astro_internal'
+  }
+
+  if(existsSync(astroConfig.public)) {
+    mountOptions[astroConfig.public.pathname] = '/';
+  }
+
   const snowpackConfig = await loadConfiguration({
     root: projectRoot.pathname,
-    mount: {
-      [astroRoot.pathname]: '/_astro',
-      [internalPath.pathname]: '/_astro_internal',
-      public: '/',
-    },
+    mount: mountOptions,
     plugins: [[new URL('../snowpack-plugin.cjs', import.meta.url).pathname, astroPlugOptions], '@snowpack/plugin-sass', '@snowpack/plugin-svelte', '@snowpack/plugin-vue'],
     devOptions: {
       open: 'none',
