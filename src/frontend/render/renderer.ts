@@ -23,7 +23,7 @@ export function createRenderer(renderer: Renderer) {
         return [...acc, `import("${context.frameworkUrls[lib as any]}")`];
       }, [])
       .join(',');
-    return `const [{${context.componentExport}: Component}, ${values}] = await Promise.all([import(${context.componentUrl})${renderer.imports ? ', ' + libs : ''}]);`;
+    return `const [{${context.componentExport}: Component}, ${values}] = await Promise.all([import("${context.componentUrl}")${renderer.imports ? ', ' + libs : ''}]);`;
   };
   const serializeProps = (props: Record<string, any>) => JSON.stringify(props);
   const createContext = () => {

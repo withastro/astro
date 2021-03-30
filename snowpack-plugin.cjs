@@ -3,7 +3,7 @@ const { readFile } = require('fs').promises;
 // Snowpack plugins must be CommonJS :(
 const transformPromise = import('./lib/compiler/index.js');
 
-module.exports = function (snowpackConfig, { resolve, extensions } = {}) {
+module.exports = function (snowpackConfig, { resolve, extensions, astroConfig } = {}) {
   return {
     name: 'snowpack-astro',
     knownEntrypoints: ['deepmerge'],
@@ -16,6 +16,7 @@ module.exports = function (snowpackConfig, { resolve, extensions } = {}) {
       const projectRoot = snowpackConfig.root;
       const contents = await readFile(filePath, 'utf-8');
       const compileOptions = {
+        astroConfig,
         resolve,
         extensions,
       };
