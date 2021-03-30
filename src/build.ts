@@ -2,8 +2,9 @@ import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { LoadResult } from './runtime';
 
-import { promises as fsPromises } from 'fs';
+import { existsSync, promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
+import {fdir} from 'fdir';
 import { defaultLogDestination, error } from './logger.js';
 import { createRuntime } from './runtime.js';
 import { bundle, collectDynamicImports } from './build/bundle.js';
@@ -29,12 +30,11 @@ async function* recurseFiles(root: URL): AsyncGenerator<URL, void, unknown> {
   }
 }
 
-async function* allPages(root: URL): AsyncGenerator<URL, void, unknown> {
-  for await(const filename of recurseFiles(root)) {
-    if(/\.(astro|md)$/.test(filename.pathname)) {
-      yield filename;
-    }
-  }
+async function allPages(root: URL) {
+  const api = new fdir().filter(p => /\.(astro|md)$/.test(p))
+    .withFullPaths().crawl(root.pathname);
+  const files = await api.withPromise();
+  return files as string[];
 }
 
 function mergeSet(a: Set<string>, b: Set<string>) {
@@ -78,12 +78,18 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const imports = new Set<string>();
   const statics = new Set<string>();
 
-  for await (const filepath of allPages(pageRoot)) {
+  for (const pathname of await allPages(pageRoot)) {
+    const filepath = new URL(`file://${pathname}`);
     const rel = pathRelative(astroRoot.pathname + '/pages', filepath.pathname); // pages/index.astro
     const pagePath = `/${rel.replace(/\.(astro|md)/, '')}`;
 
     try {
-      const outPath = new URL('./' + rel.replace(/\.(astro|md)/, '.html'), dist);
+      let relPath = './' + rel.replace(/\.(astro|md)$/, '.html');
+      if(!relPath.endsWith('index.html')) {
+        relPath = relPath.replace(/\.html$/, '/index.html');
+      }
+
+      const outPath = new URL(relPath, dist);
       const result = await runtime.load(pagePath);
 
       await writeResult(result, outPath, 'utf-8');
@@ -107,13 +113,15 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     await writeResult(result, outPath, null);
   }
 
-  if(astroConfig.public) {
+  if(existsSync(astroConfig.public)) {
     const pub = astroConfig.public;
-    for await(const filename of recurseFiles(pub)) {
-      const rel = pathRelative(pub.pathname, filename.pathname);
+    const publicFiles = (await new fdir().withFullPaths().crawl(pub.pathname).withPromise()) as string[];
+    for(const filepath of publicFiles) {
+      const fileUrl = new URL(`file://${filepath}`)
+      const rel = pathRelative(pub.pathname, fileUrl.pathname);
       const outUrl = new URL('./' + rel, dist);
 
-      const bytes = await readFile(filename);
+      const bytes = await readFile(fileUrl);
       await writeFilep(outUrl, bytes, null);
     }
   }

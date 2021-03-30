@@ -2,7 +2,7 @@ export interface AstroConfigRaw {
   dist: string;
   projectRoot: string;
   astroRoot: string;
-  public?: string;
+  public: string;
   jsx?: string;
 }
 
@@ -12,7 +12,7 @@ export interface AstroConfig {
   dist: string;
   projectRoot: URL;
   astroRoot: URL;
-  public?: URL;
+  public: URL;
   extensions?: Record<string, ValidExtensionPlugins>;
 }
 
