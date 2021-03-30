@@ -6,7 +6,7 @@ import findUp from 'find-up';
 import sass from 'sass';
 import { Optimizer } from '../../@types/optimizer';
 import type { TemplateNode } from '../../parser/interfaces';
-import astroScopedStyles from './postcss-astro-scoped/index.js';
+import astroScopedStyles from './postcss-scoped-styles/index.js';
 
 type StyleType = 'css' | 'scss' | 'sass' | 'postcss';
 
