@@ -1,6 +1,6 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { scopeSelectors } from '../lib/compiler/optimize/postcss-astro-scoped/index.js';
+import { scopeSelectors } from '../lib/compiler/optimize/postcss-scoped-styles/index.js';
 
 const ScopedStyles = suite('Astro PostCSS Scoped Styles Plugin');
 
