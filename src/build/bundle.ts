@@ -239,7 +239,11 @@ export async function bundle(imports: Set<string>, { runtime, dist }: BundleOpti
     entryFileNames(chunk) {
       return chunk.facadeModuleId!.substr(1);
     },
-    plugins: [terser()],
+    plugins: [
+      // We are using terser for the demo, but might switch to something else long term
+      // Look into that rather than adding options here.
+      terser()
+    ],
   };
 
   await build.write(outputOptions);
