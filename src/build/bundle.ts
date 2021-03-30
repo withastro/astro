@@ -1,5 +1,5 @@
 import type { AstroConfig, ValidExtensionPlugins } from '../@types/astro';
-import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, VariableDeclaration } from '@babel/types';
+import type { ImportDeclaration } from '@babel/types';
 import type { InputOptions, OutputOptions } from 'rollup';
 import type { AstroRuntime } from '../runtime';
 
@@ -10,6 +10,7 @@ import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
 import path from 'path';
 import { rollup } from 'rollup';
+import { terser } from 'rollup-plugin-terser';
 
 const { transformSync } = esbuild;
 const { readFile } = fsPromises;
@@ -238,6 +239,11 @@ export async function bundle(imports: Set<string>, { runtime, dist }: BundleOpti
     entryFileNames(chunk) {
       return chunk.facadeModuleId!.substr(1);
     },
+    plugins: [
+      // We are using terser for the demo, but might switch to something else long term
+      // Look into that rather than adding options here.
+      terser()
+    ],
   };
 
   await build.write(outputOptions);
