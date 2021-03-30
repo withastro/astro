@@ -242,7 +242,7 @@ export async function bundle(imports: Set<string>, { runtime, dist }: BundleOpti
     plugins: [
       // We are using terser for the demo, but might switch to something else long term
       // Look into that rather than adding options here.
-      terser()
+      terser(),
     ],
   };
 
