@@ -1,6 +1,7 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { createRuntime } from '../lib/runtime.js';
+import { loadConfig } from '../lib/config.js';
 import { doc } from './test-utils.js';
 
 const Basics = suite('HMX Basics');
@@ -8,18 +9,14 @@ const Basics = suite('HMX Basics');
 let runtime;
 
 Basics.before(async () => {
-  const astroConfig = {
-    projectRoot: new URL('./fixtures/astro-basic/', import.meta.url),
-    hmxRoot: new URL('./fixtures/astro-basic/astro/', import.meta.url),
-    dist: './_site',
-  };
+  const astroConfig = await loadConfig(new URL('./fixtures/astro-basics', import.meta.url).pathname);
 
   const logging = {
     level: 'error',
     dest: process.stderr,
   };
 
-  runtime = await createRuntime(astroConfig, logging);
+  runtime = await createRuntime(astroConfig, {logging});
 });
 
 Basics.after(async () => {

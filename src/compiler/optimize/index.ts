@@ -1,7 +1,10 @@
 import { walk } from 'estree-walker';
 import type { Ast, TemplateNode } from '../../parser/interfaces';
 import { NodeVisitor, Optimizer, VisitorFn } from '../../@types/optimizer';
+
+// Optimizers
 import optimizeStyles from './styles.js';
+import optimizeDoctype from './doctype.js';
 
 interface VisitorCollection {
   enter: Map<string, VisitorFn[]>;
@@ -44,19 +47,19 @@ function createVisitorCollection() {
 
 function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) {
   walk(tmpl, {
-    enter(node) {
+    enter(node, parent, key, index) {
       if (collection.enter.has(node.type)) {
         const fns = collection.enter.get(node.type)!;
         for (let fn of fns) {
-          fn(node);
+          fn(node, parent, key, index);
         }
       }
     },
-    leave(node) {
+    leave(node, parent, key, index) {
       if (collection.leave.has(node.type)) {
         const fns = collection.leave.get(node.type)!;
         for (let fn of fns) {
-          fn(node);
+          fn(node, parent, key, index);
         }
       }
     },
@@ -73,7 +76,7 @@ export async function optimize(ast: Ast, opts: OptimizeOptions) {
   const cssVisitors = createVisitorCollection();
   const finalizers: Array<() => Promise<void>> = [];
 
-  const optimizers = [optimizeStyles(opts)];
+  const optimizers = [optimizeStyles(opts), optimizeDoctype(opts)];
 
   for (const optimizer of optimizers) {
     collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);

@@ -16,7 +16,7 @@ StylesSSR.before(async () => {
     dest: process.stderr,
   };
 
-  runtime = await createRuntime(astroConfig, logging);
+  runtime = await createRuntime(astroConfig, {logging});
 });
 
 StylesSSR.after(async () => {
