@@ -1,4 +1,4 @@
-import type {Element} from 'domhandler';
+import type { Element } from 'domhandler';
 import cheerio from 'cheerio';
 
 export function collectStatics(html: string) {
@@ -8,11 +8,11 @@ export function collectStatics(html: string) {
 
   const append = (el: Element, attr: string) => {
     const value: string = $(el).attr(attr)!;
-    if(value.startsWith('http')) {
+    if (value.startsWith('http')) {
       return;
     }
     statics.add(value);
-  }
+  };
 
   $('link[href]').each((i, el) => {
     append(el, 'href');

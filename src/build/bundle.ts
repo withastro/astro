@@ -9,7 +9,7 @@ import { parse } from '../parser/index.js';
 import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
 import path from 'path';
-import {rollup} from 'rollup';
+import { rollup } from 'rollup';
 
 const { transformSync } = esbuild;
 const { readFile } = fsPromises;
@@ -51,29 +51,29 @@ function compileExpressionSafe(raw: string): string {
 const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
   '.jsx': 'react',
   '.svelte': 'svelte',
-  '.vue': 'vue'
+  '.vue': 'vue',
 };
 
 export async function collectDynamicImports(filename: URL, astroConfig: AstroConfig, resolve: (s: string) => Promise<string>) {
   const imports = new Set<string>();
 
   // No markdown for now
-  if(filename.pathname.endsWith('md')) {
+  if (filename.pathname.endsWith('md')) {
     return imports;
   }
 
   const extensions = astroConfig.extensions || defaultExtensions;
   const source = await readFile(filename, 'utf-8');
   const ast = parse(source, {
-    filename
+    filename,
   });
 
-  if(!ast.module) {
+  if (!ast.module) {
     return imports;
   }
 
   const componentImports: ImportDeclaration[] = [];
-  const components: Record<string, { plugin: ValidExtensionPlugins; type: string; specifier: string; }> = {};
+  const components: Record<string, { plugin: ValidExtensionPlugins; type: string; specifier: string }> = {};
   const plugins = new Set<ValidExtensionPlugins>();
 
   const program = babelParser.parse(ast.module.content, {
@@ -107,7 +107,7 @@ export async function collectDynamicImports(filename: URL, astroConfig: AstroCon
 
   function appendImports(rawName: string, filename: URL, astroConfig: AstroConfig) {
     const [componentName, componentType] = rawName.split(':');
-    if(!componentType) {
+    if (!componentType) {
       return;
     }
 
@@ -118,8 +118,8 @@ export async function collectDynamicImports(filename: URL, astroConfig: AstroCon
     const defn = components[componentName];
     const fileUrl = new URL(defn.specifier, filename);
     let rel = path.posix.relative(astroConfig.astroRoot.pathname, fileUrl.pathname);
-    
-    switch(defn.plugin) {
+
+    switch (defn.plugin) {
       case 'preact': {
         imports.add(dynamic.get('preact')!);
         rel = rel.replace(/\.[^.]+$/, '.js');
@@ -166,7 +166,7 @@ export async function collectDynamicImports(filename: URL, astroConfig: AstroCon
           break;
         }
         case 'InlineComponent': {
-          if(/^[A-Z]/.test(node.name)) {
+          if (/^[A-Z]/.test(node.name)) {
             appendImports(node.name, filename, astroConfig);
             return;
           }
@@ -174,7 +174,7 @@ export async function collectDynamicImports(filename: URL, astroConfig: AstroCon
           break;
         }
       }
-    }
+    },
   });
 
   return imports;
@@ -189,7 +189,7 @@ interface BundleOptions {
 export async function bundle(imports: Set<string>, { runtime, dist }: BundleOptions) {
   const ROOT = 'astro:root';
   const root = `
-    ${[...imports].map(url => `import '${url}';`).join('\n')}
+    ${[...imports].map((url) => `import '${url}';`).join('\n')}
   `;
 
   const inputOptions: InputOptions = {
@@ -198,14 +198,14 @@ export async function bundle(imports: Set<string>, { runtime, dist }: BundleOpti
       {
         name: 'astro:build',
         resolveId(source: string, imported?: string) {
-          if(source === ROOT) {
+          if (source === ROOT) {
             return source;
           }
-          if(source.startsWith('/')) {
+          if (source.startsWith('/')) {
             return source;
           }
 
-          if(imported) {
+          if (imported) {
             const outUrl = new URL(source, 'http://example.com' + imported);
             return outUrl.pathname;
           }
@@ -213,21 +213,21 @@ export async function bundle(imports: Set<string>, { runtime, dist }: BundleOpti
           return null;
         },
         async load(id: string) {
-          if(id === ROOT) {
+          if (id === ROOT) {
             return root;
           }
 
           const result = await runtime.load(id);
 
-          if(result.statusCode !== 200) {
+          if (result.statusCode !== 200) {
             return null;
           }
 
           return result.contents.toString('utf-8');
-        }
-      }
-    ]
-  }
+        },
+      },
+    ],
+  };
 
   const build = await rollup(inputOptions);
 
@@ -237,7 +237,7 @@ export async function bundle(imports: Set<string>, { runtime, dist }: BundleOpti
     exports: 'named',
     entryFileNames(chunk) {
       return chunk.facadeModuleId!.substr(1);
-    }
+    },
   };
 
   await build.write(outputOptions);

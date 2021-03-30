@@ -127,7 +127,7 @@ export async function createRuntime(astroConfig: AstroConfig, { logging }: Runti
     extensions?: Record<string, string>;
   } = {
     extensions,
-    resolve: async (pkgName: string) => snowpack.getUrlForPackage(pkgName)
+    resolve: async (pkgName: string) => snowpack.getUrlForPackage(pkgName),
   };
 
   const snowpackConfig = await loadConfiguration({

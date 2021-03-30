@@ -4,7 +4,7 @@ import type { LoadResult } from './runtime';
 
 import { existsSync, promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
-import {fdir} from 'fdir';
+import { fdir } from 'fdir';
 import { defaultLogDestination, error } from './logger.js';
 import { createRuntime } from './runtime.js';
 import { bundle, collectDynamicImports } from './build/bundle.js';
@@ -31,14 +31,16 @@ async function* recurseFiles(root: URL): AsyncGenerator<URL, void, unknown> {
 }
 
 async function allPages(root: URL) {
-  const api = new fdir().filter(p => /\.(astro|md)$/.test(p))
-    .withFullPaths().crawl(root.pathname);
+  const api = new fdir()
+    .filter((p) => /\.(astro|md)$/.test(p))
+    .withFullPaths()
+    .crawl(root.pathname);
   const files = await api.withPromise();
   return files as string[];
 }
 
 function mergeSet(a: Set<string>, b: Set<string>) {
-  for(let str of b) {
+  for (let str of b) {
     a.add(str);
   }
   return a;
@@ -51,7 +53,7 @@ async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf-8
 }
 
 async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'utf-8') {
-  if(result.statusCode !== 200) {
+  if (result.statusCode !== 200) {
     error(logging, 'build', result.error || result.statusCode);
     //return 1;
   } else {
@@ -73,7 +75,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const runtime = await createRuntime(astroConfig, { logging: runtimeLogging });
   const { runtimeConfig } = runtime;
   const { snowpack } = runtimeConfig;
-  const resolve = (pkgName: string) => snowpack.getUrlForPackage(pkgName)
+  const resolve = (pkgName: string) => snowpack.getUrlForPackage(pkgName);
 
   const imports = new Set<string>();
   const statics = new Set<string>();
@@ -85,7 +87,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
 
     try {
       let relPath = './' + rel.replace(/\.(astro|md)$/, '.html');
-      if(!relPath.endsWith('index.html')) {
+      if (!relPath.endsWith('index.html')) {
         relPath = relPath.replace(/\.html$/, '/index.html');
       }
 
@@ -93,7 +95,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       const result = await runtime.load(pagePath);
 
       await writeResult(result, outPath, 'utf-8');
-      if(result.statusCode === 200) {
+      if (result.statusCode === 200) {
         mergeSet(statics, collectStatics(result.contents.toString('utf-8')));
       }
     } catch (err) {
@@ -104,20 +106,20 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     mergeSet(imports, await collectDynamicImports(filepath, astroConfig, resolve));
   }
 
-  await bundle(imports, {dist, runtime, astroConfig});
+  await bundle(imports, { dist, runtime, astroConfig });
 
-  for(let url of statics) {
+  for (let url of statics) {
     const outPath = new URL('.' + url, dist);
     const result = await runtime.load(url);
 
     await writeResult(result, outPath, null);
   }
 
-  if(existsSync(astroConfig.public)) {
+  if (existsSync(astroConfig.public)) {
     const pub = astroConfig.public;
     const publicFiles = (await new fdir().withFullPaths().crawl(pub.pathname).withPromise()) as string[];
-    for(const filepath of publicFiles) {
-      const fileUrl = new URL(`file://${filepath}`)
+    for (const filepath of publicFiles) {
+      const fileUrl = new URL(`file://${filepath}`);
       const rel = pathRelative(pub.pathname, fileUrl.pathname);
       const outUrl = new URL('./' + rel, dist);
 
