@@ -1,8 +1,8 @@
-import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, LoadResult as SnowpackLoadResult, SnowpackConfig } from 'snowpack';
+import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
 import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { CompileError } from './parser/utils/error.js';
-import { info } from './logger.js';
+import { debug, info } from './logger.js';
 
 import { existsSync } from 'fs';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
@@ -39,7 +39,6 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
   const selectedPageLoc = new URL(`./pages/${selectedPage}.astro`, astroRoot);
   const selectedPageMdLoc = new URL(`./pages/${selectedPage}.md`, astroRoot);
-  const selectedPageUrl = `/_astro/pages/${selectedPage}.js`;
 
   // Non-Astro pages (file resources)
   if (!existsSync(selectedPageLoc) && !existsSync(selectedPageMdLoc)) {
@@ -62,49 +61,61 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     }
   }
 
-  try {
-    const mod = await snowpackRuntime.importModule(selectedPageUrl);
-    let html = (await mod.exports.__renderPage({
-      request: {
-        host: fullurl.hostname,
-        path: fullurl.pathname,
-        href: fullurl.toString(),
-      },
-      children: [],
-      props: {},
-    })) as string;
+  for (const url of [`/_astro/pages/${selectedPage}.astro.js`, `/_astro/pages/${selectedPage}.md.js`]) {
+    try {
+      const mod = await snowpackRuntime.importModule(url);
+      debug(logging, 'resolve', `${reqPath} -> ${url}`);
+      let html = (await mod.exports.__renderPage({
+        request: {
+          host: fullurl.hostname,
+          path: fullurl.pathname,
+          href: fullurl.toString(),
+        },
+        children: [],
+        props: {},
+      })) as string;
 
-    // inject styles
-    // TODO: handle this in compiler
-    const styleTags = Array.isArray(mod.css) && mod.css.length ? mod.css.reduce((markup, url) => `${markup}\n<link rel="stylesheet" type="text/css" href="${url}" />`, '') : ``;
-    if (html.indexOf('</head>') !== -1) {
-      html = html.replace('</head>', `${styleTags}</head>`);
-    } else {
-      html = styleTags + html;
-    }
+      // inject styles
+      // TODO: handle this in compiler
+      const styleTags = Array.isArray(mod.css) && mod.css.length ? mod.css.reduce((markup, href) => `${markup}\n<link rel="stylesheet" type="text/css" href="${href}" />`, '') : ``;
+      if (html.indexOf('</head>') !== -1) {
+        html = html.replace('</head>', `${styleTags}</head>`);
+      } else {
+        html = styleTags + html;
+      }
 
-    return {
-      statusCode: 200,
-      contents: html,
-    };
-  } catch (err) {
-    switch (err.code) {
-      case 'parse-error': {
+      return {
+        statusCode: 200,
+        contents: html,
+      };
+    } catch (err) {
+      // if this is a 404, try the next URL (will be caught at the end)
+      const notFoundError = err.toString().startsWith('Error: Not Found');
+      if (notFoundError) {
+        continue;
+      }
+
+      if (err.code === 'parse-error') {
         return {
           statusCode: 500,
           type: 'parse-error',
           error: err,
         };
       }
-      default: {
-        return {
-          statusCode: 500,
-          type: 'unknown',
-          error: err,
-        };
-      }
+      return {
+        statusCode: 500,
+        type: 'unknown',
+        error: err,
+      };
     }
   }
+
+  // couldn‘t find match; 404
+  return {
+    statusCode: 404,
+    type: 'unknown',
+    error: new Error(`Could not locate ${selectedPage}`),
+  };
 }
 
 export interface AstroRuntime {

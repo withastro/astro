@@ -27,3 +27,10 @@ jobs:
           npm test
         env:
           CI: true
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+      - run: npm ci
+      - run: npm run lint

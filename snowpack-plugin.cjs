@@ -9,7 +9,7 @@ module.exports = function (snowpackConfig, { resolve, extensions, astroConfig } 
     knownEntrypoints: ['deepmerge'],
     resolve: {
       input: ['.astro', '.md'],
-      output: ['.js'],
+      output: ['.js', '.css'],
     },
     async load({ filePath }) {
       const { compileComponent } = await transformPromise;
@@ -21,7 +21,11 @@ module.exports = function (snowpackConfig, { resolve, extensions, astroConfig } 
         extensions,
       };
       const result = await compileComponent(contents, { compileOptions, filename: filePath, projectRoot });
-      return result.contents;
+      const output = {
+        '.js': result.contents,
+      };
+      if (result.css) output['.css'] = result.css;
+      return output;
     },
   };
 };

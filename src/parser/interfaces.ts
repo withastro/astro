@@ -53,7 +53,7 @@ export interface Parser {
   html: Node;
   css: Node;
   js: Node;
-  meta_tags: {};
+  meta_tags: Map<string, string>;
 }
 
 export interface Script extends BaseNode {

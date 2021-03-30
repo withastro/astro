@@ -21,7 +21,7 @@ interface Attribute {
   end: number;
   type: 'Attribute';
   name: string;
-  value: any;
+  value: TemplateNode[] | boolean;
 }
 
 interface CodeGenOptions {
@@ -41,7 +41,8 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
       result[attr.name] = JSON.stringify(attr.value);
       continue;
     }
-    if (attr.value === false) {
+    if (attr.value === false || attr.value === undefined) {
+      // note: attr.value shouldn’t be `undefined`, but a bad transform would cause a compile error here, so prevent that
       continue;
     }
     if (attr.value.length > 1) {
@@ -59,7 +60,7 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
         ')';
       continue;
     }
-    const val: TemplateNode = attr.value[0];
+    const val = attr.value[0];
     if (!val) {
       result[attr.name] = '(' + val + ')';
       continue;
@@ -72,7 +73,7 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
         result[attr.name] = JSON.stringify(getTextFromAttribute(val));
         continue;
       default:
-        throw new Error('UNKNOWN V');
+        throw new Error(`UNKNOWN: ${val.type}`);
     }
   }
   return result;
@@ -253,7 +254,7 @@ async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins
   return importMap;
 }
 
-export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOptions): Promise<TransformResult> {
+export async function codegen(ast: Ast, { compileOptions, filename, fileID }: CodeGenOptions): Promise<TransformResult> {
   const { extensions = defaultExtensions, astroConfig } = compileOptions;
   await eslexer.init;
 
@@ -334,6 +335,21 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
   let collectionItem: JsxItem | undefined;
   let currentItemName: string | undefined;
   let currentDepth = 0;
+  let css: string[] = [];
+
+  walk(ast.css, {
+    enter(node: TemplateNode) {
+      if (node.type === 'Style') {
+        css.push(node.content.styles); // if multiple <style> tags, combine together
+        this.skip();
+      }
+    },
+    leave(node: TemplateNode) {
+      if (node.type === 'Style') {
+        this.remove(); // this will be optimized in a global CSS file; remove so it‘s not accidentally inlined
+      }
+    },
+  });
 
   walk(ast.html, {
     enter(node: TemplateNode) {
@@ -419,9 +435,9 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
           return;
         }
         case 'Style': {
-          const attributes = getAttributes(node.attributes);
-          items.push({ name: 'style', jsx: `h("style", ${attributes ? generateAttributes(attributes) : 'null'}, ${JSON.stringify(node.content.styles)})` });
-          break;
+          css.push(node.content.styles); // if multiple <style> tags, combine together
+          this.skip();
+          return;
         }
         case 'Text': {
           const text = getTextFromAttribute(node);
@@ -469,6 +485,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
           }
           return;
         case 'Style': {
+          this.remove(); // this will be optimized in a global CSS file; remove so it‘s not accidentally inlined
           return;
         }
         default:
@@ -481,5 +498,6 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
     script: script,
     imports: Array.from(importExportStatements),
     items,
+    css: css.length ? css.join('\n\n') : undefined,
   };
 }
