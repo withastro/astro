@@ -56,7 +56,7 @@ StylesSSR('CSS Module support in .astro', async () => {
   // test 1: <style> tag in <head> is transformed
   const css = $('style')
     .html()
-    .replace(/\.astro-[a-z0-9-]+/, (match) => {
+    .replace(/\.astro-[A-Za-z0-9-]+/, (match) => {
       scopedClass = match;
       return match;
     }); // remove class hash (should be deterministic / the same every time, but even still don‘t cause this test to flake)
