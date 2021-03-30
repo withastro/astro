@@ -6,9 +6,9 @@ export type HTag = string | AstroComponent;
 const voidTags = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
 function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
-  if(tag === '!doctype') {
+  if (tag === '!doctype') {
     yield '<!doctype ';
-    if(attrs) {
+    if (attrs) {
       yield Object.keys(attrs).join(' ');
     }
     yield '>';

@@ -16,7 +16,7 @@ Basics.before(async () => {
     dest: process.stderr,
   };
 
-  runtime = await createRuntime(astroConfig, {logging});
+  runtime = await createRuntime(astroConfig, { logging });
 });
 
 Basics.after(async () => {

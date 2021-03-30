@@ -25,7 +25,7 @@ SnowpackDev.before(async () => {
   };
 
   try {
-    runtime = await createRuntime(astroConfig, {logging});
+    runtime = await createRuntime(astroConfig, { logging });
   } catch (err) {
     console.error(err);
     setupError = err;

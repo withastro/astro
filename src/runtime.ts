@@ -5,11 +5,7 @@ import type { CompileError } from './parser/utils/error.js';
 import { info } from './logger.js';
 
 import { existsSync } from 'fs';
-import {
-  loadConfiguration,
-  logger as snowpackLogger,
-  startServer as startSnowpackServer
-} from 'snowpack';
+import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
 
 interface RuntimeConfig {
   astroConfig: AstroConfig;
@@ -137,10 +133,10 @@ export async function createRuntime(astroConfig: AstroConfig, { logging }: Runti
 
   const mountOptions = {
     [astroRoot.pathname]: '/_astro',
-    [internalPath.pathname]: '/_astro_internal'
-  }
+    [internalPath.pathname]: '/_astro_internal',
+  };
 
-  if(existsSync(astroConfig.public)) {
+  if (existsSync(astroConfig.public)) {
     mountOptions[astroConfig.public.pathname] = '/';
   }
 

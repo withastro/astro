@@ -16,8 +16,7 @@ DType.before(async () => {
       dest: process.stderr,
     };
 
-
-    runtime = await createRuntime(astroConfig, {logging});
+    runtime = await createRuntime(astroConfig, { logging });
   } catch (err) {
     console.error(err);
     setupError = err;
@@ -47,8 +46,7 @@ DType.skip('Preserves user provided doctype', async () => {
   assert.equal(result.statusCode, 200);
 
   const html = result.contents.toString('utf-8');
-  assert.ok(html.startsWith('<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'),
-    'Doctype included was preserved');
+  assert.ok(html.startsWith('<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'), 'Doctype included was preserved');
 });
 
 DType.run();
