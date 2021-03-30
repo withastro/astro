@@ -28,6 +28,8 @@ const getStyleType: Map<string, StyleType> = new Map([
 const SASS_OPTIONS: Partial<sass.Options> = {
   outputStyle: 'compressed',
 };
+/** HTML tags that should never get scoped classes */
+const NEVER_SCOPED_TAGS = new Set<string>(['html', 'head', 'body', 'script', 'style', 'link', 'meta']);
 
 /** Should be deterministic, given a unique filename */
 function hashFromFilename(filename: string): string {
@@ -131,11 +133,14 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
             }
 
             // 3. add scoped HTML classes
+            if (NEVER_SCOPED_TAGS.has(node.name)) return; // only continue if this is NOT a <script> tag, etc.
+            // Note: currently we _do_ scope web components/custom elements. This seems correct?
+
             if (!node.attributes) node.attributes = [];
             const classIndex = node.attributes.findIndex(({ name }: any) => name === 'class');
             if (classIndex === -1) {
               // 3a. element has no class="" attribute; add one and append scopedClass
-              node.attributes.push({ name: 'class', type: 'Attribute', value: [{ type: 'Text', raw: scopedClass, data: scopedClass }] });
+              node.attributes.push({ start: -1, end: -1, type: 'Attribute', name: 'class', value: [{ type: 'Text', raw: scopedClass, data: scopedClass }] });
             } else {
               // 3b. element has class=""; append scopedClass
               const attr = node.attributes[classIndex];
@@ -145,8 +150,8 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
                   attr.value[k].raw += ' ' + scopedClass;
                   attr.value[k].data += ' ' + scopedClass;
                 } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
-                  // MustageTag
-                  attr.value[k].content = `((${attr.value[k].content}) + ' ' + ${scopedClass})`;
+                  // MustacheTag
+                  attr.value[k].content = `(${attr.value[k].content}) + ' ${scopedClass}'`;
                 }
               }
             }
