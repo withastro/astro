@@ -205,7 +205,6 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
           // 3b. Update <style> attributes
           const styleTypeIndex = styleNodes[n].attributes.findIndex(({ name }: any) => name === 'type');
           if (styleTypeIndex !== -1) {
-            console.log(styleNodes[n].attributes[styleTypeIndex]);
             styleNodes[n].attributes[styleTypeIndex].value[0].raw = 'text/css';
             styleNodes[n].attributes[styleTypeIndex].value[0].data = 'text/css';
           } else {
