@@ -1,58 +1,18 @@
 <?xml version="1.0"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
 viewBox="0 0 256 256" width="64px" height="64px">
-  <style type="text/css">
-    @keyframes ld-pulse
-{
-  0% {
-    animation-timing-function: cubic-bezier(0.0413,0.3905,0.5086,0.6902);
-    transform: scale(1);
-  }
-  24.3% {
-    animation-timing-function: cubic-bezier(0.2248,0.6332,0.5246,1);
-    transform: scale(0.8458);
-  }
-  55% {
-    animation-timing-function: cubic-bezier(0.3036,0.3393,0.655,0.6144);
-    transform: scale(0.8022);
-  }
-  70.2% {
-    animation-timing-function: cubic-bezier(0.4464,0.2728,0.5562,0.7288);
-    transform: scale(0.8294);
-  }
-  82.3% {
-    animation-timing-function: cubic-bezier(0.6826,0.1845,1,0.7358);
-    transform: scale(0.869);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-.ld.ld-pulse {
-  animation: ld-pulse 0.5s infinite;
-}
-    @keyframes ld-move {
-      0% { transform: translate(0,0) }
-      100% { transform: translate(256px,0) }
-    }
-  </style>
-  <defs><g id="id-0.536816420380452">
-    
-<g>
-	
-		<line fill="none" stroke="#555" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="192" y1="168" x2="192" y2="216"/>
-	
-		<line fill="none" stroke="#555" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="168" y1="192" x2="216" y2="192"/>
-</g>
-<g>
-	
-		<line fill="none" stroke="#999" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="6" x1="64" y1="40" x2="64" y2="88"/>
-	
-		<line fill="none" stroke="#999" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="6" x1="40" y1="64" x2="88" y2="64"/>
-</g>
-
-
-  </g></defs>
+  <defs>
+    <g id="id-0.536816420380452">
+      <g>
+        <line fill="none" stroke="#555" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="192" y1="168" x2="192" y2="216"/>
+        <line fill="none" stroke="#555" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="168" y1="192" x2="216" y2="192"/>
+      </g>
+      <g>
+          <line fill="none" stroke="#999" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="6" x1="64" y1="40" x2="64" y2="88"/>
+          <line fill="none" stroke="#999" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="6" x1="40" y1="64" x2="88" y2="64"/>
+      </g>
+    </g>
+  </defs>
   <rect x="0" y="0" transform="matrix(-8.980568e-11 1 -1 -8.980568e-11 256 1.724223e-08)" fill="#222222" width="256" height="256"/>
   <g>
     <use xlink:href="#id-0.536816420380452" x="-256" y="-256"/>
@@ -64,7 +24,6 @@ viewBox="0 0 256 256" width="64px" height="64px">
     <use xlink:href="#id-0.536816420380452" x="-256" y="256"/>
     <use xlink:href="#id-0.536816420380452" x="0" y="256"/>
     <use xlink:href="#id-0.536816420380452" x="256" y="256"/>
-    <animateTransform attributeName="transform" type="translate"
-    dur="6s" repeatCount="indefinite" keyTimes="0;1" values="256;0"/>
+    <animateTransform attributeName="transform" type="translate" dur="10s" repeatCount="indefinite" keyTimes="0;1" values="0,256;0,0"/>
   </g>
 </svg>
