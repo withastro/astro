@@ -50,7 +50,13 @@ export function scopeSelectors(selector: string, className: string) {
 
     // leave :global() alone!
     if (value.startsWith(':global(')) {
-      ss = head + ss.substring(start, end).replace(':global(', '').replace(')', '') + tail;
+      ss =
+        head +
+        ss
+          .substring(start, end)
+          .replace(/^:global\(/, '')
+          .replace(/\)$/, '') +
+        tail;
       continue;
     }
 

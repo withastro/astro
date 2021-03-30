@@ -16,6 +16,7 @@ const tests = {
   '.class *': `.class${className} ${className}`,
   '.class>*': `.class${className}>${className}`,
   '.class :global(*)': `.class${className} *`,
+  '.class :global(.nav:not(.is-active))': `.class${className} .nav:not(.is-active)`, // preserve nested parens
   '.class:not(.is-active)': `.class${className}:not(.is-active)`, // Note: the :not() selector can NOT contain multiple classes, so this is correct; if this causes issues for some people then it‘s worth a discussion
 };
 
