@@ -12,6 +12,12 @@ interface Selector {
 
 const CSS_SEPARATORS = new Set([' ', ',', '+', '>', '~']);
 
+/**
+ * Scope Selectors
+ * Given a selector string (`.btn>span,.nav>span`), add an additional CSS class to every selector (`.btn.myClass>span.myClass,.nav.myClass>span.myClass`)
+ * @param {string} selector The minified selector string to parse. Cannot contain arbitrary whitespace (other than child selector syntax).
+ * @param {string} className The CSS class to apply.
+ */
 export function scopeSelectors(selector: string, className: string) {
   const c = className.replace(/^\.?/, '.'); // make sure class always has leading '.'
   const selectors: Selector[] = [];
