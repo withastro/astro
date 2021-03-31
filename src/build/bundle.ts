@@ -60,11 +60,11 @@ const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
 
 interface CollectDynamic {
   astroConfig: AstroConfig;
-  resolve: (s: string) => Promise<string>,
-  logging: LogOptions
+  resolve: (s: string) => Promise<string>;
+  logging: LogOptions;
 }
 
-export async function collectDynamicImports(filename: URL, {astroConfig, logging, resolve}: CollectDynamic) {
+export async function collectDynamicImports(filename: URL, { astroConfig, logging, resolve }: CollectDynamic) {
   const imports = new Set<string>();
 
   // Only astro files
@@ -88,8 +88,8 @@ export async function collectDynamicImports(filename: URL, {astroConfig, logging
     compileOptions: {
       astroConfig,
       resolve,
-      logging
-    }
+      logging,
+    },
   });
 
   const componentImports: ImportDeclaration[] = [];
@@ -165,12 +165,12 @@ export async function collectDynamicImports(filename: URL, {astroConfig, logging
     enter(node) {
       switch (node.type) {
         case 'Element': {
-          if(node.name !== 'script') return;
-          if(getAttrValue(node.attributes, 'type') !== 'module') return;
+          if (node.name !== 'script') return;
+          if (getAttrValue(node.attributes, 'type') !== 'module') return;
 
           const src = getAttrValue(node.attributes, 'src');
 
-          if(src && src.startsWith('/')) {
+          if (src && src.startsWith('/')) {
             imports.add(src);
           }
           break;

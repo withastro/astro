@@ -67,7 +67,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
 
   const imports = new Set<string>();
   const statics = new Set<string>();
-  const collectImportsOptions = {astroConfig, logging, resolve};
+  const collectImportsOptions = { astroConfig, logging, resolve };
 
   for (const pathname of await allPages(pageRoot)) {
     const filepath = new URL(`file://${pathname}`);
@@ -95,7 +95,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     mergeSet(imports, await collectDynamicImports(filepath, collectImportsOptions));
   }
 
-  for(const pathname of await allPages(componentRoot)) {
+  for (const pathname of await allPages(componentRoot)) {
     mergeSet(imports, await collectDynamicImports(new URL(`file://${pathname}`), collectImportsOptions));
   }
 

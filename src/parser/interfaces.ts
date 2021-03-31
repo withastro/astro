@@ -20,8 +20,8 @@ export interface Text extends BaseNode {
   raw: string;
 }
 
-export interface Attribute extends BaseNode  {
-  type: 'Attribute',
+export interface Attribute extends BaseNode {
+  type: 'Attribute';
   name: string;
   value: Text[];
 }
