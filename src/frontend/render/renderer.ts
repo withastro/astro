@@ -5,7 +5,7 @@ interface DynamicRenderContext {
 }
 
 export interface Renderer {
-  renderStatic(Component: any): (props: Record<string, string>, ...children: any[]) => string;
+  renderStatic(Component: any): (props: Record<string, any>, ...children: any[]) => string;
   render(context: { root: string; Component: string; props: string; [key: string]: string }): string;
   imports?: Record<string, string[]>;
 }
@@ -38,7 +38,7 @@ export function createRenderer(renderer: Renderer) {
     return (props: Record<string, any>, ...children: any[]) => {
       let value: string;
       try {
-        value = _static(Component)(props, ...children);
+        value = _static(Component)({static: true, ...props}, ...children);
       } catch (e) {
         value = '';
       }
