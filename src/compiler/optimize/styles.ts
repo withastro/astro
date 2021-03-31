@@ -4,7 +4,8 @@ import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
 import findUp from 'find-up';
 import sass from 'sass';
-import { Optimizer } from '../../@types/optimizer';
+import { RuntimeMode } from '../../@types/astro';
+import { OptimizeOptions, Optimizer } from '../../@types/optimizer';
 import type { TemplateNode } from '../../parser/interfaces';
 import astroScopedStyles from './postcss-scoped-styles/index.js';
 
@@ -25,9 +26,6 @@ const getStyleType: Map<string, StyleType> = new Map([
   ['text/scss', 'scss'],
 ]);
 
-const SASS_OPTIONS: Partial<sass.Options> = {
-  outputStyle: process.env.NODE_ENV === 'production' ? 'compressed' : undefined,
-};
 /** HTML tags that should never get scoped classes */
 const NEVER_SCOPED_TAGS = new Set<string>(['html', 'head', 'body', 'script', 'style', 'link', 'meta']);
 
@@ -50,8 +48,15 @@ export interface StyleTransformResult {
 // cache node_modules resolutions for each run. saves looking up the same directory over and over again. blown away on exit.
 const nodeModulesMiniCache = new Map<string, string>();
 
+export interface TransformStyleOptions {
+  type?: string;
+  filename: string;
+  scopedClass: string;
+  mode: RuntimeMode;
+}
+
 /** Convert styles to scoped CSS */
-async function transformStyle(code: string, { type, filename, scopedClass }: { type?: string; filename: string; scopedClass: string }): Promise<StyleTransformResult> {
+async function transformStyle(code: string, { type, filename, scopedClass, mode }: TransformStyleOptions): Promise<StyleTransformResult> {
   let styleType: StyleType = 'css'; // important: assume CSS as default
   if (type) {
     styleType = getStyleType.get(type) || styleType;
@@ -80,7 +85,13 @@ async function transformStyle(code: string, { type, filename, scopedClass }: { t
     }
     case 'sass':
     case 'scss': {
-      css = sass.renderSync({ ...SASS_OPTIONS, data: code, includePaths }).css.toString('utf8');
+      css = sass
+        .renderSync({
+          outputStyle: mode === 'production' ? 'compressed' : undefined,
+          data: code,
+          includePaths,
+        })
+        .css.toString('utf8');
       break;
     }
     default: {
@@ -96,7 +107,7 @@ async function transformStyle(code: string, { type, filename, scopedClass }: { t
 }
 
 /** Style optimizer */
-export default function ({ filename, fileID }: { filename: string; fileID: string }): Optimizer {
+export default function optimizeStyles({ compileOptions, filename, fileID }: OptimizeOptions): Optimizer {
   const styleNodes: TemplateNode[] = []; // <style> tags to be updated
   const styleTransformPromises: Promise<StyleTransformResult>[] = []; // async style transform results to be finished in finalize();
   const scopedClass = `astro-${hashFromFilename(fileID)}`; // this *should* generate same hash from fileID every time
@@ -118,6 +129,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
                   type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                   filename,
                   scopedClass,
+                  mode: compileOptions.mode,
                 })
               );
               return;
@@ -164,6 +176,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
                 type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                 filename,
                 scopedClass,
+                mode: compileOptions.mode,
               })
             );
           },

@@ -21,7 +21,7 @@ const logging: LogOptions = {
 export default async function (astroConfig: AstroConfig) {
   const { projectRoot } = astroConfig;
 
-  const runtime = await createRuntime(astroConfig, { logging });
+  const runtime = await createRuntime(astroConfig, { mode: 'development', logging });
 
   const server = http.createServer(async (req, res) => {
     const result = await runtime.load(req.url);

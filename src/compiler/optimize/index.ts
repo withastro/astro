@@ -1,6 +1,5 @@
 import type { Ast, TemplateNode } from '../../parser/interfaces';
-import type { CompileOptions } from '../../@types/compiler';
-import type { NodeVisitor, Optimizer, VisitorFn } from '../../@types/optimizer';
+import type { NodeVisitor, OptimizeOptions, Optimizer, VisitorFn } from '../../@types/optimizer';
 
 import { walk } from 'estree-walker';
 
@@ -67,12 +66,6 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
       }
     },
   });
-}
-
-interface OptimizeOptions {
-  compileOptions: CompileOptions;
-  filename: string;
-  fileID: string;
 }
 
 export async function optimize(ast: Ast, opts: OptimizeOptions) {

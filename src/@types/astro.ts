@@ -33,3 +33,5 @@ export interface CompileResult {
   contents: string;
   css?: string;
 }
+
+export type RuntimeMode = 'development' | 'production';

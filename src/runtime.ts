@@ -1,5 +1,5 @@
 import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
-import type { AstroConfig } from './@types/astro';
+import type { AstroConfig, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { CompileError } from './parser/utils/error.js';
 import { debug, info } from './logger.js';
@@ -10,6 +10,7 @@ import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpa
 interface RuntimeConfig {
   astroConfig: AstroConfig;
   logging: LogOptions;
+  mode: RuntimeMode;
   backendSnowpack: SnowpackDevServer;
   backendSnowpackRuntime: SnowpackServerRuntime;
   backendSnowpackConfig: SnowpackConfig;
@@ -129,6 +130,7 @@ export interface AstroRuntime {
 }
 
 interface RuntimeOptions {
+  mode: RuntimeMode;
   logging: LogOptions;
 }
 
@@ -187,7 +189,7 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
   return { snowpack, snowpackRuntime, snowpackConfig };
 }
 
-export async function createRuntime(astroConfig: AstroConfig, { logging }: RuntimeOptions): Promise<AstroRuntime> {
+export async function createRuntime(astroConfig: AstroConfig, { mode, logging }: RuntimeOptions): Promise<AstroRuntime> {
   const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(astroConfig, {
     astro: true,
   });
@@ -199,6 +201,7 @@ export async function createRuntime(astroConfig: AstroConfig, { logging }: Runti
   const runtimeConfig: RuntimeConfig = {
     astroConfig,
     logging,
+    mode,
     backendSnowpack,
     backendSnowpackRuntime,
     backendSnowpackConfig,
