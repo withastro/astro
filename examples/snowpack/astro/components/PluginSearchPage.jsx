@@ -43,7 +43,7 @@ function Card({ result }) {
   );
 }
 
-export default function PluginSearchPage() {
+function PluginSearchPageLive() {
   const searchParams = new URLSearchParams(window.location.search);
   const [results, setResults] = useState(null);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q'));
@@ -65,9 +65,6 @@ export default function PluginSearchPage() {
     setResults(await searchPlugins(formula));
     return false;
   }
-  //   if (document.getElementById('loading-message')) {
-  //     document.getElementById('loading-message').style.display = 'none';
-  //   }
 
   return (
     <>
@@ -117,4 +114,8 @@ export default function PluginSearchPage() {
       </section>
     </>
   );
+}
+
+export default function PluginSearchPage(props) {
+  return import.meta.env.astro ? <div>Loading...</div> : <PluginSearchPageLive {...props} />
 }

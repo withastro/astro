@@ -26,7 +26,7 @@ const getStyleType: Map<string, StyleType> = new Map([
 ]);
 
 const SASS_OPTIONS: Partial<sass.Options> = {
-  outputStyle: 'compressed',
+  outputStyle: process.env.NODE_ENV === 'production' ? 'compressed' : undefined,
 };
 /** HTML tags that should never get scoped classes */
 const NEVER_SCOPED_TAGS = new Set<string>(['html', 'head', 'body', 'script', 'style', 'link', 'meta']);
@@ -95,11 +95,10 @@ async function transformStyle(code: string, { type, filename, scopedClass }: { t
   return { css, type: styleType };
 }
 
+/** Style optimizer */
 export default function ({ filename, fileID }: { filename: string; fileID: string }): Optimizer {
   const styleNodes: TemplateNode[] = []; // <style> tags to be updated
   const styleTransformPromises: Promise<StyleTransformResult>[] = []; // async style transform results to be finished in finalize();
-  let rootNode: TemplateNode; // root node which needs <style> tags
-
   const scopedClass = `astro-${hashFromFilename(fileID)}`; // this *should* generate same hash from fileID every time
 
   return {
@@ -124,15 +123,7 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
               return;
             }
 
-            // 2. find the root node to inject the <style> tag in later
-            // TODO: remove this when we are injecting <link> tags into <head>
-            if (node.name === 'head') {
-              rootNode = node; // If this is <head>, this is what we want. Always take this if found. However, this may not always exist (it won’t for Component subtrees).
-            } else if (!rootNode) {
-              rootNode = node; // If no <head> (yet), then take the first element we come to and assume it‘s the “root” (but if we find a <head> later, then override this per the above)
-            }
-
-            // 3. add scoped HTML classes
+            // 2. add scoped HTML classes
             if (NEVER_SCOPED_TAGS.has(node.name)) return; // only continue if this is NOT a <script> tag, etc.
             // Note: currently we _do_ scope web components/custom elements. This seems correct?
 
@@ -175,10 +166,6 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
                 scopedClass,
               })
             );
-
-            // TODO: we should delete the old untransformed <style> node after we’re done.
-            // However, the svelte parser left it in ast.css, not ast.html. At the final step, this just gets ignored, so it will be deleted, in a sense.
-            // If we ever end up scanning ast.css for something else, then we’ll need to actually delete the node (or transform it to the processed version)
           },
         },
       },
@@ -186,14 +173,9 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
     async finalize() {
       const styleTransforms = await Promise.all(styleTransformPromises);
 
-      if (!rootNode) {
-        throw new Error(`No root node found`); // TODO: remove this eventually; we should always find it, but for now alert if there’s a bug in our code
-      }
-
-      // 1. transform <style> tags
       styleTransforms.forEach((result, n) => {
         if (styleNodes[n].attributes) {
-          // 1b. Inject final CSS
+          // 1. Replace with final CSS
           const isHeadStyle = !styleNodes[n].content;
           if (isHeadStyle) {
             // Note: <style> tags in <head> have different attributes/rules, because of the parser. Unknown why
@@ -202,22 +184,22 @@ export default function ({ filename, fileID }: { filename: string; fileID: strin
             styleNodes[n].content.styles = result.css;
           }
 
-          // 3b. Update <style> attributes
+          // 2. Update <style> attributes
           const styleTypeIndex = styleNodes[n].attributes.findIndex(({ name }: any) => name === 'type');
+          // add type="text/css"
           if (styleTypeIndex !== -1) {
             styleNodes[n].attributes[styleTypeIndex].value[0].raw = 'text/css';
             styleNodes[n].attributes[styleTypeIndex].value[0].data = 'text/css';
           } else {
             styleNodes[n].attributes.push({ name: 'type', type: 'Attribute', value: [{ type: 'Text', raw: 'text/css', data: 'text/css' }] });
           }
+          // remove lang="*"
           const styleLangIndex = styleNodes[n].attributes.findIndex(({ name }: any) => name === 'lang');
           if (styleLangIndex !== -1) styleNodes[n].attributes.splice(styleLangIndex, 1);
+          // TODO: add data-astro for later
+          // styleNodes[n].attributes.push({ name: 'data-astro', type: 'Attribute', value: true });
         }
       });
-
-      // 2. inject finished <style> tags into root node
-      // TODO: pull out into <link> tags for deduping
-      rootNode.children = [...styleNodes, ...(rootNode.children || [])];
     },
   };
 }

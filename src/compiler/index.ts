@@ -10,7 +10,6 @@ import { CompileResult, TransformResult } from '../@types/astro';
 import { parse } from '../parser/index.js';
 import { createMarkdownHeadersCollector } from '../micromark-collect-headers.js';
 import { encodeMarkdown } from '../micromark-encode.js';
-import { defaultLogOptions } from '../logger.js';
 import { optimize } from './optimize/index.js';
 import { codegen } from './codegen.js';
 
@@ -75,14 +74,14 @@ async function convertMdToJsx(
 
   const raw = `---
   ${imports}
-  ${frontmatterData.layout ? `export const __layout = ${JSON.stringify(frontmatterData.layout)};` : ''}
+  ${frontmatterData.layout ? `import {__renderPage as __layout} from '${frontmatterData.layout}';` : 'const __layout = undefined;'}
   export const __content = ${stringifiedSetupContext};
 ---
 <section>${mdHtml}</section>`;
 
   const convertOptions = { compileOptions, filename, fileID };
 
-  return convertAstroToJsx(raw, convertOptions);
+  return await convertAstroToJsx(raw, convertOptions);
 }
 
 type SupportedExtensions = '.astro' | '.md';
@@ -94,9 +93,9 @@ async function transformFromSource(
   const fileID = path.relative(projectRoot, filename);
   switch (path.extname(filename) as SupportedExtensions) {
     case '.astro':
-      return convertAstroToJsx(contents, { compileOptions, filename, fileID });
+      return await convertAstroToJsx(contents, { compileOptions, filename, fileID });
     case '.md':
-      return convertMdToJsx(contents, { compileOptions, filename, fileID });
+      return await convertMdToJsx(contents, { compileOptions, filename, fileID });
     default:
       throw new Error('Not Supported!');
   }
@@ -108,8 +107,6 @@ export async function compileComponent(
 ): Promise<CompileResult> {
   const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const isPage = path.extname(filename) === '.md' || sourceJsx.items.some((item) => item.name === 'html');
-  // sort <style> tags first
-  sourceJsx.items.sort((a, b) => (a.name === 'style' && b.name !== 'style' ? -1 : 0));
 
   // return template
   let modJsx = `
@@ -144,8 +141,7 @@ export async function __renderPage({request, children, props}) {
 
   // find layout, if one was given.
   if (currentChild.layout) {
-    const layoutComponent = (await import('/_astro/layouts/' + currentChild.layout.replace(/.*layouts\\//, "").replace(/\.astro$/, '.js')));
-    return layoutComponent.__renderPage({
+    return currentChild.layout({
       request,
       props: {content: currentChild.content},
       children: [childBodyResult],
@@ -162,5 +158,6 @@ export async function __renderPage() { throw new Error("No <html> page element f
   return {
     result: sourceJsx,
     contents: modJsx,
+    css: sourceJsx.css,
   };
 }

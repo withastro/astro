@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: Snowpack Upgrade Guide
 published: true
 description: How to upgrade to Snowpack v3 from older versions of Snowpack.

@@ -25,9 +25,11 @@ export interface TransformResult {
   script: string;
   imports: string[];
   items: JsxItem[];
+  css?: string;
 }
 
 export interface CompileResult {
   result: TransformResult;
   contents: string;
+  css?: string;
 }

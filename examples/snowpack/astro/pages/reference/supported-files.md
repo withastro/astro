@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: Supported Files
 description: Snowpack ships with built-in support for many file types including json, js, ts, jsx, css, css modules, and images.
 ---

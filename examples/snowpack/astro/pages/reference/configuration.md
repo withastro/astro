@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: snowpack.config.js
 description: The Snowpack configuration API reference.
 ---
@@ -20,7 +20,7 @@ To generate a basic configuration file scaffold in your Snowpack project run `sn
 
 ## root
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `/`
 
 Specify the root of a project using Snowpack. (Previously: `config.cwd`)
@@ -47,7 +47,7 @@ Can be a relative file path, an npm package, or a file within an npm package. Yo
 
 ## exclude
 
-**Type**: `string[]`  
+**Type**: `string[]`
 **Default**: `['**/node_modules/**/*']`
 
 Exclude any files from the Snowpack pipeline.
@@ -151,28 +151,28 @@ Configure the Snowpack dev server.
 
 ### devOptions.secure
 
-**Type**: `boolean`  
+**Type**: `boolean`
 **Default**: `false`
 
 Toggles whether Snowpack dev server should use HTTPS with HTTP2 enabled.
 
 ### devOptions.hostname
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `localhost`
 
 The hostname that the dev server is running on. Snowpack uses this information to configure the HMR websocket and properly open your browser on startup (see: [`devOptions.open`](#devoptions.open)).
 
 ### devOptions.port
 
-**Type**: `number`  
+**Type**: `number`
 **Default**: `8080`
 
 The port the dev server runs on.
 
 ### devOptions.fallback
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `"index.html"`
 
 The HTML file to serve for non-resource routes.
@@ -183,7 +183,7 @@ When using the Single-Page Application (SPA) pattern, this is the HTML "shell" f
 
 ### devOptions.open
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `"**Default**"`
 
 Configures how the dev server opens in the browser when it starts.
@@ -192,7 +192,7 @@ Any installed browser, e.g., "chrome", "firefox", "brave". Set "none" to disable
 
 ### devOptions.output
 
-**Type**: `"stream" | "dashboard"`  
+**Type**: `"stream" | "dashboard"`
 **Default**: `"dashboard"`
 
 Set the output mode of the `dev` console:
@@ -202,35 +202,35 @@ Set the output mode of the `dev` console:
 
 ### devOptions.hmr
 
-**Type**: `boolean`  
+**Type**: `boolean`
 **Default**: `true`
 
 Toggles HMR on the Snowpack dev server.
 
 ### devOptions.hmrDelay
 
-**Type**: `number` (milliseconds)  
+**Type**: `number` (milliseconds)
 **Default**: `0`
 
 Milliseconds to delay HMR-triggered browser update.
 
 ### devOptions.hmrPort
 
-**Type**: `number`  
+**Type**: `number`
 **Default**: [`devOptions.port`](#devoptions.port)
 
 The port where Snowpack's HMR Websocket runs.
 
 ### devOptions.hmrErrorOverlay
 
-**Type**: `boolean`  
+**Type**: `boolean`
 **Default**: `true`
 
 Toggles a browser overlay that displays JavaScript runtime errors when running HMR.
 
 ### devOptions.out
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `"build"`
 
 _NOTE:_ Deprecated, see `buildOptions.out`.
@@ -249,7 +249,7 @@ Configure how npm packages are installed and used.
 
 ### packageOptions.external
 
-**Type**: `string[]`  
+**Type**: `string[]`
 **Example**: `"external": ["fs"]`
 
 Mark some imports as external. Snowpack will ignore these imports and leave them as-is in your final build.
@@ -258,7 +258,7 @@ This is an advanced feature: Bare imports are not supported in any major browser
 
 ### packageOptions.source
 
-**Type**: `"local" | "remote"`  
+**Type**: `"local" | "remote"`
 **Default**: `"local"`
 **Example**: `"source": "local"`
 
@@ -278,7 +278,7 @@ Known dependencies to install with Snowpack. Used for installing packages any de
 
 #### packageOptions.polyfillNode
 
-**Type**: `boolean`  
+**Type**: `boolean`
 **Default**: `false`
 
 This will automatically polyfill any Node.js dependencies as much as possible for the browser
@@ -313,7 +313,7 @@ This option is only supported in `source="local"` mode. `source="remote"` does n
 
 #### packageOptions.packageLookupFields
 
-**Type**: `string[]`  
+**Type**: `string[]`
 **Example**: `"packageLookupFields": ["svelte"]`
 
 Set custom lookup fields for dependency `package.json` file entrypoints, in addition to the defaults like "module", "main", etc.
@@ -322,7 +322,7 @@ This option is only supported in `source="local"` mode. `source="remote"` does n
 
 #### packageOptions.packageExportLookupFields
 
-**Type**: `string[]`  
+**Type**: `string[]`
 **Example**: `"packageExportLookupFields": ["svelte"]`
 
 Set custom lookup fields for dependency `package.json` ["exports" mappings.](https://nodejs.org/api/packages.html#packages_package_entry_points)
@@ -351,7 +351,7 @@ Enable streaming package imports. Load dependencies from our remote CDN. Manage 
 
 #### packageOptions.origin
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `https://pkg.snowpack.dev`
 
 The remote origin to import packages from. When you import a new package, Snowpack will fetch those resources from this URL.
@@ -360,14 +360,14 @@ Currently, the origin must implement a specific response format that Snowpack ca
 
 #### packageOptions.cache
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `.snowpack`
 
 The location of your project cache folder, relative to the project root. Snowpack will save cached data to this folder. For example, if `packageOptions.types` is set to true, Snowpack will save TypeScript types to a `types` directory within this folder.
 
 #### packageOptions.types
 
-**Type**: `boolean`  
+**Type**: `boolean`
 **Default**: `false`
 
 If true, Snowpack will download TypeScript types for every package.
@@ -387,7 +387,7 @@ The local directory that we output your final build to.
 
 ### buildOptions.baseUrl
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `/`
 
 In your HTML, replace all instances of `%PUBLIC_URL%` with this
@@ -396,7 +396,7 @@ Inspired by the same [Create React App](https://create-react-app.dev/docs/using-
 
 ### buildOptions.clean
 
-**Type**: `boolean`  
+**Type**: `boolean`
 **Default**: `true`
 
 Set to `false` to prevent Snowpack from deleting the build output folder (`buildOptions.out`) between builds.
@@ -411,7 +411,7 @@ _NOTE:_ Deprecated, see `buildOptions.metaUrlPath`.
 
 ### buildOptions.metaUrlPath
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `_snowpack`
 
 Rename the default directory for Snowpack metadata. In every build, Snowpack creates meta files for loading things like [HMR](/concepts/hot-module-replacement), [Environment Variables](/reference/environment-variables), and your built npm packages.
@@ -420,7 +420,7 @@ When you build your project, this will be a path on disk relative to the `buildO
 
 ### buildOptions.sourcemap
 
-**Type**: `boolean`  
+**Type**: `boolean`
 **Default**: `false`
 
 Generates source maps.
@@ -429,14 +429,14 @@ Generates source maps.
 
 ### buildOptions.watch
 
-**Type**: `boolean`  
+**Type**: `boolean`
 **Default**: `false`
 
 Run Snowpack's build pipeline through a file watcher. This option works best for local development when you have a custom frontend server (ex: Rails, PHP, etc.) and the Snowpack dev server cannot be used.
 
 ### buildOptions.htmlFragments
 
-**Type**: `boolean`  
+**Type**: `boolean`
 **Default**: `false`
 
 Toggles whether HTML fragments are transformed like full HTML pages.
@@ -445,14 +445,14 @@ HTML fragments are HTML files not starting with "<!doctype html>".
 
 ### buildOptions.jsxFactory
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `React.createElement` (or `h` if Preact import is detected)
 
 Set the name of the function used to create JSX elements.
 
 ### buildOptions.jsxFragment
 
-**Type**: `string`  
+**Type**: `string`
 **Default**: `React.Fragment` (or `Fragment` if Preact import is detected)
 
 Set the name of the function used to create JSX fragments.
@@ -463,7 +463,7 @@ Configure your tests.
 
 ### testOptions.files
 
-**Type**: `string[]`  
+**Type**: `string[]`
 **Default**: `["__tests__/**/*", "**/*.@(spec|test).*"]`
 
 Specifies your test files. If `NODE_ENV` is set to "test", Snowpack includes these files in your site build and scan them for installable dependencies. Otherwise, Snowpack excludes these files.

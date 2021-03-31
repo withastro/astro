@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: Preact
 tags: communityGuide
 img: '/img/logos/preact.svg'
