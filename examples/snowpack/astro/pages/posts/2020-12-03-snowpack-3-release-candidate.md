@@ -1,5 +1,5 @@
 ---
-layout: layouts/post.astro
+layout: ../../layouts/post.astro
 title: 'Snowpack v3.0 Release Candidate'
 tagline: New features to change the way you build for the web.
 description: 'New features to change the way you build for the web. Snowpack v3.0 will release on January 6th, 2021 (the one-year anniversary of its original launch post). This is our biggest release yet with some serious new features, including a new way to load npm packages on-demand that lets you skip the `npm install` step entirely.'

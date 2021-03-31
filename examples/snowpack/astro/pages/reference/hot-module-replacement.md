@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: Hot Module Replacement (HMR) API
 description: Snowpack implements HMR via the esm-hmr spec, an attempted standard for ESM-based Hot Module Replacement (HMR).
 ---

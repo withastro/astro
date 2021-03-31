@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: Environment Variables
 description: Using environment variables with Snowpack
 ---

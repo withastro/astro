@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: '@web/test-runner'
 tags: communityGuide
 img: '/img/logos/modern-web.svg'

@@ -8,6 +8,16 @@ const StylesSSR = suite('Styles SSR');
 
 let runtime;
 
+/** Basic CSS minification; removes some flakiness in testing CSS */
+function cssMinify(css) {
+  return css
+    .trim() // remove whitespace
+    .replace(/\n\s*/g, '') // collapse lines
+    .replace(/\s*\{/g, '{') // collapse selectors
+    .replace(/:\s*/g, ':') // collapse attributes
+    .replace(/;}/g, '}'); // collapse block
+}
+
 StylesSSR.before(async () => {
   const astroConfig = await loadConfig(new URL('./fixtures/astro-styles-ssr', import.meta.url).pathname);
 
@@ -54,12 +64,15 @@ StylesSSR('CSS Module support in .astro', async () => {
   let scopedClass;
 
   // test 1: <style> tag in <head> is transformed
-  const css = $('style')
-    .html()
-    .replace(/\.astro-[A-Za-z0-9-]+/, (match) => {
-      scopedClass = match;
-      return match;
-    }); // remove class hash (should be deterministic / the same every time, but even still don‘t cause this test to flake)
+  const css = cssMinify(
+    $('style')
+      .html()
+      .replace(/\.astro-[A-Za-z0-9-]+/, (match) => {
+        scopedClass = match; // get class hash from result
+        return match;
+      })
+  );
+
   assert.equal(css, `.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px}`);
 
   // test 2: element received .astro-XXXXXX class (this selector will succeed if transformed correctly)

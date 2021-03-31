@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: 'PostCSS'
 tags: communityGuide
 published: true

@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: SSL Certificates
 description: How to use HTTPs during development and generate SSL certifcates for your Snowpack build.
 ---

@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: The Dev Server
 description: Snowpack's dev server is fast because it only rebuilds the files you change. Powered by ESM (ES modules).
 ---
