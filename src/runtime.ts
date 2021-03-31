@@ -32,11 +32,7 @@ export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultErro
 snowpackLogger.level = 'silent';
 
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
-  const {
-    logging,
-    backendSnowpackRuntime,
-    frontendSnowpack
-  } = config;
+  const { logging, backendSnowpackRuntime, frontendSnowpack } = config;
   const { astroRoot } = config.astroConfig;
 
   const fullurl = new URL(rawPathname || '/', 'https://example.org/');
@@ -192,20 +188,12 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
 }
 
 export async function createRuntime(astroConfig: AstroConfig, { logging }: RuntimeOptions): Promise<AstroRuntime> {
-  const {
-    snowpack: backendSnowpack,
-    snowpackRuntime: backendSnowpackRuntime,
-    snowpackConfig: backendSnowpackConfig
-  } = await createSnowpack(astroConfig, {
-    astro: true
+  const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(astroConfig, {
+    astro: true,
   });
 
-  const {
-    snowpack: frontendSnowpack,
-    snowpackRuntime: frontendSnowpackRuntime,
-    snowpackConfig: frontendSnowpackConfig
-  } = await createSnowpack(astroConfig, {
-    astro: false
+  const { snowpack: frontendSnowpack, snowpackRuntime: frontendSnowpackRuntime, snowpackConfig: frontendSnowpackConfig } = await createSnowpack(astroConfig, {
+    astro: false,
   });
 
   const runtimeConfig: RuntimeConfig = {
@@ -222,9 +210,6 @@ export async function createRuntime(astroConfig: AstroConfig, { logging }: Runti
   return {
     runtimeConfig,
     load: load.bind(null, runtimeConfig),
-    shutdown: () => Promise.all([
-      backendSnowpack.shutdown(),
-      frontendSnowpack.shutdown()
-    ]).then(() => void 0),
+    shutdown: () => Promise.all([backendSnowpack.shutdown(), frontendSnowpack.shutdown()]).then(() => void 0),
   };
 }

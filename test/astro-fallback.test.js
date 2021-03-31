@@ -7,7 +7,7 @@ const Fallback = suite('Dynamic component fallback');
 
 setup(Fallback, './fixtures/astro-fallback');
 
-Fallback('Shows static content', async context => {
+Fallback('Shows static content', async (context) => {
   const result = await context.runtime.load('/');
 
   assert.equal(result.statusCode, 200);

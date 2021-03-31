@@ -5,7 +5,7 @@ import * as assert from 'uvu/assert';
 export function setup(Suite, fixturePath) {
   let runtime, setupError;
 
-  Suite.before(async context => {
+  Suite.before(async (context) => {
     const astroConfig = await loadConfig(new URL(fixturePath, import.meta.url).pathname);
 
     const logging = {
