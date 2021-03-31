@@ -17,19 +17,6 @@ const logging: LogOptions = {
   dest: defaultLogDestination,
 };
 
-async function* recurseFiles(root: URL): AsyncGenerator<URL, void, unknown> {
-  for (const filename of await readdir(root)) {
-    const fullpath = new URL(filename, root);
-    const info = await stat(fullpath);
-
-    if (info.isDirectory()) {
-      yield* recurseFiles(new URL(fullpath + '/'));
-    } else {
-      yield fullpath;
-    }
-  }
-}
-
 async function allPages(root: URL) {
   const api = new fdir()
     .filter((p) => /\.(astro|md)$/.test(p))
