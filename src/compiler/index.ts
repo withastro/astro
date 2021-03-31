@@ -74,7 +74,7 @@ async function convertMdToJsx(
 
   const raw = `---
   ${imports}
-  ${frontmatterData.layout ? `import {__renderPage as __layout} from ${JSON.stringify('../../' + frontmatterData.layout)};` : 'const __layout = undefined;'}
+  ${frontmatterData.layout ? `import {__renderPage as __layout} from '${frontmatterData.layout}';` : 'const __layout = undefined;'}
   export const __content = ${stringifiedSetupContext};
 ---
 <section>${mdHtml}</section>`;

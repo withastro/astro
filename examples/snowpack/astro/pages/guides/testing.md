@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: Testing
 published: true
 description: How to choose and use a JavaScript test runner for your Snowpack site.

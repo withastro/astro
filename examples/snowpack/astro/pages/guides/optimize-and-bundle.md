@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: Optimize & Bundle for Production
 published: true
 description: How to optimize your Snowpack build for production, with or without a bundler.

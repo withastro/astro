@@ -1,5 +1,5 @@
 ---
-layout: layouts/content.astro
+layout: ../../layouts/content.astro
 title: Workbox
 tags: communityGuide
 description: The Workbox CLI integrates well with Snowpack.
