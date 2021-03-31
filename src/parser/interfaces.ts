@@ -17,6 +17,13 @@ export interface Fragment extends BaseNode {
 export interface Text extends BaseNode {
   type: 'Text';
   data: string;
+  raw: string;
+}
+
+export interface Attribute extends BaseNode {
+  type: 'Attribute';
+  name: string;
+  value: Text[];
 }
 
 export interface MustacheTag extends BaseNode {

@@ -52,6 +52,7 @@ async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'u
 export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const { projectRoot, astroRoot } = astroConfig;
   const pageRoot = new URL('./pages/', astroRoot);
+  const componentRoot = new URL('./components/', astroRoot);
   const dist = new URL(astroConfig.dist + '/', projectRoot);
 
   const runtimeLogging: LogOptions = {
@@ -66,6 +67,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
 
   const imports = new Set<string>();
   const statics = new Set<string>();
+  const collectImportsOptions = { astroConfig, logging, resolve };
 
   for (const pathname of await allPages(pageRoot)) {
     const filepath = new URL(`file://${pathname}`);
@@ -90,7 +92,11 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       return 1;
     }
 
-    mergeSet(imports, await collectDynamicImports(filepath, astroConfig, resolve));
+    mergeSet(imports, await collectDynamicImports(filepath, collectImportsOptions));
+  }
+
+  for (const pathname of await allPages(componentRoot)) {
+    mergeSet(imports, await collectDynamicImports(new URL(`file://${pathname}`), collectImportsOptions));
   }
 
   await bundle(imports, { dist, runtime, astroConfig });

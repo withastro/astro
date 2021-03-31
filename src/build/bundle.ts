@@ -2,10 +2,13 @@ import type { AstroConfig, ValidExtensionPlugins } from '../@types/astro';
 import type { ImportDeclaration } from '@babel/types';
 import type { InputOptions, OutputOptions } from 'rollup';
 import type { AstroRuntime } from '../runtime';
+import type { LogOptions } from '../logger';
 
 import esbuild from 'esbuild';
 import { promises as fsPromises } from 'fs';
 import { parse } from '../parser/index.js';
+import { optimize } from '../compiler/optimize/index.js';
+import { getAttrValue, setAttrValue } from '../ast.js';
 import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
 import path from 'path';
@@ -55,11 +58,17 @@ const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
   '.vue': 'vue',
 };
 
-export async function collectDynamicImports(filename: URL, astroConfig: AstroConfig, resolve: (s: string) => Promise<string>) {
+interface CollectDynamic {
+  astroConfig: AstroConfig;
+  resolve: (s: string) => Promise<string>;
+  logging: LogOptions;
+}
+
+export async function collectDynamicImports(filename: URL, { astroConfig, logging, resolve }: CollectDynamic) {
   const imports = new Set<string>();
 
-  // No markdown for now
-  if (filename.pathname.endsWith('md')) {
+  // Only astro files
+  if (!filename.pathname.endsWith('astro')) {
     return imports;
   }
 
@@ -72,6 +81,16 @@ export async function collectDynamicImports(filename: URL, astroConfig: AstroCon
   if (!ast.module) {
     return imports;
   }
+
+  await optimize(ast, {
+    filename: filename.pathname,
+    fileID: '',
+    compileOptions: {
+      astroConfig,
+      resolve,
+      logging,
+    },
+  });
 
   const componentImports: ImportDeclaration[] = [];
   const components: Record<string, { plugin: ValidExtensionPlugins; type: string; specifier: string }> = {};
@@ -145,6 +164,18 @@ export async function collectDynamicImports(filename: URL, astroConfig: AstroCon
   walk(ast.html, {
     enter(node) {
       switch (node.type) {
+        case 'Element': {
+          if (node.name !== 'script') return;
+          if (getAttrValue(node.attributes, 'type') !== 'module') return;
+
+          const src = getAttrValue(node.attributes, 'src');
+
+          if (src && src.startsWith('/')) {
+            imports.add(src);
+          }
+          break;
+        }
+
         case 'MustacheTag': {
           let code: string;
           try {

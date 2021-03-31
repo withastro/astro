@@ -1,10 +1,13 @@
-import { walk } from 'estree-walker';
 import type { Ast, TemplateNode } from '../../parser/interfaces';
-import { NodeVisitor, Optimizer, VisitorFn } from '../../@types/optimizer';
+import type { CompileOptions } from '../../@types/compiler';
+import type { NodeVisitor, Optimizer, VisitorFn } from '../../@types/optimizer';
+
+import { walk } from 'estree-walker';
 
 // Optimizers
 import optimizeStyles from './styles.js';
 import optimizeDoctype from './doctype.js';
+import optimizeModuleScripts from './module-scripts.js';
 
 interface VisitorCollection {
   enter: Map<string, VisitorFn[]>;
@@ -67,6 +70,7 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
 }
 
 interface OptimizeOptions {
+  compileOptions: CompileOptions;
   filename: string;
   fileID: string;
 }
@@ -76,7 +80,7 @@ export async function optimize(ast: Ast, opts: OptimizeOptions) {
   const cssVisitors = createVisitorCollection();
   const finalizers: Array<() => Promise<void>> = [];
 
-  const optimizers = [optimizeStyles(opts), optimizeDoctype(opts)];
+  const optimizers = [optimizeStyles(opts), optimizeDoctype(opts), optimizeModuleScripts(opts)];
 
   for (const optimizer of optimizers) {
     collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);
