@@ -1,5 +1,6 @@
 import { Optimizer } from '../../@types/optimizer';
 
+/** Optimize <!doctype> tg */
 export default function (_opts: { filename: string; fileID: string }): Optimizer {
   let hasDoctype = false;
 

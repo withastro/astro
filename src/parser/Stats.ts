@@ -15,6 +15,7 @@ interface Timing {
   children: Timing[];
 }
 
+/** Format benchmarks */
 function collapse_timings(timings) {
   const result = {};
   timings.forEach((timing) => {

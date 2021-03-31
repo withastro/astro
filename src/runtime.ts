@@ -32,6 +32,7 @@ export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultErro
 // Disable snowpack from writing to stdout/err.
 snowpackLogger.level = 'silent';
 
+/** Pass a URL to Astro to resolve and build */
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
   const { logging, backendSnowpackRuntime, frontendSnowpack } = config;
   const { astroRoot } = config.astroConfig;
@@ -134,6 +135,7 @@ interface RuntimeOptions {
   logging: LogOptions;
 }
 
+/** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>) {
   const { projectRoot, astroRoot, extensions } = astroConfig;
 
@@ -189,6 +191,7 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
   return { snowpack, snowpackRuntime, snowpackConfig };
 }
 
+/** Core Astro runtime */
 export async function createRuntime(astroConfig: AstroConfig, { mode, logging }: RuntimeOptions): Promise<AstroRuntime> {
   const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(astroConfig, {
     astro: true,

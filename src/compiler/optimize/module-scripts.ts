@@ -4,6 +4,7 @@ import type { CompileOptions } from '../../@types/compiler';
 import path from 'path';
 import { getAttrValue, setAttrValue } from '../../ast.js';
 
+/** Optimize <script type="module"> */
 export default function ({ compileOptions, filename }: { compileOptions: CompileOptions; filename: string; fileID: string }): Optimizer {
   const { astroConfig } = compileOptions;
   const { astroRoot } = astroConfig;

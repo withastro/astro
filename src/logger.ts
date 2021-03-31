@@ -61,6 +61,7 @@ const levels: Record<LoggerLevel, number> = {
   silent: 90,
 };
 
+/** Full logging API */
 export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, type: string, ...args: Array<any>) {
   const event: LogMessage = {
     type,
@@ -77,22 +78,27 @@ export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, ty
   opts.dest.write(event);
 }
 
+/** Emit a message only shown in debug mode */
 export function debug(opts: LogOptions, type: string, ...messages: Array<any>) {
   return log(opts, 'debug', type, ...messages);
 }
 
+/** Emit a general info message (be careful using this too much!) */
 export function info(opts: LogOptions, type: string, ...messages: Array<any>) {
   return log(opts, 'info', type, ...messages);
 }
 
+/** Emit a warning a user should be aware of */
 export function warn(opts: LogOptions, type: string, ...messages: Array<any>) {
   return log(opts, 'warn', type, ...messages);
 }
 
+/** Emit a fatal error message the user should address. */
 export function error(opts: LogOptions, type: string, ...messages: Array<any>) {
   return log(opts, 'error', type, ...messages);
 }
 
+/** Pretty format error for display */
 export function parseError(opts: LogOptions, err: CompileError) {
   let frame = err.frame
     // Switch colons for pipes
@@ -108,7 +114,7 @@ export function parseError(opts: LogOptions, err: CompileError) {
     `
 
  ${underline(bold(grey(`${err.filename}:${err.start.line}:${err.start.column}`)))}
-  
+
  ${bold(red(`𝘅 ${err.message}`))}
 
 ${frame}

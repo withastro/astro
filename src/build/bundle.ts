@@ -8,7 +8,7 @@ import esbuild from 'esbuild';
 import { promises as fsPromises } from 'fs';
 import { parse } from '../parser/index.js';
 import { optimize } from '../compiler/optimize/index.js';
-import { getAttrValue, setAttrValue } from '../ast.js';
+import { getAttrValue } from '../ast.js';
 import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
 import path from 'path';
@@ -20,6 +20,7 @@ const { readFile } = fsPromises;
 
 type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact', string>;
 
+/** Add framework runtimes when needed */
 async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolve: (s: string) => Promise<string>): Promise<DynamicImportMap> {
   const importMap: DynamicImportMap = new Map();
   for (let plugin of plugins) {
@@ -42,6 +43,7 @@ async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins
   return importMap;
 }
 
+/** Evaluate mustache expression (safely) */
 function compileExpressionSafe(raw: string): string {
   let { code } = transformSync(raw, {
     loader: 'tsx',
@@ -65,6 +67,7 @@ interface CollectDynamic {
   mode: RuntimeMode;
 }
 
+/** Gather necessary framework runtimes for dynamic components */
 export async function collectDynamicImports(filename: URL, { astroConfig, logging, resolve, mode }: CollectDynamic) {
   const imports = new Set<string>();
 
@@ -127,7 +130,8 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
 
   const dynamic = await acquireDynamicComponentImports(plugins, resolve);
 
-  function appendImports(rawName: string, filename: URL, astroConfig: AstroConfig) {
+  /** Add dynamic component runtimes to imports */
+  function appendImports(rawName: string, importUrl: URL) {
     const [componentName, componentType] = rawName.split(':');
     if (!componentType) {
       return;
@@ -138,7 +142,7 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
     }
 
     const defn = components[componentName];
-    const fileUrl = new URL(defn.specifier, filename);
+    const fileUrl = new URL(defn.specifier, importUrl);
     let rel = path.posix.relative(astroConfig.astroRoot.pathname, fileUrl.pathname);
 
     switch (defn.plugin) {
@@ -193,15 +197,15 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
           while ((match = regex.exec(code))) {
             matches.push(match);
           }
-          for (const match of matches.reverse()) {
-            const name = match[1];
-            appendImports(name, filename, astroConfig);
+          for (const foundImport of matches.reverse()) {
+            const name = foundImport[1];
+            appendImports(name, filename);
           }
           break;
         }
         case 'InlineComponent': {
           if (/^[A-Z]/.test(node.name)) {
-            appendImports(node.name, filename, astroConfig);
+            appendImports(node.name, filename);
             return;
           }
 
@@ -220,6 +224,7 @@ interface BundleOptions {
   astroConfig: AstroConfig;
 }
 
+/** The primary bundling/optimization action */
 export async function bundle(imports: Set<string>, { runtime, dist }: BundleOptions) {
   const ROOT = 'astro:root';
   const root = `

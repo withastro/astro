@@ -5,6 +5,7 @@ export type HTag = string | AstroComponent;
 
 const voidTags = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
+/** Generator for primary h() function */
 function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
   if (tag === '!doctype') {
     yield '<!doctype ';
@@ -47,6 +48,7 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
   yield `</${tag}>`;
 }
 
+/** Astro‘s primary h() function. Allows it to use JSX-like syntax. */
 export async function h(tag: HTag, attrs: HProps, ...pChildren: Array<Promise<HChild>>) {
   const children = await Promise.all(pChildren.flat(Infinity));
   if (typeof tag === 'function') {
@@ -57,6 +59,7 @@ export async function h(tag: HTag, attrs: HProps, ...pChildren: Array<Promise<HC
   return Array.from(_h(tag, attrs, children)).join('');
 }
 
+/** Fragment helper, similar to React.Fragment */
 export function Fragment(_: HProps, ...children: Array<string>) {
   return children.join('');
 }

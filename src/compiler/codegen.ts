@@ -30,10 +30,12 @@ interface CodeGenOptions {
   fileID: string;
 }
 
+/** Format Astro internal import URL */
 function internalImport(internalPath: string) {
   return `/_astro_internal/${internalPath}`;
 }
 
+/** Retrieve attributes from TemplateNode */
 function getAttributes(attrs: Attribute[]): Record<string, string> {
   let result: Record<string, string> = {};
   for (const attr of attrs) {
@@ -79,6 +81,7 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
   return result;
 }
 
+/** Get value from a TemplateNode Attribute (text attributes only!) */
 function getTextFromAttribute(attr: any): string {
   if (attr.raw !== undefined) {
     return attr.raw;
@@ -89,6 +92,7 @@ function getTextFromAttribute(attr: any): string {
   throw new Error('UNKNOWN attr');
 }
 
+/** Convert TemplateNode attributes to string */
 function generateAttributes(attrs: Record<string, string>): string {
   let result = '{';
   for (const [key, val] of Object.entries(attrs)) {
@@ -117,6 +121,8 @@ interface GetComponentWrapperOptions {
   astroConfig: AstroConfig;
   dynamicImports: DynamicImportMap;
 }
+
+/** Generate Astro-friendly component import */
 function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo, opts: GetComponentWrapperOptions) {
   const { astroConfig, dynamicImports, filename } = opts;
   const { astroRoot } = astroConfig;
@@ -222,6 +228,7 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
   }
 }
 
+/** Evaluate mustache expression (safely) */
 function compileExpressionSafe(raw: string): string {
   let { code } = transformSync(raw, {
     loader: 'tsx',
@@ -232,6 +239,7 @@ function compileExpressionSafe(raw: string): string {
   return code;
 }
 
+/** Build dependency map of dynamic component runtime frameworks */
 async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolve: (s: string) => Promise<string>): Promise<DynamicImportMap> {
   const importMap: DynamicImportMap = new Map();
   for (let plugin of plugins) {
@@ -254,7 +262,15 @@ async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins
   return importMap;
 }
 
-export async function codegen(ast: Ast, { compileOptions, filename, fileID }: CodeGenOptions): Promise<TransformResult> {
+/**
+ * Codegen
+ * Step 3/3 in Astro SSR.
+ * This is the final pass over a document AST before it‘s converted to an h() function
+ * and handed off to Snowpack to build.
+ * @param {Ast} AST The parsed AST to crawl
+ * @param {object} CodeGenOptions
+ */
+export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOptions): Promise<TransformResult> {
   const { extensions = defaultExtensions, astroConfig } = compileOptions;
   await eslexer.init;
 
@@ -364,8 +380,8 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
           while ((match = regex.exec(code))) {
             matches.push(match);
           }
-          for (const match of matches.reverse()) {
-            const name = match[1];
+          for (const astroComponent of matches.reverse()) {
+            const name = astroComponent[1];
             const [componentName, componentKind] = name.split(':');
             if (!components[componentName]) {
               throw new Error(`Unknown Component: ${componentName}`);
@@ -375,7 +391,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
               importExportStatements.add(wrapperImport);
             }
             if (wrapper !== name) {
-              code = code.slice(0, match.index + 2) + wrapper + code.slice(match.index + match[0].length - 1);
+              code = code.slice(0, astroComponent.index + 2) + wrapper + code.slice(astroComponent.index + astroComponent[0].length - 1);
             }
           }
           collectionItem!.jsx += `,(${code.trim().replace(/\;$/, '')})`;

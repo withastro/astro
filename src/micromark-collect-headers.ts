@@ -1,7 +1,10 @@
 import slugger from 'github-slugger';
 
-// NOTE: micromark has terrible TS types. Instead of fighting with the
-// limited/broken TS types that they ship, we just reach for our good friend, "any".
+/**
+ * Create Markdown Headers Collector
+ * NOTE: micromark has terrible TS types. Instead of fighting with the
+ * limited/broken TS types that they ship, we just reach for our good friend, "any".
+ */
 export function createMarkdownHeadersCollector() {
   const headers: any[] = [];
   let currentHeader: any;

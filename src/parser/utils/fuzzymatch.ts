@@ -1,5 +1,6 @@
 // @ts-nocheck
 
+/** Utility for accessing FuzzySet */
 export default function fuzzymatch(name: string, names: string[]) {
   const set = new FuzzySet(names);
   const matches = set.get(name);
@@ -13,7 +14,7 @@ export default function fuzzymatch(name: string, names: string[]) {
 const GRAM_SIZE_LOWER = 2;
 const GRAM_SIZE_UPPER = 3;
 
-// return an edit distance from 0 to 1
+/** Return an edit distance from 0 to 1 */
 function _distance(str1: string, str2: string) {
   if (str1 === null && str2 === null) {
     throw 'Trying to compare two null values';
@@ -30,7 +31,7 @@ function _distance(str1: string, str2: string) {
   }
 }
 
-// helper functions
+/** @url https://github.com/Glench/fuzzyset.js/blob/master/lib/fuzzyset.js#L18 */
 function levenshtein(str1: string, str2: string) {
   const current: number[] = [];
   let prev;
@@ -58,6 +59,7 @@ function levenshtein(str1: string, str2: string) {
 
 const non_word_regex = /[^\w, ]+/;
 
+/** @url https://github.com/Glench/fuzzyset.js/blob/master/lib/fuzzyset.js#L53 */
 function iterate_grams(value: string, gram_size = 2) {
   const simplified = '-' + value.toLowerCase().replace(non_word_regex, '') + '-';
   const len_diff = gram_size - simplified.length;
@@ -74,6 +76,7 @@ function iterate_grams(value: string, gram_size = 2) {
   return results;
 }
 
+/** @url https://github.com/Glench/fuzzyset.js/blob/master/lib/fuzzyset.js#L69 */
 function gram_counter(value: string, gram_size = 2) {
   // return an object where key=gram, value=number of occurrences
   const result = {};
@@ -90,6 +93,7 @@ function gram_counter(value: string, gram_size = 2) {
   return result;
 }
 
+/** @url https://github.com/Glench/fuzzyset.js/blob/master/lib/fuzzyset.js#L158 */
 function sort_descending(a, b) {
   return b[0] - a[0];
 }
@@ -211,16 +215,16 @@ class FuzzySet {
     let new_results = [];
     const end_index = Math.min(50, results.length);
     // truncate somewhat arbitrarily to 50
-    for (let i = 0; i < end_index; ++i) {
-      new_results.push([_distance(results[i][1], normalized_value), results[i][1]]);
+    for (let j = 0; j < end_index; ++j) {
+      new_results.push([_distance(results[j][1], normalized_value), results[j][1]]);
     }
     results = new_results;
     results.sort(sort_descending);
 
     new_results = [];
-    for (let i = 0; i < results.length; ++i) {
-      if (results[i][0] == results[0][0]) {
-        new_results.push([results[i][0], this.exact_set[results[i][1]]]);
+    for (let j = 0; j < results.length; ++j) {
+      if (results[j][0] == results[0][0]) {
+        new_results.push([results[j][0], this.exact_set[results[j][1]]]);
       }
     }
 

@@ -18,7 +18,8 @@ const logging: LogOptions = {
   dest: defaultLogDestination,
 };
 
-export default async function (astroConfig: AstroConfig) {
+/** The primary dev action */
+export default async function dev(astroConfig: AstroConfig) {
   const { projectRoot } = astroConfig;
 
   const runtime = await createRuntime(astroConfig, { mode: 'development', logging });
@@ -69,7 +70,8 @@ export default async function (astroConfig: AstroConfig) {
   });
 }
 
-function formatErrorForBrowser(error: Error) {
+/** Format error message */
+function formatErrorForBrowser(err: Error) {
   // TODO make this pretty.
-  return error.toString();
+  return err.toString();
 }

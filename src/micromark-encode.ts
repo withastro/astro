@@ -11,12 +11,14 @@ const characterReferences = {
 
 type EncodedChars = '"' | '&' | '<' | '>' | '{' | '}';
 
+/** Encode HTML entity */
 function encode(value: string): string {
   return value.replace(/["&<>{}]/g, (raw: string) => {
     return '&' + characterReferences[raw as EncodedChars] + ';';
   });
 }
 
+/** Encode Markdown node */
 function encodeToken(this: Record<string, () => void>) {
   const token: Token = arguments[0];
   const serialize = (this.sliceSerialize as unknown) as (t: Token) => string;

@@ -16,6 +16,7 @@ export class CompileError extends Error {
   }
 }
 
+/** Throw CompileError */
 export default function error(
   message: string,
   props: {
@@ -27,19 +28,19 @@ export default function error(
     end?: number;
   }
 ): never {
-  const error = new CompileError(message);
-  error.name = props.name;
+  const err = new CompileError(message);
+  err.name = props.name;
 
   const start = locate(props.source, props.start, { offsetLine: 1 });
   const end = locate(props.source, props.end || props.start, { offsetLine: 1 });
 
-  error.code = props.code;
-  error.start = start;
-  error.end = end;
-  error.pos = props.start;
-  error.filename = props.filename;
+  err.code = props.code;
+  err.start = start;
+  err.end = end;
+  err.pos = props.start;
+  err.filename = props.filename;
 
-  error.frame = get_code_frame(props.source, start.line - 1, start.column);
+  err.frame = get_code_frame(props.source, start.line - 1, start.column);
 
-  throw error;
+  throw err;
 }

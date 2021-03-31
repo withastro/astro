@@ -106,7 +106,7 @@ async function transformStyle(code: string, { type, filename, scopedClass, mode 
   return { css, type: styleType };
 }
 
-/** Style optimizer */
+/** Optimize <style> tags */
 export default function optimizeStyles({ compileOptions, filename, fileID }: OptimizeOptions): Optimizer {
   const styleNodes: TemplateNode[] = []; // <style> tags to be updated
   const styleTransformPromises: Promise<StyleTransformResult>[] = []; // async style transform results to be finished in finalize();

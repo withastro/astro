@@ -13,6 +13,7 @@ import { encodeMarkdown } from '../micromark-encode.js';
 import { optimize } from './optimize/index.js';
 import { codegen } from './codegen.js';
 
+/** Return Astro internal import URL */
 function internalImport(internalPath: string) {
   return `/_astro_internal/${internalPath}`;
 }
@@ -23,6 +24,13 @@ interface ConvertAstroOptions {
   fileID: string;
 }
 
+/**
+ * .astro -> .jsx
+ * Core function processing .astro files. Initiates all 3 phases of compilation:
+ * 1. Parse
+ * 2. Optimize
+ * 3. Codegen
+ */
 async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): Promise<TransformResult> {
   const { filename } = opts;
 
@@ -34,10 +42,14 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
   // 2. Optimize the AST
   await optimize(ast, opts);
 
-  // Turn AST into JSX
+  // 3. Turn AST into JSX
   return await codegen(ast, opts);
 }
 
+/**
+ * .md -> .jsx
+ * Core function processing Markdown, but along the way also calls convertAstroToJsx().
+ */
 async function convertMdToJsx(
   contents: string,
   { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
@@ -80,6 +92,7 @@ async function convertMdToJsx(
 
 type SupportedExtensions = '.astro' | '.md';
 
+/** Given a file, process it either as .astro or .md. */
 async function transformFromSource(
   contents: string,
   { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
@@ -95,6 +108,7 @@ async function transformFromSource(
   }
 }
 
+/** Return internal code that gets processed in Snowpack */
 export async function compileComponent(
   source: string,
   { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }

@@ -217,6 +217,11 @@ export class Parser {
   }
 }
 
+/**
+ * Parse
+ * Step 1/3 in Astro SSR.
+ * This is the first pass over .astro files and the step at which we convert a string to an AST for us to crawl.
+ */
 export default function parse(template: string, options: ParserOptions = {}): Ast {
   const parser = new Parser(template, options);
 

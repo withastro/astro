@@ -1,5 +1,6 @@
 // @ts-nocheck
 
+/** Compare two TemplateNodes to determine if they are equivalent */
 export function nodes_match(a, b) {
   if (!!a !== !!b) return false;
   if (Array.isArray(a) !== Array.isArray(b)) return false;

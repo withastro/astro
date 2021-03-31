@@ -13,6 +13,7 @@ interface VisitorCollection {
   leave: Map<string, VisitorFn[]>;
 }
 
+/** Add visitors to given collection */
 function addVisitor(visitor: NodeVisitor, collection: VisitorCollection, nodeName: string, event: 'enter' | 'leave') {
   if (typeof visitor[event] !== 'function') return;
   if (!collection[event]) collection[event] = new Map<string, VisitorFn[]>();
@@ -22,6 +23,7 @@ function addVisitor(visitor: NodeVisitor, collection: VisitorCollection, nodeNam
   collection[event].set(nodeName, visitors);
 }
 
+/** Compile visitor actions from optimizer */
 function collectVisitors(optimizer: Optimizer, htmlVisitors: VisitorCollection, cssVisitors: VisitorCollection, finalizers: Array<() => Promise<void>>) {
   if (optimizer.visitors) {
     if (optimizer.visitors.html) {
@@ -40,6 +42,7 @@ function collectVisitors(optimizer: Optimizer, htmlVisitors: VisitorCollection, 
   finalizers.push(optimizer.finalize);
 }
 
+/** Utility for formatting visitors */
 function createVisitorCollection() {
   return {
     enter: new Map<string, VisitorFn[]>(),
@@ -47,6 +50,7 @@ function createVisitorCollection() {
   };
 }
 
+/** Walk AST with collected visitors */
 function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) {
   walk(tmpl, {
     enter(node, parent, key, index) {
@@ -68,6 +72,12 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
   });
 }
 
+/**
+ * Optimize
+ * Step 2/3 in Astro SSR.
+ * Optimize is the point at which we mutate the AST before sending off to
+ * Codegen, and then to Snowpack. In some ways, it‘s a preprocessor.
+ */
 export async function optimize(ast: Ast, opts: OptimizeOptions) {
   const htmlVisitors = createVisitorCollection();
   const cssVisitors = createVisitorCollection();
