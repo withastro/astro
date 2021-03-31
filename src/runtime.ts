@@ -10,9 +10,12 @@ import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpa
 interface RuntimeConfig {
   astroConfig: AstroConfig;
   logging: LogOptions;
-  snowpack: SnowpackDevServer;
-  snowpackRuntime: SnowpackServerRuntime;
-  snowpackConfig: SnowpackConfig;
+  backendSnowpack: SnowpackDevServer;
+  backendSnowpackRuntime: SnowpackServerRuntime;
+  backendSnowpackConfig: SnowpackConfig;
+  frontendSnowpack: SnowpackDevServer;
+  frontendSnowpackRuntime: SnowpackServerRuntime;
+  frontendSnowpackConfig: SnowpackConfig;
 }
 
 type LoadResultSuccess = {
@@ -29,7 +32,7 @@ export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultErro
 snowpackLogger.level = 'silent';
 
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
-  const { logging, snowpack, snowpackRuntime } = config;
+  const { logging, backendSnowpackRuntime, frontendSnowpack } = config;
   const { astroRoot } = config.astroConfig;
 
   const fullurl = new URL(rawPathname || '/', 'https://example.org/');
@@ -43,7 +46,8 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   // Non-Astro pages (file resources)
   if (!existsSync(selectedPageLoc) && !existsSync(selectedPageMdLoc)) {
     try {
-      const result = await snowpack.loadUrl(reqPath);
+      console.log('loading', reqPath);
+      const result = await frontendSnowpack.loadUrl(reqPath);
 
       // success
       return {
@@ -63,7 +67,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
   for (const url of [`/_astro/pages/${selectedPage}.astro.js`, `/_astro/pages/${selectedPage}.md.js`]) {
     try {
-      const mod = await snowpackRuntime.importModule(url);
+      const mod = await backendSnowpackRuntime.importModule(url);
       debug(logging, 'resolve', `${reqPath} -> ${url}`);
       let html = (await mod.exports.__renderPage({
         request: {
@@ -128,7 +132,7 @@ interface RuntimeOptions {
   logging: LogOptions;
 }
 
-export async function createRuntime(astroConfig: AstroConfig, { logging }: RuntimeOptions): Promise<AstroRuntime> {
+async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>) {
   const { projectRoot, astroRoot, extensions } = astroConfig;
 
   const internalPath = new URL('./frontend/', import.meta.url);
@@ -170,23 +174,42 @@ export async function createRuntime(astroConfig: AstroConfig, { logging }: Runti
       external: ['@vue/server-renderer', 'node-fetch'],
     },
   });
+
+  const envConfig = snowpackConfig.env || (snowpackConfig.env = {});
+  Object.assign(envConfig, env);
+
   snowpack = await startSnowpackServer({
     config: snowpackConfig,
     lockfile: null,
   });
   const snowpackRuntime = snowpack.getServerRuntime();
 
+  return { snowpack, snowpackRuntime, snowpackConfig };
+}
+
+export async function createRuntime(astroConfig: AstroConfig, { logging }: RuntimeOptions): Promise<AstroRuntime> {
+  const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(astroConfig, {
+    astro: true,
+  });
+
+  const { snowpack: frontendSnowpack, snowpackRuntime: frontendSnowpackRuntime, snowpackConfig: frontendSnowpackConfig } = await createSnowpack(astroConfig, {
+    astro: false,
+  });
+
   const runtimeConfig: RuntimeConfig = {
     astroConfig,
     logging,
-    snowpack,
-    snowpackRuntime,
-    snowpackConfig,
+    backendSnowpack,
+    backendSnowpackRuntime,
+    backendSnowpackConfig,
+    frontendSnowpack,
+    frontendSnowpackRuntime,
+    frontendSnowpackConfig,
   };
 
   return {
     runtimeConfig,
     load: load.bind(null, runtimeConfig),
-    shutdown: () => snowpack.shutdown(),
+    shutdown: () => Promise.all([backendSnowpack.shutdown(), frontendSnowpack.shutdown()]).then(() => void 0),
   };
 }
