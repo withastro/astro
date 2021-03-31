@@ -1,12 +1,12 @@
 import type { LogOptions } from '../logger.js';
-import type { AstroConfig } from '../@types/astro';
+import type { AstroConfig, CompileResult, TransformResult } from '../@types/astro';
 
 import path from 'path';
 import micromark from 'micromark';
 import gfmSyntax from 'micromark-extension-gfm';
 import matter from 'gray-matter';
 import gfmHtml from 'micromark-extension-gfm/html.js';
-import { CompileResult, TransformResult } from '../@types/astro';
+
 import { parse } from '../parser/index.js';
 import { createMarkdownHeadersCollector } from '../micromark-collect-headers.js';
 import { encodeMarkdown } from '../micromark-encode.js';
@@ -130,13 +130,12 @@ export default __render;
 // triggered by loading a component directly by URL.
 export async function __renderPage({request, children, props}) {
   const currentChild = {
-    setup: typeof setup === 'undefined' ? (passthrough) => passthrough : setup,
     layout: typeof __layout === 'undefined' ? undefined : __layout,
     content: typeof __content === 'undefined' ? undefined : __content,
     __render,
   };
 
-  await currentChild.setup({request});
+  import.meta.request = request;
   const childBodyResult = await currentChild.__render(props, children);
 
   // find layout, if one was given.
