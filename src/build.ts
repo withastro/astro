@@ -61,7 +61,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
 
   const runtime = await createRuntime(astroConfig, { logging: runtimeLogging });
   const { runtimeConfig } = runtime;
-  const { snowpack } = runtimeConfig;
+  const { backendSnowpack: snowpack } = runtimeConfig;
   const resolve = (pkgName: string) => snowpack.getUrlForPackage(pkgName);
 
   const imports = new Set<string>();
