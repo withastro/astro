@@ -1,5 +1,5 @@
-import type { LogOptions } from '../logger.js';
-import type { AstroConfig, CompileResult, TransformResult } from '../@types/astro';
+import type { CompileResult, TransformResult } from '../@types/astro';
+import type { CompileOptions } from '../@types/compiler.js';
 
 import path from 'path';
 import micromark from 'micromark';
@@ -12,12 +12,6 @@ import { createMarkdownHeadersCollector } from '../micromark-collect-headers.js'
 import { encodeMarkdown } from '../micromark-encode.js';
 import { optimize } from './optimize/index.js';
 import { codegen } from './codegen.js';
-
-interface CompileOptions {
-  astroConfig: AstroConfig;
-  logging: LogOptions;
-  resolve: (p: string) => Promise<string>;
-}
 
 function internalImport(internalPath: string) {
   return `/_astro_internal/${internalPath}`;

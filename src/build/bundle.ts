@@ -1,4 +1,4 @@
-import type { AstroConfig, ValidExtensionPlugins } from '../@types/astro';
+import type { AstroConfig, RuntimeMode, ValidExtensionPlugins } from '../@types/astro';
 import type { ImportDeclaration } from '@babel/types';
 import type { InputOptions, OutputOptions } from 'rollup';
 import type { AstroRuntime } from '../runtime';
@@ -62,9 +62,10 @@ interface CollectDynamic {
   astroConfig: AstroConfig;
   resolve: (s: string) => Promise<string>;
   logging: LogOptions;
+  mode: RuntimeMode;
 }
 
-export async function collectDynamicImports(filename: URL, { astroConfig, logging, resolve }: CollectDynamic) {
+export async function collectDynamicImports(filename: URL, { astroConfig, logging, resolve, mode }: CollectDynamic) {
   const imports = new Set<string>();
 
   // Only astro files
@@ -89,6 +90,7 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
       astroConfig,
       resolve,
       logging,
+      mode,
     },
   });
 

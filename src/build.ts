@@ -1,4 +1,4 @@
-import type { AstroConfig } from './@types/astro';
+import type { AstroConfig, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { LoadResult } from './runtime';
 
@@ -60,14 +60,15 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     dest: defaultLogDestination,
   };
 
-  const runtime = await createRuntime(astroConfig, { logging: runtimeLogging });
+  const mode: RuntimeMode = 'production';
+  const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
   const { runtimeConfig } = runtime;
   const { backendSnowpack: snowpack } = runtimeConfig;
   const resolve = (pkgName: string) => snowpack.getUrlForPackage(pkgName);
 
   const imports = new Set<string>();
   const statics = new Set<string>();
-  const collectImportsOptions = { astroConfig, logging, resolve };
+  const collectImportsOptions = { astroConfig, logging, resolve, mode };
 
   for (const pathname of await allPages(pageRoot)) {
     const filepath = new URL(`file://${pathname}`);
