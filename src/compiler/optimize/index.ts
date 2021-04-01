@@ -57,7 +57,7 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
       if (collection.enter.has(node.type)) {
         const fns = collection.enter.get(node.type)!;
         for (let fn of fns) {
-          fn(node, parent, key, index);
+          fn.call(this, node, parent, key, index);
         }
       }
     },
@@ -65,7 +65,7 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
       if (collection.leave.has(node.type)) {
         const fns = collection.leave.get(node.type)!;
         for (let fn of fns) {
-          fn(node, parent, key, index);
+          fn.call(this, node, parent, key, index);
         }
       }
     },
@@ -82,8 +82,11 @@ export async function optimize(ast: Ast, opts: OptimizeOptions) {
   const htmlVisitors = createVisitorCollection();
   const cssVisitors = createVisitorCollection();
   const finalizers: Array<() => Promise<void>> = [];
+  const { astroConfig } = opts.compileOptions;
+  const { plugins = [] } = astroConfig;
 
-  const optimizers = [optimizeStyles(opts), optimizeDoctype(opts), optimizeModuleScripts(opts)];
+  const optimizers = [optimizeStyles(opts), optimizeDoctype(opts), optimizeModuleScripts(opts)]
+    .concat(plugins.map(p => p.transform())); 
 
   for (const optimizer of optimizers) {
     collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);

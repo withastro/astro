@@ -1,12 +1,10 @@
-export interface AstroConfigRaw {
-  dist: string;
-  projectRoot: string;
-  astroRoot: string;
-  public: string;
-  jsx?: string;
-}
+import type { Optimizer } from './optimizer';
 
 export type ValidExtensionPlugins = 'astro' | 'react' | 'preact' | 'svelte' | 'vue';
+
+export interface AstroPlugin {
+  transform(): Optimizer;
+}
 
 export interface AstroConfig {
   dist: string;
@@ -14,6 +12,7 @@ export interface AstroConfig {
   astroRoot: URL;
   public: URL;
   extensions?: Record<string, ValidExtensionPlugins>;
+  plugins?: AstroPlugin[];
 }
 
 export interface JsxItem {

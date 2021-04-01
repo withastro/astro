@@ -8,7 +8,8 @@
   },
   "exports": {
     ".": "./index.mjs",
-    "./Prism.astro": "./Prism.astro"
+    "./Prism.astro": "./Prism.astro",
+    "./astro-plugin": "./astro-plugin.mjs"
   },
   "keywords": [],
   "author": "",
