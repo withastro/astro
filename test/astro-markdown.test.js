@@ -42,4 +42,12 @@ Markdown('Can load markdown pages with hmx', async () => {
   assert.ok($('#test').length, 'There is a div added via a component from markdown');
 });
 
+Markdown('Can load more complex jsxy stuff', async () => {
+  const result = await runtime.load('/complex');
+
+  const $ = doc(result.contents);
+  const $el = $('#test');
+  assert.equal($el.text(), 'Hello world');
+});
+
 Markdown.run();

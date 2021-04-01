@@ -48,7 +48,7 @@ npm install --save-dev snowpack
 
 ## Snowpack's development server
 
-Adding a basic HTML file allows us to run Snowpack's development server, an instant development environment for unbundled development. The development server builds a file only when it's requested by the browser. That means that Snowpack can start up instantly (usually in **<50 ms**) and scale to infinitely large projects without slowing down. In contrast, it's common to see 30+ second development startup times when building large apps with a traditional bundler.
+Adding a basic HTML file allows us to run Snowpack's development server, an instant development environment for unbundled development. The development server builds a file only when it's requested by the browser. That means that Snowpack can start up instantly (usually in **\<50 ms**) and scale to infinitely large projects without slowing down. In contrast, it's common to see 30+ second development startup times when building large apps with a traditional bundler.
 
 Create an `index.html` in your project with the following contents:
 
