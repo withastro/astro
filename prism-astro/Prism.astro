@@ -10,10 +10,7 @@ export let code;
 const grammar = Prism.languages[lang];
 let html = Prism.highlight(code, grammar, lang);
 
-console.log("HERE I AM", html);
-
 let className = `language-${lang}`;
-
 ---
 
 <pre class={className}><code class={className}>{html}</code></pre>
