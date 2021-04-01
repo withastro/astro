@@ -10,7 +10,7 @@ date: 2020-05-26
 
 After 40+ beta versions & release candidates we are very excited to introduce **Snowpack 2.0: A build system for the modern web.**
 
-- Starts up in <50ms and stays fast in large projects.
+- Starts up in \<50ms and stays fast in large projects.
 - Bundle-free development with bundled production builds.
 - Built-in support for TypeScript, JSX, CSS Modules and more.
 - Works with React, Preact, Vue, Svelte, and all your favorite libraries.

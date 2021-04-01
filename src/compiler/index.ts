@@ -8,8 +8,9 @@ import matter from 'gray-matter';
 import gfmHtml from 'micromark-extension-gfm/html.js';
 
 import { parse } from '../parser/index.js';
-import { createMarkdownHeadersCollector } from '../micromark-collect-headers.js';
-import { encodeMarkdown } from '../micromark-encode.js';
+import { createMarkdownHeadersCollector } from './markdown/micromark-collect-headers.js';
+import { encodeMarkdown } from './markdown/micromark-encode.js';
+import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';
 import { optimize } from './optimize/index.js';
 import { codegen } from './codegen.js';
 
@@ -56,10 +57,11 @@ async function convertMdToJsx(
 ): Promise<TransformResult> {
   const { data: frontmatterData, content } = matter(contents);
   const { headers, headersExtension } = createMarkdownHeadersCollector();
+  const { htmlAstro, mdAstro } = encodeAstroMdx();
   const mdHtml = micromark(content, {
     allowDangerousHtml: true,
-    extensions: [gfmSyntax()],
-    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension],
+    extensions: [gfmSyntax(), ...htmlAstro],
+    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension, mdAstro],
   });
 
   // TODO: Warn if reserved word is used in "frontmatterData"

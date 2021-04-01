@@ -84,8 +84,6 @@ Example:
 
 You can further customize this the build behavior for any mounted directory by using the expanded object notation:
 
- <!-- snowpack/src/config.ts -->
-
 ```js
 // snowpack.config.js
 // Example: expanded object notation "mount" usage
@@ -441,7 +439,7 @@ Run Snowpack's build pipeline through a file watcher. This option works best for
 
 Toggles whether HTML fragments are transformed like full HTML pages.
 
-HTML fragments are HTML files not starting with "<!doctype html>".
+HTML fragments are HTML files not starting with "\<!doctype html\>".
 
 ### buildOptions.jsxFactory
 

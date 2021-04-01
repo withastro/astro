@@ -54,6 +54,8 @@
     "magic-string": "^0.25.3",
     "micromark": "^2.11.4",
     "micromark-extension-gfm": "^0.3.3",
+    "micromark-extension-mdx-expression": "^0.3.2",
+    "micromark-extension-mdx-jsx": "^0.3.3",
     "node-fetch": "^2.6.1",
     "postcss": "^8.2.8",
     "react": "^17.0.1",
