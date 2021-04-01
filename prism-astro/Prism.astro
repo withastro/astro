@@ -1,0 +1,16 @@
+---
+import Prism from 'prismjs';
+import { addAstro } from './index.mjs';
+
+addAstro(Prism);
+
+export let lang;
+export let code;
+
+const grammar = Prism.languages[lang];
+let html = Prism.highlight(code, grammar, lang);
+
+let className = `language-${lang}`;
+---
+
+<pre class={className}><code class={className}>{html}</code></pre>

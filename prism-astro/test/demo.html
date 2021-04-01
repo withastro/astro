@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<title>prism-astro demo</title>
+<link rel="stylesheet" href="https://cdn.skypack.dev/prismjs/themes/prism-tomorrow.css">
+
+<pre class="language-astro"><code class="language-astro">---
+import Card from '../components/Card.jsx';
+import PokemonLookup from '../components/PokemonLookup.astro';
+import CompanyLogo from '../components/CompanyLogo.jsx';
+import NewsAssets from '../components/NewsAssets.svelte';
+import NewsTitle from '../components/NewsTitle.vue';
+import BaseHead from '../components/BaseHead.astro';
+import MainLayout from '../components/MainLayout.astro';
+
+// Using Snowpack? Want to be featured on snowpack.dev?
+// Add your project, organization, or company to the end of this list!
+import news from '../data/news.json';
+import users from '../data/users.json';
+
+const title: string = 'Community & News';
+const description = 'Snowpack community news and companies that use Snowpack.';
+---
+
+&lt;!doctype html&gt;
+&lt;html&gt;
+
+&lt;head&gt;
+  &lt;BaseHead title={title} description={description} permalink="TODO" /&gt;
+
+  &lt;style lang="scss"&gt;
+    .intro {
+      margin-top: 1rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+      text-align: left;
+
+      a {
+        color: #2e5e82;
+      }
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+
+&lt;body&gt;
+  &lt;MainLayout&gt;
+    &lt;NewsTitle title={title} /&gt;
+    &lt;p&gt;
+      Get the latest news, blog posts, and tutorials on Snowpack. &lt;a href="/feed.xml"&gt;Also available via RSS.&lt;/a&gt;
+    &lt;/p&gt;
+
+    &lt;p&gt;
+      Got something that you think we should feature?
+      &lt;a href="https://github.com/snowpackjs/snowpack/edit/main/www/_data/news.js"&gt;Submit it!&lt;/a&gt;
+    &lt;/p&gt;
+
+    &lt;PokemonLookup number={1} /&gt;
+    &lt;PokemonLookup number={2} /&gt;
+    &lt;PokemonLookup number={3} /&gt;
+
+    &lt;div class="card-grid card-grid-3"&gt;
+      &lt;article class="discord-banner"&gt;
+        &lt;a href="https://discord.gg/snowpack" style="flex-shrink: 0; height: 48px;"&gt;&lt;img alt="Join us on Discord!"
+            src="https://img.shields.io/discord/712696926406967308.svg?label=&logo=discord&logoColor=ffffff&color=7389D8&labelColor=6A7EC2"
+            style="height: 48px;  border: none; margin-right: 1rem; filter: brightness(1.2) contrast(1.5);" /&gt;&lt;/a&gt;
+        &lt;div&gt;Join us on Discord to discuss Snowpack, meet other developers in our community, and show off what you’re
+          working on!&lt;/div&gt;
+      &lt;/article&gt;
+
+      {news.reverse().map((item: any) =&gt; &lt;Card:idle item={item} /&gt;)}
+    &lt;/div&gt;
+
+    &lt;div class="content"&gt;
+
+      &lt;h3&gt;Who's Using Snowpack?&lt;/h3&gt;
+
+      &lt;div class="company-logos"&gt;
+
+        {users.map((user) =&gt;
+        &lt;CompanyLogo user={user} /&gt;)}
+
+        &lt;a href="https://github.com/snowpackjs/snowpack/edit/main/www/_template/news.md" target="_blank"
+          title="Add Your Project/Company!" class="add-company-button"&gt;
+          &lt;svg style="height: 22px; margin-right: 8px;" aria-hidden="true" focusable="false" data-prefix="fas"
+            data-icon="plus" class="company-logo" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"&gt;
+            &lt;path fill="currentColor"
+              d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"&gt;
+            &lt;/path&gt;
+          &lt;/svg&gt;
+          Add your logo
+        &lt;/a&gt;
+      &lt;/div&gt;
+
+      &lt;NewsAssets /&gt;
+    &lt;/div&gt;
+  &lt;/MainLayout&gt;
+&lt;/body&gt;
+
+&lt;/html&gt;</code></pre>
+  <script type="module">
+    import Prism from 'https://cdn.skypack.dev/prismjs';
+    import { addAstro } from '../index.mjs';
+    Prism.manual = true;
+
+    async function go() {
+      await import('https://cdn.skypack.dev/prismjs/components/prism-typescript.js');
+
+      addAstro(Prism);
+
+      for(const el of document.querySelectorAll('code')) {
+        Prism.highlightElement(el);
+      }
+    }
+  
+    go();
+  </script>
