@@ -1,0 +1,28 @@
+---
+import Prism from 'prism-astro/Prism.astro';
+import 'prismjs/themes/prism-tomorrow.css';
+
+let title = 'Astro Build';
+---
+
+<html>
+<head>
+  <title>{title}</title>
+</head>
+<body>
+  <h1>{title}</h1>
+
+  <Prism lang="astro" code={`---
+let title = 'My Site';
+---
+
+<html>
+  <head>
+    <title>{title}</title>
+  </head>
+  <body>
+    <h1>{title}</h1>
+  </body>
+</html>`} />
+</body>
+</html>
