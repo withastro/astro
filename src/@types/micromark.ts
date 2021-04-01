@@ -1,4 +1,3 @@
-
 export interface MicromarkExtensionContext {
   sliceSerialize(node: any): string;
   raw(value: string): void;
