@@ -48,7 +48,6 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   // Non-Astro pages (file resources)
   if (!existsSync(selectedPageLoc) && !existsSync(selectedPageMdLoc)) {
     try {
-      console.log('loading', reqPath);
       const result = await frontendSnowpack.loadUrl(reqPath);
 
       // success
