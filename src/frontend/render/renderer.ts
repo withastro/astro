@@ -10,12 +10,13 @@ export interface Renderer {
   imports?: Record<string, string[]>;
 }
 
+/** Initialize Astro Component renderer for Static and Dynamic components */
 export function createRenderer(renderer: Renderer) {
   const _static: Renderer['renderStatic'] = (Component: any) => renderer.renderStatic(Component);
   const _imports = (context: DynamicRenderContext) => {
     const values = Object.values(renderer.imports ?? {})
-      .reduce((acc, values) => {
-        return [...acc, `{ ${values.join(', ')} }`];
+      .reduce((acc, v) => {
+        return [...acc, `{ ${v.join(', ')} }`];
       }, [])
       .join(', ');
     const libs = Object.keys(renderer.imports ?? {})

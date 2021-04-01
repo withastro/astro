@@ -17,6 +17,7 @@ const logging: LogOptions = {
   dest: defaultLogDestination,
 };
 
+/** Return contents of astro/pages */
 async function allPages(root: URL) {
   const api = new fdir()
     .filter((p) => /\.(astro|md)$/.test(p))
@@ -26,6 +27,7 @@ async function allPages(root: URL) {
   return files as string[];
 }
 
+/** Utility for merging two Set()s */
 function mergeSet(a: Set<string>, b: Set<string>) {
   for (let str of b) {
     a.add(str);
@@ -33,12 +35,14 @@ function mergeSet(a: Set<string>, b: Set<string>) {
   return a;
 }
 
+/** Utility for writing to file (async) */
 async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf-8' | null) {
   const outFolder = new URL('./', outPath);
   await mkdir(outFolder, { recursive: true });
   await writeFile(outPath, bytes, encoding || 'binary');
 }
 
+/** Utility for writing a build result to disk */
 async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'utf-8') {
   if (result.statusCode !== 200) {
     error(logging, 'build', result.error || result.statusCode);
@@ -49,6 +53,7 @@ async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'u
   }
 }
 
+/** The primary build action */
 export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const { projectRoot, astroRoot } = astroConfig;
   const pageRoot = new URL('./pages/', astroRoot);

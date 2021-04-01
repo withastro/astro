@@ -1,6 +1,7 @@
 import type { Element } from 'domhandler';
 import cheerio from 'cheerio';
 
+/** Given an HTML string, collect <link> and <img> tags */
 export function collectStatics(html: string) {
   const statics = new Set<string>();
 

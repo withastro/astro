@@ -2,6 +2,7 @@ import type { AstroConfig } from './@types/astro';
 import { join as pathJoin, resolve as pathResolve } from 'path';
 import { existsSync } from 'fs';
 
+/** Attempt to load an `astro.config.mjs` file */
 export async function loadConfig(rawRoot: string | undefined): Promise<AstroConfig | undefined> {
   if (typeof rawRoot === 'undefined') {
     rawRoot = process.cwd();

@@ -17,6 +17,7 @@ const buildAndExit = async (...args: Parameters<typeof build>) => {
 type Arguments = yargs.Arguments;
 type cliState = 'help' | 'version' | 'dev' | 'build';
 
+/** Determine which action the user requested */
 function resolveArgs(flags: Arguments): cliState {
   if (flags.version) {
     return 'version';
@@ -35,6 +36,7 @@ function resolveArgs(flags: Arguments): cliState {
   }
 }
 
+/** Display --help flag */
 function printHelp() {
   console.error(`  ${colors.bold('astro')} - Futuristic web development tool.
 
@@ -48,11 +50,13 @@ function printHelp() {
 `);
 }
 
+/** Display --version flag */
 async function printVersion() {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf-8'));
   console.error(pkg.version);
 }
 
+/** Handle `astro run` command */
 async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void>) {
   const astroConfig = await loadConfig(rawRoot);
   if (typeof astroConfig === 'undefined') {
@@ -69,6 +73,7 @@ const cmdMap = new Map([
   ['dev', devServer],
 ]);
 
+/** The primary CLI action */
 export async function cli(args: string[]) {
   const flags = yargs(args);
   const state = resolveArgs(flags);

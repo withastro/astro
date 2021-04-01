@@ -113,10 +113,12 @@ export const reserved = new Set([
 
 const void_element_names = /^(?:area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/;
 
+/** Is this a void HTML element? */
 export function is_void(name: string) {
   return void_element_names.test(name) || name.toLowerCase() === '!doctype';
 }
 
+/** Is this a valid HTML element? */
 export function is_valid(str: string): boolean {
   let i = 0;
 
@@ -130,6 +132,7 @@ export function is_valid(str: string): boolean {
   return true;
 }
 
+/** Utility to normalize HTML */
 export function sanitize(name: string) {
   return name
     .replace(/[^a-zA-Z0-9_]+/g, '_')

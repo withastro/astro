@@ -24,15 +24,17 @@ export function scopeSelectors(selector: string, className: string) {
   let ss = selector; // final output
 
   // Pass 1: parse selector string; extract top-level selectors
-  let start = 0;
-  let lastValue = '';
-  for (let n = 0; n < ss.length; n++) {
-    const isEnd = n === selector.length - 1;
-    if (isEnd || CSS_SEPARATORS.has(selector[n])) {
-      lastValue = selector.substring(start, isEnd ? undefined : n);
-      if (!lastValue) continue;
-      selectors.push({ start, end: isEnd ? n + 1 : n, value: lastValue });
-      start = n + 1;
+  {
+    let start = 0;
+    let lastValue = '';
+    for (let n = 0; n < ss.length; n++) {
+      const isEnd = n === selector.length - 1;
+      if (isEnd || CSS_SEPARATORS.has(selector[n])) {
+        lastValue = selector.substring(start, isEnd ? undefined : n);
+        if (!lastValue) continue;
+        selectors.push({ start, end: isEnd ? n + 1 : n, value: lastValue });
+        start = n + 1;
+      }
     }
   }
 
