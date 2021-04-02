@@ -2,7 +2,7 @@ import { Renderer, createRenderer } from './renderer';
 
 const SvelteRenderer: Renderer = {
   renderStatic(Component) {
-    return (props, ...children) => {
+    return async (props, ...children) => {
       const { html } = Component.render(props);
       return html;
     };

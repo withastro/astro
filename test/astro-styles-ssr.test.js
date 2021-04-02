@@ -34,7 +34,13 @@ StylesSSR.after(async () => {
 });
 
 StylesSSR('Has <link> tags', async () => {
-  const MUST_HAVE_LINK_TAGS = ['/_astro/components/SvelteScoped.svelte.css', '/_astro/components/VueCSS.vue.css', '/_astro/components/ReactCSS.css'];
+  const MUST_HAVE_LINK_TAGS = [
+    '/_astro/components/ReactCSS.css',
+    '/_astro/components/SvelteScoped.svelte.css',
+    '/_astro/components/VueCSS.vue.css',
+    '/_astro/components/VueModules.vue.css',
+    '/_astro/components/VueScoped.vue.css',
+  ];
 
   const result = await runtime.load('/');
   const $ = doc(result.contents);
@@ -46,14 +52,32 @@ StylesSSR('Has <link> tags', async () => {
 });
 
 StylesSSR('Has correct CSS classes', async () => {
-  const MUST_HAVE_CSS_CLASSES = ['react-title', 'vue-title', 'svelte-title'];
-
   const result = await runtime.load('/');
   const $ = doc(result.contents);
 
-  for (const className of MUST_HAVE_CSS_CLASSES) {
-    const el = $(`.${className}`);
-    assert.equal(el.length, 1);
+  const MUST_HAVE_CLASSES = {
+    '#react-css': 'react-title',
+    '#vue-css': 'vue-title',
+    '#vue-css-modules': '_title_1gi0u_2', // ⚠️ may be flaky
+    '#vue-scoped': 'vue-title', // also has data-v-* property
+    '#svelte-scoped': 'svelte-title', // also has additional class
+  };
+
+  for (const [selector, className] of Object.entries(MUST_HAVE_CLASSES)) {
+    const el = $(selector);
+    assert.ok(el.attr('class').includes(className));
+
+    // add’l test: Vue Scoped styles should have data-v-* attribute
+    if (selector === '#vue-scoped') {
+      const { attribs } = el.get(0);
+      const scopeId = Object.keys(attribs).find((k) => k.startsWith('data-v-'));
+      assert.ok(scopeId);
+    }
+
+    // add’l test: Svelte should have another class
+    if (selector === '#svelte-title') {
+      assert.not.equal(el.attr('class'), className);
+    }
   }
 });
 

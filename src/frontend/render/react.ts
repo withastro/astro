@@ -4,7 +4,7 @@ import ReactDOMServer from 'react-dom/server';
 
 const ReactRenderer: Renderer = {
   renderStatic(Component) {
-    return (props, ...children) => ReactDOMServer.renderToString(React.createElement(Component, props, children));
+    return async (props, ...children) => ReactDOMServer.renderToString(React.createElement(Component, props, children));
   },
   imports: {
     react: ['default as React'],

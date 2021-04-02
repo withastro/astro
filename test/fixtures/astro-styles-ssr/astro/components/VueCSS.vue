@@ -5,5 +5,5 @@
 </style>
 
 <template>
-  <h1 class="vue-title">Vue CSS</h1>
+  <h1 id="vue-css" class="vue-title">Vue CSS Modules</h1>
 </template>
