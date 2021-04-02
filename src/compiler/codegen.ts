@@ -170,7 +170,7 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
     case 'react': {
       if (['load', 'idle', 'visible'].includes(kind)) {
         return {
-          wrapper: `__preact_${kind}(${name}, ${JSON.stringify({
+          wrapper: `__react_${kind}(${name}, ${JSON.stringify({
             componentUrl: getComponentUrl(),
             componentExport: 'default',
             frameworkUrls: {
@@ -178,7 +178,7 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
               'react-dom': dynamicImports.get('react-dom'),
             },
           })})`,
-          wrapperImport: `import {__preact_${kind}} from '${internalImport('render/preact.js')}';`,
+          wrapperImport: `import {__react_${kind}} from '${internalImport('render/react.js')}';`,
         };
       }
 

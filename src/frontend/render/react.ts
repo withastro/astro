@@ -7,8 +7,8 @@ const ReactRenderer: Renderer = {
     return async (props, ...children) => ReactDOMServer.renderToString(React.createElement(Component, props, children));
   },
   imports: {
-    react: ['default as React'],
-    'react-dom': ['default as ReactDOM'],
+    react: ['default: React'],
+    'react-dom': ['default: ReactDOM'],
   },
   render({ Component, root, props }) {
     return `ReactDOM.render(React.createElement(${Component}, ${props}), ${root})`;

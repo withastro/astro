@@ -43,7 +43,7 @@ export function createRenderer(renderer: Renderer) {
       } catch (e) {
         value = '';
       }
-      value = `<div style="display:contents;" data-astro-id="${innerContext['data-astro-id']}">${value}</div>`;
+      value = `<div data-astro-id="${innerContext['data-astro-id']}">${value}</div>`;
 
       return `${value}\n<script type="module">${typeof wrapperStart === 'function' ? wrapperStart(innerContext) : wrapperStart}\n${_imports(renderContext)}\n${renderer.render({
         ...innerContext,
@@ -57,7 +57,7 @@ export function createRenderer(renderer: Renderer) {
     load: createDynamicRender('(async () => {', '})()'),
     idle: createDynamicRender('requestIdleCallback(async () => {', '})'),
     visible: createDynamicRender(
-      'const o = new IntersectionObserver(async ([entry]) => { if (!entry.isIntersection) { return; } o.disconnect();',
+      'const o = new IntersectionObserver(async ([entry]) => { if (!entry.isIntersecting) { return; } o.disconnect();',
       ({ root }) => `}); o.observe(${root})`
     ),
   };
