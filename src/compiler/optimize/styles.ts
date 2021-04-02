@@ -7,7 +7,7 @@ import sass from 'sass';
 import { RuntimeMode } from '../../@types/astro';
 import { OptimizeOptions, Optimizer } from '../../@types/optimizer';
 import type { TemplateNode } from '../../parser/interfaces';
-import astroScopedStyles from './postcss-scoped-styles/index.js';
+import astroScopedStyles, { NEVER_SCOPED_TAGS } from './postcss-scoped-styles/index.js';
 
 type StyleType = 'css' | 'scss' | 'sass' | 'postcss';
 
@@ -25,9 +25,6 @@ const getStyleType: Map<string, StyleType> = new Map([
   ['text/sass', 'sass'],
   ['text/scss', 'scss'],
 ]);
-
-/** HTML tags that should never get scoped classes */
-const NEVER_SCOPED_TAGS = new Set<string>(['html', 'head', 'body', 'script', 'style', 'link', 'meta']);
 
 /** Should be deterministic, given a unique filename */
 function hashFromFilename(filename: string): string {
@@ -53,6 +50,15 @@ export interface TransformStyleOptions {
   filename: string;
   scopedClass: string;
   mode: RuntimeMode;
+}
+
+/** given a class="" string, does it contain a given class? */
+function hasClass(classList: string, className: string): boolean {
+  if (!className) return false;
+  for (const c of classList.split(' ')) {
+    if (className === c.trim()) return true;
+  }
+  return false;
 }
 
 /** Convert styles to scoped CSS */
@@ -149,12 +155,18 @@ export default function optimizeStyles({ compileOptions, filename, fileID }: Opt
               const attr = node.attributes[classIndex];
               for (let k = 0; k < attr.value.length; k++) {
                 if (attr.value[k].type === 'Text') {
-                  // string literal
-                  attr.value[k].raw += ' ' + scopedClass;
-                  attr.value[k].data += ' ' + scopedClass;
+                  // don‘t add same scopedClass twice
+                  if (!hasClass(attr.value[k].data, scopedClass)) {
+                    // string literal
+                    attr.value[k].raw += ' ' + scopedClass;
+                    attr.value[k].data += ' ' + scopedClass;
+                  }
                 } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
-                  // MustacheTag
-                  attr.value[k].content = `(${attr.value[k].content}) + ' ${scopedClass}'`;
+                  // don‘t add same scopedClass twice (this check is a little more basic, but should suffice)
+                  if (!attr.value[k].content.includes(`' ${scopedClass}'`)) {
+                    // MustacheTag
+                    attr.value[k].content = `(${attr.value[k].content}) + ' ${scopedClass}'`;
+                  }
                 }
               }
             }
