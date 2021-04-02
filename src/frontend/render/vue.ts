@@ -18,7 +18,7 @@ const Vue: Renderer = {
     };
   },
   imports: {
-    vue: ['createApp', 'h as createElement'],
+    vue: ['createApp', 'h: createElement'],
   },
   render({ Component, root, props }) {
     return `const App = { render() { return createElement(${Component}, ${props} )} };
