@@ -12,6 +12,9 @@ interface Selector {
 
 const CSS_SEPARATORS = new Set([' ', ',', '+', '>', '~']);
 
+/** HTML tags that should never get scoped classes */
+export const NEVER_SCOPED_TAGS = new Set<string>(['base', 'body', 'font', 'frame', 'frameset', 'head', 'html', 'link', 'meta', 'noframes', 'noscript', 'script', 'style', 'title']);
+
 /**
  * Scope Selectors
  * Given a selector string (`.btn>span,.nav>span`), add an additional CSS class to every selector (`.btn.myClass>span.myClass,.nav.myClass>span.myClass`)
@@ -59,6 +62,12 @@ export function scopeSelectors(selector: string, className: string) {
           .replace(/^:global\(/, '')
           .replace(/\)$/, '') +
         tail;
+      continue;
+    }
+
+    // don‘t scope body, title, etc.
+    if (NEVER_SCOPED_TAGS.has(value)) {
+      ss = head + value + tail;
       continue;
     }
 
