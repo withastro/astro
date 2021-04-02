@@ -71,9 +71,37 @@ Supports:
 - `lang="scss"`: load as the `.scss` extension
 - `lang="sass"`: load as the `.sass` extension (no brackets; indent-style)
 
-### Autoprefixer
+#### Autoprefixer
 
 We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the default values, but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
+
+#### Tailwind
+
+Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
+
+```
+npm install @tailwindcss/jit tailwindcss
+```
+
+And also create a `tailwind.config.js` in your project root:
+
+```
+module.exports = {
+  // your options here
+}
+```
+
+_Note: a Tailwind config file is currently required to enable Tailwind in Astro, even if you use the default options._
+
+Then write Tailwind in your project just like you‘re used to:
+
+```astro
+<style>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+</style>
+```
 
 ## 🚀 Build & Deployment
 
@@ -100,3 +128,4 @@ Now upload the contents of `/_site_` to your favorite static site host.
 [browserslist]: https://github.com/browserslist/browserslist
 [sass]: https://sass-lang.com/
 [svelte]: https://svelte.dev
+[tailwind]: https://tailwindcss.com
