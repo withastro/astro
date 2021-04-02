@@ -4,7 +4,7 @@ import { Renderer, createRenderer } from './renderer';
 
 const Vue: Renderer = {
   renderStatic(Component) {
-    return (props, ...children) => {
+    return async (props, ...children) => {
       const app = createSSRApp({
         components: {
           Component,
@@ -13,8 +13,8 @@ const Vue: Renderer = {
           return createElement(Component as any, props);
         },
       });
-      // Uh oh, Vue's `renderToString` is async... Does that mean everything needs to be?
-      return renderToString(app) as any;
+      const html = await renderToString(app);
+      return html;
     };
   },
   imports: {
@@ -22,7 +22,7 @@ const Vue: Renderer = {
   },
   render({ Component, root, props }) {
     return `const App = { render() { return createElement(${Component}, ${props} )} };
-createApp(App).mount(${root})`;
+createApp(App).mount(${root});`;
   },
 };
 

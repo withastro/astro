@@ -5,7 +5,7 @@ interface DynamicRenderContext {
 }
 
 export interface Renderer {
-  renderStatic(Component: any): (props: Record<string, any>, ...children: any[]) => string;
+  renderStatic(Component: any): (props: Record<string, any>, ...children: any[]) => Promise<string>;
   render(context: { root: string; Component: string; props: string; [key: string]: string }): string;
   imports?: Record<string, string[]>;
 }
@@ -36,10 +36,10 @@ export function createRenderer(renderer: Renderer) {
     wrapperEnd: string | ((context: ReturnType<typeof createContext>) => string)
   ) => (Component: any, renderContext: DynamicRenderContext) => {
     const innerContext = createContext();
-    return (props: Record<string, any>, ...children: any[]) => {
+    return async (props: Record<string, any>, ...children: any[]) => {
       let value: string;
       try {
-        value = _static(Component)(props, ...children);
+        value = await _static(Component)(props, ...children);
       } catch (e) {
         value = '';
       }

@@ -7,7 +7,7 @@ Function.prototype(render);
 
 const Preact: Renderer = {
   renderStatic(Component) {
-    return (props, ...children) => renderToString(h(Component, props, ...children));
+    return async (props, ...children) => renderToString(h(Component, props, ...children));
   },
   imports: {
     preact: ['render', 'h'],

@@ -1,4 +1,4 @@
-<h1 class="svelte-title">Svelte Scoped</h1>
+<h1 id="svelte-scoped" class="svelte-title">Svelte Scoped</h1>
 
 <style>
   .svelte-title {
