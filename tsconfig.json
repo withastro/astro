@@ -5,13 +5,13 @@
 
     /* Basic Options */
     // "incremental": true,                         /* Enable incremental compilation */
-    "target": "es2020",                                /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */
-    "module": "ES2020",                           /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
+    "target": "ES2020",                             /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */
+    "module": "ES2020",                             /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */
     // "lib": [],                                   /* Specify library files to be included in the compilation. */
     // "allowJs": true,                             /* Allow javascript files to be compiled. */
     // "checkJs": true,                             /* Report errors in .js files. */
     // "jsx": "preserve",                           /* Specify JSX code generation: 'preserve', 'react-native', 'react', 'react-jsx' or 'react-jsxdev'. */
-    // "declaration": true,                         /* Generates corresponding '.d.ts' file. */
+    "declaration": true,                            /* Generates corresponding '.d.ts' file. */
     // "declarationMap": true,                      /* Generates a sourcemap for each corresponding '.d.ts' file. */
     // "sourceMap": true,                           /* Generates corresponding '.map' file. */
     // "outFile": "./",                             /* Concatenate and emit output to single file. */
@@ -44,7 +44,7 @@
     // "noPropertyAccessFromIndexSignature": true,  /* Require undeclared properties from index signatures to use element accesses. */
 
     /* Module Resolution Options */
-    "moduleResolution": "node",                  /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
+    "moduleResolution": "node",                     /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
     // "baseUrl": "./",                             /* Base directory to resolve non-absolute module names. */
     // "paths": {},                                 /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
     // "rootDirs": [],                              /* List of root folders whose combined content represents the structure of the project at runtime. */
