@@ -1,15 +1,25 @@
 import crypto from 'crypto';
+import fs from 'fs';
 import path from 'path';
 import autoprefixer from 'autoprefixer';
-import postcss from 'postcss';
+import esbuild from 'esbuild';
+import postcss, { Plugin } from 'postcss';
 import findUp from 'find-up';
 import sass from 'sass';
-import { RuntimeMode } from '../../@types/astro';
-import { OptimizeOptions, Optimizer } from '../../@types/optimizer';
+import type { RuntimeMode } from '../../@types/astro';
+import type { OptimizeOptions, Optimizer } from '../../@types/optimizer';
 import type { TemplateNode } from '../../parser/interfaces';
+import { debug } from '../../logger.js';
 import astroScopedStyles, { NEVER_SCOPED_TAGS } from './postcss-scoped-styles/index.js';
 
 type StyleType = 'css' | 'scss' | 'sass' | 'postcss';
+
+declare global {
+  interface ImportMeta {
+    /** https://nodejs.org/api/esm.html#esm_import_meta_resolve_specifier_parent */
+    resolve(specifier: string, parent?: string): Promise<any>;
+  }
+}
 
 const getStyleType: Map<string, StyleType> = new Map([
   ['.css', 'css'],
@@ -42,8 +52,15 @@ export interface StyleTransformResult {
   type: StyleType;
 }
 
-// cache node_modules resolutions for each run. saves looking up the same directory over and over again. blown away on exit.
-const nodeModulesMiniCache = new Map<string, string>();
+interface StylesMiniCache {
+  nodeModules: Map<string, string>; // filename: node_modules location
+  tailwindEnabled?: boolean; // cache once per-run
+}
+
+/** Simple cache that only exists in memory per-run. Prevents the same lookups from happening over and over again within the same build or dev server session. */
+const miniCache: StylesMiniCache = {
+  nodeModules: new Map<string, string>(),
+};
 
 export interface TransformStyleOptions {
   type?: string;
@@ -72,17 +89,18 @@ async function transformStyle(code: string, { type, filename, scopedClass, mode 
   let includePaths: string[] = [path.dirname(filename)];
 
   // include node_modules to includePaths (allows @use-ing node modules, if it can be located)
-  const cachedNodeModulesDir = nodeModulesMiniCache.get(filename);
+  const cachedNodeModulesDir = miniCache.nodeModules.get(filename);
   if (cachedNodeModulesDir) {
     includePaths.push(cachedNodeModulesDir);
   } else {
     const nodeModulesDir = await findUp('node_modules', { type: 'directory', cwd: path.dirname(filename) });
     if (nodeModulesDir) {
-      nodeModulesMiniCache.set(filename, nodeModulesDir);
+      miniCache.nodeModules.set(filename, nodeModulesDir);
       includePaths.push(nodeModulesDir);
     }
   }
 
+  // 1. Preprocess (currently only Sass supported)
   let css = '';
   switch (styleType) {
     case 'css': {
@@ -91,13 +109,7 @@ async function transformStyle(code: string, { type, filename, scopedClass, mode 
     }
     case 'sass':
     case 'scss': {
-      css = sass
-        .renderSync({
-          outputStyle: mode === 'production' ? 'compressed' : undefined,
-          data: code,
-          includePaths,
-        })
-        .css.toString('utf8');
+      css = sass.renderSync({ data: code, includePaths }).css.toString('utf8');
       break;
     }
     default: {
@@ -105,7 +117,28 @@ async function transformStyle(code: string, { type, filename, scopedClass, mode 
     }
   }
 
-  css = await postcss([astroScopedStyles({ className: scopedClass }), autoprefixer()])
+  // 2. Post-process (PostCSS)
+  const postcssPlugins: Plugin[] = [];
+
+  // 2a. Tailwind (only if project uses Tailwind)
+  if (miniCache.tailwindEnabled) {
+    try {
+      const { default: tailwindcss } = await import('@tailwindcss/jit');
+      postcssPlugins.push(tailwindcss());
+    } catch (err) {
+      console.error(err);
+      throw new Error(`tailwindcss not installed. Try running \`npm install tailwindcss\` and trying again.`);
+    }
+  }
+
+  // 2b. Astro scoped styles (always on)
+  postcssPlugins.push(astroScopedStyles({ className: scopedClass }));
+
+  // 2c. Autoprefixer (always on)
+  postcssPlugins.push(autoprefixer());
+
+  // 2e. Run PostCSS
+  css = await postcss(postcssPlugins)
     .process(css, { from: filename, to: undefined })
     .then((result) => result.css);
 
@@ -117,6 +150,21 @@ export default function optimizeStyles({ compileOptions, filename, fileID }: Opt
   const styleNodes: TemplateNode[] = []; // <style> tags to be updated
   const styleTransformPromises: Promise<StyleTransformResult>[] = []; // async style transform results to be finished in finalize();
   const scopedClass = `astro-${hashFromFilename(fileID)}`; // this *should* generate same hash from fileID every time
+
+  // find Tailwind config, if first run (cache for subsequent runs)
+  if (miniCache.tailwindEnabled === undefined) {
+    const tailwindNames = ['tailwind.config.js', 'tailwind.config.mjs'];
+    for (const loc of tailwindNames) {
+      const tailwindLoc = path.join(compileOptions.astroConfig.projectRoot.pathname, loc);
+      if (fs.existsSync(tailwindLoc)) {
+        miniCache.tailwindEnabled = true; // Success! We have a Tailwind config file.
+        debug(compileOptions.logging, 'tailwind', 'Found config. Enabling.');
+        break;
+      }
+    }
+    if (miniCache.tailwindEnabled !== true) miniCache.tailwindEnabled = false; // We couldn‘t find one; mark as false
+    debug(compileOptions.logging, 'tailwind', 'No config found. Skipping.');
+  }
 
   return {
     visitors: {
