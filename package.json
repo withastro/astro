@@ -29,7 +29,7 @@
     "@snowpack/plugin-sass": "^1.4.0",
     "@snowpack/plugin-svelte": "^3.6.0",
     "@snowpack/plugin-vue": "^2.4.0",
-    "@vue/server-renderer": "^3.0.10",
+    "@vue/server-renderer": "^3.0.11",
     "acorn": "^7.4.0",
     "acorn-jsx": "^5.3.1",
     "astring": "^1.7.0",
@@ -54,6 +54,7 @@
     "micromark-extension-mdx-jsx": "^0.3.3",
     "node-fetch": "^2.6.1",
     "postcss": "^8.2.8",
+    "postcss-icss-keyframes": "^0.2.1",
     "preact": "^10.5.13",
     "preact-render-to-string": "^5.1.18",
     "react": "^17.0.1",
@@ -63,7 +64,7 @@
     "sass": "^1.32.8",
     "snowpack": "^3.2.2",
     "svelte": "^3.35.0",
-    "vue": "^3.0.10",
+    "vue": "^3.0.11",
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
