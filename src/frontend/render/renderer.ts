@@ -1,18 +1,8 @@
-interface DynamicRenderContext {
-  componentUrl: string;
-  componentExport: string;
-  frameworkUrls: string;
-}
-
-export interface Renderer {
-  renderStatic(Component: any): (props: Record<string, any>, ...children: any[]) => Promise<string>;
-  render(context: { root: string; Component: string; props: string; [key: string]: string }): string;
-  imports?: Record<string, string[]>;
-}
+import type { ComponentRenderer, DynamicRenderContext, DynamicRendererGenerator, StaticRendererGenerator } from '../../@types/renderer';
 
 /** Initialize Astro Component renderer for Static and Dynamic components */
-export function createRenderer(renderer: Renderer) {
-  const _static: Renderer['renderStatic'] = (Component: any) => renderer.renderStatic(Component);
+export function createRenderer(renderer: ComponentRenderer) {
+  const _static: StaticRendererGenerator = (Component) => renderer.renderStatic(Component);
   const _imports = (context: DynamicRenderContext) => {
     const values = Object.values(renderer.imports ?? {})
       .reduce((acc, v) => {
@@ -31,12 +21,9 @@ export function createRenderer(renderer: Renderer) {
     const astroId = `${Math.floor(Math.random() * 1e16)}`;
     return { ['data-astro-id']: astroId, root: `document.querySelector('[data-astro-id="${astroId}"]')`, Component: 'Component' };
   };
-  const createDynamicRender = (
-    wrapperStart: string | ((context: ReturnType<typeof createContext>) => string),
-    wrapperEnd: string | ((context: ReturnType<typeof createContext>) => string)
-  ) => (Component: any, renderContext: DynamicRenderContext) => {
+  const createDynamicRender: DynamicRendererGenerator = (wrapperStart, wrapperEnd) => (Component, renderContext) => {
     const innerContext = createContext();
-    return async (props: Record<string, any>, ...children: any[]) => {
+    return async (props, ...children) => {
       let value: string;
       try {
         value = await _static(Component)(props, ...children);

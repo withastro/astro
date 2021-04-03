@@ -1,6 +1,7 @@
-import { Renderer, createRenderer } from './renderer';
+import type { ComponentRenderer } from '../../@types/renderer';
+import { createRenderer } from './renderer';
 
-const SvelteRenderer: Renderer = {
+const SvelteRenderer: ComponentRenderer = {
   renderStatic(Component) {
     return async (props, ...children) => {
       const { html } = Component.render(props);

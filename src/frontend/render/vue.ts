@@ -1,8 +1,9 @@
+import type { ComponentRenderer } from '../../@types/renderer';
 import { renderToString } from '@vue/server-renderer';
 import { createSSRApp, h as createElement } from 'vue';
-import { Renderer, createRenderer } from './renderer';
+import { createRenderer } from './renderer';
 
-const Vue: Renderer = {
+const Vue: ComponentRenderer = {
   renderStatic(Component) {
     return async (props, ...children) => {
       const app = createSSRApp({
