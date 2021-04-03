@@ -2,8 +2,8 @@ import crypto from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import autoprefixer from 'autoprefixer';
-import esbuild from 'esbuild';
 import postcss, { Plugin } from 'postcss';
+import postcssKeyframes from 'postcss-icss-keyframes';
 import findUp from 'find-up';
 import sass from 'sass';
 import type { RuntimeMode } from '../../@types/astro';
@@ -27,11 +27,9 @@ const getStyleType: Map<string, StyleType> = new Map([
   ['.sass', 'sass'],
   ['.scss', 'scss'],
   ['css', 'css'],
-  ['postcss', 'postcss'],
   ['sass', 'sass'],
   ['scss', 'scss'],
   ['text/css', 'css'],
-  ['text/postcss', 'postcss'],
   ['text/sass', 'sass'],
   ['text/scss', 'scss'],
 ]);
@@ -134,7 +132,16 @@ async function transformStyle(code: string, { type, filename, scopedClass, mode 
   // 2b. Astro scoped styles (always on)
   postcssPlugins.push(astroScopedStyles({ className: scopedClass }));
 
-  // 2c. Autoprefixer (always on)
+  // 2c. Scoped @keyframes
+  postcssPlugins.push(
+    postcssKeyframes({
+      generateScopedName(keyframesName) {
+        return `${keyframesName}-${scopedClass}`;
+      },
+    })
+  );
+
+  // 2d. Autoprefixer (always on)
   postcssPlugins.push(autoprefixer());
 
   // 2e. Run PostCSS
