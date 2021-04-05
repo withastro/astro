@@ -26,7 +26,7 @@ type LoadResultSuccess = {
   contentType?: string | false;
 };
 type LoadResultNotFound = { statusCode: 404; error: Error };
-type LoadResultRedirect = { statusCode: 301 | 302; location: string; };
+type LoadResultRedirect = { statusCode: 301 | 302; location: string };
 type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'unknown'; error: Error });
 
 export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError;
@@ -45,7 +45,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   info(logging, 'access', reqPath);
 
   const searchResult = searchForPage(fullurl, astroRoot);
-  if(searchResult.statusCode === 404) {
+  if (searchResult.statusCode === 404) {
     try {
       const result = await frontendSnowpack.loadUrl(reqPath);
 
@@ -65,7 +65,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     }
   }
 
-  if(searchResult.statusCode === 301) {
+  if (searchResult.statusCode === 301) {
     return { statusCode: 301, location: searchResult.pathname };
   }
 

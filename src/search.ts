@@ -6,54 +6,57 @@ interface PageLocation {
 }
 
 function findAnyPage(candidates: Array<string>, astroRoot: URL): PageLocation | false {
-  for(let candidate of candidates) {
+  for (let candidate of candidates) {
     const url = new URL(`./pages/${candidate}`, astroRoot);
-    if(existsSync(url)) {
+    if (existsSync(url)) {
       return {
         fileURL: url,
-        snowpackURL: `/_astro/pages/${candidate}.js`
+        snowpackURL: `/_astro/pages/${candidate}.js`,
       };
     }
   }
   return false;
 }
 
-type SearchResult = {
-  statusCode: 200;
-  location: PageLocation;
-  pathname: string;
-} | {
-  statusCode: 301;
-  location: null;
-  pathname: string;
-} | {
-  statusCode: 404;
-};
+type SearchResult =
+  | {
+      statusCode: 200;
+      location: PageLocation;
+      pathname: string;
+    }
+  | {
+      statusCode: 301;
+      location: null;
+      pathname: string;
+    }
+  | {
+      statusCode: 404;
+    };
 
 export function searchForPage(url: URL, astroRoot: URL): SearchResult {
   const reqPath = decodeURI(url.pathname);
   const base = reqPath.substr(1);
 
   // Try to find index.astro/md paths
-  if(reqPath.endsWith('/')) {
+  if (reqPath.endsWith('/')) {
     const candidates = [`${base}index.astro`, `${base}index.md`];
     const location = findAnyPage(candidates, astroRoot);
-    if(location) {
+    if (location) {
       return {
         statusCode: 200,
         location,
-        pathname: reqPath
+        pathname: reqPath,
       };
     }
   } else {
     // Try to find the page by its name.
     const candidates = [`${base}.astro`, `${base}.md`];
     let location = findAnyPage(candidates, astroRoot);
-    if(location) {
+    if (location) {
       return {
         statusCode: 200,
         location,
-        pathname: reqPath
+        pathname: reqPath,
       };
     }
   }
@@ -61,15 +64,15 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
   // Try to find name/index.astro/md
   const candidates = [`${base}/index.astro`, `${base}/index.md`];
   const location = findAnyPage(candidates, astroRoot);
-  if(location) {
+  if (location) {
     return {
       statusCode: 301,
       location: null,
-      pathname: reqPath + '/'
+      pathname: reqPath + '/',
     };
   }
 
   return {
-    statusCode: 404
+    statusCode: 404,
   };
 }
