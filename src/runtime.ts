@@ -3,6 +3,7 @@ import type { AstroConfig, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { CompileError } from './parser/utils/error.js';
 import { debug, info } from './logger.js';
+import { searchForPage } from './search.js';
 
 import { existsSync } from 'fs';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
@@ -25,9 +26,10 @@ type LoadResultSuccess = {
   contentType?: string | false;
 };
 type LoadResultNotFound = { statusCode: 404; error: Error };
+type LoadResultRedirect = { statusCode: 301 | 302; location: string; };
 type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'unknown'; error: Error });
 
-export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultError;
+export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError;
 
 // Disable snowpack from writing to stdout/err.
 snowpackLogger.level = 'silent';
@@ -38,15 +40,12 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   const { astroRoot } = config.astroConfig;
 
   const fullurl = new URL(rawPathname || '/', 'https://example.org/');
+
   const reqPath = decodeURI(fullurl.pathname);
-  const selectedPage = reqPath.substr(1) || 'index';
   info(logging, 'access', reqPath);
 
-  const selectedPageLoc = new URL(`./pages/${selectedPage}.astro`, astroRoot);
-  const selectedPageMdLoc = new URL(`./pages/${selectedPage}.md`, astroRoot);
-
-  // Non-Astro pages (file resources)
-  if (!existsSync(selectedPageLoc) && !existsSync(selectedPageMdLoc)) {
+  const searchResult = searchForPage(fullurl, astroRoot);
+  if(searchResult.statusCode === 404) {
     try {
       const result = await frontendSnowpack.loadUrl(reqPath);
 
@@ -66,61 +65,52 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     }
   }
 
-  for (const url of [`/_astro/pages/${selectedPage}.astro.js`, `/_astro/pages/${selectedPage}.md.js`]) {
-    try {
-      const mod = await backendSnowpackRuntime.importModule(url);
-      debug(logging, 'resolve', `${reqPath} -> ${url}`);
-      let html = (await mod.exports.__renderPage({
-        request: {
-          host: fullurl.hostname,
-          path: fullurl.pathname,
-          href: fullurl.toString(),
-        },
-        children: [],
-        props: {},
-      })) as string;
+  if(searchResult.statusCode === 301) {
+    return { statusCode: 301, location: searchResult.pathname };
+  }
 
-      // inject styles
-      // TODO: handle this in compiler
-      const styleTags = Array.isArray(mod.css) && mod.css.length ? mod.css.reduce((markup, href) => `${markup}\n<link rel="stylesheet" type="text/css" href="${href}" />`, '') : ``;
-      if (html.indexOf('</head>') !== -1) {
-        html = html.replace('</head>', `${styleTags}</head>`);
-      } else {
-        html = styleTags + html;
-      }
+  const snowpackURL = searchResult.location.snowpackURL;
 
-      return {
-        statusCode: 200,
-        contents: html,
-      };
-    } catch (err) {
-      // if this is a 404, try the next URL (will be caught at the end)
-      const notFoundError = err.toString().startsWith('Error: Not Found');
-      if (notFoundError) {
-        continue;
-      }
+  try {
+    const mod = await backendSnowpackRuntime.importModule(snowpackURL);
+    debug(logging, 'resolve', `${reqPath} -> ${snowpackURL}`);
+    let html = (await mod.exports.__renderPage({
+      request: {
+        host: fullurl.hostname,
+        path: fullurl.pathname,
+        href: fullurl.toString(),
+      },
+      children: [],
+      props: {},
+    })) as string;
 
-      if (err.code === 'parse-error') {
-        return {
-          statusCode: 500,
-          type: 'parse-error',
-          error: err,
-        };
-      }
+    // inject styles
+    // TODO: handle this in compiler
+    const styleTags = Array.isArray(mod.css) && mod.css.length ? mod.css.reduce((markup, href) => `${markup}\n<link rel="stylesheet" type="text/css" href="${href}" />`, '') : ``;
+    if (html.indexOf('</head>') !== -1) {
+      html = html.replace('</head>', `${styleTags}</head>`);
+    } else {
+      html = styleTags + html;
+    }
+
+    return {
+      statusCode: 200,
+      contents: html,
+    };
+  } catch (err) {
+    if (err.code === 'parse-error') {
       return {
         statusCode: 500,
-        type: 'unknown',
+        type: 'parse-error',
         error: err,
       };
     }
+    return {
+      statusCode: 500,
+      type: 'unknown',
+      error: err,
+    };
   }
-
-  // couldn‘t find match; 404
-  return {
-    statusCode: 404,
-    type: 'unknown',
-    error: new Error(`Could not locate ${selectedPage}`),
-  };
 }
 
 export interface AstroRuntime {

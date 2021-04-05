@@ -44,9 +44,10 @@ async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf-8
 
 /** Utility for writing a build result to disk */
 async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'utf-8') {
-  if (result.statusCode !== 200) {
-    error(logging, 'build', result.error || result.statusCode);
-    //return 1;
+  if (result.statusCode === 500 || result.statusCode === 404) {
+    error(logging, 'build', result.error  || result.statusCode);
+  } else if(result.statusCode !== 200) {
+    error(logging, 'build', `Unexpected load result (${result.statusCode}) for ${outPath.pathname}`);
   } else {
     const bytes = result.contents;
     await writeFilep(outPath, bytes, encoding);

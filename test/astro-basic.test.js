@@ -1,29 +1,13 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { createRuntime } from '../lib/runtime.js';
-import { loadConfig } from '../lib/config.js';
 import { doc } from './test-utils.js';
+import { setup } from './helpers.js';
 
-const Basics = suite('HMX Basics');
+const Basics = suite('Search paths');
 
-let runtime;
+setup(Basics, './fixtures/astro-basic');
 
-Basics.before(async () => {
-  const astroConfig = await loadConfig(new URL('./fixtures/astro-basics', import.meta.url).pathname);
-
-  const logging = {
-    level: 'error',
-    dest: process.stderr,
-  };
-
-  runtime = await createRuntime(astroConfig, { logging });
-});
-
-Basics.after(async () => {
-  (await runtime) && runtime.shutdown();
-});
-
-Basics('Can load page', async () => {
+Basics('Can load page', async ({ runtime }) => {
   const result = await runtime.load('/');
 
   assert.equal(result.statusCode, 200);
