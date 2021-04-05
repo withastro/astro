@@ -45,22 +45,22 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
         pathname: reqPath
       };
     }
-  }
-
-  // Try to find the page by its name.
-  let candidates = [`${base}.astro`, `${base}.md`];
-  let location = findAnyPage(candidates, astroRoot);
-  if(location) {
-    return {
-      statusCode: 200,
-      location,
-      pathname: reqPath
-    };
+  } else {
+    // Try to find the page by its name.
+    const candidates = [`${base}.astro`, `${base}.md`];
+    let location = findAnyPage(candidates, astroRoot);
+    if(location) {
+      return {
+        statusCode: 200,
+        location,
+        pathname: reqPath
+      };
+    }
   }
 
   // Try to find name/index.astro/md
-  candidates = [`${base}/index.astro`, `${base}/index.md`];
-  location = findAnyPage(candidates, astroRoot);
+  const candidates = [`${base}/index.astro`, `${base}/index.md`];
+  const location = findAnyPage(candidates, astroRoot);
   if(location) {
     return {
       statusCode: 301,
