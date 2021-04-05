@@ -28,6 +28,28 @@ Then run:
 npm run dev
 ```
 
+### ⚙️ Configuration
+
+To configure Astro, add a `astro.config.mjs` file in the root of your project. All of the options can be omitted. Here are the defaults:
+
+```js
+export default {
+  /** Where to resolve all URLs relative to. Useful if you have a monorepo project. */
+  projectRoot: '.',
+  /** Path to Astro components, pages, and data */
+  astroRoot: './astro',
+  /** When running `astro build`, path to final static output */
+  dist: './_site',
+  /** A folder of static files Astro will copy to the root. Useful for favicons, images, and other files that don‘t need processing. */
+  public: './public',
+  /** Extension-specific handlings */
+  extensions: {
+    /** Set this to "preact" or "react" to determine what *.jsx files should load */
+    '.jsx': 'react',
+  },
+};
+```
+
 ### 💧 Partial Hydration
 
 By default, Astro outputs zero client-side JS. If you'd like to include an interactive component in the client output, you may use any of the following techniques.
@@ -50,7 +72,7 @@ If you‘ve used [Svelte][svelte]’s styles before, Astro works almost the same
 <div class="scoped">I’m a scoped style</div>
 ```
 
-#### Sass
+#### 👓 Sass
 
 Astro also supports [Sass][sass] out-of-the-box; no configuration needed:
 
@@ -71,11 +93,11 @@ Supports:
 - `lang="scss"`: load as the `.scss` extension
 - `lang="sass"`: load as the `.sass` extension (no brackets; indent-style)
 
-#### Autoprefixer
+#### 🦊 Autoprefixer
 
 We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the default values, but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
 
-#### Tailwind
+#### 🍃 Tailwind
 
 Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
 

@@ -58,14 +58,13 @@ async function printVersion() {
 
 /** Handle `astro run` command */
 async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void>) {
-  const astroConfig = await loadConfig(rawRoot);
-  if (typeof astroConfig === 'undefined') {
-    console.error(colors.red('  An astro.config.mjs file is required.\n'));
-    printHelp();
+  try {
+    const astroConfig = await loadConfig(rawRoot);
+    return cmd(astroConfig);
+  } catch (err) {
+    console.error(colors.red(err.toString() || err));
     process.exit(1);
   }
-
-  return cmd(astroConfig);
 }
 
 const cmdMap = new Map([
