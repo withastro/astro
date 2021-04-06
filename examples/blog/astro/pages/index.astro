@@ -1,0 +1,43 @@
+---
+import MainHead from '../components/MainHead.astro';
+import Nav from '../components/Nav.astro';
+import PostPreview from '../components/PostPreview.astro';
+import Pagination from '../components/Pagination.astro';
+
+// posts
+import authorData from '../data/authors.json';
+
+const postData = import.meta.collection('./post/*.md');
+
+const PER_PAGE = 10;
+postData.sort((a, b) => new Date(b.date) - new Date(a.date)); // new -> old
+
+const start = 0;
+const currentPage = 1;
+const maxPages = 1;
+const posts = postData.splice(start, PER_PAGE);
+
+// page
+let title = 'Muppet Blog: Home';
+let description = 'An example blog on Astro';
+---
+
+<html>
+  <head>
+    <title>{title}</title>
+    <MainHead title={title} description={description} />
+  </head>
+
+  <body>
+    <Nav />
+
+    <main class="wrapper">
+      <h1>Recent posts</h1>
+      {posts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+    </main>
+
+    <footer>
+      <Pagination currentPage={currentPage} maxPages={maxPages} />
+    </footer>
+  </body>
+</html>

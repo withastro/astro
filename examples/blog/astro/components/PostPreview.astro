@@ -1,0 +1,58 @@
+---
+export let post;
+export let author;
+
+import AuthorCard from './AuthorCard.astro';
+
+function formatDate(date) {
+  return new Date(date).toUTCString();
+}
+---
+
+<style lang="scss">
+.post {
+  display: grid;
+  grid-template-columns: 8rem auto;
+  grid-gap: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.thumb {
+  width: 8rem;
+  height: 8rem;
+  object-fit: cover;
+  border-radius: 0.25rem;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+h1 {
+  font-weight: 700;
+  font-size: 1em;
+  margin-bottom: 0;
+}
+
+time {
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+</style>
+
+<article class="post">
+  <div class="thumb">
+    <img src={post.image} alt={post.title} />
+  </div>
+  <div class="data">
+    <h1>{post.title}</h1>
+    <AuthorCard author={author} />
+    <time>{formatDate(post.date)}</time>
+    <p>{post.description}</p>
+    <a href={post.url}>Read</a>
+  </div>
+</article>

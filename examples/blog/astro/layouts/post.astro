@@ -1,0 +1,31 @@
+---
+import AuthorCard from '../components/AuthorCard.astro';
+import MainHead from '../components/MainHead.astro';
+import Nav from '../components/Nav.astro';
+
+export let content;
+
+import authorData from '../data/authors.json';
+---
+
+<html>
+  <head>
+    <title>{content.title}</title>
+    <MainHead title={content.title} description={content.description} image={content.image} />
+  </head>
+
+  <body>
+    <Nav />
+
+    <main class="wrapper">
+      <h1>{content.title}</h1>
+      <AuthorCard author={authorData[content.author]} />
+      <article>
+        <slot />
+      </article>
+    </main>
+
+    <footer>
+    </footer>
+  </body>
+</html>

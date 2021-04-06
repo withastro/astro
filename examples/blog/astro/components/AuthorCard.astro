@@ -1,0 +1,31 @@
+---
+export let author;
+---
+
+<style lang="scss">
+.card {
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.5rem;
+  object-fit: cover;
+  border-radius: 50%;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    height: 100%;
+  }
+}
+</style>
+
+<div class="card">
+  <div class="avatar">
+    <img class="avatar" src={author.img} alt={author.name} />
+  </div>
+  {author.name}
+</div>
