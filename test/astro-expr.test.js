@@ -10,7 +10,7 @@ setup(Expressions, './fixtures/astro-expr');
 Expressions('Can load page', async ({ runtime }) => {
   const result = await runtime.load('/');
 
-  console.log(result)
+  console.log(result);
   assert.equal(result.statusCode, 200);
   console.log(result.contents);
 });

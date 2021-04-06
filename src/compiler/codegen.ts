@@ -503,7 +503,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
     components: {},
     css: [],
     importExportStatements: new Set(),
-    dynamicImports: new Map()
+    dynamicImports: new Map(),
   };
 
   const { script, componentPlugins } = compileModule(ast.module, state, compileOptions);
