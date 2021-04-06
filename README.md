@@ -8,8 +8,6 @@ A next-generation static-site generator with partial hydration. Use your favorit
 npm install astro
 ```
 
-TODO: astro boilerplate
-
 ## 🧞 Development
 
 Add a `dev` npm script to your `/package.json` file:
@@ -63,11 +61,11 @@ By default, Astro outputs zero client-side JS. If you'd like to include an inter
 
 If you‘ve used [Svelte][svelte]’s styles before, Astro works almost the same way. In any `.astro` file, start writing styles in a `<style>` tag like so:
 
-```astro
+```html
 <style>
-.scoped {
-  font-weight: bold;
-}
+  .scoped {
+    font-weight: bold;
+  }
 </style>
 
 <div class="scoped">I’m a scoped style</div>
@@ -77,13 +75,13 @@ If you‘ve used [Svelte][svelte]’s styles before, Astro works almost the same
 
 Astro also supports [Sass][sass] out-of-the-box; no configuration needed:
 
-```astro
+```html
 <style lang="scss">
-@use "../tokens" as *;
+  @use "../tokens" as *;
 
-.title {
-  color: $color.gray;
-}
+  .title {
+    color: $color.gray;
+  }
 </style>
 
 <h1 class="title">Title</h1>
@@ -118,11 +116,11 @@ _Note: a Tailwind config file is currently required to enable Tailwind in Astro,
 
 Then write Tailwind in your project just like you‘re used to:
 
-```astro
+```html
 <style>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
 </style>
 ```
 
@@ -132,7 +130,7 @@ Astro’s Collections API is useful for grabbing collections of content. Current
 
 ##### 🔽 Markdown
 
-```astro
+```jsx
 // pages/blog.astro
 ---
 import PostPreview from '../components/PostPreview.astro';
@@ -164,9 +162,9 @@ const blogPosts = [
 
 ##### 🧑‍🍳 Advanced usage
 
-All of the following options are supported under the 2nd parameter of `import.meta.collections()`:d
+All of the following options are supported under the 2nd parameter of `import.meta.collections()`:
 
-```astro
+```js
 const collection = import.meta.collections('./post/*.md', {
   /** If `page` is omitted, all results are returned */
   page: 1, // ⚠️ starts at 1, not 0
