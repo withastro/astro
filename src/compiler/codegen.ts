@@ -371,13 +371,6 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
   walk(enterNode, {
     enter(node: TemplateNode) {
       switch (node.type) {
-        case 'MustacheTagNew': {
-          break;
-        };
-        case 'Expression': {
-          
-          break;
-        }
         case 'MustacheTag':
           let code = compileExpressionSafe(node.content);
 
@@ -483,10 +476,6 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           return;
         case 'Style': {
           this.remove(); // this will be optimized in a global CSS file; remove so it‘s not accidentally inlined
-          return;
-        }
-        case 'Expression': {
-
           return;
         }
         default:
