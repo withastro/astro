@@ -7,6 +7,7 @@ import { walk } from 'estree-walker';
 import optimizeStyles from './styles.js';
 import optimizeDoctype from './doctype.js';
 import optimizeModuleScripts from './module-scripts.js';
+import optimizeCodeBlocks from './prism.js';
 
 interface VisitorCollection {
   enter: Map<string, VisitorFn[]>;
@@ -57,7 +58,7 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
       if (collection.enter.has(node.type)) {
         const fns = collection.enter.get(node.type)!;
         for (let fn of fns) {
-          fn(node, parent, key, index);
+          fn.call(this, node, parent, key, index);
         }
       }
     },
@@ -65,7 +66,7 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
       if (collection.leave.has(node.type)) {
         const fns = collection.leave.get(node.type)!;
         for (let fn of fns) {
-          fn(node, parent, key, index);
+          fn.call(this, node, parent, key, index);
         }
       }
     },
@@ -83,7 +84,7 @@ export async function optimize(ast: Ast, opts: OptimizeOptions) {
   const cssVisitors = createVisitorCollection();
   const finalizers: Array<() => Promise<void>> = [];
 
-  const optimizers = [optimizeStyles(opts), optimizeDoctype(opts), optimizeModuleScripts(opts)];
+  const optimizers = [optimizeStyles(opts), optimizeDoctype(opts), optimizeModuleScripts(opts), optimizeCodeBlocks(ast.module)];
 
   for (const optimizer of optimizers) {
     collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);

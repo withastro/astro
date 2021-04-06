@@ -9,7 +9,7 @@ export function addAstro(Prism) {
     scriptLang = 'typescript';
   } else {
     scriptLang = 'javascript';
-    console.warn('Prism TypeScript language not loading, Astro scripts will be treated as JavaScript.');
+    console.warn('Prism TypeScript language not loaded, Astro scripts will be treated as JavaScript.');
   }
 
   

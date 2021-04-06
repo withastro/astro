@@ -1,7 +1,7 @@
 import type { TemplateNode } from '../parser/interfaces';
 import type { CompileOptions } from './compiler';
 
-export type VisitorFn = (node: TemplateNode, parent: TemplateNode, type: string, index: number) => void;
+export type VisitorFn<T = TemplateNode> = (this: { skip: () => void; remove: () => void; replace: (node: T) => void }, node: T, parent: T, type: string, index: number) => void;
 
 export interface NodeVisitor {
   enter?: VisitorFn;
