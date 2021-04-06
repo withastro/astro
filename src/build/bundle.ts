@@ -7,7 +7,7 @@ import type { LogOptions } from '../logger';
 import esbuild from 'esbuild';
 import { promises as fsPromises } from 'fs';
 import { parse } from '../parser/index.js';
-import { optimize } from '../compiler/optimize/index.js';
+import { transform } from '../compiler/transform/index.js';
 import { getAttrValue } from '../ast.js';
 import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
@@ -86,7 +86,7 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
     return imports;
   }
 
-  await optimize(ast, {
+  await transform(ast, {
     filename: filename.pathname,
     fileID: '',
     compileOptions: {

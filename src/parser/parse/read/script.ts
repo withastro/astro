@@ -1,9 +1,9 @@
 // @ts-nocheck
 
-import * as acorn from '../acorn';
+import type { Node } from 'estree';
 import { Parser } from '../index.js';
 import { Script } from '../../interfaces.js';
-import { Node, Program } from 'estree';
+
 
 const script_closing_tag = '</script>';
 

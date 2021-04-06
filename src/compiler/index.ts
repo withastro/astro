@@ -11,7 +11,7 @@ import { parse } from '../parser/index.js';
 import { createMarkdownHeadersCollector } from './markdown/micromark-collect-headers.js';
 import { encodeMarkdown } from './markdown/micromark-encode.js';
 import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';
-import { optimize } from './optimize/index.js';
+import { transform } from './transform/index.js';
 import { codegen } from './codegen.js';
 
 /** Return Astro internal import URL */
@@ -29,7 +29,7 @@ interface ConvertAstroOptions {
  * .astro -> .jsx
  * Core function processing .astro files. Initiates all 3 phases of compilation:
  * 1. Parse
- * 2. Optimize
+ * 2. Transform
  * 3. Codegen
  */
 async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): Promise<TransformResult> {
@@ -40,8 +40,8 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
     filename,
   });
 
-  // 2. Optimize the AST
-  await optimize(ast, opts);
+  // 2. Transform the AST
+  await transform(ast, opts);
 
   // 3. Turn AST into JSX
   return await codegen(ast, opts);

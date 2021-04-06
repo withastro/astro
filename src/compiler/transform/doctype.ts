@@ -1,7 +1,7 @@
-import { Optimizer } from '../../@types/optimizer';
+import { Transformer } from '../../@types/transformer';
 
-/** Optimize <!doctype> tg */
-export default function (_opts: { filename: string; fileID: string }): Optimizer {
+/** Transform <!doctype> tg */
+export default function (_opts: { filename: string; fileID: string }): Transformer {
   let hasDoctype = false;
 
   return {
