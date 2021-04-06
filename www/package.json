@@ -12,7 +12,6 @@
   "license": "ISC",
   "devDependencies": {
     "astro": "file:../",
-    "prism-astro": "file:../prism-astro/",
     "prismjs": "^1.23.0"
   }
 }
