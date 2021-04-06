@@ -5,6 +5,7 @@ import PostPreview from '../components/PostPreview.astro';
 import Pagination from '../components/Pagination.astro';
 
 // posts
+import authorData from '../data/authors.json';
 import postData from './post/*.md';
 
 const PER_PAGE = 10;
@@ -29,9 +30,9 @@ let description = 'An example blog on Astro';
   <body>
     <Nav />
 
-    <main>
+    <main class="wrapper">
       <h1>Recent posts</h1>
-      {posts.map((post) => <PostPreview post={post} />)}
+      {posts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
     </main>
 
     <footer>

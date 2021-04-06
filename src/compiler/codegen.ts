@@ -369,7 +369,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         });
 
         // expose imported data to Astro script
-        dataStatement += `const ${name} = [${data.map((_, j) => `${name}_${j}`).join(',')}];\n`;
+        dataStatement += `const ${name} = [${found.map((importPath, j) => `{ ...${name}_${j}, url: '/${importPath}' }`).join(',')}];\n`;
       })
     );
 
