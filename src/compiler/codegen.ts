@@ -5,6 +5,7 @@ import type { JsxItem, TransformResult } from '../@types/astro';
 
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
+import glob from 'tiny-glob';
 import path from 'path';
 import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
@@ -278,6 +279,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
   const componentImports: ImportDeclaration[] = [];
   const componentProps: VariableDeclarator[] = [];
   const componentExports: ExportNamedDeclaration[] = [];
+  const globImports: ImportDeclaration[] = [];
 
   let script = '';
   let propsStatement = '';
@@ -294,7 +296,11 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
     while (--i >= 0) {
       const node = body[i];
       if (node.type === 'ImportDeclaration') {
-        componentImports.push(node);
+        if (node.source.value.indexOf('*') !== -1) {
+          globImports.push(node);
+        } else {
+          componentImports.push(node);
+        }
         body.splice(i, 1);
       }
       if (/^Export/.test(node.type)) {
@@ -339,9 +345,35 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         }
         propsStatement += `,`;
       }
-      propsStatement += `} = props;`;
+      propsStatement += `} = props;\n`;
     }
-    script = propsStatement + babelGenerator(program).code;
+
+    // handle importing data
+    let dataStatement = '';
+    await Promise.all(
+      globImports.map(async (globImport) => {
+        const defaultImport = globImport.specifiers.find(({ type }) => type === 'ImportDefaultSpecifier');
+        if (!defaultImport) throw new Error(`No default import found:\n  ${ast.module.content.substring(globImport.start || 0, globImport.end || 0)}`);
+
+        // locate files
+        const { name } = defaultImport.local;
+        const found = await glob(globImport.source.value, { cwd: path.dirname(filename), filesOnly: true });
+        const data = found.map((importPath) => {
+          if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
+          return `./` + importPath;
+        });
+
+        // add static imports (probably not the best, but async imports don‘t work just yet)
+        data.forEach((importPath, j) => {
+          importExportStatements.add(`import { __content as ${name}_${j} } from '${importPath}';`);
+        });
+
+        // expose imported data to Astro script
+        dataStatement += `const ${name} = [${data.map((_, j) => `${name}_${j}`).join(',')}];\n`;
+      })
+    );
+
+    script = propsStatement + dataStatement + babelGenerator(program).code;
   }
 
   return { script, componentPlugins };

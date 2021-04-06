@@ -1,0 +1,27 @@
+{
+  "animal": {
+    "name": "Animal",
+    "email": "animal@muppets.co",
+    "img": "/images/animal.jpg"
+  },
+  "kermit": {
+    "name": "Kermit the Frog",
+    "email": "kermit@muppets.co",
+    "img": "/images/kermit.jpg"
+  },
+  "ms-piggy": {
+    "name": "Animal",
+    "email": "mspiggy@muppets.co",
+    "img": "/images/ms-piggy.jpg"
+  },
+  "gonzo": {
+    "name": "Gonzo",
+    "email": "thegonz@muppets.co",
+    "img": "/images/gonzo.jpg"
+  },
+  "rizzo": {
+    "name": "Rizzo the Rat",
+    "email": "rizzo@muppets.co",
+    "img": "/images/rizzo.jpg"
+  }
+}

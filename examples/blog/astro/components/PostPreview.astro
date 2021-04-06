@@ -1,0 +1,19 @@
+---
+export let post;
+
+function formatUrl(slug) {
+  return `/post/${slug}`;
+}
+
+function formatDate(date) {
+  return new Date(date).toUTCString();
+}
+---
+
+<article>
+  <h1>{post.title}</h1>
+  <time>{formatDate(post.date)}</time><br />
+  <img src={post.image} alt={post.title} />
+  <p>{post.description}</p>
+  <a href={formatUrl(post.url)}>Read</a>
+</article>

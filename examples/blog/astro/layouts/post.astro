@@ -1,0 +1,25 @@
+---
+import MainHead from '../components/MainHead.astro';
+import Nav from '../components/Nav.astro';
+---
+
+<html>
+  <head>
+    <title>{content.title}</title>
+    <MainHead title={content.title} description={content.image} />
+  </head>
+
+  <body>
+    <Nav />
+
+    <main>
+      <h1>{content.title}</h1>
+      <article>
+        {content.content}
+      </article>
+    </main>
+
+    <footer>
+    </footer>
+  </body>
+</html>

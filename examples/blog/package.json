@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "build": "astro build",
+    "start": "astro dev"
+  },
+  "dependencies": {
+    "astro": "file:../../"
+  }
+}
