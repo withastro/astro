@@ -1,12 +1,30 @@
 ---
-export let currentPage: number;
-export let maxPages: number;
+export let page: number;
+export let hasNext: boolean;
+export let base: string;
+
+const prev = (page - 1) || 1;
+const next = page + 1;
 ---
 
-<nav>
-  <a href="">Prev</a>
-  <a href="?p=1">1</a>
-  <a href="?p=2">2</a>
-  <a href="?p=3">3</a>
-  <a href="?p=2">Next</a>
+<style lang="scss">
+.nav {
+  display: flex;
+  justify-content: space-between;
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 600px;
+}
+
+.link {
+  &[aria-disabled="true"] {
+    color: gray;
+    cursor: not-allowed;
+  }
+}
+</style>
+
+<nav class="nav">
+  <a class="link" href={`${base || '.'}/${prev}`}>Prev</a>
+  <a class="link" href={`${base || '.'}/${next}`} aria-disabled={!hasNext}>Next</a>
 </nav>

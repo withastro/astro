@@ -333,23 +333,23 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         case 'VariableDeclaration': {
           for (const declaration of node.declarations) {
             // only select import.meta.collection() calls here. this utility filters those out for us.
-            if (!isImportMetaDeclaration(declaration, 'collection')) continue;
-            if (declaration.id.type !== 'Identifier') continue;
-            const { id, init } = declaration;
-            if (!id || !init || init.type !== 'CallExpression') continue;
+            if (isImportMetaDeclaration(declaration, 'collection')) {
+              // remove import.meta.collection() so page continues to load
+              body.splice(i, 1);
 
-            // gather data
-            const namespace = id.name;
+              // if this is missing data, or in an unexpected format, skip
+              const { id, init } = declaration;
+              if (id.type !== 'Identifier' || !init || init.type !== 'CallExpression') continue;
 
-            // TODO: support more types (currently we can; it’s just a matter of parsing out the expression)
-            if ((init as any).arguments[0].type !== 'StringLiteral') {
-              throw new Error(`[import.meta.collection] Only string literals allowed, ex: \`import.meta.collection('./post/*.md')\`\n  ${state.filename}`);
+              // gather data
+              const namespace = id.name;
+              // TODO: support more than string literals
+              if ((init as any).arguments[0].type !== 'StringLiteral') {
+                throw new Error(`[import.meta.collection] Only string literals allowed, ex: \`import.meta.collection('./post/*.md')\`\n  ${state.filename}`);
+              }
+              const spec = (init as any).arguments[0].value;
+              if (typeof spec === 'string') collectionImports.set(namespace, spec);
             }
-            const spec = (init as any).arguments[0].value;
-            if (typeof spec === 'string') collectionImports.set(namespace, spec);
-
-            // remove node
-            body.splice(i, 1);
           }
           break;
         }

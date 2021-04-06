@@ -1,0 +1,41 @@
+---
+import MainHead from '../../../components/MainHead.astro';
+import Nav from '../../../components/Nav.astro';
+import PostPreview from '../../../components/PostPreview.astro';
+import Pagination from '../../../components/Pagination.astro';
+
+// page
+let { tag, page = 1 } = import.meta.request.query;
+let title = `Muppet Blog (Tagged: ${tag})`;
+let description = 'An example blog on Astro';
+
+// posts
+import authorData from '../../../data/authors.json';
+
+const PER_PAGE = 3;
+const postData = import.meta.collection('../../post/*.md');
+postData.sort((a, b) => new Date(b.date) - new Date(a.date)); // new -> old
+const start = (page - 1) * PER_PAGE;
+const posts = postData.filter((post) => post.tag === tag).slice(start, start + PER_PAGE);
+const hasNext = postData.length > start + PER_PAGE;
+---
+
+<html>
+  <head>
+    <title>{title}</title>
+    <MainHead title={title} description={description} />
+  </head>
+
+  <body>
+    <Nav />
+
+    <main class="wrapper">
+      <h1>Recent posts</h1>
+      {posts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+    </main>
+
+    <footer>
+      <Pagination page={1} hasNext={hasNext} base={`/tag/${tag}/page`} />
+    </footer>
+  </body>
+</html>

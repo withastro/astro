@@ -124,6 +124,30 @@ Then write Tailwind in your project just like you‘re used to:
 </style>
 ```
 
+#### 🚥 Dynamic Routes
+
+Astro supports dynamic routes as pages. For example, let‘s say we wanted to have a `/tag/[tag]` dynamic route. We‘d add that by creating a file at `/astro/pages/tag/[tag].astro` (yes the square brackets should really be part of the filename):
+
+```
+└── astro/
+    └── pages/
+        ├── tag/
+        │   └── [tag].astro
+        └── index.astro
+```
+
+Then in that new file, access the query param from `import.meta.request.query`:
+
+```jsx
+---
+let { tag } = import.meta.request.query;
+---
+
+<h1>Posts tagged {tag}</h1>
+```
+
+You can use dynamic routes for pagination, filtering, or generally querying data.
+
 #### 🍱 Collections (beta)
 
 Astro’s Collections API is useful for grabbing collections of content. Currently only `*.md` files are supported.
