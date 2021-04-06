@@ -35,9 +35,10 @@ function configDefaults(userConfig?: any): any {
 function normalizeConfig(userConfig: any, root: string): AstroConfig {
   const config: any = { ...(userConfig || {}) };
 
-  config.projectRoot = new URL(config.projectRoot + '/', root);
-  config.astroRoot = new URL(config.astroRoot + '/', root);
-  config.public = new URL(config.public + '/', root);
+  const fileProtocolRoot = `file://${root}/`;
+  config.projectRoot = new URL(config.projectRoot + '/', fileProtocolRoot);
+  config.astroRoot = new URL(config.astroRoot + '/', fileProtocolRoot);
+  config.public = new URL(config.public + '/', fileProtocolRoot);
 
   return config as AstroConfig;
 }
@@ -48,13 +49,11 @@ export async function loadConfig(rawRoot: string | undefined): Promise<AstroConf
     rawRoot = process.cwd();
   }
 
-  let config: any;
-
   const root = pathResolve(rawRoot);
-  const fileProtocolRoot = `file://${root}/`;
   const astroConfigPath = pathJoin(root, 'astro.config.mjs');
 
   // load
+  let config: any;
   if (existsSync(astroConfigPath)) {
     config = configDefaults((await import(astroConfigPath)).default);
   } else {
@@ -65,7 +64,7 @@ export async function loadConfig(rawRoot: string | undefined): Promise<AstroConf
   validateConfig(config);
 
   // normalize
-  config = normalizeConfig(config, fileProtocolRoot);
+  config = normalizeConfig(config, root);
 
   return config as AstroConfig;
 }

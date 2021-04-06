@@ -6,7 +6,8 @@ import Pagination from '../components/Pagination.astro';
 
 // posts
 import authorData from '../data/authors.json';
-import postData from './post/*.md';
+
+const postData = import.meta.collection('./post/*.md');
 
 const PER_PAGE = 10;
 postData.sort((a, b) => new Date(b.date) - new Date(a.date)); // new -> old
