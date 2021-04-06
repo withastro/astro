@@ -358,6 +358,11 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         // locate files
         const { name } = defaultImport.local;
         const found = await glob(globImport.source.value, { cwd: path.dirname(filename), filesOnly: true });
+
+        if (!found.length) {
+          throw new Error(`No files matched "${globImport.source.value}" in ${filename}`);
+        }
+
         const data = found.map((importPath) => {
           if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
           return `./` + importPath;
