@@ -7,14 +7,18 @@
   "license": "MIT",
   "type": "module",
   "exports": {
-    ".": "./mastro.mjs",
+    ".": "./astro.mjs",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
-    "./h": "./lib/h.js",
-    "./render/preact": "./lib/render/preact.js"
+    "./components/*.astro": "./components/*.astro"
   },
   "bin": {
     "astro": "astro.mjs"
   },
+  "files": [
+    "components",
+    "lib",
+    "prism-astro"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
@@ -57,6 +61,7 @@
     "postcss-icss-keyframes": "^0.2.1",
     "preact": "^10.5.13",
     "preact-render-to-string": "^5.1.18",
+    "prismjs": "^1.23.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "rollup": "^2.43.1",

@@ -1,16 +1,16 @@
 {
-  "name": "prism-astro",
+  "name": "astro-prism",
   "version": "1.0.0",
-  "description": "",
+  "description": "This is not published at this time.",
   "main": "index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "exports": {
-    ".": "./index.mjs",
-    "./Prism.astro": "./Prism.astro"
+    ".": "./index.mjs"
   },
   "keywords": [],
+  "private": true,
   "author": "",
   "license": "ISC",
   "devDependencies": {
