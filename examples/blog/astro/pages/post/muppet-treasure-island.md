@@ -5,6 +5,7 @@ tag: movie
 date: 1996-02-16
 image: /images/muppet-treasure-island.png
 author: ms-piggy
+description: Muppet Treasure Island is a 1996 American musical adventure comedy film directed by Brian Henson.
 ---
 
 Muppet Treasure Island is a 1996 American musical adventure comedy film directed by Brian Henson. It is the fifth theatrical film in The Muppets franchise.
