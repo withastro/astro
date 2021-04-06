@@ -1,6 +1,6 @@
 import type { CompileOptions } from '../@types/compiler';
 import type { AstroConfig, ValidExtensionPlugins } from '../@types/astro';
-import type { Ast, TemplateNode } from '../parser/interfaces';
+import type { Ast, Script, Style, TemplateNode } from '../parser/interfaces';
 import type { JsxItem, TransformResult } from '../@types/astro';
 
 import eslexer from 'es-module-lexer';
@@ -262,17 +262,18 @@ async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins
   return importMap;
 }
 
-/**
- * Codegen
- * Step 3/3 in Astro SSR.
- * This is the final pass over a document AST before it‘s converted to an h() function
- * and handed off to Snowpack to build.
- * @param {Ast} AST The parsed AST to crawl
- * @param {object} CodeGenOptions
- */
-export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOptions): Promise<TransformResult> {
-  const { extensions = defaultExtensions, astroConfig } = compileOptions;
-  await eslexer.init;
+type Components = Record<string, { type: string; url: string; plugin: string | undefined }>;
+
+interface CodegenState {
+  filename: string;
+  components: Components;
+  css: string[];
+  importExportStatements: Set<string>;
+  dynamicImports: DynamicImportMap;
+}
+
+function compileModule(module: Script, state: CodegenState, compileOptions: CompileOptions) {
+  const { extensions = defaultExtensions } = compileOptions;
 
   const componentImports: ImportDeclaration[] = [];
   const componentProps: VariableDeclarator[] = [];
@@ -280,12 +281,10 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
 
   let script = '';
   let propsStatement = '';
-  const importExportStatements: Set<string> = new Set();
-  const components: Record<string, { type: string; url: string; plugin: string | undefined }> = {};
   const componentPlugins = new Set<ValidExtensionPlugins>();
 
-  if (ast.module) {
-    const program = babelParser.parse(ast.module.content, {
+  if (module) {
+    const program = babelParser.parse(module.content, {
       sourceType: 'module',
       plugins: ['jsx', 'typescript', 'topLevelAwait'],
     }).program;
@@ -317,7 +316,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
       const componentType = path.posix.extname(importUrl);
       const componentName = path.posix.basename(importUrl, componentType);
       const plugin = extensions[componentType] || defaultExtensions[componentType];
-      components[componentName] = {
+      state.components[componentName] = {
         type: componentType,
         plugin,
         url: importUrl,
@@ -325,10 +324,10 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
       if (plugin) {
         componentPlugins.add(plugin);
       }
-      importExportStatements.add(ast.module.content.slice(componentImport.start!, componentImport.end!));
+      state.importExportStatements.add(module.content.slice(componentImport.start!, componentImport.end!));
     }
     for (const componentImport of componentExports) {
-      importExportStatements.add(ast.module.content.slice(componentImport.start!, componentImport.end!));
+      state.importExportStatements.add(module.content.slice(componentImport.start!, componentImport.end!));
     }
 
     if (componentProps.length > 0) {
@@ -345,18 +344,14 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
     script = propsStatement + babelGenerator(program).code;
   }
 
-  const dynamicImports = await acquireDynamicComponentImports(componentPlugins, compileOptions.resolve);
+  return { script, componentPlugins };
+}
 
-  let items: JsxItem[] = [];
-  let collectionItem: JsxItem | undefined;
-  let currentItemName: string | undefined;
-  let currentDepth = 0;
-  let css: string[] = [];
-
-  walk(ast.css, {
+function compileCss(style: Style, state: CodegenState) {
+  walk(style, {
     enter(node: TemplateNode) {
       if (node.type === 'Style') {
-        css.push(node.content.styles); // if multiple <style> tags, combine together
+        state.css.push(node.content.styles); // if multiple <style> tags, combine together
         this.skip();
       }
     },
@@ -366,8 +361,14 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
       }
     },
   });
+}
 
-  walk(ast.html, {
+function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions) {
+  const { components, css, importExportStatements, dynamicImports, filename } = state;
+  const { astroConfig } = compileOptions;
+
+  let outSource = '';
+  walk(enterNode, {
     enter(node: TemplateNode) {
       switch (node.type) {
         case 'MustacheTag':
@@ -394,19 +395,13 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
               code = code.slice(0, astroComponent.index + 2) + wrapper + code.slice(astroComponent.index + astroComponent[0].length - 1);
             }
           }
-          collectionItem!.jsx += `,(${code.trim().replace(/\;$/, '')})`;
+          outSource += `,(${code.trim().replace(/\;$/, '')})`;
           this.skip();
           return;
         case 'Comment':
           return;
         case 'Fragment':
-          // Ignore if its the top level fragment
-          // This should be cleaned up, but right now this is how the old thing worked
-          if (!collectionItem) {
-            return;
-          }
           break;
-
         case 'Slot':
         case 'Head':
         case 'InlineComponent':
@@ -417,20 +412,15 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
             throw new Error('AHHHH');
           }
           const attributes = getAttributes(node.attributes);
-          currentDepth++;
-          currentItemName = name;
-          if (!collectionItem) {
-            collectionItem = { name, jsx: '' };
-            items.push(collectionItem);
-          }
-          collectionItem.jsx += collectionItem.jsx === '' ? '' : ',';
+
+          outSource += outSource === '' ? '' : ',';
           if (node.type === 'Slot') {
-            collectionItem.jsx += `(children`;
+            outSource += `(children`;
             return;
           }
           const COMPONENT_NAME_SCANNER = /^[A-Z]/;
           if (!COMPONENT_NAME_SCANNER.test(name)) {
-            collectionItem.jsx += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
+            outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
             return;
           }
           const [componentName, componentKind] = name.split(':');
@@ -443,7 +433,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
             importExportStatements.add(wrapperImport);
           }
 
-          collectionItem.jsx += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+          outSource += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
           return;
         }
         case 'Attribute': {
@@ -460,14 +450,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
           if (!text.trim()) {
             return;
           }
-          if (!collectionItem) {
-            throw new Error('Not possible! TEXT:' + text);
-          }
-          if (currentItemName === 'script' || currentItemName === 'code') {
-            collectionItem.jsx += ',' + JSON.stringify(text);
-            return;
-          }
-          collectionItem.jsx += ',' + JSON.stringify(text);
+          outSource += ',' + JSON.stringify(text);
           return;
         }
         default:
@@ -482,23 +465,14 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
         case 'Comment':
           return;
         case 'Fragment':
-          if (!collectionItem) {
-            return;
-          }
+          return;
         case 'Slot':
         case 'Head':
         case 'Body':
         case 'Title':
         case 'Element':
         case 'InlineComponent':
-          if (!collectionItem) {
-            throw new Error('Not possible! CLOSE ' + node.name);
-          }
-          collectionItem.jsx += ')';
-          currentDepth--;
-          if (currentDepth === 0) {
-            collectionItem = undefined;
-          }
+          outSource += ')';
           return;
         case 'Style': {
           this.remove(); // this will be optimized in a global CSS file; remove so it‘s not accidentally inlined
@@ -510,10 +484,39 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
     },
   });
 
+  return outSource;
+}
+
+/**
+ * Codegen
+ * Step 3/3 in Astro SSR.
+ * This is the final pass over a document AST before it‘s converted to an h() function
+ * and handed off to Snowpack to build.
+ * @param {Ast} AST The parsed AST to crawl
+ * @param {object} CodeGenOptions
+ */
+export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOptions): Promise<TransformResult> {
+  await eslexer.init;
+
+  const state: CodegenState = {
+    filename,
+    components: {},
+    css: [],
+    importExportStatements: new Set(),
+    dynamicImports: new Map()
+  };
+
+  const { script, componentPlugins } = compileModule(ast.module, state, compileOptions);
+  state.dynamicImports = await acquireDynamicComponentImports(componentPlugins, compileOptions.resolve);
+
+  compileCss(ast.css, state);
+
+  const html = compileHtml(ast.html, state, compileOptions);
+
   return {
     script: script,
-    imports: Array.from(importExportStatements),
-    items,
-    css: css.length ? css.join('\n\n') : undefined,
+    imports: Array.from(state.importExportStatements),
+    html,
+    css: state.css.length ? state.css.join('\n\n') : undefined,
   };
 }

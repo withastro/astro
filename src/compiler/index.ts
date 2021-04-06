@@ -115,27 +115,23 @@ export async function compileComponent(
   source: string,
   { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
 ): Promise<CompileResult> {
-  const sourceJsx = await transformFromSource(source, { compileOptions, filename, projectRoot });
-  const isPage = path.extname(filename) === '.md' || sourceJsx.items.some((item) => item.name === 'html');
+  const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
 
   // return template
   let modJsx = `
 import fetch from 'node-fetch';
 
 // <script astro></script>
-${sourceJsx.imports.join('\n')}
+${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from '${internalImport('h.js')}';
 async function __render(props, ...children) {
-  ${sourceJsx.script}
-  return h(Fragment, null, ${sourceJsx.items.map(({ jsx }) => jsx).join(',')});
+  ${result.script}
+  return h(Fragment, null, ${result.html});
 }
 export default __render;
-`;
 
-  if (isPage) {
-    modJsx += `
 // \`__renderPage()\`: Render the contents of the Astro module as a page. This is a special flow,
 // triggered by loading a component directly by URL.
 export async function __renderPage({request, children, props}) {
@@ -159,14 +155,10 @@ export async function __renderPage({request, children, props}) {
 
   return childBodyResult;
 };\n`;
-  } else {
-    modJsx += `
-export async function __renderPage() { throw new Error("No <html> page element found!"); }\n`;
-  }
 
   return {
-    result: sourceJsx,
+    result,
     contents: modJsx,
-    css: sourceJsx.css,
+    css: result.css,
   };
 }
