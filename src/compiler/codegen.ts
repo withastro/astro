@@ -355,10 +355,16 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         const defaultImport = globImport.specifiers.find(({ type }) => type === 'ImportDefaultSpecifier');
         if (!defaultImport) throw new Error(`No default import found:\n  ${ast.module.content.substring(globImport.start || 0, globImport.end || 0)}`);
 
-        // locate files
+        const spec = globImport.source.value;
         const { name } = defaultImport.local;
-        const found = await glob(globImport.source.value, { cwd: path.dirname(filename), filesOnly: true });
 
+        // only allow for .md files
+        if (!spec.endsWith('.md')) {
+          throw new Error(`Glob import only supported for *.md pages; found "${spec}" in ${filename}`);
+        }
+
+        // locate files
+        const found = await glob(spec, { cwd: path.dirname(filename), filesOnly: true });
         if (!found.length) {
           throw new Error(`No files matched "${globImport.source.value}" in ${filename}`);
         }
@@ -374,7 +380,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         });
 
         // expose imported data to Astro script
-        dataStatement += `const ${name} = [${found.map((importPath, j) => `{ ...${name}_${j}, url: '/${importPath.replace(/\.(md|astro)$/, '')}' }`).join(',')}];\n`;
+        dataStatement += `const ${name} = [${found.map((importPath, j) => `{ ...${name}_${j}, url: '/${importPath.replace(/\.md$/, '')}' }`).join(',')}];\n`;
       })
     );
 
