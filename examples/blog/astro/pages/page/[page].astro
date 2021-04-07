@@ -5,7 +5,7 @@ import PostPreview from '../../components/PostPreview.astro';
 import Pagination from '../../components/Pagination.astro';
 
 // page
-let { page = 1 } = import.meta.request.query;
+let { page = 1 } = import.meta.request.params;
 let title = `Muppet Blog (Page ${page})`;
 let description = 'An example blog on Astro';
 

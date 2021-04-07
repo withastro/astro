@@ -136,15 +136,17 @@ Astro supports dynamic routes as pages. For example, let‘s say we wanted to ha
         └── index.astro
 ```
 
-Then in that new file, access the query param from `import.meta.request.query`:
+Then in that new file, access the value from `import.meta.request.params`:
 
 ```jsx
 ---
-let { tag } = import.meta.request.query;
+let { tag } = import.meta.request.params;
 ---
 
 <h1>Posts tagged {tag}</h1>
 ```
+
+If a user visited `/tag/javascript`, they‘d see “Posts tagged **javascript**“ on the page.
 
 You can use dynamic routes for pagination, filtering, or generally querying data.
 

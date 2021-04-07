@@ -79,7 +79,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         host: fullurl.hostname,
         path: fullurl.pathname,
         href: fullurl.toString(),
-        query: searchResult.query || {},
+        params: searchResult.params || {},
       },
       children: [],
       props: {},

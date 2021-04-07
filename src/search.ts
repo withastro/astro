@@ -5,7 +5,7 @@ import glob from 'tiny-glob/sync.js';
 interface PageLocation {
   fileURL: URL;
   snowpackURL: string;
-  query?: Record<string, string>;
+  params?: Record<string, string>;
 }
 
 /** Given lookup candidates, determine if a file exists on disk */
@@ -27,7 +27,7 @@ function findDynamicPage(url: string, astroRoot: URL): PageLocation | undefined 
   const pages = glob('**/*', { cwd: path.join(astroRoot.pathname, 'pages'), filesOnly: true });
   let specificity = 0; // prefer more specific dynamic routes (more URL segments) to less specific ones
   let foundURL: string | undefined;
-  let query: Record<string, string> | undefined;
+  let params: Record<string, string> | undefined;
 
   for (let pageURL of pages) {
     pageURL = pageURL.replace(/\\/g, '/'); // glob may return backslashes on Windows but we need POSIX-style for the next step
@@ -41,14 +41,14 @@ function findDynamicPage(url: string, astroRoot: URL): PageLocation | undefined 
         // if this is the first found match, accept it unconditionally
         specificity = urlSpecificity ? urlSpecificity.length : 0;
         foundURL = pageURL;
-        query = match.groups;
+        params = match.groups;
         continue;
       }
       // a match has already been found. is this more specific (has more URL segments)? If so, take the new one; if not, skip
       if (urlSpecificity && urlSpecificity.length > specificity) {
         specificity = urlSpecificity.length;
         foundURL = pageURL;
-        query = match.groups;
+        params = match.groups;
       }
     }
   }
@@ -57,13 +57,13 @@ function findDynamicPage(url: string, astroRoot: URL): PageLocation | undefined 
     return {
       fileURL: new URL(`./pages/${foundURL}`, astroRoot),
       snowpackURL: `/_astro/pages/${foundURL}.js`,
-      query: sanitizeQuery(query), // the named capture groups do all the work for us!
+      params: sanitizeParams(params), // the named capture groups do all the work for us!
     };
   }
 }
 
-/** Query util */
-function sanitizeQuery(query?: Record<string, any>): Record<string, any> | undefined {
+/** Params util */
+function sanitizeParams(query?: Record<string, any>): Record<string, any> | undefined {
   if (!query || typeof query !== 'object' || Array.isArray(query)) return query;
   const q: Record<string, any> = {};
   for (const [k, v] of Object.entries(query)) {
@@ -83,7 +83,7 @@ type SearchResult =
       statusCode: 200;
       location: PageLocation;
       pathname: string;
-      query?: Record<string, string>;
+      params?: Record<string, string>;
     }
   | {
       statusCode: 301;
@@ -148,7 +148,7 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
       statusCode: 200,
       location,
       pathname: reqPath,
-      query: location.query,
+      params: location.params,
     };
   } else {
     miniRouteCache.delete(reqPath); // clear cache on miss
