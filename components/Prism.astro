@@ -6,11 +6,17 @@ import { loadLanguage } from './prism/preload.mjs';
 export let lang;
 export let code;
 
+const languageMap = new Map([
+  ['ts', 'typescript']
+]);
+
 if(lang == null) {
   console.warn('Prism.astro: No language provided.');
 }
 
-if(lang === 'astro') {
+if(languageMap.has(lang)) {
+  await loadLanguage(languageMap.get(lang));
+} else if(lang === 'astro') {
   await loadLanguage('typescript');
   addAstro(Prism);
 } else {

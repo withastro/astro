@@ -5,6 +5,12 @@ import { getAttrValue } from '../../ast.js';
 const PRISM_IMPORT = `import Prism from 'astro/components/Prism.astro';\n`;
 const prismImportExp = /import Prism from ['"]astro\/components\/Prism.astro['"]/;
 
+function escape(code: string) {
+  code.replace(/[`$]/g, match => {
+    return '\\' + match;
+  });
+}
+
 export default function (module: Script): Optimizer {
   let usesPrism = false;
 
@@ -55,7 +61,7 @@ export default function (module: Script): Optimizer {
                   value: [
                     {
                       type: 'MustacheTag',
-                      content: '`' + code + '`',
+                      content: '`' + escape(code) + '`',
                     },
                   ],
                 },
