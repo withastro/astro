@@ -12,7 +12,8 @@ const SvelteRenderer: ComponentRenderer<SvelteComponent> = {
   render({ Component, root, props }) {
     return `new ${Component}({
       target: ${root},
-      props: ${props}
+      props: ${props},
+      hydrate: true
     })`;
   },
 };

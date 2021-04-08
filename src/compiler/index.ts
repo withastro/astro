@@ -12,7 +12,7 @@ import { createMarkdownHeadersCollector } from './markdown/micromark-collect-hea
 import { encodeMarkdown } from './markdown/micromark-encode.js';
 import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';
 import { transform } from './transform/index.js';
-import { codegen } from './codegen.js';
+import { codegen } from './codegen/index.js';
 
 /** Return Astro internal import URL */
 function internalImport(internalPath: string) {
@@ -131,6 +131,8 @@ async function __render(props, ...children) {
   return h(Fragment, null, ${result.html});
 }
 export default __render;
+
+${result.createCollection || ''}
 
 // \`__renderPage()\`: Render the contents of the Astro module as a page. This is a special flow,
 // triggered by loading a component directly by URL.

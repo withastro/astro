@@ -26,6 +26,8 @@ export interface TransformResult {
   imports: string[];
   html: string;
   css?: string;
+  /** If this page exports a collection, the JS to be executed as a string */
+  createCollection?: string;
 }
 
 export interface CompileResult {
