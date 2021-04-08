@@ -1,0 +1,46 @@
+---
+import MainHead from '../components/MainHead.astro';
+import Nav from '../components/Nav.astro';
+import PostPreview from '../components/PostPreview.astro';
+import Pagination from '../components/Pagination.astro';
+
+// page
+let title = 'Muppet Blog: Home';
+let description = 'An example blog on Astro';
+
+// collection
+export let collection: any;
+export async function createCollection() {
+  return {
+    async data() {
+      let allPosts = await import.meta.glob('./post/*.md');
+      return allPosts;
+    },
+    perPage: 3
+  };
+}
+---
+
+<html>
+  <head>
+    <title>{title}</title>
+    <MainHead title={title} description={description} />
+    <link rel="canonical" href={collection.url.current} />
+    <link rel="next" href={collection.url.next} />
+    <link rel="prev" href={collection.url.prev} />
+  </head>
+
+  <body>
+    <Nav />
+
+    <main class="wrapper">
+      <h1>All Posts</h1>
+      <small>{collection.start + 1}–{collection.start + 1 + collection.page.size} of {collection.total}</small><br />
+      {collection.data.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+    </main>
+
+    <footer>
+      <Pagination prevUrl={collection.url.prev} nextUrl={collection.url.next} />
+    </footer>
+  </body>
+</html>
