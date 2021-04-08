@@ -6,7 +6,7 @@ const PRISM_IMPORT = `import Prism from 'astro/components/Prism.astro';\n`;
 const prismImportExp = /import Prism from ['"]astro\/components\/Prism.astro['"]/;
 
 function escape(code: string) {
-  return code.replace(/[`$]/g, match => {
+  return code.replace(/[`$]/g, (match) => {
     return '\\' + match;
   });
 }
