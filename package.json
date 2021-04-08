@@ -17,7 +17,7 @@
   "files": [
     "components",
     "lib",
-    "prism-astro"
+    "astro-prism"
   ],
   "scripts": {
     "build": "tsc",

@@ -1,8 +1,6 @@
 ---
 layout: ../layouts/index.astro
 title: Astro
-import:
-  Prism: astro/components/Prism.astro
 ---
 
 ## Links

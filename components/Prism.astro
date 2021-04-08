@@ -1,11 +1,37 @@
 ---
 import Prism from 'prismjs';
 import { addAstro } from '../astro-prism/index.mjs';
-
-addAstro(Prism);
+import * as loadLanguages from 'prismjs/components/';
 
 export let lang;
 export let code;
+
+const languageMap = new Map([
+  ['ts', 'typescript']
+]);
+
+if(lang == null) {
+  console.warn('Prism.astro: No language provided.');
+}
+
+const ensureLoaded = lang => {
+  if(!Prism.languages[lang]) {
+    loadLanguages([lang]);
+  }
+};
+
+if(languageMap.has(lang)) {
+  ensureLoaded(languageMap.get(lang));
+} else if(lang === 'astro') {
+  ensureLoaded('typescript');
+  addAstro(Prism);
+} else {
+  ensureLoaded(lang);
+}
+
+if(!Prism.languages[lang]) {
+  console.warn(`Unable to load the language: ${lang}`);
+}
 
 const grammar = Prism.languages[lang];
 let html = Prism.highlight(code, grammar, lang);
