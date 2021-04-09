@@ -219,7 +219,6 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
                 } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
                   // don‘t add same scopedClass twice (this check is a little more basic, but should suffice)
                   if (!attr.value[k].expression.codeStart.includes(`' ${scopedClass}'`)) {
-                  //if (!attr.value[k].content.includes(`' ${scopedClass}'`)) {
                     // MustacheTag
                     attr.value[k].expression.codeStart = `(${attr.value[k].expression.codeStart}) + ' ${scopedClass}'`;
                   }

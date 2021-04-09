@@ -61,7 +61,12 @@ export default function (module: Script): Transformer {
                   value: [
                     {
                       type: 'MustacheTag',
-                      content: '`' + escape(code) + '`',
+                      expression: {
+                        type: 'Expression',
+                        codeStart: '`' + escape(code) + '`',
+                        codeEnd: '',
+                        children: []
+                      }
                     },
                   ],
                 },
