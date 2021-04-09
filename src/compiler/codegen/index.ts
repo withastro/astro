@@ -2,18 +2,21 @@ import type { CompileOptions } from '../../@types/compiler';
 import type { AstroConfig, ValidExtensionPlugins } from '../../@types/astro';
 import type { Ast, Script, Style, TemplateNode } from '../../parser/interfaces';
 import type { TransformResult } from '../../@types/astro';
+import type BabelTraverse from '@babel/traverse';
 
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import { fdir, PathsOutput } from 'fdir';
 import path from 'path';
 import { walk } from 'estree-walker';
-import babelParser from '@babel/parser';
 import _babelGenerator from '@babel/generator';
+import babelParser from '@babel/parser';
+import * as babelTraverse from '@babel/traverse';
 import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
 import { handleImportGlob, handleImportGlobEager } from './glob.js';
 import { isImportMetaDeclaration } from './utils.js';
 
+const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 const babelGenerator: typeof _babelGenerator =
   // @ts-ignore
   _babelGenerator.default;
@@ -298,12 +301,12 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
   const componentProps: VariableDeclarator[] = [];
   const componentExports: ExportNamedDeclaration[] = [];
 
-  const globImports = new Map<string, { spec: string; isAsync?: boolean }>();
-  let createCollection = '';
+  const globImports = new Map<string, { spec: string; declarator: string; isAsync?: boolean }>();
 
   let script = '';
   let propsStatement = '';
   let globCode = ''; // code for handling import.meta.glob(), if any;
+  let createCollection = ''; // function for executing collection
   const componentPlugins = new Set<ValidExtensionPlugins>();
 
   if (module) {
@@ -318,17 +321,27 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       const node = body[i];
       switch (node.type) {
         case 'ExportNamedDeclaration': {
-          if (node.declaration?.type !== 'VariableDeclaration') {
-            // const replacement = extract_exports(node);
-            break;
+          if (!node.declaration) break;
+          // const replacement = extract_exports(node);
+
+          if (node.declaration.type === 'VariableDeclaration') {
+            // case 1: prop (export let title)
+
+            const declaration = node.declaration.declarations[0];
+            if ((declaration.id as Identifier).name === '__layout' || (declaration.id as Identifier).name === '__content') {
+              componentExports.push(node);
+            } else {
+              componentProps.push(declaration);
+            }
+            body.splice(i, 1);
+          } else if (node.declaration.type === 'FunctionDeclaration') {
+            // case 2: createCollection (export async function)
+            if (!node.declaration.id || node.declaration.id.name !== 'createCollection') break;
+            createCollection = module.content.substring(node.declaration.start || 0, node.declaration.end || 0);
+
+            // remove node
+            body.splice(i, 1);
           }
-          const declaration = node.declaration.declarations[0];
-          if ((declaration.id as Identifier).name === '__layout' || (declaration.id as Identifier).name === '__content') {
-            componentExports.push(node);
-          } else {
-            componentProps.push(declaration);
-          }
-          body.splice(i, 1);
           break;
         }
         case 'FunctionDeclaration': {
@@ -365,7 +378,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
               throw new Error(`[import.meta.${loader}] Only string literals allowed, ex: \`import.meta.${loader}('./post/*.md')\`\n  ${state.filename}`);
             }
             const spec = (init as any).arguments[0].value;
-            if (typeof spec === 'string') globImports.set(namespace, { spec, isAsync });
+            if (typeof spec === 'string') globImports.set(namespace, { spec, declarator: node.kind, isAsync });
           }
           break;
         }
@@ -409,13 +422,64 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       propsStatement += `} = props;\n`;
     }
 
+    // handle createCollection, if any
+    if (createCollection) {
+      // TODO: improve this? while transforming in-place isn‘t great, this happens at most once per-route
+      const ast = babelParser.parse(createCollection, {
+        sourceType: 'module',
+      });
+      traverse(ast, {
+        enter({ node }) {
+          switch (node.type) {
+            case 'VariableDeclaration': {
+              for (const declaration of node.declarations) {
+                // only select import.meta.collection() calls here. this utility filters those out for us.
+                if (!isImportMetaDeclaration(declaration, 'glob') && !isImportMetaDeclaration(declaration, 'globEager')) continue;
+
+                // a bit of munging
+                let isAsync = false;
+                let { id, init } = declaration;
+                if (!id || !init || id.type !== 'Identifier') continue;
+                if (init.type === 'AwaitExpression') {
+                  init = init.argument;
+                  isAsync = true;
+                }
+                if (init.type !== 'CallExpression') continue;
+
+                // gather data
+                const loader = (init.callee as any).property.name; // "glob" or "globEager"
+                const namespace = id.name;
+
+                if ((init as any).arguments[0].type !== 'StringLiteral') {
+                  throw new Error(`[import.meta.${loader}] Only string literals allowed, ex: \`import.meta.${loader}('./post/*.md')\`\n  ${state.filename}`);
+                }
+                const spec = (init as any).arguments[0].value;
+                if (typeof spec !== 'string') break;
+
+                const globResult = isAsync ? handleImportGlob(spec, { namespace, filename: state.filename }) : handleImportGlobEager(spec, { namespace, filename: state.filename });
+
+                let imports = '';
+                for (const importStatement of globResult.imports) {
+                  imports += importStatement;
+                }
+
+                createCollection =
+                  imports + '\n\nexport ' + createCollection.substring(0, declaration.start || 0) + globResult.code + createCollection.substring(declaration.end || 0);
+              }
+              break;
+            }
+          }
+        },
+      });
+    }
+
     // import.meta.glob
-    for (const [namespace, { spec, isAsync }] of globImports.entries()) {
+    for (const [namespace, { declarator, spec, isAsync }] of globImports.entries()) {
       const globResult = isAsync ? handleImportGlob(spec, { namespace, filename: state.filename }) : handleImportGlobEager(spec, { namespace, filename: state.filename });
       for (const importStatement of globResult.imports) {
         state.importExportStatements.add(importStatement);
       }
-      globCode += globResult.code;
+      globCode += declarator + ' ' + globResult.code;
     }
 
     script = propsStatement + globCode + babelGenerator(program).code;

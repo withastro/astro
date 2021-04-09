@@ -29,6 +29,6 @@ export let nextUrl: string;
 </style>
 
 <nav class="nav">
-  {prevUrl && <a class="prev" href={prevUrl}>Prev</a>}
-  {nextUrl && <a class="next" href={nextUrl}>Next</a>}
+  <a class="prev" href={prevUrl || '#'}>Prev</a>
+  <a class="next" href={nextUrl || '#'}>Next</a>
 </nav>

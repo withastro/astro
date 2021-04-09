@@ -14,6 +14,7 @@ let description = 'An example blog on Astro';
 import authorData from '../data/authors.json';
 
 let collection = await import.meta.glob('./post/*.md');
+collection.sort((a, b) => new Date(b.date) - new Date(a.date));
 let firstThree = collection.slice(0, 3);
 ---
 

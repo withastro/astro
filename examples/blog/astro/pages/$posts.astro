@@ -9,11 +9,13 @@ let title = 'Muppet Blog: Home';
 let description = 'An example blog on Astro';
 
 // collection
+import authorData from '../data/authors.json';
 export let collection: any;
 export async function createCollection() {
   return {
     async data() {
       let allPosts = await import.meta.glob('./post/*.md');
+      allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
       return allPosts;
     },
     perPage: 3
