@@ -20,9 +20,11 @@ export interface ComponentContext {
   root: string;
 }
 
-export type SupportedComponentRenderer = ComponentRenderer<VueComponent> |
-  ComponentRenderer<PreactComponent> | ComponentRenderer<ReactComponent> |
-  ComponentRenderer<SvelteComponent>;
+export type SupportedComponentRenderer =
+  | ComponentRenderer<VueComponent>
+  | ComponentRenderer<PreactComponent>
+  | ComponentRenderer<ReactComponent>
+  | ComponentRenderer<SvelteComponent>;
 export type StaticRenderer = (props: Record<string, any>, ...children: any[]) => Promise<string>;
 export type StaticRendererGenerator<T = any> = (Component: T) => StaticRenderer;
 export type DynamicRenderer = (props: Record<string, any>, ...children: any[]) => Promise<string>;
