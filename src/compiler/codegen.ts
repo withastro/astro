@@ -78,9 +78,10 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
       continue;
     }
     switch (val.type) {
-      case 'MustacheTag':
-        result[attr.name] = '(' + val.content + ')';
+      case 'MustacheTag': {
+        result[attr.name] = '(' + val.expression.codeStart + ')';
         continue;
+      }
       case 'Text':
         result[attr.name] = JSON.stringify(getTextFromAttribute(val));
         continue;
@@ -93,13 +94,21 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
 
 /** Get value from a TemplateNode Attribute (text attributes only!) */
 function getTextFromAttribute(attr: any): string {
-  if (attr.raw !== undefined) {
-    return attr.raw;
+  switch(attr.type) {
+    case 'Text': {
+      if (attr.raw !== undefined) {
+        return attr.raw;
+      }
+      if (attr.data !== undefined) {
+        return attr.data;
+      }
+      break;
+    }
+    case 'MustacheTag': {
+      return attr.expression.codeStart;
+    }
   }
-  if (attr.data !== undefined) {
-    return attr.data;
-  }
-  throw new Error('UNKNOWN attr');
+  throw new Error(`Unknown attribute type ${attr.type}`);
 }
 
 /** Convert TemplateNode attributes to string */
@@ -238,7 +247,7 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
   }
 }
 
-/** Evaluate mustache expression (safely) */
+/** Evaluate expression (safely) */
 function compileExpressionSafe(raw: string): string {
   let { code } = transformSync(raw, {
     loader: 'tsx',
@@ -468,33 +477,19 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
   walk(enterNode, {
     enter(node: TemplateNode) {
       switch (node.type) {
-        case 'MustacheTag':
-          let code = compileExpressionSafe(node.content);
-
-          let matches: RegExpExecArray[] = [];
-          let match: RegExpExecArray | null | undefined;
-          const H_COMPONENT_SCANNER = /h\(['"]?([A-Z].*?)['"]?,/gs;
-          const regex = new RegExp(H_COMPONENT_SCANNER);
-          while ((match = regex.exec(code))) {
-            matches.push(match);
+        case 'Expression': {
+          let child = '';
+          if(node.children!.length) {
+            child = compileHtml(node.children![0], state, compileOptions);
           }
-          for (const astroComponent of matches.reverse()) {
-            const name = astroComponent[1];
-            const [componentName, componentKind] = name.split(':');
-            if (!components[componentName]) {
-              throw new Error(`Unknown Component: ${componentName}`);
-            }
-            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
-            if (wrapperImport) {
-              importExportStatements.add(wrapperImport);
-            }
-            if (wrapper !== name) {
-              code = code.slice(0, astroComponent.index + 2) + wrapper + code.slice(astroComponent.index + astroComponent[0].length - 1);
-            }
-          }
-          outSource += `,(${code.trim().replace(/\;$/, '')})`;
+          let raw = node.codeStart + child + node.codeEnd;
+          // TODO Do we need to compile this now, or should we compile the entire module at the end?
+          let code = compileExpressionSafe(raw).trim().replace(/\;$/, '');
+          outSource += `,(${code})`;
           this.skip();
-          return;
+          break;
+        }
+        case 'MustacheTag':
         case 'Comment':
           return;
         case 'Fragment':
@@ -557,11 +552,11 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
     leave(node, parent, prop, index) {
       switch (node.type) {
         case 'Text':
-        case 'MustacheTag':
         case 'Attribute':
         case 'Comment':
-          return;
         case 'Fragment':
+        case 'Expression':
+        case 'MustacheTag':
           return;
         case 'Slot':
         case 'Head':

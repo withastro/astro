@@ -549,7 +549,7 @@ function read_sequence(parser: Parser, done: () => boolean): TemplateNode[] {
       flush();
 
       parser.allow_whitespace();
-      const content = read_expression(parser);
+      const expression = read_expression(parser);
       parser.allow_whitespace();
       parser.eat('}', true);
 
@@ -557,7 +557,7 @@ function read_sequence(parser: Parser, done: () => boolean): TemplateNode[] {
         start: index,
         end: parser.index,
         type: 'MustacheTag',
-        content,
+        expression,
       });
 
       current_chunk = {

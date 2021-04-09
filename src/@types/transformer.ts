@@ -8,7 +8,7 @@ export interface NodeVisitor {
   leave?: VisitorFn;
 }
 
-export interface Optimizer {
+export interface Transformer {
   visitors?: {
     html?: Record<string, NodeVisitor>;
     css?: Record<string, NodeVisitor>;
@@ -16,7 +16,7 @@ export interface Optimizer {
   finalize: () => Promise<void>;
 }
 
-export interface OptimizeOptions {
+export interface TransformOptions {
   compileOptions: CompileOptions;
   filename: string;
   fileID: string;

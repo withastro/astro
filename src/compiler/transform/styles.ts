@@ -7,7 +7,7 @@ import postcssKeyframes from 'postcss-icss-keyframes';
 import findUp from 'find-up';
 import sass from 'sass';
 import type { RuntimeMode } from '../../@types/astro';
-import type { OptimizeOptions, Optimizer } from '../../@types/optimizer';
+import type { TransformOptions, Transformer } from '../../@types/transformer';
 import type { TemplateNode } from '../../parser/interfaces';
 import { debug } from '../../logger.js';
 import astroScopedStyles, { NEVER_SCOPED_TAGS } from './postcss-scoped-styles/index.js';
@@ -152,8 +152,8 @@ async function transformStyle(code: string, { type, filename, scopedClass, mode 
   return { css, type: styleType };
 }
 
-/** Optimize <style> tags */
-export default function optimizeStyles({ compileOptions, filename, fileID }: OptimizeOptions): Optimizer {
+/** Transform <style> tags */
+export default function transformStyles({ compileOptions, filename, fileID }: TransformOptions): Transformer {
   const styleNodes: TemplateNode[] = []; // <style> tags to be updated
   const styleTransformPromises: Promise<StyleTransformResult>[] = []; // async style transform results to be finished in finalize();
   const scopedClass = `astro-${hashFromFilename(fileID)}`; // this *should* generate same hash from fileID every time
@@ -218,9 +218,9 @@ export default function optimizeStyles({ compileOptions, filename, fileID }: Opt
                   }
                 } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
                   // don‘t add same scopedClass twice (this check is a little more basic, but should suffice)
-                  if (!attr.value[k].content.includes(`' ${scopedClass}'`)) {
+                  if (!attr.value[k].expression.codeStart.includes(`' ${scopedClass}'`)) {
                     // MustacheTag
-                    attr.value[k].content = `(${attr.value[k].content}) + ' ${scopedClass}'`;
+                    attr.value[k].expression.codeStart = `(${attr.value[k].expression.codeStart}) + ' ${scopedClass}'`;
                   }
                 }
               }

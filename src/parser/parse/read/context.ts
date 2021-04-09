@@ -4,7 +4,7 @@ import { Parser } from '../index.js';
 import { isIdentifierStart } from 'acorn';
 import full_char_code_at from '../../utils/full_char_code_at.js';
 import { is_bracket_open, is_bracket_close, is_bracket_pair, get_bracket_close } from '../utils/bracket.js';
-import { parse_expression_at } from '../acorn.js';
+import { parse_expression_at } from './expression.js';
 import { Pattern } from 'estree';
 
 export default function read_context(parser: Parser): Pattern & { start: number; end: number } {

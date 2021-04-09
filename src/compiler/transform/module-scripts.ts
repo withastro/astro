@@ -1,11 +1,11 @@
-import type { Optimizer } from '../../@types/optimizer';
+import type { Transformer } from '../../@types/transformer';
 import type { CompileOptions } from '../../@types/compiler';
 
 import path from 'path';
 import { getAttrValue, setAttrValue } from '../../ast.js';
 
-/** Optimize <script type="module"> */
-export default function ({ compileOptions, filename }: { compileOptions: CompileOptions; filename: string; fileID: string }): Optimizer {
+/** Transform <script type="module"> */
+export default function ({ compileOptions, filename }: { compileOptions: CompileOptions; filename: string; fileID: string }): Transformer {
   const { astroConfig } = compileOptions;
   const { astroRoot } = astroConfig;
   const fileUrl = new URL(`file://${filename}`);

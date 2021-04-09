@@ -1,4 +1,4 @@
-import type { Optimizer } from '../../@types/optimizer';
+import type { Transformer } from '../../@types/transformer';
 import type { Script } from '../../parser/interfaces';
 import { getAttrValue } from '../../ast.js';
 
@@ -11,7 +11,7 @@ function escape(code: string) {
   });
 }
 
-export default function (module: Script): Optimizer {
+export default function (module: Script): Transformer {
   let usesPrism = false;
 
   return {
@@ -61,7 +61,12 @@ export default function (module: Script): Optimizer {
                   value: [
                     {
                       type: 'MustacheTag',
-                      content: '`' + escape(code) + '`',
+                      expression: {
+                        type: 'Expression',
+                        codeStart: '`' + escape(code) + '`',
+                        codeEnd: '',
+                        children: []
+                      }
                     },
                   ],
                 },

@@ -1,7 +1,6 @@
-import type { Expression, Program } from '@babel/types';
 import type { SourceMap } from 'magic-string';
 
-interface BaseNode {
+export interface BaseNode {
   start: number;
   end: number;
   type: string;
@@ -49,6 +48,15 @@ export interface Transition extends BaseDirective {
 export type Directive = BaseDirective | Transition;
 
 export type TemplateNode = Text | MustacheTag | BaseNode | Directive | Transition;
+
+export interface Expression {
+  type: 'Expression';
+  start: number;
+  end: number;
+  codeStart: string;
+  codeEnd: string;
+  children: BaseNode[];
+}
 
 export interface Parser {
   readonly template: string;

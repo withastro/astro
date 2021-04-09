@@ -1,13 +1,13 @@
 import type { Ast, TemplateNode } from '../../parser/interfaces';
-import type { NodeVisitor, OptimizeOptions, Optimizer, VisitorFn } from '../../@types/optimizer';
+import type { NodeVisitor, TransformOptions, Transformer, VisitorFn } from '../../@types/transformer';
 
 import { walk } from 'estree-walker';
 
-// Optimizers
-import optimizeStyles from './styles.js';
-import optimizeDoctype from './doctype.js';
-import optimizeModuleScripts from './module-scripts.js';
-import optimizeCodeBlocks from './prism.js';
+// Transformers
+import transformStyles from './styles.js';
+import transformDoctype from './doctype.js';
+import transformModuleScripts from './module-scripts.js';
+import transformCodeBlocks from './prism.js';
 
 interface VisitorCollection {
   enter: Map<string, VisitorFn[]>;
@@ -24,23 +24,23 @@ function addVisitor(visitor: NodeVisitor, collection: VisitorCollection, nodeNam
   collection[event].set(nodeName, visitors);
 }
 
-/** Compile visitor actions from optimizer */
-function collectVisitors(optimizer: Optimizer, htmlVisitors: VisitorCollection, cssVisitors: VisitorCollection, finalizers: Array<() => Promise<void>>) {
-  if (optimizer.visitors) {
-    if (optimizer.visitors.html) {
-      for (const [nodeName, visitor] of Object.entries(optimizer.visitors.html)) {
+/** Compile visitor actions from transformer */
+function collectVisitors(transformer: Transformer, htmlVisitors: VisitorCollection, cssVisitors: VisitorCollection, finalizers: Array<() => Promise<void>>) {
+  if (transformer.visitors) {
+    if (transformer.visitors.html) {
+      for (const [nodeName, visitor] of Object.entries(transformer.visitors.html)) {
         addVisitor(visitor, htmlVisitors, nodeName, 'enter');
         addVisitor(visitor, htmlVisitors, nodeName, 'leave');
       }
     }
-    if (optimizer.visitors.css) {
-      for (const [nodeName, visitor] of Object.entries(optimizer.visitors.css)) {
+    if (transformer.visitors.css) {
+      for (const [nodeName, visitor] of Object.entries(transformer.visitors.css)) {
         addVisitor(visitor, cssVisitors, nodeName, 'enter');
         addVisitor(visitor, cssVisitors, nodeName, 'leave');
       }
     }
   }
-  finalizers.push(optimizer.finalize);
+  finalizers.push(transformer.finalize);
 }
 
 /** Utility for formatting visitors */
@@ -74,17 +74,17 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
 }
 
 /**
- * Optimize
+ * Transform
  * Step 2/3 in Astro SSR.
- * Optimize is the point at which we mutate the AST before sending off to
+ * Transform is the point at which we mutate the AST before sending off to
  * Codegen, and then to Snowpack. In some ways, it‘s a preprocessor.
  */
-export async function optimize(ast: Ast, opts: OptimizeOptions) {
+export async function transform(ast: Ast, opts: TransformOptions) {
   const htmlVisitors = createVisitorCollection();
   const cssVisitors = createVisitorCollection();
   const finalizers: Array<() => Promise<void>> = [];
 
-  const optimizers = [optimizeStyles(opts), optimizeDoctype(opts), optimizeModuleScripts(opts), optimizeCodeBlocks(ast.module)];
+  const optimizers = [transformStyles(opts), transformDoctype(opts), transformModuleScripts(opts), transformCodeBlocks(ast.module)];
 
   for (const optimizer of optimizers) {
     collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);
