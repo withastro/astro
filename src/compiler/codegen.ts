@@ -368,7 +368,10 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
     for (const componentImport of componentImports) {
       const importUrl = componentImport.source.value;
       const componentType = path.posix.extname(importUrl);
-      const componentName = path.posix.basename(importUrl, componentType);
+      const specifier = componentImport.specifiers[0];
+      if (!specifier) continue; // this is unused
+      // set componentName to default import if used (user), or use filename if no default import (mostly internal use)
+      const componentName = specifier.type === 'ImportDefaultSpecifier' ? specifier.local.name : path.posix.basename(importUrl, componentType);
       const plugin = extensions[componentType] || defaultExtensions[componentType];
       state.components[componentName] = {
         type: componentType,

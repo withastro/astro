@@ -32,13 +32,22 @@ React('No error creating the runtime', () => {
   assert.equal(setupError, undefined);
 });
 
-React('Can load page', async () => {
+React('Can load React', async () => {
   const result = await runtime.load('/');
 
   assert.equal(result.statusCode, 200);
 
   const $ = doc(result.contents);
-  assert.equal($('h2').text(), 'Hello world!');
+  assert.equal($('#react-h2').text(), 'Hello world!');
+});
+
+React('Can load Vue', async () => {
+  const result = await runtime.load('/');
+
+  assert.equal(result.statusCode, 200);
+
+  const $ = doc(result.contents);
+  assert.equal($('#vue-h2').text(), 'Hasta la vista, baby');
 });
 
 React.run();
