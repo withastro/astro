@@ -1,3 +1,4 @@
+// @ts-nocheck
 // TODO: don't precompile this, but it works for now
 import {
 	HtmlTag,
