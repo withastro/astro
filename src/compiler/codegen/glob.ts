@@ -43,12 +43,12 @@ export function handleImportGlob(spec: string, { namespace, filename }: GlobOpti
   // gather imports
   importPaths.forEach((importPath, j) => {
     const id = `${namespace}_${j}`;
-    const url = importPath.replace(/\.md$/, '');
-    imports.add(`const ${id} = import('${importPath}').then((m) => ({ ...m.__content, url: '${url}' }));`);
+    const url = importPath.replace(/^\./, '').replace(/\.md$/, '');
+    imports.add(`${id} = import('${importPath}').then((m) => ({ ...m.__content, url: '${url}' }));`);
   });
 
   // generate replacement code
-  code += `const ${namespace} = await Promise.all([${importPaths.map((_, j) => `${namespace}_${j}`).join(',')}]);\n`;
+  code += `${namespace} = await Promise.all([${importPaths.map((_, j) => `${namespace}_${j}`).join(',')}]);\n`;
 
   return { imports, code };
 }
@@ -62,13 +62,13 @@ export function handleImportGlobEager(spec: string, { namespace, filename }: Glo
   // gather imports
   importPaths.forEach((importPath, j) => {
     const id = `${namespace}_${j}`;
-    const url = importPath.replace(/\.md$/, '');
+    const url = importPath.replace(/^\./, '').replace(/\.md$/, '');
     imports.add(`import { __content as ${id} } from '${importPath}';`);
     code += `${id}.url = '${url}';\n`;
   });
 
   // generate replacement code
-  code += `const ${namespace} = [${importPaths.map((_, j) => `${namespace}_${j}`).join(',')}];\n`;
+  code += `${namespace} = [${importPaths.map((_, j) => `${namespace}_${j}`).join(',')}];\n`;
 
   return { imports, code };
 }

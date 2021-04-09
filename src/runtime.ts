@@ -74,6 +74,45 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   try {
     const mod = await backendSnowpackRuntime.importModule(snowpackURL);
     debug(logging, 'resolve', `${reqPath} -> ${snowpackURL}`);
+
+    // handle collection
+    let collection: any = {};
+    if (mod.exports.createCollection) {
+      const createCollection = await mod.exports.createCollection();
+      let data: any[] = await createCollection.data();
+
+      collection.total = data.length;
+      const perPage = createCollection.perPage || 25; // can’t be 0
+      collection.page = { size: perPage };
+      collection.url = { current: reqPath };
+
+      // paginate
+      if (searchResult.currentPage) {
+        const start = (searchResult.currentPage - 1) * perPage; // currentPage is 1-indexed
+        const end = start + perPage;
+
+        collection.start = start;
+        collection.page.current = searchResult.currentPage;
+        // TODO: fix the .replace() hack
+        if (end < data.length) {
+          collection.url.next = collection.url.current.replace(/\d+$/, searchResult.currentPage + 1);
+        }
+        if (searchResult.currentPage > 1) {
+          collection.url.prev = collection.url.current.replace(/\d+$/, searchResult.currentPage - 1 || 1);
+        }
+
+        data = data.slice(start, end);
+
+        // if we‘ve paginated too far, this is a 404
+        if (!data.length)
+          return {
+            statusCode: 404,
+            error: new Error('Not Found'),
+          };
+      }
+      collection.data = data;
+    }
+
     let html = (await mod.exports.__renderPage({
       request: {
         host: fullurl.hostname,
@@ -81,7 +120,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         href: fullurl.toString(),
       },
       children: [],
-      props: {},
+      props: { collection },
     })) as string;
 
     // inject styles
