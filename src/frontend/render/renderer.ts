@@ -1,7 +1,7 @@
-import type { ComponentRenderer, DynamicRenderContext, DynamicRendererGenerator, StaticRendererGenerator } from '../../@types/renderer';
+import type { DynamicRenderContext, DynamicRendererGenerator, SupportedComponentRenderer, StaticRendererGenerator } from '../../@types/renderer';
 
 /** Initialize Astro Component renderer for Static and Dynamic components */
-export function createRenderer(renderer: ComponentRenderer) {
+export function createRenderer(renderer: SupportedComponentRenderer) {
   const _static: StaticRendererGenerator = (Component) => renderer.renderStatic(Component);
   const _imports = (context: DynamicRenderContext) => {
     const values = Object.values(renderer.imports ?? {})
