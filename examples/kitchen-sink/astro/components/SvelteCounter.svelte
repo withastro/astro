@@ -18,5 +18,5 @@
     <button on:click={add}>+</button>
 </div>
 <div class="children">
-    <h1>Hello Svelte!</h1>
+    <slot />
 </div>

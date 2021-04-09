@@ -39,7 +39,8 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
         ${renderer.render({
           ...innerContext,
           props: serializeProps(props),
-          children: `[${childrenToH(renderer, children)}]`
+          children: `[${childrenToH(renderer, children) ?? ''}]`,
+          childrenAsString: `\`${children}\``
         })}
         ${typeof wrapperEnd === 'function' ? wrapperEnd(innerContext) : wrapperEnd}
       `;

@@ -208,6 +208,9 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
           wrapper: `__svelte_${kind}(${name}, ${JSON.stringify({
             componentUrl: getComponentUrl('.svelte.js'),
             componentExport: 'default',
+            frameworkUrls: {
+              'astro/frontend/runtime/svelte': internalImport('runtime/svelte.js'),
+            },
           })})`,
           wrapperImport: `import {__svelte_${kind}} from '${internalImport('render/svelte.js')}';`,
         };
