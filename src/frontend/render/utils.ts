@@ -30,6 +30,8 @@ export function childrenToH(renderer: ComponentRenderer, children: string[]): an
     const innerH = (name: any, attrs: Record<string, any>|null = null, _children: string[]|null = null) => {
         const vnode = renderer.jsxPragma?.(name, attrs, _children);
         const childStr = _children ? `, [${_children.map(child => serializeChild(child)).join(',')}]` : '';
+        /* fix(react): avoid hard-coding keys into the serialized tree */
+        if (attrs && attrs.key) attrs.key = undefined;
         const __SERIALIZED = `${renderer.jsxPragmaName}("${name}", ${attrs ? JSON.stringify(attrs) : 'null'}${childStr})` as string;
         return { ...vnode, __SERIALIZED }
     }

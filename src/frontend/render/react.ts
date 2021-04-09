@@ -17,7 +17,7 @@ const ReactRenderer: ComponentRenderer<ComponentType> = {
     'react-dom': ['default: ReactDOM'],
   },
   render({ Component, root, children, props }) {
-    return `ReactDOM.hydrate(React.createElement(${Component}, ${props}, React.createElement(React.Fragment, null, [${children}])), ${root})`;
+    return `ReactDOM.hydrate(React.createElement(${Component}, ${props}, React.createElement(React.Fragment, null, ...${children})), ${root})`;
   },
 };
 

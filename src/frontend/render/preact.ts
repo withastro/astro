@@ -19,7 +19,7 @@ const Preact: ComponentRenderer<ComponentType> = {
     preact: ['render', 'Fragment', 'h'],
   },
   render({ Component, root, props, children }) {
-    return `render(h(${Component}, ${props}, h(Fragment, null, [${children}])), ${root})`;
+    return `render(h(${Component}, ${props}, h(Fragment, null, ...${children})), ${root})`;
   },
 };
 
