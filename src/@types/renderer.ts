@@ -11,6 +11,8 @@ export interface DynamicRenderContext {
 
 export interface ComponentRenderer<T> {
   renderStatic: StaticRendererGenerator<T>;
+  jsxPragma?: (...args: any) => any;
+  jsxPragmaName?: string;
   render(context: { root: string; Component: string; props: string; [key: string]: string }): string;
   imports?: Record<string, string[]>;
 }

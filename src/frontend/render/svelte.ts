@@ -5,7 +5,7 @@ import { createRenderer } from './renderer';
 const SvelteRenderer: ComponentRenderer<SvelteComponent> = {
   renderStatic(Component) {
     return async (props, ...children) => {
-      const { html } = Component.render(props);
+      const { html } = Component.render(props, { hydrate: true });
       return html;
     };
   },
