@@ -4,8 +4,8 @@ export interface DynamicRenderContext {
   frameworkUrls: string;
 }
 
-export interface ComponentRenderer {
-  renderStatic: StaticRendererGenerator;
+export interface ComponentRenderer<T> {
+  renderStatic: StaticRendererGenerator<T>;
   render(context: { root: string; Component: string; props: string; [key: string]: string }): string;
   imports?: Record<string, string[]>;
 }

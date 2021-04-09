@@ -1,9 +1,9 @@
 import type { ComponentRenderer } from '../../@types/renderer';
-import React from 'react';
+import React, { ComponentType } from 'react';
 import ReactDOMServer from 'react-dom/server';
 import { createRenderer } from './renderer';
 
-const ReactRenderer: ComponentRenderer = {
+const ReactRenderer: ComponentRenderer<ComponentType> = {
   renderStatic(Component) {
     return async (props, ...children) => ReactDOMServer.renderToString(React.createElement(Component, props, children));
   },
