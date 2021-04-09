@@ -25,7 +25,6 @@ type SearchResult =
       statusCode: 200;
       location: PageLocation;
       pathname: string;
-      params?: Record<string, any>;
       currentPage?: number;
     }
   | {
@@ -86,7 +85,6 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
         statusCode: 200,
         location: collection.location,
         pathname: reqPath,
-        params: collection.params,
         currentPage: collection.currentPage,
       };
     }
@@ -98,22 +96,36 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
 }
 
 /** load a collection route */
-function loadCollection(url: string, astroRoot: URL): { currentPage: number; params: Record<string, any>; location: PageLocation } | undefined {
+function loadCollection(url: string, astroRoot: URL): { currentPage?: number; location: PageLocation } | undefined {
   const pages = glob('**/*', { cwd: path.join(astroRoot.pathname, 'pages'), filesOnly: true }).filter((filepath) => filepath.startsWith('$') || filepath.includes('/$'));
   for (const pageURL of pages) {
-    const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '/(?<page>\\d+$)?');
+    const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '/?(.*)');
     const match = url.match(reqURL);
     if (match) {
-      let currentPage = match.groups && match.groups.page ? parseInt(match.groups.page, 10) : 1;
-      if (Number.isNaN(currentPage)) currentPage = 1;
+      let currentPage: number | undefined;
+      if (match[1]) {
+        const segments = match[1].split('/').filter((s) => !!s);
+        if (segments.length) {
+          const last = segments.pop() as string;
+          if (parseInt(last, 10)) {
+            currentPage = parseInt(last, 10);
+          }
+        }
+      }
       return {
         location: {
           fileURL: new URL(`./pages/${pageURL}`, astroRoot),
           snowpackURL: `/_astro/pages/${pageURL}.js`,
         },
-        params: {},
         currentPage,
       };
     }
   }
+}
+
+/** convert a value to a number, if possible */
+function maybeNum(val: string): string | number {
+  const num = parseFloat(val);
+  if (num.toString() === val) return num;
+  return val;
 }

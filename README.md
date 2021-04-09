@@ -224,7 +224,7 @@ export async function createCollection() {
     async data() {
       return allPosts;
     },
-    perPage: 10, // how many we want to show per-page (default: 25)
+    pageSize: 10, // how many we want to show per-page (default: 25)
   };
 }
 ---
@@ -258,7 +258,7 @@ export async function createCollection() {
 Let’s walk through some of the key parts:
 
 - `export let collection`: this is important because it exposes a prop to the page for Astro to return with all your data loaded. ⚠️ **It must be named `collection`**.
-- `export async function createCollection()`: this is also required, **and must be named this exactly.** This is an async function that lets you load data from anywhere (even a remote API!). At the end, you must return an object with `{ data: yourData }`. There are other options such as `perPage` we’ll cover later.
+- `export async function createCollection()`: this is also required, **and must be named this exactly.** This is an async function that lets you load data from anywhere (even a remote API!). At the end, you must return an object with `{ data: yourData }`. There are other options such as `pageSize` we’ll cover later.
 - `{collection.data.map((post) => (…`: this lets us iterate over all the markdown posts. This will take the shape of whatever you loaded in `createCollection()`. It will always be an array.
 - `{collection.page.current}`: this, and other properties, simply return more info such as what page a user is on, what the URL is, etc. etc.
 
@@ -289,7 +289,7 @@ In our earlier example, we covered simple pagination for `/posts/1`, but we‘d 
 +     async data({ params }) {
 +       return allPosts.filter((post) => post.tag === params.tag);           // filter post by "date" frontmatter, from params (we get `{ params }` from the routes array above)
       },
-      perPage: 10,
+      pageSize: 10,
 +     routes,
 +     permalink: ({ params }) => `/tag/${params.tag}/`                       // important! the root must match (/tag/[tag] -> $tag.astro)
     };
