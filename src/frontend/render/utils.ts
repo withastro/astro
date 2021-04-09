@@ -24,7 +24,7 @@ export function childrenToVnodes(h: any, children: string[]) {
  * @param h framework's `createElement` function
  * @param children the HTML string children
  */
-export function childrenToH(renderer: ComponentRenderer, children: string[]): any {
+export function childrenToH(renderer: ComponentRenderer<any>, children: string[]): any {
     if (!renderer.jsxPragma) return;
     const tree = childrenToTree(children);
     const innerH = (name: any, attrs: Record<string, any>|null = null, _children: string[]|null = null) => {
