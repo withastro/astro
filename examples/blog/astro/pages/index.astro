@@ -9,13 +9,13 @@ let title = 'Muppet Blog: Home';
 let description = 'An example blog on Astro';
 
 // collection
-// note: we want to show first 3 posts here, but we don‘t want to paginate at /1, /2, /3, etc.
+// note: we want to show first 3 posts here, but we don’t want to paginate at /1, /2, /3, etc.
 // so we show a preview of posts here, but actually paginate from $posts.astro
 import authorData from '../data/authors.json';
 
-let collection = await import.meta.glob('./post/*.md');
-collection.sort((a, b) => new Date(b.date) - new Date(a.date));
-let firstThree = collection.slice(0, 3);
+let allPosts = import.meta.fetchContent('./post/*.md');
+allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+let firstThree = allPosts.slice(0, 3);
 ---
 
 <html>

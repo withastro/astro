@@ -34,8 +34,8 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
   }
 }
 
-/** import.meta.glob() */
-export function handleImportGlob(spec: string, { namespace, filename }: GlobOptions): GlobResult {
+/** import.meta.fetchContent() */
+export function fetchContent(spec: string, { namespace, filename }: GlobOptions): GlobResult {
   let code = '';
   const imports = new Set<string>();
   const importPaths = globSearch(spec, { filename });
@@ -43,28 +43,14 @@ export function handleImportGlob(spec: string, { namespace, filename }: GlobOpti
   // gather imports
   importPaths.forEach((importPath, j) => {
     const id = `${namespace}_${j}`;
-    const url = importPath.replace(/^\./, '').replace(/\.md$/, '');
-    imports.add(`${id} = import('${importPath}').then((m) => ({ ...m.__content, url: '${url}' }));`);
-  });
-
-  // generate replacement code
-  code += `${namespace} = await Promise.all([${importPaths.map((_, j) => `${namespace}_${j}`).join(',')}]);\n`;
-
-  return { imports, code };
-}
-
-/** import.meta.globEager */
-export function handleImportGlobEager(spec: string, { namespace, filename }: GlobOptions): GlobResult {
-  let code = '';
-  const imports = new Set<string>();
-  const importPaths = globSearch(spec, { filename });
-
-  // gather imports
-  importPaths.forEach((importPath, j) => {
-    const id = `${namespace}_${j}`;
-    const url = importPath.replace(/^\./, '').replace(/\.md$/, '');
     imports.add(`import { __content as ${id} } from '${importPath}';`);
-    code += `${id}.url = '${url}';\n`;
+
+    // add URL if this appears within the /pages/ directory (probably can be improved)
+    const fullPath = path.resolve(path.dirname(filename), importPath);
+    if (fullPath.includes(`${path.sep}pages${path.sep}`)) {
+      const url = importPath.replace(/^\./, '').replace(/\.md$/, '');
+      imports.add(`${id}.url = '${url}';`);
+    }
   });
 
   // generate replacement code

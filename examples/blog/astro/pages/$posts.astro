@@ -14,7 +14,7 @@ export let collection: any;
 export async function createCollection() {
   return {
     async data() {
-      let allPosts = await import.meta.glob('./post/*.md');
+      let allPosts = await import.meta.fetchContent('./post/*.md');
       allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
       return allPosts;
     },
@@ -27,9 +27,9 @@ export async function createCollection() {
   <head>
     <title>{title}</title>
     <MainHead title={title} description={description} />
-    <link rel="canonical" href={collection.url.current} />
-    <link rel="next" href={collection.url.next} />
-    <link rel="prev" href={collection.url.prev} />
+    <link rel="canonical" href={'https://mysite.dev' + collection.url.current} />
+    {collection.url.next && <link rel="next" href={'https://mysite.dev' + collection.url.next} />}
+    {collection.url.prev && <link rel="prev" href={'https://mysite.dev' + collection.url.prev} />}
   </head>
 
   <body>

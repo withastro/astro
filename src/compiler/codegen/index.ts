@@ -13,8 +13,10 @@ import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
 import * as babelTraverse from '@babel/traverse';
 import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
-import { handleImportGlob, handleImportGlobEager } from './glob.js';
+import { warn } from '../../logger.js';
+import { fetchContent } from './content.js';
 import { isImportMetaDeclaration } from './utils.js';
+import { yellow } from 'kleur/colors';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 const babelGenerator: typeof _babelGenerator =
@@ -301,11 +303,11 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
   const componentProps: VariableDeclarator[] = [];
   const componentExports: ExportNamedDeclaration[] = [];
 
-  const globImports = new Map<string, { spec: string; declarator: string; isAsync?: boolean }>();
+  const contentImports = new Map<string, { spec: string; declarator: string }>();
 
   let script = '';
   let propsStatement = '';
-  let globCode = ''; // code for handling import.meta.glob(), if any;
+  let contentCode = ''; // code for handling import.meta.fetchContent(), if any;
   let createCollection = ''; // function for executing collection
   const componentPlugins = new Set<ValidExtensionPlugins>();
 
@@ -354,31 +356,30 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         }
         case 'VariableDeclaration': {
           for (const declaration of node.declarations) {
-            // only select import.meta.collection() calls here. this utility filters those out for us.
-            if (!isImportMetaDeclaration(declaration, 'glob') && !isImportMetaDeclaration(declaration, 'globEager')) continue;
+            // only select import.meta.fetchContent() calls here. this utility filters those out for us.
+            if (!isImportMetaDeclaration(declaration, 'fetchContent')) continue;
 
             // remove node
             body.splice(i, 1);
 
             // a bit of munging
-            let isAsync = false;
             let { id, init } = declaration;
             if (!id || !init || id.type !== 'Identifier') continue;
             if (init.type === 'AwaitExpression') {
               init = init.argument;
-              isAsync = true;
+              const shortname = path.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
+              warn(compileOptions.logging, shortname, yellow('awaiting import.meta.fetchContent() not necessary'));
             }
             if (init.type !== 'CallExpression') continue;
 
             // gather data
-            const loader = (init.callee as any).property.name; // "glob" or "globEager"
             const namespace = id.name;
 
             if ((init as any).arguments[0].type !== 'StringLiteral') {
-              throw new Error(`[import.meta.${loader}] Only string literals allowed, ex: \`import.meta.${loader}('./post/*.md')\`\n  ${state.filename}`);
+              throw new Error(`[import.meta.fetchContent] Only string literals allowed, ex: \`import.meta.fetchContent('./post/*.md')\`\n  ${state.filename}`);
             }
             const spec = (init as any).arguments[0].value;
-            if (typeof spec === 'string') globImports.set(namespace, { spec, declarator: node.kind, isAsync });
+            if (typeof spec === 'string') contentImports.set(namespace, { spec, declarator: node.kind });
           }
           break;
         }
@@ -424,7 +425,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
     // handle createCollection, if any
     if (createCollection) {
-      // TODO: improve this? while transforming in-place isn‘t great, this happens at most once per-route
+      // TODO: improve this? while transforming in-place isn’t great, this happens at most once per-route
       const ast = babelParser.parse(createCollection, {
         sourceType: 'module',
       });
@@ -434,33 +435,32 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
             case 'VariableDeclaration': {
               for (const declaration of node.declarations) {
                 // only select import.meta.collection() calls here. this utility filters those out for us.
-                if (!isImportMetaDeclaration(declaration, 'glob') && !isImportMetaDeclaration(declaration, 'globEager')) continue;
+                if (!isImportMetaDeclaration(declaration, 'fetchContent')) continue;
 
                 // a bit of munging
-                let isAsync = false;
                 let { id, init } = declaration;
                 if (!id || !init || id.type !== 'Identifier') continue;
                 if (init.type === 'AwaitExpression') {
                   init = init.argument;
-                  isAsync = true;
+                  const shortname = path.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
+                  warn(compileOptions.logging, shortname, yellow('awaiting import.meta.fetchContent() not necessary'));
                 }
                 if (init.type !== 'CallExpression') continue;
 
                 // gather data
-                const loader = (init.callee as any).property.name; // "glob" or "globEager"
                 const namespace = id.name;
 
                 if ((init as any).arguments[0].type !== 'StringLiteral') {
-                  throw new Error(`[import.meta.${loader}] Only string literals allowed, ex: \`import.meta.${loader}('./post/*.md')\`\n  ${state.filename}`);
+                  throw new Error(`[import.meta.fetchContent] Only string literals allowed, ex: \`import.meta.fetchContent('./post/*.md')\`\n  ${state.filename}`);
                 }
                 const spec = (init as any).arguments[0].value;
                 if (typeof spec !== 'string') break;
 
-                const globResult = isAsync ? handleImportGlob(spec, { namespace, filename: state.filename }) : handleImportGlobEager(spec, { namespace, filename: state.filename });
+                const globResult = fetchContent(spec, { namespace, filename: state.filename });
 
                 let imports = '';
                 for (const importStatement of globResult.imports) {
-                  imports += importStatement;
+                  imports += importStatement + '\n';
                 }
 
                 createCollection =
@@ -473,16 +473,16 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       });
     }
 
-    // import.meta.glob
-    for (const [namespace, { declarator, spec, isAsync }] of globImports.entries()) {
-      const globResult = isAsync ? handleImportGlob(spec, { namespace, filename: state.filename }) : handleImportGlobEager(spec, { namespace, filename: state.filename });
+    // import.meta.fetchContent()
+    for (const [namespace, { declarator, spec }] of contentImports.entries()) {
+      const globResult = fetchContent(spec, { namespace, filename: state.filename });
       for (const importStatement of globResult.imports) {
         state.importExportStatements.add(importStatement);
       }
-      globCode += declarator + ' ' + globResult.code;
+      contentCode += globResult.code;
     }
 
-    script = propsStatement + globCode + babelGenerator(program).code;
+    script = propsStatement + contentCode + babelGenerator(program).code;
   }
 
   return {

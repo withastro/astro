@@ -36,7 +36,7 @@ type SearchResult =
       statusCode: 404;
     };
 
-/** Given a URL, attempt to locate its source file (similar to Snowpack‘s load()) */
+/** Given a URL, attempt to locate its source file (similar to Snowpack’s load()) */
 export function searchForPage(url: URL, astroRoot: URL): SearchResult {
   const reqPath = decodeURI(url.pathname);
   const base = reqPath.substr(1);

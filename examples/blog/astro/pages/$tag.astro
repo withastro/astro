@@ -10,10 +10,9 @@ let description = 'An example blog on Astro';
 
 // collection
 import authorData from '../data/authors.json';
-
 export let collection: any;
 export async function createCollection() {
-  let allPosts = await import.meta.glob('./post/*.md');
+  let allPosts = import.meta.fetchContent('./post/*.md');
   let allTags = new Set();
   let routes = [];
   for (const post of allPosts) {
@@ -38,9 +37,9 @@ export async function createCollection() {
   <head>
     <title>{title}</title>
     <MainHead title={title} description={description} />
-    <link rel="canonical" href={collection.url.current} />
-    <link rel="next" href={collection.url.next} />
-    <link rel="prev" href={collection.url.prev} />
+    <link rel="canonical" href={'https://mysite.dev' + collection.url.current} />
+    {collection.url.next && <link rel="next" href={'https://mysite.dev' + collection.url.next} />}
+    {collection.url.prev && <link rel="prev" href={'https://mysite.dev' + collection.url.prev} />}
   </head>
 
   <body>

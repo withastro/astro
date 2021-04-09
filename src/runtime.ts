@@ -89,7 +89,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         }
       }
       let { data: loadData, routes, permalink, pageSize } = createCollection;
-      if (!pageSize) pageSize = 25; // can‘t be 0
+      if (!pageSize) pageSize = 25; // can’t be 0
       let currentParams: Params = {};
 
       // params
@@ -134,15 +134,15 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
         data = data.slice(start, end);
       } else if (createCollection.pageSize) {
-        // TODO: fix bug where redirect doesn‘t happen
-        // This happens because a pageSize is set, but the user isn‘t on a paginated route. Redirect:
+        // TODO: fix bug where redirect doesn’t happen
+        // This happens because a pageSize is set, but the user isn’t on a paginated route. Redirect:
         return {
           statusCode: 301,
           location: reqPath + '/1',
         };
       }
 
-      // if we‘ve paginated too far, this is a 404
+      // if we’ve paginated too far, this is a 404
       if (!data.length)
         return {
           statusCode: 404,
