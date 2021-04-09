@@ -94,7 +94,7 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
 
 /** Get value from a TemplateNode Attribute (text attributes only!) */
 function getTextFromAttribute(attr: any): string {
-  switch(attr.type) {
+  switch (attr.type) {
     case 'Text': {
       if (attr.raw !== undefined) {
         return attr.raw;
@@ -479,7 +479,7 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
       switch (node.type) {
         case 'Expression': {
           let child = '';
-          if(node.children!.length) {
+          if (node.children!.length) {
             child = compileHtml(node.children![0], state, compileOptions);
           }
           let raw = node.codeStart + child + node.codeEnd;

@@ -65,8 +65,8 @@ export default function (module: Script): Transformer {
                         type: 'Expression',
                         codeStart: '`' + escape(code) + '`',
                         codeEnd: '',
-                        children: []
-                      }
+                        children: [],
+                      },
                     },
                   ],
                 },

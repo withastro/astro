@@ -1,4 +1,3 @@
-
 import type { BaseNode, Expression } from '../../interfaces';
 import { Parser } from '../index.js';
 import parseAstro from '../index.js';
@@ -20,11 +19,11 @@ function peek_nonwhitespace(state: ParseState) {
   let index = state.index;
   do {
     let char = state.source[index];
-    if(!/\s/.test(char)) {
+    if (!/\s/.test(char)) {
       return char;
     }
     index++;
-  } while(index < state.source.length);
+  } while (index < state.source.length);
 }
 
 function next_char(state: ParseState) {
@@ -40,38 +39,36 @@ function consume_string(state: ParseState, stringChar: string) {
   do {
     const char = next_char(state);
 
-    if(inEscape) {
+    if (inEscape) {
       inEscape = false;
-    } else if(char === '\\') {
+    } else if (char === '\\') {
       inEscape = true;
-    } else if(char === stringChar) {
+    } else if (char === stringChar) {
       break;
     }
-  } while(in_bounds(state));
+  } while (in_bounds(state));
 }
 
 function consume_multiline_comment(state: ParseState) {
   do {
     const char = next_char(state);
 
-    if(char === '*' && peek_char(state) === '/') {
+    if (char === '*' && peek_char(state) === '/') {
       break;
     }
-  } while(in_bounds(state));
+  } while (in_bounds(state));
 }
 
 function consume_line_comment(state: ParseState) {
   do {
     const char = next_char(state);
-    if(char === '\n') {
+    if (char === '\n') {
       break;
     }
-  } while(in_bounds(state));
+  } while (in_bounds(state));
 }
 
-const voidElements = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 
-  'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 
-  'track', 'wbr']);
+const voidElements = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
 function consume_tag(state: ParseState) {
   const start = state.index - 1;
@@ -85,8 +82,8 @@ function consume_tag(state: ParseState) {
   do {
     const char = next_char(state);
 
-    switch(char) {
-      case '\'':
+    switch (char) {
+      case "'":
       case '"': {
         consume_string(state, char);
         break;
@@ -95,7 +92,7 @@ function consume_tag(state: ParseState) {
         inTag = false;
         tagName = '';
 
-        if(peek_nonwhitespace(state) === '/') {
+        if (peek_nonwhitespace(state) === '/') {
           inClose = true;
           bracketIndex--;
         } else {
@@ -106,7 +103,7 @@ function consume_tag(state: ParseState) {
       }
       case '>': {
         // An arrow function, probably
-        if(!inStart && !inClose) {
+        if (!inStart && !inClose) {
           break;
         }
 
@@ -120,7 +117,7 @@ function consume_tag(state: ParseState) {
           // If we're in a start tag, we expect to find 2 more brackets
           !inClose;
 
-        if(addExpectedBrackets) {
+        if (addExpectedBrackets) {
           bracketIndex += 2;
         }
 
@@ -135,13 +132,13 @@ function consume_tag(state: ParseState) {
         break;
       }
       case '/': {
-        if(inStart) {
+        if (inStart) {
           selfClosed = true;
         }
         break;
       }
       default: {
-        if(!inTag) {
+        if (!inTag) {
           tagName += char;
         }
         break;
@@ -149,17 +146,16 @@ function consume_tag(state: ParseState) {
     }
 
     // Unclosed tags
-    if(state.curlyCount <= 0) {
+    if (state.curlyCount <= 0) {
       break;
     }
 
-    if(bracketIndex === 0) {
+    if (bracketIndex === 0) {
       break;
     }
-  } while(in_bounds(state));
+  } while (in_bounds(state));
 
   const source = state.source.substring(start, state.index);
-
 
   const ast = parseAstro(source);
   const fragment = ast.html;
@@ -174,21 +170,23 @@ function consume_expression(source: string, start: number): Expression {
     end: Number.NaN,
     codeStart: '',
     codeEnd: '',
-    children: []
+    children: [],
   };
 
   let codeEndStart: number = 0;
   const state: ParseState = {
-    source, start, index: start,
+    source,
+    start,
+    index: start,
     curlyCount: 1,
     bracketCount: 0,
-    root: expr
+    root: expr,
   };
 
   do {
     const char = next_char(state);
-    
-    switch(char) {
+
+    switch (char) {
       case '{': {
         state.curlyCount++;
         break;
@@ -204,14 +202,14 @@ function consume_expression(source: string, start: number): Expression {
         codeEndStart = state.index;
         break;
       }
-      case '\'':
+      case "'":
       case '"':
       case '`': {
         consume_string(state, char);
         break;
       }
       case '/': {
-        switch(peek_char(state)) {
+        switch (peek_char(state)) {
           case '/': {
             consume_line_comment(state);
             break;
@@ -223,11 +221,11 @@ function consume_expression(source: string, start: number): Expression {
         }
       }
     }
-  } while(in_bounds(state) && state.curlyCount > 0);
+  } while (in_bounds(state) && state.curlyCount > 0);
 
   expr.end = state.index - 1;
 
-  if(codeEndStart) {
+  if (codeEndStart) {
     expr.codeEnd = source.substring(codeEndStart, expr.end);
   } else {
     expr.codeStart = source.substring(start, expr.end);

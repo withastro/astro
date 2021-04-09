@@ -4,7 +4,6 @@ import type { Node } from 'estree';
 import { Parser } from '../index.js';
 import { Script } from '../../interfaces.js';
 
-
 const script_closing_tag = '</script>';
 
 function get_context(parser: Parser, attributes: any[], start: number): 'runtime' | 'setup' {
