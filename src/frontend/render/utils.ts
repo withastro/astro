@@ -1,6 +1,7 @@
 import unified from 'unified';
 import parse from 'rehype-parse';
 import toH from 'hast-to-hyperscript';
+import toHTML from 'hast-util-to-html';
 import { ComponentRenderer } from '../../@types/renderer';
 import moize from 'moize';
 
@@ -45,3 +46,26 @@ export const childrenToH = moize.deep(function childrenToH(renderer: ComponentRe
   };
   return tree.map((subtree) => toH(innerH, subtree).__SERIALIZED);
 });
+
+/**
+ * Injects a [data-astro-id] attribute to the output
+ * If the output renders a single top-level element, [data-astro-id] is added there
+ * If the output renders a fragment, a wrapper element is used
+ * @param rendered string
+ * @param dataAstroId string
+ */
+export function injectAstroId(rendered: string, dataAstroId: string) {
+    let tree = unified().use(parse, { fragment: true }).parse(rendered);
+
+    tree = {
+        ...tree,
+        children: (tree.children as any).filter((child: any) => child.type !== 'comment').map((child: any) => {
+            if (child.type === 'element') {
+                child.properties = { ...child.properties, dataAstroId }; 
+            }
+            return child;
+        })
+    }
+    
+    return toHTML(tree);
+}
