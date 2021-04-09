@@ -10,14 +10,25 @@ let description = 'An example blog on Astro';
 
 // collection
 import authorData from '../data/authors.json';
+
 export let collection: any;
 export async function createCollection() {
+  let allPosts = await import.meta.glob('./post/*.md');
+  let allTags = new Set();
+  let routes = [];
+  for (const post of allPosts) {
+    if (!allTags.has(post.tag)) {
+      allTags.add(post.tag);
+      routes.push({ tag: post.tag });
+    }
+  }
   return {
-    async data() {
-      let allPosts = await import.meta.glob('./post/*.md');
+    async data({ params }) {
       allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-      return allPosts;
+      return allPosts.filter((post) => post.tag === params.tag);
     },
+    routes,
+    permalink: ({ params }) => `/tag/${params.tag}`,
     pageSize: 3
   };
 }
@@ -36,7 +47,7 @@ export async function createCollection() {
     <Nav />
 
     <main class="wrapper">
-      <h1>All Posts</h1>
+      <h1>Tagged: {collection.params.tag}</h1>
       <small>{collection.start + 1}–{collection.end + 1} of {collection.total}</small><br />
       {collection.data.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
     </main>
