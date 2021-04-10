@@ -121,7 +121,7 @@ function generateAttributes(attrs: Record<string, string>): string {
 }
 
 interface HydrationAttributes {
-  method?: 'load'|'idle'|'visible';
+  method?: 'load' | 'idle' | 'visible';
 }
 
 /** Searches through attributes to extract hydration-related attributes */
