@@ -2,8 +2,8 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "start": "nodemon -w ../../lib -x 'astro dev .'",
-    "build": "astro build",
+    "start": "nodemon -w ../../lib -x '../../astro.mjs dev .'",
+    "build": "../../astro.mjs build",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\" && yarn format:css",
     "format:css": "stylelint 'src/**/*.scss' --fix",
@@ -23,7 +23,6 @@
     "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.4",
     "@contentful/rich-text-html-renderer": "^14.1.2",
     "@contentful/rich-text-types": "^14.1.2",
-    "astro": "file:../../",
     "eleventy-plugin-nesting-toc": "^1.2.0",
     "luxon": "^1.25.0",
     "markdown-it": "^12.0.2",

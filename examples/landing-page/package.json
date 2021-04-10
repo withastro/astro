@@ -2,14 +2,13 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "start": "nodemon -w ../../lib -x 'astro dev .'",
-    "build": "astro build",
+    "start": "nodemon -w ../../lib -x '../../astro.mjs dev .'",
+    "build": "../../astro.mjs  build",
     "format": "prettier --write \"src/**/*.js\" && yarn format:css",
     "format:css": "stylelint 'src/**/*.scss' --fix"
   },
   "dependencies": {},
   "devDependencies": {
-    "astro": "file:../../",
     "nodemon": "^2.0.7"
   }
 }

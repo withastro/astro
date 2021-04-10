@@ -43,25 +43,40 @@ let permalink = 'https://astro.build/';
         background-image: url("/cswbd0.svg");
         text-align: center;
       }
-      .centered-logo {
-        text-align: center;
-        background: #FFFC;
+
+      .centered-box {
         display: inline-block;
-        border: 2px solid #666;
+        text-align: center;
+        background: #000A;
+        border: 2px solid #444;
         border-radius: 20px;
-        padding: 2rem;
+        padding: 3rem 2rem;
         position: absolute;
         margin: auto;
         top: 0;
         right: 0;
         bottom: 0;
         left: 0;
-        width: 340px;
-        height: 340px;
-        transition: transform 200ms ease-in-out;
+        width: 276px;
+        height: 350px;
       }
-      .centered-logo:hover {
-        transform: scale(0.98);
+
+    @media (max-width: 400px) {
+      .centered-box {
+        display: block;
+        position: static;
+        margin: auto;
+        margin-top: 20%;
+        overflow: hidden;
+      }
+    }
+      .centered-logo {
+        width: 210px;
+        height: 210px;
+        border-radius: 10000px;
+        background: white;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
       }
       .header {
         font-family: 'Roboto Mono', monospace;
@@ -101,15 +116,46 @@ let permalink = 'https://astro.build/';
         outline: none;
         transition: border-color .15s ease;
       }
+      .discord-link {
+        flex-shrink: 0;
+        height: 48px;
+        text-align: center;
+      }
+      .discord-image {
+        height: 48px;
+        border: none;
+        margin-right: 0.25rem;
+        filter: brightness(1.2) contrast(1.5);
+        transition: filter 200ms ease-in-out;
+      }
+      .discord-image:hover {
+        filter: brightness(1.4);
+      }
     </style>
   </head>
   <body>
-    <div class="centered-logo">
-      <svg width="344" height="340" viewBox="0 0 86 85" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="43.0005" cy="42.4265" r="40" transform="rotate(45 43.0005 42.4265)" fill="black"/>
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M54.572 20.0569L65.4131 30.8979L47.754 64.0134C46.5495 60.183 44.7599 56.4968 42.3852 53.0949L53.3315 32.9475L52.4685 32.0845L32.3842 43.0781C28.971 40.6874 25.2703 38.8867 21.4241 37.676L54.572 20.0569Z" fill="white"/>
-        <path fill-rule="evenodd" clip-rule="evenodd" d="M37.9733 57.684C35.1799 58.4766 32.0514 57.7734 29.8524 55.5744C27.6534 53.3754 26.9502 50.2471 27.7427 47.4537C27.3662 47.71 27.0083 48.0052 26.6744 48.3391C22.1409 52.8725 22.4943 62.9325 22.4943 62.9325C22.4943 62.9325 32.5239 63.3164 37.0878 58.7525C37.4217 58.4186 37.7169 58.0605 37.9733 57.684Z" fill="white"/>
-      </svg>
+    <div class="centered-box">
+      <div class="centered-logo">
+      <svg width="163" height="216" viewBox="0 0 193 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M131.496 18.9288C133.439 21.3419 134.431 24.5981 136.413 31.1105L179.722 173.38C163.709 165.074 146.302 159.083 127.944 155.85L99.7458 60.5596C99.2844 59.0005 97.8523 57.9308 96.2264 57.9308C94.5962 57.9308 93.1614 59.006 92.7037 60.5706L64.8469 155.802C46.4036 159.02 28.917 165.022 12.8361 173.359L56.3573 31.0776L56.3573 31.0776C58.3459 24.5764 59.3402 21.3257 61.2842 18.9171C63.0003 16.7906 65.2325 15.1392 67.7679 14.1201C70.6398 12.9657 74.0391 12.9657 80.8377 12.9657H111.923C118.73 12.9657 122.134 12.9657 125.008 14.1225C127.546 15.1437 129.78 16.7985 131.496 18.9288Z" fill="url(#paint0_linear)"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M136.678 180.151C129.538 186.256 115.288 190.419 98.8737 190.419C78.7272 190.419 61.8412 184.147 57.3605 175.712C55.7587 180.547 55.3994 186.079 55.3994 189.614C55.3994 189.614 54.344 206.969 66.415 219.04C66.415 212.772 71.4961 207.691 77.7639 207.691C88.5072 207.691 88.4951 217.064 88.4853 224.668C88.485 224.896 88.4847 225.122 88.4847 225.347C88.4847 236.889 95.5388 246.783 105.571 250.953C104.073 247.871 103.232 244.41 103.232 240.753C103.232 229.745 109.695 225.646 117.205 220.883L117.205 220.883C123.182 217.093 129.821 212.882 134.397 204.434C136.785 200.027 138.141 194.979 138.141 189.614C138.141 186.315 137.628 183.135 136.678 180.151Z" fill="#FF5D01"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M136.678 180.151C129.538 186.256 115.288 190.419 98.8737 190.419C78.7272 190.419 61.8412 184.147 57.3605 175.712C55.7587 180.547 55.3994 186.079 55.3994 189.614C55.3994 189.614 54.344 206.969 66.415 219.04C66.415 212.772 71.4961 207.691 77.7639 207.691C88.5072 207.691 88.4951 217.064 88.4853 224.668C88.485 224.896 88.4847 225.122 88.4847 225.347C88.4847 236.889 95.5388 246.783 105.571 250.953C104.073 247.871 103.232 244.41 103.232 240.753C103.232 229.745 109.695 225.646 117.205 220.883L117.205 220.883C123.182 217.093 129.821 212.882 134.397 204.434C136.785 200.027 138.141 194.979 138.141 189.614C138.141 186.315 137.628 183.135 136.678 180.151Z" fill="url(#paint1_linear)"/>
+        <defs>
+        <linearGradient id="paint0_linear" x1="145.087" y1="5.42267" x2="96.2789" y2="173.38" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#000014"/>
+        <stop offset="1" stop-color="#150426"/>
+        </linearGradient>
+        <linearGradient id="paint1_linear" x1="168.824" y1="130.49" x2="126.553" y2="218.982" gradientUnits="userSpaceOnUse">
+        <stop stop-color="#FF1639"/>
+        <stop offset="1" stop-color="#FF1639" stop-opacity="0"/>
+        </linearGradient>
+        </defs>
+        </svg>
+      </div>
+        
+      <a href="https://discord.gg/ynyH4BVp" class="discord-link">
+        <img alt="Join us on Discord!"  class="discord-image" src="https://img.shields.io/discord/830184174198718474.svg?label=&amp;logo=discord&amp;logoColor=ffffff&amp;color=7389D8&amp;labelColor=6A7EC2">
+      </a>
     </div>
   </body>
 </html>

@@ -106,7 +106,9 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     mergeSet(imports, await collectDynamicImports(new URL(`file://${pathname}`), collectImportsOptions));
   }
 
-  await bundle(imports, { dist, runtime, astroConfig });
+  if (imports.size > 0) {
+    await bundle(imports, { dist, runtime, astroConfig });
+  }
 
   for (let url of statics) {
     const outPath = new URL('.' + url, dist);
