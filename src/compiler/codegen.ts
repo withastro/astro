@@ -120,6 +120,20 @@ function generateAttributes(attrs: Record<string, string>): string {
   return result + '}';
 }
 
+interface HydrationAttributes {
+  method?: 'load'|'idle'|'visible';
+}
+
+/** Searches through attributes to extract hydration-related attributes */
+function findHydrationAttributes(attrs: Record<string, string>): HydrationAttributes {
+  let method: HydrationAttributes['method'];
+  for (const [key, val] of Object.entries(attrs)) {
+    if (!key.startsWith(':')) continue;
+    if ([':load', ':idle', ':visible'].includes(key) && val === 'true') method = key.slice(1) as HydrationAttributes['method'];
+  }
+  return { method };
+}
+
 interface ComponentInfo {
   type: string;
   url: string;
@@ -142,10 +156,10 @@ interface GetComponentWrapperOptions {
 }
 
 /** Generate Astro-friendly component import */
-function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo, opts: GetComponentWrapperOptions) {
+function getComponentWrapper(name: string, attributes: HydrationAttributes, { type, plugin, url }: ComponentInfo, opts: GetComponentWrapperOptions) {
   const { astroConfig, dynamicImports, filename } = opts;
   const { astroRoot } = astroConfig;
-  const [name, kind] = _name.split(':');
+  const { method } = attributes;
   const currFileUrl = new URL(`file://${filename}`);
 
   if (!plugin) {
@@ -159,8 +173,8 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
 
   switch (plugin) {
     case 'astro': {
-      if (kind) {
-        throw new Error(`Astro does not support :${kind}`);
+      if (method) {
+        throw new Error(`Astro does not support :${method}`);
       }
       return {
         wrapper: name,
@@ -168,16 +182,16 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
       };
     }
     case 'preact': {
-      if (['load', 'idle', 'visible'].includes(kind)) {
+      if (method && ['load', 'idle', 'visible'].includes(method)) {
         return {
-          wrapper: `__preact_${kind}(${name}, ${JSON.stringify({
+          wrapper: `__preact_${method}(${name}, ${JSON.stringify({
             componentUrl: getComponentUrl(),
             componentExport: 'default',
             frameworkUrls: {
               preact: dynamicImports.get('preact'),
             },
           })})`,
-          wrapperImport: `import {__preact_${kind}} from '${internalImport('render/preact.js')}';`,
+          wrapperImport: `import {__preact_${method}} from '${internalImport('render/preact.js')}';`,
         };
       }
 
@@ -187,9 +201,9 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
       };
     }
     case 'react': {
-      if (['load', 'idle', 'visible'].includes(kind)) {
+      if (method && ['load', 'idle', 'visible'].includes(method)) {
         return {
-          wrapper: `__react_${kind}(${name}, ${JSON.stringify({
+          wrapper: `__react_${method}(${name}, ${JSON.stringify({
             componentUrl: getComponentUrl(),
             componentExport: 'default',
             frameworkUrls: {
@@ -197,7 +211,7 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
               'react-dom': dynamicImports.get('react-dom'),
             },
           })})`,
-          wrapperImport: `import {__react_${kind}} from '${internalImport('render/react.js')}';`,
+          wrapperImport: `import {__react_${method}} from '${internalImport('render/react.js')}';`,
         };
       }
 
@@ -207,13 +221,13 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
       };
     }
     case 'svelte': {
-      if (['load', 'idle', 'visible'].includes(kind)) {
+      if (method && ['load', 'idle', 'visible'].includes(method)) {
         return {
-          wrapper: `__svelte_${kind}(${name}, ${JSON.stringify({
+          wrapper: `__svelte_${method}(${name}, ${JSON.stringify({
             componentUrl: getComponentUrl('.svelte.js'),
             componentExport: 'default',
           })})`,
-          wrapperImport: `import {__svelte_${kind}} from '${internalImport('render/svelte.js')}';`,
+          wrapperImport: `import {__svelte_${method}} from '${internalImport('render/svelte.js')}';`,
         };
       }
 
@@ -223,16 +237,16 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
       };
     }
     case 'vue': {
-      if (['load', 'idle', 'visible'].includes(kind)) {
+      if (method && ['load', 'idle', 'visible'].includes(method)) {
         return {
-          wrapper: `__vue_${kind}(${name}, ${JSON.stringify({
+          wrapper: `__vue_${method}(${name}, ${JSON.stringify({
             componentUrl: getComponentUrl('.vue.js'),
             componentExport: 'default',
             frameworkUrls: {
               vue: dynamicImports.get('vue'),
             },
           })})`,
-          wrapperImport: `import {__vue_${kind}} from '${internalImport('render/vue.js')}';`,
+          wrapperImport: `import {__vue_${method}} from '${internalImport('render/vue.js')}';`,
         };
       }
 
@@ -518,12 +532,11 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
             outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
             return;
           }
-          const [componentName, componentKind] = name.split(':');
-          const componentImportData = components[componentName];
+          const componentImportData = components[name];
           if (!componentImportData) {
-            throw new Error(`Unknown Component: ${componentName}`);
+            throw new Error(`Unknown Component: ${name}`);
           }
-          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
+          const { wrapper, wrapperImport } = getComponentWrapper(name, findHydrationAttributes(attributes), components[name], { astroConfig, dynamicImports, filename });
           if (wrapperImport) {
             importExportStatements.add(wrapperImport);
           }
