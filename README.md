@@ -4,8 +4,9 @@ A next-generation static-site generator with partial hydration. Use your favorit
 
 ## 🔧 Setup
 
-```
-npm install astro
+```bash
+# currently hidden during private beta, please don't share :)
+npm install astro@shhhhh
 ```
 
 ## 🧞 Development

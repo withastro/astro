@@ -5,7 +5,7 @@ import type { JsxItem, TransformResult } from '../@types/astro';
 
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
-import glob from 'tiny-glob/sync.js';
+import { fdir, PathsOutput } from 'fdir';
 import path from 'path';
 import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
@@ -419,7 +419,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         if (cachedLookups.get(spec)) {
           found = cachedLookups.get(spec) as string[];
         } else {
-          found = glob(spec, { cwd: path.dirname(state.filename), filesOnly: true });
+          found = new fdir().glob(spec).withFullPaths().crawl(path.dirname(state.filename)).sync() as PathsOutput;
           cachedLookups.set(spec, found);
           miniGlobCache.set(state.filename, cachedLookups);
         }
