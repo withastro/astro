@@ -53,9 +53,9 @@ export default {
 By default, Astro outputs zero client-side JS. If you'd like to include an interactive component in the client output, you may use any of the following techniques.
 
 - `<MyComponent />` will render an HTML-only version of `MyComponent` (default)
-- `<MyComponent:load />` will render `MyComponent` on page load
-- `<MyComponent:idle />` will use [requestIdleCallback()][request-idle-cb] to render `MyComponent` as soon as main thread is free
-- `<MyComponent:visible />` will use an [IntersectionObserver][intersection-observer] to render `MyComponent` when the element enters the viewport
+- `<MyComponent :load />` will render `MyComponent` on page load
+- `<MyComponent :idle />` will use [requestIdleCallback()][request-idle-cb] to render `MyComponent` as soon as main thread is free
+- `<MyComponent :visible />` will use an [IntersectionObserver][intersection-observer] to render `MyComponent` when the element enters the viewport
 
 ### 💅 Styling
 
