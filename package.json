@@ -16,6 +16,7 @@
     "components",
     "lib",
     "astro-prism",
+    "snowpack-plugin.cjs",
     "astro.mjs"
   ],
   "scripts": {

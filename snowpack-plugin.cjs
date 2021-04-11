@@ -6,7 +6,7 @@ const transformPromise = import('./lib/compiler/index.js');
 module.exports = function (snowpackConfig, { resolve, extensions, astroConfig } = {}) {
   return {
     name: 'snowpack-astro',
-    knownEntrypoints: ['deepmerge'],
+    knownEntrypoints: [],
     resolve: {
       input: ['.astro', '.md'],
       output: ['.js', '.css'],
