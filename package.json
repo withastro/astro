@@ -23,7 +23,8 @@
     "lint": "eslint 'src/**/*.{js,ts}'",
     "format": "prettier -w '{src,test}/**/*.{js,ts}'",
     "test": "uvu test -i fixtures -i test-utils.js",
-    "watch:extension": "cd vscode && npm run watch"
+    "watch:extension": "cd vscode && npm run watch",
+    "publish": "npm run build && npm publish --tag shhhhh"
   },
   "dependencies": {
     "@babel/generator": "^7.13.9",
