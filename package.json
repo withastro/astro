@@ -15,7 +15,8 @@
   "files": [
     "components",
     "lib",
-    "astro-prism"
+    "astro-prism",
+    "astro.mjs"
   ],
   "scripts": {
     "build": "tsc",
@@ -24,7 +25,7 @@
     "format": "prettier -w '{src,test}/**/*.{js,ts}'",
     "test": "uvu test -i fixtures -i test-utils.js",
     "watch:extension": "cd vscode && npm run watch",
-    "publish": "npm run build && npm publish --tag shhhhh"
+    "publish-hidden": "npm run build && npm publish --tag shhhhh"
   },
   "dependencies": {
     "@babel/generator": "^7.13.9",
