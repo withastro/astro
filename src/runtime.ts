@@ -8,6 +8,10 @@ import { searchForPage } from './search.js';
 import { existsSync } from 'fs';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
 
+// We need to use require.resolve for snowpack plugins, so create a require function here.
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
 interface RuntimeConfig {
   astroConfig: AstroConfig;
   logging: LogOptions;
@@ -153,7 +157,12 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
   const snowpackConfig = await loadConfiguration({
     root: projectRoot.pathname,
     mount: mountOptions,
-    plugins: [[new URL('../snowpack-plugin.cjs', import.meta.url).pathname, astroPlugOptions], '@snowpack/plugin-sass', '@snowpack/plugin-svelte', '@snowpack/plugin-vue'],
+    plugins: [
+      [new URL('../snowpack-plugin.cjs', import.meta.url).pathname, astroPlugOptions],
+      require.resolve('@snowpack/plugin-sass'),
+      require.resolve('@snowpack/plugin-svelte'),
+      require.resolve('@snowpack/plugin-vue'),
+    ],
     devOptions: {
       open: 'none',
       output: 'stream',
