@@ -48,13 +48,9 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
 }
 
 /**
- * .md -> .jsx
- * Core function processing Markdown, but along the way also calls convertAstroToJsx().
+ * .md -> .astro source
  */
-async function convertMdToJsx(
-  contents: string,
-  { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
-): Promise<TransformResult> {
+export async function convertMdToAstroSource(contents: string): Promise<string> {
   const { data: frontmatterData, content } = matter(contents);
   const { headers, headersExtension } = createMarkdownHeadersCollector();
   const { htmlAstro, mdAstro } = encodeAstroMdx();
@@ -80,15 +76,24 @@ async function convertMdToJsx(
   // Break it up here so that the HTML parser won't detect it.
   const stringifiedSetupContext = JSON.stringify(contentData).replace(/\<\/script\>/g, `</scrip" + "t>`);
 
-  const raw = `---
+  return `---
   ${imports}
   ${frontmatterData.layout ? `import {__renderPage as __layout} from '${frontmatterData.layout}';` : 'const __layout = undefined;'}
   export const __content = ${stringifiedSetupContext};
 ---
 <section>${mdHtml}</section>`;
+}
 
+/**
+ * .md -> .jsx
+ * Core function processing Markdown, but along the way also calls convertAstroToJsx().
+ */
+async function convertMdToJsx(
+  contents: string,
+  { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
+): Promise<TransformResult> {
+  const raw = await convertMdToAstroSource(contents);
   const convertOptions = { compileOptions, filename, fileID };
-
   return await convertAstroToJsx(raw, convertOptions);
 }
 

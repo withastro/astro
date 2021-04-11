@@ -8,6 +8,7 @@ import esbuild from 'esbuild';
 import { promises as fsPromises } from 'fs';
 import { parse } from '../parser/index.js';
 import { transform } from '../compiler/transform/index.js';
+import { convertMdToAstroSource } from '../compiler/index.js';
 import { getAttrValue } from '../ast.js';
 import { walk } from 'estree-walker';
 import babelParser from '@babel/parser';
@@ -72,12 +73,17 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
   const imports = new Set<string>();
 
   // Only astro files
-  if (!filename.pathname.endsWith('astro')) {
+  if (!filename.pathname.endsWith('.astro') && !filename.pathname.endsWith('.md')) {
     return imports;
   }
 
   const extensions = astroConfig.extensions || defaultExtensions;
-  const source = await readFile(filename, 'utf-8');
+
+  let source = await readFile(filename, 'utf-8');
+  if (filename.pathname.endsWith('.md')) {
+    source = await convertMdToAstroSource(source);
+  }
+
   const ast = parse(source, {
     filename,
   });
