@@ -7,6 +7,10 @@ A next-generation static-site generator with partial hydration. Use your favorit
 ```bash
 # currently hidden during private beta, please don't share :)
 npm install astro@shhhhh
+
+# NOTE: There is currently a bug in Snowpack that prevents you 
+# from using astro outside of the monorepo setup that we have here.
+# For now, do all development inside the `examples/` directory for this repo.
 ```
 
 ## 🧞 Development
