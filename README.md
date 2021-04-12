@@ -62,6 +62,22 @@ By default, Astro outputs zero client-side JS. If you'd like to include an inter
 - `<MyComponent:idle />` will use [requestIdleCallback()][request-idle-cb] to render `MyComponent` as soon as main thread is free
 - `<MyComponent:visible />` will use an [IntersectionObserver][intersection-observer] to render `MyComponent` when the element enters the viewport
 
+### ⚛️ State Management
+
+Frontend state management depends on your framework of choice. Below is a list of popular frontend state management libraries, and their current support with Astro. 
+
+Our goal is to support all popular state management libraries, as long as there is no technical reason that we cannot.
+
+- **React/Preact**
+  - [ ] **Redux: Partial Support** (Note: You can access a Redux store directly, but full `react-redux` support requires the ability to set a custom `<Provider>` wrapper to every component island. Planned.)
+  - [x] **Recoil: Full Support**
+- **Svelte**
+  - [x] **Svelte Stores: Full Support** 
+- **Vue:**
+  - [ ] **Vuex: Partial Support** (Note: You can access a vuex store directly, but full `vuex` support requires the ability to set a custom `vue.use(store)` call to every component island. Planned.)
+
+*Are we missing your favorite state management library? Add it to the list above in a PR (or create an issue)!*
+
 ### 💅 Styling
 
 If you‘ve used [Svelte][svelte]’s styles before, Astro works almost the same way. In any `.astro` file, start writing styles in a `<style>` tag like so:
@@ -96,6 +112,7 @@ Supports:
 
 - `lang="scss"`: load as the `.scss` extension
 - `lang="sass"`: load as the `.sass` extension (no brackets; indent-style)
+
 
 #### 🦊 Autoprefixer
 
