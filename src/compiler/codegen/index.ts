@@ -2,11 +2,9 @@ import type { CompileOptions } from '../../@types/compiler';
 import type { AstroConfig, ValidExtensionPlugins } from '../../@types/astro';
 import type { Ast, Script, Style, TemplateNode } from '../../parser/interfaces';
 import type { TransformResult } from '../../@types/astro';
-import type BabelTraverse from '@babel/traverse';
 
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
-import { fdir, PathsOutput } from 'fdir';
 import path from 'path';
 import { walk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';

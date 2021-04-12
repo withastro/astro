@@ -1,5 +1,5 @@
 import path from 'path';
-import glob from 'tiny-glob/sync.js';
+import { fdir, PathsOutput } from 'fdir';
 
 /**
  * Handling for import.meta.glob and import.meta.globEager
@@ -17,17 +17,35 @@ interface GlobResult {
   code: string;
 }
 
+const crawler = new fdir();
+
 /** General glob handling */
 function globSearch(spec: string, { filename }: { filename: string }): string[] {
   try {
-    let found: string[];
-    found = glob(spec, { cwd: path.dirname(filename), filesOnly: true });
+    // Note: fdir’s glob requires you to do some work finding the closest non-glob folder.
+    // For example, this fails: .glob("./post/*.md").crawl("/…/astro/pages") ❌
+    //       …but this doesn’t: .glob("*.md").crawl("/…/astro/pages/post")   ✅
+    let globDir = '';
+    let glob = spec;
+    for (const part of spec.split('/')) {
+      if (!part.includes('*')) {
+        // iterate through spec until first '*' is reached
+        globDir = path.posix.join(globDir, part); // this must be POSIX-style
+        glob = glob.replace(`${part}/`, ''); // move parent dirs off spec, and onto globDir
+      } else {
+        // at first '*', exit
+        break;
+      }
+    }
+
+    const cwd = path.join(path.dirname(filename), globDir.replace(/\//g, path.sep)); // this must match OS (could be '/' or '\')
+    let found = crawler.glob(glob).crawl(cwd).sync() as PathsOutput;
     if (!found.length) {
       throw new Error(`No files matched "${spec}" from ${filename}`);
     }
     return found.map((importPath) => {
       if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
-      return `./` + importPath;
+      return `./` + globDir + '/' + importPath;
     });
   } catch (err) {
     throw new Error(`No files matched "${spec}" from ${filename}`);

@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import path from 'path';
-import glob from 'tiny-glob/sync.js';
+import { fdir, PathsOutput } from 'fdir';
 
 interface PageLocation {
   fileURL: URL;
@@ -95,9 +95,13 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
   };
 }
 
+const crawler = new fdir();
+
 /** load a collection route */
 function loadCollection(url: string, astroRoot: URL): { currentPage?: number; location: PageLocation } | undefined {
-  const pages = glob('**/*', { cwd: path.join(astroRoot.pathname, 'pages'), filesOnly: true }).filter((filepath) => filepath.startsWith('$') || filepath.includes('/$'));
+  const pages = (crawler.glob('**/*').crawl(path.join(astroRoot.pathname, 'pages')).sync() as PathsOutput).filter(
+    (filepath) => filepath.startsWith('$') || filepath.includes('/$')
+  );
   for (const pageURL of pages) {
     const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '/?(.*)');
     const match = url.match(reqURL);
