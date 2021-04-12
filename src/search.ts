@@ -1,4 +1,6 @@
 import { existsSync } from 'fs';
+import path from 'path';
+import { fdir, PathsOutput } from 'fdir';
 
 interface PageLocation {
   fileURL: URL;
@@ -23,6 +25,7 @@ type SearchResult =
       statusCode: 200;
       location: PageLocation;
       pathname: string;
+      currentPage?: number;
     }
   | {
       statusCode: 301;
@@ -32,7 +35,8 @@ type SearchResult =
   | {
       statusCode: 404;
     };
-/** searchForPage - look for astro or md pages */
+
+/** Given a URL, attempt to locate its source file (similar to Snowpack’s load()) */
 export function searchForPage(url: URL, astroRoot: URL): SearchResult {
   const reqPath = decodeURI(url.pathname);
   const base = reqPath.substr(1);
@@ -72,7 +76,60 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
     };
   }
 
+  // Try and load collections (but only for non-extension files)
+  const hasExt = !!path.extname(reqPath);
+  if (!location && !hasExt) {
+    const collection = loadCollection(reqPath, astroRoot);
+    if (collection) {
+      return {
+        statusCode: 200,
+        location: collection.location,
+        pathname: reqPath,
+        currentPage: collection.currentPage,
+      };
+    }
+  }
+
   return {
     statusCode: 404,
   };
+}
+
+const crawler = new fdir();
+
+/** load a collection route */
+function loadCollection(url: string, astroRoot: URL): { currentPage?: number; location: PageLocation } | undefined {
+  const pages = (crawler.glob('**/*').crawl(path.join(astroRoot.pathname, 'pages')).sync() as PathsOutput).filter(
+    (filepath) => filepath.startsWith('$') || filepath.includes('/$')
+  );
+  for (const pageURL of pages) {
+    const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '/?(.*)');
+    const match = url.match(reqURL);
+    if (match) {
+      let currentPage: number | undefined;
+      if (match[1]) {
+        const segments = match[1].split('/').filter((s) => !!s);
+        if (segments.length) {
+          const last = segments.pop() as string;
+          if (parseInt(last, 10)) {
+            currentPage = parseInt(last, 10);
+          }
+        }
+      }
+      return {
+        location: {
+          fileURL: new URL(`./pages/${pageURL}`, astroRoot),
+          snowpackURL: `/_astro/pages/${pageURL}.js`,
+        },
+        currentPage,
+      };
+    }
+  }
+}
+
+/** convert a value to a number, if possible */
+function maybeNum(val: string): string | number {
+  const num = parseFloat(val);
+  if (num.toString() === val) return num;
+  return val;
 }

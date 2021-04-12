@@ -1,5 +1,5 @@
 import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
-import type { AstroConfig, RuntimeMode } from './@types/astro';
+import type { AstroConfig, CollectionResult, CreateCollection, Params, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { CompileError } from './parser/utils/error.js';
 import { debug, info } from './logger.js';
@@ -78,6 +78,80 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   try {
     const mod = await backendSnowpackRuntime.importModule(snowpackURL);
     debug(logging, 'resolve', `${reqPath} -> ${snowpackURL}`);
+
+    // handle collection
+    let collection = {} as CollectionResult;
+    if (mod.exports.createCollection) {
+      const createCollection: CreateCollection = await mod.exports.createCollection();
+      for (const key of Object.keys(createCollection)) {
+        if (key !== 'data' && key !== 'routes' && key !== 'permalink' && key !== 'pageSize') {
+          throw new Error(`[createCollection] unknown option: "${key}"`);
+        }
+      }
+      let { data: loadData, routes, permalink, pageSize } = createCollection;
+      if (!pageSize) pageSize = 25; // can’t be 0
+      let currentParams: Params = {};
+
+      // params
+      if (routes || permalink) {
+        if (!routes || !permalink) {
+          throw new Error('createCollection() must have both routes and permalink options. Include both together, or omit both.');
+        }
+        let requestedParams = routes.find((p) => {
+          const baseURL = (permalink as any)({ params: p });
+          return baseURL === reqPath || `${baseURL}/${searchResult.currentPage || 1}` === reqPath;
+        });
+        if (requestedParams) {
+          currentParams = requestedParams;
+          collection.params = requestedParams;
+        }
+      }
+
+      let data: any[] = await loadData({ params: currentParams });
+
+      collection.start = 0;
+      collection.end = data.length - 1;
+      collection.total = data.length;
+      collection.page = { current: 1, size: pageSize, last: 1 };
+      collection.url = { current: reqPath };
+
+      // paginate
+      if (searchResult.currentPage) {
+        const start = (searchResult.currentPage - 1) * pageSize; // currentPage is 1-indexed
+        const end = Math.min(start + pageSize, data.length);
+
+        collection.start = start;
+        collection.end = end - 1;
+        collection.page.current = searchResult.currentPage;
+        collection.page.last = Math.ceil(data.length / pageSize);
+        // TODO: fix the .replace() hack
+        if (end < data.length) {
+          collection.url.next = collection.url.current.replace(/\d+$/, `${searchResult.currentPage + 1}`);
+        }
+        if (searchResult.currentPage > 1) {
+          collection.url.prev = collection.url.current.replace(/\d+$/, `${searchResult.currentPage - 1 || 1}`);
+        }
+
+        data = data.slice(start, end);
+      } else if (createCollection.pageSize) {
+        // TODO: fix bug where redirect doesn’t happen
+        // This happens because a pageSize is set, but the user isn’t on a paginated route. Redirect:
+        return {
+          statusCode: 301,
+          location: reqPath + '/1',
+        };
+      }
+
+      // if we’ve paginated too far, this is a 404
+      if (!data.length)
+        return {
+          statusCode: 404,
+          error: new Error('Not Found'),
+        };
+
+      collection.data = data;
+    }
+
     let html = (await mod.exports.__renderPage({
       request: {
         host: fullurl.hostname,
@@ -85,7 +159,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         href: fullurl.toString(),
       },
       children: [],
-      props: {},
+      props: { collection },
     })) as string;
 
     // inject styles

@@ -4,22 +4,18 @@ import Nav from '../components/Nav.astro';
 import PostPreview from '../components/PostPreview.astro';
 import Pagination from '../components/Pagination.astro';
 
-// posts
-import authorData from '../data/authors.json';
-
-const postData = import.meta.collection('./post/*.md');
-
-const PER_PAGE = 10;
-postData.sort((a, b) => new Date(b.date) - new Date(a.date)); // new -> old
-
-const start = 0;
-const currentPage = 1;
-const maxPages = 1;
-const posts = postData.splice(start, PER_PAGE);
-
 // page
 let title = 'Muppet Blog: Home';
 let description = 'An example blog on Astro';
+
+// collection
+// note: we want to show first 3 posts here, but we don’t want to paginate at /1, /2, /3, etc.
+// so we show a preview of posts here, but actually paginate from $posts.astro
+import authorData from '../data/authors.json';
+
+let allPosts = import.meta.fetchContent('./post/*.md');
+allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+let firstThree = allPosts.slice(0, 3);
 ---
 
 <html>
@@ -33,11 +29,11 @@ let description = 'An example blog on Astro';
 
     <main class="wrapper">
       <h1>Recent posts</h1>
-      {posts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+      {firstThree.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
     </main>
 
     <footer>
-      <Pagination currentPage={currentPage} maxPages={maxPages} />
+      <Pagination nextUrl="/posts/2" />
     </footer>
   </body>
 </html>

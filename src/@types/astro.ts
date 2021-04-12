@@ -26,6 +26,8 @@ export interface TransformResult {
   imports: string[];
   html: string;
   css?: string;
+  /** If this page exports a collection, the JS to be executed as a string */
+  createCollection?: string;
 }
 
 export interface CompileResult {
@@ -35,3 +37,45 @@ export interface CompileResult {
 }
 
 export type RuntimeMode = 'development' | 'production';
+
+export type Params = Record<string, string | number>;
+
+export interface CreateCollection<T = any> {
+  data: ({ params }: { params: Params }) => T[];
+  routes?: Params[];
+  /** tool for generating current page URL */
+  permalink?: ({ params }: { params: Params }) => string;
+  /** page size */
+  pageSize?: number;
+}
+
+export interface CollectionResult<T = any> {
+  /** result */
+  data: T[];
+
+  /** metadata */
+  /** the count of the first item on the page, starting from 0 */
+  start: number;
+  /** the count of the last item on the page, starting from 0 */
+  end: number;
+  /** total number of results */
+  total: number;
+  page: {
+    /** the current page number, starting from 1 */
+    current: number;
+    /** number of items per page (default: 25) */
+    size: number;
+    /** number of last page */
+    last: number;
+  };
+  url: {
+    /** url of the current page */
+    current: string;
+    /** url of the previous page (if there is one) */
+    prev?: string;
+    /** url of the next page (if there is one) */
+    next?: string;
+  };
+  /** Matched parameters, if any */
+  params: Params;
+}

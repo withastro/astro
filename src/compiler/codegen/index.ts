@@ -1,17 +1,22 @@
-import type { CompileOptions } from '../@types/compiler';
-import type { AstroConfig, ValidExtensionPlugins } from '../@types/astro';
-import type { Ast, Script, Style, TemplateNode } from '../parser/interfaces';
-import type { JsxItem, TransformResult } from '../@types/astro';
+import type { CompileOptions } from '../../@types/compiler';
+import type { AstroConfig, ValidExtensionPlugins } from '../../@types/astro';
+import type { Ast, Script, Style, TemplateNode } from '../../parser/interfaces';
+import type { TransformResult } from '../../@types/astro';
 
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
-import { fdir, PathsOutput } from 'fdir';
 import path from 'path';
 import { walk } from 'estree-walker';
-import babelParser from '@babel/parser';
 import _babelGenerator from '@babel/generator';
+import babelParser from '@babel/parser';
+import * as babelTraverse from '@babel/traverse';
 import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
+import { warn } from '../../logger.js';
+import { fetchContent } from './content.js';
+import { isImportMetaDeclaration } from './utils.js';
+import { yellow } from 'kleur/colors';
 
+const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 const babelGenerator: typeof _babelGenerator =
   // @ts-ignore
   _babelGenerator.default;
@@ -34,15 +39,6 @@ interface CodeGenOptions {
 /** Format Astro internal import URL */
 function internalImport(internalPath: string) {
   return `/_astro_internal/${internalPath}`;
-}
-
-/** Is this an import.meta.* built-in? You can pass an optional 2nd param to see if the name matches as well. */
-function isImportMetaDeclaration(declaration: VariableDeclarator, metaName?: string): boolean {
-  const { init } = declaration;
-  if (!init || init.type !== 'CallExpression' || init.callee.type !== 'MemberExpression' || init.callee.object.type !== 'MetaProperty') return false;
-  // optional: if metaName specified, match that
-  if (metaName && (init.callee.property.type !== 'Identifier' || init.callee.property.name !== metaName)) return false;
-  return true;
 }
 
 /** Retrieve attributes from TemplateNode */
@@ -283,6 +279,12 @@ async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins
 
 type Components = Record<string, { type: string; url: string; plugin: string | undefined }>;
 
+interface CompileResult {
+  script: string;
+  componentPlugins: Set<ValidExtensionPlugins>;
+  createCollection?: string;
+}
+
 interface CodegenState {
   filename: string;
   components: Components;
@@ -291,22 +293,20 @@ interface CodegenState {
   dynamicImports: DynamicImportMap;
 }
 
-// cache filesystem pings
-const miniGlobCache = new Map<string, Map<string, string[]>>();
-
 /** Compile/prepare Astro frontmatter scripts */
-function compileModule(module: Script, state: CodegenState, compileOptions: CompileOptions) {
+function compileModule(module: Script, state: CodegenState, compileOptions: CompileOptions): CompileResult {
   const { extensions = defaultExtensions } = compileOptions;
 
   const componentImports: ImportDeclaration[] = [];
   const componentProps: VariableDeclarator[] = [];
   const componentExports: ExportNamedDeclaration[] = [];
 
-  const collectionImports = new Map<string, string>();
+  const contentImports = new Map<string, { spec: string; declarator: string }>();
 
   let script = '';
   let propsStatement = '';
-  let dataStatement = '';
+  let contentCode = ''; // code for handling import.meta.fetchContent(), if any;
+  let createCollection = ''; // function for executing collection
   const componentPlugins = new Set<ValidExtensionPlugins>();
 
   if (module) {
@@ -320,45 +320,64 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
     while (--i >= 0) {
       const node = body[i];
       switch (node.type) {
+        case 'ExportNamedDeclaration': {
+          if (!node.declaration) break;
+          // const replacement = extract_exports(node);
+
+          if (node.declaration.type === 'VariableDeclaration') {
+            // case 1: prop (export let title)
+
+            const declaration = node.declaration.declarations[0];
+            if ((declaration.id as Identifier).name === '__layout' || (declaration.id as Identifier).name === '__content') {
+              componentExports.push(node);
+            } else {
+              componentProps.push(declaration);
+            }
+            body.splice(i, 1);
+          } else if (node.declaration.type === 'FunctionDeclaration') {
+            // case 2: createCollection (export async function)
+            if (!node.declaration.id || node.declaration.id.name !== 'createCollection') break;
+            createCollection = module.content.substring(node.declaration.start || 0, node.declaration.end || 0);
+
+            // remove node
+            body.splice(i, 1);
+          }
+          break;
+        }
+        case 'FunctionDeclaration': {
+          break;
+        }
         case 'ImportDeclaration': {
           componentImports.push(node);
           body.splice(i, 1); // remove node
           break;
         }
-        case 'ExportNamedDeclaration': {
-          if (node.declaration?.type !== 'VariableDeclaration') {
-            // const replacement = extract_exports(node);
-            break;
-          }
-          const declaration = node.declaration.declarations[0];
-          if ((declaration.id as Identifier).name === '__layout' || (declaration.id as Identifier).name === '__content') {
-            componentExports.push(node);
-          } else {
-            componentProps.push(declaration);
-          }
-          body.splice(i, 1);
-          break;
-        }
         case 'VariableDeclaration': {
           for (const declaration of node.declarations) {
-            // only select import.meta.collection() calls here. this utility filters those out for us.
-            if (!isImportMetaDeclaration(declaration, 'collection')) continue;
-            if (declaration.id.type !== 'Identifier') continue;
-            const { id, init } = declaration;
-            if (!id || !init || init.type !== 'CallExpression') continue;
+            // only select import.meta.fetchContent() calls here. this utility filters those out for us.
+            if (!isImportMetaDeclaration(declaration, 'fetchContent')) continue;
+
+            // remove node
+            body.splice(i, 1);
+
+            // a bit of munging
+            let { id, init } = declaration;
+            if (!id || !init || id.type !== 'Identifier') continue;
+            if (init.type === 'AwaitExpression') {
+              init = init.argument;
+              const shortname = path.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
+              warn(compileOptions.logging, shortname, yellow('awaiting import.meta.fetchContent() not necessary'));
+            }
+            if (init.type !== 'CallExpression') continue;
 
             // gather data
             const namespace = id.name;
 
-            // TODO: support more types (currently we can; it’s just a matter of parsing out the expression)
             if ((init as any).arguments[0].type !== 'StringLiteral') {
-              throw new Error(`[import.meta.collection] Only string literals allowed, ex: \`import.meta.collection('./post/*.md')\`\n  ${state.filename}`);
+              throw new Error(`[import.meta.fetchContent] Only string literals allowed, ex: \`import.meta.fetchContent('./post/*.md')\`\n  ${state.filename}`);
             }
             const spec = (init as any).arguments[0].value;
-            if (typeof spec === 'string') collectionImports.set(namespace, spec);
-
-            // remove node
-            body.splice(i, 1);
+            if (typeof spec === 'string') contentImports.set(namespace, { spec, declarator: node.kind });
           }
           break;
         }
@@ -402,59 +421,73 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       propsStatement += `} = props;\n`;
     }
 
-    // handle importing data
-    for (const [namespace, spec] of collectionImports.entries()) {
-      // only allow for .md files
-      if (!spec.endsWith('.md')) {
-        throw new Error(`Only *.md pages are supported for import.meta.collection(). Attempted to load "${spec}"`);
-      }
+    // handle createCollection, if any
+    if (createCollection) {
+      // TODO: improve this? while transforming in-place isn’t great, this happens at most once per-route
+      const ast = babelParser.parse(createCollection, {
+        sourceType: 'module',
+      });
+      traverse(ast, {
+        enter({ node }) {
+          switch (node.type) {
+            case 'VariableDeclaration': {
+              for (const declaration of node.declarations) {
+                // only select import.meta.collection() calls here. this utility filters those out for us.
+                if (!isImportMetaDeclaration(declaration, 'fetchContent')) continue;
 
-      // locate files
-      try {
-        let found: string[];
+                // a bit of munging
+                let { id, init } = declaration;
+                if (!id || !init || id.type !== 'Identifier') continue;
+                if (init.type === 'AwaitExpression') {
+                  init = init.argument;
+                  const shortname = path.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
+                  warn(compileOptions.logging, shortname, yellow('awaiting import.meta.fetchContent() not necessary'));
+                }
+                if (init.type !== 'CallExpression') continue;
 
-        // use cache
-        let cachedLookups = miniGlobCache.get(state.filename);
-        if (!cachedLookups) {
-          cachedLookups = new Map();
-          miniGlobCache.set(state.filename, cachedLookups);
-        }
-        if (cachedLookups.get(spec)) {
-          found = cachedLookups.get(spec) as string[];
-        } else {
-          found = new fdir().glob(spec).withFullPaths().crawl(path.dirname(state.filename)).sync() as PathsOutput;
-          cachedLookups.set(spec, found);
-          miniGlobCache.set(state.filename, cachedLookups);
-        }
+                // gather data
+                const namespace = id.name;
 
-        // throw error, purge cache if no results found
-        if (!found.length) {
-          cachedLookups.delete(spec);
-          miniGlobCache.set(state.filename, cachedLookups);
-          throw new Error(`No files matched "${spec}" from ${state.filename}`);
-        }
+                if ((init as any).arguments[0].type !== 'StringLiteral') {
+                  throw new Error(`[import.meta.fetchContent] Only string literals allowed, ex: \`import.meta.fetchContent('./post/*.md')\`\n  ${state.filename}`);
+                }
+                const spec = (init as any).arguments[0].value;
+                if (typeof spec !== 'string') break;
 
-        const data = found.map((importPath) => {
-          if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
-          return `./` + importPath;
-        });
+                const globResult = fetchContent(spec, { namespace, filename: state.filename });
 
-        // add static imports (probably not the best, but async imports don‘t work just yet)
-        data.forEach((importPath, j) => {
-          state.importExportStatements.add(`const ${namespace}_${j} = import('${importPath}').then((m) => ({ ...m.__content, url: '${importPath.replace(/\.md$/, '')}' }));`);
-        });
+                let imports = '';
+                for (const importStatement of globResult.imports) {
+                  imports += importStatement + '\n';
+                }
 
-        // expose imported data to Astro script
-        dataStatement += `const ${namespace} = await Promise.all([${found.map((_, j) => `${namespace}_${j}`).join(',')}]);\n`;
-      } catch (err) {
-        throw new Error(`No files matched "${spec}" from ${state.filename}`);
-      }
+                createCollection =
+                  imports + '\n\nexport ' + createCollection.substring(0, declaration.start || 0) + globResult.code + createCollection.substring(declaration.end || 0);
+              }
+              break;
+            }
+          }
+        },
+      });
     }
 
-    script = propsStatement + dataStatement + babelGenerator(program).code;
+    // import.meta.fetchContent()
+    for (const [namespace, { declarator, spec }] of contentImports.entries()) {
+      const globResult = fetchContent(spec, { namespace, filename: state.filename });
+      for (const importStatement of globResult.imports) {
+        state.importExportStatements.add(importStatement);
+      }
+      contentCode += globResult.code;
+    }
+
+    script = propsStatement + contentCode + babelGenerator(program).code;
   }
 
-  return { script, componentPlugins };
+  return {
+    script,
+    componentPlugins,
+    createCollection: createCollection || undefined,
+  };
 }
 
 /** Compile styles */
@@ -606,7 +639,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
     dynamicImports: new Map(),
   };
 
-  const { script, componentPlugins } = compileModule(ast.module, state, compileOptions);
+  const { script, componentPlugins, createCollection } = compileModule(ast.module, state, compileOptions);
   state.dynamicImports = await acquireDynamicComponentImports(componentPlugins, compileOptions.resolve);
 
   compileCss(ast.css, state);
@@ -618,5 +651,6 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
     imports: Array.from(state.importExportStatements),
     html,
     css: state.css.length ? state.css.join('\n\n') : undefined,
+    createCollection,
   };
 }

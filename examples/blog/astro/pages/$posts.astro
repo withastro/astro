@@ -1,0 +1,48 @@
+---
+import MainHead from '../components/MainHead.astro';
+import Nav from '../components/Nav.astro';
+import PostPreview from '../components/PostPreview.astro';
+import Pagination from '../components/Pagination.astro';
+
+// page
+let title = 'Muppet Blog: Home';
+let description = 'An example blog on Astro';
+
+// collection
+import authorData from '../data/authors.json';
+export let collection: any;
+export async function createCollection() {
+  return {
+    async data() {
+      let allPosts = await import.meta.fetchContent('./post/*.md');
+      allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return allPosts;
+    },
+    pageSize: 3
+  };
+}
+---
+
+<html>
+  <head>
+    <title>{title}</title>
+    <MainHead title={title} description={description} />
+    <link rel="canonical" href={'https://mysite.dev' + collection.url.current} />
+    {collection.url.next && <link rel="next" href={'https://mysite.dev' + collection.url.next} />}
+    {collection.url.prev && <link rel="prev" href={'https://mysite.dev' + collection.url.prev} />}
+  </head>
+
+  <body>
+    <Nav />
+
+    <main class="wrapper">
+      <h1>All Posts</h1>
+      <small>{collection.start + 1}–{collection.end + 1} of {collection.total}</small><br />
+      {collection.data.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+    </main>
+
+    <footer>
+      <Pagination prevUrl={collection.url.prev} nextUrl={collection.url.next} />
+    </footer>
+  </body>
+</html>

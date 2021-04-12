@@ -1,6 +1,9 @@
 {
   "scripts": {
     "build": "../../astro.mjs build",
-    "start": "../../astro.mjs dev"
+    "start": "nodemon -w ../../lib -x '../../astro.mjs dev'"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
   }
 }

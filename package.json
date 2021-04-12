@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "@babel/generator": "^7.13.9",
-    "@babel/traverse": "^7.13.0",
+    "@babel/parser": "^7.13.15",
+    "@babel/traverse": "^7.13.15",
     "@snowpack/plugin-sass": "^1.4.0",
     "@snowpack/plugin-svelte": "^3.6.0",
     "@snowpack/plugin-vue": "^2.4.0",
@@ -53,6 +54,7 @@
     "micromark-extension-mdx-expression": "^0.3.2",
     "micromark-extension-mdx-jsx": "^0.3.3",
     "node-fetch": "^2.6.1",
+    "picomatch": "^2.2.3",
     "postcss": "^8.2.8",
     "postcss-icss-keyframes": "^0.2.1",
     "preact": "^10.5.13",
@@ -69,8 +71,9 @@
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
-    "@babel/parser": "^7.13.11",
+    "@babel/types": "^7.13.14",
     "@types/babel__generator": "^7.6.2",
+    "@types/babel__parser": "^7.1.1",
     "@types/babel__traverse": "^7.11.1",
     "@types/estree": "0.0.46",
     "@types/github-slugger": "^1.3.0",

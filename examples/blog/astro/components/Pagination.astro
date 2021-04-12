@@ -1,12 +1,34 @@
 ---
-export let currentPage: number;
-export let maxPages: number;
+export let prevUrl: string;
+export let nextUrl: string;
 ---
 
-<nav>
-  <a href="">Prev</a>
-  <a href="?p=1">1</a>
-  <a href="?p=2">2</a>
-  <a href="?p=3">3</a>
-  <a href="?p=2">Next</a>
+<style lang="scss">
+.nav {
+  display: flex;
+  max-width: 600px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.prev,
+.next {
+  display: block;
+}
+
+.prev {
+  margin-right: auto;
+}
+
+.next {
+  margin-left: auto;
+}
+</style>
+
+<nav class="nav">
+  <a class="prev" href={prevUrl || '#'}>Prev</a>
+  <a class="next" href={nextUrl || '#'}>Next</a>
 </nav>
