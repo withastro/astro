@@ -66,6 +66,7 @@ export default async function dev(astroConfig: AstroConfig) {
   });
 
   server.listen(port, hostname, () => {
+    // eslint-disable-next-line no-console
     console.log(`Server running at http://${hostname}:${port}/`);
   });
 }

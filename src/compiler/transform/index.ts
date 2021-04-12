@@ -56,6 +56,7 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
   walk(tmpl, {
     enter(node, parent, key, index) {
       if (collection.enter.has(node.type)) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const fns = collection.enter.get(node.type)!;
         for (let fn of fns) {
           fn.call(this, node, parent, key, index);
@@ -64,6 +65,7 @@ function walkAstWithVisitors(tmpl: TemplateNode, collection: VisitorCollection) 
     },
     leave(node, parent, key, index) {
       if (collection.leave.has(node.type)) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const fns = collection.leave.get(node.type)!;
         for (let fn of fns) {
           fn.call(this, node, parent, key, index);

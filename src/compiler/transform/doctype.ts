@@ -21,6 +21,7 @@ export default function (_opts: { filename: string; fileID: string }): Transform
                 name: '!doctype',
                 type: 'Element',
               };
+              // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
               parent.children!.splice(index, 0, dtNode);
               hasDoctype = true;
             }

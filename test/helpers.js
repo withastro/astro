@@ -1,7 +1,7 @@
 import { createRuntime } from '../lib/runtime.js';
 import { loadConfig } from '../lib/config.js';
 import * as assert from 'uvu/assert';
-
+/** setup fixtures for tests */
 export function setup(Suite, fixturePath) {
   let runtime, setupError;
 

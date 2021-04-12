@@ -4,7 +4,7 @@ interface PageLocation {
   fileURL: URL;
   snowpackURL: string;
 }
-
+/** findAnyPage and return the _astro candidate for snowpack */
 function findAnyPage(candidates: Array<string>, astroRoot: URL): PageLocation | false {
   for (let candidate of candidates) {
     const url = new URL(`./pages/${candidate}`, astroRoot);
@@ -32,7 +32,7 @@ type SearchResult =
   | {
       statusCode: 404;
     };
-
+/** searchForPage - look for astro or md pages */
 export function searchForPage(url: URL, astroRoot: URL): SearchResult {
   const reqPath = decodeURI(url.pathname);
   const base = reqPath.substr(1);

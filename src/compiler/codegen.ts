@@ -381,9 +381,11 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       if (plugin) {
         componentPlugins.add(plugin);
       }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       state.importExportStatements.add(module.content.slice(componentImport.start!, componentImport.end!));
     }
     for (const componentImport of componentExports) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       state.importExportStatements.add(module.content.slice(componentImport.start!, componentImport.end!));
     }
 
@@ -392,6 +394,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       for (const componentExport of componentProps) {
         propsStatement += `${(componentExport.id as Identifier).name}`;
         if (componentExport.init) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           propsStatement += `= ${babelGenerator(componentExport.init!).code}`;
         }
         propsStatement += `,`;
@@ -482,7 +485,9 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
       switch (node.type) {
         case 'Expression': {
           let child = '';
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           if (node.children!.length) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             child = compileHtml(node.children![0], state, compileOptions);
           }
           let raw = node.codeStart + child + node.codeEnd;
