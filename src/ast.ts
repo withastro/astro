@@ -20,7 +20,9 @@ export function getAttrValue(attributes: Attribute[], name: string): string | un
 export function setAttrValue(attributes: Attribute[], name: string, value: string): void {
   const attr = attributes.find((a) => a.name === name);
   if (attr) {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     attr.value[0]!.data = value;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     attr.value[0]!.raw = value;
   }
 }

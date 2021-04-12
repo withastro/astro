@@ -8,6 +8,7 @@ export function collectStatics(html: string) {
   const $ = cheerio.load(html);
 
   const append = (el: Element, attr: string) => {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const value: string = $(el).attr(attr)!;
     if (value.startsWith('http')) {
       return;

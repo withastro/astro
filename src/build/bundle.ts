@@ -147,17 +147,21 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
 
     switch (defn.plugin) {
       case 'preact': {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         imports.add(dynamic.get('preact')!);
         rel = rel.replace(/\.[^.]+$/, '.js');
         break;
       }
       case 'react': {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         imports.add(dynamic.get('react')!);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         imports.add(dynamic.get('react-dom')!);
         rel = rel.replace(/\.[^.]+$/, '.js');
         break;
       }
       case 'vue': {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         imports.add(dynamic.get('vue')!);
         rel = rel.replace(/\.[^.]+$/, '.vue.js');
         break;
@@ -275,6 +279,7 @@ export async function bundle(imports: Set<string>, { runtime, dist }: BundleOpti
     format: 'esm',
     exports: 'named',
     entryFileNames(chunk) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return chunk.facadeModuleId!.substr(1);
     },
     plugins: [

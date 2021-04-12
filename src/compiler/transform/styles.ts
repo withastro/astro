@@ -124,6 +124,7 @@ async function transformStyle(code: string, { type, filename, scopedClass, mode 
       const { default: tailwindcss } = await import('@tailwindcss/jit');
       postcssPlugins.push(tailwindcss());
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error(err);
       throw new Error(`tailwindcss not installed. Try running \`npm install tailwindcss\` and trying again.`);
     }

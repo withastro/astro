@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { AstroConfig } from './@types/astro';
 
 import * as colors from 'kleur/colors';
@@ -90,6 +91,7 @@ export async function cli(args: string[]) {
     }
     case 'build':
     case 'dev': {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const cmd = cmdMap.get(state)!;
       runCommand(flags._[3], cmd);
     }

@@ -27,6 +27,7 @@ SnowpackDev.before(async () => {
   try {
     runtime = await createRuntime(astroConfig, { logging });
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err);
     setupError = err;
   }
@@ -36,7 +37,7 @@ SnowpackDev.after(async () => {
   process.chdir(cwd);
   (await runtime) && runtime.shutdown();
 });
-
+/** create an iterator for all page files */
 async function* allPageFiles(root) {
   for (const filename of await readdir(root)) {
     const fullpath = new URL(filename, root);
@@ -49,7 +50,7 @@ async function* allPageFiles(root) {
     }
   }
 }
-
+/** create an iterator for all pages and yield the relative paths */
 async function* allPages(root) {
   for await (let fileURL of allPageFiles(root)) {
     let bare = fileURL.pathname.replace(/\.(astro|md)$/, '').replace(/index$/, '');
@@ -79,6 +80,7 @@ SnowpackDev('Can load every page', async () => {
   }
 
   if (failed.length > 0) {
+    // eslint-disable-next-line no-console
     console.error(failed);
   }
   assert.equal(failed.length, 0, 'Failed pages');

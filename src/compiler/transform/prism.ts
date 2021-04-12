@@ -4,13 +4,13 @@ import { getAttrValue } from '../../ast.js';
 
 const PRISM_IMPORT = `import Prism from 'astro/components/Prism.astro';\n`;
 const prismImportExp = /import Prism from ['"]astro\/components\/Prism.astro['"]/;
-
+/** escape a scring to replace \ with \\ */
 function escape(code: string) {
   return code.replace(/[`$]/g, (match) => {
     return '\\' + match;
   });
 }
-
+/** default export - Transform prism   */
 export default function (module: Script): Transformer {
   let usesPrism = false;
 
