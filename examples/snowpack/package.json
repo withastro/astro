@@ -2,14 +2,15 @@
   "name": "snowpack-www",
   "version": "3.0.0",
   "scripts": {
-    "start": "nodemon -w ../../lib -x '../../astro.mjs dev .'",
-    "build": "../../astro.mjs build",
+    "start": "nodemon -w ../../lib -x 'astro dev .'",
+    "build": "astro build",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\" && yarn format:css",
     "format:css": "stylelint 'src/**/*.scss' --fix",
     "lint": "prettier --check \"src/**/*.js\""
   },
   "dependencies": {
+    "astro": "file://../../",
     "date-fns": "^2.19.0",
     "deepmerge": "^4.2.2",
     "docsearch.js": "^2.6.3",
