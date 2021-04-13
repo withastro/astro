@@ -173,6 +173,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
     return {
       statusCode: 200,
+      contentType: 'text/html; charset=utf-8',
       contents: html,
     };
   } catch (err) {
