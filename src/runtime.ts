@@ -126,10 +126,12 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         collection.page.last = Math.ceil(data.length / pageSize);
         // TODO: fix the .replace() hack
         if (end < data.length) {
-          collection.url.next = collection.url.current.replace(/\d+$/, `${searchResult.currentPage + 1}`);
+          collection.url.next = collection.url.current.replace(/(\/\d+)?$/, `/${searchResult.currentPage + 1}`);
         }
         if (searchResult.currentPage > 1) {
-          collection.url.prev = collection.url.current.replace(/\d+$/, `${searchResult.currentPage - 1 || 1}`);
+          collection.url.prev = collection.url.current
+            .replace(/\d+$/, `${searchResult.currentPage - 1 || 1}`) // update page #
+            .replace(/\/1$/, ''); // if end is `/1`, then just omit
         }
 
         data = data.slice(start, end);

@@ -85,7 +85,7 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
         statusCode: 200,
         location: collection.location,
         pathname: reqPath,
-        currentPage: collection.currentPage,
+        currentPage: collection.currentPage || 1,
       };
     }
   }

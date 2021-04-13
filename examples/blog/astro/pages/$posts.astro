@@ -14,7 +14,7 @@ export let collection: any;
 export async function createCollection() {
   return {
     async data() {
-      let allPosts = await import.meta.fetchContent('./post/*.md');
+      let allPosts = Astro.fetchContent('./post/*.md');
       allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
       return allPosts;
     },

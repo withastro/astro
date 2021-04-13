@@ -13,7 +13,7 @@ let description = 'An example blog on Astro';
 // so we show a preview of posts here, but actually paginate from $posts.astro
 import authorData from '../data/authors.json';
 
-let allPosts = import.meta.fetchContent('./post/*.md');
+let allPosts = Astro.fetchContent('./post/*.md');
 allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
 let firstThree = allPosts.slice(0, 3);
 ---

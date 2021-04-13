@@ -3,7 +3,7 @@ import * as assert from 'uvu/assert';
 import { doc } from './test-utils.js';
 import { setup } from './helpers.js';
 
-const Basics = suite('Search paths');
+const Basics = suite('Basic test');
 
 setup(Basics, './fixtures/astro-basic');
 

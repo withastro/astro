@@ -18,3 +18,22 @@ export function isImportMetaDeclaration(declaration: VariableDeclarator, metaNam
   if (metaName && (init.callee.property.type !== 'Identifier' || init.callee.property.name !== metaName)) return false;
   return true;
 }
+
+/** Is this an Astro.fetchContent() call? */
+export function isFetchContent(declaration: VariableDeclarator): boolean {
+  let { init } = declaration;
+  if (!init) return false; // definitely not import.meta
+  // this could be `await import.meta`; if so, evaluate that:
+  if (init.type === 'AwaitExpression') {
+    init = init.argument;
+  }
+  // continue evaluating
+  if (
+    init.type !== 'CallExpression' ||
+    init.callee.type !== 'MemberExpression' ||
+    (init.callee.object as any).name !== 'Astro' ||
+    (init.callee.property as any).name !== 'fetchContent'
+  )
+    return false;
+  return true;
+}

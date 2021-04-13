@@ -1,12 +1,9 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { createRuntime } from '../lib/runtime.js';
-import { loadConfig } from '../lib/config.js';
 import { doc } from './test-utils.js';
+import { setup } from './helpers.js';
 
 const StylesSSR = suite('Styles SSR');
-
-let runtime;
 
 /** Basic CSS minification; removes some flakiness in testing CSS */
 function cssMinify(css) {
@@ -18,22 +15,9 @@ function cssMinify(css) {
     .replace(/;}/g, '}'); // collapse block
 }
 
-StylesSSR.before(async () => {
-  const astroConfig = await loadConfig(new URL('./fixtures/astro-styles-ssr', import.meta.url).pathname);
+setup(StylesSSR, './fixtures/astro-styles-ssr');
 
-  const logging = {
-    level: 'error',
-    dest: process.stderr,
-  };
-
-  runtime = await createRuntime(astroConfig, { logging });
-});
-
-StylesSSR.after(async () => {
-  (await runtime) && runtime.shutdown();
-});
-
-StylesSSR('Has <link> tags', async () => {
+StylesSSR('Has <link> tags', async ({ runtime }) => {
   const MUST_HAVE_LINK_TAGS = [
     '/_astro/components/ReactCSS.css',
     '/_astro/components/SvelteScoped.svelte.css',
@@ -51,7 +35,7 @@ StylesSSR('Has <link> tags', async () => {
   }
 });
 
-StylesSSR('Has correct CSS classes', async () => {
+StylesSSR('Has correct CSS classes', async ({ runtime }) => {
   const result = await runtime.load('/');
   const $ = doc(result.contents);
 
@@ -81,7 +65,7 @@ StylesSSR('Has correct CSS classes', async () => {
   }
 });
 
-StylesSSR('CSS Module support in .astro', async () => {
+StylesSSR('CSS Module support in .astro', async ({ runtime }) => {
   const result = await runtime.load('/');
   const $ = doc(result.contents);
 
