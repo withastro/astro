@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { loadConfig } from '../lib/config.js';
@@ -9,7 +10,7 @@ let runtime, setupError;
 
 DType.before(async () => {
   try {
-    const astroConfig = await loadConfig(new URL('./fixtures/astro-doctype', import.meta.url).pathname);
+    const astroConfig = await loadConfig(fileURLToPath(new URL('./fixtures/astro-doctype', import.meta.url)));
 
     const logging = {
       level: 'error',

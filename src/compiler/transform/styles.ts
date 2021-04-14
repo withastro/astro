@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import autoprefixer from 'autoprefixer';
 import postcss, { Plugin } from 'postcss';
 import postcssKeyframes from 'postcss-icss-keyframes';
@@ -165,7 +166,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
   if (miniCache.tailwindEnabled === undefined) {
     const tailwindNames = ['tailwind.config.js', 'tailwind.config.mjs'];
     for (const loc of tailwindNames) {
-      const tailwindLoc = path.join(compileOptions.astroConfig.projectRoot.pathname, loc);
+      const tailwindLoc = path.join(fileURLToPath(compileOptions.astroConfig.projectRoot), loc);
       if (fs.existsSync(tailwindLoc)) {
         miniCache.tailwindEnabled = true; // Success! We have a Tailwind config file.
         debug(compileOptions.logging, 'tailwind', 'Found config. Enabling.');

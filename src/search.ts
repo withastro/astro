@@ -1,5 +1,6 @@
 import { existsSync } from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { fdir, PathsOutput } from 'fdir';
 
 interface PageLocation {
@@ -99,9 +100,10 @@ const crawler = new fdir();
 
 /** load a collection route */
 function loadCollection(url: string, astroRoot: URL): { currentPage?: number; location: PageLocation } | undefined {
-  const pages = (crawler.glob('**/*').crawl(path.join(astroRoot.pathname, 'pages')).sync() as PathsOutput).filter(
-    (filepath) => filepath.startsWith('$') || filepath.includes('/$')
-  );
+  const pages = (crawler
+    .glob('**/*')
+    .crawl(path.join(fileURLToPath(astroRoot), 'pages'))
+    .sync() as PathsOutput).filter((filepath) => filepath.startsWith('$') || filepath.includes('/$'));
   for (const pageURL of pages) {
     const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '/?(.*)');
     const match = url.match(reqURL);

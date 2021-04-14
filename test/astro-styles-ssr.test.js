@@ -42,14 +42,20 @@ StylesSSR('Has correct CSS classes', async ({ runtime }) => {
   const MUST_HAVE_CLASSES = {
     '#react-css': 'react-title',
     '#vue-css': 'vue-title',
-    '#vue-css-modules': '_title_1gi0u_2', // ⚠️ may be flaky
+    '#vue-css-modules': 'title', // ⚠️  this is the inverse
     '#vue-scoped': 'vue-title', // also has data-v-* property
     '#svelte-scoped': 'svelte-title', // also has additional class
   };
 
   for (const [selector, className] of Object.entries(MUST_HAVE_CLASSES)) {
     const el = $(selector);
-    assert.ok(el.attr('class').includes(className));
+    if (selector === '#vue-css-modules') {
+      // this will generate differently on Unix vs Windows. Here we simply test that it has transformed
+      assert.not.equal(el.attr('class'), 'title');
+    } else {
+      // if this is not a CSS module, it should remain as expected
+      assert.ok(el.attr('class').includes(className));
+    }
 
     // add’l test: Vue Scoped styles should have data-v-* attribute
     if (selector === '#vue-scoped') {
@@ -81,7 +87,7 @@ StylesSSR('CSS Module support in .astro', async ({ runtime }) => {
       })
   );
 
-  assert.equal(css, `.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px}`);
+  assert.match(css, `.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px}`);
 
   // test 2: element received .astro-XXXXXX class (this selector will succeed if transformed correctly)
   const wrapper = $(`.wrapper${scopedClass}`);

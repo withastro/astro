@@ -1,5 +1,6 @@
 import { existsSync, promises as fsPromises } from 'fs';
 import { join } from 'path';
+import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { createRuntime } from '../lib/runtime.js';
@@ -14,7 +15,7 @@ const Markdown = suite('Astro Markdown');
 let runtime, setupError, fixturePath, astroConfig;
 
 Markdown.before(async () => {
-  fixturePath = new URL('./fixtures/astro-markdown', import.meta.url).pathname;
+  fixturePath = fileURLToPath(new URL('./fixtures/astro-markdown', import.meta.url));
 
   astroConfig = await loadConfig(fixturePath);
 

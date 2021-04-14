@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
 import type { AstroConfig, CollectionResult, CreateCollection, Params, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';
@@ -223,19 +224,19 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
   };
 
   const mountOptions = {
-    [astroRoot.pathname]: '/_astro',
-    [internalPath.pathname]: '/_astro_internal',
+    [fileURLToPath(astroRoot)]: '/_astro',
+    [fileURLToPath(internalPath)]: '/_astro_internal',
   };
 
   if (existsSync(astroConfig.public)) {
-    mountOptions[astroConfig.public.pathname] = '/';
+    mountOptions[fileURLToPath(astroConfig.public)] = '/';
   }
 
   const snowpackConfig = await loadConfiguration({
-    root: projectRoot.pathname,
+    root: fileURLToPath(projectRoot),
     mount: mountOptions,
     plugins: [
-      [new URL('../snowpack-plugin.cjs', import.meta.url).pathname, astroPlugOptions],
+      [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
       require.resolve('@snowpack/plugin-sass'),
       require.resolve('@snowpack/plugin-svelte'),
       require.resolve('@snowpack/plugin-vue'),

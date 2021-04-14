@@ -4,6 +4,7 @@ import type { LoadResult } from './runtime';
 
 import { existsSync, promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
+import { fileURLToPath } from 'url';
 import { fdir } from 'fdir';
 import { defaultLogDestination, error } from './logger.js';
 import { createRuntime } from './runtime.js';
@@ -22,7 +23,7 @@ async function allPages(root: URL) {
   const api = new fdir()
     .filter((p) => /\.(astro|md)$/.test(p))
     .withFullPaths()
-    .crawl(root.pathname);
+    .crawl(fileURLToPath(root));
   const files = await api.withPromise();
   return files as string[];
 }
@@ -47,7 +48,7 @@ async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'u
   if (result.statusCode === 500 || result.statusCode === 404) {
     error(logging, 'build', result.error || result.statusCode);
   } else if (result.statusCode !== 200) {
-    error(logging, 'build', `Unexpected load result (${result.statusCode}) for ${outPath.pathname}`);
+    error(logging, 'build', `Unexpected load result (${result.statusCode}) for ${fileURLToPath(outPath)}`);
   } else {
     const bytes = result.contents;
     await writeFilep(outPath, bytes, encoding);
@@ -119,7 +120,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
 
   if (existsSync(astroConfig.public)) {
     const pub = astroConfig.public;
-    const publicFiles = (await new fdir().withFullPaths().crawl(pub.pathname).withPromise()) as string[];
+    const publicFiles = (await new fdir().withFullPaths().crawl(fileURLToPath(pub)).withPromise()) as string[];
     for (const filepath of publicFiles) {
       const fileUrl = new URL(`file://${filepath}`);
       const rel = pathRelative(pub.pathname, fileUrl.pathname);

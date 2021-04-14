@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { createRuntime } from '../lib/runtime.js';
@@ -15,9 +16,9 @@ let runtime, cwd, setupError;
 SnowpackDev.before(async () => {
   // Bug: Snowpack config is still loaded relative to the current working directory.
   cwd = process.cwd();
-  process.chdir(new URL('../examples/snowpack/', import.meta.url).pathname);
+  process.chdir(fileURLToPath(new URL('../examples/snowpack/', import.meta.url)));
 
-  const astroConfig = await loadConfig(new URL('../examples/snowpack', import.meta.url).pathname);
+  const astroConfig = await loadConfig(fileURLToPath(new URL('../examples/snowpack', import.meta.url)));
 
   const logging = {
     level: 'error',
@@ -53,9 +54,11 @@ async function* allPageFiles(root) {
 /** create an iterator for all pages and yield the relative paths */
 async function* allPages(root) {
   for await (let fileURL of allPageFiles(root)) {
-    let bare = fileURL.pathname.replace(/\.(astro|md)$/, '').replace(/index$/, '');
+    let bare = fileURLToPath(fileURL)
+      .replace(/\.(astro|md)$/, '')
+      .replace(/index$/, '');
 
-    yield '/' + pathRelative(root.pathname, bare);
+    yield '/' + pathRelative(fileURLToPath(root), bare);
   }
 }
 

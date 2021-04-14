@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import { createRuntime } from '../lib/runtime.js';
 import { loadConfig } from '../lib/config.js';
 import * as assert from 'uvu/assert';
@@ -6,7 +7,7 @@ export function setup(Suite, fixturePath) {
   let runtime, setupError;
 
   Suite.before(async (context) => {
-    const astroConfig = await loadConfig(new URL(fixturePath, import.meta.url).pathname);
+    const astroConfig = await loadConfig(fileURLToPath(new URL(fixturePath, import.meta.url)));
 
     const logging = {
       level: 'error',

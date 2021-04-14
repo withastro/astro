@@ -6,6 +6,7 @@ import type { LogOptions } from '../logger';
 
 import esbuild from 'esbuild';
 import { promises as fsPromises } from 'fs';
+import { fileURLToPath } from 'url';
 import { parse } from '../parser/index.js';
 import { transform } from '../compiler/transform/index.js';
 import { convertMdToAstroSource } from '../compiler/index.js';
@@ -93,7 +94,7 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
   }
 
   await transform(ast, {
-    filename: filename.pathname,
+    filename: fileURLToPath(filename),
     fileID: '',
     compileOptions: {
       astroConfig,
@@ -281,7 +282,7 @@ export async function bundle(imports: Set<string>, { runtime, dist }: BundleOpti
   const build = await rollup(inputOptions);
 
   const outputOptions: OutputOptions = {
-    dir: dist.pathname,
+    dir: fileURLToPath(dist),
     format: 'esm',
     exports: 'named',
     entryFileNames(chunk) {
