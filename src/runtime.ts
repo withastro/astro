@@ -25,16 +25,19 @@ interface RuntimeConfig {
   frontendSnowpackConfig: SnowpackConfig;
 }
 
+// info needed for collection generation
+type CollectionInfo = { additionalURLs: Set<string> };
+
 type LoadResultSuccess = {
   statusCode: 200;
   contents: string | Buffer;
   contentType?: string | false;
 };
-type LoadResultNotFound = { statusCode: 404; error: Error };
-type LoadResultRedirect = { statusCode: 301 | 302; location: string };
+type LoadResultNotFound = { statusCode: 404; error: Error; collectionInfo?: CollectionInfo };
+type LoadResultRedirect = { statusCode: 301 | 302; location: string; collectionInfo?: CollectionInfo };
 type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'unknown'; error: Error });
 
-export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError;
+export type LoadResult = (LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError) & { collectionInfo?: CollectionInfo };
 
 // Disable snowpack from writing to stdout/err.
 snowpackLogger.level = 'silent';
@@ -82,6 +85,8 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
     // handle collection
     let collection = {} as CollectionResult;
+    let additionalURLs = new Set<string>();
+
     if (mod.exports.createCollection) {
       const createCollection: CreateCollection = await mod.exports.createCollection();
       for (const key of Object.keys(createCollection)) {
@@ -100,6 +105,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         }
         let requestedParams = routes.find((p) => {
           const baseURL = (permalink as any)({ params: p });
+          additionalURLs.add(baseURL);
           return baseURL === reqPath || `${baseURL}/${searchResult.currentPage || 1}` === reqPath;
         });
         if (requestedParams) {
@@ -135,6 +141,19 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
             .replace(/\/1$/, ''); // if end is `/1`, then just omit
         }
 
+        // from page 2 to the end, add all pages as additional URLs (needed for build)
+        for (let n = 1; n <= collection.page.last; n++) {
+          if (additionalURLs.size) {
+            // if this is a param-based collection, paginate all params
+            additionalURLs.forEach((url) => {
+              additionalURLs.add(url.replace(/(\/\d+)?$/, `/${n}`));
+            });
+          } else {
+            // if this has no params, simply add page
+            additionalURLs.add(reqPath.replace(/(\/\d+)?$/, `/${n}`));
+          }
+        }
+
         data = data.slice(start, end);
       } else if (createCollection.pageSize) {
         // TODO: fix bug where redirect doesn’t happen
@@ -142,15 +161,18 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         return {
           statusCode: 301,
           location: reqPath + '/1',
+          collectionInfo: additionalURLs.size ? { additionalURLs } : undefined,
         };
       }
 
       // if we’ve paginated too far, this is a 404
-      if (!data.length)
+      if (!data.length) {
         return {
           statusCode: 404,
           error: new Error('Not Found'),
+          collectionInfo: additionalURLs.size ? { additionalURLs } : undefined,
         };
+      }
 
       collection.data = data;
     }
@@ -178,6 +200,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       statusCode: 200,
       contentType: 'text/html; charset=utf-8',
       contents: html,
+      collectionInfo: additionalURLs.size ? { additionalURLs } : undefined,
     };
   } catch (err) {
     if (err.code === 'parse-error') {
