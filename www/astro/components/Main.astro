@@ -5,15 +5,15 @@
 <style lang="scss">
   main {
     width: 100%;
-    height: 100%;
-      display: grid;
-      gap: 1rem;
-      padding: clamp(1.2rem, 5vw, 3rem) 0;
-      grid-template-columns:
-        minmax(1.2rem, 1fr)
-        minmax(auto, 60ch)
-        minmax(1.2rem, 1fr);
-      z-index: 1;
+    display: grid;
+    gap: 1rem;
+    padding: clamp(1.2rem, 5vw, 3rem) 0;
+    grid-template-columns:
+      minmax(1.2rem, 1fr)
+      minmax(auto, 60ch)
+      minmax(1.2rem, 1fr);
+    grid-auto-rows: min-content;
+    z-index: 1;
   }
 
   :global(main > *) {

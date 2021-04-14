@@ -35,8 +35,8 @@ body {
     display: grid;
     place-items: center;
     min-width: 100%;
-    max-width: 100vmin;
-    min-height: 100vmax;
+    max-width: 100vw;
+    min-height: 100vh;
     overflow-x: hidden;
 }
 .visually-hidden {
