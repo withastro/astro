@@ -1,0 +1,49 @@
+<h1 class="title">
+    <span class="visually-hidden">Build faster websites with less client-side Javascript</span>
+    <svg aria-hidden="true" viewBox="0 0 376 48">
+        <g>
+            <text class="span" x="0" y="0">Build faster websites with</text>
+            <text class="em" x="0" y="0">less client-side JavaScript</text>
+        </g>
+    </svg>
+</h1>
+
+<style lang="scss">
+  .title {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+
+    svg {
+      margin-right: -100%;
+
+      text {
+        font-size: 16px;
+        font-family: var(--font-sans);
+
+        &.span {
+          fill: white;
+          font-size: 16.2px;
+          transform: translate(0, 18px);
+        }
+        &.em {
+          fill: var(--color-green);
+          transform: translate(0, 36px);
+        }
+      }
+    }
+
+    @media (min-width: 40em) {
+      svg {
+        margin-right: 0;
+        margin-bottom: -40px;
+
+        text.span {
+          font-size: 16px;
+        }
+        text.em {
+          transform: translate(190px, 18px);
+        }
+      }
+    }
+  }
+</style>
