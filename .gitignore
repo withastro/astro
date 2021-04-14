@@ -5,3 +5,4 @@ dist/
 .DS_Store
 test/fixtures/*/_site/
 www/_site
+.vercel
