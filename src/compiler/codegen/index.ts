@@ -6,6 +6,7 @@ import type { TransformResult } from '../../@types/astro';
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
+import { URL } from 'url';
 import { walk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';

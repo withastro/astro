@@ -2,6 +2,7 @@ import type { Transformer } from '../../@types/transformer';
 import type { CompileOptions } from '../../@types/compiler';
 
 import path from 'path';
+import { URL } from 'url';
 import { getAttrValue, setAttrValue } from '../../ast.js';
 
 /** Transform <script type="module"> */
