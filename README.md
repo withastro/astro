@@ -119,58 +119,9 @@ Supports:
 
 We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the default values, but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
 
-#### 🍃 Tailwind
-
-Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
-
-```
-npm install @tailwindcss/jit tailwindcss
-```
-
-And also create a `tailwind.config.js` in your project root:
-
-```
-module.exports = {
-  // your options here
-}
-```
-
-_Note: a Tailwind config file is currently required to enable Tailwind in Astro, even if you use the default options._
-
-Then write Tailwind in your project just like you’re used to:
-
-```html
-<style>
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
-</style>
-```
-
-## 🚀 Build & Deployment
-
-Add a `build` npm script to your `/package.json` file:
-
-```json
-{
-  "scripts": {
-    "dev": "astro dev .",
-    "build": "astro build ."
-  }
-}
-```
-
-Then run:
-
-```
-npm run build
-```
-
-Now upload the contents of `/_site_` to your favorite static site host.
-
 ## 🥾 Guides
 
-### 🍱 Collections (beta)
+#### 🍱 Collections (beta)
 
 By default, any Astro component can fetch data from any API or local `*.md` files. But what if you had a blog you wanted to paginate? What if you wanted to generate dynamic URLs based on metadata (e.g. `/tag/[tag]/`)? Or do both together? Astro Collections are a way to do all of that. It’s perfect for generating blog-like content, or scaffolding out dynamic URLs from your data.
 
@@ -340,6 +291,61 @@ Lastly, what about `/year/*`? Well hopefully you can figure that out from here. 
 - Need to load local markdown? Try [`Astro.fetchContent()`][fetch-content]
 - Need to load remote data from an API? Simply `fetch()` to make it happen!
 
+#### 🍃 Tailwind
+
+Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
+
+```
+npm install --save-dev tailwindcss
+```
+
+And also create a `tailwind.config.js` in your project root:
+
+```js
+// tailwind.config.js
+
+module.exports = {
+  mode: 'jit',
+  purge: ['./public/**/*.html', './astro/**/*.{astro,js,jsx,ts,tsx,vue}'],
+  // more options here
+};
+```
+
+Then add [Tailwind utilities][tailwind-utilities] to any Astro component that needs it:
+
+```html
+<style>
+  @tailwind base;
+  @tailwind components;
+  @tailwind utilities;
+</style>
+```
+
+You should see Tailwind styles compile successfully in Astro.
+
+💁 **Tip**: to reduce duplication, try loading `@tailwind base` from a parent page (`./pages/*.astro`) instead of the component itself.
+
+## 🚀 Build & Deployment
+
+Add a `build` npm script to your `/package.json` file:
+
+```json
+{
+  "scripts": {
+    "dev": "astro dev .",
+    "build": "astro build ."
+  }
+}
+```
+
+Then run:
+
+```
+npm run build
+```
+
+Now upload the contents of `/_site_` to your favorite static site host.
+
 ## 📚 API
 
 ### `Astro` global
@@ -395,3 +401,4 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 [sass]: https://sass-lang.com/
 [svelte]: https://svelte.dev
 [tailwind]: https://tailwindcss.com
+[tailwind-utilities]: https://tailwindcss.com/docs/adding-new-utilities#using-css
