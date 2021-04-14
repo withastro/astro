@@ -1,4 +1,4 @@
-import { URL, fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';
 import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
 import type { AstroConfig, CollectionResult, CreateCollection, Params, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';

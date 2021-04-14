@@ -1,6 +1,6 @@
 import { existsSync, promises as fsPromises } from 'fs';
 import { join } from 'path';
-import { URL, fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { createRuntime } from '../lib/runtime.js';

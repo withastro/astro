@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import path from 'path';
-import { URL, fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';
 import { fdir, PathsOutput } from 'fdir';
 
 interface PageLocation {

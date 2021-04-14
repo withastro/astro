@@ -3,7 +3,6 @@ import type { AstroConfig } from './@types/astro';
 
 import * as colors from 'kleur/colors';
 import { promises as fsPromises } from 'fs';
-import { URL } from 'url';
 import yargs from 'yargs-parser';
 
 import { loadConfig } from './config.js';

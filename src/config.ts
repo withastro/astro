@@ -1,7 +1,6 @@
 import type { AstroConfig } from './@types/astro';
 import { join as pathJoin, resolve as pathResolve } from 'path';
 import { existsSync } from 'fs';
-import { URL } from 'url';
 
 /** Type util */
 const type = (thing: any): string => (Array.isArray(thing) ? 'Array' : typeof thing);

@@ -4,7 +4,6 @@ import type { LogOptions } from './logger.js';
 import { logger as snowpackLogger } from 'snowpack';
 import http from 'http';
 import { relative as pathRelative } from 'path';
-import { URL } from 'url';
 import { defaultLogDestination, error, parseError } from './logger.js';
 import { createRuntime } from './runtime.js';
 

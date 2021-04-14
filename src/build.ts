@@ -4,7 +4,7 @@ import type { LoadResult } from './runtime';
 
 import { existsSync, promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
-import { URL, fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';
 import { fdir } from 'fdir';
 import { defaultLogDestination, error } from './logger.js';
 import { createRuntime } from './runtime.js';

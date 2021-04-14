@@ -1,4 +1,4 @@
-import { URL, fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';
 import { createRuntime } from '../lib/runtime.js';
 import { loadConfig } from '../lib/config.js';
 import * as assert from 'uvu/assert';
