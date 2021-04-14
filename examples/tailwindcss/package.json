@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "../../astro.mjs dev",
+    "build": "../../astro.mjs build"
+  },
+  "devDependencies": {
+    "tailwindcss": "^2.1.1"
+  }
+}

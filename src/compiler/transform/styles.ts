@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import fs from 'fs';
+import { createRequire } from 'module';
 import path from 'path';
 import autoprefixer from 'autoprefixer';
 import postcss, { Plugin } from 'postcss';
@@ -121,8 +122,9 @@ async function transformStyle(code: string, { type, filename, scopedClass, mode 
   // 2a. Tailwind (only if project uses Tailwind)
   if (miniCache.tailwindEnabled) {
     try {
-      const { default: tailwindcss } = await import('@tailwindcss/jit');
-      postcssPlugins.push(tailwindcss());
+      const require = createRequire(import.meta.url);
+      const tw = require.resolve('tailwindcss', { paths: [import.meta.url, process.cwd()] });
+      postcssPlugins.push(require(tw) as any);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error(err);
