@@ -1,28 +1,81 @@
 ---
-import Prism from 'astro/components/Prism.astro';
-import 'prismjs/themes/prism-tomorrow.css';
+import BaseHead from '../components/BaseHead.astro';
+import Space from '../components/Space.astro';
+import Main from '../components/Main.astro';
+import Logo from '../components/Logo.astro';
+import Article from '../components/Article.astro';
+import Tagline from '../components/Tagline.astro';
 
-let title = 'Astro Build';
----
-
-<html>
-<head>
-  <title>{title}</title>
-</head>
-<body>
-  <h1>{title}</h1>
-
-  <Prism lang="astro" code={`---
-let title = 'My Site';
+let title = 'Astro';
+let description = 'Build faster websites with less client-side JavaScript';
+let permalink = 'https://astro.build/';
 ---
 
 <html>
   <head>
-    <title>{title}</title>
+    <BaseHead title={title} description={description} permalink={permalink} />
   </head>
+
   <body>
-    <h1>{title}</h1>
+    <Space />
+    
+    <Main>
+      <Logo />
+      <Article>
+        <Tagline />
+
+        <p>
+          For a technology built on top of three different languages, the modern web seems to focus an awful lot on JavaScript. We don&rsquo;t think it has to&mdash;and that&rsquo;s certainly <a href="https://css-tricks.com/the-great-divide/">not</a>&nbsp;<a href="https://bradfrost.com/blog/post/front-of-the-front-end-and-back-of-the-front-end-web-development/">a</a>&nbsp;<a href="https://macwright.com/2020/05/10/spa-fatigue.html">revolutionary</a>&nbsp;<a href="https://css-tricks.com/whats-old-is-new/">concept</a>.
+        </p>
+        
+        <p>
+          We&rsquo;ll eagerly jump at the chance to sing JavaScript&rsquo;s praises, but HTML and CSS are pretty great too. There aren&rsquo;t enough modern tools which reflect that, which is why we're building Astro.
+        </p>
+
+        <p>
+          While we&rsquo;re at it, it&rsquo;s time to accept that the framework wars won&rsquo;t have a winner&mdash;that&rsquo;s why Astro lets you use any framework you want (or none at all).
+          And if most sites only have <a href="https://jasonformat.com/islands-architecture/">islands</a> of interactivity, shouldn&rsquo;t our tools optimize for that?
+          We&rsquo;re not <a href="https://markojs.com/">the first</a> to ask the question, but we might be the first with an answer for every framework.
+        </p>
+
+        <p>We're hard at work on Astro! Keep your eyes to the skies, astronauts.</p>
+
+        <div class="hint">
+          <p class="no-console">Psst... <a href="https://discord.gg/ynyH4BVp">get early access</a> by joining our Discord community.</p>
+          <p class="console">Psst... upset you don't have early access? If only there was some way to <code>console</code> you...</p>
+        </div>
+      </Article>
+    </Main>
+
+    <style lang="scss">
+      .hint {
+        font-size: 12px;
+        opacity: 0.8;
+        margin-top: 2em;
+        padding: 2em 0;
+      }
+      .console {
+        display: none; 
+      }
+      @media (hover: hover) {
+        .no-console {
+          display: none;
+        }
+        .console {
+          display: block;
+        }
+      }
+      code {
+        font-size: 11px;
+        font-family: var(--font-mono);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        border-radius: 2px;
+        padding: 0.1em 0.2em;
+      }
+    </style>
+
+    <script>
+      console.log('%cGet early Astro access 👉 https://discord.gg/ynyH4BVp', "color:#17c083; font-size: 1.2em; padding: 1em;");
+    </script>
   </body>
-</html>`} />
-</body>
 </html>

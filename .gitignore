@@ -4,3 +4,5 @@ dist/
 *.tsbuildinfo
 .DS_Store
 test/fixtures/*/_site/
+www/_site
+.vercel
