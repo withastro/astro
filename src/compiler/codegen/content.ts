@@ -52,7 +52,7 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
   }
 }
 
-/** import.meta.fetchContent() */
+/** Astro.fetchContent() */
 export function fetchContent(spec: string, { namespace, filename }: GlobOptions): GlobResult {
   let code = '';
   const imports = new Set<string>();

@@ -12,7 +12,7 @@ let description = 'An example blog on Astro';
 import authorData from '../data/authors.json';
 export let collection: any;
 export async function createCollection() {
-  let allPosts = import.meta.fetchContent('./post/*.md');
+  let allPosts = Astro.fetchContent('./post/*.md');
   let allTags = new Set();
   let routes = [];
   for (const post of allPosts) {

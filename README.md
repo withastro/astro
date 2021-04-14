@@ -8,7 +8,7 @@ A next-generation static-site generator with partial hydration. Use your favorit
 # currently hidden during private beta, please don't share :)
 npm install astro@shhhhh
 
-# NOTE: There is currently a bug in Snowpack that prevents you 
+# NOTE: There is currently a bug in Snowpack that prevents you
 # from using astro outside of the monorepo setup that we have here.
 # For now, do all development inside the `examples/` directory for this repo.
 ```
@@ -33,7 +33,7 @@ npm run dev
 
 ### ⚙️ Configuration
 
-To configure Astro, add a `astro.config.mjs` file in the root of your project. All of the options can be omitted. Here are the defaults:
+To configure Astro, add a `astro.config.mjs` file in the root of your project. All settings are optional. Here are the defaults:
 
 ```js
 export default {
@@ -50,6 +50,8 @@ export default {
     /** Set this to "preact" or "react" to determine what *.jsx files should load */
     '.jsx': 'react',
   },
+  /** Your public domain, e.g.: https://my-site.dev/ */
+  site: '',
 };
 ```
 
@@ -64,7 +66,7 @@ By default, Astro outputs zero client-side JS. If you'd like to include an inter
 
 ### ⚛️ State Management
 
-Frontend state management depends on your framework of choice. Below is a list of popular frontend state management libraries, and their current support with Astro. 
+Frontend state management depends on your framework of choice. Below is a list of popular frontend state management libraries, and their current support with Astro.
 
 Our goal is to support all popular state management libraries, as long as there is no technical reason that we cannot.
 
@@ -72,11 +74,11 @@ Our goal is to support all popular state management libraries, as long as there 
   - [ ] **Redux: Partial Support** (Note: You can access a Redux store directly, but full `react-redux` support requires the ability to set a custom `<Provider>` wrapper to every component island. Planned.)
   - [x] **Recoil: Full Support**
 - **Svelte**
-  - [x] **Svelte Stores: Full Support** 
+  - [x] **Svelte Stores: Full Support**
 - **Vue:**
   - [ ] **Vuex: Partial Support** (Note: You can access a vuex store directly, but full `vuex` support requires the ability to set a custom `vue.use(store)` call to every component island. Planned.)
 
-*Are we missing your favorite state management library? Add it to the list above in a PR (or create an issue)!*
+_Are we missing your favorite state management library? Add it to the list above in a PR (or create an issue)!_
 
 ### 💅 Styling
 
@@ -113,7 +115,6 @@ Supports:
 - `lang="scss"`: load as the `.scss` extension
 - `lang="sass"`: load as the `.sass` extension (no brackets; indent-style)
 
-
 #### 🦊 Autoprefixer
 
 We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the default values, but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
@@ -146,9 +147,32 @@ Then write Tailwind in your project just like you’re used to:
 </style>
 ```
 
-#### 🍱 Collections (beta)
+## 🚀 Build & Deployment
 
-Astro’s Collections API can be used for paginating content whether local `*.md` files or data from a headless CMS.
+Add a `build` npm script to your `/package.json` file:
+
+```json
+{
+  "scripts": {
+    "dev": "astro dev .",
+    "build": "astro build ."
+  }
+}
+```
+
+Then run:
+
+```
+npm run build
+```
+
+Now upload the contents of `/_site_` to your favorite static site host.
+
+## 🥾 Guides
+
+### 🍱 Collections (beta)
+
+By default, any Astro component can fetch data from any API or local `*.md` files. But what if you had a blog you wanted to paginate? What if you wanted to generate dynamic URLs based on metadata (e.g. `/tag/[tag]/`)? Or do both together? Astro Collections are a way to do all of that. It’s perfect for generating blog-like content, or scaffolding out dynamic URLs from your data.
 
 First, decide on a URL schema. For our example, perhaps you want all your paginated posts at `/posts/1`, `/posts/2`, etc. But in addition, you also wanted `/tag/[tag]` and `/year/[year]` collections where posts are filtered by tag or year.
 
@@ -180,7 +204,7 @@ export async function createCollection() {
 
 These are important so your data is exposed to the page as a prop, and also Astro has everything it needs to gather your data and generate the proper routes. How it does this is more clear if we walk through a practical example.
 
-##### Example 1: Simple pagination
+#### Example 1: Simple pagination
 
 Assume we have Markdown files that have `title`, `tag`, and `date` in their frontmatter, like so:
 
@@ -215,7 +239,7 @@ import PostPreview from '../components/PostPreview.astro';
 export let collection: any;
 
 export async function createCollection() {
-  const allPosts = import.meta.fetchContent('./post/*.md');     // load data that already lives at `/post/[slug]`
+  const allPosts = Astro.fetchContent('./post/*.md');           // load data that already lives at `/post/[slug]`
   allPosts.sort((a, b) => new Date(b.date) - new Date(a.date)); // sort newest -> oldest (we got "date" from frontmatter!)
 
   // (load more data here, if needed)
@@ -264,7 +288,7 @@ Let’s walk through some of the key parts:
 
 It should be noted that the above example shows `<PostPreview />` and `<Pagination />` components. Pretend those are custom components that you made to display the post data, and the pagination navigation. There’s nothing special about them; only consider those examples of how you’d use collection data to display everything the way you’d like.
 
-##### Example 2: Advanced filtering & pagination
+#### Example 2: Advanced filtering & pagination
 
 In our earlier example, we covered simple pagination for `/posts/1`, but we’d still like to make `/tag/[tag]/1` and `/year/[year]/1`. To do that, we’ll create 2 more collections: `/astro/pages/$tag.astro` and `astro/pages/$year.astro`. Assume that the markup is the same, but we’ve expanded the `createCollection()` function with more data.
 
@@ -277,7 +301,7 @@ In our earlier example, we covered simple pagination for `/posts/1`, but we’d 
   export let collection: any;
 
   export async function createCollection() {
-    const allPosts = import.meta.fetchContent('./post/*.md');
+    const allPosts = Astro.fetchContent('./post/*.md');
     allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
 +   const allTags = [...new Set(allPosts.map((post) => post.tags).flat())];  // gather all unique tags (we got "tag" from frontmatter!)
 +   allTags.sort((a, b) => a.localeCompare(b));                              // sort tags A -> Z
@@ -309,36 +333,63 @@ These are still paginated, too! But since there are other conditions applied, th
 
 Lastly, what about `/year/*`? Well hopefully you can figure that out from here. It follows the exact same pattern, except using `post.date` frontmatter. You’ll grab the year from that date string, and sort probably newest to oldest rather than alphabetical. You’ll also change `params.tag` to `params.year` (or whatever you name it), but otherwise most everything else should be the same.
 
-##### Tips
+#### Tips
 
 - Having to load different collections in different `$[collection].astro` files might seem like a pain at first, until you remember **you can create reusable components!** Treat `/pages/*.astro` files as your one-off routing & data fetching logic, and treat `/components/*.astro` as your reusable markup. If you find yourself duplicating things too much, you can probably use a component instead!
 - Stay true to `/pages/$[collection].astro` naming. If you have an `/all-posts/*` route, then use `/pages/$all-posts.astro` to manage that. Don’t try and trick `permalink` to generate too many URL trees; it’ll only result in pages being missed when it comes time to build.
-- Need to load local markdown? Try `import.meta.fetchContent('./data/*.md')`
-- Need to load remote data? Simply `fetch()` to make it happen!
+- Need to load local markdown? Try [`Astro.fetchContent()`][fetch-content]
+- Need to load remote data from an API? Simply `fetch()` to make it happen!
 
-## 🚀 Build & Deployment
+## 📚 API
 
-Add a `build` npm script to your `/package.json` file:
+### `Astro` global
 
-```json
+The `Astro` global is available in all contexts in `.astro` files. It has the following functions:
+
+#### `config`
+
+`Astro.config` returns an object with the following properties:
+
+| Name   | Type     | Description                                                                                                |
+| :----- | :------- | :--------------------------------------------------------------------------------------------------------- |
+| `site` | `string` | Your website’s public root domain. Set it with `site: "https://mysite.com"` in your [Astro config][config] |
+
+#### `fetchContent()`
+
+`Astro.fetchContent()` is a way to load local `*.md` files into your static site setup. You can either use this on its own, or within [Astro Collections][collections].
+
+```
+// ./astro/components/my-component.astro
+---
+const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of posts that live at ./astro/pages/post/*.md
+---
+
+<div>
+{data.slice(0, 3).map((post) => (
+  <article>
+    <h1>{post.title}</h1>
+    <p>{post.description}</p>
+    <a href={post.url}>Read more</a>
+  </article>
+))}
+</div>
+```
+
+`.fetchContent()` only takes one parameter: a relative URL glob of which local files you’d like to import. Currently only `*.md` files are supported. It’s synchronous, and returns an array of items of type:
+
+```
 {
-  "scripts": {
-    "dev": "astro dev .",
-    "build": "astro build ."
-  }
-}
+  url: string;     // the URL of this item (if it’s in pages/)
+  content: string; // the HTML of this item
+  // frontmatter data expanded here
+}[];
 ```
-
-Then run:
-
-```
-npm run build
-```
-
-Now upload the contents of `/_site_` to your favorite static site host.
 
 [autoprefixer]: https://github.com/postcss/autoprefixer
 [browserslist]: https://github.com/browserslist/browserslist
+[collections]: #-collections-beta
+[config]: #%EF%B8%8F-configuration
+[fetch-content]: #fetchContent--
 [intersection-observer]: https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
 [request-idle-cb]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
 [sass]: https://sass-lang.com/

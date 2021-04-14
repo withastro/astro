@@ -13,7 +13,7 @@ import * as babelTraverse from '@babel/traverse';
 import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
 import { warn } from '../../logger.js';
 import { fetchContent } from './content.js';
-import { isImportMetaDeclaration } from './utils.js';
+import { isFetchContent, isImportMetaDeclaration } from './utils.js';
 import { yellow } from 'kleur/colors';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
@@ -305,7 +305,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
   let script = '';
   let propsStatement = '';
-  let contentCode = ''; // code for handling import.meta.fetchContent(), if any;
+  let contentCode = ''; // code for handling Astro.fetchContent(), if any;
   let createCollection = ''; // function for executing collection
   const componentPlugins = new Set<ValidExtensionPlugins>();
 
@@ -354,8 +354,8 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         }
         case 'VariableDeclaration': {
           for (const declaration of node.declarations) {
-            // only select import.meta.fetchContent() calls here. this utility filters those out for us.
-            if (!isImportMetaDeclaration(declaration, 'fetchContent')) continue;
+            // only select Astro.fetchContent() calls here. this utility filters those out for us.
+            if (!isFetchContent(declaration)) continue;
 
             // remove node
             body.splice(i, 1);
@@ -366,7 +366,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
             if (init.type === 'AwaitExpression') {
               init = init.argument;
               const shortname = path.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
-              warn(compileOptions.logging, shortname, yellow('awaiting import.meta.fetchContent() not necessary'));
+              warn(compileOptions.logging, shortname, yellow('awaiting Astro.fetchContent() not necessary'));
             }
             if (init.type !== 'CallExpression') continue;
 
@@ -374,7 +374,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
             const namespace = id.name;
 
             if ((init as any).arguments[0].type !== 'StringLiteral') {
-              throw new Error(`[import.meta.fetchContent] Only string literals allowed, ex: \`import.meta.fetchContent('./post/*.md')\`\n  ${state.filename}`);
+              throw new Error(`[Astro.fetchContent] Only string literals allowed, ex: \`Astro.fetchContent('./post/*.md')\`\n  ${state.filename}`);
             }
             const spec = (init as any).arguments[0].value;
             if (typeof spec === 'string') contentImports.set(namespace, { spec, declarator: node.kind });
@@ -432,8 +432,8 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
           switch (node.type) {
             case 'VariableDeclaration': {
               for (const declaration of node.declarations) {
-                // only select import.meta.collection() calls here. this utility filters those out for us.
-                if (!isImportMetaDeclaration(declaration, 'fetchContent')) continue;
+                // only select Astro.fetchContent() calls here. this utility filters those out for us.
+                if (!isFetchContent(declaration)) continue;
 
                 // a bit of munging
                 let { id, init } = declaration;
@@ -441,7 +441,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
                 if (init.type === 'AwaitExpression') {
                   init = init.argument;
                   const shortname = path.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
-                  warn(compileOptions.logging, shortname, yellow('awaiting import.meta.fetchContent() not necessary'));
+                  warn(compileOptions.logging, shortname, yellow('awaiting Astro.fetchContent() not necessary'));
                 }
                 if (init.type !== 'CallExpression') continue;
 
@@ -449,7 +449,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
                 const namespace = id.name;
 
                 if ((init as any).arguments[0].type !== 'StringLiteral') {
-                  throw new Error(`[import.meta.fetchContent] Only string literals allowed, ex: \`import.meta.fetchContent('./post/*.md')\`\n  ${state.filename}`);
+                  throw new Error(`[Astro.fetchContent] Only string literals allowed, ex: \`Astro.fetchContent('./post/*.md')\`\n  ${state.filename}`);
                 }
                 const spec = (init as any).arguments[0].value;
                 if (typeof spec !== 'string') break;
@@ -462,7 +462,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
                 }
 
                 createCollection =
-                  imports + '\n\nexport ' + createCollection.substring(0, declaration.start || 0) + globResult.code + createCollection.substring(declaration.end || 0);
+                  imports + '\nexport ' + createCollection.substring(0, declaration.start || 0) + globResult.code + createCollection.substring(declaration.end || 0);
               }
               break;
             }
@@ -471,8 +471,8 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       });
     }
 
-    // import.meta.fetchContent()
-    for (const [namespace, { declarator, spec }] of contentImports.entries()) {
+    // Astro.fetchContent()
+    for (const [namespace, { spec }] of contentImports.entries()) {
       const globResult = fetchContent(spec, { namespace, filename: state.filename });
       for (const importStatement of globResult.imports) {
         state.importExportStatements.add(importStatement);
