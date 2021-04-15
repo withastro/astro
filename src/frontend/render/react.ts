@@ -10,7 +10,7 @@ const ReactRenderer: ComponentRenderer<ComponentType> = {
   renderStatic(Component) {
     return async (props, ...children) => {
       return ReactDOMServer.renderToString(React.createElement(Component, props, childrenToVnodes(React.createElement, children)));
-    }
+    };
   },
   imports: {
     react: ['default: React'],

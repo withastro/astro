@@ -4,7 +4,7 @@ import { renderToString } from '@vue/server-renderer';
 import { defineComponent, createSSRApp, h as createElement } from 'vue';
 import { createRenderer } from './renderer';
 
-/** 
+/**
  * Users might attempt to use :vueAttribute syntax to pass primitive values.
  * If so, try to JSON.parse them to get the primitives
  */
@@ -31,12 +31,12 @@ const Vue: ComponentRenderer<VueComponent> = {
     return async (props, ...children) => {
       const App = defineComponent({
         components: {
-          Component
+          Component,
         },
         data() {
-          return { props }
+          return { props };
         },
-        template: `<Component v-bind="props">${children.join('\n')}</Component>`
+        template: `<Component v-bind="props">${children.join('\n')}</Component>`,
       });
 
       const app = createSSRApp(App);

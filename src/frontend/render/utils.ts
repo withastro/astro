@@ -6,7 +6,7 @@ import moize from 'moize';
 
 /** @internal */
 function childrenToTree(children: string[]) {
-    return children.map(child => (unified().use(parse, { fragment: true }).parse(child) as any).children.pop());
+  return children.map((child) => (unified().use(parse, { fragment: true }).parse(child) as any).children.pop());
 }
 
 /**
@@ -15,10 +15,10 @@ function childrenToTree(children: string[]) {
  * @param children the HTML string children
  */
 export const childrenToVnodes = moize.deep(function childrenToVnodes(h: any, children: string[]) {
-    const tree = childrenToTree(children);
-    const vnodes = tree.map(subtree => toH(h, subtree));
-    return vnodes;
-})
+  const tree = childrenToTree(children);
+  const vnodes = tree.map((subtree) => toH(h, subtree));
+  return vnodes;
+});
 
 /**
  * Converts an HTML fragment string into h function calls as a string
@@ -26,22 +26,22 @@ export const childrenToVnodes = moize.deep(function childrenToVnodes(h: any, chi
  * @param children the HTML string children
  */
 export const childrenToH = moize.deep(function childrenToH(renderer: ComponentRenderer<any>, children: string[]): any {
-    if (!renderer.jsxPragma) return;
-    const tree = childrenToTree(children);
-    const innerH = (name: any, attrs: Record<string, any>|null = null, _children: string[]|null = null) => {
-        const vnode = renderer.jsxPragma?.(name, attrs, _children);
-        const childStr = _children ? `, [${_children.map(child => serializeChild(child)).join(',')}]` : '';
-        /* fix(react): avoid hard-coding keys into the serialized tree */
-        if (attrs && attrs.key) attrs.key = undefined;
-        const __SERIALIZED = `${renderer.jsxPragmaName}("${name}", ${attrs ? JSON.stringify(attrs) : 'null'}${childStr})` as string;
-        return { ...vnode, __SERIALIZED }
-    }
-    const serializeChild = (child: unknown) => {
-        if (typeof child === 'string') return `\`${child}\``;
-        if (typeof child === 'number' || typeof child === 'boolean') return `${child}`;
-        if (child === null) return `null`;
-        if ((child as any).__SERIALIZED) return (child as any).__SERIALIZED;
-        return innerH(child).__SERIALIZED;
-    }
-    return tree.map(subtree => toH(innerH, subtree).__SERIALIZED);
-})
+  if (!renderer.jsxPragma) return;
+  const tree = childrenToTree(children);
+  const innerH = (name: any, attrs: Record<string, any> | null = null, _children: string[] | null = null) => {
+    const vnode = renderer.jsxPragma?.(name, attrs, _children);
+    const childStr = _children ? `, [${_children.map((child) => serializeChild(child)).join(',')}]` : '';
+    /* fix(react): avoid hard-coding keys into the serialized tree */
+    if (attrs && attrs.key) attrs.key = undefined;
+    const __SERIALIZED = `${renderer.jsxPragmaName}("${name}", ${attrs ? JSON.stringify(attrs) : 'null'}${childStr})` as string;
+    return { ...vnode, __SERIALIZED };
+  };
+  const serializeChild = (child: unknown) => {
+    if (typeof child === 'string') return `\`${child}\``;
+    if (typeof child === 'number' || typeof child === 'boolean') return `${child}`;
+    if (child === null) return `null`;
+    if ((child as any).__SERIALIZED) return (child as any).__SERIALIZED;
+    return innerH(child).__SERIALIZED;
+  };
+  return tree.map((subtree) => toH(innerH, subtree).__SERIALIZED);
+});

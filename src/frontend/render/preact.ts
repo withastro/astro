@@ -13,7 +13,7 @@ const Preact: ComponentRenderer<ComponentType> = {
   renderStatic(Component) {
     return async (props, ...children) => {
       return renderToString(h(Component, props, childrenToVnodes(h, children)));
-    }
+    };
   },
   imports: {
     preact: ['render', 'Fragment', 'h'],

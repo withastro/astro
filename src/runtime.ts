@@ -261,7 +261,7 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
     plugins: [
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
       require.resolve('@snowpack/plugin-sass'),
-      [require.resolve('@snowpack/plugin-svelte'), { compilerOptions: { hydratable: true }}],
+      [require.resolve('@snowpack/plugin-svelte'), { compilerOptions: { hydratable: true } }],
       require.resolve('@snowpack/plugin-vue'),
     ],
     devOptions: {
