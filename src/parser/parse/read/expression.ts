@@ -243,7 +243,6 @@ export const parse_expression_at = (source: string, index: number): Expression =
 // @ts-ignore
 export default function read_expression(parser: Parser) {
   try {
-    debugger;
     const expression = parse_expression_at(parser.template, parser.index);
     parser.index = expression.end;
     return expression;
