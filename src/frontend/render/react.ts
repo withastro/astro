@@ -14,10 +14,10 @@ const ReactRenderer: ComponentRenderer<ComponentType> = {
   },
   imports: {
     react: ['default: React'],
-    'react-dom': ['default: ReactDOM'],
+    'react-dom': ['hydrate'],
   },
   render({ Component, root, children, props }) {
-    return `ReactDOM.hydrate(React.createElement(${Component}, ${props}, React.createElement(React.Fragment, null, ...${children})), ${root})`;
+    return `hydrate(React.createElement(${Component}, ${props}, React.createElement(React.Fragment, null, ...${children})), ${root})`;
   },
 };
 
