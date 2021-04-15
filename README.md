@@ -1,4 +1,4 @@
-![Astro](https://raw.githubusercontent.com/snowpackjs/astro/main/assets/social/github-banner.png)
+<img src="https://raw.githubusercontent.com/snowpackjs/astro/main/assets/social/github-banner.png" alt="Astro" width="840" height="520">
 
 **Astro** is a next-generation static-site generator with partial hydration. Use your favorite JS framework and ship bare-minimum JS (or none at all!).
 
