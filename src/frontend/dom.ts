@@ -27,10 +27,17 @@ function createVirtualFragment(parentNode: Node, childNodes: NodeList) {
     parentNode,
     firstChild: childNodes.item(0),
     addEventListener: parentNode.addEventListener.bind(parentNode),
+    removeEventListener: parentNode.removeEventListener.bind(parentNode),
     childNodes,
     appendChild: insert,
     insertBefore: insert,
-    removeChild: remove
+    removeChild: remove,
+    __astroFragment: true,
+    __astro_clear: () => {
+      for (const child of childNodes) {
+        parentNode.removeChild(child)
+      }
+    },
   }
 
   const handler = {
