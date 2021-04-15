@@ -1,4 +1,4 @@
-![Astro](./assets/social/github-banner.png)
+![Astro](./assets/social/banner.png)
 
 **Astro** is a next-generation static-site generator with partial hydration. Use your favorite JS framework and ship bare-minimum JS (or none at all!).
 
