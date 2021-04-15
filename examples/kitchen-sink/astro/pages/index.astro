@@ -19,33 +19,33 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
             grid-template-columns: repeat(3, minmax(0, 1fr));
             place-items: center;
             font-size: 2em;
-            margin-top: 2em;
+            margin-top: 50vh;
         }
         :global(.children) {
             display: grid;
             place-items: center;
-            margin-bottom: 2em;
+            margin-bottom: 50vh;
         }
     </style>
   </head>
   <body>
       <main>
-        <ReactCounter:load>
+        <ReactCounter:visible>
             <h1>Hello React!</h1>
             <p>What's up?</p>
-        </ReactCounter:load>
+        </ReactCounter:visible>
 
-        <PreactCounter:load>
+        <PreactCounter:visible>
             <h1>Hello Preact!</h1>
-        </PreactCounter:load>
+        </PreactCounter:visible>
 
-        <VueCounter:load>
+        <VueCounter:visible>
             <h1>Hello Vue!</h1>
-        </VueCounter:load>
+        </VueCounter:visible>
 
-        <SvelteCounter:load>
+        <SvelteCounter:visible>
             <h1>Hello Svelte!</h1>
-        </SvelteCounter:load>
+        </SvelteCounter:visible>
       </main>
   </body>
 </html>
