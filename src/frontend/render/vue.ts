@@ -50,6 +50,7 @@ const Vue: ComponentRenderer<VueComponent> = {
   render({ Component, root, props, children }) {
     const vueProps = cleanPropsForVue(JSON.parse(props));
     return `const App = { render: () => createElement(${Component}, ${JSON.stringify(vueProps)}, { default: () => ${children} }) };
+${root}.__astro_clear();
 createApp(App).mount(${root});`;
   },
 };
