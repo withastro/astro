@@ -275,7 +275,7 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
     },
     packageOptions: {
       knownEntrypoints: ['preact-render-to-string'],
-      external: ['@vue/server-renderer', 'node-fetch', 'prismjs/components/'],
+      external: ['@vue/server-renderer', 'node-fetch', 'prismjs/components/index.js'],
     },
   });
 
