@@ -70,11 +70,24 @@ a {
         }
     }
 
+    &:visited {
+        // color: var(--color-green);
+        color: var(--color-green);
+        &:hover,
+        &:focus {
+            color: rgba(0, 0, 0, 1);
+        }
+    }
+
     &::before {
         transform-origin: bottom center;
         content: '';
         display: block;
         position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
         inset: 0;
         background: var(--color-green);
         pointer-events: none;
