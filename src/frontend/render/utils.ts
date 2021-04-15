@@ -2,6 +2,7 @@ import unified from 'unified';
 import parse from 'rehype-parse';
 import toH from 'hast-to-hyperscript';
 import { ComponentRenderer } from '../../@types/renderer';
+import moize from 'moize';
 
 /** @internal */
 function childrenToTree(children: string[]) {
@@ -13,18 +14,18 @@ function childrenToTree(children: string[]) {
  * @param h framework's `createElement` function
  * @param children the HTML string children
  */
-export function childrenToVnodes(h: any, children: string[]) {
+export const childrenToVnodes = moize.deep(function childrenToVnodes(h: any, children: string[]) {
     const tree = childrenToTree(children);
     const vnodes = tree.map(subtree => toH(h, subtree));
     return vnodes;
-}
+})
 
 /**
  * Converts an HTML fragment string into h function calls as a string
  * @param h framework's `createElement` function
  * @param children the HTML string children
  */
-export function childrenToH(renderer: ComponentRenderer<any>, children: string[]): any {
+export const childrenToH = moize.deep(function childrenToH(renderer: ComponentRenderer<any>, children: string[]): any {
     if (!renderer.jsxPragma) return;
     const tree = childrenToTree(children);
     const innerH = (name: any, attrs: Record<string, any>|null = null, _children: string[]|null = null) => {
@@ -43,4 +44,4 @@ export function childrenToH(renderer: ComponentRenderer<any>, children: string[]
         return innerH(child).__SERIALIZED;
     }
     return tree.map(subtree => toH(innerH, subtree).__SERIALIZED);
-}
+})
