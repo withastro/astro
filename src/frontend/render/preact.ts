@@ -1,5 +1,6 @@
 import { h, render, ComponentType } from 'preact';
 import { renderToString } from 'preact-render-to-string';
+import { childrenToVnodes } from './utils';
 import type { ComponentRenderer } from '../../@types/renderer';
 import { createRenderer } from './renderer';
 
@@ -7,14 +8,18 @@ import { createRenderer } from './renderer';
 Function.prototype(render);
 
 const Preact: ComponentRenderer<ComponentType> = {
+  jsxPragma: h,
+  jsxPragmaName: 'h',
   renderStatic(Component) {
-    return async (props, ...children) => renderToString(h(Component, props, ...children));
+    return async (props, ...children) => {
+      return renderToString(h(Component, props, childrenToVnodes(h, children)));
+    }
   },
   imports: {
-    preact: ['render', 'h'],
+    preact: ['render', 'Fragment', 'h'],
   },
-  render({ Component, root, props }) {
-    return `render(h(${Component}, ${props}), ${root})`;
+  render({ Component, root, props, children }) {
+    return `render(h(${Component}, ${props}, h(Fragment, null, ...${children})), ${root})`;
   },
 };
 

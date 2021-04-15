@@ -1,0 +1,51 @@
+---
+import ReactCounter from '../components/ReactCounter.jsx';
+import PreactCounter from '../components/PreactCounter.tsx';
+import VueCounter from '../components/VueCounter.vue';
+import SvelteCounter from '../components/SvelteCounter.svelte';
+---
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <style>
+        :global(:root) {
+            font-family: system-ui;
+            padding: 2em 0;
+        }
+        :global(.counter) {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            place-items: center;
+            font-size: 2em;
+            margin-top: 2em;
+        }
+        :global(.children) {
+            display: grid;
+            place-items: center;
+            margin-bottom: 2em;
+        }
+    </style>
+  </head>
+  <body>
+      <main>
+        <ReactCounter:load>
+            <h1>Hello React!</h1>
+            <p>What's up?</p>
+        </ReactCounter:load>
+
+        <PreactCounter:load>
+            <h1>Hello Preact!</h1>
+        </PreactCounter:load>
+
+        <VueCounter:load>
+            <h1>Hello Vue!</h1>
+        </VueCounter:load>
+
+        <SvelteCounter:load>
+            <h1>Hello Svelte!</h1>
+        </SvelteCounter:load>
+      </main>
+  </body>
+</html>

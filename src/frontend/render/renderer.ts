@@ -1,4 +1,5 @@
 import type { DynamicRenderContext, DynamicRendererGenerator, SupportedComponentRenderer, StaticRendererGenerator } from '../../@types/renderer';
+import { childrenToH } from './utils';
 
 /** Initialize Astro Component renderer for Static and Dynamic components */
 export function createRenderer(renderer: SupportedComponentRenderer) {
@@ -16,7 +17,7 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
       .join(',');
     return `const [{${context.componentExport}: Component}, ${values}] = await Promise.all([import("${context.componentUrl}")${renderer.imports ? ', ' + libs : ''}]);`;
   };
-  const serializeProps = (props: Record<string, any>) => JSON.stringify(props);
+  const serializeProps = ({ children: _, ...props }: Record<string, any>) => JSON.stringify(props);
   const createContext = () => {
     const astroId = `${Math.floor(Math.random() * 1e16)}`;
     return { ['data-astro-id']: astroId, root: `document.querySelector('[data-astro-id="${astroId}"]')`, Component: 'Component' };
@@ -32,10 +33,19 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
       }
       value = `<div data-astro-id="${innerContext['data-astro-id']}">${value}</div>`;
 
-      return `${value}\n<script type="module">${typeof wrapperStart === 'function' ? wrapperStart(innerContext) : wrapperStart}\n${_imports(renderContext)}\n${renderer.render({
-        ...innerContext,
-        props: serializeProps(props),
-      })}\n${typeof wrapperEnd === 'function' ? wrapperEnd(innerContext) : wrapperEnd}</script>`;
+      const script = `
+        ${typeof wrapperStart === 'function' ? wrapperStart(innerContext) : wrapperStart}
+        ${_imports(renderContext)}
+        ${renderer.render({
+          ...innerContext,
+          props: serializeProps(props),
+          children: `[${childrenToH(renderer, children) ?? ''}]`,
+          childrenAsString: `\`${children}\``
+        })}
+        ${typeof wrapperEnd === 'function' ? wrapperEnd(innerContext) : wrapperEnd}
+      `;
+
+      return [value, `<script type="module">${script.trim()}</script>`].join('\n');
     };
   };
 
@@ -45,7 +55,7 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
     idle: createDynamicRender('requestIdleCallback(async () => {', '})'),
     visible: createDynamicRender(
       'const o = new IntersectionObserver(async ([entry]) => { if (!entry.isIntersecting) { return; } o.disconnect();',
-      ({ root }) => `}); o.observe(${root})`
+      ({ root }) => `}); Array.from(${root}.item(0).children).forEach(child => o.observe(child))`
     ),
   };
 }
