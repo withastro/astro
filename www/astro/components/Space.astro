@@ -3,5 +3,18 @@ import Planets from './Planets.astro';
 import Stars from './Stars.astro';
 ---
 
-<Planets />
-<Stars />
+<div class="space">
+    <Planets />
+    <Stars />
+</div>
+
+<style lang="scss">
+    .space {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        min-height: 100vh;
+        height: 100%;
+        overflow: hidden;
+    }
+</style>

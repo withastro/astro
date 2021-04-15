@@ -1,5 +1,5 @@
 :root {
-    --font-sans: "IBM Plex Sans", system-ui;
+    --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     --font-mono: "IBM Plex Mono", Consolas, "Andale Mono WT", "Andale Mono",
         "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono",
         "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco,
@@ -14,6 +14,8 @@
 html {
     display: grid;
     width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
     height: 100%;
     background-color: #000014;
 }
