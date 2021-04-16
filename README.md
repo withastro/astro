@@ -1,6 +1,6 @@
-# 👩‍🚀 Astro
+![Astro](https://raw.githubusercontent.com/snowpackjs/astro/main/assets/social/github-banner.png)
 
-A next-generation static-site generator with partial hydration. Use your favorite JS framework and ship bare-minimum JS (or none at all!).
+**Astro** is a next-generation static-site generator with partial hydration. Use your favorite JS framework and ship bare-minimum JS (or none at all!).
 
 ## 🔧 Setup
 
