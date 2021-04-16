@@ -24,8 +24,8 @@ export function setup(Suite, fixturePath) {
     }
 
     context.runtime = runtime;
-    context.readSrcFile = async (path) => {
-      const resolved = fileURLToPath(new URL(`${fixturePath}/astro/pages${path}`, import.meta.url));
+    context.readFile = async (path) => {
+      const resolved = fileURLToPath(new URL(`${fixturePath}${path}`, import.meta.url));
       return readFile(resolved).then(r => r.toString('utf-8'));
     }
   });

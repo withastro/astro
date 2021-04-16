@@ -5,48 +5,40 @@ import { setup } from './helpers.js';
 
 const Prettier = suite('Prettier formatting');
 
-setup(Prettier, './fixtures/astro-expr');
+setup(Prettier, './fixtures/astro-prettier');
 
-Prettier('Can load page', async ({ readSrcFile }) => {
-  const src = await readSrcFile('/index.astro');
-  assert.not.type(src, 'undefined');
+/** 
+  * Utility to get `[src, out]` files 
+  * @param name {string}
+  * @param ctx {any}
+  */
+const getFiles = async (name, { readFile }) => {
+  const [src, out] = await Promise.all([readFile(`/in/${name}.astro`), readFile(`/out/${name}.astro`)]);
+  return [src, out];
+}
 
-  const result = format(src);
-  assert.not.type(result, 'undefined');
+Prettier('can format a basic Astro file', async (ctx) => {
+  const [src, out] = await getFiles('basic', ctx);
+  assert.not.equal(src, out);
+
+  const formatted = format(src);
+  assert.equal(formatted, out);
 });
 
-// Prettier('Ignores characters inside of strings', async ({ runtime }) => {
-//   const result = await runtime.load('/strings');
+Prettier('can format an Astro file with frontmatter', async (ctx) => {
+  const [src, out] = await getFiles('frontmatter', ctx);
+  assert.not.equal(src, out);
+  
+  const formatted = format(src);
+  assert.equal(formatted, out);
+});
 
-//   assert.equal(result.statusCode, 200);
-
-//   const $ = doc(result.contents);
-
-//   for (let col of ['red', 'yellow', 'blue']) {
-//     assert.equal($('#' + col).length, 1);
-//   }
-// });
-
-// Prettier('Ignores characters inside of line comments', async ({ runtime }) => {
-//   const result = await runtime.load('/line-comments');
-//   assert.equal(result.statusCode, 200);
-
-//   const $ = doc(result.contents);
-
-//   for (let col of ['red', 'yellow', 'blue']) {
-//     assert.equal($('#' + col).length, 1);
-//   }
-// });
-
-// Prettier('Ignores characters inside of multiline comments', async ({ runtime }) => {
-//   const result = await runtime.load('/multiline-comments');
-//   assert.equal(result.statusCode, 200);
-
-//   const $ = doc(result.contents);
-
-//   for (let col of ['red', 'yellow', 'blue']) {
-//     assert.equal($('#' + col).length, 1);
-//   }
-// });
+Prettier('can format an Astro file with embedded JSX expressions', async (ctx) => {
+  const [src, out] = await getFiles('embedded-expr', ctx);
+  assert.not.equal(src, out);
+  
+  const formatted = format(src);
+  assert.equal(formatted, out);
+});
 
 Prettier.run();
