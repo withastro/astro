@@ -12,6 +12,7 @@ import { parse } from 'astro-parser';
 import { createMarkdownHeadersCollector } from './markdown/micromark-collect-headers.js';
 import { encodeMarkdown } from './markdown/micromark-encode.js';
 import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';
+import { parseAstroMarkdown } from './markdown/parse-astro-markdown.js';
 import { transform } from './transform/index.js';
 import { codegen } from './codegen/index.js';
 
@@ -48,6 +49,30 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
 
   // 3. Turn AST into JSX
   return await codegen(ast, opts);
+}
+
+/**
+ * .md.astro -> .astro source
+ */
+export async function convertAstroMdToAstroSource(contents: string): Promise<string> {
+  const { data, content } = parseAstroMarkdown(contents);
+  const { headers, headersExtension } = createMarkdownHeadersCollector();
+  const { htmlAstro, mdAstro } = encodeAstroMdx();
+  const mdHtml = micromark(content, {
+    allowDangerousHtml: true,
+    extensions: [gfmSyntax(), ...htmlAstro],
+    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension, mdAstro],
+  });
+
+  console.log(`---
+  ${data}
+  ---
+  ${mdHtml}`)
+
+  return `---
+${data}
+---
+${mdHtml}`;
 }
 
 /**
@@ -91,6 +116,19 @@ export async function convertMdToAstroSource(contents: string): Promise<string> 
  * .md -> .jsx
  * Core function processing Markdown, but along the way also calls convertAstroToJsx().
  */
+async function convertAstroMdToJsx(
+  contents: string,
+  { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
+): Promise<TransformResult> {
+  const raw = await convertAstroMdToAstroSource(contents);
+  const convertOptions = { compileOptions, filename, fileID };
+  return await convertAstroToJsx(raw, convertOptions);
+}
+
+/**
+ * .md -> .jsx
+ * Core function processing Markdown, but along the way also calls convertAstroToJsx().
+ */
 async function convertMdToJsx(
   contents: string,
   { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
@@ -100,19 +138,22 @@ async function convertMdToJsx(
   return await convertAstroToJsx(raw, convertOptions);
 }
 
-type SupportedExtensions = '.astro' | '.md';
-
-/** Given a file, process it either as .astro or .md. */
+/** Given a file, process it either as .astro, .md, or .md.astro. */
 async function transformFromSource(
   contents: string,
   { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
 ): Promise<TransformResult> {
   const fileID = path.relative(projectRoot, filename);
-  switch (path.extname(filename) as SupportedExtensions) {
-    case '.astro':
+  switch (true) {
+    case filename.slice(-9) === '.md.astro':
+      return await convertAstroMdToJsx(contents, { compileOptions, filename, fileID });
+
+    case filename.slice(-6) === '.astro':
       return await convertAstroToJsx(contents, { compileOptions, filename, fileID });
-    case '.md':
+
+    case filename.slice(-3) === '.md':
       return await convertMdToJsx(contents, { compileOptions, filename, fileID });
+
     default:
       throw new Error('Not Supported!');
   }
