@@ -1,5 +1,5 @@
 /** @type {Partial<import('prettier').SupportLanguage>[]} */
-export const languages = [
+module.exports.languages = [
     {
         name: 'astro',
         parsers: ['astro'],
@@ -9,9 +9,9 @@ export const languages = [
 ];
 
 /** @type {Record<string, import('prettier').Parser>} */
-export const parsers = {
+module.exports.parsers = {
     astro: {
-        parse: (text) => {
+        parse: (text, parsers) => {
 
         },
         locEnd(node) {
@@ -25,7 +25,7 @@ export const parsers = {
 };
 
 /** @type {Record<string, import('prettier').Printer>} */
-export const printers = {
+module.exports.printers = {
     'astro-ast': {
         print() {
             /** @type {any} */
@@ -34,4 +34,3 @@ export const printers = {
         }
     },
 };
-
