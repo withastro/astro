@@ -1,0 +1,9 @@
+{
+  "name": "prettier-plugin-astro",
+  "version": "0.0.1",
+  "main": "index.mjs",
+  "private": true,
+  "devDependencies": {
+    "prettier": "^2.2.1"
+  }
+}
