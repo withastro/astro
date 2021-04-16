@@ -43,6 +43,16 @@
 					"Astro"
 				],
 				"configuration": "./languages/astro-language-configuration.json"
+			},
+			{
+				"id": "astro-markdown",
+				"extensions": [
+					".md.astro"
+				],
+				"aliases": [
+					"Astro Markdown"
+				],
+				"configuration": "./languages/astro-language-configuration.json"
 			}
 		],
 		"grammars": [
@@ -50,6 +60,19 @@
 				"language": "astro",
 				"scopeName": "text.html.astro",
 				"path": "./syntaxes/astro.tmLanguage.json",
+				"embeddedLanguages": {
+					"text.html.astro": "astro",
+					"text.html": "html",
+					"source.css": "css",
+					"source.scss": "scss",
+					"source.sass": "sass",
+					"source.tsx": "typescriptreact"
+				}
+			},
+			{
+				"language": "astro-markdown",
+				"scopeName": "text.html.markdown.astro",
+				"path": "./syntaxes/astro-markdown.tmLanguage.json",
 				"embeddedLanguages": {
 					"text.html.astro": "astro",
 					"text.html": "html",

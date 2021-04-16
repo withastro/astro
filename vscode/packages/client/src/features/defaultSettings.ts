@@ -19,7 +19,7 @@ export async function activate() {
     if (emmetIncludeLanguages && emmetIncludeLanguages['astro']) {
       return;
     }
-    setEmmetIncludeLanguages({ ...emmetIncludeLanguages, astro: 'html' });
+    setEmmetIncludeLanguages({ ...emmetIncludeLanguages, astro: 'html', 'astro-markdown': 'md' });
   }
   function getEmmetIncludeLanguages() {
     return vscode.workspace.getConfiguration('emmet').get<Record<string, string>>('includeLanguages');
