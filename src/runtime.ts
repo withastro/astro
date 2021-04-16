@@ -230,7 +230,7 @@ interface RuntimeOptions {
 }
 
 /** Create a new Snowpack instance to power Astro */
-async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>) {
+async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>, mode: RuntimeMode) {
   const { projectRoot, astroRoot, extensions } = astroConfig;
 
   const internalPath = new URL('./frontend/', import.meta.url);
@@ -258,6 +258,7 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
     mount: mountOptions,
+    mode: mode,
     plugins: [
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
       require.resolve('@snowpack/plugin-sass'),
@@ -274,7 +275,7 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
     },
     packageOptions: {
       knownEntrypoints: ['preact-render-to-string'],
-      external: ['@vue/server-renderer', 'node-fetch', 'prismjs/components/'],
+      external: ['@vue/server-renderer', 'node-fetch', 'prismjs/components/index.js'],
     },
   });
 
@@ -294,11 +295,11 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
 export async function createRuntime(astroConfig: AstroConfig, { mode, logging }: RuntimeOptions): Promise<AstroRuntime> {
   const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(astroConfig, {
     astro: true,
-  });
+  }, mode);
 
   const { snowpack: frontendSnowpack, snowpackRuntime: frontendSnowpackRuntime, snowpackConfig: frontendSnowpackConfig } = await createSnowpack(astroConfig, {
     astro: false,
-  });
+  }, mode);
 
   const runtimeConfig: RuntimeConfig = {
     astroConfig,

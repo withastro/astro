@@ -5,7 +5,6 @@ import { createRuntime } from '../lib/runtime.js';
 import { loadConfig } from '../lib/config.js';
 import { promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
-import { doc } from './test-utils.js';
 
 const { readdir, stat } = fsPromises;
 
