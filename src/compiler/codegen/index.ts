@@ -258,21 +258,21 @@ function compileExpressionSafe(raw: string): string {
 }
 
 /** Build dependency map of dynamic component runtime frameworks */
-async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolve: (s: string) => Promise<string>): Promise<DynamicImportMap> {
+async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolvePackageUrl: (s: string) => Promise<string>): Promise<DynamicImportMap> {
   const importMap: DynamicImportMap = new Map();
   for (let plugin of plugins) {
     switch (plugin) {
       case 'vue': {
-        importMap.set('vue', await resolve('vue'));
+        importMap.set('vue', await resolvePackageUrl('vue'));
         break;
       }
       case 'react': {
-        importMap.set('react', await resolve('react'));
-        importMap.set('react-dom', await resolve('react-dom'));
+        importMap.set('react', await resolvePackageUrl('react'));
+        importMap.set('react-dom', await resolvePackageUrl('react-dom'));
         break;
       }
       case 'preact': {
-        importMap.set('preact', await resolve('preact'));
+        importMap.set('preact', await resolvePackageUrl('preact'));
         break;
       }
     }
@@ -643,7 +643,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
   };
 
   const { script, componentPlugins, createCollection } = compileModule(ast.module, state, compileOptions);
-  state.dynamicImports = await acquireDynamicComponentImports(componentPlugins, compileOptions.resolve);
+  state.dynamicImports = await acquireDynamicComponentImports(componentPlugins, compileOptions.resolvePackageUrl);
 
   compileCss(ast.css, state);
 

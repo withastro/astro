@@ -155,11 +155,11 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
   const { runtimeConfig } = runtime;
   const { backendSnowpack: snowpack } = runtimeConfig;
-  const resolve = (pkgName: string) => snowpack.getUrlForPackage(pkgName);
+  const resolvePackageUrl = (pkgName: string) => snowpack.getUrlForPackage(pkgName);
 
   const imports = new Set<string>();
   const statics = new Set<string>();
-  const collectImportsOptions = { astroConfig, logging, resolve, mode };
+  const collectImportsOptions = { astroConfig, logging, resolvePackageUrl, mode };
 
   const pages = await allPages(pageRoot);
 
