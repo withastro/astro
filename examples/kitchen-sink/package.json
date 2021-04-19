@@ -6,7 +6,6 @@
     "start": "nodemon -w ../../lib -x 'astro dev .'",
     "build": "astro build"
   },
-  "dependencies": {},
   "devDependencies": {
     "astro": "file:../../",
     "nodemon": "^2.0.7"

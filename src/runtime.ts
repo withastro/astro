@@ -230,20 +230,27 @@ interface RuntimeOptions {
 }
 
 /** Create a new Snowpack instance to power Astro */
-async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>, mode: RuntimeMode) {
+interface CreateSnowpackOptions {
+  env: Record<string, any>;
+  mode: RuntimeMode;
+  resolvePackageUrl?: (pkgName: string) => Promise<string>;
+}
+
+async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
   const { projectRoot, astroRoot, extensions } = astroConfig;
+  const { env, mode, resolvePackageUrl } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
 
   let snowpack: SnowpackDevServer;
   const astroPlugOptions: {
-    resolve?: (s: string) => Promise<string>;
+    resolvePackageUrl?: (s: string) => Promise<string>;
     extensions?: Record<string, string>;
     astroConfig: AstroConfig;
   } = {
     astroConfig,
     extensions,
-    resolve: async (pkgName: string) => snowpack.getUrlForPackage(pkgName),
+    resolvePackageUrl,
   };
 
   const mountOptions = {
@@ -258,7 +265,7 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
     mount: mountOptions,
-    mode: mode,
+    mode,
     plugins: [
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
       require.resolve('@snowpack/plugin-sass'),
@@ -293,20 +300,27 @@ async function createSnowpack(astroConfig: AstroConfig, env: Record<string, any>
 
 /** Core Astro runtime */
 export async function createRuntime(astroConfig: AstroConfig, { mode, logging }: RuntimeOptions): Promise<AstroRuntime> {
+  const resolvePackageUrl = async (pkgName: string) => frontendSnowpack.getUrlForPackage(pkgName);
+
   const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(
     astroConfig,
     {
-      astro: true,
-    },
-    mode
+      env: {
+        astro: true
+      },
+      mode,
+      resolvePackageUrl
+    }
   );
 
   const { snowpack: frontendSnowpack, snowpackRuntime: frontendSnowpackRuntime, snowpackConfig: frontendSnowpackConfig } = await createSnowpack(
     astroConfig,
     {
-      astro: false,
-    },
-    mode
+      env: {
+        astro: false
+      },
+      mode
+    }
   );
 
   const runtimeConfig: RuntimeConfig = {

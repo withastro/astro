@@ -23,21 +23,21 @@ const { readFile } = fsPromises;
 type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact', string>;
 
 /** Add framework runtimes when needed */
-async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolve: (s: string) => Promise<string>): Promise<DynamicImportMap> {
+async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolvePackageUrl: (s: string) => Promise<string>): Promise<DynamicImportMap> {
   const importMap: DynamicImportMap = new Map();
   for (let plugin of plugins) {
     switch (plugin) {
       case 'vue': {
-        importMap.set('vue', await resolve('vue'));
+        importMap.set('vue', await resolvePackageUrl('vue'));
         break;
       }
       case 'react': {
-        importMap.set('react', await resolve('react'));
-        importMap.set('react-dom', await resolve('react-dom'));
+        importMap.set('react', await resolvePackageUrl('react'));
+        importMap.set('react-dom', await resolvePackageUrl('react-dom'));
         break;
       }
       case 'preact': {
-        importMap.set('preact', await resolve('preact'));
+        importMap.set('preact', await resolvePackageUrl('preact'));
         break;
       }
     }
@@ -64,13 +64,13 @@ const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
 
 interface CollectDynamic {
   astroConfig: AstroConfig;
-  resolve: (s: string) => Promise<string>;
+  resolvePackageUrl: (s: string) => Promise<string>;
   logging: LogOptions;
   mode: RuntimeMode;
 }
 
 /** Gather necessary framework runtimes for dynamic components */
-export async function collectDynamicImports(filename: URL, { astroConfig, logging, resolve, mode }: CollectDynamic) {
+export async function collectDynamicImports(filename: URL, { astroConfig, logging, resolvePackageUrl, mode }: CollectDynamic) {
   const imports = new Set<string>();
 
   // Only astro files
@@ -98,7 +98,7 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
     fileID: '',
     compileOptions: {
       astroConfig,
-      resolve,
+      resolvePackageUrl,
       logging,
       mode,
     },
@@ -135,7 +135,7 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
     };
   }
 
-  const dynamic = await acquireDynamicComponentImports(plugins, resolve);
+  const dynamic = await acquireDynamicComponentImports(plugins, resolvePackageUrl);
 
   /** Add dynamic component runtimes to imports */
   function appendImports(rawName: string, importUrl: URL) {
