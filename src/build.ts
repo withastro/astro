@@ -181,6 +181,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     );
   } catch (err) {
     error(logging, 'generate', err);
+    await runtime.shutdown();
     return 1;
   }
 
@@ -189,7 +190,13 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   }
 
   if (imports.size > 0) {
-    await bundle(imports, { dist, runtime, astroConfig });
+    try {
+      await bundle(imports, { dist, runtime, astroConfig });
+    } catch(err) {
+      error(logging, 'generate', err);
+      await runtime.shutdown();
+      return 1;
+    }
   }
 
   for (let url of statics) {
