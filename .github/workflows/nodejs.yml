@@ -24,6 +24,11 @@ jobs:
 
           npm ci
           npm run build
+          
+          cd examples/kitchen-sink
+          npm ci
+          npm run build
+          cd ../..
           npm test
         env:
           CI: true
