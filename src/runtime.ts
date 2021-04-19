@@ -302,26 +302,20 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 export async function createRuntime(astroConfig: AstroConfig, { mode, logging }: RuntimeOptions): Promise<AstroRuntime> {
   const resolvePackageUrl = async (pkgName: string) => frontendSnowpack.getUrlForPackage(pkgName);
 
-  const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(
-    astroConfig,
-    {
-      env: {
-        astro: true
-      },
-      mode,
-      resolvePackageUrl
-    }
-  );
+  const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(astroConfig, {
+    env: {
+      astro: true,
+    },
+    mode,
+    resolvePackageUrl,
+  });
 
-  const { snowpack: frontendSnowpack, snowpackRuntime: frontendSnowpackRuntime, snowpackConfig: frontendSnowpackConfig } = await createSnowpack(
-    astroConfig,
-    {
-      env: {
-        astro: false
-      },
-      mode
-    }
-  );
+  const { snowpack: frontendSnowpack, snowpackRuntime: frontendSnowpackRuntime, snowpackConfig: frontendSnowpackConfig } = await createSnowpack(astroConfig, {
+    env: {
+      astro: false,
+    },
+    mode,
+  });
 
   const runtimeConfig: RuntimeConfig = {
     astroConfig,

@@ -15,14 +15,14 @@ DynamicComponents('Loads client-only packages', async ({ runtime }) => {
   // Grab the react-dom import
   const exp = /import\("(.+?)"\)/g;
   let match, reactDomURL;
-  while(match = exp.exec(result.contents)) {
-    if(match[1].includes('react-dom')) {
+  while ((match = exp.exec(result.contents))) {
+    if (match[1].includes('react-dom')) {
       reactDomURL = match[1];
     }
   }
 
   assert.ok(reactDomURL, 'React dom is on the page');
-  
+
   result = await runtime.load(reactDomURL);
   assert.equal(result.statusCode, 200, 'Can load react-dom');
 });
