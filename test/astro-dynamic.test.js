@@ -32,7 +32,7 @@ DynamicComponents('Can be built', async ({ build }) => {
   try {
     await build();
     assert.ok(true, 'Can build a project with svelte dynamic components');
-  } catch(err) {
+  } catch (err) {
     console.log(err);
     assert.ok(false, 'build threw');
   }

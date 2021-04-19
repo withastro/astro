@@ -192,7 +192,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   if (imports.size > 0) {
     try {
       await bundle(imports, { dist, runtime, astroConfig });
-    } catch(err) {
+    } catch (err) {
       error(logging, 'generate', err);
       await runtime.shutdown();
       return 1;
