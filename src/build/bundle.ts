@@ -173,6 +173,10 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
         rel = rel.replace(/\.[^.]+$/, '.vue.js');
         break;
       }
+      case 'svelte': {
+        rel = rel.replace(/\.[^.]+$/, '.svelte.js');
+        break;
+      }
     }
 
     imports.add(`/_astro/${rel}`);

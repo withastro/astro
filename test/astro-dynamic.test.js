@@ -1,11 +1,12 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import { setup, setupBuild } from './helpers.js';
 
 const DynamicComponents = suite('Dynamic components tests');
 
 setup(DynamicComponents, './fixtures/astro-dynamic');
+setupBuild(DynamicComponents, './fixtures/astro-dynamic');
 
 DynamicComponents('Loads client-only packages', async ({ runtime }) => {
   let result = await runtime.load('/');
@@ -25,6 +26,16 @@ DynamicComponents('Loads client-only packages', async ({ runtime }) => {
 
   result = await runtime.load(reactDomURL);
   assert.equal(result.statusCode, 200, 'Can load react-dom');
+});
+
+DynamicComponents('Can be built', async ({ build }) => {
+  try {
+    await build();
+    assert.ok(true, 'Can build a project with svelte dynamic components');
+  } catch(err) {
+    console.log(err);
+    assert.ok(false, 'build threw');
+  }
 });
 
 DynamicComponents.run();
