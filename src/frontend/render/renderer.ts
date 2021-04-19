@@ -55,7 +55,7 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
     idle: createDynamicRender('requestIdleCallback(async () => {', '})'),
     visible: createDynamicRender(
       'const o = new IntersectionObserver(async ([entry]) => { if (!entry.isIntersecting) { return; } o.disconnect();',
-      ({ root }) => `}); Array.from(${root}.item(0).children).forEach(child => o.observe(child))`
+      ({ root }) => `}); Array.from(${root}.children).forEach(child => o.observe(child))`
     ),
   };
 }
