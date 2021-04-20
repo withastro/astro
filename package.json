@@ -23,7 +23,7 @@
   "scripts": {
     "build": "npm run build:core && npm run build:parser",
     "build:core": "tsc",
-    "build:parser": "tsc src/parser/*.ts --module CommonJS --outDir parser --declaration && echo '{ \"type\": \"commonjs\" }' > parser/package.json",
+    "build:parser": "tsc 'src/parser/*.ts' --module CommonJS --outDir parser --declaration && echo '{ \"type\": \"commonjs\" }' > parser/package.json",
     "dev": "tsc --watch",
     "lint": "eslint 'src/**/*.{js,ts}'",
     "format": "prettier -w '{src,test}/**/*.{js,ts}'",
