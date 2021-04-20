@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: [14.x, 15.x]
+        node-version: [14.x, 16.x]
 
     steps:
       - uses: actions/checkout@v1
@@ -24,7 +24,7 @@ jobs:
 
           npm ci
           npm run build
-          
+
           cd examples/kitchen-sink
           npm ci
           npm run build
