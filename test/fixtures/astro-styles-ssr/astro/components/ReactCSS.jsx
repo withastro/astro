@@ -4,7 +4,7 @@ import './ReactCSS.css';
 function ReactCSS() {
   return (
     <h1 id="react-css" className="react-title">
-      React CSS
+      React Global CSS
     </h1>
   );
 }
