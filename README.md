@@ -82,38 +82,81 @@ _Are we missing your favorite state management library? Add it to the list above
 
 ### 💅 Styling
 
-If you’ve used [Svelte][svelte]’s styles before, Astro works almost the same way. In any `.astro` file, start writing styles in a `<style>` tag like so:
+Styling in Astro is meant to be as flexible as you’d like it to be! The following options are all supported:
+
+| Framework        | Global CSS | Scoped CSS | CSS Modules |
+| :--------------- | :--------: | :--------: | :---------: |
+| Astro (`.astro`) |     ✅     |     ✅     |    N/A¹     |
+| React / Preact   |     ✅     |     ❌     |     ✅      |
+| Vue              |     ✅     |     ✅     |     ✅      |
+| Svelte           |     ✅     |     ✅     |     ❌      |
+
+¹ _`.astro` files have no runtime, therefore Scoped CSS takes the place of CSS Modules (styles are still scoped to components, but don’t need dynamic values)_
+
+#### 🖍 Styling by Framework
+
+##### Astro
+
+Styling in an Astro component is done by adding a `<style>` tag anywhere. By default, all styles are **scoped**, meaning they only apply to the current component. To create global styles, add a `:global()` wrapper around a selector (the same as if you were using [CSS Modules][css-modules]).
 
 ```html
+<!-- astro/components/MyComponent.astro -->
+
 <style>
+  /* Scoped class selector within the component */
   .scoped {
     font-weight: bold;
   }
-</style>
 
-<div class="scoped">I’m a scoped style</div>
-```
+  /* Scoped element selector within the component */
+  h1 {
+    color: red;
+  }
 
-#### 👓 Sass
-
-Astro also supports [Sass][sass] out-of-the-box; no configuration needed:
-
-```html
-<style lang="scss">
-  @use "../tokens" as *;
-
-  .title {
-    color: $color.gray;
+  /* Global style */
+  :global(h1) {
+    font-size: 32px;
   }
 </style>
 
-<h1 class="title">Title</h1>
+<div class="scoped">I’m a scoped style and only apply to this component</div>
+<h1>I have both scoped and global styles</h1>
 ```
 
-Supports:
+**Tips**
 
-- `lang="scss"`: load as the `.scss` extension
-- `lang="sass"`: load as the `.sass` extension (no brackets; indent-style)
+- `<style>` tags within `.astro` files will be extracted and optimized for you on build. So you can write CSS without worrying too much about delivery.
+- For best result, only have one `<style>` tag per-Astro component. This isn’t necessarily a limitation, but it may result in better optimization at buildtime.
+- If you want to import third-party libraries into an Astro component, you can use [Sass][sass]! In particular, [@use][sass-use] may come in handy (e.g. `@use "bootstrap/scss/bootstrap"`);
+
+#### React / Preact
+
+`.jsx` files support both global CSS and CSS Modules. To enable the latter, use the `.module.css` extension (or `.module.scss`/`.module.sass` if using Sass).
+
+```js
+import './global.css'; // include global CSS
+import Styles from './styles.module.css'; // Use CSS Modules (must end in `.module.css`, `.module.scss`, or `.module.sass`!)
+```
+
+##### Vue
+
+Vue in Astro supports the same methods as `vue-loader` does:
+
+- [Scoped CSS][vue-scoped]
+- [CSS Modules][vue-css-modules]
+
+##### Svelte
+
+Svelte in Astro also works exactly as expected: [Svelte Styling Docs][svelte-style].
+
+#### 👓 Sass
+
+Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
+
+- **Astro**: `<style lang="scss">` or `<style lang="sass">`
+- **React** / **Preact**: `import Styles from './styles.module.scss'`;
+- **Vue**: `<style lang="scss">` or `<style lang="sass">`
+- **Svelte**: `<style lang="scss">` or `<style lang="sass">`
 
 #### 🦊 Autoprefixer
 
@@ -394,11 +437,16 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 [autoprefixer]: https://github.com/postcss/autoprefixer
 [browserslist]: https://github.com/browserslist/browserslist
 [collections]: #-collections-beta
+[css-modules]: https://github.com/css-modules/css-modules
 [config]: #%EF%B8%8F-configuration
 [fetch-content]: #fetchContent--
 [intersection-observer]: https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
 [request-idle-cb]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
 [sass]: https://sass-lang.com/
+[sass-use]: https://sass-lang.com/documentation/at-rules/use
 [svelte]: https://svelte.dev
+[svelte-style]: https://svelte.dev/docs#style
 [tailwind]: https://tailwindcss.com
 [tailwind-utilities]: https://tailwindcss.com/docs/adding-new-utilities#using-css
+[vue-css-modules]: https://vue-loader.vuejs.org/guide/css-modules.html
+[vue-scoped]: https://vue-loader.vuejs.org/guide/scoped-css.html
