@@ -229,13 +229,13 @@ interface RuntimeOptions {
   logging: LogOptions;
 }
 
-/** Create a new Snowpack instance to power Astro */
 interface CreateSnowpackOptions {
   env: Record<string, any>;
   mode: RuntimeMode;
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
 }
 
+/** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
   const { projectRoot, astroRoot, extensions } = astroConfig;
   const { env, mode, resolvePackageUrl } = options;
