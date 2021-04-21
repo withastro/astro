@@ -21,6 +21,8 @@ interface CLIState {
   cmd: cliCommand;
   options: {
     sitemap?: boolean;
+    port?: number;
+    config?: string;
   };
 }
 
@@ -28,6 +30,8 @@ interface CLIState {
 function resolveArgs(flags: Arguments): CLIState {
   const options: CLIState['options'] = {
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
+    port: typeof flags.port === 'number' ? flags.port : undefined,
+    config: typeof flags.config === 'string' ? flags.config : undefined
   };
 
   if (flags.version) {
@@ -56,6 +60,7 @@ function printHelp() {
   astro build       Build a pre-compiled production version of your site.
 
   ${colors.bold('Flags:')}
+  --config <path>   Specify the path to the Astro config file.
   --version         Show the version number and exit.
   --help            Show this help message.
   --no-sitemap      Disable sitemap generation (build only).
@@ -70,14 +75,17 @@ async function printVersion() {
 
 /** Merge CLI flags & config options (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
-  if (typeof flags.sitemap === 'boolean') astroConfig.sitemap = flags.sitemap;
+  if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
+  if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
 }
 
 /** Handle `astro run` command */
 async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void>, options: CLIState['options']) {
   try {
-    const astroConfig = await loadConfig(rawRoot);
+    const projectRoot = options.config || rawRoot;
+    const astroConfig = await loadConfig(projectRoot);
     mergeCLIFlags(astroConfig, options);
+
     return cmd(astroConfig);
   } catch (err) {
     console.error(colors.red(err.toString() || err));

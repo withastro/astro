@@ -34,6 +34,8 @@ function configDefaults(userConfig?: any): any {
   if (!config.astroRoot) config.astroRoot = './astro';
   if (!config.dist) config.dist = './_site';
   if (!config.public) config.public = './public';
+  if (!config.devOptions) config.devOptions = {};
+  if (!config.devOptions.port) config.devOptions.port = 3000;
 
   if (typeof config.sitemap === 'undefined') config.sitemap = true;
 
@@ -53,13 +55,13 @@ function normalizeConfig(userConfig: any, root: string): AstroConfig {
 }
 
 /** Attempt to load an `astro.config.mjs` file */
-export async function loadConfig(rawRoot: string | undefined): Promise<AstroConfig> {
+export async function loadConfig(rawRoot: string | undefined, configFileName = 'astro.config.mjs'): Promise<AstroConfig> {
   if (typeof rawRoot === 'undefined') {
     rawRoot = process.cwd();
   }
 
   const root = pathResolve(rawRoot);
-  const astroConfigPath = pathJoin(root, 'astro.config.mjs');
+  const astroConfigPath = pathJoin(root, configFileName);
 
   // load
   let config: any;

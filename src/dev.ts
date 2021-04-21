@@ -8,7 +8,7 @@ import { defaultLogDestination, error, parseError } from './logger.js';
 import { createRuntime } from './runtime.js';
 
 const hostname = '127.0.0.1';
-const port = 3000;
+const DEFAULT_PORT = 3000;
 
 // Disable snowpack from writing to stdout/err.
 snowpackLogger.level = 'silent';
@@ -65,6 +65,7 @@ export default async function dev(astroConfig: AstroConfig) {
     }
   });
 
+  const port = astroConfig.devOptions?.port || DEFAULT_PORT;
   server.listen(port, hostname, () => {
     // eslint-disable-next-line no-console
     console.log(`Server running at http://${hostname}:${port}/`);

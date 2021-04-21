@@ -8,6 +8,14 @@ export interface AstroConfigRaw {
 
 export type ValidExtensionPlugins = 'astro' | 'react' | 'preact' | 'svelte' | 'vue';
 
+export interface DevOptions {
+  port?: number;
+}
+
+export interface BuildOptions {
+  sitemap: boolean;
+}
+
 export interface AstroConfig {
   dist: string;
   projectRoot: URL;
@@ -17,7 +25,13 @@ export interface AstroConfig {
   /** Public URL base (e.g. 'https://mysite.com'). Used in generating sitemaps and canonical URLs. */
   site?: string;
   /** Generate a sitemap? */
-  sitemap: boolean;
+  buildOptions: BuildOptions;
+  devOptions: DevOptions;
+}
+
+export type AstroUserConfig = Omit<AstroConfig, 'buildOptions' | 'devOptions'> & {
+  buildOptions?: BuildOptions;
+  devOptions?: DevOptions;
 }
 
 export interface JsxItem {
