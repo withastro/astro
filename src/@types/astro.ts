@@ -10,6 +10,7 @@ export type ValidExtensionPlugins = 'astro' | 'react' | 'preact' | 'svelte' | 'v
 
 export interface DevOptions {
   port?: number;
+  projectRoot?: string;
 }
 
 export interface BuildOptions {

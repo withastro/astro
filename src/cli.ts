@@ -20,6 +20,7 @@ type cliCommand = 'help' | 'version' | 'dev' | 'build';
 interface CLIState {
   cmd: cliCommand;
   options: {
+    projectRoot?: string;
     sitemap?: boolean;
     port?: number;
     config?: string;
@@ -29,6 +30,7 @@ interface CLIState {
 /** Determine which action the user requested */
 function resolveArgs(flags: Arguments): CLIState {
   const options: CLIState['options'] = {
+    projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot: undefined,
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined
@@ -56,14 +58,15 @@ function printHelp() {
   console.error(`  ${colors.bold('astro')} - Futuristic web development tool.
 
   ${colors.bold('Commands:')}
-  astro dev         Run Astro in development mode.
-  astro build       Build a pre-compiled production version of your site.
+  astro dev             Run Astro in development mode.
+  astro build           Build a pre-compiled production version of your site.
 
   ${colors.bold('Flags:')}
-  --config <path>   Specify the path to the Astro config file.
-  --version         Show the version number and exit.
-  --help            Show this help message.
+  --config <path>       Specify the path to the Astro config file.
+  --project-root <path> Specify the path to the project root folder.
   --no-sitemap      Disable sitemap generation (build only).
+  --version             Show the version number and exit.
+  --help                Show this help message.
 `);
 }
 
@@ -82,8 +85,8 @@ function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
 /** Handle `astro run` command */
 async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void>, options: CLIState['options']) {
   try {
-    const projectRoot = options.config || rawRoot;
-    const astroConfig = await loadConfig(projectRoot);
+    const projectRoot = options.projectRoot || rawRoot;
+    const astroConfig = await loadConfig(projectRoot, options.config);
     mergeCLIFlags(astroConfig, options);
 
     return cmd(astroConfig);
