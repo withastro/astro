@@ -52,6 +52,8 @@ export default {
   },
   /** Your public domain, e.g.: https://my-site.dev/ */
   site: '',
+  /** Generate sitemap (set to "false" to disable) */
+  sitemap: true,
 };
 ```
 
@@ -152,6 +154,16 @@ const remoteData = await fetch('https://api.mysite.com/v1/people').then((res) =>
 // Example 2: load local markdown files
 const localData = Astro.fetchContent('../post/*.md');
 ---
+```
+
+### 🗺️ Sitemap
+
+Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set the `site` URL in your [Astro config][config] so the URLs can be generated properly.
+
+⚠️ Note that Astro won’t inject this into your HTML for you! You’ll have to add the tag yourself in your `<head>` on all pages that need it:
+
+```html
+<link rel="sitemap" href="/sitemap.xml" />
 ```
 
 ##### Examples
