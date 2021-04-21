@@ -16,10 +16,11 @@
 		"vscode": "^1.52.0"
 	},
 	"activationEvents": [
-		"*"
+		"onLanguage:astro"
 	],
 	"dependencies": {
-		"vscode-html-languageservice": "^3.0.3"
+		"vscode-html-languageservice": "^3.0.3",
+		"vscode-emmet-helper": "2.1.2"
 	},
 	"devDependencies": {
 		"esbuild": "0.10.0",
@@ -33,6 +34,23 @@
 		"syntaxes/"
 	],
 	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Astro configuration",
+			"properties": {
+				"astro.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the language server."
+				}
+			}
+		},
 		"languages": [
 			{
 				"id": "astro",

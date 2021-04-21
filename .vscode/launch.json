@@ -5,18 +5,32 @@
 		{
 			"type": "extensionHost",
 			"request": "launch",
-			"name": "Launch Extension",
+			"name": "Launch Client",
 			"runtimeExecutable": "${execPath}",
 			"args": [
 				"--extensionDevelopmentPath=${workspaceRoot}/vscode"
 			],
 			"outFiles": [
-				"${workspaceRoot}/vscode/packages/client/out/**/*.js"
+				"${workspaceRoot}/vscode/dist/**/*.js"
 			],
 			"preLaunchTask": {
 				"type": "npm",
-				"script": "watch:extension"
+				"script": "build:extension"
 			}
 		},
+		{
+			"type": "node",
+			"request": "attach",
+			"name": "Attach to Server",
+			"port": 6040,
+			"restart": true,
+			"outFiles": ["${workspaceRoot}/vscode/dist/**/*.js"]
+		},
+	],
+	"compounds": [
+		{
+			"name": "Launch Extension",
+			"configurations": ["Launch Client", "Attach to Server"]
+		}
 	]
 }
