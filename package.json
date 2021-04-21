@@ -7,6 +7,7 @@
   "exports": {
     ".": "./astro.mjs",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
+    "./parser": "./parser.cjs",
     "./components/*.astro": "./components/*.astro"
   },
   "bin": {
@@ -20,7 +21,10 @@
     "astro.mjs"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "npm run build:core && npm run build:parser",
+    "build:core": "tsc -p tsconfig.json",
+    "build:parser": "tsc -p tsconfig.parser.json",
+    "postbuild:parser": "echo '{ \"type\": \"commonjs\" }' > parser/package.json",
     "dev": "tsc --watch",
     "lint": "eslint 'src/**/*.{js,ts}'",
     "format": "prettier -w '{src,test}/**/*.{js,ts}'",
@@ -99,7 +103,7 @@
     "uvu": "^0.5.1"
   },
   "engines": {
-    "node": "~14.0.0",
-    "npm": ">=6.14.0 <7.0.0"
+    "node": ">=14.0.0",
+    "npm": ">=6.14.0"
   }
 }

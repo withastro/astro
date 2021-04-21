@@ -1,7 +1,8 @@
 import { fileURLToPath } from 'url';
 import { build as astroBuild } from '../lib/build.js';
-import { loadConfig } from '../lib/config.js';
+import { readFile } from 'fs/promises';
 import { createRuntime } from '../lib/runtime.js';
+import { loadConfig } from '../lib/config.js';
 import * as assert from 'uvu/assert';
 /** setup fixtures for tests */
 export function setup(Suite, fixturePath) {
@@ -23,6 +24,10 @@ export function setup(Suite, fixturePath) {
     }
 
     context.runtime = runtime;
+    context.readFile = async (path) => {
+      const resolved = fileURLToPath(new URL(`${fixturePath}${path}`, import.meta.url));
+      return readFile(resolved).then(r => r.toString('utf-8'));
+    }
   });
 
   Suite.after(async () => {

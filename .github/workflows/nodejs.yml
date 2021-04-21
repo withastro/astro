@@ -24,8 +24,11 @@ jobs:
 
           npm ci
           npm run build
+
+          cd prettier-plugin-astro
+          npm ci
           
-          cd examples/kitchen-sink
+          cd ../examples/kitchen-sink
           npm ci
           npm run build
           cd ../..
