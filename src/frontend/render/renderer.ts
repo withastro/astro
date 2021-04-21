@@ -31,7 +31,7 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
       } catch (e) {
         value = '';
       }
-      value = `<div data-astro-id="${innerContext['data-astro-id']}">${value}</div>`;
+      value = `<div data-astro-id="${innerContext['data-astro-id']}" style="dislplay: contents">${value}</div>`;
 
       const script = `
         ${typeof wrapperStart === 'function' ? wrapperStart(innerContext) : wrapperStart}
@@ -55,7 +55,7 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
     idle: createDynamicRender('requestIdleCallback(async () => {', '})'),
     visible: createDynamicRender(
       'const o = new IntersectionObserver(async ([entry]) => { if (!entry.isIntersecting) { return; } o.disconnect();',
-      ({ root }) => `}); Array.from(${root}.item(0).children).forEach(child => o.observe(child))`
+      ({ root }) => `}); Array.from(${root}.children).forEach(child => o.observe(child))`
     ),
   };
 }
