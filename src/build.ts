@@ -106,6 +106,7 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, statics
       [...result.collectionInfo.additionalURLs].map(async (url) => {
         // for the top set of additional URLs, we render every new URL generated
         const addlResult = await loadCollection(url);
+        builtURLs.add(url);
         if (addlResult && addlResult.collectionInfo) {
           // believe it or not, we may still have a few unbuilt pages left. this is our last crawl:
           await Promise.all([...addlResult.collectionInfo.additionalURLs].map(async (url2) => loadCollection(url2)));
@@ -115,7 +116,7 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, statics
   }
 
   return {
-    canonicalURLs: [...builtURLs], // note: canonical URLs are controlled by the collection, so these are canonical
+    canonicalURLs: [...builtURLs].filter((url) => !url.endsWith('/1')), // note: canonical URLs are controlled by the collection, so these are canonical (but exclude "/1" pages as those are duplicates of the index)
     statusCode: result.statusCode,
   };
 }
@@ -142,7 +143,7 @@ async function buildStaticPage({ astroRoot, dist, filepath, runtime, statics }: 
     // get Canonical URL (if user has specified one manually, use that)
     const $ = cheerio.load(result.contents);
     const canonicalTag = $('link[rel="canonical"]');
-    canonicalURLs.push(canonicalTag.attr('href') || pagePath);
+    canonicalURLs.push(canonicalTag.attr('href') || pagePath.replace(/index$/, ''));
   }
 
   return {
