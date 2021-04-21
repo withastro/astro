@@ -154,6 +154,10 @@ const localData = Astro.fetchContent('../post/*.md');
 ---
 ```
 
+### 🗺️ Sitemap
+
+Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set the `site` URL in your [Astro config][config] and it will handle the rest.
+
 ##### Examples
 
 - [Blog Example][example-blog]
