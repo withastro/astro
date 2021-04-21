@@ -12,9 +12,16 @@ function validateConfig(config: any): void {
   if (typeof config !== 'object') throw new Error(`[astro config] Expected object, received ${typeof config}`);
 
   // strings
-  for (const key of ['projectRoot', 'astroRoot', 'dist', 'public']) {
-    if (config[key] && typeof config[key] !== 'string') {
+  for (const key of ['projectRoot', 'astroRoot', 'dist', 'public', 'site']) {
+    if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'string') {
       throw new Error(`[astro config] ${key}: ${JSON.stringify(config[key])}\n  Expected string, received ${type(config[key])}.`);
+    }
+  }
+
+  // booleans
+  for (const key of ['sitemap']) {
+    if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'boolean') {
+      throw new Error(`[astro config] ${key}: ${JSON.stringify(config[key])}\n  Expected boolean, received ${type(config[key])}.`);
     }
   }
 }
@@ -27,6 +34,8 @@ function configDefaults(userConfig?: any): any {
   if (!config.astroRoot) config.astroRoot = './astro';
   if (!config.dist) config.dist = './_site';
   if (!config.public) config.public = './public';
+
+  if (typeof config.sitemap === 'undefined') config.sitemap = true;
 
   return config;
 }

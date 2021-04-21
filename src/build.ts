@@ -20,6 +20,7 @@ interface PageBuildOptions {
   dist: URL;
   filepath: URL;
   runtime: AstroRuntime;
+  sitemap: boolean;
   statics: Set<string>;
 }
 
@@ -122,7 +123,7 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, statics
 }
 
 /** Build static page */
-async function buildStaticPage({ astroRoot, dist, filepath, runtime, statics }: PageBuildOptions): Promise<PageResult> {
+async function buildStaticPage({ astroRoot, dist, filepath, runtime, sitemap, statics }: PageBuildOptions): Promise<PageResult> {
   const rel = path.relative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
   const pagePath = `/${rel.replace(/\.(astro|md)$/, '')}`;
   let canonicalURLs: string[] = [];
@@ -141,9 +142,11 @@ async function buildStaticPage({ astroRoot, dist, filepath, runtime, statics }: 
     mergeSet(statics, collectStatics(result.contents.toString('utf8')));
 
     // get Canonical URL (if user has specified one manually, use that)
-    const $ = cheerio.load(result.contents);
-    const canonicalTag = $('link[rel="canonical"]');
-    canonicalURLs.push(canonicalTag.attr('href') || pagePath.replace(/index$/, ''));
+    if (sitemap) {
+      const $ = cheerio.load(result.contents);
+      const canonicalTag = $('link[rel="canonical"]');
+      canonicalURLs.push(canonicalTag.attr('href') || pagePath.replace(/index$/, ''));
+    }
   }
 
   return {
@@ -183,7 +186,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
         const filepath = new URL(`file://${pathname}`);
 
         const pageType = getPageType(filepath);
-        const pageOptions: PageBuildOptions = { astroRoot, dist, filepath, runtime, statics };
+        const pageOptions: PageBuildOptions = { astroRoot, dist, filepath, runtime, sitemap: astroConfig.sitemap, statics };
         if (pageType === 'collection') {
           const { canonicalURLs } = await buildCollectionPage(pageOptions);
           builtURLs.push(...canonicalURLs);
@@ -236,7 +239,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   }
 
   // build sitemap
-  if (astroConfig.site) {
+  if (astroConfig.sitemap && astroConfig.site) {
     const sitemap = generateSitemap(
       builtURLs.map((url) => ({
         canonicalURL: new URL(
@@ -246,7 +249,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       }))
     );
     await writeFile(new URL('./sitemap.xml', dist), sitemap, 'utf8');
-  } else {
+  } else if (astroConfig.sitemap) {
     info(logging, 'tip', `Set your "site" in astro.config.mjs to generate a sitemap.xml`);
   }
 

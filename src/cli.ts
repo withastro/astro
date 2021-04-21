@@ -16,24 +16,34 @@ const buildAndExit = async (...args: Parameters<typeof build>) => {
 };
 
 type Arguments = yargs.Arguments;
-type cliState = 'help' | 'version' | 'dev' | 'build';
+type cliCommand = 'help' | 'version' | 'dev' | 'build';
+interface CLIState {
+  cmd: cliCommand;
+  options: {
+    sitemap?: boolean;
+  };
+}
 
 /** Determine which action the user requested */
-function resolveArgs(flags: Arguments): cliState {
+function resolveArgs(flags: Arguments): CLIState {
+  const options: CLIState['options'] = {
+    sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
+  };
+
   if (flags.version) {
-    return 'version';
+    return { cmd: 'version', options };
   } else if (flags.help) {
-    return 'help';
+    return { cmd: 'help', options };
   }
 
   const cmd = flags._[2];
   switch (cmd) {
     case 'dev':
-      return 'dev';
+      return { cmd: 'dev', options };
     case 'build':
-      return 'build';
+      return { cmd: 'build', options };
     default:
-      return 'help';
+      return { cmd: 'help', options };
   }
 }
 
@@ -48,6 +58,7 @@ function printHelp() {
   ${colors.bold('Flags:')}
   --version         Show the version number and exit.
   --help            Show this help message.
+  --no-sitemap      Disable sitemap generation (build only).
 `);
 }
 
@@ -57,10 +68,16 @@ async function printVersion() {
   console.error(pkg.version);
 }
 
+/** Merge CLI flags & config options (CLI flags take priority) */
+function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
+  if (typeof flags.sitemap === 'boolean') astroConfig.sitemap = flags.sitemap;
+}
+
 /** Handle `astro run` command */
-async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void>) {
+async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void>, options: CLIState['options']) {
   try {
     const astroConfig = await loadConfig(rawRoot);
+    mergeCLIFlags(astroConfig, options);
     return cmd(astroConfig);
   } catch (err) {
     console.error(colors.red(err.toString() || err));
@@ -78,7 +95,7 @@ export async function cli(args: string[]) {
   const flags = yargs(args);
   const state = resolveArgs(flags);
 
-  switch (state) {
+  switch (state.cmd) {
     case 'help': {
       printHelp();
       process.exit(1);
@@ -92,8 +109,8 @@ export async function cli(args: string[]) {
     case 'build':
     case 'dev': {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const cmd = cmdMap.get(state)!;
-      runCommand(flags._[3], cmd);
+      const cmd = cmdMap.get(state.cmd)!;
+      runCommand(flags._[3], cmd, state.options);
     }
   }
 }
