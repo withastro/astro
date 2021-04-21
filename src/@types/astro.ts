@@ -14,6 +14,8 @@ export interface AstroConfig {
   astroRoot: URL;
   public: URL;
   extensions?: Record<string, ValidExtensionPlugins>;
+  /** Public URL base (e.g. 'https://mysite.com'). Used in generating sitemaps and canonical URLs. */
+  site?: string;
 }
 
 export interface JsxItem {

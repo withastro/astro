@@ -3,15 +3,17 @@ import type { LogOptions } from './logger';
 import type { AstroRuntime, LoadResult } from './runtime';
 
 import { existsSync, promises as fsPromises } from 'fs';
-import { relative as pathRelative } from 'path';
+import path from 'path';
+import cheerio from 'cheerio';
 import { fileURLToPath } from 'url';
 import { fdir } from 'fdir';
-import { defaultLogDestination, error } from './logger.js';
+import { defaultLogDestination, error, info } from './logger.js';
 import { createRuntime } from './runtime.js';
 import { bundle, collectDynamicImports } from './build/bundle.js';
+import { generateSitemap } from './build/sitemap.js';
 import { collectStatics } from './build/static.js';
 
-const { mkdir, readdir, readFile, stat, writeFile } = fsPromises;
+const { mkdir, readFile, writeFile } = fsPromises;
 
 interface PageBuildOptions {
   astroRoot: URL;
@@ -22,6 +24,7 @@ interface PageBuildOptions {
 }
 
 interface PageResult {
+  canonicalURLs: string[];
   statusCode: number;
 }
 
@@ -49,14 +52,14 @@ function mergeSet(a: Set<string>, b: Set<string>) {
 }
 
 /** Utility for writing to file (async) */
-async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf-8' | null) {
+async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf8' | null) {
   const outFolder = new URL('./', outPath);
   await mkdir(outFolder, { recursive: true });
   await writeFile(outPath, bytes, encoding || 'binary');
 }
 
 /** Utility for writing a build result to disk */
-async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'utf-8') {
+async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'utf8') {
   if (result.statusCode === 500 || result.statusCode === 404) {
     error(logging, 'build', result.error || result.statusCode);
   } else if (result.statusCode !== 200) {
@@ -75,7 +78,7 @@ function getPageType(filepath: URL): 'collection' | 'static' {
 
 /** Build collection */
 async function buildCollectionPage({ astroRoot, dist, filepath, runtime, statics }: PageBuildOptions): Promise<PageResult> {
-  const rel = pathRelative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
+  const rel = path.relative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
   const pagePath = `/${rel.replace(/\$([^.]+)\.astro$/, '$1')}`;
   const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
 
@@ -86,8 +89,8 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, statics
     builtURLs.add(url);
     if (result.statusCode === 200) {
       const outPath = new URL('./' + url + '/index.html', dist);
-      await writeResult(result, outPath, 'utf-8');
-      mergeSet(statics, collectStatics(result.contents.toString('utf-8')));
+      await writeResult(result, outPath, 'utf8');
+      mergeSet(statics, collectStatics(result.contents.toString('utf8')));
     }
     return result;
   }
@@ -112,14 +115,16 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, statics
   }
 
   return {
+    canonicalURLs: [...builtURLs], // note: canonical URLs are controlled by the collection, so these are canonical
     statusCode: result.statusCode,
   };
 }
 
 /** Build static page */
 async function buildStaticPage({ astroRoot, dist, filepath, runtime, statics }: PageBuildOptions): Promise<PageResult> {
-  const rel = pathRelative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
+  const rel = path.relative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
   const pagePath = `/${rel.replace(/\.(astro|md)$/, '')}`;
+  let canonicalURLs: string[] = [];
 
   let relPath = './' + rel.replace(/\.(astro|md)$/, '.html');
   if (!relPath.endsWith('index.html')) {
@@ -129,12 +134,19 @@ async function buildStaticPage({ astroRoot, dist, filepath, runtime, statics }: 
   const outPath = new URL(relPath, dist);
   const result = await runtime.load(pagePath);
 
-  await writeResult(result, outPath, 'utf-8');
+  await writeResult(result, outPath, 'utf8');
+
   if (result.statusCode === 200) {
-    mergeSet(statics, collectStatics(result.contents.toString('utf-8')));
+    mergeSet(statics, collectStatics(result.contents.toString('utf8')));
+
+    // get Canonical URL (if user has specified one manually, use that)
+    const $ = cheerio.load(result.contents);
+    const canonicalTag = $('link[rel="canonical"]');
+    canonicalURLs.push(canonicalTag.attr('href') || pagePath);
   }
 
   return {
+    canonicalURLs,
     statusCode: result.statusCode,
   };
 }
@@ -162,6 +174,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const collectImportsOptions = { astroConfig, logging, resolvePackageUrl, mode };
 
   const pages = await allPages(pageRoot);
+  let builtURLs: string[] = [];
 
   try {
     await Promise.all(
@@ -171,9 +184,11 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
         const pageType = getPageType(filepath);
         const pageOptions: PageBuildOptions = { astroRoot, dist, filepath, runtime, statics };
         if (pageType === 'collection') {
-          await buildCollectionPage(pageOptions);
+          const { canonicalURLs } = await buildCollectionPage(pageOptions);
+          builtURLs.push(...canonicalURLs);
         } else {
-          await buildStaticPage(pageOptions);
+          const { canonicalURLs } = await buildStaticPage(pageOptions);
+          builtURLs.push(...canonicalURLs);
         }
 
         mergeSet(imports, await collectDynamicImports(filepath, collectImportsOptions));
@@ -211,12 +226,27 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     const publicFiles = (await new fdir().withFullPaths().crawl(fileURLToPath(pub)).withPromise()) as string[];
     for (const filepath of publicFiles) {
       const fileUrl = new URL(`file://${filepath}`);
-      const rel = pathRelative(pub.pathname, fileUrl.pathname);
+      const rel = path.relative(pub.pathname, fileUrl.pathname);
       const outUrl = new URL('./' + rel, dist);
 
       const bytes = await readFile(fileUrl);
       await writeFilep(outUrl, bytes, null);
     }
+  }
+
+  // build sitemap
+  if (astroConfig.site) {
+    const sitemap = generateSitemap(
+      builtURLs.map((url) => ({
+        canonicalURL: new URL(
+          path.extname(url) ? url : url.replace(/\/?$/, '/'), // add trailing slash if there’s no extension
+          astroConfig.site
+        ).href,
+      }))
+    );
+    await writeFile(new URL('./sitemap.xml', dist), sitemap, 'utf8');
+  } else {
+    info(logging, 'tip', `Set your "site" in astro.config.mjs to generate a sitemap.xml`);
   }
 
   await runtime.shutdown();
