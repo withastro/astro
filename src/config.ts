@@ -25,7 +25,7 @@ function validateConfig(config: any): void {
     }
   }
 
-  if(config.devOptions?.port !== 'number') {
+  if(typeof config.devOptions?.port !== 'number') {
     throw new Error(`[astro config] devOptions.port: Expected number, received ${type(config.devOptions?.port)}`)
   }
 }
@@ -40,7 +40,8 @@ function configDefaults(userConfig?: any): any {
   if (!config.public) config.public = './public';
   if (!config.devOptions) config.devOptions = {};
   if (!config.devOptions.port) config.devOptions.port = 3000;
-  if (typeof config.sitemap === 'undefined') config.sitemap = true;
+  if (!config.buildOptions) config.buildOptions = {};
+  if (typeof config.buildOptions.sitemap === 'undefined') config.buildOptions.sitemap = true;
 
   return config;
 }

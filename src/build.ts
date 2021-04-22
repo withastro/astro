@@ -186,7 +186,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
         const filepath = new URL(`file://${pathname}`);
 
         const pageType = getPageType(filepath);
-        const pageOptions: PageBuildOptions = { astroRoot, dist, filepath, runtime, sitemap: astroConfig.sitemap, statics };
+        const pageOptions: PageBuildOptions = { astroRoot, dist, filepath, runtime, sitemap: astroConfig.buildOptions.sitemap, statics };
         if (pageType === 'collection') {
           const { canonicalURLs } = await buildCollectionPage(pageOptions);
           builtURLs.push(...canonicalURLs);
@@ -239,7 +239,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   }
 
   // build sitemap
-  if (astroConfig.sitemap && astroConfig.site) {
+  if (astroConfig.buildOptions.sitemap && astroConfig.site) {
     const sitemap = generateSitemap(
       builtURLs.map((url) => ({
         canonicalURL: new URL(
@@ -249,7 +249,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       }))
     );
     await writeFile(new URL('./sitemap.xml', dist), sitemap, 'utf8');
-  } else if (astroConfig.sitemap) {
+  } else if (astroConfig.buildOptions.sitemap) {
     info(logging, 'tip', `Set your "site" in astro.config.mjs to generate a sitemap.xml`);
   }
 
