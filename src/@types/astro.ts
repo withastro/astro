@@ -14,6 +14,26 @@ export interface AstroConfig {
   astroRoot: URL;
   public: URL;
   extensions?: Record<string, ValidExtensionPlugins>;
+  /** Public URL base (e.g. 'https://mysite.com'). Used in generating sitemaps and canonical URLs. */
+  site?: string;
+  /** Generate a sitemap? */
+  buildOptions: {
+    sitemap: boolean;
+  };
+  devOptions: {
+    port: number;
+    projectRoot?: string;
+  };
+}
+
+export type AstroUserConfig = Omit<AstroConfig, 'buildOptions' | 'devOptions'> & {
+  buildOptions: {
+    sitemap: boolean;
+  };
+  devOptions: {
+    port?: number;
+    projectRoot?: string;
+  };
 }
 
 export interface JsxItem {
