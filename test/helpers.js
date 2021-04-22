@@ -4,6 +4,8 @@ import { readFile } from 'fs/promises';
 import { createRuntime } from '../lib/runtime.js';
 import { loadConfig } from '../lib/config.js';
 import * as assert from 'uvu/assert';
+import execa from 'execa';
+
 /** setup fixtures for tests */
 export function setup(Suite, fixturePath) {
   let runtime, setupError;
@@ -61,4 +63,11 @@ export function setupBuild(Suite, fixturePath) {
   Suite('No errors creating a runtime', () => {
     assert.equal(setupError, undefined);
   });
+}
+
+const cliURL = new URL('../astro.mjs', import.meta.url);
+export function runDevServer(root, additionalArgs = []) {
+  const args = [cliURL.pathname, 'dev', '--project-root', root.pathname].concat(additionalArgs);
+  const proc = execa('node', args);
+  return proc;
 }

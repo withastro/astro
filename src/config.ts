@@ -12,10 +12,21 @@ function validateConfig(config: any): void {
   if (typeof config !== 'object') throw new Error(`[astro config] Expected object, received ${typeof config}`);
 
   // strings
-  for (const key of ['projectRoot', 'astroRoot', 'dist', 'public']) {
-    if (config[key] && typeof config[key] !== 'string') {
+  for (const key of ['projectRoot', 'astroRoot', 'dist', 'public', 'site']) {
+    if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'string') {
       throw new Error(`[astro config] ${key}: ${JSON.stringify(config[key])}\n  Expected string, received ${type(config[key])}.`);
     }
+  }
+
+  // booleans
+  for (const key of ['sitemap']) {
+    if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'boolean') {
+      throw new Error(`[astro config] ${key}: ${JSON.stringify(config[key])}\n  Expected boolean, received ${type(config[key])}.`);
+    }
+  }
+
+  if(typeof config.devOptions?.port !== 'number') {
+    throw new Error(`[astro config] devOptions.port: Expected number, received ${type(config.devOptions?.port)}`)
   }
 }
 
@@ -27,6 +38,10 @@ function configDefaults(userConfig?: any): any {
   if (!config.astroRoot) config.astroRoot = './astro';
   if (!config.dist) config.dist = './_site';
   if (!config.public) config.public = './public';
+  if (!config.devOptions) config.devOptions = {};
+  if (!config.devOptions.port) config.devOptions.port = 3000;
+  if (!config.buildOptions) config.buildOptions = {};
+  if (typeof config.buildOptions.sitemap === 'undefined') config.buildOptions.sitemap = true;
 
   return config;
 }
@@ -44,13 +59,13 @@ function normalizeConfig(userConfig: any, root: string): AstroConfig {
 }
 
 /** Attempt to load an `astro.config.mjs` file */
-export async function loadConfig(rawRoot: string | undefined): Promise<AstroConfig> {
+export async function loadConfig(rawRoot: string | undefined, configFileName = 'astro.config.mjs'): Promise<AstroConfig> {
   if (typeof rawRoot === 'undefined') {
     rawRoot = process.cwd();
   }
 
   const root = pathResolve(rawRoot);
-  const astroConfigPath = pathJoin(root, 'astro.config.mjs');
+  const astroConfigPath = pathJoin(root, configFileName);
 
   // load
   let config: any;
