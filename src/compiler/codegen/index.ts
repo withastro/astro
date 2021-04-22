@@ -75,8 +75,8 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
     }
     switch (val.type) {
       case 'MustacheTag': {
+        // FIXME: this won't work when JSX element can appear in attributes (rare but possible).
         result[attr.name] = '(' + val.expression.codeChunks[0] + ')';
-        // result[attr.name] = '(' + val.expression.codeStart + ')';
         continue;
       }
       case 'Text':
@@ -102,8 +102,8 @@ function getTextFromAttribute(attr: any): string {
       break;
     }
     case 'MustacheTag': {
+      // FIXME: this won't work when JSX element can appear in attributes (rare but possible).
       return attr.expression.codeChunks[0];
-      // return attr.expression.codeStart;
     }
   }
   throw new Error(`Unknown attribute type ${attr.type}`);
@@ -525,7 +525,7 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           let children: string[] = [];
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           for (const child of node.children!) {
-            children.push(compileHtml(child, state, compileOptions)); // TODO: check state.
+            children.push(compileHtml(child, state, compileOptions));
           }
           let raw = '';
           let nextChildIndex = 0;

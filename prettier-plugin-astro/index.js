@@ -57,8 +57,7 @@ const findExpressionsInAST = (node, collect = []) => {
 
 const formatExpression = ({ expression: { codeChunks, children }}, text, options) => {
   if (children.length === 0) {
-    // TODO: quick hack to make test work. Need to investigate what formatExpression actually do.
-    const codeStart = codeChunks[0];
+    const codeStart = codeChunks[0]; // If no children, there should only exist a single chunk.
     if (codeStart && [`'`, `"`].includes(codeStart[0])) {
       return `<script $ lang="ts">${codeChunks.join('')}</script>`
     }
