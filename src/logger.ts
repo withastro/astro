@@ -15,13 +15,16 @@ export const defaultLogDestination = new Writable({
       dest = process.stdout;
     }
     let type = event.type;
-    if (event.level === 'info') {
-      type = bold(blue(type));
-    } else if (event.level === 'error') {
-      type = bold(red(type));
+    if(type !== null) {
+      if (event.level === 'info') {
+        type = bold(blue(type));
+      } else if (event.level === 'error') {
+        type = bold(red(type));
+      }
+  
+      dest.write(`[${type}] `);
     }
 
-    dest.write(`[${type}] `);
     dest.write(utilFormat(...event.args));
     dest.write('\n');
 
@@ -47,7 +50,7 @@ export const defaultLogOptions: LogOptions = {
 };
 
 export interface LogMessage {
-  type: string;
+  type: string | null;
   level: LoggerLevel;
   message: string;
   args: Array<any>;
@@ -62,7 +65,7 @@ const levels: Record<LoggerLevel, number> = {
 };
 
 /** Full logging API */
-export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, type: string, ...args: Array<any>) {
+export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, type: string | null, ...args: Array<any>) {
   const event: LogMessage = {
     type,
     level,
@@ -79,22 +82,22 @@ export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, ty
 }
 
 /** Emit a message only shown in debug mode */
-export function debug(opts: LogOptions, type: string, ...messages: Array<any>) {
+export function debug(opts: LogOptions, type: string | null, ...messages: Array<any>) {
   return log(opts, 'debug', type, ...messages);
 }
 
 /** Emit a general info message (be careful using this too much!) */
-export function info(opts: LogOptions, type: string, ...messages: Array<any>) {
+export function info(opts: LogOptions, type: string | null, ...messages: Array<any>) {
   return log(opts, 'info', type, ...messages);
 }
 
 /** Emit a warning a user should be aware of */
-export function warn(opts: LogOptions, type: string, ...messages: Array<any>) {
+export function warn(opts: LogOptions, type: string | null, ...messages: Array<any>) {
   return log(opts, 'warn', type, ...messages);
 }
 
 /** Emit a fatal error message the user should address. */
-export function error(opts: LogOptions, type: string, ...messages: Array<any>) {
+export function error(opts: LogOptions, type: string | null, ...messages: Array<any>) {
   return log(opts, 'error', type, ...messages);
 }
 
@@ -129,3 +132,12 @@ export const logger = {
   warn: warn.bind(null, defaultLogOptions),
   error: error.bind(null, defaultLogOptions),
 };
+
+// For silencing libraries that go directly to console.warn
+export function trapWarn(cb: (...args: any[]) => void = () =>{}) {
+  const warn = console.warn;
+  console.warn = function(...args: any[]) {
+    cb(...args);
+  };
+  return () => console.warn = warn;
+}

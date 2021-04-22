@@ -2,9 +2,11 @@ import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger.js';
 
 import { logger as snowpackLogger } from 'snowpack';
+import { bold, green } from 'kleur/colors';
 import http from 'http';
 import { relative as pathRelative } from 'path';
-import { defaultLogDestination, error, parseError } from './logger.js';
+import { performance } from 'perf_hooks';
+import { defaultLogDestination, error, info, parseError } from './logger.js';
 import { createRuntime } from './runtime.js';
 
 const hostname = '127.0.0.1';
@@ -19,6 +21,7 @@ const logging: LogOptions = {
 
 /** The primary dev action */
 export default async function dev(astroConfig: AstroConfig) {
+  const startServerTime = performance.now();
   const { projectRoot } = astroConfig;
 
   const runtime = await createRuntime(astroConfig, { mode: 'development', logging });
@@ -66,8 +69,9 @@ export default async function dev(astroConfig: AstroConfig) {
 
   const port = astroConfig.devOptions.port;
   server.listen(port, hostname, () => {
-    // eslint-disable-next-line no-console
-    console.log(`Server running at http://${hostname}:${port}/`);
+    const endServerTime = performance.now();
+    info(logging, 'dev server', green(`Server started in ${Math.floor(endServerTime - startServerTime)}ms.`));
+    info(logging, 'dev server', `${green('Local:')} http://${hostname}:${port}/`);
   });
 }
 
