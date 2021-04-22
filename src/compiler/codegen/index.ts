@@ -75,7 +75,8 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
     }
     switch (val.type) {
       case 'MustacheTag': {
-        result[attr.name] = '(' + val.expression.codeStart + ')';
+        // FIXME: this won't work when JSX element can appear in attributes (rare but possible).
+        result[attr.name] = '(' + val.expression.codeChunks[0] + ')';
         continue;
       }
       case 'Text':
@@ -101,7 +102,8 @@ function getTextFromAttribute(attr: any): string {
       break;
     }
     case 'MustacheTag': {
-      return attr.expression.codeStart;
+      // FIXME: this won't work when JSX element can appear in attributes (rare but possible).
+      return attr.expression.codeChunks[0];
     }
   }
   throw new Error(`Unknown attribute type ${attr.type}`);
@@ -520,13 +522,20 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
     enter(node: TemplateNode) {
       switch (node.type) {
         case 'Expression': {
-          let child = '';
+          let children: string[] = [];
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          if (node.children!.length) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            child = compileHtml(node.children![0], state, compileOptions);
+          for (const child of node.children!) {
+            children.push(compileHtml(child, state, compileOptions));
           }
-          let raw = node.codeStart + child + node.codeEnd;
+          let raw = '';
+          let nextChildIndex = 0;
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          for (const chunk of node.codeChunks!) {
+            raw += chunk;
+            if (nextChildIndex < children.length) {
+              raw += children[nextChildIndex++];
+            }
+          }
           // TODO Do we need to compile this now, or should we compile the entire module at the end?
           let code = compileExpressionSafe(raw).trim().replace(/\;$/, '');
           outSource += `,(${code})`;

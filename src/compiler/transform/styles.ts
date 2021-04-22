@@ -222,9 +222,10 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
                   }
                 } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
                   // don‘t add same scopedClass twice (this check is a little more basic, but should suffice)
-                  if (!attr.value[k].expression.codeStart.includes(`' ${scopedClass}'`)) {
+                  if (!attr.value[k].expression.codeChunks[0].includes(`' ${scopedClass}'`)) {
                     // MustacheTag
-                    attr.value[k].expression.codeStart = `(${attr.value[k].expression.codeStart}) + ' ${scopedClass}'`;
+                    // FIXME: this won't work when JSX element can appear in attributes (rare but possible).
+                    attr.value[k].expression.codeChunks[0] = `(${attr.value[k].expression.codeChunks[0]}) + ' ${scopedClass}'`;
                   }
                 }
               }

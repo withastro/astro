@@ -55,12 +55,13 @@ const findExpressionsInAST = (node, collect = []) => {
   return collect;
 }
 
-const formatExpression = ({ expression: { codeStart, codeEnd, children }}, text, options) => {
+const formatExpression = ({ expression: { codeChunks, children }}, text, options) => {
   if (children.length === 0) {
-    if ([`'`, `"`].includes(codeStart[0])) {
-      return `<script $ lang="ts">${codeStart}${codeEnd}</script>`
+    const codeStart = codeChunks[0]; // If no children, there should only exist a single chunk.
+    if (codeStart && [`'`, `"`].includes(codeStart[0])) {
+      return `<script $ lang="ts">${codeChunks.join('')}</script>`
     }
-    return `{${codeStart}${codeEnd}}`;
+    return `{${codeChunks.join('')}}`;
   }
 
   return `<script $ lang="ts">${text}</script>`;
