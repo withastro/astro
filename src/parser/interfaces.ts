@@ -53,8 +53,7 @@ export interface Expression {
   type: 'Expression';
   start: number;
   end: number;
-  codeStart: string;
-  codeEnd: string;
+  codeChunks: string[];
   children: BaseNode[];
 }
 

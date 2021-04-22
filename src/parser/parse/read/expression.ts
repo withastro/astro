@@ -168,12 +168,12 @@ function consume_expression(source: string, start: number): Expression {
     type: 'Expression',
     start,
     end: Number.NaN,
-    codeStart: '',
-    codeEnd: '',
+    codeChunks: [],
     children: [],
   };
 
-  let codeEndStart: number = 0;
+  let codeStart: number = start;
+
   const state: ParseState = {
     source,
     start,
@@ -196,10 +196,11 @@ function consume_expression(source: string, start: number): Expression {
         break;
       }
       case '<': {
-        expr.codeStart = source.substring(start, state.index - 1);
+        const chunk = source.substring(codeStart, state.index - 1);
+        expr.codeChunks.push(chunk);
         const tag = consume_tag(state);
         expr.children.push(tag);
-        codeEndStart = state.index;
+        codeStart = state.index;
         break;
       }
       case "'":
@@ -225,10 +226,8 @@ function consume_expression(source: string, start: number): Expression {
 
   expr.end = state.index - 1;
 
-  if (codeEndStart) {
-    expr.codeEnd = source.substring(codeEndStart, expr.end);
-  } else {
-    expr.codeStart = source.substring(start, expr.end);
+  if (expr.children.length || !expr.codeChunks.length) {
+    expr.codeChunks.push(source.substring(codeStart, expr.end));
   }
 
   return expr;

@@ -53,4 +53,11 @@ Expressions('Ignores characters inside of multiline comments', async ({ runtime 
   }
 });
 
+Expressions('Allows multiple JSX children in mustache', async ({ runtime }) => {
+  const result = await runtime.load('/multiple-children');
+  assert.equal(result.statusCode, 200);
+
+  assert.ok(result.contents.includes('#f') && !result.contents.includes('#t'));
+});
+
 Expressions.run();
