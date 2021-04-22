@@ -1,8 +1,10 @@
-import { Position } from 'vscode-languageserver';
+import { Position, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
+import { HTMLDocument } from 'vscode-html-languageservice';
+
 import { clamp } from '../../utils';
 import { parseHtml } from './parseHtml';
-import { HTMLDocument } from 'vscode-html-languageservice';
+import { parseAstro, AstroDocument } from './parseAstro';
 
 export class Document implements TextDocument {
     
@@ -11,6 +13,7 @@ export class Document implements TextDocument {
     languageId = 'astro';
     version = 0;
     html!: HTMLDocument;
+    astro!: AstroDocument;
 
     constructor(public uri: string, text: string) {
         this.content = text;
@@ -19,6 +22,7 @@ export class Document implements TextDocument {
 
     private updateDocInfo() {
         this.html = parseHtml(this.content);
+        this.astro = parseAstro(this.content);
     }
 
     setText(text: string) {
@@ -93,6 +97,11 @@ export class Document implements TextDocument {
         return clamp(nextLineOffset, lineOffset, lineOffset + position.character);
     }
 
+    getLineUntilOffset(offset: number): string {
+        const { line, character } = this.positionAt(offset);
+        return this.lines[line].slice(0, character);
+    }
+
     private getLineOffsets() {
         const lineOffsets = [];
         const text = this.getText();
@@ -124,8 +133,12 @@ export class Document implements TextDocument {
         return this.getText().length;
     }
 
+    get lines(): string[] {
+        return this.getText().split(/\r?\n/);
+    }
+
     get lineCount(): number {
-        return this.getText().split(/\r?\n/).length;
+        return this.lines.length;
     }
 
 }

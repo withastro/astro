@@ -29,6 +29,7 @@ export function activateTagClosing(
 
     let timeout: NodeJS.Timer | undefined = void 0;
 
+    /** Check if this feature is enabled */
     function updateEnabledState() {
         isEnabled = false;
         const editor = window.activeTextEditor;
@@ -45,6 +46,7 @@ export function activateTagClosing(
         isEnabled = true;
     }
 
+    /** Handle text document changes */
     function onDidChangeTextDocument(
         document: TextDocument,
         changes: readonly TextDocumentContentChangeEvent[]

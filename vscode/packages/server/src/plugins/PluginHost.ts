@@ -9,6 +9,7 @@ import {
 import type { DocumentManager } from '../core/documents';
 import type * as d from './interfaces';
 import { flatten } from '../utils';
+import { FoldingRange } from 'vscode-languageserver-types';
 
 // eslint-disable-next-line no-shadow
 enum ExecuteMode {
@@ -86,6 +87,23 @@ export class PluginHost {
             [document, position],
             ExecuteMode.FirstNonNull
         );
+    }
+
+    async getFoldingRanges(
+        textDocument: TextDocumentIdentifier
+    ): Promise<FoldingRange[]|null> {
+        const document = this.getDocument(textDocument.uri);
+        if (!document) {
+            throw new Error('Cannot call methods on an unopened document');
+        }
+
+        const foldingRanges = flatten(await this.execute<FoldingRange[]>(
+            'getFoldingRanges',
+            [document],
+            ExecuteMode.Collect
+        )).filter((completion) => completion != null)
+
+        return foldingRanges;
     }
 
     private getDocument(uri: string) {

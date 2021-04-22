@@ -5,10 +5,10 @@
 	"foldingStartMarker": "(?x)\n(<(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|li|form|dl)\\b.*?>\n|<!--(?!.*--\\s*>)\n|^<!--\\ \\#tminclude\\ (?>.*?-->)$\n|<\\?(?:php)?.*\\b(if|for(each)?|while)\\b.+:\n|\\{\\{?(if|foreach|capture|literal|foreach|php|section|strip)\n|\\{\\s*($|\\?>\\s*$|\/\/|\/\\*(.*\\*\/\\s*$|(?!.*?\\*\/)))\n)",
 	"foldingStopMarker": "(?x)\n(<\/(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|li|form|dl)>\n|^(?!.*?<!--).*?--\\s*>\n|^<!--\\ end\\ tminclude\\ -->$\n|<\\?(?:php)?.*\\bend(if|for(each)?|while)\\b\n|\\{\\{?\/(if|foreach|capture|literal|foreach|php|section|strip)\n|^[^{]*\\}\n)",
 	"keyEquivalent": "^~H",
-	"name": "Astro Component",
+	"name": "Astro",
 	"patterns": [
 		{
-			"include": "#astro-interpolations"
+			"include": "#astro-expressions"
 		},
 		{
 			"begin": "(<)([a-zA-Z0-9:-]++)(?=[^>]*><\/\\2>)",
@@ -96,7 +96,7 @@
 			"name": "meta.tag.sgml.html",
 			"patterns": [
 				{
-					"begin": "(?i:DOCTYPE)",
+					"begin": "(?i:DOCTYPE|doctype)",
 					"captures": {
 						"1": {
 							"name": "entity.name.tag.doctype.html"
@@ -510,14 +510,24 @@
 	],
 	"repository": {
         "frontmatter": {
-			"begin": "\\A-{3}\\s*$",
+			"begin": "\\A(-{3})\\s*$",
+			"beginCaptures": {
+				"1": {
+					"name": "comment.block.html"
+				}
+			},
 			"contentName": "meta.embedded.block.frontmatter",
 			"patterns": [
 				{
 					"include": "source.tsx"
 				}
 			],
-			"end": "(^|\\G)-{3}|\\.{3}\\s*$"
+			"end": "(^|\\G)(-{3})|\\.{3}\\s*$",
+			"endCaptures": {
+				"2": {
+					"name": "comment.block.html"
+				}
+			}
 		},
 		"entities": {
 			"patterns": [
@@ -613,7 +623,7 @@
 					"name": "string.quoted.double.html",
 					"patterns": [
 						{
-							"include": "#astro-interpolations"
+							"include": "#astro-expressions"
 						},
 						{
 							"include": "#entities"
@@ -637,7 +647,7 @@
 					"name": "string.quoted.single.html",
 					"patterns": [
 						{
-							"include": "#astro-interpolations"
+							"include": "#astro-expressions"
 						},
 						{
 							"include": "#entities"
@@ -661,11 +671,11 @@
 					"include": "#string-single-quoted"
 				},
 				{
-					"include": "#astro-interpolations"
+					"include": "#astro-expressions"
 				}
 			]
 		},
-		"astro-interpolations": {
+		"astro-expressions": {
 			"patterns": [
 				{
 					"begin": "\\{",

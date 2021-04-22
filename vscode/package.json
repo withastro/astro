@@ -68,6 +68,9 @@
 				"language": "astro",
 				"scopeName": "text.html.astro",
 				"path": "./syntaxes/astro.tmLanguage.json",
+				"injectTo": [
+					"text.html.markdown"
+				],
 				"embeddedLanguages": {
 					"text.html.astro": "astro",
 					"text.html": "html",

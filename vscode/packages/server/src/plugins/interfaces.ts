@@ -27,7 +27,8 @@ import {
     TextEdit,
     WorkspaceEdit,
     SelectionRange,
-    SignatureHelp
+    SignatureHelp,
+    FoldingRange
 } from 'vscode-languageserver-types';
 import { Document } from '../core/documents';
 
@@ -47,6 +48,10 @@ export interface DiagnosticsProvider {
 
 export interface HoverProvider {
     doHover(document: Document, position: Position): Resolvable<Hover | null>;
+}
+
+export interface FoldingRangeProvider {
+    getFoldingRanges(document: Document): Resolvable<FoldingRange[]|null>;
 }
 
 export interface CompletionsProvider<T extends TextDocumentIdentifier = any> {
@@ -176,6 +181,7 @@ type ProviderBase = DiagnosticsProvider &
     HoverProvider &
     CompletionsProvider &
     FormattingProvider &
+    FoldingRangeProvider &
     TagCompleteProvider &
     DocumentColorsProvider &
     ColorPresentationsProvider &

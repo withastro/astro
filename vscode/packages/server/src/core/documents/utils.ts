@@ -37,6 +37,13 @@ export function getWordAt(
     return str.slice(start, end);
 }
 
+/**
+ * Gets index of first-non-whitespace character.
+ */
+export function getFirstNonWhitespaceIndex(str: string): number {
+    return str.length - str.trimStart().length;
+}
+
 /** checks if a position is currently inside of an expression */
 export function isInsideExpression(html: string, tagStart: number, position: number) {
     const charactersInNode = html.substring(tagStart, position);

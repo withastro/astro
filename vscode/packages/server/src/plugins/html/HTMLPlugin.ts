@@ -1,12 +1,12 @@
-import { CompletionsProvider } from '../interfaces';
+import { CompletionsProvider, FoldingRangeProvider } from '../interfaces';
 import { getEmmetCompletionParticipants, VSCodeEmmetConfig } from 'vscode-emmet-helper';
-import { getLanguageService, HTMLDocument, CompletionItem as HtmlCompletionItem, Node } from 'vscode-html-languageservice';
+import { getLanguageService, HTMLDocument, CompletionItem as HtmlCompletionItem, Node, FoldingRange } from 'vscode-html-languageservice';
 import { CompletionList, Position, CompletionItem, CompletionItemKind, TextEdit } from 'vscode-languageserver';
 import type { Document, DocumentManager } from '../../core/documents';
 import { isInsideExpression, isInsideFrontmatter } from '../../core/documents/utils';
 import type { ConfigManager } from '../../core/config';
 
-export class HTMLPlugin implements CompletionsProvider {
+export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
   private lang = getLanguageService();
   private documents = new WeakMap<Document, HTMLDocument>();
   private styleScriptTemplate = new Set(['template', 'style', 'script']);
@@ -52,6 +52,16 @@ export class HTMLPlugin implements CompletionsProvider {
       // Emmet completions change on every keystroke, so they are never complete
       emmetResults.items.length > 0
     );
+  }
+
+  getFoldingRanges(document: Document): FoldingRange[]|null {
+    const html = this.documents.get(document);
+    if (!html) {
+      return null;
+    }
+
+    return this.lang.getFoldingRanges(document);
+
   }
 
   doTagComplete(document: Document, position: Position): string | null {
@@ -121,15 +131,5 @@ export class HTMLPlugin implements CompletionsProvider {
 
   private isInsideFrontmatter(document: Document, position: Position) {
     return isInsideFrontmatter(document.getText(), document.offsetAt(position));
-  }
-
-  /**
-   *
-   * The language service is case insensitive, and would provide
-   * hover info for Svelte components like `Option` which have
-   * the same name like a html tag.
-   */
-  private possiblyComponent(node: Node): boolean {
-    return !!node.tag?.[0].match(/[A-Z]/);
   }
 }
