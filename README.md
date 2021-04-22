@@ -52,8 +52,16 @@ export default {
   },
   /** Your public domain, e.g.: https://my-site.dev/ */
   site: '',
-  /** Generate sitemap (set to "false" to disable) */
-  sitemap: true,
+  /** Options specific to `astro build` */
+  buildOptions: {
+    /** Generate sitemap (set to "false" to disable) */
+    sitemap: true,
+  },
+  /** Options for the development server run with `astro dev`. */
+  devOptions: {
+    /** The port to run the dev server on. */
+    port: 3000
+  }
 };
 ```
 
