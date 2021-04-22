@@ -265,8 +265,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
     mount: mountOptions,
-    // @ts-ignore
-    mode, // TODO: npm run build yields error that no `mode` field on SnowpackUserConfig
+    mode,
     plugins: [
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
       require.resolve('@snowpack/plugin-sass'),
