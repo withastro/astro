@@ -2,7 +2,7 @@
 
 ## ❓ What are Collections?
 
-[Fetching data is easy in Astro][docs-data]. But what if you wanted to make a paginated blog? What if you wanted an easy way to sort data, or filter, say, by a given tag? When you need something a little more powerful than simple data fetching, Astro’s Collections API may be what you need.
+[Fetching data is easy in Astro][docs-data]. But what if you wanted to make a paginated blog? What if you wanted an easy way to sort data, or filter data based on part of the URL? Or generate an RSS 2.0 feed? When you need something a little more powerful than simple data fetching, Astro’s Collections API may be what you need.
 
 An Astro Collection is similar to the general concept of Collections in static site generators like Jekyll, Hugo, Eleventy, etc. It’s a general way to load an entire data set. But one big difference between Astro Collections and traditional static site generators is: **Astro lets you seamlessly blend remote API data and local files in a JAMstack-friendly way.** To see how, this guide will walk through a few examples. If you’d like, you can reference the [blog example project][example-blog] to see the finished code in context.
 
@@ -187,6 +187,7 @@ These are still paginated, too! But since there are other conditions applied, th
 - [Fetching data in Astro][docs-data]
 - API Reference: [collection][collection-api]
 - API Reference: [createCollection()][create-collection-api]
+- API Reference: [Creating an RSS feed][create-collection-api]
 
 [docs-data]: ../README.md#-fetching-data
 [collection-api]: ./api.md#collection

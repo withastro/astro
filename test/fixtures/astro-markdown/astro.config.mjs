@@ -2,5 +2,7 @@ export default {
   extensions: {
     '.jsx': 'preact',
   },
-  sitemap: false,
+  buildOptions: {
+    sitemap: false,
+  },
 };

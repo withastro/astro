@@ -50,18 +50,18 @@ export default {
     /** Set this to "preact" or "react" to determine what *.jsx files should load */
     '.jsx': 'react',
   },
-  /** Your public domain, e.g.: https://my-site.dev/ */
-  site: '',
   /** Options specific to `astro build` */
   buildOptions: {
+    /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
+    site: '',
     /** Generate sitemap (set to "false" to disable) */
     sitemap: true,
   },
   /** Options for the development server run with `astro dev`. */
   devOptions: {
     /** The port to run the dev server on. */
-    port: 3000
-  }
+    port: 3000,
+  },
 };
 ```
 
@@ -166,7 +166,7 @@ const localData = Astro.fetchContent('../post/*.md');
 
 ### 🗺️ Sitemap
 
-Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set the `site` URL in your [Astro config][config] so the URLs can be generated properly.
+Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set `buildOptions.site` in your [Astro config][config] so the URLs can be generated properly.
 
 ⚠️ Note that Astro won’t inject this into your HTML for you! You’ll have to add the tag yourself in your `<head>` on all pages that need it:
 
@@ -181,7 +181,7 @@ Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set
 
 ### 🍱 Collections (beta)
 
-[Fetching data is easy in Astro](#-fetching-data). But what if you wanted to make a paginated blog? What if you wanted an easy way to sort data, or filter, say, by a given tag? When you need something a little more powerful than simple data fetching, Astro’s Collections API may be what you need.
+[Fetching data is easy in Astro](#-fetching-data). But what if you wanted to make a paginated blog? What if you wanted an easy way to sort data, or filter data based on part of the URL? Or generate an RSS 2.0 feed? When you need something a little more powerful than simple data fetching, Astro’s Collections API may be what you need.
 
 👉 [**Collections API**][docs-collections]
 

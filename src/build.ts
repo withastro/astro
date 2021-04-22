@@ -10,8 +10,10 @@ import { fdir } from 'fdir';
 import { defaultLogDestination, error, info } from './logger.js';
 import { createRuntime } from './runtime.js';
 import { bundle, collectDynamicImports } from './build/bundle.js';
+import { generateRSS } from './build/rss.js';
 import { generateSitemap } from './build/sitemap.js';
 import { collectStatics } from './build/static.js';
+import { canonicalURL } from './build/util.js';
 
 const { mkdir, readFile, writeFile } = fsPromises;
 
@@ -20,12 +22,14 @@ interface PageBuildOptions {
   dist: URL;
   filepath: URL;
   runtime: AstroRuntime;
+  site?: string;
   sitemap: boolean;
   statics: Set<string>;
 }
 
 interface PageResult {
   canonicalURLs: string[];
+  rss?: string;
   statusCode: number;
 }
 
@@ -78,7 +82,7 @@ function getPageType(filepath: URL): 'collection' | 'static' {
 }
 
 /** Build collection */
-async function buildCollectionPage({ astroRoot, dist, filepath, runtime, statics }: PageBuildOptions): Promise<PageResult> {
+async function buildCollectionPage({ astroRoot, dist, filepath, runtime, site, statics }: PageBuildOptions): Promise<PageResult> {
   const rel = path.relative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
   const pagePath = `/${rel.replace(/\$([^.]+)\.astro$/, '$1')}`;
   const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
@@ -97,12 +101,19 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, statics
   }
 
   const result = (await loadCollection(pagePath)) as LoadResult;
+
+  if (result.statusCode >= 500) {
+    throw new Error((result as any).error);
+  }
   if (result.statusCode === 200 && !result.collectionInfo) {
     throw new Error(`[${rel}]: Collection page must export createCollection() function`);
   }
 
+  let rss: string | undefined;
+
   // note: for pages that require params (/tag/:tag), we will get a 404 but will still get back collectionInfo that tell us what the URLs should be
   if (result.collectionInfo) {
+    // build subsequent pages
     await Promise.all(
       [...result.collectionInfo.additionalURLs].map(async (url) => {
         // for the top set of additional URLs, we render every new URL generated
@@ -114,11 +125,17 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, statics
         }
       })
     );
+
+    if (result.collectionInfo.rss) {
+      if (!site) throw new Error(`[${rel}] createCollection() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
+      rss = generateRSS({ ...(result.collectionInfo.rss as any), site }, rel.replace(/\$([^.]+)\.astro$/, '$1'));
+    }
   }
 
   return {
     canonicalURLs: [...builtURLs].filter((url) => !url.endsWith('/1')), // note: canonical URLs are controlled by the collection, so these are canonical (but exclude "/1" pages as those are duplicates of the index)
     statusCode: result.statusCode,
+    rss,
   };
 }
 
@@ -186,10 +203,17 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
         const filepath = new URL(`file://${pathname}`);
 
         const pageType = getPageType(filepath);
-        const pageOptions: PageBuildOptions = { astroRoot, dist, filepath, runtime, sitemap: astroConfig.buildOptions.sitemap, statics };
+        const pageOptions: PageBuildOptions = { astroRoot, dist, filepath, runtime, site: astroConfig.buildOptions.site, sitemap: astroConfig.buildOptions.sitemap, statics };
         if (pageType === 'collection') {
-          const { canonicalURLs } = await buildCollectionPage(pageOptions);
+          const { canonicalURLs, rss } = await buildCollectionPage(pageOptions);
           builtURLs.push(...canonicalURLs);
+          if (rss) {
+            const basename = path
+              .relative(fileURLToPath(astroRoot) + '/pages', pathname)
+              .replace(/^\$/, '')
+              .replace(/\.astro$/, '');
+            await writeFilep(new URL(`file://${path.join(fileURLToPath(dist), 'feed', basename + '.xml')}`), rss, 'utf8');
+          }
         } else {
           const { canonicalURLs } = await buildStaticPage(pageOptions);
           builtURLs.push(...canonicalURLs);
@@ -239,18 +263,11 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   }
 
   // build sitemap
-  if (astroConfig.buildOptions.sitemap && astroConfig.site) {
-    const sitemap = generateSitemap(
-      builtURLs.map((url) => ({
-        canonicalURL: new URL(
-          path.extname(url) ? url : url.replace(/\/?$/, '/'), // add trailing slash if there’s no extension
-          astroConfig.site
-        ).href,
-      }))
-    );
+  if (astroConfig.buildOptions.sitemap && astroConfig.buildOptions.site) {
+    const sitemap = generateSitemap(builtURLs.map((url) => ({ canonicalURL: canonicalURL(url, astroConfig.buildOptions.site) })));
     await writeFile(new URL('./sitemap.xml', dist), sitemap, 'utf8');
   } else if (astroConfig.buildOptions.sitemap) {
-    info(logging, 'tip', `Set your "site" in astro.config.mjs to generate a sitemap.xml`);
+    info(logging, 'tip', `Set "buildOptions.site" in astro.config.mjs to generate a sitemap.xml`);
   }
 
   await runtime.shutdown();

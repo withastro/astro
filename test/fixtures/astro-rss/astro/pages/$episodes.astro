@@ -1,0 +1,40 @@
+---
+export let collection;
+
+export async function createCollection() {
+  return {
+    async data() {
+      const episodes = Astro.fetchContent('./episode/*.md');
+      episodes.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+      return episodes;
+    },
+    rss: {
+      title: 'MF Doomcast',
+      description: 'The podcast about the things you find on a picnic, or at a picnic table',
+      xmlns: {
+        itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+        content: 'http://purl.org/rss/1.0/modules/content/',
+      },
+      customData: `<language>en-us</language>` +
+        `<itunes:author>MF Doom</itunes:author>`,
+      item: (item) => ({
+        title: item.title,
+        link: item.url,
+        description: item.description,
+        pubDate: item.pubDate,
+        customData: `<itunes:episodeType>${item.type}</itunes:episodeType>` +
+          `<itunes:duration>${item.duration}</itunes:duration>` +
+          `<itunes:explicit>${item.explicit || false}</itunes:explicit>`,
+      }),
+    }
+  }
+}
+---
+
+<html>
+  <head>
+    <title>Podcast Episodes</title>
+    <link rel="alternate" type="application/rss+2.0" href="/feed/episodes.xml" />
+  </head>
+  <body></body>
+</html>
