@@ -53,10 +53,8 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
       completionItem.documentation = itemDocumentation;
     }
 
-    const actions = detail?.codeActions;
-    const isImport = !!detail?.source;
-
-    console.log({ actions, isImport });
+    // const actions = detail?.codeActions;
+    // const isImport = !!detail?.source;
 
     // TODO: handle actions
     // if (actions) {
