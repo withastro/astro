@@ -2,7 +2,7 @@ import { Position, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { HTMLDocument } from 'vscode-html-languageservice';
 
-import { clamp } from '../../utils';
+import { clamp, urlToPath } from '../../utils';
 import { parseHtml } from './parseHtml';
 import { parseAstro, AstroDocument } from './parseAstro';
 
@@ -132,6 +132,21 @@ export class Document implements TextDocument {
     getTextLength(): number {
         return this.getText().length;
     }
+
+    /**
+     * Returns the file path if the url scheme is file
+     */
+    getFilePath(): string | null {
+        return urlToPath(this.uri);
+    }
+
+    /**
+     * Get URL file path.
+     */
+    getURL() {
+        return this.uri;
+    }
+
 
     get lines(): string[] {
         return this.getText().split(/\r?\n/);

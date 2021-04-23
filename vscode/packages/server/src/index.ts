@@ -2,6 +2,7 @@ import { RequestType, TextDocumentPositionParams, createConnection, ProposedFeat
 import { Document, DocumentManager } from './core/documents';
 import { ConfigManager } from './core/config';
 import { PluginHost, HTMLPlugin, TypeScriptPlugin, AppCompletionItem, AstroPlugin } from './plugins';
+import { urlToPath } from './utils';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string | null, any> = new RequestType('html/tag');
 
@@ -12,12 +13,15 @@ export function startServer() {
   const docManager = new DocumentManager(({ uri, text }: { uri: string; text: string }) => new Document(uri, text));
   const configManager = new ConfigManager();
   const pluginHost = new PluginHost(docManager);
-  pluginHost.register(new AstroPlugin(docManager, configManager));
-  pluginHost.register(new HTMLPlugin(docManager, configManager));
-  pluginHost.register(new TypeScriptPlugin(docManager, configManager));
 
   connection.onInitialize((evt) => {
+    const workspaceUris = evt.workspaceFolders?.map((folder) => folder.uri.toString()) ?? [evt.rootUri ?? ''];
+
+    pluginHost.register(new AstroPlugin(docManager, configManager));
+    pluginHost.register(new HTMLPlugin(docManager, configManager));
+    pluginHost.register(new TypeScriptPlugin(docManager, configManager, workspaceUris));
     configManager.updateEmmetConfig(evt.initializationOptions?.configuration?.emmet || evt.initializationOptions?.emmetConfig || {});
+
     return {
       capabilities: {
         textDocumentSync: TextDocumentSyncKind.Incremental,
@@ -65,6 +69,15 @@ export function startServer() {
   connection.onDidCloseTextDocument((evt) => docManager.closeDocument(evt.textDocument.uri));
 
   connection.onDidChangeTextDocument((evt) => docManager.updateDocument(evt.textDocument.uri, evt.contentChanges));
+
+  connection.onDidChangeWatchedFiles((evt) => {
+    const params = evt.changes.map(change => ({
+      fileName: urlToPath(change.uri),
+      changeType: change.type
+    })).filter(change => !!change.fileName)
+
+    pluginHost.onWatchFileChanges(params);
+  });
 
   // Config
   connection.onDidChangeConfiguration(({ settings }) => {

@@ -77,7 +77,8 @@
 					"source.css": "css",
 					"source.scss": "scss",
 					"source.sass": "sass",
-					"source.tsx": "typescriptreact"
+					"source.tsx": "typescriptreact",
+					"meta.embedded.block.frontmatter": "typescriptreact"
 				}
 			}
 		]

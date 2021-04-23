@@ -106,6 +106,12 @@ export class PluginHost {
         return foldingRanges;
     }
 
+    onWatchFileChanges(onWatchFileChangesParams: any[]): void {
+        for (const support of this.plugins) {
+            support.onWatchFileChanges?.(onWatchFileChangesParams);
+        }
+    }
+
     private getDocument(uri: string) {
         return this.documentsManager.get(uri);
     }

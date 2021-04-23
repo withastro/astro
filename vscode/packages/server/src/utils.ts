@@ -7,6 +7,21 @@ export function normalizeUri(uri: string): string {
     return URI.parse(uri).toString();
 }
 
+/** Turns a URL into a normalized FS Path */
+export function urlToPath(stringUrl: string): string | null {
+    const url = URI.parse(stringUrl);
+    if (url.scheme !== 'file') {
+        return null;
+    }
+    return url.fsPath.replace(/\\/g, '/');
+}
+
+/** Converts a path to a URL */
+export function pathToUrl(path: string) {
+    return URI.file(path).toString();
+}
+
+
 /**
 *
 * The language service is case insensitive, and would provide
@@ -51,4 +66,33 @@ export function isBeforeOrEqualToPosition(position: Position, positionToTest: Po
         positionToTest.line < position.line ||
         (positionToTest.line === position.line && positionToTest.character <= position.character)
     );
+}
+
+/**
+ * Debounces a function but cancels previous invocation only if
+ * a second function determines it should.
+ *
+ * @param fn The function with it's argument
+ * @param determineIfSame The function which determines if the previous invocation should be canceld or not
+ * @param miliseconds Number of miliseconds to debounce
+ */
+export function debounceSameArg<T>(
+    fn: (arg: T) => void,
+    shouldCancelPrevious: (newArg: T, prevArg?: T) => boolean,
+    miliseconds: number
+): (arg: T) => void {
+    let timeout: any;
+    let prevArg: T | undefined;
+
+    return (arg: T) => {
+        if (shouldCancelPrevious(arg, prevArg)) {
+            clearTimeout(timeout);
+        }
+
+        prevArg = arg;
+        timeout = setTimeout(() => {
+            fn(arg);
+            prevArg = undefined;
+        }, miliseconds);
+    };
 }
