@@ -1,119 +1,125 @@
-import { isInsideExpression, isInsideFrontmatter } from '../../../core/documents/utils';
+import { isInsideFrontmatter } from '../../../core/documents/utils';
 import { Document } from '../../../core/documents';
 import * as ts from 'typescript';
-import {
-    CompletionContext,
-    CompletionList,
-    CompletionItem,
-    Position,
-    TextDocumentIdentifier,
-} from 'vscode-languageserver';
+import { CompletionContext, CompletionList, CompletionItem, Position, TextDocumentIdentifier, TextEdit, MarkupKind, MarkupContent } from 'vscode-languageserver';
 import { AppCompletionItem, AppCompletionList, CompletionsProvider } from '../../interfaces';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { scriptElementKindToCompletionItemKind, getCommitCharactersForScriptElement } from '../utils';
 
-
 export interface CompletionEntryWithIdentifer extends ts.CompletionEntry, TextDocumentIdentifier {
-    position: Position;
+  position: Position;
 }
 
-// const validTriggerCharacters = ['.', '"', "'", '`', '/', '@', '<', '#'] as const;
-// type ValidTriggerCharacter = typeof validTriggerCharacters[number];
-
-// const isValidTriggerCharacter = (
-//     character: string | undefined
-// ): character is ValidTriggerCharacter => {
-//     return validTriggerCharacters.includes(character as ValidTriggerCharacter);
-// }
-
 export class CompletionsProviderImpl implements CompletionsProvider<CompletionEntryWithIdentifer> {
-    
-    constructor(private lang: LanguageServiceManager) {}
+  constructor(private lang: LanguageServiceManager) {}
 
-    async getCompletions(
-        document: Document,
-        position: Position,
-        completionContext?: CompletionContext
-    ): Promise<AppCompletionList<CompletionEntryWithIdentifer> | null> {
-        if (!isInsideFrontmatter(document.getText(), document.offsetAt(position))) {
-            return null;
-        }
-
-        const filePath = document.getFilePath();
-        if (!filePath) throw new Error();
-
-        const { tsDoc, lang } = await this.lang.getTypeScriptDoc(document);
-        const fragment = await tsDoc.getFragment();
-
-        const { entries } = lang.getCompletionsAtPosition(fragment.filePath, document.offsetAt(position), {}) ?? { entries: [] };
-        const completionItems = entries.map((entry: ts.CompletionEntry) => this.toCompletionItem(fragment, entry, document.uri, position, new Set())).filter(i => i) as CompletionItem[];
-
-        return CompletionList.create(completionItems, true);
-
+  async getCompletions(document: Document, position: Position, completionContext?: CompletionContext): Promise<AppCompletionList<CompletionEntryWithIdentifer> | null> {
+    // TODO: handle inside expression
+    if (!isInsideFrontmatter(document.getText(), document.offsetAt(position))) {
+      return null;
     }
 
-    async resolveCompletion(
-        document: Document,
-        completionItem: AppCompletionItem<CompletionEntryWithIdentifer>
-    ): Promise<AppCompletionItem<CompletionEntryWithIdentifer>> {
-        return completionItem;
+    const filePath = document.getFilePath();
+    if (!filePath) throw new Error();
+
+    const { tsDoc, lang } = await this.lang.getTypeScriptDoc(document);
+    const fragment = await tsDoc.getFragment();
+
+    const { entries } = lang.getCompletionsAtPosition(fragment.filePath, document.offsetAt(position), {}) ?? { entries: [] };
+    const completionItems = entries
+      .map((entry: ts.CompletionEntry) => this.toCompletionItem(fragment, entry, document.uri, position, new Set()))
+      .filter((i) => i) as CompletionItem[];
+
+    return CompletionList.create(completionItems, true);
+  }
+
+  async resolveCompletion(document: Document, completionItem: AppCompletionItem<CompletionEntryWithIdentifer>): Promise<AppCompletionItem<CompletionEntryWithIdentifer>> {
+    const { data: comp } = completionItem;
+    const { tsDoc, lang } = await this.lang.getTypeScriptDoc(document);
+
+    const filePath = tsDoc.filePath;
+
+    if (!comp || !filePath) {
+      return completionItem;
     }
 
-    private toCompletionItem(
-        fragment: any,
-        comp: ts.CompletionEntry,
-        uri: string,
-        position: Position,
-        existingImports: Set<string>
-    ): AppCompletionItem<CompletionEntryWithIdentifer> | null {
-        const completionLabelAndInsert = this.getCompletionLabelAndInsert(fragment, comp);
-        if (!completionLabelAndInsert) {
-            return null;
-        }
+    const fragment = await tsDoc.getFragment();
+    const detail = lang.getCompletionEntryDetails(filePath, fragment.offsetAt(comp.position), comp.name, {}, comp.source, {});
 
-        const { label, insertText, isSvelteComp } = completionLabelAndInsert;
-        // TS may suggest another Svelte component even if there already exists an import
-        // with the same name, because under the hood every Svelte component is postfixed
-        // with `__SvelteComponent`. In this case, filter out this completion by returning null.
-        if (isSvelteComp && existingImports.has(label)) {
-            return null;
-        }
+    if (detail) {
+      const { detail: itemDetail, documentation: itemDocumentation } = this.getCompletionDocument(detail);
 
-        return {
-            label,
-            insertText,
-            kind: scriptElementKindToCompletionItemKind(comp.kind),
-            commitCharacters: getCommitCharactersForScriptElement(comp.kind),
-            // Make sure svelte component takes precedence
-            sortText: isSvelteComp ? '-1' : comp.sortText,
-            preselect: isSvelteComp ? true : comp.isRecommended,
-            // pass essential data for resolving completion
-            data: {
-                ...comp,
-                uri,
-                position
-            }
-        };
+      completionItem.detail = itemDetail;
+      completionItem.documentation = itemDocumentation;
     }
 
-    private getCompletionLabelAndInsert(
-        fragment: any,
-        comp: ts.CompletionEntry
-    ) {
-        let { kind, kindModifiers, name, source } = comp;
-        const isScriptElement = kind === ts.ScriptElementKind.scriptElement;
-        const hasModifier = Boolean(comp.kindModifiers);
-        if (isScriptElement && hasModifier) {
-            return {
-                insertText: name,
-                label: name + kindModifiers,
-                isSvelteComp: false
-            };
-        }
+    const actions = detail?.codeActions;
+    const isImport = !!detail?.source;
 
-        return {
-            label: name,
-            isSvelteComp: false
-        };
+    console.log({ actions, isImport });
+
+    // TODO: handle actions
+    // if (actions) {
+    //   const edit: TextEdit[] = [];
+
+    //   for (const action of actions) {
+    //     for (const change of action.changes) {
+    //       edit.push(
+    //         ...this.codeActionChangesToTextEdit(
+    //           document,
+    //           fragment,
+    //           change,
+    //           isImport,
+    //           isInsideFrontmatter(fragment.getFullText(), fragment.offsetAt(comp.position))
+    //         )
+    //       );
+    //     }
+    //   }
+
+    //   completionItem.additionalTextEdits = edit;
+    // }
+
+    return completionItem;
+  }
+
+  private toCompletionItem(
+    fragment: any,
+    comp: ts.CompletionEntry,
+    uri: string,
+    position: Position,
+    existingImports: Set<string>
+  ): AppCompletionItem<CompletionEntryWithIdentifer> | null {
+    return {
+      label: comp.name,
+      insertText: comp.insertText,
+      kind: scriptElementKindToCompletionItemKind(comp.kind),
+      commitCharacters: getCommitCharactersForScriptElement(comp.kind),
+      // Make sure svelte component takes precedence
+      sortText: comp.sortText,
+      preselect: comp.isRecommended,
+      // pass essential data for resolving completion
+      data: {
+        ...comp,
+        uri,
+        position
+      },
+    };
+  }
+
+  private getCompletionDocument(compDetail: ts.CompletionEntryDetails) {
+    const { source, documentation: tsDocumentation, displayParts, tags } = compDetail;
+    let detail: string = ts.displayPartsToString(displayParts);
+
+    if (source) {
+      const importPath = ts.displayPartsToString(source);
+      detail = `Auto import from ${importPath}\n${detail}`;
     }
+
+    const documentation: MarkupContent | undefined = tsDocumentation ? { value: tsDocumentation.join('\n'), kind: MarkupKind.Markdown } : undefined;
+
+    return {
+      documentation,
+      detail,
+    };
+  }
 }

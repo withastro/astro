@@ -129,7 +129,7 @@ export interface DocumentSnapshot extends ts.IScriptSnapshot {
      * it's no longer needed / the class should be cleaned up
      * in order to prevent memory leaks.
      */
-    getFragment(): Promise<TypeScriptDocumentSnapshot>;
+    getFragment(): Promise<DocumentFragmentSnapshot>;
     /**
      * Needs to be called when source mapper
      * is no longer needed / the class should be cleaned up
@@ -162,8 +162,8 @@ class AstroDocumentSnapshot implements DocumentSnapshot {
     
     constructor(private doc: Document) {}
 
-    async getFragment() {
-        return new TypeScriptDocumentSnapshot(this.doc.version, toVirtualAstroFilePath(this.filePath) ,this.text.replace(/---/g, '///'));
+    async getFragment(): Promise<DocumentFragmentSnapshot> {
+        return new DocumentFragmentSnapshot(this.doc);
     }
 
     async destroyFragment() {
@@ -203,6 +203,67 @@ class AstroDocumentSnapshot implements DocumentSnapshot {
         return chunks[chunks.length - 1];
     }
 
+    offsetAt(position: Position) {
+        return offsetAt(position, this.text);
+    }
+
+}
+
+class DocumentFragmentSnapshot implements Omit<DocumentSnapshot, 'getFragment'|'destroyFragment'> {
+    
+    version: number;
+    filePath: string;
+    url: string;
+    text: string;
+
+    scriptKind = ts.ScriptKind.TSX;
+    scriptInfo = null;
+
+    constructor(
+        private doc: Document
+    ) { 
+        const filePath = doc.getFilePath();
+        if (!filePath) throw new Error('Cannot create a document fragment from a non-local document');
+        const text = doc.getText();
+        this.version = doc.version;
+        this.filePath = toVirtualAstroFilePath(filePath);
+        this.url = toVirtualAstroFilePath(filePath);
+        this.text = this.transformContent(text);
+    }
+
+    /** @internal */
+    private transformContent(content: string) {
+        return content.replace(/---/g, '///');
+    }
+
+    getText(start: number, end: number) {
+        return this.text.substring(start, end);
+    }
+
+    getLength() {
+        return this.text.length;
+    }
+
+    getFullText() {
+        return this.text;
+    }
+
+    getChangeRange() {
+        return undefined;
+    }
+
+    positionAt(offset: number) {
+        return positionAt(offset, this.text);
+    }
+
+    getLineContainingOffset(offset: number) {
+        const chunks = this.getText(0, offset).split('\n');
+        return chunks[chunks.length - 1];
+    }
+
+    offsetAt(position: Position): number {
+        return offsetAt(position, this.text);
+    }
 }
 
 class TypeScriptDocumentSnapshot implements DocumentSnapshot {
@@ -240,12 +301,17 @@ class TypeScriptDocumentSnapshot implements DocumentSnapshot {
         return offsetAt(position, this.text);
     }
 
-    async getFragment() {
-        return this;
+    async getFragment(): Promise<DocumentFragmentSnapshot> {
+        return this as unknown as any;
     }
 
     destroyFragment() {
         // nothing to clean up
+    }
+
+    getLineContainingOffset(offset: number) {
+        const chunks = this.getText(0, offset).split('\n');
+        return chunks[chunks.length - 1];
     }
 
     update(changes: TextDocumentContentChangeEvent[]): void {
