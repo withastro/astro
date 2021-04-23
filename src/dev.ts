@@ -5,7 +5,7 @@ import { logger as snowpackLogger } from 'snowpack';
 import http from 'http';
 import { relative as pathRelative } from 'path';
 import { defaultLogDestination, error, parseError } from './logger.js';
-import { createRuntime, LoadResult } from './runtime.js';
+import { createRuntime } from './runtime.js';
 
 const hostname = '127.0.0.1';
 
@@ -23,28 +23,36 @@ export default async function dev(astroConfig: AstroConfig) {
 
   const runtime = await createRuntime(astroConfig, { mode: 'development', logging });
 
-  async function handleRuntimeResult(req: http.IncomingMessage, res: http.ServerResponse, result: LoadResult) {
+  const server = http.createServer(async (req, res) => {
+    const result =  await runtime.load(req.url)
+
     switch (result.statusCode) {
       case 200: {
         if (result.contentType) {
           res.setHeader('Content-Type', result.contentType);
         }
+        res.statusCode = 200;
         res.write(result.contents);
         res.end();
         break;
       }
       case 404: {
-        let fourOhFourResult = await runtime.load('/404');
+        const fullurl = new URL(req.url || '/', 'https://example.org/');
+        const reqPath = decodeURI(fullurl.pathname);
+        error(logging, 'static', 'Not found', reqPath);
+        res.statusCode = 404;
+
+        const fourOhFourResult = await runtime.load('/404');
         if(fourOhFourResult.statusCode === 200) {
-          handleRuntimeResult(req, res, fourOhFourResult);
+          if (fourOhFourResult.contentType) {
+            res.setHeader('Content-Type', fourOhFourResult.contentType);
+          }
+          res.write(fourOhFourResult.contents);
         } else {
-          const fullurl = new URL(req.url || '/', 'https://example.org/');
-          const reqPath = decodeURI(fullurl.pathname);
-          error(logging, 'static', 'Not found', reqPath);
-          res.statusCode = 404;
           res.setHeader('Content-Type', 'text/plain');
-          res.end('Not Found');
+          res.write('Not Found');
         }
+        res.end();
         break;
       }
       case 500: {
@@ -65,10 +73,6 @@ export default async function dev(astroConfig: AstroConfig) {
         break;
       }
     }
-  }
-
-  const server = http.createServer(async (req, res) => {
-    handleRuntimeResult(req, res, await runtime.load(req.url));
   });
 
   const port = astroConfig.devOptions.port;
@@ -76,8 +80,6 @@ export default async function dev(astroConfig: AstroConfig) {
     // eslint-disable-next-line no-console
     console.log(`Server running at http://${hostname}:${port}/`);
   });
-
-  return () => new Promise(resolve => server.close(resolve));
 }
 
 /** Format error message */
