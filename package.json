@@ -33,6 +33,7 @@
     "publish-hidden": "npm run build && npm publish --tag shhhhh"
   },
   "dependencies": {
+    "@babel/code-frame": "^7.12.13",
     "@babel/generator": "^7.13.9",
     "@babel/parser": "^7.13.15",
     "@babel/traverse": "^7.13.15",
@@ -82,6 +83,7 @@
   },
   "devDependencies": {
     "@babel/types": "^7.13.14",
+    "@types/babel__code-frame": "^7.0.2",
     "@types/babel__generator": "^7.6.2",
     "@types/babel__parser": "^7.1.1",
     "@types/babel__traverse": "^7.11.1",

@@ -224,7 +224,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       },
     };
   } catch (err) {
-    if (err.code === 'parse-error') {
+    if (err.code === 'parse-error' || err instanceof SyntaxError) {
       return {
         statusCode: 500,
         type: 'parse-error',
