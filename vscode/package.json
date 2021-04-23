@@ -2,6 +2,11 @@
 	"name": "astro",
 	"displayName": "Astro",
 	"description": "Language support for Astro",
+	"icon": "assets/icon.png",
+	"galleryBanner": {
+		"color": "#FF5D01",
+		"theme": "dark"
+	},
 	"version": "0.1.0",
 	"author": "Astro",
 	"publisher": "astro-build",
@@ -33,6 +38,11 @@
 		"languages/",
 		"syntaxes/"
 	],
+	"repository": {
+		"type": "git",
+		"directory": "vscode",
+		"url": "https://github.com/snowpackjs/astro"
+	},
 	"contributes": {
 		"configuration": {
 			"type": "object",
