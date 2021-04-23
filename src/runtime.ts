@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'url';
 import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
-import type { AstroConfig, CollectionResult, CreateCollection, Params, RuntimeMode } from './@types/astro';
+import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { CompileError } from './parser/utils/error.js';
 import { debug, info } from './logger.js';
@@ -26,7 +26,10 @@ interface RuntimeConfig {
 }
 
 // info needed for collection generation
-type CollectionInfo = { additionalURLs: Set<string> };
+interface CollectionInfo {
+  additionalURLs: Set<string>;
+  rss?: { data: any[] & CollectionRSS };
+}
 
 type LoadResultSuccess = {
   statusCode: 200;
@@ -78,6 +81,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   }
 
   const snowpackURL = searchResult.location.snowpackURL;
+  let rss: { data: any[] & CollectionRSS } = {} as any;
 
   try {
     const mod = await backendSnowpackRuntime.importModule(snowpackURL);
@@ -90,11 +94,11 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     if (mod.exports.createCollection) {
       const createCollection: CreateCollection = await mod.exports.createCollection();
       for (const key of Object.keys(createCollection)) {
-        if (key !== 'data' && key !== 'routes' && key !== 'permalink' && key !== 'pageSize') {
+        if (key !== 'data' && key !== 'routes' && key !== 'permalink' && key !== 'pageSize' && key !== 'rss') {
           throw new Error(`[createCollection] unknown option: "${key}"`);
         }
       }
-      let { data: loadData, routes, permalink, pageSize } = createCollection;
+      let { data: loadData, routes, permalink, pageSize, rss: createRSS } = createCollection;
       if (!pageSize) pageSize = 25; // can’t be 0
       let currentParams: Params = {};
 
@@ -115,6 +119,14 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       }
 
       let data: any[] = await loadData({ params: currentParams });
+
+      // handle RSS
+      if (createRSS) {
+        rss = {
+          ...createRSS,
+          data: [...data] as any,
+        };
+      }
 
       collection.start = 0;
       collection.end = data.length - 1;
@@ -161,7 +173,10 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         return {
           statusCode: 301,
           location: reqPath + '/1',
-          collectionInfo: additionalURLs.size ? { additionalURLs } : undefined,
+          collectionInfo: {
+            additionalURLs,
+            rss: rss.data ? rss : undefined,
+          },
         };
       }
 
@@ -170,7 +185,10 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         return {
           statusCode: 404,
           error: new Error('Not Found'),
-          collectionInfo: additionalURLs.size ? { additionalURLs } : undefined,
+          collectionInfo: {
+            additionalURLs,
+            rss: rss.data ? rss : undefined,
+          },
         };
       }
 
@@ -200,7 +218,10 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       statusCode: 200,
       contentType: 'text/html; charset=utf-8',
       contents: html,
-      collectionInfo: additionalURLs.size ? { additionalURLs } : undefined,
+      collectionInfo: {
+        additionalURLs,
+        rss: rss.data ? rss : undefined,
+      },
     };
   } catch (err) {
     if (err.code === 'parse-error') {

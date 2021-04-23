@@ -88,10 +88,57 @@ When using the [Collections API][docs-collections], `createCollection()` is an a
 | `pageSize`  |           `number`            | Specify number of items per page (default: `25`).                                                          |
 | `routes`    |          `params[]`           | **Required for URL Params.** Return an array of all possible URL `param` values in `{ name: value }` form. |
 | `permalink` |   `({ params }) => string`    | **Required for URL Params.** Given a `param` object of `{ name: value }`, generate the final URL.\*        |
+| `rss`       |          [RSS][rss]           | Optional: generate an RSS 2.0 feed from this collection ([docs][rss]).                                     |
 
 _\* Note: don’t create confusing URLs with `permalink`, e.g. rearranging params conditionally based on their values._
 
 ⚠️ `createCollection()` executes in its own isolated scope before page loads. Therefore you can’t reference anything from its parent scope. If you need to load data you may fetch or use async `import()`s within the function body for anything you need (that’s why it’s `async`—to give you this ability). If it wasn’t isolated, then `collection` would be undefined! Therefore, duplicating imports between `createCollection()` and your Astro component is OK.
 
+#### 📡 RSS Feed
+
+You can optionally generate an RSS 2.0 feed from `createCollection()` by adding an `rss` option. Here are all the options:
+
+```jsx
+export async function createCollection() {
+  return {
+    async data({ params }) {
+      // load data
+    },
+    pageSize: 25,
+    rss: {
+      title: 'My RSS Feed',
+      description: 'Description of the feed',
+      /** (optional) add xmlns:* properties to root element */
+      xmlns: {
+        itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+        content: 'http://purl.org/rss/1.0/modules/content/',
+      },
+      /** (optional) add arbitrary XML to <channel> */
+      customData: `<language>en-us</language>
+<itunes:author>The Sunset Explorers</itunes:author>`,
+      /** Format each item from things returned in data() */
+      item: (item) => ({
+        title: item.title,
+        description: item.description,
+        pubDate: item.pubDate,
+        /** (optional) add arbitrary XML to each <item> */
+        customData: `<itunes:episodeType>${item.type}</itunes:episodeType>
+<itunes:duration>${item.duration}</itunes:duration>
+<itunes:explicit>${item.explicit || false}</itunes:explicit>`,
+      }),
+    },
+  };
+}
+```
+
+Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/astro/pages/$podcast.xml` would generate `/feed/podcast.xml`).
+
+⚠️ Even though Astro will create the RSS feed for you, you’ll still need to add `<link>` tags manually in your `<head>` HTML:
+
+```html
+<link rel="alternate" type="application/rss+xml" title="My RSS Feed" href="/feed/podcast.xml" />
+```
+
 [config]: ../README.md#%EF%B8%8F-configuration
 [docs-collections]: ./collections.md
+[rss]: #-rss-feed

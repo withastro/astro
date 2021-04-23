@@ -18,7 +18,18 @@ export async function createCollection() {
       allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
       return allPosts;
     },
-    pageSize: 3
+    pageSize: 3,
+    rss: {
+      title: 'Muppet Blog',
+      description: 'An example blog on Astro',
+      customData: `<language>en-us</language>`,
+      item: (item) => ({
+        title: item.title,
+        description: item.description,
+        link: item.url,
+        pubDate: item.date,
+      }),
+    }
   };
 }
 ---

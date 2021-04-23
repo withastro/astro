@@ -14,13 +14,16 @@ export interface AstroConfig {
   astroRoot: URL;
   public: URL;
   extensions?: Record<string, ValidExtensionPlugins>;
-  /** Public URL base (e.g. 'https://mysite.com'). Used in generating sitemaps and canonical URLs. */
-  site?: string;
-  /** Generate a sitemap? */
+  /** Options specific to `astro build` */
   buildOptions: {
+    /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
+    site?: string;
+    /** Generate sitemap (set to "false" to disable) */
     sitemap: boolean;
   };
+  /** Options for the development server run with `astro dev`. */
   devOptions: {
+    /** The port to run the dev server on. */
     port: number;
     projectRoot?: string;
   };
@@ -34,7 +37,7 @@ export type AstroUserConfig = Omit<AstroConfig, 'buildOptions' | 'devOptions'> &
     port?: number;
     projectRoot?: string;
   };
-}
+};
 
 export interface JsxItem {
   name: string;
@@ -67,6 +70,34 @@ export interface CreateCollection<T = any> {
   permalink?: ({ params }: { params: Params }) => string;
   /** page size */
   pageSize?: number;
+  /** Generate RSS feed from data() */
+  rss?: CollectionRSS<T>;
+}
+
+export interface CollectionRSS<T = any> {
+  /** (required) Title of the RSS Feed */
+  title: string;
+  /** (required) Description of the RSS Feed */
+  description: string;
+  /** Specify arbitrary metadata on opening <xml> tag */
+  xmlns?: Record<string, string>;
+  /** Specify custom data in opening of file */
+  customData?: string;
+  /** Return data about each item */
+  item: (
+    item: T
+  ) => {
+    /** (required) Title of item */
+    title: string;
+    /** (required) Link to item */
+    link: string;
+    /** Publication date of item */
+    pubDate?: Date;
+    /** Item description */
+    description?: string;
+    /** Append some other XML-valid data to this item */
+    customData?: string;
+  };
 }
 
 export interface CollectionResult<T = any> {

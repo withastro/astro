@@ -1,5 +1,5 @@
 export default {
   buildOptions: {
-    sitemap: false,
+    site: 'https://mysite.dev',
   },
 };

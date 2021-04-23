@@ -10,7 +10,7 @@ export function collectStatics(html: string) {
   const append = (el: Element, attr: string) => {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const value: string = $(el).attr(attr)!;
-    if (value.startsWith('http')) {
+    if (value.startsWith('http') || $(el).attr('rel') === 'alternate') {
       return;
     }
     statics.add(value);
