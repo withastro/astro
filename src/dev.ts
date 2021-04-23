@@ -24,7 +24,7 @@ export default async function dev(astroConfig: AstroConfig) {
   const runtime = await createRuntime(astroConfig, { mode: 'development', logging });
 
   const server = http.createServer(async (req, res) => {
-    const result =  await runtime.load(req.url)
+    const result = await runtime.load(req.url);
 
     switch (result.statusCode) {
       case 200: {
@@ -43,7 +43,7 @@ export default async function dev(astroConfig: AstroConfig) {
         res.statusCode = 404;
 
         const fourOhFourResult = await runtime.load('/404');
-        if(fourOhFourResult.statusCode === 200) {
+        if (fourOhFourResult.statusCode === 200) {
           if (fourOhFourResult.contentType) {
             res.setHeader('Content-Type', fourOhFourResult.contentType);
           }
