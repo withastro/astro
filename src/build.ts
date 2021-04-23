@@ -3,17 +3,19 @@ import type { LogOptions } from './logger';
 import type { AstroRuntime, LoadResult } from './runtime';
 
 import { existsSync, promises as fsPromises } from 'fs';
+import { bold, green, yellow, underline } from 'kleur/colors';
 import path from 'path';
 import cheerio from 'cheerio';
 import { fileURLToPath } from 'url';
 import { fdir } from 'fdir';
-import { defaultLogDestination, error, info } from './logger.js';
+import { defaultLogDestination, error, info, trapWarn } from './logger.js';
 import { createRuntime } from './runtime.js';
 import { bundle, collectDynamicImports } from './build/bundle.js';
 import { generateRSS } from './build/rss.js';
 import { generateSitemap } from './build/sitemap.js';
 import { collectStatics } from './build/static.js';
 import { canonicalURL } from './build/util.js';
+
 
 const { mkdir, readFile, writeFile } = fsPromises;
 
@@ -197,7 +199,11 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const pages = await allPages(pageRoot);
   let builtURLs: string[] = [];
 
+
   try {
+    info(logging , 'build', yellow('! building pages...'));
+    // Vue also console.warns, this silences it.
+    const release = trapWarn();
     await Promise.all(
       pages.map(async (pathname) => {
         const filepath = new URL(`file://${pathname}`);
@@ -222,21 +228,27 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
         mergeSet(imports, await collectDynamicImports(filepath, collectImportsOptions));
       })
     );
+    info(logging, 'build', green('✔'), 'pages built.');
+    release();
   } catch (err) {
     error(logging, 'generate', err);
     await runtime.shutdown();
     return 1;
   }
 
+  info(logging, 'build', yellow('! scanning pages...'));
   for (const pathname of await allPages(componentRoot)) {
     mergeSet(imports, await collectDynamicImports(new URL(`file://${pathname}`), collectImportsOptions));
   }
+  info(logging, 'build', green('✔'), 'pages scanned.');
 
   if (imports.size > 0) {
     try {
+      info(logging, 'build', yellow('! bundling client-side code.'));
       await bundle(imports, { dist, runtime, astroConfig });
+      info(logging, 'build', green('✔'), 'bundling complete.');
     } catch (err) {
-      error(logging, 'generate', err);
+      error(logging, 'build', err);
       await runtime.shutdown();
       return 1;
     }
@@ -250,6 +262,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   }
 
   if (existsSync(astroConfig.public)) {
+    info(logging, 'build', yellow(`! copying public folder...`));
     const pub = astroConfig.public;
     const publicFiles = (await new fdir().withFullPaths().crawl(fileURLToPath(pub)).withPromise()) as string[];
     for (const filepath of publicFiles) {
@@ -260,16 +273,28 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       const bytes = await readFile(fileUrl);
       await writeFilep(outUrl, bytes, null);
     }
+    info(logging, 'build', green('✔'), 'public folder copied.');
   }
 
   // build sitemap
   if (astroConfig.buildOptions.sitemap && astroConfig.buildOptions.site) {
+    info(logging, 'build', yellow('! creating a sitemap...'));
     const sitemap = generateSitemap(builtURLs.map((url) => ({ canonicalURL: canonicalURL(url, astroConfig.buildOptions.site) })));
     await writeFile(new URL('./sitemap.xml', dist), sitemap, 'utf8');
+    info(logging, 'build', green('✔'), 'sitemap built.');
   } else if (astroConfig.buildOptions.sitemap) {
     info(logging, 'tip', `Set "buildOptions.site" in astro.config.mjs to generate a sitemap.xml`);
   }
 
+  builtURLs.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  info(logging, 'build', underline('Pages'));
+  const lastIndex = builtURLs.length - 1;
+  builtURLs.forEach((url, index) => {
+    const sep = index === 0 ? '┌' : index === lastIndex ? '└' : '├';
+    info(logging, null, ' ' + sep, url === '/' ? url : url + '/');
+  });
+
   await runtime.shutdown();
+  info(logging, 'build', bold(green('▶ Build Complete!')));
   return 0;
 }
