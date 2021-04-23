@@ -286,7 +286,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     info(logging, 'tip', `Set "buildOptions.site" in astro.config.mjs to generate a sitemap.xml`);
   }
 
-  builtURLs.sort();
+  builtURLs.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
   info(logging, 'build', underline('Pages'));
   const lastIndex = builtURLs.length - 1;
   builtURLs.forEach((url, index) => {
