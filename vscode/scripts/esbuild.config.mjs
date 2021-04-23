@@ -3,5 +3,5 @@ export default {
   logLevel: 'error',
   platform: 'node',
   format: 'cjs',
-  external: ['vscode', 'vscode-html-languageservice'],
+  external: ['vscode', 'vscode-html-languageservice', "vscode-emmet-helper"],
 };

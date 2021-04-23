@@ -4,7 +4,7 @@
 	"tasks": [
 		{
 			"type": "npm",
-			"script": "compile:extension",
+			"script": "build:extension",
 			"group": "build",
 			"presentation": {
 				"panel": "dedicated",
@@ -12,22 +12,6 @@
 			},
 			"problemMatcher": [
 				"$tsc"
-			]
-		},
-		{
-			"type": "npm",
-			"script": "watch:extension",
-			"isBackground": true,
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"presentation": {
-				"panel": "dedicated",
-				"reveal": "never"
-			},
-			"problemMatcher": [
-				"$tsc-watch"
 			]
 		}
 	]

@@ -2,7 +2,12 @@
 	"name": "astro",
 	"displayName": "Astro",
 	"description": "Language support for Astro",
-	"version": "0.1.0",
+	"icon": "assets/icon.png",
+	"galleryBanner": {
+		"color": "#FF5D01",
+		"theme": "dark"
+	},
+	"version": "0.3.0",
 	"author": "Astro",
 	"publisher": "astro-build",
 	"license": "MIT",
@@ -16,10 +21,11 @@
 		"vscode": "^1.52.0"
 	},
 	"activationEvents": [
-		"*"
+		"onLanguage:astro"
 	],
 	"dependencies": {
-		"vscode-html-languageservice": "^3.0.3"
+		"vscode-html-languageservice": "^3.0.3",
+		"vscode-emmet-helper": "2.1.2"
 	},
 	"devDependencies": {
 		"esbuild": "0.10.0",
@@ -32,7 +38,29 @@
 		"languages/",
 		"syntaxes/"
 	],
+	"repository": {
+		"type": "git",
+		"directory": "vscode",
+		"url": "https://github.com/snowpackjs/astro"
+	},
 	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Astro configuration",
+			"properties": {
+				"astro.trace.server": {
+					"scope": "window",
+					"type": "string",
+					"enum": [
+						"off",
+						"messages",
+						"verbose"
+					],
+					"default": "off",
+					"description": "Traces the communication between VS Code and the language server."
+				}
+			}
+		},
 		"languages": [
 			{
 				"id": "astro",
@@ -50,13 +78,17 @@
 				"language": "astro",
 				"scopeName": "text.html.astro",
 				"path": "./syntaxes/astro.tmLanguage.json",
+				"injectTo": [
+					"text.html.markdown"
+				],
 				"embeddedLanguages": {
 					"text.html.astro": "astro",
 					"text.html": "html",
 					"source.css": "css",
 					"source.scss": "scss",
 					"source.sass": "sass",
-					"source.tsx": "typescriptreact"
+					"source.tsx": "typescriptreact",
+					"meta.embedded.block.frontmatter": "typescriptreact"
 				}
 			}
 		]

@@ -14,6 +14,7 @@
     "astro": "file:../../"
   },
   "dependencies": {
+    "vscode-emmet-helper": "2.1.2",
     "vscode-html-languageservice": "^3.0.3",
     "vscode-languageserver": "^6.1.1",
     "vscode-languageserver-textdocument": "^1.0.1"

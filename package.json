@@ -29,7 +29,7 @@
     "lint": "eslint 'src/**/*.{js,ts}'",
     "format": "prettier -w '{src,test}/**/*.{js,ts}'",
     "test": "uvu test -i fixtures -i test-utils.js",
-    "watch:extension": "cd vscode && npm run watch",
+    "build:extension": "cd vscode && npm run build",
     "publish-hidden": "npm run build && npm publish --tag shhhhh"
   },
   "dependencies": {
