@@ -115,7 +115,6 @@ export function offsetAt(position: Position, text: string): number {
     return clamp(nextLineOffset, lineOffset, lineOffset + position.character);
 }
 
-/** */
 function getLineOffsets(text: string) {
     const lineOffsets = [];
     let isLineStart = true;

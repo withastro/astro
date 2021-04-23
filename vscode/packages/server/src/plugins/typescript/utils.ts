@@ -3,7 +3,6 @@ import { CompletionItemKind, DiagnosticSeverity } from 'vscode-languageserver';
 import { dirname } from 'path';
 import { pathToUrl } from '../../utils';
 
-/** */
 export function scriptElementKindToCompletionItemKind(
     kind: ts.ScriptElementKind
 ): CompletionItemKind {
@@ -50,7 +49,6 @@ export function scriptElementKindToCompletionItemKind(
     return CompletionItemKind.Property;
 }
 
-/** */
 export function getCommitCharactersForScriptElement(
     kind: ts.ScriptElementKind
 ): string[] | undefined {
@@ -84,7 +82,6 @@ export function getCommitCharactersForScriptElement(
     return commitCharacters.length === 0 ? undefined : commitCharacters;
 }
 
-/** */
 export function mapSeverity(category: ts.DiagnosticCategory): DiagnosticSeverity {
     switch (category) {
         case ts.DiagnosticCategory.Error:
@@ -138,7 +135,6 @@ export function ensureRealAstroFilePath(filePath: string) {
     return isVirtualAstroFilePath(filePath) ? toRealAstroFilePath(filePath) : filePath;
 }
 
-/** */
 export function findTsConfigPath(fileName: string, rootUris: string[]) {
     const searchDir = dirname(fileName);
     const path =
@@ -174,8 +170,6 @@ export function substituteWithWhitespace(result: string, start: number, end: num
 	return result;
 }
 
-
-/** */
 function append(result: string, str: string, n: number): string {
 	while (n > 0) {
 		if (n & 1) {

@@ -1,1 +1,2 @@
 src/parser/parse/**/*.ts
+vscode/**/*.ts
