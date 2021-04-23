@@ -34,6 +34,7 @@ export default async function dev(astroConfig: AstroConfig) {
         if (result.contentType) {
           res.setHeader('Content-Type', result.contentType);
         }
+        res.statusCode = 200;
         res.write(result.contents);
         res.end();
         break;
@@ -43,8 +44,18 @@ export default async function dev(astroConfig: AstroConfig) {
         const reqPath = decodeURI(fullurl.pathname);
         error(logging, 'static', 'Not found', reqPath);
         res.statusCode = 404;
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Not Found');
+
+        const fourOhFourResult = await runtime.load('/404');
+        if (fourOhFourResult.statusCode === 200) {
+          if (fourOhFourResult.contentType) {
+            res.setHeader('Content-Type', fourOhFourResult.contentType);
+          }
+          res.write(fourOhFourResult.contents);
+        } else {
+          res.setHeader('Content-Type', 'text/plain');
+          res.write('Not Found');
+        }
+        res.end();
         break;
       }
       case 500: {
