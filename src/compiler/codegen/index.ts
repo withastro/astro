@@ -9,11 +9,12 @@ import path from 'path';
 import { walk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
+import { codeFrameColumns } from "@babel/code-frame";
 import * as babelTraverse from '@babel/traverse';
 import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
 import { warn } from '../../logger.js';
 import { fetchContent } from './content.js';
-import { isFetchContent, isImportMetaDeclaration } from './utils.js';
+import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
@@ -315,10 +316,22 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
   const componentPlugins = new Set<ValidExtensionPlugins>();
 
   if (module) {
-    const program = babelParser.parse(module.content, {
+    const parseOptions: babelParser.ParserOptions = {
       sourceType: 'module',
       plugins: ['jsx', 'typescript', 'topLevelAwait'],
-    }).program;
+    };
+    let parseResult;
+    try {
+      parseResult = babelParser.parse(module.content, parseOptions)
+    } catch(err) {
+      const location = { start: err.loc };
+      const frame = codeFrameColumns(module.content, location);
+      err.frame = frame;
+      err.filename = state.filename;
+      err.start = err.loc;
+      throw err;
+    }
+    const program = parseResult.program;
 
     const { body } = program;
     let i = body.length;
