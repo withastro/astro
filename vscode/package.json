@@ -7,7 +7,7 @@
 		"color": "#FF5D01",
 		"theme": "dark"
 	},
-	"version": "0.1.0",
+	"version": "0.3.0",
 	"author": "Astro",
 	"publisher": "astro-build",
 	"license": "MIT",
