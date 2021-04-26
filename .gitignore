@@ -4,6 +4,6 @@ parser/
 dist/
 *.tsbuildinfo
 .DS_Store
-test/fixtures/*/_site/
-www/_site
+test/fixtures/*/dist/
+www/dist
 .vercel

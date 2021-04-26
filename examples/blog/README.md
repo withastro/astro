@@ -20,4 +20,4 @@ Preview at `http://localhost:3000`
 npm build
 ```
 
-Will output static site at `./_site`
+Will output static site at `./dist`

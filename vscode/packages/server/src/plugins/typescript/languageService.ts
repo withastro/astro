@@ -79,7 +79,7 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     );
 
   let projectVersion = 0;
-  const snapshotManager = new SnapshotManager(project.fileNames, { exclude: ['node_modules', '_site'], include: ['astro'] }, workspaceRoot || process.cwd());
+  const snapshotManager = new SnapshotManager(project.fileNames, { exclude: ['node_modules', 'dist'], include: ['astro'] }, workspaceRoot || process.cwd());
   const astroSys = createAstroSys(updateDocument);
 
   const host: ts.LanguageServiceHost = {
@@ -175,5 +175,5 @@ function getDefaultJsConfig(): {
 }
 
 function getDefaultExclude() {
-  return ['_site', 'node_modules'];
+  return ['dist', 'node_modules'];
 }

@@ -13,14 +13,14 @@ const snapshot = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns
 
 const cwd = new URL('./fixtures/astro-rss', import.meta.url);
 
-const clear = () => del(path.join(fileURLToPath(cwd), '_site')); // clear _site output
+const clear = () => del(path.join(fileURLToPath(cwd), 'dist')); // clear dist output
 
 RSS.before(() => clear());
 RSS.after(() => clear());
 
 RSS('Generates RSS correctly', async () => {
   execSync('node ../../../astro.mjs build', { cwd: fileURLToPath(cwd) });
-  const rss = await fs.promises.readFile(path.join(fileURLToPath(cwd), '_site', 'feed', 'episodes.xml'), 'utf8');
+  const rss = await fs.promises.readFile(path.join(fileURLToPath(cwd), 'dist', 'feed', 'episodes.xml'), 'utf8');
   assert.match(rss, snapshot);
 });
 

@@ -35,8 +35,8 @@ function configDefaults(userConfig?: any): any {
   const config: any = { ...(userConfig || {}) };
 
   if (!config.projectRoot) config.projectRoot = '.';
-  if (!config.astroRoot) config.astroRoot = './astro';
-  if (!config.dist) config.dist = './_site';
+  if (!config.astroRoot) config.astroRoot = './src';
+  if (!config.dist) config.dist = './dist';
   if (!config.public) config.public = './public';
   if (!config.devOptions) config.devOptions = {};
   if (!config.devOptions.port) config.devOptions.port = 3000;
