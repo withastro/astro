@@ -1,0 +1,68 @@
+---
+import Prism from 'astro/components/Prism.astro';
+let title = 'Oops';
+
+const error = import.meta.request.url.searchParams.get('error');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Error 500</title>
+    <link rel="preconnect"href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&display=swap">
+    <link rel="stylesheet" href="http://cdn.skypack.dev/prism-themes/themes/prism-material-dark.css">
+
+    <style>
+      html {
+        --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        --font-mono: "IBM Plex Mono", Consolas, "Andale Mono WT", "Andale Mono",
+            "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono",
+            "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco,
+            "Courier New", Courier, monospace;
+        --color-green: #17c083;
+      }
+
+      body {
+        background: FireBrick;
+        color: AliceBlue;
+
+        font-family: var(--font-sans);
+        font-weight: 400;
+      }
+
+      header {
+        margin-top: 3rem;
+      }
+
+      header h1 {
+        font-family: var(--font-sans);
+        font-size: 4rem;
+        text-align: center;
+      }
+
+      main {
+        text-align: center;
+      }
+
+      .error-message {
+        margin-top: 2rem;
+        display: grid;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Oops!</h1>
+    </header>
+
+    <main>
+      <p>We had trouble loading that page. This is what we know:</p>
+
+      <div class="error-message">
+        <Prism lang="shell" code={error} />
+      </div>
+    </main>
+  </body>
+</html>

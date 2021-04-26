@@ -200,6 +200,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         host: fullurl.hostname,
         path: fullurl.pathname,
         href: fullurl.toString(),
+        url: fullurl
       },
       children: [],
       props: { collection },
