@@ -34,6 +34,8 @@ Print the help message and exit.
 
 Runs the Astro development server. This starts an HTTP server that responds to requests for pages stored in `astro/pages` (or which folder is specified in your [configuration](../README.md##%EF%B8%8F-configuration)).
 
+See the [dev server](./dev.md) docs for more information on how the dev server works.
+
 __Flags__
 
 ##### `--port`
