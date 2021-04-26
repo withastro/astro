@@ -95,7 +95,7 @@ And also create a `tailwind.config.js` in your project root:
 
 module.exports = {
   mode: 'jit',
-  purge: ['./public/**/*.html', './astro/**/*.{astro,js,jsx,ts,tsx,vue}'],
+  purge: ['./public/**/*.html', './src/**/*.{astro,js,jsx,ts,tsx,vue}'],
   // more options here
 };
 ```

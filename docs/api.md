@@ -17,9 +17,9 @@ The `Astro` global is available in all contexts in `.astro` files. It has the fo
 `Astro.fetchContent()` is a way to load local `*.md` files into your static site setup. You can either use this on its own, or within [Astro Collections][docs-collections].
 
 ```jsx
-// ./astro/components/my-component.astro
+// ./src/components/my-component.astro
 ---
-const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of posts that live at ./astro/pages/post/*.md
+const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of posts that live at ./src/pages/post/*.md
 ---
 
 <div>
