@@ -68,7 +68,7 @@ SnowpackDev('No error creating the runtime', () => {
 SnowpackDev('Can load every page', async () => {
   const failed = [];
 
-  const pageRoot = new URL('../examples/snowpack/astro/pages/', import.meta.url);
+  const pageRoot = new URL('../examples/snowpack/src/pages/', import.meta.url);
   for await (let pathname of allPages(pageRoot)) {
     if (pathname.includes('proof-of-concept-dynamic')) {
       continue;
