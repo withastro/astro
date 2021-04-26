@@ -195,11 +195,20 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       collection.data = data;
     }
 
+    const requestURL = new URL(fullurl.toString());
+
+    // For first release query params are not passed to components.
+    // An exception is made for dev server specific routes.
+    if(reqPath !== '/500') {
+      requestURL.search = '';
+    }
+
     let html = (await mod.exports.__renderPage({
       request: {
         host: fullurl.hostname,
         path: fullurl.pathname,
         href: fullurl.toString(),
+        url: requestURL
       },
       children: [],
       props: { collection },

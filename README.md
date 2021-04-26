@@ -210,9 +210,18 @@ Now upload the contents of `/_site_` to your favorite static site host.
 
 👉 [**Full API Reference**][docs-api]
 
+## 👩🏽‍💻 CLI
+
+👉 [**Command Line Docs**][docs-cli]
+
+## 🏗 Development Server
+
+👉 [**Dev Server Docs**][docs-dev]
+
 [config]: #%EF%B8%8F-configuration
 [docs-api]: ./docs/api.md
 [docs-collections]: ./docs/collections.md
+[docs-dev]: ./docs/dev.md
 [docs-styling]: ./docs/styling.md
 [example-blog]: ./examples/blog
 [fetch-content]: ./docs/api.md#fetchcontent
@@ -220,3 +229,4 @@ Now upload the contents of `/_site_` to your favorite static site host.
 [mdn-io]: https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
 [mdn-ric]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
 [routing]: #-routing
+[docs-cli]: ./docs/cli.md

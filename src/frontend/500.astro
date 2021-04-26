@@ -1,0 +1,128 @@
+---
+import Prism from 'astro/components/Prism.astro';
+let title = 'Uh oh...';
+
+const error = import.meta.request.url.searchParams.get('error');
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Error 500</title>
+    <link rel="preconnect"href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&family=IBM+Plex+Sans&display=swap">
+    <link rel="stylesheet" href="http://cdn.skypack.dev/prism-themes/themes/prism-material-dark.css">
+
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+
+      :global(:root) {
+        --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+        --font-mono: "IBM Plex Mono", Consolas, "Andale Mono WT", "Andale Mono",
+            "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono",
+            "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco,
+            "Courier New", Courier, monospace;
+        --color-gray-800: #1F2937;
+        --color-gray-500: #6B7280;
+        --color-gray-400: #9CA3AF;
+        --color-gray-100: #F3F4F6;
+        --color-red: #FF1639;
+      }
+
+      html, body {
+        width: 100vw;
+        height: 100%;
+        min-height: 100vh;
+
+        font-family: var(--font-sans);
+        font-weight: 400;
+        background: var(--color-gray-100);
+        text-align: center;
+      }
+
+      body {
+        display: grid;
+        place-content: center;
+      }
+
+      header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        font-family: var(--font-sans);
+        font-size: 2.5rem;
+        font-size: clamp(24px, calc(2vw + 1rem), 2.5rem);
+      }
+
+      header h1 {
+        margin: 0.25em;
+        margin-right: 0;
+        font-weight: 400;
+        letter-spacing: -2px;
+        line-height: 1;
+      }
+
+      header h1 .title {
+        color: var(--color-gray-400);
+        white-space: nowrap;
+      }
+
+      header svg {
+        margin-bottom: -0.125em;
+        color: var(--color-red);
+      }
+
+      p {
+        font-size: 1.75rem;
+        font-size: clamp(14px, calc(2vw + 0.5rem), 1.75rem);
+        flex: 1;
+      }
+
+      .error-message {
+        display: grid;
+        justify-content: center;
+        margin-top: 4rem;
+      }
+
+      .error-message :global(code[class*="language-"]) {
+        background: var(--color-gray-800);
+      }
+      .error-message :global(pre) {
+        margin: 0;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        background: var(--color-gray-800);
+        border-radius: 8px;
+      }
+
+      .error-message :global(.token.punctuation) {
+        color: var(--color-gray-400);
+      }
+
+      .error-message :global(.token.operator) {
+        color: var(--color-gray-400);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="1.75em" height="1.75em">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <h1><span class="error">500 Error </span><span class="title">{title}</span></h1>
+      </header>
+
+      <article>
+        <p>Astro had some trouble loading this page.</p>
+
+        <div class="error-message">
+          <Prism lang="shell" code={error} />
+        </div>
+      </article>
+    </main>
+  </body>
+</html>

@@ -72,7 +72,17 @@ export default async function dev(astroConfig: AstroConfig) {
           }
         }
         res.statusCode = 500;
-        res.end(formatErrorForBrowser(result.error));
+
+        let errorResult = await runtime.load(`/500?error=${encodeURIComponent(result.error.stack || result.error.toString())}`);
+        if(errorResult.statusCode === 200) {
+          if (errorResult.contentType) {
+            res.setHeader('Content-Type', errorResult.contentType);
+          }
+          res.write(errorResult.contents);
+        } else {
+          res.write(result.error.toString());
+        }
+        res.end();
         break;
       }
     }
@@ -84,10 +94,4 @@ export default async function dev(astroConfig: AstroConfig) {
     info(logging, 'dev server', green(`Server started in ${Math.floor(endServerTime - startServerTime)}ms.`));
     info(logging, 'dev server', `${green('Local:')} http://${hostname}:${port}/`);
   });
-}
-
-/** Format error message */
-function formatErrorForBrowser(err: Error) {
-  // TODO make this pretty.
-  return err.toString();
 }

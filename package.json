@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "npm run build:core && npm run build:parser",
-    "build:core": "tsc -p tsconfig.json",
+    "build:core": "tsc -p tsconfig.json && cp src/frontend/500.astro lib/frontend/500.astro",
     "build:parser": "tsc -p tsconfig.parser.json",
     "postbuild:parser": "echo '{ \"type\": \"commonjs\" }' > parser/package.json",
     "dev": "tsc --watch",

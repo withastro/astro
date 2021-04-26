@@ -91,6 +91,17 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
     }
   }
 
+  if(reqPath === '/500') {
+    return {
+      statusCode: 200,
+      location: {
+        fileURL: new URL('./frontend/500.astro', import.meta.url),
+        snowpackURL: `/_astro_internal/500.astro.js`
+      },
+      pathname: reqPath
+    };
+  }
+
   return {
     statusCode: 404,
   };
@@ -127,11 +138,4 @@ function loadCollection(url: string, astroRoot: URL): { currentPage?: number; lo
       };
     }
   }
-}
-
-/** convert a value to a number, if possible */
-function maybeNum(val: string): string | number {
-  const num = parseFloat(val);
-  if (num.toString() === val) return num;
-  return val;
 }
