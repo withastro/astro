@@ -34,7 +34,7 @@ Markdown.before(async () => {
 
 Markdown.after(async () => {
   (await runtime) && runtime.shutdown();
-  rmdir(join(fixturePath, '_site'), { recursive: true });
+  rmdir(join(fixturePath, 'dist'), { recursive: true });
 });
 
 Markdown('No errors creating a runtime', () => {
@@ -62,10 +62,10 @@ Markdown('Can load more complex jsxy stuff', async () => {
 Markdown('Bundles client-side JS for prod', async () => {
   await build(astroConfig);
 
-  const complexHtml = await readFile(join(fixturePath, './_site/complex/index.html'), 'utf-8');
+  const complexHtml = await readFile(join(fixturePath, './dist/complex/index.html'), 'utf-8');
 
   assert.match(complexHtml, `import("/_astro/components/Counter.js"`);
-  assert.ok(existsSync(join(fixturePath, `./_site/_astro/components/Counter.js`)), 'Counter.jsx is bundled for prod');
+  assert.ok(existsSync(join(fixturePath, `./dist/_astro/components/Counter.js`)), 'Counter.jsx is bundled for prod');
 });
 
 Markdown.run();
