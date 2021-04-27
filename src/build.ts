@@ -40,7 +40,7 @@ const logging: LogOptions = {
   dest: defaultLogDestination,
 };
 
-/** Return contents of astro/pages */
+/** Return contents of src/pages */
 async function allPages(root: URL) {
   const api = new fdir()
     .filter((p) => /\.(astro|md)$/.test(p))

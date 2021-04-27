@@ -13,7 +13,7 @@ By default, any Astro component can fetch data from any API or local `*.md` file
 Let’s pretend we have some blog posts written already. This is our starting project structure:
 
 ```
-└── astro/
+└── src/
     └── pages/
         └── post/
             └── (blog content)
@@ -25,10 +25,10 @@ The first step in adding some dynamic collections is deciding on a URL schema. F
 - `/posts/:page`: A list page of all blog posts, paginated, and sorted most recent first
 - `/tag/:tag`: All blog posts, filtered by a specific tag
 
-Because `/post/:post` references the static files we have already, that doesn’t need to be a collection. But we will need collections for `/posts/:page` and `/tag/:tag` because those will be dynamically generated. For both collections we’ll create a `/astro/pages/$[collection].astro` file. This is our new structure:
+Because `/post/:post` references the static files we have already, that doesn’t need to be a collection. But we will need collections for `/posts/:page` and `/tag/:tag` because those will be dynamically generated. For both collections we’ll create a `/src/pages/$[collection].astro` file. This is our new structure:
 
 ```diff
-  └── astro/
+  └── src/
       └── pages/
           ├── post/
           │   └── (blog content)
@@ -76,7 +76,7 @@ published_at: 2021-03-01 09:34:00
 There’s nothing special or reserved about any of these names; you’re free to name everything whatever you’d like, or have as much or little frontmatter as you need.
 
 ```jsx
-// /astro/pages/$posts.astro
+// /src/pages/$posts.astro
 ---
 export let collection: any;
 
@@ -136,10 +136,10 @@ Let’s walk through some of the key parts:
 
 #### Example 2: Advanced filtering & pagination
 
-In our earlier example, we covered simple pagination for `/posts/1`, but we’d still like to make `/tag/:tag/1` and `/year/:year/1`. To do that, we’ll create 2 more collections: `/astro/pages/$tag.astro` and `astro/pages/$year.astro`. Assume that the markup is the same, but we’ve expanded the `createCollection()` function with more data.
+In our earlier example, we covered simple pagination for `/posts/1`, but we’d still like to make `/tag/:tag/1` and `/year/:year/1`. To do that, we’ll create 2 more collections: `/src/pages/$tag.astro` and `src/pages/$year.astro`. Assume that the markup is the same, but we’ve expanded the `createCollection()` function with more data.
 
 ```diff
-  // /astro/pages/$tag.astro
+  // /src/pages/$tag.astro
   ---
   import Pagination from '../components/Pagination.astro';
   import PostPreview from '../components/PostPreview.astro';

@@ -14,10 +14,10 @@ The dev server will serve the following special routes:
 
 ### /400
 
-This is a custom __400__ status code page. You can add this route by adding a page component to your `astro/pages` folder:
+This is a custom __400__ status code page. You can add this route by adding a page component to your `src/pages` folder:
 
 ```
-├── astro/
+├── src/
 │   ├── components/
 │   └── pages/
 │       └── 400.astro
@@ -27,10 +27,10 @@ For any URL you visit that doesn't have a corresponding page, the `400.astro` fi
 
 ### /500
 
-This is a custom __500__ status code page. You can add this route by adding a page component to your `astro/pages` folder:
+This is a custom __500__ status code page. You can add this route by adding a page component to your `src/pages` folder:
 
 ```astro
-├── astro/
+├── src/
 │   ├── components/
 │   └── pages/
 │       └── 500.astro

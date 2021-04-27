@@ -69,10 +69,10 @@ export default {
 
 ### 🚀 Basic Usage
 
-Even though nearly-everything [is configurable][config], we recommend starting out by creating an `astro/` folder in your project with the following structure:
+Even though nearly-everything [is configurable][config], we recommend starting out by creating an `src/` folder in your project with the following structure:
 
 ```
-├── astro/
+├── src/
 │   ├── components/
 │   └── pages/
 │       └── index.astro
@@ -80,17 +80,17 @@ Even though nearly-everything [is configurable][config], we recommend starting o
 └── package.json
 ```
 
-- `astro/components/*`: where your reusable components go. You can place these anywhere, but we recommend a single folder to keep them organized.
-- `astro/pages/*`: this is a special folder where your [routing][routing] lives.
+- `src/components/*`: where your reusable components go. You can place these anywhere, but we recommend a single folder to keep them organized.
+- `src/pages/*`: this is a special folder where your [routing][routing] lives.
 
 #### 🚦 Routing
 
-Routing happens in `astro/pages/*`. Every `.astro` or `.md.astro` file in this folder corresponds with a public URL. For example:
+Routing happens in `src/pages/*`. Every `.astro` or `.md.astro` file in this folder corresponds with a public URL. For example:
 
 | Local file                               | Public URL                      |
 | :--------------------------------------- | :------------------------------ |
-| `astro/pages/index.astro`                | `/index.html`                   |
-| `astro/pages/post/my-blog-post.md.astro` | `/post/my-blog-post/index.html` |
+| `src/pages/index.astro`                | `/index.html`                   |
+| `src/pages/post/my-blog-post.md.astro` | `/post/my-blog-post/index.html` |
 
 #### 🗂 Static Assets
 
@@ -153,7 +153,7 @@ Fetching data is what Astro is all about! Whether your data lives remotely in an
 For fetching from a remote API, use a native JavaScript `fetch()` ([docs][fetch-js]) as you are used to. For fetching local content, use `Astro.fetchContent()` ([docs][fetch-content]).
 
 ```js
-// astro/components/MyComponent.Astro
+// src/components/MyComponent.Astro
 
 ---
 // Example 1: fetch remote data from your own API

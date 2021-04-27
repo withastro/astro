@@ -23,8 +23,8 @@ const crawler = new fdir();
 function globSearch(spec: string, { filename }: { filename: string }): string[] {
   try {
     // Note: fdir’s glob requires you to do some work finding the closest non-glob folder.
-    // For example, this fails: .glob("./post/*.md").crawl("/…/astro/pages") ❌
-    //       …but this doesn’t: .glob("*.md").crawl("/…/astro/pages/post")   ✅
+    // For example, this fails: .glob("./post/*.md").crawl("/…/src/pages") ❌
+    //       …but this doesn’t: .glob("*.md").crawl("/…/src/pages/post")   ✅
     let globDir = '';
     let glob = spec;
     for (const part of spec.split('/')) {

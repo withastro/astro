@@ -139,7 +139,7 @@ export async function createCollection() {
 }
 ```
 
-Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/astro/pages/$podcast.xml` would generate `/feed/podcast.xml`).
+Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/src/pages/$podcast.xml` would generate `/feed/podcast.xml`).
 
 ⚠️ Even though Astro will create the RSS feed for you, you’ll still need to add `<link>` tags manually in your `<head>` HTML:
 
