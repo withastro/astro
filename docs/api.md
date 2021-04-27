@@ -43,6 +43,14 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 }[];
 ```
 
+#### `request`
+
+`Astro.request` returns an object with the following properties:
+
+| Name   | Type     | Description                                                                                                |
+| :----- | :------- | :--------------------------------------------------------------------------------------------------------- |
+| `url` | `URL` | The URL of the request being rendered. |
+
 ### `collection`
 
 ```jsx
