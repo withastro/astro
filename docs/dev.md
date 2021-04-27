@@ -42,7 +42,7 @@ The 500 page will receive an `error` query parameter which you can access with:
 
 ```
 ---
-const error = import.meta.request.url.searchParams.get('error');
+const error = Astro.request.url.searchParams.get('error');
 ---
 
 <strong>{error}</strong>

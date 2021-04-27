@@ -131,7 +131,12 @@ ${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from '${internalImport('h.js')}';
+const __astroRequestSymbol = Symbol('astro.request');
 async function __render(props, ...children) {
+  const Astro = {
+    request: props[__astroRequestSymbol]
+  };
+
   ${result.script}
   return h(Fragment, null, ${result.html});
 }
@@ -148,7 +153,7 @@ export async function __renderPage({request, children, props}) {
     __render,
   };
 
-  import.meta.request = request;
+  props[__astroRequestSymbol] = request;
   const childBodyResult = await currentChild.__render(props, children);
 
   // find layout, if one was given.

@@ -2,7 +2,7 @@
 import Prism from 'astro/components/Prism.astro';
 let title = 'Uh oh...';
 
-const error = import.meta.request.url.searchParams.get('error');
+const error = Astro.request.url.searchParams.get('error');
 ---
 
 <!doctype html>
