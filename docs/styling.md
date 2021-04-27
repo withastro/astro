@@ -18,7 +18,7 @@ Styling in Astro is meant to be as flexible as you’d like it to be! The follow
 Styling in an Astro component is done by adding a `<style>` tag anywhere. By default, all styles are **scoped**, meaning they only apply to the current component. To create global styles, add a `:global()` wrapper around a selector (the same as if you were using [CSS Modules][css-modules]).
 
 ```html
-<!-- astro/components/MyComponent.astro -->
+<!-- src/components/MyComponent.astro -->
 
 <style>
   /* Scoped class selector within the component */
