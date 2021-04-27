@@ -1,75 +1,54 @@
 ![Astro](./assets/social/banner.png)
 
-**Astro** is a next-generation static-site generator with partial hydration. Use your favorite JS framework and ship bare-minimum JS (or none at all!).
+**Astro** is a _fresh but familiar_ approach to building websites. Astro combines decades of proven performance best practices with the DX improvements of the component-oriented era.
+
+With Astro, you can use your favorite JavaScript framework and automatically ship the bare-minimum amount of JavaScript—by default, it's none at all!
 
 ## 🔧 Setup
 
 ```bash
-# currently hidden during private beta, please don't share :)
-npm install astro@shhhhh
+# currently "hidden" during private beta
+npm init astro@shhhhh ./my-astro-project
 
-# NOTE: There is currently a bug in Snowpack that prevents you
-# from using astro outside of the monorepo setup that we have here.
-# For now, do all development inside the `examples/` directory for this repo.
+# then... cd => install => start
+cd ./my-astro-project
+npm install
+npm start
 ```
 
-## 🧞 Development
+### 🚀 Build & Deployment
 
-Add a `dev` npm script to your `/package.json` file:
+The default Astro project has the following `scripts` in the `/package.json` file:
 
 ```json
 {
   "scripts": {
-    "dev": "astro dev ."
+    "start": "astro dev .",
+    "build": "astro build ."
   }
 }
 ```
 
-Then run:
+For local development, run:
 
 ```
-npm run dev
+npm run start
 ```
 
-### ⚙️ Configuration
+To build for production, run the following command:
 
-To configure Astro, add a `astro.config.mjs` file in the root of your project. All settings are optional. Here are the defaults:
-
-```js
-export default {
-  /** Where to resolve all URLs relative to. Useful if you have a monorepo project. */
-  projectRoot: '.',
-  /** Path to Astro components, pages, and data */
-  astroRoot: './src',
-  /** When running `astro build`, path to final static output */
-  dist: './dist',
-  /** A folder of static files Astro will copy to the root. Useful for favicons, images, and other files that don’t need processing. */
-  public: './public',
-  /** Extension-specific handlings */
-  extensions: {
-    /** Set this to "preact" or "react" to determine what *.jsx files should load */
-    '.jsx': 'react',
-  },
-  /** Options specific to `astro build` */
-  buildOptions: {
-    /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
-    site: '',
-    /** Generate sitemap (set to "false" to disable) */
-    sitemap: true,
-  },
-  /** Options for the development server run with `astro dev`. */
-  devOptions: {
-    /** The port to run the dev server on. */
-    port: 3000,
-  },
-};
 ```
+npm run build
+```
+
+To deploy your Astro site to production, upload the contents of `/dist` to your favorite static site host.
+
 
 ## 🥾 Guides
 
 ### 🚀 Basic Usage
 
-Even though nearly-everything [is configurable][config], we recommend starting out by creating an `src/` folder in your project with the following structure:
+Even though nearly-everything [is configurable][docs-config], we recommend starting out by creating an `src/` folder in your project with the following structure:
 
 ```
 ├── src/
@@ -166,7 +145,7 @@ const localData = Astro.fetchContent('../post/*.md');
 
 ### 🗺️ Sitemap
 
-Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set `buildOptions.site` in your [Astro config][config] so the URLs can be generated properly.
+Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set `buildOptions.site` in your [Astro config][docs-config] so the URLs can be generated properly.
 
 ⚠️ Note that Astro won’t inject this into your HTML for you! You’ll have to add the tag yourself in your `<head>` on all pages that need it:
 
@@ -185,27 +164,10 @@ Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set
 
 👉 [**Collections API**][docs-collections]
 
-### 🚀 Build & Deployment
 
-Add a `build` npm script to your `/package.json` file:
+## ⚙️ Config
 
-```json
-{
-  "scripts": {
-    "dev": "astro dev .",
-    "build": "astro build ."
-  }
-}
-```
-
-Then run:
-
-```
-npm run build
-```
-
-Now upload the contents of `/dist` to your favorite static site host.
-
+👉 [**`astro.config.mjs` Reference**][docs-config]
 ## 📚 API
 
 👉 [**Full API Reference**][docs-api]
@@ -218,7 +180,7 @@ Now upload the contents of `/dist` to your favorite static site host.
 
 👉 [**Dev Server Docs**][docs-dev]
 
-[config]: #%EF%B8%8F-configuration
+[docs-config]: ./docs/config.md
 [docs-api]: ./docs/api.md
 [docs-collections]: ./docs/collections.md
 [docs-dev]: ./docs/dev.md
