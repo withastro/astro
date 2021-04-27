@@ -17,7 +17,7 @@ export default async function createAstro(argv) {
 
     log();
     const dest = resolve(process.cwd(), name);
-    const relDest = `./${name}`;
+    const relDest = name.slice(0, 2) === './' ? name : `./${name}`;
     if (isEmpty(relDest)) {
         await decompress(fs.readFileSync(join(templateRoot, 'starter.tar.gz')), dest);
         log(`Your Astro project has been scaffolded at "${relDest}"`);
