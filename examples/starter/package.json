@@ -1,0 +1,12 @@
+{
+  "name": "TODO",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "start": "astro dev",
+    "build": "astro build"
+  },
+  "devDependencies": {
+    "astro": "shhhhh"
+  }
+}
