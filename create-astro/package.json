@@ -1,0 +1,17 @@
+{
+    "name": "create-astro",
+    "version": "0.0.1",
+    "type": "module",
+    "main": "./index.js",
+    "files": [
+        "templates",
+        "bin.js",
+        "index.js"
+    ],
+    "bin": {
+        "create-astro": "./bin.js"
+    },
+    "dependencies": {
+        "decompress": "^4.2.1"
+    }
+}
