@@ -205,9 +205,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
     let html = (await mod.exports.__renderPage({
       request: {
-        host: fullurl.hostname,
-        path: fullurl.pathname,
-        href: fullurl.toString(),
+        // params should go here when implemented
         url: requestURL
       },
       children: [],
