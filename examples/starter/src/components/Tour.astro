@@ -1,0 +1,82 @@
+<article>
+    <div class="banner">
+        <p><strong>🧑‍🚀 Seasoned astronaut?</strong> Delete this file. Have fun!</p>
+    </div>
+
+    <section>
+        <h2>🚀 Project Structure</h2>
+        <p>Inside of your Astro project, you'll see the following folders and files:</p>
+
+        <pre><code class="tree">/
+├── public/
+│   ├── robots.txt
+│   └── favicon.ico
+├── src/
+│   ├── components/
+│   │   └── Tour.astro
+│   └── pages/
+│       └── index.astro
+└── package.json</code>
+        </pre>
+
+            <p>
+                Astro looks for <code>.astro</code> or <code>.md.astro</code> files in the <code>src/pages/</code> directory.
+                Each page is exposed as a route based on its file name.
+            </p>
+
+            <p>
+                There's nothing special about <code>src/components/</code>, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+            </p>
+
+            <p>Any static assets, like images, can be placed in the <code>public/</code> directory.</p>
+    </section>
+
+     <section>
+        <h2>👀 Want to learn more?</h2>
+        <p>Feel free to check <a href="https://github.com/snowpackjs/astro">our documentation</a> or jump into our <a href="https://discord.gg/EsGdSGen">Discord server</a>.</p>
+    </section>
+    
+</article>
+
+<style>
+    article {
+        padding-top: 2em;
+        line-height: 1.5;
+    }
+    section {
+        margin-top: 2em;
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+        max-width: 70ch;
+    }
+
+    .banner {
+        text-align: center;
+        font-size: 1.2rem;
+        background: var(--color-light);
+        padding: 1em 1.5em;
+        padding-left: 0.75em;
+        border-radius: 4px;
+    }
+
+    pre,
+    code {
+        font-family: var(--font-mono);
+        background: var(--color-light);
+        border-radius: 4px;
+    }
+
+    pre {
+        padding: 1em 1.5em;
+    }
+
+    .tree {
+        line-height: 1.2;
+    }
+
+    code:not(.tree) {
+        padding: 0.125em;
+        margin: 0 -0.125em;
+    }
+</style>

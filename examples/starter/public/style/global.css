@@ -1,0 +1,28 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+}
+
+:root {
+    font-family: system-ui;
+    font-size: 1rem;
+    --user-font-scale: 1rem - 16px;
+    font-size: clamp(0.875rem, 0.4626rem + 1.0309vw + var(--user-font-scale), 1.125rem);
+}
+
+body {
+    padding: 4rem 2rem;
+    width: 100vw;
+    min-height: 100vh;
+    display: grid;
+    justify-content: center;
+    background: #F9FAFB;
+    color: #111827;
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background: #111827;
+        color: #fff;
+    }
+}
