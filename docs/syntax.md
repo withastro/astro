@@ -126,7 +126,7 @@ export let name;
 | IDE Support              	    | WIP - [VS Code][code-ext]                 | Phenomenal 	                                        |
 | Requires JS import       	    | No                                       	| Yes, `jsxPragma` (`React` or `h`) must be in scope 	|
 | Fragments                    	| Automatic                                	| Wrap with `<Fragment>` or `<>`                      |
-| Mutliple frameworks per-file  | Yes                                     	| No                                    	            |
+| Multiple frameworks per-file  | Yes                                     	| No                                    	            |
 | Modifying `<head>`            | Just use `<head>`                       	| Per-framework (`<Head>`, `<svelte:head>`, etc)     	|
 | Comment Style                	| `<!-- HTML -->`                          	| `{/* JavaScript */}`                               	|
 | Special Characters           	| `&nbsp;`                                 	| `{'\xa0'}` or `{String.fromCharCode(160)}`         	|
