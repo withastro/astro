@@ -123,6 +123,7 @@ export let name;
 | Spread Attributes           	| `{...props}`                              | `{...props}`                                        |
 | Boolean Attributes          	| `autocomplete` === `autocomplete={true}` 	| `autocomplete` === `autocomplete={true}`           	|
 | Inline Functions            	| `{items.map(item => <li>{item}</li>)}`   	| `{items.map(item => <li>{item}</li>)}`             	|
+| IDE Support              	    | WIP - [VS Code](https://marketplace.visualstudio.com/items?itemName=astro-build.astro)        | Phenomenal 	|
 | Requires JS import       	    | No                                       	| Yes, `jsxPragma` (`React` or `h`) must be in scope 	|
 | Fragments                    	| Automatic                                	| Wrap with `<Fragment>` or `<>`                      |
 | Mutliple frameworks per-file  | Yes                                     	| No                                    	            |
