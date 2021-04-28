@@ -1,0 +1,11 @@
+{
+    "name": "astro-scripts",
+    "type": "module",
+    "main": "./index.js",
+    "bin": {
+        "astro-scripts": "./bin.js"
+    },
+    "dependencies": {
+        "esbuild": "^0.11.16"
+    }
+}
