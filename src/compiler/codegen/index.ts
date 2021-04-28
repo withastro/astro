@@ -9,7 +9,7 @@ import path from 'path';
 import { walk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
-import { codeFrameColumns } from "@babel/code-frame";
+import { codeFrameColumns } from '@babel/code-frame';
 import * as babelTraverse from '@babel/traverse';
 import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
 import { warn } from '../../logger.js';
@@ -149,7 +149,7 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
   const currFileUrl = new URL(`file://${filename}`);
 
   if (!plugin) {
-    throw new Error(`No supported plugin found for extension ${type}`);
+    throw new Error(`No supported plugin found for ${type ? `extension ${type}` : `${url} (try adding an extension)`}`);
   }
 
   const getComponentUrl = (ext = '.js') => {
@@ -327,8 +327,8 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
     };
     let parseResult;
     try {
-      parseResult = babelParser.parse(module.content, parseOptions)
-    } catch(err) {
+      parseResult = babelParser.parse(module.content, parseOptions);
+    } catch (err) {
       const location = { start: err.loc };
       const frame = codeFrameColumns(module.content, location);
       err.frame = frame;
