@@ -1,5 +1,5 @@
 {
-  "name": "prettier-plugin-astro",
+  "name": "@astro.build/prettier-plugin-astro",
   "version": "0.0.1",
   "main": "index.js",
   "type": "commonjs",

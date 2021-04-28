@@ -1,5 +1,5 @@
 {
-	"name": "astro",
+	"name": "@astro.build/vscode",
 	"displayName": "Astro",
 	"description": "Language support for Astro",
 	"icon": "assets/icon.png",

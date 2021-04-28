@@ -1,5 +1,5 @@
 {
-  "name": "astro-prism",
+  "name": "@astro.build/prism",
   "version": "1.0.0",
   "description": "This is not published at this time.",
   "main": "index.mjs",
