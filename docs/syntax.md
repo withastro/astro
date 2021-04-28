@@ -52,6 +52,7 @@ Developers have come up with a myriad of different techniques for composing bloc
 We love JSX! In fact, `.astro` files borrow the highly-expressive templating syntax directly from JSX.
 
 ```jsx
+<!-- This is an Astro component with expressions! -->
 <main>
   <h1>Hello {name}!</h1>
   <ul>
@@ -66,7 +67,7 @@ We love JSX! In fact, `.astro` files borrow the highly-expressive templating syn
 
 ```jsx
 ---
-// This area is JavaScript!
+// This area is TypeScript (and therefore JavaScript)!
 import MyComponent from './MyComponent.astro'
 ---
 
