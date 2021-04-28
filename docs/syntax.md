@@ -12,7 +12,7 @@ By focusing on HTML _instead of JavaScript_, Astro is able to be framework-agnos
 
 We think the JavaScript ecosystem (and therefore `JSX`) has an extremely steep initial learning curve. Choosing between build tools, frameworks, and meta frameworks is an enormous amount of work with long-term consequences. And it all happens before you've written any code!
 
-Astro's approach is based in the recognition that HTML is the lowest common denominator between frameworks. By using `.astro` as a composable, component-based format on top of HTML, you can start writing your static immediately.
+Astro's approach is based in the recognition that HTML is the lowest common denominator between frameworks. By using `.astro` as a composable, component-based format on top of HTML, you can start writing and styling your static content immediately.
 
 When you finally do need to introduce dynamic functionality, Astro allows you to _bring your own framework_, so you're free to use any component format you'd like without commiting to a holistic architectural approach up-front. "The big question" is deferred until it actually needs to be answered.
 
