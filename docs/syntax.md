@@ -4,38 +4,46 @@
 
 Believe us, we know—and we wouldn't have introduced the `.astro` syntax without having some great reasons. Give us five minutes, read through this guide, and we think you'll be as excited about Astro as we are.
 
-- Already know **HTML**? [👉 Get Started](#what-are-astro-files)
-- Already know **JSX**? [👉 Get Started](#what-are-astro-files)
-- Already know **both**? [👉 Get Started](#what-are-astro-files)
-
 ---
+
+### Why use Astro?
+
+By focusing on HTML _instead of JavaScript_, Astro is able to be framework-agnostic.
+
+We think the JavaScript ecosystem (and therefore `JSX`) has an extremely steep initial learning curve. Choosing between build tools, frameworks, and meta frameworks is an enormous amount of work with long-term consequences. And it all happens before you've written any code!
+
+Astro's approach is based in the recognition that HTML is the lowest common denominator between frameworks. By using `.astro` as a composable, component-based format on top of HTML, you can start writing your static immediately.
+
+When you finally do need to introduce dynamic functionality, Astro allows you to _bring your own framework_, so you're free to use any component format you'd like without commiting to a holistic architectural approach up-front. "The big question" is deferred until it actually needs to be answered.
+
+During a long-term project, you might even decide to switch frameworks somewhere down the road. Since Astro decouples decisions about data-loading and static rendering from your framework, that decision has a much smaller impact—try out the new framework on a single page or even mix both frameworks on some pages while you migrate.
 
 ### What _are_ `.astro` files?
 
-Okay you caught us, every _Get Started_ option ends up here. If you're already familiar with **HTML or JSX**, you'll likely feel comfortable with `.astro` files right away.
+If you're already familiar with **HTML or JSX**, you'll likely feel comfortable with `.astro` files right away.
 
 Think of `.astro` as **component-oriented HTML**. Components are reusable, self-contained blocks of HTML and CSS that belong together.
 
 ```html
 <!-- This is a valid Astro component -->
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
-        <main>
-            <h1>Hello world!</h1>
-        </main>
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <main>
+      <h1>Hello world!</h1>
+    </main>
+  </body>
 </html>
 ```
 
 ```html
 <!-- This is also a valid Astro component! -->
 <main>
-    <h1>Hello world!</h1>
+  <h1>Hello world!</h1>
 </main>
 ```
 
@@ -45,10 +53,12 @@ We love JSX! In fact, `.astro` files borrow the highly-expressive templating syn
 
 ```jsx
 <main>
-    <h1>Hello {name}!</h1>
-    <ul>
-        {items.map(item => <li>{item}</li>)}
-    </ul>
+  <h1>Hello {name}!</h1>
+  <ul>
+    {items.map((item) => (
+      <li>{item}</li>
+    ))}
+  </ul>
 </main>
 ```
 
@@ -61,30 +71,20 @@ import MyComponent from './MyComponent.astro'
 ---
 
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-    </head>
-    <body>
-        <MyComponent></MyComponent>
-    </body>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+  </head>
+  <body>
+    <MyComponent></MyComponent>
+  </body>
 </html>
 ```
 
-### Why use `.astro` files?
+### Data and Props
 
-We think `JSX` can have a pretty steep initial learning curve. You should be able to write composable HTML and CSS without setting up a build tool, learning about `jsxPragma`s and `h` functions, or choosing a reactive JavaScript framework. In short, `JSX` requires you to make quite a few decisions up-front that, in an ideal world, would be decided much later (if at all).
-
-To combat this, we've seen the rise of "meta-Frameworks" like [Next.js](https://nextjs.org/), [Nuxt.js](https://nuxtjs.org/), and [SvelteKit](https://kit.svelte.dev/) which bring their own opinions about how to structure an application.
-
-By focusing on HTML _instead of JavaScript_, Astro is able to be framework-agnostic. 
-
-**TODO make this better!**
-
-### What about data?
-
-`.astro` files can define local variables inside of the Frontmatter script. These are automatically exposed to the content below.
+`.astro` components can define local variables inside of the Frontmatter script. These are automatically exposed to the content below.
 
 ```jsx
 ---
@@ -96,12 +96,42 @@ let name = 'world';
 </main>
 ```
 
-**TODO props!**
+`.astro` components can also accept props when they are rendered. Public props can be marked using the `export` keyword.
 
-### What about styles?
+Local values are overwritten when props are passed, otherwise they are considered the default value.
 
-**TODO styles!**
+```jsx
+---
+export let greeting = 'Hello';
+export let name;
+---
 
-### What about composition?
+<main>
+    <h1>{greeting} {name}!</h1>
+</main>
+```
 
-**TODO slots!**
+### `.astro` versus `.jsx`
+
+`.astro` files can end up looking very similar to `.jsx` files, but there are a few key differences. Here's a comparison between the two formats.
+
+| Feature                     	| Astro                                    	| JSX                                                	|
+|-------------------------    	|------------------------------------------	|----------------------------------------------------	|
+| File extension              	| `.astro`                                 	| `.jsx` or `.tsx`                                   	|
+| User-Defined Components     	| `<Capitalized>`                          	| `<Capitalized>`                                    	|
+| Expression Syntax           	| `{}`                                     	| `{}`                                               	|
+| Spread Attributes           	| `{...props}`                              | `{...props}`                                        |
+| Boolean Attributes          	| `autocomplete` === `autocomplete={true}` 	| `autocomplete` === `autocomplete={true}`           	|
+| Inline Functions            	| `{items.map(item => <li>{item}</li>)}`   	| `{items.map(item => <li>{item}</li>)}`             	|
+| Requires JS import       	    | No                                       	| Yes, `jsxPragma` (`React` or `h`) must be in scope 	|
+| Fragments                    	| Automatic                                	| Wrap with `<Fragment>` or `<>`                      |
+| Mutliple frameworks per-file  | Yes                                     	| No                                    	            |
+| Modifying `<head>`            | Just use `<head>`                       	| Per-framework (`<Head>`, `<svelte:head>`, etc)     	|
+| Comment Style                	| `<!-- HTML -->`                          	| `{/* JavaScript */}`                               	|
+| Special Characters           	| `&nbsp;`                                 	| `{'\xa0'}` or `{String.fromCharCode(160)}`         	|
+| Attributes                   	| `dash-case`                              	| `camelCase`                                        	|
+
+### TODO: Styling
+
+### TODO: Composition (Slots)
+
