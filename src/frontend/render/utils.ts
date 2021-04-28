@@ -16,7 +16,10 @@ function childrenToTree(children: string[]) {
  */
 export const childrenToVnodes = moize.deep(function childrenToVnodes(h: any, children: string[]) {
   const tree = childrenToTree(children);
-  const vnodes = tree.map((subtree) => toH(h, subtree));
+  const vnodes = tree.map((subtree) => {
+    if (subtree.type === 'text') return subtree.value;
+    return toH(h, subtree);
+  });
   return vnodes;
 });
 
@@ -37,11 +40,13 @@ export const childrenToH = moize.deep(function childrenToH(renderer: ComponentRe
     return { ...vnode, __SERIALIZED };
   };
   const serializeChild = (child: unknown) => {
-    if (typeof child === 'string') return `\`${child}\``;
-    if (typeof child === 'number' || typeof child === 'boolean') return `${child}`;
+    if (['string', 'number', 'boolean'].includes(typeof child)) return JSON.stringify(child);
     if (child === null) return `null`;
     if ((child as any).__SERIALIZED) return (child as any).__SERIALIZED;
     return innerH(child).__SERIALIZED;
   };
-  return tree.map((subtree) => toH(innerH, subtree).__SERIALIZED);
+  return tree.map((subtree) => {
+    if (subtree.type === 'text') return JSON.stringify(subtree.value);
+    return toH(innerH, subtree).__SERIALIZED
+  });
 });
