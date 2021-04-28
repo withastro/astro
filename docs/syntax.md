@@ -14,7 +14,7 @@ A common pain point for JavaScript newcomers is the ecosystem's steep learning c
 
 Astro's approach is based on the recognition that HTML is the lowest common denominator between frameworks. By using `.astro` as a composable, component-based format on top of HTML, you can start writing and styling your static content immediately.
 
-When you finally do need to introduce dynamic functionality, Astro allows you to _bring your own framework_, so you're free to use any component format you'd like without commiting to a holistic architectural approach up-front. "The big question" is deferred until it actually needs to be answered.
+When you finally do need to introduce dynamic functionality, Astro allows you to _bring your own framework_, so you're free to use any component format you'd like without committing to a holistic architectural approach up-front. "The big question" is deferred until it actually needs to be answered.
 
 During a long-term project, you might even decide to switch frameworks somewhere down the road. Since Astro decouples decisions about data-loading and static rendering from your framework, that decision has a much smaller impact—try out the new framework on a single page or even mix both frameworks on some pages while you migrate.
 
