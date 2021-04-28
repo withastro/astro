@@ -8,8 +8,8 @@ const ComponentChildren = suite('Component children tests');
 setup(ComponentChildren, './fixtures/astro-children');
 setupBuild(ComponentChildren, './fixtures/astro-children');
 
-ComponentChildren('Passes children to framework components', async ({ runtime }) => {
-  let result = await runtime.load('/');
+ComponentChildren('Passes string children to framework components', async ({ runtime }) => {
+  let result = await runtime.load('/strings');
 
   assert.equal(result.statusCode, 200);
   const $ = doc(result.contents);
@@ -22,6 +22,44 @@ ComponentChildren('Passes children to framework components', async ({ runtime })
 
   const $svelte = $('#svelte');
   assert.equal($svelte.text().trim(), 'Hello world', 'Can pass text to Svelte components');
+});
+
+ComponentChildren('Passes markup children to framework components', async ({ runtime }) => {
+  let result = await runtime.load('/markup');
+
+  assert.equal(result.statusCode, 200);
+  const $ = doc(result.contents);
+
+  const $preact = $('#preact > h1');
+  assert.equal($preact.text().trim(), 'Hello world', 'Can pass markup to Preact components');
+
+  const $vue = $('#vue > h1');
+  assert.equal($vue.text().trim(), 'Hello world', 'Can pass markup to Vue components');
+
+  const $svelte = $('#svelte > h1');
+  assert.equal($svelte.text().trim(), 'Hello world', 'Can pass markup to Svelte components');
+});
+
+ComponentChildren('Passes multiple children to framework components', async ({ runtime }) => {
+  let result = await runtime.load('/multiple');
+
+  assert.equal(result.statusCode, 200);
+  const $ = doc(result.contents);
+
+  const $preact = $('#preact');
+  assert.equal($preact.children().length, 2, 'Can pass multiple children to Preact components');
+  assert.equal($preact.children(':first-child').text().trim(), 'Hello world');
+  assert.equal($preact.children(':last-child').text().trim(), 'Goodbye world');
+
+  const $vue = $('#vue');
+  assert.equal($vue.children().length, 2, 'Can pass multiple children to Vue components');
+  assert.equal($vue.children(':first-child').text().trim(), 'Hello world');
+  assert.equal($vue.children(':last-child').text().trim(), 'Goodbye world');
+
+  const $svelte = $('#svelte');
+  assert.equal($svelte.children().length, 2, 'Can pass multiple children to Svelte components');
+  assert.equal($svelte.children(':first-child').text().trim(), 'Hello world');
+  assert.equal($svelte.children(':last-child').text().trim(), 'Goodbye world');
 });
 
 ComponentChildren('Can be built', async ({ build }) => {
