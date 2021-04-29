@@ -20,13 +20,17 @@ import { terser } from 'rollup-plugin-terser';
 const { transformSync } = esbuild;
 const { readFile } = fsPromises;
 
-type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact', string>;
+type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact' | 'svelte', string>;
 
 /** Add framework runtimes when needed */
 async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolvePackageUrl: (s: string) => Promise<string>): Promise<DynamicImportMap> {
   const importMap: DynamicImportMap = new Map();
   for (let plugin of plugins) {
     switch (plugin) {
+      case 'svelte': {
+        importMap.set('svelte', await resolvePackageUrl('svelte'));
+        break;
+      }
       case 'vue': {
         importMap.set('vue', await resolvePackageUrl('vue'));
         break;
@@ -174,6 +178,7 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
         break;
       }
       case 'svelte': {
+        imports.add(dynamic.get('svelte')!);
         rel = rel.replace(/\.[^.]+$/, '.svelte.js');
         break;
       }
