@@ -274,8 +274,11 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       await writeFilep(outUrl, bytes, null);
     }
     info(logging, 'build', green('✔'), 'public folder copied.');
+  } else {
+    if(path.basename(astroConfig.public.toString()) !=='public'){
+      info(logging, 'tip', yellow(`! no public folder ${astroConfig.public} found...`));
+    }
   }
-
   // build sitemap
   if (astroConfig.buildOptions.sitemap && astroConfig.buildOptions.site) {
     info(logging, 'build', yellow('! creating a sitemap...'));
