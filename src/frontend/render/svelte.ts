@@ -14,7 +14,7 @@ const SvelteRenderer: ComponentRenderer<SvelteComponent> = {
     'astro/frontend/runtime/svelte': ['default: render'],
   },
   render({ Component, root, props, childrenAsString }) {
-    return `render(${root}, ${Component}, ${props}, ${childrenAsString});`;
+    return `new ${Component}({target:${root}}).render(${root}, ${Component}, ${props}, ${childrenAsString});`;
   },
 };
 
