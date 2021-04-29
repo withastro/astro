@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { runDevServer } from './helpers.js';
-import { loadConfig } from '../lib/config.js';
+import { loadConfig } from '../dist/config.js';
 
 const ConfigPort = suite('Config path');
 

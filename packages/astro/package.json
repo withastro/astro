@@ -21,16 +21,10 @@
     "astro.mjs"
   ],
   "scripts": {
-    "build": "npm run build:core && npm run build:parser",
-    "build:core": "tsc -p tsconfig.json && cp src/frontend/500.astro lib/frontend/500.astro",
-    "build:parser": "tsc -p tsconfig.parser.json",
-    "postbuild:parser": "echo '{ \"type\": \"commonjs\" }' > parser/package.json",
-    "dev": "tsc --watch",
-    "lint": "eslint 'src/**/*.{js,ts}'",
-    "format": "prettier -w '{src,test}/**/*.{js,ts}'",
-    "test": "uvu test -i fixtures -i test-utils.js",
-    "build:extension": "cd vscode && npm run build",
-    "publish-hidden": "npm run build && npm publish --tag shhhhh"
+    "prepublish": "npm run build && tsc -p tsconfig.json",
+    "build": "astro-scripts build 'src/**/*.ts'",
+    "postbuild": "astro-scripts copy 'src/**/*.astro'",
+    "dev": "astro-scripts dev 'src/**/*.ts'"
   },
   "dependencies": {
     "@babel/code-frame": "^7.12.13",
@@ -43,7 +37,6 @@
     "@vue/server-renderer": "^3.0.10",
     "acorn": "^7.4.0",
     "autoprefixer": "^10.2.5",
-    "cheerio": "^1.0.0-rc.5",
     "es-module-lexer": "^0.4.1",
     "esbuild": "^0.10.1",
     "estree-walker": "^3.0.0",
@@ -82,6 +75,7 @@
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
+    "astro-scripts": "0.0.1",
     "@babel/types": "^7.13.14",
     "@types/babel__code-frame": "^7.0.2",
     "@types/babel__generator": "^7.6.2",

@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'url';
-import { build as astroBuild } from '../lib/build.js';
+import { build as astroBuild } from '../dist/build.js';
 import { readFile } from 'fs/promises';
-import { createRuntime } from '../lib/runtime.js';
-import { loadConfig } from '../lib/config.js';
+import { createRuntime } from '../dist/runtime.js';
+import { loadConfig } from '../dist/config.js';
 import * as assert from 'uvu/assert';
 import execa from 'execa';
 

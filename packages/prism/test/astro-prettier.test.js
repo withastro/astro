@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { format } from './test-utils.js';
-import { setup } from './helpers.js';
+import { setup } from '../../astro/test/helpers.js';
 
 const Prettier = suite('Prettier formatting');
 

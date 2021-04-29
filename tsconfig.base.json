@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
+    "emitDeclarationOnly": true,
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,

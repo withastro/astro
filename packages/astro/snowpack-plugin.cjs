@@ -1,7 +1,7 @@
 const { readFile } = require('fs').promises;
 
 // Snowpack plugins must be CommonJS :(
-const transformPromise = import('./lib/compiler/index.js');
+const transformPromise = import('./dist/compiler/index.js');
 
 module.exports = function (snowpackConfig, { resolvePackageUrl, extensions, astroConfig } = {}) {
   return {
