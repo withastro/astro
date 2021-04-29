@@ -3,7 +3,7 @@ import type { LogOptions } from './logger';
 import type { AstroRuntime, LoadResult } from './runtime';
 
 import { existsSync, promises as fsPromises } from 'fs';
-import { bold, green, yellow, underline } from 'kleur/colors';
+import { bold, green, yellow, red, underline } from 'kleur/colors';
 import path from 'path';
 import cheerio from 'cheerio';
 import { fileURLToPath } from 'url';
@@ -274,6 +274,8 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       await writeFilep(outUrl, bytes, null);
     }
     info(logging, 'build', green('✔'), 'public folder copied.');
+  } else {
+    info(logging, 'tip', red(`! no public folder ${astroConfig.public} found...`));
   }
 
   // build sitemap
