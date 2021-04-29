@@ -4,6 +4,9 @@ import { renderToString } from '@vue/server-renderer';
 import { defineComponent, createSSRApp, h as createElement } from 'vue';
 import { createRenderer } from './renderer';
 
+// This prevents tree-shaking of render.
+Function.prototype(renderToString);
+
 /**
  * Users might attempt to use :vueAttribute syntax to pass primitive values.
  * If so, try to JSON.parse them to get the primitives
