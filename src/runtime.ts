@@ -59,7 +59,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   if (searchResult.statusCode === 404) {
     try {
       const result = await frontendSnowpack.loadUrl(reqPath);
-
+      if (!result) throw new Error(`Unable to load ${reqPath}`);
       // success
       return {
         statusCode: 200,
