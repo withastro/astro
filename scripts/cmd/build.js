@@ -11,7 +11,7 @@ const config = {
     sourcemap: 'inline',
     format: 'esm',
     platform: 'node',
-    target: 'node12'
+    target: 'node14'
 }
 
 export default async function build(pattern, ...args) {
