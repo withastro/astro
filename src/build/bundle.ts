@@ -20,13 +20,17 @@ import { terser } from 'rollup-plugin-terser';
 const { transformSync } = esbuild;
 const { readFile } = fsPromises;
 
-type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact', string>;
+type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact' | 'svelte', string>;
 
 /** Add framework runtimes when needed */
 async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolvePackageUrl: (s: string) => Promise<string>): Promise<DynamicImportMap> {
   const importMap: DynamicImportMap = new Map();
   for (let plugin of plugins) {
     switch (plugin) {
+      case 'svelte': {
+        importMap.set('svelte', await resolvePackageUrl('svelte'));
+        break;
+      }
       case 'vue': {
         importMap.set('vue', await resolvePackageUrl('vue'));
         break;
@@ -58,6 +62,7 @@ function compileExpressionSafe(raw: string): string {
 
 const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
   '.jsx': 'react',
+  '.tsx': 'react',
   '.svelte': 'svelte',
   '.vue': 'vue',
 };
@@ -174,6 +179,10 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
         break;
       }
       case 'svelte': {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        imports.add(dynamic.get('svelte')!);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        imports.add('/_astro_internal/runtime/svelte.js');
         rel = rel.replace(/\.[^.]+$/, '.svelte.js');
         break;
       }

@@ -8,7 +8,8 @@
     ".": "./astro.mjs",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./parser": "./parser.cjs",
-    "./components/*.astro": "./components/*.astro"
+    "./components/*.astro": "./components/*.astro",
+    "./runtime/svelte": "./runtime/svelte.js"
   },
   "bin": {
     "astro": "astro.mjs"
@@ -16,6 +17,7 @@
   "files": [
     "components",
     "lib",
+    "runtime",
     "astro-prism",
     "snowpack-plugin.cjs",
     "astro.mjs"
