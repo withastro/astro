@@ -2,7 +2,7 @@
   "name": "@astro.build/root",
   "private": "true",
   "scripts": {
-    "test": "uvu packages test -i fixtures -i test-utils.js -i package.json",
+    "test": "npm run test -w astro -w prettier-plugin-astro",
     "format": "prettier -w '**/*.{js,jsx,ts,tsx,md,json}'"
   },
   "workspaces": [

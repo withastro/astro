@@ -1,6 +1,5 @@
 import { fileURLToPath } from 'url';
 import { build as astroBuild } from '../dist/build.js';
-import { readFile } from 'fs/promises';
 import { createRuntime } from '../dist/runtime.js';
 import { loadConfig } from '../dist/config.js';
 import * as assert from 'uvu/assert';
@@ -26,10 +25,6 @@ export function setup(Suite, fixturePath) {
     }
 
     context.runtime = runtime;
-    context.readFile = async (path) => {
-      const resolved = fileURLToPath(new URL(`${fixturePath}${path}`, import.meta.url));
-      return readFile(resolved).then((r) => r.toString('utf-8'));
-    };
   });
 
   Suite.after(async () => {

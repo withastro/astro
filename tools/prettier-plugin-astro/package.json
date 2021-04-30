@@ -4,6 +4,9 @@
   "main": "index.js",
   "type": "commonjs",
   "private": true,
+  "scripts": {
+    "test": "uvu test -i fixtures -i package.json"
+  },
   "dependencies": {
     "prettier": "^2.2.1",
     "astro-parser": "0.0.9"
