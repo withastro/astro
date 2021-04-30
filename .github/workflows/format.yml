@@ -18,7 +18,9 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: ${{ env.node_version }}
-      - run: npm ci
+      - run: yarn --frozen-lockfile
+        env:
+          CI: true
       - run: yarn format
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4

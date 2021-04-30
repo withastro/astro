@@ -29,7 +29,9 @@ jobs:
           node-version: 14.x
 
       - name: Install Dependencies
-        run: npm ci
+        run: yarn --frozen-lockfile
+        env:
+          CI: true
 
       - name: Create Release PR or Publish to npm
         uses: changesets/action@master

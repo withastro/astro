@@ -13,7 +13,7 @@
 	"license": "MIT",
 	"scripts": {
 		"vscode:prepublish": "npm run build",
-		"bootstrap": "cd packages/client && npm ci && cd ../server && npm ci",
+		"bootstrap": "cd packages/client && yarn && cd ../server && yarn",
 		"build": "node scripts/build.mjs",
 		"watch": "node scripts/watch.mjs"
 	},

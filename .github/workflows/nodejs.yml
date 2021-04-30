@@ -36,23 +36,13 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm install, build, and test
-        run: |
-          cd examples/snowpack
-          npm ci
-          cd ../..
-
-          npm ci
-          yarn build
-
-          cd prettier-plugin-astro
-          npm ci
-
-          cd ../examples/kitchen-sink
-          npm ci
-          yarn build
-          cd ../..
-          npm test
+      - run: yarn --frozen-lockfile
+        env:
+          CI: true
+      - run: yarn build
+        env:
+          CI: true
+      - run: yarn test
         env:
           CI: true
   lint:
@@ -60,5 +50,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
-      - run: npm ci
+      - run: yarn --frozen-lockfile
+        env:
+          CI: true
       - run: yarn lint
+        env:
+          CI: true
