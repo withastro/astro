@@ -1,0 +1,41 @@
+---
+import MainHead from '../components/MainHead.astro';
+import Footer from '../components/Footer/index.jsx';
+import Nav from '../components/Nav/index.jsx';
+import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
+
+export let collection;
+export async function createCollection() {
+  return {
+    async data() {
+      const projects = Astro.fetchContent('./project/*.md');
+      projects.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+      return projects.filter(({ published_at }) => !!published_at);
+    }
+  }
+}
+---
+
+<html>
+  <head>
+    <MainHead title="All Projects | Jeanine White" />
+    <style lang="scss">
+      .grid {
+        display: grid;
+        grid-gap: 3rem;
+      }
+    </style>
+  </head>
+  <body>
+    <Nav />
+    <div class="wrapper">
+      <h1 class="title mt4 mb4">All Projects</h1>
+      <div class="grid">
+        {collection.data.map((project) => (
+          <PortfolioPreview project={project} />
+        ))}
+      </div>
+    </div>
+    <Footer />
+  </body>
+</html>
