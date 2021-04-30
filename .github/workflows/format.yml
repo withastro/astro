@@ -19,10 +19,10 @@ jobs:
         with:
           node-version: ${{ env.node_version }}
       - run: npm ci
-      - run: npm run format
+      - run: yarn format
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: '[ci] npm run format'
+          commit_message: '[ci] yarn format'
           branch: ${{ github.head_ref }}
           push_options: --force

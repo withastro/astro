@@ -3,6 +3,8 @@ import parse from 'rehype-parse';
 import toH from 'hast-to-hyperscript';
 import { ComponentRenderer } from '../../@types/renderer';
 import moize from 'moize';
+// This prevents tree-shaking of render.
+Function.prototype(toH);
 
 /** @internal */
 function childrenToTree(children: string[]) {

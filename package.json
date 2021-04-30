@@ -2,9 +2,9 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "release": "npm run build && npx changeset publish",
-    "build": "npm run build -w astro -w astro-parser -w create-astro -w prettier-plugin-astro",
-    "test": "npm run test -w astro -w prettier-plugin-astro",
+    "release": "yarn build && npx changeset publish",
+    "build": "yarn build -w astro -w astro-parser -w create-astro -w prettier-plugin-astro",
+    "test": "yarn test -w astro -w prettier-plugin-astro",
     "format": "prettier -w '**/*.{js,jsx,ts,tsx,md,json}'"
   },
   "workspaces": [
@@ -16,7 +16,8 @@
   ],
   "volta": {
     "node": "14.16.1",
-    "npm": "7.11.1"
+    "npm": "7.11.2",
+    "yarn": "1.22.10"
   },
   "devDependencies": {
     "cheerio": "^1.0.0-rc.5",

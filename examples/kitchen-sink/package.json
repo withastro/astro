@@ -9,5 +9,8 @@
   "devDependencies": {
     "astro": "0.0.9",
     "nodemon": "^2.0.7"
+  },
+  "snowpack": {
+    "workspaceRoot": "../.."
   }
 }

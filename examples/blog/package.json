@@ -1,5 +1,6 @@
 {
   "name": "@example/blog",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "astro dev",
@@ -8,5 +9,8 @@
   "devDependencies": {
     "astro": "0.0.9",
     "nodemon": "^2.0.7"
+  },
+  "snowpack": {
+    "workspaceRoot": "../.."
   }
 }

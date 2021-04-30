@@ -1,0 +1,58 @@
+Arguments: 
+  /Users/nmoo/.volta/tools/image/node/14.16.1/bin/node /Users/nmoo/.volta/tools/image/yarn/1.22.10/bin/yarn.js
+
+PATH: 
+  /Users/nmoo/.volta/tools/image/npm/7.11.2/bin:/Users/nmoo/.volta/tools/image/yarn/1.22.10/bin:/Users/nmoo/.volta/tools/image/node/14.16.1/bin:/var/folders/px/28g8cgns4d33d_77v5lb9tgw0000gn/T/fnm_multishell_55014_1619794863994/bin:/Users/nmoo/.fnm:/Users/nmoo/.volta/bin:/Users/nmoo/bin:/usr/local/bin:/usr/local/bin/hub:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/folders/px/28g8cgns4d33d_77v5lb9tgw0000gn/T/fnm_multishell_53182_1619793626911/bin:/Users/nmoo/.fnm:/Users/nmoo/.volta/bin:/Users/nmoo/bin:/usr/local/bin/hub:/usr/local/opt/fzf/bin
+
+Yarn version: 
+  1.22.10
+
+Node version: 
+  14.16.1
+
+Platform: 
+  darwin x64
+
+Trace: 
+  Error: ELOOP: too many symbolic links encountered, stat '/Users/nmoo/Developer/snowpackjs/astro/README.md'
+
+npm manifest: 
+  {
+    "name": "root",
+    "private": true,
+    "scripts": {
+      "release": "npm run build && npx changeset publish",
+      "build": "npm run build -w astro -w astro-parser -w create-astro -w prettier-plugin-astro",
+      "test": "npm run test -w astro -w prettier-plugin-astro",
+      "format": "prettier -w '**/*.{js,jsx,ts,tsx,md,json}'"
+    },
+    "workspaces": [
+      "packages/*",
+      "examples/*",
+      "tools/*",
+      "scripts",
+      "www"
+    ],
+    "volta": {
+      "node": "14.16.1",
+      "npm": "7.11.2",
+      "yarn": "1.22.10"
+    },
+    "devDependencies": {
+      "cheerio": "^1.0.0-rc.5",
+      "cheerio-select-tmp": "^0.1.1",
+      "del": "^6.0.0",
+      "prettier": "^2.2.1",
+      "typescript": "^4.2.4",
+      "uvu": "^0.5.1"
+    },
+    "dependencies": {
+      "@changesets/cli": "^2.16.0"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

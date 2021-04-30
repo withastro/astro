@@ -11,7 +11,7 @@
     "build": "tsc"
   },
   "devDependencies": {
-    "astro": "file:../../"
+    "astro": "0.0.9"
   },
   "dependencies": {
     "vscode-emmet-helper": "2.1.2",

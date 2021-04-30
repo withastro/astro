@@ -4,6 +4,9 @@ import ReactDOMServer from 'react-dom/server';
 import { createRenderer } from './renderer';
 import { childrenToVnodes } from './utils';
 
+// This prevents tree-shaking of render.
+Function.prototype(ReactDOMServer);
+
 const ReactRenderer: ComponentRenderer<ComponentType> = {
   jsxPragma: React.createElement,
   jsxPragmaName: 'React.createElement',

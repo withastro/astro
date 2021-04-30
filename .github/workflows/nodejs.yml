@@ -43,14 +43,14 @@ jobs:
           cd ../..
 
           npm ci
-          npm run build
+          yarn build
 
           cd prettier-plugin-astro
           npm ci
 
           cd ../examples/kitchen-sink
           npm ci
-          npm run build
+          yarn build
           cd ../..
           npm test
         env:
@@ -61,4 +61,4 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-node@v1
       - run: npm ci
-      - run: npm run lint
+      - run: yarn lint
