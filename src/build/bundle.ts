@@ -62,6 +62,7 @@ function compileExpressionSafe(raw: string): string {
 
 const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
   '.jsx': 'react',
+  '.tsx': 'react',
   '.svelte': 'svelte',
   '.vue': 'vue',
 };
@@ -178,6 +179,7 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
         break;
       }
       case 'svelte': {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         imports.add(dynamic.get('svelte')!);
         rel = rel.replace(/\.[^.]+$/, '.svelte.js');
         break;
