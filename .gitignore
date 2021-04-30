@@ -1,11 +1,6 @@
 node_modules/
-lib/
-parser/
 dist/
 *.tsbuildinfo
 .DS_Store
-._.DS_Store
-test/fixtures/*/dist/
-www/dist
 .vercel
 _site/

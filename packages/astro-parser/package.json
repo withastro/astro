@@ -1,0 +1,24 @@
+{
+  "name": "astro-parser",
+  "version": "0.0.9",
+  "author": "Skypack",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "prepublish": "yarn build",
+    "build": "astro-scripts build 'src/**/*.ts' && tsc -p tsconfig.json",
+    "dev": "astro-scripts dev 'src/**/*.ts'"
+  },
+  "devDependencies": {
+    "astro-scripts": "0.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.14.0"
+  }
+}

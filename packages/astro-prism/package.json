@@ -1,0 +1,19 @@
+{
+  "name": "astro-prism",
+  "version": "1.0.0",
+  "description": "This is not published at this time.",
+  "main": "index.mjs",
+  "scripts": {
+    "build": "echo 'build'",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "exports": {
+    ".": "./index.mjs"
+  },
+  "keywords": [],
+  "private": true,
+  "author": "",
+  "devDependencies": {
+    "prismjs": "^1.23.0"
+  }
+}

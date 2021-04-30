@@ -1,3 +1,5 @@
-src/parser/parse/**/*.ts
-vscode/**/*.ts
-create-astro/**/*.js
+**/*.js
+**/*.ts
+!packages/astro/**/*.js
+!packages/astro/**/*.ts
+packages/astro/test/**/*.js

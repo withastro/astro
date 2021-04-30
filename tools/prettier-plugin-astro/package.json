@@ -1,0 +1,15 @@
+{
+  "name": "prettier-plugin-astro",
+  "version": "0.0.1",
+  "main": "index.js",
+  "type": "commonjs",
+  "private": true,
+  "scripts": {
+    "test": "uvu test -i fixtures -i package.json",
+    "build": "echo 'build'"
+  },
+  "dependencies": {
+    "prettier": "^2.2.1",
+    "astro-parser": "0.0.9"
+  }
+}
