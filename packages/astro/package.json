@@ -8,7 +8,8 @@
     ".": "./astro.mjs",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./parser": "./parser.cjs",
-    "./components/*.astro": "./components/*.astro"
+    "./components/*.astro": "./components/*.astro",
+    "./runtime/svelte": "./runtime/svelte.js"
   },
   "bin": {
     "astro": "astro.mjs"
@@ -16,15 +17,22 @@
   "files": [
     "components",
     "lib",
+    "runtime",
     "astro-prism",
     "snowpack-plugin.cjs",
     "astro.mjs"
   ],
   "scripts": {
-    "prepublish": "npm run build && tsc -p tsconfig.json",
-    "build": "astro-scripts build 'src/**/*.ts'",
-    "postbuild": "astro-scripts copy 'src/**/*.astro'",
-    "dev": "astro-scripts dev 'src/**/*.ts'"
+    "build": "npm run build:core && npm run build:parser",
+    "build:core": "tsc -p tsconfig.json && cp src/frontend/500.astro lib/frontend/500.astro",
+    "build:parser": "tsc -p tsconfig.parser.json",
+    "postbuild:parser": "echo '{ \"type\": \"commonjs\" }' > parser/package.json",
+    "dev": "tsc --watch",
+    "lint": "eslint 'src/**/*.{js,ts}'",
+    "format": "prettier -w '{src,test}/**/*.{js,ts}'",
+    "test": "uvu test -i fixtures -i test-utils.js",
+    "build:extension": "cd vscode && npm run build",
+    "publish-hidden": "npm run build && npm publish --tag shhhhh"
   },
   "dependencies": {
     "@babel/code-frame": "^7.12.13",
@@ -32,11 +40,12 @@
     "@babel/parser": "^7.13.15",
     "@babel/traverse": "^7.13.15",
     "@snowpack/plugin-sass": "^1.4.0",
-    "@snowpack/plugin-svelte": "^3.6.0",
+    "@snowpack/plugin-svelte": "^3.6.1",
     "@snowpack/plugin-vue": "^2.4.0",
     "@vue/server-renderer": "^3.0.10",
     "acorn": "^7.4.0",
     "autoprefixer": "^10.2.5",
+    "cheerio": "^1.0.0-rc.5",
     "es-module-lexer": "^0.4.1",
     "esbuild": "^0.10.1",
     "estree-walker": "^3.0.0",
@@ -67,7 +76,7 @@
     "rollup": "^2.43.1",
     "rollup-plugin-terser": "^7.0.2",
     "sass": "^1.32.8",
-    "snowpack": "^3.3.4",
+    "snowpack": "^3.3.7",
     "svelte": "^3.35.0",
     "tiny-glob": "^0.2.8",
     "unified": "^9.2.1",
@@ -75,7 +84,6 @@
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
-    "astro-scripts": "0.0.1",
     "@babel/types": "^7.13.14",
     "@types/babel__code-frame": "^7.0.2",
     "@types/babel__generator": "^7.6.2",
@@ -96,7 +104,10 @@
     "eslint": "^7.22.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",
-    "execa": "^5.0.0"
+    "execa": "^5.0.0",
+    "prettier": "^2.2.1",
+    "typescript": "^4.2.3",
+    "uvu": "^0.5.1"
   },
   "engines": {
     "node": ">=14.0.0",
