@@ -2,9 +2,28 @@ import unified from 'unified';
 import parse from 'rehype-parse';
 import toH from 'hast-to-hyperscript';
 import { ComponentRenderer } from '../../@types/renderer';
+// @ts-expect-error
+import shorthash from 'shorthash';
 import moize from 'moize';
 // This prevents tree-shaking of render.
 Function.prototype(toH);
+
+/** Returns a deterministic hash of the HTML content */
+export function getAstroId(html: string) {
+  return shorthash.unique(html);
+}
+
+/** Wraps HTML content with unique Astro Id  */
+export function wrapWithAstroId(html: string, id: string) {
+  return `<div data-astro-id="${id}" style="display:contents">${html}</div>`
+}
+
+/** Removes indentation from a string */
+export function dedent(str: string) {
+	let arr = str.match(/^[ \t]*(?=\S)/gm);
+	let min = !!arr && Math.min(...arr.map(x => x.length));
+	return (!arr || !min) ? str : str.replace(new RegExp(`^[ \\t]{${min}}`, 'gm'), '');
+}
 
 /** @internal */
 function childrenToTree(children: string[]) {
@@ -30,7 +49,7 @@ export const childrenToVnodes = moize.deep(function childrenToVnodes(h: any, chi
  * @param h framework's `createElement` function
  * @param children the HTML string children
  */
-export const childrenToH = moize.deep(function childrenToH(renderer: ComponentRenderer<any>, children: string[]): any {
+export const childrenToJsx = moize.deep(function childrenToJsx(renderer: ComponentRenderer<any>, children: string[]): any {
   if (!renderer.jsxPragma) return;
   const tree = childrenToTree(children);
   const innerH = (name: any, attrs: Record<string, any> | null = null, _children: string[] | null = null) => {

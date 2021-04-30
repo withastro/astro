@@ -1,5 +1,5 @@
 import type { DynamicRenderContext, DynamicRendererGenerator, SupportedComponentRenderer, StaticRendererGenerator } from '../../@types/renderer';
-import { childrenToH } from './utils';
+import { childrenToJsx } from './utils';
 
 // This prevents tree-shaking of render.
 Function.prototype(childrenToH);
@@ -42,7 +42,7 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
         ${renderer.render({
           ...innerContext,
           props: serializeProps(props),
-          children: `[${childrenToH(renderer, children) ?? ''}]`,
+          children: `[${childrenToJsx(renderer, children) ?? ''}]`,
           childrenAsString: `\`${children}\``,
         })}
         ${typeof wrapperEnd === 'function' ? wrapperEnd(innerContext) : wrapperEnd}

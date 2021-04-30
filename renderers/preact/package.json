@@ -1,0 +1,13 @@
+{
+    "name": "astro-renderer-preact",
+    "version": "0.0.1",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./index.js"
+    },
+    "peerDependencies": {
+        "preact": "~10.5.13",
+        "preact-render-to-string": "~5.1.19"
+    }
+}

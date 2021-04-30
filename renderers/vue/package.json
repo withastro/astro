@@ -1,0 +1,13 @@
+{
+    "name": "astro-renderer-react",
+    "version": "0.0.1",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./index.js"
+    },
+    "peerDependencies": {
+        "vue": "~3.0.11",
+        "@vue/server-renderer": "~3.0.11"
+    }
+}
