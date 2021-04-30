@@ -6,7 +6,7 @@ const transformPromise = import('./lib/compiler/index.js');
 module.exports = function (snowpackConfig, { resolvePackageUrl, extensions, astroConfig } = {}) {
   return {
     name: 'snowpack-astro',
-    knownEntrypoints: ['astro/runtime/svelte'],
+    knownEntrypoints: [],
     resolve: {
       input: ['.astro', '.md'],
       output: ['.js', '.css'],
