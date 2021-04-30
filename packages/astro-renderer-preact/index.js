@@ -3,6 +3,7 @@ export default {
     jsxFragmentFactory: 'Fragment',
     jsxImportSource: 'preact',
     validExtensions: ['.jsx', '.tsx'],
+    transformChildrenTo: 'jsx',
     
     server: {
         transformChildrenTo: 'jsx',
