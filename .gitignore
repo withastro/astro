@@ -4,3 +4,4 @@ dist/
 .DS_Store
 .vercel
 _site/
+*.log
