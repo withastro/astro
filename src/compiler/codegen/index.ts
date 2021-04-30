@@ -133,7 +133,7 @@ const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
   '.svelte': 'svelte',
 };
 
-type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact' | 'svelte', string>;
+type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact' | 'svelte' | 'svelte-runtime', string>;
 
 interface GetComponentWrapperOptions {
   filename: string;
@@ -213,7 +213,7 @@ function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo
             componentUrl: getComponentUrl('.svelte.js'),
             componentExport: 'default',
             frameworkUrls: {
-              'astro/frontend/runtime/svelte': internalImport('runtime/svelte.js'),
+              'svelte-runtime': dynamicImports.get('svelte-runtime'),
             },
           })})`,
           wrapperImport: `import {__svelte_${kind}} from '${internalImport('render/svelte.js')}';`,
@@ -281,6 +281,7 @@ async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins
       }
       case 'svelte': {
         importMap.set('svelte', await resolvePackageUrl('svelte'));
+        importMap.set('svelte-runtime', await resolvePackageUrl('astro/runtime/svelte'));
         break;
       }
     }
