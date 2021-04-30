@@ -31,7 +31,7 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
       } catch (e) {
         value = '';
       }
-      value = `<div data-astro-id="${innerContext['data-astro-id']}" style="dislplay: contents">${value}</div>`;
+      value = `<div data-astro-id="${innerContext['data-astro-id']}" style="display:contents">${value}</div>`;
 
       const script = `
         ${typeof wrapperStart === 'function' ? wrapperStart(innerContext) : wrapperStart}
