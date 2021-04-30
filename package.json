@@ -2,9 +2,12 @@
   "name": "root",
   "private": true,
   "scripts": {
-    "release": "yarn build && npx changeset publish",
-    "build": "yarn build -w astro -w astro-parser -w create-astro -w prettier-plugin-astro",
-    "test": "yarn test -w astro -w prettier-plugin-astro",
+    "release": "yarn build && yarn changeset publish",
+    "build": "yarn build:core",
+    "build:core": "lerna run build --scope astro --scope astro-parser --scope create-astro",
+    "test": "yarn test:core && yarn test:prettier",
+    "test:core": "cd packages/astro && npm test",
+    "test:prettier": "cd tools/prettier-plugin-astro && npm test",
     "format": "prettier -w '**/*.{js,jsx,ts,tsx,md,json}'"
   },
   "workspaces": [
@@ -23,6 +26,7 @@
     "cheerio": "^1.0.0-rc.5",
     "cheerio-select-tmp": "^0.1.1",
     "del": "^6.0.0",
+    "lerna": "^4.0.0",
     "prettier": "^2.2.1",
     "typescript": "^4.2.4",
     "uvu": "^0.5.1"
