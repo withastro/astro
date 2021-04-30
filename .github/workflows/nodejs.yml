@@ -45,14 +45,3 @@ jobs:
       - run: yarn test
         env:
           CI: true
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
-      - run: yarn --frozen-lockfile
-        env:
-          CI: true
-      - run: yarn lint
-        env:
-          CI: true
