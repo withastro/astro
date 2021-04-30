@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    paths-ignore:
+      - '.vscode/**'
+      - 'assets/**'
+      - 'docs/**'
+      - 'examples/**'
+      - 'www/**'
+    branches:
+      - main
+    
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@master
+        with:
+          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
+          fetch-depth: 0
+
+      - name: Setup Node.js 14.x
+        uses: actions/setup-node@master
+        with:
+          node-version: 14.x
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Create Release PR or Publish to npm
+        uses: changesets/action@master
+        with:
+          # This expects you to have a script called release which does a build for your packages and calls changeset publish
+          publish: npm run release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

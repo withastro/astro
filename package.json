@@ -1,7 +1,9 @@
 {
-  "name": "@astro.build/root",
-  "private": "true",
+  "name": "root",
+  "private": true,
   "scripts": {
+    "release": "npm run build && npx changeset publish",
+    "build": "npm run build -w astro -w astro-parser -w create-astro -w prettier-plugin-astro",
     "test": "npm run test -w astro -w prettier-plugin-astro",
     "format": "prettier -w '**/*.{js,jsx,ts,tsx,md,json}'"
   },

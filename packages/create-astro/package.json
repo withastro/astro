@@ -1,8 +1,11 @@
 {
     "name": "create-astro",
-    "version": "0.0.5",
+    "version": "0.0.9",
     "type": "module",
     "main": "./index.js",
+    "scripts": {
+        "build": "echo 'build'"
+    },
     "files": [
         "templates",
         "bin.js",

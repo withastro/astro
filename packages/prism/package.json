@@ -1,5 +1,5 @@
 {
-  "name": "@astro.build/prism",
+  "name": "astro-prism",
   "version": "1.0.0",
   "description": "This is not published at this time.",
   "main": "index.mjs",
@@ -12,7 +12,6 @@
   "keywords": [],
   "private": true,
   "author": "",
-  "license": "ISC",
   "devDependencies": {
     "prismjs": "^1.23.0"
   }
