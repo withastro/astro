@@ -1,9 +1,12 @@
 {
+  "name": "@example/tailwindcss",
+  "private": true,
   "scripts": {
-    "start": "../../astro.mjs dev",
-    "build": "../../astro.mjs build"
+    "start": "astro dev",
+    "build": "astro build"
   },
   "devDependencies": {
+    "astro": "0.0.9",
     "tailwindcss": "^2.1.1"
   }
 }

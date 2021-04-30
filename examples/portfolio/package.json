@@ -1,8 +1,12 @@
 {
-  "name": "@astrojs/example-portfolio",
+  "name": "@example/portfolio",
+  "private": true,
   "version": "0.0.1",
   "scripts": {
-    "build": "../../astro.mjs build",
-    "start": "../../astro.mjs dev"
+    "start": "astro dev",
+    "build": "astro build"
+  },
+  "devDependencies": {
+    "astro": "0.0.9"
   }
 }

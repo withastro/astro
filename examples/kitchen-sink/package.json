@@ -1,13 +1,13 @@
 {
-  "name": "kitchen-sink",
+  "name": "@example/kitchen-sink",
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "start": "nodemon -w ../../lib -x 'astro dev .'",
+    "start": "astro dev",
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "file:../../",
+    "astro": "0.0.9",
     "nodemon": "^2.0.7"
   }
 }

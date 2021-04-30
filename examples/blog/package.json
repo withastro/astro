@@ -1,9 +1,12 @@
 {
+  "name": "@example/blog",
+  "private": true,
   "scripts": {
-    "build": "../../astro.mjs build",
-    "start": "nodemon -w ../../lib -x '../../astro.mjs dev'"
+    "start": "astro dev",
+    "build": "astro build"
   },
   "devDependencies": {
+    "astro": "0.0.9",
     "nodemon": "^2.0.7"
   }
 }
