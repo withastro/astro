@@ -1,4 +1,3 @@
-src/parser/parse/**/*.ts
 vscode/**/*.ts
 scripts/**/*.js
 create-astro/**/*.js

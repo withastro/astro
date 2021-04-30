@@ -2,7 +2,7 @@ import { fileURLToPath } from 'url';
 import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
 import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';
-import type { CompileError } from './parser/utils/error.js';
+import type { CompileError } from 'astro-parser';
 import { debug, info } from './logger.js';
 import { searchForPage } from './search.js';
 

@@ -1,6 +1,6 @@
 import type { CompileOptions } from '../../@types/compiler';
 import type { AstroConfig, ValidExtensionPlugins } from '../../@types/astro';
-import type { Ast, Script, Style, TemplateNode } from '../../parser/interfaces';
+import type { Ast, Script, Style, TemplateNode } from 'astro-parser';
 import type { TransformResult } from '../../@types/astro';
 
 import eslexer from 'es-module-lexer';

@@ -7,7 +7,7 @@ import gfmSyntax from 'micromark-extension-gfm';
 import matter from 'gray-matter';
 import gfmHtml from 'micromark-extension-gfm/html.js';
 
-import { parse } from '../parser/index.js';
+import { parse } from 'astro-parser';
 import { createMarkdownHeadersCollector } from './markdown/micromark-collect-headers.js';
 import { encodeMarkdown } from './markdown/micromark-encode.js';
 import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';

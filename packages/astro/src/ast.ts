@@ -1,4 +1,4 @@
-import type { Attribute } from './parser/interfaces';
+import type { Attribute } from 'astro-parser';
 
 // AST utility functions
 

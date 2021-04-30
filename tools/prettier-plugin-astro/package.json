@@ -1,13 +1,11 @@
 {
-  "name": "@astro.build/prettier-plugin-astro",
+  "name": "prettier-plugin-astro",
   "version": "0.0.1",
   "main": "index.js",
   "type": "commonjs",
   "private": true,
-  "devDependencies": {
-    "prettier": "^2.2.1"
-  },
   "dependencies": {
-    "astro": "file:.."
+    "prettier": "^2.2.1",
+    "astro-parser": "0.0.9"
   }
 }

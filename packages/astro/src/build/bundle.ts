@@ -7,7 +7,7 @@ import type { LogOptions } from '../logger';
 import esbuild from 'esbuild';
 import { promises as fsPromises } from 'fs';
 import { fileURLToPath } from 'url';
-import { parse } from '../parser/index.js';
+import { parse } from 'astro-parser';
 import { transform } from '../compiler/transform/index.js';
 import { convertMdToAstroSource } from '../compiler/index.js';
 import { getAttrValue } from '../ast.js';

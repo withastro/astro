@@ -1,4 +1,5 @@
 import type { SourceMap } from 'magic-string';
+export type { CompileError } from './utils/error';
 
 export interface BaseNode {
   start: number;

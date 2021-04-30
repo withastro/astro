@@ -10,7 +10,7 @@ import findUp from 'find-up';
 import sass from 'sass';
 import type { RuntimeMode } from '../../@types/astro';
 import type { TransformOptions, Transformer } from '../../@types/transformer';
-import type { TemplateNode } from '../../parser/interfaces';
+import type { TemplateNode } from 'astro-parser';
 import { debug } from '../../logger.js';
 import astroScopedStyles, { NEVER_SCOPED_TAGS } from './postcss-scoped-styles/index.js';
 

@@ -1,4 +1,4 @@
-import type { CompileError } from './parser/utils/error.js';
+import type { CompileError } from 'astro-parser';
 import { bold, blue, red, grey, underline } from 'kleur/colors';
 import { Writable } from 'stream';
 import { format as utilFormat } from 'util';
