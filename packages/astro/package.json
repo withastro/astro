@@ -22,8 +22,7 @@
     "astro.mjs"
   ],
   "scripts": {
-    "prepublish": "npm run build && tsc -p tsconfig.json",
-    "build": "astro-scripts build 'src/**/*.ts'",
+    "build": "astro-scripts build 'src/**/*.ts' && tsc -p tsconfig.json",
     "postbuild": "astro-scripts copy 'src/**/*.astro'",
     "dev": "astro-scripts dev 'src/**/*.ts'",
     "test": "uvu test -i fixtures -i test-utils.js"
