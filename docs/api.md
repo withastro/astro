@@ -47,8 +47,8 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 
 `Astro.request` returns an object with the following properties:
 
-| Name   | Type     | Description                                                                                                |
-| :----- | :------- | :--------------------------------------------------------------------------------------------------------- |
+| Name  | Type  | Description                            |
+| :---- | :---- | :------------------------------------- |
 | `url` | `URL` | The URL of the request being rendered. |
 
 ### `collection`
@@ -128,7 +128,7 @@ export async function createCollection() {
       item: (item) => ({
         title: item.title,
         description: item.description,
-        pubDate: item.pubDate,
+        pubDate: item.pubDate + 'Z', // enforce GMT timezone (otherwise it’ll be different based on where it’s built)
         /** (optional) add arbitrary XML to each <item> */
         customData: `<itunes:episodeType>${item.type}</itunes:episodeType>
 <itunes:duration>${item.duration}</itunes:duration>

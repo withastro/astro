@@ -21,7 +21,7 @@ export async function createCollection() {
         title: item.title,
         link: item.url,
         description: item.description,
-        pubDate: item.pubDate,
+        pubDate: item.pubDate + 'Z',
         customData: `<itunes:episodeType>${item.type}</itunes:episodeType>` +
           `<itunes:duration>${item.duration}</itunes:duration>` +
           `<itunes:explicit>${item.explicit || false}</itunes:explicit>`,
