@@ -1,3 +1,4 @@
+import 'source-map-support/register.js';
 import { existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

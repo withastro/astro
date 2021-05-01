@@ -1,3 +1,4 @@
+import 'source-map-support/register.js';
 /* eslint-disable no-console */
 import type { AstroConfig } from './@types/astro';
 

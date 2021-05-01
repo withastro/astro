@@ -1,3 +1,4 @@
+import 'source-map-support/register.js';
 import type { AstroConfig, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { AstroRuntime, LoadResult } from './runtime';

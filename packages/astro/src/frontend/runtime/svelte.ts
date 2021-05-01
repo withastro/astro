@@ -1,4 +1,4 @@
-import SvelteWrapper from '../SvelteWrapper.svelte.client';
+import SvelteWrapper from '../SvelteWrapper.client.svelte';
 import type { SvelteComponent } from 'svelte';
 
 export default (target: Element, component: SvelteComponent, props: any, children: string) => {
