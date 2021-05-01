@@ -1,28 +1,84 @@
-import type { AstroConfig, RuntimeMode, ValidExtensionPlugins } from '../@types/astro';
 import type { ImportDeclaration } from '@babel/types';
-import type { InputOptions, OutputOptions, OutputChunk } from 'rollup';
-import type { AstroRuntime } from '../runtime';
+import type { AstroConfig, PageDependencies, RuntimeMode, ValidExtensionPlugins } from '../@types/astro';
 import type { LogOptions } from '../logger';
 
-import esbuild from 'esbuild';
-import { promises as fsPromises } from 'fs';
-import { fileURLToPath } from 'url';
 import { parse } from 'astro-parser';
+import { walk } from 'estree-walker';
+import babelParser from '@babel/parser';
+import cheerio from 'cheerio';
+import esbuild from 'esbuild';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { transform } from '../compiler/transform/index.js';
 import { convertMdToAstroSource } from '../compiler/index.js';
 import { getAttrValue } from '../ast.js';
-import { walk } from 'estree-walker';
-import babelParser from '@babel/parser';
-import path from 'path';
-import { rollup } from 'rollup';
-import { terser } from 'rollup-plugin-terser';
-import { createBundleStats, addBundleStats } from './stats.js';
+import { sortSet, absoluteURL } from './util.js';
 
-const { transformSync } = esbuild;
-const { readFile } = fsPromises;
+interface CollectDynamic {
+  astroConfig: AstroConfig;
+  resolvePackageUrl: (s: string) => Promise<string>;
+  logging: LogOptions;
+  mode: RuntimeMode;
+}
 
 type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact' | 'svelte', string>;
 
+/** Is this URL remote? */
+function isRemote(url: string) {
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) return true;
+  return false;
+}
+
+/** Given an HTML string, collect <link> and <img> tags */
+export function scanHTML(html: string, { cwd }: { cwd: string }): PageDependencies {
+  const pageDeps: PageDependencies = {
+    js: new Set<string>(),
+    css: new Set<string>(),
+    images: new Set<string>(),
+  };
+
+  const $ = cheerio.load(html);
+
+  $('script').each((i, el) => {
+    const src = $(el).attr('src');
+    if (src && !isRemote(src)) {
+      pageDeps.js.add(absoluteURL(src, cwd));
+    }
+  });
+
+  $('link[href]').each((i, el) => {
+    const href = $(el).attr('href');
+    if (href && !isRemote(href) && ($(el).attr('rel') === 'stylesheet' || $(el).attr('type') === 'text/css' || href.endsWith('.css'))) {
+      pageDeps.css.add(absoluteURL(href, cwd));
+    }
+  });
+
+  $('img[src]').each((i, el) => {
+    const src = $(el).attr('src');
+    if (src && !isRemote(src)) {
+      pageDeps.images.add(absoluteURL(src, cwd));
+    }
+  });
+
+  // sort (makes things a bit more predictable)
+  pageDeps.js = sortSet(pageDeps.js);
+  pageDeps.css = sortSet(pageDeps.css);
+  pageDeps.images = sortSet(pageDeps.images);
+
+  return pageDeps;
+}
+
+/** Evaluate mustache expression (safely) */
+function compileExpressionSafe(raw: string): string {
+  let { code } = esbuild.transformSync(raw, {
+    loader: 'tsx',
+    jsxFactory: 'h',
+    jsxFragment: 'Fragment',
+    charset: 'utf8',
+  });
+  return code;
+}
 /** Add framework runtimes when needed */
 async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolvePackageUrl: (s: string) => Promise<string>): Promise<DynamicImportMap> {
   const importMap: DynamicImportMap = new Map();
@@ -50,30 +106,12 @@ async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins
   return importMap;
 }
 
-/** Evaluate mustache expression (safely) */
-function compileExpressionSafe(raw: string): string {
-  let { code } = transformSync(raw, {
-    loader: 'tsx',
-    jsxFactory: 'h',
-    jsxFragment: 'Fragment',
-    charset: 'utf8',
-  });
-  return code;
-}
-
 const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
   '.jsx': 'react',
   '.tsx': 'react',
   '.svelte': 'svelte',
   '.vue': 'vue',
 };
-
-interface CollectDynamic {
-  astroConfig: AstroConfig;
-  resolvePackageUrl: (s: string) => Promise<string>;
-  logging: LogOptions;
-  mode: RuntimeMode;
-}
 
 /** Gather necessary framework runtimes for dynamic components */
 export async function collectDynamicImports(filename: URL, { astroConfig, logging, resolvePackageUrl, mode }: CollectDynamic) {
@@ -86,7 +124,7 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
 
   const extensions = astroConfig.extensions || defaultExtensions;
 
-  let source = await readFile(filename, 'utf-8');
+  let source = await fs.promises.readFile(filename, 'utf-8');
   if (filename.pathname.endsWith('.md')) {
     source = await convertMdToAstroSource(source);
   }
@@ -241,81 +279,4 @@ export async function collectDynamicImports(filename: URL, { astroConfig, loggin
   });
 
   return imports;
-}
-
-interface BundleOptions {
-  runtime: AstroRuntime;
-  dist: URL;
-  astroConfig: AstroConfig;
-}
-
-/** The primary bundling/optimization action */
-export async function bundle(imports: Set<string>, { runtime, dist }: BundleOptions) {
-  const ROOT = 'astro:root';
-  const root = `
-    ${[...imports].map((url) => `import '${url}';`).join('\n')}
-  `;
-
-  const inputOptions: InputOptions = {
-    input: [...imports],
-    plugins: [
-      {
-        name: 'astro:build',
-        resolveId(source: string, imported?: string) {
-          if (source === ROOT) {
-            return source;
-          }
-          if (source.startsWith('/')) {
-            return source;
-          }
-
-          if (imported) {
-            const outUrl = new URL(source, 'http://example.com' + imported);
-            return outUrl.pathname;
-          }
-
-          return null;
-        },
-        async load(id: string) {
-          if (id === ROOT) {
-            return root;
-          }
-
-          const result = await runtime.load(id);
-
-          if (result.statusCode !== 200) {
-            return null;
-          }
-
-          return result.contents.toString('utf-8');
-        },
-      },
-    ],
-  };
-
-  const build = await rollup(inputOptions);
-
-  const outputOptions: OutputOptions = {
-    dir: fileURLToPath(dist),
-    format: 'esm',
-    exports: 'named',
-    entryFileNames(chunk) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return chunk.facadeModuleId!.substr(1);
-    },
-    plugins: [
-      // We are using terser for the demo, but might switch to something else long term
-      // Look into that rather than adding options here.
-      terser(),
-    ],
-  };
-
-  const stats = createBundleStats();
-  const {output} = await build.write(outputOptions);
-  await Promise.all(output.map(async chunk => {
-    const code = (chunk as OutputChunk).code || '';
-    await addBundleStats(stats, code, chunk.fileName);
-  }));
-
-  return stats;
 }
