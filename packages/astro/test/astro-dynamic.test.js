@@ -1,6 +1,5 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
 import { setup, setupBuild } from './helpers.js';
 
 const DynamicComponents = suite('Dynamic components tests');
