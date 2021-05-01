@@ -16,7 +16,6 @@ import { generateSitemap } from './build/sitemap.js';
 import { collectStatics } from './build/static.js';
 import { canonicalURL } from './build/util.js';
 
-
 const { mkdir, readFile, writeFile } = fsPromises;
 
 interface PageBuildOptions {
@@ -26,7 +25,7 @@ interface PageBuildOptions {
   runtime: AstroRuntime;
   site?: string;
   sitemap: boolean;
-  statics: Set<string>;
+  statics: StaticMap;
 }
 
 interface PageResult {
@@ -34,6 +33,8 @@ interface PageResult {
   rss?: string;
   statusCode: number;
 }
+
+type StaticMap = Map<string, Set<string>>;
 
 const logging: LogOptions = {
   level: 'debug',
@@ -97,7 +98,13 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, site, s
     if (result.statusCode === 200) {
       const outPath = new URL('./' + url + '/index.html', dist);
       await writeResult(result, outPath, 'utf8');
-      mergeSet(statics, collectStatics(result.contents.toString('utf8')));
+      for (const staticURL of collectStatics(result.contents.toString('utf8')).keys()) {
+        addToStaticMap({
+          map: statics,
+          staticURL,
+          parentURL: url,
+        });
+      }
     }
     return result;
   }
@@ -158,7 +165,13 @@ async function buildStaticPage({ astroRoot, dist, filepath, runtime, sitemap, st
   await writeResult(result, outPath, 'utf8');
 
   if (result.statusCode === 200) {
-    mergeSet(statics, collectStatics(result.contents.toString('utf8')));
+    for (const staticURL of collectStatics(result.contents.toString('utf8')).keys()) {
+      addToStaticMap({
+        map: statics,
+        staticURL,
+        parentURL: relPath,
+      });
+    }
 
     // get Canonical URL (if user has specified one manually, use that)
     if (sitemap) {
@@ -172,6 +185,22 @@ async function buildStaticPage({ astroRoot, dist, filepath, runtime, sitemap, st
     canonicalURLs,
     statusCode: result.statusCode,
   };
+}
+
+/** Updates static map */
+function addToStaticMap({ map, staticURL, parentURL }: { map: StaticMap; staticURL: string; parentURL: string }) {
+  if (staticURL === parentURL) return;
+
+  const imported = map.get(staticURL);
+  if (imported) {
+    imported.add(parentURL);
+    map.set(staticURL, imported);
+  } else {
+    map.set(
+      staticURL,
+      new Set<string>([parentURL])
+    );
+  }
 }
 
 /** The primary build action */
@@ -193,15 +222,14 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const resolvePackageUrl = (pkgName: string) => snowpack.getUrlForPackage(pkgName);
 
   const imports = new Set<string>();
-  const statics = new Set<string>();
+  const statics: StaticMap = new Map();
   const collectImportsOptions = { astroConfig, logging, resolvePackageUrl, mode };
 
   const pages = await allPages(pageRoot);
   let builtURLs: string[] = [];
 
-
   try {
-    info(logging , 'build', yellow('! building pages...'));
+    info(logging, 'build', yellow('! building pages...'));
     // Vue also console.warns, this silences it.
     const release = trapWarn();
     await Promise.all(
@@ -254,12 +282,40 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     }
   }
 
-  for (let url of statics) {
-    const outPath = new URL('.' + url, dist);
-    const result = await runtime.load(url);
+  const bundles = new Map<string, string>();
 
-    await writeResult(result, outPath, null);
-  }
+  // write unbundled statics, and prepare bundles
+  await Promise.all(
+    [...statics.entries()].map(async ([staticURL, parentURLs]) => {
+      const outPath = new URL('.' + staticURL, dist);
+      const result = await runtime.load(staticURL);
+
+      // 1. determine # of URLs that import this
+      // 2. if > n, then yes
+      // 3. alternatively, if Buffer.byteLength(result.contents) > [MAX_SIZE], also yes
+      // 4. if bundling, add to (FILE BUNDLE)
+      const isBundling = false;
+      if (!isBundling) {
+        await writeResult(result, outPath, null);
+        return;
+      }
+
+      const bundleUrl = 'bundle.css';
+      if (result.statusCode === 200) {
+        const contents = (bundles.get(bundleUrl) || '') + result.contents.toString('utf8');
+        bundles.set(bundleUrl, contents);
+      } else {
+        throw new Error((result as any).error || result.statusCode);
+      }
+    })
+  );
+
+  // write bundles
+  await Promise.all(
+    [...bundles.entries()].map(async ([outPath, contents]) => {
+      await writeFilep(new URL(outPath), contents, 'utf8');
+    })
+  );
 
   if (existsSync(astroConfig.public)) {
     info(logging, 'build', yellow(`! copying public folder...`));
@@ -275,10 +331,11 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     }
     info(logging, 'build', green('✔'), 'public folder copied.');
   } else {
-    if(path.basename(astroConfig.public.toString()) !=='public'){
+    if (path.basename(astroConfig.public.toString()) !== 'public') {
       info(logging, 'tip', yellow(`! no public folder ${astroConfig.public} found...`));
     }
   }
+
   // build sitemap
   if (astroConfig.buildOptions.sitemap && astroConfig.buildOptions.site) {
     info(logging, 'build', yellow('! creating a sitemap...'));
