@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { createRuntime } from 'astro/runtime';
-import { loadConfig } from 'astro/config';
+import { createRuntime } from '#astro/runtime';
+import { loadConfig } from '#astro/config';
 import { promises as fsPromises } from 'fs';
 import { relative as pathRelative } from 'path';
 

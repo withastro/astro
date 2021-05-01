@@ -7,18 +7,13 @@
   "types": "./dist/types",
   "exports": {
     ".": "./astro.mjs",
-    "./ast": "./dist/ast.js",
-    "./build": "./dist/build.js",
-    "./cli": "./dist/cli.js",
-    "./config": "./dist/config.js",
-    "./dev": "./dist/dev.js",
-    "./logger": "./dist/logger.js",
-    "./runtime": "./dist/runtime.js",
-    "./search": "./dist/search.js",
-    "./compiler": "./dist/compiler/index.js",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./components/*.astro": "./components/*.astro",
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js"
+  },
+  "imports": {
+    "#astro/compiler": "./dist/compiler/index.js",
+    "#astro/*": "./dist/*.js"
   },
   "bin": {
     "astro": "astro.mjs"

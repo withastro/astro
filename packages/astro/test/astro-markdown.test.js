@@ -3,9 +3,9 @@ import { join } from 'path';
 import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { createRuntime } from 'astro/runtime';
-import { build } from 'astro/build';
-import { loadConfig } from 'astro/config';
+import { createRuntime } from '#astro/runtime';
+import { build } from '#astro/build';
+import { loadConfig } from '#astro/config';
 import { doc } from './test-utils.js';
 
 const { rmdir, readFile } = fsPromises;
