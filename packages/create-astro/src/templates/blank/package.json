@@ -1,0 +1,15 @@
+{
+  "name": "@example/blank",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "start": "astro dev",
+    "build": "astro build"
+  },
+  "devDependencies": {
+    "astro": "0.0.9"
+  },
+  "snowpack": {
+    "workspaceRoot": "../.."
+  }
+}

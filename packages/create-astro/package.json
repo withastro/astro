@@ -2,19 +2,25 @@
     "name": "create-astro",
     "version": "0.0.9",
     "type": "module",
-    "main": "./index.js",
+    "exports": {
+        ".": "./create-astro.js"
+    },
+    "bin": {
+        "create-astro": "./create-astro.js"
+    },
     "scripts": {
-        "build": "echo 'build'"
+        "build": "astro-scripts build src/index.ts",
+        "postbuild": "astro-scripts copy 'src/templates/**' --tgz"
     },
     "files": [
-        "templates",
-        "bin.js",
-        "index.js"
+        "dist",
+        "create-astro.js"
     ],
-    "bin": {
-        "create-astro": "./bin.js"
-    },
     "dependencies": {
-        "decompress": "^4.2.1"
+        "decompress": "^4.2.1",
+        "source-map-support": "^0.5.19"
+    },
+    "devDependencies": {
+        "astro-scripts": "0.0.1"
     }
 }

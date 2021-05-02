@@ -1,8 +1,9 @@
-import * as fs from 'fs';
+import 'source-map-support/register.js';
+import { promises as fs } from 'fs';
 import { resolve } from 'path';
 import decompress from 'decompress';
 import { fileURLToPath, URL } from 'url';
-import { join } from 'node:path';
+import { join } from 'path';
 
 const log = (...args) => console.log(' ', ...args);
 export default async function createAstro(argv) {
@@ -19,7 +20,7 @@ export default async function createAstro(argv) {
     const dest = resolve(process.cwd(), name);
     const relDest = name.slice(0, 2) === './' ? name : `./${name}`;
     if (isEmpty(relDest)) {
-        await decompress(fs.readFileSync(join(templateRoot, 'starter.tar.gz')), dest);
+        await decompress(await fs.readFile(join(templateRoot, 'starter.tar.gz')), dest);
         log(`Your Astro project has been scaffolded at "${relDest}"`);
         log();
         log(`Next steps:`);
