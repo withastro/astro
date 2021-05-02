@@ -16,7 +16,6 @@ import { generateSitemap } from './build/sitemap.js';
 import { collectStatics } from './build/static.js';
 import { canonicalURL } from './build/util.js';
 
-
 const { mkdir, readFile, writeFile } = fsPromises;
 
 interface PageBuildOptions {
@@ -68,7 +67,7 @@ async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf8'
 /** Utility for writing a build result to disk */
 async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'utf8') {
   if (result.statusCode === 500 || result.statusCode === 404) {
-    error(logging, 'build', result.error || result.statusCode, `when generating ${fileURLToPath(outPath)}`);
+    error(logging, 'build', result.error?.toString() || `Unexpected load result (${result.statusCode})`, `(when generating ${fileURLToPath(outPath)})`);
   } else if (result.statusCode !== 200) {
     error(logging, 'build', `Unexpected load result (${result.statusCode}) for ${fileURLToPath(outPath)}`);
   } else {
@@ -199,9 +198,8 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const pages = await allPages(pageRoot);
   let builtURLs: string[] = [];
 
-
   try {
-    info(logging , 'build', yellow('! building pages...'));
+    info(logging, 'build', yellow('! building pages...'));
     // Vue also console.warns, this silences it.
     const release = trapWarn();
     await Promise.all(
@@ -275,7 +273,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     }
     info(logging, 'build', green('✔'), 'public folder copied.');
   } else {
-    if(path.basename(astroConfig.public.toString()) !=='public'){
+    if (path.basename(astroConfig.public.toString()) !== 'public') {
       info(logging, 'tip', yellow(`! no public folder ${astroConfig.public} found...`));
     }
   }
