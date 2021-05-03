@@ -1,6 +1,5 @@
 {
-  "name": "@example/starter",
-  "private": true,
+  "name": "TODO",
   "version": "0.0.1",
   "scripts": {
     "start": "astro dev",
@@ -8,8 +7,5 @@
   },
   "devDependencies": {
     "astro": "0.0.9"
-  },
-  "snowpack": {
-    "workspaceRoot": "../.."
   }
 }
