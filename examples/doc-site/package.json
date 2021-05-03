@@ -1,11 +1,15 @@
 {
-  "name": "docs",
+  "name": "@example/doc-site",
   "version": "0.0.1",
   "scripts": {
     "start": "astro dev",
-    "build": "astro build"
+    "build": "astro build",
+    "astro-dev": "nodemon --delay 0.5 -w ../../packages/astro/dist -x '../../packages/astro/astro.mjs dev'"
   },
   "devDependencies": {
     "astro": "0.0.9"
+  },
+  "snowpack": {
+    "workspaceRoot": "../.."
   }
 }

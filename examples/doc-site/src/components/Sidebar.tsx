@@ -1,0 +1,1 @@
+import { FunctionComponent } from 'preact';
