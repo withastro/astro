@@ -4,7 +4,7 @@ import App from './components/App';
 import Version from './components/Version';
 import Exit from './components/Exit';
 import {render} from 'ink';
-import { getTemplateNames, addProcessListeners } from './utils';
+import { getTemplates, addProcessListeners } from './utils';
 import { args as argsConfig } from './config';
 import arg from 'arg';
 import Help from './components/Help';
@@ -16,7 +16,7 @@ export default async function createAstro() {
     if (args['--version']) {
         return render(<Version />);
     }
-    const templates = await getTemplateNames();
+    const templates = await getTemplates();
     if (args['--help']) {
         return render(<Help context={{ templates }} />)
     }

@@ -4,10 +4,6 @@ import { basename, resolve } from 'path';
 import { fileURLToPath, URL } from 'url';
 import decompress from 'decompress';
 
-const templateRanks = {
-  starter: 999
-}
-
 const listeners = new Map();
 
 export async function addProcessListeners(handlers: [NodeJS.Signals|string, NodeJS.SignalsListener][]) {
@@ -24,12 +20,21 @@ export async function cancelProcessListeners() {
   }
 }
 
-export async function getTemplateNames() {
+export async function getTemplates() {
     const templatesRoot = fileURLToPath(new URL('./templates', import.meta.url));
-    const templates = await fs.readdir(templatesRoot, 'utf8');
-    return templates.map(template => basename(template, '.tgz')).sort((a, b) => {
-      const aRank = templateRanks[a] ?? 0;
-      const bRank = templateRanks[b] ?? 0;
+    const templateFiles = await fs.readdir(templatesRoot, 'utf8');
+    const templates = templateFiles.filter(t => t.endsWith('.tgz'));
+    const metafile = templateFiles.find(t => t.endsWith('meta.json'));
+
+    const meta = await fs.readFile(resolve(templatesRoot, metafile)).then(r => JSON.parse(r.toString()));
+
+    return templates.map(template => {
+      const value = basename(template, '.tgz');
+      if (meta[value]) return { ...meta[value], value };
+      return { value };
+    }).sort((a, b) => {
+      const aRank = a.rank ?? 0;
+      const bRank = b.rank ?? 0;
       if (aRank > bRank) return -1;
       if (bRank > aRank) return 1;
       return 0;

@@ -54,7 +54,7 @@ const Help: FC<{ context: any }> = ({ context: { templates }}) => {
                 </Box>
             </Box>
             <Box marginBottom={1} marginLeft={2} display="flex" flexDirection="column">
-                {Object.entries(ARGS).map(([name, info]) => <Command key={name} name={name} info={name === 'template' ? { ...info, enum: templates } : info} /> )}
+                {Object.entries(ARGS).map(([name, info]) => <Command key={name} name={name} info={name === 'template' ? { ...info, enum: templates.map(({ value }) => value) } : info} /> )}
             </Box>
         </>
     )

@@ -1,4 +1,4 @@
-import { promises as fs } from 'fs';
+import { promises as fs, readFileSync } from 'fs';
 import { resolve, dirname, sep, join } from 'path';
 import arg from 'arg';
 import glob from 'globby';
@@ -16,6 +16,7 @@ export default async function copy() {
   if (isCompress) {
     const files = await glob(patterns, { gitignore: true });
     const rootDir = resolveRootDir(files);
+    const destDir = rootDir.replace(/^[^/]+/, 'dist');
 
     const templates = files.reduce((acc, curr) => {
       const name = curr.replace(rootDir, '').slice(1).split(sep)[0];
@@ -27,10 +28,16 @@ export default async function copy() {
       return acc;
     }, {});
 
+    let meta = {};
     return Promise.all(
       Object.entries(templates).map(([template, files]) => {
         const cwd = resolve(join(rootDir, template));
-        const dest = join(rootDir.replace(/^[^/]+/, 'dist'), `${template}.tgz`);
+        const dest = join(destDir, `${template}.tgz`);
+        const metafile = files.find(f => f.endsWith('meta.json'));
+        if (metafile) {
+          files = files.filter(f => f !== metafile);
+          meta[template] = JSON.parse(readFileSync(metafile).toString());
+        }
         return fs.mkdir(dirname(dest), { recursive: true }).then(() => tar.create({
           gzip: true,
           portable: true,
@@ -38,7 +45,11 @@ export default async function copy() {
           cwd,
         }, files.map(f => f.replace(cwd, '').slice(1))));
       })
-    );
+    ).then(() => {
+      if (Object.keys(meta).length > 0) {
+        return fs.writeFile(resolve(destDir, 'meta.json'), JSON.stringify(meta, null, 2));
+      }
+    });
   }
 
   const files = await glob(patterns);
