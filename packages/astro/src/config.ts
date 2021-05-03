@@ -1,3 +1,4 @@
+import 'source-map-support/register.js';
 import type { AstroConfig } from './@types/astro';
 import { join as pathJoin, resolve as pathResolve } from 'path';
 import { existsSync } from 'fs';

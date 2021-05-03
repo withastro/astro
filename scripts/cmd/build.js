@@ -1,25 +1,30 @@
 import esbuild from 'esbuild';
+import svelte from '../utils/svelte-plugin.js';
 import del from 'del';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
 import glob from 'tiny-glob';
 
 /** @type {import('esbuild').BuildOptions} */
-const config = {
+const defaultConfig = {
   bundle: true,
   minify: true,
-  sourcemap: 'inline',
   format: 'esm',
   platform: 'node',
   target: 'node14',
+  sourcemap: 'inline',
+  sourcesContent: false,
+  plugins: [svelte()],
 };
 
-export default async function build(pattern, ...args) {
-  const isDev = args.pop() === 'IS_DEV';
-  const entryPoints = await glob(pattern, { filesOnly: true, absolute: true });
+export default async function build(...args) {
+  const config = Object.assign({}, defaultConfig);
+  const isDev = args.slice(-1)[0] === 'IS_DEV';
+  let entryPoints = [].concat(...(await Promise.all(args.map((pattern) => glob(pattern, { filesOnly: true, absolute: true })))));
+
   const { type = 'module', dependencies = {} } = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
   const format = type === 'module' ? 'esm' : 'cjs';
-  const external = Object.keys(dependencies);
+  const external = [...Object.keys(dependencies), 'source-map-support', 'source-map-support/register.js'];
   const outdir = 'dist';
   await clean(outdir);
 
@@ -61,5 +66,5 @@ export default async function build(pattern, ...args) {
 }
 
 async function clean(outdir) {
-  return del(`!${outdir}/**/*.d.ts`);
+  return del([`${outdir}/**`, `!${outdir}/**/*.d.ts`]);
 }

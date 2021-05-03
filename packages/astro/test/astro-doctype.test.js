@@ -1,8 +1,9 @@
 import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { loadConfig } from '../dist/config.js';
-import { createRuntime } from '../dist/runtime.js';
+import { loadConfig } from '#astro/config';
+import { createRuntime } from '#astro/runtime';
+
 
 const DType = suite('doctype');
 

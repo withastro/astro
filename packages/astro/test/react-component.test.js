@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { createRuntime } from '../dist/runtime.js';
-import { loadConfig } from '../dist/config.js';
+import { createRuntime } from '#astro/runtime';
+import { loadConfig } from '#astro/config';
 import { doc } from './test-utils.js';
 
 const React = suite('React Components');

@@ -1,3 +1,4 @@
+import 'source-map-support/register.js';
 import type { AstroConfig, RuntimeMode } from './@types/astro';
 import type { LogOptions } from './logger';
 import type { AstroRuntime, LoadResult } from './runtime';
@@ -15,7 +16,7 @@ import { generateRSS } from './build/rss.js';
 import { generateSitemap } from './build/sitemap.js';
 import { collectStatics } from './build/static.js';
 import { canonicalURL } from './build/util.js';
-
+import { pathToFileURL } from 'node:url';
 
 const { mkdir, readFile, writeFile } = fsPromises;
 
@@ -65,12 +66,19 @@ async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf8'
   await writeFile(outPath, bytes, encoding || 'binary');
 }
 
+interface WriteResultOptions {
+  srcPath: string;
+  result: LoadResult;
+  outPath: URL,
+  encoding: null|'utf8'
+}
+
 /** Utility for writing a build result to disk */
-async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'utf8') {
+async function writeResult({ srcPath, result, outPath, encoding }: WriteResultOptions) {
   if (result.statusCode === 500 || result.statusCode === 404) {
-    error(logging, 'build', result.error || result.statusCode);
+    error(logging, 'build', `  Failed to build ${srcPath}\n${' '.repeat(9)}`, result.error?.message ?? `Unexpected load result (${result.statusCode})`);
   } else if (result.statusCode !== 200) {
-    error(logging, 'build', `Unexpected load result (${result.statusCode}) for ${fileURLToPath(outPath)}`);
+    error(logging, 'build', `  Failed to build ${srcPath}\n${' '.repeat(9)}`, `Unexpected load result (${result.statusCode}) for ${fileURLToPath(outPath)}`);
   } else {
     const bytes = result.contents;
     await writeFilep(outPath, bytes, encoding);
@@ -87,6 +95,7 @@ function getPageType(filepath: URL): 'collection' | 'static' {
 async function buildCollectionPage({ astroRoot, dist, filepath, runtime, site, statics }: PageBuildOptions): Promise<PageResult> {
   const rel = path.relative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
   const pagePath = `/${rel.replace(/\$([^.]+)\.astro$/, '$1')}`;
+  const srcPath = fileURLToPath(new URL('pages/' + rel, astroRoot));
   const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
 
   /** Recursively build collection URLs */
@@ -96,7 +105,7 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, site, s
     builtURLs.add(url);
     if (result.statusCode === 200) {
       const outPath = new URL('./' + url + '/index.html', dist);
-      await writeResult(result, outPath, 'utf8');
+      await writeResult({ srcPath, result, outPath, encoding: 'utf8' });
       mergeSet(statics, collectStatics(result.contents.toString('utf8')));
     }
     return result;
@@ -152,10 +161,11 @@ async function buildStaticPage({ astroRoot, dist, filepath, runtime, sitemap, st
     relPath = relPath.replace(/\.html$/, '/index.html');
   }
 
+  const srcPath = fileURLToPath(new URL('pages/' + rel, astroRoot));
   const outPath = new URL(relPath, dist);
   const result = await runtime.load(pagePath);
 
-  await writeResult(result, outPath, 'utf8');
+  await writeResult({ srcPath, result, outPath, encoding: 'utf8' });
 
   if (result.statusCode === 200) {
     mergeSet(statics, collectStatics(result.contents.toString('utf8')));
@@ -199,9 +209,8 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const pages = await allPages(pageRoot);
   let builtURLs: string[] = [];
 
-
   try {
-    info(logging , 'build', yellow('! building pages...'));
+    info(logging, 'build', yellow('! building pages...'));
     // Vue also console.warns, this silences it.
     const release = trapWarn();
     await Promise.all(
@@ -258,7 +267,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     const outPath = new URL('.' + url, dist);
     const result = await runtime.load(url);
 
-    await writeResult(result, outPath, null);
+    await writeResult({ srcPath: url, result, outPath, encoding: null });
   }
 
   if (existsSync(astroConfig.public)) {
@@ -275,7 +284,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     }
     info(logging, 'build', green('✔'), 'public folder copied.');
   } else {
-    if(path.basename(astroConfig.public.toString()) !=='public'){
+    if (path.basename(astroConfig.public.toString()) !== 'public') {
       info(logging, 'tip', yellow(`! no public folder ${astroConfig.public} found...`));
     }
   }

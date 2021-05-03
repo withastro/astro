@@ -36,13 +36,10 @@
     "lerna": "^4.0.0",
     "prettier": "^2.2.1",
     "tiny-glob": "^0.2.8",
+    "esbuild": "^0.11.17",
+    "svelte": "^3.38.0",
     "typescript": "^4.2.4",
-    "uvu": "^0.5.1",
-    "eslint": "^7.22.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-prettier": "^3.3.1",
-    "@typescript-eslint/eslint-plugin": "^4.18.0",
-    "@typescript-eslint/parser": "^4.18.0"
+    "uvu": "^0.5.1"
   },
   "dependencies": {
     "@changesets/cli": "^2.16.0"

@@ -1,11 +1,12 @@
 import type { ComponentRenderer } from '../../@types/renderer';
 import type { SvelteComponent } from 'svelte';
 import { createRenderer } from './renderer';
-import SvelteWrapper from '../SvelteWrapper.svelte.server';
+import SvelteWrapper from '../SvelteWrapper.server.svelte';
 
 const SvelteRenderer: ComponentRenderer<SvelteComponent> = {
   renderStatic(Component) {
     return async (props, ...children) => {
+      /// @ts-expect-error
       const { html } = SvelteWrapper.render({ __astro_component: Component, __astro_children: children.join('\n'), ...props });
       return html;
     };

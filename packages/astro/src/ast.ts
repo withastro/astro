@@ -1,3 +1,4 @@
+import 'source-map-support/register.js';
 import type { Attribute } from 'astro-parser';
 
 // AST utility functions

@@ -1,3 +1,4 @@
+import 'source-map-support/register.js';
 import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 
@@ -13,6 +14,8 @@ import { encodeMarkdown } from './markdown/micromark-encode.js';
 import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';
 import { transform } from './transform/index.js';
 import { codegen } from './codegen/index.js';
+
+export { scopeRule } from './transform/postcss-scoped-styles/index.js'
 
 /** Return Astro internal import URL */
 function internalImport(internalPath: string) {

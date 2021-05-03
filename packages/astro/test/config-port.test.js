@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { runDevServer } from './helpers.js';
-import { loadConfig } from '../dist/config.js';
+import { loadConfig } from '#astro/config';
 
 const ConfigPort = suite('Config path');
 

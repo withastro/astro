@@ -1,3 +1,4 @@
+import 'source-map-support/register.js';
 import { fileURLToPath } from 'url';
 import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
 import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
