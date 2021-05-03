@@ -16,6 +16,7 @@ import { generateRSS } from './build/rss.js';
 import { generateSitemap } from './build/sitemap.js';
 import { collectStatics } from './build/static.js';
 import { canonicalURL } from './build/util.js';
+import { pathToFileURL } from 'node:url';
 
 const { mkdir, readFile, writeFile } = fsPromises;
 
@@ -66,11 +67,11 @@ async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf8'
 }
 
 /** Utility for writing a build result to disk */
-async function writeResult(result: LoadResult, outPath: URL, encoding: null | 'utf8') {
+async function writeResult(srcPath: string, result: LoadResult, outPath: URL, encoding: null | 'utf8') {
   if (result.statusCode === 500 || result.statusCode === 404) {
-    error(logging, 'build', result.error?.toString() || `Unexpected load result (${result.statusCode})`, `(when generating ${fileURLToPath(outPath)})`);
+    error(logging, 'build', `  Failed to build ${srcPath}\n${' '.repeat(9)}`, result.error?.message ?? `Unexpected load result (${result.statusCode})`);
   } else if (result.statusCode !== 200) {
-    error(logging, 'build', `Unexpected load result (${result.statusCode}) for ${fileURLToPath(outPath)}`);
+    error(logging, 'build', `  Failed to build ${srcPath}\n${' '.repeat(9)}`, `Unexpected load result (${result.statusCode}) for ${fileURLToPath(outPath)}`);
   } else {
     const bytes = result.contents;
     await writeFilep(outPath, bytes, encoding);
@@ -87,6 +88,7 @@ function getPageType(filepath: URL): 'collection' | 'static' {
 async function buildCollectionPage({ astroRoot, dist, filepath, runtime, site, statics }: PageBuildOptions): Promise<PageResult> {
   const rel = path.relative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
   const pagePath = `/${rel.replace(/\$([^.]+)\.astro$/, '$1')}`;
+  const srcPath = fileURLToPath(new URL('pages/' + rel, astroRoot));
   const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
 
   /** Recursively build collection URLs */
@@ -96,7 +98,7 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, site, s
     builtURLs.add(url);
     if (result.statusCode === 200) {
       const outPath = new URL('./' + url + '/index.html', dist);
-      await writeResult(result, outPath, 'utf8');
+      await writeResult(srcPath, result, outPath, 'utf8');
       mergeSet(statics, collectStatics(result.contents.toString('utf8')));
     }
     return result;
@@ -152,10 +154,11 @@ async function buildStaticPage({ astroRoot, dist, filepath, runtime, sitemap, st
     relPath = relPath.replace(/\.html$/, '/index.html');
   }
 
+  const srcPath = fileURLToPath(new URL('pages/' + rel, astroRoot));
   const outPath = new URL(relPath, dist);
   const result = await runtime.load(pagePath);
 
-  await writeResult(result, outPath, 'utf8');
+  await writeResult(srcPath, result, outPath, 'utf8');
 
   if (result.statusCode === 200) {
     mergeSet(statics, collectStatics(result.contents.toString('utf8')));
@@ -257,7 +260,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     const outPath = new URL('.' + url, dist);
     const result = await runtime.load(url);
 
-    await writeResult(result, outPath, null);
+    await writeResult(url, result, outPath, null);
   }
 
   if (existsSync(astroConfig.public)) {
