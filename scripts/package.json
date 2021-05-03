@@ -8,6 +8,9 @@
         "astro-scripts": "./index.js"
     },
     "dependencies": {
-        "esbuild": "^0.11.16"
+        "arg": "^5.0.0",
+        "esbuild": "^0.11.16",
+        "globby": "^11.0.3",
+        "tar": "^6.1.0"
     }
 }
