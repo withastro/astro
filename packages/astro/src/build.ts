@@ -66,8 +66,15 @@ async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf8'
   await writeFile(outPath, bytes, encoding || 'binary');
 }
 
+interface WriteResultOptions {
+  srcPath: string;
+  result: LoadResult;
+  outPath: URL,
+  encoding: null|'utf8'
+}
+
 /** Utility for writing a build result to disk */
-async function writeResult(srcPath: string, result: LoadResult, outPath: URL, encoding: null | 'utf8') {
+async function writeResult({ srcPath, result, outPath, encoding }: WriteResultOptions) {
   if (result.statusCode === 500 || result.statusCode === 404) {
     error(logging, 'build', `  Failed to build ${srcPath}\n${' '.repeat(9)}`, result.error?.message ?? `Unexpected load result (${result.statusCode})`);
   } else if (result.statusCode !== 200) {
@@ -98,7 +105,7 @@ async function buildCollectionPage({ astroRoot, dist, filepath, runtime, site, s
     builtURLs.add(url);
     if (result.statusCode === 200) {
       const outPath = new URL('./' + url + '/index.html', dist);
-      await writeResult(srcPath, result, outPath, 'utf8');
+      await writeResult({ srcPath, result, outPath, encoding: 'utf8' });
       mergeSet(statics, collectStatics(result.contents.toString('utf8')));
     }
     return result;
@@ -158,7 +165,7 @@ async function buildStaticPage({ astroRoot, dist, filepath, runtime, sitemap, st
   const outPath = new URL(relPath, dist);
   const result = await runtime.load(pagePath);
 
-  await writeResult(srcPath, result, outPath, 'utf8');
+  await writeResult({ srcPath, result, outPath, encoding: 'utf8' });
 
   if (result.statusCode === 200) {
     mergeSet(statics, collectStatics(result.contents.toString('utf8')));
@@ -260,7 +267,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     const outPath = new URL('.' + url, dist);
     const result = await runtime.load(url);
 
-    await writeResult(url, result, outPath, null);
+    await writeResult({ srcPath: url, result, outPath, encoding: null });
   }
 
   if (existsSync(astroConfig.public)) {
