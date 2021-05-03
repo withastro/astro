@@ -1,0 +1,25 @@
+---
+export let collection;
+export async function createCollection() {
+  return {
+    async data() {
+      const projects = Astro.fetchContent('../archives/**/*.md');
+      return projects;
+    }
+  }
+}
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <main>
+    <pre>{JSON.stringify(collection.data, null, 2)}</pre>
+  </main>
+</body>
+</html>
