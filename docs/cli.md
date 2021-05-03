@@ -36,7 +36,7 @@ Runs the Astro development server. This starts an HTTP server that responds to r
 
 See the [dev server](./dev.md) docs for more information on how the dev server works.
 
-__Flags__
+**Flags**
 
 ##### `--port`
 

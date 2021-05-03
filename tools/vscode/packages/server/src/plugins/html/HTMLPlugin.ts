@@ -34,15 +34,7 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
       isIncomplete: true,
       items: [],
     };
-    this.lang.setCompletionParticipants([
-        getEmmetCompletionParticipants(
-            document,
-            position,
-            'html',
-            this.configManager.getEmmetConfig(),
-            emmetResults
-        )
-    ]);
+    this.lang.setCompletionParticipants([getEmmetCompletionParticipants(document, position, 'html', this.configManager.getEmmetConfig(), emmetResults)]);
 
     const results = this.lang.doComplete(document, position, html);
     const items = this.toCompletionItems(results.items);
@@ -54,14 +46,13 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
     );
   }
 
-  getFoldingRanges(document: Document): FoldingRange[]|null {
+  getFoldingRanges(document: Document): FoldingRange[] | null {
     const html = this.documents.get(document);
     if (!html) {
       return null;
     }
 
     return this.lang.getFoldingRanges(document);
-
   }
 
   doTagComplete(document: Document, position: Position): string | null {

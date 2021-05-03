@@ -53,30 +53,22 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
       return ts.sys.readDirectory(path, [...extensions, '.vue', '.svelte', '.astro', '.js', '.jsx'], exclude, include, depth);
     },
   };
-  
+
   let configJson = (tsconfigPath && ts.readConfigFile(tsconfigPath, ts.sys.readFile).config) || getDefaultJsConfig();
   if (!configJson.extends) {
-      configJson = Object.assign(
-          {
-              exclude: getDefaultExclude()
-          },
-          configJson
-      );
+    configJson = Object.assign(
+      {
+        exclude: getDefaultExclude(),
+      },
+      configJson
+    );
   }
 
-  const project = ts.parseJsonConfigFileContent(
-        configJson,
-        parseConfigHost,
-        workspaceRoot,
-        {},
-        basename(tsconfigPath),
-        undefined,
-        [
-          { extension: '.vue', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
-          { extension: '.svelte', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
-          { extension: '.astro', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred }
-        ]
-    );
+  const project = ts.parseJsonConfigFileContent(configJson, parseConfigHost, workspaceRoot, {}, basename(tsconfigPath), undefined, [
+    { extension: '.vue', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
+    { extension: '.svelte', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
+    { extension: '.astro', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
+  ]);
 
   let projectVersion = 0;
   const snapshotManager = new SnapshotManager(project.fileNames, { exclude: ['node_modules', 'dist'], include: ['astro'] }, workspaceRoot || process.cwd());
@@ -100,15 +92,15 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     getProjectVersion: () => `${projectVersion}`,
     getScriptFileNames: () => Array.from(new Set([...snapshotManager.getFileNames(), ...snapshotManager.getProjectFileNames()])),
     getScriptSnapshot,
-    getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString()
+    getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString(),
   };
 
   const languageService = ts.createLanguageService(host);
   const languageServiceProxy = new Proxy(languageService, {
     get(target, prop) {
       return Reflect.get(target, prop);
-    }
-  })
+    },
+  });
 
   return {
     tsconfigPath,
@@ -141,19 +133,16 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
   }
 
   function getScriptSnapshot(fileName: string): DocumentSnapshot {
-      fileName = ensureRealAstroFilePath(fileName);
+    fileName = ensureRealAstroFilePath(fileName);
 
-      let doc = snapshotManager.get(fileName);
-      if (doc) {
-          return doc;
-      }
-
-      doc = createDocumentSnapshot(
-          fileName,
-          docContext.createDocument,
-      );
-      snapshotManager.set(fileName, doc);
+    let doc = snapshotManager.get(fileName);
+    if (doc) {
       return doc;
+    }
+
+    doc = createDocumentSnapshot(fileName, docContext.createDocument);
+    snapshotManager.set(fileName, doc);
+    return doc;
   }
 }
 
@@ -168,7 +157,7 @@ function getDefaultJsConfig(): {
     compilerOptions: {
       maxNodeModuleJsDepth: 2,
       allowSyntheticDefaultImports: true,
-      allowJs: true
+      allowJs: true,
     },
     include: ['astro'],
   };

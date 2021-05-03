@@ -43,7 +43,6 @@ npm run build
 
 To deploy your Astro site to production, upload the contents of `/dist` to your favorite static site host.
 
-
 ## 🥾 Guides
 
 ### 🚀 Basic Usage
@@ -66,8 +65,8 @@ Even though nearly-everything [is configurable][docs-config], we recommend start
 
 Routing happens in `src/pages/*`. Every `.astro` or `.md.astro` file in this folder corresponds with a public URL. For example:
 
-| Local file                               | Public URL                      |
-| :--------------------------------------- | :------------------------------ |
+| Local file                             | Public URL                      |
+| :------------------------------------- | :------------------------------ |
 | `src/pages/index.astro`                | `/index.html`                   |
 | `src/pages/post/my-blog-post.md.astro` | `/post/my-blog-post/index.html` |
 
@@ -164,10 +163,10 @@ Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set
 
 👉 [**Collections API**][docs-collections]
 
-
 ## ⚙️ Config
 
 👉 [**`astro.config.mjs` Reference**][docs-config]
+
 ## 📚 API
 
 👉 [**Full API Reference**][docs-api]

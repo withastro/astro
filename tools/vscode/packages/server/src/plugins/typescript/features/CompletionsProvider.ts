@@ -99,7 +99,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
       data: {
         ...comp,
         uri,
-        position
+        position,
       },
     };
   }

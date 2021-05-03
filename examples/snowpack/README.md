@@ -1,21 +1,21 @@
 # Astro Demo
 
-## Getting setup
+## Getting set up
 
-1. Checkout Astro at: https://github.com/snowpackjs/astro
-  
-    1. Install and build Astro:
+1. Check out Astro at: https://github.com/snowpackjs/astro
 
-    ```shell
-    npm install
-    npm run build
-    ```
+   1. Install and build Astro:
 
-    2. Link Astro:
+   ```shell
+   npm install
+   npm run build
+   ```
 
-    ```shell
-    npm link
-    ```
+   2. Link Astro:
+
+   ```shell
+   npm link
+   ```
 
 2. In this project link Astro and install other deps:
 

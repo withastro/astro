@@ -31,7 +31,7 @@ const Confirm: FC<{ message?: any; context: any; onSubmit: (value: boolean) => v
           items={[
             {
               value: false,
-              label: 'no'
+              label: 'no',
             },
             {
               value: true,

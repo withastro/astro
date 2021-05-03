@@ -26,8 +26,8 @@ function validateConfig(config: any): void {
     }
   }
 
-  if(typeof config.devOptions?.port !== 'number') {
-    throw new Error(`[astro config] devOptions.port: Expected number, received ${type(config.devOptions?.port)}`)
+  if (typeof config.devOptions?.port !== 'number') {
+    throw new Error(`[astro config] devOptions.port: Expected number, received ${type(config.devOptions?.port)}`);
   }
 }
 

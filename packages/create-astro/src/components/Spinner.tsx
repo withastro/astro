@@ -6,14 +6,14 @@ const Spinner: FC<{ type?: keyof typeof spinners }> = ({ type = 'countdown' }) =
   const [i, setI] = useState(0);
   useEffect(() => {
     const _ = setInterval(() => {
-      setI(v => (v < frames.length - 1) ? v + 1 : 0)
-    }, interval)
+      setI((v) => (v < frames.length - 1 ? v + 1 : 0));
+    }, interval);
 
     return () => clearInterval(_);
-  }, [])
+  }, []);
 
-  return frames[i]
-}
+  return frames[i];
+};
 
 const spinners = {
   countdown: {
@@ -35,73 +35,73 @@ const spinners = {
         <Text backgroundColor="#882DE7">{'       '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#6858F1">{' '}</Text>
+        <Text backgroundColor="#6858F1"> </Text>
         <Text backgroundColor="#882DE7">{'      '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#6858F1"> </Text>
         <Text backgroundColor="#882DE7">{'     '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#6858F1"> </Text>
         <Text backgroundColor="#882DE7">{'    '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#6858F1"> </Text>
         <Text backgroundColor="#882DE7">{'   '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#23B1AF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
+        <Text backgroundColor="#23B1AF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#6858F1"> </Text>
         <Text backgroundColor="#882DE7">{'  '}</Text>
       </Box>,
-       <Box display="flex">
-        <Text backgroundColor="#17C083">{' '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
-        <Text backgroundColor="#882DE7">{' '}</Text>
+      <Box display="flex">
+        <Text backgroundColor="#17C083"> </Text>
+        <Text backgroundColor="#23B1AF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#6858F1"> </Text>
+        <Text backgroundColor="#882DE7"> </Text>
       </Box>,
-       <Box display="flex">
+      <Box display="flex">
         <Text backgroundColor="#17C083">{'  '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
+        <Text backgroundColor="#23B1AF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#6858F1"> </Text>
       </Box>,
-       <Box display="flex">
+      <Box display="flex">
         <Text backgroundColor="#17C083">{'   '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
+        <Text backgroundColor="#23B1AF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#17C083">{'    '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
+        <Text backgroundColor="#23B1AF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#17C083">{'     '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
+        <Text backgroundColor="#23B1AF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#17C083">{'      '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
+        <Text backgroundColor="#23B1AF"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#17C083">{'       '}</Text>
@@ -122,79 +122,79 @@ const spinners = {
         <Text backgroundColor="#17C083">{'       '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#23B1AF">{' '}</Text>
+        <Text backgroundColor="#23B1AF"> </Text>
         <Text backgroundColor="#17C083">{'      '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#23B1AF"> </Text>
         <Text backgroundColor="#17C083">{'     '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#23B1AF"> </Text>
         <Text backgroundColor="#17C083">{'    '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#23B1AF"> </Text>
         <Text backgroundColor="#17C083">{'   '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#6858F1">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
+        <Text backgroundColor="#6858F1"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#23B1AF"> </Text>
         <Text backgroundColor="#17C083">{'  '}</Text>
       </Box>,
       <Box display="flex">
-        <Text backgroundColor="#882DE7">{' '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
-        <Text backgroundColor="#17C083">{' '}</Text>
+        <Text backgroundColor="#882DE7"> </Text>
+        <Text backgroundColor="#6858F1"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#23B1AF"> </Text>
+        <Text backgroundColor="#17C083"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#882DE7">{'  '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
-        <Text backgroundColor="#23B1AF">{' '}</Text>
+        <Text backgroundColor="#6858F1"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
+        <Text backgroundColor="#23B1AF"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#882DE7">{'   '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
-        <Text backgroundColor="#2CA5D2">{' '}</Text>
+        <Text backgroundColor="#6858F1"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
+        <Text backgroundColor="#2CA5D2"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#882DE7">{'    '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
-        <Text backgroundColor="#3894FF">{' '}</Text>
+        <Text backgroundColor="#6858F1"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
+        <Text backgroundColor="#3894FF"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#882DE7">{'     '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
-        <Text backgroundColor="#5076F9">{' '}</Text>
+        <Text backgroundColor="#6858F1"> </Text>
+        <Text backgroundColor="#5076F9"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#882DE7">{'      '}</Text>
-        <Text backgroundColor="#6858F1">{' '}</Text>
+        <Text backgroundColor="#6858F1"> </Text>
       </Box>,
       <Box display="flex">
         <Text backgroundColor="#882DE7">{'       '}</Text>
       </Box>,
-    ]
-  }
-}
+    ],
+  },
+};
 
 export default Spinner;

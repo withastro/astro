@@ -12,7 +12,7 @@ ConfigPath('can be passed via --config', async (context) => {
 
   process.stdout.setEncoding('utf8');
   for await (const chunk of process.stdout) {
-    if(/Server started/.test(chunk)) {
+    if (/Server started/.test(chunk)) {
       break;
     }
   }

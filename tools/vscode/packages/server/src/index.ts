@@ -71,10 +71,12 @@ export function startServer() {
   connection.onDidChangeTextDocument((evt) => docManager.updateDocument(evt.textDocument.uri, evt.contentChanges));
 
   connection.onDidChangeWatchedFiles((evt) => {
-    const params = evt.changes.map(change => ({
-      fileName: urlToPath(change.uri),
-      changeType: change.type
-    })).filter(change => !!change.fileName)
+    const params = evt.changes
+      .map((change) => ({
+        fileName: urlToPath(change.uri),
+        changeType: change.type,
+      }))
+      .filter((change) => !!change.fileName);
 
     pluginHost.onWatchFileChanges(params);
   });

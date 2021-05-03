@@ -4,7 +4,6 @@ import * as assert from 'uvu/assert';
 import { loadConfig } from '#astro/config';
 import { createRuntime } from '#astro/runtime';
 
-
 const DType = suite('doctype');
 
 let runtime, setupError;

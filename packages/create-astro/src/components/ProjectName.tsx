@@ -8,8 +8,9 @@ const { default: Input } = TextInput;
 const ProjectName: FC<{ onSubmit: (value: string) => void }> = ({ onSubmit }) => {
   const [value, setValue] = React.useState('');
   const handleSubmit = (v: string) => onSubmit(v);
-  
-  return <>
+
+  return (
+    <>
       <Box display="flex">
         <Text color="#17C083">{'[query]'}</Text>
         <Text> What is your project name?</Text>
@@ -18,7 +19,8 @@ const ProjectName: FC<{ onSubmit: (value: string) => void }> = ({ onSubmit }) =>
         <Spacer />
         <Input value={value} onChange={setValue} onSubmit={handleSubmit} placeholder="my-project" />
       </Box>
-    </>;
+    </>
+  );
 };
 
 export default ProjectName;

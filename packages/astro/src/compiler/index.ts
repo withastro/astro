@@ -15,7 +15,7 @@ import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';
 import { transform } from './transform/index.js';
 import { codegen } from './codegen/index.js';
 
-export { scopeRule } from './transform/postcss-scoped-styles/index.js'
+export { scopeRule } from './transform/postcss-scoped-styles/index.js';
 
 /** Return Astro internal import URL */
 function internalImport(internalPath: string) {

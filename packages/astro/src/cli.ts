@@ -31,10 +31,10 @@ interface CLIState {
 /** Determine which action the user requested */
 function resolveArgs(flags: Arguments): CLIState {
   const options: CLIState['options'] = {
-    projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot: undefined,
+    projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
     port: typeof flags.port === 'number' ? flags.port : undefined,
-    config: typeof flags.config === 'string' ? flags.config : undefined
+    config: typeof flags.config === 'string' ? flags.config : undefined,
   };
 
   if (flags.version) {

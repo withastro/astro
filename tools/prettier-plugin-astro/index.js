@@ -42,7 +42,7 @@ module.exports.parsers = {
       return node.end;
     },
     astFormat: 'astro-expression',
-  }
+  },
 };
 
 const findExpressionsInAST = (node, collect = []) => {
@@ -50,24 +50,24 @@ const findExpressionsInAST = (node, collect = []) => {
     return collect.concat(node);
   }
   if (node.children) {
-    collect.push(...[].concat(...node.children.map(child => findExpressionsInAST(child))));
+    collect.push(...[].concat(...node.children.map((child) => findExpressionsInAST(child))));
   }
   return collect;
-}
+};
 
-const formatExpression = ({ expression: { codeChunks, children }}, text, options) => {
+const formatExpression = ({ expression: { codeChunks, children } }, text, options) => {
   if (children.length === 0) {
     const codeStart = codeChunks[0]; // If no children, there should only exist a single chunk.
     if (codeStart && [`'`, `"`].includes(codeStart[0])) {
-      return `<script $ lang="ts">${codeChunks.join('')}</script>`
+      return `<script $ lang="ts">${codeChunks.join('')}</script>`;
     }
     return `{${codeChunks.join('')}}`;
   }
 
   return `<script $ lang="ts">${text}</script>`;
-}
+};
 
-const isAstroScript = (node) => node.type === 'concat' && node.parts[0] === '<script' && node.parts[1].type === 'indent' && node.parts[1].contents.parts.find(v => v === '$');
+const isAstroScript = (node) => node.type === 'concat' && node.parts[0] === '<script' && node.parts[1].type === 'indent' && node.parts[1].contents.parts.find((v) => v === '$');
 
 const walkDoc = (doc) => {
   let inAstroScript = false;
@@ -77,38 +77,38 @@ const walkDoc = (doc) => {
         inAstroScript = true;
         parent.contents = { type: 'concat', parts: ['{'] };
       }
-      return node.parts.map(part => recurse(part, { parent: node }));
+      return node.parts.map((part) => recurse(part, { parent: node }));
     }
     if (inAstroScript) {
       if (node.type === 'break-parent') {
-        parent.parts = parent.parts.filter(part => !['break-parent', 'line'].includes(part.type));
+        parent.parts = parent.parts.filter((part) => !['break-parent', 'line'].includes(part.type));
       }
       if (node.type === 'indent') {
-        parent.parts = parent.parts.map(part => {
+        parent.parts = parent.parts.map((part) => {
           if (part.type !== 'indent') return part;
           return {
             type: 'concat',
-            parts: [part.contents]
-          }
-        })
+            parts: [part.contents],
+          };
+        });
       }
       if (typeof node === 'string' && node.endsWith(';')) {
-        parent.parts = parent.parts.map(part => {
+        parent.parts = parent.parts.map((part) => {
           if (typeof part === 'string' && part.endsWith(';')) return part.slice(0, -1);
           return part;
         });
       }
       if (node === '</script>') {
-        parent.parts = parent.parts.map(part => part === '</script>' ? '}' : part);
+        parent.parts = parent.parts.map((part) => (part === '</script>' ? '}' : part));
         inAstroScript = false;
       }
     }
     if (['group', 'indent'].includes(node.type)) {
       return recurse(node.contents, { parent: node });
     }
-  }
+  };
   recurse(doc, { parent: null });
-}
+};
 
 /** @type {Record<string, import('prettier').Printer>} */
 module.exports.printers = {
@@ -129,18 +129,20 @@ module.exports.printers = {
       if (node.type === 'Fragment' && node.isRoot) {
         const expressions = findExpressionsInAST(node);
         if (expressions.length > 0) {
-          const parts = [].concat(...expressions.map((expr, i, all) => {
-            const prev = all[i - 1];
-            const start = node.text.slice((prev?.end ?? node.start) - node.start, expr.start - node.start);
-            const exprText = formatExpression(expr, node.text.slice(expr.start - node.start + 1, expr.end - node.start - 1), options);
+          const parts = [].concat(
+            ...expressions.map((expr, i, all) => {
+              const prev = all[i - 1];
+              const start = node.text.slice((prev?.end ?? node.start) - node.start, expr.start - node.start);
+              const exprText = formatExpression(expr, node.text.slice(expr.start - node.start + 1, expr.end - node.start - 1), options);
 
-            if (i === all.length - 1) {
-              const end = node.text.slice(expr.end - node.start);
-              return [start, exprText, end]
-            }
+              if (i === all.length - 1) {
+                const end = node.text.slice(expr.end - node.start);
+                return [start, exprText, end];
+              }
 
-            return [start, exprText]
-          }));
+              return [start, exprText];
+            })
+          );
           const html = parts.join('\n');
           const doc = textToDoc(html, { parser: 'html' });
           walkDoc(doc);

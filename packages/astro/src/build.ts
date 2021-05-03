@@ -16,7 +16,6 @@ import { generateRSS } from './build/rss.js';
 import { generateSitemap } from './build/sitemap.js';
 import { collectStatics } from './build/static.js';
 import { canonicalURL } from './build/util.js';
-import { pathToFileURL } from 'node:url';
 
 const { mkdir, readFile, writeFile } = fsPromises;
 
@@ -69,8 +68,8 @@ async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf8'
 interface WriteResultOptions {
   srcPath: string;
   result: LoadResult;
-  outPath: URL,
-  encoding: null|'utf8'
+  outPath: URL;
+  encoding: null | 'utf8';
 }
 
 /** Utility for writing a build result to disk */

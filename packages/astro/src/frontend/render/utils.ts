@@ -49,6 +49,6 @@ export const childrenToH = moize.deep(function childrenToH(renderer: ComponentRe
   };
   return tree.map((subtree) => {
     if (subtree.type === 'text') return JSON.stringify(subtree.value);
-    return toH(innerH, subtree).__SERIALIZED
+    return toH(innerH, subtree).__SERIALIZED;
   });
 });
