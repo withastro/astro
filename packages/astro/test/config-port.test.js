@@ -17,7 +17,7 @@ ConfigPort('can be specified via --port flag', async (context) => {
 
   process.stdout.setEncoding('utf8');
   for await (const chunk of process.stdout) {
-    if(/Local:/.test(chunk)) {
+    if (/Local:/.test(chunk)) {
       assert.ok(/:3002/.test(chunk), 'Using the right port');
       break;
     }

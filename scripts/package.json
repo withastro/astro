@@ -1,16 +1,16 @@
 {
-    "name": "astro-scripts",
-    "version": "0.0.1",
-    "private": true,
-    "type": "module",
-    "main": "./index.js",
-    "bin": {
-        "astro-scripts": "./index.js"
-    },
-    "dependencies": {
-        "arg": "^5.0.0",
-        "esbuild": "^0.11.16",
-        "globby": "^11.0.3",
-        "tar": "^6.1.0"
-    }
+  "name": "astro-scripts",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./index.js",
+  "bin": {
+    "astro-scripts": "./index.js"
+  },
+  "dependencies": {
+    "arg": "^5.0.0",
+    "esbuild": "^0.11.16",
+    "globby": "^11.0.3",
+    "tar": "^6.1.0"
+  }
 }

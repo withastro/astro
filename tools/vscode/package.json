@@ -1,96 +1,96 @@
 {
-	"name": "@astro.build/vscode",
-	"displayName": "Astro",
-	"description": "Language support for Astro",
-	"icon": "assets/icon.png",
-	"galleryBanner": {
-		"color": "#FF5D01",
-		"theme": "dark"
-	},
-	"version": "0.3.0",
-	"author": "Astro",
-	"publisher": "astro-build",
-	"license": "MIT",
-	"scripts": {
-		"vscode:prepublish": "npm run build",
-		"bootstrap": "cd packages/client && yarn && cd ../server && yarn",
-		"build": "node scripts/build.mjs",
-		"watch": "node scripts/watch.mjs"
-	},
-	"engines": {
-		"vscode": "^1.52.0"
-	},
-	"activationEvents": [
-		"onLanguage:astro"
-	],
-	"dependencies": {
-		"vscode-html-languageservice": "^3.0.3",
-		"vscode-emmet-helper": "2.1.2"
-	},
-	"devDependencies": {
-		"esbuild": "0.10.0",
-		"@astro-vscode/client": "file:./packages/client",
-		"@astro-vscode/server": "file:./packages/server"
-	},
-	"main": "./dist/index.js",
-	"files": [
-		"dist/",
-		"languages/",
-		"syntaxes/"
-	],
-	"repository": {
-		"type": "git",
-		"directory": "vscode",
-		"url": "https://github.com/snowpackjs/astro"
-	},
-	"contributes": {
-		"configuration": {
-			"type": "object",
-			"title": "Astro configuration",
-			"properties": {
-				"astro.trace.server": {
-					"scope": "window",
-					"type": "string",
-					"enum": [
-						"off",
-						"messages",
-						"verbose"
-					],
-					"default": "off",
-					"description": "Traces the communication between VS Code and the language server."
-				}
-			}
-		},
-		"languages": [
-			{
-				"id": "astro",
-				"extensions": [
-					".astro"
-				],
-				"aliases": [
-					"Astro"
-				],
-				"configuration": "./languages/astro-language-configuration.json"
-			}
-		],
-		"grammars": [
-			{
-				"language": "astro",
-				"scopeName": "text.html.astro",
-				"path": "./syntaxes/astro.tmLanguage.json",
-				"injectTo": [
-					"text.html.markdown"
-				],
-				"embeddedLanguages": {
-					"text.html.astro": "astro",
-					"text.html": "html",
-					"source.css": "css",
-					"source.scss": "scss",
-					"source.sass": "sass",
-					"source.tsx": "typescriptreact",
-					"meta.embedded.block.frontmatter": "typescriptreact"
-				}
-			}
-		]
-	}
+  "name": "@astro.build/vscode",
+  "displayName": "Astro",
+  "description": "Language support for Astro",
+  "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#FF5D01",
+    "theme": "dark"
+  },
+  "version": "0.3.0",
+  "author": "Astro",
+  "publisher": "astro-build",
+  "license": "MIT",
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "bootstrap": "cd packages/client && yarn && cd ../server && yarn",
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/watch.mjs"
+  },
+  "engines": {
+    "vscode": "^1.52.0"
+  },
+  "activationEvents": [
+    "onLanguage:astro"
+  ],
+  "dependencies": {
+    "vscode-html-languageservice": "^3.0.3",
+    "vscode-emmet-helper": "2.1.2"
+  },
+  "devDependencies": {
+    "esbuild": "0.10.0",
+    "@astro-vscode/client": "file:./packages/client",
+    "@astro-vscode/server": "file:./packages/server"
+  },
+  "main": "./dist/index.js",
+  "files": [
+    "dist/",
+    "languages/",
+    "syntaxes/"
+  ],
+  "repository": {
+    "type": "git",
+    "directory": "vscode",
+    "url": "https://github.com/snowpackjs/astro"
+  },
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "Astro configuration",
+      "properties": {
+        "astro.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the language server."
+        }
+      }
+    },
+    "languages": [
+      {
+        "id": "astro",
+        "extensions": [
+          ".astro"
+        ],
+        "aliases": [
+          "Astro"
+        ],
+        "configuration": "./languages/astro-language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "astro",
+        "scopeName": "text.html.astro",
+        "path": "./syntaxes/astro.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "text.html.astro": "astro",
+          "text.html": "html",
+          "source.css": "css",
+          "source.scss": "scss",
+          "source.sass": "sass",
+          "source.tsx": "typescriptreact",
+          "meta.embedded.block.frontmatter": "typescriptreact"
+        }
+      }
+    ]
+  }
 }

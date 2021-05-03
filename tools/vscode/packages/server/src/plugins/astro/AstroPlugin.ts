@@ -49,7 +49,7 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
         endLine: end.line,
         endCharacter: end.character,
         kind: FoldingRangeKind.Imports,
-      }
+      },
     ];
   }
 

@@ -16,13 +16,13 @@ export const defaultLogDestination = new Writable({
       dest = process.stdout;
     }
     let type = event.type;
-    if(type !== null) {
+    if (type !== null) {
       if (event.level === 'info') {
         type = bold(blue(type));
       } else if (event.level === 'error') {
         type = bold(red(type));
       }
-  
+
       dest.write(`[${type}] `);
     }
 
@@ -135,10 +135,10 @@ export const logger = {
 };
 
 // For silencing libraries that go directly to console.warn
-export function trapWarn(cb: (...args: any[]) => void = () =>{}) {
+export function trapWarn(cb: (...args: any[]) => void = () => {}) {
   const warn = console.warn;
-  console.warn = function(...args: any[]) {
+  console.warn = function (...args: any[]) {
     cb(...args);
   };
-  return () => console.warn = warn;
+  return () => (console.warn = warn);
 }

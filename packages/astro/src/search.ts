@@ -92,14 +92,14 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
     }
   }
 
-  if(reqPath === '/500') {
+  if (reqPath === '/500') {
     return {
       statusCode: 200,
       location: {
         fileURL: new URL('./frontend/500.astro', import.meta.url),
-        snowpackURL: `/_astro_internal/500.astro.js`
+        snowpackURL: `/_astro_internal/500.astro.js`,
       },
-      pathname: reqPath
+      pathname: reqPath,
     };
   }
 

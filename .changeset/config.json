@@ -6,8 +6,5 @@
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",
-  "ignore": [
-    "@example/*",
-    "www"
-  ]
+  "ignore": ["@example/*", "www"]
 }

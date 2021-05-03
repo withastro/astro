@@ -5,11 +5,11 @@
     "release": "yarn build && yarn changeset publish",
     "build": "yarn build:core",
     "build:core": "lerna run build --scope astro --scope astro-parser --scope create-astro",
+    "format": "prettier -w '**/*.{js,jsx,ts,tsx,md,json}'",
     "lint": "eslint 'packages/**/*.ts'",
     "test": "yarn test:core && yarn test:prettier",
     "test:core": "cd packages/astro && npm test",
-    "test:prettier": "cd tools/prettier-plugin-astro && npm test",
-    "format": "prettier -w '**/*.{js,jsx,ts,tsx,md,json}'"
+    "test:prettier": "cd tools/prettier-plugin-astro && npm test"
   },
   "workspaces": [
     "packages/*",

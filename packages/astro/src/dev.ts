@@ -75,7 +75,7 @@ export default async function dev(astroConfig: AstroConfig) {
         res.statusCode = 500;
 
         let errorResult = await runtime.load(`/500?error=${encodeURIComponent(result.error.stack || result.error.toString())}`);
-        if(errorResult.statusCode === 200) {
+        if (errorResult.statusCode === 200) {
           if (errorResult.contentType) {
             res.setHeader('Content-Type', errorResult.contentType);
           }

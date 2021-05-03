@@ -38,7 +38,7 @@ export class LanguageServiceManager {
       const url = urlToPath(curr) as string;
       if (fileName.startsWith(url) && curr.length < url.length) return url;
       return found;
-    }, '')
+    }, '');
   }
 
   private createDocument = (fileName: string, content: string) => {

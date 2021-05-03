@@ -3,7 +3,7 @@ import { Box, Text } from 'ink';
 import Spacer from './Spacer';
 import Select from './Select';
 
-const Template: FC<{ context: any, onSubmit: (value: string) => void }> = ({ context: { templates }, onSubmit }) => {
+const Template: FC<{ context: any; onSubmit: (value: string) => void }> = ({ context: { templates }, onSubmit }) => {
   const items = templates.map(({ title: label, ...rest }) => ({ ...rest, label }));
 
   return (

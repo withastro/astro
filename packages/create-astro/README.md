@@ -1,12 +1,15 @@
 # create-astro
+
 ## Scaffolding for Astro projects
 
 **With NPM:**
+
 ```bash
 npm init astro
 ```
 
 **With Yarn:**
+
 ```bash
 yarn create astro
 ```

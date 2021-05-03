@@ -200,14 +200,14 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
     // For first release query params are not passed to components.
     // An exception is made for dev server specific routes.
-    if(reqPath !== '/500') {
+    if (reqPath !== '/500') {
       requestURL.search = '';
     }
 
     let html = (await mod.exports.__renderPage({
       request: {
         // params should go here when implemented
-        url: requestURL
+        url: requestURL,
       },
       children: [],
       props: { collection },

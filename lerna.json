@@ -1,8 +1,5 @@
 {
-  "ignoreChanges": [
-    "**/test/**",
-    "**/*.md"
-  ],
+  "ignoreChanges": ["**/test/**", "**/*.md"],
   "useWorkspaces": true,
   "version": "4.0.0"
 }
