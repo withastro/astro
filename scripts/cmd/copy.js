@@ -33,17 +33,22 @@ export default async function copy() {
       Object.entries(templates).map(([template, files]) => {
         const cwd = resolve(join(rootDir, template));
         const dest = join(destDir, `${template}.tgz`);
-        const metafile = files.find(f => f.endsWith('meta.json'));
+        const metafile = files.find((f) => f.endsWith('meta.json'));
         if (metafile) {
-          files = files.filter(f => f !== metafile);
+          files = files.filter((f) => f !== metafile);
           meta[template] = JSON.parse(readFileSync(metafile).toString());
         }
-        return fs.mkdir(dirname(dest), { recursive: true }).then(() => tar.create({
-          gzip: true,
-          portable: true,
-          file: dest,
-          cwd,
-        }, files.map(f => f.replace(cwd, '').slice(1))));
+        return fs.mkdir(dirname(dest), { recursive: true }).then(() =>
+          tar.create(
+            {
+              gzip: true,
+              portable: true,
+              file: dest,
+              cwd,
+            },
+            files.map((f) => f.replace(cwd, '').slice(1))
+          )
+        );
       })
     ).then(() => {
       if (Object.keys(meta).length > 0) {
@@ -53,10 +58,12 @@ export default async function copy() {
   }
 
   const files = await glob(patterns);
-  await Promise.all(files.map(file => {
+  await Promise.all(
+    files.map((file) => {
       const dest = resolve(file.replace(/^[^/]+/, 'dist'));
-      return fs.mkdir(dirname(dest), { recursive: true }).then(() => fs.copyFile(resolve(file), dest))
-  }));
+      return fs.mkdir(dirname(dest), { recursive: true }).then(() => fs.copyFile(resolve(file), dest));
+    })
+  );
 }
 
 function resolveRootDir(files) {

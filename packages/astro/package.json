@@ -40,6 +40,7 @@
     "astro-parser": "0.0.9",
     "autoprefixer": "^10.2.5",
     "cheerio": "^1.0.0-rc.5",
+    "domhandler": "^4.1.0",
     "es-module-lexer": "^0.4.1",
     "esbuild": "^0.10.1",
     "estree-walker": "^3.0.0",
@@ -72,14 +73,12 @@
     "sass": "^1.32.8",
     "snowpack": "^3.3.7",
     "svelte": "^3.35.0",
-    "tiny-glob": "^0.2.8",
     "unified": "^9.2.1",
     "vue": "^3.0.10",
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
-    "astro-scripts": "0.0.1",
-    "@babel/types": "^7.13.14",
+    "@babel/types": "^7.14.0",
     "@types/babel__code-frame": "^7.0.2",
     "@types/babel__generator": "^7.6.2",
     "@types/babel__parser": "^7.1.1",
@@ -91,10 +90,7 @@
     "@types/react-dom": "^17.0.2",
     "@types/sass": "^1.16.0",
     "@types/yargs-parser": "^20.2.0",
-    "del": "^6.0.0",
-    "domhandler": "^4.1.0",
-    "execa": "^5.0.0",
-    "typescript": "^4.2.3"
+    "astro-scripts": "0.0.1"
   },
   "engines": {
     "node": ">=14.0.0",

@@ -1,30 +1,30 @@
 {
-    "name": "create-astro",
-    "version": "0.1.0",
-    "type": "module",
-    "exports": {
-        ".": "./create-astro.js"
-    },
-    "bin": {
-        "create-astro": "./create-astro.js"
-    },
-    "scripts": {
-        "build": "astro-scripts build src/index.tsx",
-        "postbuild": "astro-scripts copy 'src/templates/**' --tgz"
-    },
-    "files": [
-        "dist",
-        "create-astro.js"
-    ],
-    "dependencies": {
-        "decompress": "^4.2.1",
-        "ink": "^3.0.8",
-        "ink-select-input": "^4.2.0",
-        "ink-text-input": "^4.0.1",
-        "react": "~17.0.2",
-        "source-map-support": "^0.5.19"
-    },
-    "devDependencies": {
-        "astro-scripts": "0.0.1"
-    }
+  "name": "create-astro",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./create-astro.js"
+  },
+  "bin": {
+    "create-astro": "./create-astro.js"
+  },
+  "scripts": {
+    "build": "astro-scripts build src/index.tsx",
+    "postbuild": "astro-scripts copy 'src/templates/**' --tgz"
+  },
+  "files": [
+    "dist",
+    "create-astro.js"
+  ],
+  "dependencies": {
+    "decompress": "^4.2.1",
+    "ink": "^3.0.8",
+    "ink-select-input": "^4.2.0",
+    "ink-text-input": "^4.0.1",
+    "react": "~17.0.2",
+    "source-map-support": "^0.5.19"
+  },
+  "devDependencies": {
+    "astro-scripts": "0.0.1"
+  }
 }
