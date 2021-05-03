@@ -29,8 +29,14 @@ export default async function copy() {
 
     return Promise.all(
       Object.entries(templates).map(([template, files]) => {
-        const dest = resolve(join(rootDir.replace(/^[^/]+/, 'dist'), `${template}.tgz`));
-        return fs.mkdir(dirname(dest), { recursive: true }).then(() => tar.c({ gzip: true, file: dest }, files));
+        const cwd = resolve(join(rootDir, template));
+        const dest = join(rootDir.replace(/^[^/]+/, 'dist'), `${template}.tgz`);
+        return fs.mkdir(dirname(dest), { recursive: true }).then(() => tar.create({
+          gzip: true,
+          portable: true,
+          file: dest,
+          cwd,
+        }, files.map(f => f.replace(cwd, '').slice(1))));
       })
     );
   }
