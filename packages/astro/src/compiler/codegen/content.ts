@@ -47,7 +47,7 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
     }
     return found.map((importPath) => {
       if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
-      return `./` + globDir + '/' + path.relative(cwd, importPath);
+      return path.posix.join('.', globDir, path.posix.relative(cwd.replace(/\\/g, '/'), importPath));
     });
   } catch (err) {
     throw new Error(`No files matched "${spec}" from ${filename}`);
