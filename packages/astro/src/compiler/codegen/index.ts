@@ -477,7 +477,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
                 const spec = (init as any).arguments[0].value;
                 if (typeof spec !== 'string') break;
 
-                const globResult = fetchContent(spec, { namespace, filename: state.filename });
+                const globResult = fetchContent(spec, { namespace, filename: state.filename, projectRoot: compileOptions.astroConfig.projectRoot });
 
                 let imports = '';
                 for (const importStatement of globResult.imports) {
@@ -496,7 +496,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
     // Astro.fetchContent()
     for (const [namespace, { spec }] of contentImports.entries()) {
-      const globResult = fetchContent(spec, { namespace, filename: state.filename });
+      const globResult = fetchContent(spec, { namespace, filename: state.filename, projectRoot: compileOptions.astroConfig.projectRoot });
       for (const importStatement of globResult.imports) {
         state.importExportStatements.add(importStatement);
       }

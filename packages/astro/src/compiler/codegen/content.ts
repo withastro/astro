@@ -1,5 +1,7 @@
 import path from 'path';
 import { fdir, PathsOutput } from 'fdir';
+import { fileURLToPath } from 'url';
+import slash from 'slash';
 
 /**
  * Handling for import.meta.glob and import.meta.globEager
@@ -8,6 +10,7 @@ import { fdir, PathsOutput } from 'fdir';
 interface GlobOptions {
   namespace: string;
   filename: string;
+  projectRoot: URL;
 }
 
 interface GlobResult {
@@ -39,13 +42,16 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
     }
 
     const cwd = path.join(path.dirname(filename), globDir.replace(/\//g, path.sep)); // this must match OS (could be '/' or '\')
-    let found = crawler.glob(glob).crawl(cwd).sync() as PathsOutput;
+    let found = crawler
+      .glob(glob)
+      .crawlWithOptions(cwd, { includeBasePath: true })
+      .sync() as PathsOutput;
     if (!found.length) {
       throw new Error(`No files matched "${spec}" from ${filename}`);
     }
-    return found.map((importPath) => {
+    return found.map(importPath => {
       if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
-      return `./` + globDir + '/' + importPath;
+      return './' + path.posix.join(globDir, path.posix.relative(slash(cwd), importPath));
     });
   } catch (err) {
     throw new Error(`No files matched "${spec}" from ${filename}`);
@@ -65,6 +71,7 @@ export function fetchContent(spec: string, { namespace, filename }: GlobOptions)
 
     // add URL if this appears within the /pages/ directory (probably can be improved)
     const fullPath = path.resolve(path.dirname(filename), importPath);
+
     if (fullPath.includes(`${path.sep}pages${path.sep}`)) {
       const url = importPath.replace(/^\./, '').replace(/\.md$/, '');
       imports.add(`${id}.url = '${url}';`);

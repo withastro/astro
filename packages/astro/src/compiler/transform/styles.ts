@@ -13,6 +13,7 @@ import type { TransformOptions, Transformer } from '../../@types/transformer';
 import type { TemplateNode } from 'astro-parser';
 import { debug } from '../../logger.js';
 import astroScopedStyles, { NEVER_SCOPED_TAGS } from './postcss-scoped-styles/index.js';
+import slash from 'slash';
 
 type StyleType = 'css' | 'scss' | 'sass' | 'postcss';
 
@@ -40,7 +41,7 @@ const getStyleType: Map<string, StyleType> = new Map([
 function hashFromFilename(filename: string): string {
   const hash = crypto.createHash('sha256');
   return hash
-    .update(filename.replace(/\\/g, '/'))
+    .update(slash(filename))
     .digest('base64')
     .toString()
     .replace(/[^A-Za-z0-9-]/g, '')
