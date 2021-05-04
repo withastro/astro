@@ -22,7 +22,6 @@
     "components",
     "lib",
     "runtime",
-    "astro-prism",
     "snowpack-plugin.cjs",
     "astro.mjs"
   ],
@@ -43,6 +42,7 @@
     "@vue/server-renderer": "^3.0.10",
     "acorn": "^7.4.0",
     "astro-parser": "0.0.9",
+    "astro-prism": "0.0.1",
     "autoprefixer": "^10.2.5",
     "cheerio": "^1.0.0-rc.5",
     "domhandler": "^4.1.0",

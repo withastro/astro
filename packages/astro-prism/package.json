@@ -1,7 +1,7 @@
 {
   "name": "astro-prism",
-  "version": "1.0.0",
-  "description": "This is not published at this time.",
+  "version": "0.0.1",
+  "description": "IYKYK",
   "main": "index.mjs",
   "scripts": {
     "build": "echo 'build'",
