@@ -9,7 +9,7 @@ import { fileURLToPath } from 'url';
 interface GlobOptions {
   namespace: string;
   filename: string;
-  astroRoot: URL;
+  projectRoot: URL;
 }
 
 interface GlobResult {
@@ -47,7 +47,7 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
     }
     return found.map((importPath) => {
       if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
-      return path.posix.join('.', globDir, path.posix.relative(cwd.replace(/\\/g, '/'), importPath));
+      return './' + path.posix.join(globDir, path.posix.relative(cwd.replace(/\\/g, '/'), importPath));
     });
   } catch (err) {
     throw new Error(`No files matched "${spec}" from ${filename}`);
@@ -55,10 +55,10 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
 }
 
 /** Astro.fetchContent() */
-export function fetchContent(spec: string, { namespace, filename, astroRoot }: GlobOptions): GlobResult {
+export function fetchContent(spec: string, { namespace, filename, projectRoot }: GlobOptions): GlobResult {
   let code = '';
   const imports = new Set<string>();
-  const rootPath = fileURLToPath(astroRoot);
+  const rootPath = fileURLToPath(projectRoot);
   const importPaths = globSearch(spec, { filename });
 
   // gather imports
