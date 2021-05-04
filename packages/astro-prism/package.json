@@ -11,8 +11,8 @@
     ".": "./index.mjs"
   },
   "keywords": [],
-  "private": true,
-  "author": "",
+  "author": "Skypack",
+  "license": "MIT",
   "devDependencies": {
     "prismjs": "^1.23.0"
   }
