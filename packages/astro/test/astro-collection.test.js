@@ -15,7 +15,7 @@ Collections('generates list & sorts successfully', async ({ runtime }) => {
       return $(this).attr('href');
     }),
   ];
-  assert.equal(urls, ['/post/three', '/post/two']);
+  assert.equal(urls, ['/post/nested/a', '/post/three', '/post/two']);
 });
 
 Collections('generates pagination successfully', async ({ runtime }) => {
