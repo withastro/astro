@@ -56,10 +56,9 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
 }
 
 /** Astro.fetchContent() */
-export function fetchContent(spec: string, { namespace, filename, projectRoot }: GlobOptions): GlobResult {
+export function fetchContent(spec: string, { namespace, filename }: GlobOptions): GlobResult {
   let code = '';
   const imports = new Set<string>();
-  const rootPath = fileURLToPath(projectRoot);
   const importPaths = globSearch(spec, { filename });
 
   // gather imports
@@ -69,8 +68,6 @@ export function fetchContent(spec: string, { namespace, filename, projectRoot }:
     
     // add URL if this appears within the /pages/ directory (probably can be improved)
     const fullPath = path.resolve(path.dirname(filename), importPath);
-    const sourceId = `${path.relative(rootPath, fullPath)}`;
-    imports.add(`${id}.sourceId = '${sourceId}';`);
 
     if (fullPath.includes(`${path.sep}pages${path.sep}`)) {
       const url = importPath.replace(/^\./, '').replace(/\.md$/, '');
