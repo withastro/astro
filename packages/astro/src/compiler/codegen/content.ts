@@ -1,6 +1,7 @@
 import path from 'path';
 import { fdir, PathsOutput } from 'fdir';
 import { fileURLToPath } from 'url';
+import slash from 'slash';
 
 /**
  * Handling for import.meta.glob and import.meta.globEager
@@ -47,7 +48,7 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
     }
     return found.map((importPath) => {
       if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
-      return './' + path.posix.join(globDir, path.posix.relative(cwd.replace(/\\/g, '/'), importPath));
+      return './' + path.posix.join(globDir, path.posix.relative(slash(cwd), importPath));
     });
   } catch (err) {
     throw new Error(`No files matched "${spec}" from ${filename}`);
