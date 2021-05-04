@@ -4,7 +4,7 @@ import type { LogOptions } from './logger';
 import type { AstroRuntime, LoadResult } from './runtime';
 
 import { existsSync, promises as fsPromises } from 'fs';
-import { bold, green, yellow, underline } from 'kleur/colors';
+import { bold, green, yellow } from 'kleur/colors';
 import path from 'path';
 import cheerio from 'cheerio';
 import { fileURLToPath } from 'url';
@@ -16,6 +16,7 @@ import { generateRSS } from './build/rss.js';
 import { generateSitemap } from './build/sitemap.js';
 import { collectStatics } from './build/static.js';
 import { canonicalURL } from './build/util.js';
+import { createURLStats, mapBundleStatsToURLStats, logURLStats } from './build/stats.js';
 
 const { mkdir, readFile, writeFile } = fsPromises;
 
@@ -205,8 +206,11 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const statics = new Set<string>();
   const collectImportsOptions = { astroConfig, logging, resolvePackageUrl, mode };
 
-  const pages = await allPages(pageRoot);
   let builtURLs: string[] = [];
+  let urlStats = createURLStats();
+  let importsToUrl = new Map<string, Set<string>>();
+
+  const pages = await allPages(pageRoot);
 
   try {
     info(logging, 'build', yellow('! building pages...'));
@@ -218,8 +222,10 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
 
         const pageType = getPageType(filepath);
         const pageOptions: PageBuildOptions = { astroRoot, dist, filepath, runtime, site: astroConfig.buildOptions.site, sitemap: astroConfig.buildOptions.sitemap, statics };
+        let urls: string[];
         if (pageType === 'collection') {
           const { canonicalURLs, rss } = await buildCollectionPage(pageOptions);
+          urls = canonicalURLs;
           builtURLs.push(...canonicalURLs);
           if (rss) {
             const basename = path
@@ -230,10 +236,27 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
           }
         } else {
           const { canonicalURLs } = await buildStaticPage(pageOptions);
+          urls = canonicalURLs;
           builtURLs.push(...canonicalURLs);
         }
 
-        mergeSet(imports, await collectDynamicImports(filepath, collectImportsOptions));
+        const dynamicImports = await collectDynamicImports(filepath, collectImportsOptions);
+        mergeSet(imports, dynamicImports);
+
+        // Keep track of urls and dynamic imports for stats.
+        for(const url of urls) {
+          urlStats.set(url, {
+            dynamicImports,
+            stats: []
+          });
+        }
+
+        for(let imp of dynamicImports) {
+          if(!importsToUrl.has(imp)) {
+            importsToUrl.set(imp, new Set<string>());
+          }
+          mergeSet(importsToUrl.get(imp)!, new Set(urls));
+        }
       })
     );
     info(logging, 'build', green('✔'), 'pages built.');
@@ -253,7 +276,8 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   if (imports.size > 0) {
     try {
       info(logging, 'build', yellow('! bundling client-side code.'));
-      await bundle(imports, { dist, runtime, astroConfig });
+      const bundleStats = await bundle(imports, { dist, runtime, astroConfig });
+      mapBundleStatsToURLStats(urlStats, importsToUrl, bundleStats);
       info(logging, 'build', green('✔'), 'bundling complete.');
     } catch (err) {
       error(logging, 'build', err);
@@ -297,13 +321,8 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     info(logging, 'tip', `Set "buildOptions.site" in astro.config.mjs to generate a sitemap.xml`);
   }
 
-  builtURLs.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
-  info(logging, 'build', underline('Pages'));
-  const lastIndex = builtURLs.length - 1;
-  builtURLs.forEach((url, index) => {
-    const sep = index === 0 ? '┌' : index === lastIndex ? '└' : '├';
-    info(logging, null, ' ' + sep, url === '/' ? url : url + '/');
-  });
+  // Log in a table-like view.
+  logURLStats(logging, urlStats, builtURLs);
 
   await runtime.shutdown();
   info(logging, 'build', bold(green('▶ Build Complete!')));

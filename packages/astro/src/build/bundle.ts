@@ -1,6 +1,6 @@
 import type { AstroConfig, RuntimeMode, ValidExtensionPlugins } from '../@types/astro';
 import type { ImportDeclaration } from '@babel/types';
-import type { InputOptions, OutputOptions } from 'rollup';
+import type { InputOptions, OutputOptions, OutputChunk } from 'rollup';
 import type { AstroRuntime } from '../runtime';
 import type { LogOptions } from '../logger';
 
@@ -16,6 +16,7 @@ import babelParser from '@babel/parser';
 import path from 'path';
 import { rollup } from 'rollup';
 import { terser } from 'rollup-plugin-terser';
+import { createBundleStats, addBundleStats } from './stats.js';
 
 const { transformSync } = esbuild;
 const { readFile } = fsPromises;
@@ -309,5 +310,12 @@ export async function bundle(imports: Set<string>, { runtime, dist }: BundleOpti
     ],
   };
 
-  await build.write(outputOptions);
+  const stats = createBundleStats();
+  const {output} = await build.write(outputOptions);
+  await Promise.all(output.map(async chunk => {
+    const code = (chunk as OutputChunk).code || '';
+    await addBundleStats(stats, code, chunk.fileName);
+  }));
+
+  return stats;
 }

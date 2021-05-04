@@ -3,6 +3,7 @@ import type { CompileError } from 'astro-parser';
 import { bold, blue, red, grey, underline } from 'kleur/colors';
 import { Writable } from 'stream';
 import { format as utilFormat } from 'util';
+import stringWidth from 'string-width';
 
 type ConsoleStream = Writable & {
   fd: 1 | 2;
@@ -102,6 +103,15 @@ export function error(opts: LogOptions, type: string | null, ...messages: Array<
   return log(opts, 'error', type, ...messages);
 }
 
+type LogFn = typeof debug | typeof info | typeof warn | typeof error;
+
+export function table(opts: LogOptions, columns: number[]) {
+  return function logTable(logFn: LogFn, ...input: Array<any>) {
+    const messages = columns.map((len, i) => padStr(input[i].toString(), len));
+    logFn(opts, null, ...messages);
+  };
+}
+
 /** Pretty format error for display */
 export function parseError(opts: LogOptions, err: CompileError) {
   let frame = err.frame
@@ -141,4 +151,15 @@ export function trapWarn(cb: (...args: any[]) => void = () => {}) {
     cb(...args);
   };
   return () => (console.warn = warn);
+}
+
+
+
+function padStr(str: string, len: number) {
+  const strLen = stringWidth(str);
+  if(strLen > len) {
+    return str.substring(0, len - 3) + '...';
+  }
+  const spaces = Array.from({ length: len - strLen }, () => ' ').join('');
+  return str + spaces;
 }
