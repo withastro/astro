@@ -477,7 +477,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
                 const spec = (init as any).arguments[0].value;
                 if (typeof spec !== 'string') break;
 
-                const globResult = fetchContent(spec, { namespace, filename: state.filename });
+                const globResult = fetchContent(spec, { namespace, filename: state.filename, astroRoot: compileOptions.astroConfig.projectRoot });
 
                 let imports = '';
                 for (const importStatement of globResult.imports) {

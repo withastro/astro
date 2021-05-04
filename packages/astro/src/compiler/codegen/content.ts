@@ -1,5 +1,6 @@
 import path from 'path';
 import { fdir, PathsOutput } from 'fdir';
+import { fileURLToPath } from 'url';
 
 /**
  * Handling for import.meta.glob and import.meta.globEager
@@ -8,6 +9,7 @@ import { fdir, PathsOutput } from 'fdir';
 interface GlobOptions {
   namespace: string;
   filename: string;
+  astroRoot: URL;
 }
 
 interface GlobResult {
@@ -53,18 +55,22 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
 }
 
 /** Astro.fetchContent() */
-export function fetchContent(spec: string, { namespace, filename }: GlobOptions): GlobResult {
+export function fetchContent(spec: string, { namespace, filename, astroRoot }: GlobOptions): GlobResult {
   let code = '';
   const imports = new Set<string>();
+  const rootPath = fileURLToPath(astroRoot);
   const importPaths = globSearch(spec, { filename });
 
   // gather imports
   importPaths.forEach((importPath, j) => {
     const id = `${namespace}_${j}`;
     imports.add(`import { __content as ${id} } from '${importPath}';`);
-
+    
     // add URL if this appears within the /pages/ directory (probably can be improved)
     const fullPath = path.resolve(path.dirname(filename), importPath);
+    const sourceId = `${path.relative(rootPath, fullPath)}`;
+    imports.add(`${id}.sourceId = '${sourceId}';`);
+
     if (fullPath.includes(`${path.sep}pages${path.sep}`)) {
       const url = importPath.replace(/^\./, '').replace(/\.md$/, '');
       imports.add(`${id}.url = '${url}';`);
