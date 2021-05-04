@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "author": "Skypack",
   "license": "MIT",
   "type": "module",
@@ -42,7 +42,7 @@
     "@vue/server-renderer": "^3.0.10",
     "acorn": "^7.4.0",
     "astro-parser": "0.0.9",
-    "astro-prism": "0.0.1",
+    "astro-prism": "0.0.2",
     "autoprefixer": "^10.2.5",
     "cheerio": "^1.0.0-rc.5",
     "domhandler": "^4.1.0",
