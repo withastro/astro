@@ -39,13 +39,13 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
     }
 
     const cwd = path.join(path.dirname(filename), globDir.replace(/\//g, path.sep)); // this must match OS (could be '/' or '\')
-    let found = crawler.glob(glob).crawl(cwd).sync() as PathsOutput;
+    let found = crawler.glob(glob).crawlWithOptions(cwd, { includeBasePath: true }).sync() as PathsOutput;
     if (!found.length) {
       throw new Error(`No files matched "${spec}" from ${filename}`);
     }
     return found.map((importPath) => {
       if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
-      return `./` + globDir + '/' + importPath;
+      return `./` + globDir + '/' + path.relative(cwd, importPath);
     });
   } catch (err) {
     throw new Error(`No files matched "${spec}" from ${filename}`);
