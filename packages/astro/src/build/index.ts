@@ -239,9 +239,12 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     // TODO: find way to get canonical URLs
     // TODO: find way to exclude pages from sitemap (or rely on robots.txt?)
     const canonicalURLs = finalURLs.map((url) => canonicalURL(url, astroConfig.buildOptions.site));
-    const sitemap = generateSitemap(canonicalURLs);
-    const sitemapURL = new URL(path.posix.join('/', dist, 'sitemap.xml'), projectRoot);
-    await fs.promises.writeFile(sitemapURL, sitemap, 'utf8');
+    buildState['/sitemap.xml'] = {
+      srcPath: '[generated]',
+      contents: generateSitemap(canonicalURLs),
+      contentType: 'application/xml',
+      encoding: 'utf8',
+    };
     info(logging, 'build', green('✔'), 'sitemap built.');
   } else if (astroConfig.buildOptions.sitemap) {
     info(logging, 'tip', `Set "buildOptions.site" in astro.config.mjs to generate a sitemap.xml, or set "buildOptions.sitemap: false" to disable this message.`);
@@ -342,7 +345,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   /**
    * 5. Output stats
    */
-  logURLStats(logging, urlStats, finalURLs);
+  logURLStats(logging, urlStats);
 
   await runtime.shutdown();
   info(logging, 'build', bold(green('▶ Build Complete!')));
