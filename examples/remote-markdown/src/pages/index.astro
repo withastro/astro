@@ -1,18 +1,12 @@
 ---
 import { Markdown } from 'astro/components';
-import Yell from '../components/Yell.jsx';
-
 const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpack/main/README.md').then(res => res.text());
 ---
 
+<Markdown>{content}</Markdown>
 
 <Markdown>
   # Hello world!
   
   **Hey what's up hello?**
-  
-  <Yell>goodbye</Yell>
-
 </Markdown>
-
-<Markdown>{content}</Markdown>
