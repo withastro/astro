@@ -1,8 +1,9 @@
 {
-  "name": "@astro.build/vscode",
+  "name": "astro-vscode",
   "displayName": "Astro",
   "description": "Language support for Astro",
   "icon": "assets/icon.png",
+  "type": "commonjs",
   "galleryBanner": {
     "color": "#FF5D01",
     "theme": "dark"
@@ -12,25 +13,26 @@
   "publisher": "astro-build",
   "license": "MIT",
   "scripts": {
-    "vscode:prepublish": "npm run build",
-    "bootstrap": "cd packages/client && yarn && cd ../server && yarn",
-    "build": "node scripts/build.mjs",
-    "watch": "node scripts/watch.mjs"
+    "vscode:prepublish": "yarn build",
+    "build": "astro-scripts build 'src/index.ts'",
+    "dev": "astro-scripts dev 'src/index.ts'"
   },
   "engines": {
-    "vscode": "^1.52.0"
+    "vscode": "^1.22.0"
   },
   "activationEvents": [
     "onLanguage:astro"
   ],
   "dependencies": {
+    "vscode": "^1.1.37",
+    "vscode-languageclient": "~7.0.0",
     "vscode-html-languageservice": "^3.0.3",
-    "vscode-emmet-helper": "2.1.2"
+    "vscode-emmet-helper": "2.1.2",
+    "astro-languageserver": "0.3.0"
   },
   "devDependencies": {
-    "esbuild": "0.10.0",
-    "@astro-vscode/client": "file:./packages/client",
-    "@astro-vscode/server": "file:./packages/server"
+    "astro-scripts": "0.0.1",
+    "@types/vscode": "latest"
   },
   "main": "./dist/index.js",
   "files": [

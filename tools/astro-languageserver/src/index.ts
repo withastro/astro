@@ -6,7 +6,9 @@ import { urlToPath } from './utils';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string | null, any> = new RequestType('html/tag');
 
-/**  */
+/**
+ * Starts `astro-languageservice`
+ */
 export function startServer() {
   let connection = createConnection(ProposedFeatures.all);
 
@@ -102,5 +104,3 @@ export function startServer() {
 
   connection.listen();
 }
-
-startServer();
