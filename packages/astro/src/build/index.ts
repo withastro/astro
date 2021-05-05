@@ -296,7 +296,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const urlStats = await collectBundleStats(buildState, depTree);
 
   /**
-   * 4. Write to disk
+   * 3. Write to disk
    * Also clear in-memory bundle
    */
   await Promise.all(
@@ -317,7 +317,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   );
 
   /**
-   * 5. Copy Assets
+   * 4. Copy Assets
    */
   if (fs.existsSync(astroConfig.public)) {
     info(logging, 'build', yellow(`! copying public folder...`));
@@ -340,7 +340,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   }
 
   /**
-   * 6. Output stats
+   * 5. Output stats
    */
   logURLStats(logging, urlStats, finalURLs);
 

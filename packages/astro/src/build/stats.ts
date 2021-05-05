@@ -56,7 +56,6 @@ export async function collectBundleStats(buildState: BuildOutput, depTree: Bundl
             size: Buffer.byteLength(buildState[url].contents),
             gzipSize: await gzipSize(buildState[url].contents),
           };
-          console.log({ stat });
           return stat;
         })
       );
