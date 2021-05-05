@@ -56,18 +56,13 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
  */
 export async function convertAstroMdToAstroSource(contents: string): Promise<string> {
   const { data, content } = parseAstroMarkdown(contents);
-  const { headers, headersExtension } = createMarkdownHeadersCollector();
+  const { headersExtension } = createMarkdownHeadersCollector();
   const { htmlAstro, mdAstro } = encodeAstroMdx();
   const mdHtml = micromark(content, {
     allowDangerousHtml: true,
     extensions: [gfmSyntax(), ...htmlAstro],
     htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension, mdAstro],
   });
-
-  console.log(`---
-  ${data}
-  ---
-  ${mdHtml}`)
 
   return `---
 ${data}
@@ -79,37 +74,29 @@ ${mdHtml}`;
  * .md -> .astro source
  */
 export async function convertMdToAstroSource(contents: string): Promise<string> {
-  const { data: frontmatterData, content } = matter(contents);
+  const { data: { layout, ...frontmatterData }, content } = matter(contents);
   const { headers, headersExtension } = createMarkdownHeadersCollector();
-  const { htmlAstro, mdAstro } = encodeAstroMdx();
   const mdHtml = micromark(content, {
     allowDangerousHtml: true,
-    extensions: [gfmSyntax(), ...htmlAstro],
-    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension, mdAstro],
+    extensions: [gfmSyntax()],
+    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension],
   });
 
-  // TODO: Warn if reserved word is used in "frontmatterData"
   const contentData: any = {
-    ...frontmatterData,
-    headers,
+    frontmatter: frontmatterData,
+    astro: { headers },
     source: content,
   };
-
-  let imports = '';
-  for (let [ComponentName, specifier] of Object.entries(frontmatterData.import || {})) {
-    imports += `import ${ComponentName} from '${specifier}';\n`;
-  }
 
   // </script> can't be anywhere inside of a JS string, otherwise the HTML parser fails.
   // Break it up here so that the HTML parser won't detect it.
   const stringifiedSetupContext = JSON.stringify(contentData).replace(/\<\/script\>/g, `</scrip" + "t>`);
 
   return `---
-  ${imports}
-  ${frontmatterData.layout ? `import {__renderPage as __layout} from '${frontmatterData.layout}';` : 'const __layout = undefined;'}
-  export const __content = ${stringifiedSetupContext};
+${frontmatterData.layout ? `import {__renderPage as __layout} from '${layout}';` : 'const __layout = undefined;'}
+export const __content = ${stringifiedSetupContext};
 ---
-<section>${mdHtml}</section>`;
+${mdHtml}`;
 }
 
 /**
