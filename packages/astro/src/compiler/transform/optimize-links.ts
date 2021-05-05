@@ -3,40 +3,25 @@ import { getAttrValue } from '../../ast.js';
 
 /** Transform <!doctype> tg */
 export default function (_opts: TransformOptions): Transformer {
-  let hasAnyInternalLinks = false;
-
   return {
     visitors: {
       html: {
         Element: {
-          enter(node, parent, index) {
-            if (hasAnyInternalLinks) return;
-            let name = node.name;
-            if (name !== 'a') {
-              return;
-            }
-
-            let href = getAttrValue(node.attributes, 'href');
-            if (!href || href.startsWith('http')) {
-              return;
-            }
-            
-            hasAnyInternalLinks = true;
-          },
           leave(node) {
             let name = node.name;
             if (name !== 'body') {
               return;
             }
-            if (!hasAnyInternalLinks) {
-              return;
-            }
+            if (node.children?.find(el => el.name === 'script' && el.data.linkOptim)) return;
 
             const prefetchScript = {
               start: 0,
               end: 0,
               type: 'Element',
               name: 'script',
+              data: {
+                linkOptim: true
+              },
               attributes: [
                 {
                   type: 'Attribute',
