@@ -16,7 +16,7 @@ import { bundleJS, collectJSImports } from './build/bundle/js';
 import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.js';
 import { generateSitemap } from './build/sitemap.js';
 import { logURLStats, collectBundleStats, mapBundleStatsToURLStats } from './build/stats.js';
-import { absoluteURL, sortSet, stopTimer } from './build/util.js';
+import { getDistPath, sortSet, stopTimer } from './build/util.js';
 import { debug, defaultLogDestination, error, info, trapWarn } from './logger.js';
 import { createRuntime } from './runtime.js';
 
@@ -43,7 +43,8 @@ function isRemote(url: string) {
 
 /** The primary build action */
 export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
-  const { dist, projectRoot, astroRoot } = astroConfig;
+  const { projectRoot, astroRoot } = astroConfig;
+  const dist = new URL(astroConfig.dist + '/', projectRoot);
   const pageRoot = new URL('./pages/', astroRoot);
   const buildState: BuildOutput = {};
   const depTree: BundleMap = {};
@@ -62,7 +63,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const pages = await allPages(pageRoot);
 
   // 0. erase build directory
-  await del(fileURLToPath(new URL(dist, projectRoot)));
+  await del(fileURLToPath(dist));
 
   /**
    * 1. Build Pages
@@ -100,10 +101,13 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   // after pages are built, build depTree
   timer.deps = performance.now();
   const scanPromises: Promise<void>[] = [];
-  for (const key of Object.keys(buildState)) {
-    if (buildState[key].contentType !== 'text/html') continue; // only scan HTML files
-    const pageDeps = findDeps(buildState[key].contents as string, { cwd: path.posix.dirname(key) });
-    depTree[key] = pageDeps;
+  for (const id of Object.keys(buildState)) {
+    if (buildState[id].contentType !== 'text/html') continue; // only scan HTML files
+    const pageDeps = findDeps(buildState[id].contents as string, {
+      astroConfig,
+      srcPath: buildState[id].srcPath,
+    });
+    depTree[id] = pageDeps;
 
     // while scanning we will find some unbuilt files; make sure those are all built while scanning
     for (const url of [...pageDeps.js, ...pageDeps.css, ...pageDeps.images]) {
@@ -114,7 +118,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
               throw new Error((result as any).error); // there shouldn’t be a build error here
             }
             buildState[url] = {
-              srcPath: url,
+              srcPath: new URL(url, projectRoot),
               contents: result.contents,
               contentType: result.contentType || mime.getType(url) || '',
             };
@@ -132,7 +136,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   info(logging, 'build', yellow('! optimizing css...'));
   timer.prebundle = performance.now();
   await Promise.all([
-    bundleCSS({ buildState, logging, depTree }).then(() => {
+    bundleCSS({ buildState, astroConfig, logging, depTree }).then(() => {
       debug(logging, 'build', `bundled CSS [${stopTimer(timer.prebundle)}]`);
     }),
     // TODO: optimize images?
@@ -155,7 +159,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     timer.sitemap = performance.now();
     info(logging, 'build', yellow('! creating sitemap...'));
     const sitemap = generateSitemap(buildState, astroConfig.buildOptions.site);
-    const sitemapPath = new URL(path.posix.join(dist, 'sitemap.xml'), projectRoot);
+    const sitemapPath = new URL('sitemap.xml', dist);
     await fs.promises.mkdir(path.dirname(fileURLToPath(sitemapPath)), { recursive: true });
     await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
     info(logging, 'build', green('✔'), 'sitemap built.');
@@ -169,8 +173,9 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   // write to disk and free up memory
   await Promise.all(
     Object.keys(buildState).map(async (id) => {
-      const outPath = new URL(path.posix.join(dist, id), projectRoot);
-      await fs.promises.mkdir(path.dirname(fileURLToPath(outPath)), { recursive: true });
+      const outPath = new URL(`.${id}`, dist);
+      const parentDir = path.posix.dirname(fileURLToPath(outPath));
+      await fs.promises.mkdir(parentDir, { recursive: true });
       await fs.promises.writeFile(outPath, buildState[id].contents, buildState[id].encoding);
       delete buildState[id];
       delete depTree[id];
@@ -190,7 +195,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       publicFiles.map(async (filepath) => {
         const fileUrl = new URL(`file://${filepath}`);
         const rel = path.relative(fileURLToPath(pub), fileURLToPath(fileUrl));
-        const outPath = new URL(path.join('.', dist, rel), projectRoot);
+        const outPath = new URL(path.join('.', rel), dist);
         await fs.promises.mkdir(path.dirname(fileURLToPath(outPath)), { recursive: true });
         await fs.promises.copyFile(fileUrl, outPath);
       })
@@ -232,7 +237,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
 }
 
 /** Given an HTML string, collect <link> and <img> tags */
-export function findDeps(html: string, { cwd }: { cwd: string }): PageDependencies {
+export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL }): PageDependencies {
   const pageDeps: PageDependencies = {
     js: new Set<string>(),
     css: new Set<string>(),
@@ -244,21 +249,22 @@ export function findDeps(html: string, { cwd }: { cwd: string }): PageDependenci
   $('script').each((i, el) => {
     const src = $(el).attr('src');
     if (src && !isRemote(src)) {
-      pageDeps.js.add(absoluteURL(src, cwd));
+      pageDeps.js.add(getDistPath(src, { astroConfig, srcPath }));
     }
   });
 
   $('link[href]').each((i, el) => {
     const href = $(el).attr('href');
     if (href && !isRemote(href) && ($(el).attr('rel') === 'stylesheet' || $(el).attr('type') === 'text/css' || href.endsWith('.css'))) {
-      pageDeps.css.add(absoluteURL(href, cwd));
+      const dist = getDistPath(href, { astroConfig, srcPath });
+      pageDeps.css.add(dist);
     }
   });
 
   $('img[src]').each((i, el) => {
     const src = $(el).attr('src');
     if (src && !isRemote(src)) {
-      pageDeps.images.add(absoluteURL(src, cwd));
+      pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
     }
   });
 

@@ -52,7 +52,7 @@ export function setupBuild(Suite, fixturePath) {
     context.build = build;
     context.readFile = async (path) => {
       const resolved = fileURLToPath(new URL(`${fixturePath}/${astroConfig.dist}${path}`, import.meta.url));
-      return readFile(resolved).then((r) => r.toString('utf-8'));
+      return readFile(resolved).then((r) => r.toString('utf8'));
     };
   });
 

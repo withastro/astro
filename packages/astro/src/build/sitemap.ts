@@ -16,6 +16,8 @@ export function generateSitemap(buildState: BuildOutput, site: string): string {
     pages.push(url);
   }
 
+  pages.sort((a, b) => a.localeCompare(b, 'en', { numeric: true })); // sort alphabetically so sitemap is same each time
+
   let sitemap = `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
   for (const page of pages) {
     sitemap += `<url><loc>${page}</loc></url>`;

@@ -39,7 +39,7 @@ export function getPageType(filepath: URL): 'collection' | 'static' {
 export async function buildCollectionPage({ astroConfig, filepath, logging, mode, runtime, site, resolvePackageUrl, buildState }: PageBuildOptions): Promise<void> {
   const rel = path.relative(fileURLToPath(astroConfig.astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
   const pagePath = `/${rel.replace(/\$([^.]+)\.astro$/, '$1')}`;
-  const srcPath = fileURLToPath(new URL('pages/' + rel, astroConfig.astroRoot));
+  const srcPath = new URL('pages/' + rel, astroConfig.astroRoot);
   const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
 
   /** Recursively build collection URLs */
@@ -110,7 +110,7 @@ export async function buildStaticPage({ astroConfig, buildState, filepath, loggi
     relPath = relPath.replace(/\.html$/, '/index.html');
   }
 
-  const srcPath = fileURLToPath(new URL('pages/' + rel, astroConfig.astroRoot));
+  const srcPath = new URL('pages/' + rel, astroConfig.astroRoot);
 
   // build page in parallel with gathering runtimes
   await Promise.all([
@@ -341,7 +341,7 @@ async function gatherRuntimes({ astroConfig, buildState, filepath, logging, reso
     const result = await runtime.load(url);
     if (result.statusCode === 200) {
       buildState[url] = {
-        srcPath: fileURLToPath(filepath),
+        srcPath: filepath,
         contents: result.contents,
         contentType: result.contentType || mime.getType(url) || '',
         encoding: 'utf8',

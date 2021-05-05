@@ -70,7 +70,7 @@ export interface BuildOutput {
 
 export interface BuildFile {
   /** The original location. Needed for code frame errors. */
-  srcPath: string;
+  srcPath: URL;
   /** File contents */
   contents: string | Buffer;
   /** File content type (to determine encoding, etc) */

@@ -11,14 +11,8 @@ const snapshot =
   ']]></description><pubDate>Tue, 19 Oct 1999 00:00:00 GMT</pubDate><itunes:episodeType>music</itunes:episodeType><itunes:duration>259</itunes:duration><itunes:explicit>true</itunes:explicit></item></channel></rss>';
 
 RSS('Generates RSS correctly', async (context) => {
-  let rss;
-  try {
-    await context.build();
-    rss = await context.readFile('/feed/episodes.xml');
-    assert.ok(true, 'Build successful');
-  } catch (err) {
-    assert.ok(false, 'Build threw');
-  }
+  await context.build();
+  let rss = await context.readFile('/feed/episodes.xml');
   assert.match(rss, snapshot);
 });
 

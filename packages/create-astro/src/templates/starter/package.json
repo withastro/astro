@@ -6,6 +6,6 @@
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "0.0.9"
+    "astro": "^0.0.12"
   }
 }

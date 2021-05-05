@@ -1,12 +1,11 @@
-import type { BuildOutput, BundleMap } from '../../@types/astro';
+import type { AstroConfig, BuildOutput, BundleMap } from '../../@types/astro';
 import type { LogOptions } from '../../logger.js';
 
-import path from 'path';
 import { performance } from 'perf_hooks';
 import shorthash from 'shorthash';
 import cheerio from 'cheerio';
 import esbuild from 'esbuild';
-import { absoluteURL, stopTimer } from '../util.js';
+import { getDistPath, getSrcPath, stopTimer } from '../util.js';
 import { debug } from '../../logger.js';
 
 // config
@@ -26,7 +25,17 @@ const COMMON_URL = `/_astro/common-[HASH].css`; // [HASH] will be replaced
  * This operation mutates the original references of the buildOutput not only for
  * safety (prevents possible conflicts), but for efficiency.
  */
-export async function bundleCSS({ buildState, logging, depTree }: { buildState: BuildOutput; logging: LogOptions; depTree: BundleMap }): Promise<void> {
+export async function bundleCSS({
+  astroConfig,
+  buildState,
+  logging,
+  depTree,
+}: {
+  astroConfig: AstroConfig;
+  buildState: BuildOutput;
+  logging: LogOptions;
+  depTree: BundleMap;
+}): Promise<void> {
   const timer: Record<string, number> = {};
   const cssMap = new Map<string, string>();
 
@@ -56,7 +65,7 @@ export async function bundleCSS({ buildState, logging, depTree }: { buildState: 
       // if new bundle, create
       if (!buildState[newUrl]) {
         buildState[newUrl] = {
-          srcPath: id, // this isn’t accurate, but we can at least reference a file in the bundle
+          srcPath: getSrcPath(id, { astroConfig }), // this isn’t accurate, but we can at least reference a file in the bundle
           contents: '',
           contentType: 'text/css',
           encoding: 'utf8',
@@ -64,7 +73,7 @@ export async function bundleCSS({ buildState, logging, depTree }: { buildState: 
       }
 
       // append to bundle, delete old file
-      (buildState[newUrl] as any).contents += buildState[id].contents;
+      (buildState[newUrl] as any).contents += Buffer.isBuffer(buildState[id].contents) ? buildState[id].contents.toString('utf8') : buildState[id].contents;
       delete buildState[id];
     })
   );
@@ -107,7 +116,8 @@ export async function bundleCSS({ buildState, logging, depTree }: { buildState: 
       const $ = cheerio.load(buildState[id].contents);
       const pageCSS = new Set<string>(); // keep track of page-specific CSS so we remove dupes
       $('link[href]').each((i, el) => {
-        const oldHref = absoluteURL($(el).attr('href') || '', path.posix.dirname(id)); // note: this may be a relative URL; transform to absolute to find a buildOutput match
+        const srcPath = getSrcPath(id, { astroConfig });
+        const oldHref = getDistPath($(el).attr('href') || '', { astroConfig, srcPath }); // note: this may be a relative URL; transform to absolute to find a buildOutput match
         const newHref = cssMap.get(oldHref);
         if (newHref) {
           // note: link[href] will select too much, however, remote CSS and non-CSS link tags won’t be in cssMap
