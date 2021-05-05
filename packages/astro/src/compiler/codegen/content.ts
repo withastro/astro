@@ -1,6 +1,5 @@
 import path from 'path';
 import { fdir, PathsOutput } from 'fdir';
-import { fileURLToPath } from 'url';
 import slash from 'slash';
 
 /**

@@ -8,8 +8,10 @@
   "exports": {
     ".": "./astro.mjs",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
+    "./components": "./components/index.js",
     "./components/*": "./components/*",
-    "./runtime/svelte": "./dist/frontend/runtime/svelte.js"
+    "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
+    "./markdown": "./dist/frontend/markdown.js"
   },
   "imports": {
     "#astro/compiler": "./dist/compiler/index.js",

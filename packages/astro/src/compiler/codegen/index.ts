@@ -416,11 +416,17 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
     for (const componentImport of componentImports) {
       const importUrl = componentImport.source.value;
-      const componentType = path.posix.extname(importUrl);
+      let componentType = path.posix.extname(importUrl);
+      if (!componentType) {
+        if (path.posix.dirname(importUrl) === 'astro') {
+          componentType = '.astro';
+        }
+      }
       const specifier = componentImport.specifiers[0];
       if (!specifier) continue; // this is unused
+      
       // set componentName to default import if used (user), or use filename if no default import (mostly internal use)
-      const componentName = specifier.type === 'ImportDefaultSpecifier' ? specifier.local.name : path.posix.basename(importUrl, componentType);
+      const componentName = ['ImportDefaultSpecifier', 'ImportSpecifier'].includes(specifier.type) ? specifier.local.name : path.posix.basename(importUrl, componentType);
       const plugin = extensions[componentType] || defaultExtensions[componentType];
       state.components[componentName] = {
         type: componentType,
@@ -582,25 +588,31 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           try {
             const attributes = getAttributes(node.attributes);
 
-            outSource += outSource === '' ? '' : ',';
-            if (node.type === 'Slot') {
-              outSource += `(children`;
+          outSource += outSource === '' ? '' : ',';
+          if (node.type === 'Slot') {
+            outSource += `(children`;
+            return;
+          }
+          const COMPONENT_NAME_SCANNER = /^[A-Z]/;
+          if (!COMPONENT_NAME_SCANNER.test(name)) {
+            outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
+            return;
+          }
+          const [componentName, componentKind] = name.split(':');
+          const componentImportData = components[componentName];
+          if (!componentImportData) {
+            throw new Error(`Unknown Component: ${componentName}`);
+          }
+          if (componentImportData.type === '.astro' && componentImportData.url.startsWith('astro/components')) {
+            if (componentName === 'Markdown') {
+              outSource += `h(__astroMarkdownRender, ${attributes ? generateAttributes(attributes) : 'null'}`
               return;
             }
-            const COMPONENT_NAME_SCANNER = /^[A-Z]/;
-            if (!COMPONENT_NAME_SCANNER.test(name)) {
-              outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
-              return;
-            }
-            const [componentName, componentKind] = name.split(':');
-            const componentImportData = components[componentName];
-            if (!componentImportData) {
-              throw new Error(`Unknown Component: ${componentName}`);
-            }
-            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
-            if (wrapperImport) {
-              importExportStatements.add(wrapperImport);
-            }
+          }
+          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
+          if (wrapperImport) {
+            importExportStatements.add(wrapperImport);
+          }
 
             outSource += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
           } catch (err) {
