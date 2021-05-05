@@ -1,0 +1,27 @@
+{
+  "name": "astro-languageserver",
+  "version": "0.3.0",
+  "author": "Skypack",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "dist",
+    "types"
+  ],
+  "scripts": {
+    "build": "astro-scripts build 'src/index.ts'",
+    "dev": "astro-scripts dev 'src/index.ts'"
+  },
+  "devDependencies": {
+    "astro": "0.0.9",
+    "astro-scripts": "0.0.1"
+  },
+  "dependencies": {
+    "vscode-emmet-helper": "2.1.2",
+    "vscode-html-languageservice": "^3.0.3",
+    "vscode-languageserver": "6.1.1",
+    "vscode-languageserver-textdocument": "^1.0.1"
+  }
+}

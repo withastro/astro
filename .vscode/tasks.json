@@ -3,13 +3,12 @@
   "tasks": [
     {
       "type": "npm",
-      "script": "build:extension",
+      "script": "build:vscode",
       "group": "build",
       "presentation": {
         "panel": "dedicated",
         "reveal": "never"
-      },
-      "problemMatcher": ["$tsc"]
+      }
     }
   ]
 }

@@ -17,10 +17,10 @@ export async function activate(context: vscode.ExtensionContext) {
 /**  */
 function createLanguageService(context: vscode.ExtensionContext, mode: 'doc', id: string, name: string, port: number) {
   const { workspace } = vscode;
-  const serverModule = context.asAbsolutePath(path.join('dist', 'server.js'));
+  const serverModule = context.asAbsolutePath(require.resolve('astro-languageserver'));
   const debugOptions = { execArgv: ['--nolazy', '--inspect=' + port] };
   const serverOptions: lsp.ServerOptions = {
-    run: { module: serverModule, transport: lsp.TransportKind.ipc },
+    run: { module: 'astro-languageserver', transport: lsp.TransportKind.ipc },
     debug: {
       module: serverModule,
       transport: lsp.TransportKind.ipc,
