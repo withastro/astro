@@ -1,7 +1,7 @@
 {
-  "name": "@example/kitchen-sink",
+  "name": "@example/remote-markdown",
+  "version": "0.0.1",
   "private": true,
-  "version": "1.0.0",
   "scripts": {
     "start": "astro dev",
     "build": "astro build",
