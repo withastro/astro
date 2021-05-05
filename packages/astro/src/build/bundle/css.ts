@@ -1,10 +1,13 @@
 import type { BuildOutput, BundleMap } from '../../@types/astro';
+import type { LogOptions } from '../../logger.js';
 
 import path from 'path';
+import { performance } from 'perf_hooks';
 import shorthash from 'shorthash';
 import cheerio from 'cheerio';
 import esbuild from 'esbuild';
-import { absoluteURL } from '../util.js';
+import { absoluteURL, stopTimer } from '../util.js';
+import { debug } from '../../logger.js';
 
 // config
 const COMMON_URL = `/_astro/common-[HASH].css`; // [HASH] will be replaced
@@ -23,10 +26,12 @@ const COMMON_URL = `/_astro/common-[HASH].css`; // [HASH] will be replaced
  * This operation mutates the original references of the buildOutput not only for
  * safety (prevents possible conflicts), but for efficiency.
  */
-export async function bundleCSS({ buildState, depTree }: { buildState: BuildOutput; depTree: BundleMap }): Promise<void> {
+export async function bundleCSS({ buildState, logging, depTree }: { buildState: BuildOutput; logging: LogOptions; depTree: BundleMap }): Promise<void> {
+  const timer: Record<string, number> = {};
   const cssMap = new Map<string, string>();
 
-  // 1. identify common CSS vs page-specific CSS
+  // 1. organize CSS into common or page-specific CSS
+  timer.bundle = performance.now();
   for (const [pageUrl, { css }] of Object.entries(depTree)) {
     for (const cssUrl of css.keys()) {
       if (cssMap.has(cssUrl)) {
@@ -39,10 +44,11 @@ export async function bundleCSS({ buildState, depTree }: { buildState: BuildOutp
     }
   }
 
-  // 2. bundle CSS
+  // 2. bundle
+  timer.bundle = performance.now();
   await Promise.all(
-    Object.entries(buildState).map(async ([id, buildResult]) => {
-      if (buildResult.contentType !== 'text/css') return;
+    Object.keys(buildState).map(async (id) => {
+      if (buildState[id].contentType !== 'text/css') return;
 
       const newUrl = cssMap.get(id);
       if (!newUrl) return;
@@ -58,41 +64,47 @@ export async function bundleCSS({ buildState, depTree }: { buildState: BuildOutp
       }
 
       // append to bundle, delete old file
-      (buildState[newUrl] as any).contents += buildResult.contents;
+      (buildState[newUrl] as any).contents += buildState[id].contents;
       delete buildState[id];
     })
   );
+  debug(logging, 'css', `bundled [${stopTimer(timer.bundle)}]`);
 
-  // 3. minify all CSS
+  // 3. minify
+  timer.minify = performance.now();
   await Promise.all(
-    Object.entries(buildState).map(async ([id, buildResult]) => {
-      if (buildResult.contentType !== 'text/css') return;
-      const { code } = await esbuild.transform(buildResult.contents as string, {
+    Object.keys(buildState).map(async (id) => {
+      if (buildState[id].contentType !== 'text/css') return;
+      const { code } = await esbuild.transform(buildState[id].contents as string, {
         loader: 'css',
         minify: true,
       });
-      buildResult.contents = code;
+      buildState[id].contents = code;
     })
   );
+  debug(logging, 'css', `minified [${stopTimer(timer.minify)}]`);
 
   // 4. determine hashes based on CSS content (deterministic), and update HTML <link> tags with final hashed URLs
+  timer.hashes = performance.now();
   const cssHashes = new Map<string, string>();
-  for (const [id, buildResult] of Object.entries(buildState)) {
+  for (const id of Object.keys(buildState)) {
     if (!id.includes('[HASH].css')) continue; // iterate through buildState, looking to replace [HASH]
 
-    const hash = shorthash.unique(buildResult.contents as string);
+    const hash = shorthash.unique(buildState[id].contents as string);
     const newID = id.replace(/\[HASH\]/, hash);
     cssHashes.set(id, newID);
-    buildState[newID] = buildResult; // copy ref without cloning (using more memory)
+    buildState[newID] = buildState[id]; // copy ref without cloning to save memory
     delete buildState[id]; // delete old ref
   }
+  debug(logging, 'css', `built hashes [${stopTimer(timer.hashes)}]`);
 
-  // 4. update HTML <link> tags with final hashed URLs
+  // 5. update HTML <link> tags with final hashed URLs
+  timer.html = performance.now();
   await Promise.all(
-    Object.entries(buildState).map(async ([id, buildResult]) => {
-      if (buildResult.contentType !== 'text/html') return;
+    Object.keys(buildState).map(async (id) => {
+      if (buildState[id].contentType !== 'text/html') return;
 
-      const $ = cheerio.load(buildResult.contents);
+      const $ = cheerio.load(buildState[id].contents);
       const pageCSS = new Set<string>(); // keep track of page-specific CSS so we remove dupes
       $('link[href]').each((i, el) => {
         const oldHref = absoluteURL($(el).attr('href') || '', path.posix.dirname(id)); // note: this may be a relative URL; transform to absolute to find a buildOutput match
@@ -113,4 +125,5 @@ export async function bundleCSS({ buildState, depTree }: { buildState: BuildOutp
       (buildState[id] as any).contents = $.html(); // save updated HTML in global buildState
     })
   );
+  debug(logging, 'css', `parsed html [${stopTimer(timer.html)}]`);
 }

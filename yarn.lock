@@ -3005,7 +3005,7 @@ cheerio-select@^1.3.0:
     domhandler "^4.2.0"
     domutils "^2.6.0"
 
-cheerio@^1.0.0-rc.3, cheerio@^1.0.0-rc.6:
+cheerio@^1.0.0-rc.3, cheerio@^1.0.0-rc.5, cheerio@^1.0.0-rc.6:
   version "1.0.0-rc.6"
   resolved "https://registry.npmjs.org/cheerio/-/cheerio-1.0.0-rc.6.tgz"
   integrity sha512-hjx1XE1M/D5pAtMgvWwE21QClmAEeGHOIDfycgmndisdNgI6PE1cGRQkMGBcsbUbmEQyWu5PJLUcAOjtQS8DWw==

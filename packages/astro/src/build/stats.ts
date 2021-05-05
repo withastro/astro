@@ -35,10 +35,12 @@ export async function addBundleStats(bundleStatsMap: BundleStatsMap, code: strin
   });
 }
 
-export function mapBundleStatsToURLStats(urlStats: URLStatsMap, importsToUrl: Map<string, Set<string>>, bundleStats: BundleStatsMap) {
-  for (let [imp, stats] of bundleStats) {
-    for (let url of importsToUrl.get('/' + imp) || []) {
-      urlStats.get(url)?.stats.push(stats);
+export function mapBundleStatsToURLStats({ urlStats, depTree, bundleStats }: { urlStats: URLStatsMap; depTree: BundleMap; bundleStats: BundleStatsMap }) {
+  for (let [srcPath, stats] of bundleStats) {
+    for (let url of urlStats.keys()) {
+      if (depTree[url] && depTree[url].js.has('/' + srcPath)) {
+        urlStats.get(url)?.stats.push(stats);
+      }
     }
   }
 }

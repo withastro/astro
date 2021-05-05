@@ -12,7 +12,6 @@
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js"
   },
   "imports": {
-    "#astro/build": "./dist/build/index.js",
     "#astro/compiler": "./dist/compiler/index.js",
     "#astro/*": "./dist/*.js"
   },
@@ -26,7 +25,7 @@
     "astro.mjs"
   ],
   "scripts": {
-    "build": "astro-scripts build 'src/*.ts' 'src/build/index.ts' 'src/compiler/index.ts' 'src/frontend/**/*.ts' && tsc",
+    "build": "astro-scripts build 'src/*.ts' 'src/compiler/index.ts' 'src/frontend/**/*.ts' && tsc",
     "postbuild": "astro-scripts copy 'src/**/*.astro'",
     "dev": "astro-scripts dev 'src/**/*.ts'",
     "test": "uvu test -i fixtures -i test-utils.js"

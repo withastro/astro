@@ -1,24 +1,32 @@
-import type { AstroConfig } from '../../@types/astro';
 import type { InputOptions, OutputOptions, OutputChunk } from 'rollup';
+import type { BuildOutput } from '../../@types/astro';
 import type { AstroRuntime } from '../../runtime';
 
 import { fileURLToPath } from 'url';
 import { rollup } from 'rollup';
 import { terser } from 'rollup-plugin-terser';
-import { createBundleStats, addBundleStats } from '../stats.js';
+import { createBundleStats, addBundleStats, BundleStatsMap } from '../stats.js';
 
 interface BundleOptions {
-  runtime: AstroRuntime;
   dist: URL;
-  astroConfig: AstroConfig;
+  runtime: AstroRuntime;
+}
+
+/** Collect JS imports from build output */
+export function collectJSImports(buildState: BuildOutput): Set<string> {
+  const imports = new Set<string>();
+  for (const id of Object.keys(buildState)) {
+    if (buildState[id].contentType === 'application/javascript') imports.add(id);
+  }
+  return imports;
 }
 
 /** Bundle JS action */
-export async function bundleJS(imports: Set<string>, { runtime, dist }: BundleOptions) {
+export async function bundleJS(imports: Set<string>, { runtime, dist }: BundleOptions): Promise<BundleStatsMap> {
   const ROOT = 'astro:root';
   const root = `
-    ${[...imports].map((url) => `import '${url}';`).join('\n')}
-  `;
+  ${[...imports].map((url) => `import '${url}';`).join('\n')}
+`;
 
   const inputOptions: InputOptions = {
     input: [...imports],

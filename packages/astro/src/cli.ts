@@ -7,7 +7,7 @@ import { promises as fsPromises } from 'fs';
 import yargs from 'yargs-parser';
 
 import { loadConfig } from './config.js';
-import { build } from './build/index.js';
+import { build } from './build.js';
 import devServer from './dev.js';
 
 const { readFile } = fsPromises;

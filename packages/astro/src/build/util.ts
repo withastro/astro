@@ -18,3 +18,9 @@ export function absoluteURL(url: string, cwd: string): string {
   if (url[0] === '/') return url;
   return '/' + path.posix.relative(cwd, url);
 }
+
+/** Stop timer & format time for profiling */
+export function stopTimer(start: number): string {
+  const diff = performance.now() - start;
+  return diff < 100 ? `${Math.round(diff)}ms` : `${(diff / 1000).toFixed(1)}s`;
+}
