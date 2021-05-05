@@ -3,15 +3,9 @@ import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 
 import path from 'path';
-import micromark from 'micromark';
-import gfmSyntax from 'micromark-extension-gfm';
-import matter from 'gray-matter';
-import gfmHtml from 'micromark-extension-gfm/html.js';
+import { renderMarkdown } from './utils.js';
 
 import { parse } from 'astro-parser';
-import { createMarkdownHeadersCollector } from './markdown/micromark-collect-headers.js';
-import { encodeMarkdown } from './markdown/micromark-encode.js';
-import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';
 import { parseAstroMarkdown } from './markdown/parse-astro-markdown.js';
 import { transform } from './transform/index.js';
 import { codegen } from './codegen/index.js';
@@ -56,14 +50,8 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
  */
 export async function convertAstroMdToAstroSource(contents: string): Promise<string> {
   const { data, content } = parseAstroMarkdown(contents);
-  const { headersExtension } = createMarkdownHeadersCollector();
-  const { htmlAstro, mdAstro } = encodeAstroMdx();
-  const mdHtml = micromark(content, {
-    allowDangerousHtml: true,
-    extensions: [gfmSyntax(), ...htmlAstro],
-    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension, mdAstro],
-  });
 
+  const { content: mdHtml } = renderMarkdown(content, { mode: '.md.astro' });
   return `---
 ${data}
 ---
@@ -74,29 +62,21 @@ ${mdHtml}`;
  * .md -> .astro source
  */
 export async function convertMdToAstroSource(contents: string): Promise<string> {
-  const { data: { layout, ...frontmatterData }, content } = matter(contents);
-  const { headers, headersExtension } = createMarkdownHeadersCollector();
-  const mdHtml = micromark(content, {
-    allowDangerousHtml: true,
-    extensions: [gfmSyntax()],
-    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension],
-  });
-
-  const contentData: any = {
-    frontmatter: frontmatterData,
-    astro: { headers },
-    source: content,
-  };
+  const { content, frontmatter: { layout, ...frontmatter }, ...data } = renderMarkdown(contents, { mode: '.md' });
+  const contentData = {
+    ...data,
+    frontmatter
+  }
 
   // </script> can't be anywhere inside of a JS string, otherwise the HTML parser fails.
   // Break it up here so that the HTML parser won't detect it.
   const stringifiedSetupContext = JSON.stringify(contentData).replace(/\<\/script\>/g, `</scrip" + "t>`);
 
   return `---
-${frontmatterData.layout ? `import {__renderPage as __layout} from '${layout}';` : 'const __layout = undefined;'}
+${layout ? `import {__renderPage as __layout} from '${layout}';` : 'const __layout = undefined;'}
 export const __content = ${stringifiedSetupContext};
 ---
-${mdHtml}`;
+${content}`;
 }
 
 /**
@@ -163,6 +143,7 @@ ${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from '${internalImport('h.js')}';
+import __astroMarkdownRender from '${internalImport('markdown.js')}';
 const __astroRequestSymbol = Symbol('astro.request');
 async function __render(props, ...children) {
   const Astro = {
