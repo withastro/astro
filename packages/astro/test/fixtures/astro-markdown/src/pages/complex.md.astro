@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/content.astro';
+import Hello from '../components/Hello.jsx';
+import Counter from '../components/Counter.jsx';
+
+export const title = 'My Blog Post';
+export const description = 'This is a post about some stuff.';
+---
+
+<Layout>
+
+## Interesting Topic
+
+<Hello name={`world`} />
+<Counter:load />
+
+</Layout>
