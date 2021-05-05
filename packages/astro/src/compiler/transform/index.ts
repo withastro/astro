@@ -6,9 +6,9 @@ import { walk } from 'estree-walker';
 // Transformers
 import transformStyles from './styles.js';
 import transformDoctype from './doctype.js';
+import optimizeLinks from './optimize-links.js';
 import transformModuleScripts from './module-scripts.js';
 import transformCodeBlocks from './prism.js';
-
 interface VisitorCollection {
   enter: Map<string, VisitorFn[]>;
   leave: Map<string, VisitorFn[]>;
@@ -84,7 +84,7 @@ export async function transform(ast: Ast, opts: TransformOptions) {
   const cssVisitors = createVisitorCollection();
   const finalizers: Array<() => Promise<void>> = [];
 
-  const optimizers = [transformStyles(opts), transformDoctype(opts), transformModuleScripts(opts), transformCodeBlocks(ast.module)];
+  const optimizers = [transformStyles(opts), transformDoctype(opts), optimizeLinks(opts), transformModuleScripts(opts), transformCodeBlocks(ast.module)];
 
   for (const optimizer of optimizers) {
     collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);

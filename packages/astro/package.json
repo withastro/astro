@@ -9,7 +9,7 @@
     ".": "./astro.mjs",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./components/*": "./components/*",
-    "./runtime/svelte": "./dist/frontend/runtime/svelte.js"
+    "./runtime/*": "./dist/frontend/runtime/*.js"
   },
   "imports": {
     "#astro/compiler": "./dist/compiler/index.js",
