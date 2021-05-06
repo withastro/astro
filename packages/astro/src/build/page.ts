@@ -169,7 +169,7 @@ const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
 };
 
 /** Gather necessary framework runtimes (React, Vue, Svelte, etc.) for dynamic components */
-async function gatherRuntimes({ astroConfig, buildState, filepath, logging, resolvePackageUrl, mode, runtime }: PageBuildOptions) {
+async function gatherRuntimes({ astroConfig, buildState, filepath, logging, resolvePackageUrl, mode, runtime }: PageBuildOptions): Promise<Set<string>> {
   const imports = new Set<string>();
 
   // Only astro files
@@ -332,20 +332,22 @@ async function gatherRuntimes({ astroConfig, buildState, filepath, logging, reso
   });
 
   // add all imports to build output
-  [...imports].map(async (url) => {
-    // don’t end up in an infinite loop building same URLs over and over
-    const alreadyBuilt = buildState[url];
-    if (alreadyBuilt) return;
+  await Promise.all(
+    [...imports].map(async (url) => {
+      if (buildState[url]) return; // don’t build already-built URLs
 
-    // add new results to buildState
-    const result = await runtime.load(url);
-    if (result.statusCode === 200) {
-      buildState[url] = {
-        srcPath: filepath,
-        contents: result.contents,
-        contentType: result.contentType || mime.getType(url) || '',
-        encoding: 'utf8',
-      };
-    }
-  });
+      // add new results to buildState
+      const result = await runtime.load(url);
+      if (result.statusCode === 200) {
+        buildState[url] = {
+          srcPath: filepath,
+          contents: result.contents,
+          contentType: result.contentType || mime.getType(url) || '',
+          encoding: 'utf8',
+        };
+      }
+    })
+  );
+
+  return imports;
 }
