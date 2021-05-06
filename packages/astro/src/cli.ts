@@ -120,8 +120,8 @@ export async function cli(args: string[]) {
     }
     case 'build':
     case 'dev': {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const cmd = cmdMap.get(state.cmd)!;
+      const cmd = cmdMap.get(state.cmd);
+      if (!cmd) throw new Error(`Error running ${state.cmd}`);
       runCommand(flags._[3], cmd, state.options);
     }
   }

@@ -27,7 +27,6 @@ SnowpackDev.before(async () => {
   try {
     runtime = await createRuntime(astroConfig, { logging });
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error(err);
     setupError = err;
   }
@@ -82,7 +81,6 @@ SnowpackDev('Can load every page', async () => {
   }
 
   if (failed.length > 0) {
-    // eslint-disable-next-line no-console
     console.error(failed);
   }
   assert.equal(failed.length, 0, 'Failed pages');

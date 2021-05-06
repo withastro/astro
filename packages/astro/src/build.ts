@@ -168,9 +168,8 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     info(logging, 'tip', `Set "buildOptions.site" in astro.config.mjs to generate a sitemap.xml, or set "buildOptions.sitemap: false" to disable this message.`);
   }
 
-  timer.write = performance.now();
-
   // write to disk and free up memory
+  timer.write = performance.now();
   await Promise.all(
     Object.keys(buildState).map(async (id) => {
       const outPath = new URL(`.${id}`, dist);
@@ -195,7 +194,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
       publicFiles.map(async (filepath) => {
         const fileUrl = new URL(`file://${filepath}`);
         const rel = path.relative(fileURLToPath(pub), fileURLToPath(fileUrl));
-        const outPath = new URL(path.join('.', rel), dist);
+        const outPath = new URL('./' + rel, dist);
         await fs.promises.mkdir(path.dirname(fileURLToPath(outPath)), { recursive: true });
         await fs.promises.copyFile(fileUrl, outPath);
       })
@@ -209,7 +208,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   }
 
   /**
-   * 5. Bundling 2nd pass: On disk
+   * 5. Bundling 2nd Pass: On disk
    * Bundle JS, which requires hard files to optimize
    */
   info(logging, 'build', yellow(`! bundling...`));

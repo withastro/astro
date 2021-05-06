@@ -72,8 +72,9 @@ export async function bundleJS(imports: Set<string>, { runtime, dist }: BundleOp
     format: 'esm',
     exports: 'named',
     entryFileNames(chunk) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return chunk.facadeModuleId!.substr(1);
+      const { facadeModuleId } = chunk;
+      if (!facadeModuleId) throw new Error(`facadeModuleId missing: ${chunk.name}`);
+      return facadeModuleId.substr(1);
     },
     plugins: [
       // We are using terser for the demo, but might switch to something else long term

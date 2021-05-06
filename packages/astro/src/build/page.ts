@@ -37,7 +37,7 @@ export function getPageType(filepath: URL): 'collection' | 'static' {
 
 /** Build collection */
 export async function buildCollectionPage({ astroConfig, filepath, logging, mode, runtime, site, resolvePackageUrl, buildState }: PageBuildOptions): Promise<void> {
-  const rel = path.relative(fileURLToPath(astroConfig.astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
+  const rel = path.posix.relative(fileURLToPath(astroConfig.astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
   const pagePath = `/${rel.replace(/\$([^.]+)\.astro$/, '$1')}`;
   const srcPath = new URL('pages/' + rel, astroConfig.astroRoot);
   const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
@@ -102,7 +102,7 @@ export async function buildCollectionPage({ astroConfig, filepath, logging, mode
 
 /** Build static page */
 export async function buildStaticPage({ astroConfig, buildState, filepath, logging, mode, resolvePackageUrl, runtime }: PageBuildOptions): Promise<void> {
-  const rel = path.relative(fileURLToPath(astroConfig.astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
+  const rel = path.posix.relative(fileURLToPath(astroConfig.astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
   const pagePath = `/${rel.replace(/\.(astro|md)$/, '')}`;
 
   let relPath = path.posix.join('/', rel.replace(/\.(astro|md)$/, '.html'));
@@ -251,29 +251,31 @@ async function gatherRuntimes({ astroConfig, buildState, filepath, logging, reso
 
     switch (defn.plugin) {
       case 'preact': {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        imports.add(dynamic.get('preact')!);
+        const preact = dynamic.get('preact');
+        if (!preact) throw new Error(`Unable to load Preact plugin`);
+        imports.add(preact);
         rel = rel.replace(/\.[^.]+$/, '.js');
         break;
       }
       case 'react': {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        imports.add(dynamic.get('react')!);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        imports.add(dynamic.get('react-dom')!);
+        const [react, reactDOM] = [dynamic.get('react'), dynamic.get('react-dom')];
+        if (!react || !reactDOM) throw new Error(`Unable to load React plugin`);
+        imports.add(react);
+        imports.add(reactDOM);
         rel = rel.replace(/\.[^.]+$/, '.js');
         break;
       }
       case 'vue': {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        imports.add(dynamic.get('vue')!);
+        const vue = dynamic.get('vue');
+        if (!vue) throw new Error('Unable to load Vue plugin');
+        imports.add(vue);
         rel = rel.replace(/\.[^.]+$/, '.vue.js');
         break;
       }
       case 'svelte': {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        imports.add(dynamic.get('svelte')!);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const svelte = dynamic.get('svelte');
+        if (!svelte) throw new Error('Unable to load Svelte plugin');
+        imports.add(svelte);
         imports.add('/_astro_internal/runtime/svelte.js');
         rel = rel.replace(/\.[^.]+$/, '.svelte.js');
         break;
