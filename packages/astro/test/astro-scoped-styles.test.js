@@ -16,6 +16,9 @@ ScopedStyles('Scopes rules correctly', () => {
     '.class~:global(a)': `.class.${className}~a`,
     '.class *': `.class.${className} .${className}`,
     '.class>*': `.class.${className}>.${className}`,
+    '.class button:focus': `.class.${className} button.${className}:focus`,
+    '.class h3::before': `.class.${className} h3.${className}::before`,
+    'button:focus::before': `button.${className}:focus::before`,
     '.class :global(*)': `.class.${className} *`,
     '.class :global(.nav:not(.is-active))': `.class.${className} .nav:not(.is-active)`, // preserve nested parens
     '.class :global(ul li)': `.class.${className} ul li`, // allow doubly-scoped selectors
