@@ -5,7 +5,7 @@ export let headers: string;
 ---
 
 <style lang="scss">
-@use "../../public/css/var" as *;
+@use "../../public/styles/var" as *;
 
 .header {
   margin-top: 0;
@@ -14,7 +14,7 @@ export let headers: string;
   font-weight: 600;
   font-size: 20px;
   font-family: $heading;
-  line-height: 1.2em;
+  line-height: 1.2;
 
   @media (min-width: $breakpoint-m) {
     color: $dark-grey;
@@ -24,7 +24,6 @@ export let headers: string;
 .subnav {
   position: static;
   z-index: 1;
-  padding-top: 2rem;
 
   .header {
     color: $dark-grey;

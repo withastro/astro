@@ -1,15 +1,45 @@
 <style lang="scss">
-  @use '../../public/css/var' as *;
+  @use '../../public/styles/var' as *;
 
-  .toc {
+  .nav {
+    display: none;
+    position: fixed;
+    top: $nav-height;
+    left: 0;
+    width: 100%;
+    padding-top: $algolia-height;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    overflow-y: scroll;
+    background: $dark-blue;
     transition: padding 0.2s ease-out, opacity 0.2s ease-in-out;
+    z-index: map-get($map: $layers, $key: 'nav');
+
+    @media (min-width: $breakpoint-m) {
+      display: block;
+      position: static;
+      padding-top: 0;
+      padding-right: 0;
+      padding-left: 0;
+      background: none;
+    }
+
+    :global(body.is-nav-open) & {
+      display: block;
+    }
   }
 
   .contents {
     margin: 0;
-    padding: 0;
+    height: calc(100vh - #{$nav-height + $algolia-height});
+    overflow-y: scroll;
+    padding: 0 0 2rem;
     line-height: 1.8;
     list-style: none;
+
+    @media (min-width: $breakpoint-m) {
+      overflow: auto;
+    }
   }
 
   .section {
@@ -19,13 +49,14 @@
   }
 
   .header {
+    display: block;
     margin-top: 0;
-    margin-bottom: 8px;
+    margin-bottom: 0.75rem;
     color: rgba($white, 0.6);
     font-weight: 600;
     font-size: 20px;
     font-family: $heading;
-    line-height: 1.2em;
+    line-height: 1.2;
 
     @media (min-width: $breakpoint-m) {
       color: $dark-grey;
@@ -79,7 +110,7 @@
   }
 </style>
 
-<nav class="toc">
+<nav class="nav">
   <ol class="contents">
     <li class="section">
       <span class="header">Concepts</span>

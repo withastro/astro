@@ -13,15 +13,6 @@ $transition-fast: 40ms;
 $transition-medium: 500ms;
 $transition-slow: 1s;
 
-@mixin animation-hover-pop {
-  transition: transform $transition-fast $easeInExpo,
-    box-shadow $transition-fast linear;
-  &:hover {
-    box-shadow: 0 2px 2px 0 #2e5e82aa;
-    transform: translateY(-1px);
-  }
-}
-
 @keyframes pulse {
   0% {
     color: #2a85ca;
