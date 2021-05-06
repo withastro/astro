@@ -1,17 +1,59 @@
 ---
 import { Markdown } from 'astro/components';
+const title = 'INTERPOLATED';
 const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpack/main/README.md').then(res => res.text());
 ---
 
+<!-- Basic -->
+<Markdown>
+# Hello world!
+</Markdown>
+
+    <!-- Indented -->
+    <Markdown>
+    # Hello indent!
+    </Markdown>
+
+<!-- Interpolation -->
+<Markdown>
+# Hello {title}!
+</Markdown>
+
+
+        <!-- Can I break this? -->
+        <Markdown>
+          # I cannot!
+
+          <strong>Dope</strong>
+
+          `nice`
+
+          ```html
+          don't <div>me</div> bro
+          ```
+
+          ```js
+          Astro.fetchContent()
+          ```
+
+          ### cool stuff?
+          ```astro
+          {'can\'t interpolate'}
+          {}
+          
+          Do I break? <Markdown> </Markdown>
+          ```
+        </Markdown>
+
+<!-- external content -->
 <Markdown>{content}</Markdown>
 
+<!-- external with newlines -->
 <Markdown>
-  # Hello world!
-  **Hey what's up hello?**
-
-  `nice`
-
-  ```html
-  don't <div>me</div> bro
-  ```
+  {content}
 </Markdown>
+
+        <!-- external with indentation -->
+        <Markdown>
+          {content}
+        </Markdown>
