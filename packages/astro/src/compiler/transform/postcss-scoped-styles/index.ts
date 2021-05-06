@@ -75,18 +75,18 @@ export function scopeRule(selector: string, className: string) {
       continue;
     }
 
-    // don‘t scope body, title, etc.
-    if (NEVER_SCOPED_TAGS.has(value)) {
+    // don’t scope body, title, etc.
+    if (CSS_SEPARATORS.has(value) || NEVER_SCOPED_TAGS.has(value)) {
       ss = head + value + tail;
       continue;
     }
 
     // scope everything else
-    let newSelector = ss.substring(start, end);
+    let newSelector = value;
     const pseudoIndex = newSelector.indexOf(':');
     if (pseudoIndex > 0) {
-      // if there‘s a pseudoclass (:focus)
-      ss = head + newSelector.substring(start, pseudoIndex) + c + newSelector.substr(pseudoIndex) + tail;
+      // if there’s a pseudoclass (:focus or ::before)
+      ss = head + newSelector.substring(0, pseudoIndex) + c + newSelector.substr(pseudoIndex) + tail;
     } else {
       ss = head + newSelector + c + tail;
     }
