@@ -44,5 +44,5 @@ export function getSrcPath(url: string, { astroConfig }: { astroConfig: AstroCon
 /** Stop timer & format time for profiling */
 export function stopTimer(start: number): string {
   const diff = performance.now() - start;
-  return diff < 100 ? `${Math.round(diff)}ms` : `${(diff / 1000).toFixed(1)}s`;
+  return diff < 750 ? `${Math.round(diff)}ms` : `${(diff / 1000).toFixed(1)}s`;
 }
