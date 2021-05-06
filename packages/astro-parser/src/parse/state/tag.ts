@@ -10,7 +10,6 @@ import { Directive, DirectiveType, TemplateNode, Text } from '../../interfaces.j
 import fuzzymatch from '../../utils/fuzzymatch.js';
 import list from '../../utils/list.js';
 
-// eslint-disable-next-line no-useless-escape
 const valid_tag_name = /^\!?[a-zA-Z]{1,}:?[a-zA-Z0-9\-]*/;
 
 const meta_tags = new Map([
@@ -393,7 +392,6 @@ function read_attribute(parser: Parser, unique_names: Set<string>) {
     }
   }
 
-  // eslint-disable-next-line no-useless-escape
   const name = parser.read_until(/[\s=\/>"']/);
   if (!name) return null;
 

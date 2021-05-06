@@ -4,7 +4,6 @@ import type * as d from './interfaces';
 import { flatten } from '../utils';
 import { FoldingRange } from 'vscode-languageserver-types';
 
-// eslint-disable-next-line no-shadow
 enum ExecuteMode {
   None,
   FirstNonNull,

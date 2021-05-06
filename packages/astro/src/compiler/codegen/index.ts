@@ -423,21 +423,21 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       if (plugin) {
         componentPlugins.add(plugin);
       }
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      state.importExportStatements.add(module.content.slice(componentImport.start!, componentImport.end!));
+      const { start, end } = componentImport;
+      state.importExportStatements.add(module.content.slice(start || undefined, end || undefined));
     }
     for (const componentImport of componentExports) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      state.importExportStatements.add(module.content.slice(componentImport.start!, componentImport.end!));
+      const { start, end } = componentImport;
+      state.importExportStatements.add(module.content.slice(start || undefined, end || undefined));
     }
 
     if (componentProps.length > 0) {
       propsStatement = 'let {';
       for (const componentExport of componentProps) {
         propsStatement += `${(componentExport.id as Identifier).name}`;
-        if (componentExport.init) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          propsStatement += `= ${babelGenerator(componentExport.init!).code}`;
+        const { init } = componentExport;
+        if (init) {
+          propsStatement += `= ${babelGenerator(init).code}`;
         }
         propsStatement += `,`;
       }
@@ -541,14 +541,12 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
       switch (node.type) {
         case 'Expression': {
           let children: string[] = [];
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          for (const child of node.children!) {
+          for (const child of node.children || []) {
             children.push(compileHtml(child, state, compileOptions));
           }
           let raw = '';
           let nextChildIndex = 0;
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          for (const chunk of node.codeChunks!) {
+          for (const chunk of node.codeChunks) {
             raw += chunk;
             if (nextChildIndex < children.length) {
               raw += children[nextChildIndex++];

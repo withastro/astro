@@ -144,20 +144,19 @@ export const logger = {
   error: error.bind(null, defaultLogOptions),
 };
 
-// For silencing libraries that go directly to console.warn
+/** For silencing libraries that go directly to console.warn */
 export function trapWarn(cb: (...args: any[]) => void = () => {}) {
-  const warn = console.warn;
+  /* eslint-disable no-console */
+  const consoleWarn = console.warn;
   console.warn = function (...args: any[]) {
     cb(...args);
   };
-  return () => (console.warn = warn);
+  return () => (console.warn = consoleWarn);
 }
-
-
 
 function padStr(str: string, len: number) {
   const strLen = stringWidth(str);
-  if(strLen > len) {
+  if (strLen > len) {
     return str.substring(0, len - 3) + '...';
   }
   const spaces = Array.from({ length: len - strLen }, () => ' ').join('');

@@ -1,3 +1,6 @@
+import type { TransformOptions, Transformer } from '../../@types/transformer';
+import type { TemplateNode } from 'astro-parser';
+
 import crypto from 'crypto';
 import fs from 'fs';
 import { createRequire } from 'module';
@@ -8,10 +11,7 @@ import postcss, { Plugin } from 'postcss';
 import postcssKeyframes from 'postcss-icss-keyframes';
 import findUp from 'find-up';
 import sass from 'sass';
-import type { RuntimeMode } from '../../@types/astro';
-import type { TransformOptions, Transformer } from '../../@types/transformer';
-import type { TemplateNode } from 'astro-parser';
-import { debug } from '../../logger.js';
+import { debug, error, LogOptions } from '../../logger.js';
 import astroScopedStyles, { NEVER_SCOPED_TAGS } from './postcss-scoped-styles/index.js';
 import slash from 'slash';
 
@@ -64,10 +64,10 @@ const miniCache: StylesMiniCache = {
 };
 
 export interface TransformStyleOptions {
+  logging: LogOptions;
   type?: string;
   filename: string;
   scopedClass: string;
-  mode: RuntimeMode;
 }
 
 /** given a class="" string, does it contain a given class? */
@@ -80,7 +80,7 @@ function hasClass(classList: string, className: string): boolean {
 }
 
 /** Convert styles to scoped CSS */
-async function transformStyle(code: string, { type, filename, scopedClass, mode }: TransformStyleOptions): Promise<StyleTransformResult> {
+async function transformStyle(code: string, { logging, type, filename, scopedClass }: TransformStyleOptions): Promise<StyleTransformResult> {
   let styleType: StyleType = 'css'; // important: assume CSS as default
   if (type) {
     styleType = getStyleType.get(type) || styleType;
@@ -128,8 +128,7 @@ async function transformStyle(code: string, { type, filename, scopedClass, mode 
       const tw = require.resolve('tailwindcss', { paths: [import.meta.url, process.cwd()] });
       postcssPlugins.push(require(tw) as any);
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error(err);
+      error(logging, 'transform', err);
       throw new Error(`tailwindcss not installed. Try running \`npm install tailwindcss\` and trying again.`);
     }
   }
@@ -192,10 +191,10 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
               styleNodes.push(node);
               styleTransformPromises.push(
                 transformStyle(code, {
+                  logging: compileOptions.logging,
                   type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                   filename,
                   scopedClass,
-                  mode: compileOptions.mode,
                 })
               );
               return;
@@ -246,10 +245,10 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
             styleNodes.push(node);
             styleTransformPromises.push(
               transformStyle(code, {
+                logging: compileOptions.logging,
                 type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                 filename,
                 scopedClass,
-                mode: compileOptions.mode,
               })
             );
           },
