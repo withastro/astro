@@ -28,6 +28,10 @@ const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpa
 
           `nice`
 
+          ```
+          plain fence
+          ```
+
           ```html
           don't <div>me</div> bro
           ```
@@ -40,6 +44,7 @@ const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpa
           ```astro
           {'can\'t interpolate'}
           {}
+          {title}
           
           Do I break? <Markdown> </Markdown>
           ```
@@ -57,3 +62,19 @@ const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpa
         <Markdown>
           {content}
         </Markdown>
+
+<!-- Meta -->
+
+<Markdown>
+```astro
+---
+export let title = 'Jeanine White: Personal Site';
+---
+
+<meta charset="UTF-8">
+<title>{title}</title>
+<link rel="stylesheet" type="text/css" href="/app.css">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;700;900&display=swap" rel="stylesheet">
+```
+</Markdown>
