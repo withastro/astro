@@ -1,40 +1,24 @@
 import 'source-map-support/register.js';
-import type { AstroConfig, RuntimeMode } from './@types/astro';
+import type { AstroConfig, BundleMap, BuildOutput, RuntimeMode, PageDependencies } from './@types/astro';
 import type { LogOptions } from './logger';
-import type { AstroRuntime, LoadResult } from './runtime';
 
-import { existsSync, promises as fsPromises } from 'fs';
-import { bold, green, yellow } from 'kleur/colors';
+import fs from 'fs';
 import path from 'path';
-import cheerio from 'cheerio';
 import { fileURLToPath } from 'url';
+import { performance } from 'perf_hooks';
+import cheerio from 'cheerio';
+import del from 'del';
+import { bold, green, yellow } from 'kleur/colors';
+import mime from 'mime';
 import { fdir } from 'fdir';
-import { defaultLogDestination, error, info, trapWarn } from './logger.js';
-import { createRuntime } from './runtime.js';
-import { bundle, collectDynamicImports } from './build/bundle.js';
-import { generateRSS } from './build/rss.js';
+import { bundleCSS } from './build/bundle/css.js';
+import { bundleJS, collectJSImports } from './build/bundle/js';
+import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.js';
 import { generateSitemap } from './build/sitemap.js';
-import { collectStatics } from './build/static.js';
-import { canonicalURL } from './build/util.js';
-import { createURLStats, mapBundleStatsToURLStats, logURLStats } from './build/stats.js';
-
-const { mkdir, readFile, writeFile } = fsPromises;
-
-interface PageBuildOptions {
-  astroRoot: URL;
-  dist: URL;
-  filepath: URL;
-  runtime: AstroRuntime;
-  site?: string;
-  sitemap: boolean;
-  statics: Set<string>;
-}
-
-interface PageResult {
-  canonicalURLs: string[];
-  rss?: string;
-  statusCode: number;
-}
+import { logURLStats, collectBundleStats, mapBundleStatsToURLStats } from './build/stats.js';
+import { getDistPath, sortSet, stopTimer } from './build/util.js';
+import { debug, defaultLogDestination, error, info, trapWarn } from './logger.js';
+import { createRuntime } from './runtime.js';
 
 const logging: LogOptions = {
   level: 'debug',
@@ -51,145 +35,20 @@ async function allPages(root: URL) {
   return files as string[];
 }
 
-/** Utility for merging two Set()s */
-function mergeSet(a: Set<string>, b: Set<string>) {
-  for (let str of b) {
-    a.add(str);
-  }
-  return a;
-}
-
-/** Utility for writing to file (async) */
-async function writeFilep(outPath: URL, bytes: string | Buffer, encoding: 'utf8' | null) {
-  const outFolder = new URL('./', outPath);
-  await mkdir(outFolder, { recursive: true });
-  await writeFile(outPath, bytes, encoding || 'binary');
-}
-
-interface WriteResultOptions {
-  srcPath: string;
-  result: LoadResult;
-  outPath: URL;
-  encoding: null | 'utf8';
-}
-
-/** Utility for writing a build result to disk */
-async function writeResult({ srcPath, result, outPath, encoding }: WriteResultOptions) {
-  if (result.statusCode === 500 || result.statusCode === 404) {
-    error(logging, 'build', `  Failed to build ${srcPath}\n${' '.repeat(9)}`, result.error?.message ?? `Unexpected load result (${result.statusCode})`);
-  } else if (result.statusCode !== 200) {
-    error(logging, 'build', `  Failed to build ${srcPath}\n${' '.repeat(9)}`, `Unexpected load result (${result.statusCode}) for ${fileURLToPath(outPath)}`);
-  } else {
-    const bytes = result.contents;
-    await writeFilep(outPath, bytes, encoding);
-  }
-}
-
-/** Collection utility */
-function getPageType(filepath: URL): 'collection' | 'static' {
-  if (/\$[^.]+.astro$/.test(filepath.pathname)) return 'collection';
-  return 'static';
-}
-
-/** Build collection */
-async function buildCollectionPage({ astroRoot, dist, filepath, runtime, site, statics }: PageBuildOptions): Promise<PageResult> {
-  const rel = path.relative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
-  const pagePath = `/${rel.replace(/\$([^.]+)\.astro$/, '$1')}`;
-  const srcPath = fileURLToPath(new URL('pages/' + rel, astroRoot));
-  const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
-
-  /** Recursively build collection URLs */
-  async function loadCollection(url: string): Promise<LoadResult | undefined> {
-    if (builtURLs.has(url)) return; // this stops us from recursively building the same pages over and over
-    const result = await runtime.load(url);
-    builtURLs.add(url);
-    if (result.statusCode === 200) {
-      const outPath = new URL('./' + url + '/index.html', dist);
-      await writeResult({ srcPath, result, outPath, encoding: 'utf8' });
-      mergeSet(statics, collectStatics(result.contents.toString('utf8')));
-    }
-    return result;
-  }
-
-  const result = (await loadCollection(pagePath)) as LoadResult;
-
-  if (result.statusCode >= 500) {
-    throw new Error((result as any).error);
-  }
-  if (result.statusCode === 200 && !result.collectionInfo) {
-    throw new Error(`[${rel}]: Collection page must export createCollection() function`);
-  }
-
-  let rss: string | undefined;
-
-  // note: for pages that require params (/tag/:tag), we will get a 404 but will still get back collectionInfo that tell us what the URLs should be
-  if (result.collectionInfo) {
-    // build subsequent pages
-    await Promise.all(
-      [...result.collectionInfo.additionalURLs].map(async (url) => {
-        // for the top set of additional URLs, we render every new URL generated
-        const addlResult = await loadCollection(url);
-        builtURLs.add(url);
-        if (addlResult && addlResult.collectionInfo) {
-          // believe it or not, we may still have a few unbuilt pages left. this is our last crawl:
-          await Promise.all([...addlResult.collectionInfo.additionalURLs].map(async (url2) => loadCollection(url2)));
-        }
-      })
-    );
-
-    if (result.collectionInfo.rss) {
-      if (!site) throw new Error(`[${rel}] createCollection() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
-      rss = generateRSS({ ...(result.collectionInfo.rss as any), site }, rel.replace(/\$([^.]+)\.astro$/, '$1'));
-    }
-  }
-
-  return {
-    canonicalURLs: [...builtURLs].filter((url) => !url.endsWith('/1')), // note: canonical URLs are controlled by the collection, so these are canonical (but exclude "/1" pages as those are duplicates of the index)
-    statusCode: result.statusCode,
-    rss,
-  };
-}
-
-/** Build static page */
-async function buildStaticPage({ astroRoot, dist, filepath, runtime, sitemap, statics }: PageBuildOptions): Promise<PageResult> {
-  const rel = path.relative(fileURLToPath(astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
-  const pagePath = `/${rel.replace(/\.(astro|md)$/, '')}`;
-  let canonicalURLs: string[] = [];
-
-  let relPath = './' + rel.replace(/\.(astro|md)$/, '.html');
-  if (!relPath.endsWith('index.html')) {
-    relPath = relPath.replace(/\.html$/, '/index.html');
-  }
-
-  const srcPath = fileURLToPath(new URL('pages/' + rel, astroRoot));
-  const outPath = new URL(relPath, dist);
-  const result = await runtime.load(pagePath);
-
-  await writeResult({ srcPath, result, outPath, encoding: 'utf8' });
-
-  if (result.statusCode === 200) {
-    mergeSet(statics, collectStatics(result.contents.toString('utf8')));
-
-    // get Canonical URL (if user has specified one manually, use that)
-    if (sitemap) {
-      const $ = cheerio.load(result.contents);
-      const canonicalTag = $('link[rel="canonical"]');
-      canonicalURLs.push(canonicalTag.attr('href') || pagePath.replace(/index$/, ''));
-    }
-  }
-
-  return {
-    canonicalURLs,
-    statusCode: result.statusCode,
-  };
+/** Is this URL remote? */
+function isRemote(url: string) {
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) return true;
+  return false;
 }
 
 /** The primary build action */
 export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const { projectRoot, astroRoot } = astroConfig;
-  const pageRoot = new URL('./pages/', astroRoot);
-  const componentRoot = new URL('./components/', astroRoot);
   const dist = new URL(astroConfig.dist + '/', projectRoot);
+  const pageRoot = new URL('./pages/', astroRoot);
+  const buildState: BuildOutput = {};
+  const depTree: BundleMap = {};
+  const timer: Record<string, number> = {};
 
   const runtimeLogging: LogOptions = {
     level: 'error',
@@ -200,63 +59,34 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
   const { runtimeConfig } = runtime;
   const { backendSnowpack: snowpack } = runtimeConfig;
-  const resolvePackageUrl = (pkgName: string) => snowpack.getUrlForPackage(pkgName);
-
-  const imports = new Set<string>();
-  const statics = new Set<string>();
-  const collectImportsOptions = { astroConfig, logging, resolvePackageUrl, mode };
-
-  let builtURLs: string[] = [];
-  let urlStats = createURLStats();
-  let importsToUrl = new Map<string, Set<string>>();
 
   const pages = await allPages(pageRoot);
 
+  // 0. erase build directory
+  await del(fileURLToPath(dist));
+
+  /**
+   * 1. Build Pages
+   * Source files are built in parallel and stored in memory. Most assets are also gathered here, too.
+   */
+  timer.build = performance.now();
   try {
     info(logging, 'build', yellow('! building pages...'));
-    // Vue also console.warns, this silences it.
-    const release = trapWarn();
+    const release = trapWarn(); // Vue also console.warns, this silences it.
     await Promise.all(
       pages.map(async (pathname) => {
         const filepath = new URL(`file://${pathname}`);
-
-        const pageType = getPageType(filepath);
-        const pageOptions: PageBuildOptions = { astroRoot, dist, filepath, runtime, site: astroConfig.buildOptions.site, sitemap: astroConfig.buildOptions.sitemap, statics };
-        let urls: string[];
-        if (pageType === 'collection') {
-          const { canonicalURLs, rss } = await buildCollectionPage(pageOptions);
-          urls = canonicalURLs;
-          builtURLs.push(...canonicalURLs);
-          if (rss) {
-            const basename = path
-              .relative(fileURLToPath(astroRoot) + '/pages', pathname)
-              .replace(/^\$/, '')
-              .replace(/\.astro$/, '');
-            await writeFilep(new URL(`file://${path.join(fileURLToPath(dist), 'feed', basename + '.xml')}`), rss, 'utf8');
-          }
-        } else {
-          const { canonicalURLs } = await buildStaticPage(pageOptions);
-          urls = canonicalURLs;
-          builtURLs.push(...canonicalURLs);
-        }
-
-        const dynamicImports = await collectDynamicImports(filepath, collectImportsOptions);
-        mergeSet(imports, dynamicImports);
-
-        // Keep track of urls and dynamic imports for stats.
-        for(const url of urls) {
-          urlStats.set(url, {
-            dynamicImports,
-            stats: []
-          });
-        }
-
-        for(let imp of dynamicImports) {
-          if(!importsToUrl.has(imp)) {
-            importsToUrl.set(imp, new Set<string>());
-          }
-          mergeSet(importsToUrl.get(imp)!, new Set(urls));
-        }
+        const buildPage = getPageType(filepath) === 'collection' ? buildCollectionPage : buildStaticPage;
+        await buildPage({
+          astroConfig,
+          buildState,
+          filepath,
+          logging,
+          mode,
+          resolvePackageUrl: (pkgName: string) => snowpack.getUrlForPackage(pkgName),
+          runtime,
+          site: astroConfig.buildOptions.site,
+        });
       })
     );
     info(logging, 'build', green('✔'), 'pages built.');
@@ -266,19 +96,130 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     await runtime.shutdown();
     return 1;
   }
+  debug(logging, 'build', `built pages [${stopTimer(timer.build)}]`);
 
-  info(logging, 'build', yellow('! scanning pages...'));
-  for (const pathname of await allPages(componentRoot)) {
-    mergeSet(imports, await collectDynamicImports(new URL(`file://${pathname}`), collectImportsOptions));
+  // after pages are built, build depTree
+  timer.deps = performance.now();
+  const scanPromises: Promise<void>[] = [];
+  for (const id of Object.keys(buildState)) {
+    if (buildState[id].contentType !== 'text/html') continue; // only scan HTML files
+    const pageDeps = findDeps(buildState[id].contents as string, {
+      astroConfig,
+      srcPath: buildState[id].srcPath,
+    });
+    depTree[id] = pageDeps;
+
+    // while scanning we will find some unbuilt files; make sure those are all built while scanning
+    for (const url of [...pageDeps.js, ...pageDeps.css, ...pageDeps.images]) {
+      if (!buildState[url])
+        scanPromises.push(
+          runtime.load(url).then((result) => {
+            if (result.statusCode !== 200) {
+              throw new Error((result as any).error); // there shouldn’t be a build error here
+            }
+            buildState[url] = {
+              srcPath: new URL(url, projectRoot),
+              contents: result.contents,
+              contentType: result.contentType || mime.getType(url) || '',
+            };
+          })
+        );
+    }
   }
-  info(logging, 'build', green('✔'), 'pages scanned.');
+  await Promise.all(scanPromises);
+  debug(logging, 'build', `scanned deps [${stopTimer(timer.deps)}]`);
 
-  if (imports.size > 0) {
+  /**
+   * 2. Bundling 1st Pass: In-memory
+   * Bundle CSS, and anything else that can happen in memory (for now, JS bundling happens after writing to disk)
+   */
+  info(logging, 'build', yellow('! optimizing css...'));
+  timer.prebundle = performance.now();
+  await Promise.all([
+    bundleCSS({ buildState, astroConfig, logging, depTree }).then(() => {
+      debug(logging, 'build', `bundled CSS [${stopTimer(timer.prebundle)}]`);
+    }),
+    // TODO: optimize images?
+  ]);
+  // TODO: minify HTML?
+  info(logging, 'build', green('✔'), 'css optimized.');
+
+  /**
+   * 3. Write to disk
+   * Also clear in-memory bundle
+   */
+  // collect stats output
+  const urlStats = await collectBundleStats(buildState, depTree);
+
+  // collect JS imports for bundling
+  const jsImports = await collectJSImports(buildState);
+
+  // write sitemap
+  if (astroConfig.buildOptions.sitemap && astroConfig.buildOptions.site) {
+    timer.sitemap = performance.now();
+    info(logging, 'build', yellow('! creating sitemap...'));
+    const sitemap = generateSitemap(buildState, astroConfig.buildOptions.site);
+    const sitemapPath = new URL('sitemap.xml', dist);
+    await fs.promises.mkdir(path.dirname(fileURLToPath(sitemapPath)), { recursive: true });
+    await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
+    info(logging, 'build', green('✔'), 'sitemap built.');
+    debug(logging, 'build', `built sitemap [${stopTimer(timer.sitemap)}]`);
+  } else if (astroConfig.buildOptions.sitemap) {
+    info(logging, 'tip', `Set "buildOptions.site" in astro.config.mjs to generate a sitemap.xml, or set "buildOptions.sitemap: false" to disable this message.`);
+  }
+
+  timer.write = performance.now();
+
+  // write to disk and free up memory
+  await Promise.all(
+    Object.keys(buildState).map(async (id) => {
+      const outPath = new URL(`.${id}`, dist);
+      const parentDir = path.posix.dirname(fileURLToPath(outPath));
+      await fs.promises.mkdir(parentDir, { recursive: true });
+      await fs.promises.writeFile(outPath, buildState[id].contents, buildState[id].encoding);
+      delete buildState[id];
+      delete depTree[id];
+    })
+  );
+  debug(logging, 'build', `wrote files to disk [${stopTimer(timer.write)}]`);
+
+  /**
+   * 4. Copy Public Assets
+   */
+  if (fs.existsSync(astroConfig.public)) {
+    info(logging, 'build', yellow(`! copying public folder...`));
+    timer.public = performance.now();
+    const pub = astroConfig.public;
+    const publicFiles = (await new fdir().withFullPaths().crawl(fileURLToPath(pub)).withPromise()) as string[];
+    await Promise.all(
+      publicFiles.map(async (filepath) => {
+        const fileUrl = new URL(`file://${filepath}`);
+        const rel = path.relative(fileURLToPath(pub), fileURLToPath(fileUrl));
+        const outPath = new URL(path.join('.', rel), dist);
+        await fs.promises.mkdir(path.dirname(fileURLToPath(outPath)), { recursive: true });
+        await fs.promises.copyFile(fileUrl, outPath);
+      })
+    );
+    debug(logging, 'build', `copied public folder [${stopTimer(timer.public)}]`);
+    info(logging, 'build', green('✔'), 'public folder copied.');
+  } else {
+    if (path.basename(astroConfig.public.toString()) !== 'public') {
+      info(logging, 'tip', yellow(`! no public folder ${astroConfig.public} found...`));
+    }
+  }
+
+  /**
+   * 5. Bundling 2nd pass: On disk
+   * Bundle JS, which requires hard files to optimize
+   */
+  info(logging, 'build', yellow(`! bundling...`));
+  if (jsImports.size > 0) {
     try {
-      info(logging, 'build', yellow('! bundling client-side code.'));
-      const bundleStats = await bundle(imports, { dist, runtime, astroConfig });
-      mapBundleStatsToURLStats(urlStats, importsToUrl, bundleStats);
-      info(logging, 'build', green('✔'), 'bundling complete.');
+      timer.bundleJS = performance.now();
+      const jsStats = await bundleJS(jsImports, { dist: new URL(dist + '/', projectRoot), runtime });
+      mapBundleStatsToURLStats({ urlStats, depTree, bundleStats: jsStats });
+      debug(logging, 'build', `bundled JS [${stopTimer(timer.bundleJS)}]`);
+      info(logging, 'build', green(`✔`), 'bundling complete.');
     } catch (err) {
       error(logging, 'build', err);
       await runtime.shutdown();
@@ -286,45 +227,51 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     }
   }
 
-  for (let url of statics) {
-    const outPath = new URL('.' + url, dist);
-    const result = await runtime.load(url);
-
-    await writeResult({ srcPath: url, result, outPath, encoding: null });
-  }
-
-  if (existsSync(astroConfig.public)) {
-    info(logging, 'build', yellow(`! copying public folder...`));
-    const pub = astroConfig.public;
-    const publicFiles = (await new fdir().withFullPaths().crawl(fileURLToPath(pub)).withPromise()) as string[];
-    for (const filepath of publicFiles) {
-      const fileUrl = new URL(`file://${filepath}`);
-      const rel = path.relative(pub.pathname, fileUrl.pathname);
-      const outUrl = new URL('./' + rel, dist);
-
-      const bytes = await readFile(fileUrl);
-      await writeFilep(outUrl, bytes, null);
-    }
-    info(logging, 'build', green('✔'), 'public folder copied.');
-  } else {
-    if (path.basename(astroConfig.public.toString()) !== 'public') {
-      info(logging, 'tip', yellow(`! no public folder ${astroConfig.public} found...`));
-    }
-  }
-  // build sitemap
-  if (astroConfig.buildOptions.sitemap && astroConfig.buildOptions.site) {
-    info(logging, 'build', yellow('! creating a sitemap...'));
-    const sitemap = generateSitemap(builtURLs.map((url) => ({ canonicalURL: canonicalURL(url, astroConfig.buildOptions.site) })));
-    await writeFile(new URL('./sitemap.xml', dist), sitemap, 'utf8');
-    info(logging, 'build', green('✔'), 'sitemap built.');
-  } else if (astroConfig.buildOptions.sitemap) {
-    info(logging, 'tip', `Set "buildOptions.site" in astro.config.mjs to generate a sitemap.xml`);
-  }
-
-  // Log in a table-like view.
-  logURLStats(logging, urlStats, builtURLs);
-
+  /**
+   * 6. Print stats
+   */
+  logURLStats(logging, urlStats);
   await runtime.shutdown();
   info(logging, 'build', bold(green('▶ Build Complete!')));
   return 0;
+}
+
+/** Given an HTML string, collect <link> and <img> tags */
+export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL }): PageDependencies {
+  const pageDeps: PageDependencies = {
+    js: new Set<string>(),
+    css: new Set<string>(),
+    images: new Set<string>(),
+  };
+
+  const $ = cheerio.load(html);
+
+  $('script').each((i, el) => {
+    const src = $(el).attr('src');
+    if (src && !isRemote(src)) {
+      pageDeps.js.add(getDistPath(src, { astroConfig, srcPath }));
+    }
+  });
+
+  $('link[href]').each((i, el) => {
+    const href = $(el).attr('href');
+    if (href && !isRemote(href) && ($(el).attr('rel') === 'stylesheet' || $(el).attr('type') === 'text/css' || href.endsWith('.css'))) {
+      const dist = getDistPath(href, { astroConfig, srcPath });
+      pageDeps.css.add(dist);
+    }
+  });
+
+  $('img[src]').each((i, el) => {
+    const src = $(el).attr('src');
+    if (src && !isRemote(src)) {
+      pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
+    }
+  });
+
+  // sort (makes things a bit more predictable)
+  pageDeps.js = sortSet(pageDeps.js);
+  pageDeps.css = sortSet(pageDeps.css);
+  pageDeps.images = sortSet(pageDeps.images);
+
+  return pageDeps;
 }

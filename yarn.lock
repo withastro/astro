@@ -1529,6 +1529,11 @@
   dependencies:
     "@types/unist" "*"
 
+"@types/mime@^2.0.3":
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/@types/mime/-/mime-2.0.3.tgz#c893b73721db73699943bfc3653b1deb7faa4a3a"
+  integrity sha512-Jus9s4CDbqwocc5pOAnh8ShfrnMcPHuJYzVcSUU7lrh8Ni5HuIqX3oilL86p3dlTrk0LzHRCgA/GQ7uNCw6l2Q==
+
 "@types/minimatch@*", "@types/minimatch@^3.0.3":
   version "3.0.4"
   resolved "https://registry.npmjs.org/@types/minimatch/-/minimatch-3.0.4.tgz"
@@ -2203,117 +2208,6 @@ astral-regex@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/astral-regex/-/astral-regex-2.0.0.tgz"
   integrity sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==
-
-astro@0.0.11:
-  version "0.0.11"
-  resolved "https://registry.yarnpkg.com/astro/-/astro-0.0.11.tgz#a028fdab35f05cf53309865facaf4b686435b4c5"
-  integrity sha512-cTS1isXyeQct3G/PFgImhzVuJ6GzjKjjZCFVHfpWFRSF/nIH1kToU91VnAKuRbgMaOlPPQM7BI3LOvmwkxYMCA==
-  dependencies:
-    "@babel/code-frame" "^7.12.13"
-    "@babel/generator" "^7.13.9"
-    "@babel/parser" "^7.13.15"
-    "@babel/traverse" "^7.13.15"
-    "@snowpack/plugin-sass" "^1.4.0"
-    "@snowpack/plugin-svelte" "^3.6.1"
-    "@snowpack/plugin-vue" "^2.4.0"
-    "@vue/server-renderer" "^3.0.10"
-    acorn "^7.4.0"
-    astro-parser "0.0.9"
-    astro-prism "0.0.2"
-    autoprefixer "^10.2.5"
-    cheerio "^1.0.0-rc.5"
-    domhandler "^4.1.0"
-    es-module-lexer "^0.4.1"
-    esbuild "^0.10.1"
-    estree-walker "^3.0.0"
-    fast-xml-parser "^3.19.0"
-    fdir "^5.0.0"
-    find-up "^5.0.0"
-    github-slugger "^1.3.0"
-    gray-matter "^4.0.2"
-    gzip-size "^6.0.0"
-    hast-to-hyperscript "~9.0.0"
-    kleur "^4.1.4"
-    locate-character "^2.0.5"
-    magic-string "^0.25.3"
-    micromark "^2.11.4"
-    micromark-extension-gfm "^0.3.3"
-    micromark-extension-mdx-expression "^0.3.2"
-    micromark-extension-mdx-jsx "^0.3.3"
-    moize "^6.0.1"
-    node-fetch "^2.6.1"
-    picomatch "^2.2.3"
-    postcss "^8.2.8"
-    postcss-icss-keyframes "^0.2.1"
-    preact "^10.5.13"
-    preact-render-to-string "^5.1.18"
-    prismjs "^1.23.0"
-    react "^17.0.1"
-    react-dom "^17.0.1"
-    rehype-parse "^7.0.1"
-    rollup "^2.43.1"
-    rollup-plugin-terser "^7.0.2"
-    sass "^1.32.8"
-    snowpack "^3.3.7"
-    source-map-support "^0.5.19"
-    string-width "^5.0.0"
-    svelte "^3.35.0"
-    unified "^9.2.1"
-    vue "^3.0.10"
-    yargs-parser "^20.2.7"
-
-astro@0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/astro/-/astro-0.0.9.tgz#c69e05e4d9ecd61f029833738548cd57d3d41933"
-  integrity sha512-D+HEH854M22syvp57JT9CLpO2kU35pdYgttpYQiuAFTmZ0N+8r4QqEdOT3PaXAdue6JY0dybVTskVMQ9mK1QbA==
-  dependencies:
-    "@babel/code-frame" "^7.12.13"
-    "@babel/generator" "^7.13.9"
-    "@babel/parser" "^7.13.15"
-    "@babel/traverse" "^7.13.15"
-    "@snowpack/plugin-sass" "^1.4.0"
-    "@snowpack/plugin-svelte" "^3.6.1"
-    "@snowpack/plugin-vue" "^2.4.0"
-    "@vue/server-renderer" "^3.0.10"
-    acorn "^7.4.0"
-    autoprefixer "^10.2.5"
-    cheerio "^1.0.0-rc.5"
-    es-module-lexer "^0.4.1"
-    esbuild "^0.10.1"
-    estree-walker "^3.0.0"
-    fast-xml-parser "^3.19.0"
-    fdir "^5.0.0"
-    find-up "^5.0.0"
-    github-slugger "^1.3.0"
-    gray-matter "^4.0.2"
-    hast-to-hyperscript "^9.0.1"
-    kleur "^4.1.4"
-    locate-character "^2.0.5"
-    magic-string "^0.25.3"
-    micromark "^2.11.4"
-    micromark-extension-gfm "^0.3.3"
-    micromark-extension-mdx-expression "^0.3.2"
-    micromark-extension-mdx-jsx "^0.3.3"
-    moize "^6.0.1"
-    node-fetch "^2.6.1"
-    picomatch "^2.2.3"
-    postcss "^8.2.8"
-    postcss-icss-keyframes "^0.2.1"
-    preact "^10.5.13"
-    preact-render-to-string "^5.1.18"
-    prismjs "^1.23.0"
-    react "^17.0.1"
-    react-dom "^17.0.1"
-    rehype-parse "^7.0.1"
-    rollup "^2.43.1"
-    rollup-plugin-terser "^7.0.2"
-    sass "^1.32.8"
-    snowpack "^3.3.7"
-    svelte "^3.35.0"
-    tiny-glob "^0.2.8"
-    unified "^9.2.1"
-    vue "^3.0.10"
-    yargs-parser "^20.2.7"
 
 async-each-series@0.1.1:
   version "0.1.1"
@@ -3000,7 +2894,7 @@ cheerio-select@^1.3.0:
     domhandler "^4.2.0"
     domutils "^2.6.0"
 
-cheerio@^1.0.0-rc.3, cheerio@^1.0.0-rc.5:
+cheerio@^1.0.0-rc.3, cheerio@^1.0.0-rc.6:
   version "1.0.0-rc.6"
   resolved "https://registry.npmjs.org/cheerio/-/cheerio-1.0.0-rc.6.tgz"
   integrity sha512-hjx1XE1M/D5pAtMgvWwE21QClmAEeGHOIDfycgmndisdNgI6PE1cGRQkMGBcsbUbmEQyWu5PJLUcAOjtQS8DWw==
@@ -3877,7 +3771,7 @@ del@^2.2.0:
 
 del@^6.0.0:
   version "6.0.0"
-  resolved "https://registry.npmjs.org/del/-/del-6.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/del/-/del-6.0.0.tgz#0b40d0332cea743f1614f818be4feb717714c952"
   integrity sha512-1shh9DQ23L16oXSZKB2JxpL7iMy2E0S9d517ptA1P8iw0alkPtQcrKH7ru31rYtKwF499HkTu+DRzq3TCKDFRQ==
   dependencies:
     globby "^11.0.1"
@@ -5556,7 +5450,7 @@ hash-sum@^2.0.0:
   resolved "https://registry.npmjs.org/hash-sum/-/hash-sum-2.0.0.tgz"
   integrity sha512-WdZTbAByD+pHfl/g9QSsBIIwy8IT+EsPiKDs0KNX+zSHhdDLFKdZu0BQHljvO+0QI/BasbMSUa8wYNCZTvhslg==
 
-hast-to-hyperscript@^9.0.1, hast-to-hyperscript@~9.0.0:
+hast-to-hyperscript@~9.0.0:
   version "9.0.1"
   resolved "https://registry.npmjs.org/hast-to-hyperscript/-/hast-to-hyperscript-9.0.1.tgz"
   integrity sha512-zQgLKqF+O2F72S1aa4y2ivxzSlko3MAvxkwG8ehGmNiqd98BIN3JM1rAJPmplEyLmGLO2QZYJtIneOSZ2YbJuA==
@@ -7518,6 +7412,11 @@ mime@1.4.1:
   version "1.4.1"
   resolved "https://registry.npmjs.org/mime/-/mime-1.4.1.tgz"
   integrity sha512-KI1+qOZu5DcW6wayYHSzR/tXKCDC5Om4s1z2QJjDULzLcmf3DvzS7oluY4HCTrc+9FiKmWUgeNLg7W3uIQvxtQ==
+
+mime@^2.5.2:
+  version "2.5.2"
+  resolved "https://registry.yarnpkg.com/mime/-/mime-2.5.2.tgz#6e3dc6cc2b9510643830e5f19d5cb753da5eeabe"
+  integrity sha512-tqkh47FzKeCPD2PUiPB6pkbMzsCasjxAfC62/Wap5qrUWcb+sFasXUC5I3gYM5iBM8v/Qpn4UK0x+j0iHyFPDg==
 
 mimic-fn@^2.1.0:
   version "2.1.0"
@@ -10193,6 +10092,11 @@ shelljs@^0.8.3:
     glob "^7.0.0"
     interpret "^1.0.0"
     rechoir "^0.6.2"
+
+shorthash@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/shorthash/-/shorthash-0.0.2.tgz#59b268eecbde59038b30da202bcfbddeb2c4a4eb"
+  integrity sha1-WbJo7sveWQOLMNogK8+93rLEpOs=
 
 side-channel@^1.0.4:
   version "1.0.4"
