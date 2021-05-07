@@ -1,4 +1,5 @@
 import type { AstroConfig } from '../@types/astro';
+import { performance } from 'perf_hooks';
 
 import path from 'path';
 import { fileURLToPath, URL } from 'url';
