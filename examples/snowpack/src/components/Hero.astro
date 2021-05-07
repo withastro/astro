@@ -1,14 +1,17 @@
+---
+import Button from './Button.astro';
+---
+
 <style lang="scss">
-  @use '../../public/css/var' as *;
-  @use '../../public/css/animations' as *;
+  @use '../../public/styles/var' as *;
+  @use '../../public/styles/animations' as *;
 
   .hero {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 50vh;
-    min-height: 20rem;
-    max-height: 30rem;
+    max-height: 24rem;
     color: #111;
     line-height: 1.5;
     background: #2a85ca40;
@@ -21,6 +24,8 @@
 
     @media (min-width: $breakpoint-l) {
       margin: 0;
+      min-height: 24rem;
+      max-height: 30rem;
     }
 
     a {
@@ -84,10 +89,10 @@
     margin: 0 auto 0.75rem;
     font-weight: 900;
     font-size: 3.5rem;
-    font-weight: 700;
+    font-weight: 900;
     font-family: $heading;
     line-height: 1;
-    letter-spacing: -0.045em;
+    letter-spacing: -0.07em;
     text-align: center;
     opacity: 0.9;
 
@@ -105,7 +110,7 @@
     font-family: $heading;
     font-size: 2rem;
     line-height: 1;
-    letter-spacing: -1px;
+    letter-spacing: -0.05em;
     text-align: center;
 
     @media (min-width: $breakpoint-m) {
@@ -114,17 +119,15 @@
   }
 
   .copy-button {
-    display: flex;
+    display: none;
     flex: none;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
     min-width: 292px;
-    padding: 0.75rem 1.25rem;
-    padding-bottom: 0.75rem;
+    padding: 0.5em 1em;
     font-size: 100%;
-    font-family: Menlo, ui-monospace, SFMono-Regular, Monaco, Consolas,
-      Liberation Mono, Courier New, monospace;
+    font-family: "Menlo", "ui-monospace", "SFMono-Regular", "Monaco", "Consolas", "Liberation Mono", "Courier New", monospace;
     line-height: 1.5rem;
     background-color: white;
     border: 1px solid #0006;
@@ -132,20 +135,14 @@
     cursor: pointer;
     @include animation-copy-button;
 
+    @media (min-width: $breakpoint-m) {
+      display: flex;
+    }
+
     svg,
     .faded {
       color: #ccc;
       transition: color 0.1s ease-out;
-    }
-  }
-
-  // I don't think this is used
-  .copy-button.active {
-    animation: pulse 0.5s;
-    animation-iteration-count: 1;
-
-    svg {
-      color: #ccc;
     }
   }
 </style>
@@ -156,7 +153,7 @@
     <p class="header-snowpack-subtitle">The faster frontend build tool.</p>
 
     <div class="hero-cta">
-      <a href="/tutorials/quick-start" class="button button-primary">Get started</a>
+      <a href="/tutorials/quick-start"><Button style="primary">Get started</Button></a>
       <div style="margin: 0.5rem"></div>
       <button id="copy-button" class="copy-button hidden-mobile" data-clipboard-text="npm install snowpack">
         <span class="faded" style="margin-right: 0.75rem;">$</span>

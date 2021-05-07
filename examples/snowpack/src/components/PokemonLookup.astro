@@ -6,11 +6,13 @@ const pokemonData = await pokemonDataReq.json();
 ---
 
 <style>
-.mb1 { margin-bottom: 1rem; }
+  .mb1 {
+    margin-bottom: 1rem;
+  }
 </style>
 
 <div class="notification mb1">
-    <div class="container">
-        Pokemon #{number} is: {pokemonData.name}
-    </div>
+  <div class="wrapper">
+    Pokemon #{number} is: {pokemonData.name}
+  </div>
 </div>

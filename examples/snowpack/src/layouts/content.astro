@@ -12,20 +12,96 @@ export let content: any;
 
 <head>
   <BaseHead title={content.title} description={content.description} permalink="TODO" />
+  <style lang="scss">
+    @use "../../public/styles/var" as *;
+
+    $nav-height: 3.5rem; // height of top nav bar
+
+    $height: calc(100vh - #{$nav-height});
+
+    .layout {
+      display: grid;
+      grid-template-areas: "contents" "main";
+      grid-gap: 2rem;
+
+      @media (min-width: $breakpoint-m) {
+        grid-template-areas: "nav contents" "nav main";
+      }
+
+      @media (min-width: $breakpoint-l) {
+        grid-template-areas: "nav main contents";
+        grid-template-columns: 16rem auto 20rem;
+      }
+
+      // components
+      &-nav {
+        grid-area: nav;
+
+        @media (min-width: $breakpoint-m) {
+          position: sticky;
+          min-height: $height;
+          height: $height;
+          top: $nav-height;
+        }
+      }
+
+      &-main {
+        grid-area: main;
+      }
+
+      &-contents {
+        @media (min-width: $breakpoint-l) {
+          position: sticky;
+          min-height: $height;
+          height: $height;
+          top: $nav-height;
+        }
+      }
+    }
+
+    :global(h3) {
+      position: relative;
+    }
+
+    :global(.header-link) {
+      position: absolute;
+      top: 0;
+      right: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      font-weight: 400;
+      font-size: 0.75em;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      color: $light-grey;
+      opacity: 0;
+      transition: opacity 100ms linear, color 100ms linear;
+    }
+
+    :global(.header-link:hover) {
+      color: $rainbow-blue;
+    }
+
+    :global(h3:hover .header-link) {
+      opacity: 1;
+    }
+  </style>
 </head>
 
 <body>
   <BaseLayout>
-    <div class="container">
-      <section class="snow-view__docs has-subnav">
-
-        <aside id="nav-primary" class="snow-view-nav">
+    <div class="wrapper">
+      <section class="layout">
+        <aside id="nav-primary" class="layout-nav pt4">
           <Menu />
         </aside>
 
-        <Subnav title={content.title} headers={content.headers} />
+        <div class="pt4">
+          <Subnav title={content.title} headers={content.headers} />
+        </div>
 
-        <article class="snow-view-main">
+        <article class="layout-main">
           <div class="content">
             <h2 class="content-title">
               {content.title}
