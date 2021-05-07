@@ -19,8 +19,11 @@ export default function (module: Script): Transformer {
       html: {
         Element: {
           enter(node) {
-            if (node.name !== 'code') return;
-            const className = getAttrValue(node.attributes, 'class') || '';
+            if (node.name !== 'pre') return;
+            const codeEl = node.children && node.children[0];
+            if (!codeEl || codeEl.name !== 'code') return;
+
+            const className = getAttrValue(codeEl.attributes, 'class') || '';
             const classes = className.split(' ');
 
             let lang;
@@ -33,10 +36,9 @@ export default function (module: Script): Transformer {
 
             if (!lang) return;
 
-            let code;
-            if (node.children?.length) {
-              code = node.children[0].data;
-            }
+            let codeData = codeEl.children && codeEl.children[0];
+            if (!codeData) return;
+            let code = codeData.data as string;
 
             const repl = {
               start: 0,
