@@ -3,16 +3,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "pwa-extensionHost",
-      "request": "launch",
       "name": "Launch Client",
+      "type": "extensionHost",
+      "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": ["--extensionDevelopmentPath=${workspaceRoot}"],
-      "outFiles": ["${workspaceRoot}/tools/astro-vscode/dist/**/*.js"],
-      "preLaunchTask": {
-        "type": "npm",
-        "script": "build:vscode"
-      }
+      "args": ["--extensionDevelopmentPath=${workspaceRoot}/tools/astro-vscode"],
+      "outFiles": ["${workspaceRoot}/tools/astro-vscode/dist/**/*.js"]
     },
     {
       "type": "node",
@@ -20,7 +16,8 @@
       "name": "Attach to Server",
       "port": 6040,
       "restart": true,
-      "outFiles": ["${workspaceRoot}/tools/astro-languageserver/dist/**/*.js"]
+      "outFiles": ["${workspaceRoot}/tools/astro-languageserver/dist/**/*.js"],
+      "skipFiles": ["<node_internals>/**"]
     }
   ],
   "compounds": [

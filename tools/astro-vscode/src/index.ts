@@ -17,7 +17,7 @@ export async function activate(context: vscode.ExtensionContext) {
 /**  */
 function createLanguageService(context: vscode.ExtensionContext, mode: 'doc', id: string, name: string, port: number) {
   const { workspace } = vscode;
-  const serverModule = context.asAbsolutePath(require.resolve('astro-languageserver'));
+  const serverModule = require.resolve('astro-languageserver/bin/server.js');
   const debugOptions = { execArgv: ['--nolazy', '--inspect=' + port] };
   const serverOptions: lsp.ServerOptions = {
     run: { module: 'astro-languageserver', transport: lsp.TransportKind.ipc },
@@ -60,6 +60,8 @@ function createLanguageService(context: vscode.ExtensionContext, mode: 'doc', id
     };
     const disposable = activateTagClosing(tagRequestor, { astro: true }, 'html.autoClosingTags');
     context.subscriptions.push(disposable);
+  }).catch(err => {
+    console.error('Astro, unable to load language server.', err);
   });
 
   return client;
