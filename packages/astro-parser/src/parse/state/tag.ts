@@ -1,7 +1,6 @@
 // @ts-nocheck
 
 import read_expression from '../read/expression.js';
-import read_markdown from '../read/markdown.js';
 import read_style from '../read/style.js';
 import { decode_character_references, closing_tag_omitted } from '../utils/html.js';
 import { is_void } from '../../utils/names.js';
@@ -244,11 +243,6 @@ export default function tag(parser: Parser) {
   if (self_closing) {
     // don't push self-closing elements onto the stack
     element.end = parser.index;
-  } else if (name === 'Markdown') {
-    const { start, end, children } = read_markdown(parser);
-    element.start = start;
-    element.end = end;
-    element.children = children;
   } else if (name === 'textarea') {
     // special case
     element.children = read_sequence(parser, () => parser.template.slice(parser.index, parser.index + 11) === '</textarea>');

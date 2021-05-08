@@ -307,6 +307,9 @@ interface CodegenState {
   filename: string;
   components: Components;
   css: string[];
+  markers: {
+    insideMarkdown: boolean|string;
+  };
   importExportStatements: Set<string>;
   dynamicImports: DynamicImportMap;
 }
@@ -550,7 +553,7 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
 
   let outSource = '';
   walk(enterNode, {
-    enter(node: TemplateNode) {
+    enter(node: TemplateNode, parent: TemplateNode) {
       switch (node.type) {
         case 'Expression': {
           let children: string[] = [];
@@ -596,6 +599,9 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           const COMPONENT_NAME_SCANNER = /^[A-Z]/;
           if (!COMPONENT_NAME_SCANNER.test(name)) {
             outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
+            if (state.markers.insideMarkdown) {
+              outSource += `,h(__astroMarkdownRender, null`
+            }
             return;
           }
           const [componentName, componentKind] = name.split(':');
@@ -605,7 +611,9 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           }
           if (componentImportData.type === '.astro' && componentImportData.url.startsWith('astro/components')) {
             if (componentName === 'Markdown') {
-              outSource += `h(__astroMarkdownRender, ${attributes ? generateAttributes(attributes) : 'null'}`
+              const attributeStr = attributes ? generateAttributes(attributes) : 'null';
+              state.markers.insideMarkdown = attributeStr;
+              outSource += `h(__astroMarkdownRender, ${attributeStr}`
               return;
             }
           }
@@ -615,6 +623,10 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           }
 
             outSource += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+            if (state.markers.insideMarkdown) {
+              const attributeStr = state.markers.insideMarkdown;
+              outSource += `,h(__astroMarkdownRender, ${attributeStr}`
+            }
           } catch (err) {
             // handle errors in scope with filename
             const rel = filename.replace(fileURLToPath(astroConfig.projectRoot), '');
@@ -632,9 +644,15 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           this.skip();
           return;
         }
+        case 'CodeFence': {
+          outSource += ',' + JSON.stringify(node.raw);
+          return;
+        }
         case 'Text': {
           const text = getTextFromAttribute(node);
-          if (!text.trim()) {
+          // Whitespace is significant if we are immediately inside of <Markdown>,
+          // but not if we're inside of another component in <Markdown>
+          if (parent.name !== 'Markdown' && !text.trim()) {
             return;
           }
           outSource += ',' + JSON.stringify(text);
@@ -647,6 +665,7 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
     leave(node, parent, prop, index) {
       switch (node.type) {
         case 'Text':
+        case 'CodeFence':
         case 'Attribute':
         case 'Comment':
         case 'Fragment':
@@ -658,9 +677,16 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
         case 'Body':
         case 'Title':
         case 'Element':
-        case 'InlineComponent':
+        case 'InlineComponent': {
+          if (node.type === 'InlineComponent' && node.name === 'Markdown') {
+            state.markers.insideMarkdown = false;
+          }
+          if (state.markers.insideMarkdown) {
+            outSource += ')';
+          }
           outSource += ')';
           return;
+        }
         case 'Style': {
           this.remove(); // this will be optimized in a global CSS file; remove so it‘s not accidentally inlined
           return;
@@ -689,8 +715,11 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
     filename,
     components: {},
     css: [],
+    markers: {
+      insideMarkdown: false
+    },
     importExportStatements: new Set(),
-    dynamicImports: new Map(),
+    dynamicImports: new Map()
   };
 
   const { script, componentPlugins, createCollection } = compileModule(ast.module, state, compileOptions);
