@@ -36,17 +36,15 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
       }
       value = `<div data-astro-id="${innerContext['data-astro-id']}" style="display:contents">${value}</div>`;
 
-      const script = `
-        ${typeof wrapperStart === 'function' ? wrapperStart(innerContext) : wrapperStart}
-        ${_imports(renderContext)}
-        ${renderer.render({
+      const script = `${typeof wrapperStart === 'function' ? wrapperStart(innerContext) : wrapperStart}
+${_imports(renderContext)}
+${renderer.render({
           ...innerContext,
           props: serializeProps(props),
           children: `[${childrenToH(renderer, children) ?? ''}]`,
           childrenAsString: `\`${children}\``,
         })}
-        ${typeof wrapperEnd === 'function' ? wrapperEnd(innerContext) : wrapperEnd}
-      `;
+${typeof wrapperEnd === 'function' ? wrapperEnd(innerContext) : wrapperEnd}`;
 
       return [value, `<script type="module">${script.trim()}</script>`].join('\n');
     };

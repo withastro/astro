@@ -1,14 +1,5 @@
 import { renderMarkdown } from '../compiler/utils.js';
 
-/** Remove leading indentation based on first line */
-function normalize(ch: string[]) {
-  const str = ch.join('')
-    .replace(/^\\n+/, '') // remove leading new lines
-	let arr = str.match(/^[ \t]*(?=\S)/gm);
-	let min = !!arr && Math.min(...arr.map(x => x.length === 0 ? Infinity : x.length));
-	return (!arr || !min) ? str : str.replace(new RegExp(`^[ \\t]{${min}}`, 'gm'), '');
-}
-
 /** 
   * Functional component which uses Astro's built-in Markdown rendering 
   * to render out its children.
@@ -17,8 +8,19 @@ function normalize(ch: string[]) {
   * by the parser and Astro, so at this point we're just rendering 
   * out plain markdown, no need for JSX support
   */
-export default function Markdown(_props: any, ...children: string[]): any {
-  const text = normalize(children);
-  const { content } = renderMarkdown(text, { mode: '.md' });
+export default function Markdown(props: { $scope: string|null }, ...children: string[]): any {
+  const { $scope = null } = props ?? {};
+  const text = dedent(children.join('').trimEnd());
+  let { content } = renderMarkdown(text, { $scope, mode: '.md' });
+  if (content.split('<p>').length === 2) {
+    content = content.replace(/^\<p\>/i, '').replace(/\<\/p\>$/i, '');
+  }
   return content;
+}
+
+/** Remove leading indentation based on first line */
+function dedent(str: string) {
+  let arr = str.match(/^[ \t]*(?=\S)/gm);
+  let first = !!arr && arr.find(x => x.length > 0)?.length;
+  return (!arr || !first) ? str : str.replace(new RegExp(`^[ \\t]{0,${first}}`, 'gm'), '');
 }
