@@ -222,14 +222,19 @@ async function gatherRuntimes({ astroConfig, buildState, filepath, logging, reso
   for (const componentImport of componentImports) {
     const importUrl = componentImport.source.value;
     const componentType = path.posix.extname(importUrl);
-    const componentName = path.posix.basename(importUrl, componentType);
-    const plugin = extensions[componentType] || defaultExtensions[componentType];
-    plugins.add(plugin);
-    components[componentName] = {
-      plugin,
-      type: componentType,
-      specifier: importUrl,
-    };
+    for (const specifier of componentImport.specifiers) {
+      if (specifier.type === 'ImportDefaultSpecifier') {
+        const componentName = specifier.local.name;
+        const plugin = extensions[componentType] || defaultExtensions[componentType];
+        plugins.add(plugin);
+        components[componentName] = {
+          plugin,
+          type: componentType,
+          specifier: importUrl,
+        };
+        break;
+      }
+    }
   }
 
   const dynamic = await acquireDynamicComponentImports(plugins, resolvePackageUrl);
