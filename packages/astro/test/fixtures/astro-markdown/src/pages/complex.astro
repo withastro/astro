@@ -1,4 +1,5 @@
 ---
+import Markdown from 'astro/components/Markdown.astro';
 import Layout from '../layouts/content.astro';
 import Hello from '../components/Hello.jsx';
 import Counter from '../components/Counter.jsx';
@@ -7,11 +8,13 @@ export const title = 'My Blog Post';
 export const description = 'This is a post about some stuff.';
 ---
 
-<Layout>
+<Markdown>
+  <Layout>
 
-## Interesting Topic
+    ## Interesting Topic
 
-<Hello name={`world`} />
-<Counter:load />
+    <Hello name={`world`} />
+    <Counter:load />
 
-</Layout>
+  </Layout>
+</Markdown>
