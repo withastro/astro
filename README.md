@@ -63,12 +63,12 @@ Even though nearly-everything [is configurable][docs-config], we recommend start
 
 #### 🚦 Routing
 
-Routing happens in `src/pages/*`. Every `.astro` or `.md.astro` file in this folder corresponds with a public URL. For example:
+Routing happens in `src/pages/*`. Every `.astro` or `.md` file in this folder corresponds with a public URL. For example:
 
 | Local file                             | Public URL                      |
 | :------------------------------------- | :------------------------------ |
 | `src/pages/index.astro`                | `/index.html`                   |
-| `src/pages/post/my-blog-post.md.astro` | `/post/my-blog-post/index.html` |
+| `src/pages/post/my-blog-post.md`       | `/post/my-blog-post/index.html` |
 
 #### 🗂 Static Assets
 

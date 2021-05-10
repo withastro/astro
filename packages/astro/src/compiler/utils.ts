@@ -4,11 +4,10 @@ import matter from 'gray-matter';
 // import gfmHtml from 'micromark-extension-gfm/html.js';
 import { createMarkdownHeadersCollector } from './markdown/micromark-collect-headers.js';
 import { encodeMarkdown } from './markdown/micromark-encode.js';
-import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';
 
 export interface MarkdownRenderingOptions {
   $scope?: string|null;
-  mode?: '.md'|'.md.astro';
+  mode?: '.md';
   extensions?: any[];
   htmlExtensions?: any[];
 }
@@ -20,12 +19,6 @@ export function renderMarkdown(contents: string, opts?: MarkdownRenderingOptions
   const { headers, headersExtension } = createMarkdownHeadersCollector();
   
   // TODO: scope styles for immediate Markdown children?
-
-  if (mode === '.md.astro') {
-    const astroMdx = encodeAstroMdx();
-    extensions.push(...astroMdx.htmlAstro);
-    htmlExtensions.push(astroMdx.mdAstro);
-  }
 
   const mdHtml = micromark(content, {
     allowDangerousHtml: true,
