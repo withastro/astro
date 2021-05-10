@@ -70,19 +70,6 @@ ${content}`;
  * .md -> .jsx
  * Core function processing Markdown, but along the way also calls convertAstroToJsx().
  */
-async function convertAstroMdToJsx(
-  contents: string,
-  { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
-): Promise<TransformResult> {
-  const raw = await convertAstroMdToAstroSource(contents);
-  const convertOptions = { compileOptions, filename, fileID };
-  return await convertAstroToJsx(raw, convertOptions);
-}
-
-/**
- * .md -> .jsx
- * Core function processing Markdown, but along the way also calls convertAstroToJsx().
- */
 async function convertMdToJsx(
   contents: string,
   { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
