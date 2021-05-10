@@ -28,7 +28,7 @@ export function createMarkdownHeadersCollector(scope: string|null) {
         atxHeading(node: any) {
           currentHeader.slug = slugger.slug(currentHeader.text);
           this.resume();
-          this.tag(`<h${currentHeader.depth} id="${currentHeader.slug}"${scope ? `class="${scope}"` : ''}>`);
+          this.tag(`<h${currentHeader.depth} id="${currentHeader.slug}"${scope ? ` class="${scope}"` : ''}>`);
           this.raw(currentHeader.text);
           this.tag(`</h${currentHeader.depth}>`);
         },
