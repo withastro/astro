@@ -420,15 +420,9 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
     for (const componentImport of componentImports) {
       const importUrl = componentImport.source.value;
-      let componentType = path.posix.extname(importUrl);
-      if (!componentType) {
-        if (path.posix.dirname(importUrl) === 'astro') {
-          componentType = '.astro';
-        }
-      }
+      const componentType = path.posix.extname(importUrl);
       const specifier = componentImport.specifiers[0];
       if (!specifier) continue; // this is unused
-      
       // set componentName to default import if used (user), or use filename if no default import (mostly internal use)
       const componentName = importSpecifierTypes.has(specifier.type) ? specifier.local.name : path.posix.basename(importUrl, componentType);
       const plugin = extensions[componentType] || defaultExtensions[componentType];
@@ -610,7 +604,7 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           if (!componentImportData) {
             throw new Error(`Unknown Component: ${componentName}`);
           }
-          if (componentImportData.type === '.astro' && componentImportData.url.startsWith('astro/components')) {
+          if (componentImportData.type === '.astro') {
             if (componentName === 'Markdown') {
               const attributeStr = attributes ? generateAttributes(attributes) : 'null';
               state.markers.insideMarkdown = attributeStr;
