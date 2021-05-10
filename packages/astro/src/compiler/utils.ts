@@ -1,6 +1,7 @@
 import micromark from 'micromark';
 import gfmSyntax from 'micromark-extension-gfm';
 import matter from 'gray-matter';
+import { createMicromarkScopeStyles } from './markdown/micromark-scope-styles.js';
 // import gfmHtml from 'micromark-extension-gfm/html.js';
 import { createMarkdownHeadersCollector } from './markdown/micromark-collect-headers.js';
 import { encodeMarkdown } from './markdown/micromark-encode.js';
@@ -16,9 +17,13 @@ export interface MarkdownRenderingOptions {
 export function renderMarkdown(contents: string, opts?: MarkdownRenderingOptions|null) {
   const { $scope = null, mode = '.md', extensions = [], htmlExtensions = [] } = opts ?? {};
   const { data: { layout, ...frontmatterData }, content } = matter(contents);
-  const { headers, headersExtension } = createMarkdownHeadersCollector();
+  const { headers, headersExtension } = createMarkdownHeadersCollector($scope);
   
   // TODO: scope styles for immediate Markdown children?
+  if ($scope) {
+    const scopedStylesExtension = createMicromarkScopeStyles($scope);
+    htmlExtensions.push(scopedStylesExtension);
+  }
 
   const mdHtml = micromark(content, {
     allowDangerousHtml: true,
