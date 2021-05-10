@@ -4,36 +4,39 @@ import type { MicromarkExtension } from '../../@types/micromark';
 export function createMicromarkScopeStyles(scope: string): MicromarkExtension {
   return {
     enter: {
-      paragraph(node: any) {
+      paragraph() {
         this.tag(`<p class="${scope}">`);
       },
-      blockquote(node: any) {
+      blockquote() {
         this.tag(`<blockquote class="${scope}">`)
       },
-      listItemMarker(node: any) {
+      listItemMarker() {
         this.tag(`<li class="${scope}">`)
       },
-      listOrdered(node: any) {
+      listOrdered() {
         this.tag(`<ol class="${scope}">`)
       },
-      listUnordered(node: any) {
+      listUnordered() {
         this.tag(`<ul class="${scope}">`)
       },
-      emphasis(node: any) {
+      emphasis() {
         this.tag(`<em class="${scope}">`);
       },
-      strong(node: any) {
+      strong() {
         this.tag(`<strong class="${scope}">`);
       },
-      codeText(node: any) {
+      codeText() {
         this.tag(`<code class="${scope}">`)
       },
-      codeFenced(node: any) {
+      codeFenced() {
         this.tag(`<pre class="${scope}"><code`);
-      }
+      },
     },
     exit: {
-      codeFencedFenceInfo(node: any) {
+      thematicBreak() {
+        this.tag(`<hr class="${scope}" />`);
+      },
+      codeFencedFenceInfo() {
         const language = this.resume();
         this.tag(` class="${scope} language-${language}" `)
       }
