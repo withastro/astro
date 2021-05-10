@@ -46,19 +46,6 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
 }
 
 /**
- * .md.astro -> .astro source
- */
-export async function convertAstroMdToAstroSource(contents: string): Promise<string> {
-  const { data, content } = parseAstroMarkdown(contents);
-
-  const { content: mdHtml } = renderMarkdown(content, { mode: '.md.astro' });
-  return `---
-${data}
----
-${mdHtml}`;
-}
-
-/**
  * .md -> .astro source
  */
 export async function convertMdToAstroSource(contents: string): Promise<string> {
@@ -105,16 +92,13 @@ async function convertMdToJsx(
   return await convertAstroToJsx(raw, convertOptions);
 }
 
-/** Given a file, process it either as .astro, .md, or .md.astro. */
+/** Given a file, process it either as .astro, .md */
 async function transformFromSource(
   contents: string,
   { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
 ): Promise<TransformResult> {
   const fileID = path.relative(projectRoot, filename);
   switch (true) {
-    case filename.slice(-9) === '.md.astro':
-      return await convertAstroMdToJsx(contents, { compileOptions, filename, fileID });
-
     case filename.slice(-6) === '.astro':
       return await convertAstroToJsx(contents, { compileOptions, filename, fileID });
 
