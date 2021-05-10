@@ -115,7 +115,8 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
         scanPromises.push(
           runtime.load(url).then((result) => {
             if (result.statusCode !== 200) {
-              throw new Error((result as any).error); // there shouldn’t be a build error here
+              // there shouldn’t be a build error here
+              throw (result as any).error || new Error(`unexpected status ${result.statusCode} when loading ${url}`);
             }
             buildState[url] = {
               srcPath: new URL(url, projectRoot),
@@ -126,7 +127,12 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
         );
     }
   }
-  await Promise.all(scanPromises);
+  try {
+    await Promise.all(scanPromises);
+  } catch (err) {
+    error(logging, 'build', err);
+    return 1;
+  }
   debug(logging, 'build', `scanned deps [${stopTimer(timer.deps)}]`);
 
   /**
