@@ -1,4 +1,5 @@
 ---
+import Markdown from 'astro/components/Markdown.astro';
 import Layout from '../layouts/content.astro';
 import Example from '../components/Example.jsx';
 
@@ -6,8 +7,10 @@ export const title = 'My Blog Post';
 export const description = 'This is a post about some stuff.';
 ---
 
-## Interesting Topic
+<Markdown>
+  ## Interesting Topic
 
-<div id="first">Some content</div>
+  <div id="first">Some content</div>
 
-<Example />
+  <Example></Example>
+</Markdown>
