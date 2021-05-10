@@ -7,8 +7,8 @@ const title = 'Astro Markdown';
 const greeting = `Hello, ${title}!`;
 ---
 
-<Markdown>
-  <Layout content={{ title, greeting }}>
+<Layout content={{ title, greeting }}>
+  <Markdown>
     # {greeting}
 
     Lorem ipsum dolor sit amet consectetur adipisicing elit. 
@@ -16,7 +16,7 @@ const greeting = `Hello, ${title}!`;
     tenetur cumque eveniet, ex quasi omnis? Nam vel facere molestiae.
     
     <h4>
-      [Go to Google](https://google.com)
+      [Go to {title}](https://google.com)
     </h4>
 
     <Counter:visible />
@@ -24,5 +24,5 @@ const greeting = `Hello, ${title}!`;
     <Counter:visible>
       ## {greeting}
     </Counter:visible>
-  </Layout>
-</Markdown>
+  </Markdown>
+</Layout>
