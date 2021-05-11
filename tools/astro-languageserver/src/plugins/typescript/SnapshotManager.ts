@@ -37,7 +37,7 @@ export class SnapshotManager {
       }
       previousSnapshot.update(changes);
     } else {
-      const newSnapshot = createDocumentSnapshot(fileName);
+      const newSnapshot = createDocumentSnapshot(fileName, null);
 
       if (previousSnapshot) {
         newSnapshot.version = previousSnapshot.version + 1;
@@ -120,8 +120,8 @@ export interface DocumentSnapshot extends ts.IScriptSnapshot {
   getFullText(): string;
 }
 
-export const createDocumentSnapshot = (filePath: string, createDocument?: (_filePath: string, text: string) => Document): DocumentSnapshot => {
-  const text = ts.sys.readFile(filePath) ?? '';
+export const createDocumentSnapshot = (filePath: string, currentText: string | null, createDocument?: (_filePath: string, text: string) => Document): DocumentSnapshot => {
+  const text = currentText || (ts.sys.readFile(filePath) ?? '');
 
   if (isAstroFilePath(filePath)) {
     if (!createDocument) throw new Error('Astro documents require the "createDocument" utility to be provided');
