@@ -14,9 +14,9 @@ export default function createCollectHeaders() {
     depth = Number.parseInt(depth);
     
     let text = '';
-    if (children.length === 1 && children[0].type === 'text') {
-      text = children[0].value;
-    }
+    visit(node, 'text', (child) => {
+      text += child.value;
+    })
 
     let slug = slugger.slug(text);
     node.properties = node.properties || {};
