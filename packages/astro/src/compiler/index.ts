@@ -48,7 +48,7 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
  * .md -> .astro source
  */
 export async function convertMdToAstroSource(contents: string): Promise<string> {
-  const { content, frontmatter: { layout, ...frontmatter }, ...data } = renderMarkdown(contents, { mode: '.md' });
+  const { content, frontmatter: { layout, ...frontmatter }, ...data } = renderMarkdown(contents);
   const contentData = {
     ...data,
     frontmatter

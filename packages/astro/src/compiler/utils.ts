@@ -18,11 +18,11 @@ export interface MarkdownRenderingOptions {
   };
   footnotes?: boolean;
   gfm?: boolean;
-  plugins: any[];
+  plugins?: any[];
 }
 
 /** Shared utility for rendering markdown */
-export function renderMarkdown(contents: string, opts?: MarkdownRenderingOptions|null) {
+export function renderMarkdown(contents: string, opts?: MarkdownRenderingOptions|null ) {
   const { $: { scopedClassName = null } = {}, footnotes: useFootnotes = true, gfm: useGfm = true, plugins = [] } = opts ?? {};
   const { data: { layout, ...frontmatterData }, content } = matter(contents);
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
@@ -54,6 +54,6 @@ export function renderMarkdown(contents: string, opts?: MarkdownRenderingOptions
   return {
     frontmatter: frontmatterData,
     astro: { headers, source: content },
-    content: result
+    content: result.toString()
   };
 }

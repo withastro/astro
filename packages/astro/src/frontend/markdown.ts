@@ -11,7 +11,7 @@ import { renderMarkdown } from '../compiler/utils.js';
 export default function Markdown(props: { $scope: string|null }, ...children: string[]): any {
   const { $scope = null } = props ?? {};
   const text = dedent(children.join('').trimEnd());
-  let { content } = renderMarkdown(text, { $scope, mode: '.md' });
+  let { content } = renderMarkdown(text, { $: { scopedClassName: $scope } });
   if (content.split('<p>').length === 2) {
     content = content.replace(/^\<p\>/i, '').replace(/\<\/p\>$/i, '');
   }
