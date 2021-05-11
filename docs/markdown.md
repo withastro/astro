@@ -50,7 +50,7 @@ Similar to tools like [MDX](https://mdxjs.com/) or [MDsveX](https://github.com/p
 
 Astro exposes a special `Markdown` component for `.astro` files which enables markdown syntax for its children **recursively**. Within the `Markdown` component you may also use plain HTML or any other type of component that is supported by Astro.
 
-```mdx
+```jsx
 ---
 // For now, this import _must_ be named "Markdown"
 import Markdown from 'astro/components/Markdown.astro';
@@ -95,7 +95,7 @@ const expressions = 'Lorem ipsum';
 
 If you have Markdown in a remote source, you may pass it directly to the Markdown component. For example, the example below fetches the README from Snowpack's GitHub repository and renders it as HTML.
 
-```mdx
+```jsx
 ---
 import Markdown from 'astro/components/Markdown.astro';
 
