@@ -6,7 +6,6 @@ import path from 'path';
 import { renderMarkdown } from './utils.js';
 
 import { parse } from 'astro-parser';
-import { parseAstroMarkdown } from './markdown/parse-astro-markdown.js';
 import { transform } from './transform/index.js';
 import { codegen } from './codegen/index.js';
 

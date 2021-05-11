@@ -1,41 +1,59 @@
-import micromark from 'micromark';
-import gfmSyntax from 'micromark-extension-gfm';
+import unified from 'unified';
+import markdown from 'remark-parse';
+import markdownToHtml from 'remark-rehype';
+import gfm from 'remark-gfm';
+import footnotes from 'remark-footnotes';
+import stringify from 'rehype-stringify';
+import smartypants from '@silvenon/remark-smartypants';
+
+import mdxLite from './markdown/remark-mdx-lite.js';
+import createCollectHeaders from './markdown/rehype-collect-headers.js';
+import scopedStyles from './markdown/remark-scoped-styles.js';
+import raw from 'rehype-raw';
 import matter from 'gray-matter';
-import { createMicromarkScopeStyles } from './markdown/micromark-scope-styles.js';
-// import gfmHtml from 'micromark-extension-gfm/html.js';
-import { createMarkdownHeadersCollector } from './markdown/micromark-collect-headers.js';
-import { encodeMarkdown } from './markdown/micromark-encode.js';
 
 export interface MarkdownRenderingOptions {
-  $scope?: string|null;
-  mode?: '.md';
-  extensions?: any[];
-  htmlExtensions?: any[];
+  $?: {
+    scopedClassName: string|null
+  };
+  footnotes?: boolean;
+  gfm?: boolean;
+  plugins: any[];
 }
 
 /** Shared utility for rendering markdown */
 export function renderMarkdown(contents: string, opts?: MarkdownRenderingOptions|null) {
-  const { $scope = null, mode = '.md', extensions = [], htmlExtensions = [] } = opts ?? {};
+  const { $: { scopedClassName = null } = {}, footnotes: useFootnotes = true, gfm: useGfm = true, plugins = [] } = opts ?? {};
   const { data: { layout, ...frontmatterData }, content } = matter(contents);
-  const { headers, headersExtension } = createMarkdownHeadersCollector($scope);
-  
-  // TODO: scope styles for immediate Markdown children?
-  if ($scope) {
-    const scopedStylesExtension = createMicromarkScopeStyles($scope);
-    htmlExtensions.push(scopedStylesExtension);
+  const { headers, rehypeCollectHeaders } = createCollectHeaders();
+
+  let parser = unified()
+    .use(markdown)
+    .use(mdxLite)
+    .use(smartypants);
+
+  if (scopedClassName) {
+    parser = parser.use(scopedStyles(scopedClassName));
   }
 
-  const mdHtml = micromark(content, {
-    allowDangerousHtml: true,
-    allowDangerousProtocol: true,
-    extensions: [gfmSyntax(), ...extensions],
-    // TODO: add `gfmHtml` without `micromark-extension-gfm-tagfilter`
-    htmlExtensions: [encodeMarkdown, headersExtension, ...htmlExtensions],
-  });
+  if (useGfm) {
+    parser = parser.use(gfm);
+  }
+
+  if (useFootnotes) {
+    parser = parser.use(footnotes);
+  }
+
+  const { contents: result } = parser
+    .use(markdownToHtml, { allowDangerousHtml: true })
+    .use(raw)
+    .use(rehypeCollectHeaders)
+    .use(stringify)
+    .processSync(contents)
 
   return {
     frontmatter: frontmatterData,
     astro: { headers, source: content },
-    content: mdHtml
+    content: result
   };
 }
