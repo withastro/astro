@@ -5,11 +5,11 @@ import path from 'path';
 import { fileURLToPath, URL } from 'url';
 
 /** Normalize URL to its canonical form */
-export function canonicalURL(url: string, base?: string): string {
-  return new URL(
-    path.extname(url) ? url : url.replace(/(\/+)?$/, '/'), // add trailing slash if there’s no extension
-    base
-  ).href;
+export function canonicalURL(url: string, base?: string): URL {
+  let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
+  pathname = pathname.replace(/\/1\/?$/, ''); // neither is a trailing /1/ (impl. detail of collections)
+  if (!path.extname(pathname)) pathname = pathname.replace(/(\/+)?$/, '/'); // add trailing slash if there’s no extension
+  return new URL(pathname, base);
 }
 
 /** Sort a Set */

@@ -21,7 +21,11 @@ let firstThree = allPosts.slice(0, 3);
 <html>
   <head>
     <title>{title}</title>
-    <MainHead title={title} description={description} />
+    <MainHead
+      title={title}
+      description={description}
+      canonicalURL={Astro.request.canonicalURL.href}
+    />
   </head>
 
   <body>

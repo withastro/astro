@@ -1,0 +1,12 @@
+---
+export let content;
+---
+<html>
+  <head>
+    <title>{content.title}</title>
+    <link rel="canonical" href={Astro.request.canonicalURL.href}>
+  </head>
+  <body>
+    <slot></slot>
+  </body>
+</html>

@@ -1,0 +1,28 @@
+---
+export let collection;
+
+export function createCollection() {
+  return {
+    async data() {
+      const data = Astro.fetchContent('./post/*.md');
+      return data;
+    },
+    pageSize: 1,
+  };
+}
+---
+
+<html>
+  <head>
+    <title>All Posts</title>
+    <link rel="canonical" href={Astro.request.canonicalURL.href} />
+  </head>
+  <body>
+    {collection.data.map((data) => (
+      <div>
+        <h1>{data.title}</h1>
+        <a href={data.url}>Read</a>
+      </div>
+    ))}
+  </body>
+</html>

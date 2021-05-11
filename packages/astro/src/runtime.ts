@@ -1,14 +1,15 @@
 import 'source-map-support/register.js';
-import { fileURLToPath } from 'url';
 import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
-import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
-import type { LogOptions } from './logger';
 import type { CompileError } from 'astro-parser';
-import { debug, info } from './logger.js';
-import { searchForPage } from './search.js';
+import type { LogOptions } from './logger';
+import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
 
 import { existsSync } from 'fs';
+import { fileURLToPath } from 'url';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
+import { canonicalURL } from './build/util.js';
+import { debug, info } from './logger.js';
+import { searchForPage } from './search.js';
 
 // We need to use require.resolve for snowpack plugins, so create a require function here.
 import { createRequire } from 'module';
@@ -49,9 +50,10 @@ snowpackLogger.level = 'silent';
 /** Pass a URL to Astro to resolve and build */
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
   const { logging, backendSnowpackRuntime, frontendSnowpack } = config;
-  const { astroRoot } = config.astroConfig;
+  const { astroRoot, buildOptions, devOptions } = config.astroConfig;
 
-  const fullurl = new URL(rawPathname || '/', 'https://example.org/');
+  let origin = buildOptions.site ? new URL(buildOptions.site).origin : `http://localhost:${devOptions.port}`;
+  const fullurl = new URL(rawPathname || '/', origin);
 
   const reqPath = decodeURI(fullurl.pathname);
   info(logging, 'access', reqPath);
@@ -208,6 +210,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       request: {
         // params should go here when implemented
         url: requestURL,
+        canonicalURL: canonicalURL(requestURL.pathname, requestURL.origin),
       },
       children: [],
       props: { collection },

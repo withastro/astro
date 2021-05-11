@@ -3,16 +3,18 @@ import type { AstroConfig, ValidExtensionPlugins } from '../../@types/astro';
 import type { Ast, Script, Style, TemplateNode } from 'astro-parser';
 import type { TransformResult } from '../../@types/astro';
 
+import 'source-map-support/register.js';
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { walk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
 import { codeFrameColumns } from '@babel/code-frame';
 import * as babelTraverse from '@babel/traverse';
 import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
-import { warn } from '../../logger.js';
+import { error, warn } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
@@ -77,7 +79,12 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
     switch (val.type) {
       case 'MustacheTag': {
         // FIXME: this won't work when JSX element can appear in attributes (rare but possible).
-        result[attr.name] = '(' + val.expression.codeChunks[0] + ')';
+        const codeChunks = val.expression.codeChunks[0];
+        if (codeChunks) {
+          result[attr.name] = '(' + codeChunks + ')';
+        } else {
+          throw new Error(`Parse error: ${attr.name}={}`); // if bad codeChunk, throw error
+        }
         continue;
       }
       case 'Text':
@@ -388,7 +395,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
             if (!id || !init || id.type !== 'Identifier') continue;
             if (init.type === 'AwaitExpression') {
               init = init.argument;
-              const shortname = path.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
+              const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
               warn(compileOptions.logging, shortname, yellow('awaiting Astro.fetchContent() not necessary'));
             }
             if (init.type !== 'CallExpression') continue;
@@ -572,29 +579,36 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           if (!name) {
             throw new Error('AHHHH');
           }
-          const attributes = getAttributes(node.attributes);
+          try {
+            const attributes = getAttributes(node.attributes);
 
-          outSource += outSource === '' ? '' : ',';
-          if (node.type === 'Slot') {
-            outSource += `(children`;
-            return;
-          }
-          const COMPONENT_NAME_SCANNER = /^[A-Z]/;
-          if (!COMPONENT_NAME_SCANNER.test(name)) {
-            outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
-            return;
-          }
-          const [componentName, componentKind] = name.split(':');
-          const componentImportData = components[componentName];
-          if (!componentImportData) {
-            throw new Error(`Unknown Component: ${componentName}`);
-          }
-          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
-          if (wrapperImport) {
-            importExportStatements.add(wrapperImport);
-          }
+            outSource += outSource === '' ? '' : ',';
+            if (node.type === 'Slot') {
+              outSource += `(children`;
+              return;
+            }
+            const COMPONENT_NAME_SCANNER = /^[A-Z]/;
+            if (!COMPONENT_NAME_SCANNER.test(name)) {
+              outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
+              return;
+            }
+            const [componentName, componentKind] = name.split(':');
+            const componentImportData = components[componentName];
+            if (!componentImportData) {
+              throw new Error(`Unknown Component: ${componentName}`);
+            }
+            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
+            if (wrapperImport) {
+              importExportStatements.add(wrapperImport);
+            }
 
-          outSource += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+            outSource += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+          } catch (err) {
+            // handle errors in scope with filename
+            const rel = filename.replace(fileURLToPath(astroConfig.projectRoot), '');
+            // TODO: return actual codeframe here
+            error(compileOptions.logging, rel, err.toString());
+          }
           return;
         }
         case 'Attribute': {

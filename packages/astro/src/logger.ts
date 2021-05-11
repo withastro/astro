@@ -114,6 +114,10 @@ export function table(opts: LogOptions, columns: number[]) {
 
 /** Pretty format error for display */
 export function parseError(opts: LogOptions, err: CompileError) {
+  if (!err.frame) {
+    return error(opts, 'parse-error', err.message || err);
+  }
+
   let frame = err.frame
     // Switch colons for pipes
     .replace(/^([0-9]+)(:)/gm, `${bold('$1')} │`)
