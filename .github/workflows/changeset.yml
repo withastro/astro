@@ -23,4 +23,4 @@ jobs:
         env:
           CI: true
 
-      - run: changeset status --sinceMaster
+      - run: yarn changeset status --since=main

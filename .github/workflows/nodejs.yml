@@ -25,7 +25,7 @@ jobs:
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
   test:
     needs: skip_test # allow skip_test to cancel this job if it’s not needed
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.skip_test.outputs.should_skip != 'true' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
