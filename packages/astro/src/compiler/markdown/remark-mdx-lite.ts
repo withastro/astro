@@ -9,7 +9,7 @@ const syntax = { disable: {null: ['autolink', 'codeIndented']} };
  * We don't need all the features MDX does because all components are precompiled
  * to HTML. We just want to disable a few MD features that cause issues.
  */
-export default function mdxLite() {
+function mdxLite (this: any) {
   let data = this.data()
 
   add('micromarkExtensions', syntax);
@@ -22,3 +22,5 @@ export default function mdxLite() {
     else data[field] = [value]
   }
 }
+
+export default mdxLite;
