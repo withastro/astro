@@ -314,6 +314,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     },
     packageOptions: {
       knownEntrypoints: ['preact-render-to-string'],
+      // TODO: exclude unified/remark/rehype
       external: ['@vue/server-renderer', 'node-fetch', 'prismjs/components/index.js'],
     },
   });
