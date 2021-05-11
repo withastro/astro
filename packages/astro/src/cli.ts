@@ -65,7 +65,7 @@ function printHelp() {
   ${colors.bold('Flags:')}
   --config <path>       Specify the path to the Astro config file.
   --project-root <path> Specify the path to the project root folder.
-  --no-sitemap      Disable sitemap generation (build only).
+  --no-sitemap          Disable sitemap generation (build only).
   --version             Show the version number and exit.
   --help                Show this help message.
 `);

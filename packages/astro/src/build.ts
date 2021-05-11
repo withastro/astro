@@ -17,7 +17,7 @@ import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.
 import { generateSitemap } from './build/sitemap.js';
 import { logURLStats, collectBundleStats, mapBundleStatsToURLStats } from './build/stats.js';
 import { getDistPath, sortSet, stopTimer } from './build/util.js';
-import { debug, defaultLogDestination, error, info, trapWarn } from './logger.js';
+import { debug, defaultLogDestination, error, info, warn, trapWarn } from './logger.js';
 import { createRuntime } from './runtime.js';
 
 const logging: LogOptions = {
@@ -54,6 +54,9 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     level: 'error',
     dest: defaultLogDestination,
   };
+
+  // warn users if missing config item in build that may result in broken SEO (can’t disable, as they should provide this)
+  warn(logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
 
   const mode: RuntimeMode = 'production';
   const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
@@ -170,8 +173,6 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
     info(logging, 'build', green('✔'), 'sitemap built.');
     debug(logging, 'build', `built sitemap [${stopTimer(timer.sitemap)}]`);
-  } else if (astroConfig.buildOptions.sitemap) {
-    info(logging, 'tip', `Set "buildOptions.site" in astro.config.mjs to generate a sitemap.xml, or set "buildOptions.sitemap: false" to disable this message.`);
   }
 
   // write to disk and free up memory

@@ -27,7 +27,7 @@ export function generateRSS<T>(input: { data: T[]; site: string } & CollectionRS
   // title, description, customData
   xml += `<title><![CDATA[${input.title}]]></title>`;
   xml += `<description><![CDATA[${input.description}]]></description>`;
-  xml += `<link>${canonicalURL('/feed/' + filename + '.xml', input.site)}</link>`;
+  xml += `<link>${canonicalURL('/feed/' + filename + '.xml', input.site).href}</link>`;
   if (typeof input.customData === 'string') xml += input.customData;
 
   // items
@@ -40,7 +40,7 @@ export function generateRSS<T>(input: { data: T[]; site: string } & CollectionRS
     if (!result.title) throw new Error(`[${filename}] rss.item() returned object but required "title" is missing.`);
     if (!result.link) throw new Error(`[${filename}] rss.item() returned object but required "link" is missing.`);
     xml += `<title><![CDATA[${result.title}]]></title>`;
-    xml += `<link>${canonicalURL(result.link, input.site)}</link>`;
+    xml += `<link>${canonicalURL(result.link, input.site).href}</link>`;
     if (result.description) xml += `<description><![CDATA[${result.description}]]></description>`;
     if (result.pubDate) {
       // note: this should be a Date, but if user provided a string or number, we can work with that, too.

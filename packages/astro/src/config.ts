@@ -1,5 +1,6 @@
-import 'source-map-support/register.js';
 import type { AstroConfig } from './@types/astro';
+
+import 'source-map-support/register.js';
 import { join as pathJoin, resolve as pathResolve } from 'path';
 import { existsSync } from 'fs';
 
@@ -9,25 +10,36 @@ const type = (thing: any): string => (Array.isArray(thing) ? 'Array' : typeof th
 /** Throws error if a user provided an invalid config. Manually-implemented to avoid a heavy validation library. */
 function validateConfig(config: any): void {
   // basic
-  if (config === undefined || config === null) throw new Error(`[astro config] Config empty!`);
-  if (typeof config !== 'object') throw new Error(`[astro config] Expected object, received ${typeof config}`);
+  if (config === undefined || config === null) throw new Error(`[config] Config empty!`);
+  if (typeof config !== 'object') throw new Error(`[config] Expected object, received ${typeof config}`);
 
   // strings
-  for (const key of ['projectRoot', 'astroRoot', 'dist', 'public', 'site']) {
+  for (const key of ['projectRoot', 'astroRoot', 'dist', 'public']) {
     if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'string') {
-      throw new Error(`[astro config] ${key}: ${JSON.stringify(config[key])}\n  Expected string, received ${type(config[key])}.`);
+      throw new Error(`[config] ${key}: ${JSON.stringify(config[key])}\n  Expected string, received ${type(config[key])}.`);
     }
   }
 
   // booleans
   for (const key of ['sitemap']) {
     if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'boolean') {
-      throw new Error(`[astro config] ${key}: ${JSON.stringify(config[key])}\n  Expected boolean, received ${type(config[key])}.`);
+      throw new Error(`[config] ${key}: ${JSON.stringify(config[key])}\n  Expected boolean, received ${type(config[key])}.`);
     }
   }
 
+  // buildOptions
+  if (config.buildOptions && config.buildOptions.site !== undefined) {
+    if (typeof config.buildOptions.site !== 'string') throw new Error(`[config] buildOptions.site is not a string`);
+    try {
+      new URL(config.buildOptions.site);
+    } catch (err) {
+      throw new Error('[config] buildOptions.site must be a valid URL');
+    }
+  }
+
+  // devOptions
   if (typeof config.devOptions?.port !== 'number') {
-    throw new Error(`[astro config] devOptions.port: Expected number, received ${type(config.devOptions?.port)}`);
+    throw new Error(`[config] devOptions.port: Expected number, received ${type(config.devOptions?.port)}`);
   }
 }
 

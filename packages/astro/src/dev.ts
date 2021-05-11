@@ -3,9 +3,9 @@ import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger.js';
 
 import { logger as snowpackLogger } from 'snowpack';
-import { bold, green } from 'kleur/colors';
+import { green } from 'kleur/colors';
 import http from 'http';
-import { relative as pathRelative } from 'path';
+import path from 'path';
 import { performance } from 'perf_hooks';
 import { defaultLogDestination, error, info, parseError } from './logger.js';
 import { createRuntime } from './runtime.js';
@@ -63,7 +63,7 @@ export default async function dev(astroConfig: AstroConfig) {
         switch (result.type) {
           case 'parse-error': {
             const err = result.error;
-            err.filename = pathRelative(projectRoot.pathname, err.filename);
+            if (err.filename) err.filename = path.posix.relative(projectRoot.pathname, err.filename);
             parseError(logging, err);
             break;
           }

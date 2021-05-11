@@ -4,14 +4,6 @@
 
 The `Astro` global is available in all contexts in `.astro` files. It has the following functions:
 
-#### `config`
-
-`Astro.config` returns an object with the following properties:
-
-| Name   | Type     | Description                                                                                                |
-| :----- | :------- | :--------------------------------------------------------------------------------------------------------- |
-| `site` | `string` | Your website’s public root domain. Set it with `site: "https://mysite.com"` in your [Astro config][config] |
-
 #### `fetchContent()`
 
 `Astro.fetchContent()` is a way to load local `*.md` files into your static site setup. You can either use this on its own, or within [Astro Collections][docs-collections].
@@ -47,9 +39,16 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 
 `Astro.request` returns an object with the following properties:
 
-| Name  | Type  | Description                            |
-| :---- | :---- | :------------------------------------- |
-| `url` | `URL` | The URL of the request being rendered. |
+| Name           | Type  | Description                                     |
+| :------------- | :---- | :---------------------------------------------- |
+| `url`          | `URL` | The URL of the request being rendered.          |
+| `canonicalURL` | `URL` | [Canonical URL][canonical] of the current page. |
+
+⚠️ Temporary restriction: this is only accessible in top-level pages and not in sub-components.
+
+#### `site`
+
+`Astro.site` returns a `URL` made from `buildOptions.site` in your Astro config. If undefined, this will return a URL generated from `localhost`.
 
 ### `collection`
 
@@ -147,6 +146,7 @@ Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/
 <link rel="alternate" type="application/rss+xml" title="My RSS Feed" href="/feed/podcast.xml" />
 ```
 
+[canonical]: https://en.wikipedia.org/wiki/Canonical_link_element
 [config]: ../README.md#%EF%B8%8F-configuration
 [docs-collections]: ./collections.md
 [rss]: #-rss-feed

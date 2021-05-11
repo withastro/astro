@@ -4,6 +4,9 @@ export let title: string;
 export let description: string;
 export let image: string | undefined;
 export let type: string | undefined;
+export let next: string | undefined;
+export let prev: string | undefined;
+export let canonicalURL: string | undefined;
 
 // internal data
 const OG_TYPES = {
@@ -17,6 +20,10 @@ const OG_TYPES = {
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="stylesheet" href="/global.css" />
+<link rel="sitemap" href="/sitemap.xml" />
+<link rel="canonical" href={canonicalURL} />
+{next && <link rel="next" href={next} />}
+{prev && <link rel="prev" href={prev} />}
 
 <!-- OpenGraph -->
 <meta property="og:title" content={title} />

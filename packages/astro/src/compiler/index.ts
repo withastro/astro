@@ -124,6 +124,7 @@ export async function compileComponent(
   { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
 ): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
+  const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
 
   // return template
   let modJsx = `
@@ -137,7 +138,8 @@ import { h, Fragment } from '${internalImport('h.js')}';
 const __astroRequestSymbol = Symbol('astro.request');
 async function __render(props, ...children) {
   const Astro = {
-    request: props[__astroRequestSymbol]
+    request: props[__astroRequestSymbol] || {},
+    site: new URL('/', ${JSON.stringify(site)}),
   };
 
   ${result.script}
