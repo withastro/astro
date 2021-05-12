@@ -15,13 +15,13 @@ const convertMessage = ({ message, start, end, filename, frame }) => ({
     },
 });
 
-const handleLoad = async (args, generate) => {
+const handleLoad = async (args, generate, { isDev }) => {
   const { path } = args;
   const source = await fs.readFile(path, 'utf8');
   const filename = relative(process.cwd(), path);
 
   try {
-    let compileOptions = { css: false, generate, hydratable: true };
+    let compileOptions = { dev: isDev, css: false, generate, hydratable: true };
 
     let { js, warnings } = compile(source, { ...compileOptions, filename });
     let contents = js.code + `\n//# sourceMappingURL=` + js.map.toUrl();
@@ -32,7 +32,7 @@ const handleLoad = async (args, generate) => {
   }
 };
 
-export default function sveltePlugin() {
+export default function sveltePlugin({ isDev = false }) {
   return {
     name: 'svelte-esbuild',
     setup(build) {
@@ -54,8 +54,8 @@ export default function sveltePlugin() {
           };
         }
       });
-      build.onLoad({ filter: /.*/, namespace: 'svelte:client' }, (args) => handleLoad(args, 'dom'));
-      build.onLoad({ filter: /.*/, namespace: 'svelte:server' }, (args) => handleLoad(args, 'ssr'));
+      build.onLoad({ filter: /.*/, namespace: 'svelte:client' }, (args) => handleLoad(args, 'dom', { isDev }));
+      build.onLoad({ filter: /.*/, namespace: 'svelte:server' }, (args) => handleLoad(args, 'ssr', { isDev }));
     },
   };
 }
