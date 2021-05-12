@@ -4,13 +4,16 @@
     "private": true,
     "type": "module",
     "exports": {
-        ".": "./dist/index.js"
+        ".": "./dist/index.js",
+        "./runtime.js": "./dist/runtime.js",
+        "./SvelteWrapper.svelte": "./SvelteWrapper.svelte"
     },
     "scripts": {
       "build": "astro-scripts build src/index.ts"
     },
     "peerDependencies": {
-        "svelte": "~3.38.2"
+      "@snowpack/plugin-svelte": "~3.6.1",
+      "svelte": "~3.38.2"
     },
     "devDependencies": {
       "astro": "0.0.12",
