@@ -9,5 +9,8 @@
     "peerDependencies": {
         "preact": "~10.5.13",
         "preact-render-to-string": "~5.1.19"
+    },
+    "devDependencies": {
+      "astro": "0.0.12"
     }
 }

@@ -2,11 +2,18 @@ import unified from 'unified';
 import parse from 'rehype-parse';
 import toH from 'hast-to-hyperscript';
 import { ComponentRenderer } from '../../@types/renderer';
-// @ts-expect-error
 import shorthash from 'shorthash';
 import moize from 'moize';
-// This prevents tree-shaking of render.
-Function.prototype(toH);
+
+/** Reduces an array of objects to a single object */
+export function toSingleObject(dependencies: Record<string, any>[]) {
+  return dependencies.reduce((obj, item) => Object.assign(obj, item), {});
+}
+
+/** Filters non-unique values from an array */
+export function unique<T>(values: T[]) {
+  return Array.from(new Set(values));
+}
 
 /** Returns a deterministic hash of the HTML content */
 export function getAstroId(html: string) {

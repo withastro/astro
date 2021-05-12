@@ -1,78 +1,48 @@
-import { childrenToJsx, dedent } from './utils';
+import { childrenToJsx, dedent, unique, toSingleObject } from './utils';
 
 export const createRendererPlugin = (plugin: any) => {
-    const { jsxFactory, jsxImportSource, validExtensions, transformChildrenTo } = plugin;
+    // TODO: validate plugin schema
+    const { jsx, server, client } = plugin;
 
-    const serverFactory = async () => {
-        const { renderer, rendererSource, renderToStaticMarkup } = plugin.server;
-        const lib = await import(jsxImportSource);
-        const { [renderer]: render } = await import(rendererSource);
-        
-        return (Component: any) => (props: any, ...children: any) => {
-            if (transformChildrenTo === 'jsx') {
-                children = childrenToJsx(lib[jsxFactory], children);
-            }
-            return renderToStaticMarkup(lib, render)(Component, props, children);
-        }
+    const serverImportDependencyIds: string[] = [...(server.dependencies ?? [])];
+    const clientImportDependencyIds: string[] = [...(client.dependencies ?? [])];
+    if (jsx) {
+      serverImportDependencyIds.push(jsx.importSource);
+      clientImportDependencyIds.push(jsx.importSource);
     }
 
-    const clientImports: string[] = [];
-    
-    if (jsxImportSource && ((jsxImportSource === plugin.client.rendererSource) || typeof plugin.client.rendererSource === 'undefined')) {
-        clientImports.push(jsxImportSource);
-    } else {
-        if (jsxImportSource) {
-            clientImports.push(jsxImportSource);
-        }
-        if (plugin.client.rendererSource) {
-            clientImports.push(plugin.client.rendererSource);
+    const serverImports: string[] = unique(serverImportDependencyIds);
+    const clientImports: string[] = unique(clientImportDependencyIds);
+
+    const serverFactory = async () => {
+        const { renderToStaticMarkup } = server;
+        const dependenciesArr = await Promise.all(serverImports.map((depId: string) => import(depId).then(libCode => ({ [depId]: libCode}))));
+        const dependencies = toSingleObject(dependenciesArr);
+
+        return (Component: any) => (props: any, ...children: any) => {
+          if (jsx) {
+            children = childrenToJsx(dependencies[jsx.importSource][jsx.factory], children);
+          }
+            return renderToStaticMarkup(dependencies)(Component, props, children);
         }
     }
 
     const clientFactory = async (astroId: string) => {
-        // hydrateStaticMarkup: (runtimeFrameworkNamespace: string, runtimeRenderNamespace: string, element: string) => void
-        const { hydrateStaticMarkup } = plugin.client;
+        // hydrateStaticMarkup: (dependenciesObject: Record<string, any>, element: string) => void
+        const { hydrateStaticMarkup } = client;
         return ({ Component, props, children }: any) => {
-            let prefix = '';
-            let args = []
-            if (clientImports.length === 1) {
-                // If the framework and render runtimes come from the same package
-                // we'll set both to the same import (namespace `$a`)
-                args[0] = '$a';
-                args[1] = '$a';
-                prefix = `const $a=await import('${clientImports[0]}');`;
-            } else {
-                // If the framework and render runtimes come from separate package
-                // we'll set these args to separate imports (namespaces `$a` and `$b`)
-                args[0] = '$a';
-                args[1] = '$b';
-                prefix = `const [$a,$b]=await Promise.all([${clientImports.map(name => `import('${name}')`).join(',')}]);`;
-            }
-            args[2] = `document.querySelector("[data-astro-id='${astroId}']")`;
-            const result = dedent(hydrateStaticMarkup(...args)(Component, props, children))
+            const DEPENDENCIES_VAR_NAME = `$$deps`;
+            const DEPENDENCIES = toSingleObject(clientImports.map(lib => ({ [lib]: `${DEPENDENCIES_VAR_NAME}['${lib}']` })))
+            const ELEMENT_VAR_NAME = `$$el`;
+            const prefix = `const ${ELEMENT_VAR_NAME}=document.querySelector("[data-astro-id='${astroId}']");const ${DEPENDENCIES_VAR_NAME}=await Promise.all([${clientImports.map(name => `import('${name}').then(lib => ({['${name}']:lib}))`).join(',')}]).then(res => res.reduce((o,k) => Object.assign(o,k),{}));`;
+            const result = dedent(hydrateStaticMarkup([DEPENDENCIES, ELEMENT_VAR_NAME])(Component, props, children))
             return [prefix, result].join('');
         }
     }
 
     return {
-        jsxImportSource,
-        validExtensions,
         clientImports,
         createServerRenderer: serverFactory,
         createClientRenderer: clientFactory
     }
 }
-
-// const test = async (plugin) => {
-//     const { createServerRenderer, createClientRenderer } = createRenderer(plugin);
-//     const serverRender = await createServerRenderer();
-//     const { html } = await serverRender(null)({ test: '', children: ['aaaa'] });
-//     const hash = shorthash.unique(html);
-//     const clientRender = await createClientRenderer(hash);
-
-//     console.log(wrap(html, hash));
-//     console.log();
-//     console.log(await clientRender({ Component: 'Component', props: JSON.stringify({ test: '' }), children: ['aaaa'] }));
-// }
-
-// test();
