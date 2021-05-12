@@ -300,7 +300,7 @@
 
 "@changesets/cli@^2.16.0":
   version "2.16.0"
-  resolved "https://registry.npmjs.org/@changesets/cli/-/cli-2.16.0.tgz"
+  resolved "https://registry.yarnpkg.com/@changesets/cli/-/cli-2.16.0.tgz#9f794005d0503efba5e348b929821a1732fd0f0d"
   integrity sha512-VFkXSyyk/WRjjUoBI7g7cDy09qBjPbBQOloPMEshTzMo/NY9muWHl2yB/FSSkV/6PxGimPtJ7aEJPYfk8HCfXw==
   dependencies:
     "@babel/runtime" "^7.10.4"
@@ -11402,7 +11402,7 @@ typedarray@^0.0.6:
 
 typescript@^4.2.4:
   version "4.2.4"
-  resolved "https://registry.npmjs.org/typescript/-/typescript-4.2.4.tgz"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.4.tgz#8610b59747de028fda898a8aef0e103f156d0961"
   integrity sha512-V+evlYHZnQkaz8TRBuxTA92yZBPotr5H+WhQ7bD3hZUndx5tGOa1fuCgeSjxAzM1RiN5IzvadIXTVefuuwZCRg==
 
 ua-parser-js@^0.7.18:

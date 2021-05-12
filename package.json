@@ -29,6 +29,9 @@
     "npm": "7.11.2",
     "yarn": "1.22.10"
   },
+  "dependencies": {
+    "@changesets/cli": "^2.16.0"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.18.0",
@@ -46,8 +49,5 @@
     "tiny-glob": "^0.2.8",
     "typescript": "^4.2.4",
     "uvu": "^0.5.1"
-  },
-  "dependencies": {
-    "@changesets/cli": "^2.16.0"
   }
 }

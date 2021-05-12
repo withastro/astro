@@ -9,31 +9,29 @@ on:
       - 'examples/**'
       - 'www/**'
     branches:
-        - main
-    
+      - main
 
 jobs:
   release:
     name: Changelog
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@master
+      - name: Check out branch
+        uses: actions/checkout@v2
         with:
-          # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
-          fetch-depth: 0
+          fetch-depth: 0 # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
 
-      - name: Setup Node.js 14.x
-        uses: actions/setup-node@master
+      - name: Set up Node.js 14.x
+        uses: actions/setup-node@v2
         with:
           node-version: 14.x
 
-      - name: Install Dependencies
-        run: yarn --frozen-lockfile
+      - name: Install dependencies
+        run: yarn --frozen-lockfile --ignore-engines
         env:
           CI: true
 
-      - name: Create Release Pull Request
+      - name: Create release PR
         uses: changesets/action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
