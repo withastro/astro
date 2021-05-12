@@ -7,8 +7,8 @@ const Collections = suite('Collections');
 
 setup(Collections, './fixtures/astro-collection');
 
-Collections('generates list & sorts successfully', async ({ runtime }) => {
-  const result = await runtime.load('/posts');
+Collections('shallow selector (*.md)', async ({ runtime }) => {
+  const result = await runtime.load('/shallow');
   if (result.error) throw new Error(result.error);
   const $ = doc(result.contents);
   const urls = [
@@ -16,11 +16,24 @@ Collections('generates list & sorts successfully', async ({ runtime }) => {
       return $(this).attr('href');
     }),
   ];
-  assert.equal(urls, ['/post/nested/a', '/post/three', '/post/two']);
+  // assert they loaded in newest -> oldest order (not alphabetical)
+  assert.equal(urls, ['/post/three', '/post/two', '/post/one']);
+});
+
+Collections('deep selector (**/*.md)', async ({ runtime }) => {
+  const result = await runtime.load('/nested');
+  if (result.error) throw new Error(result.error);
+  const $ = doc(result.contents);
+  const urls = [
+    ...$('#posts a').map(function () {
+      return $(this).attr('href');
+    }),
+  ];
+  assert.equal(urls, ['/post/nested/a', '/post/three', '/post/two', '/post/one']);
 });
 
 Collections('generates pagination successfully', async ({ runtime }) => {
-  const result = await runtime.load('/posts');
+  const result = await runtime.load('/paginated');
   if (result.error) throw new Error(result.error);
   const $ = doc(result.contents);
   const prev = $('#prev-page');

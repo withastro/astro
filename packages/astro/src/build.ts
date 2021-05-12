@@ -10,7 +10,7 @@ import cheerio from 'cheerio';
 import del from 'del';
 import { bold, green, yellow } from 'kleur/colors';
 import mime from 'mime';
-import { fdir } from 'fdir';
+import glob from 'tiny-glob';
 import { bundleCSS } from './build/bundle/css.js';
 import { bundleJS, collectJSImports } from './build/bundle/js';
 import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.js';
@@ -26,13 +26,10 @@ const logging: LogOptions = {
 };
 
 /** Return contents of src/pages */
-async function allPages(root: URL) {
-  const api = new fdir()
-    .filter((p) => /\.(astro|md)$/.test(p))
-    .withFullPaths()
-    .crawl(fileURLToPath(root));
-  const files = await api.withPromise();
-  return files as string[];
+async function allPages(root: URL): Promise<URL[]> {
+  const cwd = fileURLToPath(root);
+  const files = await glob('**/*.{astro,md}', { cwd, filesOnly: true });
+  return files.map((f) => new URL(f, root));
 }
 
 /** Is this URL remote? */
@@ -77,8 +74,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
     info(logging, 'build', yellow('! building pages...'));
     const release = trapWarn(); // Vue also console.warns, this silences it.
     await Promise.all(
-      pages.map(async (pathname) => {
-        const filepath = new URL(`file://${pathname}`);
+      pages.map(async (filepath) => {
         const buildPage = getPageType(filepath) === 'collection' ? buildCollectionPage : buildStaticPage;
         await buildPage({
           astroConfig,
@@ -180,7 +176,7 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   await Promise.all(
     Object.keys(buildState).map(async (id) => {
       const outPath = new URL(`.${id}`, dist);
-      const parentDir = path.posix.dirname(fileURLToPath(outPath));
+      const parentDir = path.dirname(fileURLToPath(outPath));
       await fs.promises.mkdir(parentDir, { recursive: true });
       await fs.promises.writeFile(outPath, buildState[id].contents, buildState[id].encoding);
       delete buildState[id];
@@ -195,15 +191,14 @@ export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
   if (fs.existsSync(astroConfig.public)) {
     info(logging, 'build', yellow(`! copying public folder...`));
     timer.public = performance.now();
-    const pub = astroConfig.public;
-    const publicFiles = (await new fdir().withFullPaths().crawl(fileURLToPath(pub)).withPromise()) as string[];
+    const cwd = fileURLToPath(astroConfig.public);
+    const publicFiles = await glob('**/*', { cwd, filesOnly: true });
     await Promise.all(
       publicFiles.map(async (filepath) => {
-        const fileUrl = new URL(`file://${filepath}`);
-        const rel = path.relative(fileURLToPath(pub), fileURLToPath(fileUrl));
-        const outPath = new URL('./' + rel, dist);
-        await fs.promises.mkdir(path.dirname(fileURLToPath(outPath)), { recursive: true });
-        await fs.promises.copyFile(fileUrl, outPath);
+        const srcPath = new URL(filepath, cwd);
+        const distPath = new URL(filepath, dist);
+        await fs.promises.mkdir(path.dirname(fileURLToPath(distPath)), { recursive: true });
+        await fs.promises.copyFile(srcPath, distPath);
       })
     );
     debug(logging, 'build', `copied public folder [${stopTimer(timer.public)}]`);

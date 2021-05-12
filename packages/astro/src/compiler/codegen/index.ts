@@ -1,7 +1,6 @@
-import type { CompileOptions } from '../../@types/compiler';
-import type { AstroConfig, ValidExtensionPlugins } from '../../@types/astro';
 import type { Ast, Script, Style, TemplateNode } from 'astro-parser';
-import type { TransformResult } from '../../@types/astro';
+import type { CompileOptions } from '../../@types/compiler';
+import type { AstroConfig, TransformResult, ValidExtensionPlugins } from '../../@types/astro';
 
 import 'source-map-support/register.js';
 import eslexer from 'es-module-lexer';
@@ -20,9 +19,9 @@ import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
-const babelGenerator: typeof _babelGenerator =
-  // @ts-ignore
-  _babelGenerator.default;
+
+// @ts-ignore
+const babelGenerator: typeof _babelGenerator = _babelGenerator.default;
 const { transformSync } = esbuild;
 
 interface Attribute {
@@ -453,7 +452,6 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
     // handle createCollection, if any
     if (createCollection) {
-      // TODO: improve this? while transforming in-place isn’t great, this happens at most once per-route
       const ast = babelParser.parse(createCollection, {
         sourceType: 'module',
       });
@@ -484,7 +482,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
                 const spec = (init as any).arguments[0].value;
                 if (typeof spec !== 'string') break;
 
-                const globResult = fetchContent(spec, { namespace, filename: state.filename, projectRoot: compileOptions.astroConfig.projectRoot });
+                const globResult = fetchContent(spec, { namespace, filename: state.filename });
 
                 let imports = '';
                 for (const importStatement of globResult.imports) {
@@ -503,7 +501,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
     // Astro.fetchContent()
     for (const [namespace, { spec }] of contentImports.entries()) {
-      const globResult = fetchContent(spec, { namespace, filename: state.filename, projectRoot: compileOptions.astroConfig.projectRoot });
+      const globResult = fetchContent(spec, { namespace, filename: state.filename });
       for (const importStatement of globResult.imports) {
         state.importExportStatements.add(importStatement);
       }

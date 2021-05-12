@@ -2,7 +2,7 @@ import 'source-map-support/register.js';
 import { existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { fdir, PathsOutput } from 'fdir';
+import glob from 'tiny-glob/sync.js';
 
 interface PageLocation {
   fileURL: URL;
@@ -108,14 +108,9 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
   };
 }
 
-const crawler = new fdir();
-
 /** load a collection route */
 function loadCollection(url: string, astroRoot: URL): { currentPage?: number; location: PageLocation } | undefined {
-  const pages = (crawler
-    .glob('**/*')
-    .crawl(path.join(fileURLToPath(astroRoot), 'pages'))
-    .sync() as PathsOutput).filter((filepath) => filepath.startsWith('$') || filepath.includes('/$'));
+  const pages = glob('**/$*.astro', { cwd: path.join(fileURLToPath(astroRoot), 'pages'), filesOnly: true });
   for (const pageURL of pages) {
     const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '/?(.*)');
     const match = url.match(reqURL);
