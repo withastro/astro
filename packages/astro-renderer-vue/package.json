@@ -11,7 +11,8 @@
     },
     "peerDependencies": {
         "vue": "~3.0.11",
-        "@vue/server-renderer": "~3.0.11"
+        "@vue/server-renderer": "~3.0.11",
+        "@snowpack/plugin-vue": "^2.4.0"
     },
     "devDependencies": {
       "astro": "0.0.12",

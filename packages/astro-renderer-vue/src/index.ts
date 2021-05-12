@@ -12,6 +12,8 @@ interface VueDependencies {
 }
 
 const renderer: AstroRenderer<VueDependencies, ComponentType> = {
+  snowpackPlugin: '@snowpack/plugin-vue',
+
   jsx: {
     importSource: 'vue',
     factory: 'h'
