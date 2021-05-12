@@ -1,12 +1,28 @@
-export default {
+import type { AstroRenderer } from 'astro/renderer';
+import type { Component as ComponentType } from 'vue';
+
+interface ReactDependencies {
+  shared: {
+    vue: typeof import('vue')
+  },
+  server: {
+    ['@vue/server-renderer']: typeof import('@vue/server-renderer')
+  },
+  client: {}
+}
+
+const renderer: AstroRenderer<ReactDependencies, ComponentType> = {
   jsx: {
     importSource: 'vue',
-    factory: 'h',
+    factory: 'h'
   },
 
   server: {
     dependencies: ['vue', '@vue/server-renderer'],
-    renderToStaticMarkup({ ['vue']: { defineComponent, createSSRApp }, ['@vue/server-renderer']: { renderToString } }) {
+    renderToStaticMarkup({ vue, ['@vue/server-renderer']: vueServerRenderer }) {
+      const { defineComponent, createSSRApp } = vue;
+      const { renderToString } = vueServerRenderer;
+      
       return async (Component, props, children) => {
         const App = defineComponent({
           components: { Component },
@@ -14,8 +30,11 @@ export default {
           template: `<Component v-bind="props">${children.join('\n')}</Component>`,
         });
         const app = createSSRApp(App);
-        const html = await renderToString(app);
-        return { html };
+        const code = await renderToString(app);
+
+        return { 
+          '.html': { code }
+        };
       };
     },
   },
@@ -31,3 +50,5 @@ export default {
     },
   },
 };
+
+export default renderer;

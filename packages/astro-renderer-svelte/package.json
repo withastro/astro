@@ -1,5 +1,5 @@
 {
-    "name": "astro-renderer-vue",
+    "name": "astro-renderer-svelte",
     "version": "0.0.1",
     "private": true,
     "type": "module",
@@ -10,8 +10,7 @@
       "build": "astro-scripts build src/index.ts"
     },
     "peerDependencies": {
-        "vue": "~3.0.11",
-        "@vue/server-renderer": "~3.0.11"
+        "svelte": "~3.38.2"
     },
     "devDependencies": {
       "astro": "0.0.12",

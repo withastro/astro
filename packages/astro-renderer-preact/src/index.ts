@@ -1,20 +1,22 @@
-import type { AstroRenderer, DependencyMaps } from 'astro/renderer';
+import type { AstroRenderer } from 'astro/renderer';
+import type { ComponentType } from 'preact';
 
-interface PreactDependencies extends DependencyMaps {
+interface PreactDependencies {
   shared: {
-    preact: typeof import('preact')
+    ['preact']: typeof import('preact')
   }
   server: {
     ['preact-render-to-string']: typeof import('preact-render-to-string')
-  }
+  },
+  client: {}
 }
 
-const renderer: AstroRenderer<PreactDependencies> = {
+const renderer: AstroRenderer<PreactDependencies, ComponentType> = {
   jsx: {
     importSource: 'preact',
     factory: 'h',
     fragmentFactory: 'Fragment',
-    transformChildren: true,
+    transformChildren: false,
   },
 
   server: {
