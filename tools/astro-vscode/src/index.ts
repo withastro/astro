@@ -53,16 +53,19 @@ function createLanguageService(context: vscode.ExtensionContext, mode: 'doc', id
 
   context.subscriptions.push(client.start());
 
-  client.onReady().then(() => {
-    const tagRequestor = (document: vscode.TextDocument, position: vscode.Position) => {
-      const param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
-      return client.sendRequest(TagCloseRequest, param);
-    };
-    const disposable = activateTagClosing(tagRequestor, { astro: true }, 'html.autoClosingTags');
-    context.subscriptions.push(disposable);
-  }).catch(err => {
-    console.error('Astro, unable to load language server.', err);
-  });
+  client
+    .onReady()
+    .then(() => {
+      const tagRequestor = (document: vscode.TextDocument, position: vscode.Position) => {
+        const param = client.code2ProtocolConverter.asTextDocumentPositionParams(document, position);
+        return client.sendRequest(TagCloseRequest, param);
+      };
+      const disposable = activateTagClosing(tagRequestor, { astro: true }, 'html.autoClosingTags');
+      context.subscriptions.push(disposable);
+    })
+    .catch((err) => {
+      console.error('Astro, unable to load language server.', err);
+    });
 
   return client;
 }

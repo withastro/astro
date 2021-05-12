@@ -72,7 +72,7 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
 
   let projectVersion = 0;
   const snapshotManager = new SnapshotManager(project.fileNames, { exclude: ['node_modules', 'dist'], include: ['astro'] }, workspaceRoot || process.cwd());
-  
+
   const astroModuleLoader = createAstroModuleLoader(getScriptSnapshot, {});
 
   const host: ts.LanguageServiceHost = {

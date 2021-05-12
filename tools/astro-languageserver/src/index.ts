@@ -71,7 +71,7 @@ export function startServer() {
   connection.onDidCloseTextDocument((evt) => docManager.closeDocument(evt.textDocument.uri));
 
   connection.onDidChangeTextDocument((evt) => {
-    docManager.updateDocument(evt.textDocument.uri, evt.contentChanges)
+    docManager.updateDocument(evt.textDocument.uri, evt.contentChanges);
   });
 
   connection.onDidChangeWatchedFiles((evt) => {

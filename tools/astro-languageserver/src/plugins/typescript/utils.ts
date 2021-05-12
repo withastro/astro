@@ -113,17 +113,17 @@ export function getScriptKindFromFileName(fileName: string): ts.ScriptKind {
 
 export function getExtensionFromScriptKind(kind: ts.ScriptKind | undefined): ts.Extension {
   switch (kind) {
-      case ts.ScriptKind.JSX:
-          return ts.Extension.Jsx;
-      case ts.ScriptKind.TS:
-          return ts.Extension.Ts;
-      case ts.ScriptKind.TSX:
-          return ts.Extension.Tsx;
-      case ts.ScriptKind.JSON:
-          return ts.Extension.Json;
-      case ts.ScriptKind.JS:
-      default:
-          return ts.Extension.Js;
+    case ts.ScriptKind.JSX:
+      return ts.Extension.Jsx;
+    case ts.ScriptKind.TS:
+      return ts.Extension.Ts;
+    case ts.ScriptKind.TSX:
+      return ts.Extension.Tsx;
+    case ts.ScriptKind.JSON:
+      return ts.Extension.Json;
+    case ts.ScriptKind.JS:
+    default:
+      return ts.Extension.Js;
   }
 }
 
