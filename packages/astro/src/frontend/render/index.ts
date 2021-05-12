@@ -30,15 +30,20 @@ export const createRendererPlugin = (plugin: any) => {
     }
 
     const clientFactory = async (astroId: string) => {
+        // hydrateStaticMarkup: (runtimeFrameworkNamespace: string, runtimeRenderNamespace: string, element: string) => void
         const { hydrateStaticMarkup } = plugin.client;
         return ({ Component, props, children }: any) => {
             let prefix = '';
             let args = []
             if (clientImports.length === 1) {
+                // If the framework and render runtimes come from the same package
+                // we'll set both to the same import (namespace `$a`)
                 args[0] = '$a';
                 args[1] = '$a';
                 prefix = `const $a=await import('${clientImports[0]}');`;
             } else {
+                // If the framework and render runtimes come from separate package
+                // we'll set these args to separate imports (namespaces `$a` and `$b`)
                 args[0] = '$a';
                 args[1] = '$b';
                 prefix = `const [$a,$b]=await Promise.all([${clientImports.map(name => `import('${name}')`).join(',')}]);`;
