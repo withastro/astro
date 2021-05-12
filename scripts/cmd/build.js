@@ -8,7 +8,7 @@ import glob from 'tiny-glob';
 /** @type {import('esbuild').BuildOptions} */
 const defaultConfig = {
   bundle: true,
-  minify: true,
+  minify: false,
   format: 'esm',
   platform: 'node',
   target: 'node14',

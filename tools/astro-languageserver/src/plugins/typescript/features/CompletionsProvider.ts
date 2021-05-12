@@ -25,7 +25,13 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
     const { tsDoc, lang } = await this.lang.getTypeScriptDoc(document);
     const fragment = await tsDoc.getFragment();
 
-    const { entries } = lang.getCompletionsAtPosition(fragment.filePath, document.offsetAt(position), {}) ?? { entries: [] };
+    const offset = document.offsetAt(position);
+    const entries = lang.getCompletionsAtPosition(fragment.filePath, offset, {
+      importModuleSpecifierPreference: 'relative',
+      importModuleSpecifierEnding: 'auto',
+      quotePreference: 'single'
+    })?.entries || [];
+
     const completionItems = entries
       .map((entry: ts.CompletionEntry) => this.toCompletionItem(fragment, entry, document.uri, position, new Set()))
       .filter((i) => i) as CompletionItem[];
@@ -37,10 +43,14 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
     const { data: comp } = completionItem;
     const { tsDoc, lang } = await this.lang.getTypeScriptDoc(document);
 
-    const filePath = tsDoc.filePath;
+    let filePath = tsDoc.filePath;
 
     if (!comp || !filePath) {
       return completionItem;
+    }
+
+    if(filePath.endsWith('.astro')) {
+      filePath = filePath + '.ts';
     }
 
     const fragment = await tsDoc.getFragment();

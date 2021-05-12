@@ -2,10 +2,10 @@
 
 import * as ts from 'typescript';
 import { basename } from 'path';
-import { ensureRealAstroFilePath, findTsConfigPath, isAstroFilePath, toVirtualAstroFilePath } from './utils';
+import { ensureRealAstroFilePath, findTsConfigPath } from './utils';
 import { Document } from '../../core/documents';
 import { createDocumentSnapshot, SnapshotManager, DocumentSnapshot } from './SnapshotManager';
-import { createAstroSys } from './astro-sys';
+import { createAstroModuleLoader } from './module-loader';
 
 const services = new Map<string, Promise<LanguageServiceContainer>>();
 
@@ -72,18 +72,19 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
 
   let projectVersion = 0;
   const snapshotManager = new SnapshotManager(project.fileNames, { exclude: ['node_modules', 'dist'], include: ['astro'] }, workspaceRoot || process.cwd());
-  const astroSys = createAstroSys(updateDocument);
+  
+  const astroModuleLoader = createAstroModuleLoader(getScriptSnapshot, {});
 
   const host: ts.LanguageServiceHost = {
     getNewLine: () => ts.sys.newLine,
     useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
-    readFile: astroSys.readFile,
-    writeFile: astroSys.writeFile,
-    fileExists: astroSys.fileExists,
-    directoryExists: astroSys.directoryExists,
-    getDirectories: astroSys.getDirectories,
-    readDirectory: astroSys.readDirectory,
-    realpath: astroSys.realpath,
+    readFile: astroModuleLoader.readFile,
+    writeFile: astroModuleLoader.writeFile,
+    fileExists: astroModuleLoader.fileExists,
+    directoryExists: astroModuleLoader.directoryExists,
+    getDirectories: astroModuleLoader.getDirectories,
+    readDirectory: astroModuleLoader.readDirectory,
+    realpath: astroModuleLoader.realpath,
 
     getCompilationSettings: () => project.options,
     getCurrentDirectory: () => workspaceRoot,
@@ -127,7 +128,8 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
       return previousSnapshot;
     }
 
-    const snapshot = createDocumentSnapshot(filePath, docContext.createDocument);
+    const currentText = document ? document.getText() : null;
+    const snapshot = createDocumentSnapshot(filePath, currentText, docContext.createDocument);
     snapshotManager.set(filePath, snapshot);
     return snapshot;
   }
@@ -140,7 +142,7 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
       return doc;
     }
 
-    doc = createDocumentSnapshot(fileName, docContext.createDocument);
+    doc = createDocumentSnapshot(fileName, null, docContext.createDocument);
     snapshotManager.set(fileName, doc);
     return doc;
   }
