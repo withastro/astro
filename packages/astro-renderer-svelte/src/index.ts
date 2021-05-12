@@ -14,6 +14,10 @@ interface SvelteDependencies {
 const renderer: AstroRenderer<SvelteDependencies, SvelteComponent> = {
   snowpackPlugin: ['@snowpack/plugin-svelte', { compilerOptions: { hydratable: true } }],
 
+  filter(id) {
+    return id.slice(0, -7) === '.svelte';
+  },
+
   server: {
     dependencies: ['./SvelteWrapper.svelte'],
     renderToStaticMarkup({ ["./SvelteWrapper.svelte"]: SvelteWrapper }) {

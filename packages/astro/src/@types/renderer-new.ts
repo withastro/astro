@@ -37,7 +37,13 @@ export interface DependencyMap {
 
 export interface AstroRenderer<Dependencies extends DependencyMap = DependencyMap, ComponentType = any> {
   /** Optionally declare a snowpackPlugin which should be used to render your components */
-  snowpackPlugin?: string;
+  snowpackPlugin?: string|[string, Record<string, any>];
+
+  /** 
+    * Claim a file to use this renderer based on it's file name or imports 
+    * Returning `true` will claim a file to use this renderer, otherwise a `falsy` values will skip this renderer
+    */
+  filter(id: string, context: { imports: Set<string> }): boolean|undefined|null|void;
 
   /** Optionally define JSX behavior if this renderer relies on JSX */
   jsx?: {

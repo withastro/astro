@@ -11,7 +11,17 @@ interface PreactDependencies {
   client: {}
 }
 
+const validExtensions = new Set(['.jsx', '.tsx']);
+
 const renderer: AstroRenderer<PreactDependencies, ComponentType> = {
+
+  filter(id, { imports }) {
+    const ext = id.slice(0, -4);
+    if (!validExtensions.has(ext)) return;
+    if (!imports.has('preact')) return;
+    return true;
+  },
+
   jsx: {
     importSource: 'preact',
     factory: 'h',

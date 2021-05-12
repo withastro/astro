@@ -11,7 +11,17 @@ interface ReactDependencies {
   client: {}
 }
 
+const validExtensions = new Set(['.jsx', '.tsx']);
+
 const renderer: AstroRenderer<ReactDependencies, ComponentType> = {
+
+  filter(id, { imports }) {
+    const ext = id.slice(0, -4);
+    if (!validExtensions.has(ext)) return;
+    if (!imports.has('react')) return;
+    return true;
+  },
+
   jsx: {
     importSource: 'react',
     factory: 'createElement',

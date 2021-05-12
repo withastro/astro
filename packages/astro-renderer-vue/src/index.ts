@@ -14,6 +14,10 @@ interface VueDependencies {
 const renderer: AstroRenderer<VueDependencies, ComponentType> = {
   snowpackPlugin: '@snowpack/plugin-vue',
 
+  filter(id) {
+    return id.slice(0, -4) === '.vue';
+  },
+
   jsx: {
     importSource: 'vue',
     factory: 'h'
