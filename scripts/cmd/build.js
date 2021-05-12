@@ -20,7 +20,10 @@ const defaultConfig = {
 export default async function build(...args) {
   const config = Object.assign({}, defaultConfig);
   const isDev = args.slice(-1)[0] === 'IS_DEV';
-  let entryPoints = [].concat(...(await Promise.all(args.map((pattern) => glob(pattern, { filesOnly: true, absolute: true })))));
+  const patterns = args
+    .filter((f) => !!f) // remove empty args
+    .map((f) => f.replace(/^'/, '').replace(/'$/, '')); // Needed for Windows: glob strings contain surrounding string chars??? remove these
+  let entryPoints = [].concat(...(await Promise.all(patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true })))));
 
   const { type = 'module', dependencies = {} } = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
   const format = type === 'module' ? 'esm' : 'cjs';

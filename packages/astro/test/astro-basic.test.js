@@ -9,8 +9,8 @@ setup(Basics, './fixtures/astro-basic');
 
 Basics('Can load page', async ({ runtime }) => {
   const result = await runtime.load('/');
+  if (result.error) throw new Error(result.error);
 
-  assert.equal(result.statusCode, 200);
   const $ = doc(result.contents);
 
   assert.equal($('h1').text(), 'Hello world!');

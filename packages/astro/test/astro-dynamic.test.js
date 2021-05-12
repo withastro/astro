@@ -9,8 +9,7 @@ setupBuild(DynamicComponents, './fixtures/astro-dynamic');
 
 DynamicComponents('Loads client-only packages', async ({ runtime }) => {
   let result = await runtime.load('/');
-
-  assert.equal(result.statusCode, 200);
+  if (result.error) throw new Error(result.error);
 
   // Grab the react-dom import
   const exp = /import\("(.+?)"\)/g;

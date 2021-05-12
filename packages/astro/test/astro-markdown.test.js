@@ -43,8 +43,7 @@ Markdown('No errors creating a runtime', () => {
 
 Markdown('Can load markdown pages with hmx', async () => {
   const result = await runtime.load('/post');
-
-  assert.equal(result.statusCode, 200);
+  if (result.error) throw new Error(result.error);
 
   const $ = doc(result.contents);
   assert.ok($('#first').length, 'There is a div added in markdown');
@@ -53,6 +52,7 @@ Markdown('Can load markdown pages with hmx', async () => {
 
 Markdown('Can load more complex jsxy stuff', async () => {
   const result = await runtime.load('/complex');
+  if (result.error) throw new Error(result.error);
 
   const $ = doc(result.contents);
   const $el = $('#test');

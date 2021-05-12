@@ -9,8 +9,7 @@ setup(Global, './fixtures/astro-global');
 
 Global('Astro.request.url', async (context) => {
   const result = await context.runtime.load('/');
-
-  assert.equal(result.statusCode, 200);
+  if (result.error) throw new Error(result.error);
 
   const $ = doc(result.contents);
   assert.equal($('#pathname').text(), '/');
@@ -35,8 +34,7 @@ Global('Astro.request.canonicalURL', async (context) => {
 
 Global('Astro.site', async (context) => {
   const result = await context.runtime.load('/');
-
-  assert.equal(result.statusCode, 200);
+  if (result.error) throw new Error(result.error);
 
   const $ = doc(result.contents);
   assert.equal($('#site').attr('href'), 'https://mysite.dev');

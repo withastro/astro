@@ -9,6 +9,7 @@ setup(Collections, './fixtures/astro-collection');
 
 Collections('generates list & sorts successfully', async ({ runtime }) => {
   const result = await runtime.load('/posts');
+  if (result.error) throw new Error(result.error);
   const $ = doc(result.contents);
   const urls = [
     ...$('#posts a').map(function () {
@@ -20,6 +21,7 @@ Collections('generates list & sorts successfully', async ({ runtime }) => {
 
 Collections('generates pagination successfully', async ({ runtime }) => {
   const result = await runtime.load('/posts');
+  if (result.error) throw new Error(result.error);
   const $ = doc(result.contents);
   const prev = $('#prev-page');
   const next = $('#next-page');

@@ -10,8 +10,8 @@ setupBuild(ComponentChildren, './fixtures/astro-children');
 
 ComponentChildren('Passes string children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/strings');
+  if (result.error) throw new Error(result.error);
 
-  assert.equal(result.statusCode, 200);
   const $ = doc(result.contents);
 
   const $preact = $('#preact');
@@ -26,8 +26,8 @@ ComponentChildren('Passes string children to framework components', async ({ run
 
 ComponentChildren('Passes markup children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/markup');
+  if (result.error) throw new Error(result.error);
 
-  assert.equal(result.statusCode, 200);
   const $ = doc(result.contents);
 
   const $preact = $('#preact > h1');
@@ -42,8 +42,8 @@ ComponentChildren('Passes markup children to framework components', async ({ run
 
 ComponentChildren('Passes multiple children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/multiple');
+  if (result.error) throw new Error(result.error);
 
-  assert.equal(result.statusCode, 200);
   const $ = doc(result.contents);
 
   const $preact = $('#preact');
