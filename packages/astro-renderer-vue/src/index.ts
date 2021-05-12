@@ -1,7 +1,7 @@
 import type { AstroRenderer } from 'astro/renderer';
 import type { Component as ComponentType } from 'vue';
 
-interface ReactDependencies {
+interface VueDependencies {
   shared: {
     vue: typeof import('vue')
   },
@@ -11,7 +11,7 @@ interface ReactDependencies {
   client: {}
 }
 
-const renderer: AstroRenderer<ReactDependencies, ComponentType> = {
+const renderer: AstroRenderer<VueDependencies, ComponentType> = {
   jsx: {
     importSource: 'vue',
     factory: 'h'
