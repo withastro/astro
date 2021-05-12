@@ -1,9 +1,6 @@
 import type { DynamicRenderContext, DynamicRendererGenerator, SupportedComponentRenderer, StaticRendererGenerator } from '../../@types/renderer';
 import { childrenToJsx } from './utils';
 
-// This prevents tree-shaking of render.
-Function.prototype(childrenToJsx);
-
 /** Initialize Astro Component renderer for Static and Dynamic components */
 export function createRenderer(renderer: SupportedComponentRenderer) {
   const _static: StaticRendererGenerator = (Component) => renderer.renderStatic(Component);
