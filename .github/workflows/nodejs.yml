@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  skip_test:
+  skip_run:
     continue-on-error: true
     runs-on: ubuntu-latest
     outputs:
@@ -23,21 +23,46 @@ jobs:
           skip_after_successful_duplicate: 'true'
           paths_ignore: '["**/README.md", "**/docs/**"]'
           do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+  changeset:
+    needs: skip_run # allow skip_run to cancel this job if it’s not needed
+    if: ${{ needs.skip_run.outputs.should_skip != 'true' }}
+    name: Ensure changeset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PR branch
+        uses: actions/checkout@v2
+
+      - name: Check out main branch
+        uses: actions/checkout@v2
+        with:
+          ref: main
+
+      - name: Set up Node.js 14.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile --ignore-engines
+        env:
+          CI: true
+
+      - run: yarn changeset status --since=main
   test:
-    needs: skip_test # allow skip_test to cancel this job if it’s not needed
-    if: ${{ needs.skip_test.outputs.should_skip != 'true' }}
+    needs: skip_run # allow skip_run to cancel this job if it’s not needed
+    if: ${{ needs.skip_run.outputs.should_skip != 'true' }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        node-version: [14.x, 15.x]
+        node-version: [14.x, 16.x]
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn --frozen-lockfile
+      - run: yarn --frozen-lockfile --ignore-engines
         env:
           CI: true
       - run: yarn build

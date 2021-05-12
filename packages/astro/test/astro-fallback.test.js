@@ -9,8 +9,7 @@ setup(Fallback, './fixtures/astro-fallback');
 
 Fallback('Shows static content', async (context) => {
   const result = await context.runtime.load('/');
-
-  assert.equal(result.statusCode, 200);
+  if (result.error) throw new Error(result.error);
 
   const $ = doc(result.contents);
   assert.equal($('#fallback').text(), 'static');

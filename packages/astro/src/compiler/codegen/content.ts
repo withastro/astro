@@ -42,14 +42,11 @@ function globSearch(spec: string, { filename }: { filename: string }): string[] 
     }
 
     const cwd = path.join(path.dirname(filename), globDir.replace(/\//g, path.sep)); // this must match OS (could be '/' or '\')
-    let found = crawler
-      .glob(glob)
-      .crawlWithOptions(cwd, { includeBasePath: true })
-      .sync() as PathsOutput;
+    let found = crawler.glob(glob).crawlWithOptions(cwd, { includeBasePath: true }).sync() as PathsOutput;
     if (!found.length) {
       throw new Error(`No files matched "${spec}" from ${filename}`);
     }
-    return found.map(importPath => {
+    return found.map((importPath) => {
       if (importPath.startsWith('http') || importPath.startsWith('.')) return importPath;
       return './' + path.posix.join(globDir, path.posix.relative(slash(cwd), importPath));
     });

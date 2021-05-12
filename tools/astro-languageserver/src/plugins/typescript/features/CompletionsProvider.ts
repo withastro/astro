@@ -26,11 +26,12 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
     const fragment = await tsDoc.getFragment();
 
     const offset = document.offsetAt(position);
-    const entries = lang.getCompletionsAtPosition(fragment.filePath, offset, {
-      importModuleSpecifierPreference: 'relative',
-      importModuleSpecifierEnding: 'auto',
-      quotePreference: 'single'
-    })?.entries || [];
+    const entries =
+      lang.getCompletionsAtPosition(fragment.filePath, offset, {
+        importModuleSpecifierPreference: 'relative',
+        importModuleSpecifierEnding: 'auto',
+        quotePreference: 'single',
+      })?.entries || [];
 
     const completionItems = entries
       .map((entry: ts.CompletionEntry) => this.toCompletionItem(fragment, entry, document.uri, position, new Set()))
@@ -49,7 +50,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
       return completionItem;
     }
 
-    if(filePath.endsWith('.astro')) {
+    if (filePath.endsWith('.astro')) {
       filePath = filePath + '.ts';
     }
 

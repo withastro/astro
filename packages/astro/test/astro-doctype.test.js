@@ -34,8 +34,7 @@ DType('No errors creating a runtime', () => {
 
 DType('Automatically prepends the standards mode doctype', async () => {
   const result = await runtime.load('/prepend');
-
-  assert.equal(result.statusCode, 200);
+  if (result.error) throw new Error(result.error);
 
   const html = result.contents.toString('utf-8');
   assert.ok(html.startsWith('<!doctype html>'), 'Doctype always included');
@@ -43,8 +42,7 @@ DType('Automatically prepends the standards mode doctype', async () => {
 
 DType.skip('Preserves user provided doctype', async () => {
   const result = await runtime.load('/preserve');
-
-  assert.equal(result.statusCode, 200);
+  if (result.error) throw new Error(result.error);
 
   const html = result.contents.toString('utf-8');
   assert.ok(html.startsWith('<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'), 'Doctype included was preserved');

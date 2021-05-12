@@ -35,8 +35,7 @@ React('No error creating the runtime', () => {
 
 React('Can load React', async () => {
   const result = await runtime.load('/');
-
-  assert.equal(result.statusCode, 200);
+  if (result.error) throw new Error(result.error);
 
   const $ = doc(result.contents);
   assert.equal($('#react-h2').text(), 'Hello world!');
@@ -44,8 +43,7 @@ React('Can load React', async () => {
 
 React('Can load Vue', async () => {
   const result = await runtime.load('/');
-
-  assert.equal(result.statusCode, 200);
+  if (result.error) throw new Error(result.error);
 
   const $ = doc(result.contents);
   assert.equal($('#vue-h2').text(), 'Hasta la vista, baby');

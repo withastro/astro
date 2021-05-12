@@ -10,9 +10,9 @@ setupBuild(CSSBundling, './fixtures/astro-css-bundling');
 // note: the hashes should be deterministic, but updating the file contents will change hashes
 // be careful not to test that the HTML simply contains CSS, because it always will! filename and quanity matter here (bundling).
 const EXPECTED_CSS = {
-  '/index.html': ['/_astro/common-ZVuUT3.css', '/_astro/index-Z2jH7pc.css'],
-  '/one/index.html': ['/_astro/common-ZVuUT3.css', '/_astro/one/index-2qFtfN.css'],
-  '/two/index.html': ['/_astro/common-ZVuUT3.css', '/_astro/two/index-2jKE68.css'],
+  '/index.html': ['/_astro/common-', '/_astro/index-'], // don’t match hashes, which change based on content
+  '/one/index.html': ['/_astro/common-', '/_astro/one/index-'],
+  '/two/index.html': ['/_astro/common-', '/_astro/two/index-'],
 };
 const UNEXPECTED_CSS = ['/_astro/components/nav.css', '../css/typography.css', '../css/colors.css', '../css/page-index.css', '../css/page-one.css', '../css/page-two.css'];
 
@@ -28,9 +28,9 @@ CSSBundling('Bundles CSS', async (context) => {
 
     // test 1: assert new bundled CSS is present
     for (const href of css) {
-      builtCSS.add(href);
-      const link = $(`link[href="${href}"]`);
+      const link = $(`link[href^="${href}"]`);
       assert.equal(link.length, 1);
+      builtCSS.add(link.attr('href'));
     }
 
     // test 2: assert old CSS was removed
