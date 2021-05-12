@@ -32,6 +32,7 @@ export const childrenToVnodes = moize.deep(function childrenToVnodes(h: any, chi
  */
 export const childrenToH = moize.deep(function childrenToH(renderer: ComponentRenderer<any>, children: string[]): any {
   if (!renderer.jsxPragma) return;
+
   const tree = childrenToTree(children);
   const innerH = (name: any, attrs: Record<string, any> | null = null, _children: string[] | null = null) => {
     const vnode = renderer.jsxPragma?.(name, attrs, _children);
@@ -40,9 +41,11 @@ export const childrenToH = moize.deep(function childrenToH(renderer: ComponentRe
     const __SERIALIZED = `${renderer.jsxPragmaName}("${name}", ${attrs ? JSON.stringify(attrs) : 'null'}${childStr})` as string;
     return { ...vnode, __SERIALIZED };
   };
+
+  const simpleTypes = new Set(['number', 'boolean']);
   const serializeChild = (child: unknown) => {
     if (typeof child === 'string') return JSON.stringify(child).replace(/<\/script>/gmi, '</script" + ">');
-    if (['number', 'boolean'].includes(typeof child)) return JSON.stringify(child);
+    if (simpleTypes.has(typeof child)) return JSON.stringify(child);
     if (child === null) return `null`;
     if ((child as any).__SERIALIZED) return (child as any).__SERIALIZED;
     return innerH(child).__SERIALIZED;
