@@ -1,13 +1,14 @@
-import unified from 'unified';
+// Unclear know what's going on here but there's some ESM/CJS weirdness.
+// `default` import doesn't work but the namespace appears to be the default export
+import * as _unified from 'unified';
 import parse from 'rehype-parse';
 import toH from 'hast-to-hyperscript';
 import { ComponentRenderer } from '../../@types/renderer';
 import moize from 'moize';
-// This prevents tree-shaking of render.
-Function.prototype(toH);
 
 /** @internal */
 function childrenToTree(children: string[]): any[] {
+  const unified = _unified as unknown as typeof import('unified');
   return [].concat(...children.map((child) => (unified().use(parse, { fragment: true }).parse(child) as any).children));
 }
 

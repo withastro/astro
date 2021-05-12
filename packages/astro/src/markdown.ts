@@ -1,4 +1,4 @@
-import { renderMarkdown } from '../compiler/utils.js';
+import { renderMarkdown } from './compiler/utils.js';
 
 /** 
   * Functional component which uses Astro's built-in Markdown rendering 
@@ -8,10 +8,10 @@ import { renderMarkdown } from '../compiler/utils.js';
   * by the parser and Astro, so at this point we're just rendering 
   * out plain markdown, no need for JSX support
   */
-export default function Markdown(props: { $scope: string|null }, ...children: string[]): any {
+export default async function Markdown(props: { $scope: string|null }, ...children: string[]): Promise<string> {
   const { $scope = null } = props ?? {};
   const text = dedent(children.join('').trimEnd());
-  let { content } = renderMarkdown(text, { $: { scopedClassName: $scope } });
+  let { content } = await renderMarkdown(text, { $: { scopedClassName: $scope } });
   if (content.split('<p>').length === 2) {
     content = content.replace(/^\<p\>/i, '').replace(/\<\/p\>$/i, '');
   }
