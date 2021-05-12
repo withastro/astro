@@ -10,7 +10,7 @@
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./components/*": "./components/*",
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
-    "./markdown": "./dist/frontend/markdown.js"
+    "./markdown": "./dist/markdown.js"
   },
   "imports": {
     "#astro/compiler": "./dist/compiler/index.js",
@@ -107,7 +107,8 @@
     "@types/sass": "^1.16.0",
     "@types/yargs-parser": "^20.2.0",
     "astro-scripts": "0.0.1",
-    "slash": "^4.0.0"
+    "slash": "^4.0.0",
+    "unist-util-visit": "^3.1.0"
   },
   "engines": {
     "node": ">=14.0.0",

@@ -48,7 +48,7 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
  * .md -> .astro source
  */
 export async function convertMdToAstroSource(contents: string): Promise<string> {
-  const { content, frontmatter: { layout, ...frontmatter }, ...data } = renderMarkdown(contents);
+  const { content, frontmatter: { layout, ...frontmatter }, ...data } = await renderMarkdown(contents);
   const contentData = {
     ...data,
     frontmatter
@@ -114,7 +114,7 @@ ${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from '${internalImport('h.js')}';
-${usesMarkdown ? `import __astroMarkdownRender from '${internalImport('markdown.js')}'` : ''};
+${usesMarkdown ? `import __astroMarkdownRender from 'astro/markdown';` : ''};
 const __astroRequestSymbol = Symbol('astro.request');
 async function __render(props, ...children) {
   const Astro = {
