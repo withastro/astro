@@ -1,1 +1,5 @@
-**/dist/*
+**/dist
+**/node_modules
+**/fixtures
+./README.md
+
