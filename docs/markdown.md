@@ -4,7 +4,7 @@ Astro comes with out-of-the-box Markdown support powered by the expansive [**rem
 
 ## Remark Plugins
 
-This is the first draft of Markdown support, but Astro hopes to support user-provided `remark` plugins soon. However, our hope is that you may not need `remark` plugins at all!
+**This is the first draft of Markdown support!** While we plan to support user-provided `remark` plugins soon, our hope is that you won't need `remark` plugins at all!
 
 In addition to [custom components inside the `<Markdown>` component](#markdown-component), Astro comes with [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, and [Smartypants](https://github.com/silvenon/remark-smartypants) pre-enabled. These features are likely to be configurable in the future.
 
@@ -52,7 +52,8 @@ Astro exposes a special `Markdown` component for `.astro` files which enables ma
 
 ```jsx
 ---
-// For now, this import _must_ be named "Markdown"
+// For now, this import _must_ be named "Markdown" and _must not_ be wrapped with a custom component
+// We're working on easing these restrictions!
 import Markdown from 'astro/components/Markdown.astro';
 import Layout from '../layouts/main.astro';
 import MyFancyCodePreview from '../components/MyFancyCodePreview.tsx';
@@ -86,7 +87,6 @@ const expressions = 'Lorem ipsum';
       const object = { someOtherValue };
       ```
     </MyFancyCodePreview:visible>
-    
   </Markdown>
 </Layout>
 ```
