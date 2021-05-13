@@ -5,10 +5,10 @@
   "icon": "assets/icon.png",
   "type": "commonjs",
   "galleryBanner": {
-    "color": "#FF5D01",
+    "color": "#FFBE2D",
     "theme": "dark"
   },
-  "version": "0.4.0",
+  "version": "0.4.1",
   "author": "Astro",
   "publisher": "astro-build",
   "license": "MIT",
@@ -18,13 +18,12 @@
     "dev": "astro-scripts dev 'src/index.ts'"
   },
   "engines": {
-    "vscode": "^1.22.0"
+    "vscode": "^1.52.0"
   },
   "activationEvents": [
     "onLanguage:astro"
   ],
   "dependencies": {
-    "vscode": "^1.1.37",
     "vscode-languageclient": "~7.0.0",
     "vscode-html-languageservice": "^3.0.3",
     "vscode-emmet-helper": "2.1.2",
@@ -32,7 +31,7 @@
   },
   "devDependencies": {
     "astro-scripts": "0.0.1",
-    "@types/vscode": "latest"
+    "@types/vscode": "^1.52.0"
   },
   "main": "./dist/index.js",
   "files": [

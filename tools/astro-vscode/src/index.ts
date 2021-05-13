@@ -1,4 +1,3 @@
-import * as path from 'path';
 import * as vscode from 'vscode';
 import * as lsp from 'vscode-languageclient/node';
 import { activateTagClosing } from './html/autoClose';

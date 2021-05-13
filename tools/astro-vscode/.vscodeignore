@@ -1,1 +1,4 @@
-packages/
+src/
+tsconfig.base.json
+tsconfig.json
+contributing.md
