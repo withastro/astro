@@ -8,7 +8,7 @@
     "color": "#FF5D01",
     "theme": "dark"
   },
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Astro",
   "publisher": "astro-build",
   "license": "MIT",
@@ -28,7 +28,7 @@
     "vscode-languageclient": "~7.0.0",
     "vscode-html-languageservice": "^3.0.3",
     "vscode-emmet-helper": "2.1.2",
-    "astro-languageserver": "0.3.0"
+    "astro-languageserver": "0.4.0"
   },
   "devDependencies": {
     "astro-scripts": "0.0.1",

@@ -1,6 +1,6 @@
 {
   "name": "astro-languageserver",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": "Skypack",
   "license": "MIT",
   "type": "commonjs",
@@ -15,7 +15,7 @@
     "dev": "astro-scripts dev 'src/index.ts'"
   },
   "devDependencies": {
-    "astro": "^0.0.12",
+    "astro": "^0.0.13",
     "astro-scripts": "0.0.1"
   },
   "dependencies": {
