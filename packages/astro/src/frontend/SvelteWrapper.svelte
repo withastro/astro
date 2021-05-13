@@ -2,6 +2,6 @@
 const { __astro_component: Component, __astro_children, ...props } = $$props;
 </script>
 
-<Component {...props}>
+<svelte:component this={Component} {...props}>
     {@html __astro_children}
-</Component>
+</svelte:component>
