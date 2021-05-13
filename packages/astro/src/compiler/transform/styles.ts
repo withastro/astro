@@ -156,6 +156,36 @@ async function transformStyle(code: string, { logging, type, filename, scopedCla
   return { css, type: styleType };
 }
 
+/** For a given node, inject or append a `scopedClass` to its `class` attribute */
+function injectScopedClassAttribute(node: TemplateNode, scopedClass: string, attribute = 'class') {
+  if (!node.attributes) node.attributes = [];
+  const classIndex = node.attributes.findIndex(({ name }: any) => name === attribute);
+  if (classIndex === -1) {
+    // 3a. element has no class="" attribute; add one and append scopedClass
+    node.attributes.push({ start: -1, end: -1, type: 'Attribute', name: attribute, value: [{ type: 'Text', raw: scopedClass, data: scopedClass }] });
+  } else {
+    // 3b. element has class=""; append scopedClass
+    const attr = node.attributes[classIndex];
+    for (let k = 0; k < attr.value.length; k++) {
+      if (attr.value[k].type === 'Text') {
+        // don‘t add same scopedClass twice
+        if (!hasClass(attr.value[k].data, scopedClass)) {
+          // string literal
+          attr.value[k].raw += ' ' + scopedClass;
+          attr.value[k].data += ' ' + scopedClass;
+        }
+      } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
+        // don‘t add same scopedClass twice (this check is a little more basic, but should suffice)
+        if (!attr.value[k].expression.codeChunks[0].includes(`' ${scopedClass}'`)) {
+          // MustacheTag
+          // FIXME: this won't work when JSX element can appear in attributes (rare but possible).
+          attr.value[k].expression.codeChunks[0] = `(${attr.value[k].expression.codeChunks[0]}) + ' ${scopedClass}'`;
+        }
+      }
+    }
+  }
+}
+
 /** Transform <style> tags */
 export default function transformStyles({ compileOptions, filename, fileID }: TransformOptions): Transformer {
   const styleNodes: TemplateNode[] = []; // <style> tags to be updated
@@ -180,6 +210,12 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
   return {
     visitors: {
       html: {
+        InlineComponent: {
+          enter(node) {
+            if (node.name !== 'Markdown') return;
+            injectScopedClassAttribute(node, scopedClass, '$scope');
+          }
+        },
         Element: {
           enter(node) {
             // 1. if <style> tag, transform it and continue to next node
@@ -204,32 +240,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
             if (NEVER_SCOPED_TAGS.has(node.name)) return; // only continue if this is NOT a <script> tag, etc.
             // Note: currently we _do_ scope web components/custom elements. This seems correct?
 
-            if (!node.attributes) node.attributes = [];
-            const classIndex = node.attributes.findIndex(({ name }: any) => name === 'class');
-            if (classIndex === -1) {
-              // 3a. element has no class="" attribute; add one and append scopedClass
-              node.attributes.push({ start: -1, end: -1, type: 'Attribute', name: 'class', value: [{ type: 'Text', raw: scopedClass, data: scopedClass }] });
-            } else {
-              // 3b. element has class=""; append scopedClass
-              const attr = node.attributes[classIndex];
-              for (let k = 0; k < attr.value.length; k++) {
-                if (attr.value[k].type === 'Text') {
-                  // don‘t add same scopedClass twice
-                  if (!hasClass(attr.value[k].data, scopedClass)) {
-                    // string literal
-                    attr.value[k].raw += ' ' + scopedClass;
-                    attr.value[k].data += ' ' + scopedClass;
-                  }
-                } else if (attr.value[k].type === 'MustacheTag' && attr.value[k]) {
-                  // don‘t add same scopedClass twice (this check is a little more basic, but should suffice)
-                  if (!attr.value[k].expression.codeChunks[0].includes(`' ${scopedClass}'`)) {
-                    // MustacheTag
-                    // FIXME: this won't work when JSX element can appear in attributes (rare but possible).
-                    attr.value[k].expression.codeChunks[0] = `(${attr.value[k].expression.codeChunks[0]}) + ' ${scopedClass}'`;
-                  }
-                }
-              }
-            }
+            injectScopedClassAttribute(node, scopedClass);
           },
         },
       },

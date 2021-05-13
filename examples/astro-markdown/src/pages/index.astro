@@ -1,0 +1,32 @@
+---
+import Markdown from 'astro/components/Markdown.astro';
+import Layout from '../layouts/main.astro';
+import Counter from '../components/ReactCounter.jsx';
+
+const title = 'Astro Markdown';
+const greeting = `Hello, ${title}!`;
+---
+
+<Layout content={{ title, greeting }}>
+  <Markdown>
+    # {greeting}
+
+    "This is pretty cool"
+
+    [Go to {title}](https://google.com).
+
+    Lorem ipsum dolor sit amet _consectetur_ adipisicing elit. 
+    Voluptatum error, eaque facere recusandae hic **aliquam** aut beatae repellendus voluptatem eius, 
+    tenetur cumque eveniet, ex quasi omnis? Nam vel facere molestiae.
+    
+    <h4>
+      [Go to {title}](https://google.com)
+    </h4>
+
+    <Counter:visible />
+
+    <Counter:visible>
+      ## {greeting}
+    </Counter:visible>
+  </Markdown>
+</Layout>
