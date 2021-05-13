@@ -26,12 +26,11 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
     const fragment = await tsDoc.getFragment();
 
     const offset = document.offsetAt(position);
-    const entries =
-      lang.getCompletionsAtPosition(fragment.filePath, offset, {
-        importModuleSpecifierPreference: 'relative',
-        importModuleSpecifierEnding: 'auto',
-        quotePreference: 'single',
-      })?.entries || [];
+    const entries = lang.getCompletionsAtPosition(fragment.filePath, offset, {
+      importModuleSpecifierPreference: 'relative',
+      importModuleSpecifierEnding: 'js',
+      quotePreference: 'single',
+    })?.entries || [];
 
     const completionItems = entries
       .map((entry: ts.CompletionEntry) => this.toCompletionItem(fragment, entry, document.uri, position, new Set()))
@@ -55,7 +54,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
     }
 
     const fragment = await tsDoc.getFragment();
-    const detail = lang.getCompletionEntryDetails(filePath, fragment.offsetAt(comp.position), comp.name, {}, comp.source, {});
+    const detail = lang.getCompletionEntryDetails(filePath, fragment.offsetAt(comp.position), comp.name, {}, comp.source, {}, undefined);
 
     if (detail) {
       const { detail: itemDetail, documentation: itemDocumentation } = this.getCompletionDocument(detail);
