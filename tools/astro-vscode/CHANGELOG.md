@@ -1,11 +1,13 @@
 # astro-vscode
 
 ## 0.4.1
+
 ### Patch Changes
 
 - Updated VS Code Marketplace banner
 
 ## 0.4.0
+
 ### Minor Changes
 
 - 06e2597: Adds support for import suggestions

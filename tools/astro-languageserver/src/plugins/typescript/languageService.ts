@@ -72,11 +72,15 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
 
   let projectVersion = 0;
 
-  const snapshotManager = new SnapshotManager(project.fileNames, {
-    exclude: ['node_modules', 'dist'],
-    include: ['src']
-  }, workspaceRoot || process.cwd());
-  
+  const snapshotManager = new SnapshotManager(
+    project.fileNames,
+    {
+      exclude: ['node_modules', 'dist'],
+      include: ['src'],
+    },
+    workspaceRoot || process.cwd()
+  );
+
   const astroModuleLoader = createAstroModuleLoader(getScriptSnapshot, {});
 
   const host: ts.LanguageServiceHost = {
@@ -97,7 +101,7 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     getProjectVersion: () => `${projectVersion}`,
     getScriptFileNames: () => Array.from(new Set([...snapshotManager.getFileNames(), ...snapshotManager.getProjectFileNames()])),
     getScriptSnapshot,
-    getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString()
+    getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString(),
   };
 
   const languageService: ts.LanguageService = ts.createLanguageService(host);

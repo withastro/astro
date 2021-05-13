@@ -37,7 +37,7 @@ export default async function build(...args) {
       outdir,
       external,
       format,
-      plugins: [svelte({ isDev })]
+      plugins: [svelte({ isDev })],
     });
     return;
   }
@@ -61,7 +61,7 @@ export default async function build(...args) {
     outdir,
     external,
     format,
-    plugins: [svelte({ isDev })]
+    plugins: [svelte({ isDev })],
   });
 
   process.on('beforeExit', () => {

@@ -26,11 +26,12 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
     const fragment = await tsDoc.getFragment();
 
     const offset = document.offsetAt(position);
-    const entries = lang.getCompletionsAtPosition(fragment.filePath, offset, {
-      importModuleSpecifierPreference: 'relative',
-      importModuleSpecifierEnding: 'js',
-      quotePreference: 'single',
-    })?.entries || [];
+    const entries =
+      lang.getCompletionsAtPosition(fragment.filePath, offset, {
+        importModuleSpecifierPreference: 'relative',
+        importModuleSpecifierEnding: 'js',
+        quotePreference: 'single',
+      })?.entries || [];
 
     const completionItems = entries
       .map((entry: ts.CompletionEntry) => this.toCompletionItem(fragment, entry, document.uri, position, new Set()))
