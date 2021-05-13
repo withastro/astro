@@ -22,7 +22,7 @@ export function createAstroSys(getSnapshot: (fileName: string) => DocumentSnapsh
       return snapshot.getFullText();
     },
     readDirectory(path, extensions, exclude, include, depth) {
-      const extensionsWithAstro = (extensions ?? []).concat(...['.astro']);
+      const extensionsWithAstro = (extensions ?? []).concat(...['.astro', '.svelte', '.vue']);
       const result = ts.sys.readDirectory(path, extensionsWithAstro, exclude, include, depth);
       return result;
     },

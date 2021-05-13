@@ -71,8 +71,12 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
   ]);
 
   let projectVersion = 0;
-  const snapshotManager = new SnapshotManager(project.fileNames, { exclude: ['node_modules', 'dist'], include: ['astro'] }, workspaceRoot || process.cwd());
 
+  const snapshotManager = new SnapshotManager(project.fileNames, {
+    exclude: ['node_modules', 'dist'],
+    include: ['src']
+  }, workspaceRoot || process.cwd());
+  
   const astroModuleLoader = createAstroModuleLoader(getScriptSnapshot, {});
 
   const host: ts.LanguageServiceHost = {
@@ -93,10 +97,10 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     getProjectVersion: () => `${projectVersion}`,
     getScriptFileNames: () => Array.from(new Set([...snapshotManager.getFileNames(), ...snapshotManager.getProjectFileNames()])),
     getScriptSnapshot,
-    getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString(),
+    getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString()
   };
 
-  const languageService = ts.createLanguageService(host);
+  const languageService: ts.LanguageService = ts.createLanguageService(host);
   const languageServiceProxy = new Proxy(languageService, {
     get(target, prop) {
       return Reflect.get(target, prop);
@@ -110,6 +114,10 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     updateDocument,
     deleteDocument,
   };
+
+  function onProjectUpdated() {
+    projectVersion++;
+  }
 
   function deleteDocument(filePath: string) {
     snapshotManager.delete(filePath);
@@ -131,6 +139,7 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     const currentText = document ? document.getText() : null;
     const snapshot = createDocumentSnapshot(filePath, currentText, docContext.createDocument);
     snapshotManager.set(filePath, snapshot);
+    onProjectUpdated();
     return snapshot;
   }
 
@@ -161,7 +170,7 @@ function getDefaultJsConfig(): {
       allowSyntheticDefaultImports: true,
       allowJs: true,
     },
-    include: ['astro'],
+    include: ['src'],
   };
 }
 
