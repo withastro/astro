@@ -1,7 +1,6 @@
 // @ts-nocheck
 
 import read_expression from '../read/expression.js';
-import read_script from '../read/script.js';
 import read_style from '../read/style.js';
 import { decode_character_references, closing_tag_omitted } from '../utils/html.js';
 import { is_void } from '../../utils/names.js';
@@ -518,7 +517,7 @@ function read_attribute_value(parser: Parser) {
   return value;
 }
 
-function read_sequence(parser: Parser, done: () => boolean): TemplateNode[] {
+export function read_sequence(parser: Parser, done: () => boolean): TemplateNode[] {
   let current_chunk: Text = {
     start: parser.index,
     end: null,

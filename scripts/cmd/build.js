@@ -14,7 +14,6 @@ const defaultConfig = {
   target: 'node14',
   sourcemap: 'inline',
   sourcesContent: false,
-  plugins: [svelte()],
 };
 
 export default async function build(...args) {
@@ -38,6 +37,7 @@ export default async function build(...args) {
       outdir,
       external,
       format,
+      plugins: [svelte({ isDev })]
     });
     return;
   }
@@ -61,6 +61,7 @@ export default async function build(...args) {
     outdir,
     external,
     format,
+    plugins: [svelte({ isDev })]
   });
 
   process.on('beforeExit', () => {

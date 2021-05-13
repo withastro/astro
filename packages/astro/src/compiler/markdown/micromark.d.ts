@@ -1,11 +1,11 @@
-declare module 'micromark-extension-mdx-expression' {
-  import type { HtmlExtension } from 'micromark/dist/shared-types';
-
-  export default function (): HtmlExtension;
+declare module '@silvenon/remark-smartypants' { 
+  export default function (): any;
 }
 
-declare module 'micromark-extension-mdx-jsx' {
-  import type { HtmlExtension } from 'micromark/dist/shared-types';
+declare module 'mdast-util-mdx/from-markdown.js' { 
+  export default function (): any;
+}
 
-  export default function (): HtmlExtension;
+declare module 'mdast-util-mdx/to-markdown.js' { 
+  export default function (): any;
 }

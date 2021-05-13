@@ -63,12 +63,12 @@ Even though nearly-everything [is configurable][docs-config], we recommend start
 
 #### 🚦 Routing
 
-Routing happens in `src/pages/*`. Every `.astro` or `.md.astro` file in this folder corresponds with a public URL. For example:
+Routing happens in `src/pages/*`. Every `.astro` or `.md` file in this folder corresponds with a public URL. For example:
 
 | Local file                             | Public URL                      |
 | :------------------------------------- | :------------------------------ |
 | `src/pages/index.astro`                | `/index.html`                   |
-| `src/pages/post/my-blog-post.md.astro` | `/post/my-blog-post/index.html` |
+| `src/pages/post/my-blog-post.md`       | `/post/my-blog-post/index.html` |
 
 #### 🗂 Static Assets
 
@@ -76,7 +76,17 @@ Static assets should be placed in a `public/` folder in your project. You can pl
 
 #### 🪨 Generating HTML with Astro
 
-TODO: Astro syntax guide
+Astro introduces a special `.astro` format, which combines the best of HTML with the best of JavaScript.
+
+To learn more about `.astro` files, read our complete [Syntax Guide][docs-syntax].
+
+#### ✍️ Markdown
+
+Spend less time configuring your tooling and more time writing content. Astro has phenomenal Markdown support (powered by [`remark`][remark]) baked in!
+
+Not only can you use local `.md` files as pages, but Astro also comes with a `<Markdown>` component to turn every page into a Markdown file. Using the `<Markdown>` component in an `.astro` file should feel very similar to [MDX][mdx], but with the ability to use components from any framework (with [partial hydration](#partial-hydration), too)!
+
+To learn more about use Markdown in Astro, read our [Markdown Guide][docs-markdown].
 
 #### ⚡ Dynamic Components
 
@@ -180,13 +190,17 @@ Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set
 👉 [**Dev Server Docs**][docs-dev]
 
 [docs-config]: ./docs/config.md
+[docs-syntax]: ./docs/syntax.md
 [docs-api]: ./docs/api.md
 [docs-collections]: ./docs/collections.md
+[docs-markdown]: ./docs/markdown.md
 [docs-dev]: ./docs/dev.md
 [docs-styling]: ./docs/styling.md
 [example-blog]: ./examples/blog
 [fetch-content]: ./docs/api.md#fetchcontent
 [fetch-js]: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
+[remark]: https://github.com/remarkjs/remark
+[mdx]: https://mdxjs.com/
 [mdn-io]: https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
 [mdn-ric]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
 [routing]: #-routing
