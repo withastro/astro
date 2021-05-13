@@ -19,7 +19,9 @@
     "astro-scripts": "0.0.1"
   },
   "dependencies": {
+    "source-map": "^0.7.3",
     "typescript": "^4.3.1-rc",
+    "vscode-css-languageservice": "^5.1.1",
     "vscode-emmet-helper": "2.1.2",
     "vscode-html-languageservice": "^3.0.3",
     "vscode-languageserver": "6.1.1",

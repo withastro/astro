@@ -1,6 +1,16 @@
 import { Position } from 'vscode-html-languageservice';
 import { clamp } from '../../utils';
 
+export interface TagInformation {
+  content: string;
+  attributes: Record<string, string>;
+  start: number;
+  end: number;
+  startPos: Position;
+  endPos: Position;
+  container: { start: number; end: number };
+}
+
 /**
  * Gets word range at position.
  * Delimiter is by default a whitespace, but can be adjusted.
