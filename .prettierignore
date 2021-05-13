@@ -1,5 +1,5 @@
 **/dist
 **/node_modules
 **/fixtures
-./README.md
-
+**/.vercel
+README.md
