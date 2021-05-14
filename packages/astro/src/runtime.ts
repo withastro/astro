@@ -317,16 +317,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       external: [
         '@vue/server-renderer',
         'node-fetch',
-        'prismjs/components/index.js',
-        'unified',
-        'remark-parse',
-        'remark-rehype',
-        'remark-gfm',
-        'remark-footnotes',
-        'rehype-stringify',
-        'rehype-raw',
-        'gray-matter',
-        '@silvenon/remark-smartypants',
+        'prismjs/components/index.js'
       ],
     },
   });

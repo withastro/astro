@@ -1,4 +1,4 @@
-import { renderMarkdown } from './compiler/utils.js';
+import { renderMarkdown } from '../compiler/utils.js';
 
 /** 
   * Functional component which uses Astro's built-in Markdown rendering 

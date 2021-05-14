@@ -3,7 +3,7 @@ import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 
 import path from 'path';
-import { renderMarkdown } from './utils.js';
+import { renderMarkdownWithFrontmatter } from './utils.js';
 
 import { parse } from 'astro-parser';
 import { transform } from './transform/index.js';
@@ -48,7 +48,7 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
  * .md -> .astro source
  */
 export async function convertMdToAstroSource(contents: string): Promise<string> {
-  const { content, frontmatter: { layout, ...frontmatter }, ...data } = await renderMarkdown(contents);
+  const { content, frontmatter: { layout, ...frontmatter }, ...data } = await renderMarkdownWithFrontmatter(contents);
   const contentData = {
     ...data,
     frontmatter
@@ -114,7 +114,7 @@ ${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from '${internalImport('h.js')}';
-${usesMarkdown ? `import __astroMarkdownRender from 'astro/markdown';` : ''};
+${usesMarkdown ? `import __astroMarkdownRender from '${internalImport('markdown.js')}';` : ''};
 const __astroRequestSymbol = Symbol('astro.request');
 async function __render(props, ...children) {
   const Astro = {
