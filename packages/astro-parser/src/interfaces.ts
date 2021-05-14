@@ -27,6 +27,13 @@ export interface CodeFence extends BaseNode {
   raw: string;
 }
 
+export interface CodeSpan extends BaseNode {
+  type: 'CodeFence';
+  metadata: string;
+  data: string;
+  raw: string;
+}
+
 export interface Attribute extends BaseNode {
   type: 'Attribute';
   name: string;
@@ -55,7 +62,7 @@ export interface Transition extends BaseDirective {
 
 export type Directive = BaseDirective | Transition;
 
-export type TemplateNode = Text | CodeFence | MustacheTag | BaseNode | Directive | Transition;
+export type TemplateNode = Text | CodeSpan | CodeFence | MustacheTag | BaseNode | Directive | Transition;
 
 export interface Expression {
   type: 'Expression';

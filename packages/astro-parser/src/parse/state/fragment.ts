@@ -3,6 +3,7 @@ import setup from './setup.js';
 import mustache from './mustache.js';
 import text from './text.js';
 import codefence from './codefence.js';
+import codespan from './codespan.js;
 import { Parser } from '../index.js';
 
 export default function fragment(parser: Parser) {
@@ -14,6 +15,9 @@ export default function fragment(parser: Parser) {
   // https://github.github.com/gfm/#fenced-code-blocks
   if (parser.match_regex(/[`~]{3,}/)) {
     return codefence;
+  }
+  if (parser.match_regex(/(?<!\\)`{1,2}/)) {
+    return codespan;
   }
 
   if (parser.match('<')) {

@@ -636,6 +636,7 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           this.skip();
           return;
         }
+        case 'CodeSpan':
         case 'CodeFence': {
           outSource += ',' + JSON.stringify(node.raw);
           return;
@@ -657,6 +658,7 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
     leave(node, parent, prop, index) {
       switch (node.type) {
         case 'Text':
+        case 'CodeSpan':
         case 'CodeFence':
         case 'Attribute':
         case 'Comment':
