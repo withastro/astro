@@ -1,3 +1,4 @@
+import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { runDevServer } from './helpers.js';
@@ -6,8 +7,9 @@ import { loadConfig } from '#astro/config';
 const ConfigPort = suite('Config path');
 
 const root = new URL('./fixtures/config-port/', import.meta.url);
+
 ConfigPort('can be specified in the astro config', async (context) => {
-  const astroConfig = await loadConfig(root.pathname);
+  const astroConfig = await loadConfig(fileURLToPath(root));
   assert.equal(astroConfig.devOptions.port, 3001);
 });
 

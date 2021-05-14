@@ -1,7 +1,7 @@
 import type { AstroConfig } from './@types/astro';
 
 import 'source-map-support/register.js';
-import { join as pathJoin, resolve as pathResolve } from 'path';
+import path from 'path';
 import { existsSync } from 'fs';
 
 /** Type util */
@@ -73,17 +73,13 @@ function normalizeConfig(userConfig: any, root: string): AstroConfig {
 
 /** Attempt to load an `astro.config.mjs` file */
 export async function loadConfig(rawRoot: string | undefined, configFileName = 'astro.config.mjs'): Promise<AstroConfig> {
-  if (typeof rawRoot === 'undefined') {
-    rawRoot = process.cwd();
-  }
-
-  const root = pathResolve(rawRoot);
-  const astroConfigPath = pathJoin(root, configFileName);
+  const root = rawRoot ? path.resolve(rawRoot) : process.cwd();
+  const astroConfigPath = new URL(`./${configFileName}`, `file://${root}/`);
 
   // load
   let config: any;
   if (existsSync(astroConfigPath)) {
-    config = configDefaults((await import(astroConfigPath)).default);
+    config = configDefaults((await import(astroConfigPath.href)).default);
   } else {
     config = configDefaults();
   }

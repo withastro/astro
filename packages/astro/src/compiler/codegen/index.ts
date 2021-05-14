@@ -6,7 +6,6 @@ import 'source-map-support/register.js';
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { walk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
@@ -603,7 +602,7 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
             outSource += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
           } catch (err) {
             // handle errors in scope with filename
-            const rel = filename.replace(fileURLToPath(astroConfig.projectRoot), '');
+            const rel = filename.replace(astroConfig.projectRoot.pathname, '');
             // TODO: return actual codeframe here
             error(compileOptions.logging, rel, err.toString());
           }
