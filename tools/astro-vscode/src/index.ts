@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import * as lsp from 'vscode-languageclient/node';
-import { activateTagClosing } from './html/autoClose';
+import * as lsp from 'vscode-languageclient/node.js';
+import { activateTagClosing } from './html/autoClose.js';
 
 let docClient: lsp.LanguageClient;
 
