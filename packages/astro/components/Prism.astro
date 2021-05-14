@@ -26,6 +26,7 @@ if(languageMap.has(lang)) {
   ensureLoaded('typescript');
   addAstro(Prism);
 } else {
+  ensureLoaded('markup-templating'); // Prism expects this to exist for a number of other langs
   ensureLoaded(lang);
 }
 
