@@ -1,6 +1,7 @@
 import mdxLite from './markdown/remark-mdx-lite.js';
 import createCollectHeaders from './markdown/rehype-collect-headers.js';
 import scopedStyles from './markdown/remark-scoped-styles.js';
+import raw from 'rehype-raw';
 import unified from 'unified';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
@@ -53,6 +54,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   try {
     const vfile = await parser
       .use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw'] })
+      .use(raw)
       .use(rehypeCollectHeaders)
       .use(stringify)
       .process(content);

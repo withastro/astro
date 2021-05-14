@@ -72,6 +72,7 @@
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "rehype-parse": "^7.0.1",
+    "rehype-raw": "^5.1.0",
     "rehype-stringify": "^8.0.0",
     "remark-footnotes": "^3.0.0",
     "remark-gfm": "^1.0.0",
