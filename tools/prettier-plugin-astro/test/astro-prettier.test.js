@@ -5,7 +5,7 @@ import { promises as fs } from 'fs';
 import { fileURLToPath } from 'url';
 const Prettier = suite('Prettier formatting');
 
-const readFile = (path) => fs.readFile(fileURLToPath(new URL(`./fixtures${path}`, import.meta.url))).then((res) => res.toString());
+const readFile = (path) => fs.readFile(fileURLToPath(new URL(`./fixtures${path}`, import.meta.url))).then((res) => res.toString().replace(/\r\n/g, '\n'));
 
 /**
  * Utility to get `[src, out]` files
