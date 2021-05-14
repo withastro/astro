@@ -677,6 +677,16 @@
         }
       ]
     },
+    "astro-markdown": {
+      "begin": "(?<!</(?:Markdown))(>)",
+      "end": "(?<=</(Markdown))(>)(?:\\s*\\n)?",
+      "contentName": "text.html.markdown.astro",
+      "patterns": [
+        {
+          "include": "text.html.markdown.astro"
+        }
+      ]
+    },
     "astro-expressions": {
       "patterns": [
         {
