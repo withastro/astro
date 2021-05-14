@@ -2216,64 +2216,6 @@ astral-regex@^2.0.0:
   resolved "https://registry.npmjs.org/astral-regex/-/astral-regex-2.0.0.tgz"
   integrity sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==
 
-astro@0.0.12:
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/astro/-/astro-0.0.12.tgz#659588a388e9cedd9b08b714dcb0457584c963ad"
-  integrity sha512-g21eSa1dbPgYDpen5o22EL7iav8u48fIWK3SQmnQ0nXTzIu3gNslGFFKPS68rpwX9xYMqjYNVhWIgtnp25hbtw==
-  dependencies:
-    "@babel/code-frame" "^7.12.13"
-    "@babel/generator" "^7.13.9"
-    "@babel/parser" "^7.13.15"
-    "@babel/traverse" "^7.13.15"
-    "@snowpack/plugin-sass" "^1.4.0"
-    "@snowpack/plugin-svelte" "^3.6.1"
-    "@snowpack/plugin-vue" "^2.4.0"
-    "@vue/server-renderer" "^3.0.10"
-    acorn "^7.4.0"
-    astro-parser "0.0.9"
-    astro-prism "0.0.2"
-    autoprefixer "^10.2.5"
-    cheerio "^1.0.0-rc.5"
-    domhandler "^4.1.0"
-    es-module-lexer "^0.4.1"
-    esbuild "^0.10.1"
-    estree-walker "^3.0.0"
-    fast-xml-parser "^3.19.0"
-    fdir "^5.0.0"
-    find-up "^5.0.0"
-    github-slugger "^1.3.0"
-    gray-matter "^4.0.2"
-    gzip-size "^6.0.0"
-    hast-to-hyperscript "~9.0.0"
-    kleur "^4.1.4"
-    locate-character "^2.0.5"
-    magic-string "^0.25.3"
-    micromark "^2.11.4"
-    micromark-extension-gfm "^0.3.3"
-    micromark-extension-mdx-expression "^0.3.2"
-    micromark-extension-mdx-jsx "^0.3.3"
-    moize "^6.0.1"
-    node-fetch "^2.6.1"
-    picomatch "^2.2.3"
-    postcss "^8.2.8"
-    postcss-icss-keyframes "^0.2.1"
-    preact "^10.5.13"
-    preact-render-to-string "^5.1.18"
-    prismjs "^1.23.0"
-    react "^17.0.1"
-    react-dom "^17.0.1"
-    rehype-parse "^7.0.1"
-    rollup "^2.43.1"
-    rollup-plugin-terser "^7.0.2"
-    sass "^1.32.8"
-    snowpack "^3.3.7"
-    source-map-support "^0.5.19"
-    string-width "^5.0.0"
-    svelte "^3.35.0"
-    unified "^9.2.1"
-    vue "^3.0.10"
-    yargs-parser "^20.2.7"
-
 async-each-series@0.1.1:
   version "0.1.1"
   resolved "https://registry.npmjs.org/async-each-series/-/async-each-series-0.1.1.tgz"
@@ -2943,7 +2885,7 @@ cheerio-select-tmp@^0.1.1:
     domhandler "^4.0.0"
     domutils "^2.4.4"
 
-cheerio-select@^1.3.0, cheerio-select@^1.4.0:
+cheerio-select@^1.3.0:
   version "1.4.0"
   resolved "https://registry.npmjs.org/cheerio-select/-/cheerio-select-1.4.0.tgz"
   integrity sha512-sobR3Yqz27L553Qa7cK6rtJlMDbiKPdNywtR95Sj/YgfpLfy0u6CGJuaBKe5YE/vTc23SCRKxWSdlon/w6I/Ew==
@@ -2965,19 +2907,6 @@ cheerio@^1.0.0-rc.3, cheerio@^1.0.0-rc.6:
     htmlparser2 "^6.1.0"
     parse5 "^6.0.1"
     parse5-htmlparser2-tree-adapter "^6.0.1"
-
-cheerio@^1.0.0-rc.5:
-  version "1.0.0-rc.9"
-  resolved "https://registry.yarnpkg.com/cheerio/-/cheerio-1.0.0-rc.9.tgz#a3ae6b7ce7af80675302ff836f628e7cb786a67f"
-  integrity sha512-QF6XVdrLONO6DXRF5iaolY+odmhj2CLj+xzNod7INPWMi/x9X4SOylH0S/vaPpX+AUU6t04s34SQNh7DbkuCng==
-  dependencies:
-    cheerio-select "^1.4.0"
-    dom-serializer "^1.3.1"
-    domhandler "^4.2.0"
-    htmlparser2 "^6.1.0"
-    parse5 "^6.0.1"
-    parse5-htmlparser2-tree-adapter "^6.0.1"
-    tslib "^2.2.0"
 
 "chokidar@>=3.0.0 <4.0.0", chokidar@^3.2.2, chokidar@^3.4.0, chokidar@^3.5.1:
   version "3.5.1"
@@ -4487,11 +4416,6 @@ estraverse@^5.1.0, estraverse@^5.2.0:
   version "5.2.0"
   resolved "https://registry.npmjs.org/estraverse/-/estraverse-5.2.0.tgz"
   integrity sha512-BxbNGGNm0RyRYvUdHpIwv9IWzeM9XClbOxwoATuFdOE7ZE6wHL+HQ5T8hoPM+zHvmKzzsEqhgy0GrQ5X13afiQ==
-
-estree-util-is-identifier-name@^1.0.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/estree-util-is-identifier-name/-/estree-util-is-identifier-name-1.1.0.tgz#2e3488ea06d9ea2face116058864f6370b37456d"
-  integrity sha512-OVJZ3fGGt9By77Ix9NhaRbzfbDV/2rx9EP7YIDJTmsZSEc5kYn2vWcNccYyahJL2uAQZK2a5Or2i0wtIKTPoRQ==
 
 estree-walker@^0.6.1:
   version "0.6.1"
@@ -7541,7 +7465,7 @@ micromark-extension-gfm-task-list-item@~0.3.0:
   dependencies:
     micromark "~2.11.0"
 
-micromark-extension-gfm@^0.3.0, micromark-extension-gfm@^0.3.3:
+micromark-extension-gfm@^0.3.0:
   version "0.3.3"
   resolved "https://registry.npmjs.org/micromark-extension-gfm/-/micromark-extension-gfm-0.3.3.tgz"
   integrity sha512-oVN4zv5/tAIA+l3GbMi7lWeYpJ14oQyJ3uEim20ktYFAcfX1x3LNlFGGlmrZHt7u9YlKExmyJdDGaTt6cMSR/A==
@@ -7553,25 +7477,7 @@ micromark-extension-gfm@^0.3.0, micromark-extension-gfm@^0.3.3:
     micromark-extension-gfm-tagfilter "~0.3.0"
     micromark-extension-gfm-task-list-item "~0.3.0"
 
-micromark-extension-mdx-expression@^0.3.2:
-  version "0.3.2"
-  resolved "https://registry.yarnpkg.com/micromark-extension-mdx-expression/-/micromark-extension-mdx-expression-0.3.2.tgz#827592af50116110dc9ee27201a73c037e61aa27"
-  integrity sha512-Sh8YHLSAlbm/7TZkVKEC4wDcJE8XhVpZ9hUXBue1TcAicrrzs/oXu7PHH3NcyMemjGyMkiVS34Y0AHC5KG3y4A==
-  dependencies:
-    micromark "~2.11.0"
-    vfile-message "^2.0.0"
-
-micromark-extension-mdx-jsx@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/micromark-extension-mdx-jsx/-/micromark-extension-mdx-jsx-0.3.3.tgz#68e8e700f2860e32e96ff48e44afb7465d462e21"
-  integrity sha512-kG3VwaJlzAPdtIVDznfDfBfNGMTIzsHqKpTmMlew/iPnUCDRNkX+48ElpaOzXAtK5axtpFKE3Hu3VBriZDnRTQ==
-  dependencies:
-    estree-util-is-identifier-name "^1.0.0"
-    micromark "~2.11.0"
-    micromark-extension-mdx-expression "^0.3.2"
-    vfile-message "^2.0.0"
-
-micromark@^2.11.3, micromark@^2.11.4, micromark@~2.11.0, micromark@~2.11.3:
+micromark@^2.11.3, micromark@~2.11.0, micromark@~2.11.3:
   version "2.11.4"
   resolved "https://registry.npmjs.org/micromark/-/micromark-2.11.4.tgz"
   integrity sha512-+WoovN/ppKolQOFIAajxi7Lu9kInbPxFuTBVEavFcL8eAfVstoc5MocPmqBeAdBOJV00uaVjegzH4+MA0DN/uA==
@@ -10168,7 +10074,7 @@ sass@^1.3.0:
   dependencies:
     chokidar ">=3.0.0 <4.0.0"
 
-sass@^1.32.13, sass@^1.32.8:
+sass@^1.32.13:
   version "1.32.13"
   resolved "https://registry.yarnpkg.com/sass/-/sass-1.32.13.tgz#8d29c849e625a415bce71609c7cf95e15f74ed00"
   integrity sha512-dEgI9nShraqP7cXQH+lEXVf73WOPCse0QlFzSD8k+1TcOxCMwVXfQlr0jtoluZysQOyJGnfr21dLvYKDJq8HkA==
@@ -11577,11 +11483,6 @@ tslib@^1.8.1, tslib@^1.9.0:
   version "1.14.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
   integrity sha512-Xni35NKzjgMrwevysHTCArtLDpPvye8zV/0E4EyYn43P7/7qvQwPh9BGkHewbMulVntbigmcT7rdX3BNo9wRJg==
-
-tslib@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.2.0.tgz#fb2c475977e35e241311ede2693cee1ec6698f5c"
-  integrity sha512-gS9GVHRU+RGn5KQM2rllAlR3dU6m7AcpJKdtH8gFvQiC4Otgk98XnmMU+nZenHt/+VhnBPWwgrJsyrdcw6i23w==
 
 tsutils@^3.17.1:
   version "3.21.0"
