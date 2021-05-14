@@ -28,6 +28,8 @@ export interface AstroConfig {
     site?: string;
     /** Generate sitemap (set to "false" to disable) */
     sitemap: boolean;
+    /** Automatically prefetch internal <a> links (set to "false" to disable) */
+    linkPrefetch?: boolean;
   };
   /** Options for the development server run with `astro dev`. */
   devOptions: {

@@ -13,7 +13,10 @@ export function getAttr(attributes: Attribute[], name: string): Attribute | unde
 export function getAttrValue(attributes: Attribute[], name: string): string | undefined {
   const attr = getAttr(attributes, name);
   if (attr) {
-    return attr.value[0]?.data;
+    const child = attr.value[0];
+    if (!child) return;
+    if (child.type === 'Text') return child.data;
+    if (child.type === 'MustacheTag') return child.expression.codeChunks[0];
   }
 }
 
