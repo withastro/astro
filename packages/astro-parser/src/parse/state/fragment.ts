@@ -3,7 +3,7 @@ import setup from './setup.js';
 import mustache from './mustache.js';
 import text from './text.js';
 import codefence from './codefence.js';
-import codespan from './codespan.js;
+import codespan from './codespan.js';
 import { Parser } from '../index.js';
 
 export default function fragment(parser: Parser) {
