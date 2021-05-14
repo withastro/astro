@@ -37,9 +37,10 @@ export function getPageType(filepath: URL): 'collection' | 'static' {
 
 /** Build collection */
 export async function buildCollectionPage({ astroConfig, filepath, logging, mode, runtime, site, resolvePackageUrl, buildState }: PageBuildOptions): Promise<void> {
-  const rel = path.posix.relative(fileURLToPath(astroConfig.astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
-  const pagePath = `/${rel.replace(/\$([^.]+)\.astro$/, '$1')}`;
-  const srcPath = new URL('pages/' + rel, astroConfig.astroRoot);
+  const pagesPath = new URL('./pages/', astroConfig.astroRoot);
+  const srcURL = filepath.pathname.replace(pagesPath.pathname, '/');
+  const outURL = srcURL.replace(/\$([^.]+)\.astro$/, '$1');
+
   const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
 
   /** Recursively build collection URLs */
@@ -48,9 +49,9 @@ export async function buildCollectionPage({ astroConfig, filepath, logging, mode
     const result = await runtime.load(url);
     builtURLs.add(url);
     if (result.statusCode === 200) {
-      const outPath = path.posix.join('/', url, 'index.html');
+      const outPath = path.posix.join(url, '/index.html');
       buildState[outPath] = {
-        srcPath,
+        srcPath: filepath,
         contents: result.contents,
         contentType: 'text/html',
         encoding: 'utf8',
@@ -60,7 +61,7 @@ export async function buildCollectionPage({ astroConfig, filepath, logging, mode
   }
 
   const [result] = await Promise.all([
-    loadCollection(pagePath) as Promise<LoadResult>, // first run will always return a result so assert type here
+    loadCollection(outURL) as Promise<LoadResult>, // first run will always return a result so assert type here
     gatherRuntimes({ astroConfig, buildState, filepath, logging, resolvePackageUrl, mode, runtime }),
   ]);
 
@@ -68,7 +69,7 @@ export async function buildCollectionPage({ astroConfig, filepath, logging, mode
     throw new Error((result as any).error);
   }
   if (result.statusCode === 200 && !result.collectionInfo) {
-    throw new Error(`[${rel}]: Collection page must export createCollection() function`);
+    throw new Error(`[${srcURL}]: Collection page must export createCollection() function`);
   }
 
   // note: for pages that require params (/tag/:tag), we will get a 404 but will still get back collectionInfo that tell us what the URLs should be
@@ -87,11 +88,12 @@ export async function buildCollectionPage({ astroConfig, filepath, logging, mode
     );
 
     if (result.collectionInfo.rss) {
-      if (!site) throw new Error(`[${rel}] createCollection() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
-      const rss = generateRSS({ ...(result.collectionInfo.rss as any), site }, rel.replace(/\$([^.]+)\.astro$/, '$1'));
-      const feedURL = path.posix.join('/feed', `${pagePath}.xml`);
+      if (!site) throw new Error(`[${srcURL}] createCollection() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
+      let feedURL = outURL === '/' ? '/index' : outURL;
+      feedURL = '/feed' + feedURL + '.xml';
+      const rss = generateRSS({ ...(result.collectionInfo.rss as any), site }, { srcFile: srcURL, feedURL });
       buildState[feedURL] = {
-        srcPath,
+        srcPath: filepath,
         contents: rss,
         contentType: 'application/rss+xml',
         encoding: 'utf8',
@@ -102,22 +104,20 @@ export async function buildCollectionPage({ astroConfig, filepath, logging, mode
 
 /** Build static page */
 export async function buildStaticPage({ astroConfig, buildState, filepath, logging, mode, resolvePackageUrl, runtime }: PageBuildOptions): Promise<void> {
-  const rel = path.posix.relative(fileURLToPath(astroConfig.astroRoot) + '/pages', fileURLToPath(filepath)); // pages/index.astro
-  const pagePath = `/${rel.replace(/\.(astro|md)$/, '')}`;
-
-  let relPath = path.posix.join('/', rel.replace(/\.(astro|md)$/, '.html'));
-  if (!relPath.endsWith('index.html')) {
-    relPath = relPath.replace(/\.html$/, '/index.html');
-  }
-
-  const srcPath = new URL('pages/' + rel, astroConfig.astroRoot);
+  const pagesPath = new URL('./pages/', astroConfig.astroRoot);
+  const url = filepath.pathname.replace(pagesPath.pathname, '/').replace(/(index)?\.(astro|md)$/, '');
 
   // build page in parallel with gathering runtimes
   await Promise.all([
-    runtime.load(pagePath).then((result) => {
-      if (result.statusCode === 200) {
-        buildState[relPath] = { srcPath, contents: result.contents, contentType: 'text/html', encoding: 'utf8' };
-      }
+    runtime.load(url).then((result) => {
+      if (result.statusCode !== 200) throw new Error((result as any).error);
+      const outFile = path.posix.join(url, '/index.html');
+      buildState[outFile] = {
+        srcPath: filepath,
+        contents: result.contents,
+        contentType: 'text/html',
+        encoding: 'utf8',
+      };
     }),
     gatherRuntimes({ astroConfig, buildState, filepath, logging, resolvePackageUrl, mode, runtime }),
   ]);

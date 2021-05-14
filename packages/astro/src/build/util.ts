@@ -2,13 +2,14 @@ import type { AstroConfig } from '../@types/astro';
 import { performance } from 'perf_hooks';
 
 import path from 'path';
-import { fileURLToPath, URL } from 'url';
+import { URL } from 'url';
 
 /** Normalize URL to its canonical form */
 export function canonicalURL(url: string, base?: string): URL {
   let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
   pathname = pathname.replace(/\/1\/?$/, ''); // neither is a trailing /1/ (impl. detail of collections)
   if (!path.extname(pathname)) pathname = pathname.replace(/(\/+)?$/, '/'); // add trailing slash if there’s no extension
+  pathname = pathname.replace(/\/+/g, '/'); // remove duplicate slashes (URL() won’t)
   return new URL(pathname, base);
 }
 
@@ -20,12 +21,14 @@ export function sortSet(set: Set<string>): Set<string> {
 /** Resolve final output URL */
 export function getDistPath(specifier: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL }): string {
   if (specifier[0] === '/') return specifier; // assume absolute URLs are correct
+  const pagesDir = path.join(astroConfig.astroRoot.pathname, 'pages');
 
-  const fileLoc = path.posix.join(path.posix.dirname(fileURLToPath(srcPath)), specifier);
-  const projectLoc = path.posix.relative(fileURLToPath(astroConfig.astroRoot), fileLoc);
-  const pagesDir = fileURLToPath(new URL('/pages', astroConfig.astroRoot));
+  const fileLoc = path.posix.join(path.posix.dirname(srcPath.pathname), specifier);
+  const projectLoc = path.posix.relative(astroConfig.astroRoot.pathname, fileLoc);
+
+  const isPage = fileLoc.includes(pagesDir);
   // if this lives above src/pages, return that URL
-  if (fileLoc.includes(pagesDir)) {
+  if (isPage) {
     const [, publicURL] = projectLoc.split(pagesDir);
     return publicURL || '/index.html'; // if this is missing, this is the root
   }
