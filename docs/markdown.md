@@ -6,7 +6,7 @@ Astro comes with out-of-the-box Markdown support powered by the expansive [**rem
 
 **This is the first draft of Markdown support!** While we plan to support user-provided `remark` plugins soon, our hope is that you won't need `remark` plugins at all!
 
-In addition to [custom components inside the `<Markdown>` component](#markdown-component), Astro comes with [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, and [Smartypants](https://github.com/silvenon/remark-smartypants) pre-enabled. These features are likely to be configurable in the future.
+In addition to [custom components inside the `<Markdown>` component](#markdown-component), Astro comes with [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants), and syntax highlighting via [Prism](https://prismjs.com/) pre-enabled. These features are likely to be configurable in the future.
 
 ### Markdown Pages
 
@@ -25,7 +25,9 @@ layout: ../layouts/main.astro
 # Hello world!
 ```
 
-Layout files are normal `.astro` components. Any Frontmatter defined in your `.md` page will be exposed to the Layout component as the `content` prop. The Markdown content itself is placed with the default `<slot />` element.
+Layout files are normal `.astro` components. Any Frontmatter defined in your `.md` page will be exposed to the Layout component as the `content` prop. `content` also has an `astro` key which holds special metadata about your file, like the complete Markdown `source` and a `headings` object.
+
+The rendered Markdown content is placed into the default `<slot />` element.
 
 `src/layouts/main.astro`
 ```jsx
