@@ -1,7 +1,5 @@
 {
-  "information_for_contributors": [
-    "This file has been modified from https://github.com/microsoft/vscode-markdown-tm-grammar/commit/399ff6f608a7bef3f68713be23cdcb4c6d475804"
-  ],
+  "information_for_contributors": ["This file has been modified from https://github.com/microsoft/vscode-markdown-tm-grammar/commit/399ff6f608a7bef3f68713be23cdcb4c6d475804"],
   "name": "Astro Markdown",
   "scopeName": "text.html.markdown.astro",
   "patterns": [
@@ -19,18 +17,18 @@
     "astro-expressions": {
       "patterns": [
         {
-          "begin": "\\{",
-          "beginCaptures": [
-            {
+          "begin": "(\\{)",
+          "beginCaptures": {
+            "1": {
               "name": "punctuation.definition.raw.markdown"
             }
-          ],
-          "end": "\\}",
-          "endCaptures": [
-            {
+          },
+          "end": "(\\})",
+          "endCaptures": {
+            "1": {
               "name": "punctuation.definition.raw.markdown"
             }
-          ],
+          },
           "name": "expression.embbeded.astro",
           "patterns": [
             {
@@ -85,6 +83,39 @@
         }
       ],
       "while": "(^|\\G)\\s*(>) ?"
+    },
+    "fenced_code_block_astro": {
+      "begin": "(^|\\G)(\\s*)(`{3,}|~{3,})\\s*(?i:(astro)((\\s+|:|\\{)[^`~]*)?$)",
+      "name": "markup.fenced_code.block.markdown",
+      "end": "(^|\\G)(\\2|\\s*)(\\3)\\s*$",
+      "beginCaptures": {
+        "3": {
+          "name": "punctuation.definition.markdown"
+        },
+        "4": {
+          "name": "fenced_code.block.language.markdown"
+        },
+        "5": {
+          "name": "fenced_code.block.language.attributes.markdown"
+        }
+      },
+      "endCaptures": {
+        "3": {
+          "name": "punctuation.definition.markdown"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "(^|\\G)(\\s*)(.*)",
+          "while": "(^|\\G)(?!\\s*([`~]{3,})\\s*$)",
+          "contentName": "meta.embedded.block.astro",
+          "patterns": [
+            {
+              "include": "text.html.astro"
+            }
+          ]
+        }
+      ]
     },
     "fenced_code_block_css": {
       "begin": "(^|\\G)(\\s*)(`{3,}|~{3,})\\s*(?i:(css|css.erb)((\\s+|:|\\{)[^`~]*)?$)",
@@ -1811,6 +1842,9 @@
           "include": "#fenced_code_block_css"
         },
         {
+          "include": "#fenced_code_block_astro"
+        },
+        {
           "include": "#fenced_code_block_basic"
         },
         {
@@ -2366,9 +2400,6 @@
     "inline": {
       "patterns": [
         {
-          "include": "#astro-expressions"
-        },
-        {
           "include": "#ampersand"
         },
         {
@@ -2409,6 +2440,9 @@
         },
         {
           "include": "#link-ref-shortcut"
+        },
+        {
+          "include": "#astro-expressions"
         }
       ]
     },
