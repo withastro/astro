@@ -1,10 +1,7 @@
 {
   "information_for_contributors": [
-    "This file has been converted from https://github.com/microsoft/vscode-markdown-tm-grammar/blob/master/syntaxes/markdown.tmLanguage",
-    "If you want to provide a fix or improvement, please create a pull request against the original repository.",
-    "Once accepted there, we are happy to receive an update request."
+    "This file has been modified from https://github.com/microsoft/vscode-markdown-tm-grammar/commit/399ff6f608a7bef3f68713be23cdcb4c6d475804"
   ],
-  "version": "https://github.com/microsoft/vscode-markdown-tm-grammar/commit/399ff6f608a7bef3f68713be23cdcb4c6d475804",
   "name": "Astro Markdown",
   "scopeName": "text.html.markdown.astro",
   "patterns": [
@@ -75,7 +72,7 @@
       ]
     },
     "blockquote": {
-      "begin": "(^|\\G)[ ]{0,}(>) ?",
+      "begin": "(^|\\G)\\s*(>) ?",
       "captures": {
         "2": {
           "name": "punctuation.definition.quote.begin.markdown"
@@ -1990,7 +1987,7 @@
       "name": "markup.fenced_code.block.markdown"
     },
     "heading": {
-      "match": "(?:^|\\G)[ ]{0,}(#{1,6}\\s+(.*?)(\\s+#{1,6})?\\s*)$",
+      "match": "(?:^|\\G)\\s*(#{1,6}\\s+(.*?)(\\s+#{1,6})?\\s*)$",
       "captures": {
         "1": {
           "patterns": [
@@ -2008,7 +2005,7 @@
                       "include": "#inline"
                     },
                     {
-                      "include": "text.html.derivative"
+                      "include": "text.html.astro"
                     }
                   ]
                 },
@@ -2031,7 +2028,7 @@
                       "include": "#inline"
                     },
                     {
-                      "include": "text.html.derivative"
+                      "include": "text.html.astro"
                     }
                   ]
                 },
@@ -2054,7 +2051,7 @@
                       "include": "#inline"
                     },
                     {
-                      "include": "text.html.derivative"
+                      "include": "text.html.astro"
                     }
                   ]
                 },
@@ -2077,7 +2074,7 @@
                       "include": "#inline"
                     },
                     {
-                      "include": "text.html.derivative"
+                      "include": "text.html.astro"
                     }
                   ]
                 },
@@ -2100,7 +2097,7 @@
                       "include": "#inline"
                     },
                     {
-                      "include": "text.html.derivative"
+                      "include": "text.html.astro"
                     }
                   ]
                 },
@@ -2123,7 +2120,7 @@
                       "include": "#inline"
                     },
                     {
-                      "include": "text.html.derivative"
+                      "include": "text.html.astro"
                     }
                   ]
                 },
@@ -2176,7 +2173,7 @@
             "1": {
               "patterns": [
                 {
-                  "include": "text.html.derivative"
+                  "include": "text.html.markdown.astro"
                 }
               ]
             },
@@ -2198,30 +2195,30 @@
               "begin": "(\\s*|$)",
               "patterns": [
                 {
-                  "include": "text.html.derivative"
+                  "include": "text.html.markdown.astro"
                 }
               ],
-              "while": "(?i)^(?!.*</(script|style|pre)>)"
+              "while": "(?i)^(?!.*</(script|style|pre|Markdown)>)"
             }
           ]
         },
         {
-          "begin": "(?i)(^|\\G)\\s*(?=</?[a-zA-Z]+[^\\s/&gt;]*(\\s|$|/?>))",
+          "begin": "(?i)(?=</?[a-zA-Z]+[^\\s/&gt;]*(\\s|$|/?>))",
+          "while": "(?i)^(?!.*</(\\1||\\2)>)",
           "patterns": [
             {
-              "include": "text.html.derivative"
+              "include": "text.html.astro"
             }
-          ],
-          "while": "^(?!\\s*$)"
+          ]
         },
         {
-          "begin": "(^|\\G)\\s*(?=(<[a-zA-Z0-9\\-](/?>|\\s.*?>)|</[a-zA-Z0-9\\-]>)\\s*$)",
+          "begin": "(?=(<[a-zA-Z0-9\\-](/?>|\\s.*?>)|</[a-zA-Z0-9\\-]>)\\s*$)",
           "patterns": [
             {
-              "include": "text.html.derivative"
+              "include": "text.html.astro"
             }
           ],
-          "while": "^(?!\\s*$)"
+          "while": "(?i)^(?!.*</(\\1||\\2)>)"
         }
       ]
     },
@@ -2287,18 +2284,18 @@
           "include": "#inline"
         },
         {
-          "include": "text.html.derivative"
+          "include": "text.html.astro"
         },
         {
           "include": "#heading-setext"
         }
       ],
-      "while": "(^|\\G)(?!\\s*$|#|[ ]{0,}([-*_>][ ]{2,}){3,}[ \\t]*$\\n?|[ ]{0,}[*+->]|[ ]{0,}[0-9]+\\.)"
+      "while": "(^|\\G)(?!\\s*$|#|\\s*([-*_>][ ]{2,}){3,}[ \\t]*$\\n?|\\s*[*+->]|\\s*[0-9]+\\.)"
     },
     "lists": {
       "patterns": [
         {
-          "begin": "(^|\\G)([ ]{0,})([*+-])([ \\t])",
+          "begin": "(^|\\G)(\\s*)([*+-])([ \\t])",
           "beginCaptures": {
             "3": {
               "name": "punctuation.definition.list.begin.markdown"
@@ -2317,7 +2314,7 @@
           "while": "((^|\\G)([ ]{2,4}|\\t))|(^[ \\t]*$)"
         },
         {
-          "begin": "(^|\\G)([ ]{0,})([0-9]+\\.)([ \\t])",
+          "begin": "(^|\\G)(\\s*)([0-9]+\\.)([ \\t])",
           "beginCaptures": {
             "3": {
               "name": "punctuation.definition.list.begin.markdown"
@@ -2337,23 +2334,23 @@
       ]
     },
     "paragraph": {
-      "begin": "(^|\\G)[ ]{0,}(?=\\S)",
+      "begin": "(^|\\G)\\s*(?=\\S)",
       "name": "meta.paragraph.markdown",
       "patterns": [
         {
           "include": "#inline"
         },
         {
-          "include": "text.html.derivative"
+          "include": "text.html.astro"
         },
         {
           "include": "#heading-setext"
         }
       ],
-      "while": "(^|\\G)((?=\\s*[-=]{3,}\\s*$)|[ ]{4,}(?=\\S))"
+      "while": "(^|\\G)(?=\\s*[-=]{3,}\\s*$)"
     },
     "separator": {
-      "match": "(^|\\G)[ ]{0,}([\\*\\-\\_])([ ]{0,2}\\2){2,}[ \\t]*$\\n?",
+      "match": "(^|\\G)\\s*([\\*\\-\\_])([ ]{0,2}\\2){2,}[ \\t]*$\\n?",
       "name": "meta.separator.markdown"
     },
     "frontMatter": {
@@ -2436,7 +2433,7 @@
           "end": "(?<=>)",
           "patterns": [
             {
-              "include": "text.html.derivative"
+              "include": "text.html.astro"
             }
           ]
         },
@@ -2590,7 +2587,7 @@
           "end": "(?<=>)",
           "patterns": [
             {
-              "include": "text.html.derivative"
+              "include": "text.html.astro"
             }
           ]
         },
