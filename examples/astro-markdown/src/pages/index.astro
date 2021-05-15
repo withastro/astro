@@ -1,32 +1,44 @@
 ---
 import Markdown from 'astro/components/Markdown.astro';
 import Layout from '../layouts/main.astro';
-import Counter from '../components/ReactCounter.jsx';
+import ReactComponent from '../components/ReactComponent.jsx';
+import PreactComponent from '../components/PreactComponent.tsx';
+import VueComponent from '../components/VueComponent.tsx';
+import SvelteComponent from '../components/SvelteComponent.tsx';
 
 const title = 'Astro Markdown';
-const greeting = `Hello, ${title}!`;
+const variable = 'content';
+const items = ['A', 'B', 'C'];
 ---
 
-<Layout content={{ title, greeting }}>
+<Layout>
   <Markdown>
-    # {greeting}
+    # Introducing {title}
 
-    "This is pretty cool"
+    **Astro Markdown** brings native Markdown support to HTML!
 
-    [Go to {title}](https://google.com).
+    > It's inspired by [`mdx`](https://mdxjs.com/) and powered by [`remark`](https://github.com/remarkjs/remark)).
 
-    Lorem ipsum dolor sit amet _consectetur_ adipisicing elit. 
-    Voluptatum error, eaque facere recusandae hic **aliquam** aut beatae repellendus voluptatem eius, 
-    tenetur cumque eveniet, ex quasi omnis? Nam vel facere molestiae.
-    
-    <h4>
-      [Go to {title}](https://google.com)
-    </h4>
+    The best part? It comes with all the Astro features you expect.
 
-    <Counter:visible />
+    ## Embed framework components
 
-    <Counter:visible>
-      ## {greeting}
-    </Counter:visible>
+    <ReactComponent />
+    <PeactComponent:load />
+    <VueComponent:idle />
+    <SvelteComponent:visible />
+
+    ## Use Expressions
+
+    You can use any {variable} in scope and use JavaScript for templating {items.join(', ')}
+
+    ## Oh yeah...
+
+    <ReactComponent>
+      🤯 It's also _recursive_!
+
+      ### Markdown can be embedded in any child component
+    </ReactComponent>
+
   </Markdown>
 </Layout>
