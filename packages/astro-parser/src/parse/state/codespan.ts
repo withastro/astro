@@ -16,7 +16,7 @@ export default function codespan(parser: Parser) {
   const node = {
     start,
     end: parser.index,
-    type: 'CodeBlock',
+    type: 'CodeSpan',
     raw,
     data: raw?.slice(open?.length, open?.length * -1).replace(/^ /, '').replace(/ $/, '')
   };
