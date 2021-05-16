@@ -1,17 +1,17 @@
 ---
 import Markdown from 'astro/components/Markdown.astro';
 import Layout from '../layouts/main.astro';
-import ReactComponent from '../components/ReactComponent.jsx';
-import PreactComponent from '../components/PreactComponent.tsx';
-import VueComponent from '../components/VueComponent.vue';
-import SvelteComponent from '../components/SvelteComponent.svelte';
+import ReactCounter from '../components/ReactCounter.jsx';
+import PreactCounter from '../components/PreactCounter.tsx';
+import VueCounter from '../components/VueCounter.vue';
+import SvelteCounter from '../components/SvelteCounter.svelte';
 
 const title = 'Astro Markdown';
 const variable = 'content';
 const items = ['A', 'B', 'C'];
 ---
 
-<Layout>
+<Layout content={{ title }}>
   <Markdown>
     # Introducing {title}
 
@@ -23,22 +23,22 @@ const items = ['A', 'B', 'C'];
 
     ## Embed framework components
 
-    <ReactComponent />
-    <PeactComponent:load />
-    <VueComponent:idle />
-    <SvelteComponent:visible />
+    <ReactCounter:visible />
+    <PreactCounter:visible />
+    <VueCounter:visible />
+    <SvelteCounter:visible />
 
     ## Use Expressions
 
-    You can use any {variable} in scope and use JavaScript for templating {items.join(', ')}
+    You can use any {variable} in scope and use JavaScript for templating ({items.join(', ')})
 
     ## Oh yeah...
 
-    <ReactComponent>
+    <ReactCounter:visible>
       🤯 It's also _recursive_!
 
       ### Markdown can be embedded in any child component
-    </ReactComponent>
+    </ReactCounter:visible>
 
   </Markdown>
 </Layout>
