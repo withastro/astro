@@ -1,11 +1,12 @@
 import type { Ast, Script, Style, TemplateNode } from 'astro-parser';
 import type { CompileOptions } from '../../@types/compiler';
-import type { AstroConfig, TransformResult, ValidExtensionPlugins } from '../../@types/astro';
+import type { AstroConfig, TransformResult } from '../../@types/astro';
 
 import 'source-map-support/register.js';
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { walk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
@@ -16,6 +17,7 @@ import { error, warn } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
+import { AstroRenderer, ComponentInfo as ComponentMeta } from '../../@types/renderer-new';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 
@@ -125,20 +127,12 @@ function generateAttributes(attrs: Record<string, string>): string {
 }
 
 interface ComponentInfo {
-  type: string;
+  ext?: string;
   url: string;
-  plugin: string | undefined;
+  renderer?: AstroRenderer;
 }
 
-const defaultExtensions: Readonly<Record<string, ValidExtensionPlugins>> = {
-  '.astro': 'astro',
-  '.jsx': 'react',
-  '.tsx': 'react',
-  '.vue': 'vue',
-  '.svelte': 'svelte',
-};
-
-type DynamicImportMap = Map<'vue' | 'react' | 'react-dom' | 'preact' | 'svelte', string>;
+type DynamicImportMap = Map<string, string>;
 
 interface GetComponentWrapperOptions {
   filename: string;
@@ -146,113 +140,142 @@ interface GetComponentWrapperOptions {
   dynamicImports: DynamicImportMap;
 }
 
+interface ResolveComponentInfoOptions {
+  astroConfig: AstroConfig;
+}
+
+const rendererCache = new Map<string, AstroRenderer>();
+
+/** Resolves component info for a given file and contents  */
+function resolveComponentRenderer(importUrl: string, componentInfo: ComponentMeta, { astroConfig }: ResolveComponentInfoOptions): AstroRenderer | undefined {
+  if (rendererCache.has(importUrl)) return rendererCache.get(importUrl);
+
+  for (const renderer of astroConfig.rendererPlugins) {
+    const result = renderer.filter(importUrl, componentInfo);
+    if (result) return renderer;
+  }
+}
+
+const validLoadMethods = new Set(['load', 'idle', 'visible']);
+
+// TODO: update this to new renderer interface
 /** Generate Astro-friendly component import */
-function getComponentWrapper(_name: string, { type, plugin, url }: ComponentInfo, opts: GetComponentWrapperOptions) {
-  const { astroConfig, dynamicImports, filename } = opts;
-  const { astroRoot } = astroConfig;
+function getComponentMarkup(_name: string, { ext, renderer, url }: ComponentInfo, opts: GetComponentWrapperOptions) {
+  const { dynamicImports } = opts;
   const [name, kind] = _name.split(':');
-  const currFileUrl = new URL(`file://${filename}`);
 
-  if (!plugin) {
-    throw new Error(`No supported plugin found for ${type ? `extension ${type}` : `${url} (try adding an extension)`}`);
+  if (!renderer) {
+    throw new Error(`No supported plugin found for ${ext ? `extension ${ext}` : `${url} (try adding an extension)`}`);
   }
 
-  const getComponentUrl = (ext = '.js') => {
-    const outUrl = new URL(url, currFileUrl);
-    return '/_astro/' + path.posix.relative(astroRoot.pathname, outUrl.pathname).replace(/\.[^.]+$/, ext);
-  };
-
-  switch (plugin) {
-    case 'astro': {
-      if (kind) {
-        throw new Error(`Astro does not support :${kind}`);
-      }
-      return {
-        wrapper: name,
-        wrapperImport: ``,
-      };
+  if (ext === 'astro') {
+    if (kind) {
+      throw new Error(`Astro does not support :${kind}`);
     }
-    case 'preact': {
-      if (['load', 'idle', 'visible'].includes(kind)) {
-        return {
-          wrapper: `__preact_${kind}(${name}, ${JSON.stringify({
-            componentUrl: getComponentUrl(),
-            componentExport: 'default',
-            frameworkUrls: {
-              preact: dynamicImports.get('preact'),
-            },
-          })})`,
-          wrapperImport: `import {__preact_${kind}} from '${internalImport('render/preact.js')}';`,
-        };
-      }
+    return {
+      wrapper: name,
+      wrapperImport: ``,
+    };
+  }
 
-      return {
-        wrapper: `__preact_static(${name})`,
-        wrapperImport: `import {__preact_static} from '${internalImport('render/preact.js')}';`,
-      };
-    }
-    case 'react': {
-      if (['load', 'idle', 'visible'].includes(kind)) {
-        return {
-          wrapper: `__react_${kind}(${name}, ${JSON.stringify({
-            componentUrl: getComponentUrl(),
-            componentExport: 'default',
-            frameworkUrls: {
-              react: dynamicImports.get('react'),
-              'react-dom': dynamicImports.get('react-dom'),
-            },
-          })})`,
-          wrapperImport: `import {__react_${kind}} from '${internalImport('render/react.js')}';`,
-        };
-      }
+  if (!kind) {
+    // TODO: static
+  }
 
-      return {
-        wrapper: `__react_static(${name})`,
-        wrapperImport: `import {__react_static} from '${internalImport('render/react.js')}';`,
-      };
-    }
-    case 'svelte': {
-      if (['load', 'idle', 'visible'].includes(kind)) {
-        return {
-          wrapper: `__svelte_${kind}(${name}, ${JSON.stringify({
-            componentUrl: getComponentUrl('.svelte.js'),
-            componentExport: 'default',
-            frameworkUrls: {
-              'svelte-runtime': internalImport('runtime/svelte.js'),
-            },
-          })})`,
-          wrapperImport: `import {__svelte_${kind}} from '${internalImport('render/svelte.js')}';`,
-        };
-      }
-
-      return {
-        wrapper: `__svelte_static(${name})`,
-        wrapperImport: `import {__svelte_static} from '${internalImport('render/svelte.js')}';`,
-      };
-    }
-    case 'vue': {
-      if (['load', 'idle', 'visible'].includes(kind)) {
-        return {
-          wrapper: `__vue_${kind}(${name}, ${JSON.stringify({
-            componentUrl: getComponentUrl('.vue.js'),
-            componentExport: 'default',
-            frameworkUrls: {
-              vue: dynamicImports.get('vue'),
-            },
-          })})`,
-          wrapperImport: `import {__vue_${kind}} from '${internalImport('render/vue.js')}';`,
-        };
-      }
-
-      return {
-        wrapper: `__vue_static(${name})`,
-        wrapperImport: `import {__vue_static} from '${internalImport('render/vue.js')}';`,
-      };
-    }
-    default: {
-      throw new Error(`Unknown component type`);
+  if (validLoadMethods.has(kind)) {
+    // TODO: dynamic
+    return {
+      clientMarkup: renderer,
+      wrapperImport: (renderer.client.dependencies ?? []).map(i => dynamicImports.get(i))
     }
   }
+
+  throw new Error(`Unsupported load directive ":${kind}" for component "${name}" at "${opts.filename}"`);
+
+  // switch (plugin) {
+  //   case 'astro': {
+  //   }
+  //   case 'preact': {
+  //     if (['load', 'idle', 'visible'].includes(kind)) {
+  //       return {
+  //         wrapper: `__preact_${kind}(${name}, ${JSON.stringify({
+  //           componentUrl: url,
+  //           componentExport: 'default',
+  //           frameworkUrls: {
+  //             preact: dynamicImports.get('preact'),
+  //           },
+  //         })})`,
+  //         wrapperImport: `import {__preact_${kind}} from '${internalImport('render/preact.js')}';`,
+  //       };
+  //     }
+
+  //     return {
+  //       wrapper: `__preact_static(${name})`,
+  //       wrapperImport: `import {__preact_static} from '${internalImport('render/preact.js')}';`,
+  //     };
+  //   }
+  //   case 'react': {
+  //     if (['load', 'idle', 'visible'].includes(kind)) {
+  //       return {
+  //         wrapper: `__react_${kind}(${name}, ${JSON.stringify({
+  //           componentUrl: getComponentUrl(),
+  //           componentExport: 'default',
+  //           frameworkUrls: {
+  //             react: dynamicImports.get('react'),
+  //             'react-dom': dynamicImports.get('react-dom'),
+  //           },
+  //         })})`,
+  //         wrapperImport: `import {__react_${kind}} from '${internalImport('render/react.js')}';`,
+  //       };
+  //     }
+
+  //     return {
+  //       wrapper: `__react_static(${name})`,
+  //       wrapperImport: `import {__react_static} from '${internalImport('render/react.js')}';`,
+  //     };
+  //   }
+  //   case 'svelte': {
+  //     if (['load', 'idle', 'visible'].includes(kind)) {
+  //       return {
+  //         wrapper: `__svelte_${kind}(${name}, ${JSON.stringify({
+  //           componentUrl: getComponentUrl('.svelte.js'),
+  //           componentExport: 'default',
+  //           frameworkUrls: {
+  //             'svelte-runtime': internalImport('runtime/svelte.js'),
+  //           },
+  //         })})`,
+  //         wrapperImport: `import {__svelte_${kind}} from '${internalImport('render/svelte.js')}';`,
+  //       };
+  //     }
+
+  //     return {
+  //       wrapper: `__svelte_static(${name})`,
+  //       wrapperImport: `import {__svelte_static} from '${internalImport('render/svelte.js')}';`,
+  //     };
+  //   }
+  //   case 'vue': {
+  //     if (['load', 'idle', 'visible'].includes(kind)) {
+  //       return {
+  //         wrapper: `__vue_${kind}(${name}, ${JSON.stringify({
+  //           componentUrl: getComponentUrl('.vue.js'),
+  //           componentExport: 'default',
+  //           frameworkUrls: {
+  //             vue: dynamicImports.get('vue'),
+  //           },
+  //         })})`,
+  //         wrapperImport: `import {__vue_${kind}} from '${internalImport('render/vue.js')}';`,
+  //       };
+  //     }
+
+  //     return {
+  //       wrapper: `__vue_static(${name})`,
+  //       wrapperImport: `import {__vue_static} from '${internalImport('render/vue.js')}';`,
+  //     };
+  //   }
+  //   default: {
+  //     throw new Error(`Unknown component type`);
+  //   }
+  // }
 }
 
 /** Evaluate expression (safely) */
@@ -267,51 +290,35 @@ function compileExpressionSafe(raw: string): string {
 }
 
 /** Build dependency map of dynamic component runtime frameworks */
-async function acquireDynamicComponentImports(plugins: Set<ValidExtensionPlugins>, resolvePackageUrl: (s: string) => Promise<string>): Promise<DynamicImportMap> {
+async function acquireDynamicComponentImports(renderers: Set<AstroRenderer>, resolvePackageUrl: (s: string) => Promise<string>): Promise<DynamicImportMap> {
   const importMap: DynamicImportMap = new Map();
-  for (let plugin of plugins) {
-    switch (plugin) {
-      case 'vue': {
-        importMap.set('vue', await resolvePackageUrl('vue'));
-        break;
-      }
-      case 'react': {
-        importMap.set('react', await resolvePackageUrl('react'));
-        importMap.set('react-dom', await resolvePackageUrl('react-dom'));
-        break;
-      }
-      case 'preact': {
-        importMap.set('preact', await resolvePackageUrl('preact'));
-        break;
-      }
-      case 'svelte': {
-        importMap.set('svelte', await resolvePackageUrl('svelte'));
-        break;
-      }
+  for (let renderer of renderers) {
+    const dependencies = [renderer.jsx?.importSource, ...(renderer.client.dependencies, []), ...(renderer.server.dependencies, [])].filter((x) => x) as string[];
+    const imports = await Promise.all(dependencies.map((dep) => resolvePackageUrl(dep).then((url) => [dep, url] as const)));
+    for (let [spec, packageUrl] of imports) {
+      importMap.set(spec, packageUrl);
     }
   }
   return importMap;
 }
 
-type Components = Record<string, { type: string; url: string; plugin: string | undefined }>;
-
 interface CompileResult {
   script: string;
-  componentPlugins: Set<ValidExtensionPlugins>;
+  componentRenderers: Set<string>;
   createCollection?: string;
 }
 
 interface CodegenState {
   filename: string;
-  components: Components;
+  components: Record<string, ComponentInfo>;
   css: string[];
   importExportStatements: Set<string>;
   dynamicImports: DynamicImportMap;
 }
 
 /** Compile/prepare Astro frontmatter scripts */
-function compileModule(module: Script, state: CodegenState, compileOptions: CompileOptions): CompileResult {
-  const { extensions = defaultExtensions } = compileOptions;
+async function compileModule(module: Script, state: CodegenState, compileOptions: CompileOptions): Promise<CompileResult> {
+  const { astroConfig, loadUrl } = compileOptions;
 
   const componentImports: ImportDeclaration[] = [];
   const componentProps: VariableDeclarator[] = [];
@@ -323,7 +330,14 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
   let propsStatement = '';
   let contentCode = ''; // code for handling Astro.fetchContent(), if any;
   let createCollection = ''; // function for executing collection
-  const componentPlugins = new Set<ValidExtensionPlugins>();
+  const componentRenderers = new Set<string>();
+
+  const { astroRoot } = astroConfig;
+  const currFileUrl = new URL(`file://${state.filename}`);
+  const getComponentUrl = (url: string, ext = '.js') => {
+    const outUrl = new URL(url, currFileUrl);
+    return '/_astro/' + path.posix.relative(astroRoot.pathname, outUrl.pathname).replace(/\.[^.]+$/, ext);
+  };
 
   if (module) {
     const parseOptions: babelParser.ParserOptions = {
@@ -413,21 +427,26 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
     }
 
     for (const componentImport of componentImports) {
-      const importUrl = componentImport.source.value;
-      const componentType = path.posix.extname(importUrl);
+      const rawImportUrl = componentImport.source.value;
+      const importExt = path.posix.extname(rawImportUrl);
       const specifier = componentImport.specifiers[0];
       if (!specifier) continue; // this is unused
       // set componentName to default import if used (user), or use filename if no default import (mostly internal use)
-      const componentName = specifier.type === 'ImportDefaultSpecifier' ? specifier.local.name : path.posix.basename(importUrl, componentType);
-      const plugin = extensions[componentType] || defaultExtensions[componentType];
-      state.components[componentName] = {
-        type: componentType,
-        plugin,
+      const localComponentName = specifier.local.name;
+
+      const importUrl = getComponentUrl(rawImportUrl, importExt);
+      const res = await loadUrl(importUrl);
+      if (!res) throw new Error(`Unable to resolve "${importUrl}"`);
+
+      const rendererInfo = resolveComponentRenderer(res.originalFileLoc ?? importUrl, { imports: res.imports, contents: res.contents.toString() }, { astroConfig });
+      if (rendererInfo) {
+        componentRenderers.add(rendererInfo.id);
+      }
+      state.components[localComponentName] = {
+        ...(rendererInfo ?? {}),
+        ext: importExt,
         url: importUrl,
       };
-      if (plugin) {
-        componentPlugins.add(plugin);
-      }
       const { start, end } = componentImport;
       state.importExportStatements.add(module.content.slice(start || undefined, end || undefined));
     }
@@ -512,7 +531,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
   return {
     script,
-    componentPlugins,
+    componentRenderers,
     createCollection: createCollection || undefined,
   };
 }
@@ -594,6 +613,7 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
             if (!componentImportData) {
               throw new Error(`Unknown Component: ${componentName}`);
             }
+
             const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
             if (wrapperImport) {
               importExportStatements.add(wrapperImport);
@@ -678,8 +698,8 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
     dynamicImports: new Map(),
   };
 
-  const { script, componentPlugins, createCollection } = compileModule(ast.module, state, compileOptions);
-  state.dynamicImports = await acquireDynamicComponentImports(componentPlugins, compileOptions.resolvePackageUrl);
+  const { script, componentRenderers, createCollection } = await compileModule(ast.module, state, compileOptions);
+  state.dynamicImports = await acquireDynamicComponentImports(componentRenderers, compileOptions.resolvePackageUrl);
 
   compileCss(ast.css, state);
 

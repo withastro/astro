@@ -13,7 +13,7 @@ interface ReactDependencies {
 
 const validExtensions = new Set(['.jsx', '.tsx']);
 
-const renderer: AstroRenderer<ReactDependencies, ComponentType> = {
+const createRenderer: () => AstroRenderer<ReactDependencies, ComponentType> = () => ({
 
   filter(id, { imports }) {
     const ext = id.slice(0, -4);
@@ -53,6 +53,6 @@ const renderer: AstroRenderer<ReactDependencies, ComponentType> = {
       `;
     },
   },
-};
+});
 
-export default renderer;
+export default createRenderer;

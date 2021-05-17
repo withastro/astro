@@ -1,5 +1,5 @@
 import 'source-map-support/register.js';
-import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
+import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig, SnowpackPlugin } from 'snowpack';
 import type { CompileError } from 'astro-parser';
 import type { LogOptions } from './logger';
 import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
@@ -265,24 +265,25 @@ interface CreateSnowpackOptions {
   env: Record<string, any>;
   mode: RuntimeMode;
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
+  loadUrl?: SnowpackDevServer['loadUrl'];
 }
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot, astroRoot, extensions } = astroConfig;
-  const { env, mode, resolvePackageUrl } = options;
+  const { projectRoot, astroRoot, rendererPlugins } = astroConfig;
+  const { env, mode, resolvePackageUrl, loadUrl } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
 
   let snowpack: SnowpackDevServer;
   const astroPlugOptions: {
     resolvePackageUrl?: (s: string) => Promise<string>;
-    extensions?: Record<string, string>;
+    loadUrl?: SnowpackDevServer['loadUrl'];
     astroConfig: AstroConfig;
   } = {
     astroConfig,
-    extensions,
     resolvePackageUrl,
+    loadUrl
   };
 
   const mountOptions = {
@@ -294,6 +295,13 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     mountOptions[fileURLToPath(astroConfig.public)] = '/';
   }
 
+  const plugins = rendererPlugins
+    .map(renderer => {
+      if (!renderer.snowpackPlugin) return;
+      if (Array.isArray(renderer.snowpackPlugin)) return [require.resolve(renderer.snowpackPlugin[0]), renderer.snowpackPlugin[1]];
+      return require.resolve(renderer.snowpackPlugin);
+    });
+
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
     mount: mountOptions,
@@ -301,8 +309,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     plugins: [
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
       require.resolve('@snowpack/plugin-sass'),
-      [require.resolve('@snowpack/plugin-svelte'), { compilerOptions: { hydratable: true } }],
-      require.resolve('@snowpack/plugin-vue'),
+      ...plugins.filter(x => x) as (string|[string, any])[]
     ],
     devOptions: {
       open: 'none',
@@ -333,6 +340,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 /** Core Astro runtime */
 export async function createRuntime(astroConfig: AstroConfig, { mode, logging }: RuntimeOptions): Promise<AstroRuntime> {
   const resolvePackageUrl = async (pkgName: string) => frontendSnowpack.getUrlForPackage(pkgName);
+  const loadUrl = async (url: string) => frontendSnowpack.loadUrl(url);
 
   const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(astroConfig, {
     env: {
@@ -340,6 +348,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     },
     mode,
     resolvePackageUrl,
+    loadUrl
   });
 
   const { snowpack: frontendSnowpack, snowpackRuntime: frontendSnowpackRuntime, snowpackConfig: frontendSnowpackConfig } = await createSnowpack(astroConfig, {

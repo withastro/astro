@@ -1,19 +1,11 @@
-export interface AstroConfigRaw {
-  dist: string;
-  projectRoot: string;
-  astroRoot: string;
-  public: string;
-  jsx?: string;
-}
-
-export type ValidExtensionPlugins = 'astro' | 'react' | 'preact' | 'svelte' | 'vue';
+import type { AstroRenderer } from "./renderer-new";
 
 export interface AstroConfig {
   dist: string;
   projectRoot: URL;
   astroRoot: URL;
   public: URL;
-  extensions?: Record<string, ValidExtensionPlugins>;
+  rendererPlugins: AstroRenderer[];
   /** Options specific to `astro build` */
   buildOptions: {
     /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */

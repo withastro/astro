@@ -195,6 +195,7 @@ async function gatherRuntimes({ astroConfig, buildState, filepath, logging, reso
     fileID: '',
     compileOptions: {
       astroConfig,
+      load: runtime.load,
       resolvePackageUrl,
       logging,
       mode,

@@ -1,3 +1,5 @@
+import type { InstallTarget } from "snowpack/vendor/types/esinstall";
+
 type Keys<Scope, Shared> = keyof Scope | keyof Shared;
 type Values<Scope, Shared> = Scope & Shared;
 
@@ -35,7 +37,15 @@ export interface DependencyMap {
   client: Record<string, any>;
 }
 
+export interface ComponentInfo {
+  contents: string;
+  imports: InstallTarget[];
+}
+
 export interface AstroRenderer<Dependencies extends DependencyMap = DependencyMap, ComponentType = any> {
+  /** A unique identitfier for this renderer */
+  id: string;
+
   /** Optionally declare a snowpackPlugin which should be used to render your components */
   snowpackPlugin?: string|[string, Record<string, any>];
 
@@ -43,7 +53,7 @@ export interface AstroRenderer<Dependencies extends DependencyMap = DependencyMa
     * Claim a file to use this renderer based on it's file name or imports 
     * Returning `true` will claim a file to use this renderer, otherwise a `falsy` values will skip this renderer
     */
-  filter(id: string, context: { imports: Set<string> }): boolean|undefined|null|void;
+  filter(id: string, componentInfo: ComponentInfo): boolean|undefined|null|void;
 
   /** Optionally define JSX behavior if this renderer relies on JSX */
   jsx?: {

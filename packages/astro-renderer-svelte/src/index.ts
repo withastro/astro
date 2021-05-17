@@ -11,7 +11,7 @@ interface SvelteDependencies {
   }
 }
 
-const renderer: AstroRenderer<SvelteDependencies, SvelteComponent> = {
+const createRenderer: () => AstroRenderer<SvelteDependencies, SvelteComponent> = () => ({
   snowpackPlugin: ['@snowpack/plugin-svelte', { compilerOptions: { hydratable: true } }],
 
   filter(id) {
@@ -37,6 +37,6 @@ const renderer: AstroRenderer<SvelteDependencies, SvelteComponent> = {
       `;
     },
   },
-};
+});
 
-export default renderer;
+export default createRenderer;

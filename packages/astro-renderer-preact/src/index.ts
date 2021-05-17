@@ -13,7 +13,7 @@ interface PreactDependencies {
 
 const validExtensions = new Set(['.jsx', '.tsx']);
 
-const renderer: AstroRenderer<PreactDependencies, ComponentType> = {
+const createRenderer: () => AstroRenderer<PreactDependencies, ComponentType> = () => ({
 
   filter(id, { imports }) {
     const ext = id.slice(0, -4);
@@ -53,6 +53,6 @@ const renderer: AstroRenderer<PreactDependencies, ComponentType> = {
       `;
     },
   },
-};
+});
 
-export default renderer;
+export default createRenderer;

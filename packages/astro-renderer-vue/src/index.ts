@@ -11,7 +11,7 @@ interface VueDependencies {
   client: {}
 }
 
-const renderer: AstroRenderer<VueDependencies, ComponentType> = {
+const createRenderer: () => AstroRenderer<VueDependencies, ComponentType> = () => ({
   snowpackPlugin: '@snowpack/plugin-vue',
 
   filter(id) {
@@ -55,6 +55,6 @@ const renderer: AstroRenderer<VueDependencies, ComponentType> = {
       `;
     },
   },
-};
+});
 
-export default renderer;
+export default createRenderer;
