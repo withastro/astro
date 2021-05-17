@@ -1,8 +1,10 @@
 import { promises as fs, readFileSync } from 'fs';
-import { resolve, dirname, sep, join } from 'path';
+import { posix } from 'path';
 import arg from 'arg';
 import glob from 'globby';
 import tar from 'tar';
+
+const { resolve, dirname, sep, join } = posix;
 
 /** @type {import('arg').Spec} */
 const spec = {
