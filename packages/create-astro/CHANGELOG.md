@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.1.1
+
+### Patch Changes
+
+- Update template dependencies
+
 ## 0.1.0
 
 ### Minor Changes
