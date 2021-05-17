@@ -26,7 +26,7 @@ export class Document implements TextDocument {
     this.html = parseHtml(this.content);
     this.astro = parseAstro(this.content);
     this.styleInfo = extractStyleTag(this.content, this.html);
-    if(this.styleInfo) {
+    if (this.styleInfo) {
       this.styleInfo.attributes.lang = 'css';
     }
   }

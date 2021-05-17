@@ -1,6 +1,6 @@
 import { HTMLDocument, Node, Position } from 'vscode-html-languageservice';
 import { clamp } from '../../utils';
-import {parseHtml} from './parseHtml';
+import { parseHtml } from './parseHtml';
 
 export interface TagInformation {
   content: string;
@@ -12,28 +12,23 @@ export interface TagInformation {
   container: { start: number; end: number };
 }
 
-function parseAttributes(
-  rawAttrs: Record<string, string | null> | undefined
-): Record<string, string> {
+function parseAttributes(rawAttrs: Record<string, string | null> | undefined): Record<string, string> {
   const attrs: Record<string, string> = {};
   if (!rawAttrs) {
-      return attrs;
+    return attrs;
   }
 
   Object.keys(rawAttrs).forEach((attrName) => {
-      const attrValue = rawAttrs[attrName];
-      attrs[attrName] = attrValue === null ? attrName : removeOuterQuotes(attrValue);
+    const attrValue = rawAttrs[attrName];
+    attrs[attrName] = attrValue === null ? attrName : removeOuterQuotes(attrValue);
   });
   return attrs;
 
   function removeOuterQuotes(attrValue: string) {
-      if (
-          (attrValue.startsWith('"') && attrValue.endsWith('"')) ||
-          (attrValue.startsWith("'") && attrValue.endsWith("'"))
-      ) {
-          return attrValue.slice(1, attrValue.length - 1);
-      }
-      return attrValue;
+    if ((attrValue.startsWith('"') && attrValue.endsWith('"')) || (attrValue.startsWith("'") && attrValue.endsWith("'"))) {
+      return attrValue.slice(1, attrValue.length - 1);
+    }
+    return attrValue;
   }
 }
 
@@ -163,8 +158,8 @@ function getLineOffsets(text: string) {
 }
 
 export function* walk(node: Node): Generator<Node, void, unknown> {
-  for(let child of node.children) {
-    yield * walk(child);
+  for (let child of node.children) {
+    yield* walk(child);
   }
   yield node;
 }
@@ -202,18 +197,13 @@ export function* walk(node: Node, startIndex = 0) {
  * @param source text content to extract tag from
  * @param tag the tag to extract
  */
- function extractTags(
-  text: string,
-  tag: 'script' | 'style' | 'template',
-  html?: HTMLDocument
-): TagInformation[] {
+function extractTags(text: string, tag: 'script' | 'style' | 'template', html?: HTMLDocument): TagInformation[] {
   const rootNodes = html?.roots || parseHtml(text).roots;
-  const matchedNodes = rootNodes
-      .filter((node) => node.tag === tag);
+  const matchedNodes = rootNodes.filter((node) => node.tag === tag);
 
-  if(tag === 'style' && !matchedNodes.length && rootNodes.length && rootNodes[0].tag === 'html') {
-    for(let child of walk(rootNodes[0])) {
-      if(child.tag === 'style') {
+  if (tag === 'style' && !matchedNodes.length && rootNodes.length && rootNodes[0].tag === 'html') {
+    for (let child of walk(rootNodes[0])) {
+      if (child.tag === 'style') {
         matchedNodes.push(child);
       }
     }
@@ -222,32 +212,32 @@ export function* walk(node: Node, startIndex = 0) {
   return matchedNodes.map(transformToTagInfo);
 
   function transformToTagInfo(matchedNode: Node) {
-      const start = matchedNode.startTagEnd ?? matchedNode.start;
-      const end = matchedNode.endTagStart ?? matchedNode.end;
-      const startPos = positionAt(start, text);
-      const endPos = positionAt(end, text);
-      const container = {
-          start: matchedNode.start,
-          end: matchedNode.end
-      };
-      const content = text.substring(start, end);
+    const start = matchedNode.startTagEnd ?? matchedNode.start;
+    const end = matchedNode.endTagStart ?? matchedNode.end;
+    const startPos = positionAt(start, text);
+    const endPos = positionAt(end, text);
+    const container = {
+      start: matchedNode.start,
+      end: matchedNode.end,
+    };
+    const content = text.substring(start, end);
 
-      return {
-          content,
-          attributes: parseAttributes(matchedNode.attributes),
-          start,
-          end,
-          startPos,
-          endPos,
-          container
-      };
+    return {
+      content,
+      attributes: parseAttributes(matchedNode.attributes),
+      start,
+      end,
+      startPos,
+      endPos,
+      container,
+    };
   }
 }
 
 export function extractStyleTag(source: string, html?: HTMLDocument): TagInformation | null {
   const styles = extractTags(source, 'style', html);
   if (!styles.length) {
-      return null;
+    return null;
   }
 
   // There can only be one style tag
