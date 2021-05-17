@@ -2,57 +2,62 @@
 export let post;
 export let author;
 
-import AuthorCard from './AuthorCard.astro';
-
 function formatDate(date) {
-  return new Date(date).toUTCString();
+  return new Date(date).toUTCString().replace(/(\d\d\d\d) .*/, '$1'); // remove everything after YYYY
 }
 ---
 
 <style lang="scss">
 .post {
-  display: grid;
-  grid-template-columns: 8rem auto;
-  grid-gap: 1.5rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  border-bottom: 1px solid rgba(black, 0.25);
+  text-align: center;
 }
 
-.thumb {
-  width: 8rem;
-  height: 8rem;
-  object-fit: cover;
-  border-radius: 0.25rem;
-  overflow: hidden;
+.author {
+  text-transform: uppercase;
+}
 
-  img {
-    width: 100%;
-    height: 100%;
-  }
+.date {
+  font-style: italic;
+}
+
+.description {
+  font-size: 1.25em;
+}
+
+.link {
+  text-transform: uppercase;
+  font-size: 0.8em;
+  margin-left: 1em;
 }
 
 h1 {
   font-weight: 700;
-  font-size: 1em;
+  font-size: 2.75em;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-top: 0;
   margin-bottom: 0;
 }
 
 time {
   display: block;
-  margin-top: 0.5em;
+  margin-top: 0.25rem;
   margin-bottom: 0.5em;
 }
 </style>
 
 <article class="post">
-  <div class="thumb">
-    <img src={post.image} alt={post.title} />
-  </div>
+
   <div class="data">
     <h1>{post.title}</h1>
-    <AuthorCard author={author} />
-    <time>{formatDate(post.date)}</time>
-    <p>{post.description}</p>
-    <a href={post.url}>Read</a>
+    <a class="author" href={`/author/${post.author}`}>{author.name}</a>
+    <time class="date" datetime={post.date}>{formatDate(post.date)}</time>
+    <p class="description">
+      {post.description}
+      <a class="link" href={post.url}>Read</a>
+    </p>
   </div>
 </article>
