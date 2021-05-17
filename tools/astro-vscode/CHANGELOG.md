@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.4.2
+
+### Patch Changes
+
+- b3886c2: Added support for new <Markdown> component
+
 ## 0.4.1
 
 ### Patch Changes

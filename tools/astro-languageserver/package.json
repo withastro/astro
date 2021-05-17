@@ -15,7 +15,7 @@
     "dev": "astro-scripts dev 'src/index.ts'"
   },
   "devDependencies": {
-    "astro": "^0.0.13",
+    "astro": "^0.1.0",
     "astro-scripts": "0.0.1"
   },
   "dependencies": {
