@@ -10,10 +10,10 @@
   },
   "version": "0.4.2",
   "author": "Astro",
-  "publisher": "astro-build",
   "license": "MIT",
+  "publisher": "astro-build",
   "scripts": {
-    "vscode:prepublish": "yarn build",
+    "vscode:publish": "node ./scripts/publish.mjs",
     "build": "astro-scripts build 'src/index.ts'",
     "dev": "astro-scripts dev 'src/index.ts'"
   },
@@ -24,14 +24,15 @@
     "onLanguage:astro"
   ],
   "dependencies": {
-    "astro-languageserver": "0.4.0"
+    "astro-languageserver": "file:../astro-languageserver"
   },
   "devDependencies": {
-    "vscode-html-languageservice": "^3.0.3",
+    "@types/vscode": "^1.52.0",
+    "astro-scripts": "file:../../scripts",
+    "execa": "^5.0.0",
     "vscode-emmet-helper": "2.1.2",
-    "vscode-languageclient": "~7.0.0",
-    "astro-scripts": "0.0.1",
-    "@types/vscode": "^1.52.0"
+    "vscode-html-languageservice": "^3.0.3",
+    "vscode-languageclient": "~7.0.0"
   },
   "main": "./dist/index.js",
   "files": [
