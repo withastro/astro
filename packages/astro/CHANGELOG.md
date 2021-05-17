@@ -1,5 +1,11 @@
 # astro
 
+## 0.1.2
+
+### Patch Changes
+
+- Bump version to avoid conflict
+
 ## 0.1.0
 
 ### Minor Changes
