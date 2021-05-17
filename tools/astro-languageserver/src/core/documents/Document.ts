@@ -1,3 +1,4 @@
+import type { TagInformation } from './utils';
 import { Position, Range } from 'vscode-languageserver';
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { HTMLDocument } from 'vscode-html-languageservice';
@@ -5,6 +6,7 @@ import { HTMLDocument } from 'vscode-html-languageservice';
 import { clamp, urlToPath } from '../../utils';
 import { parseHtml } from './parseHtml';
 import { parseAstro, AstroDocument } from './parseAstro';
+import { extractStyleTag } from './utils';
 
 export class Document implements TextDocument {
   private content: string;
@@ -13,6 +15,7 @@ export class Document implements TextDocument {
   version = 0;
   html!: HTMLDocument;
   astro!: AstroDocument;
+  styleInfo: TagInformation | null = null;
 
   constructor(public uri: string, text: string) {
     this.content = text;
@@ -22,6 +25,10 @@ export class Document implements TextDocument {
   private updateDocInfo() {
     this.html = parseHtml(this.content);
     this.astro = parseAstro(this.content);
+    this.styleInfo = extractStyleTag(this.content, this.html);
+    if(this.styleInfo) {
+      this.styleInfo.attributes.lang = 'css';
+    }
   }
 
   setText(text: string) {

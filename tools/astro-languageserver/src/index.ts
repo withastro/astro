@@ -1,7 +1,7 @@
 import { RequestType, TextDocumentPositionParams, createConnection, ProposedFeatures, TextDocumentSyncKind, TextDocumentIdentifier } from 'vscode-languageserver';
 import { Document, DocumentManager } from './core/documents';
 import { ConfigManager } from './core/config';
-import { PluginHost, HTMLPlugin, TypeScriptPlugin, AppCompletionItem, AstroPlugin } from './plugins';
+import { PluginHost, CSSPlugin, HTMLPlugin, TypeScriptPlugin, AppCompletionItem, AstroPlugin } from './plugins';
 import { urlToPath } from './utils';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string | null, any> = new RequestType('html/tag');
@@ -21,6 +21,7 @@ export function startServer() {
 
     pluginHost.register(new AstroPlugin(docManager, configManager));
     pluginHost.register(new HTMLPlugin(docManager, configManager));
+    pluginHost.register(new CSSPlugin(docManager, configManager));
     pluginHost.register(new TypeScriptPlugin(docManager, configManager, workspaceUris));
     configManager.updateEmmetConfig(evt.initializationOptions?.configuration?.emmet || evt.initializationOptions?.emmetConfig || {});
 
