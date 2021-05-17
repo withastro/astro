@@ -1,3 +1,7 @@
+---
+export let title;
+---
+
 <style lang="scss">
 .header {
   display: flex;
@@ -7,8 +11,10 @@
 
 .title {
   margin: 0;
-  font-size: 1em;
-  margin-right: 2rem;
+  font-size: 1.2em;
+  letter-spacing: -0.03em;
+  font-weight: 400;
+  margin-right: 1em;
 }
 
 .nav {
@@ -28,17 +34,19 @@ li {
 
 a {
   display: block;
-  margin-left: 1rem;
-  margin-right: 1rem;
+  font-size: 1.2em;
+  letter-spacing: -0.02em;
+  margin-left: 0.75em;
+  margin-right: 0.75em;
 }
 </style>
 
 <nav class="header">
-  <h1 class="title">Muppet Blog</h1>
+  <h1 class="title">Don’s Blog</h1>
   <ul class="nav">
     <li><a href="/">All Posts</a></li>
-    <li><a href="/tag/movie/1">Movies</a></li>
-    <li><a href="/tag/television/1">Television</a></li>
+    <li><a href="/author/don">Author: Don</a></li>
+    <li><a href="/author/sancho">Author: Sancho</a></li>
     <li><a href="/about">About</a></li>
   </ul>
 </nav>
