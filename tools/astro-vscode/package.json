@@ -24,12 +24,12 @@
     "onLanguage:astro"
   ],
   "dependencies": {
-    "vscode-languageclient": "~7.0.0",
-    "vscode-html-languageservice": "^3.0.3",
-    "vscode-emmet-helper": "2.1.2",
     "astro-languageserver": "0.4.0"
   },
   "devDependencies": {
+    "vscode-html-languageservice": "^3.0.3",
+    "vscode-emmet-helper": "2.1.2",
+    "vscode-languageclient": "~7.0.0",
     "astro-scripts": "0.0.1",
     "@types/vscode": "^1.52.0"
   },
@@ -72,6 +72,13 @@
           "Astro"
         ],
         "configuration": "./languages/astro-language-configuration.json"
+      },
+      {
+        "id": "astro-markdown",
+        "aliases": [
+          "Astro Markdown"
+        ],
+        "configuration": "./languages/astro-markdown-language-configuration.json"
       }
     ],
     "grammars": [
@@ -79,17 +86,72 @@
         "language": "astro",
         "scopeName": "text.html.astro",
         "path": "./syntaxes/astro.tmLanguage.json",
-        "injectTo": [
-          "text.html.markdown"
-        ],
         "embeddedLanguages": {
           "text.html.astro": "astro",
+          "text.html.markdown.astro": "astro-markdown",
           "text.html": "html",
           "source.css": "css",
           "source.scss": "scss",
           "source.sass": "sass",
           "source.tsx": "typescriptreact",
           "meta.embedded.block.frontmatter": "typescriptreact"
+        }
+      },
+      {
+        "language": "astro-markdown",
+        "scopeName": "text.html.markdown.astro",
+        "path": "./syntaxes/astro-markdown.tmLanguage.json",
+        "injectTo": [
+          "text.html.astro"
+        ],
+        "embeddedLanguages": {
+          "text.html.astro": "astro",
+          "text.html.markdown.astro": "astro-markdown",
+          "text.html.markdown": "markdown",
+          "source.tsx": "typescriptreact",
+          "source.js": "javascript",
+          "source.css": "css",
+          "meta.embedded.block.frontmatter": "yaml",
+          "meta.embedded.block.css": "css",
+          "meta.embedded.block.astro": "astro",
+          "meta.embedded.block.ini": "ini",
+          "meta.embedded.block.java": "java",
+          "meta.embedded.block.lua": "lua",
+          "meta.embedded.block.makefile": "makefile",
+          "meta.embedded.block.perl": "perl",
+          "meta.embedded.block.r": "r",
+          "meta.embedded.block.ruby": "ruby",
+          "meta.embedded.block.php": "php",
+          "meta.embedded.block.sql": "sql",
+          "meta.embedded.block.vs_net": "vs_net",
+          "meta.embedded.block.xml": "xml",
+          "meta.embedded.block.xsl": "xsl",
+          "meta.embedded.block.yaml": "yaml",
+          "meta.embedded.block.dosbatch": "dosbatch",
+          "meta.embedded.block.clojure": "clojure",
+          "meta.embedded.block.coffee": "coffee",
+          "meta.embedded.block.c": "c",
+          "meta.embedded.block.cpp": "cpp",
+          "meta.embedded.block.diff": "diff",
+          "meta.embedded.block.dockerfile": "dockerfile",
+          "meta.embedded.block.go": "go",
+          "meta.embedded.block.groovy": "groovy",
+          "meta.embedded.block.pug": "jade",
+          "meta.embedded.block.javascript": "javascript",
+          "meta.embedded.block.json": "json",
+          "meta.embedded.block.less": "less",
+          "meta.embedded.block.objc": "objc",
+          "meta.embedded.block.scss": "scss",
+          "meta.embedded.block.perl6": "perl6",
+          "meta.embedded.block.powershell": "powershell",
+          "meta.embedded.block.python": "python",
+          "meta.embedded.block.rust": "rust",
+          "meta.embedded.block.scala": "scala",
+          "meta.embedded.block.shellscript": "shellscript",
+          "meta.embedded.block.typescript": "typescript",
+          "meta.embedded.block.typescriptreact": "typescriptreact",
+          "meta.embedded.block.csharp": "csharp",
+          "meta.embedded.block.fsharp": "fsharp"
         }
       }
     ]

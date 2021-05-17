@@ -1,0 +1,44 @@
+---
+import Markdown from 'astro/components/Markdown.astro';
+import Layout from '../layouts/main.astro';
+import ReactCounter from '../components/ReactCounter.jsx';
+import PreactCounter from '../components/PreactCounter.tsx';
+import VueCounter from '../components/VueCounter.vue';
+import SvelteCounter from '../components/SvelteCounter.svelte';
+
+const title = 'Astro Markdown';
+const variable = 'content';
+const items = ['A', 'B', 'C'];
+---
+
+<Layout content={{ title }}>
+  <Markdown>
+    # Introducing {title}
+
+    **Astro Markdown** brings native Markdown support to HTML!
+
+    > It's inspired by [`mdx`](https://mdxjs.com/) and powered by [`remark`](https://github.com/remarkjs/remark)).
+
+    The best part? It comes with all the Astro features you expect.
+
+    ## Embed framework components
+
+    <ReactCounter:visible />
+    <PreactCounter:visible />
+    <VueCounter:visible />
+    <SvelteCounter:visible />
+
+    ## Use Expressions
+
+    You can use any {variable} in scope and use JavaScript for templating ({items.join(', ')})
+
+    ## Oh yeah...
+
+    <ReactCounter:visible>
+      🤯 It's also _recursive_!
+
+      ### Markdown can be embedded in any child component
+    </ReactCounter:visible>
+
+  </Markdown>
+</Layout>

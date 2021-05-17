@@ -3,15 +3,9 @@ import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 
 import path from 'path';
-import micromark from 'micromark';
-import gfmSyntax from 'micromark-extension-gfm';
-import matter from 'gray-matter';
-import gfmHtml from 'micromark-extension-gfm/html.js';
+import { renderMarkdownWithFrontmatter } from './utils.js';
 
 import { parse } from 'astro-parser';
-import { createMarkdownHeadersCollector } from './markdown/micromark-collect-headers.js';
-import { encodeMarkdown } from './markdown/micromark-encode.js';
-import { encodeAstroMdx } from './markdown/micromark-mdx-astro.js';
 import { transform } from './transform/index.js';
 import { codegen } from './codegen/index.js';
 
@@ -53,38 +47,24 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
 /**
  * .md -> .astro source
  */
-export async function convertMdToAstroSource(contents: string): Promise<string> {
-  const { data: frontmatterData, content } = matter(contents);
-  const { headers, headersExtension } = createMarkdownHeadersCollector();
-  const { htmlAstro, mdAstro } = encodeAstroMdx();
-  const mdHtml = micromark(content, {
-    allowDangerousHtml: true,
-    extensions: [gfmSyntax(), ...htmlAstro],
-    htmlExtensions: [gfmHtml, encodeMarkdown, headersExtension, mdAstro],
-  });
-
-  // TODO: Warn if reserved word is used in "frontmatterData"
-  const contentData: any = {
-    ...frontmatterData,
-    headers,
-    source: content,
-  };
-
-  let imports = '';
-  for (let [ComponentName, specifier] of Object.entries(frontmatterData.import || {})) {
-    imports += `import ${ComponentName} from '${specifier}';\n`;
+export async function convertMdToAstroSource(contents: string, { filename }: { filename: string }): Promise<string> {
+  const { content, frontmatter: { layout, ...frontmatter }, ...data } = await renderMarkdownWithFrontmatter(contents);
+  if (frontmatter['astro'] !== undefined) {
+    throw new Error(`"astro" is a reserved word but was used as a frontmatter value!\n\tat ${filename}`);
   }
-
+  const contentData: any = {
+    ...frontmatter,
+    ...data
+  };
   // </script> can't be anywhere inside of a JS string, otherwise the HTML parser fails.
   // Break it up here so that the HTML parser won't detect it.
   const stringifiedSetupContext = JSON.stringify(contentData).replace(/\<\/script\>/g, `</scrip" + "t>`);
 
   return `---
-  ${imports}
-  ${frontmatterData.layout ? `import {__renderPage as __layout} from '${frontmatterData.layout}';` : 'const __layout = undefined;'}
-  export const __content = ${stringifiedSetupContext};
+${layout ? `import {__renderPage as __layout} from '${layout}';` : 'const __layout = undefined;'}
+export const __content = ${stringifiedSetupContext};
 ---
-<section>${mdHtml}</section>`;
+${content}`;
 }
 
 /**
@@ -95,24 +75,24 @@ async function convertMdToJsx(
   contents: string,
   { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
 ): Promise<TransformResult> {
-  const raw = await convertMdToAstroSource(contents);
+const raw = await convertMdToAstroSource(contents, { filename });
   const convertOptions = { compileOptions, filename, fileID };
   return await convertAstroToJsx(raw, convertOptions);
 }
 
-type SupportedExtensions = '.astro' | '.md';
-
-/** Given a file, process it either as .astro or .md. */
+/** Given a file, process it either as .astro, .md */
 async function transformFromSource(
   contents: string,
   { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
 ): Promise<TransformResult> {
   const fileID = path.relative(projectRoot, filename);
-  switch (path.extname(filename) as SupportedExtensions) {
-    case '.astro':
+  switch (true) {
+    case filename.slice(-6) === '.astro':
       return await convertAstroToJsx(contents, { compileOptions, filename, fileID });
-    case '.md':
+
+    case filename.slice(-3) === '.md':
       return await convertMdToJsx(contents, { compileOptions, filename, fileID });
+
     default:
       throw new Error('Not Supported!');
   }
@@ -125,6 +105,7 @@ export async function compileComponent(
 ): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
+  const usesMarkdown = !!result.imports.find(spec => spec.indexOf('Markdown') > -1);
 
   // return template
   let modJsx = `
@@ -135,6 +116,7 @@ ${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from '${internalImport('h.js')}';
+${usesMarkdown ? `import __astroMarkdownRender from '${internalImport('markdown.js')}';` : ''};
 const __astroRequestSymbol = Symbol('astro.request');
 async function __render(props, ...children) {
   const Astro = {

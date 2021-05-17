@@ -4,7 +4,11 @@
   "foldingStopMarker": "(?x)\n(</(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|li|form|dl)>\n|^(?!.*?<!--).*?--\\s*>\n|^<!--\\ end\\ tminclude\\ -->$\n|<\\?(?:php)?.*\\bend(if|for(each)?|while)\\b\n|\\{\\{?/(if|foreach|capture|literal|foreach|php|section|strip)\n|^[^{]*\\}\n)",
   "keyEquivalent": "^~H",
   "name": "Astro",
+  "scopeName": "text.html.astro",
   "patterns": [
+    {
+      "include": "#astro-markdown"
+    },
     {
       "include": "#astro-expressions"
     },
@@ -473,6 +477,32 @@
       ]
     },
     {
+      "begin": "(</?)([A-Z][a-zA-Z0-9-]*)(\\:(load|idle|visible))?",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.component.astro"
+        },
+        "3": {
+          "name": "keyword.control.loading.astro"
+        }
+      },
+      "end": "(/?>)",
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "name": "meta.tag.component.astro",
+      "patterns": [
+        {
+          "include": "#tag-stuff"
+        }
+      ]
+    },
+    {
       "begin": "(</?)([a-zA-Z0-9:-]+)",
       "beginCaptures": {
         "1": {
@@ -673,7 +703,50 @@
           "include": "#string-single-quoted"
         },
         {
+          "include": "#astro-load-directive"
+        },
+        {
           "include": "#astro-expressions"
+        },
+        {
+          "include": "#astro-markdown"
+        }
+      ]
+    },
+    "astro-markdown": {
+      "begin": "(?:^\\s+)?(<)(Markdown)\\b(?=[^>]*)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.markdown.astro"
+        }
+      },
+      "end": "(</)(Markdown)(>)",
+      "endCaptures": {
+        "2": {
+          "name": "punctuation.definition.tag.html"
+        }
+      },
+      "name": "text.html.markdown.astro",
+      "patterns": [
+        {
+          "include": "#tag-stuff"
+        },
+        {
+          "begin": "(>)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.definition.tag.end.html"
+            }
+          },
+          "end": "(?=</Markdown)",
+          "patterns": [
+            {
+              "include": "text.html.markdown.astro"
+            }
+          ]
         }
       ]
     },
@@ -701,6 +774,5 @@
         }
       ]
     }
-  },
-  "scopeName": "text.html.astro"
+  }
 }

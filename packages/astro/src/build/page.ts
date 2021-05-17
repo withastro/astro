@@ -181,7 +181,7 @@ async function gatherRuntimes({ astroConfig, buildState, filepath, logging, reso
 
   let source = await fs.promises.readFile(filepath, 'utf8');
   if (filepath.pathname.endsWith('.md')) {
-    source = await convertMdToAstroSource(source);
+    source = await convertMdToAstroSource(source, { filename: fileURLToPath(filepath) });
   }
 
   const ast = parse(source, { filepath });
