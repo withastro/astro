@@ -25,9 +25,9 @@
     "astro.mjs"
   ],
   "scripts": {
-    "build": "astro-scripts build 'src/*.ts' 'src/compiler/index.ts' 'src/frontend/**/*.ts' && tsc",
-    "postbuild": "astro-scripts copy 'src/**/*.astro'",
-    "dev": "astro-scripts dev 'src/**/*.ts'",
+    "build": "astro-scripts build \"src/*.ts\" \"src/compiler/index.ts\" \"src/frontend/**/*.ts\" && tsc",
+    "postbuild": "astro-scripts copy \"src/**/*.astro\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
     "test": "uvu test -i fixtures -i test-utils.js"
   },
   "dependencies": {
