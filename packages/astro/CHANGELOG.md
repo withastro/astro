@@ -1,12 +1,8 @@
 # astro
 
-## 0.1.2
+## 0.10.0
 
-### Patch Changes
-
-- Bump version to avoid conflict
-
-## 0.1.0
+`astro` has been bumped to `0.10.0` to avoid conflicts with the previously publish `astro` package (which was graciously donated to us at `v0.9.2`).
 
 ### Minor Changes
 
