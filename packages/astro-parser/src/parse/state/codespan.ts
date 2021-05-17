@@ -18,7 +18,10 @@ export default function codespan(parser: Parser) {
     end: parser.index,
     type: 'CodeSpan',
     raw,
-    data: raw?.slice(open?.length, open?.length * -1).replace(/^ /, '').replace(/ $/, '')
+    data: raw
+      ?.slice(open?.length, open?.length * -1)
+      .replace(/^ /, '')
+      .replace(/ $/, ''),
   };
 
   parser.current().children.push(node);

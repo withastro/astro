@@ -23,7 +23,7 @@ export default function codefence(parser: Parser) {
     type: 'CodeFence',
     raw: `${raw}` + trailingWhitespace,
     metadata,
-    data
+    data,
   };
 
   parser.current().children.push(node);

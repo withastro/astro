@@ -39,11 +39,11 @@ export function createRenderer(renderer: SupportedComponentRenderer) {
       const script = `${typeof wrapperStart === 'function' ? wrapperStart(innerContext) : wrapperStart}
 ${_imports(renderContext)}
 ${renderer.render({
-          ...innerContext,
-          props: serializeProps(props),
-          children: `[${childrenToH(renderer, children) ?? ''}]`,
-          childrenAsString: `\`${children}\``,
-        })}
+  ...innerContext,
+  props: serializeProps(props),
+  children: `[${childrenToH(renderer, children) ?? ''}]`,
+  childrenAsString: `\`${children}\``,
+})}
 ${typeof wrapperEnd === 'function' ? wrapperEnd(innerContext) : wrapperEnd}`;
 
       return [value, `<script type="module">${script.trim()}</script>`].join('\n');

@@ -214,7 +214,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
           enter(node) {
             if (node.name !== 'Markdown') return;
             injectScopedClassAttribute(node, scopedClass, '$scope');
-          }
+          },
         },
         Element: {
           enter(node) {

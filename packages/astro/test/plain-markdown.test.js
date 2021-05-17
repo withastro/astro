@@ -34,5 +34,4 @@ Markdown('Builds markdown pages for prod', async (context) => {
   await context.build();
 });
 
-
 Markdown.run();

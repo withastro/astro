@@ -8,7 +8,6 @@ const Markdown = suite('Astro Markdown tests');
 setup(Markdown, './fixtures/astro-markdown');
 setupBuild(Markdown, './fixtures/astro-markdown');
 
-
 Markdown('Can load markdown pages with Astro', async ({ runtime }) => {
   const result = await runtime.load('/post');
   if (result.error) throw new Error(result.error);

@@ -42,7 +42,7 @@ export const childrenToH = moize.deep(function childrenToH(renderer: ComponentRe
 
   const simpleTypes = new Set(['number', 'boolean']);
   const serializeChild = (child: unknown) => {
-    if (typeof child === 'string') return JSON.stringify(child).replace(/<\/script>/gmi, '</script" + ">');
+    if (typeof child === 'string') return JSON.stringify(child).replace(/<\/script>/gim, '</script" + ">');
     if (simpleTypes.has(typeof child)) return JSON.stringify(child);
     if (child === null) return `null`;
     if ((child as any).__SERIALIZED) return (child as any).__SERIALIZED;

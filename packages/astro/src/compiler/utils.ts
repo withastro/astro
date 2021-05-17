@@ -18,13 +18,10 @@ export interface MarkdownRenderingOptions {
 }
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
-export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions|null) {
+export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null) {
   // Dynamic import to ensure that "gray-matter" isn't built by Snowpack
   const { default: matter } = await import('gray-matter');
-  const {
-    data: frontmatter,
-    content,
-  } = matter(contents);
+  const { data: frontmatter, content } = matter(contents);
   const value = await renderMarkdown(content, opts);
   return { ...value, frontmatter };
 }
@@ -41,12 +38,12 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   }
 
   if (useGfm) {
-    const {default:gfm} = await import('remark-gfm');
+    const { default: gfm } = await import('remark-gfm');
     parser = parser.use(gfm);
   }
 
   if (useFootnotes) {
-    const {default:footnotes} = await import('remark-footnotes');
+    const { default: footnotes } = await import('remark-footnotes');
     parser = parser.use(footnotes);
   }
 

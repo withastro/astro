@@ -17,6 +17,7 @@ Astro treats any `.md` files inside of the `/src/pages` directory as pages. Thes
 The only special Frontmatter key is `layout`, which defines the relative path to a `.astro` component which should wrap your Markdown content.
 
 `src/pages/index.md`
+
 ```md
 ---
 layout: ../layouts/main.astro
@@ -30,6 +31,7 @@ Layout files are normal `.astro` components. Any Frontmatter defined in your `.m
 The rendered Markdown content is placed into the default `<slot />` element.
 
 `src/layouts/main.astro`
+
 ```jsx
 ---
 export let content;
@@ -52,7 +54,7 @@ Similar to tools like [MDX](https://mdxjs.com/) or [MDsveX](https://github.com/p
 
 Astro exposes a special `Markdown` component for `.astro` files which enables markdown syntax for its children **recursively**. Within the `Markdown` component you may also use plain HTML or any other type of component that is supported by Astro.
 
-```jsx
+````jsx
 ---
 // For now, this import _must_ be named "Markdown" and _must not_ be wrapped with a custom component
 // We're working on easing these restrictions!
@@ -91,7 +93,7 @@ const expressions = 'Lorem ipsum';
     </MyFancyCodePreview:visible>
   </Markdown>
 </Layout>
-```
+````
 
 ### Remote Markdown
 
@@ -111,7 +113,7 @@ const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpa
 
 ### Security FAQs
 
-**Aren't there security concerns to rendering remote markdown directly to HTML?** 
+**Aren't there security concerns to rendering remote markdown directly to HTML?**
 
 Yes! Just like with regular HTML, improper use the `<Markdown>` component can open you up to a [cross-site scripting (XSS)](https://en.wikipedia.org/wiki/Cross-site_scripting) attack. If you are rendering untrusted content, be sure to _santize your content **before** rendering it_.
 

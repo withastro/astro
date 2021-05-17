@@ -45,7 +45,7 @@ export function searchForPage(url: URL, astroRoot: URL): SearchResult {
 
   // Try to find index.astro/md paths
   if (reqPath.endsWith('/')) {
-    const candidates = [`${base}index.astro`, `${base}index.md`,];
+    const candidates = [`${base}index.astro`, `${base}index.md`];
     const location = findAnyPage(candidates, astroRoot);
     if (location) {
       return {

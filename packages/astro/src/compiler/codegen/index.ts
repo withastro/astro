@@ -306,7 +306,7 @@ interface CodegenState {
   components: Components;
   css: string[];
   markers: {
-    insideMarkdown: boolean|string;
+    insideMarkdown: boolean | string;
   };
   importExportStatements: Set<string>;
   dynamicImports: DynamicImportMap;
@@ -583,41 +583,41 @@ function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOption
           try {
             const attributes = getAttributes(node.attributes);
 
-          outSource += outSource === '' ? '' : ',';
-          if (node.type === 'Slot') {
-            outSource += `(children`;
-            return;
-          }
-          const COMPONENT_NAME_SCANNER = /^[A-Z]/;
-          if (!COMPONENT_NAME_SCANNER.test(name)) {
-            outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
-            if (state.markers.insideMarkdown) {
-              outSource += `,h(__astroMarkdownRender, null`
-            }
-            return;
-          }
-          const [componentName, componentKind] = name.split(':');
-          const componentImportData = components[componentName];
-          if (!componentImportData) {
-            throw new Error(`Unknown Component: ${componentName}`);
-          }
-          if (componentImportData.type === '.astro') {
-            if (componentName === 'Markdown') {
-              const attributeStr = attributes ? generateAttributes(attributes) : 'null';
-              state.markers.insideMarkdown = attributeStr;
-              outSource += `h(__astroMarkdownRender, ${attributeStr}`
+            outSource += outSource === '' ? '' : ',';
+            if (node.type === 'Slot') {
+              outSource += `(children`;
               return;
             }
-          }
-          const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
-          if (wrapperImport) {
-            importExportStatements.add(wrapperImport);
-          }
+            const COMPONENT_NAME_SCANNER = /^[A-Z]/;
+            if (!COMPONENT_NAME_SCANNER.test(name)) {
+              outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
+              if (state.markers.insideMarkdown) {
+                outSource += `,h(__astroMarkdownRender, null`;
+              }
+              return;
+            }
+            const [componentName, componentKind] = name.split(':');
+            const componentImportData = components[componentName];
+            if (!componentImportData) {
+              throw new Error(`Unknown Component: ${componentName}`);
+            }
+            if (componentImportData.type === '.astro') {
+              if (componentName === 'Markdown') {
+                const attributeStr = attributes ? generateAttributes(attributes) : 'null';
+                state.markers.insideMarkdown = attributeStr;
+                outSource += `h(__astroMarkdownRender, ${attributeStr}`;
+                return;
+              }
+            }
+            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
+            if (wrapperImport) {
+              importExportStatements.add(wrapperImport);
+            }
 
             outSource += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
             if (state.markers.insideMarkdown) {
               const attributeStr = state.markers.insideMarkdown;
-              outSource += `,h(__astroMarkdownRender, ${attributeStr}`
+              outSource += `,h(__astroMarkdownRender, ${attributeStr}`;
             }
           } catch (err) {
             // handle errors in scope with filename
@@ -710,10 +710,10 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
     components: {},
     css: [],
     markers: {
-      insideMarkdown: false
+      insideMarkdown: false,
     },
     importExportStatements: new Set(),
-    dynamicImports: new Map()
+    dynamicImports: new Map(),
   };
 
   const { script, componentPlugins, createCollection } = compileModule(ast.module, state, compileOptions);

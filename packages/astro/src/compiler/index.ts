@@ -48,13 +48,17 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
  * .md -> .astro source
  */
 export async function convertMdToAstroSource(contents: string, { filename }: { filename: string }): Promise<string> {
-  const { content, frontmatter: { layout, ...frontmatter }, ...data } = await renderMarkdownWithFrontmatter(contents);
+  const {
+    content,
+    frontmatter: { layout, ...frontmatter },
+    ...data
+  } = await renderMarkdownWithFrontmatter(contents);
   if (frontmatter['astro'] !== undefined) {
     throw new Error(`"astro" is a reserved word but was used as a frontmatter value!\n\tat ${filename}`);
   }
   const contentData: any = {
     ...frontmatter,
-    ...data
+    ...data,
   };
   // </script> can't be anywhere inside of a JS string, otherwise the HTML parser fails.
   // Break it up here so that the HTML parser won't detect it.
@@ -75,7 +79,7 @@ async function convertMdToJsx(
   contents: string,
   { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
 ): Promise<TransformResult> {
-const raw = await convertMdToAstroSource(contents, { filename });
+  const raw = await convertMdToAstroSource(contents, { filename });
   const convertOptions = { compileOptions, filename, fileID };
   return await convertAstroToJsx(raw, convertOptions);
 }
@@ -105,7 +109,7 @@ export async function compileComponent(
 ): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
-  const usesMarkdown = !!result.imports.find(spec => spec.indexOf('Markdown') > -1);
+  const usesMarkdown = !!result.imports.find((spec) => spec.indexOf('Markdown') > -1);
 
   // return template
   let modJsx = `
