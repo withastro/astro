@@ -6,8 +6,9 @@ import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Pa
 
 import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
+import { performance } from 'perf_hooks';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
-import { canonicalURL } from './build/util.js';
+import { canonicalURL, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';
 import { searchForPage } from './search.js';
 
@@ -332,8 +333,10 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 
 /** Core Astro runtime */
 export async function createRuntime(astroConfig: AstroConfig, { mode, logging }: RuntimeOptions): Promise<AstroRuntime> {
+  const timer: Record<string, number> = {};
   const resolvePackageUrl = async (pkgName: string) => frontendSnowpack.getUrlForPackage(pkgName);
 
+  timer.backend = performance.now();
   const { snowpack: backendSnowpack, snowpackRuntime: backendSnowpackRuntime, snowpackConfig: backendSnowpackConfig } = await createSnowpack(astroConfig, {
     env: {
       astro: true,
@@ -341,13 +344,16 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     mode,
     resolvePackageUrl,
   });
+  debug(logging, 'core', `backend snowpack created [${stopTimer(timer.backend)}]`);
 
+  timer.frontend = performance.now();
   const { snowpack: frontendSnowpack, snowpackRuntime: frontendSnowpackRuntime, snowpackConfig: frontendSnowpackConfig } = await createSnowpack(astroConfig, {
     env: {
       astro: false,
     },
     mode,
   });
+  debug(logging, 'core', `frontend snowpack created [${stopTimer(timer.frontend)}]`);
 
   const runtimeConfig: RuntimeConfig = {
     astroConfig,
