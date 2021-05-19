@@ -1,0 +1,21 @@
+---
+import { sidebar } from '../config.ts';
+---
+
+<nav>
+  <ul>
+    {sidebar.map(category => ([
+      <li>
+        <h3>{category.text}</h3>
+      </li>,
+      <li>
+        <ul>
+          {category.children.map(child => (
+            <li><a href={child.link}>{child.text}</a></li>
+          ))}
+        </ul>
+      </li>
+    ]
+    ))}
+  </ul>
+</nav>
