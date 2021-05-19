@@ -1,10 +1,5 @@
 import * as ts from 'typescript';
-import {
-  CompletionItemKind,
-  DiagnosticSeverity,
-  Position,
-  Range
-} from 'vscode-languageserver';
+import { CompletionItemKind, DiagnosticSeverity, Position, Range } from 'vscode-languageserver';
 import { dirname } from 'path';
 import { pathToUrl } from '../../utils';
 import { mapRangeToOriginal } from '../../core/documents';
@@ -134,25 +129,19 @@ export function getExtensionFromScriptKind(kind: ts.ScriptKind | undefined): ts.
   }
 }
 
-export function convertRange(
-  document: { positionAt: (offset: number) => Position },
-  range: { start?: number; length?: number }
-): Range {
-  return Range.create(
-      document.positionAt(range.start || 0),
-      document.positionAt((range.start || 0) + (range.length || 0))
-  );
+export function convertRange(document: { positionAt: (offset: number) => Position }, range: { start?: number; length?: number }): Range {
+  return Range.create(document.positionAt(range.start || 0), document.positionAt((range.start || 0) + (range.length || 0)));
 }
 
 export function convertToLocationRange(defDoc: SnapshotFragment, textSpan: ts.TextSpan): Range {
   const range = mapRangeToOriginal(defDoc, convertRange(defDoc, textSpan));
   // Some definition like the svelte component class definition don't exist in the original, so we map to 0,1
   if (range.start.line < 0) {
-      range.start.line = 0;
-      range.start.character = 1;
+    range.start.line = 0;
+    range.start.character = 1;
   }
   if (range.end.line < 0) {
-      range.end = range.start;
+    range.end = range.start;
   }
 
   return range;
@@ -177,8 +166,7 @@ export function isVirtualVueFilePath(filePath: string) {
 }
 
 export function isVirtualJsxFilePath(filePath: string) {
-  return isVirtualFrameworkFilePath('jsx', filePath) ||
-  isVirtualFrameworkFilePath('tsx', filePath);
+  return isVirtualFrameworkFilePath('jsx', filePath) || isVirtualFrameworkFilePath('tsx', filePath);
 }
 
 export function isVirtualSvelteFilePath(filePath: string) {
@@ -186,10 +174,7 @@ export function isVirtualSvelteFilePath(filePath: string) {
 }
 
 export function isVirtualFilePath(filePath: string) {
-  return isVirtualAstroFilePath(filePath) ||
-    isVirtualVueFilePath(filePath) ||
-    isVirtualSvelteFilePath(filePath) ||
-    isVirtualJsxFilePath(filePath);
+  return isVirtualAstroFilePath(filePath) || isVirtualVueFilePath(filePath) || isVirtualSvelteFilePath(filePath) || isVirtualJsxFilePath(filePath);
 }
 
 export function toVirtualAstroFilePath(filePath: string) {

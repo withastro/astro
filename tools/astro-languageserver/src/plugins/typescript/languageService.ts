@@ -4,7 +4,7 @@ import * as ts from 'typescript';
 import { basename } from 'path';
 import { ensureRealAstroFilePath, findTsConfigPath } from './utils';
 import { Document } from '../../core/documents';
-import { SnapshotManager,  } from './SnapshotManager';
+import { SnapshotManager } from './SnapshotManager';
 import { createDocumentSnapshot, DocumentSnapshot } from './DocumentSnapshot';
 import { createAstroModuleLoader } from './module-loader';
 

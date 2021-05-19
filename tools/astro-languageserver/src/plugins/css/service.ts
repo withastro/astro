@@ -1,54 +1,44 @@
-import {
-  getCSSLanguageService,
-  getSCSSLanguageService,
-  getLESSLanguageService,
-  LanguageService,
-  ICSSDataProvider
-} from 'vscode-css-languageservice';
+import { getCSSLanguageService, getSCSSLanguageService, getLESSLanguageService, LanguageService, ICSSDataProvider } from 'vscode-css-languageservice';
 
 const customDataProvider: ICSSDataProvider = {
   providePseudoClasses() {
-      return [];
+    return [];
   },
   provideProperties() {
-      return [];
+    return [];
   },
   provideAtDirectives() {
-      return [];
+    return [];
   },
   providePseudoElements() {
-      return [];
-  }
+    return [];
+  },
 };
 
-const [css, scss, less] = [
-  getCSSLanguageService,
-  getSCSSLanguageService,
-  getLESSLanguageService
-].map((getService) =>
+const [css, scss, less] = [getCSSLanguageService, getSCSSLanguageService, getLESSLanguageService].map((getService) =>
   getService({
-      customDataProviders: [customDataProvider]
+    customDataProviders: [customDataProvider],
   })
 );
 
 const langs = {
   css,
   scss,
-  less
+  less,
 };
 
 export function getLanguage(kind?: string) {
   switch (kind) {
-      case 'scss':
-      case 'text/scss':
-          return 'scss' as const;
-      case 'less':
-      case 'text/less':
-          return 'less' as const;
-      case 'css':
-      case 'text/css':
-      default:
-          return 'css' as const;
+    case 'scss':
+    case 'text/scss':
+      return 'scss' as const;
+    case 'less':
+    case 'text/less':
+      return 'less' as const;
+    case 'css':
+    case 'text/css':
+    default:
+      return 'css' as const;
   }
 }
 

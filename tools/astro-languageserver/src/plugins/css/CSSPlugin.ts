@@ -26,24 +26,16 @@ export class CSSPlugin implements CompletionsProvider {
     });
   }
 
-  getCompletions(
-    document: Document,
-    position: Position,
-    completionContext?: CompletionContext
-  ): CompletionList | null {
+  getCompletions(document: Document, position: Position, completionContext?: CompletionContext): CompletionList | null {
     const triggerCharacter = completionContext?.triggerCharacter;
     const triggerKind = completionContext?.triggerKind;
     const isCustomTriggerCharacter = triggerKind === CompletionTriggerKind.TriggerCharacter;
 
-    if (
-        isCustomTriggerCharacter &&
-        triggerCharacter &&
-        !this.triggerCharacters.has(triggerCharacter)
-    ) {
-        return null;
+    if (isCustomTriggerCharacter && triggerCharacter && !this.triggerCharacters.has(triggerCharacter)) {
+      return null;
     }
 
-    if(this.isInsideFrontmatter(document, position)) {
+    if (this.isInsideFrontmatter(document, position)) {
       return null;
     }
 
@@ -55,82 +47,55 @@ export class CSSPlugin implements CompletionsProvider {
 
     const attributeContext = getAttributeContextAtPosition(document, position);
     if (!attributeContext) {
-        return null;
+      return null;
     }
 
     if (this.inStyleAttributeWithoutInterpolation(attributeContext, document.getText())) {
-        const [start, end] = attributeContext.valueRange;
-        return this.getCompletionsInternal(
-            document,
-            position,
-            new StyleAttributeDocument(document, start, end)
-        );
+      const [start, end] = attributeContext.valueRange;
+      return this.getCompletionsInternal(document, position, new StyleAttributeDocument(document, start, end));
     } else {
-        return getIdClassCompletion(cssDocument, attributeContext);
+      return getIdClassCompletion(cssDocument, attributeContext);
     }
   }
 
-  private getCompletionsInternal(
-    document: Document,
-    position: Position,
-    cssDocument: CSSDocumentBase
-  ) {
-      if (isSASS(cssDocument)) {
-          // the css language service does not support sass, still we can use
-          // the emmet helper directly to at least get emmet completions
-          return doEmmetComplete(document, position, 'sass', this.configManager.getEmmetConfig());
-      }
+  private getCompletionsInternal(document: Document, position: Position, cssDocument: CSSDocumentBase) {
+    if (isSASS(cssDocument)) {
+      // the css language service does not support sass, still we can use
+      // the emmet helper directly to at least get emmet completions
+      return doEmmetComplete(document, position, 'sass', this.configManager.getEmmetConfig());
+    }
 
-      const type = extractLanguage(cssDocument);
+    const type = extractLanguage(cssDocument);
 
-      const lang = getLanguageService(type);
-      const emmetResults: CompletionList = {
-          isIncomplete: true,
-          items: []
-      };
-      if (false /* this.configManager.getConfig().css.completions.emmet */) {
-          lang.setCompletionParticipants([
-              getEmmetCompletionParticipants(
-                  cssDocument,
-                  cssDocument.getGeneratedPosition(position),
-                  getLanguage(type),
-                  this.configManager.getEmmetConfig(),
-                  emmetResults
-              )
-          ]);
-      }
-      const results = lang.doComplete(
-          cssDocument,
-          cssDocument.getGeneratedPosition(position),
-          cssDocument.stylesheet
-      );
-      return CompletionList.create(
-          [...(results ? results.items : []), ...emmetResults.items].map((completionItem) =>
-              mapCompletionItemToOriginal(cssDocument, completionItem)
-          ),
-          // Emmet completions change on every keystroke, so they are never complete
-          emmetResults.items.length > 0
-      );
-  }
-
-  private inStyleAttributeWithoutInterpolation(
-    attrContext: AttributeContext,
-    text: string
-  ): attrContext is Required<AttributeContext> {
-    return (
-      attrContext.name === 'style' &&
-      !!attrContext.valueRange &&
-      !text.substring(attrContext.valueRange[0], attrContext.valueRange[1]).includes('{')
+    const lang = getLanguageService(type);
+    const emmetResults: CompletionList = {
+      isIncomplete: true,
+      items: [],
+    };
+    if (false /* this.configManager.getConfig().css.completions.emmet */) {
+      lang.setCompletionParticipants([
+        getEmmetCompletionParticipants(cssDocument, cssDocument.getGeneratedPosition(position), getLanguage(type), this.configManager.getEmmetConfig(), emmetResults),
+      ]);
+    }
+    const results = lang.doComplete(cssDocument, cssDocument.getGeneratedPosition(position), cssDocument.stylesheet);
+    return CompletionList.create(
+      [...(results ? results.items : []), ...emmetResults.items].map((completionItem) => mapCompletionItemToOriginal(cssDocument, completionItem)),
+      // Emmet completions change on every keystroke, so they are never complete
+      emmetResults.items.length > 0
     );
   }
 
+  private inStyleAttributeWithoutInterpolation(attrContext: AttributeContext, text: string): attrContext is Required<AttributeContext> {
+    return attrContext.name === 'style' && !!attrContext.valueRange && !text.substring(attrContext.valueRange[0], attrContext.valueRange[1]).includes('{');
+  }
+
   private getCSSDoc(document: Document) {
-      let cssDoc = this.documents.get(document);
-      if (!cssDoc || cssDoc.version < document.version) {
-          cssDoc = new CSSDocument(document);
-          this.documents.set(document, cssDoc);
-      }
-      return cssDoc;
+    let cssDoc = this.documents.get(document);
+    if (!cssDoc || cssDoc.version < document.version) {
+      cssDoc = new CSSDocument(document);
+      this.documents.set(document, cssDoc);
+    }
+    return cssDoc;
   }
 
   private isInsideFrontmatter(document: Document, position: Position) {
@@ -140,10 +105,10 @@ export class CSSPlugin implements CompletionsProvider {
 
 function isSASS(document: CSSDocumentBase) {
   switch (extractLanguage(document)) {
-      case 'sass':
-          return true;
-      default:
-          return false;
+    case 'sass':
+      return true;
+    default:
+      return false;
   }
 }
 

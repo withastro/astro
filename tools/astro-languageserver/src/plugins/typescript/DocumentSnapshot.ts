@@ -8,7 +8,7 @@ import { getScriptKindFromFileName, isAstroFilePath, toVirtualAstroFilePath } fr
 /**
  * The mapper to get from original snapshot positions to generated and vice versa.
  */
- export interface SnapshotFragment extends DocumentMapper {
+export interface SnapshotFragment extends DocumentMapper {
   positionAt(offset: number): Position;
   offsetAt(position: Position): number;
 }

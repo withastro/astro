@@ -5,7 +5,7 @@ import type { LanguageServiceManager } from '../LanguageServiceManager';
  * Checks if this a section that should be completely ignored
  * because it's purely generated.
  */
- export function isInGeneratedCode(text: string, start: number, end: number) {
+export function isInGeneratedCode(text: string, start: number, end: number) {
   const lineStart = text.lastIndexOf('\n', start);
   const lineEnd = text.indexOf('\n', end);
   const lastStart = text.substring(lineStart, start).lastIndexOf('/*Ωignore_startΩ*/');
@@ -26,29 +26,29 @@ export class SnapshotFragmentMap {
   constructor(private languageServiceManager: LanguageServiceManager) {}
 
   set(fileName: string, content: { fragment: SnapshotFragment; snapshot: DocumentSnapshot }) {
-      this.map.set(fileName, content);
+    this.map.set(fileName, content);
   }
 
   get(fileName: string) {
-      return this.map.get(fileName);
+    return this.map.get(fileName);
   }
 
   getFragment(fileName: string) {
-      return this.map.get(fileName)?.fragment;
+    return this.map.get(fileName)?.fragment;
   }
 
   async retrieve(fileName: string) {
-      let snapshotFragment = this.get(fileName);
-      if (!snapshotFragment) {
-          const snapshot = await this.languageServiceManager.getSnapshot(fileName);
-          const fragment = await snapshot.getFragment();
-          snapshotFragment = { fragment, snapshot };
-          this.set(fileName, snapshotFragment);
-      }
-      return snapshotFragment;
+    let snapshotFragment = this.get(fileName);
+    if (!snapshotFragment) {
+      const snapshot = await this.languageServiceManager.getSnapshot(fileName);
+      const fragment = await snapshot.getFragment();
+      snapshotFragment = { fragment, snapshot };
+      this.set(fileName, snapshotFragment);
+    }
+    return snapshotFragment;
   }
 
   async retrieveFragment(fileName: string) {
-      return (await this.retrieve(fileName)).fragment;
+    return (await this.retrieve(fileName)).fragment;
   }
 }

@@ -20,9 +20,8 @@ export function startServer() {
     const workspaceUris = evt.workspaceFolders?.map((folder) => folder.uri.toString()) ?? [evt.rootUri ?? ''];
 
     pluginHost.initialize({
-      filterIncompleteCompletions:
-          !evt.initializationOptions?.dontFilterIncompleteCompletions,
-      definitionLinkSupport: !!evt.capabilities.textDocument?.definition?.linkSupport
+      filterIncompleteCompletions: !evt.initializationOptions?.dontFilterIncompleteCompletions,
+      definitionLinkSupport: !!evt.capabilities.textDocument?.definition?.linkSupport,
     });
     pluginHost.register(new AstroPlugin(docManager, configManager));
     pluginHost.register(new HTMLPlugin(docManager, configManager));
