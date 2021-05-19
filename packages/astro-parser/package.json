@@ -11,8 +11,8 @@
   ],
   "scripts": {
     "prepublish": "yarn build",
-    "build": "astro-scripts build 'src/**/*.ts' && tsc -p tsconfig.json",
-    "dev": "astro-scripts dev 'src/**/*.ts'"
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "devDependencies": {
     "astro-scripts": "0.0.1"
