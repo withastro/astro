@@ -51,6 +51,10 @@ export function clamp(num: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, num));
 }
 
+export function isNotNullOrUndefined<T>(val: T | undefined | null): val is T {
+  return val !== undefined && val !== null;
+}
+
 /** Checks if a position is inside range */
 export function isInRange(positionToTest: Position, range: Range): boolean {
   return isBeforeOrEqualToPosition(range.end, positionToTest) && isBeforeOrEqualToPosition(positionToTest, range.start);
