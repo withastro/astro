@@ -28,18 +28,24 @@ function validateConfig(config: any): void {
   }
 
   // buildOptions
-  if (config.buildOptions && config.buildOptions.site !== undefined) {
-    if (typeof config.buildOptions.site !== 'string') throw new Error(`[config] buildOptions.site is not a string`);
-    try {
-      new URL(config.buildOptions.site);
-    } catch (err) {
-      throw new Error('[config] buildOptions.site must be a valid URL');
+  if (config.buildOptions) {
+    // buildOptions.site
+    if (config.buildOptions.site !== undefined) {
+      if (typeof config.buildOptions.site !== 'string') throw new Error(`[config] buildOptions.site is not a string`);
+      try {
+        new URL(config.buildOptions.site);
+      } catch (err) {
+        throw new Error('[config] buildOptions.site must be a valid URL');
+      }
     }
   }
 
   // devOptions
   if (typeof config.devOptions?.port !== 'number') {
     throw new Error(`[config] devOptions.port: Expected number, received ${type(config.devOptions?.port)}`);
+  }
+  if (config.devOptions?.tailwindConfig !== undefined && typeof config.devOptions?.tailwindConfig !== 'string') {
+    throw new Error(`[config] devOptions.tailwindConfig: Expected string, received ${type(config.devOptions?.tailwindConfig)}`);
   }
 }
 

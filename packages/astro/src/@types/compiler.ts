@@ -7,4 +7,5 @@ export interface CompileOptions {
   astroConfig: AstroConfig;
   extensions?: Record<string, ValidExtensionPlugins>;
   mode: RuntimeMode;
+  tailwindConfig?: string;
 }

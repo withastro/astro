@@ -26,6 +26,8 @@ export interface AstroConfig {
     /** The port to run the dev server on. */
     port: number;
     projectRoot?: string;
+    /** Path to tailwind.config.js, if used */
+    tailwindConfig?: string;
   };
 }
 
@@ -36,6 +38,7 @@ export type AstroUserConfig = Omit<AstroConfig, 'buildOptions' | 'devOptions'> &
   devOptions: {
     port?: number;
     projectRoot?: string;
+    tailwindConfig?: string;
   };
 };
 

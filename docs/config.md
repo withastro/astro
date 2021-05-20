@@ -28,6 +28,8 @@ export default {
   devOptions: {
     /** The port to run the dev server on. */
     port: 3000,
+    /** Path to tailwind.config.js if used, e.g. './tailwind.config.js' */
+    tailwindConfig: undefined,
   },
 };
 ```

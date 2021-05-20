@@ -92,7 +92,6 @@ And also create a `tailwind.config.js` in your project root:
 
 ```js
 // tailwind.config.js
-
 module.exports = {
   mode: 'jit',
   purge: ['./public/**/*.html', './src/**/*.{astro,js,jsx,ts,tsx,vue}'],
@@ -100,19 +99,27 @@ module.exports = {
 };
 ```
 
-Then add [Tailwind utilities][tailwind-utilities] to any Astro component that needs it:
+Be sure to add the config path to `astro.config.mjs`, so that Astro enables JIT support in the dev server.
 
-```html
-<style>
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
-</style>
+```diff
+  // astro.config.mjs
+  export default {
++   devOptions: {
++     tailwindConfig: './tailwindConfig.js',
++   },
+  };
 ```
 
-You should see Tailwind styles compile successfully in Astro.
+Now you’re ready to write Tailwind! Our recommended approach is to create a `public/global.css` file with [Tailwind utilities][tailwind-utilities] like so:
 
-💁 **Tip**: to reduce duplication, try loading `@tailwind base` from a parent page (`./pages/*.astro`) instead of the component itself.
+```css
+/* public/global.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+💁 As an alternative to `public/global.css`, You may also add Tailwind utilities to individual `pages/*.astro` components in `<style>` tags, but be mindful of duplication! If you end up creating multiple Tailwind-managed stylesheets for your site, make sure you’re not sending the same CSS to users over and over again in separate CSS files.
 
 ## 📚 Advanced Styling Architecture in Astro
 

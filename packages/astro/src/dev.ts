@@ -47,7 +47,7 @@ export default async function dev(astroConfig: AstroConfig) {
         break;
       }
       case 404: {
-        const fullurl = new URL(req.url || '/', 'https://example.org/');
+        const fullurl = new URL(req.url || '/', astroConfig.buildOptions.site || `http://localhost${astroConfig.devOptions.port}`);
         const reqPath = decodeURI(fullurl.pathname);
         error(logging, 'static', 'Not found', reqPath);
         res.statusCode = 404;

@@ -266,12 +266,13 @@ interface CreateSnowpackOptions {
   env: Record<string, any>;
   mode: RuntimeMode;
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
+  target: 'frontend' | 'backend';
 }
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
   const { projectRoot, astroRoot, extensions } = astroConfig;
-  const { env, mode, resolvePackageUrl } = options;
+  const { env, mode, resolvePackageUrl, target } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
 
@@ -295,20 +296,43 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     mountOptions[fileURLToPath(astroConfig.public)] = '/';
   }
 
+  const plugins: (string | [string, any])[] = [
+    [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
+    [require.resolve('@snowpack/plugin-svelte'), { compilerOptions: { hydratable: true } }],
+    require.resolve('@snowpack/plugin-vue'),
+  ];
+
+  // note: styles only need processing once
+  if (target === 'frontend') {
+    plugins.push(require.resolve('@snowpack/plugin-sass'));
+    plugins.push([
+      require.resolve('@snowpack/plugin-postcss'),
+      {
+        config: {
+          plugins: {
+            [require.resolve('autoprefixer')]: {},
+            ...(astroConfig.devOptions.tailwindConfig ? { [require.resolve('tailwindcss')]: {} } : {}),
+          },
+        },
+      },
+    ]);
+  }
+
+  // Tailwind: IDK what this does but it makes JIT work 🤷‍♂️
+  if (astroConfig.devOptions.tailwindConfig) {
+    (process.env as any).TAILWIND_DISABLE_TOUCH = true;
+  }
+
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
     mount: mountOptions,
     mode,
-    plugins: [
-      [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
-      require.resolve('@snowpack/plugin-sass'),
-      [require.resolve('@snowpack/plugin-svelte'), { compilerOptions: { hydratable: true } }],
-      require.resolve('@snowpack/plugin-vue'),
-    ],
+    plugins,
     devOptions: {
       open: 'none',
       output: 'stream',
       port: 0,
+      tailwindConfig: astroConfig.devOptions.tailwindConfig,
     },
     buildOptions: {
       out: astroConfig.dist,
@@ -343,6 +367,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     },
     mode,
     resolvePackageUrl,
+    target: 'backend',
   });
   debug(logging, 'core', `backend snowpack created [${stopTimer(timer.backend)}]`);
 
@@ -352,6 +377,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
       astro: false,
     },
     mode,
+    target: 'frontend',
   });
   debug(logging, 'core', `frontend snowpack created [${stopTimer(timer.frontend)}]`);
 
