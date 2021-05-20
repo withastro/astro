@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "astro-scripts build src/index.tsx",
-    "postbuild": "astro-scripts copy 'src/templates/**' --tgz"
+    "postbuild": "astro-scripts copy \"src/templates/**\" --tgz"
   },
   "files": [
     "dist",

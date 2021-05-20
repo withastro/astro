@@ -5,7 +5,7 @@ import PostPreview from '../components/PostPreview.astro';
 import Pagination from '../components/Pagination.astro';
 
 // page
-let title = 'Muppet Blog: Home';
+let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
 
 // collection
@@ -15,7 +15,7 @@ import authorData from '../data/authors.json';
 
 let allPosts = Astro.fetchContent('./post/*.md');
 allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-let firstThree = allPosts.slice(0, 3);
+let firstPage = allPosts.slice(0, 2);
 ---
 
 <html>
@@ -24,6 +24,7 @@ let firstThree = allPosts.slice(0, 3);
     <MainHead
       title={title}
       description={description}
+      image={firstPage[0].image}
       canonicalURL={Astro.request.canonicalURL.href}
     />
   </head>
@@ -32,8 +33,7 @@ let firstThree = allPosts.slice(0, 3);
     <Nav />
 
     <main class="wrapper">
-      <h1>Recent posts</h1>
-      {firstThree.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+      {firstPage.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
     </main>
 
     <footer>

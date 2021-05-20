@@ -5,3 +5,4 @@ dist/
 .vercel
 _site/
 *.log
+package-lock.json

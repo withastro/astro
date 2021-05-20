@@ -7,8 +7,9 @@ import { green } from 'kleur/colors';
 import http from 'http';
 import path from 'path';
 import { performance } from 'perf_hooks';
-import { defaultLogDestination, error, info, parseError } from './logger.js';
+import { defaultLogDestination, debug, error, info, parseError } from './logger.js';
 import { createRuntime } from './runtime.js';
+import { stopTimer } from './build/util';
 
 const hostname = '127.0.0.1';
 
@@ -24,11 +25,16 @@ const logging: LogOptions = {
 export default async function dev(astroConfig: AstroConfig) {
   const startServerTime = performance.now();
   const { projectRoot } = astroConfig;
+  const timer: Record<string, number> = {};
 
+  timer.runtime = performance.now();
   const runtime = await createRuntime(astroConfig, { mode: 'development', logging });
+  debug(logging, 'dev', `runtime created [${stopTimer(timer.runtime)}]`);
 
   const server = http.createServer(async (req, res) => {
+    timer.load = performance.now();
     const result = await runtime.load(req.url);
+    debug(logging, 'dev', `loaded ${req.url} [${stopTimer(timer.load)}]`);
 
     switch (result.statusCode) {
       case 200: {

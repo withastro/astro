@@ -2087,7 +2087,7 @@ are-we-there-yet@~1.1.2:
 
 arg@^5.0.0:
   version "5.0.0"
-  resolved "https://registry.npmjs.org/arg/-/arg-5.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/arg/-/arg-5.0.0.tgz#a20e2bb5710e82950a516b3f933fee5ed478be90"
   integrity sha512-4P8Zm2H+BRS+c/xX1LrHw0qKpEhdlZjLCgWy+d78T9vqa2Z2SiD2wMrYuWIAFy5IZUD7nnNXroRttz+0RzlrzQ==
 
 argparse@^1.0.7:
@@ -2215,6 +2215,17 @@ astral-regex@^2.0.0:
   version "2.0.0"
   resolved "https://registry.npmjs.org/astral-regex/-/astral-regex-2.0.0.tgz"
   integrity sha512-Z7tMw1ytTXt5jqMcOP+OQteU1VuNK9Y02uuJtKQ1Sv69jXQKKg5cibLwGJow8yzZP+eAc18EmLGPal0bp36rvQ==
+
+"astro-languageserver@file:tools/astro-languageserver":
+  version "0.4.0"
+
+"astro-scripts@file:scripts":
+  version "0.0.1"
+  dependencies:
+    arg "^5.0.0"
+    esbuild "^0.11.16"
+    globby "^11.0.3"
+    tar "^6.1.0"
 
 async-each-series@0.1.1:
   version "0.1.1"
@@ -4467,7 +4478,7 @@ execa@^0.7.0:
 
 execa@^5.0.0:
   version "5.0.0"
-  resolved "https://registry.npmjs.org/execa/-/execa-5.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/execa/-/execa-5.0.0.tgz#4029b0007998a841fbd1032e5f4de86a3c1e3376"
   integrity sha512-ov6w/2LCiuyO4RLYGdpFGjkcs0wMTgGE8PrkTHikeUy5iJekXyPIKUjifk5CsE0pt7sMCrMZ3YNqoCj6idQOnQ==
   dependencies:
     cross-spawn "^7.0.3"

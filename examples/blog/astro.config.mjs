@@ -2,9 +2,9 @@ export default {
   projectRoot: '.',
   public: './public',
   dist: './dist',
-  buildOptions:{
+  buildOptions: {
     sitemap: true,
-    site: 'https://muppet-blog.github.io/',
+    site: 'https://mysite.dev/', // change
   },
   astroRoot: './src',
 };
