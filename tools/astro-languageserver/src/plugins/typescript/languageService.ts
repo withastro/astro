@@ -31,9 +31,9 @@ export async function getLanguageService(path: string, workspaceUris: string[], 
   if (services.has(tsconfigPath)) {
     service = (await services.get(tsconfigPath)) as LanguageServiceContainer;
   } else {
-    const newService = createLanguageService(tsconfigPath, workspaceRoot, docContext);
-    services.set(tsconfigPath, newService);
-    service = await newService;
+    const newServicePromise = createLanguageService(tsconfigPath, workspaceRoot, docContext);
+    services.set(tsconfigPath, newServicePromise);
+    service = await newServicePromise;
   }
 
   return service;

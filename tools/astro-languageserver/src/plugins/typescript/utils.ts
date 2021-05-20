@@ -189,6 +189,10 @@ export function ensureRealAstroFilePath(filePath: string) {
   return isVirtualAstroFilePath(filePath) ? toRealAstroFilePath(filePath) : filePath;
 }
 
+export function ensureRealFilePath(filePath: string) {
+  return isVirtualFilePath(filePath) ? filePath.slice(0, 3) : filePath;
+}
+
 export function findTsConfigPath(fileName: string, rootUris: string[]) {
   const searchDir = dirname(fileName);
   const path = ts.findConfigFile(searchDir, ts.sys.fileExists, 'tsconfig.json') || ts.findConfigFile(searchDir, ts.sys.fileExists, 'jsconfig.json') || '';

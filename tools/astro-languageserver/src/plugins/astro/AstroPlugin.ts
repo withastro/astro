@@ -1,17 +1,36 @@
+import { DefinitionLink } from 'vscode-languageserver';
 import type { Document, DocumentManager } from '../../core/documents';
 import type { ConfigManager } from '../../core/config';
-import type { CompletionsProvider, AppCompletionItem, AppCompletionList, FoldingRangeProvider } from '../interfaces';
-import { CompletionContext, Position, CompletionList, CompletionItem, CompletionItemKind, InsertTextFormat, FoldingRange, TextEdit } from 'vscode-languageserver';
-import { isPossibleClientComponent } from '../../utils';
+import type { CompletionsProvider, AppCompletionList, FoldingRangeProvider } from '../interfaces';
+import {
+  CompletionContext,
+  Position,
+  CompletionList,
+  CompletionItem,
+  CompletionItemKind,
+  InsertTextFormat,
+  LocationLink,
+  FoldingRange,
+  Range,
+  TextEdit,
+} from 'vscode-languageserver';
+import { Node } from 'vscode-html-languageservice';
+import { isPossibleClientComponent, pathToUrl, urlToPath } from '../../utils';
+import { isInsideFrontmatter } from '../../core/documents/utils';
+import * as ts from 'typescript';
+import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../typescript/LanguageServiceManager';
+import { ensureRealFilePath } from '../typescript/utils';
 import { FoldingRangeKind } from 'vscode-languageserver-types';
 
 export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
   private readonly docManager: DocumentManager;
   private readonly configManager: ConfigManager;
+  private readonly tsLanguageServiceManager: TypeScriptLanguageServiceManager;
 
-  constructor(docManager: DocumentManager, configManager: ConfigManager) {
+  constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
     this.docManager = docManager;
     this.configManager = configManager;
+    this.tsLanguageServiceManager = new TypeScriptLanguageServiceManager(docManager, configManager, workspaceUris);
   }
 
   async getCompletions(document: Document, position: Position, completionContext?: CompletionContext): Promise<AppCompletionList | null> {
@@ -51,6 +70,53 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
         kind: FoldingRangeKind.Imports,
       },
     ];
+  }
+
+  async getDefinitions(document: Document, position: Position): Promise<DefinitionLink[]> {
+    if (this.isInsideFrontmatter(document, position)) {
+      return [];
+    }
+
+    const offset = document.offsetAt(position);
+    const html = document.html;
+
+    const node = html.findNodeAt(offset);
+    if (!this.isComponentTag(node)) {
+      return [];
+    }
+
+    const [componentName] = node.tag!.split(':');
+
+    const filePath = urlToPath(document.uri);
+    const tsFilePath = filePath + '.ts';
+
+    const { lang, tsDoc } = await this.tsLanguageServiceManager.getTypeScriptDoc(document);
+
+    const sourceFile = lang.getProgram()?.getSourceFile(tsFilePath);
+    if (!sourceFile) {
+      return [];
+    }
+
+    const specifier = this.getImportSpecifierForIdentifier(sourceFile, componentName);
+    if(!specifier) {
+      return [];
+    }
+
+    const defs = lang.getDefinitionAtPosition(tsFilePath, specifier.getStart());
+    if(!defs) {
+      return [];
+    }
+
+    const tsFragment = await tsDoc.getFragment();
+    const startRange: Range = Range.create(Position.create(0, 0), Position.create(0, 0));
+    const links = defs.map(def => {
+      const defFilePath = ensureRealFilePath(def.fileName);
+      return LocationLink.create(
+        pathToUrl(defFilePath), startRange, startRange
+      );
+    });
+
+    return links;
   }
 
   private getClientHintCompletion(document: Document, position: Position, completionContext?: CompletionContext): CompletionItem[] | null {
@@ -103,5 +169,33 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
       };
     }
     return null;
+  }
+
+  private isInsideFrontmatter(document: Document, position: Position) {
+    return isInsideFrontmatter(document.getText(), document.offsetAt(position));
+  }
+
+  private isComponentTag(node: Node): boolean {
+    if (!node.tag) {
+      return false;
+    }
+    const firstChar = node.tag[0];
+    return /[A-Z]/.test(firstChar);
+  }
+
+  private getImportSpecifierForIdentifier(sourceFile: ts.SourceFile, identifier: string): ts.Expression | undefined {
+    let importSpecifier: ts.Expression | undefined = undefined;
+    ts.forEachChild(sourceFile, (tsNode) => {
+      if (ts.isImportDeclaration(tsNode)) {
+        if (tsNode.importClause) {
+          const { name } = tsNode.importClause;
+          if (name && name.getText() === identifier) {
+            importSpecifier = tsNode.moduleSpecifier;
+            return true;
+          }
+        }
+      }
+    });
+    return importSpecifier;
   }
 }
