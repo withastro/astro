@@ -2,11 +2,7 @@ import type { DefinitionLink } from 'vscode-languageserver';
 import type { Document, DocumentManager } from '../../core/documents';
 import type { ConfigManager } from '../../core/config';
 import type { ImportDeclaration } from 'typescript';
-import type {
-  CompletionsProvider,
-  AppCompletionList,
-  FoldingRangeProvider
-} from '../interfaces';
+import type { CompletionsProvider, AppCompletionList, FoldingRangeProvider } from '../interfaces';
 import {
   CompletionContext,
   Position,
@@ -17,7 +13,7 @@ import {
   LocationLink,
   FoldingRange,
   Range,
-  TextEdit
+  TextEdit,
 } from 'vscode-languageserver';
 import { HTMLDocument, Node } from 'vscode-html-languageservice';
 import { isPossibleClientComponent, urlToPath } from '../../utils';
@@ -78,7 +74,7 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
   }
 
   async getDefinitions(document: Document, position: Position): Promise<DefinitionLink[]> {
-    if(this.isInsideFrontmatter(document, position)) {
+    if (this.isInsideFrontmatter(document, position)) {
       return [];
     }
 
@@ -86,7 +82,7 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     const html = document.html;
 
     const node = html.findNodeAt(offset);
-    if(!this.isComponentTag(node)) {
+    if (!this.isComponentTag(node)) {
       return [];
     }
 
@@ -96,21 +92,18 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     const { lang } = await this.tsLanguageServiceManager.getTypeScriptDoc(document);
 
     const sourceFile = lang.getProgram()?.getSourceFile(filePath + '.ts');
-    if(!sourceFile) {
+    if (!sourceFile) {
       return [];
     }
 
     const identifier = findImportIdentifier(sourceFile, componentName);
-    if(!identifier) {
+    if (!identifier) {
       return [];
     }
 
-    Position.create
+    Position.create;
 
-    const range = Range.create(
-      ts.getLineAndCharacterOfPosition(sourceFile, identifier.getStart()),
-      ts.getLineAndCharacterOfPosition(sourceFile, identifier.getEnd()),
-    );
+    const range = Range.create(ts.getLineAndCharacterOfPosition(sourceFile, identifier.getStart()), ts.getLineAndCharacterOfPosition(sourceFile, identifier.getEnd()));
     const link = LocationLink.create(document.uri, range, range);
     return [link];
   }
@@ -172,7 +165,7 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
   }
 
   private isComponentTag(node: Node): boolean {
-    if(!node.tag) {
+    if (!node.tag) {
       return false;
     }
     const firstChar = node.tag[0];

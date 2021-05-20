@@ -234,13 +234,13 @@ function append(result: string, str: string, n: number): string {
 export function findImportIdentifier(sourceFile: ts.SourceFile, identifierName: string): ts.Identifier | undefined {
   let identifierObject: ts.Identifier | undefined = undefined;
   ts.forEachChild(sourceFile, (tsNode) => {
-    if(ts.isImportDeclaration(tsNode)) {
-      if(tsNode.importClause) {
+    if (ts.isImportDeclaration(tsNode)) {
+      if (tsNode.importClause) {
         const { name } = tsNode.importClause;
-        if(name && name.getText() === identifierName) {
+        if (name && name.getText() === identifierName) {
           identifierObject = name;
           return name;
-        } 
+        }
       }
     }
   });
