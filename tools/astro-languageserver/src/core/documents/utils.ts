@@ -1,5 +1,6 @@
 import { HTMLDocument, Node, Position } from 'vscode-html-languageservice';
-import { clamp } from '../../utils';
+import { Range } from 'vscode-languageserver';
+import { clamp, isInRange } from '../../utils';
 import { parseHtml } from './parseHtml';
 
 export interface TagInformation {
@@ -82,6 +83,10 @@ export function isInsideFrontmatter(text: string, offset: number): boolean {
   let end = text.slice(offset).trim().split('---').length;
 
   return start > 1 && start < 3 && end >= 1;
+}
+
+export function isInTag(position: Position, tagInfo: TagInformation | null): tagInfo is TagInformation {
+  return !!tagInfo && isInRange(position, Range.create(tagInfo.startPos, tagInfo.endPos));
 }
 
 /**

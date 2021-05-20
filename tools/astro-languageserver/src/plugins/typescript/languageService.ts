@@ -4,7 +4,8 @@ import * as ts from 'typescript';
 import { basename } from 'path';
 import { ensureRealAstroFilePath, findTsConfigPath } from './utils';
 import { Document } from '../../core/documents';
-import { createDocumentSnapshot, SnapshotManager, DocumentSnapshot } from './SnapshotManager';
+import { SnapshotManager } from './SnapshotManager';
+import { createDocumentSnapshot, DocumentSnapshot } from './DocumentSnapshot';
 import { createAstroModuleLoader } from './module-loader';
 
 const services = new Map<string, Promise<LanguageServiceContainer>>();

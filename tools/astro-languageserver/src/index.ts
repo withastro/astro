@@ -19,6 +19,10 @@ export function startServer() {
   connection.onInitialize((evt) => {
     const workspaceUris = evt.workspaceFolders?.map((folder) => folder.uri.toString()) ?? [evt.rootUri ?? ''];
 
+    pluginHost.initialize({
+      filterIncompleteCompletions: !evt.initializationOptions?.dontFilterIncompleteCompletions,
+      definitionLinkSupport: !!evt.capabilities.textDocument?.definition?.linkSupport,
+    });
     pluginHost.register(new AstroPlugin(docManager, configManager));
     pluginHost.register(new HTMLPlugin(docManager, configManager));
     pluginHost.register(new CSSPlugin(docManager, configManager));
@@ -29,6 +33,7 @@ export function startServer() {
       capabilities: {
         textDocumentSync: TextDocumentSyncKind.Incremental,
         foldingRangeProvider: true,
+        definitionProvider: true,
         completionProvider: {
           resolveProvider: true,
           triggerCharacters: [
@@ -102,6 +107,7 @@ export function startServer() {
 
     return pluginHost.resolveCompletion(data, completionItem);
   });
+  connection.onDefinition((evt) => pluginHost.getDefinitions(evt.textDocument, evt.position));
   connection.onFoldingRanges((evt) => pluginHost.getFoldingRanges(evt.textDocument));
   connection.onRequest(TagCloseRequest, (evt: any) => pluginHost.doTagComplete(evt.textDocument, evt.position));
 

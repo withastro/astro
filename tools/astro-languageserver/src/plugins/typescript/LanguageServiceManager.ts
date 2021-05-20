@@ -3,7 +3,8 @@ import type { Document, DocumentManager } from '../../core/documents';
 import type { ConfigManager } from '../../core/config';
 import { urlToPath, pathToUrl, debounceSameArg } from '../../utils';
 import { getLanguageService, getLanguageServiceForDocument, LanguageServiceContainer, LanguageServiceDocumentContext } from './languageService';
-import { DocumentSnapshot, SnapshotManager } from './SnapshotManager';
+import { SnapshotManager } from './SnapshotManager';
+import { DocumentSnapshot } from './DocumentSnapshot';
 
 export class LanguageServiceManager {
   private readonly docManager: DocumentManager;

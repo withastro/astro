@@ -1,4 +1,4 @@
-import { CompletionContext, CompletionItem, CompletionList, Position, TextDocumentIdentifier } from 'vscode-languageserver';
+import { CompletionContext, CompletionItem, CompletionList, DefinitionLink, Location, Position, TextDocumentIdentifier } from 'vscode-languageserver';
 import type { DocumentManager } from '../core/documents';
 import type * as d from './interfaces';
 import { flatten } from '../utils';
@@ -10,10 +10,23 @@ enum ExecuteMode {
   Collect,
 }
 
+interface PluginHostConfig {
+  filterIncompleteCompletions: boolean;
+  definitionLinkSupport: boolean;
+}
+
 export class PluginHost {
   private plugins: d.Plugin[] = [];
+  private pluginHostConfig: PluginHostConfig = {
+    filterIncompleteCompletions: true,
+    definitionLinkSupport: false,
+  };
 
   constructor(private documentsManager: DocumentManager) {}
+
+  initialize(pluginHostConfig: PluginHostConfig) {
+    this.pluginHostConfig = pluginHostConfig;
+  }
 
   register(plugin: d.Plugin) {
     this.plugins.push(plugin);
@@ -65,6 +78,21 @@ export class PluginHost {
     const foldingRanges = flatten(await this.execute<FoldingRange[]>('getFoldingRanges', [document], ExecuteMode.Collect)).filter((completion) => completion != null);
 
     return foldingRanges;
+  }
+
+  async getDefinitions(textDocument: TextDocumentIdentifier, position: Position): Promise<DefinitionLink[] | Location[]> {
+    const document = this.getDocument(textDocument.uri);
+    if (!document) {
+      throw new Error('Cannot call methods on an unopened document');
+    }
+
+    const definitions = flatten(await this.execute<DefinitionLink[]>('getDefinitions', [document, position], ExecuteMode.Collect));
+
+    if (this.pluginHostConfig.definitionLinkSupport) {
+      return definitions;
+    } else {
+      return definitions.map((def) => <Location>{ range: def.targetSelectionRange, uri: def.targetUri });
+    }
   }
 
   onWatchFileChanges(onWatchFileChangesParams: any[]): void {
