@@ -1,17 +1,41 @@
+import type { DefinitionLink } from 'vscode-languageserver';
 import type { Document, DocumentManager } from '../../core/documents';
 import type { ConfigManager } from '../../core/config';
-import type { CompletionsProvider, AppCompletionItem, AppCompletionList, FoldingRangeProvider } from '../interfaces';
-import { CompletionContext, Position, CompletionList, CompletionItem, CompletionItemKind, InsertTextFormat, FoldingRange, TextEdit } from 'vscode-languageserver';
-import { isPossibleClientComponent } from '../../utils';
+import type { ImportDeclaration } from 'typescript';
+import type {
+  CompletionsProvider,
+  AppCompletionList,
+  FoldingRangeProvider
+} from '../interfaces';
+import {
+  CompletionContext,
+  Position,
+  CompletionList,
+  CompletionItem,
+  CompletionItemKind,
+  InsertTextFormat,
+  LocationLink,
+  FoldingRange,
+  Range,
+  TextEdit
+} from 'vscode-languageserver';
+import { HTMLDocument, Node } from 'vscode-html-languageservice';
+import { isPossibleClientComponent, urlToPath } from '../../utils';
+import { isInsideFrontmatter } from '../../core/documents/utils';
+import * as ts from 'typescript';
+import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../typescript/LanguageServiceManager';
+import { findImportIdentifier } from '../typescript/utils';
 import { FoldingRangeKind } from 'vscode-languageserver-types';
 
 export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
   private readonly docManager: DocumentManager;
   private readonly configManager: ConfigManager;
+  private readonly tsLanguageServiceManager: TypeScriptLanguageServiceManager;
 
-  constructor(docManager: DocumentManager, configManager: ConfigManager) {
+  constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
     this.docManager = docManager;
     this.configManager = configManager;
+    this.tsLanguageServiceManager = new TypeScriptLanguageServiceManager(docManager, configManager, workspaceUris);
   }
 
   async getCompletions(document: Document, position: Position, completionContext?: CompletionContext): Promise<AppCompletionList | null> {
@@ -51,6 +75,44 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
         kind: FoldingRangeKind.Imports,
       },
     ];
+  }
+
+  async getDefinitions(document: Document, position: Position): Promise<DefinitionLink[]> {
+    if(this.isInsideFrontmatter(document, position)) {
+      return [];
+    }
+
+    const offset = document.offsetAt(position);
+    const html = document.html;
+
+    const node = html.findNodeAt(offset);
+    if(!this.isComponentTag(node)) {
+      return [];
+    }
+
+    const [componentName] = node.tag!.split(':');
+    const filePath = urlToPath(document.uri);
+
+    const { lang } = await this.tsLanguageServiceManager.getTypeScriptDoc(document);
+
+    const sourceFile = lang.getProgram()?.getSourceFile(filePath + '.ts');
+    if(!sourceFile) {
+      return [];
+    }
+
+    const identifier = findImportIdentifier(sourceFile, componentName);
+    if(!identifier) {
+      return [];
+    }
+
+    Position.create
+
+    const range = Range.create(
+      ts.getLineAndCharacterOfPosition(sourceFile, identifier.getStart()),
+      ts.getLineAndCharacterOfPosition(sourceFile, identifier.getEnd()),
+    );
+    const link = LocationLink.create(document.uri, range, range);
+    return [link];
   }
 
   private getClientHintCompletion(document: Document, position: Position, completionContext?: CompletionContext): CompletionItem[] | null {
@@ -103,5 +165,17 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
       };
     }
     return null;
+  }
+
+  private isInsideFrontmatter(document: Document, position: Position) {
+    return isInsideFrontmatter(document.getText(), document.offsetAt(position));
+  }
+
+  private isComponentTag(node: Node): boolean {
+    if(!node.tag) {
+      return false;
+    }
+    const firstChar = node.tag[0];
+    return /[A-Z]/.test(firstChar);
   }
 }
