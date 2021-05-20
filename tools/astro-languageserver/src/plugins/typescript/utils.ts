@@ -189,6 +189,10 @@ export function ensureRealAstroFilePath(filePath: string) {
   return isVirtualAstroFilePath(filePath) ? toRealAstroFilePath(filePath) : filePath;
 }
 
+export function ensureRealFilePath(filePath: string) {
+  return isVirtualFilePath(filePath) ? filePath.slice(0, 3) : filePath;
+}
+
 export function findTsConfigPath(fileName: string, rootUris: string[]) {
   const searchDir = dirname(fileName);
   const path = ts.findConfigFile(searchDir, ts.sys.fileExists, 'tsconfig.json') || ts.findConfigFile(searchDir, ts.sys.fileExists, 'jsconfig.json') || '';
@@ -229,20 +233,4 @@ function append(result: string, str: string, n: number): string {
     str += str;
   }
   return result;
-}
-
-export function findImportIdentifier(sourceFile: ts.SourceFile, identifierName: string): ts.Identifier | undefined {
-  let identifierObject: ts.Identifier | undefined = undefined;
-  ts.forEachChild(sourceFile, (tsNode) => {
-    if (ts.isImportDeclaration(tsNode)) {
-      if (tsNode.importClause) {
-        const { name } = tsNode.importClause;
-        if (name && name.getText() === identifierName) {
-          identifierObject = name;
-          return name;
-        }
-      }
-    }
-  });
-  return identifierObject;
 }

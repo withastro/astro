@@ -1,4 +1,4 @@
-import type { Document, DocumentManager } from '../../core/documents';
+import { Document, DocumentManager, isInsideFrontmatter } from '../../core/documents';
 import type { ConfigManager } from '../../core/config';
 import type { CompletionsProvider, AppCompletionItem, AppCompletionList } from '../interfaces';
 import { CompletionContext, DefinitionLink, FileChangeType, Position, LocationLink } from 'vscode-languageserver';
@@ -36,6 +36,10 @@ export class TypeScriptPlugin implements CompletionsProvider {
   }
 
   async getDefinitions(document: Document, position: Position): Promise<DefinitionLink[]> {
+    if(!this.isInsideFrontmatter(document, position)) {
+      return [];
+    }
+
     const { lang, tsDoc } = await this.languageServiceManager.getTypeScriptDoc(document);
     const mainFragment = await tsDoc.getFragment();
 
@@ -101,5 +105,9 @@ export class TypeScriptPlugin implements CompletionsProvider {
    */
   public async getSnapshotManager(fileName: string) {
     return this.languageServiceManager.getSnapshotManager(fileName);
+  }
+
+  private isInsideFrontmatter(document: Document, position: Position) {
+    return isInsideFrontmatter(document.getText(), document.offsetAt(position));
   }
 }
