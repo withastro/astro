@@ -98,22 +98,20 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     }
 
     const specifier = this.getImportSpecifierForIdentifier(sourceFile, componentName);
-    if(!specifier) {
+    if (!specifier) {
       return [];
     }
 
     const defs = lang.getDefinitionAtPosition(tsFilePath, specifier.getStart());
-    if(!defs) {
+    if (!defs) {
       return [];
     }
 
     const tsFragment = await tsDoc.getFragment();
     const startRange: Range = Range.create(Position.create(0, 0), Position.create(0, 0));
-    const links = defs.map(def => {
+    const links = defs.map((def) => {
       const defFilePath = ensureRealFilePath(def.fileName);
-      return LocationLink.create(
-        pathToUrl(defFilePath), startRange, startRange
-      );
+      return LocationLink.create(pathToUrl(defFilePath), startRange, startRange);
     });
 
     return links;

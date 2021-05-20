@@ -36,7 +36,7 @@ export class TypeScriptPlugin implements CompletionsProvider {
   }
 
   async getDefinitions(document: Document, position: Position): Promise<DefinitionLink[]> {
-    if(!this.isInsideFrontmatter(document, position)) {
+    if (!this.isInsideFrontmatter(document, position)) {
       return [];
     }
 
