@@ -2,7 +2,6 @@ import type { TransformOptions, Transformer } from '../../@types/transformer';
 import type { TemplateNode } from 'astro-parser';
 
 import crypto from 'crypto';
-import fs from 'fs';
 import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -55,7 +54,6 @@ export interface StyleTransformResult {
 
 interface StylesMiniCache {
   nodeModules: Map<string, string>; // filename: node_modules location
-  tailwindEnabled?: boolean; // cache once per-run
 }
 
 /** Simple cache that only exists in memory per-run. Prevents the same lookups from happening over and over again within the same build or dev server session. */
@@ -68,6 +66,7 @@ export interface TransformStyleOptions {
   type?: string;
   filename: string;
   scopedClass: string;
+  tailwindConfig?: string;
 }
 
 /** given a class="" string, does it contain a given class? */
@@ -80,7 +79,7 @@ function hasClass(classList: string, className: string): boolean {
 }
 
 /** Convert styles to scoped CSS */
-async function transformStyle(code: string, { logging, type, filename, scopedClass }: TransformStyleOptions): Promise<StyleTransformResult> {
+async function transformStyle(code: string, { logging, type, filename, scopedClass, tailwindConfig }: TransformStyleOptions): Promise<StyleTransformResult> {
   let styleType: StyleType = 'css'; // important: assume CSS as default
   if (type) {
     styleType = getStyleType.get(type) || styleType;
@@ -122,7 +121,7 @@ async function transformStyle(code: string, { logging, type, filename, scopedCla
   const postcssPlugins: Plugin[] = [];
 
   // 2a. Tailwind (only if project uses Tailwind)
-  if (miniCache.tailwindEnabled) {
+  if (tailwindConfig) {
     try {
       const require = createRequire(import.meta.url);
       const tw = require.resolve('tailwindcss', { paths: [import.meta.url, process.cwd()] });
@@ -192,21 +191,6 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
   const styleTransformPromises: Promise<StyleTransformResult>[] = []; // async style transform results to be finished in finalize();
   const scopedClass = `astro-${hashFromFilename(fileID)}`; // this *should* generate same hash from fileID every time
 
-  // find Tailwind config, if first run (cache for subsequent runs)
-  if (miniCache.tailwindEnabled === undefined) {
-    const tailwindNames = ['tailwind.config.js', 'tailwind.config.mjs'];
-    for (const loc of tailwindNames) {
-      const tailwindLoc = path.join(fileURLToPath(compileOptions.astroConfig.projectRoot), loc);
-      if (fs.existsSync(tailwindLoc)) {
-        miniCache.tailwindEnabled = true; // Success! We have a Tailwind config file.
-        debug(compileOptions.logging, 'tailwind', 'Found config. Enabling.');
-        break;
-      }
-    }
-    if (miniCache.tailwindEnabled !== true) miniCache.tailwindEnabled = false; // We couldn‘t find one; mark as false
-    debug(compileOptions.logging, 'tailwind', 'No config found. Skipping.');
-  }
-
   return {
     visitors: {
       html: {
@@ -231,6 +215,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
                   type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                   filename,
                   scopedClass,
+                  tailwindConfig: compileOptions.tailwindConfig,
                 })
               );
               return;

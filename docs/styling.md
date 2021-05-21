@@ -4,12 +4,14 @@ Styling in Astro is meant to be as flexible as you’d like it to be! The follow
 
 | Framework        | Global CSS | Scoped CSS | CSS Modules |
 | :--------------- | :--------: | :--------: | :---------: |
-| Astro (`.astro`) |     ✅     |     ✅     |    N/A¹     |
-| React / Preact   |     ✅     |     ❌     |     ✅      |
-| Vue              |     ✅     |     ✅     |     ✅      |
-| Svelte           |     ✅     |     ✅     |     ❌      |
+| `.astro`         |     ✅     |     ✅     |    N/A¹     |
+| `.jsx` \| `.tsx` |     ✅     |     ❌     |     ✅      |
+| `.vue`           |     ✅     |     ✅     |     ✅      |
+| `.svelte`        |     ✅     |     ✅     |     ❌      |
 
 ¹ _`.astro` files have no runtime, therefore Scoped CSS takes the place of CSS Modules (styles are still scoped to components, but don’t need dynamic values)_
+
+All styles in Astro are automatically [**autoprefixed**](#-autoprefixer) and optimized, so you can just write CSS and we’ll handle the rest ✨.
 
 ## 🖍 Quick Start
 
@@ -92,7 +94,6 @@ And also create a `tailwind.config.js` in your project root:
 
 ```js
 // tailwind.config.js
-
 module.exports = {
   mode: 'jit',
   purge: ['./public/**/*.html', './src/**/*.{astro,js,jsx,ts,tsx,vue}'],
@@ -100,19 +101,36 @@ module.exports = {
 };
 ```
 
-Then add [Tailwind utilities][tailwind-utilities] to any Astro component that needs it:
+Be sure to add the config path to `astro.config.mjs`, so that Astro enables JIT support in the dev server.
 
-```html
-<style>
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
-</style>
+```diff
+  // astro.config.mjs
+  export default {
++   devOptions: {
++     tailwindConfig: './tailwindConfig.js',
++   },
+  };
 ```
 
-You should see Tailwind styles compile successfully in Astro.
+Now you’re ready to write Tailwind! Our recommended approach is to create a `public/global.css` file with [Tailwind utilities][tailwind-utilities] like so:
 
-💁 **Tip**: to reduce duplication, try loading `@tailwind base` from a parent page (`./pages/*.astro`) instead of the component itself.
+```css
+/* public/global.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+```
+
+💁 As an alternative to `public/global.css`, You may also add Tailwind utilities to individual `pages/*.astro` components in `<style>` tags, but be mindful of duplication! If you end up creating multiple Tailwind-managed stylesheets for your site, make sure you’re not sending the same CSS to users over and over again in separate CSS files.
+
+#### 📦 Bundling
+
+All CSS is minified and bundled automatically for you in running `astro build`. The general specifics are:
+
+- If a style only appears on one route, it’s only loaded for that route
+- If a style appears on multiple routes, it’s deduplicated into a `common.css` bundle
+
+We’ll be expanding our styling optimization story over time, and would love your feedback! If `astro build` generates unexpected styles, or if you can think of improvements, [please open an issue](https://github.com/snowpackjs/astro/issues).
 
 ## 📚 Advanced Styling Architecture in Astro
 

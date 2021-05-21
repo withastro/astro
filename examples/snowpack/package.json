@@ -8,7 +8,6 @@
     "astro-dev": "nodemon --delay 0.5 -w ../../packages/astro/dist -x '../../packages/astro/astro.mjs dev'",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\" && yarn format:css",
-    "format:css": "stylelint 'src/**/*.scss' --fix",
     "lint": "prettier --check \"src/**/*.js\""
   },
   "dependencies": {
@@ -31,11 +30,7 @@
     "luxon": "^1.25.0",
     "markdown-it": "^12.0.2",
     "markdown-it-anchor": "^6.0.0",
-    "nodemon": "^2.0.7",
-    "stylelint": "^13.8.0",
-    "stylelint-config-prettier": "^8.0.2",
-    "stylelint-config-rational-order": "^0.1.2",
-    "stylelint-config-standard": "^20.0.0"
+    "nodemon": "^2.0.7"
   },
   "snowpack": {
     "workspaceRoot": "../.."
