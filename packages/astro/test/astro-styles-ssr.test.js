@@ -101,4 +101,26 @@ StylesSSR('CSS Module support in .astro', async ({ runtime }) => {
   assert.equal(wrapper.length, 1);
 });
 
+StylesSSR('Astro scoped styles', async ({ runtime }) => {
+  const result = await runtime.load('/');
+  const $ = doc(result.contents);
+
+  const el1 = $('#dynamic-class');
+  const el2 = $('#dynamic-vis');
+
+  let scopedClass;
+
+  $('#class')
+    .attr('class')
+    .replace(/astro-[A-Za-z0-9-]+/, (match) => {
+      scopedClass = match;
+      return match;
+    });
+
+  if (!scopedClass) throw new Error(`Astro component missing scoped class`);
+
+  assert.match(el1.attr('class'), `blue ${scopedClass}`);
+  assert.match(el2.attr('class'), `visible ${scopedClass}`);
+});
+
 StylesSSR.run();
