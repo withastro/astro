@@ -29,7 +29,7 @@ interface ConvertAstroOptions {
  * 2. Transform
  * 3. Codegen
  */
-async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): Promise<TransformResult> {
+export async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): Promise<TransformResult> {
   const { filename } = opts;
 
   // 1. Parse
@@ -48,11 +48,12 @@ async function convertAstroToJsx(template: string, opts: ConvertAstroOptions): P
  * .md -> .astro source
  */
 export async function convertMdToAstroSource(contents: string, { filename }: { filename: string }): Promise<string> {
-  const {
+  let {
     content,
     frontmatter: { layout, ...frontmatter },
     ...data
   } = await renderMarkdownWithFrontmatter(contents);
+
   if (frontmatter['astro'] !== undefined) {
     throw new Error(`"astro" is a reserved word but was used as a frontmatter value!\n\tat ${filename}`);
   }
@@ -109,7 +110,6 @@ export async function compileComponent(
 ): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
-  const usesMarkdown = !!result.imports.find((spec) => spec.indexOf('Markdown') > -1);
 
   // return template
   let modJsx = `
@@ -120,7 +120,6 @@ ${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from '${internalImport('h.js')}';
-${usesMarkdown ? `import __astroMarkdownRender from '${internalImport('markdown.js')}';` : ''};
 const __astroRequestSymbol = Symbol('astro.request');
 async function __render(props, ...children) {
   const Astro = {

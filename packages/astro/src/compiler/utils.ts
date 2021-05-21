@@ -1,20 +1,20 @@
-import mdxLite from './markdown/remark-mdx-lite.js';
+import type { AstroMarkdownOptions } from '../@types/astro';
 import createCollectHeaders from './markdown/rehype-collect-headers.js';
 import scopedStyles from './markdown/remark-scoped-styles.js';
+import { remarkCodeBlock, rehypeCodeBlock } from './markdown/codeblock.js';
 import raw from 'rehype-raw';
+
 import unified from 'unified';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
-import smartypants from '@silvenon/remark-smartypants';
-import stringify from 'rehype-stringify';
+// import smartypants from '@silvenon/remark-smartypants';
+import rehypeStringify from 'rehype-stringify';
 
-export interface MarkdownRenderingOptions {
+export interface MarkdownRenderingOptions extends Partial<AstroMarkdownOptions> {
   $?: {
     scopedClassName: string | null;
   };
-  footnotes?: boolean;
-  gfm?: boolean;
-  plugins?: any[];
+  mode: 'md'|'astro-md';
 }
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
@@ -22,16 +22,16 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
   // Dynamic import to ensure that "gray-matter" isn't built by Snowpack
   const { default: matter } = await import('gray-matter');
   const { data: frontmatter, content } = matter(contents);
-  const value = await renderMarkdown(content, opts);
+  const value = await renderMarkdown(content, { ...opts, mode: 'md' });
   return { ...value, frontmatter };
 }
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-  const { $: { scopedClassName = null } = {}, footnotes: useFootnotes = true, gfm: useGfm = true, plugins = [] } = opts ?? {};
+  const { $: { scopedClassName = null } = {}, mode = 'astro-md', footnotes: useFootnotes = true, gfm: useGfm = true } = opts ?? {};
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
-  let parser = unified().use(markdown).use(mdxLite).use(smartypants);
+  let parser = unified().use(markdown).use(remarkCodeBlock());
 
   if (scopedClassName) {
     parser = parser.use(scopedStyles(scopedClassName));
@@ -53,7 +53,8 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
       .use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw'] })
       .use(raw)
       .use(rehypeCollectHeaders)
-      .use(stringify)
+      .use(rehypeCodeBlock())
+      .use(rehypeStringify)
       .process(content);
     result = vfile.contents.toString();
   } catch (err) {

@@ -8,7 +8,15 @@ export default function text(parser: Parser) {
 
   let data = '';
 
-  while (parser.index < parser.template.length && !parser.match('---') && !parser.match('<') && !parser.match('{') && !parser.match('`')) {
+  const shouldContinue = () => {
+    // Special case 'code' content to avoid tripping up on user code
+    if (parser.current().name === 'code') {
+      return !parser.match('<') && !parser.match('{');
+    }
+    return !parser.match('---') && !parser.match('<') && !parser.match('{') && !parser.match('`');
+  }
+
+  while (parser.index < parser.template.length && shouldContinue()) {
     data += parser.template[parser.index++];
   }
 
