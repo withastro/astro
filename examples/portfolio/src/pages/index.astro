@@ -5,7 +5,7 @@ import Nav from '../components/Nav/index.jsx';
 import Footer from '../components/Footer/index.jsx';
 import PorfolioPreview from '../components/PortfolioPreview/index.jsx';
 
-const projects = Astro.fetchContent('./project/*.md');
+const projects = Astro.fetchContent('./project/**/*.md');
 const featuredProject = projects[0];
 ---
 
