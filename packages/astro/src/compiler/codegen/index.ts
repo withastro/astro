@@ -579,10 +579,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       async enter(node: TemplateNode, parent: TemplateNode) {
         switch (node.type) {
           case 'Expression': {
-            let children: string[] = [];
-            for (const child of node.children || []) {
-              children.push(await compileHtml(child, state, compileOptions));
-            }
+            const children: string[] = await Promise.all((node.children ?? []).map(child => compileHtml(child, state, compileOptions)));
             let raw = '';
             let nextChildIndex = 0;
             for (const chunk of node.codeChunks) {
