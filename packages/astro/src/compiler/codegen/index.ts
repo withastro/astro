@@ -1,12 +1,13 @@
 import type { Ast, Script, Style, TemplateNode } from 'astro-parser';
 import type { CompileOptions } from '../../@types/compiler';
-import type { AstroConfig, TransformResult, ValidExtensionPlugins } from '../../@types/astro';
+import type { AstroConfig, AstroMarkdownOptions, TransformResult, ValidExtensionPlugins } from '../../@types/astro';
 
 import 'source-map-support/register.js';
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
-import { walk } from 'estree-walker';
+import { parse } from 'astro-parser';
+import { walk, asyncWalk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
 import { codeFrameColumns } from '@babel/code-frame';
@@ -16,6 +17,7 @@ import { error, warn } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
+import { MarkdownRenderingOptions, renderMarkdown } from '../utils';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 
@@ -306,7 +308,7 @@ interface CodegenState {
   components: Components;
   css: string[];
   markers: {
-    insideMarkdown: boolean | string;
+    insideMarkdown: boolean | Record<string, any>;
   };
   importExportStatements: Set<string>;
   dynamicImports: DynamicImportMap;
@@ -538,160 +540,210 @@ function compileCss(style: Style, state: CodegenState) {
   });
 }
 
+/** dedent markdown */
+function dedent(str: string) {
+  let arr = str.match(/^[ \t]*(?=\S)/gm);
+  let first = !!arr && arr.find((x) => x.length > 0)?.length;
+  return !arr || !first ? str : str.replace(new RegExp(`^[ \\t]{0,${first}}`, 'gm'), '');
+}
+
+
 /** Compile page markup */
-function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions) {
-  const { components, css, importExportStatements, dynamicImports, filename } = state;
-  const { astroConfig } = compileOptions;
+async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
+  return new Promise((resolve) => {
+    const { components, css, importExportStatements, dynamicImports, filename } = state;
+    const { astroConfig } = compileOptions;
 
-  let outSource = '';
-  walk(enterNode, {
-    enter(node: TemplateNode, parent: TemplateNode) {
-      switch (node.type) {
-        case 'Expression': {
-          let children: string[] = [];
-          for (const child of node.children || []) {
-            children.push(compileHtml(child, state, compileOptions));
-          }
-          let raw = '';
-          let nextChildIndex = 0;
-          for (const chunk of node.codeChunks) {
-            raw += chunk;
-            if (nextChildIndex < children.length) {
-              raw += children[nextChildIndex++];
-            }
-          }
-          // TODO Do we need to compile this now, or should we compile the entire module at the end?
-          let code = compileExpressionSafe(raw).trim().replace(/\;$/, '');
-          outSource += `,(${code})`;
-          this.skip();
-          break;
-        }
-        case 'MustacheTag':
-        case 'Comment':
-          return;
-        case 'Fragment':
-          break;
-        case 'Slot':
-        case 'Head':
-        case 'InlineComponent':
-        case 'Title':
-        case 'Element': {
-          const name: string = node.name;
-          if (!name) {
-            throw new Error('AHHHH');
-          }
-          try {
-            const attributes = getAttributes(node.attributes);
+    let paren = -1;
+    let buffers = {
+      out: '',
+      markdown: '',
+    };
+    let curr: keyof typeof buffers = 'out';
 
-            outSource += outSource === '' ? '' : ',';
-            if (node.type === 'Slot') {
-              outSource += `(children`;
-              return;
-            }
-            const COMPONENT_NAME_SCANNER = /^[A-Z]/;
-            if (!COMPONENT_NAME_SCANNER.test(name)) {
-              outSource += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
-              if (state.markers.insideMarkdown) {
-                outSource += `,h(__astroMarkdownRender, null`;
+    /** renders markdown stored in `buffers.markdown` to JSX and pushes that to `buffers.out` */
+    async function pushMarkdownToBuffer() {
+      const md = buffers.markdown;
+      const { markdownOptions = {} } = astroConfig;
+      const { $scope: scopedClassName } = state.markers.insideMarkdown as Record<'$scope', any>;
+      let { content: rendered } = await renderMarkdown(dedent(md), { ...markdownOptions as AstroMarkdownOptions, mode: 'astro-md', $: { scopedClassName: scopedClassName.slice(1, -1) } });
+      const ast = parse(rendered);
+      const result = await compileHtml(ast.html, {...state, markers: {...state.markers, insideMarkdown: false }}, compileOptions);
+
+      buffers.out += ',' + result;
+      buffers.markdown = '';
+      curr = 'out';
+    }
+
+    asyncWalk(enterNode, {
+      async enter(node: TemplateNode, parent: TemplateNode) {
+        switch (node.type) {
+          case 'Expression': {
+            const children: string[] = await Promise.all((node.children ?? []).map(child => compileHtml(child, state, compileOptions)));
+            let raw = '';
+            let nextChildIndex = 0;
+            for (const chunk of node.codeChunks) {
+              raw += chunk;
+              if (nextChildIndex < children.length) {
+                raw += children[nextChildIndex++];
               }
-              return;
             }
-            const [componentName, componentKind] = name.split(':');
-            const componentImportData = components[componentName];
-            if (!componentImportData) {
-              throw new Error(`Unknown Component: ${componentName}`);
+            // TODO Do we need to compile this now, or should we compile the entire module at the end?
+            let code = compileExpressionSafe(raw).trim().replace(/\;$/, '');
+            if (state.markers.insideMarkdown) {
+              buffers[curr] += `{${code}}`;
+            } else {
+              buffers[curr] += `,(${code})`;
             }
-            if (componentImportData.type === '.astro') {
-              if (componentName === 'Markdown') {
-                const attributeStr = attributes ? generateAttributes(attributes) : 'null';
-                state.markers.insideMarkdown = attributeStr;
-                outSource += `h(__astroMarkdownRender, ${attributeStr}`;
+            this.skip();
+            break;
+          }
+          case 'MustacheTag':
+          case 'Comment':
+            return;
+          case 'Fragment':
+            break;
+          case 'Slot':
+          case 'Head':
+          case 'InlineComponent':
+          case 'Title':
+          case 'Element': {
+            const name: string = node.name;
+            if (!name) {
+              throw new Error('AHHHH');
+            }
+            try {
+              const attributes = getAttributes(node.attributes);
+
+              buffers.out += buffers.out === '' ? '' : ',';
+
+              if (node.type === 'Slot') {
+                buffers[curr] += `(children`;
+                paren++;
                 return;
               }
-            }
-            const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
-            if (wrapperImport) {
-              importExportStatements.add(wrapperImport);
-            }
+              const COMPONENT_NAME_SCANNER = /^[A-Z]/;
+              if (!COMPONENT_NAME_SCANNER.test(name)) {
+                if (curr === 'markdown') {
+                  await pushMarkdownToBuffer();
+                }
+                buffers[curr] += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
+                paren++;
+                return;
+              }
+              const [componentName, componentKind] = name.split(':');
+              const componentImportData = components[componentName];
+              if (!componentImportData) {
+                throw new Error(`Unknown Component: ${componentName}`);
+              }
+              if (componentImportData.type === '.astro') {
+                if (componentName === 'Markdown') {
+                  const { $scope } = attributes ?? {};
+                  state.markers.insideMarkdown = { $scope };
+                  curr = 'markdown';
+                  return;
+                }
+              }
+              const { wrapper, wrapperImport } = getComponentWrapper(name, components[componentName], { astroConfig, dynamicImports, filename });
+              if (wrapperImport) {
+                importExportStatements.add(wrapperImport);
+              }
+              if (curr === 'markdown') {
+                await pushMarkdownToBuffer();
+              }
 
-            outSource += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
-            if (state.markers.insideMarkdown) {
-              const attributeStr = state.markers.insideMarkdown;
-              outSource += `,h(__astroMarkdownRender, ${attributeStr}`;
+              paren++;
+              buffers[curr] += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+            } catch (err) {
+              // handle errors in scope with filename
+              const rel = filename.replace(astroConfig.projectRoot.pathname, '');
+              // TODO: return actual codeframe here
+              error(compileOptions.logging, rel, err.toString());
             }
-          } catch (err) {
-            // handle errors in scope with filename
-            const rel = filename.replace(astroConfig.projectRoot.pathname, '');
-            // TODO: return actual codeframe here
-            error(compileOptions.logging, rel, err.toString());
-          }
-          return;
-        }
-        case 'Attribute': {
-          this.skip();
-          return;
-        }
-        case 'Style': {
-          css.push(node.content.styles); // if multiple <style> tags, combine together
-          this.skip();
-          return;
-        }
-        case 'CodeSpan':
-        case 'CodeFence': {
-          outSource += ',' + JSON.stringify(node.raw);
-          return;
-        }
-        case 'Text': {
-          const text = getTextFromAttribute(node);
-          // Whitespace is significant if we are immediately inside of <Markdown>,
-          // but not if we're inside of another component in <Markdown>
-          if (parent.name !== 'Markdown' && !text.trim()) {
             return;
           }
-          outSource += ',' + JSON.stringify(text);
-          return;
-        }
-        default:
-          throw new Error('Unexpected (enter) node type: ' + node.type);
-      }
-    },
-    leave(node, parent, prop, index) {
-      switch (node.type) {
-        case 'Text':
-        case 'CodeSpan':
-        case 'CodeFence':
-        case 'Attribute':
-        case 'Comment':
-        case 'Fragment':
-        case 'Expression':
-        case 'MustacheTag':
-          return;
-        case 'Slot':
-        case 'Head':
-        case 'Body':
-        case 'Title':
-        case 'Element':
-        case 'InlineComponent': {
-          if (node.type === 'InlineComponent' && node.name === 'Markdown') {
-            state.markers.insideMarkdown = false;
+          case 'Attribute': {
+            this.skip();
+            return;
           }
-          if (state.markers.insideMarkdown) {
-            outSource += ')';
+          case 'Style': {
+            css.push(node.content.styles); // if multiple <style> tags, combine together
+            this.skip();
+            return;
           }
-          outSource += ')';
-          return;
+          case 'CodeSpan':
+          case 'CodeFence': {
+            if (state.markers.insideMarkdown) {
+              if (curr === 'out') curr = 'markdown';
+              buffers[curr] += node.raw;
+              return;
+            }
+            buffers[curr] += ',' + JSON.stringify(node.data);
+            return;
+          }
+          case 'Text': {
+            let text = getTextFromAttribute(node);
+            if (state.markers.insideMarkdown) {
+              if (curr === 'out') curr = 'markdown';
+              buffers[curr] += text;
+              return;
+            }
+            if (parent.name !== 'Markdown' && !text.trim()) {
+              return;
+            }
+            if (parent.name === 'code') {
+              // Special case, escaped { characters from markdown content
+              text = node.raw.replace(/&#x26;#123;/g, '{');
+            }
+            buffers[curr] += ',' + JSON.stringify(text);
+            return;
+          }
+          default:
+            throw new Error('Unexpected (enter) node type: ' + node.type);
         }
-        case 'Style': {
-          this.remove(); // this will be optimized in a global CSS file; remove so it‘s not accidentally inlined
-          return;
+      },
+      async leave(node, parent, prop, index) {
+        switch (node.type) {
+          case 'Text':
+          case 'Attribute':
+          case 'Comment':
+          case 'Fragment':
+          case 'Expression':
+          case 'MustacheTag':
+            return;
+          case 'CodeSpan':
+          case 'CodeFence':
+            return;
+          case 'Slot':
+          case 'Head':
+          case 'Body':
+          case 'Title':
+          case 'Element':
+          case 'InlineComponent': {
+            if (node.type === 'InlineComponent' && curr === 'markdown' && buffers.markdown !== '') {
+              await pushMarkdownToBuffer();
+            }
+            if (paren !== -1) {
+              buffers.out += ')';
+              paren--;
+            }
+            return;
+          }
+          case 'Style': {
+            this.remove(); // this will be optimized in a global CSS file; remove so it‘s not accidentally inlined
+            return;
+          }
+          default:
+            throw new Error('Unexpected (leave) node type: ' + node.type);
         }
-        default:
-          throw new Error('Unexpected (leave) node type: ' + node.type);
-      }
-    },
+      },
+    }).then(() => {
+      const content = buffers.out.replace(/^\,/, '').replace(/\,\)/g, ')').replace(/\,+/g, ',').replace(/\)h/g, '),h');
+      buffers.out = '';
+      buffers.markdown = '';
+      return resolve(content);
+    });
   });
-
-  return outSource;
 }
 
 /**
@@ -721,7 +773,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
 
   compileCss(ast.css, state);
 
-  const html = compileHtml(ast.html, state, compileOptions);
+  const html = await compileHtml(ast.html, state, compileOptions);
 
   return {
     script: script,

@@ -60,6 +60,7 @@ function configDefaults(userConfig?: any): any {
   if (!config.devOptions) config.devOptions = {};
   if (!config.devOptions.port) config.devOptions.port = 3000;
   if (!config.buildOptions) config.buildOptions = {};
+  if (!config.markdownOptions) config.markdownOptions = {};
   if (typeof config.buildOptions.sitemap === 'undefined') config.buildOptions.sitemap = true;
 
   return config;
