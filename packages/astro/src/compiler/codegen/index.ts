@@ -414,7 +414,6 @@ function dedent(str: string) {
   let first = !!arr && arr.find((x) => x.length > 0)?.length;
   return !arr || !first ? str : str.replace(new RegExp(`^[ \\t]{0,${first}}`, 'gm'), '');
 }
-<<<<<<< HEAD
 
 /** Compile page markup */
 async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
@@ -447,49 +446,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       curr = 'out';
     }
 
-=======
-
-
-/** Compile page markup */
-async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
-  return new Promise((resolve) => {
-    const { components, css, importExportStatements, dynamicImports, filename } = state;
-    const { astroConfig } = compileOptions;
-
-    let paren = -1;
-    let buffers = {
-      out: '',
-      markdown: '',
-    };
-    let curr: keyof typeof buffers = 'out';
-
-    /** renders markdown stored in `buffers.markdown` to JSX and pushes that to `buffers.out` */
-    async function pushMarkdownToBuffer() {
-      const md = buffers.markdown;
-      const { markdownOptions = {} } = astroConfig;
-      const { $scope: scopedClassName } = state.markers.insideMarkdown as Record<'$scope', any>;
-      let { content: rendered } = await renderMarkdown(dedent(md), { ...markdownOptions as AstroMarkdownOptions, mode: 'astro-md', $: { scopedClassName: scopedClassName.slice(1, -1) } });
-      const ast = parse(rendered);
-      const result = await compileHtml(ast.html, {...state, markers: {...state.markers, insideMarkdown: false }}, compileOptions);
-
-      buffers.out += ',' + result;
-      buffers.markdown = '';
-      curr = 'out';
-    }
-
->>>>>>> 883c9da (fix: markdown issues)
     asyncWalk(enterNode, {
       async enter(node: TemplateNode, parent: TemplateNode) {
         switch (node.type) {
           case 'Expression': {
-<<<<<<< HEAD
             const children: string[] = await Promise.all((node.children ?? []).map((child) => compileHtml(child, state, compileOptions)));
-=======
-            let children: string[] = [];
-            for (const child of node.children || []) {
-              children.push(await compileHtml(child, state, compileOptions));
-            }
->>>>>>> 883c9da (fix: markdown issues)
             let raw = '';
             let nextChildIndex = 0;
             for (const chunk of node.codeChunks) {
