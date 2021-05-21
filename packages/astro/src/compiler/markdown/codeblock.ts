@@ -9,7 +9,11 @@ export function remarkCodeBlock() {
     let currentClassName = data?.hProperties?.class ?? '';
     node.data = node.data || {};
     node.data.hProperties = node.data.hProperties || {};
+<<<<<<< HEAD
     node.data.hProperties = { ...node.data.hProperties, class: `language-${lang} ${currentClassName}`.trim(), lang, meta };
+=======
+    node.data.hProperties = { ...node.data.hProperties, class: `language-${lang} ${currentClassName}`.trim(), lang, meta }
+>>>>>>> 883c9da (fix: markdown issues)
 
     return node;
   };
@@ -24,8 +28,13 @@ export function rehypeCodeBlock() {
         return { ...child, value: child.value.replace(/\{/g, '&#123;') };
       }
       return child;
+<<<<<<< HEAD
     });
   };
+=======
+    })
+  }
+>>>>>>> 883c9da (fix: markdown issues)
   const visitor = (node: any) => {
     if (node.tagName === 'code') {
       escapeCode(node);

@@ -14,7 +14,11 @@ export interface MarkdownRenderingOptions extends Partial<AstroMarkdownOptions> 
   $?: {
     scopedClassName: string | null;
   };
+<<<<<<< HEAD
   mode: 'md' | 'astro-md';
+=======
+  mode: 'md'|'astro-md';
+>>>>>>> 883c9da (fix: markdown issues)
 }
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
