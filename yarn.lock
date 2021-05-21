@@ -1294,10 +1294,10 @@
   resolved "https://registry.npmjs.org/@sindresorhus/is/-/is-0.14.0.tgz"
   integrity sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==
 
-"@snowpack/plugin-postcss@^1.4.0-pre.1":
-  version "1.4.0-pre.1"
-  resolved "https://registry.yarnpkg.com/@snowpack/plugin-postcss/-/plugin-postcss-1.4.0-pre.1.tgz#050c8a60742c25d47161aadc0766406703f45ec5"
-  integrity sha512-97bK+ZEhyRQQv1ttA39LnR/ckhmxEFcyICCD9UpxjNCPkEP76Z7MGFZEcHvhlgvecUZGtp3i5Mwb6Mp0Uy3Dpg==
+"@snowpack/plugin-postcss@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@snowpack/plugin-postcss/-/plugin-postcss-1.4.0.tgz#af95fca31ac9663ad41b89d58c7473776fb6c415"
+  integrity sha512-IKJefynh4Bnpy2bXFxGFdwu9uAHvcL2jmpuiR6qZADbd1Pi6dUnRI6Ip84nYoGUMeIaGrbbHPMeAKuSlVv2GTQ==
   dependencies:
     postcss-load-config "^3.0.1"
     workerpool "^6.1.2"
@@ -9174,10 +9174,10 @@ smartwrap@^1.2.3:
     wcwidth "^1.0.1"
     yargs "^15.1.0"
 
-snowpack@^3.5.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.5.0.tgz#9486d9f2467b5c692e0b0c71cae2cb6058067fa9"
-  integrity sha512-RlQbyXlILgGKYkvlYHzDydM1V2xAgQ5ZQsb/BUlkzAqNlbFSbyM2Genfw3eWTfk6o5kG0BrpdAmyGcTpN1Q+UQ==
+snowpack@^3.5.1:
+  version "3.5.1"
+  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.5.1.tgz#51fbdbb56794ebb7a07f3fecd4fc60454e4f366f"
+  integrity sha512-YOpC3hpGSzFOKgbHfMmWmJ1KYEtdBWkbUUdT0H3E1fsc73qRv97wskNkVaeNKtr/yrImR5+KHUvxcWY6jgHVtw==
   dependencies:
     cli-spinners "^2.5.0"
     default-browser-id "^2.0.0"
