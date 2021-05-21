@@ -1,6 +1,5 @@
-
-import syntaxMdxjs from 'micromark-extension-mdxjs'
-import {fromMarkdown, toMarkdown} from 'mdast-util-mdx'
+import syntaxMdxjs from 'micromark-extension-mdxjs';
+import { fromMarkdown, toMarkdown } from 'mdast-util-mdx';
 
 /**
  * Add the micromark and mdast extensions for MDX.js (JS aware MDX).
@@ -10,11 +9,11 @@ import {fromMarkdown, toMarkdown} from 'mdast-util-mdx'
  * @return {void}
  */
 export function remarkMdx(this: any, options: any) {
-  let data = this.data()
+  let data = this.data();
 
-  add('micromarkExtensions', syntaxMdxjs(options))
-  add('fromMarkdownExtensions', fromMarkdown)
-  add('toMarkdownExtensions', toMarkdown)
+  add('micromarkExtensions', syntaxMdxjs(options));
+  add('fromMarkdownExtensions', fromMarkdown);
+  add('toMarkdownExtensions', toMarkdown);
 
   /**
    * @param {string} field
@@ -25,7 +24,7 @@ export function remarkMdx(this: any, options: any) {
     // Useful when externalizing.
     /* c8 ignore next 2 */
     // @ts-ignore Assume it’s an array.
-    if (data[field]) data[field].push(value)
-    else data[field] = [value]
+    if (data[field]) data[field].push(value);
+    else data[field] = [value];
   }
 }

@@ -14,7 +14,7 @@ export interface MarkdownRenderingOptions extends Partial<AstroMarkdownOptions> 
   $?: {
     scopedClassName: string | null;
   };
-  mode: 'md'|'astro-md';
+  mode: 'md' | 'astro-md';
 }
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */

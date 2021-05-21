@@ -547,7 +547,6 @@ function dedent(str: string) {
   return !arr || !first ? str : str.replace(new RegExp(`^[ \\t]{0,${first}}`, 'gm'), '');
 }
 
-
 /** Compile page markup */
 async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
   return new Promise((resolve) => {
@@ -566,9 +565,13 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       const md = buffers.markdown;
       const { markdownOptions = {} } = astroConfig;
       const { $scope: scopedClassName } = state.markers.insideMarkdown as Record<'$scope', any>;
-      let { content: rendered } = await renderMarkdown(dedent(md), { ...markdownOptions as AstroMarkdownOptions, mode: 'astro-md', $: { scopedClassName: scopedClassName.slice(1, -1) } });
+      let { content: rendered } = await renderMarkdown(dedent(md), {
+        ...(markdownOptions as AstroMarkdownOptions),
+        mode: 'astro-md',
+        $: { scopedClassName: scopedClassName.slice(1, -1) },
+      });
       const ast = parse(rendered);
-      const result = await compileHtml(ast.html, {...state, markers: {...state.markers, insideMarkdown: false }}, compileOptions);
+      const result = await compileHtml(ast.html, { ...state, markers: { ...state.markers, insideMarkdown: false } }, compileOptions);
 
       buffers.out += ',' + result;
       buffers.markdown = '';
@@ -579,7 +582,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       async enter(node: TemplateNode, parent: TemplateNode) {
         switch (node.type) {
           case 'Expression': {
-            const children: string[] = await Promise.all((node.children ?? []).map(child => compileHtml(child, state, compileOptions)));
+            const children: string[] = await Promise.all((node.children ?? []).map((child) => compileHtml(child, state, compileOptions)));
             let raw = '';
             let nextChildIndex = 0;
             for (const chunk of node.codeChunks) {

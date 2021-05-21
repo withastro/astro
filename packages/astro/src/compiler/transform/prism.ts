@@ -6,19 +6,21 @@ const PRISM_IMPORT = `import Prism from 'astro/components/Prism.astro';\n`;
 const prismImportExp = /import Prism from ['"]astro\/components\/Prism.astro['"]/;
 /** escaping code samples that contain template string replacement parts, ${foo} or example. */
 function escape(code: string) {
-  return code.replace(/[`$]/g, (match) => {
-    return '\\' + match;
-  }).replace(/&#123;/g, '{');
+  return code
+    .replace(/[`$]/g, (match) => {
+      return '\\' + match;
+    })
+    .replace(/&#123;/g, '{');
 }
 
 /** Unescape { characters transformed by Markdown generation */
 function unescapeCode(code: TemplateNode) {
-  code.children = code.children?.map(child => {
+  code.children = code.children?.map((child) => {
     if (child.type === 'Text') {
-      return { ...child, raw: child.raw.replace(/&#x26;#123;/g, '{') }
+      return { ...child, raw: child.raw.replace(/&#x26;#123;/g, '{') };
     }
     return child;
-  })
+  });
 }
 /** default export - Transform prism   */
 export default function (module: Script): Transformer {
