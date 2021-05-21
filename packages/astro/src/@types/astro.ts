@@ -8,12 +8,20 @@ export interface AstroConfigRaw {
 
 export type ValidExtensionPlugins = 'astro' | 'react' | 'preact' | 'svelte' | 'vue';
 
+export interface AstroMarkdownOptions {
+  /** Enable or disable footnotes syntax extension */
+  footnotes: boolean;
+  /** Enable or disable GitHub-flavored Markdown syntax extension */
+  gfm: boolean;
+}
 export interface AstroConfig {
   dist: string;
   projectRoot: URL;
   astroRoot: URL;
   public: URL;
   extensions?: Record<string, ValidExtensionPlugins>;
+  /** Options for rendering markdown content */
+  markdownOptions?: Partial<AstroMarkdownOptions>;
   /** Options specific to `astro build` */
   buildOptions: {
     /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */

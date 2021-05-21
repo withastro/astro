@@ -1,5 +1,5 @@
 import type { Transformer } from '../../@types/transformer';
-import type { Script } from 'astro-parser';
+import type { Script, TemplateNode } from 'astro-parser';
 import { getAttrValue } from '../../ast.js';
 
 const PRISM_IMPORT = `import Prism from 'astro/components/Prism.astro';\n`;
@@ -8,7 +8,17 @@ const prismImportExp = /import Prism from ['"]astro\/components\/Prism.astro['"]
 function escape(code: string) {
   return code.replace(/[`$]/g, (match) => {
     return '\\' + match;
-  });
+  }).replace(/&#123;/g, '{');
+}
+
+/** Unescape { characters transformed by Markdown generation */
+function unescapeCode(code: TemplateNode) {
+  code.children = code.children?.map(child => {
+    if (child.type === 'Text') {
+      return { ...child, raw: child.raw.replace(/&#x26;#123;/g, '{') }
+    }
+    return child;
+  })
 }
 /** default export - Transform prism   */
 export default function (module: Script): Transformer {
@@ -19,6 +29,11 @@ export default function (module: Script): Transformer {
       html: {
         Element: {
           enter(node) {
+            if (node.name === 'code') {
+              unescapeCode(node);
+              return;
+            }
+
             if (node.name !== 'pre') return;
             const codeEl = node.children && node.children[0];
             if (!codeEl || codeEl.name !== 'code') return;

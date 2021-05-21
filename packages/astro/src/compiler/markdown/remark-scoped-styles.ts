@@ -7,10 +7,10 @@ export default function scopedStyles(className: string) {
     if (noVisit.has(node.type)) return;
 
     const { data } = node;
-    const currentClassName = data?.hProperties?.class ?? '';
+    let currentClassName = data?.hProperties?.class ?? '';
     node.data = node.data || {};
     node.data.hProperties = node.data.hProperties || {};
-    node.data.hProperties.className = `${className} ${currentClassName}`.trim();
+    node.data.hProperties.class = `${className} ${currentClassName}`.trim();
 
     return node;
   };
