@@ -1,10 +1,14 @@
 ---
 import ArticleFooter from '../components/ArticleFooter.astro';
 import SiteSidebar from '../components/SiteSidebar.astro';
-import DocSidebar from '../components/DocSidebar.astro';
 import ThemeToggle from '../components/ThemeToggle.tsx';
+import DocSidebar from '../components/DocSidebar.tsx';
 
 export let content;
+const headers = content?.astro?.headers;
+let editHref = Astro?.request?.url?.pathname?.slice(1) ?? '';
+if (editHref === '') editHref = `index`;
+editHref = `https://github.com/snowpackjs/astro/tree/main/examples/doc/src/pages/${editHref}.md`
 ---
 
 <html>
@@ -147,7 +151,7 @@ export let content;
 
       @media (min-width: 88em) {
         .layout {
-          grid-template-columns: minmax(var(--gutter), 1fr) 20rem minmax(0, var(--max-width)) 12rem minmax(var(--gutter), 1fr);
+          grid-template-columns: minmax(var(--gutter), 1fr) 20rem minmax(0, var(--max-width)) 16rem minmax(var(--gutter), 1fr);
           padding-left: 0;
           padding-right: 0;
         }
@@ -210,7 +214,7 @@ export let content;
         </article>
       </div>
       <aside class="sidebar" id="sidebar-content">
-        <DocSidebar />
+        <DocSidebar:idle headers={headers} editHref={editHref} />
       </aside>
     </main>
   </body>
