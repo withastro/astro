@@ -1,6 +1,7 @@
 import type { Ast, Script, Style, TemplateNode } from 'astro-parser';
 import type { CompileOptions } from '../../@types/compiler';
-import type { AstroConfig, AstroMarkdownOptions, TransformResult, ValidExtensionPlugins } from '../../@types/astro';
+import type { AstroConfig, AstroMarkdownOptions, TransformResult, ComponentInfo, Components } from '../../@types/astro';
+import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
 
 import 'source-map-support/register.js';
 import eslexer from 'es-module-lexer';
@@ -12,12 +13,11 @@ import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
 import { codeFrameColumns } from '@babel/code-frame';
 import * as babelTraverse from '@babel/traverse';
-import { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier } from '@babel/types';
 import { error, warn } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
-import { MarkdownRenderingOptions, renderMarkdown } from '../utils';
+import { renderMarkdown } from '../utils';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 
@@ -126,10 +126,6 @@ function generateAttributes(attrs: Record<string, string>): string {
   return result + '}';
 }
 
-interface ComponentInfo {
-  url: string;
-  importSpecifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
-}
 interface GetComponentWrapperOptions {
   filename: string;
   astroConfig: AstroConfig;
@@ -182,11 +178,8 @@ function compileExpressionSafe(raw: string): string {
   return code;
 }
 
-type Components = Map<string, ComponentInfo>;
-
 interface CompileResult {
   script: string;
-  componentPlugins: Set<ValidExtensionPlugins>;
   createCollection?: string;
 }
 
@@ -212,7 +205,6 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
   let propsStatement = '';
   let contentCode = ''; // code for handling Astro.fetchContent(), if any;
   let createCollection = ''; // function for executing collection
-  const componentPlugins = new Set<ValidExtensionPlugins>();
 
   if (module) {
     const parseOptions: babelParser.ParserOptions = {
@@ -394,7 +386,6 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
   return {
     script,
-    componentPlugins,
     createCollection: createCollection || undefined,
   };
 }

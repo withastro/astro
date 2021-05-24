@@ -1,3 +1,5 @@
+import type { ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier } from '@babel/types';
+
 export interface AstroConfigRaw {
   dist: string;
   projectRoot: string;
@@ -169,3 +171,10 @@ export interface CollectionResult<T = any> {
   /** Matched parameters, if any */
   params: Params;
 }
+
+export interface ComponentInfo {
+  url: string;
+  importSpecifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
+}
+
+export type Components = Map<string, ComponentInfo>;
