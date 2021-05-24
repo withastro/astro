@@ -9,8 +9,9 @@
     "create-astro": "./create-astro.js"
   },
   "scripts": {
-    "build": "astro-scripts build src/index.tsx",
-    "postbuild": "astro-scripts copy \"src/templates/**\" --tgz"
+    "build": "ENV=production astro-scripts build src/index.tsx",
+    "postbuild": "astro-scripts copy \"src/templates/**\" --tgz",
+    "test": "uvu"
   },
   "files": [
     "dist",
