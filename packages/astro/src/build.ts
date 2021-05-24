@@ -16,7 +16,7 @@ import { bundleJS, collectJSImports } from './build/bundle/js';
 import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.js';
 import { generateSitemap } from './build/sitemap.js';
 import { logURLStats, collectBundleStats, mapBundleStatsToURLStats } from './build/stats.js';
-import { getDistPath, sortSet, stopTimer } from './build/util.js';
+import { getDistPath, stopTimer } from './build/util.js';
 import { debug, defaultLogDestination, error, info, warn, trapWarn } from './logger.js';
 import { createRuntime } from './runtime.js';
 
@@ -257,10 +257,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
     }
   });
 
-  // sort (makes things a bit more predictable)
-  pageDeps.js = sortSet(pageDeps.js);
-  pageDeps.css = sortSet(pageDeps.css);
-  pageDeps.images = sortSet(pageDeps.images);
+  // important: preserve the scan order of deps! order matters on pages
 
   return pageDeps;
 }

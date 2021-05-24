@@ -13,11 +13,6 @@ export function canonicalURL(url: string, base?: string): URL {
   return new URL(pathname, base);
 }
 
-/** Sort a Set */
-export function sortSet(set: Set<string>): Set<string> {
-  return new Set([...set].sort((a, b) => a.localeCompare(b, 'en', { numeric: true })));
-}
-
 /** Resolve final output URL */
 export function getDistPath(specifier: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL }): string {
   if (specifier[0] === '/') return specifier; // assume absolute URLs are correct
