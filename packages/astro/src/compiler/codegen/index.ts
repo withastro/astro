@@ -17,7 +17,7 @@ import { error, warn } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
-import { renderMarkdown } from '../utils';
+import { isComponentTag, renderMarkdown } from '../utils';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 
@@ -492,8 +492,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 paren++;
                 return;
               }
-              const COMPONENT_NAME_SCANNER = /^[A-Z]|[.]/;
-              if (!COMPONENT_NAME_SCANNER.test(name)) {
+              if (!isComponentTag(name)) {
                 if (curr === 'markdown') {
                   await pushMarkdownToBuffer();
                 }
