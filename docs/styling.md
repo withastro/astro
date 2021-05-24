@@ -132,6 +132,8 @@ All CSS is minified and bundled automatically for you in running `astro build`. 
 
 We’ll be expanding our styling optimization story over time, and would love your feedback! If `astro build` generates unexpected styles, or if you can think of improvements, [please open an issue](https://github.com/snowpackjs/astro/issues).
 
+**⚠️ Ordering may not be guaranteed**. Though we try and preserve your ordering as much as possible, there are no guarantees between pages. For example, if one page loads `a.css`, `b.css`, and another loads `b.css`, there’s a chance that `b.css` may load first (as it’s a shared asset). The best course of action is to reduce your styles’ dependence on ordering as much as possible. But if specific order is required, [Sass’ @use is highly recommended][sass-use] or you must guarantee that all styles load in the same order on every page.
+
 ## 📚 Advanced Styling Architecture in Astro
 
 Many development setups give you the basics on where to put CSS for small things, but very quickly you realize the simple examples fail you as your code scales, and soon you have a mess on your hands. An natural question for any setup is “how do I architect my styles?” yet not every framework outlines its rules. While we’d like to say _“use whatever you want,”_ and leave it up to you, the reality is that not all styling approaches will work as well in Astro as others, because Astro is a blend of new ideas (**Partial Hydration** and **JS frameworks with zero runtime JS**) and old (**HTML-first**). It couldn’t hurt to try and provide a guide on how to think about styling architecture in Astro, and this section is precisely that.

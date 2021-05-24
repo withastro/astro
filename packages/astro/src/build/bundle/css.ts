@@ -41,7 +41,10 @@ export async function bundleCSS({
 
   // 1. organize CSS into common or page-specific CSS
   timer.bundle = performance.now();
-  for (const [pageUrl, { css }] of Object.entries(depTree)) {
+  const sortedPages = Object.keys(depTree); // these were scanned in parallel; sort to create somewhat deterministic order
+  sortedPages.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  for (const pageUrl of sortedPages) {
+    const { css } = depTree[pageUrl];
     for (const cssUrl of css.keys()) {
       if (cssMap.has(cssUrl)) {
         // scenario 1: if multiple URLs require this CSS, upgrade to common chunk
@@ -53,30 +56,26 @@ export async function bundleCSS({
     }
   }
 
-  // 2. bundle
+  // 2. bundle (note: assume cssMap keys are in specific, correct order; assume buildState[] keys are in different order each time)
   timer.bundle = performance.now();
-  await Promise.all(
-    Object.keys(buildState).map(async (id) => {
-      if (buildState[id].contentType !== 'text/css') return;
+  // note: don’t parallelize here otherwise CSS may end up in random order
+  for (const id of cssMap.keys()) {
+    const newUrl = cssMap.get(id) as string;
 
-      const newUrl = cssMap.get(id);
-      if (!newUrl) return;
+    // if new bundle, create
+    if (!buildState[newUrl]) {
+      buildState[newUrl] = {
+        srcPath: getSrcPath(id, { astroConfig }), // this isn’t accurate, but we can at least reference a file in the bundle
+        contents: '',
+        contentType: 'text/css',
+        encoding: 'utf8',
+      };
+    }
 
-      // if new bundle, create
-      if (!buildState[newUrl]) {
-        buildState[newUrl] = {
-          srcPath: getSrcPath(id, { astroConfig }), // this isn’t accurate, but we can at least reference a file in the bundle
-          contents: '',
-          contentType: 'text/css',
-          encoding: 'utf8',
-        };
-      }
-
-      // append to bundle, delete old file
-      (buildState[newUrl] as any).contents += Buffer.isBuffer(buildState[id].contents) ? buildState[id].contents.toString('utf8') : buildState[id].contents;
-      delete buildState[id];
-    })
-  );
+    // append to bundle, delete old file
+    (buildState[newUrl] as any).contents += Buffer.isBuffer(buildState[id].contents) ? buildState[id].contents.toString('utf8') : buildState[id].contents;
+    delete buildState[id];
+  }
   debug(logging, 'css', `bundled [${stopTimer(timer.bundle)}]`);
 
   // 3. minify

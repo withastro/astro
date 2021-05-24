@@ -45,6 +45,13 @@ CSSBundling('Bundles CSS', async (context) => {
     const css = await context.readFile(url);
     assert.ok(css, true);
   }
+
+  // test 4: assert ordering is preserved (typography.css before colors.css)
+  const bundledLoc = [...builtCSS].find((k) => k.startsWith('/_astro/common-'));
+  const bundledContents = await context.readFile(bundledLoc);
+  const typographyIndex = bundledContents.indexOf('body{');
+  const colorsIndex = bundledContents.indexOf(':root{');
+  assert.ok(typographyIndex < colorsIndex);
 });
 
 CSSBundling.run();
