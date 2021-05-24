@@ -61,13 +61,13 @@ async function generateHydrateScript({ renderer, astroId, props }: any, { hydrat
   let end = typeof wrapperEnd === 'string' ? wrapperEnd : wrapperEnd({ roots: 'roots' });
 
   const script = `<script type="module" data-astro-hydrate="${astroId}">
-const roots = document.querySelectorAll('[data-astro-root="${astroId}"]');
+const roots = document.querySelectorAll("[data-astro-root="${astroId}"]");
 let innerHTML = null;
-let children = roots[0].querySelector('[data-astro-children]');
+let children = roots[0].querySelector("[data-astro-children]");
 if (children) innerHTML = children.innerHTML;
 
 ${start}
-  const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import('${componentUrl}'), import('${rendererSource}')]);
+  const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${rendererSource}")]);
   for (const root of roots) {
     hydrate(root)(Component, ${props}, innerHTML);
   }
