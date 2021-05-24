@@ -1,0 +1,9 @@
+{
+  "name": "@astro-renderer/vue",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js"
+  }
+}

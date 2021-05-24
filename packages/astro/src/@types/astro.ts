@@ -6,8 +6,6 @@ export interface AstroConfigRaw {
   jsx?: string;
 }
 
-export type ValidExtensionPlugins = 'astro' | 'react' | 'preact' | 'svelte' | 'vue';
-
 export interface AstroMarkdownOptions {
   /** Enable or disable footnotes syntax extension */
   footnotes: boolean;
@@ -19,7 +17,7 @@ export interface AstroConfig {
   projectRoot: URL;
   astroRoot: URL;
   public: URL;
-  extensions?: Record<string, ValidExtensionPlugins>;
+  renderers?: string[];
   /** Options for rendering markdown content */
   markdownOptions?: Partial<AstroMarkdownOptions>;
   /** Options specific to `astro build` */

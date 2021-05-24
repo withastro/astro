@@ -14,6 +14,7 @@
   },
   "workspaces": [
     "packages/*",
+    "packages/renderers/*",
     "examples/*",
     "tools/*",
     "scripts",

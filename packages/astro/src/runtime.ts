@@ -268,9 +268,16 @@ interface CreateSnowpackOptions {
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
 }
 
+const defaultRenderers = [
+  '@astro-renderer/vue',
+  '@astro-renderer/svelte',
+  '@astro-renderer/preact',
+  '@astro-renderer/react'
+];
+
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot, astroRoot, extensions } = astroConfig;
+  const { projectRoot, astroRoot, renderers = defaultRenderers } = astroConfig;
   const { env, mode, resolvePackageUrl } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
@@ -278,11 +285,11 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   let snowpack: SnowpackDevServer;
   const astroPlugOptions: {
     resolvePackageUrl?: (s: string) => Promise<string>;
-    extensions?: Record<string, string>;
+    renderers: string[];
     astroConfig: AstroConfig;
   } = {
     astroConfig,
-    extensions,
+    renderers,
     resolvePackageUrl,
   };
 
@@ -299,6 +306,9 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   if (astroConfig.devOptions.tailwindConfig) {
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
+
+  // Make sure that Snowpack builds our renderer plugins
+  const knownEntrypoints = [].concat(...renderers.map(renderer => [`${renderer}`, `${renderer}/client`]) as any) as string[];
 
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
@@ -331,7 +341,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       out: astroConfig.dist,
     },
     packageOptions: {
-      knownEntrypoints: ['preact-render-to-string'],
+      knownEntrypoints,
       external: ['@vue/server-renderer', 'node-fetch', 'prismjs/components/index.js', 'gray-matter'],
     },
   });

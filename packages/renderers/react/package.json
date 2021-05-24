@@ -1,0 +1,9 @@
+{
+  "name": "@astro-renderer/react",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js"
+  }
+}
