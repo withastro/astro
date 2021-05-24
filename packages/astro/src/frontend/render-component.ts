@@ -10,26 +10,20 @@ const rendererCache = new WeakMap();
 
 /** For a given component, resolve the renderer. Results are cached if this instance is encountered again */
 function resolveRenderer(Component: any) {
-  let rendererName = rendererCache.has(Component) ? rendererCache.get(Component) : undefined;
-  let renderer = rendererName ? __renderers.find(({ name }: any) => name === rendererName) : undefined;
+  if (rendererCache.has(Component)) {
+    return rendererCache.get(Component);
+  }
 
-  if (!rendererName) {
-    for (const __renderer of __renderers) {
-      const shouldUse = __renderer.check(Component)
-      if (shouldUse) {
-        rendererName = __renderer.name;
-        renderer = __renderer;
-        break;
-      }
+  for (const __renderer of __renderers) {
+    const shouldUse = __renderer.check(Component)
+    if (shouldUse) {
+      rendererCache.set(Component, __renderer);
+      return __renderer;
     }
   }
 
-  if (!renderer) {
-    const name = typeof Component === 'function' ? (Component.displayName ?? Component.name) : `{ ${Object.keys(Component).join(', ')} }`;
-    throw new Error(`No renderer found for ${name}! Did you forget to add a "renderer" to your Astro config?`);
-  }
-
-  return renderer;
+  const name = typeof Component === 'function' ? (Component.displayName ?? Component.name) : `{ ${Object.keys(Component).join(', ')} }`;
+  throw new Error(`No renderer found for ${name}! Did you forget to add a "renderer" to your Astro config?`);
 }
 
 interface AstroComponentProps {
