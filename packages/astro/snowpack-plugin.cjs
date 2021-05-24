@@ -11,8 +11,25 @@ module.exports = function (snowpackConfig, { resolvePackageUrl, renderers, astro
       output: ['.js', '.css'],
     },
     /** 
-      * A bit of a hack, but this injects our renderer plugins to the Astro renderer
-      * so that we can resolve components at runtime using the renderer
+      * This injects our renderer plugins to the Astro runtime (as a bit of a hack).
+      *
+      * In a world where Snowpack supports virtual files, this won't be necessary and
+      * should be refactored to a virtual file that is imported by the runtime.
+      *
+      * Take a look at `/src/frontend/render-component.ts`. It relies on both
+      * `__rendererSources` and `__renderers` being defined, so we're creating those here.
+      *
+      * The output of this is the following (or something very close to it):
+      *
+      * ```js
+      * import * as __renderer_0 from '/_snowpack/link/packages/renderers/vue/index.js';
+      * import * as __renderer_1 from '/_snowpack/link/packages/renderers/svelte/index.js';
+      * import * as __renderer_2 from '/_snowpack/link/packages/renderers/preact/index.js';
+      * import * as __renderer_3 from '/_snowpack/link/packages/renderers/react/index.js';
+      * let __rendererSources = ["/_snowpack/link/packages/renderers/vue/client.js", "/_snowpack/link/packages/renderers/svelte/client.js", "/_snowpack/link/packages/renderers/preact/client.js", "/_snowpack/link/packages/renderers/react/client.js"];
+      * let __renderers = [__renderer_0, __renderer_1, __renderer_2, __renderer_3];
+      * // the original file contents
+      * ```
       */
     async transform({contents, fileExt, id }) {
       if (fileExt === '.js' && id.endsWith('/astro/dist/frontend/render-component.js')) {

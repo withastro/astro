@@ -1,5 +1,17 @@
 import hash from 'shorthash';
 import astro from './renderer-astro';
+
+/** 
+  * These values are dynamically injected by Snowpack.
+  * See comment in `snowpack-plugin.cjs`!
+  * 
+  * In a world where Snowpack supports virtual files, this won't be necessary.
+  * It would ideally look something like:
+  *
+  * ```ts
+  * import { __rendererSources, __renderers } from "virtual:astro/runtime"
+  * ```
+  */ 
 declare let __rendererSources: string[];
 declare let __renderers: any[];
 
