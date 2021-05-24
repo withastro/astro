@@ -18,9 +18,8 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
 
   yield `<${tag}`;
   if (attrs) {
-    yield ' ';
     for (let [key, value] of Object.entries(attrs)) {
-      yield `${key}="${value}"`;
+      yield ` ${key}="${value}"`;
     }
   }
   yield '>';
