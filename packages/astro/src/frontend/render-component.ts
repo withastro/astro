@@ -21,21 +21,18 @@ __renderers = [{ default: astro }, ...__renderers].map(renderer => typeof render
 const rendererCache = new WeakMap();
 
 /** For a given component, resolve the renderer. Results are cached if this instance is encountered again */
-function resolveRenderer(Component: any) {
+function resolveRenderer(Component: any, props: any = {}) {
   if (rendererCache.has(Component)) {
     return rendererCache.get(Component);
   }
 
   for (const __renderer of __renderers) {
-    const shouldUse = __renderer.check(Component)
+    const shouldUse = __renderer.check(Component, props)
     if (shouldUse) {
       rendererCache.set(Component, __renderer);
       return __renderer;
     }
   }
-
-  const name = typeof Component === 'function' ? (Component.displayName ?? Component.name) : `{ ${Object.keys(Component).join(', ')} }`;
-  throw new Error(`No renderer found for ${name}! Did you forget to add a "renderer" to your Astro config?`);
 }
 
 interface AstroComponentProps {
@@ -80,11 +77,22 @@ ${end}
 
 export const __astro_component = (Component: any, componentProps: AstroComponentProps = {} as any)  => {
   if (Component == null) {
-    throw new Error(`Unable to render <${componentProps.displayName}> because it is "${Component}"!\nDid you forget to import the component or is it possible there is a typo?`);
+    throw new Error(`Unable to render <${componentProps.displayName}> because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
   }
-  const renderer = resolveRenderer(Component);
+  // First attempt at resolving a renderer (we don't have the props yet, so it might fail if they are required)
+  let renderer = resolveRenderer(Component);
 
   return async (props: any, ..._children: string[]) => {
+      if (!renderer) {
+        // Second attempt at resolving a renderer (this time we have props!)
+        renderer = resolveRenderer(Component, props);
+
+        // Okay now we definitely can't resolve a renderer, so let's throw
+        if (!renderer) {
+          const name = typeof Component === 'function' ? (Component.displayName ?? Component.name) : `{ ${Object.keys(Component).join(', ')} }`;
+          throw new Error(`No renderer found for ${name}! Did you forget to add a renderer to your Astro config?`);
+        }
+      }
       const children = _children.join('\n');
       const { html } = await renderer.renderToStaticMarkup(Component, props, children);
       // If we're NOT hydrating this component, just return the HTML

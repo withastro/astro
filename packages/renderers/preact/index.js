@@ -5,9 +5,9 @@ import StaticHtml from './static-html';
 export default () => {
   return {
     name: '@astro/renderer-preact',
-    check: (Component) => {
+    check: (Component, props) => {
       try {
-        return Boolean(renderToString(h(Component, {})));
+        return Boolean(renderToString(h(Component, props)));
       } catch (e) {}
       return false;
     },
