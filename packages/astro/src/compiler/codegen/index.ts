@@ -182,7 +182,7 @@ function compileExpressionSafe(raw: string): string {
   return code;
 }
 
-type Components = Record<string, ComponentInfo>;
+type Components = Map<string, ComponentInfo>;
 
 interface CompileResult {
   script: string;
@@ -305,10 +305,10 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       const importUrl = componentImport.source.value;
       for (const specifier of componentImport.specifiers) {
         const componentName = specifier.local.name;
-        state.components[componentName] = {
+        state.components.set(componentName, {
           importSpecifier: specifier,
           url: importUrl,
-        };
+        });
       }
       const { start, end } = componentImport;
       state.importExportStatements.add(module.content.slice(start || undefined, end || undefined));
@@ -511,10 +511,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 return;
               }
               const [componentName, componentKind] = name.split(':');
-              let componentInfo = components[componentName];
+              let componentInfo = components.get(componentName);
               if (/\./.test(componentName)) {
                 const [componentNamespace] = componentName.split('.');
-                componentInfo = components[componentNamespace];
+                componentInfo = components.get(componentNamespace);
               }
               if (!componentInfo) {
                 throw new Error(`Unknown Component: ${componentName}`);
@@ -640,7 +640,7 @@ export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOpt
 
   const state: CodegenState = {
     filename,
-    components: {},
+    components: new Map(),
     css: [],
     markers: {
       insideMarkdown: false,
