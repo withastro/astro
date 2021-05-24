@@ -112,7 +112,7 @@ export async function compileComponent(
   const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
 
   // return template
-  let modJsx = `
+  let moduleJavaScript = `
 import fetch from 'node-fetch';
 
 // <script astro></script>
@@ -160,7 +160,7 @@ export async function __renderPage({request, children, props}) {
 
   return {
     result,
-    contents: modJsx,
+    contents: moduleJavaScript,
     css: result.css,
   };
 }

@@ -3,7 +3,9 @@ import { visit } from 'unist-util-visit';
 /**  */
 export function remarkCodeBlock() {
   const visitor = (node: any) => {
-    const { data, lang, meta } = node;
+    const { data, meta } = node;
+    let lang = node.lang || 'html'; // default to html matches GFM behavior.
+
     let currentClassName = data?.hProperties?.class ?? '';
     node.data = node.data || {};
     node.data.hProperties = node.data.hProperties || {};

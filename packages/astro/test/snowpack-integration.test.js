@@ -10,14 +10,16 @@ const { readdir, stat } = fsPromises;
 
 const SnowpackDev = suite('snowpack.dev');
 
+const snowpackDir = new URL('../../../examples/snowpack/', import.meta.url);
+
 let runtime, cwd, setupError;
 
 SnowpackDev.before(async () => {
   // Bug: Snowpack config is still loaded relative to the current working directory.
   cwd = process.cwd();
-  process.chdir(fileURLToPath(new URL('../examples/snowpack/', import.meta.url)));
+  process.chdir(fileURLToPath(snowpackDir));
 
-  const astroConfig = await loadConfig(fileURLToPath(new URL('../examples/snowpack', import.meta.url)));
+  const astroConfig = await loadConfig(fileURLToPath(snowpackDir));
 
   const logging = {
     level: 'error',
@@ -67,7 +69,7 @@ SnowpackDev('No error creating the runtime', () => {
 SnowpackDev('Can load every page', async () => {
   const failed = [];
 
-  const pageRoot = new URL('../examples/snowpack/src/pages/', import.meta.url);
+  const pageRoot = new URL('./src/pages/', snowpackDir);
   for await (let pathname of allPages(pageRoot)) {
     if (pathname.includes('proof-of-concept-dynamic')) {
       continue;

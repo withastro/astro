@@ -8,4 +8,10 @@ description: This is a post about some stuff.
 
 Hello world!
 
+```json
+{ 
+  "key": "value"
+}
+```
+
 <div id="first">Some content</div>
