@@ -30,33 +30,36 @@ ComponentChildren('Passes markup children to framework components', async ({ run
 
   const $ = doc(result.contents);
 
-  const $preact = $('#preact > h1');
+  const $preact = $('#preact h1');
   assert.equal($preact.text().trim(), 'Hello world', 'Can pass markup to Preact components');
 
-  const $vue = $('#vue > h1');
+  const $vue = $('#vue h1');
   assert.equal($vue.text().trim(), 'Hello world', 'Can pass markup to Vue components');
 
-  const $svelte = $('#svelte > h1');
+  const $svelte = $('#svelte h1');
   assert.equal($svelte.text().trim(), 'Hello world', 'Can pass markup to Svelte components');
 });
 
 ComponentChildren('Passes multiple children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/multiple');
-  if (result.error) throw new Error(result.error);
+  if (result.error) {
+    console.log(result);
+    throw new Error(result.error);
+  }
 
   const $ = doc(result.contents);
 
-  const $preact = $('#preact');
+  const $preact = $('#preact').children();
   assert.equal($preact.children().length, 2, 'Can pass multiple children to Preact components');
   assert.equal($preact.children(':first-child').text().trim(), 'Hello world');
   assert.equal($preact.children(':last-child').text().trim(), 'Goodbye world');
 
-  const $vue = $('#vue');
+  const $vue = $('#vue').children();
   assert.equal($vue.children().length, 2, 'Can pass multiple children to Vue components');
   assert.equal($vue.children(':first-child').text().trim(), 'Hello world');
   assert.equal($vue.children(':last-child').text().trim(), 'Goodbye world');
 
-  const $svelte = $('#svelte');
+  const $svelte = $('#svelte').children();
   assert.equal($svelte.children().length, 2, 'Can pass multiple children to Svelte components');
   assert.equal($svelte.children(':first-child').text().trim(), 'Hello world');
   assert.equal($svelte.children(':last-child').text().trim(), 'Goodbye world');
