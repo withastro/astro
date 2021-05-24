@@ -108,7 +108,7 @@ function formatDate(date) {
   </head>
   <body>
     <main>
-      <h5>Results {collection.start + 1}–{collection.end + 1} of {collection.total}</h6>
+      <h5>Results {collection.start + 1}–{collection.end + 1} of {collection.total}</h5>
       {collection.data.map((post) => (
         <h1>{post.title}</h1>
         <time>{formatDate(post.published_at)}</time>
