@@ -1,5 +1,18 @@
 # astro
 
+## 0.11.0
+
+### Minor Changes
+
+- 19e20f2: Add Tailwind JIT support for Astro
+
+### Patch Changes
+
+- c43ee95: Bugfix: CSS bundling randomizes order
+- 9cdada0: Fixes a few edge case bugs with Astro's handling of Markdown content
+- Updated dependencies [9cdada0]
+  - astro-parser@0.11.0
+
 ## 0.10.0
 
 `astro` has been bumped to `0.10.0` to avoid conflicts with the previously published `astro` package (which was graciously donated to us at `v0.9.2`).

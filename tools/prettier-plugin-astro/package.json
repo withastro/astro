@@ -1,6 +1,6 @@
 {
   "name": "prettier-plugin-astro",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "index.js",
   "type": "commonjs",
   "private": true,
@@ -10,6 +10,6 @@
   },
   "dependencies": {
     "prettier": "^2.2.1",
-    "astro-parser": "0.1.0"
+    "astro-parser": "0.11.0"
   }
 }
