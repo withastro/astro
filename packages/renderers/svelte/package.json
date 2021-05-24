@@ -4,6 +4,10 @@
   "type": "module",
   "exports": {
     ".": "./index.js",
-    "./client": "./client.js"
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "svelte": "^3.35.0"
   }
 }

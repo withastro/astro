@@ -4,6 +4,11 @@
   "type": "module",
   "exports": {
     ".": "./index.js",
-    "./client": "./client.js"
+    "./client": "./client.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "vue": "^3.0.10",
+    "@vue/server-renderer": "^3.0.10"
   }
 }
