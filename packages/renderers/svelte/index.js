@@ -6,7 +6,5 @@ export default {
   renderToStaticMarkup: (Component, props, children) => {
     const { html } = Wrapper.render({ __astro_component: Component, __astro_children: children, ...props });
     return { html };
-  },
-  hydrateStaticMarkup() {
   }
 };
