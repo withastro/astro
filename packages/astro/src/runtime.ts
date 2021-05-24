@@ -271,8 +271,8 @@ interface CreateSnowpackOptions {
 const defaultRenderers = [
   '@astro-renderer/vue',
   '@astro-renderer/svelte',
-  '@astro-renderer/preact',
-  '@astro-renderer/react'
+  '@astro-renderer/react',
+  '@astro-renderer/preact'
 ];
 
 /** Create a new Snowpack instance to power Astro */
