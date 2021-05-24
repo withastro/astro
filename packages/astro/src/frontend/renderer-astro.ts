@@ -1,9 +1,9 @@
 export default () => {
   return {
     name: 'astro',
-    check: (Component) => Component.isAstroComponent,
-    renderToStaticMarkup: (Component, props, children) => {
-      const html = Component.__render(props);
+    check: (Component: any) => Component.isAstroComponent,
+    renderToStaticMarkup: (Component: any, props: any, children: string) => {
+      const html = Component.__render(props, children);
       return { html }
     },
   }
