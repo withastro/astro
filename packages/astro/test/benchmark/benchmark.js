@@ -6,12 +6,6 @@ const MUST_BE_AT_LEAST_PERC_OF = 90;
 
 const shouldSave = process.argv.includes('--save');
 
-async function rimraf(file) {
-  if(existsSync(file)) {
-    await fsPromises.rm(file, { recursive: true });
-  }
-}
-
 async function runToStarted(root) {
   const args = [];
   const process = runDevServer(root, args);
@@ -40,6 +34,7 @@ export class Benchmark {
     const start = performance.now();
     const end = await runToStarted(root);
     const time = Math.floor(end - start);
+    console.log('times are', start, end, time);
     return time;
   }
 
