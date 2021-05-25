@@ -5,7 +5,7 @@ import type { LogOptions } from './logger';
 import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
 
 import { existsSync } from 'fs';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { performance } from 'perf_hooks';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
 import { canonicalURL, stopTimer } from './build/util.js';
@@ -309,7 +309,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 
   // Make sure that Snowpack builds our renderer plugins
   const knownEntrypoints = [].concat(...renderers.map(renderer => [`${renderer}`, `${renderer}/client`]) as any) as string[];
-  const rendererSnowpackPlugins = (await Promise.all(renderers.map(renderer => import(renderer)
+  const rendererSnowpackPlugins = (await Promise.all(renderers.map(renderer => import(pathToFileURL(require.resolve(renderer)).toString())
     .then(({ default: rendererInstance }) => {
       const { snowpackPlugin, snowpackPluginOptions } = rendererInstance;
       if (typeof snowpackPlugin === 'string') {
