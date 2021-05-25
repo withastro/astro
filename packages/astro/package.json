@@ -29,8 +29,7 @@
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "benchmark": "node test/benchmark/dev.test.js",
-    "unit-test": "uvu test -i fixtures -i test-utils.js",
-    "test": "yarn run unit-test"
+    "test": "uvu test -i fixtures -i test-utils.js"
   },
   "dependencies": {
     "@babel/code-frame": "^7.12.13",
