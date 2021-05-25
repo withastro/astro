@@ -25,9 +25,9 @@ export default async function createAstro() {
   const use = (args['--use'] ?? pkgManager) as 'npm' | 'yarn';
   const template = args['--template'];
   const force = args['--force'];
-  const run = args['--run'] ?? true;
+  const skipInstall = args['--skip-install'];
 
-  const app = render(<App context={{ projectName, template, templates, force, run, use }} />);
+  const app = render(<App context={{ projectName, template, templates, force, skipInstall, use }} />);
 
   const onError = () => {
     if (app) app.clear();

@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import { Box, Text } from 'ink';
+import decamelize from 'decamelize';
 import { ARGS, ARG } from '../config';
 
 const Type: FC<{ type: any; enum?: string[] }> = ({ type, enum: e }) => {
@@ -71,7 +72,7 @@ const Help: FC<{ context: any }> = ({ context: { templates } }) => {
       </Box>
       <Box marginBottom={1} marginLeft={2} display="flex" flexDirection="column">
         {Object.entries(ARGS).map(([name, info]) => (
-          <Command key={name} name={name} info={name === 'template' ? { ...info, enum: templates.map(({ value }) => value) } : info} />
+          <Command key={name} name={decamelize(name, { separator: '-' })} info={name === 'template' ? { ...info, enum: templates.map(({ value }) => value) } : info} />
         ))}
       </Box>
     </>

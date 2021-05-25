@@ -18,6 +18,7 @@
     "create-astro.js"
   ],
   "dependencies": {
+    "decamelize": "^5.0.0",
     "decompress": "^4.2.1",
     "ink": "^3.0.8",
     "ink-select-input": "^4.2.0",
