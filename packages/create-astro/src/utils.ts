@@ -61,12 +61,7 @@ export async function rewriteFiles(projectName: string) {
   return Promise.all(tasks);
 }
 
-export async function prepareTemplate(options: {
-  use: 'npm' | 'yarn',
-  templateName: string,
-  projectName: string,
-  skipInstall?: boolean,
-}) {
+export async function prepareTemplate(options: { use: 'npm' | 'yarn'; templateName: string; projectName: string; skipInstall?: boolean }) {
   const { use, templateName, projectName, skipInstall } = options;
   const dest = resolve(projectName);
   const template = fileURLToPath(new URL(`./templates/${templateName}.tgz`, import.meta.url));

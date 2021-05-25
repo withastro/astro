@@ -82,7 +82,7 @@ const App: FC<{ context: Context }> = ({ context }) => {
         skipInstall: state.skipInstall,
       }).then(() => {
         if (isSubscribed) {
-          setState(v => {
+          setState((v) => {
             const newState = { ...v, ready: true };
             step.current = getStep(newState);
             return newState;
