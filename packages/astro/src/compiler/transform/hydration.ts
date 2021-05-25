@@ -52,8 +52,8 @@ export default function (): Transformer {
             start: 0,
             end: 0,
             type: 'Text',
-            data: '[data-astro-root],\n[data-astro-children] {\n  display: contents;\n}',
-            raw: '[data-astro-root],\n[data-astro-children] {\n  display: contents;\n}'
+            data: 'astro-root, astro-fragment { display: contents; }',
+            raw: 'astro-root, astro-fragment { display: contents; }'
           }
         ]
       };
