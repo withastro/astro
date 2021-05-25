@@ -16,7 +16,7 @@ module.exports = function (snowpackConfig, { resolvePackageUrl, renderers, astro
       * In a world where Snowpack supports virtual files, this won't be necessary and
       * should be refactored to a virtual file that is imported by the runtime.
       *
-      * Take a look at `/src/frontend/render-component.ts`. It relies on both
+      * Take a look at `/src/frontend/__astro_component.ts`. It relies on both
       * `__rendererSources` and `__renderers` being defined, so we're creating those here.
       *
       * The output of this is the following (or something very close to it):
@@ -32,7 +32,7 @@ module.exports = function (snowpackConfig, { resolvePackageUrl, renderers, astro
       * ```
       */
     async transform({contents, id, fileExt}) {
-      if (fileExt === '.js' && /render-component\.js/g.test(id)) {
+      if (fileExt === '.js' && /__astro_component\.js/g.test(id)) {
         const rendererServerPackages = await Promise.all(renderers.map(r => resolvePackageUrl(`${r}`)));
         const rendererClientPackages = await Promise.all(renderers.map(r => resolvePackageUrl(`${r}/client`)));
         const result = `${rendererServerPackages.map((pkg, i) => `import * as __renderer_${i} from '${pkg}';`).join('\n')}

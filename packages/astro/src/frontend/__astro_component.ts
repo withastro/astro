@@ -1,5 +1,11 @@
 import hash from 'shorthash';
+import { valueToEstree, Value } from 'estree-util-value-to-estree';
+import { generate } from 'astring';
 import astro from './renderer-astro';
+
+// A more robust version alternative to `JSON.stringify` that can handle most values
+// see https://github.com/remcohaszing/estree-util-value-to-estree#readme
+const serialize = (value: Value) => generate(valueToEstree(value));
 
 /** 
   * These values are dynamically injected by Snowpack.
@@ -42,33 +48,18 @@ interface AstroComponentProps {
   componentExport?: { value: string, namespace?: boolean };
 }
 
-const load = ['(async () => {', '})()'];
-const idle = ['requestIdleCallback(async () => {', '})'];
-const visible = [
-  'const o = new IntersectionObserver(async ([entry]) => { if (!entry.isIntersecting) { return; } o.disconnect();',
-  ({ roots }: { roots: string }) => `}); for (const root of ${roots}) { Array.from(root.children).forEach(child => o.observe(child)) }`
-]
-const hydrateMethods = { load, idle, visible };
 
 /** For hydrated components, generate a <script type="module"> to load the component */
 async function generateHydrateScript({ renderer, astroId, props }: any, { hydrate, componentUrl, componentExport }: Required<AstroComponentProps>) {
   const rendererSource = __rendererSources[__renderers.findIndex(r => r.name === renderer.name)];
-  let [wrapperStart, wrapperEnd] = hydrateMethods[hydrate];
-  let start = typeof wrapperStart === 'string' ? wrapperStart : wrapperStart({ roots: 'roots' });
-  let end = typeof wrapperEnd === 'string' ? wrapperEnd : wrapperEnd({ roots: 'roots' });
+  const method = `on${hydrate[0].toUpperCase()}${hydrate.slice(1)}`;
 
-  const script = `<script type="module" data-astro-hydrate="${astroId}">
-const roots = document.querySelectorAll("[data-astro-root="${astroId}"]");
-let innerHTML = null;
-let children = roots[0].querySelector("[data-astro-children]");
-if (children) innerHTML = children.innerHTML;
-
-${start}
+  const script = `<script type="module">
+import { ${method} } from '/_astro_internal/hydrate.js';
+${method}("${astroId}", async () => {
   const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${rendererSource}")]);
-  for (const root of roots) {
-    hydrate(root)(Component, ${props}, innerHTML);
-  }
-${end}
+  return (el, children) => hydrate(el)(Component, ${serialize(props)}, children);
+});
 </script>`;
 
   return script;
@@ -100,8 +91,8 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
       
       // If we ARE hydrating this component, let's generate the hydration script
       const astroId = hash.unique(html);
-      const element = `<div data-astro-root="${astroId}">${html}</div>`;
-      const script = await generateHydrateScript({ renderer, astroId, props: JSON.stringify(props) }, componentProps as Required<AstroComponentProps>)
-      return [element, script].join('\n');
+      const script = await generateHydrateScript({ renderer, astroId, props }, componentProps as Required<AstroComponentProps>)
+      const astroRoot = `<astro-root uid="${astroId}">${html}</astro-root>`;
+      return [astroRoot, script].join('\n');
   }
 }

@@ -163,7 +163,7 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
   const importInfo = kind ? { componentUrl: getComponentUrl(), componentExport: getComponentExport() } : {};
   return {
     wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: kind, displayName: name, ...importInfo })})`,
-    wrapperImport: `import {__astro_component} from '${internalImport('render-component.js')}';`,
+    wrapperImport: `import {__astro_component} from '${internalImport('__astro_component.js')}';`,
   }
 }
 
