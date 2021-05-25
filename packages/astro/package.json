@@ -30,7 +30,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "unit-test": "uvu test -i fixtures -i test-utils.js",
     "benchmark": "node test/benchmark/dev.test.js",
-    "test": "npm run unit-test && npm run benchmark"
+    "test": "npm run unit-test"
   },
   "dependencies": {
     "@babel/code-frame": "^7.12.13",
