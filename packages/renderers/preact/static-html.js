@@ -1,4 +1,5 @@
 import { h } from 'preact';
+import { useRef, useEffect } from 'preact/hooks';
 
 /**
  * Astro passes `children` as a string of HTML, so we need
@@ -7,7 +8,10 @@ import { h } from 'preact';
  * As a bonus, we can signal to Preact that this subtree is
  * entirely static and will never change via `shouldComponentUpdate`.
  */
-const StaticHtml = ({ value }) => value ? h('div', { 'data-astro-children': '', dangerouslySetInnerHTML: { __html: value }}) : null;
+const StaticHtml = ({ value }) => {
+  if (!value) return null;
+  return h('astro-fragment', { dangerouslySetInnerHTML: { __html: value }});
+}
 
 /**
   * This tells Preact to opt-out of re-rendering this subtree,

@@ -1,4 +1,4 @@
-import { h } from 'vue';
+import { h, defineComponent } from 'vue';
 
 /**
  * Astro passes `children` as a string of HTML, so we need
@@ -6,7 +6,15 @@ import { h } from 'vue';
  *
  * This is the Vue + JSX equivalent of using `<div v-html="value" />`
  */
-const StaticHtml = ({ value }) => value ? h('div', { 'data-astro-children': '', innerHTML: value }) : null;
+const StaticHtml = defineComponent({
+  props: {
+    value: String
+  },
+  setup({ value }) {
+    if (!value) return () => null;
+    return () => h('astro-fragment', { innerHTML: value })
+  }
+})
 
 /** 
   * Other frameworks have `shouldComponentUpdate` in order to signal

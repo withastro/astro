@@ -1,4 +1,4 @@
-import { createElement } from 'react';
+import { createElement as h } from 'react';
 
 /**
  * Astro passes `children` as a string of HTML, so we need
@@ -7,7 +7,10 @@ import { createElement } from 'react';
  * As a bonus, we can signal to React that this subtree is
  * entirely static and will never change via `shouldComponentUpdate`.
  */
-const StaticHtml = ({ value }) => value ? createElement('div', { 'data-astro-children': '', dangerouslySetInnerHTML: { __html: value }}) : null;
+const StaticHtml = ({ value }) => {
+  if (!value) return null;
+  return h('astro-fragment', { dangerouslySetInnerHTML: { __html: value }});
+}
 
 /**
   * This tells React to opt-out of re-rendering this subtree,
