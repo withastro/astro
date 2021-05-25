@@ -87,7 +87,10 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
       const children = _children.join('\n');
       const { html } = await renderer.renderToStaticMarkup(Component, props, children);
       // If we're NOT hydrating this component, just return the HTML
-      if (!componentProps.hydrate) return html;
+      if (!componentProps.hydrate) {
+        // It's safe to remove <astro-fragment>, static content doesn't need the wrapper
+        return html.replace(/\<\/?astro-fragment\>/g, '');
+      };
       
       // If we ARE hydrating this component, let's generate the hydration script
       const astroId = hash.unique(html);
