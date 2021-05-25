@@ -4,6 +4,12 @@ import { runDevServer, setup } from '../helpers.js';
 
 const shouldSave = process.argv.includes('--save');
 
+async function rimraf(file) {
+  if(existsSync(file)) {
+    await fsPromises.rm(file, { recursive: true });
+  }
+}
+
 async function runToStarted(root) {
   const args = [];
   const process = runDevServer(root, args);
@@ -92,7 +98,7 @@ const benchmarks = [
     file: new URL('./dev-server-uncached.json', import.meta.url),
     async setup() {
       const spcache = new URL('../../node_modules/.cache/', import.meta.url);
-      await fsPromises.rm(spcache, { recursive: true });
+      await rimraf(spcache);
     }
   }),
   new Benchmark({
