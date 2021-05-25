@@ -35,7 +35,7 @@ module.exports = function (snowpackConfig, { resolvePackageUrl, renderers, astro
       if (fileExt === '.js' && /__astro_component\.js/g.test(id)) {
         const rendererServerPackages = await Promise.all(renderers.map(({ server }) => resolvePackageUrl(server)));
         const rendererClientPackages = await Promise.all(renderers.map(({ client }) => resolvePackageUrl(client)));
-        const result = `${rendererServerPackages.map((pkg, i) => `import * as __renderer_${i} from "${pkg}";`).join('\n')}
+        const result = `${rendererServerPackages.map((pkg, i) => `import __renderer_${i} from "${pkg}";`).join('\n')}
 let __rendererSources = [${rendererClientPackages.map(pkg => `"${pkg}"`).join(', ')}];
 let __renderers = [${rendererServerPackages.map((_, i) => `__renderer_${i}`).join(', ')}];
 ${contents}`;

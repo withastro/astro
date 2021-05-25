@@ -51,7 +51,7 @@ interface AstroComponentProps {
 
 /** For hydrated components, generate a <script type="module"> to load the component */
 async function generateHydrateScript({ renderer, astroId, props }: any, { hydrate, componentUrl, componentExport }: Required<AstroComponentProps>) {
-  const rendererSource = __rendererSources[__renderers.findIndex(r => r.name === renderer.name)];
+  const rendererSource = __rendererSources[__renderers.findIndex(r => r === renderer)];
   const method = `on${hydrate[0].toUpperCase()}${hydrate.slice(1)}`;
 
   const script = `<script type="module">

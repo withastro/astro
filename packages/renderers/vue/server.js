@@ -12,4 +12,7 @@ async function renderToStaticMarkup(Component, props, children) {
   return { html };
 }
 
-export default { check, renderToStaticMarkup }
+export default {
+  check,
+  renderToStaticMarkup
+}
