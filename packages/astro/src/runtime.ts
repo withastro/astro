@@ -13,6 +13,7 @@ import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpa
 import { canonicalURL, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';
 import { searchForPage } from './search.js';
+import { optimizeHtml } from './optimize/index.js';
 
 interface RuntimeConfig {
   astroConfig: AstroConfig;
@@ -215,14 +216,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       props: { collection },
     })) as string;
 
-    // inject styles
-    // TODO: handle this in compiler
-    const styleTags = Array.isArray(mod.css) && mod.css.length ? mod.css.reduce((markup, href) => `${markup}\n<link rel="stylesheet" type="text/css" href="${href}" />`, '') : ``;
-    if (html.indexOf('</head>') !== -1) {
-      html = html.replace('</head>', `${styleTags}</head>`);
-    } else {
-      html = styleTags + html;
-    }
+    html = await optimizeHtml(html, { css: mod.css });
 
     return {
       statusCode: 200,
