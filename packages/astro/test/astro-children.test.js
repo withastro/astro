@@ -49,17 +49,17 @@ ComponentChildren('Passes multiple children to framework components', async ({ r
 
   const $ = doc(result.contents);
 
-  const $preact = $('#preact').children();
+  const $preact = $('#preact');
   assert.equal($preact.children().length, 2, 'Can pass multiple children to Preact components');
   assert.equal($preact.children(':first-child').text().trim(), 'Hello world');
   assert.equal($preact.children(':last-child').text().trim(), 'Goodbye world');
 
-  const $vue = $('#vue').children();
+  const $vue = $('#vue');
   assert.equal($vue.children().length, 2, 'Can pass multiple children to Vue components');
   assert.equal($vue.children(':first-child').text().trim(), 'Hello world');
   assert.equal($vue.children(':last-child').text().trim(), 'Goodbye world');
 
-  const $svelte = $('#svelte').children();
+  const $svelte = $('#svelte');
   assert.equal($svelte.children().length, 2, 'Can pass multiple children to Svelte components');
   assert.equal($svelte.children(':first-child').text().trim(), 'Hello world');
   assert.equal($svelte.children(':last-child').text().trim(), 'Goodbye world');
