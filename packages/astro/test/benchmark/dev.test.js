@@ -92,7 +92,7 @@ const benchmarks = [
     file: new URL('./dev-server-uncached.json', import.meta.url),
     async setup() {
       const spcache = new URL('../../node_modules/.cache/', import.meta.url);
-      await fsPromises.rmdir(spcache, { recursive: true });
+      await fsPromises.rm(spcache, { recursive: true });
     }
   }),
   new Benchmark({
