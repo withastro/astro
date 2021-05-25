@@ -2,6 +2,8 @@ import { promises as fsPromises, existsSync } from 'fs';
 import { performance } from 'perf_hooks';
 import { runDevServer, setup } from '../helpers.js';
 
+const MUST_BE_AT_LEAST_PERC_OF = 90;
+
 const shouldSave = process.argv.includes('--save');
 
 async function rimraf(file) {
@@ -50,7 +52,7 @@ class Benchmark {
     if(existsSync(file)) {
       const raw = await fsPromises.readFile(file, 'utf-8');
       const data = JSON.parse(raw);
-      if(time < data.time + 500) {
+      if(Math.floor(data.time / time * 100) > MUST_BE_AT_LEAST_PERC_OF) {
         this.withinPreviousRuns = true;
       } else {
         this.withinPreviousRuns = false;
