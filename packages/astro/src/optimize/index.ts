@@ -2,6 +2,7 @@ import unified from 'unified';
 import rehypeParse from 'rehype-parse';
 import rehypeStringify from 'rehype-stringify';
 import injectStyles from './inject-styles';
+import moveScripts from './move-scripts';
 
 export interface OptimizeHtmlOptions {
   css: string[]
@@ -20,6 +21,7 @@ export async function optimizeHtml(content: string, { css }: OptimizeHtmlOptions
   return unified()
       .use(rehypeParse)
       .use(injectStyles, { css })
+      .use(moveScripts)
       .use(rehypeStringify)
       .process(content)
       .then(({ contents }) => contents.toString());
