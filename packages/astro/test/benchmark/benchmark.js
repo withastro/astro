@@ -13,6 +13,7 @@ async function runToStarted(root) {
   let started = null;
   process.stdout.setEncoding('utf8');
   for await (const chunk of process.stdout) {
+    console.log("CHUNK", chunk)
     if (/Server started/.test(chunk)) {
       started = performance.now();
       break;
