@@ -4,7 +4,7 @@ import StaticHtml from './static-html';
 
 export default () => {
   return {
-    name: '@astro/renderer-react',
+    name: '@astro-renderer/react',
     check: (Component, props) => {
       try {
         return Boolean(renderToStaticMarkup(createElement(Component, props)));
