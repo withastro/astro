@@ -1,5 +1,4 @@
 import { h } from 'preact';
-import { useRef, useEffect } from 'preact/hooks';
 
 /**
  * Astro passes `children` as a string of HTML, so we need
