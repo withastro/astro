@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "vue": "^3.0.10",
-    "@vue/server-renderer": "^3.0.10"
+    "@vue/server-renderer": "^3.0.10",
+    "@snowpack/plugin-vue": "^2.5.0"
   }
 }

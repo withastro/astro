@@ -42,8 +42,6 @@
     "@silvenon/remark-smartypants": "^1.0.0",
     "@snowpack/plugin-postcss": "^1.4.0",
     "@snowpack/plugin-sass": "^1.4.0",
-    "@snowpack/plugin-svelte": "^3.7.0",
-    "@snowpack/plugin-vue": "^2.5.0",
     "acorn": "^7.4.0",
     "astring": "^1.7.4",
     "astro-parser": "0.11.0",

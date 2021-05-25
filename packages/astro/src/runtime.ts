@@ -309,6 +309,19 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 
   // Make sure that Snowpack builds our renderer plugins
   const knownEntrypoints = [].concat(...renderers.map(renderer => [`${renderer}`, `${renderer}/client`]) as any) as string[];
+  const rendererSnowpackPlugins = (await Promise.all(renderers.map(renderer => import(renderer)
+    .then(({ default: rendererInstance }) => {
+      const { snowpackPlugin, snowpackPluginOptions } = rendererInstance;
+      if (typeof snowpackPlugin === 'string') {
+        if (snowpackPluginOptions != null) {
+          return [require.resolve(snowpackPlugin), snowpackPluginOptions]
+        }
+        return require.resolve(snowpackPlugin);
+      } else if (snowpackPlugin) {
+        throw new Error(`Expected the snowpackPlugin from ${renderer} to be a "string" but encountered "${typeof snowpackPlugin}"!`);
+      }
+    })
+  ))).filter(plugin => plugin) as (string|[string, any]);
 
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
@@ -316,8 +329,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     mode,
     plugins: [
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
-      [require.resolve('@snowpack/plugin-svelte'), { compilerOptions: { hydratable: true } }],
-      require.resolve('@snowpack/plugin-vue'),
+      ...rendererSnowpackPlugins,
       require.resolve('@snowpack/plugin-sass'),
       [
         require.resolve('@snowpack/plugin-postcss'),

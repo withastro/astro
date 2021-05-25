@@ -8,6 +8,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "svelte": "^3.35.0"
+    "svelte": "^3.35.0",
+    "@snowpack/plugin-svelte": "^3.7.0"
   }
 }
