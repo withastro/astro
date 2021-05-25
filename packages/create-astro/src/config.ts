@@ -1,4 +1,5 @@
 import type * as arg from 'arg';
+import decamelize from 'decamelize';
 
 export interface ARG {
   type: any;
@@ -17,9 +18,9 @@ export const ARGS: Record<string, ARG> = {
     enum: ['npm', 'yarn'],
     description: 'specifies package manager to use',
   },
-  run: {
+  skipInstall: {
     type: Boolean,
-    description: 'should dependencies be installed automatically?',
+    description: 'should installing dependencies be skipped?',
   },
   force: {
     type: Boolean,
@@ -39,7 +40,7 @@ export const ARGS: Record<string, ARG> = {
 };
 
 export const args = Object.entries(ARGS).reduce((acc, [name, info]) => {
-  const key = `--${name}`;
+  const key = `--${decamelize(name, { separator: '-' })}`;
   const spec = { ...acc, [key]: info.type };
 
   if (info.alias) {

@@ -61,16 +61,14 @@ export async function rewriteFiles(projectName: string) {
   return Promise.all(tasks);
 }
 
-export async function prepareTemplate(use: 'npm' | 'yarn', name: string, dest: string) {
-  const projectName = dest;
-  dest = resolve(dest);
-  const template = fileURLToPath(new URL(`./templates/${name}.tgz`, import.meta.url));
+export async function prepareTemplate(options: { use: 'npm' | 'yarn'; templateName: string; projectName: string; skipInstall?: boolean }) {
+  const { use, templateName, projectName, skipInstall } = options;
+  const dest = resolve(projectName);
+  const template = fileURLToPath(new URL(`./templates/${templateName}.tgz`, import.meta.url));
   await decompress(template, dest);
   await rewriteFiles(projectName);
-  try {
-    await run(use, use === 'npm' ? 'i' : null, dest);
-  } catch (e) {
-    cleanup(true);
+  if (!skipInstall) {
+    await run(use, use === 'npm' ? 'i' : null, dest).catch(() => cleanup(true));
   }
   isDone = true;
   return;

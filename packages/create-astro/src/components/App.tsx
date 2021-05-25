@@ -9,7 +9,7 @@ import Finalize from './Finalize';
 
 interface Context {
   use: 'npm' | 'yarn';
-  run: boolean;
+  skipInstall?: boolean;
   projectExists?: boolean;
   force?: boolean;
   projectName?: string;
@@ -18,7 +18,7 @@ interface Context {
   ready?: boolean;
 }
 
-const getStep = ({ projectName, projectExists: exists, template, force, ready }: Context) => {
+const getStep = ({ projectName, projectExists: exists, template, force, ready, skipInstall }: Context) => {
   switch (true) {
     case !projectName:
       return {
@@ -35,15 +35,20 @@ const getStep = ({ projectName, projectExists: exists, template, force, ready }:
         key: 'template',
         Component: Template,
       };
-    case !ready:
+    case !ready && !skipInstall:
       return {
         key: 'install',
         Component: Install,
       };
-    default:
+    case ready:
       return {
         key: 'final',
         Component: Finalize,
+      };
+    default:
+      return {
+        key: 'empty',
+        Component: () => <></>,
       };
   }
 };
@@ -70,7 +75,12 @@ const App: FC<{ context: Context }> = ({ context }) => {
 
     if (state.projectName && (state.projectExists === false || state.force) && state.template) {
       if (state.force) emptyDir(state.projectName);
-      prepareTemplate(context.use, state.template, state.projectName).then(() => {
+      prepareTemplate({
+        use: context.use,
+        templateName: state.template,
+        projectName: state.projectName,
+        skipInstall: state.skipInstall,
+      }).then(() => {
         if (isSubscribed) {
           setState((v) => {
             const newState = { ...v, ready: true };
