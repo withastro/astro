@@ -1,7 +1,7 @@
 import hash from 'shorthash';
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import { generate } from 'astring';
-import astro from './renderer-astro';
+import * as astro from './renderer-astro';
 
 // A more robust version alternative to `JSON.stringify` that can handle most values
 // see https://github.com/remcohaszing/estree-util-value-to-estree#readme
@@ -22,7 +22,7 @@ declare let __rendererSources: string[];
 declare let __renderers: any[];
 
 __rendererSources = ['', ...__rendererSources];
-__renderers = [{ default: astro }, ...__renderers].map(renderer => typeof renderer.default === 'function' ? renderer.default() : renderer.default);
+__renderers = [astro, ...__renderers];
 
 const rendererCache = new WeakMap();
 

@@ -1,6 +1,6 @@
 import SvelteWrapper from './Wrapper.svelte';
 
-export default function hydrateStaticMarkup(target) {
+function hydrateStaticMarkup(target) {
   return (component, props, children) => {
     new SvelteWrapper({
       target,
@@ -9,3 +9,5 @@ export default function hydrateStaticMarkup(target) {
     }); 
   }
 }
+
+export default { hydrateStaticMarkup }

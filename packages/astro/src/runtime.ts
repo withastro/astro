@@ -6,6 +6,7 @@ import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Pa
 
 import { existsSync } from 'fs';
 import { fileURLToPath, pathToFileURL } from 'url';
+import { posix as path } from 'path';
 import { performance } from 'perf_hooks';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
 import { canonicalURL, stopTimer } from './build/util.js';
@@ -283,13 +284,12 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const internalPath = new URL('./frontend/', import.meta.url);
 
   let snowpack: SnowpackDevServer;
-  const astroPlugOptions: {
+  let astroPluginOptions: {
     resolvePackageUrl?: (s: string) => Promise<string>;
-    renderers: string[];
+    renderers?: { name: string, client: string, server: string }[];
     astroConfig: AstroConfig;
   } = {
     astroConfig,
-    renderers,
     resolvePackageUrl,
   };
 
@@ -307,28 +307,48 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
-  // Make sure that Snowpack builds our renderer plugins
-  const knownEntrypoints = [].concat(...renderers.map(renderer => [`${renderer}`, `${renderer}/client`]) as any) as string[];
-  const rendererSnowpackPlugins = (await Promise.all(renderers.map(renderer => import(pathToFileURL(require.resolve(renderer)).toString())
-    .then(({ default: rendererInstance }) => {
-      const { snowpackPlugin, snowpackPluginOptions } = rendererInstance;
-      if (typeof snowpackPlugin === 'string') {
+  const rendererInstances = (await Promise.all(renderers.map(renderer => import(pathToFileURL(require.resolve(renderer)).toString()))))
+    .map(({ default: raw }, i) => {
+      const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
+
+      if (typeof client !== 'string') {
+        throw new Error(`Expected "client" from ${name} to be a relative path to the client-side renderer!`);
+      }
+
+      if (typeof server !== 'string') {
+        throw new Error(`Expected "server" from ${name} to be a relative path to the server-side renderer!`);
+      }
+      
+      let snowpackPlugin: string|[string, any]|undefined;
+      if (typeof snowpackPluginName === 'string') {
         if (snowpackPluginOptions != null) {
-          return [require.resolve(snowpackPlugin), snowpackPluginOptions]
+          snowpackPlugin = [require.resolve(snowpackPluginName), snowpackPluginOptions]
         }
-        return require.resolve(snowpackPlugin);
-      } else if (snowpackPlugin) {
-        throw new Error(`Expected the snowpackPlugin from ${renderer} to be a "string" but encountered "${typeof snowpackPlugin}"!`);
+        snowpackPlugin = require.resolve(snowpackPluginName);
+      } else if (snowpackPluginName) {
+        throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
+      }
+
+      return {
+        name,
+        snowpackPlugin,
+        client: path.join(name, raw.client),
+        server: path.join(name, raw.server),
       }
     })
-  ))).filter(plugin => plugin) as (string|[string, any]);
+  
+  astroPluginOptions.renderers = rendererInstances;
+
+  // Make sure that Snowpack builds our renderer plugins
+  const knownEntrypoints = [].concat(...rendererInstances.map(renderer => [renderer.server, renderer.client]) as any) as string[];
+  const rendererSnowpackPlugins = rendererInstances.filter(renderer => renderer.snowpackPlugin).map(renderer => renderer.snowpackPlugin) as string|[string, any];
 
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
     mount: mountOptions,
     mode,
     plugins: [
-      [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
+      [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPluginOptions],
       ...rendererSnowpackPlugins,
       require.resolve('@snowpack/plugin-sass'),
       [
