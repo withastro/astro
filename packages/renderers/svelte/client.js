@@ -1,13 +1,13 @@
 import SvelteWrapper from './Wrapper.svelte';
 
-function hydrateStaticMarkup(target) {
+export default (target) => {
   return (component, props, children) => {
-    new SvelteWrapper({
-      target,
-      props: { __astro_component: component, __astro_children: children, ...props },
-      hydrate: true,
-    }); 
+    try {
+      new SvelteWrapper({
+        target,
+        props: { __astro_component: component, __astro_children: children, ...props },
+        hydrate: true,
+      }); 
+    } catch (e) {}
   }
 }
-
-export default { hydrateStaticMarkup }

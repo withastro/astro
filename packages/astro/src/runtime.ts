@@ -321,10 +321,11 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       
       let snowpackPlugin: string|[string, any]|undefined;
       if (typeof snowpackPluginName === 'string') {
-        if (snowpackPluginOptions != null) {
+        if (snowpackPluginOptions) {
           snowpackPlugin = [require.resolve(snowpackPluginName), snowpackPluginOptions]
+        } else {
+          snowpackPlugin = require.resolve(snowpackPluginName);
         }
-        snowpackPlugin = require.resolve(snowpackPluginName);
       } else if (snowpackPluginName) {
         throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
       }
