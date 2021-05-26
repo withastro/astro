@@ -13,17 +13,17 @@ DynamicComponents('Loads client-only packages', async ({ runtime }) => {
 
   // Grab the react-dom import
   const exp = /import\("(.+?)"\)/g;
-  let match, reactDomURL;
+  let match, reactRenderer;
   while ((match = exp.exec(result.contents))) {
-    if (match[1].includes('react-dom')) {
-      reactDomURL = match[1];
+    if (match[1].includes('renderers/react/client.js')) {
+      reactRenderer = match[1];
     }
   }
 
-  assert.ok(reactDomURL, 'React dom is on the page');
+  assert.ok(reactRenderer, 'React renderer is on the page');
 
-  result = await runtime.load(reactDomURL);
-  assert.equal(result.statusCode, 200, 'Can load react-dom');
+  result = await runtime.load(reactRenderer);
+  assert.equal(result.statusCode, 200, 'Can load react renderer');
 });
 
 DynamicComponents('Can be built', async ({ build }) => {

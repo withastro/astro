@@ -477,7 +477,7 @@
       ]
     },
     {
-      "begin": "(</?)([A-Z][a-zA-Z0-9-]*)(\\:(load|idle|visible))?",
+      "begin": "(</?)([A-Z][a-zA-Z0-9-\\.]*|[a-z]+\\.[a-zA-Z0-9-]+)(\\:(load|idle|visible))?",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
