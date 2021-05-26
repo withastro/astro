@@ -8,20 +8,20 @@ import { h, defineComponent } from 'vue';
  */
 const StaticHtml = defineComponent({
   props: {
-    value: String
+    value: String,
   },
   setup({ value }) {
     if (!value) return () => null;
-    return () => h('astro-fragment', { innerHTML: value })
-  }
-})
+    return () => h('astro-fragment', { innerHTML: value });
+  },
+});
 
-/** 
-  * Other frameworks have `shouldComponentUpdate` in order to signal
-  * that this subtree is entirely static and will not be updated
-  * 
-  * Fortunately, Vue is smart enough to figure that out without any
-  * help from us, so this just works out of the box!
-  */
+/**
+ * Other frameworks have `shouldComponentUpdate` in order to signal
+ * that this subtree is entirely static and will not be updated
+ *
+ * Fortunately, Vue is smart enough to figure that out without any
+ * help from us, so this just works out of the box!
+ */
 
 export default StaticHtml;

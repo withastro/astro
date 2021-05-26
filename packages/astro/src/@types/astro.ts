@@ -125,9 +125,7 @@ export interface CollectionRSS<T = any> {
   /** Specify custom data in opening of file */
   customData?: string;
   /** Return data about each item */
-  item: (
-    item: T
-  ) => {
+  item: (item: T) => {
     /** (required) Title of item */
     title: string;
     /** (required) Link to item */

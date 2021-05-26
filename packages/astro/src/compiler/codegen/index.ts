@@ -146,7 +146,8 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
   };
   const getComponentExport = () => {
     switch (importSpecifier.type) {
-      case 'ImportDefaultSpecifier': return { value: 'default' };
+      case 'ImportDefaultSpecifier':
+        return { value: 'default' };
       case 'ImportSpecifier': {
         if (importSpecifier.imported.type === 'Identifier') {
           return { value: importSpecifier.imported.name };
@@ -158,13 +159,13 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
         return { value };
       }
     }
-  }
+  };
 
   const importInfo = kind ? { componentUrl: getComponentUrl(), componentExport: getComponentExport() } : {};
   return {
     wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: kind, displayName: name, ...importInfo })})`,
     wrapperImport: `import {__astro_component} from '${internalImport('__astro_component.js')}';`,
-  }
+  };
 }
 
 /** Evaluate expression (safely) */
