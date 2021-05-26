@@ -10,7 +10,7 @@
     "dev:vscode": "lerna run dev --scope astro-languageserver --scope astro-vscode --scope astro-parser --parallel --stream",
     "format": "prettier -w \"**/*.{js,jsx,ts,tsx,md,json}\"",
     "lint": "eslint \"packages/**/*.ts\"",
-    "test": "lerna run test --scope astro --scope create-astro --stream",
+    "test": "lerna run test --scope astro --stream",
     "test:core": "yarn workspace astro run test"
   },
   "workspaces": [
