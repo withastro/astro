@@ -279,6 +279,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const { env, mode, resolvePackageUrl } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
+  const resolveDependency = (dep: string) => resolve.sync(dep, { basedir: fileURLToPath(projectRoot) });
 
   let snowpack: SnowpackDevServer;
   let astroPluginOptions: {
@@ -304,7 +305,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
-  const rendererInstances = (await Promise.all(renderers.map(renderer => import(pathToFileURL(resolve.sync(renderer)).toString()))))
+  const rendererInstances = (await Promise.all(renderers.map(renderer => import(pathToFileURL(resolveDependency(renderer)).toString()))))
     .map(({ default: raw }, i) => {
       const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
 
@@ -319,9 +320,9 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       let snowpackPlugin: string|[string, any]|undefined;
       if (typeof snowpackPluginName === 'string') {
         if (snowpackPluginOptions) {
-          snowpackPlugin = [resolve.sync(snowpackPluginName), snowpackPluginOptions]
+          snowpackPlugin = [resolveDependency(snowpackPluginName), snowpackPluginOptions]
         } else {
-          snowpackPlugin = resolve.sync(snowpackPluginName);
+          snowpackPlugin = resolveDependency(snowpackPluginName);
         }
       } else if (snowpackPluginName) {
         throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
@@ -348,14 +349,14 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     plugins: [
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPluginOptions],
       ...rendererSnowpackPlugins,
-      resolve.sync('@snowpack/plugin-sass'),
+      resolveDependency('@snowpack/plugin-sass'),
       [
-        resolve.sync('@snowpack/plugin-postcss'),
+        resolveDependency('@snowpack/plugin-postcss'),
         {
           config: {
             plugins: {
-              [resolve.sync('autoprefixer')]: {},
-              ...(astroConfig.devOptions.tailwindConfig ? { [resolve.sync('tailwindcss')]: {} } : {}),
+              [resolveDependency('autoprefixer')]: {},
+              ...(astroConfig.devOptions.tailwindConfig ? { [resolveDependency('autoprefixer')]: {} } : {}),
             },
           },
         },
