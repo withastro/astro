@@ -3,7 +3,7 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import EditOnGithub from './EditOnGithub';
 
-const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string; }> = ({ headers, editHref }) => {
+const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string; }> = ({ headers = [], editHref }) => {
   const itemOffsets = useRef([]);
   const [activeId, setActiveId] = useState<string>(undefined);
 
