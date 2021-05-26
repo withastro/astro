@@ -33,10 +33,10 @@ export default {
   },
   /** default array of rendering packages inserted into runtime */
   renderers: [
-    '@astro-renderer/vue',
-    '@astro-renderer/svelte',
+    '@astro-renderer/preact',
     '@astro-renderer/react',
-    '@astro-renderer/preact'
-  ];
+    '@astro-renderer/svelte',
+    '@astro-renderer/vue',
+  ],
 };
 ```
