@@ -33,7 +33,7 @@ const benchmarks = [
     },
     run({ root }) {
       return runToStarted(root);
-    }
+    },
   }),
   new Benchmark({
     name: 'Snowpack Example Dev Server Cached',
@@ -45,17 +45,17 @@ const benchmarks = [
     },
     run({ root }) {
       return runToStarted(root);
-    }
-  })
+    },
+  }),
 ];
 
 async function run() {
-  for(const b of benchmarks) {
+  for (const b of benchmarks) {
     await b.test();
   }
 }
 
-run().catch(err => {
+run().catch((err) => {
   console.error(err);
   process.exit(1);
 });
