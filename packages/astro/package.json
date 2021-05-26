@@ -79,6 +79,7 @@
     "remark-gfm": "^1.0.0",
     "remark-parse": "^9.0.0",
     "remark-rehype": "^8.1.0",
+    "resolve": "^1.20.0",
     "rollup": "^2.43.1",
     "rollup-plugin-terser": "^7.0.2",
     "sass": "^1.32.13",

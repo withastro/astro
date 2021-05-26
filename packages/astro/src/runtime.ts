@@ -4,6 +4,7 @@ import type { CompileError } from 'astro-parser';
 import type { LogOptions } from './logger';
 import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
 
+import resolve from 'resolve';
 import { existsSync } from 'fs';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { posix as path } from 'path';
@@ -12,10 +13,6 @@ import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpa
 import { canonicalURL, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';
 import { searchForPage } from './search.js';
-
-// We need to use require.resolve for snowpack plugins, so create a require function here.
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 
 interface RuntimeConfig {
   astroConfig: AstroConfig;
@@ -307,7 +304,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
-  const rendererInstances = (await Promise.all(renderers.map(renderer => import(pathToFileURL(require.resolve(renderer)).toString()))))
+  const rendererInstances = (await Promise.all(renderers.map(renderer => import(pathToFileURL(resolve.sync(renderer)).toString()))))
     .map(({ default: raw }, i) => {
       const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
 
@@ -322,9 +319,9 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       let snowpackPlugin: string|[string, any]|undefined;
       if (typeof snowpackPluginName === 'string') {
         if (snowpackPluginOptions) {
-          snowpackPlugin = [require.resolve(snowpackPluginName), snowpackPluginOptions]
+          snowpackPlugin = [resolve.sync(snowpackPluginName), snowpackPluginOptions]
         } else {
-          snowpackPlugin = require.resolve(snowpackPluginName);
+          snowpackPlugin = resolve.sync(snowpackPluginName);
         }
       } else if (snowpackPluginName) {
         throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
@@ -351,14 +348,14 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     plugins: [
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPluginOptions],
       ...rendererSnowpackPlugins,
-      require.resolve('@snowpack/plugin-sass'),
+      resolve.sync('@snowpack/plugin-sass'),
       [
-        require.resolve('@snowpack/plugin-postcss'),
+        resolve.sync('@snowpack/plugin-postcss'),
         {
           config: {
             plugins: {
-              [require.resolve('autoprefixer')]: {},
-              ...(astroConfig.devOptions.tailwindConfig ? { [require.resolve('tailwindcss')]: {} } : {}),
+              [resolve.sync('autoprefixer')]: {},
+              ...(astroConfig.devOptions.tailwindConfig ? { [resolve.sync('tailwindcss')]: {} } : {}),
             },
           },
         },
