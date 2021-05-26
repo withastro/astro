@@ -216,7 +216,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       props: { collection },
     })) as string;
 
-    html = await optimizeHtml(html, { css: mod.css });
+    html = await optimizeHtml(html, { css: mod.css, hmrEngine: frontendSnowpack.hmrEngine });
 
     return {
       statusCode: 200,
@@ -257,20 +257,16 @@ interface RuntimeOptions {
 interface CreateSnowpackOptions {
   env: Record<string, any>;
   mode: RuntimeMode;
+  target: 'frontend' | 'backend';
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
 }
 
-const defaultRenderers = [
-  '@astro-renderer/vue',
-  '@astro-renderer/svelte',
-  '@astro-renderer/react',
-  '@astro-renderer/preact'
-];
+const defaultRenderers = ['@astro-renderer/vue', '@astro-renderer/svelte', '@astro-renderer/react', '@astro-renderer/preact'];
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
   const { projectRoot, astroRoot, renderers = defaultRenderers } = astroConfig;
-  const { env, mode, resolvePackageUrl } = options;
+  const { env, mode, resolvePackageUrl, target } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
   const resolveDependency = (dep: string) => resolve.sync(dep, { basedir: fileURLToPath(projectRoot) });
@@ -278,7 +274,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   let snowpack: SnowpackDevServer;
   let astroPluginOptions: {
     resolvePackageUrl?: (s: string) => Promise<string>;
-    renderers?: { name: string, client: string, server: string }[];
+    renderers?: { name: string; client: string; server: string }[];
     astroConfig: AstroConfig;
   } = {
     astroConfig,
@@ -299,42 +295,41 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
-  const rendererInstances = (await Promise.all(renderers.map(renderer => import(pathToFileURL(resolveDependency(renderer)).toString()))))
-    .map(({ default: raw }, i) => {
-      const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
+  const rendererInstances = (await Promise.all(renderers.map((renderer) => import(pathToFileURL(resolveDependency(renderer)).toString())))).map(({ default: raw }, i) => {
+    const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
 
-      if (typeof client !== 'string') {
-        throw new Error(`Expected "client" from ${name} to be a relative path to the client-side renderer!`);
-      }
+    if (typeof client !== 'string') {
+      throw new Error(`Expected "client" from ${name} to be a relative path to the client-side renderer!`);
+    }
 
-      if (typeof server !== 'string') {
-        throw new Error(`Expected "server" from ${name} to be a relative path to the server-side renderer!`);
-      }
-      
-      let snowpackPlugin: string|[string, any]|undefined;
-      if (typeof snowpackPluginName === 'string') {
-        if (snowpackPluginOptions) {
-          snowpackPlugin = [resolveDependency(snowpackPluginName), snowpackPluginOptions]
-        } else {
-          snowpackPlugin = resolveDependency(snowpackPluginName);
-        }
-      } else if (snowpackPluginName) {
-        throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
-      }
+    if (typeof server !== 'string') {
+      throw new Error(`Expected "server" from ${name} to be a relative path to the server-side renderer!`);
+    }
 
-      return {
-        name,
-        snowpackPlugin,
-        client: path.join(name, raw.client),
-        server: path.join(name, raw.server),
+    let snowpackPlugin: string | [string, any] | undefined;
+    if (typeof snowpackPluginName === 'string') {
+      if (snowpackPluginOptions) {
+        snowpackPlugin = [resolveDependency(snowpackPluginName), snowpackPluginOptions];
+      } else {
+        snowpackPlugin = resolveDependency(snowpackPluginName);
       }
-    })
-  
+    } else if (snowpackPluginName) {
+      throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
+    }
+
+    return {
+      name,
+      snowpackPlugin,
+      client: path.join(name, raw.client),
+      server: path.join(name, raw.server),
+    };
+  });
+
   astroPluginOptions.renderers = rendererInstances;
 
   // Make sure that Snowpack builds our renderer plugins
-  const knownEntrypoints = [].concat(...rendererInstances.map(renderer => [renderer.server, renderer.client]) as any) as string[];
-  const rendererSnowpackPlugins = rendererInstances.filter(renderer => renderer.snowpackPlugin).map(renderer => renderer.snowpackPlugin) as string|[string, any];
+  const knownEntrypoints = [].concat(...(rendererInstances.map((renderer) => [renderer.server, renderer.client]) as any)) as string[];
+  const rendererSnowpackPlugins = rendererInstances.filter((renderer) => renderer.snowpackPlugin).map((renderer) => renderer.snowpackPlugin) as string | [string, any];
 
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
@@ -359,6 +354,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     devOptions: {
       open: 'none',
       output: 'stream',
+      hmr: mode === 'development' && target === 'frontend',
       port: 0,
       tailwindConfig: astroConfig.devOptions.tailwindConfig,
     },
@@ -393,6 +389,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     env: {
       astro: true,
     },
+    target: 'backend',
     mode,
     resolvePackageUrl,
   });
@@ -403,6 +400,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     env: {
       astro: false,
     },
+    target: 'frontend',
     mode,
   });
   debug(logging, 'core', `frontend snowpack created [${stopTimer(timer.frontend)}]`);
