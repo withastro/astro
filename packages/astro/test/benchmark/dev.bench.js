@@ -1,13 +1,10 @@
 import { Benchmark } from './benchmark.js';
-import { suite } from 'uvu';
 import del from 'del';
-
-const DevServer = suite('Dev Server Benchmark');
 
 const snowpackExampleRoot = new URL('../../../../examples/snowpack/', import.meta.url);
 
-DevServer('Snowpack Example Dev Server Uncached', async () => {
-  const b = new Benchmark({
+const benchmarks = [
+  new Benchmark({
     name: 'Snowpack Example Dev Server Uncached',
     root: snowpackExampleRoot,
     file: new URL('./dev-server-uncached.json', import.meta.url),
@@ -15,12 +12,8 @@ DevServer('Snowpack Example Dev Server Uncached', async () => {
       const spcache = new URL('../../node_modules/.cache/', import.meta.url);
       await del(spcache.pathname);
     }
-  });
-  await b.test();
-});
-
-DevServer('Snowpack Example Dev Server Cached', async () => {
-  const b = new Benchmark({
+  }),
+  new Benchmark({
     name: 'Snowpack Example Dev Server Cached',
     root: snowpackExampleRoot,
     file: new URL('./dev-server-cached.json', import.meta.url),
@@ -28,8 +21,16 @@ DevServer('Snowpack Example Dev Server Cached', async () => {
       // Execute once to make sure Snowpack is cached.
       await this.execute();
     }
-  });
-  await b.test();
-});
+  })
+];
 
-DevServer.run();
+async function run() {
+  for(const b of benchmarks) {
+    await b.test();
+  }
+}
+
+run().catch(err => {
+  console.error(err);
+  process.exit(1);
+});
