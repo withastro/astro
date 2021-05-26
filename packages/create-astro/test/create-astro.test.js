@@ -10,11 +10,10 @@ const CreateAstro = suite('npm init astro');
 
 const cwd = fileURLToPath(new URL('./fixtures/', import.meta.url));
 
-const templates = ['blank', 'starter'];
-
 CreateAstro.before(async () => {
   await del(cwd);
   await fs.promises.mkdir(cwd);
+  await fs.copyFile(new URL('../src/templates/*'), cwd);
 });
 
 for (const template of templates) {
