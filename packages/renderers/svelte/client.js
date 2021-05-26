@@ -7,7 +7,7 @@ export default (target) => {
         target,
         props: { __astro_component: component, __astro_children: children, ...props },
         hydrate: true,
-      }); 
+      });
     } catch (e) {}
-  }
-}
+  };
+};

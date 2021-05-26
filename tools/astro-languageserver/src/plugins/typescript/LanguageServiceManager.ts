@@ -61,9 +61,7 @@ export class LanguageServiceManager {
     return tsService.updateDocument(pathOrDoc);
   }
 
-  async getTypeScriptDoc(
-    document: Document
-  ): Promise<{
+  async getTypeScriptDoc(document: Document): Promise<{
     tsDoc: DocumentSnapshot;
     lang: ts.LanguageService;
   }> {

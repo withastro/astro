@@ -9,16 +9,16 @@ import { h } from 'preact';
  */
 const StaticHtml = ({ value }) => {
   if (!value) return null;
-  return h('astro-fragment', { dangerouslySetInnerHTML: { __html: value }});
-}
+  return h('astro-fragment', { dangerouslySetInnerHTML: { __html: value } });
+};
 
 /**
-  * This tells Preact to opt-out of re-rendering this subtree,
-  * In addition to being a performance optimization,
-  * this also allows other frameworks to attach to `children`.
-  *
-  * See https://preactjs.com/guide/v8/external-dom-mutations
-  */
+ * This tells Preact to opt-out of re-rendering this subtree,
+ * In addition to being a performance optimization,
+ * this also allows other frameworks to attach to `children`.
+ *
+ * See https://preactjs.com/guide/v8/external-dom-mutations
+ */
 StaticHtml.shouldComponentUpdate = () => false;
 
 export default StaticHtml;

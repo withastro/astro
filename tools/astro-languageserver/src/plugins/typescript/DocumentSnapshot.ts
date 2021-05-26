@@ -211,7 +211,7 @@ export class TypeScriptDocumentSnapshot implements DocumentSnapshot {
   }
 
   async getFragment(): Promise<DocumentFragmentSnapshot> {
-    return (this as unknown) as any;
+    return this as unknown as any;
   }
 
   destroyFragment() {

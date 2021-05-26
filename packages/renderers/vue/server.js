@@ -7,12 +7,12 @@ function check(Component) {
 }
 
 async function renderToStaticMarkup(Component, props, children) {
-  const app = createSSRApp({ render: () => h(Component, props, { default: () => h(StaticHtml, { value: children }) })});
+  const app = createSSRApp({ render: () => h(Component, props, { default: () => h(StaticHtml, { value: children }) }) });
   const html = await renderToString(app);
   return { html };
 }
 
 export default {
   check,
-  renderToStaticMarkup
-}
+  renderToStaticMarkup,
+};

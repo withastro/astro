@@ -103,6 +103,6 @@ export async function buildStaticPage({ astroConfig, buildState, filepath, runti
         contentType: 'text/html',
         encoding: 'utf8',
       };
-    })
+    }),
   ]);
 }
