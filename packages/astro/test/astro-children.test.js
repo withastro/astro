@@ -11,7 +11,7 @@ setupBuild(ComponentChildren, './fixtures/astro-children');
 ComponentChildren('Passes string children to framework components', async ({ runtime }) => {
   try {
     let result = await runtime.load('/strings');
-    if (result.error) throw new Error(result.error);
+    if (result.error) throw new Error(result);
 
     const $ = doc(result.contents);
 
@@ -25,6 +25,7 @@ ComponentChildren('Passes string children to framework components', async ({ run
     assert.equal($svelte.text().trim(), 'Hello world', 'Can pass text to Svelte components');
   } catch (e) {
     console.log(e);
+    throw e;
   }
 });
 
