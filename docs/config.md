@@ -31,5 +31,12 @@ export default {
     /** Path to tailwind.config.js if used, e.g. './tailwind.config.js' */
     tailwindConfig: undefined,
   },
+  /** default array of rendering packages inserted into runtime */
+  renderers: [
+    '@astro-renderer/vue',
+    '@astro-renderer/svelte',
+    '@astro-renderer/react',
+    '@astro-renderer/preact'
+  ];
 };
 ```
