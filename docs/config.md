@@ -32,11 +32,6 @@ export default {
     tailwindConfig: undefined,
   },
   /** default array of rendering packages inserted into runtime */
-  renderers: [
-    '@astro-renderer/preact',
-    '@astro-renderer/react',
-    '@astro-renderer/svelte',
-    '@astro-renderer/vue',
-  ],
+  renderers: ['@astro-renderer/preact', '@astro-renderer/react', '@astro-renderer/svelte', '@astro-renderer/vue'],
 };
 ```
