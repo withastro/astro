@@ -248,7 +248,10 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
       if (!text) return;
       const [imports] = eslexer.parse(text);
       for (const spec of imports) {
-        if (spec.n) pageDeps.js.add(spec.n);
+        const importSrc = spec.n;
+        if (importSrc && !isRemote(importSrc)) {
+          pageDeps.js.add(getDistPath(importSrc, { astroConfig, srcPath }));
+        }
       }
     }
   });

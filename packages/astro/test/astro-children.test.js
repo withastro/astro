@@ -10,6 +10,7 @@ setupBuild(ComponentChildren, './fixtures/astro-children');
 
 ComponentChildren('Passes string children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/strings');
+  console.log(JSON.stringify(result, null, 2));
   if (result.error) throw new Error(result);
 
   const $ = doc(result.contents);
