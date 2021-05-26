@@ -38,3 +38,22 @@ Commit and push these changes, then run an npm publish for each of the packages 
 cd packages/astro
 npm publish
 ```
+
+## Running benchmarks
+
+We have benchmarks to keep performance under control. You can run these by running (from the project root):
+
+```shell
+yarn workspace astro run benchmark
+```
+
+Which will fail if the performance has regressed by __10%__ or more.
+
+To update the times cd into the `packages/astro` folder and run the following:
+
+```shell
+node test/benchmark/build.bench.js --save
+node test/benchmark/dev.bench.js --save
+```
+
+Which will update the build and dev benchmarks.
