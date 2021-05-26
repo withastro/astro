@@ -28,7 +28,8 @@
     "build": "astro-scripts build \"src/*.ts\" \"src/compiler/index.ts\" \"src/frontend/**/*.ts\" && tsc",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "test": "uvu test -i fixtures -i test-utils.js"
+    "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
+    "test": "uvu test -i fixtures -i benchmark -i test-utils.js"
   },
   "dependencies": {
     "@babel/code-frame": "^7.12.13",

@@ -20,7 +20,7 @@ import { getDistPath, stopTimer } from './build/util.js';
 import { debug, defaultLogDestination, error, info, warn, trapWarn } from './logger.js';
 import { createRuntime } from './runtime.js';
 
-const logging: LogOptions = {
+const defaultLogging: LogOptions = {
   level: 'debug',
   dest: defaultLogDestination,
 };
@@ -39,7 +39,7 @@ function isRemote(url: string) {
 }
 
 /** The primary build action */
-export async function build(astroConfig: AstroConfig): Promise<0 | 1> {
+export async function build(astroConfig: AstroConfig, logging: LogOptions = defaultLogging): Promise<0 | 1> {
   const { projectRoot, astroRoot } = astroConfig;
   const dist = new URL(astroConfig.dist + '/', projectRoot);
   const pageRoot = new URL('./pages/', astroRoot);
