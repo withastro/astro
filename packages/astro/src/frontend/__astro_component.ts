@@ -52,11 +52,10 @@ interface AstroComponentProps {
 /** For hydrated components, generate a <script type="module"> to load the component */
 async function generateHydrateScript({ renderer, astroId, props }: any, { hydrate, componentUrl, componentExport }: Required<AstroComponentProps>) {
   const rendererSource = __rendererSources[__renderers.findIndex(r => r === renderer)];
-  const method = `on${hydrate[0].toUpperCase()}${hydrate.slice(1)}`;
 
   const script = `<script type="module">
-import { ${method} } from '/_astro_internal/hydrate.js';
-${method}("${astroId}", async () => {
+import setup from '/_astro_internal/hydrate/${hydrate}.js';
+setup("${astroId}", async () => {
   const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${rendererSource}")]);
   return (el, children) => hydrate(el)(Component, ${serialize(props)}, children);
 });
