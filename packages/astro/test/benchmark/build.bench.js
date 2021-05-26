@@ -45,12 +45,9 @@ const benchmarks = [
     async setup() {
       process.chdir(new URL('../../../../', import.meta.url).pathname);
       const spcache = new URL('../../node_modules/.cache/', import.meta.url);
-      await Promise.all([
-        del(spcache.pathname, { force: true }),
-        setupBuild()
-      ]);
+      await Promise.all([del(spcache.pathname, { force: true }), setupBuild()]);
     },
-    run: runBuild
+    run: runBuild,
   }),
   new Benchmark({
     name: 'Snowpack Example Build Cached',
@@ -61,7 +58,7 @@ const benchmarks = [
       await setupBuild();
       await this.execute();
     },
-    run: runBuild
+    run: runBuild,
   }),
   /*new Benchmark({
     name: 'Snowpack Example Dev Server Cached',
@@ -75,12 +72,12 @@ const benchmarks = [
 ];
 
 async function run() {
-  for(const b of benchmarks) {
+  for (const b of benchmarks) {
     await b.test();
   }
 }
 
-run().catch(err => {
+run().catch((err) => {
   console.error(err);
   process.exit(1);
 });

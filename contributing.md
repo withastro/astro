@@ -47,7 +47,7 @@ We have benchmarks to keep performance under control. You can run these by runni
 yarn workspace astro run benchmark
 ```
 
-Which will fail if the performance has regressed by __10%__ or more.
+Which will fail if the performance has regressed by **10%** or more.
 
 To update the times cd into the `packages/astro` folder and run the following:
 
