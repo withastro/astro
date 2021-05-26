@@ -1,5 +1,12 @@
 # create-astro
 
+## 0.1.2
+
+### Patch Changes
+
+- Rename the `--run` option to `--skip-install` for clarity.
+- Bugfix: `npm init astro` on npm v7
+
 ## 0.1.1
 
 ### Patch Changes
