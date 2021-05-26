@@ -1,0 +1,15 @@
+{
+  "name": "@astro-renderer/svelte",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./server": "./server.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "svelte": "^3.35.0",
+    "@snowpack/plugin-svelte": "^3.7.0"
+  }
+}

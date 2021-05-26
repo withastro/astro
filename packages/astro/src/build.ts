@@ -6,6 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { performance } from 'perf_hooks';
+import eslexer from 'es-module-lexer';
 import cheerio from 'cheerio';
 import del from 'del';
 import { bold, green, yellow } from 'kleur/colors';
@@ -94,6 +95,8 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
     // after pages are built, build depTree
     timer.deps = performance.now();
     const scanPromises: Promise<void>[] = [];
+
+    await eslexer.init;
     for (const id of Object.keys(buildState)) {
       if (buildState[id].contentType !== 'text/html') continue; // only scan HTML files
       const pageDeps = findDeps(buildState[id].contents as string, {
@@ -237,8 +240,16 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
 
   $('script').each((i, el) => {
     const src = $(el).attr('src');
-    if (src && !isRemote(src)) {
+    if (src) {
+      if (isRemote(src)) return;
       pageDeps.js.add(getDistPath(src, { astroConfig, srcPath }));
+    } else {
+      const text = $(el).html();
+      if (!text) return;
+      const [imports] = eslexer.parse(text);
+      for (const spec of imports) {
+        if (spec.n) pageDeps.js.add(spec.n);
+      }
     }
   });
 

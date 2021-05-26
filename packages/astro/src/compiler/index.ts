@@ -130,7 +130,7 @@ async function __render(props, ...children) {
   ${result.script}
   return h(Fragment, null, ${result.html});
 }
-export default __render;
+export default { isAstroComponent: true, __render };
 
 ${result.createCollection || ''}
 
@@ -138,6 +138,7 @@ ${result.createCollection || ''}
 // triggered by loading a component directly by URL.
 export async function __renderPage({request, children, props}) {
   const currentChild = {
+    isAstroComponent: true,
     layout: typeof __layout === 'undefined' ? undefined : __layout,
     content: typeof __content === 'undefined' ? undefined : __content,
     __render,

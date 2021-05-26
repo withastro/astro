@@ -10,7 +10,7 @@ setupBuild(ComponentChildren, './fixtures/astro-children');
 
 ComponentChildren('Passes string children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/strings');
-  if (result.error) throw new Error(result.error);
+  if (result.error) throw new Error(result);
 
   const $ = doc(result.contents);
 
@@ -30,19 +30,22 @@ ComponentChildren('Passes markup children to framework components', async ({ run
 
   const $ = doc(result.contents);
 
-  const $preact = $('#preact > h1');
+  const $preact = $('#preact h1');
   assert.equal($preact.text().trim(), 'Hello world', 'Can pass markup to Preact components');
 
-  const $vue = $('#vue > h1');
+  const $vue = $('#vue h1');
   assert.equal($vue.text().trim(), 'Hello world', 'Can pass markup to Vue components');
 
-  const $svelte = $('#svelte > h1');
+  const $svelte = $('#svelte h1');
   assert.equal($svelte.text().trim(), 'Hello world', 'Can pass markup to Svelte components');
 });
 
 ComponentChildren('Passes multiple children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/multiple');
-  if (result.error) throw new Error(result.error);
+  if (result.error) {
+    console.log(result);
+    throw new Error(result.error);
+  }
 
   const $ = doc(result.contents);
 

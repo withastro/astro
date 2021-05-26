@@ -4,17 +4,15 @@ import type { CompileError } from 'astro-parser';
 import type { LogOptions } from './logger';
 import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
 
+import resolve from 'resolve';
 import { existsSync } from 'fs';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { posix as path } from 'path';
 import { performance } from 'perf_hooks';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
 import { canonicalURL, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';
 import { searchForPage } from './search.js';
-
-// We need to use require.resolve for snowpack plugins, so create a require function here.
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 
 interface RuntimeConfig {
   astroConfig: AstroConfig;
@@ -268,21 +266,28 @@ interface CreateSnowpackOptions {
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
 }
 
+const defaultRenderers = [
+  '@astro-renderer/vue',
+  '@astro-renderer/svelte',
+  '@astro-renderer/react',
+  '@astro-renderer/preact'
+];
+
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot, astroRoot, extensions } = astroConfig;
+  const { projectRoot, astroRoot, renderers = defaultRenderers } = astroConfig;
   const { env, mode, resolvePackageUrl } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
+  const resolveDependency = (dep: string) => resolve.sync(dep, { basedir: fileURLToPath(projectRoot) });
 
   let snowpack: SnowpackDevServer;
-  const astroPlugOptions: {
+  let astroPluginOptions: {
     resolvePackageUrl?: (s: string) => Promise<string>;
-    extensions?: Record<string, string>;
+    renderers?: { name: string, client: string, server: string }[];
     astroConfig: AstroConfig;
   } = {
     astroConfig,
-    extensions,
     resolvePackageUrl,
   };
 
@@ -300,22 +305,58 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
+  const rendererInstances = (await Promise.all(renderers.map(renderer => import(pathToFileURL(resolveDependency(renderer)).toString()))))
+    .map(({ default: raw }, i) => {
+      const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
+
+      if (typeof client !== 'string') {
+        throw new Error(`Expected "client" from ${name} to be a relative path to the client-side renderer!`);
+      }
+
+      if (typeof server !== 'string') {
+        throw new Error(`Expected "server" from ${name} to be a relative path to the server-side renderer!`);
+      }
+      
+      let snowpackPlugin: string|[string, any]|undefined;
+      if (typeof snowpackPluginName === 'string') {
+        if (snowpackPluginOptions) {
+          snowpackPlugin = [resolveDependency(snowpackPluginName), snowpackPluginOptions]
+        } else {
+          snowpackPlugin = resolveDependency(snowpackPluginName);
+        }
+      } else if (snowpackPluginName) {
+        throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
+      }
+
+      return {
+        name,
+        snowpackPlugin,
+        client: path.join(name, raw.client),
+        server: path.join(name, raw.server),
+      }
+    })
+  
+  astroPluginOptions.renderers = rendererInstances;
+
+  // Make sure that Snowpack builds our renderer plugins
+  const knownEntrypoints = [].concat(...rendererInstances.map(renderer => [renderer.server, renderer.client]) as any) as string[];
+  const rendererSnowpackPlugins = rendererInstances.filter(renderer => renderer.snowpackPlugin).map(renderer => renderer.snowpackPlugin) as string|[string, any];
+
   const snowpackConfig = await loadConfiguration({
     root: fileURLToPath(projectRoot),
     mount: mountOptions,
     mode,
     plugins: [
-      [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPlugOptions],
-      [require.resolve('@snowpack/plugin-svelte'), { compilerOptions: { hydratable: true } }],
-      require.resolve('@snowpack/plugin-vue'),
-      require.resolve('@snowpack/plugin-sass'),
+      [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPluginOptions],
+      ...rendererSnowpackPlugins,
+      resolveDependency('@snowpack/plugin-sass'),
       [
-        require.resolve('@snowpack/plugin-postcss'),
+        resolveDependency('@snowpack/plugin-postcss'),
         {
           config: {
             plugins: {
-              [require.resolve('autoprefixer')]: {},
-              ...(astroConfig.devOptions.tailwindConfig ? { [require.resolve('tailwindcss')]: {} } : {}),
+              [resolveDependency('autoprefixer')]: {},
+              ...(astroConfig.devOptions.tailwindConfig ? { [resolveDependency('autoprefixer')]: {} } : {}),
             },
           },
         },
@@ -331,7 +372,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       out: astroConfig.dist,
     },
     packageOptions: {
-      knownEntrypoints: ['preact-render-to-string'],
+      knownEntrypoints,
       external: ['@vue/server-renderer', 'node-fetch', 'prismjs/components/index.js', 'gray-matter'],
     },
   });

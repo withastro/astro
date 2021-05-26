@@ -1,3 +1,5 @@
+import type { ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier } from '@babel/types';
+
 export interface AstroConfigRaw {
   dist: string;
   projectRoot: string;
@@ -5,8 +7,6 @@ export interface AstroConfigRaw {
   public: string;
   jsx?: string;
 }
-
-export type ValidExtensionPlugins = 'astro' | 'react' | 'preact' | 'svelte' | 'vue';
 
 export interface AstroMarkdownOptions {
   /** Enable or disable footnotes syntax extension */
@@ -19,7 +19,7 @@ export interface AstroConfig {
   projectRoot: URL;
   astroRoot: URL;
   public: URL;
-  extensions?: Record<string, ValidExtensionPlugins>;
+  renderers?: string[];
   /** Options for rendering markdown content */
   markdownOptions?: Partial<AstroMarkdownOptions>;
   /** Options specific to `astro build` */
@@ -171,3 +171,10 @@ export interface CollectionResult<T = any> {
   /** Matched parameters, if any */
   params: Params;
 }
+
+export interface ComponentInfo {
+  url: string;
+  importSpecifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
+}
+
+export type Components = Map<string, ComponentInfo>;

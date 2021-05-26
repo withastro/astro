@@ -1,0 +1,16 @@
+{
+  "name": "@astro-renderer/vue",
+  "version": "0.0.1",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./server": "./server.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "vue": "^3.0.10",
+    "@vue/server-renderer": "^3.0.10",
+    "@snowpack/plugin-vue": "^2.5.0"
+  }
+}

@@ -1,6 +1,7 @@
 ---
-import ReactCounter from '../components/ReactCounter.jsx';
-import PreactCounter from '../components/PreactCounter.tsx';
+import { A, B as Renamed } from '../components';
+import * as react from '../components/ReactCounter.jsx';
+import { PreactCounter } from '../components/PreactCounter.tsx';
 import VueCounter from '../components/VueCounter.vue';
 import SvelteCounter from '../components/SvelteCounter.svelte';
 ---
@@ -30,22 +31,28 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
   </head>
   <body>
       <main>
-        <ReactCounter:load>
+
+        <react.Counter:visible>
             <h1>Hello React!</h1>
             <p>What's up?</p>
-        </ReactCounter:load>
+        </react.Counter:visible>
 
-        <PreactCounter:load>
-            <h1>Hello Preact!</h1>
-        </PreactCounter:load>
+        <PreactCounter:visible>
+          <h1>Hello Preact!</h1>
+        </PreactCounter:visible>
 
-        <VueCounter:load>
+        <VueCounter:visible>
             <h1>Hello Vue!</h1>
-        </VueCounter:load>
+        </VueCounter:visible>
 
-        <SvelteCounter:load>
+        <SvelteCounter:visible>
             <h1>Hello Svelte!</h1>
-        </SvelteCounter:load>
+        </SvelteCounter:visible>
+
+        <A />
+        
+        <Renamed />
+
       </main>
   </body>
 </html>
