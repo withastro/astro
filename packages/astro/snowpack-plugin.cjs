@@ -3,7 +3,7 @@ const { readFile } = require('fs').promises;
 // Snowpack plugins must be CommonJS :(
 const transformPromise = import('./dist/compiler/index.js');
 
-module.exports = function (snowpackConfig, { resolvePackageUrl, renderers, astroConfig } = {}) {
+module.exports = (snowpackConfig, { resolvePackageUrl, hmrPort, renderers, astroConfig } = {}) => {
   return {
     name: 'snowpack-astro',
     resolve: {
@@ -48,6 +48,7 @@ ${contents}`;
       const contents = await readFile(filePath, 'utf-8');
       const compileOptions = {
         astroConfig,
+        hmrPort,
         resolvePackageUrl,
         renderers,
       };
