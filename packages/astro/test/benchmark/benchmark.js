@@ -1,27 +1,9 @@
 import { promises as fsPromises, existsSync } from 'fs';
 import { performance } from 'perf_hooks';
-import { runDevServer } from '../helpers.js';
 
 const MUST_BE_AT_LEAST_PERC_OF = 90;
 
 const shouldSave = process.argv.includes('--save');
-
-async function runToStarted(root) {
-  const args = [];
-  const process = runDevServer(root, args);
-
-  let started = null;
-  process.stdout.setEncoding('utf8');
-  for await (const chunk of process.stdout) {
-    if (/Server started/.test(chunk)) {
-      started = performance.now();
-      break;
-    }
-  }
-
-  process.kill();
-  return started;
-}
 
 export class Benchmark {
   constructor(options) {
@@ -30,9 +12,9 @@ export class Benchmark {
   }
 
   async execute() {
-    const { root } = this.options;
+    const { run } = this.options;
     const start = performance.now();
-    const end = await runToStarted(root);
+    const end = await run(this.options);
     const time = Math.floor(end - start);
     return time;
   }

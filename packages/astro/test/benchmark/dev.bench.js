@@ -1,7 +1,26 @@
+import { performance } from 'perf_hooks';
 import { Benchmark } from './benchmark.js';
+import { runDevServer } from '../helpers.js';
 import del from 'del';
 
 const snowpackExampleRoot = new URL('../../../../examples/snowpack/', import.meta.url);
+
+async function runToStarted(root) {
+  const args = [];
+  const process = runDevServer(root, args);
+
+  let started = null;
+  process.stdout.setEncoding('utf8');
+  for await (const chunk of process.stdout) {
+    if (/Server started/.test(chunk)) {
+      started = performance.now();
+      break;
+    }
+  }
+
+  process.kill();
+  return started;
+}
 
 const benchmarks = [
   new Benchmark({
@@ -11,6 +30,9 @@ const benchmarks = [
     async setup() {
       const spcache = new URL('../../node_modules/.cache/', import.meta.url);
       await del(spcache.pathname);
+    },
+    run({ root }) {
+      return runToStarted(root);
     }
   }),
   new Benchmark({
@@ -20,6 +42,9 @@ const benchmarks = [
     async setup() {
       // Execute once to make sure Snowpack is cached.
       await this.execute();
+    },
+    run({ root }) {
+      return runToStarted(root);
     }
   })
 ];
