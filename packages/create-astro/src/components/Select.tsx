@@ -9,7 +9,7 @@ interface Props {
   label: string;
   description?: string;
 }
-const Indicator: FC<Props> = ({ isSelected }) => (isSelected ? <Text color="#3894FF">[ </Text> : <Text> </Text>);
+const Indicator: FC<Props> = ({ isSelected }) => (isSelected ? <Text color="#3894FF">[ </Text> : <Text>{'  '}</Text>);
 const Item: FC<Props> = ({ isSelected = false, label, description }) => (
   <Box display="flex">
     <Text color={isSelected ? '#3894FF' : 'white'} dimColor={!isSelected}>
