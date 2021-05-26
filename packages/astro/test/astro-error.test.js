@@ -3,16 +3,28 @@ import * as assert from 'uvu/assert';
 import { doc } from './test-utils.js';
 import { setup } from './helpers.js';
 
-const Missing = suite('Missing test');
+const ExpectedErrors = suite('Expected errors test');
 
-setup(Missing, './fixtures/astro-error');
+setup(ExpectedErrors, './fixtures/astro-error');
 
-Missing('Will error if missing dependency', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.equal(result.error.toString(), 'Error: Not Found (/_astro/components/X.astro.js)') 
-
-  // const $ = doc(result.contents);
-  // assert.equal($('div').text(), 'a b');
+ExpectedErrors('Will error if missing dependency', async ({ runtime }) => {
+  const result = await runtime.load('/missingdependency');
+  if(result.error) console.error(result.error)
+  assert.equal(result.error.toString(), 'Error: Not Found (/_astro/components/Y.astro.js)') 
 });
 
-Missing.run();
+ExpectedErrors('Will error if misnamed import', async ({ runtime }) => {
+  const result = await runtime.load('/misnamedimport');
+  if(result.error) console.error(result.error)
+  /** undefined needs to throw a better error */
+  assert.equal(result.error,undefined)
+});
+
+ExpectedErrors('Will not compile', async ({ runtime }) => {
+  const result = await runtime.load('/shouldnotcompile');
+  if(result.error) console.error(result.error)
+    /** undefined needs to throw a better error */
+  assert.equal(result.error,undefined) 
+});
+
+ExpectedErrors.run();
