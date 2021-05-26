@@ -1,7 +1,7 @@
 import type { Node } from 'unist';
 import { visit } from 'unist-util-visit';
 
-const visitScripts = (scripts: Set<Node>) => (node: any, i, parent: any) => {
+const visitScripts = (scripts: Set<Node>) => (node: any, i: any, parent: any) => {
   const { tagName } = node;
   if (tagName === 'script' && node.properties.dataAstroHydrate === '') {
     scripts.add(node);
