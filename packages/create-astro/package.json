@@ -23,7 +23,6 @@
     "ink": "^3.0.8",
     "ink-select-input": "^4.2.0",
     "ink-text-input": "^4.0.1",
-    "react": "^16.14.0",
     "source-map-support": "^0.5.19"
   },
   "devDependencies": {
