@@ -264,6 +264,7 @@ interface CreateSnowpackOptions {
   env: Record<string, any>;
   mode: RuntimeMode;
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
+  target: 'frontend'|'backend';
 }
 
 const defaultRenderers = ['@astro-renderer/vue', '@astro-renderer/svelte', '@astro-renderer/react', '@astro-renderer/preact'];
@@ -271,7 +272,7 @@ const defaultRenderers = ['@astro-renderer/vue', '@astro-renderer/svelte', '@ast
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
   const { projectRoot, astroRoot, renderers = defaultRenderers } = astroConfig;
-  const { env, mode, resolvePackageUrl } = options;
+  const { env, mode, resolvePackageUrl, target } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
   const resolveDependency = (dep: string) => resolve.sync(dep, { basedir: fileURLToPath(projectRoot) });
@@ -360,6 +361,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       open: 'none',
       output: 'stream',
       port: 0,
+      hmr: mode === 'development' && target === 'frontend',
       tailwindConfig: astroConfig.devOptions.tailwindConfig,
     },
     buildOptions: {
@@ -394,6 +396,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     snowpackRuntime: backendSnowpackRuntime,
     snowpackConfig: backendSnowpackConfig,
   } = await createSnowpack(astroConfig, {
+    target: 'backend',
     env: {
       astro: true,
     },
@@ -408,6 +411,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     snowpackRuntime: frontendSnowpackRuntime,
     snowpackConfig: frontendSnowpackConfig,
   } = await createSnowpack(astroConfig, {
+    target: 'frontend',
     env: {
       astro: false,
     },
