@@ -9,7 +9,8 @@ const Finalize: FC<{ context: any }> = ({ context: { use, projectName } }) => {
     process.exit(0);
   }, []);
 
-  const projectPath = `./${relative(process.cwd(), projectName)}`;
+  let projectPath = relative(process.cwd(), projectName);
+  if (projectPath[0] !== '.') projectPath = './' + projectPath;
 
   return (
     <>

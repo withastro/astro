@@ -7,7 +7,7 @@ With Astro, you can use your favorite JavaScript framework and automatically shi
 ## 🔧 Setup
 
 ```bash
-npm init astro ./my-astro-project
+npm init astro my-astro-project
 
 # then... cd => install => start
 cd ./my-astro-project
