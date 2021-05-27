@@ -1,91 +1,37 @@
+import path from 'path';
+import glob from 'tiny-glob/sync.js';
 import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { createRuntime } from '#astro/runtime';
-import { loadConfig } from '#astro/config';
-import { promises as fsPromises } from 'fs';
-import { relative as pathRelative } from 'path';
-
-const { readdir, stat } = fsPromises;
+import { setup } from './helpers.js';
 
 const SnowpackDev = suite('snowpack.dev');
+setup(SnowpackDev, '../../../examples/snowpack');
 
-const snowpackDir = new URL('../../../examples/snowpack/', import.meta.url);
-
-let runtime, cwd, setupError;
-
-SnowpackDev.before(async () => {
-  // Bug: Snowpack config is still loaded relative to the current working directory.
-  cwd = process.cwd();
-  process.chdir(fileURLToPath(snowpackDir));
-
-  const astroConfig = await loadConfig(fileURLToPath(snowpackDir));
-
-  const logging = {
-    level: 'error',
-    dest: process.stderr,
-  };
-
-  try {
-    runtime = await createRuntime(astroConfig, { logging });
-  } catch (err) {
-    console.error(err);
-    setupError = err;
-  }
-});
-
-SnowpackDev.after(async () => {
-  process.chdir(cwd);
-  (await runtime) && runtime.shutdown();
-});
-/** create an iterator for all page files */
-async function* allPageFiles(root) {
-  for (const filename of await readdir(root)) {
-    const fullpath = new URL(filename, root);
-    const info = await stat(fullpath);
-
-    if (info.isDirectory()) {
-      yield* allPageFiles(new URL(fullpath + '/'));
-    } else {
-      yield fullpath;
-    }
-  }
-}
-/** create an iterator for all pages and yield the relative paths */
-async function* allPages(root) {
-  for await (let fileURL of allPageFiles(root)) {
-    let bare = fileURLToPath(fileURL)
-      .replace(/\.(astro|md)$/, '')
-      .replace(/index$/, '');
-
-    yield '/' + pathRelative(fileURLToPath(root), bare);
-  }
+// convert file path to its final url
+function formatURL(filepath) {
+  return filepath
+    .replace(/^\/?/, '/') // add / to beginning, if missing
+    .replace(/(index)?\.(astro|md)$/, '') // remove .astro and .md extensions
+    .replace(/\/$/, ''); // remove trailing slash, if any
 }
 
-SnowpackDev('No error creating the runtime', () => {
-  assert.equal(setupError, undefined);
+// declaring routes individually helps us run many quick tests rather than one giant slow test
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../examples/snowpack/src/pages');
+let pages = glob('**/*.{astro,md}', { cwd: root, onlyFiles: true })
+  .filter((page) => !page.includes('proof-of-concept-dynamic'))
+  .map(formatURL);
+
+SnowpackDev('Pages successfully scanned', () => {
+  assert.ok(pages.length > 0);
 });
 
-SnowpackDev('Can load every page', async () => {
-  const failed = [];
-
-  const pageRoot = new URL('./src/pages/', snowpackDir);
-  for await (let pathname of allPages(pageRoot)) {
-    if (pathname.includes('proof-of-concept-dynamic')) {
-      continue;
-    }
+for (const pathname of pages) {
+  SnowpackDev(`Loads "${pathname}"`, async ({ runtime }) => {
     const result = await runtime.load(pathname);
-    if (result.statusCode === 500) {
-      failed.push({ ...result, pathname });
-      continue;
-    }
-    assert.equal(result.statusCode, 200, `Loading ${pathname}`);
-  }
-
-  if (failed.length > 0) {
-    console.error(failed);
-  }
-  assert.equal(failed.length, 0, 'Failed pages');
-});
+    assert.equal(result.statusCode, 200);
+    return;
+  });
+}
 
 SnowpackDev.run();
