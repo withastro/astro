@@ -264,26 +264,31 @@ interface CreateSnowpackOptions {
   env: Record<string, any>;
   mode: RuntimeMode;
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
+  target: 'frontend'|'backend';
 }
 
-const defaultRenderers = ['@astro-renderer/vue', '@astro-renderer/svelte', '@astro-renderer/react', '@astro-renderer/preact'];
+const DEFAULT_HMR_PORT = 12321;
+const DEFAULT_RENDERERS = ['@astro-renderer/vue', '@astro-renderer/svelte', '@astro-renderer/react', '@astro-renderer/preact'];
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot, astroRoot, renderers = defaultRenderers } = astroConfig;
-  const { env, mode, resolvePackageUrl } = options;
+  const { projectRoot, astroRoot, renderers = DEFAULT_RENDERERS } = astroConfig;
+  const { env, mode, resolvePackageUrl, target } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
   const resolveDependency = (dep: string) => resolve.sync(dep, { basedir: fileURLToPath(projectRoot) });
+  const isHmrEnabled = mode === 'development' && target === 'backend';
 
   let snowpack: SnowpackDevServer;
   let astroPluginOptions: {
     resolvePackageUrl?: (s: string) => Promise<string>;
     renderers?: { name: string; client: string; server: string }[];
     astroConfig: AstroConfig;
+    hmrPort?: number
   } = {
     astroConfig,
     resolvePackageUrl,
+    hmrPort: isHmrEnabled ? DEFAULT_HMR_PORT : undefined
   };
 
   const mountOptions = {
@@ -360,6 +365,8 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       open: 'none',
       output: 'stream',
       port: 0,
+      hmr: isHmrEnabled,
+      hmrPort: isHmrEnabled ? DEFAULT_HMR_PORT : undefined,
       tailwindConfig: astroConfig.devOptions.tailwindConfig,
     },
     buildOptions: {
@@ -394,6 +401,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     snowpackRuntime: backendSnowpackRuntime,
     snowpackConfig: backendSnowpackConfig,
   } = await createSnowpack(astroConfig, {
+    target: 'backend',
     env: {
       astro: true,
     },
@@ -408,6 +416,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     snowpackRuntime: frontendSnowpackRuntime,
     snowpackConfig: frontendSnowpackConfig,
   } = await createSnowpack(astroConfig, {
+    target: 'frontend',
     env: {
       astro: false,
     },
