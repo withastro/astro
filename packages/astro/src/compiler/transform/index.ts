@@ -8,7 +8,7 @@ import transformStyles from './styles.js';
 import transformDoctype from './doctype.js';
 import transformModuleScripts from './module-scripts.js';
 import transformCodeBlocks from './prism.js';
-import transformHydration from './hydration.js';
+import transformHead from './head.js';
 
 interface VisitorCollection {
   enter: Map<string, VisitorFn[]>;
@@ -85,7 +85,7 @@ export async function transform(ast: Ast, opts: TransformOptions) {
   const cssVisitors = createVisitorCollection();
   const finalizers: Array<() => Promise<void>> = [];
 
-  const optimizers = [transformHydration(), transformStyles(opts), transformDoctype(opts), transformModuleScripts(opts), transformCodeBlocks(ast.module)];
+  const optimizers = [transformHead(opts), transformStyles(opts), transformDoctype(opts), transformModuleScripts(opts), transformCodeBlocks(ast.module)];
 
   for (const optimizer of optimizers) {
     collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);
