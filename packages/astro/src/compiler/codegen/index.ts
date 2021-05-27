@@ -1,7 +1,7 @@
 import type { Ast, Script, Style, TemplateNode } from 'astro-parser';
 import type { CompileOptions } from '../../@types/compiler';
 import type { AstroConfig, AstroMarkdownOptions, TransformResult, ComponentInfo, Components } from '../../@types/astro';
-import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier } from '@babel/types';
+import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, ImportDefaultSpecifier } from '@babel/types';
 
 import 'source-map-support/register.js';
 import eslexer from 'es-module-lexer';
@@ -18,6 +18,8 @@ import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
 import { isComponentTag, renderMarkdown } from '../utils';
+import { transform } from '../transform/index.js';
+import { PRISM_IMPORT } from '../transform/prism.js';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 
@@ -186,6 +188,7 @@ interface CompileResult {
 
 interface CodegenState {
   filename: string;
+  fileID: string;
   components: Components;
   css: string[];
   markers: {
@@ -418,7 +421,7 @@ function dedent(str: string) {
 /** Compile page markup */
 async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
   return new Promise((resolve) => {
-    const { components, css, importExportStatements, filename } = state;
+    const { components, css, importExportStatements, filename, fileID } = state;
     const { astroConfig } = compileOptions;
 
     let paren = -1;
@@ -438,7 +441,18 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
         mode: 'astro-md',
         $: { scopedClassName: scopedClassName.slice(1, -1) },
       });
+
+      // 1. Parse
       const ast = parse(rendered);
+      // 2. Transform the AST
+
+      await transform(ast, {
+        compileOptions,
+        filename,
+        fileID
+      });
+
+      // 3. Codegen
       const result = await compileHtml(ast.html, { ...state, markers: { ...state.markers, insideMarkdown: false } }, compileOptions);
 
       buffers.out += ',' + result;
@@ -476,7 +490,26 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             break;
           case 'Slot':
           case 'Head':
-          case 'InlineComponent':
+          case 'InlineComponent': {
+            switch(node.name) {
+              case 'Prism': {
+                if(!importExportStatements.has(PRISM_IMPORT)) {
+                  importExportStatements.add(PRISM_IMPORT);
+                }
+                if(!components.has('Prism')) {
+                  components.set('Prism', {
+                    importSpecifier: {
+                      type: 'ImportDefaultSpecifier',
+                      local: { type: 'Identifier', name: 'Prism' } as Identifier,
+                    } as ImportDefaultSpecifier,
+                    url: 'astro/components/Prism.astro'
+                  });
+                }
+                break;
+              }
+            }
+            // Do not break.
+          }
           case 'Title':
           case 'Element': {
             const name: string = node.name;
@@ -590,9 +623,15 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
           case 'Head':
           case 'Body':
           case 'Title':
-          case 'Element':
+          case 'Element': {
+            if (paren !== -1) {
+              buffers.out += ')';
+              paren--;
+            }
+            return;
+          }
           case 'InlineComponent': {
-            if (node.type === 'InlineComponent' && curr === 'markdown' && buffers.markdown !== '') {
+            if (curr === 'markdown' && buffers.markdown !== '') {
               await pushMarkdownToBuffer();
             }
             if (paren !== -1) {
@@ -626,11 +665,12 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
  * @param {Ast} AST The parsed AST to crawl
  * @param {object} CodeGenOptions
  */
-export async function codegen(ast: Ast, { compileOptions, filename }: CodeGenOptions): Promise<TransformResult> {
+export async function codegen(ast: Ast, { compileOptions, filename, fileID }: CodeGenOptions): Promise<TransformResult> {
   await eslexer.init;
 
   const state: CodegenState = {
     filename,
+    fileID,
     components: new Map(),
     css: [],
     markers: {
