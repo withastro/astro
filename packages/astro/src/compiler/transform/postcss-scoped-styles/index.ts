@@ -98,7 +98,7 @@ export function scopeRule(selector: string, className: string) {
 /** PostCSS Scope plugin */
 export default function astroScopedStyles(options: AstroScopedOptions): Plugin {
   return {
-    postcssPlugin: '@astro/postcss-scoped-styles',
+    postcssPlugin: '@astrojs/postcss-scoped-styles',
     Rule(rule) {
       rule.selector = scopeRule(rule.selector, options.className);
     },
