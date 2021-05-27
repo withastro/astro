@@ -264,7 +264,7 @@ interface CreateSnowpackOptions {
   env: Record<string, any>;
   mode: RuntimeMode;
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
-  target: 'frontend'|'backend';
+  target: 'frontend' | 'backend';
 }
 
 const DEFAULT_HMR_PORT = 12321;
@@ -284,11 +284,11 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     resolvePackageUrl?: (s: string) => Promise<string>;
     renderers?: { name: string; client: string; server: string }[];
     astroConfig: AstroConfig;
-    hmrPort?: number
+    hmrPort?: number;
   } = {
     astroConfig,
     resolvePackageUrl,
-    hmrPort: isHmrEnabled ? DEFAULT_HMR_PORT : undefined
+    hmrPort: isHmrEnabled ? DEFAULT_HMR_PORT : undefined,
   };
 
   const mountOptions = {
