@@ -449,7 +449,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       await transform(ast, {
         compileOptions,
         filename,
-        fileID
+        fileID,
       });
 
       // 3. Codegen
@@ -491,18 +491,18 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
           case 'Slot':
           case 'Head':
           case 'InlineComponent': {
-            switch(node.name) {
+            switch (node.name) {
               case 'Prism': {
-                if(!importExportStatements.has(PRISM_IMPORT)) {
+                if (!importExportStatements.has(PRISM_IMPORT)) {
                   importExportStatements.add(PRISM_IMPORT);
                 }
-                if(!components.has('Prism')) {
+                if (!components.has('Prism')) {
                   components.set('Prism', {
                     importSpecifier: {
                       type: 'ImportDefaultSpecifier',
                       local: { type: 'Identifier', name: 'Prism' } as Identifier,
                     } as ImportDefaultSpecifier,
-                    url: 'astro/components/Prism.astro'
+                    url: 'astro/components/Prism.astro',
                   });
                 }
                 break;
