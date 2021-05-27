@@ -30,8 +30,6 @@ Markdown('Runs code blocks through syntax highlighter', async ({ runtime }) => {
   const result = await runtime.load('/code');
   if (result.error) throw new Error(result.error);
 
-  console.log('contents', result.contents)
-
   const $ = doc(result.contents);
   const $el = $('code span');
   assert.ok($el.length > 0, 'There are child spans in code blocks');
