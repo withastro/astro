@@ -282,7 +282,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   let snowpack: SnowpackDevServer;
   let astroPluginOptions: {
     resolvePackageUrl?: (s: string) => Promise<string>;
-    renderers?: { name: string; client: string; server: string }[];
+    renderers?: { name: string; options?: any; client: string | null; server: string }[];
     astroConfig: AstroConfig;
     hmrPort?: number;
   } = {
@@ -305,12 +305,15 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
-  const rendererInstances = (await Promise.all(renderers.map((renderer) => import(pathToFileURL(resolveDependency(renderer)).toString())))).map(({ default: raw }, i) => {
-    const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
-
-    if (typeof client !== 'string') {
-      throw new Error(`Expected "client" from ${name} to be a relative path to the client-side renderer!`);
+  const rendererInstances = (await Promise.all(renderers.map((renderer: string|[string, any]) => {
+    let _options: any = null;
+    if (Array.isArray(renderer)) {
+      _options = renderer[1];
+      renderer = renderer[0];
     }
+    return import(pathToFileURL(resolveDependency(renderer)).toString()).then(r => ({ raw: r.default, options: _options }));
+  }))).map(({ raw, options: _options }: any, i) => {
+    const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
 
     if (typeof server !== 'string') {
       throw new Error(`Expected "server" from ${name} to be a relative path to the server-side renderer!`);
@@ -329,8 +332,9 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 
     return {
       name,
+      options: _options,
       snowpackPlugin,
-      client: path.join(name, raw.client),
+      client: client ? path.join(name, raw.client) : null,
       server: path.join(name, raw.server),
     };
   });
@@ -338,7 +342,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   astroPluginOptions.renderers = rendererInstances;
 
   // Make sure that Snowpack builds our renderer plugins
-  const knownEntrypoints = [].concat(...(rendererInstances.map((renderer) => [renderer.server, renderer.client]) as any)) as string[];
+  const knownEntrypoints = [].concat(...(rendererInstances.map((renderer) => [renderer.server, renderer.client]) as any)).filter(v => v) as string[];
   const rendererSnowpackPlugins = rendererInstances.filter((renderer) => renderer.snowpackPlugin).map((renderer) => renderer.snowpackPlugin) as string | [string, any];
 
   const snowpackConfig = await loadConfiguration({
@@ -374,7 +378,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     },
     packageOptions: {
       knownEntrypoints,
-      external: ['@vue/server-renderer', 'node-fetch', 'prismjs/components/index.js', 'gray-matter'],
+      external: ['@vue/server-renderer', '@stencil/core', 'node-fetch', 'prismjs/components/index.js', 'gray-matter'],
     },
   });
 

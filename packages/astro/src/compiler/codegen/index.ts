@@ -17,7 +17,7 @@ import { error, warn } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
-import { isComponentTag, renderMarkdown } from '../utils';
+import { isComponentTag, isCustomElementTag, renderMarkdown } from '../utils';
 import { transform } from '../transform/index.js';
 import { PRISM_IMPORT } from '../transform/prism.js';
 
@@ -136,10 +136,19 @@ interface GetComponentWrapperOptions {
 const PlainExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 /** Generate Astro-friendly component import */
 function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
+  const [name, kind] = _name.split(':');
+
+  // Special flow for custom elements
+  if (isCustomElementTag(name)) {
+    return {
+      wrapper: `__astro_component("${name}", ${JSON.stringify({ hydrate: kind, displayName: name })})`,
+      wrapperImport: `import {__astro_component} from '${internalImport('__astro_component.js')}';`,
+    };
+  }
+
   const { astroConfig, filename } = opts;
   const { astroRoot } = astroConfig;
   const currFileUrl = new URL(`file://${filename}`);
-  const [name, kind] = _name.split(':');
   const getComponentUrl = () => {
     const componentExt = path.extname(url);
     const ext = PlainExtensions.has(componentExt) ? '.js' : `${componentExt}.js`;
@@ -540,7 +549,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 const [componentNamespace] = componentName.split('.');
                 componentInfo = components.get(componentNamespace);
               }
-              if (!componentInfo) {
+              if (!componentInfo && !isCustomElementTag(componentName)) {
                 throw new Error(`Unknown Component: ${componentName}`);
               }
               if (componentName === 'Markdown') {
@@ -549,7 +558,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 curr = 'markdown';
                 return;
               }
-              const { wrapper, wrapperImport } = getComponentWrapper(name, componentInfo, { astroConfig, filename });
+              const { wrapper, wrapperImport } = getComponentWrapper(name, componentInfo ?? ({} as any), { astroConfig, filename });
               if (wrapperImport) {
                 importExportStatements.add(wrapperImport);
               }

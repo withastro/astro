@@ -1,0 +1,36 @@
+{
+  "name": "with-stencil",
+  "version": "0.0.1",
+  "description": "Stencil Component Starter",
+  "main": "dist/stencil/out/index.cjs.js",
+  "module": "./dist/stencil/out/index.js",
+  "es2015": "dist/stencil/out/esm/index.mjs",
+  "es2017": "dist/stencil/out/esm/index.mjs",
+  "types": "dist/stencil/out/types/components.d.ts",
+  "collection": "dist/stencil/out/collection/collection-manifest.json",
+  "collection:main": "dist/stencil/out/collection/index.js",
+  "unpkg": "dist/stencil/out/with-stencil/with-stencil.esm.js",
+  "files": [
+    "dist/stencil/out",
+    "dist"
+  ],
+  "scripts": {
+    "start": "astro dev",
+    "build": "astro build",
+    "astro-dev": "nodemon --delay 0.5 -w ../../packages/astro/dist -x '../../packages/astro/astro.mjs dev'",
+    "stencil:build": "stencil build --docs"
+  },
+  "dependencies": {
+    "@stencil/core": "^2.0.1",
+    "astro": "^0.11.0",
+    "nodemon": "^2.0.7",
+    "my-component-hydrate": "file:dist/stencil/hydrate"
+  },
+  "devDependencies": {
+    "astro-renderer-stencil": "0.0.1"
+  },
+  "snowpack": {
+    "workspaceRoot": "../.."
+  },
+  "license": "MIT"
+}

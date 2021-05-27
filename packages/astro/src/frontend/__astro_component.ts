@@ -24,7 +24,7 @@ declare let __renderers: any[];
 __rendererSources = ['', ...__rendererSources];
 __renderers = [astro, ...__renderers];
 
-const rendererCache = new WeakMap();
+const rendererCache = new Map();
 
 /** For a given component, resolve the renderer. Results are cached if this instance is encountered again */
 function resolveRenderer(Component: any, props: any = {}) {
@@ -63,6 +63,20 @@ setup("${astroId}", async () => {
   return script;
 }
 
+const getComponentName = (component: any) => {
+  switch (typeof component) {
+    case 'function': {
+      return component.displayName ?? component.name;
+    }
+    case 'string': {
+      return component;
+    }
+    default: {
+      return JSON.stringify(component);
+    }
+  }
+}
+
 export const __astro_component = (Component: any, componentProps: AstroComponentProps = {} as any) => {
   if (Component == null) {
     throw new Error(`Unable to render <${componentProps.displayName}> because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
@@ -77,12 +91,12 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
 
       // Okay now we definitely can't resolve a renderer, so let's throw
       if (!renderer) {
-        const name = typeof Component === 'function' ? Component.displayName ?? Component.name : `{ ${Object.keys(Component).join(', ')} }`;
+        const name = getComponentName(Component);
         throw new Error(`No renderer found for ${name}! Did you forget to add a renderer to your Astro config?`);
       }
     }
     const children = _children.join('\n');
-    const { html } = await renderer.renderToStaticMarkup(Component, props, children);
+    const { html, head } = await renderer.renderToStaticMarkup(Component, props, children);
     // If we're NOT hydrating this component, just return the HTML
     if (!componentProps.hydrate) {
       // It's safe to remove <astro-fragment>, static content doesn't need the wrapper

@@ -1,4 +1,10 @@
 const { readFile } = require('fs').promises;
+const { valueToEstree } = require('estree-util-value-to-estree');
+const { generate } = require('astring');
+
+const serialize = (value) => generate(valueToEstree(value));
+
+
 
 // Snowpack plugins must be CommonJS :(
 const transformPromise = import('./dist/compiler/index.js');
@@ -34,10 +40,10 @@ module.exports = (snowpackConfig, { resolvePackageUrl, hmrPort, renderers, astro
     async transform({contents, id, fileExt}) {
       if (fileExt === '.js' && /__astro_component\.js/g.test(id)) {
         const rendererServerPackages = await Promise.all(renderers.map(({ server }) => resolvePackageUrl(server)));
-        const rendererClientPackages = await Promise.all(renderers.map(({ client }) => resolvePackageUrl(client)));
+        const rendererClientPackages = await Promise.all(renderers.map(({ client }) => client ? resolvePackageUrl(client) : ''));
         const result = `${rendererServerPackages.map((pkg, i) => `import __renderer_${i} from "${pkg}";`).join('\n')}
 let __rendererSources = [${rendererClientPackages.map(pkg => `"${pkg}"`).join(', ')}];
-let __renderers = [${rendererServerPackages.map((_, i) => `__renderer_${i}`).join(', ')}];
+let __renderers = [${rendererServerPackages.map((_, i) => renderers[i].options ? `__renderer_${i}(${serialize(renderers[i].options)})` : `__renderer_${i}`).join(', ')}];
 ${contents}`;
         return result;
       }
