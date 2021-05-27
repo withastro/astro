@@ -2,7 +2,7 @@ import type { Transformer } from '../../@types/transformer';
 import type { Script, TemplateNode } from 'astro-parser';
 import { getAttrValue } from '../../ast.js';
 
-const PRISM_IMPORT = `import Prism from 'astro/components/Prism.astro';\n`;
+export const PRISM_IMPORT = `import Prism from 'astro/components/Prism.astro';`;
 const prismImportExp = /import Prism from ['"]astro\/components\/Prism.astro['"]/;
 /** escaping code samples that contain template string replacement parts, ${foo} or example. */
 function escape(code: string) {
@@ -100,8 +100,8 @@ export default function (module: Script): Transformer {
     },
     async finalize() {
       // Add the Prism import if needed.
-      if (usesPrism && !prismImportExp.test(module.content)) {
-        module.content = PRISM_IMPORT + module.content;
+      if (usesPrism && module && !prismImportExp.test(module.content)) {
+        module.content = PRISM_IMPORT + '\n' + module.content;
       }
     },
   };

@@ -26,6 +26,15 @@ Markdown('Can load more complex jsxy stuff', async ({ runtime }) => {
   assert.equal($el.text(), 'Hello world');
 });
 
+Markdown('Runs code blocks through syntax highlighter', async ({ runtime }) => {
+  const result = await runtime.load('/code');
+  if (result.error) throw new Error(result.error);
+
+  const $ = doc(result.contents);
+  const $el = $('code span');
+  assert.ok($el.length > 0, 'There are child spans in code blocks');
+});
+
 Markdown('Bundles client-side JS for prod', async (context) => {
   await context.build();
 
