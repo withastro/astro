@@ -3,7 +3,7 @@ export const sidebar = [
     text: 'Introduction',
     children: [
       { text: 'Welcome', link: '/' },
-      { text: 'Example', link: '/example' }
-    ]
-  }
-]
+      { text: 'Example', link: '/example' },
+    ],
+  },
+];
