@@ -58,26 +58,27 @@ export default function (opts: TransformOptions): Transformer {
 
       if (isHmrEnabled) {
         const { hmrPort } = opts.compileOptions;
-        children.push({
-              type: 'Element',
-              name: 'script',
-              attributes: [],
-              children: [
-                { type: 'Text', data: `window.HMR_WEBSOCKET_URL = 'ws://localhost:${hmrPort}'`, start: 0, end: 0 }
-              ],
-              start: 0,
-              end: 0
-            }, {
-              type: 'Element',
-              name: 'script',
-              attributes: [
-                { type: 'Attribute', name: 'type', value: [{ type: 'Text', data: 'module', start: 0, end: 0 }], start: 0, end: 0 },
-                { type: 'Attribute', name: 'src', value: [{ type: 'Text', data: '/_snowpack/hmr-client.js', start: 0, end: 0 }], start: 0, end: 0 },
-              ],
-              children: [],
-              start: 0,
-              end: 0
-            })
+        children.push(
+          {
+            type: 'Element',
+            name: 'script',
+            attributes: [],
+            children: [{ type: 'Text', data: `window.HMR_WEBSOCKET_URL = 'ws://localhost:${hmrPort}'`, start: 0, end: 0 }],
+            start: 0,
+            end: 0,
+          },
+          {
+            type: 'Element',
+            name: 'script',
+            attributes: [
+              { type: 'Attribute', name: 'type', value: [{ type: 'Text', data: 'module', start: 0, end: 0 }], start: 0, end: 0 },
+              { type: 'Attribute', name: 'src', value: [{ type: 'Text', data: '/_snowpack/hmr-client.js', start: 0, end: 0 }], start: 0, end: 0 },
+            ],
+            children: [],
+            start: 0,
+            end: 0,
+          }
+        );
       }
       head.children = head.children ?? [];
       head.children.push(...children);
