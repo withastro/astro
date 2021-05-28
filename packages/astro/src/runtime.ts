@@ -13,6 +13,7 @@ import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpa
 import { canonicalURL, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';
 import { searchForPage } from './search.js';
+import snowpackExternals from './external.js';
 
 interface RuntimeConfig {
   astroConfig: AstroConfig;
@@ -374,7 +375,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     },
     packageOptions: {
       knownEntrypoints,
-      external: ['@vue/server-renderer', 'node-fetch', 'prismjs/components/index.js', 'gray-matter'],
+      external: snowpackExternals,
     },
   });
 
