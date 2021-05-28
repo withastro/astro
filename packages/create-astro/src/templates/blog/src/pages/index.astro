@@ -1,0 +1,43 @@
+---
+import MainHead from '../components/MainHead.astro';
+import Nav from '../components/Nav.astro';
+import PostPreview from '../components/PostPreview.astro';
+import Pagination from '../components/Pagination.astro';
+
+// page
+let title = 'Don’s Blog';
+let description = 'An example blog on Astro';
+
+// collection
+// note: we want to show first 3 posts here, but we don’t want to paginate at /1, /2, /3, etc.
+// so we show a preview of posts here, but actually paginate from $posts.astro
+import authorData from '../data/authors.json';
+
+let allPosts = Astro.fetchContent('./post/*.md');
+allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+let firstPage = allPosts.slice(0, 2);
+---
+
+<html>
+  <head>
+    <title>{title}</title>
+    <MainHead
+      title={title}
+      description={description}
+      image={firstPage[0].image}
+      canonicalURL={Astro.request.canonicalURL.href}
+    />
+  </head>
+
+  <body>
+    <Nav />
+
+    <main class="wrapper">
+      {firstPage.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+    </main>
+
+    <footer>
+      <Pagination nextUrl="/posts/2" />
+    </footer>
+  </body>
+</html>

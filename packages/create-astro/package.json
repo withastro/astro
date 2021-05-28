@@ -9,8 +9,9 @@
     "create-astro": "./create-astro.js"
   },
   "scripts": {
-    "build": "ENV=production astro-scripts build src/index.tsx",
-    "postbuild": "astro-scripts copy \"src/templates/**\" --tgz",
+    "build": "ENV=production ../../scripts/index.js build src/index.tsx",
+    "postbuild": "../../scripts/index.js copy \"src/templates/**\" --tgz",
+    "prepare": "yarn build",
     "test": "uvu"
   },
   "files": [
@@ -23,9 +24,10 @@
     "ink": "^3.0.8",
     "ink-select-input": "^4.2.0",
     "ink-text-input": "^4.0.1",
+    "react": "^16.14.0",
     "source-map-support": "^0.5.19"
   },
   "devDependencies": {
-    "astro-scripts": "0.0.1"
+    "uvu": "^0.5.1"
   }
 }
