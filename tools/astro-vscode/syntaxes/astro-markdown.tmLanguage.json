@@ -4,9 +4,6 @@
   "scopeName": "text.html.markdown.astro",
   "patterns": [
     {
-      "include": "#frontMatter"
-    },
-    {
       "include": "#block"
     },
     {
@@ -2350,16 +2347,6 @@
     "separator": {
       "match": "(^|\\G)\\s*([\\*\\-\\_])([ ]{0,2}\\2){2,}[ \\t]*$\\n?",
       "name": "meta.separator.markdown"
-    },
-    "frontMatter": {
-      "begin": "\\A-{3}\\s*$",
-      "contentName": "meta.embedded.block.frontmatter",
-      "patterns": [
-        {
-          "include": "source.yaml"
-        }
-      ],
-      "end": "(^|\\G)-{3}|\\.{3}\\s*$"
     },
     "inline": {
       "patterns": [

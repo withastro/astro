@@ -15,7 +15,7 @@ DynamicComponents('Loads client-only packages', async ({ runtime }) => {
   const exp = /import\("(.+?)"\)/g;
   let match, reactRenderer;
   while ((match = exp.exec(result.contents))) {
-    if (match[1].includes('renderers/react/client.js')) {
+    if (match[1].includes('renderers/renderer-react/client.js')) {
       reactRenderer = match[1];
     }
   }

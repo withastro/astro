@@ -1280,6 +1280,23 @@
   dependencies:
     "@octokit/openapi-types" "^7.2.0"
 
+"@rollup/plugin-replace@^2.4.2":
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/@rollup/plugin-replace/-/plugin-replace-2.4.2.tgz#a2d539314fbc77c244858faa523012825068510a"
+  integrity sha512-IGcu+cydlUMZ5En85jxHH4qj2hta/11BHq95iHEyb2sbgiN0eCdzvUcHw5gt9pBL5lTi4JDYJ1acCoMGpTvEZg==
+  dependencies:
+    "@rollup/pluginutils" "^3.1.0"
+    magic-string "^0.25.7"
+
+"@rollup/pluginutils@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@rollup/pluginutils/-/pluginutils-3.1.0.tgz#706b4524ee6dc8b103b3c995533e5ad680c02b9b"
+  integrity sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==
+  dependencies:
+    "@types/estree" "0.0.39"
+    estree-walker "^1.0.1"
+    picomatch "^2.2.2"
+
 "@silvenon/remark-smartypants@^1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@silvenon/remark-smartypants/-/remark-smartypants-1.0.0.tgz#0692263f4b22af92caea9382b77bc287db69c5d1"
@@ -1321,11 +1338,12 @@
     svelte-hmr "^0.13.2"
     svelte-preprocess "^4.7.2"
 
-"@snowpack/plugin-vue@^2.5.0":
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/@snowpack/plugin-vue/-/plugin-vue-2.5.0.tgz#6912e7406c6d6dd7abec761475b6258a40c6b87a"
-  integrity sha512-yqoGY9bqKONilEGxiAKi+m854/e/mn5zoU5JR73vDnUJetGePY9xAziIIc7knF/V1sKYYz1kxXIHOD8RPkgujA==
+"@snowpack/plugin-vue@^2.6.0":
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/@snowpack/plugin-vue/-/plugin-vue-2.6.0.tgz#9e8ac6eeb15d5e17d3ca297364c140c96d88a667"
+  integrity sha512-kRjfSHMckf2wwPwpQdgDzxxX637rwC2MZIk9ib6GWlrvbFDAjLozeQMY883naQSu8RwZ4jUC0gW1OHzgz8lLPw==
   dependencies:
+    "@rollup/plugin-replace" "^2.4.2"
     "@vue/compiler-sfc" "^3.0.10"
     hash-sum "^2.0.0"
 
@@ -1378,6 +1396,11 @@
   integrity sha512-xH2e58elpj1X4ynnKp9qSnWlsRTIs6n3tgLGNfwAGHwePw0mulHQllV34n0T25uYSu1k0hRKkWXF890B1yS47w==
   dependencies:
     "@types/babel-types" "*"
+
+"@types/estree@0.0.39":
+  version "0.0.39"
+  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
+  integrity sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
 
 "@types/estree@0.0.46":
   version "0.0.46"
@@ -3899,6 +3922,11 @@ estree-walker@^0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-0.6.1.tgz#53049143f40c6eb918b23671d1fe3219f3a1b362"
   integrity sha512-SqmZANLWS0mnatqbSfRP5g8OXZC12Fgg1IwNtLsyHDzJizORW4khDfjPqJZsemPWBB2uqykUah5YpQ6epsqC/w==
+
+estree-walker@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/estree-walker/-/estree-walker-1.0.1.tgz#31bc5d612c96b704106b477e6dd5d8aa138cb700"
+  integrity sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==
 
 estree-walker@^2.0.1:
   version "2.0.2"
@@ -8881,10 +8909,10 @@ smartwrap@^1.2.3:
     wcwidth "^1.0.1"
     yargs "^15.1.0"
 
-snowpack@^3.5.1:
-  version "3.5.1"
-  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.5.1.tgz#51fbdbb56794ebb7a07f3fecd4fc60454e4f366f"
-  integrity sha512-YOpC3hpGSzFOKgbHfMmWmJ1KYEtdBWkbUUdT0H3E1fsc73qRv97wskNkVaeNKtr/yrImR5+KHUvxcWY6jgHVtw==
+snowpack@^3.5.2:
+  version "3.5.2"
+  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.5.2.tgz#0b23619be535b22ebdda1ab3eba3444acbf35b91"
+  integrity sha512-TQQT5PXxeDr4gaMbp6nQrTDLX+Y8G5qI2wLqQdHLrpQEnq7W+gysn94+0xbOhnx0pFoVlSoFPjdQ83sETWl/9A==
   dependencies:
     cli-spinners "^2.5.0"
     default-browser-id "^2.0.0"

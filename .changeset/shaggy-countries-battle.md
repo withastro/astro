@@ -6,7 +6,7 @@
 
 Updated the rendering pipeline for `astro` to truly support any framework.
 
-For the vast majority of use cases, `astro` should _just work_ out of the box. Astro now depends on `@astro-renderer/preact`, `@astro-renderer/react`, `@astro-renderer/svelte`, and `@astro-renderer/vue`, rather than these being built into the core library. This opens the door for anyone to contribute additional renderers for Astro to support their favorite framework, as well as the ability for users to control which renderers should be used.
+For the vast majority of use cases, `astro` should _just work_ out of the box. Astro now depends on `@astrojs/renderer-preact`, `@astrojs/renderer-react`, `@astrojs/renderer-svelte`, and `@astrojs/renderer-vue`, rather than these being built into the core library. This opens the door for anyone to contribute additional renderers for Astro to support their favorite framework, as well as the ability for users to control which renderers should be used.
 
 **Features**
 

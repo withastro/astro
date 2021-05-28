@@ -1,5 +1,5 @@
 export default {
-  name: '@astro-renderer/react',
+  name: '@astrojs/renderer-react',
   client: './client',
   server: './server',
 };

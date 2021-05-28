@@ -1,5 +1,5 @@
 export default {
-  name: '@astro-renderer/preact',
+  name: '@astrojs/renderer-preact',
   client: './client',
   server: './server',
 };

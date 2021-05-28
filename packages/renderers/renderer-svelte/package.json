@@ -1,5 +1,5 @@
 {
-  "name": "@astro-renderer/preact",
+  "name": "@astrojs/renderer-svelte",
   "version": "0.0.1",
   "type": "module",
   "exports": {
@@ -9,7 +9,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "preact": "^10.5.13",
-    "preact-render-to-string": "^5.1.18"
+    "svelte": "^3.35.0",
+    "@snowpack/plugin-svelte": "^3.7.0"
   }
 }
