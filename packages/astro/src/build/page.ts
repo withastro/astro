@@ -22,9 +22,9 @@ export function getPageType(filepath: URL): 'collection' | 'static' {
 }
 
 /** Build collection */
-export async function buildCollectionPage({ astroConfig, filepath, logging, mode, runtime, site, resolvePackageUrl, buildState }: PageBuildOptions): Promise<void> {
-  const pagesPath = new URL('./pages/', astroConfig.astroRoot);
-  const srcURL = filepath.pathname.replace(pagesPath.pathname, '/');
+export async function buildCollectionPage({ astroConfig, filepath, runtime, site, buildState }: PageBuildOptions): Promise<void> {
+  const { pages: pagesRoot } = astroConfig;
+  const srcURL = filepath.pathname.replace(pagesRoot.pathname, '/');
   const outURL = srcURL.replace(/\$([^.]+)\.astro$/, '$1');
 
   const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
@@ -89,8 +89,8 @@ export async function buildCollectionPage({ astroConfig, filepath, logging, mode
 
 /** Build static page */
 export async function buildStaticPage({ astroConfig, buildState, filepath, runtime }: PageBuildOptions): Promise<void> {
-  const pagesPath = new URL('./pages/', astroConfig.astroRoot);
-  const url = filepath.pathname.replace(pagesPath.pathname, '/').replace(/(index)?\.(astro|md)$/, '');
+  const { pages: pagesRoot } = astroConfig;
+  const url = filepath.pathname.replace(pagesRoot.pathname, '/').replace(/(index)?\.(astro|md)$/, '');
 
   // build page in parallel
   await Promise.all([

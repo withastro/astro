@@ -3,7 +3,7 @@ import type { ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier 
 export interface AstroConfigRaw {
   dist: string;
   projectRoot: string;
-  astroRoot: string;
+  pages: string;
   public: string;
   jsx?: string;
 }
@@ -17,7 +17,7 @@ export interface AstroMarkdownOptions {
 export interface AstroConfig {
   dist: string;
   projectRoot: URL;
-  astroRoot: URL;
+  pages: URL;
   public: URL;
   renderers?: string[];
   /** Options for rendering markdown content */

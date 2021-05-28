@@ -1,6 +1,6 @@
 export default {
   projectRoot: '.',
-  astroRoot: './src',
+  pages: './src/pages',
   dist: './dist',
   public: './public',
   extensions: {

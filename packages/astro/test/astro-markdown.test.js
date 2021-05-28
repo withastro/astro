@@ -39,9 +39,9 @@ Markdown('Bundles client-side JS for prod', async (context) => {
   await context.build();
 
   const complexHtml = await context.readFile('/complex/index.html');
-  assert.match(complexHtml, `import("/_astro/components/Counter.js"`);
+  assert.match(complexHtml, `import("/_astro/src/components/Counter.js"`);
 
-  const counterJs = await context.readFile('/_astro/components/Counter.js');
+  const counterJs = await context.readFile('/_astro/src/components/Counter.js');
   assert.ok(counterJs, 'Counter.jsx is bundled for prod');
 });
 
