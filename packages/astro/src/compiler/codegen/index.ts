@@ -422,7 +422,7 @@ function dedent(str: string) {
   return !arr || !first ? str : str.replace(new RegExp(`^[ \\t]{0,${first}}`, 'gm'), '');
 }
 
-const FALSY_EXPRESSIONS = new Set(['false','null','undefined','void 0']);
+const FALSY_EXPRESSIONS = new Set(['false', 'null', 'undefined', 'void 0']);
 
 /** Compile page markup */
 async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
