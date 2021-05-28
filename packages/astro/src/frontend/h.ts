@@ -39,7 +39,7 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
       yield child();
     } else if (typeof child === 'string') {
       yield child;
-    } else if (!child) {
+    } else if (!child && child !== 0) {
       // do nothing, safe to ignore falsey values.
     } else {
       yield child;
