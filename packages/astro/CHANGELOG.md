@@ -1,5 +1,39 @@
 # astro
 
+## 0.12.0-next.0
+
+### Minor Changes
+
+- 8ff7998: Enable Snowpack's [built-in HMR support](https://www.snowpack.dev/concepts/hot-module-replacement) to enable seamless live updates while editing.
+- 8ff7998: Enabled Snowpack's built-in HMR engine for Astro pages
+- 643c880: **This is a breaking change**
+
+  Updated the rendering pipeline for `astro` to truly support any framework.
+
+  For the vast majority of use cases, `astro` should _just work_ out of the box. Astro now depends on `@astrojs/renderer-preact`, `@astrojs/renderer-react`, `@astrojs/renderer-svelte`, and `@astrojs/renderer-vue`, rather than these being built into the core library. This opens the door for anyone to contribute additional renderers for Astro to support their favorite framework, as well as the ability for users to control which renderers should be used.
+
+  **Features**
+
+  - Expose a pluggable interface for controlling server-side rendering and client-side hydration
+  - Allows components from different frameworks to be nested within each other.
+    > Note: `svelte` currently does support non-destructive hydration, so components from other frameworks cannot currently be nested inside of a Svelte component. See https://github.com/sveltejs/svelte/issues/4308.
+
+  **Breaking Changes**
+
+  - To improve compiler performance, improve framework support, and minimize JS payloads, any children passed to hydrated components are automatically wrapped with an `<astro-fragment>` element.
+
+### Patch Changes
+
+- 3d20623: Fixed a bug where Astro did not conform to JSX Expressions' [`&&`](https://reactjs.org/docs/conditional-rendering.html#inline-if-with-logical--operator) syntax.
+
+  Also fixed a bug where `<span data-attr="" />` would render as `<span data-attr="undefined" />`.
+
+- Updated dependencies [643c880]
+  - @astrojs/renderer-preact@0.1.0-next.0
+  - @astrojs/renderer-react@0.1.0-next.0
+  - @astrojs/renderer-svelte@0.1.0-next.0
+  - @astrojs/renderer-vue@0.1.0-next.0
+
 ## 0.11.0
 
 ### Minor Changes
