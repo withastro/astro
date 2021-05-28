@@ -1,0 +1,79 @@
+---
+import MainHead from '../components/MainHead.astro';
+import Nav from '../components/Nav.astro';
+
+export let content;
+
+import authorData from '../data/authors.json';
+---
+
+<html>
+  <head>
+    <title>{content.title}</title>
+    <MainHead title={content.title} description={content.description} image={content.image} canonicalURL={Astro.request.canonicalURL} />
+    <style lang="scss">
+      .title {
+        margin-top: 4rem;
+        margin-bottom: 4rem;
+        font-size: 3em;
+        letter-spacing: -0.04em;
+        text-align: center;
+      }
+
+      .description {
+        margin-bottom: 4rem;
+        font-size: 1.4em;
+        font-weight: 400;
+        text-align: justify;
+        text-transform: uppercase;
+      }
+
+      .img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .article {
+        margin-top: 4rem;
+        margin-bottom: 6rem;
+
+        :global(p) {
+          font-size: 1.3em;
+          line-height: 2;
+          margin-top: 2em;
+          margin-bottom: 2em;
+        }
+      }
+
+      .posts {
+        text-transform: uppercase;
+      }
+
+      .footer {
+        margin-top: 6rem;
+        padding-bottom: 6rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <Nav />
+
+    <main class="wrapper">
+      <h1 class="title">{content.title}</h1>
+      <h3 class="description">{content.description}</h3>
+      <img class="img" src={content.image} alt={content.title}>
+      <article class="article">
+        <slot />
+      </article>
+      <footer class="footer">
+        <a class="posts" href="/posts">All Posts</a>
+      </footer>
+    </main>
+
+    <footer>
+    </footer>
+  </body>
+</html>

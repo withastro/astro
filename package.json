@@ -5,7 +5,7 @@
   "scripts": {
     "release": "yarn build && yarn changeset publish",
     "build": "yarn build:core",
-    "build:core": "lerna run build --scope astro --scope astro-parser --scope create-astro",
+    "build:core": "lerna run build --scope astro --scope astro-parser",
     "build:vscode": "lerna run build --scope astro-languageserver --scope astro-vscode --scope astro-parser",
     "dev:vscode": "lerna run dev --scope astro-languageserver --scope astro-vscode --scope astro-parser --parallel --stream",
     "format": "prettier -w \"**/*.{js,jsx,ts,tsx,md,json}\"",
@@ -14,7 +14,7 @@
     "test:core": "yarn workspace astro run test"
   },
   "workspaces": [
-    "packages/*",
+    "packages/!(create-astro)*",
     "packages/renderers/*",
     "examples/*",
     "tools/*",

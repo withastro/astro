@@ -1,0 +1,63 @@
+---
+export let post;
+export let author;
+
+function formatDate(date) {
+  return new Date(date).toUTCString().replace(/(\d\d\d\d) .*/, '$1'); // remove everything after YYYY
+}
+---
+
+<style lang="scss">
+.post {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+  border-bottom: 1px solid rgba(black, 0.25);
+  text-align: center;
+}
+
+.author {
+  text-transform: uppercase;
+}
+
+.date {
+  font-style: italic;
+}
+
+.description {
+  font-size: 1.25em;
+}
+
+.link {
+  text-transform: uppercase;
+  font-size: 0.8em;
+  margin-left: 1em;
+}
+
+h1 {
+  font-weight: 700;
+  font-size: 2.75em;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+time {
+  display: block;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5em;
+}
+</style>
+
+<article class="post">
+
+  <div class="data">
+    <h1>{post.title}</h1>
+    <a class="author" href={`/author/${post.author}`}>{author.name}</a>
+    <time class="date" datetime={post.date}>{formatDate(post.date)}</time>
+    <p class="description">
+      {post.description}
+      <a class="link" href={post.url}>Read</a>
+    </p>
+  </div>
+</article>
