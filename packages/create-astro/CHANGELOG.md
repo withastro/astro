@@ -1,5 +1,18 @@
 # create-astro
 
+## 0.2.0
+
+### Minor Changes
+
+- ✨ New template: Blog
+
+### Patch Changes
+
+- Bugfix: Template selection spacing
+- Bugfix: Getting Started template font display in Firefox
+- Bugfix: CLI contrast improvement
+- All templates: more readable Astro config
+
 ## 0.1.2
 
 ### Patch Changes

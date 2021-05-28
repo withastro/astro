@@ -1,6 +1,13 @@
-# Welcome to [Astro](https://astro.build)
+# Astro Blog Example
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+
+Features:
+
+- ✅ SEO-friendly setup with canonical URLs and OpenGraph data
+- ✅ Full Markdown support
+- ✅ RSS 2.0 generation
+- ✅ Sitemap.xml generation
 
 ## 🚀 Project Structure
 

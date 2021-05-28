@@ -11,6 +11,7 @@
   "scripts": {
     "build": "ENV=production ../../scripts/index.js build src/index.tsx",
     "postbuild": "../../scripts/index.js copy \"src/templates/**\" --tgz",
+    "prepare": "yarn build",
     "test": "uvu"
   },
   "files": [
@@ -25,5 +26,8 @@
     "ink-text-input": "^4.0.1",
     "react": "^16.14.0",
     "source-map-support": "^0.5.19"
+  },
+  "devDependencies": {
+    "uvu": "^0.5.1"
   }
 }
