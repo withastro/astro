@@ -15,8 +15,6 @@ All styles in Astro are automatically [**autoprefixed**](#-autoprefixer) and opt
 
 ## 🖍 Quick Start
 
-##### Astro
-
 Styling in an Astro component is done by adding a `<style>` tag anywhere. By default, all styles are **scoped**, meaning they only apply to the current component. To create global styles, add a `:global()` wrapper around a selector (the same as if you were using [CSS Modules][css-modules]).
 
 ```html
@@ -49,7 +47,7 @@ Styling in an Astro component is done by adding a `<style>` tag anywhere. By def
 - For best result, only have one `<style>` tag per-Astro component. This isn’t necessarily a limitation, but it may result in better optimization at buildtime.
 - If you want to import third-party libraries into an Astro component, you can use [Sass][sass]! In particular, [@use][sass-use] may come in handy (e.g. `@use "bootstrap/scss/bootstrap"`);
 
-#### React / Preact
+### 📘 React / Preact
 
 `.jsx` files support both global CSS and CSS Modules. To enable the latter, use the `.module.css` extension (or `.module.scss`/`.module.sass` if using Sass).
 
@@ -58,18 +56,18 @@ import './global.css'; // include global CSS
 import Styles from './styles.module.css'; // Use CSS Modules (must end in `.module.css`, `.module.scss`, or `.module.sass`!)
 ```
 
-##### Vue
+### 📗 Vue
 
 Vue in Astro supports the same methods as `vue-loader` does:
 
 - [Scoped CSS][vue-scoped]
 - [CSS Modules][vue-css-modules]
 
-##### Svelte
+### 📕 Svelte
 
 Svelte in Astro also works exactly as expected: [Svelte Styling Docs][svelte-style].
 
-#### 👓 Sass
+### 👓 Sass
 
 Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 
@@ -78,11 +76,13 @@ Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 - **Vue**: `<style lang="scss">` or `<style lang="sass">`
 - **Svelte**: `<style lang="scss">` or `<style lang="sass">`
 
-#### 🦊 Autoprefixer
+💁‍ Sass is great! If you haven’t used Sass in a while, please give it another try. The new and improved [Sass Modules][sass-use] are a great fit with modern web development, and it’s blazing-fast since being rewritten in Dart. And the best part? **You know it already!** Use `.scss` to write familiar CSS syntax you’re used to, and only sprinkle in Sass features if/when you need them.
 
-We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the default values, but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
+### 🦊 Autoprefixer
 
-#### 🍃 Tailwind
+We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the [Browserslist defaults][browserslist-defaults], but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
+
+### 🍃 Tailwind
 
 Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
 
@@ -112,7 +112,7 @@ Be sure to add the config path to `astro.config.mjs`, so that Astro enables JIT 
   };
 ```
 
-Now you’re ready to write Tailwind! Our recommended approach is to create a `public/global.css` file with [Tailwind utilities][tailwind-utilities] like so:
+Now you’re ready to write Tailwind! Our recommended approach is to create a `public/global.css` file (or whatever you‘d like to name your global stylesheet) with [Tailwind utilities][tailwind-utilities] like so:
 
 ```css
 /* public/global.css */
@@ -123,12 +123,13 @@ Now you’re ready to write Tailwind! Our recommended approach is to create a `p
 
 💁 As an alternative to `public/global.css`, You may also add Tailwind utilities to individual `pages/*.astro` components in `<style>` tags, but be mindful of duplication! If you end up creating multiple Tailwind-managed stylesheets for your site, make sure you’re not sending the same CSS to users over and over again in separate CSS files.
 
-#### 📦 Bundling
+### 📦 Bundling
 
-All CSS is minified and bundled automatically for you in running `astro build`. The general specifics are:
+All CSS is minified and bundled automatically for you in running `astro build`. Without getting too in the weeds, the general rules are:
 
-- If a style only appears on one route, it’s only loaded for that route
-- If a style appears on multiple routes, it’s deduplicated into a `common.css` bundle
+- If a style only appears on one route, it’s only loaded for that route (`/_astro/[page]-[hash].css`)
+- If a style appears on multiple routes, it’s deduplicated into a `/_astro/common-[hash].css` bundle
+- All styles are hashed according to their contents (the hashes only change if the contents do!)
 
 We’ll be expanding our styling optimization story over time, and would love your feedback! If `astro build` generates unexpected styles, or if you can think of improvements, [please open an issue](https://github.com/snowpackjs/astro/issues).
 
@@ -136,26 +137,28 @@ We’ll be expanding our styling optimization story over time, and would love yo
 
 ## 📚 Advanced Styling Architecture in Astro
 
-Many development setups give you the basics on where to put CSS for small things, but very quickly you realize the simple examples fail you as your code scales, and soon you have a mess on your hands. An natural question for any setup is “how do I architect my styles?” yet not every framework outlines its rules. While we’d like to say _“use whatever you want,”_ and leave it up to you, the reality is that not all styling approaches will work as well in Astro as others, because Astro is a blend of new ideas (**Partial Hydration** and **JS frameworks with zero runtime JS**) and old (**HTML-first**). It couldn’t hurt to try and provide a guide on how to think about styling architecture in Astro, and this section is precisely that.
+Too many development setups take a hands-off approach to CSS, or at most leave you with only contrived examples that don’t get you very far. Telling developers “Use whatever styling solution you want!” is a nice thought that rarely works out in practice. Few styling approaches lend themselves to every setup. Astro is no different—certain styling approaches _will_ work better than others.
 
-An example of all styling approaches not being equal in Astro: given that Astro tries and removes runtime JS, and even the framework if possible, it’d be very inefficient to load all of React just to load Styled Components so your page can have styles (in fact we’d discourage using any CSS-in-JS runtime in Astro in general). On the opposite end of the styling spectrum, you _can_ use a completely-decoupled [BEM][bem] or [SMACSS][smacss] approach in Astro. But that’s a lot of manual maintenance you can avoid, and it leaves out a lof of convenience of [Astro components][astro-syntax].
+An example to illustrate this: Astro removes runtime JS (even the core framework if possible). Thus, depending on Styled Components for all your styles would be bad, as that would require React to load on pages where it’s not needed. Or at best, you’d get a “[FOUC][fouc]” as your static HTML is served but the user waits for JavaScript to download and execute. Or consider a second example at the opposite end of the spectrum: _BEM_. You _can_ use a completely-decoupled [BEM][bem] or [SMACSS][smacss] approach in Astro. But that’s a lot of manual maintenance you can avoid, and it leaves out a lof of convenience of [Astro components][astro-syntax].
 
-We think there’s a great middle ground between easy-to-use-but-slow CSS-in-JS and fast-but-ornery decoupled CSS. This approach doesn’t have a fancy name (yet), but works well in Astro, is performant for users, and will be the best styling solution in Astro _for most people_ (provided you’re willing to learn a little). This guide is structured in the form of some basic do’s and don’ts up front, followed by the reasoning behind each. Again, the reason they’re outlined here and not mandated by the framework is that we want you to ultimately make the decisions! But if you’re looking for opinions, you’ve found them 🙂.
+We think there’s a great middle ground between intuitive-but-slow CSS-in-JS and fast-but-cumbersome global CSS: **Hybrid Scoped + Utility CSS**. This approach works well in Astro, is performant for users, and will be the best styling solution in Astro _for most people_ (provided you’re willing to learn a little). So as a quick recap:
 
-### Rules
+**This approach is good for…**
 
-1. Avoid global styles (other than utility CSS)
-2. Use utility CSS
-3. Centralize your layouts
-4. Don’t use flexbox and grid libraries; write them custom when you need them
-5. Never use `margin` on a component wrapper
-6. Let each component set its own media queries (i.e. don’t have global media queries).
+- Developers wanting to try out something new in regard to styling
+- Developers that would appreciate some strong opinions in CSS architecture
 
-_Note: if these rules seem restrictive, they’re meant to be! As stated, these are strong opinions that may improve your apps’ styles after you learn the reasons why._
+**This approach is **NOT** good for…**
 
-#### 1. Avoid global styles
+- Developers that already have strong opinions on styling, and want to control everything themselves
 
-You don’t need an explanation on component-based design. You already know that reusing components is a good idea. And it’s this idea that got people used to concepts like [Styled Components][styled-components] and [Styled JSX][styled-jsx]. But rather than burden your users with slow load times, Astro has something better: **built-in scoped styles.**
+Read on if you’re looking for some strong opinions 🙂. We’ll describe the approach by enforcing a few key rules that should govern how you set your styles:
+
+### Hybrid Scoped + Utility CSS
+
+#### Scoped styles
+
+You don’t need an explanation on component-based design. You already know that reusing components is a good idea. And it’s this idea that got people used to concepts like [Styled Components][styled-components] and [Styled JSX][styled-jsx]. But rather than burden your users with slow load times of CSS-in-JS, Astro has something better: **built-in scoped styles.**
 
 ```html
 <!-- src/components/Button.astro -->
@@ -193,7 +196,7 @@ import Button from './Button.astro';
 <nav class="nav"><button>Menu</button></nav>
 ```
 
-This is undesirable because now `<Nav>` and `<Button>` fight over what the final button looks like. Now, whenever you edit one, you’ll always have to edit the other, and they are no longer truly isolated as they once were (now coupled by a bidirectional styling dependency). It’s easy to see how this pattern only has to repeated a couple times before editing one file breaks the styles of another.
+This is undesirable because now `<Nav>` and `<Button>` fight over what the final button looks like. Now, whenever you edit one, you’ll always have to edit the other, and they are no longer truly isolated as they once were (now coupled by a bidirectional styling dependency). It’s easy to see how this pattern only has to repeated a couple times before being afraid that touching any styles _anywhere_ may break styling in a completely different part of the app (queue `peter-griffin-css-blinds.gif`).
 
 Instead, let `<Button>` control its own styles, and try a prop:
 
@@ -216,13 +219,15 @@ export let theme;
 
 Elsewhere, you can use `<Button theme="nav">` to set the type of button it is. This preserves the contract of _Button is in charge of its styles, and Nav is in charge of its styles_, and now you can edit one without affecting the other. The worst case scenario of using global styles is that the component is broken and unusable (it’s missing part of its core styles). But the worst case scenario of using props (e.g. typo) is that a component will only fall back to its default, but still usable, state.
 
-#### 2. Use utility CSS
+💁 **Why this works well in Astro**: Astro is inspired most by JavaScript modules: you only need to know about what’s in one file at a time, and you never have to worry about something in a remote file affecting how this code runs. But we’re not alone in this; Vue and Svelte have both capitalized on and popularized the idea that styles and markup are natural fits in the same component file. [You can still have separation of concerns][peace-on-css] even with markup, styling, and logic contained in one file. In fact, that’s what makes component design so powerful! So write CSS without fear that you picked a name that’s used by some other component across your app.
+
+#### Utility CSS
 
 Recently there has been a debate of all-scoped component styles vs utility-only CSS. But we agree with people like Sarah Dayan who ask [why can’t we have both][utility-css]? Truth is that while having scoped component styles are great, there are still hundreds of times when the website’s coming together when two components just don’t line up _quite_ right, and one needs a nudge. Or different text treatment is needed in one component instance.
 
-While the thought of having perfect, pristine components is nice, it’s unrealistic. No design system is absoutely perfect, and every design system has inconsistencies. And it’s in reconciling these inconsistencies where components can become a mess without utility CSS. Utility CSS is great for adding minor tweaks necessary to get the website out the door. And utilities work best when they’re globally-available so you don’t have to deal with imports all willy-nilly.
+While the thought of having perfect, pristine components is nice, it’s unrealistic. No design system is absoutely perfect, and every design system has inconsistencies. And it’s in reconciling these inconsistencies where components can become a mess without utility CSS. Utility CSS is great for adding minor tweaks necessary to get the website out the door. But they also are incomplete on their own—if you’ve ever tried to manage responsive styles or accessible focus states with utility CSS it can quickly become a mess! **Utility CSS works best in partnership with component (scoped) CSS**. And in order to be as easy as possible to use, Utility CSS should be global (arguably should be your only global CSS, besides maybe reset.css) so you don’t have to deal with imports all willy-nilly.
 
-Some great examples of Utility (and Global) CSS are:
+Some great problems best handled with Utility CSS are:
 
 - [margin](https://github.com/drwpow/sass-utils#-margin--padding)
 - [padding](https://github.com/drwpow/sass-utils#-margin--padding)
@@ -249,16 +254,27 @@ And in your local filesystem, you can even use Sass’ [@use][sass-use] to combi
 │       ├── _utils.scss
 │       └── global.scss
 └── src/
-    └── …
+    └── (pages)
 ```
 
 What’s in each file is up to you to determine, but start small, add utilities as you need them, and you’ll keep your CSS weight incredibly low. And utilities you wrote to meet your real needs will always be better than anything off the shelf.
 
-Is utility CSS capable of building entire apps? **No!** It becomes very unwieldy trying to create components entirely out of them. Or if you’re managing breakpoints (media queries), or when you are handling interactions like `:hover`, `:focus`, or even animation. Think of component styles as the backbone of a healthy style architecture that get you 80% of the way there, and utility CSS filling in the remaining 20%. They both work well in tandem, with each compensating for the other’s weakness.
+So to recap, think of scoped styles as the backbone of your styles that get you 80% of the way there, and utility CSS filling in the remaining 20%. They both work well in tandem, with each compensating for the other’s weakness.
 
-#### 3. Centralize your layouts
+💁 **Why this works well in Astro**: Astro was built around the idea of **Scoped CSS and Global Utility CSS living together in harmony** ♥️! Take full advantage of it.
 
-While this guide will never be long enough to answer the question _”How should a page be laid out?”_ there’s a subtle, but important question within that field that is critical to get right: _“Given a layout, how should components/styles be organized?”_ This question has more of a right or wrong answer, but it will take a little bit of explaining in the form of an example to communicate the general concept. Imagine that we are starting with a layout like so:
+### More suggestions
+
+”But wait!” you may ask, having read the previous section. ”That doesn’t take care of [my usecase]!” If you‘re looking for more pointers on some common styling problems, you may be interested in the following suggestions. These all are cohesive, and fit with the **Hybrid Scoped + Utility** philosphy:
+
+1. Split your app into Layout Components and Base Components
+1. Avoid Flexbox and Grid libraries (write your own!)
+1. Avoid `margin` on a component wrapper
+1. Avoid global media queries
+
+#### Suggestion #1: Split your app into Layout Components and Base Components
+
+While this guide will never be long enough to answer the question _”How should a page be laid out?”_ (that’s a [design problem!][cassie-evans-css]) there is a more specific question hiding within that we _can_ answer: _“Given a layout, how should components/styles be organized?”_ The answer is **don’t bake layout into components.** Have layout components that control layout, and base components (buttons, cards, etc.) that don’t control layout. _What does that mean?_ Let’s walk through an example so it’s more clear. Pretend we have a page that looks like this (numbers for different components):
 
 ```
 |---------------|
@@ -281,8 +297,8 @@ The layout consists of a big, giant, full-width post at top, followed by two hal
 import Nav from '../components/Nav.astro';
 import BigPost from '../components/BigPost.astro';
 import Grid from '../components/Grid.astro';
-import MediumPosts from '../components/MediumPost.astro';
-import SmallPosts from '../components/SmallPost.astro';
+import MediumPosts from '../components/MediumPosts.astro';
+import SmallPosts from '../components/SmallPosts.astro';
 import Footer from '../components/Footer.astro';
 ---
 <html>
@@ -300,11 +316,9 @@ import Footer from '../components/Footer.astro';
 </html>
 ```
 
-This is very clean, and all our components are isolated. This is correct, right? Well, not so much—this is about the worst way to compose the layout. Because there’s no CSS in our top level, we can assume that the layout CSS doesn’t exist in one place; it’s evenly split between four components: `<Grid>`, `<BigPost>`, `<MediumPosts>`, and `<SmallPosts>`. This is actually the **Global CSS Problem** in disguise—multiple components fight over how they all lay out together, without layout being one, central responsibility. And because the layout is an implicit contract between 4 components, your layout is brittle, and it will always break unless you edit all 4 components together. In other words, you’ve created one big component split into 4 files.
+This _looks_ clean, but looks can be deceiving. At first glance, we may think that `<Grid>` is controlling the layout, but that’s an illusion. We actually have `<BigPost>` handling its own width, `<MediumPosts>` loading 2 components and controlling its width, and `<SmallPosts>` loading 4+ components and controlling its width. In total, including `<Grid>`, that means **4 components** are all fighting over the same layout. Remove one post from `<MediumPosts>`, the layout breaks. Edit `<BigPost>`, the layout breaks. Edit `<Grid>`, the layout breaks. If you think about it, none of these components are truly reusable—they might as well just be one big file.
 
-Further, this limits the reusable power of these components. Because now they can’t be used outside of a `<Grid>`, they aren’t that reusable and you’ll probably create clones of each. Or if they can live outside `<Grid>`, you now have to manage multiple variations of all components that could be avoided. **Components should display the same regardless of placement**, and layouts that require specific combinations and orderings of components is a poor system.
-
-By contrast, let’s see how we’d fix this:
+This is actually the **Global CSS Problem** in disguise—multiple components fight over how they all lay out together, without layout being one, central responsibility (kinda like global CSS)! Now that we identified the problem, one way to fix this is to hoist the entire layout to the top level, and load all components there, too:
 
 ```jsx
 ---
@@ -373,11 +387,15 @@ import Footer from '../components/Footer.astro';
 </html>
 ```
 
-This is much better—`index.astro` now manages 100% of the layout, and the components manage 0%. Your layout is centralized, and now these components truly are reusable because they don’t care one bit about whether they’re in the same grid or not. You can edit styles in any of these files now without fear of styles breaking in another.
+Getting over that this is more code, it’s actually a much cleaner separation. What was a four-component layout is now managed 100% within the top-level `index.astro` (which we can now consider a **Layout Component**, and if we wanted to reuse this we could extract this into its own file). Your layout is centralized, and now these components truly are reusable because they don’t care one bit about whether they’re in the same grid or not. You can edit styles in any of these files now without fear of styles breaking in another.
 
-The basic rule is that when orchestrating multiple components, **that’s a unique responsibility** that should live in one and only one place. That can be in the form of page styles (like here), and that’s a great starting point. But you can also extract layouts to their own layout components, just as long as they remain in one place.
+The basic rule is that when orchestrating multiple components, **that’s a unique responsibility** that should live in one central place, rather than split between 4 components as we were doing. In fact, top-level pages are great at this, and should always be the starting point of your layout components. See how far you can take it, and only extract layout components when you absolutely have to.
 
-#### 4. Don’t use a Flexbox or Grid library; write it custom
+To recap: **if you have to touch multiple files to manage one layout, you probably need to reorganize everything into a Layout Component.**
+
+💁 **Why this works well in Astro**: In Astro, anything can be a `.astro` component, and you never incurr performance problems no matter how many components you add. But the main benefit to [Layout isolation][layout-isolated] is how much it cuts down on the amount of CSS you need.
+
+#### Suggestion #2: Avoid Flexbox and Grid libraries (write your own!)
 
 This may feel like a complete overreach to tell you not to use your favorite layout framework you’re familiar with. After all, it’s gotten you this far! But the days of [float madness](https://zellwk.com/blog/responsive-grid-system/) are gone, replaced by Flexbox and Grid. And the latter don’t need libraries to manage them (often they can make it harder).
 
@@ -389,16 +407,18 @@ Many front-end developers experience the following train of thought:
 
 While the logic is sound and the first point is correct, many developers assume #2 is correct when that is not the reality for many. Many projects contain myriad layouts that are different from one part of a website to another. And even if they are the same on one breakpoint doesn’t mean they are the same on all breakpoints!
 
-Ask yourself: _If there really were more unique layouts in my website than I assumed, why am I trying to deduplicate them?_ You’ll probably start to realize that fewer of your layouts are reusable than you thought, and that a few, thoughtful, custom layout components can handle all your needs. This is especially true when you **Centralize your Layouts** (Rule #3).
+Ask yourself: _If there really were more unique layouts in my website than I assumed, why am I trying to deduplicate them?_ You’ll probably start to realize that fewer of your layouts are reusable than you thought, and that a few, thoughtful, custom layout components can handle all your needs. This is especially true when you **Centralize your layouts into Layout Components** (previous suggestion).
 
-Another way to look at it: perhaps spending a couple hours learning Flexbox and Grid will pay off much better than spending that same amount of time learning a proprietary styling framework, wrestling with it, and/or switchign it out when it doesn’t perform as expected. There are great, free, learning resources that are worth your time:
+Another way to look at it: if you have to spend a couple hours learning a proprietary styling framework, wrestling with it, filing issues, etc., why not just spend that time on Flexbox and Grid instead? For many people, learning the basics only takes an hour, and that can get you pretty far! There are great, free, learning resources that are worth your time:
 
 - [Flexbox Froggy](https://flexboxfroggy.com/)
 - [CSS Grid Garden](https://cssgridgarden.com/)
 
 So in short: stop trying to deduplicate layouts when there’s nothing to deduplicate! You’ll find your styles not only easier to manage, but your CSS payloads much lighter, and load times faster.
 
-#### 5. Never use `margin` on a component wrapper
+💁 **Why this works well in Astro**: grid libraries are a quick path to stylesheet bloat, and a major contributor to people attempting to [treeshake their styles][css-treeshaking]. Astro does **not** treeshake unused CSS for you, because [that can cause problems][css-treeshaking]. We’re not saying you have to be library free; we’re big fans of libraries like [Material UI][material-ui]. But if you can at least shed the thousands upon thousands of layouts you’re not using from your styling library, you probably don’t need automatic treeshaking.
+
+#### Suggestion #3: Avoid `margin` on a component wrapper
 
 In other words, don’t do this:
 
@@ -418,11 +438,11 @@ If you remember the [CSS box model][box-model], `margin` extends beyond the boun
 
 When you have components that rearrage, or appear different when they’re next to other components, that’s a hard battle to win. **Components should look and act the same no matter where they are placed.** That’s what makes them components!
 
-💁 **Why this helps Astro styling**: margins pushing other components around creeps into your styling architecture in sneaky ways, and can result in the creation of some wonky or brittle layout components. Avoiding it altogether will keep your layout components simpler, and you’ll spend less time styling in general.
+💁 **Why this works well in Astro**: margins pushing other components around creeps into your styling architecture in sneaky ways, and can result in the creation of some wonky or brittle layout components. Avoiding it altogether will keep your layout components simpler, and you’ll spend less time styling in general.
 
-#### 6. Don’t use global media queries
+#### Suggestion #4: Avoid global media queries
 
-The final point is a natural extension of the **Prefer Component-scoped styles** rule. That extends to breakpoints, too! You know that one, weird breakpoint where your `<Card />` component wraps awkardly at a certain size? You should handle that within `<Card />`, and not anywhere else.
+The final point is a natural boundary of **Scoped Styles**. That extends to breakpoints, too! You know that one, weird breakpoint where your `<Card />` component wraps awkardly at a certain size? You should handle that within `<Card />`, and not anywhere else.
 
 Even if you end up with some random value like `@media (min-width: 732px) {`, that’ll probably work better than trying to create a global [magic number][magic-number] somewhere that only applies to one context (an arbitrary value may be “magic” to the rest of an app, but it does still have meaning within the context of a component that needs that specific value).
 
@@ -430,7 +450,7 @@ Granted, this has been near-impossible to achieve until Container Queries; fortu
 
 Also, a common complaint of this approach is when someone asks _”What if I have 2 components that need to do the same thing at the same breakpoint?”_ to which my answer is: you’ll always have one or two of those; just handle those as edge cases. But if your entire app is made up of dozens of these cases, perhaps your component lines could be redrawn so that they’re more [layout-isolated][layout-isolated] in general.
 
-💁 **Why this helps Astro styling**: this is probably the least-important point, which is why it’s saved for last. But it’s something that people try to architect for at scale, and having a global system to manage this can often be unnecessary. Give _not_ architecting for global media queries a try, and see how far it takes you!
+💁 **Why this works well in Astro**: this is probably the least important point, which is why it’s saved for last. In fact, you could probably skip this if it doesn’t work for you. But it’s something that people try to architect for at scale, and having a global system to manage this can often be unnecessary. Give _not_ architecting for global media queries a try, and see how far it takes you!
 
 ### 👓 Further Reading
 
@@ -446,10 +466,16 @@ Also please check out the [Stylelint][stylelint] project to whip your styles int
 [bem]: http://getbem.com/introduction/
 [box-model]: https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model
 [browserslist]: https://github.com/browserslist/browserslist
+[browserslist-default]: https://github.com/browserslist/browserslist#queries
+[cassie-evans-css]: https://twitter.com/cassiecodes/status/1392756828786790400?s=20
 [container-queries]: https://ishadeed.com/article/say-hello-to-css-container-queries/
 [css-modules]: https://github.com/css-modules/css-modules
+[css-treeshaking]: https://css-tricks.com/how-do-you-remove-unused-css-from-a-site/
+[fouc]: https://en.wikipedia.org/wiki/Flash_of_unstyled_content
 [layout-isolated]: https://visly.app/blogposts/layout-isolated-components
 [magic-number]: https://css-tricks.com/magic-numbers-in-css/
+[material-ui]: https://material.io/components
+[peace-on-css]: https://didoo.medium.com/let-there-be-peace-on-css-8b26829f1be0
 [sass]: https://sass-lang.com/
 [sass-use]: https://sass-lang.com/documentation/at-rules/use
 [smacss]: http://smacss.com/
