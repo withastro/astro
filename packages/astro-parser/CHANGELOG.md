@@ -5,6 +5,7 @@
 ### Patch Changes
 
 - Fixes a few more Markdown issues
+
 ## 0.11.0
 
 ### Patch Changes
