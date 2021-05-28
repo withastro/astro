@@ -58,6 +58,10 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
       // note: attr.value shouldn’t be `undefined`, but a bad transform would cause a compile error here, so prevent that
       continue;
     }
+    if (attr.value.length === 0) {
+      result[attr.name] = '""';
+      continue;
+    }
     if (attr.value.length > 1) {
       result[attr.name] =
         '(' +
