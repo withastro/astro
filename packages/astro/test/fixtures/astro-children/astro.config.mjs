@@ -1,5 +1,7 @@
 export default {
-  extensions: {
-    '.jsx': 'preact'
-  },
+  renderers: [
+    '@astro-renderer/preact',
+    '@astro-renderer/vue',
+    '@astro-renderer/svelte',
+  ],
 };
