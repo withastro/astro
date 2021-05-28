@@ -1,5 +1,10 @@
 # astro-parser
 
+### 0.12.0-next.0
+
+### Patch Changes
+
+- Fixes a few more Markdown issues
 ## 0.11.0
 
 ### Patch Changes
