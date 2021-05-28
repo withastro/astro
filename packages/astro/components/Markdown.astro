@@ -1,3 +1,20 @@
+---
+export let content: string;
+let html = null;
+
+if (content) {
+  // @origin signals that Snowpack should replace this with
+  // the dev server's absolute URL
+  html = await fetch('@api/render-markdown', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'text/plain'
+    },
+    body: content
+  }).then(res => res.text());
+}
+---
 <!-- Probably not what you're looking for! -->
 <!-- Check `astro-parser` or /frontend/markdown.ts -->
-<slot />
+{!html && <slot />}
+{html}

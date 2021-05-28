@@ -434,6 +434,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
     /** renders markdown stored in `buffers.markdown` to JSX and pushes that to `buffers.out` */
     async function pushMarkdownToBuffer() {
       const md = buffers.markdown;
+      console.log({ md });
       const { markdownOptions = {} } = astroConfig;
       const { $scope: scopedClassName } = state.markers.insideMarkdown as Record<'$scope', any>;
       let { content: rendered } = await renderMarkdown(dedent(md), {
@@ -546,6 +547,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               if (componentName === 'Markdown') {
                 const { $scope } = attributes ?? {};
                 state.markers.insideMarkdown = { $scope };
+                buffers[curr] += `${componentName}.__render(${attributes ? generateAttributes(attributes) : 'null'}),`;
                 curr = 'markdown';
                 return;
               }

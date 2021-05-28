@@ -4,6 +4,7 @@ const { readFile } = require('fs').promises;
 const transformPromise = import('./dist/compiler/index.js');
 
 module.exports = (snowpackConfig, { resolvePackageUrl, hmrPort, renderers, astroConfig } = {}) => {
+  const origin = astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).origin : `http://localhost:${astroConfig.devOptions.port}`;
   return {
     name: 'snowpack-astro',
     resolve: {
@@ -32,6 +33,10 @@ module.exports = (snowpackConfig, { resolvePackageUrl, hmrPort, renderers, astro
       * ```
       */
     async transform({contents, id, fileExt}) {
+      // Astro components can use `fetch('@api/some-path')` to call Astro's internal API routes
+      if (fileExt === '.js' && /fetch\(['"]@api/g.test(contents)) {
+        return contents.replace(/fetch\((['"])@api/g, (_, $1) => `fetch(${$1}${origin}/_astro_api`);
+      }
       if (fileExt === '.js' && /__astro_component\.js/g.test(id)) {
         const rendererServerPackages = await Promise.all(renderers.map(({ server }) => resolvePackageUrl(server)));
         const rendererClientPackages = await Promise.all(renderers.map(({ client }) => resolvePackageUrl(client)));
