@@ -15,7 +15,7 @@ export default {
   /** Options specific to `astro build` */
   buildOptions: {
     /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
-    site: '',
+    site: 'http://example.com',
     /** Generate sitemap (set to "false" to disable) */
     sitemap: true,
   },
