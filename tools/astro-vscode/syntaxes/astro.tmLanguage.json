@@ -718,25 +718,25 @@
       "begin": "(<)(Markdown)(>)",
       "beginCaptures": {
         "1": {
-          "name":"punctuation.definition.tag.begin.html"
+          "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
           "name": "entity.name.tag.html"
         },
         "3": {
-          "name":"punctuation.definition.tag.end.html"
+          "name": "punctuation.definition.tag.end.html"
         }
       },
       "end": "(</)(Markdown)(>)",
       "endCaptures": {
         "1": {
-          "name":"punctuation.definition.tag.begin.html"
+          "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
           "name": "entity.name.tag.html"
         },
         "3": {
-          "name":"punctuation.definition.tag.end.html"
+          "name": "punctuation.definition.tag.end.html"
         }
       },
       "patterns": [
