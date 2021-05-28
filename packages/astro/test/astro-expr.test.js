@@ -58,4 +58,17 @@ Expressions('Allows multiple JSX children in mustache', async ({ runtime }) => {
   assert.ok(result.contents.includes('#f') && !result.contents.includes('#t'));
 });
 
+Expressions('Does not render falsy values using &&', async ({ runtime }) => {
+  const result = await runtime.load('/falsy');
+  if (result.error) throw new Error(result.error);
+  
+  const $ = doc(result.contents);
+  
+  assert.equal($('#true').length, 1, `Expected {true && <span id="true" />} to render`);
+  assert.equal($('#zero').text(), '0', `Expected {0 && "VALUE"} to render "0"`);
+  assert.equal($('#false').length, 0, `Expected {false && <span id="false" />} not to render`);
+  assert.equal($('#null').length, 0, `Expected {null && <span id="null" />} not to render`);
+  assert.equal($('#undefined').length, 0, `Expected {undefined && <span id="undefined" />} not to render`);
+});
+
 Expressions.run();

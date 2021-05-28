@@ -19,7 +19,9 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
   yield `<${tag}`;
   if (attrs) {
     for (let [key, value] of Object.entries(attrs)) {
-      yield ` ${key}="${value}"`;
+      if (value === '') yield ` ${key}=""`;
+      else if (value == null) yield '';
+      else yield ` ${key}="${value}"`;
     }
   }
   yield '>';
@@ -37,7 +39,7 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
       yield child();
     } else if (typeof child === 'string') {
       yield child;
-    } else if (!child) {
+    } else if (!child && child !== 0) {
       // do nothing, safe to ignore falsey values.
     } else {
       yield child;
