@@ -2,9 +2,9 @@
 export let content: string;
 let html = null;
 
+// This flow is only triggered if a user passes `<Markdown content={content} />`
 if (content) {
-  // @origin signals that Snowpack should replace this with
-  // the dev server's absolute URL
+  // @api signals that Snowpack should replace this with an absolute URL to Astro's API handlers
   html = await fetch('@api/render-markdown', {
     method: 'POST',
     headers: {
@@ -14,7 +14,7 @@ if (content) {
   }).then(res => res.text());
 }
 ---
-<!-- Probably not what you're looking for! -->
-<!-- Check `astro-parser` or /frontend/markdown.ts -->
-{!html && <slot />}
-{html}
+
+// If we have rendered `html` for `content`, render that
+// Otherwise, just render the slotted content
+{html ? html : <slot />}
