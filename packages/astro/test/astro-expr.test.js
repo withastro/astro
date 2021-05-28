@@ -65,6 +65,7 @@ Expressions('Does not render falsy values using &&', async ({ runtime }) => {
   const $ = doc(result.contents);
   
   assert.equal($('#true').length, 1, `Expected {true && <span id="true" />} to render`);
+  assert.equal($('#zero').text(), '0', `Expected {0 && "VALUE"} to render "0"`);
   assert.equal($('#false').length, 0, `Expected {false && <span id="false" />} not to render`);
   assert.equal($('#null').length, 0, `Expected {null && <span id="null" />} not to render`);
   assert.equal($('#undefined').length, 0, `Expected {undefined && <span id="undefined" />} not to render`);
