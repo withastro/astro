@@ -12,8 +12,8 @@ const Install: FC<{ context: any }> = ({ context: { use } }) => {
       </Box>
       <Box>
         <Spacer />
-        <Text color="white" dimColor>
-          (aka running <Text color="#17C083">{use === 'npm' ? 'npm install' : 'yarn'}</Text>)
+        <Text dimColor>
+          (aka running <Text dimColor>{use === 'npm' ? 'npm install' : 'yarn'}</Text>)
         </Text>
       </Box>
     </>
