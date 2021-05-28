@@ -1,0 +1,83 @@
+---
+import MainHead from '../components/MainHead.astro';
+import Nav from '../components/Nav.astro';
+import PostPreview from '../components/PostPreview.astro';
+import Pagination from '../components/Pagination.astro';
+
+// page
+let title = 'Don’s Blog';
+let description = 'An example blog on Astro';
+let canonicalURL = Astro.request.canonicalURL;
+
+// collection
+import authorData from '../data/authors.json';
+export let collection: any;
+export async function createCollection() {
+  return {
+    /** Load posts, sort newest -> oldest */
+    async data() {
+      let allPosts = Astro.fetchContent('./post/*.md');
+      allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+      return allPosts;
+    },
+    /** Set page size */
+    pageSize: 2,
+    /** Generate RSS feed (only for main /posts/ feed) */
+    rss: {
+      title: 'Don’s Blog',
+      description: 'An example blog on Astro',
+      customData: `<language>en-us</language>`,
+      item: (item) => ({
+        title: item.title,
+        description: item.description,
+        link: item.url,
+        pubDate: item.date,
+      }),
+    }
+  };
+}
+---
+
+<html>
+  <head>
+    <title>{title}</title>
+    <MainHead
+      title={title}
+      description={description}
+      image={collection.data[0].image}
+      canonicalURL={canonicalURL}
+      prev={collection.url.prev}
+      next={collection.url.next}
+    />
+
+    <style lang="scss">
+      .title {
+        font-size: 3em;
+        letter-spacing: -0.04em;
+        margin-top: 2rem;
+        margin-bottom: 0;
+        text-align: center;
+      }
+
+      .count {
+        font-size: 1em;
+        display: block;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <Nav title={title} />
+
+    <main class="wrapper">
+      <h1 class="title">All Posts</h1>
+      <small class="count">{collection.start + 1}–{collection.end + 1} of {collection.total}</small>
+      {collection.data.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+    </main>
+
+    <footer>
+      <Pagination prevUrl={collection.url.prev} nextUrl={collection.url.next} />
+    </footer>
+  </body>
+</html>
