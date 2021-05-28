@@ -33,6 +33,22 @@ export default async function dev(astroConfig: AstroConfig) {
 
   const server = http.createServer(async (req, res) => {
     timer.load = performance.now();
+
+    if (req.url?.startsWith('/_astro_api')) {
+      const route = req.url.replace(/^\/_astro_api/, '');
+      let data = '';
+      req.on('data', (chunk) => {
+        data += chunk;
+      });
+      req.on('end', () => {
+        console.log(`Handle API route for "${route}"`);
+        res.setHeader('Content-Type', 'text/plain');
+        res.write(`<h1>Render me to HTML somehow!</h1>\n${data}`);
+        res.end();
+      });
+      return;
+    }
+
     const result = await runtime.load(req.url);
     debug(logging, 'dev', `loaded ${req.url} [${stopTimer(timer.load)}]`);
 
