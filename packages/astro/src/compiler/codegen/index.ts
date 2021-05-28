@@ -422,6 +422,8 @@ function dedent(str: string) {
   return !arr || !first ? str : str.replace(new RegExp(`^[ \\t]{0,${first}}`, 'gm'), '');
 }
 
+const FALSY_EXPRESSIONS = new Set(['false','null','undefined','void 0']);
+
 /** Compile page markup */
 async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
   return new Promise((resolve) => {
@@ -479,10 +481,12 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             }
             // TODO Do we need to compile this now, or should we compile the entire module at the end?
             let code = compileExpressionSafe(raw).trim().replace(/\;$/, '');
-            if (state.markers.insideMarkdown) {
-              buffers[curr] += `{${code}}`;
-            } else {
-              buffers[curr] += `,(${code})`;
+            if (!FALSY_EXPRESSIONS.has(code)) {
+              if (state.markers.insideMarkdown) {
+                buffers[curr] += `{${code}}`;
+              } else {
+                buffers[curr] += `,(${code})`;
+              }
             }
             this.skip();
             break;
