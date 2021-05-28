@@ -2201,42 +2201,6 @@
           "name": "comment.block.html"
         },
         {
-          "begin": "(?i)(^|\\G)\\s*(?=<(script|style|pre)(\\s|$|>)(?!.*?</(script|style|pre)>))",
-          "end": "(?i)(.*)((</)(script|style|pre)(>))",
-          "endCaptures": {
-            "1": {
-              "patterns": [
-                {
-                  "include": "text.html.markdown.astro"
-                }
-              ]
-            },
-            "2": {
-              "name": "meta.tag.structure.$4.end.html"
-            },
-            "3": {
-              "name": "punctuation.definition.tag.begin.html"
-            },
-            "4": {
-              "name": "entity.name.tag.html"
-            },
-            "5": {
-              "name": "punctuation.definition.tag.end.html"
-            }
-          },
-          "patterns": [
-            {
-              "begin": "(\\s*|$)",
-              "patterns": [
-                {
-                  "include": "text.html.markdown.astro"
-                }
-              ],
-              "while": "(?i)^(?!.*</(script|style|pre|Markdown)>)"
-            }
-          ]
-        },
-        {
           "begin": "(?i)(?=</?[a-zA-Z]+[^\\s/&gt;]*(\\s|$|/?>))",
           "while": "(?i)^(?!.*</(\\1||\\2)>)",
           "patterns": [
