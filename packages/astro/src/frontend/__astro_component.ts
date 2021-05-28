@@ -27,13 +27,16 @@ __renderers = [astro, ...__renderers];
 const rendererCache = new WeakMap();
 
 /** For a given component, resolve the renderer. Results are cached if this instance is encountered again */
-function resolveRenderer(Component: any, props: any = {}) {
+async function resolveRenderer(Component: any, props: any = {}, children?: string) {
   if (rendererCache.has(Component)) {
     return rendererCache.get(Component);
   }
 
   for (const __renderer of __renderers) {
-    const shouldUse = __renderer.check(Component, props);
+    // Yes, we do want to `await` inside of this loop!
+    // __renderer.check can't be run in parallel, it
+    // returns the first match and skips any subsequent checks
+    const shouldUse = await __renderer.check(Component, props, children);
     if (shouldUse) {
       rendererCache.set(Component, __renderer);
       return __renderer;
@@ -67,21 +70,21 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
   if (Component == null) {
     throw new Error(`Unable to render <${componentProps.displayName}> because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
   }
-  // First attempt at resolving a renderer (we don't have the props yet, so it might fail if they are required)
-  let renderer = resolveRenderer(Component);
 
   return async (props: any, ..._children: string[]) => {
-    if (!renderer) {
-      // Second attempt at resolving a renderer (this time we have props!)
-      renderer = resolveRenderer(Component, props);
+    const children = _children.join('\n');
+    let renderer = await resolveRenderer(Component, props, children);
 
-      // Okay now we definitely can't resolve a renderer, so let's throw
+    if (!renderer) {
+      // If the user only specifies a single renderer, but the check failed
+      // for some reason... just default to their preferred renderer.
+      renderer = (__rendererSources.length === 2) ? __renderers[1] : null;
+
       if (!renderer) {
         const name = typeof Component === 'function' ? Component.displayName ?? Component.name : `{ ${Object.keys(Component).join(', ')} }`;
         throw new Error(`No renderer found for ${name}! Did you forget to add a renderer to your Astro config?`);
       }
     }
-    const children = _children.join('\n');
     const { html } = await renderer.renderToStaticMarkup(Component, props, children);
     // If we're NOT hydrating this component, just return the HTML
     if (!componentProps.hydrate) {

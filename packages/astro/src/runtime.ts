@@ -268,7 +268,7 @@ interface CreateSnowpackOptions {
 }
 
 const DEFAULT_HMR_PORT = 12321;
-const DEFAULT_RENDERERS = ['@astro-renderer/vue', '@astro-renderer/svelte', '@astro-renderer/react', '@astro-renderer/preact'];
+const DEFAULT_RENDERERS = ['@astrojs/renderer-vue', '@astrojs/renderer-svelte', '@astrojs/renderer-react', '@astrojs/renderer-preact'];
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {

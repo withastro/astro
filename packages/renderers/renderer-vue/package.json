@@ -1,5 +1,5 @@
 {
-  "name": "@astro-renderer/react",
+  "name": "@astrojs/renderer-vue",
   "version": "0.0.1",
   "type": "module",
   "exports": {
@@ -9,7 +9,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "vue": "^3.0.10",
+    "@vue/server-renderer": "^3.0.10",
+    "@snowpack/plugin-vue": "^2.6.0"
   }
 }

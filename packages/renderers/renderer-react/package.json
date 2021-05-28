@@ -1,5 +1,5 @@
 {
-  "name": "@astro-renderer/svelte",
+  "name": "@astrojs/renderer-react",
   "version": "0.0.1",
   "type": "module",
   "exports": {
@@ -9,7 +9,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "svelte": "^3.35.0",
-    "@snowpack/plugin-svelte": "^3.7.0"
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }

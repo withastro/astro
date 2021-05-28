@@ -112,7 +112,6 @@
           "source.tsx": "typescriptreact",
           "source.js": "javascript",
           "source.css": "css",
-          "meta.embedded.block.frontmatter": "yaml",
           "meta.embedded.block.css": "css",
           "meta.embedded.block.astro": "astro",
           "meta.embedded.block.ini": "ini",

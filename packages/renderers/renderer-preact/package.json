@@ -1,5 +1,5 @@
 {
-  "name": "@astro-renderer/vue",
+  "name": "@astrojs/renderer-preact",
   "version": "0.0.1",
   "type": "module",
   "exports": {
@@ -9,8 +9,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "vue": "^3.0.10",
-    "@vue/server-renderer": "^3.0.10",
-    "@snowpack/plugin-vue": "^2.5.0"
+    "preact": "^10.5.13",
+    "preact-render-to-string": "^5.1.18"
   }
 }
