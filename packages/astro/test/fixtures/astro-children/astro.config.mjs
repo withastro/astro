@@ -1,7 +1,7 @@
 export default {
   renderers: [
-    '@astro-renderer/preact',
-    '@astro-renderer/vue',
-    '@astro-renderer/svelte',
+    '@astrojs/renderer-preact',
+    '@astrojs/renderer-vue',
+    '@astrojs/renderer-svelte',
   ],
 };
