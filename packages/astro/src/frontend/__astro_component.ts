@@ -78,7 +78,7 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
     if (!renderer) {
       // If the user only specifies a single renderer, but the check failed
       // for some reason... just default to their preferred renderer.
-      renderer = (__rendererSources.length === 2) ? __renderers[1] : null;
+      renderer = __rendererSources.length === 2 ? __renderers[1] : null;
 
       if (!renderer) {
         const name = typeof Component === 'function' ? Component.displayName ?? Component.name : `{ ${Object.keys(Component).join(', ')} }`;

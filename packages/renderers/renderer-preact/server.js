@@ -4,8 +4,8 @@ import StaticHtml from './static-html.js';
 
 function check(Component, props, children) {
   try {
-    const { html } = renderToStaticMarkup(Component, props, children)
-    return Boolean(html)
+    const { html } = renderToStaticMarkup(Component, props, children);
+    return Boolean(html);
   } catch (e) {}
   return false;
 }
