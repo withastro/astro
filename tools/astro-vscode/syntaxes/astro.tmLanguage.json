@@ -714,39 +714,34 @@
       ]
     },
     "astro-markdown": {
-      "begin": "(?:^\\s+)?(<)(Markdown)\\b(?=[^>]*)",
+      "name": "text.html.astro.markdown",
+      "begin": "(<)(Markdown)(>)",
       "beginCaptures": {
         "1": {
-          "name": "punctuation.definition.tag.begin.html"
+          "name":"punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.markdown.astro"
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name":"punctuation.definition.tag.end.html"
         }
       },
       "end": "(</)(Markdown)(>)",
       "endCaptures": {
+        "1": {
+          "name":"punctuation.definition.tag.begin.html"
+        },
         "2": {
-          "name": "punctuation.definition.tag.html"
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name":"punctuation.definition.tag.end.html"
         }
       },
-      "name": "text.html.markdown.astro",
       "patterns": [
         {
-          "include": "#tag-stuff"
-        },
-        {
-          "begin": "(>)",
-          "beginCaptures": {
-            "1": {
-              "name": "punctuation.definition.tag.end.html"
-            }
-          },
-          "end": "(?=</Markdown)",
-          "patterns": [
-            {
-              "include": "text.html.markdown.astro"
-            }
-          ]
+          "include": "text.html.markdown.astro"
         }
       ]
     },
