@@ -2039,14 +2039,11 @@ astring@^1.7.4:
 
 "astro-languageserver@file:tools/astro-languageserver":
   version "0.4.0"
-  dependencies:
-    source-map "^0.7.3"
-    typescript "^4.3.1-rc"
-    vscode-css-languageservice "^5.1.1"
-    vscode-emmet-helper "2.1.2"
-    vscode-html-languageservice "^3.0.3"
-    vscode-languageserver "6.1.1"
-    vscode-languageserver-textdocument "^1.0.1"
+
+astro-parser@0.11.0:
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/astro-parser/-/astro-parser-0.11.0.tgz#8961799a516e177bdd807ddf3e597674751da332"
+  integrity sha512-SipwNAmg+Wv5Bskp3Itqzacuoze1QmrxnoEQGjqYvCU1uZg2PZcA69yPEXad7kFs3zw+PSpcgAwgDe0OthsQ2w==
 
 "astro-scripts@file:scripts":
   version "0.0.1"
