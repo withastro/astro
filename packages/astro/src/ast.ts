@@ -11,6 +11,7 @@ export function getAttr(attributes: Attribute[], name: string): Attribute | unde
 
 /** Get TemplateNode attribute by value */
 export function getAttrValue(attributes: Attribute[], name: string): string | undefined {
+  if (attributes.length === 0) return '';
   const attr = getAttr(attributes, name);
   if (attr) {
     return attr.value[0]?.data;
