@@ -9,27 +9,19 @@ const pkg = require('../package.json');
  */
 
 // These packages SHOULD be built by `esinstall`
-const allowList = new Set([
-  'astro-prism',
-  'prismjs',
-  'shorthash'
-]);
+const allowList = new Set(['astro-prism', 'prismjs', 'shorthash']);
 
 const isAstroRenderer = (name: string) => {
   return name.startsWith(`@astrojs/renderer-`);
-}
+};
 
 // These packages should NOT be built by `esinstall`
 // But might not be explicit dependencies of `astro`
-const denyList = [
-  'prismjs/components/index.js',
-  '@vue/server-renderer'
-];
-
+const denyList = ['prismjs/components/index.js', '@vue/server-renderer'];
 
 export default Object.keys(pkg.dependencies)
   // Filter out packages that should be loaded threw Snowpack
-  .filter(name => {
+  .filter((name) => {
     // Explicitly allowed packages should NOT be external
     if (allowList.has(name)) return false;
     // Astro renderers should NOT be external
