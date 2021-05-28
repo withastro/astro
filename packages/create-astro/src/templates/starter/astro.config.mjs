@@ -7,7 +7,7 @@ export default {
     // '.jsx': 'react',    // Set this to "preact" or "react" to determine what *.jsx files should load
   },
   buildOptions: {
-    // site: '',           // Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs.
+    // site: 'http://example.com',           // Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs.
     // sitemap: true,      // Generate sitemap (set to "false" to disable)
   },
   devOptions: {
