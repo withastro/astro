@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "release": "yarn build && yarn changeset publish",
+    "benchmark": "yarn workspace astro run benchmark",
     "build": "yarn build:core",
     "build:core": "lerna run build --scope astro --scope astro-parser",
     "build:vscode": "lerna run build --scope astro-languageserver --scope astro-vscode --scope astro-parser",
