@@ -484,6 +484,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             break;
           }
           case 'MustacheTag':
+            if (state.markers.insideMarkdown) {
+              if (curr === 'out') curr = 'markdown';
+            }
+            return;
           case 'Comment':
             return;
           case 'Fragment':
@@ -615,7 +619,6 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
           case 'Fragment':
           case 'Expression':
           case 'MustacheTag':
-            return;
           case 'CodeSpan':
           case 'CodeFence':
             return;
