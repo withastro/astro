@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.11.0",
+  "version": "0.12.0-next.0",
   "author": "Skypack",
   "license": "MIT",
   "type": "module",
@@ -32,10 +32,10 @@
     "test": "uvu test -i fixtures -i benchmark -i test-utils.js"
   },
   "dependencies": {
-    "@astrojs/renderer-preact": "0.0.1",
-    "@astrojs/renderer-react": "0.0.1",
-    "@astrojs/renderer-svelte": "0.0.1",
-    "@astrojs/renderer-vue": "0.0.1",
+    "@astrojs/renderer-preact": "0.1.0-next.0",
+    "@astrojs/renderer-react": "0.1.0-next.0",
+    "@astrojs/renderer-svelte": "0.1.0-next.0",
+    "@astrojs/renderer-vue": "0.1.0-next.0",
     "@babel/code-frame": "^7.12.13",
     "@babel/generator": "^7.13.9",
     "@babel/parser": "^7.13.15",
