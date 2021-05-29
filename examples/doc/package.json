@@ -8,7 +8,7 @@
     "astro-dev": "nodemon --delay 0.5 -w ../../packages/astro/dist -x '../../packages/astro/astro.mjs dev'"
   },
   "devDependencies": {
-    "astro": "^0.12.0-next.0",
+    "astro": "^0.12.0-next.1",
     "nodemon": "^2.0.7"
   },
   "snowpack": {

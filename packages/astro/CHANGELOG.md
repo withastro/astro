@@ -1,5 +1,11 @@
 # astro
 
+## 0.12.0-next.1
+
+### Patch Changes
+
+- ce30bb0: Temporarily disable `@astrojs/renderer-vue` while we investigate an issue with installation
+
 ## 0.12.0-next.0
 
 ### Minor Changes
