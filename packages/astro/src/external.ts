@@ -9,7 +9,7 @@ const pkg = require('../package.json');
  */
 
 // These packages SHOULD be built by `esinstall`
-const allowList = new Set(['astro-prism', 'prismjs', 'shorthash']);
+const allowList = new Set(['astring', 'astro-prism', 'estree-util-value-to-estree', 'prismjs', 'shorthash']);
 
 const isAstroRenderer = (name: string) => {
   return name.startsWith(`@astrojs/renderer-`);
