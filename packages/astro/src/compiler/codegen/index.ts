@@ -197,6 +197,7 @@ interface CodegenState {
   css: string[];
   markers: {
     insideMarkdown: boolean | Record<string, any>;
+    componentWasNotRendered: boolean;
   };
   importExportStatements: Set<string>;
 }
@@ -459,7 +460,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       });
 
       // 3. Codegen
-      const result = await compileHtml(ast.html, { ...state, markers: { ...state.markers, insideMarkdown: false } }, compileOptions);
+      const result = await compileHtml(ast.html, { ...state, markers: { ...state.markers, insideMarkdown: false, componentWasNotRendered: false } }, compileOptions);
 
       buffers.out += ',' + result;
       buffers.markdown = '';
@@ -572,6 +573,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               paren++;
               buffers[curr] += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
             } catch (err) {
+              state.markers.componentWasNotRendered = true;
               // handle errors in scope with filename
               const rel = filename.replace(astroConfig.projectRoot.pathname, '');
               // TODO: return actual codeframe here
@@ -645,7 +647,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             if (curr === 'markdown' && buffers.markdown !== '') {
               await pushMarkdownToBuffer();
             }
-            if (paren !== -1) {
+            if (paren !== -1 && !state.markers.componentWasNotRendered) {
               buffers.out += ')';
               paren--;
             }
@@ -686,6 +688,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     css: [],
     markers: {
       insideMarkdown: false,
+      componentWasNotRendered: false,
     },
     importExportStatements: new Set(),
   };
