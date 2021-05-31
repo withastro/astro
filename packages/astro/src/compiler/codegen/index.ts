@@ -651,6 +651,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               buffers.out += ')';
               paren--;
             }
+            state.markers.componentWasNotRendered = false;
             return;
           }
           case 'Style': {
