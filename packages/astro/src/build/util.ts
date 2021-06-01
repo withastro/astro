@@ -1,6 +1,7 @@
 import type { AstroConfig } from '../@types/astro';
 import { performance } from 'perf_hooks';
 
+import fs from 'fs';
 import path from 'path';
 import { URL } from 'url';
 
@@ -16,28 +17,43 @@ export function canonicalURL(url: string, base?: string): URL {
 /** Resolve final output URL */
 export function getDistPath(specifier: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL }): string {
   if (specifier[0] === '/') return specifier; // assume absolute URLs are correct
-  const pagesDir = path.join(astroConfig.astroRoot.pathname, 'pages');
+  const { pages: pagesRoot, projectRoot } = astroConfig;
 
-  const fileLoc = path.posix.join(path.posix.dirname(srcPath.pathname), specifier);
-  const projectLoc = path.posix.relative(astroConfig.astroRoot.pathname, fileLoc);
+  const fileLoc = new URL(specifier, srcPath);
+  const projectLoc = fileLoc.pathname.replace(projectRoot.pathname, '');
 
-  const isPage = fileLoc.includes(pagesDir);
+  const isPage = fileLoc.pathname.includes(pagesRoot.pathname);
   // if this lives above src/pages, return that URL
   if (isPage) {
-    const [, publicURL] = projectLoc.split(pagesDir);
+    const [, publicURL] = projectLoc.split(pagesRoot.pathname);
     return publicURL || '/index.html'; // if this is missing, this is the root
   }
   // otherwise, return /_astro/* url
   return '/_astro/' + projectLoc;
 }
 
-/** Given a final output URL, guess at src path (may be inaccurate) */
-export function getSrcPath(url: string, { astroConfig }: { astroConfig: AstroConfig }): URL {
-  if (url.startsWith('/_astro/')) {
-    return new URL(url.replace(/^\/_astro\//, ''), astroConfig.astroRoot);
+/** Given a final output URL, guess at src path (may be inaccurate; only for non-pages) */
+export function getSrcPath(distURL: string, { astroConfig }: { astroConfig: AstroConfig }): URL {
+  if (distURL.startsWith('/_astro/')) {
+    return new URL('.' + distURL.replace(/^\/_astro\//, ''), astroConfig.projectRoot);
+  } else if (distURL === '/index.html') {
+    return new URL('./index.astro', astroConfig.pages);
   }
-  let srcFile = url.replace(/^\//, '').replace(/\/index.html$/, '.astro');
-  return new URL('./pages/' + srcFile, astroConfig.astroRoot);
+
+  const possibleURLs = [
+    new URL('.' + distURL, astroConfig.public), // public asset
+    new URL('.' + distURL.replace(/([^\/])+\/d+\/index.html/, '$$1.astro'), astroConfig.pages), // collection page
+    new URL('.' + distURL.replace(/\/index\.html$/, '.astro'), astroConfig.pages), // page
+    // TODO: Astro pages (this isn’t currently used for that lookup)
+  ];
+
+  // if this is in public/ or pages/, return that
+  for (const possibleURL of possibleURLs) {
+    if (fs.existsSync(possibleURL)) return possibleURL;
+  }
+
+  // otherwise resolve relative to project
+  return new URL('.' + distURL, astroConfig.projectRoot);
 }
 
 /** Stop timer & format time for profiling */

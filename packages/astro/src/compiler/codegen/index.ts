@@ -141,14 +141,13 @@ const PlainExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 /** Generate Astro-friendly component import */
 function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
   const { astroConfig, filename } = opts;
-  const { astroRoot } = astroConfig;
   const currFileUrl = new URL(`file://${filename}`);
   const [name, kind] = _name.split(':');
   const getComponentUrl = () => {
     const componentExt = path.extname(url);
     const ext = PlainExtensions.has(componentExt) ? '.js' : `${componentExt}.js`;
     const outUrl = new URL(url, currFileUrl);
-    return '/_astro/' + path.posix.relative(astroRoot.pathname, outUrl.pathname).replace(/\.[^.]+$/, ext);
+    return '/_astro/' + outUrl.href.replace(astroConfig.projectRoot.href, '').replace(/\.[^.]+$/, ext);
   };
   const getComponentExport = () => {
     switch (importSpecifier.type) {

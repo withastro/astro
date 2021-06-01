@@ -41,9 +41,8 @@ function isRemote(url: string) {
 
 /** The primary build action */
 export async function build(astroConfig: AstroConfig, logging: LogOptions = defaultLogging): Promise<0 | 1> {
-  const { projectRoot, astroRoot } = astroConfig;
+  const { projectRoot, pages: pagesRoot } = astroConfig;
   const dist = new URL(astroConfig.dist + '/', projectRoot);
-  const pageRoot = new URL('./pages/', astroRoot);
   const buildState: BuildOutput = {};
   const depTree: BundleMap = {};
   const timer: Record<string, number> = {};
@@ -70,7 +69,7 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
      * Source files are built in parallel and stored in memory. Most assets are also gathered here, too.
      */
     timer.build = performance.now();
-    const pages = await allPages(pageRoot);
+    const pages = await allPages(pagesRoot);
     info(logging, 'build', yellow('! building pages...'));
     const release = trapWarn(); // Vue also console.warns, this silences it.
     await Promise.all(

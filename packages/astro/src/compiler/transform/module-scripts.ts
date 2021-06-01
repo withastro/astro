@@ -1,13 +1,11 @@
 import type { Transformer } from '../../@types/transformer';
 import type { CompileOptions } from '../../@types/compiler';
 
-import path from 'path';
 import { getAttrValue, setAttrValue } from '../../ast.js';
 
 /** Transform <script type="module"> */
 export default function ({ compileOptions, filename }: { compileOptions: CompileOptions; filename: string; fileID: string }): Transformer {
   const { astroConfig } = compileOptions;
-  const { astroRoot } = astroConfig;
   const fileUrl = new URL(`file://${filename}`);
 
   return {
@@ -31,8 +29,7 @@ export default function ({ compileOptions, filename }: { compileOptions: Compile
             }
 
             const srcUrl = new URL(src, fileUrl);
-            const fromAstroRoot = path.posix.relative(astroRoot.pathname, srcUrl.pathname);
-            const absoluteUrl = `/_astro/${fromAstroRoot}`;
+            const absoluteUrl = `/_astro/${srcUrl.href.replace(astroConfig.projectRoot.href, '')}`;
             setAttrValue(node.attributes, 'src', absoluteUrl);
           },
         },

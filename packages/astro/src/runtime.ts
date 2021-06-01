@@ -50,7 +50,7 @@ snowpackLogger.level = 'silent';
 /** Pass a URL to Astro to resolve and build */
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
   const { logging, backendSnowpackRuntime, frontendSnowpack } = config;
-  const { astroRoot, buildOptions, devOptions } = config.astroConfig;
+  const { pages: pagesRoot, buildOptions, devOptions } = config.astroConfig;
 
   let origin = buildOptions.site ? new URL(buildOptions.site).origin : `http://localhost:${devOptions.port}`;
   const fullurl = new URL(rawPathname || '/', origin);
@@ -58,7 +58,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   const reqPath = decodeURI(fullurl.pathname);
   info(logging, 'access', reqPath);
 
-  const searchResult = searchForPage(fullurl, astroRoot);
+  const searchResult = searchForPage(fullurl, pagesRoot);
   if (searchResult.statusCode === 404) {
     try {
       const result = await frontendSnowpack.loadUrl(reqPath);
@@ -274,7 +274,7 @@ const DEFAULT_RENDERERS = ['@astrojs/renderer-svelte', '@astrojs/renderer-react'
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot, astroRoot, renderers = DEFAULT_RENDERERS } = astroConfig;
+  const { projectRoot, pages: pagesRoot, renderers = DEFAULT_RENDERERS } = astroConfig;
   const { env, mode, resolvePackageUrl, target } = options;
 
   const internalPath = new URL('./frontend/', import.meta.url);
@@ -294,13 +294,11 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   };
 
   const mountOptions = {
-    [fileURLToPath(astroRoot)]: '/_astro',
+    [fileURLToPath(pagesRoot)]: '/_astro/pages',
+    ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: '/' } : {}),
     [fileURLToPath(internalPath)]: '/_astro_internal',
+    [fileURLToPath(projectRoot)]: '/_astro', // must be last (greediest)
   };
-
-  if (existsSync(astroConfig.public)) {
-    mountOptions[fileURLToPath(astroConfig.public)] = '/';
-  }
 
   // Tailwind: IDK what this does but it makes JIT work 🤷‍♂️
   if (astroConfig.devOptions.tailwindConfig) {

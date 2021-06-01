@@ -19,12 +19,12 @@ setup(StylesSSR, './fixtures/astro-styles-ssr');
 
 StylesSSR('Has <link> tags', async ({ runtime }) => {
   const MUST_HAVE_LINK_TAGS = [
-    '/_astro/components/ReactCSS.css',
-    '/_astro/components/ReactModules.module.css',
-    '/_astro/components/SvelteScoped.svelte.css',
-    '/_astro/components/VueCSS.vue.css',
-    '/_astro/components/VueModules.vue.css',
-    '/_astro/components/VueScoped.vue.css',
+    '/_astro/src/components/ReactCSS.css',
+    '/_astro/src/components/ReactModules.module.css',
+    '/_astro/src/components/SvelteScoped.svelte.css',
+    '/_astro/src/components/VueCSS.vue.css',
+    '/_astro/src/components/VueModules.vue.css',
+    '/_astro/src/components/VueScoped.vue.css',
   ];
 
   const result = await runtime.load('/');
