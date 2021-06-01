@@ -66,9 +66,22 @@ setup("${astroId}", async () => {
   return script;
 }
 
+const getComponentName = (Component: any, componentProps: any) => {
+  if (componentProps.displayName) return componentProps.displayName;
+  switch (typeof Component) {
+    case 'function': return Component.displayName ?? Component.name;
+    case 'string': return Component;
+    default: {
+      return Component;
+    }
+  } 
+}
+
 export const __astro_component = (Component: any, componentProps: AstroComponentProps = {} as any) => {
   if (Component == null) {
-    throw new Error(`Unable to render <${componentProps.displayName}> because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
+    throw new Error(`Unable to render ${componentProps.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
+  } else if (typeof Component === 'string') {
+    throw new Error(`Astro is unable to render ${componentProps.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
   }
 
   return async (props: any, ..._children: string[]) => {
@@ -81,7 +94,7 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
       renderer = __rendererSources.length === 2 ? __renderers[1] : null;
 
       if (!renderer) {
-        const name = typeof Component === 'function' ? Component.displayName ?? Component.name : `{ ${Object.keys(Component).join(', ')} }`;
+        const name = getComponentName(Component, componentProps);
         throw new Error(`No renderer found for ${name}! Did you forget to add a renderer to your Astro config?`);
       }
     }
