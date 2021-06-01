@@ -178,9 +178,9 @@ Configuration for Astro is done through the `astro.config.mjs` file at the root 
 
 👉 [**`astro.config.mjs` Reference**][docs-config]
 
-Astro uses __[Snowpack](https://www.snowpack.dev/)__ for module resolution. You can configure Snowpack by adding a `snowpack.config.js` file in the root of your project. You might need this to add loader plugins, for example. To learn more:
+Astro uses __[Snowpack](https://www.snowpack.dev/)__ for module resolution. You can configure Snowpack by adding a `snowpack.config.mjs` file in the root of your project. You might need this to add loader plugins, for example. To learn more:
 
-👉 [**`snowpack.config.js` Reference**][docs-snowpack-config]
+👉 [**`snowpack.config.mjs` Reference**][docs-snowpack-config]
 
 ## 📚 API
 
