@@ -40,6 +40,14 @@ DType('Automatically prepends the standards mode doctype', async () => {
   assert.ok(html.startsWith('<!doctype html>'), 'Doctype always included');
 });
 
+DType('No attributes added when doctype is provided by user', async () => {
+  const result = await runtime.load('/provided');
+  if (result.error) throw new Error(result.error);
+
+  const html = result.contents.toString('utf-8');
+  assert.ok(html.startsWith('<!doctype html>'), 'Doctype always included');
+});
+
 DType.skip('Preserves user provided doctype', async () => {
   const result = await runtime.load('/preserve');
   if (result.error) throw new Error(result.error);
