@@ -131,7 +131,7 @@ export function parseError(opts: LogOptions, err: CompileError) {
     'parse-error',
     `
 
- ${underline(bold(grey(`${err.filename}:${err.start.line}:${err.start.column}`)))}
+ ${underline(bold(grey(`${err.filename || ''}:${err.start.line}:${err.start.column}`)))}
 
  ${bold(red(`𝘅 ${err.message}`))}
 

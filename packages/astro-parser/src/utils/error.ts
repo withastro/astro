@@ -5,14 +5,23 @@ import get_code_frame from './get_code_frame.js';
 
 export class CompileError extends Error {
   code: string;
-  start: { line: number; column: number };
   end: { line: number; column: number };
-  pos: number;
   filename: string;
   frame: string;
+  start: { line: number; column: number };
+
+  constructor({ code, filename, start, end, message }: { code: string; filename: string; start: number; message: string; end?: number }) {
+    super(message);
+
+    this.start = locate(code, start, { offsetLine: 1 });
+    this.end = locate(code, end || start, { offsetLine: 1 });
+    this.filename = filename;
+    this.message = message;
+    this.frame = get_code_frame(code, this.start.line - 1, this.start.column);
+  }
 
   toString() {
-    return `${this.message} (${this.start.line}:${this.start.column})\n${this.frame}`;
+    return `${this.filename}:${this.start.line}:${this.start.column}\n\t${this.message}\n${this.frame}`;
   }
 }
 
@@ -21,26 +30,14 @@ export default function error(
   message: string,
   props: {
     name: string;
-    code: string;
     source: string;
     filename: string;
     start: number;
     end?: number;
   }
 ): never {
-  const err = new CompileError(message);
+  const err = new CompileError({ message, start: props.start, end: props.end, filename: props.filename });
   err.name = props.name;
-
-  const start = locate(props.source, props.start, { offsetLine: 1 });
-  const end = locate(props.source, props.end || props.start, { offsetLine: 1 });
-
-  err.code = props.code;
-  err.start = start;
-  err.end = end;
-  err.pos = props.start;
-  err.filename = props.filename;
-
-  err.frame = get_code_frame(props.source, start.line - 1, start.column);
 
   throw err;
 }
