@@ -69,13 +69,15 @@ setup("${astroId}", async () => {
 const getComponentName = (Component: any, componentProps: any) => {
   if (componentProps.displayName) return componentProps.displayName;
   switch (typeof Component) {
-    case 'function': return Component.displayName ?? Component.name;
-    case 'string': return Component;
+    case 'function':
+      return Component.displayName ?? Component.name;
+    case 'string':
+      return Component;
     default: {
       return Component;
     }
-  } 
-}
+  }
+};
 
 export const __astro_component = (Component: any, componentProps: AstroComponentProps = {} as any) => {
   if (Component == null) {

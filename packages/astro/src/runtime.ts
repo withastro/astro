@@ -304,10 +304,14 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
-  const rendererInstances = (await Promise.all(renderers.map((renderer) => {
-    const entrypoint = pathToFileURL(resolveDependency(renderer)).toString();
-    return import(entrypoint);
-  }))).map(({ default: raw }, i) => {
+  const rendererInstances = (
+    await Promise.all(
+      renderers.map((renderer) => {
+        const entrypoint = pathToFileURL(resolveDependency(renderer)).toString();
+        return import(entrypoint);
+      })
+    )
+  ).map(({ default: raw }, i) => {
     const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
 
     if (typeof client !== 'string') {
@@ -376,7 +380,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     },
     packageOptions: {
       knownEntrypoints,
-      external: snowpackExternals
+      external: snowpackExternals,
     },
   });
 
