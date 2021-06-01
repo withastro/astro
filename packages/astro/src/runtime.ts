@@ -269,8 +269,7 @@ interface CreateSnowpackOptions {
 }
 
 const DEFAULT_HMR_PORT = 12321;
-// '@astrojs/renderer-vue' disabled due to a bug
-const DEFAULT_RENDERERS = ['@astrojs/renderer-svelte', '@astrojs/renderer-react', '@astrojs/renderer-preact'];
+const DEFAULT_RENDERERS = ['@astrojs/renderer-vue', '@astrojs/renderer-svelte', '@astrojs/renderer-react', '@astrojs/renderer-preact'];
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
@@ -305,7 +304,10 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
-  const rendererInstances = (await Promise.all(renderers.map((renderer) => import(pathToFileURL(resolveDependency(renderer)).toString())))).map(({ default: raw }, i) => {
+  const rendererInstances = (await Promise.all(renderers.map((renderer) => {
+    const entrypoint = pathToFileURL(resolveDependency(renderer)).toString();
+    return import(entrypoint);
+  }))).map(({ default: raw }, i) => {
     const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
 
     if (typeof client !== 'string') {
@@ -338,7 +340,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   astroPluginOptions.renderers = rendererInstances;
 
   // Make sure that Snowpack builds our renderer plugins
-  const knownEntrypoints = [].concat(...(rendererInstances.map((renderer) => [renderer.server, renderer.client]) as any)) as string[];
+  const knownEntrypoints = [].concat(...(rendererInstances.map((renderer) => [renderer.server, renderer.client]) as any));
   const rendererSnowpackPlugins = rendererInstances.filter((renderer) => renderer.snowpackPlugin).map((renderer) => renderer.snowpackPlugin) as string | [string, any];
 
   const snowpackConfig = await loadConfiguration({
@@ -374,7 +376,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     },
     packageOptions: {
       knownEntrypoints,
-      external: snowpackExternals,
+      external: snowpackExternals
     },
   });
 

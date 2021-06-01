@@ -1,4 +1,4 @@
-import SvelteWrapper from './Wrapper.svelte';
+import SvelteWrapper from './Wrapper.svelte.ssr.js';
 
 function check(Component) {
   return Component['render'] && Component['$$render'];
