@@ -174,7 +174,13 @@ Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set
 
 ## ⚙️ Config
 
+Configuration for Astro is done through the `astro.config.mjs` file at the root of your project. To learn more:
+
 👉 [**`astro.config.mjs` Reference**][docs-config]
+
+Astro uses __[Snowpack](https://www.snowpack.dev/)__ for module resolution. You can configure Snowpack by adding a `snowpack.config.mjs` file in the root of your project. You might need this to add loader plugins, for example. To learn more:
+
+👉 [**`snowpack.config.mjs` Reference**][docs-snowpack-config]
 
 ## 📚 API
 
@@ -189,6 +195,7 @@ Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set
 👉 [**Dev Server Docs**][docs-dev]
 
 [docs-config]: ./docs/config.md
+[docs-snowpack-config]: https://www.snowpack.dev/reference/configuration
 [docs-syntax]: ./docs/syntax.md
 [docs-api]: ./docs/api.md
 [docs-collections]: ./docs/collections.md
