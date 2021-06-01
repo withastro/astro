@@ -8906,10 +8906,10 @@ smartwrap@^1.2.3:
     wcwidth "^1.0.1"
     yargs "^15.1.0"
 
-snowpack@^3.5.2:
-  version "3.5.2"
-  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.5.2.tgz#0b23619be535b22ebdda1ab3eba3444acbf35b91"
-  integrity sha512-TQQT5PXxeDr4gaMbp6nQrTDLX+Y8G5qI2wLqQdHLrpQEnq7W+gysn94+0xbOhnx0pFoVlSoFPjdQ83sETWl/9A==
+snowpack@^3.5.3:
+  version "3.5.3"
+  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.5.3.tgz#bd63f365f70d58875f08d014131f4a7cd312ad2b"
+  integrity sha512-mE/xozIKfuPJOQa4VcIP8IH8seCCQkOXQIvwGrQgNOnfUn4PZXvyp3AiKGF1UQZUu1oS/dbBWQY172pzDsOm+Q==
   dependencies:
     cli-spinners "^2.5.0"
     default-browser-id "^2.0.0"
