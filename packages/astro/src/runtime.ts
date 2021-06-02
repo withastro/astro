@@ -1,16 +1,16 @@
 import 'source-map-support/register.js';
-import type { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig } from 'snowpack';
-import type { CompileError } from 'astro-parser';
 import type { LogOptions } from './logger';
 import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
 
 import resolve from 'resolve';
-import { existsSync } from 'fs';
+import { existsSync, promises as fs } from 'fs';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { posix as path } from 'path';
 import { performance } from 'perf_hooks';
+import { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig, NotFoundError } from 'snowpack';
+import { CompileError } from 'astro-parser';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
-import { canonicalURL, stopTimer } from './build/util.js';
+import { canonicalURL, getSrcPath, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';
 import { searchForPage } from './search.js';
 import snowpackExternals from './external.js';
@@ -40,7 +40,7 @@ type LoadResultSuccess = {
 };
 type LoadResultNotFound = { statusCode: 404; error: Error; collectionInfo?: CollectionInfo };
 type LoadResultRedirect = { statusCode: 301 | 302; location: string; collectionInfo?: CollectionInfo };
-type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'unknown'; error: Error });
+type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'not-found'; error: CompileError } | { type: 'unknown'; error: Error });
 
 export type LoadResult = (LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError) & { collectionInfo?: CollectionInfo };
 
@@ -242,6 +242,40 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         error: err,
       };
     }
+
+    if (err instanceof NotFoundError && rawPathname) {
+      const fileMatch = err.toString().match(/\(([^\)]+)\)/);
+      const missingFile: string | undefined = (fileMatch && fileMatch[1].replace(/^\/_astro/, '').replace(/\.proxy\.js$/, '')) || undefined;
+      const distPath = path.extname(rawPathname) ? rawPathname : rawPathname.replace(/\/?$/, '/index.html');
+      const srcFile = getSrcPath(distPath, { astroConfig: config.astroConfig });
+      const code = existsSync(srcFile) ? await fs.readFile(srcFile, 'utf8') : '';
+
+      // try and find the import statement within the module. this is a bit hacky, as we don’t know the line, but
+      // given that we know this is for sure a “not found” error, and we know what file is erring,
+      // we can make some safe assumptions about how to locate the line in question
+      let start = 0;
+      const segments = missingFile ? missingFile.split('/').filter((segment) => !!segment) : [];
+      while (segments.length) {
+        const importMatch = code.indexOf(segments.join('/'));
+        if (importMatch >= 0) {
+          start = importMatch;
+          break;
+        }
+        segments.shift();
+      }
+
+      return {
+        statusCode: 500,
+        type: 'not-found',
+        error: new CompileError({
+          code,
+          filename: srcFile.pathname,
+          start,
+          message: `Could not find${missingFile ? ` "${missingFile}"` : ' file'}`,
+        }),
+      };
+    }
+
     return {
       statusCode: 500,
       type: 'unknown',

@@ -66,6 +66,7 @@ export default async function dev(astroConfig: AstroConfig) {
         break;
       }
       case 500: {
+        res.setHeader('Content-Type', 'text/html;charset=utf-8');
         switch (result.type) {
           case 'parse-error': {
             const err = result.error;
