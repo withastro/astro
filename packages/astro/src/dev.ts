@@ -33,6 +33,7 @@ export default async function dev(astroConfig: AstroConfig) {
 
   const server = http.createServer(async (req, res) => {
     timer.load = performance.now();
+
     const result = await runtime.load(req.url);
     debug(logging, 'dev', `loaded ${req.url} [${stopTimer(timer.load)}]`);
 

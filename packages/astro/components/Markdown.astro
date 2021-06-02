@@ -1,3 +1,24 @@
-<!-- Probably not what you're looking for! -->
-<!-- Check `astro-parser` or /frontend/markdown.ts -->
-<slot />
+---
+import { renderMarkdown } from 'astro/dist/frontend/markdown.js';
+
+export let content: string;
+export let $scope: string;
+let html = null;
+
+// This flow is only triggered if a user passes `<Markdown content={content} />`
+if (content) {
+  const { content: htmlContent } = await renderMarkdown(content, {
+    mode: 'md',
+    $: {
+      scopedClassName: $scope
+    }
+  });
+  html = htmlContent;
+}
+
+/*
+  If we have rendered `html` for `content`, render that
+  Otherwise, just render the slotted content
+*/
+---
+{html ? html : <slot />}

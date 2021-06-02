@@ -1,0 +1,15 @@
+---
+import Markdown from 'astro/components/Markdown.astro';
+import Hello from '../components/Hello.jsx';
+
+const outer = `# Outer`;
+const inner = `## Inner`;
+---
+
+<Markdown content={outer} />
+
+<Markdown>
+  # Nested
+
+  <Markdown content={inner} />
+</Markdown>

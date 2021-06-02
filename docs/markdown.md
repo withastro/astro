@@ -97,7 +97,7 @@ const expressions = 'Lorem ipsum';
 
 ### Remote Markdown
 
-If you have Markdown in a remote source, you may pass it directly to the Markdown component. For example, the example below fetches the README from Snowpack's GitHub repository and renders it as HTML.
+If you have Markdown in a remote source, you may pass it directly to the Markdown component through the `content` attribute. For example, the example below fetches the README from Snowpack's GitHub repository and renders it as HTML.
 
 ```jsx
 ---
@@ -107,7 +107,27 @@ const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpa
 ---
 
 <Layout>
-  <Markdown>{content}</Markdown>
+  <Markdown content={content} />
+</Layout>
+```
+
+Some times you might want to combine dynamic markdown with static markdown. You can nest `Markdown` components to get the best of both worlds.
+
+```jsx
+---
+import Markdown from 'astro/components/Markdown.astro';
+
+const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpack/main/README.md').then(res => res.text());
+---
+
+<Layout>
+  <Markdown>
+    ## Markdown example
+
+    Here we have some __Markdown__ code. We can also dynamically render content from remote places.
+
+    <Markdown content={content} />
+  </Mardown>
 </Layout>
 ```
 
