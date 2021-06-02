@@ -14,7 +14,23 @@ const CSS_SEPARATORS = new Set([' ', ',', '+', '>', '~']);
 const KEYFRAME_PERCENT = /\d+\.?\d*%/;
 
 /** HTML tags that should never get scoped classes */
-export const NEVER_SCOPED_TAGS = new Set<string>(['base', 'body', 'font', 'frame', 'frameset', 'head', 'html', 'link', 'meta', 'noframes', 'noscript', 'script', 'style', 'title', '!doctype']);
+export const NEVER_SCOPED_TAGS = new Set<string>([
+  'base',
+  'body',
+  'font',
+  'frame',
+  'frameset',
+  'head',
+  'html',
+  'link',
+  'meta',
+  'noframes',
+  'noscript',
+  'script',
+  'style',
+  'title',
+  '!doctype',
+]);
 /**
  * Scope Rules
  * Given a selector string (`.btn>span,.nav>span`), add an additional CSS class to every selector (`.btn.myClass>span.myClass,.nav.myClass>span.myClass`)
