@@ -1,5 +1,11 @@
 # astro-parser
 
+## 0.12.0
+
+### Patch Changes
+
+- d2330a5: Improve error display for missing local files
+
 ### 0.12.0-next.0
 
 ### Patch Changes
