@@ -105,7 +105,7 @@ export class Parser {
   }
 
   error({ code, message }: { code: string; message: string }, index = this.index) {
-    error(message, {
+    error(this.template, message, {
       name: 'ParseError',
       code,
       source: this.template,
