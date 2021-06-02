@@ -1,5 +1,12 @@
 # astro
 
+## 0.12.1
+
+### Patch Changes
+
+- Updated dependencies [6de740d]
+  - astro-parser@0.12.1
+
 ## 0.12.0
 
 ### Minor Changes

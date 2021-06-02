@@ -1,5 +1,11 @@
 # astro-parser
 
+## 0.12.1
+
+### Patch Changes
+
+- 6de740d: Fix for when there's a parser error with unmatched backticks
+
 ## 0.12.0
 
 ### Patch Changes
