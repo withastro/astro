@@ -4,6 +4,22 @@ const transformPromise = import('./dist/compiler/index.js');
 
 /** @type {import('snowpack').SnowpackPluginFactory<any>} */
 module.exports = (snowpackConfig, { resolvePackageUrl, hmrPort, renderers, astroConfig } = {}) => {
+  const { packageOptions } = snowpackConfig;
+  if (packageOptions.source === 'local') {
+      packageOptions.rollup = packageOptions.rollup || {};
+      packageOptions.rollup.plugins = packageOptions.rollup.plugins || [];
+      packageOptions.rollup.plugins.push(
+        {
+          name: '@astrojs/rollup',
+          resolveId(source) {
+            if (/^\/_astro_internal/.test(source)) {
+              return require.resolve(`astro/internal${source.slice('/_astro_internal'.length)}`);
+            }
+          }
+        }
+      )
+  }
+
   return {
     name: 'snowpack-astro',
     resolve: {

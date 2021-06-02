@@ -11,6 +11,7 @@
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./components": "./components/index.js",
     "./components/*": "./components/*",
+    "./internal/*": "./dist/frontend/*",
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
     "./dist/frontend/markdown.js": "./dist/frontend/markdown.js"
   },
