@@ -45,4 +45,14 @@ Markdown('Bundles client-side JS for prod', async (context) => {
   assert.ok(counterJs, 'Counter.jsx is bundled for prod');
 });
 
+Markdown('Renders dynamic content though the content attribute', async ({ runtime }) => {
+  const result = await runtime.load('/external');
+  if (result.error) throw new Error(result.error);
+
+  const $ = doc(result.contents);
+  assert.equal($('#outer').length, 1, 'Rendered markdown content');
+  assert.equal($('#inner').length, 1, 'Nested markdown content');
+  assert.ok($('#inner').is('[class]'), 'Scoped class passed down');
+});
+
 Markdown.run();

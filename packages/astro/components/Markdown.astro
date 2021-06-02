@@ -1,20 +1,24 @@
 ---
+import { renderMarkdown } from 'astro/dist/frontend/markdown.js';
+
 export let content: string;
+export let $scope: string;
 let html = null;
 
 // This flow is only triggered if a user passes `<Markdown content={content} />`
 if (content) {
-  // @api signals that Snowpack should replace this with an absolute URL to Astro's API handlers
-  html = await fetch('@api/render-markdown', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'text/plain'
-    },
-    body: content
-  }).then(res => res.text());
+  const { content: htmlContent } = await renderMarkdown(content, {
+    mode: 'md',
+    $: {
+      scopedClassName: $scope
+    }
+  });
+  html = htmlContent;
 }
----
 
-// If we have rendered `html` for `content`, render that
-// Otherwise, just render the slotted content
+/*
+  If we have rendered `html` for `content`, render that
+  Otherwise, just render the slotted content
+*/
+---
 {html ? html : <slot />}

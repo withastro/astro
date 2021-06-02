@@ -10,7 +10,8 @@
     "./package.json": "./package.json",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./components/*": "./components/*",
-    "./runtime/svelte": "./dist/frontend/runtime/svelte.js"
+    "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
+    "./dist/frontend/markdown.js": "./dist/frontend/markdown.js"
   },
   "imports": {
     "#astro/compiler": "./dist/compiler/index.js",

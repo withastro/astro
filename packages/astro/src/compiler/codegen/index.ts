@@ -558,7 +558,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 const { $scope } = attributes ?? {};
                 state.markers.insideMarkdown = { $scope };
                 if (attributes.content) {
-                  buffers[curr] += `${componentName}.__render(${attributes ? generateAttributes(attributes) : 'null'}),`;
+                  if (curr === 'markdown') {
+                    await pushMarkdownToBuffer();
+                  }
+                  buffers[curr] += `,${componentName}.__render(${attributes ? generateAttributes(attributes) : 'null'}),`;
                 }
                 curr = 'markdown';
                 return;
