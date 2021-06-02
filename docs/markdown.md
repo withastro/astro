@@ -58,7 +58,7 @@ Astro exposes a special `Markdown` component for `.astro` files which enables ma
 ---
 // For now, this import _must_ be named "Markdown" and _must not_ be wrapped with a custom component
 // We're working on easing these restrictions!
-import Markdown from 'astro/components/Markdown.astro';
+import { Markdown } from 'astro/components';
 import Layout from '../layouts/main.astro';
 import MyFancyCodePreview from '../components/MyFancyCodePreview.tsx';
 
@@ -101,7 +101,7 @@ If you have Markdown in a remote source, you may pass it directly to the Markdow
 
 ```jsx
 ---
-import Markdown from 'astro/components/Markdown.astro';
+import { Markdown } from 'astro/components';
 
 const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpack/main/README.md').then(res => res.text());
 ---
@@ -115,7 +115,7 @@ Some times you might want to combine dynamic markdown with static markdown. You 
 
 ```jsx
 ---
-import Markdown from 'astro/components/Markdown.astro';
+import { Markdown } from 'astro/components';
 
 const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpack/main/README.md').then(res => res.text());
 ---

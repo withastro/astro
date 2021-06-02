@@ -1,6 +1,5 @@
-
 export default {
-  extensions: {
-    '.jsx': 'preact'
-  }
+  renderers: [
+    '@astrojs/renderer-preact'
+  ]
 }

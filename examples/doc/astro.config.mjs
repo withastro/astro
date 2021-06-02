@@ -1,5 +1,5 @@
 export default {
-  extensions: {
-    '.tsx': 'preact'
-  }
+  renderers: [
+    '@astrojs/renderer-preact'
+  ]
 };

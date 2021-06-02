@@ -3,14 +3,9 @@ export default {
   pages: './src/pages',
   dist: './dist',
   public: './public',
-  extensions: {
-    '.jsx': 'preact',
-  },
-  snowpack: {
-    optimize: {
-      bundle: false,
-      minify: true,
-      target: 'es2018',
-    },
-  },
+  renderers: [
+    '@astrojs/renderer-vue',
+    '@astrojs/renderer-svelte',
+    '@astrojs/renderer-preact'
+  ]
 };
