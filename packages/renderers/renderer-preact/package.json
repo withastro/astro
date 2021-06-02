@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-preact",
-  "version": "0.1.0-next.0",
+  "version": "0.1.0",
   "type": "module",
   "exports": {
     ".": "./index.js",
