@@ -27,6 +27,7 @@ export class CompileError extends Error {
 
 /** Throw CompileError */
 export default function error(
+  code: string,
   message: string,
   props: {
     name: string;
@@ -36,7 +37,7 @@ export default function error(
     end?: number;
   }
 ): never {
-  const err = new CompileError({ message, start: props.start, end: props.end, filename: props.filename });
+  const err = new CompileError({ code, message, start: props.start, end: props.end, filename: props.filename });
   err.name = props.name;
 
   throw err;
