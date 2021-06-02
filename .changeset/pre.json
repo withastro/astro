@@ -1,5 +1,5 @@
 {
-  "mode": "pre",
+  "mode": "exit",
   "tag": "next",
   "initialVersions": {
     "@example/astro-markdown": "0.0.1",
@@ -23,5 +23,12 @@
     "prettier-plugin-astro": "0.0.3",
     "www": "1.1.0"
   },
-  "changesets": ["brave-panthers-heal", "cold-paws-remember", "khaki-avocados-lie", "nine-buttons-decide", "shaggy-countries-battle", "smooth-toes-tan"]
+  "changesets": [
+    "brave-panthers-heal",
+    "cold-paws-remember",
+    "khaki-avocados-lie",
+    "nine-buttons-decide",
+    "shaggy-countries-battle",
+    "smooth-toes-tan"
+  ]
 }
