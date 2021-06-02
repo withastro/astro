@@ -1,5 +1,5 @@
 ---
-import Markdown from 'astro/components/Markdown.astro';
+import { Markdown } from 'astro/components';
 const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpack/main/README.md').then(res => res.text());
 ---
 
