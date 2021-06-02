@@ -4,6 +4,8 @@ export default {
   dist: './dist',
   public: './public',
   renderers: [
+    '@astrojs/renderer-vue',
+    '@astrojs/renderer-svelte',
     '@astrojs/renderer-preact'
   ]
 };
