@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.12.0",
+  "version": "0.12.1",
   "author": "Skypack",
   "license": "MIT",
   "type": "module",
@@ -48,7 +48,7 @@
     "@snowpack/plugin-sass": "^1.4.0",
     "acorn": "^7.4.0",
     "astring": "^1.7.4",
-    "astro-parser": "0.12.0",
+    "astro-parser": "0.12.1",
     "astro-prism": "0.0.2",
     "autoprefixer": "^10.2.5",
     "cheerio": "^1.0.0-rc.6",
