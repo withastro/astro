@@ -12,11 +12,6 @@ export default {
   dist: './dist',
   /** A folder of static files Astro will copy to the root. Useful for favicons, images, and other files that don’t need processing. */
   public: './public',
-  /** Extension-specific handlings */
-  extensions: {
-    /** Set this to "preact" or "react" to determine what *.jsx files should load */
-    '.jsx': 'react',
-  },
   /** Options specific to `astro build` */
   buildOptions: {
     /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
@@ -32,6 +27,11 @@ export default {
     tailwindConfig: undefined,
   },
   /** default array of rendering packages inserted into runtime */
-  renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-react', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
+  renderers: [
+    '@astrojs/renderer-svelte', 
+    '@astrojs/renderer-vue',
+    '@astrojs/renderer-react',
+    '@astrojs/renderer-preact'
+  ],
 };
 ```
