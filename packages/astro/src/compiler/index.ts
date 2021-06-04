@@ -114,7 +114,7 @@ import fetch from 'node-fetch';
 ${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
-import { h, Fragment } from 'astro/internal/h.js';
+import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroRequestSymbol = Symbol('astro.request');
 async function __render(props, ...children) {
   const Astro = {
