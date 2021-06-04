@@ -310,7 +310,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const { projectRoot, pages: pagesRoot, renderers = DEFAULT_RENDERERS } = astroConfig;
   const { env, mode, resolvePackageUrl, target } = options;
 
-  const internalPath = new URL('./frontend/', import.meta.url);
+  const frontendPath = new URL('./frontend/', import.meta.url);
   const resolveDependency = (dep: string) => resolve.sync(dep, { basedir: fileURLToPath(projectRoot) });
   const isHmrEnabled = mode === 'development' && target === 'backend';
 
@@ -329,7 +329,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const mountOptions = {
     [fileURLToPath(pagesRoot)]: '/_astro/pages',
     ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: '/' } : {}),
-    [fileURLToPath(internalPath)]: '/_astro_internal',
+    [fileURLToPath(frontendPath)]: '/_astro_frontend',
     [fileURLToPath(projectRoot)]: '/_astro', // must be last (greediest)
   };
 

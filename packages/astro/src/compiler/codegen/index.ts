@@ -17,7 +17,8 @@ import { error, warn } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
-import { isComponentTag, renderMarkdown } from '../utils';
+import { isComponentTag } from '../utils';
+import { renderMarkdown } from '@astrojs/markdown-support';
 import { transform } from '../transform/index.js';
 import { PRISM_IMPORT } from '../transform/prism.js';
 
@@ -39,11 +40,6 @@ interface CodeGenOptions {
   compileOptions: CompileOptions;
   filename: string;
   fileID: string;
-}
-
-/** Format Astro internal import URL */
-function internalImport(internalPath: string) {
-  return `/_astro_internal/${internalPath}`;
 }
 
 /** Retrieve attributes from TemplateNode */
@@ -169,7 +165,7 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
   const importInfo = kind ? { componentUrl: getComponentUrl(), componentExport: getComponentExport() } : {};
   return {
     wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: kind, displayName: _name, ...importInfo })})`,
-    wrapperImport: `import {__astro_component} from '${internalImport('__astro_component.js')}';`,
+    wrapperImport: `import {__astro_component} from 'astro/internal/__astro_component.js';`,
   };
 }
 
