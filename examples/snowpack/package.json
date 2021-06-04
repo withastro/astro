@@ -11,7 +11,7 @@
     "lint": "prettier --check \"src/**/*.js\""
   },
   "dependencies": {
-    "astro": "^0.12.2",
+    "astro": "^0.12.3",
     "date-fns": "^2.19.0",
     "deepmerge": "^4.2.2",
     "docsearch.js": "^2.6.3",
@@ -25,7 +25,7 @@
     "@11ty/eleventy-plugin-syntaxhighlight": "^3.0.4",
     "@contentful/rich-text-html-renderer": "^14.1.2",
     "@contentful/rich-text-types": "^14.1.2",
-    "astro": "^0.12.2",
+    "astro": "^0.12.3",
     "eleventy-plugin-nesting-toc": "^1.2.0",
     "luxon": "^1.25.0",
     "markdown-it": "^12.0.2",
