@@ -12,8 +12,7 @@
     "./components": "./components/index.js",
     "./components/*": "./components/*",
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
-    "./frontend/*": "./dist/frontend/*",
-    "./dist/frontend/markdown.js": "./dist/frontend/markdown.js"
+    "./internal/*": "./dist/internal/*"
   },
   "imports": {
     "#astro/compiler": "./dist/compiler/index.js",
@@ -29,7 +28,7 @@
     "astro.mjs"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/*.ts\" \"src/compiler/index.ts\" \"src/frontend/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/*.ts\" \"src/compiler/index.ts\" \"src/frontend/**/*.ts\" \"src/internal/**/*.ts\" && tsc",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
@@ -90,7 +89,7 @@
     "sass": "^1.32.13",
     "shorthash": "^0.0.2",
     "slash": "^4.0.0",
-    "snowpack": "^3.5.4",
+    "snowpack": "^3.5.5",
     "source-map-support": "^0.5.19",
     "string-width": "^5.0.0",
     "tiny-glob": "^0.2.8",
