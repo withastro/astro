@@ -112,7 +112,7 @@ async function runCommand(rawRoot: string, cmd: (a: AstroConfig, options: any) =
 const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<void>>([
   ['build', buildAndExit],
   ['dev', devServer],
-  ['reload', reloadAndExit]
+  ['reload', reloadAndExit],
 ]);
 
 /** The primary CLI action */
@@ -137,7 +137,7 @@ export async function cli(args: string[]) {
     }
     case 'build':
     case 'dev': {
-      if(flags.reload) {
+      if (flags.reload) {
         await reload();
       }
 
