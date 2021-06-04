@@ -6,11 +6,10 @@
     ".": "./create-astro.js"
   },
   "bin": {
-    "create-astro": "./create-astro.js"
+    "create-astro": "./create-astro.mjs"
   },
   "scripts": {
-    "build": "ENV=production ../../scripts/index.js build src/index.tsx",
-    "postbuild": "../../scripts/index.js copy \"src/templates/**\" --tgz",
+    "build": "astro-scripts build \"src/*.ts\"",
     "prepare": "yarn build",
     "test": "uvu"
   },
@@ -19,13 +18,12 @@
     "create-astro.js"
   ],
   "dependencies": {
-    "decamelize": "^5.0.0",
-    "decompress": "^4.2.1",
-    "ink": "^3.0.8",
-    "ink-select-input": "^4.2.0",
-    "ink-text-input": "^4.0.1",
-    "react": "^16.14.0",
-    "source-map-support": "^0.5.19"
+    "@types/degit": "^2.8.2",
+    "@types/prompts": "^2.0.12",
+    "degit": "^2.8.4",
+    "kleur": "^4.1.1",
+    "prompts": "^2.4.1",
+    "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
     "uvu": "^0.5.1"

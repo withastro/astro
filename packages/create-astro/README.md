@@ -18,22 +18,13 @@ yarn create astro
 
 ```bash
 # npm 6.x
-npm init astro my-astro-project --template blank
+npm init astro my-astro-project --template starter
 
 # npm 7+, extra double-dash is needed:
-npm init astro my-astro-project -- --template blank
+npm init astro my-astro-project -- --template starter
 
 # yarn
-yarn create astro my-astro-project --template blank
+yarn create astro my-astro-project --template starter
 ```
 
-To see all available options, use the `--help` flag.
-
-### Templates
-
-The following templates are included:
-
-- `starter`
-- `blank`
-
-Feel free to [open a PR](https://github.com/snowpackjs/astro/pulls) to add additional templates.
+[Check out the full list](https://github.com/snowpackjs/astro/tree/main/examples) of example starter templates, available on GitHub.

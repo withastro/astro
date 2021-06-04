@@ -1399,6 +1399,11 @@
   dependencies:
     "@types/babel-types" "*"
 
+"@types/degit@^2.8.2":
+  version "2.8.2"
+  resolved "https://registry.yarnpkg.com/@types/degit/-/degit-2.8.2.tgz#a5878ecf8914c1408b31f2efda284add6e7ea7ce"
+  integrity sha512-wUOqW7nZ8AYgm4OKa9i/RD72CrU/X4Vfx2Oez/51qC3RMgPyF3ZUQVLFjV8McV6/ivR7lOlfidRFgGZj7MZe1A==
+
 "@types/estree@0.0.39":
   version "0.0.39"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.39.tgz#e177e699ee1b8c22d23174caaa7422644389509f"
@@ -1477,6 +1482,13 @@
   version "5.0.3"
   resolved "https://registry.yarnpkg.com/@types/parse5/-/parse5-5.0.3.tgz#e7b5aebbac150f8b5fdd4a46e7f0bd8e65e19109"
   integrity sha512-kUNnecmtkunAoQ3CnjmMkzNU/gtxG8guhi+Fk2U/kOpIKjIMKnXGp4IJCgQJrXSgMsWYimYG4TGjz/UzbGEBTw==
+
+"@types/prompts@^2.0.12":
+  version "2.0.12"
+  resolved "https://registry.yarnpkg.com/@types/prompts/-/prompts-2.0.12.tgz#5cc1557f88e4d69dad93230fff97a583006f858b"
+  integrity sha512-Hr6osqfNg3IcQT3pJDXCsSnb0KnldY/hXeJCKJriwbZLnedN9n1e8kcZwLc25GIWULDb6h5aEyOBbf33XpZBXQ==
+  dependencies:
+    "@types/node" "*"
 
 "@types/pug@^2.0.4":
   version "2.0.4"
@@ -2049,6 +2061,68 @@ astring@^1.7.4:
     esbuild "^0.11.16"
     globby "^11.0.3"
     tar "^6.1.0"
+
+astro@latest:
+  version "0.12.3"
+  resolved "https://registry.yarnpkg.com/astro/-/astro-0.12.3.tgz#e2c6476450eaaf424628d5b8506f1cbbc7179064"
+  integrity sha512-ECU8RVUVLdu6maWQXhh5WnKDcShCdC9t0MqapdLcAnqv4mWt23tGhi3oMtT85bxWmAzZNu2+g5QaS1Z7N28jHw==
+  dependencies:
+    "@astrojs/markdown-support" "0.1.1"
+    "@astrojs/renderer-preact" "0.1.0"
+    "@astrojs/renderer-react" "0.1.0"
+    "@astrojs/renderer-svelte" "0.1.0"
+    "@astrojs/renderer-vue" "0.1.0"
+    "@babel/code-frame" "^7.12.13"
+    "@babel/generator" "^7.13.9"
+    "@babel/parser" "^7.13.15"
+    "@babel/traverse" "^7.13.15"
+    "@silvenon/remark-smartypants" "^1.0.0"
+    "@snowpack/plugin-postcss" "^1.4.0"
+    "@snowpack/plugin-sass" "^1.4.0"
+    acorn "^7.4.0"
+    astring "^1.7.4"
+    astro-parser "0.12.1"
+    astro-prism "0.0.2"
+    autoprefixer "^10.2.5"
+    cheerio "^1.0.0-rc.6"
+    del "^6.0.0"
+    es-module-lexer "^0.4.1"
+    esbuild "^0.10.1"
+    estree-util-value-to-estree "^1.2.0"
+    estree-walker "^3.0.0"
+    fast-xml-parser "^3.19.0"
+    fdir "^5.0.0"
+    find-up "^5.0.0"
+    gray-matter "^4.0.2"
+    gzip-size "^6.0.0"
+    hast-to-hyperscript "~9.0.0"
+    kleur "^4.1.4"
+    locate-character "^2.0.5"
+    magic-string "^0.25.3"
+    mdast-util-mdx "^0.1.1"
+    micromark-extension-mdxjs "^0.3.0"
+    mime "^2.5.2"
+    moize "^6.0.1"
+    node-fetch "^2.6.1"
+    picomatch "^2.2.3"
+    postcss "^8.2.15"
+    postcss-icss-keyframes "^0.2.1"
+    prismjs "^1.23.0"
+    remark-footnotes "^3.0.0"
+    remark-gfm "^1.0.0"
+    remark-parse "^9.0.0"
+    remark-rehype "^8.1.0"
+    resolve "^1.20.0"
+    rollup "^2.43.1"
+    rollup-plugin-terser "^7.0.2"
+    sass "^1.32.13"
+    shorthash "^0.0.2"
+    slash "^4.0.0"
+    snowpack "^3.5.5"
+    source-map-support "^0.5.19"
+    string-width "^5.0.0"
+    tiny-glob "^0.2.8"
+    yargs-parser "^20.2.7"
 
 async-each-series@0.1.1:
   version "0.1.1"
@@ -3278,6 +3352,11 @@ defined@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/defined/-/defined-1.0.0.tgz#c98d9bcef75674188e110969151199e39b1fa693"
   integrity sha1-yY2bzvdWdBiOEQlpFRGZ45sfppM=
+
+degit@^2.8.4:
+  version "2.8.4"
+  resolved "https://registry.yarnpkg.com/degit/-/degit-2.8.4.tgz#3bb9c5c00f157c44724dd4a50724e4aa75a54d38"
+  integrity sha512-vqYuzmSA5I50J882jd+AbAhQtgK6bdKUJIex1JNfEUPENCgYsxugzKVZlFyMwV4i06MmnV47/Iqi5Io86zf3Ng==
 
 del@^2.2.0:
   version "2.2.2"
@@ -5678,7 +5757,12 @@ kind-of@^6.0.0, kind-of@^6.0.2, kind-of@^6.0.3:
   resolved "https://registry.yarnpkg.com/kind-of/-/kind-of-6.0.3.tgz#07c05034a6c349fa06e24fa35aa76db4580ce4dd"
   integrity sha512-dcS1ul+9tmeD95T+x28/ehLgd9mENa3LsvDTtzm3vyBEO7RPptvAD+t44WVXaUjTBRcrpFeFlC8WCruUR456hw==
 
-kleur@^4.0.3, kleur@^4.1.4:
+kleur@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/kleur/-/kleur-3.0.3.tgz#a79c9ecc86ee1ce3fa6206d1216c501f147fc07e"
+  integrity sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==
+
+kleur@^4.0.3, kleur@^4.1.1, kleur@^4.1.4:
   version "4.1.4"
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.4.tgz#8c202987d7e577766d039a8cd461934c01cda04d"
   integrity sha512-8QADVssbrFjivHWQU7KkMgptGTl6WAcSdlbBPY4uNF+mWr6DGcKrvY2w4FQJoXch7+fKMjj0dRrL75vk3k23OA==
@@ -7824,6 +7908,14 @@ promise@^7.0.1:
   dependencies:
     asap "~2.0.3"
 
+prompts@^2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/prompts/-/prompts-2.4.1.tgz#befd3b1195ba052f9fd2fde8a486c4e82ee77f61"
+  integrity sha512-EQyfIuO2hPDsX1L/blblV+H7I0knhgAd82cVneCwcdND9B8AuCDuRcBH6yIcG4dFzlOUqbazQqwGjx5xmsNLuQ==
+  dependencies:
+    kleur "^3.0.3"
+    sisteransi "^1.0.5"
+
 promzard@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/promzard/-/promzard-0.3.0.tgz#26a5d6ee8c7dee4cb12208305acfb93ba382a9ee"
@@ -8852,6 +8944,11 @@ simple-swizzle@^0.2.2:
   integrity sha1-pNprY1/8zMoz9w0Xy5JZLeleVXo=
   dependencies:
     is-arrayish "^0.3.1"
+
+sisteransi@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/sisteransi/-/sisteransi-1.0.5.tgz#134d681297756437cc05ca01370d3a7a571075ed"
+  integrity sha512-bLGGlR1QxBcynn2d5YmDX4MGjlZvy2MRBDRNHLJ8VI6l6+9FUiyTFNJ0IveOSP0bcXgVDPRcfGqA0pjaqUpfVg==
 
 slash@^1.0.0:
   version "1.0.0"
