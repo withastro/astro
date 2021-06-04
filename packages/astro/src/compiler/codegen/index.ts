@@ -17,7 +17,8 @@ import { error, warn } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
-import { isComponentTag, renderMarkdown } from '../utils';
+import { isComponentTag } from '../utils';
+import { renderMarkdown } from '@astrojs/markdown-support';
 import { transform } from '../transform/index.js';
 import { PRISM_IMPORT } from '../transform/prism.js';
 

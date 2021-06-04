@@ -3,7 +3,7 @@ import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 
 import path from 'path';
-import { renderMarkdownWithFrontmatter } from './utils.js';
+import { renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
 
 import { parse } from 'astro-parser';
 import { transform } from './transform/index.js';

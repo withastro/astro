@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "allowJs": true,
+    "target": "ES2020",
+    "module": "CommonJS",
+    "outDir": "./dist"
+  }
+}

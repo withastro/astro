@@ -97,7 +97,7 @@ export function searchForPage(url: URL, pagesRoot: URL): SearchResult {
       statusCode: 200,
       location: {
         fileURL: new URL('./frontend/500.astro', import.meta.url),
-        snowpackURL: `/_astro_internal/500.astro.js`,
+        snowpackURL: `/_astro_frontend/500.astro.js`,
       },
       pathname: reqPath,
     };

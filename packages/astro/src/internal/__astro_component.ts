@@ -56,7 +56,7 @@ async function generateHydrateScript({ renderer, astroId, props }: any, { hydrat
   const rendererSource = __rendererSources[__renderers.findIndex((r) => r === renderer)];
 
   const script = `<script type="module">
-import setup from '/_astro_internal/hydrate/${hydrate}.js';
+import setup from '/_astro_frontend/hydrate/${hydrate}.js';
 setup("${astroId}", async () => {
   const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${rendererSource}")]);
   return (el, children) => hydrate(el)(Component, ${serialize(props)}, children);
