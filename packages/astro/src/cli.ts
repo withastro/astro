@@ -9,15 +9,20 @@ import yargs from 'yargs-parser';
 import { loadConfig } from './config.js';
 import { build } from './build.js';
 import devServer from './dev.js';
+import { reload } from './reload.js';
 
 const { readFile } = fsPromises;
 const buildAndExit = async (...args: Parameters<typeof build>) => {
   const ret = await build(...args);
   process.exit(ret);
 };
+const reloadAndExit = async () => {
+  const ret = await reload();
+  process.exit(ret);
+};
 
 type Arguments = yargs.Arguments;
-type cliCommand = 'help' | 'version' | 'dev' | 'build';
+type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'reload';
 interface CLIState {
   cmd: cliCommand;
   options: {
@@ -25,6 +30,7 @@ interface CLIState {
     sitemap?: boolean;
     port?: number;
     config?: string;
+    reload?: boolean;
   };
 }
 
@@ -50,6 +56,10 @@ function resolveArgs(flags: Arguments): CLIState {
     case 'build':
       return { cmd: 'build', options };
     default:
+      if (flags.reload) {
+        return { cmd: 'reload', options };
+      }
+
       return { cmd: 'help', options };
   }
 }
@@ -66,6 +76,8 @@ function printHelp() {
   --config <path>       Specify the path to the Astro config file.
   --project-root <path> Specify the path to the project root folder.
   --no-sitemap          Disable sitemap generation (build only).
+  --reload              Clean the cache, reinstalling dependencies.
+  --verbose             Enable verbose logging
   --version             Show the version number and exit.
   --help                Show this help message.
 `);
@@ -84,22 +96,23 @@ function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
 }
 
 /** Handle `astro run` command */
-async function runCommand(rawRoot: string, cmd: (a: AstroConfig) => Promise<void>, options: CLIState['options']) {
+async function runCommand(rawRoot: string, cmd: (a: AstroConfig, options: any) => Promise<void>, options: CLIState['options']) {
   try {
     const projectRoot = options.projectRoot || rawRoot;
     const astroConfig = await loadConfig(projectRoot, options.config);
     mergeCLIFlags(astroConfig, options);
 
-    return cmd(astroConfig);
+    return cmd(astroConfig, options);
   } catch (err) {
     console.error(colors.red(err.toString() || err));
     process.exit(1);
   }
 }
 
-const cmdMap = new Map([
+const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<void>>([
   ['build', buildAndExit],
   ['dev', devServer],
+  ['reload', reloadAndExit]
 ]);
 
 /** The primary CLI action */
@@ -118,11 +131,20 @@ export async function cli(args: string[]) {
       process.exit(0);
       break;
     }
+    case 'reload': {
+      await reloadAndExit();
+      break;
+    }
     case 'build':
     case 'dev': {
+      if(flags.reload) {
+        await reload();
+      }
+
       const cmd = cmdMap.get(state.cmd);
       if (!cmd) throw new Error(`Error running ${state.cmd}`);
       runCommand(flags._[3], cmd, state.options);
+      break;
     }
   }
 }

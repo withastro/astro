@@ -20,6 +20,14 @@ The root is used for finding the Astro configuration file.
 astro --project-root examples/snowpack dev
 ```
 
+#### `--reload`
+
+Clears the cache (dependencies are built within Astro apps).
+
+#### `--verbose`
+
+Enables verbose logging, which is helpful when debugging an issue.
+
 #### `--version`
 
 Print the Astro version number and exit.

@@ -45,7 +45,7 @@ type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: Comp
 export type LoadResult = (LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError) & { collectionInfo?: CollectionInfo };
 
 // Disable snowpack from writing to stdout/err.
-snowpackLogger.level = 'silent';
+snowpackLogger.level = process.argv.includes('--verbose') ? 'debug' : 'silent';
 
 /** Pass a URL to Astro to resolve and build */
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
