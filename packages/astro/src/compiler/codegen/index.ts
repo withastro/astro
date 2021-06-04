@@ -41,11 +41,6 @@ interface CodeGenOptions {
   fileID: string;
 }
 
-/** Format Astro internal import URL */
-function internalImport(internalPath: string) {
-  return `/_astro_internal/${internalPath}`;
-}
-
 /** Retrieve attributes from TemplateNode */
 function getAttributes(attrs: Attribute[]): Record<string, string> {
   let result: Record<string, string> = {};
@@ -169,7 +164,7 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
   const importInfo = kind ? { componentUrl: getComponentUrl(), componentExport: getComponentExport() } : {};
   return {
     wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: kind, displayName: _name, ...importInfo })})`,
-    wrapperImport: `import {__astro_component} from '${internalImport('__astro_component.js')}';`,
+    wrapperImport: `import {__astro_component} from 'astro/frontend/__astro_component.js';`,
   };
 }
 

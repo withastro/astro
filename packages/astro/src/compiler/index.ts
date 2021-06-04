@@ -11,11 +11,6 @@ import { codegen } from './codegen/index.js';
 
 export { scopeRule } from './transform/postcss-scoped-styles/index.js';
 
-/** Return Astro internal import URL */
-function internalImport(internalPath: string) {
-  return `/_astro_internal/${internalPath}`;
-}
-
 interface ConvertAstroOptions {
   compileOptions: CompileOptions;
   filename: string;
@@ -119,7 +114,7 @@ import fetch from 'node-fetch';
 ${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
-import { h, Fragment } from '${internalImport('h.js')}';
+import { h, Fragment } from 'astro/frontend/h.js';
 const __astroRequestSymbol = Symbol('astro.request');
 async function __render(props, ...children) {
   const Astro = {

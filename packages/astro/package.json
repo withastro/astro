@@ -12,6 +12,7 @@
     "./components": "./components/index.js",
     "./components/*": "./components/*",
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
+    "./frontend/*": "./dist/frontend/*",
     "./dist/frontend/markdown.js": "./dist/frontend/markdown.js"
   },
   "imports": {
