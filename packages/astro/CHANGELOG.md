@@ -1,5 +1,11 @@
 # astro
 
+## 0.12.3
+
+### Patch Changes
+
+- fe6a985: Fixes resolution when esinstall installs Markdown and Prism components
+
 ## 0.12.2
 
 ### Patch Changes
