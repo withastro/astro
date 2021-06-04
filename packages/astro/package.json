@@ -12,7 +12,8 @@
     "./components": "./components/index.js",
     "./components/*": "./components/*",
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
-    "./internal/*": "./dist/internal/*"
+    "./internal/*": "./dist/internal/*",
+    "./dist/internal/*": "./dist/internal/*"
   },
   "imports": {
     "#astro/compiler": "./dist/compiler/index.js",

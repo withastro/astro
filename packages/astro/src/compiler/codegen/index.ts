@@ -165,7 +165,7 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
   const importInfo = kind ? { componentUrl: getComponentUrl(), componentExport: getComponentExport() } : {};
   return {
     wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: kind, displayName: _name, ...importInfo })})`,
-    wrapperImport: `import {__astro_component} from 'astro/internal/__astro_component.js';`,
+    wrapperImport: `import {__astro_component} from 'astro/dist/internal/__astro_component.js';`,
   };
 }
 
