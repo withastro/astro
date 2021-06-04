@@ -1,5 +1,13 @@
 # astro
 
+## 0.12.2
+
+### Patch Changes
+
+- 50e6f49: Fixes issues with using astro via the create script
+- Updated dependencies [50e6f49]
+  - @astrojs/markdown-support@0.1.1
+
 ## 0.12.1
 
 ### Patch Changes
