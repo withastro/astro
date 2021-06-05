@@ -109,7 +109,7 @@ function renderToStaticMarkup(Component, props, childHTML) {
 }
 ```
 
-Note that `childHTML` is an HTML string representing this component's children. If your framework does not support rendering HTML directly, you are welcome to use a wrapper component. By convention Astro uses a custom element, `astro-fragment`, to inject `childHTML` into.
+Note that `childHTML` is an HTML string representing this component's children. If your framework does not support rendering HTML directly, you are welcome to use a wrapper component. By convention, Astro uses the `astro-fragment` custom element to inject `childHTML` into. Your renderer should use that, too.
 
 ```js
 import { h, renderToString } from 'xxx';
@@ -124,7 +124,7 @@ function renderToStaticMarkup(Component, props, childHTML) {
 
 ## Client entrypoint (`client.js`)
 
-The client entrypoint of a renderer is responsible for rehydrating a static HTML (the result of `renderToStaticMarkup`) back into a fully interactive component. Its `default` export should be a `function` which accepts the host element of the Component, an `astro-root` custom element.
+The client entrypoint of a renderer is responsible for rehydrating static HTML (the result of `renderToStaticMarkup`) back into a fully interactive component. Its `default` export should be a `function` which accepts the host element of the Component, an `astro-root` custom element.
 
 > If your framework supports non-destructive component hydration (as opposed to a destructive `render` method), be sure to use that! Following your framework's Server Side Rendering (SSR) guide should point you in the right direction.
 
@@ -133,7 +133,7 @@ import { hydrate } from 'xxx';
 
 export default (element) => {
   return (Component, props, childHTML) => {
-    hydrate(h(Component, { ...props, innerHTML: childHTML }));
+    hydrate(h(Component, { ...props, innerHTML: childHTML }), element);
   };
 };
 ```
@@ -146,7 +146,7 @@ import SharedWrapper from './SharedWrapper.js';
 
 export default (element) => {
   return (Component, props, childHTML) => {
-    hydrate(h(Component, props, h(SharedWrapper, { value: childHTML })));
+    hydrate(h(Component, props, h(SharedWrapper, { value: childHTML })), element);
   };
 };
 ```
