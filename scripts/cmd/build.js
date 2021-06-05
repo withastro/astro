@@ -7,11 +7,10 @@ import glob from 'tiny-glob';
 
 /** @type {import('esbuild').BuildOptions} */
 const defaultConfig = {
-  bundle: true,
   minify: false,
   format: 'esm',
   platform: 'node',
-  target: 'node14',
+  target: 'node14.16.1',
   sourcemap: 'inline',
   sourcesContent: false,
 };
@@ -26,16 +25,15 @@ export default async function build(...args) {
 
   const { type = 'module', dependencies = {} } = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
   const format = type === 'module' ? 'esm' : 'cjs';
-  const external = [...Object.keys(dependencies), '@astrojs/language-server/bin/server.js', 'source-map-support', 'source-map-support/register.js', 'vscode'];
   const outdir = 'dist';
   await clean(outdir);
 
   if (!isDev) {
     await esbuild.build({
       ...config,
+      bundle: entryPoints.length === 1, // Note: only use `bundle` with a single entrypoint!
       entryPoints,
       outdir,
-      external,
       format,
       plugins: [svelte({ isDev })],
     });
