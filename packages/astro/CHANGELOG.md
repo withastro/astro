@@ -1,5 +1,12 @@
 # astro
 
+## 0.12.4
+
+### Patch Changes
+
+- 0d6afae: Fixes a few small bugs with the `Markdown` component when there are multiple instances on the same page
+- 1d930ff: Adds [`--verbose`](https://github.com/snowpackjs/astro/blob/main/docs/cli.md#--verbose) and [`--reload`](https://github.com/snowpackjs/astro/blob/main/docs/cli.md#--reload) flags to the `astro` CLI.
+
 ## 0.12.3
 
 ### Patch Changes
