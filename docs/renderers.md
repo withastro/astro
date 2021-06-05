@@ -29,6 +29,7 @@ To enable a new renderer, add the dependency to your project and update the `ren
 ## Building a new renderer
 
 A simple renderer only needs a few files.
+
 ```
 /renderer-xxx/
 ├── package.json
@@ -38,6 +39,7 @@ A simple renderer only needs a few files.
 ```
 
 Two quick notes before we dive into these files individually.
+
 1. We'd love for you to contribute any renderer you build directly to the Astro repo. This will allow us to publish it under `@astrojs/renderer-xxx`! Feel free to open a pull request.
 2. Your renderer doesn't need to be written in ESM, but it's pretty straightforward! Add `"type": "module"` to your `package.json` file and be sure to [define a valid `export` map](https://nodejs.org/api/packages.html#packages_package_entry_points).
 
@@ -47,15 +49,13 @@ The main entrypoint of a renderer is a simple JS file which exports a manifest f
 
 Additionally, this entrypoint can optionally define a [Snowpack plugin](https://www.snowpack.dev/guides/plugins) that should be used to load non-JavaScript files.
 
-
 ```js
 export default {
-  name: '@astrojs/renderer-xxx',  // the renderer name
-  client: './client.js',          // relative path to the client entrypoint
-  server: './server.js',          // relative path to the server entrypoint
-  snowpackPlugin: '@snowpack/plugin-xxx',       // optional, the name of a snowpack plugin to inject
-  snowpackPluginOptions: { example: true },     // optional, any options to be forwarded to the snowpack plugin
-
+  name: '@astrojs/renderer-xxx', // the renderer name
+  client: './client.js', // relative path to the client entrypoint
+  server: './server.js', // relative path to the server entrypoint
+  snowpackPlugin: '@snowpack/plugin-xxx', // optional, the name of a snowpack plugin to inject
+  snowpackPluginOptions: { example: true }, // optional, any options to be forwarded to the snowpack plugin
 };
 ```
 
@@ -65,16 +65,16 @@ The server entrypoint of a renderer is responsible for checking if a component s
 
 ```js
 export default {
-  // should Component use this renderer? 
+  // should Component use this renderer?
   check(Component, props, childHTML) {},
   // Component => string of static HTML
-  renderToStaticMarkup(Component, props, childHTML) {}
-}
+  renderToStaticMarkup(Component, props, childHTML) {},
+};
 ```
 
 ### `check`
 
-`check` is a function that determines whether a Component should be "claimed" by this renderer. 
+`check` is a function that determines whether a Component should be "claimed" by this renderer.
 
 In it's simplest form, it can check for the existence of a flag on Object-based components.
 
@@ -84,7 +84,7 @@ function check(Component) {
 }
 ```
 
-In more complex scenarios, like when a Component is a `Function` without any flags, you may need to use `try/catch` to attempt a full render. This result is cached so that it only runs once per-component. 
+In more complex scenarios, like when a Component is a `Function` without any flags, you may need to use `try/catch` to attempt a full render. This result is cached so that it only runs once per-component.
 
 ```js
 function check(Component, props, childHTML) {
@@ -98,7 +98,7 @@ function check(Component, props, childHTML) {
 
 ### `renderToStaticMarkup`
 
-`renderToStaticMarkup` is a function that renders a Component to a static string of HTML. You don't need to worry about hydration 
+`renderToStaticMarkup` is a function that renders a Component to a static string of HTML. You don't need to worry about hydration
 
 ```js
 import { renderToString } from 'xxx';
@@ -117,11 +117,7 @@ import { h, renderToString } from 'xxx';
 const Wrapper = ({ value }) => h('astro-fragment', { dangerouslySetInnerHTML: { __html: value } });
 
 function renderToStaticMarkup(Component, props, childHTML) {
-  const html = renderToString(
-    h(Component, props, 
-      h(Wrapper, { value: childHTML })
-    )
-  );
+  const html = renderToString(h(Component, props, h(Wrapper, { value: childHTML })));
   return { html };
 }
 ```
@@ -138,8 +134,8 @@ import { hydrate } from 'xxx';
 export default (element) => {
   return (Component, props, childHTML) => {
     hydrate(h(Component, { ...props, innerHTML: childHTML }));
-  }
-}
+  };
+};
 ```
 
 Note that `childHTML` is an HTML string representing this component's children. If your framework does not support rendering HTML directly, you should use the same wrapper component you used for the server entrypoint.
@@ -150,14 +146,9 @@ import SharedWrapper from './SharedWrapper.js';
 
 export default (element) => {
   return (Component, props, childHTML) => {
-    hydrate(
-      h(Component, props, 
-        h(SharedWrapper, { value: childHTML })
-      )
-    );
-  }
-}
+    hydrate(h(Component, props, h(SharedWrapper, { value: childHTML })));
+  };
+};
 ```
-
 
 [astro-config]: ./config.md
