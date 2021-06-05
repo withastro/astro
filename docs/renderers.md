@@ -4,6 +4,14 @@ Astro is able to render React, Svelte, Vue, and Preact components out of the box
 
 If you'd like to add support for another framework, you can build a **renderer** plugin using the same interface as Astro's official renderers.
 
+## What is a renderer?
+
+A renderer is an NPM package that has two responsiblities—the first is to _render a component to a static string of HTML_ at build time and the second is to _rehydrate that HTML_ to an interactive component on the client.
+
+Without getting too much further, it might be helpful to take a look at Astro's built-in [`renderers`](https://github.com/snowpackjs/astro/tree/main/packages/renderers). We'll go into more detail in the following sections.
+
+## Enabling a new renderer
+
 To enable a new renderer, add the dependency to your project and update the `renderers` array to include it.
 
 ```diff
@@ -18,13 +26,7 @@ To enable a new renderer, add the dependency to your project and update the `ren
  }
 ```
 
-## What is a renderer?
-
-A renderer is an NPM package that has two responsiblities—the first is to _render a component to a static string of HTML_ at build time and the second is to _rehydrate that HTML_ to an interactive component on the client.
-
-Without getting too much further, it might be helpful to take a look at Astro's built-in [`renderers`](https://github.com/snowpackjs/astro/tree/main/packages/renderers). We'll go into more detail in the following sections.
-
-## How do I build a renderer?
+## Building a new renderer
 
 A simple renderer only needs a few files.
 ```
