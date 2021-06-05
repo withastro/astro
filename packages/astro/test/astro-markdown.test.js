@@ -45,6 +45,21 @@ Markdown('Bundles client-side JS for prod', async (context) => {
   assert.ok(counterJs, 'Counter.jsx is bundled for prod');
 });
 
+Markdown('Renders content correctly when deeply nested on a page', async ({ runtime }) => {
+  const result = await runtime.load('/deep');
+  if (result.error) throw new Error(result.error);
+
+  const $ = doc(result.contents);
+  assert.equal($('#deep').children().length, 3, 'Rendered all children');
+  assert.equal($('.a').children().length, 1, 'Only rendered title in each section');
+  assert.equal($('.b').children().length, 1, 'Only rendered title in each section');
+  assert.equal($('.c').children().length, 1, 'Only rendered title in each section');
+
+  assert.equal($('.a > h2').text(), 'A', 'Rendered title in correct section');
+  assert.equal($('.b > h2').text(), 'B', 'Rendered title in correct section');
+  assert.equal($('.c > h2').text(), 'C', 'Rendered title in correct section');
+});
+
 Markdown('Renders dynamic content though the content attribute', async ({ runtime }) => {
   const result = await runtime.load('/external');
   if (result.error) throw new Error(result.error);
