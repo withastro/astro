@@ -2,15 +2,20 @@
 
 Astro is able to render React, Svelte, Vue, and Preact components out of the box. This is because Astro's [default configuration][astro-config] relies on the following **renderers**.
 
-```js
-export default {
-  renderers: [
-    '@astrojs/renderer-svelte',
-    '@astrojs/renderer-vue',
-    '@astrojs/renderer-react',
-    '@astrojs/renderer-preact'
-  ],
-}
+If you'd like to add support for another framework, you can build a **renderer** plugin using the same interface as Astro's official renderers.
+
+To enable a new renderer, add the dependency to your project and update the `renderers` array to include it.
+
+```diff
+ export default {
+   renderers: [
++    'my-custom-renderer',
+     '@astrojs/renderer-svelte',
+     '@astrojs/renderer-vue',
+     '@astrojs/renderer-react',
+     '@astrojs/renderer-preact',
+   ],
+ }
 ```
 
 ## What is a renderer?
