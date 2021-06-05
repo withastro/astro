@@ -440,7 +440,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       let { content: rendered } = await renderMarkdown(dedent(md), {
         ...(markdownOptions as AstroMarkdownOptions),
         mode: 'astro-md',
-        $: { scopedClassName: scopedClassName.slice(1, -1) },
+        $: { scopedClassName: scopedClassName && scopedClassName.slice(1, -1) },
       });
 
       // 1. Parse
@@ -454,7 +454,9 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       });
 
       // 3. Codegen
-      const result = await compileHtml(ast.html, { ...state, markers: { ...state.markers, insideMarkdown: false } }, compileOptions);
+      // Reset state before compilation
+      state.markers.insideMarkdown = false;
+      const result = await compileHtml(ast.html, state, compileOptions);
 
       buffers.out += ',' + result;
       buffers.markdown = '';
@@ -645,6 +647,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
           case 'InlineComponent': {
             if (curr === 'markdown' && buffers.markdown !== '') {
               await pushMarkdownToBuffer();
+              return;
             }
             if (paren !== -1) {
               buffers.out += ')';
