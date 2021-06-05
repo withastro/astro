@@ -98,7 +98,7 @@ function check(Component, props, childHTML) {
 
 ### `renderToStaticMarkup`
 
-`renderToStaticMarkup` is a function that renders a Component to a static string of HTML. You don't need to worry about hydration
+`renderToStaticMarkup` is a function that renders a Component to a static string of HTML. There's usually a method exported by frameworks named something like `renderToString`.
 
 ```js
 import { renderToString } from 'xxx';
