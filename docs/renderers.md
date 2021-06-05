@@ -1,6 +1,6 @@
 # 🪄 Renderers
 
-Astro is able to render React, Svelte, Vue, and Preact components out of the box. This is because Astro's [default configuration][astro-config] relies on the following **renderers**.
+Astro is able to render [React](https://npm.im/@astrojs/renderer-react), [Svelte](https://npm.im/@astrojs/renderer-svelte), [Vue](https://npm.im/@astrojs/renderer-vue), and [Preact](https://npm.im/@astrojs/renderer-preact) components out of the box. This is because Astro's [default configuration][astro-config] relies on **renderers** for those frameworks.
 
 If you'd like to add support for another framework, you can build a **renderer** plugin using the same interface as Astro's official renderers.
 
