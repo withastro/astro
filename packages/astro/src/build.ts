@@ -1,4 +1,3 @@
-import 'source-map-support/register.js';
 import type { AstroConfig, BundleMap, BuildOutput, RuntimeMode, PageDependencies } from './@types/astro';
 import type { LogOptions } from './logger';
 
@@ -13,7 +12,7 @@ import { bold, green, yellow, red, dim, underline } from 'kleur/colors';
 import mime from 'mime';
 import glob from 'tiny-glob';
 import { bundleCSS } from './build/bundle/css.js';
-import { bundleJS, collectJSImports } from './build/bundle/js';
+import { bundleJS, collectJSImports } from './build/bundle/js.js';
 import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.js';
 import { generateSitemap } from './build/sitemap.js';
 import { logURLStats, collectBundleStats, mapBundleStatsToURLStats } from './build/stats.js';

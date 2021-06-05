@@ -1,4 +1,3 @@
-import 'source-map-support/register.js';
 import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 

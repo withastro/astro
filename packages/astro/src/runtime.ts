@@ -1,6 +1,6 @@
-import 'source-map-support/register.js';
 import type { LogOptions } from './logger';
 import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
+import type { CompileError as ICompileError } from 'astro-parser';
 
 import resolve from 'resolve';
 import { existsSync, promises as fs } from 'fs';
@@ -16,7 +16,8 @@ import {
   SnowpackConfig,
   startServer as startSnowpackServer,
 } from 'snowpack';
-import { CompileError } from '@astrojs/parser';
+import parser from '@astrojs/parser';
+const { CompileError } = parser;
 import { canonicalURL, getSrcPath, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';
 import { configureSnowpackLogger } from './snowpack-logger.js';

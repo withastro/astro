@@ -1,4 +1,3 @@
-import 'source-map-support/register.js';
 import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger.js';
 
