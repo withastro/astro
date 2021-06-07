@@ -104,7 +104,8 @@
     "@types/node": "^14.14.31",
     "@types/sass": "^1.16.0",
     "@types/yargs-parser": "^20.2.0",
-    "astro-scripts": "0.0.1"
+    "astro-scripts": "0.0.1",
+    "is-windows": "^1.0.2"
   },
   "engines": {
     "node": ">=14.0.0",

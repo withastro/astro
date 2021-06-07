@@ -1338,10 +1338,10 @@
     svelte-hmr "^0.13.2"
     svelte-preprocess "^4.7.2"
 
-"@snowpack/plugin-vue@^2.6.0":
-  version "2.6.0"
-  resolved "https://registry.yarnpkg.com/@snowpack/plugin-vue/-/plugin-vue-2.6.0.tgz#9e8ac6eeb15d5e17d3ca297364c140c96d88a667"
-  integrity sha512-kRjfSHMckf2wwPwpQdgDzxxX637rwC2MZIk9ib6GWlrvbFDAjLozeQMY883naQSu8RwZ4jUC0gW1OHzgz8lLPw==
+"@snowpack/plugin-vue@^2.6.1":
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/@snowpack/plugin-vue/-/plugin-vue-2.6.1.tgz#ef883dd0b666500d1f401c069d2623ea573ce8c4"
+  integrity sha512-UsnhuSDT7yzoKWBe4sKHmcA1hi9h66hF1Bds2aa6UUcYLPFYZiBozMCZecqQD4LEtHASuTydNET6BYqrmqoAaw==
   dependencies:
     "@rollup/plugin-replace" "^2.4.2"
     "@vue/compiler-sfc" "^3.0.10"
@@ -5454,7 +5454,7 @@ is-whitespace@^0.3.0:
   resolved "https://registry.yarnpkg.com/is-whitespace/-/is-whitespace-0.3.0.tgz#1639ecb1be036aec69a54cbb401cfbed7114ab7f"
   integrity sha1-Fjnssb4DauxppUy7QBz77XEUq38=
 
-is-windows@^1.0.0, is-windows@^1.0.1:
+is-windows@^1.0.0, is-windows@^1.0.1, is-windows@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/is-windows/-/is-windows-1.0.2.tgz#d1850eb9791ecd18e6182ce12a30f396634bb19d"
   integrity sha512-eXK1UInq2bPmjyX6e3VHIzMLobc4J94i4AWn+Hpq3OU5KkrRC96OAcR3PRJ/pGu6m8TRnBHP9dkXQVsT/COVIA==
