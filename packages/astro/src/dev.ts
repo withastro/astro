@@ -7,7 +7,7 @@ import path from 'path';
 import { performance } from 'perf_hooks';
 import { defaultLogDestination, defaultLogLevel, debug, error, info, parseError } from './logger.js';
 import { createRuntime } from './runtime.js';
-import { stopTimer } from './build/util';
+import { stopTimer } from './build/util.js';
 
 const hostname = '127.0.0.1';
 
