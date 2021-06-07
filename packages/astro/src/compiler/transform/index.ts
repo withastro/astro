@@ -1,4 +1,4 @@
-import type { Ast, TemplateNode } from 'astro-parser';
+import type { Ast, TemplateNode } from '@astrojs/parser';
 import type { NodeVisitor, TransformOptions, Transformer, VisitorFn } from '../../@types/transformer';
 
 import { walk } from 'estree-walker';

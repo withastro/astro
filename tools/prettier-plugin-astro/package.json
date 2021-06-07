@@ -10,6 +10,6 @@
   },
   "dependencies": {
     "prettier": "^2.2.1",
-    "astro-parser": "0.11.0"
+    "@astrojs/parser": "^0.12.0"
   }
 }

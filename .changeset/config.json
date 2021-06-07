@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/@changesets/config@1.6.0/schema.json",
   "changelog": "@changesets/cli/changelog",
   "commit": false,
-  "linked": [["astro", "astro-parser"]],
+  "linked": [["astro", "@astrojs/parser"]],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",

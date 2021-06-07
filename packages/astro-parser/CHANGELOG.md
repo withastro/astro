@@ -1,4 +1,4 @@
-# astro-parser
+# @astrojs/parser
 
 ## 0.12.1
 

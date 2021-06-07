@@ -1,5 +1,5 @@
 {
-  "name": "astro-parser",
+  "name": "@astrojs/parser",
   "version": "0.12.1",
   "author": "Skypack",
   "license": "MIT",

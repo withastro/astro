@@ -5,7 +5,7 @@ import type { CompileOptions } from '../@types/compiler.js';
 import path from 'path';
 import { renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
 
-import { parse } from 'astro-parser';
+import { parse } from '@astrojs/parser';
 import { transform } from './transform/index.js';
 import { codegen } from './codegen/index.js';
 

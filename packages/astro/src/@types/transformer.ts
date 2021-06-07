@@ -1,4 +1,4 @@
-import type { TemplateNode } from 'astro-parser';
+import type { TemplateNode } from '@astrojs/parser';
 import type { CompileOptions } from './compiler';
 
 export type VisitorFn<T = TemplateNode> = (this: { skip: () => void; remove: () => void; replace: (node: T) => void }, node: T, parent: T, type: string, index: number) => void;

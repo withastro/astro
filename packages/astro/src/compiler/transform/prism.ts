@@ -1,5 +1,5 @@
 import type { Transformer } from '../../@types/transformer';
-import type { Script, TemplateNode } from 'astro-parser';
+import type { Script, TemplateNode } from '@astrojs/parser';
 import { getAttrValue } from '../../ast.js';
 
 export const PRISM_IMPORT = `import Prism from 'astro/components/Prism.astro';`;

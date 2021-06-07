@@ -1,5 +1,5 @@
 import type { TransformOptions, Transformer } from '../../@types/transformer';
-import type { TemplateNode } from 'astro-parser';
+import type { TemplateNode } from '@astrojs/parser';
 
 import crypto from 'crypto';
 import { createRequire } from 'module';
