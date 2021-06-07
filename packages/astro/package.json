@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.12.4",
+  "version": "0.12.5",
   "author": "Skypack",
   "license": "MIT",
   "type": "module",
@@ -42,7 +42,7 @@
     "@astrojs/renderer-preact": "0.1.0",
     "@astrojs/renderer-react": "0.1.0",
     "@astrojs/renderer-svelte": "0.1.0",
-    "@astrojs/renderer-vue": "0.1.0",
+    "@astrojs/renderer-vue": "0.1.1",
     "@babel/code-frame": "^7.12.13",
     "@babel/generator": "^7.13.9",
     "@babel/parser": "^7.13.15",

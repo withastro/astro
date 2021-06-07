@@ -1,5 +1,14 @@
 # astro
 
+## 0.12.5
+
+### Patch Changes
+
+- b1364af: Updates logging to display messages from Snowpack
+- cc532cd: Properly resolve `tailwindcss` depedency if using Tailwind
+- Updated dependencies [b1364af]
+  - @astrojs/renderer-vue@0.1.1
+
 ## 0.12.4
 
 ### Patch Changes
