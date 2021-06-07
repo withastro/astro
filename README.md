@@ -188,6 +188,12 @@ Astro uses __[Snowpack](https://www.snowpack.dev/)__ for module resolution. You 
 
 👉 [**`snowpack.config.mjs` Reference**][docs-snowpack-config]
 
+## 🪄 Renderers
+
+Astro is able to render [React](https://npm.im/@astrojs/renderer-react), [Svelte](https://npm.im/@astrojs/renderer-svelte), [Vue](https://npm.im/@astrojs/renderer-vue), and [Preact](https://npm.im/@astrojs/renderer-preact) components out of the box. If you'd like to add support for another framework, you can build a **renderer** plugin using the same interface as Astro's official renderers.
+
+👉 [**Renderer Docs**][docs-renderer]
+
 ## 📚 API
 
 👉 [**Full API Reference**][docs-api]
@@ -204,6 +210,7 @@ Astro uses __[Snowpack](https://www.snowpack.dev/)__ for module resolution. You 
 [docs-snowpack-config]: https://www.snowpack.dev/reference/configuration
 [docs-syntax]: ./docs/syntax.md
 [docs-api]: ./docs/api.md
+[docs-renderer]: ./docs/renderers.md
 [docs-collections]: ./docs/collections.md
 [docs-markdown]: ./docs/markdown.md
 [docs-dev]: ./docs/dev.md
