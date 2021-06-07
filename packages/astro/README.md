@@ -1,4 +1,4 @@
-![Astro](./assets/social/banner.png)
+<img src="https://github.com/snowpackjs/astro/blob/main/assets/social/banner.png?raw=true" alt="Astro" width="838" height="420" >
 
 **Astro** is a _fresh but familiar_ approach to building websites. Astro combines decades of proven performance best practices with the DX improvements of the component-oriented era.
 
