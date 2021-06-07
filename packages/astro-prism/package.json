@@ -1,6 +1,6 @@
 {
-  "name": "astro-prism",
-  "version": "0.0.2",
+  "name": "@astrojs/prism",
+  "version": "0.2.0",
   "description": "IYKYK",
   "main": "index.mjs",
   "scripts": {

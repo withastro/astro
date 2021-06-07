@@ -37,6 +37,7 @@
   },
   "dependencies": {
     "@astrojs/markdown-support": "0.1.1",
+    "@astrojs/prism": "0.2.0",
     "@astrojs/renderer-preact": "0.1.0",
     "@astrojs/renderer-react": "0.1.0",
     "@astrojs/renderer-svelte": "0.1.0",
@@ -51,7 +52,6 @@
     "acorn": "^7.4.0",
     "astring": "^1.7.4",
     "astro-parser": "0.12.1",
-    "astro-prism": "0.0.2",
     "autoprefixer": "^10.2.5",
     "cheerio": "^1.0.0-rc.6",
     "del": "^6.0.0",
