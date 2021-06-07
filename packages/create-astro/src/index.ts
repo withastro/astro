@@ -78,10 +78,9 @@ export async function main() {
 		console.log(`  ${i++}: ${bold(cyan(`cd ${relative}`))}`);
 	}
 
-	console.log(`  ${i++}: ${bold(cyan('npm install'))} (or pnpm install, etc)`);
-	// prettier-ignore
+	console.log(`  ${i++}: ${bold(cyan('npm install'))} (or pnpm install, yarn, etc)`);
 	console.log(`  ${i++}: ${bold(cyan('git init && git add -A && git commit -m "Initial commit"'))} (optional step)`);
-	console.log(`  ${i++}: ${bold(cyan('npm run dev -- --open'))}`);
+	console.log(`  ${i++}: ${bold(cyan('npm run start'))} (or pnpm, yarn, etc)`);
 
 	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
 	console.log('\nStuck? Visit us at https://astro.build/chat\n');

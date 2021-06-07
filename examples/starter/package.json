@@ -1,5 +1,5 @@
 {
-  "name": "@example/astro-starter",
+  "name": "@astrojs/starter-kit",
   "version": "0.0.1",
   "private": true,
   "scripts": {

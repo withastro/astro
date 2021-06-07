@@ -1,15 +1,14 @@
 {
-  "name": "@example/tailwindcss",
+  "name": "@astrojs/tailwind-example",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "astro dev",
-    "build": "astro build",
-    "astro-dev": "nodemon --delay 0.5 -w ../../packages/astro/dist -x '../../packages/astro/astro.mjs dev'"
+    "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.12.9",
-    "tailwindcss": "^2.1.2"
+    "tailwindcss": "^2.1.2",
+    "astro": "^0.12.9"
   },
   "snowpack": {
     "workspaceRoot": "../.."
