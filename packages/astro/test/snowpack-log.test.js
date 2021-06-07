@@ -21,6 +21,7 @@ let runError = null;
 SnowpackLogging.before(async context => {
   await clearCache();
 
+  let importantMessages = 0;
   let stdout = '';
   try {
     const process = runDevServer(root, []);
@@ -29,6 +30,15 @@ SnowpackLogging.before(async context => {
     for await (const chunk of process.stdout) {
       stdout += chunk;
       if (/Server started/.test(chunk)) {
+        importantMessages++;
+      }
+      if(/Ready/.test(chunk)) {
+        importantMessages++;
+      }
+      if(/watching for file changes/.test(chunk)) {
+        importantMessages++;
+      }
+      if(importantMessages === 3) {
         break;
       }
     }
