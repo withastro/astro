@@ -12,6 +12,7 @@ import { CompileError } from 'astro-parser';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
 import { canonicalURL, getSrcPath, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';
+import { configureSnowpackLogger } from './snowpack-logger.js';
 import { searchForPage } from './search.js';
 import snowpackExternals from './external.js';
 
@@ -45,7 +46,7 @@ type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: Comp
 export type LoadResult = (LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError) & { collectionInfo?: CollectionInfo };
 
 // Disable snowpack from writing to stdout/err.
-snowpackLogger.level = process.argv.includes('--verbose') ? 'debug' : 'silent';
+configureSnowpackLogger(snowpackLogger);
 
 /** Pass a URL to Astro to resolve and build */
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {

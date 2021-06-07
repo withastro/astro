@@ -4,6 +4,7 @@ import { readFile } from 'fs/promises';
 import { createRuntime } from '#astro/runtime';
 import { loadConfig } from '#astro/config';
 import execa from 'execa';
+import del from 'del';
 
 const MAX_STARTUP_TIME = 7000; // max time startup may take
 const MAX_TEST_TIME = 10000; // max time an individual test may take
@@ -92,4 +93,9 @@ export function runDevServer(root, additionalArgs = []) {
   const args = [cliURL.pathname, 'dev', '--project-root', root.pathname].concat(additionalArgs);
   const proc = execa('node', args);
   return proc;
+}
+
+export async function clearCache() {
+  const cacheDir = new URL('../../../node_modules/.cache', import.meta.url);
+  await del(fileURLToPath(cacheDir));
 }
