@@ -395,7 +395,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
           config: {
             plugins: {
               [resolveDependency('autoprefixer')]: {},
-              ...(astroConfig.devOptions.tailwindConfig ? { [resolveDependency('autoprefixer')]: {} } : {}),
+              ...(astroConfig.devOptions.tailwindConfig ? { [resolveDependency('tailwindcss')]: {} } : {}),
             },
           },
         },
