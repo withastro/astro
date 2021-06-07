@@ -4,7 +4,7 @@ import { clearCache, runDevServer } from './helpers.js';
 import isWindows from 'is-windows';
 
 // For some reason Windows isn't getting anything from stdout in this test, not sure why.
-if(!isWindows()) {
+if (!isWindows()) {
   const SnowpackLogging = suite('snowpack logging');
   const MAX_TEST_TIME = 10000; // max time this test suite may take
 
@@ -12,7 +12,7 @@ if(!isWindows()) {
     const exp = new RegExp(message, 'g');
     let count = 0;
     let res;
-    while(res = exp.exec(stdout)) {
+    while ((res = exp.exec(stdout))) {
       count++;
     }
     return count;
@@ -21,7 +21,7 @@ if(!isWindows()) {
   const root = new URL('./fixtures/astro/basic/', import.meta.url);
   const timers = {};
   let runError = null;
-  SnowpackLogging.before(async context => {
+  SnowpackLogging.before(async (context) => {
     await clearCache();
 
     let importantMessages = 0;
@@ -35,20 +35,20 @@ if(!isWindows()) {
         if (/Server started/.test(chunk)) {
           importantMessages++;
         }
-        if(/Ready/.test(chunk)) {
+        if (/Ready/.test(chunk)) {
           importantMessages++;
         }
-        if(/watching for file changes/.test(chunk)) {
+        if (/watching for file changes/.test(chunk)) {
           importantMessages++;
         }
-        if(importantMessages === 3) {
+        if (importantMessages === 3) {
           break;
         }
       }
 
       context.stdout = stdout;
       process.kill();
-    } catch(err) {
+    } catch (err) {
       console.error(err);
       runError = runError;
     }
@@ -70,7 +70,7 @@ if(!isWindows()) {
 
   SnowpackLogging('Logs [waiting for file changes] once', ({ stdout }) => {
     assert.equal(numberOfEntries(stdout, 'watching for file changes'), 1);
-  })
+  });
 
   SnowpackLogging.after.each(({ __test__ }) => {
     clearTimeout(timers[__test__]);
