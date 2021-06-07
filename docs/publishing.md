@@ -34,14 +34,14 @@ Here's an example project with a couple of components.
 └── bold.astro
 ```
 
-Where __index.js__ looks like this:
+Where **index.js** looks like this:
 
 ```js
 export { default as Capitalize } from './capitalize.astro';
 export { default as Bold } from './bold.astro';
 ```
 
-In your __package.json__ define an [exports entry](https://nodejs.org/api/packages.html) like so:
+In your **package.json** define an [exports entry](https://nodejs.org/api/packages.html) like so:
 
 ```json
 {
@@ -63,11 +63,11 @@ import { Bold, Capitalize } from '@example/my-components';
 
 ### Importing astro components directly
 
-Above we created an index file that re-exports our components, which gives us the ability to publish several components in a single package. Since Astro components are server only we don't need to worry about tree-shaking concerns. 
+Above we created an index file that re-exports our components, which gives us the ability to publish several components in a single package. Since Astro components are server only we don't need to worry about tree-shaking concerns.
 
 However you can also import published `.astro` files directly, in the same manner that you import `.astro` files in your own project.
 
-Change the above __package.json__ to this:
+Change the above **package.json** to this:
 
 ```json
 {
@@ -81,7 +81,7 @@ Change the above __package.json__ to this:
 }
 ```
 
-The `"."` is used to signify the package's main module. We set it to the __index.js__ file to allow the import method shown above.
+The `"."` is used to signify the package's main module. We set it to the **index.js** file to allow the import method shown above.
 
 Adding `"./bold.astro"` and `"./capitalize.astro"` to the exports field also allows consumers to import the components directly, by file name, like so:
 
