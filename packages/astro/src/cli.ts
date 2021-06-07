@@ -12,8 +12,8 @@ import devServer from './dev.js';
 import { reload } from './reload.js';
 
 const { readFile } = fsPromises;
-const buildAndExit = async (...args: Parameters<typeof build>) => {
-  const ret = await build(...args);
+const buildAndExit = async (astroConfig: AstroConfig) => {
+  const ret = await build(astroConfig);
   process.exit(ret);
 };
 const reloadAndExit = async () => {
