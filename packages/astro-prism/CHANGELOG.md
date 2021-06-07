@@ -1,4 +1,4 @@
-# astro-prism
+# @astrojs/prism
 
 ## 0.0.2
 
