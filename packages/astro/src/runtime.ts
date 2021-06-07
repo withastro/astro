@@ -1,6 +1,6 @@
 import type { LogOptions } from './logger';
 import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Params, RuntimeMode } from './@types/astro';
-import type { CompileError as ICompileError } from 'astro-parser';
+import type { CompileError as ICompileError } from '@astrojs/parser';
 
 import resolve from 'resolve';
 import { existsSync, promises as fs } from 'fs';
