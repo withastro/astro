@@ -172,6 +172,12 @@ Astro will automatically create a `/sitemap.xml` for you for SEO! Be sure to set
 
 👉 [**Collections API**][docs-collections]
 
+### Publishing Astro components
+
+Using Astro components in your project allows you to break up your pages into small reuseable units of functionality. If you want to share your Astro components you can do so by publishing them to npm.
+
+👉 [**Publishing Astro components guide**][docs-publishing]
+
 ## ⚙️ Config
 
 Configuration for Astro is done through the `astro.config.mjs` file at the root of your project. To learn more:
@@ -211,3 +217,4 @@ Astro uses __[Snowpack](https://www.snowpack.dev/)__ for module resolution. You 
 [mdn-ric]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
 [routing]: #-routing
 [docs-cli]: ./docs/cli.md
+[docs-publishing]: ./docs/publishing.md
