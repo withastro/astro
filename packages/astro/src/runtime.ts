@@ -8,7 +8,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { posix as path } from 'path';
 import { performance } from 'perf_hooks';
 import { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig, NotFoundError } from 'snowpack';
-import { CompileError } from 'astro-parser';
+import { CompileError } from '@astrojs/parser';
 import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
 import { canonicalURL, getSrcPath, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';

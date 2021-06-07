@@ -3,7 +3,7 @@ const {
     builders: { concat, hardline },
   },
 } = require('prettier');
-const { parse } = require('astro-parser');
+const { parse } = require('@astrojs/parser');
 
 /** @type {Partial<import('prettier').SupportLanguage>[]} */
 module.exports.languages = [

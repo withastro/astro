@@ -1,5 +1,5 @@
 import type { Transformer, TransformOptions } from '../../@types/transformer';
-import type { TemplateNode } from 'astro-parser';
+import type { TemplateNode } from '@astrojs/parser';
 
 /** If there are hydrated components, inject styles for [data-astro-root] and [data-astro-children] */
 export default function (opts: TransformOptions): Transformer {

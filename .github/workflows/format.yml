@@ -21,7 +21,7 @@ jobs:
       - run: yarn --frozen-lockfile --ignore-engines
         env:
           CI: true
-      - run: yarn lerna run build --scope astro-parser
+      - run: yarn lerna run build --scope @astrojs/parser
       - run: yarn format
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4

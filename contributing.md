@@ -32,7 +32,7 @@ This should change package.json bumping version numbers and update changelogs. I
 
 Commit and push these changes, then run an npm publish for each of the packages that have changed.
 
-> **Important**! Ordering publishes can be important. If `astro-parser` changes you should publish that before `astro`, for example.
+> **Important**! Ordering publishes can be important. If `@astrojs/parser` changes you should publish that before `astro`, for example.
 
 ```shell
 cd packages/astro
