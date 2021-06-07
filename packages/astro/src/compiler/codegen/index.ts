@@ -454,9 +454,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       });
 
       // 3. Codegen
-      // Reset state before compilation
-      state.markers.insideMarkdown = false;
-      const result = await compileHtml(ast.html, state, compileOptions);
+      const result = await compileHtml(ast.html, { ...state, markers: { insideMarkdown: false, } }, compileOptions);
 
       buffers.out += ',' + result;
       buffers.markdown = '';
@@ -554,7 +552,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               }
               if (componentName === 'Markdown') {
                 const { $scope } = attributes ?? {};
-                state.markers.insideMarkdown = { $scope };
+                state.markers.insideMarkdown = typeof state.markers.insideMarkdown === 'object' ? { count: state.markers.insideMarkdown.count + 1, $scope } : { $scope, count: 1 };
                 if (attributes.content) {
                   if (curr === 'markdown') {
                     await pushMarkdownToBuffer();
@@ -645,9 +643,17 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             return;
           }
           case 'InlineComponent': {
+            if (node.name === 'Markdown') {
+              (state.markers.insideMarkdown as Record<string, any>).count--;
+              if ((state.markers.insideMarkdown as Record<string, any>).count === 0) {
+                state.markers.insideMarkdown = false;
+              }
+            }
             if (curr === 'markdown' && buffers.markdown !== '') {
               await pushMarkdownToBuffer();
-              return;
+              if (!state.markers.insideMarkdown) {
+                return;
+              }
             }
             if (paren !== -1) {
               buffers.out += ')';
