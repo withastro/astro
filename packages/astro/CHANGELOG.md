@@ -1,5 +1,11 @@
 # astro
 
+## 0.12.6
+
+### Patch Changes
+
+- 522c873: Fixes bug where astro build would fail when trying to log
+
 ## 0.12.5
 
 ### Patch Changes
