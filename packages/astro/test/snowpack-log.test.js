@@ -62,6 +62,7 @@ SnowpackLogging('dev server started up', () => {
 });
 
 SnowpackLogging('Logs Ready message once', async ({ stdout }) => {
+  console.log('stdout', stdout)
   assert.equal(numberOfEntries(stdout, 'Ready'), 1);
 });
 
