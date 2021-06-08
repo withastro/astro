@@ -1,7 +1,5 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "redirects": [
-    { "source": "/chat", "destination": "https://discord.gg/grF4GTXXYm" }
-  ]
+  "redirects": [{ "source": "/chat", "destination": "https://discord.gg/grF4GTXXYm" }]
 }
