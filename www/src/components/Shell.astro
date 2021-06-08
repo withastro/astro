@@ -1,0 +1,22 @@
+---
+export let code: string;
+---
+
+<pre><code>{code.trim().split('\n').map(ln => <span class="line">
+{ln.startsWith('#') ? <span class="comment">{ln}</span> : ln}
+</span>)}</code></pre>
+
+<style>
+  pre, code {
+    white-space: pre;
+  }
+  .comment {
+    color: var(--color-gray-400);
+  }
+  .line {
+    display: block;
+  }
+  .line:empty::after {
+    content: " ";
+  }
+</style>

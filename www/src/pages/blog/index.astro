@@ -1,0 +1,53 @@
+---
+import BaseHead from '../../components/BaseHead.astro';
+import BlogPostPreview from '../../components/BlogPostPreview.astro';
+
+let title = 'Astro Blog';
+let description = 'Everything you need to know about Astro, direct from mission control.';
+let permalink = 'https://astro.build/blog';
+---
+
+<html>
+  <head>
+    <BaseHead title={title} description={description} permalink={permalink} />
+    <link rel="stylesheet" href="/blog/index.css" />
+
+    <style>
+      .content {
+        margin-top: 8rem;
+        margin-bottom: 8rem;
+      }
+
+      .content :global(main > * + *) {
+        margin-top: 1rem;
+      }
+
+      .intro {
+        padding-bottom: 4rem;
+        margin-bottom: 2rem;
+        border-bottom: 4px solid var(--theme-divider);
+      }
+
+      .latest {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="layout">
+      <article class="content">
+        <section class="intro">
+          <h1 class="latest">Latest</h1>
+          <p>{description}</p>
+        </section>
+        <section>
+          <BlogPostPreview title="Introducing Astro: Build Faster Websites" publishDate="Tuesday, June 8 2021" href="/blog/introducing-astro">
+            <p>We're excited to announce Astro as a new way to build websites and deliver lightning-fast performance without sacrificing a modern developer experience.</p>
+          </BlogPostPreview>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

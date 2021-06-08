@@ -1,0 +1,74 @@
+<!-- Thanks to @5t3ph for https://smolcss.dev/#smol-avatar-list! -->
+
+<ul class="avatar-list">
+  <li><a href="https://smolcss.dev/#smol-avatar-list"><img alt="Avatar 1" width="64" height="64" src='https://avataaars.io/?avatarStyle=Transparent&topType=LongHairBun&accessoriesType=Blank&hairColor=Auburn&facialHairType=BeardMedium&facialHairColor=Auburn&clotheType=ShirtCrewNeck&clotheColor=Blue01&eyeType=Side&eyebrowType=RaisedExcitedNatural&mouthType=Serious&skinColor=Tanned' /></a></li>
+  <li><a href="https://smolcss.dev/#smol-avatar-list"><img alt="Avatar 2" width="64" height="64" src='https://avataaars.io/?avatarStyle=Transparent&topType=LongHairDreads&accessoriesType=Blank&hairColor=Brown&facialHairType=Blank&clotheType=ShirtScoopNeck&clotheColor=PastelGreen&eyeType=Default&eyebrowType=DefaultNatural&mouthType=Smile&skinColor=Tanned' /></a></li>
+  <li><a href="https://smolcss.dev/#smol-avatar-list"><img alt="Avatar 3" width="64" height="64" src='https://avataaars.io/?avatarStyle=Transparent&topType=LongHairCurly&hairColor=BrownDark&facialHairType=Blank&clotheType=GraphicShirt&clotheColor=Pink&graphicType=Diamond&eyeType=Side&eyebrowType=Default&mouthType=Default&skinColor=Brown'/></a></li>
+</ul>
+
+<style>
+.avatar-list {
+  --avatar-size: 2.5rem;
+  --avatar-count: 3;
+
+  display: grid;
+  list-style: none;
+  /* Default to displaying most of the avatar to
+  enable easier access on touch devices, ensuring
+  the WCAG touch target size is met or exceeded */
+  grid-template-columns: repeat(
+    var(--avatar-count),
+    max(44px, calc(var(--avatar-size) / 1.15))
+  );
+  /* `padding` matches added visual dimensions of
+  the `box-shadow` to help create a more accurate
+  computed component size */
+  padding: 0.08em;
+  font-size: var(--avatar-size);
+}
+
+@media (any-hover: hover) and (any-pointer: fine) {
+  .avatar-list {
+    /* We create 1 extra cell to enable the computed 
+    width to match the final visual width */
+    grid-template-columns: repeat(
+      calc(var(--avatar-count) + 1),
+      calc(var(--avatar-size) / 1.75)
+    );
+  }
+}
+
+.avatar-list li {
+  width: var(--avatar-size);
+  height: var(--avatar-size);
+}
+
+.avatar-list li:hover ~ li a,
+.avatar-list li:focus-within ~ li a {
+  transform: translateX(33%);
+}
+
+.avatar-list img,
+.avatar-list a {
+  display: block;
+  border-radius: 50%;
+}
+
+.avatar-list a {
+  transition: transform 180ms ease-in-out;
+}
+
+.avatar-list img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-color: #fff;
+  box-shadow: 0 0 0 0.05em #fff, 0 0 0 0.08em rgba(0, 0, 0, 0.15);
+}
+
+.avatar-list a:focus {
+  outline: 2px solid transparent;
+  /* Double-layer trick to work for dark and light backgrounds */
+  box-shadow: 0 0 0 0.08em var(--theme-accent), 0 0 0 0.12em white;
+}
+</style>

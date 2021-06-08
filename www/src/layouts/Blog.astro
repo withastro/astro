@@ -1,0 +1,211 @@
+---
+import ArticleFooter from '../components/ArticleFooter.astro';
+import SiteSidebar from '../components/SiteSidebar.astro';
+import ThemeToggle from '../components/ThemeToggle.tsx';
+import DocSidebar from '../components/DocSidebar.tsx';
+
+export let content;
+const headers = content?.astro?.headers;
+---
+
+<html>
+  <head>
+    <title>{content?.title}</title>
+    
+    <link rel="stylesheet" href="/blog/index.css" />
+    <style>
+      body {
+        width: 100%;
+        display: grid;
+        grid-template-rows: 3.5rem 1fr;
+        --gutter: 0.5rem;
+        --doc-padding: 2rem;
+      }
+
+      header {
+        width: 100%;
+        height: 100%;
+        background-color: var(--theme-bg-offset);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .layout {
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-columns: minmax(var(--gutter), 1fr) minmax(0, var(--max-width)) minmax(var(--gutter), 1fr);
+        gap: 1em;
+      }
+
+      .menu-and-logo {
+        gap: 1em;
+      }
+
+      nav.layout {
+        justify-content: center;
+        width: 100%;
+      }
+
+      nav.layout :global(> :nth-child(1)) {
+        grid-column: 2;
+      }
+
+      #site-title {
+        display: flex;
+        align-items: center;
+        gap: 0.25em;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1;
+        color: var(--theme-text);
+        text-decoration: none;
+      }
+
+      #site-title:hover,
+      #site-title:focus {
+        color: var(--theme-text-light);
+      }
+
+      #site-title h1 {
+        font: inherit;
+        color: inherit;
+        margin: 0;
+      }
+
+      .nav-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 64ch;
+        margin: 0 auto;
+      }
+
+      .layout :global(> *) {
+        width: 100%;
+        height: 100%;
+      }
+
+      .sidebar {
+        max-height: 100vh;
+        position: sticky;
+        top: 0;
+        padding: var(--doc-padding) 0;
+      }
+
+      #sidebar-nav {
+        display: none;
+        max-height: 100vh;
+        padding: var(--doc-padding) 0;
+      }
+
+      #article {
+        padding: var(--doc-padding) var(--gutter);
+        grid-column: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+      }
+
+      .content {
+        max-width: 64ch;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .content > main {
+        margin-bottom: 4rem;
+      }
+
+      #sidebar-content {
+        display: none;
+      }
+
+      @media (min-width: 64em) {
+        .menu-and-logo button {
+          display: none;
+        }
+        .layout {
+          grid-template-columns: 20rem minmax(0, 1fr);
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        #article {
+          grid-column: 2;
+        }
+        #sidebar-nav {
+          display: flex;
+        }
+        #sidebar-content {
+          /* display: flex; */
+          grid-column: 3;
+        }
+
+        .nav-wrapper {
+          display: contents;
+        }
+      }
+
+      @media (min-width: 88em) {
+        .layout {
+          grid-template-columns: minmax(var(--gutter), 1fr) 20rem minmax(0, var(--max-width)) 16rem minmax(var(--gutter), 1fr);
+          padding-left: 0;
+          padding-right: 0;
+        }
+
+        #sidebar-nav,
+        .nav-wrapper :global(:nth-child(1)) {
+          grid-column: 2;
+        }
+        #article,
+        .nav-wrapper :global(:nth-child(2)) {
+          grid-column: 3;
+        }
+        #sidebar-content,
+        .nav-wrapper :global(:nth-child(3)) {
+          display: flex;
+          grid-column: 4;
+        }
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav class="layout">
+        <div class="nav-wrapper">
+          <div class="menu-and-logo flex">
+            <a id="site-title" href="/blog">
+              <svg width="1em" height="1em" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M320 170C320 170 296.88 171.746 267.428 188.75C237.975 205.754 205.754 237.975 188.75 267.428C171.746 296.88 170 320 170 320C170 320 168.254 296.88 151.25 267.428C134.246 237.975 102.025 205.754 72.5721 188.75C43.1197 171.746 20 170 20 170C20 170 43.1197 168.254 72.5721 151.25C102.025 134.246 134.246 102.025 151.25 72.5721C168.254 43.1197 170 20 170 20C170 20 171.746 43.1197 188.75 72.5721C205.754 102.025 237.975 134.246 267.428 151.25C296.88 168.254 320 170 320 170Z" fill="currentColor"/>
+              </svg>
+              <h1>Astro Log</h1>
+            </a>
+          </div>
+
+          <div />
+
+          <div>
+            <ThemeToggle:idle />
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <div id="article">
+        <article class="content">
+          <main>
+            <slot />
+          </main>
+        </article>
+      </div>
+    </main>
+  </body>
+</html>
