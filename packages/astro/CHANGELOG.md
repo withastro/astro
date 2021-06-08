@@ -1,5 +1,11 @@
 # astro
 
+## 0.12.10
+
+### Patch Changes
+
+- 5cda571: Fix an issue with how files are watched during development
+
 ## 0.12.9
 
 ### Patch Changes
