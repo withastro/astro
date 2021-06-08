@@ -5,11 +5,10 @@ export let title: string;
 export let publishDate: string;
 export let href: string;
 ---
-
 <article class="post-preview">
   <header>
     <h3 class="publish-date">{publishDate}</h3>
-    <h1 class="title">{title}</h1>
+    <a href={href}><h1 class="title">{title}</h1></a>
   </header>
   <main>
     <slot />
@@ -54,5 +53,6 @@ header {
 .title {
   font-size: 2.25rem;
   font-weight: 700;
+  color: var(--theme-text);
 }
 </style>

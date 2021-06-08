@@ -9,9 +9,10 @@ export let heroImage: string;
 
 <div class="layout">
   <article class="content">
+  <div>
     <header>
       {heroImage && <img width="1600" height="480" class="hero-image" loading="lazy" src={heroImage} />}
-      <h3 class="publish-date">{publishDate}</h3>
+      <p class="publish-date">{publishDate}</p>
       <h1 class="title">{title}</h1>
       <Author authorId={author} />
     </header>
@@ -32,7 +33,7 @@ export let heroImage: string;
   margin-bottom: 4rem;
 }
 .content {
-  margin-top: 4rem;
+  margin-top: 2rem;
   margin-bottom: 8rem;
 }
 
@@ -64,7 +65,6 @@ header {
 
 .publish-date,
 .author {
-  font-size: 1.25rem;
   color: var(--theme-text-lighter);
 }
 

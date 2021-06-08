@@ -13,7 +13,7 @@
 
 @media (min-width: 50em) {
   :root {
-    --max-width: 48em;
+    --max-width: 40em;
   }
 }
 
@@ -98,7 +98,6 @@ a {
   font-weight: 400;
   text-underline-offset: 0.08em;
   text-decoration: none;
-  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
@@ -192,3 +191,8 @@ pre {
   align-items: center;
 }
 
+img.cover {
+  width: 100%;
+  max-height: 50vh;
+  object-fit: cover;
+}
