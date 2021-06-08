@@ -1,5 +1,4 @@
 export const TEMPLATES = [
-  ,
   {
     title: 'Starter Kit (Generic)',
     value: 'starter',
