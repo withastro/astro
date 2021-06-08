@@ -2,7 +2,7 @@ import type { BuildOutput, BundleMap } from '../@types/astro';
 import type { LogOptions } from '../logger';
 
 import { info, table } from '../logger.js';
-import { underline } from 'kleur/colors';
+import { underline, bold } from 'kleur/colors';
 import gzipSize from 'gzip-size';
 
 interface BundleStats {
@@ -76,7 +76,7 @@ export function logURLStats(logging: LogOptions, urlStats: URLStatsMap) {
   builtURLs.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
   info(logging, null, '');
   const log = table(logging, [60, 20]);
-  log(info, '   ' + underline('Pages'), underline('GZip Size'));
+  log(info, '   ' + bold(underline('Pages')), bold(underline('Page Weight (GZip)')));
 
   const lastIndex = builtURLs.length - 1;
   builtURLs.forEach((url, index) => {
@@ -86,6 +86,6 @@ export function logURLStats(logging: LogOptions, urlStats: URLStatsMap) {
     const bytes = (urlStats.get(url) || urlStats.get(url + 'index.html'))?.stats.map((s) => s.gzipSize).reduce((a, b) => a + b, 0) || 0;
     const kb = (bytes * 0.001).toFixed(2);
     const sizePart = kb + ' kB';
-    log(info, urlPart, sizePart);
+    log(info, urlPart + 'index.html', sizePart);
   });
 }

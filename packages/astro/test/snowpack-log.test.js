@@ -3,8 +3,11 @@ import * as assert from 'uvu/assert';
 import { clearCache, runDevServer } from './helpers.js';
 import isWindows from 'is-windows';
 
+// Skipping this entire suite for now as it is flakey.
+const skip = true;
+
 // For some reason Windows isn't getting anything from stdout in this test, not sure why.
-if (!isWindows()) {
+if (!skip && !isWindows()) {
   const SnowpackLogging = suite('snowpack logging');
   const MAX_TEST_TIME = 10000; // max time this test suite may take
 
