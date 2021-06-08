@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.3.1
+
+### Patch Changes
+
+- d6a7349: fix issue with empty prompt
+
 ## 0.3.0
 
 ### Minor Changes
