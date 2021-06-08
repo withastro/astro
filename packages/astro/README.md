@@ -8,14 +8,18 @@ With Astro, you can use your favorite JavaScript framework and automatically shi
 
 ⚠️ **Astro is still an early beta, missing features and bugs are to be expected!** If you can stomach it, then Astro-built sites are production ready and several production websites built with Astro already exist in the wild. We will update this note once we get closer to a stable, v1.0 release.
 
-## 🔧 Setup
+## 🔧 Quick Start
 
 ```bash
-npm init astro ./my-astro-project
+# create your project
+mkdir new-project-directory
+cd new-project-directory
+npm init astro
 
-# then... cd => install => start
-cd ./my-astro-project
+# install your dependencies
 npm install
+
+# start the dev server and open your browser
 npm start
 ```
 
