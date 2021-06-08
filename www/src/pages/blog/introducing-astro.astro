@@ -11,6 +11,7 @@ let title = 'Introducing Astro: Build Faster Websites';
 let description = 'We\'re excited to announce Astro as a new way to build websites and deliver lightning-fast performance without sacrificing a modern developer experience.';
 let publishDate = 'Tuesday, June 8 2021';
 let author = 'fred';
+let heroImage = '/assets/blog/introducing-astro.jpg';
 let permalink = 'https://astro.build/blog/introducing-astro';
 ---
 
@@ -23,7 +24,7 @@ let permalink = 'https://astro.build/blog/introducing-astro';
   <body>
     <BlogHeader />
 
-    <BlogPost title={title} author={author} publishDate={publishDate}>
+    <BlogPost title={title} author={author} heroImage={heroImage} publishDate={publishDate}>
         <Markdown>
           There's a simple secret to building a faster website — *just ship less*. 
 

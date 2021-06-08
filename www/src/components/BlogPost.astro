@@ -4,11 +4,13 @@ import Author from './Author.astro';
 export let title: string;
 export let author: string;
 export let publishDate: string;
+export let heroImage: string;
 ---
 
 <div class="layout">
   <article class="content">
     <header>
+      {heroImage && <img class="hero-image" loading="lazy" src={heroImage} />}
       <h3 class="publish-date">{publishDate}</h3>
       <h1 class="title">{title}</h1>
       <Author authorId={author} />
