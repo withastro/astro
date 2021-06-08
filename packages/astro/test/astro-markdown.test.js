@@ -65,7 +65,7 @@ Markdown('Renders recursively', async ({ runtime }) => {
   if (result.error) throw new Error(result.error);
 
   console.log(result.contents);
-  
+
   const $ = doc(result.contents);
   assert.equal($('.a > h1').text(), 'A', 'Rendered title .a correctly');
   assert.equal($('.b > h1').text(), 'B', 'Rendered title .b correctly');

@@ -673,7 +673,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
         }
       },
     }).then(() => {
-      const content = buffers.out.replace(/^\,/, '').replace(/\,\)/g, ')').replace(/\,+/g, ',').replace(/\)h/g, '),h')
+      const content = buffers.out.replace(/^\,/, '').replace(/\,\)/g, ')').replace(/\,+/g, ',').replace(/\)h/g, '),h');
       buffers.out = '';
       buffers.markdown = '';
       return resolve(content);
