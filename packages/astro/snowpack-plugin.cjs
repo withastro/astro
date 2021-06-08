@@ -6,7 +6,7 @@ const transformPromise = import('./dist/compiler/index.js');
 module.exports = (snowpackConfig, { resolvePackageUrl, hmrPort, renderers, astroConfig } = {}) => {
   return {
     name: 'snowpack-astro',
-    knownEntrypoints: ['astro/dist/internal/h.js', 'astro/components/Prism.astro', 'astro/dist/internal/__astro_component.js'],
+    knownEntrypoints: ['astro/dist/internal/h.js', 'astro/components/Prism.astro'],
     resolve: {
       input: ['.astro', '.md'],
       output: ['.js', '.css'],
