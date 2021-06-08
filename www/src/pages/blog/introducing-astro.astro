@@ -1,6 +1,7 @@
 ---
 import { Markdown } from 'astro/components';
 import BaseHead from '../../components/BaseHead.astro';
+import BlogHeader from '../../components/BlogHeader.astro';
 import BlogPost from '../../components/BlogPost.astro';
 import Shell from '../../components/Shell.astro';
 import Note from '../../components/Note.astro';
@@ -20,6 +21,8 @@ let permalink = 'https://astro.build/blog/introducing-astro';
   </head>
 
   <body>
+    <BlogHeader />
+
     <BlogPost title={title} author={author} publishDate={publishDate}>
         <Markdown>
           There's a simple secret to building a faster website — *just ship less*. 

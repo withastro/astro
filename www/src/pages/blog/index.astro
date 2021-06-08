@@ -1,5 +1,6 @@
 ---
 import BaseHead from '../../components/BaseHead.astro';
+import BlogHeader from '../../components/BlogHeader.astro';
 import BlogPostPreview from '../../components/BlogPostPreview.astro';
 
 let title = 'Astro Blog';
@@ -14,7 +15,7 @@ let permalink = 'https://astro.build/blog';
 
     <style>
       .content {
-        margin-top: 8rem;
+        margin-top: 4rem;
         margin-bottom: 8rem;
       }
 
@@ -28,6 +29,10 @@ let permalink = 'https://astro.build/blog';
         border-bottom: 4px solid var(--theme-divider);
       }
 
+      .intro > * {
+        margin: 0;
+      }
+
       .latest {
         font-size: 2.5rem;
         font-weight: 700;
@@ -36,6 +41,7 @@ let permalink = 'https://astro.build/blog';
   </head>
 
   <body>
+    <BlogHeader />
     <div class="layout">
       <article class="content">
         <section class="intro">
