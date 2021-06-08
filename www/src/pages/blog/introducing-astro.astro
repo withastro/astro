@@ -38,7 +38,7 @@ let permalink = 'https://astro.build/blog/introducing-astro';
           - **Fully-Featured:** Astro supports TypeScript, Scoped CSS, CSS Modules, Sass, Tailwind, Markdown, MDX, and any of your favorite npm packages.
           - **SEO Enabled:** Automatic sitemaps, RSS feeds, pagination and collections take the pain out of SEO and syndication.
 
-          This post marks the first public beta release of Astro. **Missing features and bugs are still to be expected at this early stage.** There is still some months to go before an official 1.0 release, but there are already several fast sites built with Astro in production today. We would love your early feedback as we move towards a v1.0 release later this year.
+          This post marks the first public beta release of Astro. **Missing features and bugs are still to be expected at this early stage.** There are still some months to go before an official 1.0 release, but there are already several fast sites built with Astro in production today. We would love your early feedback as we move towards a v1.0 release later this year.
           
           <Note>
             To learn more about Astro and start building your first site, check out [the project README.](https://github.com/snowpackjs/astro#-guides)
@@ -74,7 +74,7 @@ npm start
 
           Of course, sometimes client-side JavaScript is inevitable. Image carousels, shopping carts, and auto-complete search bars are just a few examples of things that require some JavaScript to run in the browser. This is where Astro really shines: When a component needs some JavaScript, Astro only loads that one component (and any dependencies). The rest of your site continues to exist as static, lightweight HTML.
 
-          In other full-stack web frameworks this level of per-component optimization would be impossible without loading the entire page in JavaScript, deplaying interactivity. In Astro, this kind of [partial hydration](https://addyosmani.com/blog/rehydration/) is built into the tool itself. 
+          In other full-stack web frameworks this level of per-component optimization would be impossible without loading the entire page in JavaScript, delaying interactivity. In Astro, this kind of [partial hydration](https://addyosmani.com/blog/rehydration/) is built into the tool itself. 
           
           You can even [automatically defer components](https://codepen.io/jonneal/full/ZELvMvw) to only load once they become visible on the page with the `:visible` modifier.
 
