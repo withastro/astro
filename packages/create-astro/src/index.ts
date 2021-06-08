@@ -4,7 +4,7 @@ import { bold, cyan, gray, green, red } from 'kleur/colors';
 import prompts from 'prompts';
 import degit from 'degit';
 import yargs from 'yargs-parser';
-import { TEMPLATES } from './templates';
+import { TEMPLATES } from './templates.js';
 const args = yargs(process.argv);
 prompts.override(args);
 
@@ -60,6 +60,7 @@ export async function main() {
 
   try {
     // emitter.on('info', info => { console.log(info.message) });
+    console.log(green(`>`) + gray(` Copying project files...`));
     await emitter.clone(cwd);
   } catch (err) {
     // degit is compiled, so the stacktrace is pretty noisy. Just report the message.
