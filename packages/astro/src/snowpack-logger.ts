@@ -13,6 +13,14 @@ export function configureSnowpackLogger(logger: typeof snowpackLogger) {
     logger.level = 'debug';
   }
 
+  logger.on('warn', (message) => {
+    // Silence this output message, since it doesn't make sense for Astro.
+    if (message.includes(`run "snowpack init" to create a project config file.`)) {
+      return;
+    }
+    console.error(message);
+  });
+
   logger.on('info', (message) => {
     // Cache messages that should only be shown once.
     // This is due to having 2 snowpack instances. Once that is removed we can
