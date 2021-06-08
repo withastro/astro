@@ -6,6 +6,8 @@
     "release": "yarn build && yarn changeset publish",
     "benchmark": "yarn workspace astro run benchmark",
     "build": "yarn build:core",
+    "build:all": "lerna run build",
+    "build:one": "lerna run build --scope",
     "build:core": "lerna run build --scope astro --scope @astrojs/parser --scope @astrojs/markdown-support",
     "build:vscode": "lerna run build --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser",
     "dev:vscode": "lerna run dev --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser --parallel --stream",
@@ -15,16 +17,13 @@
     "test:core": "yarn workspace astro run test"
   },
   "workspaces": [
-    "packages/!(create-astro)*",
     "packages/renderers/*",
+    "packages/*",
     "examples/*",
     "tools/*",
     "scripts",
     "www"
   ],
-  "engines": {
-    "vscode": "^1.22.0"
-  },
   "volta": {
     "node": "14.16.1",
     "npm": "7.11.2",

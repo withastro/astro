@@ -1,5 +1,12 @@
 # Contributing
 
+## Setting Up the Monorepo
+
+```shell
+# git clone && cd ...
+yarn install
+```
+
 ## Making Pull Requests
 
 When making a pull request, add a changeset which helps with releases.

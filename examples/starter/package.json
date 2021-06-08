@@ -1,11 +1,12 @@
 {
-  "name": "TODO",
+  "name": "@astrojs/starter-kit",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "start": "astro dev",
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "latest"
+    "astro": "^0.12.9"
   }
 }

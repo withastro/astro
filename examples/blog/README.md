@@ -1,5 +1,7 @@
 # Astro Blog Example
 
+> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+
 Features:
 
 - ✅ SEO-friendly setup with canonical URLs and OpenGraph data
@@ -7,24 +9,39 @@ Features:
 - ✅ RSS 2.0 generation
 - ✅ Sitemap.xml generation
 
-## Setup
+## 🚀 Project Structure
+
+Inside of your Astro project, you'll see the following folders and files:
 
 ```
-yarn
+/
+├── public/
+│   ├── robots.txt
+│   └── favicon.ico
+├── src/
+│   ├── components/
+│   │   └── Tour.astro
+│   └── pages/
+│       └── index.astro
+└── package.json
 ```
 
-## Dev
+Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
 
-```
-yarn start
-```
+There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
 
-Preview at `http://localhost:3000`
+Any static assets, like images, can be placed in the `public/` directory.
 
-## Build
+## 🧞 Commands
 
-```
-yarn build
-```
+All commands are run from the root of the project, from a terminal:
 
-Will output static site at `./dist`
+| Command         | Action                                      |
+|:----------------|:--------------------------------------------|
+| `npm install`   | Installs dependencies                       |
+| `npm run start` | Starts local dev server at `localhost:3000` |
+| `npm run build` | Build your production site to `./dist/`     |
+
+## 👀 Want to learn more?
+
+Feel free to check [our documentation](https://github.com/snowpackjs/astro) or jump into our [Discord server](https://discord.gg/EsGdSGen).
