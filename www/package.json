@@ -2,8 +2,8 @@
   "name": "www",
   "version": "1.1.0",
   "scripts": {
-    "start": "astro dev .",
-    "build": "astro build ."
+    "start": "astro dev",
+    "build": "astro build"
   },
   "devDependencies": {
     "astro": "^0.12.10"

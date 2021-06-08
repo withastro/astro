@@ -30,8 +30,8 @@ The default Astro project has the following `scripts` in the `/package.json` fil
 ```json
 {
   "scripts": {
-    "start": "astro dev .",
-    "build": "astro build ."
+    "start": "astro dev",
+    "build": "astro build"
   }
 }
 ```
