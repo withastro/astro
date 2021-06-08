@@ -4,6 +4,10 @@
 
 With Astro, you can use your favorite JavaScript framework and automatically ship the bare-minimum amount of JavaScript—by default, it's none at all!
 
+## Project Status
+
+⚠️ **Astro is still an early beta, missing features and bugs are to be expected!** If you can stomach it, then Astro-built sites are production ready and several production websites built with Astro already exist in the wild. We will update this note once we get closer to a stable, v1.0 release.
+
 ## 🔧 Setup
 
 ```bash
