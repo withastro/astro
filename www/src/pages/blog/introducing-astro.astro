@@ -72,7 +72,7 @@ npm start
 
           In Astro, you compose your website using UI components from your favorite JavaScript web framework (React, Svelte, Vue, etc). Astro renders your entire site to static HTML during the build. The result is a fully static website with all JavaScript removed from the final page. No monolithic JavaScript application required, just  static HTML that loads as fast as possible in the browser regardless of how many UI components you used to generate it.
 
-          Of course, sometimes client-side JavaScript is inevitable. Image carousels, shopping carts, and auto-complete search bars are just a few examples of things that require some JavaScript to run in the browser. This is where Astro really shines: When a component requires JavaScript, Astro only adds that one component (and any dependencies) to the final browser payload. The rest of your site continues to exist as static, lightweight HTML.
+          Of course, sometimes client-side JavaScript is inevitable. Image carousels, shopping carts, and auto-complete search bars are just a few examples of things that require some JavaScript to run in the browser. This is where Astro really shines: When a component needs some JavaScript, Astro only loads that one component (and any dependencies). The rest of your site continues to exist as static, lightweight HTML.
 
           In other full-stack web frameworks this level of per-component optimization would be impossible without loading the entire page in JavaScript, deplaying interactivity. In Astro, this kind of [partial hydration](https://addyosmani.com/blog/rehydration/) is built into the tool itself. 
           
