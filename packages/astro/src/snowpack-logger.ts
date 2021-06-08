@@ -3,6 +3,14 @@ import { defaultLogLevel } from './logger.js';
 
 const onceMessages = ['Ready!', 'watching for file changes'].map((str) => new RegExp(`\\[snowpack\\](.*?)${str}`));
 
+const neverWarn = new RegExp('('
+  + /(run "snowpack init" to create a project config file.)|/.source
+  + /(astro\/dist\/internal\/__astro_component.js: Unscannable package import found.)|/.source
+  + /(Cannot call a namespace \('loadLanguages'\))|/.source
+  + /('default' is imported from external module 'node-fetch' but never used)/.source
+  + ')'
+);
+
 export function configureSnowpackLogger(logger: typeof snowpackLogger) {
   const messageCache = new Set<string>();
 
@@ -12,7 +20,7 @@ export function configureSnowpackLogger(logger: typeof snowpackLogger) {
 
   logger.on('warn', (message) => {
     // Silence this output message, since it doesn't make sense for Astro.
-    if (message.includes(`run "snowpack init" to create a project config file.`)) {
+    if (neverWarn.test(message)) {
       return;
     }
     console.error(message);
