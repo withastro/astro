@@ -11,7 +11,7 @@ export let heroImage: string;
   <article class="content">
   <div>
     <header>
-      {heroImage && <img width="720" height="480" class="hero-image" loading="lazy" src={heroImage} />}
+      {heroImage && <img width="720" height="420" class="hero-image" loading="lazy" src={heroImage} />}
       <p class="publish-date">{publishDate}</p>
       <h1 class="title">{title}</h1>
       <Author authorId={author} />
@@ -31,6 +31,15 @@ export let heroImage: string;
   margin-bottom: 4rem;
   max-width: 1280px;
 }
+
+@media (max-width: 50em) {
+  .hero-image {
+    height: 260px;
+  margin-top: 0;
+  margin-bottom: 2rem;
+  }
+}
+
 .content {
   margin-bottom: 8rem;
 }
