@@ -1,6 +1,6 @@
 import 'source-map-support/register.js';
 import type { CompileError } from '@astrojs/parser';
-import { bold, blue, red, grey, underline } from 'kleur/colors';
+import { bold, blue, red, grey, underline, yellow } from 'kleur/colors';
 import { Writable } from 'stream';
 import { format as utilFormat } from 'util';
 import stringWidth from 'string-width';
@@ -20,6 +20,8 @@ export const defaultLogDestination = new Writable({
     if (type !== null) {
       if (event.level === 'info') {
         type = bold(blue(type));
+      } else if (event.level === 'warn') {
+        type = bold(yellow(type));
       } else if (event.level === 'error') {
         type = bold(red(type));
       }
@@ -166,3 +168,5 @@ function padStr(str: string, len: number) {
   const spaces = Array.from({ length: len - strLen }, () => ' ').join('');
   return str + spaces;
 }
+
+export const defaultLogLevel: LoggerLevel = process.argv.includes('--verbose') ? 'debug' : 'info';

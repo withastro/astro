@@ -1,15 +1,12 @@
 import { logger as snowpackLogger } from 'snowpack';
-
-function verboseLogging() {
-  return process.argv.includes('--verbose');
-}
+import { defaultLogLevel } from './logger.js';
 
 const onceMessages = ['Ready!', 'watching for file changes'].map((str) => new RegExp(`\\[snowpack\\](.*?)${str}`));
 
 export function configureSnowpackLogger(logger: typeof snowpackLogger) {
   const messageCache = new Set<string>();
 
-  if (verboseLogging()) {
+  if (defaultLogLevel === 'debug') {
     logger.level = 'debug';
   }
 

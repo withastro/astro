@@ -1,9 +1,9 @@
 import type { LogOptions } from './logger';
 import { clearCache } from 'snowpack';
-import { defaultLogDestination, debug, error, info, parseError } from './logger.js';
+import { defaultLogDestination, defaultLogLevel, info } from './logger.js';
 
 const logging: LogOptions = {
-  level: 'debug',
+  level: defaultLogLevel,
   dest: defaultLogDestination,
 };
 
