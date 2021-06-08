@@ -1,5 +1,6 @@
 ---
 import Author from './Author.astro';
+import GithubStarButton from './GithubStarButton.astro';
 
 export let title: string;
 export let author: string;
@@ -15,6 +16,7 @@ export let heroImage: string;
       <p class="publish-date">{publishDate}</p>
       <h1 class="title">{title}</h1>
       <Author authorId={author} />
+      <GithubStarButton />
     </header>
     <main>
       <slot />
