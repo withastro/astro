@@ -1,5 +1,11 @@
 # astro
 
+## 0.12.8
+
+### Patch Changes
+
+- f66fd1f: Fixes regression caused by attempting to prebuild an internal dep
+
 ## 0.12.7
 
 ### Patch Changes
