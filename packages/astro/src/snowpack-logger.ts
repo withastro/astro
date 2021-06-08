@@ -6,7 +6,7 @@ const onceMessages = ['Ready!', 'watching for file changes'].map((str) => new Re
 const neverWarn = new RegExp(
   '(' +
     /(run "snowpack init" to create a project config file.)|/.source +
-    /(astro\/dist\/internal\/__astro_component.js: Unscannable package import found.)|/.source +
+    /(Unscannable package import found.)|/.source +
     /(Cannot call a namespace \('loadLanguages'\))|/.source +
     /('default' is imported from external module 'node-fetch' but never used)/.source +
     ')'

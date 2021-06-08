@@ -1,0 +1,39 @@
+---
+export let author: string;
+export let source: string;
+export let sourceHref: string;
+---
+
+<blockquote>
+  <slot />
+  <div class="source">
+    <p>{author}</p>
+    <a href={sourceHref}>{source}</a>
+  </div>
+</blockquote>
+
+<style>
+  blockquote {
+    font-size: 1.5rem;
+    --padding-block: 1rem;
+    --padding-inline: 1.25rem;
+    --color: var(--theme-divider);
+
+    display: flex;
+    flex-direction: column;
+
+    padding: var(--padding-block) var(--padding-inline);
+    margin-left: calc(var(--padding-inline) * -1);
+    margin-right: calc(var(--padding-inline) * -1);
+    
+    background: transparent;
+    border-left: calc(var(--padding-inline) / 2) solid var(--color);
+    border-radius: 0;
+  }
+
+  blockquote .source {
+    font-weight: 500;
+    color: var(--color);
+    font-size: 1rem;
+  }
+</style>
