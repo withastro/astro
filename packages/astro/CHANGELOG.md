@@ -1,5 +1,11 @@
 # astro
 
+## 0.12.9
+
+### Patch Changes
+
+- 21b0c73: Removes some warnings that are internal to Astro
+
 ## 0.12.8
 
 ### Patch Changes
