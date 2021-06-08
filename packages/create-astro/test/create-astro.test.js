@@ -5,7 +5,7 @@ import { suite } from 'uvu';
 import execa from 'execa';
 import del from 'del';
 import * as assert from 'uvu/assert';
-import {TEMPLATES} from '../dist/templates.js';
+import { TEMPLATES } from '../dist/templates.js';
 
 const CreateAstro = suite('npm init astro');
 
@@ -17,14 +17,14 @@ CreateAstro.before(async () => {
   await fs.promises.mkdir(fixturesDir);
 });
 
-for (const {value: template} of TEMPLATES) {
+for (const { value: template } of TEMPLATES) {
   // TODO: Unskip once repo is made public. Because the repo is private, the templates can't yet be downloaded.
   CreateAstro.skip(template, async () => {
     const testDirectory = path.join(fixturesDir, template);
     const { stdout } = await execa('../../create-astro.mjs', [testDirectory, '--template', template, '--force-overwrite'], { cwd: path.join(cwd, 'fixtures') });
 
-  console.log(stdout);
-      // test: path should formatted as './{dirName}'
+    console.log(stdout);
+    // test: path should formatted as './{dirName}'
     assert.not.match(stdout, '././');
 
     const DOES_HAVE = ['.gitignore', 'package.json', 'public', 'src'];
