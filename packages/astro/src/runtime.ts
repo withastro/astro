@@ -422,12 +422,15 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const envConfig = snowpackConfig.env || (snowpackConfig.env = {});
   Object.assign(envConfig, env);
 
-  snowpack = await startSnowpackServer({
-    config: snowpackConfig,
-    lockfile: null,
-  }, {
-    isWatch: isHmrEnabled,
-  });
+  snowpack = await startSnowpackServer(
+    {
+      config: snowpackConfig,
+      lockfile: null,
+    },
+    {
+      isWatch: isHmrEnabled,
+    }
+  );
   const snowpackRuntime = snowpack.getServerRuntime();
 
   return { snowpack, snowpackRuntime, snowpackConfig };
