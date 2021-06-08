@@ -6,14 +6,14 @@ import { green } from 'kleur/colors';
 import http from 'http';
 import path from 'path';
 import { performance } from 'perf_hooks';
-import { defaultLogDestination, debug, error, info, parseError } from './logger.js';
+import { defaultLogDestination, defaultLogLevel, debug, error, info, parseError } from './logger.js';
 import { createRuntime } from './runtime.js';
 import { stopTimer } from './build/util';
 
 const hostname = '127.0.0.1';
 
 const logging: LogOptions = {
-  level: 'debug',
+  level: defaultLogLevel,
   dest: defaultLogDestination,
 };
 

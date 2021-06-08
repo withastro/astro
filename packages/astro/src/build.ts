@@ -18,11 +18,11 @@ import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.
 import { generateSitemap } from './build/sitemap.js';
 import { logURLStats, collectBundleStats, mapBundleStatsToURLStats } from './build/stats.js';
 import { getDistPath, stopTimer } from './build/util.js';
-import { debug, defaultLogDestination, error, info, warn, trapWarn } from './logger.js';
+import { debug, defaultLogDestination, defaultLogLevel, error, info, warn, trapWarn } from './logger.js';
 import { createRuntime } from './runtime.js';
 
 const defaultLogging: LogOptions = {
-  level: 'debug',
+  level: defaultLogLevel,
   dest: defaultLogDestination,
 };
 
