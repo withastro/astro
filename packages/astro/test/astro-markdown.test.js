@@ -45,7 +45,7 @@ Markdown('Bundles client-side JS for prod', async (context) => {
   assert.ok(counterJs, 'Counter.jsx is bundled for prod');
 });
 
-Markdown('Renders content correctly when deeply nested on a page', async ({ runtime }) => {
+Markdown('Renders correctly when deeply nested on a page', async ({ runtime }) => {
   const result = await runtime.load('/deep');
   if (result.error) throw new Error(result.error);
 
@@ -58,6 +58,18 @@ Markdown('Renders content correctly when deeply nested on a page', async ({ runt
   assert.equal($('.a > h2').text(), 'A', 'Rendered title in correct section');
   assert.equal($('.b > h2').text(), 'B', 'Rendered title in correct section');
   assert.equal($('.c > h2').text(), 'C', 'Rendered title in correct section');
+});
+
+Markdown('Renders recursively', async ({ runtime }) => {
+  const result = await runtime.load('/recursive');
+  if (result.error) throw new Error(result.error);
+
+  console.log(result.contents);
+  
+  const $ = doc(result.contents);
+  assert.equal($('.a > h1').text(), 'A', 'Rendered title .a correctly');
+  assert.equal($('.b > h1').text(), 'B', 'Rendered title .b correctly');
+  assert.equal($('.c > h1').text(), 'C', 'Rendered title .c correctly');
 });
 
 Markdown('Renders dynamic content though the content attribute', async ({ runtime }) => {
