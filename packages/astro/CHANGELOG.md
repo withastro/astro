@@ -1,5 +1,13 @@
 # astro
 
+## 0.12.7
+
+### Patch Changes
+
+- f6ef53b: Fixed a bug where recursive markdown was not working properly
+- 5a871f3: Fixes logging to default to the info level
+- f4a747f: improve build output
+
 ## 0.12.6
 
 ### Patch Changes

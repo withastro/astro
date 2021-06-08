@@ -8,7 +8,7 @@
     "astro-dev": "nodemon --delay 0.5 -w ../../packages/astro/dist -x '../../packages/astro/astro.mjs dev'"
   },
   "devDependencies": {
-    "astro": "^0.12.6",
+    "astro": "^0.12.7",
     "tailwindcss": "^2.1.2"
   },
   "snowpack": {
