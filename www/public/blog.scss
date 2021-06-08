@@ -1,5 +1,79 @@
-@import './theme';
-@import './code';
+:root {
+  --font-fallback: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+  --font-body: "IBM Plex Sans", var(--font-fallback);
+  --font-mono: "IBM Plex Mono", Consolas, "Andale Mono WT", "Andale Mono",
+        "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono",
+        "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco,
+        "Courier New", Courier, monospace;
+
+  --color-white: #FFF;
+  --color-black: #000014;
+
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F3F4F6;
+  --color-gray-200: #E5E7EB;
+  --color-gray-300: #D1D5DB;
+  --color-gray-400: #9CA3AF;
+  --color-gray-500: #6B7280;
+  --color-gray-600: #4B5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1F2937;
+  --color-gray-900: #111827;
+
+  --color-blue: #3894FF;
+  --color-blue-rgb: 56,148,255;
+  --color-green: #17C083;
+  --color-green-rgb: 23,192,131;
+  --color-orange: #FF5D01;
+  --color-orange-rgb: 255,93,1;
+  --color-purple: #882DE7;
+  --color-purple-rgb: 136,45,231;
+  --color-red: #FF1639;
+  --color-red-rgb: 255,22,57;
+  --color-yellow: #FFBE2D;
+  --color-yellow-rgb: 255,190,45;
+}
+
+:root {
+  color-scheme: light;
+  --theme-accent: var(--color-orange);
+  --theme-accent-rgb: var(--color-orange-rgb);
+  --theme-accent-opacity: 0.1;
+  --theme-divider: var(--color-gray-100);
+  --theme-text: var(--color-gray-800);
+  --theme-text-light: var(--color-gray-600);
+  --theme-text-lighter: var(--color-gray-400);
+  --theme-bg: var(--color-white);
+  --theme-bg-offset: var(--color-gray-100);
+  --theme-bg-accent: rgba(var(--theme-accent-rgb), var(--theme-accent-opacity));
+  --theme-code-inline-bg: var(--color-gray-100);
+  --theme-code-text: var(--color-gray-100);
+  --theme-code-bg: var(--color-gray-700);
+}
+
+body {
+  background: var(--theme-bg);
+  color: var(--theme-text);
+}
+
+:root.theme-dark {
+  color-scheme: dark;
+  --theme-accent-opacity: 0.3;
+  --theme-divider: var(--color-gray-900);
+  --theme-text: var(--color-gray-200);
+  --theme-text-light: var(--color-gray-400);
+  --theme-text-lighter: var(--color-gray-600);
+  --theme-bg: var(--color-black);
+  --theme-bg-offset: var(--color-gray-900);
+  --theme-code-inline-bg: var(--color-gray-800);
+  --theme-code-text: var(--color-gray-200);
+  --theme-code-bg: var(--color-gray-900);
+}
+
+::selection {
+  color: var(--theme-accent);
+  background-color: rgba(var(--theme-accent-rgb), var(--theme-accent-opacity));
+}
 
 * {
   box-sizing: border-box;
