@@ -101,9 +101,18 @@ export default async function dev(astroConfig: AstroConfig) {
   });
 
   const port = astroConfig.devOptions.port;
-  server.listen(port, hostname, () => {
-    const endServerTime = performance.now();
-    info(logging, 'dev server', green(`Server started in ${Math.floor(endServerTime - startServerTime)}ms.`));
-    info(logging, 'dev server', `${green('Local:')} http://${hostname}:${port}/`);
-  });
+  server
+    .listen(port, hostname, () => {
+      const endServerTime = performance.now();
+      info(logging, 'dev server', green(`Server started in ${Math.floor(endServerTime - startServerTime)}ms.`));
+      info(logging, 'dev server', `${green('Local:')} http://${hostname}:${port}/`);
+    })
+    .on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code && err.code === 'EADDRINUSE') {
+        error(logging, 'dev server', `Address ${hostname}:${port} already in use. Try changing devOptions.port in your config file`);
+      } else {
+        error(logging, 'dev server', err.stack);
+      }
+      process.exit(1);
+    });
 }
