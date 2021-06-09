@@ -2,7 +2,7 @@ import 'source-map-support/register.js';
 import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger.js';
 
-import { green, red } from 'kleur/colors';
+import { green } from 'kleur/colors';
 import http from 'http';
 import path from 'path';
 import { performance } from 'perf_hooks';
