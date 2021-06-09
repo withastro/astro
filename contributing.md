@@ -8,6 +8,12 @@ yarn install
 yarn build
 ```
 
+Most of the packages have a dev script that will recompile when a file changes. For example when working on the `astro` package you can run:
+
+```shell
+yarn workspace astro run dev
+```
+
 ## Making Pull Requests
 
 When making a pull request, add a changeset which helps with releases.
