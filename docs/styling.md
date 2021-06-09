@@ -107,7 +107,7 @@ Be sure to add the config path to `astro.config.mjs`, so that Astro enables JIT 
   // astro.config.mjs
   export default {
 +   devOptions: {
-+     tailwindConfig: './tailwindConfig.js',
++     tailwindConfig: './tailwind.config.js',
 +   },
   };
 ```
