@@ -91,7 +91,7 @@ To learn more about `.astro` files, read our complete [Syntax Guide][docs-syntax
 
 Spend less time configuring your tooling and more time writing content. Astro has phenomenal Markdown support (powered by [`remark`][remark]) baked in!
 
-Not only can you use local `.md` files as pages, but Astro also comes with a `<Markdown>` component to turn every page into a Markdown file. Using the `<Markdown>` component in an `.astro` file should feel very similar to [MDX][mdx], but with the ability to use components from any framework (with [partial hydration](#partial-hydration), too)!
+Not only can you use local `.md` files as pages, but Astro also comes with a `<Markdown>` component to turn every page into a Markdown file. Using the `<Markdown>` component in an `.astro` file should feel very similar to [MDX][mdx], but with the ability to use components from any framework (with [partial hydration][partial-hydration], too)!
 
 To learn more about use Markdown in Astro, read our [Markdown Guide][docs-markdown].
 
@@ -230,6 +230,7 @@ Astro is able to render [React](https://npm.im/@astrojs/renderer-react), [Svelte
 [mdx]: https://mdxjs.com/
 [mdn-io]: https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
 [mdn-ric]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
+[partial-hydration]: #-partial-hydration
 [routing]: #-routing
 [docs-cli]: ./docs/cli.md
 [docs-publishing]: ./docs/publishing.md
