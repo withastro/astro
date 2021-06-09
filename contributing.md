@@ -5,6 +5,7 @@
 ```shell
 # git clone && cd ...
 yarn install
+yarn build
 ```
 
 ## Making Pull Requests
