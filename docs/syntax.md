@@ -55,6 +55,7 @@ We love JSX! In fact, `.astro` files borrow the highly-expressive templating syn
 <!-- This is an Astro component with expressions! -->
 <main>
   <h1>Hello {name}!</h1>
+  <h2 data-hint={`Use JS template strings when you need to mix-in ${"variables"}.`}>So good!</h2>
   <ul>
     {items.map((item) => (
       <li>{item}</li>
