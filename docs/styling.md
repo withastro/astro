@@ -466,7 +466,7 @@ Also please check out the [Stylelint][stylelint] project to whip your styles int
 [bem]: http://getbem.com/introduction/
 [box-model]: https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model
 [browserslist]: https://github.com/browserslist/browserslist
-[browserslist-default]: https://github.com/browserslist/browserslist#queries
+[browserslist-defaults]: https://github.com/browserslist/browserslist#queries
 [cassie-evans-css]: https://twitter.com/cassiecodes/status/1392756828786790400?s=20
 [container-queries]: https://ishadeed.com/article/say-hello-to-css-container-queries/
 [css-modules]: https://github.com/css-modules/css-modules
