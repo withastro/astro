@@ -80,7 +80,7 @@ Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 
 ### 🦊 Autoprefixer
 
-We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the [Browserslist defaults][browserslist-defaults], but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
+We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the [Browserslist defaults](https://github.com/browserslist/browserslist#full-list), but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
 
 ### 🍃 Tailwind
 
