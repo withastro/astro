@@ -137,4 +137,4 @@ export let name;
 
 ### TODO: Composition (Slots)
 
-[code-ext]: https://marketplace.visualstudio.com/items?itemName=astro-build.astro
+[code-ext]: https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode
