@@ -58,7 +58,7 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
   const mode: RuntimeMode = 'production';
   const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
   const { runtimeConfig } = runtime;
-  const { backendSnowpack: snowpack } = runtimeConfig;
+  const { snowpack } = runtimeConfig;
 
   try {
     // 0. erase build directory
