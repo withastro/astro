@@ -26,5 +26,15 @@ npm init astro my-astro-project -- --template starter
 # yarn
 yarn create astro my-astro-project --template starter
 ```
+[Check out the full list][examples] of example starter templates, available on GitHub.
 
-[Check out the full list](https://github.com/snowpackjs/astro/tree/main/examples) of example starter templates, available on GitHub.
+### CLI Flags
+
+May be provided in place of prompts
+
+| Name         | Description                                         |
+|:-------------|:----------------------------------------------------|
+| `--template` | Specify the template name ([list][examples])        |
+| `--commit`   | Specify a specific Git commit or branch to use from this repo (by default, `main` branch of this repo will be used) |
+
+[examples]: https://github.com/snowpackjs/astro/tree/main/examples

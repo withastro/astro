@@ -24,7 +24,7 @@
     "onLanguage:astro"
   ],
   "dependencies": {
-    "astro-languageserver": "file:../astro-languageserver"
+    "astro-languageserver": "^0.4.0"
   },
   "devDependencies": {
     "@types/vscode": "^1.52.0",
