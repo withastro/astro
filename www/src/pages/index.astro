@@ -41,30 +41,27 @@ let permalink = 'https://astro.build/';
 
         <p>We're hard at work on Astro! Keep your eyes to the skies, astronauts.</p>
 
+        <a class="action-button" href="/blog/introducing-astro">
+          New Blog Post - Introducing Astro: Ship Less JavaScript
+          <span style="float: right;">&#8594;</span>
+        </a>
+
         <div class="hint">
-          <p class="no-console">Psst... <a href="https://astro.build/chat">get early access</a> by joining our Discord community.</p>
-          <p class="console">Psst... upset you don't have early access? If only there was some way to <code>console</code> you...</p>
+          <p>Psst... <a href="https://astro.build/chat">get early access to new features</a> by joining our Discord community.</p>
         </div>
       </Article>
     </Main>
 
     <style lang="scss">
       .hint {
-        font-size: 12px;
+        font-size: 13px;
         opacity: 0.8;
         margin-top: 2em;
         padding: 2em 0;
       }
-      .console {
-        display: none; 
-      }
-      @media (hover: hover) {
-        .no-console {
-          display: none;
-        }
-        .console {
-          display: block;
-        }
+      .action-button {
+        border: 1px solid var(--color-green);
+        padding: 1rem;
       }
       code {
         font-size: 11px;
