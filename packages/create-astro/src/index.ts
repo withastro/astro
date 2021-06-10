@@ -19,6 +19,8 @@ export function mkdirp(dir: string) {
 
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 
+const POSTPROCESS_FILES = ['package.json']; // some files need processing after copying.
+
 export async function main() {
   console.log('\n' + bold('Welcome to Astro!') + gray(` (create-astro v${version})`));
   console.log(`If you encounter a problem, visit ${cyan('https://github.com/snowpack/astro/issues')} to search or file a new issue.\n`);
@@ -52,12 +54,14 @@ export async function main() {
     },
   ]);
 
-  const emitter = degit(`snowpackjs/astro/examples/${options.template}`, {
+  const hash = args.commit ? `#${args.commit}` : '';
+  const emitter = degit(`snowpackjs/astro/examples/${options.template}${hash}`, {
     cache: false,
     force: true,
     verbose: false,
   });
 
+  // Copy
   try {
     // emitter.on('info', info => { console.log(info.message) });
     console.log(green(`>`) + gray(` Copying project files...`));
@@ -67,6 +71,22 @@ export async function main() {
     console.error(red(err.message));
     process.exit(1);
   }
+
+  // Post-process in parallel
+  await Promise.all(
+    POSTPROCESS_FILES.map(async (file) => {
+      const fileLoc = path.join(cwd, file);
+
+      switch (file) {
+        case 'package.json': {
+          const packageJSON = JSON.parse(await fs.promises.readFile(fileLoc, 'utf8'));
+          delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
+          await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
+          break;
+        }
+      }
+    })
+  );
 
   console.log(bold(green('✔ Copied project files')));
 

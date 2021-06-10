@@ -70,3 +70,4 @@ jobs:
       - run: yarn test
         env:
           CI: true
+          GITHUB_SHA: $GITHUB_SHA
