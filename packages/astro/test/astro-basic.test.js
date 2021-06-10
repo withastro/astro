@@ -20,10 +20,16 @@ Basics('Can load page', async ({ runtime }) => {
   assert.equal($('h1').text(), 'Hello world!');
 });
 
-Basics('Sets the HMR port', async ({ runtime }) => {
+Basics('Sets the HMR port when dynamic components used', async ({ runtime }) => {
   const result = await runtime.load('/client');
   const html = result.contents;
   assert.ok(/HMR_WEBSOCKET_URL/.test(html), 'Sets the websocket port');
+});
+
+Basics('Does not set the HMR port when no dynamic component used', async ({ runtime }) => {
+  const result = await runtime.load('/');
+  const html = result.contents;
+  assert.ok(!/HMR_WEBSOCKET_URL/.test(html), 'Does not set the websocket port');
 });
 
 Basics.run();
