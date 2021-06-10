@@ -55,7 +55,7 @@ export default function (opts: TransformOptions): Transformer {
         });
       }
 
-      if (isHmrEnabled) {
+      if (isHmrEnabled && hasComponents) {
         const { hmrPort } = opts.compileOptions;
         children.push(
           {
