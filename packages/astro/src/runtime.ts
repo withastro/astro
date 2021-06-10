@@ -430,18 +430,20 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 
 /** Core Astro runtime */
 export async function createRuntime(astroConfig: AstroConfig, { mode, logging }: RuntimeOptions): Promise<AstroRuntime> {
+  let snowpack: SnowpackDevServer;
   const timer: Record<string, number> = {};
   const resolvePackageUrl = async (pkgName: string) => snowpack.getUrlForPackage(pkgName);
 
   timer.backend = performance.now();
   const {
-    snowpack,
+    snowpack: snowpackInstance,
     snowpackRuntime,
     snowpackConfig,
   } = await createSnowpack(astroConfig, {
     mode,
     resolvePackageUrl,
   });
+  snowpack = snowpackInstance;
   debug(logging, 'core', `snowpack created [${stopTimer(timer.backend)}]`);
 
   const runtimeConfig: RuntimeConfig = {
@@ -456,6 +458,6 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
   return {
     runtimeConfig,
     load: load.bind(null, runtimeConfig),
-    shutdown: () => Promise.all([snowpack.shutdown()]).then(() => void 0),
+    shutdown: () => snowpack.shutdown(),
   };
 }
