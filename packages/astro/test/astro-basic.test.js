@@ -21,9 +21,9 @@ Basics('Can load page', async ({ runtime }) => {
 });
 
 Basics('Sets the HMR port', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  const content = result.contents;
-  assert.ok(/HMR_WEBSOCKET_URL/.test(content), 'Sets the websocket port');
+  const result = await runtime.load('/client');
+  const html = result.contents;
+  assert.ok(/HMR_WEBSOCKET_URL/.test(html), 'Sets the websocket port');
 });
 
 Basics.run();
