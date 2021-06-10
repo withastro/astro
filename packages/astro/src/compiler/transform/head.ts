@@ -11,7 +11,7 @@ export default function (opts: TransformOptions): Transformer {
     visitors: {
       html: {
         InlineComponent: {
-          enter(node, parent) {
+          enter(node) {
             const [name, kind] = node.name.split(':');
             if (kind && !hasComponents) {
               hasComponents = true;
@@ -20,7 +20,6 @@ export default function (opts: TransformOptions): Transformer {
         },
         Element: {
           enter(node) {
-            if (!hasComponents) return;
             switch (node.name) {
               case 'head': {
                 head = node;
@@ -56,7 +55,7 @@ export default function (opts: TransformOptions): Transformer {
         });
       }
 
-      if (isHmrEnabled) {
+      if (isHmrEnabled && hasComponents) {
         const { hmrPort } = opts.compileOptions;
         children.push(
           {
