@@ -1,5 +1,11 @@
 # astro
 
+## 0.12.11
+
+### Patch Changes
+
+- 5fbc1cb: nit: ask user to modify devOptions.port when addr in use for dev
+
 ## 0.12.10
 
 ### Patch Changes
