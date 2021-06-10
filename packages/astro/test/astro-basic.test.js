@@ -7,8 +7,8 @@ const Basics = suite('Basic test');
 
 setup(Basics, './fixtures/astro-basic', {
   runtimeOptions: {
-    mode: 'development'
-  }
+    mode: 'development',
+  },
 });
 
 Basics('Can load page', async ({ runtime }) => {
