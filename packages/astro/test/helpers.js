@@ -11,7 +11,7 @@ const MAX_TEST_TIME = 10000; // max time an individual test may take
 const MAX_SHUTDOWN_TIME = 3000; // max time shutdown() may take
 
 /** setup fixtures for tests */
-export function setup(Suite, fixturePath) {
+export function setup(Suite, fixturePath, { runtimeOptions = {} } = {}) {
   let runtime;
   const timers = {};
 
@@ -24,6 +24,7 @@ export function setup(Suite, fixturePath) {
 
     runtime = await createRuntime(astroConfig, {
       logging: { level: 'error', dest: process.stderr },
+      ...runtimeOptions
     });
 
     context.runtime = runtime;
