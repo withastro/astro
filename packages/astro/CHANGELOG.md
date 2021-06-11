@@ -1,5 +1,11 @@
 # astro
 
+## 0.13.1
+
+### Patch Changes
+
+- 61b5590: Pass "site" config to Snowpack as "baseUrl"
+
 ## 0.13.0
 
 ### Minor Changes

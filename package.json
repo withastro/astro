@@ -14,7 +14,8 @@
     "format": "prettier -w \"**/*.{js,jsx,ts,tsx,md,json}\"",
     "lint": "eslint \"packages/**/*.ts\"",
     "test": "lerna run test --scope astro --stream",
-    "test:core": "yarn workspace astro run test"
+    "test:core": "yarn workspace astro run test",
+    "test:templates": "lerna run test --scope create-astro --stream"
   },
   "workspaces": [
     "packages/renderers/*",
@@ -22,7 +23,8 @@
     "examples/*",
     "tools/*",
     "scripts",
-    "www"
+    "www",
+    "docs-www"
   ],
   "volta": {
     "node": "14.16.1",
@@ -51,6 +53,6 @@
     "uvu": "^0.5.1"
   },
   "engines": {
-    "node": ">=14.16.1"
+    "node": ">=14.15.1"
   }
 }

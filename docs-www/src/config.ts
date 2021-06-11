@@ -1,9 +1,11 @@
 export const sidebar = [
   {
     text: 'Introduction',
-    link: '/',
     children: [
-      { text: 'Getting Started', link: '/getting-started' },
+      {
+        text: 'What is Astro?',
+        link: '/',
+      },
       { text: 'Example', link: '/example' },
     ],
   },
