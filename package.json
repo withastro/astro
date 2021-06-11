@@ -22,7 +22,8 @@
     "examples/*",
     "tools/*",
     "scripts",
-    "www"
+    "www",
+    "docs-www"
   ],
   "volta": {
     "node": "14.16.1",
