@@ -1,8 +1,9 @@
 export const sidebar = [
   {
-    text: 'Introduction',
+    text: 'Introduction', 
+    link: '/',
     children: [
-      { text: 'Welcome', link: '/' },
+      { text: 'Getting Started', link: '/getting-started' },
       { text: 'Example', link: '/example' },
     ],
   },
