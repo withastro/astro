@@ -121,6 +121,9 @@ StylesSSR('Astro scoped styles', async ({ runtime }) => {
 
   assert.match(el1.attr('class'), `blue ${scopedClass}`);
   assert.match(el2.attr('class'), `visible ${scopedClass}`);
+
+  const { contents: css } = await runtime.load('/_astro/src/components/Astro.astro.css');
+  assert.match(cssMinify(css.toString()), `.blue.${scopedClass}{color:powderblue}.color\\:blue.${scopedClass}{color:powderblue}.visible.${scopedClass}{display:block}`);
 });
 
 StylesSSR.run();
