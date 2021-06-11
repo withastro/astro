@@ -70,4 +70,21 @@ jobs:
       - run: yarn test
         env:
           CI: true
-          GITHUB_SHA: $GITHUB_SHA
+  # test-templates:
+  #   if: ${{ github.head_ref }} == "changeset-release/main" # only run on version PRs (this test is too slow to run every PR)
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - uses: actions/setup-node@v2
+  #       with:
+  #         node-version: 14.x
+  #     - run: yarn --frozen-lockfile --ignore-engines
+  #       env:
+  #         CI: true
+  #     - run: yarn build
+  #       env:
+  #         CI: true
+  #     - run: yarn test:templates
+  #       env:
+  #         GITHUB_SHA: $GITHUB_SHA
+  #         CI: true

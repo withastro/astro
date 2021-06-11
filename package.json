@@ -14,7 +14,8 @@
     "format": "prettier -w \"**/*.{js,jsx,ts,tsx,md,json}\"",
     "lint": "eslint \"packages/**/*.ts\"",
     "test": "lerna run test --scope astro --stream",
-    "test:core": "yarn workspace astro run test"
+    "test:core": "yarn workspace astro run test",
+    "test:templates": "lerna run test --scope create-astro --stream"
   },
   "workspaces": [
     "packages/renderers/*",
