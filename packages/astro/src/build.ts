@@ -263,6 +263,8 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
     }
   });
 
+
+
   $('img[src]').each((i, el) => {
     const src = $(el).attr('src');
     if (src && !isRemote(src)) {
