@@ -406,6 +406,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       tailwindConfig: astroConfig.devOptions.tailwindConfig,
     },
     buildOptions: {
+      baseUrl: astroConfig.buildOptions.site,
       out: astroConfig.dist,
     },
     packageOptions: {
