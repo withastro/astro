@@ -2051,9 +2051,6 @@ astring@^1.7.4:
   resolved "https://registry.yarnpkg.com/astring/-/astring-1.7.4.tgz#06aa7f72ad30097210dee1ae8f7d9615cd3b57d4"
   integrity sha512-WiVqDJV0AayUUH65FfUrbnBO4KD10854cyU49lK30+2n/lEkJDRqBKj/2fYGhZSD3uIt1H1VfW/pQtO07kR2Xg==
 
-"astro-languageserver@file:tools/astro-languageserver":
-  version "0.4.0"
-
 "astro-scripts@file:scripts":
   version "0.0.1"
   dependencies:
