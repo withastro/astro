@@ -117,7 +117,7 @@ function PluginSearchPageLive() {
 }
 
 export default function PluginSearchPage(props) {
-  return import.meta.env.astro ? (
+  return import.meta.env.SSR ? (
     <div>Loading...</div>
   ) : (
     <PluginSearchPageLive {...props} />
