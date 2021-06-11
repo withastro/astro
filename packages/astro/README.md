@@ -10,6 +10,8 @@ With Astro, you can use your favorite JavaScript framework and automatically shi
 
 ## 🔧 Quick Start
 
+> __Important__: Astro is built with [ESM modules](https://nodejs.org/api/esm.html) which are not supported in older version of Node.js. The minimum supported version is __14.16.1__.
+
 ```bash
 # create your project
 mkdir new-project-directory
