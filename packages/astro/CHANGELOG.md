@@ -1,5 +1,16 @@
 # astro
 
+## 0.13.0
+
+### Minor Changes
+
+- ce93361: Set the minimum Node version in the engines field
+- 1bab906: Removes a second instance of snowpack which degraded peformance
+
+### Patch Changes
+
+- 5fbc1cb: nit: ask user to modify devOptions.port when addr in use for dev
+
 ## 0.12.10
 
 ### Patch Changes
