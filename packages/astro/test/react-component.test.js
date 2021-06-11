@@ -49,4 +49,11 @@ React('Can load Vue', async () => {
   assert.equal($('#vue-h2').text(), 'Hasta la vista, baby');
 });
 
+React('Get good error message when react import is forgotten', async () => {
+  const result = await runtime.load('/forgot-import');
+
+  assert.ok(result.error instanceof ReferenceError);
+  assert.equal(result.error.message, 'React is not defined');
+});
+
 React.run();
