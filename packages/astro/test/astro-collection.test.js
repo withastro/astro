@@ -42,4 +42,16 @@ Collections('generates pagination successfully', async ({ runtime }) => {
   assert.equal(next.length, 1); // this should be on-page
 });
 
+Collections('can load remote data', async ({ runtime }) => {
+  const result = await runtime.load('/remote');
+  if (result.error) throw new Error(result.error);
+  const $ = doc(result.contents);
+
+  const PACKAGES_TO_TEST = ['canvas-confetti', 'preact', 'svelte'];
+
+  for (const pkg of PACKAGES_TO_TEST) {
+    assert.ok($(`#pkg-${pkg}`).length);
+  }
+});
+
 Collections.run();
