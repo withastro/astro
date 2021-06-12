@@ -108,7 +108,7 @@ export async function compileComponent(
 
   // return template
   let moduleJavaScript = `
-import 'isomorphic-fetch';
+import fetch from 'node-fetch';
 
 // <script astro></script>
 ${result.imports.join('\n')}
