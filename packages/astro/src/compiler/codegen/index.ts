@@ -249,7 +249,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
           } else if (node.declaration.type === 'FunctionDeclaration') {
             // case 2: createCollection (export async function)
             if (!node.declaration.id || node.declaration.id.name !== 'createCollection') break;
-            createCollection = module.content.substring(node.declaration.start || 0, node.declaration.end || 0);
+            createCollection = module.content.substring(node.start || 0, node.end || 0);
 
             // remove node
             body.splice(i, 1);
@@ -365,8 +365,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
                   imports += importStatement + '\n';
                 }
 
-                createCollection =
-                  imports + '\nexport ' + createCollection.substring(0, declaration.start || 0) + globResult.code + createCollection.substring(declaration.end || 0);
+                createCollection = imports + createCollection.substring(0, declaration.start || 0) + globResult.code + createCollection.substring(declaration.end || 0);
               }
               break;
             }

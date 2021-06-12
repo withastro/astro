@@ -91,7 +91,7 @@ When using the [Collections API][docs-collections], `createCollection()` is an a
 
 | Name        |             Type              | Description                                                                                                |
 | :---------- | :---------------------------: | :--------------------------------------------------------------------------------------------------------- |
-| `data`      | `async ({ params }) => any[]` | **Required.** Load data with this function to be returned.                                                 |
+| `data`      | `async ({ params }) => any[]` | **Required.** Load an array of data with this function to be returned.                                     |
 | `pageSize`  |           `number`            | Specify number of items per page (default: `25`).                                                          |
 | `routes`    |          `params[]`           | **Required for URL Params.** Return an array of all possible URL `param` values in `{ name: value }` form. |
 | `permalink` |   `({ params }) => string`    | **Required for URL Params.** Given a `param` object of `{ name: value }`, generate the final URL.\*        |

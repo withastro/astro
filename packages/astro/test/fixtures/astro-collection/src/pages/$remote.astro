@@ -1,0 +1,24 @@
+---
+export let collection: any;
+
+export async function createCollection() {
+  const data = await Promise.all([
+    fetch('https://api.skypack.dev/v1/package/canvas-confetti').then((res) => res.json()),
+    fetch('https://api.skypack.dev/v1/package/preact').then((res) => res.json()),
+    fetch('https://api.skypack.dev/v1/package/svelte').then((res) => res.json()),
+  ]);
+
+  return {
+    async data() {
+      return data;
+    }
+  }
+}
+
+---
+
+<div>
+  {collection.data.map((pkg) => (
+    <div id={`pkg-${pkg.name}`}>{pkg.name}</div>
+   ))}
+</div>
