@@ -1,5 +1,11 @@
 # astro
 
+## 0.13.2
+
+### Patch Changes
+
+- c374a54: Bugfix: createCollection() API can be used without fetchContent()
+
 ## 0.13.1
 
 ### Patch Changes
