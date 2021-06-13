@@ -11,5 +11,8 @@
   "dependencies": {
     "svelte": "^3.35.0",
     "@snowpack/plugin-svelte": "^3.7.0"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   }
 }
