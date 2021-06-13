@@ -4,7 +4,6 @@ about: Report an issue or possible bug
 title: "\U0001F41B <TITLE>"
 labels: ''
 assignees: ''
-
 ---
 
 ### Bug Report: Quick Checklist

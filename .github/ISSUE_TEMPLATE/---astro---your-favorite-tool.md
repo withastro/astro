@@ -1,10 +1,9 @@
 ---
 name: "\U0001F91D Astro + Your Favorite Tool"
 about: Get Astro working with new frameworks, libraries, etc.
-title: "[New Framework] <NAME>"
+title: '[New Framework] <NAME>'
 labels: ''
 assignees: ''
-
 ---
 
 ### New Framework: Quick Checklist
