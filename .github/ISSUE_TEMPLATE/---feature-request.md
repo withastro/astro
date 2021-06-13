@@ -1,9 +1,10 @@
 ---
 name: "\U0001F4A1 Feature Request"
 about: Suggest an idea for this project
-title: '[Feature Request] '
+title: "[Feature Request] "
 labels: ''
 assignees: ''
+
 ---
 
 ## What is Missing from Astro Today?

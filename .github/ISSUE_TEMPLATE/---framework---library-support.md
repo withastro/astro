@@ -1,6 +1,6 @@
 ---
-name: "\U0001F91D Astro + Your Favorite Tool"
-about: Get Astro working with new frameworks, libraries, etc.
+name: "\U0001F91D Framework & Library Support"
+about: Report broken frameworks, libraries, etc.
 title: "[New Framework] <NAME>"
 labels: ''
 assignees: ''
