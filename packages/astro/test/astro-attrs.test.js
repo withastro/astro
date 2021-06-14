@@ -14,7 +14,7 @@ Attributes('Passes attributes to elements as expected', async ({ runtime }) => {
   const $ = doc(result.contents);
 
   const ids = ['false-str', 'true-str', 'false', 'true', 'empty', 'null', 'undefined'];
-  const specs = ['false', 'true', 'false', 'true', '', undefined, undefined];
+  const specs = ['false', 'true', undefined, '', '', undefined, undefined];
 
   let i = 0;
   for (const id of ids) {
