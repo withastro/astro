@@ -90,7 +90,7 @@ export function scopeRule(selector: string, className: string) {
     }
 
     // don’t scope body, title, etc.
-    if (CSS_SEPARATORS.has(value) || NEVER_SCOPED_TAGS.has(value) || value.toLowerCase() === '!doctype') {
+    if (CSS_SEPARATORS.has(value) || NEVER_SCOPED_TAGS.has(value)) {
       ss = head + value + tail;
       continue;
     }

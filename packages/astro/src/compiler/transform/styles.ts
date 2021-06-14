@@ -221,7 +221,9 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
             }
 
             // 2. add scoped HTML classes
-            if (NEVER_SCOPED_TAGS.has(node.name)) return; // only continue if this is NOT a <script> tag, etc.
+            if (NEVER_SCOPED_TAGS.has(node.name) || node.name.toLowerCase() === '!doctype') {
+              return; // only continue if this is NOT a <script> tag, etc.
+            }
             // Note: currently we _do_ scope web components/custom elements. This seems correct?
 
             injectScopedClassAttribute(node, scopedClass);
