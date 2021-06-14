@@ -7,8 +7,8 @@ const reactTypeof = Symbol.for('react.element');
 function check(Component, props, children) {
   if (typeof Component !== 'function') return false;
 
-  if (Component.render != null && typeof Component.prototype.render === 'function') {
-    return BaseComponent.isPrototypeOf(Componentm);
+  if (Component.prototype != null && typeof Component.prototype.render === 'function') {
+    return BaseComponent.isPrototypeOf(Component);
   }
 
   let error = null;
