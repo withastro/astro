@@ -147,6 +147,39 @@ Inside of an expression, you must wrap multiple elements in a Fragment. Fragment
 | Special Characters           | `&nbsp;`                                   | `{'\xa0'}` or `{String.fromCharCode(160)}`         |
 | Attributes                   | `dash-case`                                | `camelCase`                                        |
 
+### URL resolution
+
+It’s important to note that Astro **won’t** transform HTML references for you. For example, consider an `<img>` tag with a relative `src` attribute inside `src/pages/about.astro`:
+
+```html
+<!-- ❌ Incorrect: will try and load `/about/thumbnail.png` -->
+<img src="./thumbnail.png" />
+```
+
+Since `src/pages/about.astro` will build to `/about/index.html`, you may not have expected that image to live at `/about/thumbnail.png`. So to fix this, choose either of two options:
+
+#### Option 1: Absolute URLs
+
+```html
+<!-- ✅ Correct: references public/thumbnail.png -->
+<img src="/thumbnail.png" />
+```
+
+The recommended approach is to place files within `public/*`. This references a file it `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
+
+#### Option 2: Asset import references
+
+```jsx
+---
+//  ✅ Correct: references src/thumbnail.png
+import thumbnailSrc from './thumbnail.png';
+---
+
+<img src={thumbnailSrc} />
+```
+
+If you’d prefer to organize assets alongside Astro components, you may import the file in JavaScript inside the component script. This works as intended but this makes `thumbnail.png` harder to reference in other parts of your app, as its final URL isn’t easily-predictable (unlike assets in `public/*`, where the final URL is guaranteed to never change).
+
 ### TODO: Composition (Slots)
 
 [code-ext]: https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode
