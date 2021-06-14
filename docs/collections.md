@@ -2,7 +2,7 @@
 
 ## What are Collections?
 
-Astro Collections help you break up a larger set of data into multiple pages. Examples use-cases include:
+Astro Collections help you break up a larger set of data into multiple pages. Examples of use-cases include:
 
 - Pagination: `/posts/1`, `posts/2`, etc.
 - Grouping content by author: `/posts/fred`, `/posts/matthew`, etc.
