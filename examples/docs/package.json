@@ -1,13 +1,13 @@
 {
   "name": "@astrojs/docs-template",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "start": "astro dev",
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.13.0"
+    "astro": "^0.13.6"
   },
   "snowpack": {
     "workspaceRoot": "../.."
