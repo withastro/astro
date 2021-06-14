@@ -32,4 +32,12 @@ Basics('Does not set the HMR port when no dynamic component used', async ({ runt
   assert.ok(!/HMR_WEBSOCKET_URL/.test(html), 'Does not set the websocket port');
 });
 
+Basics('Correctly serializes boolean attributes', async ({ runtime }) => {
+  const result = await runtime.load('/');
+  const html = result.contents;
+  const $ = doc(html);
+  assert.equal($('h1').attr('data-something'), '');
+  assert.equal($('h2').attr('not-data-ok'), '');
+});
+
 Basics.run();

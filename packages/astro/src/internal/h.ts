@@ -1,4 +1,4 @@
-export type HProps = Record<string, string> | null | undefined;
+export type HProps = Record<string, string | boolean> | null | undefined;
 export type HChild = string | undefined | (() => string);
 export type AstroComponent = (props: HProps, ...children: Array<HChild>) => string;
 export type HTag = string | AstroComponent;
@@ -20,7 +20,8 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
   if (attrs) {
     for (let [key, value] of Object.entries(attrs)) {
       if (value === '') yield ` ${key}=""`;
-      else if (value == null) yield '';
+      else if (value == null || value === false) yield '';
+      else if (value === true) yield ` ${key}`;
       else yield ` ${key}="${value}"`;
     }
   }
