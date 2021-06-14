@@ -1,5 +1,13 @@
 # astro
 
+## 0.13.4
+
+### Patch Changes
+
+- 2d85409: Fixes serialization of boolean attributes
+- e0989c6: Fix scoped CSS selector when class contains a colon
+- 42dee79: Allows doctype to be written with any casing
+
 ## 0.13.3
 
 ### Patch Changes
