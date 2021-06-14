@@ -84,7 +84,7 @@ export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult 
   // Try and load collections (but only for non-extension files)
   const hasExt = !!path.extname(reqPath);
   if (!location && !hasExt) {
-    const collection = loadCollection(reqPath, astroConfig.pages);
+    const collection = loadCollection(reqPath, astroConfig);
     if (collection) {
       return {
         statusCode: 200,
@@ -112,8 +112,8 @@ export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult 
 }
 
 /** load a collection route */
-function loadCollection(url: string, pagesRoot: URL): { currentPage?: number; location: PageLocation } | undefined {
-  const pages = glob('**/$*.astro', { cwd: fileURLToPath(pagesRoot), filesOnly: true });
+function loadCollection(url: string, astroConfig: AstroConfig): { currentPage?: number; location: PageLocation } | undefined {
+  const pages = glob('**/$*.astro', { cwd: fileURLToPath(astroConfig.pages), filesOnly: true });
   for (const pageURL of pages) {
     const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '/?(.*)');
     const match = url.match(reqURL);
@@ -128,10 +128,11 @@ function loadCollection(url: string, pagesRoot: URL): { currentPage?: number; lo
           }
         }
       }
+      const pagesPath = astroConfig.pages.pathname.replace(astroConfig.projectRoot.pathname, '');
       return {
         location: {
-          fileURL: new URL(`./${pageURL}`, pagesRoot),
-          snowpackURL: `/_astro/pages/${pageURL}.js`,
+          fileURL: new URL(`./${pageURL}`, astroConfig.pages),
+          snowpackURL: `/_astro/${pagesPath}${pageURL}.js`,
         },
         currentPage,
       };
