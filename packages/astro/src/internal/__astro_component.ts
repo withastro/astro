@@ -26,11 +26,6 @@ __renderers = [astro, ...__renderers];
 
 const rendererCache = new WeakMap();
 
-type CheckResult = boolean | {
-  value: boolean;
-  error: null | Error
-};
-
 /** For a given component, resolve the renderer. Results are cached if this instance is encountered again */
 async function resolveRenderer(Component: any, props: any = {}, children?: string) {
   if (rendererCache.has(Component)) {
@@ -42,22 +37,15 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
     // Yes, we do want to `await` inside of this loop!
     // __renderer.check can't be run in parallel, it
     // returns the first match and skips any subsequent checks
-    const result: CheckResult = await __renderer.check(Component, props, children);
-    // Stay compatible with renderers that return a boolean.
-    let shouldUse: boolean = false;
-    if(typeof result === 'object' && typeof result.value === 'boolean') {
-      shouldUse = result.value;
+    try {
+      const shouldUse: boolean = await __renderer.check(Component, props, children);
 
-      if(result.error) {
-        errors.push(result.error);
+      if(shouldUse) {
+        rendererCache.set(Component, __renderer);
+        return __renderer;
       }
-    } else if(result) {
-      shouldUse = !!result;
-    }
-
-    if(shouldUse) {
-      rendererCache.set(Component, __renderer);
-      return __renderer;
+    } catch(err) {
+      errors.push(err);
     }
   }
 

@@ -9,18 +9,8 @@ function check(Component, props, children) {
     return BaseComponent.isPrototypeOf(Component);
   }
 
-  try {
-    const { html } = renderToStaticMarkup(Component, props, children);
-    return {
-      value: Boolean(html),
-      error: null
-    };
-  } catch (e) {
-    return {
-      value: false,
-      error: e
-    };
-  }
+  const { html } = renderToStaticMarkup(Component, props, children);
+  return Boolean(html);
 }
 
 function renderToStaticMarkup(Component, props, children) {

@@ -27,7 +27,11 @@ function check(Component, props, children) {
   }
 
   renderToStaticMarkup(Tester, props, children);
-  return { value: isReactComponent, error };
+
+  if(error) {
+    throw error;
+  }
+  return isReactComponent;
 }
 
 function renderToStaticMarkup(Component, props, children) {
