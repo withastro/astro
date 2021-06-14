@@ -328,7 +328,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     hmrPort?: number;
   } = {
     astroConfig,
-    resolvePackageUrl
+    resolvePackageUrl,
   };
 
   const mountOptions = {

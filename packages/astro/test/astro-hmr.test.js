@@ -16,7 +16,7 @@ HMR('Honors the user provided port', async ({ runtime }) => {
   if (result.error) throw new Error(result.error);
 
   const html = result.contents;
-  assert.ok(/window\.HMR_WEBSOCKET_URL = window\.HMR_WEBSOCKET_URL || 'ws:\/\/localhost:5555'/.test(html), 'Uses the user\'s websocket port');
+  assert.ok(/window\.HMR_WEBSOCKET_URL = window\.HMR_WEBSOCKET_URL || 'ws:\/\/localhost:5555'/.test(html), "Uses the user's websocket port");
 });
 
 HMR('Does not override script added by the user', async ({ runtime }) => {
@@ -25,10 +25,8 @@ HMR('Does not override script added by the user', async ({ runtime }) => {
 
   const html = result.contents;
 
-  assert.ok(!/window\.HMR_WEBSOCKET_URL = 'ws:\/\/localhost:3333'/.test(html),
-    'Users script included');
-  assert.ok(/window\.HMR_WEBSOCKET_URL = window\.HMR_WEBSOCKET_URL || 'ws:\/\/localhost:5555'/.test(html),
-    'Our script defers to the port already being set');
+  assert.ok(!/window\.HMR_WEBSOCKET_URL = 'ws:\/\/localhost:3333'/.test(html), 'Users script included');
+  assert.ok(/window\.HMR_WEBSOCKET_URL = window\.HMR_WEBSOCKET_URL || 'ws:\/\/localhost:5555'/.test(html), 'Our script defers to the port already being set');
 });
 
 HMR.run();
