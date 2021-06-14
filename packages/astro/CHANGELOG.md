@@ -1,5 +1,11 @@
 # astro
 
+## 0.13.5
+
+### Patch Changes
+
+- 9f51e2d: Fix issue with arrow components in Preact/React
+
 ## 0.13.4
 
 ### Patch Changes
