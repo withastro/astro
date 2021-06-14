@@ -1,23 +1,44 @@
 # 🪄 Renderers
 
-Astro is able to render [React](https://npm.im/@astrojs/renderer-react), [Svelte](https://npm.im/@astrojs/renderer-svelte), [Vue](https://npm.im/@astrojs/renderer-vue), and [Preact](https://npm.im/@astrojs/renderer-preact) components out of the box. This is because Astro's [default configuration][astro-config] relies on **renderers** for those frameworks.
+Astro is designed to support your favorite UI frameworks. [React](https://npm.im/@astrojs/renderer-react), [Svelte](https://npm.im/@astrojs/renderer-svelte), [Vue](https://npm.im/@astrojs/renderer-vue), and [Preact](https://npm.im/@astrojs/renderer-preact) are all built-in to Astro and supported out of the box. No configuration is needed to enable these. 
 
-If you'd like to add support for another framework, you can build a **renderer** plugin using the same interface as Astro's official renderers.
+Internally, each framework is supported via a framework **renderer.** A renderer is a type of Astro plugin that adds support for a framework. Some are built-in, but you can also provide your own third-party renderers to add Astro support for new frameworks.
 
 ## What is a renderer?
 
-A renderer is an NPM package that has two responsiblities—the first is to _render a component to a static string of HTML_ at build time and the second is to _rehydrate that HTML_ to an interactive component on the client.
+A renderer is an NPM package that has two responsiblities:
 
-Without getting too much further, it might be helpful to take a look at Astro's built-in [`renderers`](https://github.com/snowpackjs/astro/tree/main/packages/renderers). We'll go into more detail in the following sections.
+1. _render a component to a static string of HTML_ at build time
+2. _rehydrate that HTML to create an interactive component_ on the client.
 
-## Enabling a new renderer
+Take a look at any one of Astro's built-in [`renderers`](https://github.com/snowpackjs/astro/tree/main/packages/renderers) to see this in action. We'll go into more detail in the following sections.
 
-To enable a new renderer, add the dependency to your project and update the `renderers` array to include it.
+## Add a renderer to Astro
 
-```diff
+Astro enables a few popular framework renderers by default. If you want to add a new renderer to your project, you first need to set the built-in renderers that you care about.
+
+
+```js
+// astro.config.js
  export default {
    renderers: [
-+    'my-custom-renderer',
+    // Add the framework renderers that you want to enable for your project.
+    // If you set an empty array here, no UI frameworks will work.
+    //  '@astrojs/renderer-svelte',
+    //  '@astrojs/renderer-vue',
+    //  '@astrojs/renderer-react',
+    //  '@astrojs/renderer-preact',
+   ],
+ }
+```
+
+To add a new custom renderer, install the npm package dependency in your project and then update the `renderers` array to include it:
+
+```js
+// astro.config.js
+ export default {
+   renderers: [
+     'my-custom-renderer',
      '@astrojs/renderer-svelte',
      '@astrojs/renderer-vue',
      '@astrojs/renderer-react',
@@ -26,28 +47,60 @@ To enable a new renderer, add the dependency to your project and update the `ren
  }
 ```
 
-## Building a new renderer
+#### Managing Framework Versions
 
-A simple renderer only needs a few files.
+In Astro, the renderer plugin defines which version of your framework to use with Astro. This should be set to as wide of a range as possible, but often will be pinned to a specific major version:
+
+- `@astrojs/renderer-vue`: `"vue": "^3.0.0"`
+- `@astrojs/renderer-react`: `"react": "^17.0.0"`
+- See all: https://github.com/snowpackjs/astro/tree/main/packages/renderers
+
+This is required because the renderer itself also uses these packages and requires a specific API to work. For example, If the user updated from Vue 2 to Vue 3 (or vice versa) then the renderer itself would break since the `vue` package would have changed.
+
+**What if I want to use a beta framework (ex: react@next)?** Check to see if the renderer has a `@next` version that you could manually install and use. If one doesn't exist, feel free to request it: https://github.com/snowpackjs/astro/issues/new/choose
+
+**What if I need to override the framework version in my project?** You can use the "resolutions" feature of many npm package managers to override or pin the framework version for your entire project. Just be sure to select a version that is compatible with your renderer:
+
+- **yarn:** https://classic.yarnpkg.com/en/docs/selective-version-resolutions/
+- **pnpm:** https://pnpm.io/package_json#pnpmoverrides
+- **npm:** see https://stackoverflow.com/questions/15806152/how-do-i-override-nested-npm-dependency-versions
+
+
+## Building Your Own Renderer
+
+>  **Building a renderer?** We'd love for you to contribute renderers for popular frameworks back to the Astro repo. Feel free to open an issue or pull request to discuss.
+
+A simple renderer only needs a few files:
 
 ```
-/renderer-xxx/
+/my-custom-renderer/
 ├── package.json
 ├── index.js
 ├── server.js
 └── client.js
 ```
 
-Two quick notes before we dive into these files individually.
+### Package Manifest (`package.json`)
 
-1. We'd love for you to contribute any renderer you build directly to the Astro repo. This will allow us to publish it under `@astrojs/renderer-xxx`! Feel free to open a pull request.
-2. Your renderer doesn't need to be written in ESM, but it's pretty straightforward! Add `"type": "module"` to your `package.json` file and be sure to [define a valid `export` map](https://nodejs.org/api/packages.html#packages_package_entry_points).
+A renderer should include any framework dependencies as package dependencies. For example, `@astrojs/renderer-react` includes `react` & `react-dom` as dependencies in the `package.json` manifest.
 
-## Renderer Entrypoint (`index.js`)
+```js
+// package.json
+"name": "@astrojs/renderer-react",
+"dependencies": {
+  "react": "^17.0.0",
+  "react-dom": "^17.0.0"
+}
+```
+
+This means that Astro users don't need to install the UI framework packages themselves. The renderer is the only package that your users will need to install.
+
+
+### Renderer Entrypoint (`index.js`)
 
 The main entrypoint of a renderer is a simple JS file which exports a manifest for the renderer. The required values are `name`, `server`, and `client`.
 
-Additionally, this entrypoint can optionally define a [Snowpack plugin](https://www.snowpack.dev/guides/plugins) that should be used to load non-JavaScript files.
+Additionally, this entrypoint can define a [Snowpack plugin](https://www.snowpack.dev/guides/plugins) that should be used to load non-JavaScript files.
 
 ```js
 export default {
@@ -59,7 +112,7 @@ export default {
 };
 ```
 
-## Server entrypoint (`server.js`)
+### Server Entrypoint (`server.js`)
 
 The server entrypoint of a renderer is responsible for checking if a component should use this renderer, and if so, how that component should be rendered to a string of static HTML.
 
@@ -72,7 +125,7 @@ export default {
 };
 ```
 
-### `check`
+#### `check`
 
 `check` is a function that determines whether a Component should be "claimed" by this renderer.
 
@@ -96,7 +149,7 @@ function check(Component, props, childHTML) {
 }
 ```
 
-### `renderToStaticMarkup`
+#### `renderToStaticMarkup`
 
 `renderToStaticMarkup` is a function that renders a Component to a static string of HTML. There's usually a method exported by frameworks named something like `renderToString`.
 
@@ -122,7 +175,7 @@ function renderToStaticMarkup(Component, props, childHTML) {
 }
 ```
 
-## Client entrypoint (`client.js`)
+### Client Entrypoint (`client.js`)
 
 The client entrypoint of a renderer is responsible for rehydrating static HTML (the result of `renderToStaticMarkup`) back into a fully interactive component. Its `default` export should be a `function` which accepts the host element of the Component, an `astro-root` custom element.
 
