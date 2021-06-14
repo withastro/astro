@@ -15,9 +15,20 @@ export function canonicalURL(url: string, base?: string): URL {
 }
 
 /** Resolve final output URL */
-export function getDistPath(specifier: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL }): string {
+interface GetDistPathOptions {
+  astroConfig: AstroConfig;
+  srcPath: URL;
+  baseURL?: URL;
+}
+export function getDistPath(specifier: string, options: GetDistPathOptions): string {
+  const { astroConfig, baseURL, srcPath } = options;
   if (specifier[0] === '/') return specifier; // assume absolute URLs are correct
   const { pages: pagesRoot, projectRoot } = astroConfig;
+
+  // If a baseURL is provided, resolve to that.
+  if(baseURL) {
+    return new URL(specifier, baseURL).pathname;
+  }
 
   const fileLoc = new URL(specifier, srcPath);
   const projectLoc = fileLoc.pathname.replace(projectRoot.pathname, '');

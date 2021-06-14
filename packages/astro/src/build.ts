@@ -237,6 +237,13 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
 
   const $ = cheerio.load(html);
 
+  const siteURL = new URL(astroConfig.buildOptions.site || '/', 'http://example.com');
+  let baseHref = $('base').attr('href') || siteURL;
+  if(typeof baseHref === 'string') {
+    baseHref = new URL(baseHref, siteURL);
+  }
+  const baseURL = baseHref;
+
   $('script').each((i, el) => {
     const src = $(el).attr('src');
     if (src) {
@@ -258,7 +265,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
   $('link[href]').each((i, el) => {
     const href = $(el).attr('href');
     if (href && !isRemote(href) && ($(el).attr('rel') === 'stylesheet' || $(el).attr('type') === 'text/css' || href.endsWith('.css'))) {
-      const dist = getDistPath(href, { astroConfig, srcPath });
+      const dist = getDistPath(href, { astroConfig, srcPath, baseURL });
       pageDeps.css.add(dist);
     }
   });
@@ -266,7 +273,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
   $('img[src]').each((i, el) => {
     const src = $(el).attr('src');
     if (src && !isRemote(src)) {
-      pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
+      pageDeps.images.add(getDistPath(src, { astroConfig, srcPath, baseURL }));
     }
   });
 
