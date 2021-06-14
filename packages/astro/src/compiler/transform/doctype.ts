@@ -9,7 +9,7 @@ export default function (_opts: { filename: string; fileID: string }): Transform
       html: {
         Element: {
           enter(node, parent, _key, index) {
-            if (node.name === '!doctype') {
+            if (node.name === '!doctype' || node.name === '!DOCTYPE') {
               hasDoctype = true;
             }
             if (node.name === 'html' && !hasDoctype) {

@@ -56,4 +56,13 @@ DType.skip('Preserves user provided doctype', async () => {
   assert.ok(html.startsWith('<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'), 'Doctype included was preserved');
 });
 
+DType('User provided doctype is case insensitive', async () => {
+  const result = await runtime.load('/capital');
+  if (result.error) throw new Error(result.error);
+
+  const html = result.contents.toString('utf-8');
+  assert.ok(html.startsWith('<!DOCTYPE html>'), 'Doctype left alone');
+  assert.not.ok(html.includes('</!DOCTYPE>'), 'There should not be a closing tag');
+});
+
 DType.run();

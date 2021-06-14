@@ -30,6 +30,7 @@ export const NEVER_SCOPED_TAGS = new Set<string>([
   'style',
   'title',
   '!doctype',
+  '!DOCTYPE'
 ]);
 /**
  * Scope Rules

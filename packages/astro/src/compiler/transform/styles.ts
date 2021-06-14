@@ -4,13 +4,12 @@ import type { TemplateNode } from '@astrojs/parser';
 import crypto from 'crypto';
 import { createRequire } from 'module';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import autoprefixer from 'autoprefixer';
 import postcss, { Plugin } from 'postcss';
 import postcssKeyframes from 'postcss-icss-keyframes';
 import findUp from 'find-up';
 import sass from 'sass';
-import { debug, error, LogOptions } from '../../logger.js';
+import { error, LogOptions } from '../../logger.js';
 import astroScopedStyles, { NEVER_SCOPED_TAGS } from './postcss-scoped-styles/index.js';
 import slash from 'slash';
 
