@@ -9,7 +9,7 @@ const StylesSSR = suite('Styles SSR');
 function cssMinify(css) {
   return css
     .trim() // remove whitespace
-    .replace(/\n\s*/g, '') // collapse lines
+    .replace(/\r?\n\s*/g, '') // collapse lines
     .replace(/\s*\{/g, '{') // collapse selectors
     .replace(/:\s*/g, ':') // collapse attributes
     .replace(/;}/g, '}'); // collapse block
