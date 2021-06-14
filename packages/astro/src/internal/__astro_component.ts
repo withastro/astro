@@ -32,15 +32,26 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
     return rendererCache.get(Component);
   }
 
+  const errors: Error[] = [];
   for (const __renderer of __renderers) {
     // Yes, we do want to `await` inside of this loop!
     // __renderer.check can't be run in parallel, it
     // returns the first match and skips any subsequent checks
-    const shouldUse = await __renderer.check(Component, props, children);
-    if (shouldUse) {
-      rendererCache.set(Component, __renderer);
-      return __renderer;
+    try {
+      const shouldUse: boolean = await __renderer.check(Component, props, children);
+
+      if(shouldUse) {
+        rendererCache.set(Component, __renderer);
+        return __renderer;
+      }
+    } catch(err) {
+      errors.push(err);
     }
+  }
+
+  if(errors.length) {
+    // For now just throw the first error we encounter.
+    throw errors[0];
   }
 }
 

@@ -1,13 +1,37 @@
-import { createElement as h } from 'react';
+import { Component as BaseComponent, createElement as h } from 'react';
 import { renderToStaticMarkup as renderToString } from 'react-dom/server.js';
 import StaticHtml from './static-html.js';
 
+const reactTypeof = Symbol.for('react.element');
+
 function check(Component, props, children) {
-  try {
-    const { html } = renderToStaticMarkup(Component, props, children);
-    return Boolean(html);
-  } catch (e) {}
-  return false;
+  if(typeof Component !== 'function') return false;
+
+  if(typeof Component.prototype.render === 'function') {
+    return BaseComponent.isPrototypeOf(Component);
+  }
+
+  let error = null;
+  let isReactComponent = false;
+  function Tester(...args) {
+    try {
+      const vnode = Component(...args);
+      if(vnode && vnode['$$typeof'] === reactTypeof) {
+        isReactComponent = true;
+      }
+    } catch(err) {
+      error = err;
+    }
+
+    return h('div');
+  }
+
+  renderToStaticMarkup(Tester, props, children);
+
+  if(error) {
+    throw error;
+  }
+  return isReactComponent;
 }
 
 function renderToStaticMarkup(Component, props, children) {

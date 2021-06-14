@@ -1,13 +1,16 @@
-import { h } from 'preact';
+import { h, Component as BaseComponent } from 'preact';
 import { renderToString } from 'preact-render-to-string';
 import StaticHtml from './static-html.js';
 
 function check(Component, props, children) {
-  try {
-    const { html } = renderToStaticMarkup(Component, props, children);
-    return Boolean(html);
-  } catch (e) {}
-  return false;
+  if(typeof Component !== 'function') return false;
+
+  if(typeof Component.prototype.render === 'function') {
+    return BaseComponent.isPrototypeOf(Component);
+  }
+
+  const { html } = renderToStaticMarkup(Component, props, children);
+  return Boolean(html);
 }
 
 function renderToStaticMarkup(Component, props, children) {
