@@ -1,5 +1,18 @@
 # astro
 
+## 0.13.3
+
+### Patch Changes
+
+- ab2972b: Update package.json engines for esm support
+- Updated dependencies [ab2972b]
+  - @astrojs/parser@0.13.3
+  - @astrojs/prism@0.2.1
+  - @astrojs/renderer-preact@0.1.1
+  - @astrojs/renderer-react@0.1.1
+  - @astrojs/renderer-svelte@0.1.1
+  - @astrojs/renderer-vue@0.1.2
+
 ## 0.13.2
 
 ### Patch Changes
