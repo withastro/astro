@@ -2,8 +2,11 @@ const { readFile } = require('fs').promises;
 // Snowpack plugins must be CommonJS :(
 const transformPromise = import('./dist/compiler/index.js');
 
+const DEFAULT_HMR_PORT = 12321;
+
 /** @type {import('snowpack').SnowpackPluginFactory<any>} */
-module.exports = (snowpackConfig, { resolvePackageUrl, hmrPort, renderers, astroConfig } = {}) => {
+module.exports = (snowpackConfig, { resolvePackageUrl, renderers, astroConfig } = {}) => {
+  let hmrPort = DEFAULT_HMR_PORT;
   return {
     name: 'snowpack-astro',
     knownEntrypoints: ['astro/dist/internal/h.js', 'astro/components/Prism.astro'],
@@ -41,6 +44,11 @@ let __rendererSources = [${rendererClientPackages.map(pkg => `"${pkg}"`).join(',
 let __renderers = [${rendererServerPackages.map((_, i) => `__renderer_${i}`).join(', ')}];
 ${contents}`;
         return result;
+      }
+    },
+    config(snowpackConfig) {
+      if(!isNaN(snowpackConfig.devOptions.hmrPort)) {
+        hmrPort = snowpackConfig.devOptions.hmrPort;
       }
     },
     async load({ filePath }) {

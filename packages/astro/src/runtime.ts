@@ -309,7 +309,6 @@ interface CreateSnowpackOptions {
   resolvePackageUrl?: (pkgName: string) => Promise<string>;
 }
 
-const DEFAULT_HMR_PORT = 12321;
 const DEFAULT_RENDERERS = ['@astrojs/renderer-vue', '@astrojs/renderer-svelte', '@astrojs/renderer-react', '@astrojs/renderer-preact'];
 
 /** Create a new Snowpack instance to power Astro */
@@ -329,8 +328,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     hmrPort?: number;
   } = {
     astroConfig,
-    resolvePackageUrl,
-    hmrPort: isHmrEnabled ? DEFAULT_HMR_PORT : undefined,
+    resolvePackageUrl
   };
 
   const mountOptions = {
@@ -413,7 +411,6 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       output: 'stream',
       port: 0,
       hmr: isHmrEnabled,
-      hmrPort: isHmrEnabled ? DEFAULT_HMR_PORT : undefined,
       tailwindConfig: astroConfig.devOptions.tailwindConfig,
     },
     buildOptions: {
