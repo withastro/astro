@@ -100,7 +100,7 @@ export default function astroScopedStyles(options: AstroScopedOptions): Plugin {
   return {
     postcssPlugin: '@astrojs/postcss-scoped-styles',
     Rule(rule) {
-      if(!rulesScopedCache.has(rule)) {
+      if (!rulesScopedCache.has(rule)) {
         rule.selector = scopeRule(rule.selector, options.className);
         rulesScopedCache.add(rule);
       }
