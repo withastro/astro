@@ -15,5 +15,8 @@
   "license": "MIT",
   "devDependencies": {
     "prismjs": "^1.23.0"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   }
 }
