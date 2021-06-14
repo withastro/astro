@@ -21,6 +21,7 @@ PreactComponent('Can load function component', async ({ runtime }) => {
 
   const $ = doc(result.contents);
   assert.equal($('#fn-component').length, 1, 'Can use function components');
+  assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
 });
 
 PreactComponent('Can use hooks', async ({ runtime }) => {

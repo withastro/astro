@@ -39,6 +39,7 @@ React('Can load React', async () => {
 
   const $ = doc(result.contents);
   assert.equal($('#react-h2').text(), 'Hello world!');
+  assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
 });
 
 React('Can load Vue', async () => {
