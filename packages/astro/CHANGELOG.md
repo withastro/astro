@@ -1,5 +1,12 @@
 # astro
 
+## 0.13.6
+
+### Patch Changes
+
+- 016833a: Honors users HMR settings
+- 73a43d9: Prevent dev from locking up on empty selectors
+
 ## 0.13.5
 
 ### Patch Changes
