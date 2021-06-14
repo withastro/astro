@@ -110,6 +110,9 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
           scanPromises.push(
             runtime.load(url).then((result) => {
               if (result.statusCode !== 200) {
+                if (result.statusCode === 404) {
+                  throw new Error(`${buildState[id].srcPath.href}: could not find "${path.basename(url)}"`);
+                }
                 // there shouldn’t be a build error here
                 throw (result as any).error || new Error(`unexpected status ${result.statusCode} when loading ${url}`);
               }

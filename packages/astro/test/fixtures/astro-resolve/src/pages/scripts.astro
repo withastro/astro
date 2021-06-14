@@ -1,0 +1,20 @@
+<html>
+  <head></head>
+
+  <body>
+    <!-- not `type="module"` -->
+    <script src="./relative.js"></script>
+
+    <!-- no `src` -->
+    <script></script>
+
+    <!-- type="module" with NO "./" -->
+    <script type="module" src="relative.js"></script>
+
+    <!-- type="module" WITH leading "./" -->
+    <script type="module" src="./relative.js"></script>
+
+    <!-- absolute URL -->
+    <script type="module" src="/absolute.js"></script>
+  </body>
+</html>

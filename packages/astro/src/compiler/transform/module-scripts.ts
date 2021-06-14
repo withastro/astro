@@ -24,8 +24,23 @@ export default function ({ compileOptions, filename }: { compileOptions: Compile
             }
 
             let src = getAttrValue(node.attributes, 'src');
-            if (!src || !src.startsWith('.')) {
+
+            // scenario 1: if missing "src", ignore
+            if (!src) {
               return;
+            }
+
+            // scenario 2: if absolute path, ignore
+            if (src.startsWith('/')) {
+              return;
+            }
+
+            // scenario 3: if remote URL, ignore
+            try {
+              new URL(src); // if this succeeds, this is a complete, valid URL
+              return;
+            } catch (err) {
+              // do nothing
             }
 
             const srcUrl = new URL(src, fileUrl);
