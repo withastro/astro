@@ -1,6 +1,6 @@
 # 🪄 Renderers
 
-Astro is designed to support your favorite UI frameworks. [React](https://npm.im/@astrojs/renderer-react), [Svelte](https://npm.im/@astrojs/renderer-svelte), [Vue](https://npm.im/@astrojs/renderer-vue), and [Preact](https://npm.im/@astrojs/renderer-preact) are all built-in to Astro and supported out of the box. No configuration is needed to enable these. 
+Astro is designed to support your favorite UI frameworks. [React](https://npm.im/@astrojs/renderer-react), [Svelte](https://npm.im/@astrojs/renderer-svelte), [Vue](https://npm.im/@astrojs/renderer-vue), and [Preact](https://npm.im/@astrojs/renderer-preact) are all built-in to Astro and supported out of the box. No configuration is needed to enable these.
 
 Internally, each framework is supported via a framework **renderer.** A renderer is a type of Astro plugin that adds support for a framework. Some are built-in, but you can also provide your own third-party renderers to add Astro support for new frameworks.
 
@@ -17,34 +17,27 @@ Take a look at any one of Astro's built-in [`renderers`](https://github.com/snow
 
 Astro enables a few popular framework renderers by default. If you want to add a new renderer to your project, you first need to set the built-in renderers that you care about.
 
-
 ```js
 // astro.config.js
- export default {
-   renderers: [
+export default {
+  renderers: [
     // Add the framework renderers that you want to enable for your project.
     // If you set an empty array here, no UI frameworks will work.
     //  '@astrojs/renderer-svelte',
     //  '@astrojs/renderer-vue',
     //  '@astrojs/renderer-react',
     //  '@astrojs/renderer-preact',
-   ],
- }
+  ],
+};
 ```
 
 To add a new custom renderer, install the npm package dependency in your project and then update the `renderers` array to include it:
 
 ```js
 // astro.config.js
- export default {
-   renderers: [
-     'my-custom-renderer',
-     '@astrojs/renderer-svelte',
-     '@astrojs/renderer-vue',
-     '@astrojs/renderer-react',
-     '@astrojs/renderer-preact',
-   ],
- }
+export default {
+  renderers: ['my-custom-renderer', '@astrojs/renderer-svelte', '@astrojs/renderer-vue', '@astrojs/renderer-react', '@astrojs/renderer-preact'],
+};
 ```
 
 #### Managing Framework Versions
@@ -65,10 +58,9 @@ This is required because the renderer itself also uses these packages and requir
 - **pnpm:** https://pnpm.io/package_json#pnpmoverrides
 - **npm:** see https://stackoverflow.com/questions/15806152/how-do-i-override-nested-npm-dependency-versions
 
-
 ## Building Your Own Renderer
 
->  **Building a renderer?** We'd love for you to contribute renderers for popular frameworks back to the Astro repo. Feel free to open an issue or pull request to discuss.
+> **Building a renderer?** We'd love for you to contribute renderers for popular frameworks back to the Astro repo. Feel free to open an issue or pull request to discuss.
 
 A simple renderer only needs a few files:
 
@@ -94,7 +86,6 @@ A renderer should include any framework dependencies as package dependencies. Fo
 ```
 
 This means that Astro users don't need to install the UI framework packages themselves. The renderer is the only package that your users will need to install.
-
 
 ### Renderer Entrypoint (`index.js`)
 
