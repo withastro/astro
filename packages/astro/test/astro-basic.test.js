@@ -40,4 +40,11 @@ Basics('Correctly serializes boolean attributes', async ({ runtime }) => {
   assert.equal($('h2').attr('not-data-ok'), '');
 });
 
+Basics('Selector with an empty body', async ({ runtime }) => {
+  const result = await runtime.load('/empty-class');
+  const html = result.contents;
+  const $ = doc(html);
+  assert.equal($('.author').length, 1, 'author class added');
+});
+
 Basics.run();
