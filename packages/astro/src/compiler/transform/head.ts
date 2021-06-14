@@ -62,7 +62,7 @@ export default function (opts: TransformOptions): Transformer {
             type: 'Element',
             name: 'script',
             attributes: [],
-            children: [{ type: 'Text', data: `window.HMR_WEBSOCKET_URL = 'ws://localhost:${hmrPort}'`, start: 0, end: 0 }],
+            children: [{ type: 'Text', data: `window.HMR_WEBSOCKET_URL = window.HMR_WEBSOCKET_URL || 'ws://localhost:${hmrPort}';`, start: 0, end: 0 }],
             start: 0,
             end: 0,
           },

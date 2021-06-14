@@ -1,0 +1,6 @@
+{
+  "workspaceRoot": "../../../../../",
+  "devOptions": {
+    "hmrPort": 5555
+  }
+}
