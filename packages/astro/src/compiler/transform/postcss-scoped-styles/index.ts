@@ -96,10 +96,14 @@ export function scopeRule(selector: string, className: string) {
 
 /** PostCSS Scope plugin */
 export default function astroScopedStyles(options: AstroScopedOptions): Plugin {
+  const rulesScopedCache = new WeakSet();
   return {
     postcssPlugin: '@astrojs/postcss-scoped-styles',
     Rule(rule) {
-      rule.selector = scopeRule(rule.selector, options.className);
+      if(!rulesScopedCache.has(rule)) {
+        rule.selector = scopeRule(rule.selector, options.className);
+        rulesScopedCache.add(rule);
+      }
     },
   };
 }
