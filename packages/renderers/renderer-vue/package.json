@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-vue",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "exports": {
     ".": "./index.js",
@@ -12,5 +12,8 @@
     "vue": "^3.0.10",
     "@vue/server-renderer": "^3.0.10",
     "@snowpack/plugin-vue": "^2.6.1"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   }
 }

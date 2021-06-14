@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "type": "module",
   "exports": {
     ".": "./create-astro.js"
@@ -27,5 +27,8 @@
   },
   "devDependencies": {
     "uvu": "^0.5.1"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   }
 }

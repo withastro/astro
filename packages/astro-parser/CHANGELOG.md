@@ -1,5 +1,11 @@
 # @astrojs/parser
 
+## 0.13.3
+
+### Patch Changes
+
+- ab2972b: Update package.json engines for esm support
+
 ## 0.12.1
 
 ### Patch Changes

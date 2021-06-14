@@ -1,17 +1,15 @@
 ## Changes
 
-<!-- What does this change, in plain language? Include screenshots or videos if helpful.  -->
+- What does this change?
+- Be short and concise. Bullet points can help!
+- Before/after screenshots can be helpful as well.
 
 ## Testing
 
-<!-- How can a reviewer test your code themselves? -->
-
-- [ ] Tests are passing
-- [ ] Tests updated where necessary
+<!-- How was this change tested? -->
+<!-- DON'T DELETE THIS SECTION! If no tests added, explain why. -->
 
 ## Docs
 
-- [ ] Docs / READMEs updated
-- [ ] Code comments added where helpful
-
-<!-- Notes, if any -->
+<!-- Was public documentation updated? -->
+<!-- DON'T DELETE THIS SECTION! If no docs added, explain why (e.g. "bug fix only") -->

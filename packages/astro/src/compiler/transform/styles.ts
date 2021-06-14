@@ -4,13 +4,12 @@ import type { TemplateNode } from '@astrojs/parser';
 import crypto from 'crypto';
 import { createRequire } from 'module';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import autoprefixer from 'autoprefixer';
 import postcss, { Plugin } from 'postcss';
 import postcssKeyframes from 'postcss-icss-keyframes';
 import findUp from 'find-up';
 import sass from 'sass';
-import { debug, error, LogOptions } from '../../logger.js';
+import { error, LogOptions } from '../../logger.js';
 import astroScopedStyles, { NEVER_SCOPED_TAGS } from './postcss-scoped-styles/index.js';
 import slash from 'slash';
 
@@ -222,7 +221,9 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
             }
 
             // 2. add scoped HTML classes
-            if (NEVER_SCOPED_TAGS.has(node.name)) return; // only continue if this is NOT a <script> tag, etc.
+            if (NEVER_SCOPED_TAGS.has(node.name) || node.name.toLowerCase() === '!doctype') {
+              return; // only continue if this is NOT a <script> tag, etc.
+            }
             // Note: currently we _do_ scope web components/custom elements. This seems correct?
 
             injectScopedClassAttribute(node, scopedClass);

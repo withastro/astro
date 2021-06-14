@@ -7,8 +7,8 @@ const voidTags = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
 
 /** Generator for primary h() function */
 function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
-  if (tag === '!doctype') {
-    yield '<!doctype ';
+  if (tag.toLowerCase() === '!doctype') {
+    yield `<${tag} `;
     if (attrs) {
       yield Object.keys(attrs).join(' ');
     }

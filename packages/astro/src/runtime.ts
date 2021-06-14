@@ -7,9 +7,16 @@ import { existsSync, promises as fs } from 'fs';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { posix as path } from 'path';
 import { performance } from 'perf_hooks';
-import { SnowpackDevServer, ServerRuntime as SnowpackServerRuntime, SnowpackConfig, NotFoundError } from 'snowpack';
+import {
+  loadConfiguration,
+  logger as snowpackLogger,
+  NotFoundError,
+  SnowpackDevServer,
+  ServerRuntime as SnowpackServerRuntime,
+  SnowpackConfig,
+  startServer as startSnowpackServer,
+} from 'snowpack';
 import { CompileError } from '@astrojs/parser';
-import { loadConfiguration, logger as snowpackLogger, startServer as startSnowpackServer } from 'snowpack';
 import { canonicalURL, getSrcPath, stopTimer } from './build/util.js';
 import { debug, info } from './logger.js';
 import { configureSnowpackLogger } from './snowpack-logger.js';
@@ -94,20 +101,22 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
     if (mod.exports.createCollection) {
       const createCollection: CreateCollection = await mod.exports.createCollection();
+      const VALID_KEYS = new Set(['data', 'routes', 'permalink', 'pageSize', 'rss']);
       for (const key of Object.keys(createCollection)) {
-        if (key !== 'data' && key !== 'routes' && key !== 'permalink' && key !== 'pageSize' && key !== 'rss') {
-          throw new Error(`[createCollection] unknown option: "${key}"`);
+        if (!VALID_KEYS.has(key)) {
+          throw new Error(`[createCollection] unknown option: "${key}". Expected one of ${[...VALID_KEYS].join(', ')}.`);
         }
       }
       let { data: loadData, routes, permalink, pageSize, rss: createRSS } = createCollection;
+      if (!loadData) throw new Error(`[createCollection] must return \`data()\` function to create a collection.`);
       if (!pageSize) pageSize = 25; // can’t be 0
       let currentParams: Params = {};
 
       // params
       if (routes || permalink) {
-        if (!routes || !permalink) {
-          throw new Error('createCollection() must have both routes and permalink options. Include both together, or omit both.');
-        }
+        if (!routes) throw new Error('[createCollection] `permalink` requires `routes` as well.');
+        if (!permalink) throw new Error('[createCollection] `routes` requires `permalink` as well.');
+
         let requestedParams = routes.find((p) => {
           const baseURL = (permalink as any)({ params: p });
           additionalURLs.add(baseURL);
@@ -120,6 +129,8 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       }
 
       let data: any[] = await loadData({ params: currentParams });
+      if (!data) throw new Error(`[createCollection] \`data()\` returned nothing (empty data)"`);
+      if (!Array.isArray(data)) data = [data]; // note: this is supposed to be a little friendlier to the user, but should we error out instead?
 
       // handle RSS
       if (createRSS) {

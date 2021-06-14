@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-preact",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "exports": {
     ".": "./index.js",
@@ -11,5 +11,8 @@
   "dependencies": {
     "preact": "^10.5.13",
     "preact-render-to-string": "^5.1.18"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   }
 }
