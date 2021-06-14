@@ -17,6 +17,9 @@ editHref = `https://github.com/snowpackjs/astro/tree/main/examples/doc/src/pages
     
     <link rel="stylesheet" href="/index.css" />
     <script src="/theme.js" />
+    <link rel="icon" 
+          type="image/svg+xml" 
+          href="/favicon.svg">
 
     <style>
       body {
@@ -195,7 +198,7 @@ editHref = `https://github.com/snowpackjs/astro/tree/main/examples/doc/src/pages
               <svg width="1em" height="1em" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M320 170C320 170 296.88 171.746 267.428 188.75C237.975 205.754 205.754 237.975 188.75 267.428C171.746 296.88 170 320 170 320C170 320 168.254 296.88 151.25 267.428C134.246 237.975 102.025 205.754 72.5721 188.75C43.1197 171.746 20 170 20 170C20 170 43.1197 168.254 72.5721 151.25C102.025 134.246 134.246 102.025 151.25 72.5721C168.254 43.1197 170 20 170 20C170 20 171.746 43.1197 188.75 72.5721C205.754 102.025 237.975 134.246 267.428 151.25C296.88 168.254 320 170 320 170Z" fill="currentColor"/>
               </svg>
-              <h1>Astro Docs</h1>
+              <h1>Astroid</h1>
             </a>
           </div>
 
@@ -215,6 +218,7 @@ editHref = `https://github.com/snowpackjs/astro/tree/main/examples/doc/src/pages
       <div id="article">
         <article class="content">
           <main>
+            <h1>{content.title}</h1>
             <slot />
           </main>
           <ArticleFooter />

@@ -1,8 +1,7 @@
 ---
+title: Markdown Example
 layout: ../layouts/Main.astro
 ---
-
-# Markdown example
 
 This is a fully-featured page, written in Markdown!
 
