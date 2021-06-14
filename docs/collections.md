@@ -5,11 +5,12 @@
 Astro Collections help you break up a larger set of data into multiple pages. Examples use-cases include:
 
 - Pagination: `/posts/1`, `posts/2`, etc.
-- Grouping Content by Tag: `/tags/red`, `tags/blue`, etc.
-- Grouping Content by Author: `/posts/fred`, `/posts/matthew`, etc.
-- Working with Remote Data
+- Grouping content by author: `/posts/fred`, `/posts/matthew`, etc.
+- Grouping content by some tag: `/tags/red`, `tags/blue`, etc.
+- Working with remote data
+- Mixing remote and local data
 
-Use a Collection when you need to reuse a single template to generate multiple pages from a single dataset.
+**When to use Collections: When you need to reuse a single template to generate multiple pages from a larger dataset.** If you just want to generate a single page (ex: a long list of every post on your site) then you can just fetch that data on a normal Astro page without using the Collection API.
 
 
 ## Collections API
@@ -19,9 +20,8 @@ To create a new Astro Collection, you must do three things:
 ```js
 // 1. Create a new file in the `src/pages` directory that starts 
 // with the `$` symbol. This is required to enable the Collections API.
-// 
-// Example: `src/pages/$posts.astro` would be the correct file name 
-// for generating a colleciton pages using the `/posts/...` URL scheme.
+//   Example: `src/pages/$posts.astro` -> `/posts/1`, `/posts/2`, etc.
+//   Example: `src/pages/$tags.astro` -> `/tags/:tag` (or `/tags/:tag/1`)
 
 // 2. Define the `collection` prop: `collection.data` is how you'll access 
 // the data for every page in the collection. Astro populates this prop 
@@ -34,7 +34,7 @@ export async function createCollection() { /* ... */ }
 ``` 
 
 
-- `collection` API Refernece: [collection][collection-api].
+- `collection` API Reference: [collection][collection-api].
 - `createCollection()` API Reference: [createCollection][collection-api]
 
 ## Example: Simple Pagination
