@@ -9,7 +9,7 @@ const StylesSSR = suite('Styles SSR');
 function cssMinify(css) {
   return css
     .trim() // remove whitespace
-    .replace(/\n\s*/g, '') // collapse lines
+    .replace(/\r?\n\s*/g, '') // collapse lines
     .replace(/\s*\{/g, '{') // collapse selectors
     .replace(/:\s*/g, ':') // collapse attributes
     .replace(/;}/g, '}'); // collapse block
@@ -121,6 +121,9 @@ StylesSSR('Astro scoped styles', async ({ runtime }) => {
 
   assert.match(el1.attr('class'), `blue ${scopedClass}`);
   assert.match(el2.attr('class'), `visible ${scopedClass}`);
+
+  const { contents: css } = await runtime.load('/_astro/src/components/Astro.astro.css');
+  assert.match(cssMinify(css.toString()), `.blue.${scopedClass}{color:powderblue}.color\\:blue.${scopedClass}{color:powderblue}.visible.${scopedClass}{display:block}`);
 });
 
 StylesSSR.run();

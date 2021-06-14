@@ -27,6 +27,8 @@ ScopedStyles('Scopes rules correctly', () => {
     from: 'from', // ignore keyframe keywords (below)
     to: 'to',
     '55%': '55%',
+    '.class\\:class': `.class\\:class.${className}`, // classes can contain special characters if escaped
+    '.class\\:class:focus': `.class\\:class.${className}:focus`,
   };
 
   for (const [given, expected] of Object.entries(tests)) {

@@ -82,7 +82,7 @@ export function scopeRule(selector: string, className: string) {
 
     // scope everything else
     let newSelector = value;
-    const pseudoIndex = newSelector.indexOf(':');
+    const pseudoIndex = newSelector.search(/(?<!\\):/);
     if (pseudoIndex > 0) {
       // if there’s a pseudoclass (:focus or ::before)
       ss = head + newSelector.substring(0, pseudoIndex) + c + newSelector.substr(pseudoIndex) + tail;
