@@ -1,3 +1,5 @@
+import type { AstroConfig } from './@types/astro';
+
 import 'source-map-support/register.js';
 import { existsSync } from 'fs';
 import path from 'path';
@@ -9,13 +11,14 @@ interface PageLocation {
   snowpackURL: string;
 }
 /** findAnyPage and return the _astro candidate for snowpack */
-function findAnyPage(candidates: Array<string>, pagesRoot: URL): PageLocation | false {
+function findAnyPage(candidates: Array<string>, astroConfig: AstroConfig): PageLocation | false {
   for (let candidate of candidates) {
-    const url = new URL(`./${candidate}`, pagesRoot);
+    const url = new URL(`./${candidate}`, astroConfig.pages);
     if (existsSync(url)) {
+      const pagesPath = astroConfig.pages.pathname.replace(astroConfig.projectRoot.pathname, '');
       return {
         fileURL: url,
-        snowpackURL: `/_astro/pages/${candidate}.js`,
+        snowpackURL: `/_astro/${pagesPath}${candidate}.js`,
       };
     }
   }
@@ -39,14 +42,14 @@ type SearchResult =
     };
 
 /** Given a URL, attempt to locate its source file (similar to Snowpack’s load()) */
-export function searchForPage(url: URL, pagesRoot: URL): SearchResult {
+export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult {
   const reqPath = decodeURI(url.pathname);
   const base = reqPath.substr(1);
 
   // Try to find index.astro/md paths
   if (reqPath.endsWith('/')) {
     const candidates = [`${base}index.astro`, `${base}index.md`];
-    const location = findAnyPage(candidates, pagesRoot);
+    const location = findAnyPage(candidates, astroConfig);
     if (location) {
       return {
         statusCode: 200,
@@ -57,7 +60,7 @@ export function searchForPage(url: URL, pagesRoot: URL): SearchResult {
   } else {
     // Try to find the page by its name.
     const candidates = [`${base}.astro`, `${base}.md`];
-    let location = findAnyPage(candidates, pagesRoot);
+    let location = findAnyPage(candidates, astroConfig);
     if (location) {
       return {
         statusCode: 200,
@@ -69,7 +72,7 @@ export function searchForPage(url: URL, pagesRoot: URL): SearchResult {
 
   // Try to find name/index.astro/md
   const candidates = [`${base}/index.astro`, `${base}/index.md`];
-  const location = findAnyPage(candidates, pagesRoot);
+  const location = findAnyPage(candidates, astroConfig);
   if (location) {
     return {
       statusCode: 301,
@@ -81,7 +84,7 @@ export function searchForPage(url: URL, pagesRoot: URL): SearchResult {
   // Try and load collections (but only for non-extension files)
   const hasExt = !!path.extname(reqPath);
   if (!location && !hasExt) {
-    const collection = loadCollection(reqPath, pagesRoot);
+    const collection = loadCollection(reqPath, astroConfig.pages);
     if (collection) {
       return {
         statusCode: 200,

@@ -55,7 +55,7 @@ configureSnowpackLogger(snowpackLogger);
 /** Pass a URL to Astro to resolve and build */
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
   const { logging, snowpackRuntime, snowpack } = config;
-  const { pages: pagesRoot, buildOptions, devOptions } = config.astroConfig;
+  const { buildOptions, devOptions } = config.astroConfig;
 
   let origin = buildOptions.site ? new URL(buildOptions.site).origin : `http://localhost:${devOptions.port}`;
   const fullurl = new URL(rawPathname || '/', origin);
@@ -63,7 +63,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   const reqPath = decodeURI(fullurl.pathname);
   info(logging, 'access', reqPath);
 
-  const searchResult = searchForPage(fullurl, pagesRoot);
+  const searchResult = searchForPage(fullurl, config.astroConfig);
   if (searchResult.statusCode === 404) {
     try {
       const result = await snowpack.loadUrl(reqPath);
@@ -332,7 +332,6 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   };
 
   const mountOptions = {
-    [fileURLToPath(pagesRoot)]: '/_astro/pages',
     ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: '/' } : {}),
     [fileURLToPath(frontendPath)]: '/_astro_frontend',
     [fileURLToPath(projectRoot)]: '/_astro', // must be last (greediest)

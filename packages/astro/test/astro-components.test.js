@@ -6,7 +6,6 @@ import { setup, setupBuild } from './helpers.js';
 const Components = suite('Components tests');
 
 setup(Components, './fixtures/astro-components');
-setupBuild(Components, './fixtures/astro-components');
 
 Components('Astro components are able to render framework components', async ({ runtime }) => {
   let result = await runtime.load('/');

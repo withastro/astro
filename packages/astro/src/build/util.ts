@@ -21,13 +21,21 @@ export function getDistPath(specifier: string, { astroConfig, srcPath }: { astro
 
   const fileLoc = new URL(specifier, srcPath);
   const projectLoc = fileLoc.pathname.replace(projectRoot.pathname, '');
+  const ext = path.extname(fileLoc.pathname);
 
-  const isPage = fileLoc.pathname.includes(pagesRoot.pathname);
-  // if this lives above src/pages, return that URL
+  const isPage = fileLoc.pathname.includes(pagesRoot.pathname) && (ext === '.astro' || ext === '.md');
+  // if this lives in src/pages, return that URL
   if (isPage) {
     const [, publicURL] = projectLoc.split(pagesRoot.pathname);
     return publicURL || '/index.html'; // if this is missing, this is the root
   }
+
+  // if this is in public/, use that as final URL
+  const isPublicAsset = fileLoc.pathname.includes(astroConfig.public.pathname);
+  if (isPublicAsset) {
+    return fileLoc.pathname.replace(astroConfig.public.pathname, '/');
+  }
+
   // otherwise, return /_astro/* url
   return '/_astro/' + projectLoc;
 }
