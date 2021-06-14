@@ -40,16 +40,16 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
     try {
       const shouldUse: boolean = await __renderer.check(Component, props, children);
 
-      if(shouldUse) {
+      if (shouldUse) {
         rendererCache.set(Component, __renderer);
         return __renderer;
       }
-    } catch(err) {
+    } catch (err) {
       errors.push(err);
     }
   }
 
-  if(errors.length) {
+  if (errors.length) {
     // For now just throw the first error we encounter.
     throw errors[0];
   }

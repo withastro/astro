@@ -5,9 +5,9 @@ import StaticHtml from './static-html.js';
 const reactTypeof = Symbol.for('react.element');
 
 function check(Component, props, children) {
-  if(typeof Component !== 'function') return false;
+  if (typeof Component !== 'function') return false;
 
-  if(typeof Component.prototype.render === 'function') {
+  if (typeof Component.prototype.render === 'function') {
     return BaseComponent.isPrototypeOf(Component);
   }
 
@@ -16,10 +16,10 @@ function check(Component, props, children) {
   function Tester(...args) {
     try {
       const vnode = Component(...args);
-      if(vnode && vnode['$$typeof'] === reactTypeof) {
+      if (vnode && vnode['$$typeof'] === reactTypeof) {
         isReactComponent = true;
       }
-    } catch(err) {
+    } catch (err) {
       error = err;
     }
 
@@ -28,7 +28,7 @@ function check(Component, props, children) {
 
   renderToStaticMarkup(Tester, props, children);
 
-  if(error) {
+  if (error) {
     throw error;
   }
   return isReactComponent;

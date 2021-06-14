@@ -3,9 +3,9 @@ import { renderToString } from 'preact-render-to-string';
 import StaticHtml from './static-html.js';
 
 function check(Component, props, children) {
-  if(typeof Component !== 'function') return false;
+  if (typeof Component !== 'function') return false;
 
-  if(typeof Component.prototype.render === 'function') {
+  if (typeof Component.prototype.render === 'function') {
     return BaseComponent.isPrototypeOf(Component);
   }
 

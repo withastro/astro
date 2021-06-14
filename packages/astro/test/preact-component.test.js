@@ -26,7 +26,7 @@ PreactComponent('Can load function component', async ({ runtime }) => {
 PreactComponent('Can use hooks', async ({ runtime }) => {
   const result = await runtime.load('/hooks');
   if (result.error) throw new Error(result.error);
-  
+
   const $ = doc(result.contents);
   assert.equal($('#world').length, 1);
 });
