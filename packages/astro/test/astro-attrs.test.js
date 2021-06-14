@@ -25,4 +25,15 @@ Attributes('Passes attributes to elements as expected', async ({ runtime }) => {
   }
 });
 
+Attributes('Passes boolean attributes to components as expected', async ({ runtime }) => {
+  const result = await runtime.load('/component');
+  if (result.error) throw new Error(result.error);
+
+  const $ = doc(result.contents);
+  assert.equal($('#true').attr('attr'), 'attr-true');
+  assert.equal($('#true').attr('type'), 'boolean');
+  assert.equal($('#false').attr('attr'), 'attr-false');
+  assert.equal($('#false').attr('type'), 'boolean');
+});
+
 Attributes.run();
