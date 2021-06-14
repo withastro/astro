@@ -28,9 +28,7 @@ export const NEVER_SCOPED_TAGS = new Set<string>([
   'noscript',
   'script',
   'style',
-  'title',
-  '!doctype',
-  '!DOCTYPE'
+  'title'
 ]);
 /**
  * Scope Rules
@@ -92,7 +90,7 @@ export function scopeRule(selector: string, className: string) {
     }
 
     // don’t scope body, title, etc.
-    if (CSS_SEPARATORS.has(value) || NEVER_SCOPED_TAGS.has(value)) {
+    if (CSS_SEPARATORS.has(value) || NEVER_SCOPED_TAGS.has(value) || value.toLowerCase() === '!doctype') {
       ss = head + value + tail;
       continue;
     }
