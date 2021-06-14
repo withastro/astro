@@ -28,8 +28,7 @@ export const NEVER_SCOPED_TAGS = new Set<string>([
   'noscript',
   'script',
   'style',
-  'title',
-  '!doctype',
+  'title'
 ]);
 /**
  * Scope Rules
