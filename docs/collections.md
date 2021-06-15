@@ -17,25 +17,15 @@ Astro Collections help you break up a larger set of data into multiple pages. Ex
 
 To create a new Astro Collection, you must do three things:
 
-```js
-// 1. Create a new file in the `src/pages` directory that starts 
-// with the `$` symbol. This is required to enable the Collections API.
-//   Example: `src/pages/$posts.astro` -> `/posts/1`, `/posts/2`, etc.
-//   Example: `src/pages/$tags.astro` -> `/tags/:tag` (or `/tags/:tag/1`)
+1. Create a new file in the `src/pages` directory that starts with the `$` symbol. This is required to enable the Collections API.
+  - Example: `src/pages/$posts.astro` -> `/posts/1`, `/posts/2`, etc.
+  - Example: `src/pages/$tags.astro` -> `/tags/:tag` (or `/tags/:tag/1`)
+2. Define and export the `collection` prop: `collection.data` is how you'll access the data for every page in the collection. Astro populates this prop for you automatically. It MUST be named `collection` and it must be exported.
+  - Example: `export let collection;`
+3. Define and export `createCollection` function: this tells Astro how to load and structure your collection data. Check out the examples below for documentation on how it should be implemented. It MUST be named `createCollection` and it must be exported.
+  - Example: `export async function createCollection() { /* ... */ }`
+  - API Reference: [createCollection][collection-api]
 
-// 2. Define the `collection` prop: `collection.data` is how you'll access 
-// the data for every page in the collection. Astro populates this prop 
-// for you automatically. It MUST be named `collection`.
-export let collection: any;
-
-// 3. Define the `createCollection` call: this tells Astro how to load and
-// structure your collection data. Check out the examples below.
-export async function createCollection() { /* ... */ }
-``` 
-
-
-- `collection` API Reference: [collection][collection-api].
-- `createCollection()` API Reference: [createCollection][collection-api]
 
 ## Example: Simple Pagination
 
