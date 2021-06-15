@@ -131,9 +131,9 @@ All CSS is minified and bundled automatically for you in running `astro build`. 
 - If a style appears on multiple routes, it’s deduplicated into a `/_astro/common-[hash].css` bundle
 - All styles are hashed according to their contents (the hashes only change if the contents do!)
 
-We’ll be expanding our styling optimization story over time, and would love your feedback! If `astro build` generates unexpected styles, or if you can think of improvements, [please open an issue](https://github.com/snowpackjs/astro/issues).
+We’ll be expanding our styling optimization story over time, and would love your feedback! If `astro build` generates unexpected styles, or if you can think of improvements, [please open an issue][issues].
 
-**⚠️ Ordering may not be guaranteed**. Though we try and preserve your ordering as much as possible, there are no guarantees between pages. For example, if one page loads `a.css`, `b.css`, and another loads `b.css`, there’s a chance that `b.css` may load first (as it’s a shared asset). The best course of action is to reduce your styles’ dependence on ordering as much as possible. But if specific order is required, [Sass’ @use is highly recommended][sass-use] or you must guarantee that all styles load in the same order on every page.
+_Note: be mindful when some page styles get extracted to the ”common” bundle, and some page styles stay on-page. For most people this may not pose an issue, but when part of your styles are bundled they technically may load in a different order and your cascade may be different. While problem isn’t unique to Astro and is present in almost any CSS bundling process, it can be unexpected if you’re not anticipating it. Be sure to inspect your final production build, and please [report any issues][issues] you may come across._
 
 ## 📚 Advanced Styling Architecture in Astro
 
@@ -473,6 +473,7 @@ Also please check out the [Stylelint][stylelint] project to whip your styles int
 [css-treeshaking]: https://css-tricks.com/how-do-you-remove-unused-css-from-a-site/
 [fouc]: https://en.wikipedia.org/wiki/Flash_of_unstyled_content
 [layout-isolated]: https://visly.app/blogposts/layout-isolated-components
+[issues]: https://github.com/snowpackjs/astro/issues
 [magic-number]: https://css-tricks.com/magic-numbers-in-css/
 [material-ui]: https://material.io/components
 [peace-on-css]: https://didoo.medium.com/let-there-be-peace-on-css-8b26829f1be0
