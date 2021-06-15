@@ -1,26 +1,14 @@
 ## ✨ `.astro` Syntax
 
-"Yikes! Here we go again... They're really going to make me learn another new syntax?"
+Astro comes with its own server-side, component-based templating language. Think of it as HTML enhanced with the full power of JavaScript.
 
-Believe us, we know—and we wouldn't have introduced the `.astro` syntax without having some great reasons. Give us five minutes, read through this guide, and we think you'll be as excited about Astro as we are.
+Learning a new syntax can be intimidating, but the `.astro` format has been carefully designed with familiarity in mind. It borrows heavily from patterns you likely already know—components, Frontmatter, and JSX-like expressions. We're confident that this guide will help you feel comfortable writing `.astro` files in no time.
 
 ---
 
-### Why use Astro?
+### The `.astro` format
 
-By focusing on HTML _instead of JavaScript_, Astro is able to be framework-agnostic.
-
-A common pain point for JavaScript newcomers is the ecosystem's steep learning curve. Choosing between build tools, frameworks, and meta frameworks is an enormous amount of work with long-term consequences. Not to mention that this all has to happen before you've written any code—much of which is just static markup.
-
-Astro's approach is based on the recognition that HTML is the lowest common denominator between frameworks. By using `.astro` as a composable, component-based format on top of HTML, you can start writing and styling your static content immediately.
-
-When you finally do need to introduce dynamic functionality, Astro allows you to _bring your own framework_, so you're free to use any component format you'd like without committing to a holistic architectural approach up-front. "The big question" is deferred until it actually needs to be answered.
-
-During a long-term project, you might even decide to switch frameworks somewhere down the road. Since Astro decouples decisions about data-loading and static rendering from your framework, that decision has a much smaller impact—try out the new framework on a single page or even mix both frameworks on some pages while you migrate.
-
-### What _are_ `.astro` files?
-
-If you're already familiar with **HTML or JSX**, you'll likely feel comfortable with `.astro` files right away.
+If you're already familiar with **HTML or JavaScript**, you'll likely feel comfortable with `.astro` files right away.
 
 Think of `.astro` as **component-oriented HTML**. Components are reusable, self-contained blocks of HTML and CSS that belong together.
 
@@ -49,22 +37,22 @@ Think of `.astro` as **component-oriented HTML**. Components are reusable, self-
 
 Developers have come up with a myriad of different techniques for composing blocks of HTML over the years, but far and away the most successful has been [JSX](https://reactjs.org/docs/introducing-jsx.html).
 
-We love JSX! In fact, `.astro` files borrow the highly-expressive templating syntax directly from JSX.
+We love JSX! In fact, `.astro` files borrow the highly-expressive expression syntax directly from JSX.
 
 ```jsx
 <!-- This is an Astro component with expressions! -->
 <main>
   <h1>Hello {name}!</h1>
-  <h2 data-hint={`Use JS template strings when you need to mix-in ${"variables"}.`}>So good!</h2>
   <ul>
     {items.map((item) => (
       <li>{item}</li>
     ))}
   </ul>
+  <h2 data-hint={`Use JS template strings when you need to mix-in ${"variables"}.`}>So good!</h2>
 </main>
 ```
 
-`.astro` files also borrow the concept of [Frontmatter](https://jekyllrb.com/docs/front-matter/) from Markdown. Instead of introducing a new HTML-oriented `import` and `export` syntax, `.astro` just uses the JavaScript syntax you likely already know.
+`.astro` files also borrow the concept of [Frontmatter](https://jekyllrb.com/docs/front-matter/) from Markdown. Instead of introducing a new HTML-oriented `import` and `export` syntax, `.astro` just uses JavaScript.
 
 ```jsx
 ---
