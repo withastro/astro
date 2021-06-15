@@ -91,18 +91,13 @@ export async function buildCollectionPage({ astroConfig, filepath, runtime, site
 export async function buildStaticPage({ astroConfig, buildState, filepath, runtime }: PageBuildOptions): Promise<void> {
   const { pages: pagesRoot } = astroConfig;
   const url = filepath.pathname.replace(pagesRoot.pathname, '/').replace(/(index)?\.(astro|md)$/, '');
-
-  // build page in parallel
-  await Promise.all([
-    runtime.load(url).then((result) => {
-      if (result.statusCode !== 200) throw new Error((result as any).error);
-      const outFile = path.posix.join(url, '/index.html');
-      buildState[outFile] = {
-        srcPath: filepath,
-        contents: result.contents,
-        contentType: 'text/html',
-        encoding: 'utf8',
-      };
-    }),
-  ]);
+  const result = await runtime.load(url);
+  if (result.statusCode !== 200) throw new Error((result as any).error);
+  const outFile = path.posix.join(url, '/index.html');
+  buildState[outFile] = {
+    srcPath: filepath,
+    contents: result.contents,
+    contentType: 'text/html',
+    encoding: 'utf8',
+  };
 }
