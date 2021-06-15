@@ -1,5 +1,13 @@
 # astro
 
+## 0.13.7
+
+### Patch Changes
+
+- Updated dependencies [9d4a40f]
+  - @astrojs/renderer-preact@0.1.2
+  - @astrojs/renderer-react@0.1.2
+
 ## 0.13.6
 
 ### Patch Changes

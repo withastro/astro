@@ -1,5 +1,11 @@
 # @astrojs/renderer-preact
 
+## 0.1.2
+
+### Patch Changes
+
+- 9d4a40f: Fixes bug with using arrow function components
+
 ## 0.1.1
 
 ### Patch Changes
