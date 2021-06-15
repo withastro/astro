@@ -176,6 +176,7 @@ function compileExpressionSafe(
   raw: string,
   { state, compileOptions, location }: { state: CodegenState; compileOptions: CompileOptions; location: { start: number; end: number } }
 ): string | null {
+  console.log("RAW", raw)
   try {
     let { code } = transformSync(raw, {
       loader: 'tsx',

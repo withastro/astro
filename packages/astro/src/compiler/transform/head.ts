@@ -39,6 +39,76 @@ export default function (opts: TransformOptions): Transformer {
     },
     async finalize() {
       const children = [];
+
+      /**
+       * Injects an expression that adds link tags for provided css.
+       * Turns into:
+       * ```
+       * { Astro.css.map(css => (
+       *  <link rel="stylesheet" href={css}>
+       * ))}
+       * ```
+       */
+
+      children.push({
+        start: 0,
+        end: 0,
+        type: 'Fragment',
+        children: [
+          {
+            start: 0,
+            end: 0,
+            type: 'Expression',
+            codeChunks: [
+              'Astro.css.map(css => (',
+              '))'
+            ],
+            children: [
+              {
+                type: 'Element',
+                name: 'link',
+                attributes: [
+                  {
+                    name: 'rel',
+                    type: 'Attribute',
+                    value: [
+                      {
+                        type: 'Text',
+                        raw: 'stylesheet',
+                        data: 'stylesheet'
+                      }
+                    ]
+                  },
+                  {
+                    name: 'href',
+                    type: 'Attribute',
+                    value: [
+                      {
+                        start: 0,
+                        end: 0,
+                        type: 'MustacheTag',
+                        expression: {
+                          start: 0,
+                          end: 0,
+                          type: 'Expression',
+                          codeChunks: [
+                            'css'
+                          ],
+                          children: []
+                        }
+                      }
+                    ]
+                  }
+                ],
+                start: 0,
+                end: 0,
+                children: []
+              }
+            ]
+          }
+        ]
+      });
+
       if (hasComponents) {
         children.push({
           type: 'Element',
@@ -83,7 +153,25 @@ export default function (opts: TransformOptions): Transformer {
         );
       }
 
-      eoh.append(...children);
+      const conditionalNode = {
+        start: 0,
+        end: 0,
+        type: 'Expression',
+        codeChunks: [
+          'true ? (',
+          ') : null'
+        ],
+        children: [
+          {
+            start: 0,
+            end: 0,
+            type: 'Fragment',
+            children
+          }
+        ]
+      }
+
+      eoh.append(conditionalNode);
     },
   };
 }

@@ -12,9 +12,14 @@ NoHeadEl('Places style and scripts before the first non-head element', async ({ 
   if (result.error) throw new Error(result.error);
 
   const html = result.contents;
+  console.log(html)
   const $ = doc(html);
-  assert.equal($('title').next().is('style'), true, 'Style placed after the title');
-  assert.equal($('title').next().next().is('script'), true, 'HMR script after the style');
+  assert.equal($('title').next().is('link'), true, 'Link to css placed after the title');
+  assert.equal($('title').next().next().is('link'), true, 'Link for a child component');
+  assert.equal($('title').next().next().next().is('style'), true, 'astro-root style placed after the link');
+  assert.equal($('title').next().next().next().next().is('script'), true, 'HMR script after the style');
+
+  assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 1, 'Only the hmr client for the page');
 });
 
 
