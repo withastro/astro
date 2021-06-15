@@ -67,7 +67,7 @@ Expressions('Allows <> Fragments in expressions', async ({ runtime }) => {
   assert.equal($('#fragment').children('#a').length, 1);
   assert.equal($('#fragment').children('#b').length, 1);
   assert.equal($('#fragment').children('#c').length, 1);
-})
+});
 
 Expressions('Does not render falsy values using &&', async ({ runtime }) => {
   const result = await runtime.load('/falsy');
