@@ -10,5 +10,15 @@ let title = 'My Site';
   <h1>{title}</h1>
 
   {false ? <h1>#t</h1> : <h1>#f</h1>}
+
+  <div id="fragment">
+    {(
+      <>
+        <div id="a" />
+        <div id="b" />
+        <div id="c" />
+      </>
+    )}
+  </div>
 </body>
 </html>

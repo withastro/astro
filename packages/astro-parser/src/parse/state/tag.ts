@@ -119,7 +119,7 @@ export default function tag(parser: Parser) {
     : /[A-Z]/.test(name[0]) || name === 'astro:self' || name === 'astro:component'
     ? 'InlineComponent'
     : name === ''
-    ? 'Fragment'
+    ? 'SlotTemplate'
     : name === 'title' && parent_is_head(parser.stack)
     ? 'Title'
     : name === 'slot' && !parser.customElement
