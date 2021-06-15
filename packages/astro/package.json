@@ -5,6 +5,10 @@
   "license": "MIT",
   "type": "module",
   "types": "./dist/types",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/astro/tree/main/packages/astro"
+  },
   "exports": {
     ".": "./astro.mjs",
     "./package.json": "./package.json",
