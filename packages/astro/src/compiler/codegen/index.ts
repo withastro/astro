@@ -494,6 +494,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             return;
           case 'Fragment':
             break;
+          case 'SlotTemplate': {
+            buffers[curr] += `h(Fragment, null, children`;
+            paren++;
+            return;
+          }
           case 'Slot':
           case 'Head':
           case 'InlineComponent': {
@@ -630,6 +635,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
           case 'CodeSpan':
           case 'CodeFence':
             return;
+          case 'SlotTemplate':
           case 'Slot':
           case 'Head':
           case 'Body':

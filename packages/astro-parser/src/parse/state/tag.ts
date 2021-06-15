@@ -13,7 +13,7 @@ const valid_tag_name = /^\!?[a-zA-Z]{1,}:?[a-zA-Z0-9\-]*/;
 
 const meta_tags = new Map([
   ['astro:head', 'Head'],
-  // ['slot:body', 'Body'],
+  ['', 'SlotTemplate'],
   // ['astro:options', 'Options'],
   // ['astro:window', 'Window'],
   // ['astro:body', 'Body'],
@@ -118,7 +118,7 @@ export default function tag(parser: Parser) {
     ? meta_tags.get(name)
     : /[A-Z]/.test(name[0]) || name === 'astro:self' || name === 'astro:component'
     ? 'InlineComponent'
-    : name === 'astro:fragment'
+    : name === ''
     ? 'SlotTemplate'
     : name === 'title' && parent_is_head(parser.stack)
     ? 'Title'

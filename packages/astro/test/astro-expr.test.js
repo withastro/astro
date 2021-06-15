@@ -58,6 +58,17 @@ Expressions('Allows multiple JSX children in mustache', async ({ runtime }) => {
   assert.ok(result.contents.includes('#f') && !result.contents.includes('#t'));
 });
 
+Expressions('Allows <> Fragments in expressions', async ({ runtime }) => {
+  const result = await runtime.load('/multiple-children');
+  if (result.error) throw new Error(result.error);
+  const $ = doc(result.contents);
+
+  assert.equal($('#fragment').children().length, 3);
+  assert.equal($('#fragment').children('#a').length, 1);
+  assert.equal($('#fragment').children('#b').length, 1);
+  assert.equal($('#fragment').children('#c').length, 1);
+})
+
 Expressions('Does not render falsy values using &&', async ({ runtime }) => {
   const result = await runtime.load('/falsy');
   if (result.error) throw new Error(result.error);
