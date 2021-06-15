@@ -4,7 +4,6 @@ import { EndOfHead } from './util/end-of-head.js';
 
 /** If there are hydrated components, inject styles for [data-astro-root] and [data-astro-children] */
 export default function (opts: TransformOptions): Transformer {
-  let head: TemplateNode;
   let hasComponents = false;
   let isHmrEnabled = typeof opts.compileOptions.hmrPort !== 'undefined' && opts.compileOptions.mode === 'development';
   const eoh = new EndOfHead();
@@ -22,7 +21,7 @@ export default function (opts: TransformOptions): Transformer {
         },
         InlineComponent: {
           enter(node) {
-            const [name, kind] = node.name.split(':');
+            const [_name, kind] = node.name.split(':');
             if (kind && !hasComponents) {
               hasComponents = true;
             }
@@ -31,16 +30,6 @@ export default function (opts: TransformOptions): Transformer {
         Element: {
           enter(node) {
             eoh.enter(node);
-
-            // TODO remove
-            switch (node.name) {
-              case 'head': {
-                head = node;
-                return;
-              }
-              default:
-                return;
-            }
           },
           leave(node) {
             eoh.leave(node);
@@ -49,8 +38,6 @@ export default function (opts: TransformOptions): Transformer {
       },
     },
     async finalize() {
-      if (!head) return;
-
       const children = [];
       if (hasComponents) {
         children.push({

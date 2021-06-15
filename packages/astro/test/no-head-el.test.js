@@ -7,13 +7,14 @@ const NoHeadEl = suite('Documents without a head');
 
 setup(NoHeadEl, './fixtures/no-head-el');
 
-NoHeadEl('works', async ({ runtime }) => {
+NoHeadEl('Places style and scripts before the first non-head element', async ({ runtime }) => {
   const result = await runtime.load('/');
   if (result.error) throw new Error(result.error);
 
   const html = result.contents;
-  console.log('html', html);
-  //assert.ok(/window\.HMR_WEBSOCKET_URL = window\.HMR_WEBSOCKET_URL || 'ws:\/\/localhost:5555'/.test(html), "Uses the user's websocket port");
+  const $ = doc(html);
+  assert.equal($('title').next().is('style'), true, 'Style placed after the title');
+  assert.equal($('title').next().next().is('script'), true, 'HMR script after the style');
 });
 
 

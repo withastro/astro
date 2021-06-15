@@ -39,14 +39,14 @@ export class EndOfHead {
 
     if(name === 'head') {
       this.head = node;
-      this.parent = this.stack[this.stack.length - 1];
+      this.parent = this.stack[this.stack.length - 2];
       this.append = this.appendToHead;
       return;
     }
 
     if(!validHeadElements.has(name)) {
       this.firstNonHead = node;
-      this.parent = this.stack[this.stack.length - 1];
+      this.parent = this.stack[this.stack.length - 2];
       this.append = this.prependToFirstNonHead;
       return;
     }
