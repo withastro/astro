@@ -4,9 +4,9 @@
 
 Astro Collections help you break up a larger set of data into multiple pages. Examples of use-cases include:
 
-- Pagination: `/posts/1`, `posts/2`, etc.
-- Grouping content by author: `/posts/fred`, `/posts/matthew`, etc.
-- Grouping content by some tag: `/tags/red`, `tags/blue`, etc.
+- Pagination: `/posts/1`, `/posts/2`, etc.
+- Grouping content by author: `/author/fred`, `/author/matthew`, etc.
+- Grouping content by some tag: `/tags/red`, `/tags/blue`, etc.
 - Working with remote data
 - Mixing remote and local data
 
