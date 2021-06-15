@@ -4,7 +4,7 @@ Astro is able to use components from most popular frameworks such as React, Vue,
 
 Every framework recommends different methods for publishing components, this document talks about how we suggest you publish Astro components to [npm](https://www.npmjs.com/).
 
-## Astro component uses cases
+## Astro component use cases
 
 Astro components are server-only and provide a lightweight HTML-like syntax.
 
