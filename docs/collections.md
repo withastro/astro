@@ -12,20 +12,23 @@ Astro Collections help you break up a larger set of data into multiple pages. Ex
 
 **When to use Collections: When you need to reuse a single template to generate multiple pages from a larger dataset.** If you just want to generate a single page (ex: a long list of every post on your site) then you can just fetch that data on a normal Astro page without using the Collection API.
 
-
 ## Collections API
 
 To create a new Astro Collection, you must do three things:
 
 1. Create a new file in the `src/pages` directory that starts with the `$` symbol. This is required to enable the Collections API.
-  - Example: `src/pages/$posts.astro` -> `/posts/1`, `/posts/2`, etc.
-  - Example: `src/pages/$tags.astro` -> `/tags/:tag` (or `/tags/:tag/1`)
-2. Define and export the `collection` prop: `collection.data` is how you'll access the data for every page in the collection. Astro populates this prop for you automatically. It MUST be named `collection` and it must be exported.
-  - Example: `export let collection;`
-3. Define and export `createCollection` function: this tells Astro how to load and structure your collection data. Check out the examples below for documentation on how it should be implemented. It MUST be named `createCollection` and it must be exported.
-  - Example: `export async function createCollection() { /* ... */ }`
-  - API Reference: [createCollection][collection-api]
 
+- Example: `src/pages/$posts.astro` -> `/posts/1`, `/posts/2`, etc.
+- Example: `src/pages/$tags.astro` -> `/tags/:tag` (or `/tags/:tag/1`)
+
+2. Define and export the `collection` prop: `collection.data` is how you'll access the data for every page in the collection. Astro populates this prop for you automatically. It MUST be named `collection` and it must be exported.
+
+- Example: `export let collection;`
+
+3. Define and export `createCollection` function: this tells Astro how to load and structure your collection data. Check out the examples below for documentation on how it should be implemented. It MUST be named `createCollection` and it must be exported.
+
+- Example: `export async function createCollection() { /* ... */ }`
+- API Reference: [createCollection][collection-api]
 
 ## Example: Simple Pagination
 
@@ -43,13 +46,13 @@ export async function createCollection() {
     // its fine to just return the full set of posts for the collection data.
     async data() { return allPosts; },
     // number of posts loaded per page (default: 25)
-    pageSize: 10, 
+    pageSize: 10,
   };
 }
 ---
 <html lang="en">
   <head>
-    <title>Pagination Example: Page Number {collection.page.current}</title> 
+    <title>Pagination Example: Page Number {collection.page.current}</title>
   </head>
   <body>
     {collection.data.map((post) => (
@@ -65,8 +68,8 @@ export async function createCollection() {
 
 ```jsx
 ---
-// In addition to `collection.data` usage illustrated above, the `collection` 
-// prop also provides some important metadata for you to use, like: `collection.page`, 
+// In addition to `collection.data` usage illustrated above, the `collection`
+// prop also provides some important metadata for you to use, like: `collection.page`,
 // `collection.url`, `collection.start`, `collection.end`, and `collection.total`.
 // In this example, we'll use these values to do pagination in the template.
 export let collection: any;
@@ -74,7 +77,7 @@ export async function createCollection() { /* See Previous Example */ }
 ---
 <html lang="en">
   <head>
-    <title>Pagination Example: Page Number {collection.page.current}</title> 
+    <title>Pagination Example: Page Number {collection.page.current}</title>
     <link rel="canonical" href={collection.url.current} />
     <link rel="prev" href={collection.url.prev} />
     <link rel="next" href={collection.url.next} />
@@ -106,9 +109,9 @@ export async function createCollection() { /* See Previous Example */ }
 // Define the `collection` prop.
 export let collection: any;
 
-// Define a `createCollection` function. 
+// Define a `createCollection` function.
 // In this example, we'll customize the URLs that we generate to
-// create a new page to group every pokemon by first letter of their name. 
+// create a new page to group every pokemon by first letter of their name.
 export async function createCollection() {
   const allPokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=150`);
   const allPokemonResult = await allPokemonResponse.json();
@@ -125,8 +128,8 @@ export async function createCollection() {
     // It should always match the file location (ex: `src/pages/$pokemon.astro`).
     permalink: ({ params }) => `/pokemon/${params.letter}`,
     // `data` is now responsible for return the data for each page.
-    // Luckily we had already loaded all of the data at the top of the function, 
-    // so we just filter the data here to group pages by first letter. 
+    // Luckily we had already loaded all of the data at the top of the function,
+    // so we just filter the data here to group pages by first letter.
     // If you needed to fetch more data for each page, you can do that here as well.
     async data({ params }) {
       return allPokemon.filter((pokemon) => pokemon.name[0] === params.letter);
@@ -134,7 +137,7 @@ export async function createCollection() {
     // Finally, `pageSize` and `pagination` is still on by default. Because
     // we don't want to paginate the already-grouped pages a second time, we'll
     // disable pagination.
-    pageSize: Infinity, 
+    pageSize: Infinity,
   };
 }
 ---
@@ -154,7 +157,7 @@ export async function createCollection() {
 // Define the `collection` prop.
 export let collection: any;
 
-// Define a `createCollection` function. 
+// Define a `createCollection` function.
 // In this example, we'll create a new page for every single pokemon.
 export async function createCollection() {
   const allPokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=150`);
@@ -169,15 +172,15 @@ export async function createCollection() {
     // `permalink` defines the final URL for each route object defined in `routes`.
     permalink: ({ params }) => `/pokemon/${params.name}`,
     // `data` is now responsible for return the data for each page.
-    // Luckily we had already loaded all of the data at the top of the function, 
-    // so we just filter the data here to group pages by first letter. 
+    // Luckily we had already loaded all of the data at the top of the function,
+    // so we just filter the data here to group pages by first letter.
     // If you needed to fetch more data for each page, you can do that here as well.
     async data({ params }) {
       return allPokemon[params.index];
     },
-    // Note: The default pageSize is fine because technically only one data object 
+    // Note: The default pageSize is fine because technically only one data object
     // is ever returned per route. We set it to Infinity in this example for completeness.
-    pageSize: Infinity, 
+    pageSize: Infinity,
   };
 }
 ---
