@@ -84,7 +84,8 @@ function consume_tag(state: ParseState) {
 
     switch (char) {
       case "'":
-      case '"': {
+      case '"':
+      case '`': {
         consume_string(state, char);
         break;
       }
