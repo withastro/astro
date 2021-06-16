@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.3.3
+
+### Patch Changes
+
+- f9f2da4: Add repository key to package.json for create-astro
+
 ## 0.3.2
 
 ### Patch Changes

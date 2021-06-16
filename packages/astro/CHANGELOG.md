@@ -1,5 +1,16 @@
 # astro
 
+## 0.13.9
+
+### Patch Changes
+
+- 3ada25d: Pass configured Tailwind config file to the tailwindcss plugin
+- f9f2da4: Add repository key to all package.json
+- Updated dependencies [f9f2da4]
+  - @astrojs/parser@0.13.9
+  - @astrojs/prism@0.2.2
+  - @astrojs/markdown-support@0.1.2
+
 ## 0.13.8
 
 ### Patch Changes
