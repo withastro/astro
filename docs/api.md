@@ -27,12 +27,22 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 
 `.fetchContent()` only takes one parameter: a relative URL glob of which local files you’d like to import. Currently only `*.md` files are supported. It’s synchronous, and returns an array of items of type:
 
-```
+```js
 {
-  url: string;     // the URL of this item (if it’s in pages/)
-  content: string; // the HTML of this item
-  // frontmatter data expanded here
-}[];
+   /** frontmatter from the post.. example frontmatter:
+    title: '',
+    tag: '',
+    date: '',
+    image: '',
+    author: '',
+    description: '',
+   **/
+    astro: {
+      headers: [], // TODO: document what this means
+      source: '' // raw source of the markdown file
+    },
+    url: '' // the rendered path
+  }[]
 ```
 
 #### `request`
