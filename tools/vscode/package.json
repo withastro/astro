@@ -24,15 +24,15 @@
     "onLanguage:astro"
   ],
   "dependencies": {
-    "astro-languageserver": "^0.4.0"
+    "@astrojs/language-server": "^0.4.0",
+    "vscode-emmet-helper": "2.1.2",
+    "vscode-html-languageservice": "^3.0.3",
+    "vscode-languageclient": "~7.0.0"
   },
   "devDependencies": {
     "@types/vscode": "^1.52.0",
     "astro-scripts": "file:../../scripts",
-    "execa": "^5.0.0",
-    "vscode-emmet-helper": "2.1.2",
-    "vscode-html-languageservice": "^3.0.3",
-    "vscode-languageclient": "~7.0.0"
+    "execa": "^5.0.0"
   },
   "main": "./dist/index.js",
   "files": [
