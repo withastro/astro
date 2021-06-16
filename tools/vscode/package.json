@@ -8,11 +8,12 @@
     "color": "#FFBE2D",
     "theme": "dark"
   },
-  "version": "0.4.3",
+  "version": "0.5.0",
   "author": "Astro",
   "license": "MIT",
   "publisher": "astro-build",
   "scripts": {
+    "vscode:prepublish": "yarn build",
     "vscode:publish": "node ./scripts/publish.mjs",
     "build": "astro-scripts build 'src/index.ts'",
     "dev": "astro-scripts dev 'src/index.ts'"
@@ -24,15 +25,15 @@
     "onLanguage:astro"
   ],
   "dependencies": {
-    "astro-languageserver": "^0.4.0"
+    "@astrojs/language-server": "0.5.0",
+    "vscode-emmet-helper": "2.1.2",
+    "vscode-html-languageservice": "^3.0.3",
+    "vscode-languageclient": "~7.0.0"
   },
   "devDependencies": {
     "@types/vscode": "^1.52.0",
     "astro-scripts": "file:../../scripts",
-    "execa": "^5.0.0",
-    "vscode-emmet-helper": "2.1.2",
-    "vscode-html-languageservice": "^3.0.3",
-    "vscode-languageclient": "~7.0.0"
+    "execa": "^5.0.0"
   },
   "main": "./dist/index.js",
   "files": [

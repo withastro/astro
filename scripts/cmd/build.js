@@ -26,7 +26,7 @@ export default async function build(...args) {
 
   const { type = 'module', dependencies = {} } = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
   const format = type === 'module' ? 'esm' : 'cjs';
-  const external = [...Object.keys(dependencies), 'source-map-support', 'source-map-support/register.js', 'vscode'];
+  const external = [...Object.keys(dependencies), '@astrojs/language-server/bin/server.js', 'source-map-support', 'source-map-support/register.js', 'vscode'];
   const outdir = 'dist';
   await clean(outdir);
 

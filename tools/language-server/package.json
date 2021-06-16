@@ -1,22 +1,24 @@
 {
-  "name": "astro-languageserver",
-  "version": "0.4.0",
+  "name": "@astrojs/language-server",
+  "version": "0.5.0",
   "author": "Skypack",
   "license": "MIT",
   "type": "commonjs",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
+  "bin": {
+    "astro-ls": "./bin/server.js"
+  },
   "files": [
     "dist",
+    "bin",
     "types"
   ],
   "scripts": {
     "build": "astro-scripts build 'src/index.ts'",
     "dev": "astro-scripts dev 'src/index.ts'"
   },
-  "devDependencies": {
-    "astro": "^0.13.0",
-    "astro-scripts": "0.0.1",
+  "dependencies": {
     "source-map": "^0.7.3",
     "typescript": "^4.3.1-rc",
     "vscode-css-languageservice": "^5.1.1",
@@ -24,5 +26,9 @@
     "vscode-html-languageservice": "^3.0.3",
     "vscode-languageserver": "6.1.1",
     "vscode-languageserver-textdocument": "^1.0.1"
+  },
+  "devDependencies": {
+    "astro": "^0.13.0",
+    "astro-scripts": "0.0.1"
   }
 }
