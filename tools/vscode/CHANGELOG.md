@@ -3,6 +3,7 @@
 ## 0.5.0
 
 - Bug fixes, dependency updates
+
 ## 0.4.3
 
 ### Patch Changes
