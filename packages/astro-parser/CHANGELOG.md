@@ -1,5 +1,11 @@
 # @astrojs/parser
 
+## 0.13.8
+
+### Patch Changes
+
+- 490f2be: Add support for Fragments with `<>` and `</>` syntax
+
 ## 0.13.3
 
 ### Patch Changes
