@@ -71,7 +71,7 @@ export async function createCollection() {
     <Nav title={title} />
 
     <main class="wrapper">
-      <h1 class="title">All Posts</h1>
+      <h2 class="title">All Posts</h2>
       <small class="count">{collection.start + 1}–{collection.end + 1} of {collection.total}</small>
       {collection.data.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
     </main>

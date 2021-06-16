@@ -62,9 +62,9 @@ import authorData from '../data/authors.json';
     <Nav />
 
     <main class="wrapper">
-      <h1 class="title">{content.title}</h1>
-      <h3 class="description">{content.description}</h3>
-      <img class="img" src={content.image} alt={content.title}>
+      <h2 class="title">{content.title}</h2>
+      <p class="description">{content.description}</p>
+      <img class="img" src={content.image} alt="">
       <article class="article">
         <slot />
       </article>

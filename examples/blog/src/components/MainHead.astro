@@ -23,8 +23,8 @@ export let canonicalURL: string | undefined;
 
 <!-- SEO -->
 <link rel="canonical" href={canonicalURL}>
-{next && <link rel="next" href={new URL(next, canonicalURL).href}>}
-{prev && <link rel="prev" href={new URL(prev, canonicalURL).href}>}
+{next && <link rel="next" aria-label="Previous Page" href={new URL(next, canonicalURL).href}>}
+{prev && <link rel="prev" aria-label="Next Page" href={new URL(prev, canonicalURL).href}>}
 
 <!-- OpenGraph -->
 <meta property="og:title" content={title}>
