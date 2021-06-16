@@ -124,7 +124,7 @@ async function transformStyle(code: string, { logging, type, filename, scopedCla
     try {
       const require = createRequire(import.meta.url);
       const tw = require.resolve('tailwindcss', { paths: [import.meta.url, process.cwd()] });
-      postcssPlugins.push(require(tw) as any);
+      postcssPlugins.push(require(tw)(tailwindConfig) as any);
     } catch (err) {
       error(logging, 'transform', err);
       throw new Error(`tailwindcss not installed. Try running \`npm install tailwindcss\` and trying again.`);
@@ -214,7 +214,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
                   type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                   filename,
                   scopedClass,
-                  tailwindConfig: compileOptions.tailwindConfig,
+                  tailwindConfig: compileOptions.astroConfig.devOptions.tailwindConfig,
                 })
               );
               return;

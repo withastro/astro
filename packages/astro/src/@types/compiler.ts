@@ -7,5 +7,4 @@ export interface CompileOptions {
   astroConfig: AstroConfig;
   hmrPort?: number;
   mode: RuntimeMode;
-  tailwindConfig?: string;
 }
