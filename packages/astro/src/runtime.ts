@@ -313,7 +313,7 @@ const DEFAULT_RENDERERS = ['@astrojs/renderer-vue', '@astrojs/renderer-svelte', 
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot, pages: pagesRoot, renderers = DEFAULT_RENDERERS } = astroConfig;
+  const { projectRoot, renderers = DEFAULT_RENDERERS } = astroConfig;
   const { mode, resolvePackageUrl } = options;
 
   const frontendPath = new URL('./frontend/', import.meta.url);
@@ -326,9 +326,11 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     renderers?: { name: string; client: string; server: string }[];
     astroConfig: AstroConfig;
     hmrPort?: number;
+    mode: RuntimeMode;
   } = {
     astroConfig,
     resolvePackageUrl,
+    mode,
   };
 
   const mountOptions = {
