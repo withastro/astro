@@ -30,9 +30,9 @@ For any URL you visit that doesn't have a corresponding page, the `400.astro` fi
 This is a custom **500** status code page. You can add this route by adding a page component to your `src/pages` folder:
 
 ```
-├── src/ 
-│   ├── components/ 
-│   └── pages/ 
+├── src/
+│   ├── components/
+│   └── pages/
 │       └── 500.astro
 ```
 
