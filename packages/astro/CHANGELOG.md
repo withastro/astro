@@ -1,5 +1,13 @@
 # astro
 
+## 0.13.10
+
+### Patch Changes
+
+- 233fbcd: Fix race condition caused by parallel build
+- Updated dependencies [7f8d586]
+  - @astrojs/parser@0.13.10
+
 ## 0.13.9
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/parser
 
+## 0.13.10
+
+### Patch Changes
+
+- 7f8d586: Bugfix: template literals in JSX tags breaking parser
+
 ## 0.13.9
 
 ### Patch Changes
