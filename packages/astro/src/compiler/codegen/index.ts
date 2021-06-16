@@ -172,13 +172,16 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
 }
 
 /** Evaluate expression (safely) */
-function compileExpressionSafe(raw: string, { state, compileOptions, location }: { state: CodegenState, compileOptions: CompileOptions, location: { start: number, end: number } }): string|null {
+function compileExpressionSafe(
+  raw: string,
+  { state, compileOptions, location }: { state: CodegenState; compileOptions: CompileOptions; location: { start: number; end: number } }
+): string | null {
   try {
     let { code } = transformSync(raw, {
       loader: 'tsx',
       jsxFactory: 'h',
       jsxFragment: 'Fragment',
-      charset: 'utf8'
+      charset: 'utf8',
     });
     return code;
   } catch ({ errors }) {
@@ -197,7 +200,7 @@ function compileExpressionSafe(raw: string, { state, compileOptions, location }:
     const frame = codeFrameColumns(text, {
       start: { line: start.line, column: start.character },
       end: { line: end.line, column: end.character },
-    })
+    });
 
     err.frame = frame;
     err.message = e.text;
