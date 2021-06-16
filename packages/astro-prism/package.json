@@ -5,7 +5,8 @@
   "main": "index.mjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/astro/tree/main/packages/astro-prism"
+    "url": "https://github.com/snowpackjs/astro.git",
+    "directory": "packages/astro-prism"
   },
   "scripts": {
     "build": "echo 'build'",

@@ -8,7 +8,8 @@
   "types": "./dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/astro/tree/main/packages/astro-parser"
+    "url": "https://github.com/snowpackjs/astro.git",
+    "directory": "packages/astro-parser"
   },
   "files": [
     "dist"
