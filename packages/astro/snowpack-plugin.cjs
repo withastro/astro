@@ -5,7 +5,7 @@ const transformPromise = import('./dist/compiler/index.js');
 const DEFAULT_HMR_PORT = 12321;
 
 /** @type {import('snowpack').SnowpackPluginFactory<any>} */
-module.exports = (snowpackConfig, { resolvePackageUrl, renderers, astroConfig } = {}) => {
+module.exports = (snowpackConfig, { resolvePackageUrl, renderers, astroConfig, mode } = {}) => {
   let hmrPort = DEFAULT_HMR_PORT;
   return {
     name: 'snowpack-astro',
@@ -58,6 +58,7 @@ ${contents}`;
       const compileOptions = {
         astroConfig,
         hmrPort,
+        mode,
         resolvePackageUrl,
         renderers,
       };

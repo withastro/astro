@@ -5,7 +5,8 @@ import type { TemplateNode } from '@astrojs/parser';
 export default function (opts: TransformOptions): Transformer {
   let head: TemplateNode;
   let hasComponents = false;
-  let isHmrEnabled = typeof opts.compileOptions.hmrPort !== 'undefined';
+  let isHmrEnabled = typeof opts.compileOptions.hmrPort !== 'undefined' &&
+    opts.compileOptions.mode === 'development';
 
   return {
     visitors: {

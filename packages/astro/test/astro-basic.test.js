@@ -1,7 +1,7 @@
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import { setup, setupBuild } from './helpers.js';
 
 const Basics = suite('Basic test');
 
@@ -10,6 +10,7 @@ setup(Basics, './fixtures/astro-basic', {
     mode: 'development',
   },
 });
+setupBuild(Basics, './fixtures/astro-basic');
 
 Basics('Can load page', async ({ runtime }) => {
   const result = await runtime.load('/');
@@ -45,6 +46,20 @@ Basics('Selector with an empty body', async ({ runtime }) => {
   const html = result.contents;
   const $ = doc(html);
   assert.equal($('.author').length, 1, 'author class added');
+});
+
+Basics('Build does not include HMR client', async ({ build, readFile }) => {
+    await build().catch(err => {
+      assert.ok(!err, 'Error during the build');
+    });
+    const clientHTML = await readFile('/client/index.html');
+    const $ = doc(clientHTML);
+
+    assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 0, 'No HMR client script');
+    const hmrPortScript = $('script').filter((i, el) => {
+      return $(el).text().match(/window\.HMR_WEBSOCKET_PORT/);
+    });
+    assert.equal(hmrPortScript.length, 0, 'No script setting the websocket port');
 });
 
 Basics.run();
