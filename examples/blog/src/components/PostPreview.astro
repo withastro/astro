@@ -33,7 +33,7 @@ function formatDate(date) {
   margin-left: 1em;
 }
 
-h1 {
+h2 {
   font-weight: 700;
   font-size: 2.75em;
   line-height: 1;
@@ -52,12 +52,12 @@ time {
 <article class="post">
 
   <div class="data">
-    <h1>{post.title}</h1>
+    <h2>{post.title}</h2>
     <a class="author" href={`/author/${post.author}`}>{author.name}</a>
     <time class="date" datetime={post.date}>{formatDate(post.date)}</time>
     <p class="description">
       {post.description}
-      <a class="link" href={post.url}>Read</a>
+      <a class="link" href={post.url} aria-label={`Read ${post.title}`}>Read</a>
     </p>
   </div>
 </article>
