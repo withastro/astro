@@ -401,7 +401,7 @@ The basic rule is that when orchestrating multiple components, **that’s a uniq
 
 To recap: **if you have to touch multiple files to manage one layout, you probably need to reorganize everything into a Layout Component.**
 
-💁 **Why this works well in Astro**: In Astro, anything can be a `.astro` component, and you never incurr performance problems no matter how many components you add. But the main benefit to [Layout isolation][layout-isolated] is how much it cuts down on the amount of CSS you need.
+💁 **Why this works well in Astro**: In Astro, anything can be a `.astro` component, and you never incur performance problems no matter how many components you add. But the main benefit to [Layout isolation][layout-isolated] is how much it cuts down on the amount of CSS you need.
 
 #### Suggestion #2: Avoid Flexbox and Grid libraries (write your own!)
 
@@ -413,11 +413,9 @@ Many front-end developers experience the following train of thought:
 2. Many pages reuse the same layout, … (_hold up—_)
 3. … therefore I can find an existing solution to manage all my duplicate layouts (_wait a minute—_)
 
-While the logic is sound and the first point is correct, many developers assume #2 is correct when that is not the reality for many. Many projects contain myriad layouts that are different from one part of a website to another. And even if they are the same on one breakpoint doesn’t mean they are the same on all breakpoints!
+While the logic is sound, the reality is that #2 isn’t truth for many projects. Probably, many parts of the website weren’t designed to fit into these nice, neat, 12 column grids. Even modest web apps can contain _hundreds_ of unique layouts when you factor in all the breakpoints. Ask yourself: _If the website I’m building really contains so many unique layouts, why am I using a heavy grid library that only gives me generic layouts?_
 
-Ask yourself: _If there really were more unique layouts in my website than I assumed, why am I trying to deduplicate them?_ You’ll probably start to realize that fewer of your layouts are reusable than you thought, and that a few, thoughtful, custom layout components can handle all your needs. This is especially true when you **Centralize your layouts into Layout Components** (previous suggestion).
-
-Another way to look at it: if you have to spend a couple hours learning a proprietary styling framework, wrestling with it, filing issues, etc., why not just spend that time on Flexbox and Grid instead? For many people, learning the basics only takes an hour, and that can get you pretty far! There are great, free, learning resources that are worth your time:
+A few well-written lines of CSS Grid here and there will not only be perfect in every occasion; it’s likely lighter and easier to manage than that heavy library you’ve fought with for so long. Another way to look at it: if you have to spend a couple hours learning a proprietary styling framework, wrestling with it, filing issues, etc., why not just spend that time on Flexbox and Grid instead? For many people, learning the basics only takes an hour, and that can get you pretty far! There are great, free, learning resources that are worth your time:
 
 - [Flexbox Froggy](https://flexboxfroggy.com/)
 - [CSS Grid Garden](https://cssgridgarden.com/)
@@ -442,7 +440,7 @@ In other words, don’t do this:
 <div class="wrapper"></div>
 ```
 
-If you remember the [CSS box model][box-model], `margin` extends beyond the boundarieso of the box. This means that when you place `margin` on the outermost element, now that will push other components next to it. Even though the styles are scoped, it’s _technically_ affecting elements around it, so it [breaks the concept of style containment][layout-isolated].
+If you remember the [CSS box model][box-model], `margin` extends beyond the boundaries of the box. This means that when you place `margin` on the outermost element, now that will push other components next to it. Even though the styles are scoped, it’s _technically_ affecting elements around it, so it [breaks the concept of style containment][layout-isolated].
 
 When you have components that rearrage, or appear different when they’re next to other components, that’s a hard battle to win. **Components should look and act the same no matter where they are placed.** That’s what makes them components!
 
