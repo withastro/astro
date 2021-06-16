@@ -160,8 +160,10 @@ Read on if you’re looking for some strong opinions 🙂. We’ll describe the 
 
 You don’t need an explanation on component-based design. You already know that reusing components is a good idea. And it’s this idea that got people used to concepts like [Styled Components][styled-components] and [Styled JSX][styled-jsx]. But rather than burden your users with slow load times of CSS-in-JS, Astro has something better: **built-in scoped styles.**
 
-```html
-<!-- src/components/Button.astro -->
+```jsx
+---
+// src/components/Button.astro -->
+---
 <style lang="scss">
   /* ✅ Locally scoped! */
   .btn {
@@ -170,7 +172,9 @@ You don’t need an explanation on component-based design. You already know that
     font-weight: 700;
   }
 </style>
-<button type="button" class="btn"><slot></slot></button>
+<button type="button" class="btn">
+  <slot></slot>
+</button>
 ```
 
 _Note: all the examples here use `lang="scss"` which is a great convenience for nesting, and sharing [colors and variables][sass-use], but it’s entirely optional and you may use normal CSS if you wish._
@@ -182,18 +186,20 @@ That `.btn` class is scoped within that component, and won’t leak out. It mean
 By contrast, Astro does allow global styles via the `:global()` escape hatch, however, this should be avoided if possible. To illustrate this: say you used your button in a `<Nav />` component, and you wanted to style it differently there. You might be tempted to have something like:
 
 ```jsx
-<!-- src/components/Nav.astro -->
 ---
+// src/components/Nav.astro
 import Button from './Button.astro';
 ---
 
 <style lang="scss">
   .nav :global(.btn) {
-    /* ❌ Don’t do this! */
+    /* ❌ This will fight with <Button>’s styles */
   }
 </style>
 
-<nav class="nav"><button>Menu</button></nav>
+<nav class="nav">
+  <Button>Menu</Button>
+</nav>
 ```
 
 This is undesirable because now `<Nav>` and `<Button>` fight over what the final button looks like. Now, whenever you edit one, you’ll always have to edit the other, and they are no longer truly isolated as they once were (now coupled by a bidirectional styling dependency). It’s easy to see how this pattern only has to repeated a couple times before being afraid that touching any styles _anywhere_ may break styling in a completely different part of the app (queue `peter-griffin-css-blinds.gif`).
@@ -201,20 +207,22 @@ This is undesirable because now `<Nav>` and `<Button>` fight over what the final
 Instead, let `<Button>` control its own styles, and try a prop:
 
 ```jsx
-<!-- src/components/Button.astro -->
 ---
+// src/components/Button.astro
 export let theme;
 ---
 <style lang="scss">
-  /* ✅  <Button> is now back in control of its own styling again! */
   .btn {
+    /* ✅  <Button> is now back in control of its own styling again! */
     [data-theme='nav'] {
       // nav-friendly styles here…
     }
   }
 </style>
 
-<button type="button" data-theme="{theme}"><slot></slot></button>
+<button type="button" data-theme={theme}>
+  <slot></slot>
+</button>
 ```
 
 Elsewhere, you can use `<Button theme="nav">` to set the type of button it is. This preserves the contract of _Button is in charge of its styles, and Nav is in charge of its styles_, and now you can edit one without affecting the other. The worst case scenario of using global styles is that the component is broken and unusable (it’s missing part of its core styles). But the worst case scenario of using props (e.g. typo) is that a component will only fall back to its default, but still usable, state.
