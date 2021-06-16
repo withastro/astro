@@ -49,17 +49,19 @@ Basics('Selector with an empty body', async ({ runtime }) => {
 });
 
 Basics('Build does not include HMR client', async ({ build, readFile }) => {
-    await build().catch(err => {
-      assert.ok(!err, 'Error during the build');
-    });
-    const clientHTML = await readFile('/client/index.html');
-    const $ = doc(clientHTML);
+  await build().catch((err) => {
+    assert.ok(!err, 'Error during the build');
+  });
+  const clientHTML = await readFile('/client/index.html');
+  const $ = doc(clientHTML);
 
-    assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 0, 'No HMR client script');
-    const hmrPortScript = $('script').filter((i, el) => {
-      return $(el).text().match(/window\.HMR_WEBSOCKET_PORT/);
-    });
-    assert.equal(hmrPortScript.length, 0, 'No script setting the websocket port');
+  assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 0, 'No HMR client script');
+  const hmrPortScript = $('script').filter((i, el) => {
+    return $(el)
+      .text()
+      .match(/window\.HMR_WEBSOCKET_PORT/);
+  });
+  assert.equal(hmrPortScript.length, 0, 'No script setting the websocket port');
 });
 
 Basics.run();
