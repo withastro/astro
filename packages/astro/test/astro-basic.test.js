@@ -64,4 +64,14 @@ Basics('Build does not include HMR client', async ({ build, readFile }) => {
   assert.equal(hmrPortScript.length, 0, 'No script setting the websocket port');
 });
 
+Basics('Allows forward-slashes in mustache tags (#407)', async ({ runtime }) => {
+  const result = await runtime.load('/forward-slash');
+  const html = result.contents;
+  const $ = doc(html);
+
+  assert.equal($('a[href="/post/one"]').length, 1);
+  assert.equal($('a[href="/post/two"]').length, 1);
+  assert.equal($('a[href="/post/three"]').length, 1);
+});
+
 Basics.run();
