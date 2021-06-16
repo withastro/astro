@@ -46,6 +46,10 @@ ${contents}`;
         return result;
       }
     },
+    fileChanged(fileLoc) {
+      this.markChanged('astro/runtime/config.js');
+      configChangedCallback();
+    },
     config(snowpackConfig) {
       if(!isNaN(snowpackConfig.devOptions.hmrPort)) {
         hmrPort = snowpackConfig.devOptions.hmrPort;

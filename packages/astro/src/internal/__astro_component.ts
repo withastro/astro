@@ -7,22 +7,13 @@ import * as astro from './renderer-astro';
 // see https://github.com/remcohaszing/estree-util-value-to-estree#readme
 const serialize = (value: Value) => generate(valueToEstree(value));
 
-/**
- * These values are dynamically injected by Snowpack.
- * See comment in `snowpack-plugin.cjs`!
- *
- * In a world where Snowpack supports virtual files, this won't be necessary.
- * It would ideally look something like:
- *
- * ```ts
- * import { __rendererSources, __renderers } from "virtual:astro/runtime"
- * ```
- */
-declare let __rendererSources: string[];
-declare let __renderers: any[];
+let rendererSources = [];
+let renderers = [];
 
-__rendererSources = ['', ...__rendererSources];
-__renderers = [astro, ...__renderers];
+export function setRenderers(_rendererSources: string[], _renderers: any) {
+  rendererSources = [''].concat(_rendererSources);
+  renderers = [astro].concat(_renderers);
+}
 
 const rendererCache = new WeakMap();
 
