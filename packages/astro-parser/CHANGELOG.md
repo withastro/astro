@@ -1,5 +1,11 @@
 # @astrojs/parser
 
+## 0.13.9
+
+### Patch Changes
+
+- f9f2da4: Add repository key to all package.json
+
 ## 0.13.8
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/prism
 
+## 0.2.2
+
+### Patch Changes
+
+- f9f2da4: Add repository key to all package.json
+
 ## 0.2.1
 
 ### Patch Changes
