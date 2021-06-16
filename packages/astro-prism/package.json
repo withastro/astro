@@ -3,6 +3,11 @@
   "version": "0.2.1",
   "description": "IYKYK",
   "main": "index.mjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/astro.git",
+    "directory": "packages/astro-prism"
+  },
   "scripts": {
     "build": "echo 'build'",
     "test": "echo \"Error: no test specified\" && exit 1"

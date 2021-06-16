@@ -3,6 +3,11 @@
   "version": "0.1.1",
   "main": "./dist/index.js",
   "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/astro.git",
+    "directory": "packages/markdown-support"
+  },
   "exports": {
     ".": "./dist/index.js"
   },
