@@ -13,7 +13,7 @@ import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
 import { codeFrameColumns } from '@babel/code-frame';
 import * as babelTraverse from '@babel/traverse';
-import { error, warn } from '../../logger.js';
+import { error, warn, parseError } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
@@ -21,6 +21,8 @@ import { isComponentTag } from '../utils';
 import { renderMarkdown } from '@astrojs/markdown-support';
 import { transform } from '../transform/index.js';
 import { PRISM_IMPORT } from '../transform/prism.js';
+import { positionAt } from '../utils';
+import { readFileSync } from 'fs';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 
@@ -170,14 +172,38 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
 }
 
 /** Evaluate expression (safely) */
-function compileExpressionSafe(raw: string): string {
-  let { code } = transformSync(raw, {
-    loader: 'tsx',
-    jsxFactory: 'h',
-    jsxFragment: 'Fragment',
-    charset: 'utf8',
-  });
-  return code;
+function compileExpressionSafe(raw: string, { state, compileOptions, location }: { state: CodegenState, compileOptions: CompileOptions, location: { start: number, end: number } }): string|null {
+  try {
+    let { code } = transformSync(raw, {
+      loader: 'tsx',
+      jsxFactory: 'h',
+      jsxFragment: 'Fragment',
+      charset: 'utf8'
+    });
+    return code;
+  } catch ({ errors }) {
+    const err = new Error() as any;
+    const e = errors[0];
+    err.filename = state.filename;
+    const text = readFileSync(state.filename).toString();
+    const start = positionAt(location.start, text);
+    start.line += e.location.line;
+    start.character += e.location.column + 1;
+    err.start = { line: start.line, column: start.character };
+
+    const end = { ...start };
+    end.character += e.location.length;
+
+    const frame = codeFrameColumns(text, {
+      start: { line: start.line, column: start.character },
+      end: { line: end.line, column: end.character },
+    })
+
+    err.frame = frame;
+    err.message = e.text;
+    parseError(compileOptions.logging, err);
+    return null;
+  }
 }
 
 interface CompileResult {
@@ -473,8 +499,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 raw += children[nextChildIndex++];
               }
             }
+            const location = { start: node.start, end: node.end };
             // TODO Do we need to compile this now, or should we compile the entire module at the end?
-            let code = compileExpressionSafe(raw).trim().replace(/\;$/, '');
+            let code = compileExpressionSafe(raw, { state, compileOptions, location });
+            if (code === null) throw new Error(`Unable to compile expression`);
+            code = code.trim().replace(/\;$/, '');
             if (!FALSY_EXPRESSIONS.has(code)) {
               if (state.markers.insideMarkdown) {
                 buffers[curr] += `{${code}}`;
