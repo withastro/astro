@@ -1,4 +1,9 @@
-# astro-languageserver
+# @astrojs/language-server
+
+## 0.5.0-next.0
+
+- Moved to scoped `@astrojs/language-server` package
+- Removed some `devDependencies` from the bundle and added them to `dependencies`
 
 ## 0.4.0
 
