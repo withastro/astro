@@ -115,7 +115,7 @@ export let collection: any;
 export async function createCollection() {
   const allPokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=150`);
   const allPokemonResult = await allPokemonResponse.json();
-  const allPokemon = allPokemonResult.result;
+  const allPokemon = allPokemonResult.results;
   const allLetters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
   return {
     // `routes` defines the total collection of routes as `params` data objects.
