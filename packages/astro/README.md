@@ -117,8 +117,9 @@ Frontend state management depends on your framework of choice. Below is a list o
 Our goal is to support all popular state management libraries, as long as there is no technical reason that we cannot.
 
 - **React/Preact**
+  - [x] **[Recoil](https://recoiljs.org/): Full Support**
+  - [x] **[Jotai](https://jotai.pmnd.rs/): Full Support**
   - [ ] **Redux: Partial Support** (Note: You can access a Redux store directly, but full `react-redux` support requires the ability to set a custom `<Provider>` wrapper to every component island. Planned.)
-  - [x] **Recoil: Full Support**
 - **Svelte**
   - [x] **Svelte Stores: Full Support**
 - **Vue:**
