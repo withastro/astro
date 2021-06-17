@@ -122,6 +122,7 @@ const __astroInternal = Symbol('astro.internal');
 async function __render(props, ...children) {
   const Astro = {
     css: props[__astroInternal]?.css || [],
+    props: () => props,
     request: props[__astroInternal]?.request || {},
     site: new URL('/', ${JSON.stringify(site)}),
     isPage: props[__astroInternal]?.isPage || false
