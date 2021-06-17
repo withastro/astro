@@ -1,4 +1,4 @@
-import { setRenderers } from 'astro/dist/internal/__astro_component.js';
+declare function setRenderers(sources: string[], renderers: any[]): void;
 
 declare let rendererSources: string[];
 declare let renderers: any[];
