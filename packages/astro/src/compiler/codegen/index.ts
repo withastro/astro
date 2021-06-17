@@ -609,6 +609,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               paren++;
               buffers[curr] += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
             } catch (err) {
+              paren--;
               // handle errors in scope with filename
               const rel = filename.replace(astroConfig.projectRoot.pathname, '');
               // TODO: return actual codeframe here
