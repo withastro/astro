@@ -12,7 +12,7 @@
 
 body {
   padding: 4rem 2rem;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   display: grid;
   justify-content: center;
