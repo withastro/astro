@@ -189,6 +189,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
   const styleNodes: TemplateNode[] = []; // <style> tags to be updated
   const styleTransformPromises: Promise<StyleTransformResult>[] = []; // async style transform results to be finished in finalize();
   const scopedClass = `astro-${hashFromFilename(fileID)}`; // this *should* generate same hash from fileID every time
+  const nodesToScope = new Set<TemplateNode>();
 
   return {
     visitors: {
@@ -225,8 +226,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
               return; // only continue if this is NOT a <script> tag, etc.
             }
             // Note: currently we _do_ scope web components/custom elements. This seems correct?
-
-            injectScopedClassAttribute(node, scopedClass);
+            nodesToScope.add(node);
           },
         },
       },
@@ -254,6 +254,14 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
     },
     async finalize() {
       const styleTransforms = await Promise.all(styleTransformPromises);
+      
+      // If we DO have styles, let's inject the scoped `class` attribute
+      // Otherwise, our final optimization is easier if we skip this
+      if (styleTransforms.length > 0) {
+        for (const node of nodesToScope.values()) {
+          injectScopedClassAttribute(node, scopedClass);
+        }
+      }
 
       styleTransforms.forEach((result, n) => {
         if (styleNodes[n].attributes) {
