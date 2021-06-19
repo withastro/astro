@@ -1,0 +1,23 @@
+{
+  "name": "@astrojs/router",
+  "version": "0.1.0",
+  "main": "./dist/index.js",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/astro.git",
+    "directory": "packages/router"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "prepublish": "yarn build",
+    "build": "astro-scripts build \"src/index.ts\" && tsc -p tsconfig.json",
+    "dev": "astro-scripts dev \"src/index.ts\""
+  },
+  "devDependencies": {
+    "astro-scripts": "0.0.1",
+    "morphdom": "^2.6.1"
+  }
+}
