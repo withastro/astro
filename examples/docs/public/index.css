@@ -359,6 +359,12 @@ nav h4 {
 
 /* Scrollbar */
 
+/* Firefox */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-text-lighter) var(--theme-divider);  
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 0.5rem;
