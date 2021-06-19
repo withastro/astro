@@ -254,7 +254,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
     },
     async finalize() {
       const styleTransforms = await Promise.all(styleTransformPromises);
-      
+
       // If we DO have styles, let's inject the scoped `class` attribute
       // Otherwise, our final optimization is easier if we skip this
       if (styleTransforms.length > 0) {

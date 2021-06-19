@@ -130,7 +130,7 @@ StylesSSR('Astro scoped styles skipped without <style>', async ({ runtime }) => 
   const result = await runtime.load('/');
   const $ = doc(result.contents);
 
-  assert.type($('#no-scope').attr('class'), 'undefined', `Astro component without <style> should not include scoped class`)
+  assert.type($('#no-scope').attr('class'), 'undefined', `Astro component without <style> should not include scoped class`);
 });
 
 StylesSSR.run();
