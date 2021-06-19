@@ -126,4 +126,11 @@ StylesSSR('Astro scoped styles', async ({ runtime }) => {
   assert.match(cssMinify(css.toString()), `.blue.${scopedClass}{color:powderblue}.color\\:blue.${scopedClass}{color:powderblue}.visible.${scopedClass}{display:block}`);
 });
 
+StylesSSR('Astro scoped styles skipped without <style>', async ({ runtime }) => {
+  const result = await runtime.load('/');
+  const $ = doc(result.contents);
+
+  assert.type($('#no-scope').attr('class'), 'undefined', `Astro component without <style> should not include scoped class`)
+});
+
 StylesSSR.run();
