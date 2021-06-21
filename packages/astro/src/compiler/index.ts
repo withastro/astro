@@ -102,13 +102,10 @@ async function transformFromSource(
 interface CompileComponentOptions {
   compileOptions: CompileOptions;
   filename: string;
-  projectRoot: string,
+  projectRoot: string;
   isPage?: boolean;
 }
-export async function compileComponent(
-  source: string,
-  { compileOptions, filename, projectRoot, isPage }: CompileComponentOptions
-): Promise<CompileResult> {
+export async function compileComponent(source: string, { compileOptions, filename, projectRoot, isPage }: CompileComponentOptions): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
 

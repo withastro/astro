@@ -7,8 +7,8 @@ const NoHeadEl = suite('Documents without a head');
 
 setup(NoHeadEl, './fixtures/no-head-el', {
   runtimeOptions: {
-    mode: 'development'
-  }
+    mode: 'development',
+  },
 });
 
 NoHeadEl('Places style and scripts before the first non-head element', async ({ runtime }) => {
@@ -24,6 +24,5 @@ NoHeadEl('Places style and scripts before the first non-head element', async ({ 
 
   assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 1, 'Only the hmr client for the page');
 });
-
 
 NoHeadEl.run();

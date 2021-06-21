@@ -228,7 +228,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       },
       children: [],
       props: { collection },
-      css: Array.isArray(mod.css) ? mod.css : typeof mod.css === 'string' ? [mod.css] : []
+      css: Array.isArray(mod.css) ? mod.css : typeof mod.css === 'string' ? [mod.css] : [],
     })) as string;
 
     return {

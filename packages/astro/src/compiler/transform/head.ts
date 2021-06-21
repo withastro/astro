@@ -17,7 +17,7 @@ export default function (opts: TransformOptions): Transformer {
           },
           leave(node) {
             eoh.leave(node);
-          }
+          },
         },
         InlineComponent: {
           enter(node) {
@@ -33,7 +33,7 @@ export default function (opts: TransformOptions): Transformer {
           },
           leave(node) {
             eoh.leave(node);
-          }
+          },
         },
       },
     },
@@ -59,10 +59,7 @@ export default function (opts: TransformOptions): Transformer {
             start: 0,
             end: 0,
             type: 'Expression',
-            codeChunks: [
-              'Astro.css.map(css => (',
-              '))'
-            ],
+            codeChunks: ['Astro.css.map(css => (', '))'],
             children: [
               {
                 type: 'Element',
@@ -75,9 +72,9 @@ export default function (opts: TransformOptions): Transformer {
                       {
                         type: 'Text',
                         raw: 'stylesheet',
-                        data: 'stylesheet'
-                      }
-                    ]
+                        data: 'stylesheet',
+                      },
+                    ],
                   },
                   {
                     name: 'href',
@@ -91,22 +88,20 @@ export default function (opts: TransformOptions): Transformer {
                           start: 0,
                           end: 0,
                           type: 'Expression',
-                          codeChunks: [
-                            'css'
-                          ],
-                          children: []
-                        }
-                      }
-                    ]
-                  }
+                          codeChunks: ['css'],
+                          children: [],
+                        },
+                      },
+                    ],
+                  },
                 ],
                 start: 0,
                 end: 0,
-                children: []
-              }
-            ]
-          }
-        ]
+                children: [],
+              },
+            ],
+          },
+        ],
       });
 
       if (hasComponents) {
@@ -157,19 +152,16 @@ export default function (opts: TransformOptions): Transformer {
         start: 0,
         end: 0,
         type: 'Expression',
-        codeChunks: [
-          'Astro.isPage ? (',
-          ') : null'
-        ],
+        codeChunks: ['Astro.isPage ? (', ') : null'],
         children: [
           {
             start: 0,
             end: 0,
             type: 'Fragment',
-            children
-          }
-        ]
-      }
+            children,
+          },
+        ],
+      };
 
       eoh.append(conditionalNode);
     },
