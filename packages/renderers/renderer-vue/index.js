@@ -3,4 +3,5 @@ export default {
   snowpackPlugin: '@snowpack/plugin-vue',
   client: './client',
   server: './server',
+  knownEntrypoints: ['vue']
 };
