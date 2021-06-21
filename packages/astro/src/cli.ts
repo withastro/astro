@@ -94,12 +94,9 @@ async function printVersion() {
 
 /** Merge CLI flags & config options (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
-  console.log(JSON.stringify(flags, null, 4));
-  console.log(JSON.stringify(astroConfig, null, 4));
   if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
   if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
   if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.draft = flags.drafts;
-  console.log(JSON.stringify(astroConfig, null, 4));
 }
 
 /** Handle `astro run` command */
@@ -126,9 +123,6 @@ const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<void>>([
 export async function cli(args: string[]) {
   const flags = yargs(args);
   const state = resolveArgs(flags);
-
-  console.log(JSON.stringify(flags, null, 4));
-  console.log(JSON.stringify(state, null, 4));
 
   switch (state.cmd) {
     case 'help': {
