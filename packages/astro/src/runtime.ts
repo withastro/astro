@@ -94,7 +94,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   let rss: { data: any[] & CollectionRSS } = {} as any;
 
   try {
-    if(configManager.needsUpdate()) {
+    if (configManager.needsUpdate()) {
       await configManager.update();
     }
     const mod = await snowpackRuntime.importModule(snowpackURL);

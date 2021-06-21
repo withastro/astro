@@ -17,12 +17,7 @@ interface RendererInstance {
 const CONFIG_MODULE_BASE_NAME = '__astro_config.js';
 const CONFIG_MODULE_URL = `/_astro_frontend/${CONFIG_MODULE_BASE_NAME}`;
 
-const DEFAULT_RENDERERS = [
-  '@astrojs/renderer-vue',
-  '@astrojs/renderer-svelte',
-  '@astrojs/renderer-react',
-  '@astrojs/renderer-preact'
-];
+const DEFAULT_RENDERERS = ['@astrojs/renderer-vue', '@astrojs/renderer-svelte', '@astrojs/renderer-react', '@astrojs/renderer-preact'];
 
 export class ConfigManager {
   private state: 'initial' | 'dirty' | 'clean' = 'initial';
@@ -31,10 +26,7 @@ export class ConfigManager {
   private rendererNames!: string[];
   private version = 1;
 
-  constructor(
-    private astroConfig: AstroConfig,
-    private resolvePackageUrl: (pkgName: string) => Promise<string>,
-  ) {
+  constructor(private astroConfig: AstroConfig, private resolvePackageUrl: (pkgName: string) => Promise<string>) {
     this.setRendererNames(this.astroConfig);
   }
 
@@ -43,9 +35,9 @@ export class ConfigManager {
   }
 
   async update() {
-    if(this.needsUpdate() && this.snowpackRuntime) {
+    if (this.needsUpdate() && this.snowpackRuntime) {
       // astro.config.mjs has changed, reload it.
-      if(this.state === 'dirty') {
+      if (this.state === 'dirty') {
         const version = this.version++;
         const astroConfig = await loadConfig(this.astroConfig.projectRoot.pathname, `astro.config.mjs?version=${version}`);
         this.setRendererNames(astroConfig);
@@ -79,15 +71,15 @@ export class ConfigManager {
       )
     ).map(({ default: raw }, i) => {
       const { name = rendererNames[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
-  
+
       if (typeof client !== 'string') {
         throw new Error(`Expected "client" from ${name} to be a relative path to the client-side renderer!`);
       }
-  
+
       if (typeof server !== 'string') {
         throw new Error(`Expected "server" from ${name} to be a relative path to the server-side renderer!`);
       }
-  
+
       let snowpackPlugin: RendererSnowpackPlugin;
       if (typeof snowpackPluginName === 'string') {
         if (snowpackPluginOptions) {
@@ -98,7 +90,7 @@ export class ConfigManager {
       } else if (snowpackPluginName) {
         throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
       }
-  
+
       return {
         name,
         snowpackPlugin,
@@ -118,7 +110,7 @@ export class ConfigManager {
 
 import { setRenderers } from 'astro/dist/internal/__astro_component.js';
 
-let rendererSources = [${rendererClientPackages.map(pkg => `"${pkg}"`).join(', ')}];
+let rendererSources = [${rendererClientPackages.map((pkg) => `"${pkg}"`).join(', ')}];
 let renderers = [${rendererServerPackages.map((_, i) => `__renderer_${i}`).join(', ')}];
 
 ${contents}
