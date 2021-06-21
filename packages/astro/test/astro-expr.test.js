@@ -82,4 +82,11 @@ Expressions('Does not render falsy values using &&', async ({ runtime }) => {
   assert.equal($('#undefined').length, 0, `Expected {undefined && <span id="undefined" />} not to render`);
 });
 
+Expressions.only('Followed by an element', async ({ runtime }) => {
+  const result = await runtime.load('/before-el');
+  if (result.error) throw new Error(result.error);
+
+  console.log(result.contents);
+});
+
 Expressions.run();

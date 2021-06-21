@@ -1,0 +1,15 @@
+---
+let title = 'My App';
+
+let colors = ['red', 'yellow', 'blue'];
+---
+
+<html>
+<head>
+  <title>{title}</title>
+</head>
+<body>
+  {true ? colors.map(color => <div>{color}</div>) : null}
+  <span>Something</span>
+</body>
+</html>
