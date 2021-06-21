@@ -38,6 +38,9 @@ function validateConfig(config: any): void {
         throw new Error('[config] buildOptions.site must be a valid URL');
       }
     }
+    if(config.buildOptions.drafts !== undefined && typeof config.buildOptions.drafts !== 'boolean') {
+      throw new Error(`[config] buildOptions.drafts: ${JSON.stringify(config.buildOptions.drafts)}\n  Expected boolean, received ${type(config.buildOptions.drafts)}.`);
+    }
   }
 
   // devOptions
@@ -63,6 +66,7 @@ function configDefaults(userConfig?: any): any {
   if (!config.buildOptions) config.buildOptions = {};
   if (!config.markdownOptions) config.markdownOptions = {};
   if (typeof config.buildOptions.sitemap === 'undefined') config.buildOptions.sitemap = true;
+  if (typeof config.buildOptions.draft === 'undefined') config.buildOptions.draft = true;
 
   return config;
 }

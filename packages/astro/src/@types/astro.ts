@@ -26,6 +26,8 @@ export interface AstroConfig {
   markdownOptions?: Partial<AstroMarkdownOptions>;
   /** Options specific to `astro build` */
   buildOptions: {
+    /** should draft documents be ignored **/
+    draft: boolean;
     /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
     site?: string;
     /** Generate sitemap (set to "false" to disable) */
