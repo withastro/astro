@@ -228,16 +228,8 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       },
       children: [],
       props: { collection },
+      css: Array.isArray(mod.css) ? mod.css : typeof mod.css === 'string' ? [mod.css] : []
     })) as string;
-
-    // inject styles
-    // TODO: handle this in compiler
-    const styleTags = Array.isArray(mod.css) && mod.css.length ? mod.css.reduce((markup, href) => `${markup}\n<link rel="stylesheet" type="text/css" href="${href}" />`, '') : ``;
-    if (html.indexOf('</head>') !== -1) {
-      html = html.replace('</head>', `${styleTags}</head>`);
-    } else {
-      html = styleTags + html;
-    }
 
     return {
       statusCode: 200,
@@ -304,7 +296,7 @@ export interface AstroRuntime {
   shutdown: () => Promise<void>;
 }
 
-interface RuntimeOptions {
+export interface RuntimeOptions {
   mode: RuntimeMode;
   logging: LogOptions;
 }

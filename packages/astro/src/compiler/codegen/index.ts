@@ -524,8 +524,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             return;
           case 'Comment':
             return;
-          case 'Fragment':
+          case 'Fragment': {
+            buffers[curr] += `h(Fragment, null,`;
             break;
+          }
           case 'SlotTemplate': {
             buffers[curr] += `h(Fragment, null, children`;
             paren++;
@@ -659,10 +661,13 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       },
       async leave(node, parent, prop, index) {
         switch (node.type) {
+          case 'Fragment': {
+            buffers[curr] += `)`;
+            break;
+          }
           case 'Text':
           case 'Attribute':
           case 'Comment':
-          case 'Fragment':
           case 'Expression':
           case 'MustacheTag':
           case 'CodeSpan':

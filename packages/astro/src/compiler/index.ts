@@ -99,9 +99,15 @@ async function transformFromSource(
 }
 
 /** Return internal code that gets processed in Snowpack */
+interface CompileComponentOptions {
+  compileOptions: CompileOptions;
+  filename: string;
+  projectRoot: string,
+  isPage?: boolean;
+}
 export async function compileComponent(
   source: string,
-  { compileOptions, filename, projectRoot }: { compileOptions: CompileOptions; filename: string; projectRoot: string }
+  { compileOptions, filename, projectRoot, isPage }: CompileComponentOptions
 ): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
@@ -115,11 +121,13 @@ ${result.imports.join('\n')}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';
-const __astroRequestSymbol = Symbol('astro.request');
+const __astroInternal = Symbol('astro.internal');
 async function __render(props, ...children) {
   const Astro = {
-    request: props[__astroRequestSymbol] || {},
+    css: props[__astroInternal]?.css || [],
+    request: props[__astroInternal]?.request || {},
     site: new URL('/', ${JSON.stringify(site)}),
+    isPage: props[__astroInternal]?.isPage || false
   };
 
   ${result.script}
@@ -131,7 +139,7 @@ ${result.createCollection || ''}
 
 // \`__renderPage()\`: Render the contents of the Astro module as a page. This is a special flow,
 // triggered by loading a component directly by URL.
-export async function __renderPage({request, children, props}) {
+export async function __renderPage({request, children, props, css}) {
   const currentChild = {
     isAstroComponent: true,
     layout: typeof __layout === 'undefined' ? undefined : __layout,
@@ -139,7 +147,12 @@ export async function __renderPage({request, children, props}) {
     __render,
   };
 
-  props[__astroRequestSymbol] = request;
+  props[__astroInternal] = {
+    request,
+    css,
+    isPage: true
+  };
+
   const childBodyResult = await currentChild.__render(props, children);
 
   // find layout, if one was given.
