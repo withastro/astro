@@ -176,3 +176,16 @@ export interface ComponentInfo {
 }
 
 export type Components = Map<string, ComponentInfo>;
+
+type AsyncRendererComponentFn<U> = (
+  Component: any,
+  props: any,
+  children: string | undefined
+) => Promise<U>;
+
+export interface Renderer {
+  check: AsyncRendererComponentFn<boolean>;
+  renderToStaticMarkup: AsyncRendererComponentFn<{
+    html: string;
+  }>;
+}

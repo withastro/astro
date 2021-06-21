@@ -4,7 +4,7 @@ import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollection, Pa
 
 import resolve from 'resolve';
 import { existsSync, promises as fs } from 'fs';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { fileURLToPath } from 'url';
 import { posix as path } from 'path';
 import { performance } from 'perf_hooks';
 import {
@@ -22,6 +22,7 @@ import { debug, info } from './logger.js';
 import { configureSnowpackLogger } from './snowpack-logger.js';
 import { searchForPage } from './search.js';
 import snowpackExternals from './external.js';
+import { ConfigManager } from './config_manager.js';
 
 interface RuntimeConfig {
   astroConfig: AstroConfig;
@@ -30,6 +31,7 @@ interface RuntimeConfig {
   snowpack: SnowpackDevServer;
   snowpackRuntime: SnowpackServerRuntime;
   snowpackConfig: SnowpackConfig;
+  configManager: ConfigManager;
 }
 
 // info needed for collection generation
@@ -54,7 +56,7 @@ configureSnowpackLogger(snowpackLogger);
 
 /** Pass a URL to Astro to resolve and build */
 async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
-  const { logging, snowpackRuntime, snowpack } = config;
+  const { logging, snowpackRuntime, snowpack, configManager } = config;
   const { buildOptions, devOptions } = config.astroConfig;
 
   let origin = buildOptions.site ? new URL(buildOptions.site).origin : `http://localhost:${devOptions.port}`;
@@ -92,6 +94,9 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   let rss: { data: any[] & CollectionRSS } = {} as any;
 
   try {
+    if(configManager.needsUpdate()) {
+      await configManager.update();
+    }
     const mod = await snowpackRuntime.importModule(snowpackURL);
     debug(logging, 'resolve', `${reqPath} -> ${snowpackURL}`);
 
@@ -306,31 +311,33 @@ interface RuntimeOptions {
 
 interface CreateSnowpackOptions {
   mode: RuntimeMode;
-  resolvePackageUrl?: (pkgName: string) => Promise<string>;
+  resolvePackageUrl: (pkgName: string) => Promise<string>;
 }
-
-const DEFAULT_RENDERERS = ['@astrojs/renderer-vue', '@astrojs/renderer-svelte', '@astrojs/renderer-react', '@astrojs/renderer-preact'];
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot, renderers = DEFAULT_RENDERERS } = astroConfig;
+  const { projectRoot } = astroConfig;
   const { mode, resolvePackageUrl } = options;
 
   const frontendPath = new URL('./frontend/', import.meta.url);
   const resolveDependency = (dep: string) => resolve.sync(dep, { basedir: fileURLToPath(projectRoot) });
   const isHmrEnabled = mode === 'development';
 
+  // The config manager takes care of the runtime config module (that handles setting renderers, mostly)
+  const configManager = new ConfigManager(astroConfig, resolvePackageUrl);
+
   let snowpack: SnowpackDevServer;
   let astroPluginOptions: {
     resolvePackageUrl?: (s: string) => Promise<string>;
-    renderers?: { name: string; client: string; server: string }[];
     astroConfig: AstroConfig;
     hmrPort?: number;
     mode: RuntimeMode;
+    configManager: ConfigManager;
   } = {
     astroConfig,
-    resolvePackageUrl,
     mode,
+    resolvePackageUrl,
+    configManager,
   };
 
   const mountOptions = {
@@ -344,46 +351,8 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
-  const rendererInstances = (
-    await Promise.all(
-      renderers.map((renderer) => {
-        const entrypoint = pathToFileURL(resolveDependency(renderer)).toString();
-        return import(entrypoint);
-      })
-    )
-  ).map(({ default: raw }, i) => {
-    const { name = renderers[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
-
-    if (typeof client !== 'string') {
-      throw new Error(`Expected "client" from ${name} to be a relative path to the client-side renderer!`);
-    }
-
-    if (typeof server !== 'string') {
-      throw new Error(`Expected "server" from ${name} to be a relative path to the server-side renderer!`);
-    }
-
-    let snowpackPlugin: string | [string, any] | undefined;
-    if (typeof snowpackPluginName === 'string') {
-      if (snowpackPluginOptions) {
-        snowpackPlugin = [resolveDependency(snowpackPluginName), snowpackPluginOptions];
-      } else {
-        snowpackPlugin = resolveDependency(snowpackPluginName);
-      }
-    } else if (snowpackPluginName) {
-      throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
-    }
-
-    return {
-      name,
-      snowpackPlugin,
-      client: path.join(name, raw.client),
-      server: path.join(name, raw.server),
-    };
-  });
-
-  astroPluginOptions.renderers = rendererInstances;
-
   // Make sure that Snowpack builds our renderer plugins
+  const rendererInstances = await configManager.buildRendererInstances();
   const knownEntrypoints = [].concat(...(rendererInstances.map((renderer) => [renderer.server, renderer.client]) as any));
   const rendererSnowpackPlugins = rendererInstances.filter((renderer) => renderer.snowpackPlugin).map((renderer) => renderer.snowpackPlugin) as string | [string, any];
 
@@ -434,8 +403,9 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     }
   );
   const snowpackRuntime = snowpack.getServerRuntime();
+  astroPluginOptions.configManager.snowpackRuntime = snowpackRuntime;
 
-  return { snowpack, snowpackRuntime, snowpackConfig };
+  return { snowpack, snowpackRuntime, snowpackConfig, configManager };
 }
 
 /** Core Astro runtime */
@@ -449,6 +419,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     snowpack: snowpackInstance,
     snowpackRuntime,
     snowpackConfig,
+    configManager,
   } = await createSnowpack(astroConfig, {
     mode,
     resolvePackageUrl,
@@ -463,6 +434,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     snowpack,
     snowpackRuntime,
     snowpackConfig,
+    configManager,
   };
 
   return {

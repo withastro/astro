@@ -1,3 +1,4 @@
+import type { Renderer } from '../@types/astro';
 import hash from 'shorthash';
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import { generate } from 'astring';
@@ -7,22 +8,13 @@ import * as astro from './renderer-astro';
 // see https://github.com/remcohaszing/estree-util-value-to-estree#readme
 const serialize = (value: Value) => generate(valueToEstree(value));
 
-/**
- * These values are dynamically injected by Snowpack.
- * See comment in `snowpack-plugin.cjs`!
- *
- * In a world where Snowpack supports virtual files, this won't be necessary.
- * It would ideally look something like:
- *
- * ```ts
- * import { __rendererSources, __renderers } from "virtual:astro/runtime"
- * ```
- */
-declare let __rendererSources: string[];
-declare let __renderers: any[];
+let rendererSources: string[] = [];
+let renderers: Renderer[] = [];
 
-__rendererSources = ['', ...__rendererSources];
-__renderers = [astro, ...__renderers];
+export function setRenderers(_rendererSources: string[], _renderers: Renderer[]) {
+  rendererSources = [''].concat(_rendererSources);
+  renderers = [astro as Renderer].concat(_renderers);
+}
 
 const rendererCache = new WeakMap();
 
@@ -33,7 +25,7 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
   }
 
   const errors: Error[] = [];
-  for (const __renderer of __renderers) {
+  for (const __renderer of renderers) {
     // Yes, we do want to `await` inside of this loop!
     // __renderer.check can't be run in parallel, it
     // returns the first match and skips any subsequent checks
@@ -64,7 +56,7 @@ interface AstroComponentProps {
 
 /** For hydrated components, generate a <script type="module"> to load the component */
 async function generateHydrateScript({ renderer, astroId, props }: any, { hydrate, componentUrl, componentExport }: Required<AstroComponentProps>) {
-  const rendererSource = __rendererSources[__renderers.findIndex((r) => r === renderer)];
+  const rendererSource = rendererSources[renderers.findIndex((r) => r === renderer)];
 
   const script = `<script type="module">
 import setup from '/_astro_frontend/hydrate/${hydrate}.js';
@@ -104,7 +96,7 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
     if (!renderer) {
       // If the user only specifies a single renderer, but the check failed
       // for some reason... just default to their preferred renderer.
-      renderer = __rendererSources.length === 2 ? __renderers[1] : null;
+      renderer = rendererSources.length === 2 ? renderers[1] : null;
 
       if (!renderer) {
         const name = getComponentName(Component, componentProps);
