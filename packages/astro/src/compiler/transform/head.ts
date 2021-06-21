@@ -158,7 +158,7 @@ export default function (opts: TransformOptions): Transformer {
         end: 0,
         type: 'Expression',
         codeChunks: [
-          'true ? (',
+          'Astro.isPage ? (',
           ') : null'
         ],
         children: [
