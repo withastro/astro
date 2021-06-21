@@ -23,7 +23,13 @@ module.exports = (snowpackConfig, options = {}) => {
   let hmrPort = DEFAULT_HMR_PORT;
   return {
     name: 'snowpack-astro',
-    knownEntrypoints: ['astro/dist/internal/h.js', 'astro/components/Prism.astro'],
+    knownEntrypoints: [
+      'astro/dist/internal/h.js',
+      'astro/components/Prism.astro',
+      'shorthash',
+      'estree-util-value-to-estree',
+      'astring'
+    ],
     resolve: {
       input: ['.astro', '.md'],
       output: ['.js', '.css'],

@@ -12,6 +12,7 @@ interface RendererInstance {
   snowpackPlugin: RendererSnowpackPlugin;
   client: string;
   server: string;
+  knownEntrypoints: string[] | undefined;
 }
 
 const CONFIG_MODULE_BASE_NAME = '__astro_config.js';
@@ -96,6 +97,7 @@ export class ConfigManager {
         snowpackPlugin,
         client: path.join(name, raw.client),
         server: path.join(name, raw.server),
+        knownEntrypoints: raw.knownEntrypoints
       };
     });
 
