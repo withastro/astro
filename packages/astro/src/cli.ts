@@ -27,6 +27,7 @@ interface CLIState {
   cmd: cliCommand;
   options: {
     projectRoot?: string;
+    drafts?: boolean;
     sitemap?: boolean;
     port?: number;
     config?: string;
@@ -39,6 +40,7 @@ function resolveArgs(flags: Arguments): CLIState {
   const options: CLIState['options'] = {
     projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
+    drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined,
   };
@@ -76,6 +78,7 @@ function printHelp() {
   --config <path>       Specify the path to the Astro config file.
   --project-root <path> Specify the path to the project root folder.
   --no-sitemap          Disable sitemap generation (build only).
+  --no-drafts           Enable generation of draft pages (build only).
   --reload              Clean the cache, reinstalling dependencies.
   --verbose             Enable verbose logging
   --version             Show the version number and exit.
@@ -91,8 +94,12 @@ async function printVersion() {
 
 /** Merge CLI flags & config options (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
+  console.log(JSON.stringify(flags, null, 4));
+  console.log(JSON.stringify(astroConfig, null, 4));
   if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
   if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
+  if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.draft = flags.drafts;
+  console.log(JSON.stringify(astroConfig, null, 4));
 }
 
 /** Handle `astro run` command */
@@ -119,6 +126,9 @@ const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<void>>([
 export async function cli(args: string[]) {
   const flags = yargs(args);
   const state = resolveArgs(flags);
+
+  console.log(JSON.stringify(flags, null, 4));
+  console.log(JSON.stringify(state, null, 4));
 
   switch (state.cmd) {
     case 'help': {
