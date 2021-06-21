@@ -100,7 +100,7 @@ export default {
   server: './server.js', // relative path to the server entrypoint
   snowpackPlugin: '@snowpack/plugin-xxx', // optional, the name of a snowpack plugin to inject
   snowpackPluginOptions: { example: true }, // optional, any options to be forwarded to the snowpack plugin
-  knownEntrypoint: ['framework'] // optional, entrypoint modules that will be used by compiled source
+  knownEntrypoint: ['framework'], // optional, entrypoint modules that will be used by compiled source
 };
 ```
 

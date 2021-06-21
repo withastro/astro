@@ -346,9 +346,9 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   // Make sure that Snowpack builds our renderer plugins
   const rendererInstances = await configManager.buildRendererInstances();
   const knownEntrypoints: string[] = [];
-  for(const renderer of rendererInstances) {
+  for (const renderer of rendererInstances) {
     knownEntrypoints.push(renderer.server, renderer.client);
-    if(renderer.knownEntrypoints) {
+    if (renderer.knownEntrypoints) {
       knownEntrypoints.push(...renderer.knownEntrypoints);
     }
   }

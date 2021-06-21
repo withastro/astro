@@ -97,7 +97,7 @@ export class ConfigManager {
         snowpackPlugin,
         client: path.join(name, raw.client),
         server: path.join(name, raw.server),
-        knownEntrypoints: raw.knownEntrypoints
+        knownEntrypoints: raw.knownEntrypoints,
       };
     });
 
