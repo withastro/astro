@@ -1,5 +1,11 @@
 # @astrojs/renderer-preact
 
+## 0.1.3
+
+### Patch Changes
+
+- 0abd251: Allows renderers to provide knownEntrypoint config values
+
 ## 0.1.2
 
 ### Patch Changes
