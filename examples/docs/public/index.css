@@ -346,6 +346,49 @@ nav h4 {
   text-decoration: none;
 }
 
+.nav-groups {
+  padding-bottom: 2rem;
+  max-height: calc(100% - 3rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .nav-groups > li + li {
   margin-top: 2rem;  
 }
+
+/* Scrollbar */
+
+/* Firefox */
+body {
+  scrollbar-width: thin;
+  scrollbar-color: var(--theme-text-lighter) var(--theme-divider);  
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--theme-divider);
+  border-radius: 1rem;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--theme-text-lighter);
+  border-radius: 1rem;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-light);
+}
+
+/* Buttons */
+::-webkit-scrollbar-button {
+  display: none;
+}
+/* Scrollbar - End */
