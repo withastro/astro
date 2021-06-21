@@ -1,5 +1,11 @@
 # prettier-plugin-astro
 
+## 0.0.5
+
+### Patch Changes
+
+- ff7ec2f: Add @types/prettier for type support
+
 ## 0.0.4
 
 ### Patch Changes

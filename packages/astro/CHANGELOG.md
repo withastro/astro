@@ -1,5 +1,19 @@
 # astro
 
+## 0.13.11
+
+### Patch Changes
+
+- 6573bea: Fixed README header aspect ratio
+- 2671b6f: Fix [472](https://github.com/snowpackjs/astro/issues/472) by not injecting `astro-*` scoped class unless it is actually used
+- b547892: Makes providing a head element on pages optional
+- b547892: Allows astro documents to omit the head element
+- 0abd251: Allows renderers to provide knownEntrypoint config values
+- Updated dependencies [0abd251]
+  - @astrojs/renderer-preact@0.1.3
+  - @astrojs/renderer-react@0.1.3
+  - @astrojs/renderer-vue@0.1.3
+
 ## 0.13.10
 
 ### Patch Changes
