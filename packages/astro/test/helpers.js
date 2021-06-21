@@ -11,6 +11,17 @@ const MAX_TEST_TIME = 10000; // max time an individual test may take
 const MAX_SHUTDOWN_TIME = 3000; // max time shutdown() may take
 
 /** setup fixtures for tests */
+
+/**
+ * @typedef {Object} SetupOptions
+ * @prop {import('../src/runtime').RuntimeOptions} runtimeOptions
+ */
+
+/**
+ * @param {{}} Suite
+ * @param {string} fixturePath
+ * @param {SetupOptions} setupOptions
+ */
 export function setup(Suite, fixturePath, { runtimeOptions = {} } = {}) {
   let runtime;
   const timers = {};

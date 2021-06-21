@@ -296,7 +296,7 @@ export interface AstroRuntime {
   shutdown: () => Promise<void>;
 }
 
-interface RuntimeOptions {
+export interface RuntimeOptions {
   mode: RuntimeMode;
   logging: LogOptions;
 }
