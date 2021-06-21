@@ -50,7 +50,7 @@ type LoadResultNotFound = { statusCode: 404; error: Error; collectionInfo?: Coll
 type LoadResultRedirect = { statusCode: 301 | 302; location: string; collectionInfo?: CollectionInfo };
 type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'not-found'; error: CompileError } | { type: 'unknown'; error: Error });
 
-export type LoadResult = (LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError) & { collectionInfo?: CollectionInfo };
+export type LoadResult = (LoadResultSuccess | LoadResultNotFound  | LoadResultRedirect | LoadResultError) & { collectionInfo?: CollectionInfo };
 
 // Disable snowpack from writing to stdout/err.
 configureSnowpackLogger(snowpackLogger);
@@ -104,6 +104,23 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     // handle collection
     let collection = {} as CollectionResult;
     let additionalURLs = new Set<string>();
+
+    if (mod.exports.__content) {
+      const hasDraftAttribute = mod.exports.__content.hasOwnProperty('draft');
+      const hasPublishAttribute = mod.exports.__content.hasOwnProperty('published');
+      if(hasPublishAttribute && mod.exports.__content['published'] === false) {
+        return { 
+          statusCode: 404, 
+          error: new Error('Unpublished document')
+        };
+      }
+      if(hasDraftAttribute && mod.exports.__content['draft'] === true && buildOptions.draft && config.mode === 'production') {
+        return { 
+          statusCode: 404, 
+          error: new Error('Unpublished document')
+        };
+      }
+    }
 
     if (mod.exports.createCollection) {
       const createCollection: CreateCollection = await mod.exports.createCollection();
