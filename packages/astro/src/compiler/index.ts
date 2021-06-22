@@ -119,11 +119,12 @@ ${result.imports.join('\n')}
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroInternal = Symbol('astro.internal');
-async function __render(props, ...children) {
+async function __render(_props, ...children) {
+  const props = Object.assign({}, _props, { [__astroInternal]: undefined });
   const Astro = {
-    css: props[__astroInternal]?.css || [],
-    props: () => props,
-    request: props[__astroInternal]?.request || {},
+    props,
+    css: _props[__astroInternal]?.css || [],
+    request: _props[__astroInternal]?.request || {},
     site: new URL('/', ${JSON.stringify(site)}),
     isPage: props[__astroInternal]?.isPage || false
   };
@@ -163,7 +164,11 @@ export async function __renderPage({request, children, props, css}) {
   }
 
   return childBodyResult;
-};\n`;
+};
+
+${result.exports.join('\n')}
+
+`;
 
   return {
     result,

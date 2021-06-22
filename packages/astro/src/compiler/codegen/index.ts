@@ -223,13 +223,13 @@ interface CodegenState {
   markers: {
     insideMarkdown: boolean | Record<string, any>;
   };
-  importExportStatements: Set<string>;
+  exportStatements: Set<string>;
+  importStatements: Set<string>;
 }
 
 /** Compile/prepare Astro frontmatter scripts */
 function compileModule(module: Script, state: CodegenState, compileOptions: CompileOptions): CompileResult {
   const componentImports: ImportDeclaration[] = [];
-  const componentProps: VariableDeclarator[] = [];
   const componentExports: ExportNamedDeclaration[] = [];
 
   const contentImports = new Map<string, { spec: string; declarator: string }>();
@@ -262,28 +262,19 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
     while (--i >= 0) {
       const node = body[i];
       switch (node.type) {
+        // case 'ExportAllDeclaration':
+        // case 'ExportDefaultDeclaration': 
         case 'ExportNamedDeclaration': {
           if (!node.declaration) break;
-          // const replacement = extract_exports(node);
 
-          if (node.declaration.type === 'VariableDeclaration') {
-            // case 1: prop (export let title)
-
-            const declaration = node.declaration.declarations[0];
-            if ((declaration.id as Identifier).name === '__layout' || (declaration.id as Identifier).name === '__content') {
-              componentExports.push(node);
-            } else {
-              componentProps.push(declaration);
-            }
-            body.splice(i, 1);
-          } else if (node.declaration.type === 'FunctionDeclaration') {
+          if (node.declaration.type === 'FunctionDeclaration') {
             // case 2: createCollection (export async function)
             if (!node.declaration.id || node.declaration.id.name !== 'createCollection') break;
             createCollection = module.content.substring(node.start || 0, node.end || 0);
-
-            // remove node
-            body.splice(i, 1);
           }
+
+          componentExports.push(node);
+          body.splice(i, 1);
           break;
         }
         case 'FunctionDeclaration': {
@@ -339,24 +330,17 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         });
       }
       const { start, end } = componentImport;
-      state.importExportStatements.add(module.content.slice(start || undefined, end || undefined));
+      state.importStatements.add(module.content.slice(start || undefined, end || undefined));
     }
-    for (const componentImport of componentExports) {
-      const { start, end } = componentImport;
-      state.importExportStatements.add(module.content.slice(start || undefined, end || undefined));
-    }
+    for (const componentExport of componentExports) {
+      const { start, end } = componentExport;
+      // These exports could contain TypeScript, so let's compile them.
+      let code = compileExpressionSafe(module.content.slice(start || undefined, end || undefined), { state, compileOptions, location: { start: start!, end: end! } });
+      if (code === null) throw new Error(`Unable to compile export`);
 
-    if (componentProps.length > 0) {
-      propsStatement = 'let {';
-      for (const componentExport of componentProps) {
-        propsStatement += `${(componentExport.id as Identifier).name}`;
-        const { init } = componentExport;
-        if (init) {
-          propsStatement += `= ${babelGenerator(init).code}`;
-        }
-        propsStatement += `,`;
+      if (code.trim()) {
+        state.exportStatements.add(code);
       }
-      propsStatement += `} = props;\n`;
     }
 
     // handle createCollection, if any
@@ -411,7 +395,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
     for (const [namespace, { spec }] of contentImports.entries()) {
       const globResult = fetchContent(spec, { namespace, filename: state.filename });
       for (const importStatement of globResult.imports) {
-        state.importExportStatements.add(importStatement);
+        state.importStatements.add(importStatement);
       }
       contentCode += globResult.code;
     }
@@ -419,8 +403,12 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
     script = propsStatement + contentCode + babelGenerator(program).code;
   }
 
+  const location = { start: module.start, end: module.end };
+  let code = compileExpressionSafe(script, { state, compileOptions, location });
+  if (code === null) throw new Error(`Unable to compile expression`);
+
   return {
-    script,
+    script: code,
     createCollection: createCollection || undefined,
   };
 }
@@ -454,7 +442,7 @@ const FALSY_EXPRESSIONS = new Set(['false', 'null', 'undefined', 'void 0']);
 /** Compile page markup */
 async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
   return new Promise((resolve) => {
-    const { components, css, importExportStatements, filename, fileID } = state;
+    const { components, css, importStatements, exportStatements, filename, fileID } = state;
     const { astroConfig } = compileOptions;
 
     let paren = -1;
@@ -542,8 +530,8 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
           case 'InlineComponent': {
             switch (node.name) {
               case 'Prism': {
-                if (!importExportStatements.has(PRISM_IMPORT)) {
-                  importExportStatements.add(PRISM_IMPORT);
+                if (!importStatements.has(PRISM_IMPORT)) {
+                  importStatements.add(PRISM_IMPORT);
                 }
                 if (!components.has('Prism')) {
                   components.set('Prism', {
@@ -606,7 +594,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               }
               const { wrapper, wrapperImport } = getComponentWrapper(name, componentInfo, { astroConfig, filename });
               if (wrapperImport) {
-                importExportStatements.add(wrapperImport);
+                importStatements.add(wrapperImport);
               }
               if (curr === 'markdown') {
                 await pushMarkdownToBuffer();
@@ -747,7 +735,8 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     markers: {
       insideMarkdown: false,
     },
-    importExportStatements: new Set(),
+    importStatements: new Set(),
+    exportStatements: new Set(),
   };
 
   const { script, createCollection } = compileModule(ast.module, state, compileOptions);
@@ -758,7 +747,8 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
 
   return {
     script: script,
-    imports: Array.from(state.importExportStatements),
+    imports: Array.from(state.importStatements),
+    exports: Array.from(state.exportStatements),
     html,
     css: state.css.length ? state.css.join('\n\n') : undefined,
     createCollection,
