@@ -137,7 +137,7 @@ export async function createCollection() {
     // Finally, `pageSize` and `pagination` is still on by default. Because
     // we don't want to paginate the already-grouped pages a second time, we'll
     // disable pagination.
-    pageSize: 1,
+    pageSize: Infinity,
   };
 }
 ---
@@ -179,8 +179,8 @@ export async function createCollection() {
       return allPokemon[params.index];
     },
     // Note: The default pageSize is fine because technically only one data object
-    // is ever returned per route. We can set it to "1" in this example for completeness.
-    pageSize: 1,
+    // is ever returned per route. We set it to Infinity in this example for completeness.
+    pageSize: Infinity,
   };
 }
 ---
