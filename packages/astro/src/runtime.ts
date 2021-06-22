@@ -153,7 +153,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 
       // paginate
       if (searchResult.currentPage) {
-        const start = (searchResult.currentPage - 1) * pageSize; // currentPage is 1-indexed
+        const start = pageSize === Infinity ? 0 : (searchResult.currentPage - 1) * pageSize; // currentPage is 1-indexed
         const end = Math.min(start + pageSize, data.length);
 
         collection.start = start;
