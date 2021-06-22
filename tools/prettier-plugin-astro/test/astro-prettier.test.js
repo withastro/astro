@@ -19,26 +19,26 @@ const getFiles = async (name) => {
 
 Prettier('can format a basic Astro file', async () => {
   const [src, out] = await getFiles('basic');
-  assert.not.equal(src, out);
+  assert.not.fixture(src, out);
 
   const formatted = format(src);
-  assert.equal(formatted, out);
+  assert.fixture(formatted, out);
 });
 
 Prettier('can format an Astro file with frontmatter', async () => {
   const [src, out] = await getFiles('frontmatter');
-  assert.not.equal(src, out);
+  assert.not.fixture(src, out);
 
   const formatted = format(src);
-  assert.equal(formatted, out);
+  assert.fixture(formatted, out);
 });
 
 Prettier('can format an Astro file with embedded JSX expressions', async () => {
   const [src, out] = await getFiles('embedded-expr');
-  assert.not.equal(src, out);
+  assert.not.fixture(src, out);
 
   const formatted = format(src);
-  assert.equal(formatted, out);
+  assert.fixture(formatted, out);
 });
 
 Prettier.run();
