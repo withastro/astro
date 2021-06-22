@@ -54,6 +54,7 @@ function configDefaults(userConfig?: any): any {
   const config: any = { ...(userConfig || {}) };
 
   if (!config.projectRoot) config.projectRoot = '.';
+  if (!config.src) config.src = './src';
   if (!config.pages) config.pages = './src/pages';
   if (!config.dist) config.dist = './dist';
   if (!config.public) config.public = './public';
@@ -72,6 +73,7 @@ function normalizeConfig(userConfig: any, root: string): AstroConfig {
 
   const fileProtocolRoot = `file://${root}/`;
   config.projectRoot = new URL(config.projectRoot + '/', fileProtocolRoot);
+  config.src = new URL(config.src + '/', fileProtocolRoot);
   config.pages = new URL(config.pages + '/', fileProtocolRoot);
   config.public = new URL(config.public + '/', fileProtocolRoot);
 
