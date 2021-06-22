@@ -1,5 +1,9 @@
 # astro
 
+## 0.13.12
+
+_Rolling back to 0.13.10 to prevent a regression in the dev server output._
+
 ## 0.13.11
 
 ### Patch Changes
