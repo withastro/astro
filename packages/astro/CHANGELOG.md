@@ -1,5 +1,11 @@
 # astro
 
+## 0.14.0
+
+### Minor Changes
+
+- 09b5779: Removes mounting the project folder and adds a `src` root option
+
 ## 0.13.12
 
 _Rolling back to 0.13.10 to prevent a regression in the dev server output._
