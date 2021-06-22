@@ -23,7 +23,7 @@ const POSTPROCESS_FILES = ['package.json']; // some files need processing after 
 
 export async function main() {
   console.log('\n' + bold('Welcome to Astro!') + gray(` (create-astro v${version})`));
-  console.log(`If you encounter a problem, visit ${cyan('https://github.com/snowpack/astro/issues')} to search or file a new issue.\n`);
+  console.log(`If you encounter a problem, visit ${cyan('https://github.com/snowpackjs/astro/issues')} to search or file a new issue.\n`);
 
   console.log(green(`>`) + gray(` Prepare for liftoff.`));
   console.log(green(`>`) + gray(` Gathering mission details...`));
@@ -88,7 +88,7 @@ export async function main() {
     })
   );
 
-  console.log(bold(green('✔ Copied project files')));
+  console.log(bold(green('✔') + ' Done!'));
 
   console.log('\nNext steps:');
   let i = 1;
