@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.3.4
+
+### Patch Changes
+
+- b0e41ea: fix small output bugs
+
 ## 0.3.3
 
 ### Patch Changes
