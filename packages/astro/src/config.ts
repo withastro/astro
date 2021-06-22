@@ -66,7 +66,7 @@ function configDefaults(userConfig?: any): any {
   if (!config.buildOptions) config.buildOptions = {};
   if (!config.markdownOptions) config.markdownOptions = {};
   if (typeof config.buildOptions.sitemap === 'undefined') config.buildOptions.sitemap = true;
-  if (typeof config.buildOptions.draft === 'undefined') config.buildOptions.draft = true;
+  if (typeof config.buildOptions.draft === 'undefined') config.buildOptions.draft = false;
 
   return config;
 }
