@@ -27,7 +27,6 @@ interface CLIState {
   cmd: cliCommand;
   options: {
     projectRoot?: string;
-    drafts?: boolean;
     sitemap?: boolean;
     port?: number;
     config?: string;
@@ -40,7 +39,6 @@ function resolveArgs(flags: Arguments): CLIState {
   const options: CLIState['options'] = {
     projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
-    drafts: typeof flags.drafts === 'boolean' ? flags.drafts : undefined,
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined,
   };
@@ -78,7 +76,6 @@ function printHelp() {
   --config <path>       Specify the path to the Astro config file.
   --project-root <path> Specify the path to the project root folder.
   --no-sitemap          Disable sitemap generation (build only).
-  --no-drafts           Enable generation of draft pages (build only).
   --reload              Clean the cache, reinstalling dependencies.
   --verbose             Enable verbose logging
   --version             Show the version number and exit.
@@ -96,7 +93,6 @@ async function printVersion() {
 function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
   if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
   if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
-  if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.draft = flags.drafts;
 }
 
 /** Handle `astro run` command */
