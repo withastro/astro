@@ -83,4 +83,30 @@ Collections('generates pages grouped by author', async ({ runtime }) => {
   }
 });
 
+Collections('generates individual pages from a collection', async ({ runtime }) => {
+  const PAGES_TO_TEST = [
+    {
+      slug: 'one',
+      title: 'Post One',
+    },
+    {
+      slug: 'two',
+      title: 'Post Two',
+    },
+    {
+      slug: 'three',
+      title: 'Post Three',
+    },
+  ];
+
+  for (const { slug, title } of PAGES_TO_TEST) {
+    const result = await runtime.load(`/individual/${slug}`);
+    if (result.error) throw new Error(result.error);
+    const $ = doc(result.contents);
+
+    assert.ok($(`#${slug}`).length);
+    assert.equal($(`h1`).text(), title);
+  }
+});
+
 Collections.run();
