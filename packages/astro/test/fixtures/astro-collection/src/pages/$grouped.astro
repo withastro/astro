@@ -1,0 +1,30 @@
+---
+export let collection: any;
+
+export async function createCollection() {
+  const allPosts = Astro.fetchContent('./post/**/*.md');
+  const allAuthors = allPosts.map(p => p.author);
+  const uniqueAuthors = [...new Set(allAuthors)];
+
+  return {
+    routes: uniqueAuthors.map(author => {
+        const params = { name: author };
+        return params;
+    }),
+
+    permalink: ({ params }) => `/grouped/${params.name}`,
+
+    async data({ params }) {
+        return allPosts.filter(p => p.author === params.name)
+    },
+
+    pageSize: Infinity
+  };
+}
+---
+
+<div id={collection.params.name}>
+  {collection.data.map((post) => (
+    <a href={post.url}>{post.title}</a>
+   ))}
+</div>

@@ -54,4 +54,33 @@ Collections('can load remote data', async ({ runtime }) => {
   }
 });
 
+Collections('generates pages grouped by author', async ({ runtime }) => {
+  const AUTHORS_TO_TEST = [
+    {
+      id: 'author-one',
+      posts: ['one', 'three'],
+    },
+    {
+      id: 'author-two',
+      posts: ['two'],
+    },
+    {
+      id: 'author-three',
+      posts: ['nested/a'],
+    },
+  ];
+
+  for (const { id, posts } of AUTHORS_TO_TEST) {
+    const result = await runtime.load(`/grouped/${id}`);
+    if (result.error) throw new Error(result.error);
+    const $ = doc(result.contents);
+
+    assert.ok($(`#${id}`).length);
+
+    for (const post of posts) {
+      assert.ok($(`a[href="/post/${post}"]`).length);
+    }
+  }
+});
+
 Collections.run();
