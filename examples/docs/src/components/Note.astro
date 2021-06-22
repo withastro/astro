@@ -1,6 +1,5 @@
 ---
-export let type = "tip";
-export let title;
+const { type, title } = Astro.props;
 ---
 
 <aside class={`note type-${type}`}>

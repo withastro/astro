@@ -1,12 +1,15 @@
 ---
-// props
-export let title: string;
-export let description: string;
-export let image: string | undefined;
-export let type: string | undefined;
-export let next: string | undefined;
-export let prev: string | undefined;
-export let canonicalURL: string | undefined;
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  type?: string;
+  next?: string;
+  prev?: string;
+  canonicalURL?: string;
+}
+
+const { title, description, image, type, next, prev, canonicalURL } = Astro.props as Props;
 ---
 
 <!-- Common -->

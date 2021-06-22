@@ -1,6 +1,10 @@
 ---
-export let prevUrl: string;
-export let nextUrl: string;
+export interface Props {
+  prevUrl: string;
+  nextUrl: string;
+}
+
+const { prevUrl, nextUrl } = Astro.props;
 ---
 
 <style lang="scss">

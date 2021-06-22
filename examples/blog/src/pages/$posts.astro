@@ -11,7 +11,7 @@ let canonicalURL = Astro.request.canonicalURL;
 
 // collection
 import authorData from '../data/authors.json';
-export let collection: any;
+let { collection } = Astro.props;
 export async function createCollection() {
   return {
     /** Load posts, sort newest -> oldest */

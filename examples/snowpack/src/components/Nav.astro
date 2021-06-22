@@ -1,5 +1,8 @@
 ---
-export let version: string = '3.1.2';
+export interface Props {
+  version: string;
+}
+const { version = '3.1.2' } = Astro.props as Props;
 ---
 
 <style lang="scss">

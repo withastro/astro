@@ -4,7 +4,7 @@ import Footer from '../components/Footer/index.jsx';
 import Nav from '../components/Nav/index.jsx';
 import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
 
-export let collection;
+let { collection } = Astro.props;
 export async function createCollection() {
   return {
     async data() {

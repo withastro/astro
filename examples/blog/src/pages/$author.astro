@@ -12,7 +12,8 @@ const author = authorData[collection.params.author];
 
 // collection
 import authorData from '../data/authors.json';
-export let collection: any;
+
+let { collection } = Astro.props;
 export async function createCollection() {
   /** Load posts */
   let allPosts = Astro.fetchContent('./post/*.md');

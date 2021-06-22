@@ -1,5 +1,8 @@
 ---
-export let title;
+export interface Props {
+  title: string;
+}
+const { title } = Astro.props;
 ---
 
 <style lang="scss">
