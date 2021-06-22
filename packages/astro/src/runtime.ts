@@ -250,6 +250,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     }
 
     if (err instanceof NotFoundError && rawPathname) {
+      console.log('ERR', err);
       const fileMatch = err.toString().match(/\(([^\)]+)\)/);
       const missingFile: string | undefined = (fileMatch && fileMatch[1].replace(/^\/_astro/, '').replace(/\.proxy\.js$/, '')) || undefined;
       const distPath = path.extname(rawPathname) ? rawPathname : rawPathname.replace(/\/?$/, '/index.html');
@@ -308,7 +309,7 @@ interface CreateSnowpackOptions {
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot } = astroConfig;
+  const { projectRoot, srcRoot } = astroConfig;
   const { mode, resolvePackageUrl } = options;
 
   const frontendPath = new URL('./frontend/', import.meta.url);
@@ -335,7 +336,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const mountOptions = {
     ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: '/' } : {}),
     [fileURLToPath(frontendPath)]: '/_astro_frontend',
-    [fileURLToPath(projectRoot)]: '/_astro', // must be last (greediest)
+    [fileURLToPath(srcRoot)]: '/_astro/src', // must be last (greediest)
   };
 
   // Tailwind: IDK what this does but it makes JIT work 🤷‍♂️
@@ -345,7 +346,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 
   // Make sure that Snowpack builds our renderer plugins
   const rendererInstances = await configManager.buildRendererInstances();
-  const knownEntrypoints: string[] = [];
+  const knownEntrypoints: string[] = ['astro/dist/internal/__astro_component.js'];
   for (const renderer of rendererInstances) {
     knownEntrypoints.push(renderer.server, renderer.client);
     if (renderer.knownEntrypoints) {
