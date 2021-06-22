@@ -250,7 +250,6 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     }
 
     if (err instanceof NotFoundError && rawPathname) {
-      console.log('ERR', err);
       const fileMatch = err.toString().match(/\(([^\)]+)\)/);
       const missingFile: string | undefined = (fileMatch && fileMatch[1].replace(/^\/_astro/, '').replace(/\.proxy\.js$/, '')) || undefined;
       const distPath = path.extname(rawPathname) ? rawPathname : rawPathname.replace(/\/?$/, '/index.html');
@@ -309,7 +308,7 @@ interface CreateSnowpackOptions {
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot, srcRoot } = astroConfig;
+  const { projectRoot, src } = astroConfig;
   const { mode, resolvePackageUrl } = options;
 
   const frontendPath = new URL('./frontend/', import.meta.url);
@@ -336,7 +335,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const mountOptions = {
     ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: '/' } : {}),
     [fileURLToPath(frontendPath)]: '/_astro_frontend',
-    [fileURLToPath(srcRoot)]: '/_astro/src', // must be last (greediest)
+    [fileURLToPath(src)]: '/_astro/src', // must be last (greediest)
   };
 
   // Tailwind: IDK what this does but it makes JIT work 🤷‍♂️
