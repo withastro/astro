@@ -22,6 +22,12 @@ export async function createCollection() {
 ))}
 </div>
 
+<div id="results">
+  <span id="start">{collection.start}</span>  
+  <span id="end">{collection.end}</span> 
+  <span id="total">{collection.total}</span> 
+</div>
+
 <nav>
   {collection.url.prev && <a id="prev-page" href={collection.url.prev}>Previous page</a>}
   {collection.url.next && <a id="next-page" href={collection.url.next}>Next page</a>}

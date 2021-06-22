@@ -17,7 +17,7 @@ Collections('shallow selector (*.md)', async ({ runtime }) => {
     }),
   ];
   // assert they loaded in newest -> oldest order (not alphabetical)
-  assert.equal(urls, ['/post/three', '/post/two', '/post/one']);
+  assert.equal(urls, ['/post/six', '/post/five', '/post/three', '/post/two', '/post/one']);
 });
 
 Collections('deep selector (**/*.md)', async ({ runtime }) => {
@@ -29,7 +29,7 @@ Collections('deep selector (**/*.md)', async ({ runtime }) => {
       return $(this).attr('href');
     }),
   ];
-  assert.equal(urls, ['/post/nested/a', '/post/three', '/post/two', '/post/one']);
+  assert.equal(urls, ['/post/nested/a', '/post/six', '/post/five', '/post/three', '/post/two', '/post/one']);
 });
 
 Collections('generates pagination successfully', async ({ runtime }) => {
@@ -121,6 +121,20 @@ Collections('matches collection filename exactly', async ({ runtime }) => {
     }),
   ];
   assert.equal(urls, ['/post/nested/a', '/post/three', '/post/two', '/post/one']);
+});
+
+Collections('have the proper amount of elements with respecting published / draft documents', async ({ runtime }) => {
+  const result = await runtime.load('/paginated');
+  if (result.error) throw new Error(result.error);
+  const $ = doc(result.contents);
+
+
+  const start = $('#start');
+  const end = $('#end');
+  const total = $('#total');
+  assert.equal(start.text(), "0");
+  assert.equal(end.text(), "4"); 
+  assert.equal(total.text(), "5"); 
 });
 
 Collections.run();

@@ -30,6 +30,40 @@ Markdown('Can load a realworld markdown page with Astro', async ({ runtime }) =>
   assert.equal($('pre').length, 7);
 });
 
+Markdown('Cant load a post being unpublished', async ({ runtime }) => {
+  const result = await runtime.load('/post-unpublished');
+  
+  assert.type(result.error, 'object')
+  assert.equal(result.error.message, 'Unpublished document');
+  assert.equal(result.statusCode, 404);
+});
+
+Markdown('Cant load a post being published', async ({ runtime }) => {
+  const result = await runtime.load('/post-published');
+  if (result.error) throw new Error(result.error);
+
+  assert.equal(result.statusCode, 200);
+
+  const $ = doc(result.contents);
+
+  assert.equal($('p').first().text(), 'Hello world!');
+  assert.equal($('#first').text(), 'Some content');
+  assert.equal($('#interesting-topic').text(), 'Interesting Topic');
+});
+
+Markdown('Cant load a post being in draft status', async ({ runtime }) => {
+  const result = await runtime.load('/post-draft');
+  if (result.error) throw new Error(result.error);
+
+  assert.equal(result.statusCode, 200);
+
+  const $ = doc(result.contents);
+
+  assert.equal($('p').first().text(), 'Hello world!');
+  assert.equal($('#first').text(), 'Some content');
+  assert.equal($('#interesting-topic').text(), 'Interesting Topic');
+});
+
 Markdown('Builds markdown pages for prod', async (context) => {
   await context.build();
 });
