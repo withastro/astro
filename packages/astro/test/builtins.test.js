@@ -11,11 +11,16 @@ Builtins('Can be used with the node: prefix', async ({ runtime }) => {
   const result = await runtime.load('/');
   if (result.error) throw new Error(result.error);
 
-  console.log(result.contents);
   const $ = doc(result.contents);
 
   assert.equal($('#version').text(), '1.2.0');
   assert.equal($('#dep-version').text(), '0.0.1');
+});
+
+Builtins('Throw if using the non-prefixed version', async ({ runtime }) => {
+  const result = await runtime.load('/bare');
+  assert.ok(result.error, 'Produced an error');
+  assert.ok(/Use node:fs instead/.test(result.error.message));
 });
 
 Builtins.run();

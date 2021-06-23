@@ -1,5 +1,5 @@
 
-export const nodeBuiltinsMap = new Map([
+const nodeBuiltinsBare = [
   'async_hooks',
   'child_process',
   'cluster',
@@ -29,4 +29,7 @@ export const nodeBuiltinsMap = new Map([
   'wasi',
   'worker_threads',
   'zlib'
-].map(bareName => [bareName, 'node:' + bareName]));
+];
+
+export const nodeBuiltinsSet = new Set(nodeBuiltinsBare);
+export const nodeBuiltinsMap = new Map(nodeBuiltinsBare.map(bareName => [bareName, 'node:' + bareName]));
