@@ -1,0 +1,29 @@
+---
+export let collection: any;
+
+export async function createCollection() {
+  const allPosts = Astro.fetchContent('./post/*.md');
+
+  return {
+    routes: allPosts.map((post, i) => {
+        const params = {
+          slug: post.url.replace('/post/', ''),
+          index: i
+        };
+        return params;
+    }),
+
+    permalink: ({ params }) => `/individual/${params.slug}`,
+
+    async data({ params }) {
+      return [allPosts[params.index]];
+    },
+
+    pageSize: Infinity
+  };
+}
+---
+
+<div id={collection.params.slug}>
+  <h1>{collection.data[0].title}</h1>
+</div>

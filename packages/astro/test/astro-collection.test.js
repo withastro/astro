@@ -54,4 +54,59 @@ Collections('can load remote data', async ({ runtime }) => {
   }
 });
 
+Collections('generates pages grouped by author', async ({ runtime }) => {
+  const AUTHORS_TO_TEST = [
+    {
+      id: 'author-one',
+      posts: ['one', 'three'],
+    },
+    {
+      id: 'author-two',
+      posts: ['two'],
+    },
+    {
+      id: 'author-three',
+      posts: ['nested/a'],
+    },
+  ];
+
+  for (const { id, posts } of AUTHORS_TO_TEST) {
+    const result = await runtime.load(`/grouped/${id}`);
+    if (result.error) throw new Error(result.error);
+    const $ = doc(result.contents);
+
+    assert.ok($(`#${id}`).length);
+
+    for (const post of posts) {
+      assert.ok($(`a[href="/post/${post}"]`).length);
+    }
+  }
+});
+
+Collections('generates individual pages from a collection', async ({ runtime }) => {
+  const PAGES_TO_TEST = [
+    {
+      slug: 'one',
+      title: 'Post One',
+    },
+    {
+      slug: 'two',
+      title: 'Post Two',
+    },
+    {
+      slug: 'three',
+      title: 'Post Three',
+    },
+  ];
+
+  for (const { slug, title } of PAGES_TO_TEST) {
+    const result = await runtime.load(`/individual/${slug}`);
+    if (result.error) throw new Error(result.error);
+    const $ = doc(result.contents);
+
+    assert.ok($(`#${slug}`).length);
+    assert.equal($(`h1`).text(), title);
+  }
+});
+
 Collections.run();
