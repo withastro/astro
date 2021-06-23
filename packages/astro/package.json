@@ -92,7 +92,7 @@
     "sass": "^1.32.13",
     "shorthash": "^0.0.2",
     "slash": "^4.0.0",
-    "snowpack": "^3.6.0",
+    "snowpack": "^3.6.1",
     "source-map-support": "^0.5.19",
     "string-width": "^5.0.0",
     "tiny-glob": "^0.2.8",
