@@ -1,5 +1,12 @@
 # astro
 
+## 0.14.1
+
+### Patch Changes
+
+- 3f3e4f1: Allow `pageSize: Infinity` when creating a collection
+- 44f429a: Allow node: prefix to load builtins
+
 ## 0.14.0
 
 ### Minor Changes
