@@ -28,7 +28,8 @@
     "tools/*",
     "scripts",
     "www",
-    "docs-www"
+    "docs-www",
+    "packages/astro/test/fixtures/builtins/packages/*"
   ],
   "volta": {
     "node": "14.16.1",

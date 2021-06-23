@@ -15,6 +15,7 @@ Builtins('Can be used with the node: prefix', async ({ runtime }) => {
   const $ = doc(result.contents);
 
   assert.equal($('#version').text(), '1.2.0');
+  assert.equal($('#dep-version').text(), '0.0.1');
 });
 
 Builtins.run();
