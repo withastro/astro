@@ -1,11 +1,10 @@
 ---
 name: "\U0001F4A1 Feature Request"
-about: "Submit an RFC or suggest an idea for this project"
+about: 'Submit an RFC or suggest an idea for this project'
 title: '[Feature Request] '
 labels: ''
 assignees: ''
 ---
-
 
 ## Motivation
 
@@ -37,11 +36,3 @@ Are there any open questions remaining? List them here.
 - [ ] I am willing to submit a PR to implement this change.
 - [ ] I am willing to submit a PR to implement this change, but would need some guidance.
 - [ ] I am not willing to submit a PR to implement this change.
-
-
-
-
-
-
-
-
