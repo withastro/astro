@@ -8,6 +8,7 @@ import { Parser } from '../index.js';
 import { Directive, DirectiveType, TemplateNode, Text } from '../../interfaces.js';
 import fuzzymatch from '../../utils/fuzzymatch.js';
 import list from '../../utils/list.js';
+import { FEATURE_CUSTOM_ELEMENT } from '../utils/features.js';
 
 const valid_tag_name = /^\!?[a-zA-Z]{1,}:?[a-zA-Z0-9\-]*/;
 
@@ -43,6 +44,7 @@ const SELF = /^astro:self(?=[\s/>])/;
 const COMPONENT = /^astro:component(?=[\s/>])/;
 const SLOT = /^astro:fragment(?=[\s/>])/;
 const HEAD = /^head(?=[\s/>])/;
+const CUSTOM_ELEMENT = /-/;
 
 function parent_is_head(stack) {
   let i = stack.length;
@@ -53,6 +55,7 @@ function parent_is_head(stack) {
   }
   return false;
 }
+
 
 export default function tag(parser: Parser) {
   const start = parser.index++;
@@ -76,6 +79,10 @@ export default function tag(parser: Parser) {
   const is_closing_tag = parser.eat('/');
 
   const name = read_tag_name(parser);
+
+  if(CUSTOM_ELEMENT.test(name)) {
+    parser.feature_flags |= FEATURE_CUSTOM_ELEMENT;
+  }
 
   if (meta_tags.has(name)) {
     const slug = meta_tags.get(name).toLowerCase();

@@ -106,7 +106,7 @@ interface CompileComponentOptions {
   isPage?: boolean;
 }
 /** Compiles an Astro component */
-export async function compileComponent(source: string, { compileOptions, filename, projectRoot, isPage }: CompileComponentOptions): Promise<CompileResult> {
+export async function compileComponent(source: string, { compileOptions, filename, projectRoot }: CompileComponentOptions): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
 
@@ -116,6 +116,11 @@ import fetch from 'node-fetch';
 
 // <script astro></script>
 ${result.imports.join('\n')}
+${result.hasCustomElements ? `
+const __astro_element_registry = new AstroElementRegistry({
+  candidates: new Map([${Array.from(result.customElementCandidates).map(([identifier, url]) => `[${identifier}, '${url}']`).join(', ')}])
+});
+`.trim() : ''}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';

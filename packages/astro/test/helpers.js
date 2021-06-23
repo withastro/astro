@@ -23,7 +23,7 @@ const MAX_SHUTDOWN_TIME = 3000; // max time shutdown() may take
  * @param {SetupOptions} setupOptions
  */
 export function setup(Suite, fixturePath, { runtimeOptions = {} } = {}) {
-  let runtime;
+  let runtime, createRuntimeError;
   const timers = {};
 
   Suite.before(async (context) => {
@@ -36,7 +36,11 @@ export function setup(Suite, fixturePath, { runtimeOptions = {} } = {}) {
     runtime = await createRuntime(astroConfig, {
       logging: { level: 'error', dest: process.stderr },
       ...runtimeOptions,
-    });
+    }).catch(err => { createRuntimeError = err; });
+
+    if(createRuntimeError) {
+      setTimeout(() => { throw createRuntimeError });
+    }
 
     context.runtime = runtime;
 

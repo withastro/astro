@@ -1,6 +1,6 @@
-declare function setRenderers(sources: string[], renderers: any[]): void;
+import type { RendererInstance } from '../internal/__astro_component';
 
-declare let rendererSources: string[];
-declare let renderers: any[];
+declare function setRenderers(instances: RendererInstance[]): void;
+declare let rendererInstances: RendererInstance[];
 
-setRenderers(rendererSources, renderers);
+setRenderers(rendererInstances);

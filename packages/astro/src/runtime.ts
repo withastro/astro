@@ -371,6 +371,12 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       knownEntrypoints.push(...renderer.knownEntrypoints);
     }
   }
+  const external = snowpackExternals.concat([]);
+  for(const renderer of rendererInstances) {
+    if(renderer.external) {
+      external.push(...renderer.external);
+    }
+  }
   const rendererSnowpackPlugins = rendererInstances.filter((renderer) => renderer.snowpackPlugin).map((renderer) => renderer.snowpackPlugin) as string | [string, any];
 
   const snowpackConfig = await loadConfiguration({
@@ -406,7 +412,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     },
     packageOptions: {
       knownEntrypoints,
-      external: snowpackExternals,
+      external,
     },
     alias: {
       ...Object.fromEntries(nodeBuiltinsMap),

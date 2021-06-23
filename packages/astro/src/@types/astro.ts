@@ -65,6 +65,8 @@ export interface TransformResult {
   css?: string;
   /** If this page exports a collection, the JS to be executed as a string */
   createCollection?: string;
+  hasCustomElements: boolean;
+  customElementCandidates: Map<string, string>;
 }
 
 export interface CompileResult {
@@ -180,7 +182,7 @@ export interface ComponentInfo {
 
 export type Components = Map<string, ComponentInfo>;
 
-type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined) => Promise<U>;
+type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, options?: any) => Promise<U>;
 
 export interface Renderer {
   check: AsyncRendererComponentFn<boolean>;
