@@ -174,3 +174,22 @@ export default function () {
 [config]: ../README.md#%EF%B8%8F-configuration
 [docs-collections]: ./collections.md
 [rss]: #-rss-feed
+
+### Node builtins
+
+Astro aims to be compatible with multiple JavaScript runtimes in the future. This includes [Deno](https://deno.land/) and [Cloudflare Workers](https://workers.cloudflare.com/) which do not support Node builtin modules such as `fs`. We encourage Astro users to write their code as cross-environment as possible.
+
+Due to that, you cannot use Node modules that you're familiar with such as `fs` and `path`. Our aim is to provide alternative built in to Astro. If you're use case is not covered please let us know. 
+
+However, if you *really* need to use these builtin modules we don't want to stop you. Node supports the `node:` prefix for importing builtins, and this is also supported by Astro. If you want to read a file, for example, you can do so like this:
+
+```jsx
+---
+import fs from 'node:fs/promises';
+
+const url = new URL('../../package.json', import.meta.url);
+const json = await fs.readFile(url, 'utf-8');
+const data = JSON.parse(json);
+---
+
+<span>Version: {data.version}</span>

@@ -1,4 +1,5 @@
 import { createRequire } from 'module';
+import { nodeBuiltinsMap } from './node_builtins.js';
 const require = createRequire(import.meta.url);
 const pkg = require('../package.json');
 
@@ -17,7 +18,13 @@ const isAstroRenderer = (name: string) => {
 
 // These packages should NOT be built by `esinstall`
 // But might not be explicit dependencies of `astro`
-const denyList = ['prismjs/components/index.js', '@vue/server-renderer', '@astrojs/markdown-support'];
+const denyList = [
+  'prismjs/components/index.js',
+  '@vue/server-renderer',
+  '@astrojs/markdown-support',
+  'node:fs/promises',
+  ...nodeBuiltinsMap.values()
+];
 
 export default Object.keys(pkg.dependencies)
   // Filter out packages that should be loaded threw Snowpack

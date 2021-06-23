@@ -22,6 +22,7 @@ import { renderMarkdown } from '@astrojs/markdown-support';
 import { transform } from '../transform/index.js';
 import { PRISM_IMPORT } from '../transform/prism.js';
 import { positionAt } from '../utils';
+import { nodeBuiltinsSet } from '../../node_builtins.js';
 import { readFileSync } from 'fs';
 
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
@@ -327,6 +328,9 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
     for (const componentImport of componentImports) {
       const importUrl = componentImport.source.value;
+      if(nodeBuiltinsSet.has(importUrl)) {
+        throw new Error(`Node builtins must be prefixed with 'node:'. Use node:${importUrl} instead.`);
+      }
       for (const specifier of componentImport.specifiers) {
         const componentName = specifier.local.name;
         state.components.set(componentName, {

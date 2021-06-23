@@ -22,6 +22,7 @@ import { debug, info } from './logger.js';
 import { configureSnowpackLogger } from './snowpack-logger.js';
 import { searchForPage } from './search.js';
 import snowpackExternals from './external.js';
+import { nodeBuiltinsMap } from './node_builtins.js';
 import { ConfigManager } from './config_manager.js';
 
 interface RuntimeConfig {
@@ -389,6 +390,9 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       knownEntrypoints,
       external: snowpackExternals,
     },
+    alias: {
+      ...Object.fromEntries(nodeBuiltinsMap)
+    }
   });
 
   snowpack = await startSnowpackServer(
