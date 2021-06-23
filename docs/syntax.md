@@ -86,14 +86,27 @@ let name = 'world';
 </main>
 ```
 
-`.astro` components can also accept props when they are rendered. Public props can be marked using the `export` keyword.
-
-Local values are overwritten when props are passed, otherwise they are considered the default value.
+`.astro` components can also accept props when they are rendered. Public props are exposed on the `Astro.props` global.
 
 ```jsx
 ---
-export let greeting = 'Hello';
-export let name;
+const { greeting = 'Hello', name } = Astro.props;
+---
+
+<main>
+    <h1>{greeting} {name}!</h1>
+</main>
+```
+
+To define the props which your component accepts, you may export a TypeScript interface or type named `Props`.
+```tsx
+---
+export interface Props {
+  name: string;
+  greeting?: string;
+}
+
+const { greeting = 'Hello', name } = Astro.props;
 ---
 
 <main>
