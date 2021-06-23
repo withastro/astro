@@ -328,7 +328,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
     for (const componentImport of componentImports) {
       const importUrl = componentImport.source.value;
-      if(nodeBuiltinsSet.has(importUrl)) {
+      if (nodeBuiltinsSet.has(importUrl)) {
         throw new Error(`Node builtins must be prefixed with 'node:'. Use node:${importUrl} instead.`);
       }
       for (const specifier of componentImport.specifiers) {

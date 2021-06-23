@@ -391,8 +391,8 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       external: snowpackExternals,
     },
     alias: {
-      ...Object.fromEntries(nodeBuiltinsMap)
-    }
+      ...Object.fromEntries(nodeBuiltinsMap),
+    },
   });
 
   snowpack = await startSnowpackServer(
