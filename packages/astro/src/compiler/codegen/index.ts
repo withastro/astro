@@ -1,4 +1,4 @@
-import type { Ast, Script, Style, TemplateNode } from '@astrojs/parser';
+import type { Ast, Script, Style, TemplateNode, Expression } from '@astrojs/parser';
 import type { CompileOptions } from '../../@types/compiler';
 import type { AstroConfig, AstroMarkdownOptions, TransformResult, ComponentInfo, Components } from '../../@types/astro';
 import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, ImportDefaultSpecifier } from '@babel/types';
@@ -34,9 +34,10 @@ const { transformSync } = esbuild;
 interface Attribute {
   start: number;
   end: number;
-  type: 'Attribute';
+  type: 'Attribute'|'Spread';
   name: string;
   value: TemplateNode[] | boolean;
+  expression?: Expression;
 }
 
 interface CodeGenOptions {
@@ -46,9 +47,16 @@ interface CodeGenOptions {
 }
 
 /** Retrieve attributes from TemplateNode */
-function getAttributes(attrs: Attribute[]): Record<string, string> {
+async function getAttributes(attrs: Attribute[], state: CodegenState, compileOptions: CompileOptions): Promise<Record<string, string>> {
   let result: Record<string, string> = {};
   for (const attr of attrs) {
+    if (attr.type === 'Spread') {
+      const code = await compileExpression(attr.expression as Expression, state, compileOptions);
+      if (code) {
+        result[`...(${code})`] = '';
+      }
+      continue;
+    }
     if (attr.value === true) {
       result[attr.name] = JSON.stringify(attr.value);
       continue;
@@ -83,17 +91,17 @@ function getAttributes(attrs: Attribute[]): Record<string, string> {
     }
     switch (val.type) {
       case 'MustacheTag': {
-        // FIXME: this won't work when JSX element can appear in attributes (rare but possible).
-        const codeChunks = val.expression.codeChunks[0];
-        if (codeChunks) {
-          result[attr.name] = '(' + codeChunks + ')';
-        } else {
-          throw new Error(`Parse error: ${attr.name}={}`); // if bad codeChunk, throw error
+        const code = await compileExpression(val.expression, state, compileOptions);
+        if (code) {
+          result[attr.name] = '(' + code + ')';
         }
         continue;
       }
       case 'Text':
         result[attr.name] = JSON.stringify(getTextFromAttribute(val));
+        continue;
+      case 'AttributeShorthand':
+        result[attr.name] = '(' + attr.name + ')';
         continue;
       default:
         throw new Error(`UNKNOWN: ${val.type}`);
@@ -126,7 +134,11 @@ function getTextFromAttribute(attr: any): string {
 function generateAttributes(attrs: Record<string, string>): string {
   let result = '{';
   for (const [key, val] of Object.entries(attrs)) {
-    result += JSON.stringify(key) + ':' + val + ',';
+    if (key.startsWith('...')) {
+      result += key + ',';
+    } else {
+      result += JSON.stringify(key) + ':' + val + ',';
+    }
   }
   return result + '}';
 }
@@ -172,8 +184,36 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
   };
 }
 
+/**
+ * Convert an Expression Node to a string
+ *
+ * @param expression Expression Node to compile
+ * @param state CodegenState
+ * @param compileOptions CompileOptions
+ */
+async function compileExpression(node: Expression, state: CodegenState, compileOptions: CompileOptions) {
+  const children: string[] = await Promise.all((node.children ?? []).map((child) => compileHtml(child, state, compileOptions)));
+  let raw = '';
+  let nextChildIndex = 0;
+  for (const chunk of node.codeChunks) {
+    raw += chunk;
+    if (nextChildIndex < children.length) {
+      raw += children[nextChildIndex++];
+    }
+  }
+  const location = { start: node.start, end: node.end };
+  let code = transpileExpressionSafe(raw, { state, compileOptions, location });
+  if (code === null) throw new Error(`Unable to compile expression`);
+  code = code.trim().replace(/\;$/, '');
+  if (!FALSY_EXPRESSIONS.has(code)) {
+    return code;
+  } else {
+    return ''
+  }
+}
+
 /** Evaluate expression (safely) */
-function compileExpressionSafe(
+function transpileExpressionSafe(
   raw: string,
   { state, compileOptions, location }: { state: CodegenState; compileOptions: CompileOptions; location: { start: number; end: number } }
 ): string | null {
@@ -497,21 +537,8 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       async enter(node: TemplateNode, parent: TemplateNode) {
         switch (node.type) {
           case 'Expression': {
-            const children: string[] = await Promise.all((node.children ?? []).map((child) => compileHtml(child, state, compileOptions)));
-            let raw = '';
-            let nextChildIndex = 0;
-            for (const chunk of node.codeChunks) {
-              raw += chunk;
-              if (nextChildIndex < children.length) {
-                raw += children[nextChildIndex++];
-              }
-            }
-            const location = { start: node.start, end: node.end };
-            // TODO Do we need to compile this now, or should we compile the entire module at the end?
-            let code = compileExpressionSafe(raw, { state, compileOptions, location });
-            if (code === null) throw new Error(`Unable to compile expression`);
-            code = code.trim().replace(/\;$/, '');
-            if (!FALSY_EXPRESSIONS.has(code)) {
+            const code = await compileExpression(node as Expression, state, compileOptions);
+            if (code !== '') {
               if (state.markers.insideMarkdown) {
                 buffers[curr] += `{${code}}`;
               } else {
@@ -566,7 +593,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               throw new Error('AHHHH');
             }
             try {
-              const attributes = getAttributes(node.attributes);
+              const attributes = await getAttributes(node.attributes, state, compileOptions);
 
               buffers.out += buffers.out === '' ? '' : ',';
 
@@ -623,7 +650,8 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             }
             return;
           }
-          case 'Attribute': {
+          case 'Attribute':
+          case 'Spread': {
             this.skip();
             return;
           }
@@ -671,6 +699,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
           }
           case 'Text':
           case 'Attribute':
+          case 'Spread':
           case 'Comment':
           case 'Expression':
           case 'MustacheTag':
