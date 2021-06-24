@@ -300,7 +300,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       const node = body[i];
       switch (node.type) {
         // case 'ExportAllDeclaration':
-        // case 'ExportDefaultDeclaration': 
+        // case 'ExportDefaultDeclaration':
         case 'ExportNamedDeclaration': {
           if (!node.declaration) break;
 
@@ -377,7 +377,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       const { start, end } = componentImport;
       state.importStatements.add(module.content.slice(start || undefined, end || undefined));
     }
-    
+
     // TODO: actually expose componentExports other than __layout and __content
     for (const componentImport of componentExports) {
       const { start, end } = componentImport;
@@ -386,12 +386,16 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
 
     if (componentProps.length > 0) {
       const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
-      const props = componentProps.map(prop => (prop.id as Identifier)?.name).filter(v => v);
+      const props = componentProps.map((prop) => (prop.id as Identifier)?.name).filter((v) => v);
       console.log();
-      warn(compileOptions.logging, shortname, yellow(`\nDefining props with "export" has been removed! Please see https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md#0150
+      warn(
+        compileOptions.logging,
+        shortname,
+        yellow(`\nDefining props with "export" has been removed! Please see https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md#0150
 Please update your code to use:
 
-const { ${props.join(', ')} } = Astro.props;\n`));
+const { ${props.join(', ')} } = Astro.props;\n`)
+      );
     }
 
     // handle createCollection, if any

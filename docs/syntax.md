@@ -99,6 +99,7 @@ const { greeting = 'Hello', name } = Astro.props;
 ```
 
 To define the props which your component accepts, you may export a TypeScript interface or type named `Props`.
+
 ```tsx
 ---
 export interface Props {

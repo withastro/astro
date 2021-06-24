@@ -6,7 +6,6 @@
 
 Astro props are now accessed from the `Astro.props` global. This change is meant to make prop definitions more ergonomic, leaning into JavaScript patterns you already know (destructuring and defaults). Astro components previously used a prop syntax borrowed from [Svelte](https://svelte.dev/docs#1_export_creates_a_component_prop), but it became clear that this was pretty confusing for most users.
 
-
 ```diff
  ---
 + const { text = 'Hello world!' } = Astro.props;
@@ -60,4 +59,3 @@ const { text = 'Hello world!' } = Astro.props;
 if (typeof text !== 'string') throw new Error(`Expected "text" to be of type "string" but recieved "${typeof string}"!`);
 ---
 ```
-
