@@ -43,10 +43,10 @@ Prettier('can format an Astro file with embedded JSX expressions', async () => {
 
 Prettier('can format an Astro file with a JSX expression in an attribute', async () => {
   const [src, out] = await getFiles('attribute-with-embedded-expr');
-  assert.not.equal(src, out);
+  assert.not.fixture(src, out);
 
   const formatted = format(src);
-  assert.equal(formatted, out);
+  assert.fixture(formatted, out);
 });
 
 Prettier.run();
