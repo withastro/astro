@@ -7,16 +7,12 @@ body:
   - type: markdown
     attributes:
       value: Thanks for taking the time to file a bug report! Please fill out this form as completely as possible.
-  - type: input
-    attributes:
-      label: What version of Astro are you using?
-      placeholder: '0.0.0'
-      description: 'Please ensure you are using the latest version of Astro!'
-  - type: input
-    attributes:
-      label: What version of Node.js are you using?
-      description: 'Astro requires a Node version that supports ESM (`v12.20.0+, v14.13.1+, or v16.0.0+`)'
-      placeholder: '14.13.1'
+  - type: checkboxes
+    options:
+      - label: I am on the **latest version of Astro** and all plugins.
+        required: true
+      - label: I am using a version of Node that supports ESM (`v12.20.0+`, `v14.13.1+`, or `v16.0.0+`)
+        required: true
   - type: dropdown
     attributes:
       label: What package manager are you using?
