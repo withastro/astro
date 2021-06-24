@@ -31,21 +31,15 @@ body:
     attributes:
       label: What operating system are you using?
       description: 'For example: macOS, Windows'
-   - type: textarea
-      attributes:
-        label: Describe the Bug
-        description: A clear and concise description of what the bug is.
+  - type: textarea
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what the bug is.
       validations:
         required: true
-   - type: textarea
-      attributes:
-        label: Expected Behavior
-        description: A clear and concise description of what you expected to happen.
-      validations:
-        required: true
-    - type: textarea
-      attributes:
-        label: Steps to reproduce
-        description: "We can't fix bugs that we can't see for ourselves. Issues often need to be closed if this section is skipped."
+  - type: textarea
+    attributes:
+      label: Expected Behavior
+      description: A clear and concise description of what you expected to happen.
       validations:
         required: true
