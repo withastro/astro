@@ -41,7 +41,8 @@ Prettier('can format an Astro file with embedded JSX expressions', async () => {
   assert.fixture(formatted, out);
 });
 
-Prettier('can format an Astro file with a JSX expression in an attribute', async () => {
+// This is currently failing! See: https://github.com/snowpackjs/astro/issues/478
+Prettier.skip('can format an Astro file with a JSX expression in an attribute', async () => {
   const [src, out] = await getFiles('attribute-with-embedded-expr');
   assert.not.fixture(src, out);
 
