@@ -17,11 +17,10 @@ import { error, warn, parseError } from '../../logger.js';
 import { fetchContent } from './content.js';
 import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
-import { isComponentTag } from '../utils';
+import { isComponentTag, positionAt } from '../utils.js';
 import { renderMarkdown } from '@astrojs/markdown-support';
 import { transform } from '../transform/index.js';
 import { PRISM_IMPORT } from '../transform/prism.js';
-import { positionAt } from '../utils';
 import { nodeBuiltinsSet } from '../../node_builtins.js';
 import { readFileSync } from 'fs';
 
@@ -213,6 +212,8 @@ function transpileExpressionSafe(
   raw: string,
   { state, compileOptions, location }: { state: CodegenState; compileOptions: CompileOptions; location: { start: number; end: number } }
 ): string | null {
+  // We have to wrap `raw` with parens to support primitives (objects, arrays)!
+  raw = `(${raw})`;
   try {
     let { code } = transformSync(raw, {
       loader: 'tsx',
