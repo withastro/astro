@@ -68,4 +68,31 @@ Basics('Allows forward-slashes in mustache tags (#407)', async ({ runtime }) => 
   assert.equal($('a[href="/post/three"]').length, 1);
 });
 
+Basics('Allows spread attributes (#521)', async ({ runtime }) => {
+  const result = await runtime.load('/spread');
+  const html = result.contents;
+  const $ = doc(html);
+
+  assert.equal($('#spread-leading').length, 1);
+  assert.equal($('#spread-leading').attr('a'), '0');
+  assert.equal($('#spread-leading').attr('b'), '1');
+  assert.equal($('#spread-leading').attr('c'), '2');
+
+  assert.equal($('#spread-trailing').length, 1);
+  assert.equal($('#spread-trailing').attr('a'), '0');
+  assert.equal($('#spread-trailing').attr('b'), '1');
+  assert.equal($('#spread-trailing').attr('c'), '2');
+});
+
+Basics('Allows spread attributes with TypeScript (#521)', async ({ runtime }) => {
+  const result = await runtime.load('/spread');
+  const html = result.contents;
+  const $ = doc(html);
+
+  assert.equal($('#spread-ts').length, 1);
+  assert.equal($('#spread-ts').attr('a'), '0');
+  assert.equal($('#spread-ts').attr('b'), '1');
+  assert.equal($('#spread-ts').attr('c'), '2');
+});
+
 Basics.run();
