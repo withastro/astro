@@ -1,0 +1,44 @@
+---
+import AdminsReact from '../components/AdminsReact.jsx';
+import AdminsSvelte from '../components/AdminsSvelte.svelte';
+import AdminsVue from '../components/AdminsVue.vue';
+import AdminsPreact from '../components/AdminsPreact.jsx';
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Astro</title>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+
+    <link rel="stylesheet" href="/style/global.css">
+    <link rel="stylesheet" href="/style/home.css">
+
+    <style>
+        header {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            max-width: min(100%, 68ch);
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <header>
+            <div>
+                <img width="60" height="80" src="/assets/logo.svg" alt="Astro logo">
+                <h1>Welcome to <a href="https://astro.build/">Astro</a> -
+                <a href="https://github.com/nanostores/nanostores">nanostores</a></h1>
+            </div>
+        </header>
+        <AdminsReact:load />
+        <AdminsSvelte:load />
+        <AdminsVue:load />
+        <AdminsPreact:load />
+    </main>
+</body>
+</html>
