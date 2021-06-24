@@ -9,8 +9,9 @@ body:
       value: Thanks for taking the time to file a bug report! Please fill out this form as completely as possible.
   - type: checkboxes
     attributes:
+      label: Environment Checklist
       options:
-        - label: I am on the **latest version of Astro** and all plugins.
+        - label: I am using the **latest version of Astro** and all plugins.
           required: true
         - label: I am using a version of Node that supports ESM (`v12.20.0+`, `v14.13.1+`, or `v16.0.0+`)
           required: true
