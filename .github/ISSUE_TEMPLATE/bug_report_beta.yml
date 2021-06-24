@@ -1,6 +1,6 @@
 name: "\U0001F41B Bug Report (Beta)"
 description: Report an issue or possible bug
-title: "\U0001F41B"
+title: "\U0001F41B "
 labels: []
 assignees: []
 body:
@@ -16,7 +16,7 @@ body:
     attributes:
       label: What version of Node.js are you using?
       description: 'Astro requires a Node version that supports ESM (`v12.20.0+, v14.13.1+, or v16.0.0+`)'
-      placeholder: '12.20.0'
+      placeholder: '14.13.1'
   - type: dropdown
     attributes:
       label: What package manager are you using?
