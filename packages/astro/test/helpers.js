@@ -3,6 +3,7 @@ import { build as astroBuild } from '#astro/build';
 import { readFile } from 'fs/promises';
 import { createRuntime } from '#astro/runtime';
 import { loadConfig } from '#astro/config';
+import { defaultLogDestination } from '#astro/logger';
 import execa from 'execa';
 import del from 'del';
 
@@ -34,7 +35,7 @@ export function setup(Suite, fixturePath, { runtimeOptions = {} } = {}) {
     const astroConfig = await loadConfig(fileURLToPath(new URL(fixturePath, import.meta.url)));
 
     runtime = await createRuntime(astroConfig, {
-      logging: { level: 'error', dest: process.stderr },
+      logging: { level: 'error', dest: defaultLogDestination },
       ...runtimeOptions,
     });
 
@@ -75,7 +76,7 @@ export function setupBuild(Suite, fixturePath) {
 
     const astroConfig = await loadConfig(fileURLToPath(new URL(fixturePath, import.meta.url)));
 
-    context.build = () => astroBuild(astroConfig, { level: 'error', dest: process.stderr });
+    context.build = () => astroBuild(astroConfig, { level: 'error', dest: defaultLogDestination });
     context.readFile = async (path) => {
       const resolved = fileURLToPath(new URL(`${fixturePath}/${astroConfig.dist}${path}`, import.meta.url));
       return readFile(resolved).then((r) => r.toString('utf8'));

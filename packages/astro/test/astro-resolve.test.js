@@ -15,6 +15,9 @@ Resolution('Assets', async (context) => {
 
   // test 2: asset in src/pages resolved (and didn’t overwrite /svg.svg)
   assert.ok(await context.readFile('/_astro/src/pages/svg.svg'));
+
+  // test 3: asset in src/images resolved (and didn’t overwrite /svg.svg)
+  assert.ok(await context.readFile('/_astro/src/images/svg.svg'));
 });
 
 Resolution('<script type="module">', async (context) => {
