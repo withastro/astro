@@ -42,13 +42,13 @@ body:
       label: Open Questions
       description: |
         Are there any open questions remaining? List them here.
-  - type: checkboxes
+  - type: dropdown
     attributes:
       label: Help make it happen!
       description: "Tip: Requests made by interested contributors are much more likely to get done!"
       options:
-        - label: I am willing to submit a PR to implement this change.
-        - label: I am willing to submit a PR to implement this change, but would need some guidance.
-        - label: I am not willing to submit a PR to implement this change.
+        - I am willing to submit a PR to implement this change.
+        - I am willing to submit a PR to implement this change, but would need some guidance.
+        - I am not willing to submit a PR to implement this change.
     validations:
       required: true
