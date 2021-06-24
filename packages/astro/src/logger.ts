@@ -150,16 +150,6 @@ export const logger = {
   error: error.bind(null, defaultLogOptions),
 };
 
-/** For silencing libraries that go directly to console.warn */
-export function trapWarn(cb: (...args: any[]) => void = () => {}) {
-  /* eslint-disable no-console */
-  const consoleWarn = console.warn;
-  console.warn = function (...args: any[]) {
-    cb(...args);
-  };
-  return () => (console.warn = consoleWarn);
-}
-
 function padStr(str: string, len: number) {
   const strLen = stringWidth(str);
   if (strLen > len) {

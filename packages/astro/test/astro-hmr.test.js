@@ -21,12 +21,22 @@ HMR('Honors the user provided port', async ({ runtime }) => {
 
 HMR('Does not override script added by the user', async ({ runtime }) => {
   const result = await runtime.load('/manual');
-  console.log(result.error);
+  if (result.error) throw new Error(result.error);
 
   const html = result.contents;
 
   assert.ok(/window\.HMR_WEBSOCKET_URL = 'wss:\/\/example.com:3333'/.test(html), "User's script included");
   assert.ok(/window\.HMR_WEBSOCKET_PORT = 5555/.test(html), 'Ignored when window.HMR_WEBSOCKET_URL set');
+});
+
+HMR('Adds script to static pages too', async ({ runtime }) => {
+  const result = await runtime.load('/static');
+  if (result.error) throw new Error(result.error);
+
+  const html = result.contents;
+  const $ = doc(html);
+  assert.equal($('[src="/_snowpack/hmr-client.js"]').length, 1);
+  assert.ok(/window\.HMR_WEBSOCKET_PORT/.test(html), 'websocket port added');
 });
 
 HMR.run();
