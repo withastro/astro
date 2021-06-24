@@ -230,8 +230,8 @@ interface CodegenState {
 /** Compile/prepare Astro frontmatter scripts */
 function compileModule(module: Script, state: CodegenState, compileOptions: CompileOptions): CompileResult {
   const componentImports: ImportDeclaration[] = [];
+  const componentProps: VariableDeclarator[] = [];
   const componentExports: ExportNamedDeclaration[] = [];
-
   const contentImports = new Map<string, { spec: string; declarator: string }>();
 
   let script = '';
@@ -267,12 +267,19 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
         case 'ExportNamedDeclaration': {
           if (!node.declaration) break;
 
-          if (node.declaration.type === 'FunctionDeclaration') {
+          if (node.declaration.type === 'VariableDeclaration') {
+            // case 1: prop (export let title)
+
+            const declaration = node.declaration.declarations[0];
+            if ((declaration.id as Identifier).name === '__layout' || (declaration.id as Identifier).name === '__content') {
+              componentExports.push(node);
+            } else {
+              componentProps.push(declaration);
+            }
+          } else if (node.declaration.type === 'FunctionDeclaration') {
             // case 2: createCollection (export async function)
             if (!node.declaration.id || node.declaration.id.name !== 'createCollection') break;
             createCollection = module.content.substring(node.start || 0, node.end || 0);
-          } else {
-            componentExports.push(node);
           }
 
           body.splice(i, 1);
@@ -333,15 +340,21 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
       const { start, end } = componentImport;
       state.importStatements.add(module.content.slice(start || undefined, end || undefined));
     }
-    for (const componentExport of componentExports) {
-      const { start, end } = componentExport;
-      // These exports could contain TypeScript, so let's compile them.
-      let code = compileExpressionSafe(module.content.slice(start || undefined, end || undefined), { state, compileOptions, location: { start: start!, end: end! } });
-      if (code === null) throw new Error(`Unable to compile export`);
+    
+    // TODO: actually expose componentExports other than __layout and __content
+    for (const componentImport of componentExports) {
+      const { start, end } = componentImport;
+      state.exportStatements.add(module.content.slice(start || undefined, end || undefined));
+    }
 
-      if (code.trim()) {
-        state.exportStatements.add(code);
-      }
+    if (componentProps.length > 0) {
+      const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
+      const props = componentProps.map(prop => (prop.id as Identifier)?.name).filter(v => v);
+      console.log();
+      warn(compileOptions.logging, shortname, yellow(`\nDefining props with "export" has been removed! Please see https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md#0150
+Please update your code to use:
+
+const { ${props.join(', ')} } = Astro.props;\n`));
     }
 
     // handle createCollection, if any
