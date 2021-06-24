@@ -120,14 +120,12 @@ ${result.imports.join('\n')}
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroInternal = Symbol('astro.internal');
-async function __render(_props, ...children) {
-  const props = Object.assign({}, _props);
-  delete props[__astroInternal];
+async function __render(props, ...children) {
   const Astro = {
     props,
     site: new URL('/', ${JSON.stringify(site)}),
-    css: _props[__astroInternal]?.css || [],
-    request: _props[__astroInternal]?.request || {},
+    css: props[__astroInternal]?.css || [],
+    request: props[__astroInternal]?.request || {},
     isPage: props[__astroInternal]?.isPage || false
   };
 
@@ -148,11 +146,15 @@ export async function __renderPage({request, children, props, css}) {
     __render,
   };
 
-  props[__astroInternal] = {
-    request,
-    css,
-    isPage: true
-  };
+  Object.defineProperty(props, __astroInternal, {
+    value: {
+      request,
+      css,
+      isPage: true
+    },
+    writable: false,
+    enumerable: false
+  })
 
   const childBodyResult = await currentChild.__render(props, children);
 
