@@ -25,6 +25,18 @@ npm install
 npm start
 ```
 
+### pnpm
+
+If you are using [pnpm](https://pnpm.io/) add the following `.npmrc` to your root folder before installing:
+
+```
+shamefully-hoist = true
+```
+
+### Yarn
+
+[Yarn](https://yarnpkg.com/) works as a package manager in Astro apps. However, __Yarn 2__ changes how module resolution works in Node apps and doesn't support modules written in ESM at the moment. Since Astro is written entirely in ESM, you can't use Yarn 2 in Astro apps. We'll continue to track Yarn 2 as they fix these core bugs.
+
 ### 🚀 Build & Deployment
 
 The default Astro project has the following `scripts` in the `/package.json` file:
