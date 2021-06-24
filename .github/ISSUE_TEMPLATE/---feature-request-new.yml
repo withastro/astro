@@ -14,19 +14,21 @@ body:
         A quick, clear and concise description of what the problem is. 
 
         **Please include links to relevant issues, Discord convos, and anything else.**
-      required: true
       placeholder: I want to be able to...
+      validations:
+        required: true
   - type: textarea
     attributes:
       label: Proposed Solution
       description: Your take on one (or more) possible solution(s) to problem.
-      required: true
       value: |
         ### Possible solutions
 
         ### Alternatives considered
 
         ### Risks, downsides, and/or tradeoffs
+      validations:
+        required: true
   - type: textarea
     attributes:
       label: Detailed Design
@@ -44,8 +46,9 @@ body:
     attributes:
       label: Help make it happen!
       description: "Tip: Requests made by interested contributors are much more likely to get done!"
-      required: true
       options:
         - label: I am willing to submit a PR to implement this change.
         - label: I am willing to submit a PR to implement this change, but would need some guidance.
         - label: I am not willing to submit a PR to implement this change.
+      validations:
+        required: true
