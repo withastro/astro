@@ -1,7 +1,7 @@
 name: "\U0001F4A1 Feature Request (Beta)"
 description: 'Submit an RFC or suggest an idea for this project'
-title: '[Feature Request] '
-labels: []
+title: "\U0001F4A1 "
+labels: ['feature-request']
 assignees: []
 body:
   - type: markdown
@@ -42,7 +42,7 @@ body:
       label: Open Questions
       description: |
         Are there any open questions remaining? List them here.
-  - type: dropdown
+  - type: checkboxes
     attributes:
       label: Help make it happen!
       description: "Tip: Requests made by interested contributors are much more likely to get done!"
