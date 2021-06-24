@@ -63,7 +63,7 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 ### `collection`
 
 ```jsx
-export let collection;
+const { collection } = Astro.props;
 ```
 
 When using the [Collections API][docs-collections], `collection` is a prop exposed to the page with the following shape:

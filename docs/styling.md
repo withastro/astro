@@ -209,7 +209,7 @@ Instead, let `<Button>` control its own styles, and try a prop:
 ```jsx
 ---
 // src/components/Button.astro
-export let theme;
+const { theme } = Astro.props;
 ---
 <style lang="scss">
   .btn {
