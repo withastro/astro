@@ -11,7 +11,7 @@ body:
     attributes:
       label: What version of Astro are you using?
       placeholder: '0.0.0'
-      description: 'For example: 0.14.1'
+      description: 'Please ensure you are using the latest version of Astro!'
   - type: input
     attributes:
       label: What version of Node.js are you using?
