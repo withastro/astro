@@ -271,9 +271,10 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
             // case 2: createCollection (export async function)
             if (!node.declaration.id || node.declaration.id.name !== 'createCollection') break;
             createCollection = module.content.substring(node.start || 0, node.end || 0);
+          } else {
+            componentExports.push(node);
           }
 
-          componentExports.push(node);
           body.splice(i, 1);
           break;
         }
@@ -401,14 +402,14 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
     }
 
     script = propsStatement + contentCode + babelGenerator(program).code;
+    const location = { start: module.start, end: module.end };
+    let transpiledScript = compileExpressionSafe(script, { state, compileOptions, location });
+    if (transpiledScript === null) throw new Error(`Unable to compile script`);
+    script = transpiledScript;
   }
 
-  const location = { start: module.start, end: module.end };
-  let code = compileExpressionSafe(script, { state, compileOptions, location });
-  if (code === null) throw new Error(`Unable to compile expression`);
-
   return {
-    script: code,
+    script,
     createCollection: createCollection || undefined,
   };
 }
