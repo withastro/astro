@@ -2,10 +2,14 @@
 import Author from './Author.astro';
 import GithubStarButton from './GithubStarButton.astro';
 
-export let title: string;
-export let author: string;
-export let publishDate: string;
-export let heroImage: string;
+export interface Props {
+  title: string;
+  author: string;
+  publishDate: string;
+  heroImage: string;
+}
+
+const { title, author, publishDate, heroImage } = Astro.props;
 ---
 
 <div class="layout">

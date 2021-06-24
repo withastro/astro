@@ -3,7 +3,7 @@ import BaseHead from '../components/BaseHead.astro';
 import BaseLayout from '../components/BaseLayout.astro';
 import { format as formatDate, parseISO } from 'date-fns';
 
-export let content: any;
+const { content } = Astro.props;
 ---
 
 <!doctype html>

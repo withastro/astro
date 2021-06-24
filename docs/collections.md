@@ -23,7 +23,7 @@ To create a new Astro Collection, you must do three things:
 
 2. Define and export the `collection` prop: `collection.data` is how you'll access the data for every page in the collection. Astro populates this prop for you automatically. It MUST be named `collection` and it must be exported.
 
-- Example: `export let collection;`
+- Example: `const { collection } = Astro.props;`
 
 3. Define and export `createCollection` function: this tells Astro how to load and structure your collection data. Check out the examples below for documentation on how it should be implemented. It MUST be named `createCollection` and it must be exported.
 
@@ -35,7 +35,7 @@ To create a new Astro Collection, you must do three things:
 ```jsx
 ---
 // Define the `collection` prop.
-export let collection: any;
+const { collection } = Astro.props;
 
 // Define a `createCollection` function.
 export async function createCollection() {
@@ -72,7 +72,7 @@ export async function createCollection() {
 // prop also provides some important metadata for you to use, like: `collection.page`,
 // `collection.url`, `collection.start`, `collection.end`, and `collection.total`.
 // In this example, we'll use these values to do pagination in the template.
-export let collection: any;
+const { collection } = Astro.props;
 export async function createCollection() { /* See Previous Example */ }
 ---
 <html lang="en">
@@ -107,7 +107,7 @@ export async function createCollection() { /* See Previous Example */ }
 ```jsx
 ---
 // Define the `collection` prop.
-export let collection: any;
+const { collection } = Astro.props;
 
 // Define a `createCollection` function.
 // In this example, we'll customize the URLs that we generate to
@@ -155,7 +155,7 @@ export async function createCollection() {
 ```jsx
 ---
 // Define the `collection` prop.
-export let collection: any;
+const { collection } = Astro.props;
 
 // Define a `createCollection` function.
 // In this example, we'll create a new page for every single pokemon.

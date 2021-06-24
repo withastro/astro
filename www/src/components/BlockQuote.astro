@@ -1,7 +1,10 @@
 ---
-export let author: string;
-export let source: string;
-export let sourceHref: string;
+export interface Props {
+  author: string;
+  source: string;
+  sourceHref: string;
+}
+const { author, source, sourceHref } = Astro.props;
 ---
 
 <blockquote>

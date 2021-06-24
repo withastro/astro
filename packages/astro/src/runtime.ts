@@ -228,7 +228,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         canonicalURL: canonicalURL(requestURL.pathname, requestURL.origin),
       },
       children: [],
-      props: { collection },
+      props: Object.keys(collection).length > 0 ? { collection } : {},
       css: Array.isArray(mod.css) ? mod.css : typeof mod.css === 'string' ? [mod.css] : [],
     })) as string;
 

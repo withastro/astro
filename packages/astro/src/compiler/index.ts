@@ -105,6 +105,7 @@ interface CompileComponentOptions {
   projectRoot: string;
   isPage?: boolean;
 }
+/** Compiles an Astro component */
 export async function compileComponent(source: string, { compileOptions, filename, projectRoot, isPage }: CompileComponentOptions): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
@@ -121,9 +122,10 @@ import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroInternal = Symbol('astro.internal');
 async function __render(props, ...children) {
   const Astro = {
+    props,
+    site: new URL('/', ${JSON.stringify(site)}),
     css: props[__astroInternal]?.css || [],
     request: props[__astroInternal]?.request || {},
-    site: new URL('/', ${JSON.stringify(site)}),
     isPage: props[__astroInternal]?.isPage || false
   };
 
@@ -144,11 +146,15 @@ export async function __renderPage({request, children, props, css}) {
     __render,
   };
 
-  props[__astroInternal] = {
-    request,
-    css,
-    isPage: true
-  };
+  Object.defineProperty(props, __astroInternal, {
+    value: {
+      request,
+      css,
+      isPage: true
+    },
+    writable: false,
+    enumerable: false
+  })
 
   const childBodyResult = await currentChild.__render(props, children);
 
@@ -162,7 +168,11 @@ export async function __renderPage({request, children, props, css}) {
   }
 
   return childBodyResult;
-};\n`;
+};
+
+${result.exports.join('\n')}
+
+`;
 
   return {
     result,

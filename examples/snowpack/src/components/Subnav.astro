@@ -1,7 +1,10 @@
 ---
-export let title: string;
-export let inputPath: string;
-export let headers: string;
+export interface Props {
+  title: string;
+  inputPath: string;
+  headers: string;
+}
+const { title, inputPath, headers } = Astro.props;
 ---
 
 <style lang="scss">

@@ -1,8 +1,7 @@
 ---
 import { renderMarkdown } from '@astrojs/markdown-support';
 
-export let content: string;
-export let $scope: string;
+const { content, $scope } = Astro.props;
 let html = null;
 
 // This flow is only triggered if a user passes `<Markdown content={content} />`

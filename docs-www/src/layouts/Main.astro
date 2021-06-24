@@ -4,7 +4,7 @@ import SiteSidebar from '../components/SiteSidebar.astro';
 import ThemeToggle from '../components/ThemeToggle.tsx';
 import DocSidebar from '../components/DocSidebar.tsx';
 
-export let content;
+const { content } = Astro.props;
 const headers = content?.astro?.headers;
 let editHref = Astro?.request?.url?.pathname?.slice(1) ?? '';
 if (editHref === '') editHref = `index`;

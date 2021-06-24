@@ -60,6 +60,7 @@ export interface JsxItem {
 export interface TransformResult {
   script: string;
   imports: string[];
+  exports: string[];
   html: string;
   css?: string;
   /** If this page exports a collection, the JS to be executed as a string */

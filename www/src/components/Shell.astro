@@ -1,5 +1,8 @@
 ---
-export let code: string;
+export interface Props {
+  code: string;
+}
+const { code } = Astro.props;
 ---
 
 <pre><code>{code.trim().split('\n').map(ln => <span class="line">
