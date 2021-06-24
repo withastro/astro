@@ -205,11 +205,7 @@ async function compileExpression(node: Expression, state: CodegenState, compileO
   let code = transpileExpressionSafe(raw, { state, compileOptions, location });
   if (code === null) throw new Error(`Unable to compile expression`);
   code = code.trim().replace(/\;$/, '');
-  if (!FALSY_EXPRESSIONS.has(code)) {
-    return code;
-  } else {
-    return ''
-  }
+  return code;
 }
 
 /** Evaluate expression (safely) */
@@ -537,7 +533,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       async enter(node: TemplateNode, parent: TemplateNode) {
         switch (node.type) {
           case 'Expression': {
-            const code = await compileExpression(node as Expression, state, compileOptions);
+            let code = await compileExpression(node as Expression, state, compileOptions);
+            if (FALSY_EXPRESSIONS.has(code)) {
+              this.skip();
+              break;
+            }
             if (code !== '') {
               if (state.markers.insideMarkdown) {
                 buffers[curr] += `{${code}}`;
