@@ -105,6 +105,7 @@ interface CompileComponentOptions {
   projectRoot: string;
   isPage?: boolean;
 }
+/** Compiles an Astro component */
 export async function compileComponent(source: string, { compileOptions, filename, projectRoot, isPage }: CompileComponentOptions): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
   const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
@@ -120,12 +121,13 @@ ${result.imports.join('\n')}
 import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroInternal = Symbol('astro.internal');
 async function __render(_props, ...children) {
-  const props = Object.assign({}, _props, { [__astroInternal]: undefined });
+  const props = Object.assign({}, _props);
+  delete props[__astroInternal];
   const Astro = {
     props,
+    site: new URL('/', ${JSON.stringify(site)}),
     css: _props[__astroInternal]?.css || [],
     request: _props[__astroInternal]?.request || {},
-    site: new URL('/', ${JSON.stringify(site)}),
     isPage: props[__astroInternal]?.isPage || false
   };
 
