@@ -93,7 +93,21 @@ Routing happens in `src/pages/*`. Every `.astro` or `.md` file in this folder co
 
 #### 🗂 Static Assets
 
-Static assets should be placed in a `public/` folder in your project. You can place any images, fonts, files, or global CSS in here you need to reference.
+Assets such as images, global CSS, fonts and scripts that you want to add to your site can be placed in either:
+* `src/`: Files in here must be used to be part of the build output. (imported into an Astro component, added as an img src, etc).
+* `public/`: Files in here will be copied mostly untouched. Some files such as Sass are still run through the CSS pipeline. Astro doesn't check if these files are used in your app, so it's a good place for things like `.htaccess` files that are needed in your production environment.
+
+Files in `public/` are accessible from the base URL. The file `public/images/penguin.png` can be loaded like so:
+
+```html
+<img src="/images/penguin.png" />
+```
+
+Files in `src/` are accessible from a special `/_astro/src` path. You can load anything in your src folder like so:
+
+```html
+<img src="/_astro/src/images/penguin.png" />
+```
 
 #### 🪨 Generating HTML with Astro
 
