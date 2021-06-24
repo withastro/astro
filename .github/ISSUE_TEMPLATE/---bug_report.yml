@@ -19,12 +19,12 @@ body:
     attributes:
       label: What package manager are you using?
       options:
-        - `npm v6`
-        - `npm v7`
-        - `yarn v1 (classic)`
-        - `yarn v2 (berry)`
-        - `pnpm`
-        - other (please explain)
+        - "`npm v6`"
+        - "`npm v7`"
+        - "`yarn v1 (classic)`"
+        - "`yarn v2 (berry)`"
+        - "`pnpm`"
+        - "other (please mention in description)"
     validations:
       required: true
   - type: input
