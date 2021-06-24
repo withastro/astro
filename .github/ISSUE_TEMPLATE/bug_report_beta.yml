@@ -9,7 +9,7 @@ body:
       value: Thanks for taking the time to file a bug report! Please fill out this form as completely as possible.
   - type: input
     attributes:
-      label: What version of `astro` are you using?
+      label: What version of Astro are you using?
       placeholder: '0.0.0'
       description: 'For example: 0.14.1'
   - type: input
