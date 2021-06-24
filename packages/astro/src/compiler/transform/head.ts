@@ -123,7 +123,7 @@ export default function (opts: TransformOptions): Transformer {
         });
       }
 
-      if (isHmrEnabled && hasComponents) {
+      if (isHmrEnabled) {
         const { hmrPort } = opts.compileOptions;
         children.push(
           {

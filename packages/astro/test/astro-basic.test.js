@@ -27,12 +27,6 @@ Basics('Sets the HMR port when dynamic components used', async ({ runtime }) => 
   assert.ok(/HMR_WEBSOCKET_PORT/.test(html), 'Sets the websocket port');
 });
 
-Basics('Does not set the HMR port when no dynamic component used', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  const html = result.contents;
-  assert.ok(!/HMR_WEBSOCKET_PORT/.test(html), 'Does not set the websocket port');
-});
-
 Basics('Correctly serializes boolean attributes', async ({ runtime }) => {
   const result = await runtime.load('/');
   const html = result.contents;
