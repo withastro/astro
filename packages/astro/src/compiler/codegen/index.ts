@@ -33,7 +33,7 @@ const { transformSync } = esbuild;
 interface Attribute {
   start: number;
   end: number;
-  type: 'Attribute'|'Spread';
+  type: 'Attribute' | 'Spread';
   name: string;
   value: TemplateNode[] | boolean;
   expression?: Expression;
