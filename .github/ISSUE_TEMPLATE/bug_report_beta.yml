@@ -1,0 +1,51 @@
+name: "\U0001F41B Bug Report (Beta)"
+about: Report an issue or possible bug
+title: "\U0001F41B <TITLE>"
+labels: ''
+assignees: ''
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to file a bug report! Please fill out this form as completely as possible.
+  - type: input
+    attributes:
+      label: What version of `astro` are you using?
+      placeholder: '0.0.0'
+      description: 'For example: 0.14.1'
+  - type: input
+    attributes:
+      label: What version of Node.js are you using?
+      description: 'Astro requires a Node version that supports ESM (`v12.20.0+, v14.13.1+, or v16.0.0+`)'
+      placeholder: '12.20.0'
+  - type: dropdown
+    attributes:
+      label: What package manager are you using?
+      options:
+        - npm@6
+        - npm@7
+        - yarn@1
+        - yarn@2
+        - pnpm
+        - other
+  - type: input
+    attributes:
+      label: What operating system are you using?
+      description: 'For example: macOS, Windows'
+   - type: textarea
+      attributes:
+        label: Describe the Bug
+        description: A clear and concise description of what the bug is.
+      validations:
+        required: true
+   - type: textarea
+      attributes:
+        label: Expected Behavior
+        description: A clear and concise description of what you expected to happen.
+      validations:
+        required: true
+    - type: textarea
+      attributes:
+        label: Steps to reproduce
+        description: "We can't fix bugs that we can't see for ourselves. Issues often need to be closed if this section is skipped."
+      validations:
+        required: true
