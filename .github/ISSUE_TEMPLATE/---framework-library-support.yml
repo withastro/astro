@@ -10,7 +10,6 @@ body:
   - type: checkboxes
     attributes:
       label: Quick Checklist
-      description: "Tip: Requests made by interested contributors are much more likely to get done!"
       options:
         - label: I have already searched for existing issues for this framework/library.
           required: true
