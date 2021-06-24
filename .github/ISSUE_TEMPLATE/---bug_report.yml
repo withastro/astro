@@ -19,35 +19,51 @@ body:
     attributes:
       label: What package manager are you using?
       options:
-        - npm@6
-        - npm@7
-        - yarn@1
-        - yarn@2
-        - pnpm
-        - other
+        - `npm v6`
+        - `npm v7`
+        - `yarn v1 (classic)`
+        - `yarn v2 (berry)`
+        - `pnpm`
+        - other (please explain)
+    validations:
+      required: true
   - type: input
     attributes:
       label: What operating system are you using?
-      description: 'For example: macOS, Windows'
+      description: 'For example: macOS, Windows, Linux'
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Describe the Bug
       description: A clear and concise description of what the bug is.
+    validations:
+      required: true
   - type: textarea
     attributes:
       label: Expected Behavior
       description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Link to Minimal Reproducible Example
+      description: "We can't fix bugs that we can't see for ourselves! Issues with clear, minimal reproducible examples are more likely to be fixed quickly."
+      placeholder: 'https://github.com/username/repo'
   - type: textarea
     attributes:
       label: Steps to reproduce
-      description: "We can't fix bugs that we can't see for ourselves! Issues often need to be closed if this section is skipped."
-      value:
-        1. `npm init astro` using template <NAME>
+      render: bash
+      value: |
+        # Setup
+        git clone git@github.com:username/repo.git
+        # OR npm init astro --template <name>
         
-        2. ...
-        
-        3. ...
-        
-        4. ...
-        
-        5. Error! Describe what went wrong...
+        # Steps to reproduce
+        npm install
+        npm run build 
+
+        # Paste error below (or describe the issue)
+        Error: ...
+    validations:
+      required: true
