@@ -18,7 +18,7 @@ import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.
 import { generateSitemap } from './build/sitemap.js';
 import { logURLStats, collectBundleStats, mapBundleStatsToURLStats } from './build/stats.js';
 import { getDistPath, stopTimer } from './build/util.js';
-import { debug, defaultLogDestination, defaultLogLevel, error, info, warn, trapWarn } from './logger.js';
+import { debug, defaultLogDestination, defaultLogLevel, error, info, warn } from './logger.js';
 import { createRuntime } from './runtime.js';
 
 const defaultLogging: LogOptions = {
@@ -71,7 +71,6 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
     timer.build = performance.now();
     const pages = await allPages(pagesRoot);
     info(logging, 'build', yellow('! building pages...'));
-    const release = trapWarn(); // Vue also console.warns, this silences it.
     await Promise.all(
       pages.map(async (filepath) => {
         const buildPage = getPageType(filepath) === 'collection' ? buildCollectionPage : buildStaticPage;
@@ -88,7 +87,6 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
       })
     );
     info(logging, 'build', green('✔'), 'pages built.');
-    release();
     debug(logging, 'build', `built pages [${stopTimer(timer.build)}]`);
 
     // after pages are built, build depTree
