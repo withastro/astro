@@ -1,7 +1,7 @@
 name: "\U0001F4A1 Feature Request"
 description: 'Submit an RFC or suggest an idea for this project'
 title: "\U0001F4A1 "
-labels: ['feature-request']
+labels: ['feature']
 assignees: []
 body:
   - type: markdown
