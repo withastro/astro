@@ -1,0 +1,44 @@
+name: "\U0001F91D Framework/Library Support Request"
+description: Request support for new frameworks, libraries, tools, etc.
+title: '\U0001F91D '
+labels: ['support']
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to request support for your favorite tool! Please fill out this form as completely as possible.
+  - type: checkboxes
+    attributes:
+      label: Quick Checklist
+      description: "Tip: Requests made by interested contributors are much more likely to get done!"
+      options:
+        - label: I have already searched for existing issues for this framework/library.
+          required: true
+        - label: I have already searched npm for an existing Astro integration.
+          required: true
+        - label: I have already tried this with Astro myself, and it did not work.
+          description: |
+            While Astro is in beta, we ask that you attempt to implement this on your own _first_.
+            If you run into any issues, we may be able to help you resolve them.
+          required: true
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Website or GitHub repository
+      placeholder: 'https://github.com/username/repo'
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Additional Details
+  - type: checkboxes
+    attributes:
+      label: Help make it happen!
+      description: "Tip: Requests made by interested contributors are much more likely to get done!"
+      options:
+        - label: I am willing to submit a PR to implement this change.
+        - label: I am willing to submit a PR to implement this change, but would need some guidance.
+        - label: I am not willing to submit a PR to implement this change.
+    validations:
+      required: true
