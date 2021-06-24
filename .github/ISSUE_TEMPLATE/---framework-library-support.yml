@@ -10,15 +10,15 @@ body:
   - type: checkboxes
     attributes:
       label: Quick Checklist
+      description: |
+        While Astro is in beta, we ask that you attempt to implement this on your own _first_.
+        If you run into any issues, we may be able to update Astro to support your request.
       options:
         - label: I have already searched for existing issues for this framework/library.
           required: true
         - label: I have already searched npm for an existing Astro integration.
           required: true
         - label: I have already tried this with Astro myself, and it did not work.
-          description: |
-            While Astro is in beta, we ask that you attempt to implement this on your own _first_.
-            If you run into any issues, we may be able to help you resolve them.
           required: true
     validations:
       required: true
