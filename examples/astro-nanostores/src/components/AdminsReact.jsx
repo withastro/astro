@@ -1,7 +1,7 @@
-import React from 'react'
-import { useStore } from 'nanostores/react'
+import React from 'react';
+import { useStore } from 'nanostores/react';
 
-import { admins } from '../store/admins.js'
+import { admins } from '../store/admins.js';
 import { counter, increaseCounter, decreaseCounter } from '../store/counter.js';
 
 const AdminsReact = () => {
@@ -11,7 +11,9 @@ const AdminsReact = () => {
     <>
       <h1>React</h1>
       <ul>
-        {list.map(user => <li key={user.name}>{JSON.stringify(user, null, 2)}</li>)}
+        {list.map((user) => (
+          <li key={user.name}>{JSON.stringify(user, null, 2)}</li>
+        ))}
       </ul>
       <div>
         <h3>Counter</h3>
@@ -22,6 +24,6 @@ const AdminsReact = () => {
       <br />
     </>
   );
-}
+};
 
 export default AdminsReact;
