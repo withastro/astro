@@ -1,6 +1,6 @@
 name: "\U0001F41B Bug Report (Beta)"
 description: Report an issue or possible bug
-title: "\U0001F41B <TITLE>"
+title: "\U0001F41B"
 labels: []
 assignees: []
 body:
@@ -39,3 +39,13 @@ body:
     attributes:
       label: Expected Behavior
       description: A clear and concise description of what you expected to happen.
+  - type: textarea
+    attributes:
+      label: Steps to reproduce
+      description: "We can't fix bugs that we can't see for ourselves! Issues often need to be closed if this section is skipped."
+      value:
+        1. `npm init astro` using template <NAME>
+        2. ...
+        3. ...
+        4. ...
+        5. Error! Describe what went wrong...
