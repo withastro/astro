@@ -3,8 +3,7 @@ import Prism from 'prismjs';
 import { addAstro } from '@astrojs/prism';
 import loadLanguages from 'prismjs/components/index.js';
 
-export let lang;
-export let code;
+const { lang, code } = Astro.props;
 
 const languageMap = new Map([
   ['ts', 'typescript']

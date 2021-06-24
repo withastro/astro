@@ -1,7 +1,10 @@
 ---
-export let title: string;
-export let description: string;
-export let permalink: string;
+export interface Props {
+  title: string;
+  description: string;
+  permalink: string;
+}
+const { title, description, permalink } = Astro.props;
 ---
 
 <meta charset="utf-8" />

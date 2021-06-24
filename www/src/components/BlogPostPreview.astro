@@ -1,9 +1,13 @@
 ---
 import Author from './Author.astro';
 
-export let title: string;
-export let publishDate: string;
-export let href: string;
+export interface Props {
+  title: string;
+  publishDate: string;
+  href: string;
+}
+
+const { title, publishDate, href } = Astro.props;
 ---
 <article class="post-preview">
   <header>

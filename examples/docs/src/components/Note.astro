@@ -1,5 +1,9 @@
 ---
-const { type, title } = Astro.props;
+export interface Props {
+  title: string;
+  type?: 'tip' | 'warning' | 'error'
+}
+const { type = 'tip', title } = Astro.props;
 ---
 
 <aside class={`note type-${type}`}>
