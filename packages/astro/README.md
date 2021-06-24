@@ -25,6 +25,14 @@ npm install
 npm start
 ```
 
+### pnpm
+
+If you are using [pnpm](https://pnpm.io/) add the following `.npmrc` to your root folder before installing:
+
+```
+shamefully-hoist = true
+```
+
 ### 🚀 Build & Deployment
 
 The default Astro project has the following `scripts` in the `/package.json` file:
