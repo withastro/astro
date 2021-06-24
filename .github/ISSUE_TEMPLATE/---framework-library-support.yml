@@ -6,13 +6,15 @@ assignees: []
 body:
   - type: markdown
     attributes:
-      value: Thanks for taking the time to request support for your favorite tool! Please fill out this form as completely as possible.
+      value: |
+        Thanks for taking the time to request support for your favorite tool! Please fill out this form as completely as possible.
+        
+        While Astro is in beta, we ask that you attempt to implement this on your own first.
+        
+        If you run into any issues, it's possible that Astro is missing something! We may be able to update Astro to support your request.
   - type: checkboxes
     attributes:
-      label: Quick Checklist
-      description: |
-        While Astro is in beta, we ask that you attempt to implement this on your own _first_.
-        If you run into any issues, we may be able to update Astro to support your request.
+      label: Checklist
       options:
         - label: I have already searched for existing issues for this framework/library.
           required: true
