@@ -10,7 +10,6 @@
 
 > **Note:** This document is currently being written, and is not yet binding. Once this note is removed, this document will go into effect.
 
-
 ## Get Involved
 
 TODO
