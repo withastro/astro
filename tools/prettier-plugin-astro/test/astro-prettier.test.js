@@ -33,7 +33,7 @@ Prettier('can format an Astro file with frontmatter', async () => {
   assert.fixture(formatted, out);
 });
 
-Prettier('can format an Astro file with embedded JSX expressions', async () => {
+Prettier.skip('can format an Astro file with embedded JSX expressions', async () => {
   const [src, out] = await getFiles('embedded-expr');
   assert.not.fixture(src, out);
 
