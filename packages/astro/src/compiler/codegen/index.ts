@@ -212,8 +212,6 @@ function transpileExpressionSafe(
   raw: string,
   { state, compileOptions, location }: { state: CodegenState; compileOptions: CompileOptions; location: { start: number; end: number } }
 ): string | null {
-  // We have to wrap `raw` with parens to support primitives (objects, arrays)!
-  raw = `(${raw})`;
   try {
     let { code } = transformSync(raw, {
       loader: 'tsx',
