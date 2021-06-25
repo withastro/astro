@@ -1,5 +1,12 @@
 # prettier-plugin-astro
 
+## 0.0.6
+
+### Patch Changes
+
+- Updated dependencies [47ac2cc]
+  - @astrojs/parser@0.15.0
+
 ## 0.0.5
 
 ### Patch Changes
