@@ -17,7 +17,7 @@
     "dev:vscode": "lerna run dev --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser --parallel --stream",
     "format": "prettier -w \"**/*.{js,jsx,ts,tsx,md,json}\"",
     "lint": "eslint \"packages/**/*.ts\"",
-    "test": "lerna run test --scope astro --stream",
+    "test": "lerna run test --scope astro --scope prettier-plugin-astro --stream",
     "test:core": "yarn workspace astro run test",
     "test:templates": "lerna run test --scope create-astro --stream"
   },
