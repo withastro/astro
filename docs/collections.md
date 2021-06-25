@@ -162,7 +162,7 @@ const { collection } = Astro.props;
 export async function createCollection() {
   const allPokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=150`);
   const allPokemonResult = await allPokemonResponse.json();
-  const allPokemon = allPokemonResult.result;
+  const allPokemon = allPokemonResult.results;
   return {
     // `routes` defines the total collection of routes as data objects.
     routes: allPokemon.map((pokemon, i) => {
@@ -175,8 +175,9 @@ export async function createCollection() {
     // Luckily we had already loaded all of the data at the top of the function,
     // so we just filter the data here to group pages by first letter.
     // If you needed to fetch more data for each page, you can do that here as well.
+    // Note: data() is expected to return an array!
     async data({ params }) {
-      return allPokemon[params.index];
+      return [allPokemon[params.index]];
     },
     // Note: The default pageSize is fine because technically only one data object
     // is ever returned per route. We set it to Infinity in this example for completeness.
@@ -188,7 +189,7 @@ export async function createCollection() {
   <head>
     <title>Pokemon: {collection.params.name}</head>
   <body>
-    Who's that pokemon? It's {collection.data.name}!
+    Who's that pokemon? It's {collection.data[0].name}!
   </body>
 </html>
 ```
