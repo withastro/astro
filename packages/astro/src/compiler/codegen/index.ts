@@ -201,7 +201,7 @@ async function compileExpression(node: Expression, state: CodegenState, compileO
     }
   }
   const location = { start: node.start, end: node.end };
-  let code = transpileExpressionSafe(raw, { state, compileOptions, location });
+  let code = transpileExpressionSafe("(" + raw + ")", { state, compileOptions, location });
   if (code === null) throw new Error(`Unable to compile expression`);
   code = code.trim().replace(/\;$/, '');
   return code;
@@ -212,8 +212,6 @@ function transpileExpressionSafe(
   raw: string,
   { state, compileOptions, location }: { state: CodegenState; compileOptions: CompileOptions; location: { start: number; end: number } }
 ): string | null {
-  // We have to wrap `raw` with parens to support primitives (objects, arrays)!
-  raw = `(${raw})`;
   try {
     let { code } = transformSync(raw, {
       loader: 'tsx',
@@ -457,7 +455,7 @@ const { ${props.join(', ')} } = Astro.props;\n`)
 
     script = propsStatement + contentCode + babelGenerator(program).code;
     const location = { start: module.start, end: module.end };
-    let transpiledScript = compileExpressionSafe(script, { state, compileOptions, location });
+    let transpiledScript = transpileExpressionSafe(script, { state, compileOptions, location });
     if (transpiledScript === null) throw new Error(`Unable to compile script`);
     script = transpiledScript;
   }
