@@ -457,7 +457,7 @@ const { ${props.join(', ')} } = Astro.props;\n`)
 
     script = propsStatement + contentCode + babelGenerator(program).code;
     const location = { start: module.start, end: module.end };
-    let transpiledScript = compileExpressionSafe(script, { state, compileOptions, location });
+    let transpiledScript = transpileExpressionSafe(script, { state, compileOptions, location });
     if (transpiledScript === null) throw new Error(`Unable to compile script`);
     script = transpiledScript;
   }
