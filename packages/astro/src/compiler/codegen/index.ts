@@ -201,7 +201,7 @@ async function compileExpression(node: Expression, state: CodegenState, compileO
     }
   }
   const location = { start: node.start, end: node.end };
-  let code = transpileExpressionSafe("(" + raw + ")", { state, compileOptions, location });
+  let code = transpileExpressionSafe('(' + raw + ')', { state, compileOptions, location });
   if (code === null) throw new Error(`Unable to compile expression`);
   code = code.trim().replace(/\;$/, '');
   return code;
