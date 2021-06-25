@@ -162,7 +162,7 @@ const { collection } = Astro.props;
 export async function createCollection() {
   const allPokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=150`);
   const allPokemonResult = await allPokemonResponse.json();
-  const allPokemon = allPokemonResult.result;
+  const allPokemon = allPokemonResult.results;
   return {
     // `routes` defines the total collection of routes as data objects.
     routes: allPokemon.map((pokemon, i) => {
