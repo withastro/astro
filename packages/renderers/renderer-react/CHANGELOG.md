@@ -1,5 +1,11 @@
 # @astrojs/renderer-react
 
+## 0.1.4
+
+### Patch Changes
+
+- 21dc28c: Add react-dom as a knownEntrypoint (speeds up astro startup)
+
 ## 0.1.3
 
 ### Patch Changes

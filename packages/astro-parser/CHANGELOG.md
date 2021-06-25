@@ -1,5 +1,11 @@
 # @astrojs/parser
 
+## 0.15.0
+
+### Patch Changes
+
+- 47ac2cc: Fix #521, allowing `{...spread}` props to work again
+
 ## 0.13.10
 
 ### Patch Changes
