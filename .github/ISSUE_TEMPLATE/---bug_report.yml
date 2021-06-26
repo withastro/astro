@@ -32,29 +32,18 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: Expected Behavior
-      description: A clear and concise description of what you expected to happen.
+      label: Steps to Reproduce
+      description: Describe the bug in steps that we can reproduce ourselves.
+      value: |
+        1. `npm init astro` using template <NAME>
+        2. ...
+        3. ...
+        4. ...
+        5. Error! Describe what went wrong (and what was expected instead)...
     validations:
       required: true
   - type: input
     attributes:
-      label: Link to Minimal Reproducible Example
-      description: "We can't fix bugs that we can't see for ourselves! Issues with clear, minimal reproducible examples are more likely to be fixed quickly."
+      label: Link to Minimal Reproducible Example (Optional)
+      description: "Issues with easy reproductions are more likely to get fixed, faster."
       placeholder: 'https://github.com/username/repo'
-  - type: textarea
-    attributes:
-      label: Steps to reproduce
-      render: bash
-      value: |
-        # Setup
-        git clone git@github.com:username/repo.git
-        # OR npm init astro --template <name>
-        
-        # Steps to reproduce
-        npm install
-        npm run build 
-
-        # Paste error below (or describe the issue)
-        Error: ...
-    validations:
-      required: true
