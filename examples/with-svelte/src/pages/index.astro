@@ -1,0 +1,38 @@
+---
+import Counter from '../components/Counter.svelte'
+---
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <style>
+      :global(:root) {
+        font-family: system-ui;
+        padding: 2em 0;
+      }
+      :global(.counter) {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        place-items: center;
+        font-size: 2em;
+        margin-top: 2em;
+      }
+      :global(.children) {
+        display: grid;
+        place-items: center;
+        margin-bottom: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <Counter:visible>
+        <h1>Hello Svelte!</h1>
+      </Counter:visible>
+    </main>
+  </body>
+</html>
