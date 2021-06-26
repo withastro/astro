@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/kitchen-sink-example",
+  "name": "@astrojs/with-multiple-frameworks-example",
   "private": true,
   "version": "1.0.0",
   "scripts": {
