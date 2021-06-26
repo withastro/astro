@@ -1,11 +1,7 @@
 {
   "name": "@astrojs/with-multiple-frameworks-example",
   "private": true,
-<<<<<<< HEAD
   "version": "0.0.1",
-=======
-  "version": "1.0.0",
->>>>>>> 432f8e1 (rename kitchen sink, pull out react example)
   "scripts": {
     "start": "astro dev",
     "build": "astro build"
