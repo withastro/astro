@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD:examples/with-preact/package.json
   "name": "@astrojs/with-preact-example",
+=======
+  "name": "@astrojs/with-react-example",
+>>>>>>> 432f8e1 (rename kitchen sink, pull out react example):examples/with-react/package.json
   "private": true,
   "version": "0.0.1",
   "scripts": {
