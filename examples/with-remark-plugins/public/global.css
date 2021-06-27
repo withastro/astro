@@ -1,0 +1,9 @@
+body {
+  font-family: system-ui;
+}
+
+.content {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
