@@ -7,6 +7,17 @@ title: Asto with Remark Plugins
 ## Heading 2
 ## Heading 3
 
-```js:file.js
-console.log('Privet')
+```jsx:file.jsx
+import Router from 'next/router'
+
+function MyComponent() {
+	const [show, setShow] = useState(false)
+
+	useEffect(() => {
+    console.log(2)
+	}, [])
+
+	return <>...</>
+}
 ```
+

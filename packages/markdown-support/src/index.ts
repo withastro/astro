@@ -56,7 +56,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
       .use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw'] })
       .use(raw)
       // .use(rehypeCollectHeaders)
-      // .use(rehypeCodeBlock())
+      .use(rehypeCodeBlock())
       .use(rehypeStringify)
       .process(content);
     result = vfile.contents.toString();
