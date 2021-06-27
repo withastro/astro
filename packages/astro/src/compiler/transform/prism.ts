@@ -57,6 +57,11 @@ export default function (module: Script): Transformer {
             if (!codeData) return;
             let code = codeData.data as string;
 
+            let filename;
+            if (lang.includes(':')) {
+              [lang, filename] = lang.split(':');
+            }
+            
             const repl = {
               start: 0,
               end: 0,
@@ -91,6 +96,20 @@ export default function (module: Script): Transformer {
               ],
               children: [],
             };
+
+            if (filename){
+              repl.attributes.push({
+                type: 'Attribute',
+                name: 'filename',
+                value: [
+                  {
+                    type: 'Text',
+                    raw: filename,
+                    data: filename,
+                  },
+                ],
+              })
+            }
 
             this.replace(repl);
             usesPrism = true;

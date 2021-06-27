@@ -3,7 +3,7 @@ import Prism from 'prismjs';
 import { addAstro } from '@astrojs/prism';
 import loadLanguages from 'prismjs/components/index.js';
 
-const { lang, code } = Astro.props;
+const { lang, code, filename } = Astro.props;
 
 const languageMap = new Map([
   ['ts', 'typescript']
@@ -42,4 +42,5 @@ if (grammar) {
 let className = lang ? `language-${lang}` : '';
 ---
 
-<pre class={className}><code class={className}>{html}</code></pre>
+{filename && <div class="code-filename">{filename}</div>}
+<pre class={className} data-filename={filename}><code class={className}>{html}</code></pre>
