@@ -50,6 +50,25 @@ export default async function dev(astroConfig: AstroConfig) {
         res.end();
         break;
       }
+      case 403: {
+        const fullurl = new URL(req.url || '/', astroConfig.buildOptions.site || `http://localhost${astroConfig.devOptions.port}`);
+        const reqPath = decodeURI(fullurl.pathname);
+        error(logging, 'static', 'Forbidden', reqPath);
+        res.statusCode = 403;
+
+        const fourOhThreeResult = await runtime.load('/403');
+        if (fourOhThreeResult.statusCode === 200) {
+          if (fourOhThreeResult.contentType) {
+            res.setHeader('Content-Type', fourOhThreeResult.contentType);
+          }
+          res.write(fourOhThreeResult.contents);
+        } else {
+          res.setHeader('Content-Type', 'text/plain');
+          res.write(`Forbidden: ${result.error.message}`);
+        }
+        res.end();
+        break;
+      }
       case 404: {
         const fullurl = new URL(req.url || '/', astroConfig.buildOptions.site || `http://localhost${astroConfig.devOptions.port}`);
         const reqPath = decodeURI(fullurl.pathname);

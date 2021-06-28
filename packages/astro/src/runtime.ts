@@ -46,11 +46,12 @@ type LoadResultSuccess = {
   contents: string | Buffer;
   contentType?: string | false;
 };
+type LoadResultForbidden = { statusCode: 403; error: Error; collectionInfo?: CollectionInfo };
 type LoadResultNotFound = { statusCode: 404; error: Error; collectionInfo?: CollectionInfo };
 type LoadResultRedirect = { statusCode: 301 | 302; location: string; collectionInfo?: CollectionInfo };
 type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'not-found'; error: CompileError } | { type: 'unknown'; error: Error });
 
-export type LoadResult = (LoadResultSuccess | LoadResultNotFound  | LoadResultRedirect | LoadResultError) & { collectionInfo?: CollectionInfo };
+export type LoadResult = (LoadResultSuccess | LoadResultForbidden | LoadResultNotFound  | LoadResultRedirect | LoadResultError) & { collectionInfo?: CollectionInfo };
 
 // Disable snowpack from writing to stdout/err.
 configureSnowpackLogger(snowpackLogger);
@@ -108,16 +109,16 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     if (mod.exports.__content) {
       const hasDraftAttribute = mod.exports.__content.hasOwnProperty('draft');
       const hasPublishAttribute = mod.exports.__content.hasOwnProperty('published');
-      if(hasPublishAttribute && mod.exports.__content['published'] === false) {
+      if (hasPublishAttribute && mod.exports.__content['published'] === false) {
         return { 
-          statusCode: 404, 
-          error: new Error('Unpublished document')
+          statusCode: 403, 
+          error: new Error('Document is not published')
         };
       }
-      if(hasDraftAttribute && mod.exports.__content['draft'] === true && !buildOptions.draft && config.mode === 'production') {
+      if (hasDraftAttribute && mod.exports.__content['draft'] === true && !buildOptions.draft && config.mode === 'production') {
         return { 
-          statusCode: 404, 
-          error: new Error('Unpublished document')
+          statusCode: 403, 
+          error: new Error('Document is not published')
         };
       }
     }
@@ -155,7 +156,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       if (!data) throw new Error(`[createCollection] \`data()\` returned nothing (empty data)"`);
       if (!Array.isArray(data)) data = [data]; // note: this is supposed to be a little friendlier to the user, but should we error out instead?
       data = data.filter(entry => !entry.hasOwnProperty('published') ||  (entry.hasOwnProperty('published') && entry.published));
-      if(!buildOptions.draft && config.mode === "production") {
+      if (!buildOptions.draft && config.mode === "production") {
         data = data.filter(entry => !entry.hasOwnProperty('draft') ||  (entry.hasOwnProperty('draft') && !entry.draft));
       }
 

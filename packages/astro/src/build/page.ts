@@ -92,7 +92,7 @@ export async function buildStaticPage({ astroConfig, buildState, filepath, runti
   const { pages: pagesRoot } = astroConfig;
   const url = filepath.pathname.replace(pagesRoot.pathname, '/').replace(/(index)?\.(astro|md)$/, '');
   const result = await runtime.load(url);
-  if (result.statusCode === 404 && result.error.message === 'Unpublished document') return;
+  if (result.statusCode === 403) return;
   if (result.statusCode !== 200) throw new Error((result as any).error);
   const outFile = path.posix.join(url, '/index.html');
   buildState[outFile] = {
