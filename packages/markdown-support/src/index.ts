@@ -24,8 +24,7 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-  const { $: { scopedClassName = null } = {}, footnotes: useFootnotes = true, gfm: useGfm = true, remarkPlugins = [] } = opts ?? {};
-  // const { headers, rehypeCollectHeaders } = createCollectHeaders();
+  const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
   let parser = unified().use(markdown);
 
@@ -55,7 +54,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     const vfile = await parser
       .use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw'] })
       .use(raw)
-      // .use(rehypeCollectHeaders)
+      .use(rehypeCollectHeaders)
       .use(rehypeCodeBlock())
       .use(rehypeStringify)
       .process(content);
@@ -65,7 +64,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   }
 
   return {
-    astro: { source: content },
+    astro: { headers, source: content },
     content: result.toString(),
   };
 }

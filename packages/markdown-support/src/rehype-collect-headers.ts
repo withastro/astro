@@ -14,11 +14,13 @@ export default function createCollectHeaders() {
     depth = Number.parseInt(depth);
 
     let text = '';
+
     visit(node, 'text', (child) => {
       text += child.value;
     });
 
-    let slug = slugger.slug(text);
+    let slug = node.properties.id || slugger.slug(text);
+
     node.properties = node.properties || {};
     node.properties.id = slug;
     headers.push({ depth, slug, text });
