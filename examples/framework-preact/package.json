@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/with-vue-example",
+  "name": "@astrojs/example-framework-preact",
   "private": true,
   "version": "0.0.1",
   "scripts": {

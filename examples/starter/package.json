@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/starter-kit",
+  "name": "@astrojs/example-starter",
   "version": "0.0.1",
   "private": true,
   "scripts": {

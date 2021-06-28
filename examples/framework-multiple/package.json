@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/with-preact-example",
+  "name": "@astrojs/example-framework-multiple",
   "private": true,
   "version": "0.0.1",
   "scripts": {

@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/with-multiple-frameworks-example",
+  "name": "@astrojs/example-framework-svelte",
   "private": true,
   "version": "0.0.1",
   "scripts": {

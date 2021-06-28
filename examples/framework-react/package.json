@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/with-react-example",
+  "name": "@astrojs/example-framework-react",
   "private": true,
   "version": "0.0.1",
   "scripts": {
