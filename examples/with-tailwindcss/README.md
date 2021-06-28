@@ -1,23 +1,5 @@
-# Astro + Tailwind
+# Astro with [Tailwind](https://tailwindcss.com)
 
-## Setup
+Astro comes with Tailwind support out of the box. This example showcases how to style your Astro project with [Tailwind](https://tailwindcss.com).
 
-```
-npm install
-```
-
-## Dev
-
-```
-npm start
-```
-
-Preview at `http://localhost:3000`
-
-## Build
-
-```
-npm build
-```
-
-Will output static site at `./dist`
+For complete setup instructions, please see our [Styling Guide](https://github.com/snowpackjs/astro/blob/main/docs/styling.md#-tailwind).
