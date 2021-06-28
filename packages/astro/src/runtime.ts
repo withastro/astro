@@ -155,9 +155,9 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       let data: any[] = await loadData({ params: currentParams });
       if (!data) throw new Error(`[createCollection] \`data()\` returned nothing (empty data)"`);
       if (!Array.isArray(data)) data = [data]; // note: this is supposed to be a little friendlier to the user, but should we error out instead?
-      data = data.filter(entry => !entry.hasOwnProperty('published') ||  (entry.hasOwnProperty('published') && entry.published));
+      data = data.filter(entry => !entry.hasOwnProperty('published') || (entry.hasOwnProperty('published') && entry.published));
       if (!buildOptions.draft && config.mode === "production") {
-        data = data.filter(entry => !entry.hasOwnProperty('draft') ||  (entry.hasOwnProperty('draft') && !entry.draft));
+        data = data.filter(entry => !entry.hasOwnProperty('draft') || (entry.hasOwnProperty('draft') && !entry.draft));
       }
 
       // handle RSS

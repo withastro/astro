@@ -38,7 +38,7 @@ function validateConfig(config: any): void {
         throw new Error('[config] buildOptions.site must be a valid URL');
       }
     }
-    if(config.buildOptions.drafts !== undefined && typeof config.buildOptions.drafts !== 'boolean') {
+    if (config.buildOptions.drafts !== undefined && typeof config.buildOptions.drafts !== 'boolean') {
       throw new Error(`[config] buildOptions.drafts: ${JSON.stringify(config.buildOptions.drafts)}\n  Expected boolean, received ${type(config.buildOptions.drafts)}.`);
     }
   }
