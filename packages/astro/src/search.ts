@@ -115,7 +115,7 @@ export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult 
 function loadCollection(url: string, astroConfig: AstroConfig): { currentPage?: number; location: PageLocation } | undefined {
   const pages = glob('**/$*.astro', { cwd: fileURLToPath(astroConfig.pages), filesOnly: true });
   for (const pageURL of pages) {
-    const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '(?:\/(.*)|\/?$)');
+    const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '(?:/(.*)|/?$)');
     const match = url.match(reqURL);
     if (match) {
       let currentPage: number | undefined;
