@@ -7,9 +7,9 @@ heroImage: '/social.jpg'
 layout: '../../layouts/BlogPost.astro'
 ---
 
-There's a simple secret to building a faster website — *just ship less*. 
+There's a simple secret to building a faster website — _just ship less_.
 
-Unfortunately, modern web development has been trending in the opposite direction—towards *more.* More JavaScript, more features, more moving parts, and ultimately more complexity needed to keep it all running smoothly.
+Unfortunately, modern web development has been trending in the opposite direction—towards _more._ More JavaScript, more features, more moving parts, and ultimately more complexity needed to keep it all running smoothly.
 
 Today I'm excited to publicly share Astro: a new kind of static site builder that delivers lightning-fast performance with a modern developer experience. To design Astro, we borrowed the best parts of our favorite tools and then added a few innovations of our own, including:
 
@@ -44,16 +44,15 @@ npm start
 
 > To learn more about Astro and start building your first site, check out [the project README.](https://github.com/snowpackjs/astro#-guides).
 
-
 ## How Astro Works
 
-Astro works a lot like a static site generator. If you have ever used Eleventy, Hugo, or Jekyll (or even a server-side web framework like Rails, Laravel, or Django) then you should feel right at home with Astro. 
+Astro works a lot like a static site generator. If you have ever used Eleventy, Hugo, or Jekyll (or even a server-side web framework like Rails, Laravel, or Django) then you should feel right at home with Astro.
 
-In Astro, you compose your website using UI components from your favorite JavaScript web framework (React, Svelte, Vue, etc). Astro renders your entire site to static HTML during the build. The result is a fully static website with all JavaScript removed from the final page. No monolithic JavaScript application required, just  static HTML that loads as fast as possible in the browser regardless of how many UI components you used to generate it.
+In Astro, you compose your website using UI components from your favorite JavaScript web framework (React, Svelte, Vue, etc). Astro renders your entire site to static HTML during the build. The result is a fully static website with all JavaScript removed from the final page. No monolithic JavaScript application required, just static HTML that loads as fast as possible in the browser regardless of how many UI components you used to generate it.
 
 Of course, sometimes client-side JavaScript is inevitable. Image carousels, shopping carts, and auto-complete search bars are just a few examples of things that require some JavaScript to run in the browser. This is where Astro really shines: When a component needs some JavaScript, Astro only loads that one component (and any dependencies). The rest of your site continues to exist as static, lightweight HTML.
 
-In other full-stack web frameworks this level of per-component optimization would be impossible without loading the entire page in JavaScript, delaying interactivity. In Astro, this kind of [partial hydration](https://addyosmani.com/blog/rehydration/) is built into the tool itself. 
+In other full-stack web frameworks this level of per-component optimization would be impossible without loading the entire page in JavaScript, delaying interactivity. In Astro, this kind of [partial hydration](https://addyosmani.com/blog/rehydration/) is built into the tool itself.
 
 You can even [automatically defer components](https://codepen.io/jonneal/full/ZELvMvw) to only load once they become visible on the page with the `:visible` modifier.
 
@@ -67,9 +66,9 @@ This new approach to web architecture is called [islands architecture](https://j
   A well-designed system makes it easy to do the right things and annoying (but not impossible) to do the wrong things
 </BlockQuote>
 
-Poor performance is often framed as a failure of the developer, but we respectfully disagree. In many cases, poor performance is a failure of tooling. It should be difficult to build a slow website. 
+Poor performance is often framed as a failure of the developer, but we respectfully disagree. In many cases, poor performance is a failure of tooling. It should be difficult to build a slow website.
 
-Astro's main design principle is to lead developers into what [Rico Mariani](https://twitter.com/ricomariani) dubbed "the pit of success". It is our goal to build every site "fast by default" while also delivering a familiar, modern developer experience. 
+Astro's main design principle is to lead developers into what [Rico Mariani](https://twitter.com/ricomariani) dubbed "the pit of success". It is our goal to build every site "fast by default" while also delivering a familiar, modern developer experience.
 
 By building your site to static HTML by default, Astro makes it difficult (but never impossible 😉) to build a slow site.
 
@@ -77,11 +76,11 @@ By building your site to static HTML by default, Astro makes it difficult (but n
 
 Astro is built by the team of open source developers behind [Snowpack](https://snowpack.dev) and [Skypack](https://skypack.dev), with additional contributions from the community.
 
-**Astro is and always will be free.** It is an open source project released under the [MIT license](https://github.com/snowpackjs/astro/blob/main/LICENSE). 
+**Astro is and always will be free.** It is an open source project released under the [MIT license](https://github.com/snowpackjs/astro/blob/main/LICENSE).
 
-We care deeply about building a more sustainable future for open source software.  At the same time, we need to support Astro's development long-term. This requires money (donations alone aren't enough.) 
+We care deeply about building a more sustainable future for open source software. At the same time, we need to support Astro's development long-term. This requires money (donations alone aren't enough.)
 
-We're inspired by the early success of projects like [Tailwind](https://tailwindcss.com/), [Rome](https://rome.tools/), [Remix](https://remix.run/), [Ionic](https://ionicframework.com/), and others who are experimenting with long-term financial sustainability on top of Open Source. Over the next year we'll be exploring how we can create a sustainable business to support a 100% free, open source Astro for years to come. 
+We're inspired by the early success of projects like [Tailwind](https://tailwindcss.com/), [Rome](https://rome.tools/), [Remix](https://remix.run/), [Ionic](https://ionicframework.com/), and others who are experimenting with long-term financial sustainability on top of Open Source. Over the next year we'll be exploring how we can create a sustainable business to support a 100% free, open source Astro for years to come.
 
 If your company is as excited about Astro as we are, [we'd love to hear from you.](https://astro.build/chat)
 
