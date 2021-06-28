@@ -10,8 +10,8 @@ export default {
   markdownOptions: {
     remarkPlugins: [
       import('remark-slug'),
-      import('remark-code-titles'),
-      import('remark-autolink-headings')
+      // import('remark-code-titles'),
+      // import('remark-autolink-headings')
     ]
   },
   devOptions: {
