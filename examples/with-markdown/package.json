@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/markdown-example",
+  "name": "@astrojs/with-markdown",
   "version": "0.0.1",
   "private": true,
   "scripts": {

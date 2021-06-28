@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/portfolio-template",
+  "name": "@astrojs/example-portfolio",
   "private": true,
   "version": "0.0.1",
   "scripts": {
