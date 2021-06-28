@@ -277,7 +277,7 @@ function compileModule(module: Script, state: CodegenState, compileOptions: Comp
   if (module) {
     const parseOptions: babelParser.ParserOptions = {
       sourceType: 'module',
-      plugins: ['jsx', 'typescript', 'topLevelAwait'],
+      plugins: ['jsx', 'typescript', 'topLevelAwait', 'throwExpressions'],
     };
     let parseResult;
     try {
