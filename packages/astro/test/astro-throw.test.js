@@ -18,5 +18,11 @@ Throwable('Can throw an error from an `.astro` file', async ({ runtime }) => {
   assert.equal(result.error.message, 'Oops!');
 });
 
+Throwable('Does not complete build when Error is thrown', async ({ build }) => {
+  await build().catch(e => {
+    assert.ok(e, 'Build threw');
+  })
+});
+
 
 Throwable.run();
