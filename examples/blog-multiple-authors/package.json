@@ -1,0 +1,15 @@
+{
+  "name": "@astrojs/example-blog-multiple-authors",
+  "version": "0.0.2",
+  "private": true,
+  "scripts": {
+    "start": "astro dev",
+    "build": "astro build"
+  },
+  "devDependencies": {
+    "astro": "^0.15.0"
+  },
+  "snowpack": {
+    "workspaceRoot": "../.."
+  }
+}

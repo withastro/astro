@@ -1,43 +1,77 @@
 ---
-import MainHead from '../components/MainHead.astro';
-import Nav from '../components/Nav.astro';
-import PostPreview from '../components/PostPreview.astro';
-import Pagination from '../components/Pagination.astro';
+import BaseHead from '../components/BaseHead.astro';
+import BlogHeader from '../components/BlogHeader.astro';
+import BlogPostPreview from '../components/BlogPostPreview.astro';
 
-// page
-let title = 'Don’s Blog';
-let description = 'An example blog on Astro';
+let title = 'Example Blog';
+let description = 'The perfect starter for your perfect blog.';
+let permalink = 'https://example.com/';
 
-// collection
-// note: we want to show first 3 posts here, but we don’t want to paginate at /1, /2, /3, etc.
-// so we show a preview of posts here, but actually paginate from $posts.astro
-import authorData from '../data/authors.json';
-
-let allPosts = Astro.fetchContent('./post/*.md');
-allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-let firstPage = allPosts.slice(0, 2);
+let allPosts = Astro.fetchContent('./posts/*.md');
+allPosts = allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
 ---
 
 <html>
   <head>
-    <title>{title}</title>
-    <MainHead
-      title={title}
-      description={description}
-      image={firstPage[0].image}
-      canonicalURL={Astro.request.canonicalURL.href}
-    />
+    <BaseHead title={title} description={description} permalink={permalink} />
+    <link rel="stylesheet" href="/blog.css" />
+
+    <style>
+      body {
+        width: 100%;
+        display: grid;
+        grid-template-rows: 3.5rem 1fr;
+        --gutter: 0.5rem;
+        --doc-padding: 2rem;
+      }
+
+      header {
+        width: 100%;
+        height: 100%;
+        background-color: var(--theme-bg-offset);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .content {
+        margin-top: 4rem;
+        margin-bottom: 8rem;
+      }
+
+      .content :global(main > * + *) {
+        margin-top: 1rem;
+      }
+
+      .intro {
+        padding-bottom: 4rem;
+        margin-bottom: 2rem;
+        border-bottom: 4px solid var(--theme-divider);
+      }
+
+      .intro > * {
+        margin: 0;
+      }
+
+      .latest {
+        font-size: 2.5rem;
+        font-weight: 700;
+      }
+    </style>
   </head>
 
   <body>
-    <Nav />
-
-    <main class="wrapper">
-      {firstPage.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
-    </main>
-
-    <footer>
-      <Pagination nextUrl="/posts/2" />
-    </footer>
+    <BlogHeader />
+    <div class="layout">
+      <article class="content">
+        <section class="intro">
+          <h1 class="latest">{title}</h1>
+          <p>{description}</p>
+        </section>
+        <section>
+          {allPosts.map(p => <BlogPostPreview post={p} />)}
+        </section>
+      </article>
+    </div>
   </body>
 </html>
