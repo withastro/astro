@@ -1,17 +1,16 @@
 ---
-const { content }  = Astro.props;
-console.log(content.astro)
+const { content } = Astro.props;
 ---
 
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>{content.title}</title>
-    <link rel="stylesheet" href="/global.css">
+    <link rel="stylesheet" href="/global.css" />
   </head>
   <body>
     <main class="content">
-      <slot/>
+      <slot />
     </main>
   </body>
 </html>

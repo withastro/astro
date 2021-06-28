@@ -1,15 +1,19 @@
 import unified from 'unified';
 
+export type UnifiedPluginImport = Promise<{ default: unified.Plugin }>;
+export type Plugin = string | [string, unified.Settings] | UnifiedPluginImport | [UnifiedPluginImport, unified.Settings];
+
 export interface AstroMarkdownOptions {
   /** Enable or disable footnotes syntax extension */
   footnotes: boolean;
   /** Enable or disable GitHub-flavored Markdown syntax extension */
   gfm: boolean;
-  remarkPlugins: Promise<{ default: unified.Plugin }>[];
-  rehypePlugins: Promise<{ default: unified.Plugin }>[];
+  remarkPlugins: Plugin[];
+  rehypePlugins: Plugin[];
 }
 
 export interface MarkdownRenderingOptions extends Partial<AstroMarkdownOptions> {
+  /** @internal */
   $?: {
     scopedClassName: string | null;
   };

@@ -2,13 +2,13 @@ import type { AstroMarkdownOptions, MarkdownRenderingOptions } from './types';
 
 import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
-import { remarkCodeBlock, rehypeCodeBlock } from './codeblock.js';
+import { rehypeCodeBlock } from './codeblock.js';
+import { loadPlugins } from './load-plugins.js';
 import raw from 'rehype-raw';
 
 import unified from 'unified';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
-// import smartypants from '@silvenon/remark-smartypants';
 import rehypeStringify from 'rehype-stringify';
 
 export { AstroMarkdownOptions, MarkdownRenderingOptions };
@@ -24,25 +24,35 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-  const { $: { scopedClassName = null } = {}, remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
+  const { $: { scopedClassName = null } = {}, footnotes: useFootnotes = true, gfm: useGfm = true, remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
-
   let parser = unified().use(markdown);
 
   if (scopedClassName) {
-    parser = parser.use(scopedStyles(scopedClassName));
+    parser.use(scopedStyles(scopedClassName));
   }
-  const loadedRemarkPlugins = await Promise.all(remarkPlugins);
-  const loadedRehypePlugins = await Promise.all(rehypePlugins);
 
-  loadedRemarkPlugins.forEach((p) => {
-    parser = parser.use(p.default);
+  if (remarkPlugins.length === 0) {
+    if (useGfm) {
+      remarkPlugins.push('remark-gfm');
+    }
+
+    if (useFootnotes) {
+      remarkPlugins.push('remark-footnotes');
+    }
+  }
+
+  const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
+  const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
+
+  loadedRemarkPlugins.forEach(([plugin, opts]) => {
+    parser.use(plugin, opts);
   });
 
   parser.use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw'] });
 
-  loadedRehypePlugins.forEach((p) => {
-    parser = parser.use(p.default);
+  loadedRehypePlugins.forEach(([plugin, opts]) => {
+    parser.use(plugin, opts);
   });
 
   let result: string;
