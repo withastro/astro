@@ -8,7 +8,6 @@ import Pagination from '../components/Pagination.astro';
 let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
 let canonicalURL = Astro.request.canonicalURL;
-const author = authorData[collection.params.author];
 
 // collection
 import authorData from '../data/authors.json';
@@ -42,6 +41,8 @@ export async function createCollection() {
     routes,
   };
 }
+
+const author = authorData[collection.params.author];
 ---
 
 <html>
