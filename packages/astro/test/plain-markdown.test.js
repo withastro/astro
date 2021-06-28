@@ -34,8 +34,8 @@ Markdown('Cant load a post being unpublished', async ({ runtime }) => {
   const result = await runtime.load('/post-unpublished');
   
   assert.type(result.error, 'object')
-  assert.equal(result.error.message, 'Unpublished document');
-  assert.equal(result.statusCode, 404);
+  assert.equal(result.error.message, 'Document is not published');
+  assert.equal(result.statusCode, 403);
 });
 
 Markdown('Cant load a post being published', async ({ runtime }) => {
