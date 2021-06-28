@@ -1,0 +1,15 @@
+{
+  "name": "@astrojs/with-react-example",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "start": "astro dev",
+    "build": "astro build"
+  },
+  "devDependencies": {
+    "astro": "^0.15.0"
+  },
+  "snowpack": {
+    "workspaceRoot": "../.."
+  }
+}
