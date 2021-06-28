@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/with-nanostores",
+  "name": "@astrojs/example-with-tailwindcss",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -7,9 +7,10 @@
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.15.0"
+    "tailwindcss": "^2.1.2",
+    "astro": "^0.15.1"
   },
-  "dependencies": {
-    "nanostores": "^0.3.3"
+  "snowpack": {
+    "workspaceRoot": "../.."
   }
 }

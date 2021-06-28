@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/with-react-example",
+  "name": "@astrojs/example-framework-multiple",
   "private": true,
   "version": "0.0.1",
   "scripts": {
@@ -7,7 +7,7 @@
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.15.0"
+    "astro": "^0.15.1"
   },
   "snowpack": {
     "workspaceRoot": "../.."

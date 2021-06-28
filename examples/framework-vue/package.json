@@ -1,14 +1,13 @@
 {
-  "name": "@astrojs/tailwind-example",
-  "version": "0.0.1",
+  "name": "@astrojs/example-framework-vue",
   "private": true,
+  "version": "0.0.1",
   "scripts": {
     "start": "astro dev",
     "build": "astro build"
   },
   "devDependencies": {
-    "tailwindcss": "^2.1.2",
-    "astro": "^0.15.0"
+    "astro": "^0.15.1"
   },
   "snowpack": {
     "workspaceRoot": "../.."

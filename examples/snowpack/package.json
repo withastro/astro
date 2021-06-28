@@ -1,5 +1,5 @@
 {
-  "name": "@example/snowpack",
+  "name": "@astrojs/example-snowpack",
   "private": true,
   "version": "3.0.0",
   "scripts": {

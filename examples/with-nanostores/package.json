@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/markdown-example",
+  "name": "@astrojs/example-with-nanostores",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -7,7 +7,10 @@
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.15.0"
+    "astro": "^0.15.1"
+  },
+  "dependencies": {
+    "nanostores": "^0.3.3"
   },
   "snowpack": {
     "workspaceRoot": "../.."

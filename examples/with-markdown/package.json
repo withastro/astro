@@ -1,13 +1,13 @@
 {
-  "name": "@astrojs/with-multiple-frameworks-example",
-  "private": true,
+  "name": "@astrojs/example-with-markdown",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "start": "astro dev",
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.15.0"
+    "astro": "^0.15.1"
   },
   "snowpack": {
     "workspaceRoot": "../.."
