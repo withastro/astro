@@ -6,6 +6,7 @@ export interface AstroMarkdownOptions {
   /** Enable or disable GitHub-flavored Markdown syntax extension */
   gfm: boolean;
   remarkPlugins: any[]
+  rehypePlugins: any[]
 }
 
 

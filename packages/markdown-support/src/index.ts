@@ -11,7 +11,7 @@ import markdownToHtml from 'remark-rehype';
 // import smartypants from '@silvenon/remark-smartypants';
 import rehypeStringify from 'rehype-stringify';
 
-export { AstroMarkdownOptions, MarkdownRenderingOptions }
+export { AstroMarkdownOptions, MarkdownRenderingOptions };
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
 export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null) {
@@ -24,40 +24,30 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
+  const { $: { scopedClassName = null } = {}, remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
   let parser = unified().use(markdown);
 
-  // if (scopedClassName) {
-  //   parser = parser.use(scopedStyles(scopedClassName));
-  // }
+  if (scopedClassName) {
+    parser = parser.use(scopedStyles(scopedClassName));
+  }
+  const loadedRemarkPlugins = await Promise.all(remarkPlugins);
+  const loadedRehypePlugins = await Promise.all(rehypePlugins);
 
-  // if (useGfm) {
-  //   const { default: gfm } = await import('remark-gfm');
-  //   parser = parser.use(gfm);
-  // }
+  loadedRemarkPlugins.forEach((p) => {
+    parser = parser.use(p.default);
+  });
 
-  // if (useFootnotes) {
-  //   const { default: footnotes } = await import('remark-footnotes');
-  //   parser = parser.use(footnotes);
-  // }
+  parser.use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw'] });
 
-  
-  const loadedPlugins = await Promise.all(remarkPlugins);
-
-  loadedPlugins.forEach((p) => {
-    parser = parser.use(p.default)
-  })
+  loadedRehypePlugins.forEach((p) => {
+    parser = parser.use(p.default);
+  });
 
   let result: string;
   try {
-    const vfile = await parser
-      .use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw'] })
-      .use(raw)
-      .use(rehypeCollectHeaders)
-      .use(rehypeCodeBlock())
-      .use(rehypeStringify)
-      .process(content);
+    const vfile = await parser.use(raw).use(rehypeCollectHeaders).use(rehypeCodeBlock()).use(rehypeStringify).process(content);
     result = vfile.contents.toString();
   } catch (err) {
     throw err;
