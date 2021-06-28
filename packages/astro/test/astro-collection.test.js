@@ -109,4 +109,18 @@ Collections('generates individual pages from a collection', async ({ runtime }) 
   }
 });
 
+Collections('matches collection filename exactly', async ({ runtime }) => {
+  const result = await runtime.load('/individuals');
+  if (result.error) throw new Error(result.error);
+  const $ = doc(result.contents);
+
+  assert.ok($('#posts').length);
+  const urls = [
+    ...$('#posts a').map(function () {
+      return $(this).attr('href');
+    }),
+  ];
+  assert.equal(urls, ['/post/nested/a', '/post/three', '/post/two', '/post/one']);
+});
+
 Collections.run();
