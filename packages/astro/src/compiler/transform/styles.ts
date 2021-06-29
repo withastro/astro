@@ -196,8 +196,15 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
       html: {
         InlineComponent: {
           enter(node) {
-            if (node.name !== 'Markdown') return;
-            injectScopedClassAttribute(node, scopedClass, '$scope');
+            if (node.name === 'Markdown') {
+              injectScopedClassAttribute(node, scopedClass, '$scope');
+            }
+            for(let attr of node.attributes) {
+              if(attr.name === 'class') {
+                injectScopedClassAttribute(node, scopedClass, 'class');
+                break;
+              }
+            }
           },
         },
         Element: {
