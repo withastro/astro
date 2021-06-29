@@ -1,5 +1,14 @@
 # astro
 
+## 0.15.2
+
+### Patch Changes
+
+- 1e735bb: Allows passing in a class to a child component which will be scoped
+- e28d5cb: Improve error handling within `.astro` files (#526)
+- aa86057: Updates collections to match URLs by exact template filename
+- f721275: Fix issue where Markdown could close it's parent element early (#494)
+
 ## 0.15.1
 
 ### Patch Changes
