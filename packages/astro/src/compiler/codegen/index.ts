@@ -509,6 +509,12 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
     async function pushMarkdownToBuffer() {
       const md = buffers.markdown;
       const { markdownOptions = {} } = astroConfig;
+      if (!md.trim()) {
+        buffers.out += ',' + md;
+        buffers.markdown = '';
+        curr = 'out';
+        return;
+      }
       const { $scope: scopedClassName } = state.markers.insideMarkdown as Record<'$scope', any>;
       let { content: rendered } = await renderMarkdown(dedent(md), {
         ...(markdownOptions as AstroMarkdownOptions),
@@ -732,6 +738,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               (state.markers.insideMarkdown as Record<string, any>).count--;
               if ((state.markers.insideMarkdown as Record<string, any>).count <= 0) {
                 state.markers.insideMarkdown = false;
+              }
+              const hasAttrs = (node.attributes.filter(({ name }: Attribute) => name !== '$scope')).length > 0;
+              if (hasAttrs) {
+                return;
               }
             }
             if (curr === 'markdown' && buffers.markdown !== '') {
