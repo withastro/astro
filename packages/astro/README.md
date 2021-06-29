@@ -225,21 +225,17 @@ Astro is able to render [React](https://npm.im/@astrojs/renderer-react), [Svelte
 
 👉 [**Command Line Docs**][docs-cli]
 
-## 🏗 Development Server
 
-👉 [**Dev Server Docs**][docs-dev]
-
-[docs-config]: /docs/config.md
+[docs-config]: /docs/reference/configuration-reference.md
 [docs-snowpack-config]: https://www.snowpack.dev/reference/configuration
-[docs-syntax]: /docs/syntax.md
-[docs-api]: /docs/api.md
-[docs-renderer]: /docs/renderers.md
-[docs-collections]: /docs/collections.md
-[docs-markdown]: /docs/markdown.md
-[docs-dev]: /docs/dev.md
-[docs-styling]: /docs/styling.md
+[docs-syntax]: /docs/core-concepts/astro-components.md
+[docs-api]: /docs/reference/api-reference.md
+[docs-renderer]: /docs/core-concepts/ui-renderers.md
+[docs-collections]: /docs/core-concepts/collections.md
+[docs-markdown]: /docs/guides/markdown-content.md
+[docs-styling]: /docs/guides/styling.md
 [example-blog]: /examples/blog
-[fetch-content]: /docs/api.md#fetchcontent
+[fetch-content]: /docs/reference/api-reference.md
 [fetch-js]: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
 [remark]: https://github.com/remarkjs/remark
 [mdx]: https://mdxjs.com/
@@ -247,5 +243,5 @@ Astro is able to render [React](https://npm.im/@astrojs/renderer-react), [Svelte
 [mdn-ric]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
 [partial-hydration]: #-partial-hydration
 [routing]: #-routing
-[docs-cli]: /docs/cli.md
-[docs-publishing]: /docs/publishing.md
+[docs-cli]: /docs/reference/cli-reference.md
+[docs-publishing]: /docs/guides/publish-to-npm.md
