@@ -133,4 +133,17 @@ StylesSSR('Astro scoped styles skipped without <style>', async ({ runtime }) => 
   assert.type($('#no-scope').attr('class'), 'undefined', `Astro component without <style> should not include scoped class`);
 });
 
+StylesSSR('Astro scoped styles can be passed to child components', async ({ runtime }) => {
+  const result = await runtime.load('/');
+  const $ = doc(result.contents);
+
+  let scopedClass;
+  $('style').html().replace(/outer\.(astro-[A-Za-z0-9-]+)/, (match, p1) => {
+    scopedClass = p1;
+    return match;
+  });
+
+  assert.match($('#passed-in').attr('class'), `outer ${scopedClass}`);
+});
+
 StylesSSR.run();

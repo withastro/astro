@@ -18,11 +18,14 @@ import SvelteScoped from '../components/SvelteScoped.svelte';
         margin-right: auto;
         max-width: 1200px;
       }
+      .outer {
+        color: red;
+      }
     </style>
   </head>
   <body>
     <div class="wrapper">
-      <AstroComponent />
+      <AstroComponent class="outer" />
       <AstroComponentNone />
       <ReactCSS />
       <ReactModules />
