@@ -48,7 +48,12 @@ type LoadResultSuccess = {
 };
 type LoadResultNotFound = { statusCode: 404; error: Error; collectionInfo?: CollectionInfo };
 type LoadResultRedirect = { statusCode: 301 | 302; location: string; collectionInfo?: CollectionInfo };
-type LoadResultError = { statusCode: 500 } & ({ type: 'parse-error'; error: CompileError } | { type: 'not-found'; error: CompileError } | { type: 'unknown'; error: Error });
+type LoadResultError = { statusCode: 500 } & (
+  | { type: 'parse-error'; error: CompileError }
+  | { type: 'ssr'; error: Error }
+  | { type: 'not-found'; error: CompileError }
+  | { type: 'unknown'; error: Error }
+);
 
 export type LoadResult = (LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError) & { collectionInfo?: CollectionInfo };
 
@@ -247,6 +252,19 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         statusCode: 500,
         type: 'parse-error',
         error: err,
+      };
+    }
+
+    if (err instanceof ReferenceError && err.toString().includes('window is not defined')) {
+      return {
+        statusCode: 500,
+        type: 'ssr',
+        error: new Error(
+          `[${reqPath}]
+    The window object is not available during server-side rendering (SSR).
+    Try using \`import.meta.env.SSR\` to write SSR-friendly code.
+    https://github.com/snowpackjs/astro/blob/main/docs/reference/api-reference.md#importmeta`
+        ),
       };
     }
 
