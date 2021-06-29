@@ -1,7 +1,7 @@
 {
-  "name": "@astrojs/example-framework-vue",
-  "private": true,
+  "name": "@example/framework-vue",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "start": "astro dev",
     "build": "astro build"

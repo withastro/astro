@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/example-with-tailwindcss",
+  "name": "@example/with-tailwindcss",
   "version": "0.0.1",
   "private": true,
   "scripts": {

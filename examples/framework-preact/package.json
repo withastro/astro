@@ -1,7 +1,7 @@
 {
-  "name": "@astrojs/example-framework-preact",
-  "private": true,
+  "name": "@example/framework-preact",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "start": "astro dev",
     "build": "astro build"

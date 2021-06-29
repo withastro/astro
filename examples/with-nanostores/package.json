@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/example-with-nanostores",
+  "name": "@example/with-nanostores",
   "version": "0.0.1",
   "private": true,
   "scripts": {
