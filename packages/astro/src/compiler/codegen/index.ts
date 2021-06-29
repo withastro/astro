@@ -509,6 +509,12 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
     async function pushMarkdownToBuffer() {
       const md = buffers.markdown;
       const { markdownOptions = {} } = astroConfig;
+      if (!md.trim()) {
+        buffers.out += ',' + md;
+        buffers.markdown = '';
+        curr = 'out';
+        return;
+      }
       const { $scope: scopedClassName } = state.markers.insideMarkdown as Record<'$scope', any>;
       let { content: rendered } = await renderMarkdown(dedent(md), {
         ...(markdownOptions as AstroMarkdownOptions),
@@ -627,7 +633,8 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               if (componentName === 'Markdown') {
                 const { $scope } = attributes ?? {};
                 state.markers.insideMarkdown = typeof state.markers.insideMarkdown === 'object' ? { $scope, count: state.markers.insideMarkdown.count + 1 } : { $scope, count: 1 };
-                if (attributes.content) {
+                const keys = Object.keys(attributes).filter(attr => attr !== '$scope');
+                if (keys.length > 0) {
                   if (curr === 'markdown') {
                     await pushMarkdownToBuffer();
                   }
@@ -717,7 +724,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
           case 'Body':
           case 'Title':
           case 'Element': {
-            if (state.markers.insideMarkdown) {
+            if (curr === 'markdown') {
               await pushMarkdownToBuffer();
             }
             if (paren !== -1) {
@@ -731,6 +738,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               (state.markers.insideMarkdown as Record<string, any>).count--;
               if ((state.markers.insideMarkdown as Record<string, any>).count <= 0) {
                 state.markers.insideMarkdown = false;
+              }
+              const hasAttrs = (node.attributes.filter(({ name }: Attribute) => name !== '$scope')).length > 0;
+              if (hasAttrs) {
+                return;
               }
             }
             if (curr === 'markdown' && buffers.markdown !== '') {
