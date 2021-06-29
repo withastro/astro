@@ -73,30 +73,37 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
     info(logging, 'build', yellow('! building pages...'));
     try {
       await Promise.all(
-      pages.map((filepath) => {
-        const buildPage = getPageType(filepath) === 'collection' ? buildCollectionPage : buildStaticPage;
-        return buildPage({
-          astroConfig,
-          buildState,
-          filepath,
-          logging,
-          mode,
-          resolvePackageUrl: (pkgName: string) => snowpack.getUrlForPackage(pkgName),
-          runtime,
-          site: astroConfig.buildOptions.site,
-        });
-      })
-    )
+        pages.map((filepath) => {
+          const buildPage = getPageType(filepath) === 'collection' ? buildCollectionPage : buildStaticPage;
+          return buildPage({
+            astroConfig,
+            buildState,
+            filepath,
+            logging,
+            mode,
+            resolvePackageUrl: (pkgName: string) => snowpack.getUrlForPackage(pkgName),
+            runtime,
+            site: astroConfig.buildOptions.site,
+          });
+        })
+      );
     } catch (e) {
       if (e.filename) {
-        let stack = e.stack.replace(/Object\.__render \(/gm, '').replace(/\/_astro\/(.+)\.astro\.js\:\d+\:\d+\)/gm, (_: string, $1: string) => 'file://' + fileURLToPath(projectRoot) + $1 + '.astro').split('\n');
-        stack.splice(1, 0, `    at file://${e.filename}`)
-        stack = stack.join('\n')
+        let stack = e.stack
+          .replace(/Object\.__render \(/gm, '')
+          .replace(/\/_astro\/(.+)\.astro\.js\:\d+\:\d+\)/gm, (_: string, $1: string) => 'file://' + fileURLToPath(projectRoot) + $1 + '.astro')
+          .split('\n');
+        stack.splice(1, 0, `    at file://${e.filename}`);
+        stack = stack.join('\n');
 
-        error(logging, 'build', `${red(`Unable to render ${underline(e.filename.replace(fileURLToPath(projectRoot), ''))}`)}
+        error(
+          logging,
+          'build',
+          `${red(`Unable to render ${underline(e.filename.replace(fileURLToPath(projectRoot), ''))}`)}
 
 ${stack}
-`);
+`
+        );
       } else {
         error(logging, 'build', e);
       }
