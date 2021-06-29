@@ -42,6 +42,12 @@ React('Can load React', async () => {
   assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
 });
 
+React('Can handle window', async () => {
+  const result = await runtime.load('/window');
+  console.log({ result });
+  assert.equal(result.contents, '');
+});
+
 React('Can load Vue', async () => {
   const result = await runtime.load('/');
   if (result.error) throw new Error(result.error);
