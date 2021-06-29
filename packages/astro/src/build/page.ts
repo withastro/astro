@@ -3,6 +3,7 @@ import type { AstroRuntime, LoadResult } from '../runtime';
 import type { LogOptions } from '../logger';
 import path from 'path';
 import { generateRSS } from './rss.js';
+import { fileURLToPath } from 'url';
 
 interface PageBuildOptions {
   astroConfig: AstroConfig;
@@ -92,7 +93,12 @@ export async function buildStaticPage({ astroConfig, buildState, filepath, runti
   const { pages: pagesRoot } = astroConfig;
   const url = filepath.pathname.replace(pagesRoot.pathname, '/').replace(/(index)?\.(astro|md)$/, '');
   const result = await runtime.load(url);
-  if (result.statusCode !== 200) throw new Error((result as any).error);
+  if (result.statusCode !== 200) {
+    let err = (result as any).error;
+    if (!(err instanceof Error)) err = new Error(err);
+    err.filename = fileURLToPath(filepath);
+    throw err;
+  }
   const outFile = path.posix.join(url, '/index.html');
   buildState[outFile] = {
     srcPath: filepath,

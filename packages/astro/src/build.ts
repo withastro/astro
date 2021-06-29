@@ -9,7 +9,7 @@ import { performance } from 'perf_hooks';
 import eslexer from 'es-module-lexer';
 import cheerio from 'cheerio';
 import del from 'del';
-import { bold, green, yellow } from 'kleur/colors';
+import { bold, green, yellow, red, dim, underline } from 'kleur/colors';
 import mime from 'mime';
 import glob from 'tiny-glob';
 import { bundleCSS } from './build/bundle/css.js';
@@ -71,10 +71,11 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
     timer.build = performance.now();
     const pages = await allPages(pagesRoot);
     info(logging, 'build', yellow('! building pages...'));
-    await Promise.all(
-      pages.map(async (filepath) => {
+    try {
+      await Promise.all(
+      pages.map((filepath) => {
         const buildPage = getPageType(filepath) === 'collection' ? buildCollectionPage : buildStaticPage;
-        await buildPage({
+        return buildPage({
           astroConfig,
           buildState,
           filepath,
@@ -85,7 +86,25 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
           site: astroConfig.buildOptions.site,
         });
       })
-    );
+    )
+    } catch (e) {
+      if (e.filename) {
+        let stack = e.stack.replace(/Object\.__render \(/gm, '').replace(/\/_astro\/(.+)\.astro\.js\:\d+\:\d+\)/gm, (_: string, $1: string) => 'file://' + fileURLToPath(projectRoot) + $1 + '.astro').split('\n');
+        stack.splice(1, 0, `    at file://${e.filename}`)
+        stack = stack.join('\n')
+
+        error(logging, 'build', `${red(`Unable to render ${underline(e.filename.replace(fileURLToPath(projectRoot), ''))}`)}
+
+${stack}
+`);
+      } else {
+        error(logging, 'build', e);
+      }
+      error(logging, 'build', red('✕ building pages failed!'));
+
+      await runtime.shutdown();
+      return 1;
+    }
     info(logging, 'build', green('✔'), 'pages built.');
     debug(logging, 'build', `built pages [${stopTimer(timer.build)}]`);
 
