@@ -1,7 +1,7 @@
 {
-  "name": "@astrojs/example-framework-svelte",
-  "private": true,
+  "name": "@example/framework-svelte",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "start": "astro dev",
     "build": "astro build"
