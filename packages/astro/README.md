@@ -35,7 +35,7 @@ shamefully-hoist = true
 
 ### Yarn
 
-[Yarn](https://yarnpkg.com/) works as a package manager in Astro apps. However, __Yarn 2__ changes how module resolution works in Node apps and doesn't support modules written in ESM at the moment. Since Astro is written entirely in ESM, you can't use Yarn 2 in Astro apps. We'll continue to track Yarn 2 as they fix these core bugs.
+[Yarn](https://yarnpkg.com/) works as a package manager in Astro apps. However, __Yarn 2__'s Plug'n'Play feature, aka 'pnp', changes how module resolution works in Node apps and doesn't support modules written in ESM at the moment. Since Astro is written entirely in ESM, you can't use the pnp feature. in Astro apps. We'll continue to track this feature as they fix these core bugs. However, you can disable pnp by adding `nodeLinker: 'node-modules'` to your `.yarnrc.yml`, which will make Yarn 2 compatible with Astro.
 
 ### 🚀 Build & Deployment
 
