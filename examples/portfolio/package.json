@@ -1,7 +1,7 @@
 {
-  "name": "@astrojs/example-portfolio",
-  "private": true,
+  "name": "@example/portfolio",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "start": "astro dev",
     "build": "astro build"

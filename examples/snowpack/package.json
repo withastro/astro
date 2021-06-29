@@ -1,7 +1,7 @@
 {
-  "name": "@astrojs/example-snowpack",
+  "name": "@example/snowpack",
+  "version": "0.0.1",
   "private": true,
-  "version": "3.0.0",
   "scripts": {
     "start": "astro dev",
     "build": "astro build",

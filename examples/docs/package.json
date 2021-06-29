@@ -1,6 +1,6 @@
 {
-  "name": "@astrojs/example-docs",
-  "version": "0.0.2",
+  "name": "@example/docs",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "astro dev",

@@ -1,7 +1,7 @@
 {
-  "name": "@astrojs/example-framework-multiple",
-  "private": true,
+  "name": "@example/framework-multiple",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "start": "astro dev",
     "build": "astro build"
