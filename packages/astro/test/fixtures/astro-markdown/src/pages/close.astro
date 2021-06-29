@@ -1,0 +1,12 @@
+---
+import { Markdown } from 'astro/components';
+const content = `Markdown *content* to render`;
+---
+
+<main>
+  <div id="target">
+    <Markdown content={content} />
+    <p>Some other stuff</p>
+  </div>
+  <p>Lastly...</p>
+</main>
