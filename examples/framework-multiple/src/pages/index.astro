@@ -3,6 +3,7 @@
 import { A, B as Renamed } from '../components';
 import * as react from '../components/ReactCounter.jsx';
 import { PreactCounter } from '../components/PreactCounter.tsx';
+import PreactSFC from '../components/PreactSFC.tsx';
 import VueCounter from '../components/VueCounter.vue';
 import SvelteCounter from '../components/SvelteCounter.svelte';
 
@@ -44,6 +45,8 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
         <PreactCounter client:visible>
           <h1>Hello Preact!</h1>
         </PreactCounter>
+
+        <PreactSFC />
 
         <VueCounter client:visible>
             <h1>Hello Vue!</h1>
