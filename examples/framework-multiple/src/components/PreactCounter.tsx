@@ -1,4 +1,3 @@
-import { h, Fragment } from 'preact';
 import { useState } from 'preact/hooks';
 
 /** a counter written in Preact */
