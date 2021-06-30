@@ -7,6 +7,7 @@ interface RegistryOptions {
 }
 class AstroElementRegistry {
   private candidates: ModuleCandidates;
+  private cache: Map<string, string> = new Map();
 
   constructor(options: RegistryOptions) {
     this.candidates = options.candidates;
@@ -23,8 +24,19 @@ class AstroElementRegistry {
     }
   }
 
+  findCached(tagName: string) {
+    if(this.cache.has(tagName)) {
+      return this.cache.get(tagName)!;
+    }
+    let specifier = this.find(tagName);
+    if(specifier) {
+      this.cache.set(tagName, specifier);
+    }
+    return specifier;
+  }
+
   astroComponentArgs(tagName: string, props: AstroComponentProps) {
-    const specifier = this.find(tagName);
+    const specifier = this.findCached(tagName);
     const outProps: AstroComponentProps = {
       ...props,
       componentUrl: specifier || props.componentUrl

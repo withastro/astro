@@ -121,7 +121,7 @@ export class ConfigManager {
       };
     });
 
-    return rendererInstances;``
+    return rendererInstances;
   }
 
   async buildSource(contents: string): Promise<string> {

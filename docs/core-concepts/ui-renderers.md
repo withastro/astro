@@ -104,6 +104,9 @@ export default {
   snowpackPlugin: '@snowpack/plugin-xxx', // optional, the name of a snowpack plugin to inject
   snowpackPluginOptions: { example: true }, // optional, any options to be forwarded to the snowpack plugin
   knownEntrypoint: ['framework'], // optional, entrypoint modules that will be used by compiled source
+  external: ['dep'] // optional, dependencies that should not be built by snowpack
+  polyfills: ['./shadow-dom-polyfill.js'] // optional, module scripts that should be loaded before client hydration.
+  hydrationMethod: 'self' // optional, specifies that the `client` script needs greater control over hydration.
 };
 ```
 

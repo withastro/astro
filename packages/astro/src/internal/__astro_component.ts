@@ -50,7 +50,6 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
   }
 
   const errors: Error[] = [];
-  let i = 0;
   for (const instance of rendererInstances) {
     const { renderer, options } = instance;
 
@@ -67,7 +66,6 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
     } catch (err) {
       errors.push(err);
     }
-    i++;
   }
 
   if (errors.length) {
@@ -91,7 +89,7 @@ interface HydrateScriptOptions {
 
 /** For hydrated components, generate a <script type="module"> to load the component */
 async function generateHydrateScript({ instance, astroId, props }: HydrateScriptOptions, { hydrate, componentUrl, componentExport }: Required<AstroComponentProps>) {
-  const { source, renderer } = instance;
+  const { source } = instance;
 
   const hydrationSource = instance.hydrationMethod === 'self' ?
     `
