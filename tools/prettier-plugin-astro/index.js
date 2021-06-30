@@ -1,6 +1,6 @@
 const {
   doc: {
-    builders: { concat, hardline },
+    builders: { hardline },
   },
 } = require('prettier');
 const { parse } = require('@astrojs/parser');
@@ -116,15 +116,15 @@ module.exports.printers = {
     print(path, opts, print) {
       const node = path.getValue();
 
-      if (Array.isArray(node)) return concat(path.map(print));
-      if (node.type === 'Fragment') return concat(path.map(print, 'children'));
+      if (Array.isArray(node)) return path.map(print);
+      if (node.type === 'Fragment') return path.map(print, 'children');
 
       return node;
     },
     embed(path, print, textToDoc, options) {
       const node = path.getValue();
       if (node.type === 'Script' && node.context === 'setup') {
-        return concat(['---', hardline, textToDoc(node.content, { ...options, parser: 'typescript' }), '---', hardline, hardline]);
+        return ['---', hardline, textToDoc(node.content, { ...options, parser: 'typescript' }), '---', hardline, hardline];
       }
       if (node.type === 'Fragment' && node.isRoot) {
         const expressions = findExpressionsInAST(node);

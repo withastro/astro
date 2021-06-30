@@ -6,13 +6,17 @@
   "private": true,
   "scripts": {
     "test": "uvu test -i fixtures -i package.json",
-    "build": "echo 'build'"
+    "build": "echo 'build'",
+    "lint:eslint": "eslint .",
+    "fix:eslint": "yarn lint:eslint --fix"
   },
   "dependencies": {
     "@astrojs/parser": "^0.15.0",
     "prettier": "^2.2.1"
   },
   "devDependencies": {
-    "@types/prettier": "^2.2.1"
+    "@types/prettier": "^2.2.1",
+    "eslint": "^7.29.0",
+    "eslint-plugin-prettier-doc": "^1.0.1"
   }
 }

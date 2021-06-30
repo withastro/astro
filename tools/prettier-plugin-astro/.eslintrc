@@ -1,0 +1,4 @@
+{
+  "plugins": ["prettier-doc"],
+  "extends": ["plugin:prettier-doc/recommended"]
+}
