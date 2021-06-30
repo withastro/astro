@@ -1,5 +1,11 @@
 # astro
 
+## 0.15.3
+
+### Patch Changes
+
+- 17579c2: Improves the error message when attempting to use `window` in a component.
+
 ## 0.15.2
 
 ### Patch Changes
