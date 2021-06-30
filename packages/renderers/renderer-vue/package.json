@@ -9,9 +9,9 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "vue": "^3.0.10",
-    "@vue/server-renderer": "^3.0.10",
-    "@snowpack/plugin-vue": "^2.6.1"
+    "@snowpack/plugin-vue": "^2.6.1",
+    "@vue/server-renderer": "^3.1.2",
+    "vue": "^3.1.2"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
