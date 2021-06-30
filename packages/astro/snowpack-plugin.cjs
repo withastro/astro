@@ -35,7 +35,7 @@ module.exports = (snowpackConfig, options = {}) => {
       output: ['.js', '.css'],
     },
     async transform({contents, id, fileExt}) {
-      if(configManager.isConfigModule(fileExt, id)) {
+      if (configManager.isConfigModule(fileExt, id)) {
         configManager.configModuleId = id;
         const source = await configManager.buildSource(contents);
         return source;
