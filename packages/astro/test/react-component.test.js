@@ -42,6 +42,17 @@ React('Can load React', async () => {
   assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
 });
 
+React('Throws helpful error message on window SSR', async () => {
+  const result = await runtime.load('/window');
+  assert.match(
+    result.error.toString('utf8'),
+    `[/window]
+    The window object is not available during server-side rendering (SSR).
+    Try using \`import.meta.env.SSR\` to write SSR-friendly code.
+    https://github.com/snowpackjs/astro/blob/main/docs/reference/api-reference.md#importmeta`
+  );
+});
+
 React('Can load Vue', async () => {
   const result = await runtime.load('/');
   if (result.error) throw new Error(result.error);
