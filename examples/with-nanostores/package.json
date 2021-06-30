@@ -7,7 +7,7 @@
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.15.2"
+    "astro": "^0.15.3"
   },
   "dependencies": {
     "nanostores": "^0.3.3"
