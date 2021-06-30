@@ -1,0 +1,32 @@
+---
+const { content } = Astro.props;
+---
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{content.title}</title>
+    <link rel="stylesheet" href="/global.css" />
+    <style>
+      .nav {
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 40px;
+        padding-bottom: 20px;
+      }
+      .nav > * + * {
+        margin-left: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="content">
+      <header>
+        <nav class="nav">
+          <a href="/">Home</a>
+          <a href="/about">About</a>
+        </nav>
+      </header>
+      <slot />
+    </main>
+  </body>
+</html>

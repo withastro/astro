@@ -9,13 +9,13 @@ export default {
   },
   markdownOptions: {
     remarkPlugins: [
-      import('remark-code-titles'),
+      'remark-code-titles',
       'remark-slug',
-      [import('remark-autolink-headings'), { behavior: 'prepend'}],
+      ['remark-autolink-headings', { behavior: 'prepend' }],
     ],
     rehypePlugins: [
       ['rehype-toc', { headings: ["h2", "h3"] }],
-      [import('rehype-add-classes'), { 'h1,h2,h3': 'title', }],
+      ['rehype-add-classes', { 'h1,h2,h3': 'title', }],
     ]
   },
   devOptions: {
