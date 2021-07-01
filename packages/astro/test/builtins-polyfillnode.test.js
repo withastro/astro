@@ -13,7 +13,7 @@ Builtins('Doesnt alias to node: prefix', async ({ runtime }) => {
 
   const $ = doc(result.contents);
 
-  assert.equal($('#url').text(), 'file:///unicorn.jpg');
+  assert.match($('#url').text(), new RegExp('unicorn.jpg'));
 });
 
 Builtins.run();
