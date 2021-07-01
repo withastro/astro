@@ -1,4 +1,8 @@
-# Astro with Markdown
+# Astro Example: Markdown
+
+```
+npm init astro --template with-markdown
+```
 
 This example showcases Astro's [built-in Markdown support](../../docs/markdown.md).
 

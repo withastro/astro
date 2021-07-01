@@ -1,10 +1,17 @@
-# Astro Starter Kit: Portfolio
+# Astro Starter Kit: Docs Site
 
 ```
-npm init astro --template portfolio
+npm init astro --template docs
 ```
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+
+Features:
+
+- ✅ CSS Grid Layout
+- ✅ Full Markdown support
+- ✅ Automatic header navigation sidebar
+- ✅ Dark mode enabled by default
 
 ## 🧞 Commands
 
