@@ -1,16 +1,23 @@
 ---
+// Component Imports
 import ArticleFooter from '../components/ArticleFooter.astro';
 import SiteSidebar from '../components/SiteSidebar.astro';
 import ThemeToggle from '../components/ThemeToggle.tsx';
 import DocSidebar from '../components/DocSidebar.tsx';
 
+// Component Script:
+// You can write any JavaScript/TypeScript that you'd like here.
+// It will run during the build, but never in the browser.
+// All variables are available to use in the HTML template below.
 const { content } = Astro.props;
 const headers = content?.astro?.headers;
-let editHref = Astro?.request?.url?.pathname?.slice(1) ?? '';
-if (editHref === '') editHref = `index`;
-editHref = `https://github.com/snowpackjs/astro/tree/main/examples/doc/src/pages/${editHref}.md`
----
+const currentPage = Astro.request.url.pathname;
+const currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
+const githubEditUrl = `https://github.com/USER/REPO/blob/main/${currentFile}`
 
+// Full Astro Component Syntax:
+// https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
+---
 <html>
   <head>
     <title>{content.title}</title>
