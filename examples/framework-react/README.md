@@ -1,5 +1,9 @@
 # Using React with Astro
 
+```
+npm init astro --template framework-react
+```
+
 This example showcases Astro's built-in support for [React](https://reactjs.org/).
 
 No configuration is needed to enable React support—just start writing React components in `src/components`.

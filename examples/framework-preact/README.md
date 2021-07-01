@@ -1,5 +1,9 @@
 # Using Preact with Astro
 
+```
+npm init astro --template framework-preact
+```
+
 This example showcases Astro's built-in support for [Preact](https://preactjs.com/).
 
 No configuration is needed to enable Preact support—just start writing Preact components in `src/components`.

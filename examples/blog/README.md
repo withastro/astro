@@ -1,4 +1,8 @@
-# Astro Blog Example
+# Astro Starter Kit: Blog
+
+```
+npm init astro --template blog
+```
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 

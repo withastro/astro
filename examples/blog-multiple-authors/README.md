@@ -1,4 +1,8 @@
-# Astro Blog Example
+# Astro Starter Kit: Blog with Multiple Authors
+
+```
+npm init astro --template blog-multiple-authors
+```
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
