@@ -68,7 +68,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   }
 
   return {
-    astro: { headers, source: content },
+    astro: { headers, source: content, html: result.toString() },
     content: result.toString(),
   };
 }
