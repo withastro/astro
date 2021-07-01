@@ -16,6 +16,7 @@ interface RendererInstance {
   knownEntrypoints: string[] | undefined;
   external: string[] | undefined;
   polyfills: string[];
+  hydrationPolyfills: string[];
 }
 
 const CONFIG_MODULE_BASE_NAME = '__astro_config.js';
@@ -106,6 +107,7 @@ export class ConfigManager {
       }
 
       const polyfillsNormalized = (raw.polyfills || []).map((p: string) => p.startsWith('.') ? path.join(name, p) : p);
+      const hydrationPolyfillsNormalized = (raw.hydrationPolyfills || []).map((p: string) => p.startsWith('.') ? path.join(name, p) : p);
 
       return {
         name,
@@ -115,7 +117,8 @@ export class ConfigManager {
         server: path.join(name, raw.server),
         knownEntrypoints: raw.knownEntrypoints,
         external: raw.external,
-        polyfills: polyfillsNormalized
+        polyfills: polyfillsNormalized,
+        hydrationPolyfills: hydrationPolyfillsNormalized
       };
     });
 
@@ -127,7 +130,7 @@ export class ConfigManager {
     const rendererServerPackages = renderers.map(({ server }) => server);
     const rendererClientPackages = await Promise.all(renderers.filter(({client}) => client).map(({ client }) => this.resolvePackageUrl(client!)));
     const rendererPolyfills = await Promise.all(renderers.map(({ polyfills }) => Promise.all(polyfills.map(src => this.resolvePackageUrl(src)))));
-
+    const rendererHydrationPolyfills = await Promise.all(renderers.map(({ hydrationPolyfills }) => Promise.all(hydrationPolyfills.map(src => this.resolvePackageUrl(src)))));
 
     const result = /* js */ `${rendererServerPackages.map((pkg, i) => `import __renderer_${i} from "${pkg}";`).join('\n')}
 
@@ -137,7 +140,8 @@ let rendererInstances = [${renderers.map((r, i) => `{
   source: ${rendererClientPackages[i] ? `"${rendererClientPackages[i]}"` : 'null'},
   renderer: __renderer_${i},
   options: ${r.options ? JSON.stringify(r.options) : 'null'},
-  polyfills: ${JSON.stringify(rendererPolyfills[i])}
+  polyfills: ${JSON.stringify(rendererPolyfills[i])},
+  hydrationPolyfills: ${JSON.stringify(rendererHydrationPolyfills[i])}
 }`).join(', ')}];
 
 ${contents}

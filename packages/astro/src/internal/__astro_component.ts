@@ -14,20 +14,23 @@ export interface RendererInstance {
   renderer: Renderer;
   options: any;
   polyfills: string[];
+  hydrationPolyfills: string[];
 }
 
 const astroRendererInstance: RendererInstance = {
   source: '',
   renderer: astro as Renderer,
   options: null,
-  polyfills: []
+  polyfills: [],
+  hydrationPolyfills: []
 };
 
 const astroHtmlRendererInstance: RendererInstance = {
   source: '',
   renderer: astroHtml as Renderer,
   options: null,
-  polyfills: []
+  polyfills: [],
+  hydrationPolyfills: []
 };
 
 let rendererInstances: RendererInstance[] = [];
@@ -90,13 +93,18 @@ interface HydrateScriptOptions {
 async function generateHydrateScript({ instance, astroId, props }: HydrateScriptOptions, { hydrate, componentUrl, componentExport }: Required<AstroComponentProps>) {
   const { source } = instance;
 
-  const hydrationSource = source ? `
+  let hydrationSource = '';
+  if(instance.hydrationPolyfills.length) {
+    hydrationSource += `await Promise.all([${instance.hydrationPolyfills.map(src => `import("${src}")`).join(', ')}]);\n`;
+  }
+
+  hydrationSource += source ? `
   const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${source}")]);
   return (el, children) => hydrate(el)(Component, ${serialize(props)}, children);
-`.trim() : `
+` : `
   await import("${componentUrl}");
   return () => {};
-`.trim()
+`;
 
   const hydrationScript = `<script type="module">
 import setup from '/_astro_frontend/hydrate/${hydrate}.js';

@@ -106,6 +106,7 @@ export default {
   knownEntrypoint: ['framework'], // optional, entrypoint modules that will be used by compiled source
   external: ['dep'] // optional, dependencies that should not be built by snowpack
   polyfills: ['./shadow-dom-polyfill.js'] // optional, module scripts that should be loaded before client hydration.
+  hydrationPolyfills: ['./hydrate-framework.js'] // optional, polyfills that need to run before hydration ever occurs.
 };
 ```
 

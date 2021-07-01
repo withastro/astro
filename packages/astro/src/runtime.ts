@@ -364,7 +364,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 
   // Make sure that Snowpack builds our renderer plugins
   const rendererInstances = await configManager.buildRendererInstances();
-  const knownEntrypoints: string[] = ['astro/dist/internal/__astro_component.js'];
+  const knownEntrypoints: string[] = ['astro/dist/internal/__astro_component.js', 'astro/dist/internal/element-registry.js'];
   for (const renderer of rendererInstances) {
     knownEntrypoints.push(renderer.server);
     if(renderer.client) {
@@ -373,6 +373,8 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     if (renderer.knownEntrypoints) {
       knownEntrypoints.push(...renderer.knownEntrypoints);
     }
+    knownEntrypoints.push(...renderer.polyfills);
+    knownEntrypoints.push(...renderer.hydrationPolyfills);
   }
   const external = snowpackExternals.concat([]);
   for(const renderer of rendererInstances) {
