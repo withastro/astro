@@ -62,6 +62,9 @@
     time-require "^0.1.2"
     valid-url "^1.0.9"
 
+"@astrojs/astro-test-builtins-dep2@file:./packages/astro/test/fixtures/builtins-polyfillnode/packages/dep":
+  version "0.0.1"
+
 "@babel/code-frame@7.12.11":
   version "7.12.11"
   resolved "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.12.11.tgz"
@@ -4142,6 +4145,11 @@ file-entry-cache@^6.0.1:
   integrity sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==
   dependencies:
     flat-cache "^3.0.4"
+
+file-url@4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/file-url/-/file-url-4.0.0.tgz#6fe05262d3187da70bc69889091932b6bc7df270"
+  integrity sha512-vRCdScQ6j3Ku6Kd7W1kZk9c++5SqD6Xz5Jotrjr/nkY714M14RFHy/AAVA2WQvpsqVAVgTbDrYyBpU205F0cLw==
 
 fill-range@^7.0.1:
   version "7.0.1"

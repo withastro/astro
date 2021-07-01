@@ -1,0 +1,6 @@
+{
+  "workspaceRoot": "../../../../../",
+  "packageOptions": {
+    "polyfillNode": false 
+  }
+}

@@ -30,6 +30,7 @@
     "www",
     "docs-www",
     "packages/astro/test/fixtures/builtins/packages/*",
+    "packages/astro/test/fixtures/builtins-polyfillnode",
     "packages/astro/test/fixtures/custom-elements/my-component-lib"
   ],
   "volta": {
