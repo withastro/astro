@@ -1,5 +1,11 @@
 # astro
 
+## 0.16.1
+
+### Patch Changes
+
+- 2d3e369: Fix for using the snowpack polyfillNode option
+
 ## 0.16.0
 
 ### Minor Changes
