@@ -1,5 +1,13 @@
 # astro
 
+## 0.15.4
+
+### Patch Changes
+
+- 6a660f1: Adds low-level custom element support that renderers can use to enable server side rendering. This will be used in renderers such as a Lit renderer.
+- Updated dependencies [6a660f1]
+  - @astrojs/parser@0.15.4
+
 ## 0.15.3
 
 ### Patch Changes
