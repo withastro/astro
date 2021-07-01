@@ -49,6 +49,7 @@ CustomElements('Polyfills are added before the hydration script', async ({ runti
 
   assert.equal($('script[type=module]').length, 2);
   assert.equal($('script[type=module]').attr('src'), '/_snowpack/link/packages/astro/test/fixtures/custom-elements/my-component-lib/polyfill.js');
+  assert.match($($('script[type=module]').get(1)).html(), new RegExp('/_snowpack/link/packages/astro/test/fixtures/custom-elements/my-component-lib/hydration-polyfill.js'));
 });
 
 CustomElements('Polyfills are added even if not hydrating', async ({ runtime }) => {
@@ -60,6 +61,7 @@ CustomElements('Polyfills are added even if not hydrating', async ({ runtime }) 
 
   assert.equal($('script[type=module]').length, 1);
   assert.equal($('script[type=module]').attr('src'), '/_snowpack/link/packages/astro/test/fixtures/custom-elements/my-component-lib/polyfill.js');
+  assert.not.match($($('script[type=module]').get(1)).html(), new RegExp('/_snowpack/link/packages/astro/test/fixtures/custom-elements/my-component-lib/hydration-polyfill.js'));
 });
 
 CustomElements('Custom elements not claimed by renderer are rendered as regular HTML', async ({ runtime }) => {

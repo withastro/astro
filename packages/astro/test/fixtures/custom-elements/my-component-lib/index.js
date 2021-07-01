@@ -4,5 +4,8 @@ export default {
   server: './server',
   polyfills: [
     './polyfill.js'
+  ],
+  hydrationPolyfills: [
+    './hydration-polyfill.js'
   ]
 };
