@@ -1,4 +1,5 @@
 import type { ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier } from '@babel/types';
+import type { AstroMarkdownOptions } from '@astrojs/markdown-support'
 
 export interface AstroConfigRaw {
   dist: string;
@@ -9,12 +10,7 @@ export interface AstroConfigRaw {
   jsx?: string;
 }
 
-export interface AstroMarkdownOptions {
-  /** Enable or disable footnotes syntax extension */
-  footnotes: boolean;
-  /** Enable or disable GitHub-flavored Markdown syntax extension */
-  gfm: boolean;
-}
+export { AstroMarkdownOptions }
 export interface AstroConfig {
   dist: string;
   projectRoot: URL;

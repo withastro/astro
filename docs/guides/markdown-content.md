@@ -4,12 +4,51 @@ title: Markdown Content
 ---
 
 Astro comes with out-of-the-box Markdown support powered by the expansive [remark](https://remark.js.org/) ecosystem.
+## Remark and Rehype Plugins
 
-### Remark Plugins
+In addition to [custom components inside the `<Markdown>` component](#markdown-component), Astro comes with [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants), and syntax highlighting via [Prism](https://prismjs.com/) pre-enabled.
 
-**This is the first draft of Markdown support!** While we plan to support user-provided `remark` plugins soon, our hope is that you won't need `remark` plugins at all!
+Also, Astro supports third-party plugins for Markdown. You can provide your plugins in `astro.config.mjs`.
 
-In addition to [custom components inside the `<Markdown>` component](https://github.com/snowpackjs/astro/blob/main/docs/markdown.md#markdown-component), Astro comes with [Github-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants), and syntax highlighting via [Prism](https://prismjs.com/) pre-enabled. These features are likely to be configurable in the future.
+> **Note** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
+
+## Add a markdown plugin in Astro
+
+If you want to add a plugin, you need to install the npm package dependency in your project and then update the `markdownOptions.remarkPlugins` or `markdownOptions.rehypePlugins` depends on what plugin you want to have:
+
+```js
+// astro.config.js
+export default {
+  markdownOptions: {
+    remarkPlugins: [
+      // Add a Remark plugin that you want to enable for your project.
+      // If you need to provide options for the plugin, you can use an array and put the options as the second item.
+      // 'remark-slug',
+      // ['remark-autolink-headings', { behavior: 'prepend'}],
+    ]
+    rehypePlugins: [
+      // Add a Rehype plugin that you want to enable for your project.
+      // If you need to provide options for the plugin, you can use an array and put the options as the second item.
+      // 'rehype-slug',
+      // ['rehype-autolink-headings', { behavior: 'prepend'}],
+    ]
+  },
+};
+```
+
+You can provide names of the plugins as well as import them:
+
+```js
+// astro.config.js
+export default {
+  markdownOptions: {
+    remarkPlugins: [
+      import('remark-slug'),
+      [import('remark-autolink-headings'), { behavior: 'prepend' }],
+    ],
+  },
+};
+```
 
 ### Markdown Pages
 

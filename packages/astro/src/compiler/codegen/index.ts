@@ -543,7 +543,6 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       const { $scope: scopedClassName } = state.markers.insideMarkdown as Record<'$scope', any>;
       let { content: rendered } = await renderMarkdown(dedent(md), {
         ...(markdownOptions as AstroMarkdownOptions),
-        mode: 'astro-md',
         $: { scopedClassName: scopedClassName && scopedClassName.slice(1, -1) },
       });
 

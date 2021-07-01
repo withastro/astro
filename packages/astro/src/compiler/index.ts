@@ -3,7 +3,7 @@ import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 
 import path from 'path';
-import { renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
+import { MarkdownRenderingOptions, renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
 
 import { parse } from '@astrojs/parser';
 import { transform } from './transform/index.js';
@@ -42,12 +42,12 @@ export async function convertAstroToJsx(template: string, opts: ConvertAstroOpti
 /**
  * .md -> .astro source
  */
-export async function convertMdToAstroSource(contents: string, { filename }: { filename: string }): Promise<string> {
+export async function convertMdToAstroSource(contents: string, { filename }: { filename: string }, opts?: MarkdownRenderingOptions): Promise<string> {
   let {
     content,
     frontmatter: { layout, ...frontmatter },
     ...data
-  } = await renderMarkdownWithFrontmatter(contents);
+  } = await renderMarkdownWithFrontmatter(contents, opts);
 
   if (frontmatter['astro'] !== undefined) {
     throw new Error(`"astro" is a reserved word but was used as a frontmatter value!\n\tat ${filename}`);
@@ -75,7 +75,7 @@ async function convertMdToJsx(
   contents: string,
   { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
 ): Promise<TransformResult> {
-  const raw = await convertMdToAstroSource(contents, { filename });
+  const raw = await convertMdToAstroSource(contents, { filename }, compileOptions.astroConfig.markdownOptions);
   const convertOptions = { compileOptions, filename, fileID };
   return await convertAstroToJsx(raw, convertOptions);
 }
