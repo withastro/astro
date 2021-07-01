@@ -1,4 +1,4 @@
-- # Kitchen Sink: Microfrontends with Astro
+# Kitchen Sink: Microfrontends with Astro
 
 ```
 npm init astro --template framework-multiple
