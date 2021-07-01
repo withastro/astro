@@ -366,9 +366,18 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const rendererInstances = await configManager.buildRendererInstances();
   const knownEntrypoints: string[] = ['astro/dist/internal/__astro_component.js'];
   for (const renderer of rendererInstances) {
-    knownEntrypoints.push(renderer.server, renderer.client);
+    knownEntrypoints.push(renderer.server);
+    if(renderer.client) {
+      knownEntrypoints.push(renderer.client);
+    }
     if (renderer.knownEntrypoints) {
       knownEntrypoints.push(...renderer.knownEntrypoints);
+    }
+  }
+  const external = snowpackExternals.concat([]);
+  for(const renderer of rendererInstances) {
+    if(renderer.external) {
+      external.push(...renderer.external);
     }
   }
   const rendererSnowpackPlugins = rendererInstances.filter((renderer) => renderer.snowpackPlugin).map((renderer) => renderer.snowpackPlugin) as string | [string, any];
@@ -406,7 +415,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     },
     packageOptions: {
       knownEntrypoints,
-      external: snowpackExternals,
+      external,
     },
     alias: {
       ...Object.fromEntries(nodeBuiltinsMap),

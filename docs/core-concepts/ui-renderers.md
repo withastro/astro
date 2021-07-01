@@ -100,10 +100,12 @@ Additionally, this entrypoint can define a [Snowpack plugin](https://www.snowpac
 export default {
   name: '@astrojs/renderer-xxx', // the renderer name
   client: './client.js', // relative path to the client entrypoint
-  server: './server.js', // relative path to the server entrypoint
+  server: './server.js', // optional, relative path to the server entrypoint
   snowpackPlugin: '@snowpack/plugin-xxx', // optional, the name of a snowpack plugin to inject
   snowpackPluginOptions: { example: true }, // optional, any options to be forwarded to the snowpack plugin
   knownEntrypoint: ['framework'], // optional, entrypoint modules that will be used by compiled source
+  external: ['dep'] // optional, dependencies that should not be built by snowpack
+  polyfills: ['./shadow-dom-polyfill.js'] // optional, module scripts that should be loaded before client hydration.
 };
 ```
 

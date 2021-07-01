@@ -29,7 +29,8 @@
     "scripts",
     "www",
     "docs-www",
-    "packages/astro/test/fixtures/builtins/packages/*"
+    "packages/astro/test/fixtures/builtins/packages/*",
+    "packages/astro/test/fixtures/custom-elements/my-component-lib"
   ],
   "volta": {
     "node": "14.16.1",
@@ -37,7 +38,8 @@
     "yarn": "1.22.10"
   },
   "dependencies": {
-    "@changesets/cli": "^2.16.0"
+    "@changesets/cli": "^2.16.0",
+    "camel-case": "^4.1.2"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.22.0",

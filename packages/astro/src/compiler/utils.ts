@@ -1,6 +1,11 @@
+/** Is the given string a custom-element tag? */
+export function isCustomElementTag(tag: string) {
+  return /[-]/.test(tag);
+}
+
 /** Is the given string a valid component tag */
 export function isComponentTag(tag: string) {
-  return /^[A-Z]/.test(tag) || /^[a-z]+\./.test(tag);
+  return /^[A-Z]/.test(tag) || /^[a-z]+\./.test(tag) || isCustomElementTag(tag);
 }
 
 export interface Position {

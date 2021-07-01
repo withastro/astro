@@ -9,10 +9,13 @@ type RendererSnowpackPlugin = string | [string, any] | undefined;
 
 interface RendererInstance {
   name: string;
+  options: any;
   snowpackPlugin: RendererSnowpackPlugin;
-  client: string;
+  client: string | null;
   server: string;
   knownEntrypoints: string[] | undefined;
+  external: string[] | undefined;
+  polyfills: string[];
 }
 
 const CONFIG_MODULE_BASE_NAME = '__astro_config.js';
@@ -65,15 +68,25 @@ export class ConfigManager {
 
     const rendererInstances = (
       await Promise.all(
-        rendererNames.map((rendererName) => {
+        rendererNames.map(async (rendererName) => {
+          let _options: any = null;
+          if (Array.isArray(rendererName)) {
+            _options = rendererName[1];
+            rendererName = rendererName[0];
+          }
+
           const entrypoint = pathToFileURL(resolveDependency(rendererName)).toString();
-          return import(entrypoint);
+          const r = await import(entrypoint);
+          return {
+            raw: r.default,
+            options: _options
+          };
         })
       )
-    ).map(({ default: raw }, i) => {
+    ).map(({ raw, options }, i) => {
       const { name = rendererNames[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
 
-      if (typeof client !== 'string') {
+      if (typeof client !== 'string' && client != null) {
         throw new Error(`Expected "client" from ${name} to be a relative path to the client-side renderer!`);
       }
 
@@ -92,12 +105,17 @@ export class ConfigManager {
         throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
       }
 
+      const polyfillsNormalized = (raw.polyfills || []).map((p: string) => p.startsWith('.') ? path.join(name, p) : p);
+
       return {
         name,
+        options,
         snowpackPlugin,
-        client: path.join(name, raw.client),
+        client: raw.client ? path.join(name, raw.client) : null,
         server: path.join(name, raw.server),
         knownEntrypoints: raw.knownEntrypoints,
+        external: raw.external,
+        polyfills: polyfillsNormalized
       };
     });
 
@@ -107,16 +125,24 @@ export class ConfigManager {
   async buildSource(contents: string): Promise<string> {
     const renderers = await this.buildRendererInstances();
     const rendererServerPackages = renderers.map(({ server }) => server);
-    const rendererClientPackages = await Promise.all(renderers.map(({ client }) => this.resolvePackageUrl(client)));
+    const rendererClientPackages = await Promise.all(renderers.filter(({client}) => client).map(({ client }) => this.resolvePackageUrl(client!)));
+    const rendererPolyfills = await Promise.all(renderers.map(({ polyfills }) => Promise.all(polyfills.map(src => this.resolvePackageUrl(src)))));
+
+
     const result = /* js */ `${rendererServerPackages.map((pkg, i) => `import __renderer_${i} from "${pkg}";`).join('\n')}
 
 import { setRenderers } from 'astro/dist/internal/__astro_component.js';
 
-let rendererSources = [${rendererClientPackages.map((pkg) => `"${pkg}"`).join(', ')}];
-let renderers = [${rendererServerPackages.map((_, i) => `__renderer_${i}`).join(', ')}];
+let rendererInstances = [${renderers.map((r, i) => `{
+  source: ${rendererClientPackages[i] ? `"${rendererClientPackages[i]}"` : 'null'},
+  renderer: __renderer_${i},
+  options: ${r.options ? JSON.stringify(r.options) : 'null'},
+  polyfills: ${JSON.stringify(rendererPolyfills[i])}
+}`).join(', ')}];
 
 ${contents}
 `;
+
     return result;
   }
 

@@ -106,6 +106,9 @@ export interface Ast {
   css: Style;
   module: Script;
   // instance: Script;
+  meta: {
+    features: number;
+  }
 }
 
 export interface Warning {
