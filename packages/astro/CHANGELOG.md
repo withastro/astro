@@ -1,5 +1,24 @@
 # astro
 
+## 0.15.5
+
+### Patch Changes
+
+- 7b4c97c: Adds support for `hydrationPolyfills` in renderers
+
+  Renderers can not specify polyfills that must run before the component code runs for hydration:
+
+  ```js
+  export default {
+    name: '@matthewp/my-renderer',
+    server: './server.js',
+    client: './client.js',
+    hydrationPolyfills: ['./my-polyfill.js'],
+  };
+  ```
+
+  These will still wait for hydration to occur, but will run before the component script does.
+
 ## 0.15.4
 
 ### Patch Changes
