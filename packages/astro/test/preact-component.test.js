@@ -32,4 +32,12 @@ PreactComponent('Can use hooks', async ({ runtime }) => {
   assert.equal($('#world').length, 1);
 });
 
+PreactComponent('Can export a Fragment', async ({ runtime }) => {
+  const result = await runtime.load('/frag');
+  if (result.error) throw new Error(result.error);
+
+  const $ = doc(result.contents);
+  assert.equal($('body').children().length, 0, 'nothing rendered but it didn\'t throw.');
+});
+
 PreactComponent.run();
