@@ -107,11 +107,6 @@ setup("${astroId}", async () => {
 });
 </script>`;
 
-  if(instance.polyfills.length) {
-    let polyfillScripts = instance.polyfills.map(src => `<script type="module" src="${src}"></script>`).join('');
-    return polyfillScripts + hydrationScript;
-  }
-
   return hydrationScript;
 }
 
@@ -153,7 +148,13 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
         throw new Error(`No renderer found for ${name}! Did you forget to add a renderer to your Astro config?`);
       }
     }
-    const { html } = await instance.renderer.renderToStaticMarkup(Component, props, children, instance.options);
+    let { html } = await instance.renderer.renderToStaticMarkup(Component, props, children, instance.options);
+
+    if(instance.polyfills.length) {
+      let polyfillScripts = instance.polyfills.map(src => `<script type="module" src="${src}"></script>`).join('');
+      html = html + polyfillScripts;
+    }
+
     // If we're NOT hydrating this component, just return the HTML
     if (!componentProps.hydrate) {
       // It's safe to remove <astro-fragment>, static content doesn't need the wrapper
