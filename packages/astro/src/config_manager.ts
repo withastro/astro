@@ -11,12 +11,11 @@ interface RendererInstance {
   name: string;
   options: any;
   snowpackPlugin: RendererSnowpackPlugin;
-  client: string;
+  client: string | null;
   server: string;
   knownEntrypoints: string[] | undefined;
   external: string[] | undefined;
   polyfills: string[];
-  hydrationMethod: 'self' | undefined
 }
 
 const CONFIG_MODULE_BASE_NAME = '__astro_config.js';
@@ -87,7 +86,7 @@ export class ConfigManager {
     ).map(({ raw, options }, i) => {
       const { name = rendererNames[i], client, server, snowpackPlugin: snowpackPluginName, snowpackPluginOptions } = raw;
 
-      if (typeof client !== 'string') {
+      if (typeof client !== 'string' && client != null) {
         throw new Error(`Expected "client" from ${name} to be a relative path to the client-side renderer!`);
       }
 
@@ -112,12 +111,11 @@ export class ConfigManager {
         name,
         options,
         snowpackPlugin,
-        client: path.join(name, raw.client),
+        client: raw.client ? path.join(name, raw.client) : null,
         server: path.join(name, raw.server),
         knownEntrypoints: raw.knownEntrypoints,
         external: raw.external,
-        polyfills: polyfillsNormalized,
-        hydrationMethod: raw.hydrationMethod
+        polyfills: polyfillsNormalized
       };
     });
 
@@ -127,7 +125,7 @@ export class ConfigManager {
   async buildSource(contents: string): Promise<string> {
     const renderers = await this.buildRendererInstances();
     const rendererServerPackages = renderers.map(({ server }) => server);
-    const rendererClientPackages = await Promise.all(renderers.map(({ client }) => this.resolvePackageUrl(client)));
+    const rendererClientPackages = await Promise.all(renderers.filter(({client}) => client).map(({ client }) => this.resolvePackageUrl(client!)));
     const rendererPolyfills = await Promise.all(renderers.map(({ polyfills }) => Promise.all(polyfills.map(src => this.resolvePackageUrl(src)))));
 
 
@@ -136,11 +134,10 @@ export class ConfigManager {
 import { setRenderers } from 'astro/dist/internal/__astro_component.js';
 
 let rendererInstances = [${renderers.map((r, i) => `{
-  source: "${rendererClientPackages[i]}",
+  source: ${rendererClientPackages[i] ? `"${rendererClientPackages[i]}"` : 'null'},
   renderer: __renderer_${i},
   options: ${r.options ? JSON.stringify(r.options) : 'null'},
-  polyfills: ${JSON.stringify(rendererPolyfills[i])},
-  hydrationMethod: ${JSON.stringify(r.hydrationMethod)}
+  polyfills: ${JSON.stringify(rendererPolyfills[i])}
 }`).join(', ')}];
 
 ${contents}

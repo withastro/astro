@@ -58,8 +58,6 @@ CustomElements('Polyfills are added even if not hydrating', async ({ runtime }) 
   const html = result.contents;
   const $ = doc(html);
 
-  console.log(html);
-
   assert.equal($('script[type=module]').length, 1);
   assert.equal($('script[type=module]').attr('src'), '/_snowpack/link/packages/astro/test/fixtures/custom-elements/my-component-lib/polyfill.js');
 });

@@ -10,11 +10,10 @@ import * as astroHtml from './renderer-html';
 const serialize = (value: Value) => generate(valueToEstree(value));
 
 export interface RendererInstance {
-  source: string;
+  source: string | null;
   renderer: Renderer;
   options: any;
   polyfills: string[];
-  hydrationMethod?: 'self'
 }
 
 const astroRendererInstance: RendererInstance = {
@@ -91,14 +90,13 @@ interface HydrateScriptOptions {
 async function generateHydrateScript({ instance, astroId, props }: HydrateScriptOptions, { hydrate, componentUrl, componentExport }: Required<AstroComponentProps>) {
   const { source } = instance;
 
-  const hydrationSource = instance.hydrationMethod === 'self' ?
-    `
-  const { default: hydrate } = await import("${source}");
-  return (el, children) => hydrate(el, "${componentUrl}")(${serialize(props)}, children);
-`.trim() : `
+  const hydrationSource = source ? `
   const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${source}")]);
   return (el, children) => hydrate(el)(Component, ${serialize(props)}, children);
-`.trim();
+`.trim() : `
+  await import("${componentUrl}");
+  return () => {};
+`.trim()
 
   const hydrationScript = `<script type="module">
 import setup from '/_astro_frontend/hydrate/${hydrate}.js';
