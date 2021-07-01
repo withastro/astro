@@ -1,5 +1,11 @@
 # @astrojs/parser
 
+## 0.15.4
+
+### Patch Changes
+
+- 6a660f1: Adds low-level custom element support that renderers can use to enable server side rendering. This will be used in renderers such as a Lit renderer.
+
 ## 0.15.0
 
 ### Patch Changes
