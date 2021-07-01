@@ -16,6 +16,15 @@
     "build": "astro-scripts build --format cjs \"src/**/*.ts\" && tsc -p tsconfig.json",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
+  "dependencies": {
+    "@silvenon/remark-smartypants": "^1.0.0",
+    "gray-matter": "^4.0.2",
+    "remark-footnotes": "^3.0.0",
+    "remark-gfm": "^1.0.0",
+    "remark-parse": "^9.0.0",
+    "remark-rehype": "^8.1.0",
+    "unified": "^9.2.1"
+  },
   "devDependencies": {
     "@types/github-slugger": "^1.3.0",
     "github-slugger": "^1.3.0",
