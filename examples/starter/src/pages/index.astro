@@ -1,16 +1,22 @@
 ---
+// Component Imports
 import Tour from '../components/Tour.astro';
----
 
-<!doctype html>
+// Component Script:
+// You can write any JavaScript/TypeScript that you'd like here.
+// It will run during the build, but never in the browser.
+// All variables are available to use in the HTML template below.
+let title = 'My Astro Site';
+
+// Full Astro Component Syntax:
+// https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
+---
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Astro</title>
-
+    <title>{title}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-
     <link rel="stylesheet" href="/style/global.css">
     <link rel="stylesheet" href="/style/home.css">
 

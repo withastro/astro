@@ -1,23 +1,25 @@
 ---
+// Component Imports
 import MainHead from '../components/MainHead.astro';
 import Nav from '../components/Nav.astro';
 import PostPreview from '../components/PostPreview.astro';
 import Pagination from '../components/Pagination.astro';
+import authorData from '../data/authors.json';
 
-// page
+// Component Script:
+// You can write any JavaScript/TypeScript that you'd like here.
+// It will run during the build, but never in the browser.
+// All variables are available to use in the HTML template below.
 let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
 
-// collection
-// note: we want to show first 3 posts here, but we don’t want to paginate at /1, /2, /3, etc.
-// so we show a preview of posts here, but actually paginate from $posts.astro
-import authorData from '../data/authors.json';
-
+// Data Fetching: List all Markdown posts in the repo.
 let allPosts = Astro.fetchContent('./post/*.md');
 allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-let firstPage = allPosts.slice(0, 2);
----
 
+// Full Astro Component Syntax:
+// https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
+---
 <html>
   <head>
     <title>{title}</title>

@@ -1,4 +1,5 @@
 ---
+// Component Imports
 import { Markdown } from 'astro/components';
 import Layout from '../layouts/main.astro';
 import ReactCounter from '../components/ReactCounter.jsx';
@@ -6,11 +7,17 @@ import PreactCounter from '../components/PreactCounter.tsx';
 import VueCounter from '../components/VueCounter.vue';
 import SvelteCounter from '../components/SvelteCounter.svelte';
 
+// Component Script:
+// You can write any JavaScript/TypeScript that you'd like here.
+// It will run during the build, but never in the browser.
+// All variables are available to use in the HTML template below.
 const title = 'Astro Markdown';
 const variable = 'content';
 const items = ['A', 'B', 'C'];
----
 
+// Full Astro Component Syntax:
+// https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
+---
 <Layout content={{ title }}>
   <Markdown>
     # Introducing {title}
