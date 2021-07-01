@@ -10,7 +10,7 @@ function check(Component, props, children) {
   }
 
   const { html } = renderToStaticMarkup(Component, props, children);
-  return Boolean(html);
+  return typeof html === 'string';
 }
 
 function renderToStaticMarkup(Component, props, children) {
