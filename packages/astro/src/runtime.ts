@@ -418,11 +418,13 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     packageOptions: {
       knownEntrypoints,
       external,
-    },
-    alias: {
-      ...Object.fromEntries(nodeBuiltinsMap),
-    },
+    }
   });
+
+  const polyfillNode = (snowpackConfig.packageOptions as any).polyfillNode as boolean;
+  if(!polyfillNode) {
+    snowpackConfig.alias = Object.fromEntries(nodeBuiltinsMap);
+  }
 
   snowpack = await startSnowpackServer(
     {
