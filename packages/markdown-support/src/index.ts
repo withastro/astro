@@ -63,7 +63,6 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   try {
     const vfile = await parser.use(raw).use(rehypeCollectHeaders).use(rehypeCodeBlock()).use(rehypeStringify, { entities: { useNamedReferences: true }}).process(content);
     result = vfile.contents.toString();
-    console.log(result.toString());
   } catch (err) {
     throw err;
   }
