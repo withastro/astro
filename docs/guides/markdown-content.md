@@ -10,7 +10,7 @@ In addition to [custom components inside the `<Markdown>` component](#markdown-c
 
 Also, Astro supports third-party plugins for Markdown. You can provide your plugins in `astro.config.mjs`.
 
- **Note that:** When plugins are provided you opt-out the pre-enabled plugins.
+> **Note** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
 
 ## Add a markdown plugin in Astro
 
