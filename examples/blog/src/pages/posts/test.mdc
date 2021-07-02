@@ -1,0 +1,11 @@
+---
+import Logo from '../../components/Logo.astro';
+---
+
+# Hello, World!
+
+hi 
+
+<Logo />
+
+hi 

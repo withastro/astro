@@ -31,7 +31,7 @@ module.exports = (snowpackConfig, options = {}) => {
       'astring'
     ],
     resolve: {
-      input: ['.astro', '.md'],
+      input: ['.astro', '.md', '.mdc'],
       output: ['.js', '.css'],
     },
     async transform({contents, id, fileExt}) {

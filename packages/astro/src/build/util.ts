@@ -23,7 +23,7 @@ export function getDistPath(specifier: string, { astroConfig, srcPath }: { astro
   const projectLoc = fileLoc.pathname.replace(projectRoot.pathname, '');
   const ext = path.extname(fileLoc.pathname);
 
-  const isPage = fileLoc.pathname.includes(pagesRoot.pathname) && (ext === '.astro' || ext === '.md');
+  const isPage = fileLoc.pathname.includes(pagesRoot.pathname) && (ext === '.astro' || ext === '.md' || ext === '.mdc');
   // if this lives in src/pages, return that URL
   if (isPage) {
     const [, publicURL] = projectLoc.split(pagesRoot.pathname);

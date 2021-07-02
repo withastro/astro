@@ -48,7 +48,7 @@ export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult 
 
   // Try to find index.astro/md paths
   if (reqPath.endsWith('/')) {
-    const candidates = [`${base}index.astro`, `${base}index.md`];
+    const candidates = [`${base}index.astro`, `${base}index.md`, `${base}index.mdc`];
     const location = findAnyPage(candidates, astroConfig);
     if (location) {
       return {
@@ -59,7 +59,7 @@ export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult 
     }
   } else {
     // Try to find the page by its name.
-    const candidates = [`${base}.astro`, `${base}.md`];
+    const candidates = [`${base}.astro`, `${base}.md`, `${base}.mdc`];
     let location = findAnyPage(candidates, astroConfig);
     if (location) {
       return {
@@ -71,7 +71,7 @@ export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult 
   }
 
   // Try to find name/index.astro/md
-  const candidates = [`${base}/index.astro`, `${base}/index.md`];
+  const candidates = [`${base}/index.astro`, `${base}/index.md`, `${base}/index.mdc`];
   const location = findAnyPage(candidates, astroConfig);
   if (location) {
     return {

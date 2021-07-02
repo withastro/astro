@@ -3,7 +3,7 @@ import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 
 import path from 'path';
-import { MarkdownRenderingOptions, renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
+import { MarkdownRenderingOptions, renderMarkdown, renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
 
 import { parse } from '@astrojs/parser';
 import { transform } from './transform/index.js';
@@ -80,6 +80,33 @@ async function convertMdToJsx(
   return await convertAstroToJsx(raw, convertOptions);
 }
 
+/**
+ * .md -> .astro source
+ */
+ export async function convertMdcToAstroSource(contents: string, opts?: MarkdownRenderingOptions): Promise<string> {
+  const [,frontmatterScript, markdownContent] = contents.split('---');
+return `---
+import { Markdown } from 'astro/components';
+${frontmatterScript}
+---
+<Markdown>
+${markdownContent}
+</Markdown>`;
+}
+
+/**
+ * .mdc -> .jsx
+ * Core function processing Markdown, but along the way also calls convertAstroToJsx().
+ */
+ async function convertMdcToJsx(
+  contents: string,
+  { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
+): Promise<TransformResult> {
+  const raw = await convertMdcToAstroSource(contents, compileOptions.astroConfig.markdownOptions);
+  const convertOptions = { compileOptions, filename, fileID };
+  return await convertAstroToJsx(raw, convertOptions);
+}
+
 /** Given a file, process it either as .astro, .md */
 async function transformFromSource(
   contents: string,
@@ -87,10 +114,13 @@ async function transformFromSource(
 ): Promise<TransformResult> {
   const fileID = path.relative(projectRoot, filename);
   switch (true) {
-    case filename.slice(-6) === '.astro':
+    case filename.endsWith('.astro'):
       return await convertAstroToJsx(contents, { compileOptions, filename, fileID });
 
-    case filename.slice(-3) === '.md':
+    case filename.endsWith('.mdc'):
+      return await convertMdcToJsx(contents, { compileOptions, filename, fileID });
+
+    case filename.endsWith('.md'):
       return await convertMdToJsx(contents, { compileOptions, filename, fileID });
 
     default:

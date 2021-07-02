@@ -12,7 +12,7 @@
     "build": "yarn build:core",
     "build:all": "lerna run build",
     "build:one": "lerna run build --scope",
-    "build:core": "lerna run build --scope astro --scope @astrojs/parser --scope @astrojs/markdown-support --scope create-astro",
+    "build:core": "lerna run build --scope astro --scope @astrojs/parser --scope @astrojs/markdown-support",
     "build:vscode": "lerna run build --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser",
     "dev:vscode": "lerna run dev --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser --parallel --stream",
     "format": "prettier -w \"**/*.{js,jsx,ts,tsx,md,json}\"",
