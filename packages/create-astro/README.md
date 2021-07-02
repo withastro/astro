@@ -28,6 +28,12 @@ yarn create astro my-astro-project --template starter
 ```
 [Check out the full list][examples] of example starter templates, available on GitHub.
 
+You can also use any GitHub repo as a template:
+
+```bash
+npm init astro my-astro-project -- --template cassidoo/shopify-react-astro
+```
+
 ### CLI Flags
 
 May be provided in place of prompts
