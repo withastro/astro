@@ -362,12 +362,15 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     (process.env as any).TAILWIND_DISABLE_TOUCH = true;
   }
 
+  // There's probably a cleaner way to signal current mode to other steps in the build process
+  (process.env as any).ASTRO_MODE = mode;
+
   // Make sure that Snowpack builds our renderer plugins
   const rendererInstances = await configManager.buildRendererInstances();
   const knownEntrypoints: string[] = ['astro/dist/internal/__astro_component.js', 'astro/dist/internal/element-registry.js'];
   for (const renderer of rendererInstances) {
     knownEntrypoints.push(renderer.server);
-    if(renderer.client) {
+    if (renderer.client) {
       knownEntrypoints.push(renderer.client);
     }
     if (renderer.knownEntrypoints) {
@@ -377,8 +380,8 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     knownEntrypoints.push(...renderer.hydrationPolyfills);
   }
   const external = snowpackExternals.concat([]);
-  for(const renderer of rendererInstances) {
-    if(renderer.external) {
+  for (const renderer of rendererInstances) {
+    if (renderer.external) {
       external.push(...renderer.external);
     }
   }
@@ -418,11 +421,11 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     packageOptions: {
       knownEntrypoints,
       external,
-    }
+    },
   });
 
   const polyfillNode = (snowpackConfig.packageOptions as any).polyfillNode as boolean;
-  if(!polyfillNode) {
+  if (!polyfillNode) {
     snowpackConfig.alias = Object.fromEntries(nodeBuiltinsMap);
   }
 

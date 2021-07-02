@@ -1,4 +1,4 @@
-import type { Renderer } from '../@types/astro';
+import type { Renderer, RuntimeMode } from '../@types/astro';
 import hash from 'shorthash';
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import { generate } from 'astring';
@@ -22,7 +22,7 @@ const astroRendererInstance: RendererInstance = {
   renderer: astro as Renderer,
   options: null,
   polyfills: [],
-  hydrationPolyfills: []
+  hydrationPolyfills: [],
 };
 
 const astroHtmlRendererInstance: RendererInstance = {
@@ -30,7 +30,7 @@ const astroHtmlRendererInstance: RendererInstance = {
   renderer: astroHtml as Renderer,
   options: null,
   polyfills: [],
-  hydrationPolyfills: []
+  hydrationPolyfills: [],
 };
 
 let rendererInstances: RendererInstance[] = [];
@@ -94,14 +94,16 @@ async function generateHydrateScript({ instance, astroId, props }: HydrateScript
   const { source } = instance;
 
   let hydrationSource = '';
-  if(instance.hydrationPolyfills.length) {
-    hydrationSource += `await Promise.all([${instance.hydrationPolyfills.map(src => `import("${src}")`).join(', ')}]);\n`;
+  if (instance.hydrationPolyfills.length) {
+    hydrationSource += `await Promise.all([${instance.hydrationPolyfills.map((src) => `import("${src}")`).join(', ')}]);\n`;
   }
 
-  hydrationSource += source ? `
+  hydrationSource += source
+    ? `
   const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${source}")]);
   return (el, children) => hydrate(el)(Component, ${serialize(props)}, children);
-` : `
+`
+    : `
   await import("${componentUrl}");
   return () => {};
 `;
@@ -141,7 +143,7 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
     let instance = await resolveRenderer(Component, props, children);
 
     if (!instance) {
-      if(isCustomElementTag(Component)) {
+      if (isCustomElementTag(Component)) {
         instance = astroHtmlRendererInstance;
       } else {
         // If the user only specifies a single renderer, but the check failed
@@ -156,8 +158,16 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
     }
     let { html } = await instance.renderer.renderToStaticMarkup(Component, props, children, instance.options);
 
-    if(instance.polyfills.length) {
-      let polyfillScripts = instance.polyfills.map(src => `<script type="module" src="${src}"></script>`).join('');
+    // TODO: come up with a good way to toggle this for developers?
+    // If this is a non-Astro component without hydration (:idle, :load etc), add visual queue
+    const isDevelopmentMode = (process.env.ASTRO_MODE as RuntimeMode) === 'development';
+    if (isDevelopmentMode && !Component.isAstroComponent) {
+      const hydrationIndicationColor = componentProps.hydrate ? 'limegreen' : 'gray';
+      html = `<div style="border: 1px dashed ${hydrationIndicationColor}; ">${html}</div>`;
+    }
+
+    if (instance.polyfills.length) {
+      let polyfillScripts = instance.polyfills.map((src) => `<script type="module" src="${src}"></script>`).join('');
       html = html + polyfillScripts;
     }
 
