@@ -1,5 +1,17 @@
 # create-astro
 
+## 0.3.5
+
+### Patch Changes
+
+- d8ceff5: Allows using an external repo as a template
+
+  You can do this with the `--template` flag:
+
+  ```bash
+  npm init astro my-shopify --template cassidoo/shopify-react-astro
+  ```
+
 ## 0.3.4
 
 ### Patch Changes
