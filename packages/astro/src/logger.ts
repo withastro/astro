@@ -159,4 +159,11 @@ function padStr(str: string, len: number) {
   return str + spaces;
 }
 
-export const defaultLogLevel: LoggerLevel = process.argv.includes('--verbose') ? 'debug' : 'info';
+export let defaultLogLevel: LoggerLevel;
+if (process.argv.includes('--verbose')) {
+  defaultLogLevel = 'debug';
+} else if (process.argv.includes('--silent')) {
+  defaultLogLevel = 'silent';
+} else {
+  defaultLogLevel = 'info';
+}

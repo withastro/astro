@@ -4,5 +4,7 @@ import { defaultLogLevel } from './logger.js';
 export function configureSnowpackLogger(logger: typeof snowpackLogger) {
   if (defaultLogLevel === 'debug') {
     logger.level = 'debug';
+  } else if (defaultLogLevel === 'silent') {
+    logger.level = 'silent';
   }
 }

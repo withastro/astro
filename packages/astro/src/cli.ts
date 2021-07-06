@@ -78,6 +78,7 @@ function printHelp() {
   --no-sitemap          Disable sitemap generation (build only).
   --reload              Clean the cache, reinstalling dependencies.
   --verbose             Enable verbose logging
+  --silent              Disable logging
   --version             Show the version number and exit.
   --help                Show this help message.
 `);
