@@ -5,7 +5,6 @@ const path = require('path');
 const { promises: fs } = require('fs');
 
 const babel = require('@babel/core')
-const babelPluginTransformJsx = require('@babel/plugin-transform-react-jsx').default;
 const eslexer = require('es-module-lexer');
 
 /**
@@ -19,21 +18,9 @@ const eslexer = require('es-module-lexer');
  * @param filePath {string}
  * @returns {import('esbuild').Loader}
  */
-function getLoader(filePath) {
+function getLoader(fileExt) {
   /** @type {any} */
-  const ext = path.extname(filePath);
-  return ext.substr(1);
-}
-
-const transformJsx = ({ code, filePath: filename, sourceMap: sourceMaps }, importSource) => {
-  return babel.transformSync(code, {
-      filename,
-      plugins: [
-        babelPluginTransformJsx({}, { runtime: 'automatic', importSource })
-      ],
-      sourceMaps,
-    }
-  )
+  return fileExt.substr(1);
 }
 
 /**
@@ -51,14 +38,14 @@ module.exports = function jsxPlugin(config, options = {}) {
       input: ['.jsx', '.tsx'],
       output: ['.js'],
     },
-    async load({ filePath }) {
+    async load({ filePath, fileExt, ...transformContext }) {
       if (!didInit) {
         await eslexer.init;
         didInit = true;
       }
 
       const contents = await fs.readFile(filePath, 'utf8');
-      const loader = getLoader(filePath);
+      const loader = getLoader(fileExt);
 
       const { code, warnings } = await esbuild.transform(contents, {
         loader,
@@ -75,14 +62,16 @@ module.exports = function jsxPlugin(config, options = {}) {
 
       let renderers = await configManager.getRenderers();
       const importSources = new Set(renderers.map(({ jsxImportSource }) => jsxImportSource).filter(i => i));
+      const getRenderer = (importSource) => renderers.find(({ jsxImportSource }) => jsxImportSource === importSource);
+      const getTransformOptions = async (importSource) => {
+        const { name } = getRenderer(importSource);
+        const { default: renderer } = await import(name);
+        return renderer.jsxTransformOptions(transformContext);
+      }
 
       // If we only have a single renderer, we can skip a bunch of work!
       if (importSources.size === 1) {
-        const result = transformJsx({ 
-          code,
-          filePath,
-          sourceMap: config.buildOptions.sourcemap ? 'inline' : false,
-        }, Array.from(importSources)[0])
+        const result = transform(code, filePath, await getTransformOptions(Array.from(importSources)[0]))
 
         return {
           '.js': {
@@ -134,11 +123,7 @@ Unable to resolve JSX transformer! If you have more than one renderer enabled, y
         }
       }
 
-      const result = transformJsx({ 
-        code,
-        filePath,
-        sourceMap: config.buildOptions.sourcemap ? 'inline' : false,
-      }, importSource)
+      const result = transform(code, filePath, await getTransformOptions(importSource));
 
       return {
         '.js': {
@@ -149,3 +134,22 @@ Unable to resolve JSX transformer! If you have more than one renderer enabled, y
     cleanup() {},
   };
 }
+
+/**
+ * 
+ * @param code {string}
+ * @param id {string}
+ * @param opts {{ plugins?: import('@babel/core').PluginItem[], presets?: import('@babel/core').PluginItem[] }|undefined}
+ */
+const transform = (code, id, { alias, plugins = [], presets = [] } = {}) =>
+  babel.transformSync(code, {
+    presets,
+    plugins: [...plugins, alias ? ['babel-plugin-module-resolver', { root: process.cwd(), alias }] : undefined].filter(v => v),
+    cwd: process.cwd(),
+    filename: id,
+    ast: false,
+    compact: false,
+    sourceMaps: false,
+    configFile: false,
+    babelrc: false,
+  });

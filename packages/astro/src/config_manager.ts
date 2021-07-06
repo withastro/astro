@@ -1,4 +1,4 @@
-import type { ServerRuntime as SnowpackServerRuntime } from 'snowpack';
+import type { ServerRuntime as SnowpackServerRuntime, PluginLoadOptions } from 'snowpack';
 import type { AstroConfig } from './@types/astro';
 import { posix as path } from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
@@ -18,6 +18,7 @@ interface RendererInstance {
   polyfills: string[];
   hydrationPolyfills: string[];
   jsxImportSource?: string;
+  jsxTransformOptions?: (transformContext: Omit<PluginLoadOptions, 'filePath'|'fileExt'>) => undefined|{ plugins?: any[], presets?: any[] }|Promise<{ plugins?: any[], presets?: any[] }>
 }
 
 const CONFIG_MODULE_BASE_NAME = '__astro_config.js';
