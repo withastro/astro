@@ -1,5 +1,12 @@
 # astro
 
+## 0.16.2
+
+### Patch Changes
+
+- 20b4a60: Bugfix: do not override user `alias` passed into snowpack config
+- 42a1fd7: Add command line flag `--silent` to astro to set no output.
+
 ## 0.16.1
 
 ### Patch Changes

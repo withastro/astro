@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.4.0
+
+### Minor Changes
+
+- 5d5d67c: Update `create-astro` to handle framework-specific logic based on user preference
+
 ## 0.3.5
 
 ### Patch Changes
