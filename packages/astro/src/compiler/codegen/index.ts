@@ -55,9 +55,11 @@ interface HydrationAttributes {
 function findHydrationAttributes(attrs: Record<string, string>): HydrationAttributes {
   let method: HydrationAttributes['method'];
 
+  const hydrationDirectives = new Set([':load', ':idle', ':visible'])
+
   for (const [key, val] of Object.entries(attrs)) {
     if (!key.startsWith(':')) continue;
-    if ([':load', ':idle', ':visible'].includes(key) && val === 'true') method= key.slice(1) as HydrationAttributes['method'];
+    if (hydrationDirectives.has(key) && val === 'true') method= key.slice(1) as HydrationAttributes['method'];
   }
 
   return { method };
