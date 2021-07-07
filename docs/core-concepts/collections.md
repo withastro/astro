@@ -11,7 +11,7 @@ title: Collections
 - Working with remote data
 - Mixing remote and local data
 
-**Use a Collection when you need to generate multiple pages from a single template.**  If you just want to generate a single page (ex: a long list of every post on your site) then you can just fetch that data on a normal Astro page without using the Collection API.
+**Use a Collection when you need to generate multiple pages from a single template.** If you just want to generate a single page (ex: a long list of every post on your site) then you can just fetch that data on a normal Astro page without using the Collection API.
 
 ## Using Collections
 

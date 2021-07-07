@@ -138,10 +138,12 @@ StylesSSR('Astro scoped styles can be passed to child components', async ({ runt
   const $ = doc(result.contents);
 
   let scopedClass;
-  $('style').html().replace(/outer\.(astro-[A-Za-z0-9-]+)/, (match, p1) => {
-    scopedClass = p1;
-    return match;
-  });
+  $('style')
+    .html()
+    .replace(/outer\.(astro-[A-Za-z0-9-]+)/, (match, p1) => {
+      scopedClass = p1;
+      return match;
+    });
 
   assert.match($('#passed-in').attr('class'), `outer ${scopedClass}`);
 });

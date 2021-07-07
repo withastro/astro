@@ -199,8 +199,8 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
             if (node.name === 'Markdown') {
               injectScopedClassAttribute(node, scopedClass, '$scope');
             }
-            for(let attr of node.attributes) {
-              if(attr.name === 'class') {
+            for (let attr of node.attributes) {
+              if (attr.name === 'class') {
                 injectScopedClassAttribute(node, scopedClass, 'class');
                 break;
               }

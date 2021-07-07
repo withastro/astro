@@ -17,8 +17,8 @@ import { Markdown } from 'astro/components';
 ```
 
 See our [Markdown Guide](/docs/guides/markdown-content.md) for more info.
-<!-- TODO: We should move some of the specific component info here. -->
 
+<!-- TODO: We should move some of the specific component info here. -->
 
 ## `<Prism />`
 

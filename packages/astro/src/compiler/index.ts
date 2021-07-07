@@ -116,11 +116,17 @@ import fetch from 'node-fetch';
 
 // <script astro></script>
 ${result.imports.join('\n')}
-${result.hasCustomElements ? `
+${
+  result.hasCustomElements
+    ? `
 const __astro_element_registry = new AstroElementRegistry({
-  candidates: new Map([${Array.from(result.customElementCandidates).map(([identifier, url]) => `[${identifier}, '${url}']`).join(', ')}])
+  candidates: new Map([${Array.from(result.customElementCandidates)
+    .map(([identifier, url]) => `[${identifier}, '${url}']`)
+    .join(', ')}])
 });
-`.trim() : ''}
+`.trim()
+    : ''
+}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';

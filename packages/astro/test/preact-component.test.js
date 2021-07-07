@@ -37,7 +37,7 @@ PreactComponent('Can export a Fragment', async ({ runtime }) => {
   if (result.error) throw new Error(result.error);
 
   const $ = doc(result.contents);
-  assert.equal($('body').children().length, 0, 'nothing rendered but it didn\'t throw.');
+  assert.equal($('body').children().length, 0, "nothing rendered but it didn't throw.");
 });
 
 PreactComponent.run();

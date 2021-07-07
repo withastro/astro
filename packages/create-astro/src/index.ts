@@ -66,9 +66,7 @@ export async function main() {
 
   const hash = args.commit ? `#${args.commit}` : '';
 
-  const templateTarget = options.template.includes('/') ?
-    options.template :
-    `snowpackjs/astro/examples/${options.template}`;
+  const templateTarget = options.template.includes('/') ? options.template : `snowpackjs/astro/examples/${options.template}`;
 
   const emitter = degit(`${templateTarget}${hash}`, {
     cache: false,
@@ -76,9 +74,9 @@ export async function main() {
     verbose: false,
   });
 
-  const selectedTemplate = TEMPLATES.find(template => template.value === options.template);
+  const selectedTemplate = TEMPLATES.find((template) => template.value === options.template);
   let renderers: string[] = [];
-  
+
   if (selectedTemplate?.renderers === true) {
     const result = /** @type {import('./types/internal').Options} */ await prompts([
       {
@@ -91,7 +89,7 @@ export async function main() {
     renderers = result.renderers;
   } else if (selectedTemplate?.renderers && Array.isArray(selectedTemplate.renderers)) {
     renderers = selectedTemplate.renderers;
-    const titles = renderers.map(renderer => FRAMEWORKS.find(item => item.value === renderer)?.title).join(', ');
+    const titles = renderers.map((renderer) => FRAMEWORKS.find((item) => item.value === renderer)?.title).join(', ');
     console.log(green(`✔`) + bold(` Using template's default renderers`) + gray(' › ') + titles);
   }
 
@@ -107,47 +105,57 @@ export async function main() {
   }
 
   // Post-process in parallel
-  await Promise.all(POSTPROCESS_FILES.map(async (file) => {
-    const fileLoc = path.resolve(path.join(cwd, file));
+  await Promise.all(
+    POSTPROCESS_FILES.map(async (file) => {
+      const fileLoc = path.resolve(path.join(cwd, file));
 
-    switch (file) {
-      case 'CHANGELOG.md': {
-        if (fs.existsSync(fileLoc)) {
-          await fs.promises.rm(fileLoc);
-        }
-        break;
-      }
-      case 'astro.config.mjs': {
-        if (selectedTemplate?.renderers !== true) {
+      switch (file) {
+        case 'CHANGELOG.md': {
+          if (fs.existsSync(fileLoc)) {
+            await fs.promises.rm(fileLoc);
+          }
           break;
         }
-        await fs.promises.writeFile(fileLoc, createConfig({ renderers }));
-        break;
+        case 'astro.config.mjs': {
+          if (selectedTemplate?.renderers !== true) {
+            break;
+          }
+          await fs.promises.writeFile(fileLoc, createConfig({ renderers }));
+          break;
+        }
+        case 'package.json': {
+          const packageJSON = JSON.parse(await fs.promises.readFile(fileLoc, 'utf8'));
+          delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
+          // Fetch latest versions of selected renderers
+          const rendererEntries = (await Promise.all(
+            ['astro', ...renderers].map((renderer: string) =>
+              fetch(`https://registry.npmjs.org/${renderer}/latest`)
+                .then((res: any) => res.json())
+                .then((res: any) => [renderer, `^${res['version']}`])
+            )
+          )) as any;
+          packageJSON.devDependencies = { ...(packageJSON.devDependencies ?? {}), ...Object.fromEntries(rendererEntries) };
+          await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
+          break;
+        }
       }
-      case 'package.json': {
-        const packageJSON = JSON.parse(await fs.promises.readFile(fileLoc, 'utf8'));
-        delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
-        // Fetch latest versions of selected renderers
-        const rendererEntries = await Promise.all(['astro', ...renderers].map((renderer: string) => fetch(`https://registry.npmjs.org/${renderer}/latest`).then((res: any) => res.json()).then((res: any) => [renderer, `^${res['version']}`]))) as any;
-        packageJSON.devDependencies = { ...packageJSON.devDependencies ?? {}, ...Object.fromEntries(rendererEntries) }
-        await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
-        break;
-      }
-    }
-  }));
+    })
+  );
 
   // Inject framework components into starter template
   if (selectedTemplate?.value === 'starter') {
     let importStatements: string[] = [];
     let components: string[] = [];
-    await Promise.all(renderers.map(async renderer => {
-      const component = COUNTER_COMPONENTS[renderer as keyof typeof COUNTER_COMPONENTS];
-      const componentName = path.basename(component.filename, path.extname(component.filename));
-      const absFileLoc = path.resolve(cwd, component.filename);
-      importStatements.push(`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`);
-      components.push(`<${componentName}:visible />`);
-      await fs.promises.writeFile(absFileLoc, component.content);
-    }));
+    await Promise.all(
+      renderers.map(async (renderer) => {
+        const component = COUNTER_COMPONENTS[renderer as keyof typeof COUNTER_COMPONENTS];
+        const componentName = path.basename(component.filename, path.extname(component.filename));
+        const absFileLoc = path.resolve(cwd, component.filename);
+        importStatements.push(`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`);
+        components.push(`<${componentName}:visible />`);
+        await fs.promises.writeFile(absFileLoc, component.content);
+      })
+    );
 
     const pageFileLoc = path.resolve(path.join(cwd, 'src', 'pages', 'index.astro'));
     const content = (await fs.promises.readFile(pageFileLoc)).toString();
@@ -162,9 +170,19 @@ export async function main() {
    - See https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/component-hydration.md
    -->
 `;
-    lines.splice(41, 0, importStatements.length > 0 ? doc.split('\n').map(ln => `${indent}${ln}`).join('\n') : '', ...components.map(ln => `${indent}${ln}`));
+    lines.splice(
+      41,
+      0,
+      importStatements.length > 0
+        ? doc
+            .split('\n')
+            .map((ln) => `${indent}${ln}`)
+            .join('\n')
+        : '',
+      ...components.map((ln) => `${indent}${ln}`)
+    );
     lines.splice(3, 0, importStatements.length > 0 ? `// Framework Component Imports` : '', ...importStatements);
-    await fs.promises.writeFile(pageFileLoc, lines.join('\n'))
+    await fs.promises.writeFile(pageFileLoc, lines.join('\n'));
   }
 
   console.log(bold(green('✔') + ' Done!'));

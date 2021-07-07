@@ -3,8 +3,6 @@ layout: ~/layouts/Main.astro
 title: Astro Components
 ---
 
-
-
 ## ✨ `.astro` Syntax
 
 Astro comes with its own server-side, component-based templating language. Think of it as HTML enhanced with the full power of JavaScript.
@@ -204,5 +202,3 @@ If you’d prefer to organize assets alongside Astro components, you may import 
 ### TODO: Composition (Slots)
 
 [code-ext]: https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode
-
-

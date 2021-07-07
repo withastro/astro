@@ -24,6 +24,6 @@ MarkdownPlugin('Can render Astro <Markdown> with plugins', async ({ runtime }) =
   const $ = doc(result.contents);
   assert.equal($('.toc').length, 1, 'Added a TOC');
   assert.ok($('#hello-world').hasClass('title'), 'Added .title to h1');
-})
+});
 
 MarkdownPlugin.run();

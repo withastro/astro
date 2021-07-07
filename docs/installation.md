@@ -21,7 +21,7 @@ cd <project-name>
 npm init astro
 ```
 
-Follow the CLI instructions to install Astro with one of our official project starter templates. 
+Follow the CLI instructions to install Astro with one of our official project starter templates.
 
 Once completed, jump over to our [Quickstart Guide](/docs/quick-start.md#start-your-project) for a 30-second walkthrough on how to start & build your new Astro project!
 
@@ -46,7 +46,7 @@ npm init --yes
 
 ### Install Astro
 
-If you've followed the instructions above, you should have a directory with a single `package.json` file inside of it. You can now install Astro in your project. 
+If you've followed the instructions above, you should have a directory with a single `package.json` file inside of it. You can now install Astro in your project.
 
 We'll use `npm` in the examples below, but you could also use `yarn` or `pnpm` if you prefer an npm alternative. If you aren't familiar with `yarn` or `pnpm`, then we strongly recommend sticking with `npm`.
 
@@ -90,4 +90,3 @@ Success! You're now ready to start developing! Jump over to our [Quickstart Guid
 📚 Learn more about Astro's project structure in our [Project Structure guide](/docs/core-concepts/project-structure.md).  
 📚 Learn more about Astro's component syntax in our [Astro Components guide](/docs/core-concepts/astro-components.md).  
 📚 Learn more about Astro's file-based routing in our [Routing guide](core-concepts/astro-pages).
-

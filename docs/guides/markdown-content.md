@@ -4,6 +4,7 @@ title: Markdown Content
 ---
 
 Astro comes with out-of-the-box Markdown support powered by the expansive [remark](https://remark.js.org/) ecosystem.
+
 ## Remark and Rehype Plugins
 
 In addition to [custom components inside the `<Markdown>` component](#markdown-component), Astro comes with [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants), and syntax highlighting via [Prism](https://prismjs.com/) pre-enabled.
@@ -42,10 +43,7 @@ You can provide names of the plugins as well as import them:
 // astro.config.js
 export default {
   markdownOptions: {
-    remarkPlugins: [
-      import('remark-slug'),
-      [import('remark-autolink-headings'), { behavior: 'prepend' }],
-    ],
+    remarkPlugins: [import('remark-slug'), [import('remark-autolink-headings'), { behavior: 'prepend' }]],
   },
 };
 ```

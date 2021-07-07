@@ -36,10 +36,14 @@ export function setup(Suite, fixturePath, { runtimeOptions = {} } = {}) {
     runtime = await createRuntime(astroConfig, {
       logging: { level: 'error', dest: process.stderr },
       ...runtimeOptions,
-    }).catch(err => { createRuntimeError = err; });
+    }).catch((err) => {
+      createRuntimeError = err;
+    });
 
-    if(createRuntimeError) {
-      setTimeout(() => { throw createRuntimeError });
+    if (createRuntimeError) {
+      setTimeout(() => {
+        throw createRuntimeError;
+      });
     }
 
     context.runtime = runtime;

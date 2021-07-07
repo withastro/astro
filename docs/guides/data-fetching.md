@@ -8,6 +8,7 @@ Astro support `fetch()` and "top-level await" to help you do remote data fetchin
 **Important:** These are not yet available inside of non-page Astro components. Instead, do all of your data loading inside of your pages, and then pass them to your components as props.
 
 ## Example
+
 ```astro
 // Example: src/pages/foo.astro
 // top-level `fetch()` and `await` are both supported natively in Astro (pages only).

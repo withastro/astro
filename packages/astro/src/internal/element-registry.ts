@@ -14,9 +14,9 @@ class AstroElementRegistry {
   }
 
   find(tagName: string) {
-    for(let [module, importSpecifier] of this.candidates) {
-      if(module && typeof module.tagName === 'string') {
-        if(module.tagName === tagName) {
+    for (let [module, importSpecifier] of this.candidates) {
+      if (module && typeof module.tagName === 'string') {
+        if (module.tagName === tagName) {
           // Found!
           return importSpecifier;
         }
@@ -25,11 +25,11 @@ class AstroElementRegistry {
   }
 
   findCached(tagName: string) {
-    if(this.cache.has(tagName)) {
+    if (this.cache.has(tagName)) {
       return this.cache.get(tagName)!;
     }
     let specifier = this.find(tagName);
-    if(specifier) {
+    if (specifier) {
       this.cache.set(tagName, specifier);
     }
     return specifier;
@@ -39,7 +39,7 @@ class AstroElementRegistry {
     const specifier = this.findCached(tagName);
     const outProps: AstroComponentProps = {
       ...props,
-      componentUrl: specifier || props.componentUrl
+      componentUrl: specifier || props.componentUrl,
     };
     return [tagName, outProps];
   }

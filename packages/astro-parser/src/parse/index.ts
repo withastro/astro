@@ -29,7 +29,7 @@ export class Parser {
   js: Script[] = [];
   meta_tags = {};
   last_auto_closed_tag?: LastAutoClosedTag;
-  feature_flags: 0
+  feature_flags: 0;
 
   constructor(template: string, options: ParserOptions) {
     if (typeof template !== 'string') {
@@ -268,7 +268,7 @@ export default function parse(template: string, options: ParserOptions = {}): As
     // instance: instance_scripts[0],
     module: astro_scripts[0],
     meta: {
-      features: parser.feature_flags
-    }
+      features: parser.feature_flags,
+    },
   };
 }

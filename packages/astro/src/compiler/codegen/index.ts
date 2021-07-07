@@ -144,7 +144,7 @@ function generateAttributes(attrs: Record<string, string>): string {
   return result + '}';
 }
 
-function getComponentUrl(astroConfig: AstroConfig, url: string, parentUrl: string | URL){
+function getComponentUrl(astroConfig: AstroConfig, url: string, parentUrl: string | URL) {
   const componentExt = path.extname(url);
   const ext = PlainExtensions.has(componentExt) ? '.js' : `${componentExt}.js`;
   const outUrl = new URL(url, parentUrl);
@@ -166,9 +166,11 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
   if (isCustomElementTag(name)) {
     return {
       wrapper: `__astro_component(...__astro_element_registry.astroComponentArgs("${name}", ${JSON.stringify({ hydrate: kind, displayName: _name })}))`,
-      wrapperImports: [`import {AstroElementRegistry} from 'astro/dist/internal/element-registry.js';`,`import {__astro_component} from 'astro/dist/internal/__astro_component.js';`],
+      wrapperImports: [
+        `import {AstroElementRegistry} from 'astro/dist/internal/element-registry.js';`,
+        `import {__astro_component} from 'astro/dist/internal/__astro_component.js';`,
+      ],
     };
-
   } else {
     const getComponentExport = () => {
       switch (importSpecifier.type) {
@@ -187,10 +189,12 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
       }
     };
 
-    const importInfo = kind ? {
-      componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
-      componentExport: getComponentExport()
-    } : {};
+    const importInfo = kind
+      ? {
+          componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
+          componentExport: getComponentExport(),
+        }
+      : {};
 
     return {
       wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: kind, displayName: _name, ...importInfo })})`,
@@ -392,9 +396,9 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
         });
       }
       const { start, end } = componentImport;
-      if(ast.meta.features & FEATURE_CUSTOM_ELEMENT &&  componentImport.specifiers.length === 0) {
+      if (ast.meta.features & FEATURE_CUSTOM_ELEMENT && componentImport.specifiers.length === 0) {
         // Add possible custom element, but only if the AST says there are custom elements.
-        const moduleImportName = camelCase(importUrl+ 'Module');
+        const moduleImportName = camelCase(importUrl + 'Module');
         state.importStatements.add(`import * as ${moduleImportName} from '${importUrl}';\n`);
         state.customElementCandidates.set(moduleImportName, getComponentUrl(astroConfig, importUrl, pathToFileURL(filename)));
       } else {
@@ -657,7 +661,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               if (componentName === 'Markdown') {
                 const { $scope } = attributes ?? {};
                 state.markers.insideMarkdown = typeof state.markers.insideMarkdown === 'object' ? { $scope, count: state.markers.insideMarkdown.count + 1 } : { $scope, count: 1 };
-                const keys = Object.keys(attributes).filter(attr => attr !== '$scope');
+                const keys = Object.keys(attributes).filter((attr) => attr !== '$scope');
                 if (keys.length > 0) {
                   if (curr === 'markdown') {
                     await pushMarkdownToBuffer();
@@ -669,7 +673,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               }
               const { wrapper, wrapperImports } = getComponentWrapper(name, componentInfo ?? ({} as any), { astroConfig, filename });
               if (wrapperImports) {
-                for(let wrapperImport of wrapperImports) {
+                for (let wrapperImport of wrapperImports) {
                   importStatements.add(wrapperImport);
                 }
               }
@@ -765,7 +769,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               if ((state.markers.insideMarkdown as Record<string, any>).count <= 0) {
                 state.markers.insideMarkdown = false;
               }
-              const hasAttrs = (node.attributes.filter(({ name }: Attribute) => name !== '$scope')).length > 0;
+              const hasAttrs = node.attributes.filter(({ name }: Attribute) => name !== '$scope').length > 0;
               if (hasAttrs) {
                 return;
               }
@@ -820,7 +824,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     },
     importStatements: new Set(),
     exportStatements: new Set(),
-    customElementCandidates: new Map()
+    customElementCandidates: new Map(),
   };
 
   const { script, createCollection } = compileModule(ast, ast.module, state, compileOptions);
@@ -837,6 +841,6 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     css: state.css.length ? state.css.join('\n\n') : undefined,
     createCollection,
     hasCustomElements: Boolean(ast.meta.features & FEATURE_CUSTOM_ELEMENT),
-    customElementCandidates: state.customElementCandidates
+    customElementCandidates: state.customElementCandidates,
   };
 }

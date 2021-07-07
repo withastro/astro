@@ -6,8 +6,4 @@ const GITHUB_SHA = process.env.GITHUB_SHA || execa.sync('git', ['rev-parse', 'HE
 const FIXTURES_DIR = path.join(fileURLToPath(path.dirname(import.meta.url)), 'fixtures');
 const FIXTURES_URL = pathToFileURL(FIXTURES_DIR + '/');
 
-export {
-  GITHUB_SHA,
-  FIXTURES_DIR,
-  FIXTURES_URL
-};
+export { GITHUB_SHA, FIXTURES_DIR, FIXTURES_URL };

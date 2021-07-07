@@ -28,7 +28,9 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
   const { $: { scopedClassName = null } = {}, footnotes: useFootnotes = true, gfm: useGfm = true, remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
-  let parser = unified().use(markdown).use([remarkExpressions, { addResult: true }]);
+  let parser = unified()
+    .use(markdown)
+    .use([remarkExpressions, { addResult: true }]);
 
   if (remarkPlugins.length === 0) {
     if (useGfm) {
@@ -61,7 +63,12 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 
   let result: string;
   try {
-    const vfile = await parser.use(raw).use(rehypeCollectHeaders).use(rehypeCodeBlock()).use(rehypeStringify, { entities: { useNamedReferences: true }}).process(content);
+    const vfile = await parser
+      .use(raw)
+      .use(rehypeCollectHeaders)
+      .use(rehypeCodeBlock())
+      .use(rehypeStringify, { entities: { useNamedReferences: true } })
+      .process(content);
     result = vfile.contents.toString();
   } catch (err) {
     throw err;

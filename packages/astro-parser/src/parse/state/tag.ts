@@ -56,7 +56,6 @@ function parent_is_head(stack) {
   return false;
 }
 
-
 export default function tag(parser: Parser) {
   const start = parser.index++;
 
@@ -80,7 +79,7 @@ export default function tag(parser: Parser) {
 
   const name = read_tag_name(parser);
 
-  if(CUSTOM_ELEMENT.test(name)) {
+  if (CUSTOM_ELEMENT.test(name)) {
     parser.feature_flags |= FEATURE_CUSTOM_ELEMENT;
   }
 

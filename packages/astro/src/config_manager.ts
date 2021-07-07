@@ -80,7 +80,7 @@ export class ConfigManager {
           const r = await import(entrypoint);
           return {
             raw: r.default,
-            options: _options
+            options: _options,
           };
         })
       )
@@ -106,8 +106,8 @@ export class ConfigManager {
         throw new Error(`Expected the snowpackPlugin from ${name} to be a "string" but encountered "${typeof snowpackPluginName}"!`);
       }
 
-      const polyfillsNormalized = (raw.polyfills || []).map((p: string) => p.startsWith('.') ? path.join(name, p) : p);
-      const hydrationPolyfillsNormalized = (raw.hydrationPolyfills || []).map((p: string) => p.startsWith('.') ? path.join(name, p) : p);
+      const polyfillsNormalized = (raw.polyfills || []).map((p: string) => (p.startsWith('.') ? path.join(name, p) : p));
+      const hydrationPolyfillsNormalized = (raw.hydrationPolyfills || []).map((p: string) => (p.startsWith('.') ? path.join(name, p) : p));
 
       return {
         name,
@@ -118,7 +118,7 @@ export class ConfigManager {
         knownEntrypoints: raw.knownEntrypoints,
         external: raw.external,
         polyfills: polyfillsNormalized,
-        hydrationPolyfills: hydrationPolyfillsNormalized
+        hydrationPolyfills: hydrationPolyfillsNormalized,
       };
     });
 
@@ -128,21 +128,25 @@ export class ConfigManager {
   async buildSource(contents: string): Promise<string> {
     const renderers = await this.buildRendererInstances();
     const rendererServerPackages = renderers.map(({ server }) => server);
-    const rendererClientPackages = await Promise.all(renderers.filter(({client}) => client).map(({ client }) => this.resolvePackageUrl(client!)));
-    const rendererPolyfills = await Promise.all(renderers.map(({ polyfills }) => Promise.all(polyfills.map(src => this.resolvePackageUrl(src)))));
-    const rendererHydrationPolyfills = await Promise.all(renderers.map(({ hydrationPolyfills }) => Promise.all(hydrationPolyfills.map(src => this.resolvePackageUrl(src)))));
+    const rendererClientPackages = await Promise.all(renderers.filter(({ client }) => client).map(({ client }) => this.resolvePackageUrl(client!)));
+    const rendererPolyfills = await Promise.all(renderers.map(({ polyfills }) => Promise.all(polyfills.map((src) => this.resolvePackageUrl(src)))));
+    const rendererHydrationPolyfills = await Promise.all(renderers.map(({ hydrationPolyfills }) => Promise.all(hydrationPolyfills.map((src) => this.resolvePackageUrl(src)))));
 
     const result = /* js */ `${rendererServerPackages.map((pkg, i) => `import __renderer_${i} from "${pkg}";`).join('\n')}
 
 import { setRenderers } from 'astro/dist/internal/__astro_component.js';
 
-let rendererInstances = [${renderers.map((r, i) => `{
+let rendererInstances = [${renderers
+      .map(
+        (r, i) => `{
   source: ${rendererClientPackages[i] ? `"${rendererClientPackages[i]}"` : 'null'},
   renderer: __renderer_${i},
   options: ${r.options ? JSON.stringify(r.options) : 'null'},
   polyfills: ${JSON.stringify(rendererPolyfills[i])},
   hydrationPolyfills: ${JSON.stringify(rendererHydrationPolyfills[i])}
-}`).join(', ')}];
+}`
+      )
+      .join(', ')}];
 
 ${contents}
 `;

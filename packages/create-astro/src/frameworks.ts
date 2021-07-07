@@ -17,7 +17,7 @@ export default function PreactCounter({ children }) {
     </div>
   );
 }
-`
+`,
   },
   '@astrojs/renderer-react': {
     filename: `src/components/ReactCounter.jsx`,
@@ -36,7 +36,7 @@ export default function ReactCounter({ children }) {
     </div>
   );
 }
-`
+`,
   },
   '@astrojs/renderer-svelte': {
     filename: `src/components/SvelteCounter.svelte`,
@@ -57,7 +57,7 @@ export default function ReactCounter({ children }) {
   <pre>{ count }</pre>
   <button on:click={add}>+</button>
 </div>
-`
+`,
   },
   '@astrojs/renderer-vue': {
     filename: `src/components/VueCounter.vue`,
@@ -85,8 +85,8 @@ export default {
   }
 }
 </script>
-`
-  }
+`,
+  },
 };
 
 export const FRAMEWORKS = [
@@ -105,5 +105,5 @@ export const FRAMEWORKS = [
   {
     title: 'Vue',
     value: '@astrojs/renderer-vue',
-  }
+  },
 ];

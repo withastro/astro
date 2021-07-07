@@ -7,16 +7,16 @@ export const TEMPLATES = [
   {
     title: 'Blog',
     value: 'blog',
-    renderers: ['@astrojs/renderer-preact']
+    renderers: ['@astrojs/renderer-preact'],
   },
   {
     title: 'Documentation',
     value: 'docs',
-    renderers: ['@astrojs/renderer-preact']
+    renderers: ['@astrojs/renderer-preact'],
   },
   {
     title: 'Portfolio',
     value: 'portfolio',
-    renderers: ['@astrojs/renderer-preact']
+    renderers: ['@astrojs/renderer-preact'],
   },
 ];

@@ -3,7 +3,8 @@ layout: ~/layouts/Main.astro
 title: Island Architecture
 draft: true
 ---
-<!-- 
+
+<!--
     @aFuzzyBear: I have been spending most the day learning more about Island Architecture, wrote plenty of notes, listened to Fred K Schott's interview on Speakeasy(https://www.youtube.com/watch?v=mgkwZqVkrwo) and the interview with Jason Lengstrof (https://www.youtube.com/watch?v=z15YLsLMtu4)
     Figured I might give writing this a wee go,
 
@@ -29,7 +30,7 @@ In the summer of 2020, he managed to formulated his thoughts of how web architec
 
 His seminal post outlines and discusses the general concept of 'islands' as an architectural design process that could be used in Web Development, allowing for better improvements in overall site performance, SEO, UX, and everywhere else. His given explanation describing this new paradigm, was extraordinarily succinct:
 
-> "The general idea of an *“Islands”* architecture is deceptively simple: Render HTML pages on the server, and inject placeholders or slots around highly dynamic regions. These placeholders/slots contain the server-rendered HTML output from their corresponding widget. They denote regions that can then be "hydrated" on the client into small self-contained widgets, reusing their server-rendered initial HTML."-Jason Miller
+> "The general idea of an _“Islands”_ architecture is deceptively simple: Render HTML pages on the server, and inject placeholders or slots around highly dynamic regions. These placeholders/slots contain the server-rendered HTML output from their corresponding widget. They denote regions that can then be "hydrated" on the client into small self-contained widgets, reusing their server-rendered initial HTML."-Jason Miller
 
 To develop a better understanding of what Jason meant with his proposal, let's quickly explore the backdrop, before we explain 'Island Architecture' and how it is applied into Astro as our primary ethos.
 
@@ -37,7 +38,7 @@ To develop a better understanding of what Jason meant with his proposal, let's q
 
 Think of a simple webpage. On which are many different types of components that are shown on this page, components that are shared across the site, others contain fixed content, some are a bit more elaborate that may perhaps use different state's or need to fetch multiple data streams from external sources.
 
-Such an site would would have very few actual 'moving' pieces, or *dynamic* elements. For the most part the content tends to be fixed, and static.
+Such an site would would have very few actual 'moving' pieces, or _dynamic_ elements. For the most part the content tends to be fixed, and static.
 
 In order to allow for dynamism and interactivity we are often left making overly complex solutions to deliver the slightest form of action on the application.
 
@@ -47,13 +48,13 @@ Given the [catalogue of patterns](https://en.wikipedia.org/wiki/List_of_software
 
 Web developers tend to gravitate towards tried and tested practices, and none fit the requirements better than the [Model-View-Controller](https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller) (**MVC**) design pattern.
 
-Where the **Model** contains the data structures and logic that governs the use of the data in the application. **Views** are the visual representation of the data that the user sees, and the **Controller** connects the views to their relevant data *Models* based on their interactions with the User.
+Where the **Model** contains the data structures and logic that governs the use of the data in the application. **Views** are the visual representation of the data that the user sees, and the **Controller** connects the views to their relevant data _Models_ based on their interactions with the User.
 
-This design pattern works well for our [client-server](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) based applications. Since the models are placed on the *servers*, the views that are sent back over the wire tend to be static *documents*, controllers are sent along with the static files to facilitate the behaviours that web developers created for their application, in the form of *scripts*.
+This design pattern works well for our [client-server](https://en.wikipedia.org/wiki/Client%E2%80%93server_model) based applications. Since the models are placed on the _servers_, the views that are sent back over the wire tend to be static _documents_, controllers are sent along with the static files to facilitate the behaviours that web developers created for their application, in the form of _scripts_.
 
 ## Rise of the Frameworks
 
-A vast swathe of libraries, frameworks and tooling rose up to meet the challenges of providing a Developer Experience (DX) that would let them create their applications, *'freely'*.
+A vast swathe of libraries, frameworks and tooling rose up to meet the challenges of providing a Developer Experience (DX) that would let them create their applications, _'freely'_.
 
 Helping to abstract away much of the complexity needed in implementing architectural design decisions into their application.
 
@@ -137,7 +138,7 @@ Into this new age ESM world, we have had a dearth of innovation from the establi
 
 Basic questions of : Websites or WebApp's were still unresolved. Where to render the site, on the server or on the client, perhaps a bit of both? What determines the need for dynamic content and what specifies content to be static?
 
-Witnessing frameworks slowly go full circle and return to Server-Side-Rendering (*SSR*) their applications was in part only allowed to be considered in an ESM world, however it was bit of an admission of culpability of sorts.
+Witnessing frameworks slowly go full circle and return to Server-Side-Rendering (_SSR_) their applications was in part only allowed to be considered in an ESM world, however it was bit of an admission of culpability of sorts.
 
 By inadvertently admitting that the current model is flawed, opened up the space for a new form of discourse to enter, and help redefine the ecosystem moving forward.
 
@@ -155,15 +156,15 @@ In the introduction we placed a quote from Jason, describing the general concept
 
 Jason asks us to think of a Island architecture as a static HTML document. One that is rendered entirely on the server.
 
-The document contains multiple separate embedded applications, that are injected into placeholders or '*slots*', which form dynamic regions on the page.
+The document contains multiple separate embedded applications, that are injected into placeholders or '_slots_', which form dynamic regions on the page.
 
 The Server renders HTML outputs form each of these dynamic components, and places them onto the static document being sent back down to the End-User.
 
-These slots, of dynamic regions, can then be '*hydrated*'. [Hydration](https://en.wikipedia.org/wiki/Hydration_(web_development)) is a process that allows for Client-Sided JS to convert and make static HTML, dynamic, reusing their initial server-rendered HTML.
+These slots, of dynamic regions, can then be '_hydrated_'. [Hydration](<https://en.wikipedia.org/wiki/Hydration_(web_development)>) is a process that allows for Client-Sided JS to convert and make static HTML, dynamic, reusing their initial server-rendered HTML.
 
 This 'micro' architecture is similar to both 'micro-frontends' and 'micro-services'. Both share the concept of breaking applications into small indivisible units. But the problem is that a lot of the small modular units are rarely composed in HTML.
 
-With Island-Architecture, he proposes a form of progressive enhancement for the dynamic components by using a technique known as *Partial Hydration*.
+With Island-Architecture, he proposes a form of progressive enhancement for the dynamic components by using a technique known as _Partial Hydration_.
 
 Lets look at this following analogy:
 
@@ -181,7 +182,7 @@ This would then load the functionality for the carousel in-place, transforming i
 
 ## Island Hydration
 
-By now the idea of Island-architecture must be settling in, and one must be thinking, this is just [Progressive Hydration](https://en.wikipedia.org/wiki/Hydration_(web_development)#Progressive_rehydration), and you wouldn't be overly off mark.
+By now the idea of Island-architecture must be settling in, and one must be thinking, this is just [Progressive Hydration](<https://en.wikipedia.org/wiki/Hydration_(web_development)#Progressive_rehydration>), and you wouldn't be overly off mark.
 
 Progressive Hydration that is used in frameworks like: Angluar, React, Preact, Vue. Are individual components, which are loaded and then initialised over a period of time.
 
@@ -197,7 +198,7 @@ Since there is no outer `<div id='root'>` element that needs to be initialised b
 
 Every region of the page is an isolated unit, an island, on its own, connected to others by the HTML page. With such an approach the benefits do begin to stack up.
 
-A key benefit is seen with the site performance. Since isolation is inherent, if a single issue affects a component, it wouldn't affect the other *islands* on the page.
+A key benefit is seen with the site performance. Since isolation is inherent, if a single issue affects a component, it wouldn't affect the other _islands_ on the page.
 
 ## Exploring the Island
 
@@ -205,7 +206,7 @@ As we explore further into the Island, we can see immediate trade differences be
 
 Quickly wandering back to the Status Quo for a brief interlude. We use SSR with SPA's to help tackle the downside of SPA's and its SEO. Appealing to the search engines in this manner has another negative affect on the UX.
 
->"...visitors are left waiting for the actual functionality of a page to arrive while staring at a frustratingly fake version of that page." - Jason Miller
+> "...visitors are left waiting for the actual functionality of a page to arrive while staring at a frustratingly fake version of that page." - Jason Miller
 
 There are other issues that stem from traditional SSR, and being idly unawares of such performance pitfalls, gives rise to an orchestra of potential problems.
 

@@ -5,7 +5,7 @@ title: Astro Pages
 
 **Pages** are a special type of [Astro Component](./astro-components) that handle routing, data loading, and templating for each page of your website. You can think of them like any other Astro component, just with extra responsibilities.
 
-Astro also supports Markdown for content-heavy pages, like blog posts and documentation. See [Markdown Content](./markdown-content.md) for more information on writing pages with Markdown. 
+Astro also supports Markdown for content-heavy pages, like blog posts and documentation. See [Markdown Content](./markdown-content.md) for more information on writing pages with Markdown.
 
 ## File-based Routing
 
@@ -37,9 +37,10 @@ console.log(data);
 <!-- Output the result to the page -->
 <div>{JSON.stringify(data)}</div>
 ```
+
 ### `fetch()`
 
-Astro pages have access to the global `fetch()` function in their setup script. `fetch()` is a native JavaScript API ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)) that lets you make HTTP requests for things like APIs and resources. 
+Astro pages have access to the global `fetch()` function in their setup script. `fetch()` is a native JavaScript API ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)) that lets you make HTTP requests for things like APIs and resources.
 
 Even though Astro component scripts run inside of Node.js (and not in the browser) Astro provides this native API so that you can fetch data at page build time.
 
@@ -49,7 +50,7 @@ Even though Astro component scripts run inside of Node.js (and not in the browse
 
 ## Page Templating
 
-All Astro components are responsible for returning HTML. Astro Pages return HTML as well, but have the unique responsibility of returning a full `<html>...</html>` page response, including `<head>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) and `<body>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)). 
+All Astro components are responsible for returning HTML. Astro Pages return HTML as well, but have the unique responsibility of returning a full `<html>...</html>` page response, including `<head>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) and `<body>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
 
 `<!doctype html>` is optional, and will be added automatically.
 
@@ -67,6 +68,3 @@ All Astro components are responsible for returning HTML. Astro Pages return HTML
   </body>
 </html>
 ```
-
-
-

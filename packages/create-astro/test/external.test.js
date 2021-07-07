@@ -10,12 +10,10 @@ async function run(outdir, template) {
   });
 }
 
-const testCases = [
-  ['shopify', 'cassidoo/shopify-react-astro']
-];
+const testCases = [['shopify', 'cassidoo/shopify-react-astro']];
 
 async function tests() {
-  for(let [dir, tmpl] of testCases) {
+  for (let [dir, tmpl] of testCases) {
     await run(dir, tmpl);
 
     const outPath = new URL('' + dir, FIXTURES_URL);
@@ -23,7 +21,7 @@ async function tests() {
   }
 }
 
-tests().catch(err => {
+tests().catch((err) => {
   console.error(err);
   process.exit(1);
 });

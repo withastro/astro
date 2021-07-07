@@ -3,9 +3,9 @@ layout: ~/layouts/Main.astro
 title: Publish Components to NPM
 ---
 
-Built a great Astro component? **Publish it to [npm!](https://npmjs.com/)** 
+Built a great Astro component? **Publish it to [npm!](https://npmjs.com/)**
 
-Once published to npm, Astro components can be installed and used in your project like any other npm package. npm is a great way to share Astro components across projects within your team, your company, or the entire world. 
+Once published to npm, Astro components can be installed and used in your project like any other npm package. npm is a great way to share Astro components across projects within your team, your company, or the entire world.
 
 ## Basic NPM Package Setup
 
@@ -66,7 +66,7 @@ import Capitalize from '@example/my-components/Capitalize.astro';
 <Capitalize phrase={`Hello world`} />
 ```
 
-This is a less common scenario, and we only recommend it if you have good reason. Because Astro is completely rendered at build-time, there are no client-side performance concerns to our default recommendation to export your components from a single `index.js` file.   
+This is a less common scenario, and we only recommend it if you have good reason. Because Astro is completely rendered at build-time, there are no client-side performance concerns to our default recommendation to export your components from a single `index.js` file.
 
 To support importing by file within your package, add each file to your **package.json** `exports` map:
 

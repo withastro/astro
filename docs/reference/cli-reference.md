@@ -21,7 +21,6 @@ Specifies should port to run on. Defaults to `3000`.
 
 Builds your site for production.
 
-
 ## Global Flags
 
 ### `--config path`

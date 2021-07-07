@@ -10,6 +10,7 @@ Astro includes an opinionated folder layout for your project. Every Astro projec
 - `package.json` - A project manifest.
 
 The easiest way to set up your new project is with `npm init astro`. Check out our [Installation Guide](/docs/quick-start.md) for a walkthrough of how to set up your project automatically (with `npm init astro`) or manually.
+
 ## Project Structure
 
 ```
@@ -48,7 +49,7 @@ Your non-Astro UI components (React, Preact, Svelte, Vue, etc.) can also live in
 ### `src/pages`
 
 [Pages](/docs/core-concepts/astro-pages.md) contain all pages (`.astro` and `.md` supported) for your website. It is **required** that you put your pages in this directory.
-  
+
 ### `public/`
 
 For most users, the majority of your files will live inside of the `src/` directory so that Astro can properly handle and optimize them in your final build. By contrast, the `public/` directory is the place for any files to live outside of the Astro build process.

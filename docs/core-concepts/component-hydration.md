@@ -22,6 +22,7 @@ However, there are plenty of cases where you might like to include an interactiv
 - A "Buy Now" button
 
 With Astro, you can hydrate these components individually, without forcing the rest of the page to ship any other unnecesary JavaScript. This technique is called **partial hydration.**
+
 ## Hydrate Frontend Components
 
 To hydrate your components in the client, you may use any of the following techniques:
@@ -34,4 +35,4 @@ To hydrate your components in the client, you may use any of the following techn
 
 Astro components (`.astro`) are HTML-only templating languages with no client-side runtime. You cannot hydrate an Astro component to run on the client (because the JavaScript front-matter only ever runs at build time).
 
-If you want to make your Astro component interactive on the client, you should convert it to React, Svelte, or Vue. Otherwise, you can consider adding a `<script>` tag to your Astro component that will run JavaScript on the page. 
+If you want to make your Astro component interactive on the client, you should convert it to React, Svelte, or Vue. Otherwise, you can consider adding a `<script>` tag to your Astro component that will run JavaScript on the page.
