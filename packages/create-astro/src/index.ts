@@ -159,30 +159,14 @@ export async function main() {
 
     const pageFileLoc = path.resolve(path.join(cwd, 'src', 'pages', 'index.astro'));
     const content = (await fs.promises.readFile(pageFileLoc)).toString();
-    const lines = content.split('\n');
-    const indent = '        ';
-    const doc = `\n<!-- 
-   - Use imported Framework Components directly in your markup!
-   - 
-   - Note: by default, components are NOT interactive on the client.
-   - The \`:visible\` directive tells Astro to make it interactive.
-   -
-   - See https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/component-hydration.md
-   -->
-`;
-    lines.splice(
-      41,
-      0,
-      importStatements.length > 0
-        ? doc
-            .split('\n')
-            .map((ln) => `${indent}${ln}`)
-            .join('\n')
-        : '',
-      ...components.map((ln) => `${indent}${ln}`)
-    );
-    lines.splice(3, 0, importStatements.length > 0 ? `// Framework Component Imports` : '', ...importStatements);
-    await fs.promises.writeFile(pageFileLoc, lines.join('\n'));
+    const newContent = content
+      .replace(/^(\s*)\/\* ASTRO\:COMPONENT_IMPORTS \*\//gm, (_, indent) => {
+        return indent + importStatements.join('\n');
+      })
+      .replace(/^(\s*)<!-- ASTRO:COMPONENT_MARKUP -->/gm, (_, indent) => {
+        return components.map(ln => indent + ln).join('\n');
+      });
+    await fs.promises.writeFile(pageFileLoc, newContent);
   }
 
   console.log(bold(green('✔') + ' Done!'));
