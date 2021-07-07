@@ -422,8 +422,8 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   });
 
   const polyfillNode = (snowpackConfig.packageOptions as any).polyfillNode as boolean;
-  if(!polyfillNode) {
-    snowpackConfig.alias = Object.fromEntries(nodeBuiltinsMap);
+  if (!polyfillNode) {
+    snowpackConfig.alias = Object.assign({}, Object.fromEntries(nodeBuiltinsMap), snowpackConfig.alias ?? {});
   }
 
   snowpack = await startSnowpackServer(
