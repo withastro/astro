@@ -9,52 +9,53 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
 ---
-
 <html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <style>
-      :global(:root) {
-        font-family: system-ui;
-        padding: 2em 0;
-      }
-      :global(.counter) {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        place-items: center;
-        font-size: 2em;
-        margin-top: 2em;
-      }
-      :global(.children) {
-        display: grid;
-        place-items: center;
-        margin-bottom: 2em;
-      }
+        :global(:root) {
+            font-family: system-ui;
+            padding: 2em 0;
+        }
+        :global(.counter) {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            place-items: center;
+            font-size: 2em;
+            margin-top: 2em;
+        }
+        :global(.children) {
+            display: grid;
+            place-items: center;
+            margin-bottom: 2em;
+        }
     </style>
   </head>
   <body>
-    <main>
-      <react.Counter :visible>
-        <h1>Hello React!</h1>
-        <p>What's up?</p>
-      </react.Counter>
+      <main>
 
-      <PreactCounter :visible>
-        <h1>Hello Preact!</h1>
-      </PreactCounter>
+        <react.Counter :visible>
+            <h1>Hello React!</h1>
+            <p>What's up?</p>
+        </react.Counter>
 
-      <VueCounter :visible>
-        <h1>Hello Vue!</h1>
-      </VueCounter>
+        <PreactCounter :visible>
+          <h1>Hello Preact!</h1>
+        </PreactCounter>
 
-      <SvelteCounter :visible>
-        <h1>Hello Svelte!</h1>
-      </SvelteCounter>
+        <VueCounter :visible>
+            <h1>Hello Vue!</h1>
+        </VueCounter>
 
-      <a />
+        <SvelteCounter :visible>
+            <h1>Hello Svelte!</h1>
+        </SvelteCounter>
 
-      <Renamed />
-    </main>
+        <A />
+        
+        <Renamed />
+
+      </main>
   </body>
 </html>
