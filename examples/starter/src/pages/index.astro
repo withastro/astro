@@ -1,6 +1,8 @@
 ---
 // Component Imports
 import Tour from '../components/Tour.astro';
+// You can import components from any supported Framework here!
+/* ASTRO:COMPONENT_IMPORTS */
 
 // Component Script:
 // You can write any JavaScript/TypeScript that you'd like here.
@@ -39,6 +41,16 @@ let title = 'My Astro Site';
         </header>
 
         <Tour />
+
+        <!--
+           - You can also use imported framework components directly in your markup!
+           -
+           - Note: by default, these components are NOT interactive on the client.
+           - The `:visible` directive tells Astro to make it interactive.
+           -
+           - See https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/component-hydration.md 
+           -->
+        <!-- ASTRO:COMPONENT_MARKUP -->
     </main>
 </body>
 </html>
