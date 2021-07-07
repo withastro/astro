@@ -35,20 +35,20 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
   <body>
       <main>
 
-        <react.Counter :visible>
+        <react.Counter client:visible>
             <h1>Hello React!</h1>
             <p>What's up?</p>
         </react.Counter>
 
-        <PreactCounter :visible>
+        <PreactCounter client:visible>
           <h1>Hello Preact!</h1>
         </PreactCounter>
 
-        <VueCounter :visible>
+        <VueCounter client:visible>
             <h1>Hello Vue!</h1>
         </VueCounter>
 
-        <SvelteCounter :visible>
+        <SvelteCounter client:visible>
             <h1>Hello Svelte!</h1>
         </SvelteCounter>
 

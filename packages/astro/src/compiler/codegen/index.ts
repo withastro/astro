@@ -55,11 +55,13 @@ interface HydrationAttributes {
 function findHydrationAttributes(attrs: Record<string, string>): HydrationAttributes {
   let method: HydrationAttributes['method'];
 
-  const hydrationDirectives = new Set([':load', ':idle', ':visible'])
+  const hydrationRegex = /(?<=client:)[^$]*/;
+  const hydrationDirectives = new Set(['load', 'idle', 'visible']);
 
   for (const [key, val] of Object.entries(attrs)) {
-    if (!key.startsWith(':')) continue;
-    if (hydrationDirectives.has(key) && val === 'true') method= key.slice(1) as HydrationAttributes['method'];
+    const matches = key.match(hydrationRegex);
+    if (!matches || !matches.length) continue;
+    if (hydrationDirectives.has(matches[0]) && val === 'true') method = matches[0] as HydrationAttributes['method'];
   }
 
   return { method };
