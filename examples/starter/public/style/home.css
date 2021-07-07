@@ -36,3 +36,17 @@ h2 {
     font-weight: 500;
     font-size: clamp(1.5rem, 1rem + 1.25vw, 2rem);
 }
+
+.counter {
+  display: grid;
+  grid-auto-flow: column;
+  gap: 1em;
+  font-size: 2rem;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.counter > pre {
+  text-align: center;
+  min-width: 3ch;
+}
