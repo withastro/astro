@@ -12,6 +12,9 @@ export default {
     // tailwindConfig: '', // Path to tailwind.config.js if used, e.g. './tailwind.config.js'
   },
   renderers: [
-    '@astrojs/renderer-preact'
+    '@astrojs/renderer-preact',
+    '@astrojs/renderer-react',
+    '@astrojs/renderer-svelte',
+    '@astrojs/renderer-vue',
   ]
 };
