@@ -25,7 +25,7 @@ With Astro, you can hydrate these components individually, without forcing the r
 
 ## Hydrate Frontend Components
 
-Astro renders every component on the server at build time. To hydrate your components on the client at runtime, you may use any of the following techniques:
+Astro renders every component on the server **at build time**. To hydrate any server-rendered component on the client **at runtime**, you may use any of the following techniques:
 
 - `<MyComponent:load />` will hydrate the component on page load.
 - `<MyComponent:idle />` will use [requestIdleCallback()][mdn-ric] to hydrate the component as soon as main thread is free.
