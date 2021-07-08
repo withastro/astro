@@ -55,13 +55,11 @@ interface HydrationAttributes {
 function findHydrationAttributes(attrs: Record<string, string>): HydrationAttributes {
   let method: HydrationAttributes['method'];
 
-  const hydrationRegex = /(?<=client:)[^$]*/;
-  const hydrationDirectives = new Set(['load', 'idle', 'visible']);
+  const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible']);
 
   for (const [key, val] of Object.entries(attrs)) {
-    const matches = key.match(hydrationRegex);
-    if (!matches || !matches.length) continue;
-    if (hydrationDirectives.has(matches[0]) && val === 'true') method = matches[0] as HydrationAttributes['method'];
+    if (!key.startsWith('client:')) continue;
+    if (hydrationDirectives.has(key) && val === 'true') method = key.slice(7) as HydrationAttributes['method'];
   }
 
   return { method };
@@ -178,13 +176,25 @@ interface GetComponentWrapperOptions {
 
 const PlainExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 /** Generate Astro-friendly component import */
-function getComponentWrapper(name: string, { method }: HydrationAttributes, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
+function getComponentWrapper(_name: string, hydration: HydrationAttributes, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
   const { astroConfig, filename } = opts;
 
+  let name = _name;
+  let method = hydration.method;
+  
+  /** Legacy support for original hydration syntax */
+  if (name.indexOf(':') > 0) {
+    const [legacyName, legacyMethod] = _name.split(':');
+    name = legacyName;
+    method = legacyMethod as HydrationAttributes['method'];
+
+    console.warn()
+  }
+
   // Special flow for custom elements
-  if (isCustomElementTag(name)) {
+  if (isCustomElementTag(_name)) {
     return {
-      wrapper: `__astro_component(...__astro_element_registry.astroComponentArgs("${name}", ${JSON.stringify({ hydrate: method, displayName: name })}))`,
+      wrapper: `__astro_component(...__astro_element_registry.astroComponentArgs("${name}", ${JSON.stringify({ hydrate: method, displayName: _name })}))`,
       wrapperImports: [
         `import {AstroElementRegistry} from 'astro/dist/internal/element-registry.js';`,
         `import {__astro_component} from 'astro/dist/internal/__astro_component.js';`,
@@ -202,7 +212,7 @@ function getComponentWrapper(name: string, { method }: HydrationAttributes, { ur
           return { value: importSpecifier.imported.value };
         }
         case 'ImportNamespaceSpecifier': {
-          const [_, value] = name.split('.');
+          const [_, value] = _name.split('.');
           return { value };
         }
       }
@@ -216,7 +226,7 @@ function getComponentWrapper(name: string, { method }: HydrationAttributes, { ur
     : {};
 
     return {
-      wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: method, displayName: name, ...importInfo })})`,
+      wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: method, displayName: _name, ...importInfo })})`,
       wrapperImports: [`import {__astro_component} from 'astro/dist/internal/__astro_component.js';`],
     };
   }
