@@ -21,8 +21,18 @@ export default function (opts: TransformOptions): Transformer {
         },
         InlineComponent: {
           enter(node) {
+            if (hasComponents) {
+              return
+            }
+
+            if (node.attributes && node.attributes.some(({ name }: any) => name.startsWith('client:'))) {
+              hasComponents = true;
+              return;
+            }
+
+            /** Check for legacy hydration */
             const [_name, kind] = node.name.split(':');
-            if (kind && !hasComponents) {
+            if (kind) {
               hasComponents = true;
             }
           },

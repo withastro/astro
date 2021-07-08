@@ -32,10 +32,10 @@ const items = ['A', 'B', 'C'];
 
     ## Embed framework components
 
-    <ReactCounter:visible />
-    <PreactCounter:visible />
-    <VueCounter:visible />
-    <SvelteCounter:visible />
+    <ReactCounter client:visible />
+    <PreactCounter client:visible />
+    <VueCounter client:visible />
+    <SvelteCounter client:visible />
 
     ## Use Expressions
 
@@ -43,11 +43,11 @@ const items = ['A', 'B', 'C'];
 
     ## Oh yeah...
 
-    <ReactCounter:visible>
+    <ReactCounter client:visible>
       🤯 It's also _recursive_!
 
       ### Markdown can be embedded in any child component
-    </ReactCounter:visible>
+    </ReactCounter>
 
     ## Code
 

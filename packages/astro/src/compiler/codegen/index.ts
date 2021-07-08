@@ -47,6 +47,23 @@ interface CodeGenOptions {
   fileID: string;
 }
 
+interface HydrationAttributes {
+  method?: 'load' | 'idle' | 'visible';
+}
+
+/** Searches through attributes to extract hydration-rlated attributes */
+function findHydrationAttributes(attrs: Record<string, string>): HydrationAttributes {
+  let method: HydrationAttributes['method'];
+
+  const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible']);
+
+  for (const [key, val] of Object.entries(attrs)) {
+    if (hydrationDirectives.has(key)) method = key.slice(7) as HydrationAttributes['method'];
+  }
+
+  return { method };
+}
+
 /** Retrieve attributes from TemplateNode */
 async function getAttributes(attrs: Attribute[], state: CodegenState, compileOptions: CompileOptions): Promise<Record<string, string>> {
   let result: Record<string, string> = {};
@@ -154,18 +171,32 @@ function getComponentUrl(astroConfig: AstroConfig, url: string, parentUrl: strin
 interface GetComponentWrapperOptions {
   filename: string;
   astroConfig: AstroConfig;
+  compileOptions: CompileOptions;
 }
 
 const PlainExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 /** Generate Astro-friendly component import */
-function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
+function getComponentWrapper(_name: string, hydration: HydrationAttributes, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
   const { astroConfig, filename } = opts;
-  const [name, kind] = _name.split(':');
+
+  let name = _name;
+  let method = hydration.method;
+  
+  /** Legacy support for original hydration syntax */
+  if (name.indexOf(':') > 0) {
+    const [legacyName, legacyMethod] = _name.split(':');
+    name = legacyName;
+    method = legacyMethod as HydrationAttributes['method'];
+
+    const { compileOptions, filename } = opts;
+    const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, filename);
+    warn(compileOptions.logging, shortname, yellow(`Deprecation warning: Partial hydration now uses a directive syntax. Please update to "<${name} client:${method} />"`));
+  }
 
   // Special flow for custom elements
-  if (isCustomElementTag(name)) {
+  if (isCustomElementTag(_name)) {
     return {
-      wrapper: `__astro_component(...__astro_element_registry.astroComponentArgs("${name}", ${JSON.stringify({ hydrate: kind, displayName: _name })}))`,
+      wrapper: `__astro_component(...__astro_element_registry.astroComponentArgs("${name}", ${JSON.stringify({ hydrate: method, displayName: _name })}))`,
       wrapperImports: [
         `import {AstroElementRegistry} from 'astro/dist/internal/element-registry.js';`,
         `import {__astro_component} from 'astro/dist/internal/__astro_component.js';`,
@@ -183,21 +214,21 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
           return { value: importSpecifier.imported.value };
         }
         case 'ImportNamespaceSpecifier': {
-          const [_, value] = name.split('.');
+          const [_, value] = _name.split('.');
           return { value };
         }
       }
     };
 
-    const importInfo = kind
-      ? {
-          componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
-          componentExport: getComponentExport(),
-        }
-      : {};
+    const importInfo = method
+    ? {
+      componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
+      componentExport: getComponentExport()
+    }
+    : {};
 
     return {
-      wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: kind, displayName: _name, ...importInfo })})`,
+      wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: method, displayName: _name, ...importInfo })})`,
       wrapperImports: [`import {__astro_component} from 'astro/dist/internal/__astro_component.js';`],
     };
   }
@@ -633,6 +664,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             }
             try {
               const attributes = await getAttributes(node.attributes, state, compileOptions);
+              const hydrationAttributes = findHydrationAttributes(attributes);
 
               buffers.out += buffers.out === '' ? '' : ',';
 
@@ -671,7 +703,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 curr = 'markdown';
                 return;
               }
-              const { wrapper, wrapperImports } = getComponentWrapper(name, componentInfo ?? ({} as any), { astroConfig, filename });
+              const { wrapper, wrapperImports } = getComponentWrapper(name, hydrationAttributes, componentInfo ?? ({} as any), { astroConfig, filename, compileOptions });
               if (wrapperImports) {
                 for (let wrapperImport of wrapperImports) {
                   importStatements.add(wrapperImport);

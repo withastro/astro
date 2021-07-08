@@ -118,9 +118,9 @@ TODO: Astro dynamic components guide
 By default, Astro outputs zero client-side JS. If you'd like to include an interactive component in the client output, you may use any of the following techniques.
 
 - `<MyComponent />` will render an HTML-only version of `MyComponent` (default)
-- `<MyComponent:load />` will render `MyComponent` on page load
-- `<MyComponent:idle />` will use [requestIdleCallback()][mdn-ric] to render `MyComponent` as soon as main thread is free
-- `<MyComponent:visible />` will use an [IntersectionObserver][mdn-io] to render `MyComponent` when the element enters the viewport
+- `<MyComponent client:load />` will render `MyComponent` on page load
+- `<MyComponent client:idle />` will use [requestIdleCallback()][mdn-ric] to render `MyComponent` as soon as main thread is free
+- `<MyComponent client:visible />` will use an [IntersectionObserver][mdn-io] to render `MyComponent` when the element enters the viewport
 
 ### ⚛️ State Management
 
