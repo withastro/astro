@@ -187,8 +187,6 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
     const [legacyName, legacyMethod] = _name.split(':');
     name = legacyName;
     method = legacyMethod as HydrationAttributes['method'];
-
-    console.warn()
   }
 
   // Special flow for custom elements
