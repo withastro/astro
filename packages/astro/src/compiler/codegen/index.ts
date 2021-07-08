@@ -58,8 +58,7 @@ function findHydrationAttributes(attrs: Record<string, string>): HydrationAttrib
   const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible']);
 
   for (const [key, val] of Object.entries(attrs)) {
-    if (!key.startsWith('client:')) continue;
-    if (hydrationDirectives.has(key) && val === 'true') method = key.slice(7) as HydrationAttributes['method'];
+    if (hydrationDirectives.has(key)) method = key.slice(7) as HydrationAttributes['method'];
   }
 
   return { method };
