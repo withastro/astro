@@ -172,6 +172,7 @@ function getComponentUrl(astroConfig: AstroConfig, url: string, parentUrl: strin
 interface GetComponentWrapperOptions {
   filename: string;
   astroConfig: AstroConfig;
+  compileOptions: CompileOptions;
 }
 
 const PlainExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
@@ -187,6 +188,10 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
     const [legacyName, legacyMethod] = _name.split(':');
     name = legacyName;
     method = legacyMethod as HydrationAttributes['method'];
+
+    const { compileOptions, filename } = opts;
+    const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, filename);
+    warn(compileOptions.logging, shortname, yellow(`Deprecation warning: Partial hydration now uses a directive syntax. Please update to "<${name} client:${method} />"`));
   }
 
   // Special flow for custom elements
@@ -699,7 +704,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 curr = 'markdown';
                 return;
               }
-              const { wrapper, wrapperImports } = getComponentWrapper(name, hydrationAttributes, componentInfo ?? ({} as any), { astroConfig, filename });
+              const { wrapper, wrapperImports } = getComponentWrapper(name, hydrationAttributes, componentInfo ?? ({} as any), { astroConfig, filename, compileOptions });
               if (wrapperImports) {
                 for (let wrapperImport of wrapperImports) {
                   importStatements.add(wrapperImport);
