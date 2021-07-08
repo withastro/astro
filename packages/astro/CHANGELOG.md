@@ -1,5 +1,11 @@
 # astro
 
+## 0.16.3
+
+### Patch Changes
+
+- 5d1ff62: Hotfix for snowpack regression
+
 ## 0.16.2
 
 ### Patch Changes
