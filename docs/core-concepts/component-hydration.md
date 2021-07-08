@@ -27,9 +27,9 @@ With Astro, you can hydrate these components individually, without forcing the r
 
 Astro renders every component on the server **at build time**. To hydrate any server-rendered component on the client **at runtime**, you may use any of the following techniques:
 
-- `<MyComponent:load />` will hydrate the component on page load.
-- `<MyComponent:idle />` will use [requestIdleCallback()][mdn-ric] to hydrate the component as soon as main thread is free.
-- `<MyComponent:visible />` will use an [IntersectionObserver][mdn-io] to hydrate the component when the element enters the viewport.
+- `<MyComponent client:load />` will hydrate the component on page load.
+- `<MyComponent client:idle />` will use [requestIdleCallback()][mdn-ric] to hydrate the component as soon as main thread is free.
+- `<MyComponent client:visible />` will use an [IntersectionObserver][mdn-io] to hydrate the component when the element enters the viewport.
 
 ## Hydrate Astro Components
 
