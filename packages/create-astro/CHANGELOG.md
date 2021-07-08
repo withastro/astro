@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.5.0
+
+### Minor Changes
+
+- 36e104b: Use new client: prefix for component exmaples
+
 ## 0.4.0
 
 ### Minor Changes
