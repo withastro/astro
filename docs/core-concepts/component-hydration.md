@@ -3,14 +3,14 @@ layout: ~/layouts/Main.astro
 title: React, Svelte, Vue, etc.
 ---
 
-By default, Astro generates your site with zero client-side JavaScript. If you use any frontend UI components (React, Svelte, Vue, etc.) Astro will automatically render them to HTML and strip away any client-side JavaScript. This keeps your site default-fast.
+By default, Astro generates your site with zero client-side JavaScript. If you use any frontend UI components (React, Svelte, Vue, etc.) Astro will automatically render them **on the server**, generating only HTML and CSS without any client-side JavaScript. This makes your site as fast as possible by default.
 
 ```
 ---
 import MyReactComponent from '../components/MyReactComponent.jsx';
 ---
-<!-- By default: Astro renders this to HTML
-     and strips away all JavaScript. -->
+<!-- By default: Astro renders this on the server,
+     generating HTML and CSS, but no client-side JavaScript. -->
 <MyReactComponent />
 ```
 
@@ -25,11 +25,11 @@ With Astro, you can hydrate these components individually, without forcing the r
 
 ## Hydrate Frontend Components
 
-To hydrate your components in the client, you may use any of the following techniques:
+Astro renders every component on the server at build time. To hydrate your components on the client at runtime, you may use any of the following techniques:
 
-- `<MyComponent:load />` will render the component on page load.
-- `<MyComponent:idle />` will use [requestIdleCallback()][mdn-ric] to render the component as soon as main thread is free.
-- `<MyComponent:visible />` will use an [IntersectionObserver][mdn-io] to render the component when the element enters the viewport.
+- `<MyComponent:load />` will hydrate the component on page load.
+- `<MyComponent:idle />` will use [requestIdleCallback()][mdn-ric] to hydrate the component as soon as main thread is free.
+- `<MyComponent:visible />` will use an [IntersectionObserver][mdn-io] to hydrate the component when the element enters the viewport.
 
 ## Hydrate Astro Components
 
