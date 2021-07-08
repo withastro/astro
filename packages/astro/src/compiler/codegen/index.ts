@@ -689,10 +689,12 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               }
               if (!componentInfo && !isCustomElementTag(componentName)) {
                 if (hydrationAttributes.method) {
-                  throw new Error(`Unable to hydrate "${componentName}" because it is statically defined in the frontmatter script. Hydration directives may only be used on imported components.`);
+                  throw new Error(
+                    `Unable to hydrate "${componentName}" because it is statically defined in the frontmatter script. Hydration directives may only be used on imported components.`
+                  );
                 }
 
-                // Previously we would throw here, but this is valid! 
+                // Previously we would throw here, but this is valid!
                 // If the frontmatter script defines `const Element = 'h1'`,
                 // you should be able to statically render `<Element>`
 
