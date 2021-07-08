@@ -152,7 +152,7 @@ export async function main() {
         const componentName = path.basename(component.filename, path.extname(component.filename));
         const absFileLoc = path.resolve(cwd, component.filename);
         importStatements.push(`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`);
-        components.push(`<${componentName}:visible />`);
+        components.push(`<${componentName} client:visible />`);
         await fs.promises.writeFile(absFileLoc, component.content);
       })
     );
