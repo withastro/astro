@@ -7,6 +7,7 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
 <body>
   <Counter client:load />
 
+  <!-- Including the original hydration syntax to test backwards compatibility -->
   <SvelteCounter:load />
 </body>
 </html>
