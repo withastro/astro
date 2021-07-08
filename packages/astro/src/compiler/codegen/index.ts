@@ -688,7 +688,21 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 componentInfo = components.get(componentNamespace);
               }
               if (!componentInfo && !isCustomElementTag(componentName)) {
-                throw new Error(`Unknown Component: ${componentName}`);
+                if (hydrationAttributes.method) {
+                  throw new Error(`Unable to hydrate "${componentName}" because it is statically defined in the frontmatter script. Hydration directives may only be used on imported components.`);
+                }
+
+                // Previously we would throw here, but this is valid! 
+                // If the frontmatter script defines `const Element = 'h1'`,
+                // you should be able to statically render `<Element>`
+
+                if (curr === 'markdown') {
+                  await pushMarkdownToBuffer();
+                }
+
+                paren++;
+                buffers[curr] += `h(${componentName}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+                return;
               }
               if (componentName === 'Markdown') {
                 const { $scope } = attributes ?? {};
