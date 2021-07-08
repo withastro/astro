@@ -32,7 +32,7 @@ export default function (opts: TransformOptions): Transformer {
 
             /** Check for legacy hydration */
             const [_name, kind] = node.name.split(':');
-            if (kind && !hasComponents) {
+            if (kind) {
               hasComponents = true;
             }
           },
