@@ -1,5 +1,5 @@
 import { Component as BaseComponent, createElement as h } from 'react';
-import { renderToStaticMarkup as renderToString } from 'react-dom/server.js';
+import { renderToStaticMarkup as reactRenderToStaticMarkup, renderToString } from 'react-dom/server.js';
 import StaticHtml from './static-html.js';
 
 const reactTypeof = Symbol.for('react.element');
@@ -26,7 +26,7 @@ function check(Component, props, children) {
     return h('div');
   }
 
-  renderToStaticMarkup(Tester, props, children);
+  renderToStaticMarkup(Tester, props, children, {});
 
   if (error) {
     throw error;
@@ -34,8 +34,14 @@ function check(Component, props, children) {
   return isReactComponent;
 }
 
-function renderToStaticMarkup(Component, props, children) {
-  const html = renderToString(h(Component, { ...props, children: h(StaticHtml, { value: children }), innerHTML: children }));
+function renderToStaticMarkup(Component, props, children, metadata) {
+  const vnode = h(Component, { ...props, children: h(StaticHtml, { value: children }), innerHTML: children });
+  let html;
+  if(metadata.hydrate) {
+    html = renderToString(vnode);
+  } else {
+    html = reactRenderToStaticMarkup(vnode);
+  }
   return { html };
 }
 

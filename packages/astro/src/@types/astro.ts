@@ -178,7 +178,19 @@ export interface ComponentInfo {
 
 export type Components = Map<string, ComponentInfo>;
 
-type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, options?: any) => Promise<U>;
+export interface AstroComponentMetadata {
+  displayName: string;
+  hydrate?: 'load' | 'idle' | 'visible';
+  componentUrl?: string;
+  componentExport?: { value: string; namespace?: boolean };
+}
+
+type AsyncRendererComponentFn<U> = (
+  Component: any,
+  props: any,
+  children: string | undefined,
+  metadata?: AstroComponentMetadata
+) => Promise<U>;
 
 export interface Renderer {
   check: AsyncRendererComponentFn<boolean>;

@@ -39,8 +39,19 @@ React('Can load React', async () => {
 
   const $ = doc(result.contents);
   assert.equal($('#react-h2').text(), 'Hello world!');
+  assert.equal($('#react-h2').attr('data-reactroot'), undefined, 'no reactroot');
   assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
 });
+
+React('Includes reactroot on hydrating components', async () => {
+  const result = await runtime.load('/');
+  if (result.error) throw new Error(result.error);
+
+  const $ = doc(result.contents);
+  const div = $('#research');
+  assert.equal(div.attr('data-reactroot'), '', 'Has the hydration attr');
+  assert.equal(div.html(), 'foo bar <!-- -->1');
+})
 
 React('Throws helpful error message on window SSR', async () => {
   const result = await runtime.load('/window');

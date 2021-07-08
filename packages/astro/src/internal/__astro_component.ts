@@ -1,4 +1,4 @@
-import type { Renderer } from '../@types/astro';
+import type { Renderer, AstroComponentMetadata } from '../@types/astro';
 import hash from 'shorthash';
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import { generate } from 'astring';
@@ -12,7 +12,6 @@ const serialize = (value: Value) => generate(valueToEstree(value));
 export interface RendererInstance {
   source: string | null;
   renderer: Renderer;
-  options: any;
   polyfills: string[];
   hydrationPolyfills: string[];
 }
@@ -20,7 +19,6 @@ export interface RendererInstance {
 const astroRendererInstance: RendererInstance = {
   source: '',
   renderer: astro as Renderer,
-  options: null,
   polyfills: [],
   hydrationPolyfills: [],
 };
@@ -28,7 +26,6 @@ const astroRendererInstance: RendererInstance = {
 const astroHtmlRendererInstance: RendererInstance = {
   source: '',
   renderer: astroHtml as Renderer,
-  options: null,
   polyfills: [],
   hydrationPolyfills: [],
 };
@@ -53,13 +50,13 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
 
   const errors: Error[] = [];
   for (const instance of rendererInstances) {
-    const { renderer, options } = instance;
+    const { renderer } = instance;
 
     // Yes, we do want to `await` inside of this loop!
     // __renderer.check can't be run in parallel, it
     // returns the first match and skips any subsequent checks
     try {
-      const shouldUse: boolean = await renderer.check(Component, props, children, options);
+      const shouldUse: boolean = await renderer.check(Component, props, children);
 
       if (shouldUse) {
         rendererCache.set(Component, instance);
@@ -76,13 +73,6 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
   }
 }
 
-export interface AstroComponentProps {
-  displayName: string;
-  hydrate?: 'load' | 'idle' | 'visible';
-  componentUrl?: string;
-  componentExport?: { value: string; namespace?: boolean };
-}
-
 interface HydrateScriptOptions {
   instance: RendererInstance;
   astroId: string;
@@ -90,7 +80,7 @@ interface HydrateScriptOptions {
 }
 
 /** For hydrated components, generate a <script type="module"> to load the component */
-async function generateHydrateScript({ instance, astroId, props }: HydrateScriptOptions, { hydrate, componentUrl, componentExport }: Required<AstroComponentProps>) {
+async function generateHydrateScript({ instance, astroId, props }: HydrateScriptOptions, { hydrate, componentUrl, componentExport }: Required<AstroComponentMetadata>) {
   const { source } = instance;
 
   let hydrationSource = '';
@@ -131,11 +121,11 @@ const getComponentName = (Component: any, componentProps: any) => {
   }
 };
 
-export const __astro_component = (Component: any, componentProps: AstroComponentProps = {} as any) => {
+export const __astro_component = (Component: any, metadata: AstroComponentMetadata = {} as any) => {
   if (Component == null) {
-    throw new Error(`Unable to render ${componentProps.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
+    throw new Error(`Unable to render ${metadata.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
   } else if (typeof Component === 'string' && !isCustomElementTag(Component)) {
-    throw new Error(`Astro is unable to render ${componentProps.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
+    throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
   }
 
   return async (props: any, ..._children: string[]) => {
@@ -152,11 +142,11 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
       }
 
       if (!instance) {
-        const name = getComponentName(Component, componentProps);
+        const name = getComponentName(Component, metadata);
         throw new Error(`No renderer found for ${name}! Did you forget to add a renderer to your Astro config?`);
       }
     }
-    let { html } = await instance.renderer.renderToStaticMarkup(Component, props, children, instance.options);
+    let { html } = await instance.renderer.renderToStaticMarkup(Component, props, children, metadata);
 
     if (instance.polyfills.length) {
       let polyfillScripts = instance.polyfills.map((src) => `<script type="module" src="${src}"></script>`).join('');
@@ -164,14 +154,14 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
     }
 
     // If we're NOT hydrating this component, just return the HTML
-    if (!componentProps.hydrate) {
+    if (!metadata.hydrate) {
       // It's safe to remove <astro-fragment>, static content doesn't need the wrapper
       return html.replace(/\<\/?astro-fragment\>/g, '');
     }
 
     // If we ARE hydrating this component, let's generate the hydration script
     const astroId = hash.unique(html);
-    const script = await generateHydrateScript({ instance, astroId, props }, componentProps as Required<AstroComponentProps>);
+    const script = await generateHydrateScript({ instance, astroId, props }, metadata as Required<AstroComponentMetadata>);
     const astroRoot = `<astro-root uid="${astroId}">${html}</astro-root>`;
     return [astroRoot, script].join('\n');
   };

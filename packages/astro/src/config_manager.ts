@@ -140,8 +140,7 @@ let rendererInstances = [${renderers
       .map(
         (r, i) => `{
   source: ${rendererClientPackages[i] ? `"${rendererClientPackages[i]}"` : 'null'},
-  renderer: __renderer_${i},
-  options: ${r.options ? JSON.stringify(r.options) : 'null'},
+  renderer: typeof __renderer_${i} === 'function' ? __renderer_${i}(${r.options ? JSON.stringify(r.options) : 'null'}) : __renderer_${i},
   polyfills: ${JSON.stringify(rendererPolyfills[i])},
   hydrationPolyfills: ${JSON.stringify(rendererHydrationPolyfills[i])}
 }`
