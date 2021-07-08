@@ -181,7 +181,7 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
 
   let name = _name;
   let method = hydration.method;
-  
+
   /** Legacy support for original hydration syntax */
   if (name.indexOf(':') > 0) {
     const [legacyName, legacyMethod] = _name.split(':');
@@ -221,11 +221,11 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
     };
 
     const importInfo = method
-    ? {
-      componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
-      componentExport: getComponentExport()
-    }
-    : {};
+      ? {
+          componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
+          componentExport: getComponentExport(),
+        }
+      : {};
 
     return {
       wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: method, displayName: _name, ...importInfo })})`,

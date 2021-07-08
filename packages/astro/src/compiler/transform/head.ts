@@ -22,7 +22,7 @@ export default function (opts: TransformOptions): Transformer {
         InlineComponent: {
           enter(node) {
             if (hasComponents) {
-              return
+              return;
             }
 
             if (node.attributes && node.attributes.some(({ name }: any) => name.startsWith('client:'))) {
