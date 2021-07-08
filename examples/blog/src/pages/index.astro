@@ -14,7 +14,7 @@ let permalink = 'https://example.com/';
 
 // Data Fetching: List all Markdown posts in the repo.
 let allPosts = Astro.fetchContent('./posts/*.md');
-allPosts = allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+allPosts = allPosts.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
