@@ -39,4 +39,14 @@ HMR('Adds script to static pages too', async ({ runtime }) => {
   assert.ok(/window\.HMR_WEBSOCKET_PORT/.test(html), 'websocket port added');
 });
 
+HMR('Adds script to pages even if there aren\'t any elements in the template', async ({ runtime }) => {
+  const result = await runtime.load('/no-elements');
+  if (result.error) throw new Error(result.error);
+
+  const html = result.contents;
+  const $ = doc(html);
+  assert.equal($('[src="/_snowpack/hmr-client.js"]').length, 1);
+  assert.ok(/window\.HMR_WEBSOCKET_PORT/.test(html), 'websocket port added');
+});
+
 HMR.run();
