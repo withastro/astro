@@ -11,7 +11,7 @@
     "directory": "packages/astro"
   },
   "exports": {
-    ".": "./astro.mjs",
+    ".": "./astro.cjs",
     "./package.json": "./package.json",
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./components": "./components/index.js",
@@ -25,7 +25,7 @@
     "#astro/*": "./dist/*.js"
   },
   "bin": {
-    "astro": "astro.mjs"
+    "astro": "astro.cjs"
   },
   "files": [
     "components",
@@ -58,6 +58,7 @@
     "astring": "^1.7.4",
     "autoprefixer": "^10.2.5",
     "cheerio": "^1.0.0-rc.6",
+    "ci-info": "^3.2.0",
     "del": "^6.0.0",
     "es-module-lexer": "^0.4.1",
     "esbuild": "^0.10.1",
@@ -66,7 +67,6 @@
     "fast-xml-parser": "^3.19.0",
     "fdir": "^5.0.0",
     "find-up": "^5.0.0",
-    "unified": "^9.2.1",
     "gzip-size": "^6.0.0",
     "hast-to-hyperscript": "~9.0.0",
     "kleur": "^4.1.4",
@@ -83,12 +83,14 @@
     "rollup": "^2.43.1",
     "rollup-plugin-terser": "^7.0.2",
     "sass": "^1.32.13",
+    "semver": "^7.3.5",
     "shorthash": "^0.0.2",
     "slash": "^4.0.0",
     "snowpack": "3.7.1",
     "source-map-support": "^0.5.19",
     "string-width": "^5.0.0",
     "tiny-glob": "^0.2.8",
+    "unified": "^9.2.1",
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
