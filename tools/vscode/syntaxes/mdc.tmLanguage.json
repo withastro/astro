@@ -4,6 +4,9 @@
   "scopeName": "text.html.markdown.astro",
   "patterns": [
     {
+			"include": "#frontMatter"
+		},
+    {
       "include": "#block"
     },
     {
@@ -11,6 +14,16 @@
     }
   ],
   "repository": {
+    "frontMatter": {
+			"begin": "\\A-{3}\\s*$",
+			"contentName": "meta.embedded.block.frontmatter",
+			"patterns": [
+				{
+					"include": "source.yaml"
+				}
+			],
+			"end": "(^|\\G)-{3}|\\.{3}\\s*$"
+		},
     "astro-expressions": {
       "patterns": [
         {

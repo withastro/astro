@@ -77,11 +77,14 @@
         "configuration": "./languages/astro-language-configuration.json"
       },
       {
-        "id": "astro-markdown",
-        "aliases": [
-          "Astro Markdown"
+        "id": "mdc",
+        "extensions": [
+          ".mdc"
         ],
-        "configuration": "./languages/astro-markdown-language-configuration.json"
+        "aliases": [
+          "Markdown + Components"
+        ],
+        "configuration": "./languages/mdc-language-configuration.json"
       }
     ],
     "grammars": [
@@ -91,7 +94,7 @@
         "path": "./syntaxes/astro.tmLanguage.json",
         "embeddedLanguages": {
           "text.html.astro": "astro",
-          "text.html.markdown.astro": "astro-markdown",
+          "text.html.markdown.astro": "mdc",
           "text.html": "html",
           "source.css": "css",
           "source.scss": "scss",
@@ -101,19 +104,20 @@
         }
       },
       {
-        "language": "astro-markdown",
+        "language": "mdc",
         "scopeName": "text.html.markdown.astro",
-        "path": "./syntaxes/astro-markdown.tmLanguage.json",
+        "path": "./syntaxes/mdc.tmLanguage.json",
         "injectTo": [
           "text.html.astro"
         ],
         "embeddedLanguages": {
           "text.html.astro": "astro",
-          "text.html.markdown.astro": "astro-markdown",
+          "text.html.markdown.astro": "mdc",
           "text.html.markdown": "markdown",
           "source.tsx": "typescriptreact",
           "source.js": "javascript",
           "source.css": "css",
+          "meta.embedded.block.frontmatter": "yaml",
           "meta.embedded.block.css": "css",
           "meta.embedded.block.astro": "astro",
           "meta.embedded.block.ini": "ini",

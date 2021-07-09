@@ -1,5 +1,5 @@
 export default {
   markdownOptions: {
-    components: './src/components/index.tsx'
+    components: './src/components/index.ts'
   }
 }
