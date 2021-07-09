@@ -1,4 +1,4 @@
-import type { AstroComponentProps } from './__astro_component';
+import type { AstroComponentMetadata } from '../@types/astro';
 
 type ModuleCandidates = Map<any, string>;
 
@@ -35,13 +35,13 @@ class AstroElementRegistry {
     return specifier;
   }
 
-  astroComponentArgs(tagName: string, props: AstroComponentProps) {
+  astroComponentArgs(tagName: string, metadata: AstroComponentMetadata) {
     const specifier = this.findCached(tagName);
-    const outProps: AstroComponentProps = {
-      ...props,
-      componentUrl: specifier || props.componentUrl,
+    const outMeta: AstroComponentMetadata = {
+      ...metadata,
+      componentUrl: specifier || metadata.componentUrl,
     };
-    return [tagName, outProps];
+    return [tagName, outMeta];
   }
 }
 
