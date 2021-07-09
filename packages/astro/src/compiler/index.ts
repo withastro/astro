@@ -93,10 +93,10 @@ export async function convertMdcToAstroSource(contents: string, { filename }: { 
 import { Markdown } from 'astro/components';
 ${components ? `import { ${Array.from(componentNames.values()).join(', ')} } from '${components}';` : ''}
 ${layout ? `import Layout from '${layout}';` : 'const Layout = Fragment;'}
-const frontmatter = ${stringifiedSetupContext};
+const content = ${stringifiedSetupContext};
 ---
 
-<Layout>
+<Layout content={content}>
   <Markdown>
     ${markdownContent}
   </Markdown>
