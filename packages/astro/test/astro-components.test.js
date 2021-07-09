@@ -26,7 +26,6 @@ Components('Astro components are able to render framework components', async ({ 
   assert.not.type($svelte, 'undefined', 'Renders Svelte component');
 });
 
-
 Components('Allows Components defined in frontmatter', async ({ runtime }) => {
   const result = await runtime.load('/frontmatter-component');
   const html = result.contents;

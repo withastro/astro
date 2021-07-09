@@ -716,7 +716,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 buffers[curr] += `h(${componentName}, ${attributes ? generateAttributes(attributes) : 'null'}`;
                 return;
               } else if (!state.declarations.has(componentName) && !componentInfo && !isCustomElementTag(componentName)) {
-                throw new Error(`Unable to render "${componentName}" because it is undefined\n  ${state.filename}`)
+                throw new Error(`Unable to render "${componentName}" because it is undefined\n  ${state.filename}`);
               }
               if (componentName === 'Markdown') {
                 const { $scope } = attributes ?? {};
