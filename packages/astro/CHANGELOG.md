@@ -1,5 +1,24 @@
 # astro
 
+## 0.17.1
+
+### Patch Changes
+
+- 1e01251: Fixes bug with React renderer that would not hydrate correctly
+- 42a6ace: Add support for components defined in Frontmatter. Previously, the following code would throw an error. Now it is officially supported!
+
+  ```astro
+  ---
+  const { level = 1 } = Astro.props;
+  const Element = `h${level}`;
+  ---
+
+  <Element>Hello world!</Element>
+  ```
+
+- Updated dependencies [1e01251]
+  - @astrojs/renderer-react@0.1.5
+
 ## 0.17.0
 
 ### Minor Changes

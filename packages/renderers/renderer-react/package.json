@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-react",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "exports": {
     ".": "./index.js",
