@@ -37,7 +37,7 @@ function check(Component, props, children) {
 function renderToStaticMarkup(Component, props, children, metadata) {
   const vnode = h(Component, { ...props, children: h(StaticHtml, { value: children }), innerHTML: children });
   let html;
-  if(metadata && metadata.hydrate) {
+  if (metadata && metadata.hydrate) {
     html = renderToString(vnode);
   } else {
     html = reactRenderToStaticMarkup(vnode);
