@@ -21,7 +21,7 @@ module.exports = (snowpackConfig, options = {}) => {
     name: 'snowpack-astro',
     knownEntrypoints: ['astro/dist/internal/h.js', 'astro/components/Prism.astro', 'shorthash', 'estree-util-value-to-estree', 'astring'],
     resolve: {
-      input: ['.astro', '.md'],
+      input: ['.astro', '.md', '.mdc'],
       output: ['.js', '.css'],
     },
     async transform({ contents, id, fileExt }) {

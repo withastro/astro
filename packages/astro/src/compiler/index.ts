@@ -2,11 +2,13 @@ import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 
 import path from 'path';
-import { MarkdownRenderingOptions, renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
+import { renderFrontmatter, renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
 
 import { parse } from '@astrojs/parser';
 import { transform } from './transform/index.js';
 import { codegen } from './codegen/index.js';
+import { fileURLToPath } from 'url';
+import { walk } from 'estree-walker';
 
 export { scopeRule } from './transform/postcss-scoped-styles/index.js';
 
@@ -39,9 +41,74 @@ export async function convertAstroToJsx(template: string, opts: ConvertAstroOpti
 }
 
 /**
+ * .mdc -> .astro source
+ */
+export async function convertMdcToAstroSource(contents: string, { filename }: { filename: string }, compileOptions?: CompileOptions): Promise<string> {
+  const opts = compileOptions?.astroConfig?.markdownOptions;
+
+  // 1. Parse
+  const ast = parse(contents, {
+    filename,
+  });
+
+  const frontmatterContent = ast.module.content;
+  const markdownContent = contents.slice(ast.module.end || 0);
+  const componentNames = new Set();
+  
+  walk(ast.html, {
+    enter(node) {
+      if (node.type === 'InlineComponent') {
+        let name = node.name;
+        if (node.name.indexOf(':') > -1) {
+          name = name.split(':')[0]
+        }
+        if (node.name.indexOf('.') > -1) {
+          name = name.split('.')[0]
+        }
+        componentNames.add(name)
+      }
+    }
+  })
+
+  let {
+    frontmatter: { layout, ...frontmatter },
+  } = await renderFrontmatter(`---\n${frontmatterContent}\n---`);
+
+  let components;
+  if (opts?.components) {
+    components = path.posix.relative(path.posix.dirname(filename), fileURLToPath(opts?.components));
+  }
+
+  if (frontmatter['astro'] !== undefined) {
+    throw new Error(`"astro" is a reserved word but was used as a frontmatter value!\n\tat ${filename}`);
+  }
+  const contentData: any = {
+    ...frontmatter,
+  };
+  // </script> can't be anywhere inside of a JS string, otherwise the HTML parser fails.
+  // Break it up here so that the HTML parser won't detect it.
+  const stringifiedSetupContext = JSON.stringify(contentData).replace(/\<\/script\>/g, `</scrip" + "t>`);
+
+  return `---
+import { Markdown } from 'astro/components';
+${components ? `import { ${Array.from(componentNames.values()).join(', ')} } from '${components}';` : ''}
+${layout ? `import Layout from '${layout}';` : 'const Layout = Fragment;'}
+const frontmatter = ${stringifiedSetupContext};
+---
+
+<Layout>
+  <Markdown>
+    ${markdownContent}
+  </Markdown>
+</Layout>
+`;
+}
+
+/**
  * .md -> .astro source
  */
-export async function convertMdToAstroSource(contents: string, { filename }: { filename: string }, opts?: MarkdownRenderingOptions): Promise<string> {
+export async function convertMdToAstroSource(contents: string, { filename }: { filename: string }, compileOptions?: CompileOptions): Promise<string> {
+  const opts = compileOptions?.astroConfig?.markdownOptions;
   let {
     content,
     frontmatter: { layout, ...frontmatter },
@@ -67,14 +134,27 @@ ${content}`;
 }
 
 /**
+ * .mdc -> .jsx
+ * Core function processing Markdown + Components, but along the way also calls convertAstroToJsx().
+ */
+async function convertMdcToJsx(
+  contents: string,
+  { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string; }
+): Promise<TransformResult> {
+  const raw = await convertMdcToAstroSource(contents, { filename }, compileOptions);
+  const convertOptions = { compileOptions, filename, fileID };
+  return await convertAstroToJsx(raw, convertOptions);
+}
+
+/**
  * .md -> .jsx
  * Core function processing Markdown, but along the way also calls convertAstroToJsx().
  */
 async function convertMdToJsx(
   contents: string,
-  { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string }
+  { compileOptions, filename, fileID }: { compileOptions: CompileOptions; filename: string; fileID: string; }
 ): Promise<TransformResult> {
-  const raw = await convertMdToAstroSource(contents, { filename }, compileOptions.astroConfig.markdownOptions);
+  const raw = await convertMdToAstroSource(contents, { filename }, compileOptions);
   const convertOptions = { compileOptions, filename, fileID };
   return await convertAstroToJsx(raw, convertOptions);
 }
@@ -88,6 +168,9 @@ async function transformFromSource(
   switch (true) {
     case filename.slice(-6) === '.astro':
       return await convertAstroToJsx(contents, { compileOptions, filename, fileID });
+
+    case filename.slice(-4) === '.mdc':
+      return await convertMdcToJsx(contents, { compileOptions, filename, fileID });
 
     case filename.slice(-3) === '.md':
       return await convertMdToJsx(contents, { compileOptions, filename, fileID });

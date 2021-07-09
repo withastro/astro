@@ -47,12 +47,13 @@ type SearchResult =
  * list of all known files that we could make instant, synchronous checks against.
  */
 export async function searchForPage(url: URL, astroConfig: AstroConfig): Promise<SearchResult> {
+  const pageExtensions = ['.astro', '.md', '.mdc'];
   const reqPath = decodeURI(url.pathname);
   const base = reqPath.substr(1);
 
   // Try to find index.astro/md paths
   if (reqPath.endsWith('/')) {
-    const candidates = [`${base}index.astro`, `${base}index.md`];
+    const candidates = pageExtensions.map(ext => `${base}index${ext}`);
     const location = findAnyPage(candidates, astroConfig);
     if (location) {
       return {
@@ -63,7 +64,7 @@ export async function searchForPage(url: URL, astroConfig: AstroConfig): Promise
     }
   } else {
     // Try to find the page by its name.
-    const candidates = [`${base}.astro`, `${base}.md`];
+    const candidates = pageExtensions.map(ext => `${base}${ext}`);
     let location = findAnyPage(candidates, astroConfig);
     if (location) {
       return {
@@ -75,7 +76,7 @@ export async function searchForPage(url: URL, astroConfig: AstroConfig): Promise
   }
 
   // Try to find name/index.astro/md
-  const candidates = [`${base}/index.astro`, `${base}/index.md`];
+  const candidates = pageExtensions.map(ext => `${base}/index${ext}`);
   const location = findAnyPage(candidates, astroConfig);
   if (location) {
     return {

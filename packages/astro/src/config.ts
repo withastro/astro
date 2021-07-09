@@ -80,6 +80,10 @@ function normalizeConfig(userConfig: any, root: string): AstroConfig {
   config.pages = new URL(config.pages + '/', fileProtocolRoot);
   config.public = new URL(config.public + '/', fileProtocolRoot);
 
+  if (config.markdownOptions.components) {
+    config.markdownOptions.components = new URL(config.markdownOptions.components + '/', fileProtocolRoot);
+  }
+
   return config as AstroConfig;
 }
 

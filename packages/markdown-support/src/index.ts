@@ -16,6 +16,14 @@ import rehypeStringify from 'rehype-stringify';
 export { AstroMarkdownOptions, MarkdownRenderingOptions };
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
+export async function renderFrontmatter(contents: string) {
+  // Dynamic import to ensure that "gray-matter" isn't built by Snowpack
+  const { default: matter } = await import('gray-matter');
+  const { data: frontmatter } = matter(contents);
+  return { frontmatter };
+}
+
+/** Internal utility for rendering a full markdown file and extracting Frontmatter data */
 export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null) {
   // Dynamic import to ensure that "gray-matter" isn't built by Snowpack
   const { default: matter } = await import('gray-matter');

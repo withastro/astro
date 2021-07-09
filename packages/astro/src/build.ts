@@ -28,7 +28,7 @@ const defaultLogging: LogOptions = {
 /** Return contents of src/pages */
 async function allPages(root: URL): Promise<URL[]> {
   const cwd = fileURLToPath(root);
-  const files = await glob('**/*.{astro,md}', { cwd, filesOnly: true });
+  const files = await glob('**/*.{astro,md,mdc}', { cwd, filesOnly: true });
   return files.map((f) => new URL(f, root));
 }
 
