@@ -1,0 +1,12 @@
+---
+title: Some Markdown Page
+layout: ../layouts/main.astro
+---
+
+# Paragraph
+
+text here.
+
+<PreactCounter client:visible />
+
+Hello world!
