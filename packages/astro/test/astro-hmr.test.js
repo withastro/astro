@@ -39,7 +39,7 @@ HMR('Adds script to static pages too', async ({ runtime }) => {
   assert.ok(/window\.HMR_WEBSOCKET_PORT/.test(html), 'websocket port added');
 });
 
-HMR('Adds script to pages even if there aren\'t any elements in the template', async ({ runtime }) => {
+HMR("Adds script to pages even if there aren't any elements in the template", async ({ runtime }) => {
   const result = await runtime.load('/no-elements');
   if (result.error) throw new Error(result.error);
 

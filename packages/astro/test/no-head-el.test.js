@@ -31,7 +31,7 @@ NoHeadEl('Injects HMR script even when there are no elements on the page', async
 
   const html = result.contents;
   const $ = doc(html);
-  
+
   assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 1, 'Only the hmr client for the page');
 });
 
