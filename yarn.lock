@@ -9704,7 +9704,7 @@ slash@^1.0.0:
   resolved "https://registry.npmjs.org/slash/-/slash-1.0.0.tgz"
   integrity sha1-xB8vbDn8FtHNF61LXYlhFK5HDVU=
 
-slash@^3.0.0:
+slash@^3.0.0, slash@~3.0.0:
   version "3.0.0"
   resolved "https://registry.npmjs.org/slash/-/slash-3.0.0.tgz"
   integrity sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==
@@ -9749,10 +9749,10 @@ smartwrap@^1.2.3:
     wcwidth "^1.0.1"
     yargs "^15.1.0"
 
-snowpack@^3.8.0:
-  version "3.8.0"
-  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.8.0.tgz#3819f547a6a116ccb4aa93c8ee065d5f1f7bad47"
-  integrity sha512-wtmrbeWlIdxXGy4Mlfabzmi7OdEoZNLnQSb+iz3veq1zifvHOocTg4M9Ix1O8r8BEhWkRrVhVu8N2edpVYfWWQ==
+snowpack@^3.8.1-pre.0:
+  version "3.8.1-pre.0"
+  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.8.1-pre.0.tgz#d886b81d4702cf722a8e8df5caa1653bfa00038d"
+  integrity sha512-0FPLHu4KpHzHptU6zwty1OvUASd7FNbQvpZ36BZqKnYQJDWERVZuerNNxcff/6wS6WSIxIUT7Rxxzhm/f+Llew==
   dependencies:
     "@npmcli/arborist" "^2.6.4"
     bufferutil "^4.0.2"
@@ -9797,6 +9797,7 @@ snowpack@^3.8.0:
     rollup "~2.37.1"
     signal-exit "^3.0.3"
     skypack "^0.3.0"
+    slash "~3.0.0"
     source-map "^0.7.3"
     strip-ansi "^6.0.0"
     strip-comments "^2.0.1"
