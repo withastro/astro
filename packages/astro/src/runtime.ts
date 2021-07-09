@@ -50,9 +50,9 @@ type LoadResultSuccess = {
 type LoadResultNotFound = { statusCode: 404; error: Error; collectionInfo?: CollectionInfo };
 type LoadResultRedirect = { statusCode: 301 | 302; location: string; collectionInfo?: CollectionInfo };
 type LoadResultError = { statusCode: 500 } & (
-  | { type: 'parse-error'; error: CompileError }
+  | { type: 'parse-error'; error: ICompileError }
   | { type: 'ssr'; error: Error }
-  | { type: 'not-found'; error: CompileError }
+  | { type: 'not-found'; error: ICompileError }
   | { type: 'unknown'; error: Error }
 );
 
