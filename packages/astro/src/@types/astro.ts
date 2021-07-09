@@ -185,12 +185,7 @@ export interface AstroComponentMetadata {
   componentExport?: { value: string; namespace?: boolean };
 }
 
-type AsyncRendererComponentFn<U> = (
-  Component: any,
-  props: any,
-  children: string | undefined,
-  metadata?: AstroComponentMetadata
-) => Promise<U>;
+type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
 
 export interface Renderer {
   check: AsyncRendererComponentFn<boolean>;

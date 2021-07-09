@@ -51,7 +51,7 @@ React('Includes reactroot on hydrating components', async () => {
   const div = $('#research');
   assert.equal(div.attr('data-reactroot'), '', 'Has the hydration attr');
   assert.equal(div.html(), 'foo bar <!-- -->1');
-})
+});
 
 React('Throws helpful error message on window SSR', async () => {
   const result = await runtime.load('/window');
