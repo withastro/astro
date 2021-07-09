@@ -309,6 +309,7 @@ interface CodegenState {
   markers: {
     insideMarkdown: boolean | Record<string, any>;
   };
+  declarations: Set<string>;
   exportStatements: Set<string>;
   importStatements: Set<string>;
   customElementCandidates: Map<string, string>;
@@ -375,6 +376,9 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
           break;
         }
         case 'FunctionDeclaration': {
+          if (node.id?.name) {
+            state.declarations.add(node.id?.name);
+          }
           break;
         }
         case 'ImportDeclaration': {
@@ -384,8 +388,14 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
         }
         case 'VariableDeclaration': {
           for (const declaration of node.declarations) {
-            // only select Astro.fetchContent() calls here. this utility filters those out for us.
-            if (!isFetchContent(declaration)) continue;
+            // only select Astro.fetchContent() calls for more processing,
+            // otherwise just push name to declarations
+            if (!isFetchContent(declaration)) {
+              if (declaration.id.type === 'Identifier') {
+                state.declarations.add(declaration.id.name);
+              }
+              continue;
+            }
 
             // remove node
             body.splice(i, 1);
@@ -687,7 +697,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 const [componentNamespace] = componentName.split('.');
                 componentInfo = components.get(componentNamespace);
               }
-              if (!componentInfo && !isCustomElementTag(componentName)) {
+              if (state.declarations.has(componentName) && !componentInfo && !isCustomElementTag(componentName)) {
                 if (hydrationAttributes.method) {
                   throw new Error(
                     `Unable to hydrate "${componentName}" because it is statically defined in the frontmatter script. Hydration directives may only be used on imported components.`
@@ -705,6 +715,8 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 paren++;
                 buffers[curr] += `h(${componentName}, ${attributes ? generateAttributes(attributes) : 'null'}`;
                 return;
+              } else if (!state.declarations.has(componentName) && !componentInfo && !isCustomElementTag(componentName)) {
+                throw new Error(`Unable to render "${componentName}" because it is undefined\n  ${state.filename}`)
               }
               if (componentName === 'Markdown') {
                 const { $scope } = attributes ?? {};
@@ -870,6 +882,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     markers: {
       insideMarkdown: false,
     },
+    declarations: new Set(),
     importStatements: new Set(),
     exportStatements: new Set(),
     customElementCandidates: new Map(),

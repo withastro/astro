@@ -95,12 +95,4 @@ Basics('Allows spread attributes with TypeScript (#521)', async ({ runtime }) =>
   assert.equal($('#spread-ts').attr('c'), '2');
 });
 
-Basics('Allows Components defined in frontmatter', async ({ runtime }) => {
-  const result = await runtime.load('/frontmatter-component');
-  const html = result.contents;
-  const $ = doc(html);
-
-  assert.equal($('h1').length, 1);
-});
-
 Basics.run();
