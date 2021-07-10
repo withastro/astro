@@ -12,10 +12,7 @@ import { walk, asyncWalk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
 import { codeFrameColumns } from '@babel/code-frame';
-import * as babelTraverse from '@babel/traverse';
 import { error, warn, parseError } from '../../logger.js';
-import { fetchContent } from './content.js';
-import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
 import { isComponentTag, isCustomElementTag, positionAt } from '../utils.js';
 import { renderMarkdown } from '@astrojs/markdown-support';
@@ -25,8 +22,6 @@ import { PRISM_IMPORT } from '../transform/prism.js';
 import { nodeBuiltinsSet } from '../../node_builtins.js';
 import { readFileSync } from 'fs';
 import { pathToFileURL } from 'url';
-
-const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 
 // @ts-ignore
 const babelGenerator: typeof _babelGenerator = _babelGenerator.default;
@@ -222,9 +217,9 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
 
     const importInfo = method
       ? {
-          componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
-          componentExport: getComponentExport(),
-        }
+        componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
+        componentExport: getComponentExport(),
+      }
       : {};
 
     return {
@@ -322,11 +317,9 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
   const componentImports: ImportDeclaration[] = [];
   const componentProps: VariableDeclarator[] = [];
   const componentExports: ExportNamedDeclaration[] = [];
-  const contentImports = new Map<string, { spec: string; declarator: string }>();
 
   let script = '';
   let propsStatement = '';
-  let contentCode = ''; // code for handling Astro.fetchContent(), if any;
   let createCollection = ''; // function for executing collection
 
   if (module) {
@@ -387,37 +380,11 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
           break;
         }
         case 'VariableDeclaration': {
+          // Support frontmatter-defined components
           for (const declaration of node.declarations) {
-            // only select Astro.fetchContent() calls for more processing,
-            // otherwise just push name to declarations
-            if (!isFetchContent(declaration)) {
-              if (declaration.id.type === 'Identifier') {
-                state.declarations.add(declaration.id.name);
-              }
-              continue;
+            if (declaration.id.type === 'Identifier') {
+              state.declarations.add(declaration.id.name);
             }
-
-            // remove node
-            body.splice(i, 1);
-
-            // a bit of munging
-            let { id, init } = declaration;
-            if (!id || !init || id.type !== 'Identifier') continue;
-            if (init.type === 'AwaitExpression') {
-              init = init.argument;
-              const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
-              warn(compileOptions.logging, shortname, yellow('awaiting Astro.fetchContent() not necessary'));
-            }
-            if (init.type !== 'CallExpression') continue;
-
-            // gather data
-            const namespace = id.name;
-
-            if ((init as any).arguments[0].type !== 'StringLiteral') {
-              throw new Error(`[Astro.fetchContent] Only string literals allowed, ex: \`Astro.fetchContent('./post/*.md')\`\n  ${state.filename}`);
-            }
-            const spec = (init as any).arguments[0].value;
-            if (typeof spec === 'string') contentImports.set(namespace, { spec, declarator: node.kind });
           }
           break;
         }
@@ -466,64 +433,7 @@ const { ${props.join(', ')} } = Astro.props;\n`)
       );
     }
 
-    // handle createCollection, if any
-    if (createCollection) {
-      const ast = babelParser.parse(createCollection, {
-        sourceType: 'module',
-      });
-      traverse(ast, {
-        enter({ node }) {
-          switch (node.type) {
-            case 'VariableDeclaration': {
-              for (const declaration of node.declarations) {
-                // only select Astro.fetchContent() calls here. this utility filters those out for us.
-                if (!isFetchContent(declaration)) continue;
-
-                // a bit of munging
-                let { id, init } = declaration;
-                if (!id || !init || id.type !== 'Identifier') continue;
-                if (init.type === 'AwaitExpression') {
-                  init = init.argument;
-                  const shortname = path.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
-                  warn(compileOptions.logging, shortname, yellow('awaiting Astro.fetchContent() not necessary'));
-                }
-                if (init.type !== 'CallExpression') continue;
-
-                // gather data
-                const namespace = id.name;
-
-                if ((init as any).arguments[0].type !== 'StringLiteral') {
-                  throw new Error(`[Astro.fetchContent] Only string literals allowed, ex: \`Astro.fetchContent('./post/*.md')\`\n  ${state.filename}`);
-                }
-                const spec = (init as any).arguments[0].value;
-                if (typeof spec !== 'string') break;
-
-                const globResult = fetchContent(spec, { namespace, filename: state.filename });
-
-                let imports = '';
-                for (const importStatement of globResult.imports) {
-                  imports += importStatement + '\n';
-                }
-
-                createCollection = imports + createCollection.substring(0, declaration.start || 0) + globResult.code + createCollection.substring(declaration.end || 0);
-              }
-              break;
-            }
-          }
-        },
-      });
-    }
-
-    // Astro.fetchContent()
-    for (const [namespace, { spec }] of contentImports.entries()) {
-      const globResult = fetchContent(spec, { namespace, filename: state.filename });
-      for (const importStatement of globResult.imports) {
-        state.importStatements.add(importStatement);
-      }
-      contentCode += globResult.code;
-    }
-
-    script = propsStatement + contentCode + babelGenerator(program).code;
+    script = propsStatement + babelGenerator(program).code;
     const location = { start: module.start, end: module.end };
     let transpiledScript = transpileExpressionSafe(script, { state, compileOptions, location });
     if (transpiledScript === null) throw new Error(`Unable to compile script`);

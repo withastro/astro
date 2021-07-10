@@ -13,7 +13,8 @@ let description = 'The perfect starter for your perfect blog.';
 let permalink = 'https://example.com/';
 
 // Data Fetching: List all Markdown posts in the repo.
-let allPosts = Astro.fetchContent('./posts/*.md');
+let allPosts = await Astro.fetchContent(import.meta.glob('../pages/posts/*.md'));
+console.log(allPosts)
 allPosts = allPosts.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
 
 // Full Astro Component Syntax:

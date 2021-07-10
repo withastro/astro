@@ -4,7 +4,7 @@ const { collection } = Astro.props;
 export async function createCollection() {
   return {
     async data() {
-      const episodes = Astro.fetchContent('./episode/*.md');
+      const episodes = await Astro.fetchContent(import.meta.glob('./episode/*.md'));
       episodes.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
       return episodes;
     },

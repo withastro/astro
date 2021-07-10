@@ -114,6 +114,16 @@ export async function compileComponent(source: string, { compileOptions, filenam
   let moduleJavaScript = `
 import fetch from 'node-fetch';
 
+${/* Global Astro Namespace (shadowed & extended by the scoped namespace inside of __render()) */''}
+const Astro = {
+  site: new URL('/', ${JSON.stringify(site)}),
+  async fetchContent(importMetaGlobResult) {
+    const {fetchContent: fetchContentInternal} = await import('astro/dist/internal/fetch-content.js');
+    return fetchContentInternal(importMetaGlobResult, import.meta.url);
+  },
+};
+const __Astro = Astro;
+
 // <script astro></script>
 ${result.imports.join('\n')}
 ${
@@ -133,17 +143,20 @@ import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroInternal = Symbol('astro.internal');
 async function __render(props, ...children) {
   const Astro = {
+    ...__Astro,
     props,
-    site: new URL('/', ${JSON.stringify(site)}),
     css: props[__astroInternal]?.css || [],
     request: props[__astroInternal]?.request || {},
-    isPage: props[__astroInternal]?.isPage || false
+    isPage: props[__astroInternal]?.isPage || false,
   };
 
   ${result.script}
   return h(Fragment, null, ${result.html});
 }
-export default { isAstroComponent: true, __render };
+export default { 
+  isAstroComponent: true, 
+  __render 
+};
 
 ${result.createCollection || ''}
 

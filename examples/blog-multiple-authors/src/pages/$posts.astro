@@ -16,7 +16,7 @@ export async function createCollection() {
   return {
     /** Load posts, sort newest -> oldest */
     async data() {
-      let allPosts = Astro.fetchContent('./post/*.md');
+      let allPosts = await Astro.fetchContent(import.meta.glob('./post/*.md'));
       allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
       return allPosts;
     },

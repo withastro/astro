@@ -2,7 +2,7 @@
 const { collection } = Astro.props;
 
 export async function createCollection() {
-  const allPosts = Astro.fetchContent('./post/**/*.md');
+  const allPosts = await Astro.fetchContent(import.meta.glob('./post/**/*.md'));
   const allAuthors = allPosts.map(p => p.author);
   const uniqueAuthors = [...new Set(allAuthors)];
 

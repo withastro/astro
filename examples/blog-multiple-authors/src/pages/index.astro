@@ -14,7 +14,7 @@ let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
 
 // Data Fetching: List all Markdown posts in the repo.
-let allPosts = Astro.fetchContent('./post/*.md');
+let allPosts = await Astro.fetchContent(import.meta.glob('./post/*.md'));
 allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
 
 // Full Astro Component Syntax:

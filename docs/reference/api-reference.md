@@ -9,12 +9,16 @@ The `Astro` global is available in all contexts in `.astro` files. It has the fo
 
 ### `Astro.fetchContent()`
 
-`Astro.fetchContent()` is a way to load local `*.md` files into your static site setup. You can either use this on its own, or within [Astro Collections][docs-collections].
+`Astro.fetchContent()` is a way to load local Markdown files in Astro. You can use this to generate pages based on your site content, for things like [paginated collections][docs-collections] or a single page that lists all posts on your site.
+
+This leverages `import.meta.glob` in Snowpack to fetch the local files.
 
 ```jsx
-// ./src/components/my-component.astro
 ---
-const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of posts that live at ./src/pages/post/*.md
+// Example: ./src/components/my-component.astro
+// - `import.meta.glob('../pages/post/*.md')` returns references to all markdown posts.
+// - `Astro.fetchContent()` loads the referenced markdown files, and returns the result.
+const posts = await Astro.fetchContent(import.meta.glob('../pages/post/*.md'));
 ---
 
 <div>
@@ -28,24 +32,25 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 </div>
 ```
 
-`.fetchContent()` only takes one parameter: a relative URL glob of which local files you’d like to import. Currently only `*.md` files are supported. It’s synchronous, and returns an array of items of type:
+Any non-markdown posts will be ignored. A successful call returns a Promise, which resolves to array of items of the following type:
 
 ```js
 {
-   /** frontmatter from the post.. example frontmatter:
+   /** Markdown file frontmatter: */
     title: '',
     tag: '',
     date: '',
     image: '',
     author: '',
     description: '',
-   **/
+   /** astro metadata: **/
     astro: {
       headers: [],  // an array of h1...h6 elements in the markdown file
       source: ''    // raw source of the markdown file
       html: ''      // rendered HTML of the markdown file
     },
-    url: '' // the rendered path
+    /** the file's web URL (if it is a page) */
+    url: ''
   }[]
 ```
 

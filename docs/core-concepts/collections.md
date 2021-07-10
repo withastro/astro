@@ -40,7 +40,7 @@ const { collection } = Astro.props;
 
 // Define a `createCollection` function.
 export async function createCollection() {
-  const allPosts = Astro.fetchContent('../posts/*.md'); // fetch local posts.
+  const allPosts = await Astro.fetchContent(import.meta.glob('../posts/*.md')); // fetch local posts.
   allPosts.sort((a, b) => a.title.localeCompare(b.title)); // sort by title.
   return {
     // Because you are not doing anything more than simple pagination,

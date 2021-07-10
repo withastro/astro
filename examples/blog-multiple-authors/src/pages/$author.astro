@@ -15,7 +15,7 @@ import authorData from '../data/authors.json';
 let { collection } = Astro.props;
 export async function createCollection() {
   /** Load posts */
-  let allPosts = Astro.fetchContent('./post/*.md');
+  let allPosts = await Astro.fetchContent(import.meta.glob('./post/*.md'));
   let allAuthors = new Set();
 
   /** Loop through all posts, gather all authors */

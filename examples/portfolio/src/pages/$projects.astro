@@ -8,7 +8,7 @@ let { collection } = Astro.props;
 export async function createCollection() {
   return {
     async data() {
-      const projects = Astro.fetchContent('./project/*.md');
+      const projects = await Astro.fetchContent(import.meta.glob('./project/*.md'));
       projects.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
       return projects.filter(({ published_at }) => !!published_at);
     }

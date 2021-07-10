@@ -170,7 +170,7 @@ For fetching from a remote API, use a native JavaScript `fetch()` ([docs][fetch-
 const remoteData = await fetch('https://api.mysite.com/v1/people').then((res) => res.json());
 
 // Example 2: load local markdown files
-const localData = Astro.fetchContent('../post/*.md');
+const localData = await Astro.fetchContent(import.meta.glob('../post/*.md'));
 ---
 ```
 
