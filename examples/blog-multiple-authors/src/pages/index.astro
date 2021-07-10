@@ -26,7 +26,7 @@ allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
     <MainHead
       title={title}
       description={description}
-      image={firstPage[0].image}
+      image={allPosts[0].image}
       canonicalURL={Astro.request.canonicalURL.href}
     />
   </head>
@@ -35,7 +35,7 @@ allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
     <Nav />
 
     <main class="wrapper">
-      {firstPage.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+      {allPosts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
     </main>
 
     <footer>
