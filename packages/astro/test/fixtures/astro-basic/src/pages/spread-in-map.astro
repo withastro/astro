@@ -1,0 +1,12 @@
+---
+const items = [{ label: 'Home', title: 'Home page', href: '/', }, { label: 'Docs', title: 'Documentation', href: '/docs' }]
+---
+
+<html>
+  <head>
+    <!-- Head Stuff -->
+  </head>
+  <body>
+    <ul id="spread">{items.map((p) => <ListItem {...p}/>)}</ul>
+  </body>
+</html>

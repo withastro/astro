@@ -95,4 +95,13 @@ Basics('Allows spread attributes with TypeScript (#521)', async ({ runtime }) =>
   assert.equal($('#spread-ts').attr('c'), '2');
 });
 
+// This is currently failing! See: https://github.com/snowpackjs/astro/issues/653
+Basics.skip('Allows spread attributes inside map', async ({ runtime }) => {
+  const result = await runtime.load('/spread-in-map');
+  const html = result.contents;
+  const $ = doc(html);
+
+  assert.equal($('#spread').length, 1);
+});
+
 Basics.run();
