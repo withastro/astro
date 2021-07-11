@@ -53,7 +53,9 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
   };
 
   // warn users if missing config item in build that may result in broken SEO (can’t disable, as they should provide this)
-  warn(logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
+  if (!astroConfig.buildOptions.site) {
+    warn(logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
+  }
 
   const mode: RuntimeMode = 'production';
   const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
