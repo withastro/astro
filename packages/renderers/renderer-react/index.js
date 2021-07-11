@@ -11,5 +11,5 @@ export default {
         jsx({}, { runtime: 'automatic', importSource: 'preact' })
       ]
     }
-  })
+  }
 };
