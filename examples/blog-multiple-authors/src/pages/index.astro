@@ -16,6 +16,7 @@ let description = 'An example blog on Astro';
 // Data Fetching: List all Markdown posts in the repo.
 let allPosts = Astro.fetchContent('./post/*.md');
 allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+let firstPage = allPosts.slice(0, 2);
 
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
