@@ -120,6 +120,62 @@ const { greeting = 'Hello', name } = Astro.props;
 </main>
 ```
 
+### Slots
+
+`.astro` files use the [`<slot>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot) element to enable component composition. Coming from React, this is the same concept as `children`. You can think of the `<slot>` element as a placeholder for markup which will be passed from outside of the component.
+
+```astro
+<!-- MyComponent.astro -->
+<div id="my-component">
+  <slot /> <!-- children will go here -->
+</div>
+
+<!-- Usage -->
+<MyComponent>
+  <h1>Hello world!</h1>
+</MyComponent>
+```
+
+Slots are especially powerful when using **named slots**. Rather than a single `<slot>` element which renders _all_ children, named slots allow you to specify where certain children should be placed. 
+
+> **Note** The `slot` attribute is not restricted to plain HTML, components can use `slot` as well!
+
+```astro
+<!-- MyComponent.astro -->
+<div id="my-component">
+  <header>
+    <slot name="header" /> <!-- children with the `slot="header"` attribute will go here -->
+  </header>
+
+  <main>
+    <!-- children without a `slot` (or with the `slot="default"`) attribute will go here -->
+    <slot />
+  </main>
+
+  <footer>
+    <slot name="footer"> <!-- children with the `slot="footer"` attribute will go here -->
+  </footer>
+</div>
+
+<!-- Usage -->
+<MyComponent>
+  <h1 slot="header">Hello world!</h1>
+  <p>Lorem ipsum ...</p>
+  <FooterComponent slot="footer" />
+</MyComponent>
+```
+
+Slots also have the ability to render **fallback content**. When there are no matching children passed to a `<slot>`, a `<slot>` element will be replaced with its own children.
+
+```astro
+<!-- MyComponent.astro -->
+<div id="my-component">
+  <slot>
+    <h1>I will render when this slot does not have any children!</h1>
+  </slot>
+</div>
+```
+
 ### Fragments
 
 At the top-level of an `.astro` file, you may render any number of elements.
@@ -154,7 +210,10 @@ Inside of an expression, you must wrap multiple elements in a Fragment. Fragment
 | File extension               | `.astro`                                   | `.jsx` or `.tsx`                                   |
 | User-Defined Components      | `<Capitalized>`                            | `<Capitalized>`                                    |
 | Expression Syntax            | `{}`                                       | `{}`                                               |
-| Spread Attributes            | `{...props}`                               | `{...props}`                                       |
+| Spread Attributes            | `{...props}`                               | `{...props}`                                       
+|
+| Children                     | `<slot>` (with named slot support)         | `children`                                         
+|
 | Boolean Attributes           | `autocomplete` === `autocomplete={true}`   | `autocomplete` === `autocomplete={true}`           |
 | Inline Functions             | `{items.map(item => <li>{item}</li>)}`     | `{items.map(item => <li>{item}</li>)}`             |
 | IDE Support                  | WIP - [VS Code][code-ext]                  | Phenomenal                                         |
@@ -198,7 +257,5 @@ import thumbnailSrc from './thumbnail.png';
 ```
 
 If you’d prefer to organize assets alongside Astro components, you may import the file in JavaScript inside the component script. This works as intended but this makes `thumbnail.png` harder to reference in other parts of your app, as its final URL isn’t easily-predictable (unlike assets in `public/*`, where the final URL is guaranteed to never change).
-
-### TODO: Composition (Slots)
 
 [code-ext]: https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode
