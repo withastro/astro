@@ -1,9 +1,11 @@
 ---
 // Component Imports
+import { HydrationScript } from "solid-js/web";
 import { A, B as Renamed } from '../components';
 import * as react from '../components/ReactCounter.jsx';
 import { PreactCounter } from '../components/PreactCounter.tsx';
 import PreactSFC from '../components/PreactSFC.tsx';
+import SolidCounter from '../components/SolidCounter.tsx';
 import VueCounter from '../components/VueCounter.vue';
 import SvelteCounter from '../components/SvelteCounter.svelte';
 
@@ -33,6 +35,7 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
             margin-bottom: 2em;
         }
     </style>
+    <HydrationScript />
   </head>
   <body>
       <main>
@@ -46,7 +49,11 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
           <h1>Hello Preact!</h1>
         </PreactCounter>
 
-        <PreactSFC />
+        <SolidCounter:visible>
+          <h1>Hello Solid!</h1>
+        </SolidCounter:visible>
+
+        <!-- <PreactSFC /> -->
 
         <VueCounter client:visible>
             <h1>Hello Vue!</h1>
