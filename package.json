@@ -42,8 +42,10 @@
     "camel-case": "^4.1.2"
   },
   "devDependencies": {
+    "@snowpack/plugin-postcss": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.18.0",
+    "autoprefixer": "^10.2.6",
     "cheerio": "^1.0.0-rc.6",
     "cheerio-select-tmp": "^0.1.1",
     "del": "^6.0.0",
@@ -53,6 +55,8 @@
     "eslint-plugin-prettier": "^3.4.0",
     "execa": "^5.0.0",
     "lerna": "^4.0.0",
+    "postcss": "^8.2.15",
+    "postcss-icss-keyframes": "^0.2.1",
     "prettier": "^2.2.1",
     "svelte": "^3.38.0",
     "tiny-glob": "^0.2.8",
