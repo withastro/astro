@@ -25,7 +25,7 @@ const astroHtmlRendererInstance: RendererInstance = {
 let rendererInstances: RendererInstance[] = [];
 
 export function setRenderers(_rendererInstances: RendererInstance[]) {
-  rendererInstances = [].concat(_rendererInstances);
+  rendererInstances = ([] as RendererInstance[]).concat(_rendererInstances);
 }
 
 function isCustomElementTag(name: string | Function) {
