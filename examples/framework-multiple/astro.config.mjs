@@ -16,5 +16,6 @@ export default {
     '@astrojs/renderer-react',
     '@astrojs/renderer-svelte',
     '@astrojs/renderer-vue',
+    '@astrojs/renderer-solid',
   ]
 };
