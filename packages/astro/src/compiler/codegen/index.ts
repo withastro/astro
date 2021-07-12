@@ -679,13 +679,19 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               buffers.out += buffers.out === '' ? '' : ',';
 
               if (node.type === 'Slot') {
-                buffers[curr] += `(children`;
+                state.importStatements.add(`import { __astro_slot } from 'astro/dist/internal/__astro_slot.js';`);
+                buffers[curr] += `h(__astro_slot, ${attributes ? generateAttributes(attributes) : 'null'}, children`;
                 paren++;
                 return;
               }
               if (!isComponentTag(name)) {
                 if (curr === 'markdown') {
                   await pushMarkdownToBuffer();
+                }
+                if (attributes.slot) {
+                  state.importStatements.add(`import { __astro_slot_content } from 'astro/dist/internal/__astro_slot.js';`);
+                  buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
+                  paren++;
                 }
                 buffers[curr] += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
                 paren++;
@@ -712,8 +718,13 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   await pushMarkdownToBuffer();
                 }
 
-                paren++;
+                if (attributes.slot) {
+                  state.importStatements.add(`import { __astro_slot_content } from 'astro/dist/internal/__astro_slot.js';`);
+                  buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
+                  paren++;
+                }
                 buffers[curr] += `h(${componentName}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+                paren++;
                 return;
               } else if (!state.declarations.has(componentName) && !componentInfo && !isCustomElementTag(componentName)) {
                 throw new Error(`Unable to render "${componentName}" because it is undefined\n  ${state.filename}`);
@@ -741,6 +752,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 await pushMarkdownToBuffer();
               }
 
+              if (attributes.slot) {
+                state.importStatements.add(`import { __astro_slot_content } from 'astro/dist/internal/__astro_slot.js';`);
+                buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
+                paren++;
+              }
               paren++;
               buffers[curr] += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
             } catch (err) {
@@ -817,6 +833,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             if (curr === 'markdown') {
               await pushMarkdownToBuffer();
             }
+            if (node.attributes.find((attr: any) => attr.name === 'slot')) {
+              buffers.out += ')';
+              paren--;
+            }
             if (paren !== -1) {
               buffers.out += ')';
               paren--;
@@ -839,6 +859,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               if (!state.markers.insideMarkdown) {
                 return;
               }
+            }
+            if (node.attributes.find((attr: any) => attr.name === 'slot')) {
+              buffers.out += ')';
+              paren--;
             }
             if (paren !== -1) {
               buffers.out += ')';

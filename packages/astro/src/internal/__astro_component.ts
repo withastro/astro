@@ -2,7 +2,6 @@ import type { Renderer, AstroComponentMetadata } from '../@types/astro';
 import hash from 'shorthash';
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import { generate } from 'astring';
-import * as astro from './renderer-astro';
 import * as astroHtml from './renderer-html';
 
 // A more robust version alternative to `JSON.stringify` that can handle most values
@@ -16,13 +15,6 @@ export interface RendererInstance {
   hydrationPolyfills: string[];
 }
 
-const astroRendererInstance: RendererInstance = {
-  source: '',
-  renderer: astro as Renderer,
-  polyfills: [],
-  hydrationPolyfills: [],
-};
-
 const astroHtmlRendererInstance: RendererInstance = {
   source: '',
   renderer: astroHtml as Renderer,
@@ -33,7 +25,7 @@ const astroHtmlRendererInstance: RendererInstance = {
 let rendererInstances: RendererInstance[] = [];
 
 export function setRenderers(_rendererInstances: RendererInstance[]) {
-  rendererInstances = [astroRendererInstance].concat(_rendererInstances);
+  rendererInstances = ([] as RendererInstance[]).concat(_rendererInstances);
 }
 
 function isCustomElementTag(name: string | Function) {
@@ -121,15 +113,48 @@ const getComponentName = (Component: any, componentProps: any) => {
   }
 };
 
-export const __astro_component = (Component: any, metadata: AstroComponentMetadata = {} as any) => {
+const prepareSlottedChildren = (children: string|Record<any, any>[]) => {
+  const $slots: Record<string, string> = {
+    default: ''
+  };
+  for (const child of children) {
+    if (typeof child === 'string') {
+      $slots.default += child;
+    } else if (typeof child === 'object' && child['$slot']) {
+      if (!$slots[child['$slot']]) $slots[child['$slot']] = '';
+      $slots[child['$slot']] += child.children.join('').replace(new RegExp(`slot="${child['$slot']}"\s*`, ''));
+    }
+  }
+
+  return { $slots };
+}
+
+const removeSlottedChildren = (_children: string|Record<any, any>[]) => {
+  let children = '';
+  for (const child of _children) {
+    if (typeof child === 'string') {
+      children += child;
+    } else if (typeof child === 'object' && child['$slot']) {
+      children += child.children.join('');
+    }
+  }
+
+  return children;
+}
+
+/** The main wrapper for any components in Astro files */
+export function __astro_component(Component: any, metadata: AstroComponentMetadata = {} as any) {
   if (Component == null) {
     throw new Error(`Unable to render ${metadata.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
   } else if (typeof Component === 'string' && !isCustomElementTag(Component)) {
     throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
   }
 
-  return async (props: any, ..._children: string[]) => {
-    const children = _children.join('\n');
+  return async function __astro_component_internal(props: any, ..._children: any[]) {
+    if (Component.isAstroComponent) {
+      return Component.__render(props, prepareSlottedChildren(_children));
+    }
+    const children = removeSlottedChildren(_children);
     let instance = await resolveRenderer(Component, props, children);
 
     if (!instance) {
