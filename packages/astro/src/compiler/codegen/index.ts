@@ -49,7 +49,7 @@ interface CodeGenOptions {
 
 interface HydrationAttributes {
   method?: 'load' | 'idle' | 'visible' | 'media';
-  value?: undefined | string
+  value?: undefined | string;
 }
 
 /** Searches through attributes to extract hydration-rlated attributes */
@@ -62,7 +62,7 @@ function findHydrationAttributes(attrs: Record<string, string>): HydrationAttrib
   for (const [key, val] of Object.entries(attrs)) {
     if (hydrationDirectives.has(key)) {
       method = key.slice(7) as HydrationAttributes['method'];
-      value = val === "true" ? undefined : val;
+      value = val === 'true' ? undefined : val;
     }
   }
 
@@ -226,12 +226,14 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
     };
 
     let metadata: string = '';
-    if(method) {
+    if (method) {
       const componentUrl = getComponentUrl(astroConfig, url, pathToFileURL(filename));
       const componentExport = getComponentExport();
-      metadata = `{ hydrate: "${method}", displayName: "${name}", componentUrl: "${componentUrl}", componentExport: ${JSON.stringify(componentExport)}, value: ${hydration.value || 'null'} }`;
+      metadata = `{ hydrate: "${method}", displayName: "${name}", componentUrl: "${componentUrl}", componentExport: ${JSON.stringify(componentExport)}, value: ${
+        hydration.value || 'null'
+      } }`;
     } else {
-      metadata = `{ hydrate: undefined, displayName: "${name}", value: ${hydration.value || 'null'} }`
+      metadata = `{ hydrate: undefined, displayName: "${name}", value: ${hydration.value || 'null'} }`;
     }
 
     return {

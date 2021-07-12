@@ -18,15 +18,15 @@ This allows you to define components which, for example, only run on mobile devi
 
 Since Astro components can have expressions, you can move common media queries to a module for sharing. For example here are defining:
 
-__media.js__
+**media.js**
 
 ```js
-export const MOBILE = "(max-width: 700px)";
+export const MOBILE = '(max-width: 700px)';
 ```
 
 And then you can reference this in your page:
 
-__index.astro__
+**index.astro**
 
 ```jsx
 import Sidebar from '../components/Sidebar.jsx';

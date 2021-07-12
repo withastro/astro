@@ -15,9 +15,9 @@ export default async function onMedia(astroId: string, options: HydrateOptions, 
   };
 
   const mql = matchMedia(options.value!);
-  if(mql.matches) {
+  if (mql.matches) {
     cb();
   } else {
-    mql.addEventListener('change', cb, {once:true});
+    mql.addEventListener('change', cb, { once: true });
   }
 }
