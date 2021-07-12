@@ -28,4 +28,13 @@ LitElement.skip('Renders a custom element by the constructor', async ({ runtime 
   assert.ok($('my-element').html().includes(`<div>Testing...</div>`), 'shadow rendered');
 });
 
+// The Lit renderer adds browser globals that interfere with other tests, so remove them now.
+LitElement.after(() => {
+  const globals = Object.keys(globalThis.window);
+  globals.splice(globals.indexOf('global'), 1);
+  for(let name of globals) {
+    delete globalThis[name];
+  }
+});
+
 LitElement.run();
