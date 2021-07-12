@@ -26,6 +26,15 @@ DynamicComponents('Loads client-only packages', async ({ runtime }) => {
   assert.equal(result.statusCode, 200, 'Can load react renderer');
 });
 
+DynamicComponents('Loads pages using client:media hydrator', async ({ runtime }) => {
+  let result = await runtime.load('/media');
+  if (result.error) throw new Error(result.error);
+
+  let html = result.contents;
+  assert.ok(html.includes(`value: "(max-width: 700px)"`), 'static value rendered');
+  assert.ok(html.includes(`value: "(max-width: 600px)"`), 'dynamic value rendered');
+});
+
 DynamicComponents('Can be built', async ({ build }) => {
   try {
     await build();

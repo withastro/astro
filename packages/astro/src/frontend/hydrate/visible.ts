@@ -1,11 +1,11 @@
-import type { GetHydrateCallback } from '../../@types/hydrate';
+import type { GetHydrateCallback, HydrateOptions } from '../../@types/hydrate';
 
 /**
  * Hydrate this component when one of it's children becomes visible.
  * We target the children because `astro-root` is set to `display: contents`
  * which doesn't work with IntersectionObserver
  */
-export default async function onVisible(astroId: string, getHydrateCallback: GetHydrateCallback) {
+export default async function onVisible(astroId: string, _options: HydrateOptions, getHydrateCallback: GetHydrateCallback) {
   const roots = document.querySelectorAll(`astro-root[uid="${astroId}"]`);
   const innerHTML = roots[0].querySelector(`astro-fragment`)?.innerHTML ?? null;
 

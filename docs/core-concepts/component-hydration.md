@@ -30,6 +30,7 @@ Astro renders every component on the server **at build time**. To hydrate any se
 - `<MyComponent client:load />` will hydrate the component on page load.
 - `<MyComponent client:idle />` will use [requestIdleCallback()][mdn-ric] to hydrate the component as soon as main thread is free.
 - `<MyComponent client:visible />` will use an [IntersectionObserver][mdn-io] to hydrate the component when the element enters the viewport.
+- `<MyComponent client:media={QUERY} />` will use [matchMedia][mdn-mm] to hydrate the component when a media query is matched.
 
 ## Hydrate Astro Components
 
