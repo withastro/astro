@@ -55,6 +55,8 @@
     "eslint-plugin-prettier": "^3.4.0",
     "execa": "^5.0.0",
     "lerna": "^4.0.0",
+    "postcss": "^8.2.15",
+    "postcss-icss-keyframes": "^0.2.1",
     "prettier": "^2.2.1",
     "svelte": "^3.38.0",
     "tiny-glob": "^0.2.8",
