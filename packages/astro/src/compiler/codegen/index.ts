@@ -3,11 +3,10 @@ import type { CompileOptions } from '../../@types/compiler';
 import type { AstroConfig, AstroMarkdownOptions, TransformResult, ComponentInfo, Components } from '../../@types/astro';
 import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, ImportDefaultSpecifier } from '@babel/types';
 
-import 'source-map-support/register.js';
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
-import { parse, FEATURE_CUSTOM_ELEMENT } from '@astrojs/parser';
+import astroParser from '@astrojs/parser';
 import { walk, asyncWalk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
@@ -26,6 +25,7 @@ import { nodeBuiltinsSet } from '../../node_builtins.js';
 import { readFileSync } from 'fs';
 import { pathToFileURL } from 'url';
 
+const { parse, FEATURE_CUSTOM_ELEMENT } = astroParser;
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 
 // @ts-ignore

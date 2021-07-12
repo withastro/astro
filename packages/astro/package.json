@@ -34,7 +34,7 @@
     "astro.mjs"
   ],
   "scripts": {
-    "build": "astro-scripts build \"src/*.ts\" \"src/compiler/index.ts\" \"src/frontend/**/*.ts\" \"src/internal/**/*.ts\" && tsc",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
@@ -87,7 +87,6 @@
     "shorthash": "^0.0.2",
     "slash": "^4.0.0",
     "snowpack": "^3.8.1",
-    "source-map-support": "^0.5.19",
     "string-width": "^5.0.0",
     "tiny-glob": "^0.2.8",
     "unified": "^9.2.1",

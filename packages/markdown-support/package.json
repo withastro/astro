@@ -13,7 +13,7 @@
   },
   "scripts": {
     "prepublish": "yarn build",
-    "build": "astro-scripts build --format cjs \"src/**/*.ts\" && tsc -p tsconfig.json",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
