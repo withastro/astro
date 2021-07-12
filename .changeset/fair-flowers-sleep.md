@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
 Improve slot support, adding support for named slots and fallback content within `slot` elements.
