@@ -231,7 +231,7 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
       const componentExport = getComponentExport();
       metadata = `{ hydrate: "${method}", displayName: "${name}", componentUrl: "${componentUrl}", componentExport: ${JSON.stringify(componentExport)}, value: ${hydration.value || 'null'} }`;
     } else {
-      metadata = `{ hydrate: "${method}", displayName: "${name}", value: ${hydration.value || 'null'} }`
+      metadata = `{ hydrate: undefined, displayName: "${name}", value: ${hydration.value || 'null'} }`
     }
 
     return {
