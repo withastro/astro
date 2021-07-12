@@ -136,7 +136,7 @@ const { greeting = 'Hello', name } = Astro.props;
 </MyComponent>
 ```
 
-Slots are especially powerful when using **named slots**. Rather than a single `<slot>` element which renders _all_ children, named slots allow you to specify where certain children should be placed. 
+Slots are especially powerful when using **named slots**. Rather than a single `<slot>` element which renders _all_ children, named slots allow you to specify where certain children should be placed.
 
 > **Note** The `slot` attribute is not restricted to plain HTML, components can use `slot` as well!
 
@@ -205,25 +205,26 @@ Inside of an expression, you must wrap multiple elements in a Fragment. Fragment
 
 `.astro` files can end up looking very similar to `.jsx` files, but there are a few key differences. Here's a comparison between the two formats.
 
-| Feature                      | Astro                                      | JSX                                                |
-| ---------------------------- | ------------------------------------------ | -------------------------------------------------- |
-| File extension               | `.astro`                                   | `.jsx` or `.tsx`                                   |
-| User-Defined Components      | `<Capitalized>`                            | `<Capitalized>`                                    |
-| Expression Syntax            | `{}`                                       | `{}`                                               |
-| Spread Attributes            | `{...props}`                               | `{...props}`                                       
+| Feature                 | Astro           | JSX              |
+| ----------------------- | --------------- | ---------------- |
+| File extension          | `.astro`        | `.jsx` or `.tsx` |
+| User-Defined Components | `<Capitalized>` | `<Capitalized>`  |
+| Expression Syntax       | `{}`            | `{}`             |
+| Spread Attributes       | `{...props}`    | `{...props}`     |
+
 |
-| Children                     | `<slot>` (with named slot support)         | `children`                                         
+| Children | `<slot>` (with named slot support) | `children`  
 |
-| Boolean Attributes           | `autocomplete` === `autocomplete={true}`   | `autocomplete` === `autocomplete={true}`           |
-| Inline Functions             | `{items.map(item => <li>{item}</li>)}`     | `{items.map(item => <li>{item}</li>)}`             |
-| IDE Support                  | WIP - [VS Code][code-ext]                  | Phenomenal                                         |
-| Requires JS import           | No                                         | Yes, `jsxPragma` (`React` or `h`) must be in scope |
-| Fragments                    | Automatic top-level, `<>` inside functions | Wrap with `<Fragment>` or `<>`                     |
-| Multiple frameworks per-file | Yes                                        | No                                                 |
-| Modifying `<head>`           | Just use `<head>`                          | Per-framework (`<Head>`, `<svelte:head>`, etc)     |
-| Comment Style                | `<!-- HTML -->`                            | `{/* JavaScript */}`                               |
-| Special Characters           | `&nbsp;`                                   | `{'\xa0'}` or `{String.fromCharCode(160)}`         |
-| Attributes                   | `dash-case`                                | `camelCase`                                        |
+| Boolean Attributes | `autocomplete` === `autocomplete={true}` | `autocomplete` === `autocomplete={true}` |
+| Inline Functions | `{items.map(item => <li>{item}</li>)}` | `{items.map(item => <li>{item}</li>)}` |
+| IDE Support | WIP - [VS Code][code-ext] | Phenomenal |
+| Requires JS import | No | Yes, `jsxPragma` (`React` or `h`) must be in scope |
+| Fragments | Automatic top-level, `<>` inside functions | Wrap with `<Fragment>` or `<>` |
+| Multiple frameworks per-file | Yes | No |
+| Modifying `<head>` | Just use `<head>` | Per-framework (`<Head>`, `<svelte:head>`, etc) |
+| Comment Style | `<!-- HTML -->` | `{/* JavaScript */}` |
+| Special Characters | `&nbsp;` | `{'\xa0'}` or `{String.fromCharCode(160)}` |
+| Attributes | `dash-case` | `camelCase` |
 
 ### URL resolution
 

@@ -113,9 +113,9 @@ const getComponentName = (Component: any, componentProps: any) => {
   }
 };
 
-const prepareSlottedChildren = (children: string|Record<any, any>[]) => {
+const prepareSlottedChildren = (children: string | Record<any, any>[]) => {
   const $slots: Record<string, string> = {
-    default: ''
+    default: '',
   };
   for (const child of children) {
     if (typeof child === 'string') {
@@ -127,9 +127,9 @@ const prepareSlottedChildren = (children: string|Record<any, any>[]) => {
   }
 
   return { $slots };
-}
+};
 
-const removeSlottedChildren = (_children: string|Record<any, any>[]) => {
+const removeSlottedChildren = (_children: string | Record<any, any>[]) => {
   let children = '';
   for (const child of _children) {
     if (typeof child === 'string') {
@@ -140,7 +140,7 @@ const removeSlottedChildren = (_children: string|Record<any, any>[]) => {
   }
 
   return children;
-}
+};
 
 /** The main wrapper for any components in Astro files */
 export function __astro_component(Component: any, metadata: AstroComponentMetadata = {} as any) {
@@ -190,4 +190,4 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
     const astroRoot = `<astro-root uid="${astroId}">${html}</astro-root>`;
     return [astroRoot, script].join('\n');
   };
-};
+}

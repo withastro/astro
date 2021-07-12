@@ -1,9 +1,9 @@
 /** */
-export function __astro_slot_content({ name }: { name: string}, ...children: any[]) {
-  return { '$slot': name, children };
+export function __astro_slot_content({ name }: { name: string }, ...children: any[]) {
+  return { $slot: name, children };
 }
 
-export const __astro_slot = ({ name = 'default' }: { name: string}, _children: any, ...fallback: string[]) => {
+export const __astro_slot = ({ name = 'default' }: { name: string }, _children: any, ...fallback: string[]) => {
   if (name === 'default' && typeof _children === 'string') {
     return _children ? _children : fallback;
   }

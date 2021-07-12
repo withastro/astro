@@ -63,7 +63,6 @@ Slots('Slots work with multiple elements', async ({ runtime }) => {
   assert.equal($('#a').text(), 'ABC');
 });
 
-
 Slots('Slots work on Components', async ({ runtime }) => {
   const result = await runtime.load('/component');
   if (result.error) throw new Error(result.error);
@@ -74,6 +73,5 @@ Slots('Slots work on Components', async ({ runtime }) => {
   assert.equal($('#a').children('astro-component').length, 1, 'Slotted component into #a');
   assert.equal($('#default').children('astro-component').length, 1, 'Slotted component into default slot');
 });
-
 
 Slots.run();
