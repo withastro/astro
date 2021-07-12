@@ -124,8 +124,11 @@ const Astro = {
 };
 const __Astro = Astro;
 
-// <script astro></script>
+
+// Frontmatter Script
 ${result.imports.join('\n')}
+${result.script}
+
 ${
   result.hasCustomElements
     ? `
@@ -141,16 +144,18 @@ const __astro_element_registry = new AstroElementRegistry({
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroInternal = Symbol('astro.internal');
-async function __render(props, ...children) {
+async function __render($props, ...children) {
   const Astro = {
     ...__Astro,
-    props,
-    css: props[__astroInternal]?.css || [],
-    request: props[__astroInternal]?.request || {},
-    isPage: props[__astroInternal]?.isPage || false,
+    // props,
+    css: $props[__astroInternal]?.css || [],
+    request: $props[__astroInternal]?.request || {},
+    isPage: $props[__astroInternal]?.isPage || false,
   };
 
-  ${result.script}
+  const $state = typeof __state !== 'undefined' ? __state({props: $props}) : {};
+  console.log('$state', $state);
+
   return h(Fragment, null, ${result.html});
 }
 export default { 
@@ -194,10 +199,9 @@ export async function __renderPage({request, children, props, css}) {
   return childBodyResult;
 };
 
-${result.exports.join('\n')}
-
 `;
 
+console.log(moduleJavaScript);
   return {
     result,
     contents: moduleJavaScript,

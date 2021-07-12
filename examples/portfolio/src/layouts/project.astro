@@ -3,12 +3,10 @@ import MainHead from '../components/MainHead.astro';
 import Button from '../components/Button/index.jsx';
 import Footer from '../components/Footer/index.jsx';
 import Nav from '../components/Nav/index.jsx';
-
-const { content } = Astro.props;
 ---
 <html>
   <head>
-    <MainHead title={content.title} />
+    <MainHead title={$props.content.title} />
     <style lang="scss">
       .hero {
         padding: 8rem;

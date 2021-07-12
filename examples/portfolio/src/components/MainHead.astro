@@ -1,9 +1,16 @@
 ---
-const { title = 'Jeanine White: Personal Site' } = Astro.props;
----
+export interface Props {
+    title: string;
+    description?: string[];
+}
 
+export function __state({props}: {props: Props}) {
+    return {description: props.description || 'This is the default site descrition.'};
+}
+---
 <meta charset="UTF-8">
-<title>{title}</title>
+<title>{$props.title}</title>
+<meta name="description" content={$state.description}>
 <link rel="stylesheet" type="text/css" href="/global.css">
 <link rel="preconnect" href="https://fonts.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;700;900&display=swap" rel="stylesheet">
