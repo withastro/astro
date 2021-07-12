@@ -8,7 +8,7 @@ const { content } = Astro.props;
 const headers = content?.astro?.headers;
 ---
 
-<html>
+<html lang={ content?.lang ?? 'en' }>
   <head>
     <title>{content?.title}</title>
     

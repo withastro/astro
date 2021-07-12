@@ -6,9 +6,10 @@ import BlogPostPreview from '../../components/BlogPostPreview.astro';
 let title = 'Astro Blog';
 let description = 'Everything you need to know about Astro, direct from mission control.';
 let permalink = 'https://astro.build/blog';
+let lang = 'en';
 ---
 
-<html>
+<html lang={ lang ?? 'en' }>
   <head>
     <BaseHead title={title} description={description} permalink={permalink} />
     <link rel="stylesheet" href="/blog.css" />

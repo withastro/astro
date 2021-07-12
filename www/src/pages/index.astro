@@ -9,9 +9,10 @@ import Tagline from '../components/Tagline.astro';
 let title = 'Astro';
 let description = 'Build faster websites with less client-side JavaScript';
 let permalink = 'https://astro.build/';
+let lang = 'en';
 ---
 
-<html>
+<html lang={ lang ?? 'en' }>
   <head>
     <BaseHead title={title} description={description} permalink={permalink} />
     <link rel="stylesheet" href="/global.css" />
