@@ -180,9 +180,10 @@ export type Components = Map<string, ComponentInfo>;
 
 export interface AstroComponentMetadata {
   displayName: string;
-  hydrate?: 'load' | 'idle' | 'visible';
+  hydrate?: 'load' | 'idle' | 'visible' | 'media';
   componentUrl?: string;
   componentExport?: { value: string; namespace?: boolean };
+  value?: undefined | string;
 }
 
 type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;

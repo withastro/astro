@@ -72,8 +72,10 @@ interface HydrateScriptOptions {
 }
 
 /** For hydrated components, generate a <script type="module"> to load the component */
-async function generateHydrateScript({ instance, astroId, props }: HydrateScriptOptions, { hydrate, componentUrl, componentExport }: Required<AstroComponentMetadata>) {
+async function generateHydrateScript(scriptOptions: HydrateScriptOptions, metadata: Required<AstroComponentMetadata>) {
+  const { instance, astroId, props } = scriptOptions;
   const { source } = instance;
+  const { hydrate, componentUrl, componentExport } = metadata;
 
   let hydrationSource = '';
   if (instance.hydrationPolyfills.length) {
@@ -92,7 +94,7 @@ async function generateHydrateScript({ instance, astroId, props }: HydrateScript
 
   const hydrationScript = `<script type="module">
 import setup from '/_astro_frontend/hydrate/${hydrate}.js';
-setup("${astroId}", async () => {
+setup("${astroId}", {${metadata.value ? `value: "${metadata.value}"` : ''}}, async () => {
   ${hydrationSource}
 });
 </script>`;

@@ -48,20 +48,25 @@ interface CodeGenOptions {
 }
 
 interface HydrationAttributes {
-  method?: 'load' | 'idle' | 'visible';
+  method?: 'load' | 'idle' | 'visible' | 'media';
+  value?: undefined | string
 }
 
 /** Searches through attributes to extract hydration-rlated attributes */
 function findHydrationAttributes(attrs: Record<string, string>): HydrationAttributes {
   let method: HydrationAttributes['method'];
+  let value: undefined | string;
 
-  const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible']);
+  const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media']);
 
   for (const [key, val] of Object.entries(attrs)) {
-    if (hydrationDirectives.has(key)) method = key.slice(7) as HydrationAttributes['method'];
+    if (hydrationDirectives.has(key)) {
+      method = key.slice(7) as HydrationAttributes['method'];
+      value = val === "true" ? undefined : val;
+    }
   }
 
-  return { method };
+  return { method, value };
 }
 
 /** Retrieve attributes from TemplateNode */
@@ -220,15 +225,17 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
       }
     };
 
-    const importInfo = method
-      ? {
-          componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
-          componentExport: getComponentExport(),
-        }
-      : {};
+    let metadata: string = '';
+    if(method) {
+      const componentUrl = getComponentUrl(astroConfig, url, pathToFileURL(filename));
+      const componentExport = getComponentExport();
+      metadata = `{ hydrate: "${method}", displayName: "${name}", componentUrl: "${componentUrl}", componentExport: ${JSON.stringify(componentExport)}, value: ${hydration.value || 'null'} }`;
+    } else {
+      metadata = `{ hydrate: undefined, displayName: "${name}", value: ${hydration.value || 'null'} }`
+    }
 
     return {
-      wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: method, displayName: _name, ...importInfo })})`,
+      wrapper: `__astro_component(${name}, ${metadata})`,
       wrapperImports: [`import {__astro_component} from 'astro/dist/internal/__astro_component.js';`],
     };
   }
