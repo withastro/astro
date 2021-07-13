@@ -1,0 +1,19 @@
+<style>
+  details {
+    overflow-x: auto;
+    max-width: 100%;
+    position: fixed;
+    top: 2rem;
+    left: 2rem;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 999;
+    color: white;
+    background-color: black;
+  }
+</style>
+
+<details>
+  <summary>Debug</summary>
+  <pre>{JSON.stringify(Astro.props, null, 2)}</pre>
+</details>
