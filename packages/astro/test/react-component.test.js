@@ -79,4 +79,14 @@ React('Get good error message when react import is forgotten', async () => {
   assert.equal(result.error.message, 'React is not defined');
 });
 
+React('Children passed as props', async () => {
+  const result = await runtime.load('/child-prop');
+  const html = result.contents;
+
+  const $ = doc(html);
+  assert.equal($('#content').html(), '<span>content</span>');
+  assert.equal($('#prop').html(), '<span>prop</span>');
+  assert.equal($('#prop-and-content').html(), '<span>content</span>');
+});
+
 React.run();

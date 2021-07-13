@@ -4,7 +4,7 @@ import StaticHtml from './static-html.js';
 
 const reactTypeof = Symbol.for('react.element');
 
-function check(Component, props, children) {
+async function check(Component, props, children) {
   if (typeof Component !== 'function') return false;
 
   if (Component.prototype != null && typeof Component.prototype.render === 'function') {
@@ -26,16 +26,24 @@ function check(Component, props, children) {
     return h('div');
   }
 
-  renderToStaticMarkup(Tester, props, children, {});
+  await renderToStaticMarkup(Tester, props, children, {});
 
   if (error) {
     throw error;
   }
+
   return isReactComponent;
 }
 
-function renderToStaticMarkup(Component, props, children, metadata) {
-  const vnode = h(Component, { ...props, children: h(StaticHtml, { value: children }), innerHTML: children });
+async function renderToStaticMarkup(Component, props, children, metadata) {
+  const childrenValue = children || (await props.children);
+  const vnode = h(Component, {
+    ...props,
+    children: h(StaticHtml, {
+      value: childrenValue
+    }),
+    innerHTML: children
+  });
   let html;
   if (metadata && metadata.hydrate) {
     html = renderToString(vnode);
