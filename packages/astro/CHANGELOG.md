@@ -1,5 +1,49 @@
 # astro
 
+## 0.18.0-next.0
+
+### Minor Changes
+
+- 0340b0f: Adds support for the client:media hydrator
+
+  The new `client:media` hydrator allows you to define a component that should only be loaded when a media query matches. An example usage:
+
+  ```jsx
+  ---
+  import Sidebar from '../components/Sidebar.jsx';
+  ---
+
+  <Sidebar client:media="(max-width: 700px)" />
+  ```
+
+  This allows you to define components which, for example, only run on mobile devices. A common example is a slide-in sidebar that is needed to add navigation to a mobile app, but is never displayed in desktop view.
+
+  Since Astro components can have expressions, you can move common media queries to a module for sharing. For example here are defining:
+
+  **media.js**
+
+  ```js
+  export const MOBILE = '(max-width: 700px)';
+  ```
+
+  And then you can reference this in your page:
+
+  **index.astro**
+
+  ```jsx
+  import Sidebar from '../components/Sidebar.jsx';
+  import { MOBILE } from '../media.js';
+  ---(<Sidebar client:media={MOBILE} />);
+  ```
+
+### Patch Changes
+
+- 8f4562a: Improve slot support, adding support for named slots and fallback content within `slot` elements.
+
+  See the new [Slots documentation](https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md#slots) for more information.
+
+- 9859f53: Correcting typo in ReadMe
+
 ## 0.17.2
 
 ### Patch Changes
