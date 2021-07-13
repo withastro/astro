@@ -15,7 +15,7 @@ export default async function ({ params }) {
 }
 ---
 
-<html>
+<html lang="en">
 
 <head>
   <BaseHead title={title} description={description} permalink="TODO" />

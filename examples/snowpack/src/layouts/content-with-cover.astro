@@ -8,7 +8,7 @@ const { content } = Astro.props;
 ---
 
 <!doctype html>
-<html>
+<html lang={ content.lang ?? 'en' }>
 
 <head>
   <style>
