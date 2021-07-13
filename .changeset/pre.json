@@ -36,5 +36,10 @@
     "@example/framework-lit": "0.0.1",
     "@astrojs/renderer-lit": "0.1.0"
   },
-  "changesets": ["fair-flowers-sleep", "tender-paws-smash", "wicked-gifts-cover"]
+  "changesets": [
+    "fair-flowers-sleep",
+    "lemon-jars-poke",
+    "tender-paws-smash",
+    "wicked-gifts-cover"
+  ]
 }

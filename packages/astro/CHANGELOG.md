@@ -1,5 +1,11 @@
 # astro
 
+## 0.18.0-next.1
+
+### Patch Changes
+
+- e3182c7: Adds a missing dependency
+
 ## 0.18.0-next.0
 
 ### Minor Changes
