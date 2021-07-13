@@ -1,0 +1,23 @@
+{
+  "name": "@astrojs/renderer-lit",
+  "version": "0.1.0",
+  "description": "A Lit renderer for Astro",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./server.js": "./server.js",
+    "./client-shim.js": "./client-shim.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client-shim.js",
+    "server.js",
+    "server-shim.js"
+  ],
+  "dependencies": {
+    "@lit-labs/ssr": "^1.0.0-rc.1",
+    "@webcomponents/template-shadowroot": "^0.1.0",
+    "lit": "^2.0.0-rc.2"
+  }
+}

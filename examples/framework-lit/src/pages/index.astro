@@ -1,0 +1,21 @@
+---
+import Lorem from '../components/Lorem.astro';
+import '../components/Test.js';
+import '../components/Counter.js';
+---
+
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Demo</title>
+</head>
+<body>
+    <h1>Test app</h1>
+
+    <my-counter client:load />
+
+    <Lorem />    
+
+    <calc-add num={33} />
+</body>
+</html>
