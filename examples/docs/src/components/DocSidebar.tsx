@@ -3,13 +3,16 @@ import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import EditOnGithub from './EditOnGithub';
 
-const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string }> = ({ headers = [], editHref }) => {
+const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string }> = ({
+  headers = [],
+  editHref,
+}) => {
   const itemOffsets = useRef([]);
   const [activeId, setActiveId] = useState<string>(undefined);
 
   useEffect(() => {
     const getItemOffsets = () => {
-      const titles = document.querySelectorAll('article :is(h2, h3, h4)');
+      const titles = document.querySelectorAll('article :is(h1, h2, h3, h4)');
       itemOffsets.current = Array.from(titles).map((title) => ({
         id: title.id,
         topOffset: title.getBoundingClientRect().top + window.scrollY,
@@ -38,21 +41,35 @@ const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string }> = ({
   }, []);
 
   return (
-    <nav>
-      <div>
-        <h4>Contents</h4>
+    <nav class="sidebar-nav">
+      <div class="sidebar-nav-inner">
+        <h2 class="heading">On this page</h2>
         <ul>
+          <li
+            class={`header-link depth-2 ${
+              activeId === 'overview' ? 'active' : ''
+            }`.trim()}
+          >
+            <a href="#overview">Overview</a>
+          </li>
           {headers
-            .filter(({ depth }) => depth > 1 && depth < 5)
+            .filter(({ depth }) => depth > 1 && depth < 4)
             .map((header) => (
-              <li class={`header-link depth-${header.depth} ${activeId === header.slug ? 'active' : ''}`.trim()}>
+              <li
+                class={`header-link depth-${header.depth} ${
+                  activeId === header.slug ? 'active' : ''
+                }`.trim()}
+              >
                 <a href={`#${header.slug}`}>{header.text}</a>
               </li>
             ))}
         </ul>
-      </div>
-      <div>
-        <EditOnGithub href={editHref} />
+        <h2 class="heading">More</h2>
+        <ul>
+          <li class={`header-link depth-2`}>
+            <EditOnGithub href={editHref} />
+          </li>
+        </ul>
       </div>
     </nav>
   );

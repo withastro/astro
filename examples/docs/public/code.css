@@ -49,7 +49,7 @@
 }
 
 .token.comment {
-	color: #616161;
+	color: #999;
 }
 
 .token.constant {
@@ -61,7 +61,7 @@
 }
 
 .token.doctype {
-	color: #616161;
+	color: #999;
 }
 
 .token.entity {
@@ -103,7 +103,7 @@
 }
 
 .token.prolog {
-	color: #616161;
+	color: #999;
 }
 
 .token.property {

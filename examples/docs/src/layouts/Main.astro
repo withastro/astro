@@ -13,16 +13,19 @@ const { content } = Astro.props;
 const headers = content?.astro?.headers;
 const currentPage = Astro.request.url.pathname;
 const currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
-const githubEditUrl = `https://github.com/USER/REPO/blob/main/${currentFile}`;
-const editHref = githubEditUrl;
+const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${currentFile}`;
 
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
 ---
-<html lang={ content.lang ?? 'en' }>
+<html lang={content.lang ?? 'en-us'}>
   <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>{content.title}</title>
     
+    <link rel="stylesheet" href="/theme.css" />
+    <link rel="stylesheet" href="/code.css" />
     <link rel="stylesheet" href="/index.css" />
     <script src="/theme.js" />
     <link rel="icon" 
@@ -39,8 +42,11 @@ const editHref = githubEditUrl;
       }
 
       header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        height: 56px;
         width: 100%;
-        height: 100%;
         background-color: var(--theme-bg-offset);
         display: flex;
         align-items: center;
@@ -50,21 +56,15 @@ const editHref = githubEditUrl;
       .layout {
         display: grid;
         grid-auto-flow: column;
-        grid-template-columns: minmax(var(--gutter), 1fr) minmax(0, var(--max-width)) minmax(var(--gutter), 1fr);
+        grid-template-columns: 
+          minmax(var(--gutter), 1fr) 
+          minmax(0, var(--max-width)) 
+          minmax(var(--gutter), 1fr);
         gap: 1em;
       }
 
       .menu-and-logo {
         gap: 1em;
-      }
-
-      nav.layout {
-        justify-content: center;
-        width: 100%;
-      }
-
-      nav.layout :global(> :nth-child(1)) {
-        grid-column: 2;
       }
 
       #site-title {
@@ -95,8 +95,8 @@ const editHref = githubEditUrl;
         align-items: center;
         justify-content: space-between;
         width: 100%;
-        max-width: 64ch;
-        margin: 0 auto;
+        max-width: 82em;
+        padding: 0 1rem;
       }
 
       .layout :global(> *) {
@@ -105,16 +105,16 @@ const editHref = githubEditUrl;
       }
 
       .sidebar {
+        min-height: calc(100vh - 3.5rem);
+        height: calc(100vh - 3.5rem);
         max-height: 100vh;
         position: sticky;
-        top: 0;
-        padding: var(--doc-padding) 0;
+        top: 3.5rem;
+        padding: 0;
       }
 
-      #sidebar-nav {
+      #sidebar-site {
         display: none;
-        max-height: 100vh;
-        padding: var(--doc-padding) 0;
       }
 
       #article {
@@ -122,12 +122,11 @@ const editHref = githubEditUrl;
         grid-column: 2;
         display: flex;
         flex-direction: column;
-        align-items: center;
         height: 100%;
       }
 
       .content {
-        max-width: 64ch;
+        max-width: 75ch;
         width: 100%;
         height: 100%;
         display: flex;
@@ -141,51 +140,53 @@ const editHref = githubEditUrl;
       #sidebar-content {
         display: none;
       }
-
+      .theme-toggle-wrapper {
+        display: none;
+      }
       @media (min-width: 64em) {
         .menu-and-logo button {
           display: none;
         }
         .layout {
-          grid-template-columns: 20rem minmax(0, 1fr);
-          padding-left: 1rem;
-          padding-right: 1rem;
+          grid-template-columns: 
+            20rem 
+            minmax(0, var(--max-width));
         }
         #article {
           grid-column: 2;
         }
-        #sidebar-nav {
+        #sidebar-site {
           display: flex;
         }
         #sidebar-content {
           /* display: flex; */
           grid-column: 3;
         }
-
-        .nav-wrapper {
-          display: contents;
+        .theme-toggle-wrapper {
+          display: block;
         }
       }
 
-      @media (min-width: 88em) {
+      @media (min-width: 82em) {
         .layout {
-          grid-template-columns: minmax(var(--gutter), 1fr) 20rem minmax(0, var(--max-width)) 16rem minmax(var(--gutter), 1fr);
+          grid-template-columns: 
+            20rem 
+            minmax(0, var(--max-width)) 
+            18rem;
           padding-left: 0;
           padding-right: 0;
+          margin: 0 auto;
         }
 
-        #sidebar-nav,
-        .nav-wrapper :global(:nth-child(1)) {
+        #sidebar-site {
+          grid-column: 1;
+        }
+        #article {
           grid-column: 2;
         }
-        #article,
-        .nav-wrapper :global(:nth-child(2)) {
-          grid-column: 3;
-        }
-        #sidebar-content,
-        .nav-wrapper :global(:nth-child(3)) {
+        #sidebar-content {
           display: flex;
-          grid-column: 4;
+          grid-column: 3;
         }
       }
 
@@ -194,46 +195,42 @@ const editHref = githubEditUrl;
 
   <body>
     <header>
-      <nav class="layout">
-        <div class="nav-wrapper">
-          <div class="menu-and-logo flex">
-            <button id="menu-toggle">
-              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <a id="site-title" href="/">
-              <svg width="1em" height="1em" viewBox="0 0 340 340" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M320 170C320 170 296.88 171.746 267.428 188.75C237.975 205.754 205.754 237.975 188.75 267.428C171.746 296.88 170 320 170 320C170 320 168.254 296.88 151.25 267.428C134.246 237.975 102.025 205.754 72.5721 188.75C43.1197 171.746 20 170 20 170C20 170 43.1197 168.254 72.5721 151.25C102.025 134.246 134.246 102.025 151.25 72.5721C168.254 43.1197 170 20 170 20C170 20 171.746 43.1197 188.75 72.5721C205.754 102.025 237.975 134.246 267.428 151.25C296.88 168.254 320 170 320 170Z" fill="currentColor"/>
-              </svg>
-              <h1>Astroid</h1>
-            </a>
-          </div>
+      <nav class="nav-wrapper">
+        <div class="menu-and-logo flex">
+          <button id="menu-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <a id="site-title" href="/">
+            <h1>Astroid</h1>
+          </a>
+        </div>
 
-          <div />
+        <div />
 
-          <div>
-            <ThemeToggle client:idle />
-          </div>
+        <div class="theme-toggle-wrapper">
+          <ThemeToggle client:idle />
         </div>
       </nav>
     </header>
 
     <main class="layout">
-      <aside class="sidebar" id="sidebar-nav">
-        <SiteSidebar />
+      <aside class="sidebar" id="sidebar-site">
+        <SiteSidebar currentPage={currentPage.slice(1)} />
       </aside>
       <div id="article">
         <article class="content">
           <main>
-            <h1>{content.title}</h1>
+            <h1 class="content-title" id="overview">{content.title}</h1>
             <slot />
           </main>
-          <ArticleFooter />
+          <ArticleFooter path={currentFile} />
         </article>
       </div>
+      
       <aside class="sidebar" id="sidebar-content">
-        <DocSidebar client:idle headers={headers} editHref={editHref} />
+        <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />
       </aside>
     </main>
   </body>

@@ -1,9 +1,10 @@
 ---
 import AvatarList from './AvatarList.astro';
+const { path } = Astro.props;
 ---
 
 <footer>
-  <AvatarList />
+  <AvatarList path={path} />
 </footer>
 
 <style>
