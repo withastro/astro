@@ -3,17 +3,17 @@ layout: ~/layouts/Main.astro
 title: Layouts
 ---
 
-**Layouts** are a special type of [Component](./astro-components) that help you share and reuse common page layouts within your project.
+**Layouts** are a special type of [Component](/core-concepts/astro-components) that help you share and reuse common page layouts within your project. 
 
 Layouts are just like any other reusable Astro component. There's no new syntax or APIs to learn. However, reusable page layouts are such a common pattern in web development that we created this guide to help you use them.
 
 ## Usage
 
-Astro layouts support props, slots, and all of the other features of Astro components. Layouts are just normal components, after all!
+Astro layouts support props, slots, and all of the other features of Astro components. Layouts are just normal components, after all! 
 
 Unlike other components, layouts will often contain the full page `<html>`, `<head>` and `<body>` (often referred to as the **page shell**).
 
-It's a common pattern to put all of your layout components in a single `src/layouts` directory.
+It's a common pattern to put all of your layout components in a single `src/layouts` directory.  
 
 ## Example
 
@@ -39,7 +39,7 @@ const {title} = Astro.props;
 </html>
 ```
 
-📚 The `<slot />` element lets Astro components define where any children elements (passed to the layout) should go. Learn more about how `<slot/>` works in our [Astro Component guide.](/docs/core-concepts/astro-components.md)
+📚 The `<slot />` element lets Astro components define where any children elements (passed to the layout) should go. Learn more about how `<slot/>` works in our [Astro Component guide.](/core-concepts/astro-components)
 
 Once you have your first layout, You can use it like you would any other component on your page. Remember that your layout contains your page `<html>`, `<head>`, and `<body>`. You only need to provide the custom page content.
 
@@ -54,9 +54,11 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 </BaseLayout>
 ```
 
+
 ## Nesting Layouts
 
 You can nest layouts when you want to create more specific page types without copy-pasting. It is common in Astro to have one generic `BaseLayout` and then many more specific layouts (`PostLayout`, `ProductLayout`, etc.) that reuse and build on top of it.
+
 
 ```astro
 ---
@@ -91,7 +93,7 @@ const {title, description} = Astro.props;
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 ```
 
-Notice how this layout doesn't include your page shell, and only includes some generic elements that should go in your `<head>`. This lets you combine multiple layout components together, to include things
+Notice how this layout doesn't include your page shell, and only includes some generic elements that should go in your `<head>`. This lets you combine multiple layout components together with more control over the overall page structure.
 
 ```astro
 ---
@@ -117,14 +119,13 @@ The one downside to this approach is that you'll need to define the `<html>`, `<
 
 ## Markdown Layouts
 
-Layouts are essential for Markdown files. Markdown files can declare a layout in the file frontmatter. Each Markdown file will be rendered to HTML and then injected into the layout's `<slot />` location.
+Layouts are essential for Markdown files. Markdown files can declare a layout in the file frontmatter. Each Markdown file will be rendered to HTML and then injected into the layout's `<slot />` location. 
 
 ```markdown
 ---
 title: Blog Post
 layout: ../layouts/PostLayout.astro
 ---
-
 This blog post will be **rendered** inside of the `<PostLayout />` layout.
 ```
 
@@ -151,4 +152,4 @@ const { content } = Astro.props;
 </html>
 ```
 
-📚 Learn more about Astro's markdown support in our [Markdown guide](/docs/guides/markdown-content.md).
+📚 Learn more about Astro's markdown support in our [Markdown guide](/guides/markdown-content).  
