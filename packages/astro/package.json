@@ -57,6 +57,7 @@
     "acorn": "^7.4.0",
     "astring": "^1.7.4",
     "autoprefixer": "^10.2.5",
+    "camel-case": "^4.1.2",
     "cheerio": "^1.0.0-rc.6",
     "ci-info": "^3.2.0",
     "del": "^6.0.0",
