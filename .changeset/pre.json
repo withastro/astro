@@ -32,7 +32,13 @@
     "astro-scripts": "0.0.1",
     "@astrojs/language-server": "0.5.0",
     "astro-vscode": "0.5.0",
-    "www": "1.1.0"
+    "www": "1.1.0",
+    "@example/framework-lit": "0.0.1",
+    "@astrojs/renderer-lit": "0.1.0"
   },
-  "changesets": []
+  "changesets": [
+    "fair-flowers-sleep",
+    "tender-paws-smash",
+    "wicked-gifts-cover"
+  ]
 }
