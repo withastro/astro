@@ -7,7 +7,7 @@ function isCustomElementTag(name) {
 }
 
 function getCustomElementConstructor(name) {
-  if(typeof customElements !== 'undefined' && isCustomElementTag(name)) {
+  if (typeof customElements !== 'undefined' && isCustomElementTag(name)) {
     return customElements.get(name) || null;
   }
   return null;
@@ -24,11 +24,11 @@ async function check(Component, _props, _children) {
   return !!(await isLitElement(Component));
 }
 
-function * render(tagName, attrs, children) {
+function* render(tagName, attrs, children) {
   const instance = new LitElementRenderer(tagName);
 
   // LitElementRenderer creates a new element instance, so copy over.
-  for(let [name, value] of Object.entries(attrs)) {
+  for (let [name, value] of Object.entries(attrs)) {
     instance.setAttribute(name, value);
   }
 
@@ -49,16 +49,16 @@ async function renderToStaticMarkup(Component, props, children) {
   let tagName = Component;
 
   let out = '';
-  for(let chunk of render(tagName, props, children)) {
+  for (let chunk of render(tagName, props, children)) {
     out += chunk;
   }
 
   return {
-    html: out
+    html: out,
   };
 }
 
 export default {
   check,
-  renderToStaticMarkup
+  renderToStaticMarkup,
 };

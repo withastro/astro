@@ -6,15 +6,13 @@ class CalcAdd extends LitElement {
   static get properties() {
     return {
       num: {
-        type: Number
-      }
+        type: Number,
+      },
     };
   }
 
   render() {
-    return html`
-      <div>Number: ${this.num}</div>
-    `;
+    return html` <div>Number: ${this.num}</div> `;
   }
 }
 

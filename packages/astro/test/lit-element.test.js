@@ -32,7 +32,7 @@ LitElement.skip('Renders a custom element by the constructor', async ({ runtime 
 LitElement.after(() => {
   const globals = Object.keys(globalThis.window);
   globals.splice(globals.indexOf('global'), 1);
-  for(let name of globals) {
+  for (let name of globals) {
     delete globalThis[name];
   }
 });
