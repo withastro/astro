@@ -13,7 +13,8 @@ const { content } = Astro.props;
 const headers = content?.astro?.headers;
 const currentPage = Astro.request.url.pathname;
 const currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
-const githubEditUrl = `https://github.com/USER/REPO/blob/main/${currentFile}`
+const githubEditUrl = `https://github.com/USER/REPO/blob/main/${currentFile}`;
+const editHref = githubEditUrl;
 
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
