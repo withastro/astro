@@ -5,7 +5,6 @@ import Nav from '../components/Nav/index.jsx';
 import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
 
 let { collection } = Astro.props;
-let lang = 'en';
 export async function createCollection() {
   return {
     async data() {
@@ -17,7 +16,7 @@ export async function createCollection() {
 }
 ---
 
-<html lang={ lang ?? 'en' }>
+<html lang="en">
   <head>
     <MainHead title="All Projects | Jeanine White" />
     <style lang="scss">
