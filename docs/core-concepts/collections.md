@@ -29,7 +29,7 @@ To create a new Astro Collection, you must do three things:
 3. Define and export `createCollection` function: this tells Astro how to load and structure your collection data. Check out the examples below for documentation on how it should be implemented. It MUST be named `createCollection` and it must be exported.
 
 - Example: `export async function createCollection() { /* ... */ }`
-- API Reference: [createCollection][collection-api]
+- API Reference: [`createCollection()`][create-collection-api]
 
 ## Example: Simple Pagination
 
@@ -201,13 +201,12 @@ export async function createCollection() {
 
 ### 📚 Further Reading
 
-- [Fetching data in Astro][docs-data]
-- API Reference: [collection][collection-api]
-- API Reference: [createCollection()][create-collection-api]
-- API Reference: [Creating an RSS feed][create-collection-api]
+- API Reference: [`Astro.fetchContent()`][docs-data]
+- API Reference: [`collection`][collection-api]
+- API Reference: [`createCollection()`][create-collection-api]
+- API Reference: [Creating an RSS feed][rss-feed]
 
-[docs-data]: ../README.md#-fetching-data
-[collection-api]: ./api.md#collection
-[create-collection-api]: ./api.md#createcollection
-[example-blog]: ../examples/blog
-[fetch-content]: ./api.md#fetchcontent
+[docs-data]: ../reference/api-reference.md#astrofetchcontent
+[collection-api]: ../reference/api-reference.md#collection-prop
+[create-collection-api]: ../reference/api-reference.md#createcollection
+[rss-feed]: ../reference/api-reference.md#rss-feed
