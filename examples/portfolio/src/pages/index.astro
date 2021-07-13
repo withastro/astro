@@ -9,11 +9,12 @@ import PorfolioPreview from '../components/PortfolioPreview/index.jsx';
 // Data Fetching: List all Markdown posts in the repo.
 const projects = Astro.fetchContent('./project/**/*.md');
 const featuredProject = projects[0];
+let lang = 'en';
 
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
 ---
-<html>
+<html lang={ lang ?? 'en' }>
   <head>
     <MainHead title="Jeanine White: Personal Site" />
     <style lang="scss">

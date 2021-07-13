@@ -2,9 +2,11 @@
 import MainHead from '../components/MainHead.astro';
 import Footer from '../components/Footer/index.jsx';
 import Nav from '../components/Nav/index.jsx';
+
+let lang = 'en';
 ---
 
-<html>
+<html lang={ lang ?? 'en' }>
   <head>
     <MainHead title="Not Found" />
   </head>

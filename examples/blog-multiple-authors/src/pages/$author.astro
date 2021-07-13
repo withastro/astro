@@ -8,6 +8,7 @@ import Pagination from '../components/Pagination.astro';
 let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
 let canonicalURL = Astro.request.canonicalURL;
+let lang = 'en';
 
 // collection
 import authorData from '../data/authors.json';
@@ -45,7 +46,7 @@ export async function createCollection() {
 const author = authorData[collection.params.author];
 ---
 
-<html>
+<html lang={ lang ?? 'en' }>
   <head>
     <title>{title}</title>
     <MainHead

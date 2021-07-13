@@ -6,7 +6,7 @@ import authorData from '../data/authors.json';
 const { content } = Astro.props;
 ---
 
-<html>
+<html lang={ content.lang ?? 'en' }>
   <head>
     <title>{content.title}</title>
     <MainHead title={content.title} description={content.description} image={content.image} canonicalURL={Astro.request.canonicalURL} />

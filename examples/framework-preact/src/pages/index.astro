@@ -2,10 +2,12 @@
 // Component Imports
 import Counter from '../components/Counter.jsx'
 
+let lang = 'en';
+
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
 ---
-<html>
+<html lang={ lang ?? 'en' }>
   <head>
     <meta charset="utf-8" />
     <meta

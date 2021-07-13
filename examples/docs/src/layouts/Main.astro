@@ -18,7 +18,7 @@ const githubEditUrl = `https://github.com/USER/REPO/blob/main/${currentFile}`
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
 ---
-<html>
+<html lang={ content.lang ?? 'en' }>
   <head>
     <title>{content.title}</title>
     

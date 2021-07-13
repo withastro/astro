@@ -12,6 +12,7 @@ import authorData from '../data/authors.json';
 // All variables are available to use in the HTML template below.
 let title = 'Don’s Blog';
 let description = 'An example blog on Astro';
+let lang = 'en';
 
 // Data Fetching: List all Markdown posts in the repo.
 let allPosts = Astro.fetchContent('./post/*.md');
@@ -21,7 +22,7 @@ let firstPage = allPosts.slice(0, 2);
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
 ---
-<html>
+<html lang={ lang ?? 'en' }>
   <head>
     <title>{title}</title>
     <MainHead

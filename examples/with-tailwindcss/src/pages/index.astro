@@ -2,10 +2,11 @@
 // Component Imports
 import Button from '../components/Button.astro';
 
+let lang = 'en';
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
 ---
-<html>
+<html lang={ lang ?? 'en' }>
   <head>
     <meta charset="UTF-8" />
     <title>Astro + TailwindCSS</title>
