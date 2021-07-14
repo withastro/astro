@@ -19,5 +19,6 @@ export function fetchContent(importMetaGlobResult: Record<string, any>, url: str
         ...mod.__content,
         url: urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, ''),
       };
-    }).filter(Boolean);
+    })
+    .filter(Boolean);
 }

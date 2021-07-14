@@ -352,7 +352,7 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
     }
 
     // Convert Astro.fetchContent() to use import.meta.glob
-    if ((/Astro\s*\.\s*fetchContent/).test(module.content)) {
+    if (/Astro\s*\.\s*fetchContent/.test(module.content)) {
       state.importStatements.add(`import {fetchContent} from 'astro/dist/internal/fetch-content.js';\n`);
       traverse(parseResult, {
         enter({ node }) {
@@ -377,7 +377,7 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
                 property: { type: 'Identifier', name: 'globEager' },
                 computed: false,
               },
-              arguments: node.arguments
+              arguments: node.arguments,
             },
           ] as any;
         },
