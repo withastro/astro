@@ -141,9 +141,9 @@ const Node = ({ node, key, ...props }) => {
 ---
 
 <div class="debug">
-  <header>
-    <h2><span class="debug-title">Debug</span> <span class="debug-name">"{key}"</span></h2>
-  </header>
+  <div class="debug-header">
+    <h2 class="debug-title"><span class="debug-label">Debug</span> <span class="debug-name">"{key}"</span></h2>
+  </div>
 
   <main>
     <Node node={value} />
@@ -151,18 +151,18 @@ const Node = ({ node, key, ...props }) => {
 </div>
 
 <style lang="scss">
-header {
+.debug-header {
   background: #FF1639;
   margin: -1rem -1.5rem 1rem;
   padding: 0.25rem 0.75rem;
 }
 
-h2 {
+.debug-title {
   font-size: 1em;
   color: #fff;
 }
 
-.debug-title {
+.debug-label {
   font-weight: bold;
   text-transform: uppercase;
   margin-right: 0.75em;
