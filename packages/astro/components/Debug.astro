@@ -1,6 +1,308 @@
 ---
-import { Prism } from 'astro/components';
+export interface Props {
+  value: any;
+}
+
+const key = Object.keys(Astro.props)[0];
+const value = Astro.props[key];
+
+const getType = (node: unknown) => {
+  if (Array.isArray(node)) return 'array';
+  if (node === null) return 'null';
+  if (typeof node === 'object') {
+    if ((node as any).then) return 'promise';
+  }
+  return typeof node;
+};
+
+const getSummary = (node: any, key: string) => {
+  const type = getType(node);
+  let value;
+  let open;
+  let close;
+
+  if (type === 'function') {
+    return <>
+      {(key || !key && key === 0) && <><span class="key">{key}</span><span class="sep">:</span></>}
+      <span class="value value-function">{node.name}<span class="punc">()</span></span>
+    </>
+  }
+
+  if (type === 'promise') {
+    return <>
+      {(key || !key && key === 0) && <><span class="key">{key}</span><span class="sep">:</span></>}
+      <span class="value value-promise">Promise</span>
+    </>
+  }
+
+  if (type === 'array') {
+    value = node.length;
+    open = <><span class="none">Array</span>{'['}</>;
+    close = ']';
+  } else if (type === 'object') {
+    const keys = Object.keys(node);
+    if (keys.length === 0) {
+      value = 'Empty';
+    } else if (keys.length > 3) {
+      value = '…';
+    } else {
+      value = keys.slice(0, 3).join(',');
+    }
+    open = '{';
+    close = '}';
+  };
+
+  return <>
+    {key && <><span class="key">{key}</span>: </>}
+    {open && <span class="punc">{open}</span>}
+    <span class="hide">
+      <span class="len">{value}</span>
+      {close && <span class="punc">{close}</span>}
+    </span>
+  </>;
+};
+
+const Details = ({ node, key, children }) => {
+  const type = getType(node);
+  const props = {};
+
+  if (type === 'array' || type === 'object') {
+    props['data-char'] = type === 'array' ? ']' : '}'
+    props.open = !key && type === 'object' ? '' : undefined;
+  }
+  
+  return (
+    <details {...props}>
+        <Summary node={node} key={key} />
+        {children}
+    </details>
+  );
+}
+
+const Summary = ({ node, key }) => {
+  return (
+    <summary>{getSummary(node, key)}</summary>
+  );
+}
+
+const Empty = Symbol('Empty');
+
+const KeyValue = ({ key, value, dim }) => {
+  let type = key === '__proto__' ? 'prototype' : getType(value);
+  if (type === 'null') {
+    value = 'null';
+  } else if (type === 'undefined') {
+    value = 'undefined';
+  } else if (value === Empty) {
+    type = 'empty';
+    value = 'Empty';
+  } else {
+    value = JSON.stringify(value);
+  }
+
+  return (
+    <div class="line">
+      {(key || !key && key === 0) && <><span class={`key ${dim ? 'key-dim' : ''}`.trim()}>{key}</span><span class="sep">:</span></>}
+      <span class={`value value-${type}`}>
+        {value}
+      </span>
+    </div>
+  )
+}
+
+const Node = ({ node, key, ...props }) => {
+  const type = getType(node);
+
+  if (type === 'array' || type === 'object') {
+    let children = [];
+    if (type === 'array' && node.length > 0 && Object.entries(node).length === 0) {
+      children = Array.from({ length: node.length }, (_, key) => <Node node={Empty} key={key} />);
+    } else {
+      children = Object.entries(node).map(([key, value]) => <Node node={value} key={key} />);
+    }
+    return (
+      <Details node={node} key={key} children={children} />
+    );
+  } else if (type === 'function') {
+    return (
+      <Details node={node} key={key} children={
+      <>
+        <KeyValue key="name" value={node.name} dim={true} />
+        <KeyValue key="__proto__" value="Function" dim={true} />
+      </>
+      }/>
+    );
+  } else if (type === 'promise') {
+    return (
+      <Details node={node} key={key} children={
+        <KeyValue key="__proto__" value="Promise" dim={true} />
+      } />
+    );
+  }
+
+  return <KeyValue key={key} value={node} />;
+}
 ---
 
-<!-- JSON.stringify can pretty print our input: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#the_space_argument -->
-<Prism lang="json" code={JSON.stringify(Astro.props, null, 2)}/>
+<div class="debug">
+  <header>
+    <h2><span class="debug-title">Debug</span> <span class="debug-name">"{key}"</span></h2>
+  </header>
+
+  <main>
+    <Node node={value} />
+  </main>
+</div>
+
+<style lang="scss">
+header {
+  background: #FF1639;
+  margin: -1rem -1.5rem 1rem;
+  padding: 0.25rem 0.75rem;
+}
+
+h2 {
+  font-size: 1em;
+  color: #fff;
+}
+
+.debug-title {
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-right: 0.75em;
+}
+
+.debug {
+  all: initial;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.5rem;
+  overflow-y: hidden;
+  overflow-x: auto;
+  border: 1px solid #FFCFD6;
+
+  background: #FFF;
+  font-family: Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+  font-size: 0.8rem;
+  line-height: 1.44;
+  color: #6b7280;
+  white-space: pre;
+
+  :global(details[open] > summary span.hide) {
+    visibility: hidden;
+  }
+
+  :global(details[open] > summary span.none) {
+    display: none;
+  }
+
+  :global(details > details) {
+    padding-left: 1em;
+  }
+
+  :global(.line) {
+    padding-left: 1.125em;
+  }
+
+  :global(details[open]::after) {
+    content: attr(data-char);
+  }
+
+  :global(.sep) {
+    margin-right: 0.25em;
+  }
+
+
+:global(details > summary) {
+  cursor: pointer;
+}
+
+:global(details:hover > summary::before),
+:global(details:focus > summary::before) {
+  transform: translate(0.25em, -0.25em);
+}
+
+:global(details > summary::before) {
+  content: '';
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13 8L2.60769 14L2.6077 2L13 8Z' fill='%236B7280' /%3E%3C/svg%3E%0A");
+  background-size: 1em;
+
+  display: inline-flex;
+  font-size: 0.5em;
+  width: 1em;
+  height: 1em;
+  margin-right: 1.25em;
+  margin-left: -2em;
+  transform: translate(0, -0.25em);
+  line-height: 1em;
+  transition: transform 120ms ease-in;
+}
+
+:global(details[open] > summary::before) {
+  transform: translate(0.25em, -0.25em) rotate(90deg);
+}
+
+:global(::marker) {
+  content: '';
+  width: 0;
+  visibility: hidden;
+}
+
+:global(.key) {
+  color: #882de7;
+}
+
+:global(.key-dim) {
+  color: #B881F1;
+}
+
+:global(.len) {
+  color: #B881F1;
+}
+
+:global(details:hover > summary),
+:global(details:focus > summary),
+:global(details:hover > summary .punc),
+:global(details:focus > summary .punc),
+:global(details:hover[open]::after),
+:global(details:focus[open]::after) {
+  color: #000012;
+}
+
+:global(details:hover > summary .len),
+:global(details:focus > summary .len) {
+  color: #882DE7;
+}
+
+:global(.punc) {
+  color: #6b7280;
+}
+
+:global(.value-string) {
+  color: #17c083;
+}
+
+:global(.value-function::before) {
+  content: 'ƒ ';
+  color: #3894ff;
+}
+:global(.value-function) {
+  color: #5076f9;
+}
+
+:global(.value-number) {
+  color: #ff5d01;
+}
+
+:global(.value-null),
+:global(.value-undefined) {
+  color: #9ca3af;
+}
+
+:global(main > .line) {
+  margin-left: -0.75em;
+  padding-left: 0;
+}
+  
+}
+</style>
