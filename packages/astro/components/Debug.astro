@@ -11,7 +11,7 @@ const getType = (node: unknown) => {
   return typeof node;
 };
 
-const getSummary = (node: any, key: string) => {
+const getSummary = (node: any, key: string, className: string) => {
   const type = getType(node);
   let value;
   let open;
@@ -19,21 +19,21 @@ const getSummary = (node: any, key: string) => {
 
   if (type === 'function') {
     return <>
-      {(key || !key && key === 0) && <><span class="key">{key}</span><span class="sep">:</span></>}
-      <span class="value value-function">{node.name}<span class="punc">()</span></span>
+      {(key || !key && key === 0) && <><span class={`${className} key`}>{key}</span><span class={`${className} sep`}>:</span></>}
+      <span class={`${className} value value-function`}>{node.name}<span class={`${className} punc`}>()</span></span>
     </>
   }
 
   if (type === 'promise') {
     return <>
-      {(key || !key && key === 0) && <><span class="key">{key}</span><span class="sep">:</span></>}
-      <span class="value value-promise">Promise</span>
+      {(key || !key && key === 0) && <><span class={`${className} key`}>{key}</span><span class={`${className} sep`}>:</span></>}
+      <span class={`${className} value value-promise`}>Promise</span>
     </>
   }
 
   if (type === 'array') {
     value = node.length;
-    open = <><span class="none">Array</span>{'['}</>;
+    open = <><span class={`${className} none`}>Array</span>{'['}</>;
     close = ']';
   } else if (type === 'object') {
     const keys = Object.keys(node);
@@ -49,16 +49,16 @@ const getSummary = (node: any, key: string) => {
   };
 
   return <>
-    {key && <><span class="key">{key}</span>: </>}
-    {open && <span class="punc">{open}</span>}
-    <span class="hide">
-      <span class="len">{value}</span>
-      {close && <span class="punc">{close}</span>}
+    {key && <><span class={`${className} key`}>{key}</span>: </>}
+    {open && <span class={`${className} punc`}>{open}</span>}
+    <span class={`${className} hide`}>
+      <span class={`${className} len`}>{value}</span>
+      {close && <span class={`${className} punc`}>{close}</span>}
     </span>
   </>;
 };
 
-const Details = ({ node, key, children }) => {
+const Details = ({ node, key, children, class: className }) => {
   const type = getType(node);
   const props = {};
 
@@ -68,22 +68,22 @@ const Details = ({ node, key, children }) => {
   }
   
   return (
-    <details {...props}>
-        <Summary node={node} key={key} />
+    <details {...props} class={className}>
+        <Summary node={node} key={key} class={className} />
         {children}
     </details>
   );
 }
 
-const Summary = ({ node, key }) => {
+const Summary = ({ node, key, class: className }) => {
   return (
-    <summary>{getSummary(node, key)}</summary>
+    <summary class={className}>{getSummary(node, key, className)}</summary>
   );
 }
 
 const Empty = Symbol('Empty');
 
-const KeyValue = ({ key, value, dim }) => {
+const KeyValue = ({ key, value, dim, class: className }) => {
   let type = key === '__proto__' ? 'prototype' : getType(value);
   if (type === 'null') {
     value = 'null';
@@ -97,46 +97,47 @@ const KeyValue = ({ key, value, dim }) => {
   }
 
   return (
-    <div class="line">
-      {(key || !key && key === 0) && <><span class={`key ${dim ? 'key-dim' : ''}`.trim()}>{key}</span><span class="sep">:</span></>}
-      <span class={`value value-${type}`}>
+    <div class={`${className} line`}>
+      {(key || !key && key === 0) && <><span class={`${className} key ${dim ? 'key-dim' : ''}`.trim()}>{key}</span><span class={`${className} sep`}>:</span></>}
+      <span class={`${className} value value-${type}`}>
         {value}
       </span>
     </div>
   )
 }
 
-const Node = ({ node, key, ...props }) => {
+const Node = ({ node, key, class: className, ...props }) => {
   const type = getType(node);
+  className = className.replace(/debug-value/g, '');
 
   if (type === 'array' || type === 'object') {
     let children = [];
     if (type === 'array' && node.length > 0 && Object.entries(node).length === 0) {
-      children = Array.from({ length: node.length }, (_, key) => <Node node={Empty} key={key} />);
+      children = Array.from({ length: node.length }, (_, key) => <Node node={Empty} key={key} class={className} />);
     } else {
-      children = Object.entries(node).map(([key, value]) => <Node node={value} key={key} />);
+      children = Object.entries(node).map(([key, value]) => <Node node={value} key={key} class={className} />);
     }
     return (
-      <Details node={node} key={key} children={children} />
+      <Details node={node} key={key} children={children} class={className} />
     );
   } else if (type === 'function') {
     return (
-      <Details node={node} key={key} children={
+      <Details node={node} key={key} class={className} children={
       <>
-        <KeyValue key="name" value={node.name} dim={true} />
-        <KeyValue key="__proto__" value="Function" dim={true} />
+        <KeyValue key="name" value={node.name} dim={true} class={className} />
+        <KeyValue key="__proto__" value="Function" dim={true} class={className} />
       </>
       }/>
     );
   } else if (type === 'promise') {
     return (
-      <Details node={node} key={key} children={
+      <Details node={node} key={key} class={className} children={
         <KeyValue key="__proto__" value="Promise" dim={true} />
       } />
     );
   }
 
-  return <KeyValue key={key} value={node} />;
+  return <KeyValue key={key} value={node} class={className} />;
 }
 ---
 
@@ -146,7 +147,7 @@ const Node = ({ node, key, ...props }) => {
   </div>
 
   <main>
-    <Node node={value} />
+    <Node node={value} class="debug-value" />
   </main>
 </div>
 
@@ -184,121 +185,121 @@ const Node = ({ node, key, ...props }) => {
   color: #6b7280;
   white-space: pre;
 
-  :global(details[open] > summary span.hide) {
-    visibility: hidden;
-  }
+}
 
-  :global(details[open] > summary span.none) {
+details[open] > summary span.hide {
+  visibility: hidden;
+}
+
+details[open] > summary span.none {
     display: none;
   }
 
-  :global(details > details) {
+details > details {
     padding-left: 1em;
   }
 
-  :global(.line) {
+.line {
     padding-left: 1.125em;
   }
 
-  :global(details[open]::after) {
+details[open]::after {
     content: attr(data-char);
   }
 
-  :global(.sep) {
+.sep {
     margin-right: 0.25em;
   }
 
 
-  :global(details > summary) {
+details > summary {
     cursor: pointer;
   }
 
-  :global(details:hover > summary::before),
-  :global(details:focus > summary::before) {
-    transform: translate(0.25em, -0.25em);
-  }
+details:hover > summary::before,
+details:focus > summary::before {
+  transform: translate(0.25em, -0.25em);
+}
 
-  :global(details > summary::before) {
-    content: '';
-    background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13 8L2.60769 14L2.6077 2L13 8Z' fill='%236B7280' /%3E%3C/svg%3E%0A");
-    background-size: 1em;
+details > summary::before {
+  content: '';
+  background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13 8L2.60769 14L2.6077 2L13 8Z' fill='%236B7280' /%3E%3C/svg%3E%0A");
+  background-size: 1em;
 
-    display: inline-flex;
-    font-size: 0.5em;
-    width: 1em;
-    height: 1em;
-    margin-right: 1.25em;
-    margin-left: -2em;
-    transform: translate(0, -0.25em);
-    line-height: 1em;
-    transition: transform 120ms ease-in;
-  }
+  display: inline-flex;
+  font-size: 0.5em;
+  width: 1em;
+  height: 1em;
+  margin-right: 1.25em;
+  margin-left: -2em;
+  transform: translate(0, -0.25em);
+  line-height: 1em;
+  transition: transform 120ms ease-in;
+}
 
-  :global(details[open] > summary::before) {
-    transform: translate(0.25em, -0.25em) rotate(90deg);
-  }
+details[open] > summary::before {
+  transform: translate(0.25em, -0.25em) rotate(90deg);
+}
 
-  :global(::marker) {
-    content: '';
-    width: 0;
-    visibility: hidden;
-  }
+.debug :global(::marker) {
+  content: '';
+  width: 0;
+  visibility: hidden;
+}
 
-  :global(.key) {
-    color: #882de7;
-  }
+.key {
+  color: #882de7;
+}
 
-  :global(.key-dim) {
-    color: #B881F1;
-  }
+.key-dim {
+  color: #B881F1;
+}
 
-  :global(.len) {
-    color: #B881F1;
-  }
+.len {
+  color: #B881F1;
+}
 
-  :global(details:hover > summary),
-  :global(details:focus > summary),
-  :global(details:hover > summary .punc),
-  :global(details:focus > summary .punc),
-  :global(details:hover[open]::after),
-  :global(details:focus[open]::after) {
-    color: #000012;
-  }
+details:hover > summary,
+details:focus > summary,
+details:hover > summary .punc,
+details:focus > summary .punc,
+details:hover[open]::after,
+details:focus[open]::after {
+  color: #000012;
+}
 
-  :global(details:hover > summary .len),
-  :global(details:focus > summary .len) {
-    color: #882DE7;
-  }
+details:hover > summary .len,
+details:focus > summary .len {
+  color: #882DE7;
+}
 
-  :global(.punc) {
-    color: #6b7280;
-  }
+.punc {
+  color: #6b7280;
+}
 
-  :global(.value-string) {
-    color: #17c083;
-  }
+.value-string {
+  color: #17c083;
+}
 
-  :global(.value-function::before) {
-    content: 'ƒ ';
-    color: #3894ff;
-  }
-  :global(.value-function) {
-    color: #5076f9;
-  }
+.value-function::before {
+  content: 'ƒ ';
+  color: #3894ff;
+}
+.value-function {
+  color: #5076f9;
+}
 
-  :global(.value-number) {
-    color: #ff5d01;
-  }
+.value-number {
+  color: #ff5d01;
+}
 
-  :global(.value-null),
-  :global(.value-undefined) {
-    color: #9ca3af;
-  }
+.value-null,
+.value-undefined {
+  color: #9ca3af;
+}
 
-  :global(main > .line) {
-    margin-left: -0.75em;
-    padding-left: 0;
-  }
-  
+main > .line {
+  margin-left: -0.75em;
+  padding-left: 0;
 }
 </style>
