@@ -65,6 +65,7 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 `Astro.site` returns a `URL` made from `buildOptions.site` in your Astro config. If undefined, this will return a URL generated from `localhost`.
 
 ## Collections API
+
 ### `collection` prop
 
 ```jsx
@@ -176,4 +177,3 @@ export default function () {
 ```
 
 [canonical]: https://en.wikipedia.org/wiki/Canonical_link_element
-

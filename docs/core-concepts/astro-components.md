@@ -36,7 +36,6 @@ CSS rules inside of a `<style>` tag are automatically scoped to that component. 
 
 For best results, you should only have one `<style>` tag per-Astro component. This isn’t necessarily a limitation, but it will often result in better-optimized CSS in your final build. When you're working with pages, the `<style>` tag can go nested inside of your page `<head>`. For standalone components, the `<style>` tag can go at the top-level of your template.
 
-
 ```html
 <!-- Astro Component CSS example -->
 <style>
@@ -53,9 +52,13 @@ For best results, you should only have one `<style>` tag per-Astro component. Th
 <!-- Astro Page CSS example -->
 <html>
   <head>
-    <style>...</style>
+    <style>
+      ...
+    </style>
   </head>
-  <body>...</body>
+  <body>
+    ...
+  </body>
 </html>
 ```
 
@@ -102,7 +105,7 @@ import SomeComponent from './SomeComponent.astro';
 </div>
 ```
 
-📚 You can also import and use components from other frontend frameworks like React, Svelte, and Vue.  Read our guide on [Component Hydration](/core-concepts/component-hydration) to learn more.
+📚 You can also import and use components from other frontend frameworks like React, Svelte, and Vue. Read our guide on [Component Hydration](/core-concepts/component-hydration) to learn more.
 
 ### Dynamic JSX Expressions
 
@@ -120,6 +123,7 @@ const name = "Your name here";
   <h1>Hello {name}!</h1>
 </div>
 ```
+
 #### Dynamic Attributes
 
 ```astro
@@ -144,7 +148,6 @@ const items = ["Dog", "Cat", "Platipus"];
   ))}
 </ul>
 ```
-
 
 ### Component Props
 
@@ -201,7 +204,7 @@ Slots become even more powerful when using **named slots**. Rather than a single
 <div id="my-component">
   <header>
     <!-- children with the `slot="header"` attribute will go here -->
-    <slot name="header" /> 
+    <slot name="header" />
   </header>
   <main>
     <!-- children without a `slot` (or with the `slot="default"`) attribute will go here -->
@@ -209,7 +212,7 @@ Slots become even more powerful when using **named slots**. Rather than a single
   </main>
   <footer>
     <!-- children with the `slot="footer"` attribute will go here -->
-    <slot name="footer"> 
+    <slot name="footer">
   </footer>
 </div>
 
@@ -285,7 +288,7 @@ Astro provides a `<slot />` component so that you can control where any children
 ---
 <h1>Begin</h1>
 <!-- slot: any given children are injected here -->
-<slot /> 
+<slot />
 <h1>End</h1>
 ```
 
@@ -294,7 +297,6 @@ Astro provides a `<slot />` component so that you can control where any children
 
 <!-- TODO: https://github.com/snowpackjs/astro/issues/360
      Document Named Slots -->
-      
 
 ## Comparing `.astro` versus `.jsx`
 
@@ -351,7 +353,4 @@ import thumbnailSrc from './thumbnail.png';
 
 If you’d prefer to organize assets alongside Astro components, you may import the file in JavaScript inside the component script. This works as intended but this makes `thumbnail.png` harder to reference in other parts of your app, as its final URL isn’t easily-predictable (unlike assets in `public/*`, where the final URL is guaranteed to never change).
 
-
 [code-ext]: https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode
-
-

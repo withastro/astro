@@ -208,4 +208,3 @@ export async function createCollection() {
 - API Reference: [collection](/reference/api-reference#collections-api)
 - API Reference: [createCollection()](/reference/api-reference#createcollection)
 - API Reference: [Creating an RSS feed](/reference/api-reference#rss-feed)
-

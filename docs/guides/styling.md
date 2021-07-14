@@ -3,7 +3,7 @@ layout: ~/layouts/Main.astro
 title: Styling & CSS
 ---
 
-Astro includes special handling to make writing CSS as easy as possible. Styling inside of Astro components is done by adding a `<style>` tag anywhere. 
+Astro includes special handling to make writing CSS as easy as possible. Styling inside of Astro components is done by adding a `<style>` tag anywhere.
 
 By default, all Astro component styles are **scoped**, meaning they only apply to the current component. These styles are automatically extracted and optimized for you in the final build, so that you don't need to worry about style loading.
 
@@ -32,7 +32,6 @@ To create global styles, add a `:global()` wrapper around a selector (the same a
 
 📚 Read our full guide on [Astro component syntax](/core-concepts/astro-components#css-styles) to learn more about using the `<style>` tag.
 
-
 ## Cross-Browser Compatibility
 
 We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the [Browserslist defaults][browserslist-defaults], but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
@@ -57,6 +56,7 @@ All styles in Astro are automatically [**autoprefixed**](#cross-browser-compatib
 ---
 
 ## Frameworks and Libraries
+
 ### 📘 React / Preact
 
 `.jsx` files support both global CSS and CSS Modules. To enable the latter, use the `.module.css` extension (or `.module.scss`/`.module.sass` if using Sass).
