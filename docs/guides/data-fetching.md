@@ -3,24 +3,27 @@ layout: ~/layouts/Main.astro
 title: Data Fetching
 ---
 
-Astro support `fetch()` and "top-level await" to help you do remote data fetching inside of your page. See the ["Data Loading" Pages section](/docs/core-concepts/astro-pages.md#data-loading) for more info.
+Astro components and pages can fetch remote data to help generate your pages. Astro provides two different tools to pages to help you do this: **fetch()** and **top-level await.** 
 
-**Important:** These are not yet available inside of non-page Astro components. Instead, do all of your data loading inside of your pages, and then pass them to your components as props.
+### `fetch()`
 
-## Example
+Astro pages have access to the global `fetch()` function in their setup script. `fetch()` is a native JavaScript API ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)) that lets you make HTTP requests for things like APIs and resources. 
+
+Even though Astro component scripts run inside of Node.js (and not in the browser) Astro provides this native API so that you can fetch data at page build time.
+
 
 ```astro
-// Example: src/pages/foo.astro
-// top-level `fetch()` and `await` are both supported natively in Astro (pages only).
-const allPokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=150`);
-const allPokemonResult = await allPokemonResponse.json();
-const allPokemon = allPokemonResult.results;
 ---
-<html lang="en">
-  <head>
-    <title>Original 150 Pokemon</head>
-  <body>
-    {allPokemon.map((pokemon) => (<h1>{pokemon.name}</h1>))}
-  </body>
-</html>
+const response = await fetch('http://example.com/movies.json');
+const data = await response.json();
+// Remember: Astro component scripts log to the CLI
+console.log(data);
+---
+<!-- Output the result to the page -->
+<div>{JSON.stringify(data)}</div>
 ```
+### Top-level await
+
+`await` is another native JavaScript feature that lets you await the response of some asynchronous promise ([MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)). Astro supports `await` in the top-level of your component script.
+
+**Important:** These are not yet available inside of non-page Astro components. Instead, do all of your data loading inside of your pages, and then pass them to your components as props.

@@ -1,6 +1,6 @@
 ---
 layout: ~/layouts/Main.astro
-title: Markdown Content
+title: Markdown
 ---
 
 Astro comes with out-of-the-box Markdown support powered by the expansive [remark](https://remark.js.org/) ecosystem.

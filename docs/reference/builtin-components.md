@@ -1,6 +1,6 @@
 ---
 layout: ~/layouts/Main.astro
-title: Astro Builtin Components
+title: Built-In Components
 ---
 
 Astro includes several builtin components for you to use in your projects. All builtin components are available via `import {} from 'astro/components';`.
@@ -16,9 +16,9 @@ import { Markdown } from 'astro/components';
 </Markdown>
 ```
 
-See our [Markdown Guide](/docs/guides/markdown-content.md) for more info.
-
+See our [Markdown Guide](/guides/markdown-content) for more info.
 <!-- TODO: We should move some of the specific component info here. -->
+
 
 ## `<Prism />`
 

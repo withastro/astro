@@ -9,7 +9,7 @@ The `Astro` global is available in all contexts in `.astro` files. It has the fo
 
 ### `Astro.fetchContent()`
 
-`Astro.fetchContent()` is a way to load local `*.md` files into your static site setup. You can either use this on its own, or within [Astro Collections][docs-collections].
+`Astro.fetchContent()` is a way to load local `*.md` files into your static site setup. You can either use this on its own, or within [Astro Collections](/core-concepts/collections).
 
 ```jsx
 // ./src/components/my-component.astro
@@ -65,14 +65,13 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 `Astro.site` returns a `URL` made from `buildOptions.site` in your Astro config. If undefined, this will return a URL generated from `localhost`.
 
 ## Collections API
-
 ### `collection` prop
 
 ```jsx
 const { collection } = Astro.props;
 ```
 
-When using the [Collections API][docs-collections], `collection` is a prop exposed to the page with the following shape:
+When using the [Collections API](/core-concepts/collections), `collection` is a prop exposed to the page with the following shape:
 
 | Name                      |         Type          | Description                                                                                                                       |
 | :------------------------ | :-------------------: | :-------------------------------------------------------------------------------------------------------------------------------- |
@@ -103,15 +102,15 @@ export async function createCollection() {
 }
 ```
 
-When using the [Collections API][docs-collections], `createCollection()` is an async function that returns an object of the following shape:
+When using the [Collections API](/core-concepts/collections), `createCollection()` is an async function that returns an object of the following shape:
 
-| Name        |             Type              | Description                                                                                                |
-| :---------- | :---------------------------: | :--------------------------------------------------------------------------------------------------------- |
-| `data`      | `async ({ params }) => any[]` | **Required.** Load an array of data with this function to be returned.                                     |
-| `pageSize`  |           `number`            | Specify number of items per page (default: `25`).                                                          |
-| `routes`    |          `params[]`           | **Required for URL Params.** Return an array of all possible URL `param` values in `{ name: value }` form. |
-| `permalink` |   `({ params }) => string`    | **Required for URL Params.** Given a `param` object of `{ name: value }`, generate the final URL.\*        |
-| `rss`       |          [RSS][rss]           | Optional: generate an RSS 2.0 feed from this collection ([docs][rss]).                                     |
+| Name        |                   Type                   | Description                                                                                                |
+| :---------- | :--------------------------------------: | :--------------------------------------------------------------------------------------------------------- |
+| `data`      |      `async ({ params }) => any[]`       | **Required.** Load an array of data with this function to be returned.                                     |
+| `pageSize`  |                 `number`                 | Specify number of items per page (default: `25`).                                                          |
+| `routes`    |                `params[]`                | **Required for URL Params.** Return an array of all possible URL `param` values in `{ name: value }` form. |
+| `permalink` |         `({ params }) => string`         | **Required for URL Params.** Given a `param` object of `{ name: value }`, generate the final URL.\*        |
+| `rss`       | [RSS](/reference/api-reference#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/reference/api-reference#rss-feed))        |
 
 _\* Note: don’t create confusing URLs with `permalink`, e.g. rearranging params conditionally based on their values._
 
@@ -177,6 +176,4 @@ export default function () {
 ```
 
 [canonical]: https://en.wikipedia.org/wiki/Canonical_link_element
-[config]: ../README.md#%EF%B8%8F-configuration
-[docs-collections]: ./collections.md
-[rss]: #-rss-feed
+

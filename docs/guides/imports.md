@@ -29,7 +29,7 @@ export function getUser() {
 }
 
 // src/index.js
-import { getUser } from './user.js';
+import {getUser} from './user.js';
 ```
 
 All browsers now support ESM, so Astro is able to ship this code directly to the browser during development.
@@ -38,7 +38,7 @@ All browsers now support ESM, so Astro is able to ship this code directly to the
 
 Astro includes built-in support to build TypeScript files (`*.ts`) to JavaScript. Astro components also support TypeScript in the frontmatter script section.
 
-Note that this built-in support is build only. By default, Astro does not type-check your TypeScript code.
+Note that this built-in support is build only. By default, Astro does not type-check your TypeScript code. 
 
 <!-- To integrate type checking into your development/build workflow, add the [@snowpack/plugin-typescript](https://www.npmjs.com/package/@snowpack/plugin-typescript) plugin. -->
 
@@ -46,7 +46,7 @@ Note that this built-in support is build only. By default, Astro does not type-c
 
 Astro includes built-in support to build JSX files (`*.jsx` & `*.tsx`) to JavaScript.
 
-If you are using Preact, Astro will detect your Preact import and switch to use the Preact-style JSX `h()` function. This is all done automatically for you.
+If you are using Preact, Astro will detect your Preact import and switch to use the Preact-style JSX `h()` function. This is all done automatically for you. 
 
 **Note: Astro does not support JSX in `.js`/`.ts` files.**
 
@@ -105,7 +105,7 @@ All other assets not explicitly mentioned above can be imported via ESM `import`
 const wasm = await WebAssembly.instantiateStreaming(fetch('/example.wasm'));
 ```
 
-Astro supports loading WASM files directly into your application using the browser's [`WebAssembly`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly) API. Read our [WASM guide](/docs/guides/wasm.md) to learn more.
+Astro supports loading WASM files directly into your application using the browser's [`WebAssembly`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly) API. Read our [WASM guide](/guides/wasm) to learn more.
 
 ## NPM Packages
 
@@ -121,7 +121,7 @@ When you start up your dev server or run a new build, you may see a message that
 
 ## Node Builtins
 
-We encourage Astro users to avoid Node.js builtins (`fs`, `path`, etc) whenever possible. Astro aims to be compatible with multiple JavaScript runtimes in the future. This includes [Deno](https://deno.land/) and [Cloudflare Workers](https://workers.cloudflare.com/) which do not support Node builtin modules such as `fs`.
+We encourage Astro users to avoid Node.js builtins (`fs`, `path`, etc) whenever possible. Astro aims to be compatible with multiple JavaScript runtimes in the future. This includes [Deno](https://deno.land/) and [Cloudflare Workers](https://workers.cloudflare.com/) which do not support Node builtin modules such as `fs`. 
 
 Our aim is to provide Astro alternatives to common Node.js builtins. However, no such alternatives exist today. So, if you _really_ need to use these builtin modules we don't want to stop you. Astro supports Node.js builtins using Node's newer `node:` prefix. If you want to read a file, for example, you can do so like this:
 

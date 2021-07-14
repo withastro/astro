@@ -1,24 +1,26 @@
 ---
 layout: ~/layouts/Main.astro
-title: Deploy Your Website
+title: Deploy a Website
 ---
 
 > This page is based off of [Vite's](https://vitejs.dev/) well-documented [static deploy instructions](https://vitejs.dev/guide/static-deploy.html).
 
 The following guides are based on some shared assumptions:
 
-- You are using the default build output location (`dist/`). This location [can be changed using the `dist` configuration option](/docs/reference/configuration-reference.md).
+- You are using the default build output location (`dist/`). This location [can be changed using the `dist` configuration option](/reference/configuration-reference).
 - You are using npm. You can use equivalent commands to run the scripts if you are using Yarn or other package managers.
 - Astro is installed as a local dev dependency in your project, and you have setup the following npm scripts:
 
 ```json
 {
   "scripts": {
-    "build": "astro build",
-    "preview": "astro preview"
+    "start": "astro dev",
+    "build": "astro build"
   }
 }
 ```
+
+
 
 ## Building The App
 
@@ -33,7 +35,8 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 ## GitHub Pages
 
 1. Set the correct `buildOptions.site` in `astro.config.js`.
-2. Inside your project, create `deploy.sh` with the following content (with highlighted lines uncommented appropriately), and run it to deploy:
+2. Run `touch public/.nojekyll` to create a `.nojekyll` file in `public/`. This [bypasses GitHub Page's default behavior](https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/) to ignore paths prefixed with `_`.
+3. Inside your project, create `deploy.sh` with the following content (uncommenting the appropriate lines), and run it to deploy:
 
    ```bash{13,20,23}
    #!/usr/bin/env sh
@@ -55,15 +58,14 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
    git commit -m 'deploy'
 
    # if you are deploying to https://<USERNAME>.github.io
-   # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git master
+   # git push -f git@github.com:<USERNAME>/<USERNAME>.github.io.git main
 
    # if you are deploying to https://<USERNAME>.github.io/<REPO>
-   # git push -f git@github.com:<USERNAME>/<REPO>.git master:gh-pages
+   # git push -f git@github.com:<USERNAME>/<REPO>.git main:gh-pages
 
    cd -
    ```
-
-   > You can also run the above script in your CI setup to enable automatic deployment on each push.
+> You can also run the above script in your CI setup to enable automatic deployment on each push.
 
 ### GitHub Actions
 
@@ -120,12 +122,26 @@ TODO: We'd love an example action snippet to share here!
 
 ## Netlify
 
-1. On [Netlify](https://netlify.com), setup up a new project from GitHub with the following settings:
+In your codebase, make sure you have a `.nvmrc` file with `v14.15.1` in it.
+
+You can configure your deploy in two ways, via the Netlify website or with the `netlify.toml` file.
+
+With the `netlify.toml` file, add it at the top level of your project with the following settings:
+
+```toml
+[build]
+  command = "npm run build"
+  publish = "dist"
+```
+
+Then, set up a new project on [Netlify](https://netlify.com) from your chosen Git provider.
+
+If you don't want to use the `netlify.toml`, when you go to [Netlify](https://netlify.com) and set up up a new project from Git, input the following settings:
 
    - **Build Command:** `astro build` or `npm run build`
    - **Publish directory:** `dist`
 
-2. Hit the deploy button.
+Then hit the deploy button.
 
 ## Google Firebase
 
@@ -233,8 +249,8 @@ You can deploy your Astro project with Microsoft Azure [Static Web Apps](https:/
 - Your app code pushed to [GitHub](https://github.com).
 - The [SWA Extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps) in [Visual Studio Code](https://code.visualstudio.com).
 
-Install the extension in VS Code and navigate to your app root. Open the Static Web Apps extension, sign in to Azure, and click the '+' sign to create a new Static Web App. You will be prompted to designate which subscription key to use.
+Install the extension in VS Code and navigate to your app root. Open the Static Web Apps extension, sign in to Azure, and click the '+' sign to create a new Static Web App. You will be prompted to designate which subscription key to use. 
 
-Follow the wizard started by the extension to give your app a name, choose a framework preset, and designate the app root (usually `/`) and built file location `/dist`. The wizard will run and will create a GitHub action in your repo in a `.github` folder.
+Follow the wizard started by the extension to give your app a name, choose a framework preset, and designate the app root (usually `/`) and built file location `/dist`. The wizard will run and will create a GitHub action in your repo in a `.github` folder. 
 
-The action will work to deploy your app (watch its progress in your repo's Actions tab) and, when successfully completed, you can view your app in the address provided in the extension's progress window by clicking the 'Browse Website' button that appears when the GitHub action has run.
+The action will work to deploy your app (watch its progress in your repo's Actions tab) and, when successfully completed, you can view your app in the address provided in the extension's progress window by clicking the 'Browse Website' button that appears when the GitHub action has run.   
