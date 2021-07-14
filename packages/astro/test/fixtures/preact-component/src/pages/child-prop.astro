@@ -1,0 +1,12 @@
+---
+import Child from '../components/Child.jsx';
+---
+
+<html>
+<head><title>Children tests</title></head>
+<body>
+  <Child id="content"><span>content</span></Child>
+  <Child id="prop" children={<span>prop</span>} />
+  <Child id="prop-and-content" children={<span>prop</span>}><span>content</span></Child>
+</body>
+</html>

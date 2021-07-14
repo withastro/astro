@@ -40,4 +40,14 @@ PreactComponent('Can export a Fragment', async ({ runtime }) => {
   assert.equal($('body').children().length, 0, "nothing rendered but it didn't throw.");
 });
 
+PreactComponent('Children passed as props', async ({ runtime }) => {
+  const result = await runtime.load('/child-prop');
+  const html = result.contents;
+
+  const $ = doc(html);
+  assert.equal($('#content').html(), '<span>content</span>');
+  assert.equal($('#prop').html(), '<span>prop</span>');
+  assert.equal($('#prop-and-content').html(), '<span>content</span>');
+});
+
 PreactComponent.run();
