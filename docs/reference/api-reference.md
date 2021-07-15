@@ -159,7 +159,12 @@ Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/
 ⚠️ Even though Astro will create the RSS feed for you, you’ll still need to add `<link>` tags manually in your `<head>` HTML:
 
 ```html
-<link rel="alternate" type="application/rss+xml" title="My RSS Feed" href="/feed/podcast.xml" />
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title="My RSS Feed"
+  href="/feed/podcast.xml"
+/>
 ```
 
 ## `import.meta`
