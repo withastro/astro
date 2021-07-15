@@ -8,7 +8,7 @@ Learn more: https://astro.build/blog/introducing-astro
 
 ⚠️ **Astro is still an early beta, missing features and bugs are to be expected!** If you can stomach it, then Astro-built sites are production ready and several production websites built with Astro already exist in the wild. We will update this note once we get closer to a stable, v1.0 release.
 
-## 🔧 Quick Start
+## Quick Start
 
 ```bash
 # get started with astro in 3 easy steps:
