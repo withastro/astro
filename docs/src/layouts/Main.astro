@@ -1,0 +1,248 @@
+---
+import ArticleFooter from '../components/ArticleFooter.astro';
+import SiteSidebar from '../components/SiteSidebar.astro';
+import ThemeToggle from '../components/ThemeToggle.tsx';
+import DocSidebar from '../components/DocSidebar.tsx';
+import MenuToggle from '../components/MenuToggle.tsx';
+
+const { content } = Astro.props;
+const headers = content?.astro?.headers;
+const currentPage = Astro.request.url.pathname;
+const currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
+const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${currentFile}`;
+---
+
+<html lang="{content.lang ?? 'en-us'}">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>{content.title}</title>
+    
+    <link rel="stylesheet" href="/theme.css" />
+    <link rel="stylesheet" href="/code.css" />
+    <link rel="stylesheet" href="/index.css" />
+    <script src="/theme.js" />
+    <link rel="icon" 
+          type="image/svg+xml" 
+          href="/favicon.svg">
+
+    <style>
+      body {
+        width: 100%;
+        display: grid;
+        grid-template-rows: 3.5rem 1fr;
+        --gutter: 0.5rem;
+        --doc-padding: 2rem;
+      }
+
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        height: 56px;
+        width: 100%;
+        background-color: var(--theme-bg-offset);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .layout {
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-columns: 
+          minmax(var(--gutter), 1fr) 
+          minmax(0, var(--max-width)) 
+          minmax(var(--gutter), 1fr);
+        gap: 1em;
+      }
+
+      .menu-and-logo {
+        gap: 1em;
+      }
+
+      #site-title {
+        display: flex;
+        align-items: center;
+        gap: 0.25em;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        line-height: 1;
+        color: var(--theme-text);
+        text-decoration: none;
+      }
+
+      #site-title:hover,
+      #site-title:focus {
+        color: var(--theme-text-light);
+      }
+
+      #site-title h1 {
+        font: inherit;
+        color: inherit;
+        margin: 0;
+      }
+
+      .nav-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 82em;
+        padding: 0 1rem;
+      }
+
+      .layout :global(> *) {
+        width: 100%;
+        height: 100%;
+      }
+
+      .sidebar {
+        min-height: calc(100vh - 3.5rem);
+        height: calc(100vh - 3.5rem);
+        max-height: 100vh;
+        position: sticky;
+        top: 3.5rem;
+        padding: 0;
+      }
+
+      #sidebar-site {
+        position: fixed;
+        background-color: var(--theme-bg);
+        z-index: 1000;
+      }
+
+      #article {
+        padding: var(--doc-padding) var(--gutter);
+        grid-column: 2;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .content {
+        max-width: 75ch;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .content > main {
+        margin-bottom: 4rem;
+      }
+
+      #sidebar-content {
+        display: none;
+      }
+      .theme-toggle-wrapper {
+        display: none;
+      }
+      #sidebar-site {
+        display: none;
+      }
+      :global(.mobile-sidebar-toggle) {
+        overflow: hidden;
+      }
+      :global(.mobile-sidebar-toggle) #sidebar-site {
+        display: block;
+      }
+      @media (min-width: 60em) {
+        #sidebar-site {
+          display: flex;
+        }
+        :global(.mobile-sidebar-toggle) {
+          overflow: initial;
+        }
+        :global(.mobile-sidebar-toggle) #sidebar-site {
+          display: flex;
+        }
+        .menu-toggle {
+          display: none;
+        }
+        .layout {
+          grid-template-columns: 
+            20rem 
+            minmax(0, var(--max-width));
+        }
+        #article {
+          grid-column: 2;
+        }
+        #sidebar-site {
+          position: sticky;
+        }
+        #sidebar-content {
+          /* display: flex; */
+          grid-column: 3;
+        }
+        .theme-toggle-wrapper {
+          display: block;
+        }
+      }
+
+      @media (min-width: 82em) {
+        .layout {
+          grid-template-columns: 
+            20rem 
+            minmax(0, var(--max-width)) 
+            18rem;
+          padding-left: 0;
+          padding-right: 0;
+          margin: 0 auto;
+        }
+
+        #sidebar-site {
+          grid-column: 1;
+        }
+        #article {
+          grid-column: 2;
+        }
+        #sidebar-content {
+          display: flex;
+          grid-column: 3;
+        }
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <nav class="nav-wrapper">
+        <div class="menu-and-logo flex">
+          <div class="menu-toggle">
+              <MenuToggle client:idle/>
+          </div>
+          <a id="site-title" href="/">
+            <h1>Astro Documentation</h1>
+          </a>
+        </div>
+
+        <div />
+
+        <div class="theme-toggle-wrapper">
+          <ThemeToggle client:idle />
+        </div>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar" id="sidebar-site">
+        <SiteSidebar currentPage={currentPage.slice(1)} />
+      </aside>
+      <div id="article">
+        <article class="content">
+          <main>
+            <h1 class="content-title" id="overview">{content.title}</h1>
+            <slot />
+          </main>
+          <ArticleFooter path={currentFile} />
+        </article>
+      </div>
+      <aside class="sidebar" id="sidebar-content">
+        <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />
+      </aside>
+    </main>
+  </body>
+</html>
