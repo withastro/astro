@@ -18,7 +18,8 @@
     "format": "prettier -w .",
     "lint": "eslint \"packages/**/*.ts\"",
     "test": "yarn workspace astro run test",
-    "test:templates": "lerna run test --scope create-astro --stream"
+    "test:templates": "lerna run test --scope create-astro --stream",
+    "prepare": "husky install"
   },
   "workspaces": [
     "packages/renderers/*",
@@ -54,7 +55,9 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
     "execa": "^5.0.0",
+    "husky": ">=6",
     "lerna": "^4.0.0",
+    "lint-staged": ">=10",
     "postcss": "^8.2.15",
     "postcss-icss-keyframes": "^0.2.1",
     "prettier": "^2.2.1",
@@ -65,5 +68,12 @@
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "lint-staged": {
+    "{packages,tools,script,www}/**/*.{js,jsx,ts,tsx}": [
+      "npm run format",
+      "npm run lint --fix",
+      "git add ."
+    ]
   }
 }
