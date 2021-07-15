@@ -308,6 +308,12 @@ h2.heading {
   color: var(--theme-text-light);
   border-left-color: var(--color-gray-600);
 }
+.header-link svg {
+  opacity: 0.6;
+}
+.header-link:hover svg {
+  opacity: 0.8;
+}
 
 .header-link.depth-3 {
   padding-left: 2rem;
