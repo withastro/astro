@@ -2,7 +2,10 @@
 
 **Astro** is a _fresh but familiar_ approach to building websites. Astro combines decades of proven performance best practices with the DX improvements of the component-oriented era. Use your favorite JavaScript framework and automatically ship the bare-minimum amount of JavaScript—by default. 
 
-Learn more: https://astro.build/blog/introducing-astro
+
+### [Announcement Post →](https://astro.build/blog/introducing-astro)
+
+### [Full Documentation Site →](https://docs.astro.build/)
 
 ## Project Status
 
