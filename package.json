@@ -70,7 +70,7 @@
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   },
   "lint-staged": {
-    "{packages,tools,script,www}/**/*.{js,jsx,ts,tsx}": [
+    "{packages,scripts,tools,www}/**/*.{js,jsx,ts,tsx}": [
       "npm run format",
       "npm run lint --fix",
       "git add ."
