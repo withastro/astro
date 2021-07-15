@@ -11,7 +11,7 @@ Learn more: https://astro.build/blog/introducing-astro
 ## 🔧 Quick Start
 
 ```bash
-# Get started with Astro in 3 easy steps:
+# get started with astro in 3 easy steps:
 mkdir new-project-directory
 cd new-project-directory
 npm init astro
