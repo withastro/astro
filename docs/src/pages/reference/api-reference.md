@@ -169,15 +169,18 @@ Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/
 
 ## `import.meta`
 
-All ESM modules include a `import.meta` property. Astro adds `import.meta.env` through [Snowpack](https://www.snowpack.dev/).
+> In this section we use `[dot]` to mean `.`. This is because of a bug in our build engine that is rewriting `import[dot]meta[dot]env` if we use `.` instead of `[dot]`.
 
-**import.meta.env.SSR** can be used to know when rendering on the server. Some times you might want different logic, for example a component that should only be rendered in the client:
+All ESM modules include a `import.meta` property. Astro adds `import[dot]meta[dot]env` through [Snowpack](https://www.snowpack.dev/).
+
+**`import[dot]meta[dot]env[dot]SSR`** can be used to know when rendering on the server. Some times you might want different logic, for example a component that should only be rendered in the client:
 
 ```jsx
 import { h } from 'preact';
 
 export default function () {
-  return import.meta.env.SSR ? <div class="spinner"></div> : <FancyComponent />;
+  // Note: rewrite "[dot]" to "." for this to to work in your project.
+  return import[dot]meta[dot]env[dot]SSR ? <div class="spinner"></div> : <FancyComponent />;
 }
 ```
 
