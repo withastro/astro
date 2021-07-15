@@ -4,4 +4,5 @@ export default {
     '~': './src',
   },
   plugins: ['@snowpack/plugin-dotenv'],
+  workspaceRoot: '../',
 };
