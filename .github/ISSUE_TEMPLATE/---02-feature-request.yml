@@ -9,10 +9,9 @@ body:
       value: Thanks for taking the time to suggest a new feature! Please fill out this form as completely as possible.
   - type: textarea
     attributes:
-      label: Motivation
+      label: Background & Motivation
       description: |
         A quick, clear and concise description of what the problem is. 
-
         **Please include links to relevant issues, Discord convos, and anything else.**
       placeholder: I want to be able to...
     validations:
@@ -27,6 +26,8 @@ body:
         ### Alternatives considered
 
         ### Risks, downsides, and/or tradeoffs
+
+        ### Open Questions
     validations:
       required: true
   - type: textarea
@@ -37,11 +38,6 @@ body:
 
         Otherwise, explain the exact steps required to implement this change.
         Include specific details that would help someone implement this feature.
-  - type: textarea
-    attributes:
-      label: Open Questions
-      description: |
-        Are there any open questions remaining? List them here.
   - type: checkboxes
     attributes:
       label: Help make it happen!
