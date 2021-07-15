@@ -3,7 +3,7 @@ layout: ~/layouts/Main.astro
 title: Installation
 ---
 
-There are a few different ways to install
+There are a few different ways to install Astro in a new project.
 
 ## Prerequisites
 
