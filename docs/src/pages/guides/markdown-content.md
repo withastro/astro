@@ -43,7 +43,10 @@ You can provide names of the plugins as well as import them:
 // astro.config.js
 export default {
   markdownOptions: {
-    remarkPlugins: [import('remark-slug'), [import('remark-autolink-headings'), { behavior: 'prepend' }]],
+    remarkPlugins: [
+      import('remark-slug'),
+      [import('remark-autolink-headings'), { behavior: 'prepend' }],
+    ],
   },
 };
 ```

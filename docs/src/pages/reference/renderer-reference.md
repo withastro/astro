@@ -120,10 +120,13 @@ Note that `childHTML` is an HTML string representing this component's children. 
 ```js
 import { h, renderToString } from 'xxx';
 
-const Wrapper = ({ value }) => h('astro-fragment', { dangerouslySetInnerHTML: { __html: value } });
+const Wrapper = ({ value }) =>
+  h('astro-fragment', { dangerouslySetInnerHTML: { __html: value } });
 
 function renderToStaticMarkup(Component, props, childHTML) {
-  const html = renderToString(h(Component, props, h(Wrapper, { value: childHTML })));
+  const html = renderToString(
+    h(Component, props, h(Wrapper, { value: childHTML }))
+  );
   return { html };
 }
 ```
@@ -152,7 +155,10 @@ import SharedWrapper from './SharedWrapper.js';
 
 export default (element) => {
   return (Component, props, childHTML) => {
-    hydrate(h(Component, props, h(SharedWrapper, { value: childHTML })), element);
+    hydrate(
+      h(Component, props, h(SharedWrapper, { value: childHTML })),
+      element
+    );
   };
 };
 ```

@@ -5,7 +5,7 @@ title: Pages
 
 **Pages** are a special type of [Astro Component](/core-concepts/astro-components) that handle routing, data loading, and templating for each page of your website. You can think of them like any other Astro component, just with extra responsibilities.
 
-Astro also supports Markdown for content-heavy pages, like blog posts and documentation. See [Markdown Content](/guides/markdown-content) for more information on writing pages with Markdown. 
+Astro also supports Markdown for content-heavy pages, like blog posts and documentation. See [Markdown Content](/guides/markdown-content) for more information on writing pages with Markdown.
 
 ## File-based Routing
 
@@ -23,7 +23,7 @@ src/pages/posts/1.md        -> mysite.com/posts/1
 
 ## Page Templating
 
-All Astro components are responsible for returning HTML. Astro Pages return HTML as well, but have the unique responsibility of returning a full `<html>...</html>` page response, including `<head>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) and `<body>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)). 
+All Astro components are responsible for returning HTML. Astro Pages return HTML as well, but have the unique responsibility of returning a full `<html>...</html>` page response, including `<head>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) and `<body>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
 
 `<!doctype html>` is optional, and will be added automatically.
 
@@ -44,7 +44,7 @@ All Astro components are responsible for returning HTML. Astro Pages return HTML
 
 ## Data Loading
 
-Astro pages can fetch data to help generate your pages. Astro provides two different tools to pages to help you do this: **fetch()** and **top-level await.** 
+Astro pages can fetch data to help generate your pages. Astro provides two different tools to pages to help you do this: **fetch()** and **top-level await.**
 
 📚 Read our [full guide](/guides/data-fetching) on data-fetching to learn more.
 

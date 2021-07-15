@@ -38,9 +38,9 @@ _Note: Partial hydration is sometimes called "progressive enhancement" or "progr
 
 ## Concept: Island Architecture
 
-**Island architecture** is the idea of using partial hydration to build entire websites. Island architecture is an alternative to the popular idea of building your website into a client-side JavaScript bundle that must be shipped to the user. 
+**Island architecture** is the idea of using partial hydration to build entire websites. Island architecture is an alternative to the popular idea of building your website into a client-side JavaScript bundle that must be shipped to the user.
 
-To quote Jason Miller, who [coined the phrase](https://jasonformat.com/islands-architecture/): 
+To quote Jason Miller, who [coined the phrase](https://jasonformat.com/islands-architecture/):
 
 > In an "islands" model, server rendering is not a bolt-on optimization aimed at improving SEO or UX. Instead, it is a fundamental part of how pages are delivered to the browser. The HTML returned in response to navigation contains a meaningful and immediately renderable representation of the content the user requested.
 
@@ -50,8 +50,6 @@ Besides the obvious performance benefits of sending less JavaScript down to the 
 - **Components render in isolation.** Each part of the page is an isolated unit, and a performance issue in one unit won't directly affect the others.
 
 ![diagram](https://res.cloudinary.com/wedding-website/image/upload/v1596766231/islands-architecture-1.png)
-
-
 
 ## Hydrate Interactive Components
 
@@ -68,15 +66,19 @@ import MyReactComponent from '../components/MyReactComponent.jsx';
 ```
 
 ### `<MyComponent client:load />`
+
 Hydrate the component on page load.
 
 ### `<MyComponent client:idle />`
+
 Hydrate the component as soon as main thread is free (uses [requestIdleCallback()][mdn-ric]).
 
 ### `<MyComponent client:visible />`
+
 Hydrate the component as soon as the element enters the viewport (uses [IntersectionObserver][mdn-io]). Useful for content lower down on the page.
 
-### `<MyComponent client:media={QUERY} />` 
+### `<MyComponent client:media={QUERY} />`
+
 Hydrate the component as soon as the browser matches the given media query (uses [matchMedia][mdn-mm]). Useful for sidebar toggles, or other elements that should only display on mobile or desktop devices.
 
 ## Can I Hydrate Astro Components?

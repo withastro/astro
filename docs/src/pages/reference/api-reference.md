@@ -65,6 +65,7 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 `Astro.site` returns a `URL` made from `buildOptions.site` in your Astro config. If undefined, this will return a URL generated from `localhost`.
 
 ## Collections API
+
 ### `collection` prop
 
 ```jsx
@@ -158,7 +159,12 @@ Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/
 ⚠️ Even though Astro will create the RSS feed for you, you’ll still need to add `<link>` tags manually in your `<head>` HTML:
 
 ```html
-<link rel="alternate" type="application/rss+xml" title="My RSS Feed" href="/feed/podcast.xml" />
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title="My RSS Feed"
+  href="/feed/podcast.xml"
+/>
 ```
 
 ## `import.meta`
@@ -176,4 +182,3 @@ export default function () {
 ```
 
 [canonical]: https://en.wikipedia.org/wiki/Canonical_link_element
-

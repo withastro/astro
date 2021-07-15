@@ -53,7 +53,7 @@ For best results, you should only have one `<style>` tag per-Astro component. Th
 <html>
   <head>
     <style>
-      ...
+      ...;
     </style>
   </head>
   <body>
@@ -204,7 +204,7 @@ Slots become even more powerful when using **named slots**. Rather than a single
 <div id="my-component">
   <header>
     <!-- children with the `slot="header"` attribute will go here -->
-    <slot name="header" /> 
+    <slot name="header" />
   </header>
   <main>
     <!-- children without a `slot` (or with the `slot="default"`) attribute will go here -->
@@ -212,7 +212,7 @@ Slots become even more powerful when using **named slots**. Rather than a single
   </main>
   <footer>
     <!-- children with the `slot="footer"` attribute will go here -->
-    <slot name="footer" /> 
+    <slot name="footer" />
   </footer>
 </div>
 
