@@ -10,19 +10,10 @@ Learn more: https://astro.build/blog/introducing-astro
 
 ## 🔧 Quick Start
 
-> __Important__: Astro is built with [ES modules (ESM)](https://nodejs.org/api/esm.html) which are not supported in older version of Node.js. The minimum supported version is __14.15.1__.
-
 ```bash
-# create your project
 mkdir new-project-directory
 cd new-project-directory
 npm init astro
-
-# install your dependencies
-npm install
-
-# start the dev server and open your browser
-npm start
 ```
 
 ### [Full Documentation Site →](https://docs.astro.build/)
