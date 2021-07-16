@@ -44,8 +44,6 @@ if (currentPage) {
       }
 
       header {
-        position: sticky;
-        top: 0;
         z-index: 10;
         height: var(--theme-navbar-height);
         width: 100%;
@@ -54,18 +52,6 @@ if (currentPage) {
         align-items: center;
         justify-content: center;
         z-index: 1001;
-      }
-
-      header .site-content-title {
-        display: none;
-        width: var(--max-width);
-        margin: 0 auto;
-      }
-
-      header .content-title {
-        color: var(--color-white);
-        margin: 0;
-        font-size: 1.5rem;
       }
 
       .layout {
@@ -83,9 +69,6 @@ if (currentPage) {
         align-items: center;
         justify-content: center;
         gap: 1em;
-        width: 100%;
-        margin-left: -40px;
-        transform: translateY(4px);
         z-index: -1;
       }
 
@@ -104,27 +87,10 @@ if (currentPage) {
       }
 
       .sidebar {
-        min-height: calc(100vh - var(--theme-navbar-height));
-        height: calc(100vh - var(--theme-navbar-height));
-        max-height: 100vh;
+        height: 100vh;
         position: sticky;
-        top: var(--doc-padding);
-        margin-top: var(--theme-navbar-height);
+        top: 0;
         padding: 0;
-        transition: transform 300ms 200ms cubic-bezier(0.23, 1, 0.320, 1);
-      }
-
-      :global(:root.scrolled) .sidebar {
-        transform: translateY(0);
-        transition: transform 200ms 100ms cubic-bezier(0.755, 0.05, 0.855, 0.06);
-      }
-
-      :global(:root) .sidebar {
-        transform: translateY(var(--theme-navbar-height));
-      }
-      :global(:root.initial) .sidebar {
-        transform: translateY(0);
-        transition: transform 150ms linear;
       }
 
       #sidebar-site {
@@ -213,12 +179,6 @@ if (currentPage) {
       }
 
       @media (min-width: 82em) {
-        header .site-content-title {
-          display: block;
-        }
-        main .content-title {
-          display: none;
-        }
         .layout {
           grid-template-columns: 
             20rem 
@@ -256,17 +216,23 @@ if (currentPage) {
 
         <div class="logo flex">
           <a id="site-title" href="/">
-            <svg xmlns="http://www.w3.org/2000/svg" width="270" height="102" viewBox="0 0 270 102" fill="none">
-              <path fill="currentColor" fill-rule="evenodd" d="M55.07 14.216l16.81 54.865a72.6 72.6 0 00-20.765-6.984L39.808 24.135a1.475 1.475 0 00-2.827.005L25.81 62.078a72.598 72.598 0 00-20.859 6.995L21.847 14.2c.998-3.243 1.497-4.865 2.47-6.066a8 8 0 013.239-2.392c1.434-.576 3.13-.576 6.524-.576h8.751c3.398 0 5.097 0 6.532.577a8 8 0 013.241 2.397c.972 1.203 1.47 2.827 2.465 6.076z" clip-rule="evenodd"/>
-              <path fill="currentColor" fill-rule="evenodd" d="M54.618 71.779c-2.863 2.432-8.578 4.091-15.161 4.091-8.08 0-14.852-2.499-16.649-5.86-.642 1.926-.786 4.13-.786 5.539 0 0-.423 6.915 4.418 11.725 0-2.498 2.037-4.522 4.551-4.522 4.309 0 4.304 3.734 4.3 6.764v.27c0 4.6 2.829 8.541 6.852 10.203a9.22 9.22 0 01-.938-4.064c0-4.386 2.592-6.02 5.604-7.917 2.396-1.51 5.06-3.188 6.894-6.554a12.297 12.297 0 001.502-5.905c0-1.314-.206-2.581-.587-3.77z" clip-rule="evenodd"/>
-              <path fill="currentColor" d="M117.872 69.96c5.952 0 10.688-2.56 13.056-6.784V69h10.624V22.6H130.48v18.88c-2.496-3.584-6.592-5.44-12.096-5.44C108.592 36.04 102 42.824 102 53c0 10.112 6.464 16.96 15.872 16.96zm4.224-7.424c-5.312 0-8.64-3.712-8.64-9.664s3.136-9.472 8.448-9.472 8.768 3.328 8.768 8.704v1.92c0 5.12-3.456 8.512-8.576 8.512zM167.909 69.96c11.712 0 19.968-6.208 19.968-17.024 0-10.752-8.256-16.896-19.968-16.896-11.776 0-20.033 6.144-20.033 16.896 0 10.816 8.257 17.024 20.033 17.024zm0-7.36c-5.376 0-8.768-3.456-8.768-9.664s3.392-9.536 8.768-9.536c5.312 0 8.704 3.328 8.704 9.536s-3.392 9.664-8.704 9.664zM212.346 69.96c10.112 0 17.344-4.544 18.88-11.84l-10.944-1.984c-.896 3.84-3.648 5.952-8 5.952-5.312 0-8.64-3.52-8.64-9.344 0-5.568 3.264-8.896 8.576-8.896 4.288 0 7.104 2.048 8 5.824l11.008-1.792c-1.6-7.552-8.384-11.84-18.688-11.84-12.544 0-20.224 6.4-20.224 16.896 0 10.368 7.872 17.024 20.032 17.024zM253.125 69.96c11.136 0 16.832-4.16 16.832-10.88 0-5.568-3.2-8.64-10.944-9.664l-9.664-1.088c-2.752-.384-3.904-1.088-3.904-2.624 0-1.856 1.856-2.688 6.08-2.688 5.824 0 9.856 1.344 13.12 3.968l5.184-5.184c-3.584-3.712-9.792-5.76-17.472-5.76-10.816 0-16.832 3.84-16.832 10.304 0 5.632 3.712 8.768 11.392 9.792l8.704 1.024c3.456.448 4.48 1.088 4.48 2.752 0 1.92-1.92 2.944-6.4 2.944-6.656 0-11.136-1.792-14.144-5.12l-5.888 4.864c3.904 4.864 10.56 7.36 19.456 7.36z"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="193" height="256" viewBox="0 0 193 256" fill="none">
+              <path fill="url(#paint0_linear)" fill-rule="evenodd" d="M131.496 18.929c1.943 2.413 2.935 5.67 4.917 12.181l43.309 142.27a180.277 180.277 0 00-51.778-17.53L99.746 60.56a3.67 3.67 0 00-7.042.01l-27.857 95.232a180.224 180.224 0 00-52.01 17.557l43.52-142.281c1.989-6.502 2.983-9.752 4.927-12.16a15.999 15.999 0 016.484-4.798c2.872-1.154 6.271-1.154 13.07-1.154h31.085c6.807 0 10.211 0 13.085 1.157a16 16 0 016.488 4.806z" clip-rule="evenodd"/>
+              <path fill="#FF5D01" fill-rule="evenodd" d="M136.678 180.151c-7.14 6.105-21.39 10.268-37.804 10.268-20.147 0-37.033-6.272-41.513-14.707-1.602 4.835-1.962 10.367-1.962 13.902 0 0-1.055 17.355 11.016 29.426 0-6.268 5.081-11.349 11.349-11.349 10.743 0 10.731 9.373 10.721 16.977v.679c0 11.542 7.054 21.436 17.086 25.606a23.27 23.27 0 01-2.339-10.2c0-11.008 6.463-15.107 13.973-19.87 5.977-3.79 12.616-8.001 17.192-16.449a31.013 31.013 0 003.744-14.82c0-3.299-.513-6.479-1.463-9.463z" clip-rule="evenodd"/>
+              <path fill="url(#paint1_linear)" fill-rule="evenodd" d="M136.678 180.151c-7.14 6.105-21.39 10.268-37.804 10.268-20.147 0-37.033-6.272-41.513-14.707-1.602 4.835-1.962 10.367-1.962 13.902 0 0-1.055 17.355 11.016 29.426 0-6.268 5.081-11.349 11.349-11.349 10.743 0 10.731 9.373 10.721 16.977v.679c0 11.542 7.054 21.436 17.086 25.606a23.27 23.27 0 01-2.339-10.2c0-11.008 6.463-15.107 13.973-19.87 5.977-3.79 12.616-8.001 17.192-16.449a31.013 31.013 0 003.744-14.82c0-3.299-.513-6.479-1.463-9.463z" clip-rule="evenodd"/>
+              <defs>
+                <linearGradient id="paint0_linear" x1="145.087" x2="96.279" y1="5.423" y2="173.38" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#fff"/>
+                  <stop offset="1" stop-color="#F9FAFB"/>
+                </linearGradient>
+                <linearGradient id="paint1_linear" x1="168.824" x2="126.553" y1="130.49" y2="218.982" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#FF1639"/>
+                  <stop offset="1" stop-color="#FF1639" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
             </svg>
-            <h1 class="sr-only">Astro Documentation</h1>
+            <h1><span class="sr-only">Astro</span>Documentation</h1>
           </a>
-        </div>
-
-        <div class="site-content-title">
-          {content?.title && <h1 class="content-title">{content?.title}</h1>}
         </div>
 
         <div class="theme-toggle-wrapper">

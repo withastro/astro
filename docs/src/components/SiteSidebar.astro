@@ -23,9 +23,6 @@ const {currentPage} = Astro.props;
 
 <style>
   nav {
-    position: sticky;
-    min-height: calc(100vh - var(--theme-navbar-height));
-    height: calc(100vh - var(--theme-navbar-height));
     width: 100%;
     margin-right: 1rem;
   }
@@ -40,8 +37,13 @@ const {currentPage} = Astro.props;
     margin-top: 2rem;
   }
 
+  .nav-groups > :first-child {
+    padding-top: 2rem;
+  }
+
   .nav-groups > :last-child {
-    margin-bottom: 4rem;
+    padding-bottom: 2rem;
+    margin-bottom: var(--theme-navbar-height);
   }
 
   .nav-group-title {

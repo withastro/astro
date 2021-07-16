@@ -221,26 +221,7 @@ img {
 
 header {
   position: relative;
-  transition: transform 300ms 200ms cubic-bezier(0.23, 1, 0.320, 1);
-}
-
-header::after {
-  content: '';
-  display: block;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  height: 0.5rem;
-  background: var(--theme-navbar-bg);
-}
-
-header.hidden {
-  transform: translateY(calc(-100% - 1px));
-  transition: transform 200ms 100ms cubic-bezier(0.755, 0.05, 0.855, 0.06);
-}
-header.hidden:is(:hover, :focus, :focus-within) {
-  transform: translateY(0);
+  margin-bottom: 0.5rem;
 }
 
 header button {
@@ -281,7 +262,7 @@ button {
   gap: 0.25em;
   padding: 0.33em 0.67em;
   border-radius: 99em;
-  background-color: var(--theme-bg);
+  background-color: var(--color-gray-800);
 }
 
 #theme-toggle > label:focus-within {
@@ -290,6 +271,7 @@ button {
 }
 
 #theme-toggle > label {
+  color: white;
   position: relative;
   display: flex;
   align-items: center;
@@ -308,7 +290,7 @@ button {
 }
 
 #theme-toggle .checked {
-  color: var(--theme-navbar-bg);
+  color: var(--theme-accent);
   transform: scale(1.125);
   opacity: 1;
 }
@@ -326,13 +308,12 @@ input[name='theme-toggle'] {
 .sidebar-nav {
   width: 100%;
   position: sticky;
-  min-height: calc(100vh - var(--theme-navbar-height));
-  height: calc(100vh - var(--theme-navbar-height));
-  top: var(--theme-navbar-height);
+  top: 0;
 }
 .sidebar-nav-inner {
   height: 100%;
   padding: 0;
+  padding-top: 2rem;
   overflow: auto;
 }
 
@@ -364,6 +345,10 @@ h2.heading {
 }
 .header-link:hover svg {
   opacity: 0.8;
+}
+.header-link a {
+  display: inline-flex;
+  gap: 0.5em;
 }
 
 .header-link.depth-3 {
@@ -407,18 +392,19 @@ h2.heading {
 #site-title {
   display: flex;
   align-items: center;
-  gap: 0.25em;
-  font-size: 1.5rem;
-  font-weight: 700;
+  gap: 0.5em;
+  font-size: 1.25rem;
+  font-weight: 600;
   margin: 0;
   line-height: 1;
   color: var(--color-white);
   text-decoration: none;
+  transform: translateX(-8px);
 }
 
 #site-title svg {
-  width: 118px;
-  height: 48px;
+  height: 40px;
+  width: 32px;
   display: block;
 }
 
