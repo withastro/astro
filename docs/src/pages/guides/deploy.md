@@ -3,8 +3,6 @@ layout: ~/layouts/Main.astro
 title: Deploy a Website
 ---
 
-> This page is based off of [Vite's](https://vitejs.dev/) well-documented [static deploy instructions](https://vitejs.dev/guide/static-deploy.html).
-
 The following guides are based on some shared assumptions:
 
 - You are using the default build output location (`dist/`). This location [can be changed using the `dist` configuration option](/reference/configuration-reference).
@@ -253,3 +251,7 @@ Install the extension in VS Code and navigate to your app root. Open the Static 
 Follow the wizard started by the extension to give your app a name, choose a framework preset, and designate the app root (usually `/`) and built file location `/dist`. The wizard will run and will create a GitHub action in your repo in a `.github` folder.
 
 The action will work to deploy your app (watch its progress in your repo's Actions tab) and, when successfully completed, you can view your app in the address provided in the extension's progress window by clicking the 'Browse Website' button that appears when the GitHub action has run.
+
+## Credits
+
+This guide was originally based off of [Vite's](https://vitejs.dev/) well-documented static deploy guide.
