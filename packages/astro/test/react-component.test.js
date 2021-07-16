@@ -60,7 +60,7 @@ React('Throws helpful error message on window SSR', async () => {
     `[/window]
     The window object is not available during server-side rendering (SSR).
     Try using \`import.meta.env.SSR\` to write SSR-friendly code.
-    https://github.com/snowpackjs/astro/blob/main/docs/reference/api-reference.md#importmeta`
+    https://docs.astro.build/reference/api-reference/#importmeta`
   );
 });
 

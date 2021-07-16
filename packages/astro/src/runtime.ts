@@ -264,7 +264,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
           `[${reqPath}]
     The window object is not available during server-side rendering (SSR).
     Try using \`import.meta.env.SSR\` to write SSR-friendly code.
-    https://github.com/snowpackjs/astro/blob/main/docs/reference/api-reference.md#importmeta`
+    https://docs.astro.build/reference/api-reference/#importmeta`
         ),
       };
     }
