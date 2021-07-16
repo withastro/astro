@@ -232,7 +232,7 @@ const githubEditUrl = `https://github.com/USER/REPO/blob/main/${currentFile}`
         </article>
       </div>
       <aside class="sidebar" id="sidebar-content">
-        <DocSidebar client:idle headers={headers} editHref={editHref} />
+        <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />
       </aside>
     </main>
   </body>
