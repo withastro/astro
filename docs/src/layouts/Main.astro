@@ -47,7 +47,7 @@ if (currentPage) {
         position: sticky;
         top: 0;
         z-index: 10;
-        height: 56px;
+        height: var(--theme-navbar-height);
         width: 100%;
         background-color: var(--theme-navbar-bg);
         display: flex;
@@ -75,6 +75,7 @@ if (currentPage) {
           minmax(var(--gutter), 1fr) 
           minmax(0, var(--max-width)) 
           minmax(var(--gutter), 1fr);
+        overflow-x: hidden;
       }
 
       .logo {
@@ -167,8 +168,12 @@ if (currentPage) {
       }
       :global(.mobile-sidebar-toggle) #sidebar-site {
         display: block;
+        top: 0;
       }
       @media (min-width: 60em) {
+        .layout {
+          overflow: initial;
+        }
         .logo {
           width: auto;
           margin: 0;

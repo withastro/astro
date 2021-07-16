@@ -37,13 +37,13 @@
 :root {
   color-scheme: light;
   --theme-accent: var(--color-purple);
+  --theme-text-accent: var(--color-purple);
   --theme-accent-rgb: var(--color-purple-rgb);
   --theme-accent-opacity: 0.1;
   --theme-divider: var(--color-gray-100);
   --theme-text: var(--color-gray-800);
   --theme-text-light: var(--color-gray-600);
   --theme-text-lighter: var(--color-gray-400);
-  --theme-text-accent: var(--color-purple);
   --theme-bg: var(--color-white);
   --theme-bg-hover: var(--color-gray-50);
   --theme-bg-offset: var(--color-gray-100);
@@ -52,7 +52,7 @@
   --theme-code-inline-text: var(--theme-text);
   --theme-code-bg: var(--color-gray-700);
   --theme-code-text: var(--color-gray-100);
-  --theme-navbar-bg: var(--color-green);
+  --theme-navbar-bg: var(--color-orange);
   --theme-navbar-height: 3.5rem;
   --theme-sidebar-offset: var(--theme-navbar-height);
 }
@@ -68,12 +68,14 @@ body {
 
 :root.theme-dark {
   color-scheme: dark;
-  --theme-accent-opacity: 0.3;
+  --theme-accent-opacity: 0.4;
+  --theme-accent: var(--color-orange);
+  --theme-text-accent: var(--color-orange);
+  --theme-accent-rgb: var(--color-orange-rgb);
   --theme-divider: var(--color-gray-900);
   --theme-text: var(--color-gray-200);
   --theme-text-light: var(--color-gray-300);
   --theme-text-lighter: var(--color-gray-600);
-  --theme-text-accent: #A550FF;
   --theme-bg: var(--color-gray-800);
   --theme-bg-hover: var(--color-gray-600);
   --theme-bg-offset: var(--color-gray-950);
@@ -81,9 +83,15 @@ body {
   --theme-code-inline-text: var(--color-white);
   --theme-code-bg: var(--color-gray-950);
   --theme-code-text: var(--color-white);
+  --theme-navbar-bg: var(--color-purple);
 }
 
 ::selection {
-  color: var(--color-green);
-  background-color: rgba(var(--color-green-rgb), var(--theme-accent-opacity));
+  color: var(--color-orange);
+  background-color: rgba(var(--color-orange-rgb), var(--theme-accent-opacity));
+}
+
+:root.theme-dark ::selection {
+  color: var(--color-white);
+  background-color: rgba(var(--color-purple-rgb), var(--theme-accent-opacity));
 }
