@@ -33,6 +33,10 @@ nav ul {
   margin-top: 1rem;
 }
 
+.content main > :first-child {
+  margin-top: 0;
+}
+
 /* Typography */
 :is(h1, h2, h3, h4, h5, h6) {
   margin-bottom: 1rem;
@@ -88,6 +92,20 @@ a {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+article :is(ul, ol) > * + *,
+article li > * + * {
+  margin-top: 0.75rem;
+}
+
+article :is(ul, ol) {
+  padding-left: 0;
+}
+
+article ::marker {
+  font-weight: bold;
+  color: var(--theme-text-light);
 }
 
 a > code:not([class*='language']) {
@@ -159,7 +177,7 @@ pre {
   padding-right: calc(var(--padding-inline) * 2);
   margin-left: calc(var(--padding-inline) * -1);
   margin-right: calc(var(--padding-inline) * -1);
-  font-family: "IBM Plex Mono", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+  font-family: var(--font-mono);
 
   line-height: 1.5;
   font-size: 0.85rem;
@@ -305,13 +323,13 @@ input[name='theme-toggle'] {
 .sidebar-nav {
   width: 100%;
   position: sticky;
-  min-height: calc(100vh - 3.5rem);
-  height: calc(100vh - 3.5rem);
-  top: 3.5rem;
+  min-height: calc(100vh - var(--theme-navbar-height));
+  height: calc(100vh - var(--theme-navbar-height));
+  top: var(--theme-navbar-height);
 }
 .sidebar-nav-inner {
   height: 100%;
-  padding: 2rem 0;
+  padding: 0;
   overflow: auto;
 }
 
@@ -397,6 +415,7 @@ h2.heading {
 
 #site-title svg {
   width: 118px;
+  display: block;
 }
 
 #site-title:hover,

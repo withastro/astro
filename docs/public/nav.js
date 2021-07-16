@@ -6,7 +6,7 @@ if (!window.matchMedia('(prefers-reduced-motion)').matches) {
 
 let prev = -1;
 let prevDir = 0;
-let threshold = 40;
+let threshold = 32;
 
 function onScroll() {
   const curr = window.scrollY;
@@ -14,6 +14,7 @@ function onScroll() {
   
   if (curr < threshold) {
     show();
+    document.documentElement.classList.add('initial');
   } else if (dir !== prevDir) {
     if (dir === 1) {
       hide();
@@ -28,6 +29,7 @@ function onScroll() {
 const hide = () => {
   nav.classList.add('hidden')
   document.documentElement.classList.add('scrolled');
+  document.documentElement.classList.remove('initial');
 };
 const show = () => {
   nav.classList.remove('hidden');

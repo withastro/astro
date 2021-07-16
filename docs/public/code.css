@@ -36,10 +36,7 @@
 	color: #FA5E5B;
 }
 
-.token.atrule {
-	color: #c792ea;
-}
-
+.token.boolean,
 .token.constant,
 .token.doctype,
 .token.number,
@@ -52,6 +49,7 @@
 	color: var(--color-yellow);
 }
 
+.token.atrule,
 .token.attribute,
 .token.attr-value .token.punctuation,
 .token.attr-value,
@@ -62,7 +60,6 @@
 }
 
 .token.symbol,
-.token.boolean,
 .token.function,
 .token.id,
 .token.important
