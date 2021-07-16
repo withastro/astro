@@ -2,8 +2,7 @@
   --font-fallback: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
     sans-serif, Apple Color Emoji, Segoe UI Emoji;
   --font-body: system-ui, var(--font-fallback);
-  --font-mono: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  --font-mono: "IBM Plex Mono", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
 
   --color-white: #fff;
   --color-black: #000014;
@@ -37,14 +36,14 @@
 
 :root {
   color-scheme: light;
-  --theme-accent: var(--color-blue);
-  --theme-accent-rgb: var(--color-blue-rgb);
+  --theme-accent: var(--color-purple);
+  --theme-accent-rgb: var(--color-purple-rgb);
   --theme-accent-opacity: 0.1;
   --theme-divider: var(--color-gray-100);
   --theme-text: var(--color-gray-800);
   --theme-text-light: var(--color-gray-600);
   --theme-text-lighter: var(--color-gray-400);
-  --theme-text-accent: var(--color-blue);
+  --theme-text-accent: var(--color-purple);
   --theme-bg: var(--color-white);
   --theme-bg-hover: var(--color-gray-50);
   --theme-bg-offset: var(--color-gray-100);
@@ -53,11 +52,18 @@
   --theme-code-inline-text: var(--theme-text);
   --theme-code-bg: var(--color-gray-700);
   --theme-code-text: var(--color-gray-100);
+  --theme-navbar-bg: var(--color-green);
+  --theme-navbar-height: 3.5rem;
+  --theme-sidebar-offset: var(--theme-navbar-height);
 }
 
 body {
   background: var(--theme-bg);
   color: var(--theme-text);
+}
+
+:root.scrolled {
+  --theme-sidebar-offset: 0;
 }
 
 :root.theme-dark {
@@ -67,17 +73,17 @@ body {
   --theme-text: var(--color-gray-200);
   --theme-text-light: var(--color-gray-300);
   --theme-text-lighter: var(--color-gray-600);
-  --theme-text-accent: var(--color-white);
+  --theme-text-accent: #A550FF;
   --theme-bg: var(--color-gray-800);
   --theme-bg-hover: var(--color-gray-600);
   --theme-bg-offset: var(--color-gray-950);
-  --theme-code-inline-bg: var(--color-gray-600);
+  --theme-code-inline-bg: var(--color-gray-900);
   --theme-code-inline-text: var(--color-white);
   --theme-code-bg: var(--color-gray-950);
   --theme-code-text: var(--color-white);
 }
 
 ::selection {
-  color: var(--theme-text-accent);
-  background-color: rgba(var(--theme-accent-rgb), var(--theme-accent-opacity));
+  color: var(--color-green);
+  background-color: rgba(var(--color-green-rgb), var(--theme-accent-opacity));
 }

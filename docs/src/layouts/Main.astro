@@ -5,14 +5,18 @@ import ThemeToggle from '../components/ThemeToggle.tsx';
 import DocSidebar from '../components/DocSidebar.tsx';
 import MenuToggle from '../components/MenuToggle.tsx';
 
-const { content } = Astro.props;
+const { content = {} } = Astro.props;
 const headers = content?.astro?.headers;
-const currentPage = Astro.request.url.pathname;
-const currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
-const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`;
+const currentPage = Astro.request?.url?.pathname;
+let currentFile;
+let githubEditUrl;
+if (currentPage) {
+  currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
+  githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`;
+}
 ---
 
-<html lang="{content.lang ?? 'en-us'}">
+<html lang="{content.lang ?? 'en-us'}" class="initial">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
@@ -26,11 +30,15 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
           type="image/svg+xml" 
           href="/favicon.svg">
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital@0;1&display=swap" rel="stylesheet">
+
     <style>
       body {
         width: 100%;
         display: grid;
-        grid-template-rows: 3.5rem 1fr;
+        grid-template-rows: var(--theme-navbar-height) 1fr;
         --gutter: 0.5rem;
         --doc-padding: 2rem;
       }
@@ -41,10 +49,23 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
         z-index: 10;
         height: 56px;
         width: 100%;
-        background-color: var(--theme-bg-offset);
+        background-color: var(--theme-navbar-bg);
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 1001;
+      }
+
+      header .site-content-title {
+        display: none;
+        width: var(--max-width);
+        margin: 0 auto;
+      }
+
+      header .content-title {
+        color: var(--color-white);
+        margin: 0;
+        font-size: 1.5rem;
       }
 
       .layout {
@@ -54,34 +75,17 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
           minmax(var(--gutter), 1fr) 
           minmax(0, var(--max-width)) 
           minmax(var(--gutter), 1fr);
-        gap: 1em;
       }
 
-      .menu-and-logo {
-        gap: 1em;
-      }
-
-      #site-title {
+      .logo {
         display: flex;
         align-items: center;
-        gap: 0.25em;
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 0;
-        line-height: 1;
-        color: var(--theme-text);
-        text-decoration: none;
-      }
-
-      #site-title:hover,
-      #site-title:focus {
-        color: var(--theme-text-light);
-      }
-
-      #site-title h1 {
-        font: inherit;
-        color: inherit;
-        margin: 0;
+        justify-content: center;
+        gap: 1em;
+        width: 100%;
+        margin-left: -40px;
+        transform: translateY(4px);
+        z-index: -1;
       }
 
       .nav-wrapper {
@@ -99,12 +103,27 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
       }
 
       .sidebar {
-        min-height: calc(100vh - 3.5rem);
-        height: calc(100vh - 3.5rem);
+        min-height: calc(100vh - var(--theme-navbar-height));
+        height: calc(100vh - var(--theme-navbar-height));
         max-height: 100vh;
         position: sticky;
-        top: 3.5rem;
+        top: var(--doc-padding);
+        margin-top: var(--theme-navbar-height);
         padding: 0;
+        transition: transform 300ms 200ms cubic-bezier(0.23, 1, 0.320, 1);
+      }
+
+      :global(:root.scrolled) .sidebar {
+        transform: translateY(0);
+        transition: transform 200ms 100ms cubic-bezier(0.755, 0.05, 0.855, 0.06);
+      }
+
+      :global(:root) .sidebar {
+        transform: translateY(var(--theme-navbar-height));
+      }
+      :global(:root.initial) .sidebar {
+        transform: translateY(0);
+        transition: transform 150ms linear;
       }
 
       #sidebar-site {
@@ -122,6 +141,7 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
       }
 
       .content {
+        padding: 0;
         max-width: 75ch;
         width: 100%;
         height: 100%;
@@ -149,6 +169,11 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
         display: block;
       }
       @media (min-width: 60em) {
+        .logo {
+          width: auto;
+          margin: 0;
+          z-index: 0;
+        }
         #sidebar-site {
           display: flex;
         }
@@ -165,6 +190,7 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
           grid-template-columns: 
             20rem 
             minmax(0, var(--max-width));
+          gap: 1em;
         }
         #article {
           grid-column: 2;
@@ -182,6 +208,12 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
       }
 
       @media (min-width: 82em) {
+        header .site-content-title {
+          display: block;
+        }
+        main .content-title {
+          display: none;
+        }
         .layout {
           grid-template-columns: 
             20rem 
@@ -202,6 +234,9 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
           display: flex;
           grid-column: 3;
         }
+        .nav-wrapper {
+          padding: 0;
+        }
       }
 
     </style>
@@ -210,16 +245,24 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
   <body>
     <header>
       <nav class="nav-wrapper">
-        <div class="menu-and-logo flex">
-          <div class="menu-toggle">
-              <MenuToggle client:idle/>
-          </div>
+        <div class="menu-toggle">
+            <MenuToggle client:idle/>
+        </div>
+
+        <div class="logo flex">
           <a id="site-title" href="/">
-            <h1>Astro Documentation</h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="270" height="102" viewBox="0 0 270 102" fill="none">
+              <path fill="currentColor" fill-rule="evenodd" d="M55.07 14.216l16.81 54.865a72.6 72.6 0 00-20.765-6.984L39.808 24.135a1.475 1.475 0 00-2.827.005L25.81 62.078a72.598 72.598 0 00-20.859 6.995L21.847 14.2c.998-3.243 1.497-4.865 2.47-6.066a8 8 0 013.239-2.392c1.434-.576 3.13-.576 6.524-.576h8.751c3.398 0 5.097 0 6.532.577a8 8 0 013.241 2.397c.972 1.203 1.47 2.827 2.465 6.076z" clip-rule="evenodd"/>
+              <path fill="currentColor" fill-rule="evenodd" d="M54.618 71.779c-2.863 2.432-8.578 4.091-15.161 4.091-8.08 0-14.852-2.499-16.649-5.86-.642 1.926-.786 4.13-.786 5.539 0 0-.423 6.915 4.418 11.725 0-2.498 2.037-4.522 4.551-4.522 4.309 0 4.304 3.734 4.3 6.764v.27c0 4.6 2.829 8.541 6.852 10.203a9.22 9.22 0 01-.938-4.064c0-4.386 2.592-6.02 5.604-7.917 2.396-1.51 5.06-3.188 6.894-6.554a12.297 12.297 0 001.502-5.905c0-1.314-.206-2.581-.587-3.77z" clip-rule="evenodd"/>
+              <path fill="currentColor" d="M117.872 69.96c5.952 0 10.688-2.56 13.056-6.784V69h10.624V22.6H130.48v18.88c-2.496-3.584-6.592-5.44-12.096-5.44C108.592 36.04 102 42.824 102 53c0 10.112 6.464 16.96 15.872 16.96zm4.224-7.424c-5.312 0-8.64-3.712-8.64-9.664s3.136-9.472 8.448-9.472 8.768 3.328 8.768 8.704v1.92c0 5.12-3.456 8.512-8.576 8.512zM167.909 69.96c11.712 0 19.968-6.208 19.968-17.024 0-10.752-8.256-16.896-19.968-16.896-11.776 0-20.033 6.144-20.033 16.896 0 10.816 8.257 17.024 20.033 17.024zm0-7.36c-5.376 0-8.768-3.456-8.768-9.664s3.392-9.536 8.768-9.536c5.312 0 8.704 3.328 8.704 9.536s-3.392 9.664-8.704 9.664zM212.346 69.96c10.112 0 17.344-4.544 18.88-11.84l-10.944-1.984c-.896 3.84-3.648 5.952-8 5.952-5.312 0-8.64-3.52-8.64-9.344 0-5.568 3.264-8.896 8.576-8.896 4.288 0 7.104 2.048 8 5.824l11.008-1.792c-1.6-7.552-8.384-11.84-18.688-11.84-12.544 0-20.224 6.4-20.224 16.896 0 10.368 7.872 17.024 20.032 17.024zM253.125 69.96c11.136 0 16.832-4.16 16.832-10.88 0-5.568-3.2-8.64-10.944-9.664l-9.664-1.088c-2.752-.384-3.904-1.088-3.904-2.624 0-1.856 1.856-2.688 6.08-2.688 5.824 0 9.856 1.344 13.12 3.968l5.184-5.184c-3.584-3.712-9.792-5.76-17.472-5.76-10.816 0-16.832 3.84-16.832 10.304 0 5.632 3.712 8.768 11.392 9.792l8.704 1.024c3.456.448 4.48 1.088 4.48 2.752 0 1.92-1.92 2.944-6.4 2.944-6.656 0-11.136-1.792-14.144-5.12l-5.888 4.864c3.904 4.864 10.56 7.36 19.456 7.36z"/>
+            </svg>
+            <h1 class="sr-only">Astro Documentation</h1>
           </a>
         </div>
 
-        <div />
+        <div class="site-content-title">
+          {content?.title && <h1 class="content-title">{content?.title}</h1>}
+        </div>
 
         <div class="theme-toggle-wrapper">
           <ThemeToggle client:idle />
@@ -229,21 +272,23 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
 
     <main class="layout">
       <aside class="sidebar" id="sidebar-site">
-        <SiteSidebar currentPage={currentPage.slice(1)} />
+        <SiteSidebar currentPage={currentPage?.slice(1) ?? ''} />
       </aside>
       <div id="article">
         <article class="content">
           <main>
-            <h1 class="content-title" id="overview">{content.title}</h1>
+            <h1 class="content-title" id="overview">{content?.title}</h1>
             <slot />
           </main>
-          <ArticleFooter path={currentFile} />
+          {currentPage && <ArticleFooter path={currentFile} />}
         </article>
       </div>
       <aside class="sidebar" id="sidebar-content">
-        <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />
+        {currentPage && <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />}
       </aside>
     </main>
+
+    <script type="module" src="/nav.js" />
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TEL60V1WM9"></script>
