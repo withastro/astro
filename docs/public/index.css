@@ -160,6 +160,7 @@ code:not([class*='language']) {
   padding: var(--padding-block) var(--padding-inline);
   margin: calc(var(--padding-block) * -1) -0.125em;
   border-radius: var(--border-radius);
+  box-shadow: 0 2px 1px 0 rgba(0,0,0,0.08);
 }
 
 pre > code:not([class*='language']) {
@@ -170,10 +171,9 @@ pre > code:not([class*='language']) {
   color: inherit;
 }
 
+table,
 pre {
   position: relative;
-  background-color: var(--theme-code-bg);
-  color: var(--theme-code-text);
   --padding-block: 1rem;
   --padding-inline: 2rem;
   padding: var(--padding-block) var(--padding-inline);
@@ -186,6 +186,32 @@ pre {
   font-size: 0.85rem;
   overflow-y: hidden;
   overflow-x: auto;
+}
+
+table {
+  width: 100%; 
+  padding: var(--padding-block) 0;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+/* Zebra striping */
+tr:nth-of-type(odd) { 
+  background: var(--theme-bg-hover);
+}
+th { 
+  background: var(--color-black); 
+  color: white; 
+  font-weight: bold; 
+}
+td, th { 
+  padding: 6px; 
+  text-align: left; 
+}
+
+pre {
+  background-color: var(--theme-code-bg);
+  color: var(--theme-code-text);
 }
 
 pre code {
