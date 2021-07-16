@@ -11,7 +11,7 @@ let threshold = 32;
 function onScroll() {
   const curr = window.scrollY;
   const dir = curr > prev ? 1 : -1;
-  
+
   if (curr < threshold) {
     show();
     document.documentElement.classList.add('initial');
@@ -22,16 +22,16 @@ function onScroll() {
       show();
     }
   }
-  
+
   prev = curr;
 }
 
 const hide = () => {
-  nav.classList.add('hidden')
+  nav.classList.add('hidden');
   document.documentElement.classList.add('scrolled');
   document.documentElement.classList.remove('initial');
 };
 const show = () => {
   nav.classList.remove('hidden');
   document.documentElement.classList.remove('scrolled');
-}
+};
