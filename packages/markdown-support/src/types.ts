@@ -10,6 +10,7 @@ export interface AstroMarkdownOptions {
   gfm: boolean;
   remarkPlugins: Plugin[];
   rehypePlugins: Plugin[];
+  defaultLayout?: string;
 }
 
 export interface MarkdownRenderingOptions extends Partial<AstroMarkdownOptions> {

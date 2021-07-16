@@ -59,6 +59,9 @@ export async function convertMdToAstroSource(contents: string, { filename }: { f
   // Break it up here so that the HTML parser won't detect it.
   const stringifiedSetupContext = JSON.stringify(contentData).replace(/\<\/script\>/g, `</scrip" + "t>`);
 
+  // Check to see if the markdown provided a layout, if not use the default layout if it's set.
+  layout = layout ? layout : opts?.defaultLayout 
+
   return `---
 ${layout ? `import {__renderPage as __layout} from '${layout}';` : 'const __layout = undefined;'}
 export const __content = ${stringifiedSetupContext};

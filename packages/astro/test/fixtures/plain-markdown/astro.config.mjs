@@ -5,4 +5,7 @@ export default {
   buildOptions: {
     sitemap: false,
   },
+  markdownOptions: {
+    defaultLayout: '../layouts/content.astro'
+  }
 };
