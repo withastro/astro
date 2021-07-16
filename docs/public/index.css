@@ -5,7 +5,7 @@
 
 :root {
   --user-font-scale: 1rem - 16px;
-  --max-width: calc(100% - 2rem);
+  --max-width: calc(100% - 1rem);
 }
 
 @media (min-width: 50em) {
@@ -20,12 +20,8 @@ body {
   min-height: 100vh;
   font-family: var(--font-body);
   font-size: 1rem;
-  font-size: clamp(
-    0.875rem,
-    0.4626rem + 1.0309vw + var(--user-font-scale),
-    1.0rem
-  );
-  line-height: 1.625;
+  font-size: clamp(0.9rem, 0.7500rem + 0.3750vw + var(--user-font-scale), 1.05rem);
+  line-height: 1.5;
 }
 
 nav ul {
@@ -39,9 +35,9 @@ nav ul {
 
 /* Typography */
 :is(h1, h2, h3, h4, h5, h6) {
-  margin-bottom: 1.38rem;
+  margin-bottom: 1rem;
   font-weight: 400;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 :is(h1, h2) {
@@ -53,27 +49,26 @@ nav ul {
 }
 
 h1 {
-  font-size: 3.5rem;
+  font-size: 2.5rem;
   font-weight: bold;
 }
 
 h2 {
-  font-size: 34px;
+  font-size: 1.75rem;
   font-weight: bold;
 }
 
 h3 {
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 1.25rem;
 }
 
 h4 {
   font-size: 1rem;
-  font-weight: bold;
 }
 
 h5 {
-  font-size: clamp(1.2rem, 1.15rem + 0.125vw, 1.25rem);
+  font-size: 0.8rem;
+  font-weight: bold;
 }
 
 p,
@@ -162,6 +157,8 @@ pre {
   --padding-inline: 2rem;
   padding: var(--padding-block) var(--padding-inline);
   padding-right: calc(var(--padding-inline) * 2);
+  margin-left: calc(var(--padding-inline) * -1);
+  margin-right: calc(var(--padding-inline) * -1);
 
   line-height: 1.414;
   overflow-y: hidden;
@@ -172,6 +169,8 @@ pre {
   pre {
     --padding-inline: 1.25rem;
     border-radius: 8px;
+    margin-left: 0;
+    margin-right: 0;
   }
 }
 
@@ -334,36 +333,6 @@ h2.heading {
   color: inherit;
   font-size: 1rem;
 }
-
-/* Scrollbar */
-
-/* width */
-::-webkit-scrollbar {
-  width: 0.5rem;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: var(--theme-divider);
-  border-radius: 1rem;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: var(--theme-text-lighter);
-  border-radius: 1rem;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: var(--theme-text-light);
-}
-
-/* Buttons */
-::-webkit-scrollbar-button {
-  display: none;
-}
-/* Scrollbar - End */
 
 /* Screenreader Only Text */
 .sr-only {
