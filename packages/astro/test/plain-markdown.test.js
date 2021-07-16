@@ -8,6 +8,19 @@ const Markdown = suite('Plain Markdown tests');
 setup(Markdown, './fixtures/plain-markdown');
 setupBuild(Markdown, './fixtures/plain-markdown');
 
+Markdown('Can load a simple markdown page with Astro using the default Layout', async ({ runtime }) => {
+  const result = await runtime.load('/no-layout-post');
+
+  assert.equal(result.statusCode, 200);
+
+  const $ = doc(result.contents);
+  assert.equal($('html').length, 1);
+  assert.equal($('#template').first().text(), "default");
+  assert.equal($('p').first().text(), 'Hello world!');
+  assert.equal($('#first').text(), 'Some content');
+  assert.equal($('#interesting-topic').text(), 'Interesting Topic');
+});
+
 Markdown('Can load a simple markdown page with Astro', async ({ runtime }) => {
   const result = await runtime.load('/post');
 
@@ -16,6 +29,7 @@ Markdown('Can load a simple markdown page with Astro', async ({ runtime }) => {
   const $ = doc(result.contents);
 
   assert.equal($('p').first().text(), 'Hello world!');
+  assert.equal($('#template').first().text(), "content");
   assert.equal($('#first').text(), 'Some content');
   assert.equal($('#interesting-topic').text(), 'Interesting Topic');
 });
@@ -26,7 +40,7 @@ Markdown('Can load a realworld markdown page with Astro', async ({ runtime }) =>
 
   assert.equal(result.statusCode, 200);
   const $ = doc(result.contents);
-
+  assert.equal($('#template').first().text(), "default");
   assert.equal($('pre').length, 7);
 });
 

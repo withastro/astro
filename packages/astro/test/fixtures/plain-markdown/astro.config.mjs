@@ -6,6 +6,6 @@ export default {
     sitemap: false,
   },
   markdownOptions: {
-    defaultLayout: '../layouts/content.astro'
+    defaultLayout: '../layouts/default.astro'
   }
 };
