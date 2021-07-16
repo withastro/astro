@@ -3,7 +3,6 @@ export const sidebar = [
     text: 'Setup',
     link: '',
     children: [
-      { text: 'Getting Started', link: 'getting-started' },
       { text: 'Installation', link: 'installation' },
       { text: 'Quickstart', link: 'quick-start' },
       { text: 'Examples', link: 'examples' },
