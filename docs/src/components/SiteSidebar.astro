@@ -24,13 +24,15 @@ const {currentPage} = Astro.props;
 <style>
   nav {
     position: sticky;
-    min-height: calc(100vh - 3.5rem);
-    height: calc(100vh - 3.5rem);
-    top: 3.5rem;
+    min-height: calc(100vh - var(--theme-navbar-height));
+    height: calc(100vh - var(--theme-navbar-height));
+    top: var(--theme-navbar-height);
+    width: 100%;
+    margin-right: 1rem;
   }
   .nav-groups {
     height: 100%;
-    padding: 2rem 0;
+    padding: 0;
     overflow: auto;
   }
 
