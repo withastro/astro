@@ -9,13 +9,20 @@
 }
 
 .token.plain-text,
-[class*="language-bash"] span.token {
+[class*="language-bash"] span.token,
+[class*="language-shell"] span.token {
 	color: var(--color-gray-200);
+}
+
+[class*="language-bash"] span.token,
+[class*="language-shell"] span.token {
+	font-style: bold;
 }
 
 .token.prolog,
 .token.comment,
-[class*="language-bash"] span.token.comment {
+[class*="language-bash"] span.token.comment,
+[class*="language-shell"] span.token.comment {
   color: var(--color-gray-400);
 }
 
