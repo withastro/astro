@@ -1,6 +1,6 @@
 export default {
   buildOptions: {
-    site: 'https://astro-docs-preview.vercel.app/',
+    site: 'https://docs.astro.build/',
   },
   renderers: ['@astrojs/renderer-preact'],
 };
