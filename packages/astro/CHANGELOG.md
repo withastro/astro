@@ -46,7 +46,7 @@
 
 - 8f4562a: Improve slot support, adding support for named slots and fallback content within `slot` elements.
 
-  See the new [Slots documentation](https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md#slots) for more information.
+  See the new [Slots documentation](https://docs.astro.build/core-concepts/astro-components/#slots) for more information.
 
 - 9859f53: Correcting typo in ReadMe
 
@@ -211,7 +211,7 @@
    <div>{text}</div>
   ```
 
-  [Read more about the `.astro` syntax](https://github.com/snowpackjs/astro/blob/main/docs/syntax.md#data-and-props)
+  [Read more about the `.astro` syntax](https://docs.astro.build/syntax/#data-and-props)
 
   ***
 
@@ -439,7 +439,7 @@ _Rolling back to 0.13.10 to prevent a regression in the dev server output._
 ### Patch Changes
 
 - 0d6afae: Fixes a few small bugs with the `Markdown` component when there are multiple instances on the same page
-- 1d930ff: Adds [`--verbose`](https://github.com/snowpackjs/astro/blob/main/docs/cli.md#--verbose) and [`--reload`](https://github.com/snowpackjs/astro/blob/main/docs/cli.md#--reload) flags to the `astro` CLI.
+- 1d930ff: Adds [`--verbose`](https://docs.astro.build/cli.md#--verbose) and [`--reload`](https://github.com/snowpackjs/astro/blob/main/docs/cli/#--reload) flags to the `astro` CLI.
 
 ## 0.12.3
 
@@ -566,7 +566,7 @@ _Rolling back to 0.13.10 to prevent a regression in the dev server output._
 
 - b3886c2: Enhanced **Markdown** support! Markdown processing has been moved from `micromark` to `remark` to prepare Astro for user-provided `remark` plugins _in the future_.
 
-  This change also introduces a built-in `<Markdown>` component for embedding Markdown and any Astro-supported component format inside of `.astro` files. [Read more about Astro's Markdown support.](https://github.com/snowpackjs/astro/blob/main/docs/markdown.md)
+  This change also introduces a built-in `<Markdown>` component for embedding Markdown and any Astro-supported component format inside of `.astro` files. [Read more about Astro's Markdown support.](https://docs.astro.build/markdown/)
 
 ### Patch Changes
 
