@@ -4,53 +4,77 @@ import ArticleFooter from '../components/ArticleFooter.astro';
 import SiteSidebar from '../components/SiteSidebar.astro';
 import ThemeToggle from '../components/ThemeToggle.tsx';
 import DocSidebar from '../components/DocSidebar.tsx';
+import MenuToggle from '../components/MenuToggle.tsx';
 
 // Component Script:
 // You can write any JavaScript/TypeScript that you'd like here.
 // It will run during the build, but never in the browser.
 // All variables are available to use in the HTML template below.
-const { content } = Astro.props;
+const { content = {} } = Astro.props;
 const headers = content?.astro?.headers;
-const currentPage = Astro.request.url.pathname;
-const currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
-const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${currentFile}`;
+const currentPage = Astro.request?.url?.pathname;
+let currentFile;
+let githubEditUrl;
+if (currentPage) {
+  currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
+  githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`;
+}
 
 // Full Astro Component Syntax:
 // https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
 ---
-<html lang={content.lang ?? 'en-us'}>
+<html lang={content.lang ?? 'en-us'}  class="initial">
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>{content.title}</title>
+
+    <!-- This is intentionally inlined to avoid FOUC -->
+    <script>
+      (() => {
+        const root = document.documentElement;
+        const theme = localStorage.getItem('theme');
+        if (
+          theme === 'dark' ||
+          (!theme) && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        {
+          root.classList.add('theme-dark');
+        } else {
+          root.classList.remove('theme-dark');
+        }
+      })();
+    </script>
     
     <link rel="stylesheet" href="/theme.css" />
     <link rel="stylesheet" href="/code.css" />
     <link rel="stylesheet" href="/index.css" />
-    <script src="/theme.js" />
+    
     <link rel="icon" 
           type="image/svg+xml" 
           href="/favicon.svg">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital@0;1&display=swap" rel="stylesheet">
 
     <style>
       body {
         width: 100%;
         display: grid;
-        grid-template-rows: 3.5rem 1fr;
+        grid-template-rows: var(--theme-navbar-height) 1fr;
         --gutter: 0.5rem;
         --doc-padding: 2rem;
       }
 
       header {
-        position: sticky;
-        top: 0;
         z-index: 10;
-        height: 56px;
+        height: var(--theme-navbar-height);
         width: 100%;
-        background-color: var(--theme-bg-offset);
+        background-color: var(--theme-navbar-bg);
         display: flex;
         align-items: center;
         justify-content: center;
+        z-index: 1001;
       }
 
       .layout {
@@ -60,34 +84,15 @@ const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${curr
           minmax(var(--gutter), 1fr) 
           minmax(0, var(--max-width)) 
           minmax(var(--gutter), 1fr);
-        gap: 1em;
+        overflow-x: hidden;
       }
 
-      .menu-and-logo {
-        gap: 1em;
-      }
-
-      #site-title {
+      .logo {
         display: flex;
         align-items: center;
-        gap: 0.25em;
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 0;
-        line-height: 1;
-        color: var(--theme-text);
-        text-decoration: none;
-      }
-
-      #site-title:hover,
-      #site-title:focus {
-        color: var(--theme-text-light);
-      }
-
-      #site-title h1 {
-        font: inherit;
-        color: inherit;
-        margin: 0;
+        justify-content: center;
+        gap: 1em;
+        z-index: -1;
       }
 
       .nav-wrapper {
@@ -105,16 +110,16 @@ const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${curr
       }
 
       .sidebar {
-        min-height: calc(100vh - 3.5rem);
-        height: calc(100vh - 3.5rem);
-        max-height: 100vh;
+        height: 100vh;
         position: sticky;
-        top: 3.5rem;
+        top: 0;
         padding: 0;
       }
 
       #sidebar-site {
-        display: none;
+        position: fixed;
+        background-color: var(--theme-bg);
+        z-index: 1000;
       }
 
       #article {
@@ -126,6 +131,7 @@ const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${curr
       }
 
       .content {
+        padding: 0;
         max-width: 75ch;
         width: 100%;
         height: 100%;
@@ -143,20 +149,48 @@ const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${curr
       .theme-toggle-wrapper {
         display: none;
       }
-      @media (min-width: 64em) {
-        .menu-and-logo button {
+      #sidebar-site {
+        display: none;
+      }
+      :global(.mobile-sidebar-toggle) {
+        overflow: hidden;
+      }
+      :global(.mobile-sidebar-toggle) #sidebar-site {
+        display: block;
+        top: 0;
+      }
+      @media (min-width: 60em) {
+        .layout {
+          overflow: initial;
+        }
+        .logo {
+          width: auto;
+          margin: 0;
+          z-index: 0;
+        }
+        #sidebar-site {
+          display: flex;
+        }
+        :global(.mobile-sidebar-toggle) {
+          overflow: initial;
+        }
+        :global(.mobile-sidebar-toggle) #sidebar-site {
+          display: flex;
+        }
+        .menu-toggle {
           display: none;
         }
         .layout {
           grid-template-columns: 
             20rem 
             minmax(0, var(--max-width));
+          gap: 1em;
         }
         #article {
           grid-column: 2;
         }
         #sidebar-site {
-          display: flex;
+          position: sticky;
         }
         #sidebar-content {
           /* display: flex; */
@@ -188,6 +222,9 @@ const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${curr
           display: flex;
           grid-column: 3;
         }
+        .nav-wrapper {
+          padding: 0;
+        }
       }
 
     </style>
@@ -196,18 +233,15 @@ const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${curr
   <body>
     <header>
       <nav class="nav-wrapper">
-        <div class="menu-and-logo flex">
-          <button id="menu-toggle">
-            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <a id="site-title" href="/">
-            <h1>Astroid</h1>
-          </a>
+        <div class="menu-toggle">
+            <MenuToggle client:idle/>
         </div>
 
-        <div />
+        <div class="logo flex">
+          <a id="site-title" href="/">
+            <h1>Astroid Docs</h1>
+          </a>
+        </div>
 
         <div class="theme-toggle-wrapper">
           <ThemeToggle client:idle />
@@ -217,21 +251,22 @@ const githubEditUrl = `https://github.com/snowpackjs/astro-docs/blob/main/${curr
 
     <main class="layout">
       <aside class="sidebar" id="sidebar-site">
-        <SiteSidebar currentPage={currentPage.slice(1)} />
+        <SiteSidebar currentPage={currentPage?.slice(1) ?? ''} />
       </aside>
       <div id="article">
         <article class="content">
           <main>
-            <h1 class="content-title" id="overview">{content.title}</h1>
+            <h1 class="content-title" id="overview">{content?.title}</h1>
             <slot />
           </main>
-          <ArticleFooter path={currentFile} />
+          {currentPage && <ArticleFooter path={currentFile} />}
         </article>
       </div>
-      
       <aside class="sidebar" id="sidebar-content">
-        <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />
+        {currentPage && <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />}
       </aside>
     </main>
+    
+    <script type="module" src="/nav.js" async />
   </body>
 </html>

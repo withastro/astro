@@ -1,11 +1,12 @@
 ---
 // fetch all commits for just this page's path
 const { path } = Astro.props;
-const url = `https://api.github.com/repos/snowpackjs/astro-docs/commits?path=${path}`;
+const url = `https://api.github.com/repos/snowpackjs/astro/commits?path=${path}`;
+const commitsURL = `https://github.com/snowpackjs/astro/commits/main/${path}`;
 
 async function getCommits(url) {
   try {
-    const token = import.meta.env?.SNOWPACK_PUBLIC_GITHUB_TOKEN;
+    const token = import.meta.env.SNOWPACK_PUBLIC_GITHUB_TOKEN;
     if (!token) {
       throw new Error(
         'Cannot find "SNOWPACK_PUBLIC_GITHUB_TOKEN" used for escaping rate-limiting.'
@@ -65,11 +66,12 @@ const additionalContributors = unique.length - recentContributors.length; // lis
 <ul class="avatar-list" style={`--avatar-count: ${recentContributors.length}`}>
 
 {recentContributors.map((item) => (
-      <li><a href={`https://github.com/${item.login}`}><img alt={`Contributor ${item.login}`} width="64" height="64" src={`https://avatars.githubusercontent.com/u/${item.id}`}/></a></li>
+      <li><a href={`https://github.com/${item.login}`}><img alt={`Contributor ${item.login}`} title={`Contributor ${item.login}`} width="64" height="64" src={`https://avatars.githubusercontent.com/u/${item.id}`}/></a></li>
       
 ))}
   </ul>
-  {additionalContributors > 0 && <span>{`and ${additionalContributors} additional contributor${additionalContributors > 1 && 's'}.`}</span>}
+  {additionalContributors > 0 && <span><a href={commitsURL}>{`and ${additionalContributors} additional contributor${additionalContributors > 1 ? 's' : ''}.`}</a></span>}
+  {unique.length === 0 && <a href={commitsURL}>Contributors</a>}
 </div>
 
 <style>

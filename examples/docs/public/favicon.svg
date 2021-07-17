@@ -1,6 +1,6 @@
 <svg width="256" height="256" fill="none" xmlns="http://www.w3.org/2000/svg">
     <style>
-        #flame { fill: #FF5D01; }
+        #flame { fill: #3894ff; }
         #a { fill: #000014; }
         @media (prefers-color-scheme: dark) {
             #a { fill: #fff; }
