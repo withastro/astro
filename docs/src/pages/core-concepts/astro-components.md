@@ -45,6 +45,7 @@ For best results, you should only have one `<style>` tag per-Astro component. Th
     height: 50px;
     width: 50px;
   }
+</style>
 <div class="circle"></div>
 ```
 
