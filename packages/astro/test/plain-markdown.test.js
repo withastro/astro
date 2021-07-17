@@ -15,6 +15,7 @@ Markdown('Can load a simple markdown page with Astro', async ({ runtime }) => {
 
   const $ = doc(result.contents);
 
+  assert.equal($('#layout').text(), "content");
   assert.equal($('p').first().text(), 'Hello world!');
   assert.equal($('#first').text(), 'Some content');
   assert.equal($('#interesting-topic').text(), 'Interesting Topic');
@@ -27,6 +28,7 @@ Markdown('Can load a realworld markdown page with Astro', async ({ runtime }) =>
   assert.equal(result.statusCode, 200);
   const $ = doc(result.contents);
 
+  assert.equal($('#layout').text(), "default");
   assert.equal($('pre').length, 7);
 });
 

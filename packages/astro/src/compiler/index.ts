@@ -1,5 +1,6 @@
 import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
+import  findUp from 'find-up';
 
 import path from 'path';
 import { MarkdownRenderingOptions, renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
@@ -58,6 +59,13 @@ export async function convertMdToAstroSource(contents: string, { filename }: { f
   // </script> can't be anywhere inside of a JS string, otherwise the HTML parser fails.
   // Break it up here so that the HTML parser won't detect it.
   const stringifiedSetupContext = JSON.stringify(contentData).replace(/\<\/script\>/g, `</scrip" + "t>`);
+
+  if (!layout) {
+    const defaultTemplate = await findUp('default.astro', { cwd: filename });
+    if(defaultTemplate) {
+      layout = "./" + path.relative(path.dirname(filename), defaultTemplate)
+    }
+  }
 
   return `---
 ${layout ? `import {__renderPage as __layout} from '${layout}';` : 'const __layout = undefined;'}

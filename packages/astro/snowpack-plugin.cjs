@@ -35,6 +35,7 @@ module.exports = (snowpackConfig, options = {}) => {
       input: ['.astro', '.md'],
       output: ['.js', '.css'],
     },
+    exclude: ["**/default.astro"],
     async transform({contents, id, fileExt}) {
       if(configManager.isConfigModule(fileExt, id)) {
         configManager.configModuleId = id;
