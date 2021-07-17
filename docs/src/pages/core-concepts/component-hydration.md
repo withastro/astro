@@ -28,7 +28,7 @@ There are plenty of cases where you need an interactive UI component to run in t
 - A mobile sidebar open/close button
 - A "Buy Now" button
 
-In Astro, it's up to you as the developer to explicitly "opt-in" any components on the page that need to run in the browser. Astro can then use this info to know exactly what JavaScript is needed, and only hydrate exactly what's needed on the page. This technique is is known as partial hydration.
+In Astro, it's up to you as the developer to explicitly "opt-in" any components on the page that need to run in the browser. Astro can then use this info to know exactly what JavaScript is needed, and only hydrate exactly what's needed on the page. This technique is known as partial hydration.
 
 **Partial hydration** -- the act of only hydrating the individual components that require JavaScript and leaving the rest of your site as static HTML -- may sound relatively straightforward. It should! Websites have been built this way for decades. It was only recently that Single-Page Applications (SPAs) introduced the idea that your entire website is written in JavaScript and compiled/rendered by every user in the browser.
 

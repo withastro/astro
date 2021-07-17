@@ -41,7 +41,7 @@ const {title} = Astro.props;
 
 📚 The `<slot />` element lets Astro components define where any children elements (passed to the layout) should go. Learn more about how `<slot/>` works in our [Astro Component guide.](/core-concepts/astro-components)
 
-Once you have your first layout, You can use it like you would any other component on your page. Remember that your layout contains your page `<html>`, `<head>`, and `<body>`. You only need to provide the custom page content.
+Once you have your first layout, you can use it like you would any other component on your page. Remember that your layout contains your page `<html>`, `<head>`, and `<body>`. You only need to provide the custom page content.
 
 ```astro
 ---

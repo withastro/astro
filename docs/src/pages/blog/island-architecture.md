@@ -38,7 +38,7 @@ To develop a better understanding of what Jason meant with his proposal, let's q
 
 Think of a simple webpage. On which are many different types of components that are shown on this page, components that are shared across the site, others contain fixed content, some are a bit more elaborate that may perhaps use different state's or need to fetch multiple data streams from external sources.
 
-Such an site would would have very few actual 'moving' pieces, or _dynamic_ elements. For the most part the content tends to be fixed, and static.
+Such a site would have very few actual 'moving' pieces, or _dynamic_ elements. For the most part the content tends to be fixed, and static.
 
 In order to allow for dynamism and interactivity we are often left making overly complex solutions to deliver the slightest form of action on the application.
 
@@ -60,7 +60,7 @@ Helping to abstract away much of the complexity needed in implementing architect
 
 The likes of; [ASP.NET](https://dotnet.microsoft.com/learn/aspnet/what-is-aspnet-core) and [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor) for [.NET](https://dotnet.microsoft.com/), [Ruby On Rails](https://rubyonrails.org/), [Laravel](https://laravel.com/) & [Symphony](https://symfony.com/) for [PHP](https://www.php.net/), are examples of the MVC patterns seen in other server-side programming languages.
 
-For along time, JavaScript was solely restricted to the Browser, then [Node.js](https://nodejs.org/en/) appeared. Node.js is a standalone JavaScript runtime built on the Chrome V8 engine.
+For a long time, JavaScript was solely restricted to the Browser, then [Node.js](https://nodejs.org/en/) appeared. Node.js is a standalone JavaScript runtime built on the Chrome V8 engine.
 
 This was a seismic shift that occurred in Web Development, by allowing JavaScript to escape the browser and operate on the server, developers could use JS on both; Front & Back-ends, when developing their applications.
 
@@ -92,7 +92,7 @@ Some of these were developed by industry leaders, such as Google with their [Ang
 
 ## The Status Quo
 
-Its slightly hubris to suggest that the web development ecosystem had at all settled for any period of time, well at least long enough for a Status Quo to coalesce.
+It's slightly hubris to suggest that the web development ecosystem had at all settled for any period of time, well at least long enough for a Status Quo to coalesce.
 
 However, given the vibrancy and versatility of the ecosystem, a status quo had indeed began to take hold.
 
@@ -126,7 +126,7 @@ By doing so we can take full advantage of unbundled developer environments, allo
 
 Using ESM in the Browser, tools can build once and cache forever. Tree-shaking and code optimisations can occur, more frequently and with greater efficacy. Reducing massive bundle sizes down to a few hundred Kilobytes.
 
-Tools like [Snowpack](https://www.snowpack.dev/) and [Vite](https://vitejs.dev/) introduce an whole new experience that developers were previously denied in their development process and that is speed.
+Tools like [Snowpack](https://www.snowpack.dev/) and [Vite](https://vitejs.dev/) introduce a whole new experience that developers were previously denied in their development process and that is speed.
 
 With cut-edge DX features like [HMR](https://npm.io/package/esm-hmr) has quickly became the industry de facto, and build times reduced by a factor of 100x.
 
@@ -138,7 +138,7 @@ Into this new age ESM world, we have had a dearth of innovation from the establi
 
 Basic questions of : Websites or WebApp's were still unresolved. Where to render the site, on the server or on the client, perhaps a bit of both? What determines the need for dynamic content and what specifies content to be static?
 
-Witnessing frameworks slowly go full circle and return to Server-Side-Rendering (_SSR_) their applications was in part only allowed to be considered in an ESM world, however it was bit of an admission of culpability of sorts.
+Witnessing frameworks slowly go full circle and return to Server-Side-Rendering (_SSR_) their applications was in part only allowed to be considered in an ESM world, however it was a bit of an admission of culpability of sorts.
 
 By inadvertently admitting that the current model is flawed, opened up the space for a new form of discourse to enter, and help redefine the ecosystem moving forward.
 
@@ -166,13 +166,13 @@ This 'micro' architecture is similar to both 'micro-frontends' and 'micro-servic
 
 With Island-Architecture, he proposes a form of progressive enhancement for the dynamic components by using a technique known as _Partial Hydration_.
 
-Lets look at this following analogy:
+Let's look at this following analogy:
 
 On our Static page, we have an image carousel. Such carousel needs to have some form of interactivity to load the next image after a certain amount of time has elapsed, along with navigation and pagination buttons on the carousel.
 
 To do this we would need to implement some behaviour on our carousel.
 
-In the traditional sense, we might be using a React Component to help create the aforementioned experience. In order to do this we would have too include the React-runtime plugin as a top-level `<script>` within our HTML document.
+In the traditional sense, we might be using a React Component to help create the aforementioned experience. In order to do this we would have to include the React-runtime plugin as a top-level `<script>` within our HTML document.
 
 This means for our page, we need to wait for React to be fetched and downloaded, then parsed and executed, have it wait for the page to display the carousel before we receive the behaviour and functionality we expect from our small dynamic component.
 
@@ -184,7 +184,7 @@ This would then load the functionality for the carousel in-place, transforming i
 
 By now the idea of Island-architecture must be settling in, and one must be thinking, this is just [Progressive Hydration](<https://en.wikipedia.org/wiki/Hydration_(web_development)#Progressive_rehydration>), and you wouldn't be overly off mark.
 
-Progressive Hydration that is used in frameworks like: Angluar, React, Preact, Vue. Are individual components, which are loaded and then initialised over a period of time.
+Progressive Hydration that is used in frameworks like: Angular, React, Preact, Vue. Are individual components, which are loaded and then initialised over a period of time.
 
 Using scheduling processes, and accounting for things like viewport visibility, content value, probability of interaction etc. They can abstract away the intricacies and delivery this form of hydration for developers.
 
@@ -204,7 +204,7 @@ A key benefit is seen with the site performance. Since isolation is inherent, if
 
 As we explore further into the Island, we can see immediate trade differences between framework produced SSR solutions and those that could be provided by using Island Architecture.
 
-Quickly wandering back to the Status Quo for a brief interlude. We use SSR with SPA's to help tackle the downside of SPA's and its SEO. Appealing to the search engines in this manner has another negative affect on the UX.
+Quickly wandering back to the Status Quo for a brief interlude. We use SSR with SPA's to help tackle the downside of SPA's and its SEO. Appealing to the search engines in this manner has another negative effect on the UX.
 
 > "...visitors are left waiting for the actual functionality of a page to arrive while staring at a frustratingly fake version of that page." - Jason Miller
 
@@ -218,7 +218,7 @@ We find with our "Islands" model, that with Server rendering is a fundamental pa
 
 The responded HTML, would still contain all the rendered content that the user requested. With some islands yet to engage their client-sided interactivity. The document sent should contain all the content that the User would need.
 
-An example of this would be a product page for a e-commerce business. A product page, using the Islands model would contain that products description, price etc, Having the dynamic components becoming interactive on demand.
+An example of this would be a product page for a e-commerce business. A product page, using the Islands model would contain that product's description, price etc, Having the dynamic components becoming interactive on demand.
 
 We also discover that with the Islands model we have better accessibility and discoverability of our elements and the contents within.
 

@@ -150,7 +150,7 @@ All CSS is minified and bundled automatically for you in running `astro build`. 
 
 We’ll be expanding our styling optimization story over time, and would love your feedback! If `astro build` generates unexpected styles, or if you can think of improvements, [please open an issue][issues].
 
-_Note: be mindful when some page styles get extracted to the ”common” bundle, and some page styles stay on-page. For most people this may not pose an issue, but when part of your styles are bundled they technically may load in a different order and your cascade may be different. While problem isn’t unique to Astro and is present in almost any CSS bundling process, it can be unexpected if you’re not anticipating it. Be sure to inspect your final production build, and please [report any issues][issues] you may come across._
+_Note: be mindful when some page styles get extracted to the ”common” bundle, and some page styles stay on-page. For most people this may not pose an issue, but when part of your styles are bundled they technically may load in a different order and your cascade may be different. While this problem isn’t unique to Astro and is present in almost any CSS bundling process, it can be unexpected if you’re not anticipating it. Be sure to inspect your final production build, and please [report any issues][issues] you may come across._
 
 ## Advanced Styling Architecture
 
@@ -288,7 +288,7 @@ So to recap, think of scoped styles as the backbone of your styles that get you 
 
 ### More suggestions
 
-”But wait!” you may ask, having read the previous section. ”That doesn’t take care of [my usecase]!” If you‘re looking for more pointers on some common styling problems, you may be interested in the following suggestions. These all are cohesive, and fit with the **Hybrid Scoped + Utility** philosphy:
+”But wait!” you may ask, having read the previous section. ”That doesn’t take care of [my usecase]!” If you‘re looking for more pointers on some common styling problems, you may be interested in the following suggestions. These all are cohesive, and fit with the **Hybrid Scoped + Utility** philosophy:
 
 1. Split your app into Layout Components and Base Components
 1. Avoid Flexbox and Grid libraries (write your own!)
@@ -457,13 +457,13 @@ In other words, don’t do this:
 
 If you remember the [CSS box model][box-model], `margin` extends beyond the boundaries of the box. This means that when you place `margin` on the outermost element, now that will push other components next to it. Even though the styles are scoped, it’s _technically_ affecting elements around it, so it [breaks the concept of style containment][layout-isolated].
 
-When you have components that rearrage, or appear different when they’re next to other components, that’s a hard battle to win. **Components should look and act the same no matter where they are placed.** That’s what makes them components!
+When you have components that rearrange, or appear different when they’re next to other components, that’s a hard battle to win. **Components should look and act the same no matter where they are placed.** That’s what makes them components!
 
 💁 **Why this works well in Astro**: margins pushing other components around creeps into your styling architecture in sneaky ways, and can result in the creation of some wonky or brittle layout components. Avoiding it altogether will keep your layout components simpler, and you’ll spend less time styling in general.
 
 #### Suggestion #4: Avoid global media queries
 
-The final point is a natural boundary of **Scoped Styles**. That extends to breakpoints, too! You know that one, weird breakpoint where your `<Card />` component wraps awkardly at a certain size? You should handle that within `<Card />`, and not anywhere else.
+The final point is a natural boundary of **Scoped Styles**. That extends to breakpoints, too! You know that one, weird breakpoint where your `<Card />` component wraps awkwardly at a certain size? You should handle that within `<Card />`, and not anywhere else.
 
 Even if you end up with some random value like `@media (min-width: 732px) {`, that’ll probably work better than trying to create a global [magic number][magic-number] somewhere that only applies to one context (an arbitrary value may be “magic” to the rest of an app, but it does still have meaning within the context of a component that needs that specific value).
 

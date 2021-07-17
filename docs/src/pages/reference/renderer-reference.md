@@ -9,7 +9,7 @@ Internally, each framework is supported via a framework **renderer.** A renderer
 
 ## What is a renderer?
 
-A renderer is an NPM package that has two responsiblities:
+A renderer is an NPM package that has two responsibilities:
 
 1. _render a component to a static string of HTML_ at build time
 2. _rehydrate that HTML to create an interactive component_ on the client.

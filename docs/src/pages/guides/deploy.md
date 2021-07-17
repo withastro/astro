@@ -7,7 +7,7 @@ The following guides are based on some shared assumptions:
 
 - You are using the default build output location (`dist/`). This location [can be changed using the `dist` configuration option](/reference/configuration-reference).
 - You are using npm. You can use equivalent commands to run the scripts if you are using Yarn or other package managers.
-- Astro is installed as a local dev dependency in your project, and you have setup the following npm scripts:
+- Astro is installed as a local dev dependency in your project, and you have set up the following npm scripts:
 
 ```json
 {
@@ -133,7 +133,7 @@ With the `netlify.toml` file, add it at the top level of your project with the f
 
 Then, set up a new project on [Netlify](https://netlify.com) from your chosen Git provider.
 
-If you don't want to use the `netlify.toml`, when you go to [Netlify](https://netlify.com) and set up up a new project from Git, input the following settings:
+If you don't want to use the `netlify.toml`, when you go to [Netlify](https://netlify.com) and set up a new project from Git, input the following settings:
 
 - **Build Command:** `astro build` or `npm run build`
 - **Publish directory:** `dist`
