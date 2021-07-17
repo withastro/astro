@@ -57,7 +57,7 @@ import { Bold, Capitalize } from '@example/my-components';
 
 ## Advanced
 
-We recommend a single `index.js` package entrypoint because this is what most users are familar with. However, in some rare scenarios you may want to have your users import each `.astro` component directly, in the same manner that you import `.astro` files in your own project.
+We recommend a single `index.js` package entrypoint because this is what most users are familiar with. However, in some rare scenarios you may want to have your users import each `.astro` component directly, in the same manner that you import `.astro` files in your own project.
 
 ```astro
 ---

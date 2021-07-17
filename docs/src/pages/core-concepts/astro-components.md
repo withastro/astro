@@ -28,7 +28,7 @@ For example, this three-line file is a valid Astro component:
 
 An Astro component represents some snippet of HTML in your project. This can be a reusable component, or an entire page of HTML including `<html>`, `<head>` and `<body>` elements. See our guide on [Astro Pages](/core-concepts/astro-pages) to learn how to build your first full HTML page with Astro.
 
-**Every Astro component must include an HTML template.** While you can enhance your component in several ways (see below) at the end of the day its the HTML template that dictates what your rendered Astro component will look like.
+**Every Astro component must include an HTML template.** While you can enhance your component in several ways (see below), at the end of the day it's the HTML template that dictates what your rendered Astro component will look like.
 
 ### CSS Styles
 
@@ -69,7 +69,7 @@ Sass (an alternative to CSS) is also available via `<style lang="scss">`.
 
 ### Frontmatter Script
 
-To build a dynamic components, we introduce the idea of a frontmatter component script. [Frontmatter](https://jekyllrb.com/docs/front-matter/) is a common pattern in Markdown, where some config/metadata is contained inside a code fence (`---`) at the top of the file. Astro does something similar, but with full support for JavaScript & TypeScript in your components.
+To build dynamic components, we introduce the idea of a frontmatter component script. [Frontmatter](https://jekyllrb.com/docs/front-matter/) is a common pattern in Markdown, where some config/metadata is contained inside a code fence (`---`) at the top of the file. Astro does something similar, but with full support for JavaScript & TypeScript in your components.
 
 Remember that Astro is a server-side templating language, so your component script will run during the build but only the HTML is rendered to the browser. To send JavaScript to the browser, you can use a `<script>` tag in your HTML template or [convert your component to use a frontend framework](/core-concepts/component-hydration) like React, Svelte, Vue, etc.
 
