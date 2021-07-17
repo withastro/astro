@@ -44,7 +44,7 @@ export async function main() {
         process.exit(1);
       }
 
-      await fs.promises.rm(cwd, { recursive: true });
+      await fs.promises.rm(cwd, { recursive: true, force: true });
       mkdirp(cwd);
     }
   } else {
