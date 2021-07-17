@@ -166,7 +166,7 @@ This 'micro' architecture is similar to both 'micro-frontends' and 'micro-servic
 
 With Island-Architecture, he proposes a form of progressive enhancement for the dynamic components by using a technique known as _Partial Hydration_.
 
-Let's look at this following analogy:
+Let's look at the following analogy:
 
 On our Static page, we have an image carousel. Such carousel needs to have some form of interactivity to load the next image after a certain amount of time has elapsed, along with navigation and pagination buttons on the carousel.
 
