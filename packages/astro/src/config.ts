@@ -43,6 +43,9 @@ function validateConfig(config: any): void {
   if (typeof config.devOptions?.port !== 'number') {
     throw new Error(`[config] devOptions.port: Expected number, received ${type(config.devOptions?.port)}`);
   }
+  if (typeof config.devOptions?.hostname !== 'string') {
+    throw new Error(`[config] devOptions.hostname: Expected string, received ${type(config.devOptions?.hostname)}`);
+  }
   if (config.devOptions?.tailwindConfig !== undefined && typeof config.devOptions?.tailwindConfig !== 'string') {
     throw new Error(`[config] devOptions.tailwindConfig: Expected string, received ${type(config.devOptions?.tailwindConfig)}`);
   }
@@ -59,6 +62,7 @@ async function configDefaults(userConfig?: any): Promise<any> {
   if (!config.public) config.public = './public';
   if (!config.devOptions) config.devOptions = {};
   if (!config.devOptions.port) config.devOptions.port = await getPort({ port: getPort.makeRange(3000, 3050) });
+  if (!config.devOptions.hostname) config.devOptions.hostname = 'localhost';
   if (!config.buildOptions) config.buildOptions = {};
   if (!config.markdownOptions) config.markdownOptions = {};
   if (typeof config.buildOptions.sitemap === 'undefined') config.buildOptions.sitemap = true;

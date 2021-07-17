@@ -107,7 +107,8 @@ interface CompileComponentOptions {
 /** Compiles an Astro component */
 export async function compileComponent(source: string, { compileOptions, filename, projectRoot }: CompileComponentOptions): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
-  const site = compileOptions.astroConfig.buildOptions.site || `http://localhost:${compileOptions.astroConfig.devOptions.port}`;
+  const { hostname, port } = compileOptions.astroConfig.devOptions
+  const site = compileOptions.astroConfig.buildOptions.site || `http://${hostname}:${port}`;
 
   // return template
   let moduleJavaScript = `
