@@ -3,7 +3,7 @@ import path from 'path';
 import { bold, cyan, gray, green, red } from 'kleur/colors';
 import fetch from 'node-fetch';
 import prompts from 'prompts';
-import degit from 'degit';
+import degit from 'tiged';
 import yargs from 'yargs-parser';
 import { FRAMEWORKS, COUNTER_COMPONENTS } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
