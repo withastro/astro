@@ -20,6 +20,12 @@ export function mkdirp(dir: string) {
   }
 }
 
+export async function emptyDir(dir: string) {
+  const items = await fs.promises.readdir(dir);
+  return Promise.all(items.map((item) =>
+    fs.promises.rm(item, { recursive: true, force: true })));
+}
+
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 
 const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
@@ -44,8 +50,7 @@ export async function main() {
         process.exit(1);
       }
 
-      await fs.promises.rm(cwd, { recursive: true, force: true });
-      mkdirp(cwd);
+      await emptyDir(cwd);
     }
   } else {
     mkdirp(cwd);
