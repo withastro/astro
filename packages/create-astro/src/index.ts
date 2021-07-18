@@ -37,7 +37,7 @@ export async function main() {
       const response = await prompts({
         type: 'confirm',
         name: 'forceOverwrite',
-        message: 'Directory not empty. Continue?',
+        message: `Directory not empty. Delete ${cwd} to continue?`,
         initial: false,
       });
       if (!response.forceOverwrite) {
