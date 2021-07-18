@@ -1,24 +1,26 @@
 ---
-const { collection } = Astro.props;
 
-export async function createCollection() {
-  const data = await Promise.all([
-    fetch('https://api.skypack.dev/v1/package/canvas-confetti').then((res) => res.json()),
-    fetch('https://api.skypack.dev/v1/package/preact').then((res) => res.json()),
-    fetch('https://api.skypack.dev/v1/package/svelte').then((res) => res.json()),
-  ]);
-
+export function createCollection() {
   return {
-    async data() {
-      return data;
+    route: '/remote/:lib',
+    paths() { 
+      return [
+        {params: {lib: 'canvas-confetti'}}, 
+        {params: {lib: 'preact'}}, 
+        {params: {lib: 'svelte'}},
+      ] 
+    },
+    async props({params}) {
+      return {
+        pkg: await fetch(`https://api.skypack.dev/v1/package/${params.lib}`).then((res) => res.json())
+      };
     }
   }
 }
 
+const { pkg } = Astro.props;
 ---
 
 <div>
-  {collection.data.map((pkg) => (
-    <div id={`pkg-${pkg.name}`}>{pkg.name}</div>
-   ))}
+  <div id={`pkg-${pkg.name}`}>{pkg.name}</div>
 </div>

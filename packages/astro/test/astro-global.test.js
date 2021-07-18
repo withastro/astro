@@ -21,12 +21,12 @@ Global('Astro.request.canonicalURL', async (context) => {
     '/': 'https://mysite.dev/',
     '/post/post': 'https://mysite.dev/post/post/',
     '/posts': 'https://mysite.dev/posts/',
-    '/posts/1': 'https://mysite.dev/posts/', // should be the same as /posts
     '/posts/2': 'https://mysite.dev/posts/2/',
   };
 
   for (const [url, canonicalURL] of Object.entries(canonicalURLs)) {
     const result = await context.runtime.load(url);
+    console.error(result);
     const $ = doc(result.contents);
     assert.equal($('link[rel="canonical"]').attr('href'), canonicalURL);
   }

@@ -2,7 +2,8 @@ import type { AstroConfig } from './@types/astro';
 import { existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import glob from 'tiny-glob/sync.js';
+import glob from 'tiny-glob';
+import slash from 'slash';
 
 interface PageLocation {
   fileURL: URL;
@@ -28,7 +29,6 @@ type SearchResult =
       statusCode: 200;
       location: PageLocation;
       pathname: string;
-      currentPage?: number;
     }
   | {
       statusCode: 301;
@@ -39,8 +39,14 @@ type SearchResult =
       statusCode: 404;
     };
 
-/** Given a URL, attempt to locate its source file (similar to Snowpack’s load()) */
-export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult {
+/**
+ * Given a URL, attempt to locate its source file (similar to Snowpack’s load()).
+ *
+ * TODO(perf): This function (and findCollectionPage(), its helper function) make several
+ * checks against the file system on every request. It would be better to keep an in-memory
+ * list of all known files that we could make instant, synchronous checks against.
+ */
+export async function searchForPage(url: URL, astroConfig: AstroConfig): Promise<SearchResult> {
   const reqPath = decodeURI(url.pathname);
   const base = reqPath.substr(1);
 
@@ -82,13 +88,12 @@ export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult 
   // Try and load collections (but only for non-extension files)
   const hasExt = !!path.extname(reqPath);
   if (!location && !hasExt) {
-    const collection = loadCollection(reqPath, astroConfig);
-    if (collection) {
+    const collectionLocation = await findCollectionPage(reqPath, astroConfig);
+    if (collectionLocation) {
       return {
         statusCode: 200,
-        location: collection.location,
+        location: collectionLocation,
         pathname: reqPath,
-        currentPage: collection.currentPage || 1,
       };
     }
   }
@@ -109,31 +114,29 @@ export function searchForPage(url: URL, astroConfig: AstroConfig): SearchResult 
   };
 }
 
-/** load a collection route */
-function loadCollection(url: string, astroConfig: AstroConfig): { currentPage?: number; location: PageLocation } | undefined {
-  const pages = glob('**/$*.astro', { cwd: fileURLToPath(astroConfig.pages), filesOnly: true });
-  for (const pageURL of pages) {
-    const reqURL = new RegExp('^/' + pageURL.replace(/\$([^/]+)\.astro/, '$1') + '(?:/(.*)|/?$)');
-    const match = url.match(reqURL);
-    if (match) {
-      let currentPage: number | undefined;
-      if (match[1]) {
-        const segments = match[1].split('/').filter((s) => !!s);
-        if (segments.length) {
-          const last = segments.pop() as string;
-          if (parseInt(last, 10)) {
-            currentPage = parseInt(last, 10);
-          }
-        }
-      }
-      const pagesPath = astroConfig.pages.pathname.replace(astroConfig.projectRoot.pathname, '');
-      return {
-        location: {
-          fileURL: new URL(`./${pageURL}`, astroConfig.pages),
-          snowpackURL: `/_astro/${pagesPath}${pageURL}.js`,
-        },
-        currentPage,
-      };
-    }
+/** Find a collection page file in the pages directory that matches the request. */
+async function findCollectionPage(reqPath: string, astroConfig: AstroConfig): Promise<PageLocation | undefined> {
+  const cwd = fileURLToPath(astroConfig.pages);
+  const allCollections: Record<string, PageLocation> = {};
+  const files = await glob('**/$*.{astro,md}', { cwd, filesOnly: true });
+  for (const srcURL of files) {
+    const pagesPath = astroConfig.pages.pathname.replace(astroConfig.projectRoot.pathname, '');
+    const snowpackURL = `/_astro/${pagesPath}${srcURL}.js`;
+    const reqURL =
+      '/' +
+      srcURL
+        .replace(/\.(astro|md)$/, '')
+        .replace(/(^|[\/])\$/, '$1')
+        .replace(/index$/, '');
+    allCollections[reqURL] = { snowpackURL, fileURL: new URL(srcURL, astroConfig.pages) };
   }
+
+  // Match the more specific filename first. If no match, return nothing.
+  let collectionMatchState = reqPath;
+  do {
+    if (allCollections[collectionMatchState]) {
+      return allCollections[collectionMatchState];
+    }
+    collectionMatchState = collectionMatchState.substring(0, collectionMatchState.lastIndexOf('/'));
+  } while (collectionMatchState.length > 0);
 }

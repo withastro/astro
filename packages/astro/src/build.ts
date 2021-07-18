@@ -59,7 +59,7 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
   const mode: RuntimeMode = 'production';
   const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
   const { runtimeConfig } = runtime;
-  const { snowpack } = runtimeConfig;
+  const { snowpackRuntime } = runtimeConfig;
 
   try {
     // 0. erase build directory
@@ -82,8 +82,8 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
             filepath,
             logging,
             mode,
-            resolvePackageUrl: (pkgName: string) => snowpack.getUrlForPackage(pkgName),
-            runtime,
+            snowpackRuntime,
+            astroRuntime: runtime,
             site: astroConfig.buildOptions.site,
           });
         })
@@ -106,7 +106,7 @@ ${stack}
 `
         );
       } else {
-        error(logging, 'build', e);
+        error(logging, 'build', e.message);
       }
       error(logging, 'build', red('✕ building pages failed!'));
 
@@ -249,7 +249,7 @@ ${stack}
     info(logging, 'build', bold(green('▶ Build Complete!')));
     return 0;
   } catch (err) {
-    error(logging, 'build', err);
+    error(logging, 'build', err.message);
     await runtime.shutdown();
     return 1;
   }

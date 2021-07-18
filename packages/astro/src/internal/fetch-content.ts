@@ -4,7 +4,6 @@
  * result, by default.
  */
 export function fetchContent(importMetaGlobResult: Record<string, any>, url: string) {
-  console.log(importMetaGlobResult);
   return [...Object.entries(importMetaGlobResult)]
     .map(([spec, mod]) => {
       // Only return Markdown files, which export the __content object.
