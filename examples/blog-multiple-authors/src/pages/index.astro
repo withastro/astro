@@ -27,7 +27,7 @@ let firstPage = allPosts.slice(0, 2);
     <MainHead
       title={title}
       description={description}
-      image={firstPage[0].image}
+      image={allPosts[0].image}
       canonicalURL={Astro.request.canonicalURL.href}
     />
   </head>
@@ -36,7 +36,7 @@ let firstPage = allPosts.slice(0, 2);
     <Nav />
 
     <main class="wrapper">
-      {firstPage.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+      {allPosts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
     </main>
 
     <footer>

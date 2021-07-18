@@ -1,9 +1,12 @@
-import type { AstroConfig, BuildOutput, RuntimeMode } from '../@types/astro';
-import type { AstroRuntime, LoadResult } from '../runtime';
-import type { LogOptions } from '../logger';
 import path from 'path';
-import { generateRSS } from './rss.js';
+import { compile as compilePathToRegexp } from 'path-to-regexp';
+import type { ServerRuntime as SnowpackServerRuntime } from 'snowpack';
 import { fileURLToPath } from 'url';
+import type { AstroConfig, BuildOutput, CreateCollectionResult, RuntimeMode } from '../@types/astro';
+import type { LogOptions } from '../logger';
+import type { AstroRuntime, LoadResult } from '../runtime';
+import { validateCollectionModule, validateCollectionResult } from '../util.js';
+import { generateRSS } from './rss.js';
 
 interface PageBuildOptions {
   astroConfig: AstroConfig;
@@ -11,8 +14,8 @@ interface PageBuildOptions {
   logging: LogOptions;
   filepath: URL;
   mode: RuntimeMode;
-  resolvePackageUrl: (s: string) => Promise<string>;
-  runtime: AstroRuntime;
+  snowpackRuntime: SnowpackServerRuntime;
+  astroRuntime: AstroRuntime;
   site?: string;
 }
 
@@ -23,18 +26,30 @@ export function getPageType(filepath: URL): 'collection' | 'static' {
 }
 
 /** Build collection */
-export async function buildCollectionPage({ astroConfig, filepath, runtime, site, buildState }: PageBuildOptions): Promise<void> {
+export async function buildCollectionPage({ astroConfig, filepath, astroRuntime, snowpackRuntime, site, buildState }: PageBuildOptions): Promise<void> {
   const { pages: pagesRoot } = astroConfig;
-  const srcURL = filepath.pathname.replace(pagesRoot.pathname, '/');
-  const outURL = srcURL.replace(/\$([^.]+)\.astro$/, '$1');
+  const srcURL = filepath.pathname.replace(pagesRoot.pathname, '');
+  const pagesPath = astroConfig.pages.pathname.replace(astroConfig.projectRoot.pathname, '');
+  const snowpackURL = `/_astro/${pagesPath}${srcURL}.js`;
+  const mod = await snowpackRuntime.importModule(snowpackURL);
+  validateCollectionModule(mod, filepath.pathname);
+  const pageCollection: CreateCollectionResult = await mod.exports.createCollection();
+  validateCollectionResult(pageCollection, filepath.pathname);
+  let { route, paths: getPaths = () => [{ params: {} }] } = pageCollection;
+  const toPath = compilePathToRegexp(route);
+  const allPaths = getPaths();
+  const allRoutes: string[] = allPaths.map((p) => toPath(p.params));
 
-  const builtURLs = new Set<string>(); // !important: internal cache that prevents building the same URLs
+  // Keep track of all files that have been built, to prevent duplicates.
+  const builtURLs = new Set<string>();
 
   /** Recursively build collection URLs */
-  async function loadCollection(url: string): Promise<LoadResult | undefined> {
-    if (builtURLs.has(url)) return; // this stops us from recursively building the same pages over and over
-    const result = await runtime.load(url);
+  async function loadPage(url: string): Promise<{ url: string; result: LoadResult } | undefined> {
+    if (builtURLs.has(url)) {
+      return;
+    }
     builtURLs.add(url);
+    const result = await astroRuntime.load(url);
     if (result.statusCode === 200) {
       const outPath = path.posix.join(url, '/index.html');
       buildState[outPath] = {
@@ -44,58 +59,48 @@ export async function buildCollectionPage({ astroConfig, filepath, runtime, site
         encoding: 'utf8',
       };
     }
-    return result;
+    return { url, result };
   }
 
-  const [result] = await Promise.all([
-    loadCollection(outURL) as Promise<LoadResult>, // first run will always return a result so assert type here
-  ]);
-
-  if (result.statusCode >= 500) {
-    throw new Error((result as any).error);
-  }
-  if (result.statusCode === 200 && !result.collectionInfo) {
-    throw new Error(`[${srcURL}]: Collection page must export createCollection() function`);
-  }
-
-  // note: for pages that require params (/tag/:tag), we will get a 404 but will still get back collectionInfo that tell us what the URLs should be
-  if (result.collectionInfo) {
-    // build subsequent pages
-    await Promise.all(
-      [...result.collectionInfo.additionalURLs].map(async (url) => {
-        // for the top set of additional URLs, we render every new URL generated
-        const addlResult = await loadCollection(url);
-        builtURLs.add(url);
-        if (addlResult && addlResult.collectionInfo) {
-          // believe it or not, we may still have a few unbuilt pages left. this is our last crawl:
-          await Promise.all([...addlResult.collectionInfo.additionalURLs].map(async (url2) => loadCollection(url2)));
+  const loadResults = await Promise.all(allRoutes.map(loadPage));
+  for (const loadResult of loadResults) {
+    if (!loadResult) {
+      continue;
+    }
+    const result = loadResult.result;
+    if (result.statusCode >= 500) {
+      throw new Error((result as any).error);
+    }
+    if (result.statusCode === 200) {
+      const { collectionInfo } = result;
+      if (collectionInfo?.rss) {
+        if (!site) {
+          throw new Error(`[${srcURL}] createCollection() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
         }
-      })
-    );
-
-    if (result.collectionInfo.rss) {
-      if (!site) throw new Error(`[${srcURL}] createCollection() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
-      let feedURL = outURL === '/' ? '/index' : outURL;
-      feedURL = '/feed' + feedURL + '.xml';
-      const rss = generateRSS({ ...(result.collectionInfo.rss as any), site }, { srcFile: srcURL, feedURL });
-      buildState[feedURL] = {
-        srcPath: filepath,
-        contents: rss,
-        contentType: 'application/rss+xml',
-        encoding: 'utf8',
-      };
+        const feedURL = '/feed' + loadResult.url + '.xml';
+        const rss = generateRSS({ ...(collectionInfo.rss as any), site }, { srcFile: srcURL, feedURL });
+        buildState[feedURL] = {
+          srcPath: filepath,
+          contents: rss,
+          contentType: 'application/rss+xml',
+          encoding: 'utf8',
+        };
+      }
+      if (collectionInfo?.additionalURLs) {
+        await Promise.all([...collectionInfo.additionalURLs].map(loadPage));
+      }
     }
   }
 }
 
 /** Build static page */
-export async function buildStaticPage({ astroConfig, buildState, filepath, runtime }: PageBuildOptions): Promise<void> {
+export async function buildStaticPage({ astroConfig, buildState, filepath, astroRuntime }: PageBuildOptions): Promise<void> {
   const { pages: pagesRoot } = astroConfig;
   const url = filepath.pathname
     .replace(pagesRoot.pathname, '/')
     .replace(/.(astro|md)$/, '')
     .replace(/\/index$/, '/');
-  const result = await runtime.load(url);
+  const result = await astroRuntime.load(url);
   if (result.statusCode !== 200) {
     let err = (result as any).error;
     if (!(err instanceof Error)) err = new Error(err);
