@@ -7,6 +7,7 @@ export const sidebar = [
       { text: 'Installation', link: 'installation' },
       { text: 'Quickstart', link: 'quick-start' },
       { text: 'Examples', link: 'examples' },
+      { text: 'Astro vs. X', link: 'comparing-astro-vs-other-tools' },
     ],
   },
   {
