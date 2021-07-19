@@ -21,7 +21,7 @@ ConfigPort('can be specified in the astro config', async (context) => {
   assert.equal(astroConfig.devOptions.hostname, '0.0.0.0');
 });
 
-ConfigPort('can be specified via --port flag', async (context) => {
+ConfigPort('can be specified via --hostname flag', async (context) => {
   const args = ['--hostname', '127.0.0.1'];
   const proc = runDevServer(root, args);
 
