@@ -62,7 +62,6 @@ const {currentPage} = Astro.props;
     color: inherit;
     text-decoration: none;
     display: block;
-    border-radius: 8px;
   }
   .nav-link a:hover,
   .nav-link a:focus {
@@ -80,6 +79,9 @@ const {currentPage} = Astro.props;
   }
 
   @media (min-width: 60em) {
+    .nav-link a {
+      border-radius: 8px;
+    }
     .nav-groups {
       padding: 0;
     }
