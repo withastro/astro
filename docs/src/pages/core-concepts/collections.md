@@ -49,7 +49,7 @@ export async function createCollection() {
     // Here, we create a route for each letter (ex: "a" -> {letter: "a"}).
     paths() {
       return allLetters.map(letter => ({params: {letter}}));
-    }),
+    },
     // `props` returns the data needed on each page.
     // If you needed to fetch more data for each page, you can do that here as well.
     // Luckily, we loaded all of the data that we need at the top of the function, 
@@ -82,7 +82,7 @@ const {letter, items} = Astro.props;
 export async function createCollection() {
   const allPokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=150`);
   const allPokemonResult = await allPokemonResponse.json();
-  const allPokemon = allPokemonResult.result;
+  const allPokemon = allPokemonResult.results;
   return {
     // `route` defines the URL structure for your collection. 
     // Multiple URL params can be provided.
@@ -91,7 +91,7 @@ export async function createCollection() {
     // Provide an array of params, matching the `route` pattern above.
     paths() {
       return allPokemon.map((pokemon, i) => ({params: {number: i}}));
-    }),
+    },
     // `props` returns the data needed on each page.
     // If you needed to fetch more data for each page, you can do that here as well.
     // Luckily, we loaded all of the data that we need at the top of the function, 
