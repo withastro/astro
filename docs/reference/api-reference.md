@@ -91,83 +91,35 @@ When using the [Collections API](/core-concepts/collections), `collection` is a 
 ### `createCollection()`
 
 ```jsx
-// Example: pages/$tags.astro
 export async function createCollection() {
-  // load data here
   return {
-    route: '/tags/:tag',
-    paths() {
-      return [
-        { params: {tag: 'movie'} }, 
-        { params: {tag: 'television'} }, 
-      ];
+    async data({ params }) {
+      // load data
     },
-    async props({ params }) {
-      // load page-specific data here
-      if (params.tag === 'movie') {
-        return {items: ['Movie 1', 'Movie 2', 'Movie 3']};
-      } else {
-        return {items: ['TV 1', 'TV 2', 'TV 3']};
-      }
-    },
+    pageSize: 25,
+    routes: [{ tag: 'movie' }, { tag: 'television' }],
+    permalink: ({ params }) => `/tag/${params.tag}`,
   };
 }
 ```
 
 When using the [Collections API](/core-concepts/collections), `createCollection()` is an async function that returns an object of the following shape:
 
-| Name       |                   Type                   | Description                                                                                                                                                                                                                             |
-| :--------- | :--------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `route`    |                 `string`                 | **Required.** A route pattern for matching URL requests. This is used to generate the page URL in your final build. It must begin with the file name: for example, `pages/$tags.astro` must return a `route` that starts with `/tags/`. |
-| `paths`    |           `{params: Params}[]`           | Return an array of all URL to be generated.                                                                                                                                                                                             |
-| `props`    | `async ({ params, paginate }) => object` | **Required.** Load data for the page that will get passed to the page component as props.                                                                                                                                               |
-| `paginate` |                `boolean`                 | Optional: Enable automatic pagination.                                                                                                                                                                                                  |
-| `rss`      | [RSS](/reference/api-reference#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/reference/api-reference#rss-feed))                                                                                                                                     |
+| Name        |                   Type                   | Description                                                                                                |
+| :---------- | :--------------------------------------: | :--------------------------------------------------------------------------------------------------------- |
+| `data`      |      `async ({ params }) => any[]`       | **Required.** Load an array of data with this function to be returned.                                     |
+| `pageSize`  |                 `number`                 | Specify number of items per page (default: `25`).                                                          |
+| `routes`    |                `params[]`                | **Required for URL Params.** Return an array of all possible URL `param` values in `{ name: value }` form. |
+| `permalink` |         `({ params }) => string`         | **Required for URL Params.** Given a `param` object of `{ name: value }`, generate the final URL.\*        |
+| `rss`       | [RSS](/reference/api-reference#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/reference/api-reference#rss-feed))        |
 
-⚠️ `createCollection()` executes in its own isolated scope before page loads. Therefore you can’t reference anything from its parent scope. If you need to load data you may fetch or use async `import()`s within the function body for anything you need (that’s why it’s `async`—to give you this ability). Therefore, duplicating imports between `createCollection()` and your Astro component is OK.
+_\* Note: don’t create confusing URLs with `permalink`, e.g. rearranging params conditionally based on their values._
 
-### Pagination
-
-Automatic pagination is a first-class feature of Astro. Set `paginate: true` in your createCollection response to enable it.
-
-The `paginate()` function that you use inside of `props()` returns a special `CollectionResult`data type. The `CollectionResult` object is the paginated prop that gets passed to your page component, and includes metadata about pagination. This can help you design UI for moving across pages, showing the current page size, etc.
-
-📚 Learn more about pagination in our [Astro Collections guide.](/core-concepts/collections).
-
-```ts
-interface CollectionResult<T = any> {
-  /** result */
-  data: T[];
-
-  /** metadata */
-  /** the count of the first item on the page, starting from 0 */
-  start: number;
-  /** the count of the last item on the page, starting from 0 */
-  end: number;
-  /** total number of results */
-  total: number;
-  page: {
-    /** the current page number, starting from 1 */
-    current: number;
-    /** number of items per page (default: 25) */
-    size: number;
-    /** number of last page */
-    last: number;
-  };
-  url: {
-    /** url of the current page */
-    current: string;
-    /** url of the previous page (if there is one) */
-    prev: string | undefined;
-    /** url of the next page (if there is one) */
-    next: string | undefined;
-  };
-}
-```
+⚠️ `createCollection()` executes in its own isolated scope before page loads. Therefore you can’t reference anything from its parent scope. If you need to load data you may fetch or use async `import()`s within the function body for anything you need (that’s why it’s `async`—to give you this ability). If it wasn’t isolated, then `collection` would be undefined! Therefore, duplicating imports between `createCollection()` and your Astro component is OK.
 
 #### RSS Feed
 
-You can generate an RSS 2.0 feed from the `createCollection()` result by adding an `rss` option. Here are all the options:
+You can optionally generate an RSS 2.0 feed from `createCollection()` by adding an `rss` option. Here are all the options:
 
 ```jsx
 export async function createCollection() {

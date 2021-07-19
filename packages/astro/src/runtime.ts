@@ -1,5 +1,4 @@
-import type { LogOptions } from './logger';
-import type { AstroConfig, CollectionResult, CollectionRSS, CreateCollectionResult, PaginateFunction, RuntimeMode } from './@types/astro';
+import type { AstroConfig, PaginatedCollectionResult, CollectionRSS, CreateCollectionResult, PaginateFunction, RuntimeMode } from './@types/astro';
 import type { CompileError as ICompileError } from '@astrojs/parser';
 
 import { compile as compilePathToRegexp, match as matchPathToRegexp } from 'path-to-regexp';
@@ -20,7 +19,7 @@ import {
 import parser from '@astrojs/parser';
 const { CompileError } = parser;
 import { canonicalURL, getSrcPath, stopTimer } from './build/util.js';
-import { debug, info } from './logger.js';
+import { LogOptions, debug, info, warn } from './logger.js';
 import { configureSnowpackLogger } from './snowpack-logger.js';
 import { searchForPage } from './search.js';
 import snowpackExternals from './external.js';
@@ -149,7 +148,10 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
         paginateCallCount = 0;
         paginateUtility = (data, args = {}) => {
           paginateCallCount!++;
-          const { pageSize = Infinity } = args;
+          let { pageSize } = args;
+          if (!pageSize) {
+            pageSize = 10;
+          }
           const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
           const end = Math.min(start + pageSize, data.length);
           lastPage = Math.max(1, Math.ceil(data.length / pageSize));
@@ -185,7 +187,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
               next: pageNum === lastPage ? undefined : toPath({ ...matchedParams, page: pageNum + 1 }),
               prev: pageNum === 1 ? undefined : toPath({ ...matchedParams, page: pageNum - 1 === 1 ? undefined : pageNum - 1 }),
             },
-          } as CollectionResult;
+          } as PaginatedCollectionResult;
         };
       }
       pageProps = await getProps({ params: matchedParams, paginate: paginateUtility });

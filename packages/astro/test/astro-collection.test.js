@@ -27,7 +27,7 @@ Collections('can load remote data', async ({ runtime }) => {
   }
 });
 
-Collections('generates pages grouped by author', async ({ runtime }) => {
+Collections('generates pages based on params successfully', async ({ runtime }) => {
   const AUTHORS_TO_TEST = [
     {
       id: 'author-one',
@@ -53,6 +53,21 @@ Collections('generates pages grouped by author', async ({ runtime }) => {
     for (const post of posts) {
       assert.ok($(`a[href="/post/${post}"]`).length);
     }
+  }
+});
+
+Collections('paginates pages based on params successfully', async ({ runtime }) => {
+  const TAGS_TO_TEST = ['tag1', 'tag2', 'tag3'];
+  for (const tagName of TAGS_TO_TEST) {
+    // Test that first page is generated:
+    const resultFirstPage = await runtime.load(`/params-and-paginated/${tagName}`);
+    if (resultFirstPage.error) throw new Error(resultFirstPage.error);
+    assert.ok(doc(resultFirstPage.contents)(`#${tagName}`).length);
+
+    // Test that second page is generated:
+    const resultSecondPage = await runtime.load(`/params-and-paginated/${tagName}/2`);
+    if (resultSecondPage.error) throw new Error(resultSecondPage.error);
+    assert.ok(doc(resultSecondPage.contents)(`#${tagName}`).length);
   }
 });
 

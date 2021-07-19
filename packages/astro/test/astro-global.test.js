@@ -26,7 +26,6 @@ Global('Astro.request.canonicalURL', async (context) => {
 
   for (const [url, canonicalURL] of Object.entries(canonicalURLs)) {
     const result = await context.runtime.load(url);
-    console.error(result);
     const $ = doc(result.contents);
     assert.equal($('link[rel="canonical"]').attr('href'), canonicalURL);
   }

@@ -107,7 +107,7 @@ export interface PageDependencies {
   images: Set<string>;
 }
 
-export type PaginateFunction<T = any> = (data: T[], args?: { pageSize?: number }) => CollectionResult<T>;
+export type PaginateFunction<T = any> = (data: T[], args?: { pageSize?: number }) => PaginatedCollectionResult<T>;
 
 export interface CreateCollectionResult {
   paginate?: boolean;
@@ -141,7 +141,7 @@ export interface CollectionRSS<T = any> {
   };
 }
 
-export interface CollectionResult<T = any> {
+export interface PaginatedCollectionResult<T = any> {
   /** result */
   data: T[];
 
