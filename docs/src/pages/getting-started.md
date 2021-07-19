@@ -5,6 +5,10 @@ title: Getting Started
 
 Astro is modern static site builder. Learn what Astro is all about from [our homepage](https://astro.build/) or [our release post](https://astro.build/blog/introducing-astro). This page is an overview of the Astro documentation and all related resources.
 
+Looking for a quick overview of what Astro is? [Fireship](https://fireship.io/) produced this great video summarizing Astro that you can watch in less than two minutes:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/dsTXcSeAZq8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## Try Astro
 
 The easiest way to try Astro is to run `npm init astro` in a new directory on your machine. This CLI command will walk you through starting a new Astro project.
