@@ -1,0 +1,69 @@
+---
+import { sidebar } from '../config.ts';
+const {currentPage} = Astro.props;
+---
+
+
+<nav>
+  <ul class="nav-groups">  
+    {sidebar.map(category => (
+      <li>
+        <div class="nav-group">
+          <h2 class="nav-group-title">{category.text}</h2>
+          <ul>
+            {category.children.map(child => (
+              <li class={`nav-link ${currentPage === child.link ? 'is-active' : ''}`}><a href={`${Astro.site.pathname}${child.link}`}>{child.text}</a></li>
+            ))}
+          </ul>
+        </div>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  nav {
+    position: sticky;
+    min-height: calc(100vh - 3.5rem);
+    height: calc(100vh - 3.5rem);
+    top: 3.5rem;
+  }
+  .nav-groups {
+    height: 100%;
+    padding: 2rem 0;
+    overflow: auto;
+  }
+
+  .nav-groups > li + li {
+    margin-top: 2rem;
+  }
+
+  .nav-group-title {
+    font-size: 1.0rem;
+    font-weight: 700;
+    padding: 0.1rem 2rem;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .nav-link a {
+    font-size: 1.0rem;
+    margin: 1px;
+    padding: 0.3rem 2rem;
+    font: inherit;
+    color: inherit;
+    text-decoration: none;
+    display: block;
+  }
+  .nav-link a:hover,
+  .nav-link a:focus {
+    background-color: var(--theme-bg-hover);
+  }
+
+  .nav-link.is-active a {
+    color: var(--theme-text-accent);
+    background-color: var(--theme-bg-accent);
+    font-weight: 600;
+  }
+
+</style>

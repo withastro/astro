@@ -1,4 +1,5 @@
 const { readFile } = require('fs').promises;
+const getPort = require('get-port');
 // Snowpack plugins must be CommonJS :(
 const transformPromise = import('./dist/compiler/index.js');
 
@@ -48,9 +49,12 @@ module.exports = (snowpackConfig, options = {}) => {
         configManager.markDirty();
       }
     },
-    config(snowpackConfig) {
+    async config(snowpackConfig) {
       if(!isNaN(snowpackConfig.devOptions.hmrPort)) {
         hmrPort = snowpackConfig.devOptions.hmrPort;
+      } else {
+        hmrPort = await getPort({ port: DEFAULT_HMR_PORT, host: snowpackConfig.devOptions.hostname });
+        snowpackConfig.devOptions.hmrPort = hmrPort;
       }
     },
     async load({ filePath }) {

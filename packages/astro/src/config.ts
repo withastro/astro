@@ -1,6 +1,7 @@
 import type { AstroConfig } from './@types/astro';
 import path from 'path';
 import { existsSync } from 'fs';
+import getPort from 'get-port';
 
 /** Type util */
 const type = (thing: any): string => (Array.isArray(thing) ? 'Array' : typeof thing);
@@ -48,7 +49,7 @@ function validateConfig(config: any): void {
 }
 
 /** Set default config values */
-function configDefaults(userConfig?: any): any {
+async function configDefaults(userConfig?: any): Promise<any> {
   const config: any = { ...(userConfig || {}) };
 
   if (!config.projectRoot) config.projectRoot = '.';
@@ -57,7 +58,7 @@ function configDefaults(userConfig?: any): any {
   if (!config.dist) config.dist = './dist';
   if (!config.public) config.public = './public';
   if (!config.devOptions) config.devOptions = {};
-  if (!config.devOptions.port) config.devOptions.port = 3000;
+  if (!config.devOptions.port) config.devOptions.port = await getPort({ port: getPort.makeRange(3000, 3050) });
   if (!config.buildOptions) config.buildOptions = {};
   if (!config.markdownOptions) config.markdownOptions = {};
   if (typeof config.buildOptions.sitemap === 'undefined') config.buildOptions.sitemap = true;
@@ -86,9 +87,9 @@ export async function loadConfig(rawRoot: string | undefined, configFileName = '
   // load
   let config: any;
   if (existsSync(astroConfigPath)) {
-    config = configDefaults((await import(astroConfigPath.href)).default);
+    config = await configDefaults((await import(astroConfigPath.href)).default);
   } else {
-    config = configDefaults();
+    config = await configDefaults();
   }
 
   // validate

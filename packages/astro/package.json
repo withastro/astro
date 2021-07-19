@@ -68,6 +68,7 @@
     "fast-xml-parser": "^3.19.0",
     "fdir": "^5.0.0",
     "find-up": "^5.0.0",
+    "get-port": "^5.1.1",
     "gzip-size": "^6.0.0",
     "hast-to-hyperscript": "~9.0.0",
     "kleur": "^4.1.4",
