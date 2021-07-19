@@ -439,8 +439,8 @@ h2.heading {
 }
 
 .logo a {
-  padding: 0.5em;
-  margin: -0.5em -0.75em;
+  padding: 0.5em 0.25em;
+  margin: -0.5em -0.5em;
 }
 
 .logo svg {
