@@ -167,7 +167,7 @@ interface CollectionResult<T = any> {
 
 #### RSS Feed
 
-You can generate an RSS 2.0 feed from `createCollection()` result by adding an `rss` option. Here are all the options:
+You can generate an RSS 2.0 feed from the `createCollection()` result by adding an `rss` option. Here are all the options:
 
 ```jsx
 export async function createCollection() {
