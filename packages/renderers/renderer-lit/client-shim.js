@@ -3,11 +3,10 @@ async function polyfill() {
   hydrateShadowRoots(document.body);
 }
 
-if (
-  !new DOMParser()
-    .parseFromString(`<p><template shadowroot="open"></template></p>`, 'text/html', {
-      includeShadowRoots: true,
-    })
-    .querySelector('p')?.shadowRoot
-)
+const polyfillCheckEl = new DOMParser()
+  .parseFromString(`<p><template shadowroot="open"></template></p>`, 'text/html', {includeShadowRoots: true})
+  .querySelector('p');
+
+if (!polyfillCheckEl || !polyfillCheckEl.shadowRoot) {
   polyfill();
+}

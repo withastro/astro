@@ -6,7 +6,7 @@ import Nav from '../components/Nav/index.jsx';
 
 const { content } = Astro.props;
 ---
-<html lang={ content.lang ?? 'en' }>
+<html lang={ content.lang || 'en' }>
   <head>
     <MainHead title={content.title} />
     <style lang="scss">

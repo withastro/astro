@@ -140,9 +140,9 @@ async function __render(props, ...children) {
   const Astro = {
     ...__TopLevelAstro,
     props,
-    css: props[__astroInternal]?.css || [],
-    request: props[__astroInternal]?.request || {},
-    isPage: props[__astroInternal]?.isPage || false,
+    css: (props[__astroInternal] && props[__astroInternal].css) || [],
+    request: (props[__astroInternal] && props[__astroInternal].request) || {},
+    isPage: (props[__astroInternal] && props[__astroInternal].isPage) || false,
   };
 
   ${result.script}
