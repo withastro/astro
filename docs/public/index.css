@@ -3,6 +3,11 @@
   margin: 0;
 }
 
+/* Global focus outline reset */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
 :root {
   --user-font-scale: 1rem - 16px;
   --max-width: calc(100% - 1rem);
@@ -69,6 +74,7 @@ h3 {
 
 h4 {
   font-size: 1rem;
+  font-weight: bold;
 }
 
 h5 {
@@ -216,6 +222,10 @@ pre {
 
 pre code {
   font: inherit;
+}
+
+blockquote code:not([class*='language']) {
+  background-color: var(--theme-bg);
 }
 
 @media (min-width: 37.75em) {
@@ -415,10 +425,10 @@ h2.heading {
   scroll-margin-top: 4rem;
 }
 
-#site-title {
+.logo {
   display: flex;
   align-items: center;
-  gap: 0.5em;
+  gap: 0;
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0;
@@ -428,18 +438,29 @@ h2.heading {
   transform: translateX(-8px);
 }
 
-#site-title svg {
+.logo a {
+  padding: 0.5em;
+  margin: -0.5em -0.75em;
+}
+
+.logo svg {
   height: 40px;
-  width: 32px;
+  width: auto;
   display: block;
+  color: var(--theme-accent);
 }
 
-#site-title:hover,
-#site-title:focus {
-  opacity: 0.8;
+.logo a:hover,
+.logo a:focus {
+  background: rgba(var(--theme-accent-rgb), 0.6);
 }
 
-#site-title h1 {
+.logo a:hover svg,
+.logo a:focus svg {
+  color: var(--color-white);
+}
+
+.logo h1 {
   font: inherit;
   color: inherit;
   margin: 0;
