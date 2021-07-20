@@ -9,3 +9,6 @@ package-lock.json
 
 # .vscode files other than at top-level
 **/.vscode
+
+# do not commit .env files or any files that end with `.env`
+*.env
