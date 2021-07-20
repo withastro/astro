@@ -135,9 +135,9 @@ async function __render(props, ...children) {
   const Astro = {
     props,
     site: new URL('/', ${JSON.stringify(site)}),
-    css: props[__astroInternal]?.css || [],
-    request: props[__astroInternal]?.request || {},
-    isPage: props[__astroInternal]?.isPage || false
+    css: (props[__astroInternal] && props[__astroInternal].css) || [],
+    request: (props[__astroInternal] && props[__astroInternal].request) || {},
+    isPage: (props[__astroInternal] && props[__astroInternal].isPage) || false,
   };
 
   ${result.script}

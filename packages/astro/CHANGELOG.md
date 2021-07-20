@@ -1,5 +1,11 @@
 # astro
 
+## 0.17.3
+
+### Patch Changes
+
+- Update compile target to better support Node v12.
+
 ## 0.17.2
 
 ### Patch Changes

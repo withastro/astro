@@ -11,7 +11,9 @@ const defaultConfig = {
   minify: false,
   format: 'esm',
   platform: 'node',
-  target: 'node14',
+  // There's an issue with 'node12.20' compiling ESM to CJS
+  // so use 'node13.2' instead. V8 support should be similar.
+  target: 'node13.2',
   sourcemap: 'inline',
   sourcesContent: false,
 };
