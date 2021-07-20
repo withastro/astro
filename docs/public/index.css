@@ -129,6 +129,12 @@ article main ::marker {
   color: var(--theme-text-light);
 }
 
+article main iframe {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
 a > code:not([class*='language']) {
   position: relative;
   color: var(--theme-text-accent);
