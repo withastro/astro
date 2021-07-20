@@ -69,6 +69,8 @@ if (currentPage) {
         justify-content: center;
         z-index: 1001;
         overflow: hidden;
+        position: sticky;
+        top: 0;
       }
 
       .layout {
@@ -174,6 +176,9 @@ if (currentPage) {
         top: 0;
       }
       @media (min-width: 60em) {
+        header {
+          position: static;
+        }
         .layout {
           overflow: initial;
         }
