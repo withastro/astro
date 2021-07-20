@@ -66,7 +66,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   const { logging, snowpackRuntime, snowpack, configManager } = config;
   const { buildOptions, devOptions } = config.astroConfig;
 
-  let origin = buildOptions.site ? new URL(buildOptions.site).origin : `http://localhost:${devOptions.port}`;
+  let origin = buildOptions.site ? new URL(buildOptions.site).origin : `http://${devOptions.hostname}:${devOptions.port}`;
   const fullurl = new URL(rawPathname || '/', origin);
 
   const reqPath = decodeURI(fullurl.pathname);

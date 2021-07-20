@@ -27,6 +27,7 @@ interface CLIState {
   options: {
     projectRoot?: string;
     sitemap?: boolean;
+    hostname?: string;
     port?: number;
     config?: string;
     reload?: boolean;
@@ -93,6 +94,7 @@ async function printVersion() {
 function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
   if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
   if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
+  if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
 }
 
 /** Handle `astro run` command */

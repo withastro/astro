@@ -29,6 +29,7 @@ export interface AstroConfig {
   };
   /** Options for the development server run with `astro dev`. */
   devOptions: {
+    hostname?: string;
     /** The port to run the dev server on. */
     port: number;
     projectRoot?: string;
@@ -42,6 +43,7 @@ export type AstroUserConfig = Omit<AstroConfig, 'buildOptions' | 'devOptions'> &
     sitemap: boolean;
   };
   devOptions: {
+    hostname?: string;
     port?: number;
     projectRoot?: string;
     tailwindConfig?: string;
