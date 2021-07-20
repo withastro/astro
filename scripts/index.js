@@ -5,12 +5,12 @@ export default async function run() {
     case 'dev':
     case 'build': {
       const { default: build } = await import('./cmd/build.js');
-      build(...args, cmd === 'dev' ? 'IS_DEV' : undefined);
+      await build(...args, cmd === 'dev' ? 'IS_DEV' : undefined);
       break;
     }
     case 'copy': {
       const { default: copy } = await import('./cmd/copy.js');
-      copy(...args);
+      await copy(...args);
       break;
     }
   }

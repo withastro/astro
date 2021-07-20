@@ -1,6 +1,6 @@
 import { fileURLToPath } from 'url';
 import { build as astroBuild } from '#astro/build';
-import { readFile } from 'fs/promises';
+import { readFileSync } from 'fs';
 import { createRuntime } from '#astro/runtime';
 import { loadConfig } from '#astro/config';
 import execa from 'execa';
@@ -86,7 +86,7 @@ export function setupBuild(Suite, fixturePath) {
     context.build = () => astroBuild(astroConfig, { level: 'error', dest: process.stderr });
     context.readFile = async (path) => {
       const resolved = fileURLToPath(new URL(`${fixturePath}/${astroConfig.dist}${path}`, import.meta.url));
-      return readFile(resolved).then((r) => r.toString('utf8'));
+      return readFileSync(resolved, {encoding: 'utf8'});
     };
 
     clearTimeout(timeout);

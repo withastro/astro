@@ -8,6 +8,10 @@ const LitElement = suite('LitElement test');
 setup(LitElement, './fixtures/lit-element');
 
 LitElement('Renders a custom element by tag name', async ({ runtime }) => {
+  // lit SSR is not currently supported on Node.js < 13
+  if (process.versions.node <= '13') {
+    return;
+  }
   const result = await runtime.load('/');
   if (result.error) throw new Error(result.error);
 
@@ -30,7 +34,7 @@ LitElement.skip('Renders a custom element by the constructor', async ({ runtime 
 
 // The Lit renderer adds browser globals that interfere with other tests, so remove them now.
 LitElement.after(() => {
-  const globals = Object.keys(globalThis.window);
+  const globals = Object.keys(globalThis.window || {});
   globals.splice(globals.indexOf('global'), 1);
   for (let name of globals) {
     delete globalThis[name];

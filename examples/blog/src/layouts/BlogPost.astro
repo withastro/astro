@@ -7,7 +7,7 @@ import BlogPost from '../components/BlogPost.astro';
 const {content} = Astro.props;
 const {title, description, publishDate, author, heroImage, permalink} = content;
 ---
-<html lang={ content.lang ?? 'en' }>
+<html lang={ content.lang || 'en' }>
   <head>
     <BaseHead title={title} description={description} permalink={permalink} />
     <link rel="stylesheet" href="/blog.css" />
