@@ -121,16 +121,10 @@ export class ConfigManager {
         external: raw.external,
         polyfills: polyfillsNormalized,
         hydrationPolyfills: hydrationPolyfillsNormalized,
-        jsxImportSource: raw.jsxImportSource
       };
     });
 
     return rendererInstances;
-  }
-
-  async getRenderers(): Promise<RendererInstance[]> {
-    const renderers = await this.buildRendererInstances();
-    return renderers;
   }
 
   async buildSource(contents: string): Promise<string> {

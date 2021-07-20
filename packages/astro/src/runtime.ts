@@ -370,7 +370,6 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     mount: mountOptions,
     mode,
     plugins: [
-      [fileURLToPath(new URL('../snowpack-plugin-jsx.cjs', import.meta.url)), astroPluginOptions],
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPluginOptions],
       ...rendererSnowpackPlugins,
       resolveDependency('@snowpack/plugin-sass'),

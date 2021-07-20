@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 /** a counter written in React */
 export function Counter({ children }) {
