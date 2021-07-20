@@ -3,6 +3,14 @@ import { sidebar } from '../config.ts';
 const {currentPage} = Astro.props;
 ---
 
+<script type="module">
+const scrollToCurrentSection = () => {
+  const siteSidebar = document.getElementById('sidebar-site');
+  const currentPageElement = siteSidebar.querySelector('[aria-current="page"]');
+  currentPageElement.scrollIntoView({block: 'center'});
+}
+scrollToCurrentSection();
+</script>
 
 <nav>
   <ul class="nav-groups">  
@@ -12,7 +20,7 @@ const {currentPage} = Astro.props;
           <h2 class="nav-group-title">{category.text}</h2>
           <ul>
             {category.children.map(child => (
-              <li class={`nav-link ${currentPage === child.link ? 'is-active' : ''}`}><a href={`${Astro.site.pathname}${child.link}`}>{child.text}</a></li>
+              <li class="nav-link"><a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPage === child.link ? 'page' : ''}`}>{child.text}</a></li>
             ))}
           </ul>
         </div>
@@ -69,13 +77,13 @@ const {currentPage} = Astro.props;
     background-color: var(--theme-bg-hover);
   }
 
-  .nav-link.is-active a {
+  .nav-link a[aria-current="page"] {
     color: var(--theme-text-accent);
     background-color: var(--theme-bg-accent);
     font-weight: 600;
   }
 
-  :global(:root.theme-dark) .nav-link.is-active a {
+  :global(:root.theme-dark) .nav-link a[aria-current="page"] {
     color: var(--color-white);
   }
 
