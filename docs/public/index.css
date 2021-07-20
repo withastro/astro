@@ -46,7 +46,7 @@ nav ul {
 /* Typography */
 :is(h1, h2, h3, h4, h5, h6) {
   margin-bottom: 1rem;
-  font-weight: 400;
+  font-weight: bold;
   line-height: 1.25;
 }
 
@@ -59,28 +59,40 @@ nav ul {
 }
 
 h1 {
-  font-size: 2.5rem;
-  font-weight: bold;
+  font-size: 1.75rem;
 }
 
 h2 {
-  font-size: 1.75rem;
-  font-weight: bold;
+  font-size: 1.25rem;
 }
 
 h3 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
 }
 
 h4 {
   font-size: 1rem;
-  font-weight: bold;
 }
 
 h5 {
   font-size: 0.8rem;
-  font-weight: bold;
 }
+
+
+@media (min-width: 60em) {
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+}
+
 
 p,
 .content ul {
@@ -189,7 +201,7 @@ pre {
   font-family: var(--font-mono);
 
   line-height: 1.5;
-  font-size: 0.85rem;
+  font-size: 0.85em;
   overflow-y: hidden;
   overflow-x: auto;
 }
@@ -218,10 +230,6 @@ td, th {
 pre {
   background-color: var(--theme-code-bg);
   color: var(--theme-code-text);
-}
-
-pre code {
-  font: inherit;
 }
 
 blockquote code:not([class*='language']) {
@@ -429,13 +437,19 @@ h2.heading {
   display: flex;
   align-items: center;
   gap: 0;
-  font-size: 1.25rem;
+  font-size: 1rem;
   font-weight: 600;
   margin: 0;
   line-height: 1;
   color: var(--color-white);
   text-decoration: none;
-  transform: translateX(-8px);
+  transform: translateX(-8px) scale(0.8);
+}
+
+@media (min-width: 60em) {
+  .logo {
+    transform: translateX(-8px) scale(1);
+  }
 }
 
 .logo a {
