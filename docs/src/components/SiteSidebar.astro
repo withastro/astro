@@ -80,10 +80,18 @@ const {currentPage} = Astro.props;
 
   @media (min-width: 60em) {
     .nav-link a {
-      border-radius: 8px;
+      border-radius: 999px;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
     }
     .nav-groups {
       padding: 0;
+    }
+  }
+
+  @media (min-width: 86.25em) {
+    .nav-link a {
+      border-radius: 8px;
     }
   }
 
