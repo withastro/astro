@@ -15,7 +15,7 @@
     "build:core": "lerna run build --scope astro --scope @astrojs/parser --scope @astrojs/markdown-support",
     "build:vscode": "lerna run build --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser",
     "dev:vscode": "lerna run dev --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser --parallel --stream",
-    "format": "prettier -w \"**/*.{js,jsx,ts,tsx,md,json}\"",
+    "format": "prettier -w .",
     "lint": "eslint \"packages/**/*.ts\"",
     "test": "yarn workspace astro run test",
     "test:templates": "lerna run test --scope create-astro --stream"
