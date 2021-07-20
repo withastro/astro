@@ -10,7 +10,7 @@ setupBuild(ComponentChildren, './fixtures/astro-children');
 
 ComponentChildren('Passes string children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/strings');
-  if (result.error) throw new Error(result);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 
@@ -26,7 +26,7 @@ ComponentChildren('Passes string children to framework components', async ({ run
 
 ComponentChildren('Passes markup children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/markup');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 
@@ -42,10 +42,7 @@ ComponentChildren('Passes markup children to framework components', async ({ run
 
 ComponentChildren('Passes multiple children to framework components', async ({ runtime }) => {
   let result = await runtime.load('/multiple');
-  if (result.error) {
-    console.log(result);
-    throw new Error(result.error);
-  }
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 

@@ -14,7 +14,7 @@ setupBuild(Slots, './fixtures/astro-slots');
 
 Slots('Basic named slots work', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 
@@ -26,7 +26,7 @@ Slots('Basic named slots work', async ({ runtime }) => {
 
 Slots('Dynamic named slots work', async ({ runtime }) => {
   const result = await runtime.load('/dynamic');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 
@@ -38,7 +38,7 @@ Slots('Dynamic named slots work', async ({ runtime }) => {
 
 Slots('Slots render fallback content by default', async ({ runtime }) => {
   const result = await runtime.load('/fallback');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 
@@ -47,7 +47,7 @@ Slots('Slots render fallback content by default', async ({ runtime }) => {
 
 Slots('Slots override fallback content', async ({ runtime }) => {
   const result = await runtime.load('/fallback-override');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 
@@ -56,7 +56,7 @@ Slots('Slots override fallback content', async ({ runtime }) => {
 
 Slots('Slots work with multiple elements', async ({ runtime }) => {
   const result = await runtime.load('/multiple');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 
@@ -65,7 +65,7 @@ Slots('Slots work with multiple elements', async ({ runtime }) => {
 
 Slots('Slots work on Components', async ({ runtime }) => {
   const result = await runtime.load('/component');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 

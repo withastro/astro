@@ -13,7 +13,7 @@ Builtins('Can be used with the node: prefix', async ({ runtime }) => {
     return;
   }
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 

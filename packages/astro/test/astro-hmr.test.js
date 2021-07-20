@@ -13,7 +13,7 @@ setup(HMR, './fixtures/astro-hmr', {
 
 HMR('Honors the user provided port', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
   assert.ok(/window\.HMR_WEBSOCKET_PORT = 5555/.test(html), "Uses the user's websocket port");
@@ -21,7 +21,7 @@ HMR('Honors the user provided port', async ({ runtime }) => {
 
 HMR('Does not override script added by the user', async ({ runtime }) => {
   const result = await runtime.load('/manual');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
 
@@ -31,7 +31,7 @@ HMR('Does not override script added by the user', async ({ runtime }) => {
 
 HMR('Adds script to static pages too', async ({ runtime }) => {
   const result = await runtime.load('/static');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
   const $ = doc(html);
@@ -41,7 +41,7 @@ HMR('Adds script to static pages too', async ({ runtime }) => {
 
 HMR("Adds script to pages even if there aren't any elements in the template", async ({ runtime }) => {
   const result = await runtime.load('/no-elements');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
   const $ = doc(html);

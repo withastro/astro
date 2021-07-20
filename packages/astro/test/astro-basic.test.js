@@ -14,7 +14,7 @@ setupBuild(Basics, './fixtures/astro-basic');
 
 Basics('Can load page', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 

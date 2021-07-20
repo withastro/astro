@@ -43,9 +43,7 @@ export class Benchmark {
   }
 
   check() {
-    if (this.withinPreviousRuns === false) {
-      throw new Error(`${this.options.name} ran too slowly`);
-    }
+    assert.ok(this.withinPreviousRuns !== false, `${this.options.name} ran too slowly`);
   }
 
   async save() {
