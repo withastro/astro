@@ -18,7 +18,8 @@ There are a few different ways to install Astro in a new project.
 ```bash
 mkdir <project-name>
 cd <project-name>
-npm init astro
+npm init astro # yarn create astro
+npm install # yarn install
 ```
 
 Follow the CLI instructions to install Astro with one of our official project starter templates.
@@ -41,7 +42,7 @@ Create a new `package.json` file for your project. Astro is designed to work wit
 
 ```bash
 # This command will create a basic package.json for you
-npm init --yes
+npm init --yes # yarn init -y
 ```
 
 ### Install Astro
@@ -51,7 +52,7 @@ If you've followed the instructions above, you should have a directory with a si
 We'll use `npm` in the examples below, but you could also use `yarn` or `pnpm` if you prefer an npm alternative. If you aren't familiar with `yarn` or `pnpm`, then we strongly recommend sticking with `npm`.
 
 ```bash
-npm install astro
+npm install astro # yarn add astro
 ```
 
 You can now replace the placeholder "scripts" section of your `package.json` file that `npm init` created for you with the following:
