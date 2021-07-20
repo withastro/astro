@@ -50,6 +50,12 @@
 
 - 9859f53: Correcting typo in ReadMe
 
+## 0.17.3
+
+### Patch Changes
+
+- [release/0.17] Update compile target to better support Node v12.
+
 ## 0.17.2
 
 ### Patch Changes
