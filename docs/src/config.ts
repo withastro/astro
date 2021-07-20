@@ -67,3 +67,7 @@ export const sidebar = [
   //   ],
   // },
 ];
+
+export const site = {
+  title: 'Astro Documentation',
+};

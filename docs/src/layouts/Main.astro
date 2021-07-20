@@ -4,6 +4,7 @@ import SiteSidebar from '../components/SiteSidebar.astro';
 import ThemeToggle from '../components/ThemeToggle.tsx';
 import DocSidebar from '../components/DocSidebar.tsx';
 import MenuToggle from '../components/MenuToggle.tsx';
+import { site } from "../config.ts";
 
 const { content = {}, centered = false } = Astro.props;
 const headers = content?.astro?.headers;
@@ -20,7 +21,7 @@ if (currentPage) {
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>{content.title}</title>
+    <title>{content.title ? `${content.title} 🚀 ${site.title}` : site.title}</title>
 
     <!-- This is intentionally inlined to avoid FOUC -->
     <script>
