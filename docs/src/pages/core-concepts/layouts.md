@@ -130,7 +130,7 @@ This blog post will be **rendered** inside of the `<PostLayout />` layout.
 
 Markdown pages always pass a `content` prop to their layout, which is useful to grab information about the page, title, metadata, table of contents headers, and more.
 
-```
+```astro
 ---
 // src/layouts/PostLayout.astro
 const { content } = Astro.props;
