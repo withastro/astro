@@ -11,7 +11,7 @@ const {currentPage} = Astro.props;
           <h2 class="nav-group-title">{category.text}</h2>
           <ul>
             {category.children.map(child => (
-              <li class="nav-link"><a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPage === child.link ? 'page' : ''}`}>{child.text}</a></li>
+              <li class="nav-link"><a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPage === child.link ? 'page' : 'false'}`}>{child.text}</a></li>
             ))}
           </ul>
         </div>
