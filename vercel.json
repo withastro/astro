@@ -2,7 +2,6 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { "source": "/chat", "destination": "https://discord.gg/grF4GTXXYm" },
-    { "source": "/", "destination": "/getting-started" }
+    { "source": "/chat", "destination": "https://discord.gg/grF4GTXXYm" }
   ]
 }
