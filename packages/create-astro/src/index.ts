@@ -20,6 +20,24 @@ export function mkdirp(dir: string) {
   }
 }
 
+/**
+ * Delete all files, subdirectories, and symlinks in a given 
+ * directory. 
+ *
+ * @param dir the directory to empty
+ * @returns a promise for emptying a given directory
+ */
+export async function emptyDir(dir: string) {
+  const items = await fs.promises.readdir(dir);
+  return Promise.all(items.map(async (item) => {
+    const itemPath = path.join(dir, item);
+    const stat = await fs.promises.stat(itemPath);
+    return stat.isDirectory()
+      ? fs.promises.rm(itemPath, { recursive: true, force: true }) // To remove directories
+      : fs.promises.unlink(itemPath); // Remove files and symlinks
+  }));
+}
+
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 
 const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
@@ -37,15 +55,14 @@ export async function main() {
       const response = await prompts({
         type: 'confirm',
         name: 'forceOverwrite',
-        message: 'Directory not empty. Continue?',
+        message: `Directory not empty. Delete ${cwd} to continue?`,
         initial: false,
       });
       if (!response.forceOverwrite) {
         process.exit(1);
       }
 
-      await fs.promises.rm(cwd, { recursive: true });
-      mkdirp(cwd);
+      await emptyDir(cwd);
     }
   } else {
     mkdirp(cwd);
