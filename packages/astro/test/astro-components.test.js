@@ -9,7 +9,7 @@ setup(Components, './fixtures/astro-components');
 
 Components('Astro components are able to render framework components', async ({ runtime }) => {
   let result = await runtime.load('/');
-  if (result.error) throw new Error(result);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 

@@ -13,7 +13,7 @@ setup(NoHeadEl, './fixtures/no-head-el', {
 
 NoHeadEl('Places style and scripts before the first non-head element', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
   const $ = doc(html);
@@ -27,7 +27,7 @@ NoHeadEl('Places style and scripts before the first non-head element', async ({ 
 
 NoHeadEl('Injects HMR script even when there are no elements on the page', async ({ runtime }) => {
   const result = await runtime.load('/no-elements');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
   const $ = doc(html);

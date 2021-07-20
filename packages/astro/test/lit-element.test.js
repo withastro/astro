@@ -9,7 +9,7 @@ setup(LitElement, './fixtures/lit-element');
 
 LitElement('Renders a custom element by tag name', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 
@@ -20,7 +20,7 @@ LitElement('Renders a custom element by tag name', async ({ runtime }) => {
 // Skipped because not supported by Lit
 LitElement.skip('Renders a custom element by the constructor', async ({ runtime }) => {
   const result = await runtime.load('/ctr');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 

@@ -10,7 +10,7 @@ setupBuild(MarkdownPlugin, './fixtures/astro-markdown-plugins');
 
 MarkdownPlugin('Can render markdown with plugins', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
   assert.equal($('.toc').length, 1, 'Added a TOC');
@@ -19,7 +19,7 @@ MarkdownPlugin('Can render markdown with plugins', async ({ runtime }) => {
 
 MarkdownPlugin('Can render Astro <Markdown> with plugins', async ({ runtime }) => {
   const result = await runtime.load('/astro');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
   assert.equal($('.toc').length, 1, 'Added a TOC');

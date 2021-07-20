@@ -34,7 +34,7 @@ DType('No errors creating a runtime', () => {
 
 DType('Automatically prepends the standards mode doctype', async () => {
   const result = await runtime.load('/prepend');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents.toString('utf-8');
   assert.ok(html.startsWith('<!doctype html>'), 'Doctype always included');
@@ -42,7 +42,7 @@ DType('Automatically prepends the standards mode doctype', async () => {
 
 DType('No attributes added when doctype is provided by user', async () => {
   const result = await runtime.load('/provided');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents.toString('utf-8');
   assert.ok(html.startsWith('<!doctype html>'), 'Doctype always included');
@@ -50,7 +50,7 @@ DType('No attributes added when doctype is provided by user', async () => {
 
 DType.skip('Preserves user provided doctype', async () => {
   const result = await runtime.load('/preserve');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents.toString('utf-8');
   assert.ok(html.startsWith('<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'), 'Doctype included was preserved');
@@ -58,7 +58,7 @@ DType.skip('Preserves user provided doctype', async () => {
 
 DType('User provided doctype is case insensitive', async () => {
   const result = await runtime.load('/capital');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents.toString('utf-8');
   assert.ok(html.startsWith('<!DOCTYPE html>'), 'Doctype left alone');

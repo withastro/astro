@@ -9,7 +9,7 @@ setup(CustomElements, './fixtures/custom-elements');
 
 CustomElements('Work as constructors', async ({ runtime }) => {
   const result = await runtime.load('/ctr');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
   assert.equal($('my-element').length, 1, 'Element rendered');
@@ -18,7 +18,7 @@ CustomElements('Work as constructors', async ({ runtime }) => {
 
 CustomElements('Works with exported tagName', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
   assert.equal($('my-element').length, 1, 'Element rendered');
@@ -27,7 +27,7 @@ CustomElements('Works with exported tagName', async ({ runtime }) => {
 
 CustomElements('Hydration works with exported tagName', async ({ runtime }) => {
   const result = await runtime.load('/load');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
   const $ = doc(html);
@@ -42,7 +42,7 @@ CustomElements('Hydration works with exported tagName', async ({ runtime }) => {
 
 CustomElements('Polyfills are added before the hydration script', async ({ runtime }) => {
   const result = await runtime.load('/load');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
   const $ = doc(html);
@@ -54,7 +54,7 @@ CustomElements('Polyfills are added before the hydration script', async ({ runti
 
 CustomElements('Polyfills are added even if not hydrating', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
   const $ = doc(html);
@@ -66,7 +66,7 @@ CustomElements('Polyfills are added even if not hydrating', async ({ runtime }) 
 
 CustomElements('Custom elements not claimed by renderer are rendered as regular HTML', async ({ runtime }) => {
   const result = await runtime.load('/nossr');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
   assert.equal($('client-element').length, 1, 'Rendered the client-only element');

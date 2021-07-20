@@ -9,7 +9,7 @@ setup(Collections, './fixtures/astro-collection');
 
 Collections('shallow selector (*.md)', async ({ runtime }) => {
   const result = await runtime.load('/shallow');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
   const $ = doc(result.contents);
   const urls = [
     ...$('#posts a').map(function () {
@@ -22,7 +22,7 @@ Collections('shallow selector (*.md)', async ({ runtime }) => {
 
 Collections('deep selector (**/*.md)', async ({ runtime }) => {
   const result = await runtime.load('/nested');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
   const $ = doc(result.contents);
   const urls = [
     ...$('#posts a').map(function () {
@@ -34,7 +34,7 @@ Collections('deep selector (**/*.md)', async ({ runtime }) => {
 
 Collections('generates pagination successfully', async ({ runtime }) => {
   const result = await runtime.load('/paginated');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
   const $ = doc(result.contents);
   const prev = $('#prev-page');
   const next = $('#next-page');
@@ -44,7 +44,7 @@ Collections('generates pagination successfully', async ({ runtime }) => {
 
 Collections('can load remote data', async ({ runtime }) => {
   const result = await runtime.load('/remote');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
   const $ = doc(result.contents);
 
   const PACKAGES_TO_TEST = ['canvas-confetti', 'preact', 'svelte'];
@@ -72,7 +72,7 @@ Collections('generates pages grouped by author', async ({ runtime }) => {
 
   for (const { id, posts } of AUTHORS_TO_TEST) {
     const result = await runtime.load(`/grouped/${id}`);
-    if (result.error) throw new Error(result.error);
+    assert.ok(!result.error, `build error: ${result.error}`);
     const $ = doc(result.contents);
 
     assert.ok($(`#${id}`).length);
@@ -101,7 +101,7 @@ Collections('generates individual pages from a collection', async ({ runtime }) 
 
   for (const { slug, title } of PAGES_TO_TEST) {
     const result = await runtime.load(`/individual/${slug}`);
-    if (result.error) throw new Error(result.error);
+    assert.ok(!result.error, `build error: ${result.error}`);
     const $ = doc(result.contents);
 
     assert.ok($(`#${slug}`).length);
@@ -111,7 +111,7 @@ Collections('generates individual pages from a collection', async ({ runtime }) 
 
 Collections('matches collection filename exactly', async ({ runtime }) => {
   const result = await runtime.load('/individuals');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
   const $ = doc(result.contents);
 
   assert.ok($('#posts').length);

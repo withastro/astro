@@ -22,7 +22,7 @@ Markdown('Can load a simple markdown page with Astro', async ({ runtime }) => {
 
 Markdown('Can load a realworld markdown page with Astro', async ({ runtime }) => {
   const result = await runtime.load('/realworld');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   assert.equal(result.statusCode, 200);
   const $ = doc(result.contents);
