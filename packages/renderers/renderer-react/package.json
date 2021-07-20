@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "@babel/plugin-transform-react-jsx": "^7.14.5"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"

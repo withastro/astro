@@ -10,7 +10,15 @@ function check(Component, props, children) {
   }
 
   const { html } = renderToStaticMarkup(Component, props, children);
-  return typeof html === 'string';
+
+  if (typeof html !== 'string') {
+    return false;
+  }
+
+  // There are edge cases (SolidJS) where Preact *might* render a string,
+  // but components would be <undefined></undefined>
+
+  return !/\<undefined\>/.test(html);
 }
 
 function renderToStaticMarkup(Component, props, children) {

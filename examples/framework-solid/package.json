@@ -1,0 +1,16 @@
+{
+  "name": "@example/framework-solid",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "astro dev",
+    "build": "astro build"
+  },
+  "devDependencies": {
+    "astro": "^0.18.0-next.1",
+    "@astrojs/renderer-solid": "0.0.1"
+  },
+  "snowpack": {
+    "workspaceRoot": "../.."
+  }
+}
