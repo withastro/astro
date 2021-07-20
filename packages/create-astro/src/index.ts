@@ -21,21 +21,23 @@ export function mkdirp(dir: string) {
 }
 
 /**
- * Delete all files, subdirectories, and symlinks in a given 
- * directory. 
+ * Delete all files, subdirectories, and symlinks in a given
+ * directory.
  *
  * @param dir the directory to empty
  * @returns a promise for emptying a given directory
  */
 export async function emptyDir(dir: string) {
   const items = await fs.promises.readdir(dir);
-  return Promise.all(items.map(async (item) => {
-    const itemPath = path.join(dir, item);
-    const stat = await fs.promises.stat(itemPath);
-    return stat.isDirectory()
-      ? fs.promises.rm(itemPath, { recursive: true, force: true }) // To remove directories
-      : fs.promises.unlink(itemPath); // Remove files and symlinks
-  }));
+  return Promise.all(
+    items.map(async (item) => {
+      const itemPath = path.join(dir, item);
+      const stat = await fs.promises.stat(itemPath);
+      return stat.isDirectory()
+        ? fs.promises.rm(itemPath, { recursive: true, force: true }) // To remove directories
+        : fs.promises.unlink(itemPath); // Remove files and symlinks
+    })
+  );
 }
 
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
