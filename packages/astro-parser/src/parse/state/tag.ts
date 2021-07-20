@@ -254,7 +254,7 @@ export default function tag(parser: Parser) {
     element.children = read_sequence(parser, () => parser.template.slice(parser.index, parser.index + 11) === '</textarea>');
     parser.read(/<\/textarea>/);
     element.end = parser.index;
-  } else if (name === 'script' || name === 'style') {
+  } else if (name === 'style') {
     // special case
     const start = parser.index;
     const data = parser.read_until(new RegExp(`</${name}>`));
