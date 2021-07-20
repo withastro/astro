@@ -3,9 +3,14 @@
   margin: 0;
 }
 
+/* Global focus outline reset */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
 :root {
   --user-font-scale: 1rem - 16px;
-  --max-width: calc(100% - 2rem);
+  --max-width: calc(100% - 1rem);
 }
 
 @media (min-width: 50em) {
@@ -20,12 +25,9 @@ body {
   min-height: 100vh;
   font-family: var(--font-body);
   font-size: 1rem;
-  font-size: clamp(
-    0.875rem,
-    0.4626rem + 1.0309vw + var(--user-font-scale),
-    1.0rem
-  );
-  line-height: 1.625;
+  font-size: clamp(0.9rem, 0.7500rem + 0.3750vw + var(--user-font-scale), 1rem);
+  line-height: 1.5;
+  max-width: 100vw;
 }
 
 nav ul {
@@ -37,11 +39,15 @@ nav ul {
   margin-top: 1rem;
 }
 
+.content main > :first-child {
+  margin-top: 0;
+}
+
 /* Typography */
 :is(h1, h2, h3, h4, h5, h6) {
-  margin-bottom: 1.38rem;
-  font-weight: 400;
-  line-height: 1.3;
+  margin-bottom: 1rem;
+  font-weight: bold;
+  line-height: 1.25;
 }
 
 :is(h1, h2) {
@@ -53,28 +59,40 @@ nav ul {
 }
 
 h1 {
-  font-size: 3.5rem;
-  font-weight: bold;
+  font-size: 1.75rem;
 }
 
 h2 {
-  font-size: 34px;
-  font-weight: bold;
+  font-size: 1.25rem;
 }
 
 h3 {
-  font-size: 22px;
-  font-weight: bold;
+  font-size: 1.125rem;
 }
 
 h4 {
   font-size: 1rem;
-  font-weight: bold;
 }
 
 h5 {
-  font-size: clamp(1.2rem, 1.15rem + 0.125vw, 1.25rem);
+  font-size: 0.8rem;
 }
+
+
+@media (min-width: 60em) {
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
+}
+
 
 p,
 .content ul {
@@ -90,9 +108,31 @@ a {
   color: var(--theme-text-accent);
   font-weight: 400;
   text-underline-offset: 0.08em;
-  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+article main :is(ul, ol) > * + * {
+  margin-top: 0.75rem;
+}
+
+article main li > :is(p, pre, blockquote):not(:first-child) {
+  margin-top: 1rem;
+}
+
+article main :is(ul, ol) {
+  padding-left: 1em;
+}
+
+article main ::marker {
+  font-weight: bold;
+  color: var(--theme-text-light);
+}
+
+article main iframe {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
 }
 
 a > code:not([class*='language']) {
@@ -144,6 +184,7 @@ code:not([class*='language']) {
   padding: var(--padding-block) var(--padding-inline);
   margin: calc(var(--padding-block) * -1) -0.125em;
   border-radius: var(--border-radius);
+  box-shadow: 0 2px 1px 0 rgba(0,0,0,0.08);
 }
 
 pre > code:not([class*='language']) {
@@ -154,24 +195,59 @@ pre > code:not([class*='language']) {
   color: inherit;
 }
 
+table,
 pre {
   position: relative;
-  background-color: var(--theme-code-bg);
-  color: var(--theme-code-text);
   --padding-block: 1rem;
   --padding-inline: 2rem;
   padding: var(--padding-block) var(--padding-inline);
   padding-right: calc(var(--padding-inline) * 2);
+  margin-left: calc(var(--padding-inline) * -1);
+  margin-right: calc(var(--padding-inline) * -1);
+  font-family: var(--font-mono);
 
-  line-height: 1.414;
+  line-height: 1.5;
+  font-size: 0.85em;
   overflow-y: hidden;
   overflow-x: auto;
+}
+
+table {
+  width: 100%; 
+  padding: var(--padding-block) 0;
+  margin: 0;
+  border-collapse: collapse;
+}
+
+/* Zebra striping */
+tr:nth-of-type(odd) { 
+  background: var(--theme-bg-hover);
+}
+th { 
+  background: var(--color-black); 
+  color: white; 
+  font-weight: bold; 
+}
+td, th { 
+  padding: 6px; 
+  text-align: left; 
+}
+
+pre {
+  background-color: var(--theme-code-bg);
+  color: var(--theme-code-text);
+}
+
+blockquote code:not([class*='language']) {
+  background-color: var(--theme-bg);
 }
 
 @media (min-width: 37.75em) {
   pre {
     --padding-inline: 1.25rem;
     border-radius: 8px;
+    margin-left: 0;
+    margin-right: 0;
   }
 }
 
@@ -191,6 +267,11 @@ img {
 .flex {
   display: flex;
   align-items: center;
+}
+
+header {
+  position: relative;
+  margin-bottom: 0.5rem;
 }
 
 header button {
@@ -231,7 +312,7 @@ button {
   gap: 0.25em;
   padding: 0.33em 0.67em;
   border-radius: 99em;
-  background-color: var(--theme-bg);
+  background-color: var(--color-gray-800);
 }
 
 #theme-toggle > label:focus-within {
@@ -240,6 +321,7 @@ button {
 }
 
 #theme-toggle > label {
+  color: white;
   position: relative;
   display: flex;
   align-items: center;
@@ -276,13 +358,12 @@ input[name='theme-toggle'] {
 .sidebar-nav {
   width: 100%;
   position: sticky;
-  min-height: calc(100vh - 3.5rem);
-  height: calc(100vh - 3.5rem);
-  top: 3.5rem;
+  top: 0;
 }
 .sidebar-nav-inner {
   height: 100%;
-  padding: 2rem 0;
+  padding: 0;
+  padding-top: 2rem;
   overflow: auto;
 }
 
@@ -302,7 +383,8 @@ h2.heading {
 
 .header-link:hover,
 .header-link:focus {
-  border-left-color: var(--color-gray-300);
+  border-left-color: var(--theme-accent);
+  color: var(--theme-accent);
 }
 .header-link:focus-within {
   color: var(--theme-text-light);
@@ -313,6 +395,10 @@ h2.heading {
 }
 .header-link:hover svg {
   opacity: 0.8;
+}
+.header-link a {
+  display: inline-flex;
+  gap: 0.5em;
 }
 
 .header-link.depth-3 {
@@ -335,36 +421,6 @@ h2.heading {
   font-size: 1rem;
 }
 
-/* Scrollbar */
-
-/* width */
-::-webkit-scrollbar {
-  width: 0.5rem;
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: var(--theme-divider);
-  border-radius: 1rem;
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: var(--theme-text-lighter);
-  border-radius: 1rem;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: var(--theme-text-light);
-}
-
-/* Buttons */
-::-webkit-scrollbar-button {
-  display: none;
-}
-/* Scrollbar - End */
-
 /* Screenreader Only Text */
 .sr-only {
   position: absolute;
@@ -381,4 +437,51 @@ h2.heading {
 
 :target {
   scroll-margin-top: 4rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  line-height: 1;
+  color: var(--color-white);
+  text-decoration: none;
+  transform: translateX(-8px) scale(0.8);
+}
+
+@media (min-width: 60em) {
+  .logo {
+    transform: translateX(-8px) scale(1);
+  }
+}
+
+.logo a {
+  padding: 0.5em 0.25em;
+  margin: -0.5em -0.5em;
+}
+
+.logo svg {
+  height: 40px;
+  width: auto;
+  display: block;
+  color: var(--theme-accent);
+}
+
+.logo a:hover,
+.logo a:focus {
+  background: rgba(var(--theme-accent-rgb), 0.6);
+}
+
+.logo a:hover svg,
+.logo a:focus svg {
+  color: var(--color-white);
+}
+
+.logo h1 {
+  font: inherit;
+  color: inherit;
+  margin: 0;
 }

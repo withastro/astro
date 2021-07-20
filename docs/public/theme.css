@@ -2,8 +2,7 @@
   --font-fallback: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
     sans-serif, Apple Color Emoji, Segoe UI Emoji;
   --font-body: system-ui, var(--font-fallback);
-  --font-mono: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  --font-mono: "IBM Plex Mono", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
 
   --color-white: #fff;
   --color-black: #000014;
@@ -37,14 +36,14 @@
 
 :root {
   color-scheme: light;
-  --theme-accent: var(--color-blue);
-  --theme-accent-rgb: var(--color-blue-rgb);
+  --theme-accent: var(--color-orange);
+  --theme-text-accent: var(--color-orange);
+  --theme-accent-rgb: var(--color-orange-rgb);
   --theme-accent-opacity: 0.1;
   --theme-divider: var(--color-gray-100);
   --theme-text: var(--color-gray-800);
   --theme-text-light: var(--color-gray-600);
   --theme-text-lighter: var(--color-gray-400);
-  --theme-text-accent: var(--color-blue);
   --theme-bg: var(--color-white);
   --theme-bg-hover: var(--color-gray-50);
   --theme-bg-offset: var(--color-gray-100);
@@ -53,6 +52,11 @@
   --theme-code-inline-text: var(--theme-text);
   --theme-code-bg: var(--color-gray-700);
   --theme-code-text: var(--color-gray-100);
+  --theme-navbar-bg: var(--color-gray-700);
+  --theme-navbar-height: 3.5rem;
+  --theme-sidebar-offset: var(--theme-navbar-height);
+  --theme-selection-color: var(--color-orange);
+  --theme-selection-bg: rgba(var(--color-orange-rgb), var(--theme-accent-opacity));
 }
 
 body {
@@ -60,24 +64,33 @@ body {
   color: var(--theme-text);
 }
 
+:root.scrolled {
+  --theme-sidebar-offset: 0;
+}
+
 :root.theme-dark {
   color-scheme: dark;
-  --theme-accent-opacity: 0.3;
-  --theme-divider: var(--color-gray-900);
+  --theme-accent-opacity: 0.4;
+  --theme-accent: var(--color-orange);
+  --theme-text-accent: var(--color-orange);
+  --theme-accent-rgb: var(--color-orange-rgb);
+  --theme-divider: var(--color-gray-950);
   --theme-text: var(--color-gray-200);
   --theme-text-light: var(--color-gray-300);
   --theme-text-lighter: var(--color-gray-600);
-  --theme-text-accent: var(--color-white);
   --theme-bg: var(--color-gray-800);
   --theme-bg-hover: var(--color-gray-600);
   --theme-bg-offset: var(--color-gray-950);
-  --theme-code-inline-bg: var(--color-gray-600);
+  --theme-code-inline-bg: var(--color-gray-900);
   --theme-code-inline-text: var(--color-white);
   --theme-code-bg: var(--color-gray-950);
   --theme-code-text: var(--color-white);
+  --theme-navbar-bg: var(--color-gray-900);
+  --theme-selection-color: var(--color-white);
+  --theme-selection-bg: rgba(var(--color-purple-rgb), var(--theme-accent-opacity));
 }
 
 ::selection {
-  color: var(--theme-text-accent);
-  background-color: rgba(var(--theme-accent-rgb), var(--theme-accent-opacity));
+  color: var(--theme-selection-color);
+  background-color: var(--theme-selection-bg);
 }
