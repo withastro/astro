@@ -69,6 +69,17 @@ module.exports = function jsxPlugin(config, options = {}) {
         return renderer.jsxTransformOptions(transformContext);
       }
 
+      if (importSources.size === 0) {
+        console.log(`${filePath}
+Unable to resolve a JSX transformer! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`);
+
+        return {
+          '.js': {
+            code: ''
+          },
+        }
+      }
+
       // If we only have a single renderer, we can skip a bunch of work!
       if (importSources.size === 1) {
         const result = transform(code, filePath, await getTransformOptions(Array.from(importSources)[0]))
@@ -112,10 +123,13 @@ module.exports = function jsxPlugin(config, options = {}) {
       }
 
       if (!importSource) {
-        console.log(`${filePath}
-Unable to resolve JSX transformer! If you have more than one renderer enabled, you should use a pragma comment.
-/* jsxImportSource: preact */
+        if (importSources.size > 1) {
+          console.log(`${filePath}
+Unable to resolve JSX transformer! With more than one renderer enabled, you should use a pragma comment or include an import.
+\`/* jsxImportSource: preact */\` or \`import { h } from "preact"\`
 `);
+        }
+
         return {
           '.js': {
             code: ''
