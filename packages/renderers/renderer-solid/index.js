@@ -9,7 +9,7 @@ export default {
     const [{ default: solid }] = await Promise.all([import('babel-preset-solid')]);
     const options = {
       presets: [
-        solid({}, { generate: isSSR ? 'ssr' : 'dom', hydratable: true }),
+        solid({}, { generate: isSSR ? 'ssr' : 'dom' }),
       ]
     }
 
