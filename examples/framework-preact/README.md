@@ -1,11 +1,38 @@
 # Using Preact with Astro
 
-```
+This example showcases Astro's built-in support for [Preact](https://www.preactjs.com/).
+
+## Installation
+
+### Automatic
+
+Bootstrap your Astro project with this template!
+
+```shell
 npm init astro -- --template framework-preact
 ```
 
-This example showcases Astro's built-in support for [Preact](https://preactjs.com/).
+### Manual
 
-No configuration is needed to enable Preact support—just start writing Preact components in `src/components`.
+To use Preact components in your Astro project:
 
-> **Note**: If used, components _must_ include the JSX factory (ex. `import { h } from "preact"`). Astro is unable to determine which framework is used without having the [JSX factory](https://mariusschulz.com/blog/per-file-jsx-factories-in-typescript#what-is-a-jsx-factory) in scope.
+1. Install `@astrojs/renderer-preact`
+
+    ```shell
+    npm i @astrojs/renderer-preact
+    ```
+
+2. Add `"@astrojs/renderer-preact"` to your `renderers` in `astro.config.mjs`.
+
+    ```js
+    export default {
+      renderers: [
+        "@astrojs/renderer-preact",
+        // optionally, others...
+      ]
+    }
+    ```
+
+## Usage
+
+Write your Preact components as `.jsx` or `.tsx` files in your project.
