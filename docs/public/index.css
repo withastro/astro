@@ -25,7 +25,7 @@ body {
   min-height: 100vh;
   font-family: var(--font-body);
   font-size: 1rem;
-  font-size: clamp(0.9rem, 0.7500rem + 0.3750vw + var(--user-font-scale), 1rem);
+  font-size: clamp(0.9rem, 0.75rem + 0.375vw + var(--user-font-scale), 1rem);
   line-height: 1.5;
   max-width: 100vw;
 }
@@ -78,7 +78,6 @@ h5 {
   font-size: 0.8rem;
 }
 
-
 @media (min-width: 60em) {
   h1 {
     font-size: 2.5rem;
@@ -92,7 +91,6 @@ h5 {
     font-size: 1.25rem;
   }
 }
-
 
 p,
 .content ul {
@@ -184,7 +182,7 @@ code:not([class*='language']) {
   padding: var(--padding-block) var(--padding-inline);
   margin: calc(var(--padding-block) * -1) -0.125em;
   border-radius: var(--border-radius);
-  box-shadow: 0 2px 1px 0 rgba(0,0,0,0.08);
+  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.08);
 }
 
 pre > code:not([class*='language']) {
@@ -213,24 +211,25 @@ pre {
 }
 
 table {
-  width: 100%; 
+  width: 100%;
   padding: var(--padding-block) 0;
   margin: 0;
   border-collapse: collapse;
 }
 
 /* Zebra striping */
-tr:nth-of-type(odd) { 
+tr:nth-of-type(odd) {
   background: var(--theme-bg-hover);
 }
-th { 
-  background: var(--color-black); 
-  color: white; 
-  font-weight: bold; 
+th {
+  background: var(--color-black);
+  color: white;
+  font-weight: bold;
 }
-td, th { 
-  padding: 6px; 
-  text-align: left; 
+td,
+th {
+  padding: 6px;
+  text-align: left;
 }
 
 pre {
@@ -399,6 +398,7 @@ h2.heading {
 .header-link a {
   display: inline-flex;
   gap: 0.5em;
+  width: 100%;
 }
 
 .header-link.depth-3 {
