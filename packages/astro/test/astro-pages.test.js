@@ -12,7 +12,7 @@ Pages('Can find page with "index" at the end file name', async ({ build, runtime
   await build().catch((err) => {
     assert.ok(!err, 'Error during the build');
   });
-  
+
   const result = await runtime.load('posts/name-with-index');
   if (result.error) throw new Error(result.error);
 

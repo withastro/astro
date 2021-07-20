@@ -91,7 +91,10 @@ export async function buildCollectionPage({ astroConfig, filepath, runtime, site
 /** Build static page */
 export async function buildStaticPage({ astroConfig, buildState, filepath, runtime }: PageBuildOptions): Promise<void> {
   const { pages: pagesRoot } = astroConfig;
-  const url = filepath.pathname.replace(pagesRoot.pathname, '/').replace(/.(astro|md)$/, '').replace(/\/index$/, '/');
+  const url = filepath.pathname
+    .replace(pagesRoot.pathname, '/')
+    .replace(/.(astro|md)$/, '')
+    .replace(/\/index$/, '/');
   const result = await runtime.load(url);
   if (result.statusCode !== 200) {
     let err = (result as any).error;
