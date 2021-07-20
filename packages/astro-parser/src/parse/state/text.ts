@@ -1,5 +1,6 @@
 // @ts-nocheck
 
+import { decode_character_references } from '../utils/html.js';
 import { Parser } from '../index.js';
 
 export default function text(parser: Parser) {
@@ -24,7 +25,7 @@ export default function text(parser: Parser) {
     end: parser.index,
     type: 'Text',
     raw: data,
-    data,
+    data: decode_character_references(data),
   };
 
   parser.current().children.push(node);

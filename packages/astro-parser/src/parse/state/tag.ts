@@ -2,7 +2,7 @@
 
 import read_expression from '../read/expression.js';
 import read_style from '../read/style.js';
-import { closing_tag_omitted } from '../utils/html.js';
+import { decode_character_references, closing_tag_omitted } from '../utils/html.js';
 import { is_void } from '../../utils/names.js';
 import { Parser } from '../index.js';
 import { Directive, DirectiveType, TemplateNode, Text } from '../../interfaces.js';
@@ -533,7 +533,7 @@ export function read_sequence(parser: Parser, done: () => boolean): TemplateNode
 
   function flush() {
     if (current_chunk.raw) {
-      current_chunk.data = current_chunk.raw;
+      current_chunk.data = decode_character_references(current_chunk.raw);
       current_chunk.end = parser.index;
       chunks.push(current_chunk);
     }
