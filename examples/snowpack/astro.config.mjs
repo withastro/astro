@@ -6,6 +6,6 @@ export default {
   renderers: [
     '@astrojs/renderer-vue',
     '@astrojs/renderer-svelte',
-    '@astrojs/renderer-preact'
-  ]
+    '@astrojs/renderer-preact',
+  ],
 };

@@ -1,28 +1,28 @@
 .language-css > code,
 .language-sass > code,
 .language-scss > code {
-	color: #fd9170;
+  color: #fd9170;
 }
 
-[class*="language-"] .namespace {
-	opacity: 0.7;
+[class*='language-'] .namespace {
+  opacity: 0.7;
 }
 
 .token.plain-text,
-[class*="language-bash"] span.token,
-[class*="language-shell"] span.token {
-	color: var(--color-gray-200);
+[class*='language-bash'] span.token,
+[class*='language-shell'] span.token {
+  color: var(--color-gray-200);
 }
 
-[class*="language-bash"] span.token,
-[class*="language-shell"] span.token {
-	font-style: bold;
+[class*='language-bash'] span.token,
+[class*='language-shell'] span.token {
+  font-style: bold;
 }
 
 .token.prolog,
 .token.comment,
-[class*="language-bash"] span.token.comment,
-[class*="language-shell"] span.token.comment {
+[class*='language-bash'] span.token.comment,
+[class*='language-shell'] span.token.comment {
   color: var(--color-gray-400);
 }
 
@@ -33,7 +33,7 @@
 .token.variable,
 .token.entity,
 .token.deleted {
-	color: #FA5E5B;
+  color: #fa5e5b;
 }
 
 .token.boolean,
@@ -46,7 +46,7 @@
 .token.hexcode,
 .token.class-name,
 .token.attr-name {
-	color: var(--color-yellow);
+  color: var(--color-yellow);
 }
 
 .token.atrule,
@@ -56,15 +56,14 @@
 .token.pseudo-class,
 .token.pseudo-element,
 .token.string {
-	color: var(--color-green);
+  color: var(--color-green);
 }
 
 .token.symbol,
 .token.function,
 .token.id,
-.token.important
- {
-	color: var(--color-blue);
+.token.important {
+  color: var(--color-blue);
 }
 
 .token.important,
@@ -72,27 +71,26 @@
   font-weight: bold;
 }
 
-
 .token.cdata,
 .token.char,
 .token.property {
-	color: #23B1AF;
+  color: #23b1af;
 }
 
 .token.inserted {
-	color: var(--color-green);
+  color: var(--color-green);
 }
 
 .token.keyword {
-	color: #FF657C;
+  color: #ff657c;
   font-style: italic;
 }
 
 .token.operator {
-	color: var(--color-gray-300);
+  color: var(--color-gray-300);
 }
 
 .token.attr-value .token.attr-equals,
 .token.punctuation {
-	color: var(--color-gray-200);
+  color: var(--color-gray-200);
 }

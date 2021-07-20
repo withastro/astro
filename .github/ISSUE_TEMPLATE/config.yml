@@ -5,4 +5,4 @@ contact_links:
     about: Our Discord server is active, come join us!
   - name: 💁 Support
     url: https://astro.build/chat
-    about: "This issue tracker is not for support questions. Join us on Discord for assistance!"
+    about: 'This issue tracker is not for support questions. Join us on Discord for assistance!'

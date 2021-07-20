@@ -2,7 +2,10 @@
   --font-fallback: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial,
     sans-serif, Apple Color Emoji, Segoe UI Emoji;
   --font-body: system-ui, var(--font-fallback);
-  --font-mono: "IBM Plex Mono", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console", "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono", "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+  --font-mono: 'IBM Plex Mono', Consolas, 'Andale Mono WT', 'Andale Mono',
+    'Lucida Console', 'Lucida Sans Typewriter', 'DejaVu Sans Mono',
+    'Bitstream Vera Sans Mono', 'Liberation Mono', 'Nimbus Mono L', Monaco,
+    'Courier New', Courier, monospace;
 
   --color-white: #fff;
   --color-black: #000014;
@@ -56,7 +59,10 @@
   --theme-navbar-height: 3.5rem;
   --theme-sidebar-offset: var(--theme-navbar-height);
   --theme-selection-color: var(--color-orange);
-  --theme-selection-bg: rgba(var(--color-orange-rgb), var(--theme-accent-opacity));
+  --theme-selection-bg: rgba(
+    var(--color-orange-rgb),
+    var(--theme-accent-opacity)
+  );
 }
 
 body {
@@ -87,7 +93,10 @@ body {
   --theme-code-text: var(--color-white);
   --theme-navbar-bg: var(--color-gray-900);
   --theme-selection-color: var(--color-white);
-  --theme-selection-bg: rgba(var(--color-purple-rgb), var(--theme-accent-opacity));
+  --theme-selection-bg: rgba(
+    var(--color-purple-rgb),
+    var(--theme-accent-opacity)
+  );
 }
 
 ::selection {

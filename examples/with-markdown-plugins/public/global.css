@@ -34,20 +34,20 @@ body {
 }
 
 .remark-code-title,
-pre[class^="language-"] {
+pre[class^='language-'] {
   padding: 10px;
   margin: 0;
 }
 
 .remark-code-title {
-  border-bottom: 1px solid rgba(0,0,0,.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 4px 4px 0 0;
-  background: rgba(0,0,0,.08);
+  background: rgba(0, 0, 0, 0.08);
   font-family: monospace;
   font-weight: bold;
 }
 
-pre[class^="language-"] {
-  background: rgba(0,0,0,.05);
+pre[class^='language-'] {
+  background: rgba(0, 0, 0, 0.05);
   border-radius: 0 0 4px 4px;
 }
