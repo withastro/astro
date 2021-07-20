@@ -3,7 +3,7 @@ export default {
   client: './client',
   server: './server',
   knownEntrypoints: ['solid-js', 'solid-js/web'],
-  external: ['solid-js/web/dist/server.js', 'solid-js/dist/server.js', 'babel-plugin-module-resolver', 'babel-preset-solid'],
+  external: ['solid-js/web/dist/server.js', 'solid-js/dist/server.js', 'babel-preset-solid'],
   jsxImportSource: 'solid-js',
   jsxTransformOptions: async ({ isSSR }) => {
     const [{ default: solid }] = await Promise.all([import('babel-preset-solid')]);

@@ -9,7 +9,6 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "babel-plugin-module-resolver": "^4.1.0",
     "babel-preset-solid": "^1.0.0",
     "solid-js": "^1.0.0"
   },
