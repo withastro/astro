@@ -60,7 +60,7 @@ You can now replace the placeholder "scripts" section of your `package.json` fil
   "scripts": {
 -    "test": "echo \"Error: no test specified\" && exit 1"
 +    "start": "astro dev",
-+    "build": "astro build",
++    "build": "astro build"
   },
 }
 ```
