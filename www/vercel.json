@@ -2,13 +2,13 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { 
+    {
       "source": "/docs/:match*",
       "destination": "https://docs.astro.build/:match*",
       "permanent": false
     },
-    { 
-      "source": "/chat", 
+    {
+      "source": "/chat",
       "destination": "https://discord.gg/grF4GTXXYm"
     }
   ]

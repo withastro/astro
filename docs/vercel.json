@@ -2,8 +2,8 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "redirects": [
-    { 
-      "source": "/", 
+    {
+      "source": "/",
       "destination": "/getting-started"
     }
   ]
