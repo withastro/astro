@@ -2,7 +2,7 @@
   --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   --font-mono: 'IBM Plex Mono', Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
     'Liberation Mono', 'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
-  --color-green: #17c083;
+  --color-accent: #FF5D01;
 }
 
 * {
@@ -48,7 +48,7 @@ body {
 a {
   position: relative;
   text-decoration: none;
-  color: var(--color-green);
+  color: var(--color-accent);
   padding: 0.05em 0.125em;
   margin: -0.05em -0.125em;
   transition: color 120ms cubic-bezier(0.23, 1, 0.32, 1);
@@ -61,13 +61,13 @@ a {
 
     &::before {
       transform: scaleY(1);
-      background: var(--color-green);
+      background: var(--color-accent);
     }
   }
 
   &:visited {
-    // color: var(--color-green);
-    color: var(--color-green);
+    // color: var(--color-accent);
+    color: var(--color-accent);
     &:hover,
     &:focus {
       color: rgba(0, 0, 0, 1);
@@ -84,10 +84,34 @@ a {
     bottom: 0;
     left: 0;
     inset: 0;
-    background: var(--color-green);
+    background: var(--color-accent);
     pointer-events: none;
     transform: scaleY(0.05);
     transition: transform 120ms cubic-bezier(0.23, 1, 0.32, 1), background 120ms cubic-bezier(0.23, 1, 0.32, 1);
     z-index: -1;
   }
+}
+
+a + a {
+  margin-left: 2px;
+}
+
+header {
+  text-align: center;
+}
+header a {
+  color: var(--theme-text-lighter) !important;
+  font-weight: bold;
+}
+header a::before,
+header a:hover::before {
+  background: none;
+}
+
+header a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  text-decoration: underline;
+}
+header h1 a:hover {
+  
 }
