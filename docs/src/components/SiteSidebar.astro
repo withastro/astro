@@ -84,7 +84,7 @@ const {currentPage} = Astro.props;
   }
 
   :global(:root.theme-dark) .nav-link a[aria-current="page"] {
-    color: var(--color-white);
+    color: hsla(var(--color-base-white), 100%, 1);
   }
 
   @media (min-width: 60em) {

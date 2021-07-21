@@ -311,7 +311,7 @@ button {
   gap: 0.25em;
   padding: 0.33em 0.67em;
   border-radius: 99em;
-  background-color: var(--color-gray-800);
+  background-color: hsla(215, 28%, 17%, 1);
 }
 
 #theme-toggle > label:focus-within {
@@ -387,7 +387,7 @@ h2.heading {
 }
 .header-link:focus-within {
   color: var(--theme-text-light);
-  border-left-color: var(--color-gray-600);
+  border-left-color: hsla(var(--color-gray-40), 1);
 }
 .header-link svg {
   opacity: 0.6;
@@ -447,7 +447,7 @@ h2.heading {
   font-weight: 600;
   margin: 0;
   line-height: 1;
-  color: var(--color-white);
+  color: hsla(var(--color-base-white), 100%, 1);
   text-decoration: none;
   transform: translateX(-8px) scale(0.8);
 }
@@ -472,12 +472,12 @@ h2.heading {
 
 .logo a:hover,
 .logo a:focus {
-  background: rgba(var(--theme-accent-rgb), 0.6);
+  background: hsla(var(--color-orange), 0.6);
 }
 
 .logo a:hover svg,
 .logo a:focus svg {
-  color: var(--color-white);
+  color: hsla(var(--color-base-white), 100%, 1);
 }
 
 .logo h1 {
