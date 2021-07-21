@@ -517,6 +517,17 @@ function dedent(str: string) {
 
 const FALSY_EXPRESSIONS = new Set(['false', 'null', 'undefined', 'void 0']);
 
+function isFrontmatterDefinedComponent(componentName: string, componentInfo: ComponentInfo | undefined, state: CodegenState) {
+  let hasVariableDeclaration = state.declarations.has(componentName);
+  let isNotImported = !componentInfo;
+
+  return hasVariableDeclaration && isNotImported;
+}
+
+function isFragmentComponent(componentName: string) {
+  return componentName === 'Fragment';
+}
+
 /** Compile page markup */
 async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
   return new Promise((resolve) => {
@@ -658,7 +669,12 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 const [componentNamespace] = componentName.split('.');
                 componentInfo = components.get(componentNamespace);
               }
-              if (state.declarations.has(componentName) && !componentInfo && !isCustomElementTag(componentName)) {
+              if (
+                (
+                  isFrontmatterDefinedComponent(componentName, componentInfo, state) &&
+                  !isCustomElementTag(componentName)
+                ) || isFragmentComponent(componentName)
+              ) {
                 if (hydrationAttributes.method) {
                   throw new Error(
                     `Unable to hydrate "${componentName}" because it is statically defined in the frontmatter script. Hydration directives may only be used on imported components.`
@@ -681,7 +697,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 buffers[curr] += `h(${componentName}, ${attributes ? generateAttributes(attributes) : 'null'}`;
                 paren++;
                 return;
-              } else if (!state.declarations.has(componentName) && !componentInfo && !isCustomElementTag(componentName)) {
+              } else if (
+                !componentInfo &&
+                !isCustomElementTag(componentName)
+              ) {
                 throw new Error(`Unable to render "${componentName}" because it is undefined\n  ${state.filename}`);
               }
               if (componentName === 'Markdown') {
