@@ -49,6 +49,10 @@ Clears the cache (dependencies are built within Astro apps).
 
 Enables verbose logging, which is helpful when debugging an issue.
 
+### `--silent`
+
+Enables silent logging, which is helpful for when you don't want to see Astro logs.
+
 ### `--version`
 
 Print the Astro version number and exit.
