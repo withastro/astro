@@ -669,12 +669,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 const [componentNamespace] = componentName.split('.');
                 componentInfo = components.get(componentNamespace);
               }
-              if (
-                (
-                  isFrontmatterDefinedComponent(componentName, componentInfo, state) &&
-                  !isCustomElementTag(componentName)
-                ) || isFragmentComponent(componentName)
-              ) {
+              if ((isFrontmatterDefinedComponent(componentName, componentInfo, state) && !isCustomElementTag(componentName)) || isFragmentComponent(componentName)) {
                 if (hydrationAttributes.method) {
                   throw new Error(
                     `Unable to hydrate "${componentName}" because it is statically defined in the frontmatter script. Hydration directives may only be used on imported components.`
@@ -697,10 +692,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 buffers[curr] += `h(${componentName}, ${attributes ? generateAttributes(attributes) : 'null'}`;
                 paren++;
                 return;
-              } else if (
-                !componentInfo &&
-                !isCustomElementTag(componentName)
-              ) {
+              } else if (!componentInfo && !isCustomElementTag(componentName)) {
                 throw new Error(`Unable to render "${componentName}" because it is undefined\n  ${state.filename}`);
               }
               if (componentName === 'Markdown') {
