@@ -1,5 +1,5 @@
 ---
-'astro': major
+'astro': minor
 ---
 
 New Collections API (createCollection)
