@@ -1,5 +1,3 @@
-import './custom-elements.shim.js';
-
 export const tagName = 'my-element';
 
 class MyElement extends HTMLElement {

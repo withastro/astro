@@ -1,34 +1,34 @@
 :root {
-  --font-fallback: -apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+  --font-fallback: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
   --font-body: system-ui, var(--font-fallback);
-  --font-mono: source-code-pro,Menlo,Monaco,Consolas,'Courier New',monospace;
+  --font-mono: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 
-  --color-white: #FFF;
+  --color-white: #fff;
   --color-black: #000014;
 
-  --color-gray-50: #F9FAFB;
-  --color-gray-100: #F3F4F6;
-  --color-gray-200: #E5E7EB;
-  --color-gray-300: #D1D5DB;
-  --color-gray-400: #9CA3AF;
-  --color-gray-500: #6B7280;
-  --color-gray-600: #4B5563;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
   --color-gray-700: #374151;
-  --color-gray-800: #1F2937;
+  --color-gray-800: #1f2937;
   --color-gray-900: #111827;
 
-  --color-blue: #3894FF;
-  --color-blue-rgb: 56,148,255;
-  --color-green: #17C083;
-  --color-green-rgb: 23,192,131;
-  --color-orange: #FF5D01;
-  --color-orange-rgb: 255,93,1;
-  --color-purple: #882DE7;
-  --color-purple-rgb: 136,45,231;
-  --color-red: #FF1639;
-  --color-red-rgb: 255,22,57;
-  --color-yellow: #FFBE2D;
-  --color-yellow-rgb: 255,190,45;
+  --color-blue: #3894ff;
+  --color-blue-rgb: 56, 148, 255;
+  --color-green: #17c083;
+  --color-green-rgb: 23, 192, 131;
+  --color-orange: #ff5d01;
+  --color-orange-rgb: 255, 93, 1;
+  --color-purple: #882de7;
+  --color-purple-rgb: 136, 45, 231;
+  --color-red: #ff1639;
+  --color-red-rgb: 255, 22, 57;
+  --color-yellow: #ffbe2d;
+  --color-yellow-rgb: 255, 190, 45;
 }
 
 :root {

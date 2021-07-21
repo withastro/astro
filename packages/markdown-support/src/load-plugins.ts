@@ -1,5 +1,5 @@
-import unified from "unified";
-import type { Plugin, UnifiedPluginImport } from "./types";
+import unified from 'unified';
+import type { Plugin, UnifiedPluginImport } from './types';
 
 async function importPlugin(p: string | UnifiedPluginImport): UnifiedPluginImport {
   if (typeof p === 'string') {
@@ -20,7 +20,7 @@ export function loadPlugins(items: Plugin[]): Promise<[unified.Plugin] | [unifie
       }
 
       return importPlugin(p)
-      .then((m) => resolve([m.default]))
+        .then((m) => resolve([m.default]))
         .catch((e) => reject(e));
     });
   });

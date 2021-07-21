@@ -54,7 +54,7 @@ Of course, sometimes client-side JavaScript is inevitable. Image carousels, shop
 
 In other full-stack web frameworks this level of per-component optimization would be impossible without loading the entire page in JavaScript, delaying interactivity. In Astro, this kind of [partial hydration](https://addyosmani.com/blog/rehydration/) is built into the tool itself.
 
-You can even [automatically defer components](https://codepen.io/jonneal/full/ZELvMvw) to only load once they become visible on the page with the `:visible` modifier.
+You can even [automatically defer components](https://codepen.io/jonneal/full/ZELvMvw) to only load once they become visible on the page with the `client:visible` directive.
 
 This new approach to web architecture is called [islands architecture](https://jasonformat.com/islands-architecture/). We didn't coin the term, but Astro may have perfected the technique. We are confident that an HTML-first, JavaScript-only-as-needed approach is the best solution for the majority of content-based websites.
 

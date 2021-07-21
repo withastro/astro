@@ -13,7 +13,7 @@ setup(NoHeadEl, './fixtures/no-head-el', {
 
 NoHeadEl('Places style and scripts before the first non-head element', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const html = result.contents;
   const $ = doc(html);
@@ -21,6 +21,16 @@ NoHeadEl('Places style and scripts before the first non-head element', async ({ 
   assert.equal($('title').next().next().is('link'), true, 'Link for a child component');
   assert.equal($('title').next().next().next().is('style'), true, 'astro-root style placed after the link');
   assert.equal($('title').next().next().next().next().is('script'), true, 'HMR script after the style');
+
+  assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 1, 'Only the hmr client for the page');
+});
+
+NoHeadEl('Injects HMR script even when there are no elements on the page', async ({ runtime }) => {
+  const result = await runtime.load('/no-elements');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const html = result.contents;
+  const $ = doc(html);
 
   assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 1, 'Only the hmr client for the page');
 });

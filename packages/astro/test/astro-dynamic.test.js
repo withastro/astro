@@ -9,7 +9,7 @@ setupBuild(DynamicComponents, './fixtures/astro-dynamic');
 
 DynamicComponents('Loads client-only packages', async ({ runtime }) => {
   let result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   // Grab the react-dom import
   const exp = /import\("(.+?)"\)/g;
@@ -24,6 +24,15 @@ DynamicComponents('Loads client-only packages', async ({ runtime }) => {
 
   result = await runtime.load(reactRenderer);
   assert.equal(result.statusCode, 200, 'Can load react renderer');
+});
+
+DynamicComponents('Loads pages using client:media hydrator', async ({ runtime }) => {
+  let result = await runtime.load('/media');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  let html = result.contents;
+  assert.ok(html.includes(`value: "(max-width: 700px)"`), 'static value rendered');
+  assert.ok(html.includes(`value: "(max-width: 600px)"`), 'dynamic value rendered');
 });
 
 DynamicComponents('Can be built', async ({ build }) => {

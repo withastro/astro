@@ -3,19 +3,16 @@ import type { CompileOptions } from '../../@types/compiler';
 import type { AstroConfig, AstroMarkdownOptions, TransformResult, ComponentInfo, Components } from '../../@types/astro';
 import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, ImportDefaultSpecifier } from '@babel/types';
 
-import 'source-map-support/register.js';
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
-import { parse, FEATURE_CUSTOM_ELEMENT } from '@astrojs/parser';
+import astroParser from '@astrojs/parser';
 import { walk, asyncWalk } from 'estree-walker';
 import _babelGenerator from '@babel/generator';
 import babelParser from '@babel/parser';
 import { codeFrameColumns } from '@babel/code-frame';
 import * as babelTraverse from '@babel/traverse';
 import { error, warn, parseError } from '../../logger.js';
-import { fetchContent } from './content.js';
-import { isFetchContent } from './utils.js';
 import { yellow } from 'kleur/colors';
 import { isComponentTag, isCustomElementTag, positionAt } from '../utils.js';
 import { renderMarkdown } from '@astrojs/markdown-support';
@@ -26,6 +23,7 @@ import { nodeBuiltinsSet } from '../../node_builtins.js';
 import { readFileSync } from 'fs';
 import { pathToFileURL } from 'url';
 
+const { parse, FEATURE_CUSTOM_ELEMENT } = astroParser;
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
 
 // @ts-ignore
@@ -45,6 +43,28 @@ interface CodeGenOptions {
   compileOptions: CompileOptions;
   filename: string;
   fileID: string;
+}
+
+interface HydrationAttributes {
+  method?: 'load' | 'idle' | 'visible' | 'media';
+  value?: undefined | string;
+}
+
+/** Searches through attributes to extract hydration-rlated attributes */
+function findHydrationAttributes(attrs: Record<string, string>): HydrationAttributes {
+  let method: HydrationAttributes['method'];
+  let value: undefined | string;
+
+  const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media']);
+
+  for (const [key, val] of Object.entries(attrs)) {
+    if (hydrationDirectives.has(key)) {
+      method = key.slice(7) as HydrationAttributes['method'];
+      value = val === 'true' ? undefined : val;
+    }
+  }
+
+  return { method, value };
 }
 
 /** Retrieve attributes from TemplateNode */
@@ -144,7 +164,7 @@ function generateAttributes(attrs: Record<string, string>): string {
   return result + '}';
 }
 
-function getComponentUrl(astroConfig: AstroConfig, url: string, parentUrl: string | URL){
+function getComponentUrl(astroConfig: AstroConfig, url: string, parentUrl: string | URL) {
   const componentExt = path.extname(url);
   const ext = PlainExtensions.has(componentExt) ? '.js' : `${componentExt}.js`;
   const outUrl = new URL(url, parentUrl);
@@ -154,21 +174,37 @@ function getComponentUrl(astroConfig: AstroConfig, url: string, parentUrl: strin
 interface GetComponentWrapperOptions {
   filename: string;
   astroConfig: AstroConfig;
+  compileOptions: CompileOptions;
 }
 
 const PlainExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 /** Generate Astro-friendly component import */
-function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
+function getComponentWrapper(_name: string, hydration: HydrationAttributes, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
   const { astroConfig, filename } = opts;
-  const [name, kind] = _name.split(':');
+
+  let name = _name;
+  let method = hydration.method;
+
+  /** Legacy support for original hydration syntax */
+  if (name.indexOf(':') > 0) {
+    const [legacyName, legacyMethod] = _name.split(':');
+    name = legacyName;
+    method = legacyMethod as HydrationAttributes['method'];
+
+    const { compileOptions, filename } = opts;
+    const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, filename);
+    warn(compileOptions.logging, shortname, yellow(`Deprecation warning: Partial hydration now uses a directive syntax. Please update to "<${name} client:${method} />"`));
+  }
 
   // Special flow for custom elements
-  if (isCustomElementTag(name)) {
+  if (isCustomElementTag(_name)) {
     return {
-      wrapper: `__astro_component(...__astro_element_registry.astroComponentArgs("${name}", ${JSON.stringify({ hydrate: kind, displayName: _name })}))`,
-      wrapperImports: [`import {AstroElementRegistry} from 'astro/dist/internal/element-registry.js';`,`import {__astro_component} from 'astro/dist/internal/__astro_component.js';`],
+      wrapper: `__astro_component(...__astro_element_registry.astroComponentArgs("${name}", ${JSON.stringify({ hydrate: method, displayName: _name })}))`,
+      wrapperImports: [
+        `import {AstroElementRegistry} from 'astro/dist/internal/element-registry.js';`,
+        `import {__astro_component} from 'astro/dist/internal/__astro_component.js';`,
+      ],
     };
-
   } else {
     const getComponentExport = () => {
       switch (importSpecifier.type) {
@@ -181,19 +217,25 @@ function getComponentWrapper(_name: string, { url, importSpecifier }: ComponentI
           return { value: importSpecifier.imported.value };
         }
         case 'ImportNamespaceSpecifier': {
-          const [_, value] = name.split('.');
+          const [_, value] = _name.split('.');
           return { value };
         }
       }
     };
 
-    const importInfo = kind ? {
-      componentUrl: getComponentUrl(astroConfig, url, pathToFileURL(filename)),
-      componentExport: getComponentExport()
-    } : {};
+    let metadata: string = '';
+    if (method) {
+      const componentUrl = getComponentUrl(astroConfig, url, pathToFileURL(filename));
+      const componentExport = getComponentExport();
+      metadata = `{ hydrate: "${method}", displayName: "${name}", componentUrl: "${componentUrl}", componentExport: ${JSON.stringify(componentExport)}, value: ${
+        hydration.value || 'null'
+      } }`;
+    } else {
+      metadata = `{ hydrate: undefined, displayName: "${name}", value: ${hydration.value || 'null'} }`;
+    }
 
     return {
-      wrapper: `__astro_component(${name}, ${JSON.stringify({ hydrate: kind, displayName: _name, ...importInfo })})`,
+      wrapper: `__astro_component(${name}, ${metadata})`,
       wrapperImports: [`import {__astro_component} from 'astro/dist/internal/__astro_component.js';`],
     };
   }
@@ -274,6 +316,7 @@ interface CodegenState {
   markers: {
     insideMarkdown: boolean | Record<string, any>;
   };
+  declarations: Set<string>;
   exportStatements: Set<string>;
   importStatements: Set<string>;
   customElementCandidates: Map<string, string>;
@@ -286,11 +329,9 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
   const componentImports: ImportDeclaration[] = [];
   const componentProps: VariableDeclarator[] = [];
   const componentExports: ExportNamedDeclaration[] = [];
-  const contentImports = new Map<string, { spec: string; declarator: string }>();
 
   let script = '';
   let propsStatement = '';
-  let contentCode = ''; // code for handling Astro.fetchContent(), if any;
   let createCollection = ''; // function for executing collection
 
   if (module) {
@@ -309,8 +350,41 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
       err.start = err.loc;
       throw err;
     }
-    const program = parseResult.program;
 
+    // Convert Astro.fetchContent() to use import.meta.glob
+    if (/Astro\s*\.\s*fetchContent/.test(module.content)) {
+      state.importStatements.add(`import {fetchContent} from 'astro/dist/internal/fetch-content.js';\n`);
+      traverse(parseResult, {
+        enter({ node }) {
+          if (
+            node.type !== 'CallExpression' ||
+            node.callee.type !== 'MemberExpression' ||
+            (node.callee.object as any).name !== 'Astro' ||
+            (node.callee.property as any).name !== 'fetchContent'
+          ) {
+            return;
+          }
+          if (node.arguments[0].type !== 'StringLiteral') {
+            throw new Error(`[Astro.fetchContent] Only string literals allowed, ex: \`Astro.fetchContent('./post/*.md')\`\n  ${state.filename}`);
+          }
+          // Replace `Astro.fetchContent(str)` with `Astro.fetchContent(import.meta.globEager(str))`
+          node.arguments = [
+            {
+              type: 'CallExpression',
+              callee: {
+                type: 'MemberExpression',
+                object: { type: 'MetaProperty', meta: { type: 'Identifier', name: 'import' }, property: { type: 'Identifier', name: 'meta' } },
+                property: { type: 'Identifier', name: 'globEager' },
+                computed: false,
+              },
+              arguments: node.arguments,
+            },
+          ] as any;
+        },
+      });
+    }
+
+    const program = parseResult.program;
     const { body } = program;
     let i = body.length;
     while (--i >= 0) {
@@ -333,13 +407,16 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
           } else if (node.declaration.type === 'FunctionDeclaration') {
             // case 2: createCollection (export async function)
             if (!node.declaration.id || node.declaration.id.name !== 'createCollection') break;
-            createCollection = module.content.substring(node.start || 0, node.end || 0);
+            createCollection = babelGenerator(node).code;
           }
 
           body.splice(i, 1);
           break;
         }
         case 'FunctionDeclaration': {
+          if (node.id?.name) {
+            state.declarations.add(node.id?.name);
+          }
           break;
         }
         case 'ImportDeclaration': {
@@ -348,31 +425,11 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
           break;
         }
         case 'VariableDeclaration': {
+          // Support frontmatter-defined components
           for (const declaration of node.declarations) {
-            // only select Astro.fetchContent() calls here. this utility filters those out for us.
-            if (!isFetchContent(declaration)) continue;
-
-            // remove node
-            body.splice(i, 1);
-
-            // a bit of munging
-            let { id, init } = declaration;
-            if (!id || !init || id.type !== 'Identifier') continue;
-            if (init.type === 'AwaitExpression') {
-              init = init.argument;
-              const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
-              warn(compileOptions.logging, shortname, yellow('awaiting Astro.fetchContent() not necessary'));
+            if (declaration.id.type === 'Identifier') {
+              state.declarations.add(declaration.id.name);
             }
-            if (init.type !== 'CallExpression') continue;
-
-            // gather data
-            const namespace = id.name;
-
-            if ((init as any).arguments[0].type !== 'StringLiteral') {
-              throw new Error(`[Astro.fetchContent] Only string literals allowed, ex: \`Astro.fetchContent('./post/*.md')\`\n  ${state.filename}`);
-            }
-            const spec = (init as any).arguments[0].value;
-            if (typeof spec === 'string') contentImports.set(namespace, { spec, declarator: node.kind });
           }
           break;
         }
@@ -392,9 +449,9 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
         });
       }
       const { start, end } = componentImport;
-      if(ast.meta.features & FEATURE_CUSTOM_ELEMENT &&  componentImport.specifiers.length === 0) {
+      if (ast.meta.features & FEATURE_CUSTOM_ELEMENT && componentImport.specifiers.length === 0) {
         // Add possible custom element, but only if the AST says there are custom elements.
-        const moduleImportName = camelCase(importUrl+ 'Module');
+        const moduleImportName = camelCase(importUrl + 'Module');
         state.importStatements.add(`import * as ${moduleImportName} from '${importUrl}';\n`);
         state.customElementCandidates.set(moduleImportName, getComponentUrl(astroConfig, importUrl, pathToFileURL(filename)));
       } else {
@@ -421,64 +478,7 @@ const { ${props.join(', ')} } = Astro.props;\n`)
       );
     }
 
-    // handle createCollection, if any
-    if (createCollection) {
-      const ast = babelParser.parse(createCollection, {
-        sourceType: 'module',
-      });
-      traverse(ast, {
-        enter({ node }) {
-          switch (node.type) {
-            case 'VariableDeclaration': {
-              for (const declaration of node.declarations) {
-                // only select Astro.fetchContent() calls here. this utility filters those out for us.
-                if (!isFetchContent(declaration)) continue;
-
-                // a bit of munging
-                let { id, init } = declaration;
-                if (!id || !init || id.type !== 'Identifier') continue;
-                if (init.type === 'AwaitExpression') {
-                  init = init.argument;
-                  const shortname = path.relative(compileOptions.astroConfig.projectRoot.pathname, state.filename);
-                  warn(compileOptions.logging, shortname, yellow('awaiting Astro.fetchContent() not necessary'));
-                }
-                if (init.type !== 'CallExpression') continue;
-
-                // gather data
-                const namespace = id.name;
-
-                if ((init as any).arguments[0].type !== 'StringLiteral') {
-                  throw new Error(`[Astro.fetchContent] Only string literals allowed, ex: \`Astro.fetchContent('./post/*.md')\`\n  ${state.filename}`);
-                }
-                const spec = (init as any).arguments[0].value;
-                if (typeof spec !== 'string') break;
-
-                const globResult = fetchContent(spec, { namespace, filename: state.filename });
-
-                let imports = '';
-                for (const importStatement of globResult.imports) {
-                  imports += importStatement + '\n';
-                }
-
-                createCollection = imports + createCollection.substring(0, declaration.start || 0) + globResult.code + createCollection.substring(declaration.end || 0);
-              }
-              break;
-            }
-          }
-        },
-      });
-    }
-
-    // Astro.fetchContent()
-    for (const [namespace, { spec }] of contentImports.entries()) {
-      const globResult = fetchContent(spec, { namespace, filename: state.filename });
-      for (const importStatement of globResult.imports) {
-        state.importStatements.add(importStatement);
-      }
-      contentCode += globResult.code;
-    }
-
-    script = propsStatement + contentCode + babelGenerator(program).code;
+    script = propsStatement + babelGenerator(program).code;
     const location = { start: module.start, end: module.end };
     let transpiledScript = transpileExpressionSafe(script, { state, compileOptions, location });
     if (transpiledScript === null) throw new Error(`Unable to compile script`);
@@ -516,6 +516,17 @@ function dedent(str: string) {
 }
 
 const FALSY_EXPRESSIONS = new Set(['false', 'null', 'undefined', 'void 0']);
+
+function isFrontmatterDefinedComponent(componentName: string, componentInfo: ComponentInfo | undefined, state: CodegenState) {
+  let hasVariableDeclaration = state.declarations.has(componentName);
+  let isNotImported = !componentInfo;
+
+  return hasVariableDeclaration && isNotImported;
+}
+
+function isFragmentComponent(componentName: string) {
+  return componentName === 'Fragment';
+}
 
 /** Compile page markup */
 async function compileHtml(enterNode: TemplateNode, state: CodegenState, compileOptions: CompileOptions): Promise<string> {
@@ -629,17 +640,24 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             }
             try {
               const attributes = await getAttributes(node.attributes, state, compileOptions);
+              const hydrationAttributes = findHydrationAttributes(attributes);
 
               buffers.out += buffers.out === '' ? '' : ',';
 
               if (node.type === 'Slot') {
-                buffers[curr] += `(children`;
+                state.importStatements.add(`import { __astro_slot } from 'astro/dist/internal/__astro_slot.js';`);
+                buffers[curr] += `h(__astro_slot, ${attributes ? generateAttributes(attributes) : 'null'}, children`;
                 paren++;
                 return;
               }
               if (!isComponentTag(name)) {
                 if (curr === 'markdown') {
                   await pushMarkdownToBuffer();
+                }
+                if (attributes.slot) {
+                  state.importStatements.add(`import { __astro_slot_content } from 'astro/dist/internal/__astro_slot.js';`);
+                  buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
+                  paren++;
                 }
                 buffers[curr] += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
                 paren++;
@@ -651,13 +669,36 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 const [componentNamespace] = componentName.split('.');
                 componentInfo = components.get(componentNamespace);
               }
-              if (!componentInfo && !isCustomElementTag(componentName)) {
-                throw new Error(`Unknown Component: ${componentName}`);
+              if ((isFrontmatterDefinedComponent(componentName, componentInfo, state) && !isCustomElementTag(componentName)) || isFragmentComponent(componentName)) {
+                if (hydrationAttributes.method) {
+                  throw new Error(
+                    `Unable to hydrate "${componentName}" because it is statically defined in the frontmatter script. Hydration directives may only be used on imported components.`
+                  );
+                }
+
+                // Previously we would throw here, but this is valid!
+                // If the frontmatter script defines `const Element = 'h1'`,
+                // you should be able to statically render `<Element>`
+
+                if (curr === 'markdown') {
+                  await pushMarkdownToBuffer();
+                }
+
+                if (attributes.slot) {
+                  state.importStatements.add(`import { __astro_slot_content } from 'astro/dist/internal/__astro_slot.js';`);
+                  buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
+                  paren++;
+                }
+                buffers[curr] += `h(${componentName}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+                paren++;
+                return;
+              } else if (!componentInfo && !isCustomElementTag(componentName)) {
+                throw new Error(`Unable to render "${componentName}" because it is undefined\n  ${state.filename}`);
               }
               if (componentName === 'Markdown') {
                 const { $scope } = attributes ?? {};
                 state.markers.insideMarkdown = typeof state.markers.insideMarkdown === 'object' ? { $scope, count: state.markers.insideMarkdown.count + 1 } : { $scope, count: 1 };
-                const keys = Object.keys(attributes).filter(attr => attr !== '$scope');
+                const keys = Object.keys(attributes).filter((attr) => attr !== '$scope');
                 if (keys.length > 0) {
                   if (curr === 'markdown') {
                     await pushMarkdownToBuffer();
@@ -667,9 +708,9 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 curr = 'markdown';
                 return;
               }
-              const { wrapper, wrapperImports } = getComponentWrapper(name, componentInfo ?? ({} as any), { astroConfig, filename });
+              const { wrapper, wrapperImports } = getComponentWrapper(name, hydrationAttributes, componentInfo ?? ({} as any), { astroConfig, filename, compileOptions });
               if (wrapperImports) {
-                for(let wrapperImport of wrapperImports) {
+                for (let wrapperImport of wrapperImports) {
                   importStatements.add(wrapperImport);
                 }
               }
@@ -677,6 +718,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 await pushMarkdownToBuffer();
               }
 
+              if (attributes.slot) {
+                state.importStatements.add(`import { __astro_slot_content } from 'astro/dist/internal/__astro_slot.js';`);
+                buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
+                paren++;
+              }
               paren++;
               buffers[curr] += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
             } catch (err) {
@@ -753,6 +799,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             if (curr === 'markdown') {
               await pushMarkdownToBuffer();
             }
+            if (node.attributes.find((attr: any) => attr.name === 'slot')) {
+              buffers.out += ')';
+              paren--;
+            }
             if (paren !== -1) {
               buffers.out += ')';
               paren--;
@@ -765,7 +815,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               if ((state.markers.insideMarkdown as Record<string, any>).count <= 0) {
                 state.markers.insideMarkdown = false;
               }
-              const hasAttrs = (node.attributes.filter(({ name }: Attribute) => name !== '$scope')).length > 0;
+              const hasAttrs = node.attributes.filter(({ name }: Attribute) => name !== '$scope').length > 0;
               if (hasAttrs) {
                 return;
               }
@@ -775,6 +825,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               if (!state.markers.insideMarkdown) {
                 return;
               }
+            }
+            if (node.attributes.find((attr: any) => attr.name === 'slot')) {
+              buffers.out += ')';
+              paren--;
             }
             if (paren !== -1) {
               buffers.out += ')';
@@ -818,9 +872,10 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     markers: {
       insideMarkdown: false,
     },
+    declarations: new Set(),
     importStatements: new Set(),
     exportStatements: new Set(),
-    customElementCandidates: new Map()
+    customElementCandidates: new Map(),
   };
 
   const { script, createCollection } = compileModule(ast, ast.module, state, compileOptions);
@@ -837,6 +892,6 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     css: state.css.length ? state.css.join('\n\n') : undefined,
     createCollection,
     hasCustomElements: Boolean(ast.meta.features & FEATURE_CUSTOM_ELEMENT),
-    customElementCandidates: state.customElementCandidates
+    customElementCandidates: state.customElementCandidates,
   };
 }

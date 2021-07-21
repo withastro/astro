@@ -14,7 +14,7 @@ setupBuild(Basics, './fixtures/astro-basic');
 
 Basics('Can load page', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 
@@ -93,6 +93,14 @@ Basics('Allows spread attributes with TypeScript (#521)', async ({ runtime }) =>
   assert.equal($('#spread-ts').attr('a'), '0');
   assert.equal($('#spread-ts').attr('b'), '1');
   assert.equal($('#spread-ts').attr('c'), '2');
+});
+
+Basics('Allows using the Fragment element to be used', async ({ runtime }) => {
+  const result = await runtime.load('/fragment');
+  assert.ok(!result.error, 'No errors thrown');
+  const html = result.contents;
+  const $ = doc(html);
+  assert.equal($('#one').length, 1, 'Element in a fragment rendered');
 });
 
 Basics.run();

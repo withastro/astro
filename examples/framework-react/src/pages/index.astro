@@ -2,10 +2,11 @@
 // Component Imports
 import Counter from '../components/Counter.jsx'
 
+
 // Full Astro Component Syntax:
-// https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
+// https://docs.astro.build/core-concepts/astro-components/
 ---
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta
@@ -33,9 +34,9 @@ import Counter from '../components/Counter.jsx'
   </head>
   <body>
     <main>
-      <Counter:visible>
+      <Counter client:visible>
         <h1>Hello React!</h1>
-      </Counter:visible>
+      </Counter>
     </main>
   </body>
 </html>

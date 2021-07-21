@@ -108,7 +108,7 @@ export interface Ast {
   // instance: Script;
   meta: {
     features: number;
-  }
+  };
 }
 
 export interface Warning {

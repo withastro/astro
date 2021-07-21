@@ -52,30 +52,31 @@ nav ul {
 }
 
 h1 {
-  font-size: clamp(2.488rem, 1.9240rem + 1.4100vw, 3.052rem);
+  font-size: clamp(2.488rem, 1.924rem + 1.41vw, 3.052rem);
 }
 
 h2 {
-  font-size: clamp(2.074rem, 1.7070rem + 0.9175vw, 2.441rem);
+  font-size: clamp(2.074rem, 1.707rem + 0.9175vw, 2.441rem);
 }
 
 h3 {
-  font-size: clamp(1.728rem, 1.5030rem + 0.5625vw, 1.953rem);
+  font-size: clamp(1.728rem, 1.503rem + 0.5625vw, 1.953rem);
 }
 
 h4 {
-  font-size: clamp(1.44rem, 1.3170rem + 0.3075vw, 1.563rem);
+  font-size: clamp(1.44rem, 1.317rem + 0.3075vw, 1.563rem);
 }
 
 h5 {
-  font-size: clamp(1.2rem, 1.1500rem + 0.1250vw, 1.25rem);
+  font-size: clamp(1.2rem, 1.15rem + 0.125vw, 1.25rem);
 }
 
 p {
   color: var(--theme-text-light);
 }
 
-small, .text_small {
+small,
+.text_small {
   font-size: 0.833rem;
 }
 
@@ -89,14 +90,14 @@ a {
   gap: 0.5rem;
 }
 
-a > code:not([class*="language"]) {
+a > code:not([class*='language']) {
   position: relative;
   color: var(--theme-accent);
   background: transparent;
   text-underline-offset: var(--padding-block);
 }
 
-a > code:not([class*="language"])::before {
+a > code:not([class*='language'])::before {
   content: '';
   position: absolute;
   top: 0;
@@ -126,13 +127,13 @@ strong {
 
 /* Supporting Content */
 
-code:not([class*="language"]) {
+code:not([class*='language']) {
   --border-radius: 3px;
   --padding-block: 0.2rem;
   --padding-inline: 0.33rem;
 
   font-family: var(--font-mono);
-  font-size: .85em;
+  font-size: 0.85em;
   color: inherit;
   background-color: var(--theme-code-inline-bg);
   padding: var(--padding-block) var(--padding-inline);
@@ -140,7 +141,7 @@ code:not([class*="language"]) {
   border-radius: var(--border-radius);
 }
 
-pre > code:not([class*="language"]) {
+pre > code:not([class*='language']) {
   background-color: transparent;
   padding: 0;
   margin: 0;
@@ -158,7 +159,7 @@ pre {
   padding-right: calc(var(--padding-inline) * 2);
   margin-left: calc(50vw - var(--padding-inline));
   transform: translateX(-50vw);
-  
+
   line-height: 1.414;
   width: calc(100vw + 4px);
   max-width: calc(100% + (var(--padding-inline) * 2));
@@ -211,7 +212,6 @@ button {
   background-color: var(--theme-bg);
 }
 button:hover {
-
 }
 
 #theme-toggle {
@@ -254,7 +254,7 @@ button:hover {
   opacity: 1;
 }
 
-input[name="theme-toggle"] {
+input[name='theme-toggle'] {
   position: absolute;
   opacity: 0;
   top: 0;
@@ -354,7 +354,7 @@ nav h4 {
 }
 
 .nav-groups > li + li {
-  margin-top: 2rem;  
+  margin-top: 2rem;
 }
 
 /* Scrollbar */
@@ -362,7 +362,7 @@ nav h4 {
 /* Firefox */
 body {
   scrollbar-width: thin;
-  scrollbar-color: var(--theme-text-lighter) var(--theme-divider);  
+  scrollbar-color: var(--theme-text-lighter) var(--theme-divider);
 }
 
 /* width */

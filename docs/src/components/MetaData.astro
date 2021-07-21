@@ -1,0 +1,38 @@
+---
+import { site } from '../config.ts';
+const { content = {}, canonicalURL } = Astro.props;
+const formattedContentTitle = content.title ? `${content.title} 🚀 ${site.title}` : site.title;
+const imageSrc = content?.image?.src ?? site.image.src;
+const canonicalImageSrc = new URL(imageSrc, Astro.site);
+const imageAlt = content?.image?.alt ?? site.image.alt;
+---
+
+<!-- OpenGraph Tags -->
+<meta property="og:title" content={formattedContentTitle}/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content={canonicalURL}/>
+<meta property="og:locale" content={content.ogLocale ?? site.ogLocale}/>
+<meta property="og:image" content={canonicalImageSrc}/>
+<meta property="og:image:alt" content={imageAlt}/>
+<meta property="og:description" content={content.description ? content.description : site.description}/>
+<meta property="og:site_name" content={site.title}/>
+<!-- END OpenGraph Tags -->
+
+<!-- Twitter Tags -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:site" content={site.twitter.site}/>
+<meta name="twitter:creator" content={site.twitter.creator}/>
+<meta name="twitter:title" content={formattedContentTitle}/>
+<meta name="twitter:description" content={content.description ? content.description : site.description}/>
+<meta name="twitter:image" content={canonicalImageSrc}/>
+<meta name="twitter:image:alt" content={imageAlt}/>
+<!-- END Twitter Tags -->
+
+<link rel="canonical" href={canonicalURL}/>
+
+<!-- 
+  TODO: Add json+ld data, maybe https://schema.org/APIReference makes sense? 
+  Docs: https://developers.google.com/search/docs/advanced/structured-data/intro-structured-data
+  https://www.npmjs.com/package/schema-dts seems like a great resource for implementing this.
+  Even better, there's a React component that integrates with `schema-dts`: https://github.com/google/react-schemaorg
+-->

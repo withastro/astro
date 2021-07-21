@@ -1,5 +1,36 @@
 # create-astro
 
+## 0.5.1-next.0
+
+### Patch Changes
+
+- a7e6666: compile javascript to target Node v12.x
+- d45431d: create-astro does not fail when removing subdirectories
+
+## 0.5.0
+
+### Minor Changes
+
+- 36e104b: Use new client: prefix for component exmaples
+
+## 0.4.0
+
+### Minor Changes
+
+- 5d5d67c: Update `create-astro` to handle framework-specific logic based on user preference
+
+## 0.3.5
+
+### Patch Changes
+
+- d8ceff5: Allows using an external repo as a template
+
+  You can do this with the `--template` flag:
+
+  ```bash
+  npm init astro my-shopify --template cassidoo/shopify-react-astro
+  ```
+
 ## 0.3.4
 
 ### Patch Changes

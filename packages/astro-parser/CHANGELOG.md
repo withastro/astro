@@ -1,5 +1,12 @@
 # @astrojs/parser
 
+## 0.18.0-next.2
+
+### Patch Changes
+
+- a7e6666: compile javascript to target Node v12.x
+- b85e68a: Fixes case where custom elements are not handled within JSX expressions
+
 ## 0.15.4
 
 ### Patch Changes
@@ -66,4 +73,4 @@
 
 - b3886c2: Enhanced **Markdown** support! Markdown processing has been moved from `micromark` to `remark` to prepare Astro for user-provided `remark` plugins _in the future_.
 
-  This change also introduces a built-in `<Markdown>` component for embedding Markdown and any Astro-supported component format inside of `.astro` files. [Read more about Astro's Markdown support.](https://github.com/snowpackjs/astro/blob/main/docs/markdown.md)
+  This change also introduces a built-in `<Markdown>` component for embedding Markdown and any Astro-supported component format inside of `.astro` files. [Read more about Astro's Markdown support.](https://docs.astro.build/markdown/)

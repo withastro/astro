@@ -1,4 +1,3 @@
-import 'source-map-support/register.js';
 import type { AstroConfig } from './@types/astro';
 import type { LogOptions } from './logger.js';
 
@@ -8,9 +7,7 @@ import path from 'path';
 import { performance } from 'perf_hooks';
 import { defaultLogDestination, defaultLogLevel, debug, error, info, parseError } from './logger.js';
 import { createRuntime } from './runtime.js';
-import { stopTimer } from './build/util';
-
-const hostname = '127.0.0.1';
+import { stopTimer } from './build/util.js';
 
 const logging: LogOptions = {
   level: defaultLogLevel,
@@ -51,7 +48,8 @@ export default async function dev(astroConfig: AstroConfig) {
         break;
       }
       case 404: {
-        const fullurl = new URL(req.url || '/', astroConfig.buildOptions.site || `http://localhost${astroConfig.devOptions.port}`);
+        const { hostname, port } = astroConfig.devOptions;
+        const fullurl = new URL(req.url || '/', astroConfig.buildOptions.site || `http://${hostname}:${port}`);
         const reqPath = decodeURI(fullurl.pathname);
         error(logging, 'static', 'Not found', reqPath);
         res.statusCode = 404;
@@ -100,7 +98,7 @@ export default async function dev(astroConfig: AstroConfig) {
     }
   });
 
-  const port = astroConfig.devOptions.port;
+  const { hostname, port } = astroConfig.devOptions;
   server
     .listen(port, hostname, () => {
       const endServerTime = performance.now();

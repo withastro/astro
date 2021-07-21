@@ -3,8 +3,8 @@
   "include": ["src"],
   "compilerOptions": {
     "allowJs": true,
-    "target": "ES2020",
-    "module": "CommonJS",
+    "target": "ES2019",
+    "module": "ES2020",
     "outDir": "./dist"
   }
 }

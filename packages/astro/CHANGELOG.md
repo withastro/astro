@@ -1,5 +1,149 @@
 # astro
 
+## 0.18.0-next.2
+
+### Minor Changes
+
+- f67e8f5: New Collections API (createCollection)
+
+  BREAKING CHANGE: The expected return format from createCollection() has been changed. Visit https://docs.astro.build/core-concepts/collections to learn the new API.
+
+  This feature was implemented with backwards-compatible deprecation warnings, to help you find and update pages that are using the legacy API.
+
+- 40c882a: Fix url to find page with "index" at the end file name
+
+### Patch Changes
+
+- a7e6666: compile javascript to target Node v12.x
+- fb8bf7e: Allow multiple Astro servers to be running simultaneously by choosing random ports if the defaults are taken.
+- 0e761b9: Add ability to specify hostname in devOptions
+- 007c220: Remove custom Astro.fetchContent() glob implementation, use `import.meta.globEager` internally instead.
+- b85e68a: Fixes case where custom elements are not handled within JSX expressions
+- Updated dependencies [a7e6666]
+- Updated dependencies [b85e68a]
+  - @astrojs/parser@0.18.0-next.2
+
+## 0.18.0-next.1
+
+### Patch Changes
+
+- e3182c7: Adds a missing dependency
+
+## 0.18.0-next.0
+
+### Minor Changes
+
+- 0340b0f: Adds support for the client:media hydrator
+
+  The new `client:media` hydrator allows you to define a component that should only be loaded when a media query matches. An example usage:
+
+  ```jsx
+  ---
+  import Sidebar from '../components/Sidebar.jsx';
+  ---
+
+  <Sidebar client:media="(max-width: 700px)" />
+  ```
+
+  This allows you to define components which, for example, only run on mobile devices. A common example is a slide-in sidebar that is needed to add navigation to a mobile app, but is never displayed in desktop view.
+
+  Since Astro components can have expressions, you can move common media queries to a module for sharing. For example here are defining:
+
+  **media.js**
+
+  ```js
+  export const MOBILE = '(max-width: 700px)';
+  ```
+
+  And then you can reference this in your page:
+
+  **index.astro**
+
+  ```jsx
+  import Sidebar from '../components/Sidebar.jsx';
+  import { MOBILE } from '../media.js';
+  ---(<Sidebar client:media={MOBILE} />);
+  ```
+
+### Patch Changes
+
+- 8f4562a: Improve slot support, adding support for named slots and fallback content within `slot` elements.
+
+  See the new [Slots documentation](https://docs.astro.build/core-concepts/astro-components/#slots) for more information.
+
+- 9859f53: Correcting typo in ReadMe
+
+## 0.17.3
+
+### Patch Changes
+
+- [release/0.17] Update compile target to better support Node v12.
+
+## 0.17.2
+
+### Patch Changes
+
+- 1b73f95: Only show the buildOptions.site notice if not already set
+- fb78b76: Improve error handling for unsupported Node versions
+- d93f768: Add support for components defined in Frontmatter. Previously, the following code would throw an error. Now it is officially supported!
+
+  ```astro
+  ---
+  const { level = 1 } = Astro.props;
+  const Element = `h${level}`;
+  ---
+
+  <Element>Hello world!</Element>
+  ```
+
+## 0.17.1
+
+### Patch Changes
+
+- 1e01251: Fixes bug with React renderer that would not hydrate correctly
+- 42a6ace: Add support for components defined in Frontmatter. Previously, the following code would throw an error. Now it is officially supported!
+
+  ```astro
+  ---
+  const { level = 1 } = Astro.props;
+  const Element = `h${level}`;
+  ---
+
+  <Element>Hello world!</Element>
+  ```
+
+- Updated dependencies [1e01251]
+  - @astrojs/renderer-react@0.1.5
+
+## 0.17.0
+
+### Minor Changes
+
+- 0a7b6de: ## Adds directive syntax for component hydration
+
+  This change updates the syntax for partial hydration from `<Button:load />` to `<Button client:load />`.
+
+  **Why?**
+
+  Partial hydration is about to get super powers! This clears the way for more dynamic partial hydration, i.e. `<MobileMenu client:media="(max-width: 40em)" />`.
+
+  **How to upgrade**
+
+  Just update `:load`, `:idle`, and `:visible` to match the `client:load` format, thats it! Don't worry, the original syntax is still supported but it's recommended to future-proof your project by updating to the newer syntax.
+
+## 0.16.3
+
+### Patch Changes
+
+- 5d1ff62: Hotfix for snowpack regression
+
+## 0.16.2
+
+### Patch Changes
+
+- 20b4a60: Bugfix: do not override user `alias` passed into snowpack config
+- 42a1fd7: Add command line flag `--silent` to astro to set no output.
+
 ## 0.16.1
 
 ### Patch Changes
@@ -96,7 +240,7 @@
    <div>{text}</div>
   ```
 
-  [Read more about the `.astro` syntax](https://github.com/snowpackjs/astro/blob/main/docs/syntax.md#data-and-props)
+  [Read more about the `.astro` syntax](https://docs.astro.build/syntax/#data-and-props)
 
   ***
 
@@ -324,7 +468,7 @@ _Rolling back to 0.13.10 to prevent a regression in the dev server output._
 ### Patch Changes
 
 - 0d6afae: Fixes a few small bugs with the `Markdown` component when there are multiple instances on the same page
-- 1d930ff: Adds [`--verbose`](https://github.com/snowpackjs/astro/blob/main/docs/cli.md#--verbose) and [`--reload`](https://github.com/snowpackjs/astro/blob/main/docs/cli.md#--reload) flags to the `astro` CLI.
+- 1d930ff: Adds [`--verbose`](https://docs.astro.build/cli.md#--verbose) and [`--reload`](https://github.com/snowpackjs/astro/blob/main/docs/cli/#--reload) flags to the `astro` CLI.
 
 ## 0.12.3
 
@@ -451,7 +595,7 @@ _Rolling back to 0.13.10 to prevent a regression in the dev server output._
 
 - b3886c2: Enhanced **Markdown** support! Markdown processing has been moved from `micromark` to `remark` to prepare Astro for user-provided `remark` plugins _in the future_.
 
-  This change also introduces a built-in `<Markdown>` component for embedding Markdown and any Astro-supported component format inside of `.astro` files. [Read more about Astro's Markdown support.](https://github.com/snowpackjs/astro/blob/main/docs/markdown.md)
+  This change also introduces a built-in `<Markdown>` component for embedding Markdown and any Astro-supported component format inside of `.astro` files. [Read more about Astro's Markdown support.](https://docs.astro.build/markdown/)
 
 ### Patch Changes
 

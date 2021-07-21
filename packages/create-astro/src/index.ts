@@ -1,10 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { bold, cyan, gray, green, red } from 'kleur/colors';
+import fetch from 'node-fetch';
 import prompts from 'prompts';
 import degit from 'degit';
 import yargs from 'yargs-parser';
+import { FRAMEWORKS, COUNTER_COMPONENTS } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
+import { createConfig } from './config.js';
 const args = yargs(process.argv);
 prompts.override(args);
 
@@ -17,9 +20,29 @@ export function mkdirp(dir: string) {
   }
 }
 
+/**
+ * Delete all files, subdirectories, and symlinks in a given
+ * directory.
+ *
+ * @param dir the directory to empty
+ * @returns a promise for emptying a given directory
+ */
+export async function emptyDir(dir: string) {
+  const items = await fs.promises.readdir(dir);
+  return Promise.all(
+    items.map(async (item) => {
+      const itemPath = path.join(dir, item);
+      const stat = await fs.promises.stat(itemPath);
+      return stat.isDirectory()
+        ? fs.promises.rm(itemPath, { recursive: true, force: true }) // To remove directories
+        : fs.promises.unlink(itemPath); // Remove files and symlinks
+    })
+  );
+}
+
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 
-const POSTPROCESS_FILES = ['package.json']; // some files need processing after copying.
+const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
 
 export async function main() {
   console.log('\n' + bold('Welcome to Astro!') + gray(` (create-astro v${version})`));
@@ -34,12 +57,14 @@ export async function main() {
       const response = await prompts({
         type: 'confirm',
         name: 'forceOverwrite',
-        message: 'Directory not empty. Continue?',
+        message: `Directory not empty. Delete ${cwd} to continue?`,
         initial: false,
       });
       if (!response.forceOverwrite) {
         process.exit(1);
       }
+
+      await emptyDir(cwd);
     }
   } else {
     mkdirp(cwd);
@@ -54,12 +79,38 @@ export async function main() {
     },
   ]);
 
+  if (!options.template) {
+    process.exit(1);
+  }
+
   const hash = args.commit ? `#${args.commit}` : '';
-  const emitter = degit(`snowpackjs/astro/examples/${options.template}${hash}`, {
+
+  const templateTarget = options.template.includes('/') ? options.template : `snowpackjs/astro/examples/${options.template}`;
+
+  const emitter = degit(`${templateTarget}${hash}`, {
     cache: false,
     force: true,
     verbose: false,
   });
+
+  const selectedTemplate = TEMPLATES.find((template) => template.value === options.template);
+  let renderers: string[] = [];
+
+  if (selectedTemplate?.renderers === true) {
+    const result = /** @type {import('./types/internal').Options} */ await prompts([
+      {
+        type: 'multiselect',
+        name: 'renderers',
+        message: 'Which frameworks would you like to use?',
+        choices: FRAMEWORKS,
+      },
+    ]);
+    renderers = result.renderers;
+  } else if (selectedTemplate?.renderers && Array.isArray(selectedTemplate.renderers)) {
+    renderers = selectedTemplate.renderers;
+    const titles = renderers.map((renderer) => FRAMEWORKS.find((item) => item.value === renderer)?.title).join(', ');
+    console.log(green(`✔`) + bold(` Using template's default renderers`) + gray(' › ') + titles);
+  }
 
   // Copy
   try {
@@ -75,18 +126,67 @@ export async function main() {
   // Post-process in parallel
   await Promise.all(
     POSTPROCESS_FILES.map(async (file) => {
-      const fileLoc = path.join(cwd, file);
+      const fileLoc = path.resolve(path.join(cwd, file));
 
       switch (file) {
+        case 'CHANGELOG.md': {
+          if (fs.existsSync(fileLoc)) {
+            await fs.promises.rm(fileLoc);
+          }
+          break;
+        }
+        case 'astro.config.mjs': {
+          if (selectedTemplate?.renderers !== true) {
+            break;
+          }
+          await fs.promises.writeFile(fileLoc, createConfig({ renderers }));
+          break;
+        }
         case 'package.json': {
           const packageJSON = JSON.parse(await fs.promises.readFile(fileLoc, 'utf8'));
           delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
+          // Fetch latest versions of selected renderers
+          const rendererEntries = (await Promise.all(
+            ['astro', ...renderers].map((renderer: string) =>
+              fetch(`https://registry.npmjs.org/${renderer}/latest`)
+                .then((res: any) => res.json())
+                .then((res: any) => [renderer, `^${res['version']}`])
+            )
+          )) as any;
+          packageJSON.devDependencies = { ...(packageJSON.devDependencies ?? {}), ...Object.fromEntries(rendererEntries) };
           await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
           break;
         }
       }
     })
   );
+
+  // Inject framework components into starter template
+  if (selectedTemplate?.value === 'starter') {
+    let importStatements: string[] = [];
+    let components: string[] = [];
+    await Promise.all(
+      renderers.map(async (renderer) => {
+        const component = COUNTER_COMPONENTS[renderer as keyof typeof COUNTER_COMPONENTS];
+        const componentName = path.basename(component.filename, path.extname(component.filename));
+        const absFileLoc = path.resolve(cwd, component.filename);
+        importStatements.push(`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`);
+        components.push(`<${componentName} client:visible />`);
+        await fs.promises.writeFile(absFileLoc, component.content);
+      })
+    );
+
+    const pageFileLoc = path.resolve(path.join(cwd, 'src', 'pages', 'index.astro'));
+    const content = (await fs.promises.readFile(pageFileLoc)).toString();
+    const newContent = content
+      .replace(/^(\s*)\/\* ASTRO\:COMPONENT_IMPORTS \*\//gm, (_, indent) => {
+        return indent + importStatements.join('\n');
+      })
+      .replace(/^(\s*)<!-- ASTRO:COMPONENT_MARKUP -->/gm, (_, indent) => {
+        return components.map((ln) => indent + ln).join('\n');
+      });
+    await fs.promises.writeFile(pageFileLoc, newContent);
+  }
 
   console.log(bold(green('✔') + ' Done!'));
 

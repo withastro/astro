@@ -6,7 +6,7 @@ import AdminsVue from '../components/AdminsVue.vue';
 import AdminsPreact from '../components/AdminsPreact.jsx';
 
 // Full Astro Component Syntax:
-// https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
+// https://docs.astro.build/core-concepts/astro-components/
 ---
 <html lang="en">
 <head>
@@ -37,10 +37,10 @@ import AdminsPreact from '../components/AdminsPreact.jsx';
                 <a href="https://github.com/nanostores/nanostores">nanostores</a></h1>
             </div>
         </header>
-        <AdminsReact:load />
-        <AdminsSvelte:load />
-        <AdminsVue:load />
-        <AdminsPreact:load />
+        <AdminsReact client:load />
+        <AdminsSvelte client:load />
+        <AdminsVue client:load />
+        <AdminsPreact client:load />
     </main>
 </body>
 </html>

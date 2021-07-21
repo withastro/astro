@@ -1,4 +1,3 @@
-import 'source-map-support/register.js';
 import type { CompileError } from '@astrojs/parser';
 import { bold, blue, red, grey, underline, yellow } from 'kleur/colors';
 import { Writable } from 'stream';
@@ -159,4 +158,11 @@ function padStr(str: string, len: number) {
   return str + spaces;
 }
 
-export const defaultLogLevel: LoggerLevel = process.argv.includes('--verbose') ? 'debug' : 'info';
+export let defaultLogLevel: LoggerLevel;
+if (process.argv.includes('--verbose')) {
+  defaultLogLevel = 'debug';
+} else if (process.argv.includes('--silent')) {
+  defaultLogLevel = 'silent';
+} else {
+  defaultLogLevel = 'info';
+}

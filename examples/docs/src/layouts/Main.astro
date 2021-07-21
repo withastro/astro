@@ -10,15 +10,15 @@ import DocSidebar from '../components/DocSidebar.tsx';
 // It will run during the build, but never in the browser.
 // All variables are available to use in the HTML template below.
 const { content } = Astro.props;
-const headers = content?.astro?.headers;
+const headers = content.astro.headers;
 const currentPage = Astro.request.url.pathname;
 const currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
 const githubEditUrl = `https://github.com/USER/REPO/blob/main/${currentFile}`
 
 // Full Astro Component Syntax:
-// https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
+// https://docs.astro.build/core-concepts/astro-components/
 ---
-<html>
+<html lang={ content.lang || 'en' }>
   <head>
     <title>{content.title}</title>
     
@@ -212,7 +212,7 @@ const githubEditUrl = `https://github.com/USER/REPO/blob/main/${currentFile}`
           <div />
 
           <div>
-            <ThemeToggle:idle />
+            <ThemeToggle client:idle />
           </div>
         </div>
       </nav>
@@ -232,7 +232,7 @@ const githubEditUrl = `https://github.com/USER/REPO/blob/main/${currentFile}`
         </article>
       </div>
       <aside class="sidebar" id="sidebar-content">
-        <DocSidebar:idle headers={headers} editHref={editHref} />
+        <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />
       </aside>
     </main>
   </body>

@@ -1,4 +1,3 @@
-import 'source-map-support/register.js';
 import type { AstroConfig, BundleMap, BuildOutput, RuntimeMode, PageDependencies } from './@types/astro';
 import type { LogOptions } from './logger';
 
@@ -13,7 +12,7 @@ import { bold, green, yellow, red, dim, underline } from 'kleur/colors';
 import mime from 'mime';
 import glob from 'tiny-glob';
 import { bundleCSS } from './build/bundle/css.js';
-import { bundleJS, collectJSImports } from './build/bundle/js';
+import { bundleJS, collectJSImports } from './build/bundle/js.js';
 import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.js';
 import { generateSitemap } from './build/sitemap.js';
 import { logURLStats, collectBundleStats, mapBundleStatsToURLStats } from './build/stats.js';
@@ -53,12 +52,14 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
   };
 
   // warn users if missing config item in build that may result in broken SEO (can’t disable, as they should provide this)
-  warn(logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
+  if (!astroConfig.buildOptions.site) {
+    warn(logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
+  }
 
   const mode: RuntimeMode = 'production';
   const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
   const { runtimeConfig } = runtime;
-  const { snowpack } = runtimeConfig;
+  const { snowpackRuntime } = runtimeConfig;
 
   try {
     // 0. erase build directory
@@ -81,8 +82,8 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
             filepath,
             logging,
             mode,
-            resolvePackageUrl: (pkgName: string) => snowpack.getUrlForPackage(pkgName),
-            runtime,
+            snowpackRuntime,
+            astroRuntime: runtime,
             site: astroConfig.buildOptions.site,
           });
         })
@@ -105,7 +106,7 @@ ${stack}
 `
         );
       } else {
-        error(logging, 'build', e);
+        error(logging, 'build', e.message);
       }
       error(logging, 'build', red('✕ building pages failed!'));
 
@@ -248,7 +249,7 @@ ${stack}
     info(logging, 'build', bold(green('▶ Build Complete!')));
     return 0;
   } catch (err) {
-    error(logging, 'build', err);
+    error(logging, 'build', err.message);
     await runtime.shutdown();
     return 1;
   }

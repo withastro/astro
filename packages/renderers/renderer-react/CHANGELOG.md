@@ -1,5 +1,11 @@
 # @astrojs/renderer-react
 
+## 0.1.5
+
+### Patch Changes
+
+- 1e01251: Fixes bug with React renderer that would not hydrate correctly
+
 ## 0.1.4
 
 ### Patch Changes

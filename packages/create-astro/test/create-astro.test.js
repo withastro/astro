@@ -1,15 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import http from 'http';
 import { green, red } from 'kleur/colors';
 import execa from 'execa';
 import glob from 'tiny-glob';
 import { TEMPLATES } from '../dist/templates.js';
-
-// config
-const GITHUB_SHA = process.env.GITHUB_SHA || execa.sync('git', ['rev-parse', 'HEAD']).stdout; // process.env.GITHUB_SHA will be set in CI; if testing locally execa() will gather this
-const FIXTURES_DIR = path.join(fileURLToPath(path.dirname(import.meta.url)), 'fixtures');
+import { GITHUB_SHA, FIXTURES_DIR } from './helpers.js';
 
 // helpers
 async function fetch(url) {

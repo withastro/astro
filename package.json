@@ -12,13 +12,12 @@
     "build": "yarn build:core",
     "build:all": "lerna run build",
     "build:one": "lerna run build --scope",
-    "build:core": "lerna run build --scope astro --scope @astrojs/parser --scope @astrojs/markdown-support --scope create-astro",
+    "build:core": "lerna run build --scope astro --scope @astrojs/parser --scope @astrojs/markdown-support",
     "build:vscode": "lerna run build --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser",
     "dev:vscode": "lerna run dev --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser --parallel --stream",
-    "format": "prettier -w \"**/*.{js,jsx,ts,tsx,md,json}\"",
+    "format": "prettier -w .",
     "lint": "eslint \"packages/**/*.ts\"",
-    "test": "lerna run test --scope astro --scope prettier-plugin-astro --stream",
-    "test:core": "yarn workspace astro run test",
+    "test": "yarn workspace astro run test",
     "test:templates": "lerna run test --scope create-astro --stream"
   },
   "workspaces": [
@@ -28,7 +27,7 @@
     "tools/*",
     "scripts",
     "www",
-    "docs-www",
+    "docs",
     "packages/astro/test/fixtures/builtins/packages/*",
     "packages/astro/test/fixtures/builtins-polyfillnode",
     "packages/astro/test/fixtures/custom-elements/my-component-lib"
@@ -43,8 +42,10 @@
     "camel-case": "^4.1.2"
   },
   "devDependencies": {
+    "@snowpack/plugin-postcss": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.18.0",
+    "autoprefixer": "^10.2.6",
     "cheerio": "^1.0.0-rc.6",
     "cheerio-select-tmp": "^0.1.1",
     "del": "^6.0.0",
@@ -54,6 +55,8 @@
     "eslint-plugin-prettier": "^3.4.0",
     "execa": "^5.0.0",
     "lerna": "^4.0.0",
+    "postcss": "^8.2.15",
+    "postcss-icss-keyframes": "^0.2.1",
     "prettier": "^2.2.1",
     "svelte": "^3.38.0",
     "tiny-glob": "^0.2.8",
@@ -61,6 +64,6 @@
     "uvu": "^0.5.1"
   },
   "engines": {
-    "node": ">=14.15.1"
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
   }
 }

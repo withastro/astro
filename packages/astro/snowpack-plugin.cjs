@@ -1,4 +1,5 @@
 const { readFile } = require('fs').promises;
+const getPort = require('get-port');
 // Snowpack plugins must be CommonJS :(
 const transformPromise = import('./dist/compiler/index.js');
 
@@ -14,28 +15,17 @@ const DEFAULT_HMR_PORT = 12321;
  * @type {import('snowpack').SnowpackPluginFactory<PluginOptions>}
  */
 module.exports = (snowpackConfig, options = {}) => {
-  const {
-    resolvePackageUrl,
-    astroConfig,
-    configManager,
-    mode
-  } = options;
+  const { resolvePackageUrl, astroConfig, configManager, mode } = options;
   let hmrPort = DEFAULT_HMR_PORT;
   return {
     name: 'snowpack-astro',
-    knownEntrypoints: [
-      'astro/dist/internal/h.js',
-      'astro/components/Prism.astro',
-      'shorthash',
-      'estree-util-value-to-estree',
-      'astring'
-    ],
+    knownEntrypoints: ['astro/dist/internal/h.js', 'astro/components/Prism.astro', 'shorthash', 'estree-util-value-to-estree', 'astring'],
     resolve: {
       input: ['.astro', '.md'],
       output: ['.js', '.css'],
     },
-    async transform({contents, id, fileExt}) {
-      if(configManager.isConfigModule(fileExt, id)) {
+    async transform({ contents, id, fileExt }) {
+      if (configManager.isConfigModule(fileExt, id)) {
         configManager.configModuleId = id;
         const source = await configManager.buildSource(contents);
         return source;
@@ -43,14 +33,17 @@ module.exports = (snowpackConfig, options = {}) => {
     },
     onChange({ filePath }) {
       // If the astro.config.mjs file changes, mark the generated config module as changed.
-      if(configManager.isAstroConfig(filePath) && configManager.configModuleId) {
+      if (configManager.isAstroConfig(filePath) && configManager.configModuleId) {
         this.markChanged(configManager.configModuleId);
         configManager.markDirty();
       }
     },
-    config(snowpackConfig) {
-      if(!isNaN(snowpackConfig.devOptions.hmrPort)) {
+    async config(snowpackConfig) {
+      if (!isNaN(snowpackConfig.devOptions.hmrPort)) {
         hmrPort = snowpackConfig.devOptions.hmrPort;
+      } else {
+        hmrPort = await getPort({ port: DEFAULT_HMR_PORT, host: snowpackConfig.devOptions.hostname });
+        snowpackConfig.devOptions.hmrPort = hmrPort;
       }
     },
     async load({ filePath }) {

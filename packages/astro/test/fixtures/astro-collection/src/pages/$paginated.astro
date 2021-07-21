@@ -1,20 +1,22 @@
 ---
-const { collection } = Astro.props;
-
-export async function createCollection() {
+export function createCollection() {
   return {
-    async data() {
+    paginate: true,
+    route: '/paginated/:page?',
+    async props({paginate}) {
       let data = Astro.fetchContent('./post/**/*.md');
       data.sort((a, b) => new Date(b.date) - new Date(a.date));
-      return data;
-    },
-    pageSize: 1
+      return {posts: paginate(data, {pageSize: 1})};
+    }
   };
 }
+
+const { posts } = Astro.props;
 ---
 
+
 <div id="posts">
-{collection.data.map((post) => (
+{posts.data.map((post) => (
   <article>
     <h1>{post.title}</h1>
     <a href={post.url}>Read more</a>
@@ -23,6 +25,6 @@ export async function createCollection() {
 </div>
 
 <nav>
-  {collection.url.prev && <a id="prev-page" href={collection.url.prev}>Previous page</a>}
-  {collection.url.next && <a id="next-page" href={collection.url.next}>Next page</a>}
+  {posts.url.prev && <a id="prev-page" href={posts.url.prev}>Previous page</a>}
+  {posts.url.next && <a id="next-page" href={posts.url.next}>Next page</a>}
 </nav>

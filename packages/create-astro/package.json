@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "0.3.4",
+  "version": "0.5.1-next.0",
   "type": "module",
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "create-astro.js"
   ],
   "dependencies": {
+    "node-fetch": "^2.6.1",
     "@types/degit": "^2.8.2",
     "@types/prompts": "^2.0.12",
     "degit": "^2.8.4",

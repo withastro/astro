@@ -13,9 +13,10 @@ let publishDate = 'Tuesday, June 8 2021';
 let author = 'fred';
 let heroImage = '/social.jpg';
 let permalink = 'https://astro.build/blog/introducing-astro';
+let lang = 'en';
 ---
 
-<html>
+<html lang={ lang ?? 'en' }>
   <head>
     <BaseHead title={title} description={description} permalink={permalink} />
     <link rel="stylesheet" href="/blog.css" />

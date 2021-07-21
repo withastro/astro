@@ -6,10 +6,11 @@ import { PreactCounter } from '../components/PreactCounter.tsx';
 import VueCounter from '../components/VueCounter.vue';
 import SvelteCounter from '../components/SvelteCounter.svelte';
 
+
 // Full Astro Component Syntax:
-// https://github.com/snowpackjs/astro/blob/main/docs/core-concepts/astro-components.md
+// https://docs.astro.build/core-concepts/astro-components/
 ---
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -35,22 +36,22 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
   <body>
       <main>
 
-        <react.Counter:visible>
+        <react.Counter client:visible>
             <h1>Hello React!</h1>
             <p>What's up?</p>
-        </react.Counter:visible>
+        </react.Counter>
 
-        <PreactCounter:visible>
+        <PreactCounter client:visible>
           <h1>Hello Preact!</h1>
-        </PreactCounter:visible>
+        </PreactCounter>
 
-        <VueCounter:visible>
+        <VueCounter client:visible>
             <h1>Hello Vue!</h1>
-        </VueCounter:visible>
+        </VueCounter>
 
-        <SvelteCounter:visible>
+        <SvelteCounter client:visible>
             <h1>Hello Svelte!</h1>
-        </SvelteCounter:visible>
+        </SvelteCounter>
 
         <A />
         

@@ -1,6 +1,6 @@
 import type { BuildOutput } from '../@types/astro';
 
-import { canonicalURL } from './util';
+import { canonicalURL } from './util.js';
 
 /** Construct sitemap.xml given a set of URLs */
 export function generateSitemap(buildState: BuildOutput, site: string): string {

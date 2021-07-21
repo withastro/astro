@@ -16,7 +16,7 @@ export default function createCollectHeaders() {
     let text = '';
 
     visit(node, 'text', (child) => {
-      text += child.value;
+      text += (child as any).value;
     });
 
     let slug = node.properties.id || slugger.slug(text);

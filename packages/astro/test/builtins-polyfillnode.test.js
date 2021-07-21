@@ -9,7 +9,7 @@ setup(Builtins, './fixtures/builtins-polyfillnode');
 
 Builtins('Doesnt alias to node: prefix', async ({ runtime }) => {
   const result = await runtime.load('/');
-  if (result.error) throw new Error(result.error);
+  assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
 

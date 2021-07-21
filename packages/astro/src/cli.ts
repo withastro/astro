@@ -1,4 +1,3 @@
-import 'source-map-support/register.js';
 /* eslint-disable no-console */
 import type { AstroConfig } from './@types/astro';
 
@@ -28,6 +27,7 @@ interface CLIState {
   options: {
     projectRoot?: string;
     sitemap?: boolean;
+    hostname?: string;
     port?: number;
     config?: string;
     reload?: boolean;
@@ -78,6 +78,7 @@ function printHelp() {
   --no-sitemap          Disable sitemap generation (build only).
   --reload              Clean the cache, reinstalling dependencies.
   --verbose             Enable verbose logging
+  --silent              Disable logging
   --version             Show the version number and exit.
   --help                Show this help message.
 `);
@@ -93,6 +94,7 @@ async function printVersion() {
 function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
   if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
   if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
+  if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
 }
 
 /** Handle `astro run` command */

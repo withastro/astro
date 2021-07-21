@@ -1,6 +1,6 @@
 export default {
   buildOptions: {
     sitemap: true,
-    site: 'https://astro.build/'
+    site: 'https://astro.build/',
   },
-}
+};
