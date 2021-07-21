@@ -81,3 +81,15 @@ To support importing by file within your package, add each file to your **packag
   }
 }
 ```
+
+## Community components
+
+Looking for components already made by the community?
+
+Here are the current available community developed Astro components.
+
+- [Astro Static Tweet](https://www.npmjs.com/package/@rebelchris/astro-static-tweet) ~ A component to embed tweets as static HTML so you don't have to load the Twitter JavaScripts.
+
+Did you make a component?
+
+[Create a PR to submit your component in these docs](https://github.com/snowpackjs/astro/issues/new/choose)
