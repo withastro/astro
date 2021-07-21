@@ -11,7 +11,7 @@
 .token.plain-text,
 [class*='language-bash'] span.token,
 [class*='language-shell'] span.token {
-  color: hsla(var(--color-gray-80), 1);
+  color: hsla(var(--color-gray-90), 1);
 }
 
 [class*='language-bash'] span.token,
@@ -23,7 +23,7 @@
 .token.comment,
 [class*='language-bash'] span.token.comment,
 [class*='language-shell'] span.token.comment {
-  color: hsla(var(--color-gray-60), 1);
+  color: hsla(var(--color-gray-70), 1);
 }
 
 .token.selector,

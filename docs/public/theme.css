@@ -11,6 +11,7 @@
   --color-base-black: 240, 100%;
   --color-base-dark-bg: 215, 28%;
   --color-base-dark-navbar-bg: 221, 39%;
+  --color-base-light-navbar-bg: 217, 19%;
   --color-base-gray: 215, 14%;
   --color-base-blue: 212, 100%;
   --color-base-blue-dark: 212, 72%;
@@ -22,6 +23,7 @@
 
   --color-dark-bg: var(--color-base-dark-bg), 17%;
   --color-dark-navbar-bg: var(--color-base-dark-navbar-bg), 11%;
+  --color-light-navbar-bg: var(--color-base-light-navbar-bg), 27%;
 
   --color-gray-5: var(--color-base-gray), 5%;
   --color-gray-10: var(--color-base-gray), 10%;
@@ -49,7 +51,7 @@
   --theme-accent: hsla(var(--color-orange), 1);
   --theme-text-accent: hsla(var(--color-orange), 1);
   --theme-accent-opacity: 0.1;
-  --theme-divider: hsla(var(--color-gray-90), 1);
+  --theme-divider: hsla(var(--color-gray-95), 1);
   --theme-text: hsla(var(--color-gray-10), 1);
   --theme-text-light: hsla(var(--color-gray-40), 1);
   /* @@@: not used anywhere */
@@ -58,11 +60,11 @@
   --theme-bg-hover: hsla(var(--color-gray-95), 1);
   --theme-bg-offset: hsla(var(--color-gray-90), 1);
   --theme-bg-accent: hsla(var(--color-orange), var(--theme-accent-opacity));
-  --theme-code-inline-bg: hsla(var(--color-gray-90), 1);
+  --theme-code-inline-bg: hsla(var(--color-gray-95), 1);
   --theme-code-inline-text: var(--theme-text);
-  --theme-code-bg: hsla(var(--color-gray-30), 1);
-  --theme-code-text: hsla(var(--color-gray-90), 1);
-  --theme-navbar-bg: hsla(var(--color-gray-30), 1);
+  --theme-code-bg: hsla(var(--color-light-navbar-bg), 1);
+  --theme-code-text: hsla(var(--color-gray-95), 1);
+  --theme-navbar-bg: hsla(var(--color-light-navbar-bg), 1);
   --theme-navbar-height: 3.5rem;
   --theme-sidebar-offset: var(--theme-navbar-height);
   --theme-selection-color: hsla(var(--color-orange), 1);
