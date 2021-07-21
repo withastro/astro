@@ -188,7 +188,7 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
     if (!metadata.hydrate) {
       // It's safe to remove <astro-fragment>, static content doesn't need the wrapper
       if (isDevelopmentMode) {
-        html = wrapWithDevelopmentElement(html, props);
+        html = wrapWithDevelopmentElement(html, metadata);
       }
 
       return html.replace(/\<\/?astro-fragment\>/g, '');
@@ -200,7 +200,7 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
     const astroRoot = `<astro-root uid="${astroId}">${html}</astro-root>`;
 
     if (isDevelopmentMode) {
-      const wrappedAstroRoot = wrapWithDevelopmentElement(astroRoot, props);
+      const wrappedAstroRoot = wrapWithDevelopmentElement(astroRoot, metadata);
       return [wrappedAstroRoot, script].join('\n');
     }
 
@@ -208,7 +208,7 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
   };
 }
 
-const wrapWithDevelopmentElement = (renderedHtml: string, currentComponentProps: any): string => {
+const wrapWithDevelopmentElement = (renderedHtml: string, currentComponentProps: AstroComponentMetadata): string => {
   // TODO: come up with a good way to toggle this for developers?
   // If this is a non-Astro component without hydration (:idle, :load etc), add visual queue
   return `<div data-astro-hydration="${currentComponentProps.hydrate}" data-astro-component-name="${currentComponentProps.displayName}">${renderedHtml}</div>`;

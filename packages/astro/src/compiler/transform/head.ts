@@ -1,7 +1,7 @@
 import type { Transformer, TransformOptions } from '../../@types/transformer';
 import type { TemplateNode } from '@astrojs/parser';
 import { EndOfHead } from './util/end-of-head.js';
-import { hydrationOverlayStyles } from '../../frontend/dev-tools';
+import { hydrationOverlayStyles } from '../../frontend/dev-tools.js';
 
 /** If there are hydrated components, inject styles for [data-astro-root] and [data-astro-children] */
 export default function (opts: TransformOptions): Transformer {

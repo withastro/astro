@@ -52,7 +52,7 @@ export const hydrationOverlayStyles = `
               div[data-astro-hydration=undefined].astro-notify::after { 
                 background: #374151;
                 padding: 0.5rem;
-                content: "Static component. Use <"attr(data-astro-component-name)" client:load /> to hydrate.";
+                content: "Static component. Use <"attr(data-astro-component-name)" client:load /> or another client:* directive to hydrate.";
                 left: 50%;
                 top: 50%;
                 transform: translate(-50%, -50%);
@@ -68,12 +68,13 @@ export const hydrationOverlayStyles = `
 
               div[data-astro-hydration].astro-inspector::before {
                 transform: translateY(-100%);
-                content: "<"attr(data-astro-component-name)" />"; 
+                content: "<"attr(data-astro-component-name)" "attr(data-astro-hydration-mode)" />"; 
                 position: absolute;
                 background: var(--dev-tool-hydration-enabled);
                 color: white;
                 padding: 4px;
                 border-radius: 4px 4px 0 0;
+                font-weight: 600;
               }
 
               div[data-astro-hydration=undefined].astro-inspector::before { 
@@ -124,6 +125,10 @@ function addDevTools() {
 
   const allNonAstroComponents = document.querySelectorAll('div[data-astro-hydration]');
   allNonAstroComponents.forEach((componentElement) => {
+    const componentEl = componentElement as HTMLElement;
+
+    componentEl.dataset.astroHydrationMode = componentEl.dataset.astroHydration === 'undefined' ? '' : `client:${componentEl.dataset.astroHydration}`;
+
     componentElement.classList.add('astro-notify');
   });
 
