@@ -66,106 +66,112 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 
 ## Collections API
 
-### `collection` prop
+A collection is any file in the `src/pages` directory that starts with a dollar sign (`$`) and includes an exported `createCollection` function in the component script.
 
-```jsx
-const { collection } = Astro.props;
-```
-
-When using the [Collections API](/core-concepts/collections), `collection` is a prop exposed to the page with the following shape:
-
-| Name                      |         Type          | Description                                                                                                                       |
-| :------------------------ | :-------------------: | :-------------------------------------------------------------------------------------------------------------------------------- |
-| `collection.data`         |        `Array`        | Array of data returned from `data()` for the current page.                                                                        |
-| `collection.start`        |       `number`        | Index of first item on current page, starting at `0` (e.g. if `pageSize: 25`, this would be `0` on page 1, `25` on page 2, etc.). |
-| `collection.end`          |       `number`        | Index of last item on current page.                                                                                               |
-| `collection.total`        |       `number`        | The total number of items across all pages.                                                                                       |
-| `collection.page.current` |       `number`        | The current page number, starting with `1`.                                                                                       |
-| `collection.page.size`    |       `number`        | How many items per-page.                                                                                                          |
-| `collection.page.last`    |       `number`        | The total number of pages.                                                                                                        |
-| `collection.url.current`  |       `string`        | Get the URL of the current page (useful for canonical URLs)                                                                       |
-| `collection.url.prev`     | `string \| undefined` | Get the URL of the previous page (will be `undefined` if on page 1).                                                              |
-| `collection.url.next`     | `string \| undefined` | Get the URL of the next page (will be `undefined` if no more pages).                                                              |
-| `collection.params`       |       `object`        | If page params were used, this returns a `{ key: value }` object of all values.                                                   |
-
+Check out our [Astro Collections](/core-concepts/collections) guide for more information and examples.
 ### `createCollection()`
 
 ```jsx
+---
 export async function createCollection() {
-  return {
-    async data({ params }) {
-      // load data
-    },
-    pageSize: 25,
-    routes: [{ tag: 'movie' }, { tag: 'television' }],
-    permalink: ({ params }) => `/tag/${params.tag}`,
+  return { /* ... */ };
+}
+---
+<!-- Your HTML template here. -->
+```
+
+⚠️ The `createCollection()` function executes in its own isolated scope before page loads. Therefore you can’t reference anything from its parent scope, other than file imports. The compiler will warn if you break this requirement.
+
+The `createCollection()` function should returns an object of the following shape:
+
+| Name       |                   Type                   | Description                                                                                                                                                                                                                             |
+| :--------- | :--------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `route`    |                 `string`                 | **Required.** A route pattern for matching URL requests. This is used to generate the page URL in your final build. It must begin with the file name: for example, `pages/$tags.astro` must return a `route` that starts with `/tags/`. |
+| `paths`    |           `{params: Params}[]`           | Return an array of all URL to be generated.                                                                                                                                                                                             |
+| `props`    | `async ({ params, paginate }) => object` | **Required.** Load data for the page that will get passed to the page component as props.                                                                                                                                               |
+| `paginate` |                `boolean`                 | Optional: Enable automatic pagination. See next section.                                                                                                                                                                                                  |
+| `rss`      | [RSS](/reference/api-reference#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/reference/api-reference#rss-feed))                                                                                                                                     |
+
+### Pagination
+
+Enable pagination for a collection by returning `paginate: true` from `createCollection()`. This passes a `paginate()` argument to `props()` that you can use to return paginated data in your HTML template via props.
+
+The `paginate()` function that you use inside of `props()` has the following interface:
+
+```ts
+/* the "paginate()" passed to props({paginate}) */
+type PaginateFunction = (data: any[], args?: { 
+  /* pageSize: set the number of items to be shown on every page. Defaults to 10. */
+  pageSize?: number 
+}) => PaginatedCollectionResult;
+
+/* the paginated return value, aka the prop passed to every page in the collection. */
+interface PaginatedCollectionResult {
+  /** result */
+  data: any[];
+
+  /** metadata */
+  /** the count of the first item on the page, starting from 0 */
+  start: number;
+  /** the count of the last item on the page, starting from 0 */
+  end: number;
+  /** total number of results */
+  total: number;
+  page: {
+    /** the current page number, starting from 1 */
+    current: number;
+    /** number of items per page (default: 25) */
+    size: number;
+    /** number of last page */
+    last: number;
+  };
+  url: {
+    /** url of the current page */
+    current: string;
+    /** url of the previous page (if there is one) */
+    prev: string | undefined;
+    /** url of the next page (if there is one) */
+    next: string | undefined;
   };
 }
 ```
 
-When using the [Collections API](/core-concepts/collections), `createCollection()` is an async function that returns an object of the following shape:
+📚 Learn more about pagination (and see an example) in our [Astro Collections guide.](/core-concepts/collections).
 
-| Name        |                   Type                   | Description                                                                                                |
-| :---------- | :--------------------------------------: | :--------------------------------------------------------------------------------------------------------- |
-| `data`      |      `async ({ params }) => any[]`       | **Required.** Load an array of data with this function to be returned.                                     |
-| `pageSize`  |                 `number`                 | Specify number of items per page (default: `25`).                                                          |
-| `routes`    |                `params[]`                | **Required for URL Params.** Return an array of all possible URL `param` values in `{ name: value }` form. |
-| `permalink` |         `({ params }) => string`         | **Required for URL Params.** Given a `param` object of `{ name: value }`, generate the final URL.\*        |
-| `rss`       | [RSS](/reference/api-reference#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/reference/api-reference#rss-feed))        |
+### RSS
 
-_\* Note: don’t create confusing URLs with `permalink`, e.g. rearranging params conditionally based on their values._
+Create an RSS 2.0 feed for a collection by returning `paginate: true` & an `rss` object from `createCollection()`. The `rss` object will be used to generate the contents of the RSS XML file.
 
-⚠️ `createCollection()` executes in its own isolated scope before page loads. Therefore you can’t reference anything from its parent scope. If you need to load data you may fetch or use async `import()`s within the function body for anything you need (that’s why it’s `async`—to give you this ability). If it wasn’t isolated, then `collection` would be undefined! Therefore, duplicating imports between `createCollection()` and your Astro component is OK.
+The `rss` object follows the `CollectionRSS`data type:
 
-#### RSS Feed
-
-You can optionally generate an RSS 2.0 feed from `createCollection()` by adding an `rss` option. Here are all the options:
-
-```jsx
-export async function createCollection() {
-  return {
-    async data({ params }) {
-      // load data
-    },
-    pageSize: 25,
-    rss: {
-      title: 'My RSS Feed',
-      description: 'Description of the feed',
-      /** (optional) add xmlns:* properties to root element */
-      xmlns: {
-        itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd',
-        content: 'http://purl.org/rss/1.0/modules/content/',
-      },
-      /** (optional) add arbitrary XML to <channel> */
-      customData: `<language>en-us</language>
-<itunes:author>The Sunset Explorers</itunes:author>`,
-      /** Format each item from things returned in data() */
-      item: (item) => ({
-        title: item.title,
-        description: item.description,
-        pubDate: item.pubDate + 'Z', // enforce GMT timezone (otherwise it’ll be different based on where it’s built)
-        /** (optional) add arbitrary XML to each <item> */
-        customData: `<itunes:episodeType>${item.type}</itunes:episodeType>
-<itunes:duration>${item.duration}</itunes:duration>
-<itunes:explicit>${item.explicit || false}</itunes:explicit>`,
-      }),
-    },
+```ts
+export interface CollectionRSS<T = any> {
+  /** (required) Title of the RSS Feed */
+  title: string;
+  /** (required) Description of the RSS Feed */
+  description: string;
+  /** Specify arbitrary metadata on opening <xml> tag */
+  xmlns?: Record<string, string>;
+  /** Specify custom data in opening of file */
+  customData?: string;
+  /** Return data about each item */
+  item: (item: T) => {
+    /** (required) Title of item */
+    title: string;
+    /** (required) Link to item */
+    link: string;
+    /** Publication date of item */
+    pubDate?: Date;
+    /** Item description */
+    description?: string;
+    /** Append some other XML-valid data to this item */
+    customData?: string;
   };
 }
 ```
 
-Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/src/pages/$podcast.xml` would generate `/feed/podcast.xml`).
+📚 Learn more about RSS feed generation (and see an example) in our [Astro Collections guide.](/core-concepts/collections).
 
-⚠️ Even though Astro will create the RSS feed for you, you’ll still need to add `<link>` tags manually in your `<head>` HTML:
-
-```html
-<link
-  rel="alternate"
-  type="application/rss+xml"
-  title="My RSS Feed"
-  href="/feed/podcast.xml"
-/>
-```
 
 ## `import.meta`
 

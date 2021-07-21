@@ -1,30 +1,28 @@
 ---
-const { collection } = Astro.props;
 
-export async function createCollection() {
+export function createCollection() {
   const allPosts = Astro.fetchContent('./post/**/*.md');
   const allAuthors = allPosts.map(p => p.author);
   const uniqueAuthors = [...new Set(allAuthors)];
-
   return {
-    routes: uniqueAuthors.map(author => {
-        const params = { name: author };
-        return params;
-    }),
-
-    permalink: ({ params }) => `/grouped/${params.name}`,
-
-    async data({ params }) {
-        return allPosts.filter(p => p.author === params.name)
+    route: `/grouped/:name`,
+    paths() {
+      return uniqueAuthors.map(name => ({ params: {name} }));
     },
-
-    pageSize: Infinity
+    async props({ params }) {
+      return {
+        name: params.name,
+        posts: allPosts.filter(p => p.author === params.name)
+      };
+    },
   };
 }
+
+const { posts, name } = Astro.props;
 ---
 
-<div id={collection.params.name}>
-  {collection.data.map((post) => (
+<div id={name}>
+  {posts.map((post) => (
     <a href={post.url}>{post.title}</a>
    ))}
 </div>

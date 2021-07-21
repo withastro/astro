@@ -134,6 +134,8 @@ const __astro_element_registry = new AstroElementRegistry({
     : ''
 }
 
+${result.createCollection || ''}
+
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroInternal = Symbol('astro.internal');
@@ -150,8 +152,6 @@ async function __render(props, ...children) {
   return h(Fragment, null, ${result.html});
 }
 export default { isAstroComponent: true, __render };
-
-${result.createCollection || ''}
 
 // \`__renderPage()\`: Render the contents of the Astro module as a page. This is a special flow,
 // triggered by loading a component directly by URL.

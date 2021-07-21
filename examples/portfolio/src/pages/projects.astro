@@ -4,16 +4,9 @@ import Footer from '../components/Footer/index.jsx';
 import Nav from '../components/Nav/index.jsx';
 import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
 
-let { collection } = Astro.props;
-export async function createCollection() {
-  return {
-    async data() {
-      const projects = Astro.fetchContent('./project/*.md');
-      projects.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
-      return projects.filter(({ published_at }) => !!published_at);
-    }
-  }
-}
+const projects = Astro.fetchContent('./project/*.md')
+  .filter(({ published_at }) => !!published_at)
+  .sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
 ---
 
 <html lang="en">
@@ -31,7 +24,7 @@ export async function createCollection() {
     <div class="wrapper">
       <h1 class="title mt4 mb4">All Projects</h1>
       <div class="grid">
-        {collection.data.map((project) => (
+        {projects.map((project) => (
           <PortfolioPreview project={project} />
         ))}
       </div>

@@ -21,7 +21,6 @@ Global('Astro.request.canonicalURL', async (context) => {
     '/': 'https://mysite.dev/',
     '/post/post': 'https://mysite.dev/post/post/',
     '/posts': 'https://mysite.dev/posts/',
-    '/posts/1': 'https://mysite.dev/posts/', // should be the same as /posts
     '/posts/2': 'https://mysite.dev/posts/2/',
   };
 

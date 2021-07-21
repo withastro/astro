@@ -1,12 +1,13 @@
 ---
-const { collection } = Astro.props;
 
-export async function createCollection() {
+export function createCollection() {
+  const episodes = Astro.fetchContent('./episode/*.md')
+    .sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
   return {
-    async data() {
-      const episodes = Astro.fetchContent('./episode/*.md');
-      episodes.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
-      return episodes;
+    paginate: true,
+    route: '/episodes/:page?',
+    async props({paginate}) {
+      return {episodes: paginate(episodes)};
     },
     rss: {
       title: 'MF Doomcast',
@@ -29,6 +30,8 @@ export async function createCollection() {
     }
   }
 }
+
+const { episodes } = Astro.props;
 ---
 
 <html>
@@ -36,5 +39,7 @@ export async function createCollection() {
     <title>Podcast Episodes</title>
     <link rel="alternate" type="application/rss+2.0" href="/feed/episodes.xml" />
   </head>
-  <body></body>
+  <body>
+    {episodes.data.map((ep) => (<li>{ep.title}</li>))}
+  </body>
 </html>

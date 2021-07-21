@@ -7,31 +7,6 @@ const Collections = suite('Collections');
 
 setup(Collections, './fixtures/astro-collection');
 
-Collections('shallow selector (*.md)', async ({ runtime }) => {
-  const result = await runtime.load('/shallow');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-  const urls = [
-    ...$('#posts a').map(function () {
-      return $(this).attr('href');
-    }),
-  ];
-  // assert they loaded in newest -> oldest order (not alphabetical)
-  assert.equal(urls, ['/post/three', '/post/two', '/post/one']);
-});
-
-Collections('deep selector (**/*.md)', async ({ runtime }) => {
-  const result = await runtime.load('/nested');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-  const urls = [
-    ...$('#posts a').map(function () {
-      return $(this).attr('href');
-    }),
-  ];
-  assert.equal(urls, ['/post/nested/a', '/post/three', '/post/two', '/post/one']);
-});
-
 Collections('generates pagination successfully', async ({ runtime }) => {
   const result = await runtime.load('/paginated');
   assert.ok(!result.error, `build error: ${result.error}`);
@@ -43,18 +18,16 @@ Collections('generates pagination successfully', async ({ runtime }) => {
 });
 
 Collections('can load remote data', async ({ runtime }) => {
-  const result = await runtime.load('/remote');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-
   const PACKAGES_TO_TEST = ['canvas-confetti', 'preact', 'svelte'];
-
-  for (const pkg of PACKAGES_TO_TEST) {
-    assert.ok($(`#pkg-${pkg}`).length);
+  for (const packageName of PACKAGES_TO_TEST) {
+    const result = await runtime.load(`/remote/${packageName}`);
+    assert.ok(!result.error, `build error: ${result.error}`);
+    const $ = doc(result.contents);
+    assert.ok($(`#pkg-${packageName}`).length);
   }
 });
 
-Collections('generates pages grouped by author', async ({ runtime }) => {
+Collections('generates pages based on params successfully', async ({ runtime }) => {
   const AUTHORS_TO_TEST = [
     {
       id: 'author-one',
@@ -83,44 +56,19 @@ Collections('generates pages grouped by author', async ({ runtime }) => {
   }
 });
 
-Collections('generates individual pages from a collection', async ({ runtime }) => {
-  const PAGES_TO_TEST = [
-    {
-      slug: 'one',
-      title: 'Post One',
-    },
-    {
-      slug: 'two',
-      title: 'Post Two',
-    },
-    {
-      slug: 'three',
-      title: 'Post Three',
-    },
-  ];
+Collections('paginates pages based on params successfully', async ({ runtime }) => {
+  const TAGS_TO_TEST = ['tag1', 'tag2', 'tag3'];
+  for (const tagName of TAGS_TO_TEST) {
+    // Test that first page is generated:
+    const resultFirstPage = await runtime.load(`/params-and-paginated/${tagName}`);
+    if (resultFirstPage.error) throw new Error(resultFirstPage.error);
+    assert.ok(doc(resultFirstPage.contents)(`#${tagName}`).length);
 
-  for (const { slug, title } of PAGES_TO_TEST) {
-    const result = await runtime.load(`/individual/${slug}`);
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-
-    assert.ok($(`#${slug}`).length);
-    assert.equal($(`h1`).text(), title);
+    // Test that second page is generated:
+    const resultSecondPage = await runtime.load(`/params-and-paginated/${tagName}/2`);
+    if (resultSecondPage.error) throw new Error(resultSecondPage.error);
+    assert.ok(doc(resultSecondPage.contents)(`#${tagName}`).length);
   }
-});
-
-Collections('matches collection filename exactly', async ({ runtime }) => {
-  const result = await runtime.load('/individuals');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-
-  assert.ok($('#posts').length);
-  const urls = [
-    ...$('#posts a').map(function () {
-      return $(this).attr('href');
-    }),
-  ];
-  assert.equal(urls, ['/post/nested/a', '/post/three', '/post/two', '/post/one']);
 });
 
 Collections.run();

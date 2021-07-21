@@ -75,7 +75,7 @@ export interface CompileResult {
 
 export type RuntimeMode = 'development' | 'production';
 
-export type Params = Record<string, string | number>;
+export type Params = Record<string, string>;
 
 /** Entire output of `astro build`, stored in memory */
 export interface BuildOutput {
@@ -107,15 +107,14 @@ export interface PageDependencies {
   images: Set<string>;
 }
 
-export interface CreateCollection<T = any> {
-  data: ({ params }: { params: Params }) => T[];
-  routes?: Params[];
-  /** tool for generating current page URL */
-  permalink?: ({ params }: { params: Params }) => string;
-  /** page size */
-  pageSize?: number;
-  /** Generate RSS feed from data() */
-  rss?: CollectionRSS<T>;
+export type PaginateFunction<T = any> = (data: T[], args?: { pageSize?: number }) => PaginatedCollectionResult<T>;
+
+export interface CreateCollectionResult {
+  paginate?: boolean;
+  route: string;
+  paths?: () => { params: Params }[];
+  props: (args: { params: Params; paginate?: PaginateFunction }) => object | Promise<object>;
+  rss?: CollectionRSS;
 }
 
 export interface CollectionRSS<T = any> {
@@ -142,7 +141,7 @@ export interface CollectionRSS<T = any> {
   };
 }
 
-export interface CollectionResult<T = any> {
+export interface PaginatedCollectionResult<T = any> {
   /** result */
   data: T[];
 
@@ -165,12 +164,10 @@ export interface CollectionResult<T = any> {
     /** url of the current page */
     current: string;
     /** url of the previous page (if there is one) */
-    prev?: string;
+    prev: string | undefined;
     /** url of the next page (if there is one) */
-    next?: string;
+    next: string | undefined;
   };
-  /** Matched parameters, if any */
-  params: Params;
 }
 
 export interface ComponentInfo {
