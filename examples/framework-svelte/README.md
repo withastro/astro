@@ -1,7 +1,7 @@
 # Using Svelte with Astro
 
 ```
-npm init astro --template framework-svelte
+npm init astro -- --template framework-svelte
 ```
 
 This example showcases Astro's built-in support for [Svelte](https://svelte.dev/).

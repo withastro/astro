@@ -1,7 +1,7 @@
 # Astro Starter Kit: Docs Site
 
 ```
-npm init astro --template docs
+npm init astro -- --template docs
 ```
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
