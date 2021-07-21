@@ -1,5 +1,15 @@
 # astro
 
+## 0.18.0-next.3
+
+### Patch Changes
+
+- 4a601ad: Restores the ability to use Fragment in astro components
+- Updated dependencies [bd18e14]
+- Updated dependencies [bd18e14]
+  - @astrojs/renderer-preact@0.2.0-next.0
+  - @astrojs/renderer-react@0.2.0-next.0
+
 ## 0.18.0-next.2
 
 ### Minor Changes
