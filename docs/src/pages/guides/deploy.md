@@ -30,7 +30,7 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 
 ## GitHub Pages
 
-1. Set the correct `buildOptions.site` in `astro.config.js`.
+1. Set the correct `buildOptions.site` in `astro.config.mjs`.
 2. Run `touch public/.nojekyll` to create a `.nojekyll` file in `public/`. This [bypasses GitHub Page's default behavior](https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/) to ignore paths prefixed with `_`.
 3. Inside your project, create `deploy.sh` with the following content (uncommenting the appropriate lines), and run it to deploy:
 
@@ -70,7 +70,7 @@ TODO: We'd love an example action snippet to share here!
 
 ### Travis CI
 
-1. Set the correct `buildOptions.site` in `astro.config.js`.
+1. Set the correct `buildOptions.site` in `astro.config.mjs`.
 2. Create a file named `.travis.yml` in the root of your project.
 3. Run `npm install` locally and commit the generated lockfile (`package-lock.json`).
 4. Use the GitHub Pages deploy provider template, and follow the [Travis CI documentation](https://docs.travis-ci.com/user/deployment/pages/).
@@ -97,8 +97,8 @@ TODO: We'd love an example action snippet to share here!
 
 ## GitLab Pages
 
-1. Set the correct `buildOptions.site` in `astro.config.js`.
-2. Set `build.outDir` in `astro.config.js` to `public`.
+1. Set the correct `buildOptions.site` in `astro.config.mjs`.
+2. Set `build.outDir` in `astro.config.mjs` to `public`.
 3. Create a file called `.gitlab-ci.yml` in the root of your project with the content below. This will build and deploy your site whenever you make changes to your content:
 
    ```yaml

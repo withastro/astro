@@ -1,7 +1,7 @@
 # Using Vue with Astro
 
 ```
-npm init astro --template framework-vue
+npm init astro -- --template framework-vue
 ```
 
 This example showcases Astro's built-in support for [Vue (`v3.x`)](https://v3.vuejs.org/).

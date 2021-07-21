@@ -18,7 +18,7 @@ Also, Astro supports third-party plugins for Markdown. You can provide your plug
 If you want to add a plugin, you need to install the npm package dependency in your project and then update the `markdownOptions.remarkPlugins` or `markdownOptions.rehypePlugins` depends on what plugin you want to have:
 
 ```js
-// astro.config.js
+// astro.config.mjs
 export default {
   markdownOptions: {
     remarkPlugins: [
@@ -40,7 +40,7 @@ export default {
 You can provide names of the plugins as well as import them:
 
 ```js
-// astro.config.js
+// astro.config.mjs
 export default {
   markdownOptions: {
     remarkPlugins: [

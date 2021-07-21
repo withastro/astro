@@ -1,7 +1,7 @@
 # Using Preact with Astro
 
 ```
-npm init astro --template framework-preact
+npm init astro -- --template framework-preact
 ```
 
 This example showcases Astro's built-in support for [Preact](https://preactjs.com/).

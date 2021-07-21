@@ -59,7 +59,6 @@ export default async function build(...args) {
     },
     entryPoints,
     outdir,
-    external,
     format,
     plugins: [svelte({ isDev })],
   });

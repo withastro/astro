@@ -1,7 +1,7 @@
 # Astro Starter Kit: Portfolio
 
 ```
-npm init astro --template portfolio
+npm init astro -- --template portfolio
 ```
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!

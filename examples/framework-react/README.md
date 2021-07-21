@@ -1,7 +1,7 @@
 # Using React with Astro
 
 ```
-npm init astro --template framework-react
+npm init astro -- --template framework-react
 ```
 
 This example showcases Astro's built-in support for [React](https://reactjs.org/).
