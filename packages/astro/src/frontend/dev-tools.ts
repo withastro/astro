@@ -6,7 +6,7 @@ export const hydrationOverlayStyles = `
               }
 
               .astro-devtools-badge {
-                position: absolute;
+                position: fixed;
                 bottom: 2rem;
                 left: 2rem;
                 padding: 0.5rem;
