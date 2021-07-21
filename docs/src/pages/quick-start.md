@@ -17,7 +17,7 @@ npm init astro
 npm install
 
 # start developing!
-npm run start
+npm start
 
 # when you're ready: build your static site to `dist/`
 npm run build

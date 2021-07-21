@@ -80,7 +80,7 @@ Add the Snowpack development server to `package.json` under as the `start` scrip
 Run the following on the command line to start the Snowpack development server
 
 ```
-npm run start
+npm start
 ```
 
 If all went well, Snowpack automatically opens your site in a new browser!
