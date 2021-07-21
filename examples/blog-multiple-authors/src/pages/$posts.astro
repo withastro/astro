@@ -23,17 +23,6 @@ export function createCollection() {
         posts: paginate(sortedPosts, {pageSize: 2}),
       }
     },
-    rss: {
-      title: 'Don’s Blog',
-      description: 'An example blog on Astro',
-      customData: `<language>en-us</language>`,
-      item: (item) => ({
-        title: item.title,
-        description: item.description,
-        link: item.url,
-        pubDate: item.date,
-      }),
-    }
   };
 }
 

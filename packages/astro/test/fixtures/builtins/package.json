@@ -1,6 +1,7 @@
 {
   "name": "@astrojs/astro-test-builtins",
   "version": "1.2.0",
+  "private": true,
   "dependencies": {
     "@astrojs/astro-test-builtins-dep": "file:./packages/dep"
   }

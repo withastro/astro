@@ -12,11 +12,12 @@
   "author": "Astro",
   "license": "MIT",
   "publisher": "astro-build",
+  "private": true,
   "scripts": {
     "vscode:prepublish": "yarn build",
     "vscode:publish": "node ./scripts/publish.mjs",
-    "build": "astro-scripts build 'src/index.ts'",
-    "dev": "astro-scripts dev 'src/index.ts'"
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "engines": {
     "vscode": "^1.52.0"
