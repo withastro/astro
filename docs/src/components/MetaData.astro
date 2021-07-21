@@ -1,6 +1,10 @@
 ---
-import { site } from '../config.ts';
-const { content = {}, canonicalURL } = Astro.props;
+export interface Props {
+  content: any,
+  site: any,
+  canonicalURL: URL | string,
+};
+const { content = {}, site, canonicalURL } = Astro.props;
 const formattedContentTitle = content.title ? `${content.title} 🚀 ${site.title}` : site.title;
 const imageSrc = content?.image?.src ?? site.image.src;
 const canonicalImageSrc = new URL(imageSrc, Astro.site);
