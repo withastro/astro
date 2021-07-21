@@ -1,11 +1,14 @@
 import type { Transformer, TransformOptions } from '../../@types/transformer';
 import type { TemplateNode } from '@astrojs/parser';
 import { EndOfHead } from './util/end-of-head.js';
+import { hydrationOverlayStyles } from '../../frontend/dev-tools';
 
 /** If there are hydrated components, inject styles for [data-astro-root] and [data-astro-children] */
 export default function (opts: TransformOptions): Transformer {
   let hasComponents = false;
   let isHmrEnabled = typeof opts.compileOptions.hmrPort !== 'undefined' && opts.compileOptions.mode === 'development';
+  let isDevelopment = opts.compileOptions.mode === 'development';
+
   const eoh = new EndOfHead();
 
   return {
@@ -142,6 +145,73 @@ export default function (opts: TransformOptions): Transformer {
               { type: 'Attribute', name: 'src', value: [{ type: 'Text', data: '/_snowpack/hmr-client.js', start: 0, end: 0 }], start: 0, end: 0 },
             ],
             children: [],
+            start: 0,
+            end: 0,
+          }
+        );
+      }
+
+      if (isDevelopment) {
+        children.push(
+          {
+            type: 'Element',
+            name: 'style',
+            attributes: [{ name: 'type', type: 'Attribute', value: [{ type: 'Text', raw: 'text/css', data: 'text/css' }] }],
+            start: 0,
+            end: 0,
+            children: [
+              {
+                start: 0,
+                end: 0,
+                type: 'Text',
+                data: hydrationOverlayStyles,
+                raw: hydrationOverlayStyles,
+              },
+            ],
+          },
+          {
+            type: 'Element',
+            name: 'script',
+            attributes: [
+              { name: 'defer', type: 'Attribute', value: [] },
+              { type: 'Attribute', name: 'type', value: [{ type: 'Text', data: 'module', start: 0, end: 0 }], start: 0, end: 0 },
+              {
+                type: 'Attribute',
+                name: 'src',
+                value: [
+                  {
+                    type: 'Text',
+                    data: '/_astro_frontend/dev-tools.js',
+                    start: 0,
+                    end: 0,
+                  },
+                ],
+                start: 0,
+                end: 0,
+              },
+            ],
+            children: [],
+            start: 0,
+            end: 0,
+          },
+          {
+            type: 'Element',
+            name: 'script',
+            attributes: [
+              { name: 'defer', type: 'Attribute', value: [] },
+              { type: 'Attribute', name: 'type', value: [{ type: 'Text', data: 'module', start: 0, end: 0 }], start: 0, end: 0 },
+            ],
+            children: [
+              {
+                type: 'Text',
+                data: `
+              import {initDevTools} from '/_astro_frontend/dev-tools.js';
+              initDevTools();
+            `,
+                start: 0,
+                end: 0,
+              },
+            ],
             start: 0,
             end: 0,
           }

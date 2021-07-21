@@ -4,6 +4,7 @@ import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import { generate } from 'astring';
 import * as astro from './renderer-astro';
 import * as astroHtml from './renderer-html';
+import { render } from 'sass';
 
 // A more robust version alternative to `JSON.stringify` that can handle most values
 // see https://github.com/remcohaszing/estree-util-value-to-estree#readme
@@ -139,6 +140,7 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
   }
 
   return async (props: any, ..._children: string[]) => {
+    const isDevelopmentMode = !Component.isAstroComponent && (process.env.ASTRO_MODE as RuntimeMode) === 'development';
     const children = _children.join('\n');
     let instance = await resolveRenderer(Component, props, children);
 
@@ -158,14 +160,6 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
     }
     let { html } = await instance.renderer.renderToStaticMarkup(Component, props, children, instance.options);
 
-    // TODO: come up with a good way to toggle this for developers?
-    // If this is a non-Astro component without hydration (:idle, :load etc), add visual queue
-    const isDevelopmentMode = (process.env.ASTRO_MODE as RuntimeMode) === 'development';
-    if (isDevelopmentMode && !Component.isAstroComponent) {
-      const hydrationIndicationColor = componentProps.hydrate ? 'limegreen' : 'gray';
-      html = `<div style="border: 1px dashed ${hydrationIndicationColor}; ">${html}</div>`;
-    }
-
     if (instance.polyfills.length) {
       let polyfillScripts = instance.polyfills.map((src) => `<script type="module" src="${src}"></script>`).join('');
       html = html + polyfillScripts;
@@ -174,6 +168,10 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
     // If we're NOT hydrating this component, just return the HTML
     if (!componentProps.hydrate) {
       // It's safe to remove <astro-fragment>, static content doesn't need the wrapper
+      if (isDevelopmentMode) {
+        html = wrapWithDevelopmentElement(html, componentProps);
+      }
+
       return html.replace(/\<\/?astro-fragment\>/g, '');
     }
 
@@ -181,6 +179,18 @@ export const __astro_component = (Component: any, componentProps: AstroComponent
     const astroId = hash.unique(html);
     const script = await generateHydrateScript({ instance, astroId, props }, componentProps as Required<AstroComponentProps>);
     const astroRoot = `<astro-root uid="${astroId}">${html}</astro-root>`;
+
+    if (isDevelopmentMode) {
+      const wrappedAstroRoot = wrapWithDevelopmentElement(astroRoot, componentProps);
+      return [wrappedAstroRoot, script].join('\n');
+    }
+
     return [astroRoot, script].join('\n');
   };
+};
+
+const wrapWithDevelopmentElement = (renderedHtml: string, currentComponentProps: AstroComponentProps): string => {
+  // TODO: come up with a good way to toggle this for developers?
+  // If this is a non-Astro component without hydration (:idle, :load etc), add visual queue
+  return `<div data-astro-hydration="${currentComponentProps.hydrate}" data-astro-component-name="${currentComponentProps.displayName}">${renderedHtml}</div>`;
 };
