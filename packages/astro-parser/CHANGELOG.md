@@ -1,5 +1,12 @@
 # @astrojs/parser
 
+## 1.0.0-next.2
+
+### Patch Changes
+
+- a7e6666: compile javascript to target Node v12.x
+- b85e68a: Fixes case where custom elements are not handled within JSX expressions
+
 ## 0.15.4
 
 ### Patch Changes
