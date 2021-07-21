@@ -3,8 +3,6 @@ import hash from 'shorthash';
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import { generate } from 'astring';
 import * as astroHtml from './renderer-html';
-import { render } from 'sass';
-import { AstroComponent } from './h';
 
 // A more robust version alternative to `JSON.stringify` that can handle most values
 // see https://github.com/remcohaszing/estree-util-value-to-estree#readme
