@@ -30,7 +30,7 @@ Docusaurus doesn't support partial hydration, and instead has the user load and 
 [docusaurus.io/docs](https://docusaurus.io/docs) is the official Docusaurus documentation website, built with Docusaurus. The website offers a similar enough design and featureset to compare against the official Astro documentation website. This gives us a **_rough, real-world_** comparison between the two site builders.
 
 - **Docusaurus performance score**: 26 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocusaurus.io%2Fdocs)
-- **Astro performance score**: 94 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
+- **Astro performance score**: 95 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
 One big reason behind this performance difference is Astro's smaller JavaScript payload: [docusaurus.io/docs](https://docusaurus.io/docs) loads **238kb** of JavaScript on first load while [docs.astro.build](https://docs.astro.build) only loads **9.3kb** (96% less JavaScript, overall).
 
@@ -109,7 +109,7 @@ SvelteKit doesn't support partial hydration, and instead has the user load and r
 One notable difference between the two sites being tested: SvelteKit's documentation is served as a single page while Astro's is broken up into multiple pages. This larger content payload should have a slight negative impact on performance that is not related to the tool itself.
 
 - **SvelteKit performance score**: 92 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fkit.svelte.dev%2Fdocs)
-- **Astro performance score**: 94 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
+- **Astro performance score**: 95 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
 SvelteKit performed comparably to Astro in this test.
 
@@ -136,7 +136,7 @@ Next.js has great built-in image optimizations, which could make Next.js a bette
 [nextjs.org/docs](https://nextjs.org/docs/getting-started) is the official Next.js documentation website, built with Next.js. The website offers a similar enough design and featureset to compare against the official Astro documentation website. This gives us a **_rough, real-world_** comparison between the two site builders for this common use-case.
 
 - **Next.js performance score**: 59 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fnextjs.org%2Fdocs%2Fgetting-started)
-- **Astro performance score**: 94 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
+- **Astro performance score**: 95 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
 One big reason behind this performance difference is Astro's smaller JavaScript payload: [nextjs.org/docs](https://nextjs.org/docs/getting-started) loads **463kb** of JavaScript on first load while [docs.astro.build](https://docs.astro.build) only loads **9.3kb** (98% less JavaScript, overall).
 
@@ -163,7 +163,7 @@ Nuxt has great built-in image optimizations, which could make Nuxt a better choi
 [nuxtjs.org/docs](https://nuxtjs.org/docs/2.x/get-started/installation) is the official Nuxt documentation website, built with Nuxt. The website offers a similar enough design and featureset to compare against the official Astro documentation website. This gives us a **_rough, real-world_** comparison between the two site builders for this common use-case.
 
 - **Nuxt performance score**: 48 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fnuxtjs.org%2Fdocs%2F2.x%2Fget-started%2Finstallation)
-- **Astro performance score**: 94 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
+- **Astro performance score**: 95 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
 One big reason behind this performance difference is Astro's smaller JavaScript payload: [nuxtjs.org/docs](https://nuxtjs.org/docs/2.x/get-started/installation) loads **469kb** of JavaScript on first load while [docs.astro.build](https://docs.astro.build) only loads **9.3kb** (98% less JavaScript, overall).
 
@@ -184,6 +184,6 @@ VuePress doesn't support partial hydration, and instead has the user load and re
 [vuepress.vuejs.org](https://vuepress.vuejs.org/guide/) is the official VuePress documentation website, built with VuePress. The website offers a similar enough design and featureset to compare against the official Astro documentation website. This gives us a **_rough, real-world_** comparison between the two site builders for this common use-case.
 
 - **Vuepress performance score**: 63 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fvuepress.vuejs.org%2Fguide%2F)
-- **Astro performance score**: 94 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
+- **Astro performance score**: 95 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
-One big reason behind this performance difference is Astro's smaller JavaScript payload: [vuepress.vuejs.org](https://vuepress.vuejs.org/guide/) loads **166kb** of JavaScript on first load while [docs.astro.build](https://docs.astro.build) only loads **9.3kb** (94% less JavaScript, overall).
+One big reason behind this performance difference is Astro's smaller JavaScript payload: [vuepress.vuejs.org](https://vuepress.vuejs.org/guide/) loads **166kb** of JavaScript on first load while [docs.astro.build](https://docs.astro.build) only loads **9.3kb** (95% less JavaScript, overall).
