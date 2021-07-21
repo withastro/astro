@@ -73,7 +73,7 @@ export const site = {
   description: 'Build faster websites with less client-side Javascript',
   ogLocale: 'en_US',
   image: {
-    src: 'https://docs.astro.build/default-og-image.png?v=1',
+    src: '/default-og-image.png?v=1',
     alt:
       'astro logo on a starry expanse of space,' +
       ' with a purple saturn-like planet floating in the right foreground',

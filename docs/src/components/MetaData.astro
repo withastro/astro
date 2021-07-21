@@ -3,6 +3,7 @@ import { site } from '../config.ts';
 const { content = {}, canonicalURL } = Astro.props;
 const formattedContentTitle = content.title ? `${content.title} 🚀 ${site.title}` : site.title;
 const imageSrc = content?.image?.src ?? site.image.src;
+const canonicalImageSrc = new URL(imageSrc, Astro.site);
 const imageAlt = content?.image?.alt ?? site.image.alt;
 ---
 
@@ -11,7 +12,7 @@ const imageAlt = content?.image?.alt ?? site.image.alt;
 <meta property="og:type" content="article"/>
 <meta property="og:url" content={canonicalURL}/>
 <meta property="og:locale" content={content.ogLocale ?? site.ogLocale}/>
-<meta property="og:image" content={imageSrc}/>
+<meta property="og:image" content={canonicalImageSrc}/>
 <meta property="og:image:alt" content={imageAlt}/>
 <meta property="og:description" content={content.description ? content.description : site.description}/>
 <meta property="og:site_name" content={site.title}/>
@@ -23,7 +24,7 @@ const imageAlt = content?.image?.alt ?? site.image.alt;
 <meta name="twitter:creator" content={site.twitter.creator}/>
 <meta name="twitter:title" content={formattedContentTitle}/>
 <meta name="twitter:description" content={content.description ? content.description : site.description}/>
-<meta name="twitter:image" content={imageSrc}/>
+<meta name="twitter:image" content={canonicalImageSrc}/>
 <meta name="twitter:image:alt" content={imageAlt}/>
 <!-- END Twitter Tags -->
 
