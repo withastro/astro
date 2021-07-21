@@ -4,6 +4,7 @@ import SiteSidebar from '../components/SiteSidebar.astro';
 import ThemeToggle from '../components/ThemeToggle.tsx';
 import DocSidebar from '../components/DocSidebar.tsx';
 import MenuToggle from '../components/MenuToggle.tsx';
+import MetaData from "../components/MetaData.astro";
 import { site } from "../config.ts";
 
 const { content = {}, centered = false } = Astro.props;
@@ -22,6 +23,7 @@ if (currentPage) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>{content.title ? `${content.title} 🚀 ${site.title}` : site.title}</title>
+    <MetaData {content} canonicalURL={Astro.request.canonicalURL}/>
 
     <!-- This is intentionally inlined to avoid FOUC -->
     <script>
@@ -45,7 +47,9 @@ if (currentPage) {
 
     <link rel="icon" 
           type="image/svg+xml" 
-          href="/favicon.svg">
+          href="/favicon.svg"/>
+
+    <link rel="sitemap" href="/sitemap.xml"/>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
