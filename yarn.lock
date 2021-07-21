@@ -10392,10 +10392,10 @@ smartwrap@^1.2.3:
     wcwidth "^1.0.1"
     yargs "^15.1.0"
 
-snowpack@^3.8.1:
-  version "3.8.1"
-  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.8.1.tgz#374b066dfae4bbf4ba701aecf47ce7c02893a334"
-  integrity sha512-p2ohs1RzFM0e7X98tEzmD2KaQ2chpQMmk4ITWWl7nGZm5MQ7U1M8b+QseR6Md+GwrUrcuDFeTjy/GiqsvnzuFA==
+snowpack@^3.8.3:
+  version "3.8.3"
+  resolved "https://registry.yarnpkg.com/snowpack/-/snowpack-3.8.3.tgz#5f136dcbe051189ce20092acd36759d03e6cbf87"
+  integrity sha512-nD699xWIDk9nGH4V9xKjgIVPA8jXWp/crUG46mu3/11rrdEv94v4xV/j373w3EvegGVQ3JdA5mlNpxDU8wk5uw==
   dependencies:
     "@npmcli/arborist" "^2.6.4"
     bufferutil "^4.0.2"
