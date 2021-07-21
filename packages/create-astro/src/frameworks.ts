@@ -1,10 +1,9 @@
 export const COUNTER_COMPONENTS = {
   '@astrojs/renderer-preact': {
     filename: `src/components/PreactCounter.jsx`,
-    content: `import { h } from 'preact';
-import { useState } from 'preact/hooks';
+    content: `import { useState } from 'preact/hooks';
 
-export default function PreactCounter({ children }) {
+export default function PreactCounter() {
   const [count, setCount] = useState(0);
   const add = () => setCount((i) => i + 1);
   const subtract = () => setCount((i) => i - 1);
@@ -21,9 +20,9 @@ export default function PreactCounter({ children }) {
   },
   '@astrojs/renderer-react': {
     filename: `src/components/ReactCounter.jsx`,
-    content: `import React, { useState } from 'react';
+    content: `import { useState } from 'react';
 
-export default function ReactCounter({ children }) {
+export default function ReactCounter() {
   const [count, setCount] = useState(0);
   const add = () => setCount((i) => i + 1);
   const subtract = () => setCount((i) => i - 1);
@@ -32,6 +31,25 @@ export default function ReactCounter({ children }) {
     <div id="react" className="counter">
       <button onClick={subtract}>-</button>
       <pre>{count}</pre>
+      <button onClick={add}>+</button>
+    </div>
+  );
+}
+`,
+  },
+  '@astrojs/renderer-solid': {
+    filename: `src/components/SolidCounter.jsx`,
+    content: `import { createSignal } from "solid-js";
+
+export default function SolidCounter() {
+  const [count, setCount] = createSignal(0);
+  const add = () => setCount(count() + 1);
+  const subtract = () => setCount(count() - 1);
+
+  return (
+    <div id="solid" class="counter">
+      <button onClick={subtract}>-</button>
+      <pre>{count()}</pre>
       <button onClick={add}>+</button>
     </div>
   );
@@ -97,6 +115,10 @@ export const FRAMEWORKS = [
   {
     title: 'React',
     value: '@astrojs/renderer-react',
+  },
+  {
+    title: 'Solid',
+    value: '@astrojs/renderer-solid',
   },
   {
     title: 'Svelte',

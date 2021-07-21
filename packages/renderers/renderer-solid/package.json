@@ -1,6 +1,6 @@
 {
-  "name": "@astrojs/renderer-preact",
-  "version": "0.1.3",
+  "name": "@astrojs/renderer-solid",
+  "version": "0.0.1",
   "type": "module",
   "exports": {
     ".": "./index.js",
@@ -9,9 +9,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "preact": "^10.5.13",
-    "preact-render-to-string": "^5.1.18",
-    "@babel/plugin-transform-react-jsx": "^7.14.5"
+    "babel-preset-solid": "^1.0.0",
+    "solid-js": "^1.0.0"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"

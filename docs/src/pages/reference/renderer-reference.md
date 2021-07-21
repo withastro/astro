@@ -62,8 +62,53 @@ export default {
   external: ['dep'] // optional, dependencies that should not be built by snowpack
   polyfills: ['./shadow-dom-polyfill.js'] // optional, module scripts that should be loaded before client hydration.
   hydrationPolyfills: ['./hydrate-framework.js'] // optional, polyfills that need to run before hydration ever occurs.
+  jsxImportSource: 'preact', // optional, the name of the library from which JSX is imported
+  jsxTransformOptions: async () => { // optional, a function to transform JSX files
+    const { default: { default: jsx }} = await import('@babel/plugin-transform-react-jsx');
+    return {
+      plugins: [
+        jsx({}, { runtime: 'automatic', importSource: 'preact' })
+      ]
+    }
+  }
 };
 ```
+
+### JSX Support
+
+Astro is unique in that it allows you to mix multiple types of JSX/TSX files in a single project. It does this by reading the `jsxImportSource` and `jsxTransformOptions` from renderers and transforming a file with [Babel](https://babeljs.io/).
+
+#### `jsxImportSource`
+This is the name of your library (for example `preact` or `react` or `solid-js`) which, if encountered in a file, will signal to Astro that this renderer should be used.
+
+Users may also manually define `/** @jsxImportSource preact */` in to ensure that the file is processed by this renderer (if, for example, the file has no imports).
+
+#### `jsxTransformOptions`
+This is an `async` function that returns information about how to transform matching JSX files with [Babel](https://babeljs.io/). It supports [`plugins`](https://babeljs.io/docs/en/plugins) or [`presets`](https://babeljs.io/docs/en/presets) to be passed directly to Babel.
+
+> Keep in mind that this transform doesn't need to handle TSX separately from JSX, Astro handles that for you!
+
+The arguments passed to `jsxTransformOptions` follow Snowpack's `load()` plugin hook. These allow you to pass separate Babel configurations for various conditions, like if your files should be compiled differently in SSR mode.
+
+```ts
+export interface JSXTransformOptions {
+  (context: {
+    /** True if builder is in dev mode (`astro dev`) */
+    isDev: boolean;
+    /** True if HMR is enabled (add any HMR code to the output here). */
+    isHmrEnabled: boolean;
+    /** True if builder is in SSR mode */
+    isSSR: boolean;
+    /** True if file being transformed is inside of a package. */
+    isPackage: boolean;
+  }) => {
+    plugins?: any[];
+    presets?: any[];
+  }
+}
+```
+
+####
 
 ### Server Entrypoint (`server.js`)
 
