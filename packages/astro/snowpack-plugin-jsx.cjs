@@ -1,11 +1,11 @@
 const esbuild = require('esbuild');
 const colors = require('kleur/colors');
-const { logger } = require('snowpack');
-const path = require('path');
+const loggerPromise = import('./dist/logger.js');
 const { promises: fs } = require('fs');
 
 const babel = require('@babel/core')
 const eslexer = require('es-module-lexer');
+let error = (...args) => {};
 
 /**
  * @typedef {Object} PluginOptions - creates a new type named 'SpecialType'
@@ -28,7 +28,8 @@ function getLoader(fileExt) {
  */
 module.exports = function jsxPlugin(config, options = {}) {
   const {
-    configManager
+    configManager,
+    logging,
   } = options;
 
   let didInit = false;
@@ -40,6 +41,8 @@ module.exports = function jsxPlugin(config, options = {}) {
     },
     async load({ filePath, fileExt, ...transformContext }) {
       if (!didInit) {
+        const logger = await loggerPromise;
+        error = logger.error;
         await eslexer.init;
         didInit = true;
       }
@@ -56,7 +59,7 @@ module.exports = function jsxPlugin(config, options = {}) {
         sourcesContent: config.mode !== 'production',
       });
       for (const warning of warnings) {
-        logger.error(`${colors.bold('!')} ${filePath}
+        error(logging, 'renderer', `${colors.bold('!')} ${filePath}
   ${warning.text}`);
       }
 
@@ -70,12 +73,14 @@ module.exports = function jsxPlugin(config, options = {}) {
       }
 
       if (importSources.size === 0) {
-        console.log(`${filePath}
-Unable to resolve a JSX transformer! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`);
-
+        error(logging, 'renderer', `${colors.yellow(filePath)}
+Unable to resolve a renderer that handles JSX transforms! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`);
+  
         return {
           '.js': {
-            code: ''
+            code: `(() => {
+              throw new Error("Hello world!");
+            })()`
           },
         }
       }
@@ -100,10 +105,16 @@ Unable to resolve a JSX transformer! Please include a \`renderer\` plugin which 
         jsxFragment: 'Fragment',
       });
 
-      const [imports] = eslexer.parse(codeToScan);
+      let imports = [];
+      if (/import/.test(codeToScan))  {
+        let [i] = eslexer.parse(codeToScan);
+        // @ts-ignore
+        imports = i;
+      }
+
       let importSource;
 
-      if (imports) {
+      if (imports.length > 0) {
         for (let { n: name } of imports) {
           if (name.indexOf('/') > -1) name = name.split('/')[0];
           if (importSources.has(name)) {
@@ -114,25 +125,34 @@ Unable to resolve a JSX transformer! Please include a \`renderer\` plugin which 
       }
 
       if (!importSource) {
-        let match;
+        const multiline = contents.match(/\/\*\*[\S\s]*\*\//gm) || [];
 
-        while ((match = /\/\*\*(?:[^*][^/]|\s)*@jsxImportSource\s+(.+)\s*\*\//gm.exec(contents)) !== null) {
-          importSource = match[1].trim();
-          break;
+        for (const comment of multiline) {
+          const [_, lib] = comment.match(/@jsxImportSource\s*(\S+)/) || [];
+          if (lib) {
+            importSource = lib;
+            break;
+          }
         }
       }
 
       if (!importSource) {
+        const importStatements = {
+          'react': "import React from 'react'",
+          'preact': "import { h } from 'preact'",
+          'solid-js': "import 'solid-js/web'"
+        }
         if (importSources.size > 1) {
-          console.log(`${filePath}
-Unable to resolve JSX transformer! With more than one renderer enabled, you should use a pragma comment or include an import.
-Add \`/* jsxImportSource: preact */\` or \`import { h } from "preact"\` to this file.
+          const defaultRenderer = Array.from(importSources)[0];
+          error(logging, 'renderer', `${colors.yellow(filePath)}
+Unable to resolve a renderer that handles this file! With more than one renderer enabled, you should include an import or use a pragma comment.
+Add ${colors.cyan(importStatements[defaultRenderer] || `import '${defaultRenderer}';`)} or ${colors.cyan(`/* jsxImportSource: ${defaultRenderer} */`)} to this file.
 `);
         }
 
         return {
           '.js': {
-            code: ''
+            code: contents
           },
         }
       }

@@ -302,6 +302,7 @@ export interface RuntimeOptions {
 }
 
 interface CreateSnowpackOptions {
+  logging: LogOptions;
   mode: RuntimeMode;
   resolvePackageUrl: (pkgName: string) => Promise<string>;
 }
@@ -309,7 +310,7 @@ interface CreateSnowpackOptions {
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
   const { projectRoot, src } = astroConfig;
-  const { mode, resolvePackageUrl } = options;
+  const { mode, logging, resolvePackageUrl } = options;
 
   const frontendPath = new URL('./frontend/', import.meta.url);
   const resolveDependency = (dep: string) => resolve.sync(dep, { basedir: fileURLToPath(projectRoot) });
@@ -324,10 +325,12 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     astroConfig: AstroConfig;
     hmrPort?: number;
     mode: RuntimeMode;
+    logging: LogOptions,
     configManager: ConfigManager;
   } = {
     astroConfig,
     mode,
+    logging,
     resolvePackageUrl,
     configManager,
   };
@@ -441,6 +444,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     snowpackConfig,
     configManager,
   } = await createSnowpack(astroConfig, {
+    logging,
     mode,
     resolvePackageUrl,
   });
