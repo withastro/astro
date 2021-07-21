@@ -4,7 +4,7 @@
 
 ### Minor Changes
 
-- Add support for [the new JSX transform](https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html) for React 17 and Preact. 
+- Add support for [the new JSX transform](https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html) for React 17 and Preact.
 - Add support for [Solid](https://www.solidjs.com/) when using the new [`@astrojs/renderer-solid`](https://npm.im/@astrojs/renderer-solid) package.
 
 ### Patch Changes
