@@ -86,9 +86,9 @@ React('uses the new JSX transform', async () => {
     }
   }
   const component = await runtime.load(componentUrl);
-  const jsxRuntime = component.imports.filter(i => i.specifier.includes('jsx-runtime'));
+  const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
 
   assert.ok(jsxRuntime, 'react/jsx-runtime is used for the component');
-})
+});
 
 React.run();

@@ -3,7 +3,7 @@ const colors = require('kleur/colors');
 const loggerPromise = import('./dist/logger.js');
 const { promises: fs } = require('fs');
 
-const babel = require('@babel/core')
+const babel = require('@babel/core');
 const eslexer = require('es-module-lexer');
 let error = (...args) => {};
 
@@ -27,10 +27,7 @@ function getLoader(fileExt) {
  * @type {import('snowpack').SnowpackPluginFactory<PluginOptions>}
  */
 module.exports = function jsxPlugin(config, options = {}) {
-  const {
-    configManager,
-    logging,
-  } = options;
+  const { configManager, logging } = options;
 
   let didInit = false;
   return {
@@ -59,39 +56,47 @@ module.exports = function jsxPlugin(config, options = {}) {
         sourcesContent: config.mode !== 'production',
       });
       for (const warning of warnings) {
-        error(logging, 'renderer', `${colors.bold('!')} ${filePath}
-  ${warning.text}`);
+        error(
+          logging,
+          'renderer',
+          `${colors.bold('!')} ${filePath}
+  ${warning.text}`
+        );
       }
 
       let renderers = await configManager.getRenderers();
-      const importSources = new Set(renderers.map(({ jsxImportSource }) => jsxImportSource).filter(i => i));
+      const importSources = new Set(renderers.map(({ jsxImportSource }) => jsxImportSource).filter((i) => i));
       const getRenderer = (importSource) => renderers.find(({ jsxImportSource }) => jsxImportSource === importSource);
       const getTransformOptions = async (importSource) => {
         const { name } = getRenderer(importSource);
         const { default: renderer } = await import(name);
         return renderer.jsxTransformOptions(transformContext);
-      }
+      };
 
       if (importSources.size === 0) {
-        error(logging, 'renderer', `${colors.yellow(filePath)}
-Unable to resolve a renderer that handles JSX transforms! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`);
-  
+        error(
+          logging,
+          'renderer',
+          `${colors.yellow(filePath)}
+Unable to resolve a renderer that handles JSX transforms! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`
+        );
+
         return {
           '.js': {
             code: `(() => {
               throw new Error("Hello world!");
-            })()`
+            })()`,
           },
-        }
+        };
       }
 
       // If we only have a single renderer, we can skip a bunch of work!
       if (importSources.size === 1) {
-        const result = transform(code, filePath, await getTransformOptions(Array.from(importSources)[0]))
+        const result = transform(code, filePath, await getTransformOptions(Array.from(importSources)[0]));
 
         return {
           '.js': {
-            code: result.code || ''
+            code: result.code || '',
           },
         };
       }
@@ -106,7 +111,7 @@ Unable to resolve a renderer that handles JSX transforms! Please include a \`ren
       });
 
       let imports = [];
-      if (/import/.test(codeToScan))  {
+      if (/import/.test(codeToScan)) {
         let [i] = eslexer.parse(codeToScan);
         // @ts-ignore
         imports = i;
@@ -138,39 +143,43 @@ Unable to resolve a renderer that handles JSX transforms! Please include a \`ren
 
       if (!importSource) {
         const importStatements = {
-          'react': "import React from 'react'",
-          'preact': "import { h } from 'preact'",
-          'solid-js': "import 'solid-js/web'"
-        }
+          react: "import React from 'react'",
+          preact: "import { h } from 'preact'",
+          'solid-js': "import 'solid-js/web'",
+        };
         if (importSources.size > 1) {
           const defaultRenderer = Array.from(importSources)[0];
-          error(logging, 'renderer', `${colors.yellow(filePath)}
+          error(
+            logging,
+            'renderer',
+            `${colors.yellow(filePath)}
 Unable to resolve a renderer that handles this file! With more than one renderer enabled, you should include an import or use a pragma comment.
 Add ${colors.cyan(importStatements[defaultRenderer] || `import '${defaultRenderer}';`)} or ${colors.cyan(`/* jsxImportSource: ${defaultRenderer} */`)} to this file.
-`);
+`
+          );
         }
 
         return {
           '.js': {
-            code: contents
+            code: contents,
           },
-        }
+        };
       }
 
       const result = transform(code, filePath, await getTransformOptions(importSource));
 
       return {
         '.js': {
-          code: result.code || ''
+          code: result.code || '',
         },
       };
     },
     cleanup() {},
   };
-}
+};
 
 /**
- * 
+ *
  * @param code {string}
  * @param id {string}
  * @param opts {{ plugins?: import('@babel/core').PluginItem[], presets?: import('@babel/core').PluginItem[] }|undefined}
@@ -178,7 +187,7 @@ Add ${colors.cyan(importStatements[defaultRenderer] || `import '${defaultRendere
 const transform = (code, id, { alias, plugins = [], presets = [] } = {}) =>
   babel.transformSync(code, {
     presets,
-    plugins: [...plugins, alias ? ['babel-plugin-module-resolver', { root: process.cwd(), alias }] : undefined].filter(v => v),
+    plugins: [...plugins, alias ? ['babel-plugin-module-resolver', { root: process.cwd(), alias }] : undefined].filter((v) => v),
     cwd: process.cwd(),
     filename: id,
     ast: false,

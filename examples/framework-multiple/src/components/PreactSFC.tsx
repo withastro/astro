@@ -4,9 +4,7 @@
 export default function PreactSFC({ children }) {
   return (
     <>
-      <div className="counter">
-        Hello from Preact!
-      </div>
+      <div className="counter">Hello from Preact!</div>
     </>
   );
 }

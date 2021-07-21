@@ -1,4 +1,4 @@
-import { createSignal } from "solid-js";
+import { createSignal } from 'solid-js';
 
 /** a counter written with Solid */
 export default function SolidCounter({ children }) {
@@ -13,9 +13,7 @@ export default function SolidCounter({ children }) {
         <pre>{count()}</pre>
         <button onClick={add}>+</button>
       </div>
-      <div class="children">
-        {children}
-      </div>
+      <div class="children">{children}</div>
     </>
   );
 }

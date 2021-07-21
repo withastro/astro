@@ -9,9 +9,7 @@ export default (element) => (Component, props) => {
     children: element.querySelector('astro-fragment'),
   });
 
-  const children = Array.isArray(component)
-    ? component
-    : [ component ];
+  const children = Array.isArray(component) ? component : [component];
 
   element.replaceChildren(...children);
-}
+};

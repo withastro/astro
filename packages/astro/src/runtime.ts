@@ -325,7 +325,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     astroConfig: AstroConfig;
     hmrPort?: number;
     mode: RuntimeMode;
-    logging: LogOptions,
+    logging: LogOptions;
     configManager: ConfigManager;
   } = {
     astroConfig,

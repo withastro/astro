@@ -18,7 +18,9 @@ interface RendererInstance {
   polyfills: string[];
   hydrationPolyfills: string[];
   jsxImportSource?: string;
-  jsxTransformOptions?: (transformContext: Omit<PluginLoadOptions, 'filePath'|'fileExt'>) => undefined|{ plugins?: any[], presets?: any[] }|Promise<{ plugins?: any[], presets?: any[] }>
+  jsxTransformOptions?: (
+    transformContext: Omit<PluginLoadOptions, 'filePath' | 'fileExt'>
+  ) => undefined | { plugins?: any[]; presets?: any[] } | Promise<{ plugins?: any[]; presets?: any[] }>;
 }
 
 const CONFIG_MODULE_BASE_NAME = '__astro_config.js';
@@ -121,7 +123,7 @@ export class ConfigManager {
         external: raw.external,
         polyfills: polyfillsNormalized,
         hydrationPolyfills: hydrationPolyfillsNormalized,
-        jsxImportSource: raw.jsxImportSource
+        jsxImportSource: raw.jsxImportSource,
       };
     });
 

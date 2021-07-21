@@ -46,9 +46,8 @@ PreactComponent('Can use a pragma comment', async ({ runtime }) => {
   assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
-  assert.equal($('#pragma-comment').length, 1, "rendered the PragmaComment component.");
+  assert.equal($('#pragma-comment').length, 1, 'rendered the PragmaComment component.');
 });
-
 
 PreactComponent('Uses the new JSX transform', async ({ runtime }) => {
   const result = await runtime.load('/pragma-comment');
@@ -63,7 +62,7 @@ PreactComponent('Uses the new JSX transform', async ({ runtime }) => {
     }
   }
   const component = await runtime.load(componentUrl);
-  const jsxRuntime = component.imports.filter(i => i.specifier.includes('jsx-runtime'));
+  const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
 
   assert.ok(jsxRuntime, 'preact/jsx-runtime is used for the component');
 });

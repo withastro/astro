@@ -79,11 +79,13 @@ export default {
 Astro is unique in that it allows you to mix multiple types of JSX/TSX files in a single project. It does this by reading the `jsxImportSource` and `jsxTransformOptions` from renderers and transforming a file with [Babel](https://babeljs.io/).
 
 #### `jsxImportSource`
+
 This is the name of your library (for example `preact` or `react` or `solid-js`) which, if encountered in a file, will signal to Astro that this renderer should be used.
 
 Users may also manually define `/** @jsxImportSource preact */` in to ensure that the file is processed by this renderer (if, for example, the file has no imports).
 
 #### `jsxTransformOptions`
+
 This is an `async` function that returns information about how to transform matching JSX files with [Babel](https://babeljs.io/). It supports [`plugins`](https://babeljs.io/docs/en/plugins) or [`presets`](https://babeljs.io/docs/en/presets) to be passed directly to Babel.
 
 > Keep in mind that this transform doesn't need to handle TSX separately from JSX, Astro handles that for you!
