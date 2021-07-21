@@ -62,7 +62,7 @@ export default {
   external: ['dep'] // optional, dependencies that should not be built by snowpack
   polyfills: ['./shadow-dom-polyfill.js'] // optional, module scripts that should be loaded before client hydration.
   hydrationPolyfills: ['./hydrate-framework.js'] // optional, polyfills that need to run before hydration ever occurs.
-  jsxImportSource: 'framework', // optional, the library from which JSX is imported
+  jsxImportSource: 'preact', // optional, the name of the library from which JSX is imported
   jsxTransformOptions: async () => { // optional, a function to transform JSX files
     const { default: { default: jsx }} = await import('@babel/plugin-transform-react-jsx');
     return {
