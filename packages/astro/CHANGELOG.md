@@ -1,5 +1,28 @@
 # astro
 
+## 0.18.0-next.2
+
+### Minor Changes
+
+- f67e8f5: New Collections API (createCollection)
+
+  BREAKING CHANGE: The expected return format from createCollection() has been changed. Visit https://docs.astro.build/core-concepts/collections to learn the new API.
+
+  This feature was implemented with backwards-compatible deprecation warnings, to help you find and update pages that are using the legacy API.
+
+- 40c882a: Fix url to find page with "index" at the end file name
+
+### Patch Changes
+
+- a7e6666: compile javascript to target Node v12.x
+- fb8bf7e: Allow multiple Astro servers to be running simultaneously by choosing random ports if the defaults are taken.
+- 0e761b9: Add ability to specify hostname in devOptions
+- 007c220: Remove custom Astro.fetchContent() glob implementation, use `import.meta.globEager` internally instead.
+- b85e68a: Fixes case where custom elements are not handled within JSX expressions
+- Updated dependencies [a7e6666]
+- Updated dependencies [b85e68a]
+  - @astrojs/parser@0.18.0-next.2
+
 ## 0.18.0-next.1
 
 ### Patch Changes

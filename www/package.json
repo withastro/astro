@@ -7,6 +7,6 @@
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.18.0-next.1"
+    "astro": "^0.18.0-next.2"
   }
 }
