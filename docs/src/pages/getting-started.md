@@ -5,9 +5,7 @@ title: Getting Started
 
 Astro is modern static site builder. Learn what Astro is all about from [our homepage](https://astro.build/) or [our release post](https://astro.build/blog/introducing-astro). This page is an overview of the Astro documentation and all related resources.
 
-Looking for a quick overview of what Astro is? [Fireship](https://fireship.io/) produced this great video summarizing Astro that you can watch in less than two minutes:
-
-<iframe width="560" height="315" src="https://www.youtube.com/embed/dsTXcSeAZq8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+Looking for a quick overview of what Astro is? [Visit our homepage.](https://astro.build)
 
 ## Try Astro
 
