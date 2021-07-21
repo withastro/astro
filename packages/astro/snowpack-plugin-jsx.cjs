@@ -126,7 +126,7 @@ Unable to resolve a JSX transformer! Please include a \`renderer\` plugin which 
         if (importSources.size > 1) {
           console.log(`${filePath}
 Unable to resolve JSX transformer! With more than one renderer enabled, you should use a pragma comment or include an import.
-\`/* jsxImportSource: preact */\` or \`import { h } from "preact"\`
+Add \`/* jsxImportSource: preact */\` or \`import { h } from "preact"\` to this file.
 `);
         }
 
