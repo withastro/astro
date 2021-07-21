@@ -72,4 +72,12 @@ CustomElements('Custom elements not claimed by renderer are rendered as regular 
   assert.equal($('client-element').length, 1, 'Rendered the client-only element');
 });
 
+CustomElements('Can import a client-only element that is nested in JSX', async ({ runtime }) => {
+  const result = await runtime.load('/nested');
+  assert.ok(!result.error, 'No error loading');
+  const html = result.contents;
+  const $ = doc(html);
+  assert.equal($('client-only-element').length, 1, 'Element rendered');
+});
+
 CustomElements.run();

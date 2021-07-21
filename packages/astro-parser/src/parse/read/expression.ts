@@ -9,6 +9,7 @@ interface ParseState {
   curlyCount: number;
   bracketCount: number;
   root: Expression;
+  parser: Parser;
 }
 
 function peek_char(state: ParseState) {
@@ -159,12 +160,13 @@ function consume_tag(state: ParseState) {
   const source = state.source.substring(start, state.index);
 
   const ast = parseAstro(source);
+  state.parser.feature_flags |= ast.meta.features;
   const fragment = ast.html;
 
   return fragment;
 }
 
-function consume_expression(source: string, start: number): Expression {
+function consume_expression(parser: Parser, source: string, start: number): Expression {
   const expr: Expression = {
     type: 'Expression',
     start,
@@ -182,6 +184,7 @@ function consume_expression(source: string, start: number): Expression {
     curlyCount: 1,
     bracketCount: 0,
     root: expr,
+    parser,
   };
 
   do {
@@ -234,15 +237,15 @@ function consume_expression(source: string, start: number): Expression {
   return expr;
 }
 
-export const parse_expression_at = (source: string, index: number): Expression => {
-  const expression = consume_expression(source, index);
+export const parse_expression_at = (parser: Parser, source: string, index: number): Expression => {
+  const expression = consume_expression(parser, source, index);
 
   return expression;
 };
 
 export default function read_expression(parser: Parser) {
   try {
-    const expression = parse_expression_at(parser.template, parser.index);
+    const expression = parse_expression_at(parser, parser.template, parser.index);
     parser.index = expression.end;
     return expression;
   } catch (err) {

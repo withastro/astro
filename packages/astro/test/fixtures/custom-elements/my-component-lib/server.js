@@ -1,3 +1,5 @@
+import './shim.js';
+
 function getConstructor(Component) {
   if(typeof Component === 'string') {
     const tagName = Component;
