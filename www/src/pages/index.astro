@@ -5,6 +5,7 @@ import Main from '../components/Main.astro';
 import Logo from '../components/Logo.astro';
 import Article from '../components/Article.astro';
 import Tagline from '../components/Tagline.astro';
+import MainHeader from '../components/MainHeader.astro';
 
 let title = 'Astro';
 let description = 'Build faster websites with less client-side JavaScript';
@@ -22,8 +23,13 @@ let lang = 'en';
     <Space />
     
     <Main>
-      <Logo />
+      <MainHeader />
       <Article>
+
+        <div class="videoWrapper">
+          <iframe width="560" height="315" src="https://www.youtube.com/embed/dsTXcSeAZq8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+
         <Tagline />
 
         <p>
@@ -41,6 +47,8 @@ let lang = 'en';
         </p>
 
         <p>We're hard at work on Astro! Keep your eyes to the skies, astronauts.</p>
+
+        <br/>
 
         <a class="action-button" href="/blog/introducing-astro">
           New Blog Post - Introducing Astro: Ship Less JavaScript
@@ -63,6 +71,7 @@ let lang = 'en';
       .action-button {
         border: 1px solid var(--color-green);
         padding: 1rem;
+        font-weight: 600;
       }
       code {
         font-size: 11px;
@@ -70,6 +79,20 @@ let lang = 'en';
         border: 1px solid rgba(255, 255, 255, 0.4);
         border-radius: 2px;
         padding: 0.1em 0.2em;
+      }
+      .videoWrapper {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 */
+        height: 0;
+        background:rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+      }
+      .videoWrapper iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
       }
     </style>
 

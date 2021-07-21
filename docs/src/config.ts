@@ -70,7 +70,7 @@ export const sidebar = [
 
 export const site = {
   title: 'Astro Documentation',
-  description: 'Build faster websites with less client-side Javascript',
+  description: 'Build faster websites with less client-side Javascript.',
   ogLocale: 'en_US',
   image: {
     src: '/default-og-image.png?v=1',
