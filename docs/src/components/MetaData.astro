@@ -1,16 +1,18 @@
 ---
 import { site } from '../config.ts';
 const { content = {}, canonicalURL } = Astro.props;
-let formattedContentTitle = content.title ? `${content.title} 🚀 ${site.title}` : site.title;
+const formattedContentTitle = content.title ? `${content.title} 🚀 ${site.title}` : site.title;
+const imageSrc = content?.image?.src ?? site.image.src;
+const imageAlt = content?.image?.alt ?? site.image.alt;
 ---
 
 <!-- OpenGraph Tags -->
 <meta property="og:title" content={formattedContentTitle}/>
 <meta property="og:type" content="article"/>
 <meta property="og:url" content={canonicalURL}/>
-<meta property="og:locale" content={content.ogLocale ? content.ogLocale : site.ogLocale}/>
-<meta property="og:image" content={content?.image?.src ? content.image.src : site.image.src}/>
-<meta property="og:image:alt" content={content?.image?.alt ? content.image.alt : site.image.alt}/>
+<meta property="og:locale" content={content.ogLocale ?? site.ogLocale}/>
+<meta property="og:image" content={imageSrc}/>
+<meta property="og:image:alt" content={imageAlt}/>
 <meta property="og:description" content={content.description ? content.description : site.description}/>
 <meta property="og:site_name" content={site.title}/>
 <!-- END OpenGraph Tags -->
@@ -21,8 +23,8 @@ let formattedContentTitle = content.title ? `${content.title} 🚀 ${site.title}
 <meta name="twitter:creator" content={site.twitter.creator}/>
 <meta name="twitter:title" content={formattedContentTitle}/>
 <meta name="twitter:description" content={content.description ? content.description : site.description}/>
-<meta name="twitter:image" content={content?.image?.src ? content.image.src : site.image.src}/>
-<meta name="twitter:image:alt" content={content?.image?.alt ? content.image.alt : site.image.alt}/>
+<meta name="twitter:image" content={imageSrc}/>
+<meta name="twitter:image:alt" content={imageAlt}/>
 <!-- END Twitter Tags -->
 
 <link rel="canonical" href={canonicalURL}/>
