@@ -1,4 +1,3 @@
-
 globalThis.customElements = {
   _elements: new Map(),
   define(name, ctr) {
