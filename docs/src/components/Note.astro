@@ -34,12 +34,12 @@ const { type = 'tip', title } = Astro.props;
   } */
 
   .note.type-tip {
-    --color: hsla(var(--color-green), 1);
+    --color: var(--color-green);
   }
   .note.type-warning {
-    --color: hsla(var(--color-yellow), 1);
+    --color: var(--color-yellow);
   }
   .note.type-error {
-    --color: hsla(var(--color-red), 1);
+    --color: var(--color-red);
   }
 </style>

@@ -7,11 +7,19 @@
     'Bitstream Vera Sans Mono', 'Liberation Mono', 'Nimbus Mono L', Monaco,
     'Courier New', Courier, monospace;
 
+  /*
+   * Variables with --color-base prefix define
+   * the hue, and saturation values to be used for
+   * hsla colors.
+   *
+   * ex:
+   *
+   * --color-base-{color}: {hue}, {saturation};
+   *
+   */
+
   --color-base-white: 0, 0%;
   --color-base-black: 240, 100%;
-  --color-base-dark-bg: 215, 28%;
-  --color-base-dark-navbar-bg: 221, 39%;
-  --color-base-light-navbar-bg: 217, 19%;
   --color-base-gray: 215, 14%;
   --color-base-blue: 212, 100%;
   --color-base-blue-dark: 212, 72%;
@@ -21,9 +29,12 @@
   --color-base-red: 351, 100%;
   --color-base-yellow: 41, 100%;
 
-  --color-dark-bg: var(--color-base-dark-bg), 17%;
-  --color-dark-navbar-bg: var(--color-base-dark-navbar-bg), 11%;
-  --color-light-navbar-bg: var(--color-base-light-navbar-bg), 27%;
+  /*
+   * Color palettes are made using --color-base 
+   * variables, along with a lightness value to
+   * define different variants.
+   *
+   */
 
   --color-gray-5: var(--color-base-gray), 5%;
   --color-gray-10: var(--color-base-gray), 10%;
@@ -62,9 +73,9 @@
   --theme-bg-accent: hsla(var(--color-orange), var(--theme-accent-opacity));
   --theme-code-inline-bg: hsla(var(--color-gray-95), 1);
   --theme-code-inline-text: var(--theme-text);
-  --theme-code-bg: hsla(var(--color-light-navbar-bg), 1);
+  --theme-code-bg: hsla(217, 19%, 27%, 1);
   --theme-code-text: hsla(var(--color-gray-95), 1);
-  --theme-navbar-bg: hsla(var(--color-light-navbar-bg), 1);
+  --theme-navbar-bg: hsla(217, 19%, 27%, 1);
   --theme-navbar-height: 3.5rem;
   --theme-sidebar-offset: var(--theme-navbar-height);
   --theme-selection-color: hsla(var(--color-orange), 1);
@@ -90,14 +101,14 @@ body {
   --theme-text-light: hsla(var(--color-gray-80), 1);
   /* @@@: not used anywhere */
   --theme-text-lighter: hsla(var(--color-gray-40), 1);
-  --theme-bg: hsla(var(--color-dark-bg), 1);
+  --theme-bg: hsla(215, 28%, 17%, 1);
   --theme-bg-hover: hsla(var(--color-gray-40), 1);
   --theme-bg-offset: hsla(var(--color-gray-5), 1);
   --theme-code-inline-bg: hsla(var(--color-gray-10), 1);
   --theme-code-inline-text: hsla(var(--color-base-white), 100%, 1);
   --theme-code-bg: hsla(var(--color-gray-5), 1);
   --theme-code-text: hsla(var(--color-base-white), 100%, 1);
-  --theme-navbar-bg: hsla(var(--color-dark-navbar-bg), 1);
+  --theme-navbar-bg: hsla(221, 39%, 11%, 1);
   --theme-selection-color: hsla(var(--color-base-white), 100%, 1);
   --theme-selection-bg: hsla(var(--color-purple), var(--theme-accent-opacity));
 }
