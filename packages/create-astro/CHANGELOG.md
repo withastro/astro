@@ -1,5 +1,12 @@
 # create-astro
 
+## 0.5.1-next.0
+
+### Patch Changes
+
+- a7e6666: compile javascript to target Node v12.x
+- d45431d: create-astro does not fail when removing subdirectories
+
 ## 0.5.0
 
 ### Minor Changes
