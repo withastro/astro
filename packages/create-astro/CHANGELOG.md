@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.5.1-next.1
+
+### Patch Changes
+
+- bd18e14: Add support for [Solid](https://www.solidjs.com/)
+
 ## 0.5.1-next.0
 
 ### Patch Changes
