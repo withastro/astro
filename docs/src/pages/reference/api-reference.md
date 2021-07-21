@@ -69,6 +69,7 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 A collection is any file in the `src/pages` directory that starts with a dollar sign (`$`) and includes an exported `createCollection` function in the component script.
 
 Check out our [Astro Collections](/core-concepts/collections) guide for more information and examples.
+
 ### `createCollection()`
 
 ```jsx
@@ -89,7 +90,7 @@ The `createCollection()` function should returns an object of the following shap
 | `route`    |                 `string`                 | **Required.** A route pattern for matching URL requests. This is used to generate the page URL in your final build. It must begin with the file name: for example, `pages/$tags.astro` must return a `route` that starts with `/tags/`. |
 | `paths`    |           `{params: Params}[]`           | Return an array of all URL to be generated.                                                                                                                                                                                             |
 | `props`    | `async ({ params, paginate }) => object` | **Required.** Load data for the page that will get passed to the page component as props.                                                                                                                                               |
-| `paginate` |                `boolean`                 | Optional: Enable automatic pagination. See next section.                                                                                                                                                                                                  |
+| `paginate` |                `boolean`                 | Optional: Enable automatic pagination. See next section.                                                                                                                                                                                |
 | `rss`      | [RSS](/reference/api-reference#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/reference/api-reference#rss-feed))                                                                                                                                     |
 
 ### Pagination
@@ -100,10 +101,13 @@ The `paginate()` function that you use inside of `props()` has the following int
 
 ```ts
 /* the "paginate()" passed to props({paginate}) */
-type PaginateFunction = (data: any[], args?: { 
-  /* pageSize: set the number of items to be shown on every page. Defaults to 10. */
-  pageSize?: number 
-}) => PaginatedCollectionResult;
+type PaginateFunction = (
+  data: any[],
+  args?: {
+    /* pageSize: set the number of items to be shown on every page. Defaults to 10. */
+    pageSize?: number;
+  }
+) => PaginatedCollectionResult;
 
 /* the paginated return value, aka the prop passed to every page in the collection. */
 interface PaginatedCollectionResult {
@@ -171,7 +175,6 @@ export interface CollectionRSS<T = any> {
 ```
 
 📚 Learn more about RSS feed generation (and see an example) in our [Astro Collections guide.](/core-concepts/collections).
-
 
 ## `import.meta`
 

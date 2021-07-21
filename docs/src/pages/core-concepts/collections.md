@@ -34,7 +34,7 @@ Every collection must define and export a `createCollection` function inside the
 
 ```astro
 ---
-export async function createCollection() { 
+export async function createCollection() {
   /* fetch collection data here */
   return { /* see examples below */ };
 }
@@ -61,8 +61,8 @@ export async function createCollection() {
   const allPokemonResult = await allPokemonResponse.json();
   const allPokemon = allPokemonResult.results;
   return {
-    // `route` defines the URL structure for your collection. 
-    // You can use any URL path pattern here, as long as it 
+    // `route` defines the URL structure for your collection.
+    // You can use any URL path pattern here, as long as it
     // matches the filename prefix (`$pokemon.astro` -> `/pokemon/*`).
     route: `/pokemon/:name`,
     // `paths` tells Astro which pages to generate in your collection.
@@ -78,7 +78,7 @@ export async function createCollection() {
     },
   };
 }
-// The rest of your component script now runs on each individual page. 
+// The rest of your component script now runs on each individual page.
 // "item" is one of the props returned in the `props()` function.
 const {item} = Astro.props;
 ---
@@ -95,7 +95,7 @@ const {item} = Astro.props;
 
 You can also group items by page. In this example, we'll fetch data from the same Pokemon API. But instead of generating 150 pages, we'll just generate one page for every letter of the alphabet, creating an alphabetical index of Pokemon.
 
-*Note: Looking for pagination? Collections have built-in support to make pagination easy. Be sure to check out the next example.*
+_Note: Looking for pagination? Collections have built-in support to make pagination easy. Be sure to check out the next example._
 
 ```jsx
 ---
@@ -107,8 +107,8 @@ export async function createCollection() {
   const allPokemon = allPokemonResult.results;
   const allLetters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
   return {
-    // `route` defines the URL structure for your collection. 
-    // You can use any URL path pattern here, as long as it 
+    // `route` defines the URL structure for your collection.
+    // You can use any URL path pattern here, as long as it
     // matches the filename prefix (`$pokemon.astro` -> `/pokemon/*`).
     route: `/pokemon/:letter`,
     // `paths` tells Astro which pages to generate in your collection.
@@ -128,7 +128,7 @@ export async function createCollection() {
     },
   };
 }
-// The rest of your component script now runs on each individual page. 
+// The rest of your component script now runs on each individual page.
 // "item" is one of the props returned in the `props()` function.
 const {letter, items} = Astro.props;
 ---
@@ -153,7 +153,7 @@ This example provides a basic implementation of pagination. In the previous exam
 export async function createCollection() {
   const allPosts = Astro.fetchContent('../posts/*.md') // fetch local posts...
     .sort((a, b) => a.title.localeCompare(b.title)); // ... and sort by title.
-      
+
   return {
     // Set "paginate" to true to enable pagination.
     paginate: true,
@@ -169,10 +169,10 @@ export async function createCollection() {
     // the props() function when `paginate` is set to true. We can now use
     // it to enable pagination on a certain prop. In this example, we paginate
     // "posts" so that multiple pages will be generated based on the given page size.
-    async props({paginate}) { 
+    async props({paginate}) {
       return {
         posts: paginate(allPosts, {pageSize: 10}),
-      }; 
+      };
     },
   };
 }
@@ -240,7 +240,9 @@ export async function createCollection() {
   return {
     paginate: true,
     route: '/posts/:page?',
-    async props({paginate}) { /* Not shown: see examples above */ },
+    async props({ paginate }) {
+      /* Not shown: see examples above */
+    },
     rss: {
       title: 'My RSS Feed',
       description: 'Description of the feed',
@@ -257,7 +259,7 @@ export async function createCollection() {
         title: item.title,
         description: item.description,
         // enforce GMT timezone (otherwise it’ll be different based on where it’s built)
-        pubDate: item.pubDate + 'Z', 
+        pubDate: item.pubDate + 'Z',
         // custom data is supported here as well
       }),
     },
@@ -270,8 +272,14 @@ Astro will generate your RSS feed at the URL `/feed/[collection].xml`. For examp
 Even though Astro will create the RSS feed for you, you’ll still need to add `<link>` tags manually in your `<head>` HTML for feed readers and browsers to pick up:
 
 ```html
-<link rel="alternate" type="application/rss+xml" title="My RSS Feed" href="/feed/podcast.xml" />
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title="My RSS Feed"
+  href="/feed/podcast.xml"
+/>
 ```
+
 ### 📚 Further Reading
 
 - [Fetching data in Astro](/guides/data-fetching)
