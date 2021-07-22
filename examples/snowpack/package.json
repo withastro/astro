@@ -11,7 +11,6 @@
     "lint": "prettier --check \"src/**/*.js\""
   },
   "dependencies": {
-    "astro": "^0.18.0-next.4",
     "date-fns": "^2.19.0",
     "deepmerge": "^4.2.2",
     "docsearch.js": "^2.6.3",
