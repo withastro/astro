@@ -226,18 +226,6 @@ export class Parser {
 export default function parse(template: string, options: ParserOptions = {}): Ast {
   const parser = new Parser(template, options);
 
-  // TODO we may want to allow multiple <style> tags —
-  // one scoped, one global. for now, only allow one
-  if (parser.css.length > 1) {
-    parser.error(
-      {
-        code: 'duplicate-style',
-        message: 'You can only have one <style> tag per Astro file',
-      },
-      parser.css[1].start
-    );
-  }
-
   // const instance_scripts = parser.js.filter((script) => script.context === 'default');
   // const module_scripts = parser.js.filter((script) => script.context === 'module');
   const astro_scripts = parser.js.filter((script) => script.context === 'setup');
@@ -264,7 +252,7 @@ export default function parse(template: string, options: ParserOptions = {}): As
 
   return {
     html: parser.html,
-    css: parser.css[0],
+    css: parser.css,
     // instance: instance_scripts[0],
     module: astro_scripts[0],
     meta: {
