@@ -39,6 +39,7 @@ export const hydrationOverlayStyles = `
                 position: absolute;
                 opacity: 0;
                 transition: opacity 500ms;
+                pointer-events: none;
               }
 
               div[data-astro-hydration=undefined].astro-notify::before {
@@ -101,16 +102,21 @@ export function initDevTools() {
 function addHydrationMissingClickHandler() {
   const allUnhydratedComponents = document.querySelectorAll('div[data-astro-hydration=undefined]');
   allUnhydratedComponents.forEach((componentElement) => {
-    const componentName = (componentElement as HTMLElement).dataset.astroComponentName;
-    componentElement.addEventListener('click', () => {
-      componentElement.classList.add('show-notification');
-      console.warn(
-        `component < ${componentName} /> is being statically rendered. Use the client:* directives to hydrate it. Documentation: https://astro-docs-e7osusbql-pikapkg.vercel.app/core-concepts/component-hydration`
-      );
-      let showTimer = setTimeout(() => {
-        componentElement.classList.remove('show-notification');
-        clearTimeout(showTimer);
-      }, 4000);
+    const componentEl = componentElement as HTMLElement;
+    const componentName = componentEl.dataset.astroComponentName;
+    componentEl.addEventListener('click', (e) => {
+      const elementHasFormParent = e.composedPath().filter((pathNode) => (pathNode as HTMLElement).tagName === 'FORM').length > 0;
+
+      if (!elementHasFormParent) {
+        componentElement.classList.add('show-notification');
+        console.warn(
+          `component < ${componentName} /> is being statically rendered. Use the client:* directives to hydrate it. Documentation: https://astro-docs-e7osusbql-pikapkg.vercel.app/core-concepts/component-hydration`
+        );
+        let showTimer = setTimeout(() => {
+          componentElement.classList.remove('show-notification');
+          clearTimeout(showTimer);
+        }, 4000);
+      }
     });
   });
 }
