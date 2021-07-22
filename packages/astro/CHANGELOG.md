@@ -1,5 +1,11 @@
 # astro
 
+## 0.18.0-next.4
+
+### Patch Changes
+
+- c82e6be: Fix unfound ./snowpack-plugin-jsx.cjs error
+
 ## 0.18.0-next.3
 
 ### Minor Changes
