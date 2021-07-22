@@ -19,6 +19,11 @@
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
+  "dependencies": {
+    "acorn": "^7.4.0",
+    "locate-character": "^2.0.5",
+    "magic-string": "^0.25.3"
+  },
   "devDependencies": {
     "astro-scripts": "0.0.1"
   },
