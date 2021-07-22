@@ -28,7 +28,7 @@ const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string }> = ({
   }, []);
 
   return (
-    <nav class="sidebar-nav">
+    <nav class="sidebar-nav" aria-labelledby="sidebar-content">
       <div class="sidebar-nav-inner">
         <h2 class="heading">On this page</h2>
         <ul>
