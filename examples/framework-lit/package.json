@@ -7,6 +7,7 @@
     "build": "astro build"
   },
   "devDependencies": {
+    "@astrojs/renderer-lit": "^0.1.0",
     "astro": "^0.17.0"
   },
   "snowpack": {
