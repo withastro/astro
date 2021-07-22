@@ -7,7 +7,7 @@ import degit from 'degit';
 import yargs from 'yargs-parser';
 import { FRAMEWORKS, COUNTER_COMPONENTS } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
-import { createConfig } from './config.js';
+import { createConfig, createSnowpack } from './config.js';
 const args = yargs(process.argv);
 prompts.override(args);
 
@@ -42,7 +42,7 @@ export async function emptyDir(dir: string) {
 
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 
-const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
+const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md', 'snowpack.config.js']; // some files need processing after copying.
 
 export async function main() {
   console.log('\n' + bold('Welcome to Astro!') + gray(` (create-astro v${version})`));
@@ -140,6 +140,13 @@ export async function main() {
             break;
           }
           await fs.promises.writeFile(fileLoc, createConfig({ renderers }));
+          break;
+        }
+        case 'snowpack.config.js': {
+          if (selectedTemplate?.renderers !== true) {
+            break;
+          }
+          await fs.promises.writeFile(fileLoc, createSnowpack({ renderers: JSON.parse(renderers.toString()) }));
           break;
         }
         case 'package.json': {

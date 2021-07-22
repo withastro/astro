@@ -22,3 +22,37 @@ export const createConfig = ({ renderers }: { renderers: string[] }) => {
 `,
   ].join('\n');
 };
+
+export const createSnowpack = ({ renderers }: { renderers: {title: string, value: string}[] }): string => {
+  let buildOptions: any = {}
+  if(renderers.length > 0) {
+    let reactRenderers = renderers.filter(r=>r.title.toLowerCase().includes('react'))
+    // do not generate build options if preact and react are being used
+    if(reactRenderers.length === 1) {
+      let [renderer] = reactRenderers
+      buildOptions.jsxFactory = renderer.title.toLowerCase() === 'preact' ? 'h' : 'React.createElement'
+      buildOptions.jsxFragment = renderer.title.toLowerCase() === 'preact' ? 'Fragment' : 'React.Fragment'
+      buildOptions.jsxInject = renderer.title.toLowerCase() === 'preact' ? `import {h,Fragment} from 'preact'` : `import React from 'react'`
+    }
+  }
+  return `/** @type {import("snowpack").SnowpackUserConfig } */
+    module.exports = {
+      mount: {
+        /* ... */
+      },
+      plugins: [
+        /* ... */
+      ],
+      packageOptions: {
+        /* ... */
+      },
+      devOptions: {
+        /* ... */
+      },
+      buildOptions: ${buildOptions ? JSON.stringify(buildOptions, undefined, 2) : `{
+        /* ... */
+      }`}
+      },
+    }
+    `
+}
