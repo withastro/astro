@@ -196,6 +196,8 @@ const { greeting = 'Hello', name } = Astro.props;
 </MyComponent>
 ```
 
+Note that if the `<slot>` tag is not used in the HTML template, any children passed to the component will not be rendered.
+
 Slots become even more powerful when using **named slots**. Rather than a single `<slot>` element which renders _all_ children, named slots allow you to specify multiple places where children should be placed.
 
 > **Note:** The `slot` attribute is not restricted to plain HTML, components can use `slot` as well!
@@ -268,36 +270,6 @@ const items = ["Dog", "Cat", "Platipus"];
   ))}
 </ul>
 ```
-
-### Slots
-
-Sometimes, an Astro component will be passed children. This is especially common for components like sidebars or dialog boxes that represent generic "wrappers” around content.
-
-```astro
-<WrapChildrenWithText>
-  <img src="https://placehold.co/400" />
-<WrapChildrenWithText>
-```
-
-Astro provides a `<slot />` component so that you can control where any children are rendered within the component. This is heavily inspired by the [`<slot>` HTML element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot).
-
-```astro
----
-// Example: components/WrapChildrenWithText.astro
-// Usage: <WrapChildrenWithText><img src="https://placehold.co/400" /><WrapChildrenWithText>
-// Renders: <h1>Begin</h1><img src="https://placehold.co/400" /><h1>End</h1>
----
-<h1>Begin</h1>
-<!-- slot: any given children are injected here -->
-<slot />
-<h1>End</h1>
-```
-
-<!-- TODO: https://github.com/snowpackjs/astro/issues/600
-      If you don't provide a `<slot />` component in your HTML template, any children passed to your component will not be rendered. -->
-
-<!-- TODO: https://github.com/snowpackjs/astro/issues/360
-     Document Named Slots -->
 
 ## Comparing `.astro` versus `.jsx`
 
