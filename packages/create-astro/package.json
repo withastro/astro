@@ -14,7 +14,8 @@
     "create-astro": "./create-astro.mjs"
   },
   "scripts": {
-    "build": "astro-scripts build \"src/*.ts\"",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
     "prepare": "yarn build",
     "test": "rm -rf test/fixtures && mkdir test/fixtures && node --unhandled-rejections=strict test/create-astro.test.js"
   },

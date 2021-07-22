@@ -1,6 +1,7 @@
 {
   "name": "@astrojs/test-custom-element-renderer",
-  "main": "index.js",
   "version": "0.0.1",
+  "private": true,
+  "main": "index.js",
   "type": "module"
 }
