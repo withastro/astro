@@ -31,8 +31,7 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 ## GitHub Pages
 
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
-2. Run `touch public/.nojekyll` to create a `.nojekyll` file in `public/`. This [bypasses GitHub Page's default behavior](https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/) to ignore paths prefixed with `_`.
-3. Inside your project, create `deploy.sh` with the following content (uncommenting the appropriate lines), and run it to deploy:
+1. Inside your project, create `deploy.sh` with the following content (uncommenting the appropriate lines), and run it to deploy:
 
    ```bash{13,20,23}
    #!/usr/bin/env sh
@@ -45,6 +44,9 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 
    # navigate into the build output directory
    cd dist
+   
+   # add .nojekyll to bypass GitHub Page's default behavior
+   touch .nojekyll
 
    # if you are deploying to a custom domain
    # echo 'www.example.com' > CNAME
