@@ -23,13 +23,16 @@ Here's an example package that we'd like to publish to npm. It includes two Astr
 
 Your package manifest. This includes information about your package such as name, description, any dependencies, and other important metadata. If you don't know what the `package.json` file is, we highly recommend you to have a quick read on [the npm documentation](https://docs.npmjs.com/creating-a-package-json-file).
 
+When making a astro component use the `astro-component` keyword, this makes it easier for people to find your component.
+
 We recommend that you define an [exports entry](https://nodejs.org/api/packages.html) for your `index.js` package entrypoint like so:
 
 ```json
 {
   "name": "@example/my-components",
   "version": "0.0.1",
-  "exports": "./index.js"
+  "exports": "./index.js",
+  "keywords": ["astro-component"]
 }
 ```
 
@@ -81,3 +84,17 @@ To support importing by file within your package, add each file to your **packag
   }
 }
 ```
+
+## Community components
+
+Looking for components already made by the community?
+
+Here are the current available community developed Astro components.
+
+- [Astro Static Tweet](https://www.npmjs.com/package/@rebelchris/astro-static-tweet) ~ A component to embed tweets as static HTML so you don't have to load the Twitter JavaScripts.
+
+You can also [search npm for astro components.](https://www.npmjs.com/search?q=keywords%3Aastro-component)
+
+Did you make a component?
+
+[Create a PR to submit your component in these docs](https://github.com/snowpackjs/astro/issues/new/choose)
