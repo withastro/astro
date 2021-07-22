@@ -49,10 +49,11 @@ export const createSnowpack = ({ renderers }: { renderers: {title: string, value
       devOptions: {
         /* ... */
       },
-      buildOptions: ${buildOptions ? JSON.stringify(buildOptions, undefined, 2) : `{
+      buildOptions: ${buildOptions ? JSON.stringify(buildOptions, undefined, 2).split('\n')
+      .map((ln, i) => (i !== 0 ? `\t${ln}` : ln))
+      .join('\n') : `{
         /* ... */
       }`}
-      },
     }
     `
 }
