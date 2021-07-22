@@ -110,8 +110,6 @@ export interface JSXTransformOptions {
 }
 ```
 
-####
-
 ### Server Entrypoint (`server.js`)
 
 The server entrypoint of a renderer is responsible for checking if a component should use this renderer, and if so, how that component should be rendered to a string of static HTML.

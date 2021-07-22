@@ -70,8 +70,8 @@ import Styles from './styles.module.css'; // Use CSS Modules (must end in `.modu
 
 Vue in Astro supports the same methods as `vue-loader` does:
 
-- [Scoped CSS][vue-scoped]
-- [CSS Modules][vue-css-modules]
+- [vue-loader - Scoped CSS][vue-scoped]
+- [vue-loader - CSS Modules][vue-css-modules]
 
 ### 📕 Svelte
 

@@ -7,7 +7,7 @@ Astro components and pages can fetch remote data to help generate your pages. As
 
 ## `fetch()`
 
-Astro pages have access to the global `fetch()` function in their setup script. `fetch()` is a native JavaScript API ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)) that lets you make HTTP requests for things like APIs and resources.
+Astro pages have access to the global [`fetch()`][mdn-fetch] function in their setup script. [`fetch()`][mdn-fetch] is a native JavaScript API that lets you make HTTP requests for things like APIs and resources.
 
 Even though Astro component scripts run inside of Node.js (and not in the browser) Astro provides this native API so that you can fetch data at page build time.
 
@@ -25,7 +25,7 @@ console.log(data);
 
 ## Top-level await
 
-`await` is another native JavaScript feature that lets you await the response of some asynchronous promise ([MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)). Astro supports `await` in the top-level of your component script.
+[`await`][mdn-await] is another native JavaScript feature that lets you await the response of some asynchronous promise . Astro supports [`await`][mdn-await] in the top-level of your component script.
 
 **Important:** These are not yet available inside of non-page Astro components. Instead, do all of your data loading inside of your pages, and then pass them to your components as props.
 
@@ -62,3 +62,6 @@ If you load a component using `node-fetch` [interactively](/core-concepts/compon
 > See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic-unfetch) or Leonardo Quixada's [cross-fetch](https://github.com/lquixada/cross-fetch) for isomorphic usage (exports node-fetch for server-side, whatwg-fetch for client-side).
 
 > Quoted from https://github.com/node-fetch/node-fetch#motivation
+
+[mdn-fetch]: https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch
+[mdn-await]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await
