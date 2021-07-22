@@ -45,6 +45,9 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 
    # navigate into the build output directory
    cd dist
+   
+   # add .nojekyll to bypass GitHub Page's default behavior
+   touch .nojekyll
 
    # if you are deploying to a custom domain
    # echo 'www.example.com' > CNAME
