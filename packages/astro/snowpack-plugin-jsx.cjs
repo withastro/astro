@@ -83,9 +83,7 @@ Unable to resolve a renderer that handles JSX transforms! Please include a \`ren
 
         return {
           '.js': {
-            code: `(() => {
-              throw new Error("Hello world!");
-            })()`,
+            code: '',
           },
         };
       }
