@@ -23,7 +23,7 @@ jobs:
             node_version: 14
       fail-fast: false
 
-    name: "Test: node-${{ matrix.node_version }}, ${{ matrix.os }}"
+    name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -60,7 +60,7 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    name: "Lint: node-14, ubuntu-latest"
+    name: 'Lint: node-14, ubuntu-latest'
     steps:
       - uses: actions/checkout@v2
         with:
