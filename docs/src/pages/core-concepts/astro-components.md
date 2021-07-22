@@ -303,7 +303,7 @@ It’s important to note that Astro **won’t** transform HTML references for yo
 
 Since `src/pages/about.astro` will build to `/about/index.html`, you may not have expected that image to live at `/about/thumbnail.png`. So to fix this, choose either of two options:
 
-### Option 1: Absolute URLs
+#### Option 1: Absolute URLs
 
 ```html
 <!-- ✅ Correct: references public/thumbnail.png -->
@@ -312,7 +312,7 @@ Since `src/pages/about.astro` will build to `/about/index.html`, you may not hav
 
 The recommended approach is to place files within `public/*`. This references a file it `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
 
-### Option 2: Asset import references
+#### Option 2: Asset import references
 
 ```astro
 ---
