@@ -223,7 +223,7 @@ tr:nth-of-type(odd) {
 }
 th {
   background: var(--color-black);
-  color: white;
+  color: var(--theme-color);
   font-weight: bold;
 }
 td,
