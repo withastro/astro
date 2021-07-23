@@ -3,7 +3,7 @@ import { sidebar } from '../config.ts';
 const {currentPage} = Astro.props;
 ---
 
-<nav>
+<nav aria-labelledby="sidebar-site">
   <ul class="nav-groups">  
     {sidebar.map(category => (
       <li>

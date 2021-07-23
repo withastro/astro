@@ -132,7 +132,7 @@ if (currentPage) {
         height: 100%;
       }
 
-      .layout.centered #article main {
+      .layout.centered #article > article > section {
         display: flex;
         flex-direction: column;
         margin: auto;
@@ -143,11 +143,11 @@ if (currentPage) {
         text-align: center;
       }
 
-      .layout.centered #article main :global(> *) {
+      .layout.centered #article > article > section :global(> *) {
         margin: 0;
       }
 
-      .layout.centered #article main h1 {
+      .layout.centered #article > article > section h1 {
         font-size: 5rem;
       }
 
@@ -160,7 +160,7 @@ if (currentPage) {
         flex-direction: column;
       }
 
-      .content > main {
+      .content > section {
         margin-bottom: 4rem;
       }
 
@@ -256,7 +256,7 @@ if (currentPage) {
 
   <body>
     <header>
-      <nav class="nav-wrapper">
+      <nav class="nav-wrapper" title="Top Navigation">
         <div class="menu-toggle">
             <MenuToggle client:idle/>
         </div>
@@ -291,24 +291,25 @@ if (currentPage) {
     </header>
 
     <main class={centered ? "layout centered" : "layout"}>
-      <aside class="sidebar" id="sidebar-site">
+      <aside class="sidebar" id="sidebar-site" title="Documentation Sections">
         <SiteSidebar currentPage={currentPage?.slice(1) ?? ''} />
       </aside>
       <div id="article">
         <article class="content">
-          <main>
+          <section>
             <h1 class="content-title" id="overview">{content?.title}</h1>
             <slot />
-          </main>
+          </section>
           {currentPage && <ArticleFooter path={currentFile} />}
         </article>
       </div>
-      <aside class="sidebar" id="sidebar-content">
+      <aside class="sidebar" id="sidebar-content" title="Table of Contents">
         {currentPage && <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />}
       </aside>
     </main>
 
     <script type="module" src="/nav.js" />
+    <script type="module" src="/make-scrollable-code-focusable.js" />
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TEL60V1WM9"></script>

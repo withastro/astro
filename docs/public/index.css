@@ -35,11 +35,11 @@ nav ul {
   padding: 0;
 }
 
-.content main > * + * {
+.content > section > * + * {
   margin-top: 1rem;
 }
 
-.content main > :first-child {
+.content > section > :first-child {
   margin-top: 0;
 }
 
@@ -110,24 +110,24 @@ a {
   gap: 0.5rem;
 }
 
-article main :is(ul, ol) > * + * {
+article > section :is(ul, ol) > * + * {
   margin-top: 0.75rem;
 }
 
-article main li > :is(p, pre, blockquote):not(:first-child) {
+article > section li > :is(p, pre, blockquote):not(:first-child) {
   margin-top: 1rem;
 }
 
-article main :is(ul, ol) {
+article > section :is(ul, ol) {
   padding-left: 1em;
 }
 
-article main ::marker {
+article > section ::marker {
   font-weight: bold;
   color: var(--theme-text-light);
 }
 
-article main iframe {
+article > section iframe {
   width: 100%;
   height: auto;
   aspect-ratio: 16 / 9;
