@@ -52,6 +52,20 @@ CSSBundling('Bundles CSS', async (context) => {
   const typographyIndex = bundledContents.indexOf('body{');
   const colorsIndex = bundledContents.indexOf(':root{');
   assert.ok(typographyIndex < colorsIndex);
+
+  // test 5: assert multiple style blocks were bundled (Nav.astro includes 2 scoped style blocks)
+  const scopedNavStyles = [...bundledContents.matchAll('.nav.astro-')];
+  assert.is(scopedNavStyles.length, 2);
+
+  // test 6: assert <style global> was not scoped (in Nav.astro)
+  const globalStyles = [...bundledContents.matchAll('html{')];
+  assert.is(globalStyles.length, 1);
+
+  // test 7: assert keyframes are only scoped for non-global styles (from Nav.astro)
+  const scopedKeyframes = [...bundledContents.matchAll('nav-scoped-fade-astro')];
+  const globalKeyframes = [...bundledContents.matchAll('nav-global-fade{')];
+  assert.ok(scopedKeyframes.length > 0);
+  assert.ok(globalKeyframes.length > 0);
 });
 
 CSSBundling.run();
