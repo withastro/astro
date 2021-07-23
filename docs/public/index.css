@@ -433,6 +433,35 @@ h2.heading {
   white-space: nowrap;
   border-width: 0;
 }
+
+.focus\:not-sr-only:focus,
+.focus\:not-sr-only:focus-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+.skiplink,
+.skiplink:focus,
+.skiplink:focus-visible {
+  position: absolute;
+  padding: 0.25em;
+  font-size: larger;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 999;
+  display: block;
+  background-color: var(--theme-bg);
+  color: var(--theme-text-accent);
+  border-radius: 0.25em;
+  outline: var(--theme-text-accent) solid 1px;
+  outline-offset: 0;
+}
 /* Screenreader Only Text - End */
 
 :target {
