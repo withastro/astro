@@ -224,7 +224,7 @@ _Note: all the examples here use `lang="scss"` which is a great convenience for 
 
 That `.btn` class is scoped within that component, and won’t leak out. It means that you can **focus on styling and not naming.** Local-first approach fits in very well with Astro’s ESM-powered design, favoring encapsulation and reusability over global scope. While this is a simple example, it should be noted that **this scales incredibly well.** And if you need to share common values between components, [Sass’ module system][sass-use] also gets our recommendation for being easy to use, and a great fit with component-first design.
 
-By contrast, Astro does allow global styles via the `:global()` and `<style global>` escape hatches, however, they should be avoided if possible. To illustrate this: say you used your button in a `<Nav />` component, and you wanted to style it differently there. You might be tempted to have something like:
+By contrast, Astro does allow global styles via the `:global()` and `<style global>` escape hatches. However, this should be avoided if possible. To illustrate this: say you used your button in a `<Nav />` component, and you wanted to style it differently there. You might be tempted to have something like:
 
 ```jsx
 ---
