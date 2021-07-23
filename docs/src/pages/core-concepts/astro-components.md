@@ -63,7 +63,7 @@ For best results, you should only have one `<style>` tag per-Astro component. Th
 </html>
 ```
 
-Using `<style global>` will skip automatic scoping for every CSS rule in the `<style>` block. This escape hatch should be avoided if possible but can be useful when importing global styling libraries like [Tailwind](/guides/styling#tailwind) or changing theme variables.
+Using `<style global>` will skip automatic scoping for every CSS rule in the `<style>` block. This escape hatch should be avoided if possible but can be useful if, for example, you need to modify styling for HTML elements added by an external library.
 
 Sass (an alternative to CSS) is also available via `<style lang="scss">`.
 

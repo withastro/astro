@@ -30,7 +30,7 @@ To create global styles, add a `:global()` wrapper around a selector (the same a
 <h1>I have both scoped and global styles</h1>
 ```
 
-To include every selector in a `<style>` as global styles, use `<style global>`. It's best to avoid using this escape hatch if possible, but it can be useful when importing global styling libraries like [Tailwind](/guides/styling#tailwind) or changing theme variables.
+To include every selector in a `<style>` as global styles, use `<style global>`. It's best to avoid using this escape hatch if possible, but it can be useful if you find yourself repeating `:global()` multiple times in the same `<style>`.
 
 ```html
 <!-- src/components/MyComponent.astro -->
