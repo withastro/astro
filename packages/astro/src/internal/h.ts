@@ -5,6 +5,23 @@ export type HTag = string | AstroComponent;
 
 const voidTags = new Set(['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr']);
 
+function* _children(children: Array<HChild>) {
+  for (let child of children) {
+    // Special: If a child is a function, call it automatically.
+    // This lets you do {() => ...} without the extra boilerplate
+    // of wrapping it in a function and calling it.
+    if (typeof child === 'function') {
+      yield child();
+    } else if (typeof child === 'string') {
+      yield child;
+    } else if (!child && child !== 0) {
+      // do nothing, safe to ignore falsey values.
+    } else {
+      yield child;
+    }
+  }
+}
+
 /** Generator for primary h() function */
 function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
   if (tag.toLowerCase() === '!doctype') {
@@ -32,20 +49,7 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
     return;
   }
 
-  for (let child of children) {
-    // Special: If a child is a function, call it automatically.
-    // This lets you do {() => ...} without the extra boilerplate
-    // of wrapping it in a function and calling it.
-    if (typeof child === 'function') {
-      yield child();
-    } else if (typeof child === 'string') {
-      yield child;
-    } else if (!child && child !== 0) {
-      // do nothing, safe to ignore falsey values.
-    } else {
-      yield child;
-    }
-  }
+  yield * _children(children);
 
   yield `</${tag}>`;
 }
@@ -62,6 +66,6 @@ export async function h(tag: HTag, attrs: HProps, ...pChildren: Array<Promise<HC
 }
 
 /** Fragment helper, similar to React.Fragment */
-export function Fragment(_: HProps, ...children: Array<string>) {
-  return children.join('');
+export function Fragment(_: HProps, ...children: Array<HChild>) {
+  return Array.from(_children(children)).join('');
 }
