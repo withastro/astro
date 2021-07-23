@@ -71,11 +71,16 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 1. Set the correct `buildOptions.site` in `astro.config.mjs`
 2. Create the file `.github/workflows/main.yml` and add in the yaml bellow. Make sure to edit in your own details.
 3. In Github go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
-4. In your Github source code repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
-5. When you push changes to your source repo CI will deploy them to \<YOUR USERNAME\>.github.io for you.
+4. In the astro project repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
+5. When you push changes to the astro project repo CI will deploy them to \<YOUR USERNAME\>.github.io for you.
   
 ```yaml
 # Workflow to build and deploy to your Github Pages repo.
+
+# Edit your details in here.
+env:
+  githubEmail: <YOUR GITHUB EMAIL ADDRESS>
+  deployToRepo: <NAME OF REPO TO DEPLOY TO (E.G. <YOUR USERNAME>.github.io)>
 
 name: Github Pages Astro CI
 
@@ -115,9 +120,9 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         with:
           source-directory: 'dist'
-          destination-github-username: '<YOUR USERNAME>'
-          destination-repository-name: '<YOUR USERNAME>.github.io'
-          user-email: <YOUR GITHUB EMAIL>
+          destination-github-username: ${{ github.actor }}
+          destination-repository-name: ${{ env.deployToRepo }}
+          user-email: ${{ env.githubEmail }}
           commit-message: Deploy ORIGIN_COMMIT
           target-branch: main
 ```
