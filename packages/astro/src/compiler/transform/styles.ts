@@ -132,19 +132,19 @@ async function transformStyle(code: string, { logging, type, filename, scopedCla
     }
   }
 
-  // 2b. Astro scoped styles (always on)
   if (!global) {
+    // 2b. Astro scoped styles (skip for global style blocks)
     postcssPlugins.push(astroScopedStyles({ className: scopedClass }));
-  }
 
-  // 2c. Scoped @keyframes
-  postcssPlugins.push(
-    postcssKeyframes({
-      generateScopedName(keyframesName) {
-        return `${keyframesName}-${scopedClass}`;
-      },
-    })
-  );
+    // 2c. Scoped @keyframes
+    postcssPlugins.push(
+      postcssKeyframes({
+        generateScopedName(keyframesName) {
+          return `${keyframesName}-${scopedClass}`;
+        },
+      })
+    );
+  }
 
   // 2d. Autoprefixer (always on)
   postcssPlugins.push(autoprefixer());
