@@ -73,7 +73,7 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 3. In Github go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
 4. In the astro project repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
 5. When you push changes to the astro project repo CI will deploy them to \<YOUR USERNAME\>.github.io for you.
-  
+
 ```yaml
 # Workflow to build and deploy to your Github Pages repo.
 
@@ -88,15 +88,14 @@ name: Github Pages Astro CI
 on:
   # Triggers the workflow on push and pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab.
   workflow_dispatch:
 
 jobs:
-
   deploy:
     runs-on: ubuntu-latest
 
@@ -113,7 +112,7 @@ jobs:
         run: |
           npm run build
           touch ./dist/.nojekyll
-          
+
       # Push to your pages repo
       - name: Push to pages repo
         uses: cpina/github-action-push-to-another-repository@main
