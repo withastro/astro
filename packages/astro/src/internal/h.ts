@@ -49,7 +49,7 @@ function* _h(tag: string, attrs: HProps, children: Array<HChild>) {
     return;
   }
 
-  yield * _children(children);
+  yield* _children(children);
 
   yield `</${tag}>`;
 }
