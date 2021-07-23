@@ -68,7 +68,65 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 
 ### GitHub Actions
 
-TODO: We'd love an example action snippet to share here!
+1. Set the correct `buildOptions.site` in `astro.config.mjs`
+2. Create the file `.github/workflows/main.yml` and add in the yaml below. Make sure to edit in your own details.
+3. In Github go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
+4. In the astro project repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
+5. When you push changes to the astro project repo CI will deploy them to \<YOUR USERNAME\>.github.io for you.
+  
+```yaml
+# Workflow to build and deploy to your Github Pages repo.
+
+# Edit your project details here.
+# Remember to add API_TOKEN_GITHUB in repo Settings > Secrets as well!
+env:
+  githubEmail: <YOUR GITHUB EMAIL ADDRESS>
+  deployToRepo: <NAME OF REPO TO DEPLOY TO (E.G. <YOUR USERNAME>.github.io)>
+
+name: Github Pages Astro CI
+
+on:
+  # Triggers the workflow on push and pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab.
+  workflow_dispatch:
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # Install dependencies with npm
+      - name: Install dependencies
+        run: npm ci
+
+      # Build the project and add .nojekyll file to supress default behaviour
+      - name: Build
+        run: |
+          npm run build
+          touch ./dist/.nojekyll
+          
+      # Push to your pages repo
+      - name: Push to pages repo
+        uses: cpina/github-action-push-to-another-repository@main
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        with:
+          source-directory: 'dist'
+          destination-github-username: ${{ github.actor }}
+          destination-repository-name: ${{ env.deployToRepo }}
+          user-email: ${{ env.githubEmail }}
+          commit-message: Deploy ORIGIN_COMMIT
+          target-branch: main
+```
 
 ### Travis CI
 
