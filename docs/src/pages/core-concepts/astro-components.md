@@ -63,6 +63,8 @@ For best results, you should only have one `<style>` tag per-Astro component. Th
 </html>
 ```
 
+Using `<style global>` will skip automatic scoping for every CSS rule in the `<style>` block. This escape hatch should be avoided if possible but can be useful if, for example, you need to modify styling for HTML elements added by an external library.
+
 Sass (an alternative to CSS) is also available via `<style lang="scss">`.
 
 📚 Read our full guide on [Component Styling](/guides/styling) to learn more.

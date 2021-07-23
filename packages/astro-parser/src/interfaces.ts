@@ -103,7 +103,7 @@ export interface Style extends BaseNode {
 
 export interface Ast {
   html: TemplateNode;
-  css: Style;
+  css: Style[];
   module: Script;
   // instance: Script;
   meta: {
