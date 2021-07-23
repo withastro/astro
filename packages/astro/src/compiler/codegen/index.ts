@@ -880,7 +880,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
 
   const { script, createCollection } = compileModule(ast, ast.module, state, compileOptions);
 
-  (ast.css || []).map(css => compileCss(css, state));
+  (ast.css || []).map((css) => compileCss(css, state));
 
   const html = await compileHtml(ast.html, state, compileOptions);
 

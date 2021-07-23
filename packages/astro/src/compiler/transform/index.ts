@@ -91,7 +91,7 @@ export async function transform(ast: Ast, opts: TransformOptions) {
     collectVisitors(optimizer, htmlVisitors, cssVisitors, finalizers);
   }
 
-  (ast.css || []).map(css => walkAstWithVisitors(css, cssVisitors));
+  (ast.css || []).map((css) => walkAstWithVisitors(css, cssVisitors));
   walkAstWithVisitors(ast.html, htmlVisitors);
 
   // Run all of the finalizer functions in parallel because why not.
