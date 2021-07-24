@@ -21,9 +21,7 @@ Today I'm excited to publicly share Astro: a new kind of static site builder tha
 
 This post marks the first public beta release of Astro. **Missing features and bugs are still to be expected at this early stage.** There are still some months to go before an official 1.0 release, but there are already several fast sites built with Astro in production today. We would love your early feedback as we move towards a v1.0 release later this year.
 
-<Note>
-  To learn more about Astro and start building your first site, check out [the project README.](https://github.com/snowpackjs/astro#-guides)
-</Note>
+> To learn more about Astro and start building your first site, check out [the project README.](https://github.com/snowpackjs/astro#-guides).
 
 ## Getting Started
 
@@ -62,9 +60,7 @@ This new approach to web architecture is called [islands architecture](https://j
 
 ## Embracing the Pit of Success
 
-<BlockQuote author="Jeff Atwood" source="Falling Into The Pit of Success" sourceHref="https://blog.codinghorror.com/falling-into-the-pit-of-success/">
-  A well-designed system makes it easy to do the right things and annoying (but not impossible) to do the wrong things
-</BlockQuote>
+> A well-designed system makes it easy to do the right things and annoying (but not impossible) to do the wrong things<div class="source"><p>– Jeff Atwood</p>[Falling Into The Pit of Success](https://blog.codinghorror.com/falling-into-the-pit-of-success/)</div>
 
 Poor performance is often framed as a failure of the developer, but we respectfully disagree. In many cases, poor performance is a failure of tooling. It should be difficult to build a slow website.
 
