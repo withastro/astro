@@ -3,7 +3,7 @@ layout: ~/layouts/Main.astro
 title: Getting Started
 ---
 
-Astro is modern static site builder. Learn what Astro is all about from [our homepage](https://astro.build/) or [our release post](https://astro.build/blog/introducing-astro). This page is an overview of the Astro documentation and all related resources.
+Astro is a modern static site builder. Learn what Astro is all about from [our homepage](https://astro.build/) or [our release post](https://astro.build/blog/introducing-astro). This page is an overview of the Astro documentation and all related resources.
 
 Looking for a quick overview of what Astro is? [Visit our homepage.](https://astro.build)
 
