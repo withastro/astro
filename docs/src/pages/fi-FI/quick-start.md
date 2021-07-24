@@ -4,7 +4,7 @@ title: Pika-aloitus
 ---
 
 ```shell
-# vaatimukset: varmista Node.js on vähintään versiota 12.20.0+, 14.13.1+ tai 16+
+# vaatimukset: varmista että Node.js on vähintään versiota 12.20.0+, 14.13.1+ tai 16+
 node --version
 
 # luo uuden projektin hakemisto ja siirry siihen
