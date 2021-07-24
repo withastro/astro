@@ -40,7 +40,7 @@ Kuvittele yksinkertainen nettisivu. Siltä löytyy monia erilaisia sivustolla us
 
 Tämänkaltainen sivusto sisältää varsin vähän "liikkuvia" palasia, eli _dynaamisia_ elementtejä. Suurimmaksi osaksi sisältö on kiinteää ja staattista.
 
-Dynaamisuuden ja vuorovaikutteisuuden saavuttamiseksi olemme usein päätyneet turhankin monimutkaisia ratkaisuja tuottaaksemme vain pienen toiminnallisuuden ohjelmassa.
+Dynaamisuuden ja vuorovaikutteisuuden saavuttamiseksi olemme usein päätyneet turhankin monimutkaisiin ratkaisuihin tuottaaksemme vain verrattain pieniä toiminnallisuuden ohjelmassa.
 
 Monimutkaisuudesta muotoutuu olennainen osa ohjelman toteuttamista. Tämän seurauksena kehittävät joutuvat omaksumaan dogmia, jotka ovat lähtöjään tietyistä arkkitehtuurisista malleista.
 
