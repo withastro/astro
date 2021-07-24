@@ -8,7 +8,7 @@ title: Pika-aloitus
 node --version
 
 # luo uuden projektin hakemisto ja siirry siihen
-mkdir mkdirtest && cd "$_"
+mkdir astrokokeilu && cd "$_"
 
 # valmistaudu laukaisuun...
 npm init astro
