@@ -28,7 +28,6 @@
     "packages/renderers/*",
     "packages/*",
     "examples/*",
-    "tools/*",
     "scripts",
     "www",
     "docs",
