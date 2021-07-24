@@ -1,5 +1,18 @@
 # astro
 
+## 0.18.0-next.5
+
+### Patch Changes
+
+- 294a656: Adds support for global style blocks via `<style global>`
+
+  Be careful with this escape hatch! This is best reserved for uses like importing styling libraries like Tailwind, or changing global CSS variables.
+
+- 164489f: Fix for `false` being rendered in conditionals
+- af935c1: Fix error when no renderers are passed
+- Updated dependencies [294a656]
+  - @astrojs/parser@0.18.0-next.5
+
 ## 0.18.0-next.4
 
 ### Patch Changes
