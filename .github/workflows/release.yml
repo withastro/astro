@@ -2,8 +2,6 @@ name: Changelog
 
 on:
   push:
-    paths:
-      - '.changeset/**'
     branches:
       - main
 
