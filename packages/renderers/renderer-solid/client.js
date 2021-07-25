@@ -1,3 +1,4 @@
+import { createComponent } from 'solid-js';
 import { render } from 'solid-js/web';
 
 export default (element) => (Component, props, childHTML) => {
@@ -11,5 +12,5 @@ export default (element) => (Component, props, childHTML) => {
   // Using Solid's `render` method ensures that a `root` is created
   // in order to properly handle reactivity. It also handles
   // components that are not native HTML elements.
-  render(() => Component({ ...props, children }), element);
+  render(() => createComponent(Component, { ...props, children }), element);
 };
