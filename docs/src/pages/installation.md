@@ -27,6 +27,7 @@ yarn create astro
 [`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) wizard lets you choose from a set of starter templates or alternatively, you could import your own  Astro project directly from  Github
 
 ```bash
+# Note: Replace "my-astro-project" with the name of your project.
 # npm 6.x
 npm init astro my-astro-project --template starter
 
@@ -40,7 +41,7 @@ yarn create astro my-astro-project --template starter
 npm init astro my-astro-project -- --template GITHUB_USER/REPO
 ```
 
-After `create-astro` scaffolds out your project, you would need to install any of the projects dependencies. To do this, enter:
+After `create-astro` scaffolds out your project, you would need to install the projects dependencies. To do this, enter:
 
 ``` bash
 npm install
@@ -59,7 +60,7 @@ This starts Astro's development server on, `http://localhost:3000`
 ### Set up your project
 
 ```bash
-# Note: Replace my-astro-project with the name of your project.
+# Make and enter a new directory
 mkdir my-astro-project
 cd my-astro-project
 ```
@@ -73,14 +74,13 @@ Create an empty directory with the name of your project, and then navigate into 
 npm init --yes
 ```
 
-Astro is designed to work with the entirety of the npm package ecosystem. Which is managed by a project manifest at the root of your project known as `package.json` . If you're not familiar with the `package.json` file, we highly recommend you to have a quick read about it on [the npm documentation](https://docs.npmjs.com/creating-a-package-json-file).
-
+Astro is designed to work with the entirety of the npm package ecosystem. This is managed by a project manifest at the root of your project known as `package.json` . If you're not familiar with the `package.json` file, we highly recommend you to have a quick read over it on [the npm documentation](https://docs.npmjs.com/creating-a-package-json-file).
 
 ### Install Astro
 
-If you've followed the instructions above, you should have a directory with a single `package.json` file inside of it. You can now install Astro in your project.
+Following the instructions above, you should have a directory with a single `package.json` file inside of it. You can now setup Astro inside your project.
 
-We'll use `npm` in the examples below, but you could also use `yarn` or `pnpm` if you prefer an npm alternative. If you aren't familiar with `yarn` or `pnpm`, then we strongly recommend sticking with `npm`.
+For demonstration purposes, we will be using [`npm`](https://www.npmjs.com/) in the examples below, but you could also use [`yarn`](https://yarnpkg.com/) or [`pnpm`](https://pnpm.io/) if you prefer an npm alternative.
 
 ```bash
 npm install astro
@@ -97,18 +97,18 @@ You can now replace the placeholder "scripts" section of your `package.json` fil
 }
 ```
 
-The `start` command launches the Astro Dev Server on http://localhost:3000. Once your project is ready, the `build` command outputs your project to the `./dist` directory. You can read more about [deploying your Astro site](/guides/deploy) to your preferred hosting provider.
+The `start` command launches the Astro Dev Server on `http://localhost:3000`. Once your project is ready, the `build` command outputs your project to the `./dist` directory. [Read more about deploying Astro in the Deploy guide.](/guides/deploy)
 
 ### Create your first page
 
 Astro Open up your favourite text editor, and create a new file in your project:
 
 1. Create a new file at `./src/pages/index.astro`
-2. Copy-and-paste this entire file (including `---` dashes) into it.
+2. Copy-and-paste the following snippet (including `---` dashes) into it.
 
 ```astro
 ---
-// Code written in between the (---) code fence, 
+// JS/TS Code written in between the (---) code fence, 
 // is ran solely on the Server!
 console.log('See me in the Terminal')
 ---
@@ -128,16 +128,20 @@ console.log('See me in the Terminal')
 </style>
 
 <script>
- // JS code entered here is ran entirely on the Browser
+ // JS Code entered here is ran entirely on the Browser
  console.log('See me in the devTools')
 </script>
 ```
+
+Above is an example of the Astro's Component's Syntax, which comprises of both HTML & JSX.
 
 You can create more pages in the `src/pages` directory, and Astro will use the filename to create new pages on your site. For example, you can create a new file at `src/pages/about.astro` (reusing the previous snippet) and Astro will generate a new page at the `/about` URL.
 
 ### Next Steps
 
-Success! You're now ready to start developing! Jump over to our [Quickstart Guide](/quick-start#start-your-project) for a 30-second walkthrough on how to start & build your new Astro project!
+Success! You're now ready to start developing! 
+
+We highly encourage you to get more familiar with the way Astro works. You can do so by further exploring our Docs, we suggest that you consider the following:
 
 📚 Learn more about Astro's project structure in our [Project Structure guide](/core-concepts/project-structure).  
 📚 Learn more about Astro's component syntax in our [Astro Components guide](/core-concepts/astro-components).  
