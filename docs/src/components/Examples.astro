@@ -1,0 +1,56 @@
+---
+import {templatesList} from '../templates.ts'
+
+---
+<div>
+    <h1>
+        Examples & Templates
+    </h1>
+    <p>
+        Feel free to use and explore our collection of ready-made templates containing a multitude of examples on how to apply Astro with; various UI frameworks, State Management Tools, and of course TailwindCSS
+    </p>
+    {templatesList.map(category=>(
+    <section>
+        {category.children.map(item=>(
+            <div class="cards">
+                <h2>
+                    {item.text}
+                </h2>
+                <p>
+                    {item.blurb}
+                </p>
+                <pre data-lang='bash'>
+                    {item.command}
+                </pre>
+                <a href={item.github} target="_blank" rel="noopener noreferrer">View in Github</a>
+                {item.demo.length != 0 ? <a href={item.demo} target="_blank" rel="noopener noreferrer">Online Demo</a>:""}
+            </div>
+    ))}
+    </section>        
+    ))}
+    <div>
+        <h2>
+            Community Templates
+        </h2>
+        <p>
+           Visit <a href="https://github.com/one-aalam/awesome-astro" target="_blank" rel="noopener noreferrer">awesome-astro</a> for a full list of community examples. You can use <code>npm init astro</code> to check out any of the community examples
+        </p>
+        <pre>
+npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
+npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
+        </pre>
+    </div>
+</div>
+<!-- TODO: Get the table of content to work, this is currently missing on the page-->
+
+<style lang="sass">
+.cards{
+    padding:1rem 0;
+    p{
+        padding-bottom:0.5rem;
+    }
+    a{
+        padding-inline-end: 1.5rem;
+    }
+}
+</style>
