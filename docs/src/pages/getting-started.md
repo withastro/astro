@@ -9,9 +9,11 @@ Looking for a quick overview of what Astro is? [Visit our homepage.](https://ast
 
 ## Try Astro
 
-The easiest way to try Astro is to run `npm init astro` in a new directory on your machine. This CLI command will walk you through starting a new Astro project.
+The easiest way to try Astro is to run `npm init astro` in a new directory on your machine. Our CLI wizard will assist you in starting a new Astro project.
 
-Read our [Installation Guide](/installation) for a full walk-through on getting set up with Astro.
+To get started with Astro in 5 quickly and easy steps, visit our [Quick-Start guide](quick-start).
+
+Alternatively, read our [Installation Guide](/installation) for a full walk-through on getting set up with Astro.
 
 ### Online Playgrounds
 
