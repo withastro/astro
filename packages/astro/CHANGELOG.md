@@ -1,5 +1,12 @@
 # astro
 
+## 0.18.0-next.6
+
+### Patch Changes
+
+- Updated dependencies [1f79144]
+  - @astrojs/renderer-vue@0.1.4-next.0
+
 ## 0.18.0-next.5
 
 ### Patch Changes
