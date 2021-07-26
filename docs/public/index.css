@@ -47,7 +47,7 @@ nav ul {
 :is(h1, h2, h3, h4, h5, h6) {
   margin-bottom: 1rem;
   font-weight: bold;
-  line-height: 1.25;
+  line-height: 1.0;
 }
 
 :is(h1, h2) {
@@ -59,11 +59,11 @@ nav ul {
 }
 
 h1 {
-  font-size: 1.75rem;
+  font-size: 2.25rem;
 }
 
 h2 {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
 }
 
 h3 {
@@ -78,13 +78,14 @@ h5 {
   font-size: 0.8rem;
 }
 
-@media (min-width: 60em) {
+@media (min-width: 50em) {
   h1 {
-    font-size: 2.5rem;
+    font-size: 3.25rem;
+    font-weight: 800;
   }
 
   h2 {
-    font-size: 1.75rem;
+    font-size: 2rem;
   }
 
   h3 {
@@ -268,10 +269,6 @@ img {
   align-items: center;
 }
 
-header {
-  position: relative;
-  margin-bottom: 0.5rem;
-}
 
 header button {
   background-color: var(--theme-bg);
@@ -306,12 +303,12 @@ button {
 }
 
 #theme-toggle {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.25em;
   padding: 0.33em 0.67em;
   border-radius: 99em;
-  background-color: hsla(215, 28%, 17%, 1);
+  background-color: var(--theme-code-inline-bg);
 }
 
 #theme-toggle > label:focus-within {
@@ -320,27 +317,16 @@ button {
 }
 
 #theme-toggle > label {
-  color: white;
+  color: var( --theme-code-inline-text);
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  width: 1.5rem;
-  height: 1.5rem;
   opacity: 0.5;
-  transition: transform 120ms ease-out, opacity 120ms ease-out;
-}
-
-#theme-toggle > label:hover,
-#theme-toggle > label:focus {
-  transform: scale(1.125);
-  opacity: 1;
 }
 
 #theme-toggle .checked {
   color: var(--theme-accent);
-  transform: scale(1.125);
   opacity: 1;
 }
 
@@ -362,7 +348,7 @@ input[name='theme-toggle'] {
 .sidebar-nav-inner {
   height: 100%;
   padding: 0;
-  padding-top: 2rem;
+  padding-top: var(--doc-padding);
   overflow: auto;
 }
 
@@ -466,51 +452,4 @@ h2.heading {
 
 :target {
   scroll-margin-top: 4rem;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0;
-  line-height: 1;
-  color: hsla(var(--color-base-white), 100%, 1);
-  text-decoration: none;
-  transform: translateX(-8px) scale(0.8);
-}
-
-@media (min-width: 60em) {
-  .logo {
-    transform: translateX(-8px) scale(1);
-  }
-}
-
-.logo a {
-  padding: 0.5em 0.25em;
-  margin: -0.5em -0.5em;
-}
-
-.logo svg {
-  height: 40px;
-  width: auto;
-  display: block;
-  color: var(--theme-accent);
-}
-
-.logo a:hover,
-.logo a:focus {
-  background: hsla(var(--color-orange), 0.6);
-}
-
-.logo a:hover svg,
-.logo a:focus svg {
-  color: hsla(var(--color-base-white), 100%, 1);
-}
-
-.logo h1 {
-  font: inherit;
-  color: inherit;
-  margin: 0;
 }

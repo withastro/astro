@@ -2,22 +2,9 @@ import type { FunctionalComponent } from 'preact';
 import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 
-const themes = ['system', 'light', 'dark'];
+const themes = ['light', 'dark'];
 
 const icons = [
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
-    fill="currentColor"
-  >
-    <path
-      fill-rule="evenodd"
-      d="M3 5a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2h-2.22l.123.489.804.804A1 1 0 0113 18H7a1 1 0 01-.707-1.707l.804-.804L7.22 15H5a2 2 0 01-2-2V5zm5.771 7H5V5h10v7H8.771z"
-      clip-rule="evenodd"
-    />
-  </svg>,
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="20"
@@ -44,31 +31,27 @@ const icons = [
 
 const ThemeToggle: FunctionalComponent = () => {
   const [theme, setTheme] = useState(() => {
-    if (typeof localStorage === 'undefined') {
-      return themes[0];
+    if (import.meta.env.SSR) {
+      return undefined;
     }
-
-    return localStorage.getItem('theme') || themes[0];
+    if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+      return localStorage.getItem('theme');
+    }
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      return 'dark';
+    }
+    return 'light';
   });
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'system') {
-      localStorage.removeItem('theme');
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        root.classList.add('theme-dark');
-      } else {
-        root.classList.remove('theme-dark');
-      }
+    if (theme === 'light') {
+      root.classList.remove('theme-dark');
     } else {
-      localStorage.setItem('theme', theme);
-      if (theme === 'light') {
-        root.classList.remove('theme-dark');
-      } else {
-        root.classList.add('theme-dark');
-      }
+      root.classList.add('theme-dark');
     }
   }, [theme]);
+
 
   return (
     <div id="theme-toggle">
@@ -76,7 +59,7 @@ const ThemeToggle: FunctionalComponent = () => {
         const icon = icons[i];
         const checked = t === theme;
         return (
-          <label className={checked ? 'checked' : ''}>
+          <label className={checked ? ' checked' : ''}>
             {icon}
             <input
               type="radio"
@@ -85,7 +68,10 @@ const ThemeToggle: FunctionalComponent = () => {
               value={t}
               title={`Use ${t} theme`}
               aria-label={`Use ${t} theme`}
-              onChange={() => setTheme(t)}
+              onChange={() => { 
+                localStorage.setItem('theme', t);
+                setTheme(t);
+              }}
             />
           </label>
         );

@@ -2,6 +2,7 @@ import type { FunctionalComponent } from 'preact';
 import { h } from 'preact';
 import { useState, useEffect, useRef } from 'preact/hooks';
 import EditOnGithub from './EditOnGithub';
+import ThemeToggle from './ThemeToggle';
 
 const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string }> = ({
   headers = [],
@@ -104,6 +105,9 @@ const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string }> = ({
             </a>
           </li>
         </ul>
+        <div style={{margin: '2rem 0', textAlign: 'center'}}>
+          <ThemeToggle />
+        </div>
       </div>
     </nav>
   );
