@@ -117,7 +117,7 @@ ${result.imports.join('\n')}
 
 ${/* Global Astro Namespace (shadowed & extended by the scoped namespace inside of __render()) */ ''}
 const __TopLevelAstro = {
-  site: new URL('/', ${JSON.stringify(site)}),
+  site: new URL(${JSON.stringify(site)}),
   fetchContent: (globResult) => fetchContent(globResult, import.meta.url),
 };
 const Astro = __TopLevelAstro;
