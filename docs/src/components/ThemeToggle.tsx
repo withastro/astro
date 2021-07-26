@@ -52,7 +52,6 @@ const ThemeToggle: FunctionalComponent = () => {
     }
   }, [theme]);
 
-
   return (
     <div id="theme-toggle">
       {themes.map((t, i) => {
@@ -68,7 +67,7 @@ const ThemeToggle: FunctionalComponent = () => {
               value={t}
               title={`Use ${t} theme`}
               aria-label={`Use ${t} theme`}
-              onChange={() => { 
+              onChange={() => {
                 localStorage.setItem('theme', t);
                 setTheme(t);
               }}

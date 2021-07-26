@@ -47,7 +47,7 @@ nav ul {
 :is(h1, h2, h3, h4, h5, h6) {
   margin-bottom: 1rem;
   font-weight: bold;
-  line-height: 1.0;
+  line-height: 1;
 }
 
 :is(h1, h2) {
@@ -269,7 +269,6 @@ img {
   align-items: center;
 }
 
-
 header button {
   background-color: var(--theme-bg);
 }
@@ -317,7 +316,7 @@ button {
 }
 
 #theme-toggle > label {
-  color: var( --theme-code-inline-text);
+  color: var(--theme-code-inline-text);
   position: relative;
   display: flex;
   align-items: center;

@@ -105,7 +105,7 @@ const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string }> = ({
             </a>
           </li>
         </ul>
-        <div style={{margin: '2rem 0', textAlign: 'center'}}>
+        <div style={{ margin: '2rem 0', textAlign: 'center' }}>
           <ThemeToggle />
         </div>
       </div>
