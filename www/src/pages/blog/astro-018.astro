@@ -40,11 +40,11 @@ let lang = 'en';
 
           ## Responsive component hydration
 
-          Astro uses partial hydration, a technique to only include the client-side JavaScript for the parts of a page that are actually interactive. With Astro there were previously 3 strategies for partial hydration: hydrating on page load, when the CPU is idle, or when the element is scrolled into view.
+          Astro uses [partial hydration](https://docs.astro.build/core-concepts/component-hydration), a technique to only include the client-side JavaScript for the parts of a page that are actually interactive. With Astro there were previously 3 strategies for partial hydration: hydrating on [page load](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientload-), when the CPU is [idle](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientidle-), or when the element is scrolled into [view](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientvisible-).
 
           When developing responsive sites you often have components that are only used on certain device sizes, like a mobile sidebar menu. Many sites will load their mobile-only code on all devices, wasting performance for users who don't ever see this UI.
 
-          To solve that problem we've now added a 4th way to hydrate, using a **CSS media query**. Add the `client:media` directive to a component and it will only hydrate once the media condition is met.
+          To solve that problem we've now added a 4th way to hydrate, using a **[CSS media query](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientmediaquery-)**. Add the `client:media` directive to a component and it will only hydrate once the media condition is met.
 
           This is all part of Astro's commitment to providing tools to minimize the amount of JavaScript you load.
 
@@ -53,7 +53,7 @@ let lang = 'en';
 
           ## Named slots
 
-          [Named slots](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_templates_and_slots) are a standardized feature in shadow DOM and used in frameworks like [Vue](https://vuejs.org/v2/guide/components-slots.html#Named-Slots). In this release, Astro adds named slots to Astro components, pages, and layouts.
+          [Named slots](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_templates_and_slots) are a standardized feature in shadow DOM and used in frameworks like [Vue](https://vuejs.org/v2/guide/components-slots.html#Named-Slots). In this release, Astro adds [named slots to Astro components](https://docs.astro.build/core-concepts/astro-components#slots), pages, and layouts.
 
           Named slots are particularly useful for layout components. Layout components are what we call components that provide common HTML for a page, such as commonly added CSS in the &lt;head&gt; and the page's skeleton content.
 
@@ -65,7 +65,7 @@ let lang = 'en';
 
           ## Solid support
 
-          [Solid](https://www.solidjs.com/) is a JSX-based reactive framework that compiles to efficient DOM manipulation. Before Astro was even public, the Solid team expressed interest in building a renderer. With the new Solid renderer, now you can use Solid as a first-class framework in your project.
+          [Solid](https://www.solidjs.com/) is a JSX-based reactive framework that compiles to efficient DOM manipulation. Before Astro was even public, the Solid team expressed interest in building a renderer. With the new [Solid renderer](https://github.com/snowpackjs/astro/tree/main/packages/renderers/renderer-solid), now you can use Solid as a first-class framework in your project.
 
           Even though Solid implements its own JSX compilation that differs from React and Preact, you're still able to use it side-by-side with any of those framework components. This is the promise of Astro, use all of your favorite framework(s)!
 
@@ -73,13 +73,13 @@ let lang = 'en';
 
           ## Lit support
 
-          The ability to server render web components is finally arriving thanks to [Declarative Shadow DOM](https://web.dev/declarative-shadow-dom/), a new HTML feature that's now available in Chrome. [Lit](https://lit.dev/) has experimental support for server rendering and we've brought that into Astro via the new Lit renderer.
+          The ability to server render web components is finally arriving thanks to [Declarative Shadow DOM](https://web.dev/declarative-shadow-dom/), a new HTML feature that's now available in Chrome. [Lit](https://lit.dev/) has experimental support for server rendering and we've brought that into Astro via the new [Lit renderer](https://github.com/snowpackjs/astro/tree/main/packages/renderers/renderer-lit).
 
           This allows you to define a Lit element in a JavaScript file and then render it in Astro, just as you would a framework component like React or Vue. One major difference is that you use the custom element tag name, just as you would in HTML. When doing that you get:
 
           * Fully rendered custom elements!
           * Automatic inclusion of the declarative shadow DOM polyfill (for non-Chromium browsers).
-          * Integration with Lit’s hydration system.
+          * Integration with Lit's hydration system.
 
           The Lit renderer is marked as experimental, but we're already excited to see that many popular libraries render correctly with it.  As other web component libraries adopt declarative shadow DOM and common APIs emerge for rendering, we hope to bring support to those libraries as well.
 
@@ -88,7 +88,7 @@ let lang = 'en';
 
           ## &lt;style global&gt;
 
-          Astro components and pages have &lt;style&gt; tags scoped by default. The new global attribute on the style tag marks a block of styles to be applied globally, without scoping.
+          Astro components and pages have &lt;style&gt; tags scoped by default. The new [global attribute](https://docs.astro.build/guides/styling#overview) on the style tag marks a block of styles to be applied globally, without scoping.
 
           For example in a page component you might want to style all of your heading elements (h1, h2, etc) a certain way regardless of whether they are contained within components or not. With &lt;style global&gt; you can do that a little easier.
 
