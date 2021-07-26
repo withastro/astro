@@ -4,9 +4,10 @@ export const sidebar = [
     link: '',
     children: [
       { text: 'Getting Started', link: 'getting-started' },
-      { text: 'Installation', link: 'installation' },
       { text: 'Quickstart', link: 'quick-start' },
+      { text: 'Installation', link: 'installation' },
       { text: 'Examples', link: 'examples' },
+      { text: 'Examples & Templates', link: 'examples-and-templates' },
       { text: 'Astro vs. X', link: 'comparing-astro-vs-other-tools' },
     ],
   },
