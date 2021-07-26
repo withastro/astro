@@ -7,6 +7,7 @@ import BlockQuote from '../../components/BlockQuote.astro';
 import GoogleAnalytics from '../../components/GoogleAnalytics.astro';
 import Note from '../../components/Note.astro';
 import Shell from '../../components/Shell.astro';
+import { mediaQueries } from '../../config.js';
 
 let title = 'Astro 0.18 Release';
 let description = `Astro 0.18 is our biggest release since Astro launch. It includes a new responsive hydrator, named slots, global stylesheets, and two new renderers. Ready on to learn more on this release.`;
@@ -33,16 +34,23 @@ let lang = 'en';
         <Markdown>
           After the success of Astro's launch we spent some time fixing bugs and taking user feedback on what to tackle next. Now some of the features that people requested are starting to get released.
           
-          Astro 0.18 is the culmination and is the biggest release to date. This post highlights only some of what it brings.
+          Astro 0.18 is the culmination and is the biggest release to date. This post highlights only some of what it brings, including:
+
+          * __[Responsive component hydration](#responsive-component-hydration)__: Use media queries to specify breakpoints where a component should be rendered in the client.
+          * __[Named slots](#named-slots)__: Allow your Astro components to have multiple slot positions for content.
+          * __[Solid.js support](#solid-support)__: Use [Solid.js](https://www.solidjs.com/) as a component framework in Astro.
+          * __[Lit support](#solid-support)__: Use [Lit](https://lit.dev/) as a component framework in Astro.
+          * __[Global styles](#global-styles)__: Inline global styles for a page.
+          * __[New docs site](#new-docs-site)__: Docs are up at [docs.astro.build](https://docs.astro.build/).
+
+          ## Responsive component hydration
 
           <picture>
-            <source srcset="/assets/blog/astro-018/responsive-hydration.png" type="image/png" media="(min-width: 601px)">
-            <source srcset="/assets/blog/astro-018/responsive-hydration-480.png 480w" type="image/png" media="(max-width: 600px)">
+            <source srcset="/assets/blog/astro-018/responsive-hydration.png" type="image/png" media={mediaQueries.desktop}>
+            <source srcset="/assets/blog/astro-018/responsive-hydration-480.png 480w" type="image/png" media={mediaQueries.mobile}>
             <img src="/assets/blog/astro-018/responsive-hydration.png" alt="Code example that shows off using the new client:media hydrator." />
             <!-- Saved from https://carbon.now.sh/16xchqPVdt5IEAY3Czg3 -->
           </picture>
-
-          ## Responsive component hydration
 
           Astro uses [partial hydration](https://docs.astro.build/core-concepts/component-hydration), a technique to only include the client-side JavaScript for the parts of a page that are actually interactive. With Astro there were previously 3 strategies for partial hydration: hydrating on [page load](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientload-), when the CPU is [idle](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientidle-), or when the element is scrolled into [view](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientvisible-).
 
@@ -90,7 +98,7 @@ let lang = 'en';
 
           ![Example showing using the style global tag to provide global CSS classes for the entire page.](/assets/blog/astro-018/style-global.png)
 
-          ## &lt;style global&gt;
+          ## Global styles
 
           Astro components and pages have &lt;style&gt; tags scoped by default. The new [global attribute](https://docs.astro.build/guides/styling#overview) on the style tag marks a block of styles to be applied globally, without scoping.
 
