@@ -35,8 +35,12 @@ let lang = 'en';
           
           Astro 0.18 is the culmination and is the biggest release to date. This post highlights only some of what it brings.
 
-          ![Code example that shows off using the new client:media hydrator.](/assets/blog/astro-018/responsive-hydration.png)
-          <!-- Saved from https://carbon.now.sh/16xchqPVdt5IEAY3Czg3 -->
+          <picture>
+            <source srcset="/assets/blog/astro-018/responsive-hydration.png" type="image/png" media="(min-width: 601px)">
+            <source srcset="/assets/blog/astro-018/responsive-hydration-480.png 480w" type="image/png" media="(max-width: 600px)">
+            <img src="/assets/blog/astro-018/responsive-hydration.png" alt="Code example that shows off using the new client:media hydrator." />
+            <!-- Saved from https://carbon.now.sh/16xchqPVdt5IEAY3Czg3 -->
+          </picture>
 
           ## Responsive component hydration
 
