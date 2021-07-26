@@ -18,10 +18,10 @@ Global('Astro.request.url', async (context) => {
 Global('Astro.request.canonicalURL', async (context) => {
   // given a URL, expect the following canonical URL
   const canonicalURLs = {
-    '/': 'https://mysite.dev/',
-    '/post/post': 'https://mysite.dev/post/post/',
-    '/posts': 'https://mysite.dev/posts/',
-    '/posts/2': 'https://mysite.dev/posts/2/',
+    '/': 'https://mysite.dev/blog/',
+    '/post/post': 'https://mysite.dev/blog/post/post/',
+    '/posts': 'https://mysite.dev/blog/posts/',
+    '/posts/2': 'https://mysite.dev/blog/posts/2/',
   };
 
   for (const [url, canonicalURL] of Object.entries(canonicalURLs)) {
@@ -36,7 +36,7 @@ Global('Astro.site', async (context) => {
   assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
-  assert.equal($('#site').attr('href'), 'https://mysite.dev');
+  assert.equal($('#site').attr('href'), 'https://mysite.dev/blog/');
 });
 
 Global.run();

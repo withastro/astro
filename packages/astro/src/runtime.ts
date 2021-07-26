@@ -68,8 +68,8 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   const { logging, snowpackRuntime, snowpack, configManager } = config;
   const { buildOptions, devOptions } = config.astroConfig;
 
-  let origin = buildOptions.site ? new URL(buildOptions.site).origin : `http://${devOptions.hostname}:${devOptions.port}`;
-  const fullurl = new URL(rawPathname || '/', origin);
+  const site = new URL(buildOptions.site || `http://${devOptions.hostname}:${devOptions.port}`);
+  const fullurl = new URL(rawPathname || '/', site.origin);
 
   const reqPath = decodeURI(fullurl.pathname);
   info(logging, 'access', reqPath);
@@ -214,7 +214,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       request: {
         // params should go here when implemented
         url: requestURL,
-        canonicalURL: canonicalURL(requestURL.pathname, requestURL.origin),
+        canonicalURL: canonicalURL(requestURL.pathname, site.toString()),
       },
       children: [],
       props: pageProps,
