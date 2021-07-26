@@ -282,21 +282,6 @@ img {
   align-items: center;
 }
 
-header button {
-  background-color: var(--theme-bg);
-}
-
-header button:hover,
-header button:focus {
-  outline: var(--theme-text) solid 1px;
-}
-
-header button:active,
-header button[aria-pressed='true'] {
-  background: var(--theme-text);
-  color: var(--theme-bg);
-}
-
 button {
   display: flex;
   align-items: center;
@@ -452,7 +437,7 @@ h2.heading {
   font-size: larger;
   top: 0.5rem;
   left: 0.5rem;
-  z-index: 999;
+  z-index: 9;
   display: block;
   background-color: var(--theme-bg);
   color: var(--theme-text-accent);
