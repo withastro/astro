@@ -66,6 +66,7 @@ export interface TransformStyleOptions {
   filename: string;
   scopedClass: string;
   tailwindConfig?: string;
+  global?: boolean;
 }
 
 /** given a class="" string, does it contain a given class? */
@@ -78,7 +79,7 @@ function hasClass(classList: string, className: string): boolean {
 }
 
 /** Convert styles to scoped CSS */
-async function transformStyle(code: string, { logging, type, filename, scopedClass, tailwindConfig }: TransformStyleOptions): Promise<StyleTransformResult> {
+async function transformStyle(code: string, { logging, type, filename, scopedClass, tailwindConfig, global }: TransformStyleOptions): Promise<StyleTransformResult> {
   let styleType: StyleType = 'css'; // important: assume CSS as default
   if (type) {
     styleType = getStyleType.get(type) || styleType;
@@ -131,17 +132,19 @@ async function transformStyle(code: string, { logging, type, filename, scopedCla
     }
   }
 
-  // 2b. Astro scoped styles (always on)
-  postcssPlugins.push(astroScopedStyles({ className: scopedClass }));
+  if (!global) {
+    // 2b. Astro scoped styles (skip for global style blocks)
+    postcssPlugins.push(astroScopedStyles({ className: scopedClass }));
 
-  // 2c. Scoped @keyframes
-  postcssPlugins.push(
-    postcssKeyframes({
-      generateScopedName(keyframesName) {
-        return `${keyframesName}-${scopedClass}`;
-      },
-    })
-  );
+    // 2c. Scoped @keyframes
+    postcssPlugins.push(
+      postcssKeyframes({
+        generateScopedName(keyframesName) {
+          return `${keyframesName}-${scopedClass}`;
+        },
+      })
+    );
+  }
 
   // 2d. Autoprefixer (always on)
   postcssPlugins.push(autoprefixer());
@@ -215,6 +218,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
               const code = Array.isArray(node.children) ? node.children.map(({ data }: any) => data).join('\n') : '';
               if (!code) return;
               const langAttr = (node.attributes || []).find(({ name }: any) => name === 'lang');
+              const globalAttr = (node.attributes || []).find(({ name }: any) => name === 'global');
               styleNodes.push(node);
               styleTransformPromises.push(
                 transformStyle(code, {
@@ -223,6 +227,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
                   filename,
                   scopedClass,
                   tailwindConfig: compileOptions.astroConfig.devOptions.tailwindConfig,
+                  global: globalAttr && globalAttr.value,
                 })
               );
               return;
@@ -246,6 +251,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
             if (!node.content || !node.content.styles) return;
             const code = node.content.styles;
             const langAttr = (node.attributes || []).find(({ name }: any) => name === 'lang');
+            const globalAttr = (node.attributes || []).find(({ name }: any) => name === 'global');
             styleNodes.push(node);
             styleTransformPromises.push(
               transformStyle(code, {
@@ -253,6 +259,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
                 type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                 filename,
                 scopedClass,
+                global: globalAttr && globalAttr.value,
               })
             );
           },

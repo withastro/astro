@@ -26,6 +26,7 @@ interface CLIState {
   cmd: cliCommand;
   options: {
     projectRoot?: string;
+    site?: string;
     sitemap?: boolean;
     hostname?: string;
     port?: number;
@@ -38,6 +39,7 @@ interface CLIState {
 function resolveArgs(flags: Arguments): CLIState {
   const options: CLIState['options'] = {
     projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
+    site: typeof flags.site === 'string' ? flags.site : undefined,
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined,
@@ -93,6 +95,7 @@ async function printVersion() {
 /** Merge CLI flags & config options (CLI flags take priority) */
 function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
   if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
+  if (typeof flags.site === 'string') astroConfig.buildOptions.site = flags.site;
   if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
   if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
 }

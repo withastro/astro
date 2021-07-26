@@ -30,6 +30,32 @@ To create global styles, add a `:global()` wrapper around a selector (the same a
 <h1>I have both scoped and global styles</h1>
 ```
 
+To include every selector in a `<style>` as global styles, use `<style global>`. It's best to avoid using this escape hatch if possible, but it can be useful if you find yourself repeating `:global()` multiple times in the same `<style>`.
+
+```html
+<!-- src/components/MyComponent.astro -->
+<style>
+  /* Scoped class selector within the component */
+  .scoped {
+    font-weight: bold;
+  }
+  /* Scoped element selector within the component */
+  h1 {
+    color: red;
+  }
+</style>
+
+<style global>
+  /* Global style */
+  h1 {
+    font-size: 32px;
+  }
+</style>
+
+<div class="scoped">I’m a scoped style and only apply to this component</div>
+<h1>I have both scoped and global styles</h1>
+```
+
 📚 Read our full guide on [Astro component syntax](/core-concepts/astro-components#css-styles) to learn more about using the `<style>` tag.
 
 ## Cross-Browser Compatibility
@@ -198,7 +224,7 @@ _Note: all the examples here use `lang="scss"` which is a great convenience for 
 
 That `.btn` class is scoped within that component, and won’t leak out. It means that you can **focus on styling and not naming.** Local-first approach fits in very well with Astro’s ESM-powered design, favoring encapsulation and reusability over global scope. While this is a simple example, it should be noted that **this scales incredibly well.** And if you need to share common values between components, [Sass’ module system][sass-use] also gets our recommendation for being easy to use, and a great fit with component-first design.
 
-By contrast, Astro does allow global styles via the `:global()` escape hatch, however, this should be avoided if possible. To illustrate this: say you used your button in a `<Nav />` component, and you wanted to style it differently there. You might be tempted to have something like:
+By contrast, Astro does allow global styles via the `:global()` and `<style global>` escape hatches. However, this should be avoided if possible. To illustrate this: say you used your button in a `<Nav />` component, and you wanted to style it differently there. You might be tempted to have something like:
 
 ```jsx
 ---

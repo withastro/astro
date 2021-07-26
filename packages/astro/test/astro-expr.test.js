@@ -80,6 +80,12 @@ Expressions('Does not render falsy values using &&', async ({ runtime }) => {
   assert.equal($('#false').length, 0, `Expected {false && <span id="false" />} not to render`);
   assert.equal($('#null').length, 0, `Expected {null && <span id="null" />} not to render`);
   assert.equal($('#undefined').length, 0, `Expected {undefined && <span id="undefined" />} not to render`);
+
+  // Inside of a component
+  assert.equal($('#frag-true').length, 1, `Expected {true && <span id="true" />} to render`);
+  assert.equal($('#frag-false').length, 0, `Expected {false && <span id="false" />} not to render`);
+  assert.equal($('#frag-null').length, 0, `Expected {null && <span id="null" />} not to render`);
+  assert.equal($('#frag-undefined').length, 0, `Expected {undefined && <span id="undefined" />} not to render`);
 });
 
 Expressions.run();

@@ -10,11 +10,6 @@
   margin: 0;
 }
 html {
-  display: grid;
-  width: 100%;
-  max-width: 100vw;
-  overflow: hidden;
-  height: 100%;
   background-color: #000014;
 }
 html,
@@ -23,18 +18,8 @@ body {
   font-size: clamp(14px, calc(1rem + (3vw - 1.2rem)), 20px);
   font-family: var(--font-sans);
   font-weight: 400;
-  background-image: radial-gradient(87.7% 87.7% at 85.6% 18.14%, #111827 0%, #000014 100%);
   background-repeat: no-repeat;
   color: #f3f4f6;
-}
-body {
-  position: relative;
-  display: grid;
-  place-items: center;
-  min-width: 100%;
-  max-width: 100vw;
-  min-height: 100vh;
-  overflow-x: hidden;
 }
 .visually-hidden {
   clip: rect(0 0 0 0);
