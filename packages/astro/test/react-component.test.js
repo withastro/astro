@@ -41,6 +41,8 @@ React('Can load React', async () => {
   assert.equal($('#react-h2').text(), 'Hello world!');
   assert.equal($('#react-h2').attr('data-reactroot'), undefined, 'no reactroot');
   assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
+  assert.equal($('#component-spread-props').length, 1, 'Can use spread for components');
+  assert.equal($('#component-spread-props').text(), 'Hello world!');
 });
 
 React('Includes reactroot on hydrating components', async () => {
