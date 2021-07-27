@@ -4,6 +4,7 @@ description: "We're excited to announce Astro as a new way to build static websi
 publishDate: 'Tuesday, June 8 2021'
 author: 'fred'
 heroImage: '/social.jpg'
+alt: 'Astro'
 layout: '../../layouts/BlogPost.astro'
 ---
 
