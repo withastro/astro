@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { bold, cyan, gray, green, red } from 'kleur/colors';
+import { bold, cyan, gray, green, red, yellow } from 'kleur/colors';
 import fetch from 'node-fetch';
 import prompts from 'prompts';
 import degit from 'degit';
