@@ -109,7 +109,7 @@ async function transformStyle(code: string, { logging, type, filename, scopedCla
     }
     case 'sass':
     case 'scss': {
-      css = sass.renderSync({ data: code, includePaths }).css.toString('utf8');
+      css = sass.renderSync({ data: code, includePaths, indentedSyntax: styleType === 'sass' }).css.toString('utf8');
       break;
     }
     default: {
