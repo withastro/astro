@@ -24,15 +24,17 @@
     "create-astro.js"
   ],
   "dependencies": {
-    "node-fetch": "^2.6.1",
     "@types/degit": "^2.8.2",
+    "@types/node-fetch": "^2.5.12",
     "@types/prompts": "^2.0.12",
     "degit": "^2.8.4",
     "kleur": "^4.1.1",
+    "node-fetch": "^2.6.1",
     "prompts": "^2.4.1",
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
+    "@types/node-fetch": "^2.5.12",
     "uvu": "^0.5.1"
   },
   "engines": {
