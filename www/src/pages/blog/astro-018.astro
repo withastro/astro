@@ -21,7 +21,7 @@ let lang = 'en';
 <html lang={ lang ?? 'en' }>
   <head>
     <BlogHead title={title} description={description} permalink={permalink} />
-    <style>
+    <style global>
       img {
         max-width: 100%;
       }
@@ -32,90 +32,71 @@ let lang = 'en';
     <BlogHeader />
     <BlogPost title={title} author={author} heroImage={heroImage} publishDate={publishDate}>
         <Markdown>
-          After the success of Astro's launch we spent some time fixing bugs and taking user feedback on what to tackle next. Now some of the features that people requested are starting to get released.
-          
-          Astro 0.18 is the culmination and is the biggest release to date. This post highlights only some of what it brings, including:
+          A little over a month ago, the first public beta for Astro was released to the world. Since then, we have been fixing bugs and gathering your feedback on what to tackle next. Today, we are excited to announce the release of some of our most requested features.
 
-          * __[Responsive component hydration](#responsive-component-hydration)__: Use media queries to specify breakpoints where a component should be rendered in the client.
-          * __[Named slots](#named-slots)__: Allow your Astro components to have multiple slot positions for content.
-          * __[Solid.js support](#solid-support)__: Use [Solid.js](https://www.solidjs.com/) as a component framework in Astro.
-          * __[Lit support](#solid-support)__: Use [Lit](https://lit.dev/) as a component framework in Astro.
-          * __[Global styles](#global-styles)__: Inline global styles for a page.
-          * __[New docs site](#new-docs-site)__: Docs are up at [docs.astro.build](https://docs.astro.build/).
+          We are excited to introduce Astro v0.18, featuring:
 
-          ## Responsive component hydration
+          * __[Responsive partial hydration:](#responsive-component-hydration)__ Hydrate components with CSS media queries.
+          * __[Named slots:](#named-slots)__ Support multiple content entrypoints inside of Astro components.
+          * __[Solid.js support:](#solid-support)__ Use [Solid.js](https://www.solidjs.com/) components in Astro.
+          * __[Lit support:](#solid-support)__ Use [Lit SSR](https://lit.dev/) to get server-side rendering for web components.
+          * [`<style global>` support](https://docs.astro.build/guides/styling#overview), [GitHub syntax highlighting](https://twitter.com/n_moore/status/1417881860051509250) and a [shiny new docs site.](https://docs.astro.build/)
 
-          <picture>
-            <source srcset="/assets/blog/astro-018/responsive-hydration.png" type="image/png" media={mediaQueries.desktop}>
-            <source srcset="/assets/blog/astro-018/responsive-hydration-480.png 480w" type="image/png" media={mediaQueries.mobile}>
-            <img src="/assets/blog/astro-018/responsive-hydration.png" alt="Code example that shows off using the new client:media hydrator." />
-            <!-- Saved from https://carbon.now.sh/16xchqPVdt5IEAY3Czg3 -->
-          </picture>
+          ## Responsive partial hydration
 
-          Astro uses [partial hydration](https://docs.astro.build/core-concepts/component-hydration), a technique to only include the client-side JavaScript for the parts of a page that are actually interactive. With Astro there were previously 3 strategies for partial hydration: hydrating on [page load](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientload-), when the CPU is [idle](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientidle-), or when the element is scrolled into [view](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientvisible-).
 
-          When developing responsive sites you often have components that are only used on certain device sizes, like a mobile sidebar menu. Many sites will load their mobile-only code on all devices, wasting performance for users who don't ever see this UI.
+          <img src="/assets/blog/astro-018/responsive-hydration.png" alt="Code example that shows off using the new client:media hydrator." />
+          <!-- Saved from https://carbon.now.sh/16xchqPVdt5IEAY3Czg3 -->
 
-          To solve that problem we've now added a 4th way to hydrate, using a **[CSS media query](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientmediaquery-)**. Add the `client:media` directive to a component and it will only hydrate once the media condition is met.
+          Responsive websites often load components that are only visible on certain device sizes, like a mobile sidebar menu. As a developer, it can be difficult (impossible?) to avoid loading mobile-only code on non-mobile devices. The result is wasted time spent on code that will never even be seen by the end user.
 
-          This is all part of Astro's commitment to providing tools to minimize the amount of JavaScript you load.
+          Astro solves the problem of uneccesary JavaScript with [partial hydration](https://docs.astro.build/core-concepts/component-hydration), a technique that involves only hydrating the components that need interactivity and leaving the rest as static HTML. **Astro v0.18 adds a new way to customize partial hydration using [CSS media queries](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientmediaquery-) that avoid sending code to devices that don't need it.**
+
+          Add the `client:media` directive to a component and it will only hydrate once the media condition is met. On a mobile phone? Skip any expensive and unneccesary JavaScript for the desktop header that you'll never see. On a desktop or laptop? Don't load that mobile hamburger menu. This is all part of Astro's commitment to minimizing the unnecesary JavaScript that you send to your users.
+
+          ## Named slots in Astro components
 
           ![Using multiple slots to provide the head and body parts of a Layout component.](/assets/blog/astro-018/named-slots.png)
           <!-- https://carbon.now.sh/9UwJkMCezRIOhzac5VVp -->
 
-          ## Named slots
+          [Named slots](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_templates_and_slots) are a standard web feature used in [browser APIs](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_templates_and_slots) and web frameworks like [Vue](https://vuejs.org/v2/guide/components-slots.html#Named-Slots). In this release, [Astro adds support for named slots](https://docs.astro.build/core-concepts/astro-components#slots) to Astro components, pages, and layouts.
 
-          [Named slots](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_templates_and_slots) are a standardized feature in shadow DOM and used in frameworks like [Vue](https://vuejs.org/v2/guide/components-slots.html#Named-Slots). In this release, Astro adds [named slots to Astro components](https://docs.astro.build/core-concepts/astro-components#slots), pages, and layouts.
+          Named slots are particularly useful for page layouts. A layout can now specify slots for different sections of the page. You can put metadata tags in "head" slot, and page content in the "body" or "content" slot. Your layout is now completely customizable, with as many or as few slots as you need.
 
-          Named slots are particularly useful for layout components. Layout components are what we call components that provide common HTML for a page, such as commonly added CSS in the &lt;head&gt; and the page's skeleton content.
-
-          Now, a Layout can specify slots for content to go into the "head" section, and some to go into the body's "content" section. The layout component defines its slots as part of its API. It can have as many or as few as you need!
-
-          Named slots will allow for **more robust** and dynamic Astro components. This will especially be useful for distributing components as packages where components take more options and are less opinionated.
-
-          ![Solid.js logo](/assets/blog/astro-018/solid-logo.png)
 
           ## Solid support
 
-          [Solid](https://www.solidjs.com/) is a JSX-based reactive framework that compiles to efficient DOM manipulation. Before Astro was even public, the Solid team expressed interest in building a renderer. With the new [Solid renderer](https://github.com/snowpackjs/astro/tree/main/packages/renderers/renderer-solid), now you can use Solid as a first-class framework in your project.
+          <img src="/assets/blog/astro-018/solid-logo-dark.svg" alt="Solid.js logo" style="background-color: rgb(65, 64, 66); padding: 2rem 4rem;" />
 
-          Even though Solid implements its own JSX compilation that differs from React and Preact, you're still able to use it side-by-side with any of those framework components. This is the promise of Astro, use all of your favorite framework(s)!
+          [Solid](https://www.solidjs.com/) is a JSX-based UI framework that bills itself as the familiar, modern, more reactive alternative to React. We're really excited about Solid, and with the new [Solid renderer](https://github.com/snowpackjs/astro/tree/main/packages/renderers/renderer-solid) for Astro you can use Solid as a first-class framework in your project.
 
-          ![Lit logo](/assets/blog/astro-018/lit-logo.svg)
+          Adding support for Solid (our third officially-supported JSX framework) wasn't easy, and required a major refactoring of how Astro handles JSX. The final result was worth it: Astro is now much better at supporting different types of JSX and can even support the new React v17 JSX transform. This new foundation for Astro should support us well into the future.
 
-          ## Lit support
-
-          The ability to server render web components is finally arriving thanks to [Declarative Shadow DOM](https://web.dev/declarative-shadow-dom/), a new HTML feature that's now available in Chrome. [Lit](https://lit.dev/) has experimental support for server rendering and we've brought that into Astro via the new [Lit renderer](https://github.com/snowpackjs/astro/tree/main/packages/renderers/renderer-lit).
-
-          This allows you to define a Lit element in a JavaScript file and then render it in Astro, just as you would a framework component like React or Vue. One major difference is that you use the custom element tag name, just as you would in HTML. When doing that you get:
-
-          * Fully rendered custom elements!
-          * Automatic inclusion of the declarative shadow DOM polyfill (for non-Chromium browsers).
-          * Integration with Lit's hydration system.
-
-          The Lit renderer is marked as experimental, but we're already excited to see that many popular libraries render correctly with it.  As other web component libraries adopt declarative shadow DOM and common APIs emerge for rendering, we hope to bring support to those libraries as well.
+          The release of Solid v1.0 is the perfect showcase for Astro's multi-framework promise: try out your first Solid component in an existing project side-by-side with the rest of your components. Where other build tools force you to choose a single framework and stick with it, Astro makes multi-framework projects easy for short-term code migrations or long-term site architectures.
 
 
-          ![Example showing using the style global tag to provide global CSS classes for the entire page.](/assets/blog/astro-018/style-global.png)
+          ## Lit SSR support
 
-          ## Global styles
+          ![Lit logo](/assets/blog/astro-018/lit-element.jpeg)
 
-          Astro components and pages have &lt;style&gt; tags scoped by default. The new [global attribute](https://docs.astro.build/guides/styling#overview) on the style tag marks a block of styles to be applied globally, without scoping.
+          Server-side rendering (SSR) for web components is finally here, thanks to Lit and the new [Lit renderer for Astro](https://github.com/snowpackjs/astro/tree/main/packages/renderers/renderer-lit).
 
-          For example in a page component you might want to style all of your heading elements (h1, h2, etc) a certain way regardless of whether they are contained within components or not. With &lt;style global&gt; you can do that a little easier.
+          Web component SSR has been famously difficult up until now. Thanks to the [Declarative Shadow DOM](https://web.dev/declarative-shadow-dom/) -- a new HTML feature that's now available in Chrome -- the Lit project was able to release experimental SSR support for Lit. Define a custom element in JavaScript and server render it with Astro as you would any other component from React or Vue. Unlike other JS components, you still use the custom element tag name in your HTML.
 
-          ![Image of docs.astro.build Getting Started page](/assets/blog/astro-018/docs-site.png)
+          The Lit SSR renderer is experimental, and some existing web components may not work with the new API. As other web component libraries adopt declarative shadow DOM and common APIs emerge for rendering, we hope to bring support to those libraries as well. We will keep refining and improving this support as we move towards Astro v1.0.
 
-          ## New docs site
+          ## Community
 
-          The docs site has been in development since Astro was launched and is now available at [docs.astro.build](https://docs.astro.build/).
+          We've been absolutely blown away by the love Astro has recieved in such a short amount of time:
 
-          While improving the Astro docs we’ve also been updating the docs template which we used ourselves. You can start your own documentation site with:
+          - Featured articles and guides from [Netlify](https://www.netlify.com/blog/2021/07/23/build-a-modern-shopping-site-with-astro-and-serverless-functions/), [Cloudflare](https://developers.cloudflare.com/pages/framework-guides/astro), [CSS Tricks](https://css-tricks.com/a-look-at-building-with-astro/), and more.
+          - Over 2,000 developers have downloaded the [Astro VSCode extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)
+          - Over 500 weekly visitors to our [amazing Discord](https://astro.build/chat)
+          - Over 300 public projects using Astro [on Github](https://github.com/snowpackjs/astro)
+          - 2 (TWO!) Astro jobs already posted on Discord!
+          - [GitHub adds support for Astro component syntax highlighting](https://twitter.com/n_moore/status/1417881860051509250)
 
-          <Shell code={`npm init astro --template docs`} />
-
-          Huge thanks to the docs team which is one of the most active channels on [our Discord](https://astro.build/chat).
-
+          To learn more about Astro and start building your first site, check out [the Getting Started guide.](https://docs.astro.build)
         </Markdown>
     </BlogPost>
 
