@@ -7,3 +7,8 @@ export const sidebar = [
     ],
   },
 ];
+
+export const mediaQueries = {
+  mobile: '(max-width: 600px)',
+  desktop: '(min-width: 601px)'
+}
