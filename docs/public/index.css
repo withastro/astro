@@ -284,10 +284,13 @@ img {
 
 header button {
   background-color: var(--theme-bg);
+  outline: var(--theme-text) solid 1px;
 }
 
 header button:hover,
-header button:focus {
+header button:focus:not(:focus-visible),
+header button:focus-visible {
+  background-color: var(--theme-bg-hover);
   outline: var(--theme-text) solid 1px;
 }
 
