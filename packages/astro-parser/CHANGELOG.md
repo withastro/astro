@@ -1,5 +1,16 @@
 # @astrojs/parser
 
+## 0.18.0
+
+### Patch Changes
+
+- a7e6666: compile javascript to target Node v12.x
+- 294a656: Adds support for global style blocks via `<style global>`
+
+  Be careful with this escape hatch! This is best reserved for uses like importing styling libraries like Tailwind, or changing global CSS variables.
+
+- b85e68a: Fixes case where custom elements are not handled within JSX expressions
+
 ## 0.18.0-next.5
 
 ### Patch Changes

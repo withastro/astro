@@ -1,5 +1,11 @@
 # @astrojs/renderer-vue
 
+## 0.1.4
+
+### Patch Changes
+
+- 1f79144: Exclude @vue/runtime-core from processing to fix Vue SSR for nested components
+
 ## 0.1.4-next.0
 
 ### Patch Changes
