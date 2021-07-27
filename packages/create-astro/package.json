@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "0.5.1-next.1",
+  "version": "0.5.1",
   "type": "module",
   "repository": {
     "type": "git",
