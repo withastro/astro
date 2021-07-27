@@ -91,3 +91,4 @@ Alternatively, you could add a `<script>` tag to your Astro component HTML templ
 
 [mdn-io]: https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
 [mdn-ric]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
+[mdn-mm]: https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia
