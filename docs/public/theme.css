@@ -76,10 +76,16 @@
   --theme-code-bg: hsla(217, 19%, 27%, 1);
   --theme-code-text: hsla(var(--color-gray-95), 1);
   --theme-navbar-bg: hsla(var(--color-base-white), 100%, 1);
-  --theme-navbar-height: 6rem;
+  --theme-navbar-height: 10rem;
   --theme-sidebar-offset: var(--theme-navbar-height);
   --theme-selection-color: hsla(var(--color-orange), 1);
   --theme-selection-bg: hsla(var(--color-orange), var(--theme-accent-opacity));
+}
+
+@media (min-width: 50em) {
+  :root {
+    --theme-navbar-height: 6rem;
+  }
 }
 
 body {

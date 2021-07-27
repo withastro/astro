@@ -3,6 +3,7 @@ import ArticleFooter from '../components/ArticleFooter.astro';
 import SiteSidebar from '../components/SiteSidebar.astro';
 import DocSidebar, { TableOfContents, More } from '../components/DocSidebar/DocSidebar.tsx';
 import MenuToggle from '../components/MenuToggle.tsx';
+import Search from "../components/Search.tsx";
 import MetaData from "../components/MetaData.astro";
 import { site } from "../config.ts";
 
@@ -140,6 +141,8 @@ if (currentPage) {
         display: flex;
         align-items: center;
         justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem;
         width: 100%;
         max-width: 82em;
         padding: 0 1rem;
@@ -258,7 +261,6 @@ if (currentPage) {
           position: sticky;
         }
         #sidebar-content {
-          /* display: flex; */
           grid-column: 3;
         }
         .sm\:hidden {
@@ -326,6 +328,8 @@ if (currentPage) {
             </svg>
           </a>
         </div>
+
+        <Search/>
       </nav>
     </header>
 
