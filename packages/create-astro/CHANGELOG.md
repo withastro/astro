@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.5.2
+
+### Patch Changes
+
+- 6c52c92: Add warning when encountering 'zlib: unexpected end of file' error
+
 ## 0.5.1
 
 ### Patch Changes
