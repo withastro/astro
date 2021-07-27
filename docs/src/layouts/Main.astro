@@ -1,7 +1,7 @@
 ---
 import ArticleFooter from '../components/ArticleFooter.astro';
 import SiteSidebar from '../components/SiteSidebar.astro';
-import DocSidebar from '../components/DocSidebar.tsx';
+import DocSidebar, { TableOfContents, More } from '../components/DocSidebar/DocSidebar.tsx';
 import MenuToggle from '../components/MenuToggle.tsx';
 import MetaData from "../components/MetaData.astro";
 import { site } from "../config.ts";
@@ -205,10 +205,7 @@ if (currentPage) {
 
       #sidebar-content {
         display: none;
-      }
-      .theme-toggle-wrapper {
-        display: none;
-      }
+      }   
       #sidebar-site {
         display: none;
       }
@@ -218,6 +215,9 @@ if (currentPage) {
       :global(.mobile-sidebar-toggle) #sidebar-site {
         display: block;
         top: 0;
+      }
+      .block {
+        display: block;
       }
       @media (min-width: 50em) {
         header {
@@ -261,8 +261,8 @@ if (currentPage) {
           /* display: flex; */
           grid-column: 3;
         }
-        .theme-toggle-wrapper {
-          display: block;
+        .sm\:hidden {
+          display: none;
         }
       }
 
@@ -335,15 +335,21 @@ if (currentPage) {
       </aside>
       <div id="article">
         <article class="content">
-          <section>
+          <section class="main-section">
             <h1 class="content-title" id="overview">{content?.title}</h1>
+            {currentPage && <nav class="block sm:hidden">
+              <TableOfContents client:media="(max-width: 50em)" headers={headers}/>
+            </nav>}
             <slot />
           </section>
+          {currentPage && <nav class="block sm:hidden">
+              <More client:media="(max-width: 50em)" editHref={githubEditUrl}/>
+          </nav>}
           {currentPage && <ArticleFooter path={currentFile} />}
         </article>
       </div>
       <aside class="sidebar" id="sidebar-content" title="Table of Contents">
-        {currentPage && <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />}
+        {currentPage && <DocSidebar client:media="(min-width: 50em)" headers={headers} editHref={githubEditUrl} />}
       </aside>
     </main>
 
