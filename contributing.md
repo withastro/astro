@@ -1,6 +1,7 @@
 # Contributing
 
 ## Prerequisite
+
 ```shell
 node: "^12.20.0 || ^14.13.1 || >=16.0.0"
 yarn: "^1.22.10"
