@@ -353,7 +353,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     'astro/dist/internal/element-registry.js',
     'astro/dist/internal/fetch-content.js',
     'astro/dist/internal/__astro_slot.js',
-    'prismjs'
+    'prismjs',
   ];
   for (const renderer of rendererInstances) {
     knownEntrypoints.push(renderer.server);
