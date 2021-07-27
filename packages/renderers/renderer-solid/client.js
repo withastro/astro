@@ -1,15 +1,16 @@
-import { createComponent } from 'solid-js/web';
+import { createComponent } from 'solid-js';
+import { render } from 'solid-js/web';
 
-export default (element) => (Component, props) => {
-  // Solid `createComponent` just returns a DOM node with all reactivity
-  // already attached. There's no VDOM, so there's no real need to "mount".
-  // Likewise, `children` can just reuse the nearest `astro-fragment` node.
-  const component = createComponent(Component, {
-    ...props,
-    children: element.querySelector('astro-fragment'),
-  });
+export default (element) => (Component, props, childHTML) => {
+  // Solid's `render` does not replace the element's children.
+  // Deleting the root's children is necessary before calling `render`.
+  element.replaceChildren();
 
-  const children = Array.isArray(component) ? component : [component];
+  const children = document.createElement('astro-fragment');
+  children.innerHTML = childHTML;
 
-  element.replaceChildren(...children);
+  // Using Solid's `render` method ensures that a `root` is created
+  // in order to properly handle reactivity. It also handles
+  // components that are not native HTML elements.
+  render(() => createComponent(Component, { ...props, children }), element);
 };
