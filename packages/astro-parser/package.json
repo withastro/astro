@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/parser",
-  "version": "0.18.0-next.5",
+  "version": "0.18.0",
   "author": "Skypack",
   "license": "MIT",
   "type": "commonjs",

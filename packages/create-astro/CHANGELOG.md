@@ -1,5 +1,13 @@
 # create-astro
 
+## 0.5.1
+
+### Patch Changes
+
+- a7e6666: compile javascript to target Node v12.x
+- bd18e14: Add support for [Solid](https://www.solidjs.com/)
+- d45431d: create-astro does not fail when removing subdirectories
+
 ## 0.5.1-next.1
 
 ### Patch Changes
