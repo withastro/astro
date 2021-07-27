@@ -45,12 +45,12 @@ let lang = 'en';
           ## Responsive partial hydration
 
 
-          <img src="/assets/blog/astro-018/responsive-hydration.png" alt="Code example that shows off using the new client:media hydrator." />
+          <img src="/assets/blog/astro-018/responsive-hydration.jpg" alt="Code example that shows off using the new client:media hydrator." />
           <!-- Saved from https://carbon.now.sh/16xchqPVdt5IEAY3Czg3 -->
 
           Responsive websites often load components that are only visible on certain device sizes, like a mobile sidebar menu. As a developer, it can be difficult (impossible?) to avoid loading mobile-only code on non-mobile devices. The result is wasted time spent on code that will never even be seen by the end user.
 
-          Astro solves the problem of uneccesary JavaScript with [partial hydration](https://docs.astro.build/core-concepts/component-hydration), a technique that involves only hydrating the components that need interactivity and leaving the rest as static HTML. **Astro v0.18 adds a new way to customize partial hydration using [CSS media queries](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientmediaquery-) that avoid sending code to devices that don't need it.**
+          Astro solves the problem of unnecessary JavaScript with [partial hydration](https://docs.astro.build/core-concepts/component-hydration), a technique that involves only hydrating the components that need interactivity and leaving the rest as static HTML. **Astro v0.18 adds a new way to customize partial hydration using [CSS media queries](https://docs.astro.build/core-concepts/component-hydration#mycomponent-clientmediaquery-) that avoid sending code to devices that don't need it.**
 
           Add the `client:media` directive to a component and it will only hydrate once the media condition is met. On a mobile phone? Skip any expensive and unneccesary JavaScript for the desktop header that you'll never see. On a desktop or laptop? Don't load that mobile hamburger menu. This is all part of Astro's commitment to minimizing the unnecesary JavaScript that you send to your users.
 
@@ -77,11 +77,11 @@ let lang = 'en';
 
           ## Lit SSR support
 
-          ![Lit logo](/assets/blog/astro-018/lit-element.jpeg)
+          ![Lit logo](/assets/blog/astro-018/lit-logo.svg)
 
           Server-side rendering (SSR) for web components is finally here, thanks to Lit and the new [Lit renderer for Astro](https://github.com/snowpackjs/astro/tree/main/packages/renderers/renderer-lit).
 
-          Web component SSR has been famously difficult up until now. Thanks to the [Declarative Shadow DOM](https://web.dev/declarative-shadow-dom/) -- a new HTML feature that's now available in Chrome -- the Lit project was able to release experimental SSR support for Lit. Define a custom element in JavaScript and server render it with Astro as you would any other component from React or Vue. Unlike other JS components, you still use the custom element tag name in your HTML.
+          Thanks to the [Declarative Shadow DOM](https://web.dev/declarative-shadow-dom/) -- a new HTML feature that's now available in Chrome -- the Lit project was able to release experimental SSR support for Lit. Define a custom element in JavaScript and server render it with Astro as you would any other component from React or Vue. Unlike other JS components, you still use the custom element tag name in your HTML.
 
           The Lit SSR renderer is experimental, and some existing web components may not work with the new API. As other web component libraries adopt declarative shadow DOM and common APIs emerge for rendering, we hope to bring support to those libraries as well. We will keep refining and improving this support as we move towards Astro v1.0.
 
