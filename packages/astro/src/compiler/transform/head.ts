@@ -26,7 +26,7 @@ export default function (opts: TransformOptions): Transformer {
             }
             // Initialize eoh if there are no elements
             eoh.enter(node);
-            if (node.attributes && node.attributes.some(({ name }: any) => name.startsWith('client:'))) {
+            if (node.attributes && node.attributes.some(({ name }: any) => name?.startsWith('client:'))) {
               hasComponents = true;
               return;
             }
