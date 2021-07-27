@@ -1,5 +1,13 @@
 # astro
 
+## 0.18.0-next.7
+
+### Patch Changes
+
+- e89a99f: This includes the props passed to a hydration component when generating the hash/id. This prevents multiple instances of the same component with differing props to be treated as the same component when hydrated by Astro.
+- b8af49f: Added sass support
+- 4726e34: Fixes cases where buildOptions.site is not respected
+
 ## 0.18.0-next.6
 
 ### Patch Changes
