@@ -1,6 +1,6 @@
 export const templatesList=[
     {
-        title:"Templates",
+        category:"Templates",
         children:[
                 { 
                     text: "Starter Template", 
@@ -95,7 +95,7 @@ export const templatesList=[
         ]
     },
     {
-        text:"Further Examples",
+        category:"Further Examples",
         children:[
                 { 
                     text: "Astro with Markdown", 
@@ -130,18 +130,18 @@ export const templatesList=[
         ]
 
     },
-    {
-        text:"Community Built Examples",
-        children:[
-                // { 
-                //     text: '', 
-                //     github: '', 
-                //     demo:"",
-                //     blurb:"",
-                //     command:"npm init astro my-astro-project -- --template"
-                // },
+    // {
+    //     text:"Community Built Examples",
+    //     children:[
+    //             // { 
+    //             //     text: '', 
+    //             //     github: '', 
+    //             //     demo:"",
+    //             //     blurb:"",
+    //             //     command:"npm init astro my-astro-project -- --template"
+    //             // },
    
-        ]
+    //     ]
 
-    },
+    // },
 ]

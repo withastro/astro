@@ -1,6 +1,31 @@
 ---
 import {templatesList} from '../templatesList.ts'
+import DocSidebar from './DocSidebar.tsx'
 
+const titles:[] = templatesList.map(item=>{
+    // { depth: 2, slug: 'start-your-project', text: 'Start your project' }
+    let arr = []
+    let obj = {
+        depth:1,
+        slug: item.category,
+        text: item.category
+    } 
+    arr.push(obj)
+    let titles = []
+    if(item.children){
+        item.children.map(child=>{
+            let objs={
+                depth:2,
+                slug: child.text,
+                text: child.text
+            }
+            arr.push(objs)
+        })
+    }
+    
+    return [arr]
+})
+const githubEditUrl = "https://github.com/snowpackjs/astro/tree/main/docs/src/pages/examples-and-templates.astro"
 ---
 <div>
     <h1>
@@ -10,9 +35,9 @@ import {templatesList} from '../templatesList.ts'
         Feel free to use and explore our collection of ready-made templates containing a multitude of examples on how to apply Astro with; various UI frameworks, State Management Tools, and of course TailwindCSS
     </p>
     {templatesList.map(category=>(
-    <section>
+    <div>
         {category.children.map(item=>(
-            <div class="cards">
+            <article class="cards" id={item.text}>
                 <h2>
                     {item.text}
                 </h2>
@@ -24,9 +49,9 @@ import {templatesList} from '../templatesList.ts'
                 </pre>
                 <a href={item.github} target="_blank" rel="noopener noreferrer">View in Github</a>
                 {item.demo.length != 0 ? <a href={item.demo} target="_blank" rel="noopener noreferrer">Online Demo</a>:""}
-            </div>
+            </article>
     ))}
-    </section>        
+    </div>        
     ))}
     <div>
         <h2>
@@ -40,8 +65,11 @@ npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
 npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
         </pre>
     </div>
+    <DocSidebar client:idle headers={titles} editHref={githubEditUrl} />
 </div>
+
 <!-- TODO: Get the table of content to work, this is currently missing on the page-->
+
 
 <style lang="sass">
 .cards{
