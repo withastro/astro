@@ -131,6 +131,11 @@ article > section nav :is(ul, ol) {
   padding-left: inherit;
 }
 
+article > section nav {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
 article > section ::marker {
   font-weight: bold;
   color: var(--theme-text-light);
