@@ -8,47 +8,77 @@ There are a few different ways to install Astro in a new project.
 ## Prerequisites
 
 - **Node.js** - `v12.20.0`, `v14.13.1`, `v16.0.0`, or higher.
-- **A text editor** - We recommend [VS Code](https://code.visualstudio.com/) with the [Astro extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode).
-- **A terminal** - Astro is mainly accessed by terminal command-line.
+- **Text editor** - We recommend [VS Code](https://code.visualstudio.com/) with our [Official Astro extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode).
+- **Terminal** - Astro is mainly accessed via the terminal's command-line.
 
-## Recommended Install
+For demonstration purposes, we will be using [`npm`](https://www.npmjs.com/) in the examples below, but you could also use [`yarn`](https://yarnpkg.com/) or [`pnpm`](https://pnpm.io/) if you prefer an npm alternative.
 
-`npm init astro` is the easiest way to install Astro in a new project. Run this command in your terminal to start our `create-astro` install wizard to walk you through setting up a new project.
+## Create Astro
 
-```bash
-mkdir <project-name>
-cd <project-name>
+`npm init astro` is the easiest way to install Astro in a new project. Run this command in your terminal to start our `create-astro` install wizard to assist you with setting up a new project.
+
+```shell
+# With NPM
 npm init astro
+
+# Yarn
+yarn create astro
 ```
 
-Follow the CLI instructions to install Astro with one of our official project starter templates.
+[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) wizard lets you choose from a set of [starter templates](/examples) or alternatively, you could import your own  Astro project directly from  Github.
 
-Once completed, jump over to our [Quickstart Guide](/quick-start#start-your-project) for a 30-second walkthrough on how to start & build your new Astro project!
+```bash
+# Note: Replace "my-astro-project" with the name of your project.
+# npm 6.x
+npm init astro my-astro-project --template starter
 
+# npm 7+, extra double-dash is needed:
+npm init astro my-astro-project -- --template starter
+
+# yarn
+yarn create astro my-astro-project --template starter
+
+# Import Astro project from Github
+npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]
+
+# Import Astro from nested paths:
+npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
+```
+
+After `create-astro` scaffolds out your project, you would need to install the projects dependencies. To do this, enter:
+
+``` bash
+npm install
+```
+
+You can now [Start](#start-astro) your Astro project. Once you have completed assembling your Astro project you can then [Build](#build-astro) your project. Astro would then package up your application and have the static files ready for you to [Deploy](/guides/deploy) to your favourite hosting provider
 ## Manual Install
+
+You can also setup Astro without the aide of the `create-astro` wizard, below are the few extra steps that are required to get Astro going.
 
 ### Set up your project
 
-Create an empty directory with the name of your project, and then navigate into it:
-
 ```bash
-mkdir <project-name>
-cd <project-name>
-# Note: Replace <project-name> with the name of your project.
+# Make and enter a new directory
+mkdir my-astro-project
+cd my-astro-project
 ```
 
-Create a new `package.json` file for your project. Astro is designed to work with the npm ecosystem of packages, which is managed in a `package.json` project manifest. If you don't know what the `package.json` file is, we highly recommend you to have a quick read on [the npm documentation](https://docs.npmjs.com/creating-a-package-json-file).
+Create an empty directory with the name of your project, and then navigate into it:
+
+### Create `package.json`
 
 ```bash
 # This command will create a basic package.json for you
 npm init --yes
 ```
 
+Astro is designed to work with the entirety of the npm package ecosystem. This is managed by a project manifest at the root of your project known as `package.json` . If you're not familiar with the `package.json` file, we highly recommend you to have a quick read over it on [the npm documentation](https://docs.npmjs.com/creating-a-package-json-file).
+
 ### Install Astro
 
-If you've followed the instructions above, you should have a directory with a single `package.json` file inside of it. You can now install Astro in your project.
+Following the instructions above, you should have a directory with a single `package.json` file inside of it. You can now setup Astro inside your project.
 
-We'll use `npm` in the examples below, but you could also use `yarn` or `pnpm` if you prefer an npm alternative. If you aren't familiar with `yarn` or `pnpm`, then we strongly recommend sticking with `npm`.
 
 ```bash
 npm install astro
@@ -65,28 +95,70 @@ You can now replace the placeholder "scripts" section of your `package.json` fil
 }
 ```
 
+The [`start`](#start-astro) command launches the Astro Dev Server on `http://localhost:3000`. Once your project is ready, the [`build`](#build-astro) command outputs your project to the `dist/` directory. [Read more about deploying Astro in the Deploy guide.](/guides/deploy)
+
 ### Create your first page
 
-Open up your favorite text editor, and create a new file in your project:
+Astro Open up your favourite text editor, and create a new file in your project:
+
+1. Create a new file at `src/pages/index.astro`
+2. Copy-and-paste the following snippet (including `---` dashes) into it.
 
 ```astro
 ---
-// 1. Create a new file at <project-directory>/src/pages/index.astro
-// 2. Copy-and-paste this entire file (including `-` dashes) into it.
+// JS/TS Code written in between the (---) code fence, 
+// is ran solely on the Server!
+console.log('See me in the Terminal')
 ---
+
 <html>
   <body>
     <h1>Hello, World!</h1>
   </body>
 </html>
+
+<style lang='css||scss'>
+  body{
+    h1{
+      color:orange;
+    }
+  }
+</style>
+
+<script>
+ // JS Code entered here is ran entirely on the Browser
+ console.log('See me in the devTools')
+</script>
 ```
 
-You can create more pages in the `src/pages` directory, and Astro will use the filename to create new pages on your site. For example, you can create a new file at `src/pages/about.astro` (reusing the previous snippet) and Astro will generate a new page at the `/about` URL.
+Above is an example of the Astro's Component's Syntax, which comprises of both HTML & JSX.
+
+You can create more pages in the `src/pages` directory, and Astro will use the filename to create new pages on your site. For example, by creating a new file at `src/pages/about.astro` (reusing the previous snippet), Astro will generate a new page at the URL : `http://localhost/about`
+
+## [Start Astro](#start-astro)
+
+```bash
+npm start
+```
+
+Astro will now start serving your application on `http://localhost:3000`. By opening this URL in your browser, you should see the Astro's “Hello, World”
+
+## [Build Astro](#build-astro)
+
+```bash
+npm run build
+```
+
+This will instruct Astro to build your site and save it directly to disk. Your application is now ready in the `dist/` directory.
 
 ### Next Steps
 
-Success! You're now ready to start developing! Jump over to our [Quickstart Guide](/quick-start#start-your-project) for a 30-second walkthrough on how to start & build your new Astro project!
+Success! You're now ready to start developing!
 
-📚 Learn more about Astro's project structure in our [Project Structure guide](/core-concepts/project-structure).  
-📚 Learn more about Astro's component syntax in our [Astro Components guide](/core-concepts/astro-components).  
-📚 Learn more about Astro's file-based routing in our [Routing guide](core-concepts/astro-pages).
+We highly encourage you to get more familiar with the way Astro works. You can do so by further exploring our Docs, we suggest that you consider the following:
+
+📚 Learn more about Astro's project structure in our [Project Structure guide.](/core-concepts/project-structure)
+
+📚 Learn more about Astro's component syntax in our [Astro Components guide.](/core-concepts/astro-components)
+
+📚 Learn more about Astro's file-based routing in our [Routing guide.](core-concepts/astro-pages)

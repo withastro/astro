@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/Main.astro
 title: Getting Started
+
 ---
 
 Astro is a modern static site builder. Learn what Astro is all about from [our homepage](https://astro.build/) or [our release post](https://astro.build/blog/introducing-astro). This page is an overview of the Astro documentation and all related resources.
@@ -9,30 +10,32 @@ Looking for a quick overview of what Astro is? [Visit our homepage.](https://ast
 
 ## Try Astro
 
-The easiest way to try Astro is to run `npm init astro` in a new directory on your machine. This CLI command will walk you through starting a new Astro project.
+The easiest way to try Astro is to run `npm init astro` in a new directory on your machine. Our CLI wizard will assist you in starting a new Astro project.
 
-Read our [Installation Guide](/installation) for a full walk-through on getting set up with Astro.
+To get started with Astro in 5 quickly and easy steps, visit our [Quick-Start guide](quick-start).
+
+Alternatively, read our [Installation Guide](/installation) for a full walk-through on getting set up with Astro.
 
 ### Online Playgrounds
 
-If you're interested in playing around with Astro in the browser, you can use an online code playground. Try a Hello World template on [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
+If you're interested in playing around with Astro in the browser, you can use an online code playground. Try our "Hello World!" template on [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
 
 _Note: some features (ex: Fast Refresh) are currently limited on CodeSandbox._
 
 ## Learn Astro
 
-People come to Astro from different backgrounds and with different learning styles. Whether you prefer a more theoretical or a practical approach, we hope you'll find this section helpful.
+All manner of people come to Astro from different backgrounds bringing with them different learning styles. Whether you prefer a more theoretical or a practical approach, we hope you'll find this section helpful.
 
 - If you prefer to **learn by doing**, start with our [examples library](https://github.com/snowpackjs/astro/tree/main/examples).
 - If you prefer to **learn concepts step by step**, start with our [basic concepts and guides](/core-concepts/project-structure).
 
-Like any unfamiliar technology, Astro does have a learning curve. With practice and some patience, you _will_ get the hang of it.
+Like any unfamiliar technology, Astro comes with a slight learning curve. However, with practice and some patience, we know, you _will_ get the hang of it, in no time.
 
 ### Learn `.astro` Syntax
 
-When you begin to learn Astro, you'll see many files using the `.astro` file extension. This is the **Astro component syntax**: a special HTML-like file format that Astro uses for templating. It was designed to feel familiar to anyone with HTML or JSX experience.
+When you begin to learn Astro, you'll see many files using the `.astro` file extension. This is **Astro's Component Syntax**: a special HTML-like file format which Astro uses for templating. It was designed to feel familiar to anyone with HTML or JSX experience.
 
-Our guide on [Astro components](/core-concepts/astro-components) walks you through the new syntax, and is the best way to learn.
+Our helpful guide on [Astro components](/core-concepts/astro-components) introduces you to the Astro syntax, and is the best way to learn.
 
 ### API Reference
 
