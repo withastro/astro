@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-solid",
-  "version": "0.1.0-next.0",
+  "version": "0.1.0-next.1",
   "type": "module",
   "exports": {
     ".": "./index.js",

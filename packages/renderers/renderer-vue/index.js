@@ -4,4 +4,5 @@ export default {
   client: './client',
   server: './server',
   knownEntrypoints: ['vue'],
+  external: ['@vue/runtime-core'],
 };

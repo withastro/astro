@@ -1,5 +1,33 @@
 # astro
 
+## 0.18.0-next.7
+
+### Patch Changes
+
+- e89a99f: This includes the props passed to a hydration component when generating the hash/id. This prevents multiple instances of the same component with differing props to be treated as the same component when hydrated by Astro.
+- b8af49f: Added sass support
+- 4726e34: Fixes cases where buildOptions.site is not respected
+
+## 0.18.0-next.6
+
+### Patch Changes
+
+- Updated dependencies [1f79144]
+  - @astrojs/renderer-vue@0.1.4-next.0
+
+## 0.18.0-next.5
+
+### Patch Changes
+
+- 294a656: Adds support for global style blocks via `<style global>`
+
+  Be careful with this escape hatch! This is best reserved for uses like importing styling libraries like Tailwind, or changing global CSS variables.
+
+- 164489f: Fix for `false` being rendered in conditionals
+- af935c1: Fix error when no renderers are passed
+- Updated dependencies [294a656]
+  - @astrojs/parser@0.18.0-next.5
+
 ## 0.18.0-next.4
 
 ### Patch Changes

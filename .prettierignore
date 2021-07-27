@@ -2,4 +2,6 @@
 **/node_modules
 **/fixtures
 **/.vercel
+.github
+.changeset
 README.md
