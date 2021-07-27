@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { bold, cyan, gray, green, red } from 'kleur/colors';
+import { bold, cyan, gray, green, red, yellow } from 'kleur/colors';
 import fetch from 'node-fetch';
 import prompts from 'prompts';
 import degit from 'degit';
@@ -120,6 +120,12 @@ export async function main() {
   } catch (err) {
     // degit is compiled, so the stacktrace is pretty noisy. Just report the message.
     console.error(red(err.message));
+
+    // Warning for issue #655
+    if (err.message === 'zlib: unexpected end of file') {
+      console.log(yellow("This seems to be a cache related problem. Remove the folder '~/.degit/github/snowpackjs' to fix this error."));
+      console.log(yellow('For more information check out this issue: https://github.com/snowpackjs/astro/issues/655'));
+    }
     process.exit(1);
   }
 
