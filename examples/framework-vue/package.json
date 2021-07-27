@@ -7,7 +7,7 @@
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.18.0"
+    "astro": "^0.18.1"
   },
   "snowpack": {
     "workspaceRoot": "../.."
