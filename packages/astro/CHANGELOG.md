@@ -1,5 +1,12 @@
 # astro
 
+## 0.18.1
+
+### Patch Changes
+
+- d8cebb0: Removes a warning in Svelte hydrated components
+- e90615f: Fixes warnings for Astro internals for fetch-content and slots
+
 ## 0.18.0
 
 ### Minor Changes
