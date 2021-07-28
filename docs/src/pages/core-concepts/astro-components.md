@@ -34,7 +34,7 @@ An Astro component represents some snippet of HTML in your project. This can be 
 
 CSS rules inside of a `<style>` tag are automatically scoped to that component. That means that you can reuse class names across multiple components, without worrying about conflicts. Styles are automatically extracted and optimized in the final build so that you don't need to worry about style loading.
 
-For best results, you should only have one `<style>` tag per-Astro component. This isn’t necessarily a limitation, but it will often result in better-optimized CSS in your final build. When you're working with pages, the `<style>` tag can go nested inside of your page `<head>`. For standalone components, the `<style>` tag can go at the top-level of your template.
+For best results, you should only have one `<style>` tag per-Astro component. This isn't necessarily a limitation, but it will often result in better-optimized CSS in your final build. When you're working with pages, the `<style>` tag can go nested inside of your page `<head>`. For standalone components, the `<style>` tag can go at the top-level of your template.
 
 ```html
 <!-- Astro Component CSS example -->
@@ -296,7 +296,7 @@ const items = ["Dog", "Cat", "Platipus"];
 
 ## URL resolution
 
-It’s important to note that Astro **won’t** transform HTML references for you. For example, consider an `<img>` tag with a relative `src` attribute inside `src/pages/about.astro`:
+It's important to note that Astro **won't** transform HTML references for you. For example, consider an `<img>` tag with a relative `src` attribute inside `src/pages/about.astro`:
 
 ```html
 <!-- ❌ Incorrect: will try and load `/about/thumbnail.png` -->
@@ -325,6 +325,6 @@ import thumbnailSrc from './thumbnail.png';
 <img src={thumbnailSrc} />
 ```
 
-If you’d prefer to organize assets alongside Astro components, you may import the file in JavaScript inside the component script. This works as intended but this makes `thumbnail.png` harder to reference in other parts of your app, as its final URL isn’t easily-predictable (unlike assets in `public/*`, where the final URL is guaranteed to never change).
+If you'd prefer to organize assets alongside Astro components, you may import the file in JavaScript inside the component script. This works as intended but this makes `thumbnail.png` harder to reference in other parts of your app, as its final URL isn't easily-predictable (unlike assets in `public/*`, where the final URL is guaranteed to never change).
 
 [code-ext]: https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode
