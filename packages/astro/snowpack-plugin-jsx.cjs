@@ -78,18 +78,8 @@ module.exports = function jsxPlugin(config, options = {}) {
       };
 
       if (importSources.size === 0) {
-        error(
-          logging,
-          'renderer',
-          `${colors.yellow(filePath)}
-Unable to resolve a renderer that handles JSX transforms! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`
-        );
-
-        return {
-          '.js': {
-            code: '',
-          },
-        };
+        throw new Error(`${colors.yellow(filePath)}
+Unable to resolve a renderer that handles JSX transforms! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`);
       }
 
       // If we only have a single renderer, we can skip a bunch of work!
