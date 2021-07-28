@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "fileTypes": ["astro"],
   "foldingStartMarker": "(?x)\n(<(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|li|form|dl)\\b.*?>\n|<!--(?!.*--\\s*>)\n|^<!--\\ \\#tminclude\\ (?>.*?-->)$\n|<\\?(?:php)?.*\\b(if|for(each)?|while)\\b.+:\n|\\{\\{?(if|foreach|capture|literal|foreach|php|section|strip)\n|\\{\\s*($|\\?>\\s*$|//|/\\*(.*\\*/\\s*$|(?!.*?\\*/)))\n)",
   "foldingStopMarker": "(?x)\n(</(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|li|form|dl)>\n|^(?!.*?<!--).*?--\\s*>\n|^<!--\\ end\\ tminclude\\ -->$\n|<\\?(?:php)?.*\\bend(if|for(each)?|while)\\b\n|\\{\\{?/(if|foreach|capture|literal|foreach|php|section|strip)\n|^[^{]*\\}\n)",
@@ -73,11 +74,11 @@
     },
     {
       "begin": "<!--",
-      "captures": [
-        {
+      "captures": {
+        "0": {
           "name": "punctuation.definition.comment.html"
         }
-      ],
+      },
       "end": "--\\s*>",
       "name": "comment.block.html",
       "patterns": [
@@ -89,11 +90,11 @@
     },
     {
       "begin": "<!",
-      "captures": [
-        {
+      "captures": {
+        "0": {
           "name": "punctuation.definition.tag.html"
         }
-      ],
+      },
       "end": ">",
       "name": "meta.tag.sgml.html",
       "patterns": [
@@ -392,11 +393,11 @@
             },
             {
               "begin": "/\\*",
-              "captures": [
-                {
+              "captures": {
+                "0": {
                   "name": "punctuation.definition.comment.js"
                 }
-              ],
+              },
               "end": "\\*/|(?=</script)",
               "name": "comment.block.js"
             },
@@ -583,17 +584,17 @@
     },
     "string-double-quoted": {
       "begin": "\"",
-      "beginCaptures": [
-        {
+      "beginCaptures": {
+        "0": {
           "name": "punctuation.definition.string.begin.html"
         }
-      ],
+      },
       "end": "\"",
-      "endCaptures": [
-        {
+      "endCaptures": {
+        "0": {
           "name": "punctuation.definition.string.end.html"
         }
-      ],
+      },
       "name": "string.quoted.double.html",
       "patterns": [
         {
@@ -603,17 +604,17 @@
     },
     "string-single-quoted": {
       "begin": "'",
-      "beginCaptures": [
-        {
+      "beginCaptures": {
+        "0": {
           "name": "punctuation.definition.string.begin.html"
         }
-      ],
+      },
       "end": "'",
-      "endCaptures": [
-        {
+      "endCaptures": {
+        "0": {
           "name": "punctuation.definition.string.end.html"
         }
-      ],
+      },
       "name": "string.quoted.single.html",
       "patterns": [
         {
@@ -640,18 +641,18 @@
       "patterns": [
         {
           "begin": "\"",
-          "beginCaptures": [
-            {
+          "beginCaptures": {
+            "0": {
               "name": "punctuation.definition.string.begin.html"
             }
-          ],
+          },
           "contentName": "meta.toc-list.id.html",
           "end": "\"",
-          "endCaptures": [
-            {
+          "endCaptures": {
+            "0": {
               "name": "punctuation.definition.string.end.html"
             }
-          ],
+          },
           "name": "string.quoted.double.html",
           "patterns": [
             {
@@ -664,18 +665,18 @@
         },
         {
           "begin": "'",
-          "beginCaptures": [
-            {
+          "beginCaptures": {
+            "0": {
               "name": "punctuation.definition.string.begin.html"
             }
-          ],
+          },
           "contentName": "meta.toc-list.id.html",
           "end": "'",
-          "endCaptures": [
-            {
+          "endCaptures": {
+            "0": {
               "name": "punctuation.definition.string.end.html"
             }
-          ],
+          },
           "name": "string.quoted.single.html",
           "patterns": [
             {
@@ -749,17 +750,17 @@
       "patterns": [
         {
           "begin": "\\{",
-          "beginCaptures": [
-            {
+          "beginCaptures": {
+            "0": {
               "name": "punctuation.definition.generic.begin.html"
             }
-          ],
+          },
           "end": "\\}",
-          "endCaptures": [
-            {
+          "endCaptures": {
+            "0": {
               "name": "punctuation.definition.generic.end.html"
             }
-          ],
+          },
           "name": "expression.embbeded.astro",
           "patterns": [
             {
