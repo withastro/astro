@@ -301,8 +301,8 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
   $('img[srcset]').each((_i, el) => {
     const srcset = $(el).attr('srcset') || '';
     const sources = srcset.split(',');
-    const srces = sources.map(s => s.trim().split(' ')[0]);
-    for(const src of srces) {
+    const srces = sources.map((s) => s.trim().split(' ')[0]);
+    for (const src of srces) {
       pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
     }
   });
