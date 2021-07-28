@@ -5,9 +5,6 @@ import { DocSearchModal, useDocSearchKeyboardEvents } from '@docsearch/react'
 import '@docsearch/css//dist/style.css';
 import './Search.css';
 
-const ACTION_KEY_DEFAULT = ['Ctrl ', 'Control']
-const ACTION_KEY_APPLE = ['⌘', 'Command']
-
 function Hit({ hit, children }) {
   return (
     <a href={hit.url}>
@@ -20,8 +17,6 @@ export function Search() {
   const [isOpen, setIsOpen] = useState(false)
   const searchButtonRef = useRef()
   const [initialQuery, setInitialQuery] = useState(null)
-  const [browserDetected, setBrowserDetected] = useState(false)
-  const [actionKey, setActionKey] = useState(ACTION_KEY_DEFAULT)
 
   const onOpen = useCallback(() => {
     setIsOpen(true)
@@ -46,17 +41,6 @@ export function Search() {
     onInput,
     searchButtonRef,
   })
-
-  useEffect(() => {
-    if (typeof navigator !== 'undefined') {
-      if (/(Mac|iPhone|iPod|iPad)/i.test(navigator.platform)) {
-        setActionKey(ACTION_KEY_APPLE)
-      } else {
-        setActionKey(ACTION_KEY_DEFAULT)
-      }
-      setBrowserDetected(true)
-    }
-  }, [])
 
   return (
     <>
@@ -83,17 +67,10 @@ export function Search() {
           Search
         </span>
         <span
-          style={{ opacity: browserDetected ? '1' : '0' }}
           className="search-hint"
         >
           <span className="sr-only">Press </span>
-          <kbd className="font-sans">
-            <abbr title={actionKey[1]} className="no-underline">
-              {actionKey[0]}
-            </abbr>
-          </kbd>
-          <span className="sr-only"> and </span>
-          <kbd className="font-sans">K</kbd>
+          <kbd>/</kbd>
           <span className="sr-only"> to search</span>
         </span>
       </button>
