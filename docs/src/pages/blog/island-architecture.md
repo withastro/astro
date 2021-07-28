@@ -30,7 +30,7 @@ In the summer of 2020, he managed to formulated his thoughts of how web architec
 
 His seminal post outlines and discusses the general concept of 'islands' as an architectural design process that could be used in Web Development, allowing for better improvements in overall site performance, SEO, UX, and everywhere else. His given explanation describing this new paradigm, was extraordinarily succinct:
 
-> "The general idea of an _“Islands”_ architecture is deceptively simple: Render HTML pages on the server, and inject placeholders or slots around highly dynamic regions. These placeholders/slots contain the server-rendered HTML output from their corresponding widget. They denote regions that can then be "hydrated" on the client into small self-contained widgets, reusing their server-rendered initial HTML."-Jason Miller
+> "The general idea of an _"Islands"_ architecture is deceptively simple: Render HTML pages on the server, and inject placeholders or slots around highly dynamic regions. These placeholders/slots contain the server-rendered HTML output from their corresponding widget. They denote regions that can then be "hydrated" on the client into small self-contained widgets, reusing their server-rendered initial HTML."-Jason Miller
 
 To develop a better understanding of what Jason meant with his proposal, let's quickly explore the backdrop, before we explain 'Island Architecture' and how it is applied into Astro as our primary ethos.
 
