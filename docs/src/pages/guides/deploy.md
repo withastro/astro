@@ -68,7 +68,7 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 
 ### GitHub Actions
 
-1. Set the correct `buildOptions.site` in `astro.config.mjs`.
+1. Set the correct `buildOptions.site` in `astro.config.mjs`
 2. Create the file `.github/workflows/main.yml` and add in the yaml below. Make sure to edit in your own details.
 3. In Github go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
 4. In the astro project repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
