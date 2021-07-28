@@ -1,7 +1,31 @@
 ---
-import Examples from '../components/Examples.astro'
+
 import Layout from '../layouts/Main.astro';
+import Examples from '../components/Examples.astro'
+import DocSidebar from '../components/DocSidebar.tsx'
+
 ---
 <Layout>
-    <Examples/>
+<div>
+    <h1>
+        Examples & Templates
+    </h1>
+    <p>
+        Feel free to use and explore our collection of ready-made templates containing a multitude of examples on how to apply Astro with; various UI frameworks, State Management Tools, and of course TailwindCSS
+    </p>
+</div>
+<Examples/>
+<div>
+        <h2>
+            Community Templates
+        </h2>
+        <p>
+           Visit <a href="https://github.com/one-aalam/awesome-astro" target="_blank" rel="noopener noreferrer">awesome-astro</a> for a full list of community examples. You can use <code>npm init astro</code> to check out any of the community examples
+        </p>
+        <pre>
+npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
+npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
+        </pre>
+    </div>
+    <!-- <DocSidebar client:idle headers={titles} editHref={githubEditUrl} /> -->
 </Layout>
