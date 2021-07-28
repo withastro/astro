@@ -25,6 +25,7 @@
     "remark-gfm": "^1.0.0",
     "remark-parse": "^9.0.0",
     "remark-rehype": "^8.1.0",
+    "remark-slug": "^6.1.0",
     "unified": "^9.2.1",
     "unist-util-map": "^3.0.0"
   },
