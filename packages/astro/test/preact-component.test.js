@@ -32,7 +32,6 @@ PreactComponent('Can load TS component', async ({ runtime }) => {
   assert.equal($('.ts-component').length, 1, 'Can use TS components');
 });
 
-
 PreactComponent('Can use hooks', async ({ runtime }) => {
   const result = await runtime.load('/hooks');
   assert.ok(!result.error, `build error: ${result.error}`);
