@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
   "information_for_contributors": ["This file has been modified from https://github.com/microsoft/vscode-markdown-tm-grammar/commit/399ff6f608a7bef3f68713be23cdcb4c6d475804"],
   "name": "Astro Markdown",
   "scopeName": "text.html.markdown.astro",
