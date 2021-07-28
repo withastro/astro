@@ -47,7 +47,7 @@ npm run build
 
 This will instruct Astro to build your site and save it directly to disk. Your application is now ready in the `dist/` directory.
 
-## Deploy you project
+## Deploy your project
 
 Astro sites are static, so they can be deployed to your favourite host:
 
