@@ -1,5 +1,11 @@
 # @astrojs/markdown-support
 
+## 0.2.1
+
+### Patch Changes
+
+- 70f0a09: Added remark-slug to default plugins
+
 ## 0.2.0
 
 ### Minor Changes

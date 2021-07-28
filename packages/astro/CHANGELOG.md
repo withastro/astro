@@ -1,5 +1,16 @@
 # astro
 
+## 0.18.2
+
+### Patch Changes
+
+- 829d5ba: Fix TSX issue with JSX multi-rendering
+- 23b0d2d: Adds support for image srcset to the build
+- Updated dependencies [70f0a09]
+- Updated dependencies [fdb1c15]
+  - @astrojs/markdown-support@0.2.1
+  - @astrojs/renderer-vue@0.1.5
+
 ## 0.18.1
 
 ### Patch Changes

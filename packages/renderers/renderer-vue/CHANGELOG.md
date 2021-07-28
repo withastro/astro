@@ -1,5 +1,11 @@
 # @astrojs/renderer-vue
 
+## 0.1.5
+
+### Patch Changes
+
+- fdb1c15: Revert #858
+
 ## 0.1.4
 
 ### Patch Changes
