@@ -23,6 +23,10 @@ function getLoader(fileExt) {
   return fileExt.substr(1);
 }
 
+// The `tsx` loader in esbuild will remove unused imports, so we need to
+// be careful about esbuild not treating h, React, Fragment, etc. as unused.
+const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
+
 /**
  * @type {import('snowpack').SnowpackPluginFactory<PluginOptions>}
  */
@@ -74,18 +78,8 @@ module.exports = function jsxPlugin(config, options = {}) {
       };
 
       if (importSources.size === 0) {
-        error(
-          logging,
-          'renderer',
-          `${colors.yellow(filePath)}
-Unable to resolve a renderer that handles JSX transforms! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`
-        );
-
-        return {
-          '.js': {
-            code: '',
-          },
-        };
+        throw new Error(`${colors.yellow(filePath)}
+Unable to resolve a renderer that handles JSX transforms! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`);
       }
 
       // If we only have a single renderer, we can skip a bunch of work!
@@ -99,10 +93,10 @@ Unable to resolve a renderer that handles JSX transforms! Please include a \`ren
         };
       }
 
-      // we need valid JS to scan for imports
-      // so let's just use `h` and `Fragment` as placeholders
-      const { code: codeToScan } = await esbuild.transform(code, {
-        loader: 'jsx',
+      // we need valid JS here, so we can use `h` and `Fragment` as placeholders
+      // NOTE(fks, matthewp): Make sure that you're transforming the original contents here. 
+      const { code: codeToScan } = await esbuild.transform(contents + PREVENT_UNUSED_IMPORTS, {
+        loader,
         jsx: 'transform',
         jsxFactory: 'h',
         jsxFragment: 'Fragment',
