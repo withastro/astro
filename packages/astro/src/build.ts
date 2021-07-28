@@ -265,7 +265,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
 
   const $ = cheerio.load(html);
 
-  $('script').each((i, el) => {
+  $('script').each((_i, el) => {
     const src = $(el).attr('src');
     if (src) {
       if (isRemote(src)) return;
@@ -283,7 +283,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
     }
   });
 
-  $('link[href]').each((i, el) => {
+  $('link[href]').each((_i, el) => {
     const href = $(el).attr('href');
     if (href && !isRemote(href) && ($(el).attr('rel') === 'stylesheet' || $(el).attr('type') === 'text/css' || href.endsWith('.css'))) {
       const dist = getDistPath(href, { astroConfig, srcPath });
@@ -291,9 +291,18 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
     }
   });
 
-  $('img[src]').each((i, el) => {
+  $('img[src]').each((_i, el) => {
     const src = $(el).attr('src');
     if (src && !isRemote(src)) {
+      pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
+    }
+  });
+
+  $('img[srcset]').each((_i, el) => {
+    const srcset = $(el).attr('srcset') || '';
+    const sources = srcset.split(',');
+    const srces = sources.map(s => s.trim().split(' ')[0]);
+    for(const src of srces) {
       pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
     }
   });
