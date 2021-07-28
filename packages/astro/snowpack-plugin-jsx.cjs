@@ -94,7 +94,7 @@ Unable to resolve a renderer that handles JSX transforms! Please include a \`ren
       }
 
       // we need valid JS here, so we can use `h` and `Fragment` as placeholders
-      // NOTE(fks, matthewp): Make sure that you're transforming the original contents here. 
+      // NOTE(fks, matthewp): Make sure that you're transforming the original contents here.
       const { code: codeToScan } = await esbuild.transform(contents + PREVENT_UNUSED_IMPORTS, {
         loader,
         jsx: 'transform',
