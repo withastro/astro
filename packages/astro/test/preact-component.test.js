@@ -25,6 +25,14 @@ PreactComponent('Can load function component', async ({ runtime }) => {
   assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
 });
 
+PreactComponent('Can load TS component', async ({ runtime }) => {
+  const result = await runtime.load('/ts-components');
+  assert.ok(!result.error, `build error: ${result.error}`);
+  const $ = doc(result.contents);
+  assert.equal($('.ts-component').length, 1, 'Can use TS components');
+});
+
+
 PreactComponent('Can use hooks', async ({ runtime }) => {
   const result = await runtime.load('/hooks');
   assert.ok(!result.error, `build error: ${result.error}`);
@@ -46,7 +54,7 @@ PreactComponent('Can use a pragma comment', async ({ runtime }) => {
   assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
-  assert.equal($('#pragma-comment').length, 1, 'rendered the PragmaComment component.');
+  assert.equal($('.pragma-comment').length, 2, 'rendered the PragmaComment component.');
 });
 
 PreactComponent('Uses the new JSX transform', async ({ runtime }) => {

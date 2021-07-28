@@ -43,6 +43,7 @@ React('Can load React', async () => {
   assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
   assert.equal($('#component-spread-props').length, 1, 'Can use spread for components');
   assert.equal($('#component-spread-props').text(), 'Hello world!');
+  assert.equal($('.ts-component').length, 1, 'Can use TS components');
 });
 
 React('Includes reactroot on hydrating components', async () => {
@@ -72,6 +73,13 @@ React('Can load Vue', async () => {
 
   const $ = doc(result.contents);
   assert.equal($('#vue-h2').text(), 'Hasta la vista, baby');
+});
+
+React('Can use a pragma comment', async () => {
+  const result = await runtime.load('/pragma-comment');
+  assert.ok(!result.error, `build error: ${result.error}`);
+  const $ = doc(result.contents);
+  assert.equal($('.pragma-comment').length, 2, 'rendered the PragmaComment component.');
 });
 
 React('uses the new JSX transform', async () => {
