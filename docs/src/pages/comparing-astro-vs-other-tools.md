@@ -28,7 +28,7 @@ This is an important point to consider when choosing Astro.
 
 Astro is similar in this respects, whereby we allow you to also write your content in Markdown. However, we do extend the scope of UI frameworks for you to use.
 
-From being _only_ React as with Docusaurus, to encompassing other popular frameworks as well including; Vue, Svelte, etc. Even allowing for raw HTML templating.
+From having a React _only_ UI as with Docusaurus, Astro encompasses other popular frameworks as well including; Vue, Svelte, etc. Even allowing for raw HTML templating.
 
 Docusaurus was designed to build documentation websites and has some well formed documentation-specific features that are native to its system. Features that Astro does not yet have in its arsenal.
 
