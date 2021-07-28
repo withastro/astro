@@ -1,5 +1,11 @@
 # @astrojs/markdown-support
 
+## 0.2.2
+
+### Patch Changes
+
+- 7015356: Move rehype-raw to a dependency
+
 ## 0.2.1
 
 ### Patch Changes
