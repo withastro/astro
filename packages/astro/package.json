@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.18.2",
+  "version": "0.18.3",
   "author": "Skypack",
   "license": "MIT",
   "type": "module",
@@ -43,7 +43,7 @@
     "test": "uvu test -i fixtures -i benchmark -i test-utils.js"
   },
   "dependencies": {
-    "@astrojs/markdown-support": "0.2.1",
+    "@astrojs/markdown-support": "0.2.2",
     "@astrojs/parser": "0.18.0",
     "@astrojs/prism": "0.2.2",
     "@astrojs/renderer-preact": "0.2.0",
