@@ -1,5 +1,11 @@
 # @astrojs/markdown-support
 
+## 0.2.3
+
+### Patch Changes
+
+- 460e625: Move remaining missing dependencies
+
 ## 0.2.2
 
 ### Patch Changes
