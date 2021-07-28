@@ -1,46 +1,18 @@
 ---
-import {templatesList} from '../templatesList.ts'
-import DocSidebar from './DocSidebar.tsx'
+import {templatesList as data} from '../templatesList.ts'
 
-const titles:[] = templatesList.map(item=>{
-    // { depth: 2, slug: 'start-your-project', text: 'Start your project' }
-    let arr = []
-    let obj = {
-        depth:1,
-        slug: item.category,
-        text: item.category
-    } 
-    arr.push(obj)
-    let titles = []
-    if(item.children){
-        item.children.map(child=>{
-            let objs={
-                depth:2,
-                slug: child.text,
-                text: child.text
-            }
-            arr.push(objs)
-        })
-    }
-    
-    return [arr]
-})
 const githubEditUrl = "https://github.com/snowpackjs/astro/tree/main/docs/src/pages/examples-and-templates.astro"
 ---
-<div>
-    <h1>
-        Examples & Templates
-    </h1>
-    <p>
-        Feel free to use and explore our collection of ready-made templates containing a multitude of examples on how to apply Astro with; various UI frameworks, State Management Tools, and of course TailwindCSS
-    </p>
-    {templatesList.map(category=>(
+{data.map(category=>(
     <div>
+        <h2>
+         {category.category}
+        </h2>
         {category.children.map(item=>(
             <article class="cards" id={item.text}>
-                <h2>
+                <h3>
                     {item.text}
-                </h2>
+                </h3>
                 <p>
                     {item.blurb}
                 </p>
@@ -50,23 +22,9 @@ const githubEditUrl = "https://github.com/snowpackjs/astro/tree/main/docs/src/pa
                 <a href={item.github} target="_blank" rel="noopener noreferrer">View in Github</a>
                 {item.demo.length != 0 ? <a href={item.demo} target="_blank" rel="noopener noreferrer">Online Demo</a>:""}
             </article>
-    ))}
+        ))}
     </div>        
-    ))}
-    <div>
-        <h2>
-            Community Templates
-        </h2>
-        <p>
-           Visit <a href="https://github.com/one-aalam/awesome-astro" target="_blank" rel="noopener noreferrer">awesome-astro</a> for a full list of community examples. You can use <code>npm init astro</code> to check out any of the community examples
-        </p>
-        <pre>
-npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
-npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
-        </pre>
-    </div>
-    <DocSidebar client:idle headers={titles} editHref={githubEditUrl} />
-</div>
+))}
 
 <!-- TODO: Get the table of content to work, this is currently missing on the page-->
 
