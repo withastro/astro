@@ -4,6 +4,7 @@ import Later from '../components/Goodbye.vue'; // use different specifier
 import ArrowFunction from '../components/ArrowFunction.jsx';
 import PropsSpread from '../components/PropsSpread.jsx';
 import {Research2} from '../components/Research.jsx';
+import TypeScriptComponent from '../components/TypeScriptComponent';
 
 const someProps = {
   text: 'Hello world!',
@@ -20,5 +21,6 @@ const someProps = {
     <ArrowFunction />
     <PropsSpread {...someProps}/>
     <Research2 client:idle />
+    <TypeScriptComponent client:load />
   </body>
 </html>
