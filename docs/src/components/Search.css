@@ -35,7 +35,7 @@
   padding: 0.33em 0.5em;
   overflow: visible;
   font-weight: 500;
-  font-size: 100%;
+  font-size: 1rem;
   font-family: inherit;
   line-height: inherit;
   background-color: var(--theme-divider);
