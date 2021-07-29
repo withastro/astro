@@ -53,7 +53,7 @@ Besides the obvious performance benefits of sending less JavaScript down to the 
 
 ## Hydrate Interactive Components
 
-Astro renders every component on the server **at build time**. To hydrate components on the client **at runtime**, you may use any of the following `client:*` directives. A directive is a component attribute (always with a `:`) which tells Astro how your component should be rendered.
+Astro renders every component on the server **at build time**, unless [client:only](#mycomponent-clientonly-) is used. To hydrate components on the client **at runtime**, you may use any of the following `client:*` directives. A directive is a component attribute (always with a `:`) which tells Astro how your component should be rendered.
 
 ```astro
 ---
@@ -80,6 +80,10 @@ Hydrate the component as soon as the element enters the viewport (uses [Intersec
 ### `<MyComponent client:media={QUERY} />`
 
 Hydrate the component as soon as the browser matches the given media query (uses [matchMedia][mdn-mm]). Useful for sidebar toggles, or other elements that should only display on mobile or desktop devices.
+
+### `<MyComponent client:only />`
+
+Hydrates the component at page load, similar to `client:load`. The component will be **skipped** at build time, useful for components that are entirely dependent on client-side APIs. This is best avoided unless absolutely needed, in most cases it is best to render placeholder content on the server and delay any browser API calls until the component hydrates in the browser.
 
 ## Can I Hydrate Astro Components?
 
