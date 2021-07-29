@@ -37,14 +37,12 @@ export async function main() {
       const response = await prompts({
         type: 'confirm',
         name: 'forceOverwrite',
-        message: 'Directory not empty. Continue?',
+        message: 'Directory not empty. Continue [force overwrite]?',
         initial: false,
       });
       if (!response.forceOverwrite) {
         process.exit(1);
       }
-
-      await fs.promises.rm(cwd, { recursive: true });
       mkdirp(cwd);
     }
   } else {
