@@ -1,5 +1,5 @@
 /* jsxImportSource: react */
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { DocSearchModal, useDocSearchKeyboardEvents } from '@docsearch/react'
 import '@docsearch/css//dist/style.css';
@@ -79,14 +79,9 @@ export function Search() {
           <DocSearchModal
             initialQuery={initialQuery}
             initialScrollY={window.scrollY}
-            searchParameters={{
-              facetFilters: 'version:v2',
-              distinct: 1,
-            }}
             onClose={onClose}
-            indexName="tailwindcss"
-            apiKey="3df93446658cd9c4e314d4c02a052188"
-            appId="BH4D9OD16A"
+            indexName="astro"
+            apiKey="0f387260ad74f9cbf4353facd29c919c"
             hitComponent={Hit}
           />,
           document.body
