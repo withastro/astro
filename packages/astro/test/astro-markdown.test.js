@@ -88,4 +88,11 @@ Markdown('Does not close parent early when using content attribute (#494)', asyn
   assert.equal($('#target').children().length, 2, '<Markdown content /> closed div#target early');
 });
 
+Markdown('Can render markdown with --- for horizontal rule', async ({ runtime }) => {
+  const result = await runtime.load('/dash');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  // It works!
+});
+
 Markdown.run();
