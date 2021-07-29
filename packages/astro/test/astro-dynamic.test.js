@@ -35,6 +35,36 @@ DynamicComponents('Loads pages using client:media hydrator', async ({ runtime })
   assert.ok(html.includes(`value: "(max-width: 600px)"`), 'dynamic value rendered');
 });
 
+DynamicComponents('Loads pages using client:only hydrator', async ({ runtime }) => {
+  let result = await runtime.load('/client-only');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  let html = result.contents;
+
+  const rootExp = /<astro-root\s[^>]*><\/astro-root>/;
+  assert.ok(rootExp.exec(html), 'astro-root is empty');
+
+  // Grab the react-dom import
+  const exp = /import\("(.+?)"\)/g;
+  let match, reactRenderer, svelteRenderer;
+  while ((match = exp.exec(result.contents))) {
+    if (match[1].includes('renderers/renderer-react/client.js')) {
+      reactRenderer = match[1];
+    } else if (match[1].includes('renderers/renderer-svelte/client.js')) {
+      svelteRenderer = match[1];
+    }
+  }
+
+  assert.ok(reactRenderer, 'React renderer is on the page');
+  assert.ok(svelteRenderer, 'Svelte renderer is on the page');
+
+  result = await runtime.load(reactRenderer);
+  assert.equal(result.statusCode, 200, 'Can load react renderer');
+
+  result = await runtime.load(svelteRenderer);
+  assert.equal(result.statusCode, 200, 'Can load svelte renderer');
+});
+
 DynamicComponents('Can be built', async ({ build }) => {
   try {
     await build();

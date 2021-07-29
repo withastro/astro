@@ -188,7 +188,13 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
         throw new Error(`No renderer found for ${name}! Did you forget to add a renderer to your Astro config?`);
       }
     }
-    let { html } = await instance.renderer.renderToStaticMarkup(Component, props, children, metadata);
+    
+    let html = '';
+    // Skip SSR for components using client:only hydration
+    if (metadata.hydrate !== 'only') {
+      const rendered = await instance.renderer.renderToStaticMarkup(Component, props, children, metadata);
+      html = rendered.html
+    }
 
     if (instance.polyfills.length) {
       let polyfillScripts = instance.polyfills.map((src) => `<script type="module" src="${src}"></script>`).join('');

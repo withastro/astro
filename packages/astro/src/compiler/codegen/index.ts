@@ -31,7 +31,7 @@ const traverse: typeof babelTraverse.default = (babelTraverse.default as any).de
 const babelGenerator: typeof _babelGenerator = _babelGenerator.default;
 const { transformSync } = esbuild;
 
-const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media']);
+const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media', 'client:only']);
 
 interface CodeGenOptions {
   compileOptions: CompileOptions;
@@ -40,7 +40,7 @@ interface CodeGenOptions {
 }
 
 interface HydrationAttributes {
-  method?: 'load' | 'idle' | 'visible' | 'media';
+  method?: 'load' | 'idle' | 'visible' | 'media' | 'only';
   value?: undefined | string;
 }
 
