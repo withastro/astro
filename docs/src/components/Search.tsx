@@ -5,13 +5,6 @@ import { DocSearchModal, useDocSearchKeyboardEvents } from '@docsearch/react'
 import '@docsearch/css//dist/style.css';
 import './Search.css';
 
-function Hit({ hit, children }) {
-  return (
-    <a href={hit.url}>
-      <a>{children}</a>
-    </a>
-  )
-}
 
 export function Search() {
   const [isOpen, setIsOpen] = useState(false)
@@ -82,26 +75,23 @@ export function Search() {
             onClose={onClose}
             indexName="astro"
             apiKey="0f387260ad74f9cbf4353facd29c919c"
-            hitComponent={Hit}
+            transformItems={(items) => {
+              return items.map((item) => {
+                // We transform the absolute URL into a relative URL to
+                // work better on localhost, preview URLS.
+                const a = document.createElement('a')
+                a.href = item.url
+                console.log(a.hash);
+                const hash = a.hash === '#overview' ? '' : a.hash
+                return {
+                  ...item,
+                  url: `${a.pathname}${hash}`,
+                }
+              })
+            }}
           />,
           document.body
         )}
     </>
   )
 }
-
-            // transformItems={(items) => {
-            //   return items.map((item) => {
-            //     // We transform the absolute URL into a relative URL to
-            //     // leverage Next's preloading.
-            //     const a = document.createElement('a')
-            //     a.href = item.url
-
-            //     const hash = a.hash === '#content-wrapper' ? '' : a.hash
-
-            //     return {
-            //       ...item,
-            //       url: `${a.pathname}${hash}`,
-            //     }
-            //   })
-            // }}
