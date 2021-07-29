@@ -21,5 +21,8 @@
     "pa11y-ci": "^2.4.2",
     "prettier": "^2.3.2",
     "start-server-and-test": "^1.12.6"
+  },
+  "dependencies": {
+    "@docsearch/react": "^1.0.0-alpha.27"
   }
 }

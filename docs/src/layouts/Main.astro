@@ -4,6 +4,7 @@ import SiteSidebar from '../components/SiteSidebar.astro';
 import DocSidebar, { TableOfContents, More } from '../components/DocSidebar/DocSidebar.tsx';
 import MenuToggle from '../components/MenuToggle.tsx';
 import MetaData from "../components/MetaData.astro";
+import {Search} from "../components/Search.jsx";
 import { site } from "../config.ts";
 
 const { content = {}, centered = false } = Astro.props;
@@ -64,14 +65,13 @@ if (currentPage) {
       }
 
       header {
-        z-index: 10;
+        z-index: 11;
         height: var(--theme-navbar-height);
         width: 100%;
         background-color: var(--theme-navbar-bg);
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1001;
         overflow: hidden;
         position: sticky;
         top: 0;
@@ -80,14 +80,16 @@ if (currentPage) {
 
       .logo {
         display: flex;
-        align-items: center;
-        gap: 0;
+        overflow: hidden;
+          width: 30px;
         font-size: 1rem;
+        flex-shrink: 0;
         font-weight: 600;
-        margin: 0;
         line-height: 1;
         color: hsla(var(--color-base-white), 100%, 1);
         text-decoration: none;
+        gap: 0.5em;
+        z-index: -1;
       }
 
       .logo a {
@@ -127,23 +129,16 @@ if (currentPage) {
         overflow-x: hidden;
       }
 
-      .logo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5em;
-        z-index: -1;
-        margin: 0 auto;
-      }
-
       .nav-wrapper {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        justify-content: flex-end;
+        gap: 1em;
         width: 100%;
         max-width: 82em;
         padding: 0 1rem;
       }
+
 
       .layout :global(> *) {
         width: 100%;
@@ -160,7 +155,7 @@ if (currentPage) {
       #sidebar-site {
         position: fixed;
         background-color: var(--theme-bg);
-        z-index: 1000;
+        z-index: 10;
       }
 
       #article {
@@ -263,6 +258,9 @@ if (currentPage) {
         .sm\:hidden {
           display: none;
         }
+        .logo {
+          width: auto;
+        }
       }
 
       @media (min-width: 72em) {
@@ -298,7 +296,6 @@ if (currentPage) {
         <div class="menu-toggle">
             <MenuToggle client:idle/>
         </div>
-
         <div class="logo flex">
           <a href="https://astro.build/">
             <h1 class="sr-only">Astro</h1>
@@ -324,6 +321,10 @@ if (currentPage) {
               <rect class="hover" x="0" y="82" width="218" height="6"></rect>
             </svg>
           </a>
+        </div>
+        <div style="flex-grow: 1;"></div>
+        <div class="search">
+          <Search client:idle />
         </div>
       </nav>
     </header>
@@ -352,9 +353,8 @@ if (currentPage) {
       </aside>
     </main>
 
-    <script type="module" src="/nav.js" />
+    <!-- Scrollable a11y code helper -->
     <script type="module" src="/make-scrollable-code-focusable.js" />
-
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-TEL60V1WM9"></script>
     <script>
