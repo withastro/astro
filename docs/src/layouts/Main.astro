@@ -214,7 +214,7 @@ if (currentPage) {
       }
       :global(.mobile-sidebar-toggle) #sidebar-site {
         display: block;
-        top: 0;
+        top: 2rem;
       }
       .block {
         display: block;
@@ -235,12 +235,14 @@ if (currentPage) {
         #sidebar-site {
           display: flex;
           padding-left: 2rem;
+          position: sticky;
         }
         :global(.mobile-sidebar-toggle) {
           overflow: initial;
         }
         :global(.mobile-sidebar-toggle) #sidebar-site {
           display: flex;
+          top: 0;
         }
         .menu-toggle {
           display: none;
@@ -253,9 +255,6 @@ if (currentPage) {
         }
         #article {
           grid-column: 2;
-        }
-        #sidebar-site {
-          position: sticky;
         }
         #sidebar-content {
           /* display: flex; */

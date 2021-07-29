@@ -463,5 +463,5 @@ h2.heading {
 /* Screenreader Only Text - End */
 
 :target {
-  scroll-margin-top: 4rem;
+  scroll-margin: calc(var(--theme-sidebar-offset, 5rem) + 2rem) 0 2rem;
 }
