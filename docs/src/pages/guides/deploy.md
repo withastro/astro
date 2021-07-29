@@ -68,11 +68,12 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 
 ### GitHub Actions
 
-1. Set the correct `buildOptions.site` in `astro.config.mjs`
-2. Create the file `.github/workflows/main.yml` and add in the yaml below. Make sure to edit in your own details.
-3. In Github go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
-4. In the astro project repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
-5. When you push changes to the astro project repo CI will deploy them to \<YOUR USERNAME\>.github.io for you.
+1. In the astro project repo, create `gh-pages` branch then go to Settings > Pages and set to `gh-pages` branch for Github Pages and set directory to `/` (root).
+2. Set the correct `buildOptions.site` in `astro.config.mjs`
+3. Create the file `.github/workflows/main.yml` and add in the yaml below. Make sure to edit in your own details.
+4. In Github go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
+5. In the astro project repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
+6. When you push changes to the astro project repo CI will deploy them to \<YOUR USERNAME\>.github.io for you.
 
 ```yaml
 # Workflow to build and deploy to your Github Pages repo.
@@ -124,7 +125,7 @@ jobs:
           destination-repository-name: ${{ env.deployToRepo }}
           user-email: ${{ env.githubEmail }}
           commit-message: Deploy ORIGIN_COMMIT
-          target-branch: main
+          target-branch: gh-pages
 ```
 
 ### Travis CI
