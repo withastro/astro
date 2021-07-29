@@ -182,7 +182,7 @@ interface GetComponentWrapperOptions {
 const PlainExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 /** Generate Astro-friendly component import */
 function getComponentWrapper(_name: string, hydration: HydrationAttributes, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
-  const { astroConfig, filename } = opts;
+  const { astroConfig, compileOptions, filename } = opts;
 
   let name = _name;
   let method = hydration.method;
@@ -192,8 +192,7 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
     const [legacyName, legacyMethod] = _name.split(':');
     name = legacyName;
     method = legacyMethod as HydrationAttributes['method'];
-
-    const { compileOptions, filename } = opts;
+    
     const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, filename);
     warn(compileOptions.logging, shortname, yellow(`Deprecation warning: Partial hydration now uses a directive syntax. Please update to "<${name} client:${method} />"`));
   }
@@ -225,7 +224,7 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
       }
     };
 
-    let metadata: string = '';
+    let metadata = '';
     if (method) {
       const componentUrl = getComponentUrl(astroConfig, url, pathToFileURL(filename));
       const componentExport = getComponentExport();
@@ -768,7 +767,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             }
             if (parent.name === 'code') {
               // Special case, escaped { characters from markdown content
-              text = node.raw.replace(/&#x26;#123;/g, '{');
+              text = node.raw.replace(/CURLY_BRACE/g, '{');
             }
             buffers[curr] += ',' + JSON.stringify(text);
             return;
