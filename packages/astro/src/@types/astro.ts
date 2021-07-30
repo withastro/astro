@@ -35,6 +35,7 @@ export interface AstroConfig {
     projectRoot?: string;
     /** Path to tailwind.config.js, if used */
     tailwindConfig?: string;
+    debug?: boolean;
   };
 }
 

@@ -7,7 +7,6 @@ import { hydrationOverlayStyles } from '../../frontend/dev-tools.js';
 export default function (opts: TransformOptions): Transformer {
   let hasComponents = false;
   let isHmrEnabled = typeof opts.compileOptions.hmrPort !== 'undefined' && opts.compileOptions.mode === 'development';
-  let isDevelopment = opts.compileOptions.mode === 'development';
 
   const eoh = new EndOfHead();
 
@@ -165,7 +164,7 @@ export default function (opts: TransformOptions): Transformer {
         );
       }
 
-      if (isDevelopment) {
+      if (opts.compileOptions.astroConfig.devOptions.debug) {
         children.push(
           {
             type: 'Element',

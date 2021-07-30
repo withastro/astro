@@ -347,7 +347,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   }
 
   // There's probably a cleaner way to signal current mode to other steps in the build process
-  (process.env as any).ASTRO_MODE = mode;
+  (process.env as any).ASTRO_DEBUG = astroConfig.devOptions.debug;
 
   // Make sure that Snowpack builds our renderer plugins
   const rendererInstances = await configManager.buildRendererInstances();

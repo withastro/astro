@@ -158,7 +158,7 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
     }
     const children = removeSlottedChildren(_children);
 
-    const isDevelopmentMode = !Component.isAstroComponent && (process.env.ASTRO_MODE as RuntimeMode) === 'development';
+    const isDebug = !Component.isAstroComponent && process.env.ASTRO_DEBUG === 'true';
     let instance = await resolveRenderer(Component, props, children);
 
     if (!instance) {
@@ -185,7 +185,7 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
     // If we're NOT hydrating this component, just return the HTML
     if (!metadata.hydrate) {
       // It's safe to remove <astro-fragment>, static content doesn't need the wrapper
-      if (isDevelopmentMode) {
+      if (isDebug) {
         html = wrapWithDevelopmentElement(html, metadata);
       }
 
@@ -198,7 +198,7 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
     const script = await generateHydrateScript({ instance, astroId, props }, metadata as Required<AstroComponentMetadata>);
     const astroRoot = `<astro-root uid="${astroId}">${html}</astro-root>`;
 
-    if (isDevelopmentMode) {
+    if (isDebug) {
       const wrappedAstroRoot = wrapWithDevelopmentElement(astroRoot, metadata);
       return [wrappedAstroRoot, script].join('\n');
     }

@@ -32,6 +32,7 @@ interface CLIState {
     port?: number;
     config?: string;
     reload?: boolean;
+    debug?: boolean;
   };
 }
 
@@ -43,6 +44,7 @@ function resolveArgs(flags: Arguments): CLIState {
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined,
+    debug: typeof flags.debug === 'boolean' ? flags.debug : undefined,
   };
 
   if (flags.version) {
@@ -79,8 +81,9 @@ function printHelp() {
   --project-root <path> Specify the path to the project root folder.
   --no-sitemap          Disable sitemap generation (build only).
   --reload              Clean the cache, reinstalling dependencies.
-  --verbose             Enable verbose logging
-  --silent              Disable logging
+  --debug               Enable debug tools.
+  --verbose             Enable verbose logging.
+  --silent              Disable logging.
   --version             Show the version number and exit.
   --help                Show this help message.
 `);
@@ -98,6 +101,8 @@ function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
   if (typeof flags.site === 'string') astroConfig.buildOptions.site = flags.site;
   if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
   if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
+  if (typeof flags.debug === 'boolean') astroConfig.devOptions.debug = true;
+  console.log('fffflags', flags);
 }
 
 /** Handle `astro run` command */
