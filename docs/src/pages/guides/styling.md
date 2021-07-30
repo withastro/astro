@@ -77,7 +77,7 @@ Styling in Astro is meant to be as flexible as you’d like it to be! The follow
 
 ¹ _`.astro` files have no runtime, therefore Scoped CSS takes the place of CSS Modules (styles are still scoped to components, but don’t need dynamic values)_
 
-All styles in Astro are automatically [**autoprefixed**](#cross-browser-compatibility) and optimized, so you can just write CSS and we’ll handle the rest ✨.
+All styles in Astro are automatically [**autoprefixed**](#cross-browser-compatibility), minified and bundled, so you can just write CSS and we’ll handle the rest ✨.
 
 ---
 
