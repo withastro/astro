@@ -139,14 +139,26 @@ ${result.createCollection || ''}
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroInternal = Symbol('astro.internal');
+const __astroContext = Symbol.for('astro.context');
 async function __render(props, ...children) {
-  const Astro = {
-    ...__TopLevelAstro,
-    props,
-    css: (props[__astroInternal] && props[__astroInternal].css) || [],
-    request: (props[__astroInternal] && props[__astroInternal].request) || {},
-    isPage: (props[__astroInternal] && props[__astroInternal].isPage) || false,
-  };
+  const Astro = Object.create(__TopLevelAstro, {
+    props: {
+      value: props,
+      enumerable: true
+    },
+    css: {
+      value: (props[__astroInternal] && props[__astroInternal].css) || [],
+      enumerable: true
+    },
+    isPage: {
+      value: (props[__astroInternal] && props[__astroInternal].isPage) || false,
+      enumerable: true
+    },
+    request: {
+      value: (props[__astroContext] && props[__astroContext].request) || {},
+      enumerable: true
+    }
+  });
 
   ${result.script}
   return h(Fragment, null, ${result.html});
@@ -163,15 +175,22 @@ export async function __renderPage({request, children, props, css}) {
     __render,
   };
 
+  Object.defineProperty(props, __astroContext, {
+    value: {
+      request
+    },
+    writable: false,
+    enumerable: false
+  });
+
   Object.defineProperty(props, __astroInternal, {
     value: {
-      request,
       css,
       isPage: true
     },
     writable: false,
     enumerable: false
-  })
+  });
 
   const childBodyResult = await currentChild.__render(props, children);
 
