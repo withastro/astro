@@ -1,6 +1,6 @@
 import type { FunctionalComponent } from 'preact';
 import { h, Fragment } from 'preact';
-import EditOnGithub from '../EditOnGithub';
+import EditOnGithub from './EditOnGithub';
 import ThemeToggle from '../ThemeToggle';
 
 const More: FunctionalComponent<{ editHref: string }> = ({ editHref }) => {
