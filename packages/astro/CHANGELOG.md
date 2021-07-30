@@ -1,5 +1,15 @@
 # astro
 
+## 0.18.5
+
+### Patch Changes
+
+- a1491cc6: Fix Vue components nesting
+- Updated dependencies [cd2b5df4]
+- Updated dependencies [a1491cc6]
+  - @astrojs/parser@0.18.5
+  - @astrojs/renderer-vue@0.1.6
+
 ## 0.18.4
 
 ### Patch Changes
