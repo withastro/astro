@@ -15,7 +15,7 @@ Vue('Can load Vue', async ({ runtime }) => {
   const $ = doc(result.contents);
   assert.equal($('h1').text(), 'Hello world!', 'Can use slots');
   assert.equal($('button').length, 2, 'Can render components');
-  assert.equal($('pre').text(), "5", 'Can render nested components');
+  assert.equal($('pre').text(), '5', 'Can render nested components');
 });
 
 Vue.run();
