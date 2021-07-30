@@ -35,42 +35,45 @@ interface CLIState {
   };
 }
 
-type TypeOf = 'string' | 'boolean' | 'number'
+type TypeOf = 'string' | 'boolean' | 'number';
 // Validates property types of object
-const validateOptions = (opts: Record<string, any>, specs: Record<string, TypeOf | ([(v: any) => unknown, TypeOf])>) => 
-   Object.entries(specs).reduce<Record<string, any>>((options, [k, spec]) => {
-    const v = opts[k]
+const validateOptions = (opts: Record<string, any>, specs: Record<string, TypeOf | [(v: any) => unknown, TypeOf]>) =>
+  Object.entries(specs).reduce<Record<string, any>>((options, [k, spec]) => {
+    const v = opts[k];
 
     if (typeof spec === 'string' && typeof v === spec) {
-        options[k] = v
+      options[k] = v;
     } else if (Array.isArray(spec)) {
-      const [coercion, test] = spec
-      const result = coercion(v)
+      const [coercion, test] = spec;
+      const result = coercion(v);
       if (typeof result === test) {
-        options[k] = result
+        options[k] = result;
       }
     }
-    
-    return options
-  }, {})
+
+    return options;
+  }, {});
 
 /** Determine which action the user requested */
 function resolveArgs(flags: Arguments): CLIState {
-  const { PORT } = process.env
-  
+  const { PORT } = process.env;
+
   // Merge options (Flags take priority)
   const options = {
-    ...validateOptions({ port: PORT }, {
-      port: [parseInt, 'number']
-    }),
+    ...validateOptions(
+      { port: PORT },
+      {
+        port: [parseInt, 'number'],
+      }
+    ),
     ...validateOptions(flags, {
       projectRoot: 'string',
       site: 'string',
       sitemap: 'boolean',
       port: 'number',
-      config: 'string'
-    })
-  }
+      config: 'string',
+    }),
+  };
 
   if (flags.version) {
     return { cmd: 'version', options };
