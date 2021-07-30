@@ -8,6 +8,11 @@
       "permanent": false
     },
     {
+      "source": "/posts/:match*",
+      "destination": "blog/:match*",
+      "permanent": false
+    },
+    {
       "source": "/chat",
       "destination": "https://discord.gg/grF4GTXXYm"
     }

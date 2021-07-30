@@ -115,12 +115,25 @@ article > section :is(ul, ol) > * + * {
   margin-top: 0.75rem;
 }
 
+article > section nav :is(ul, ol) > * + * {
+  margin-top: inherit;
+}
+
 article > section li > :is(p, pre, blockquote):not(:first-child) {
   margin-top: 1rem;
 }
 
 article > section :is(ul, ol) {
   padding-left: 1em;
+}
+
+article > section nav :is(ul, ol) {
+  padding-left: inherit;
+}
+
+article > section nav {
+  margin-top: 1rem;
+  margin-bottom: 2rem;
 }
 
 article > section ::marker {
@@ -267,21 +280,6 @@ img {
 .flex {
   display: flex;
   align-items: center;
-}
-
-header button {
-  background-color: var(--theme-bg);
-}
-
-header button:hover,
-header button:focus {
-  outline: var(--theme-text) solid 1px;
-}
-
-header button:active,
-header button[aria-pressed='true'] {
-  background: var(--theme-text);
-  color: var(--theme-bg);
 }
 
 button {
@@ -439,7 +437,7 @@ h2.heading {
   font-size: larger;
   top: 0.5rem;
   left: 0.5rem;
-  z-index: 999;
+  z-index: 9;
   display: block;
   background-color: var(--theme-bg);
   color: var(--theme-text-accent);
@@ -450,5 +448,5 @@ h2.heading {
 /* Screenreader Only Text - End */
 
 :target {
-  scroll-margin-top: 4rem;
+  scroll-margin: calc(var(--theme-sidebar-offset, 5rem) + 2rem) 0 2rem;
 }
