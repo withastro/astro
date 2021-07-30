@@ -1,5 +1,11 @@
 # @astrojs/parser
 
+## 0.18.5
+
+### Patch Changes
+
+- cd2b5df4: Prevents locking up checking for --- inside of the HTML portion
+
 ## 0.18.0
 
 ### Patch Changes

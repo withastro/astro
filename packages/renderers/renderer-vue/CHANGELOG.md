@@ -1,5 +1,11 @@
 # @astrojs/renderer-vue
 
+## 0.1.6
+
+### Patch Changes
+
+- a1491cc6: Fix Vue components nesting
+
 ## 0.1.5
 
 ### Patch Changes
