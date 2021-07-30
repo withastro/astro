@@ -68,8 +68,8 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
   const { logging, snowpackRuntime, snowpack, configManager } = config;
   const { buildOptions, devOptions } = config.astroConfig;
 
-  let origin = buildOptions.site ? new URL(buildOptions.site).origin : `http://${devOptions.hostname}:${devOptions.port}`;
-  const fullurl = new URL(rawPathname || '/', origin);
+  const site = new URL(buildOptions.site || `http://${devOptions.hostname}:${devOptions.port}`);
+  const fullurl = new URL(rawPathname || '/', site.origin);
 
   const reqPath = decodeURI(fullurl.pathname);
   info(logging, 'access', reqPath);
@@ -214,7 +214,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       request: {
         // params should go here when implemented
         url: requestURL,
-        canonicalURL: canonicalURL(requestURL.pathname, requestURL.origin),
+        canonicalURL: canonicalURL(requestURL.pathname, site.toString()),
       },
       children: [],
       props: pageProps,
@@ -302,6 +302,7 @@ export interface RuntimeOptions {
 }
 
 interface CreateSnowpackOptions {
+  logging: LogOptions;
   mode: RuntimeMode;
   resolvePackageUrl: (pkgName: string) => Promise<string>;
 }
@@ -309,7 +310,7 @@ interface CreateSnowpackOptions {
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
   const { projectRoot, src } = astroConfig;
-  const { mode, resolvePackageUrl } = options;
+  const { mode, logging, resolvePackageUrl } = options;
 
   const frontendPath = new URL('./frontend/', import.meta.url);
   const resolveDependency = (dep: string) => resolve.sync(dep, { basedir: fileURLToPath(projectRoot) });
@@ -324,10 +325,12 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     astroConfig: AstroConfig;
     hmrPort?: number;
     mode: RuntimeMode;
+    logging: LogOptions;
     configManager: ConfigManager;
   } = {
     astroConfig,
     mode,
+    logging,
     resolvePackageUrl,
     configManager,
   };
@@ -348,7 +351,13 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
 
   // Make sure that Snowpack builds our renderer plugins
   const rendererInstances = await configManager.buildRendererInstances();
-  const knownEntrypoints: string[] = ['astro/dist/internal/__astro_component.js', 'astro/dist/internal/element-registry.js'];
+  const knownEntrypoints: string[] = [
+    'astro/dist/internal/__astro_component.js',
+    'astro/dist/internal/element-registry.js',
+    'astro/dist/internal/fetch-content.js',
+    'astro/dist/internal/__astro_slot.js',
+    'prismjs',
+  ];
   for (const renderer of rendererInstances) {
     knownEntrypoints.push(renderer.server);
     if (renderer.client) {
@@ -373,6 +382,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     mount: mountOptions,
     mode,
     plugins: [
+      [fileURLToPath(new URL('../snowpack-plugin-jsx.cjs', import.meta.url)), astroPluginOptions],
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPluginOptions],
       ...rendererSnowpackPlugins,
       resolveDependency('@snowpack/plugin-sass'),
@@ -443,6 +453,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     snowpackConfig,
     configManager,
   } = await createSnowpack(astroConfig, {
+    logging,
     mode,
     resolvePackageUrl,
   });

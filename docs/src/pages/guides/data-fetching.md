@@ -7,7 +7,7 @@ Astro components and pages can fetch remote data to help generate your pages. As
 
 ## `fetch()`
 
-Astro pages have access to the global `fetch()` function in their setup script. `fetch()` is a native JavaScript API ([MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)) that lets you make HTTP requests for things like APIs and resources.
+Astro pages have access to the global `fetch()` function in their setup script. `fetch()` is a native JavaScript API ([MDN<span class="sr-only">- fetch</span>](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)) that lets you make HTTP requests for things like APIs and resources.
 
 Even though Astro component scripts run inside of Node.js (and not in the browser) Astro provides this native API so that you can fetch data at page build time.
 
@@ -25,7 +25,7 @@ console.log(data);
 
 ## Top-level await
 
-`await` is another native JavaScript feature that lets you await the response of some asynchronous promise ([MDN](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)). Astro supports `await` in the top-level of your component script.
+`await` is another native JavaScript feature that lets you await the response of some asynchronous promise ([MDN<span class="sr-only">- await</span>](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await)). Astro supports `await` in the top-level of your component script.
 
 **Important:** These are not yet available inside of non-page Astro components. Instead, do all of your data loading inside of your pages, and then pass them to your components as props.
 

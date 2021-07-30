@@ -41,6 +41,9 @@ React('Can load React', async () => {
   assert.equal($('#react-h2').text(), 'Hello world!');
   assert.equal($('#react-h2').attr('data-reactroot'), undefined, 'no reactroot');
   assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
+  assert.equal($('#component-spread-props').length, 1, 'Can use spread for components');
+  assert.equal($('#component-spread-props').text(), 'Hello world!');
+  assert.equal($('.ts-component').length, 1, 'Can use TS components');
 });
 
 React('Includes reactroot on hydrating components', async () => {
@@ -72,11 +75,30 @@ React('Can load Vue', async () => {
   assert.equal($('#vue-h2').text(), 'Hasta la vista, baby');
 });
 
-React('Get good error message when react import is forgotten', async () => {
-  const result = await runtime.load('/forgot-import');
+React('Can use a pragma comment', async () => {
+  const result = await runtime.load('/pragma-comment');
+  assert.ok(!result.error, `build error: ${result.error}`);
+  const $ = doc(result.contents);
+  assert.equal($('.pragma-comment').length, 2, 'rendered the PragmaComment component.');
+});
 
-  assert.ok(result.error instanceof ReferenceError);
-  assert.equal(result.error.message, 'React is not defined');
+React('uses the new JSX transform', async () => {
+  const result = await runtime.load('/');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  // Grab the imports
+  const exp = /import\("(.+?)"\)/g;
+  let match, componentUrl;
+  while ((match = exp.exec(result.contents))) {
+    if (match[1].includes('Research.js')) {
+      componentUrl = match[1];
+      break;
+    }
+  }
+  const component = await runtime.load(componentUrl);
+  const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
+
+  assert.ok(jsxRuntime, 'react/jsx-runtime is used for the component');
 });
 
 React.run();

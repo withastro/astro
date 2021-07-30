@@ -15,8 +15,8 @@
     "types"
   ],
   "scripts": {
-    "build": "astro-scripts build 'src/index.ts'",
-    "dev": "astro-scripts dev 'src/index.ts'"
+    "build": "astro-scripts build \"src/**/*.ts\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
     "source-map": "^0.7.3",

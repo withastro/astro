@@ -1,6 +1,7 @@
 {
   "name": "@astrojs/test-custom-elements",
   "version": "0.0.1",
+  "private": true,
   "dependencies": {
     "@astrojs/test-custom-element-renderer": "0.0.1"
   }

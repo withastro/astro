@@ -1,5 +1,23 @@
 # @astrojs/markdown-support
 
+## 0.2.3
+
+### Patch Changes
+
+- 460e625: Move remaining missing dependencies
+
+## 0.2.2
+
+### Patch Changes
+
+- 7015356: Move rehype-raw to a dependency
+
+## 0.2.1
+
+### Patch Changes
+
+- 70f0a09: Added remark-slug to default plugins
+
 ## 0.2.0
 
 ### Minor Changes

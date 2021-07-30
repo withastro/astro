@@ -1,5 +1,174 @@
 # astro
 
+## 0.18.5
+
+### Patch Changes
+
+- a1491cc6: Fix Vue components nesting
+- Updated dependencies [cd2b5df4]
+- Updated dependencies [a1491cc6]
+  - @astrojs/parser@0.18.5
+  - @astrojs/renderer-vue@0.1.6
+
+## 0.18.4
+
+### Patch Changes
+
+- Updated dependencies [460e625]
+  - @astrojs/markdown-support@0.2.3
+
+## 0.18.3
+
+### Patch Changes
+
+- Updated dependencies [7015356]
+  - @astrojs/markdown-support@0.2.2
+
+## 0.18.2
+
+### Patch Changes
+
+- 829d5ba: Fix TSX issue with JSX multi-rendering
+- 23b0d2d: Adds support for image srcset to the build
+- Updated dependencies [70f0a09]
+- Updated dependencies [fdb1c15]
+  - @astrojs/markdown-support@0.2.1
+  - @astrojs/renderer-vue@0.1.5
+
+## 0.18.1
+
+### Patch Changes
+
+- d8cebb0: Removes a warning in Svelte hydrated components
+- e90615f: Fixes warnings for Astro internals for fetch-content and slots
+
+## 0.18.0
+
+### Minor Changes
+
+- f67e8f5: New Collections API (createCollection)
+
+  BREAKING CHANGE: The expected return format from createCollection() has been changed. Visit https://docs.astro.build/core-concepts/collections to learn the new API.
+
+  This feature was implemented with backwards-compatible deprecation warnings, to help you find and update pages that are using the legacy API.
+
+- 40c882a: Fix url to find page with "index" at the end file name
+- 0340b0f: Adds support for the client:media hydrator
+
+  The new `client:media` hydrator allows you to define a component that should only be loaded when a media query matches. An example usage:
+
+  ```jsx
+  ---
+  import Sidebar from '../components/Sidebar.jsx';
+  ---
+
+  <Sidebar client:media="(max-width: 700px)" />
+  ```
+
+  This allows you to define components which, for example, only run on mobile devices. A common example is a slide-in sidebar that is needed to add navigation to a mobile app, but is never displayed in desktop view.
+
+  Since Astro components can have expressions, you can move common media queries to a module for sharing. For example here are defining:
+
+  **media.js**
+
+  ```js
+  export const MOBILE = '(max-width: 700px)';
+  ```
+
+  And then you can reference this in your page:
+
+  **index.astro**
+
+  ```jsx
+  import Sidebar from '../components/Sidebar.jsx';
+  import { MOBILE } from '../media.js';
+  ---(<Sidebar client:media={MOBILE} />);
+  ```
+
+### Patch Changes
+
+- e89a99f: This includes the props passed to a hydration component when generating the hash/id. This prevents multiple instances of the same component with differing props to be treated as the same component when hydrated by Astro.
+- b8af49f: Added sass support
+- a7e6666: compile javascript to target Node v12.x
+- fb8bf7e: Allow multiple Astro servers to be running simultaneously by choosing random ports if the defaults are taken.
+- 294a656: Adds support for global style blocks via `<style global>`
+
+  Be careful with this escape hatch! This is best reserved for uses like importing styling libraries like Tailwind, or changing global CSS variables.
+
+- 8f4562a: Improve slot support, adding support for named slots and fallback content within `slot` elements.
+
+  See the new [Slots documentation](https://docs.astro.build/core-concepts/astro-components/#slots) for more information.
+
+- 4a601ad: Restores the ability to use Fragment in astro components
+- 0e761b9: Add ability to specify hostname in devOptions
+- 164489f: Fix for `false` being rendered in conditionals
+- e3182c7: Adds a missing dependency
+- af935c1: Fix error when no renderers are passed
+- 4726e34: Fixes cases where buildOptions.site is not respected
+- c82e6be: Fix unfound ./snowpack-plugin-jsx.cjs error
+- 007c220: Remove custom Astro.fetchContent() glob implementation, use `import.meta.globEager` internally instead.
+- 9859f53: Correcting typo in ReadMe
+- b85e68a: Fixes case where custom elements are not handled within JSX expressions
+- Updated dependencies [a7e6666]
+- Updated dependencies [294a656]
+- Updated dependencies [bd18e14]
+- Updated dependencies [bd18e14]
+- Updated dependencies [1f79144]
+- Updated dependencies [b85e68a]
+  - @astrojs/parser@0.18.0
+  - @astrojs/renderer-preact@0.2.0
+  - @astrojs/renderer-react@0.2.0
+  - @astrojs/renderer-vue@0.1.4
+
+## 0.18.0-next.7
+
+### Patch Changes
+
+- e89a99f: This includes the props passed to a hydration component when generating the hash/id. This prevents multiple instances of the same component with differing props to be treated as the same component when hydrated by Astro.
+- b8af49f: Added sass support
+- 4726e34: Fixes cases where buildOptions.site is not respected
+
+## 0.18.0-next.6
+
+### Patch Changes
+
+- Updated dependencies [1f79144]
+  - @astrojs/renderer-vue@0.1.4-next.0
+
+## 0.18.0-next.5
+
+### Patch Changes
+
+- 294a656: Adds support for global style blocks via `<style global>`
+
+  Be careful with this escape hatch! This is best reserved for uses like importing styling libraries like Tailwind, or changing global CSS variables.
+
+- 164489f: Fix for `false` being rendered in conditionals
+- af935c1: Fix error when no renderers are passed
+- Updated dependencies [294a656]
+  - @astrojs/parser@0.18.0-next.5
+
+## 0.18.0-next.4
+
+### Patch Changes
+
+- c82e6be: Fix unfound ./snowpack-plugin-jsx.cjs error
+
+## 0.18.0-next.3
+
+### Minor Changes
+
+- Add support for [the new JSX transform](https://reactjs.org/blog/2020/09/22/introducing-the-new-jsx-transform.html) for React 17 and Preact.
+- Add support for [Solid](https://www.solidjs.com/) when using the new [`@astrojs/renderer-solid`](https://npm.im/@astrojs/renderer-solid) package.
+
+### Patch Changes
+
+- 4a601ad: Restores the ability to use Fragment in astro components
+- Updated dependencies [bd18e14]
+- Updated dependencies [bd18e14]
+  - @astrojs/renderer-preact@0.2.0-next.0
+  - @astrojs/renderer-react@0.2.0-next.0
+
 ## 0.18.0-next.2
 
 ### Minor Changes

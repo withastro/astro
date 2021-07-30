@@ -187,15 +187,6 @@ blockquote {
   align-items: center;
 }
 
-header button {
-  background-color: var(--theme-bg);
-}
-header button:hover,
-header button:focus {
-  background: var(--theme-text);
-  color: var(--theme-bg);
-}
-
 button {
   display: flex;
   align-items: center;
@@ -235,9 +226,6 @@ button:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  width: 1.5rem;
-  height: 1.5rem;
   opacity: 0.5;
   transition: transform 120ms ease-out, opacity 120ms ease-out;
 }

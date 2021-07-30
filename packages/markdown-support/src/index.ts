@@ -12,6 +12,7 @@ import unified from 'unified';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
+import remarkSlug from 'remark-slug';
 
 export { AstroMarkdownOptions, MarkdownRenderingOptions };
 
@@ -30,6 +31,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
   let parser = unified()
     .use(markdown)
+    .use(remarkSlug)
     .use([remarkExpressions, { addResult: true }]);
 
   if (remarkPlugins.length === 0) {

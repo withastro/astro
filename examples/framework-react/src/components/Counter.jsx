@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
-export default function Counter({ children }) {
-  const [count, setCount] = useState(0);
+export default function Counter({ children, count: initialCount }) {
+  const [count, setCount] = useState(initialCount);
   const add = () => setCount((i) => i + 1);
   const subtract = () => setCount((i) => i - 1);
 

@@ -1,6 +1,6 @@
 {
   "name": "create-astro",
-  "version": "0.5.1-next.0",
+  "version": "0.5.2",
   "type": "module",
   "repository": {
     "type": "git",
@@ -14,7 +14,8 @@
     "create-astro": "./create-astro.mjs"
   },
   "scripts": {
-    "build": "astro-scripts build \"src/*.ts\"",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
     "prepare": "yarn build",
     "test": "rm -rf test/fixtures && mkdir test/fixtures && node --unhandled-rejections=strict test/create-astro.test.js"
   },
@@ -23,15 +24,17 @@
     "create-astro.js"
   ],
   "dependencies": {
-    "node-fetch": "^2.6.1",
     "@types/degit": "^2.8.2",
+    "@types/node-fetch": "^2.5.12",
     "@types/prompts": "^2.0.12",
     "degit": "^2.8.4",
     "kleur": "^4.1.1",
+    "node-fetch": "^2.6.1",
     "prompts": "^2.4.1",
     "yargs-parser": "^20.2.7"
   },
   "devDependencies": {
+    "@types/node-fetch": "^2.5.12",
     "uvu": "^0.5.1"
   },
   "engines": {

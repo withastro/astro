@@ -2,6 +2,36 @@
 .nav {
   display: block;
 }
+
+@keyframes nav-scoped-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+</style>
+
+<style>
+.nav {
+  padding: 1em;
+}
+</style>
+
+<style global>
+html {
+  --primary: aquamarine;
+}
+
+@keyframes nav-global-fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 </style>
 
 <nav class=".nav">

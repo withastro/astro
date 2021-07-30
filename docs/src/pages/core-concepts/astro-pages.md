@@ -23,7 +23,7 @@ src/pages/posts/1.md        -> mysite.com/posts/1
 
 ## Page Templating
 
-All Astro components are responsible for returning HTML. Astro Pages return HTML as well, but have the unique responsibility of returning a full `<html>...</html>` page response, including `<head>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) and `<body>` ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
+All Astro components are responsible for returning HTML. Astro Pages return HTML as well, but have the unique responsibility of returning a full `<html>...</html>` page response, including `<head>` ([MDN<span class="sr-only">- head</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) and `<body>` ([MDN<span class="sr-only">- body</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
 
 `<!doctype html>` is optional, and will be added automatically.
 

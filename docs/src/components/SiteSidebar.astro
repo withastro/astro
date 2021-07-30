@@ -3,7 +3,7 @@ import { sidebar } from '../config.ts';
 const {currentPage} = Astro.props;
 ---
 
-<nav>
+<nav aria-labelledby="sidebar-site">
   <ul class="nav-groups">  
     {sidebar.map(category => (
       <li>
@@ -47,7 +47,7 @@ const {currentPage} = Astro.props;
   }
 
   .nav-groups > :first-child {
-    padding-top: 2rem;
+    padding-top: var(--doc-padding);
   }
 
   .nav-groups > :last-child {
@@ -84,23 +84,12 @@ const {currentPage} = Astro.props;
   }
 
   :global(:root.theme-dark) .nav-link a[aria-current="page"] {
-    color: var(--color-white);
+    color: hsla(var(--color-base-white), 100%, 1);
   }
 
-  @media (min-width: 60em) {
-    .nav-link a {
-      border-radius: 999px;
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-    }
+  @media (min-width: 50em) {
     .nav-groups {
       padding: 0;
-    }
-  }
-
-  @media (min-width: 86.25em) {
-    .nav-link a {
-      border-radius: 8px;
     }
   }
 

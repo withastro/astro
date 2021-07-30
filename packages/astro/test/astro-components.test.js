@@ -39,4 +39,10 @@ Components('Still throws an error for undefined components', async ({ runtime })
   assert.equal(result.statusCode, 500);
 });
 
+Components('Svelte component', async ({ runtime }) => {
+  const result = await runtime.load('/client');
+  const html = result.contents;
+  assert.ok(!/"client:load": true/.test(html), 'Client attrs not added');
+});
+
 Components.run();

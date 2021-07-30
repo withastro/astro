@@ -11,7 +11,7 @@
 .token.plain-text,
 [class*='language-bash'] span.token,
 [class*='language-shell'] span.token {
-  color: var(--color-gray-200);
+  color: hsla(var(--color-gray-90), 1);
 }
 
 [class*='language-bash'] span.token,
@@ -23,7 +23,7 @@
 .token.comment,
 [class*='language-bash'] span.token.comment,
 [class*='language-shell'] span.token.comment {
-  color: var(--color-gray-400);
+  color: hsla(var(--color-gray-70), 1);
 }
 
 .token.selector,
@@ -46,7 +46,7 @@
 .token.hexcode,
 .token.class-name,
 .token.attr-name {
-  color: var(--color-yellow);
+  color: hsla(var(--color-yellow), 1);
 }
 
 .token.atrule,
@@ -56,14 +56,14 @@
 .token.pseudo-class,
 .token.pseudo-element,
 .token.string {
-  color: var(--color-green);
+  color: hsla(var(--color-green), 1);
 }
 
 .token.symbol,
 .token.function,
 .token.id,
 .token.important {
-  color: var(--color-blue);
+  color: hsla(var(--color-blue), 1);
 }
 
 .token.important,
@@ -78,7 +78,7 @@
 }
 
 .token.inserted {
-  color: var(--color-green);
+  color: hsla(var(--color-green), 1);
 }
 
 .token.keyword {
@@ -87,10 +87,10 @@
 }
 
 .token.operator {
-  color: var(--color-gray-300);
+  color: hsla(var(--color-gray-70), 1);
 }
 
 .token.attr-value .token.attr-equals,
 .token.punctuation {
-  color: var(--color-gray-200);
+  color: hsla(var(--color-gray-80), 1);
 }

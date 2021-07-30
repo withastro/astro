@@ -1,5 +1,29 @@
 # @astrojs/renderer-vue
 
+## 0.1.6
+
+### Patch Changes
+
+- a1491cc6: Fix Vue components nesting
+
+## 0.1.5
+
+### Patch Changes
+
+- fdb1c15: Revert #858
+
+## 0.1.4
+
+### Patch Changes
+
+- 1f79144: Exclude @vue/runtime-core from processing to fix Vue SSR for nested components
+
+## 0.1.4-next.0
+
+### Patch Changes
+
+- 1f79144: Exclude @vue/runtime-core from processing to fix Vue SSR for nested components
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,0 +1,24 @@
+---
+import Counter from '../components/Counter.vue'
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Vue component</title>
+    <style>
+      :global(:root) {
+        font-family: system-ui;
+        padding: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <Counter start="5" client:visible>Hello world!</Counter>
+    </main>
+  </body>
+</html>

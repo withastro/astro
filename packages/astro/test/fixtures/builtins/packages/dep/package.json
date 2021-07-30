@@ -1,6 +1,7 @@
 {
   "name": "@astrojs/astro-test-builtins-dep",
   "version": "0.0.1",
+  "private": true,
   "module": "main.js",
   "main": "main.js"
 }

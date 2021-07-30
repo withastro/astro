@@ -1,6 +1,6 @@
 export default {
   buildOptions: {
-    site: 'https://mysite.dev',
+    site: 'https://mysite.dev/blog/',
     sitemap: false,
   },
 };

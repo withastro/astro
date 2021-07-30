@@ -2,7 +2,13 @@
 import Hello from '../components/Hello.jsx';
 import Later from '../components/Goodbye.vue'; // use different specifier
 import ArrowFunction from '../components/ArrowFunction.jsx';
+import PropsSpread from '../components/PropsSpread.jsx';
 import {Research2} from '../components/Research.jsx';
+import TypeScriptComponent from '../components/TypeScriptComponent';
+
+const someProps = {
+  text: 'Hello world!',
+};
 ---
 
 <html>
@@ -13,7 +19,8 @@ import {Research2} from '../components/Research.jsx';
     <Hello name="world" />
     <Later name="baby" />
     <ArrowFunction />
-
+    <PropsSpread {...someProps}/>
     <Research2 client:idle />
+    <TypeScriptComponent client:load />
   </body>
 </html>

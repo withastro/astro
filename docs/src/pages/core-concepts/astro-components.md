@@ -63,6 +63,8 @@ For best results, you should only have one `<style>` tag per-Astro component. Th
 </html>
 ```
 
+Using `<style global>` will skip automatic scoping for every CSS rule in the `<style>` block. This escape hatch should be avoided if possible but can be useful if, for example, you need to modify styling for HTML elements added by an external library.
+
 Sass (an alternative to CSS) is also available via `<style lang="scss">`.
 
 📚 Read our full guide on [Component Styling](/guides/styling) to learn more.
@@ -196,6 +198,8 @@ const { greeting = 'Hello', name } = Astro.props;
 </MyComponent>
 ```
 
+Note that if the `<slot>` tag is not used in the HTML template, any children passed to the component will not be rendered.
+
 Slots become even more powerful when using **named slots**. Rather than a single `<slot>` element which renders _all_ children, named slots allow you to specify multiple places where children should be placed.
 
 > **Note:** The `slot` attribute is not restricted to plain HTML, components can use `slot` as well!
@@ -244,7 +248,7 @@ Slots can also render **fallback content**. When there are no matching children 
 An Astro component template can render as many top-level elements as you'd like. Unlike other UI component frameworks, you don't need to wrap everything in a single `<div>` if you'd prefer not to.
 
 ```html
-<!-- An Astro component can multiple top-level HTML elements: -->
+<!-- An Astro component can contain multiple top-level HTML elements: -->
 <div id="a" />
 <div id="b" />
 <div id="c" />
@@ -268,36 +272,6 @@ const items = ["Dog", "Cat", "Platipus"];
   ))}
 </ul>
 ```
-
-### Slots
-
-Sometimes, an Astro component will be passed children. This is especially common for components like sidebars or dialog boxes that represent generic "wrappers” around content.
-
-```astro
-<WrapChildrenWithText>
-  <img src="https://placehold.co/400" />
-<WrapChildrenWithText>
-```
-
-Astro provides a `<slot />` component so that you can control where any children are rendered within the component. This is heavily inspired by the [`<slot>` HTML element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot).
-
-```astro
----
-// Example: components/WrapChildrenWithText.astro
-// Usage: <WrapChildrenWithText><img src="https://placehold.co/400" /><WrapChildrenWithText>
-// Renders: <h1>Begin</h1><img src="https://placehold.co/400" /><h1>End</h1>
----
-<h1>Begin</h1>
-<!-- slot: any given children are injected here -->
-<slot />
-<h1>End</h1>
-```
-
-<!-- TODO: https://github.com/snowpackjs/astro/issues/600
-      If you don't provide a `<slot />` component in your HTML template, any children passed to your component will not be rendered. -->
-
-<!-- TODO: https://github.com/snowpackjs/astro/issues/360
-     Document Named Slots -->
 
 ## Comparing `.astro` versus `.jsx`
 

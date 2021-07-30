@@ -1,0 +1,18 @@
+{
+  "name": "@astrojs/renderer-solid",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./server": "./server.js",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "babel-preset-solid": "^1.0.0",
+    "solid-js": "^1.0.0"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  }
+}

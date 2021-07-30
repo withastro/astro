@@ -7,14 +7,18 @@
     "url": "https://github.com/snowpackjs/astro.git"
   },
   "scripts": {
-    "release": "yarn build && yarn changeset publish",
+    "release": "yarn build:all && npx changeset publish",
     "benchmark": "yarn workspace astro run benchmark",
     "build": "yarn build:core",
-    "build:all": "lerna run build",
     "build:one": "lerna run build --scope",
-    "build:core": "lerna run build --scope astro --scope @astrojs/parser --scope @astrojs/markdown-support",
-    "build:vscode": "lerna run build --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser",
-    "dev:vscode": "lerna run dev --scope astro-languageserver --scope astro-vscode --scope @astrojs/parser --parallel --stream",
+    "build:all": "lerna run build --scope \"{astro,@astrojs/*}\"",
+    "build:core": "lerna run build --scope \"{astro,@astrojs/parser,@astrojs/markdown-support}\"",
+    "build:vscode": "lerna run build --scope \"{@astrojs/language-server,astro-vscode,@astrojs/parser}\"",
+    "dev": "yarn dev:core --parallel --stream",
+    "dev:one": "lerna run dev --scope --parallel --stream",
+    "dev:all": "lerna run dev --scope \"{astro,@astrojs/*}\" --parallel --stream",
+    "dev:core": "lerna run dev --scope \"{astro,@astrojs/parser,@astrojs/markdown-support}\" --parallel --stream",
+    "dev:vscode": "lerna run dev --scope \"{@astrojs/language-server,astro-vscode,@astrojs/parser}\" --parallel --stream",
     "format": "prettier -w .",
     "lint": "eslint \"packages/**/*.ts\"",
     "test": "yarn workspace astro run test",
@@ -24,7 +28,6 @@
     "packages/renderers/*",
     "packages/*",
     "examples/*",
-    "tools/*",
     "scripts",
     "www",
     "docs",
@@ -38,10 +41,10 @@
     "yarn": "1.22.10"
   },
   "dependencies": {
-    "@changesets/cli": "^2.16.0",
     "camel-case": "^4.1.2"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.16.0",
     "@snowpack/plugin-postcss": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.18.0",
