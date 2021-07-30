@@ -13,7 +13,7 @@ export default function text(parser: Parser) {
     if (parser.current().name === 'code') {
       return !parser.match('<') && !parser.match('{');
     }
-    return !parser.match('---') && !parser.match('<') && !parser.match('{') && !parser.match('`');
+    return !parser.match('<') && !parser.match('{') && !parser.match('`');
   };
 
   while (parser.index < parser.template.length && shouldContinue()) {

@@ -248,7 +248,7 @@ Slots can also render **fallback content**. When there are no matching children 
 An Astro component template can render as many top-level elements as you'd like. Unlike other UI component frameworks, you don't need to wrap everything in a single `<div>` if you'd prefer not to.
 
 ```html
-<!-- An Astro component can multiple top-level HTML elements: -->
+<!-- An Astro component can contain multiple top-level HTML elements: -->
 <div id="a" />
 <div id="b" />
 <div id="c" />

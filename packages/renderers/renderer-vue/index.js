@@ -3,6 +3,5 @@ export default {
   snowpackPlugin: '@snowpack/plugin-vue',
   client: './client',
   server: './server',
-  knownEntrypoints: ['vue'],
-  external: ['@vue/runtime-core'],
+  knownEntrypoints: ['vue', '@vue/server-renderer'],
 };

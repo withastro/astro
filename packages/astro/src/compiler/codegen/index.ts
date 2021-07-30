@@ -30,6 +30,8 @@ const traverse: typeof babelTraverse.default = (babelTraverse.default as any).de
 const babelGenerator: typeof _babelGenerator = _babelGenerator.default;
 const { transformSync } = esbuild;
 
+const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media']);
+
 interface Attribute {
   start: number;
   end: number;
@@ -54,8 +56,6 @@ interface HydrationAttributes {
 function findHydrationAttributes(attrs: Record<string, string>): HydrationAttributes {
   let method: HydrationAttributes['method'];
   let value: undefined | string;
-
-  const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media']);
 
   for (const [key, val] of Object.entries(attrs)) {
     if (hydrationDirectives.has(key)) {
@@ -155,7 +155,9 @@ function getTextFromAttribute(attr: any): string {
 function generateAttributes(attrs: Record<string, string>): string {
   let result = '{';
   for (const [key, val] of Object.entries(attrs)) {
-    if (key.startsWith('...')) {
+    if (hydrationDirectives.has(key)) {
+      continue;
+    } else if (key.startsWith('...')) {
       result += key + ',';
     } else {
       result += JSON.stringify(key) + ':' + val + ',';

@@ -3,8 +3,6 @@ layout: ~/layouts/Main.astro
 title: Collections
 ---
 
-> Important: These API was recently redesigned, and these docs are specific to the next version of Astro, currently only available from npm at `astro@next`. This will be released in the next day or so, but you can try it today with `npm install astro@next`. Otherwise, you'll want to check out the [legacy Collections API docs.](https://astro-docs-preview.vercel.app/core-concepts/collections)
-
 **Collections** are a special type of [page](/core-concepts/astro-pages) in Astro that can generate multiple pages at different URLs for a larger set of data. If you've seen an Astro file that starts with a dollar sign (ex: `$posts.astro`), that's a collection.
 
 Example use-cases include:
