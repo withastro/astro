@@ -1,11 +1,9 @@
 ---
-import Counter from '../components/Counter.jsx';
-import SvelteCounter from '../components/SvelteCounter.svelte';
+import PersistantCounter from '../components/PersistantCounter.svelte';
 ---
 <html>
 <head><title>Dynamic pages</title></head>
 <body>
-  <Counter client:only />
-  <SvelteCounter client:only />
+  <PersistantCounter client:only />
 </body>
 </html>

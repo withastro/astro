@@ -44,22 +44,16 @@ DynamicComponents('Loads pages using client:only hydrator', async ({ runtime }) 
   const rootExp = /<astro-root\s[^>]*><\/astro-root>/;
   assert.ok(rootExp.exec(html), 'astro-root is empty');
 
-  // Grab the react-dom import
+  // Grab the svelte import
   const exp = /import\("(.+?)"\)/g;
-  let match, reactRenderer, svelteRenderer;
+  let match, svelteRenderer;
   while ((match = exp.exec(result.contents))) {
-    if (match[1].includes('renderers/renderer-react/client.js')) {
-      reactRenderer = match[1];
-    } else if (match[1].includes('renderers/renderer-svelte/client.js')) {
+    if (match[1].includes('renderers/renderer-svelte/client.js')) {
       svelteRenderer = match[1];
     }
   }
 
-  assert.ok(reactRenderer, 'React renderer is on the page');
   assert.ok(svelteRenderer, 'Svelte renderer is on the page');
-
-  result = await runtime.load(reactRenderer);
-  assert.equal(result.statusCode, 200, 'Can load react renderer');
 
   result = await runtime.load(svelteRenderer);
   assert.equal(result.statusCode, 200, 'Can load svelte renderer');
