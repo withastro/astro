@@ -28,7 +28,7 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 </div>
 ```
 
-`.fetchContent()` only takes one parameter: a relative URL glob of which local files you’d like to import. Currently only `*.md` files are supported. It’s synchronous, and returns an array of items of type:
+`.fetchContent()` only takes one parameter: a relative URL glob of which local files you'd like to import. Currently only `*.md` files are supported. It's synchronous, and returns an array of items of type:
 
 ```js
 {
@@ -113,9 +113,9 @@ When using the [Collections API](/core-concepts/collections), `createCollection(
 | `permalink` |         `({ params }) => string`         | **Required for URL Params.** Given a `param` object of `{ name: value }`, generate the final URL.\*        |
 | `rss`       | [RSS](/reference/api-reference#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/reference/api-reference#rss-feed))        |
 
-_\* Note: don’t create confusing URLs with `permalink`, e.g. rearranging params conditionally based on their values._
+_\* Note: don't create confusing URLs with `permalink`, e.g. rearranging params conditionally based on their values._
 
-⚠️ `createCollection()` executes in its own isolated scope before page loads. Therefore you can’t reference anything from its parent scope. If you need to load data you may fetch or use async `import()`s within the function body for anything you need (that’s why it’s `async`—to give you this ability). If it wasn’t isolated, then `collection` would be undefined! Therefore, duplicating imports between `createCollection()` and your Astro component is OK.
+⚠️ `createCollection()` executes in its own isolated scope before page loads. Therefore you can't reference anything from its parent scope. If you need to load data you may fetch or use async `import()`s within the function body for anything you need (that's why it's `async`—to give you this ability). If it wasn't isolated, then `collection` would be undefined! Therefore, duplicating imports between `createCollection()` and your Astro component is OK.
 
 #### RSS Feed
 
@@ -143,7 +143,7 @@ export async function createCollection() {
       item: (item) => ({
         title: item.title,
         description: item.description,
-        pubDate: item.pubDate + 'Z', // enforce GMT timezone (otherwise it’ll be different based on where it’s built)
+        pubDate: item.pubDate + 'Z', // enforce GMT timezone (otherwise it'll be different based on where it's built)
         /** (optional) add arbitrary XML to each <item> */
         customData: `<itunes:episodeType>${item.type}</itunes:episodeType>
 <itunes:duration>${item.duration}</itunes:duration>
@@ -156,7 +156,7 @@ export async function createCollection() {
 
 Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/src/pages/$podcast.xml` would generate `/feed/podcast.xml`).
 
-⚠️ Even though Astro will create the RSS feed for you, you’ll still need to add `<link>` tags manually in your `<head>` HTML:
+⚠️ Even though Astro will create the RSS feed for you, you'll still need to add `<link>` tags manually in your `<head>` HTML:
 
 ```html
 <link

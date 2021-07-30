@@ -258,7 +258,7 @@ export async function createCollection() {
       item: (item) => ({
         title: item.title,
         description: item.description,
-        // enforce GMT timezone (otherwise it’ll be different based on where it’s built)
+        // enforce GMT timezone (otherwise it'll be different based on where it's built)
         pubDate: item.pubDate + 'Z',
         // custom data is supported here as well
       }),
@@ -269,7 +269,7 @@ export async function createCollection() {
 
 Astro will generate your RSS feed at the URL `/feed/[collection].xml`. For example, `/src/pages/$podcast.astro` would generate URL `/feed/podcast.xml`.
 
-Even though Astro will create the RSS feed for you, you’ll still need to add `<link>` tags manually in your `<head>` HTML for feed readers and browsers to pick up:
+Even though Astro will create the RSS feed for you, you'll still need to add `<link>` tags manually in your `<head>` HTML for feed readers and browsers to pick up:
 
 ```html
 <link

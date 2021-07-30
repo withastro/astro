@@ -231,7 +231,7 @@ Then hit the deploy button.
 
 ## Surge
 
-1. First install [surge](https://www.npmjs.com/package/surge), if you haven’t already.
+1. First install [surge](https://www.npmjs.com/package/surge), if you haven't already.
 
 2. Run `npm run build`.
 

@@ -28,7 +28,7 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 </div>
 ```
 
-`.fetchContent()` only takes one parameter: a relative URL glob of which local files you’d like to import. Currently only `*.md` files are supported. It’s synchronous, and returns an array of items of type:
+`.fetchContent()` only takes one parameter: a relative URL glob of which local files you'd like to import. Currently only `*.md` files are supported. It's synchronous, and returns an array of items of type:
 
 ```js
 {
@@ -81,7 +81,7 @@ export async function createCollection() {
 <!-- Your HTML template here. -->
 ```
 
-⚠️ The `createCollection()` function executes in its own isolated scope before page loads. Therefore you can’t reference anything from its parent scope, other than file imports. The compiler will warn if you break this requirement.
+⚠️ The `createCollection()` function executes in its own isolated scope before page loads. Therefore you can't reference anything from its parent scope, other than file imports. The compiler will warn if you break this requirement.
 
 The `createCollection()` function should returns an object of the following shape:
 
