@@ -1,5 +1,7 @@
 
 <script>
+  import './logResize';
+
   let count = parseInt(localStorage.getItem('test:count')) || 0;
   $: localStorage.setItem('test:count', count);
 
