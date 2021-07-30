@@ -1,8 +1,9 @@
 ---
-import Layout from '../layouts/Main.astro';
+import SplashLayout from '../layouts/SplashLayout.astro';
 ---
 
-<Layout content={{title: "404"}} centered>
+<SplashLayout title="Not Found">
+  <h1>404</h1>
   <p>This page isn't in our solar system.</p>
   <a href="/">Take me home.</a>
-</Layout>
+</SplashLayout>
