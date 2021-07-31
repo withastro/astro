@@ -29,23 +29,20 @@ yarn create astro
 
 ```bash
 # Note: Replace "my-astro-project" with the name of your project.
+
 # npm 6.x
 npm init astro my-astro-project --template starter
-
-# npm 7+, extra double-dash is needed:
+# npm 7+ (extra double-dash is needed)
 npm init astro my-astro-project -- --template starter
-
 # yarn
 yarn create astro my-astro-project --template starter
-
-# Import Astro project from Github
+# Using a third-party template
 npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]
-
-# Import Astro from nested paths:
-npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
+# Using a third-party template, inside a repo
+npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]/path/to/template
 ```
 
-After `create-astro` scaffolds out your project, you would need to install the projects dependencies. To do this, enter:
+After `create-astro` scaffolds out your project, remember to install your projects dependencies using npm or your package manager of choice. In this example, we'll use npm:
 
 ```bash
 npm install
