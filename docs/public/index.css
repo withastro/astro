@@ -185,13 +185,13 @@ strong {
 /* Supporting Content */
 code {
   font-family: var(--font-mono);
+  font-size: 0.85em;
 }
 
 code:not([class*='language']) {
   --border-radius: 3px;
   --padding-block: 0.2rem;
-  --padding-inline: 0.33rem;
-  font-size: 0.85em;
+  --padding-inline: 0.4rem;
   color: var(--theme-code-inline-text);
   background-color: var(--theme-code-inline-bg);
   padding: var(--padding-block) var(--padding-inline);
@@ -206,6 +206,10 @@ pre > code:not([class*='language']) {
   margin: 0;
   border-radius: 0;
   color: inherit;
+}
+
+pre > code {
+  font-size: 1em;
 }
 
 table,

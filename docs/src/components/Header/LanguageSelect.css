@@ -1,8 +1,7 @@
 
 .language-select {
-  -webkit-appearance:none;
   flex-grow: 1;
-  width: 32px;
+  width: 48px;
   box-sizing: border-box;
   margin: 0;
   padding: 0.33em 0.5em;
@@ -11,7 +10,7 @@
   font-size: 1rem;
   font-family: inherit;
   line-height: inherit;
-  background-color: var(--theme-bg);
+  background-color: transparent;
   border-color: var(--theme-text-lighter);
   color: var(--theme-text-light);
   border-style: solid;
@@ -37,8 +36,9 @@
 }
 .language-select-wrapper > svg {
     position: absolute;
-    top: 6px;
+    top: 7px;
     left: 10px;
+    z-index: -1;
 }
 
 @media (min-width: 50em) {
