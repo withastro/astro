@@ -5,7 +5,7 @@ import { DocSearchModal, useDocSearchKeyboardEvents } from '@docsearch/react';
 import '@docsearch/css//dist/style.css';
 import './Search.css';
 
-export function Search() {
+export default function Search() {
   const [isOpen, setIsOpen] = useState(false);
   const searchButtonRef = useRef();
   const [initialQuery, setInitialQuery] = useState(null);
@@ -72,7 +72,6 @@ export function Search() {
                 // work better on localhost, preview URLS.
                 const a = document.createElement('a');
                 a.href = item.url;
-                console.log(a.hash);
                 const hash = a.hash === '#overview' ? '' : a.hash;
                 return {
                   ...item,

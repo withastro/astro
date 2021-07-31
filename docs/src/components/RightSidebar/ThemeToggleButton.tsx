@@ -1,6 +1,7 @@
 import type { FunctionalComponent } from 'preact';
 import { h, Fragment } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
+import './ThemeToggleButton.css';
 
 const themes = ['light', 'dark'];
 
@@ -53,7 +54,7 @@ const ThemeToggle: FunctionalComponent = () => {
   }, [theme]);
 
   return (
-    <div id="theme-toggle">
+    <div class="theme-toggle">
       {themes.map((t, i) => {
         const icon = icons[i];
         const checked = t === theme;

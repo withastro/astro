@@ -1,11 +1,11 @@
 ---
-import { sidebar } from '../config.ts';
+import { SIDEBAR } from '../../config.ts';
 const {currentPage} = Astro.props;
 ---
 
-<nav aria-labelledby="sidebar-site">
+<nav aria-labelledby="grid-left">
   <ul class="nav-groups">  
-    {sidebar.map(category => (
+    {SIDEBAR.map(category => (
       <li>
         <div class="nav-group">
           <h2 class="nav-group-title">{category.text}</h2>

@@ -1,0 +1,48 @@
+---
+import HeadCommon from "../components/HeadCommon.astro";
+import Header from '../components/Header/Header.astro';
+import { SITE } from "../config.ts";
+
+const { title } = Astro.props;
+---
+
+<html lang="en-us" class="initial">
+  <head>
+    <HeadCommon />
+    <title>{`${title} 🚀 ${SITE.title}`}</title>
+    <style>
+      body {
+        width: 100%;
+        display: grid;
+        grid-template-rows: var(--theme-navbar-height) 1fr;
+        --gutter: 0.5rem;
+        --doc-padding: 2rem;
+      }
+      .layout {
+        display: grid;
+        grid-auto-flow: column;
+        grid-template-columns: 
+          minmax(var(--gutter), 1fr) 
+          minmax(0, var(--max-width)) 
+          minmax(var(--gutter), 1fr);
+        overflow-x: hidden;
+      }
+      article {
+        padding: var(--doc-padding) var(--gutter);
+        grid-column: 2;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <Header />
+    <main class="layout splash-layout">
+      <article>
+        <slot />
+      </article>
+    </main>
+  </body>
+</html>

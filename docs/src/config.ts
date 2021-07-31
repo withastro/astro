@@ -1,4 +1,4 @@
-export const sidebar = [
+export const SIDEBAR = [
   {
     text: 'Setup',
     link: '',
@@ -50,36 +50,20 @@ export const sidebar = [
       { text: 'Renderer Reference', link: 'reference/renderer-reference' },
     ],
   },
-  // To add once rest of the site is complete
-  // see https://github.com/snowpackjs/astro-docs/issues/9
-  // {
-  //   text: 'Integrations',
-  //   link: 'integrations',
-  //   children: [
-  //     { text: 'Deploy Astro', link: 'integrations/deploy-astro' },
-  //     { text: 'Data Sources / CMS', link: 'integrations/data-sources-cms' },
-  //     { text: 'State Management', link: 'integrations/state-management' },
-  //     {
-  //       text: 'Styles & CSS Libraries',
-  //       link: 'integrations/styles-and-css-libraries',
-  //     },
-  //     { text: 'Developer Tools', link: 'integrations/developer-tools' },
-  //   ],
-  // },
 ];
 
-export const site = {
+export const SITE = {
   title: 'Astro Documentation',
   description: 'Build faster websites with less client-side Javascript.',
-  ogLocale: 'en_US',
+}
+
+export const OPEN_GRAPH = {
+  locale: 'en_US',
   image: {
     src: '/default-og-image.png?v=1',
     alt:
       'astro logo on a starry expanse of space,' +
       ' with a purple saturn-like planet floating in the right foreground',
   },
-  twitter: {
-    site: 'astrodotbuild',
-    creator: 'astrodotbuild',
-  },
+  twitter: 'astrodotbuild',
 };

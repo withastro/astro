@@ -1,9 +1,18 @@
 ---
-import Layout from '../layouts/Main.astro';
+import Layout from '../layouts/MainLayout.astro';
 ---
 
-<Layout centered>
-  <h1>
-    <code style="white-space: nowrap;">npm init astro</code>
-  </h1>
-</Layout>
+<script>
+  // This is some wip redirect code based on the browser language.
+  // A vercel.json redirect is enforced in production, so no user should ever see this page.
+  // Remove the vercel.json redirect when this is ready.
+  const KNOWN_LANGUAGES = ['en', 'nl'];
+  let newLang = (window.navigator.userLanguage || window.navigator.language || 'en').substr(0, 2);
+  if (newLang === 'en') {
+    window.location.pathname = '/getting-started';
+  } else if (KNOWN_LANGUAGES.includes(newLang)) {
+    window.location.pathname = '/' + newLang + '/getting-started';
+  } else {
+  window.location.pathname = '/getting-started';
+  }
+</script>

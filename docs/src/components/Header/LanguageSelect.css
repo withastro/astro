@@ -1,0 +1,48 @@
+
+.language-select {
+  flex-grow: 1;
+  width: 48px;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.33em 0.5em;
+  overflow: visible;
+  font-weight: 500;
+  font-size: 1rem;
+  font-family: inherit;
+  line-height: inherit;
+  background-color: transparent;
+  border-color: var(--theme-text-lighter);
+  color: var(--theme-text-light);
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 0.25rem;
+  outline: 0;
+  cursor: pointer;
+  transition-timing-function: ease-out;
+  transition-duration: 0.2s;
+  transition-property: border-color, color;
+  -webkit-font-smoothing: antialiased;
+  padding-left: 30px;
+  padding-right: 1rem;    
+}
+.language-select-wrapper .language-select:hover,
+.language-select-wrapper .language-select:focus {
+  color: var(--theme-text);
+  border-color: var(--theme-text-light);
+}
+.language-select-wrapper {
+  color: var(--theme-text-light);
+  position: relative;
+}
+.language-select-wrapper > svg {
+    position: absolute;
+    top: 7px;
+    left: 10px;
+    z-index: -1;
+}
+
+@media (min-width: 50em) {
+  .language-select {
+    width: 100%;
+  }
+}

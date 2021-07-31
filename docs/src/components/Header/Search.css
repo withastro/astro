@@ -1,32 +1,8 @@
+/** Style Algolia */
 :root {
   --docsearch-primary-color: var(--theme-accent);
   --docsearch-logo-color: var(--theme-text);
 }
-
-.search {
-  display: none;
-  position: relative;
-  z-index: 10;
-  flex-grow: 1;
-  grid-area: search;
-  padding-left: 0.75rem;
-  padding-right: 0.7rem;
-  display: flex;
-  width: 400px;
-  max-width: 400px;
-}
-.search > * {
-  flex-grow: 1;
-}
-
-.search > :global(.algolia-autocomplete) {
-  width: 100%;
-}
-
-:global(body.is-nav-open) .search {
-  display: flex;
-}
-
 .search-input {
   flex-grow: 1;
   box-sizing: border-box;
@@ -48,22 +24,21 @@
   cursor: pointer;
   transition-timing-function: ease-out;
   transition-duration: 0.2s;
-  transition-property: border-color, background-color;
+  transition-property: border-color, color;
   -webkit-font-smoothing: antialiased;
 }
-.no-underline {
-  text-decoration: none;
-}
-.search-input:hover {
+.search-input:hover,
+.search-input:focus {
   color: var(--theme-text);
+  border-color: var(--theme-text-light);
 }
-.search-input:hover::placeholder {
+.search-input:hover::placeholder,
+.search-input:focus::placeholder {
   color: var(--theme-text-light);
 }
 .search-input::placeholder {
   color: var(--theme-text-light);
 }
-
 .search-hint {
   position: absolute;
   top: 7px;
@@ -74,7 +49,6 @@
   align-items: center;
   justify-content: center;
   letter-spacing: 0.125em;
-  color: var(--theme-text-light);
   font-size: 13px;
   font-family: var(--font-mono);
   pointer-events: none;

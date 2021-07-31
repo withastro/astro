@@ -183,14 +183,15 @@ strong {
 }
 
 /* Supporting Content */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
 
 code:not([class*='language']) {
   --border-radius: 3px;
   --padding-block: 0.2rem;
-  --padding-inline: 0.33rem;
-
-  font-family: var(--font-mono);
-  font-size: 0.85em;
+  --padding-inline: 0.4rem;
   color: var(--theme-code-inline-text);
   background-color: var(--theme-code-inline-bg);
   padding: var(--padding-block) var(--padding-inline);
@@ -205,6 +206,10 @@ pre > code:not([class*='language']) {
   margin: 0;
   border-radius: 0;
   color: inherit;
+}
+
+pre > code {
+  font-size: 1em;
 }
 
 table,
@@ -299,56 +304,6 @@ button {
   background-color: var(--theme-bg);
 }
 
-#theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25em;
-  padding: 0.33em 0.67em;
-  border-radius: 99em;
-  background-color: var(--theme-code-inline-bg);
-}
-
-#theme-toggle > label:focus-within {
-  outline: 2px solid transparent;
-  box-shadow: 0 0 0 0.08em var(--theme-accent), 0 0 0 0.12em white;
-}
-
-#theme-toggle > label {
-  color: var(--theme-code-inline-text);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.5;
-}
-
-#theme-toggle .checked {
-  color: var(--theme-accent);
-  opacity: 1;
-}
-
-input[name='theme-toggle'] {
-  position: absolute;
-  opacity: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: -1;
-}
-
-.sidebar-nav {
-  width: 100%;
-  position: sticky;
-  top: 0;
-}
-.sidebar-nav-inner {
-  height: 100%;
-  padding: 0;
-  padding-top: var(--doc-padding);
-  overflow: auto;
-}
-
 h2.heading {
   font-size: 1rem;
   font-weight: 700;
@@ -397,13 +352,6 @@ h2.heading {
   text-decoration: none;
 }
 
-.edit-on-github {
-  text-decoration: none;
-  font: inherit;
-  color: inherit;
-  font-size: 1rem;
-}
-
 /* Screenreader Only Text */
 .sr-only {
   position: absolute;
@@ -428,24 +376,6 @@ h2.heading {
   clip: auto;
   white-space: normal;
 }
-
-.skiplink,
-.skiplink:focus,
-.skiplink:focus-visible {
-  position: absolute;
-  padding: 0.25em;
-  font-size: larger;
-  top: 0.5rem;
-  left: 0.5rem;
-  z-index: 9;
-  display: block;
-  background-color: var(--theme-bg);
-  color: var(--theme-text-accent);
-  border-radius: 0.25em;
-  outline: var(--theme-text-accent) solid 1px;
-  outline-offset: 0;
-}
-/* Screenreader Only Text - End */
 
 :target {
   scroll-margin: calc(var(--theme-sidebar-offset, 5rem) + 2rem) 0 2rem;
