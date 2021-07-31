@@ -1,17 +1,30 @@
 ---
 import { SIDEBAR } from '../../config.ts';
+import { getLanguageFromURL } from '../../util.ts';
 const {currentPage} = Astro.props;
+const currentPageMatch = currentPage.slice(1);
+const langCode = getLanguageFromURL(currentPage);
+// SIDEBAR is a flat array. Group it by sections to properly render. 
+const sidebarSections = SIDEBAR[langCode].reduce((col, item) => {
+  if (item.header) {
+    col.push({...item, children: []});
+  } else {
+    col[col.length-1].children.push(item);
+  }
+  return col;
+}, []);
+
 ---
 
 <nav aria-labelledby="grid-left">
   <ul class="nav-groups">  
-    {SIDEBAR.map(category => (
+    {sidebarSections.map(section => (
       <li>
         <div class="nav-group">
-          <h2 class="nav-group-title">{category.text}</h2>
+          <h2 class="nav-group-title">{section.text}</h2>
           <ul>
-            {category.children.map(child => (
-              <li class="nav-link"><a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPage === child.link ? 'page' : 'false'}`}>{child.text}</a></li>
+            {section.children.map(child => (
+              <li class="nav-link"><a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPageMatch === child.link ? 'page' : 'false'}`}>{child.text}</a></li>
             ))}
           </ul>
         </div>

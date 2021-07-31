@@ -3,9 +3,7 @@ import Layout from '../layouts/MainLayout.astro';
 ---
 
 <script>
-  // This is some wip redirect code based on the browser language.
-  // A vercel.json redirect is enforced in production, so no user should ever see this page.
-  // Remove the vercel.json redirect when this is ready.
+  // Redirect the user, based on their browser language.
   const KNOWN_LANGUAGES = ['en', 'nl', 'fi'];
   let newLang = (window.navigator.userLanguage || window.navigator.language || 'en').substr(0, 2);
   if (newLang === 'en') {
