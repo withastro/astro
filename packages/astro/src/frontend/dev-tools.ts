@@ -110,7 +110,7 @@ function addHydrationMissingClickHandler() {
       if (!elementHasFormParent) {
         componentElement.classList.add('show-notification');
         console.warn(
-          `component < ${componentName} /> is being statically rendered. Use the client:* directives to hydrate it. Documentation: https://astro-docs-e7osusbql-pikapkg.vercel.app/core-concepts/component-hydration`
+          `component < ${componentName} /> is being statically rendered. Use the client:* directives to hydrate it. Documentation: https://docs.astro.build/core-concepts/component-hydration`
         );
         let showTimer = setTimeout(() => {
           componentElement.classList.remove('show-notification');
