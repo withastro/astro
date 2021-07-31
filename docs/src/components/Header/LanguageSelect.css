@@ -1,4 +1,3 @@
-
 .language-select {
   flex-grow: 1;
   width: 48px;
@@ -23,7 +22,7 @@
   transition-property: border-color, color;
   -webkit-font-smoothing: antialiased;
   padding-left: 30px;
-  padding-right: 1rem;    
+  padding-right: 1rem;
 }
 .language-select-wrapper .language-select:hover,
 .language-select-wrapper .language-select:focus {
@@ -35,10 +34,10 @@
   position: relative;
 }
 .language-select-wrapper > svg {
-    position: absolute;
-    top: 7px;
-    left: 10px;
-    z-index: -1;
+  position: absolute;
+  top: 7px;
+  left: 10px;
+  z-index: -1;
 }
 
 @media (min-width: 50em) {

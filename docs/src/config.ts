@@ -55,7 +55,7 @@ export const SIDEBAR = [
 export const SITE = {
   title: 'Astro Documentation',
   description: 'Build faster websites with less client-side Javascript.',
-}
+};
 
 export const OPEN_GRAPH = {
   locale: 'en_US',
