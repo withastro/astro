@@ -1,35 +1,41 @@
 ---
 import {templatesList as data} from '../templatesList.ts'
-
-const githubEditUrl = "https://github.com/snowpackjs/astro/tree/main/docs/src/pages/examples-and-templates.astro"
 ---
 {data.map(category=>(
     <div>
-        <h2>
-         {category.category}
+        <h2 id={category.title}>
+         {category.title}
         </h2>
-        {category.children.map(item=>(
-            <article class="cards" id={item.text}>
-                <h3>
-                    {item.text}
-                </h3>
-                <p>
-                    {item.blurb}
-                </p>
-                <pre data-lang='bash'>
-                    {item.command}
-                </pre>
-                <a href={item.github} target="_blank" rel="noopener noreferrer">View in Github</a>
-                {item.demo.length != 0 ? <a href={item.demo} target="_blank" rel="noopener noreferrer">Online Demo</a>:""}
-            </article>
-        ))}
+        {
+            category.children.map(item=>(
+                <article class="cards" id={item.text}>
+                    <h3 id={item.text}>
+                        {item.text}
+                    </h3>
+                    <p>
+                        {item.blurb}
+                    </p>
+                    <pre data-lang='bash'>
+                        {item.command}
+                    </pre>
+                    <a href={item.github} target="_blank" rel="noopener noreferrer">
+                        View in Github
+                    </a>
+                    {
+                        item.demo.length != 0 ? 
+                        <a href={item.demo} target="_blank" rel="noopener noreferrer">
+                            Online Demo
+                        </a>
+                        :""
+                    }
+                </article>
+            ))
+        }
     </div>        
 ))}
 
-<!-- TODO: Get the table of content to work, this is currently missing on the page-->
+<style lang="scss">
 
-
-<style lang="sass">
 .cards{
     padding:1rem 0;
     p{

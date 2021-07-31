@@ -1,6 +1,8 @@
 export const templatesList=[
     {
         category:"Templates",
+        title:"create-astro Templates",
+
         children:[
                 { 
                     text: "Starter Template", 
@@ -41,6 +43,7 @@ export const templatesList=[
     },
     {
         category:"Framework's",
+        title:"UI Frameworks",
         children:[
                 { 
                     text: "React + Astro", 
@@ -88,7 +91,7 @@ export const templatesList=[
                     text: "Multiple UI Frameworks Together As One, only with Astro", 
                     github: "https://github.com/snowpackjs/astro/tree/main/examples/framework-multiple", 
                     demo:"",
-                    blurb:"Showcasing Astro's ability to utilise more than one framework at a time. \nHere we are demonstrating applying a combination of: \n- React\n- Preact\n-Svelte \n& Vue\nComponents all into one Astro project",
+                    blurb:"Showcasing Astro's ability to utilise more than one framework at a time. \nHere we are demonstrating applying a combination of: React, Preact, Svelte & Vue Components all into one Astro project",
                     command:"npm init astro my-astro-project -- --template framework-multiple"
                 },
                
@@ -96,6 +99,7 @@ export const templatesList=[
     },
     {
         category:"Further Examples",
+        title:"Examples",
         children:[
                 { 
                     text: "Astro with Markdown", 

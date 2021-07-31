@@ -9,6 +9,7 @@ import { site } from "../config.ts";
 
 const { content = {}, centered = false } = Astro.props;
 const headers = content?.astro?.headers;
+console.log(Astro);
 console.log(headers);
 
 const currentPage = Astro.request?.url?.pathname;
