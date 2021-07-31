@@ -60,7 +60,10 @@ const SelectLanguage: FunctionalComponent<{}> = ({}) => {
           <span>English</span>
         </option>
         <option value="nl">
-          <span>Dutch</span>
+          <span>Nederlands</span>
+        </option>
+        <option value="fi">
+          <span>Suomi</span>
         </option>
       </select>
     </div>
