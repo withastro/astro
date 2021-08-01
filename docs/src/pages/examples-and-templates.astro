@@ -2,16 +2,23 @@
 
 import Layout from '../layouts/Main.astro';
 import {Markdown} from 'astro/components'
-import Examples, {list} from '../components/Examples.astro'
+import Examples from '../components/Examples.astro'
 import DocSidebar from '../components/DocSidebar.tsx'
-import examplesHeaders from '../components/examplesHeadersList.js'
+import {examplesHeaders,test} from '../components/examplesHeadersList.js'
 const githubEditUrl = "https://github.com/snowpackjs/astro/tree/main/docs/src/pages/examples-and-templates.astro"
 const title = 'Examples & Templates'
 console.log(examplesHeaders)
-
+// console.log(test)
+let {obj,childObj} = examplesHeaders
+let a = {
+    ...obj,
+    ...childObj
+}
+// console.log(a)
 
 ---
-<Layout content={{title}}>
+
+<Layout content={{title:title,headers:{examplesHeaders}}}>
     <Markdown>
        
         We encourage you to freely explore our collection of ready-made templates containing a multitude of examples on how to apply Astro to a variety of use-cases. i.e: various UI frameworks, State Management Tools, and of course TailwindCSS
@@ -28,5 +35,8 @@ console.log(examplesHeaders)
         npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
         ```
     </Markdown>
-    <DocSidebar client:idle headers={examplesHeaders} editHref={githubEditUrl} />
+    <aside class="sidebar" id="sidebar-content" title="Table of Contents">
+    
+        <DocSidebar client:idle headers={examplesHeaders} editHref={githubEditUrl} /> 
+    </aside>
 </Layout>

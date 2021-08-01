@@ -40,7 +40,8 @@ const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string }> = ({
             <a href="#overview">Overview</a>
           </li>
           {headers
-            .filter(({ depth }) => depth > 1 && depth < 4)
+            // .map(item=>item)
+            .filter(({ depth }) => depth >= 1 && depth <= 4)
             .map((header) => (
               <li
                 class={`header-link depth-${header.depth} ${
@@ -49,7 +50,8 @@ const DocSidebar: FunctionalComponent<{ headers: any[]; editHref: string }> = ({
               >
                 <a href={`#${header.slug}`}>{header.text}</a>
               </li>
-            ))}
+            ))
+            }
         </ul>
         <h2 class="heading">More</h2>
         <ul>
