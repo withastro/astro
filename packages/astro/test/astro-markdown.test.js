@@ -90,6 +90,17 @@ Markdown('Renders dynamic content though the content attribute', async ({ runtim
   assert.ok($('#inner').is('[class]'), 'Scoped class passed down');
 });
 
+Markdown('Renders curly braces correctly', async ({ runtime }) => {
+  const result = await runtime.load('/braces');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.equal($('code').length, 3, 'Rendered curly braces markdown content');
+  assert.equal($('code:first-child').text(), '({})', 'Rendered curly braces markdown content');
+  assert.equal($('code:nth-child(2)').text(), '{...props}', 'Rendered curly braces markdown content');
+  assert.equal($('code:last-child').text(), '{/* JavaScript */}', 'Rendered curly braces markdown content');
+});
+
 Markdown('Does not close parent early when using content attribute (#494)', async ({ runtime }) => {
   const result = await runtime.load('/close');
   assert.ok(!result.error, `build error: ${result.error}`);
