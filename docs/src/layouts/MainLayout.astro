@@ -104,10 +104,10 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
   </head>
 
   <body>
-    <Header />
+    <Header currentPage={currentPage} />
     <main class="layout">
       <aside id="grid-left" class="grid-sidebar" title="Site Navigation">
-        <LeftSidebar currentPage={currentPage.slice(1) ?? ''} />
+        <LeftSidebar currentPage={currentPage} />
       </aside>
       <div id="grid-main">
         <PageContent content={content} githubEditUrl={githubEditUrl}>
