@@ -51,7 +51,7 @@ export const SITE = {
 };
 
 export const OPEN_GRAPH = {
-  locale: ['en_US','zh-CN','zh-TW'],
+  locale: 'en_US',
   image: {
     src: '/default-og-image.png?v=1',
     alt:
