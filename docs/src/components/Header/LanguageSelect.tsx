@@ -2,7 +2,7 @@ import type { FunctionalComponent } from 'preact';
 import { h } from 'preact';
 import './LanguageSelect.css';
 
-const LanguageSelect: FunctionalComponent<{lang: string}> = ({lang}) => {
+const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
   return (
     <div class="language-select-wrapper">
       <svg

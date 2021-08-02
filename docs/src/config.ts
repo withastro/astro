@@ -1,12 +1,12 @@
 export const SIDEBAR = {
-  'en': [
+  en: [
     { text: 'Setup', header: true },
     { text: 'Getting Started', link: 'getting-started' },
     { text: 'Quickstart', link: 'quick-start' },
     { text: 'Installation', link: 'installation' },
     { text: 'Examples', link: 'examples' },
     { text: 'Astro vs. X', link: 'comparing-astro-vs-other-tools' },
-    
+
     { text: 'Basics', header: true },
     { text: 'Project Structure', link: 'core-concepts/project-structure' },
     { text: 'Components', link: 'core-concepts/astro-components' },
@@ -14,7 +14,7 @@ export const SIDEBAR = {
     { text: 'Layouts', link: 'core-concepts/layouts' },
     { text: 'Collections', link: 'core-concepts/collections' },
     { text: 'Partial Hydration', link: 'core-concepts/component-hydration' },
-    
+
     { text: 'Guides', header: true },
     { text: 'Styling & CSS', link: 'guides/styling' },
     { text: 'Data Fetching', link: 'guides/data-fetching' },
@@ -22,7 +22,7 @@ export const SIDEBAR = {
     { text: 'Supported Imports', link: 'guides/imports' },
     { text: 'Deploy a Website', link: 'guides/deploy' },
     { text: 'Publish a Component', link: 'guides/publish-to-npm' },
-    
+
     { text: 'Reference', header: true },
     { text: 'Built-In Components', link: 'reference/builtin-components' },
     { text: 'API Reference', link: 'reference/api-reference' },
@@ -33,18 +33,17 @@ export const SIDEBAR = {
     },
     { text: 'Renderer Reference', link: 'reference/renderer-reference' },
   ],
-  'nl': [
+  nl: [
     { text: 'Welkom', header: true },
     { text: 'Beginnen', link: 'nl/getting-started' },
   ],
-  'fi': [
+  fi: [
     { text: 'Tervetuloa', header: true },
     { text: 'Aloittaminen', link: 'fi/getting-started' },
     { text: 'Pika-aloitus', link: 'fi/quick-start' },
     { text: 'Asennus', link: 'fi/installation' },
   ],
-}
-
+};
 
 export const SITE = {
   title: 'Astro Documentation',
