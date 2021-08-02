@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Beginnen
+lang: nl
 ---
 
 Astro is een moderne statische sitebouwer. Leer alles over Astro op onze [homepage](https://astro.build/) of ons [release-bericht](https://astro.build/blog/introducing-astro). Deze pagina is een overzicht van de Astro documentatie en alle gerelateerde bronnen.
