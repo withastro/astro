@@ -8,35 +8,35 @@ export const templatesList=[
                     text: "Starter Template", 
                     github: "https://github.com/snowpackjs/astro/tree/main/examples/starter", 
                     demo:"https://youtu.be/dQw4w9WgXcQ?t=42",
-                    blurb:"Astro's Default Starter Project, an open-air sandbox. Letting you build your Astro Project as you see fit",
+                    blurb:"Astro's Default Starter Project, an open-air sandbox. Letting you build your Astro Project as you see fit.",
                     command:"npm init astro my-astro-project -- --template starter"
                 },
                 { 
                     text: "Doc\'s", 
                     github: "https://github.com/snowpackjs/astro/tree/main/examples/docs", 
                     demo:"",
-                    blurb:"Astro's Documentation Template, is an example of a Documentation site built using Astro",
+                    blurb:"Astro's Documentation Template, is an example of a Documentation site built using Astro.",
                     command:"npm init astro my-astro-project -- --template docs"
                 },
                 { 
                     text: "Blog", 
                     github: "https://github.com/snowpackjs/astro/tree/main/examples/blog", 
                     demo:"",
-                    blurb:"Astro's Blog Template, is an example of a Blogging site built using Astro",
+                    blurb:"Astro's Blog Template, is an example of a Blogging site built using Astro.",
                     command:"npm init astro my-astro-project -- --template blog"
                 },
                 { 
                     text: "Blog with Multiple Authors", 
                     github: "https://github.com/snowpackjs/astro/tree/main/examples/blog-multiple-authors", 
                     demo:"",
-                    blurb:"Astro's Multiple Authors Blogging Template, is an example of a Blogging site for Multiple Authors built using Astro",
+                    blurb:"Astro's Multiple Authors Blogging Template, is an example of a Blogging site for Multiple Authors built using Astro.",
                     command:"npm init astro my-astro-project -- --template blog"
                 },
                 { 
                     text: "Portfolio", 
                     github: "https://github.com/snowpackjs/astro/tree/main/examples/portfolio", 
                     demo:"",
-                    blurb:"Astro's Portfolio Template, an example of a Portfolio site built using Astro",
+                    blurb:"Astro's Portfolio Template, an example of a Portfolio site built using Astro.",
                     command:"npm init astro my-astro-project -- --template portfolio"
                 },
         ]
