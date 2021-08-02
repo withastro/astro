@@ -7,16 +7,18 @@ import MenuToggle from '../components/MenuToggle.tsx';
 import MetaData from "../components/MetaData.astro";
 import { site } from "../config.ts";
 
-const { content = {}, centered = false } = Astro.props;
+const { content = {}, centered = false, page= Astro.request?.url?.pathname } = Astro.props;
 const headers = content?.astro?.headers;
-console.log(Astro.props)
-console.log(headers)
-const currentPage = Astro.request?.url?.pathname;
+
+const currentPage = page;
 let currentFile;
-let githubEditUrl;
+let astroFileGitHubUrl = content?.githubEditUrl
+let githubEditUrl ;
 if (currentPage) {
   currentFile = currentPage === '/' ? 'src/pages/index.md' : `src/pages${currentPage.replace(/\/$/, "")}.md`;
-  githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`;
+  if(!astroFileGitHubUrl){
+      githubEditUrl= `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`
+    };
 }
 ---
 
@@ -307,7 +309,7 @@ if (currentPage) {
         </article>
       </div>
       <aside class="sidebar" id="sidebar-content" title="Table of Contents">
-        {currentPage && <DocSidebar client:idle headers={headers} editHref={githubEditUrl} />}
+       {currentPage ==='/' ? '': <DocSidebar client:idle headers={headers} editHref={ astroFileGitHubUrl ? astroFileGitHubUrl : githubEditUrl} />}
       </aside>
     </main>
 

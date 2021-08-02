@@ -1,4 +1,4 @@
-import {templatesList as data} from '../templatesList.ts'
+import {templatesList as data} from '../../templatesList.ts'
 const examplesHeaders = data.map(section=>{
     let arr = []
     let obj = {
@@ -7,16 +7,17 @@ const examplesHeaders = data.map(section=>{
         text:section.title,
     }
     arr.push(obj)
-    let childObj= section.children.map(example=>{
-        let ob={
+    
+    section.children.map(example=>{
+        let obj={
         depth:3,
         slug:example.text,
         text:example.text,
         }
-        arr.push(ob)
+        arr.push(obj)
     })
     return [...arr]
 }).flat(2) 
 
 
-export {examplesHeaders}
+export default examplesHeaders
