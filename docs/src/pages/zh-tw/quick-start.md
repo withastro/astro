@@ -33,9 +33,9 @@ npm run build
 npm start
 ```
 
-現在，Astro 就會開啟應用程式的服務，位置是 [http://localhost:3000](http://localhost:3000)。在瀏覽器打開這網址，就會看到 Astro 的 "Hello, World"。
+現在，Astro 就會開啟應用程式的伺服器，位置是 [http://localhost:3000](http://localhost:3000)。在瀏覽器打開這網址，就會看到 Astro 的 「Hello, World」。
 
-The server will listen for live file changes in your `src/` directory, so you do not need to restart the application as you make changes during development.
+伺服器會即時監聽 `src/` 資料夾的檔案異動，所以在開發過程的更新毋需重新啟動應用程式。
 
 ## Build 專案
 
@@ -49,7 +49,7 @@ npm run build
 
 ## 部署專案
 
-Astro 網站是靜態的，所以可以發布至您偏好的主機：
+Astro 網站是靜態的，所以可以發布至慣用的主機：
 
 - [Vercel](https://vercel.com/)
 - [Netlify](https://www.netlify.com/)
