@@ -79,3 +79,32 @@ node test/benchmark/dev.bench.js --save
 ```
 
 Which will update the build and dev benchmarks.
+
+
+## Translations
+
+Help us translate [docs.astro.build](https://docs.astro.build/) into as many languages as possible! Translation (aka **localization**) is a great way to get involved with open source development without having to code.
+
+Our translation process is loosly based off of [MDN.](https://hacks.mozilla.org/2020/12/an-update-on-mdn-web-docs-localization-strategy/)
+
+### Important: Beta Status
+
+Astro is changing quickly, and so are the docs. We cannot translate too many pages until Astro is closer to a v1.0.0 release candidate. **To start, do not translate more than the "getting started" page.** Once we are closer to a v1.0.0 release candidate, we will begin translating all pages.
+
+### Tier 1: Priority Languages
+
+**Tier 1** languages are considered a top priority for Astro documentation. The docs site should be fully translated into these languages, and reasonably kept up-to-date:
+
+- Simplified Chinese (zh-CN)
+- Traditional Chinese (zh-TW)
+- French (fr)
+- Japanese (ja)
+
+We are always looking for people to help us with these translations. If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord.
+
+
+### Tier 2 Languages
+
+All other languages are considered **Tier 2**. Tier 2 language translations are driven by the community, with support from core maintainers. If you want to see the Astro docs site translated into a new language, then we need your help to kick off the project! 
+
+If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord.
