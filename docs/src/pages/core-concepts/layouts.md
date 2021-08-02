@@ -54,6 +54,8 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 </BaseLayout>
 ```
 
+**Note**: If you use .scss files rather than .css files, any stylesheet links in your layout should still point to .css files because of Astro’s auto-compilation process. When Astro “needs” the styling files, it’ll be “looking for” the final .css file(s) that it compiles from the .scss file(s). For example, if you have a .scss file at `./public/style/global.scss`, use this link: `<link rel="stylesheet" href="/style/global.css">` — **not** `<link rel="stylesheet" href="/style/global.scss">`. For additional related information, please see [Styling &amp; CSS](https://docs.astro.build/guides/styling).
+
 ## Nesting Layouts
 
 You can nest layouts when you want to create more specific page types without copy-pasting. It is common in Astro to have one generic `BaseLayout` and then many more specific layouts (`PostLayout`, `ProductLayout`, etc.) that reuse and build on top of it.
