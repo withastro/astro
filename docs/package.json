@@ -25,6 +25,8 @@
     "start-server-and-test": "^1.12.6"
   },
   "dependencies": {
-    "@docsearch/react": "^1.0.0-alpha.27"
+    "@docsearch/react": "^1.0.0-alpha.27",
+    "rehype-autolink-headings": "^6.0.0",
+    "remark-sectionize": "^1.1.1"
   }
 }

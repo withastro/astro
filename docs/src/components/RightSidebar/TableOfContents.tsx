@@ -22,7 +22,7 @@ const useIntersectionObserver = (setActiveId: StateUpdater<string>) => {
 
       const getIndexFromId = (id) =>
         headingElements.findIndex((heading) => heading.id === id);
-      console.log(visibleHeadings);
+
       if (visibleHeadings.length === 1) {
         setActiveId(visibleHeadings[0].target.id);
       } else if (visibleHeadings.length > 1) {

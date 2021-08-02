@@ -60,7 +60,7 @@ h2 {
   max-width: 40ch;
 }
 
-:is(h2, h3):not(:first-child) {
+:is(h2, h3) {
   margin-top: 3rem;
 }
 
