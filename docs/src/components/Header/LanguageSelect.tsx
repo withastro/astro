@@ -2,7 +2,7 @@ import type { FunctionalComponent } from 'preact';
 import { h } from 'preact';
 import './LanguageSelect.css';
 
-const SelectLanguage: FunctionalComponent<{}> = ({}) => {
+const SelectLanguage: FunctionalComponent<{}> = ({ }) => {
   let defaultValue = undefined;
   if (!import.meta.env.SSR) {
     const oldPathname = window.location.pathname;
@@ -64,6 +64,12 @@ const SelectLanguage: FunctionalComponent<{}> = ({}) => {
         </option>
         <option value="fi">
           <span>Suomi</span>
+        </option>
+        <option value="zh-CN">
+          <span>简体中文</span>
+        </option>
+        <option value="zh-TW">
+          <span>繁体中文</span>
         </option>
       </select>
     </div>
