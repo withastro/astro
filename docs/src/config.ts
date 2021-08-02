@@ -43,6 +43,10 @@ export const SIDEBAR = {
     { text: 'Pika-aloitus', link: 'fi/quick-start' },
     { text: 'Asennus', link: 'fi/installation' },
   ],
+  es: [
+    { text: 'Configuración', header: true },
+    { text: 'Empezando', link: 'es/getting-started' },
+  ],
 };
 
 export const SITE = {
