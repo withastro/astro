@@ -1,8 +1,11 @@
 ---
 import SkipToContent from './SkipToContent.astro';
 import SidebarToggle from './SidebarToggle.tsx';
+import LanguageSelect from './LanguageSelect.jsx';
 import Search from "./Search.jsx";
-// import LanguageSelect from './LanguageSelect.jsx';
+import { getLanguageFromURL } from '../../util.ts';
+const {currentPage} = Astro.props;
+const lang = currentPage && getLanguageFromURL(currentPage);
 ---
 <style>
       header {
@@ -149,7 +152,7 @@ import Search from "./Search.jsx";
         </a>
     </div>
     <div style="flex-grow: 1;"></div>
-    <!-- Add back when ready: <LanguageSelect client:idle /> -->
+    {lang && <LanguageSelect lang={lang} client:idle />}
     <div class="search-item"><Search client:idle /></div>
     </nav>
 </header>
