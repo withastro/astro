@@ -112,7 +112,9 @@ Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 - **Vue**: `<style lang="scss">` or `<style lang="sass">`
 - **Svelte**: `<style lang="scss">` or `<style lang="sass">`
 
-💁‍ Sass is great! If you haven't used Sass in a while, please give it another try. The new and improved [Sass Modules][sass-use] are a great fit with modern web development, and it's blazing-fast since being rewritten in Dart. And the best part? **You know it already!** Use `.scss` to write familiar CSS syntax you're used to, and only sprinkle in Sass features if/when you need them.
+💁‍ Sass is great! If you haven't used Sass in a while, please give it another try. The new and improved [Sass Modules][sass-use] are a great fit with modern web development, and it's blazing-fast since being rewritten in Dart. And the best part? **You know it already!** Use `.scss` to write familiar CSS syntax you're used to, and only sprinkle in Sass features if/when you need them.'
+
+**Note**: If you use .scss files rather than .css files, your stylesheet links should still point to .css files because of Astro’s auto-compilation process. When Astro “needs” the styling files, it’ll be “looking for” the final .css file(s) that it compiles from the .scss file(s). For example, if you have a .scss file at `./public/style/global.scss`, use this link: `<link rel="stylesheet" href="/style/global.css">` — **not** `<link rel="stylesheet" href="/style/global.scss">`.
 
 ### 🍃 Tailwind
 
