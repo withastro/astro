@@ -327,6 +327,12 @@ h2.heading {
   color: var(--theme-text-light);
   border-left-color: hsla(var(--color-gray-40), 1);
 }
+
+.header-link.active {
+  border-left-color: var(--theme-accent);
+  color: var(--theme-accent);
+}
+
 .header-link svg {
   opacity: 0.6;
 }
