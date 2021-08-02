@@ -43,6 +43,14 @@ export const SIDEBAR = {
     { text: 'Pika-aloitus', link: 'fi/quick-start' },
     { text: 'Asennus', link: 'fi/installation' },
   ],
+  'zh-CN': [
+    { text: '起步', header: true },
+    { text: '入门指南', link: 'zh-CN/getting-started' },
+  ],
+  'zh-TW': [
+    { text: '起步', header: true },
+    { text: '入門指南', link: 'zh-TW/getting-started' },
+  ],
 };
 
 export const SITE = {
