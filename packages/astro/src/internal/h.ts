@@ -67,5 +67,6 @@ export async function h(tag: HTag, attrs: HProps, ...pChildren: Array<Promise<HC
 
 /** Fragment helper, similar to React.Fragment */
 export function Fragment(_: HProps, ...children: Array<HChild>) {
+  debugger;
   return Array.from(_children(children)).join('');
 }
