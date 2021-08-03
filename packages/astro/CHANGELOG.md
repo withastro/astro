@@ -1,5 +1,11 @@
 # astro
 
+## 0.18.8
+
+### Patch Changes
+
+- b1959f0f: Reverts a change to head content that was breaking docs site
+
 ## 0.18.7
 
 ### Patch Changes
