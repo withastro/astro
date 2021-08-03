@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Aloittaminen
+lang: fi
 ---
 
 Astro on moderni työkalu staattisten sivustojen luomiseen. Voit löytää lisätietoa Astrosta englanniksi [kotisivultamme](https://astro.build/) tai [julkistusviestistämme](https://astro.build/blog/introducing-astro). Tämä sivu on yleiskatsaus Astron dokumentaatioon ja liittyviin sisältöihin.
