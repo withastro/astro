@@ -46,6 +46,9 @@ export const SIDEBAR = {
   'zh-CN': [
     { text: '起步', header: true },
     { text: '入门指南', link: 'zh-CN/getting-started' },
+    { text: '快速入门', link: 'zh-CN/quick-start' },
+    { text: '安装指南', link: 'zh-CN/installation' },
+    { text: '模板样例', link: 'zh-CN/examples' },
   ],
   'zh-TW': [
     { text: '起步', header: true },
