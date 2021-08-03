@@ -17,20 +17,18 @@ Como alternativa, leia nosso [Guia de Instalação](/installation) para uma guia
 
 ### Experimente Online
 
-Se você tem enteresse em testar Astro online no navegador, você pode usar um editor de código online. Experimente nosso template "Olá Mundo!" em [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
+Se você tem interesse em testar Astro online no navegador, você pode usar um editor de código online. Experimente nosso template "Olá Mundo!" em [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
 
 _Nota: algumas funcionalidades (ex: Fast Refresh) no momento estão limitadas no CodeSandbox._
 
 ## Aprenda Astro
 
-Todos os tipos de pessoas vêm ao Astro com diferentes bagagems trazendo com eles diferentes estilos de aprendizagem. Se você prefere uma abordagem mais teórica ou prática, esperamos que você encontre esta seção útil.
+Todos os tipos de pessoas vêm ao Astro com diferentes bagagens trazendo com eles diferentes estilos de aprendizagem. Se você prefere uma abordagem mais teórica ou prática, esperamos que você encontre esta seção útil.
 
 - Se você prefere **aprender fazendo**, comece com nossa [biblioteca de exemplos](https://github.com/snowpackjs/astro/tree/main/examples).
 - Se você prefere **aprender conceitos passo-a-passo**, comece com [conceitos básicos e guias](/core-concepts/project-structure).
 
-Como qualquer tecnologia desconhecida, Astro vem com uma ligeira curva de aprendizado. No entanto, com a prática e alguma paciência, sabemos que em pouco tempo você _vai_ pegar o jeito da coisa.
-
-Like any unfamiliar technology, Astro comes with a slight learning curve. However, with practice and some patience, we know, you _will_ get the hang of it, in no time.
+Como qualquer tecnologia emergente, Astro vem com uma leve curva de aprendizado. No entanto, com prática e alguma paciência, sabemos que você _vai_ pegar o jeito da coisa.
 
 ### Aprenda a Sintaxe do `.astro`
 
@@ -56,7 +54,7 @@ Nem todo lançamento do Astro merece sua própria postagem no blog, mas você po
 
 ## Algo está faltando?
 
-Se algo estiver faltando na documentação ou se você achar alguma parte confusa, por favor [registre o problema para a documentação](https://github.com/snowpackjs/astro/issues/new/choose) com suas sugestões de melhoria, ou tweet na conta do Twitter [@astrodotbuild](https://twitter.com/astrodotbuild). Nós adoramos ouvir de você!
+Se algo estiver faltando na documentação ou se você achar alguma parte confusa, por favor [registre uma nova issue para a documentação](https://github.com/snowpackjs/astro/issues/new/choose) com suas sugestões de melhoria, ou tweet na conta do Twitter [@astrodotbuild](https://twitter.com/astrodotbuild). Nós adoramos ouvir de você!
 
 ## Créditos
 
