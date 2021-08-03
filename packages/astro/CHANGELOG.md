@@ -1,5 +1,14 @@
 # astro
 
+## 0.18.7
+
+### Patch Changes
+
+- 268a36f3: Fixes issue with head content being rendered in the wrong place
+- 39df7952: Makes `fetch` available in all framework components
+- Updated dependencies [f7e86150]
+  - @astrojs/renderer-preact@0.2.1
+
 ## 0.18.6
 
 ### Patch Changes
