@@ -35,7 +35,7 @@ export class EndOfHead {
 
     if (this.found) {
       if (!validHeadElements.has(name)) {
-        if(node.type === 'Element') {
+        if (node.type === 'Element') {
           this.foundBodyElements = true;
         }
       }
@@ -57,15 +57,15 @@ export class EndOfHead {
     }
 
     // Skip !doctype and html elements
-    if(beforeHeadElements.has(name)) {
-      if(name === 'html') {
+    if (beforeHeadElements.has(name)) {
+      if (name === 'html') {
         this.html = node;
       }
       return;
     }
 
     if (!validHeadElements.has(name)) {
-      if(node.type === 'Element') {
+      if (node.type === 'Element') {
         this.foundBodyElements = true;
       }
       this.firstNonHead = node;

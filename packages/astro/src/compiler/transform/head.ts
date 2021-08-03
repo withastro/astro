@@ -162,7 +162,7 @@ export default function (opts: TransformOptions): Transformer {
         );
       }
 
-      if(eoh.foundHeadOrHtmlElement || eoh.foundHeadAndBodyContent) {
+      if (eoh.foundHeadOrHtmlElement || eoh.foundHeadAndBodyContent) {
         const topLevelFragment = {
           start: 0,
           end: 0,
