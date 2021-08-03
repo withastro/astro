@@ -1,36 +1,11 @@
-import { fileURLToPath } from 'url';
 import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
-import { loadConfig } from '#astro/config';
-import { createRuntime } from '#astro/runtime';
+import { doc } from './test-utils.js';
+import { setup } from './helpers.js';
 
 const DType = suite('doctype');
 
-let runtime, setupError;
-
-DType.before(async () => {
-  try {
-    const astroConfig = await loadConfig(fileURLToPath(new URL('./fixtures/astro-doctype', import.meta.url)));
-
-    const logging = {
-      level: 'error',
-      dest: process.stderr,
-    };
-
-    runtime = await createRuntime(astroConfig, { logging });
-  } catch (err) {
-    console.error(err);
-    setupError = err;
-  }
-});
-
-DType.after(async () => {
-  (await runtime) && runtime.shutdown();
-});
-
-DType('No errors creating a runtime', () => {
-  assert.equal(setupError, undefined);
-});
+setup(DType, './fixtures/astro-doctype');
 
 DType('Automatically prepends the standards mode doctype', async () => {
   const result = await runtime.load('/prepend');
@@ -63,6 +38,25 @@ DType('User provided doctype is case insensitive', async () => {
   const html = result.contents.toString('utf-8');
   assert.ok(html.startsWith('<!DOCTYPE html>'), 'Doctype left alone');
   assert.not.ok(html.includes('</!DOCTYPE>'), 'There should not be a closing tag');
+});
+
+DType('Doctype can be provided in a layout', async ({ runtime }) => {
+  const result = await runtime.load('/in-layout');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const html = result.contents.toString('utf-8');
+  assert.ok(html.startsWith('<!doctype html>'), 'doctype is at the front');
+
+  const $ = doc(html);
+  assert.equal($('head link').length, 1, 'A link inside of the head');
+});
+
+DType('Doctype is added in a layout without one', async ({ runtime }) => {
+  const result = await runtime.load('/in-layout-no-doctype');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const html = result.contents.toString('utf-8');
+  assert.ok(html.startsWith('<!doctype html>'), 'doctype is at the front');
 });
 
 DType.run();

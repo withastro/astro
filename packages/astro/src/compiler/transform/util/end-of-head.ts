@@ -1,17 +1,28 @@
 import type { TemplateNode } from '@astrojs/parser';
 
+const beforeHeadElements = new Set(['!doctype', 'html']);
 const validHeadElements = new Set(['!doctype', 'title', 'meta', 'link', 'style', 'script', 'noscript', 'base']);
 
 export class EndOfHead {
+  private html: TemplateNode | null = null;
   private head: TemplateNode | null = null;
   private firstNonHead: TemplateNode | null = null;
   private parent: TemplateNode | null = null;
   private stack: TemplateNode[] = [];
+  private foundHeadElements: boolean = false;
 
   public append: (...node: TemplateNode[]) => void = () => void 0;
 
   get found(): boolean {
     return !!(this.head || this.firstNonHead);
+  }
+
+  get foundHeadContent(): boolean {
+    return !!this.head || this.foundHeadElements;
+  }
+
+  get foundHeadOrHtmlElement(): boolean {
+    return !!(this.html || this.head);
   }
 
   enter(node: TemplateNode) {
@@ -32,6 +43,14 @@ export class EndOfHead {
       this.head = node;
       this.parent = this.stack[this.stack.length - 2];
       this.append = this.appendToHead;
+      return;
+    }
+
+    // Skip !doctype and html elements
+    if(beforeHeadElements.has(name)) {
+      if(name === 'html') {
+        this.html = node;
+      }
       return;
     }
 
