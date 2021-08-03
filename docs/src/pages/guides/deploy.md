@@ -312,6 +312,24 @@ Follow the wizard started by the extension to give your app a name, choose a fra
 
 The action will work to deploy your app (watch its progress in your repo's Actions tab) and, when successfully completed, you can view your app in the address provided in the extension's progress window by clicking the 'Browse Website' button that appears when the GitHub action has run.
 
+## Cloudflare Pages
+
+You can deploy your Astro project on [Cloudflare Pages](https://pages.cloudflare.com). You need:
+
+- A Cloudflare account. If you don”t already have one, you can create a free Cloudflare account during the process.
+- Your app code pushed to a [GitHub](https://github.com) repository.
+
+Then, set up a new project on Cloudflare Pages. 
+
+Use the following build settings:
+
+- **Framework preset**: `None` (As of this writing, Astro is not listed.)
+- **Build command:** `astro build` or `npm run build`
+- **Build output directory:** `dist`
+- **Environment variables (advanced)**: Add an environment variable with the **Variable name** of `NODE_VERSION` and a **Value** of a [Node version that’s compatible with Astro](https://docs.astro.build/installation#prerequisites), since the Cloudflare Pages default version probably won’t work. 
+
+Then click the **Save and Deploy** button.
+
 ## Credits
 
-This guide was originally based off of [Vite's](https://vitejs.dev/) well-documented static deploy guide.
+This guide was originally based off [Vite](https://vitejs.dev/)’s well-documented static deploy guide.
