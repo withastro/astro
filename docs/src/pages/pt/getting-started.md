@@ -11,7 +11,7 @@ Procurando por uma visão rápida do que é Astro? [Visite nossa página inicial
 
 A maneira mais fácil de experimentar Astro é através da execução do comando `npm init astro` em um novo diretório na sua máquina. Nosso assistente para interface de linha de comandos (Wizard CLI) irá te ajudar a iniciar um novo projeto Astro.
 
-Para começar Astro em 5 etapas rápidas e fáceis, visite nosso [Guia de início rápido](quick-start).
+Para começar com Astro em 5 etapas rápidas e fáceis, visite nosso [Guia de início rápido](quick-start).
 
 Como alternativa, leia nosso [Guia de Instalação](/installation) para uma guia de instalação completo do Astro.
 
