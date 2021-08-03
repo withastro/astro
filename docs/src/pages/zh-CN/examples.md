@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: 模板样例
+lang: zh-CN
 ---
 
 如果你喜欢通过实例来学习，请查看我们在GitHub上的[模板样例](https://github.com/snowpackjs/astro/tree/main/examples) 
