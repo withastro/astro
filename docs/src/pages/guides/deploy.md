@@ -316,7 +316,7 @@ The action will work to deploy your app (watch its progress in your repo's Actio
 
 You can deploy your Astro project on [Cloudflare Pages](https://pages.cloudflare.com). You need:
 
-- A Cloudflare account. If you don”t already have one, you can create a free Cloudflare account during the process.
+- A Cloudflare account. If you don’t already have one, you can create a free Cloudflare account during the process.
 - Your app code pushed to a [GitHub](https://github.com) repository.
 
 Then, set up a new project on Cloudflare Pages.
