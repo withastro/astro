@@ -150,8 +150,8 @@ async function __render(props, ...children) {
       value: props,
       enumerable: true
     },
-    pageCSS: {
-      value: (props[__astroContext] && props[__astroContext].pageCSS) || [],
+    css: {
+      value: (props[__astroInternal] && props[__astroInternal].css) || [],
       enumerable: true
     },
     isPage: {
@@ -181,7 +181,6 @@ export async function __renderPage({request, children, props, css}) {
 
   Object.defineProperty(props, __astroContext, {
     value: {
-      pageCSS: css,
       request
     },
     writable: false,
@@ -190,6 +189,7 @@ export async function __renderPage({request, children, props, css}) {
 
   Object.defineProperty(props, __astroInternal, {
     value: {
+      css,
       isPage: true
     },
     writable: false,
