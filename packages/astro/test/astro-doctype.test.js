@@ -51,7 +51,7 @@ DType('Doctype can be provided in a layout', async ({ runtime }) => {
   assert.equal($('head link').length, 1, 'A link inside of the head');
 });
 
-DType.only('Doctype is added in a layout without one', async ({ runtime }) => {
+DType('Doctype is added in a layout without one', async ({ runtime }) => {
   const result = await runtime.load('/in-layout-no-doctype');
   assert.ok(!result.error, `build error: ${result.error}`);
 
