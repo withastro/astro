@@ -115,6 +115,10 @@ export async function compileComponent(source: string, { compileOptions, filenam
 import fetch from 'node-fetch';
 ${result.imports.join('\n')}
 
+if(!('fetch' in globalThis)) {
+  globalThis.fetch = fetch;
+}
+
 ${/* Global Astro Namespace (shadowed & extended by the scoped namespace inside of __render()) */ ''}
 const __TopLevelAstro = {
   site: new URL(${JSON.stringify(site)}),
