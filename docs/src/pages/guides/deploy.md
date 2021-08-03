@@ -319,7 +319,7 @@ You can deploy your Astro project on [Cloudflare Pages](https://pages.cloudflare
 - A Cloudflare account. If you don”t already have one, you can create a free Cloudflare account during the process.
 - Your app code pushed to a [GitHub](https://github.com) repository.
 
-Then, set up a new project on Cloudflare Pages. **Important**: you must specify a [Node version that’s compatible with Astro](https://docs.astro.build/installation#prerequisites), since the Cloudflare Pages default version may not work. Do this during the setup of the project by adding an 
+Then, set up a new project on Cloudflare Pages. **Important**: you must specify a [Node version that’s compatible with Astro](https://docs.astro.build/installation#prerequisites), since the Cloudflare Pages default version may not work. 
 
 Use the following build settings:
 
