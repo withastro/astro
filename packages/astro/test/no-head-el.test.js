@@ -25,14 +25,4 @@ NoHeadEl('Places style and scripts before the first non-head element', async ({ 
   assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 1, 'Only the hmr client for the page');
 });
 
-NoHeadEl('Injects HMR script even when there are no elements on the page', async ({ runtime }) => {
-  const result = await runtime.load('/no-elements');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const html = result.contents;
-  const $ = doc(html);
-
-  assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 1, 'Only the hmr client for the page');
-});
-
 NoHeadEl.run();

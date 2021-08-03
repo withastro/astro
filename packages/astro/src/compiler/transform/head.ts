@@ -73,7 +73,7 @@ export default function (opts: TransformOptions): Transformer {
             start: 0,
             end: 0,
             type: 'Expression',
-            codeChunks: ['Astro.css.map(css => (', '))'],
+            codeChunks: ['Astro.pageCSS.map(css => (', '))'],
             children: [
               {
                 type: 'Element',
@@ -162,22 +162,15 @@ export default function (opts: TransformOptions): Transformer {
         );
       }
 
-      const conditionalNode = {
-        start: 0,
-        end: 0,
-        type: 'Expression',
-        codeChunks: ['Astro.isPage ? (', ') : null'],
-        children: [
-          {
-            start: 0,
-            end: 0,
-            type: 'Fragment',
-            children,
-          },
-        ],
-      };
-
-      eoh.append(conditionalNode);
+      if(eoh.foundHeadOrHtmlElement || eoh.foundHeadAndBodyContent) {
+        const topLevelFragment = {
+          start: 0,
+          end: 0,
+          type: 'Fragment',
+          children,
+        };
+        eoh.append(topLevelFragment);
+      }
     },
   };
 }
