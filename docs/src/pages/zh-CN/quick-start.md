@@ -28,7 +28,7 @@ npm run build
 
 ## 启动项目
 
-工程目录下终端输入以下命令： 
+工程目录下终端输入以下命令：
 
 ```bash
 npm start
@@ -41,7 +41,7 @@ Astro 会开启预览服务器，地址为 [http://localhost:3000](http://localh
 
 ## 打包项目
 
-工程目录下终端输入以下命令： 
+工程目录下终端输入以下命令：
 
 ```bash
 npm run build

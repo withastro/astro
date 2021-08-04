@@ -12,7 +12,7 @@ Astro 是一個現代的靜態網站生成工具. 你可以從 [我們的主頁]
 
 嘗試 Astro 的最簡單的方法是在新目錄下運行 『npm init astro』。 我們的 CLI 工具會説明你創建啟動一個新的 Astro 專案。
 
-想要快速了解學習使用Astro， [快速入門指南]（quick-start）.
+想要快速了解學習使用 Astro， [快速入門指南]（quick-start）.
 
 另外，請閱讀我們的 [安裝指南]（/installation），瞭解如何使用 Astro 進行安裝的全部步驟。
 
@@ -34,9 +34,10 @@ Astro 是一個現代的靜態網站生成工具. 你可以從 [我們的主頁]
 
 ### 學習 '.astro' 語法
 
-當你開始學習 Astro 時，你會看到許多檔使用『.astro』檔擴展名。 這是**Astro的元件語法**：一種特殊的類似HTML 的檔格式，Astro 用於範本製作。 這樣設計是為了讓任何有 HTML 或 JSX 經驗的人更容易上手。
+當你開始學習 Astro 時，你會看到許多檔使用『.astro』檔擴展名。 這是**Astro 的元件語法**：一種特殊的類似 HTML 的檔格式，Astro 用於範本製作。 這樣設計是為了讓任何有 HTML 或 JSX 經驗的人更容易上手。
 
-我們在 [Astro元件]（/corecepts/astro-components） 上的有用指南向你介紹了 Astro 語法，這也是學習的最好方法。
+我們在 [Astro 元件]（/corecepts/astro-components） 上的有用指南向你介紹了 Astro 語法，這也是學習的最好方法。
+
 ### API 參考文檔
 
 當你想了解某個特定的 Astro API 的更多細節時，這部分文檔是有用的。 例如 [配置參考]（/reference/configuration-reference） 列出所有可能的配置選項供你使用。 [內置元件參考] （/reference/builtin-components） 列出了所有可用的核心元件，如『<Markdown />』和『<Prism />』。
@@ -49,13 +50,13 @@ Astro 是一個現代的靜態網站生成工具. 你可以從 [我們的主頁]
 
 [@astrodotbuild] (https://twitter.com/astrodotbuild) Twitter 帳戶是 Astro 團隊的官方更新來源。
 
-我們也在我們的 [Discord社區]（https://astro.build/chat） 的 #announcements 頻道中發佈 release 公告。
+我們也在我們的 [Discord 社區]（https://astro.build/chat） 的 #announcements 頻道中發佈 release 公告。
 
 當然並非每個 Astro 的發佈都會有自己的 release 公告，你可以在 Astro 倉庫的 ['CHANGELOG.md'檔]（https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md） 中找到每個版本的詳細更新日誌。
 
 ## 勘誤與建議
 
-如果你在閱讀的過程中發現文檔中缺少什麼，或者你發現某些部分令人困惑，請 [為文檔提交問題]（https://github.com/snowpackjs/astro/issues/new/choose） ，提出你的改進建議，或者在 [@astrodotbuild]（https://twitter.com/astrodotbuild） Twitter帳戶上發推文。 我們希望聽到你的建議！
+如果你在閱讀的過程中發現文檔中缺少什麼，或者你發現某些部分令人困惑，請 [為文檔提交問題]（https://github.com/snowpackjs/astro/issues/new/choose） ，提出你的改進建議，或者在 [@astrodotbuild]（https://twitter.com/astrodotbuild） Twitter 帳戶上發推文。 我們希望聽到你的建議！
 
 ## 參考
 

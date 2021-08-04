@@ -51,7 +51,7 @@ npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]/path/to/
 npm install
 ```
 
-你现在可以[开发](#start-astro)你的 Astro 项目。一旦你完成了 Astro 项目的开发，你就可以[构建](#build-astro)你的项目。然后Astro会把你的应用程序打包，并准备好静态文件，让你[部署](/guides/deploy)到你最喜欢的托管服务商。
+你现在可以[开发](#start-astro)你的 Astro 项目。一旦你完成了 Astro 项目的开发，你就可以[构建](#build-astro)你的项目。然后 Astro 会把你的应用程序打包，并准备好静态文件，让你[部署](/guides/deploy)到你最喜欢的托管服务商。
 
 ## 手动安装
 
@@ -71,9 +71,10 @@ cd my-astro-project
 # 初始化项目并生成的默认的 package.json
 npm init --yes
 ```
+
 Astro 被设计为与整个 npm 软件包生态系统一起工作。这是由项目根目录下的 `package.json` 管理的。
 
-如果你不熟悉 `package.json` 文件，我们强烈建议你在[npm文档](https://docs.npmjs.com/creating-a-package-json-file)上快速阅读它。
+如果你不熟悉 `package.json` 文件，我们强烈建议你在[npm 文档](https://docs.npmjs.com/creating-a-package-json-file)上快速阅读它。
 
 ### 安裝 Astro
 
@@ -95,7 +96,8 @@ npm install astro
   },
 }
 ```
-[`start`](#start-astro) 命令在 `http://localhost:3000` 上启动Astro开发服务器。一旦你的项目准备好了。
+
+[`start`](#start-astro) 命令在 `http://localhost:3000` 上启动 Astro 开发服务器。一旦你的项目准备好了。
 
 [`build`](#build-astro)命令将你的项目输出到 `dist/` 目录。[在部署指南中阅读更多关于部署 Astro 的内容。](/guides/deploy)
 
@@ -134,7 +136,7 @@ console.log('See me in the Terminal')
 
 以上是 Astro 组件语法的一个例子，同時包含 HTML 和 JSX。
 
-你可以在 `src/pages` 目录下创建更多的页面，Astro将使用该文件名在你的网站上创建新的页面。例如，通过在 `src/pages/about.astro` 创建一个新的文件（重复使用以前的片段），Astro 将生成一个新的页面，URL为：`http://localhost/about` 。
+你可以在 `src/pages` 目录下创建更多的页面，Astro 将使用该文件名在你的网站上创建新的页面。例如，通过在 `src/pages/about.astro` 创建一个新的文件（重复使用以前的片段），Astro 将生成一个新的页面，URL 为：`http://localhost/about` 。
 
 ## [启动 Astro](#start-astro)
 
