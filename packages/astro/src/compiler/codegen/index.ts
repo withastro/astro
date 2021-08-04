@@ -662,7 +662,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
                   paren++;
                 }
-                buffers[curr] += `h("${name}", ${generateAttributes(attributes)}`;
+                buffers[curr] += `h("${name}", ${generateAttributes(attributes)},`;
                 paren++;
                 return;
               }
@@ -692,7 +692,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
                   paren++;
                 }
-                buffers[curr] += `h(${componentName}, ${generateAttributes(attributes)}`;
+                buffers[curr] += `h(${componentName}, ${generateAttributes(attributes)},`;
                 paren++;
                 return;
               } else if (!componentInfo && !isCustomElementTag(componentName)) {
