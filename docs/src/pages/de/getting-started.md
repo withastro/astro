@@ -4,7 +4,7 @@ title: Einführung
 lang: de
 ---
 
-Astro ist ein moderner Generator für Statische Webseiten (SSG). Um mehr über Astro zu erfahren, schau dir [unsere Homepage](https://astro.build/) an und lies [unseren Release-Blogpost](https://astro.build/blog/introducing-astro).
+Astro ist ein moderner Generator für Statische Webseiten (SSG). Um mehr über Astro zu erfahren, schau dir [unsere Homepage](https://astro.build/) an und lies [unseren Release Blogpost](https://astro.build/blog/introducing-astro).
 
 Diese Seite dient als Übersicht der Astro Dokumentation und alle damit verbundenen Ressourcen.
 
@@ -20,7 +20,7 @@ Alternativ kannst du unsere [Installations Anleitung](/installation) für eine a
 
 ### Online Spielplätze
 
-Falls du lieber erstmal mit Astro in deinem Browser herumspielen willst, kannst du einen online Code-Spielplatz benutzen. Probier unsere "Hello World" Vorlage auf [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
+Falls du lieber erstmal mit Astro in deinem Browser herumspielen willst, kannst du einen online Code Spielplatz benutzen. Probier unsere "Hello World" Vorlage auf [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
 
 _Hinweis: Einige Funktionen (z.B. Fast Refresh) funktionieren aktuell nur begrenzt auf CodeSandbox._
 
