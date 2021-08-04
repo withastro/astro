@@ -55,6 +55,9 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
         <option value="nl">
           <span>Nederlands</span>
         </option>
+        <option value="pt-br">
+          <span>Português do Brasil</span>
+        </option>
         <option value="fi">
           <span>Suomi</span>
         </option>
