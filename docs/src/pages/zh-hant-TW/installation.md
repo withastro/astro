@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: 安裝
+lang: zh-TW
 ---
 
 有幾種方式把 Astro 安裝在新專案。
