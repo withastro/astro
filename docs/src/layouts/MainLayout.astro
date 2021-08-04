@@ -14,7 +14,7 @@ const currentFile = `src/pages${currentPage.replace(/\/$/, "")}.md`;
 const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`;
 ---
 
-<html lang="{content.lang ?? 'en-us'}" class="initial">
+<html dir="{content.dir ?? 'ltr'}" lang="{content.lang ?? 'en-us'}" class="initial">
   <head>
     <HeadCommon />
     <HeadSEO {content} canonicalURL={Astro.request.canonicalURL} />
