@@ -33,6 +33,10 @@ export const SIDEBAR = {
     },
     { text: 'Renderer Reference', link: 'reference/renderer-reference' },
   ],
+  de: [
+    { text: 'Willkommen', header: true },
+    { text: 'Einführung', link: 'de/getting-started' },
+  ],
   nl: [
     { text: 'Welkom', header: true },
     { text: 'Beginnen', link: 'nl/getting-started' },
@@ -46,6 +50,17 @@ export const SIDEBAR = {
   es: [
     { text: 'Configuración', header: true },
     { text: 'Empezando', link: 'es/getting-started' },
+  ],
+  'zh-CN': [
+    { text: '起步', header: true },
+    { text: '入门指南', link: 'zh-CN/getting-started' },
+    { text: '快速入门', link: 'zh-CN/quick-start' },
+    { text: '安装指南', link: 'zh-CN/installation' },
+    { text: '模板样例', link: 'zh-CN/examples' },
+  ],
+  'zh-TW': [
+    { text: '起步', header: true },
+    { text: '入門指南', link: 'zh-TW/getting-started' },
   ],
 };
 

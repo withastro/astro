@@ -245,6 +245,7 @@ export async function createCollection() {
     },
     rss: {
       title: 'My RSS Feed',
+      // if you want a full text feed, add your markup here (e.g. item.astro.html)
       description: 'Description of the feed',
       // (optional) add xmlns:* properties to root element
       xmlns: {
@@ -260,7 +261,10 @@ export async function createCollection() {
         description: item.description,
         // enforce GMT timezone (otherwise it'll be different based on where it's built)
         pubDate: item.pubDate + 'Z',
-        // custom data is supported here as well
+        // link is required, shows up in RSS readers
+        link: '/collection/' + item.id
+        // (optional) custom data is supported here as well
+        customData: ``<id>${Astro.site}collection/${item.id}</id>``
       }),
     },
   };
