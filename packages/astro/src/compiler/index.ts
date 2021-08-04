@@ -138,7 +138,7 @@ const __astro_element_registry = new AstroElementRegistry({
     : ''
 }
 
-${result.createCollection || ''}
+${result.getStaticPaths || ''}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';
