@@ -50,7 +50,7 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
           <span>English</span>
         </option>
         <option value="de">
-          <span>German</span>
+          <span>Deutsch</span>
         </option>
         <option value="nl">
           <span>Nederlands</span>
