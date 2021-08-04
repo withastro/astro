@@ -33,6 +33,10 @@ export const SIDEBAR = {
     },
     { text: 'Renderer Reference', link: 'reference/renderer-reference' },
   ],
+  de: [
+    { text: 'Willkommen', header: true },
+    { text: 'Einführung', link: 'de/getting-started' },
+  ],
   nl: [
     { text: 'Welkom', header: true },
     { text: 'Beginnen', link: 'nl/getting-started' },
