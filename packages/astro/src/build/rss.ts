@@ -6,7 +6,7 @@ import { canonicalURL } from './util.js';
 export function validateRSS(rss: CollectionRSS, srcFile: string): void {
   if (!rss.title) throw new Error(`[${srcFile}] rss.title required`);
   if (!rss.description) throw new Error(`[${srcFile}] rss.description required`);
-  if ((rss as any).item) throw new Error(`[${srcFile}] rss.item() function should be an rss.items array`);
+  if ((rss as any).item) throw new Error(`[${srcFile}] \`item: Function\` should be \`items: Item[]\``);
   if (!Array.isArray(rss.items)) throw new Error(`[${srcFile}] rss.items should be an array of items`);
 }
 
@@ -38,7 +38,6 @@ export function generateRSS<T>(input: RSSInput<T>, options: RSSOptions): string 
   xml += `<description><![CDATA[${input.description}]]></description>`;
   xml += `<link>${canonicalURL(feedURL, input.site).href}</link>`;
   if (typeof input.customData === 'string') xml += input.customData;
-
   // items
   for (const result of input.items) {
     xml += `<item>`;

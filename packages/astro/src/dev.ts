@@ -40,13 +40,6 @@ export default async function dev(astroConfig: AstroConfig) {
         res.end();
         break;
       }
-      case 301:
-      case 302: {
-        res.statusCode = result.statusCode;
-        res.setHeader('Location', result.location);
-        res.end();
-        break;
-      }
       case 404: {
         const { hostname, port } = astroConfig.devOptions;
         const fullurl = new URL(req.url || '/', astroConfig.buildOptions.site || `http://${hostname}:${port}`);

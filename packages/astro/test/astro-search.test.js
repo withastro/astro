@@ -16,26 +16,23 @@ Search('Matches pathname to filename', async ({ runtime }) => {
   assert.equal(result.statusCode, 200);
 });
 
-Search('A URL with a trailing slash can match a folder with an index.astro', async ({ runtime }) => {
-  const result = await runtime.load('/nested-astro/');
-  assert.equal(result.statusCode, 200);
-});
-
-Search('A URL with a trailing slash can match a folder with an index.md', async ({ runtime }) => {
-  const result = await runtime.load('/nested-md/');
-  assert.equal(result.statusCode, 200);
-});
-
-Search('A URL without a trailing slash can redirect to a folder with an index.astro', async ({ runtime }) => {
+Search('Matches pathname to a nested index.astro file', async ({ runtime }) => {
   const result = await runtime.load('/nested-astro');
-  assert.equal(result.statusCode, 301);
-  assert.equal(result.location, '/nested-astro/');
+  assert.equal(result.statusCode, 200);
 });
 
-Search('A URL without a trailing slash can redirect to a folder with an index.md', async ({ runtime }) => {
+Search('Matches pathname to a nested index.md file', async ({ runtime }) => {
   const result = await runtime.load('/nested-md');
-  assert.equal(result.statusCode, 301);
-  assert.equal(result.location, '/nested-md/');
+  assert.equal(result.statusCode, 200);
 });
+
+// TODO(fks): Make this configurable
+Search('Trailing slashes are not yet supported by the dev server', async ({ runtime }) => {
+  assert.equal((await runtime.load('/news/')).statusCode, 404);
+  assert.equal((await runtime.load('/nested-astro/')).statusCode, 404);
+  assert.equal((await runtime.load('/nested-md/')).statusCode, 404);
+});
+
+
 
 Search.run();

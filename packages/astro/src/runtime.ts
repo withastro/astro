@@ -44,7 +44,6 @@ type LoadResultSuccess = {
   rss?: { data: any[] & CollectionRSS };
 };
 type LoadResultNotFound = { statusCode: 404; error: Error };
-type LoadResultRedirect = { statusCode: 301 | 302; location: string };
 type LoadResultError = { statusCode: 500 } & (
   | { type: 'parse-error'; error: ICompileError }
   | { type: 'ssr'; error: Error }
@@ -52,7 +51,7 @@ type LoadResultError = { statusCode: 500 } & (
   | { type: 'unknown'; error: Error }
 );
 
-export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultRedirect | LoadResultError;
+export type LoadResult = LoadResultSuccess | LoadResultNotFound | LoadResultError;
 
 // Disable snowpack from writing to stdout/err.
 configureSnowpackLogger(snowpackLogger);
