@@ -1,5 +1,27 @@
 # astro
 
+## 0.18.8
+
+### Patch Changes
+
+- b1959f0f: Reverts a change to head content that was breaking docs site
+
+## 0.18.7
+
+### Patch Changes
+
+- 268a36f3: Fixes issue with head content being rendered in the wrong place
+- 39df7952: Makes `fetch` available in all framework components
+- Updated dependencies [f7e86150]
+  - @astrojs/renderer-preact@0.2.1
+
+## 0.18.6
+
+### Patch Changes
+
+- 27672096: Exclude remote srcset URLs
+- 03349560: Makes Astro.request available in Astro components
+
 ## 0.18.5
 
 ### Patch Changes

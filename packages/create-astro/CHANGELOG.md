@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.0
+
+### Minor Changes
+
+- cf4c97cf: forced degit template extraction in case of non empty installation directory
+
 ## 0.5.2
 
 ### Patch Changes

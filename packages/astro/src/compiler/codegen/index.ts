@@ -163,6 +163,7 @@ function generateAttributes(attrs: Record<string, string>): string {
       result += JSON.stringify(key) + ':' + val + ',';
     }
   }
+  result += `[__astroContext]:props[__astroContext]`;
   return result + '}';
 }
 
@@ -648,7 +649,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
 
               if (node.type === 'Slot') {
                 state.importStatements.add(`import { __astro_slot } from 'astro/dist/internal/__astro_slot.js';`);
-                buffers[curr] += `h(__astro_slot, ${attributes ? generateAttributes(attributes) : 'null'}, children`;
+                buffers[curr] += `h(__astro_slot, ${generateAttributes(attributes)}, children`;
                 paren++;
                 return;
               }
@@ -661,11 +662,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
                   paren++;
                 }
-                buffers[curr] += `h("${name}", ${attributes ? generateAttributes(attributes) : 'null'}`;
+                buffers[curr] += `h("${name}", ${generateAttributes(attributes)}`;
                 paren++;
                 return;
               }
-              const [componentName, componentKind] = name.split(':');
+              const [componentName, _componentKind] = name.split(':');
               let componentInfo = components.get(componentName);
               if (/\./.test(componentName)) {
                 const [componentNamespace] = componentName.split('.');
@@ -691,7 +692,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
                   paren++;
                 }
-                buffers[curr] += `h(${componentName}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+                buffers[curr] += `h(${componentName}, ${generateAttributes(attributes)}`;
                 paren++;
                 return;
               } else if (!componentInfo && !isCustomElementTag(componentName)) {
@@ -705,7 +706,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   if (curr === 'markdown') {
                     await pushMarkdownToBuffer();
                   }
-                  buffers[curr] += `,${componentName}.__render(${attributes ? generateAttributes(attributes) : 'null'}),`;
+                  buffers[curr] += `,${componentName}.__render(${generateAttributes(attributes)}),`;
                 }
                 curr = 'markdown';
                 return;
@@ -726,7 +727,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 paren++;
               }
               paren++;
-              buffers[curr] += `h(${wrapper}, ${attributes ? generateAttributes(attributes) : 'null'}`;
+              buffers[curr] += `h(${wrapper}, ${generateAttributes(attributes)}`;
             } catch (err) {
               paren--;
               // handle errors in scope with filename

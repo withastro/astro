@@ -13,6 +13,8 @@ Global('Astro.request.url', async (context) => {
 
   const $ = doc(result.contents);
   assert.equal($('#pathname').text(), '/');
+  assert.equal($('#child-pathname').text(), '/');
+  assert.equal($('#nested-child-pathname').text(), '/');
 });
 
 Global('Astro.request.canonicalURL', async (context) => {

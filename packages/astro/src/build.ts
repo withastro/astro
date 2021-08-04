@@ -303,7 +303,9 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
     const sources = srcset.split(',');
     const srces = sources.map((s) => s.trim().split(' ')[0]);
     for (const src of srces) {
-      pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
+      if (!isRemote(src)) {
+        pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
+      }
     }
   });
 
