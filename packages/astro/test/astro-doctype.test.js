@@ -59,4 +59,15 @@ DType('Doctype is added in a layout without one', async ({ runtime }) => {
   assert.ok(html.startsWith('<!doctype html>'), 'doctype is at the front');
 });
 
+DType('Doctype is added in a layout used with markdown pages', async ({ runtime }) => {
+  const result = await runtime.load('/in-layout-article');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const html = result.contents.toString('utf-8');
+  assert.ok(html.startsWith('<!doctype html>'), 'doctype is at the front');
+
+  const $ = doc(html);
+  assert.equal($('head link').length, 1, 'A link inside of the head');
+});
+
 DType.run();
