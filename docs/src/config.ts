@@ -47,6 +47,10 @@ export const SIDEBAR = {
     { text: 'Pika-aloitus', link: 'fi/quick-start' },
     { text: 'Asennus', link: 'fi/installation' },
   ],
+  es: [
+    { text: 'Configuración', header: true },
+    { text: 'Empezando', link: 'es/getting-started' },
+  ],
   'zh-CN': [
     { text: '起步', header: true },
     { text: '入门指南', link: 'zh-CN/getting-started' },
