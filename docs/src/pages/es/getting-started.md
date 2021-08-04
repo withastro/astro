@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Empezando
-lang: 'es'
+lang: es
 ---
 
 Astro es un creador de sitios estáticos moderno. Aprende de qué de trata Astro en nuestra [página principal](https://astro.build/) o nuestra [publicación](https://astro.build/blog/introducing-astro) de lanzamiento. Esta página es una descripción general de la documentación de Astro y todos los recursos relacionados.
