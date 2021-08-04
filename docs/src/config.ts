@@ -59,8 +59,10 @@ export const SIDEBAR = {
     { text: '模板样例', link: 'zh-CN/examples' },
   ],
   'zh-hant-TW': [
-    { text: '起步', header: true },
-    { text: '入門指南', link: 'zh-hant-TW/getting-started' },
+    { text: '設定', header: true },
+    { text: '新手上路', link: 'zh-hant-TW/getting-started' },
+    { text: '快速開始', link: 'zh-hant-TW/quick-start' },
+    { text: '安裝', link: 'zh-hant-TW/installation' },
   ],
 };
 
