@@ -1,22 +1,21 @@
-import type { AstroConfig, BundleMap, BuildOutput, RuntimeMode, PageDependencies } from './@types/astro';
-import type { LogOptions } from './logger';
-
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { performance } from 'perf_hooks';
-import eslexer from 'es-module-lexer';
 import cheerio from 'cheerio';
 import del from 'del';
-import { bold, green, yellow, red, dim, underline } from 'kleur/colors';
+import eslexer from 'es-module-lexer';
+import fs from 'fs';
+import { bold, green, red, underline, yellow } from 'kleur/colors';
 import mime from 'mime';
+import path from 'path';
+import { performance } from 'perf_hooks';
 import glob from 'tiny-glob';
+import { fileURLToPath } from 'url';
+import type { AstroConfig, BuildOutput, BundleMap, PageDependencies, RouteData, RuntimeMode } from './@types/astro';
 import { bundleCSS } from './build/bundle/css.js';
 import { bundleJS, collectJSImports } from './build/bundle/js.js';
-import { buildCollectionPage, buildStaticPage, getPageType } from './build/page.js';
+import { buildStaticPage, getStaticPathsForPage } from './build/page.js';
 import { generateSitemap } from './build/sitemap.js';
-import { logURLStats, collectBundleStats, mapBundleStatsToURLStats } from './build/stats.js';
+import { collectBundleStats, logURLStats, mapBundleStatsToURLStats } from './build/stats.js';
 import { getDistPath, stopTimer } from './build/util.js';
+import type { LogOptions } from './logger';
 import { debug, defaultLogDestination, defaultLogLevel, error, info, warn } from './logger.js';
 import { createRuntime } from './runtime.js';
 
@@ -25,13 +24,6 @@ const defaultLogging: LogOptions = {
   dest: defaultLogDestination,
 };
 
-/** Return contents of src/pages */
-async function allPages(root: URL): Promise<URL[]> {
-  const cwd = fileURLToPath(root);
-  const files = await glob('**/*.{astro,md}', { cwd, filesOnly: true });
-  return files.map((f) => new URL(f, root));
-}
-
 /** Is this URL remote or embedded? */
 function isRemoteOrEmbedded(url: string) {
   return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//') || url.startsWith('data:');
@@ -39,7 +31,7 @@ function isRemoteOrEmbedded(url: string) {
 
 /** The primary build action */
 export async function build(astroConfig: AstroConfig, logging: LogOptions = defaultLogging): Promise<0 | 1> {
-  const { projectRoot, pages: pagesRoot } = astroConfig;
+  const { projectRoot } = astroConfig;
   const dist = new URL(astroConfig.dist + '/', projectRoot);
   const buildState: BuildOutput = {};
   const depTree: BundleMap = {};
@@ -69,22 +61,48 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
      * Source files are built in parallel and stored in memory. Most assets are also gathered here, too.
      */
     timer.build = performance.now();
-    const pages = await allPages(pagesRoot);
     info(logging, 'build', yellow('! building pages...'));
-    try {
-      await Promise.all(
-        pages.map((filepath) => {
-          const buildPage = getPageType(filepath) === 'collection' ? buildCollectionPage : buildStaticPage;
-          return buildPage({
+    const allRoutesAndPaths = await Promise.all(
+      runtimeConfig.manifest.routes.map(async (route): Promise<[RouteData, string[]]> => {
+        if (route.path) {
+          return [route, [route.path]];
+        } else {
+          const result = await getStaticPathsForPage({
             astroConfig,
-            buildState,
-            filepath,
-            logging,
-            mode,
+            route,
             snowpackRuntime,
-            astroRuntime: runtime,
-            site: astroConfig.buildOptions.site,
+            logging,
           });
+          if (result.rss.xml) {
+            if (buildState[result.rss.url]) {
+              throw new Error(`[getStaticPaths] RSS feed ${result.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
+            }
+            buildState[result.rss.url] = {
+              srcPath: new URL(result.rss.url, projectRoot),
+              contents: result.rss.xml,
+              contentType: 'text/xml',
+              encoding: 'utf8',
+            };
+          }
+          return [route, result.paths];
+        }
+      })
+    );
+    try {
+      // TODO: 2x Promise.all? Might be hard to debug + overwhelm resources.
+      await Promise.all(
+        allRoutesAndPaths.map(async ([route, paths]: [RouteData, string[]]) => {
+          await Promise.all(
+            paths.map((p) =>
+              buildStaticPage({
+                astroConfig,
+                buildState,
+                route,
+                path: p,
+                astroRuntime: runtime,
+              })
+            )
+          );
         })
       );
     } catch (e) {
@@ -95,7 +113,6 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
           .split('\n');
         stack.splice(1, 0, `    at file://${e.filename}`);
         stack = stack.join('\n');
-
         error(
           logging,
           'build',

@@ -22,7 +22,7 @@ Global('Astro.request.canonicalURL', async (context) => {
   const canonicalURLs = {
     '/': 'https://mysite.dev/blog/',
     '/post/post': 'https://mysite.dev/blog/post/post/',
-    '/posts': 'https://mysite.dev/blog/posts/',
+    '/posts/1': 'https://mysite.dev/blog/posts/',
     '/posts/2': 'https://mysite.dev/blog/posts/2/',
   };
 

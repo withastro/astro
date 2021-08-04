@@ -7,7 +7,7 @@ export const __astro_slot = ({ name = 'default' }: { name: string }, _children: 
   if (name === 'default' && typeof _children === 'string') {
     return _children ? _children : fallback;
   }
-  if (!_children.$slots) {
+  if (!_children || !_children.$slots) {
     throw new Error(`__astro_slot encountered an unexpected child:\n${JSON.stringify(_children)}`);
   }
   const children = _children.$slots[name];

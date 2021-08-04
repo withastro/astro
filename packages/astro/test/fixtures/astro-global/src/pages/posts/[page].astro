@@ -1,0 +1,23 @@
+---
+export function getStaticPaths({paginate}) {
+  const data = Astro.fetchContent('../post/*.md');
+  return paginate(data, {pageSize: 1});
+}
+const { page } = Astro.props;
+const { params, canonicalURL} = Astro.request;
+---
+
+<html>
+  <head>
+    <title>All Posts</title>
+    <link rel="canonical" href={canonicalURL.href} />
+  </head>
+  <body>
+    {page.data.map((data) => (
+      <div>
+        <h1>{data.title}</h1>
+        <a href={data.url}>Read</a>
+      </div>
+    ))}
+  </body>
+</html>
