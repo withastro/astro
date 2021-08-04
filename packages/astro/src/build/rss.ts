@@ -2,14 +2,15 @@ import type { CollectionRSS } from '../@types/astro';
 import parser from 'fast-xml-parser';
 import { canonicalURL } from './util.js';
 
-/** Validates createCollection.rss */
+/** Validates getStaticPaths.rss */
 export function validateRSS(rss: CollectionRSS, srcFile: string): void {
   if (!rss.title) throw new Error(`[${srcFile}] rss.title required`);
   if (!rss.description) throw new Error(`[${srcFile}] rss.description required`);
-  if (typeof rss.item !== 'function') throw new Error(`[${srcFile}] rss.item() function required`);
+  if ((rss as any).item) throw new Error(`[${srcFile}] rss.item() function should be an rss.items array`);
+  if (!Array.isArray(rss.items)) throw new Error(`[${srcFile}] rss.items should be an array of items`);
 }
 
-type RSSInput<T> = { data: T[]; site: string } & CollectionRSS<T>;
+type RSSInput<T> = { site: string } & CollectionRSS<T>;
 interface RSSOptions {
   srcFile: string;
   feedURL: string;
@@ -39,10 +40,8 @@ export function generateRSS<T>(input: RSSInput<T>, options: RSSOptions): string 
   if (typeof input.customData === 'string') xml += input.customData;
 
   // items
-  if (!Array.isArray(input.data) || !input.data.length) throw new Error(`[${srcFile}] data() returned no items. Can’t generate RSS feed.`);
-  for (const item of input.data) {
+  for (const result of input.items) {
     xml += `<item>`;
-    const result = input.item(item);
     // validate
     if (typeof result !== 'object') throw new Error(`[${srcFile}] rss.item() expected to return an object, returned ${typeof result}.`);
     if (!result.title) throw new Error(`[${srcFile}] rss.item() returned object but required "title" is missing.`);

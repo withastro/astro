@@ -51,7 +51,7 @@ export default async function dev(astroConfig: AstroConfig) {
         const { hostname, port } = astroConfig.devOptions;
         const fullurl = new URL(req.url || '/', astroConfig.buildOptions.site || `http://${hostname}:${port}`);
         const reqPath = decodeURI(fullurl.pathname);
-        error(logging, 'static', 'Not found', reqPath);
+        error(logging, 'access', 'Not Found:', reqPath);
         res.statusCode = 404;
 
         const fourOhFourResult = await runtime.load('/404');

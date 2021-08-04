@@ -1,6 +1,18 @@
 import type { ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier } from '@babel/types';
 import type { AstroMarkdownOptions } from '@astrojs/markdown-support';
 
+export interface RouteData {
+  type: 'page';
+  pattern: RegExp;
+  params: string[];
+  path: string | null;
+  component: string;
+  generate: (data?: any) => string;
+}
+
+export interface ManifestData {
+  routes: RouteData[];
+}
 export interface AstroConfigRaw {
   dist: string;
   projectRoot: string;
@@ -61,8 +73,7 @@ export interface TransformResult {
   exports: string[];
   html: string;
   css?: string;
-  /** If this page exports a collection, the JS to be executed as a string */
-  createCollection?: string;
+  getStaticPaths?: string;
   hasCustomElements: boolean;
   customElementCandidates: Map<string, string>;
 }
@@ -75,7 +86,8 @@ export interface CompileResult {
 
 export type RuntimeMode = 'development' | 'production';
 
-export type Params = Record<string, string>;
+export type Params = Record<string, string | undefined>;
+export type Props = Record<string, any>;
 
 /** Entire output of `astro build`, stored in memory */
 export interface BuildOutput {
@@ -109,14 +121,7 @@ export interface PageDependencies {
 
 export type PaginateFunction<T = any> = (data: T[], args?: { pageSize?: number }) => PaginatedCollectionResult<T>;
 
-export interface CreateCollectionResult {
-  paginate?: boolean;
-  route: string;
-  paths?: () => { params: Params }[];
-  props: (args: { params: Params; paginate?: PaginateFunction }) => object | Promise<object>;
-  rss?: CollectionRSS;
-}
-
+export type GetStaticPathsResult = { params: Params; props?: Props }[];
 export interface CollectionRSS<T = any> {
   /** (required) Title of the RSS Feed */
   title: string;
@@ -127,7 +132,7 @@ export interface CollectionRSS<T = any> {
   /** Specify custom data in opening of file */
   customData?: string;
   /** Return data about each item */
-  item: (item: T) => {
+  items: {
     /** (required) Title of item */
     title: string;
     /** (required) Link to item */
@@ -138,7 +143,7 @@ export interface CollectionRSS<T = any> {
     description?: string;
     /** Append some other XML-valid data to this item */
     customData?: string;
-  };
+  }[];
 }
 
 export interface PaginatedCollectionResult<T = any> {

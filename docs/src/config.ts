@@ -12,7 +12,7 @@ export const SIDEBAR = {
     { text: 'Components', link: 'core-concepts/astro-components' },
     { text: 'Pages', link: 'core-concepts/astro-pages' },
     { text: 'Layouts', link: 'core-concepts/layouts' },
-    { text: 'Collections', link: 'core-concepts/collections' },
+    { text: 'Routing', link: 'core-concepts/routing' },
     { text: 'Partial Hydration', link: 'core-concepts/component-hydration' },
 
     { text: 'Guides', header: true },

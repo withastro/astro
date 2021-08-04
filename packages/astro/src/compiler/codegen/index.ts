@@ -308,7 +308,7 @@ function transpileExpressionSafe(
 
 interface CompileResult {
   script: string;
-  createCollection?: string;
+  getStaticPaths?: string;
 }
 
 interface CodegenState {
@@ -335,7 +335,7 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
 
   let script = '';
   let propsStatement = '';
-  let createCollection = ''; // function for executing collection
+  let getStaticPaths = ''; // function for executing collection
 
   if (module) {
     const parseOptions: babelParser.ParserOptions = {
@@ -408,9 +408,9 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
               componentProps.push(declaration);
             }
           } else if (node.declaration.type === 'FunctionDeclaration') {
-            // case 2: createCollection (export async function)
-            if (!node.declaration.id || node.declaration.id.name !== 'createCollection') break;
-            createCollection = babelGenerator(node).code;
+            // case 2: getStaticPaths (export async function)
+            if (!node.declaration.id || node.declaration.id.name !== 'getStaticPaths') break;
+            getStaticPaths = babelGenerator(node).code;
           }
 
           body.splice(i, 1);
@@ -490,7 +490,7 @@ const { ${props.join(', ')} } = Astro.props;\n`)
 
   return {
     script,
-    createCollection: createCollection || undefined,
+    getStaticPaths: getStaticPaths || undefined,
   };
 }
 
@@ -881,7 +881,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     customElementCandidates: new Map(),
   };
 
-  const { script, createCollection } = compileModule(ast, ast.module, state, compileOptions);
+  const { script, getStaticPaths } = compileModule(ast, ast.module, state, compileOptions);
 
   (ast.css || []).map((css) => compileCss(css, state));
 
@@ -893,7 +893,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     exports: Array.from(state.exportStatements),
     html,
     css: state.css.length ? state.css.join('\n\n') : undefined,
-    createCollection,
+    getStaticPaths,
     hasCustomElements: Boolean(ast.meta.features & FEATURE_CUSTOM_ELEMENT),
     customElementCandidates: state.customElementCandidates,
   };
