@@ -114,7 +114,7 @@ console.log('See me in the Terminal')
   </body>
 </html>
 
-<style lang='css||scss'>
+<style lang='scss'>
   body{
     h1{
       color:orange;
