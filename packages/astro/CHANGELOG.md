@@ -1,5 +1,12 @@
 # astro
 
+## 0.18.9
+
+### Patch Changes
+
+- 8cf0e65a: Fixes a previous revert, makes sure head content is injected into the right place
+- 8cf0e65a: Refactor the CLI entrypoint to support stackblitz and improve the runtime check
+
 ## 0.18.8
 
 ### Patch Changes
