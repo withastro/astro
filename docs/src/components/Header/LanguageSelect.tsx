@@ -68,25 +68,7 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
           <span>简体中文</span>
         </option>
         <option value="zh-TW">
-          <span>正體中文</span>
-        </option>
-        <option value="bg">
-          <span>Български</span>
-        </option>
-        <option value="fr">
-          <span>Français</span>
-        </option>
-        <option value="bn">
-          <span>বাংলা</span>
-        </option>
-        <option value="kr">
-          <span>한국어</span>
-        </option>
-        <option value="ar">
-          <span>العربية</span>
-        </option>
-        <option value="da">
-          <span>Dansk</span>
+          <span>繁体中文</span>
         </option>
       </select>
     </div>

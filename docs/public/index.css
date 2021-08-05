@@ -36,7 +36,7 @@ nav ul {
 }
 
 .content > section > * + * {
-  margin-top: 1.25rem;
+  margin-top: 1rem;
 }
 
 .content > section > :first-child {
@@ -44,19 +44,13 @@ nav ul {
 }
 
 /* Typography */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+:is(h1, h2, h3, h4, h5, h6) {
   margin-bottom: 1rem;
   font-weight: bold;
   line-height: 1;
 }
 
-h1,
-h2 {
+:is(h1, h2) {
   max-width: 40ch;
 }
 
@@ -64,34 +58,39 @@ h2 {
   margin-top: 3rem;
 }
 
-:is(h4, h5, h6):not(:first-child) {
-  margin-top: 2rem;
-}
-
 h1 {
-  font-size: 3.25rem;
-  font-weight: 800;
+  font-size: 2.25rem;
 }
 
 h2 {
-  font-size: 2.5rem;
+  font-size: 1.5rem;
 }
 
 h3 {
-  font-size: 1.75rem;
+  font-size: 1.125rem;
 }
 
 h4 {
-  font-size: 1.3rem;
-}
-
-h5 {
   font-size: 1rem;
 }
 
-p,
-.content ul {
-  line-height: 1.65em;
+h5 {
+  font-size: 0.8rem;
+}
+
+@media (min-width: 50em) {
+  h1 {
+    font-size: 3.25rem;
+    font-weight: 800;
+  }
+
+  h2 {
+    font-size: 2rem;
+  }
+
+  h3 {
+    font-size: 1.25rem;
+  }
 }
 
 p,
@@ -106,13 +105,14 @@ small,
 
 a {
   color: var(--theme-text-accent);
+  font-weight: 400;
   text-underline-offset: 0.08em;
   align-items: center;
   gap: 0.5rem;
 }
 
 article > section :is(ul, ol) > * + * {
-  margin-top: 0.25rem;
+  margin-top: 0.75rem;
 }
 
 article > section nav :is(ul, ol) > * + * {

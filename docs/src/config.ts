@@ -9,21 +9,17 @@ export const SIDEBAR = {
 
     { text: 'Basics', header: true },
     { text: 'Project Structure', link: 'core-concepts/project-structure' },
-    { text: 'Component Syntax', link: 'core-concepts/astro-components' },
+    { text: 'Components', link: 'core-concepts/astro-components' },
     { text: 'Pages', link: 'core-concepts/astro-pages' },
     { text: 'Layouts', link: 'core-concepts/layouts' },
-    { text: 'Routing', link: 'core-concepts/routing' },
+    { text: 'Collections', link: 'core-concepts/collections' },
     { text: 'Partial Hydration', link: 'core-concepts/component-hydration' },
 
     { text: 'Guides', header: true },
     { text: 'Styling & CSS', link: 'guides/styling' },
-    { text: 'Markdown', link: 'guides/markdown-content' },
-    { text: 'Debugging', link: 'guides/debugging' },
     { text: 'Data Fetching', link: 'guides/data-fetching' },
-    { text: 'Pagination', link: 'guides/pagination' },
-    { text: 'RSS', link: 'guides/rss' },
+    { text: 'Markdown', link: 'guides/markdown-content' },
     { text: 'Supported Imports', link: 'guides/imports' },
-    { text: 'Aliases', link: 'guides/aliases' },
     { text: 'Deploy a Website', link: 'guides/deploy' },
     { text: 'Publish a Component', link: 'guides/publish-to-npm' },
 
@@ -61,43 +57,10 @@ export const SIDEBAR = {
     { text: '快速入门', link: 'zh-CN/quick-start' },
     { text: '安装指南', link: 'zh-CN/installation' },
     { text: '模板样例', link: 'zh-CN/examples' },
-    {
-      text: 'Astro 对比其他框架',
-      link: 'zh-CN/comparing-astro-vs-other-tools',
-    },
   ],
   'zh-TW': [
-    { text: '設定', header: true },
-    { text: '新手上路', link: 'zh-TW/getting-started' },
-    { text: '快速開始', link: 'zh-TW/quick-start' },
-    { text: '安裝', link: 'zh-TW/installation' },
-    { text: '範例', link: 'zh-TW/examples' },
-  ],
-  bg: [
-    { text: 'Главни', header: true },
-    { text: 'Започваме!', link: 'bg/getting-started' },
-  ],
-  fr: [
-    { text: 'Bienvenue', header: true },
-    { text: 'Bien démarrer', link: 'fr/getting-started' },
-    { text: 'Démarrage rapide', link: 'fr/quick-start' },
-    { text: 'Installation', link: 'fr/installation' },
-  ],
-  bn: [
-    { text: 'সেটআপ', header: true },
-    { text: 'শুরু করুন', link: 'bn/getting-started' },
-  ],
-  kr: [
-    { text: '환영합니다', header: true },
-    { text: '시작하기', link: 'kr/getting-started' },
-  ],
-  ar: [
-    { text: 'التهيئة', header: true },
-    { text: 'باشر البدأ', link: 'ar/getting-started' },
-  ],
-  da: [
-    { text: 'Velkommen', header: true },
-    { text: 'Introduktion', link: 'da/getting-started' },
+    { text: '起步', header: true },
+    { text: '入門指南', link: 'zh-TW/getting-started' },
   ],
 };
 
