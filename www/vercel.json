@@ -16,5 +16,8 @@
       "source": "/chat",
       "destination": "https://discord.gg/grF4GTXXYm"
     }
-  ]
+  ],
+  "github": {
+    "silent": true
+  }
 }
