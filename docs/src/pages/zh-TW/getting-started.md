@@ -33,7 +33,7 @@ Astro 是利用現代技術的靜態網站生成工具。可以從[首頁](https
 
 ### 學習 `.astro` 語法
 
-開始學習 Astro 的時候，會看到很多檔案是 `.astro` 副檔名。這是 **Astro 的元件語法**：近似於 HTML 的特殊檔案格式，Astro 用來當作範本。設計成有 HTML 或 JSX 經驗的人都覺得和藹可親。
+開始學習 Astro 的時候，會看到很多檔案副檔名是 `.astro`。這是 **Astro 的元件語法**：近似於 HTML 的特殊檔案格式，Astro 用來當作範本。設計成有 HTML 或 JSX 經驗的人都覺得和藹可親。
 
 [Astro 元件](/core-concepts/astro-components)指南會很有幫助，介紹 Astro 的語法，也是最好的學習方式。
 
@@ -51,7 +51,7 @@ Astro 是利用現代技術的靜態網站生成工具。可以從[首頁](https
 
 我們也會把釋出版本公告貼在 [Discord 社群](https://astro.build/chat) 的 #announcements 頻道。
 
-不是每個 Astro 釋出版本都會有一篇專屬的部落格貼文。然而，還是可以在 [Astro 的 Repository 裡 `CHANGELOG.md` 檔案](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) 找到每個釋出版本的詳細變動記錄。
+不是每個 Astro 釋出版本都會有一篇專屬的部落格貼文。然而，還是可以在 [Astro 的 Repository 裡的 `CHANGELOG.md` 檔案](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md)，找到每個釋出版本的詳細變動記錄。
 
 ## 還漏了什麼嗎？
 
@@ -59,4 +59,4 @@ Astro 是利用現代技術的靜態網站生成工具。可以從[首頁](https
 
 ## 參考
 
-這份新手上路指南一開始是根據 [React 的](https://reactjs.org/)新手上路指南。
+這份新手上路指南一開始是根據 [React](https://reactjs.org/) 的新手上路指南。
