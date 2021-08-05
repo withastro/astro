@@ -7,7 +7,7 @@
     "url": "https://github.com/snowpackjs/astro.git"
   },
   "scripts": {
-    "release": "yarn build:all && npx changeset publish",
+    "release": "yarn build:all && changeset publish",
     "benchmark": "yarn workspace astro run benchmark",
     "build": "yarn build:core",
     "build:one": "lerna run build --scope",
