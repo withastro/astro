@@ -70,6 +70,9 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
         <option value="zh-TW">
           <span>繁体中文</span>
         </option>
+        <option value="bg">
+          <span>Български</span>
+        </option>
       </select>
     </div>
   );
