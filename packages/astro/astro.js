@@ -16,7 +16,7 @@ const CI_INTRUCTIONS = {
 async function main() {
   // Check for ESM support by loading the "supports-esm" in an way that works in both ESM & CJS.
   const supportsESM = typeof require !== 'undefined' ? require('supports-esm') : (await import('supports-esm')).default;
-  
+
   // Supported: load Astro and run. Enjoy!
   if (supportsESM) {
     return import('./dist/cli.js')
@@ -33,8 +33,8 @@ async function main() {
   const semver = require('semver');
   const engines = pkg.engines.node;
   const version = process.versions.node;
-  
-  // TODO: Remove "semver" in Astro v1.0: This is mainly just to check our work. Once run in 
+
+  // TODO: Remove "semver" in Astro v1.0: This is mainly just to check our work. Once run in
   // the wild for a bit without error, we can assume our engine range is correct and won't
   // change over time.
   const isSupported = semver.satisfies(version, engines);
