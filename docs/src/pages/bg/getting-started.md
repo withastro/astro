@@ -55,8 +55,6 @@ _Бележка: някои функционалности (например: Fa
 
 ## Нещо липсва?
 
-If something is missing in the documentation or if you found some part confusing, please [file an issue for the documentation](https://github.com/snowpackjs/astro/issues/new/choose) with your suggestions for improvement, or tweet at the [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter account. We love hearing from you!
-
 Ако нещо липсва в документацията или намирате нещо за объркващо, моля [подайте го като issue за документацията](https://github.com/snowpackjs/astro/issues/new/choose) с Вашите предложения за подобрение или пуснете tweet към [@astrodotbuild](https://twitter.com/astrodotbuild). Обичаме да чуваме от Вас!
 
 ## Credit
