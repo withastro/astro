@@ -1,5 +1,5 @@
 import type { Renderer, AstroComponentMetadata } from '../@types/astro';
-import hash from 'shorthash';
+import { nanoid } from 'nanoid';
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import { generate } from 'astring';
 import * as astroHtml from './renderer-html';
@@ -187,8 +187,7 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
     }
 
     // If we ARE hydrating this component, let's generate the hydration script
-    const stringifiedProps = JSON.stringify(props);
-    const astroId = hash.unique(html + stringifiedProps);
+    const astroId = nanoid(10);
     const script = await generateHydrateScript({ instance, astroId, props }, metadata as Required<AstroComponentMetadata>);
     const astroRoot = `<astro-root uid="${astroId}">${html}</astro-root>`;
     return [astroRoot, script].join('\n');
