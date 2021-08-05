@@ -38,11 +38,15 @@ export function createManifest({ config, cwd }: { config: AstroConfig; cwd?: str
       const ext = path.extname(basename);
       const name = ext ? basename.slice(0, -ext.length) : basename;
 
+
+			if (name[0] === '_') {
+				return;
+			}
       if (basename[0] === '.' && basename !== '.well-known') {
-        return null;
+        return;
       }
       if (!isDir && !/^(\.[a-z0-9]+)+$/i.test(ext)) {
-        return null; // filter out tmp files etc
+        return; // filter out tmp files etc
       }
       const segment = isDir ? basename : name;
       if (/^$/.test(segment)) {

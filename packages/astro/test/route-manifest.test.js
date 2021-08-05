@@ -83,12 +83,12 @@ test('encodes invalid characters', () => {
 	);
 });
 
-// TODO(fks): Implement
-test.skip('ignores files and directories with leading underscores', () => {
+test('ignores files and directories with leading underscores', () => {
 	const { routes } = create('hidden-underscore');
 
 	assert.equal(routes.map((r) => r.component).filter(Boolean), [
-		'hidden-underscore/e/f/g/h.astro'
+		'hidden-underscore/index.astro',
+		'hidden-underscore/e/f/g/h.astro',
 	]);
 });
 
@@ -161,10 +161,8 @@ test('sorts routes correctly', () => {
 		routes.map((p) => (p.component)),
 		[
 			'sorting/index.astro',        
-			"sorting/_layout.astro",
 			'sorting/about.astro',
 			'sorting/post/index.astro',
-			"sorting/post/_default.astro",
 			'sorting/post/bar.astro',
 			'sorting/post/foo.astro',
 			'sorting/post/f[xx].astro',
