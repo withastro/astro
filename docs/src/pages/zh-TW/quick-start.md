@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: 快速開始
-lang: zh-hant-TW
+lang: zh-Hant-TW
 ---
 
 ```shell

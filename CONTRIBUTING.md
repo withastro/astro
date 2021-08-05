@@ -95,7 +95,7 @@ Astro is changing quickly, and so are the docs. We cannot translate too many pag
 **Tier 1** languages are considered a top priority for Astro documentation. The docs site should be fully translated into these languages, and reasonably kept up-to-date:
 
 - Simplified Chinese (zh-CN)
-- Traditional Chinese (zh-hant-TW)
+- Traditional Chinese (zh-TW)
 - French (fr)
 - Japanese (ja)
 
