@@ -1,7 +1,12 @@
----
-import Prism from 'prismjs';
-import { addAstro } from '@astrojs/prism';
+
+import fetch from 'node-fetch';
 import loadLanguages from 'prismjs/components/index.js';
+import { addAstro } from '@astrojs/prism';
+import Prism from 'prismjs';
+
+if(!('fetch' in globalThis)) {
+  globalThis.fetch = fetch;
+}
 
 export interface Props {
   class?: string;
@@ -13,40 +18,128 @@ const { class: className, lang, code } = Astro.props as Props;
 
 let classLanguage = `language-${lang}`
 
-const languageMap = new Map([
-  ['ts', 'typescript']
-]);
+const __TopLevelAstro = {
+  site: new URL("http://localhost:3000"),
+  fetchContent: (globResult) => fetchContent(globResult, import.meta.url),
+  resolve(...segments) {
+    return segments.reduce(
+      (url, segment) => new URL(segment, url),
+      new URL("http://localhost:3000/packages/astro/components/Prism.astro")
+    ).pathname
+  },
+};
+const Astro = __TopLevelAstro;
 
+
+
+
+
+// `__render()`: Render the contents of the Astro module.
+import { h, Fragment } from 'astro/runtime/h.js';
+const __astroInternal = Symbol('astro.internal');
+const __astroContext = Symbol.for('astro.context');
+async function __render(props, ...children) {
+  const Astro = Object.create(__TopLevelAstro, {
+    props: {
+      value: props,
+      enumerable: true
+    },
+    pageCSS: {
+      value: (props[__astroContext] && props[__astroContext].pageCSS) || [],
+      enumerable: true
+    },
+    isPage: {
+      value: (props[__astroInternal] && props[__astroInternal].isPage) || false,
+      enumerable: true
+    },
+    request: {
+      value: (props[__astroContext] && props[__astroContext].request) || {},
+      enumerable: true
+    },
+  });
+
+  const {
+  class: className,
+  lang,
+  code
+} = Astro.props;
+let classLanguage = `language-${lang}`;
+const languageMap = new Map([["ts", "typescript"]]);
 if (lang == null) {
-  console.warn('Prism.astro: No language provided.');
+  console.warn("Prism.astro: No language provided.");
 }
-
-const ensureLoaded = lang => {
-  if(lang && !Prism.languages[lang]) {
-    loadLanguages([lang]);
+const ensureLoaded = (lang2) => {
+  if (lang2 && !Prism.languages[lang2]) {
+    loadLanguages([lang2]);
   }
 };
-
-if(languageMap.has(lang)) {
+if (languageMap.has(lang)) {
   ensureLoaded(languageMap.get(lang));
-} else if(lang === 'astro') {
-  ensureLoaded('typescript');
+} else if (lang === "astro") {
+  ensureLoaded("typescript");
   addAstro(Prism);
 } else {
-  ensureLoaded('markup-templating'); // Prism expects this to exist for a number of other langs
+  ensureLoaded("markup-templating");
   ensureLoaded(lang);
 }
-
-if(lang && !Prism.languages[lang]) {
+if (lang && !Prism.languages[lang]) {
   console.warn(`Unable to load the language: ${lang}`);
 }
-
 const grammar = Prism.languages[lang];
 let html = code;
 if (grammar) {
   html = Prism.highlight(code, grammar, lang);
 }
 
----
+  return h(Fragment, null, h(Fragment, null,h("pre", {"class":([className, classLanguage].join(" ")),[__astroContext]:props[__astroContext]},h("code", {"class":(classLanguage),[__astroContext]:props[__astroContext]},(html)))));
+}
+export default { isAstroComponent: true, __render };
 
-<pre class={[className, classLanguage].join(' ')}><code class={classLanguage}>{html}</code></pre>
+// `__renderPage()`: Render the contents of the Astro module as a page. This is a special flow,
+// triggered by loading a component directly by URL.
+export async function __renderPage({request, children, props, css}) {
+  const currentChild = {
+    isAstroComponent: true,
+    layout: typeof __layout === 'undefined' ? undefined : __layout,
+    content: typeof __content === 'undefined' ? undefined : __content,
+    __render,
+  };
+
+  const isLayout = (__astroContext in props);
+  if(!isLayout) {
+    let astroRootUIDCounter = 0;
+    Object.defineProperty(props, __astroContext, {
+      value: {
+        pageCSS: css,
+        request,
+        createAstroRootUID(seed) { return seed + astroRootUIDCounter++; },
+      },
+      writable: false,
+      enumerable: false
+    });
+  }
+
+  Object.defineProperty(props, __astroInternal, {
+    value: {
+      isPage: !isLayout
+    },
+    writable: false,
+    enumerable: false
+  });
+
+  const childBodyResult = await currentChild.__render(props, children);
+
+  // find layout, if one was given.
+  if (currentChild.layout) {
+    return currentChild.layout({
+      request,
+      props: {content: currentChild.content, [__astroContext]: props[__astroContext]},
+      children: [childBodyResult],
+    });
+  }
+
+  return childBodyResult;
+};
+
+
+

@@ -23,6 +23,7 @@
     "test:templates": "lerna run test --scope create-astro --stream"
   },
   "workspaces": [
+    "compiled/*",
     "packages/renderers/*",
     "packages/*",
     "examples/*",
@@ -44,7 +45,6 @@
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
     "@octokit/action": "^3.15.4",
-    "@snowpack/plugin-postcss": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.18.0",
     "autoprefixer": "^10.2.6",
@@ -57,12 +57,9 @@
     "eslint-plugin-prettier": "^3.4.0",
     "execa": "^5.0.0",
     "lerna": "^4.0.0",
-    "postcss": "^8.2.15",
-    "postcss-icss-keyframes": "^0.2.1",
-    "prettier": "^2.2.1",
-    "svelte": "^3.38.0",
+    "prettier": "^2.3.2",
     "tiny-glob": "^0.2.8",
-    "typescript": "^4.2.4",
+    "typescript": "^4.4.2",
     "uvu": "^0.5.1"
   },
   "engines": {

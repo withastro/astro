@@ -1,92 +1,140 @@
-import type { BuildOutput, BundleMap } from '../@types/astro';
-import type { LogOptions } from '../logger';
+import cheerio from 'cheerio';
+import * as eslexer from 'es-module-lexer';
+import { fdir } from 'fdir';
+import fetch from 'node-fetch';
+import fs from 'fs';
+import slash from 'slash';
+import { fileURLToPath } from 'url';
 
-import { info, table } from '../logger.js';
-import { underline, bold } from 'kleur/colors';
-import gzipSize from 'gzip-size';
-import prettyBytes from 'pretty-bytes';
+type FileSizes = { [file: string]: number };
 
-interface BundleStats {
-  size: number;
-  gzipSize: number;
+// Feel free to modify output to whatever’s needed in display. If it’s not needed, kill it and improve stat speeds!
+
+/** JS: prioritize entry HTML, but also show total */
+interface JSOutput {
+  /** breakdown of JS per-file */
+  js: FileSizes;
+  /** weight of index.html */
+  entryHTML?: number;
+  /** total bytes of [js], added for convenience */
+  total: number;
 }
 
-interface URLStats {
-  dynamicImports: Set<string>;
-  stats: BundleStats[];
+/** HTML: total isn’t important, because those are broken up requests. However, surface any anomalies / bloated HTML */
+interface HTMLOutput {
+  /** breakdown of HTML per-file */
+  html: FileSizes;
+  /** biggest HTML file */
+  maxSize: number;
 }
 
-export type BundleStatsMap = Map<string, BundleStats>;
-export type URLStatsMap = Map<string, URLStats>;
-
-export function createURLStats(): URLStatsMap {
-  return new Map<string, URLStats>();
+/** Scan any directory */
+async function scan(cwd: URL, pattern: string): Promise<URL[]> {
+  const results: string[] = (await new fdir().glob(pattern).withFullPaths().crawl(fileURLToPath(cwd)).withPromise()) as any;
+  return results.map((filepath) => new URL(`file://${slash(filepath)}`));
 }
 
-export function createBundleStats(): BundleStatsMap {
-  return new Map<string, BundleStats>();
-}
-
-export async function addBundleStats(bundleStatsMap: BundleStatsMap, code: string, filename: string) {
-  const gzsize = await gzipSize(code);
-
-  bundleStatsMap.set(filename, {
-    size: Buffer.byteLength(code),
-    gzipSize: gzsize,
-  });
-}
-
-export function mapBundleStatsToURLStats({ urlStats, depTree, bundleStats }: { urlStats: URLStatsMap; depTree: BundleMap; bundleStats: BundleStatsMap }) {
-  for (let [srcPath, stats] of bundleStats) {
-    for (let url of urlStats.keys()) {
-      if (depTree[url] && depTree[url].js.has('/' + srcPath)) {
-        urlStats.get(url)?.stats.push(stats);
-      }
-    }
-  }
-}
-
-export async function collectBundleStats(buildState: BuildOutput, depTree: BundleMap): Promise<URLStatsMap> {
-  const urlStats = createURLStats();
-
+/** get total HTML size */
+export async function profileHTML({ cwd }: { cwd: URL }): Promise<HTMLOutput> {
+  const sizes: FileSizes = {};
+  const html = await scan(cwd, '**/*.html');
+  let maxSize = 0;
   await Promise.all(
-    Object.keys(buildState).map(async (id) => {
-      if (!depTree[id]) return;
-      const stats = await Promise.all(
-        [...depTree[id].js, ...depTree[id].css, ...depTree[id].images].map(async (url) => {
-          if (!buildState[url]) return undefined;
-          const stat = {
-            size: Buffer.byteLength(buildState[url].contents),
-            gzipSize: await gzipSize(buildState[url].contents),
-          };
-          return stat;
-        })
-      );
-      urlStats.set(id, {
-        dynamicImports: new Set<string>(),
-        stats: stats.filter((s) => !!s) as any,
-      });
+    html.map(async (file) => {
+      const relPath = file.pathname.replace(cwd.pathname, '');
+      const size = (await fs.promises.stat(file)).size;
+      sizes[relPath] = size;
+      if (size > maxSize) maxSize = size;
+    })
+  );
+  return {
+    html: sizes,
+    maxSize,
+  };
+}
+
+/** get total JS size (note: .wasm counts as JS!) */
+export async function profileJS({ cwd, entryHTML }: { cwd: URL; entryHTML?: URL }): Promise<JSOutput> {
+  const sizes: FileSizes = {};
+  let htmlSize = 0;
+
+  // profile HTML entry (do this first, before all JS in a project is scanned)
+  if (entryHTML) {
+    let $ = cheerio.load(await fs.promises.readFile(entryHTML));
+    let entryScripts: URL[] = [];
+    let visitedEntry = false; // note: a quirk of Vite is that the entry file is async-loaded. Count that, but don’t count subsequent async loads
+
+    // scan <script> files, keep adding to total until done
+    $('script').each((n, el) => {
+      const src = $(el).attr('src');
+      const innerHTML = $(el).html();
+      // if inline script, add to overall JS weight
+      if (innerHTML) {
+        htmlSize += Buffer.byteLength(innerHTML);
+      }
+      // otherwise if external script, load & scan it
+      if (src) {
+        entryScripts.push(new URL(src, entryHTML));
+      }
+    });
+
+    let scanPromises: Promise<void>[] = [];
+
+    await Promise.all(entryScripts.map(parseJS));
+
+    /** parse JS for imports, and add to total size */
+    async function parseJS(url: URL): Promise<void> {
+      const relPath = url.pathname.replace(cwd.pathname, '');
+      if (sizes[relPath]) return;
+      try {
+        let code = url.protocol === 'file:' ? await fs.promises.readFile(url, 'utf8') : await fetch(url).then((body) => body.text());
+        sizes[relPath] = Buffer.byteLength(code);
+        const staticImports = eslexer.parse(code)[0].filter(({ d }) => {
+          if (!visitedEntry) return true; // if we’re on the entry file, count async imports, too
+          return d === -1; // subsequent runs: don’t count deferred code toward total
+        });
+        for (const { n } of staticImports) {
+          if (!n) continue;
+          let nextURL: URL | undefined;
+          // external import
+          if (n.startsWith('http://') || n.startsWith('https://') || n.startsWith('//')) nextURL = new URL(n);
+          // relative import
+          else if (n[0] === '.') nextURL = new URL(n, url);
+          // absolute import (note: make sure "//" is already handled!)
+          else if (n[0] === '/') nextURL = new URL(`.${n}`, cwd);
+          if (!nextURL) continue; // unknown format: skip
+          if (sizes[nextURL.pathname.replace(cwd.pathname, '')]) continue; // already scanned: skip
+          scanPromises.push(parseJS(nextURL));
+        }
+      } catch (err) {
+        console.warn(`Could not access ${url.href} to include in bundle size`); // eslint-disable-line no-console
+      }
+      visitedEntry = true; // after first run, stop counting async imports toward total
+    }
+
+    await Promise.all(scanPromises);
+
+    htmlSize = Object.values(sizes).reduce((sum, next) => sum + next, 0);
+  }
+
+  // collect size of all JS in project (note: some may have already been scanned; skip when possible)
+  const js = await scan(cwd, '**/*.(js|mjs|wasm)');
+  await Promise.all(
+    js.map(async (file) => {
+      const relPath = file.pathname.replace(cwd.pathname, '');
+      if (!sizes[relPath]) sizes[relPath] = (await fs.promises.stat(file)).size; // only scan if new
     })
   );
 
-  return urlStats;
+  return {
+    js: sizes,
+    entryHTML: htmlSize || undefined,
+    total: Object.values(sizes).reduce((sum, acc) => sum + acc, 0),
+  };
 }
 
-export function logURLStats(logging: LogOptions, urlStats: URLStatsMap) {
-  const builtURLs = [...urlStats.keys()].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
-  info(logging, null, '');
-  const log = table(logging, [60, 20]);
-  log(info, '   ' + bold(underline('Pages')), bold(underline('Page Weight (GZip)')));
-  const lastIndex = builtURLs.length - 1;
-  builtURLs.forEach((url, index) => {
-    const sep = index === 0 ? '┌' : index === lastIndex ? '└' : '├';
-    const urlPart = ' ' + sep + ' ' + url;
-    const bytes =
-      urlStats
-        .get(url)
-        ?.stats.map((s) => s.gzipSize)
-        .reduce((a, b) => a + b, 0) || 0;
-    const sizePart = prettyBytes(bytes);
-    log(info, urlPart, sizePart);
-  });
+/** b -> kB */
+export function kb(bytes: number): string {
+  if (bytes === 0) return `0 kB`;
+  return (Math.round(bytes / 1000) || 1) + ' kB'; // if this is between 0.1–0.4, round up to 1
 }

@@ -38,8 +38,8 @@ A renderer should include any framework dependencies as package dependencies. Fo
 // package.json
 "name": "@astrojs/renderer-react",
 "dependencies": {
-  "react": "^17.0.0",
-  "react-dom": "^17.0.0"
+  "react": "^17.0.2",
+  "react-dom": "^17.0.2"
 }
 ```
 
@@ -72,6 +72,7 @@ export default {
       plugins: [jsx({}, { runtime: 'automatic', importSource: 'preact' })],
     };
   },
+  vitePlugins: [], // optional, inject Vite plugins here (https://vitejs.dev/plugins/#plugins)
 };
 ```
 
