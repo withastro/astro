@@ -66,7 +66,7 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 
 ## `getStaticPaths()`
 
-If a page uses dynamic params in the filename, that component will need to export a `getStaticPaths()` function. 
+If a page uses dynamic params in the filename, that component will need to export a `getStaticPaths()` function.
 
 This function is required because Astro is a static site builder. That means that your entire site is built ahead of time. If Astro doesn't know to generate a page at build time, your users won't see it when they visit your site.
 
@@ -84,7 +84,7 @@ export async function getStaticPaths() {
 <!-- Your HTML template here. -->
 ```
 
-The `getStaticPaths()` function should returns an array of objects to determine which paths will be pre-rendered by Astro. 
+The `getStaticPaths()` function should returns an array of objects to determine which paths will be pre-rendered by Astro.
 
 ⚠️ The `getStaticPaths()` function executes in its own isolated scope once, before any page loads. Therefore you can't reference anything from its parent scope, other than file imports. The compiler will warn if you break this requirement.
 
@@ -92,7 +92,7 @@ The `getStaticPaths()` function should returns an array of objects to determine 
 
 The `params` key of every returned object tells Astro what routes to build. The returned params must map back to the dynamic parameters and rest parameters defined in your component filepath.
 
-`params` are encoded into the URL, so only strings are supported as values. The value for each `params` object must match the parameters used in the page name. 
+`params` are encoded into the URL, so only strings are supported as values. The value for each `params` object must match the parameters used in the page name.
 
 For example, suppose that you have a page at `src/pages/posts/[id].astro`. If you export `getStaticPaths` from this page and return the following for paths:
 
@@ -122,8 +122,8 @@ For example, suppose that you generate pages based off of data fetched from a re
 export async function getStaticPaths() {
   const data = await fetch('...').then(response => response.json());
   return data.map((post) => {
-    return { 
-      params: { id: post.id }, 
+    return {
+      params: { id: post.id },
       props: { post } };
   });
 }
@@ -135,42 +135,45 @@ const {post} = Astro.props;
 
 Then Astro will statically generate `posts/1` and `posts/2` at build time using the page component in `pages/posts/[id].astro`. The page can reference this data using `Astro.props`:
 
-### `paginate()` 
+### `paginate()`
 
-Pagination is a common use-case for websites that Astro natively supports via the `paginate()` function. 
+Pagination is a common use-case for websites that Astro natively supports via the `paginate()` function.
 
 `paginate()` will automatically generate the array to return from `getStaticPaths()` that creates one URL for every page of the paginated collection. The page number will be passed as a param, and the page data will be passed as a `page` prop.
 
 ```js
-export async function getStaticPaths({paginate}) {
+export async function getStaticPaths({ paginate }) {
   const allPosts = Astro.fetchContent('../post/*.md');
-  const sortedPosts = allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  const sortedPosts = allPosts.sort(
+    (a, b) => new Date(b.date) - new Date(a.date)
+  );
   // Return a paginated collection of paths for all posts
-  return paginate(sortedPosts, {pageSize: 10});
+  return paginate(sortedPosts, { pageSize: 10 });
 }
 // The page prop has everything that you need to render a single page in the collection.
-const {page} = Astro.props;
+const { page } = Astro.props;
 ```
 
 `paginate()` assumes a file name of `[page].astro` or `[...page].astro`. The `page` param becomes the page number in your URL:
-- `/posts/[page].astro` would generate the URLs `/posts/1`, `/posts/2`, `/posts/3`, etc. 
-- `/posts/[...page].astro` would generate the URLs `/posts`, `/posts/2`, `/posts/3`, etc. 
 
-You must use a rest parameter (the `...` syntax) to build the first page without a page number (`/posts` instead of `/posts/1`). This is needed because non-rest params cannot be optional, and so `/posts` is not a valid match for `/posts/[page].astro` 
+- `/posts/[page].astro` would generate the URLs `/posts/1`, `/posts/2`, `/posts/3`, etc.
+- `/posts/[...page].astro` would generate the URLs `/posts`, `/posts/2`, `/posts/3`, etc.
+
+You must use a rest parameter (the `...` syntax) to build the first page without a page number (`/posts` instead of `/posts/1`). This is needed because non-rest params cannot be optional, and so `/posts` is not a valid match for `/posts/[page].astro`
 
 You can can customize pagination to use any param name that you'd like, by passing a `param` option in the second argument of the `paginate()` function:
 
 ```js
 // Example: src/pages/posts/[...myCustomParam].astro
-paginate(sortedPosts, {pageSize: 10, param: 'myCustomParam'});
+paginate(sortedPosts, { pageSize: 10, param: 'myCustomParam' });
 ```
 
 #### The pagination `page` prop
 
 Pagination will pass a `page` prop to every rendered page that represents a single page of data in the paginated collection. This includes the data that you've paginated (`page.data`) as well as metadata for the page (`page.url`, `page.start`, `page.end`, `page.total`, etc). This metadata is useful for for things like a "Next Page" button or a "Showing 1-10 of 100" message.
 
-| Name                      |         Type          | Description                                                                                                                       |
-| :------------------------ | :-------------------: | :-------------------------------------------------------------------------------------------------------------------------------- |
+| Name                |         Type          | Description                                                                                                                       |
+| :------------------ | :-------------------: | :-------------------------------------------------------------------------------------------------------------------------------- |
 | `page.data`         |        `Array`        | Array of data returned from `data()` for the current page.                                                                        |
 | `page.start`        |       `number`        | Index of first item on current page, starting at `0` (e.g. if `pageSize: 25`, this would be `0` on page 1, `25` on page 2, etc.). |
 | `page.end`          |       `number`        | Index of last item on current page.                                                                                               |

@@ -32,7 +32,9 @@ export function generatePaginateFunction(routeMatch: RouteData) {
     } else if (routeMatch.params.includes(`${paramName}`)) {
       includesFirstPageNumber = true;
     } else {
-      throw new Error(`[paginate()] page number param \`${paramName}\` not found in your filepath.\nRename your file to \`[...page].astro\` or customize the param name via the \`paginate([], {param: '...'}\` option.`);
+      throw new Error(
+        `[paginate()] page number param \`${paramName}\` not found in your filepath.\nRename your file to \`[...page].astro\` or customize the param name via the \`paginate([], {param: '...'}\` option.`
+      );
     }
     const lastPage = Math.max(1, Math.ceil(data.length / pageSize));
 
@@ -41,7 +43,7 @@ export function generatePaginateFunction(routeMatch: RouteData) {
       const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
       const end = Math.min(start + pageSize, data.length);
       const params = {
-        [paramName]: (includesFirstPageNumber || pageNum > 1) ? String(pageNum) : undefined,
+        [paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : undefined,
       };
       return {
         params,
@@ -59,7 +61,7 @@ export function generatePaginateFunction(routeMatch: RouteData) {
             url: {
               current: routeMatch!.generate({ ...params }),
               next: pageNum === lastPage ? undefined : routeMatch!.generate({ ...params, page: String(pageNum + 1) }),
-              prev: pageNum === 1 ? undefined : routeMatch!.generate({ ...params, page: (!includesFirstPageNumber && pageNum - 1 === 1) ? undefined : String(pageNum - 1) }),
+              prev: pageNum === 1 ? undefined : routeMatch!.generate({ ...params, page: !includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1) }),
             },
           },
         },

@@ -38,15 +38,15 @@ export function createManifest({ config, cwd }: { config: AstroConfig; cwd?: str
       const ext = path.extname(basename);
       const name = ext ? basename.slice(0, -ext.length) : basename;
 
-
-			if (name[0] === '_') {
-				return;
-			}
+      if (name[0] === '_') {
+        return;
+      }
       if (basename[0] === '.' && basename !== '.well-known') {
         return;
       }
+      // filter out "foo.astro_tmp" files, etc
       if (!isDir && !/^(\.[a-z0-9]+)+$/i.test(ext)) {
-        return; // filter out tmp files etc
+        return;
       }
       const segment = isDir ? basename : name;
       if (/^$/.test(segment)) {
@@ -116,12 +116,12 @@ export function createManifest({ config, cwd }: { config: AstroConfig; cwd?: str
 
       if (item.isDir) {
         walk(path.join(dir, item.basename), segments, params);
-      } else if (item.isPage) {
+      } else {
         components.push(item.file);
         const component = item.file;
         const pattern = getPattern(segments, false);
         const generate = getGenerator(segments, false);
-        const path = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join('/')}` : null;
+        const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join('/')}` : null;
 
         routes.push({
           type: 'page',
@@ -129,17 +129,8 @@ export function createManifest({ config, cwd }: { config: AstroConfig; cwd?: str
           params,
           component,
           generate,
-          path,
+          path: pathname,
         });
-      } else {
-        throw new Error('NOT IMPLEMENTED');
-        // 	const pattern = getPattern(segments, !item.routeSuffix);
-        // 	routes.push({
-        // 		type: 'endpoint',
-        // 		pattern,
-        // 		file: item.file,
-        // 		params
-        // 	});
       }
     });
   }
@@ -228,7 +219,7 @@ function getParts(part: string, file: string) {
 }
 
 function getPattern(segments: Part[][], addTrailingSlash: boolean) {
-  const path = segments
+  const pathname = segments
     .map((segment) => {
       return segment[0].spread
         ? '(?:\\/(.*))?'
@@ -251,7 +242,7 @@ function getPattern(segments: Part[][], addTrailingSlash: boolean) {
     .join('');
 
   const trailing = addTrailingSlash && segments.length ? '\\/?$' : '$';
-  return new RegExp(`^${path || '\\/'}${trailing}`);
+  return new RegExp(`^${pathname || '\\/'}${trailing}`);
 }
 
 function getGenerator(segments: Part[][], addTrailingSlash: boolean) {

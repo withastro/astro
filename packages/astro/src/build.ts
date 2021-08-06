@@ -75,7 +75,7 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
           });
           if (result.rss.xml) {
             if (buildState[result.rss.url]) {
-              throw new Error(`[getStaticPaths] RSS feed ${result.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`)
+              throw new Error(`[getStaticPaths] RSS feed ${result.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
             }
             buildState[result.rss.url] = {
               srcPath: new URL(result.rss.url, projectRoot),

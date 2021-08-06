@@ -33,6 +33,4 @@ Search('Trailing slashes are not yet supported by the dev server', async ({ runt
   assert.equal((await runtime.load('/nested-md/')).statusCode, 404);
 });
 
-
-
 Search.run();

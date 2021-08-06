@@ -91,8 +91,8 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     const result = await snowpack.loadUrl(reqPath);
     if (!result) throw new Error(`Unable to load ${reqPath}`);
     // success
-  debug(logging, 'access', reqPath);
-  return {
+    debug(logging, 'access', reqPath);
+    return {
       statusCode: 200,
       ...result,
     };
@@ -406,7 +406,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     manifest: createManifest({ config: astroConfig }),
   };
 
-  snowpack.onFileChange(({ filePath }: {filePath: string}) => {
+  snowpack.onFileChange(({ filePath }: { filePath: string }) => {
     // Clear out any cached getStaticPaths() data.
     cachedStaticPaths = {};
     // Rebuild the manifest, if needed

@@ -19,6 +19,7 @@ src/pages/about/index.astro -> mysite.com/about
 src/pages/about/me.astro    -> mysite.com/about/me
 src/pages/posts/1.md        -> mysite.com/posts/1
 ```
+
 ## Dynamic parameters
 
 Sometimes, you will need to generate many URLs from a single page component. Astro supports this with **dynamic parameters** in the page filename.
@@ -30,6 +31,7 @@ Dynamic parameters are encoded into the filename using `[bracket]` notation:
 - `pages/[lang]-[version]/info.astro` → (`/en-v1/info`, `/fr-v2/info`, etc.)
 
 #### Example: Dynamic parameters
+
 Consider the following page `pages/post/[pid].astro`:
 
 ```jsx
@@ -48,7 +50,7 @@ For example, the route `/post/abc` will have the following `Astro.request.params
 { "pid": "abc" }
 ```
 
-Multiple dynamic route segments can be combined to work the same way.  The page `pages/post/[pid]/[comment].astro` will match the route `/post/abc/a-comment` and its `query` object will be:
+Multiple dynamic route segments can be combined to work the same way. The page `pages/post/[pid]/[comment].astro` will match the route `/post/abc/a-comment` and its `query` object will be:
 
 ```json
 { "pid": "abc", "comment": "a-comment" }
