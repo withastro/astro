@@ -20,6 +20,7 @@ export const SIDEBAR = {
     { text: 'Data Fetching', link: 'guides/data-fetching' },
     { text: 'Markdown', link: 'guides/markdown-content' },
     { text: 'Supported Imports', link: 'guides/imports' },
+    { text: 'Aliases', link: 'guides/aliases' },
     { text: 'Deploy a Website', link: 'guides/deploy' },
     { text: 'Publish a Component', link: 'guides/publish-to-npm' },
 
