@@ -62,6 +62,10 @@ export const SIDEBAR = {
     { text: '起步', header: true },
     { text: '入門指南', link: 'zh-TW/getting-started' },
   ],
+  fr: [
+    { text: 'Bienvenue', header: true },
+    { text: 'Bien Démarrer', link: 'fr/getting-started' },
+  ],
 };
 
 export const SITE = {
