@@ -69,6 +69,10 @@ export const SIDEBAR = {
     { text: 'Главни', header: true },
     { text: 'Започваме!', link: 'bg/getting-started' },
   ],
+  fr: [
+    { text: 'Bienvenue', header: true },
+    { text: 'Bien Démarrer', link: 'fr/getting-started' },
+  ],
 };
 
 export const SITE = {
