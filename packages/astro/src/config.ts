@@ -1,11 +1,12 @@
+import type { AstroConfig } from './@types/astro';
+
 import { existsSync } from 'fs';
 import getPort from 'get-port';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { z } from 'zod';
-import { AstroConfig, AstroUserConfig } from './@types/astro';
-import { addTrailingSlash } from './util.js';
+import { AstroUserConfig } from './@types/config';
 
 export const AstroConfigSchema = z.object({
   projectRoot: z
@@ -101,10 +102,25 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
   return AstroConfigRelativeSchema.parseAsync(userConfig);
 }
 
+interface LoadConfigOptions {
+  cwd?: string;
+  filename?: string;
+}
+
+/** Adds '/' to end of string but doesn’t double-up */
+function addTrailingSlash(str: string): string {
+  return str.replace(/\/+?$/, '/');
+}
+
+interface LoadConfigOptions {
+  cwd?: string;
+  filename?: string;
+}
+
 /** Attempt to load an `astro.config.mjs` file */
-export async function loadConfig(rawRoot: string | undefined, configFileName = 'astro.config.mjs'): Promise<AstroConfig> {
-  const root = rawRoot ? path.resolve(rawRoot) : process.cwd();
-  const astroConfigPath = new URL(`./${configFileName}`, `file://${root}/`);
+export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfig> {
+  const root = options.cwd ? path.resolve(options.cwd) : process.cwd();
+  const astroConfigPath = new URL(`./${options.filename || 'astro.config.mjs'}`, `file://${root}/`);
   let userConfig: AstroUserConfig = {};
   // Load a user-config, if one exists and is provided
   if (existsSync(astroConfigPath)) {

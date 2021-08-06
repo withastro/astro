@@ -9,8 +9,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "svelte": "^3.35.0",
-    "@snowpack/plugin-svelte": "^3.7.0"
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.19",
+    "svelte": "^3.42.3"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"

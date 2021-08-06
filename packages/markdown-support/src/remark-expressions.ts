@@ -1,7 +1,9 @@
-import { mdxExpression } from 'micromark-extension-mdx-expression';
-import { mdxExpressionFromMarkdown, mdxExpressionToMarkdown } from 'mdast-util-mdx-expression';
+// Vite bug: dynamically import() modules needed for CJS. Cache in memory to keep side effects
+let mdxExpression: any;
+let mdxExpressionFromMarkdown: any;
+let mdxExpressionToMarkdown: any;
 
-function remarkExpressions(this: any, options: any) {
+export function remarkExpressions(this: any, options: any) {
   let settings = options || {};
   let data = this.data();
 
@@ -16,4 +18,14 @@ function remarkExpressions(this: any, options: any) {
   }
 }
 
-export default remarkExpressions;
+export async function loadRemarkExpressions() {
+  if (!mdxExpression) {
+    const micromarkMdxExpression = await import('micromark-extension-mdx-expression');
+    mdxExpression = micromarkMdxExpression.mdxExpression;
+  }
+  if (!mdxExpressionFromMarkdown || !mdxExpressionToMarkdown) {
+    const mdastUtilMdxExpression = await import('mdast-util-mdx-expression');
+    mdxExpressionFromMarkdown = mdastUtilMdxExpression.mdxExpressionFromMarkdown;
+    mdxExpressionToMarkdown = mdastUtilMdxExpression.mdxExpressionToMarkdown;
+  }
+}

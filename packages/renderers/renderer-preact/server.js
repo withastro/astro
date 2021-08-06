@@ -1,5 +1,5 @@
 import { h, Component as BaseComponent } from 'preact';
-import { renderToString } from 'preact-render-to-string';
+import render from 'preact-render-to-string';
 import StaticHtml from './static-html.js';
 
 function check(Component, props, children) {
@@ -22,7 +22,7 @@ function check(Component, props, children) {
 }
 
 function renderToStaticMarkup(Component, props, children) {
-  const html = renderToString(h(Component, { ...props, children: h(StaticHtml, { value: children }), innerHTML: children }));
+  const html = render(h(Component, { ...props, children: h(StaticHtml, { value: children }), innerHTML: children }));
   return { html };
 }
 
