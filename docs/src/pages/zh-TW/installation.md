@@ -72,7 +72,7 @@ cd my-astro-project
 npm init --yes
 ```
 
-Astro 設計成與 npm 套件整體生態一起運作，由專案根目錄裡，稱為 `package.json` 的專案 Manifest 進行管理。如果不熟悉 `package.json` 檔案，強烈建議先將 [npm 文件](https://docs.npmjs.com/creating-a-package-json-file)快速讀過一遍。
+Astro 設計成與 npm 套件整體生態一起運作，由專案根目錄  裡，稱為 `package.json` 的專案 Manifest 進行管理。如果不熟悉 `package.json` 檔案，強烈建議先將 [npm 文件](https://docs.npmjs.com/creating-a-package-json-file)快速讀過一遍。
 
 ### 安裝 Astro
 
