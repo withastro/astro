@@ -8,7 +8,7 @@ Aliasing is an integral part when it comes to clean and readable code, that's wh
 ## What are aliases?
 
 Aliases are _keywords_ you can use instead of paths. 
-So instead of `../../components/SomeComponent/` you can use `components/SomeComponent`. Cool, right!
+So instead of `../../components/SomeComponent/` you can use `components/SomeComponent`. 
 
 ## Adding a custom alias
 
