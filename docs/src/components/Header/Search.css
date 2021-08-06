@@ -70,15 +70,7 @@
 	DocSearch (Algolia)
 \* ------------------------------------------------------------ */
 
-.DocSearch-Modal .DocSearch-Footer:before {
-	content: '';
-	width: 100%;
-	height: 2px;
-	background: var(--theme-accent);
-	position: absolute;
-	top: -0.1rem;
-	left: 0;
-	box-shadow: -10px 0 10px var(--theme-accent);
+.DocSearch-Modal .DocSearch-Footer {
 }
 
 .DocSearch-Modal .DocSearch-Hit a {
