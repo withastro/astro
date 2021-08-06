@@ -3,24 +3,30 @@ layout: ~/layouts/MainLayout.astro
 title: Aliases
 ---
 
-Aliasing is an integral part when it comes to clean and readable code, that's why Astro comes with support for custom aliases out of the box.
+An alias is a handy shortcut to your paths. Projects can get quite messy when it comes to file structure. Astro gives you the ability to define _keywords_ which you can use no matter how deep your file is located. 
 
-## What are aliases?
-
-Aliases are _keywords_ you can use instead of paths. 
 So instead of `../../components/SomeComponent/` you can use `components/SomeComponent`. 
 
 ## Adding a custom alias
 
-If you navigate to the root directory of your project and open the `snowpack.config.mjs` file you will notice that there are some pre-defined aliases already.
+To add custom aliases to your project, located in the root of your project is the `snowpack.config.mjs` file. This configuration file contains the instructions for Astro's build tool [Snowpack](https://www.snowpack.dev/reference/configuration), on how to build out your Astro project. 
+
+> **Note:** some projects don't come with this file out of the box, feel free to create it yourself. [More on snowpack.config.mjs.](https://www.snowpack.dev/reference/configuration) 
+
+Inside the file you will notice that there are already some predefined aliases.
 
 ```ts
 // snowpack.config.mjs
 
-alias: {
-  components: './src/components',
-  '~': './src',
-}
+export default {
+  alias: {
+    components: './src/components',
+    '~': './src',
+  },
+  plugins: ['@snowpack/plugin-dotenv'],
+  workspaceRoot: '../',
+};
+
 ```
 
 To **add your own** alias just define it on a new line, like so:
@@ -28,11 +34,16 @@ To **add your own** alias just define it on a new line, like so:
 ```ts
 // snowpack.config.mjs
 
-alias: {
-  components: './src/components',
-  '~': './src',
-  '@public': './public' // This can be virtually anything
-}
+export default {
+  alias: {
+    components: './src/components',
+    '~': './src',
+    '@public': './public' // This can be virtually anything
+  },
+  plugins: ['@snowpack/plugin-dotenv'],
+  workspaceRoot: '../',
+};
+
 ```
 
 | Key      | Value |
