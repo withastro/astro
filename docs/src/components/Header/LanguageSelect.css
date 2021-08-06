@@ -9,7 +9,7 @@
   font-size: 1rem;
   font-family: inherit;
   line-height: inherit;
-  background-color: transparent;
+  background-color: var(--theme-bg);
   border-color: var(--theme-text-lighter);
   color: var(--theme-text-light);
   border-style: solid;
@@ -37,7 +37,7 @@
   position: absolute;
   top: 7px;
   left: 10px;
-  z-index: -1;
+  pointer-events: none;
 }
 
 @media (min-width: 50em) {
