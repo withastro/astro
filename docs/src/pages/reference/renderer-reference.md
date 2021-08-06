@@ -38,8 +38,8 @@ A renderer should include any framework dependencies as package dependencies. Fo
 // package.json
 "name": "@astrojs/renderer-react",
 "dependencies": {
-  "react": "^17.0.0",
-  "react-dom": "^17.0.0"
+  "react": "^17.0.2",
+  "react-dom": "^17.0.2"
 }
 ```
 
@@ -56,8 +56,6 @@ export default {
   name: '@astrojs/renderer-xxx', // the renderer name
   client: './client.js', // relative path to the client entrypoint
   server: './server.js', // optional, relative path to the server entrypoint
-  snowpackPlugin: '@snowpack/plugin-xxx', // optional, the name of a snowpack plugin to inject
-  snowpackPluginOptions: { example: true }, // optional, any options to be forwarded to the snowpack plugin
   knownEntrypoint: ['framework'], // optional, entrypoint modules that will be used by compiled source
   external: ['dep'], // optional, dependencies that should not be built by snowpack
   polyfills: ['./shadow-dom-polyfill.js'], // optional, module scripts that should be loaded before client hydration.
@@ -72,6 +70,7 @@ export default {
       plugins: [jsx({}, { runtime: 'automatic', importSource: 'preact' })],
     };
   },
+  vitePlugins: [], // optional, inject Vite plugins here (https://vitejs.dev/plugins/#plugins)
 };
 ```
 

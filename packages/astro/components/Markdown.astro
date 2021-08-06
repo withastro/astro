@@ -1,5 +1,24 @@
----
+
+import fetch from 'node-fetch';
 import { renderMarkdown } from '@astrojs/markdown-support';
+import { __astro_slot } from 'astro/runtime/__astro_slot.js';
+
+if(!('fetch' in globalThis)) {
+  globalThis.fetch = fetch;
+}
+
+
+const __TopLevelAstro = {
+  site: new URL("http://localhost:3000"),
+  fetchContent: (globResult) => fetchContent(globResult, import.meta.url),
+  resolve(...segments) {
+    return segments.reduce(
+      (url, segment) => new URL(segment, url),
+      new URL("http://localhost:3000/packages/astro/components/Markdown.astro")
+    ).pathname
+  },
+};
+const Astro = __TopLevelAstro;
 
 export interface Props {
   content?: string;
@@ -13,10 +32,43 @@ interface InternalProps extends Props {
 const { content, $scope } = Astro.props as InternalProps;
 let html = null;
 
-// This flow is only triggered if a user passes `<Markdown content={content} />`
+
+
+
+// `__render()`: Render the contents of the Astro module.
+import { h, Fragment } from 'astro/runtime/h.js';
+const __astroInternal = Symbol('astro.internal');
+const __astroContext = Symbol.for('astro.context');
+async function __render(props, ...children) {
+  const Astro = Object.create(__TopLevelAstro, {
+    props: {
+      value: props,
+      enumerable: true
+    },
+    pageCSS: {
+      value: (props[__astroContext] && props[__astroContext].pageCSS) || [],
+      enumerable: true
+    },
+    isPage: {
+      value: (props[__astroInternal] && props[__astroInternal].isPage) || false,
+      enumerable: true
+    },
+    request: {
+      value: (props[__astroContext] && props[__astroContext].request) || {},
+      enumerable: true
+    },
+  });
+
+  const {
+  content,
+  $scope
+} = Astro.props;
+let html = null;
 if (content) {
-  const { content: htmlContent } = await renderMarkdown(content, {
-    mode: 'md',
+  const {
+    content: htmlContent
+  } = await renderMarkdown(content, {
+    mode: "md",
     $: {
       scopedClassName: $scope
     }
@@ -24,9 +76,55 @@ if (content) {
   html = htmlContent;
 }
 
-/*
-  If we have rendered `html` for `content`, render that
-  Otherwise, just render the slotted content
-*/
----
-{html ? html : <slot />}
+  return h(Fragment, null, h(Fragment, null,(html ? html : h(Fragment, null, h(__astro_slot, { [__astroContext]: props[__astroContext] }, children)))));
+}
+export default { isAstroComponent: true, __render };
+
+// `__renderPage()`: Render the contents of the Astro module as a page. This is a special flow,
+// triggered by loading a component directly by URL.
+export async function __renderPage({request, children, props, css}) {
+  const currentChild = {
+    isAstroComponent: true,
+    layout: typeof __layout === 'undefined' ? undefined : __layout,
+    content: typeof __content === 'undefined' ? undefined : __content,
+    __render,
+  };
+
+  const isLayout = (__astroContext in props);
+  if(!isLayout) {
+    let astroRootUIDCounter = 0;
+    Object.defineProperty(props, __astroContext, {
+      value: {
+        pageCSS: css,
+        request,
+        createAstroRootUID(seed) { return seed + astroRootUIDCounter++; },
+      },
+      writable: false,
+      enumerable: false
+    });
+  }
+
+  Object.defineProperty(props, __astroInternal, {
+    value: {
+      isPage: !isLayout
+    },
+    writable: false,
+    enumerable: false
+  });
+
+  const childBodyResult = await currentChild.__render(props, children);
+
+  // find layout, if one was given.
+  if (currentChild.layout) {
+    return currentChild.layout({
+      request,
+      props: {content: currentChild.content, [__astroContext]: props[__astroContext]},
+      children: [childBodyResult],
+    });
+  }
+
+  return childBodyResult;
+};
+
+
+

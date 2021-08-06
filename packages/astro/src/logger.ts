@@ -1,12 +1,15 @@
 import type { CompileError } from '@astrojs/parser';
-import { bold, blue, red, grey, underline, yellow } from 'kleur/colors';
+
+import { bold, blue, dim, red, grey, underline, yellow } from 'kleur/colors';
 import { Writable } from 'stream';
-import { format as utilFormat } from 'util';
 import stringWidth from 'string-width';
+import { format as utilFormat } from 'util';
 
 type ConsoleStream = Writable & {
   fd: 1 | 2;
 };
+
+const dt = new Intl.DateTimeFormat(process.env.LANG ? process.env.LANG.split('.')[0].replace(/_/g, '-') : 'en-US', { hour: '2-digit', minute: '2-digit' });
 
 export const defaultLogDestination = new Writable({
   objectMode: true,
@@ -15,6 +18,9 @@ export const defaultLogDestination = new Writable({
     if (levels[event.level] < levels['error']) {
       dest = process.stdout;
     }
+
+    dest.write(dim(dt.format(new Date()) + ' '));
+
     let type = event.type;
     if (type !== null) {
       if (event.level === 'info') {
@@ -133,11 +139,8 @@ export function parseError(opts: LogOptions, err: CompileError) {
     opts,
     'parse-error',
     `
-
  ${underline(bold(grey(`${err.filename || ''}:${err.start.line}:${err.start.column}`)))}
-
  ${bold(red(`𝘅 ${err.message}`))}
-
 ${frame}
 `
   );

@@ -1,92 +1,286 @@
-import type { ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier } from '@babel/types';
-import type { AstroUserConfig, AstroConfig } from './config';
+import type { AstroMarkdownOptions } from '@astrojs/markdown-support';
+import type babel from '@babel/core';
+import type vite from 'vite';
+import type { z } from 'zod';
+import type { AstroConfigSchema } from '../config';
 
-export { AstroUserConfig, AstroConfig };
-export interface RouteData {
-  type: 'page';
-  pattern: RegExp;
-  params: string[];
-  path: string | null;
-  component: string;
-  generate: (data?: any) => string;
+export { AstroMarkdownOptions };
+
+export interface AstroComponentMetadata {
+  displayName: string;
+  hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';
+  componentUrl?: string;
+  componentExport?: { value: string; namespace?: boolean };
+  value?: undefined | string;
 }
+
+/**
+ * The Astro User Config Format:
+ * This is the type interface for your astro.config.mjs default export.
+ */
+export interface AstroUserConfig {
+  /**
+   * Where to resolve all URLs relative to. Useful if you have a monorepo project.
+   * Default: '.' (current working directory)
+   */
+  projectRoot?: string;
+  /**
+   * Path to the `astro build` output.
+   * Default: './dist'
+   */
+  dist?: string;
+  /**
+   * Path to all of your Astro components, pages, and data.
+   * Default: './src'
+   */
+  src?: string;
+  /**
+   * Path to your Astro/Markdown pages. Each file in this directory
+   * becomes a page in your final build.
+   * Default: './src/pages'
+   */
+  pages?: string;
+  /**
+   * Path to your public files. These are copied over into your build directory, untouched.
+   * Useful for favicons, images, and other files that don't need processing.
+   * Default: './public'
+   */
+  public?: string;
+  /**
+   * Framework component renderers enable UI framework rendering (static and dynamic).
+   * When you define this in your configuration, all other defaults are disabled.
+   * Default: [
+   *  '@astrojs/renderer-svelte',
+   *  '@astrojs/renderer-vue',
+   *  '@astrojs/renderer-react',
+   *  '@astrojs/renderer-preact',
+   * ],
+   */
+  renderers?: string[];
+  /** Options for rendering markdown content */
+  markdownOptions?: Partial<AstroMarkdownOptions>;
+  /** Options specific to `astro build` */
+  buildOptions?: {
+    /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
+    site?: string;
+    /** Generate an automatically-generated sitemap for your build.
+     * Default: true
+     */
+    sitemap?: boolean;
+    /**
+     * Control the output file URL format of each page.
+     *   If 'file', Astro will generate a matching HTML file (ex: "/foo.html") instead of a directory.
+     *   If 'directory', Astro will generate a directory with a nested index.html (ex: "/foo/index.html") for each page.
+     * Default: 'directory'
+     */
+    pageUrlFormat?: 'file' | 'directory';
+  };
+  /** Options for the development server run with `astro dev`. */
+  devOptions?: {
+    hostname?: string;
+    /** The port to run the dev server on. */
+    port?: number;
+    /** Path to tailwind.config.js, if used */
+    tailwindConfig?: string;
+    /**
+     * Configure The trailing slash behavior of URL route matching:
+     *   'always' - Only match URLs that include a trailing slash (ex: "/foo/")
+     *   'never' - Never match URLs that include a trailing slash (ex: "/foo")
+     *   'ignore' - Match URLs regardless of whether a trailing "/" exists
+     * Default: 'always'
+     */
+    trailingSlash?: 'always' | 'never' | 'ignore';
+  };
+}
+
+// NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
+// we can add JSDoc-style documentation and link to the definition file in our repo.
+// However, Zod comes with the ability to auto-generate AstroConfig from the schema
+// above. If we ever get to the point where we no longer need the dedicated
+// @types/config.ts file, consider replacing it with the following lines:
+//
+// export interface AstroUserConfig extends z.input<typeof AstroConfigSchema> {
+//   markdownOptions?: Partial<AstroMarkdownOptions>;
+// }
+export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
+  markdownOptions: Partial<AstroMarkdownOptions>;
+}
+
+export type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
+
+export interface CollectionRSS {
+  /** (required) Title of the RSS Feed */
+  title: string;
+  /** (required) Description of the RSS Feed */
+  description: string;
+  /** Specify arbitrary metadata on opening <xml> tag */
+  xmlns?: Record<string, string>;
+  /** Specify custom data in opening of file */
+  customData?: string;
+  /**
+   * Specify where the RSS xml file should be written.
+   * Relative to final build directory. Example: '/foo/bar.xml'
+   * Defaults to '/rss.xml'.
+   */
+  dest?: string;
+  /** Return data about each item */
+  items: {
+    /** (required) Title of item */
+    title: string;
+    /** (required) Link to item */
+    link: string;
+    /** Publication date of item */
+    pubDate?: Date;
+    /** Item description */
+    description?: string;
+    /** Append some other XML-valid data to this item */
+    customData?: string;
+  }[];
+}
+
+/** Generic interface for a component (Astro, Svelte, React, etc.) */
+export interface ComponentInstance {
+  default: {
+    isAstroComponent: boolean;
+    __render?(props: Props, ...children: any[]): string;
+    __renderer?: Renderer;
+  };
+  __renderPage?: (options: RenderPageOptions) => string;
+  css?: string[];
+  getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
+}
+
+export type GetStaticPathsArgs = { paginate: PaginateFunction; rss: RSSFunction };
+
+export interface GetStaticPathsOptions {
+  paginate?: PaginateFunction;
+  rss?: (...args: any[]) => any;
+}
+
+export type GetStaticPathsResult = { params: Params; props?: Props }[] | { params: Params; props?: Props }[];
+
+export interface JSXTransformConfig {
+  /** Babel presets */
+  presets?: babel.PluginItem[];
+  /** Babel plugins */
+  plugins?: babel.PluginItem[];
+}
+
+export type JSXTransformFn = (options: { isSSR: boolean }) => Promise<JSXTransformConfig>;
 
 export interface ManifestData {
   routes: RouteData[];
 }
 
-export interface JsxItem {
+export interface PaginatedCollectionProp<T = any> {
+  /** result */
+  data: T[];
+  /** metadata */
+  /** the count of the first item on the page, starting from 0 */
+  start: number;
+  /** the count of the last item on the page, starting from 0 */
+  end: number;
+  /** total number of results */
+  total: number;
+  /** the current page number, starting from 1 */
+  currentPage: number;
+  /** number of items per page (default: 25) */
+  size: number;
+  /** number of last page */
+  lastPage: number;
+  url: {
+    /** url of the current page */
+    current: string;
+    /** url of the previous page (if there is one) */
+    prev: string | undefined;
+    /** url of the next page (if there is one) */
+    next: string | undefined;
+  };
+}
+
+export interface PaginatedCollectionResult<T = any> {
+  /** result */
+  data: T[];
+  /** metadata */
+  /** the count of the first item on the page, starting from 0 */
+  start: number;
+  /** the count of the last item on the page, starting from 0 */
+  end: number;
+  /** total number of results */
+  total: number;
+  /** the current page number, starting from 1 */
+  currentPage: number;
+  /** number of items per page (default: 25) */
+  size: number;
+  /** number of last page */
+  lastPage: number;
+  url: {
+    /** url of the current page */
+    current: string;
+    /** url of the previous page (if there is one) */
+    prev: string | undefined;
+    /** url of the next page (if there is one) */
+    next: string | undefined;
+  };
+}
+
+export type PaginateFunction = (data: [], args?: { pageSize?: number; params?: Params; props?: Props }) => GetStaticPathsResult;
+
+export type Params = Record<string, string | undefined>;
+
+export type Props = Record<string, unknown>;
+
+export interface RenderPageOptions {
+  request: {
+    params?: Params;
+    url: URL;
+    canonicalURL: URL;
+  };
+  children: any[];
+  props: Props;
+  css?: string[];
+}
+
+export interface Renderer {
+  /** Name of the renderer (required) */
   name: string;
-  jsx: string;
+  hydrationPolyfills?: string[];
+  /** Don’t try and build these dependencies for client */
+  external?: string[];
+  /** Clientside requirements */
+  knownEntrypoints?: string[];
+  polyfills?: string[];
+  /** Import statement for renderer */
+  source?: string;
+  /** JSX identifier (e.g. 'react' or 'solid-js') */
+  jsxImportSource?: string;
+  /** Babel transform options */
+  jsxTransformOptions?: JSXTransformFn;
+  /** Utilies for server-side rendering */
+  ssr: {
+    check: AsyncRendererComponentFn<boolean>;
+    renderToStaticMarkup: AsyncRendererComponentFn<{
+      html: string;
+    }>;
+  };
+  /** Add plugins to Vite, if any */
+  vitePlugins?: vite.Plugin[];
 }
 
-export interface InlineScriptInfo {
-  content: string;
+export interface RouteData {
+  component: string;
+  generate: (data?: any) => string;
+  params: string[];
+  pathname?: string;
+  pattern: RegExp;
+  type: 'page';
 }
 
-export interface ExternalScriptInfo {
-  src: string;
-}
-
-export type ScriptInfo = InlineScriptInfo | ExternalScriptInfo;
-
-export interface TransformResult {
-  script: string;
-  imports: string[];
-  exports: string[];
-  components: string[];
-  html: string;
-  css?: string;
-  hoistedScripts: ScriptInfo[];
-  getStaticPaths?: string;
-  hasCustomElements: boolean;
-  customElementCandidates: Map<string, string>;
-}
-
-export interface CompileResult {
-  result: TransformResult;
-  contents: string;
-  css?: string;
-}
+export type RouteCache = Record<string, GetStaticPathsResult>;
 
 export type RuntimeMode = 'development' | 'production';
 
-export type Params = Record<string, string | undefined>;
-export type Props = Record<string, any>;
-
-/** Entire output of `astro build`, stored in memory */
-export interface BuildOutput {
-  [dist: string]: BuildFile;
-}
-
-export interface BuildFile {
-  /** The original location. Needed for code frame errors. */
-  srcPath: URL;
-  /** File contents */
-  contents: string | Buffer;
-  /** File content type (to determine encoding, etc) */
-  contentType: string;
-  /** Encoding */
-  encoding?: 'utf8';
-  /** Extracted scripts */
-  hoistedScripts?: ScriptInfo[];
-}
-
-/** Mapping of every URL and its required assets. All URLs are absolute relative to the project. */
-export type BundleMap = {
-  [pageUrl: string]: PageDependencies;
-};
-
-export interface PageDependencies {
-  /** JavaScript files needed for page. No distinction between blocking/non-blocking or sync/async. */
-  js: Set<string>;
-  /** CSS needed for page, whether imported via <link>, JS, or Astro component. */
-  css: Set<string>;
-  /** Images needed for page. Can be loaded via CSS, <link>, or otherwise. */
-  images: Set<string>;
-  /** Async hoisted Javascript */
-  hoistedJS: Map<string, ScriptInfo>;
-}
+export type RSSFunction = (args: RSSFunctionArgs) => void;
 
 export interface RSSFunctionArgs {
   /** (required) Title of the RSS Feed */
@@ -118,57 +312,14 @@ export interface RSSFunctionArgs {
   }[];
 }
 
-export interface PaginatedCollectionProp<T = any> {
-  /** result */
-  data: T[];
-  /** metadata */
-  /** the count of the first item on the page, starting from 0 */
-  start: number;
-  /** the count of the last item on the page, starting from 0 */
-  end: number;
-  /** total number of results */
-  total: number;
-  /** the current page number, starting from 1 */
-  currentPage: number;
-  /** number of items per page (default: 25) */
-  size: number;
-  /** number of last page */
-  lastPage: number;
-  url: {
-    /** url of the current page */
-    current: string;
-    /** url of the previous page (if there is one) */
-    prev: string | undefined;
-    /** url of the next page (if there is one) */
-    next: string | undefined;
-  };
+export type RSSResult = { url: string; xml?: string };
+
+export type ScriptInfo = ScriptInfoInline | ScriptInfoExternal;
+
+export interface ScriptInfoInline {
+  content: string;
 }
 
-export type RSSFunction = (args: RSSFunctionArgs) => void;
-export type PaginateFunction = (data: [], args?: { pageSize?: number; params?: Params; props?: Props }) => GetStaticPathsResult;
-export type GetStaticPathsArgs = { paginate: PaginateFunction; rss: RSSFunction };
-export type GetStaticPathsResult = { params: Params; props?: Props }[] | { params: Params; props?: Props }[];
-
-export interface ComponentInfo {
-  url: string;
-  importSpecifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
-}
-
-export type Components = Map<string, ComponentInfo>;
-
-export interface AstroComponentMetadata {
-  displayName: string;
-  hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';
-  componentUrl?: string;
-  componentExport?: { value: string; namespace?: boolean };
-  value?: undefined | string;
-}
-
-type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
-
-export interface Renderer {
-  check: AsyncRendererComponentFn<boolean>;
-  renderToStaticMarkup: AsyncRendererComponentFn<{
-    html: string;
-  }>;
+export interface ScriptInfoExternal {
+  src: string;
 }
