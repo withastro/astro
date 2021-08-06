@@ -3,9 +3,9 @@ layout: ~/layouts/MainLayout.astro
 title: Aliases
 ---
 
-An alias is a handy shortcut to your paths. Projects can get quite messy when it comes to file structure. Astro gives you the ability to define _keywords_ which you can use no matter how deep your file is located. 
+An **alias** is a handy shortcut for your JavaScript import paths. This can be a great option if you dislike long relative import paths with many repeating `../` segments. Define an **alias** in your project to import directly from some directory no matter how deeply nested a file is located. 
 
-So instead of `../../components/SomeComponent/` you can use `components/SomeComponent`. 
+With aliases, you can import from `"components/SomeComponent.astro"` instead of `"../../../../../components/SomeComponent.astro"`.
 
 ## Adding a custom alias
 
