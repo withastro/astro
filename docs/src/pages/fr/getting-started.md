@@ -18,7 +18,7 @@ Autrement, lisez notre [Guide d'installation](/installation) pour un accompagnem
 
 ### Terrains de jeu en ligne (Online Playground)
 
-Si vous voulez tester Astro directement dans votre navigateur, vous pouvez utiliser un playground en ligne. Essayez notre modèle "Hello World!" sur  [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
+Si vous voulez tester Astro directement dans votre navigateur, vous pouvez utiliser un playground en ligne. Essayez notre modèle "Hello World!" sur [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
 
 _Note: quelques-unes des fonctionnalités (ex : Rafraîchissement Rapide) sont pour le moment limitées sur CodeSandbox._
 
