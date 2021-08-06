@@ -78,7 +78,8 @@
 	position: absolute;
 	top: -0.1rem;
 	left: 0;
-	box-shadow: -10px 0 10px var(--theme-accent);
+	box-shadow: 0px 3px 10px var(--theme-accent);
+}
 }
 
 .DocSearch-Modal .DocSearch-Hit a {
