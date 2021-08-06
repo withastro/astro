@@ -67,8 +67,8 @@ export const SIDEBAR = {
   ],
   bg: [
     { text: 'Главни', header: true },
-    { text: 'Започваме!', link: 'bg/getting-started' }
-  ]
+    { text: 'Започваме!', link: 'bg/getting-started' },
+  ],
 };
 
 export const SITE = {
