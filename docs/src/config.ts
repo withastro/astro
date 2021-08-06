@@ -65,6 +65,10 @@ export const SIDEBAR = {
     { text: '安裝', link: 'zh-TW/installation' },
     { text: '範例', link: 'zh-TW/examples' },
   ],
+  bg: [
+    { text: 'Главни', header: true },
+    { text: 'Започваме!', link: 'bg/getting-started' }
+  ]
 };
 
 export const SITE = {
