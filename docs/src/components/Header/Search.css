@@ -1,69 +1,69 @@
 /** Style Algolia */
 :root {
-	--docsearch-primary-color: var(--theme-accent);
-	--docsearch-logo-color: var(--theme-text);
+  --docsearch-primary-color: var(--theme-accent);
+  --docsearch-logo-color: var(--theme-text);
 }
 .search-input {
-	flex-grow: 1;
-	box-sizing: border-box;
-	width: 100%;
-	margin: 0;
-	padding: 0.33em 0.5em;
-	overflow: visible;
-	font-weight: 500;
-	font-size: 1rem;
-	font-family: inherit;
-	line-height: inherit;
-	background-color: var(--theme-divider);
-	border-color: var(--theme-divider);
-	color: var(--theme-text-light);
-	border-style: solid;
-	border-width: 1px;
-	border-radius: 0.25rem;
-	outline: 0;
-	cursor: pointer;
-	transition-timing-function: ease-out;
-	transition-duration: 0.2s;
-	transition-property: border-color, color;
-	-webkit-font-smoothing: antialiased;
+  flex-grow: 1;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0.33em 0.5em;
+  overflow: visible;
+  font-weight: 500;
+  font-size: 1rem;
+  font-family: inherit;
+  line-height: inherit;
+  background-color: var(--theme-divider);
+  border-color: var(--theme-divider);
+  color: var(--theme-text-light);
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 0.25rem;
+  outline: 0;
+  cursor: pointer;
+  transition-timing-function: ease-out;
+  transition-duration: 0.2s;
+  transition-property: border-color, color;
+  -webkit-font-smoothing: antialiased;
 }
 .search-input:hover,
 .search-input:focus {
-	color: var(--theme-text);
-	border-color: var(--theme-text-light);
+  color: var(--theme-text);
+  border-color: var(--theme-text-light);
 }
 .search-input:hover::placeholder,
 .search-input:focus::placeholder {
-	color: var(--theme-text-light);
+  color: var(--theme-text-light);
 }
 .search-input::placeholder {
-	color: var(--theme-text-light);
+  color: var(--theme-text-light);
 }
 .search-hint {
-	position: absolute;
-	top: 7px;
-	right: 19px;
-	padding: 3px 5px;
-	display: none;
-	display: none;
-	align-items: center;
-	justify-content: center;
-	letter-spacing: 0.125em;
-	font-size: 13px;
-	font-family: var(--font-mono);
-	pointer-events: none;
-	border-color: var(--theme-text-lighter);
-	color: var(--theme-text-light);
-	border-style: solid;
-	border-width: 1px;
-	border-radius: 0.25rem;
-	line-height: 14px;
+  position: absolute;
+  top: 7px;
+  right: 19px;
+  padding: 3px 5px;
+  display: none;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.125em;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  pointer-events: none;
+  border-color: var(--theme-text-lighter);
+  color: var(--theme-text-light);
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 0.25rem;
+  line-height: 14px;
 }
 
 @media (min-width: 50em) {
-	.search-hint {
-		display: flex;
-	}
+  .search-hint {
+    display: flex;
+  }
 }
 
 /* ------------------------------------------------------------ *\
@@ -71,6 +71,6 @@
 \* ------------------------------------------------------------ */
 
 .DocSearch-Modal .DocSearch-Hit a {
-	box-shadow: none;
-	border: 1px solid var(--theme-accent);
+  box-shadow: none;
+  border: 1px solid var(--theme-accent);
 }

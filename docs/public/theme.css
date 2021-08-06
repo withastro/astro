@@ -94,7 +94,7 @@ body {
   --theme-divider: hsla(var(--color-gray-10), 1);
   --theme-text: hsla(var(--color-gray-90), 1);
   --theme-text-light: hsla(var(--color-gray-80), 1);
-  
+
   /* @@@: not used anywhere */
   --theme-text-lighter: hsla(var(--color-gray-40), 1);
   --theme-bg: hsla(215, 28%, 17%, 1);
