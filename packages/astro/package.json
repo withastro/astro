@@ -33,7 +33,7 @@
     "dist",
     "snowpack-plugin-jsx.cjs",
     "snowpack-plugin.cjs",
-    "astro.mjs"
+    "astro.js"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
