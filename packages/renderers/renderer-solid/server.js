@@ -1,5 +1,5 @@
 import { createComponent } from 'solid-js';
-import { renderToStringAsync, ssr } from 'solid-js/web/dist/server.js';
+import { renderToStringAsync, ssr } from 'solid-js/web/dist/server.cjs';
 
 async function check(Component, props, children) {
   if (typeof Component !== 'function') return false;
