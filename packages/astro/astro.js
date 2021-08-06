@@ -13,6 +13,7 @@ const CI_INSTRUCTIONS = {
   VERCEL: 'https://vercel.com/docs/runtimes#official-runtimes/node-js/node-js-version',
 };
 
+/** `astro *` */
 async function main() {
   // Check for ESM support.
   // Load the "supports-esm" package in an way that works in both ESM & CJS.
@@ -29,7 +30,7 @@ async function main() {
 
   // Preflight check complete. Enjoy! ✨
   if (supportsESM) {
-    return import('./dist/cli.js')
+    return import('./dist/cli/index.js')
       .then(({ cli }) => cli(process.argv))
       .catch((error) => {
         console.error(error);
