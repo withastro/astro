@@ -42,7 +42,7 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
    **/
     astro: {
       headers: [],  // an array of h1...h6 elements in the markdown file
-      source: ''    // raw source of the markdown file
+      source: '',    // raw source of the markdown file
       html: ''      // rendered HTML of the markdown file
     },
     url: '' // the rendered path

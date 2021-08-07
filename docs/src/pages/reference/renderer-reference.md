@@ -59,9 +59,9 @@ export default {
   snowpackPlugin: '@snowpack/plugin-xxx', // optional, the name of a snowpack plugin to inject
   snowpackPluginOptions: { example: true }, // optional, any options to be forwarded to the snowpack plugin
   knownEntrypoint: ['framework'], // optional, entrypoint modules that will be used by compiled source
-  external: ['dep'] // optional, dependencies that should not be built by snowpack
-  polyfills: ['./shadow-dom-polyfill.js'] // optional, module scripts that should be loaded before client hydration.
-  hydrationPolyfills: ['./hydrate-framework.js'] // optional, polyfills that need to run before hydration ever occurs.
+  external: ['dep'], // optional, dependencies that should not be built by snowpack
+  polyfills: ['./shadow-dom-polyfill.js'], // optional, module scripts that should be loaded before client hydration.
+  hydrationPolyfills: ['./hydrate-framework.js'], // optional, polyfills that need to run before hydration ever occurs.
   jsxImportSource: 'preact', // optional, the name of the library from which JSX is imported
   jsxTransformOptions: async () => { // optional, a function to transform JSX files
     const { default: { default: jsx }} = await import('@babel/plugin-transform-react-jsx');
