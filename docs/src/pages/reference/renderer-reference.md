@@ -63,14 +63,15 @@ export default {
   polyfills: ['./shadow-dom-polyfill.js'], // optional, module scripts that should be loaded before client hydration.
   hydrationPolyfills: ['./hydrate-framework.js'], // optional, polyfills that need to run before hydration ever occurs.
   jsxImportSource: 'preact', // optional, the name of the library from which JSX is imported
-  jsxTransformOptions: async () => { // optional, a function to transform JSX files
-    const { default: { default: jsx }} = await import('@babel/plugin-transform-react-jsx');
+  jsxTransformOptions: async () => {
+    // optional, a function to transform JSX files
+    const {
+      default: { default: jsx },
+    } = await import('@babel/plugin-transform-react-jsx');
     return {
-      plugins: [
-        jsx({}, { runtime: 'automatic', importSource: 'preact' })
-      ]
-    }
-  }
+      plugins: [jsx({}, { runtime: 'automatic', importSource: 'preact' })],
+    };
+  },
 };
 ```
 
