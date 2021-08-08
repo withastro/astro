@@ -1,5 +1,28 @@
 # Contributing
 
+We welcome contributions of any size and skill level. As an open source project, we believe in giving back to our contributors and are happy to help with guidance on PRs, technical writing, and turning any feature idea into a reality.
+
+## Why contribute to open source?
+
+[**@FredKSchott:**](https://twitter.com/FredKSchott) As a personal story - I got started in open source by randomly contributing to an npm package named `request`. At the time, the package was the third-most-used package on npm and was receiving millions of downloads a week. It was all maintained by one person and a couple of in-and-out contributors.
+
+Thanks to a combination of free time, hard work and luck I was able to contribute and eventually become a lead maintainer of the project. For a long time I was one of 3 people in the world who could deploy some code (`npm publish request`) that would get immediately picked up by almost every Node.js project on the planet via `npm install`. It was exciting and a bit scary 😅.
+
+At the same time I had a day job where I was a junior software developer at a random tech co. I was surrounded by interesting projects, but I mostly did busy work. I had recently asked my manager if I could go up for a promotion and he said no. At least they paid me!
+
+Our Astro community is my personal attempt to share this experience with others who might be looking for the same thing as I was. Everyone is at different stages in their life and career, and my personal experience as "slightly bored junior developer" isn't a one-size-fits-all for why you should get involved in open source. Instead, here are some of my favorite things that I got out of open source development that I think apply to anyone:
+
+- **Job opportunities:** Having the line "maintains code used by millions of developers" on my resume was an incredible super-power for someone so early in their career.
+- **Instant cred:** I was accepted to give my first public talk at a conference based solely on my open source work. It was a terrible talk, but who's first talk is good!? :D
+- **Leadership/mentorship opportunities:** I went from having zero responsibility at work to being a respected voice/opinion in the `request` GitHub issues and PRs.
+- **Learning from smart people:** At the same time, I got to meet and work with so many smart people across the open source ecosystem.
+- **preventing imposter syndrome:** Sure, I was still just a kid, but having an actual human connection to developers who I looked up to on Twitter helped dispell the idea that "oh, **I** could never be like that."
+- **Making friends in the larger community:** The creator of request, [@mikeal](https://twitter.com/mikeal),  is still a friend to this day.
+
+If any of this sounds interesting, I hope you consider getting involved with Astro. Come say hi in the **#new-contributors** channel on Discord, anytime.
+
+# Contributor Manual
+
 ## Prerequisite
 
 ```shell
