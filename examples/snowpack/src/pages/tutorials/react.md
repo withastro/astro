@@ -118,7 +118,7 @@ The `mount` configuration changes where Snowpack looks for and builds files. Eve
 ```diff
   mount: {
 -   /* ... */
-+   // directory name: 'build directory'
++   // directory name: 'build directory',
 +   public: '/',
 +   src: '/dist',
   },
