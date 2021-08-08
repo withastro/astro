@@ -1,4 +1,4 @@
-name: Discord: Congratsbot
+name: "Discord:congratsbot"
 
 # only trigger on pull request closed events
 on:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   congrats:
-    name: Discord:Congratsbot
+    name: "Discord:congratsbot"
     # this job will only run if the PR has been merged
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
