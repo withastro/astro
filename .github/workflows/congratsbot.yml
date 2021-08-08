@@ -15,6 +15,7 @@ jobs:
       - name: Send a Discord notification if a PR was merged
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
+          # DISCORD_AVATAR: ${{ github.event.pull_request.user.avatar_url }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: 'Woo! [PR#${{ github.event.number }}](${{github.event.pull_request.url}}) has been merged. Thank you @${{ github.event.pull_request.user.login }}!'
+          args: '**Sweet!** [@${{ github.event.pull_request.user.login }}](<${{ github.event.pull_request.user.url }}>) just merged a PR: [#${{ github.event.number }}: ${{ github.event.title }}](<${{github.event.pull_request.url}}>)'
