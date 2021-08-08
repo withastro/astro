@@ -17,4 +17,4 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: 'Woo! PR #${{ github.event.number }} has been merged. Thank you ${{ github.event.user.login }}'
+          args: 'Woo! [PR#${{ github.event.number }}](${{github.event.pull_request.url}}) has been merged. Thank you @${{ github.event.pull_request.user.login }}!'
