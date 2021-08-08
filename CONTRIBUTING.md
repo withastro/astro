@@ -17,7 +17,7 @@ Our Astro community is my personal attempt to share this experience with others 
 - **Leadership/mentorship opportunities:** I went from having zero responsibility at work to being a respected voice/opinion in the `request` GitHub issues and PRs.
 - **Learning from smart people:** At the same time, I got to meet and work with so many smart people across the open source ecosystem.
 - **preventing imposter syndrome:** Sure, I was still just a kid, but having an actual human connection to developers who I looked up to on Twitter helped dispell the idea that "oh, **I** could never be like that."
-- **Making friends in the larger community:** The creator of request, [@mikeal](https://twitter.com/mikeal),  is still a friend to this day.
+- **Making friends in the larger community:** The creator of request, [@mikeal](https://twitter.com/mikeal), is still a friend to this day.
 
 If any of this sounds interesting, I hope you consider getting involved with Astro. Come say hi in the **#new-contributors** channel on Discord, anytime.
 
