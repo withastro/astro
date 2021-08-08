@@ -32,10 +32,9 @@ async function allPages(root: URL): Promise<URL[]> {
   return files.map((f) => new URL(f, root));
 }
 
-/** Is this URL remote? */
-function isRemote(url: string) {
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) return true;
-  return false;
+/** Is this URL remote or embedded? */
+function isRemoteOrEmbedded(url: string) {
+  return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//') || url.startsWith('data:');
 }
 
 /** The primary build action */
@@ -268,7 +267,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
   $('script').each((_i, el) => {
     const src = $(el).attr('src');
     if (src) {
-      if (isRemote(src)) return;
+      if (isRemoteOrEmbedded(src)) return;
       pageDeps.js.add(getDistPath(src, { astroConfig, srcPath }));
     } else {
       const text = $(el).html();
@@ -276,7 +275,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
       const [imports] = eslexer.parse(text);
       for (const spec of imports) {
         const importSrc = spec.n;
-        if (importSrc && !isRemote(importSrc)) {
+        if (importSrc && !isRemoteOrEmbedded(importSrc)) {
           pageDeps.js.add(getDistPath(importSrc, { astroConfig, srcPath }));
         }
       }
@@ -285,7 +284,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
 
   $('link[href]').each((_i, el) => {
     const href = $(el).attr('href');
-    if (href && !isRemote(href) && ($(el).attr('rel') === 'stylesheet' || $(el).attr('type') === 'text/css' || href.endsWith('.css'))) {
+    if (href && !isRemoteOrEmbedded(href) && ($(el).attr('rel') === 'stylesheet' || $(el).attr('type') === 'text/css' || href.endsWith('.css'))) {
       const dist = getDistPath(href, { astroConfig, srcPath });
       pageDeps.css.add(dist);
     }
@@ -293,7 +292,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
 
   $('img[src]').each((_i, el) => {
     const src = $(el).attr('src');
-    if (src && !isRemote(src)) {
+    if (src && !isRemoteOrEmbedded(src)) {
       pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
     }
   });
@@ -303,7 +302,7 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
     const sources = srcset.split(',');
     const srces = sources.map((s) => s.trim().split(' ')[0]);
     for (const src of srces) {
-      if (!isRemote(src)) {
+      if (!isRemoteOrEmbedded(src)) {
         pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
       }
     }
