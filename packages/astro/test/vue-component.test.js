@@ -13,9 +13,10 @@ Vue('Can load Vue', async ({ runtime }) => {
   assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
-  assert.equal($('h1').text(), 'Hello world!', 'Can use slots');
-  assert.equal($('button').length, 2, 'Can render components');
-  assert.equal($('pre').text(), '5', 'Can render nested components');
+  const allPreValues = $('pre').toArray().map((el) => $(el).text());
+  assert.equal(allPreValues, ['0', '1', '10', '100'], 'renders all 4 components correctly');
+  assert.equal($('astro-root').length, 3, 'renders 3 astro-roots');
+  assert.equal($('astro-root[uid]').length, 3, 'all astro-roots have uid attributes');
 });
 
 Vue.run();
