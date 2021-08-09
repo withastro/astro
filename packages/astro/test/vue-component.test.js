@@ -14,9 +14,11 @@ Vue('Can load Vue', async ({ runtime }) => {
 
   const $ = doc(result.contents);
   const allPreValues = $('pre').toArray().map((el) => $(el).text());
-  assert.equal(allPreValues, ['0', '1', '10', '100'], 'renders all 4 components correctly');
-  assert.equal($('astro-root').length, 3, 'renders 3 astro-roots');
-  assert.equal($('astro-root[uid]').length, 3, 'all astro-roots have uid attributes');
+  assert.equal(allPreValues, ['0', '1', '10', '100', '1000'], 'renders all components correctly');
+  assert.equal($('astro-root').length, 4, 'renders 3 astro-roots');
+  assert.equal($('astro-root[uid]').length, 4, 'all astro-roots have uid attributes');
+  const uniqueRootUIDs = $('astro-root').map((i, el) => $(el).attr('uid'));
+  assert.equal(new Set(uniqueRootUIDs).size, 4, 'all astro-roots have unique uid attributes');
 });
 
 Vue.run();

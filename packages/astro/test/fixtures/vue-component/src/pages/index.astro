@@ -21,7 +21,9 @@ import Counter from '../components/Counter.vue'
       <Counter start="0">SSR Rendered, No Client</Counter>
       <Counter start="1" client:load>SSR Rendered, client:load</Counter>
       <Counter start="10" client:idle>SSR Rendered, client:idle</Counter>
+      <!-- Test that two client:visibles have unique uids -->
       <Counter start="100" client:visible>SSR Rendered, client:visible</Counter>
+      <Counter start="1000" client:visible>SSR Rendered, client:visible</Counter>
     </main>
   </body>
 </html>
