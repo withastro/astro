@@ -1,21 +1,21 @@
 name: "Discord:congratsbot"
 
-# only trigger on pull request closed events
 on:
-  pull_request:
-    types: [ closed ]
+  push:
+    branches:
+      - main
 
 jobs:
   congrats:
-    name: "Discord:congratsbot"
-    # this job will only run if the PR has been merged
-    if: github.event.pull_request.merged == true
+    name: "discord:congratsbot"
+    #if: github.event.commits[0] && !github.event.commits[1]
     runs-on: ubuntu-latest
     steps:
-      - name: Send a Discord notification if a PR was merged
+      - name: Send a Discord notification when a PR is merged
+      
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
           # DISCORD_AVATAR: ${{ github.event.pull_request.user.avatar_url }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: '**Sweet!** [@${{ github.event.pull_request.user.login }}](<${{ github.event.pull_request.user.url }}>) just merged GitHub PR[#${{ github.event.number }}: ${{ github.event.pull_request.title }}](<${{github.event.pull_request.url}}>)'
+          args: '**Sweet!** [@${{ github.event.commits[0].author.login }}](<${{ github.event.commits[0].author.url }}>) just merged [${{ github.event.commits[0].message }}](<${{github.event.commits[0].html_url}}>)'
