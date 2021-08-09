@@ -5,6 +5,8 @@ import { isInTag, positionAt, offsetAt } from '../../core/documents/utils';
 import { pathToUrl } from '../../utils';
 import { getScriptKindFromFileName, isAstroFilePath, toVirtualAstroFilePath } from './utils';
 
+const FILLER_DEFAULT_EXPORT = `\nexport default function() { return ''; };`;
+
 /**
  * The mapper to get from original snapshot positions to generated and vice versa.
  */
@@ -66,7 +68,15 @@ class AstroDocumentSnapshot implements DocumentSnapshot {
   }
 
   get text() {
-    return this.doc.getText();
+    let raw = this.doc.getText();
+    return this.transformContent(raw);
+  }
+
+  /** @internal */
+  private transformContent(content: string) {
+    return content.replace(/---/g, '///') +
+    // TypeScript needs this to know there's a default export.
+    FILLER_DEFAULT_EXPORT;
   }
 
   get filePath() {
@@ -128,7 +138,9 @@ export class DocumentFragmentSnapshot implements Omit<DocumentSnapshot, 'getFrag
 
   /** @internal */
   private transformContent(content: string) {
-    return content.replace(/---/g, '///');
+    return content.replace(/---/g, '///') +
+    // TypeScript needs this to know there's a default export.
+    FILLER_DEFAULT_EXPORT;
   }
 
   getText(start: number, end: number) {
@@ -212,6 +224,10 @@ export class TypeScriptDocumentSnapshot implements DocumentSnapshot {
 
   async getFragment(): Promise<DocumentFragmentSnapshot> {
     return this as unknown as any;
+  }
+
+  getOriginalPosition(pos: Position): Position {
+    return pos;
   }
 
   destroyFragment() {
