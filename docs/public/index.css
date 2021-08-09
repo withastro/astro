@@ -36,7 +36,7 @@ nav ul {
 }
 
 .content > section > * + * {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 
 .content > section > :first-child {
@@ -44,13 +44,13 @@ nav ul {
 }
 
 /* Typography */
-:is(h1, h2, h3, h4, h5, h6) {
+h1, h2, h3, h4, h5, h6 {
   margin-bottom: 1rem;
   font-weight: bold;
   line-height: 1;
 }
 
-:is(h1, h2) {
+h1, h2 {
   max-width: 40ch;
 }
 
@@ -58,39 +58,37 @@ nav ul {
   margin-top: 3rem;
 }
 
+:is(h4, h5, h6):not(:first-child) {
+  margin-top: 2rem;
+}
+
 h1 {
-  font-size: 2.25rem;
+  font-size: 3.25rem;
+  font-weight: 800;
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
 }
 
 h3 {
-  font-size: 1.125rem;
+  font-size: 1.75rem;
 }
 
 h4 {
-  font-size: 1rem;
+  font-size: 1.3rem;
 }
 
 h5 {
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 
-@media (min-width: 50em) {
-  h1 {
-    font-size: 3.25rem;
-    font-weight: 800;
-  }
+p {
+  line-height: 1.65em;
+}
 
-  h2 {
-    font-size: 2rem;
-  }
-
-  h3 {
-    font-size: 1.25rem;
-  }
+.content ul {
+  line-height: 1.1em;
 }
 
 p,
