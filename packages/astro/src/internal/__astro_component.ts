@@ -18,9 +18,10 @@ const customGenerator: Generator = {
     }
   },
 };
-const serialize = (value: Value) => generate(valueToEstree(value), {
-  generator: customGenerator,
-});
+const serialize = (value: Value) =>
+  generate(valueToEstree(value), {
+    generator: customGenerator,
+  });
 
 export interface RendererInstance {
   source: string | null;
