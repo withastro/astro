@@ -228,10 +228,6 @@ export class TypeScriptDocumentSnapshot implements DocumentSnapshot {
 
   getOriginalPosition(pos: Position): Position {
     return pos;
-    /*return {
-      line: 0,
-      character: 0
-    };*/
   }
 
   destroyFragment() {
