@@ -18,4 +18,4 @@ jobs:
           # DISCORD_AVATAR: ${{ github.event.pull_request.user.avatar_url }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: '**Sweet!** [@${{ github.event.commits[0].author.login }}](<${{ github.event.commits[0].author.url }}>) just merged [${{ github.event.commits[0].message }}](<${{github.event.commits[0].html_url}}>)'
+          args: '**Sweet!** ${{ github.event.commits[0].author.name }} just merged ["${{ github.event.commits[0].message }}"](<${{github.event.repository.commits_url}}>)'
