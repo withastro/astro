@@ -1,16 +1,24 @@
-import { join as pathJoin, dirname as pathDirname } from 'path';
-import { Document, DocumentManager, isInsideFrontmatter } from '../../core/documents';
 import type { ConfigManager } from '../../core/config';
 import type { CompletionsProvider, AppCompletionItem, AppCompletionList } from '../interfaces';
+import type {
+  CancellationToken,
+  Hover,
+  SignatureHelp,
+  SignatureHelpContext
+} from 'vscode-languageserver';
+import { join as pathJoin, dirname as pathDirname } from 'path';
+import { Document, DocumentManager, isInsideFrontmatter } from '../../core/documents';
 import { SourceFile, ImportDeclaration, Node, SyntaxKind } from 'typescript';
 import { CompletionContext, DefinitionLink, FileChangeType, Position, LocationLink } from 'vscode-languageserver';
 import * as ts from 'typescript';
-import { CompletionsProviderImpl, CompletionEntryWithIdentifer } from './features/CompletionsProvider';
 import { LanguageServiceManager } from './LanguageServiceManager';
 import { SnapshotManager } from './SnapshotManager';
 import { convertToLocationRange, isVirtualAstroFilePath, isVirtualFilePath, getScriptKindFromFileName } from './utils';
-import { isNoTextSpanInGeneratedCode, SnapshotFragmentMap } from './features/utils';
 import { isNotNullOrUndefined, pathToUrl } from '../../utils';
+import { CompletionsProviderImpl, CompletionEntryWithIdentifer } from './features/CompletionsProvider';
+import { HoverProviderImpl } from './features/HoverProvider';
+import { isNoTextSpanInGeneratedCode, SnapshotFragmentMap } from './features/utils';
+import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
 
 type BetterTS = typeof ts & {
   getTouchingPropertyName(sourceFile: SourceFile, pos: number): Node;
@@ -20,8 +28,11 @@ export class TypeScriptPlugin implements CompletionsProvider {
   private readonly docManager: DocumentManager;
   private readonly configManager: ConfigManager;
   private readonly languageServiceManager: LanguageServiceManager;
+  public pluginName = 'TypeScript';
 
   private readonly completionProvider: CompletionsProviderImpl;
+  private readonly hoverProvider: HoverProviderImpl;
+  private readonly signatureHelpProvider: SignatureHelpProviderImpl;
 
   constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
     this.docManager = docManager;
@@ -29,6 +40,12 @@ export class TypeScriptPlugin implements CompletionsProvider {
     this.languageServiceManager = new LanguageServiceManager(docManager, configManager, workspaceUris);
 
     this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager);
+    this.hoverProvider = new HoverProviderImpl(this.languageServiceManager);
+    this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
+  }
+
+  async doHover(document: Document, position: Position): Promise<Hover | null> {
+    return this.hoverProvider.doHover(document, position);
   }
 
   async getCompletions(document: Document, position: Position, completionContext?: CompletionContext): Promise<AppCompletionList<CompletionEntryWithIdentifer> | null> {
@@ -115,6 +132,20 @@ export class TypeScriptPlugin implements CompletionsProvider {
 
       snapshotManager.updateProjectFile(fileName);
     }
+  }
+
+  async getSignatureHelp(
+    document: Document,
+    position: Position,
+    context: SignatureHelpContext | undefined,
+    cancellationToken?: CancellationToken
+  ): Promise<SignatureHelp | null> {
+      return this.signatureHelpProvider.getSignatureHelp(
+          document,
+          position,
+          context,
+          cancellationToken
+      );
   }
 
   /**

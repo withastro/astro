@@ -1,8 +1,19 @@
-import { CompletionContext, CompletionItem, CompletionList, DefinitionLink, Location, Position, TextDocumentIdentifier } from 'vscode-languageserver';
+import type {
+  CancellationToken,
+  CompletionContext,
+  CompletionItem,
+  DefinitionLink,
+  Location,
+  Position,
+  SignatureHelp,
+  SignatureHelpContext,
+  TextDocumentIdentifier
+} from 'vscode-languageserver';
 import type { DocumentManager } from '../core/documents';
 import type * as d from './interfaces';
 import { flatten } from '../utils';
-import { FoldingRange } from 'vscode-languageserver-types';
+import { CompletionList } from 'vscode-languageserver';
+import { Hover, FoldingRange } from 'vscode-languageserver-types';
 
 enum ExecuteMode {
   None,
@@ -60,6 +71,15 @@ export class PluginHost {
     return result ?? completionItem;
   }
 
+  async doHover(textDocument: TextDocumentIdentifier, position: Position): Promise<Hover | null> {
+    const document = this.getDocument(textDocument.uri);
+    if (!document) {
+        throw new Error('Cannot call methods on an unopened document');
+    }
+
+    return this.execute<Hover>('doHover', [document, position], ExecuteMode.FirstNonNull);
+  }
+
   async doTagComplete(textDocument: TextDocumentIdentifier, position: Position): Promise<string | null> {
     const document = this.getDocument(textDocument.uri);
     if (!document) {
@@ -95,6 +115,24 @@ export class PluginHost {
     }
   }
 
+  async getSignatureHelp(
+    textDocument: TextDocumentIdentifier,
+    position: Position,
+    context: SignatureHelpContext | undefined,
+    cancellationToken: CancellationToken
+  ): Promise<SignatureHelp | null> {
+      const document = this.getDocument(textDocument.uri);
+      if (!document) {
+          throw new Error('Cannot call methods on an unopened document');
+      }
+
+      return await this.execute<any>(
+          'getSignatureHelp',
+          [document, position, context, cancellationToken],
+          ExecuteMode.FirstNonNull
+      );
+  }
+
   onWatchFileChanges(onWatchFileChangesParams: any[]): void {
     for (const support of this.plugins) {
       support.onWatchFileChanges?.(onWatchFileChangesParams);
@@ -121,7 +159,10 @@ export class PluginHost {
         }
         return null;
       case ExecuteMode.Collect:
-        return Promise.all(plugins.map((plugin) => this.tryExecutePlugin(plugin, name, args, [])));
+        return Promise.all(plugins.map((plugin) => {
+          let ret = this.tryExecutePlugin(plugin, name, args, []);
+          return ret;
+        }));
       case ExecuteMode.None:
         await Promise.all(plugins.map((plugin) => this.tryExecutePlugin(plugin, name, args, null)));
         return;

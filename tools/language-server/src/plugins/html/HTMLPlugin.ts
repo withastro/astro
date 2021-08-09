@@ -11,6 +11,7 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
   private documents = new WeakMap<Document, HTMLDocument>();
   private styleScriptTemplate = new Set(['template', 'style', 'script']);
   private configManager: ConfigManager;
+  public pluginName = 'HTML';
 
   constructor(docManager: DocumentManager, configManager: ConfigManager) {
     docManager.on('documentChange', (document) => {

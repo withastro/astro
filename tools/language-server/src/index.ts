@@ -64,6 +64,11 @@ export function startServer() {
             ':',
           ],
         },
+        hoverProvider: true,
+        signatureHelpProvider: {
+          triggerCharacters: ['(', ',', '<'],
+          retriggerCharacters: [')']
+        }
       },
     };
   });
@@ -107,9 +112,11 @@ export function startServer() {
 
     return pluginHost.resolveCompletion(data, completionItem);
   });
+  connection.onHover((evt) => pluginHost.doHover(evt.textDocument, evt.position));
   connection.onDefinition((evt) => pluginHost.getDefinitions(evt.textDocument, evt.position));
   connection.onFoldingRanges((evt) => pluginHost.getFoldingRanges(evt.textDocument));
   connection.onRequest(TagCloseRequest, (evt: any) => pluginHost.doTagComplete(evt.textDocument, evt.position));
+  connection.onSignatureHelp((evt, cancellationToken) => pluginHost.getSignatureHelp(evt.textDocument, evt.position, evt.context, cancellationToken));
 
   connection.listen();
 }

@@ -26,6 +26,7 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
   private readonly docManager: DocumentManager;
   private readonly configManager: ConfigManager;
   private readonly tsLanguageServiceManager: TypeScriptLanguageServiceManager;
+  public pluginName = 'Astro';
 
   constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
     this.docManager = docManager;
