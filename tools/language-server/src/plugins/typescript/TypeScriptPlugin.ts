@@ -62,9 +62,9 @@ export class TypeScriptPlugin implements CompletionsProvider {
     }
 
     // Resolve all imports if we can
-    if(this.goToDefinitionFoundOnlyAlias(tsFilePath, defs.definitions!)) {
+    if (this.goToDefinitionFoundOnlyAlias(tsFilePath, defs.definitions!)) {
       let importDef = this.getGoToDefinitionRefsForImportSpecifier(tsFilePath, fragmentOffset, lang);
-      if(importDef) {
+      if (importDef) {
         defs = importDef;
       }
     }
@@ -130,9 +130,7 @@ export class TypeScriptPlugin implements CompletionsProvider {
   }
 
   private goToDefinitionFoundOnlyAlias(tsFileName: string, defs: readonly ts.DefinitionInfo[]) {
-    return !!(defs.length === 1 &&
-      defs[0].kind === 'alias' &&
-      defs[0].fileName === tsFileName);
+    return !!(defs.length === 1 && defs[0].kind === 'alias' && defs[0].fileName === tsFileName);
   }
 
   private getGoToDefinitionRefsForImportSpecifier(tsFilePath: string, offset: number, lang: ts.LanguageService): ts.DefinitionInfoAndBoundSpan | undefined {
@@ -140,29 +138,31 @@ export class TypeScriptPlugin implements CompletionsProvider {
     const sourceFile = program?.getSourceFile(tsFilePath);
     if (sourceFile) {
       let node = (ts as BetterTS).getTouchingPropertyName(sourceFile, offset);
-      if(node && node.kind === SyntaxKind.Identifier) {
-        if(node.parent.kind === SyntaxKind.ImportClause) {
+      if (node && node.kind === SyntaxKind.Identifier) {
+        if (node.parent.kind === SyntaxKind.ImportClause) {
           let decl = node.parent.parent as ImportDeclaration;
           let spec = ts.isStringLiteral(decl.moduleSpecifier) && decl.moduleSpecifier.text;
-          if(spec) {
+          if (spec) {
             let fileName = pathJoin(pathDirname(tsFilePath), spec);
             let start = node.pos + 1;
             let def: ts.DefinitionInfoAndBoundSpan = {
-              definitions: [{
-                kind: 'alias',
-                fileName,
-                name: '',
-                containerKind: '',
-                containerName: '',
-                textSpan: {
-                  start: 0,
-                  length: 0
-                }
-              } as ts.DefinitionInfo],
+              definitions: [
+                {
+                  kind: 'alias',
+                  fileName,
+                  name: '',
+                  containerKind: '',
+                  containerName: '',
+                  textSpan: {
+                    start: 0,
+                    length: 0,
+                  },
+                } as ts.DefinitionInfo,
+              ],
               textSpan: {
                 start,
-                length: node.end - start
-              }
+                length: node.end - start,
+              },
             };
             return def;
           }

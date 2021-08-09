@@ -74,9 +74,11 @@ class AstroDocumentSnapshot implements DocumentSnapshot {
 
   /** @internal */
   private transformContent(content: string) {
-    return content.replace(/---/g, '///') +
-    // TypeScript needs this to know there's a default export.
-    FILLER_DEFAULT_EXPORT;
+    return (
+      content.replace(/---/g, '///') +
+      // TypeScript needs this to know there's a default export.
+      FILLER_DEFAULT_EXPORT
+    );
   }
 
   get filePath() {
@@ -138,9 +140,11 @@ export class DocumentFragmentSnapshot implements Omit<DocumentSnapshot, 'getFrag
 
   /** @internal */
   private transformContent(content: string) {
-    return content.replace(/---/g, '///') +
-    // TypeScript needs this to know there's a default export.
-    FILLER_DEFAULT_EXPORT;
+    return (
+      content.replace(/---/g, '///') +
+      // TypeScript needs this to know there's a default export.
+      FILLER_DEFAULT_EXPORT
+    );
   }
 
   getText(start: number, end: number) {
