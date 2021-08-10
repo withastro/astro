@@ -1,14 +1,13 @@
 type AstroRenderedHTML = string;
 
-interface FetchContentResult {
+type FetchContentResult<ContentFrontmatter extends Record<string, any> = Record<string, any>> = {
   astro: {
     headers: string[];
     source: string;
     html: AstroRenderedHTML;
   };
   url: URL;
-  [key: string]: any;
-}
+} & ContentFrontmatter;
 
 interface AstroPageRequest {
   url: URL;
@@ -17,7 +16,7 @@ interface AstroPageRequest {
 
 interface Astro {
   isPage: boolean;
-  fetchContent(globStr: string): FetchContentResult[];
+  fetchContent<ContentFrontmatter>(globStr: string): FetchContentResult<ContentFrontmatter>[];
   props: Record<string, number | string | any>;
   request: AstroPageRequest;
   site: URL;
