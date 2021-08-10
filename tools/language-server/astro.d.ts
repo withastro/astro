@@ -24,4 +24,4 @@ interface Astro {
 
 declare const Astro: Astro;
 
-export default function(): string;
+export default function (): string;

@@ -34,8 +34,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
 
     const offset = document.offsetAt(position);
 
-    const entries =
-      lang.getCompletionsAtPosition(fragment.filePath, offset, completionOptions)?.entries || [];
+    const entries = lang.getCompletionsAtPosition(fragment.filePath, offset, completionOptions)?.entries || [];
 
     const completionItems = entries
       .map((entry: ts.CompletionEntry) => this.toCompletionItem(fragment, entry, document.uri, position, new Set()))

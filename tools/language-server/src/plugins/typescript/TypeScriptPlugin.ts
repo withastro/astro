@@ -1,11 +1,6 @@
 import type { ConfigManager } from '../../core/config';
 import type { CompletionsProvider, AppCompletionItem, AppCompletionList } from '../interfaces';
-import type {
-  CancellationToken,
-  Hover,
-  SignatureHelp,
-  SignatureHelpContext
-} from 'vscode-languageserver';
+import type { CancellationToken, Hover, SignatureHelp, SignatureHelpContext } from 'vscode-languageserver';
 import { join as pathJoin, dirname as pathDirname } from 'path';
 import { Document, DocumentManager, isInsideFrontmatter } from '../../core/documents';
 import { SourceFile, ImportDeclaration, Node, SyntaxKind } from 'typescript';
@@ -134,18 +129,8 @@ export class TypeScriptPlugin implements CompletionsProvider {
     }
   }
 
-  async getSignatureHelp(
-    document: Document,
-    position: Position,
-    context: SignatureHelpContext | undefined,
-    cancellationToken?: CancellationToken
-  ): Promise<SignatureHelp | null> {
-      return this.signatureHelpProvider.getSignatureHelp(
-          document,
-          position,
-          context,
-          cancellationToken
-      );
+  async getSignatureHelp(document: Document, position: Position, context: SignatureHelpContext | undefined, cancellationToken?: CancellationToken): Promise<SignatureHelp | null> {
+    return this.signatureHelpProvider.getSignatureHelp(document, position, context, cancellationToken);
   }
 
   /**

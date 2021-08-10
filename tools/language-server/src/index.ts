@@ -67,8 +67,8 @@ export function startServer() {
         hoverProvider: true,
         signatureHelpProvider: {
           triggerCharacters: ['(', ',', '<'],
-          retriggerCharacters: [')']
-        }
+          retriggerCharacters: [')'],
+        },
       },
     };
   });

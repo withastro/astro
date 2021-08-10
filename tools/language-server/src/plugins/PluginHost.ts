@@ -7,7 +7,7 @@ import type {
   Position,
   SignatureHelp,
   SignatureHelpContext,
-  TextDocumentIdentifier
+  TextDocumentIdentifier,
 } from 'vscode-languageserver';
 import type { DocumentManager } from '../core/documents';
 import type * as d from './interfaces';
@@ -74,7 +74,7 @@ export class PluginHost {
   async doHover(textDocument: TextDocumentIdentifier, position: Position): Promise<Hover | null> {
     const document = this.getDocument(textDocument.uri);
     if (!document) {
-        throw new Error('Cannot call methods on an unopened document');
+      throw new Error('Cannot call methods on an unopened document');
     }
 
     return this.execute<Hover>('doHover', [document, position], ExecuteMode.FirstNonNull);
@@ -121,16 +121,12 @@ export class PluginHost {
     context: SignatureHelpContext | undefined,
     cancellationToken: CancellationToken
   ): Promise<SignatureHelp | null> {
-      const document = this.getDocument(textDocument.uri);
-      if (!document) {
-          throw new Error('Cannot call methods on an unopened document');
-      }
+    const document = this.getDocument(textDocument.uri);
+    if (!document) {
+      throw new Error('Cannot call methods on an unopened document');
+    }
 
-      return await this.execute<any>(
-          'getSignatureHelp',
-          [document, position, context, cancellationToken],
-          ExecuteMode.FirstNonNull
-      );
+    return await this.execute<any>('getSignatureHelp', [document, position, context, cancellationToken], ExecuteMode.FirstNonNull);
   }
 
   onWatchFileChanges(onWatchFileChangesParams: any[]): void {
@@ -159,10 +155,12 @@ export class PluginHost {
         }
         return null;
       case ExecuteMode.Collect:
-        return Promise.all(plugins.map((plugin) => {
-          let ret = this.tryExecutePlugin(plugin, name, args, []);
-          return ret;
-        }));
+        return Promise.all(
+          plugins.map((plugin) => {
+            let ret = this.tryExecutePlugin(plugin, name, args, []);
+            return ret;
+          })
+        );
       case ExecuteMode.None:
         await Promise.all(plugins.map((plugin) => this.tryExecutePlugin(plugin, name, args, null)));
         return;

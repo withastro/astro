@@ -6,7 +6,7 @@ import { isInTag, positionAt, offsetAt } from '../../core/documents/utils';
 import { pathToUrl } from '../../utils';
 import { getScriptKindFromFileName, isAstroFilePath, toVirtualAstroFilePath } from './utils';
 
-const ASTRO_DEFINITION =  readFileSync(require.resolve('../../../astro.d.ts'));
+const ASTRO_DEFINITION = readFileSync(require.resolve('../../../astro.d.ts'));
 
 /**
  * The mapper to get from original snapshot positions to generated and vice versa.
@@ -75,9 +75,11 @@ class AstroDocumentSnapshot implements DocumentSnapshot {
 
   /** @internal */
   private transformContent(content: string) {
-    return content.replace(/---/g, '///') +
-    // Add TypeScript definitions
-    ASTRO_DEFINITION;
+    return (
+      content.replace(/---/g, '///') +
+      // Add TypeScript definitions
+      ASTRO_DEFINITION
+    );
   }
 
   get filePath() {
@@ -139,9 +141,11 @@ export class DocumentFragmentSnapshot implements Omit<DocumentSnapshot, 'getFrag
 
   /** @internal */
   private transformContent(content: string) {
-    return content.replace(/---/g, '///') +
-    // Add TypeScript definitions
-    ASTRO_DEFINITION;
+    return (
+      content.replace(/---/g, '///') +
+      // Add TypeScript definitions
+      ASTRO_DEFINITION
+    );
   }
 
   getText(start: number, end: number) {
