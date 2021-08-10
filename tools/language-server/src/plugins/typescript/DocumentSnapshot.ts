@@ -1,11 +1,12 @@
 import * as ts from 'typescript';
+import { readFileSync } from 'fs';
 import { TextDocumentContentChangeEvent, Position } from 'vscode-languageserver';
 import { Document, DocumentMapper, IdentityMapper } from '../../core/documents';
 import { isInTag, positionAt, offsetAt } from '../../core/documents/utils';
 import { pathToUrl } from '../../utils';
 import { getScriptKindFromFileName, isAstroFilePath, toVirtualAstroFilePath } from './utils';
 
-const FILLER_DEFAULT_EXPORT = `\nexport default function() { return ''; };`;
+const ASTRO_DEFINITION = readFileSync(require.resolve('../../../astro.d.ts'));
 
 /**
  * The mapper to get from original snapshot positions to generated and vice versa.
@@ -76,8 +77,8 @@ class AstroDocumentSnapshot implements DocumentSnapshot {
   private transformContent(content: string) {
     return (
       content.replace(/---/g, '///') +
-      // TypeScript needs this to know there's a default export.
-      FILLER_DEFAULT_EXPORT
+      // Add TypeScript definitions
+      ASTRO_DEFINITION
     );
   }
 
@@ -142,8 +143,8 @@ export class DocumentFragmentSnapshot implements Omit<DocumentSnapshot, 'getFrag
   private transformContent(content: string) {
     return (
       content.replace(/---/g, '///') +
-      // TypeScript needs this to know there's a default export.
-      FILLER_DEFAULT_EXPORT
+      // Add TypeScript definitions
+      ASTRO_DEFINITION
     );
   }
 

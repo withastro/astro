@@ -194,11 +194,13 @@ export async function __renderPage({request, children, props, css}) {
 
   const isLayout = (__astroContext in props);
   if(!isLayout) {
+    let astroRootUIDCounter = 0;
     Object.defineProperty(props, __astroContext, {
       value: {
         pageCSS: css,
         resolve: __TopLevelAstro.resolve,
         request,
+        createAstroRootUID(seed) { return seed + astroRootUIDCounter++; },
       },
       writable: false,
       enumerable: false
