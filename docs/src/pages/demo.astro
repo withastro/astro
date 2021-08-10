@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/ExamplesLayout.astro'
+import Thumbnail from '../components/Examples/Thumbnail.astro'
+import templateData from '../components/Examples/function-generate-examples-data.js'
+let data = await templateData()
+---
+<Layout content={data}>
+   {data.map((item)=>(
+       <Thumbnail data={item}/>
+   ))}
+</Layout>
