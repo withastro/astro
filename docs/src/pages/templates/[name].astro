@@ -1,0 +1,71 @@
+---
+import templateData from '../../components/Examples/Functions/get-examples-data.js'
+export async function getStaticPaths() {
+  const data = await templateData()
+  return data.map((example)=>({
+    params:{
+      name: example.name
+    },
+      props:{
+        example
+      }
+  }));
+}
+const {name} = Astro.request.params
+const {example} = Astro.props
+let {name:title,pkgJSON,readme=""} = example
+const {description, keywords} = pkgJSON
+
+import Layout from '../../layouts/ExamplesLayout.astro'
+import capitalise from '../../components/Examples/Functions/capitalise.js'
+import formatName from '../../components/Examples/Functions/format-name.js'
+import {Markdown} from 'astro/components'
+import CollapsibleReadme from '../../components/Examples/CollapsibleReadme.astro'
+import getHeroImg from '../../components/Examples/Functions/get-hero-img.js'
+const getImg = await getHeroImg()
+
+let templateTitle = formatName(title)
+---
+<Layout>
+    <div class="imgWrapper">
+        <img class="post-img" src={`${getImg}`} alt="" height="600px" width="100%">
+        <h1>{templateTitle} Template</h1>
+    </div>
+    <Markdown content = {description}/>
+    <Markdown>
+        ## Getting Started
+        
+        To start using the {templateTitle} template, enter the following into your terminal
+    </Markdown>
+    <pre data-lang="bash" class="lang-bash">npm init astro my-astro-project -- --template {name}</pre>
+    <div class="external-links">
+        <a rel="noopener noreferrer nofollow" target="_blank" href={`https://githubbox.com/snowpackjs/astro/tree/main/examples/${name}`}>
+            <img src="https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=flat-square&logo=codesandbox"/>
+        </a>
+        <a rel="noopener noreferrer nofollow" target="_blank" href={`https://app.netlify.com/start/deploy?repository=https://github.com/snowpackjs/astro/tree/main/examples/${name}`}>
+            <img src="https://www.netlify.com/img/deploy/button.svg"/>
+        </a>
+        
+    </div>
+
+    <div>
+        <CollapsibleReadme label={`${templateTitle} Readme`} readme={readme}/>
+    </div>
+        
+</Layout>
+<style lang="scss">
+    :root{
+        scroll-behavior: smooth;
+    }
+    .external-links{
+        margin-top: 2.5%;
+        display: flex;
+        flex-wrap: nowrap;
+        align-content: flex-start;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+    .post-img{
+        clip-path: inset(0 0 0 0 round 5% 20% 0 10%);
+     }
+</style>

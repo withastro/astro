@@ -219,6 +219,7 @@ pre {
   --padding-inline: 2rem;
   padding: var(--padding-block) var(--padding-inline);
   padding-right: calc(var(--padding-inline) * 2);
+  margin-top: calc(var(--padding-inline) * 0.5);
   margin-left: calc(var(--padding-inline) * -1);
   margin-right: calc(var(--padding-inline) * -1);
   font-family: var(--font-mono);

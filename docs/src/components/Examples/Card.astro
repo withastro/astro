@@ -1,0 +1,51 @@
+---
+
+import capitalise from './Functions/capitalise.js'
+import formatName from './Functions/format-name.js'
+import getThumbnailIcon from './Functions/get-thumbnail-icon.js'
+import getHeroImg from './Functions/get-hero-img.js'
+
+import  CardLink from './CardLink.tsx'
+import CardImage from './CardImage.astro'
+import CodeBar from './Codebar.tsx'
+import CardButtons from './CardButtons.astro'
+
+const {data:{name,readme="",pkgJSON:{description,keywords,repository}}} = Astro.props
+
+const getThumbnail = async() =>{
+    if(keywords.includes('framework') && !name.match('framework-multiple') || name.match('with-tailwindcss') || name.match('snowpack') || name.match('with-nanostores')){
+        return `/icons/framework-thumbnails/${name}.svg`
+    }
+
+   let avatarSrc = await getThumbnailIcon() || '/icons/space-icons-rounded-small/048-space.svg' 
+    return avatarSrc
+}
+
+const href = `/templates/${name}`
+---
+
+<div class="card-wrapper">
+    <article class="card">
+        <CardLink client:load href={href} name={`${formatName(name)}`} }>
+        <CardImage client:load  />
+        <div class="card-body">
+            <div class="card-avatar">
+                <img src={await getThumbnail()} alt="A Randomised Thumbnail Image" class="icon-image ball" />
+            </div>
+            <div class="card-content">
+                <a href={href} class="main-link">
+                    <h3 class="title">
+                        {formatName(name)}
+                    </h3>
+                </a>
+                <CodeBar client:load content={name} command={`npm init astro my-astro-project -- --template ${name}`}/>
+                
+            </div>
+            <CardButtons dir={repository.directory} />
+        </div>
+        </CardLink>  
+    </article>
+</div>    
+<style lang="scss" >
+    @import'./card.scss';
+</style>

@@ -2,6 +2,13 @@
   "name": "@example/with-markdown-plugins",
   "version": "0.0.2",
   "private": true,
+  "description": "Using Markdown along with Rehype and Remark Plugins with Astro",
+  "keywords": ["kitchen-sink","template","astro"],
+  "repository": {
+    "directory": "/examples/with-markdown-plugins",
+    "type": "github",
+    "url": "https://github.com/snowpackjs/astro/tree/main"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

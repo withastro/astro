@@ -2,6 +2,13 @@
   "name": "@example/with-tailwindcss",
   "version": "0.0.1",
   "private": true,
+  "description": "Astro has native TailwindCSS support out-of-the-box. This template demonstrates how to use Tailwind to style your Astro project",
+  "keywords": ["kitchen-sink","template","astro"],
+  "repository": {
+    "directory": "/examples/with-tailwindcss",
+    "type": "github",
+    "url": "https://github.com/snowpackjs/astro/tree/main"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

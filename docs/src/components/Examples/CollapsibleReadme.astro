@@ -1,0 +1,95 @@
+---
+import {Markdown} from 'astro/components'
+export interface Props{
+    label:string;
+    readme:string;
+}
+const {label,readme} = Astro.props
+---
+    <div class="wrap-collapsible">
+        <input type="checkbox" id="collapsible" class="toggle">
+        <label for="collapsible" class="lbl-toggle">{label}</label>
+        <div class="collapsible-content">
+            <div class="content-inner">
+                <Markdown content = {readme} />
+            </div>
+        </div>
+    </div>
+
+
+
+<style lang="css">
+.wrap-collabsible {
+  margin-bottom: 1.2rem 0;
+  will-change: auto;
+  scroll-behavior: smooth;
+}
+
+input[type='checkbox'] {
+  display: none;
+}
+
+.lbl-toggle {
+  display: block;
+
+  font-weight: bold;
+  font-family: monospace;
+  font-size: xx-large;
+  text-transform: uppercase;
+  text-align: left;
+
+  padding: 1rem;
+
+  color: var(--theme-color);
+  background: var(--theme-background);
+
+  cursor: pointer;
+
+  border-radius: 7px;
+  transition: all 0.25s ease-out;
+}
+
+.lbl-toggle:hover {
+  color: #7C5A0B;
+}
+
+.lbl-toggle::before {
+  content: ' ';
+  display: inline-block;
+
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 5px solid currentColor;
+  vertical-align: middle;
+  margin-right: .7rem;
+  transform: translateY(-2px);
+
+  transition: transform .2s ease-out;
+}
+
+.toggle:checked + .lbl-toggle::before {
+  transform: rotate(90deg) translateX(-3px);
+}
+
+.collapsible-content {
+  max-height: 0px;
+  overflow: hidden;
+  transition: max-height 1.5s ease-in;
+  will-change: transform;
+}
+
+.toggle:checked + .lbl-toggle + .collapsible-content {
+  max-height: 100%;
+
+}
+
+.toggle:checked + .lbl-toggle {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.collapsible-content .content-inner {
+  padding: .5rem 1rem;
+}
+
+</style>

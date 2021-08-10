@@ -1,0 +1,14 @@
+---
+import Layout from '../layouts/ExamplesLayout.astro'
+import templateData from '../components/Examples/function-generate-examples-data.js'
+import Card from '../components/Examples/Card.astro'
+
+let data = await templateData()
+
+---
+
+    <Layout content={data}>
+      {data.filter(item=> (item.pkgJSON?.keywords?.includes('create-astro')))
+                .sort((a,b)=> ((a.name === 'starter')? -1 : 1))
+                .map((item)=>(<Card data={item}/>))}
+    </Layout>
