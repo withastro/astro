@@ -115,8 +115,7 @@ Steward is an additional privilege bestowed to 1 (or more) Contributors. The rol
 Certain project decisions require a vote. These include:
 
 - Governance changes: simple majority (over 50%) conducted via GitHub PR approval.
-- Core contributor membership: overwhelming majority (over 70%) conducted by privately messaging a steward. Funneling both assenting and dissenting votes directly through stewards allows for anonymity when discussing the merits of a potential contributor.
-- Committer contributor membership: discussion conducted via a thread with all existing L2 contributors. Thread will be deleted once a decision is made.
+- Contributor membership (L2 and L3): discussion via a temporary channel with qualified contributors for up to 3 days. overwhelming majority (over 70%) vote conducted by privately messaging a steward. Funneling both assenting and dissenting votes directly through stewards allows for anonymity when discussing the merits of a potential contributor.
 
 A steward may initiate a vote for any unlisted project decision. Core contributors can request a vote by contacting a steward.
 
