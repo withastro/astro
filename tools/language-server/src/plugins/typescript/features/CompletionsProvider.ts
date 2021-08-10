@@ -1,10 +1,17 @@
+import type { CompletionContext, CompletionItem, Position, TextDocumentIdentifier, MarkupContent } from 'vscode-languageserver';
+import type { LanguageServiceManager } from '../LanguageServiceManager';
 import { isInsideFrontmatter } from '../../../core/documents/utils';
 import { Document } from '../../../core/documents';
 import * as ts from 'typescript';
-import { CompletionContext, CompletionList, CompletionItem, Position, TextDocumentIdentifier, TextEdit, MarkupKind, MarkupContent } from 'vscode-languageserver';
+import { CompletionList, MarkupKind } from 'vscode-languageserver';
 import { AppCompletionItem, AppCompletionList, CompletionsProvider } from '../../interfaces';
-import type { LanguageServiceManager } from '../LanguageServiceManager';
-import { scriptElementKindToCompletionItemKind, getCommitCharactersForScriptElement } from '../utils';
+import { scriptElementKindToCompletionItemKind, getCommitCharactersForScriptElement, toVirtualAstroFilePath } from '../utils';
+
+const completionOptions: ts.GetCompletionsAtPositionOptions = Object.freeze({
+  importModuleSpecifierPreference: 'relative',
+  importModuleSpecifierEnding: 'js',
+  quotePreference: 'single',
+});
 
 export interface CompletionEntryWithIdentifer extends ts.CompletionEntry, TextDocumentIdentifier {
   position: Position;
@@ -13,7 +20,7 @@ export interface CompletionEntryWithIdentifer extends ts.CompletionEntry, TextDo
 export class CompletionsProviderImpl implements CompletionsProvider<CompletionEntryWithIdentifer> {
   constructor(private lang: LanguageServiceManager) {}
 
-  async getCompletions(document: Document, position: Position, completionContext?: CompletionContext): Promise<AppCompletionList<CompletionEntryWithIdentifer> | null> {
+  async getCompletions(document: Document, position: Position, _completionContext?: CompletionContext): Promise<AppCompletionList<CompletionEntryWithIdentifer> | null> {
     // TODO: handle inside expression
     if (!isInsideFrontmatter(document.getText(), document.offsetAt(position))) {
       return null;
@@ -26,12 +33,9 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
     const fragment = await tsDoc.getFragment();
 
     const offset = document.offsetAt(position);
+
     const entries =
-      lang.getCompletionsAtPosition(fragment.filePath, offset, {
-        importModuleSpecifierPreference: 'relative',
-        importModuleSpecifierEnding: 'js',
-        quotePreference: 'single',
-      })?.entries || [];
+      lang.getCompletionsAtPosition(fragment.filePath, offset, completionOptions)?.entries || [];
 
     const completionItems = entries
       .map((entry: ts.CompletionEntry) => this.toCompletionItem(fragment, entry, document.uri, position, new Set()))
@@ -44,18 +48,22 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
     const { data: comp } = completionItem;
     const { tsDoc, lang } = await this.lang.getTypeScriptDoc(document);
 
-    let filePath = tsDoc.filePath;
+    let filePath = toVirtualAstroFilePath(tsDoc.filePath);
 
     if (!comp || !filePath) {
       return completionItem;
     }
 
-    if (filePath.endsWith('.astro')) {
-      filePath = filePath + '.ts';
-    }
-
     const fragment = await tsDoc.getFragment();
-    const detail = lang.getCompletionEntryDetails(filePath, fragment.offsetAt(comp.position), comp.name, {}, comp.source, {}, undefined);
+    const detail = lang.getCompletionEntryDetails(
+      filePath, // fileName
+      fragment.offsetAt(comp.position), // position
+      comp.name, // entryName
+      {}, // formatOptions
+      comp.source, // source
+      {}, // preferences
+      comp.data // data
+    );
 
     if (detail) {
       const { detail: itemDetail, documentation: itemDocumentation } = this.getCompletionDocument(detail);
@@ -63,30 +71,6 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
       completionItem.detail = itemDetail;
       completionItem.documentation = itemDocumentation;
     }
-
-    // const actions = detail?.codeActions;
-    // const isImport = !!detail?.source;
-
-    // TODO: handle actions
-    // if (actions) {
-    //   const edit: TextEdit[] = [];
-
-    //   for (const action of actions) {
-    //     for (const change of action.changes) {
-    //       edit.push(
-    //         ...this.codeActionChangesToTextEdit(
-    //           document,
-    //           fragment,
-    //           change,
-    //           isImport,
-    //           isInsideFrontmatter(fragment.getFullText(), fragment.offsetAt(comp.position))
-    //         )
-    //       );
-    //     }
-    //   }
-
-    //   completionItem.additionalTextEdits = edit;
-    // }
 
     return completionItem;
   }

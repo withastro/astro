@@ -16,6 +16,7 @@ export class CSSPlugin implements CompletionsProvider {
   private configManager: ConfigManager;
   private documents = new WeakMap<Document, CSSDocument>();
   private triggerCharacters = new Set(['.', ':', '-', '/']);
+  public pluginName = 'CSS';
 
   constructor(docManager: DocumentManager, configManager: ConfigManager) {
     this.docManager = docManager;
