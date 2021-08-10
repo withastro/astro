@@ -1,0 +1,38 @@
+---
+import templateData from '../components/Examples/function-generate-examples-data.js'
+
+export async function createCollection(){
+    //data goes in here
+    const dataset = await templateData()
+    const listOfTemplates = dataset.map((templates)=>(templates.name)) ; 
+    // console.log(listOfTemplates)
+    return{
+        route:'/example/:name',
+        paths(){
+            return listOfTemplates.map((path)=>({
+                params:{
+                    name: path
+                }
+            }))
+        },
+        async props({params}){
+          let example = dataset.filter((example)=>example.name === params.name)
+           return{
+               name:params.name,
+               data: example
+           } 
+            
+        }
+    }
+}
+const {name, data} = Astro.props 
+console.log(data)
+---
+<html lang="en">
+  <head>
+    <title>{name}</head>
+  <body>
+    <h1>{name}</h1>
+    {data.map(item=>item.readme)}
+  </body>
+</html>

@@ -1,0 +1,38 @@
+---
+import {Markdown} from 'astro/components'
+
+const {data:{name,readme,pkgJSON:{description,keywords}}} = Astro.props
+
+            
+let command = `npm init astro my-astro-project -- --template ${name}`
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}
+---
+   
+
+<div class="">
+        <img src="" alt="">
+        <h3>{
+            name.startsWith('framework')
+                ?
+                `${capitalize(name.split('-')[1])} ${capitalize(name.split('-')[0])}`
+                :
+                name
+                    .split('-')
+                    .map((str)=>(
+                        str.replace('with','')
+                    ))
+                    .map((str)=>(capitalize(str)))
+                    .join(' ')
+            }
+        </h3>
+        <p>{keywords? keywords.toString(): ''}</p>
+        <p>{description}</p>
+        <br>
+        <pre data-lang='bash'>
+        {command}
+        </pre>
+</div>
+

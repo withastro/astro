@@ -1,5 +1,7 @@
 {
   "name": "@example/blog",
+  "description": "A Blog built using Astro",
+  "keywords": ["create-astro"],
   "version": "0.0.1",
   "private": true,
   "scripts": {

@@ -1,3 +1,8 @@
+---
+title: "Astro's Blog Kit"
+tag: "create-astro"
+---
+
 # Astro Starter Kit: Blog
 
 ```
