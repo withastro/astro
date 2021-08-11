@@ -1,5 +1,11 @@
 # astro
 
+## 0.18.12
+
+### Patch Changes
+
+- 6b4086d4: Fix outdated publish
+
 ## 0.18.11
 
 ### Patch Changes
