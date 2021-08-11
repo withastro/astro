@@ -39,5 +39,7 @@
     "astro-vscode": "0.6.1",
     "www": "1.1.0"
   },
-  "changesets": []
+  "changesets": [
+    "light-ads-grin"
+  ]
 }
