@@ -64,6 +64,30 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 
 `Astro.site` returns a `URL` made from `buildOptions.site` in your Astro config. If undefined, this will return a URL generated from `localhost`.
 
+```astro
+---
+const path = Astro.site.pathname;
+---
+
+<h1>Welcome to {path}</h1>
+```
+
+### `Astro.resolve()`
+
+`Astro.resolve()` helps with creating URLs relative to the current Astro file, allowing you to reference files within your `src/` folder.
+
+Astro *does not* resolve relative links within HTML, such as images:
+
+```html
+<img src="../images/penguin.png" />
+```
+
+The above will be sent to the browser as-is and the browser will resolve it relative to the current __page__. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`:
+
+```astro
+<img src={Astro.resolve('../images/penguin.png')} />
+```
+
 ## `getStaticPaths()`
 
 If a page uses dynamic params in the filename, that component will need to export a `getStaticPaths()` function.

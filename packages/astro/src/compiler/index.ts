@@ -108,10 +108,13 @@ interface CompileComponentOptions {
 /** Compiles an Astro component */
 export async function compileComponent(source: string, { compileOptions, filename, projectRoot }: CompileComponentOptions): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
+  const { mode } = compileOptions;
   const { hostname, port } = compileOptions.astroConfig.devOptions;
-  const site = compileOptions.astroConfig.buildOptions.site || `http://${hostname}:${port}`;
+  const devSite = `http://${hostname}:${port}`;
+  const site = compileOptions.astroConfig.buildOptions.site || devSite;
+
   const fileID = path.join('/_astro', path.relative(projectRoot, filename));
-  const fileURL = new URL(url.pathToFileURL(fileID).pathname, site);
+  const fileURL = new URL('.' + url.pathToFileURL(fileID).pathname, mode === 'production' ? site : devSite);
 
   // return template
   let moduleJavaScript = `
