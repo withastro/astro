@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
-Allow Markdown with scoped styles to coexist happily with code syntax highlight via Prism'
+- Allow Markdown with scoped styles to coexist happily with code syntax highlighting via Prism
