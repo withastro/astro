@@ -1,5 +1,8 @@
 # astro-vscode
 
+## 0.6.1
+- Makes the v0.6.0 features actually work 😅
+
 ## 0.6.0
 
 - Fixes bug with signature help not appearing in the component script section.

@@ -29,6 +29,7 @@
     "packages/*",
     "examples/*",
     "scripts",
+    "tools/*",
     "www",
     "docs",
     "packages/astro/test/fixtures/builtins/packages/*",

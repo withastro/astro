@@ -11,6 +11,7 @@
   },
   "files": [
     "dist",
+    "astro.d.ts",
     "bin",
     "types"
   ],
@@ -28,7 +29,7 @@
     "vscode-languageserver-textdocument": "^1.0.1"
   },
   "devDependencies": {
-    "astro": "^0.18.0-next.0",
+    "astro": "0.18.9",
     "astro-scripts": "0.0.1"
   }
 }

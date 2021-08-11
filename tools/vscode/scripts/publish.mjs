@@ -18,9 +18,7 @@ async function publish() {
     }
   }
 
-  await execa('npm', ['install']);
-
-  const p1 = execa('vsce', ['publish'], { all: true });
+  const p1 = execa('vsce', ['package'], { all: true });
 
   p1.all.setEncoding('utf8');
   for await (const chunk of p1.all) {
