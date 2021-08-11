@@ -7,30 +7,28 @@ Astro supports built-in, automatic pagination for large collections of data that
 
 ## When to use pagination
 
-You only need pagination when you need a numbered collection of generated pages.
+Pagination is only useful when you need to generate multiple, numbered pages from a larger data set. 
 
-If all of your data can fit on a single page (like a single page list of all blog posts or products on a website) then you don't need pagination. A single [page component](/core-concepts/astro-pages) will do.
+If all of your data can fit on a single page then you should consider using a static [page component](/core-concepts/astro-pages) instead.
 
-If you need to split your data into multiple pages but not using numbered pages (`/tag/foo` & `/tag/bar` instead of `/tag/1` & `/tag/2`) then a normal dynamic route param is what you need (Example: `src/pages/tag/[tag].astro`).
+If you need to split your data into multiple pages but do not want those page URLs to be numbered, then you should use a [dynamic page](/core-concepts/routing) instead without pagination (Example: `/tag/[tag].astro`).
 
 ## How to use pagination
 
 ### Create your page component
 
-To automatically paginate some data, you'll first need to create your page component. This is the component that every individual page in the collection will inherit from.
+To automatically paginate some data, you'll first need to create your page component. This is the component `.astro` file that every page in the paginated collection will inherit from.
 
-Pagination is built on top of dynamic page routing, with the page number represented as a dynamic route param: `[page].astro` or `[...page].astro`. If you aren't familiar with routing in Astro, quickly familiarize yourself with our [Routing documentation](/core-concepts/routing) before continuing.
+Pagination is built on top of dynamic page routing, with the page number in the URL represented as a dynamic route param: `[page].astro` or `[...page].astro`. If you aren't familiar with routing in Astro, quickly familiarize yourself with our [Routing documentation](/core-concepts/routing) before continuing.
 
-The `[page]` param becomes the page number in your URL. Your first page URL will be different depending on which type of query param you use:
+Your first page URL will be different depending on which type of query param you use:
 
 - `/posts/[page].astro` will generate the URLs `/posts/1`, `/posts/2`, `/posts/3`, etc.
 - `/posts/[...page].astro` will generate the URLs `/posts`, `/posts/2`, `/posts/3`, etc.
 
-You can customize pagination to use any param name that you'd like, by passing a `param` option in the second argument of the `paginate()` function (see below).
-
 ### calling the `paginate()` function
 
-Once you have decided on the file name/path for your page component, you'll need to export a `getStaticPaths()` function from the component. `getStaticPaths()` is needed so that Astro knows which pages to generate during your build. Without it, Astro would have no idea if you needed to build 100+ pages or just 2.
+Once you have decided on the file name/path for your page component, you'll need to export a [`getStaticPaths()`](/reference/api-reference#getstaticpaths) function from the component. `getStaticPaths()` is where you tell Astro what pages to generate.
 
 `getStaticPaths()` provides the `paginate()` function that we'll use to paginate your data. In the example below, we'll use `paginate()` to split a list of 150 Pokemon into 15 pages of 10 Pokemon each.
 
@@ -48,11 +46,22 @@ export async function getStaticPaths({ paginate }) {
 const { page } = Astro.props;
 ```
 
-This works because `paginate()` automatically generates the correct array of path objects to return from `getStaticPaths()`. The function tells Astro to create a new URL for every page of the collection. The page number will be passed as a param, and the page data will be passed as a `page` prop.
+`paginate()` generates the correct array of path objects for `getStaticPaths()`. This automatically tells Astro to create a new URL for every page of the collection. The page data will then be passed as a `page` prop to the `.astro` page component.
 
 ### using the `page` prop
 
-Once you've set up your page component and defined your `getStaticPaths()` function, you're ready to design your page template. Each page in the paginated collection will be passed the correct data for that page in the `page` prop.
+Once you've set up your page component and defined your `getStaticPaths()` function, you're ready to design your page template. Each page in the paginated collection will be passed its data in the `page` prop.
+
+```astro
+---
+export async function getStaticPaths { /* ... */ }
+const { page } = Astro.props;
+---
+<h1>Page {page.currentPage}</h1>
+<ul>
+  {page.data.map(item => <li>{item.title}</h1>)}
+</ul>
+```
 
 The `page` prop has several useful properties, but the most important one is `page.data`. This is the array containing the page's slice of data that you passed to the `paginate()` function. For example, if you called `paginate()` on an array of 150 Pokemon:
 
@@ -62,3 +71,38 @@ The `page` prop has several useful properties, but the most important one is `pa
 - etc. etc.
 
 The `page` prop includes other helpful metadata, like `page.url.next`, `page.url.prev`, `page.total`, and more. See our [API reference](/reference/api-reference#the-pagination-page-prop) for the full `page` interface.
+
+
+## Nested pagination
+
+A more advanced use-case for pagination is **nested pagination.** This is when pagination is combined with other dynamic route params. You can use nested pagination to group your paginated collection by some property or tag.
+
+For example, if you want to group your paginated markdown posts by some tag, you would use nested pagination by creating a `/src/pages/[tag]/[page].astro` page that would match the following URLS:
+
+- `/red/1` (tag=red)
+- `/red/2` (tag=red)
+- `/blue/1` (tag=blue)
+- `/green/1` (tag=green)
+
+Nested pagination works by returning an array of `paginate()` results from `getStaticPaths()`, one for each grouping. In the following example, we will implement nested pagination to build the URLs listed above:
+
+```js
+---
+// Example: /src/pages/[tag]/[page].astro
+export function getStaticPaths({paginate}) {
+  const allTags = ['red', 'blue', 'green']; 
+  const allPosts = Astro.fetchContent('../../posts/*.md');
+  // For every tag, return a paginate() result.
+  // Make sure that you pass `{params: {tag}}` to `paginate()`
+  // so that Astro knows which tag grouping the result is for.
+  return allTags.map((tag) => {
+    const filteredPosts = allPosts.filter((post) => post.tag === tag);
+    return paginate(filteredPosts, {
+      params: { tag },
+      pageSize: 10
+    });
+  });
+}
+const { page } = Astro.props;
+const { params } = Astro.request;
+```

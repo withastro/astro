@@ -17,8 +17,10 @@ export const SIDEBAR = {
 
     { text: 'Guides', header: true },
     { text: 'Styling & CSS', link: 'guides/styling' },
-    { text: 'Data Fetching', link: 'guides/data-fetching' },
     { text: 'Markdown', link: 'guides/markdown-content' },
+    { text: 'Data Fetching', link: 'guides/data-fetching' },
+    { text: 'Pagination', link: 'guides/pagination' },
+    { text: 'RSS', link: 'guides/rss' },
     { text: 'Supported Imports', link: 'guides/imports' },
     { text: 'Aliases', link: 'guides/aliases' },
     { text: 'Deploy a Website', link: 'guides/deploy' },
