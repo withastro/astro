@@ -212,6 +212,28 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
 
     const completionItems: CompletionItem[] = [];
 
+    for(let type of typeChecker.getBaseTypes(propsNode as unknown as ts.InterfaceType)) {
+      type.symbol.members!.forEach(mem => {
+        let item: CompletionItem = {
+          label: mem.name,
+          insertText: mem.name,
+          commitCharacters: []
+        };
+
+        mem.getDocumentationComment(typeChecker);
+        let description = mem.getDocumentationComment(typeChecker).map(val => val.text).join('\n');
+
+        if(description) {
+          let docs: MarkupContent = {
+            kind: MarkupKind.Markdown,
+            value: description
+          };
+          item.documentation = docs;
+        }
+        completionItems.push(item);
+      });
+    }
+
     for(let member of propsNode.members) {
       if(!member.name) continue;
 

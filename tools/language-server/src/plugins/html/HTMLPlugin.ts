@@ -31,6 +31,13 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
       return null;
     }
 
+    const offset = document.offsetAt(position);
+    const node = html.findNodeAt(offset);
+
+    if(this.isComponentTag(node)) {
+      return null;
+    }
+
     const emmetResults: CompletionList = {
       isIncomplete: true,
       items: [],
@@ -123,5 +130,13 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
 
   private isInsideFrontmatter(document: Document, position: Position) {
     return isInsideFrontmatter(document.getText(), document.offsetAt(position));
+  }
+
+  private isComponentTag(node: Node): boolean {
+    if (!node.tag) {
+      return false;
+    }
+    const firstChar = node.tag[0];
+    return /[A-Z]/.test(firstChar);
   }
 }
