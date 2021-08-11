@@ -35,7 +35,7 @@ export async function getStaticPathsForPage({
   const staticPaths: GetStaticPathsResult = await mod.exports.getStaticPaths({
     paginate: generatePaginateFunction(route),
     rss: rssFunction,
-  });
+  }).flat();
   validateGetStaticPathsResult(staticPaths, logging);
   return {
     paths: staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean),

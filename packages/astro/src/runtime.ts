@@ -135,7 +135,7 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
           rss: () => {
             /* noop */
           },
-        }));
+        })).flat();
 
       validateGetStaticPathsResult(cachedStaticPaths[routeMatch.component], logging);
       const routePathParams: GetStaticPathsResult = cachedStaticPaths[routeMatch.component];
