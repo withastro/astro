@@ -1,15 +1,12 @@
-import { GetStaticPathsResult, RouteData } from '../@types/astro';
+import { GetStaticPathsResult, Params, Props, RouteData } from '../@types/astro';
 
 export function generatePaginateFunction(routeMatch: RouteData) {
-  let paginateCallCount = 0;
-  return function paginateUtility(data: any[], args: { pageSize?: number; param?: string } = {}) {
-    if (paginateCallCount !== 0) {
-      throw new Error('[paginate()] cannot call the paginate() function more than once.');
-    }
-    paginateCallCount++;
-    let { pageSize: _pageSize, param: _param } = args;
+  return function paginateUtility(data: any[], args: { pageSize?: number, params?: Params, props?: Props } = {}) {
+    let { pageSize: _pageSize, params: _params, props: _props } = args;
     const pageSize = _pageSize || 10;
-    const paramName = _param || 'page';
+    const paramName = 'page';
+    const additoonalParams = _params || {};
+    const additoonalProps = _props || {};
     let includesFirstPageNumber: boolean;
     if (routeMatch.params.includes(`...${paramName}`)) {
       includesFirstPageNumber = false;
@@ -27,11 +24,13 @@ export function generatePaginateFunction(routeMatch: RouteData) {
       const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
       const end = Math.min(start + pageSize, data.length);
       const params = {
+        ...additoonalParams,
         [paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : undefined,
       };
       return {
         params,
         props: {
+          ...additoonalProps,
           page: {
             data: data.slice(start, end),
             start,

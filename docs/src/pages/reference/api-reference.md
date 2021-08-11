@@ -158,13 +158,6 @@ const { page } = Astro.props;
 - `/posts/[page].astro` would generate the URLs `/posts/1`, `/posts/2`, `/posts/3`, etc.
 - `/posts/[...page].astro` would generate the URLs `/posts`, `/posts/2`, `/posts/3`, etc.
 
-You can customize pagination to use any param name that you'd like, by passing a `param` option in the second argument of the `paginate()` function:
-
-```js
-// Example: src/pages/posts/[...myCustomParam].astro
-paginate(sortedPosts, { pageSize: 10, param: 'myCustomParam' });
-```
-
 #### The pagination `page` prop
 
 Pagination will pass a `page` prop to every rendered page that represents a single page of data in the paginated collection. This includes the data that you've paginated (`page.data`) as well as metadata for the page (`page.url`, `page.start`, `page.end`, `page.total`, etc). This metadata is useful for for things like a "Next Page" button or a "Showing 1-10 of 100" message.

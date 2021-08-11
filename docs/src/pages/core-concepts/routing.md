@@ -7,22 +7,26 @@ Astro uses **file-based routing** to generate your build URLs based on the file 
 
 ## Static routes
 
-Astro Components (`.astro`) and Markdown Files (`.md`) are the only currently supported formats for routes. Other file types (like a `.jsx` React component) are not supported as routes in the `src/pages` directory, but you can use any UI component inside of an `.astro` file to achieve a similar result.
-
-The file path within the `src/pages` directory decides the final URL that the page is built to:
+Astro Components (`.astro`) and Markdown Files (`.md`) in the `src/pages` directory become pages on your website. Each page's route is decided based on it's filename and path within the `src/pages` directory. This means that there is no separate "routing config" to maintain in an Astro project.
 
 ```bash
-# Examples
-src/pages/index.astro       -> mysite.com/
-src/pages/about.astro       -> mysite.com/about
-src/pages/about/index.astro -> mysite.com/about
-src/pages/about/me.astro    -> mysite.com/about/me
-src/pages/posts/1.md        -> mysite.com/posts/1
+# Example: Static routes
+src/pages/index.astro        -> mysite.com/
+src/pages/about.astro        -> mysite.com/about
+src/pages/about/index.astro  -> mysite.com/about
+src/pages/about/me.astro     -> mysite.com/about/me
+src/pages/posts/1.md         -> mysite.com/posts/1
 ```
 
-## Dynamic parameters
+## Dynamic routes
 
-Sometimes, you will need to generate many URLs from a single page component. Astro supports this with **dynamic parameters** in the page filename.
+Sometimes, you need to generate many URLs from a single page component. Astro uses file-based routing to support **dynamic route parameters** in the filename, so that one page can match many dynamic routes based on some pattern.
+
+An important thing to keep in mind: Astro is a static site builder. There is no Astro server to run in production, which means that every page must be built ahead of time. Pages that use dynamic routes must export a `getStaticPaths()` function which will tell Astro exactly what pages to generate. Learn more by viewing the complete [API Reference](/reference/api-reference#getstaticpaths).
+
+
+
+### Named parameters
 
 Dynamic parameters are encoded into the filename using `[bracket]` notation:
 
@@ -30,7 +34,7 @@ Dynamic parameters are encoded into the filename using `[bracket]` notation:
 - `pages/[username]/settings.astro` → (`/fred/settings`, `/drew/settings`, etc.)
 - `pages/[lang]-[version]/info.astro` → (`/en-v1/info`, `/fr-v2/info`, etc.)
 
-#### Example: Dynamic parameters
+#### Example: Named parameters
 
 Consider the following page `pages/post/[pid].astro`:
 
@@ -42,7 +46,7 @@ const {pid} = Astro.request.params;
 <p>Post: {pid}</p>
 ```
 
-Any route like `/post/1`, `/post/abc`, etc. will be matched by `pages/post/[pid].astro`. The matched path parameter will be sent as a query parameter to the page.
+Any route like `/post/1`, `/post/abc`, etc. will be matched by `pages/post/[pid].astro`. The matched path parameter will be passed to the page component at `Astro.request.params`.
 
 For example, the route `/post/abc` will have the following `Astro.request.params` object available:
 
@@ -56,7 +60,7 @@ Multiple dynamic route segments can be combined to work the same way. The page `
 { "pid": "abc", "comment": "a-comment" }
 ```
 
-## Rest parameters
+### Rest parameters
 
 If you need more flexibility in your URL routing, you can use a rest parameter as a universal catch-all. You do this by adding three dots (`...`) inside your brackets. For example:
 

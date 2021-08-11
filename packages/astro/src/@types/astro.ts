@@ -121,7 +121,7 @@ export interface PageDependencies {
 
 export type PaginateFunction<T = any> = (data: T[], args?: { pageSize?: number }) => PaginatedCollectionResult<T>;
 
-export type GetStaticPathsResult = { params: Params; props?: Props }[];
+export type GetStaticPathsResult = { params: Params; props?: Props }[] | { params: Params; props?: Props }[];
 export interface CollectionRSS {
   /** (required) Title of the RSS Feed */
   title: string;

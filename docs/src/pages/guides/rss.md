@@ -5,9 +5,11 @@ title: RSS
 
 Astro supports fast, automatic RSS feed generation for blogs and other content websites.
 
-You can create an RSS feed from any Astro page that uses a `getStaticPaths()` function for routing (only available to pages with dynamic route params, see (Routing)[/core-concepts/routing]). We hope to make this feature available to all pages before v1.0.
+You can create an RSS feed from any Astro page that uses a `getStaticPaths()` function for routing. Only dynamic routes can use `getStaticPaths()` today (see [Routing](/core-concepts/routing).
 
-Create an RSS Feed by calling the `rss()` function that is passed as an argument to `getStaticPaths()`. This could be created from a list of local markdown files, remote data fetched from an API, or anything else you might want to return from the `items` array.
+> We hope to make this feature available to all other pages before v1.0. As a workaround, you can convert a static route to a dynamic route that only generates a single page. See [Routing](/core-concepts/routing) for more information about dynamic routes.
+
+Create an RSS Feed by calling the `rss()` function that is passed as an argument to `getStaticPaths()`. This will create an `rss.xml` file in your final build based on the data that you provide using the `items` array.
 
 ```js
 // Example: /src/pages/posts/[...page].astro
@@ -32,9 +34,9 @@ export async function getStaticPaths({rss}) {
     // Otherwise, defaults to "/rss.xml"
     dest: "/my/custom/feed.xml",
   });
-  // Return a paginated collection of paths for all posts
+  // Return your paths
   return [...];
 }
 ```
 
-Note that your RSS feed XML file will **not** appear during development. Currently, RSS feeds are only generated during your final build.
+Note: RSS feeds will **not** be built during development. Currently, RSS feeds are only generated during your final build.
