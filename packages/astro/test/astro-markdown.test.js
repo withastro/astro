@@ -40,7 +40,7 @@ Markdown('Scoped styles should not break syntax highlight', async ({ runtime }) 
   assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
-  assert.ok($('pre').is('[class]'), 'Pre tag has scopedStlye class passed down');
+  assert.ok($('pre').is('[class]'), 'Pre tag has scopedStyle class passed down');
   assert.ok($('code').hasClass('language-js'), 'Code tag has correct language');
   assert.ok($('code span').length > 0, 'There are child spans in code blocks');
 });
