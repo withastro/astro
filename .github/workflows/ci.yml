@@ -52,11 +52,19 @@ jobs:
       - name: Install dependencies
         run: yarn install --frozen-lockfile --ignore-engines
 
-      - name: Build
+      - name: Build Astro
         run: yarn build:all
 
       - name: Test
         run: yarn test
+
+      - name: "Smoke Test: Build "docs""
+        run: yarn build
+        working-directory: ./docs
+
+      - name: "Smoke Test: Build "www""
+        run: yarn build
+        working-directory: ./www
 
   lint:
     runs-on: ubuntu-latest
