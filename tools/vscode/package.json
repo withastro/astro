@@ -26,7 +26,7 @@
     "onLanguage:astro"
   ],
   "dependencies": {
-    "@astrojs/language-server": "0.5.0",
+    "@astrojs/language-server": "0.6.0",
     "vscode-emmet-helper": "2.1.2",
     "vscode-html-languageservice": "^3.0.3",
     "vscode-languageclient": "~7.0.0"
