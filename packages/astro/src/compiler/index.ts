@@ -2,7 +2,6 @@ import type { CompileResult, TransformResult } from '../@types/astro';
 import type { CompileOptions } from '../@types/compiler.js';
 
 import path from 'path';
-import url from 'url';
 import { MarkdownRenderingOptions, renderMarkdownWithFrontmatter } from '@astrojs/markdown-support';
 
 import { parse } from '@astrojs/parser';
@@ -114,7 +113,7 @@ export async function compileComponent(source: string, { compileOptions, filenam
   const site = compileOptions.astroConfig.buildOptions.site || devSite;
 
   const fileID = path.join('/_astro', path.relative(projectRoot, filename));
-  const fileURL = new URL('.' + url.pathToFileURL(fileID).pathname, mode === 'production' ? site : devSite);
+  const fileURL = new URL('.' + fileID, mode === 'production' ? site : devSite);
 
   // return template
   let moduleJavaScript = `
