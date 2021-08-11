@@ -35,44 +35,14 @@ interface CLIState {
   };
 }
 
-type TypeOf = 'string' | 'boolean' | 'number';
-// Validates property types of object
-const validateOptions = (opts: Record<string, any>, specs: Record<string, TypeOf | [(v: any) => unknown, TypeOf]>) =>
-  Object.entries(specs).reduce<Record<string, any>>((options, [k, spec]) => {
-    const v = opts[k];
-
-    if (typeof spec === 'string' && typeof v === spec) {
-      options[k] = v;
-    } else if (Array.isArray(spec)) {
-      const [coercion, test] = spec;
-      const result = coercion(v);
-      if (typeof result === test) {
-        options[k] = result;
-      }
-    }
-
-    return options;
-  }, {});
-
 /** Determine which action the user requested */
 function resolveArgs(flags: Arguments): CLIState {
-  const { PORT } = process.env;
-
-  // Merge options (Flags take priority)
-  const options = {
-    ...validateOptions(
-      { port: PORT },
-      {
-        port: [parseInt, 'number'],
-      }
-    ),
-    ...validateOptions(flags, {
-      projectRoot: 'string',
-      site: 'string',
-      sitemap: 'boolean',
-      port: 'number',
-      config: 'string',
-    }),
+  const options: CLIState['options'] = {
+    projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
+    site: typeof flags.site === 'string' ? flags.site : undefined,
+    sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
+    port: typeof flags.port === 'number' ? flags.port : undefined,
+    config: typeof flags.config === 'string' ? flags.config : undefined,
   };
 
   if (flags.version) {
@@ -131,7 +101,7 @@ function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
 }
 
 /** Handle `astro run` command */
-async function runCommand(rawRoot: string, cmd: (a: AstroConfig, opts: any) => Promise<void>, options: CLIState['options']) {
+async function runCommand(rawRoot: string, cmd: (a: AstroConfig, options: any) => Promise<void>, options: CLIState['options']) {
   try {
     const projectRoot = options.projectRoot || rawRoot;
     const astroConfig = await loadConfig(projectRoot, options.config);
