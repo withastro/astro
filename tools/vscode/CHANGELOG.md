@@ -1,6 +1,7 @@
 # astro-vscode
 
 ## 0.6.1
+
 - Makes the v0.6.0 features actually work 😅
 
 ## 0.6.0

@@ -3,7 +3,7 @@
 ## 0.6.0
 
 - Fixes bug with signature help not appear in the component script section.
-- Adds completion suggestions for Astro.* APIs in the component script.
+- Adds completion suggestions for Astro.\* APIs in the component script.
 - Adds support for Hover based hints in the component script section.
 - Fixes bug with Go to Definition (cmd + click) of Components.
 
