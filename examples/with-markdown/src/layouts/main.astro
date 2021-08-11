@@ -5,6 +5,10 @@ const { content } = Astro.props;
 <html lang={ content.lang || 'en' }>
   <head>
     <meta charset="utf-8">
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+
     <title>{content.title}</title>
     <link rel="stylesheet" href="/styles/global.css">
   </head>
