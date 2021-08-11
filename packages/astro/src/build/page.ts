@@ -32,10 +32,12 @@ export async function getStaticPathsForPage({
   const mod = await snowpackRuntime.importModule(location.snowpackURL);
   validateGetStaticPathsModule(mod);
   const [rssFunction, rssResult] = generateRssFunction(astroConfig.buildOptions.site, route);
-  const staticPaths: GetStaticPathsResult = await mod.exports.getStaticPaths({
-    paginate: generatePaginateFunction(route),
-    rss: rssFunction,
-  }).flat();
+  const staticPaths: GetStaticPathsResult = await mod.exports
+    .getStaticPaths({
+      paginate: generatePaginateFunction(route),
+      rss: rssFunction,
+    })
+    .flat();
   validateGetStaticPathsResult(staticPaths, logging);
   return {
     paths: staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean),

@@ -45,7 +45,6 @@ Global('multiple params', async (context) => {
     assert.equal($('#page-a').text(), '1');
     assert.equal($('#page-b').text(), '1');
     assert.equal($('#filter').text(), 'red');
-    
   }
   {
     const result = await context.runtime.load('/posts/blue/1');

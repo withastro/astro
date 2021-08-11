@@ -7,7 +7,7 @@ Astro supports built-in, automatic pagination for large collections of data that
 
 ## When to use pagination
 
-Pagination is only useful when you need to generate multiple, numbered pages from a larger data set. 
+Pagination is only useful when you need to generate multiple, numbered pages from a larger data set.
 
 If all of your data can fit on a single page then you should consider using a static [page component](/core-concepts/astro-pages) instead.
 
@@ -72,7 +72,6 @@ The `page` prop has several useful properties, but the most important one is `pa
 
 The `page` prop includes other helpful metadata, like `page.url.next`, `page.url.prev`, `page.total`, and more. See our [API reference](/reference/api-reference#the-pagination-page-prop) for the full `page` interface.
 
-
 ## Nested pagination
 
 A more advanced use-case for pagination is **nested pagination.** This is when pagination is combined with other dynamic route params. You can use nested pagination to group your paginated collection by some property or tag.
@@ -90,7 +89,7 @@ Nested pagination works by returning an array of `paginate()` results from `getS
 ---
 // Example: /src/pages/[tag]/[page].astro
 export function getStaticPaths({paginate}) {
-  const allTags = ['red', 'blue', 'green']; 
+  const allTags = ['red', 'blue', 'green'];
   const allPosts = Astro.fetchContent('../../posts/*.md');
   // For every tag, return a paginate() result.
   // Make sure that you pass `{params: {tag}}` to `paginate()`

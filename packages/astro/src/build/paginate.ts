@@ -10,9 +10,8 @@ import { GetStaticPathsResult, Params, Props, RouteData } from '../@types/astro'
 //   });
 // });
 
-
 export function generatePaginateFunction(routeMatch: RouteData) {
-  return function paginateUtility(data: any[], args: { pageSize?: number, params?: Params, props?: Props } = {}) {
+  return function paginateUtility(data: any[], args: { pageSize?: number; params?: Params; props?: Props } = {}) {
     let { pageSize: _pageSize, params: _params, props: _props } = args;
     const pageSize = _pageSize || 10;
     const paramName = 'page';

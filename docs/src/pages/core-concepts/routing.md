@@ -24,8 +24,6 @@ Sometimes, you need to generate many URLs from a single page component. Astro us
 
 An important thing to keep in mind: Astro is a static site builder. There is no Astro server to run in production, which means that every page must be built ahead of time. Pages that use dynamic routes must export a `getStaticPaths()` function which will tell Astro exactly what pages to generate. Learn more by viewing the complete [API Reference](/reference/api-reference#getstaticpaths).
 
-
-
 ### Named parameters
 
 Dynamic parameters are encoded into the filename using `[bracket]` notation:

@@ -130,12 +130,14 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
       validateGetStaticPathsModule(mod);
       cachedStaticPaths[routeMatch.component] =
         cachedStaticPaths[routeMatch.component] ||
-        (await mod.exports.getStaticPaths({
-          paginate: generatePaginateFunction(routeMatch),
-          rss: () => {
-            /* noop */
-          },
-        })).flat();
+        (
+          await mod.exports.getStaticPaths({
+            paginate: generatePaginateFunction(routeMatch),
+            rss: () => {
+              /* noop */
+            },
+          })
+        ).flat();
 
       validateGetStaticPathsResult(cachedStaticPaths[routeMatch.component], logging);
       const routePathParams: GetStaticPathsResult = cachedStaticPaths[routeMatch.component];
