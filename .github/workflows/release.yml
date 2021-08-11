@@ -48,5 +48,6 @@ jobs:
         if: steps.changesets.outputs.published == 'true'
         id: git-push-latest
         # Note: this will fail if "latest" and "main" have different commit history,
-        # which is a good thing!
-        run: git push origin main:latest
+        # which is a good thing! Also, don't push if in pre-release mode.
+        run: '(test -f .changeset/pre.json && echo "prerelease: skip pushing to latest branch.") || git push origin main:latest'
+
