@@ -4,7 +4,7 @@ import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
 import remarkExpressions from './remark-expressions.js';
 import rehypeExpressions from './rehype-expressions.js';
-import { rehypeCodeBlock } from './codeblock.js';
+import { remarkCodeBlock, rehypeCodeBlock } from './codeblock.js';
 import { loadPlugins } from './load-plugins.js';
 import raw from 'rehype-raw';
 
@@ -56,6 +56,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     parser.use(scopedStyles(scopedClassName));
   }
 
+  parser.use(remarkCodeBlock());
   parser.use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression'] });
   parser.use(rehypeExpressions);
 

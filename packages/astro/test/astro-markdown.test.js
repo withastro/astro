@@ -35,6 +35,16 @@ Markdown('Runs code blocks through syntax highlighter', async ({ runtime }) => {
   assert.ok($el.length > 0, 'There are child spans in code blocks');
 });
 
+Markdown('Scoped styles should not break syntax highlight', async ({ runtime }) => {
+  const result = await runtime.load('/scopedStyles-code');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.ok($('pre').is('[class]'), 'Pre tag has scopedStyle class passed down');
+  assert.ok($('code').hasClass('language-js'), 'Code tag has correct language');
+  assert.ok($('code span').length > 0, 'There are child spans in code blocks');
+});
+
 Markdown('Bundles client-side JS for prod', async (context) => {
   await context.build();
 

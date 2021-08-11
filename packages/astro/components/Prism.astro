@@ -3,7 +3,8 @@ import Prism from 'prismjs';
 import { addAstro } from '@astrojs/prism';
 import loadLanguages from 'prismjs/components/index.js';
 
-const { lang, code } = Astro.props;
+const { class: className, lang, code } = Astro.props;
+let classLanguage = `language-${lang}`
 
 const languageMap = new Map([
   ['ts', 'typescript']
@@ -39,7 +40,6 @@ if (grammar) {
   html = Prism.highlight(code, grammar, lang);
 }
 
-let className = lang ? `language-${lang}` : '';
 ---
 
-<pre class={className}><code class={className}>{html}</code></pre>
+<pre class={className}><code class={classLanguage}>{html}</code></pre>

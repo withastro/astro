@@ -4,6 +4,7 @@ import { getAttrValue } from '../../ast.js';
 
 export const PRISM_IMPORT = `import Prism from 'astro/components/Prism.astro';`;
 const prismImportExp = /import Prism from ['"]astro\/components\/Prism.astro['"]/;
+
 /** escaping code samples that contain template string replacement parts, ${foo} or example. */
 function escape(code: string) {
   return code
@@ -22,6 +23,7 @@ function unescapeCode(code: TemplateNode) {
     return child;
   });
 }
+
 /** default export - Transform prism   */
 export default function (module: Script): Transformer {
   let usesPrism = false;
@@ -43,15 +45,17 @@ export default function (module: Script): Transformer {
             const className = getAttrValue(codeEl.attributes, 'class') || '';
             const classes = className.split(' ');
 
-            let lang;
+            let lang: string | undefined;
             for (let cn of classes) {
               const matches = /language-(.+)/.exec(cn);
               if (matches) {
                 lang = matches[1];
+                break;
               }
             }
 
             if (!lang) return;
+            let classesWithoutLang = classes.filter((cn) => cn !== `language-${lang}`);
 
             let codeData = codeEl.children && codeEl.children[0];
             if (!codeData) return;
@@ -71,6 +75,17 @@ export default function (module: Script): Transformer {
                       type: 'Text',
                       raw: lang,
                       data: lang,
+                    },
+                  ],
+                },
+                {
+                  type: 'Attribute',
+                  name: 'class',
+                  value: [
+                    {
+                      type: 'Text',
+                      raw: classesWithoutLang.join(' '),
+                      data: classesWithoutLang.join(' '),
                     },
                   ],
                 },
