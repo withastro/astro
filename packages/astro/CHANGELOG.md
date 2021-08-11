@@ -1,5 +1,11 @@
 # astro
 
+## 0.19.0-next.1
+
+### Patch Changes
+
+- c881e71e: Revert 939b9d0 "Allow dev server port to be set by PORT environment variable"
+
 ## 0.19.0-next.0
 
 ### Minor Changes

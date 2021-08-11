@@ -40,6 +40,7 @@
     "www": "1.1.0"
   },
   "changesets": [
+    "honest-rivers-call",
     "light-ads-grin"
   ]
 }
