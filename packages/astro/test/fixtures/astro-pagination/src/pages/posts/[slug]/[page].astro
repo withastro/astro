@@ -1,0 +1,27 @@
+---
+export function getStaticPaths({paginate}) {
+  const allPosts = Astro.fetchContent('../../post/*.md');
+  return ['red', 'blue'].map((filter) => {
+    const filteredPosts = allPosts.filter((post) => post.tag === filter);
+    return paginate(filteredPosts, {
+      params: { slug: filter },
+      props: { filter },
+      pageSize: 1
+    });
+  });
+}
+const { page, filter } = Astro.props;
+const { params, canonicalURL} = Astro.request;
+---
+
+<html>
+  <head>
+    <title>Page</title>
+    <link rel="canonical" href={canonicalURL.href} />
+  </head>
+  <body>
+    <div id="page-a">{params.page}</div>
+    <div id="page-b">{page.currentPage}</div>
+    <div id="filter">{filter}</div>
+  </body>
+</html>

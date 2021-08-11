@@ -43,8 +43,8 @@ export type LoggerLevel = 'debug' | 'info' | 'warn' | 'error' | 'silent'; // sam
 export type LoggerEvent = 'debug' | 'info' | 'warn' | 'error';
 
 export interface LogOptions {
-  dest: LogWritable<LogMessage>;
-  level: LoggerLevel;
+  dest?: LogWritable<LogMessage>;
+  level?: LoggerLevel;
 }
 
 export const defaultLogOptions: LogOptions = {
@@ -68,7 +68,9 @@ const levels: Record<LoggerLevel, number> = {
 };
 
 /** Full logging API */
-export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, type: string | null, ...args: Array<any>) {
+export function log(opts: LogOptions = {}, level: LoggerLevel, type: string | null, ...args: Array<any>) {
+  const logLevel = opts.level ?? defaultLogOptions.level!;
+  const dest = opts.dest ?? defaultLogOptions.dest!;
   const event: LogMessage = {
     type,
     level,
@@ -77,11 +79,11 @@ export function log(opts: LogOptions = defaultLogOptions, level: LoggerLevel, ty
   };
 
   // test if this level is enabled or not
-  if (levels[opts.level] > levels[level]) {
+  if (levels[logLevel] > levels[level]) {
     return; // do nothing
   }
 
-  opts.dest.write(event);
+  dest.write(event);
 }
 
 /** Emit a message only shown in debug mode */

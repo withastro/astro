@@ -64,92 +64,152 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 
 `Astro.site` returns a `URL` made from `buildOptions.site` in your Astro config. If undefined, this will return a URL generated from `localhost`.
 
-## Collections API
+## `getStaticPaths()`
 
-A collection is any file in the `src/pages` directory that starts with a dollar sign (`$`) and includes an exported `createCollection` function in the component script.
+If a page uses dynamic params in the filename, that component will need to export a `getStaticPaths()` function.
 
-Check out our [Astro Collections](/core-concepts/collections) guide for more information and examples.
-
-### `createCollection()`
+This function is required because Astro is a static site builder. That means that your entire site is built ahead of time. If Astro doesn't know to generate a page at build time, your users won't see it when they visit your site.
 
 ```jsx
 ---
-export async function createCollection() {
-  return { /* ... */ };
+export async function getStaticPaths() {
+  return [
+    { params: { ... } },
+    { params: { ... } },
+    { params: { ... } },
+    // ...
+  ];
 }
 ---
 <!-- Your HTML template here. -->
 ```
 
-⚠️ The `createCollection()` function executes in its own isolated scope before page loads. Therefore you can't reference anything from its parent scope, other than file imports. The compiler will warn if you break this requirement.
+The `getStaticPaths()` function should return an array of objects to determine which paths will be pre-rendered by Astro.
 
-The `createCollection()` function should returns an object of the following shape:
+⚠️ The `getStaticPaths()` function executes in its own isolated scope once, before any page loads. Therefore you can't reference anything from its parent scope, other than file imports. The compiler will warn if you break this requirement.
 
-| Name       |                   Type                   | Description                                                                                                                                                                                                                             |
-| :--------- | :--------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `route`    |                 `string`                 | **Required.** A route pattern for matching URL requests. This is used to generate the page URL in your final build. It must begin with the file name: for example, `pages/$tags.astro` must return a `route` that starts with `/tags/`. |
-| `paths`    |           `{params: Params}[]`           | Return an array of all URL to be generated.                                                                                                                                                                                             |
-| `props`    | `async ({ params, paginate }) => object` | **Required.** Load data for the page that will get passed to the page component as props.                                                                                                                                               |
-| `paginate` |                `boolean`                 | Optional: Enable automatic pagination. See next section.                                                                                                                                                                                |
-| `rss`      | [RSS](/reference/api-reference#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/reference/api-reference#rss-feed))                                                                                                                                     |
+### `params`
 
-### Pagination
+The `params` key of every returned object tells Astro what routes to build. The returned params must map back to the dynamic parameters and rest parameters defined in your component filepath.
 
-Enable pagination for a collection by returning `paginate: true` from `createCollection()`. This passes a `paginate()` argument to `props()` that you can use to return paginated data in your HTML template via props.
+`params` are encoded into the URL, so only strings are supported as values. The value for each `params` object must match the parameters used in the page name.
 
-The `paginate()` function that you use inside of `props()` has the following interface:
+For example, suppose that you have a page at `src/pages/posts/[id].astro`. If you export `getStaticPaths` from this page and return the following for paths:
 
-```ts
-/* the "paginate()" passed to props({paginate}) */
-type PaginateFunction = (
-  data: any[],
-  args?: {
-    /* pageSize: set the number of items to be shown on every page. Defaults to 10. */
-    pageSize?: number;
-  }
-) => PaginatedCollectionResult;
+```js
+---
+export async function getStaticPaths() {
+  return [
+    { params: { id: '1' } },
+    { params: { id: '2' } }
+  ];
+}
+const {id} = Astro.request.params;
+---
+<body><h1>{id}</h1></body>
+```
 
-/* the paginated return value, aka the prop passed to every page in the collection. */
-interface PaginatedCollectionResult {
-  /** result */
-  data: any[];
+Then Astro will statically generate `posts/1` and `posts/2` at build time.
 
-  /** metadata */
-  /** the count of the first item on the page, starting from 0 */
-  start: number;
-  /** the count of the last item on the page, starting from 0 */
-  end: number;
-  /** total number of results */
-  total: number;
-  page: {
-    /** the current page number, starting from 1 */
-    current: number;
-    /** number of items per page (default: 25) */
-    size: number;
-    /** number of last page */
-    last: number;
-  };
-  url: {
-    /** url of the current page */
-    current: string;
-    /** url of the previous page (if there is one) */
-    prev: string | undefined;
-    /** url of the next page (if there is one) */
-    next: string | undefined;
-  };
+### Data Passing with `props`
+
+To pass additional data to each generated page, you can also set a `props` value on every returned path object. Unlike `params`, `props` are not encoded into the URL and so aren't limited to only strings.
+
+For example, suppose that you generate pages based off of data fetched from a remote API. You can pass the full data object to the page component inside of `getStaticPaths`:
+
+```js
+---
+export async function getStaticPaths() {
+  const data = await fetch('...').then(response => response.json());
+  return data.map((post) => {
+    return {
+      params: { id: post.id },
+      props: { post } };
+  });
+}
+const {id} = Astro.request.params;
+const {post} = Astro.props;
+---
+<body><h1>{id}: {post.name}</h1></body>
+```
+
+Then Astro will statically generate `posts/1` and `posts/2` at build time using the page component in `pages/posts/[id].astro`. The page can reference this data using `Astro.props`:
+
+### `paginate()`
+
+Pagination is a common use-case for websites that Astro natively supports via the `paginate()` function. `paginate()` will automatically generate the array to return from `getStaticPaths()` that creates one URL for every page of the paginated collection. The page number will be passed as a param, and the page data will be passed as a `page` prop.
+
+```js
+export async function getStaticPaths({ paginate }) {
+  // Load your data with fetch(), Astro.fetchContent(), etc.
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=150`);
+  const result = await response.json();
+  const allPokemon = result.results;
+  // Return a paginated collection of paths for all posts
+  return paginate(allPokemon, { pageSize: 10 });
+}
+// If set up correctly, The page prop now has everything that
+// you need to render a single page (see next section).
+const { page } = Astro.props;
+```
+
+`paginate()` assumes a file name of `[page].astro` or `[...page].astro`. The `page` param becomes the page number in your URL:
+
+- `/posts/[page].astro` would generate the URLs `/posts/1`, `/posts/2`, `/posts/3`, etc.
+- `/posts/[...page].astro` would generate the URLs `/posts`, `/posts/2`, `/posts/3`, etc.
+
+#### The pagination `page` prop
+
+Pagination will pass a `page` prop to every rendered page that represents a single page of data in the paginated collection. This includes the data that you've paginated (`page.data`) as well as metadata for the page (`page.url`, `page.start`, `page.end`, `page.total`, etc). This metadata is useful for for things like a "Next Page" button or a "Showing 1-10 of 100" message.
+
+| Name               |         Type          | Description                                                                                                                       |
+| :----------------- | :-------------------: | :-------------------------------------------------------------------------------------------------------------------------------- |
+| `page.data`        |        `Array`        | Array of data returned from `data()` for the current page.                                                                        |
+| `page.start`       |       `number`        | Index of first item on current page, starting at `0` (e.g. if `pageSize: 25`, this would be `0` on page 1, `25` on page 2, etc.). |
+| `page.end`         |       `number`        | Index of last item on current page.                                                                                               |
+| `page.size`        |       `number`        | How many items per-page.                                                                                                          |
+| `page.total`       |       `number`        | The total number of items across all pages.                                                                                       |
+| `page.currentPage` |       `number`        | The current page number, starting with `1`.                                                                                       |
+| `page.lastPage`    |       `number`        | The total number of pages.                                                                                                        |
+| `page.url.current` |       `string`        | Get the URL of the current page (useful for canonical URLs)                                                                       |
+| `page.url.prev`    | `string \| undefined` | Get the URL of the previous page (will be `undefined` if on page 1).                                                              |
+| `page.url.next`    | `string \| undefined` | Get the URL of the next page (will be `undefined` if no more pages).                                                              |
+
+### `rss()`
+
+RSS feeds are another common use-case that Astro supports natively. Call the `rss()` function to generate an `/rss.xml` feed for your project using the same data that you loaded for this page. This file location can be customized (see below).
+
+```js
+// Example: /src/pages/posts/[...page].astro
+// Place this function inside your Astro component script.
+export async function getStaticPaths({rss}) {
+  const allPosts = Astro.fetchContent('../post/*.md');
+  const sortedPosts = allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  // Generate an RSS feed from this collection
+  rss({
+    // The RSS Feed title, description, and custom metadata.
+    title: 'Don’s Blog',
+    description: 'An example blog on Astro',
+    customData: `<language>en-us</language>`,
+    // The list of items for your RSS feed, sorted.
+    items: sortedPosts.map(item => ({
+      title: item.title,
+      description: item.description,
+      link: item.url,
+      pubDate: item.date,
+    })),
+    // Optional: Customize where the file is written to.
+    // Defaults to "/rss.xml"
+    dest: "/my/custom/feed.xml",
+  });
+  // Return a paginated collection of paths for all posts
+  return [...];
 }
 ```
 
-📚 Learn more about pagination (and see an example) in our [Astro Collections guide.](/core-concepts/collections).
-
-### RSS
-
-Create an RSS 2.0 feed for a collection by returning `paginate: true` & an `rss` object from `createCollection()`. The `rss` object will be used to generate the contents of the RSS XML file.
-
-The `rss` object follows the `CollectionRSS`data type:
-
 ```ts
-export interface CollectionRSS<T = any> {
+// The full type definition for the rss() function argument:
+interface RSSArgument {
   /** (required) Title of the RSS Feed */
   title: string;
   /** (required) Description of the RSS Feed */
@@ -158,8 +218,14 @@ export interface CollectionRSS<T = any> {
   xmlns?: Record<string, string>;
   /** Specify custom data in opening of file */
   customData?: string;
+  /**
+   * Specify where the RSS xml file should be written.
+   * Relative to final build directory. Example: '/foo/bar.xml'
+   * Defaults to '/rss.xml'.
+   */
+  dest?: string;
   /** Return data about each item */
-  item: (item: T) => {
+  items: {
     /** (required) Title of item */
     title: string;
     /** (required) Link to item */
@@ -170,11 +236,9 @@ export interface CollectionRSS<T = any> {
     description?: string;
     /** Append some other XML-valid data to this item */
     customData?: string;
-  };
+  }[];
 }
 ```
-
-📚 Learn more about RSS feed generation (and see an example) in our [Astro Collections guide.](/core-concepts/collections).
 
 ## `import.meta`
 
