@@ -14,23 +14,25 @@ function capitalize(str) {
 
 <div class="thumbnail">
         <img src="" alt="">
-        <h3>{ 
-            name.startsWith('framework')
-                ?
-                `${capitalize(name.split('-')[1])} ${capitalize(name.split('-')[0])}`
-                :
-                name 
-                    .split('-')
-                    .map((str)=>(
-                        str.replace('with','')
-                    ))
-                    .map((str)=>(capitalize(str)))
-                    .join(' ')
-            }
-        </h3>
+        <a href={`/example/${name}`}>
+            <h3>{
+                name.startsWith('framework')
+                    ?
+                    `${capitalize(name.split('-')[1])} ${capitalize(name.split('-')[0])}`
+                    :
+                    name
+                        .split('-')
+                        .map((str)=>(
+                            str.replace('with','')
+                        ))
+                        .map((str)=>(capitalize(str)))
+                        .join(' ')
+                }
+            </h3>
+        </a>
         <p>{keywords? keywords.toString(): 'Keywords  goes here'}</p>
         <p>{(description)? description : 'Template Description from Pkg JSON goes here'}</p>
-        <a href={`/example/${name}`}> Open page</a>
+        
 </div>
 
 <style lang="scss">
@@ -41,6 +43,9 @@ function capitalize(str) {
         transition: all 0.5s;
         &:hover{
             transform: scale(1.05);
+        }
+        > a{
+            color:var(--theme-accent)
         }
     }
 

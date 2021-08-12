@@ -5,7 +5,7 @@ import Header from '../components/Header/Header.astro';
 import Footer from '../components/Footer/Footer.astro';
 import PageContent from '../components/PageContent/PageContent.astro';
 import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
-import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
+import MoreMenu from '../components/RightSidebar/MoreMenu.astro'
 import { SITE } from "../config.ts";
 
 const { content = {}, page= Astro.request.url.pathname } = Astro.props;
@@ -112,9 +112,13 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${page
       <div id="grid-main">
           <slot />
       </div>
-      <!-- <aside id="grid-right" class="grid-sidebar" title="Table of Contents">
-        <RightSidebar content={content} githubEditUrl={githubEditUrl} />
-      </aside> -->
+      <aside id="grid-right" class="grid-sidebar" title="Table of Contents">
+        <nav class="sidebar-nav" aria-labelledby="grid-right">
+          <div class="sidebar-nav-inner">
+            <MoreMenu editHref={githubEditUrl} />
+          </div>
+        </nav>
+      </aside>
     </main>
   </body>
 </html>

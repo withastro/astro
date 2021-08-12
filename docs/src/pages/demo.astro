@@ -5,6 +5,12 @@ import templateData from '../components/Examples/function-generate-examples-data
 let data = await templateData()
 ---
 <Layout content={data}>
+    <h1>
+        Official Astro Templates
+    </h1>
+    <p>
+        Below is a list of Astro's Templates 
+    </p>
    <div class="flexbox">
        {data.map((item)=>(
            <Thumbnail data={item}/>
