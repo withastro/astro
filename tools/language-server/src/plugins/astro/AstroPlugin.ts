@@ -8,14 +8,18 @@ import {
   CompletionList,
   CompletionItem,
   CompletionItemKind,
+  CompletionTriggerKind,
   InsertTextFormat,
   LocationLink,
   FoldingRange,
+  MarkupContent,
+  MarkupKind,
   Range,
   TextEdit,
 } from 'vscode-languageserver';
 import { Node } from 'vscode-html-languageservice';
 import { isPossibleClientComponent, pathToUrl, urlToPath } from '../../utils';
+import { toVirtualAstroFilePath } from '../typescript/utils';
 import { isInsideFrontmatter } from '../../core/documents/utils';
 import * as ts from 'typescript';
 import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../typescript/LanguageServiceManager';
@@ -48,6 +52,13 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     if (completionContext?.triggerCharacter === ':') {
       const clientHint = this.getClientHintCompletion(doc, position, completionContext);
       if (clientHint) items.push(...clientHint);
+    }
+
+    if (!this.isInsideFrontmatter(document, position)) {
+      const props = await this.getPropCompletions(document, position, completionContext);
+      if(props.length) {
+        items.push(...props);
+      }
     }
 
     return CompletionList.create(items, true);
@@ -88,27 +99,13 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
 
     const [componentName] = node.tag!.split(':');
 
-    const filePath = urlToPath(document.uri);
-    const tsFilePath = filePath + '.ts';
+    const { lang } = await this.tsLanguageServiceManager.getTypeScriptDoc(document);
+    const defs = this.getDefinitionsForComponentName(document, lang, componentName);
 
-    const { lang, tsDoc } = await this.tsLanguageServiceManager.getTypeScriptDoc(document);
-
-    const sourceFile = lang.getProgram()?.getSourceFile(tsFilePath);
-    if (!sourceFile) {
-      return [];
-    }
-
-    const specifier = this.getImportSpecifierForIdentifier(sourceFile, componentName);
-    if (!specifier) {
-      return [];
-    }
-
-    const defs = lang.getDefinitionAtPosition(tsFilePath, specifier.getStart());
     if (!defs) {
       return [];
     }
 
-    const tsFragment = await tsDoc.getFragment();
     const startRange: Range = Range.create(Position.create(0, 0), Position.create(0, 0));
     const links = defs.map((def) => {
       const defFilePath = ensureRealFilePath(def.fileName);
@@ -170,6 +167,101 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     return null;
   }
 
+  private async getPropCompletions(document: Document, position: Position, completionContext?: CompletionContext): Promise<CompletionItem[]> {
+    const offset = document.offsetAt(position);
+    const html = document.html;
+
+    const node = html.findNodeAt(offset);
+    if(!this.isComponentTag(node)) {
+      return [];
+    }
+    const inAttribute = node.start + node.tag!.length < offset;
+    if(!inAttribute) {
+      return [];
+    }
+
+    // If inside of attributes, skip.
+    if(completionContext && completionContext.triggerKind === CompletionTriggerKind.TriggerCharacter && completionContext.triggerCharacter === '"') {
+      return [];
+    }
+
+    const componentName = node.tag!;
+    const { lang: thisLang } = await this.tsLanguageServiceManager.getTypeScriptDoc(document);
+
+    const defs = this.getDefinitionsForComponentName(document, thisLang, componentName);
+
+    if (!defs) {
+      return [];
+    }
+
+    const defFilePath = ensureRealFilePath(defs[0].fileName);
+
+    const lang = await this.tsLanguageServiceManager.getTypeScriptLangForPath(defFilePath);
+    const program = lang.getProgram();
+    const sourceFile = program?.getSourceFile(toVirtualAstroFilePath(defFilePath));
+    const typeChecker = program?.getTypeChecker();
+
+    if(!sourceFile || !typeChecker) {
+      return [];
+    }
+
+    let propsNode = this.getPropsNode(sourceFile);
+    if(!propsNode) {
+      return [];
+    }
+
+    const completionItems: CompletionItem[] = [];
+
+    for(let type of typeChecker.getBaseTypes(propsNode as unknown as ts.InterfaceType)) {
+      type.symbol.members!.forEach(mem => {
+        let item: CompletionItem = {
+          label: mem.name,
+          insertText: mem.name,
+          commitCharacters: []
+        };
+
+        mem.getDocumentationComment(typeChecker);
+        let description = mem.getDocumentationComment(typeChecker).map(val => val.text).join('\n');
+
+        if(description) {
+          let docs: MarkupContent = {
+            kind: MarkupKind.Markdown,
+            value: description
+          };
+          item.documentation = docs;
+        }
+        completionItems.push(item);
+      });
+    }
+
+    for(let member of propsNode.members) {
+      if(!member.name) continue;
+
+      let name = member.name.getText();
+      let symbol = typeChecker.getSymbolAtLocation(member.name);
+      if(!symbol) continue;
+      let description = symbol.getDocumentationComment(typeChecker).map(val => val.text).join('\n');
+
+      let item: CompletionItem = {
+        label: name,
+        insertText: name,
+        commitCharacters: []
+      };
+
+      if(description) {
+        let docs: MarkupContent = {
+          kind: MarkupKind.Markdown,
+          value: description
+        };
+        item.documentation = docs;
+      }
+
+      completionItems.push(item);
+    }
+
+    return completionItems;
+  }
+
   private isInsideFrontmatter(document: Document, position: Position) {
     return isInsideFrontmatter(document.getText(), document.offsetAt(position));
   }
@@ -180,6 +272,28 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     }
     const firstChar = node.tag[0];
     return /[A-Z]/.test(firstChar);
+  }
+
+  private getDefinitionsForComponentName(document: Document, lang: ts.LanguageService, componentName: string): readonly ts.DefinitionInfo[] | undefined {
+    const filePath = urlToPath(document.uri);
+    const tsFilePath = toVirtualAstroFilePath(filePath!);
+
+    const sourceFile = lang.getProgram()?.getSourceFile(tsFilePath);
+    if (!sourceFile) {
+      return undefined;
+    }
+
+    const specifier = this.getImportSpecifierForIdentifier(sourceFile, componentName);
+    if (!specifier) {
+      return [];
+    }
+
+    const defs = lang.getDefinitionAtPosition(tsFilePath, specifier.getStart());
+    if (!defs) {
+      return undefined;
+    }
+
+    return defs;
   }
 
   private getImportSpecifierForIdentifier(sourceFile: ts.SourceFile, identifier: string): ts.Expression | undefined {
@@ -197,4 +311,26 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     });
     return importSpecifier;
   }
+
+  private getPropsNode(sourceFile: ts.SourceFile): ts.InterfaceDeclaration | null {
+    let found: ts.InterfaceDeclaration | null = null;
+    ts.forEachChild(sourceFile, node => {
+      if(isNodeExported(node)) {
+        if(ts.isInterfaceDeclaration(node)) {
+          if(ts.getNameOfDeclaration(node)?.getText() === 'Props') {
+            found = node;
+          }
+        }
+      }
+    });
+
+    return found;
+  }
+}
+
+function isNodeExported(node: ts.Node): boolean {
+  return (
+    (ts.getCombinedModifierFlags(node as ts.Declaration) & ts.ModifierFlags.Export) !== 0 ||
+    (!!node.parent && node.parent.kind === ts.SyntaxKind.SourceFile)
+  );
 }
