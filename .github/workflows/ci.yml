@@ -58,11 +58,11 @@ jobs:
       - name: Test
         run: yarn test
 
-      - name: "Smoke Test: Build "docs""
+      - name: "Smoke Test: Build 'docs'"
         run: yarn build
         working-directory: ./docs
 
-      - name: "Smoke Test: Build "www""
+      - name: "Smoke Test: Build 'www'"
         run: yarn build
         working-directory: ./www
 
