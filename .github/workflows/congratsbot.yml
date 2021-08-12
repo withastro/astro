@@ -14,7 +14,7 @@ jobs:
       uses: Sniddl/discord-commits@v1.3
       with:
         webhook: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
-        message: "**Sweet!** <${{ github.event.commits[0].author.name }}> just merged a PR!\nDiff: {{ github.context.payload.compare }}"
+        message: "**Sweet!** <${{ github.event.commits[0].author.name }}> just merged a PR! [[Diff]({{ github.context.payload.compare }})]"
         embed: '{ "title": "{{ commit.title }}", "description": "{{ commit.description }}", "url": "{{ commit.url }}", "author": { "name": "{{ commit.author.name }} ({{ commit.author.username }})", "icon_url": "https://avatars.io/gravatar/{{ commit.author.email }}"} }'
         last-commit-only: false
    
