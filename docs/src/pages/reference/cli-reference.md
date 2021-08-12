@@ -9,8 +9,6 @@ title: CLI Reference
 
 Runs the Astro development server. This starts an HTTP server that responds to requests for pages stored in `src/pages` (or which folder is specified in your [configuration](/reference/configuration-reference)).
 
-See the [dev server](/reference/dev) docs for more information on how the dev server works.
-
 **Flags**
 
 #### `--port`
