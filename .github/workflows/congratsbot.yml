@@ -8,14 +8,13 @@ on:
 jobs:
   congrats:
     name: "discord:congratsbot"
-    #if: github.event.commits[0] && !github.event.commits[1]
     runs-on: ubuntu-latest
     steps:
-      - name: Send a Discord notification when a PR is merged
-      
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
-          # DISCORD_AVATAR: ${{ github.event.pull_request.user.avatar_url }}
-        uses: Ilshidur/action-discord@0.3.2
-        with:
-          args: '**Sweet!** <${{ github.event.commits[0].author.name }}> just merged ["${{ github.event.commits[0].message }}"](<https://github.com/snowpackjs/astro/commits/main>)'
+    - name: Send a Discord notification when a PR is merged
+      uses: Sniddl/discord-commits@v1.3
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
+        message: "**Sweet!** <${{ github.event.commits[0].author.name }}> just merged a PR!\nDiff: {{ github.context.payload.compare }}"
+        embed: '{ "title": "{{ commit.title }}", "description": "{{ commit.description }}", "url": "{{ commit.url }}", "author": { "name": "{{ commit.author.name }} ({{ commit.author.username }})", "icon_url": "https://avatars.io/gravatar/{{ commit.author.email }}"} }'
+        last-commit-only: false
+   
