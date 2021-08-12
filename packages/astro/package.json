@@ -91,7 +91,7 @@
     "semver": "^7.3.5",
     "shorthash": "^0.0.2",
     "slash": "^4.0.0",
-    "snowpack": "^3.8.3",
+    "snowpack": "^3.8.6",
     "string-width": "^5.0.0",
     "supports-esm": "^1.0.0",
     "tiny-glob": "^0.2.8",
