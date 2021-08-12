@@ -1,11 +1,10 @@
 ---
 import templateData from '../components/Examples/function-generate-examples-data.js'
+import {Markdown} from 'astro/components'
 
 export async function createCollection(){
-    //data goes in here
     const dataset = await templateData()
     const listOfTemplates = dataset.map((templates)=>(templates.name)) ; 
-    // console.log(listOfTemplates)
     return{
         route:'/example/:name',
         paths(){
@@ -33,6 +32,6 @@ console.log(data)
     <title>{name}</head>
   <body>
     <h1>{name}</h1>
-    {data.map(item=>item.readme)}
+    {data.map(item=>((item.readme)?<><Markdown content={item.readme}/></>:''))}
   </body>
 </html>
