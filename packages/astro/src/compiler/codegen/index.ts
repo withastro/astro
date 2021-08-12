@@ -768,7 +768,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             }
             if (parent.name === 'code') {
               // Special case, escaped { characters from markdown content
-              text = node.raw.replace(/CURLY_BRACE/g, '{');
+              text = node.raw.replace(/LEFT_CURLY_BRACKET_FIX\0/g, '{');
             }
             buffers[curr] += ',' + JSON.stringify(text);
             return;

@@ -21,7 +21,7 @@ export function rehypeCodeBlock() {
   const escapeCode = (code: any) => {
     code.children = code.children.map((child: any) => {
       if (child.type === 'text') {
-        return { ...child, value: child.value.replace(/\{/g, 'CURLY_BRACE') };
+        return { ...child, value: child.value.replace(/\{/g, 'LEFT_CURLY_BRACKET_FIX\0') };
       }
       return child;
     });
