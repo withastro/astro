@@ -3,7 +3,7 @@ name: "Discord:congratsbot"
 on:
   push:
     branches:
-      - main
+      - 'tools/congrats-bot-js-formatting'
 
 jobs:
   congrats:
