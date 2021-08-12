@@ -11,14 +11,14 @@ function escape(code: string) {
     .replace(/[`$]/g, (match) => {
       return '\\' + match;
     })
-    .replace(/&#123;/g, '{');
+    .replace(/ASTRO_ESCAPED_LEFT_CURLY_BRACKET\0/g, '{');
 }
 
 /** Unescape { characters transformed by Markdown generation */
 function unescapeCode(code: TemplateNode) {
   code.children = code.children?.map((child) => {
     if (child.type === 'Text') {
-      return { ...child, raw: child.raw.replace(/&#x26;#123;/g, '{') };
+      return { ...child, raw: child.raw.replace(/ASTRO_ESCAPED_LEFT_CURLY_BRACKET\0/g, '{') };
     }
     return child;
   });
