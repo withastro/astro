@@ -34,7 +34,7 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
     const offset = document.offsetAt(position);
     const node = html.findNodeAt(offset);
 
-    if(this.isComponentTag(node)) {
+    if (this.isComponentTag(node)) {
       return null;
     }
 

@@ -56,7 +56,7 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
 
     if (!this.isInsideFrontmatter(document, position)) {
       const props = await this.getPropCompletions(document, position, completionContext);
-      if(props.length) {
+      if (props.length) {
         items.push(...props);
       }
     }
@@ -172,16 +172,16 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     const html = document.html;
 
     const node = html.findNodeAt(offset);
-    if(!this.isComponentTag(node)) {
+    if (!this.isComponentTag(node)) {
       return [];
     }
     const inAttribute = node.start + node.tag!.length < offset;
-    if(!inAttribute) {
+    if (!inAttribute) {
       return [];
     }
 
     // If inside of attributes, skip.
-    if(completionContext && completionContext.triggerKind === CompletionTriggerKind.TriggerCharacter && completionContext.triggerCharacter === '"') {
+    if (completionContext && completionContext.triggerKind === CompletionTriggerKind.TriggerCharacter && completionContext.triggerCharacter === '"') {
       return [];
     }
 
@@ -201,32 +201,35 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     const sourceFile = program?.getSourceFile(toVirtualAstroFilePath(defFilePath));
     const typeChecker = program?.getTypeChecker();
 
-    if(!sourceFile || !typeChecker) {
+    if (!sourceFile || !typeChecker) {
       return [];
     }
 
     let propsNode = this.getPropsNode(sourceFile);
-    if(!propsNode) {
+    if (!propsNode) {
       return [];
     }
 
     const completionItems: CompletionItem[] = [];
 
-    for(let type of typeChecker.getBaseTypes(propsNode as unknown as ts.InterfaceType)) {
-      type.symbol.members!.forEach(mem => {
+    for (let type of typeChecker.getBaseTypes(propsNode as unknown as ts.InterfaceType)) {
+      type.symbol.members!.forEach((mem) => {
         let item: CompletionItem = {
           label: mem.name,
           insertText: mem.name,
-          commitCharacters: []
+          commitCharacters: [],
         };
 
         mem.getDocumentationComment(typeChecker);
-        let description = mem.getDocumentationComment(typeChecker).map(val => val.text).join('\n');
+        let description = mem
+          .getDocumentationComment(typeChecker)
+          .map((val) => val.text)
+          .join('\n');
 
-        if(description) {
+        if (description) {
           let docs: MarkupContent = {
             kind: MarkupKind.Markdown,
-            value: description
+            value: description,
           };
           item.documentation = docs;
         }
@@ -234,24 +237,27 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
       });
     }
 
-    for(let member of propsNode.members) {
-      if(!member.name) continue;
+    for (let member of propsNode.members) {
+      if (!member.name) continue;
 
       let name = member.name.getText();
       let symbol = typeChecker.getSymbolAtLocation(member.name);
-      if(!symbol) continue;
-      let description = symbol.getDocumentationComment(typeChecker).map(val => val.text).join('\n');
+      if (!symbol) continue;
+      let description = symbol
+        .getDocumentationComment(typeChecker)
+        .map((val) => val.text)
+        .join('\n');
 
       let item: CompletionItem = {
         label: name,
         insertText: name,
-        commitCharacters: []
+        commitCharacters: [],
       };
 
-      if(description) {
+      if (description) {
         let docs: MarkupContent = {
           kind: MarkupKind.Markdown,
-          value: description
+          value: description,
         };
         item.documentation = docs;
       }
@@ -314,10 +320,10 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
 
   private getPropsNode(sourceFile: ts.SourceFile): ts.InterfaceDeclaration | null {
     let found: ts.InterfaceDeclaration | null = null;
-    ts.forEachChild(sourceFile, node => {
-      if(isNodeExported(node)) {
-        if(ts.isInterfaceDeclaration(node)) {
-          if(ts.getNameOfDeclaration(node)?.getText() === 'Props') {
+    ts.forEachChild(sourceFile, (node) => {
+      if (isNodeExported(node)) {
+        if (ts.isInterfaceDeclaration(node)) {
+          if (ts.getNameOfDeclaration(node)?.getText() === 'Props') {
             found = node;
           }
         }
@@ -329,8 +335,5 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
 }
 
 function isNodeExported(node: ts.Node): boolean {
-  return (
-    (ts.getCombinedModifierFlags(node as ts.Declaration) & ts.ModifierFlags.Export) !== 0 ||
-    (!!node.parent && node.parent.kind === ts.SyntaxKind.SourceFile)
-  );
+  return (ts.getCombinedModifierFlags(node as ts.Declaration) & ts.ModifierFlags.Export) !== 0 || (!!node.parent && node.parent.kind === ts.SyntaxKind.SourceFile);
 }
