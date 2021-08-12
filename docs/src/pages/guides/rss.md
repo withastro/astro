@@ -5,7 +5,7 @@ title: RSS
 
 Astro supports fast, automatic RSS feed generation for blogs and other content websites.
 
-You can create an RSS feed from any Astro page that uses a `getStaticPaths()` function for routing. Only dynamic routes can use `getStaticPaths()` today (see [Routing](/core-concepts/routing).
+You can create an RSS feed from any Astro page that uses a `getStaticPaths()` function for routing. Only dynamic routes can use `getStaticPaths()` today (see [Routing](/core-concepts/routing)).
 
 > We hope to make this feature available to all other pages before v1.0. As a workaround, you can convert a static route to a dynamic route that only generates a single page. See [Routing](/core-concepts/routing) for more information about dynamic routes.
 

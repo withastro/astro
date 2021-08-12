@@ -68,15 +68,15 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 
 ### GitHub Actions
 
-1. In the astro project repo, create `gh-pages` branch then go to Settings > Pages and set to `gh-pages` branch for Github Pages and set directory to `/` (root).
+1. In the astro project repo, create `gh-pages` branch then go to Settings > Pages and set to `gh-pages` branch for GitHub Pages and set directory to `/` (root).
 2. Set the correct `buildOptions.site` in `astro.config.mjs`.
 3. Create the file `.github/workflows/main.yml` and add in the yaml below. Make sure to edit in your own details.
-4. In Github go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
+4. In GitHub go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
 5. In the astro project repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
 6. When you push changes to the astro project repo CI will deploy them to \<YOUR USERNAME\>.github.io for you.
 
 ```yaml
-# Workflow to build and deploy to your Github Pages repo.
+# Workflow to build and deploy to your GitHub Pages repo.
 
 # Edit your project details here.
 # Remember to add API_TOKEN_GITHUB in repo Settings > Secrets as well!
