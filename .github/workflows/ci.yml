@@ -58,14 +58,6 @@ jobs:
       - name: Test
         run: yarn test
 
-      - name: "Smoke Test: Build 'docs'"
-        run: yarn build
-        working-directory: ./docs
-
-      - name: "Smoke Test: Build 'www'"
-        run: yarn build
-        working-directory: ./www
-
   lint:
     runs-on: ubuntu-latest
     name: 'Lint: node-14, ubuntu-latest'
@@ -105,3 +97,46 @@ jobs:
         run: yarn lint
         # linting is currently not passing, so just do this for inline for now
         continue-on-error: true
+
+  smoke:
+    runs-on: ubuntu-latest
+    name: 'Smoke: node-14, ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set node version to 14
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14
+
+      - name: Get yarn cache directory
+        id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Set dependencies cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-${{ matrix.node_version }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.node_version }}-${{ hashFiles('yarn.lock') }}
+            ${{ runner.os }}-${{ matrix.node_version }}-
+
+      - name: Debug
+        run: yarn versions
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-engines
+
+      - name: Build
+        run: yarn build:all
+
+      - name: "Smoke Test: Build 'docs'"
+        run: yarn build
+        working-directory: ./docs
+
+      - name: "Smoke Test: Build 'www'"
+        run: yarn build
+        working-directory: ./www
