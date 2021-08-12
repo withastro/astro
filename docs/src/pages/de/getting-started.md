@@ -32,7 +32,7 @@ Es kommen eine Menge verschiedener Menschen mit unterschiedlichen Hintergründen
 
 - Falls du lieber **theoretisch lernst**, kannst du mit unseren [grundlegenden Konzepten und Anleitungen](/core-concepts/project-structure) anfangen.
 
-Wie alle unbekannten Technologien, hat auch Astro einen leichte Lernkurve. Mit ein bisschen Übung und Geduld, sind wir aber _sicher_, dass du schnell lernst, wie du mit Astro umgehen kannst.
+Wie alle unbekannten Technologien, hat auch Astro eine leichte Lernkurve. Mit ein bisschen Übung und Geduld, sind wir aber _sicher_, dass du schnell lernst, wie du mit Astro umgehen kannst.
 
 ### Lerne die `.astro` Syntax
 
@@ -56,7 +56,7 @@ Unser [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter Account ist di
 
 Zusätzlich veröffentlichen wir alle Release Ankündigungen in unserer [Discord Community](https://astro.build/chat) im `#announcements` Kanal.
 
-Obwohl nicht jeder Astro Release einenen eigenen Blogpost verdient, kannst du alle Änderungen für jedes Release in unserem detaillierten [`CHANGELOG.md` im Astro Repository](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) nachlesen.
+Obwohl nicht jeder Astro Release einen eigenen Blogpost verdient, kannst du alle Änderungen für jedes Release in unserem detaillierten [`CHANGELOG.md` im Astro Repository](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) nachlesen.
 
 ## Fehlt etwas?
 
