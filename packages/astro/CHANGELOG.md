@@ -1,5 +1,11 @@
 # astro
 
+## 0.19.0-next.2
+
+### Patch Changes
+
+- 089d1e7a: update dependencies, and fix a bad .flat() call
+
 ## 0.19.0-next.1
 
 ### Patch Changes

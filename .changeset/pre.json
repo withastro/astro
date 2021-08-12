@@ -41,6 +41,7 @@
   },
   "changesets": [
     "honest-rivers-call",
-    "light-ads-grin"
+    "light-ads-grin",
+    "tidy-hotels-serve"
   ]
 }
