@@ -5,7 +5,15 @@ import templateData from '../components/Examples/function-generate-examples-data
 let data = await templateData()
 ---
 <Layout content={data}>
-   {data.map((item)=>(
-       <Thumbnail data={item}/>
-   ))}
+   <div class="flexbox">
+       {data.map((item)=>(
+           <Thumbnail data={item}/>
+       ))}
+   </div>
 </Layout>
+<style lang="scss">
+    .flexbox{
+        display: flex;
+        flex-wrap: wrap;
+    }
+</style>

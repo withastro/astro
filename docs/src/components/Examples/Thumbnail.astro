@@ -12,14 +12,14 @@ function capitalize(str) {
 ---
    
 
-<div class="">
+<div class="thumbnail">
         <img src="" alt="">
-        <h3>{
+        <h3>{ 
             name.startsWith('framework')
                 ?
                 `${capitalize(name.split('-')[1])} ${capitalize(name.split('-')[0])}`
                 :
-                name
+                name 
                     .split('-')
                     .map((str)=>(
                         str.replace('with','')
@@ -28,11 +28,20 @@ function capitalize(str) {
                     .join(' ')
             }
         </h3>
-        <p>{keywords? keywords.toString(): ''}</p>
-        <p>{description}</p>
-        <br>
-        <pre data-lang='bash'>
-        {command}
-        </pre>
+        <p>{keywords? keywords.toString(): 'Keywords  goes here'}</p>
+        <p>{(description)? description : 'Template Description from Pkg JSON goes here'}</p>
+        <a href={`/example/${name}`}> Open page</a>
 </div>
 
+<style lang="scss">
+    .thumbnail{
+        width: 50%;
+        flex-basis: 1;
+        padding: 0.25rem;
+        transition: all 0.5s;
+        &:hover{
+            transform: scale(1.05);
+        }
+    }
+
+</style>
