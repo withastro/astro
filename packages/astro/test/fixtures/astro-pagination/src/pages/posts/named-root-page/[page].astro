@@ -1,5 +1,5 @@
 ---
-export function getStaticPaths({paginate}) {
+export async function getStaticPaths({paginate}) {
   const data = Astro.fetchContent('../../post/*.md');
   return paginate(data, {pageSize: 1});
 }
