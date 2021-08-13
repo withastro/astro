@@ -160,7 +160,7 @@ const { page } = Astro.props;
 
 #### The pagination `page` prop
 
-Pagination will pass a `page` prop to every rendered page that represents a single page of data in the paginated collection. This includes the data that you've paginated (`page.data`) as well as metadata for the page (`page.url`, `page.start`, `page.end`, `page.total`, etc). This metadata is useful for for things like a "Next Page" button or a "Showing 1-10 of 100" message.
+Pagination will pass a `page` prop to every rendered page that represents a single page of data in the paginated collection. This includes the data that you've paginated (`page.data`) as well as metadata for the page (`page.url`, `page.start`, `page.end`, `page.total`, etc). This metadata is useful for things like a "Next Page" button or a "Showing 1-10 of 100" message.
 
 | Name               |         Type          | Description                                                                                                                       |
 | :----------------- | :-------------------: | :-------------------------------------------------------------------------------------------------------------------------------- |

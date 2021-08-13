@@ -23,10 +23,10 @@ export function startServer() {
       filterIncompleteCompletions: !evt.initializationOptions?.dontFilterIncompleteCompletions,
       definitionLinkSupport: !!evt.capabilities.textDocument?.definition?.linkSupport,
     });
-    pluginHost.register(new AstroPlugin(docManager, configManager, workspaceUris));
     pluginHost.register(new HTMLPlugin(docManager, configManager));
     pluginHost.register(new CSSPlugin(docManager, configManager));
     pluginHost.register(new TypeScriptPlugin(docManager, configManager, workspaceUris));
+    pluginHost.register(new AstroPlugin(docManager, configManager, workspaceUris));
     configManager.updateEmmetConfig(evt.initializationOptions?.configuration?.emmet || evt.initializationOptions?.emmetConfig || {});
 
     return {

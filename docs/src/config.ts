@@ -9,7 +9,7 @@ export const SIDEBAR = {
 
     { text: 'Basics', header: true },
     { text: 'Project Structure', link: 'core-concepts/project-structure' },
-    { text: 'Components', link: 'core-concepts/astro-components' },
+    { text: 'Component Syntax', link: 'core-concepts/astro-components' },
     { text: 'Pages', link: 'core-concepts/astro-pages' },
     { text: 'Layouts', link: 'core-concepts/layouts' },
     { text: 'Routing', link: 'core-concepts/routing' },

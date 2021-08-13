@@ -142,7 +142,7 @@ One big reason behind this performance difference is Astro's smaller JavaScript 
 
 ## Nuxt vs. Astro
 
-[Nuxt](https://nextjs.org/) is a popular website & application framework for Vue. It is similar to Next.js.
+[Nuxt](https://nuxtjs.org/) is a popular website & application framework for Vue. It is similar to Next.js.
 
 Nuxt uses Vue to render your website. Astro is more flexible: you can use any UI component libraries (React, Preact, Vue, Svelte, and others) or Astro's built-in component syntax that is similar to HTML/JSX.
 

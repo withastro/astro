@@ -128,7 +128,7 @@ export default {
 
 `check` is a function that determines whether a Component should be "claimed" by this renderer.
 
-In it's simplest form, it can check for the existence of a flag on Object-based components.
+In its simplest form, it can check for the existence of a flag on Object-based components.
 
 ```js
 function check(Component) {
