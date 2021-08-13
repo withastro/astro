@@ -1,5 +1,11 @@
 # astro
 
+## 0.18.13
+
+### Patch Changes
+
+- Fix curly bracket encoding issue in markdown
+
 ## 0.18.12
 
 ### Patch Changes
