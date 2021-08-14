@@ -35,7 +35,7 @@ nav ul {
   padding: 0;
 }
 
-.content > section > * + * {
+.content section > * + * {
   margin-top: 1.25rem;
 }
 
@@ -64,7 +64,7 @@ h2 {
   margin-top: 3rem;
 }
 
-:is(h4, h5, h6):not(:first-child) {
+:is(h4, h5, h6) {
   margin-top: 2rem;
 }
 

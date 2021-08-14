@@ -54,7 +54,6 @@ const TableOfContents: FunctionalComponent<{ headers: any[] }> = ({
   return (
     <>
       <h2 class="heading">On this page</h2>
-      <div>{JSON.stringify(activeIdsInFullViewport)}</div>
       <ul>
         <li
           key="overview"
