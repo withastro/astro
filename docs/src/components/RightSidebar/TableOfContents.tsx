@@ -12,27 +12,18 @@ const useIntersectionObserver = () => {
     const callback: IntersectionObserverCallback = (
       headings: IntersectionObserverEntry[]
     ) => {
+      // For each of the headings, set 'heading id' = IntersectionObserverEntry in a Map.
       headingElementsRef.current = headings.reduce((map, headingElement) => {
-        map.set(headingElement.target.id, headingElement);
+        map.set(headingElement.target.children[0].id, headingElement);
         return map;
       }, headingElementsRef.current);
 
-      const visibleHeadings = Array.from(
-        headingElementsRef.current.values(),
-        (element) => {
-          if (element.isIntersecting) return element;
-          return undefined;
-        }
-      ).filter((element) => element != undefined);
+      // filter headingElementsRef.current for intersection sections and map it to an array of heading id's
+      const visibleHeadingIds = Array.from(headingElementsRef.current.values())
+        .filter((element) => element.isIntersecting)
+        .map((element) => element.target.children[0].id);
 
-      const getIndexFromId = (id) =>
-        headingElements.findIndex((heading) => heading.id === id);
-      const getId = (element) => element.target.id;
-
-      const sortedVisibleHeadings = visibleHeadings.sort(
-        (a, b) => getIndexFromId(a.target.id) - getIndexFromId(b.target.id)
-      );
-      setActiveIds(sortedVisibleHeadings.map(getId));
+      setActiveIds(visibleHeadingIds);
     };
 
     const observer = new IntersectionObserver(callback);
@@ -41,7 +32,9 @@ const useIntersectionObserver = () => {
       document.querySelectorAll('article :is(h1, h2, h3)')
     );
 
-    headingElements.forEach((element) => observer.observe(element));
+    headingElements.forEach((element) =>
+      observer.observe(element.parentElement)
+    );
 
     return () => observer.disconnect();
   }, [setActiveIds]);
