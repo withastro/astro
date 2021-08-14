@@ -1,9 +1,10 @@
 import type { FunctionalComponent } from 'preact';
 import { h, Fragment } from 'preact';
 import { useState, useEffect, useRef, StateUpdater } from 'preact/hooks';
+import './TableOfContents.css';
 
 // provided by https://www.emgoto.com/react-table-of-contents/
-const useIntersectionObserver = () => {
+const useIntersectionObserver = (opts: IntersectionObserverInit = {}) => {
   const [activeIds, setActiveIds] = useState([]);
   const headingElementsRef = useRef(
     new Map<string, IntersectionObserverEntry>()
@@ -13,6 +14,7 @@ const useIntersectionObserver = () => {
       headings: IntersectionObserverEntry[]
     ) => {
       // For each of the headings, set 'heading id' = IntersectionObserverEntry in a Map.
+      // We need to store this in a Ref<Map> so that we keep the old info from the last callback, and only update w/ new info
       headingElementsRef.current = headings.reduce((map, headingElement) => {
         map.set(headingElement.target.children[0].id, headingElement);
         return map;
@@ -26,7 +28,7 @@ const useIntersectionObserver = () => {
       setActiveIds(visibleHeadingIds);
     };
 
-    const observer = new IntersectionObserver(callback);
+    const observer = new IntersectionObserver(callback, opts);
 
     const headingElements = Array.from(
       document.querySelectorAll('article :is(h1, h2, h3)')
@@ -44,18 +46,21 @@ const useIntersectionObserver = () => {
 const TableOfContents: FunctionalComponent<{ headers: any[] }> = ({
   headers = [],
 }) => {
-  const activeIds = useIntersectionObserver();
+  const activeIdsInFullViewport = useIntersectionObserver();
+  const activeIdsInTopHalf = useIntersectionObserver({
+    rootMargin: '0px 0px -40% 0px',
+  });
 
   return (
     <>
       <h2 class="heading">On this page</h2>
-      <div>{JSON.stringify(activeIds)}</div>
+      <div>{JSON.stringify(activeIdsInFullViewport)}</div>
       <ul>
         <li
           key="overview"
           class={`header-link depth-2 ${
-            activeIds.includes('overview') ? 'active' : ''
-          }`.trim()}
+            activeIdsInFullViewport.includes('overview') ? 'in-view' : ''
+          } ${activeIdsInTopHalf.includes('overview') ? 'active' : ''}`.trim()}
         >
           <a href="#overview">Overview</a>
         </li>
@@ -65,7 +70,9 @@ const TableOfContents: FunctionalComponent<{ headers: any[] }> = ({
             <li
               key={header.slug}
               class={`header-link depth-${header.depth} ${
-                activeIds.includes(header.slug) ? 'active' : ''
+                activeIdsInFullViewport.includes(header.slug) ? 'in-view' : ''
+              } ${
+                activeIdsInTopHalf.includes(header.slug) ? 'active' : ''
               }`.trim()}
             >
               <a href={`#${header.slug}`}>{header.text}</a>
