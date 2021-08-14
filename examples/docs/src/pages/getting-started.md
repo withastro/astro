@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-layout: ../layouts/Main.astro
+layout: ../layouts/MainLayout.astro
 ---
 
 This template already provides your pages with a side bar navigation (on the left) for your pages, and a content navigation (on the right) for your sections.
