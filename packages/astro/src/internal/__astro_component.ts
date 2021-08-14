@@ -50,7 +50,16 @@ function isCustomElementTag(name: string | Function) {
 const rendererCache = new Map<any, RendererInstance>();
 
 /** For a given component, resolve the renderer. Results are cached if this instance is encountered again */
-async function resolveRenderer(Component: any, props: any = {}, children?: string): Promise<RendererInstance | undefined> {
+async function resolveRenderer(Component: any, props: any = {}, children?: string, metadata: Partial<AstroComponentMetadata> = {}): Promise<RendererInstance | undefined> {
+  // For client:only components, the component can't be imported
+  // during SSR. We need to infer the required renderer.
+  if (metadata.hydrate === 'only') {
+    // If there's only one renderer, assume it's the required renderer
+    if (rendererInstances.length === 1) {
+      return rendererInstances[0];
+    }
+  }
+
   if (rendererCache.has(Component)) {
     return rendererCache.get(Component)!;
   }
@@ -172,7 +181,7 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
       return Component.__render(props, prepareSlottedChildren(_children));
     }
     const children = removeSlottedChildren(_children);
-    let instance = await resolveRenderer(Component, props, children);
+    let instance = await resolveRenderer(Component, props, children, metadata);
 
     if (!instance) {
       if (isCustomElementTag(Component)) {

@@ -40,7 +40,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "uvu test -i fixtures -i benchmark -i test-utils.js"
+    "test": "node test/astro-client-only.test.js -i fixtures -i benchmark -i test-utils.js"
   },
   "dependencies": {
     "@astrojs/markdown-support": "0.2.3",
