@@ -1,5 +1,7 @@
 {
   "name": "@example/starter",
+  "description": "Astro's default template. This starter template is a perfect launchpad for your Astro project",
+  "keywords": ["create-astro","template","astro"],
   "version": "0.0.1",
   "private": true,
   "scripts": {

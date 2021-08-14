@@ -1,5 +1,7 @@
 {
   "name": "@example/with-markdown-plugins",
+  "description": "Using Markdown along with Rehype and Remark Plugins with Astro",
+  "keywords": ["kitchen-sink","template","astro"],
   "version": "0.0.2",
   "private": true,
   "scripts": {

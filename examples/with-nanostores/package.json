@@ -1,5 +1,7 @@
 {
   "name": "@example/with-nanostores",
+  "description": "A working example on using the aptly named Nanostores State Management plugin with Astro",
+  "keywords": ["kitchen-sink","template","astro"],
   "version": "0.0.1",
   "private": true,
   "scripts": {

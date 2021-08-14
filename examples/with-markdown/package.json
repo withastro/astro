@@ -1,5 +1,7 @@
 {
   "name": "@example/with-markdown",
+  "description": "A demonstration on using Markdown with Astro",
+  "keywords": ["kitchen-sink","template","astro"],
   "version": "0.0.1",
   "private": true,
   "scripts": {
