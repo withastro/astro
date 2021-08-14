@@ -57,6 +57,23 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
     // If there's only one renderer, assume it's the required renderer
     if (rendererInstances.length === 1) {
       return rendererInstances[0];
+    } else if (metadata.value) {
+      // Attempt to find the renderer by matching the hydration value
+      const hint = metadata.value;
+      const match = rendererInstances
+        .find((instance) => {
+          if (!instance.source) {
+            return false;
+          }
+
+          return instance.source.indexOf(hint) >= 0;
+        })
+      if (!match) {
+        throw new Error(`Couldn't find a renderer for <${metadata.displayName} client:only="${metadata.value}" />. Is there a renderer that matches the "${metadata.value}" hint in your Astro config?`)
+      }
+      return match;
+    } {
+      throw new Error(`Can't determine the renderer for ${metadata.displayName}. Include a hint similar to <${metadata.displayName} client:only="react" /> when multiple renderers are included in your Astro config.`)
     }
   }
 
