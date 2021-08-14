@@ -2,24 +2,51 @@
 import Layout from '../layouts/ExamplesLayout.astro'
 import Thumbnail from '../components/Examples/Thumbnail.astro'
 import templateData from '../components/Examples/function-generate-examples-data.js'
+import {Markdown} from 'astro/components'
 let data = await templateData()
 ---
 <Layout content={data}>
-    <h1>
-        Official Astro Templates
-    </h1>
-    <p>
-        Below is a list of Astro's Templates 
-    </p>
+    <Markdown>
+       # Examples & Templates
+        We encourage you to freely explore our collection of ready-made templates containing a multitude of examples on how to apply Astro to a variety of use-cases. i.e: various UI frameworks, State Management Tools, and of course TailwindCSS
+
+        To use any one of our templates simply instruct `create-astro`by using:
+
+        ```bash
+            npm init astro my-astro-project -- -- template [template]
+        ```
+    </Markdown>
    <div class="flexbox">
        {data.map((item)=>(
            <Thumbnail data={item}/>
        ))}
    </div>
+       <Markdown>
+        
+        ##  Community Templates
+        
+        Visit [Awesome-Astro](https://github.com/one-aalam/awesome-astro) for a full list of community examples.
+        
+        You can use `npm init astro` to check out any of the community examples
+    </Markdown>
+    <Markdown >
+
+        ```bash
+        npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
+        npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
+        ```
+    </Markdown>
 </Layout>
 <style lang="scss">
     .flexbox{
         display: flex;
         flex-wrap: wrap;
+    }
+    .markdown{
+        padding:2%;
+        line-height: 1.25rem;
+    }
+    pre{
+        margin-top: 1rem;
     }
 </style>

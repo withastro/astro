@@ -9,6 +9,8 @@ let command = `npm init astro my-astro-project -- --template ${name}`
 function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
+
+
 ---
    
 
@@ -30,23 +32,46 @@ function capitalize(str) {
                 }
             </h3>
         </a>
-        <p>{keywords? keywords.toString(): 'Keywords  goes here'}</p>
+        <!-- <p>{keywords? keywords.toString(): 'Keywords  goes here'}</p> -->
         <p>{(description)? description : 'Template Description from Pkg JSON goes here'}</p>
-        
+        <pre>--template {name}</pre>
 </div>
 
 <style lang="scss">
     .thumbnail{
-        width: 50%;
-        flex-basis: 1;
-        padding: 0.25rem;
-        transition: all 0.5s;
+        
+        width: 45%;
+        flex-grow: 1;
+        padding: 0.55rem 1rem 0.15rem 0rem;
+        transition: all 0.25s ease-out ;
+        transform: perspective(1000rem); //hack but needed,
         &:hover{
-            transform: scale(1.05);
+            transform: scale(1.015);
         }
         > a{
             color:var(--theme-accent)
         }
+        >p{
+            height: clamp(35%,40%,35%);
+            word-break: keep-all;
+            text-overflow:ellipsis ;
+        }
+        > pre{
+            width:99%;
+            margin-top: 0.85rem;
+            margin-left:0;
+        }
+    
     }
+    @media(max-width:603px){
+        .thumbnail{
+            width: 100%;
+            height: fit-content;
+            >pre{
+                border-radius:0.5rem;
+            }
+        }
+    }
+         
 
 </style>
