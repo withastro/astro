@@ -1,5 +1,7 @@
 {
   "name": "@example/portfolio",
+  "description": "Astro's official Portfolio Template. For truly impressive portfolios its best built with Astro",
+  "keywords": ["create-astro","template","astro"],
   "version": "0.0.1",
   "private": true,
   "scripts": {

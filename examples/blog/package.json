@@ -1,7 +1,7 @@
 {
   "name": "@example/blog",
-  "description": "A Blog built using Astro",
-  "keywords": ["create-astro"],
+  "description": "Blog Site built using Astro. Use this Template to setup your own Blog",
+  "keywords": ["create-astro","template","astro"],
   "version": "0.0.1",
   "private": true,
   "scripts": {

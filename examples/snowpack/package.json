@@ -1,5 +1,7 @@
 {
   "name": "@example/snowpack",
+  "description": "Astro's First Template, everything has a beginning, and this for Astro's templates, was our 'Hello World'",
+  "keywords": ["create-astro","template","astro"],
   "version": "0.0.1",
   "private": true,
   "scripts": {

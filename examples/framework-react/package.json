@@ -1,5 +1,7 @@
 {
   "name": "@example/framework-react",
+  "description": "Explore how to using the powerful React Library to develop components within Astro",
+  "keywords": ["framework","template","astro"],
   "version": "0.0.1",
   "private": true,
   "scripts": {

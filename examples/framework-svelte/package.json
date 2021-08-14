@@ -1,5 +1,7 @@
 {
   "name": "@example/framework-svelte",
+  "description": "See how we combined the power of Svelte alongside Astro ",
+  "keywords": ["framework","template","astro"],
   "version": "0.0.1",
   "private": true,
   "scripts": {
