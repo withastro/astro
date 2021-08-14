@@ -62,7 +62,7 @@ Anyone who has made several significant (non-trivial) contributions to Astro can
 - Nominees are expected to be respectful of every community member and to work collaboratively in the spirit of inclusion.
 - Have submitted a minimum of 10 qualifying significant contributions (see list above).
 - You can be nominated by any existing Contributor (L2 or above).
-- Once nominated, there will be a vote by existing Contributors (L3 or above).
+- Once nominated, there will be a vote by existing Contributors (L3 or above) (see [voting rules](#voting)).
 
 It is important to recognize that this role is a privilege, not a right. That privilege must be earned and once earned it can be removed (in a vote by project Stewards). However, under normal circumstances this role exists for as long as the Contributor wishes to continue engaging with the project.
 
@@ -115,7 +115,7 @@ Steward is an additional privilege bestowed to 1 (or more) Contributors. The rol
 Certain project decisions require a vote. These include:
 
 - Governance changes: simple majority (over 50%) conducted via GitHub PR approval.
-- Core contributor membership: overwhelming majority (over 70%) conducted by privately messaging a steward. Funneling both assenting and dissenting votes directly through stewards allows for anonymity when discussing the merits of a potential contributor.
+- Contributor membership (L2 and L3): discussion conducted via a temporary Discord channel open to qualified contributors for up to 3 days. Acceptance requires an overwhelming majority (over 70%) vote conducted by privately messaging a steward. Funneling both assenting and dissenting votes directly through stewards allows for anonymity when discussing the merits of a potential contributor.
 
 A steward may initiate a vote for any unlisted project decision. Core contributors can request a vote by contacting a steward.
 
