@@ -75,12 +75,11 @@ node test/benchmark/dev.bench.js --save
 
 Which will update the build and dev benchmarks.
 
-
 # Releasing Astro
 
 _Note: Only priviledged contributors (L3+) can release new versions of Astro._
 
-The repo is set up with automatic releases, using the changeset GitHub action & bot. 
+The repo is set up with automatic releases, using the changeset GitHub action & bot.
 
 To release a new version of Astro, find the `Version Packages` PR, read it over, and merge it.
 
@@ -103,16 +102,14 @@ yarn release --tag next--XXX
 
 Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snapshot-releases.md
 
-
-
 ## Releasing in "next"/"pre" mode
 
 Sometimes, the repo enters "next" mode, which means that `main` is no longer releasing to `npm install astro` but is instead releasing to `npm install astro@next`. We do this from time-to-time to test large features before sharing them with the larger Astro audience.
 
 When in "next" mode, the automatic PR release process is for `next`. That means that releasing to `latest` becomes a manual process. To release latest manually while in "next" mode:
 
-1. *In the code snippets below, replace `0.X` with your version (ex: `0.18`, `release/0.18`, etc.).*
-1. Create a new `release/0.X` branch, if none exists. 
+1. _In the code snippets below, replace `0.X` with your version (ex: `0.18`, `release/0.18`, etc.)._
+1. Create a new `release/0.X` branch, if none exists.
 1. Point `release/0.X` to the latest commit for the `v0.X` version.
 1. `git cherry-pick` commits from `main`, as needed.
 1. Make sure that all changesets for the new release are included. You can create some manually (via `yarn changeset`) if needed.
@@ -122,7 +119,6 @@ When in "next" mode, the automatic PR release process is for `next`. That means 
 1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
 1. Go to https://github.com/snowpackjs/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/snowpackjs/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
-
 
 # Translations
 
