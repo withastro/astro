@@ -1,6 +1,6 @@
 ---
 title: Markdown Example
-layout: ../layouts/Main.astro
+layout: ~/layouts/MainLayout.astro
 ---
 
 This is a fully-featured page, written in Markdown!
@@ -17,7 +17,9 @@ Nam quam dolor, pellentesque sed odio euismod, feugiat tempus tellus. Quisque ar
 
 ```markdown
 ---
-layout: ../layouts/Main.astro
+title: Markdown Page!
+lang: en
+layout: ~/layouts/MainLayout.astro
 ---
 
 # Markdown example

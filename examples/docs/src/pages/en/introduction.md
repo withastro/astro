@@ -1,6 +1,6 @@
 ---
 title: Hello, Documentation!
-layout: ../layouts/Main.astro
+layout: ~/layouts/MainLayout.astro
 ---
 
 <img src="https://github.com/snowpackjs/astro/blob/main/assets/social/banner.png?raw=true" alt="Astro" width="638" height="320" >
@@ -39,6 +39,7 @@ The default Astro project has the following `scripts` in the `/package.json` fil
 ```json
 {
   "scripts": {
+    "start": "astro dev",
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview"
