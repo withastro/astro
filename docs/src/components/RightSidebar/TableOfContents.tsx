@@ -3,7 +3,8 @@ import { h, Fragment } from 'preact';
 import { useState, useEffect, useRef, StateUpdater } from 'preact/hooks';
 import './TableOfContents.css';
 
-// provided by https://www.emgoto.com/react-table-of-contents/
+// Inspired by https://www.emgoto.com/react-table-of-contents/
+// Provide this function with an IntersectionObserverInit object and get back the list of intersecting sections.
 const useIntersectionObserver = (opts: IntersectionObserverInit = {}) => {
   const [activeIds, setActiveIds] = useState([]);
   const headingElementsRef = useRef(
