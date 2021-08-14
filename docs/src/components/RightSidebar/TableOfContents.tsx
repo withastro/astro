@@ -1,6 +1,6 @@
 import type { FunctionalComponent } from 'preact';
 import { h, Fragment } from 'preact';
-import { useState, useEffect, useRef, StateUpdater } from 'preact/hooks';
+import { useState, useEffect, useRef } from 'preact/hooks';
 import './TableOfContents.css';
 
 // Inspired by https://www.emgoto.com/react-table-of-contents/
@@ -40,7 +40,7 @@ const useIntersectionObserver = (opts: IntersectionObserverInit = {}) => {
     );
 
     return () => observer.disconnect();
-  }, [setActiveIds]);
+  }, [setActiveIds, opts]);
   return activeIds;
 };
 
