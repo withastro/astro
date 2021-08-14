@@ -15,6 +15,6 @@ export default {
     // Our main renderer for frontend components
     '@astrojs/renderer-preact',
     // Needed for Algolia search component
-    '@astrojs/renderer-react'
+    '@astrojs/renderer-react',
   ],
 };
