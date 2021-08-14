@@ -113,15 +113,15 @@ When in "next" mode, the automatic PR release process is for `next`. That means 
 
 1. *In the code snippets below, replace `0.X` with your version (ex: `0.18`, `release/0.18`, etc.).*
 1. Create a new `release/0.X` branch, if none exists. 
-2. Point `release/0.X` to the latest commit for the `v0.X` version.
-3. `git cherry-pick` commits from `main`, as needed.
-4. Make sure that all changesets for the new release are included. You can create some manually (via `yarn changeset`) if needed.
-5. Run `yarn changeset version` to create your new release.
-6. Run `yarn release` to publish your new release.
-7. Run `git push && git push --tags` to push your new release to GitHub.
-8. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
-9. Go to https://github.com/snowpackjs/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/snowpackjs/astro/blob/latest/packages/astro/CHANGELOG.md.
-10. Post in Discord #announcements channel, if needed!
+1. Point `release/0.X` to the latest commit for the `v0.X` version.
+1. `git cherry-pick` commits from `main`, as needed.
+1. Make sure that all changesets for the new release are included. You can create some manually (via `yarn changeset`) if needed.
+1. Run `yarn changeset version` to create your new release.
+1. Run `yarn release` to publish your new release.
+1. Run `git push && git push --tags` to push your new release to GitHub.
+1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
+1. Go to https://github.com/snowpackjs/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/snowpackjs/astro/blob/latest/packages/astro/CHANGELOG.md.
+1. Post in Discord #announcements channel, if needed!
 
 
 # Translations
