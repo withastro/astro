@@ -55,9 +55,9 @@ You will need to setup redirect mechanism, via `vercel`, `netlify`, etc... that 
 
 ## Algolia DocSearch
 
-[Algolia](https://www.algolia.com/) offers [DocSearch](https://docsearch.algolia.com/), a *"State-of-the-art search for technical documentation"*. We use DocSearch for the Astro docs as it's a great documentation search engine, to make things setting up docs easier we built it into the docs template, you can setup DocSearch for your site by following these instructions, ...
+[Algolia](https://www.algolia.com/) offers [DocSearch](https://docsearch.algolia.com/), a _"State-of-the-art search for technical documentation"_. We use DocSearch for the Astro docs as it's a great documentation search engine, to make things setting up docs easier we built it into the docs template, you can setup DocSearch for your site by following these instructions, ...
 
-### 🛠 Configuration 
+### 🛠 Configuration
 
 ...
 
