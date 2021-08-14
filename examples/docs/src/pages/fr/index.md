@@ -4,7 +4,7 @@ title: Bonjour, Documentations!
 lang: fr
 ---
 
-# Astro docs but in French....
+## Astro docs but in French....
 
 <img src="https://github.com/snowpackjs/astro/blob/main/assets/social/banner.png?raw=true" alt="Astro" width="638" height="320" >
 

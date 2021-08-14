@@ -1,7 +1,10 @@
 ---
-title: Markdown Example
 layout: ~/layouts/MainLayout.astro
+title: Exemple de démarque
+lang: fr
 ---
+
+## Astro docs but in French....
 
 This is a fully-featured page, written in Markdown!
 
@@ -17,9 +20,7 @@ Nam quam dolor, pellentesque sed odio euismod, feugiat tempus tellus. Quisque ar
 
 ```markdown
 ---
-title: Markdown Page!
-lang: en
-layout: ~/layouts/MainLayout.astro
+layout: ../layouts/Main.astro
 ---
 
 # Markdown example

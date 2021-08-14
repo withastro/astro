@@ -1,16 +1,16 @@
 export const SIDEBAR = {
   en: [
-    { text: 'Introduction', link: 'introduction', header: true },
+    { text: 'Introduction', header: true },
     { text: 'Getting Started', link: 'getting-started' },
     { text: 'Example', link: 'example' },
   ],
   es: [
-    { text: 'Introducción', link: 'es/introduction', header: true },
+    { text: 'Introducción', header: true },
     { text: 'Empezando', link: 'es/getting-started' },
     { text: 'Ejemplo', link: 'es/example' },
   ],
   fr: [
-    { text: 'Introduction', link: 'fr/introduction', header: true },
+    { text: 'Introduction', header: true },
     { text: 'Commencer', link: 'fr/getting-started' },
     { text: 'Exemple', link: 'fr/example' },
   ],

@@ -1,11 +1,11 @@
 ---
-// import HeadCommon from "../components/HeadCommon.astro";
-// import HeadSEO from "../components/HeadSEO.astro";
-// import Header from '../components/Header/Header.astro';
-// import Footer from '../components/Footer/Footer.astro';
-// import PageContent from '../components/PageContent/PageContent.astro';
-// import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
-// import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
+import HeadCommon from "../components/HeadCommon.astro";
+import HeadSEO from "../components/HeadSEO.astro";
+import Header from '../components/Header/Header.astro';
+import Footer from '../components/Footer/Footer.astro';
+import PageContent from '../components/PageContent/PageContent.astro';
+import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
+import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
 import { SITE } from "../config.ts";
 
 const { content = {} } = Astro.props;
@@ -16,9 +16,9 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
 
 <html dir="{content.dir ?? 'ltr'}" lang="{content.lang ?? 'en-us'}" class="initial">
   <head>
-    <!-- <HeadCommon />
+    <HeadCommon />
     <HeadSEO {content} canonicalURL={Astro.request.canonicalURL} />
-    <title>{content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title}</title> -->
+    <title>{content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title}</title>
     <style>
       body {
         width: 100%;
@@ -104,19 +104,18 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${curr
   </head>
 
   <body>
-    <!-- <Header currentPage={currentPage} /> -->
+    <Header currentPage={currentPage} />
     <main class="layout">
       <aside id="grid-left" class="grid-sidebar" title="Site Navigation">
-        <!-- <LeftSidebar currentPage={currentPage} /> -->
+        <LeftSidebar currentPage={currentPage} />
       </aside>
       <div id="grid-main">
+        <PageContent content={content} githubEditUrl={githubEditUrl}>
           <slot />
-        <!-- <PageContent content={content} githubEditUrl={githubEditUrl}>
-          <slot />
-        </PageContent> -->
+        </PageContent>
       </div>
       <aside id="grid-right" class="grid-sidebar" title="Table of Contents">
-        <!-- <RightSidebar content={content} githubEditUrl={githubEditUrl} /> -->
+        <RightSidebar content={content} githubEditUrl={githubEditUrl} />
       </aside>
     </main>
   </body>
