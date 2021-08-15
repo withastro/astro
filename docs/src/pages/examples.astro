@@ -34,7 +34,8 @@ console.log(data)
     </Markdown>
     <div class="flexbox">
         {data.filter(item=> (item.pkgJSON?.keywords?.includes('framework')))
-                .sort((a,b)=> ((a.name === 'framework-multiple')? -1 : 1))
+                .sort((a,b)=> (b.name > a.name) ? 1 : -1)
+                .sort((a,b)=> ((a.name === 'framework-multiple') ? 0 : -1))
                 .map((item)=>(<Thumbnail data={item}/>))}
     </div>
     <Markdown>
