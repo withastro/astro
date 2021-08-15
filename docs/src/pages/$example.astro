@@ -18,7 +18,7 @@ export async function createCollection(){
         async props({params}){
           let example = dataset.filter((example)=>example.name === params.name)
            return{
-               name:params.name,
+               name: params.name,
                data: example
            } 
             
@@ -26,7 +26,6 @@ export async function createCollection(){
     }
 }
 const {name, data} = Astro.props 
-console.log(data)
 ---
 <Layout>
     {data.map(item=>((item.readme)?<><Markdown content={item.readme}/></>:''))}
