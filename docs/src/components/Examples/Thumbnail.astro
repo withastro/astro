@@ -1,13 +1,11 @@
 ---
 import {Markdown} from 'astro/components'
-
+import capitalise from './function-capitalise.js'
 const {data:{name,readme,pkgJSON:{description,keywords}}} = Astro.props
             
 let command = `npm init astro my-astro-project -- --template ${name}`
 
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
+
 
 ---
    
@@ -17,7 +15,7 @@ function capitalize(str) {
             <h3>{
                 name.includes('multiple')
                     ?
-                    `${capitalize(name.split('-')[1])} ${capitalize(name.split('-')[0])}'s`
+                    `${capitalise(name.split('-')[1])} ${capitalise(name.split('-')[0])}'s`
                     :
                     name
                         .split('-')
@@ -27,7 +25,7 @@ function capitalize(str) {
                         .map((str)=>(
                             str.replace('framework','')
                         ))
-                        .map((str)=>(capitalize(str)))
+                        .map((str)=>(capitalise(str)))
                         .join(' ')
                 }
             </h3>
