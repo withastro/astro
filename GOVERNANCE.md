@@ -2,94 +2,174 @@
 
 # Governance
 
-This document outlines the governance model for Astro. This includes the contributor model, code review, merging, and the consequences and process for Code of Conduct violations.
+This document outlines the governance model for Astro. This includes the contributor model, code review process, PR merge process, and the consequences of Code of Conduct violations.
 
-**All members must follow the [Code of Conduct](CODE_OF_CONDUCT.md).** Consequences for member violations are detailed in [Moderation](#moderation).
+👉 **All community members must follow the [Code of Conduct (CoC)](CODE_OF_CONDUCT.md).**  
+Consequences for CoC violations are detailed in [Moderation](#moderation).
+
+👉 **Want to trigger a vote, nomination, or perform some other action?**  
+Scroll down to [Playbook](#playbook).
 
 ## Get Involved
 
-Anyone can become an Astro Contributor regardless of skill level, experience, or background. All types of contribution are meaningful. Our membership system was designed to reflect this.
+**Anything that supports the Astro community is considered a contribution.** All types of contribution are meaningful, from code to documentation to blog posts. Anyone can become an Astro Contributor (yes, even you!). Our goal is to recognize all contributors to Astro regardless of skill level, experience or background.
 
-**Anything that supports the Astro community is a contribution to the project.** This includes but is not limited to:
+**@FredKSchott** wrote up some notes on the personal value of open source, which you can read in our [CONTRIBUTING.md](CONTRIBUTING.md#why-contribute-to-open-source) document.
+  
+## Contributor Levels
 
-- Submitting (and Merging) a Pull Request
-- Filing a Bug Report or Feature Request
-- Updating Documentation
-- Answering questions about Astro on GitHub or Discord
+We welcome people of all skill levels to become contributors. We recognize different degrees of contribution as **levels**, and most levels can be reached regardless of coding skill or years of experience. The two most important things that we look for in contributors are:
+
+- **Being here** - Everyone's time is valuable, and the fact that you're here and contributing to Astro is amazing! Thank you for being a part of this journey with us.
+- **Being a positive member of our community** - Go above and beyond our Code of Conduct, and commit to healthy communication in pull requests, issue discussions, Discord conversations, and interactions outside of our community (ex: no Twitter bullies allowed :)
+
+Each level unlocks new privileges and responsibilities on Discord and GitHub. Below is a summary of each contributor level:
+
+### Level 1 - Contributor
+
+Have you done something (big or small) to contribute to the health, success, or growth of Astro? Congratulations, you're officially recognized as a contributor to the project!
+
+#### Examples of recognized contributions:
+
+- **GitHub:** Submitting a merged pull request
+- **GitHub:** Filing a detailed bug report or RFC
+- **GitHub:** Updating documentation!
+- Helping people on GitHub, Discord, etc.
 - Answering questions on Stack Overflow, Twitter, etc.
-- Blogging, Podcasting, or Livestreaming about Astro
+- Blogging, Vlogging, Podcasting, and Livestreaming about Astro
+- This list is incomplete! Similar contributions are also recognized.
 
-## Membership Levels, Roles and Responsibilities
+#### Privledges:
 
-A list of all active members is available on our project README.
+- New role on [Discord](https://astro.build/chat): `@contributor`
+- New name color on Discord: **light blue**.
+- Access to exclusive Astro emotes on Discord.
+- Invitations to contributor-only events, sticker drops, and the occasional swag drop.
 
-### Contributor L1
+#### Responsibilities
 
-Have you done something to contribute to the health, success, or growth of Astro? Congratulations, you're officially a contributor!
+This role does not require any extra responsibilities or time commitment. We hope you stick around and keep participating! 
 
-**Benefits:**
+If you're interested in reaching the next level and becoming a Maintainer, you can begin to explore some of those responsibilities in the next section.
 
-- Contributor status on the [Astro Discord server](https://astro.build/chat)
-- Ability to [vote](GOVERNANCE.md#voting) on some project decisions
+#### Nomination Process:
 
-**Nomination:**
+_Note: This process is still in progress, and the Discord bot that will power it is not yet built. For now, manually nominate/self-nominate by posting in Discord._
 
-- Self-nominate by running `!contribute` in our Discord and briefly describe your qualifying contribution (link preferred).
+- Self-nominate by running `!contribute` in any Discord channel and briefly describe your qualifying contribution (link recommended).
 - Connect your Discord account with GitHub (or Reddit, Twitter, etc.) to automatically get recognized for future contributions.
 
-### Contributor L2 (Committer)
 
-**Contributor L2** membership is reserved for users that have shown a commitment to the continued development of the project through ongoing engagement with the community. At this level, contributors are given push access to the project's GitHub repos and must continue to abide by the project's Contribution Guidelines.
+### Level 2 (L2) - Maintainer
 
-Anyone who has made several significant (non-trivial) contributions to Astro can become a Contributor in recognition of their work. An example of a "significant contribution" might be:
+The **Maintainer** role is available to any contributor who wants to join the team and take part in the long-term maintenance of Astro.
 
-- ✅ Triaging and supporting non-trivial Discord and GitHub issues
-- ✅ Submitting and reviewing non-trivial PRs
-- ✅ Submitting and reviewing non-trivial documentation edits (multiple sections/pages)
-- ❌ A typo fix, or small documentation edits of only a few sentences
+The Maintainer role is critical to the long-term health of Astro. Maintainers act as the first line of defense when it comes to new issues, pull requests and #support channel activity. Maintainers are most likely the first people that a user will interact with on Discord or GitHub.
+
+**A Maintainer is not required to write code!** Some Maintainers spend most of their time inside of Discord, maintaining a healthy community there. Maintainers can also be thought of as **Moderators** on Discord and carry special privileges for moderation.
+
+There is no strict minimum number of contributions needed to reach this level, as long as you can show **sustained** involvement over some amount of time (at least a couple of weeks).
+
+#### Recognized Contributions:
+
+- **GitHub:** Submitting non-trivial pull requests and RFCs
+- **GitHub:** Reviewing non-trivial pull requests and RFCs
+- **Discord:** Supporting users in Discord, especially in the #support channel
+- **Discord:** Active participation in RFC calls and other events
+- **GitHub + Discord:** Triaging and confirming user issues
+- This list is incomplete! Similar contributions are also recognized.
+
+#### Privledges:
+
+- All of the privileges of L1, including...
+- `@maintainer` role on [Discord](https://astro.build/chat)
+- New name color on Discord: **blue**.
+- Invitation to the private #maintainers channel on Discord.
+- Invitation to the `maintainers` team on GitHub.
+- Ability to moderate Discord.
+- Ability to push branches to the repo (No more personal fork needed).
+- Ability to review GitHub PRs.
+- Ability to merge _some_ GitHub PRs.
+- Ability to vote on _some_ initiatives (see [Voting](#voting) below).
+
+#### Responsibilities:
+
+- Participate in the project as a team player.
+- Bring a friendly, welcoming voice to the Astro community.
+- Be active on Discord, especially in the #support channel.
+- Triage new issues.
+- Review pull requests.
+- Merge some, non-trivial community pull requests.
+- Merge your own pull requests (once reviewed and approved).
+
+#### Nomination - How to:
+
+To be nominated, a nominee is expected to already be performing some of the responsibilities of a Maintainer over the course of a couple weeks. In the past, we have used "10 PRs" as a rough minimum for potential Maintainers, but there is no hard requirement.
+
+In some rare cases, membership may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project. 
+
+#### Nomination - Process:
+
+- You can be nominated by any existing Maintainer (L2 or above).
+- Once nominated, there will be a vote by existing Maintainers (L2 and above) (see [Voting rules](#voting)).
+- If the vote passes, the nominee will be made a Maintainer and all privileges will be made available to them.
+- If the vote fails, the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #maintainers channel, or if the nominee was otherwise not made aware of their nomination).
+
+
+### Level 3 (L3) - Core Maintainer
+
+**Core Maintainers** are community members who have contributed a significant amount of time and energy to the project through issues, bug fixes, implementing enhancements/features, and engagement with the community. A Core Maintainer is considered a trusted leader within the community. 
+
+A Core Maintainer has significant sway in software design decisions, so  coding experience is critical for this role. Core Maintainer is the only level of contributor that does require a significant contribution history on GitHub.
+
+Core maintainers are watchdogs over the code, ensuring code quality, correctness and security. A Core Maintainer helps to set the direction of the project and ensure a healthy future for Astro.
+
+Some contributors will not reach this level, and that's okay! L2 Maintainers still have significant responsibility and privileges in our community.
+
+#### Privledges:
+
+- All of the privileges of L2, including...
+- `@core` role on [Discord](https://astro.build/chat)
+- New name color on Discord: **deep, dark blue**.
+- Invitation to the private #core channel on Discord.
+- Invitation to the `core` team on GitHub.
+- Ability to merge all GitHub PRs.
+- Ability to vote on all initiatives (see [Voting](#voting) below).
 
 **Responsibilities:**
 
-- May request write access to relevant Astro projects.
-- GitHub: May work on public branches of the source repository and submit pull requests from that branch to the main branch.
-- GitHub: Must submit pull requests for all changes, and have their work reviewed by other members before acceptance into the repository.
-- GitHub: May merge some pull requests (see Managing Pull Requests)
+- All of the responsibilities of L2, including...
+- Ownership over specific parts of the project.
+- Maintaining and improving overall architecture.
+- Tracking and ensuring progress of open pull requests.
+- Reviewing and merging larger, non-trivial PRs.
 
-**Nomination:**
+#### Nomination - How to:
 
-- A nominee will need to show a willingness and ability to participate in the project as a team player.
-- Typically, a nominee will need to show that they have an understanding of and alignment with the project, its objectives, and its strategy.
-- Nominees are expected to be respectful of every community member and to work collaboratively in the spirit of inclusion.
-- Have submitted a minimum of 10 qualifying significant contributions (see list above).
-- You can be nominated by any existing Contributor (L2 or above).
-- Once nominated, there will be a vote by existing Contributors (L3 or above) (see [voting rules](#voting)).
+To be nominated, a nominee is expected to already be performing some of the responsibilities of a Core Maintainer. This could include showing expertise over some larger section of the codebase, championing RFCs through ideation and implementation, reviewing non-trivial PRs and providing critical feedback, or some combination of those responsibilities listed above.
 
-It is important to recognize that this role is a privilege, not a right. That privilege must be earned and once earned it can be removed (in a vote by project Stewards). However, under normal circumstances this role exists for as long as the Contributor wishes to continue engaging with the project.
+If a Core Maintainer steps away from the project for a significant amount of time, they may be removed as a Core Maintainer (L3 -> L2) until they choose to return.
 
-Inactive Contributors will have voting rights removed after a certain period of time, however they will always retain their status. Inactivity requirements will be specified in a later governance change.
+In some rare cases, membership may be completely revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project.
 
-### Contributor L3 (Core Contributor)
+#### Nomination - Process:
 
-Contributor L3 (Core Contributors) are community members who have contributed a significant amount of time to the project through triaging of issues, fixing bugs, implementing enhancements/features, and are trusted community leaders.
+- You can be nominated by any existing Core Maintainer (L3 or above).
+- Once nominated, there will be a vote by existing Core Maintainers (L3 and above) (see [Voting rules](#voting)).
+- If the vote passes, the nominee will be made a Core Maintainer and all privileges will be made available to them.
+- If the vote fails, the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
 
-**Responsibilities:**
-
-- May merge external pull requests for accepted issues upon reviewing and approving the changes.
-- May merge their own pull requests once they have collected the feedback and approvals they deem necessary.
-  - Caveat: No pull request should be merged without at least one Contributor (L2 or above) comment stating they've looked at the code.
-
-**Nomination:**
-
-- Work in a helpful and collaborative way with the community.
-- Have given good feedback on others' submissions and displayed an overall understanding of the code quality standards for the project.
-- Commit to being a part of the community for the long-term.
-- Have submitted a minimum of 50 qualifying significant contributions (see list above).
-
-A Contributor is invited to become a Core Contributor by existing Core Contributors. A nomination will result in discussion and then a decision by the project steward(s).
 
 ### Steward
 
-Steward is an additional privilege bestowed to 1 (or more) Contributors. The role of Steward is mainly an administrative one. Stewards control and maintain sensitive project assets, and act as tiebreakers in the event of disagreements. These additional privileges include:
+Steward is an additional privilege bestowed to 1 (or more) Core Maintainers. The role of Steward is mainly an administrative one. Stewards control and maintain sensitive project assets, and act as tiebreakers in the event of disagreements. 
+
+In extremely rare cases, a Steward can act unilaterally when they believe it is in the project's best interest and can prove that the issue cannot be resolved through normal governance procedure. The steward must publicly state their reason for unilateral action before taking it.
+
+The project steward is currently: **@FredKSchott**
+
+
+#### Responsibilities 
 
 - Access to the [@astrodotbuild Twitter account](https://twitter.com/astrodotbuild)
 - Administration privileges on the [astro GitHub org](https://github.com/snowpackjs)
@@ -103,21 +183,25 @@ Steward is an additional privilege bestowed to 1 (or more) Contributors. The rol
 - Ability to decide on moderation decisions
 - Access to the `*@astro.build` email address
 
-**Nomination:**
+#### Nomination
 
 - Stewards cannot be self-nominated.
-- Only Core Contributors are eligible.
-- New stewards will be added based on a unanimous vote by the existing stewards.
-- In the event that someone is unreachable then the decision will be deferred. Discussion and approval will be done in private.
+- Only Core Maintainers are eligible.
+- New stewards will be added based on a unanimous vote by the existing steward(s).
+- In the event that someone is unreachable then the decision will be deferred.
+
+# Governance Playbook
 
 ## Voting
 
 Certain project decisions require a vote. These include:
 
-- Governance changes: simple majority (over 50%) conducted via GitHub PR approval.
-- Contributor membership (L2 and L3): discussion conducted via a temporary Discord channel open to qualified contributors for up to 3 days. Acceptance requires an overwhelming majority (over 70%) vote conducted by privately messaging a steward. Funneling both assenting and dissenting votes directly through stewards allows for anonymity when discussing the merits of a potential contributor.
+- Governance changes: simple majority (over 50%) vote conducted via GitHub PR approval.
+- Contributor membership (L2 and L3): overwhelming majority (over 70%) vote conducted via private Discord thread.
 
-A steward may initiate a vote for any unlisted project decision. Core contributors can request a vote by contacting a steward.
+A steward may initiate a vote for any unlisted project decision. 
+
+Contributors can request a vote at any time by contacting a steward.
 
 ### Rules
 
@@ -172,4 +256,4 @@ Responses will be determined by the reviewers on the basis of the information ga
 
 ---
 
-Inspired by [ESLint](https://eslint.org/docs/6.0.0/maintainer-guide/governance) and [Rome](https://github.com/rome/tools/blob/main/GOVERNANCE.md).
+Inspired by [ESLint](https://eslint.org/docs/6.0.0/maintainer-guide/governance), [Rome](https://github.com/rome/tools/blob/main/GOVERNANCE.md) and  [Blitz](https://blitzjs.com/docs/maintainers).
