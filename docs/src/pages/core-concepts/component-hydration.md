@@ -85,6 +85,8 @@ Hydrate the component as soon as the browser matches the given media query (uses
 
 Hydrates the component at page load, similar to `client:load`. The component will be **skipped** at build time, useful for components that are entirely dependent on client-side APIs. This is best avoided unless absolutely needed, in most cases it is best to render placeholder content on the server and delay any browser API calls until the component hydrates in the browser.
 
+If more than one renderer is included in the Astro [config](/reference/configuration-reference), `client:only` needs a hint to know which renderer to use for the component. For example, `client:only="react"` would make sure that the component is hydrated in the browser with the React renderer. This hint can be skipped if only one renderer is included in the Astro config.
+
 ## Can I Hydrate Astro Components?
 
 [Astro components](./astro-components) (`.astro` files) are HTML-only templating components with no client-side runtime. If you try to hydrate an Astro component with a `client:` modifier, you will get an error.
