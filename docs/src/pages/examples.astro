@@ -4,6 +4,7 @@ import Thumbnail from '../components/Examples/Thumbnail.astro'
 import templateData from '../components/Examples/function-generate-examples-data.js'
 import {Markdown} from 'astro/components'
 let data = await templateData()
+console.log(data)
 ---
 <Layout content={data}>
     <Markdown>
@@ -16,10 +17,34 @@ let data = await templateData()
             npm init astro my-astro-project -- -- template [template]
         ```
     </Markdown>
+    <Markdown>
+        ## `create-astro` Templates
+        
+        Below is a list of Astro's templates that are available directly through the [`create-astro`](/installation) install wizard. 
+    </Markdown>
    <div class="flexbox">
-       {data.map((item)=>(
-           <Thumbnail data={item}/>
-       ))}
+       {data.filter(item=> (item.pkgJSON?.keywords?.includes('create-astro')))
+            .sort((a,b)=> ((a.name === 'starter')? -1 : 1))
+            .map((item)=>(<Thumbnail data={item}/>))}
+   </div>
+       <Markdown>
+        ## UI Frameworks 
+        
+        Astro is always growing its support for the vast plethora of UI frameworks that exist within the JavaScript ecosystem. Below are demonstrations on how UI frameworks work inside Astro
+    </Markdown>
+   <div class="flexbox">
+       {data.filter(item=> (item.pkgJSON?.keywords?.includes('framework')))
+            .sort((a,b)=> ((a.name === 'framework-multiple')? -1 : 1))
+            .map((item)=>(<Thumbnail data={item}/>))}
+   </div>
+          <Markdown>
+        ## Kitchen Sink
+        
+        Here is a further set of examples that have been created by our developer team, to help our users with working examples on using Markdown with Astro. Support for plugins such as Nanostores and TailwindCSS
+    </Markdown>
+   <div class="flexbox">
+       {data.filter(item=> (item.pkgJSON?.keywords?.includes('kitchen-sink')))
+            .map((item)=>(<Thumbnail data={item}/>))}
    </div>
        <Markdown>
         

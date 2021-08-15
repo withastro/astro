@@ -2,7 +2,6 @@
 import {Markdown} from 'astro/components'
 
 const {data:{name,readme,pkgJSON:{description,keywords}}} = Astro.props
-
             
 let command = `npm init astro my-astro-project -- --template ${name}`
 
@@ -10,22 +9,23 @@ function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
-
 ---
    
-
 <div class="thumbnail">
         <img src="" alt="">
         <a href={`/example/${name}`}>
             <h3>{
-                name.startsWith('framework')
+                name.includes('multiple')
                     ?
-                    `${capitalize(name.split('-')[1])} ${capitalize(name.split('-')[0])}`
+                    `${capitalize(name.split('-')[1])} ${capitalize(name.split('-')[0])}'s`
                     :
                     name
                         .split('-')
                         .map((str)=>(
                             str.replace('with','')
+                        ))
+                        .map((str)=>(
+                            str.replace('framework','')
                         ))
                         .map((str)=>(capitalize(str)))
                         .join(' ')
@@ -34,7 +34,7 @@ function capitalize(str) {
         </a>
         <!-- <p>{keywords? keywords.toString(): 'Keywords  goes here'}</p> -->
         <p>{(description)? description : 'Template Description from Pkg JSON goes here'}</p>
-        <pre>--template {name}</pre>
+        <pre data-lang='bash'>--template {name}</pre>
 </div>
 
 <style lang="scss">
