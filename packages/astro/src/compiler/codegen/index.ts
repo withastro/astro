@@ -461,11 +461,14 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
           module.content.slice(start || undefined, end || undefined)
         );
       }
+      const { start, end } = componentImport;
       if (ast.meta.features & FEATURE_CUSTOM_ELEMENT && componentImport.specifiers.length === 0) {
         // Add possible custom element, but only if the AST says there are custom elements.
         const moduleImportName = camelCase(importUrl + 'Module');
         state.importStatements.add(`import * as ${moduleImportName} from '${importUrl}';\n`);
         state.customElementCandidates.set(moduleImportName, getComponentUrl(astroConfig, importUrl, pathToFileURL(filename)));
+      } else {
+        state.importStatements.add(module.content.slice(start || undefined, end || undefined));
       }
     }
 
@@ -724,10 +727,10 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   importStatements.add(wrapperImport);
                 }
               }
-              if (hydrationAttributes.method !== 'only') {
-                // Include component imports for server-rendered components
+              if (hydrationAttributes.method === 'only') {
+                // Remove component imports for client-only components
                 const componentImports = state.componentImports.get(componentName) || [];
-                componentImports.map((componentImport) => state.importStatements.add(componentImport));
+                componentImports.map((componentImport) => state.importStatements.delete(componentImport));
               }
               if (curr === 'markdown') {
                 await pushMarkdownToBuffer();
