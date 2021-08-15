@@ -1,7 +1,9 @@
 ---
 import Layout from '../layouts/ExamplesLayout.astro'
 import templateData from '../components/Examples/function-generate-examples-data.js'
+import capitalise from '../components/Examples/function-capitalise.js'
 import {Markdown} from 'astro/components'
+import CollapsibleReadme from '../components/Examples/CollapsibleReadme.astro'
 
 export async function createCollection(){
     const dataset = await templateData()
@@ -25,8 +27,17 @@ export async function createCollection(){
         }
     }
 }
-const {name, data} = Astro.props 
+const {name, data} = Astro.props
+const templates =  data.reduce(item=> ({item}))
 ---
 <Layout>
-    {data.map(item=>((item.readme)?<><Markdown content={item.readme}/></>:''))}
+    <div>
+        <img src="/default-og-image.png" alt="">
+        <h1>{capitalise(templates.name)}</h1>
+        </div>
+        <CollapsibleReadme label={`Expand ${templates.name} readme`} readme={templates.readme}>
+            
+        </CollapsibleReadme>
+        
 </Layout>
+
