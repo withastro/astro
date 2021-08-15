@@ -33,8 +33,7 @@ yarn: "^1.22.10"
 
 ## Setting up your local repo
 
-Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, `www`, `docs`, and every package in the repo. 
-
+Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, `www`, `docs`, and every package in the repo.
 
 ```shell
 git clone && cd ...
@@ -60,7 +59,6 @@ yarn test
 # (example - `yarn test rss` runs `astro-rss.test.js` tests)
 yarn test $STRING_MATCH
 ```
-
 
 ## Other useful commands
 
@@ -161,12 +159,12 @@ If you have gotten permission from the core contributors, you can enter into pre
 
 ### Exiting prerelease mode
 
-Exiting prerelease mode should happen once an experimental release is ready to go from `npm install astro@next` to `npm install astro`. Only a core contributor run these steps. These steps should be run before 
+Exiting prerelease mode should happen once an experimental release is ready to go from `npm install astro@next` to `npm install astro`. Only a core contributor run these steps. These steps should be run before
+
 - Run: `yarn changeset pre enter next` in the project root
 - Create a new PR from the changes created by this command.
 - Review, approve, and more the PR to enter prerelease mode.
 - If successful, The "Version Packages (next)" PR (if one exists) will now say "Version Packages".
-
 
 # Translations
 
