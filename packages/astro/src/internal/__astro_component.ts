@@ -49,32 +49,39 @@ function isCustomElementTag(name: string | Function) {
 
 const rendererCache = new Map<any, RendererInstance>();
 
+/** For client:only components, attempt to infer the required renderer. */
+function inferClientRenderer(metadata: Partial<AstroComponentMetadata>) {
+  // If there's only one renderer, assume it's the required renderer
+  if (rendererInstances.length === 1) {
+    return rendererInstances[0];
+  } else if (metadata.value) {
+    // Attempt to find the renderer by matching the hydration value
+    const hint = metadata.value;
+    const match = rendererInstances
+      .find((instance) => {
+        if (!instance.source) {
+          return false;
+        }
+
+        return instance.source.indexOf(hint) >= 0;
+      });
+
+    if (!match) {
+      throw new Error(`Couldn't find a renderer for <${metadata.displayName} client:only="${metadata.value}" />. Is there a renderer that matches the "${metadata.value}" hint in your Astro config?`)
+    }
+    return match;
+  } else {
+    // Multiple renderers included but no hint was provided
+    throw new Error(`Can't determine the renderer for ${metadata.displayName}. Include a hint similar to <${metadata.displayName} client:only="react" /> when multiple renderers are included in your Astro config.`);
+  }
+}
+
 /** For a given component, resolve the renderer. Results are cached if this instance is encountered again */
 async function resolveRenderer(Component: any, props: any = {}, children?: string, metadata: Partial<AstroComponentMetadata> = {}): Promise<RendererInstance | undefined> {
   // For client:only components, the component can't be imported
   // during SSR. We need to infer the required renderer.
   if (metadata.hydrate === 'only') {
-    // If there's only one renderer, assume it's the required renderer
-    if (rendererInstances.length === 1) {
-      return rendererInstances[0];
-    } else if (metadata.value) {
-      // Attempt to find the renderer by matching the hydration value
-      const hint = metadata.value;
-      const match = rendererInstances
-        .find((instance) => {
-          if (!instance.source) {
-            return false;
-          }
-
-          return instance.source.indexOf(hint) >= 0;
-        })
-      if (!match) {
-        throw new Error(`Couldn't find a renderer for <${metadata.displayName} client:only="${metadata.value}" />. Is there a renderer that matches the "${metadata.value}" hint in your Astro config?`)
-      }
-      return match;
-    } {
-      throw new Error(`Can't determine the renderer for ${metadata.displayName}. Include a hint similar to <${metadata.displayName} client:only="react" /> when multiple renderers are included in your Astro config.`)
-    }
+    return inferClientRenderer(metadata);
   }
 
   if (rendererCache.has(Component)) {
