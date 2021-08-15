@@ -31,10 +31,13 @@ yarn: "^1.22.10"
 # otherwise, your build will fail
 ```
 
-## Setting up the monorepo
+## Setting up your local repo
+
+Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, `www`, `docs`, and every package in the repo. 
+
 
 ```shell
-# git clone && cd ...
+git clone && cd ...
 yarn install
 yarn build:all
 ```
@@ -44,8 +47,33 @@ yarn build:all
 ```shell
 # starts a file-watching, live-reloading dev script for active development
 yarn dev
-# (optional) trigger a one-time build
+# build the entire project, one time.
 yarn build
+```
+
+## Running tests
+
+```shell
+# run this in the top-level project root to run all tests
+yarn test
+# run only a few tests, great for working on a single feature
+# (example - `yarn test rss` runs `astro-rss.test.js` tests)
+yarn test $STRING_MATCH
+```
+
+
+## Other useful commands
+
+```shell
+# auto-format the entire project
+# (optional - a GitHub Action formats every commit after a PR is merged)
+yarn format
+```
+
+```shell
+# lint the project
+# (optional - our linter creates helpful warnings, but not errors.)
+yarn lint
 ```
 
 ## Making a Pull Request
@@ -102,11 +130,11 @@ yarn release --tag next--XXX
 
 Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snapshot-releases.md
 
-## Releasing in "next"/"pre" mode
+## Releasing `astro@next` (aka "prerelease mode")
 
-Sometimes, the repo enters "next" mode, which means that `main` is no longer releasing to `npm install astro` but is instead releasing to `npm install astro@next`. We do this from time-to-time to test large features before sharing them with the larger Astro audience.
+Sometimes, the repo enters "prerelease mode", which means that `main` is no longer releasing to `npm install astro` but is instead releasing to `npm install astro@next`. We do this from time-to-time to test large features before sharing them with the larger Astro audience.
 
-When in "next" mode, the automatic PR release process is for `next`. That means that releasing to `latest` becomes a manual process. To release latest manually while in "next" mode:
+When in prerelease mode, the automatic PR release process is for `next`. That means that releasing to `latest` becomes a manual process. To release latest manually while in prerelease mode:
 
 1. _In the code snippets below, replace `0.X` with your version (ex: `0.18`, `release/0.18`, etc.)._
 1. Create a new `release/0.X` branch, if none exists.
@@ -119,6 +147,26 @@ When in "next" mode, the automatic PR release process is for `next`. That means 
 1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
 1. Go to https://github.com/snowpackjs/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/snowpackjs/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
+
+Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snapshot-releases.md
+
+### Entering prerelease mode
+
+If you have gotten permission from the core contributors, you can enter into prerelease mode by following the following steps:
+
+- Run: `yarn changeset pre enter next` in the project root
+- Create a new PR from the changes created by this command
+- Review, approve, and more the PR to enter prerelease mode.
+- If successful, The "Version Packages" PR (if one exists) will now say "Version Packages (next)".
+
+### Exiting prerelease mode
+
+Exiting prerelease mode should happen once an experimental release is ready to go from `npm install astro@next` to `npm install astro`. Only a core contributor run these steps. These steps should be run before 
+- Run: `yarn changeset pre enter next` in the project root
+- Create a new PR from the changes created by this command.
+- Review, approve, and more the PR to enter prerelease mode.
+- If successful, The "Version Packages (next)" PR (if one exists) will now say "Version Packages".
+
 
 # Translations
 
