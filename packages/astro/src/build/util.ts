@@ -35,9 +35,9 @@ export function getDistPath(specifier: string, { astroConfig, srcPath }: { astro
   }
 
   // if this is in public/, use that as final URL
-  const isPublicAsset = fileLoc.pathname.includes(astroConfig.public.pathname);
-  if (isPublicAsset) {
-    return fileLoc.pathname.replace(astroConfig.public.pathname, '/');
+  const pub = astroConfig.public.find((pub) => fileLoc.pathname.includes(pub.pathname));
+  if (pub) {
+    return fileLoc.pathname.replace(pub.pathname, '/');
   }
 
   // otherwise, return /_astro/* url
@@ -53,7 +53,7 @@ export function getSrcPath(distURL: string, { astroConfig }: { astroConfig: Astr
   }
 
   const possibleURLs = [
-    new URL('.' + distURL, astroConfig.public), // public asset
+    ...astroConfig.public.map((pub) => new URL('.' + distURL, pub)), // public asset
     new URL('.' + distURL.replace(/([^\/])+\/d+\/index.html/, '$$1.astro'), astroConfig.pages), // collection page
     new URL('.' + distURL.replace(/\/index\.html$/, '.astro'), astroConfig.pages), // page
     // TODO: Astro pages (this isn’t currently used for that lookup)

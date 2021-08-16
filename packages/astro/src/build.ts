@@ -223,24 +223,26 @@ ${stack}
     /**
      * 4. Copy Public Assets
      */
-    if (fs.existsSync(astroConfig.public)) {
-      info(logging, 'build', yellow(`! copying public folder...`));
-      timer.public = performance.now();
-      const cwd = fileURLToPath(astroConfig.public);
-      const publicFiles = await glob('**/*', { cwd, filesOnly: true });
-      await Promise.all(
-        publicFiles.map(async (filepath) => {
-          const srcPath = new URL(filepath, astroConfig.public);
-          const distPath = new URL(filepath, dist);
-          await fs.promises.mkdir(path.dirname(fileURLToPath(distPath)), { recursive: true });
-          await fs.promises.copyFile(srcPath, distPath);
-        })
-      );
-      debug(logging, 'build', `copied public folder [${stopTimer(timer.public)}]`);
-      info(logging, 'build', green('✔'), 'public folder copied.');
-    } else {
-      if (path.basename(astroConfig.public.toString()) !== 'public') {
-        info(logging, 'tip', yellow(`! no public folder ${astroConfig.public} found...`));
+    for (const pub in astroConfig.public) {
+      if (fs.existsSync(pub)) {
+        info(logging, 'build', yellow(`! copying public folder...`));
+        timer.public = performance.now();
+        const cwd = fileURLToPath(pub);
+        const publicFiles = await glob('**/*', { cwd, filesOnly: true });
+        await Promise.all(
+          publicFiles.map(async (filepath) => {
+            const srcPath = new URL(filepath, pub);
+            const distPath = new URL(filepath, dist);
+            await fs.promises.mkdir(path.dirname(fileURLToPath(distPath)), { recursive: true });
+            await fs.promises.copyFile(srcPath, distPath);
+          })
+        );
+        debug(logging, 'build', `copied public folder [${stopTimer(timer.public)}]`);
+        info(logging, 'build', green('✔'), 'public folder copied.');
+      } else {
+        if (path.basename(pub.toString()) !== 'public') {
+          info(logging, 'tip', yellow(`! no public folder ${pub} found...`));
+        }
       }
     }
 

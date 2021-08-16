@@ -27,7 +27,7 @@ export interface AstroConfig {
   dist: string;
   projectRoot: URL;
   pages: URL;
-  public: URL;
+  public: URL[];
   src: URL;
   renderers?: string[];
   /** Options for rendering markdown content */

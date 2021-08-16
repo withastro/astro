@@ -13,7 +13,7 @@ function validateConfig(config: any): void {
   if (typeof config !== 'object') throw new Error(`[config] Expected object, received ${typeof config}`);
 
   // strings
-  for (const key of ['projectRoot', 'pages', 'dist', 'public']) {
+  for (const key of ['projectRoot', 'pages', 'dist']) {
     if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'string') {
       throw new Error(`[config] ${key}: ${JSON.stringify(config[key])}\n  Expected string, received ${type(config[key])}.`);
     }
@@ -24,6 +24,11 @@ function validateConfig(config: any): void {
     if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'boolean') {
       throw new Error(`[config] ${key}: ${JSON.stringify(config[key])}\n  Expected boolean, received ${type(config[key])}.`);
     }
+  }
+
+  // public directories
+  if (config['public'] != undefined && config['public'] != null && typeof config['public'] !== 'string' && !Array.isArray(config['public'])) {
+    throw new Error(`[config] public: ${JSON.stringify(config['public'])}\n Expected string or array, recieved ${type(config['public'])}'`);
   }
 
   // buildOptions
@@ -78,7 +83,7 @@ function normalizeConfig(userConfig: any, root: string): AstroConfig {
   config.projectRoot = new URL(config.projectRoot + '/', fileProtocolRoot);
   config.src = new URL(config.src + '/', fileProtocolRoot);
   config.pages = new URL(config.pages + '/', fileProtocolRoot);
-  config.public = new URL(config.public + '/', fileProtocolRoot);
+  config.public = !Array.isArray(config.public) ? [new URL(config.public + '/', fileProtocolRoot)] : config.public.map((dir: String) => new URL(dir + '/', fileProtocolRoot));
 
   return config as AstroConfig;
 }
