@@ -172,7 +172,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
 
   mount: {
 -   /* ... */
-+   // directory name: 'build directory',
++   // directory name: 'build directory'
 +   public: '/',
 +   src: '/dist',
   },
