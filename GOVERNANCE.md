@@ -193,23 +193,31 @@ The project steward is currently: **@FredKSchott**
 
 ## Voting
 
-Certain project decisions require a vote. These include:
+Certain project decisions (like governance changes and membership nominations) require a vote. Below are the changes that require a vote, and the rules that govern that vote.
 
-- Governance changes: simple majority (over 50%) vote conducted via GitHub PR approval.
-- Contributor membership (L2 and L3): overwhelming majority (over 70%) vote conducted via private Discord thread.
+A steward may initiate a vote for any unlisted project decision. [General Rules](#general-rules) will apply, along with any addition rules provided at the steward's discretion. If this unlisted project decision is expected to be repeated in the future, voting rules should be agreed on and then added to this document.
 
-A steward may initiate a vote for any unlisted project decision. 
-
-Contributors can request a vote at any time by contacting a steward.
-### General Rules
+### General Voting Rules
 
 - Members may abstain from a vote.
 - Members who do not vote within 3 days will automatically abstain.
 - Stewards may reduce the 3 day automatic abstain for urgent decisions.
 - Stewards reserve the right to veto approval with a publicly disclosed reason.
 
+## Voting: Governance Change
 
-## Rules: Maintainer (L2) Nomination
+A vote is initiated once a pull request to the GOVERNANCE.md file is submitted by a Core Maintainer.  
+
+If the pull request submitter is not a Core Maintainer, the PR can be closed by any Maintainer without a vote. However, any Core Maintainer may request a vote on that PR, in which case a vote is initiated.
+
+1. The PR discussion thread is used to discuss the governance change.
+1. The normal 3 day voting & discussion window begins with the PR creation.
+1. Voting can be done in the PR via a review of either **Approve (For)** or **Change Requested  (Against)**.
+1. The vote must receive a simple majority (50%+) to pass.
+1. **If the vote passes:** the PR is merged and the changes take effect immediately.
+1. **If the vote fails:** the PR is closed and no change occurs.
+
+## Voting: Maintainer (L2) Nomination
 
 This process kicks off once a valid nomination has been made. See ["Maintainer - Nomination Process"](#nomination-process) above for more details on nomination.
 
@@ -223,7 +231,7 @@ This process kicks off once a valid nomination has been made. See ["Maintainer -
 1. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
 1. **If the vote fails:** the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
 
-## Rules: Core Maintainer (L3) Nomination
+## Voting: Core Maintainer (L3) Nomination
 
 This process kicks off once a valid nomination has been made. See ["Core Maintainer - Nomination Process"](#nomination-process) above for more details on nomination.
 
