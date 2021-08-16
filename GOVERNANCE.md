@@ -47,7 +47,7 @@ Have you done something (big or small) to contribute to the health, success, or 
 
 #### Responsibilities
 
-This role does not require any extra responsibilities or time commitment. We hope you stick around and keep participating! 
+This role does not require any extra responsibilities or time commitment. We hope you stick around and keep participating!
 
 If you're interested in reaching the next level and becoming a Maintainer, you can begin to explore some of those responsibilities in the next section.
 
@@ -105,7 +105,7 @@ There is no strict minimum number of contributions needed to reach this level, a
 
 To be nominated, a nominee is expected to already be performing some of the responsibilities of a Maintainer over the course of a couple weeks. In the past, we have used "10 PRs" as a rough minimum for potential Maintainers, but there is no hard requirement.
 
-In some rare cases, this role may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project. 
+In some rare cases, this role may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project.
 
 #### Nomination Process
 
@@ -115,7 +115,7 @@ In some rare cases, this role may be revoked by a project Steward. However, unde
 
 ### Level 3 (L3) - Core Maintainer
 
-**Core Maintainers** are community members who have contributed a significant amount of time and energy to the project through issues, bug fixes, implementing enhancements/features, and engagement with the community. A Core Maintainer is considered a trusted leader within the community. 
+**Core Maintainers** are community members who have contributed a significant amount of time and energy to the project through issues, bug fixes, implementing enhancements/features, and engagement with the community. A Core Maintainer is considered a trusted leader within the community.
 
 A Core Maintainer has significant sway in software design decisions. For this reason, coding experience is critical for this role. Core Maintainer is the only level of contributor that does require a significant contribution history on GitHub.
 
@@ -159,14 +159,14 @@ In some rare cases, this role may be revoked by a project Steward. However, unde
 
 ### Steward
 
-Steward is an additional privilege bestowed to 1 (or more) Core Maintainers. The role of Steward is mainly an administrative one. Stewards control and maintain sensitive project assets, and act as tiebreakers in the event of disagreements. 
+Steward is an additional privilege bestowed to 1 (or more) Core Maintainers. The role of Steward is mainly an administrative one. Stewards control and maintain sensitive project assets, and act as tiebreakers in the event of disagreements.
 
 In extremely rare cases, a Steward can act unilaterally when they believe it is in the project's best interest and can prove that the issue cannot be resolved through normal governance procedure. The steward must publicly state their reason for unilateral action before taking it.
 
 The project steward is currently: **@FredKSchott**
 
 
-#### Responsibilities 
+#### Responsibilities
 
 - Access to the [@astrodotbuild Twitter account](https://twitter.com/astrodotbuild)
 - Administration privileges on the [astro GitHub org](https://github.com/snowpackjs)
@@ -206,7 +206,7 @@ The project Steward may initiate a vote for any unlisted project decision. [Gene
 
 This process kicks off once a valid nomination has been made. See ["Maintainer - Nomination Process"](#nomination-process) above for more details on nomination.
 
-**Who can vote:** All Maintainers (L2 and above). 
+**Who can vote:** All Maintainers (L2 and above).
 
 1. A vote thread should be created in Discord #maintainers channel (the private channel for all maintainers).
 2. A vote thread can be created by any core maintainer, or the Steward.
@@ -222,7 +222,7 @@ This process kicks off once a valid nomination has been made. See ["Maintainer -
 
 This process kicks off once a valid nomination has been made. See ["Core Maintainer - Nomination Process"](#nomination-process) above for more details on nomination.
 
-**Who can vote:** All Core Maintainers (L3 and above). 
+**Who can vote:** All Core Maintainers (L3 and above).
 
 1. A vote thread should be created in Discord #core channel (the private channel for core maintainers).
 1. A vote thread can be created by any core maintainer, or the Steward.
@@ -236,14 +236,14 @@ This process kicks off once a valid nomination has been made. See ["Core Maintai
 
 ## Voting: Governance Change
 
-A vote is initiated once a pull request to the GOVERNANCE.md file is submitted by a Core Maintainer.  
+A vote is initiated once a pull request to the GOVERNANCE.md file is submitted by a Core Maintainer.
 
 If the pull request submitter is not a Core Maintainer, the PR can be closed by any Maintainer without a vote. However, any Core Maintainer may request a vote on that PR, in which case a vote is initiated.
 
 **Who can vote:** Core Maintainers (L3 and above). All community members are encouraged to discuss and voice their opinion in the pull request discussion. Core Maintainers should take the opinions of others -- especially other Maintainers -- into consideration when voting.
 
 1. The pull request discussion thread is used to discuss the governance change.
-2. The normal 3 day voting & discussion window begins with the PR creation. 
+2. The normal 3 day voting & discussion window begins with either the PR creation or the removal of `WIP:` from the PR title if the PR was created as a draft.
 3. Voting can be done in the pull request via a review of either **Approve (For)** or **Change Requested (Against)**.
 4. The vote must receive a simple majority (50%+) to pass.
 5. **If the vote passes:** the PR is merged and the changes take effect immediately.
@@ -254,10 +254,10 @@ If the pull request submitter is not a Core Maintainer, the PR can be closed by 
 
 Astro features are discussed using a model called [Consensus-seeking decision-making](https://en.wikipedia.org/wiki/Consensus-seeking_decision-making). This model attempts to achieve consensus on all significant changes to Astro, but has a fallback voting procedure in place if consensus appears unattainable.
 
-**Who can vote:** All Maintainers (L2 and above). 
+**Who can vote:** All Maintainers (L2 and above).
 
 1. Anyone can submit an RFC to suggest changes to Astro.
-2. A trivial change can be discussed and approved entirely within the RFC GitHub issue, as long as there are no objections from Maintainers or Core Maintainers. This is not considered a formal vote. 
+2. A trivial change can be discussed and approved entirely within the RFC GitHub issue, as long as there are no objections from Maintainers or Core Maintainers. This is not considered a formal vote.
 3. A non-trivial, significant change should be discussed within the RFC GitHub issue and approved during an RFC meeting call.
 4. During an RFC meeting, the moderator will attempt to achieve consensus on the RFC proposal.
 5. **If consensus is ever reached:** the RFC is approved.
