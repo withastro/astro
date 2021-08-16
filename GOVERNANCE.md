@@ -12,13 +12,14 @@ Scroll down to [Playbook](#playbook).
 
 ## Get Involved
 
-**Anything that supports the Astro community is considered a contribution.** All types of contribution are meaningful, from code to documentation to blog posts. Anyone can become an Astro Contributor (yes, even you!). Our goal is to recognize all contributors to Astro regardless of skill level, experience or background.
+**Anything that supports the Astro community is a valuable contribution.** All types of contribution are meaningful, from code to documentation to blog posts. Anyone can become an Astro Contributor (yes, even you!). Our goal is to recognize all contributors to Astro regardless of skill, experience or background.
 
 **@FredKSchott** wrote up some notes on the personal value of open source, which you can read in our [CONTRIBUTING.md](CONTRIBUTING.md#why-contribute-to-open-source) document.
   
 ## Contributor Levels
 
-We welcome people of all skill levels to become contributors. We recognize different degrees of contribution as **levels**, and most levels can be reached regardless of coding skill or years of experience. The two most important things that we look for in contributors are:
+We recognize different degrees of contribution as **levels**, and most levels can be reached regardless of coding skill or years of experience. The two most important things that we look for in contributors are:
+
 
 - **Being here** - Everyone's time is valuable, and the fact that you're here and contributing to Astro is amazing! Thank you for being a part of this journey with us.
 - **Being a positive member of our community** - Go above and beyond our Code of Conduct, and commit to healthy communication in pull requests, issue discussions, Discord conversations, and interactions outside of our community (ex: no Twitter bullies allowed :)
@@ -29,7 +30,7 @@ Each level unlocks new privileges and responsibilities on Discord and GitHub. Be
 
 Have you done something (big or small) to contribute to the health, success, or growth of Astro? Congratulations, you're officially recognized as a contributor to the project!
 
-#### Examples of recognized contributions:
+#### Examples of recognized contributions
 
 - **GitHub:** Submitting a merged pull request
 - **GitHub:** Filing a detailed bug report or RFC
@@ -39,7 +40,7 @@ Have you done something (big or small) to contribute to the health, success, or 
 - Blogging, Vlogging, Podcasting, and Livestreaming about Astro
 - This list is incomplete! Similar contributions are also recognized.
 
-#### Privileges:
+#### Privileges
 
 - New role on [Discord](https://astro.build/chat): `@contributor`
 - New name color on Discord: **light blue**.
@@ -52,7 +53,7 @@ This role does not require any extra responsibilities or time commitment. We hop
 
 If you're interested in reaching the next level and becoming a Maintainer, you can begin to explore some of those responsibilities in the next section.
 
-#### Nomination Process:
+#### Nomination Process
 
 _Note: This process is still in progress, and the Discord bot that will power it is not yet built. For now, manually nominate/self-nominate by posting in Discord._
 
@@ -70,7 +71,7 @@ The Maintainer role is critical to the long-term health of Astro. Maintainers ac
 
 There is no strict minimum number of contributions needed to reach this level, as long as you can show **sustained** involvement over some amount of time (at least a couple of weeks).
 
-#### Recognized Contributions:
+#### Recognized Contributions
 
 - **GitHub:** Submitting non-trivial pull requests and RFCs
 - **GitHub:** Reviewing non-trivial pull requests and RFCs
@@ -79,7 +80,7 @@ There is no strict minimum number of contributions needed to reach this level, a
 - **GitHub + Discord:** Triaging and confirming user issues
 - This list is incomplete! Similar contributions are also recognized.
 
-#### Privileges:
+#### Privileges
 
 - All privileges of the [Contributor role](#level-1---contributor), plus...
 - `@maintainer` role on [Discord](https://astro.build/chat)
@@ -92,7 +93,7 @@ There is no strict minimum number of contributions needed to reach this level, a
 - Ability to merge _some_ GitHub PRs.
 - Ability to vote on _some_ initiatives (see [Voting](#voting) below).
 
-#### Responsibilities:
+#### Responsibilities
 
 - Participate in the project as a team player.
 - Bring a friendly, welcoming voice to the Astro community.
@@ -102,19 +103,17 @@ There is no strict minimum number of contributions needed to reach this level, a
 - Merge some, non-trivial community pull requests.
 - Merge your own pull requests (once reviewed and approved).
 
-#### Nomination - How to:
+#### Nomination
 
 To be nominated, a nominee is expected to already be performing some of the responsibilities of a Maintainer over the course of a couple weeks. In the past, we have used "10 PRs" as a rough minimum for potential Maintainers, but there is no hard requirement.
 
 In some rare cases, this role may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project. 
 
-#### Nomination - Process:
+#### Nomination Process
 
 - You can be nominated by any existing Maintainer (L2 or above).
-- Once nominated, there will be a vote by existing Maintainers (L2 and above) (see [Voting rules](#voting)).
-- If the vote passes, the nominee will be made a Maintainer and all privileges will be made available to them.
-- If the vote fails, the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #maintainers channel, or if the nominee was otherwise not made aware of their nomination).
-
+- Once nominated, there will be a vote by existing Maintainers (L2 and above).
+- See [vote rules & requirements](#voting) for info on how the vote works.
 
 ### Level 3 (L3) - Core Maintainer
 
@@ -126,7 +125,7 @@ Core maintainers are watchdogs over the code, ensuring code quality, correctness
 
 Some contributors will not reach this level, and that's okay! L2 Maintainers still have significant responsibility and privileges in our community.
 
-#### Privileges:
+#### Privileges
 
 - All privileges of the [Maintainer role](#level-2---maintainer), plus...
 - All of the privileges of L2, including...
@@ -137,7 +136,7 @@ Some contributors will not reach this level, and that's okay! L2 Maintainers sti
 - Ability to merge all GitHub PRs.
 - Ability to vote on all initiatives (see [Voting](#voting) below).
 
-**Responsibilities:**
+#### Responsibilities
 
 - All of the responsibilities of L2, including...
 - Ownership over specific parts of the project.
@@ -145,7 +144,7 @@ Some contributors will not reach this level, and that's okay! L2 Maintainers sti
 - Tracking and ensuring progress of open pull requests.
 - Reviewing and merging larger, non-trivial PRs.
 
-#### Nomination - How to:
+#### Nomination
 
 To be nominated, a nominee is expected to already be performing some of the responsibilities of a Core Maintainer. This could include showing expertise over some larger section of the codebase, championing RFCs through ideation and implementation, reviewing non-trivial PRs and providing critical feedback, or some combination of those responsibilities listed above.
 
@@ -153,12 +152,11 @@ If a Core Maintainer steps away from the project for a significant amount of tim
 
 In some rare cases, this role may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project.
 
-#### Nomination - Process:
+#### Nomination Process
 
 - You can be nominated by any existing Core Maintainer (L3 or above).
-- Once nominated, there will be a vote by existing Core Maintainers (L3 and above) (see [Voting rules](#voting)).
-- If the vote passes, the nominee will be made a Core Maintainer and all privileges will be made available to them.
-- If the vote fails, the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
+- Once nominated, there will be a vote by existing Core Maintainers (L3 and above).
+- See [vote rules & requirements](#voting) for info on how the vote works.
 
 
 ### Steward
@@ -203,13 +201,41 @@ Certain project decisions require a vote. These include:
 A steward may initiate a vote for any unlisted project decision. 
 
 Contributors can request a vote at any time by contacting a steward.
-
-### Rules
+### General Rules
 
 - Members may abstain from a vote.
 - Members who do not vote within 3 days will automatically abstain.
 - Stewards may reduce the 3 day automatic abstain for urgent decisions.
 - Stewards reserve the right to veto approval with a publicly disclosed reason.
+
+
+## Rules: Maintainer (L2) Nomination
+
+This process kicks off once a valid nomination has been made. See ["Maintainer - Nomination Process"](#nomination-process) above for more details on nomination.
+
+1. A vote thread should be created in Discord #maintainers channel (the private channel for all maintainers).
+1. A vote thread can be created by any core maintainer, or the Steward.
+1. Once a vote thread is created, existing Core Maintainers can discuss the nomination in private.
+1. The normal 3 day voting & discussion window begins with the thread creation.
+1. Voting can be done in the thread (visible to other voters) or in a private DM to the project Steward.
+1. Once the vote is complete, the thread is deleted.
+1. The vote must receive an overwhelming majority (70%+) to pass.
+1. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
+1. **If the vote fails:** the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
+
+## Rules: Core Maintainer (L3) Nomination
+
+This process kicks off once a valid nomination has been made. See ["Core Maintainer - Nomination Process"](#nomination-process) above for more details on nomination.
+
+1. A vote thread should be created in Discord #core channel (the private channel for core maintainers).
+1. A vote thread can be created by any core maintainer, or the Steward.
+1. Once a vote thread is created, existing Core Maintainers can discuss the nomination in private.
+1. The normal 3 day voting & discussion window begins with the thread creation.
+1. Voting can be done in the thread (visible to other voters) or in a private DM to the project Steward.
+1. Once the vote is complete, the thread is deleted.
+1. The vote must receive an overwhelming majority (70%+) to pass.
+1. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
+1. **If the vote fails:** the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
 
 ## Moderation
 
