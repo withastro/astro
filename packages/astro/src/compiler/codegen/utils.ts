@@ -5,7 +5,7 @@
 import type { VariableDeclarator, CallExpression } from '@babel/types';
 import type { Attribute } from './interfaces';
 import type { LogOptions } from '../../logger';
-import { warn } from '../../logger';
+import { warn } from '../../logger.js';
 
 /** Is this an import.meta.* built-in? You can pass an optional 2nd param to see if the name matches as well. */
 export function isImportMetaDeclaration(declaration: VariableDeclarator, metaName?: string): boolean {
