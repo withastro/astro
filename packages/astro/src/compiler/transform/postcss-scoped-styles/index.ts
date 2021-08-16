@@ -1,4 +1,4 @@
-import { Declaration, Plugin } from 'postcss';
+import { Plugin } from 'postcss';
 
 interface AstroScopedOptions {
   className: string;
@@ -12,6 +12,11 @@ interface Selector {
 
 const CSS_SEPARATORS = new Set([' ', ',', '+', '>', '~']);
 const KEYFRAME_PERCENT = /\d+\.?\d*%/;
+
+/** minify selector CSS */
+function minifySelector(selector: string): string {
+  return selector.replace(/(\r?\n|\s)+/g, ' ').replace(/\s*(,|\+|>|~|\(|\))\s*/g, '$1');
+}
 
 /** HTML tags that should never get scoped classes */
 export const NEVER_SCOPED_TAGS = new Set<string>(['base', 'body', 'font', 'frame', 'frameset', 'head', 'html', 'link', 'meta', 'noframes', 'noscript', 'script', 'style', 'title']);
@@ -101,7 +106,7 @@ export default function astroScopedStyles(options: AstroScopedOptions): Plugin {
     postcssPlugin: '@astrojs/postcss-scoped-styles',
     Rule(rule) {
       if (!rulesScopedCache.has(rule)) {
-        rule.selector = scopeRule(rule.selector, options.className);
+        rule.selector = scopeRule(minifySelector(rule.selector), options.className);
         rulesScopedCache.add(rule);
       }
     },

@@ -24,6 +24,7 @@ ScopedStyles('Scopes rules correctly', () => {
     '.class :global(ul li)': `.class.${className} ul li`, // allow doubly-scoped selectors
     '.class:not(.is-active)': `.class.${className}:not(.is-active)`, // Note: the :not() selector can NOT contain multiple classes, so this is correct; if this causes issues for some people then it‘s worth a discussion
     'body h1': `body h1.${className}`, // body shouldn‘t be scoped; it‘s not a component
+    'html,body': `html,body`,
     from: 'from', // ignore keyframe keywords (below)
     to: 'to',
     '55%': '55%',
