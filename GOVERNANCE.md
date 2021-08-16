@@ -39,7 +39,7 @@ Have you done something (big or small) to contribute to the health, success, or 
 - Blogging, Vlogging, Podcasting, and Livestreaming about Astro
 - This list is incomplete! Similar contributions are also recognized.
 
-#### Privledges:
+#### Privileges:
 
 - New role on [Discord](https://astro.build/chat): `@contributor`
 - New name color on Discord: **light blue**.
@@ -79,9 +79,9 @@ There is no strict minimum number of contributions needed to reach this level, a
 - **GitHub + Discord:** Triaging and confirming user issues
 - This list is incomplete! Similar contributions are also recognized.
 
-#### Privledges:
+#### Privileges:
 
-- All of the privileges of L1, including...
+- All privileges of the [Contributor role](#level-1---contributor), plus...
 - `@maintainer` role on [Discord](https://astro.build/chat)
 - New name color on Discord: **blue**.
 - Invitation to the private #maintainers channel on Discord.
@@ -106,7 +106,7 @@ There is no strict minimum number of contributions needed to reach this level, a
 
 To be nominated, a nominee is expected to already be performing some of the responsibilities of a Maintainer over the course of a couple weeks. In the past, we have used "10 PRs" as a rough minimum for potential Maintainers, but there is no hard requirement.
 
-In some rare cases, membership may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project. 
+In some rare cases, this role may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project. 
 
 #### Nomination - Process:
 
@@ -120,14 +120,15 @@ In some rare cases, membership may be revoked by a project Steward. However, und
 
 **Core Maintainers** are community members who have contributed a significant amount of time and energy to the project through issues, bug fixes, implementing enhancements/features, and engagement with the community. A Core Maintainer is considered a trusted leader within the community. 
 
-A Core Maintainer has significant sway in software design decisions, so  coding experience is critical for this role. Core Maintainer is the only level of contributor that does require a significant contribution history on GitHub.
+A Core Maintainer has significant sway in software design decisions. For this reason, coding experience is critical for this role. Core Maintainer is the only level of contributor that does require a significant contribution history on GitHub.
 
 Core maintainers are watchdogs over the code, ensuring code quality, correctness and security. A Core Maintainer helps to set the direction of the project and ensure a healthy future for Astro.
 
 Some contributors will not reach this level, and that's okay! L2 Maintainers still have significant responsibility and privileges in our community.
 
-#### Privledges:
+#### Privileges:
 
+- All privileges of the [Maintainer role](#level-2---maintainer), plus...
 - All of the privileges of L2, including...
 - `@core` role on [Discord](https://astro.build/chat)
 - New name color on Discord: **deep, dark blue**.
@@ -150,7 +151,7 @@ To be nominated, a nominee is expected to already be performing some of the resp
 
 If a Core Maintainer steps away from the project for a significant amount of time, they may be removed as a Core Maintainer (L3 -> L2) until they choose to return.
 
-In some rare cases, membership may be completely revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project.
+In some rare cases, this role may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project.
 
 #### Nomination - Process:
 
