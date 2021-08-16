@@ -89,12 +89,9 @@ h5 {
   font-size: 1rem;
 }
 
-p {
-  line-height: 1.65em;
-}
-
+p,
 .content ul {
-  line-height: 1.1em;
+  line-height: 1.65em;
 }
 
 p,
