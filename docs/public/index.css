@@ -106,7 +106,6 @@ small,
 
 a {
   color: var(--theme-text-accent);
-  font-weight: 400;
   text-underline-offset: 0.08em;
   align-items: center;
   gap: 0.5rem;
