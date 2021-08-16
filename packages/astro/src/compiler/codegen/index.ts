@@ -114,7 +114,8 @@ async function getAttributes(nodeName: string, attrs: Attribute[], state: Codege
       }
       case 'Text': {
         let text = getTextFromAttribute(val);
-        warnIfRelativeStringLiteral(nodeName, attr, text);
+
+        warnIfRelativeStringLiteral(compileOptions.logging, nodeName, attr, text);
         result[attr.name] = JSON.stringify(text);
         continue;
       }

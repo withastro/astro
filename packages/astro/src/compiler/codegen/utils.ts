@@ -4,6 +4,8 @@
 
 import type { VariableDeclarator, CallExpression } from '@babel/types';
 import type { Attribute } from './interfaces';
+import type { LogOptions } from '../../logger';
+import { warn } from '../../logger';
 
 /** Is this an import.meta.* built-in? You can pass an optional 2nd param to see if the name matches as well. */
 export function isImportMetaDeclaration(declaration: VariableDeclarator, metaName?: string): boolean {
@@ -30,9 +32,10 @@ const warnableRelativeValues = new Set([
 
 const nonRelative = /^(?!(https?|\/))/;
 
-export function warnIfRelativeStringLiteral(nodeName: string, attr: Attribute, value: string) {
+export function warnIfRelativeStringLiteral(logging: LogOptions, nodeName: string, attr: Attribute, value: string) {
   let key = nodeName + '+' + attr.name;
   if(warnableRelativeValues.has(key) && nonRelative.test(value)) {
-    console.warn(`This value will be resolved relative to the page: <${nodeName} ${attr.name}="${value}">`);
+    let message = `This value will be resolved relative to the page: <${nodeName} ${attr.name}="${value}">`;
+    warn(logging, 'relative-link', message);
   }
 }
