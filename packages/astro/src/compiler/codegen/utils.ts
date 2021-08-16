@@ -30,7 +30,7 @@ const warnableRelativeValues = new Set([
   'source+srcset'
 ]);
 
-const nonRelative = /^(?!(https?|\/))/;
+const nonRelative = /^(?!(https?:|data:|\/))/;
 
 export function warnIfRelativeStringLiteral(logging: LogOptions, nodeName: string, attr: Attribute, value: string) {
   let key = nodeName + '+' + attr.name;
