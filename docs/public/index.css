@@ -113,7 +113,7 @@ a {
 }
 
 article > section :is(ul, ol) > * + * {
-  margin-top: 0.75rem;
+  margin-top: 0.25rem;
 }
 
 article > section nav :is(ul, ol) > * + * {
