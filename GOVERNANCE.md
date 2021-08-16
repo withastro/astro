@@ -14,8 +14,6 @@ Scroll down to [Playbook](#playbook).
 
 **Anything that supports the Astro community is a valuable contribution.** All types of contribution are meaningful, from code to documentation to blog posts. Anyone can become an Astro Contributor (yes, even you!). Our goal is to recognize all contributors to Astro regardless of skill, experience or background.
 
-**@FredKSchott** wrote up some notes on the personal value of open source, which you can read in our [CONTRIBUTING.md](CONTRIBUTING.md#why-contribute-to-open-source) document.
-  
 ## Contributor Levels
 
 We recognize different degrees of contribution as **levels**, and most levels can be reached regardless of coding skill or years of experience. The two most important things that we look for in contributors are:
