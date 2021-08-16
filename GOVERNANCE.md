@@ -195,7 +195,7 @@ The project steward is currently: **@FredKSchott**
 
 Certain project decisions (like governance changes and membership nominations) require a vote. Below are the changes that require a vote, and the rules that govern that vote.
 
-A steward may initiate a vote for any unlisted project decision. [General Rules](#general-rules) will apply, along with any addition rules provided at the steward's discretion. If this unlisted project decision is expected to be repeated in the future, voting rules should be agreed on and then added to this document.
+The project Steward may initiate a vote for any unlisted project decision. [General Rules](#general-rules) will apply, along with any addition rules provided at the steward's discretion. If this unlisted project decision is expected to be repeated in the future, voting rules should be agreed on and then added to this document.
 
 ### General Voting Rules
 
@@ -204,36 +204,27 @@ A steward may initiate a vote for any unlisted project decision. [General Rules]
 - Stewards may reduce the 3 day automatic abstain for urgent decisions.
 - Stewards reserve the right to veto approval with a publicly disclosed reason.
 
-## Voting: Governance Change
-
-A vote is initiated once a pull request to the GOVERNANCE.md file is submitted by a Core Maintainer.  
-
-If the pull request submitter is not a Core Maintainer, the PR can be closed by any Maintainer without a vote. However, any Core Maintainer may request a vote on that PR, in which case a vote is initiated.
-
-1. The PR discussion thread is used to discuss the governance change.
-1. The normal 3 day voting & discussion window begins with the PR creation.
-1. Voting can be done in the PR via a review of either **Approve (For)** or **Change Requested  (Against)**.
-1. The vote must receive a simple majority (50%+) to pass.
-1. **If the vote passes:** the PR is merged and the changes take effect immediately.
-1. **If the vote fails:** the PR is closed and no change occurs.
-
 ## Voting: Maintainer (L2) Nomination
 
 This process kicks off once a valid nomination has been made. See ["Maintainer - Nomination Process"](#nomination-process) above for more details on nomination.
 
+**Who can vote:** All Maintainers (L2 and above). 
+
 1. A vote thread should be created in Discord #maintainers channel (the private channel for all maintainers).
-1. A vote thread can be created by any core maintainer, or the Steward.
-1. Once a vote thread is created, existing Core Maintainers can discuss the nomination in private.
-1. The normal 3 day voting & discussion window begins with the thread creation.
-1. Voting can be done in the thread (visible to other voters) or in a private DM to the project Steward.
-1. Once the vote is complete, the thread is deleted.
-1. The vote must receive an overwhelming majority (70%+) to pass.
-1. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
-1. **If the vote fails:** the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
+2. A vote thread can be created by any core maintainer, or the Steward.
+3. Once a vote thread is created, existing Core Maintainers can discuss the nomination in private.
+4. The normal 3 day voting & discussion window begins with the thread creation.
+5. Voting can be done in the thread (visible to other voters) or in a private DM to the project Steward.
+6. Once the vote is complete, the thread is deleted.
+7. The vote must receive an overwhelming majority (70%+) to pass.
+8. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
+9. **If the vote fails:** the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
 
 ## Voting: Core Maintainer (L3) Nomination
 
 This process kicks off once a valid nomination has been made. See ["Core Maintainer - Nomination Process"](#nomination-process) above for more details on nomination.
+
+**Who can vote:** All Core Maintainers (L3 and above). 
 
 1. A vote thread should be created in Discord #core channel (the private channel for core maintainers).
 1. A vote thread can be created by any core maintainer, or the Steward.
@@ -244,6 +235,39 @@ This process kicks off once a valid nomination has been made. See ["Core Maintai
 1. The vote must receive an overwhelming majority (70%+) to pass.
 1. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
 1. **If the vote fails:** the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
+
+## Voting: Governance Change
+
+A vote is initiated once a pull request to the GOVERNANCE.md file is submitted by a Core Maintainer.  
+
+If the pull request submitter is not a Core Maintainer, the PR can be closed by any Maintainer without a vote. However, any Core Maintainer may request a vote on that PR, in which case a vote is initiated.
+
+**Who can vote:** Core Maintainers (L3 and above). All community members are encouraged to discuss and voice their opinion in the pull request discussion. Core Maintainers should take the opinions of others -- especially other Maintainers -- into consideration when voting.
+
+1. The pull request discussion thread is used to discuss the governance change.
+2. The normal 3 day voting & discussion window begins with the PR creation. 
+3. Voting can be done in the pull request via a review of either **Approve (For)** or **Change Requested (Against)**.
+4. The vote must receive a simple majority (50%+) to pass.
+5. **If the vote passes:** the PR is merged and the changes take effect immediately.
+6. **If the vote fails:** the PR is closed and no change occurs.
+
+
+## Voting: RFC Proposals
+
+Astro features are discussed using a model called [Consensus-seeking decision-making](https://en.wikipedia.org/wiki/Consensus-seeking_decision-making). This model attempts to achieve consensus on all significant changes to Astro, but has a fallback voting procedure in place if consensus appears unattainable.
+
+**Who can vote:** All Maintainers (L2 and above). 
+
+1. Anyone can submit an RFC to suggest changes to Astro.
+2. A trivial change can be discussed and approved entirely within the RFC GitHub issue, as long as there are no objections from Maintainers or Core Maintainers. This is not considered a formal vote. 
+3. A non-trivial, significant change should be discussed within the RFC GitHub issue and approved during an RFC meeting call.
+4. During an RFC meeting, the moderator will attempt to achieve consensus on the RFC proposal.
+5. **If consensus is ever reached:** the RFC is approved.
+6. Otherwise, Maintainers should attempt to reach consensus over the course of the next week, before bringing the RFC back to an RFC meeting. All reasonable attempts to address concerns should be exhausted.
+7. **If consensus still cannot be reached:** The project Steward may initiate the first fallback mechanism by limiting the vote to Core Maintainers.
+8. **If consensus still cannot be reached:** The project Steward may initiate a final fallback vote of Core Maintainers, of which an overwhelming majority (80%+) is required to pass.
+9. **If consensus still cannot be reached:**  The RFC is closed without approval.
+
 
 ## Moderation
 
