@@ -240,7 +240,7 @@ A vote is initiated once a pull request to the GOVERNANCE.md file is submitted b
 
 If the pull request submitter is not a Core Maintainer, the PR can be closed by any Maintainer without a vote. However, any Core Maintainer may request a vote on that PR, in which case a vote is initiated.
 
-**Who can vote:** Core Maintainers (L3 and above). All community members are encouraged to discuss and voice their opinion in the pull request discussion. Core Maintainers should take the opinions of others -- especially other Maintainers -- into consideration when voting.
+**Who can vote:** Core Maintainers (L3 and above). All Maintainers are encouraged to discuss and voice their opinion in the pull request discussion. Core Maintainers should take the opinions of others into consideration when voting.
 
 1. The pull request discussion thread is used to discuss the governance change.
 2. The normal 3 day voting & discussion window begins with either the PR creation or the removal of `WIP:` from the PR title if the PR was created as a draft.
