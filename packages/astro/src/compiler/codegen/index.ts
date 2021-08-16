@@ -59,8 +59,6 @@ function findHydrationAttributes(attrs: Record<string, string>): HydrationAttrib
   return { method, value };
 }
 
-
-
 /** Retrieve attributes from TemplateNode */
 async function getAttributes(nodeName: string, attrs: Attribute[], state: CodegenState, compileOptions: CompileOptions): Promise<Record<string, string>> {
   let result: Record<string, string> = {};

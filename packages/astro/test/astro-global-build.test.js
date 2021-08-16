@@ -7,8 +7,8 @@ const GlobalBuild = suite('Astro.* built');
 
 setup(GlobalBuild, './fixtures/astro-global', {
   runtimeOptions: {
-    mode: 'production'
-  }
+    mode: 'production',
+  },
 });
 
 GlobalBuild('Astro.resolve in the build', async (context) => {
