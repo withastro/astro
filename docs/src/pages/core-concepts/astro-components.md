@@ -166,7 +166,7 @@ const { greeting = 'Hello', name } = Astro.props;
 </div>
 ```
 
-You can define your props with TypeScript by exporting a `Props` type interface. In the future, Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
+You can define your props with TypeScript by exporting a `Props` type interface. **In the future**, Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
 
 ```astro
 ---
