@@ -1,8 +1,8 @@
 export const SIDEBAR = {
   en: [
     { text: 'Introduction', header: true },
-    { text: 'Getting Started', link: 'getting-started' },
-    { text: 'Example', link: 'example' },
+    { text: 'Getting Started', link: 'en/getting-started' },
+    { text: 'Example', link: 'en/example' },
   ],
   es: [
     { text: 'Introducción', header: true },

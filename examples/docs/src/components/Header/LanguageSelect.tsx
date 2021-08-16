@@ -17,11 +17,7 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
         value={lang}
         onChange={(e) => {
           const newLang = e.target.value;
-          if (newLang === 'en') {
-            window.location.pathname = `/getting-started`;
-          } else {
-            window.location.pathname = `/${newLang}/getting-started`;
-          }
+          window.location.pathname = `/${newLang}/`;
           // TODO: Preserve the current page, if it exists:
           // const oldPathname = window.location.pathname;
           // const oldPathnameParts = oldPathname.split('/');

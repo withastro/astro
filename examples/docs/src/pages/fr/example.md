@@ -20,7 +20,7 @@ Nam quam dolor, pellentesque sed odio euismod, feugiat tempus tellus. Quisque ar
 
 ```markdown
 ---
-layout: ../layouts/Main.astro
+layout: ~/layouts/Main.astro
 ---
 
 # Markdown example

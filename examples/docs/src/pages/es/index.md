@@ -1,5 +1,5 @@
 ---
-layout: ../layouts/MainLayout.astro
+layout: ~/layouts/MainLayout.astro
 title: ¡Hola, documentación!
 lang: es
 ---

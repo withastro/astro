@@ -12,9 +12,7 @@ import Layout from '../layouts/MainLayout.astro';
 
   let langPathRegex = new RegExp(`\/(${KNOWN_LANGUAGES.join("|")})\/`);
   let actualDest = window.location.pathname.replace(langPathRegex, "/");
-  if (newLang === 'en') {
-    window.location.pathname = actualDest;
-  } else if (KNOWN_LANGUAGES.includes(newLangWithRegion)) {
+  if (KNOWN_LANGUAGES.includes(newLangWithRegion)) {
     window.location.pathname = '/' + newLangWithRegion + actualDest;
   } else if (KNOWN_LANGUAGES.includes(newLang)) {
     window.location.pathname = '/' + newLang + actualDest;

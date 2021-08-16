@@ -13,8 +13,8 @@ The page navigation, through the side bar on the left, needs to be manually upda
 export const SIDEBAR = {
   en: [
     { text: 'Introduction', header: true },
-    { text: 'Getting Started', link: 'getting-started' },
-    { text: 'Example', link: 'example' },
+    { text: 'Getting Started', link: 'en/getting-started' },
+    { text: 'Example', link: 'en/example' },
   ],
   es: [
     { text: 'Introducción', header: true },
