@@ -30,11 +30,11 @@ const warnableRelativeValues = new Set([
   'source+srcset'
 ]);
 
-const nonRelative = /^(?!(https?:|data:|\/))/;
+const matchesRelative = /^(?![A-Za-z][+-.0-9A-Za-z]*:|\/)/;
 
 export function warnIfRelativeStringLiteral(logging: LogOptions, nodeName: string, attr: Attribute, value: string) {
   let key = nodeName + '+' + attr.name;
-  if(warnableRelativeValues.has(key) && nonRelative.test(value)) {
+  if(warnableRelativeValues.has(key) && matchesRelative.test(value)) {
     let message = `This value will be resolved relative to the page: <${nodeName} ${attr.name}="${value}">`;
     warn(logging, 'relative-link', message);
   }
