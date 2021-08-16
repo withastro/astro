@@ -13,52 +13,113 @@ At the same time, I had a day job where I was a junior software developer at a r
 The Astro community is my personal attempt to share this experience with others who might be looking for the same thing as I was. Everyone is at different stages in their life and career, and my personal experience as "slightly bored junior developer" isn't a one-size-fits-all for why you should get involved in open source. Instead, here are some of my favorite things that I got out of open source development that I think apply to anyone:
 
 - **Job opportunities:** Having the line "maintains code used by millions of developers" on my resume was an incredible way to stand out in every single job search I did for years afterwards.
-- **Instant dev cred:** I was accepted to give my first public talk at a conference based solely on my open source work. It was a terrible talk, but who's first talk is good!? :D
+- **Instant dev cred:** I was accepted to give my first public talk at a conference based solely on my open source work. It was a terrible talk, but whose first talk is good!? :D
 - **Leadership/mentorship opportunities:** I went from having zero responsibility at work to being a respected voice/opinion in the `request` GitHub issues and PRs.
 - **Learning from smart people:** I got to meet and learn from so many smart people across the open source ecosystem.
-- **preventing imposter syndrome:** Sure, I was still just a kid, but having an actual human connection to developers who I looked up to at the time helped dispell the idea that "oh, **I** could never be like that."
+- **preventing imposter syndrome:** Sure, I was still just a kid, but having an actual human connection to developers who I looked up to at the time helped dispell the idea that "oh, _I_ could never be like that."
 - **Making friends in the larger community:** The creator of request, [@mikeal](https://twitter.com/mikeal), is still a friend to this day.
 
-If any of this sounds interesting, I hope you consider getting involved with Astro. Come say hi in the [**#new-contributors**](https://astro.build/chat) channel on Discord, anytime. We're always around and value contributions of any shape/size.
+If any of this sounds interesting, I hope you consider getting involved with Astro. Come say hi in the [**#new-contributors**][discord] channel on Discord anytime. We're always around and value contributions of any shape/size.
 
 # Contributor Manual
 
 ## Prerequisite
 
-```shell
-node: "^12.20.0 || ^14.13.1 || >=16.0.0"
-yarn: "^1.22.10"
-# otherwise, your build will fail
+You’ll need the following tools set up on your system to contribute to this codebase:
+
+- [Node 14.x or 16.x][install-node]
+- [Yarn 1.x][install-yarn] (_Note: we do NOT use Yarn 2!_)
+- [Git 2.x][install-git]
+
+## Setting up Astro locally
+
+All work on Astro begins by downloading a copy locally. Start by [**forking**][how-to-fork] this repository (if you’re new to this, [GitHub has a great detailed guide][how-to-fork]). You should end up with an `astro/` code folder on your local machine.
+
+Switch to this folder by opening your **Terminal application** of choice and running:
+
+```
+cd /[path to my code folder]/astro
 ```
 
-## Setting up your local repo
+Next, you’ll need to install dependencies and set up the project. You can do that by running the following commands from within the `astro/` folder:
 
-Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, `www`, `docs`, and every package in the repo.
-
-```shell
-git clone && cd ...
-yarn install
-yarn build:all
 ```
+yarn
+yarn build
+```
+
+This will download everything you need and build Astro locally for use. You’re ready to go!
 
 ## Development
 
-```shell
-# starts a file-watching, live-reloading dev script for active development
+While working within packages (such as `packages/astro/*`), you may notice you have to run `yarn build` to see your changes. This process can really slow you down if you are trying many changes at once. Try running the following instead:
+
+```
 yarn dev
-# build the entire project, one time.
+```
+
+This will start a build watcher, which will rebuild files as you work. Use this to speed up your workflow, and see your changes more rapidly.
+
+Of course, you can still build all files within a package, as before. You may need to do so from time to time:
+
+```
 yarn build
 ```
 
 ## Running tests
 
-```shell
-# run this in the top-level project root to run all tests
-yarn test
-# run only a few tests, great for working on a single feature
-# (example - `yarn test rss` runs `astro-rss.test.js` tests)
-yarn test $STRING_MATCH
+You’ll need to run existing tests to make sure your work didn’t cause any regressions. To create a fresh build and run all tests, run the following from the project root:
+
 ```
+yarn
+yarn build
+yarn test
+```
+
+If you find yourself wanting to not run the whole test suite, you can run the following instead:
+
+```
+cd packages/astro
+yarn test astro-markdown
+```
+
+Replace “`astro-markdown`“ with any part of a test filename to only run those tests.
+
+## Making a Pull Request
+
+When you’re ready to commit your work and submit it for review, you’ll need to do the following:
+
+1. Create a new **branch**:
+   ```
+   git checkout -b fix-homepage-bug
+   ```
+1. **Commit** your changes:
+   ```
+   git add *
+   git commit -m "Fix layout bug on homepage"
+   ```
+   _Note: be short and specific in your message! This will live forever!_
+1. **Push** your changes:
+   ```
+   git push --set-upstream origin fix-homepage-bug
+   ```
+1. Add a **changeset** message:
+
+   ```
+   yarn changeset
+   ```
+
+   Your changeset message will be what appears publicly in release notes. It’s all right if it’s more verbose than your commit message.
+
+   Also, while Astro is pre-1.0, you probably want to only make **patch** changes, unless you’re releasing a huge, sweeping, breaking change as a **minor** release ([what is semver?][semver]).
+
+1. [Open a new Pull Request][astro-pr] on Astro with your changes.
+
+Be sure to **fill in the template** completely! It helps other people review your work.
+
+If you need to create a pull request to get early feedback, that’s OK, too.
+
+Creating your first Pull Request can seem like a lot of steps at first, but with time and practice it’ll become comfortable.
 
 ## Other useful commands
 
@@ -72,14 +133,6 @@ yarn format
 # lint the project
 # (optional - our linter creates helpful warnings, but not errors.)
 yarn lint
-```
-
-## Making a Pull Request
-
-When making a pull request, be sure to add a changeset when something has changed with Astro. Non-packages (`examples/*`, `docs/*`, and `www/*`) do not need changesets.
-
-```shell
-yarn changeset
 ```
 
 ## Running benchmarks
@@ -168,7 +221,7 @@ Exiting prerelease mode should happen once an experimental release is ready to g
 
 # Translations
 
-Help us translate [docs.astro.build](https://docs.astro.build/) into as many languages as possible! This can be a great way to get involved with open source development without having to code.
+Help us translate [docs.astro.build][docs] into as many languages as possible! This can be a great way to get involved with open source development without having to code.
 
 Our translation process is loosly based off of [MDN.](https://hacks.mozilla.org/2020/12/an-update-on-mdn-web-docs-localization-strategy/)
 
@@ -185,10 +238,19 @@ Astro is changing quickly, and so are the docs. We cannot translate too many pag
 - French (fr)
 - Japanese (ja)
 
-We are always looking for people to help us with these translations. If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord in the `i18n` channel.
+We are always looking for people to help us with these translations. If you are interested in getting involved, please [reach out to us on Discord][discord] in the `i18n` channel.
 
 ### Tier 2 Languages
 
 All other languages are considered **Tier 2**. Tier 2 language translations are driven by the community, with support from core maintainers. If you want to see the Astro docs site translated into a new language, then we need your help to kick off the project!
 
-If you are interested in getting involved, please [reach out to us](https://astro.build/chat) on Discord in the `i18n` channel.
+If you are interested in getting involved, please [reach out to us on Discord][discord] in the `i18n` channel.
+
+[astro-pr]: https://github.com/snowpackjs/astro/compare
+[discord]: https://astro.build/chat
+[docs]: https://docs.astro.build
+[how-to-fork]: https://guides.github.com/activities/forking/
+[install-node]: https://nodejs.org/en/
+[install-git]: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+[install-yarn]: https://classic.yarnpkg.com/en/docs/getting-started
+[semver]: https://semver.org/
