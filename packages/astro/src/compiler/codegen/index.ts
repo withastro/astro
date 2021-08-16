@@ -2,7 +2,7 @@ import type { Ast, Script, Style, TemplateNode, Expression } from '@astrojs/pars
 import type { CompileOptions } from '../../@types/compiler';
 import type { AstroConfig, AstroMarkdownOptions, TransformResult, ComponentInfo, Components } from '../../@types/astro';
 import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, ImportDefaultSpecifier } from '@babel/types';
-
+import type { Attribute } from './interfaces';
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
@@ -15,6 +15,7 @@ import * as babelTraverse from '@babel/traverse';
 import { error, warn, parseError } from '../../logger.js';
 import { yellow } from 'kleur/colors';
 import { isComponentTag, isCustomElementTag, positionAt } from '../utils.js';
+import { warnIfRelativeStringLiteral } from './utils.js';
 import { renderMarkdown } from '@astrojs/markdown-support';
 import { camelCase } from 'camel-case';
 import { transform } from '../transform/index.js';
@@ -31,15 +32,6 @@ const babelGenerator: typeof _babelGenerator = _babelGenerator.default;
 const { transformSync } = esbuild;
 
 const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media']);
-
-interface Attribute {
-  start: number;
-  end: number;
-  type: 'Attribute' | 'Spread';
-  name: string;
-  value: TemplateNode[] | boolean;
-  expression?: Expression;
-}
 
 interface CodeGenOptions {
   compileOptions: CompileOptions;
@@ -67,8 +59,10 @@ function findHydrationAttributes(attrs: Record<string, string>): HydrationAttrib
   return { method, value };
 }
 
+
+
 /** Retrieve attributes from TemplateNode */
-async function getAttributes(attrs: Attribute[], state: CodegenState, compileOptions: CompileOptions): Promise<Record<string, string>> {
+async function getAttributes(nodeName: string, attrs: Attribute[], state: CodegenState, compileOptions: CompileOptions): Promise<Record<string, string>> {
   let result: Record<string, string> = {};
   for (const attr of attrs) {
     if (attr.type === 'Spread') {
@@ -118,9 +112,13 @@ async function getAttributes(attrs: Attribute[], state: CodegenState, compileOpt
         }
         continue;
       }
-      case 'Text':
-        result[attr.name] = JSON.stringify(getTextFromAttribute(val));
+      case 'Text': {
+        let text = getTextFromAttribute(val);
+
+        warnIfRelativeStringLiteral(compileOptions.logging, nodeName, attr, text);
+        result[attr.name] = JSON.stringify(text);
         continue;
+      }
       case 'AttributeShorthand':
         result[attr.name] = '(' + attr.name + ')';
         continue;
@@ -641,7 +639,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               throw new Error('AHHHH');
             }
             try {
-              const attributes = await getAttributes(node.attributes, state, compileOptions);
+              const attributes = await getAttributes(name, node.attributes, state, compileOptions);
               const hydrationAttributes = findHydrationAttributes(attributes);
 
               buffers.out += buffers.out === '' ? '' : ',';

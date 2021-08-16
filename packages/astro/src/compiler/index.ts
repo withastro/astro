@@ -107,8 +107,13 @@ interface CompileComponentOptions {
 /** Compiles an Astro component */
 export async function compileComponent(source: string, { compileOptions, filename, projectRoot }: CompileComponentOptions): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
+  const { mode } = compileOptions;
   const { hostname, port } = compileOptions.astroConfig.devOptions;
-  const site = compileOptions.astroConfig.buildOptions.site || `http://${hostname}:${port}`;
+  const devSite = `http://${hostname}:${port}`;
+  const site = compileOptions.astroConfig.buildOptions.site || devSite;
+
+  const fileID = path.join('/_astro', path.relative(projectRoot, filename));
+  const fileURL = new URL('.' + fileID, mode === 'production' ? site : devSite);
 
   // return template
   let moduleJavaScript = `
@@ -123,6 +128,12 @@ ${/* Global Astro Namespace (shadowed & extended by the scoped namespace inside 
 const __TopLevelAstro = {
   site: new URL(${JSON.stringify(site)}),
   fetchContent: (globResult) => fetchContent(globResult, import.meta.url),
+  resolve(...segments) {
+    return segments.reduce(
+      (url, segment) => new URL(segment, url),
+      new URL(${JSON.stringify(fileURL)})
+    ).pathname
+  },
 };
 const Astro = __TopLevelAstro;
 
@@ -158,10 +169,14 @@ async function __render(props, ...children) {
       value: (props[__astroInternal] && props[__astroInternal].isPage) || false,
       enumerable: true
     },
+    resolve: {
+      value: (props[__astroContext] && props[__astroContext].resolve) || {},
+      enumerable: true
+    },
     request: {
       value: (props[__astroContext] && props[__astroContext].request) || {},
       enumerable: true
-    }
+    },
   });
 
   ${result.script}
@@ -186,6 +201,7 @@ export async function __renderPage({request, children, props, css}) {
       value: {
         pageCSS: css,
         request,
+        resolve: __TopLevelAstro.resolve,
         createAstroRootUID(seed) { return seed + astroRootUIDCounter++; },
       },
       writable: false,

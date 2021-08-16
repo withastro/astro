@@ -41,4 +41,13 @@ Global('Astro.site', async (context) => {
   assert.equal($('#site').attr('href'), 'https://mysite.dev/blog/');
 });
 
+Global('Astro.resolve in development', async (context) => {
+  const result = await context.runtime.load('/resolve');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const html = result.contents;
+  const $ = doc(html);
+  assert.equal($('img').attr('src'), '/_astro/src/images/penguin.png');
+});
+
 Global.run();
