@@ -1,0 +1,94 @@
+---
+import capitalise from './function-capitalise.js'
+import formatTemplateName from './function-format-name.js'
+import generateThumbnailIcon from './function-generate-thumbnail-icon.js'
+---
+    <div class="card-wrapper">
+     <div class="image"></div>
+            <div class="card-avatar">
+                <img src={await generateThumbnailIcon()} alt="" class="icon-image ball">
+            </div>
+            <div class="card-body">
+                <h3 class="title">
+                    Template Title
+                </h3>
+                <p>
+                    product description
+                </p>
+            </div>
+    </div>
+    
+    <style lang="scss">
+        *{
+            background-clip:border-box;
+        }
+        .card-wrapper{
+            display:flex;
+            flex-direction:column;
+            position:relative;
+            justify-items:center;
+            align-items:center;
+            width:50%;
+            border-radius:3rem;
+            padding:0;
+            padding-bottom:1.5rem;
+            background: var(--theme-card-bg);
+            box-shadow:  var(--theme-card-box-shadow);
+        }
+
+        .image{
+            background-image:url('https://images.unsplash.com/photo-1464802686167-b939a6910659?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1033&q=80');
+            height:10rem;
+            width:100%;
+            border-radius:3rem 3rem 0 0;
+            // margin-bottom:1rem;
+            border-bottom:3px solid linear-gradient(var(--theme-divider))
+        }
+        .title{
+            display: block;
+            position: relative;
+            top:-1rem;
+            margin:0;
+            width:fit-content;
+            margin:auto;
+
+        }
+        .card-body{
+            justify-items:center;
+
+            > p {
+                width:fit-content;
+            }
+        }
+        .card-avatar{
+            position: relative;
+            top:-2.5rem;
+            left:0%;
+            border:0.25rem solid var(--theme-divider);
+            display: block;
+            width: clamp(3rem,5rem,6rem);
+            height: clamp(3rem,5rem,6rem);
+            margin: 0;
+            border-radius: 50%;
+            @media(max-width:50em){
+                width:4rem;
+                height:4rem;
+            }
+            @media(max-width:24em){
+                // left:30%;
+            }
+            @media(max-width:280px){
+                display:none;
+            }
+        }
+      
+
+
+ 
+    </style>
+    <script>
+    //Check the theme based on the root if the classlist is light or dark
+    // Apply the shadow to the childwrapper 
+    const isDark = document.documentElement.classList.contains('theme-dark')
+    console.log(isDark)
+    </script>
