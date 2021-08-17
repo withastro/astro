@@ -6,8 +6,12 @@ export interface Props {
   titleClosure(content: any, SITE: any): string,
   canonicalURL: URL | string,
 };
-const { content = {}, canonicalURL, titleClosure } = Astro.props;
-const formattedContentTitle = titleClosure ? titleClosure(content, SITE) : (content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title);
+const { 
+        content = {}, 
+        canonicalURL, 
+        titleClosure = (content, SITE) => content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title,
+      } = Astro.props;
+const formattedContentTitle = titleClosure(content, SITE);
 const imageSrc = content?.image?.src ?? OPEN_GRAPH.image.src;
 const canonicalImageSrc = new URL(imageSrc, Astro.site);
 const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
