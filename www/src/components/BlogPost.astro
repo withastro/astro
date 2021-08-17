@@ -4,7 +4,7 @@ import GithubStarButton from './GithubStarButton.astro';
 
 export interface Props {
   title: string;
-  author: string;
+  author?: string;
   publishDate: string;
   heroImage: string;
 }
@@ -19,7 +19,7 @@ const { title, author, publishDate, heroImage } = Astro.props;
       {heroImage && <img width="720" height="420" class="hero-image" loading="lazy" src={heroImage} />}
       <p class="publish-date">{publishDate}</p>
       <h1 class="title">{title}</h1>
-      <Author authorId={author} />
+      {author && <Author authorId={author} />}
       <GithubStarButton />
     </header>
     <main>

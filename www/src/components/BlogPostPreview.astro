@@ -15,9 +15,7 @@ const { title, publishDate, href } = Astro.props;
     <a href={href}><h1 class="title">{title}</h1></a>
   </header>
   <main>
-    <slot />
-
-    <a href={href}>Read more</a>
+    <slot />{' '}<a href={href}>Read more →</a>
   </main>
 </article>
 
