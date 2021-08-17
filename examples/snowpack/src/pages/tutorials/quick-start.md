@@ -29,9 +29,9 @@ For long-term development, the best way to use Snowpack is with a package.json s
 
 ```js
 // Recommended: package.json scripts
-// npm start (or: "yarn run ...", "pnpm run ...")
+// npm run dev (or: "yarn run ...", "pnpm run ...")
 "scripts": {
-    "start": "snowpack dev",
+    "dev": "snowpack dev",
     "build": "snowpack build"
 }
 ```

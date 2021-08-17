@@ -17,7 +17,7 @@ npm init astro
 npm install
 
 # start developing!
-npm start
+npm run dev
 
 # when you're ready: build your static site to `dist/`
 npm run build
@@ -30,7 +30,7 @@ If you wish to learn more about the range of methods to install and setup Astro 
 From inside your project directory, enter the following command into your terminal:
 
 ```bash
-npm start
+npm run dev
 ```
 
 Astro will now start serving your application on [http://localhost:3000](http://localhost:3000). Opening this URL in your browser, you should see the Astro's "Hello, World".

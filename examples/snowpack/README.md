@@ -27,7 +27,7 @@ npm install
 3. Run the Astro dev environment.
 
 ```shell
-npm start
+npm run dev
 ```
 
 4. Build the website. (Not yet working.)

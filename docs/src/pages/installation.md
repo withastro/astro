@@ -86,13 +86,13 @@ You can now replace the placeholder "scripts" section of your `package.json` fil
 ```diff
   "scripts": {
 -    "test": "echo \"Error: no test specified\" && exit 1"
-+    "start": "astro dev",
++    "dev": "astro dev",
 +    "build": "astro build"
   },
 }
 ```
 
-The [`start`](#start-astro) command launches the Astro Dev Server on `http://localhost:3000`. Once your project is ready, the [`build`](#build-astro) command outputs your project to the `dist/` directory. [Read more about deploying Astro in the Deploy guide.](/guides/deploy)
+The [`dev`](#start-astro) command launches the Astro Dev Server on `http://localhost:3000`. Once your project is ready, the [`build`](#build-astro) command outputs your project to the `dist/` directory. [Read more about deploying Astro in the Deploy guide.](/guides/deploy)
 
 ### Create your first page
 
@@ -135,7 +135,7 @@ You can create more pages in the `src/pages` directory, and Astro will use the f
 ## [Start Astro](#start-astro)
 
 ```bash
-npm start
+npm run dev
 ```
 
 Astro will now start serving your application on `http://localhost:3000`. By opening this URL in your browser, you should see the Astro's “Hello, World”

@@ -91,13 +91,13 @@ npm install astro
 ```diff
   "scripts": {
 -    "test": "echo \"Error: no test specified\" && exit 1"
-+    "start": "astro dev",
++    "dev": "astro dev",
 +    "build": "astro build"
   },
 }
 ```
 
-[`start`](#start-astro) 命令在 `http://localhost:3000` 上启动 Astro 开发服务器。一旦你的项目准备好了。
+[`dev`](#start-dev) 命令在 `http://localhost:3000` 上启动 Astro 开发服务器。一旦你的项目准备好了。
 
 [`build`](#build-astro)命令将你的项目输出到 `dist/` 目录。[在部署指南中阅读更多关于部署 Astro 的内容。](/guides/deploy)
 
@@ -141,7 +141,7 @@ console.log('See me in the Terminal')
 ## [启动 Astro](#start-astro)
 
 ```bash
-npm start
+npm run dev
 ```
 
 Astro 会开启预览服务器，地址为 [http://localhost:3000](http://localhost:3000)，

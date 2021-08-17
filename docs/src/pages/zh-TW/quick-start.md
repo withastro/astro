@@ -18,7 +18,7 @@ npm init astro
 npm install
 
 # 開始開發！
-npm start
+npm run dev
 
 # 做好之後：把靜態網站 build 進 `dist/`
 npm run build
@@ -31,7 +31,7 @@ npm run build
 專案目錄裡，在終端機輸入以下指令：
 
 ```bash
-npm start
+npm run dev
 ```
 
 現在，Astro 就會開啟應用程式的伺服器，位置是 [http://localhost:3000](http://localhost:3000)。在瀏覽器打開這網址，就會看到 Astro 的 「Hello, World」。
