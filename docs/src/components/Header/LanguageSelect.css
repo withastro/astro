@@ -44,7 +44,7 @@
 .language-select-wrapper::before,
 .language-select-wrapper::after {
   position: absolute;
-  top: 20px;
+  top: 18px;
   content: '';
   width: 8px;
   height: 1px;
@@ -64,9 +64,9 @@
     width: 100%;
   }
   .language-select-wrapper::before {
-    right: 20px;
+    right: 16px;
   }
   .language-select-wrapper::after {
-    right: 15px;
+    right: 11px;
   }
 }
