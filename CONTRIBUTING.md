@@ -130,23 +130,11 @@ Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snaps
 
 ## Releasing `astro@next` (aka "prerelease mode")
 
-Sometimes, the repo enters "prerelease mode", which means that `main` is no longer releasing to `npm install astro` but is instead releasing to `npm install astro@next`. We do this from time-to-time to test large features before sharing them with the larger Astro audience.
+Sometimes, the repo will enter into "prerelease mode". In prerelease mode, our normal release process will publish npm versions under the `next` dist-tag, instead of the default `latest` tag. We do this from time-to-time to test large features before sharing them with the larger Astro audience.
 
-When in prerelease mode, the automatic PR release process is for `next`. That means that releasing to `latest` becomes a manual process. To release latest manually while in prerelease mode:
+While in prerelease mode, follow the normal release process to release `astro@next` instead of `astro@latest`.  To release `astro@latest` instead, see [Releasing `astro@latest` while in prerelease mode](#user-content-releasing-astrolatest-while-in-prerelease-mode).
 
-1. _In the code snippets below, replace `0.X` with your version (ex: `0.18`, `release/0.18`, etc.)._
-1. Create a new `release/0.X` branch, if none exists.
-1. Point `release/0.X` to the latest commit for the `v0.X` version.
-1. `git cherry-pick` commits from `main`, as needed.
-1. Make sure that all changesets for the new release are included. You can create some manually (via `yarn changeset`) if needed.
-1. Run `yarn changeset version` to create your new release.
-1. Run `yarn release` to publish your new release.
-1. Run `git push && git push --tags` to push your new release to GitHub.
-1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
-1. Go to https://github.com/snowpackjs/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/snowpackjs/astro/blob/latest/packages/astro/CHANGELOG.md.
-1. Post in Discord #announcements channel, if needed!
-
-Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snapshot-releases.md
+Full documentation: https://github.com/atlassian/changesets/blob/main/docs/prereleases.md
 
 ### Entering prerelease mode
 
@@ -165,6 +153,23 @@ Exiting prerelease mode should happen once an experimental release is ready to g
 - Create a new PR from the changes created by this command.
 - Review, approve, and more the PR to enter prerelease mode.
 - If successful, The "Version Packages (next)" PR (if one exists) will now say "Version Packages".
+
+### Releasing `astro@latest` while in prerelease mode
+
+When in prerelease mode, the automatic PR release process will no longer release `astro@latest`, and will instead release `astro@next`. That means that releasing to `latest` becomes a manual process. To release latest manually while in prerelease mode:
+
+1. _In the code snippets below, replace `0.X` with your version (ex: `0.18`, `release/0.18`, etc.)._
+1. Create a new `release/0.X` branch, if none exists.
+1. Point `release/0.X` to the latest commit for the `v0.X` version.
+1. `git cherry-pick` commits from `main`, as needed.
+1. Make sure that all changesets for the new release are included. You can create some manually (via `yarn changeset`) if needed.
+1. Run `yarn changeset version` to create your new release.
+1. Run `yarn release` to publish your new release.
+1. Run `git push && git push --tags` to push your new release to GitHub.
+1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
+1. Go to https://github.com/snowpackjs/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/snowpackjs/astro/blob/latest/packages/astro/CHANGELOG.md.
+1. Post in Discord #announcements channel, if needed!
+
 
 # Translations
 
