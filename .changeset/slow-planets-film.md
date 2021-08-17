@@ -8,7 +8,7 @@ The new `client:only` hydrator allows you to define a component that should be s
 
 In most cases it is best to render placeholder content during the build, but that may not always be feasible if an NPM dependency attempts to use browser APIs as soon as is imported.
 
-**Note** If more than one renderer is included in your Astro config, you need to include a hint to determine which renderer to use similar to `client:only="react"`. This hint can be skipped if only one renderer is included in your Astro config.
+**Note** If more than one renderer is included in your Astro config, you need to include a hint to determine which renderer to use. Renderers will be matched to the name provided in your Astro config, similar to `<MyComponent client:only="@astrojs/renderer-react" />`. Shorthand can be used for `@astrojs` renderers, i.e. `<MyComponent client:only="react" />` will use `@astrojs/renderer-react`.
 
 An example usage:
 
@@ -24,6 +24,11 @@ import BarChart from '../components/BarChart.jsx';
  * the Preact renderer.
  */
 <BarChart client:only="preact" />
+/**
+ * If a custom renderer is required, use the same name
+ * provided in the Astro config.
+ */
+<BarChart client:only="my-custom-renderer" />
 ```
 
 This allows you to import a chart component dependent on d3.js while making sure that the component isn't rendered at all at build time.

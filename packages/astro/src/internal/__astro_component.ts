@@ -24,6 +24,7 @@ const serialize = (value: Value) =>
   });
 
 export interface RendererInstance {
+  name: string | null;
   source: string | null;
   renderer: Renderer;
   polyfills: string[];
@@ -31,6 +32,7 @@ export interface RendererInstance {
 }
 
 const astroHtmlRendererInstance: RendererInstance = {
+  name: null,
   source: '',
   renderer: astroHtml as Renderer,
   polyfills: [],
@@ -57,22 +59,25 @@ function inferClientRenderer(metadata: Partial<AstroComponentMetadata>) {
   } else if (metadata.value) {
     // Attempt to find the renderer by matching the hydration value
     const hint = metadata.value;
-    const match = rendererInstances
-      .find((instance) => {
-        if (!instance.source) {
-          return false;
-        }
-
-        return instance.source.indexOf(hint) >= 0;
-      });
+    let match = rendererInstances.find((instance) => instance.name === hint);
 
     if (!match) {
-      throw new Error(`Couldn't find a renderer for <${metadata.displayName} client:only="${metadata.value}" />. Is there a renderer that matches the "${metadata.value}" hint in your Astro config?`)
+      // Didn't find an exact match, try shorthand hints for the internal renderers
+      const fullHintName = `@astrojs/renderer-${hint}`;
+      match = rendererInstances.find((instance) => instance.name === fullHintName);
+    }
+
+    if (!match) {
+      throw new Error(
+        `Couldn't find a renderer for <${metadata.displayName} client:only="${metadata.value}" />. Is there a renderer that matches the "${metadata.value}" hint in your Astro config?`
+      );
     }
     return match;
   } else {
     // Multiple renderers included but no hint was provided
-    throw new Error(`Can't determine the renderer for ${metadata.displayName}. Include a hint similar to <${metadata.displayName} client:only="react" /> when multiple renderers are included in your Astro config.`);
+    throw new Error(
+      `Can't determine the renderer for ${metadata.displayName}. Include a hint similar to <${metadata.displayName} client:only="react" /> when multiple renderers are included in your Astro config.`
+    );
   }
 }
 
@@ -221,12 +226,12 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
         throw new Error(`No renderer found for ${name}! Did you forget to add a renderer to your Astro config?`);
       }
     }
-    
+
     let html = '';
     // Skip SSR for components using client:only hydration
     if (metadata.hydrate !== 'only') {
       const rendered = await instance.renderer.renderToStaticMarkup(Component, props, children, metadata);
-      html = rendered.html
+      html = rendered.html;
     }
 
     if (instance.polyfills.length) {
