@@ -36,7 +36,7 @@
 }
 .language-select-wrapper > svg {
   position: absolute;
-  top: 10px;
+  top: 8px;
   left: 8px;
   pointer-events: none;
 }
