@@ -132,7 +132,7 @@ Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snaps
 
 Sometimes, the repo will enter into "prerelease mode". In prerelease mode, our normal release process will publish npm versions under the `next` dist-tag, instead of the default `latest` tag. We do this from time-to-time to test large features before sharing them with the larger Astro audience.
 
-While in prerelease mode, follow the normal release process to release `astro@next` instead of `astro@latest`.  To release `astro@latest` instead, see [Releasing `astro@latest` while in prerelease mode](#user-content-releasing-astrolatest-while-in-prerelease-mode).
+While in prerelease mode, follow the normal release process to release `astro@next` instead of `astro@latest`. To release `astro@latest` instead, see [Releasing `astro@latest` while in prerelease mode](#user-content-releasing-astrolatest-while-in-prerelease-mode).
 
 Full documentation: https://github.com/atlassian/changesets/blob/main/docs/prereleases.md
 
@@ -169,7 +169,6 @@ When in prerelease mode, the automatic PR release process will no longer release
 1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
 1. Go to https://github.com/snowpackjs/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/snowpackjs/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
-
 
 # Translations
 
