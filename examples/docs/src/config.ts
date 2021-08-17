@@ -1,20 +1,9 @@
-export const SIDEBAR = {
-  en: [
-    { text: 'Introduction', header: true },
-    { text: 'Getting Started', link: 'en/getting-started' },
-    { text: 'Example', link: 'en/example' },
-  ],
-  es: [
-    { text: 'Introducción', header: true },
-    { text: 'Empezando', link: 'es/getting-started' },
-    { text: 'Ejemplo', link: 'es/example' },
-  ],
-  fr: [
-    { text: 'Introduction', header: true },
-    { text: 'Commencer', link: 'fr/getting-started' },
-    { text: 'Exemple', link: 'fr/example' },
-  ],
-};
+export const SIDEBAR = [
+  { text: 'Getting Started', header: true },
+  { text: 'Introduction', link: 'introduction' },
+  { text: 'Getting Started', link: 'getting-started' },
+  { text: 'Example', link: 'example' },
+];
 
 export const SITE = {
   title: 'Astro Documentation',

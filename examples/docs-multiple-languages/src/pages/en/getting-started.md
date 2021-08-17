@@ -12,17 +12,20 @@ The page navigation, through the side bar on the left, needs to be manually upda
 ```ts
 export const SIDEBAR = {
   en: [
-    { text: 'Introduction', header: true },
+    { text: 'Getting Started', header: true },
+    { text: 'Introduction', link: 'en/introduction' },
     { text: 'Getting Started', link: 'en/getting-started' },
     { text: 'Example', link: 'en/example' },
   ],
   es: [
-    { text: 'Introducción', header: true },
+    { text: 'Empezando', header: true },
+    { text: 'Introducción', link: 'es/introduction' },
     { text: 'Empezando', link: 'es/getting-started' },
     { text: 'Ejemplo', link: 'es/example' },
   ],
   fr: [
-    { text: 'Introduction', header: true },
+    { text: 'Commencer', header: true },
+    { text: 'Introduction', link: 'fr/introduction' },
     { text: 'Commencer', link: 'fr/getting-started' },
     { text: 'Exemple', link: 'fr/example' },
   ],
@@ -49,9 +52,65 @@ You can edit your footer here `src/components/Footer/Footer.astro`, at the momen
 
 The `src/components/RightSidebar/ThemeToggleButton.tsx` is only responsible for applying the theme, to change the theme colors see `public/theme.css`
 
-## Internationalization
+## Multiple Languages
 
-You will need to setup redirect mechanism, via `vercel`, `netlify`, etc... that redirects users to the correct pages for their language, by default `Astro` doesn't do this for you, so keep this in mind when looking for potential web hosts.
+By default the Astro docs template encourages writing your docs in mutliple languages, it also encourages writing your docs in a specific file structure
+
+```
+📦pages
+ ┣ 📂en
+ ┃ ┣ 📜example.md
+ ┃ ┣ 📜getting-started.md
+ ┃ ┣ 📜index.astro
+ ┃ ┗ 📜introduction.md
+ ┣ 📂es
+ ┃ ┣ 📜example.md
+ ┃ ┣ 📜getting-started.md
+ ┃ ┣ 📜index.astro
+ ┃ ┗ 📜introduction.md
+ ┣ 📂fr
+ ┃ ┣ 📜example.md
+ ┃ ┣ 📜getting-started.md
+ ┃ ┣ 📜index.astro
+ ┃ ┗ 📜introduction.md
+ ┗ 📜index.astro
+```
+
+each folder within the `pages/` folder represents a language, to add new languages, you will need to create a new langauge folder,
+add new langauge names to the `LANGUAGE_NAMES` variable in the [`languages.ts`](../../languages.ts) file, and add new sidebar links corrosponding to the new language.
+
+<!-- , but if you are unable to properly support multiple languages, you can disable multiple languages, you set the `DISABLE_MULTIPLE_LANGUAGES` variable in the [`config.ts`](../../config.ts) file to `true`, but you still need to change and tweak a couple more things. 
+
+After settings `DISABLE_MULTIPLE_LANGUAGES` you can now move the pages from the language folder you wish to use, e.g. I speak english, so, I would delete every other folders and files in the [`pages/`](../) folder except for the [`en/`](./) folder, I would then move the files from the [`en/`](./) folder to the [`pages/`](../) folder, delete all `index.astro` files, and finally delete the [`en/`](./) folder. 
+
+The file structure will look like this once you are done,
+
+```
+📦src
+ ┣ 📂components
+ ┃ ┣ ...
+ ┣ 📂layouts
+ ┃ ┗ 📜MainLayout.astro
+ ┣ 📂pages
+ ┃ ┣ 📜example.md
+ ┃ ┣ 📜getting-started.md
+ ┃ ┗ 📜introduction.md
+ ┣ 📜config.ts
+ ┗ 📜languages.ts
+```
+
+You will then need to rename `introductions.md` to `index.md`, and reorganize the `SIDEBAR` variable in the [`config.ts`](../../config.ts) file to resemble something like this (remember to change the links, since the `en/` folder has been deleted),
+
+```ts
+export const SIDEBAR = [
+  // index.md is the homepage, so, you don't need to set a sidebar link
+  { text: 'Introduction', header: true },
+  { text: 'Getting Started', link: 'getting-started' },
+  { text: 'Example', link: 'example' },
+]
+```
+
+and that's it. -->
 
 ## Algolia DocSearch
 

@@ -1,6 +1,7 @@
 import type { FunctionalComponent } from 'preact';
 import { h } from 'preact';
 import './LanguageSelect.css';
+import { LANGUAGE_NAMES, langPathRegex } from "../../languages";
 
 const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
   return (
@@ -17,30 +18,19 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
         value={lang}
         onChange={(e) => {
           const newLang = e.target.value;
-          window.location.pathname = `/${newLang}/`;
-          // TODO: Preserve the current page, if it exists:
-          // const oldPathname = window.location.pathname;
-          // const oldPathnameParts = oldPathname.split('/');
-          // oldPathnameParts.shift();
-          // if (/^[a-z]{2}$/.test(oldPathnameParts[0])) {
-          //   oldPathnameParts.shift();
-          // }
-          // if (newLang !== 'en') {
-          //   oldPathnameParts.unshift(newLang);
-          // }
-          // window.location.pathname = '/' + oldPathnameParts.join('/');
+          let actualDest = window.location.pathname.replace(langPathRegex, "/");
+          if (actualDest == "/") actualDest = `/introduction`;
+          window.location.pathname = '/' + newLang + actualDest;
         }}
-      >
-        <option value="en">
-          <span>English</span>
-        </option>
-        <option value="es">
-          <span>Español</span>
-        </option>
-        <option value="fr">
-          <span>Français</span>
-        </option>
-      </select>
+      >{
+        Object.keys(LANGUAGE_NAMES).map((key) => {
+          return (
+            <option value={LANGUAGE_NAMES[key]}>
+              <span>{key}</span>
+            </option>
+          );
+        })
+      }</select>
     </div>
   );
 };
