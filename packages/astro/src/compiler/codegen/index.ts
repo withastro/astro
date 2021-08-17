@@ -457,9 +457,7 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
 
         // Track component imports to be used for server-rendered components
         const { start, end } = componentImport;
-        state.componentImports.get(componentName)?.push(
-          module.content.slice(start || undefined, end || undefined)
-        );
+        state.componentImports.get(componentName)?.push(module.content.slice(start || undefined, end || undefined));
       }
       const { start, end } = componentImport;
       if (ast.meta.features & FEATURE_CUSTOM_ELEMENT && componentImport.specifiers.length === 0) {
