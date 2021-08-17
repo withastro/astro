@@ -79,9 +79,9 @@ By default the Astro docs template encourages writing your docs in mutliple lang
 each folder within the `pages/` folder represents a language, to add new languages, you will need to create a new langauge folder,
 add new langauge names to the `LANGUAGE_NAMES` variable in the [`languages.ts`](../../languages.ts) file, and add new sidebar links corrosponding to the new language.
 
-<!-- , but if you are unable to properly support multiple languages, you can disable multiple languages, you set the `DISABLE_MULTIPLE_LANGUAGES` variable in the [`config.ts`](../../config.ts) file to `true`, but you still need to change and tweak a couple more things. 
+<!-- , but if you are unable to properly support multiple languages, you can disable multiple languages, you set the `DISABLE_MULTIPLE_LANGUAGES` variable in the [`config.ts`](../../config.ts) file to `true`, but you still need to change and tweak a couple more things.
 
-After settings `DISABLE_MULTIPLE_LANGUAGES` you can now move the pages from the language folder you wish to use, e.g. I speak english, so, I would delete every other folders and files in the [`pages/`](../) folder except for the [`en/`](./) folder, I would then move the files from the [`en/`](./) folder to the [`pages/`](../) folder, delete all `index.astro` files, and finally delete the [`en/`](./) folder. 
+After settings `DISABLE_MULTIPLE_LANGUAGES` you can now move the pages from the language folder you wish to use, e.g. I speak english, so, I would delete every other folders and files in the [`pages/`](../) folder except for the [`en/`](./) folder, I would then move the files from the [`en/`](./) folder to the [`pages/`](../) folder, delete all `index.astro` files, and finally delete the [`en/`](./) folder.
 
 The file structure will look like this once you are done,
 
