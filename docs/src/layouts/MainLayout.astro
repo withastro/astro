@@ -18,7 +18,7 @@ const formatTitle = (content, SITE) => content.title ? `${content.title} 🚀 ${
 <html dir="{content.dir ?? 'ltr'}" lang="{content.lang ?? 'en-us'}" class="initial">
   <head>
     <HeadCommon />
-    <HeadSEO {content} canonicalURL={Astro.request.canonicalURL} titleClosure={formatTitle} />
+    <HeadSEO {content} canonicalURL={Astro.request.canonicalURL} formatTitle={formatTitle} />
     <title>{formatTitle(content, SITE)}</title>
     <style>
       body {
