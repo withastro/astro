@@ -190,7 +190,7 @@ export type Components = Map<string, ComponentInfo>;
 
 export interface AstroComponentMetadata {
   displayName: string;
-  hydrate?: 'load' | 'idle' | 'visible' | 'media';
+  hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';
   componentUrl?: string;
   componentExport?: { value: string; namespace?: boolean };
   value?: undefined | string;

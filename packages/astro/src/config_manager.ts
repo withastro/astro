@@ -149,6 +149,7 @@ import { setRenderers } from 'astro/dist/internal/__astro_component.js';
 let rendererInstances = [${renderers
       .map(
         (r, i) => `{
+  name: "${r.name}",
   source: ${rendererClientPackages[i] ? `"${rendererClientPackages[i]}"` : 'null'},
   renderer: typeof __renderer_${i} === 'function' ? __renderer_${i}(${r.options ? JSON.stringify(r.options) : 'null'}) : __renderer_${i},
   polyfills: ${JSON.stringify(rendererPolyfills[i])},
