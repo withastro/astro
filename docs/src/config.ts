@@ -74,7 +74,9 @@ export const SIDEBAR = {
   ],
   fr: [
     { text: 'Bienvenue', header: true },
-    { text: 'Bien Démarrer', link: 'fr/getting-started' },
+    { text: 'Bien démarrer', link: 'fr/getting-started' },
+    { text: 'Démarrage rapide', link: 'fr/quick-start' },
+    { text: 'Installation', link: 'fr/installation' },
   ],
 };
 

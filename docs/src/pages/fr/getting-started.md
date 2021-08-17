@@ -6,7 +6,7 @@ lang: fr
 
 Astro est un générateur de site statique moderne. Comprenez ce qu'est Astro en visitant [notre page d'accueil](https://astro.build/) ou [notre annonce de sortie](https://astro.build/blog/introducing-astro). Cette page est une vue d'ensemble de la documentation d'Astro et de toutes les ressources associées.
 
-Vous cherchez un rapide condensé de ce qu'offre Astro? [Visitez notre page d'accueil.](https://astro.build)
+Vous cherchez un rapide condensé de ce qu'offre Astro ? [Visitez notre page d'accueil.](https://astro.build)
 
 ## Essayer Astro
 
@@ -24,32 +24,32 @@ _Note: quelques-unes des fonctionnalités (ex : Rafraîchissement Rapide) sont p
 
 ## Apprendre Astro
 
-Une multitude de personnes viennent sur Astro avec bagages d'expériences distincts apportant donc avec eux des styles d'apprentissage différents. Que vous préfériez une approche plutôt théorique ou pratique, nous espérons que vous trouverez l'aide qu'il vous faut dans cette section.
+Tous les développeurs qui essaient Astro n'ont ni la même expérience, ni les mêmes méthodes d'apprentissage. Que vous préfériez une approche plutôt théorique ou pratique, nous espérons que vous trouverez l'aide qu'il vous faut dans cette section.
 
 - Si vous préférez une **approche pratique**, commencez avec notre [librairie d'exemples](https://github.com/snowpackjs/astro/tree/main/examples).
 - Si vous préférez **apprendre les concepts étape par étape**, commencez avec nos [fondamentaux et guides](/core-concepts/project-structure).
 
-Comme toute nouvelle technologie, Astro possède une courbe d'apprentissage modérée. Malgré cela, avec de la pratique et de la patience, nous savons, que _vous_ allez prendre la main, en très peu de temps.
+Comme toute nouvelle technologie, Astro possède une certaine courbe d'apprentissage. Malgré cela, avec de la pratique et de la patience, nous savons, que _vous_ allez prendre la main, en très peu de temps.
 
-### Apprendre la Syntaxe `.astro`
+### Apprendre la syntaxe `.astro`
 
-Quand vous débutez l'apprentissage d'Astro, vous allez rencontrer beaucoup de fichier avec l'extension `.astro`. C'est la **Syntaxe des Composants Astro**: des fichiers particuliers avec un format similaire au HTML qu'Astro utilise comme template. Ils ont été conçus pour être familiers à toute personne ayant une expérience avec le HTML ou le JSX.
+Quand vous débutez l'apprentissage d'Astro, vous allez rencontrer beaucoup de fichier avec l'extension `.astro`. C'est la **Syntaxe des Composants Astro** : des fichiers particuliers avec un format similaire au HTML qu'Astro utilise comme template. Ils ont été conçus pour être familiers à toute personne ayant une expérience avec le HTML ou le JSX.
 
-Notre guide utile sur les [composants Astro](/core-concepts/astro-components) vous introduit à la syntaxe Astro et reste la meilleure façon d'apprendre.
+Notre guide sur les [composants Astro](/core-concepts/astro-components) vous présente la syntaxe Astro et reste la meilleure façon d'apprendre.
 
 ### Documentation de l'API
 
-Cette documentation vous sera utile si vous souhaitez comprendre en détails certaines API d'Astro. Par exemple, [Documentation de la Configuration](/reference/configuration-reference) liste toutes les options de configuration à votre disposition. [Documentation des Composants de base](/reference/builtin-components) liste tous les composants disponibles de base, comme `<Markdown />` et `<Prism />`.
+Cette documentation vous sera utile si vous souhaitez comprendre en détails certaines API d'Astro. Par exemple, la [Documentation de la Configuration](/reference/configuration-reference) liste toutes les options de configuration à votre disposition. La [Documentation des Composants de base](/reference/builtin-components) liste tous les composants disponibles de base, comme `<Markdown />` et `<Prism />`.
 
-### Documentation Versionnée
+### Documentation versionnée
 
 Cette documentation reflète toujours la dernière version stable d'Astro. Dès que nous auront atteint l'étape de la v1.0, nous ajouterons la possibilité de parcourir la documentation versionnée.
 
-## Rester Informé
+## Rester informé
 
-Le compte Twitter [@astrodotbuild](https://twitter.com/astrodotbuild) est la source officielle de mise à jour par l'équipe Astro.
+Le compte Twitter [@astrodotbuild](https://twitter.com/astrodotbuild) est la source officielle d'information de l'équipe Astro.
 
-Nous publions également les annonces de nouvelles versions sur notre [Communauté Discord](https://astro.build/chat) dans le channel #announcements.
+Nous publions également les annonces de nouvelles versions sur notre [Communauté Discord](https://astro.build/chat) dans le salon #announcements.
 
 Toutes les releases d'Astro ne requièrent pas leur propre article de blog, mais vous pouvez trouver un changelog détaillé de toutes les releases dans le [fichier `CHANGELOG.md` du dépôt Astro](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md).
 
