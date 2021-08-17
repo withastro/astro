@@ -31,7 +31,7 @@ const traverse: typeof babelTraverse.default = (babelTraverse.default as any).de
 const babelGenerator: typeof _babelGenerator = _babelGenerator.default;
 const { transformSync } = esbuild;
 
-const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media']);
+const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media', 'client:only']);
 
 interface CodeGenOptions {
   compileOptions: CompileOptions;
@@ -40,7 +40,7 @@ interface CodeGenOptions {
 }
 
 interface HydrationAttributes {
-  method?: 'load' | 'idle' | 'visible' | 'media';
+  method?: 'load' | 'idle' | 'visible' | 'media' | 'only';
   value?: undefined | string;
 }
 
@@ -228,6 +228,11 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
       metadata = `{ hydrate: "${method}", displayName: "${name}", componentUrl: "${componentUrl}", componentExport: ${JSON.stringify(componentExport)}, value: ${
         hydration.value || 'null'
       } }`;
+
+      // for client:only components, only render a Fragment on the server
+      if (method === 'only') {
+        name = 'Fragment';
+      }
     } else {
       metadata = `{ hydrate: undefined, displayName: "${name}", value: ${hydration.value || 'null'} }`;
     }
@@ -317,6 +322,7 @@ interface CodegenState {
   declarations: Set<string>;
   exportStatements: Set<string>;
   importStatements: Set<string>;
+  componentImports: Map<string, string[]>;
   customElementCandidates: Map<string, string>;
 }
 
@@ -445,6 +451,15 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
           importSpecifier: specifier,
           url: importUrl,
         });
+        if (!state.componentImports.has(componentName)) {
+          state.componentImports.set(componentName, []);
+        }
+
+        // Track component imports to be used for server-rendered components
+        const { start, end } = componentImport;
+        state.componentImports.get(componentName)?.push(
+          module.content.slice(start || undefined, end || undefined)
+        );
       }
       const { start, end } = componentImport;
       if (ast.meta.features & FEATURE_CUSTOM_ELEMENT && componentImport.specifiers.length === 0) {
@@ -712,6 +727,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   importStatements.add(wrapperImport);
                 }
               }
+              if (hydrationAttributes.method === 'only') {
+                // Remove component imports for client-only components
+                const componentImports = state.componentImports.get(componentName) || [];
+                componentImports.map((componentImport) => state.importStatements.delete(componentImport));
+              }
               if (curr === 'markdown') {
                 await pushMarkdownToBuffer();
               }
@@ -873,6 +893,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     declarations: new Set(),
     importStatements: new Set(),
     exportStatements: new Set(),
+    componentImports: new Map(),
     customElementCandidates: new Map(),
   };
 
