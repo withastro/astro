@@ -37,11 +37,15 @@
     "astro-scripts": "0.0.1",
     "@astrojs/language-server": "0.6.0",
     "astro-vscode": "0.6.1",
-    "www": "1.1.0"
+    "www": "1.1.0",
+    "@example/minimal": "0.0.1"
   },
   "changesets": [
+    "calm-walls-unite",
     "honest-rivers-call",
     "light-ads-grin",
+    "seven-singers-mate",
+    "slow-planets-film",
     "tidy-hotels-serve"
   ]
 }
