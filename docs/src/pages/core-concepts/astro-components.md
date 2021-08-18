@@ -314,7 +314,7 @@ Since `src/pages/about.astro` will build to `/about/index.html`, you may not hav
 <img src="/thumbnail.png" />
 ```
 
-The recommended approach is to place files within `public/*`. This references a file it `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
+The recommended approach is to place files within `public/*`. This references a file at `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
 
 #### Option 2: Asset import references
 
