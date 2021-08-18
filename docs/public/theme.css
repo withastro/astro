@@ -15,12 +15,13 @@
    * ex:
    *
    * --color-base-{color}: {hue}, {saturation};
-   *
+   * hsla(215, 28%, 17%, 1);
    */
 
   --color-base-white: 0, 0%;
   --color-base-black: 240, 100%;
   --color-base-gray: 215, 14%;
+  --color-base-dark-grey: 215, 28%;
   --color-base-blue: 212, 100%;
   --color-base-blue-dark: 212, 72%;
   --color-base-green: 158, 79%;
@@ -55,6 +56,11 @@
   --color-purple: var(--color-base-purple), 54%;
   --color-red: var(--color-base-red), 54%;
   --color-yellow: var(--color-base-yellow), 59%;
+  --color-grey-dark:var(--color-base-dark-grey),17%;
+  --color-shadow-lightest: var(--color-base-white),88%;
+  --color-shadow-light: var(--color-base-white),75%;
+  --color-shadow-lightest: var(--color-base-white),88%;
+  --color-shadow-light: var(--color-base-white),75%;
 }
 
 :root {
@@ -65,6 +71,7 @@
   --theme-divider: hsla(var(--color-gray-95), 1);
   --theme-text: hsla(var(--color-gray-10), 1);
   --theme-text-light: hsla(var(--color-gray-40), 1);
+  --theme-box-shadow-light: hsla(var(var(--color-shadow-light)))
   /* @@@: not used anywhere */
   --theme-text-lighter: hsla(var(--color-gray-80), 1);
   --theme-bg: hsla(var(--color-base-white), 100%, 1);
@@ -79,6 +86,9 @@
   --theme-navbar-height: 6rem;
   --theme-selection-color: hsla(var(--color-orange), 1);
   --theme-selection-bg: hsla(var(--color-orange), var(--theme-accent-opacity));
+  --theme-card-bg: linear-gradient(145deg, #f0f0f0, #cacaca);
+  --theme-card-box-shadow: 25px 25px 75px #a6a6a6,
+  -25px -25px 75px #ffffff
 }
 
 body {
@@ -97,16 +107,18 @@ body {
 
   /* @@@: not used anywhere */
   --theme-text-lighter: hsla(var(--color-gray-40), 1);
-  --theme-bg: hsla(215, 28%, 17%, 1);
+  --theme-bg: hsla(var(--color-grey-dark), 1);
   --theme-bg-hover: hsla(var(--color-gray-40), 1);
   --theme-bg-offset: hsla(var(--color-gray-5), 1);
   --theme-code-inline-bg: hsla(var(--color-gray-10), 1);
   --theme-code-inline-text: hsla(var(--color-base-white), 100%, 1);
   --theme-code-bg: hsla(var(--color-gray-5), 1);
   --theme-code-text: hsla(var(--color-base-white), 100%, 1);
-  --theme-navbar-bg: hsla(215, 28%, 17%, 1);
+  --theme-navbar-bg: hsla(var(--color-grey-dark), 1);
   --theme-selection-color: hsla(var(--color-base-white), 100%, 1);
   --theme-selection-bg: hsla(var(--color-purple), var(--theme-accent-opacity));
+  --theme-card-bg: linear-gradient(145deg, #212c3b, #1c2532);
+  --theme-card-box-shadow:8px 17px 15px #10151c, -7px -11px 20px 2px #2e3d52;
 
   /* DocSearch [Algolia] */
   --docsearch-modal-background: var(--theme-bg);
