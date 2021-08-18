@@ -29,7 +29,7 @@
     "vscode-languageserver-textdocument": "^1.0.1"
   },
   "devDependencies": {
-    "astro": "0.19.0-next.2",
+    "astro": "0.19.0-next.3",
     "astro-scripts": "0.0.1"
   }
 }
