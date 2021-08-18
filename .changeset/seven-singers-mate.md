@@ -1,6 +1,5 @@
 ---
-'docs': patch
-'astro': patch
+'astro': minor
 ---
 
 Adds support for Astro.resolve
