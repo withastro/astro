@@ -13,7 +13,7 @@ Also, Astro supports third-party plugins for Markdown. You can provide your plug
 
 > **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants), [Remark-slug](https://github.com/remarkjs/remark-slug). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
 
-## Add a Markdown plugin in Astro
+### Add a Markdown plugin in Astro
 
 If you want to add a plugin, you need to install the npm package dependency in your project and then update the `markdownOptions.remarkPlugins` or `markdownOptions.rehypePlugins` depends on what plugin you want to have:
 
@@ -49,7 +49,7 @@ export default {
 };
 ```
 
-### Markdown Pages
+## Markdown Pages
 
 Astro treats any `.md` files inside of the `/src/pages` directory as pages. These pages are processed as plain markdown files and do not support components. If you're looking to embed rich components in your markdown, take a look at the [Markdown Component](#astros-markdown-component) section.
 
@@ -107,7 +107,7 @@ const { content } = Astro.props;
 </html>
 ```
 
-### Astro's Markdown Component
+## Astro's Markdown Component
 
 Astro has a dedicated component used to let you render your markdown as HTML components. This is a special component that is only exposed to `.astro` files. To use the `<Markdown>` component, within your frontmatter block use the following import statement:
 
@@ -176,7 +176,7 @@ const expressions = 'Lorem ipsum';
 </Layout>
 ````
 
-### Remote Markdown
+## Remote Markdown
 
 If you have Markdown in a remote source, you may pass it directly to the Markdown component through the `content` attribute. For example, the example below fetches the README from Snowpack's GitHub repository and renders it as HTML.
 
@@ -212,7 +212,7 @@ const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpa
 </Layout>
 ```
 
-### Security FAQs
+## Security FAQs
 
 **Aren't there security concerns to rendering remote markdown directly to HTML?**
 
