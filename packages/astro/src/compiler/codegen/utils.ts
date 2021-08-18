@@ -24,7 +24,7 @@ export function isImportMetaDeclaration(declaration: VariableDeclarator, metaNam
 
 const warnableRelativeValues = new Set(['img+src', 'a+href', 'script+src', 'link+href', 'source+srcset']);
 
-const matchesRelative = /^(?![A-Za-z][+-.0-9A-Za-z]*:|\/)/;
+const matchesRelative = /^(?![A-Za-z][+-.0-9A-Za-z]*:|\/|#)/;
 
 export function warnIfRelativeStringLiteral(logging: LogOptions, nodeName: string, attr: Attribute, value: string) {
   let key = nodeName + '+' + attr.name;

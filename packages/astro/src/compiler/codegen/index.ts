@@ -22,7 +22,7 @@ import { transform } from '../transform/index.js';
 import { PRISM_IMPORT } from '../transform/prism.js';
 import { nodeBuiltinsSet } from '../../node_builtins.js';
 import { readFileSync } from 'fs';
-import { pathToFileURL } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const { parse, FEATURE_CUSTOM_ELEMENT } = astroParser;
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
@@ -61,6 +61,7 @@ function findHydrationAttributes(attrs: Record<string, string>): HydrationAttrib
 
 /** Retrieve attributes from TemplateNode */
 async function getAttributes(nodeName: string, attrs: Attribute[], state: CodegenState, compileOptions: CompileOptions): Promise<Record<string, string>> {
+  const isPage = state.filename.startsWith(fileURLToPath(compileOptions.astroConfig.pages));
   let result: Record<string, string> = {};
   for (const attr of attrs) {
     if (attr.type === 'Spread') {
@@ -112,8 +113,9 @@ async function getAttributes(nodeName: string, attrs: Attribute[], state: Codege
       }
       case 'Text': {
         let text = getTextFromAttribute(val);
-
-        warnIfRelativeStringLiteral(compileOptions.logging, nodeName, attr, text);
+        if (!isPage) {
+          warnIfRelativeStringLiteral(compileOptions.logging, nodeName, attr, text);
+        }
         result[attr.name] = JSON.stringify(text);
         continue;
       }
