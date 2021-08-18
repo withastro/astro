@@ -80,8 +80,6 @@ const { content } = Astro.props;
 </html>
 ```
 
-### Responsive partial hydration
-
 For Markdown files, the `content` prop also has an `astro` property which holds special metadata about the page such as the complete Markdown `source` and a `headers` object. An example of what a blog post `content` object might look like is as follows:
 ```json
 {
