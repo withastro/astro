@@ -8,7 +8,7 @@ on:
 jobs:
   congrats:
     name: "discord:congratsbot"
-    #if: github.event.commits[0] && !github.event.commits[1]
+    if: github.repository == 'snowpackjs/astro'
     runs-on: ubuntu-latest
     steps:
       - name: Send a Discord notification when a PR is merged
