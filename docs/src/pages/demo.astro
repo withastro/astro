@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/ExamplesLayout.astro'
+import templateData from '../components/Examples/function-generate-examples-data.js'
+import Card from '../components/Examples/Card.astro'
+
+let data = await templateData()
+
+---
+
+    <Layout content={data}>
+        <Card props={data}/>
+    </Layout>
