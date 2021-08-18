@@ -1,5 +1,7 @@
 # docs
 
+## 0.0.5
+
 ## 0.0.5-next.0
 
 ### Patch Changes
