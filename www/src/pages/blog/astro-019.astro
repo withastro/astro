@@ -10,7 +10,7 @@ import Shell from '../../components/Shell.astro';
 import { mediaQueries } from '../../config.js';
 
 let title = 'Astro 0.19';
-let description = `Introducing: Next.js-inspired file routing • Astro.resolve() • client:only components • translations • and more!`;
+let description = `Introducing: Next.js-inspired dynamic routing • Astro.resolve() • client:only components • translations • and more!`;
 let publishDate = 'Tuesday, August 17 2021';
 let heroImage = '/social.jpg';
 let lang = 'en';
@@ -30,19 +30,21 @@ let lang = 'en';
     <BlogHeader />
     <BlogPost title={title} heroImage={heroImage} publishDate={publishDate}>
         <Markdown>
-          We are excited to introduce Astro v0.19.0, featuring:
+          We are excited to introduce Astro 0.19, featuring:
 
-          * __[Next.js-inspired routing:](#file-based-routing-inspired-by-nextjs)__ Your `pages/` file layout defines your routes.
-          * __[`client:only` directive:](#clientonly-loading-directive)__ Disable SSR for individual components.
-          * __[`Astro.resolve()`:](#astroresolve)__ Resolve relative URLs in component attributes.
-          * __[Community translations:](#docs-translations)__ Already available in 10 languages.
-          * __[Open Collective:](#open-collective)__ Now accepting sponsorship!
+          * __[Next.js-inspired routing:](#file-based-routing-inspired-by-nextjs)__ Define new dynamic URL params.
+          * __[`client:only` directive:](#clientonly-loading-directive)__ Opt-out of SSR for individual components.
+          * __[`Astro.resolve()`:](#astroresolve)__ Resolve relative URLs to assets in `src/`.
+          * __[Community translations:](#docs-translations)__ Read our docs in 10 different languages.
+          * __[Astro Open Collective:](#open-collective)__ Now accepting donations & sponsorship!
 
           ## File-based routing, inspired by Next.js
 
-          Astro has always supported basic file-based routing, where every file in your `pages/` directory created a new page at that same URL. Inspired by [Next.js](https://nextjs.org/docs/routing/dynamic-routes) and [SvelteKit](https://kit.svelte.dev/docs#routing-pages), you can now add brackets to your page filename (ex: `src/pages/[param].astro`) to create a dynamic param in your final URL. With this new syntax, Astro adds support for URL params, slugs, pretty URLs, pagination and more.
+          Astro has always supported basic file-based routing, where every file in your `pages/` directory becomes a new page at that same URL. Astro 0.19 takes this one step further with support for real file-based route parameters.
+          
+          Inspired by [Next.js](https://nextjs.org/docs/routing/dynamic-routes) and [SvelteKit](https://kit.svelte.dev/docs#routing-pages), you can now add brackets to your page filename (ex: `src/pages/[slug].astro`) to create a dynamic page that matches many different URLs. With this new syntax, you can add URL params, slugs, pretty URLs, pagination and more to your website.
 
-          To create a dynamic route, create a file in your pages directory like `pages/posts/[slug].astro`. Define a [`getStaticPaths()`](https://docs.astro.build/reference/api-reference#getstaticpaths) function and tell Astro which paths to build for the route:
+          To create a dynamic route, create a file in your pages directory like `pages/posts/[slug].astro`. Create a [`getStaticPaths()`](https://docs.astro.build/reference/api-reference#getstaticpaths) function in your frontmatter script and tell Astro exactly what paths to build for that route:
 
           ```astro
           ---
@@ -63,18 +65,20 @@ let lang = 'en';
           /* your page HTML here! */
           ```
 
-          Because `getStaticPaths()` is an async function, you can use it to load any external data that you might like. We normally love to use the [Pokemon API](https://pokeapi.co/) in our examples, but this system now works just as well with your favorite headless CMS.
+          Astro is a static site builder, so you need to tell Astro what pages to build for every dynamic route. Defining your paths manually might feel like boilerplate, but ahead-of-time page building is exactly what makes static websites so fast for your users.
+          
+          `getStaticPaths()` is an async function, you can -- and should! -- use it to load external data into your website. We normally love to use the [Pokemon API](https://pokeapi.co/) in our examples, but you'd probably rather use your favorite headless CMS:
 
           ```js
           // src/pages/posts/[id].astro
           // Tell Astro what pages to build for your route "/pages/:id"
           export async function getStaticPaths() {
-            // Lets fetch posts from a Wordpress CMS:
+            // Lets fetch posts from CSS Tricks' Headless CMS:
             const CSS_TRICKS_CMS = 'https://css-tricks.com/wp-json/wp/v2/posts?per_page=12&_embed';
             const allPosts = await fetch(CSS_TRICKS_CMS).then(r => r.json());
             // Then, create a new page from every post:
             return allPosts.map((post) => ({
-              // Set the URL param "id" for the page URL
+              // Set the URL param ":id" in the page URL
               params: {id: post.id},
               // Pass the post object as a prop to the page
               props: {post},
@@ -82,54 +86,58 @@ let lang = 'en';
           }
           ```
 
-          To see more examples, check out this great [Wordpress Headless CMS project](https://github.com/chriscoyier/astro-css-trickzz) from Chris Coyier, or this [Shopify Ecommerce example](https://github.com/cassidoo/shopify-react-astro) by Cassidy Williams. 
+          To learn more, check out our new documentation on [Routing](https://docs.astro.build/core-concepts/routing) and the new [`getStaticPaths()` API.](https://docs.astro.build/reference/api-reference#getstaticpaths) Or, if you prefer to learn by example, check out this great [Wordpress Headless CMS project](https://github.com/chriscoyier/astro-css-trickzz) from Chris Coyier and this [Shopify Ecommerce example](https://github.com/cassidoo/shopify-react-astro) by Cassidy Williams of Netlify. 
           
-          If you were a user of our original Collections API, this new file-based routing system completely replaces Collections with plenty of friendly warning messages to help you upgrade. We hope this new API solves some of the more common problems that users experienced with Collections. 
+          If you were a previous user of our original Collections API, this new file-based routing system completely replaces Collections with plenty of friendly warning messages to help you upgrade. We hope that this new API removes all common frustrations that users had reported with the Collections API. 
 
           ## `client:only` loading directive
 
           Sometimes, a UI component can't render on the server. Maybe it's because you've hit a bug in one of your dependencies, or maybe you're just using a library like D3 that can't run without the browser's `window` object. 
           
-          You can usually wrap browser-only code with your own static server-side fallback UI. However several users wanted a way to render browser-only components without the boilerplate of additional placeholder HTML. Enter `client:only`.
+          You can attempt to wrap browser-only code with your own static server-side fallback UI. However, most users wanted a way to render a browser-only component without the extra boilerplate. Enter, `client:only`.
 
-          Astro v0.19 ships with the new `client:only` loading directive to hydrate your component in the browser without server-side rendering. This provides a simple, straightforward fallback for any browser-only components.
+          Astro 0.19 ships with the new `client:only` loading directive to hydrate your component in the browser without server-side rendering. This provides a simple, straightforward fallback for any browser-only components.
 
           ```html
           <!-- only renders in the browser, no placeholder HTML -->
           <MyReactComponent client:only />
           ```
 
-          In a future release, we plan to add framework auto-detection (needed for multi-framework projects) and explore a more friendly API for generating fallback HTML for browser-only components.
+          `client:only` is now our fifth directive to let you completely control you component loading behavior. Visit our docs site to [check out the entire set](https://docs.astro.build/core-concepts/component-hydration#hydrate-interactive-components) and learn more about [Partial Hydration](https://docs.astro.build/core-concepts/component-hydration).
 
-          Thank you Tony Sull (of [Navillus](https://navillus.dev/)) for contributing this new feature. 
+          🎉 This awesome feature was contributed by [Tony Sull](https://github.com/tony-sull) of [Navillus](https://navillus.dev/). Thanks, Tony!
 
           ## `Astro.resolve()`
 
-          Astro 0.19 includes a new [`Astro.resolve()`](https://docs.astro.build/reference/api-reference#astroresolve) helper function to resolve relative file references in your templates. With this new function, you can reference images by relative path on disk and Astro will return the correct URL for the browser.
+          Astro 0.19 includes a new [`Astro.resolve()`](https://docs.astro.build/reference/api-reference#astroresolve) helper function to resolve relative file references in your templates. With this new feature, you can reference relative assets (like images) inside of your components and Astro will return the correct URL for the browser.
           
-          Previously, you had to place files in the `public/` directory and reference them by absolute URL path. Relative paths within the `src/` directory didn't work because they'd be shipped directly to the browser, and different pages would create different URLs:
+          Previously, you always had to place files in the `public/` directory and reference them by absolute URL path. Relative paths within the `src/` directory didn't work because they'd be shipped directly to the browser, as-is. Different pages would end up creating different URLs:
 
           ```html
           <!-- This works the same on every page: -->
           <img src="/logo.png" />
-          <!-- But this doesn't: -->
+          <!-- But this means different things on different pages: -->
           <img src="../logo.png" />
           ```
 
           Starting in Astro 0.19, you can now use the new `Astro.resolve()` helper function to create an absolute URL reference from any relative path:
           
-          ```jsx
-          <img src={Astro.resolve('../logo.png')} />
+          ```html
+          <!-- Astro component input: -->
+          <img src={Astro.resolve('../images/logo.png')} />
+          <!-- HTML output: -->
+          <img src="/_astro/src/images/logo.png" />
           ```
 
           If it helps, you can think of `Astro.resolve()` as a simplified alternative to doing `new URL(yourRelativePath, import.meta.url).pathname` in the browser.
 
-          [`Astro.resolve()`](https://docs.astro.build/reference/api-reference#astroresolve) gives you more options and more control over how you structure your project. In the future, this will also unlock our ability to serve optimized images out of the `src/` directory in Astro.
+          [`Astro.resolve()`](https://docs.astro.build/reference/api-reference#astroresolve) gives you more options and more control over how you structure your project. In the future, this will also unlock our ability to serve optimized images right out of your `src/` directory.
 
+          🎉 This awesome feature was contributed by [Jonathan Neal](https://github.com/jonathantneal) & [Matthew Phillips!](https://github.com/matthewp)
 
           ## Docs Translations
 
-          Not all software developers speak English. In fact, most don't. Luckily, some amazing contributors in our community came together to translate the Astro docs site for a global audience. We are currently working on translations in 10 different languages, including: 
+          Not all developers speak English. In fact, most don't. Luckily, some amazing contributors in our community came together to translate the Astro docs site for a global audience. We are currently working on translations in 10 different languages, including: 
 
           - [简体中文](https://docs.astro.build/zh-CN/getting-started)
           - [正體中文](https://docs.astro.build/zh-TW/getting-started)
@@ -142,27 +150,35 @@ let lang = 'en';
           - [Português](https://docs.astro.build/pt-br/getting-started)
           - [Suomi](https://docs.astro.build/fi/getting-started)
 
-          These are still a work in progress, and we'll keep working towards 100% translation as we creep closer to a v1.0 release. If you don't see your favorite language here and are able to translate, [we'd love your help!](https://github.com/snowpackjs/astro/blob/main/CONTRIBUTING.md#translations)
+          These are still a work in progress, and we'll keep working towards 100% translation as we creep closer to a v1.0 release. If you know a few languages and are able to contribute, [we could really use your help!](https://github.com/snowpackjs/astro/blob/main/CONTRIBUTING.md#translations)
 
           ## Open Collective
 
           It's been a little over two months since [the first release](https://astro.build/blog/introducing-astro) of Astro. In that release, we outlined our commitment to both **a free, open source Astro** and **long-term financial sustainability** for the project. Today, we're announcing our first experiment towards long-term sustainability:
           
-          **Companies and individuals can now directly sponsor Astro's development with Open Collective. [Visit our Open Collective →](https://opencollective.com/astrodotbuild)**
+          **Companies and individuals can now sponsor Astro's development with Open Collective. [Visit our Open Collective →](https://opencollective.com/astrodotbuild)**
 
-          We created an Open Collective because corporate sponsorship is one of the few proven paths towards open source financial sustainability. However, [it's far from a perfect model.](https://stackoverflow.blog/2021/01/07/open-source-has-a-funding-problem/) Most contributions only go to a handful of popular projects. The majority of the open source ecosystem never sees any meaningful support. The odds are against us, but we believe in Astro, our community and the growing excitement for the project.
+          We created an Open Collective because corporate sponsorship is one of the few proven paths towards financial sustainability in open source. However, [it's far from a perfect model.](https://stackoverflow.blog/2021/01/07/open-source-has-a-funding-problem/) Most contributions only go to a handful of popular projects, and the rest never see any meaningful support. The odds are against us but we believe in Astro, our community, and the excitement that keep growing around this project.
 
-          Chances are, your company benefits from open source software. Invest in the technologies that power your business by sponsoring Astro and any other open source projects that you use. **Bonus:** thousands of developers will see your logo on our README and the astro.build homepage, every day. 
+          Chances are, your company benefits from open source software. Invest in the technologies that power your business by sponsoring Astro and any other open source projects that you use. **Bonus:** thousands of developers will see your logo on our README and the [astro.build homepage](https://astro.build), every day. 
 
-          All funds raised are invested directly back into the project and our community. You can read more about how funds are used by reading our [FUNDING.md](https://github.com/snowpackjs/astro/blob/main/FUNDING.md) document on GitHub.
+          1005 of funds raised are invested directly back into the project and our community. You can read more about how funds are distributed by reading our [FUNDING.md](https://github.com/snowpackjs/astro/blob/main/FUNDING.md) doc on GitHub.
           
           We'll be tweeting out personal "thank you" messages to every person and company who hits the ["Sponsor"](https://opencollective.com/astrodotbuild) button in the next 48 hours. Our first, very special THANK YOU goes out to [Chris Jennings](https://twitter.com/ckj), CCO and co-founder of [Sentry](https://sentry.io/), for being our first official sponsor! 🎉
 
+          ## ICYMI (In case you missed it)
+
+          [Github added official support](https://twitter.com/astrodotbuild/status/1423001137905651714?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1423001137905651714%7Ctwgr%5E%7Ctwcon%5Es1_c10&ref_url=https%3A%2F%2Fastro.build%2Fblog%2Fastro-019%2F) for `.astro` files and `'''astro` syntax highlighting across their entire platform. Not to be outdone, CodeSandbox [quickly followed up](https://twitter.com/codesandbox/status/1425438635357257728) with support of their own! 
+          
+          This is such a huge milestone for Astro, especially considering how young the project is! Thank you to everyone who used Astro, created projects, and showed these platforms how valuable Astro really is!
+
+          <blockquote class="twitter-tweet"><p lang="en" dir="ltr">It&#39;s official! 🎉 <a href="https://twitter.com/github?ref_src=twsrc%5Etfw">@github</a> now supports syntax highlighting for .astro files!<br><br>You can also use code blocks starting with &quot;'''astro&quot; to get proper highlighting in Markdown files, issues, and PR comments! <a href="https://t.co/CDiGw66Qw6">pic.twitter.com/CDiGw66Qw6</a></p>&mdash; Astro (@astrodotbuild) <a href="https://twitter.com/astrodotbuild/status/1423001137905651714?ref_src=twsrc%5Etfw">August 4, 2021</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
           ## 👋
 
-          Thanks for reading! [Follow us on Twitter](https://twitter.com/astrodotbuild) to stay up to date as we move closer to a v1.0 release. Also, you can check out [our previous release post](https://astro.build/blog/astro-018) for even more news. 
+          Thanks for reading! [Follow us on Twitter](https://twitter.com/astrodotbuild) to stay up to date as we move closer to a v1.0 release. Also, you can check out [our previous release post](https://astro.build/blog/astro-018) for even more updates on Astro. 
           
-          PS: If you've read this far, you should definitely join us on [Discord.](https://astro.build/chat) ;)
+          And, if you've read this far, you should definitely [join us on Discord.](https://astro.build/chat) ;)
         </Markdown>
     </BlogPost>
 
