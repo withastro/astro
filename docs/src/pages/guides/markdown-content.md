@@ -54,7 +54,9 @@ export default {
 Astro treats any `.md` files inside of the `/src/pages` directory as pages. These files can contain frontmatter, but are otherwise processed as plain markdown files and do not support components. If you're looking to embed rich components in your markdown, take a look at the [Markdown Component](#astros-markdown-component) section.
 
 ### Layouts
+
 Markdown pages have a special frontmatter property for `layout`. This defines the relative path to an `.astro` component which should wrap your Markdown content, for example a [Layout](/core-concepts/layouts) component. All other frontmatter properties defined in your `.md` page will be exposed to the component as properties of the `content` prop. The rendered Markdown content is placed into the default `<slot />` element.
+
 ```jsx
 // src/pages/index.md
 ---
@@ -64,6 +66,7 @@ title: My cool page
 
 # Hello World!
 ```
+
 ```jsx
 // src/layouts/BaseLayout.astro
 ---
@@ -81,6 +84,7 @@ const { content } = Astro.props;
 ```
 
 For Markdown files, the `content` prop also has an `astro` property which holds special metadata about the page such as the complete Markdown `source` and a `headers` object. An example of what a blog post `content` object might look like is as follows:
+
 ```json
 {
   /** Frontmatter from a blog post
@@ -100,7 +104,7 @@ For Markdown files, the `content` prop also has an `astro` property which holds 
         "depth": 2,
         "text": "Responsive partial hydration",
         "slug": "responsive-partial-hydration"
-      },
+      }
       /* ... */
     ],
     "source": "# Astro 0.18 Release\\nA little over a month ago, the first public beta [...]"
@@ -108,6 +112,7 @@ For Markdown files, the `content` prop also has an `astro` property which holds 
   "url": ""
 }
 ```
+
 > Keep in mind that the only guaranteed properties coming from the `content` prop are `astro` and `url`.
 
 ## Astro's Markdown Component
