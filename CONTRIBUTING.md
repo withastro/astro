@@ -149,7 +149,7 @@ If you have gotten permission from the core contributors, you can enter into pre
 
 Exiting prerelease mode should happen once an experimental release is ready to go from `npm install astro@next` to `npm install astro`. Only a core contributor run these steps. These steps should be run before
 
-- Run: `yarn changeset pre enter next` in the project root
+- Run: `yarn changeset pre exit` in the project root
 - Create a new PR from the changes created by this command.
 - Review, approve, and more the PR to enter prerelease mode.
 - If successful, The "Version Packages (next)" PR (if one exists) will now say "Version Packages".
