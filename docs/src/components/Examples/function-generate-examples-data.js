@@ -8,7 +8,7 @@ import fs from 'fs'
 async function getPkgJSON(){
     let data = []
     const paths = await glob('../examples/*/package.json',{filesOnly:true})
-    paths.map( (files)=>{
+    paths.map((files)=>{
         let readFile =  fs.readFileSync(files)
         let json = JSON.parse(readFile)
         return data.push({...json})
