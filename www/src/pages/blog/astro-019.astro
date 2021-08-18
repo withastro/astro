@@ -40,11 +40,13 @@ let lang = 'en';
 
           ## File-based routing, inspired by Next.js
 
-          Astro has always supported basic file-based routing, where every file in your `pages/` directory becomes a new page at that same URL. Astro 0.19 takes this one step further with support for real file-based route parameters.
+          Astro has always supported basic file-based routing, where every file in your `pages/` directory becomes a new page at that same URL. Astro 0.19 takes this one step further with support for dynamic URL params in your filename.
           
-          Inspired by [Next.js](https://nextjs.org/docs/routing/dynamic-routes) and [SvelteKit](https://kit.svelte.dev/docs#routing-pages), you can now add brackets to your page filename (ex: `src/pages/[slug].astro`) to create a dynamic page that matches many different URLs. With this new syntax, you can add URL params, slugs, pretty URLs, pagination and more to your website.
+          Inspired by [Next.js](https://nextjs.org/docs/routing/dynamic-routes) and [SvelteKit](https://kit.svelte.dev/docs#routing-pages), you can now add brackets to your page filename (ex: `src/pages/[slug].astro`) to create a dynamic page that matches many different URLs. `[...slug].astro` catch-all syntax is also supported.
+          
+          With this new feature you can add support for URL params, slugs, pretty URLs, pagination and more to your website.
 
-          To create a dynamic route, create a file in your pages directory like `pages/posts/[slug].astro`. Create a [`getStaticPaths()`](https://docs.astro.build/reference/api-reference#getstaticpaths) function in your frontmatter script and tell Astro exactly what paths to build for that route:
+          To create a dynamic route, create a file in your pages directory like `pages/posts/[slug].astro`. Create a [`getStaticPaths()`](https://docs.astro.build/reference/api-reference#getstaticpaths) function in your page frontmatter script and tell Astro exactly what paths to build for that route:
 
           ```astro
           ---
@@ -62,19 +64,22 @@ let lang = 'en';
             ];
           }
           ---
-          /* your page HTML here! */
+          <html>
+            <head><title>My Page</title></head>
+            <body>URL Param is {Astro.request.params.slug}</body>
+          </html>
           ```
 
           Astro is a static site builder, so you need to tell Astro what pages to build for every dynamic route. Defining your paths manually might feel like boilerplate, but ahead-of-time page building is exactly what makes static websites so fast for your users.
           
-          `getStaticPaths()` is an async function, you can -- and should! -- use it to load external data into your website. We normally love to use the [Pokemon API](https://pokeapi.co/) in our examples, but you'd probably rather use your favorite headless CMS:
+          `getStaticPaths()` is an async function, so you can -- and should! -- use it to load external data into your website. We normally love to use the [Pokemon API](https://pokeapi.co/) in our examples, but you'll probably want to use your favorite headless CMS:
 
           ```js
           // src/pages/posts/[id].astro
           // Tell Astro what pages to build for your route "/pages/:id"
           export async function getStaticPaths() {
             // Lets fetch posts from CSS Tricks' Headless CMS:
-            const CSS_TRICKS_CMS = 'https://css-tricks.com/wp-json/wp/v2/posts?per_page=12&_embed';
+            const CSS_TRICKS_CMS = 'https://css-tricks.com/wp-json/wp/v2/posts';
             const allPosts = await fetch(CSS_TRICKS_CMS).then(r => r.json());
             // Then, create a new page from every post:
             return allPosts.map((post) => ({
@@ -170,13 +175,13 @@ let lang = 'en';
 
           [Github added official support](https://twitter.com/astrodotbuild/status/1423001137905651714?ref_src=twsrc%5Etfw%7Ctwcamp%5Etweetembed%7Ctwterm%5E1423001137905651714%7Ctwgr%5E%7Ctwcon%5Es1_c10&ref_url=https%3A%2F%2Fastro.build%2Fblog%2Fastro-019%2F) for `.astro` files and `'''astro` syntax highlighting across their entire platform. Not to be outdone, CodeSandbox [quickly followed up](https://twitter.com/codesandbox/status/1425438635357257728) with support of their own! 
           
-          This is such a huge milestone for Astro, especially considering how young the project is! Thank you to everyone who used Astro, created projects, and showed these platforms how valuable Astro really is!
+          This is such a huge milestone for Astro, especially considering how young the project is! Thank you to everyone who used Astro, created projects, and showed these platforms how valuable Astro really is.
 
           <blockquote class="twitter-tweet"><p lang="en" dir="ltr">It&#39;s official! 🎉 <a href="https://twitter.com/github?ref_src=twsrc%5Etfw">@github</a> now supports syntax highlighting for .astro files!<br><br>You can also use code blocks starting with &quot;'''astro&quot; to get proper highlighting in Markdown files, issues, and PR comments! <a href="https://t.co/CDiGw66Qw6">pic.twitter.com/CDiGw66Qw6</a></p>&mdash; Astro (@astrodotbuild) <a href="https://twitter.com/astrodotbuild/status/1423001137905651714?ref_src=twsrc%5Etfw">August 4, 2021</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
           ## 👋
 
-          Thanks for reading! [Follow us on Twitter](https://twitter.com/astrodotbuild) to stay up to date as we move closer to a v1.0 release. Also, you can check out [our previous release post](https://astro.build/blog/astro-018) for even more updates on Astro. 
+          Thank you for reading! [Follow us on Twitter](https://twitter.com/astrodotbuild) to stay up to date as we move closer to a v1.0 release. Also, you can check out [our previous release post](https://astro.build/blog/astro-018) for even more updates on Astro. 
           
           And, if you've read this far, you should definitely [join us on Discord.](https://astro.build/chat) ;)
         </Markdown>
