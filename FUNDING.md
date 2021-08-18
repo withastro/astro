@@ -10,11 +10,11 @@ Learn more about sponsorship on our [Open Collective.](https://opencollective.co
 
 ### Why Open Collective?
 
-* **Full Transparency.** Everyone gets to see where money is coming from and where it's going.
-* **Individual and Corporate Sponsors.** Open Collective makes it easy for both individuals and companies to sponsor open source projects.
-* **Potential Tax Benefits.** Because funds are paid to the Open Source Collective, a 501(c)(6) organization in the U.S., there may be tax benefits for some donors (please check with your accountant).
-* **Automatic Invoicing.** For corporate sponsors, Open Collective automatically generates and sends invoices for tracking purposes.
-* **Open Participation.** Anyone can request reimbursement for funds spent helping the Astro project and Astro can pay out to anyone.
+- **Full Transparency.** Everyone gets to see where money is coming from and where it's going.
+- **Individual and Corporate Sponsors.** Open Collective makes it easy for both individuals and companies to sponsor open source projects.
+- **Potential Tax Benefits.** Because funds are paid to the Open Source Collective, a 501(c)(6) organization in the U.S., there may be tax benefits for some donors (please check with your accountant).
+- **Automatic Invoicing.** For corporate sponsors, Open Collective automatically generates and sends invoices for tracking purposes.
+- **Open Participation.** Anyone can request reimbursement for funds spent helping the Astro project and Astro can pay out to anyone.
 
 _List borrowed from [ESLint: "Funding ESLint's Future."](https://eslint.org/blog/2019/02/funding-eslint-future)_
 
