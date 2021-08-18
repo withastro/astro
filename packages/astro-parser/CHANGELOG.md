@@ -1,5 +1,7 @@
 # @astrojs/parser
 
+## 0.18.6
+
 ## 0.18.5
 
 ### Patch Changes
