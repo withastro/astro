@@ -1,5 +1,13 @@
 # astro
 
+## 0.19.1
+
+### Patch Changes
+
+- ece0953a: Fix CSS :global() selector bug
+- Updated dependencies [a421329f]
+  - @astrojs/markdown-support@0.2.4
+
 ## 0.19.0
 
 ### Minor Changes
