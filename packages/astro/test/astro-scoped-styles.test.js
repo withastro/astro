@@ -22,7 +22,13 @@ ScopedStyles('Scopes rules correctly', () => {
     '.class :global(*)': `.class.${className} *`,
     '.class :global(.nav:not(.is-active))': `.class.${className} .nav:not(.is-active)`, // preserve nested parens
     '.class :global(ul li)': `.class.${className} ul li`, // allow doubly-scoped selectors
-    '.class:not(.is-active)': `.class.${className}:not(.is-active)`, // Note: the :not() selector can NOT contain multiple classes, so this is correct; if this causes issues for some people then it‘s worth a discussion
+    ':global(body:not(.is-light)).is-dark,:global(body:not(.is-dark)).is-light': `body:not(.is-light).is-dark,body:not(.is-dark).is-light`, // :global() can contain parens, and can be chained off of
+    ':global(.foo):global(.bar)': '.foo.bar', // more :global() shenanigans
+    '.class:global(.bar)': `.class.bar`, // this is technically a “useless“ :global() but it should still be extracted
+    '.class:not(.is-active):not(.is-disabled)': `.class.${className}:not(.is-active):not(.is-disabled)`, // Note: the :not() selector can NOT contain multiple classes, so this is correct; if this causes issues for some people then it‘s worth a discussion
+    ':hover.a:focus': `.${className}:hover.a:focus`, // weird but still valid (yes, it’s valid)
+    '*:hover': `.${className}:hover`,
+    ':not(.is-disabled).a': `.${className}:not(.is-disabled).a`, // also valid
     'body h1': `body h1.${className}`, // body shouldn‘t be scoped; it‘s not a component
     'html,body': `html,body`,
     from: 'from', // ignore keyframe keywords (below)
