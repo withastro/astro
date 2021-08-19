@@ -78,6 +78,10 @@ export const SIDEBAR = {
     { text: 'Démarrage rapide', link: 'fr/quick-start' },
     { text: 'Installation', link: 'fr/installation' },
   ],
+  ar: [
+    { text: 'التهيئة', header: true },
+    { text: 'باشر البدأ', link: 'ar/getting-started' },
+  ],
 };
 
 export const SITE = {
