@@ -1,4 +1,4 @@
-# Contributors Manual
+# Contributor Manual
 
 We welcome contributions of any size and skill level. As an open source project, we believe in giving back to our contributors and are happy to help with guidance on PRs, technical writing, and turning any feature idea into a reality.
 

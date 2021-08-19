@@ -2,7 +2,7 @@
 
 # Governance
 
-This document outlines the governance model for Astro. This includes the contributor model, code review process, PR merge process, and the consequences of Code of Conduct violations.
+This document outlines the governance model for Astro. This includes detailed descriptions of the contributor levels, nomination process, code review process, pull request merge process, and the consequences of Code of Conduct violations.
 
 👉 **All community members must follow the [Code of Conduct (CoC)](CODE_OF_CONDUCT.md).**  
 Consequences for CoC violations are detailed in [Moderation](#moderation).
@@ -55,7 +55,7 @@ If you're interested in reaching the next level and becoming a Maintainer, you c
 
 _Note: This process is still in progress, and the Discord bot that will power it is not yet built. For now, manually nominate/self-nominate by posting in Discord._
 
-- Self-nominate by running `!contribute` in any Discord channel and briefly describe your qualifying contribution (link recommended).
+- Self-nominate by running `!contribute` in the `#new-contributors` Discord channel and briefly describe your qualifying contribution (link recommended).
 - Connect your Discord account with GitHub (or Reddit, Twitter, etc.) to automatically get recognized for future contributions.
 
 
@@ -103,7 +103,7 @@ There is no strict minimum number of contributions needed to reach this level, a
 
 #### Nomination
 
-To be nominated, a nominee is expected to already be performing some of the responsibilities of a Maintainer over the course of at least a couple of weeks. In the past, we have used "10 PRs" as a rough minimum for potential Maintainers, but there is no hard requirement.
+To be nominated, a nominee is expected to already be performing some of the responsibilities of a Maintainer over the course of at least a couple of weeks. In the past we have used **10 merged pull requests** as a rough minimum for potential Maintainers, but there is no hard requirement.
 
 In some rare cases, this role may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project.
 
@@ -163,7 +163,7 @@ Steward is an additional privilege bestowed to 1 (or more) Core Maintainers. The
 
 In extremely rare cases, a Steward can act unilaterally when they believe it is in the project's best interest and can prove that the issue cannot be resolved through normal governance procedure. The steward must publicly state their reason for unilateral action before taking it.
 
-The project steward is currently: **@FredKSchott**
+The project Steward is currently: **@FredKSchott**
 
 
 #### Responsibilities
@@ -184,7 +184,7 @@ The project steward is currently: **@FredKSchott**
 
 - Stewards cannot be self-nominated.
 - Only Core Maintainers are eligible.
-- New stewards will be added based on a unanimous vote by the existing steward(s).
+- New stewards will be added based on a unanimous vote by the existing Steward(s).
 - In the event that someone is unreachable then the decision will be deferred.
 
 # Governance Playbook
@@ -197,7 +197,7 @@ The project Steward may initiate a vote for any unlisted project decision. [Gene
 
 ### General Voting Rules
 
-- Members may abstain from a vote.
+- Members may abstain from any vote.
 - Members who do not vote within 3 days will automatically abstain.
 - Stewards may reduce the 3 day automatic abstain for urgent decisions.
 - Stewards reserve the right to veto approval with a publicly disclosed reason.
@@ -216,7 +216,7 @@ This process kicks off once a valid nomination has been made. See ["Maintainer -
 6. Once the vote is complete, the thread is deleted.
 7. The vote must receive an overwhelming majority (70%+) to pass.
 8. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
-9. **If the vote fails:** the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
+9. **If the vote fails:** the project Steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
 
 ## Voting: Core Maintainer (L3) Nomination
 
@@ -232,7 +232,7 @@ This process kicks off once a valid nomination has been made. See ["Core Maintai
 1. Once the vote is complete, the thread is deleted.
 1. The vote must receive an overwhelming majority (70%+) to pass.
 1. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
-1. **If the vote fails:** the project steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
+1. **If the vote fails:** the project Steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
 
 ## Voting: Governance Change
 
@@ -260,8 +260,8 @@ Astro features are discussed using a model called [Consensus-seeking decision-ma
 2. A trivial change can be discussed and approved entirely within the RFC GitHub issue, as long as there are no objections from Maintainers or Core Maintainers. This is not considered a formal vote.
 3. A non-trivial, significant change should be discussed within the RFC GitHub issue and approved during an RFC meeting call.
 4. During an RFC meeting, the moderator will attempt to achieve consensus on the RFC proposal.
-5. **If consensus is ever reached:** the RFC is approved.
-6. Otherwise, Maintainers should attempt to reach consensus over the course of the next week, before bringing the RFC back to an RFC meeting. All reasonable attempts to address concerns should be exhausted.
+5. **If consensus is reached:** the RFC is approved.
+6. **If consensus is not reached:** Maintainers must make all reasonable attempts to resolve issues and reach consensus in GitHub or a follow-up RFC meeting. The process of reaching consensus can take time, and should not be rushed as long as all participants are making a reasonable effort to respond.
 7. **If consensus still cannot be reached:** The project Steward may initiate the first fallback mechanism by limiting the vote to Core Maintainers.
 8. **If consensus still cannot be reached:** The project Steward may initiate a final fallback vote of Core Maintainers, of which an overwhelming majority (80%+) is required to pass.
 9. **If consensus still cannot be reached:**  The RFC is closed without approval.
