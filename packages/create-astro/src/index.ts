@@ -185,7 +185,7 @@ export async function main() {
 
   console.log(`  ${i++}: ${bold(cyan('npm install'))} (or pnpm install, yarn, etc)`);
   console.log(`  ${i++}: ${bold(cyan('git init && git add -A && git commit -m "Initial commit"'))} (optional step)`);
-  console.log(`  ${i++}: ${bold(cyan('npm start'))} (or pnpm, yarn, etc)`);
+  console.log(`  ${i++}: ${bold(cyan('npm run dev'))} (or pnpm, yarn, etc)`);
 
   console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
   console.log('\nStuck? Visit us at https://astro.build/chat\n');

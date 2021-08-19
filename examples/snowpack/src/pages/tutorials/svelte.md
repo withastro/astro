@@ -39,7 +39,7 @@ Head to the new `svelte-snowpack` directory and start Snowpack with the followin
 
 ```bash
 cd svelte-snowpack
-npm start
+npm run dev
 ```
 
 You should see your new website up and running!
@@ -75,7 +75,7 @@ module.exports = {
   ],
 ```
 
-Restart your Snowpack dev server to run it with the new configuration. Exit the process (ctrl + c in most Windows/Linux/macOS) and start it again with `npm start`.
+Restart your Snowpack dev server to run it with the new configuration. Exit the process (ctrl + c in most Windows/Linux/macOS) and start it again with `npm run dev`.
 
 > 💡 Tip: Restart the Snowpack development server when you make configuration changes (changes to the `snowpack.config.js`).
 
@@ -192,7 +192,7 @@ The `mount` configuration changes where Snowpack scan for and builds files. Head
   </body>
 ```
 
-You'll need to restart Snowpack (stop the process in terminal and then run `npm start` again) for configuration file changes. It should look exactly as it did before, but now using your brand new project folder layout
+You'll need to restart Snowpack (stop the process in terminal and then run `npm run dev` again) for configuration file changes. It should look exactly as it did before, but now using your brand new project folder layout
 
 ## Adding an animated Svelte Logo
 

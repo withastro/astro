@@ -85,13 +85,13 @@ Vous pouvez aussi remplacer la section "scripts" du fichier `package.json` avec 
 ```diff
   "scripts": {
 -    "test": "echo \"Error: no test specified\" && exit 1"
-+    "start": "astro dev",
++    "dev": "astro dev",
 +    "build": "astro build"
   },
 }
 ```
 
-La commande [`start`](#start-astro) démarre le serveur de développement Astro à l'adresse `http://localhost:3000`. Une fois votre projet terminé, la commande [`build`](#build-astro) produit votre site dans le dossier `dist/`. [En savoir plus sur le déploiement d'un site développé avec Astro.](/guides/deploy)
+La commande [`dev`](#start-astro) démarre le serveur de développement Astro à l'adresse `http://localhost:3000`. Une fois votre projet terminé, la commande [`build`](#build-astro) produit votre site dans le dossier `dist/`. [En savoir plus sur le déploiement d'un site développé avec Astro.](/guides/deploy)
 
 ### Créer une première page
 
@@ -133,7 +133,7 @@ Vous pouvez continuer à ajouter des fichiers dans le dossier `src/pages`, et As
 ## [Démarrer Astro](#démarrer-astro)
 
 ```bash
-npm start
+npm run dev
 ```
 
 Astro va démarrer votre site à l'adresse `http://localhost:3000`. En ouvrant cette URL dans votre navigateur, vous devriez voir s'afficher "Hello, World", ou bien la page créée précédemment.

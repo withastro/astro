@@ -87,13 +87,13 @@ npm install astro
 ```diff
   "scripts": {
 -    "test": "echo \"Error: no test specified\" && exit 1"
-+    "start": "astro dev",
++    "dev": "astro dev",
 +    "build": "astro build"
   },
 }
 ```
 
-[`start`](#start-astro) 指令在 `http://localhost:3000` 啟動 Astro 開發伺服器。一但專案已經準備好，[`build`](#build-astro) 指令將專案輸出至 `dist/` 資料夾。[在「部署指南」深入閱讀部署 Astro](/guides/deploy)。
+[`dev`](#start-astro) 指令在 `http://localhost:3000` 啟動 Astro 開發伺服器。一但專案已經準備好，[`build`](#build-astro) 指令將專案輸出至 `dist/` 資料夾。[在「部署指南」深入閱讀部署 Astro](/guides/deploy)。
 
 ### 建立第一個頁面
 
@@ -136,7 +136,7 @@ console.log('See me in the Terminal')
 ## [啟動 Astro](#start-astro)
 
 ```bash
-npm start
+npm run dev
 ```
 
 Astro 會為應用程式打開 `http://localhost:3000` 的伺服器。在瀏覽器開啟網址，就會看到 Astro 的「Hello World」。
