@@ -206,9 +206,11 @@ One big reason behind this performance difference is Astro's smaller JavaScript 
 
 ## VuePress vs. Astro
 
-[VuePress](https://vuepress.vuejs.org/guide/) is a popular documentation website builder. VuePress uses Vue.js to generate your website UI while Astro supports React, Vue.js, Svelte, and raw HTML templating.
+[VuePress](https://vuepress.vuejs.org/guide/) is a popular documentation website builder from the creators of Vue.js. VuePress uses Vue.js to generate your website UI while Astro supports React, Vue.js, Svelte, and raw HTML templating.
 
-VuePress was designed to build documentation websites and has some built-in, documentation-specific website features that Astro does not. Instead, Astro offers documentation-specific features through an official [`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs) theme that you can use for your site. This website was built using that template!
+VuePress was designed for documentation websites and has some built-in, documentation-specific website features that Astro does not support out of the box. Instead, Astro offers documentation-specific features through an official [`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs) theme that you can use for your site. This website was built using that template!
+
+Evan You (creator of Vue.js) is currently working on a new version of Vuepress called [VitePress.](https://vitepress.vuejs.org/). If you want a modern alternative to VuePress, [check out Evan's post](https://github.com/snowpackjs/astro/issues/1159#issue-974035962) on why VitePress may be a better option.
 
 #### Comparing VuePress vs. Astro Performance
 
