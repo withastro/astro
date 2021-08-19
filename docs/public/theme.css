@@ -86,9 +86,10 @@
   --theme-navbar-height: 6rem;
   --theme-selection-color: hsla(var(--color-orange), 1);
   --theme-selection-bg: hsla(var(--color-orange), var(--theme-accent-opacity));
-  --theme-card-bg: linear-gradient(145deg, #f0f0f0, #cacaca);
-  --theme-card-box-shadow: 25px 25px 75px #a6a6a6,
-  -25px -25px 75px #ffffff
+  --theme-card-bg:  linear-gradient(-76deg,#00000085, hsl(0deg 7% 58% / 34%) 55%, transparent);
+  --theme-card-box-shadow: 6px 4px 126px -21px #a6a6b773,
+  12px 12px 30px -8px #353439;
+  --theme-card-divider:#a09e9e70;
 }
 
 body {
@@ -117,9 +118,9 @@ body {
   --theme-navbar-bg: hsla(var(--color-grey-dark), 1);
   --theme-selection-color: hsla(var(--color-base-white), 100%, 1);
   --theme-selection-bg: hsla(var(--color-purple), var(--theme-accent-opacity));
-  --theme-card-bg: linear-gradient(145deg, #212c3b, #1c2532);
-  --theme-card-box-shadow:8px 17px 15px #10151c, -7px -11px 20px 2px #2e3d52;
-
+  --theme-card-bg:  linear-gradient(96deg, #212c3b, #1c2532 50%,#000000cf 100%);;
+  --theme-card-box-shadow:13px 9px 12px 0px #10151c, -4px -2px 20px 2px #2e3d52;
+  --theme-card-divider:#2e3a49;
   /* DocSearch [Algolia] */
   --docsearch-modal-background: var(--theme-bg);
   --docsearch-searchbox-focus-background: var(--theme-divider);

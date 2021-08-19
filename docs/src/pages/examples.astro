@@ -1,8 +1,9 @@
 ---
 import Layout from '../layouts/ExamplesLayout.astro'
 import Thumbnail from '../components/Examples/Thumbnail.astro'
-import templateData from '../components/Examples/function-generate-examples-data.js'
+import Card from '../components/Examples/Card.astro'
 import {Markdown} from 'astro/components'
+import templateData from '../components/Examples/function-generate-examples-data.js'
 let data = await templateData()
 ---
 <Layout content={data}>
@@ -24,7 +25,7 @@ let data = await templateData()
     <div class="flexbox">
         {data.filter(item=> (item.pkgJSON?.keywords?.includes('create-astro')))
                 .sort((a,b)=> ((a.name === 'starter')? -1 : 1))
-                .map((item)=>(<Thumbnail data={item}/>))}
+                .map((item)=>(<Card data={item}/>))}
     </div>
     <Markdown>
         ## UI Frameworks 
@@ -35,7 +36,7 @@ let data = await templateData()
         {data.filter(item=> (item.pkgJSON?.keywords?.includes('framework')))
                 .sort((a,b)=> (b.name > a.name) ? 1 : -1)
                 .sort((a,b)=> ((a.name === 'framework-multiple') ? 0 : -1))
-                .map((item)=>(<Thumbnail data={item}/>))}
+                .map((item)=>(<Card data={item}/>))}
     </div>
     <Markdown>
         ## Kitchen Sink
@@ -44,7 +45,7 @@ let data = await templateData()
     </Markdown>
     <div class="flexbox">
         {data.filter(item=> (item.pkgJSON?.keywords?.includes('kitchen-sink')))
-                .map((item)=>(<Thumbnail data={item}/>))}
+                .map((item)=>(<Card data={item}/>))}
     </div>
     <Markdown>
         
@@ -66,6 +67,12 @@ let data = await templateData()
     .flexbox{
         display: flex;
         flex-wrap: wrap;
+        flex-direction: row;
+        align-content: center;
+        justify-content: space-evenly;
+        align-items: center;
+        gap: 2rem;
+        margin-top:1.25rem;
     }
     .markdown{
         padding:2%;
