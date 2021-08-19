@@ -25,6 +25,7 @@ ScopedStyles('Scopes rules correctly', () => {
     '.class:not(.is-active)': `.class.${className}:not(.is-active)`, // Note: the :not() selector can NOT contain multiple classes, so this is correct; if this causes issues for some people then it‘s worth a discussion
     'body h1': `body h1.${className}`, // body shouldn‘t be scoped; it‘s not a component
     'html,body': `html,body`,
+    ':global(body:not(.is-light)).is-dark,:global(body:not(.is-dark)).is-light': `body:not(.is-light).is-dark,body:not(.is-dark).is-light`, // items can be chained from :global()
     from: 'from', // ignore keyframe keywords (below)
     to: 'to',
     '55%': '55%',

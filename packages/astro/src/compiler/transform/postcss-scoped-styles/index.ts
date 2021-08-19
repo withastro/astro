@@ -69,13 +69,19 @@ export function scopeRule(selector: string, className: string) {
 
     // leave :global() alone!
     if (value.startsWith(':global(')) {
-      ss =
-        head +
-        ss
-          .substring(start, end)
-          .replace(/^:global\(/, '')
-          .replace(/\)$/, '') +
-        tail;
+      let unscopedSelector = ss.substring(start + ':global('.length, end);
+      let parenCount = 0;
+      // we have a dangling ")" somewhere and need to remove it, but we must remove the right one!
+      for (let j = 0; j < unscopedSelector.length; j++) {
+        // found it!
+        if (parenCount === 0 && unscopedSelector[j] === ')') {
+          unscopedSelector = unscopedSelector.substring(0, j) + unscopedSelector.substring(j + 1);
+          break;
+        }
+        if (unscopedSelector[j] === '(') parenCount += 1;
+        else if (unscopedSelector[j] === ')') parenCount -= 1;
+      }
+      ss = head + unscopedSelector + tail;
       continue;
     }
 
