@@ -1,4 +1,4 @@
-import type { CollectionRSS, RouteData } from '../@types/astro';
+import type { RSSFunctionArgs, RouteData } from '../@types/astro';
 import parser from 'fast-xml-parser';
 import { canonicalURL } from './util.js';
 
@@ -11,7 +11,7 @@ export function validateRSS(args: GenerateRSSArgs): void {
   if (!Array.isArray(rssData.items)) throw new Error(`[${srcFile}] rss.items should be an array of items`);
 }
 
-type GenerateRSSArgs = { site: string; rssData: CollectionRSS; srcFile: string; feedURL: string };
+type GenerateRSSArgs = { site: string; rssData: RSSFunctionArgs; srcFile: string; feedURL: string };
 
 /** Generate RSS 2.0 feed */
 export function generateRSS(args: GenerateRSSArgs): string {
