@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
     "test": "jest /__test__/",

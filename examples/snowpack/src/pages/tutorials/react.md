@@ -36,7 +36,7 @@ You can now head to the new directory and start Snowpack with the following two 
 
 ```bash
 cd react-snowpack
-npm run dev
+npm start
 ```
 
 You should see your new website up and running!

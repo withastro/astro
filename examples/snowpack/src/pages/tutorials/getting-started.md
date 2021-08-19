@@ -71,7 +71,7 @@ Add the Snowpack development server to `package.json` under as the `start` scrip
 
 ```diff
   "scripts": {
-+   "dev": "snowpack dev",
++   "start": "snowpack dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
 
@@ -80,7 +80,7 @@ Add the Snowpack development server to `package.json` under as the `start` scrip
 Run the following on the command line to start the Snowpack development server
 
 ```
-npm run dev
+npm start
 ```
 
 If all went well, Snowpack automatically opens your site in a new browser!
@@ -205,7 +205,7 @@ Add the `snowpack build` command to package.json so it's easier to run on the co
 
 ```diff
   "scripts": {
-    "dev": "snowpack dev",
+    "start": "snowpack dev",
 +   "build": "snowpack build",
     "test": "echo \"Error: no test specified\" && exit 1"
 
