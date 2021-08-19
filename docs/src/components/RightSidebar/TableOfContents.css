@@ -17,7 +17,6 @@
 .header-link.in-view {
   --theme-accent-opacity: 0.5;
   border-left-color: hsla(var(--color-orange), var(--theme-accent-opacity));
-  color: hsla(var(--color-orange), var(--theme-accent-opacity));
 }
 
 .header-link.active {
