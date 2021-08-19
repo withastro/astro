@@ -18,6 +18,7 @@ const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${page
   <head>
     <HeadCommon />
     <HeadSEO {content} canonicalURL={Astro.request.canonicalURL} />
+    <!--TODO: Insert font-awesome icons  -->
     <title>{content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title}</title>
     <style>
       body {
