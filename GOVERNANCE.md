@@ -18,7 +18,6 @@ Scroll down to [Playbook](#playbook).
 
 We recognize different degrees of contribution as **levels**, and most levels can be reached regardless of coding skill or years of experience. The two most important things that we look for in contributors are:
 
-
 - **Being here** - Everyone's time is valuable, and the fact that you're here and contributing to Astro is amazing! Thank you for being a part of this journey with us.
 - **Being a positive member of our community** - Go above and beyond our Code of Conduct, and commit to healthy communication in pull requests, issue discussions, Discord conversations, and interactions outside of our community (ex: no Twitter bullies allowed :)
 
@@ -57,7 +56,6 @@ _Note: This process is still in progress, and the Discord bot that will power it
 
 - Self-nominate by running `!contribute` in the `#new-contributors` Discord channel and briefly describe your qualifying contribution (link recommended).
 - Connect your Discord account with GitHub (or Reddit, Twitter, etc.) to automatically get recognized for future contributions.
-
 
 ### Level 2 (L2) - Maintainer
 
@@ -156,7 +154,6 @@ In some rare cases, this role may be revoked by a project Steward. However, unde
 - Once nominated, there will be a vote by existing Core Maintainers (L3 and above).
 - See [vote rules & requirements](#voting) for info on how the vote works.
 
-
 ### Steward
 
 Steward is an additional privilege bestowed to 1 (or more) Core Maintainers. The role of Steward is mainly an administrative one. Stewards control and maintain sensitive project assets, and act as tiebreakers in the event of disagreements.
@@ -164,7 +161,6 @@ Steward is an additional privilege bestowed to 1 (or more) Core Maintainers. The
 In extremely rare cases, a Steward can act unilaterally when they believe it is in the project's best interest and can prove that the issue cannot be resolved through normal governance procedure. The steward must publicly state their reason for unilateral action before taking it.
 
 The project Steward is currently: **@FredKSchott**
-
 
 #### Responsibilities
 
@@ -249,7 +245,6 @@ If the pull request submitter is not a Core Maintainer, the PR can be closed by 
 5. **If the vote passes:** the PR is merged and the changes take effect immediately.
 6. **If the vote fails:** the PR is closed and no change occurs.
 
-
 ## Voting: RFC Proposals
 
 Astro features are discussed using a model called [Consensus-seeking decision-making](https://en.wikipedia.org/wiki/Consensus-seeking_decision-making). This model attempts to achieve consensus on all significant changes to Astro, but has a fallback voting procedure in place if consensus appears unattainable.
@@ -264,8 +259,7 @@ Astro features are discussed using a model called [Consensus-seeking decision-ma
 6. **If consensus is not reached:** Maintainers must make all reasonable attempts to resolve issues and reach consensus in GitHub or a follow-up RFC meeting. The process of reaching consensus can take time, and should not be rushed as long as all participants are making a reasonable effort to respond.
 7. **If consensus still cannot be reached:** The project Steward may initiate the first fallback mechanism by limiting the vote to Core Maintainers.
 8. **If consensus still cannot be reached:** The project Steward may initiate a final fallback vote of Core Maintainers, of which an overwhelming majority (80%+) is required to pass.
-9. **If consensus still cannot be reached:**  The RFC is closed without approval.
-
+9. **If consensus still cannot be reached:** The RFC is closed without approval.
 
 ## Moderation
 
@@ -313,4 +307,4 @@ Responses will be determined by the reviewers on the basis of the information ga
 
 ---
 
-Inspired by [ESLint](https://eslint.org/docs/6.0.0/maintainer-guide/governance), [Rome](https://github.com/rome/tools/blob/main/GOVERNANCE.md) and  [Blitz](https://blitzjs.com/docs/maintainers).
+Inspired by [ESLint](https://eslint.org/docs/6.0.0/maintainer-guide/governance), [Rome](https://github.com/rome/tools/blob/main/GOVERNANCE.md) and [Blitz](https://blitzjs.com/docs/maintainers).
