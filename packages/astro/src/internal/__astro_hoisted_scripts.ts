@@ -14,7 +14,7 @@ interface ComponentThatMaybeHasHoistedScripts {
 function hoistedScripts(Components: ComponentThatMaybeHasHoistedScripts[], scripts: ScriptInfo[]) {
   const flatScripts = [];
 
-  const allScripts: ScriptInfo[] = Components.map(c => c[sym])
+  const allScripts: ScriptInfo[] = Components.map(c => c && c[sym])
     .filter(a => a)
     .concat(scripts)
     .flatMap(a => a);
