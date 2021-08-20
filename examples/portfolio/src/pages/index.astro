@@ -5,8 +5,6 @@ import Button from '../components/Button/index.jsx';
 import Nav from '../components/Nav/index.jsx';
 import Footer from '../components/Footer/index.jsx';
 import PorfolioPreview from '../components/PortfolioPreview/index.jsx';
-import Hello from '../components/Hello.astro';
-import Another from '../components/Another.astro';
 
 // Data Fetching: List all Markdown posts in the repo.
 const projects = Astro.fetchContent('./project/**/*.md');
@@ -202,10 +200,6 @@ const featuredProject = projects[0];
         <h1 class="title">
           <small class="subtitle">The personal site of </small>Jeanine White
         </h1>
-        <div>
-          <Hello name="Wilbur" />
-          <Another />
-        </div>
         <div>
           <span class="role">
             👩‍💻 Developer <span class="invert">👩‍💻 Developer</span>
