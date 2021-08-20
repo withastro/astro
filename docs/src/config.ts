@@ -23,6 +23,7 @@ export const SIDEBAR = {
     { text: 'Pagination', link: 'guides/pagination' },
     { text: 'RSS', link: 'guides/rss' },
     { text: 'Supported Imports', link: 'guides/imports' },
+    { text: 'Scripts', link: 'guides/scripts' },
     { text: 'Aliases', link: 'guides/aliases' },
     { text: 'Deploy a Website', link: 'guides/deploy' },
     { text: 'Publish a Component', link: 'guides/publish-to-npm' },
