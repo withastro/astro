@@ -48,7 +48,6 @@ Elder.js was designed to run on large websites, and claims to build one website 
 
 Elder.js supports both Static Site Generation (SSG) and Server-Side Rendering (SSR). Today, Astro only supports Static Site Generation (SSG).
 
-
 ## Eleventy vs. Astro
 
 [Eleventy](https://www.11ty.dev/) is a popular static site builder, powered by Node.js.
