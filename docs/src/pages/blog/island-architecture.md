@@ -128,7 +128,7 @@ Using ESM in the Browser, tools can build once and cache forever. Tree-shaking a
 
 Tools like [Snowpack](https://www.snowpack.dev/) and [Vite](https://vitejs.dev/) introduce a whole new experience that developers were previously denied in their development process and that is speed.
 
-With cut-edge DX features like [HMR](https://npm.io/package/esm-hmr) has quickly became the industry de facto, and build times reduced by a factor of 100x.
+With cut-edge DX features like [HMR](https://npm.io/package/esm-hmr) has quickly become the industry de facto, and build times reduced by a factor of 100x.
 
 This new generation of ESM tools is extremely encouraging for web developers.
 
