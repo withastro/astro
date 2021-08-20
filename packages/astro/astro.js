@@ -14,10 +14,20 @@ const CI_INTRUCTIONS = {
 };
 
 async function main() {
-  // Check for ESM support by loading the "supports-esm" in an way that works in both ESM & CJS.
-  const supportsESM = typeof require !== 'undefined' ? require('supports-esm') : (await import('supports-esm')).default;
+  // Check for ESM support.
+  // Load the "supports-esm" package in an way that works in both ESM & CJS.
+  let supportsESM = typeof require !== 'undefined' ? require('supports-esm') : (await import('supports-esm')).default;
 
-  // Supported: load Astro and run. Enjoy!
+  // Check for CJS->ESM named export support.
+  // "path-to-regexp" is a real-world package that we depend on, that only
+  // works in later versions of Node with advanced CJS->ESM support.
+  // If `import {compile} from 'path-to-regexp'` will fail, we need to know.
+  if (supportsESM) {
+    const testNamedExportsModule = await import('path-to-regexp');
+    supportsESM = !!testNamedExportsModule.compile;
+  }
+
+  // Preflight check complete. Enjoy! ✨
   if (supportsESM) {
     return import('./dist/cli.js')
       .then(({ cli }) => cli(process.argv))
