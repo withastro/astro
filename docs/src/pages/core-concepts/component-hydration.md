@@ -32,7 +32,7 @@ In Astro, it's up to you as the developer to explicitly "opt-in" any components 
 
 **Partial hydration** -- the act of only hydrating the individual components that require JavaScript and leaving the rest of your site as static HTML -- may sound relatively straightforward. It should! Websites have been built this way for decades. It was only recently that Single-Page Applications (SPAs) introduced the idea that your entire website is written in JavaScript and compiled/rendered by every user in the browser.
 
-_Note: Partial hydration is sometimes called "progressive enhancement" or "progressive hydration." While there are slight nuances between the terms, for our purposes you can think of these all as synonyms of the same concept._
+_Note: Partial hydration is sometimes called "progressive enhancement" or "progressive hydration." While there are slight nuances between the terms, for our purposes you can think of these all as synonyms of the same concept. Please be aware though that "progressive enhancement" is also often used to refer to many other aspects of web development and not just javascript. 
 
 **Partial hydration is the secret to Astro's fast-by-default performance story.** Next.js, Gatsby, and other JavaScript frameworks cannot support partial hydration because they imagine your entire website/page as a single JavaScript application.
 
