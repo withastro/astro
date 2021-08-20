@@ -71,6 +71,11 @@ export async function bundleHoistedJS({
     }
   }
 
+  if(!entryImports.length) {
+    // There are no hoisted scripts, bail
+    return;
+  }
+
   /**
   * 2. Run the bundle to bundle each pages JS into a single bundle (with shared content)
   */
