@@ -138,10 +138,10 @@ export async function bundleHoistedJS({
    * 3. Get a mapping of the virtual filename to the chunk file name
    */
   const entryToChunkFileName = new Map<string, string>();
-  output.forEach((chunk, index) => {
-    const { fileName } = chunk;
-    const originalFileName = entryImports[index];
-    entryToChunkFileName.set(originalFileName, fileName);
+  output.forEach((chunk) => {
+    const { fileName, facadeModuleId, isEntry } = chunk as OutputChunk;
+    if(!facadeModuleId || !isEntry) return;
+    entryToChunkFileName.set(facadeModuleId, fileName);
   });
 
   /**
