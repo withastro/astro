@@ -78,6 +78,10 @@ export const SIDEBAR = {
     { text: 'Démarrage rapide', link: 'fr/quick-start' },
     { text: 'Installation', link: 'fr/installation' },
   ],
+  kr: [
+    { text: '환영합니다', header: true },
+    { text: '시작하기', link: 'kr/getting-started'},
+  ],
 };
 
 export const SITE = {
