@@ -32,7 +32,7 @@ Inside of your Astro project, you'll see the following folders and files:
 │   │   └── BlogPost.astro
 │   │   └── BlogPostPreview.astro
 │   │   └── Logo.astro
-│   └── layouts/
+  └── layouts/
 │   │   └── BlogPost.astro
 │   └── pages/
 │       ├── posts/
@@ -71,6 +71,6 @@ All commands are run from the root of the project, from a terminal:
 
 This Template can be used as a primary launch pad to get your own Blog site up and running with little effort as possible. Or as a educational demonstration.
 
-Regardless of your intentions, we simply wish for you to truly explore and learn how to get the most from Astro and this template is created in such a way to allow you to do so.
+Regardless of your intentions, we simply wish for you to truly explore and learn how to get the most from Astro and this template has been created in such a way to allow you to do so.
 
-Feel free to check [our documentation](https://github.com/snowpackjs/astro) if you get stuck or jump into our [Discord server](https://astro.build/chat) to speak to other Astronauts.
+Feel free to check [our documentation](https://github.com/snowpackjs/astro) if you get stuck or jump into our [Discord server](https://astro.build/chat) to speak with other Astronauts.
