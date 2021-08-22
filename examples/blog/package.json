@@ -1,9 +1,18 @@
 {
   "name": "@example/blog",
-  "description": "Blog Site built using Astro. Use this Template to setup your own Blog",
-  "keywords": ["create-astro","template","astro"],
   "version": "0.0.1",
   "private": true,
+  "description": "Blog Site built using Astro. Use this Template to setup your own Blog",
+  "keywords": ["create-astro","template","astro"],
+  "repository": {
+    "directory": "/examples/blog",
+    "type": "github",
+    "url": "https://github.com/snowpackjs/astro/tree/main"
+  },
+  "onlineDemo":{
+    "preview":"https://kne3y.sse.codesandbox.io/",
+    "sandbox":"https://codesandbox.io/s/astro-template-starter-kne3y?file=/package.json"
+  },
   "scripts": {
     "start": "astro dev",
     "build": "astro build"
@@ -14,4 +23,5 @@
   "snowpack": {
     "workspaceRoot": "../.."
   }
+
 }
