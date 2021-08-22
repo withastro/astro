@@ -32,7 +32,7 @@ Inside of your Astro project, you'll see the following folders and files:
 │   │   └── BlogPost.astro
 │   │   └── BlogPostPreview.astro
 │   │   └── Logo.astro
-  └── layouts/
+│   └── layouts/
 │   │   └── BlogPost.astro
 │   └── pages/
 │       ├── posts/
