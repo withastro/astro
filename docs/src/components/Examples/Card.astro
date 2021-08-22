@@ -2,6 +2,9 @@
 import capitalise from './function-capitalise.js'
 import formatTemplateName from './function-format-name.js'
 import generateThumbnailIcon from './function-generate-thumbnail-icon.js'
+import  CardLink from './CardLink.tsx'
+import CardImage from './CardImage.astro'
+import CodeBar from './Codebar.tsx'
 const icons = [
     <svg  id="terminal" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -19,16 +22,18 @@ const icons = [
     </svg>
     ]
 
-const {data:{name,readme,pkgJSON:{description,keywords}}} = Astro.props
+let avatarSrc = await generateThumbnailIcon() || '/icons/space-icons-rounded-small/048-space.svg' 
+const {data:{name,readme="",pkgJSON:{description,keywords}}} = Astro.props
+const href = `/example/${name}`
 ---
+
     <div class="card-wrapper">
         <article class="card">
-            <div class="space-image">
-                <span class="frosted-glass"></span>
-            </div>
+          <CardLink client:load name={`${formatTemplateName(name)}`} }>
+            <CardImage />
             <div class="card-body">
                 <div class="card-avatar">
-                    <img src={await generateThumbnailIcon()} alt="" class="icon-image ball">
+                    <img src={avatarSrc} alt="" class="icon-image ball" />
                 </div>
                 <div class="card-content">
                     <a href={`/example/${name}`} class="main-link">
@@ -36,146 +41,26 @@ const {data:{name,readme,pkgJSON:{description,keywords}}} = Astro.props
                             {formatTemplateName(name)}
                         </h3>
                     </a>
-                    <code>
-                        {name}
-                    </code>
+                    <CodeBar client:visible content={name} command={`npm init astro my-astro-project -- --template ${name}`}/>
+
+                  
                 </div>
                 <div class="hotlinks">
                     <button class="hot-btn">
-                        <a class="hot-link" href=""><i class="hot-icon">{icons[0]}</i></a>
+                        <a class="hot-link" href="" title="Explore the Code"><i class="hot-icon">{icons[0]}</i></a>
                     </button>
                     <button class="hot-btn">
-                        <a class="hot-link" href=""><i class="hot-icon">{icons[1]}</i></a>
+                        <a class="hot-link" href="" title="View Online Demo"><i class="hot-icon">{icons[1]}</i></a>
                     </button>
                     <button class="hot-btn">
-                        <a class="hot-link" href=""><i class="hot-icon">{icons[2]}</i></a>
+                        <a class="hot-link" href="" title={`Visit the Repo`}><i class="hot-icon">{icons[2]}</i></a>
                     </button>
         
                 </div>
             </div>
+          </CardLink>  
         </article>
-    </div>
-
-
-<style lang="scss">
-    .card-wrapper{
-    border-radius: 60px 60px 100px 100px/60px 60px 20px 20px;
-    flex-grow: 1;
-    padding-bottom: 0.5rem;
-    background: var(--theme-card-bg);
-    box-shadow: var(--theme-card-box-shadow);
-    transition: all 0.25s ease;
-        &:hover{
-            transform:translateY(-0.25rem)
-        }
-    }
-    .card{
-        position:relative;
-        width:100%;
-        flex-grow: 1;
-        // flex-basis:1;
-        
-    }
-    .card-body{
-        display: flex;
-        flex-wrap: wrap;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        position:relative;
-        min-width: fit-content;
-        padding:1rem;
-    }
-    .hotlinks{
-        display:flex;
-        flex-wrap: nowrap;
-        flex-direction: row;
-        align-content: center;
-        align-items: normal;
-        justify-content: space-between;
-        transform: translateY(-1rem);
-        
-        & .hot-btn{
-            border-left:2px solid var(--theme-card-divider);
-            border-right:2px solid var(--theme-card-divider);
-            border-radius: 0;
-            flex-basis:1;
-            transition: all 0.25s ease-in-out;
-            cursor: pointer;
-            background-color: transparent;
-            
-            & :active{
-                background-color: green;   
-                transform: scale(0.9);
-            }
-            & .hot-link{
-                }
-            & .hot-icon{
-                display:block;
-                color:var(--theme-accent);
-                width:2rem;
-                height:2rem;
-            }
-        }
-        
-    }
-    
-    .space-image{
-        background-image:url('https://images.unsplash.com/photo-1464802686167-b939a6910659?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1033&q=80');
-        height:13rem;
-        width:100%;
-        border-radius: 60px 60px 100px 100px / 60px 60px 20px 20px;
-        // margin-bottom:1rem;
-        position:relative;
-    }
-    .frosted-glass{
-        display: block;
-        width: 100%;
-        height:13rem;
-        border-bottom:5px solid linear-gradient(var(--theme-divider));
-        background:linear-gradient(133deg, rgb(59 56 73 / 78%), transparent 70%, #000000d4 100%);
-        box-shadow: inset 5px -2px 7px 0px rgb(185 188 231 / 37%),  0px 8px 0px 0px var(--theme-divider);
-        backdrop-filter: blur( 1px );
-        border-radius:60px 60px 100px 100px / 60px 60px 20px 20px;
-
-    }
-    .title{
-        display: block;
-        margin:0;
-        width:fit-content;
-        margin:auto;
-        font-size: x-large;
-    }
-    .card-content{
-        display:flex;
-        flex-direction:column;
-        justify-content: space-around;
-        flex-wrap: nowrap;
-        align-content: space-around;
-        align-items: center;
-        transform:translateY(-3rem);
-        line-height: 1.5rem;
-        >*{
-            margin: 0.5rem;
-            border-radius:60px 60px 20px 20px,60px 60px 20px 20px;
-        }
-    }
-    .card-avatar{
-        position: relative;
-        transform:translateY(-4rem);
-        left:0;
-        border:0.25rem solid var(--theme-divider);
-        display: block;
-        width: clamp(5rem,8rem,7rem);
-        height: clamp(5rem,8rem,7rem);
-        margin: 0;
-        border-radius: 50%;
-
-    }
-    
-
-
-
+    </div>    
+<style lang="scss" >
+    @import'./card.scss';
 </style>
-<script>
-</script>
