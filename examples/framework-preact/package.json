@@ -1,9 +1,18 @@
 {
   "name": "@example/framework-preact",
-  "description": "A Demonstration on using Preact's ulta lightweight UI library to build your site with Astro",
-  "keywords": ["framework","template","astro"],
   "version": "0.0.1",
   "private": true,
+  "description": "A Demonstration on using Preact's ulta lightweight UI library to build your site with Astro",
+  "keywords": ["framework","template","astro"],
+  "repository": {
+    "directory": "/examples/framework-preact",
+    "type": "github",
+    "url": "https://github.com/snowpackjs/astro/tree/main"
+  },
+  "onlineDemo":{
+    "preview":"",
+    "sandbox":""
+  },
   "scripts": {
     "start": "astro dev",
     "build": "astro build"

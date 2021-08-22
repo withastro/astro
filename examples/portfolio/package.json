@@ -1,9 +1,18 @@
 {
   "name": "@example/portfolio",
-  "description": "Astro's official Portfolio Template. For truly impressive portfolios its best built with Astro",
-  "keywords": ["create-astro","template","astro"],
   "version": "0.0.1",
   "private": true,
+  "description": "Astro's official Portfolio Template. For truly impressive portfolios its best built with Astro",
+  "keywords": ["create-astro","template","astro"],
+  "repository": {
+    "directory": "/examples/portfolio",
+    "type": "github",
+    "url": "https://github.com/snowpackjs/astro/tree/main"
+  },
+  "onlineDemo":{
+    "preview":"",
+    "sandbox":""
+  },
   "scripts": {
     "start": "astro dev",
     "build": "astro build"

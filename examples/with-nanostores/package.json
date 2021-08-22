@@ -1,9 +1,18 @@
 {
   "name": "@example/with-nanostores",
-  "description": "A working example on using the aptly named Nanostores State Management plugin with Astro",
-  "keywords": ["kitchen-sink","template","astro"],
   "version": "0.0.1",
   "private": true,
+  "description": "A working example on using the aptly named Nanostores State Management plugin with Astro",
+  "keywords": ["kitchen-sink","template","astro"],
+  "repository": {
+    "directory": "/examples/with-nanostores",
+    "type": "github",
+    "url": "https://github.com/snowpackjs/astro/tree/main"
+  },
+  "onlineDemo":{
+    "preview":"https://kne3y.sse.codesandbox.io/",
+    "sandbox":"https://codesandbox.io/s/astro-template-starter-kne3y?file=/package.json"
+  },
   "scripts": {
     "start": "astro dev",
     "build": "astro build"

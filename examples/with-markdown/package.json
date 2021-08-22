@@ -1,9 +1,18 @@
 {
   "name": "@example/with-markdown",
   "description": "A demonstration on using Markdown with Astro",
-  "keywords": ["kitchen-sink","template","astro"],
   "version": "0.0.1",
   "private": true,
+    "keywords": ["kitchen-sink","template","astro"],
+    "repository": {
+      "directory": "/examples/with-markdown",
+      "type": "github",
+      "url": "https://github.com/snowpackjs/astro/tree/main"
+    },
+    "onlineDemo":{
+      "preview":"https://kne3y.sse.codesandbox.io/",
+      "sandbox":"https://codesandbox.io/s/astro-template-starter-kne3y?file=/package.json"
+    },
   "scripts": {
     "start": "astro dev",
     "build": "astro build"
