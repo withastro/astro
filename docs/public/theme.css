@@ -86,9 +86,8 @@
   --theme-navbar-height: 6rem;
   --theme-selection-color: hsla(var(--color-orange), 1);
   --theme-selection-bg: hsla(var(--color-orange), var(--theme-accent-opacity));
-  --theme-card-bg:  linear-gradient(-76deg,#00000085, hsl(0deg 7% 58% / 34%) 55%, transparent);
-  --theme-card-box-shadow: 6px 4px 126px -21px #a6a6b773,
-  12px 12px 30px -8px #353439;
+  --theme-card-bg:  linear-gradient(-76deg,#00000078, hsl(0deg 7% 58% / 34%) 39%, transparent);
+  --theme-card-box-shadow: -4px -2px 20px 2px #c6c6cf, 12px 12px 30px -8px #353439;
   --theme-card-divider:#a09e9e70;
 }
 
