@@ -31,29 +31,12 @@ export async function createCollection(){
 
 const {name, data} = Astro.props
 const templates =  data.reduce(item=> ({item}))
-let {name:title,pkgJSON,readme} = templates
+let {name:title,pkgJSON,readme=""} = templates
 const {description, keywords} = pkgJSON
 let templateTitle = formatTemplateName(title)
 ---
-    <!-- <Layout>
-    <div>
-        <img src="/default-og-image.png" alt="">
-        <h1>{templateTitle} Template</h1>
-    </div>
-    <Markdown content = {description}/>
-    <Markdown>
-        ## Getting Started
-        
-        To start using the {templateTitle} template, enter the following into your terminal
-    </Markdown>
-    <pre data-lang="bash" class="lang-bash">npm init astro my-astro-project -- --template {name}</pre>
-    <div>
-        <CollapsibleReadme label={`${templateTitle} Readme`} readme={readme}/>
-    </div>
-        
-</Layout> -->
 <!-- Example 1 -->
-<Layout>
+<!-- <Layout>
     <div>
         <img src="/default-og-image.png" alt="">
         <h1>{capitalise(templateTitle)} Template</h1>
@@ -62,9 +45,9 @@ let templateTitle = formatTemplateName(title)
         <Markdown content = {readme}/>
     </div>
         
-</Layout>
+</Layout> -->
 <!-- Example 2 -->
-<!-- <Layout>
+<Layout>
     <div>
         <img src="/default-og-image.png" alt="">
         <h1>{templateTitle} Template</h1>
@@ -80,4 +63,4 @@ let templateTitle = formatTemplateName(title)
         <CollapsibleReadme label={`${templateTitle} Readme`} readme={readme}/>
     </div>
         
-</Layout> -->
+</Layout>

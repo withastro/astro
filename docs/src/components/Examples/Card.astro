@@ -23,7 +23,7 @@ const icons = [
     ]
 
 let avatarSrc = await generateThumbnailIcon() || '/icons/space-icons-rounded-small/048-space.svg' 
-const {data:{name,readme="",pkgJSON:{description,keywords}}} = Astro.props
+const {data:{name,readme="",pkgJSON:{description,keywords,repository,onlineDemo}}} = Astro.props
 const href = `/example/${name}`
 ---
 
@@ -47,13 +47,13 @@ const href = `/example/${name}`
                 </div>
                 <div class="hotlinks">
                     <button class="hot-btn">
-                        <a class="hot-link" href="" title="Explore the Code"><i class="hot-icon">{icons[0]}</i></a>
+                        <a class="hot-link" href={onlineDemo.sandbox} title="Explore the Code"><i class="hot-icon">{icons[0]}</i></a>
                     </button>
                     <button class="hot-btn">
-                        <a class="hot-link" href="" title="View Online Demo"><i class="hot-icon">{icons[1]}</i></a>
+                        <a class="hot-link" href={onlineDemo.preview} title="View Online Demo"><i class="hot-icon">{icons[1]}</i></a>
                     </button>
                     <button class="hot-btn">
-                        <a class="hot-link" href="" title={`Visit the Repo`}><i class="hot-icon">{icons[2]}</i></a>
+                        <a class="hot-link" href={`${repository.url}${repository.directory}`} title={`Visit the Repo`}><i class="hot-icon">{icons[2]}</i></a>
                     </button>
         
                 </div>

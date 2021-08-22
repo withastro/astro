@@ -117,7 +117,7 @@ body {
   --theme-navbar-bg: hsla(var(--color-grey-dark), 1);
   --theme-selection-color: hsla(var(--color-base-white), 100%, 1);
   --theme-selection-bg: hsla(var(--color-purple), var(--theme-accent-opacity));
-  --theme-card-bg:  linear-gradient(96deg, #212c3b, #1c2532 50%,#000000cf 100%);;
+  --theme-card-bg:  linear-gradient(96deg, #243245, #1c2532 50%,#000000cf 100%);;
   --theme-card-box-shadow:13px 9px 12px 0px #10151c, -4px -2px 20px 2px #2e3d52;
   --theme-card-divider:#2e3a49;
   /* DocSearch [Algolia] */

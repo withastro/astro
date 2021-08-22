@@ -8,5 +8,7 @@ let data = await templateData()
 ---
 
     <Layout content={data}>
-        <Card props={data}/>
+      {data.filter(item=> (item.pkgJSON?.keywords?.includes('create-astro')))
+                .sort((a,b)=> ((a.name === 'starter')? -1 : 1))
+                .map((item)=>(<Card data={item}/>))}
     </Layout>

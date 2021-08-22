@@ -5,9 +5,8 @@
   padding-bottom: 0.5rem;
   background: var(--theme-card-bg);
   box-shadow: var(--theme-card-box-shadow);
-  transition: all 0.25s ease;
-
-  &:hover {
+  transition: all 0.25s cubic-bezier(0, 0, 0.75, 0.24);;
+  &:hover{
     transform: translateY(-0.25rem);
   }
 }

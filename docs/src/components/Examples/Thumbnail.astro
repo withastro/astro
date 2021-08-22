@@ -1,58 +1,80 @@
 ---
 import {Markdown} from 'astro/components'
 import capitalise from './function-capitalise.js'
+import formatTemplateName from './function-format-name.js'
 const {data:{name,readme,pkgJSON:{description,keywords}}} = Astro.props
-            
-let command = `npm init astro my-astro-project -- --template ${name}`
-
-
-
 ---
-   
-<div class="thumbnail">
-        <img src="" alt="">
+   <!-- Example 1  -->
+<!-- <div class="thumbnail">
+        
         <a href={`/example/${name}`}>
-            <h3>{
-                name.includes('multiple')
-                    ?
-                    `${capitalise(name.split('-')[1])} ${capitalise(name.split('-')[0])}'s`
-                    :
-                    name
-                        .split('-')
-                        .map((str)=>(
-                            str.replace('with','')
-                        ))
-                        .map((str)=>(
-                            str.replace('framework','')
-                        ))
-                        .map((str)=>(capitalise(str)))
-                        .join(' ')
-                }
+            <h3>{formatTemplateName(name)}
+            </h3>
+            <img src="/default-og-image.png" alt="">
+        </a>
+
+        <pre data-lang='bash'>--template {name}</pre>
+</div> -->
+
+<!-- Example 2 -->
+<!-- <div class="thumbnail">
+        
+        <a href={`/example/${name}`}>
+            <img src="/default-og-image.png" alt="">
+            <h3>{formatTemplateName(name)}
             </h3>
         </a>
-        <!-- <p>{keywords? keywords.toString(): 'Keywords  goes here'}</p> -->
-        <p>{(description)? description : 'Template Description from Pkg JSON goes here'}</p>
         <pre data-lang='bash'>--template {name}</pre>
+</div> -->
+
+<!-- Example 3 -->
+<div class="wrapper">
+    <div class="thumbnail">
+            <div class="title">
+                <a href={`/example/${name}`}>
+                    <h3 >{formatTemplateName(name)}
+                    </h3>
+                </a>
+                <code class="code-inline">{name}</code>
+            </div>
+            <p class="description">{description}</p>
+            <pre data-lang='bash' class="code-block">--template {name}</pre>
+    </div>
 </div>
 
 <style lang="scss">
-    .thumbnail{
-        
+    .wrapper{
+        box-sizing: border-box;
         width: 45%;
+        display:flex;
+        flex-direction:column;
+
+        border-radius: 5rem;
+        box-shadow:  2px 2px 2px #cacaca;
+    }
+    .thumbnail{
+        flex-basis:1;
         flex-grow: 1;
-        padding: 0.55rem 1.5rem 0.15rem 0rem;
         transition: all 0.25s ease-out ;
         transform: perspective(1000rem); //hack but needed,
         &:hover{
             transform: scale(1.015);
         }
+        > a h3{
+            margin:0.5rem;
+        }
+        > a img{
+            margin-top:0.5rem;
+            border-radius: 1rem;
+        }
         > a{
             color:var(--theme-accent)
         }
         >p{
-            height: clamp(35%,40%,35%);
             word-break: keep-all;
-            text-overflow:ellipsis ;
+            white-space: wrap;
+            overflow: hidden;
+            text-overflow: ellipsis
         }
         > pre{
             width:99%;
@@ -77,6 +99,16 @@ let command = `npm init astro my-astro-project -- --template ${name}`
             }
         }
     
+        .title{
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            align-items: baseline;
+            > * + * {
+                margin-inline-start: 0.5rem;
+            }
+
+        }
     }
     @media(max-width:603px){
         .thumbnail{

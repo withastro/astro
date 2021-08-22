@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises'
 
-const randomIndex = (length) => Math.round(Math.random() * (0-length)) + length
+const randomIndex = (length) => Math.round(Math.random() * (0-length)) + length - 1
 
 /**
  * @returns url of random Icon Image
