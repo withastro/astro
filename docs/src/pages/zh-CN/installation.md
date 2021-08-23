@@ -51,7 +51,7 @@ npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]/path/to/
 npm install
 ```
 
-你现在可以[开发](#start-astro)你的 Astro 项目。一旦你完成了 Astro 项目的开发，你就可以[构建](#build-astro)你的项目。然后Astro会把你的应用程序打包，并准备好静态文件，让你[部署](/guides/deploy)到你最喜欢的托管服务商。
+你现在可以[开发](#start-astro)你的 Astro 项目。一旦你完成了 Astro 项目的开发，你就可以[构建](#build-astro)你的项目。然后 Astro 会把你的应用程序打包，并准备好静态文件，让你[部署](/guides/deploy)到你最喜欢的托管服务商。
 
 ## 手动安装
 
@@ -137,10 +137,11 @@ console.log('See me in the Terminal')
 以上是 Astro 组件语法的一个例子，同時包含 HTML 和 JSX。
 
 <<<<<<< HEAD
-你可以在 `src/pages` 目录下创建更多的页面，Astro将使用该文件名在你的网站上创建新的页面。例如，通过在 `src/pages/about.astro` 创建一个新的文件（重复使用以前的片段），Astro 将生成一个新的页面，URL为：`http://localhost/about` 。
+你可以在 `src/pages` 目录下创建更多的页面，Astro 将使用该文件名在你的网站上创建新的页面。例如，通过在 `src/pages/about.astro` 创建一个新的文件（重复使用以前的片段），Astro 将生成一个新的页面，URL 为：`http://localhost/about` 。
 =======
 你可以在 `src/pages` 目录下创建更多的页面，Astro 将使用该文件名在你的网站上创建新的页面。例如，通过在 `src/pages/about.astro` 创建一个新的文件（重复使用以前的片段），Astro 将生成一个新的页面，URL 为：`http://localhost/about` 。
->>>>>>> d51e0f4fef5a19eb82c2e02c41578bd908b39720
+
+> > > > > > > d51e0f4fef5a19eb82c2e02c41578bd908b39720
 
 ## [启动 Astro](#start-astro)
 
