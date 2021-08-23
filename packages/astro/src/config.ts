@@ -55,17 +55,19 @@ function validateConfig(config: any): void {
 async function configDefaults(userConfig?: any): Promise<any> {
   const config: any = { ...(userConfig || {}) };
 
-  if (!config.projectRoot) config.projectRoot = '.';
-  if (!config.src) config.src = './src';
-  if (!config.pages) config.pages = './src/pages';
-  if (!config.dist) config.dist = './dist';
-  if (!config.public) config.public = './public';
-  if (!config.devOptions) config.devOptions = {};
-  if (!config.devOptions.port) config.devOptions.port = await getPort({ port: getPort.makeRange(3000, 3050) });
-  if (!config.devOptions.hostname) config.devOptions.hostname = 'localhost';
-  if (!config.buildOptions) config.buildOptions = {};
-  if (!config.markdownOptions) config.markdownOptions = {};
-  if (typeof config.buildOptions.sitemap === 'undefined') config.buildOptions.sitemap = true;
+  if (config.projectRoot === undefined) config.projectRoot = '.';
+  if (config.src === undefined) config.src = './src';
+  if (config.pages === undefined) config.pages = './src/pages';
+  if (config.dist === undefined) config.dist = './dist';
+  if (config.public === undefined) config.public = './public';
+  if (config.devOptions === undefined) config.devOptions = {};
+  if (config.devOptions.port === undefined) config.devOptions.port = await getPort({ port: getPort.makeRange(3000, 3050) });
+  if (config.devOptions.hostname === undefined) config.devOptions.hostname = 'localhost';
+  if (config.devOptions.trailingSlash === undefined) config.devOptions.trailingSlash = 'ignore';
+  if (config.buildOptions === undefined) config.buildOptions = {};
+  if (config.buildOptions.pageDirectoryUrl === undefined) config.buildOptions.pageDirectoryUrl = true;
+  if (config.markdownOptions === undefined) config.markdownOptions = {};
+  if (config.buildOptions.sitemap === undefined) config.buildOptions.sitemap = true;
 
   return config;
 }

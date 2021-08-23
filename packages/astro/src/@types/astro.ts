@@ -1,5 +1,6 @@
 import type { ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier } from '@babel/types';
 import type { AstroMarkdownOptions } from '@astrojs/markdown-support';
+import type { AstroConfig } from './config';
 
 export interface RouteData {
   type: 'page';
@@ -22,33 +23,7 @@ export interface AstroConfigRaw {
   jsx?: string;
 }
 
-export { AstroMarkdownOptions };
-export interface AstroConfig {
-  dist: string;
-  projectRoot: URL;
-  pages: URL;
-  public: URL;
-  src: URL;
-  renderers?: string[];
-  /** Options for rendering markdown content */
-  markdownOptions?: Partial<AstroMarkdownOptions>;
-  /** Options specific to `astro build` */
-  buildOptions: {
-    /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
-    site?: string;
-    /** Generate sitemap (set to "false" to disable) */
-    sitemap: boolean;
-  };
-  /** Options for the development server run with `astro dev`. */
-  devOptions: {
-    hostname?: string;
-    /** The port to run the dev server on. */
-    port: number;
-    projectRoot?: string;
-    /** Path to tailwind.config.js, if used */
-    tailwindConfig?: string;
-  };
-}
+export { AstroMarkdownOptions, AstroConfig };
 
 export type AstroUserConfig = Omit<AstroConfig, 'buildOptions' | 'devOptions'> & {
   buildOptions: {
