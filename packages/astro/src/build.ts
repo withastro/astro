@@ -18,7 +18,7 @@ import { collectBundleStats, logURLStats, mapBundleStatsToURLStats } from './bui
 import { getDistPath, stopTimer } from './build/util.js';
 import type { LogOptions } from './logger';
 import { debug, defaultLogDestination, defaultLogLevel, error, info, warn } from './logger.js';
-import { createRuntime } from './runtime.js';
+import { createRuntime, LoadResult } from './runtime.js';
 
 const defaultLogging: LogOptions = {
   level: defaultLogLevel,
@@ -148,13 +148,17 @@ ${stack}
       for (const url of [...pageDeps.js, ...pageDeps.css, ...pageDeps.images]) {
         if (!buildState[url])
           scanPromises.push(
-            astroRuntime.load(url).then((result) => {
-              if (result.statusCode !== 200) {
-                if (result.statusCode === 404) {
-                  throw new Error(`${buildState[id].srcPath.href}: could not find "${url}"`);
+            astroRuntime.load(url).then((result: LoadResult) => {
+              if (result.statusCode === 404) {
+                if (url.startsWith('/_astro/')) {                
+                  throw new Error(`${buildState[id].srcPath.href}: could not find file "${url}".`);
                 }
+                warn(logging, 'build', `${buildState[id].srcPath.href}: could not find file "${url}". Marked as external.`);
+                return;
+              }
+              if (result.statusCode !== 200) {
                 // there shouldn’t be a build error here
-                throw (result as any).error || new Error(`unexpected status ${result.statusCode} when loading ${url}`);
+                throw (result as any).error || new Error(`unexpected ${result.statusCode} response from "${url}".`);
               }
               buildState[url] = {
                 srcPath: new URL(url, projectRoot),
