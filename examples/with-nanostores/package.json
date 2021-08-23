@@ -3,11 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build"
   },
   "devDependencies": {
-    "astro": "^0.18.8"
+    "astro": "^0.19.1"
   },
   "dependencies": {
     "nanostores": "^0.3.3"

@@ -166,7 +166,9 @@ const { greeting = 'Hello', name } = Astro.props;
 </div>
 ```
 
-You can define your props with TypeScript by exporting a `Props` type interface. In the future, Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
+You can define your props with TypeScript by exporting a `Props` type interface.
+
+> _**In the future**_, Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
 
 ```astro
 ---
@@ -312,7 +314,7 @@ Since `src/pages/about.astro` will build to `/about/index.html`, you may not hav
 <img src="/thumbnail.png" />
 ```
 
-The recommended approach is to place files within `public/*`. This references a file it `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
+The recommended approach is to place files within `public/*`. This references a file at `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
 
 #### Option 2: Asset import references
 

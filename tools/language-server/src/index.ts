@@ -23,10 +23,10 @@ export function startServer() {
       filterIncompleteCompletions: !evt.initializationOptions?.dontFilterIncompleteCompletions,
       definitionLinkSupport: !!evt.capabilities.textDocument?.definition?.linkSupport,
     });
-    pluginHost.register(new AstroPlugin(docManager, configManager, workspaceUris));
     pluginHost.register(new HTMLPlugin(docManager, configManager));
     pluginHost.register(new CSSPlugin(docManager, configManager));
     pluginHost.register(new TypeScriptPlugin(docManager, configManager, workspaceUris));
+    pluginHost.register(new AstroPlugin(docManager, configManager, workspaceUris));
     configManager.updateEmmetConfig(evt.initializationOptions?.configuration?.emmet || evt.initializationOptions?.emmetConfig || {});
 
     return {
@@ -63,6 +63,11 @@ export function startServer() {
             // Astro
             ':',
           ],
+        },
+        hoverProvider: true,
+        signatureHelpProvider: {
+          triggerCharacters: ['(', ',', '<'],
+          retriggerCharacters: [')'],
         },
       },
     };
@@ -107,9 +112,11 @@ export function startServer() {
 
     return pluginHost.resolveCompletion(data, completionItem);
   });
+  connection.onHover((evt) => pluginHost.doHover(evt.textDocument, evt.position));
   connection.onDefinition((evt) => pluginHost.getDefinitions(evt.textDocument, evt.position));
   connection.onFoldingRanges((evt) => pluginHost.getFoldingRanges(evt.textDocument));
   connection.onRequest(TagCloseRequest, (evt: any) => pluginHost.doTagComplete(evt.textDocument, evt.position));
+  connection.onSignatureHelp((evt, cancellationToken) => pluginHost.getSignatureHelp(evt.textDocument, evt.position, evt.context, cancellationToken));
 
   connection.listen();
 }

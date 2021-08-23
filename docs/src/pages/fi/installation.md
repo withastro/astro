@@ -60,7 +60,7 @@ Voit nyt vaihtaa oletuksena toimivan "scripts"-osion `npm init`in luomassa `pack
 ```diff
   "scripts": {
 -    "test": "echo \"Error: no test specified\" && exit 1"
-+    "start": "astro dev",
++    "dev": "astro dev",
 +    "build": "astro build"
   },
 }

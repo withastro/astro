@@ -22,7 +22,7 @@ Global('Astro.request.canonicalURL', async (context) => {
   const canonicalURLs = {
     '/': 'https://mysite.dev/blog/',
     '/post/post': 'https://mysite.dev/blog/post/post/',
-    '/posts': 'https://mysite.dev/blog/posts/',
+    '/posts/1': 'https://mysite.dev/blog/posts/',
     '/posts/2': 'https://mysite.dev/blog/posts/2/',
   };
 
@@ -39,6 +39,15 @@ Global('Astro.site', async (context) => {
 
   const $ = doc(result.contents);
   assert.equal($('#site').attr('href'), 'https://mysite.dev/blog/');
+});
+
+Global('Astro.resolve in development', async (context) => {
+  const result = await context.runtime.load('/resolve');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const html = result.contents;
+  const $ = doc(html);
+  assert.equal($('img').attr('src'), '/_astro/src/images/penguin.png');
 });
 
 Global.run();

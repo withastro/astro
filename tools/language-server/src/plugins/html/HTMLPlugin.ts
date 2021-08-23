@@ -11,6 +11,7 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
   private documents = new WeakMap<Document, HTMLDocument>();
   private styleScriptTemplate = new Set(['template', 'style', 'script']);
   private configManager: ConfigManager;
+  public pluginName = 'HTML';
 
   constructor(docManager: DocumentManager, configManager: ConfigManager) {
     docManager.on('documentChange', (document) => {
@@ -27,6 +28,13 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
     }
 
     if (this.isInsideFrontmatter(document, position) || this.isInsideExpression(html, document, position)) {
+      return null;
+    }
+
+    const offset = document.offsetAt(position);
+    const node = html.findNodeAt(offset);
+
+    if (this.isComponentTag(node)) {
       return null;
     }
 
@@ -122,5 +130,13 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
 
   private isInsideFrontmatter(document: Document, position: Position) {
     return isInsideFrontmatter(document.getText(), document.offsetAt(position));
+  }
+
+  private isComponentTag(node: Node): boolean {
+    if (!node.tag) {
+      return false;
+    }
+    const firstChar = node.tag[0];
+    return /[A-Z]/.test(firstChar);
   }
 }

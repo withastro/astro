@@ -107,8 +107,13 @@ interface CompileComponentOptions {
 /** Compiles an Astro component */
 export async function compileComponent(source: string, { compileOptions, filename, projectRoot }: CompileComponentOptions): Promise<CompileResult> {
   const result = await transformFromSource(source, { compileOptions, filename, projectRoot });
+  const { mode } = compileOptions;
   const { hostname, port } = compileOptions.astroConfig.devOptions;
-  const site = compileOptions.astroConfig.buildOptions.site || `http://${hostname}:${port}`;
+  const devSite = `http://${hostname}:${port}`;
+  const site = compileOptions.astroConfig.buildOptions.site || devSite;
+
+  const fileID = path.join('/_astro', path.relative(projectRoot, filename));
+  const fileURL = new URL('.' + fileID, mode === 'production' ? site : devSite);
 
   // return template
   let moduleJavaScript = `
@@ -123,6 +128,12 @@ ${/* Global Astro Namespace (shadowed & extended by the scoped namespace inside 
 const __TopLevelAstro = {
   site: new URL(${JSON.stringify(site)}),
   fetchContent: (globResult) => fetchContent(globResult, import.meta.url),
+  resolve(...segments) {
+    return segments.reduce(
+      (url, segment) => new URL(segment, url),
+      new URL(${JSON.stringify(fileURL)})
+    ).pathname
+  },
 };
 const Astro = __TopLevelAstro;
 
@@ -138,7 +149,7 @@ const __astro_element_registry = new AstroElementRegistry({
     : ''
 }
 
-${result.createCollection || ''}
+${result.getStaticPaths || ''}
 
 // \`__render()\`: Render the contents of the Astro module.
 import { h, Fragment } from 'astro/dist/internal/h.js';
@@ -150,18 +161,22 @@ async function __render(props, ...children) {
       value: props,
       enumerable: true
     },
-    css: {
-      value: (props[__astroInternal] && props[__astroInternal].css) || [],
+    pageCSS: {
+      value: (props[__astroContext] && props[__astroContext].pageCSS) || [],
       enumerable: true
     },
     isPage: {
       value: (props[__astroInternal] && props[__astroInternal].isPage) || false,
       enumerable: true
     },
+    resolve: {
+      value: (props[__astroContext] && props[__astroContext].resolve) || {},
+      enumerable: true
+    },
     request: {
       value: (props[__astroContext] && props[__astroContext].request) || {},
       enumerable: true
-    }
+    },
   });
 
   ${result.script}
@@ -179,18 +194,24 @@ export async function __renderPage({request, children, props, css}) {
     __render,
   };
 
-  Object.defineProperty(props, __astroContext, {
-    value: {
-      request
-    },
-    writable: false,
-    enumerable: false
-  });
+  const isLayout = (__astroContext in props);
+  if(!isLayout) {
+    let astroRootUIDCounter = 0;
+    Object.defineProperty(props, __astroContext, {
+      value: {
+        pageCSS: css,
+        request,
+        resolve: __TopLevelAstro.resolve,
+        createAstroRootUID(seed) { return seed + astroRootUIDCounter++; },
+      },
+      writable: false,
+      enumerable: false
+    });
+  }
 
   Object.defineProperty(props, __astroInternal, {
     value: {
-      css,
-      isPage: true
+      isPage: !isLayout
     },
     writable: false,
     enumerable: false
@@ -202,7 +223,7 @@ export async function __renderPage({request, children, props, css}) {
   if (currentChild.layout) {
     return currentChild.layout({
       request,
-      props: {content: currentChild.content},
+      props: {content: currentChild.content, [__astroContext]: props[__astroContext]},
       children: [childBodyResult],
     });
   }

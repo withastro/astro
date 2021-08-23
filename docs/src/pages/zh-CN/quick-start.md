@@ -18,7 +18,7 @@ npm init astro
 npm install
 
 # 启动项目
-npm start
+npm run dev
 
 # 将项目打包到 dist 文件夹下
 npm run build
@@ -28,10 +28,10 @@ npm run build
 
 ## 启动项目
 
-工程目录下终端输入以下命令： 
+工程目录下终端输入以下命令：
 
 ```bash
-npm start
+npm run dev
 ```
 
 Astro 会开启预览服务器，地址为 [http://localhost:3000](http://localhost:3000)，
@@ -41,7 +41,7 @@ Astro 会开启预览服务器，地址为 [http://localhost:3000](http://localh
 
 ## 打包项目
 
-工程目录下终端输入以下命令： 
+工程目录下终端输入以下命令：
 
 ```bash
 npm run build

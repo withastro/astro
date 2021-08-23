@@ -1,30 +1,45 @@
-import type { CreateCollectionResult } from './@types/astro';
+import { AstroConfig, GetStaticPathsResult, RouteData } from './@types/astro';
+import { LogOptions, warn } from './logger.js';
 
-export function validateCollectionModule(mod: any, filename: string) {
-  if (!mod.exports.createCollection) {
-    throw new Error(`No "createCollection()" export found. Add one or remove the "$" from the filename. ("${filename}")`);
+interface PageLocation {
+  fileURL: URL;
+  snowpackURL: string;
+}
+
+/** convertMatchToLocation and return the _astro candidate for snowpack */
+export function convertMatchToLocation(routeMatch: RouteData, astroConfig: AstroConfig): PageLocation {
+  const url = new URL(`./${routeMatch.component}`, astroConfig.projectRoot);
+  return {
+    fileURL: url,
+    snowpackURL: `/_astro/${routeMatch.component}.js`,
+  };
+}
+
+export function validateGetStaticPathsModule(mod: any) {
+  if (mod.exports.createCollection) {
+    throw new Error(`[createCollection] deprecated. Please use getStaticPaths() instead.`);
+  }
+  if (!mod.exports.getStaticPaths) {
+    throw new Error(`[getStaticPaths] getStaticPaths() function is required. Make sure that you \`export\` the function from your component.`);
   }
 }
-export function validateCollectionResult(result: CreateCollectionResult, filename: string) {
-  const LEGACY_KEYS = new Set(['permalink', 'data', 'routes']);
-  for (const key of Object.keys(result)) {
-    if (LEGACY_KEYS.has(key)) {
-      throw new Error(`[deprecated] it looks like you're using the legacy createCollection() API. (key "${key}". (${filename})`);
+
+export function validateGetStaticPathsResult(result: GetStaticPathsResult, logging: LogOptions) {
+  if (!Array.isArray(result)) {
+    throw new Error(`[getStaticPaths] invalid return value. Expected an array of path objects, but got \`${JSON.stringify(result)}\`.`);
+  }
+  result.forEach((pathObject) => {
+    if (!pathObject.params) {
+      warn(logging, 'getStaticPaths', `invalid path object. Expected an object with key \`params\`, but got \`${JSON.stringify(pathObject)}\`. Skipped.`);
+      return;
     }
-  }
-  const VALID_KEYS = new Set(['route', 'paths', 'props', 'paginate', 'rss']);
-  for (const key of Object.keys(result)) {
-    if (!VALID_KEYS.has(key)) {
-      throw new Error(`[createCollection] unknown option: "${key}". (${filename})`);
+    for (const [key, val] of Object.entries(pathObject.params)) {
+      if (!(typeof val === 'undefined' || typeof val === 'string')) {
+        warn(logging, 'getStaticPaths', `invalid path param: ${key}. A string value was expected, but got \`${JSON.stringify(val)}\`.`);
+      }
+      if (val === '') {
+        warn(logging, 'getStaticPaths', `invalid path param: ${key}. \`undefined\` expected for an optional param, but got empty string.`);
+      }
     }
-  }
-  const REQUIRED_KEYS = new Set(['route', 'props']);
-  for (const key of REQUIRED_KEYS) {
-    if (!(result as any)[key]) {
-      throw new Error(`[createCollection] missing required option: "${key}". (${filename})`);
-    }
-  }
-  if (result.paginate && !result.route.includes(':page?')) {
-    throw new Error(`[createCollection] when "paginate: true" route must include a "/:page?" param. (${filename})`);
-  }
+  });
 }

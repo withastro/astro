@@ -42,7 +42,7 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
    **/
     astro: {
       headers: [],  // an array of h1...h6 elements in the markdown file
-      source: ''    // raw source of the markdown file
+      source: '',    // raw source of the markdown file
       html: ''      // rendered HTML of the markdown file
     },
     url: '' // the rendered path
@@ -171,7 +171,7 @@ Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/
 
 All ESM modules include a `import.meta` property. Astro adds `import.meta.env` through [Snowpack](https://www.snowpack.dev/).
 
-**import.meta.env.SSR** can be used to know when rendering on the server. Some times you might want different logic, for example a component that should only be rendered in the client:
+**import.meta.env.SSR** can be used to know when rendering on the server. Sometimes you might want different logic, for example a component that should only be rendered in the client:
 
 ```jsx
 import { h } from 'preact';

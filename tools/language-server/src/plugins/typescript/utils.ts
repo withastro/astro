@@ -178,6 +178,9 @@ export function isVirtualFilePath(filePath: string) {
 }
 
 export function toVirtualAstroFilePath(filePath: string) {
+  if (isVirtualFrameworkFilePath('astro', filePath)) {
+    return filePath;
+  }
   return `${filePath}.ts`;
 }
 
@@ -190,7 +193,7 @@ export function ensureRealAstroFilePath(filePath: string) {
 }
 
 export function ensureRealFilePath(filePath: string) {
-  return isVirtualFilePath(filePath) ? filePath.slice(0, 3) : filePath;
+  return isVirtualFilePath(filePath) ? filePath.slice(0, filePath.length - 3) : filePath;
 }
 
 export function findTsConfigPath(fileName: string, rootUris: string[]) {

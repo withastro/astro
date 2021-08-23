@@ -18,7 +18,7 @@ npm init astro
 npm install
 
 # aloita kehittäminen!
-npm start
+npm run dev
 
 # kun olet valmis: luo oma staattinen sivustosi hakemistoon `dist/`
 npm run build
@@ -33,7 +33,7 @@ Astro-sivuston käyttöönotto tuotannossa vaatii `/dist`-hakemiston (joka luoda
 Siirry takaisin komentoriville ja suorita tämä komento projektin hakemistossa:
 
 ```bash
-npm start
+npm run dev
 ```
 
 Tämän jälkeen ohjelma on käynnissä osoitteessa [http://localhost:3000](http://localhost:3000). Avaa tämä URL selaimessa nähdäksesi viestin "Moi maailma!", jonka kopioimme edellisessä vaiheessa.

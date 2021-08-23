@@ -272,7 +272,7 @@ import Button from './Button.astro';
 </nav>
 ```
 
-This is undesirable because now `<Nav>` and `<Button>` fight over what the final button looks like. Now, whenever you edit one, you'll always have to edit the other, and they are no longer truly isolated as they once were (now coupled by a bidirectional styling dependency). It's easy to see how this pattern only has to repeated a couple times before being afraid that touching any styles _anywhere_ may break styling in a completely different part of the app (queue `peter-griffin-css-blinds.gif`).
+This is undesirable because now `<Nav>` and `<Button>` fight over what the final button looks like. Now, whenever you edit one, you'll always have to edit the other, and they are no longer truly isolated as they once were (now coupled by a bidirectional styling dependency). It's easy to see how this pattern only has to be repeated a couple times before being afraid that touching any styles _anywhere_ may break styling in a completely different part of the app (queue `peter-griffin-css-blinds.gif`).
 
 Instead, let `<Button>` control its own styles, and try a prop:
 
@@ -303,7 +303,7 @@ Elsewhere, you can use `<Button theme="nav">` to set the type of button it is. T
 
 Recently there has been a debate of all-scoped component styles vs utility-only CSS. But we agree with people like Sarah Dayan who ask [why can't we have both][utility-css]? Truth is that while having scoped component styles are great, there are still hundreds of times when the website's coming together when two components just don't line up _quite_ right, and one needs a nudge. Or different text treatment is needed in one component instance.
 
-While the thought of having perfect, pristine components is nice, it's unrealistic. No design system is absoutely perfect, and every design system has inconsistencies. And it's in reconciling these inconsistencies where components can become a mess without utility CSS. Utility CSS is great for adding minor tweaks necessary to get the website out the door. But they also are incomplete on their own—if you've ever tried to manage responsive styles or accessible focus states with utility CSS it can quickly become a mess! **Utility CSS works best in partnership with component (scoped) CSS**. And in order to be as easy as possible to use, Utility CSS should be global (arguably should be your only global CSS, besides maybe reset.css) so you don't have to deal with imports all willy-nilly.
+While the thought of having perfect, pristine components is nice, it's unrealistic. No design system is absolutely perfect, and every design system has inconsistencies. And it's in reconciling these inconsistencies where components can become a mess without utility CSS. Utility CSS is great for adding minor tweaks necessary to get the website out the door. But they also are incomplete on their own—if you've ever tried to manage responsive styles or accessible focus states with utility CSS it can quickly become a mess! **Utility CSS works best in partnership with component (scoped) CSS**. And in order to be as easy as possible to use, Utility CSS should be global (arguably should be your only global CSS, besides maybe reset.css) so you don't have to deal with imports all willy-nilly.
 
 Some great problems best handled with Utility CSS are:
 

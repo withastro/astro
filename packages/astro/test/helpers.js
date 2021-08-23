@@ -34,7 +34,7 @@ export function setup(Suite, fixturePath, { runtimeOptions = {} } = {}) {
     const astroConfig = await loadConfig(fileURLToPath(new URL(fixturePath, import.meta.url)));
 
     runtime = await createRuntime(astroConfig, {
-      logging: { level: 'error', dest: process.stderr },
+      logging: { level: 'error' },
       ...runtimeOptions,
     }).catch((err) => {
       createRuntimeError = err;
@@ -83,7 +83,7 @@ export function setupBuild(Suite, fixturePath) {
 
     const astroConfig = await loadConfig(fileURLToPath(new URL(fixturePath, import.meta.url)));
 
-    context.build = () => astroBuild(astroConfig, { level: 'error', dest: process.stderr });
+    context.build = () => astroBuild(astroConfig, { level: 'error' });
     context.readFile = async (path) => {
       const resolved = fileURLToPath(new URL(`${fixturePath}/${astroConfig.dist}${path}`, import.meta.url));
       return readFileSync(resolved, { encoding: 'utf8' });

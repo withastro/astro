@@ -2,7 +2,7 @@ import * as ts from 'typescript';
 import type { Document, DocumentManager } from '../../core/documents';
 import type { ConfigManager } from '../../core/config';
 import { urlToPath, pathToUrl, debounceSameArg } from '../../utils';
-import { getLanguageService, getLanguageServiceForDocument, LanguageServiceContainer, LanguageServiceDocumentContext } from './languageService';
+import { getLanguageService, getLanguageServiceForPath, getLanguageServiceForDocument, LanguageServiceContainer, LanguageServiceDocumentContext } from './languageService';
 import { SnapshotManager } from './SnapshotManager';
 import { DocumentSnapshot } from './DocumentSnapshot';
 
@@ -69,6 +69,10 @@ export class LanguageServiceManager {
     const tsDoc = await this.getSnapshot(document);
 
     return { tsDoc, lang };
+  }
+
+  async getTypeScriptLangForPath(filePath: string): Promise<ts.LanguageService> {
+    return getLanguageServiceForPath(filePath, this.workspaceUris, this.docContext);
   }
 
   async getSnapshotManager(filePath: string): Promise<SnapshotManager> {

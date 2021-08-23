@@ -4,7 +4,7 @@ import execa from 'execa';
 
 /** Copies `astro-languageserver` to our file */
 async function publish() {
-  const p0 = execa('yarn', ['lerna', 'run', 'build', '--scope', 'astro-vscode', '--scope', 'astro-languageserver'], { all: true });
+  const p0 = execa('yarn', ['lerna', 'run', 'build', '--scope', 'astro-vscode', '--scope', '@astrojs/language-server'], { all: true });
   p0.all.setEncoding('utf8');
   for await (const chunk of p0.all) {
     console.log(chunk);
@@ -18,7 +18,7 @@ async function publish() {
     }
   }
 
-  await execa('npm', ['install']);
+  execa('npm', ['install'], { all: true });
 
   const p1 = execa('vsce', ['publish'], { all: true });
 

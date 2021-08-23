@@ -1,0 +1,79 @@
+---
+import MainHead from '../../components/MainHead.astro';
+import Nav from '../../components/Nav.astro';
+import PostPreview from '../../components/PostPreview.astro';
+import Pagination from '../../components/Pagination.astro';
+
+// page
+let title = 'Don’s Blog';
+let description = 'An example blog on Astro';
+let canonicalURL = Astro.request.canonicalURL;
+
+// collection
+import authorData from '../../data/authors.json';
+export async function getStaticPaths({paginate, rss}) {
+  const allPosts = Astro.fetchContent('../post/*.md');
+  const sortedPosts = allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+  // Generate an RSS feed from this collection
+  // TODO: DONT MERGE: This requires buildOptions.site to be set, which can't be set in a template
+  rss({
+    title: 'Don’s Blog',
+    description: 'An example blog on Astro',
+    customData: `<language>en-us</language>`,
+    items: sortedPosts.map(item => ({
+      title: item.title,
+      description: item.description,
+      link: item.url,
+      pubDate: item.date,
+    })),
+  });
+  // Return a paginated collection of paths for all posts
+  return paginate(sortedPosts, {pageSize: 1});
+}
+
+const { page } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <title>{title}</title>
+    <MainHead
+      title={title}
+      description={description}
+      image={page.data[0].image}
+      canonicalURL={canonicalURL}
+      prev={page.url.prev}
+      next={page.url.next}
+    />
+
+    <style lang="scss">
+      .title {
+        font-size: 3em;
+        letter-spacing: -0.04em;
+        margin-top: 2rem;
+        margin-bottom: 0;
+        text-align: center;
+      }
+
+      .count {
+        font-size: 1em;
+        display: block;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <Nav title={title} />
+
+    <main class="wrapper">
+      <h2 class="title">All Posts</h2>
+      <small class="count">{page.start + 1}–{page.end + 1} of {page.total}</small>
+      {page.data.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+    </main>
+
+    <footer>
+      <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} />
+    </footer>
+  </body>
+</html>

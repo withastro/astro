@@ -1,31 +1,29 @@
-import type { CollectionRSS } from '../@types/astro';
+import type { CollectionRSS, RouteData } from '../@types/astro';
 import parser from 'fast-xml-parser';
 import { canonicalURL } from './util.js';
 
-/** Validates createCollection.rss */
-export function validateRSS(rss: CollectionRSS, srcFile: string): void {
-  if (!rss.title) throw new Error(`[${srcFile}] rss.title required`);
-  if (!rss.description) throw new Error(`[${srcFile}] rss.description required`);
-  if (typeof rss.item !== 'function') throw new Error(`[${srcFile}] rss.item() function required`);
+/** Validates getStaticPaths.rss */
+export function validateRSS(args: GenerateRSSArgs): void {
+  const { rssData, srcFile } = args;
+  if (!rssData.title) throw new Error(`[${srcFile}] rss.title required`);
+  if (!rssData.description) throw new Error(`[${srcFile}] rss.description required`);
+  if ((rssData as any).item) throw new Error(`[${srcFile}] \`item: Function\` should be \`items: Item[]\``);
+  if (!Array.isArray(rssData.items)) throw new Error(`[${srcFile}] rss.items should be an array of items`);
 }
 
-type RSSInput<T> = { data: T[]; site: string } & CollectionRSS<T>;
-interface RSSOptions {
-  srcFile: string;
-  feedURL: string;
-}
+type GenerateRSSArgs = { site: string; rssData: CollectionRSS; srcFile: string; feedURL: string };
 
 /** Generate RSS 2.0 feed */
-export function generateRSS<T>(input: RSSInput<T>, options: RSSOptions): string {
-  const { srcFile, feedURL } = options;
-
-  validateRSS(input as any, srcFile);
+export function generateRSS(args: GenerateRSSArgs): string {
+  validateRSS(args);
+  const { srcFile, feedURL, rssData, site } = args;
+  if ((rssData as any).item) throw new Error(`[${srcFile}] rss() \`item()\` function was deprecated, and is now \`items: object[]\`.`);
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"`;
 
   // xmlns
-  if (input.xmlns) {
-    for (const [k, v] of Object.entries(input.xmlns)) {
+  if (rssData.xmlns) {
+    for (const [k, v] of Object.entries(rssData.xmlns)) {
       xml += ` xmlns:${k}="${v}"`;
     }
   }
@@ -33,22 +31,19 @@ export function generateRSS<T>(input: RSSInput<T>, options: RSSOptions): string 
   xml += `<channel>`;
 
   // title, description, customData
-  xml += `<title><![CDATA[${input.title}]]></title>`;
-  xml += `<description><![CDATA[${input.description}]]></description>`;
-  xml += `<link>${canonicalURL(feedURL, input.site).href}</link>`;
-  if (typeof input.customData === 'string') xml += input.customData;
-
+  xml += `<title><![CDATA[${rssData.title}]]></title>`;
+  xml += `<description><![CDATA[${rssData.description}]]></description>`;
+  xml += `<link>${canonicalURL(feedURL, site).href}</link>`;
+  if (typeof rssData.customData === 'string') xml += rssData.customData;
   // items
-  if (!Array.isArray(input.data) || !input.data.length) throw new Error(`[${srcFile}] data() returned no items. Can’t generate RSS feed.`);
-  for (const item of input.data) {
+  for (const result of rssData.items) {
     xml += `<item>`;
-    const result = input.item(item);
     // validate
-    if (typeof result !== 'object') throw new Error(`[${srcFile}] rss.item() expected to return an object, returned ${typeof result}.`);
-    if (!result.title) throw new Error(`[${srcFile}] rss.item() returned object but required "title" is missing.`);
-    if (!result.link) throw new Error(`[${srcFile}] rss.item() returned object but required "link" is missing.`);
+    if (typeof result !== 'object') throw new Error(`[${srcFile}] rss.items expected an object. got: "${JSON.stringify(result)}"`);
+    if (!result.title) throw new Error(`[${srcFile}] rss.items required "title" property is missing. got: "${JSON.stringify(result)}"`);
+    if (!result.link) throw new Error(`[${srcFile}] rss.items required "link" property is missing. got: "${JSON.stringify(result)}"`);
     xml += `<title><![CDATA[${result.title}]]></title>`;
-    xml += `<link>${canonicalURL(result.link, input.site).href}</link>`;
+    xml += `<link>${canonicalURL(result.link, site).href}</link>`;
     if (result.description) xml += `<description><![CDATA[${result.description}]]></description>`;
     if (result.pubDate) {
       // note: this should be a Date, but if user provided a string or number, we can work with that, too.
@@ -73,4 +68,18 @@ export function generateRSS<T>(input: RSSInput<T>, options: RSSOptions): string 
   }
 
   return xml;
+}
+
+export function generateRssFunction(site: string | undefined, routeMatch: RouteData): [(args: any) => void, { url?: string; xml?: string }] {
+  let result: { url?: string; xml?: string } = {};
+  function rssUtility(args: any) {
+    if (!site) {
+      throw new Error(`[${routeMatch.component}] rss() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
+    }
+    const { dest, ...rssData } = args;
+    const feedURL = dest || '/rss.xml';
+    result.url = feedURL;
+    result.xml = generateRSS({ rssData, site, srcFile: routeMatch.component, feedURL });
+  }
+  return [rssUtility, result];
 }

@@ -164,4 +164,8 @@ export interface LSPProviderConfig {
   definitionLinkSupport: boolean;
 }
 
-export type Plugin = Partial<ProviderBase & DefinitionsProvider & OnWatchFileChanges & SelectionRangeProvider & UpdateTsOrJsFile>;
+interface NamedPlugin {
+  pluginName: string;
+}
+
+export type Plugin = Partial<NamedPlugin & ProviderBase & DefinitionsProvider & OnWatchFileChanges & SelectionRangeProvider & UpdateTsOrJsFile>;

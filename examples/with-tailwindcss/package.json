@@ -3,12 +3,13 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build"
   },
   "devDependencies": {
     "tailwindcss": "^2.1.2",
-    "astro": "^0.18.8"
+    "astro": "^0.19.1"
   },
   "snowpack": {
     "workspaceRoot": "../.."

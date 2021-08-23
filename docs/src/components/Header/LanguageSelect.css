@@ -9,7 +9,7 @@
   font-size: 1rem;
   font-family: inherit;
   line-height: inherit;
-  background-color: transparent;
+  background-color: var(--theme-bg);
   border-color: var(--theme-text-lighter);
   color: var(--theme-text-light);
   border-style: solid;
@@ -23,6 +23,7 @@
   -webkit-font-smoothing: antialiased;
   padding-left: 30px;
   padding-right: 1rem;
+  -webkit-appearance: none;
 }
 .language-select-wrapper .language-select:hover,
 .language-select-wrapper .language-select:focus {
@@ -35,13 +36,37 @@
 }
 .language-select-wrapper > svg {
   position: absolute;
-  top: 7px;
-  left: 10px;
-  z-index: -1;
+  top: 8px;
+  left: 8px;
+  pointer-events: none;
+}
+
+.language-select-wrapper::before,
+.language-select-wrapper::after {
+  position: absolute;
+  top: 18px;
+  content: '';
+  width: 8px;
+  height: 1px;
+  background: var(--theme-text-light);
+}
+.language-select-wrapper::before {
+  right: 10px;
+  transform: rotate(45deg);
+}
+.language-select-wrapper::after {
+  right: 5px;
+  transform: rotate(-45deg);
 }
 
 @media (min-width: 50em) {
   .language-select {
     width: 100%;
+  }
+  .language-select-wrapper::before {
+    right: 16px;
+  }
+  .language-select-wrapper::after {
+    right: 11px;
   }
 }

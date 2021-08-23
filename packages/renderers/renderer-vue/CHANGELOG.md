@@ -1,5 +1,11 @@
 # @astrojs/renderer-vue
 
+## 0.1.7
+
+### Patch Changes
+
+- 1339d5e3: Bump Vue version to latest stable
+
 ## 0.1.6
 
 ### Patch Changes

@@ -38,7 +38,7 @@ npm init astro
 npm install
 
 # start the dev server and open your browser
-npm start
+npm run dev
 ```
 
 > To learn more about Astro and start building your first site, check out [the project README.](https://github.com/snowpackjs/astro#-guides).
