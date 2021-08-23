@@ -176,8 +176,7 @@ export default function (opts: TransformOptions): Transformer {
                     end: 0,
                     children: [],
                   },
-
-                  { // TODO change
+                  {
                     type: 'Element',
                     name: 'script',
                     attributes: [
