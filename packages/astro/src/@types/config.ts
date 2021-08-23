@@ -56,12 +56,12 @@ export interface AstroUserConfig {
      */
     sitemap?: boolean;
     /**
-     * Control the output file/URL format of each page.
-     *   If true, Astro will generate a directory with a nested index.html (ex: "/foo/index.html") for each page.
-     *   If false, Astro will generate a matching HTML file (ex: "/foo.html") instead of a directory.
-     * Default: true
+     * Control the output file URL format of each page.
+     *   If 'file', Astro will generate a matching HTML file (ex: "/foo.html") instead of a directory.
+     *   If 'directory', Astro will generate a directory with a nested index.html (ex: "/foo/index.html") for each page.
+     * Default: 'directory'
      */
-    pageDirectoryUrl?: boolean;
+    pageUrlFormat?: 'file' | 'directory';
   };
   /** Options for the development server run with `astro dev`. */
   devOptions?: {

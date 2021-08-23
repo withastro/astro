@@ -39,7 +39,10 @@ export const AstroConfigSchema = z.object({
     .object({
       site: z.string().optional(),
       sitemap: z.boolean().optional().default(true),
-      pageDirectoryUrl: z.boolean().optional().default(true),
+      pageUrlFormat: z
+        .union([z.literal('file'), z.literal('directory')])
+        .optional()
+        .default('directory'),
     })
     .optional()
     .default({}),
