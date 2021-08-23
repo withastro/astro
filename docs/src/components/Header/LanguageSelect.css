@@ -3,7 +3,7 @@
   width: 48px;
   box-sizing: border-box;
   margin: 0;
-  padding: 0.33em 0.5em;
+  padding: 0.33em 2rem;
   overflow: visible;
   font-weight: 500;
   font-size: 1rem;
@@ -21,8 +21,6 @@
   transition-duration: 0.2s;
   transition-property: border-color, color;
   -webkit-font-smoothing: antialiased;
-  padding-left: 30px;
-  padding-right: 1rem;
   -webkit-appearance: none;
 }
 .language-select-wrapper .language-select:hover,

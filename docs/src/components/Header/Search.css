@@ -3,6 +3,18 @@
   --docsearch-primary-color: var(--theme-accent);
   --docsearch-logo-color: var(--theme-text);
 }
+
+.DocSearch-Modal .DocSearch-Hit a {
+  box-shadow: none;
+  border: 1px solid var(--theme-accent);
+}
+
+
+/** Style Search Bar */
+.search-placeholder {
+  flex-grow: 1;
+  text-align: initial;
+}
 .search-input {
   flex-grow: 1;
   box-sizing: border-box;
@@ -40,9 +52,6 @@
   color: var(--theme-text-light);
 }
 .search-hint {
-  position: absolute;
-  top: 7px;
-  right: 19px;
   padding: 3px 5px;
   display: none;
   display: none;
@@ -64,13 +73,4 @@
   .search-hint {
     display: flex;
   }
-}
-
-/* ------------------------------------------------------------ *\
-	DocSearch (Algolia)
-\* ------------------------------------------------------------ */
-
-.DocSearch-Modal .DocSearch-Hit a {
-  box-shadow: none;
-  border: 1px solid var(--theme-accent);
 }
