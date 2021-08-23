@@ -1,5 +1,22 @@
 # astro
 
+## 0.19.3
+
+### Patch Changes
+
+- f9cd0310: Fix TypeScript "types" reference in package.json
+- f9cd0310: Improve schema validation using zod
+- efb41f22: Add `<Debug>` component for JavaScript-free client-side debugging.
+
+  ```astro
+  ---
+  import Debug from 'astro/debug';
+  const obj = { /* ... */ }
+  ---
+
+  <Debug {obj} />
+  ```
+
 ## 0.19.2
 
 ### Patch Changes
