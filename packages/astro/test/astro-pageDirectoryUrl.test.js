@@ -2,7 +2,7 @@ import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { setupBuild } from './helpers.js';
 
-const PageDirectoryUrl = suite('pageDirectoryUrl');
+const PageDirectoryUrl = suite('pageUrlFormat');
 
 setupBuild(PageDirectoryUrl, './fixtures/astro-page-directory-url');
 

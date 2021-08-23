@@ -10989,6 +10989,11 @@ zepto@^1.2.0:
   resolved "https://registry.yarnpkg.com/zepto/-/zepto-1.2.0.tgz#e127bd9e66fd846be5eab48c1394882f7c0e4f98"
   integrity sha1-4Se9nmb9hGvl6rSME5SIL3wOT5g=
 
+zod@^3.8.1:
+  version "3.8.1"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.8.1.tgz#b1173c3b4ac2a9e06d302ff580e3b41902766b9f"
+  integrity sha512-u4Uodl7dLh8nXZwqXL1SM5FAl5b4lXYHOxMUVb9lqhlEAZhA2znX+0oW480m0emGFMxpoRHzUncAqRkc4h8ZJA==
+
 zwitch@^1.0.0:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/zwitch/-/zwitch-1.0.5.tgz#d11d7381ffed16b742f6af7b3f223d5cd9fe9920"

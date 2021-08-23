@@ -1,6 +1,6 @@
 import type { Ast, Script, Style, TemplateNode, Expression } from '@astrojs/parser';
 import type { CompileOptions } from '../../@types/compiler';
-import type { AstroConfig, AstroMarkdownOptions, TransformResult, ComponentInfo, Components } from '../../@types/astro';
+import type { AstroConfig, TransformResult, ComponentInfo, Components } from '../../@types/astro';
 import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, ImportDefaultSpecifier } from '@babel/types';
 import type { Attribute } from './interfaces';
 import eslexer from 'es-module-lexer';
@@ -566,7 +566,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       }
       const { $scope: scopedClassName } = state.markers.insideMarkdown as Record<'$scope', any>;
       let { content: rendered } = await renderMarkdown(dedent(md), {
-        ...(markdownOptions as AstroMarkdownOptions),
+        ...markdownOptions,
         $: { scopedClassName: scopedClassName && scopedClassName.slice(1, -1) },
       });
 

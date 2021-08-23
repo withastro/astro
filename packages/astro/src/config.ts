@@ -1,108 +1,114 @@
-import type { AstroConfig } from './@types/astro';
-import path from 'path';
 import { existsSync } from 'fs';
 import getPort from 'get-port';
+import path from 'path';
+import { z } from 'zod';
+import { AstroConfig, AstroUserConfig } from './@types/astro';
+import { addTrailingSlash } from './util.js';
 
-/** Type util */
-const type = (thing: any): string => (Array.isArray(thing) ? 'Array' : typeof thing);
-
-/** Throws error if a user provided an invalid config. Manually-implemented to avoid a heavy validation library. */
-function validateConfig(config: any): void {
-  // basic
-  if (config === undefined || config === null) throw new Error(`[config] Config empty!`);
-  if (typeof config !== 'object') throw new Error(`[config] Expected object, received ${typeof config}`);
-
-  // strings
-  for (const key of ['projectRoot', 'pages', 'dist', 'public']) {
-    if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'string') {
-      throw new Error(`[config] ${key}: ${JSON.stringify(config[key])}\n  Expected string, received ${type(config[key])}.`);
-    }
-  }
-
-  // booleans
-  for (const key of ['sitemap']) {
-    if (config[key] !== undefined && config[key] !== null && typeof config[key] !== 'boolean') {
-      throw new Error(`[config] ${key}: ${JSON.stringify(config[key])}\n  Expected boolean, received ${type(config[key])}.`);
-    }
-  }
-
-  // buildOptions
-  if (config.buildOptions) {
-    // buildOptions.site
-    if (config.buildOptions.site !== undefined) {
-      if (typeof config.buildOptions.site !== 'string') throw new Error(`[config] buildOptions.site is not a string`);
-      try {
-        new URL(config.buildOptions.site);
-      } catch (err) {
-        throw new Error('[config] buildOptions.site must be a valid URL');
-      }
-    }
-  }
-
-  // devOptions
-  if (typeof config.devOptions?.port !== 'number') {
-    throw new Error(`[config] devOptions.port: Expected number, received ${type(config.devOptions?.port)}`);
-  }
-  if (typeof config.devOptions?.hostname !== 'string') {
-    throw new Error(`[config] devOptions.hostname: Expected string, received ${type(config.devOptions?.hostname)}`);
-  }
-  if (config.devOptions?.tailwindConfig !== undefined && typeof config.devOptions?.tailwindConfig !== 'string') {
-    throw new Error(`[config] devOptions.tailwindConfig: Expected string, received ${type(config.devOptions?.tailwindConfig)}`);
-  }
-}
-
-/** Set default config values */
-async function configDefaults(userConfig?: any): Promise<any> {
-  const config: any = { ...(userConfig || {}) };
-
-  if (config.projectRoot === undefined) config.projectRoot = '.';
-  if (config.src === undefined) config.src = './src';
-  if (config.pages === undefined) config.pages = './src/pages';
-  if (config.dist === undefined) config.dist = './dist';
-  if (config.public === undefined) config.public = './public';
-  if (config.devOptions === undefined) config.devOptions = {};
-  if (config.devOptions.port === undefined) config.devOptions.port = await getPort({ port: getPort.makeRange(3000, 3050) });
-  if (config.devOptions.hostname === undefined) config.devOptions.hostname = 'localhost';
-  if (config.devOptions.trailingSlash === undefined) config.devOptions.trailingSlash = 'ignore';
-  if (config.buildOptions === undefined) config.buildOptions = {};
-  if (config.buildOptions.pageDirectoryUrl === undefined) config.buildOptions.pageDirectoryUrl = true;
-  if (config.markdownOptions === undefined) config.markdownOptions = {};
-  if (config.buildOptions.sitemap === undefined) config.buildOptions.sitemap = true;
-
-  return config;
-}
+export const AstroConfigSchema = z.object({
+  projectRoot: z
+    .string()
+    .optional()
+    .default('.')
+    .transform((val) => new URL(val)),
+  src: z
+    .string()
+    .optional()
+    .default('./src')
+    .transform((val) => new URL(val)),
+  pages: z
+    .string()
+    .optional()
+    .default('./src/pages')
+    .transform((val) => new URL(val)),
+  public: z
+    .string()
+    .optional()
+    .default('./public')
+    .transform((val) => new URL(val)),
+  dist: z
+    .string()
+    .optional()
+    .default('./dist')
+    .transform((val) => new URL(val)),
+  renderers: z.array(z.string()).optional().default(['@astrojs/renderer-svelte', '@astrojs/renderer-vue', '@astrojs/renderer-react', '@astrojs/renderer-preact']),
+  markdownOptions: z
+    .object({
+      footnotes: z.boolean().optional(),
+      gfm: z.boolean().optional(),
+      remarkPlugins: z.array(z.any()).optional(),
+      rehypePlugins: z.array(z.any()).optional(),
+    })
+    .optional()
+    .default({}),
+  buildOptions: z
+    .object({
+      site: z.string().optional(),
+      sitemap: z.boolean().optional().default(true),
+      pageUrlFormat: z
+        .union([z.literal('file'), z.literal('directory')])
+        .optional()
+        .default('directory'),
+    })
+    .optional()
+    .default({}),
+  devOptions: z
+    .object({
+      hostname: z.string().optional().default('localhost'),
+      port: z
+        .number()
+        .optional()
+        .transform((val) => val || getPort({ port: getPort.makeRange(3000, 3050) })),
+      tailwindConfig: z.string().optional(),
+      trailingSlash: z
+        .union([z.literal('always'), z.literal('never'), z.literal('ignore')])
+        .optional()
+        .default('ignore'),
+    })
+    .optional()
+    .default({}),
+});
 
 /** Turn raw config values into normalized values */
-function normalizeConfig(userConfig: any, root: string): AstroConfig {
-  const config: any = { ...(userConfig || {}) };
-
+async function validateConfig(userConfig: any, root: string): Promise<AstroConfig> {
   const fileProtocolRoot = `file://${root}/`;
-  config.projectRoot = new URL(config.projectRoot + '/', fileProtocolRoot);
-  config.src = new URL(config.src + '/', fileProtocolRoot);
-  config.pages = new URL(config.pages + '/', fileProtocolRoot);
-  config.public = new URL(config.public + '/', fileProtocolRoot);
-
-  return config as AstroConfig;
+  // We need to extend the global schema to add transforms that are relative to root.
+  // This is type checked against the global schema to make sure we still match.
+  const AstroConfigRelativeSchema = AstroConfigSchema.extend({
+    projectRoot: z
+      .string()
+      .default('.')
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+    src: z
+      .string()
+      .default('./src')
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+    pages: z
+      .string()
+      .default('./src/pages')
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+    public: z
+      .string()
+      .default('./public')
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+    dist: z
+      .string()
+      .default('./dist')
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+  });
+  return AstroConfigRelativeSchema.parseAsync(userConfig);
 }
 
 /** Attempt to load an `astro.config.mjs` file */
 export async function loadConfig(rawRoot: string | undefined, configFileName = 'astro.config.mjs'): Promise<AstroConfig> {
   const root = rawRoot ? path.resolve(rawRoot) : process.cwd();
   const astroConfigPath = new URL(`./${configFileName}`, `file://${root}/`);
-
-  // load
-  let config: any;
+  let userConfig: AstroUserConfig = {};
+  // Load a user-config, if one exists and is provided
   if (existsSync(astroConfigPath)) {
-    config = await configDefaults((await import(astroConfigPath.href)).default);
-  } else {
-    config = await configDefaults();
+    userConfig = (await import(astroConfigPath.href)).default;
   }
-
-  // validate
-  validateConfig(config);
-
-  // normalize
-  config = normalizeConfig(config, root);
-
-  return config as AstroConfig;
+  // normalize, validate, and return
+  const config = await validateConfig(userConfig, root);
+  return config;
 }

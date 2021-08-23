@@ -45,14 +45,14 @@ export async function getStaticPathsForPage({
   };
 }
 
-function formatOutFile(path: string, pageDirectoryUrl: boolean) {
+function formatOutFile(path: string, pageUrlFormat: AstroConfig['buildOptions']['pageUrlFormat']) {
   if (path === '/404') {
     return '/404.html';
   }
   if (path === '/') {
     return '/index.html';
   }
-  if (pageDirectoryUrl) {
+  if (pageUrlFormat === 'directory') {
     return _path.posix.join(path, '/index.html');
   }
   return `${path}.html`;
@@ -68,7 +68,7 @@ export async function buildStaticPage({ astroConfig, buildState, path, route, as
     err.filename = fileURLToPath(location.fileURL);
     throw err;
   }
-  buildState[formatOutFile(path, astroConfig.buildOptions.pageDirectoryUrl)] = {
+  buildState[formatOutFile(path, astroConfig.buildOptions.pageUrlFormat)] = {
     srcPath: location.fileURL,
     contents: result.contents,
     contentType: 'text/html',

@@ -32,7 +32,6 @@ function isRemoteOrEmbedded(url: string) {
 /** The primary build action */
 export async function build(astroConfig: AstroConfig, logging: LogOptions = defaultLogging): Promise<0 | 1> {
   const { projectRoot } = astroConfig;
-  const dist = new URL(astroConfig.dist + '/', projectRoot);
   const buildState: BuildOutput = {};
   const depTree: BundleMap = {};
   const timer: Record<string, number> = {};
@@ -54,7 +53,7 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
 
   try {
     // 0. erase build directory
-    await del(fileURLToPath(dist));
+    await del(fileURLToPath(astroConfig.dist));
 
     /**
      * 1. Build Pages
@@ -197,7 +196,7 @@ ${stack}
       timer.sitemap = performance.now();
       info(logging, 'build', yellow('! creating sitemap...'));
       const sitemap = generateSitemap(buildState, astroConfig.buildOptions.site);
-      const sitemapPath = new URL('sitemap.xml', dist);
+      const sitemapPath = new URL('sitemap.xml', astroConfig.dist);
       await fs.promises.mkdir(path.dirname(fileURLToPath(sitemapPath)), { recursive: true });
       await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
       info(logging, 'build', green('✔'), 'sitemap built.');
@@ -208,7 +207,7 @@ ${stack}
     timer.write = performance.now();
     await Promise.all(
       Object.keys(buildState).map(async (id) => {
-        const outPath = new URL(`.${id}`, dist);
+        const outPath = new URL(`.${id}`, astroConfig.dist);
         const parentDir = path.dirname(fileURLToPath(outPath));
         await fs.promises.mkdir(parentDir, { recursive: true });
         await fs.promises.writeFile(outPath, buildState[id].contents, buildState[id].encoding);
@@ -229,7 +228,7 @@ ${stack}
       await Promise.all(
         publicFiles.map(async (filepath) => {
           const srcPath = new URL(filepath, astroConfig.public);
-          const distPath = new URL(filepath, dist);
+          const distPath = new URL(filepath, astroConfig.dist);
           await fs.promises.mkdir(path.dirname(fileURLToPath(distPath)), { recursive: true });
           await fs.promises.copyFile(srcPath, distPath);
         })
@@ -249,7 +248,7 @@ ${stack}
     info(logging, 'build', yellow(`! bundling...`));
     if (jsImports.size > 0) {
       timer.bundleJS = performance.now();
-      const jsStats = await bundleJS(jsImports, { dist: new URL(dist + '/', projectRoot), astroRuntime });
+      const jsStats = await bundleJS(jsImports, { dist: astroConfig.dist, astroRuntime });
       mapBundleStatsToURLStats({ urlStats, depTree, bundleStats: jsStats });
       debug(logging, 'build', `bundled JS [${stopTimer(timer.bundleJS)}]`);
       info(logging, 'build', green(`✔`), 'bundling complete.');

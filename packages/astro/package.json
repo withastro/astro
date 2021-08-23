@@ -4,7 +4,7 @@
   "author": "Skypack",
   "license": "MIT",
   "type": "module",
-  "types": "./dist/types",
+  "types": "./dist/types/@types/public.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowpackjs/astro.git",
@@ -97,7 +97,8 @@
     "supports-esm": "^1.0.0",
     "tiny-glob": "^0.2.8",
     "unified": "^9.2.1",
-    "yargs-parser": "^20.2.7"
+    "yargs-parser": "^20.2.7",
+    "zod": "^3.8.1"
   },
   "devDependencies": {
     "@babel/types": "^7.14.0",

@@ -1,5 +1,5 @@
 export default {
   buildOptions: {
-    pageDirectoryUrl: false
+    pageUrlFormat: 'file'
   }
 };

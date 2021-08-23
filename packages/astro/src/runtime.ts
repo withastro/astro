@@ -351,7 +351,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     },
     buildOptions: {
       baseUrl: astroConfig.buildOptions.site || '/', // note: Snowpack needs this fallback
-      out: astroConfig.dist,
+      out: fileURLToPath(astroConfig.dist),
     },
     packageOptions: {
       knownEntrypoints,
