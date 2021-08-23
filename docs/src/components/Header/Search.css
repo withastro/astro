@@ -9,7 +9,6 @@
   border: 1px solid var(--theme-accent);
 }
 
-
 /** Style Search Bar */
 .search-placeholder {
   flex-grow: 1;
