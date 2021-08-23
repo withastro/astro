@@ -6,6 +6,7 @@ import Logo from '../components/Logo.astro';
 import Article from '../components/Article.astro';
 import Tagline from '../components/Tagline.astro';
 import MainHeader from '../components/MainHeader.astro';
+import YouTube from '../components/YouTube.astro';
 
 let title = 'Astro';
 let description = 'Build faster websites with less client-side JavaScript';
@@ -17,9 +18,6 @@ let lang = 'en';
   <head>
     <BaseHead title={title} description={description} permalink={permalink} />
     <link rel="stylesheet" href="/global.css" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net/">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.2.0/src/lite-yt-embed.css" integrity="sha256-99PgDZnzzjO63EyMRZfwIIA+i+OS2wDx6k+9Eo7JDKo=" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/lite-youtube-embed@0.2.0/src/lite-yt-embed.js" integrity="sha256-wwYlfEzWnCf2nFlIQptfFKdUmBeH5d3G7C2352FdpWE=" crossorigin="anonymous"></script>
   </head>
 
   <body>
@@ -29,11 +27,11 @@ let lang = 'en';
       <MainHeader />
       <Article>
 
-        <lite-youtube videoid="dsTXcSeAZq8" style="background-image: url('https://i.ytimg.com/vi/dsTXcSeAZq8/hqdefault.jpg');">
+        <YouTube videoid="dsTXcSeAZq8" style="background-image: url('https://i.ytimg.com/vi/dsTXcSeAZq8/hqdefault.jpg');">
           <button type="button" class="lty-playbtn">
             <span class="lyt-visually-hidden">Astro in 100 Seconds</span>
           </button>
-        </lite-youtube>
+        </YouTube>
 
         <Tagline />
 
