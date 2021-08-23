@@ -3,7 +3,7 @@ import type { AstroConfigSchema } from '../config';
 import type { z } from 'zod';
 
 /**
- * The Astro User Config Format: 
+ * The Astro User Config Format:
  * This is the type interface for your astro.config.mjs default export.
  */
 export interface AstroUserConfig {
@@ -80,7 +80,6 @@ export interface AstroUserConfig {
     trailingSlash?: 'always' | 'never' | 'ignore';
   };
 }
-
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
 // we can add JSDoc-style documentation and link to the definition file in our repo.

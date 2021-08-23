@@ -44,7 +44,6 @@ export function validateGetStaticPathsResult(result: GetStaticPathsResult, loggi
   });
 }
 
-
 /** Add / to beginning of string (but don’t double-up) */
 export function addLeadingSlash(path: string) {
   return path.replace(/^\/?/, '/');

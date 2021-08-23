@@ -7,6 +7,8 @@
 // You can disable this by removing "@ts-check" and `@type` comments below.
 
 // @ts-check
-export default /** @type {import('astro').AstroUserConfig} */ ({
-  // ...
-});
+export default /** @type {import('astro').AstroUserConfig} */ (
+  {
+    // ...
+  }
+);

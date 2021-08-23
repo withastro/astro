@@ -1,1 +1,1 @@
-export {AstroConfig, AstroUserConfig} from './config';
+export { AstroConfig, AstroUserConfig } from './config';

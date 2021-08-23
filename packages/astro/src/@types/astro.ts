@@ -15,7 +15,6 @@ export interface ManifestData {
   routes: RouteData[];
 }
 
-
 export interface JsxItem {
   name: string;
   jsx: string;
