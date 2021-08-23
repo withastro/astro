@@ -1,5 +1,12 @@
 # astro
 
+## 0.19.2
+
+### Patch Changes
+
+- 3e605d7e: Add real-world check for ESM-CJS compatability to preflight check
+- 1e0e2f41: Including Prism's `language-` class on code block `<pre>` tags
+
 ## 0.19.1
 
 ### Patch Changes
