@@ -30,3 +30,22 @@ import { Prism } from 'astro/components';
 ```
 
 This component provides syntax highlighting for code blocks. Since this never changes in the client it makes sense to use an Astro component (it's equally reasonable to use a framework component for this kind of thing; Astro is server-only by default for all frameworks!).
+
+
+## `<Debug />`
+
+```astro
+---
+import { Debug } from 'astro/debug';
+const serverObject = {
+  a: 0,
+  b: "string",
+  c: {
+    nested: "object"
+  }
+}
+---
+<Debug {serverObject} />
+```
+
+This component provides a way to inspect values on the clientside, without any JavaScript. 
