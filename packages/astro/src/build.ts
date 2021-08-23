@@ -144,27 +144,6 @@ ${stack}
         srcPath: buildState[id].srcPath,
       });
       depTree[id] = pageDeps;
-
-      // while scanning we will find some unbuilt files; make sure those are all built while scanning
-      for (const url of [...pageDeps.js, ...pageDeps.css, ...pageDeps.images]) {
-        if (!buildState[url])
-          scanPromises.push(
-            runtime.load(url).then((result) => {
-              if (result.statusCode !== 200) {
-                if (result.statusCode === 404) {
-                  throw new Error(`${buildState[id].srcPath.href}: could not find "${path.basename(url)}"`);
-                }
-                // there shouldn’t be a build error here
-                throw (result as any).error || new Error(`unexpected status ${result.statusCode} when loading ${url}`);
-              }
-              buildState[url] = {
-                srcPath: new URL(url, projectRoot),
-                contents: result.contents,
-                contentType: result.contentType || mime.getType(url) || '',
-              };
-            })
-          );
-      }
     }
     await Promise.all(scanPromises);
     debug(logging, 'build', `scanned deps [${stopTimer(timer.deps)}]`);
