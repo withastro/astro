@@ -9,7 +9,7 @@ import { createBundleStats, addBundleStats, BundleStatsMap } from '../stats.js';
 
 interface BundleOptions {
   dist: URL;
-  runtime: AstroRuntime;
+  astroRuntime: AstroRuntime;
 }
 
 /** Collect JS imports from build output */
@@ -22,7 +22,7 @@ export function collectJSImports(buildState: BuildOutput): Set<string> {
 }
 
 /** Bundle JS action */
-export async function bundleJS(imports: Set<string>, { runtime, dist }: BundleOptions): Promise<BundleStatsMap> {
+export async function bundleJS(imports: Set<string>, { astroRuntime, dist }: BundleOptions): Promise<BundleStatsMap> {
   const ROOT = 'astro:root';
   const root = `
   ${[...imports].map((url) => `import '${url}';`).join('\n')}
@@ -53,7 +53,7 @@ export async function bundleJS(imports: Set<string>, { runtime, dist }: BundleOp
             return root;
           }
 
-          const result = await runtime.load(id);
+          const result = await astroRuntime.load(id);
 
           if (result.statusCode !== 200) {
             return null;

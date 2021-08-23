@@ -48,8 +48,8 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
   }
 
   const mode: RuntimeMode = 'production';
-  const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
-  const { runtimeConfig } = runtime;
+  const astroRuntime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
+  const { runtimeConfig } = astroRuntime;
   const { snowpackRuntime } = runtimeConfig;
 
   try {
@@ -69,6 +69,7 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
         } else {
           const result = await getStaticPathsForPage({
             astroConfig,
+            astroRuntime,
             route,
             snowpackRuntime,
             logging,
@@ -89,20 +90,17 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
       })
     );
     try {
-      // TODO: 2x Promise.all? Might be hard to debug + overwhelm resources.
       await Promise.all(
         allRoutesAndPaths.map(async ([route, paths]: [RouteData, string[]]) => {
-          await Promise.all(
-            paths.map((p) =>
-              buildStaticPage({
-                astroConfig,
-                buildState,
-                route,
-                path: p,
-                astroRuntime: runtime,
-              })
-            )
-          );
+          for (const p of paths) {
+            await buildStaticPage({
+              astroConfig,
+              buildState,
+              route,
+              path: p,
+              astroRuntime,
+            });
+          }
         })
       );
     } catch (e) {
@@ -126,7 +124,7 @@ ${stack}
       }
       error(logging, 'build', red('✕ building pages failed!'));
 
-      await runtime.shutdown();
+      await astroRuntime.shutdown();
       return 1;
     }
     info(logging, 'build', green('✔'), 'pages built.');
@@ -149,7 +147,7 @@ ${stack}
       for (const url of [...pageDeps.js, ...pageDeps.css, ...pageDeps.images]) {
         if (!buildState[url])
           scanPromises.push(
-            runtime.load(url).then((result) => {
+            astroRuntime.load(url).then((result) => {
               if (result.statusCode !== 200) {
                 if (result.statusCode === 404) {
                   throw new Error(`${buildState[id].srcPath.href}: could not find "${path.basename(url)}"`);
@@ -251,7 +249,7 @@ ${stack}
     info(logging, 'build', yellow(`! bundling...`));
     if (jsImports.size > 0) {
       timer.bundleJS = performance.now();
-      const jsStats = await bundleJS(jsImports, { dist: new URL(dist + '/', projectRoot), runtime });
+      const jsStats = await bundleJS(jsImports, { dist: new URL(dist + '/', projectRoot), astroRuntime });
       mapBundleStatsToURLStats({ urlStats, depTree, bundleStats: jsStats });
       debug(logging, 'build', `bundled JS [${stopTimer(timer.bundleJS)}]`);
       info(logging, 'build', green(`✔`), 'bundling complete.');
@@ -261,12 +259,12 @@ ${stack}
      * 6. Print stats
      */
     logURLStats(logging, urlStats);
-    await runtime.shutdown();
+    await astroRuntime.shutdown();
     info(logging, 'build', bold(green('▶ Build Complete!')));
     return 0;
   } catch (err) {
     error(logging, 'build', err.message);
-    await runtime.shutdown();
+    await astroRuntime.shutdown();
     return 1;
   }
 }

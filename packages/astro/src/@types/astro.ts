@@ -94,10 +94,7 @@ export interface PageDependencies {
   images: Set<string>;
 }
 
-export type PaginateFunction<T = any> = (data: T[], args?: { pageSize?: number }) => PaginatedCollectionResult<T>;
-
-export type GetStaticPathsResult = { params: Params; props?: Props }[] | { params: Params; props?: Props }[];
-export interface CollectionRSS {
+export interface RSSFunctionArgs {
   /** (required) Title of the RSS Feed */
   title: string;
   /** (required) Description of the RSS Feed */
@@ -127,10 +124,9 @@ export interface CollectionRSS {
   }[];
 }
 
-export interface PaginatedCollectionResult<T = any> {
+export interface PaginatedCollectionProp<T = any> {
   /** result */
   data: T[];
-
   /** metadata */
   /** the count of the first item on the page, starting from 0 */
   start: number;
@@ -138,14 +134,12 @@ export interface PaginatedCollectionResult<T = any> {
   end: number;
   /** total number of results */
   total: number;
-  page: {
-    /** the current page number, starting from 1 */
-    current: number;
-    /** number of items per page (default: 25) */
-    size: number;
-    /** number of last page */
-    last: number;
-  };
+  /** the current page number, starting from 1 */
+  currentPage: number;
+  /** number of items per page (default: 25) */
+  size: number;
+  /** number of last page */
+  lastPage: number;
   url: {
     /** url of the current page */
     current: string;
@@ -155,6 +149,11 @@ export interface PaginatedCollectionResult<T = any> {
     next: string | undefined;
   };
 }
+
+export type RSSFunction = (args: RSSFunctionArgs) => void;
+export type PaginateFunction = (data: [], args?: { pageSize?: number; params?: Params; props?: Props }) => GetStaticPathsResult;
+export type GetStaticPathsArgs = { paginate: PaginateFunction; rss: RSSFunction };
+export type GetStaticPathsResult = { params: Params; props?: Props }[] | { params: Params; props?: Props }[];
 
 export interface ComponentInfo {
   url: string;
