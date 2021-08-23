@@ -16,6 +16,7 @@
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./snowpack-plugin-jsx": "./snowpack-plugin-jsx.cjs",
     "./components": "./components/index.js",
+    "./debug": "./components/Debug.astro",
     "./components/*": "./components/*",
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
     "./internal/*": "./dist/internal/*",
