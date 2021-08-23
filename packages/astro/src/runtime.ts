@@ -14,7 +14,7 @@ import {
   startServer as startSnowpackServer,
 } from 'snowpack';
 import { fileURLToPath } from 'url';
-import type { AstroConfig, CollectionRSS, GetStaticPathsResult, ManifestData, Params, RuntimeMode } from './@types/astro';
+import type { AstroConfig, RSSFunctionArgs, GetStaticPathsArgs, GetStaticPathsResult, ManifestData, Params, RuntimeMode } from './@types/astro';
 import { generatePaginateFunction } from './build/paginate.js';
 import { canonicalURL, getSrcPath, stopTimer } from './build/util.js';
 import { ConfigManager } from './config_manager.js';
@@ -27,8 +27,9 @@ import { convertMatchToLocation, validateGetStaticPathsModule, validateGetStatic
 
 const { CompileError } = parser;
 
-interface RuntimeConfig {
+export interface AstroRuntimeConfig {
   astroConfig: AstroConfig;
+  cache: { staticPaths: Record<string, GetStaticPathsResult> };
   logging: LogOptions;
   mode: RuntimeMode;
   snowpack: SnowpackDevServer;
@@ -42,7 +43,7 @@ type LoadResultSuccess = {
   statusCode: 200;
   contents: string | Buffer;
   contentType?: string | false;
-  rss?: { data: any[] & CollectionRSS };
+  rss?: { data: any[] & RSSFunctionArgs };
 };
 type LoadResultNotFound = { statusCode: 404; error: Error };
 type LoadResultError = { statusCode: 500 } & (
@@ -76,10 +77,13 @@ function getParams(array: string[]) {
   return fn;
 }
 
-let cachedStaticPaths: Record<string, GetStaticPathsResult> = {};
+async function getStaticPathsMemoized(runtimeConfig: AstroRuntimeConfig, component: string, mod: any, args: GetStaticPathsArgs): Promise<GetStaticPathsResult> {
+  runtimeConfig.cache.staticPaths[component] = runtimeConfig.cache.staticPaths[component] || (await mod.exports.getStaticPaths(args)).flat();
+  return runtimeConfig.cache.staticPaths[component];
+}
 
 /** Pass a URL to Astro to resolve and build */
-async function load(config: RuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
+async function load(config: AstroRuntimeConfig, rawPathname: string | undefined): Promise<LoadResult> {
   const { logging, snowpackRuntime, snowpack, configManager } = config;
   const { buildOptions, devOptions } = config.astroConfig;
 
@@ -128,20 +132,14 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
     // this helps us to prevent incorrect matches in dev that wouldn't exist in build.
     if (!routeMatch.path) {
       validateGetStaticPathsModule(mod);
-      cachedStaticPaths[routeMatch.component] =
-        cachedStaticPaths[routeMatch.component] ||
-        (
-          await mod.exports.getStaticPaths({
-            paginate: generatePaginateFunction(routeMatch),
-            rss: () => {
-              /* noop */
-            },
-          })
-        ).flat();
-
-      validateGetStaticPathsResult(cachedStaticPaths[routeMatch.component], logging);
-      const routePathParams: GetStaticPathsResult = cachedStaticPaths[routeMatch.component];
-      const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
+      const staticPaths = await getStaticPathsMemoized(config, routeMatch.component, mod, {
+        paginate: generatePaginateFunction(routeMatch),
+        rss: () => {
+          /* noop */
+        },
+      });
+      validateGetStaticPathsResult(staticPaths, logging);
+      const matchedStaticPath = staticPaths.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
       if (!matchedStaticPath) {
         return { statusCode: 404, error: new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${reqPath})`) };
       }
@@ -239,7 +237,8 @@ async function load(config: RuntimeConfig, rawPathname: string | undefined): Pro
 }
 
 export interface AstroRuntime {
-  runtimeConfig: RuntimeConfig;
+  runtimeConfig: AstroRuntimeConfig;
+  getStaticPaths: (component: string, mod: any, args: GetStaticPathsArgs) => Promise<GetStaticPathsResult>;
   load: (rawPathname: string | undefined) => Promise<LoadResult>;
   shutdown: () => Promise<void>;
 }
@@ -400,8 +399,9 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
   snowpack = snowpackInstance;
   debug(logging, 'core', `snowpack created [${stopTimer(timer.backend)}]`);
 
-  const runtimeConfig: RuntimeConfig = {
+  const runtimeConfig: AstroRuntimeConfig = {
     astroConfig,
+    cache: { staticPaths: {} },
     logging,
     mode,
     snowpack,
@@ -413,7 +413,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
 
   snowpack.onFileChange(({ filePath }: { filePath: string }) => {
     // Clear out any cached getStaticPaths() data.
-    cachedStaticPaths = {};
+    runtimeConfig.cache.staticPaths = {};
     // Rebuild the manifest, if needed
     if (filePath.includes(fileURLToPath(astroConfig.pages))) {
       runtimeConfig.manifest = createManifest({ config: astroConfig });
@@ -423,6 +423,7 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
   return {
     runtimeConfig,
     load: load.bind(null, runtimeConfig),
+    getStaticPaths: getStaticPathsMemoized.bind(null, runtimeConfig),
     shutdown: () => snowpack.shutdown(),
   };
 }
