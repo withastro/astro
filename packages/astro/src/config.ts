@@ -3,28 +3,34 @@ import getPort from 'get-port';
 import path from 'path';
 import { z } from 'zod';
 import { AstroConfig, AstroUserConfig } from './@types/astro';
+import { addTrailingSlash } from './util.js';
 
 export const AstroConfigSchema = z.object({
   projectRoot: z
     .string()
     .optional()
-    .transform((val) => new URL(val + '/')),
+    .default('.')
+    .transform((val) => new URL(val)),
   src: z
     .string()
     .optional()
-    .transform((val) => new URL(val + '/')),
+    .default('./src')
+    .transform((val) => new URL(val)),
   pages: z
     .string()
     .optional()
-    .transform((val) => new URL(val + '/')),
+    .default('./src/pages')
+    .transform((val) => new URL(val)),
   public: z
     .string()
     .optional()
-    .transform((val) => new URL(val + '/')),
+    .default('./public')
+    .transform((val) => new URL(val)),
   dist: z
     .string()
     .optional()
-    .transform((val) => new URL(val + '/')),
+    .default('./dist')
+    .transform((val) => new URL(val)),
   renderers: z.array(z.string()).optional().default(['@astrojs/renderer-svelte', '@astrojs/renderer-vue', '@astrojs/renderer-react', '@astrojs/renderer-preact']),
   markdownOptions: z
     .object({
@@ -72,23 +78,23 @@ async function validateConfig(userConfig: any, root: string): Promise<AstroConfi
     projectRoot: z
       .string()
       .default('.')
-      .transform((val) => new URL(val + '/', fileProtocolRoot)),
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
     src: z
       .string()
       .default('./src')
-      .transform((val) => new URL(val + '/', fileProtocolRoot)),
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
     pages: z
       .string()
       .default('./src/pages')
-      .transform((val) => new URL(val + '/', fileProtocolRoot)),
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
     public: z
       .string()
       .default('./public')
-      .transform((val) => new URL(val + '/', fileProtocolRoot)),
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
     dist: z
       .string()
       .default('./dist')
-      .transform((val) => new URL(val + '/', fileProtocolRoot)),
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
   });
   return AstroConfigRelativeSchema.parseAsync(userConfig);
 }
