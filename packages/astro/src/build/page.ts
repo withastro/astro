@@ -45,18 +45,30 @@ export async function getStaticPathsForPage({
   };
 }
 
+function formatOutFile(path: string, pageDirectoryUrl: boolean) {
+  if (path === '/404') {
+    return '/404.html';
+  }
+  if (path === '/') {
+    return '/index.html';
+  }
+  if (pageDirectoryUrl) {
+    return _path.posix.join(path, '/index.html');
+  }
+  return `${path}.html`;
+}
 /** Build static page */
 export async function buildStaticPage({ astroConfig, buildState, path, route, astroRuntime }: PageBuildOptions): Promise<void> {
   const location = convertMatchToLocation(route, astroConfig);
-  const result = await astroRuntime.load(path);
+  const normalizedPath = astroConfig.devOptions.trailingSlash === 'never' ? path : path.endsWith('/') ? path : `${path}/`;
+  const result = await astroRuntime.load(normalizedPath);
   if (result.statusCode !== 200) {
     let err = (result as any).error;
     if (!(err instanceof Error)) err = new Error(err);
     err.filename = fileURLToPath(location.fileURL);
     throw err;
   }
-  const outFile = _path.posix.join(path, '/index.html');
-  buildState[outFile] = {
+  buildState[formatOutFile(path, astroConfig.buildOptions.pageDirectoryUrl)] = {
     srcPath: location.fileURL,
     contents: result.contents,
     contentType: 'text/html',

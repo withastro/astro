@@ -72,20 +72,21 @@ export async function collectBundleStats(buildState: BuildOutput, depTree: Bundl
 }
 
 export function logURLStats(logging: LogOptions, urlStats: URLStatsMap) {
-  const builtURLs = [...urlStats.keys()].map((url) => url.replace(/index\.html$/, ''));
-  builtURLs.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
+  const builtURLs = [...urlStats.keys()].sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
   info(logging, null, '');
   const log = table(logging, [60, 20]);
   log(info, '   ' + bold(underline('Pages')), bold(underline('Page Weight (GZip)')));
-
   const lastIndex = builtURLs.length - 1;
   builtURLs.forEach((url, index) => {
     const sep = index === 0 ? '┌' : index === lastIndex ? '└' : '├';
     const urlPart = ' ' + sep + ' ' + url;
-
-    const bytes = (urlStats.get(url) || urlStats.get(url + 'index.html'))?.stats.map((s) => s.gzipSize).reduce((a, b) => a + b, 0) || 0;
+    const bytes =
+      urlStats
+        .get(url)
+        ?.stats.map((s) => s.gzipSize)
+        .reduce((a, b) => a + b, 0) || 0;
     const kb = (bytes * 0.001).toFixed(2);
     const sizePart = kb + ' kB';
-    log(info, urlPart + 'index.html', sizePart);
+    log(info, urlPart, sizePart);
   });
 }
