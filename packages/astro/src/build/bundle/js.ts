@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { rollup } from 'rollup';
 import { terser } from 'rollup-plugin-terser';
 import { createBundleStats, addBundleStats, BundleStatsMap } from '../stats.js';
+import { IS_ASTRO_FILE_URL } from '../util.js';
 
 interface BundleOptions {
   dist: URL;
@@ -24,12 +25,13 @@ export function collectJSImports(buildState: BuildOutput): Set<string> {
 /** Bundle JS action */
 export async function bundleJS(imports: Set<string>, { astroRuntime, dist }: BundleOptions): Promise<BundleStatsMap> {
   const ROOT = 'astro:root';
+  const validImports = [...imports].filter((url) => IS_ASTRO_FILE_URL.test(url));
   const root = `
-  ${[...imports].map((url) => `import '${url}';`).join('\n')}
+  ${validImports.map((url) => `import '${url}';`).join('\n')}
 `;
 
   const inputOptions: InputOptions = {
-    input: [...imports],
+    input: validImports,
     plugins: [
       {
         name: 'astro:build',

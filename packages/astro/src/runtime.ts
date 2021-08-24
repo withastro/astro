@@ -283,7 +283,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   };
 
   const mountOptions = {
-    ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: '/' } : {}),
+    ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: { url: '/', static: true, resolve: false } } : {}),
     [fileURLToPath(frontendPath)]: '/_astro_frontend',
     [fileURLToPath(src)]: '/_astro/src', // must be last (greediest)
   };
