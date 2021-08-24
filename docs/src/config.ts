@@ -81,7 +81,7 @@ export const SIDEBAR = {
   ],
   kr: [
     { text: '환영합니다', header: true },
-    { text: '시작하기', link: 'kr/getting-started'},
+    { text: '시작하기', link: 'kr/getting-started' },
   ],
 };
 

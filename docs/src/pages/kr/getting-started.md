@@ -4,13 +4,13 @@ title: 시작하기
 lang: kr
 ---
 
-Astro는 현대적인 정적 사이트 생성기(Static Site Generator)입니다. [홈페이지](https://astro.build/)나 [블로그](https://astro.build/blog/introducing-astro) 글을 통해 Astro에 대한 모든 것을 알아보세요. 이 페이지는 Astro 문서와 관련된 리소스를 소개합니다. 
+Astro는 현대적인 정적 사이트 생성기(Static Site Generator)입니다. [홈페이지](https://astro.build/)나 [블로그](https://astro.build/blog/introducing-astro) 글을 통해 Astro에 대한 모든 것을 알아보세요. 이 페이지는 Astro 문서와 관련된 리소스를 소개합니다.
 
 Astro가 궁금하다면 [홈페이지](https://astro.build)에서 간단한 소개글을 읽어보세요.
 
 ## Astro 시작하기
 
-Astro를 시작하는 가장 쉬운 방법은 `npm init astro` 명령어를 실행하는 것입니다. 새로운 디렉토리에서 명령어를 실행해주세요. CLI 도우미가 새로운 프로젝트를 시작할 수 있도록 도와줍니다. 
+Astro를 시작하는 가장 쉬운 방법은 `npm init astro` 명령어를 실행하는 것입니다. 새로운 디렉토리에서 명령어를 실행해주세요. CLI 도우미가 새로운 프로젝트를 시작할 수 있도록 도와줍니다.
 
 이 문서의 퀵스타트 가이드에서는 Astro를 쉽고 빠르게 시작할 수 있도록 도와주는 5가지 단계를 소개하고 있습니다. [퀵스타트 가이드](quick-start) 페이지를 방문해 관련 내용을 자세히 알아보세요.
 
@@ -18,7 +18,7 @@ Astro를 시작하는 가장 쉬운 방법은 `npm init astro` 명령어를 실�
 
 ### 온라인 플레이그라운드
 
-온라인 플레이그라운드를 통해 Astro를 브라우저 환경에서 체험해보는 것도 가능합니다. [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3)에서 "Hello World!" 템플릿으로 시작해보세요. 
+온라인 플레이그라운드를 통해 Astro를 브라우저 환경에서 체험해보는 것도 가능합니다. [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3)에서 "Hello World!" 템플릿으로 시작해보세요.
 
 _주의: 몇몇 기능은 아직 CodeSandbox에서 동작하지 않을 수 있습니다. (예: Fast Refresh)_
 
@@ -47,9 +47,9 @@ API 참조 섹션은 특정 Astro API를 자세히 배우고 싶을 때 유용�
 
 ## 최신 소식 받아보기
 
-[@astrodotbuild](https://twitter.com/astrodotbuild) 트위터 계정을 통해 Astro 팀이 게시하는 공식적인 업데이트 소식을 받아볼 수 있습니다. 
+[@astrodotbuild](https://twitter.com/astrodotbuild) 트위터 계정을 통해 Astro 팀이 게시하는 공식적인 업데이트 소식을 받아볼 수 있습니다.
 
-또한 [디스코드](https://astro.build/chat)의 #announcements 채널에서도 릴리즈 소식을 찾아볼 수 있습니다. 
+또한 [디스코드](https://astro.build/chat)의 #announcements 채널에서도 릴리즈 소식을 찾아볼 수 있습니다.
 
 모든 릴리즈가 블로그에 게시되는 것은 아닙니다. 블로그에 게시되지 않은 버전 릴리즈에 관한 자세한 수정사항은 [Astro 리포지터리 안의 `CHANGELOG.md`](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) 파일에서 읽어볼 수 있습니다.
 
