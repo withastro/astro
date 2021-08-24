@@ -1,5 +1,12 @@
 # astro
 
+## 0.19.4
+
+### Patch Changes
+
+- 44fb8ebc: Remove non-null assertions, fix lint issues and enable lint in CI.
+- 9482fade: Makes sure Astro.resolve works in nested component folders
+
 ## 0.19.3
 
 ### Patch Changes
