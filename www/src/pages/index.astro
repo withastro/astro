@@ -6,6 +6,8 @@ import Logo from '../components/Logo.astro';
 import Article from '../components/Article.astro';
 import Tagline from '../components/Tagline.astro';
 import MainHeader from '../components/MainHeader.astro';
+import YouTube from '../components/YouTube.astro';
+import "../components/YouTube.css";
 
 let title = 'Astro';
 let description = 'Build faster websites with less client-side JavaScript';
@@ -26,9 +28,7 @@ let lang = 'en';
       <MainHeader />
       <Article>
 
-        <div class="videoWrapper">
-          <iframe width="560" height="315" src="https://www.youtube.com/embed/dsTXcSeAZq8" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
+        <YouTube v="dsTXcSeAZq8" alt="Astro in 100 Seconds" />
 
         <Tagline />
 
@@ -90,7 +90,7 @@ let lang = 'en';
         background:rgba(255, 255, 255, 0.1);
         margin-bottom: 1rem;
       }
-      .videoWrapper iframe {
+      .videoWrapper > iframe {
         position: absolute;
         top: 0;
         left: 0;
