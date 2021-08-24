@@ -82,13 +82,15 @@ export class EndOfHead {
   }
 
   private appendToHead(...nodes: TemplateNode[]) {
-    const head = this.head!;
-    head.children = head.children ?? [];
-    head.children.push(...nodes);
+    if (this.head) {
+      const head = this.head;
+      head.children = head.children ?? [];
+      head.children.push(...nodes);
+    }
   }
 
   private prependToFirstNonHead(...nodes: TemplateNode[]) {
-    let idx: number = this.parent?.children!.indexOf(this.firstNonHead!) || 0;
+    let idx: number = (this.firstNonHead && this.parent?.children?.indexOf(this.firstNonHead)) || 0;
     this.parent?.children?.splice(idx, 0, ...nodes);
   }
 }

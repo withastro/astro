@@ -116,9 +116,9 @@ async function load(config: AstroRuntimeConfig, rawPathname: string | undefined)
     return { statusCode: 404, error: new Error('No matching route found.') };
   }
 
-  const paramsMatch = routeMatch.pattern.exec(reqPath)!;
+  const paramsMatch = routeMatch.pattern.exec(reqPath);
   const routeLocation = convertMatchToLocation(routeMatch, config.astroConfig);
-  const params = getParams(routeMatch.params)(paramsMatch);
+  const params = paramsMatch ? getParams(routeMatch.params)(paramsMatch) : {};
   let pageProps = {} as Record<string, any>;
 
   try {

@@ -138,7 +138,7 @@ export class ConfigManager {
   async buildSource(contents: string): Promise<string> {
     const renderers = await this.buildRendererInstances();
     const rendererServerPackages = renderers.map(({ server }) => server);
-    const rendererClientPackages = await Promise.all(renderers.filter(({ client }) => client).map(({ client }) => this.resolvePackageUrl(client!)));
+    const rendererClientPackages = await Promise.all(renderers.filter((instance): instance is RendererInstance & { client: string } => !!instance.client).map(({ client }) => this.resolvePackageUrl(client)));
     const rendererPolyfills = await Promise.all(renderers.map(({ polyfills }) => Promise.all(polyfills.map((src) => this.resolvePackageUrl(src)))));
     const rendererHydrationPolyfills = await Promise.all(renderers.map(({ hydrationPolyfills }) => Promise.all(hydrationPolyfills.map((src) => this.resolvePackageUrl(src)))));
 
@@ -173,6 +173,6 @@ ${contents}
   }
 
   private async importModule(snowpackRuntime: SnowpackServerRuntime): Promise<void> {
-    await snowpackRuntime!.importModule(CONFIG_MODULE_URL);
+    await snowpackRuntime.importModule(CONFIG_MODULE_URL);
   }
 }
