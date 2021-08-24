@@ -6,7 +6,7 @@ import Layout from '../layouts/MainLayout.astro';
   // WIP: trigger a client-side redirect based on the browser language.
   // A vercel.json redirect is enforced in production, so no user should ever see this page.
   // Remove the vercel.json redirect when this is ready.
-  const KNOWN_LANGUAGES = ['bg', 'de','en','es','fi','nl','pt-br','zh-CN','zh-TW', 'fr'];
+  const KNOWN_LANGUAGES = ['bg', 'de','en','es','fi','nl','pt-br','zh-CN','zh-TW', 'fr', 'kr'];
   let newLangWithRegion = (window.navigator.userLanguage || window.navigator.language || 'en-US').substr(0, 5);
   let newLang = newLangWithRegion.substr(0, 2);
   if (newLang === 'en') {
