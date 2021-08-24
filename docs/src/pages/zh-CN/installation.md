@@ -136,21 +136,12 @@ console.log('See me in the Terminal')
 
 以上是 Astro 组件语法的一个例子，同時包含 HTML 和 JSX。
 
-<<<<<<< HEAD
 你可以在 `src/pages` 目录下创建更多的页面，Astro 将使用该文件名在你的网站上创建新的页面。例如，通过在 `src/pages/about.astro` 创建一个新的文件（重复使用以前的片段），Astro 将生成一个新的页面，URL 为：`http://localhost/about` 。
-=======
-你可以在 `src/pages` 目录下创建更多的页面，Astro 将使用该文件名在你的网站上创建新的页面。例如，通过在 `src/pages/about.astro` 创建一个新的文件（重复使用以前的片段），Astro 将生成一个新的页面，URL 为：`http://localhost/about` 。
-
-> > > > > > > d51e0f4fef5a19eb82c2e02c41578bd908b39720
 
 ## [启动 Astro](#start-astro)
 
 ```bash
-<<<<<<< HEAD
-npm start
-=======
 npm run dev
->>>>>>> d51e0f4fef5a19eb82c2e02c41578bd908b39720
 ```
 
 Astro 会开启预览服务器，地址为 [http://localhost:3000](http://localhost:3000)，
