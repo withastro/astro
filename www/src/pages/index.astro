@@ -7,6 +7,7 @@ import Article from '../components/Article.astro';
 import Tagline from '../components/Tagline.astro';
 import MainHeader from '../components/MainHeader.astro';
 import YouTube from '../components/YouTube.astro';
+import "../components/YouTube.css";
 
 let title = 'Astro';
 let description = 'Build faster websites with less client-side JavaScript';
@@ -27,11 +28,7 @@ let lang = 'en';
       <MainHeader />
       <Article>
 
-        <YouTube videoid="dsTXcSeAZq8" style="background-image: url('https://i.ytimg.com/vi/dsTXcSeAZq8/hqdefault.jpg');">
-          <button type="button" class="lty-playbtn">
-            <span class="lyt-visually-hidden">Astro in 100 Seconds</span>
-          </button>
-        </YouTube>
+        <YouTube v="dsTXcSeAZq8" alt="Astro in 100 Seconds" />
 
         <Tagline />
 
