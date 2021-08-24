@@ -20,10 +20,15 @@ export interface JsxItem {
   jsx: string;
 }
 
-export interface ScriptInfo {
-  src?: string;
-  content?: string;
+export interface InlineScriptInfo {
+  content: string;
 }
+
+export interface ExternalScriptInfo {
+  src: string;
+}
+
+export type ScriptInfo = InlineScriptInfo | ExternalScriptInfo;
 
 export interface TransformResult {
   script: string;

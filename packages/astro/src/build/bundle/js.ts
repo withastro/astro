@@ -1,5 +1,5 @@
 import type { InputOptions, OutputOptions, OutputChunk } from 'rollup';
-import type { AstroConfig, BundleMap, BuildOutput, ScriptInfo } from '../../@types/astro';
+import type { AstroConfig, BundleMap, BuildOutput, ScriptInfo, InlineScriptInfo } from '../../@types/astro';
 import type { AstroRuntime } from '../../runtime';
 import type { LogOptions } from '../../logger.js';
 
@@ -102,7 +102,8 @@ export async function bundleHoistedJS({
         },
         async load(id: string) {
           if(virtualScripts.has(id)) {
-            return virtualScripts.get(id)!.content!;
+            let info = virtualScripts.get(id) as InlineScriptInfo;
+            return info.content;
           }
 
 
@@ -161,7 +162,8 @@ export async function bundleHoistedJS({
     $('script[data-astro="hoist"]').each((i, el) => {
       hasHoisted = true;
       if(i === 0) {
-        let chunkName = entryToChunkFileName.get(entryVirtualURL)!;
+        let chunkName = entryToChunkFileName.get(entryVirtualURL);
+        if (!chunkName) return;
         let chunkPathname = '/' + chunkName;
         let relLink = path.relative(path.dirname(id), chunkPathname);
         $(el).attr('src', relLink.startsWith('.') ? relLink : './' + relLink);
