@@ -15,6 +15,6 @@ module.exports = {
     'no-shadow': 'error',
     'prefer-const': 'off',
     'prefer-rest-params': 'off',
-    'require-jsdoc': 'warn',
+    'require-jsdoc': 'off',
   },
 };
