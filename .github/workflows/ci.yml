@@ -95,8 +95,6 @@ jobs:
 
       - name: Lint
         run: yarn lint
-        # linting is currently not passing, so just do this for inline for now
-        continue-on-error: true
 
   smoke:
     runs-on: ubuntu-latest

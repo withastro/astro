@@ -150,9 +150,9 @@ function countOccurrences(needle: string, haystack: string) {
   return count;
 }
 
-function isSpread(path: string) {
+function isSpread(str: string) {
   const spreadPattern = /\[\.{3}/g;
-  return spreadPattern.test(path);
+  return spreadPattern.test(str);
 }
 
 function comparator(a: Item, b: Item) {

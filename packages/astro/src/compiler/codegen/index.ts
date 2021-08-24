@@ -223,7 +223,7 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
       }
     };
 
-    let metadata: string = '';
+    let metadata = '';
     if (method) {
       const componentUrl = getComponentUrl(astroConfig, url, pathToFileURL(filename));
       const componentExport = getComponentExport();
