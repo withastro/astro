@@ -169,10 +169,6 @@ async function __render(props, ...children) {
       value: (props[__astroInternal] && props[__astroInternal].isPage) || false,
       enumerable: true
     },
-    resolve: {
-      value: (props[__astroContext] && props[__astroContext].resolve) || {},
-      enumerable: true
-    },
     request: {
       value: (props[__astroContext] && props[__astroContext].request) || {},
       enumerable: true
@@ -201,7 +197,6 @@ export async function __renderPage({request, children, props, css}) {
       value: {
         pageCSS: css,
         request,
-        resolve: __TopLevelAstro.resolve,
         createAstroRootUID(seed) { return seed + astroRootUIDCounter++; },
       },
       writable: false,
