@@ -1,6 +1,7 @@
 import type { ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier } from '@babel/types';
-import type { AstroMarkdownOptions } from '@astrojs/markdown-support';
+import type { AstroUserConfig, AstroConfig } from './config';
 
+export { AstroUserConfig, AstroConfig };
 export interface RouteData {
   type: 'page';
   pattern: RegExp;
@@ -13,54 +14,6 @@ export interface RouteData {
 export interface ManifestData {
   routes: RouteData[];
 }
-export interface AstroConfigRaw {
-  dist: string;
-  projectRoot: string;
-  src: string;
-  pages: string;
-  public: string;
-  jsx?: string;
-}
-
-export { AstroMarkdownOptions };
-export interface AstroConfig {
-  dist: string;
-  projectRoot: URL;
-  pages: URL;
-  public: URL;
-  src: URL;
-  renderers?: string[];
-  /** Options for rendering markdown content */
-  markdownOptions?: Partial<AstroMarkdownOptions>;
-  /** Options specific to `astro build` */
-  buildOptions: {
-    /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
-    site?: string;
-    /** Generate sitemap (set to "false" to disable) */
-    sitemap: boolean;
-  };
-  /** Options for the development server run with `astro dev`. */
-  devOptions: {
-    hostname?: string;
-    /** The port to run the dev server on. */
-    port: number;
-    projectRoot?: string;
-    /** Path to tailwind.config.js, if used */
-    tailwindConfig?: string;
-  };
-}
-
-export type AstroUserConfig = Omit<AstroConfig, 'buildOptions' | 'devOptions'> & {
-  buildOptions: {
-    sitemap: boolean;
-  };
-  devOptions: {
-    hostname?: string;
-    port?: number;
-    projectRoot?: string;
-    tailwindConfig?: string;
-  };
-};
 
 export interface JsxItem {
   name: string;
@@ -119,10 +72,7 @@ export interface PageDependencies {
   images: Set<string>;
 }
 
-export type PaginateFunction<T = any> = (data: T[], args?: { pageSize?: number }) => PaginatedCollectionResult<T>;
-
-export type GetStaticPathsResult = { params: Params; props?: Props }[] | { params: Params; props?: Props }[];
-export interface CollectionRSS {
+export interface RSSFunctionArgs {
   /** (required) Title of the RSS Feed */
   title: string;
   /** (required) Description of the RSS Feed */
@@ -152,10 +102,9 @@ export interface CollectionRSS {
   }[];
 }
 
-export interface PaginatedCollectionResult<T = any> {
+export interface PaginatedCollectionProp<T = any> {
   /** result */
   data: T[];
-
   /** metadata */
   /** the count of the first item on the page, starting from 0 */
   start: number;
@@ -163,14 +112,12 @@ export interface PaginatedCollectionResult<T = any> {
   end: number;
   /** total number of results */
   total: number;
-  page: {
-    /** the current page number, starting from 1 */
-    current: number;
-    /** number of items per page (default: 25) */
-    size: number;
-    /** number of last page */
-    last: number;
-  };
+  /** the current page number, starting from 1 */
+  currentPage: number;
+  /** number of items per page (default: 25) */
+  size: number;
+  /** number of last page */
+  lastPage: number;
   url: {
     /** url of the current page */
     current: string;
@@ -180,6 +127,11 @@ export interface PaginatedCollectionResult<T = any> {
     next: string | undefined;
   };
 }
+
+export type RSSFunction = (args: RSSFunctionArgs) => void;
+export type PaginateFunction = (data: [], args?: { pageSize?: number; params?: Params; props?: Props }) => GetStaticPathsResult;
+export type GetStaticPathsArgs = { paginate: PaginateFunction; rss: RSSFunction };
+export type GetStaticPathsResult = { params: Params; props?: Props }[] | { params: Params; props?: Props }[];
 
 export interface ComponentInfo {
   url: string;

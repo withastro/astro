@@ -51,7 +51,7 @@ export default function Search() {
             strokeLinejoin="round"
           />
         </svg>
-        <span>Search</span>
+        <span className="search-placeholder">Search</span>
         <span className="search-hint">
           <span className="sr-only">Press </span>
           <kbd>/</kbd>

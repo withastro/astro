@@ -18,6 +18,7 @@ export const SIDEBAR = {
     { text: 'Guides', header: true },
     { text: 'Styling & CSS', link: 'guides/styling' },
     { text: 'Markdown', link: 'guides/markdown-content' },
+    { text: 'Debugging', link: 'guides/debugging' },
     { text: 'Data Fetching', link: 'guides/data-fetching' },
     { text: 'Pagination', link: 'guides/pagination' },
     { text: 'RSS', link: 'guides/rss' },
@@ -78,10 +79,14 @@ export const SIDEBAR = {
     { text: 'Démarrage rapide', link: 'fr/quick-start' },
     { text: 'Installation', link: 'fr/installation' },
   ],
+  kr: [
+    { text: '환영합니다', header: true },
+    { text: '시작하기', link: 'kr/getting-started' },
+  ],
   ar: [
     { text: 'التهيئة', header: true },
     { text: 'باشر البدأ', link: 'ar/getting-started' },
-  ],
+  ]
 };
 
 export const SITE = {

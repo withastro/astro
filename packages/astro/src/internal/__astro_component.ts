@@ -45,7 +45,7 @@ export function setRenderers(_rendererInstances: RendererInstance[]) {
   rendererInstances = ([] as RendererInstance[]).concat(_rendererInstances);
 }
 
-function isCustomElementTag(name: string | Function) {
+function isCustomElementTag(name: unknown) {
   return typeof name === 'string' && /-/.test(name);
 }
 
@@ -90,7 +90,7 @@ async function resolveRenderer(Component: any, props: any = {}, children?: strin
   }
 
   if (rendererCache.has(Component)) {
-    return rendererCache.get(Component)!;
+    return rendererCache.get(Component);
   }
 
   const errors: Error[] = [];

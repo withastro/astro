@@ -101,7 +101,7 @@ function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
 }
 
 /** Handle `astro run` command */
-async function runCommand(rawRoot: string, cmd: (a: AstroConfig, options: any) => Promise<void>, options: CLIState['options']) {
+async function runCommand(rawRoot: string, cmd: (a: AstroConfig, opts: any) => Promise<void>, options: CLIState['options']) {
   try {
     const projectRoot = options.projectRoot || rawRoot;
     const astroConfig = await loadConfig(projectRoot, options.config);
