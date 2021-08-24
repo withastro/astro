@@ -171,7 +171,7 @@ Astro will generate an RSS 2.0 feed at `/feed/[collection].xml` (for example, `/
 
 All ESM modules include a `import.meta` property. Astro adds `import.meta.env` through [Snowpack](https://www.snowpack.dev/).
 
-**import.meta.env.SSR** can be used to know when rendering on the server. Some times you might want different logic, for example a component that should only be rendered in the client:
+**import.meta.env.SSR** can be used to know when rendering on the server. Sometimes you might want different logic, for example a component that should only be rendered in the client:
 
 ```jsx
 import { h } from 'preact';

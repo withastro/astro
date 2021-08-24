@@ -85,7 +85,7 @@ export function setupBuild(Suite, fixturePath) {
 
     context.build = () => astroBuild(astroConfig, { level: 'error' });
     context.readFile = async (path) => {
-      const resolved = fileURLToPath(new URL(`${fixturePath}/${astroConfig.dist}${path}`, import.meta.url));
+      const resolved = fileURLToPath(new URL(path.replace(/^\//, ''), astroConfig.dist));
       return readFileSync(resolved, { encoding: 'utf8' });
     };
 

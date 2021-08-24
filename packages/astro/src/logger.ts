@@ -47,7 +47,7 @@ export interface LogOptions {
   level?: LoggerLevel;
 }
 
-export const defaultLogOptions: LogOptions = {
+export const defaultLogOptions: Required<LogOptions> = {
   dest: defaultLogDestination,
   level: 'info',
 };
@@ -69,8 +69,8 @@ const levels: Record<LoggerLevel, number> = {
 
 /** Full logging API */
 export function log(opts: LogOptions = {}, level: LoggerLevel, type: string | null, ...args: Array<any>) {
-  const logLevel = opts.level ?? defaultLogOptions.level!;
-  const dest = opts.dest ?? defaultLogOptions.dest!;
+  const logLevel = opts.level ?? defaultLogOptions.level;
+  const dest = opts.dest ?? defaultLogOptions.dest;
   const event: LogMessage = {
     type,
     level,
