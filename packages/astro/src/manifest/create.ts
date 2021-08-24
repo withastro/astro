@@ -119,8 +119,8 @@ export function createManifest({ config, cwd }: { config: AstroConfig; cwd?: str
       } else {
         components.push(item.file);
         const component = item.file;
-        const pattern = getPattern(segments, true);
-        const generate = getGenerator(segments, false);
+        const pattern = getPattern(segments, config.devOptions.trailingSlash);
+        const generate = getGenerator(segments, config.devOptions.trailingSlash);
         const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join('/')}` : null;
 
         routes.push({
@@ -218,7 +218,17 @@ function getParts(part: string, file: string) {
   return result;
 }
 
-function getPattern(segments: Part[][], addTrailingSlash: boolean) {
+function getTrailingSlashPattern(addTrailingSlash: AstroConfig['devOptions']['trailingSlash']): string {
+  if (addTrailingSlash === 'always') {
+    return '\\/$';
+  }
+  if (addTrailingSlash === 'never') {
+    return '$';
+  }
+  return '\\/?$';
+}
+
+function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['devOptions']['trailingSlash']) {
   const pathname = segments
     .map((segment) => {
       return segment[0].spread
@@ -241,11 +251,11 @@ function getPattern(segments: Part[][], addTrailingSlash: boolean) {
     })
     .join('');
 
-  const trailing = addTrailingSlash && segments.length ? '\\/?$' : '$';
+  const trailing = addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
   return new RegExp(`^${pathname || '\\/'}${trailing}`);
 }
 
-function getGenerator(segments: Part[][], addTrailingSlash: boolean) {
+function getGenerator(segments: Part[][], addTrailingSlash: AstroConfig['devOptions']['trailingSlash']) {
   const template = segments
     .map((segment) => {
       return segment[0].spread
@@ -268,7 +278,7 @@ function getGenerator(segments: Part[][], addTrailingSlash: boolean) {
     })
     .join('');
 
-  const trailing = addTrailingSlash && segments.length ? '/' : '';
+  const trailing = addTrailingSlash !== 'never' && segments.length ? '/' : '';
   const toPath = compile(template + trailing);
   return toPath;
 }

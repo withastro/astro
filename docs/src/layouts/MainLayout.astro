@@ -12,13 +12,14 @@ const { content = {} } = Astro.props;
 const currentPage = Astro.request.url.pathname;
 const currentFile = `src/pages${currentPage.replace(/\/$/, "")}.md`;
 const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`;
+const formatTitle = (content, SITE) => content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title;
 ---
 
 <html dir="{content.dir ?? 'ltr'}" lang="{content.lang ?? 'en-us'}" class="initial">
   <head>
     <HeadCommon />
     <HeadSEO {content} canonicalURL={Astro.request.canonicalURL} />
-    <title>{content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title}</title>
+    <title>{formatTitle(content, SITE)}</title>
     <style>
       body {
         width: 100%;
