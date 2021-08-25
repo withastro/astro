@@ -26,7 +26,7 @@ const defaultLogging: LogOptions = {
 
 /** Is this URL remote or embedded? */
 function isRemoteOrEmbedded(url: string) {
-  return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//') || url.startsWith('data:');
+  return !url.startsWith('/_astro');
 }
 
 /** The primary build action */
