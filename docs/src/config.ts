@@ -83,6 +83,10 @@ export const SIDEBAR = {
     { text: '환영합니다', header: true },
     { text: '시작하기', link: 'kr/getting-started' },
   ],
+  ar: [
+    { text: 'التهيئة', header: true },
+    { text: 'باشر البدأ', link: 'ar/getting-started' },
+  ]
 };
 
 export const SITE = {
