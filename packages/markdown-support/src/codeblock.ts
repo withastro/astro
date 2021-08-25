@@ -1,26 +1,25 @@
 import { visit } from 'unist-util-visit';
-import type { Node } from 'unist';
-import type { Element } from 'hast';
-import type { Code } from 'mdast';
+import type { Element, Root as HastRoot, Properties } from 'hast';
+import type { Root as MdastRoot } from 'mdast';
 
 /**  */
 export function remarkCodeBlock() {
-  return function (tree: Node) {
-    visit(tree, 'code', (node: Code) => {
+  return function (tree: MdastRoot) {
+    visit(tree, 'code', (node) => {
       const { data, meta } = node;
-      let lang = node.lang || 'html'; // default to html matches GFM behavior.
+      let lang = node.lang || 'html'; // default to html to match GFM behavior.
 
-      let currentClassName = (data?.hProperties as { [k: string]: string })?.class ?? '';
+      let currentClassName = (data?.hProperties as Properties)?.class ?? '';
       node.data = node.data || {};
       node.data.hProperties = node.data.hProperties || {};
-      node.data.hProperties = { ...(node.data.hProperties as { [k: string]: string }), class: `language-${lang} ${currentClassName}`.trim(), lang, meta };
+      node.data.hProperties = { ...(node.data.hProperties as Properties), class: `language-${lang} ${currentClassName}`.trim(), lang, meta };
     });
   };
 }
 
 /**  */
 export function rehypeCodeBlock() {
-  return function (tree: Node) {
+  return function (tree: HastRoot) {
     const escapeCode = (code: Element): void => {
       code.children = code.children.map((child) => {
         if (child.type === 'text') {
@@ -29,15 +28,15 @@ export function rehypeCodeBlock() {
         return child;
       });
     };
-    visit(tree, 'element', (node: Element) => {
+    visit(tree, 'element', (node) => {
       if (node.tagName === 'code') {
         escapeCode(node);
         return;
       }
 
       if (node.tagName !== 'pre') return;
-      const code = node.children[0] as Element;
-      if (code.tagName !== 'code') return;
+      const code = node.children[0];
+      if (code.type !== 'element' || code.tagName !== 'code') return;
       node.properties = { ...code.properties };
     });
   };
