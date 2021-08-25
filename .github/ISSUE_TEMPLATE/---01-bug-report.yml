@@ -1,0 +1,49 @@
+name: "\U0001F41B Bug Report"
+description: Report an issue or possible bug
+title: "\U0001F41B BUG:"
+labels: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ##  Quick Checklist
+        Thank you for taking the time to file a bug report! Please fill out this form as completely as possible.
+
+        ✅ I am using the **latest version of Astro** and all plugins.  
+        ✅ I am using a version of Node that supports ESM (`v12.20.0+`, `v14.13.1+`, or `v16.0.0+`)
+  - type: input
+    attributes:
+      label: What package manager are you using?
+      placeholder: npm, yarn, pnpm
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: What operating system are you using?
+      placeholder: Mac, Windows, Linux
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Steps to Reproduce
+      description: Describe the bug in steps that we can reproduce ourselves.
+      value: |
+        1. `npm init astro` using template <NAME>
+        2. ...
+        3. ...
+        4. ...
+        5. Error! Describe what went wrong (and what was expected instead)...
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: Link to Minimal Reproducible Example (Optional)
+      description: 'Issues with easy reproductions are more likely to get fixed, faster.'
+      placeholder: 'https://github.com/username/repo'
