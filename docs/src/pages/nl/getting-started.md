@@ -16,11 +16,11 @@ Lees onze [installatiegids](/installation) voor een volledige uitleg over hoe u 
 
 ### Online Playgrounds
 
-Als je interesse hebt om Astro online uit te proberen in je browser, kun je de een online playground gebruiken. Probeer een Hello World voorbeeld op [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
+Als je interesse hebt om Astro online uit te proberen in je browser, kun je een online playground gebruiken. Probeer een Hello World voorbeeld op [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
 
 _Opmerking: sommige functies (bv. Snel vernieuwen) zijn momenteel beperk op CodeSandbox._
 
-## Astor leren
+## Astro leren
 
 Mensen komen naar Astro vanuit verschillende achtergronden en met verschillende leerstijlen. Of u nu de voorkeur geeft aan een meer theoretische of praktische benadering, we hopen dat je deze sectie nuttig zult vinden.
 
