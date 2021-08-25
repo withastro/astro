@@ -96,7 +96,6 @@
     "string-width": "^5.0.0",
     "supports-esm": "^1.0.0",
     "tiny-glob": "^0.2.8",
-    "unified": "^9.2.1",
     "yargs-parser": "^20.2.7",
     "zod": "^3.8.1"
   },

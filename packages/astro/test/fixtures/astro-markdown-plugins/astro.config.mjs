@@ -6,7 +6,7 @@ export default {
     remarkPlugins: [
       'remark-code-titles',
       'remark-slug',
-      ['remark-autolink-headings', { behavior: 'prepend' }],
+      ['rehype-autolink-headings', { behavior: 'prepend' }],
     ],
     rehypePlugins: [
       ['rehype-toc', { headings: ["h2", "h3"] }],
