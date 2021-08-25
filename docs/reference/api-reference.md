@@ -49,6 +49,17 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
   }[]
 ```
 
+### `Astro.slots`
+
+`Astro.slots` returns an object with any slotted regions passed into the current Astro file.
+
+```js
+const {
+  heading as headingSlot, // content wrapped in elements with a `[slot="heading"]` attribute (`<* slot="heading">`)
+  default as defaultSlot, // content wrapped in elements with a `[slot]` attribute (`<* slot=*>`)
+} = Astro.slots;
+```
+
 ### `Astro.request`
 
 `Astro.request` returns an object with the following properties:
