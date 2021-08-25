@@ -2,7 +2,6 @@
 import BaseHead from './BaseHead.astro';
 
 const { title, description, canonicalURL } = Astro.props;
-console.log("PATH", Astro.resolve('../scss/blog.css'))
 ---
 <BaseHead title={title} description={description} canonicalURL={canonicalURL} />
 <link rel="stylesheet" href={Astro.resolve('../scss/blog.css')} />
