@@ -86,6 +86,17 @@ const path = Astro.site.pathname;
 <h1>Welcome to {path}</h1>
 ```
 
+### `Astro.slots`
+
+`Astro.slots` returns an object with any slotted regions passed into the current Astro file.
+
+```js
+const {
+  heading as headingSlot, // content wrapped in elements with a `[slot="heading"]` attribute (`<* slot="heading">`)
+  default as defaultSlot, // content wrapped in elements with a `[slot]` attribute (`<* slot=*>`)
+} = Astro.slots;
+```
+
 ## `getStaticPaths()`
 
 If a page uses dynamic params in the filename, that component will need to export a `getStaticPaths()` function.
