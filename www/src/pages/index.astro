@@ -18,7 +18,7 @@ let lang = 'en';
 <html lang={ lang ?? 'en' }>
   <head>
     <BaseHead title={title} description={description} permalink={permalink} />
-    <link rel="stylesheet" href="/global.css" />
+    <link rel="stylesheet" href={Astro.resolve('../scss/global.css')} />
   </head>
 
   <body>
