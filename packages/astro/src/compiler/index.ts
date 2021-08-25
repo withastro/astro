@@ -155,10 +155,18 @@ ${result.getStaticPaths || ''}
 import { h, Fragment } from 'astro/dist/internal/h.js';
 const __astroInternal = Symbol('astro.internal');
 const __astroContext = Symbol.for('astro.context');
+const __astroSlotted = Symbol.for('astro.slotted');
 async function __render(props, ...children) {
   const Astro = Object.create(__TopLevelAstro, {
     props: {
       value: props,
+      enumerable: true
+    },
+    slots: {
+      value: children.reduce(
+        (slots, child) => Object.assign(slots, child.$slots),
+        {}
+      ),
       enumerable: true
     },
     pageCSS: {
