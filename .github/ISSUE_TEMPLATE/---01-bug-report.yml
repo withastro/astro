@@ -29,8 +29,3 @@ body:
         5. Error! Describe what went wrong (and what was expected instead)...
     validations:
       required: true
-  - type: input
-    attributes:
-      label: Link to Minimal Reproducible Example (Optional)
-      description: 'Issues with easy reproductions are more likely to get fixed, faster.'
-      placeholder: 'https://github.com/username/repo'
