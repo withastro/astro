@@ -12,26 +12,26 @@ Benieuwd naar een snel overzicht van wat Astro is? [Bezoek onze homepage.](https
 
 De gemakkelijkste manier om Astro te proberen, is door `npm init astro` uit te voeren in een nieuwe map op je computer. Deze CLI odpracht helpt je in verschillende stappen je eerste Astro project op te zetten.
 
-Lees onze [installatiegids](/installation) voor een volledige uitleg over hoe u met Astro aan de slag kunt.
+Lees onze [installatiegids](/installation) voor een volledige uitleg over hoe je met Astro aan de slag kunt.
 
 ### Online Playgrounds
 
 Als je interesse hebt om Astro online uit te proberen in je browser, kun je de een online playground gebruiken. Probeer een Hello World voorbeeld op [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
 
-_Opmerking: sommige functies (bv. Snel vernieuwen) zijn momenteel beperk op CodeSandbox._
+_Opmerking: sommige functies (bv. Snel vernieuwen) zijn momenteel beperkt op CodeSandbox._
 
-## Astor leren
+## Astro leren
 
-Mensen komen naar Astro vanuit verschillende achtergronden en met verschillende leerstijlen. Of u nu de voorkeur geeft aan een meer theoretische of praktische benadering, we hopen dat je deze sectie nuttig zult vinden.
+Mensen komen naar Astro vanuit verschillende achtergronden en met verschillende leerstijlen. Of je nu de voorkeur geeft aan een meer theoretische of praktische benadering, we hopen dat je deze sectie nuttig zult vinden.
 
 - Als je liever **leert door te doen**, begin dan met onze [voorbeeldenbibliotheek](https://github.com/snowpackjs/astro/tree/main/examples).
-- Als u de concepten liever **stap voor stap leert**, begin dan met onze [basisconcepten en handleidingen](/core-concepts/project-structure).
+- Als je de concepten liever **stap voor stap leert**, begin dan met onze [basisconcepten en handleidingen](/core-concepts/project-structure).
 
 Zoals elke onbekende technologie heeft Astro een leercurve. Met wat oefening en wat geduld krijg je het onder de knie.
 
 ### Leer de `.astro` syntax
 
-Wanneer u Astro begint te leren, zult u veel bestanden zien die de `.astro` bestandsextensie gebruiken. Dit is de syntax van de **Astro-component**: een speciaal HTML-achtig bestandsformaat dat Astro gebruikt voor sjablonen. Het is ontworpen om vertrouwd te voelen voor iedereen met HTML- of JSX-ervaring.
+Wanneer je Astro begint te leren, zul je veel bestanden zien die de `.astro` bestandsextensie gebruiken. Dit is de syntax van de **Astro-component**: een speciaal HTML-achtig bestandsformaat dat Astro gebruikt voor sjablonen. Het is ontworpen om vertrouwd te voelen voor iedereen met HTML- of JSX-ervaring.
 
 Onze gids over [Astro-componenten](/core-concepts/astro-components) helpt je door de nieuwe `.astro` syntax en is de beste manier om te leren.
 
