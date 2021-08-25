@@ -74,4 +74,42 @@ Slots('Slots work on Components', async ({ runtime }) => {
   assert.equal($('#default').children('astro-component').length, 1, 'Slotted component into default slot');
 });
 
+Slots('Slots API work on Components', async ({ runtime }) => {
+  // IDs will exist whether the slots are filled or not
+  {
+    const result = await runtime.load('/slottedapi-default');
+    assert.ok(!result.error, `build error: ${result.error}`);
+
+    const $ = doc(result.contents);
+
+    assert.equal($('#a').length, 1);
+    assert.equal($('#b').length, 1);
+    assert.equal($('#c').length, 1);
+  }
+
+  // IDs will not exist because the slots are not filled
+  {
+    const result = await runtime.load('/slottedapi-empty');
+    assert.ok(!result.error, `build error: ${result.error}`);
+
+    const $ = doc(result.contents);
+
+    assert.equal($('#a').length, 0);
+    assert.equal($('#b').length, 0);
+    assert.equal($('#c').length, 0);
+  }
+
+  // IDs will exist because the slots are filled
+  {
+    const result = await runtime.load('/slottedapi-filled');
+    assert.ok(!result.error, `build error: ${result.error}`);
+
+    const $ = doc(result.contents);
+
+    assert.equal($('#a').length, 1);
+    assert.equal($('#b').length, 1);
+    assert.equal($('#c').length, 1);
+  }
+});
+
 Slots.run();
