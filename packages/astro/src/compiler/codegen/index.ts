@@ -316,7 +316,7 @@ interface CompileResult {
 interface CodegenState {
   components: Components;
   css: string[];
-  scripts: ScriptInfo[];
+  hoistedScripts: ScriptInfo[];
   filename: string;
   fileID: string;
   markers: {
@@ -675,11 +675,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 }
                 if(attributes.hoist) {
                   if(attributes.src) {
-                    state.scripts.push({
+                    state.hoistedScripts.push({
                       src: attributes.src.substr(1, attributes.src.length - 2)
                     });
                   } else if(node.children && node.children.length === 1 && node.children[0].type === 'Text') {
-                    state.scripts.push({
+                    state.hoistedScripts.push({
                       content: node.children[0].data
                     });
                   }
@@ -901,7 +901,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     fileID,
     components: new Map(),
     css: [],
-    scripts: [],
+    hoistedScripts: [],
     markers: {
       insideMarkdown: false,
     },
@@ -924,7 +924,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     exports: Array.from(state.exportStatements),
     html,
     css: state.css.length ? state.css.join('\n\n') : undefined,
-    scripts: state.scripts,
+    hoistedScripts: state.hoistedScripts,
     components: Array.from(state.components.keys()),
     getStaticPaths,
     hasCustomElements: Boolean(ast.meta.features & FEATURE_CUSTOM_ELEMENT),

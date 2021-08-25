@@ -37,7 +37,7 @@ export interface TransformResult {
   components: string[];
   html: string;
   css?: string;
-  scripts: ScriptInfo[];
+  hoistedScripts: ScriptInfo[];
   getStaticPaths?: string;
   hasCustomElements: boolean;
   customElementCandidates: Map<string, string>;
