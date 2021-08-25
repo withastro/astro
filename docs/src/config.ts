@@ -86,7 +86,7 @@ export const SIDEBAR = {
   ar: [
     { text: 'التهيئة', header: true },
     { text: 'باشر البدأ', link: 'ar/getting-started' },
-  ]
+  ],
 };
 
 export const SITE = {
