@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build"
   },
@@ -14,6 +15,11 @@
     "astro": "^0.19.0-next.2"
   },
   "snowpack": {
+    "alias": {
+      "components": "./src/components",
+      "~": "./src"
+    },
+    "plugins": ["@snowpack/plugin-dotenv"],
     "workspaceRoot": "../.."
   }
 }

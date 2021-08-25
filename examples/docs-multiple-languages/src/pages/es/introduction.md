@@ -4,7 +4,7 @@ title: ¡Hola, documentación!
 lang: es
 ---
 
-## Astro docs but in Spanish....
+## Astro docs but in **Spanish**....
 
 <img src="https://github.com/snowpackjs/astro/blob/main/assets/social/banner.png?raw=true" alt="Astro" width="638" height="320" >
 
@@ -32,7 +32,7 @@ npm init astro
 npm install
 
 # start the dev server and open your browser
-npm start
+npm run dev
 ```
 
 ### 🚀 Build & Deployment
@@ -43,6 +43,7 @@ The default Astro project has the following `scripts` in the `/package.json` fil
 {
   "scripts": {
     "start": "astro dev",
+    "dev": "astro dev",
     "build": "astro build"
   }
 }
@@ -51,7 +52,7 @@ The default Astro project has the following `scripts` in the `/package.json` fil
 For local development, run:
 
 ```
-npm start
+npm run dev
 ```
 
 To build for production, run the following command:
