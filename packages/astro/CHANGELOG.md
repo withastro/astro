@@ -1,5 +1,39 @@
 # astro
 
+## 0.19.4
+
+### Patch Changes
+
+- 44fb8ebc: Remove non-null assertions, fix lint issues and enable lint in CI.
+- 9482fade: Makes sure Astro.resolve works in nested component folders
+
+## 0.19.3
+
+### Patch Changes
+
+- f9cd0310: Fix TypeScript "types" reference in package.json
+- f9cd0310: Improve schema validation using zod
+- efb41f22: Add `<Debug>` component for JavaScript-free client-side debugging.
+
+  ```astro
+  ---
+  import Debug from 'astro/debug';
+  const obj = { /* ... */ }
+  ---
+
+  <Debug {obj} />
+  ```
+
+## 0.19.2
+
+### Patch Changes
+
+- 3e605d7e: Add real-world check for ESM-CJS compatability to preflight check
+- 1e0e2f41: Including Prism's `language-` class on code block `<pre>` tags
+- 166c9ed6: Fix an issue where getStaticPaths is called multiple times per build
+- c06da5dd: Add configuration options for url format behavior: buildOptions.pageDirectoryUrl & trailingSlash
+- c06da5dd: Move 404.html output from /404/index.html to /404.html
+
 ## 0.19.1
 
 ### Patch Changes

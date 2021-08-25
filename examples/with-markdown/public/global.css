@@ -91,7 +91,7 @@ pre {
 .language-css .token.string,
 .style .token.string {
   color: #d4d4d4;
-  background: rgb(45, 55, 72);
+  background: #2d3748;
 }
 
 .token.atrule,
@@ -223,6 +223,12 @@ pre > code {
 pre[class*='language-bash'] .token.function {
   color: #d4d4d4;
 }
+
 .token.comment {
   color: #fff7;
+}
+
+body {
+  max-width: 900px;
+  margin: auto;
 }

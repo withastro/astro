@@ -32,7 +32,6 @@ function isRemoteOrEmbedded(url: string) {
 /** The primary build action */
 export async function build(astroConfig: AstroConfig, logging: LogOptions = defaultLogging): Promise<0 | 1> {
   const { projectRoot } = astroConfig;
-  const dist = new URL(astroConfig.dist + '/', projectRoot);
   const buildState: BuildOutput = {};
   const depTree: BundleMap = {};
   const timer: Record<string, number> = {};
@@ -48,13 +47,13 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
   }
 
   const mode: RuntimeMode = 'production';
-  const runtime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
-  const { runtimeConfig } = runtime;
+  const astroRuntime = await createRuntime(astroConfig, { mode, logging: runtimeLogging });
+  const { runtimeConfig } = astroRuntime;
   const { snowpackRuntime } = runtimeConfig;
 
   try {
     // 0. erase build directory
-    await del(fileURLToPath(dist));
+    await del(fileURLToPath(astroConfig.dist));
 
     /**
      * 1. Build Pages
@@ -69,6 +68,7 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
         } else {
           const result = await getStaticPathsForPage({
             astroConfig,
+            astroRuntime,
             route,
             snowpackRuntime,
             logging,
@@ -89,20 +89,17 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
       })
     );
     try {
-      // TODO: 2x Promise.all? Might be hard to debug + overwhelm resources.
       await Promise.all(
         allRoutesAndPaths.map(async ([route, paths]: [RouteData, string[]]) => {
-          await Promise.all(
-            paths.map((p) =>
-              buildStaticPage({
-                astroConfig,
-                buildState,
-                route,
-                path: p,
-                astroRuntime: runtime,
-              })
-            )
-          );
+          for (const p of paths) {
+            await buildStaticPage({
+              astroConfig,
+              buildState,
+              route,
+              path: p,
+              astroRuntime,
+            });
+          }
         })
       );
     } catch (e) {
@@ -126,7 +123,7 @@ ${stack}
       }
       error(logging, 'build', red('✕ building pages failed!'));
 
-      await runtime.shutdown();
+      await astroRuntime.shutdown();
       return 1;
     }
     info(logging, 'build', green('✔'), 'pages built.');
@@ -149,10 +146,13 @@ ${stack}
       for (const url of [...pageDeps.js, ...pageDeps.css, ...pageDeps.images]) {
         if (!buildState[url])
           scanPromises.push(
-            runtime.load(url).then((result) => {
+            astroRuntime.load(url).then((result) => {
               if (result.statusCode !== 200) {
-                warn(logging, 'build', `${url} not found. Falling back to ${path.join('public', url)}`);
-                return;
+                if (result.statusCode === 404) {
+                  throw new Error(`${buildState[id].srcPath.href}: could not find "${url}"`);
+                }
+                // there shouldn’t be a build error here
+                throw (result as any).error || new Error(`unexpected status ${result.statusCode} when loading ${url}`);
               }
               buildState[url] = {
                 srcPath: new URL(url, projectRoot),
@@ -196,7 +196,7 @@ ${stack}
       timer.sitemap = performance.now();
       info(logging, 'build', yellow('! creating sitemap...'));
       const sitemap = generateSitemap(buildState, astroConfig.buildOptions.site);
-      const sitemapPath = new URL('sitemap.xml', dist);
+      const sitemapPath = new URL('sitemap.xml', astroConfig.dist);
       await fs.promises.mkdir(path.dirname(fileURLToPath(sitemapPath)), { recursive: true });
       await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
       info(logging, 'build', green('✔'), 'sitemap built.');
@@ -207,7 +207,7 @@ ${stack}
     timer.write = performance.now();
     await Promise.all(
       Object.keys(buildState).map(async (id) => {
-        const outPath = new URL(`.${id}`, dist);
+        const outPath = new URL(`.${id}`, astroConfig.dist);
         const parentDir = path.dirname(fileURLToPath(outPath));
         await fs.promises.mkdir(parentDir, { recursive: true });
         await fs.promises.writeFile(outPath, buildState[id].contents, buildState[id].encoding);
@@ -228,7 +228,7 @@ ${stack}
       await Promise.all(
         publicFiles.map(async (filepath) => {
           const srcPath = new URL(filepath, astroConfig.public);
-          const distPath = new URL(filepath, dist);
+          const distPath = new URL(filepath, astroConfig.dist);
           await fs.promises.mkdir(path.dirname(fileURLToPath(distPath)), { recursive: true });
           await fs.promises.copyFile(srcPath, distPath);
         })
@@ -248,7 +248,7 @@ ${stack}
     info(logging, 'build', yellow(`! bundling...`));
     if (jsImports.size > 0) {
       timer.bundleJS = performance.now();
-      const jsStats = await bundleJS(jsImports, { dist: new URL(dist + '/', projectRoot), runtime });
+      const jsStats = await bundleJS(jsImports, { dist: astroConfig.dist, astroRuntime });
       mapBundleStatsToURLStats({ urlStats, depTree, bundleStats: jsStats });
       debug(logging, 'build', `bundled JS [${stopTimer(timer.bundleJS)}]`);
       info(logging, 'build', green(`✔`), 'bundling complete.');
@@ -258,12 +258,12 @@ ${stack}
      * 6. Print stats
      */
     logURLStats(logging, urlStats);
-    await runtime.shutdown();
+    await astroRuntime.shutdown();
     info(logging, 'build', bold(green('▶ Build Complete!')));
     return 0;
   } catch (err) {
     error(logging, 'build', err.message);
-    await runtime.shutdown();
+    await astroRuntime.shutdown();
     return 1;
   }
 }

@@ -9,6 +9,7 @@
   box-sizing: border-box;
   margin: 0;
 }
+
 html {
   display: grid;
   width: 100%;
@@ -17,6 +18,7 @@ html {
   height: 100%;
   background-color: #000014;
 }
+
 html,
 body {
   padding: 0;
@@ -27,6 +29,7 @@ body {
   background-repeat: no-repeat;
   color: #f3f4f6;
 }
+
 body {
   position: relative;
   display: grid;
@@ -36,6 +39,7 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
 }
+
 .visually-hidden {
   clip: rect(0 0 0 0);
   clip-path: inset(50%);
@@ -45,6 +49,7 @@ body {
   white-space: nowrap;
   width: 1px;
 }
+
 a {
   position: relative;
   text-decoration: none;
@@ -54,40 +59,41 @@ a {
   transition: color 120ms cubic-bezier(0.23, 1, 0.32, 1);
   z-index: 0;
   display: inline-block;
+}
 
-  &:hover,
-  &:focus {
-    color: rgba(0, 0, 0, 1);
+a:hover,
+a:focus {
+  color: black;
+}
 
-    &::before {
-      transform: scaleY(1);
-      background: var(--color-green);
-    }
-  }
+a:hover::before,
+a:focus::before {
+  transform: scaleY(1);
+  background: var(--color-green);
+}
 
-  &:visited {
-    // color: var(--color-green);
-    color: var(--color-green);
-    &:hover,
-    &:focus {
-      color: rgba(0, 0, 0, 1);
-    }
-  }
+a:visited {
+  color: var(--color-green);
+}
 
-  &::before {
-    transform-origin: bottom center;
-    content: '';
-    display: block;
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    inset: 0;
-    background: var(--color-green);
-    pointer-events: none;
-    transform: scaleY(0.05);
-    transition: transform 120ms cubic-bezier(0.23, 1, 0.32, 1), background 120ms cubic-bezier(0.23, 1, 0.32, 1);
-    z-index: -1;
-  }
+a:visited:hover,
+a:visited:focus {
+  color: black;
+}
+
+a::before {
+  transform-origin: bottom center;
+  content: '';
+  display: block;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  inset: 0;
+  background: var(--color-green);
+  pointer-events: none;
+  transform: scaleY(0.05);
+  transition: transform 120ms cubic-bezier(0.23, 1, 0.32, 1), background 120ms cubic-bezier(0.23, 1, 0.32, 1);
+  z-index: -1;
 }
