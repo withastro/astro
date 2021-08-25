@@ -12,6 +12,6 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
     // Enable the Preact renderer to support Preact JSX components.
     '@astrojs/renderer-preact',
     // Needed for Algolia search component
-    '@astrojs/renderer-react'
-  ]
+    '@astrojs/renderer-react',
+  ],
 });
