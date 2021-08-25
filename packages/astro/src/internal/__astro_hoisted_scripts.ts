@@ -21,7 +21,7 @@ function hoistedScripts(Components: ComponentThatMaybeHasHoistedScripts[], scrip
 
   const visitedSource = new Set();
   for(let script of allScripts) {
-    if(!script.src) {
+    if(!('src' in script)) {
       flatScripts.push(script);
     } else if(!visitedSource.has(script.src)) {
       flatScripts.push(script);

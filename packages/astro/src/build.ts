@@ -178,7 +178,7 @@ ${stack}
       bundleCSS({ buildState, astroConfig, logging, depTree }).then(() => {
         debug(logging, 'build', `bundled CSS [${stopTimer(timer.prebundleCSS)}]`);
       }),
-      bundleHoistedJS({ buildState, astroConfig, logging, depTree, runtime, dist })
+      bundleHoistedJS({ buildState, astroConfig, logging, depTree, runtime: astroRuntime, dist: astroConfig.dist })
       // TODO: optimize images?
     ]);
     // TODO: minify HTML?
