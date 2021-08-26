@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
-Add "astro preview" command
+Add a new "astro preview" command
