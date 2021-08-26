@@ -8,10 +8,10 @@
     "build": "astro build"
   },
   "dependencies": {
-    "@snowpack/plugin-dotenv": "^2.1.0",
     "@docsearch/react": "^1.0.0-alpha.27"
   },
   "devDependencies": {
+    "@snowpack/plugin-dotenv": "^2.1.0",
     "astro": "^0.19.4"
   },
   "snowpack": {

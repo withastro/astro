@@ -1,9 +1,11 @@
-export const SIDEBAR = [
-  { text: 'Getting Started', header: true },
-  { text: 'Introduction', link: 'introduction' },
-  { text: 'Getting Started', link: 'getting-started' },
-  { text: 'Example', link: 'example' },
-];
+export const SIDEBAR = {
+  en: [
+    { text: 'Getting Started', header: true },
+    { text: 'Introduction', link: 'en/introduction' },
+    { text: 'Getting Started', link: 'en/getting-started' },
+    { text: 'Example', link: 'en/example' },
+  ],
+};
 
 export const SITE = {
   title: 'Astro Documentation',

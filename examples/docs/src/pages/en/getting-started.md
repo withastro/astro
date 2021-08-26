@@ -77,7 +77,57 @@ By default the Astro docs template encourages writing your docs in mutliple lang
 ```
 
 each folder within the `pages/` folder represents a language, to add new languages, you will need to create a new langauge folder,
-add new langauge names to the `LANGUAGE_NAMES` variable in the [`languages.ts`](../../languages.ts) file, and add new sidebar links corrosponding to the new language.
+add the langauges name to the `LANGUAGE_NAMES` variable in the [`languages.ts`](../../languages.ts) file, and add new sidebar links corrosponding to the new language. E.g. Adding Deutsch as a supported language
+1. Create the `de/` folder in the pages directory
+
+```
+📦pages
+ ┣ 📂en
+ ┃ ┣ 📜example.md
+ ┃ ┣ 📜getting-started.md
+ ┃ ┣ 📜index.astro
+ ┃ ┗ 📜introduction.md
+ ┣ 📂de
+ ┃ ┣ 📜example.md
+ ┃ ┣ 📜getting-started.md
+ ┃ ┣ 📜index.astro
+ ┃ ┗ 📜introduction.md
+ ┗ 📜index.astro
+```
+
+2. Add Deutsch to the `LANGUAGE_NAMES` variable in the [`languages.ts`](../../languages.ts) file
+```ts
+// src/languages.ts
+export const LANGUAGE_NAMES = {
+  English: 'en',
+  Deutsch: 'de'
+};
+
+// ...
+```
+
+3. Add Deutch as a localized language for the SIDEBAR 
+```ts
+// src/config.ts
+export const SIDEBAR = {
+  en: [
+    { text: 'Getting Started', header: true },
+    { text: 'Introduction', link: 'en/introduction' },
+    { text: 'Getting Started', link: 'en/getting-started' },
+    { text: 'Example', link: 'en/example' },
+  ],
+  de: [
+    { text: 'Einstieg', header: true },
+    { text: 'Einführung', link: 'de/introduction' },
+    { text: 'Einstieg', link: 'de/getting-started' },
+    { text: 'Beispiel', link: 'de/example' },
+  ]
+};
+
+// ...
+```
+
+> _**Note**: make sure the sidebar links point to the proper language folder_
 
 <!-- , but if you are unable to properly support multiple languages, you can disable multiple languages, you set the `DISABLE_MULTIPLE_LANGUAGES` variable in the [`config.ts`](../../config.ts) file to `true`, but you still need to change and tweak a couple more things.
 

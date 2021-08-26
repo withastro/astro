@@ -1,7 +1,5 @@
 export const LANGUAGE_NAMES = {
   English: 'en',
-  Français: 'fr',
-  Español: 'es',
 };
 
 export const KNOWN_LANGUAGES = Object.values(LANGUAGE_NAMES);
