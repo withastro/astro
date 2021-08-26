@@ -89,39 +89,32 @@
       ]
     },
     {
-      "begin": "<!",
-      "captures": {
+      "begin": "<!(?=(?i:DOCTYPE\\s))",
+      "beginCaptures": {
         "0": {
-          "name": "punctuation.definition.tag.html"
+          "name": "punctuation.definition.tag.begin.html"
         }
       },
       "end": ">",
-      "name": "meta.tag.sgml.html",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "name": "meta.tag.metadata.doctype.html",
       "patterns": [
         {
-          "begin": "(?i:DOCTYPE|doctype)",
-          "captures": {
-            "1": {
-              "name": "entity.name.tag.doctype.html"
-            }
-          },
-          "end": "(?=>)",
-          "name": "meta.tag.sgml.doctype.html",
-          "patterns": [
-            {
-              "match": "\"[^\">]*\"",
-              "name": "string.quoted.double.doctype.identifiers-and-DTDs.html"
-            }
-          ]
+          "match": "\\G(?i:DOCTYPE)",
+          "name": "entity.name.tag.html"
         },
         {
-          "begin": "\\[CDATA\\[",
-          "end": "]](?=>)",
-          "name": "constant.other.inline-data.html"
+          "begin": "\"",
+          "end": "\"",
+          "name": "string.quoted.double.html"
         },
         {
-          "match": "(\\s*)(?!--|>)\\S(\\s*)",
-          "name": "invalid.illegal.bad-comments-or-CDATA.html"
+          "match": "[^\\s>]+",
+          "name": "entity.other.attribute-name.html"
         }
       ]
     },
