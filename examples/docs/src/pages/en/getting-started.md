@@ -78,6 +78,7 @@ By default the Astro docs template encourages writing your docs in mutliple lang
 
 each folder within the `pages/` folder represents a language, to add new languages, you will need to create a new langauge folder,
 add the langauges name to the `LANGUAGE_NAMES` variable in the [`languages.ts`](../../languages.ts) file, and add new sidebar links corrosponding to the new language. E.g. Adding Deutsch as a supported language
+
 1. Create the `de/` folder in the pages directory
 
 ```
@@ -96,17 +97,19 @@ add the langauges name to the `LANGUAGE_NAMES` variable in the [`languages.ts`](
 ```
 
 2. Add Deutsch to the `LANGUAGE_NAMES` variable in the [`languages.ts`](../../languages.ts) file
+
 ```ts
 // src/languages.ts
 export const LANGUAGE_NAMES = {
   English: 'en',
-  Deutsch: 'de'
+  Deutsch: 'de',
 };
 
 // ...
 ```
 
-3. Add Deutch as a localized language for the SIDEBAR 
+3. Add Deutch as a localized language for the SIDEBAR
+
 ```ts
 // src/config.ts
 export const SIDEBAR = {
@@ -121,7 +124,7 @@ export const SIDEBAR = {
     { text: 'Einführung', link: 'de/introduction' },
     { text: 'Einstieg', link: 'de/getting-started' },
     { text: 'Beispiel', link: 'de/example' },
-  ]
+  ],
 };
 
 // ...
