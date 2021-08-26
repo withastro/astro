@@ -8,6 +8,7 @@ import yargs from 'yargs-parser';
 import { loadConfig } from './config.js';
 import { build } from './build.js';
 import devServer from './dev.js';
+import { preview } from './preview.js';
 import { reload } from './reload.js';
 
 const { readFile } = fsPromises;
@@ -21,7 +22,7 @@ const reloadAndExit = async () => {
 };
 
 type Arguments = yargs.Arguments;
-type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'reload';
+type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload';
 interface CLIState {
   cmd: cliCommand;
   options: {
@@ -57,6 +58,8 @@ function resolveArgs(flags: Arguments): CLIState {
       return { cmd: 'dev', options };
     case 'build':
       return { cmd: 'build', options };
+    case 'preview':
+      return { cmd: 'preview', options };
     default:
       if (flags.reload) {
         return { cmd: 'reload', options };
@@ -73,6 +76,7 @@ function printHelp() {
   ${colors.bold('Commands:')}
   astro dev             Run Astro in development mode.
   astro build           Build a pre-compiled production version of your site.
+  astro preview         Preview your build locally before deploying.
 
   ${colors.bold('Flags:')}
   --config <path>       Specify the path to the Astro config file.
@@ -114,9 +118,10 @@ async function runCommand(rawRoot: string, cmd: (a: AstroConfig, opts: any) => P
   }
 }
 
-const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<void>>([
+const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<any>>([
   ['build', buildAndExit],
   ['dev', devServer],
+  ['preview', preview],
   ['reload', reloadAndExit],
 ]);
 
@@ -124,7 +129,6 @@ const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<void>>([
 export async function cli(args: string[]) {
   const flags = yargs(args);
   const state = resolveArgs(flags);
-
   switch (state.cmd) {
     case 'help': {
       printHelp();
@@ -141,6 +145,7 @@ export async function cli(args: string[]) {
       break;
     }
     case 'build':
+    case 'preview':
     case 'dev': {
       if (flags.reload) {
         await reload();

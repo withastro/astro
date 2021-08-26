@@ -19,6 +19,12 @@ Specifies should port to run on. Defaults to `3000`.
 
 Builds your site for production.
 
+### `astro preview`
+
+Start a local static file server to serve your built `dist/` directory. Useful for previewing your static build locally, before deploying it. 
+
+This command is meant for local testing only, and is not designed to be run in production. For help with production hosting, check out our guide on [Deploying an Astro Website](/guides/deploy).
+
 ## Global Flags
 
 ### `--config path`

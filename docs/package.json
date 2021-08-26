@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
+    "preview": "astro preview",
     "lint": "run-p --aggregate-output lint:linkcheck",
     "lint:a11y": "start-test 'yarn dev --silent' 3000 'yarn lint:a11y:local'",
     "lint:a11y:local": "pa11y-ci --sitemap 'http://localhost:3000/sitemap.xml' --sitemap-find 'https://docs.astro.build' --sitemap-replace 'http://localhost:3000'",

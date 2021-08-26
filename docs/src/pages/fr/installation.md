@@ -86,7 +86,8 @@ Vous pouvez aussi remplacer la section "scripts" du fichier `package.json` avec 
   "scripts": {
 -    "test": "echo \"Error: no test specified\" && exit 1"
 +    "dev": "astro dev",
-+    "build": "astro build"
++    "build": "astro build",
++    "preview": "astro preview"
   },
 }
 ```

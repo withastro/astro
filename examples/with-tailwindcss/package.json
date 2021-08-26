@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build"
+    "build": "astro build",
+    "preview": "astro preview"
   },
   "devDependencies": {
     "tailwindcss": "^2.1.2",
