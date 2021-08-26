@@ -17,7 +17,7 @@ import { collectBundleStats, logURLStats, mapBundleStatsToURLStats } from './bui
 import { getDistPath, stopTimer } from './build/util.js';
 import type { LogOptions } from './logger';
 import { debug, defaultLogDestination, defaultLogLevel, error, info, warn } from './logger.js';
-import { createRuntime } from './runtime.js';
+import { createRuntime, LoadResult } from './runtime.js';
 
 const defaultLogging: LogOptions = {
   level: defaultLogLevel,
@@ -146,8 +146,12 @@ ${stack}
       for (const url of [...pageDeps.js, ...pageDeps.css, ...pageDeps.images]) {
         if (!buildState[url])
           scanPromises.push(
-            astroRuntime.load(url).then((result) => {
+            astroRuntime.load(url).then((result: LoadResult) => {
               if (result.statusCode !== 200) {
+                if (!url.startsWith('/_astro/')) {
+                  warn(logging, 'build', `${url} not found. Falling back to ${path.join('public', url)}`);
+                  return;
+                }
                 if (result.statusCode === 404) {
                   throw new Error(`${buildState[id].srcPath.href}: could not find "${url}"`);
                 }
