@@ -118,6 +118,8 @@ Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 
 ### 🍃 Tailwind
 
+> Note that Astro's Tailwind support *only* works with Tailwind JIT mode.
+
 Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
 
 ```
@@ -146,7 +148,7 @@ Be sure to add the config path to `astro.config.mjs`, so that Astro enables JIT 
   };
 ```
 
-Now you're ready to write Tailwind! Our recommended approach is to create a `public/global.css` file (or whatever you‘d like to name your global stylesheet) with [Tailwind utilities][tailwind-utilities] like so:
+Now you're ready to write Tailwind! Our recommended approach is to create a `src/styles/global.css` file (or whatever you‘d like to name your global stylesheet) with [Tailwind utilities][tailwind-utilities] like so:
 
 ```css
 /* public/global.css */
@@ -155,7 +157,7 @@ Now you're ready to write Tailwind! Our recommended approach is to create a `pub
 @tailwind utilities;
 ```
 
-As an alternative to `public/global.css`, You may also add Tailwind utilities to individual `pages/*.astro` components in `<style>` tags, but be mindful of duplication! If you end up creating multiple Tailwind-managed stylesheets for your site, make sure you're not sending the same CSS to users over and over again in separate CSS files.
+As an alternative to `src/styles/global.css`, You may also add Tailwind utilities to individual `pages/*.astro` components in `<style>` tags, but be mindful of duplication! If you end up creating multiple Tailwind-managed stylesheets for your site, make sure you're not sending the same CSS to users over and over again in separate CSS files.
 
 ### Importing from npm
 
