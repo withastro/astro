@@ -1,5 +1,11 @@
 # astro
 
+## 0.20.1
+
+### Patch Changes
+
+- ff92be63: Add a new "astro preview" command
+
 ## 0.20.0
 
 ### Minor Changes
