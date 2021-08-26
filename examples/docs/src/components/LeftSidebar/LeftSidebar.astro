@@ -1,6 +1,6 @@
 ---
+import { getLanguageFromURL } from '../../languages.ts';
 import { SIDEBAR } from '../../config.ts';
-import { getLanguageFromURL } from '../util.ts';
 const {currentPage} = Astro.props;
 const currentPageMatch = currentPage.slice(1);
 const langCode = getLanguageFromURL(currentPage);

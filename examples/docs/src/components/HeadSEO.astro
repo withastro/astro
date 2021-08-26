@@ -18,7 +18,7 @@ const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
 <meta property="og:title" content={formattedContentTitle}/>
 <meta property="og:type" content="article"/>
 <meta property="og:url" content={canonicalURL}/>
-<meta property="og:locale" content={content.ogLocale ?? OPEN_GRAPH.locale}/>
+<meta property="og:locale" content={content.ogLocale ?? SITE.defaultLanguage}/>
 <meta property="og:image" content={canonicalImageSrc}/>
 <meta property="og:image:alt" content={imageAlt}/>
 <meta property="og:description" content={content.description ? content.description : SITE.description}/>

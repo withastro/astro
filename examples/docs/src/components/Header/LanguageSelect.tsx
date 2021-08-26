@@ -1,7 +1,7 @@
 import type { FunctionalComponent } from 'preact';
 import { h } from 'preact';
 import './LanguageSelect.css';
-import { LANGUAGE_NAMES, langPathRegex } from '../../languages';
+import { KNOWN_LANGUAGES, langPathRegex } from '../../languages';
 
 const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
   return (
@@ -23,9 +23,9 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
           window.location.pathname = '/' + newLang + actualDest;
         }}
       >
-        {Object.keys(LANGUAGE_NAMES).map((key) => {
+        {Object.keys(KNOWN_LANGUAGES).map((key) => {
           return (
-            <option value={LANGUAGE_NAMES[key]}>
+            <option value={KNOWN_LANGUAGES[key]}>
               <span>{key}</span>
             </option>
           );

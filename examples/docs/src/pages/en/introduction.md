@@ -1,62 +1,17 @@
 ---
-title: Hello, Documentation!
+title: Introduction
 layout: ~/layouts/MainLayout.astro
 ---
 
-<img src="https://github.com/snowpackjs/astro/blob/main/assets/social/banner.png?raw=true" alt="Astro" width="638" height="320" >
+**Welcome to Astro!**
 
-## What is Astro?
+This is the `docs` starter template. It contains all of the features that you need to build a Markdown-powered documentation site, including:
 
-**Astro** is a _fresh but familiar_ approach to building websites. Astro combines decades of proven performance best practices with the DX improvements of the component-oriented era.
+- ✅ **Sidebar navigation**
+- ✅ **Search (powered by Algolia)**
+- ✅ **Multi-language i18n**
+- ✅ (and, best of all) **dark mode**
 
-With Astro, you can use your favorite JavaScript framework and automatically ship the bare-minimum amount of JavaScript—by default, it's none at all!
+To get started, check out the project `README.md` that the template came with. It provides documentation on how to use and customize this template for your own project, which you can always refer back to as you build.
 
-## Project Status
-
-⚠️ **Astro is still an early beta, missing features and bugs are to be expected!** If you can stomach it, then Astro-built sites are production ready and several production websites built with Astro already exist in the wild. We will update this note once we get closer to a stable, v1.0 release.
-
-## 🔧 Quick Start
-
-> **Important**: Astro is built with [ESM modules](https://nodejs.org/api/esm.html) which are not supported in older version of Node.js. The minimum supported version is **14.16.1**.
-
-```bash
-# create your project
-mkdir new-project-directory
-cd new-project-directory
-npm init astro
-
-# install your dependencies
-npm install
-
-# start the dev server and open your browser
-npm run dev
-```
-
-### 🚀 Build & Deployment
-
-The default Astro project has the following `scripts` in the `/package.json` file:
-
-```json
-{
-  "scripts": {
-    "start": "astro dev",
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview"
-  }
-}
-```
-
-For local development, run:
-
-```
-npm run dev
-```
-
-To build for production, run the following command:
-
-```
-npm run build
-```
-
-To deploy your Astro site to production, upload the contents of `/dist` to your favorite static site host.
+Found a missing feature that you can't live without? Please suggest it and even consider adding it yourself to the Astro repo! We're an open source project and contributions from developers like you are how we grow! 💙

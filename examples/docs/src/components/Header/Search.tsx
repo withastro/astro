@@ -2,7 +2,8 @@
 import { useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { DocSearchModal, useDocSearchKeyboardEvents } from '@docsearch/react';
-import '@docsearch/css//dist/style.css';
+import * as CONFIG from '../../config.js';
+import '@docsearch/css/dist/style.css';
 import './Search.css';
 
 export default function Search() {
@@ -53,8 +54,8 @@ export default function Search() {
             initialQuery={initialQuery}
             initialScrollY={window.scrollY}
             onClose={onClose}
-            indexName="astro"
-            apiKey="0f387260ad74f9cbf4353facd29c919c"
+            indexName={(CONFIG as any).ALGOLIA.indexName}
+            apiKey={(CONFIG as any).ALGOLIA.apiKey}
             transformItems={(items) => {
               return items.map((item) => {
                 // We transform the absolute URL into a relative URL to

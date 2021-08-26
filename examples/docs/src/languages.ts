@@ -1,19 +1,8 @@
-export const LANGUAGE_NAMES = {
-  English: 'en',
-};
+import { KNOWN_LANGUAGES } from './config.js';
 
-export const KNOWN_LANGUAGES = Object.values(LANGUAGE_NAMES);
-export const langPathRegex = new RegExp(`\/(${KNOWN_LANGUAGES.join('|')})\/`);
-export const getLanguageDetails = () => {
-  // @ts-ignore
-  let newLangWithRegion = (window.navigator.userLanguage || window.navigator.language || 'en-US').substr(0, 5);
-  let newLang = newLangWithRegion.substr(0, 2);
+export const KNOWN_LANGUAGE_CODES = Object.values(KNOWN_LANGUAGES);
 
-  let actualDest = window.location.pathname.replace(langPathRegex, '/');
-  return {
-    newLangWithRegion,
-    newLang,
-    langPathRegex,
-    actualDest,
-  };
-};
+export function getLanguageFromURL(pathname: string) {
+  const langCodeMatch = pathname.match(/\/([a-z]{2}-?[A-Z]{0,2})\//);
+  return langCodeMatch ? langCodeMatch[1] : 'en';
+}
