@@ -9,7 +9,7 @@
   },
   "devDependencies": {
     "tailwindcss": "^2.1.2",
-    "astro": "^0.19.4"
+    "astro": "^0.20.0"
   },
   "snowpack": {
     "workspaceRoot": "../.."
