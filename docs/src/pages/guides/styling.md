@@ -114,7 +114,7 @@ Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 
 💁‍ Sass is great! If you haven't used Sass in a while, please give it another try. The new and improved [Sass Modules][sass-use] are a great fit with modern web development, and it's blazing-fast since being rewritten in Dart. And the best part? **You know it already!** Use `.scss` to write familiar CSS syntax you're used to, and only sprinkle in Sass features if/when you need them.'
 
-**Note**: If you use .scss files rather than .css files, your stylesheet links should still point to .css files because of Astro’s auto-compilation process. When Astro “needs” the styling files, it’ll be “looking for” the final .css file(s) that it compiles from the .scss file(s). For example, if you have a .scss file at `./public/style/global.scss`, use this link: `<link rel="stylesheet" href="/style/global.css">` — **not** `<link rel="stylesheet" href="/style/global.scss">`.
+**Note**: If you use .scss files rather than .css files, your stylesheet links should still point to .css files because of Astro’s auto-compilation process. When Astro “needs” the styling files, it’ll be “looking for” the final .css file(s) that it compiles from the .scss file(s). For example, if you have a .scss file at `./src/styles/global.scss`, use this link: `<link rel="stylesheet" href="{Astro.resolve('../styles/global.css')}">` — **not** `<link rel="stylesheet" href="{Astro.resolve('../styles/global.scss')}">`.
 
 ### 🍃 Tailwind
 
@@ -151,7 +151,7 @@ Be sure to add the config path to `astro.config.mjs`, so that Astro enables JIT 
 Now you're ready to write Tailwind! Our recommended approach is to create a `src/styles/global.css` file (or whatever you‘d like to name your global stylesheet) with [Tailwind utilities][tailwind-utilities] like so:
 
 ```css
-/* public/global.css */
+/* src/styles/global.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -326,15 +326,14 @@ In Astro, we recommend the following setup for this:
 And in your local filesystem, you can even use Sass' [@use][sass-use] to combine files together effortlessly:
 
 ```
-├── public/
+├── src/
+│   └── (pages)
 │   └── styles/
 │       ├── _base.scss
 │       ├── _tokens.scss
 │       ├── _typography.scss
 │       ├── _utils.scss
 │       └── global.scss
-└── src/
-    └── (pages)
 ```
 
 What's in each file is up to you to determine, but start small, add utilities as you need them, and you'll keep your CSS weight incredibly low. And utilities you wrote to meet your real needs will always be better than anything off the shelf.
