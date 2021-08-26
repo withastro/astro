@@ -117,7 +117,7 @@ export async function compileComponent(source: string, { compileOptions, filenam
 
   // return template
   let moduleJavaScript = `
-import fetch from 'node-fetch';
+import fetch from 'node-fetch-cache';
 ${result.imports.join('\n')}
 
 if(!('fetch' in globalThis)) {

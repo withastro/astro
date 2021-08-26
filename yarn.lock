@@ -6477,6 +6477,11 @@ locate-path@^6.0.0:
   dependencies:
     p-locate "^5.0.0"
 
+locko@0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/locko/-/locko-0.0.3.tgz#872ebc44f81d200099a9f71f9adb5065ef339c23"
+  integrity sha512-ekhPWcejAum9WHN2ClkFA8RAUTDyYDlRRb4dSq1wCEPhIS6IMsdSKoWHl1qineCrlMEMbeD1/o2uautG4QEc7w==
+
 lodash._reinterpolate@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/lodash._reinterpolate/-/lodash._reinterpolate-3.0.0.tgz#0ccf2d89166af03b3663c796538b75ac6e114d9d"
@@ -7479,7 +7484,16 @@ node-emoji@^1.8.1:
   dependencies:
     lodash "^4.17.21"
 
-node-fetch@^2.6.0, node-fetch@^2.6.1, node-fetch@~2.6.0:
+node-fetch-cache@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.yarnpkg.com/node-fetch-cache/-/node-fetch-cache-3.0.3.tgz#b301ea9344634310532fbde18b549101176677b5"
+  integrity sha512-w6Fr/gLHsSxrNAhjBAYAGAhdby5RYEwzb3XL/HHgKC47UxJdfnQuVTesXYUAlvfJ8Ixrp0XPQon0CtEBMXVWMA==
+  dependencies:
+    cacache "^15.2.0"
+    locko "0.0.3"
+    node-fetch "2.6.1"
+
+node-fetch@2.6.1, node-fetch@^2.6.0, node-fetch@^2.6.1, node-fetch@~2.6.0:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.1.tgz#045bd323631f76ed2e2b55573394416b639a0052"
   integrity sha512-V4aYg89jEoVRxRb2fJdAg8FHvI7cEyYdVAh94HH0UIK8oJxUfkjlDQN9RbMx+bEjP7+ggMiFRprSti032Oipxw==

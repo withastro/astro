@@ -79,7 +79,7 @@
     "magic-string": "^0.25.3",
     "mime": "^2.5.2",
     "moize": "^6.0.1",
-    "node-fetch": "^2.6.1",
+    "node-fetch-cache": "^3.0.3",
     "path-to-regexp": "^6.2.0",
     "picomatch": "^2.2.3",
     "postcss": "^8.2.15",

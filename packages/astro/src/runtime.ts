@@ -418,6 +418,9 @@ export async function createRuntime(astroConfig: AstroConfig, { mode, logging }:
     if (filePath.includes(fileURLToPath(astroConfig.pages))) {
       runtimeConfig.manifest = createManifest({ config: astroConfig });
     }
+    // 
+    // const mod = snowpackRuntime.importModule('/_astro_internal/fetch-cache.js');
+    // mod.clearCache()
   });
 
   return {
