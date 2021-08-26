@@ -6,19 +6,19 @@ import Footer from '../components/Footer/Footer.astro';
 import PageContent from '../components/PageContent/PageContent.astro';
 import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
 import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
-import { SITE } from "../config.ts";
+import * as CONFIG from "../config.ts";
 
 const { content = {} } = Astro.props;
 const currentPage = Astro.request.url.pathname;
 const currentFile = `src/pages${currentPage.replace(/\/$/, "")}.md`;
-const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`;
+const githubEditUrl = CONFIG.GITHUB_EDIT_URL && (CONFIG.GITHUB_EDIT_URL + currentFile);
 ---
 
 <html dir="{content.dir ?? 'ltr'}" lang="{content.lang ?? 'en-us'}" class="initial">
   <head>
     <HeadCommon />
     <HeadSEO {content} canonicalURL={Astro.request.canonicalURL} />
-    <title>{content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title}</title>
+    <title>{content.title ? `${content.title} 🚀 ${CONFIG.SITE.title}` : CONFIG.SITE.title}</title>
     <style>
       body {
         width: 100%;
