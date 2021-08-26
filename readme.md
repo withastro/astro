@@ -19,6 +19,8 @@ Soon we hope to port these to other editors compatible with the [Language Server
 
 ## Development
 
+> See the [overview video](https://www.loom.com/share/609f7b61795349328730f14e1ae2166e) on how the extension works.
+
 Changes to the Astro Language Tools are subject to [Astro Governance](https://github.com/snowpackjs/astro/blob/main/GOVERNANCE.md).
 
 ### Setup
