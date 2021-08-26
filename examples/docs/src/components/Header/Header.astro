@@ -1,0 +1,132 @@
+---
+import { getLanguageFromURL, KNOWN_LANGUAGE_CODES } from '../../languages.ts';
+import * as CONFIG from '../../config.ts';
+import AstroLogo from './AstroLogo.astro';
+import SkipToContent from './SkipToContent.astro';
+import SidebarToggle from './SidebarToggle.tsx';
+import LanguageSelect from './LanguageSelect.jsx';
+import Search from "./Search.jsx";
+
+const {currentPage} = Astro.props;
+const lang = currentPage && getLanguageFromURL(currentPage);
+---
+<style>
+    header {
+      z-index: 11;
+      height: var(--theme-navbar-height);
+      width: 100%;
+      background-color: var(--theme-navbar-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: sticky;
+      top: 0;
+    }
+
+
+    .logo {
+      display: flex;
+      overflow: hidden;
+      width: 30px;
+      font-size: 2rem;
+      flex-shrink: 0;
+      font-weight: 600;
+      line-height: 1;
+      color: hsla(var(--color-base-white), 100%, 1);
+      gap: 0.25em;
+      z-index: -1;
+    }
+
+    .logo a {
+      padding: 0.5em 0.25em;
+      margin: -0.5em -0.25em;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .logo a {
+      transition: color 100ms ease-out;
+      color: var(--theme-text);
+    }
+
+    .logo a:hover,
+    .logo a:focus {
+      color: var(--theme-text-accent);
+    }
+
+    .logo h1 {
+      font: inherit;
+      color: inherit;
+      margin: 0;
+    }
+
+    .nav-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1em;
+      width: 100%;
+      max-width: 82em;
+      padding: 0 1rem;
+    }
+
+    @media (min-width: 50em) {
+        header {
+            position: static;
+            padding: 2rem 0rem;
+        }
+        .logo {
+            width: auto;
+            margin: 0;
+            z-index: 0;
+        }
+        .menu-toggle {
+            display: none;
+        }
+        .logo {
+            width: auto;
+        }
+    }
+
+    /** Style Algolia */
+    :root {
+      --docsearch-primary-color: var(--theme-accent);
+      --docsearch-logo-color: var(--theme-text);
+    }
+
+    .search-item {
+      display: none;
+      position: relative;
+      z-index: 10;
+      flex-grow: 1;
+      padding-right: 0.7rem;
+      display: flex;
+      max-width: 200px;
+    }
+    :global(.search-item > *) {
+      flex-grow: 1;
+    }
+    @media (min-width: 50em) {
+      .search-item {
+        max-width: 400px;
+      }
+    }
+</style>
+<header>
+    <SkipToContent />
+    <nav class="nav-wrapper" title="Top Navigation">
+    <div class="menu-toggle">
+        <SidebarToggle client:idle/>
+    </div>
+    <div class="logo flex">
+        <AstroLogo size={40} />
+        <a href="/">
+          <h1>Documentation</h1>
+        </a>
+    </div>
+    <div style="flex-grow: 1;"></div>
+    {KNOWN_LANGUAGE_CODES.length > 1 && <LanguageSelect lang={lang} client:idle />}
+    {CONFIG.ALGOLIA && <div class="search-item"><Search client:idle /></div>}
+    </nav>
+</header>

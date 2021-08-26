@@ -1,51 +1,81 @@
 :root {
   --font-fallback: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
   --font-body: system-ui, var(--font-fallback);
-  --font-mono: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  --font-mono: 'IBM Plex Mono', Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
+    'Liberation Mono', 'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
 
-  --color-white: #fff;
-  --color-black: #000014;
+  /*
+   * Variables with --color-base prefix define
+   * the hue, and saturation values to be used for
+   * hsla colors.
+   *
+   * ex:
+   *
+   * --color-base-{color}: {hue}, {saturation};
+   *
+   */
 
-  --color-gray-50: #f9fafb;
-  --color-gray-100: #f3f4f6;
-  --color-gray-200: #e5e7eb;
-  --color-gray-300: #d1d5db;
-  --color-gray-400: #9ca3af;
-  --color-gray-500: #6b7280;
-  --color-gray-600: #4b5563;
-  --color-gray-700: #374151;
-  --color-gray-800: #1f2937;
-  --color-gray-900: #111827;
+  --color-base-white: 0, 0%;
+  --color-base-black: 240, 100%;
+  --color-base-gray: 215, 14%;
+  --color-base-blue: 212, 100%;
+  --color-base-blue-dark: 212, 72%;
+  --color-base-green: 158, 79%;
+  --color-base-orange: 22, 100%;
+  --color-base-purple: 269, 79%;
+  --color-base-red: 351, 100%;
+  --color-base-yellow: 41, 100%;
 
-  --color-blue: #3894ff;
-  --color-blue-rgb: 56, 148, 255;
-  --color-green: #17c083;
-  --color-green-rgb: 23, 192, 131;
-  --color-orange: #ff5d01;
-  --color-orange-rgb: 255, 93, 1;
-  --color-purple: #882de7;
-  --color-purple-rgb: 136, 45, 231;
-  --color-red: #ff1639;
-  --color-red-rgb: 255, 22, 57;
-  --color-yellow: #ffbe2d;
-  --color-yellow-rgb: 255, 190, 45;
+  /*
+   * Color palettes are made using --color-base 
+   * variables, along with a lightness value to
+   * define different variants.
+   *
+   */
+
+  --color-gray-5: var(--color-base-gray), 5%;
+  --color-gray-10: var(--color-base-gray), 10%;
+  --color-gray-20: var(--color-base-gray), 20%;
+  --color-gray-30: var(--color-base-gray), 30%;
+  --color-gray-40: var(--color-base-gray), 40%;
+  --color-gray-50: var(--color-base-gray), 50%;
+  --color-gray-60: var(--color-base-gray), 60%;
+  --color-gray-70: var(--color-base-gray), 70%;
+  --color-gray-80: var(--color-base-gray), 80%;
+  --color-gray-90: var(--color-base-gray), 90%;
+  --color-gray-95: var(--color-base-gray), 95%;
+
+  --color-blue: var(--color-base-blue), 61%;
+  --color-blue-dark: var(--color-base-blue-dark), 39%;
+  --color-green: var(--color-base-green), 42%;
+  --color-orange: var(--color-base-orange), 50%;
+  --color-purple: var(--color-base-purple), 54%;
+  --color-red: var(--color-base-red), 54%;
+  --color-yellow: var(--color-base-yellow), 59%;
 }
 
 :root {
   color-scheme: light;
-  --theme-accent: var(--color-blue);
-  --theme-accent-rgb: var(--color-blue-rgb);
+  --theme-accent: hsla(var(--color-blue), 1);
+  --theme-text-accent: hsla(var(--color-blue), 1);
   --theme-accent-opacity: 0.1;
-  --theme-divider: var(--color-gray-100);
-  --theme-text: var(--color-gray-800);
-  --theme-text-light: var(--color-gray-600);
-  --theme-text-lighter: var(--color-gray-400);
-  --theme-bg: var(--color-white);
-  --theme-bg-offset: var(--color-gray-100);
-  --theme-bg-accent: rgba(var(--theme-accent-rgb), var(--theme-accent-opacity));
-  --theme-code-inline-bg: var(--color-gray-100);
-  --theme-code-text: var(--color-gray-100);
-  --theme-code-bg: var(--color-gray-700);
+  --theme-divider: hsla(var(--color-gray-95), 1);
+  --theme-text: hsla(var(--color-gray-10), 1);
+  --theme-text-light: hsla(var(--color-gray-40), 1);
+  /* @@@: not used anywhere */
+  --theme-text-lighter: hsla(var(--color-gray-80), 1);
+  --theme-bg: hsla(var(--color-base-white), 100%, 1);
+  --theme-bg-hover: hsla(var(--color-gray-95), 1);
+  --theme-bg-offset: hsla(var(--color-gray-90), 1);
+  --theme-bg-accent: hsla(var(--color-blue), var(--theme-accent-opacity));
+  --theme-code-inline-bg: hsla(var(--color-gray-95), 1);
+  --theme-code-inline-text: var(--theme-text);
+  --theme-code-bg: hsla(217, 19%, 27%, 1);
+  --theme-code-text: hsla(var(--color-gray-95), 1);
+  --theme-navbar-bg: hsla(var(--color-base-white), 100%, 1);
+  --theme-navbar-height: 6rem;
+  --theme-selection-color: hsla(var(--color-blue), 1);
+  --theme-selection-bg: hsla(var(--color-blue), var(--theme-accent-opacity));
 }
 
 body {
@@ -55,19 +85,39 @@ body {
 
 :root.theme-dark {
   color-scheme: dark;
-  --theme-accent-opacity: 0.3;
-  --theme-divider: var(--color-gray-900);
-  --theme-text: var(--color-gray-200);
-  --theme-text-light: var(--color-gray-400);
-  --theme-text-lighter: var(--color-gray-600);
-  --theme-bg: var(--color-black);
-  --theme-bg-offset: var(--color-gray-900);
-  --theme-code-inline-bg: var(--color-gray-800);
-  --theme-code-text: var(--color-gray-200);
-  --theme-code-bg: var(--color-gray-900);
+  --theme-accent-opacity: 0.4;
+  --theme-accent: hsla(var(--color-orange), 1);
+  --theme-text-accent: hsla(var(--color-orange), 1);
+  --theme-divider: hsla(var(--color-gray-10), 1);
+  --theme-text: hsla(var(--color-gray-90), 1);
+  --theme-text-light: hsla(var(--color-gray-80), 1);
+
+  /* @@@: not used anywhere */
+  --theme-text-lighter: hsla(var(--color-gray-40), 1);
+  --theme-bg: hsla(215, 28%, 17%, 1);
+  --theme-bg-hover: hsla(var(--color-gray-40), 1);
+  --theme-bg-offset: hsla(var(--color-gray-5), 1);
+  --theme-code-inline-bg: hsla(var(--color-gray-10), 1);
+  --theme-code-inline-text: hsla(var(--color-base-white), 100%, 1);
+  --theme-code-bg: hsla(var(--color-gray-5), 1);
+  --theme-code-text: hsla(var(--color-base-white), 100%, 1);
+  --theme-navbar-bg: hsla(215, 28%, 17%, 1);
+  --theme-selection-color: hsla(var(--color-base-white), 100%, 1);
+  --theme-selection-bg: hsla(var(--color-purple), var(--theme-accent-opacity));
+
+  /* DocSearch [Algolia] */
+  --docsearch-modal-background: var(--theme-bg);
+  --docsearch-searchbox-focus-background: var(--theme-divider);
+  --docsearch-footer-background: var(--theme-divider);
+  --docsearch-text-color: var(--theme-text);
+  --docsearch-hit-background: var(--theme-divider);
+  --docsearch-hit-shadow: none;
+  --docsearch-hit-color: var(--theme-text);
+  --docsearch-footer-shadow: inset 0 2px 10px #000;
+  --docsearch-modal-shadow: inset 0 0 8px #000;
 }
 
 ::selection {
-  color: var(--theme-accent);
-  background-color: rgba(var(--theme-accent-rgb), var(--theme-accent-opacity));
+  color: var(--theme-selection-color);
+  background-color: var(--theme-selection-bg);
 }
