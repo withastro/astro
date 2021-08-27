@@ -45,7 +45,7 @@ Scripts('Builds the scripts to a single bundle', async({ build, readFile }) => {
   let $ = doc(inline);
   assert.equal($('script').length, 1, 'Just one entry module');
   assert.equal($('script').attr('data-astro'), undefined, 'attr removed');
-  let entryURL = path.join('/inline', $('script').attr('src'));
+  let entryURL = path.join('inline', $('script').attr('src'));
   let inlineEntryJS = await readFile(entryURL);
   assert.ok(inlineEntryJS, 'The JS exists');
 
@@ -54,7 +54,7 @@ Scripts('Builds the scripts to a single bundle', async({ build, readFile }) => {
   $ = doc(external);
   assert.equal($('script').length, 2, 'There are two scripts');
   let el = $('script').get(1);
-  entryURL = path.join('/external', $(el).attr('src'));
+  entryURL = path.join('external', $(el).attr('src'));
   let externalEntryJS = await readFile(entryURL);
   assert.ok(externalEntryJS, 'got JS');
 });
