@@ -1,5 +1,22 @@
 # astro
 
+## 0.20.2
+
+### Patch Changes
+
+- 788c769d: # Hoisted scripts
+
+  This change adds support for hoisted scripts, allowing you to bundle scripts together for a page and hoist them to the top (in the head):
+
+  ```astro
+  <script hoist>
+    // Anything goes here!
+  </script>
+  ```
+
+- Updated dependencies [5d2ea578]
+  - @astrojs/parser@0.20.2
+
 ## 0.20.1
 
 ### Patch Changes

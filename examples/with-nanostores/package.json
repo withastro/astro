@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.20.1"
+    "astro": "^0.20.2"
   },
   "dependencies": {
     "nanostores": "^0.3.3"
