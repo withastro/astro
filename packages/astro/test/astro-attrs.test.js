@@ -36,4 +36,21 @@ Attributes('Passes boolean attributes to components as expected', async ({ runti
   assert.equal($('#false').attr('type'), 'boolean');
 });
 
+Attributes('Passes namespaced attributes as expected', async ({ runtime }) => {
+  const result = await runtime.load('/namespaced');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.equal($('div').attr('xmlns:happy'), 'https://example.com/schemas/happy');
+  assert.equal($('img').attr('happy:smile'), 'sweet');
+});
+
+Attributes('Passes namespaced attributes to components as expected', async ({ runtime }) => {
+  const result = await runtime.load('/namespaced-component');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.equal($('span').attr('on:click'), Function.prototype.toString.call((event) => console.log(event)));
+});
+
 Attributes.run();
