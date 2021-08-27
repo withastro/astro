@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.1
+
+### Patch Changes
+
+- 24dce41c: Adds a new template 'minimal' which does not include a framework
+
 ## 0.6.0
 
 ### Minor Changes
