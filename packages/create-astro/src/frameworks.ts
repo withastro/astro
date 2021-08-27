@@ -109,6 +109,10 @@ export default {
 
 export const FRAMEWORKS = [
   {
+    title: 'None',
+    value: '',
+  },
+  {
     title: 'Preact',
     value: '@astrojs/renderer-preact',
   },
