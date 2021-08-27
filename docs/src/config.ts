@@ -91,6 +91,10 @@ export const SIDEBAR = {
     { text: 'التهيئة', header: true },
     { text: 'باشر البدأ', link: 'ar/getting-started' },
   ],
+  da: [
+    { text: 'Velkommen', header: true },
+    { text: 'Introduktion', link: 'da/getting-started' },
+  ],
 };
 
 export const SITE = {
