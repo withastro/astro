@@ -5,7 +5,7 @@ import read_style from '../read/style.js';
 import { decode_character_references, closing_tag_omitted } from '../utils/html.js';
 import { is_void } from '../../utils/names.js';
 import { Parser } from '../index.js';
-import { Directive, DirectiveType, TemplateNode, Text } from '../../interfaces.js';
+import { TemplateNode, Text } from '../../interfaces.js';
 import fuzzymatch from '../../utils/fuzzymatch.js';
 import list from '../../utils/list.js';
 import { FEATURE_CUSTOM_ELEMENT } from '../utils/features.js';
@@ -403,9 +403,6 @@ function read_attribute(parser: Parser, unique_names: Set<string>) {
 
   parser.allow_whitespace();
 
-  const colon_index = name.indexOf(':');
-  const type = colon_index !== -1 && get_directive_type(name.slice(0, colon_index));
-
   let value: any[] | true = true;
   if (parser.eat('=')) {
     parser.allow_whitespace();
@@ -421,74 +418,6 @@ function read_attribute(parser: Parser, unique_names: Set<string>) {
     );
   }
 
-  if (type) {
-    const [directive_name, ...modifiers] = name.slice(colon_index + 1).split('|');
-
-    if (type === 'Binding' && directive_name !== 'this') {
-      check_unique(directive_name);
-    } else if (type !== 'EventHandler' && type !== 'Action') {
-      check_unique(name);
-    }
-
-    if (type === 'Ref') {
-      parser.error(
-        {
-          code: 'invalid-ref-directive',
-          message: `The ref directive is no longer supported — use \`bind:this={${directive_name}}\` instead`,
-        },
-        start
-      );
-    }
-
-    if (type === 'Class' && directive_name === '') {
-      parser.error(
-        {
-          code: 'invalid-class-directive',
-          message: 'Class binding name cannot be empty',
-        },
-        start + colon_index + 1
-      );
-    }
-
-    if (value[0]) {
-      if ((value as any[]).length > 1 || value[0].type === 'Text') {
-        parser.error(
-          {
-            code: 'invalid-directive-value',
-            message: 'Directive value must be a JavaScript expression enclosed in curly braces',
-          },
-          value[0].start
-        );
-      }
-    }
-
-    const directive: Directive = {
-      start,
-      end,
-      type,
-      name: directive_name,
-      modifiers,
-      expression: (value[0] && value[0].expression) || null,
-    };
-
-    if (type === 'Transition') {
-      const direction = name.slice(0, colon_index);
-      directive.intro = direction === 'in' || direction === 'transition';
-      directive.outro = direction === 'out' || direction === 'transition';
-    }
-
-    if (!directive.expression && (type === 'Binding' || type === 'Class')) {
-      directive.expression = {
-        start: directive.start + colon_index + 1,
-        end: directive.end,
-        type: 'Identifier',
-        name: directive.name,
-      } as any;
-    }
-
-    return directive;
-  }
-
   check_unique(name);
 
   return {
@@ -498,17 +427,6 @@ function read_attribute(parser: Parser, unique_names: Set<string>) {
     name,
     value,
   };
-}
-
-function get_directive_type(name: string): DirectiveType {
-  if (name === 'use') return 'Action';
-  if (name === 'animate') return 'Animation';
-  if (name === 'bind') return 'Binding';
-  if (name === 'class') return 'Class';
-  if (name === 'on') return 'EventHandler';
-  if (name === 'let') return 'Let';
-  if (name === 'ref') return 'Ref';
-  if (name === 'in' || name === 'out' || name === 'transition') return 'Transition';
 }
 
 function read_attribute_value(parser: Parser) {
