@@ -31,10 +31,10 @@ Scripts('Moves inline scripts up', async ({ runtime }) => {
   assert.equal($('body script').length, 0);
 });
 
-Scripts('Builds the scripts to a single bundle', async({ build, readFile }) => {
+Scripts('Builds the scripts to a single bundle', async ({ build, readFile }) => {
   try {
     await build();
-  } catch(err) {
+  } catch (err) {
     console.error(err.stack);
     assert.ok(!err);
     return;

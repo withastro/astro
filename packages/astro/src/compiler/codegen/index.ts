@@ -673,14 +673,14 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
                   paren++;
                 }
-                if(attributes.hoist) {
-                  if(attributes.src) {
+                if (attributes.hoist) {
+                  if (attributes.src) {
                     state.hoistedScripts.push({
-                      src: attributes.src.substr(1, attributes.src.length - 2)
+                      src: attributes.src.substr(1, attributes.src.length - 2),
                     });
-                  } else if(node.children && node.children.length === 1 && node.children[0].type === 'Text') {
+                  } else if (node.children && node.children.length === 1 && node.children[0].type === 'Text') {
                     state.hoistedScripts.push({
-                      content: node.children[0].data
+                      content: node.children[0].data,
                     });
                   }
                   this.skip();

@@ -281,7 +281,7 @@ By default Astro does not make any assumptions on how you want scripts to be ser
 
 However if you'd like all of your scripts to be hoisted out of components and moved to the top of the page, and then later bundled together in production, you can achieve this with hoisted scripts.
 
-A __hoisted script__ looks like this:
+A **hoisted script** looks like this:
 
 ```astro
 <script hoist>

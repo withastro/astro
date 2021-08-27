@@ -3,7 +3,7 @@ import type { ScriptInfo } from '../@types/astro';
 const sym = Symbol.for('astro.hoistedScripts');
 
 interface ComponentThatMaybeHasHoistedScripts {
-  [sym]: ScriptInfo[]
+  [sym]: ScriptInfo[];
 }
 
 /**
@@ -14,24 +14,22 @@ interface ComponentThatMaybeHasHoistedScripts {
 function hoistedScripts(Components: ComponentThatMaybeHasHoistedScripts[], scripts: ScriptInfo[]) {
   const flatScripts = [];
 
-  const allScripts: ScriptInfo[] = Components.map(c => c && c[sym])
-    .filter(a => a)
+  const allScripts: ScriptInfo[] = Components.map((c) => c && c[sym])
+    .filter((a) => a)
     .concat(scripts)
-    .flatMap(a => a);
+    .flatMap((a) => a);
 
   const visitedSource = new Set();
-  for(let script of allScripts) {
-    if(!('src' in script)) {
+  for (let script of allScripts) {
+    if (!('src' in script)) {
       flatScripts.push(script);
-    } else if(!visitedSource.has(script.src)) {
+    } else if (!visitedSource.has(script.src)) {
       flatScripts.push(script);
       visitedSource.add(script.src);
     }
   }
-  
+
   return flatScripts;
 }
 
-export {
-  hoistedScripts as __astro_hoisted_scripts
-};
+export { hoistedScripts as __astro_hoisted_scripts };

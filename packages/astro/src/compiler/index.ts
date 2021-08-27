@@ -155,7 +155,7 @@ ${result.getStaticPaths || ''}
 import { h, Fragment } from 'astro/dist/internal/h.js';
 import { __astro_hoisted_scripts } from 'astro/dist/internal/__astro_hoisted_scripts.js';
 
-const __astroScripts = __astro_hoisted_scripts([${result.components.map(n => `typeof ${n} !== 'undefined' && ${n}`)}], ${JSON.stringify(result.hoistedScripts)});
+const __astroScripts = __astro_hoisted_scripts([${result.components.map((n) => `typeof ${n} !== 'undefined' && ${n}`)}], ${JSON.stringify(result.hoistedScripts)});
 const __astroInternal = Symbol('astro.internal');
 const __astroContext = Symbol.for('astro.context');
 async function __render(props, ...children) {

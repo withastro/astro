@@ -138,9 +138,9 @@ export default function (opts: TransformOptions): Transformer {
                           {
                             type: 'Text',
                             raw: 'module',
-                            data: 'module'
-                          }
-                        ]
+                            data: 'module',
+                          },
+                        ],
                       },
                       {
                         type: 'Attribute',
@@ -157,8 +157,8 @@ export default function (opts: TransformOptions): Transformer {
                               codeChunks: ['script.src'],
                               children: [],
                             },
-                          }
-                        ]
+                          },
+                        ],
                       },
                       {
                         type: 'Attribute',
@@ -167,10 +167,10 @@ export default function (opts: TransformOptions): Transformer {
                           {
                             type: 'Text',
                             raw: 'hoist',
-                            data: 'hoist'
-                          }
-                        ]
-                      }
+                            data: 'hoist',
+                          },
+                        ],
+                      },
                     ],
                     start: 0,
                     end: 0,
@@ -187,9 +187,9 @@ export default function (opts: TransformOptions): Transformer {
                           {
                             type: 'Text',
                             raw: 'module',
-                            data: 'module'
-                          }
-                        ]
+                            data: 'module',
+                          },
+                        ],
                       },
                       {
                         type: 'Attribute',
@@ -198,10 +198,10 @@ export default function (opts: TransformOptions): Transformer {
                           {
                             type: 'Text',
                             raw: 'hoist',
-                            data: 'hoist'
-                          }
-                        ]
-                      }
+                            data: 'hoist',
+                          },
+                        ],
+                      },
                     ],
                     start: 0,
                     end: 0,
@@ -217,11 +217,11 @@ export default function (opts: TransformOptions): Transformer {
                           codeChunks: ['script.content'],
                           children: [],
                         },
-                      }
+                      },
                     ],
                   },
-                ]
-              }
+                ],
+              },
             ],
           },
         ],

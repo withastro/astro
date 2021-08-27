@@ -140,7 +140,7 @@ ${stack}
       const pageDeps = findDeps(buildState[id].contents as string, {
         astroConfig,
         srcPath: buildState[id].srcPath,
-        id
+        id,
       });
       depTree[id] = pageDeps;
 
@@ -178,7 +178,7 @@ ${stack}
       bundleCSS({ buildState, astroConfig, logging, depTree }).then(() => {
         debug(logging, 'build', `bundled CSS [${stopTimer(timer.prebundleCSS)}]`);
       }),
-      bundleHoistedJS({ buildState, astroConfig, logging, depTree, runtime: astroRuntime, dist: astroConfig.dist })
+      bundleHoistedJS({ buildState, astroConfig, logging, depTree, runtime: astroRuntime, dist: astroConfig.dist }),
       // TODO: optimize images?
     ]);
     // TODO: minify HTML?
@@ -272,7 +272,7 @@ ${stack}
 }
 
 /** Given an HTML string, collect <link> and <img> tags */
-export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL, id: string }): PageDependencies {
+export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL; id: string }): PageDependencies {
   const pageDeps: PageDependencies = {
     js: new Set<string>(),
     css: new Set<string>(),
@@ -285,15 +285,15 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
   $('script').each((_i, el) => {
     const src = $(el).attr('src');
     const hoist = $(el).attr('data-astro') === 'hoist';
-    if(hoist) {
-      if(src) {
+    if (hoist) {
+      if (src) {
         pageDeps.hoistedJS.set(src, {
-          src
+          src,
         });
       } else {
         let content = $(el).html() || '';
         pageDeps.hoistedJS.set(`astro-virtual:${hash.unique(content)}`, {
-          content
+          content,
         });
       }
     } else if (src) {
