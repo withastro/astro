@@ -327,7 +327,6 @@ And in your local filesystem, you can even use Sass' [@use][sass-use] to combine
 
 ```
 ├── src/
-│   └── (pages)
 │   └── styles/
 │       ├── _base.scss
 │       ├── _tokens.scss
