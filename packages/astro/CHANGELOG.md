@@ -1,5 +1,11 @@
 # astro
 
+## 0.20.3
+
+### Patch Changes
+
+- 290f2032: Fix knownEntrypoint warning for \_\_astro_hoisted_scripts.js
+
 ## 0.20.2
 
 ### Patch Changes
