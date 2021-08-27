@@ -50,7 +50,10 @@ Attributes('Passes namespaced attributes to components as expected', async ({ ru
   assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
-  assert.equal($('span').attr('on:click'), Function.prototype.toString.call((event) => console.log(event)));
+  assert.equal(
+    $('span').attr('on:click'),
+    Function.prototype.toString.call((event) => console.log(event))
+  );
 });
 
 Attributes.run();
