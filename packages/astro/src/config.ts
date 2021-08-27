@@ -67,6 +67,13 @@ export const AstroConfigSchema = z.object({
     })
     .optional()
     .default({}),
+  flags: z
+    .object({
+      forgiveMeAlexRussell: z.boolean().optional().default(false),
+      iNeedSassEvenThoughCssIsPrettyGoodNow: z.boolean().optional().default(false),
+    })
+    .optional()
+    .default({}),
 });
 
 /** Turn raw config values into normalized values */

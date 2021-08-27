@@ -45,6 +45,17 @@ export function mapBundleStatsToURLStats({ urlStats, depTree, bundleStats }: { u
   }
 }
 
+const LARGE_BUNDLE_SIZE_BYTES = 5242880; // 5MB
+
+export function verifyPageWeightCap(urlStats: URLStatsMap) {
+  for (const [url, stat] of urlStats.entries()) {
+    const totalBytes = stat.stats.map((s) => s.gzipSize).reduce((a, b) => a + b, 0) || 0;
+    if (totalBytes > LARGE_BUNDLE_SIZE_BYTES) {
+      throw new Error(`Bundle cannot be larger than 5MB! To disable this warning, set "flags.forgiveMeAlexRussell = true".`);
+    }
+  }
+}
+
 export async function collectBundleStats(buildState: BuildOutput, depTree: BundleMap): Promise<URLStatsMap> {
   const urlStats = createURLStats();
 

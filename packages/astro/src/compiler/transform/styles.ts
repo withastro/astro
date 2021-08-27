@@ -4,11 +4,10 @@ import type { TemplateNode } from '@astrojs/parser';
 import crypto from 'crypto';
 import { createRequire } from 'module';
 import path from 'path';
-import autoprefixer from 'autoprefixer';
 import postcss, { Plugin } from 'postcss';
 import postcssKeyframes from 'postcss-icss-keyframes';
+import postcssPresetEnv from 'postcss-preset-env';
 import findUp from 'find-up';
-import sass from 'sass';
 import { error, LogOptions } from '../../logger.js';
 import astroScopedStyles, { NEVER_SCOPED_TAGS } from './postcss-scoped-styles/index.js';
 import slash from 'slash';
@@ -21,6 +20,17 @@ declare global {
     resolve(specifier: string, parent?: string): Promise<any>;
   }
 }
+
+export const postcssPresetEnvConfig = {
+  // The last two versions of each major browser that supports ESM
+  browsers: 'last 2 version, supports es6-module and supports es6-module-dynamic-import and >1%',
+  // Stage 3 = Embraced: “This idea is becoming part of the web.”
+  stage: 3,
+  // Additional features worth enabling.
+  features: {
+    'nesting-rules': true,
+  },
+};
 
 const getStyleType: Map<string, StyleType> = new Map([
   ['.css', 'css'],
@@ -66,6 +76,7 @@ export interface TransformStyleOptions {
   filename: string;
   scopedClass: string;
   tailwindConfig?: string;
+  isSassAllowed: boolean;
   global?: boolean;
 }
 
@@ -79,7 +90,7 @@ function hasClass(classList: string, className: string): boolean {
 }
 
 /** Convert styles to scoped CSS */
-async function transformStyle(code: string, { logging, type, filename, scopedClass, tailwindConfig, global }: TransformStyleOptions): Promise<StyleTransformResult> {
+async function transformStyle(code: string, { logging, type, filename, scopedClass, tailwindConfig, isSassAllowed, global }: TransformStyleOptions): Promise<StyleTransformResult> {
   let styleType: StyleType = 'css'; // important: assume CSS as default
   if (type) {
     styleType = getStyleType.get(type) || styleType;
@@ -109,6 +120,10 @@ async function transformStyle(code: string, { logging, type, filename, scopedCla
     }
     case 'sass':
     case 'scss': {
+      if (!isSassAllowed) {
+        throw new Error('Sass is not allowed by default! Set "flags.iNeedSassEvenThoughCssIsPrettyGoodNow = true" to enable.');
+      }
+      const { default: sass } = await import('sass');
       css = sass.renderSync({ data: code, includePaths, indentedSyntax: styleType === 'sass' }).css.toString('utf8');
       break;
     }
@@ -132,6 +147,18 @@ async function transformStyle(code: string, { logging, type, filename, scopedCla
     }
   }
 
+  // 2d. preset-env (always on)
+  postcssPlugins.push(
+    postcssPresetEnv({
+      // The last two versions of each major browser that supports ESM
+      browsers: 'last 2 version, supports es6-module and supports es6-module-dynamic-import and >1%',
+      stage: 3,
+      features: {
+        'nesting-rules': true,
+      },
+    })
+  );
+
   if (!global) {
     // 2b. Astro scoped styles (skip for global style blocks)
     postcssPlugins.push(astroScopedStyles({ className: scopedClass }));
@@ -145,9 +172,6 @@ async function transformStyle(code: string, { logging, type, filename, scopedCla
       })
     );
   }
-
-  // 2d. Autoprefixer (always on)
-  postcssPlugins.push(autoprefixer());
 
   // 2e. Run PostCSS
   css = await postcss(postcssPlugins)
@@ -227,6 +251,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
                   filename,
                   scopedClass,
                   tailwindConfig: compileOptions.astroConfig.devOptions.tailwindConfig,
+                  isSassAllowed: compileOptions.astroConfig.flags.iNeedSassEvenThoughCssIsPrettyGoodNow,
                   global: globalAttr && globalAttr.value,
                 })
               );
@@ -259,6 +284,7 @@ export default function transformStyles({ compileOptions, filename, fileID }: Tr
                 type: (langAttr && langAttr.value[0] && langAttr.value[0].data) || undefined,
                 filename,
                 scopedClass,
+                isSassAllowed: compileOptions.astroConfig.flags.iNeedSassEvenThoughCssIsPrettyGoodNow,
                 global: globalAttr && globalAttr.value,
               })
             );

@@ -17,6 +17,7 @@ import { fileURLToPath } from 'url';
 import type { AstroConfig, RSSFunctionArgs, GetStaticPathsArgs, GetStaticPathsResult, ManifestData, Params, RuntimeMode } from './@types/astro';
 import { generatePaginateFunction } from './build/paginate.js';
 import { canonicalURL, getSrcPath, stopTimer } from './build/util.js';
+import { postcssPresetEnvConfig } from './compiler/transform/styles.js';
 import { ConfigManager } from './config_manager.js';
 import snowpackExternals from './external.js';
 import { debug, info, LogOptions } from './logger.js';
@@ -329,13 +330,13 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
       [fileURLToPath(new URL('../snowpack-plugin-jsx.cjs', import.meta.url)), astroPluginOptions],
       [fileURLToPath(new URL('../snowpack-plugin.cjs', import.meta.url)), astroPluginOptions],
       ...rendererSnowpackPlugins,
-      resolveDependency('@snowpack/plugin-sass'),
+      ...(astroConfig.flags.iNeedSassEvenThoughCssIsPrettyGoodNow ? [resolveDependency('@snowpack/plugin-sass')] : []),
       [
         resolveDependency('@snowpack/plugin-postcss'),
         {
           config: {
             plugins: {
-              [resolveDependency('autoprefixer')]: {},
+              [resolveDependency('postcss-preset-env')]: postcssPresetEnvConfig,
               ...(astroConfig.devOptions.tailwindConfig ? { [resolveDependency('tailwindcss')]: astroConfig.devOptions.tailwindConfig } : {}),
             },
           },

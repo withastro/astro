@@ -13,7 +13,7 @@ import { bundleCSS } from './build/bundle/css.js';
 import { bundleJS, collectJSImports } from './build/bundle/js.js';
 import { buildStaticPage, getStaticPathsForPage } from './build/page.js';
 import { generateSitemap } from './build/sitemap.js';
-import { collectBundleStats, logURLStats, mapBundleStatsToURLStats } from './build/stats.js';
+import { collectBundleStats, logURLStats, mapBundleStatsToURLStats, verifyPageWeightCap } from './build/stats.js';
 import { getDistPath, stopTimer } from './build/util.js';
 import type { LogOptions } from './logger';
 import { debug, defaultLogDestination, defaultLogLevel, error, info, warn } from './logger.js';
@@ -250,6 +250,9 @@ ${stack}
       timer.bundleJS = performance.now();
       const jsStats = await bundleJS(jsImports, { dist: astroConfig.dist, astroRuntime });
       mapBundleStatsToURLStats({ urlStats, depTree, bundleStats: jsStats });
+      if (!astroConfig.flags.forgiveMeAlexRussell) {
+        verifyPageWeightCap(urlStats);
+      }
       debug(logging, 'build', `bundled JS [${stopTimer(timer.bundleJS)}]`);
       info(logging, 'build', green(`✔`), 'bundling complete.');
     }

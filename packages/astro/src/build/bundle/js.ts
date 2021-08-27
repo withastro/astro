@@ -93,6 +93,5 @@ export async function bundleJS(imports: Set<string>, { astroRuntime, dist }: Bun
       await addBundleStats(stats, code, chunk.fileName);
     })
   );
-
   return stats;
 }
