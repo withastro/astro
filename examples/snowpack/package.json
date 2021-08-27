@@ -19,7 +19,7 @@
   "devDependencies": {
     "@contentful/rich-text-html-renderer": "^14.1.2",
     "@contentful/rich-text-types": "^14.1.2",
-    "astro": "^0.20.2"
+    "astro": "^0.20.3"
   },
   "snowpack": {
     "workspaceRoot": "../.."
