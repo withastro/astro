@@ -7,10 +7,11 @@ import mime from 'mime';
 import path from 'path';
 import { performance } from 'perf_hooks';
 import glob from 'tiny-glob';
+import hash from 'shorthash';
 import { fileURLToPath } from 'url';
-import type { AstroConfig, BuildOutput, BundleMap, PageDependencies, RouteData, RuntimeMode } from './@types/astro';
+import type { AstroConfig, BuildOutput, BundleMap, PageDependencies, RouteData, RuntimeMode, ScriptInfo } from './@types/astro';
 import { bundleCSS } from './build/bundle/css.js';
-import { bundleJS, collectJSImports } from './build/bundle/js.js';
+import { bundleJS, bundleHoistedJS, collectJSImports } from './build/bundle/js.js';
 import { buildStaticPage, getStaticPathsForPage } from './build/page.js';
 import { generateSitemap } from './build/sitemap.js';
 import { collectBundleStats, logURLStats, mapBundleStatsToURLStats } from './build/stats.js';
@@ -139,6 +140,7 @@ ${stack}
       const pageDeps = findDeps(buildState[id].contents as string, {
         astroConfig,
         srcPath: buildState[id].srcPath,
+        id
       });
       depTree[id] = pageDeps;
 
@@ -171,11 +173,12 @@ ${stack}
      * Bundle CSS, and anything else that can happen in memory (for now, JS bundling happens after writing to disk)
      */
     info(logging, 'build', yellow('! optimizing css...'));
-    timer.prebundle = performance.now();
+    timer.prebundleCSS = performance.now();
     await Promise.all([
       bundleCSS({ buildState, astroConfig, logging, depTree }).then(() => {
-        debug(logging, 'build', `bundled CSS [${stopTimer(timer.prebundle)}]`);
+        debug(logging, 'build', `bundled CSS [${stopTimer(timer.prebundleCSS)}]`);
       }),
+      bundleHoistedJS({ buildState, astroConfig, logging, depTree, runtime: astroRuntime, dist: astroConfig.dist })
       // TODO: optimize images?
     ]);
     // TODO: minify HTML?
@@ -269,18 +272,31 @@ ${stack}
 }
 
 /** Given an HTML string, collect <link> and <img> tags */
-export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL }): PageDependencies {
+export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: AstroConfig; srcPath: URL, id: string }): PageDependencies {
   const pageDeps: PageDependencies = {
     js: new Set<string>(),
     css: new Set<string>(),
     images: new Set<string>(),
+    hoistedJS: new Map<string, ScriptInfo>(),
   };
 
   const $ = cheerio.load(html);
 
   $('script').each((_i, el) => {
     const src = $(el).attr('src');
-    if (src) {
+    const hoist = $(el).attr('data-astro') === 'hoist';
+    if(hoist) {
+      if(src) {
+        pageDeps.hoistedJS.set(src, {
+          src
+        });
+      } else {
+        let content = $(el).html() || '';
+        pageDeps.hoistedJS.set(`astro-virtual:${hash.unique(content)}`, {
+          content
+        });
+      }
+    } else if (src) {
       if (isRemoteOrEmbedded(src)) return;
       pageDeps.js.add(getDistPath(src, { astroConfig, srcPath }));
     } else {

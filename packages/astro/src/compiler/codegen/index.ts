@@ -1,6 +1,6 @@
 import type { Ast, Script, Style, TemplateNode, Expression } from '@astrojs/parser';
 import type { CompileOptions } from '../../@types/compiler';
-import type { AstroConfig, TransformResult, ComponentInfo, Components } from '../../@types/astro';
+import type { AstroConfig, TransformResult, ComponentInfo, Components, ScriptInfo } from '../../@types/astro';
 import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, ImportDefaultSpecifier } from '@babel/types';
 import type { Attribute } from './interfaces';
 import eslexer from 'es-module-lexer';
@@ -316,6 +316,7 @@ interface CompileResult {
 interface CodegenState {
   components: Components;
   css: string[];
+  hoistedScripts: ScriptInfo[];
   filename: string;
   fileID: string;
   markers: {
@@ -672,6 +673,19 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
                   paren++;
                 }
+                if(attributes.hoist) {
+                  if(attributes.src) {
+                    state.hoistedScripts.push({
+                      src: attributes.src.substr(1, attributes.src.length - 2)
+                    });
+                  } else if(node.children && node.children.length === 1 && node.children[0].type === 'Text') {
+                    state.hoistedScripts.push({
+                      content: node.children[0].data
+                    });
+                  }
+                  this.skip();
+                  return;
+                }
                 buffers[curr] += `h("${name}", ${generateAttributes(attributes)},`;
                 paren++;
                 return;
@@ -887,6 +901,7 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     fileID,
     components: new Map(),
     css: [],
+    hoistedScripts: [],
     markers: {
       insideMarkdown: false,
     },
@@ -909,6 +924,8 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     exports: Array.from(state.exportStatements),
     html,
     css: state.css.length ? state.css.join('\n\n') : undefined,
+    hoistedScripts: state.hoistedScripts,
+    components: Array.from(state.components.keys()),
     getStaticPaths,
     hasCustomElements: Boolean(ast.meta.features & FEATURE_CUSTOM_ELEMENT),
     customElementCandidates: state.customElementCandidates,

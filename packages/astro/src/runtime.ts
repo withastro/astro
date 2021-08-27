@@ -163,6 +163,7 @@ async function load(config: AstroRuntimeConfig, rawPathname: string | undefined)
       children: [],
       props: pageProps,
       css: Array.isArray(mod.css) ? mod.css : typeof mod.css === 'string' ? [mod.css] : [],
+      scripts: mod.exports.default[Symbol.for('astro.hoistedScripts')]
     })) as string;
 
     return {
