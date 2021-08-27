@@ -92,7 +92,7 @@ Looking for components already made by the community?
 Here are the current available community developed Astro components.
 
 - [Astro Static Tweet](https://www.npmjs.com/package/@rebelchris/astro-static-tweet) ~ A component to embed tweets as static HTML so you don't have to load the Twitter JavaScripts.
-- [Accessible Astro Components](https://www.npmjs.com/package/accessible-astro-components) ~ A set of accessible front-end components such as Accordions, Modals,  Toggle Buttons and more.
+- [Accessible Astro Components](https://www.npmjs.com/package/accessible-astro-components) ~ A set of accessible front-end components such as Accordions, Modals, Toggle Buttons and more.
 
 You can also [search npm for astro components.](https://www.npmjs.com/search?q=keywords%3Aastro-component)
 
