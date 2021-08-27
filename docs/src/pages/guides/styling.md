@@ -118,7 +118,7 @@ Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 
 ### 🍃 Tailwind
 
-> Note that Astro's Tailwind support *only* works with Tailwind JIT mode.
+> Note that Astro's Tailwind support _only_ works with Tailwind JIT mode.
 
 Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
 
