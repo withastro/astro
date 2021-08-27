@@ -1,6 +1,6 @@
 ---
 title: Introduction
-layout: ~/layouts/MainLayout.astro
+layout: ../../layouts/MainLayout.astro
 ---
 
 **Welcome to Astro!**
