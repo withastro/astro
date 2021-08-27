@@ -1,0 +1,12 @@
+---
+import Child from '../components/Child.astro';
+---
+<html>
+<head>
+  <title>Test Astro.filename</title>
+</head>
+<body>
+  <a id="filename" href={Astro.request.canonicalURL.href}>{Astro.filename}</a>
+  <Child />
+</body>
+</html>

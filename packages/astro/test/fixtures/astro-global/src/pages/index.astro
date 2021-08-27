@@ -7,6 +7,8 @@ import Child from '../components/Child.astro';
   <link rel="canonical" href={Astro.request.canonicalURL.href}>
 </head>
 <body>
+  <div id="filename">{Astro.filename}</div>
+  
   <div id="pathname">{Astro.request.url.pathname}</div>
   <a id="site" href={Astro.site}>Home</a>
 

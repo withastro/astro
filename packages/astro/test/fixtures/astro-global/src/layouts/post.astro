@@ -7,6 +7,7 @@ const { content } = Astro.props;
     <link rel="canonical" href={Astro.request.canonicalURL.href}>
   </head>
   <body>
+    <div id="filename">{Astro.filename}</div>
     <slot></slot>
   </body>
 </html>

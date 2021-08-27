@@ -17,6 +17,32 @@ Global('Astro.request.url', async (context) => {
   assert.equal($('#nested-child-pathname').text(), '/');
 });
 
+Global('Astro.filename', async (context) => {
+  const result = await context.runtime.load('/filename');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.match($('#filename').text(), 'test/fixtures/astro-global/src/pages/filename.astro');
+  assert.match($('#child-filename').text(), '/test/fixtures/astro-global/src/components/Child.astro');
+  assert.match($('#nested-child-filename').text(), '/test/fixtures/astro-global/src/components/NestedChild.astro');
+});
+
+Global('Astro.filename with getStaticPaths', async (context) => {
+  // given a URL, expect the following astro filename
+  const urls = {
+    '/': 'index.astro',
+    '/post/post': 'layouts/post.astro',
+    '/posts/1': 'posts/[page].astro',
+    '/posts/2': 'posts/[page].astro',
+  };
+
+  for (const [url, astroFilename] of Object.entries(urls)) {
+    const result = await context.runtime.load(url);
+    const $ = doc(result.contents);
+    assert.match($('#filename').text(), astroFilename);
+  }
+});
+
 Global('Astro.request.canonicalURL', async (context) => {
   // given a URL, expect the following canonical URL
   const canonicalURLs = {

@@ -176,6 +176,10 @@ async function __render(props, ...children) {
       value: (props[__astroInternal] && props[__astroInternal].isPage) || false,
       enumerable: true
     },
+    filename: {
+      value: (props[__astroInternal] && props[__astroInternal].filename) || '${filename}',
+      enumerable: true
+    },
     request: {
       value: (props[__astroContext] && props[__astroContext].request) || {},
       enumerable: true
@@ -214,7 +218,8 @@ export async function __renderPage({request, children, props, css, scripts}) {
 
   Object.defineProperty(props, __astroInternal, {
     value: {
-      isPage: !isLayout
+      isPage: !isLayout,
+      filename: '${filename}',
     },
     writable: false,
     enumerable: false

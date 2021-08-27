@@ -13,6 +13,8 @@ const { params, canonicalURL} = Astro.request;
     <link rel="canonical" href={canonicalURL.href} />
   </head>
   <body>
+    <div id="filename">{Astro.filename}</div>
+
     {page.data.map((data) => (
       <div>
         <h1>{data.title}</h1>
