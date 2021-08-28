@@ -30,6 +30,27 @@ function isRemoteOrEmbedded(url: string) {
   return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//') || url.startsWith('data:');
 }
 
+/**
+ * Regular Expression, and matchSrces (originally matchAll) taken from
+ * srcset-parse@1.1.0 as was unable to make it work when used as a 
+ * dependency. 
+ */
+// RegExp for `srcset` matching
+const SRCSEG = /(\S*[^,\s])(\s+([\d.]+)(x|w))?/g;
+/**
+ * This is in essence a duplicate of `String.prototype.matchAll`
+ * which the use of causes an error (this is fixable by using
+ * "lib": ["es2020.string"] in compileOptions, but this in turn causes
+ * several other errors to present in build.)
+ * The URL is in match[1]
+ */
+const matchSrces = (str: string, regex: RegExp) => {
+  let match = null, result = [];
+  while ((match = regex.exec(str)) !== null)
+      result.push(match);
+  return result;
+};
+
 /** The primary build action */
 export async function build(astroConfig: AstroConfig, logging: LogOptions = defaultLogging): Promise<0 | 1> {
   const { projectRoot } = astroConfig;
@@ -329,15 +350,26 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
 
   $('img[srcset]').each((_i, el) => {
     const srcset = $(el).attr('srcset') || '';
-    const sources = srcset.split(',');
-    const srces = sources.map((s) => s.trim().split(' ')[0]);
+    // Match all sources in the srcset using `matchSrces`
+    const srces = matchSrces(srcset, SRCSEG);
     for (const src of srces) {
-      if (!isRemoteOrEmbedded(src)) {
-        pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
+      if (!isRemoteOrEmbedded(src[1])) {
+        pageDeps.images.add(getDistPath(src[1], { astroConfig, srcPath }));
       }
     }
   });
 
+  // Duplicate above function for <source> as well
+  $('source[srcset]').each((_i, el) => {
+    const srcset = $(el).attr('srcset') || '';
+    const srces = matchSrces(srcset, SRCSEG);
+    for (const src of srces) {
+      if (!isRemoteOrEmbedded(src[1])) {
+        pageDeps.images.add(getDistPath(src[1], { astroConfig, srcPath }));
+      }
+    }
+  });
+  
   // important: preserve the scan order of deps! order matters on pages
 
   return pageDeps;
