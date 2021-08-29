@@ -4,11 +4,12 @@ import { h, Fragment } from 'preact';
 import { useRef } from 'preact/hooks';
 
 export type CardLinkProps ={
+    href:string
     name:string
-    children:JSX.Element | JSX.Element[]
+    children:JSX | JSX[]
 }
 
-const CardLink:Component<CardLinkProps>=({name,children}:CardLinkProps):JSX.Element=>{
+const CardLink:Component<CardLinkProps>=({href,name,children}:CardLinkProps):JSX.Element=>{
     const Card = useRef(null)
     /**
      * Set Title Attribute when Hovering over Card

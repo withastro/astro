@@ -2,6 +2,9 @@
 
 Welcome to Astro's Blog's Readme. This template is a straight forward way to launch your own Blogging site using Astro. We highly encourage you to explore the contents of this template and play about with it to make it your own.
 
+[![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=flat-square&logo=codesandbox)](https://githubbox.com/snowpackjs/astro/tree/main/examples/starter)
+
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/snowpackjs/astro/tree/main/examples/starter)
 > 🧑‍🚀 **Seasoned Astronaut?** Delete this file. Have fun!
 
 Features:

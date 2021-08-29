@@ -6,8 +6,7 @@
   "keywords": ["create-astro","template","astro"],
   "repository": {
     "directory": "/examples/starter",
-    "type": "github",
-    "url": "https://github.com/snowpackjs/astro/tree/main"
+    "type": "github"
   },
   "onlineDemo":{
     "preview":"https://kne3y.sse.codesandbox.io/",

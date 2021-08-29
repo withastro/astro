@@ -5,6 +5,8 @@ import capitalise from '../components/Examples/function-capitalise.js'
 import formatTemplateName from '../components/Examples/function-format-name.js'
 import {Markdown} from 'astro/components'
 import CollapsibleReadme from '../components/Examples/CollapsibleReadme.astro'
+import generateHeroImg from '../components/Examples/function-generate-hero-img.js'
+const getImg = await generateHeroImg()
 
 export async function createCollection(){
     const dataset = await templateData()
@@ -49,7 +51,7 @@ let templateTitle = formatTemplateName(title)
 <!-- Example 2 -->
 <Layout>
     <div>
-        <img src="/default-og-image.png" alt="">
+        <img src={`${getImg}`} alt="">
         <h1>{templateTitle} Template</h1>
     </div>
     <Markdown content = {description}/>
