@@ -5,6 +5,7 @@
   "scripts": {
     "start": "astro dev",
     "build": "astro build",
+    "preview": "astro preview",
     "test": "jest /__test__/",
     "format": "prettier --write \"src/**/*.js\" && yarn format:css",
     "lint": "prettier --check \"src/**/*.js\""
@@ -18,7 +19,7 @@
   "devDependencies": {
     "@contentful/rich-text-html-renderer": "^14.1.2",
     "@contentful/rich-text-types": "^14.1.2",
-    "astro": "^0.19.3"
+    "astro": "^0.20.3"
   },
   "snowpack": {
     "workspaceRoot": "../.."

@@ -116,9 +116,9 @@ async function load(config: AstroRuntimeConfig, rawPathname: string | undefined)
     return { statusCode: 404, error: new Error('No matching route found.') };
   }
 
-  const paramsMatch = routeMatch.pattern.exec(reqPath)!;
+  const paramsMatch = routeMatch.pattern.exec(reqPath);
   const routeLocation = convertMatchToLocation(routeMatch, config.astroConfig);
-  const params = getParams(routeMatch.params)(paramsMatch);
+  const params = paramsMatch ? getParams(routeMatch.params)(paramsMatch) : {};
   let pageProps = {} as Record<string, any>;
 
   try {
@@ -163,6 +163,7 @@ async function load(config: AstroRuntimeConfig, rawPathname: string | undefined)
       children: [],
       props: pageProps,
       css: Array.isArray(mod.css) ? mod.css : typeof mod.css === 'string' ? [mod.css] : [],
+      scripts: mod.exports.default[Symbol.for('astro.hoistedScripts')],
     })) as string;
 
     return {
@@ -283,7 +284,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   };
 
   const mountOptions = {
-    ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: '/' } : {}),
+    ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: { url: '/', static: true, resolve: false } } : {}),
     [fileURLToPath(frontendPath)]: '/_astro_frontend',
     [fileURLToPath(src)]: '/_astro/src', // must be last (greediest)
   };
@@ -300,6 +301,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
     'astro/dist/internal/element-registry.js',
     'astro/dist/internal/fetch-content.js',
     'astro/dist/internal/__astro_slot.js',
+    'astro/dist/internal/__astro_hoisted_scripts.js',
     'prismjs',
   ];
   for (const renderer of rendererInstances) {

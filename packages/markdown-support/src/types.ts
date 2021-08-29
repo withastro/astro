@@ -1,7 +1,7 @@
 import unified from 'unified';
 
 export type UnifiedPluginImport = Promise<{ default: unified.Plugin }>;
-export type Plugin = string | [string, unified.Settings] | UnifiedPluginImport | [UnifiedPluginImport, unified.Settings];
+export type Plugin = string | [string, any] | UnifiedPluginImport | [UnifiedPluginImport, any];
 
 export interface AstroMarkdownOptions {
   /** Enable or disable footnotes syntax extension */

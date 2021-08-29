@@ -1,5 +1,11 @@
 # @astrojs/markdown-support
 
+## 0.3.0
+
+### Minor Changes
+
+- 397d8f3d: Upgrade `@astrojs/markdown-support` dependencies. The `remark-rehype@9` upgrade enables accessible footnotes with `remark-footnotes`.
+
 ## 0.2.4
 
 ### Patch Changes

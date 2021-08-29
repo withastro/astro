@@ -5,6 +5,12 @@ import fs from 'fs';
 import path from 'path';
 import { URL } from 'url';
 
+/**
+ * Only Astro-handled imports need bundling. Any other imports are considered
+ * a part of `public/`, and should not be touched.
+ */
+export const IS_ASTRO_FILE_URL = /^\/(_astro|_astro_frontend|_snowpack)\//;
+
 /** Normalize URL to its canonical form */
 export function canonicalURL(url: string, base?: string): URL {
   let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical

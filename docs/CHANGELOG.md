@@ -1,5 +1,19 @@
 # docs
 
+## 0.0.6
+
+### Patch Changes
+
+- 788c769d: # Hoisted scripts
+
+  This change adds support for hoisted scripts, allowing you to bundle scripts together for a page and hoist them to the top (in the head):
+
+  ```astro
+  <script hoist>
+    // Anything goes here!
+  </script>
+  ```
+
 ## 0.0.5
 
 ## 0.0.5-next.0

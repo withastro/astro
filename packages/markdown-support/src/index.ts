@@ -8,7 +8,7 @@ import { remarkCodeBlock, rehypeCodeBlock } from './codeblock.js';
 import { loadPlugins } from './load-plugins.js';
 import raw from 'rehype-raw';
 
-import unified from 'unified';
+import { unified } from 'unified';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
@@ -56,7 +56,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     parser.use(scopedStyles(scopedClassName));
   }
 
-  parser.use(remarkCodeBlock());
+  parser.use(remarkCodeBlock);
   parser.use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression'] });
   parser.use(rehypeExpressions);
 
@@ -69,10 +69,10 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     const vfile = await parser
       .use(raw)
       .use(rehypeCollectHeaders)
-      .use(rehypeCodeBlock())
+      .use(rehypeCodeBlock)
       .use(rehypeStringify, { entities: { useNamedReferences: true } })
       .process(content);
-    result = vfile.contents.toString();
+    result = vfile.toString();
   } catch (err) {
     throw err;
   }

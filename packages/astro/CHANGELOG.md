@@ -1,5 +1,56 @@
 # astro
 
+## 0.20.3
+
+### Patch Changes
+
+- 290f2032: Fix knownEntrypoint warning for \_\_astro_hoisted_scripts.js
+
+## 0.20.2
+
+### Patch Changes
+
+- 788c769d: # Hoisted scripts
+
+  This change adds support for hoisted scripts, allowing you to bundle scripts together for a page and hoist them to the top (in the head):
+
+  ```astro
+  <script hoist>
+    // Anything goes here!
+  </script>
+  ```
+
+- Updated dependencies [5d2ea578]
+  - @astrojs/parser@0.20.2
+
+## 0.20.1
+
+### Patch Changes
+
+- ff92be63: Add a new "astro preview" command
+
+## 0.20.0
+
+### Minor Changes
+
+- affcd04f: **[BREAKING CHANGE]** stop bundling, building, and processing public files. This fixes an issue where we weren't actually honoring the "do not process" property of the public directory.
+
+  If you were using the `public/` directory as expected and not using it to build files for you, then this should not be a breaking change. However, will notice that these files are no longer bundled.
+
+  If you were using the `public/` directory to build files (for example, like `public/index.scss`) then you can expect this to no longer work. As per the correct Astro documentation.
+
+### Patch Changes
+
+- Updated dependencies [397d8f3d]
+  - @astrojs/markdown-support@0.3.0
+
+## 0.19.4
+
+### Patch Changes
+
+- 44fb8ebc: Remove non-null assertions, fix lint issues and enable lint in CI.
+- 9482fade: Makes sure Astro.resolve works in nested component folders
+
 ## 0.19.3
 
 ### Patch Changes

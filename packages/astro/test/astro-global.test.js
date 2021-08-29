@@ -48,6 +48,7 @@ Global('Astro.resolve in development', async (context) => {
   const html = result.contents;
   const $ = doc(html);
   assert.equal($('img').attr('src'), '/_astro/src/images/penguin.png');
+  assert.equal($('#inner-child img').attr('src'), '/_astro/src/components/nested/images/penguin.png');
 });
 
 Global.run();

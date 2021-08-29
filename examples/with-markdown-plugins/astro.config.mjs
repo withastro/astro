@@ -10,8 +10,9 @@
 export default /** @type {import('astro').AstroUserConfig} */ ({
   // Enable Custom Markdown options, plugins, etc.
   markdownOptions: {
-    remarkPlugins: ['remark-code-titles', 'remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+    remarkPlugins: ['remark-code-titles', 'remark-slug'],
     rehypePlugins: [
+      ['rehype-autolink-headings', { behavior: 'prepend' }],
       ['rehype-toc', { headings: ['h2', 'h3'] }],
       ['rehype-add-classes', { 'h1,h2,h3': 'title' }],
     ],

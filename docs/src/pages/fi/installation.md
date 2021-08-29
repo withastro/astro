@@ -61,7 +61,8 @@ Voit nyt vaihtaa oletuksena toimivan "scripts"-osion `npm init`in luomassa `pack
   "scripts": {
 -    "test": "echo \"Error: no test specified\" && exit 1"
 +    "dev": "astro dev",
-+    "build": "astro build"
++    "build": "astro build",
++    "preview": "astro preview"
   },
 }
 ```
