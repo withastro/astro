@@ -118,7 +118,10 @@ Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 
 ### 🍃 Tailwind
 
-> Note that Astro's Tailwind support _only_ works with Tailwind JIT mode.
+> Please note the following: 
+>   Astro's Tailwind support _only_ works with Tailwind JIT mode.
+>   Astro V20 requires the styles to be in the `src` directory and implemented like so
+>   
 
 Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
 
@@ -158,6 +161,15 @@ Now you're ready to write Tailwind! Our recommended approach is to create a `src
 ```
 
 As an alternative to `src/styles/global.css`, You may also add Tailwind utilities to individual `pages/*.astro` components in `<style>` tags, but be mindful of duplication! If you end up creating multiple Tailwind-managed stylesheets for your site, make sure you're not sending the same CSS to users over and over again in separate CSS files.
+
+#### v20 Tweaks to the tailwind import
+As of [Version 20](https://github.com/snowpackjs/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process public files. You now need to move your styles into the `src` directory and import them like so, making use of [Astro Resolve](http://localhost:3000/reference/api-reference#astroresolve): 
+```html
+  <link 
+    rel="stylesheet" 
+    href={`${Astro.resolve(../styles/global.css)}`} 
+  />
+```
 
 ### Importing from npm
 
