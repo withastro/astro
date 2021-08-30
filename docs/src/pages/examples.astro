@@ -1,10 +1,11 @@
 ---
 import Layout from '../layouts/ExamplesLayout.astro'
-import Thumbnail from '../components/Examples/Thumbnail.astro'
+// import Thumbnail from '../components/Examples/Thumbnail.astro'
 import Card from '../components/Examples/Card.astro'
 import {Markdown} from 'astro/components'
-import templateData from '../components/Examples/function-generate-examples-data.js'
+import templateData from '../components/Examples/Functions/get-examples-data.js'
 let data = await templateData()
+let headers = {}
 ---
 <Layout content={data}>
     <Markdown>
@@ -74,6 +75,8 @@ let data = await templateData()
         align-items: center;
         gap: 2rem;
         margin-top:1.25rem;
+        scroll-behavior: smooth;
+        // content-visibility: auto;
     }
     .markdown{
         padding:2%;

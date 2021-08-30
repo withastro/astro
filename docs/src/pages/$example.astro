@@ -1,12 +1,12 @@
 ---
 import Layout from '../layouts/ExamplesLayout.astro'
-import templateData from '../components/Examples/function-generate-examples-data.js'
-import capitalise from '../components/Examples/function-capitalise.js'
-import formatTemplateName from '../components/Examples/function-format-name.js'
+import templateData from '../components/Examples/Functions/get-examples-data.js'
+import capitalise from '../components/Examples/Functions/capitalise.js'
+import formatName from '../components/Examples/Functions/format-name.js'
 import {Markdown} from 'astro/components'
 import CollapsibleReadme from '../components/Examples/CollapsibleReadme.astro'
-import generateHeroImg from '../components/Examples/function-generate-hero-img.js'
-const getImg = await generateHeroImg()
+import getHeroImg from '../components/Examples/Functions/generate-hero-img.js'
+const getImg = await getHeroImg()
 
 export async function createCollection(){
     const dataset = await templateData()
@@ -35,7 +35,7 @@ const {name, data} = Astro.props
 const templates =  data.reduce(item=> ({item}))
 let {name:title,pkgJSON,readme=""} = templates
 const {description, keywords} = pkgJSON
-let templateTitle = formatTemplateName(title)
+let templateTitle = formatName(title)
 ---
 <!-- Example 1 -->
 <!-- <Layout>

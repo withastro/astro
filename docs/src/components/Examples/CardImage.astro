@@ -1,10 +1,11 @@
 ---
-import generateHeroImg from './function-generate-hero-img.js'
-const getImg = await generateHeroImg() || 'https://source.unsplash.com/600x300/?space,cosmos'
+import getHeroImg from './Functions/get-hero-img.js'
+const getImg = await getHeroImg() || 'https://source.unsplash.com/600x300/?space,cosmos'
 ---
-    <img src={getImg} class='glass'/> 
-<style lang='scss'>
 
+  <img src={getImg} class='heroImg'/> 
+
+<style lang='scss'>
 img{
     display: block;
     --hero-radius: 50px 50px 100px 100px / 60px 60px 20px 20px;

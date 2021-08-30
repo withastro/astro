@@ -1,14 +1,13 @@
 ---
 import {Markdown} from 'astro/components'
-import capitalise from './function-capitalise.js'
-import formatTemplateName from './function-format-name.js'
-const {data:{name,readme,pkgJSON:{description,keywords}}} = Astro.props
+import formatName from './function/format-name.js'
+const {data:{name,pkgJSON:{description}}} = Astro.props
 ---
    <!-- Example 1  -->
 <!-- <div class="thumbnail">
         
         <a href={`/example/${name}`}>
-            <h3>{formatTemplateName(name)}
+            <h3>{formatName(name)}
             </h3>
             <img src="/default-og-image.png" alt="">
         </a>
@@ -21,7 +20,7 @@ const {data:{name,readme,pkgJSON:{description,keywords}}} = Astro.props
         
         <a href={`/example/${name}`}>
             <img src="/default-og-image.png" alt="">
-            <h3>{formatTemplateName(name)}
+            <h3>{formatName(name)}
             </h3>
         </a>
         <pre data-lang='bash'>--template {name}</pre>
@@ -32,7 +31,7 @@ const {data:{name,readme,pkgJSON:{description,keywords}}} = Astro.props
     <div class="thumbnail">
             <div class="title">
                 <a href={`/example/${name}`}>
-                    <h3 >{formatTemplateName(name)}
+                    <h3 >{formatName(name)}
                     </h3>
                 </a>
                 <code class="code-inline">{name}</code>

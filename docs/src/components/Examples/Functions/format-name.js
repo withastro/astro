@@ -1,6 +1,11 @@
-import capitalise from './function-capitalise.js'
+import capitalise from './capitalise'
 
-export default function formatTemplateName(name){
+/**
+ * 
+ * @param {String} name 
+ * @returns Formats the Template Name
+ */
+export default function formatName(name){
     return name.includes('multiple')
     ?
     `${capitalise(name.split('-')[1])} ${capitalise(name.split('-')[0])}'s`

@@ -3,7 +3,7 @@ import fs from 'fs'
 
 
 /**
- * @returns list of files from the examples folder
+ * @returns list of templates's package.json from the examples folder
  */
 async function getPkgJSON(){
     let data = []
@@ -17,7 +17,7 @@ async function getPkgJSON(){
 }
 
 /**
- * @returns list of files from the examples folder
+ * @returns list of templates readme from the examples folder
  */
 async function getExamplesREADME(){
     let data = []

@@ -1,15 +1,15 @@
 import fs from 'node:fs/promises'
+import randomIndex from './random-index'
 
-const randomIndex = (length) => Math.round(Math.random() * (0-length)) + length - 1
 
 /**
- * @returns url of random Icon Image
+ * getHeroImg
+ * @returns url of random Hero Image from './public/images'
  */
-export default async function generateHeroImg(){
-    const data =[]
+export default async function getHeroImg(){
     try {
+        const data =[]
         const paths =await fs.readdir('./public/images',{filesOnly:true})
-        
         paths.map(path=>data.push(`/images/${path}`))
         return data[randomIndex(paths.length)]
     } catch (error) {
