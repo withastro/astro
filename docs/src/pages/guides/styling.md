@@ -118,10 +118,7 @@ Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 
 ### 🍃 Tailwind
 
-> Please note the following: 
->   Astro's Tailwind support _only_ works with Tailwind JIT mode.
->   Astro V20 requires the styles to be in the `src` directory and implemented like so
->   
+> Note that Astro's Tailwind support _only_ works with Tailwind JIT mode.
 
 Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
 
