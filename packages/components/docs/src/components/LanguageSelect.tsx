@@ -1,9 +1,8 @@
-import type { FunctionalComponent } from 'preact';
 import { h } from 'preact';
+import type { FunctionalComponent } from 'preact';
 import './LanguageSelect.css';
-import { KNOWN_LANGUAGES, langPathRegex } from '../../languages';
 
-const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
+const LanguageSelect: FunctionalComponent<{ lang: string, options: Record<string, string> }> = ({ lang, options }) => {
   return (
     <div class="language-select-wrapper">
       <svg aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88.6 77.3" height="1.2em" width="1.2em">
@@ -18,14 +17,12 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
         value={lang}
         onChange={(e) => {
           const newLang = e.target.value;
-          let actualDest = window.location.pathname.replace(langPathRegex, '/');
-          if (actualDest == '/') actualDest = `/introduction`;
-          window.location.pathname = '/' + newLang + actualDest;
+          window.location.pathname = '/' + newLang + '/introduction';
         }}
       >
-        {Object.keys(KNOWN_LANGUAGES).map((key) => {
+        {Object.keys(options).map((key) => {
           return (
-            <option value={KNOWN_LANGUAGES[key]}>
+            <option value={options[key]}>
               <span>{key}</span>
             </option>
           );

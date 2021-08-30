@@ -1,0 +1,80 @@
+---
+import TableOfContents from '../components/TableOfContents.jsx';
+const {content} = Astro.props;
+const title = content.title;
+const headers = content.astro.headers;
+---
+<style>
+  .nav {
+    display: block;
+    margin: 2rem 0 2rem -1rem;
+  }
+  footer {
+    margin-top: auto;
+    padding: 2rem 0;
+    border-top: 3px solid var(--theme-divider);
+  }
+  @media (min-width: 72em) {
+    .sm\:hidden {
+      display: none;
+    }
+  }
+</style>
+<style global>
+  .content {
+    padding: 0;
+    max-width: 75ch;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0rem;
+  }
+  .content ul {
+    line-height: 1.1em;
+    color: var(--theme-text-light);
+  }
+  .content > section > * + * {
+    margin-top: 1.25rem;
+  }
+  .content > section > :first-child {
+    margin-top: 0;
+  }
+  .content > section :is(ul, ol) > * + * {
+    margin-top: 0.75rem;
+  }
+  .content > section nav :is(ul, ol) > * + * {
+    margin-top: inherit;
+  }
+  .content > section li > :is(p, pre, blockquote):not(:first-child) {
+    margin-top: 1rem;
+  }
+  .content > section :is(ul, ol) {
+    padding-left: 1em;
+  }
+  .content > section nav :is(ul, ol) {
+    padding-left: inherit;
+  }
+  .content > section nav {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+  }
+  .content > section ::marker {
+    font-weight: bold;
+    color: var(--theme-text-light);
+  }
+  .content > section iframe {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+</style>
+<article id="article" class="content">
+  <section class="main-section">
+    <h1 class="content-title" id="overview">{title}</h1>
+    <nav class="nav sm:hidden">
+      <TableOfContents client:media="(max-width: 50em)" headers={headers}/>
+    </nav>
+    <slot />
+  </section>
+</article>

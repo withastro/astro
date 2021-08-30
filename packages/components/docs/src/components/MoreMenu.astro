@@ -1,8 +1,7 @@
 ---
-import ThemeToggleButton from './ThemeToggleButton.jsx';
-import * as CONFIG from '../../config.js';
-const {editHref} = Astro.props;
-const showMoreSection = (CONFIG.COMMUNITY_INVITE_URL || editHref);
+import ThemeToggle from './ThemeToggle.astro';
+const {editUrl, inviteUrl} = Astro.props;
+const showMoreSection = (inviteUrl || editUrl);
 ---
 <style>
   .edit-on-github {
@@ -14,9 +13,9 @@ const showMoreSection = (CONFIG.COMMUNITY_INVITE_URL || editHref);
 </style>
 {showMoreSection && <h2 class="heading">More</h2>}
 <ul>
-  {editHref &&
+  {editUrl &&
     <li class={`header-link depth-2`}>
-      <a class="edit-on-github" href={editHref} target="_blank">
+      <a class="edit-on-github" href={editUrl} target="_blank">
         <svg
           aria-hidden="true"
           focusable="false"
@@ -38,7 +37,7 @@ const showMoreSection = (CONFIG.COMMUNITY_INVITE_URL || editHref);
       </a>
     </li>
   }
-  {CONFIG.COMMUNITY_INVITE_URL && 
+  {inviteUrl && 
     <li class={`header-link depth-2`}>
       <a href="https://astro.build/chat" target="_blank">
         <svg
@@ -64,5 +63,5 @@ const showMoreSection = (CONFIG.COMMUNITY_INVITE_URL || editHref);
   }
 </ul>
 <div style="margin: 2rem 0; text-align: center;">
-  <ThemeToggleButton client:visible />
+  <ThemeToggle />
 </div>

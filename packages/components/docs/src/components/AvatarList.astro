@@ -1,8 +1,7 @@
 ---
 // fetch all commits for just this page's path
-const path = "docs/" + Astro.props.path;
-const url = `https://api.github.com/repos/snowpackjs/astro/commits?path=${path}`;
-const commitsURL = `https://github.com/snowpackjs/astro/commits/main/${path}`;
+const url = `https://api.github.com/repos/${Astro.props.repo}/commits?path=${Astro.props.file}`;
+const commitsURL = `https://github.com/${Astro.props.repo}/commits/${Astro.props.branch || 'main'}/${Astro.props.file}`;
 
 async function getCommits(url) {
   try {
@@ -34,8 +33,7 @@ async function getCommits(url) {
 
     return data;
   } catch (e) {
-    console.warn(`[error]  /src/components/AvatarList.astro 
-    ${e?.message ?? e}`);
+    console.warn(`[error] AvatarList: ${e && e.message || e}`);
     return new Array();
   }
 }

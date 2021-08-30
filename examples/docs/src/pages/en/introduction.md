@@ -1,5 +1,6 @@
 ---
 title: Introduction
+lang: en
 layout: ../../layouts/MainLayout.astro
 ---
 

@@ -1,5 +1,6 @@
 ---
 title: Page 4
+lang: en
 layout: ../../layouts/MainLayout.astro
 ---
 

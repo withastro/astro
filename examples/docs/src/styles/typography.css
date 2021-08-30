@@ -1,0 +1,99 @@
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-bottom: 1rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+h1,
+h2 {
+  max-width: 40ch;
+}
+
+:is(h2, h3):not(:first-child) {
+  margin-top: 3rem;
+}
+
+:is(h4, h5, h6):not(:first-child) {
+  margin-top: 2rem;
+}
+
+h1 {
+  font-size: 3.25rem;
+  font-weight: 800;
+}
+
+h2 {
+  font-size: 2.5rem;
+}
+
+h3 {
+  font-size: 1.75rem;
+}
+
+h4 {
+  font-size: 1.3rem;
+}
+
+h5 {
+  font-size: 1rem;
+}
+
+p {
+  line-height: 1.65em;
+  color: var(--theme-text-light);
+}
+
+small,
+.text_small {
+  font-size: 0.833rem;
+}
+
+a {
+  color: var(--theme-text-accent);
+  font-weight: 400;
+  text-underline-offset: 0.08em;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+a > code:not([class*='language']) {
+  position: relative;
+  color: var(--theme-text-accent);
+  background: transparent;
+  text-underline-offset: var(--padding-block);
+}
+
+a > code:not([class*='language'])::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: block;
+  background: var(--theme-accent);
+  opacity: var(--theme-accent-opacity);
+  border-radius: var(--border-radius);
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+a:focus {
+  outline: 2px solid currentColor;
+  outline-offset: 0.25em;
+}
+
+strong {
+  font-weight: 600;
+  color: inherit;
+}

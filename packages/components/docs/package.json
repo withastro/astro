@@ -1,0 +1,21 @@
+{
+  "name": "@astrojs/docs",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "main": "./src/index.js",
+  "type": "module",
+  "dependencies": {
+    "@docsearch/react": "^1.0.0-alpha.27"
+  },
+  "devDependencies": {
+    "astro": "^0.20.3"
+  },
+  "snowpack": {
+    "workspaceRoot": "../../.."
+  }
+}

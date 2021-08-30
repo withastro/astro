@@ -24,6 +24,7 @@
   },
   "workspaces": [
     "packages/renderers/*",
+    "packages/components/*",
     "packages/*",
     "examples/*",
     "scripts",

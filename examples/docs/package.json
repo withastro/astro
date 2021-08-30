@@ -9,6 +9,7 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@astrojs/docs": "^0.0.1",
     "@docsearch/react": "^1.0.0-alpha.27"
   },
   "devDependencies": {

@@ -1,14 +1,10 @@
 ---
-import { getLanguageFromURL, KNOWN_LANGUAGE_CODES } from '../../languages.ts';
-import * as CONFIG from '../../config.ts';
-import AstroLogo from './AstroLogo.astro';
-import SkipToContent from './SkipToContent.astro';
-import SidebarToggle from './SidebarToggle.tsx';
-import LanguageSelect from './LanguageSelect.jsx';
-import Search from "./Search.jsx";
-
-const {currentPage} = Astro.props;
-const lang = currentPage && getLanguageFromURL(currentPage);
+import AstroLogo from '../components/AstroLogo.astro';
+import SkipToContent from '../components/SkipToContent.astro';
+import SidebarToggle from '../components/SidebarToggle.js';
+import LanguageSelect from '../components/LanguageSelect.js';
+import Search from '../components/Search.js';
+const {currentPage, lang, languages, search} = Astro.props;
 ---
 <style>
     header {
@@ -126,7 +122,12 @@ const lang = currentPage && getLanguageFromURL(currentPage);
         </a>
     </div>
     <div style="flex-grow: 1;"></div>
-    {KNOWN_LANGUAGE_CODES.length > 1 && <LanguageSelect lang={lang} client:idle />}
-    {CONFIG.ALGOLIA && <div class="search-item"><Search client:idle /></div>}
+      {Object.keys(languages).length > 1 && <LanguageSelect lang={lang} options={languages} client:idle />}
+      {search && <div class="search-item">
+        <Search 
+          client:idle 
+          indexName={search.indexName}
+          apiKey={search.apiKey} />
+      </div>}
     </nav>
 </header>

@@ -1,0 +1,52 @@
+---
+// The <Head /> Component - Responsible for site-wide `<head>` metadata and SEO tags.
+import * as CONFIG from '../config.ts';
+export interface Props {
+  /** A markdown content prop. */
+  content?: any;
+}
+
+const {content = {}} = Astro.props as Props;
+const siteTitle: string = CONFIG.SITE.title;
+const pageTitle: string = content.title ? `${content.title} | ${siteTitle}` : siteTitle;
+const pageDescription: string = content.description || CONFIG.SITE.description;
+const lang: string = content.lang || CONFIG.SITE.lang;
+const imageURL: string = content.image?.url || CONFIG.SITE.image.url;
+const imageAlt: string = content.image?.alt || CONFIG.SITE.image.alt;
+const canonicalURL: string = Astro.request.canonicalURL;
+const twitter: string | undefined = CONFIG.TWITTER;
+---
+  
+<!-- Global Metadata -->
+<meta name="viewport" content="width=device-width">
+<link rel="sitemap" href="/sitemap.xml"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
+
+<!-- Page Metadata -->
+<title>{pageTitle}</title>
+<link rel="canonical" href={canonicalURL}/>
+
+<!-- CSS -->
+<link rel="stylesheet" href={Astro.resolve('../styles/index.css')} />
+
+<!-- Preload Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital@0;1&display=swap" rel="stylesheet">
+
+<!-- OpenGraph Tags -->
+<meta property="og:title" content={pageTitle}/>
+<meta property="og:description" content={pageDescription}/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content={canonicalURL}/>
+<meta property="og:locale" content={lang}/>
+<meta property="og:image" content={imageURL}/>
+<meta property="og:image:alt" content={imageAlt}/>
+<meta property="og:site_name" content={siteTitle}/>
+
+<!-- Twitter Tags -->
+{twitter && <meta name="twitter:card" content="summary_large_image"/>}
+{twitter && <meta name="twitter:site" content={twitter} />}
+
+<!-- Add custom tags here! -->

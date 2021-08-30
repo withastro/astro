@@ -1,3 +1,52 @@
+/* General */
+pre {
+  background-color: var(--theme-code-bg);
+  color: var(--theme-code-text);
+}
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
+blockquote code:not([class*='language']) {
+  background-color: var(--theme-bg);
+}
+
+@media (min-width: 37.75em) {
+  pre {
+    --padding-inline: 1.25rem;
+    border-radius: 8px;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+code:not([class*='language']) {
+  --border-radius: 3px;
+  --padding-block: 0.2rem;
+  --padding-inline: 0.4rem;
+  color: var(--theme-code-inline-text);
+  background-color: var(--theme-code-inline-bg);
+  padding: var(--padding-block) var(--padding-inline);
+  margin: calc(var(--padding-block) * -1) -0.125em;
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+pre > code:not([class*='language']) {
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+  border-radius: 0;
+  color: inherit;
+}
+
+pre > code {
+  font-size: 1em;
+}
+
+
+
+/* Syntax Highlighting */
 .language-css > code,
 .language-sass > code,
 .language-scss > code {

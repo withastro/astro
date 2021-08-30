@@ -1,0 +1,34 @@
+---
+import TableOfContents from '../components/TableOfContents.jsx';
+import MoreMenu from '../components/MoreMenu.astro';
+const {content, editUrl, inviteUrl} = Astro.props;
+---
+<style>
+  .lg\:hidden {
+    display: none;
+  }
+  @media (min-width: 72em) {
+    .sidebar-nav {
+      width: 100%;
+      position: sticky;
+      top: 0;
+    }
+    .sidebar-nav-inner {
+      height: 100%;
+      padding: 0;
+      padding-top: var(--doc-padding);
+      overflow: auto;
+    }
+    .lg\:hidden {
+      display: block;
+    }
+  }
+</style>
+<nav class="sidebar-nav" aria-labelledby="grid-right">
+  <div class="sidebar-nav-inner">
+    <div class="lg:hidden" >
+      <TableOfContents client:media="(min-width: 50em)" headers={content.astro.headers} />
+    </div>
+    <MoreMenu editUrl={editUrl} inviteUrl={inviteUrl} />
+  </div>
+</nav>
