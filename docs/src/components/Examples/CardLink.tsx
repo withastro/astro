@@ -18,7 +18,7 @@ const CardLink:Component<CardLinkProps>=({href,name,children}:CardLinkProps):JSX
     function handleOnMouseEnter(e){
         const cardBody = Card.current.querySelector('.card-body')
         const cardThumb = Card.current.querySelector('.icon-image')
-        const cardImg = Card.current.querySelector('.glass')
+        const cardImg = Card.current.querySelector('.heroImg')
 
         if(e.target === cardBody || e.target === cardThumb || e.target === cardImg ) {
             e.target.setAttribute('title',`Click to find out more about our ${name} template`)
@@ -34,9 +34,9 @@ const CardLink:Component<CardLinkProps>=({href,name,children}:CardLinkProps):JSX
     function handleOnClick(e){
         const card = e.target
         const mainLink = card.querySelector('.main-link')
-        
+        const clickableArea = ['.card-body','.icon-image','.heroImg']
         for(let area of clickableArea){
-            if(e.target.classList.contains(area)) {
+            if(e.currentTarget.classList.contains(area)) {
                 return mainLink.click()
             }
         }

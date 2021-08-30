@@ -4,6 +4,7 @@ import formatTemplateName from './function-format-name.js'
 import generateThumbnailIcon from './function-generate-thumbnail-icon.js'
 import  CardLink from './CardLink.tsx'
 import CardImage from './CardImage.astro'
+import HeroImg from './HeroImg.tsx'
 import CodeBar from './Codebar.tsx'
 const icons = [
     <svg  id="terminal" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -30,7 +31,7 @@ const href = `/example/${name}`
     <div class="card-wrapper">
         <article class="card">
           <CardLink client:load href={href} name={`${formatTemplateName(name)}`} }>
-            <CardImage />
+            <CardImage client:load />
             <div class="card-body">
                 <div class="card-avatar">
                     <img src={avatarSrc} alt="" class="icon-image ball" />
@@ -41,7 +42,7 @@ const href = `/example/${name}`
                             {formatTemplateName(name)}
                         </h3>
                     </a>
-                    <CodeBar client:visible content={name} command={`npm init astro my-astro-project -- --template ${name}`}/>
+                    <CodeBar client:load content={name} command={`npm init astro my-astro-project -- --template ${name}`}/>
 
                   
                 </div>

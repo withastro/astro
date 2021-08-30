@@ -7,7 +7,12 @@ const randomIndex = (length) => Math.round(Math.random() * (0-length)) + length 
  */
 export default async function generateHeroImg(){
     const data =[]
-    const paths =await fs.readdir('./public/images/',{filesOnly:true})
-    paths.map(path=>data.push(`/images/${path}`))
-    return data[randomIndex(paths.length)]
+    try {
+        const paths =await fs.readdir('./public/images',{filesOnly:true})
+        
+        paths.map(path=>data.push(`/images/${path}`))
+        return data[randomIndex(paths.length)]
+    } catch (error) {
+        console.log(error)
+    }
 }
