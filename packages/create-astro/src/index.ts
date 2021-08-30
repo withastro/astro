@@ -25,11 +25,11 @@ const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import
 const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
 
 export async function main() {
-  console.log('\n' + bold('Welcome to Astro!') + gray(` (create-astro v${version})`));
+  console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
   console.log(`If you encounter a problem, visit ${cyan('https://github.com/snowpackjs/astro/issues')} to search or file a new issue.\n`);
 
-  console.log(green(`>`) + gray(` Prepare for liftoff.`));
-  console.log(green(`>`) + gray(` Gathering mission details...`));
+  console.log(`${green(`>`)} ${gray(`Prepare for liftoff.`)}`);
+  console.log(`${green(`>`)} ${gray(`Gathering mission details...`)}`);
 
   const cwd = args['_'][2] || '.';
   if (fs.existsSync(cwd)) {
@@ -85,16 +85,16 @@ export async function main() {
       },
     ]);
     renderers = result.renderers;
-  } else if (selectedTemplate?.renderers && Array.isArray(selectedTemplate.renderers)) {
+  } else if (selectedTemplate?.renderers && Array.isArray(selectedTemplate.renderers) && selectedTemplate.renderers.length) {
     renderers = selectedTemplate.renderers;
     const titles = renderers.map((renderer) => FRAMEWORKS.find((item) => item.value === renderer)?.title).join(', ');
-    console.log(green(`✔`) + bold(` Using template's default renderers`) + gray(' › ') + titles);
+    console.log(`${green(`✔`)} ${bold(`Using template's default renderers`)} ${gray('›')} ${titles}`);
   }
 
   // Copy
   try {
     // emitter.on('info', info => { console.log(info.message) });
-    console.log(green(`>`) + gray(` Copying project files...`));
+    console.log(`${green(`>`)} ${gray(`Copying project files...`)}`);
     await emitter.clone(cwd);
   } catch (err) {
     // degit is compiled, so the stacktrace is pretty noisy. Just report the message.
@@ -188,5 +188,5 @@ export async function main() {
   console.log(`  ${i++}: ${bold(cyan('npm run dev'))} (or pnpm, yarn, etc)`);
 
   console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
-  console.log('\nStuck? Visit us at https://astro.build/chat\n');
+  console.log(`\nStuck? Visit us at ${cyan('https://astro.build/chat')}\n`);
 }
