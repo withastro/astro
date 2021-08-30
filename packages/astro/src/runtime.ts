@@ -286,7 +286,7 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const mountOptions = {
     ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: { url: '/', static: true, resolve: false } } : {}),
     [fileURLToPath(frontendPath)]: '/_astro_frontend',
-    [fileURLToPath(src)]: '/_astro/src', // must be last (greediest)
+    [fileURLToPath(src)]: `/_astro/${fileURLToPath(src).slice(fileURLToPath(projectRoot).length - 1)}`, // must be last (greediest)
   };
 
   // Tailwind: IDK what this does but it makes JIT work 🤷‍♂️
