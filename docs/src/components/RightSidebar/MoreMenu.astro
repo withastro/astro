@@ -1,6 +1,7 @@
 ---
 import ThemeToggleButton from './ThemeToggleButton.jsx';
 const {editHref} = Astro.props;
+const astroVersion = process.env.npm_package_devDependencies_astro.replace("^", "");
 ---
 <style>
   .edit-on-github {
@@ -66,3 +67,4 @@ const {editHref} = Astro.props;
 <div style="margin: 2rem 0; text-align: center;">
   <ThemeToggleButton client:visible />
 </div>
+<div style="text-align: center;"><b>v{astroVersion}</b></div>
