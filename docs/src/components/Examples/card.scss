@@ -6,8 +6,6 @@
   background: var(--theme-card-bg);
   box-shadow: var(--theme-card-box-shadow);
   transition: all 0.25s cubic-bezier(0, 0, 0.75, 0.24);
-  scroll-behavior: smooth;
-  content-visibility: auto;
   &:hover{
     transform: translateY(-0.25rem);
   }
