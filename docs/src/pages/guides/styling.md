@@ -161,7 +161,7 @@ As an alternative to `src/styles/global.css`, You may also add Tailwind utilitie
 
 #### v20 Tweaks to the tailwind import
 As of [Version 20](https://github.com/snowpackjs/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process public files. You now need to move your styles into the `src` directory and import them like so, making use of [Astro Resolve](http://localhost:3000/reference/api-reference#astroresolve): 
-```html
+```astro
   <link 
     rel="stylesheet" 
     href={Astro.resolve("../styles/global.css")} 
