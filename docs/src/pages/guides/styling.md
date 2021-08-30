@@ -164,8 +164,8 @@ As of [Version 20](https://github.com/snowpackjs/astro/releases/tag/astro%400.20
 ```html
   <link 
     rel="stylesheet" 
-    href={`${Astro.resolve(../styles/global.css)}`} 
-  />
+    href={Astro.resolve("../styles/global.css")} 
+  >
 ```
 
 ### Importing from npm
