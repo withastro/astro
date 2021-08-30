@@ -61,6 +61,10 @@ export const SIDEBAR = {
     { text: '快速入门', link: 'zh-CN/quick-start' },
     { text: '安装指南', link: 'zh-CN/installation' },
     { text: '模板样例', link: 'zh-CN/examples' },
+    {
+      text: 'Astro 对比其他框架',
+      link: 'zh-CN/comparing-astro-vs-other-tools',
+    },
   ],
   'zh-TW': [
     { text: '設定', header: true },
