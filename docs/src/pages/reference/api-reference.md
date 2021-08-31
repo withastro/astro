@@ -58,8 +58,6 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 | `url`          | `URL` | The URL of the request being rendered.          |
 | `canonicalURL` | `URL` | [Canonical URL][canonical] of the current page. |
 
-⚠️ Temporary restriction: this is only accessible in top-level pages and not in sub-components.
-
 ### `Astro.resolve()`
 
 `Astro.resolve()` helps with creating URLs relative to the current Astro file, allowing you to reference files within your `src/` folder.
