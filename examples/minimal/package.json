@@ -2,6 +2,13 @@
   "name": "@example/minimal",
   "version": "0.0.1",
   "private": true,
+  "description": "Minimalistic Astro Starter kit",
+  "keywords": ["create-astro","template","astro"],
+  "repository": {
+    "directory": "/examples/minimal",
+    "type": "github",
+    "url": "https://github.com/snowpackjs/astro/tree/main"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
