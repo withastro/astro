@@ -159,6 +159,17 @@ Now you're ready to write Tailwind! Our recommended approach is to create a `src
 
 As an alternative to `src/styles/global.css`, You may also add Tailwind utilities to individual `pages/*.astro` components in `<style>` tags, but be mindful of duplication! If you end up creating multiple Tailwind-managed stylesheets for your site, make sure you're not sending the same CSS to users over and over again in separate CSS files.
 
+#### Migrating from v0.19
+
+As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process `public/` files. Previously, we'd recommended putting your tailwind files in the `public/` directory. If you started a project with this pattern, you should move any Tailwind styles into the `src` directory and import them in your template using [Astro.resolve()](/reference/api-reference#astroresolve): 
+
+```astro
+  <link 
+    rel="stylesheet" 
+    href={Astro.resolve("../assets/global.css")} 
+  >
+```
+
 ### Importing from npm
 
 If you want to import third-party libraries into an Astro component, you can use a `<style lang="scss">` tag to enable [Sass][sass] and use the [@use][sass-use] rule.
