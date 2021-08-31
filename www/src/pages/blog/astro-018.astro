@@ -10,17 +10,16 @@ import Shell from '../../components/Shell.astro';
 import { mediaQueries } from '../../config.js';
 
 let title = 'Astro 0.18 Release';
-let description = `Responsive partial hydration • Solid.js support • Lit SSR support • Named slots • Global style support • and more!`;
+let description = `Introducing: Responsive partial hydration • Solid.js support • Lit SSR support • Named slots • Global style support • and more!`;
 let publishDate = 'Tuesday, July 27 2021';
 let author = 'matthew';
 let heroImage = '/social.jpg';
-let permalink = 'https://astro.build/blog/astro-0-18';
 let lang = 'en';
 ---
 
 <html lang={ lang ?? 'en' }>
   <head>
-    <BlogHead title={title} description={description} permalink={permalink} />
+    <BlogHead title={title} description={description} canonicalURL={Astro.request.canonicalURL} />
     <style global>
       img {
         max-width: 100%;

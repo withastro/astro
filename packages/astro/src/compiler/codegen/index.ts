@@ -1,8 +1,8 @@
 import type { Ast, Script, Style, TemplateNode, Expression } from '@astrojs/parser';
 import type { CompileOptions } from '../../@types/compiler';
-import type { AstroConfig, AstroMarkdownOptions, TransformResult, ComponentInfo, Components } from '../../@types/astro';
+import type { AstroConfig, TransformResult, ComponentInfo, Components, ScriptInfo } from '../../@types/astro';
 import type { ImportDeclaration, ExportNamedDeclaration, VariableDeclarator, Identifier, ImportDefaultSpecifier } from '@babel/types';
-
+import type { Attribute } from './interfaces';
 import eslexer from 'es-module-lexer';
 import esbuild from 'esbuild';
 import path from 'path';
@@ -15,13 +15,14 @@ import * as babelTraverse from '@babel/traverse';
 import { error, warn, parseError } from '../../logger.js';
 import { yellow } from 'kleur/colors';
 import { isComponentTag, isCustomElementTag, positionAt } from '../utils.js';
+import { warnIfRelativeStringLiteral } from './utils.js';
 import { renderMarkdown } from '@astrojs/markdown-support';
 import { camelCase } from 'camel-case';
 import { transform } from '../transform/index.js';
 import { PRISM_IMPORT } from '../transform/prism.js';
 import { nodeBuiltinsSet } from '../../node_builtins.js';
 import { readFileSync } from 'fs';
-import { pathToFileURL } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const { parse, FEATURE_CUSTOM_ELEMENT } = astroParser;
 const traverse: typeof babelTraverse.default = (babelTraverse.default as any).default;
@@ -30,16 +31,7 @@ const traverse: typeof babelTraverse.default = (babelTraverse.default as any).de
 const babelGenerator: typeof _babelGenerator = _babelGenerator.default;
 const { transformSync } = esbuild;
 
-const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media']);
-
-interface Attribute {
-  start: number;
-  end: number;
-  type: 'Attribute' | 'Spread';
-  name: string;
-  value: TemplateNode[] | boolean;
-  expression?: Expression;
-}
+const hydrationDirectives = new Set(['client:load', 'client:idle', 'client:visible', 'client:media', 'client:only']);
 
 interface CodeGenOptions {
   compileOptions: CompileOptions;
@@ -48,7 +40,7 @@ interface CodeGenOptions {
 }
 
 interface HydrationAttributes {
-  method?: 'load' | 'idle' | 'visible' | 'media';
+  method?: 'load' | 'idle' | 'visible' | 'media' | 'only';
   value?: undefined | string;
 }
 
@@ -68,7 +60,8 @@ function findHydrationAttributes(attrs: Record<string, string>): HydrationAttrib
 }
 
 /** Retrieve attributes from TemplateNode */
-async function getAttributes(attrs: Attribute[], state: CodegenState, compileOptions: CompileOptions): Promise<Record<string, string>> {
+async function getAttributes(nodeName: string, attrs: Attribute[], state: CodegenState, compileOptions: CompileOptions): Promise<Record<string, string>> {
+  const isPage = state.filename.startsWith(fileURLToPath(compileOptions.astroConfig.pages));
   let result: Record<string, string> = {};
   for (const attr of attrs) {
     if (attr.type === 'Spread') {
@@ -118,9 +111,14 @@ async function getAttributes(attrs: Attribute[], state: CodegenState, compileOpt
         }
         continue;
       }
-      case 'Text':
-        result[attr.name] = JSON.stringify(getTextFromAttribute(val));
+      case 'Text': {
+        let text = getTextFromAttribute(val);
+        if (!isPage) {
+          warnIfRelativeStringLiteral(compileOptions.logging, nodeName, attr, text);
+        }
+        result[attr.name] = JSON.stringify(text);
         continue;
+      }
       case 'AttributeShorthand':
         result[attr.name] = '(' + attr.name + ')';
         continue;
@@ -183,7 +181,7 @@ interface GetComponentWrapperOptions {
 const PlainExtensions = new Set(['.js', '.jsx', '.ts', '.tsx']);
 /** Generate Astro-friendly component import */
 function getComponentWrapper(_name: string, hydration: HydrationAttributes, { url, importSpecifier }: ComponentInfo, opts: GetComponentWrapperOptions) {
-  const { astroConfig, filename } = opts;
+  const { astroConfig, filename, compileOptions } = opts;
 
   let name = _name;
   let method = hydration.method;
@@ -194,7 +192,6 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
     name = legacyName;
     method = legacyMethod as HydrationAttributes['method'];
 
-    const { compileOptions, filename } = opts;
     const shortname = path.posix.relative(compileOptions.astroConfig.projectRoot.pathname, filename);
     warn(compileOptions.logging, shortname, yellow(`Deprecation warning: Partial hydration now uses a directive syntax. Please update to "<${name} client:${method} />"`));
   }
@@ -226,13 +223,18 @@ function getComponentWrapper(_name: string, hydration: HydrationAttributes, { ur
       }
     };
 
-    let metadata: string = '';
+    let metadata = '';
     if (method) {
       const componentUrl = getComponentUrl(astroConfig, url, pathToFileURL(filename));
       const componentExport = getComponentExport();
       metadata = `{ hydrate: "${method}", displayName: "${name}", componentUrl: "${componentUrl}", componentExport: ${JSON.stringify(componentExport)}, value: ${
         hydration.value || 'null'
       } }`;
+
+      // for client:only components, only render a Fragment on the server
+      if (method === 'only') {
+        name = 'Fragment';
+      }
     } else {
       metadata = `{ hydrate: undefined, displayName: "${name}", value: ${hydration.value || 'null'} }`;
     }
@@ -308,12 +310,13 @@ function transpileExpressionSafe(
 
 interface CompileResult {
   script: string;
-  createCollection?: string;
+  getStaticPaths?: string;
 }
 
 interface CodegenState {
   components: Components;
   css: string[];
+  hoistedScripts: ScriptInfo[];
   filename: string;
   fileID: string;
   markers: {
@@ -322,6 +325,7 @@ interface CodegenState {
   declarations: Set<string>;
   exportStatements: Set<string>;
   importStatements: Set<string>;
+  componentImports: Map<string, string[]>;
   customElementCandidates: Map<string, string>;
 }
 
@@ -335,7 +339,7 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
 
   let script = '';
   let propsStatement = '';
-  let createCollection = ''; // function for executing collection
+  let getStaticPaths = ''; // function for executing collection
 
   if (module) {
     const parseOptions: babelParser.ParserOptions = {
@@ -408,9 +412,9 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
               componentProps.push(declaration);
             }
           } else if (node.declaration.type === 'FunctionDeclaration') {
-            // case 2: createCollection (export async function)
-            if (!node.declaration.id || node.declaration.id.name !== 'createCollection') break;
-            createCollection = babelGenerator(node).code;
+            // case 2: getStaticPaths (export async function)
+            if (!node.declaration.id || node.declaration.id.name !== 'getStaticPaths') break;
+            getStaticPaths = babelGenerator(node).code;
           }
 
           body.splice(i, 1);
@@ -450,6 +454,13 @@ function compileModule(ast: Ast, module: Script, state: CodegenState, compileOpt
           importSpecifier: specifier,
           url: importUrl,
         });
+        if (!state.componentImports.has(componentName)) {
+          state.componentImports.set(componentName, []);
+        }
+
+        // Track component imports to be used for server-rendered components
+        const { start, end } = componentImport;
+        state.componentImports.get(componentName)?.push(module.content.slice(start || undefined, end || undefined));
       }
       const { start, end } = componentImport;
       if (ast.meta.features & FEATURE_CUSTOM_ELEMENT && componentImport.specifiers.length === 0) {
@@ -490,7 +501,7 @@ const { ${props.join(', ')} } = Astro.props;\n`)
 
   return {
     script,
-    createCollection: createCollection || undefined,
+    getStaticPaths: getStaticPaths || undefined,
   };
 }
 
@@ -556,7 +567,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       }
       const { $scope: scopedClassName } = state.markers.insideMarkdown as Record<'$scope', any>;
       let { content: rendered } = await renderMarkdown(dedent(md), {
-        ...(markdownOptions as AstroMarkdownOptions),
+        ...markdownOptions,
         $: { scopedClassName: scopedClassName && scopedClassName.slice(1, -1) },
       });
 
@@ -642,7 +653,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
               throw new Error('AHHHH');
             }
             try {
-              const attributes = await getAttributes(node.attributes, state, compileOptions);
+              const attributes = await getAttributes(name, node.attributes, state, compileOptions);
               const hydrationAttributes = findHydrationAttributes(attributes);
 
               buffers.out += buffers.out === '' ? '' : ',';
@@ -661,6 +672,19 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   state.importStatements.add(`import { __astro_slot_content } from 'astro/dist/internal/__astro_slot.js';`);
                   buffers[curr] += `h(__astro_slot_content, { name: ${attributes.slot} },`;
                   paren++;
+                }
+                if (attributes.hoist) {
+                  if (attributes.src) {
+                    state.hoistedScripts.push({
+                      src: attributes.src.substr(1, attributes.src.length - 2),
+                    });
+                  } else if (node.children && node.children.length === 1 && node.children[0].type === 'Text') {
+                    state.hoistedScripts.push({
+                      content: node.children[0].data,
+                    });
+                  }
+                  this.skip();
+                  return;
                 }
                 buffers[curr] += `h("${name}", ${generateAttributes(attributes)},`;
                 paren++;
@@ -717,6 +741,11 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                   importStatements.add(wrapperImport);
                 }
               }
+              if (hydrationAttributes.method === 'only') {
+                // Remove component imports for client-only components
+                const componentImports = state.componentImports.get(componentName) || [];
+                componentImports.map((componentImport) => state.importStatements.delete(componentImport));
+              }
               if (curr === 'markdown') {
                 await pushMarkdownToBuffer();
               }
@@ -769,7 +798,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
             }
             if (parent.name === 'code') {
               // Special case, escaped { characters from markdown content
-              text = node.raw.replace(/&#x26;#123;/g, '{');
+              text = node.raw.replace(/ASTRO_ESCAPED_LEFT_CURLY_BRACKET\0/g, '{');
             }
             buffers[curr] += ',' + JSON.stringify(text);
             return;
@@ -872,16 +901,18 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     fileID,
     components: new Map(),
     css: [],
+    hoistedScripts: [],
     markers: {
       insideMarkdown: false,
     },
     declarations: new Set(),
     importStatements: new Set(),
     exportStatements: new Set(),
+    componentImports: new Map(),
     customElementCandidates: new Map(),
   };
 
-  const { script, createCollection } = compileModule(ast, ast.module, state, compileOptions);
+  const { script, getStaticPaths } = compileModule(ast, ast.module, state, compileOptions);
 
   (ast.css || []).map((css) => compileCss(css, state));
 
@@ -893,7 +924,9 @@ export async function codegen(ast: Ast, { compileOptions, filename, fileID }: Co
     exports: Array.from(state.exportStatements),
     html,
     css: state.css.length ? state.css.join('\n\n') : undefined,
-    createCollection,
+    hoistedScripts: state.hoistedScripts,
+    components: Array.from(state.components.keys()),
+    getStaticPaths,
     hasCustomElements: Boolean(ast.meta.features & FEATURE_CUSTOM_ELEMENT),
     customElementCandidates: state.customElementCandidates,
   };

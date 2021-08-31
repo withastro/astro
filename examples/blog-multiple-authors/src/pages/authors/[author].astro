@@ -1,0 +1,85 @@
+---
+import MainHead from '../../components/MainHead.astro';
+import Nav from '../../components/Nav.astro';
+import PostPreview from '../../components/PostPreview.astro';
+import Pagination from '../../components/Pagination.astro';
+
+// page
+let title = 'Don’s Blog';
+let description = 'An example blog on Astro';
+let canonicalURL = Astro.request.canonicalURL;
+
+// collection
+import authorData from '../../data/authors.json';
+export function getStaticPaths() {
+  const allPosts = Astro.fetchContent('../post/*.md');
+  let allAuthorsUnique = [...new Set(allPosts.map(p => p.author))];
+  return allAuthorsUnique.map(author => ({params: {author}, props: {allPosts}}));
+}
+
+const { allPosts } = Astro.props;
+const { params } = Astro.request;
+
+/** filter posts by author, sort by date */
+const posts = allPosts
+  .filter((post) => post.author === params.author)
+  .sort((a, b) => new Date(b.date) - new Date(a.date));
+const author = authorData[posts[0].author];
+---
+
+<html lang="en">
+  <head>
+    <title>{title}</title>
+    <MainHead
+      title={title}
+      description={description}
+      image={posts[0].image}
+      canonicalURL={canonicalURL}
+    />
+
+    <style lang="scss">
+      .title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3em;
+        letter-spacing: -0.04em;
+        margin-top: 2rem;
+        margin-bottom: 0;
+      }
+
+      .avatar {
+        width: 1em;
+        height: 1em;
+        margin-right: 0.5em;
+        border-radius: 50%;
+        overflow:hidden;
+
+        &-img {
+          display: block;
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      .count {
+        font-size: 1em;
+        display: block;
+        text-align: center;
+      }
+    </style>
+  </head>
+
+  <body>
+    <Nav title={title} />
+
+    <main class="wrapper">
+      <h2 class="title">
+        <div class="avatar"><img class="avatar-img" src={author.image} alt=""}></div>
+        {author.name}
+      </h2>
+      {posts.map((post) => <PostPreview post={post} author={author} />)}
+    </main>
+  </body>
+</html>

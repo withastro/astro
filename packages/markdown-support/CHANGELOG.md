@@ -1,5 +1,17 @@
 # @astrojs/markdown-support
 
+## 0.3.0
+
+### Minor Changes
+
+- 397d8f3d: Upgrade `@astrojs/markdown-support` dependencies. The `remark-rehype@9` upgrade enables accessible footnotes with `remark-footnotes`.
+
+## 0.2.4
+
+### Patch Changes
+
+- a421329f: Fix the left-brace issue
+
 ## 0.2.3
 
 ### Patch Changes

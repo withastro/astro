@@ -114,9 +114,11 @@ Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
 
 💁‍ Sass is great! If you haven't used Sass in a while, please give it another try. The new and improved [Sass Modules][sass-use] are a great fit with modern web development, and it's blazing-fast since being rewritten in Dart. And the best part? **You know it already!** Use `.scss` to write familiar CSS syntax you're used to, and only sprinkle in Sass features if/when you need them.'
 
-**Note**: If you use .scss files rather than .css files, your stylesheet links should still point to .css files because of Astro’s auto-compilation process. When Astro “needs” the styling files, it’ll be “looking for” the final .css file(s) that it compiles from the .scss file(s). For example, if you have a .scss file at `./public/style/global.scss`, use this link: `<link rel="stylesheet" href="/style/global.css">` — **not** `<link rel="stylesheet" href="/style/global.scss">`.
+**Note**: If you use .scss files rather than .css files, your stylesheet links should still point to .css files because of Astro’s auto-compilation process. When Astro “needs” the styling files, it’ll be “looking for” the final .css file(s) that it compiles from the .scss file(s). For example, if you have a .scss file at `./src/styles/global.scss`, use this link: `<link rel="stylesheet" href="{Astro.resolve('../styles/global.css')}">` — **not** `<link rel="stylesheet" href="{Astro.resolve('../styles/global.scss')}">`.
 
 ### 🍃 Tailwind
+
+> Note that Astro's Tailwind support _only_ works with Tailwind JIT mode.
 
 Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
 
@@ -146,16 +148,27 @@ Be sure to add the config path to `astro.config.mjs`, so that Astro enables JIT 
   };
 ```
 
-Now you're ready to write Tailwind! Our recommended approach is to create a `public/global.css` file (or whatever you‘d like to name your global stylesheet) with [Tailwind utilities][tailwind-utilities] like so:
+Now you're ready to write Tailwind! Our recommended approach is to create a `src/styles/global.css` file (or whatever you‘d like to name your global stylesheet) with [Tailwind utilities][tailwind-utilities] like so:
 
 ```css
-/* public/global.css */
+/* src/styles/global.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 ```
 
-As an alternative to `public/global.css`, You may also add Tailwind utilities to individual `pages/*.astro` components in `<style>` tags, but be mindful of duplication! If you end up creating multiple Tailwind-managed stylesheets for your site, make sure you're not sending the same CSS to users over and over again in separate CSS files.
+As an alternative to `src/styles/global.css`, You may also add Tailwind utilities to individual `pages/*.astro` components in `<style>` tags, but be mindful of duplication! If you end up creating multiple Tailwind-managed stylesheets for your site, make sure you're not sending the same CSS to users over and over again in separate CSS files.
+
+#### Migrating from v0.19
+
+As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process `public/` files. Previously, we'd recommended putting your tailwind files in the `public/` directory. If you started a project with this pattern, you should move any Tailwind styles into the `src` directory and import them in your template using [Astro.resolve()](/reference/api-reference#astroresolve):
+
+```astro
+  <link
+    rel="stylesheet"
+    href={Astro.resolve("../assets/global.css")}
+  >
+```
 
 ### Importing from npm
 
@@ -272,7 +285,7 @@ import Button from './Button.astro';
 </nav>
 ```
 
-This is undesirable because now `<Nav>` and `<Button>` fight over what the final button looks like. Now, whenever you edit one, you'll always have to edit the other, and they are no longer truly isolated as they once were (now coupled by a bidirectional styling dependency). It's easy to see how this pattern only has to repeated a couple times before being afraid that touching any styles _anywhere_ may break styling in a completely different part of the app (queue `peter-griffin-css-blinds.gif`).
+This is undesirable because now `<Nav>` and `<Button>` fight over what the final button looks like. Now, whenever you edit one, you'll always have to edit the other, and they are no longer truly isolated as they once were (now coupled by a bidirectional styling dependency). It's easy to see how this pattern only has to be repeated a couple times before being afraid that touching any styles _anywhere_ may break styling in a completely different part of the app (queue `peter-griffin-css-blinds.gif`).
 
 Instead, let `<Button>` control its own styles, and try a prop:
 
@@ -303,7 +316,7 @@ Elsewhere, you can use `<Button theme="nav">` to set the type of button it is. T
 
 Recently there has been a debate of all-scoped component styles vs utility-only CSS. But we agree with people like Sarah Dayan who ask [why can't we have both][utility-css]? Truth is that while having scoped component styles are great, there are still hundreds of times when the website's coming together when two components just don't line up _quite_ right, and one needs a nudge. Or different text treatment is needed in one component instance.
 
-While the thought of having perfect, pristine components is nice, it's unrealistic. No design system is absoutely perfect, and every design system has inconsistencies. And it's in reconciling these inconsistencies where components can become a mess without utility CSS. Utility CSS is great for adding minor tweaks necessary to get the website out the door. But they also are incomplete on their own—if you've ever tried to manage responsive styles or accessible focus states with utility CSS it can quickly become a mess! **Utility CSS works best in partnership with component (scoped) CSS**. And in order to be as easy as possible to use, Utility CSS should be global (arguably should be your only global CSS, besides maybe reset.css) so you don't have to deal with imports all willy-nilly.
+While the thought of having perfect, pristine components is nice, it's unrealistic. No design system is absolutely perfect, and every design system has inconsistencies. And it's in reconciling these inconsistencies where components can become a mess without utility CSS. Utility CSS is great for adding minor tweaks necessary to get the website out the door. But they also are incomplete on their own—if you've ever tried to manage responsive styles or accessible focus states with utility CSS it can quickly become a mess! **Utility CSS works best in partnership with component (scoped) CSS**. And in order to be as easy as possible to use, Utility CSS should be global (arguably should be your only global CSS, besides maybe reset.css) so you don't have to deal with imports all willy-nilly.
 
 Some great problems best handled with Utility CSS are:
 
@@ -324,15 +337,13 @@ In Astro, we recommend the following setup for this:
 And in your local filesystem, you can even use Sass' [@use][sass-use] to combine files together effortlessly:
 
 ```
-├── public/
+├── src/
 │   └── styles/
 │       ├── _base.scss
 │       ├── _tokens.scss
 │       ├── _typography.scss
 │       ├── _utils.scss
 │       └── global.scss
-└── src/
-    └── (pages)
 ```
 
 What's in each file is up to you to determine, but start small, add utilities as you need them, and you'll keep your CSS weight incredibly low. And utilities you wrote to meet your real needs will always be better than anything off the shelf.

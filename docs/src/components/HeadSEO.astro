@@ -5,8 +5,10 @@ export interface Props {
   site: any,
   canonicalURL: URL | string,
 };
-const { content = {}, canonicalURL } = Astro.props;
-const formattedContentTitle = content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title;
+const { 
+        content = {},
+        canonicalURL,
+      } = Astro.props;
 const imageSrc = content?.image?.src ?? OPEN_GRAPH.image.src;
 const canonicalImageSrc = new URL(imageSrc, Astro.site);
 const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
@@ -15,7 +17,7 @@ const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
 <link rel="canonical" href={canonicalURL}/>
 
 <!-- OpenGraph Tags -->
-<meta property="og:title" content={formattedContentTitle}/>
+<meta property="og:title" content={content.title ?? SITE.title}/>
 <meta property="og:type" content="article"/>
 <meta property="og:url" content={canonicalURL}/>
 <meta property="og:locale" content={content.ogLocale ?? OPEN_GRAPH.locale}/>
@@ -27,7 +29,7 @@ const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
 <!-- Twitter Tags -->
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:site" content={OPEN_GRAPH.twitter}/>
-<meta name="twitter:title" content={formattedContentTitle}/>
+<meta name="twitter:title" content={content.title ?? SITE.title}/>
 <meta name="twitter:description" content={content.description ? content.description : SITE.description}/>
 <meta name="twitter:image" content={canonicalImageSrc}/>
 <meta name="twitter:image:alt" content={imageAlt}/>

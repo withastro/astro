@@ -11,12 +11,10 @@ export function fetchContent(importMetaGlobResult: Record<string, any>, url: str
         return;
       }
       const urlSpec = new URL(spec, url).pathname.replace(/[\\/\\\\]/, '/');
-      if (!urlSpec.includes('/pages/')) {
-        return mod.__content;
-      }
       return {
         ...mod.__content,
-        url: urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, ''),
+        url: urlSpec.includes('/pages/') && urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, ''),
+        file: new URL(spec, url),
       };
     })
     .filter(Boolean);

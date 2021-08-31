@@ -25,7 +25,7 @@ npm init astro
 yarn create astro
 ```
 
-[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) wizard lets you choose from a set of [starter templates](/examples) or alternatively, you could import your own Astro project directly from Github.
+[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) wizard lets you choose from a set of [starter templates](/examples) or alternatively, you could import your own Astro project directly from GitHub.
 
 ```bash
 # Note: Replace "my-astro-project" with the name of your project.
@@ -52,7 +52,7 @@ You can now [Start](#start-astro) your Astro project. Once you have completed as
 
 ## Manual Install
 
-You can also setup Astro without the aide of the `create-astro` wizard, below are the few extra steps that are required to get Astro going.
+You can also set up Astro without the aide of the `create-astro` wizard, below are the few extra steps that are required to get Astro going.
 
 ### Set up your project
 
@@ -75,7 +75,7 @@ Astro is designed to work with the entirety of the npm package ecosystem. This i
 
 ### Install Astro
 
-Following the instructions above, you should have a directory with a single `package.json` file inside of it. You can now setup Astro inside your project.
+Following the instructions above, you should have a directory with a single `package.json` file inside of it. You can now set up Astro inside your project.
 
 ```bash
 npm install astro
@@ -86,13 +86,14 @@ You can now replace the placeholder "scripts" section of your `package.json` fil
 ```diff
   "scripts": {
 -    "test": "echo \"Error: no test specified\" && exit 1"
-+    "start": "astro dev",
-+    "build": "astro build"
++    "dev": "astro dev",
++    "build": "astro build",
++    "preview": "astro preview"
   },
 }
 ```
 
-The [`start`](#start-astro) command launches the Astro Dev Server on `http://localhost:3000`. Once your project is ready, the [`build`](#build-astro) command outputs your project to the `dist/` directory. [Read more about deploying Astro in the Deploy guide.](/guides/deploy)
+The [`dev`](#start-astro) command launches the Astro Dev Server on `http://localhost:3000`. Once your project is ready, the [`build`](#build-astro) command outputs your project to the `dist/` directory. [Read more about deploying Astro in the Deploy guide.](/guides/deploy)
 
 ### Create your first page
 
@@ -135,7 +136,7 @@ You can create more pages in the `src/pages` directory, and Astro will use the f
 ## [Start Astro](#start-astro)
 
 ```bash
-npm start
+npm run dev
 ```
 
 Astro will now start serving your application on `http://localhost:3000`. By opening this URL in your browser, you should see the Astro's “Hello, World”

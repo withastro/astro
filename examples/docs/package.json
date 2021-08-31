@@ -14,13 +14,26 @@
     "sandbox":""
   },
   "scripts": {
+    "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build"
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@docsearch/react": "^1.0.0-alpha.27"
   },
   "devDependencies": {
-    "astro": "^0.18.9"
+    "astro": "^0.20.3",
+    "@snowpack/plugin-dotenv": "^2.1.0"
   },
   "snowpack": {
+    "alias": {
+      "components": "./src/components",
+      "~": "./src"
+    },
+    "plugins": [
+      "@snowpack/plugin-dotenv"
+    ],
     "workspaceRoot": "../.."
   }
 }

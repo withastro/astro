@@ -1,14 +1,30 @@
 import type { Renderer, AstroComponentMetadata } from '../@types/astro';
 import hash from 'shorthash';
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
-import { generate } from 'astring';
+import { generate, GENERATOR, Generator } from 'astring';
 import * as astroHtml from './renderer-html';
 
 // A more robust version alternative to `JSON.stringify` that can handle most values
 // see https://github.com/remcohaszing/estree-util-value-to-estree#readme
-const serialize = (value: Value) => generate(valueToEstree(value));
+const customGenerator: Generator = {
+  ...GENERATOR,
+  Literal(node, state) {
+    if (node.raw != null) {
+      // escape closing script tags in strings so browsers wouldn't interpret them as
+      // closing the actual end tag in HTML
+      state.write(node.raw.replace('</script>', '<\\/script>'));
+    } else {
+      GENERATOR.Literal(node, state);
+    }
+  },
+};
+const serialize = (value: Value) =>
+  generate(valueToEstree(value), {
+    generator: customGenerator,
+  });
 
 export interface RendererInstance {
+  name: string | null;
   source: string | null;
   renderer: Renderer;
   polyfills: string[];
@@ -16,6 +32,7 @@ export interface RendererInstance {
 }
 
 const astroHtmlRendererInstance: RendererInstance = {
+  name: null,
   source: '',
   renderer: astroHtml as Renderer,
   polyfills: [],
@@ -28,16 +45,52 @@ export function setRenderers(_rendererInstances: RendererInstance[]) {
   rendererInstances = ([] as RendererInstance[]).concat(_rendererInstances);
 }
 
-function isCustomElementTag(name: string | Function) {
+function isCustomElementTag(name: unknown) {
   return typeof name === 'string' && /-/.test(name);
 }
 
 const rendererCache = new Map<any, RendererInstance>();
 
+/** For client:only components, attempt to infer the required renderer. */
+function inferClientRenderer(metadata: Partial<AstroComponentMetadata>) {
+  // If there's only one renderer, assume it's the required renderer
+  if (rendererInstances.length === 1) {
+    return rendererInstances[0];
+  } else if (metadata.value) {
+    // Attempt to find the renderer by matching the hydration value
+    const hint = metadata.value;
+    let match = rendererInstances.find((instance) => instance.name === hint);
+
+    if (!match) {
+      // Didn't find an exact match, try shorthand hints for the internal renderers
+      const fullHintName = `@astrojs/renderer-${hint}`;
+      match = rendererInstances.find((instance) => instance.name === fullHintName);
+    }
+
+    if (!match) {
+      throw new Error(
+        `Couldn't find a renderer for <${metadata.displayName} client:only="${metadata.value}" />. Is there a renderer that matches the "${metadata.value}" hint in your Astro config?`
+      );
+    }
+    return match;
+  } else {
+    // Multiple renderers included but no hint was provided
+    throw new Error(
+      `Can't determine the renderer for ${metadata.displayName}. Include a hint similar to <${metadata.displayName} client:only="react" /> when multiple renderers are included in your Astro config.`
+    );
+  }
+}
+
 /** For a given component, resolve the renderer. Results are cached if this instance is encountered again */
-async function resolveRenderer(Component: any, props: any = {}, children?: string): Promise<RendererInstance | undefined> {
+async function resolveRenderer(Component: any, props: any = {}, children?: string, metadata: Partial<AstroComponentMetadata> = {}): Promise<RendererInstance | undefined> {
+  // For client:only components, the component can't be imported
+  // during SSR. We need to infer the required renderer.
+  if (metadata.hydrate === 'only') {
+    return inferClientRenderer(metadata);
+  }
+
   if (rendererCache.has(Component)) {
-    return rendererCache.get(Component)!;
+    return rendererCache.get(Component);
   }
 
   const errors: Error[] = [];
@@ -157,7 +210,7 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
       return Component.__render(props, prepareSlottedChildren(_children));
     }
     const children = removeSlottedChildren(_children);
-    let instance = await resolveRenderer(Component, props, children);
+    let instance = await resolveRenderer(Component, props, children, metadata);
 
     if (!instance) {
       if (isCustomElementTag(Component)) {
@@ -173,7 +226,13 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
         throw new Error(`No renderer found for ${name}! Did you forget to add a renderer to your Astro config?`);
       }
     }
-    let { html } = await instance.renderer.renderToStaticMarkup(Component, props, children, metadata);
+
+    let html = '';
+    // Skip SSR for components using client:only hydration
+    if (metadata.hydrate !== 'only') {
+      const rendered = await instance.renderer.renderToStaticMarkup(Component, props, children, metadata);
+      html = rendered.html;
+    }
 
     if (instance.polyfills.length) {
       let polyfillScripts = instance.polyfills.map((src) => `<script type="module" src="${src}"></script>`).join('');
@@ -187,10 +246,10 @@ export function __astro_component(Component: any, metadata: AstroComponentMetada
     }
 
     // If we ARE hydrating this component, let's generate the hydration script
-    const stringifiedProps = JSON.stringify(props);
-    const astroId = hash.unique(html + stringifiedProps);
-    const script = await generateHydrateScript({ instance, astroId, props }, metadata as Required<AstroComponentMetadata>);
-    const astroRoot = `<astro-root uid="${astroId}">${html}</astro-root>`;
+    const uniqueId = props[Symbol.for('astro.context')].createAstroRootUID(html);
+    const uniqueIdHashed = hash.unique(uniqueId);
+    const script = await generateHydrateScript({ instance, astroId: uniqueIdHashed, props }, metadata as Required<AstroComponentMetadata>);
+    const astroRoot = `<astro-root uid="${uniqueIdHashed}">${html}</astro-root>`;
     return [astroRoot, script].join('\n');
   };
 }

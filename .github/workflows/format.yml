@@ -28,4 +28,3 @@ jobs:
         with:
           commit_message: '[ci] yarn format'
           branch: ${{ github.head_ref }}
-          push_options: --force

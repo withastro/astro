@@ -166,7 +166,9 @@ const { greeting = 'Hello', name } = Astro.props;
 </div>
 ```
 
-You can define your props with TypeScript by exporting a `Props` type interface. In the future, Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
+You can define your props with TypeScript by exporting a `Props` type interface.
+
+> _**In the future**_, Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
 
 ```astro
 ---
@@ -273,6 +275,39 @@ const items = ["Dog", "Cat", "Platipus"];
 </ul>
 ```
 
+### Hoisted scripts
+
+By default Astro does not make any assumptions on how you want scripts to be served, so if you add a `<script>` tag in a page or a component it will be left alone.
+
+However if you'd like all of your scripts to be hoisted out of components and moved to the top of the page, and then later bundled together in production, you can achieve this with hoisted scripts.
+
+A **hoisted script** looks like this:
+
+```astro
+<script hoist>
+  // An inline script
+</script>
+```
+
+Or it can link to an external JavaScript file:
+
+```astro
+<script src={Astro.resolve('./my-component.js')} hoist></script>
+```
+
+A hoisted script can be within a page or a component, and no matter how many times the component is used, the script will only be added once:
+
+```astro
+---
+import TwitterTimeline from '../components/TwitterTimeline.astro';
+---
+
+<-- The script will only be injected into the head once. -->
+<TwitterTimeline />
+<TwitterTimeline />
+<TwitterTimeline />
+```
+
 ## Comparing `.astro` versus `.jsx`
 
 `.astro` files can end up looking very similar to `.jsx` files, but there are a few key differences. Here's a comparison between the two formats.
@@ -312,7 +347,7 @@ Since `src/pages/about.astro` will build to `/about/index.html`, you may not hav
 <img src="/thumbnail.png" />
 ```
 
-The recommended approach is to place files within `public/*`. This references a file it `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
+The recommended approach is to place files within `public/*`. This references a file at `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
 
 #### Option 2: Asset import references
 

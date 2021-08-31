@@ -35,6 +35,17 @@ Markdown('Runs code blocks through syntax highlighter', async ({ runtime }) => {
   assert.ok($el.length > 0, 'There are child spans in code blocks');
 });
 
+Markdown('Scoped styles should not break syntax highlight', async ({ runtime }) => {
+  const result = await runtime.load('/scopedStyles-code');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.ok($('pre').is('[class]'), 'Pre tag has scopedStyle class passed down');
+  assert.ok($('pre').hasClass('language-js'), 'Pre tag has correct language');
+  assert.ok($('code').hasClass('language-js'), 'Code tag has correct language');
+  assert.ok($('code span').length > 0, 'There are child spans in code blocks');
+});
+
 Markdown('Bundles client-side JS for prod', async (context) => {
   await context.build();
 
@@ -78,6 +89,17 @@ Markdown('Renders dynamic content though the content attribute', async ({ runtim
   assert.equal($('#outer').length, 1, 'Rendered markdown content');
   assert.equal($('#inner').length, 1, 'Nested markdown content');
   assert.ok($('#inner').is('[class]'), 'Scoped class passed down');
+});
+
+Markdown('Renders curly braces correctly', async ({ runtime }) => {
+  const result = await runtime.load('/braces');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.equal($('code').length, 3, 'Rendered curly braces markdown content');
+  assert.equal($('code:first-child').text(), '({})', 'Rendered curly braces markdown content');
+  assert.equal($('code:nth-child(2)').text(), '{...props}', 'Rendered curly braces markdown content');
+  assert.equal($('code:last-child').text(), '{/* JavaScript */}', 'Rendered curly braces markdown content');
 });
 
 Markdown('Does not close parent early when using content attribute (#494)', async ({ runtime }) => {

@@ -1,0 +1,51 @@
+---
+const onload = `
+const link = (rel, href) => {
+	document.querySelector(\`[rel='\${rel}'][href='\${href}']\`) || document.head.append(
+		Object.assign(
+			document.createElement('link'),
+			{
+				rel,
+				href: href
+			}
+		)
+	)
+};
+const preconnect = () => {
+	link('preconnect', 'https://googleads.g.doubleclick.net');
+	link('preconnect', 'https://static.doubleclick.net');
+	link('preconnect', 'https://www.google.com');
+	link('preconnect', 'https://www.youtube-nocookie.com');
+};
+const host = this.parentNode;
+const v = host.getAttribute('v');
+const iframe = Object.assign(
+	document.createElement('iframe'),
+	{
+		src: \`https://www.youtube-nocookie.com/embed/\${v}?autoplay=1\`,
+		allow: 'accelerometer;autoplay;encrypted-media;gyroscope;picture-in-picture',
+		allowFullscreen: true,
+	}
+);
+const button = Object.assign(
+	document.createElement('button'),
+	{
+		style: \`background-image:url('https://i.ytimg.com/vi/\${v}/hqdefault.jpg')\`,
+		onpointerenter: preconnect,
+		onfocus: preconnect,
+		onclick(event) {
+			event.currentTarget.replaceWith(iframe)
+		},
+	}
+);
+
+button.setAttribute('aria-label', host.getAttribute('alt'));
+
+host.replaceChildren(button);
+`.replace(/[\n\r\t]+/g, '')
+---
+<lite-youtube {...Astro.props}>
+	<a href={`https://www.youtube.com/watch?v=${Astro.props.v}`}>
+		<img src={`https://i.ytimg.com/vi/${Astro.props.v}/hqdefault.jpg`} loading="lazy" alt={Astro.props.alt} />
+	</a><script type="module" src="data:text/javascript," onload={onload}></script>
+</lite-youtube>

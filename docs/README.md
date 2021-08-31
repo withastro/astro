@@ -11,7 +11,7 @@ Every pull request needs to be reviewed by another contributor to the documentat
 - Clone/Fork the project
 - This project uses yarn to manage dependencies. [Make sure that you have yarn v1 installed.](https://classic.yarnpkg.com/)
 - Run `yarn install` to install latest dependencies.
-- Run `yarn start` to start the dev server.
+- Run `yarn dev` to start the dev server.
 - Run `yarn build` to build the final site for production.
 
 The environment variable `SNOWPACK_PUBLIC_GITHUB_TOKEN` must be set to a personal access token with `public_repo` permissions to prevent rate-limiting.

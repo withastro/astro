@@ -9,16 +9,19 @@ export const SIDEBAR = {
 
     { text: 'Basics', header: true },
     { text: 'Project Structure', link: 'core-concepts/project-structure' },
-    { text: 'Components', link: 'core-concepts/astro-components' },
+    { text: 'Component Syntax', link: 'core-concepts/astro-components' },
     { text: 'Pages', link: 'core-concepts/astro-pages' },
     { text: 'Layouts', link: 'core-concepts/layouts' },
-    { text: 'Collections', link: 'core-concepts/collections' },
+    { text: 'Routing', link: 'core-concepts/routing' },
     { text: 'Partial Hydration', link: 'core-concepts/component-hydration' },
 
     { text: 'Guides', header: true },
     { text: 'Styling & CSS', link: 'guides/styling' },
-    { text: 'Data Fetching', link: 'guides/data-fetching' },
     { text: 'Markdown', link: 'guides/markdown-content' },
+    { text: 'Debugging', link: 'guides/debugging' },
+    { text: 'Data Fetching', link: 'guides/data-fetching' },
+    { text: 'Pagination', link: 'guides/pagination' },
+    { text: 'RSS', link: 'guides/rss' },
     { text: 'Supported Imports', link: 'guides/imports' },
     { text: 'Aliases', link: 'guides/aliases' },
     { text: 'Deploy a Website', link: 'guides/deploy' },
@@ -58,6 +61,10 @@ export const SIDEBAR = {
     { text: '快速入门', link: 'zh-CN/quick-start' },
     { text: '安装指南', link: 'zh-CN/installation' },
     { text: '模板样例', link: 'zh-CN/examples' },
+    {
+      text: 'Astro 对比其他框架',
+      link: 'zh-CN/comparing-astro-vs-other-tools',
+    },
   ],
   'zh-TW': [
     { text: '設定', header: true },
@@ -72,7 +79,25 @@ export const SIDEBAR = {
   ],
   fr: [
     { text: 'Bienvenue', header: true },
-    { text: 'Bien Démarrer', link: 'fr/getting-started' },
+    { text: 'Bien démarrer', link: 'fr/getting-started' },
+    { text: 'Démarrage rapide', link: 'fr/quick-start' },
+    { text: 'Installation', link: 'fr/installation' },
+  ],
+  bn: [
+    { text: 'সেটআপ', header: true },
+    { text: 'শুরু করুন', link: 'bn/getting-started' },
+  ],
+  kr: [
+    { text: '환영합니다', header: true },
+    { text: '시작하기', link: 'kr/getting-started' },
+  ],
+  ar: [
+    { text: 'التهيئة', header: true },
+    { text: 'باشر البدأ', link: 'ar/getting-started' },
+  ],
+  da: [
+    { text: 'Velkommen', header: true },
+    { text: 'Introduktion', link: 'da/getting-started' },
   ],
 };
 

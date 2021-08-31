@@ -1,68 +1,44 @@
 import type { ImportSpecifier, ImportDefaultSpecifier, ImportNamespaceSpecifier } from '@babel/types';
-import type { AstroMarkdownOptions } from '@astrojs/markdown-support';
+import type { AstroUserConfig, AstroConfig } from './config';
 
-export interface AstroConfigRaw {
-  dist: string;
-  projectRoot: string;
-  src: string;
-  pages: string;
-  public: string;
-  jsx?: string;
+export { AstroUserConfig, AstroConfig };
+export interface RouteData {
+  type: 'page';
+  pattern: RegExp;
+  params: string[];
+  path: string | null;
+  component: string;
+  generate: (data?: any) => string;
 }
 
-export { AstroMarkdownOptions };
-export interface AstroConfig {
-  dist: string;
-  projectRoot: URL;
-  pages: URL;
-  public: URL;
-  src: URL;
-  renderers?: string[];
-  /** Options for rendering markdown content */
-  markdownOptions?: Partial<AstroMarkdownOptions>;
-  /** Options specific to `astro build` */
-  buildOptions: {
-    /** Your public domain, e.g.: https://my-site.dev/. Used to generate sitemaps and canonical URLs. */
-    site?: string;
-    /** Generate sitemap (set to "false" to disable) */
-    sitemap: boolean;
-  };
-  /** Options for the development server run with `astro dev`. */
-  devOptions: {
-    hostname?: string;
-    /** The port to run the dev server on. */
-    port: number;
-    projectRoot?: string;
-    /** Path to tailwind.config.js, if used */
-    tailwindConfig?: string;
-  };
+export interface ManifestData {
+  routes: RouteData[];
 }
-
-export type AstroUserConfig = Omit<AstroConfig, 'buildOptions' | 'devOptions'> & {
-  buildOptions: {
-    sitemap: boolean;
-  };
-  devOptions: {
-    hostname?: string;
-    port?: number;
-    projectRoot?: string;
-    tailwindConfig?: string;
-  };
-};
 
 export interface JsxItem {
   name: string;
   jsx: string;
 }
 
+export interface InlineScriptInfo {
+  content: string;
+}
+
+export interface ExternalScriptInfo {
+  src: string;
+}
+
+export type ScriptInfo = InlineScriptInfo | ExternalScriptInfo;
+
 export interface TransformResult {
   script: string;
   imports: string[];
   exports: string[];
+  components: string[];
   html: string;
   css?: string;
-  /** If this page exports a collection, the JS to be executed as a string */
-  createCollection?: string;
+  hoistedScripts: ScriptInfo[];
+  getStaticPaths?: string;
   hasCustomElements: boolean;
   customElementCandidates: Map<string, string>;
 }
@@ -75,7 +51,8 @@ export interface CompileResult {
 
 export type RuntimeMode = 'development' | 'production';
 
-export type Params = Record<string, string>;
+export type Params = Record<string, string | undefined>;
+export type Props = Record<string, any>;
 
 /** Entire output of `astro build`, stored in memory */
 export interface BuildOutput {
@@ -91,6 +68,8 @@ export interface BuildFile {
   contentType: string;
   /** Encoding */
   encoding?: 'utf8';
+  /** Extracted scripts */
+  hoistedScripts?: ScriptInfo[];
 }
 
 /** Mapping of every URL and its required assets. All URLs are absolute relative to the project. */
@@ -105,19 +84,11 @@ export interface PageDependencies {
   css: Set<string>;
   /** Images needed for page. Can be loaded via CSS, <link>, or otherwise. */
   images: Set<string>;
+  /** Async hoisted Javascript */
+  hoistedJS: Map<string, ScriptInfo>;
 }
 
-export type PaginateFunction<T = any> = (data: T[], args?: { pageSize?: number }) => PaginatedCollectionResult<T>;
-
-export interface CreateCollectionResult {
-  paginate?: boolean;
-  route: string;
-  paths?: () => { params: Params }[];
-  props: (args: { params: Params; paginate?: PaginateFunction }) => object | Promise<object>;
-  rss?: CollectionRSS;
-}
-
-export interface CollectionRSS<T = any> {
+export interface RSSFunctionArgs {
   /** (required) Title of the RSS Feed */
   title: string;
   /** (required) Description of the RSS Feed */
@@ -126,8 +97,14 @@ export interface CollectionRSS<T = any> {
   xmlns?: Record<string, string>;
   /** Specify custom data in opening of file */
   customData?: string;
+  /**
+   * Specify where the RSS xml file should be written.
+   * Relative to final build directory. Example: '/foo/bar.xml'
+   * Defaults to '/rss.xml'.
+   */
+  dest?: string;
   /** Return data about each item */
-  item: (item: T) => {
+  items: {
     /** (required) Title of item */
     title: string;
     /** (required) Link to item */
@@ -138,13 +115,12 @@ export interface CollectionRSS<T = any> {
     description?: string;
     /** Append some other XML-valid data to this item */
     customData?: string;
-  };
+  }[];
 }
 
-export interface PaginatedCollectionResult<T = any> {
+export interface PaginatedCollectionProp<T = any> {
   /** result */
   data: T[];
-
   /** metadata */
   /** the count of the first item on the page, starting from 0 */
   start: number;
@@ -152,14 +128,12 @@ export interface PaginatedCollectionResult<T = any> {
   end: number;
   /** total number of results */
   total: number;
-  page: {
-    /** the current page number, starting from 1 */
-    current: number;
-    /** number of items per page (default: 25) */
-    size: number;
-    /** number of last page */
-    last: number;
-  };
+  /** the current page number, starting from 1 */
+  currentPage: number;
+  /** number of items per page (default: 25) */
+  size: number;
+  /** number of last page */
+  lastPage: number;
   url: {
     /** url of the current page */
     current: string;
@@ -170,6 +144,11 @@ export interface PaginatedCollectionResult<T = any> {
   };
 }
 
+export type RSSFunction = (args: RSSFunctionArgs) => void;
+export type PaginateFunction = (data: [], args?: { pageSize?: number; params?: Params; props?: Props }) => GetStaticPathsResult;
+export type GetStaticPathsArgs = { paginate: PaginateFunction; rss: RSSFunction };
+export type GetStaticPathsResult = { params: Params; props?: Props }[] | { params: Params; props?: Props }[];
+
 export interface ComponentInfo {
   url: string;
   importSpecifier: ImportSpecifier | ImportDefaultSpecifier | ImportNamespaceSpecifier;
@@ -179,7 +158,7 @@ export type Components = Map<string, ComponentInfo>;
 
 export interface AstroComponentMetadata {
   displayName: string;
-  hydrate?: 'load' | 'idle' | 'visible' | 'media';
+  hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';
   componentUrl?: string;
   componentExport?: { value: string; namespace?: boolean };
   value?: undefined | string;

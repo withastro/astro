@@ -5,7 +5,7 @@ import { performance } from 'perf_hooks';
 import shorthash from 'shorthash';
 import cheerio from 'cheerio';
 import esbuild from 'esbuild';
-import { getDistPath, getSrcPath, stopTimer } from '../util.js';
+import { getDistPath, getSrcPath, IS_ASTRO_FILE_URL, stopTimer } from '../util.js';
 import { debug } from '../../logger.js';
 
 // config
@@ -46,7 +46,9 @@ export async function bundleCSS({
   for (const pageUrl of sortedPages) {
     const { css } = depTree[pageUrl];
     for (const cssUrl of css.keys()) {
-      if (cssMap.has(cssUrl)) {
+      if (!IS_ASTRO_FILE_URL.test(cssUrl)) {
+        // do not add to cssMap, leave as-is.
+      } else if (cssMap.has(cssUrl)) {
         // scenario 1: if multiple URLs require this CSS, upgrade to common chunk
         cssMap.set(cssUrl, COMMON_URL);
       } else {
@@ -83,7 +85,7 @@ export async function bundleCSS({
   await Promise.all(
     Object.keys(buildState).map(async (id) => {
       if (buildState[id].contentType !== 'text/css') return;
-      const { code } = await esbuild.transform(buildState[id].contents as string, {
+      const { code } = await esbuild.transform(buildState[id].contents.toString(), {
         loader: 'css',
         minify: true,
       });

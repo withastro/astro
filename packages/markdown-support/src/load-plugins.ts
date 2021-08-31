@@ -9,7 +9,7 @@ async function importPlugin(p: string | UnifiedPluginImport): UnifiedPluginImpor
   return await p;
 }
 
-export function loadPlugins(items: Plugin[]): Promise<[unified.Plugin] | [unified.Plugin, unified.Settings]>[] {
+export function loadPlugins(items: Plugin[]): Promise<[unified.Plugin] | [unified.Plugin, any]>[] {
   return items.map((p) => {
     return new Promise((resolve, reject) => {
       if (Array.isArray(p)) {
