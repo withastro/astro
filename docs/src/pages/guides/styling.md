@@ -161,12 +161,12 @@ As an alternative to `src/styles/global.css`, You may also add Tailwind utilitie
 
 #### Migrating from v0.19
 
-As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process `public/` files. Previously, we'd recommended putting your tailwind files in the `public/` directory. If you started a project with this pattern, you should move any Tailwind styles into the `src` directory and import them in your template using [Astro.resolve()](/reference/api-reference#astroresolve): 
+As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process `public/` files. Previously, we'd recommended putting your tailwind files in the `public/` directory. If you started a project with this pattern, you should move any Tailwind styles into the `src` directory and import them in your template using [Astro.resolve()](/reference/api-reference#astroresolve):
 
 ```astro
-  <link 
-    rel="stylesheet" 
-    href={Astro.resolve("../assets/global.css")} 
+  <link
+    rel="stylesheet"
+    href={Astro.resolve("../assets/global.css")}
   >
 ```
 
