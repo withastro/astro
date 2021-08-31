@@ -51,7 +51,7 @@ let templateTitle = formatName(title)
 <!-- Example 2 -->
 <Layout>
     <div>
-        <img src={`${getImg}`} alt="">
+        <img src={`${getImg}`} alt="" height="600px" width="100%">
         <h1>{templateTitle} Template</h1>
     </div>
     <Markdown content = {description}/>
@@ -61,8 +61,31 @@ let templateTitle = formatName(title)
         To start using the {templateTitle} template, enter the following into your terminal
     </Markdown>
     <pre data-lang="bash" class="lang-bash">npm init astro my-astro-project -- --template {name}</pre>
+    <div class="external-links">
+        <a rel="noopener noreferrer nofollow" target="_blank" href={`https://githubbox.com/snowpackjs/astro/tree/main/examples/${name}`}>
+            <img src="https://img.shields.io/badge/Open%20in-CodeSandbox-blue?style=flat-square&logo=codesandbox"/>
+        </a>
+        <a rel="noopener noreferrer nofollow" target="_blank" href={`https://app.netlify.com/start/deploy?repository=https://github.com/snowpackjs/astro/tree/main/examples/${name}`}>
+            <img src="https://www.netlify.com/img/deploy/button.svg"/>
+        </a>
+        
+    </div>
+
     <div>
         <CollapsibleReadme label={`${templateTitle} Readme`} readme={readme}/>
     </div>
         
 </Layout>
+<style lang="scss">
+    :root{
+        scroll-behavior: smooth;
+    }
+    .external-links{
+        margin-top: 2.5%;
+        display: flex;
+        flex-wrap: nowrap;
+        align-content: flex-start;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+</style>
