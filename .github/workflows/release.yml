@@ -35,7 +35,9 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to VSCode Marketplace
-        run: yarn workspace astro-vscode vscode:publish
+        run: |
+          npm i -g vsce
+          yarn workspace astro-vscode vscode:publish
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
