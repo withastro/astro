@@ -35,6 +35,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to VSCode Marketplace
+        if: steps.changesets.outputs.published == 'true'
         run: |
           npm i -g vsce
           cd packages/vscode
