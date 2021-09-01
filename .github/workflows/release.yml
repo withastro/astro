@@ -35,7 +35,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to VSCode Marketplace
-        run: yarn workspace astro-vscode publish
+        run: yarn workspace astro-vscode vscode:publish
 
       - name: Send a Discord notification if a publish happens
         if: steps.changesets.outputs.published == 'true'
