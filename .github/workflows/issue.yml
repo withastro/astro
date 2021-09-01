@@ -1,4 +1,4 @@
-name: Auto Assign to Project(s)
+name: Auto Assign Issues to Project
 
 on:
   issues:
@@ -33,4 +33,4 @@ jobs:
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '📘 DOC:')
       with:
         project: 'https://github.com/srggrs/assign-one-project-github-action/projects/5'
-        column_name: 'TODO
+        column_name: 'TODO'
