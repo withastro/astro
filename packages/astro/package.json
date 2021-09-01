@@ -16,8 +16,8 @@
     "./snowpack-plugin": "./snowpack-plugin.cjs",
     "./snowpack-plugin-jsx": "./snowpack-plugin-jsx.cjs",
     "./components": "./components/index.js",
-    "./debug": "./components/Debug.astro",
-    "./components/*": "./components/*",
+    "./debug": "./components/DebugDeprecated.astro",
+    "./components/Prism.astro": "./components/Prism.astro",
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
     "./internal/*": "./dist/internal/*",
     "./dist/internal/*": "./dist/internal/*"
@@ -92,6 +92,7 @@
     "sass": "^1.32.13",
     "semver": "^7.3.5",
     "send": "^0.17.1",
+    "shiki": "^0.9.9",
     "shorthash": "^0.0.2",
     "slash": "^4.0.0",
     "snowpack": "^3.8.6",

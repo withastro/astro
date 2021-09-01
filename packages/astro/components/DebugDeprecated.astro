@@ -1,0 +1,13 @@
+---
+import Debug from './Debug.astro';
+export interface Props {
+  [key: string]: any
+}
+
+// Show deprecation warning for older imports. Remove this entirely for v1.0.
+console.warn(`[deprecated] Debug is now exported from astro/components! Update your import to:
+  - import Debug from 'astro/debug';
+  + import { Debug } from 'astro/components';
+`);
+---  
+<Debug {...Astro.props} />

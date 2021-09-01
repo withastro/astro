@@ -44,7 +44,7 @@ Unsere Anleitung zu [Astro-Komponenten](/core-concepts/astro-components) sollte 
 
 Dieser Dokumentationsabschnitt sollte für Dich nützlich sein, wenn Du mehr Details über eine bestimme Astro-API erfahren möchtest.
 
-So listet z.B. die [Konfigurationsdokumentation](/reference/configuration-reference) alle möglichen Konfigurationseigenschaften auf, die Dir zur Verfügung stehen. In der [Dokumentation über eingebaute Komponenten](/reference/builtin-components) findest Du alle verfügbaren Kernkomponenten wie `<Markdown />` und `<Prism />`.
+So listet z.B. die [Konfigurationsdokumentation](/reference/configuration-reference) alle möglichen Konfigurationseigenschaften auf, die Dir zur Verfügung stehen. In der [Dokumentation über eingebaute Komponenten](/reference/builtin-components) findest Du alle verfügbaren Kernkomponenten wie `<Markdown />` und `<Code />`.
 
 ### Versionierte Dokumentation
 

@@ -39,7 +39,7 @@ Notre guide sur les [composants Astro](/core-concepts/astro-components) vous pr�
 
 ### Documentation de l'API
 
-Cette documentation vous sera utile si vous souhaitez comprendre en détails certaines API d'Astro. Par exemple, la [Documentation de la Configuration](/reference/configuration-reference) liste toutes les options de configuration à votre disposition. La [Documentation des Composants de base](/reference/builtin-components) liste tous les composants disponibles de base, comme `<Markdown />` et `<Prism />`.
+Cette documentation vous sera utile si vous souhaitez comprendre en détails certaines API d'Astro. Par exemple, la [Documentation de la Configuration](/reference/configuration-reference) liste toutes les options de configuration à votre disposition. La [Documentation des Composants de base](/reference/builtin-components) liste tous les composants disponibles de base, comme `<Markdown />` et `<Code />`.
 
 ### Documentation versionnée
 
