@@ -1,5 +1,4 @@
 import type { BuildOutput } from '../@types/astro';
-
 import { canonicalURL } from './util.js';
 
 /** Construct sitemap.xml given a set of URLs */
@@ -7,11 +6,12 @@ export function generateSitemap(buildState: BuildOutput, site: string): string {
   const uniqueURLs = new Set<string>();
 
   // TODO: find way to respect <link rel="canonical"> URLs here
-  // TODO: find way to exclude pages from sitemap
+  // TODO: find way to exclude pages from sitemap (currently only skips 404 pages)
 
   // look through built pages, only add HTML
   for (const id of Object.keys(buildState)) {
     if (buildState[id].contentType !== 'text/html') continue;
+    if (id === '/404.html') continue;
     uniqueURLs.add(canonicalURL(id, site).href);
   }
 
