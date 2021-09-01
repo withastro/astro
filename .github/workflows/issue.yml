@@ -1,0 +1,36 @@
+name: Auto Assign to Project(s)
+
+on:
+  issues:
+    types: [opened]
+    
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  auto_assign_issues:
+    runs-on: ubuntu-latest
+    name: Auto-assign new issues to projects
+    steps:
+    - run: echo "${{github.event.issue.title}}"
+
+    - name: Assign Bugs to the Bug Tracker
+      uses: srggrs/assign-one-project-github-action@1.2.1
+      if: github.event.action == 'opened' && startsWith(github.event.issue.title, '🐛 BUG:')
+      with:
+        project: 'https://github.com/srggrs/assign-one-project-github-action/projects/2'
+        column_name: 'Needs Triage'
+
+    - name: Assign RFCs to the RFC Tracker
+      uses: srggrs/assign-one-project-github-action@1.2.1
+      if: github.event.action == 'opened' && startsWith(github.event.issue.title, '💡 RFC:')
+      with:
+        project: 'https://github.com/srggrs/assign-one-project-github-action/projects/3'
+        column_name: 'Needs Discussion'
+
+    - name: Assign RFCs to the RFC Tracker
+      uses: srggrs/assign-one-project-github-action@1.2.1
+      if: github.event.action == 'opened' && startsWith(github.event.issue.title, '📘 DOC:')
+      with:
+        project: 'https://github.com/srggrs/assign-one-project-github-action/projects/5'
+        column_name: 'TODO
