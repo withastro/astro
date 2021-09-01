@@ -18,19 +18,19 @@ jobs:
       uses: srggrs/assign-one-project-github-action@1.2.1
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '🐛 BUG:')
       with:
-        project: 'https://github.com/srggrs/assign-one-project-github-action/projects/2'
+        project: 'https://github.com/snowpackjs/astro/projects/2'
         column_name: 'Needs Triage'
 
     - name: Assign RFCs to the RFC Tracker
       uses: srggrs/assign-one-project-github-action@1.2.1
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '💡 RFC:')
       with:
-        project: 'https://github.com/srggrs/assign-one-project-github-action/projects/3'
+        project: 'https://github.com/snowpackjs/astro/projects/3'
         column_name: 'Needs Discussion'
 
     - name: Assign RFCs to the RFC Tracker
       uses: srggrs/assign-one-project-github-action@1.2.1
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '📘 DOC:')
       with:
-        project: 'https://github.com/srggrs/assign-one-project-github-action/projects/5'
+        project: 'https://github.com/snowpackjs/astro/projects/5'
         column_name: 'TODO'
