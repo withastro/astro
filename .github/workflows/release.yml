@@ -36,6 +36,8 @@ jobs:
 
       - name: Publish to VSCode Marketplace
         run: yarn workspace astro-vscode vscode:publish
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
 
       - name: Send a Discord notification if a publish happens
         if: steps.changesets.outputs.published == 'true'
