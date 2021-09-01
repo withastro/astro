@@ -11,7 +11,7 @@ export function generateSitemap(buildState: BuildOutput, site: string): string {
   // look through built pages, only add HTML
   for (const id of Object.keys(buildState)) {
     if (buildState[id].contentType !== 'text/html') continue;
-    if (id.startsWith('404.html')) continue;
+    if (id === '/404.html') continue;
     uniqueURLs.add(canonicalURL(id, site).href);
   }
 
