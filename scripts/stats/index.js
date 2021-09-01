@@ -81,7 +81,7 @@ export async function run() {
     // Pull requests
     pulls.length,
     // Open Issues
-    issues.length,
+    issues.length - pulls.length,
     // Bugs: Needs Triage
     (await countCards(COLUMN_ID_BUGS_NEEDS_TRIAGE)).length,
     // Bugs: Accepted
