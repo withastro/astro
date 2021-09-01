@@ -75,11 +75,22 @@ class AstroDocumentSnapshot implements DocumentSnapshot {
 
   /** @internal */
   private transformContent(content: string) {
+    let raw = content.replace(/---/g, '///');
     return (
-      content.replace(/---/g, '///') +
+      raw +
       // Add TypeScript definitions
-      ASTRO_DEFINITION
+      this.addProps(raw, ASTRO_DEFINITION.toString('utf-8'))
     );
+  }
+
+  private addProps(content: string, dtsContent: string): string {
+    let defaultExportType = 'Record<string, any>';
+    // Using TypeScript to parse here would cause a double-parse, slowing down the extension
+    // This needs to be done a different way when the new compiler is added.
+    if(/(interface|type) Props/.test(content)) {
+      defaultExportType = 'Props';
+    }
+    return dtsContent + '\n' + `export default function (props: ${defaultExportType}): string;`
   }
 
   get filePath() {

@@ -169,12 +169,14 @@ function getDefaultJsConfig(): {
   compilerOptions: ts.CompilerOptions;
   include: string[];
 } {
+  let compilerOptions = {
+    maxNodeModuleJsDepth: 2,
+    allowSyntheticDefaultImports: true,
+    allowJs: true
+  };
+  Reflect.set(compilerOptions, 'jsx', 'react-jsx');
   return {
-    compilerOptions: {
-      maxNodeModuleJsDepth: 2,
-      allowSyntheticDefaultImports: true,
-      allowJs: true,
-    },
+    compilerOptions,
     include: ['src'],
   };
 }

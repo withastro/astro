@@ -57,8 +57,6 @@ export class SnapshotManager {
   }
 
   set(fileName: string, snapshot: DocumentSnapshot) {
-    // const prev = this.get(fileName);
-    this.logStatistics();
     return this.documents.set(fileName, snapshot);
   }
 

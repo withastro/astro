@@ -19,9 +19,10 @@ import {
 } from 'vscode-languageserver';
 import { Node } from 'vscode-html-languageservice';
 import { isPossibleClientComponent, pathToUrl, urlToPath } from '../../utils';
-import { toVirtualAstroFilePath } from '../typescript/utils';
+import { isAstroFilePath, isVirtualAstroFilePath, toVirtualAstroFilePath } from '../typescript/utils';
 import { isInsideFrontmatter } from '../../core/documents/utils';
 import * as ts from 'typescript';
+import type { FunctionDeclaration } from 'typescript';
 import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../typescript/LanguageServiceManager';
 import { ensureRealFilePath } from '../typescript/utils';
 import { FoldingRangeKind } from 'vscode-languageserver-types';
@@ -180,6 +181,10 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
       return [];
     }
 
+    if(completionContext?.triggerCharacter === '/' || completionContext?.triggerCharacter === '>') {
+      return [];
+    }
+
     // If inside of attributes, skip.
     if (completionContext && completionContext.triggerKind === CompletionTriggerKind.TriggerCharacter && completionContext.triggerCharacter === '"') {
       return [];
@@ -188,84 +193,106 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     const componentName = node.tag!;
     const { lang: thisLang } = await this.tsLanguageServiceManager.getTypeScriptDoc(document);
 
-    const defs = this.getDefinitionsForComponentName(document, thisLang, componentName);
+    // Get the source file
+    const filePath = urlToPath(document.uri);
+    const tsFilePath = toVirtualAstroFilePath(filePath!);
 
-    if (!defs || !defs.length) {
-      return [];
-    }
-
-    const defFilePath = ensureRealFilePath(defs[0].fileName);
-
-    const lang = await this.tsLanguageServiceManager.getTypeScriptLangForPath(defFilePath);
-    const program = lang.getProgram();
-    const sourceFile = program?.getSourceFile(toVirtualAstroFilePath(defFilePath));
+    const program = thisLang.getProgram();
+    const sourceFile = program?.getSourceFile(tsFilePath);
     const typeChecker = program?.getTypeChecker();
-
     if (!sourceFile || !typeChecker) {
       return [];
     }
 
-    let propsNode = this.getPropsNode(sourceFile);
-    if (!propsNode) {
+    // Get the import statement
+    const imp = this.getImportedSymbol(sourceFile, componentName);
+    const importType = imp && typeChecker.getTypeAtLocation(imp);
+    if(!importType) {
+      return [];
+    }
+
+    // Get the import's type
+    const componentType = this.getPropType(importType, typeChecker);
+    if(!componentType) {
       return [];
     }
 
     const completionItems: CompletionItem[] = [];
 
-    for (let type of typeChecker.getBaseTypes(propsNode as unknown as ts.InterfaceType)) {
-      type.symbol.members!.forEach((mem) => {
-        let item: CompletionItem = {
-          label: mem.name,
-          insertText: mem.name,
-          commitCharacters: [],
-        };
-
-        mem.getDocumentationComment(typeChecker);
-        let description = mem
-          .getDocumentationComment(typeChecker)
-          .map((val) => val.text)
-          .join('\n');
-
-        if (description) {
-          let docs: MarkupContent = {
-            kind: MarkupKind.Markdown,
-            value: description,
-          };
-          item.documentation = docs;
-        }
-        completionItems.push(item);
+    // Add completions for this types props
+    for(let baseType of componentType.getBaseTypes() || []) {
+      const members = baseType.getSymbol()?.members || [];
+      members.forEach(mem => {
+        let completionItem = this.getCompletionItemForTypeMember(mem, typeChecker);
+        completionItems.push(completionItem);
       });
     }
 
-    for (let member of propsNode.members) {
-      if (!member.name) continue;
-
-      let name = member.name.getText();
-      let symbol = typeChecker.getSymbolAtLocation(member.name);
-      if (!symbol) continue;
-      let description = symbol
-        .getDocumentationComment(typeChecker)
-        .map((val) => val.text)
-        .join('\n');
-
-      let item: CompletionItem = {
-        label: name,
-        insertText: name,
-        commitCharacters: [],
-      };
-
-      if (description) {
-        let docs: MarkupContent = {
-          kind: MarkupKind.Markdown,
-          value: description,
-        };
-        item.documentation = docs;
-      }
-
-      completionItems.push(item);
-    }
+    // Add completions for this types base members
+    const members = componentType.getSymbol()?.members || [];
+    members.forEach(mem => {
+      let completionItem = this.getCompletionItemForTypeMember(mem, typeChecker);
+      completionItems.push(completionItem);
+    });
 
     return completionItems;
+  }
+
+  private getPropType(type: ts.Type, typeChecker: ts.TypeChecker): ts.Type | null {
+    const sym = type?.getSymbol();
+    if(!sym) {
+      return null;
+    }
+
+    for(const decl of sym?.getDeclarations() || []) {
+      const fileName = decl.getSourceFile().fileName;
+      if(isVirtualAstroFilePath(fileName)) {
+        if(!ts.isFunctionDeclaration(decl)) {
+          console.error(`Unexpected: .astro files should export a default function for the component definition.`);
+          continue;
+        }
+        const fn = decl as FunctionDeclaration;
+        if(!fn.parameters.length) continue;
+        const param1 = fn.parameters[0];
+        const type = typeChecker.getTypeAtLocation(param1);
+        return type;
+      } else if(fileName.endsWith('.tsx') || fileName.endsWith('.jsx')) {
+        if(!ts.isFunctionDeclaration(decl)) {
+          console.error(`We only support function components for tsx/jsx at the moment.`);
+          continue;
+        }
+        const fn = decl as FunctionDeclaration;
+        if(!fn.parameters.length) continue;
+        const param1 = fn.parameters[0];
+        const type = typeChecker.getTypeAtLocation(param1);
+        return type;
+      }
+    }
+
+    return null;
+  }
+
+  private getCompletionItemForTypeMember(mem: ts.Symbol, typeChecker: ts.TypeChecker) {
+    let item: CompletionItem = {
+      label: mem.name,
+      insertText: mem.name,
+      commitCharacters: [],
+    };
+
+    mem.getDocumentationComment(typeChecker);
+    let description = mem
+      .getDocumentationComment(typeChecker)
+      .map((val) => val.text)
+      .join('\n');
+
+    if (description) {
+      let docs: MarkupContent = {
+        kind: MarkupKind.Markdown,
+        value: description,
+      };
+      item.documentation = docs;
+    }
+    return item;
   }
 
   private isInsideFrontmatter(document: Document, position: Position) {
@@ -284,7 +311,8 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     const filePath = urlToPath(document.uri);
     const tsFilePath = toVirtualAstroFilePath(filePath!);
 
-    const sourceFile = lang.getProgram()?.getSourceFile(tsFilePath);
+    const program = lang.getProgram();
+    const sourceFile = program?.getSourceFile(tsFilePath);
     if (!sourceFile) {
       return undefined;
     }
@@ -302,35 +330,54 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     return defs;
   }
 
+  private getImportedSymbol(sourceFile: ts.SourceFile, identifier: string): ts.ImportSpecifier | ts.Identifier | null {
+    for(let list of sourceFile.getChildren()) {
+      for(let node of list.getChildren()) {
+        if (ts.isImportDeclaration(node)) {
+          let clauses = node.importClause;
+          if(!clauses) return null;
+          let namedImport = clauses.getChildAt(0);
+
+          if(ts.isNamedImports(namedImport)) {
+            for (let imp of namedImport.elements) { // Iterate the named imports
+              if(imp.name.getText() === identifier) {
+                return imp;
+              }
+            }
+          } else if(ts.isIdentifier(namedImport)) {
+            if(namedImport.getText() === identifier) {
+              return namedImport;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
   private getImportSpecifierForIdentifier(sourceFile: ts.SourceFile, identifier: string): ts.Expression | undefined {
     let importSpecifier: ts.Expression | undefined = undefined;
     ts.forEachChild(sourceFile, (tsNode) => {
       if (ts.isImportDeclaration(tsNode)) {
         if (tsNode.importClause) {
-          const { name } = tsNode.importClause;
+          const { name, namedBindings } = tsNode.importClause;
           if (name && name.getText() === identifier) {
             importSpecifier = tsNode.moduleSpecifier;
             return true;
+          } else if(namedBindings && namedBindings.kind === ts.SyntaxKind.NamedImports) {
+            const elements = (namedBindings as ts.NamedImports).elements;
+            for(let elem of elements) {
+              if(elem.name.getText() === identifier) {
+                importSpecifier = tsNode.moduleSpecifier;
+                return true;
+              }
+            }
           }
         }
       }
     });
     return importSpecifier;
-  }
-
-  private getPropsNode(sourceFile: ts.SourceFile): ts.InterfaceDeclaration | null {
-    let found: ts.InterfaceDeclaration | null = null;
-    ts.forEachChild(sourceFile, (node) => {
-      if (isNodeExported(node)) {
-        if (ts.isInterfaceDeclaration(node)) {
-          if (ts.getNameOfDeclaration(node)?.getText() === 'Props') {
-            found = node;
-          }
-        }
-      }
-    });
-
-    return found;
   }
 }
 

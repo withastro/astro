@@ -9,7 +9,8 @@ export function createAstroSys(getSnapshot: (fileName: string) => DocumentSnapsh
   const AstroSys: ts.System = {
     ...ts.sys,
     fileExists(path: string) {
-      return ts.sys.fileExists(ensureRealAstroFilePath(path));
+      let doesExist = ts.sys.fileExists(ensureRealAstroFilePath(path));
+      return doesExist;
     },
     readFile(path: string) {
       if (isAstroFilePath(path) || isVirtualAstroFilePath(path)) {
