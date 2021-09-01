@@ -34,16 +34,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Move into packages/vscode
-        run: cd packages/vscode
-
       - name: Publish to VSCode Marketplace
-        if: steps.changesets.outputs.published == 'true'
-        uses: lannonbr/vsce-action@master
-        with:
-          args: "publish -p $VSCE_TOKEN --yarn"
-        env:
-          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+        run: yarn workspace astro-vscode publish
 
       - name: Send a Discord notification if a publish happens
         if: steps.changesets.outputs.published == 'true'
