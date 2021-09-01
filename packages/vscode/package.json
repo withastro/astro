@@ -27,6 +27,7 @@
   ],
   "dependencies": {
     "@astrojs/language-server": "0.6.0",
+    "@astrojs/ts-plugin": "0.1.0",
     "vscode-emmet-helper": "2.1.2",
     "vscode-html-languageservice": "^3.0.3",
     "vscode-languageclient": "~7.0.0"
@@ -48,6 +49,12 @@
     "url": "https://github.com/snowpackjs/astro"
   },
   "contributes": {
+    "typescriptServerPlugins": [
+      {
+          "name": "@astrojs/ts-plugin",
+          "enableForWorkspaceTypeScriptVersions": true
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Astro configuration",

@@ -102,7 +102,7 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
     const { lang } = await this.tsLanguageServiceManager.getTypeScriptDoc(document);
     const defs = this.getDefinitionsForComponentName(document, lang, componentName);
 
-    if (!defs) {
+    if (!defs || !defs.length) {
       return [];
     }
 
@@ -190,7 +190,7 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
 
     const defs = this.getDefinitionsForComponentName(document, thisLang, componentName);
 
-    if (!defs) {
+    if (!defs || !defs.length) {
       return [];
     }
 
