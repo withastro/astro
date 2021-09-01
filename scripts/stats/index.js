@@ -58,7 +58,7 @@ async function countCommits(since) {
     owner,
     repo,
     since: since.toISOString(),
-  })
+  });
 }
 
 export async function run() {
