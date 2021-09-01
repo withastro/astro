@@ -34,6 +34,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Move into packages/vscode
+        run: cd packages/vscode
+
       - name: Publish to VSCode Marketplace
         if: steps.changesets.outputs.published == 'true'
         uses: lannonbr/vsce-action@master
