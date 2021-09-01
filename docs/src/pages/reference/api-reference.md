@@ -9,7 +9,7 @@ The `Astro` global is available in all contexts in `.astro` files. It has the fo
 
 ### `Astro.fetchContent()`
 
-`Astro.fetchContent()` is a way to load local `*.md` files into your static site setup. You can either use this on its own, or when configuring [Routing](/core-concepts/routing).
+`Astro.fetchContent()` is a way to load local `*.md` files into your static site setup.
 
 ```jsx
 // ./src/components/my-component.astro
