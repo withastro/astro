@@ -20,9 +20,12 @@ async function publish() {
 
   execa('npm', ['install'], { all: true });
 
+  const cwd = new URL('../', import.meta.url).pathname;
+  console.log(`Publishing from ${cwd}`)
+
   const p1 = execa('vsce', ['publish', '-p', process.env.VSCE_TOKEN, '--vscode'], {
     all: true,
-    cwd: new URL(import.meta.url).pathname
+    cwd
   });
 
   p1.all.setEncoding('utf8');
