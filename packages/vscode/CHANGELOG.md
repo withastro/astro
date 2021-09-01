@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.7.1
+
+### Patch Changes
+
+- 25a7f22: Publishing new version
+
 ## 0.7.0
 
 ### Patch Changes
