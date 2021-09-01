@@ -43,7 +43,6 @@
     cursor: pointer;
     background-color: transparent;
     & :active {
-      background-color: green;
       transform: scale(0.9);
     }
     & .hot-link {
