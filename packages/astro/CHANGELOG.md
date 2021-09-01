@@ -1,5 +1,11 @@
 # astro
 
+## 0.20.4
+
+### Patch Changes
+
+- 231964f0: Adds interfaces for built-in components
+
 ## 0.20.3
 
 ### Patch Changes

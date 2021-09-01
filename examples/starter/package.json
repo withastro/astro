@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.20.3"
+    "astro": "^0.20.4"
   },
   "snowpack": {
     "workspaceRoot": "../.."
