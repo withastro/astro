@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.0
+
+### Minor Changes
+
+- 72d3ff0: Adds support for prop completion from ts/jsx files
+
 ## 0.6.0
 
 - Fixes bug with signature help not appear in the component script section.

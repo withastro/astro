@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 0.7.0
+
+### Patch Changes
+
+- Updated dependencies [72d3ff0]
+  - @astrojs/language-server@0.7.0
+
 ## 0.6.1
 
 - Makes the v0.6.0 features actually work 😅

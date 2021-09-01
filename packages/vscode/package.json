@@ -8,7 +8,7 @@
     "color": "#FFBE2D",
     "theme": "dark"
   },
-  "version": "0.6.1",
+  "version": "0.7.0",
   "author": "Astro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -26,7 +26,7 @@
     "onLanguage:astro"
   ],
   "dependencies": {
-    "@astrojs/language-server": "0.6.0",
+    "@astrojs/language-server": "0.7.0",
     "@astrojs/ts-plugin": "0.1.0",
     "vscode-emmet-helper": "2.1.2",
     "vscode-html-languageservice": "^3.0.3",
@@ -51,8 +51,8 @@
   "contributes": {
     "typescriptServerPlugins": [
       {
-          "name": "@astrojs/ts-plugin",
-          "enableForWorkspaceTypeScriptVersions": true
+        "name": "@astrojs/ts-plugin",
+        "enableForWorkspaceTypeScriptVersions": true
       }
     ],
     "configuration": {
