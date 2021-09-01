@@ -12,7 +12,6 @@
   "author": "Astro",
   "license": "MIT",
   "publisher": "astro-build",
-  "private": true,
   "scripts": {
     "vscode:prepublish": "node ./scripts/publish.mjs",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
