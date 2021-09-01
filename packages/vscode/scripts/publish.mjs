@@ -18,17 +18,20 @@ async function publish() {
     }
   }
 
-  execa('npm', ['install'], { all: true });
+  console.log('Running npm install');
+  const p1 = execa('npm', ['install'], { all: true });
+  for await (const chunk of p0.all) {
+    console.log(chunk);
+  }
 
   const cwd = new URL('../', import.meta.url).pathname;
   console.log(`Publishing from ${cwd}`)
-
-  const p1 = execa('vsce', ['publish', '-p', process.env.VSCE_TOKEN, '--vscode'], {
+  const p2 = execa('vsce', ['publish', '-p', process.env.VSCE_TOKEN, '--vscode'], {
     all: true,
     cwd
   });
 
-  p1.all.setEncoding('utf8');
+  p2.all.setEncoding('utf8');
   for await (const chunk of p1.all) {
     console.log(chunk);
 
