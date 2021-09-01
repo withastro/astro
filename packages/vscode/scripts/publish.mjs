@@ -19,23 +19,6 @@ async function publish() {
   }
 
   execa('npm', ['install'], { all: true });
-
-  const p1 = execa('vsce', ['publish'], { all: true });
-
-  p1.all.setEncoding('utf8');
-  for await (const chunk of p1.all) {
-    console.log(chunk);
-
-    if (/DONE/g.test(chunk)) {
-      break;
-    }
-
-    if (/ERROR/g.test(chunk)) {
-      process.exit(1);
-    }
-  }
-
-  p1.kill();
 }
 
 publish();
