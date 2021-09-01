@@ -26,7 +26,7 @@ async function publish() {
 
   const cwd = new URL('../', import.meta.url).pathname;
   console.log(`Publishing from ${cwd}`)
-  const p2 = execa('vsce', ['publish', '-p', process.env.VSCE_TOKEN, '--vscode'], {
+  const p2 = execa('vsce', ['publish', '-p', process.env.VSCE_TOKEN], {
     all: true,
     cwd
   });
