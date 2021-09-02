@@ -29,9 +29,10 @@ const icons = [
 
 let avatarSrc = await getThumbnailIcon() || '/icons/space-icons-rounded-small/048-space.svg' 
 const getThumbnail = async() =>{
-    if(keywords.includes('framework') && !name.match('framework-multiple')){
+    if(keywords.includes('framework') && !name.match('framework-multiple') || name.match('with-tailwindcss')){
         return `/icons/framework-thumbnails/${name}.svg`
     }
+
    let avatarSrc = await getThumbnailIcon() || '/icons/space-icons-rounded-small/048-space.svg' 
     return avatarSrc
 }
