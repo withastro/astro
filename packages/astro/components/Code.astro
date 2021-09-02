@@ -4,24 +4,30 @@ export interface Props {
   code: string;
   lang?: string;
   theme?: string;
+  wrap?: boolean | null;
 }
 
-const { code, lang = 'plaintext', theme = 'nord' } = Astro.props;
+const { code, lang = 'plaintext', theme = 'dark-plus', wrap = false } = Astro.props;
 
 /** Replace the shiki class name with a custom astro class name. */
-function repairClassName(html: string): string {
+function repairShikiTheme(html: string): string {
+  // Replace "shiki" class naming with "astro".
   html = html.replace('<pre class="shiki"', '<pre class="astro-code"');
+  // Replace "shiki" css variable naming with "astro".
+  html = html.replace(/style="(background-)?color: var\(--shiki-/g, 'style="$1color: var(--astro-code-');
+  // Handle code wrapping
+  // if wrap=null, do nothing.
+  if (wrap === false) {
+    html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
+  } else if (wrap === true) {
+    html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"');
+  }
   return html;
 }
 
-/** Replace the shiki custom css theme colors with Astro-specific css variables. */
-function repairCssThemeColors(html: string): string {
-  html = html.replace(/style="(background-)?color: var\(--shiki-/g, 'style="$1color: var(--astro-code-');
-  return html;
-}
 
 const highlighter = await shiki.getHighlighter({theme});
 const _html = highlighter.codeToHtml(code, lang);
-html = repairCssThemeColors(repairClassName(_html));
+html = repairShikiTheme(_html);
 ---
 {html}

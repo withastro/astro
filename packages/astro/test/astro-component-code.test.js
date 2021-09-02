@@ -12,7 +12,7 @@ Components('<Code> without lang or theme', async ({ runtime }) => {
   assert.ok(!result.error, `build error: ${result.error}`);
   const $ = doc(result.contents);
   assert.equal($('pre').length, 1);
-  assert.equal($('pre').attr('style'), 'background-color: #2e3440ff', 'applies default theme');
+  assert.equal($('pre').attr('style'), 'background-color: #1E1E1E; overflow-x: auto;', 'applies default and overflow');
   assert.equal($('pre > code').length, 1);
   assert.ok($('pre > code span').length > 1, 'contains some generated spans');
 });
@@ -24,7 +24,7 @@ Components('<Code lang="...">', async ({ runtime }) => {
   assert.equal($('pre').length, 1);
   assert.equal($('pre').attr('class'), 'astro-code');
   assert.equal($('pre > code').length, 1);
-  assert.ok($('pre > code span').length > 6, 'contains many generated spans');
+  assert.ok($('pre > code span').length >= 6, 'contains many generated spans');
 });
 
 Components('<Code theme="...">', async ({ runtime }) => {
@@ -33,7 +33,31 @@ Components('<Code theme="...">', async ({ runtime }) => {
   const $ = doc(result.contents);
   assert.equal($('pre').length, 1);
   assert.equal($('pre').attr('class'), 'astro-code');
-  assert.equal($('pre').attr('style'), 'background-color: #1E1E1E', 'applies custom theme');
+  assert.equal($('pre').attr('style'), 'background-color: #1E1E1E; overflow-x: auto;', 'applies custom theme');
+});
+
+Components('<Code wrap>', async ({ runtime }) => { 
+  {
+    let result = await runtime.load('/wrap-true');
+    assert.ok(!result.error, `build error: ${result.error}`);
+    const $ = doc(result.contents);
+    assert.equal($('pre').length, 1);
+    assert.equal($('pre').attr('style'), 'background-color: #1E1E1E; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;', 'applies wrap overflow');
+  }
+  {
+    let result = await runtime.load('/wrap-false');
+    assert.ok(!result.error, `build error: ${result.error}`);
+    const $ = doc(result.contents);
+    assert.equal($('pre').length, 1);
+    assert.equal($('pre').attr('style'), 'background-color: #1E1E1E; overflow-x: auto;', 'applies wrap overflow');
+  }
+  {
+    let result = await runtime.load('/wrap-null');
+    assert.ok(!result.error, `build error: ${result.error}`);
+    const $ = doc(result.contents);
+    assert.equal($('pre').length, 1);
+    assert.equal($('pre').attr('style'), 'background-color: #1E1E1E', 'applies wrap overflow');
+  }
 });
 
 Components('<Code lang="..." theme="css-variables">', async ({ runtime }) => {
@@ -43,7 +67,7 @@ Components('<Code lang="..." theme="css-variables">', async ({ runtime }) => {
   assert.equal($('pre').length, 1);
   assert.equal($('pre').attr('class'), 'astro-code');
   assert.equal($('pre, pre span').map((i, f) => f.attribs ? f.attribs.style : 'no style found').toArray(), [
-    "background-color: var(--astro-code-color-background)",
+    "background-color: var(--astro-code-color-background); overflow-x: auto;",
     "color: var(--astro-code-token-constant)",
     "color: var(--astro-code-token-function)",
     "color: var(--astro-code-color-text)",
