@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.2
+
+### Patch Changes
+
+- 11a6f884: Added a check to see if the renderers array is empty and only show the message about using the templates default renderers if it isn't
+
 ## 0.6.1
 
 ### Patch Changes

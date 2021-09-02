@@ -1,7 +1,16 @@
 ---
 import { renderMarkdown } from '@astrojs/markdown-support';
 
-const { content, $scope } = Astro.props;
+export interface Props {
+  content?: string;
+}
+
+// Internal props that should not be part of the external interface.
+interface InternalProps extends Props {
+  $scope: string;
+}
+
+const { content, $scope } = Astro.props as InternalProps;
 let html = null;
 
 // This flow is only triggered if a user passes `<Markdown content={content} />`
