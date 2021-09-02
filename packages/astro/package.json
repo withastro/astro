@@ -17,7 +17,7 @@
     "./snowpack-plugin-jsx": "./snowpack-plugin-jsx.cjs",
     "./components": "./components/index.js",
     "./debug": "./components/DebugDeprecated.astro",
-    "./components/Prism.astro": "./components/Prism.astro",
+    "./components/*": "./components/*",
     "./runtime/svelte": "./dist/frontend/runtime/svelte.js",
     "./internal/*": "./dist/internal/*",
     "./dist/internal/*": "./dist/internal/*"
