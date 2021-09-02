@@ -13,6 +13,6 @@ const value = format(Astro.props[key]);
 // Log message to console, as well as the browser.
 console.debug(`[${yellow(bold('debug'))}] ` + format({[key]: value}));
 ---
-<div style="padding: 4px 16px; background-color: #2e3440ff;">
+<div style="padding: 4px 16px; background-color: #2e3440ff; overflow-x: auto;">
   <Code lang="js" code={`// <Debug ${key}={...} />\n${value}`} />
 </div>
