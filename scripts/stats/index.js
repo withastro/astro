@@ -65,19 +65,39 @@ export async function run() {
   const twentyFourHoursAgo = new Date();
   twentyFourHoursAgo.setDate(twentyFourHoursAgo.getDate() - 1);
 
-  const pulls = await octokit.paginate('GET /repos/{owner}/{repo}/pulls', {
+  const allIssues = await octokit.paginate('GET /repos/{owner}/{repo}/issues', {
     owner,
     repo,
   });
-  const issues = await octokit.paginate('GET /repos/{owner}/{repo}/issues', {
+  const issues = allIssues.filter((iss) => !iss.pull_request);
+  const pulls = allIssues.filter((iss) => iss.pull_request);
+
+  const allIssuesLastTwentyFourHours = await octokit.paginate('GET /repos/{owner}/{repo}/issues', {
     owner,
     repo,
+    state: 'all',
+    per_page: 100,
+    since: twentyFourHoursAgo.toISOString(),
   });
+  const issuesLastTwentyFourHours = allIssuesLastTwentyFourHours.filter((iss) => new Date(iss.created_at) > twentyFourHoursAgo && !iss.pull_request);
+  const pullsLastTwentyFourHours = allIssuesLastTwentyFourHours.filter((iss) => new Date(iss.created_at) > twentyFourHoursAgo && iss.pull_request);
+
+  console.log(issuesLastTwentyFourHours, pullsLastTwentyFourHours);
   const entry = [
     // Date (Human Readable)
     `"${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}"`,
     // Commits in last 24 hours
     (await countCommits(twentyFourHoursAgo)).length,
+    // New Issues(All) in last 24 hours
+    issuesLastTwentyFourHours.length,
+    // New Issues(Bugs) in last 24 hours
+    issuesLastTwentyFourHours.filter((iss) => iss.title.startsWith('🐛 BUG:')).length,
+    // New Issues(RFC) in last 24 hours
+    issuesLastTwentyFourHours.filter((iss) => iss.title.startsWith('💡 RFC:')).length,
+    // New Issues(Docs) in last 24 hours
+    issuesLastTwentyFourHours.filter((iss) => iss.title.startsWith('📘 DOC:')).length,
+    // New Pull Requests in last 24 hours
+    pullsLastTwentyFourHours.length,
     // Pull requests
     pulls.length,
     // Open Issues
