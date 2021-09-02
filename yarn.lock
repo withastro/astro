@@ -9504,10 +9504,10 @@ shell-quote@^1.6.1:
   resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.7.2.tgz#67a7d02c76c9da24f99d20808fcaded0e0e04be2"
   integrity sha512-mRz/m/JVscCrkMyPqHc/bczi3OQHkLTqXHEFu0zDhK/qfv3UcOA4SVmRCLmos4bhjr9ekVQubj/R7waKapmiQg==
 
-shiki@^0.9.9:
-  version "0.9.9"
-  resolved "https://registry.yarnpkg.com/shiki/-/shiki-0.9.9.tgz#8e8f506408c8259a4b82322d09c1ce702cd498d9"
-  integrity sha512-xqmbBqdXlm05t7cdenDGPADOt6v2jj51GE7cbKmDXCupRw4DzF0QNkiWgNkd+0IvquZWiVP3pEnZgunwVatoPg==
+shiki@^0.9.10:
+  version "0.9.10"
+  resolved "https://registry.yarnpkg.com/shiki/-/shiki-0.9.10.tgz#feb8d4938b5dd71c5c8b1c1c7cd28fbbd37da087"
+  integrity sha512-xeM7Oc6hY+6iW5O/T5hor8ul7mEprzyl5y4r5zthEHToQNw7MIhREMgU3r2gKDB0NaMLNrkcEQagudCdzE13Lg==
   dependencies:
     json5 "^2.2.0"
     onigasm "^2.2.5"
