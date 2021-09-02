@@ -6,7 +6,7 @@ const getImg = await getHeroImg() || 'https://source.unsplash.com/600x300/?space
   <img src={getImg} class='heroImg'/> 
 
 <style lang='scss'>
-img{
+.heroImg{
     display: block;
     --hero-radius: 50px 50px 100px 100px / 60px 60px 20px 20px;
     border-radius: var(--hero-radius);

@@ -119,7 +119,17 @@
   margin: 0;
   border-radius: 50%;
 }
-
+.heroImg{
+  display: block;
+  --hero-radius: 50px 50px 100px 100px / 60px 60px 20px 20px;
+  border-radius: var(--hero-radius);
+  width: 100%;
+  height:15rem;
+  box-shadow: inset 5px -2px 7px 0px rgb(185 188 231 / 37%),
+        0px 8px 0px 0px var(--theme-divider);
+  border-radius: var(--hero-radius);
+  object-fit: cover;
+}
 .tooltip {
   position: relative;
   display: inline-block;
