@@ -1,54 +1,31 @@
 ---
-import Layout from '../layouts/ExamplesLayout.astro'
-import templateData from '../components/Examples/Functions/get-examples-data.js'
-import capitalise from '../components/Examples/Functions/capitalise.js'
-import formatName from '../components/Examples/Functions/format-name.js'
+import templateData from '../../components/Examples/Functions/get-examples-data.js'
+export async function getStaticPaths() {
+  const data = await templateData()
+  return data.map((example)=>({
+    params:{
+      name: example.name
+    },
+      props:{
+        example
+      }
+  }));
+}
+const {name} = Astro.request.params
+const {example} = Astro.props
+let {name:title,pkgJSON,readme=""} = example
+const {description, keywords} = pkgJSON
+
+import Layout from '../../layouts/ExamplesLayout.astro'
+import capitalise from '../../components/Examples/Functions/capitalise.js'
+import formatName from '../../components/Examples/Functions/format-name.js'
 import {Markdown} from 'astro/components'
-import CollapsibleReadme from '../components/Examples/CollapsibleReadme.astro'
-import getHeroImg from '../components/Examples/Functions/get-hero-img.js'
+import CollapsibleReadme from '../../components/Examples/CollapsibleReadme.astro'
+import getHeroImg from '../../components/Examples/Functions/get-hero-img.js'
 const getImg = await getHeroImg()
 
-export async function createCollection(){
-    const dataset = await templateData()
-    const listOfTemplates = dataset.map((templates)=>(templates.name)) ; 
-    return{
-        route:'/example/:name',
-        paths(){
-            return listOfTemplates.map((path)=>({
-                params:{
-                    name: path
-                }
-            }))
-        },
-        async props({params}){
-          let example = dataset.filter((example)=>example.name === params.name)
-           return{
-               name: params.name,
-               data: example
-           } 
-            
-        }
-    }
-}
-
-const {name, data} = Astro.props
-const templates =  data.reduce(item=> ({item}))
-let {name:title,pkgJSON,readme=""} = templates
-const {description, keywords} = pkgJSON
 let templateTitle = formatName(title)
 ---
-<!-- Example 1 -->
-<!-- <Layout>
-    <div>
-        <img src="/default-og-image.png" alt="">
-        <h1>{capitalise(templateTitle)} Template</h1>
-    </div>
-    <div>
-        <Markdown content = {readme}/>
-    </div>
-        
-</Layout> -->
-<!-- Example 2 -->
 <Layout>
     <div>
         <img src={`${getImg}`} alt="" height="600px" width="100%">

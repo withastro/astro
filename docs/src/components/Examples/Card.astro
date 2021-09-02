@@ -24,7 +24,7 @@ const icons = [
 
 let avatarSrc = await getThumbnailIcon() || '/icons/space-icons-rounded-small/048-space.svg' 
 const {data:{name,readme="",pkgJSON:{description,keywords,repository}}} = Astro.props
-const href = `/example/${name}`
+const href = `/templates/${name}`
 ---
 
     <div class="card-wrapper">
@@ -36,7 +36,7 @@ const href = `/example/${name}`
                     <img src={avatarSrc} alt="" class="icon-image ball" />
                 </div>
                 <div class="card-content">
-                    <a href={`/example/${name}`} class="main-link">
+                    <a href={href} class="main-link">
                         <h3 class="title">
                             {formatName(name)}
                         </h3>
