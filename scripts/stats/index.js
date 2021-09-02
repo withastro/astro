@@ -25,8 +25,7 @@ const repo = 'astro';
 const COLUMN_ID_BUGS_NEEDS_TRIAGE = 14724521;
 const COLUMN_ID_BUGS_ACCEPTED = 14724515;
 const COLUMN_ID_BUGS_PRIORITIZED = 14946516;
-const COLUMN_ID_RFCS_NEEDS_DISCUSSION = 14946333;
-const COLUMN_ID_RFCS_NEEDS_WORK = 14946353;
+const COLUMN_ID_RFCS_IN_PROGRESS = 14946333;
 const COLUMN_ID_RFCS_ACCEPTED = 14946335;
 const COLUMN_ID_RFCS_PRIORITIZED = 14946454;
 
@@ -105,10 +104,8 @@ export async function run() {
     (await countCards(COLUMN_ID_BUGS_NEEDS_TRIAGE)).length,
     // Bugs: Accepted
     (await countCards(COLUMN_ID_BUGS_ACCEPTED)).length + (await countCards(COLUMN_ID_BUGS_PRIORITIZED)).length,
-    // RFC: Needs Discussion
-    (await countCards(COLUMN_ID_RFCS_NEEDS_DISCUSSION)).length,
-    // RFC: Needs Work
-    (await countCards(COLUMN_ID_RFCS_NEEDS_WORK)).length,
+    // RFC: In Progress
+    (await countCards(COLUMN_ID_RFCS_IN_PROGRESS)).length,
     // RFC: Accepted
     (await countCards(COLUMN_ID_RFCS_ACCEPTED)).length + (await countCards(COLUMN_ID_RFCS_PRIORITIZED)).length,
     // Date (ISO)
