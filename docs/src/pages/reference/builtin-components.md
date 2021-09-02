@@ -16,6 +16,8 @@ import { Code } from 'astro/components';
 <Code code={`const foo = 'bar';`} lang="js" />
 <!-- Optional: customize your theme. -->
 <Code code={`const foo = 'bar';`} lang="js" theme="dark-plus" />
+<!-- Optional: Enable word wrapping. -->
+<Code code={`const foo = 'bar';`} lang="js" wrap />
 ```
 
 This component provides syntax highlighting for code blocks at build time (no client-side JavaScript included). The component is powered internally by shiki and it supports all popular [themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md) and [languages](https://github.com/shikijs/shiki/blob/main/docs/languages.md).
