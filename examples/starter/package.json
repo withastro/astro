@@ -8,10 +8,6 @@
     "directory": "/examples/starter",
     "type": "github"
   },
-  "onlineDemo":{
-    "preview":"https://kne3y.sse.codesandbox.io/",
-    "sandbox":"https://codesandbox.io/s/astro-template-starter-kne3y?file=/package.json"
-  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

@@ -9,10 +9,6 @@
     "type": "github",
     "url": "https://github.com/snowpackjs/astro/tree/main"
   },
-  "onlineDemo":{
-    "preview":"",
-    "sandbox":""
-  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
