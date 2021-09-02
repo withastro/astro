@@ -5,10 +5,11 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build"
+    "build": "astro build",
+    "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.19.3"
+    "astro": "^0.20.3"
   },
   "snowpack": {
     "workspaceRoot": "../.."

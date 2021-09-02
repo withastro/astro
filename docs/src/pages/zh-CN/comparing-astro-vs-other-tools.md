@@ -59,6 +59,7 @@ Gatsby 使用 React 来渲染你的网站。Astro 更灵活：你可以自由地
 
 Gatsby 需要一个定制的 GraphQL API 来处理所有的网站内容。虽然有些开发者喜欢这种模式，但对 Gatsby 的一个普遍意见是，这种模式随着时间的推移变得过于复杂和难以维护，特别是随着网站的增长。Astro 没有 GraphQL 要求，而是提供熟悉的 API（如`fetch()`和顶层的`await`），以便在需要数据的地方加载数据。
 
+Gatsby 需要一个定制的 GraphQL API 来处理所有的网站内容。虽然有些开发者喜欢这种模式，但对 Gatsby 的一个普遍意见是，这种模式随着时间的推移变得过于复杂和难以维护，特别是随着网站的增长。Astro 没有 GraphQL 要求，而是提供熟悉的 API（如`fetch()`和顶层的`await`），以便在需要数据的地方加载数据。
 
 #### 对比 Gastby 及 Astro 性能
 
@@ -67,6 +68,7 @@ Gatsby 需要一个定制的 GraphQL API 来处理所有的网站内容。虽然
 Gatsby 不支持局部渲染，而是让用户在浏览器中加载并重新渲染整个页面，即使大部分页面内容是静态的。这为你的网站创造了更慢的页面加载和更差的性能。Gatsby 有[一个社区插件](https://www.gatsbyjs.com/plugins/gatsby-plugin-no-javascript/)用于移除页面中的所有 JavaScript 但这将破坏许多网站。这让你在每个页面的互动性上做出一个全有或全无的决定。
 
 Gatsby 有一个很好的插件生态系统，根据你的需要，它可以使 Gatsby 成为你的项目的更好选择。[gatsby-plugin-image](https://www.gatsbyjs.com/plugins/gatsby-plugin-image/)是一个流行的图像优化插件，这可能使 Gatsby 成为一些图像密集型网站的更好选择。
+
 #### 案例研究 : 构建文档网站
 
 [gatsbyjs.com/docs](https://www.gatsbyjs.com/docs/quick-start/)是 Gatsby 的官方文档网站，用 Gatsby 构建。该网站提供了足够相似的设计和功能集，可以与 Astro 官方文档网站进行比较。让我们对这两个网站构建工具进行一个粗略的真实的比较。以满足这个常见的使用情况。

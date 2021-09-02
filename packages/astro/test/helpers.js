@@ -1,5 +1,6 @@
 import { fileURLToPath } from 'url';
 import { build as astroBuild } from '#astro/build';
+import { preview as astroPreview } from '#astro/preview';
 import { readFileSync } from 'fs';
 import { createRuntime } from '#astro/runtime';
 import { loadConfig } from '#astro/config';
@@ -64,6 +65,59 @@ export function setup(Suite, fixturePath, { runtimeOptions = {} } = {}) {
     }, MAX_SHUTDOWN_TIME);
 
     (await runtime) && runtime.shutdown();
+
+    clearTimeout(timeout);
+  });
+
+  Suite.after.each(({ __test__ }) => {
+    clearTimeout(timers[__test__]);
+  });
+}
+
+/**
+ * @param {{}} Suite
+ * @param {string} fixturePath
+ * @param {SetupOptions} setupOptions
+ */
+export function setupPreview(Suite, fixturePath, { runtimeOptions = {} } = {}) {
+  let server, createRuntimeError;
+  const timers = {};
+
+  Suite.before(async (context) => {
+    let timeout = setTimeout(() => {
+      throw new Error('Startup did not complete within allowed time');
+    }, MAX_STARTUP_TIME);
+
+    const astroConfig = await loadConfig(fileURLToPath(new URL(fixturePath, import.meta.url)));
+
+    server = await astroPreview(astroConfig).catch((err) => {
+      createRuntimeError = err;
+    });
+
+    if (createRuntimeError) {
+      setTimeout(() => {
+        throw createRuntimeError;
+      });
+    }
+
+    context.previewServer = server;
+
+    clearTimeout(timeout);
+  });
+
+  Suite.before.each(({ __test__ }) => {
+    if (timers[__test__]) throw new Error(`Test "${__test__}" already declared`);
+    timers[__test__] = setTimeout(() => {
+      throw new Error(`"${__test__}" did not finish within allowed time`);
+    }, MAX_TEST_TIME);
+  });
+
+  Suite.after(async () => {
+    let timeout = setTimeout(() => {
+      throw new Error('Shutdown did not complete within allowed time');
+    }, MAX_SHUTDOWN_TIME);
+
+    server && server.close();
 
     clearTimeout(timeout);
   });

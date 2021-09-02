@@ -216,7 +216,7 @@ const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpa
     Here we have some __Markdown__ code. We can also dynamically render content from remote places.
 
     <Markdown content={content} />
-  </Mardown>
+  </Markdown>
 </Layout>
 ```
 

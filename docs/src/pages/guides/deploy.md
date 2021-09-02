@@ -13,7 +13,8 @@ The following guides are based on some shared assumptions:
 {
   "scripts": {
     "start": "astro dev",
-    "build": "astro build"
+    "build": "astro build",
+    "preview": "astro preview"
   }
 }
 ```
