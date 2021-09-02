@@ -102,7 +102,10 @@ export function startServer() {
   });
 
   // Features
-  connection.onCompletion((evt) => pluginHost.getCompletions(evt.textDocument, evt.position, evt.context));
+  connection.onCompletion(async (evt) => {
+    const promise = pluginHost.getCompletions(evt.textDocument, evt.position, evt.context);
+    return promise;
+  });
   connection.onCompletionResolve((completionItem) => {
     const data = (completionItem as AppCompletionItem).data as TextDocumentIdentifier;
 

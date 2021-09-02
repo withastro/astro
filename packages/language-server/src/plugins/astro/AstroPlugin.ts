@@ -185,7 +185,7 @@ export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
       return [];
     }
 
-    // If inside of attributes, skip.
+    // If inside of attribute value, skip.
     if (completionContext && completionContext.triggerKind === CompletionTriggerKind.TriggerCharacter && completionContext.triggerCharacter === '"') {
       return [];
     }

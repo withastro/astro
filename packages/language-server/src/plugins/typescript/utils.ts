@@ -178,10 +178,13 @@ export function isVirtualFilePath(filePath: string) {
 }
 
 export function toVirtualAstroFilePath(filePath: string) {
-  if (isVirtualFrameworkFilePath('astro', filePath)) {
+  if (isVirtualAstroFilePath(filePath)) {
+    return filePath;
+  } else if(isAstroFilePath(filePath)) {
+    return `${filePath}.ts`;
+  } else {
     return filePath;
   }
-  return `${filePath}.ts`;
 }
 
 export function toRealAstroFilePath(filePath: string) {

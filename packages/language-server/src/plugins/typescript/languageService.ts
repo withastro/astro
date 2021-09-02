@@ -99,10 +99,13 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     getCurrentDirectory: () => workspaceRoot,
     getDefaultLibFileName: () => ts.getDefaultLibFilePath(project.options),
 
-    getProjectVersion: () => `${projectVersion}`,
+    getProjectVersion: () => projectVersion.toString(),
     getScriptFileNames: () => Array.from(new Set([...snapshotManager.getFileNames(), ...snapshotManager.getProjectFileNames()])),
     getScriptSnapshot,
-    getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString(),
+    getScriptVersion: (fileName: string) => {
+      let snapshotVersion = getScriptSnapshot(fileName).version.toString();
+      return snapshotVersion;
+    },
   };
 
   const languageService: ts.LanguageService = ts.createLanguageService(host);
