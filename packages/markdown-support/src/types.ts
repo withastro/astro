@@ -1,4 +1,4 @@
-import unified from 'unified';
+import * as unified from 'unified';
 
 export type UnifiedPluginImport = Promise<{ default: unified.Plugin }>;
 export type Plugin = string | [string, any] | UnifiedPluginImport | [UnifiedPluginImport, any];
