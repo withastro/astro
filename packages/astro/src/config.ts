@@ -1,11 +1,11 @@
 import { existsSync } from 'fs';
-import * as colors from 'kleur/colors';
 import getPort from 'get-port';
+import * as colors from 'kleur/colors';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { z } from 'zod';
 import { AstroConfig, AstroUserConfig } from './@types/astro';
 import { addTrailingSlash } from './util.js';
-import { pathToFileURL } from 'url';
 
 export const AstroConfigSchema = z.object({
   projectRoot: z
@@ -73,7 +73,7 @@ export const AstroConfigSchema = z.object({
 
 /** Turn raw config values into normalized values */
 export async function validateConfig(userConfig: any, root: string): Promise<AstroConfig> {
-  const fileProtocolRoot = pathToFileURL(root);
+  const fileProtocolRoot = pathToFileURL(root + path.sep);
   // We need to extend the global schema to add transforms that are relative to root.
   // This is type checked against the global schema to make sure we still match.
   const AstroConfigRelativeSchema = AstroConfigSchema.extend({
@@ -117,5 +117,4 @@ export async function loadConfig(rawRoot: string | undefined, configFileName = '
 export function formatConfigError(err: z.ZodError) {
   const errorList = err.issues.map((issue) => `  ! ${colors.bold(issue.path.join('.'))}  ${colors.red(issue.message + '.')}`);
   return `${colors.red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join('\n')}`;
-  
 }
