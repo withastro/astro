@@ -21,20 +21,20 @@
 
 <!-- This is intentionally inlined to avoid FOUC -->
 <script>
-  const root = document.documentElement;
-  const theme = localStorage.getItem('theme');
-  if (theme === 'dark' || (!theme) && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    root.classList.add('theme-dark');
-  } else {
-    root.classList.remove('theme-dark');
-  }
+	const root = document.documentElement;
+	const theme = localStorage.getItem('theme');
+	if (theme === 'dark' || (!theme) && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+		root.classList.add('theme-dark');
+	} else {
+		root.classList.remove('theme-dark');
+	}
 </script>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-TEL60V1WM9"></script>
 <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-TEL60V1WM9');
+	window.dataLayer = window.dataLayer || [];
+	function gtag(){dataLayer.push(arguments);}
+	gtag('js', new Date());
+	gtag('config', 'G-TEL60V1WM9');
 </script> -->

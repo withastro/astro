@@ -22,25 +22,25 @@ let firstPage = allPosts.slice(0, 2);
 // https://docs.astro.build/core-concepts/astro-components/
 ---
 <html lang="en">
-  <head>
-    <title>{title}</title>
-    <MainHead
-      title={title}
-      description={description}
-      image={allPosts[0].image}
-      canonicalURL={Astro.request.canonicalURL.href}
-    />
-  </head>
+	<head>
+		<title>{title}</title>
+		<MainHead
+			title={title}
+			description={description}
+			image={allPosts[0].image}
+			canonicalURL={Astro.request.canonicalURL.href}
+		/>
+	</head>
 
-  <body>
-    <Nav />
+	<body>
+		<Nav />
 
-    <main class="wrapper">
-      {allPosts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
-    </main>
+		<main class="wrapper">
+			{allPosts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+		</main>
 
-    <footer>
-      <Pagination nextUrl="/posts/2" />
-    </footer>
-  </body>
+		<footer>
+			<Pagination nextUrl="/posts/2" />
+		</footer>
+	</body>
 </html>

@@ -1,9 +1,9 @@
 ---
 import {SITE, OPEN_GRAPH} from '../config.ts';
 export interface Props {
-  content: any,
-  site: any,
-  canonicalURL: URL | string,
+	content: any,
+	site: any,
+	canonicalURL: URL | string,
 };
 const { content = {}, canonicalURL } = Astro.props;
 const formattedContentTitle = content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title;
@@ -33,8 +33,8 @@ const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
 <meta name="twitter:image:alt" content={imageAlt}/>
 
 <!-- 
-  TODO: Add json+ld data, maybe https://schema.org/APIReference makes sense? 
-  Docs: https://developers.google.com/search/docs/advanced/structured-data/intro-structured-data
-  https://www.npmjs.com/package/schema-dts seems like a great resource for implementing this.
-  Even better, there's a React component that integrates with `schema-dts`: https://github.com/google/react-schemaorg
+	TODO: Add json+ld data, maybe https://schema.org/APIReference makes sense? 
+	Docs: https://developers.google.com/search/docs/advanced/structured-data/intro-structured-data
+	https://www.npmjs.com/package/schema-dts seems like a great resource for implementing this.
+	Even better, there's a React component that integrates with `schema-dts`: https://github.com/google/react-schemaorg
 -->

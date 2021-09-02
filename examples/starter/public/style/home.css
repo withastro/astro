@@ -1,53 +1,53 @@
 :root {
-  --font-mono: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Liberation Mono',
-    'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
-  --color-light: #f3f4f6;
+	--font-mono: Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Liberation Mono',
+		'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
+	--color-light: #f3f4f6;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-light: #1f2937;
-  }
+	:root {
+		--color-light: #1f2937;
+	}
 }
 
 a {
-  color: inherit;
+	color: inherit;
 }
 
 header > div {
-  font-size: clamp(2rem, -0.4742rem + 6.1856vw, 2.75rem);
+	font-size: clamp(2rem, -0.4742rem + 6.1856vw, 2.75rem);
 }
 
 header > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 }
 
 header h1 {
-  font-size: 1em;
-  font-weight: 500;
+	font-size: 1em;
+	font-weight: 500;
 }
 header img {
-  width: 2em;
-  height: 2.667em;
+	width: 2em;
+	height: 2.667em;
 }
 
 h2 {
-  font-weight: 500;
-  font-size: clamp(1.5rem, 1rem + 1.25vw, 2rem);
+	font-weight: 500;
+	font-size: clamp(1.5rem, 1rem + 1.25vw, 2rem);
 }
 
 .counter {
-  display: grid;
-  grid-auto-flow: column;
-  gap: 1em;
-  font-size: 2rem;
-  justify-content: center;
-  padding: 2rem 1rem;
+	display: grid;
+	grid-auto-flow: column;
+	gap: 1em;
+	font-size: 2rem;
+	justify-content: center;
+	padding: 2rem 1rem;
 }
 
 .counter > pre {
-  text-align: center;
-  min-width: 3ch;
+	text-align: center;
+	min-width: 3ch;
 }
