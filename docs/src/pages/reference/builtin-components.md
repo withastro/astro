@@ -5,6 +5,26 @@ title: Built-In Components
 
 Astro includes several builtin components for you to use in your projects. All builtin components are available via `import {} from 'astro/components';`.
 
+
+## `<Code />`
+
+```astro
+---
+import { Code } from 'astro/components';
+---
+<!-- Syntax highlight some JavaScript code. -->
+<Code code={`const foo = 'bar';`} lang="js" />
+<!-- Optional: customize your theme. -->
+<Code code={`const foo = 'bar';`} lang="js" theme="dark-plus" />
+<!-- Optional: Enable word wrapping. -->
+<Code code={`const foo = 'bar';`} lang="js" wrap />
+```
+
+This component provides syntax highlighting for code blocks at build time (no client-side JavaScript included). The component is powered internally by shiki and it supports all popular [themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md) and [languages](https://github.com/shikijs/shiki/blob/main/docs/languages.md).
+
+You can also use the `<Prism />` component for syntax highlighting powered by the [Prism](https://prismjs.com/) syntax highlighting library. This is the library that Astro's Markdown uses by default. However, we will be transitioning all usage over to `<Code>` as we move towards our v1.0 release.
+
+
 ## `<Markdown />`
 
 ```astro

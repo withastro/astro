@@ -40,7 +40,7 @@ Astro 是一个现代的静态网站生成工具. 你可以从 [我们的主页]
 
 ### API 参考文档
 
-当你想了解某个特定的 Astro API 的更多细节时，这部分文档是有用的。例如 [配置参考](/reference/configuration-reference) 列出所有可能的配置选项供你使用。 [内置组件参考](/reference/builtin-components) 列出了所有可用的核心组件，如`<Markdown />`和`<Prism />`。
+当你想了解某个特定的 Astro API 的更多细节时，这部分文档是有用的。例如 [配置参考](/reference/configuration-reference) 列出所有可能的配置选项供你使用。 [内置组件参考](/reference/builtin-components) 列出了所有可用的核心组件，如`<Markdown />`和`<Code />`。
 
 ### 其他版本文档
 
