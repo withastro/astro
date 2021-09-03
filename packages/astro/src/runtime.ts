@@ -14,9 +14,11 @@ import {
   startServer as startSnowpackServer,
 } from 'snowpack';
 import { fileURLToPath } from 'url';
-import type { AstroConfig, RSSFunctionArgs, GetStaticPathsArgs, GetStaticPathsResult, ManifestData, Params, RuntimeMode } from './@types/astro';
+import { z } from 'zod';
+import type { AstroConfig, GetStaticPathsArgs, GetStaticPathsResult, ManifestData, Params, RSSFunctionArgs, RuntimeMode } from './@types/astro';
 import { generatePaginateFunction } from './build/paginate.js';
 import { canonicalURL, getSrcPath, stopTimer } from './build/util.js';
+import { formatConfigError } from './config.js';
 import { ConfigManager } from './config_manager.js';
 import snowpackExternals from './external.js';
 import { debug, info, LogOptions } from './logger.js';
@@ -48,6 +50,7 @@ type LoadResultSuccess = {
 type LoadResultNotFound = { statusCode: 404; error: Error };
 type LoadResultError = { statusCode: 500 } & (
   | { type: 'parse-error'; error: ICompileError }
+  | { type: 'config-error'; error: z.ZodError }
   | { type: 'ssr'; error: Error }
   | { type: 'not-found'; error: ICompileError }
   | { type: 'unknown'; error: Error }
@@ -173,6 +176,15 @@ async function load(config: AstroRuntimeConfig, rawPathname: string | undefined)
       rss: undefined, // TODO: Add back rss support
     };
   } catch (err) {
+    if (err instanceof z.ZodError) {
+      console.log(formatConfigError(err));
+      return {
+        statusCode: 500,
+        type: 'config-error',
+        error: err,
+      };
+    }
+
     if (err.code === 'parse-error' || err instanceof SyntaxError) {
       return {
         statusCode: 500,

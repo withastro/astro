@@ -113,7 +113,8 @@
     "@types/sass": "^1.16.0",
     "@types/yargs-parser": "^20.2.0",
     "astro-scripts": "0.0.1",
-    "is-windows": "^1.0.2"
+    "is-windows": "^1.0.2",
+    "strip-ansi": "^7.0.0"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0",
