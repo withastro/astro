@@ -36,7 +36,7 @@ Components('<Code theme="...">', async ({ runtime }) => {
   assert.equal($('pre').attr('style'), 'background-color: #2e3440ff; overflow-x: auto;', 'applies custom theme');
 });
 
-Components('<Code wrap>', async ({ runtime }) => { 
+Components('<Code wrap>', async ({ runtime }) => {
   {
     let result = await runtime.load('/wrap-true');
     assert.ok(!result.error, `build error: ${result.error}`);
@@ -66,14 +66,19 @@ Components('<Code lang="..." theme="css-variables">', async ({ runtime }) => {
   const $ = doc(result.contents);
   assert.equal($('pre').length, 1);
   assert.equal($('pre').attr('class'), 'astro-code');
-  assert.equal($('pre, pre span').map((i, f) => f.attribs ? f.attribs.style : 'no style found').toArray(), [
-    "background-color: var(--astro-code-color-background); overflow-x: auto;",
-    "color: var(--astro-code-token-constant)",
-    "color: var(--astro-code-token-function)",
-    "color: var(--astro-code-color-text)",
-    "color: var(--astro-code-token-string-expression)",
-    "color: var(--astro-code-color-text)",
-  ]);
+  assert.equal(
+    $('pre, pre span')
+      .map((i, f) => (f.attribs ? f.attribs.style : 'no style found'))
+      .toArray(),
+    [
+      'background-color: var(--astro-code-color-background); overflow-x: auto;',
+      'color: var(--astro-code-token-constant)',
+      'color: var(--astro-code-token-function)',
+      'color: var(--astro-code-color-text)',
+      'color: var(--astro-code-token-string-expression)',
+      'color: var(--astro-code-color-text)',
+    ]
+  );
 });
 
 Components.run();
