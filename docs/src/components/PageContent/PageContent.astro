@@ -6,10 +6,10 @@ const currentPage = Astro.request.url.pathname;
 import MoreMenu from '../RightSidebar/MoreMenu.astro';
 import TableOfContents from '../RightSidebar/TableOfContents.tsx';
 import {getLanguageFromURL} from '../../util.ts';
-import { SIDEBAR } from '../../config.ts';
+import {SIDEBAR} from '../../config.ts';
 const langCode = getLanguageFromURL(currentPage);
-const links = SIDEBAR[langCode].filter(x => x.link && typeof x.header === 'undefined')
-const index = links.findIndex(x => `/${x.link}` === currentPage)
+const links = SIDEBAR[langCode].filter(x => x.link && typeof x.header === 'undefined');
+const index = links.findIndex(x => `/${x.link}` === currentPage);
 const next = links[index + 1];
 ---
 <style>
