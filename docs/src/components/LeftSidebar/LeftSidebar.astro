@@ -24,7 +24,7 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item) => {
           <h2 class="nav-group-title">{section.text}</h2>
           <ul>
             {section.children.map(child => (
-              <li class="nav-link"><a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPageMatch === child.link ? 'page' : 'false'}`}>{child.text}</a></li>
+              <li class="nav-link"><a href={`${Astro.site.pathname}${child.link}`} aria-current={`${(currentPageMatch === child.link || currentPageMatch === child.link + '/') ? 'page' : 'false'}`}>{child.text}</a></li>
             ))}
           </ul>
         </div>

@@ -35,7 +35,6 @@ import TableOfContents from '../RightSidebar/TableOfContents.tsx';
         </nav>
         <slot />
     </section>
-    {Astro.request.url.pathname}
     <nav class="block sm:hidden">
         <MoreMenu editHref={githubEditUrl}/>
     </nav>
