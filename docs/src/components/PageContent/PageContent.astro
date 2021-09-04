@@ -1,8 +1,7 @@
 ---
-const {content, githubEditUrl} = Astro.props;
+const {content, githubEditUrl, currentPage} = Astro.props;
 const title = content.title;
 const headers = content.astro.headers;
-const currentPage = Astro.request.url.pathname;
 import MoreMenu from '../RightSidebar/MoreMenu.astro';
 import TableOfContents from '../RightSidebar/TableOfContents.tsx';
 import {getLanguageFromURL} from '../../util.ts';

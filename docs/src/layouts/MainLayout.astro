@@ -111,7 +111,7 @@ const formatTitle = (content, SITE) => content.title ? `${content.title} 🚀 ${
         <LeftSidebar currentPage={currentPage} />
       </aside>
       <div id="grid-main">
-        <PageContent content={content} githubEditUrl={githubEditUrl}>
+        <PageContent content={content} githubEditUrl={githubEditUrl} currentPage={currentPage}>
           <slot />
         </PageContent>
       </div>
