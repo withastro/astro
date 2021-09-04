@@ -8,8 +8,8 @@ import {getLanguageFromURL} from '../../util.ts';
 import {SIDEBAR} from '../../config.ts';
 const langCode = getLanguageFromURL(currentPage);
 const links = SIDEBAR[langCode].filter(x => x.link && typeof x.header === 'undefined');
-const index = links.findIndex(x => `/${x.link}` === currentPage);
-const next = index !== -1 ? links[index + 1] : null;
+const index = links.findIndex(x => `/${x.link}/` === currentPage);
+const next = index !== -1 ? (index === links.length - 1 ? null : links[index + 1]) : null;
 ---
 <style>
       .content {
