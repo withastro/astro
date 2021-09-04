@@ -2,8 +2,15 @@
 const {content, githubEditUrl} = Astro.props;
 const title = content.title;
 const headers = content.astro.headers;
+const currentPage = Astro.request.url.pathname;
 import MoreMenu from '../RightSidebar/MoreMenu.astro';
 import TableOfContents from '../RightSidebar/TableOfContents.tsx';
+import {getLanguageFromURL} from '../../util.ts';
+import { SIDEBAR } from '../../config.ts';
+const langCode = getLanguageFromURL(currentPage);
+const links = SIDEBAR[langCode].filter(x => x.link && typeof x.header === 'undefined')
+const index = links.findIndex(x => `/${x.link}` === currentPage)
+const next = links[index + 1];
 ---
 <style>
       .content {
@@ -38,4 +45,9 @@ import TableOfContents from '../RightSidebar/TableOfContents.tsx';
     <nav class="block sm:hidden">
         <MoreMenu editHref={githubEditUrl}/>
     </nav>
+    {
+      next && <aside>
+      Next Article: <a href={`${Astro.site.pathname}${next.link}`}>{next.text}</a>
+    </aside>
+    }
 </article>
