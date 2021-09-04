@@ -27,8 +27,8 @@ const getImg = await getHeroImg()
 let templateTitle = formatName(title)
 ---
 <Layout>
-    <div>
-        <img src={`${getImg}`} alt="" height="600px" width="100%">
+    <div class="imgWrapper">
+        <img class="post-img" src={`${getImg}`} alt="" height="600px" width="100%">
         <h1>{templateTitle} Template</h1>
     </div>
     <Markdown content = {description}/>
@@ -65,4 +65,7 @@ let templateTitle = formatName(title)
         justify-content: space-evenly;
         align-items: center;
     }
+    .post-img{
+        clip-path: inset(0 0 0 0 round 5% 20% 0 10%);
+     }
 </style>
