@@ -10,7 +10,7 @@ import {SIDEBAR} from '../../config.ts';
 const langCode = getLanguageFromURL(currentPage);
 const links = SIDEBAR[langCode].filter(x => x.link && typeof x.header === 'undefined');
 const index = links.findIndex(x => `/${x.link}` === currentPage);
-const next = links[index + 1];
+const next = index !== -1 ? links[index + 1] : null;
 ---
 <style>
       .content {
