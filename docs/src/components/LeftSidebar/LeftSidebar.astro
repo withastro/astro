@@ -1,8 +1,10 @@
 ---
 import { SIDEBAR } from '../../config.ts';
-import { getLanguageFromURL } from '../../util.ts';
+import { getLanguageFromURL, removeLeadingSlash, removeTrailingSlash } from '../../util.ts';
 const {currentPage} = Astro.props;
-const currentPageMatch = currentPage.slice(1);
+
+// Get the slug w/o a leading or trailing slash
+const currentPageMatch = removeLeadingSlash(removeTrailingSlash(currentPage));
 const langCode = getLanguageFromURL(currentPage);
 // SIDEBAR is a flat array. Group it by sections to properly render. 
 const sidebarSections = SIDEBAR[langCode].reduce((col, item) => {
