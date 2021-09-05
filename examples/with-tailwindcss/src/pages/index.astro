@@ -12,7 +12,7 @@ import Button from '../components/Button.astro';
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
     <title>Astro + TailwindCSS</title>
-    <link rel="stylesheet" type="text/css" href="/global.css">
+    <link rel="stylesheet" type="text/css" href={Astro.resolve("../styles/global.css")}>
   </head>
 
   <body>

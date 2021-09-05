@@ -48,7 +48,7 @@ After `create-astro` scaffolds out your project, remember to install your projec
 npm install
 ```
 
-You can now [Start](#start-astro) your Astro project. Once you have completed assembling your Astro project you can then [Build](#build-astro) your project. Astro would then package up your application and have the static files ready for you to [Deploy](/guides/deploy) to your favourite hosting provider
+You can now [Start](#start-astro) your Astro project. Once you have completed assembling your Astro project you can then [Build](#build-astro) your project. Astro would then package up your application and have the static files ready for you to [Deploy](/guides/deploy) to your favourite hosting provider.
 
 ## Manual Install
 
