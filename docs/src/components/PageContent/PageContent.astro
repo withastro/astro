@@ -49,10 +49,10 @@ const previous = index !== -1 ? (index === 0 ? null : links[index - 1]) : null;
     {
       (previous || next) && <aside>
       {
-        previous && <div>Previous Article: <a rel="prev" href={`${Astro.site.pathname}${previous.link}`}>{previous.text}</a></div>
+        previous && <div>Previous Article: <a rel="prev" href={new URL(previous.link, Astro.site).pathname}>{previous.text}</a></div>
       }
       {
-        next && <div>Next Article: <a rel="next" href={`${Astro.site.pathname}${next.link}`}>{next.text}</a></div>
+        next && <div>Next Article: <a rel="next" href={new URL(next.link, Astro.site).pathname}>{next.text}</a></div>
       }
     </aside>
     }
