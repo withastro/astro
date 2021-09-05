@@ -4,8 +4,9 @@
   color: #fd9170;
 }
 
-.language-diff .token.prefix.deleted,.language-diff .token.prefix.inserted {
-  user-select: none
+.language-diff .token.prefix.deleted,
+.language-diff .token.prefix.inserted {
+  user-select: none;
 }
 
 [class*='language-'] .namespace {
