@@ -11,6 +11,7 @@ const links = SIDEBAR[langCode].filter(x => x.link && typeof x.header === 'undef
 // handle cases with a trailing slash or not
 const index = links.findIndex(x => `/${x.link}/` === currentPage || `/${x.link}` === currentPage);
 const next = index !== -1 ? (index === links.length - 1 ? null : links[index + 1]) : null;
+const previous = index !== -1 ? (index === 0 ? null : links[index - 1]) : null;
 ---
 <style>
       .content {
@@ -46,8 +47,13 @@ const next = index !== -1 ? (index === links.length - 1 ? null : links[index + 1
         <MoreMenu editHref={githubEditUrl}/>
     </nav>
     {
-      next && <aside>
-      Next Article: <a href={`${Astro.site.pathname}${next.link}`}>{next.text}</a>
+      (previous || next) && <aside>
+      {
+        previous && <div>Previous Article: <a rel="prev" href={`${Astro.site.pathname}${previous.link}`}>{previous.text}</a></div>
+      }
+      {
+        next && <div>Next Article: <a rel="next" href={`${Astro.site.pathname}${next.link}`}>{next.text}</a></div>
+      }
     </aside>
     }
 </article>
