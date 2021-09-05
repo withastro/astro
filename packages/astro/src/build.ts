@@ -30,6 +30,20 @@ function isRemoteOrEmbedded(url: string) {
   return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//') || url.startsWith('data:');
 }
 
+/**
+ * This function taken from https://github.com/molefrog/srcset-parse as unable
+ * to add it as a working dependency (don't know why.)
+ * RegExp used below also from same project.
+ */
+const matchSrces = (str: string, regex: RegExp): RegExpExecArray[] => {
+  let match = null,
+    result = [];
+
+  while ((match = regex.exec(str)) !== null) result.push(match);
+  return result;
+};
+
+
 /** The primary build action */
 export async function build(astroConfig: AstroConfig, logging: LogOptions = defaultLogging): Promise<0 | 1> {
   const { projectRoot } = astroConfig;
@@ -329,11 +343,25 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
 
   $('img[srcset]').each((_i, el) => {
     const srcset = $(el).attr('srcset') || '';
-    const sources = srcset.split(',');
-    const srces = sources.map((s) => s.trim().split(' ')[0]);
+    // using matchSrces (see above) as built-in matchAll
+    // is not compatible with project.
+    const srces = matchSrces(srcset, /(\S*[^,\s])(\s+([\d.]+)(x|w))?/g)
     for (const src of srces) {
-      if (!isRemoteOrEmbedded(src)) {
-        pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
+      if (!isRemoteOrEmbedded(src[1])) {
+        pageDeps.images.add(getDistPath(src[1], { astroConfig, srcPath }));
+      }
+    }
+  });
+
+  // Add in srcset check for <source>
+  $('source[srcset]').each((_i, el) => {
+    const srcset = $(el).attr('srcset') || '';
+    // using matchSrces (see above) as built-in matchAll
+    // is not compatible with project.
+    const srces = matchSrces(srcset, /(\S*[^,\s])(\s+([\d.]+)(x|w))?/g)
+    for (const src of srces) {
+      if (!isRemoteOrEmbedded(src[1])) {
+        pageDeps.images.add(getDistPath(src[1], { astroConfig, srcPath }));
       }
     }
   });
