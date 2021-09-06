@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "description": "Blog Site built using Astro. Use this Template to setup your own Blog",
-  "keywords": ["create-astro","template","astro"],
+  "keywords": [
+    "create-astro",
+    "template",
+    "astro"
+  ],
   "repository": {
     "directory": "/examples/blog",
     "type": "github",
@@ -21,5 +25,4 @@
   "snowpack": {
     "workspaceRoot": "../.."
   }
-
 }

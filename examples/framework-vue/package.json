@@ -1,7 +1,11 @@
 {
   "name": "@example/framework-vue",
   "version": "0.0.1",
-  "keywords": ["framework","template","astro"],
+  "keywords": [
+    "framework",
+    "template",
+    "astro"
+  ],
   "private": true,
   "description": "View our demonstration where we use Vue to create UI components for Astro",
   "repository": {

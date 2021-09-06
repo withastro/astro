@@ -1,6 +1,10 @@
 {
   "name": "@example/framework-solid",
-  "keywords": ["framework","template","astro"],
+  "keywords": [
+    "framework",
+    "template",
+    "astro"
+  ],
   "private": true,
   "version": "0.0.1",
   "description": "See how to seamlessly use Solid UI to develop Web Components within Astro",

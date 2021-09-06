@@ -6,7 +6,7 @@
   background: var(--theme-card-bg);
   box-shadow: var(--theme-card-box-shadow);
   transition: all 0.25s cubic-bezier(0, 0, 0.75, 0.24);
-  &:hover{
+  &:hover {
     transform: translateY(-0.25rem);
   }
 }
@@ -70,7 +70,7 @@
 //     0px 8px 0px 0px var(--theme-divider);
 //     border-radius: 60px 60px 100px 100px / 60px 60px 20px 20px;
 //     width: 100%;
-    
+
 // }
 //     .space-image {
 //     width: 100%;
@@ -119,14 +119,14 @@
   margin: 0;
   border-radius: 50%;
 }
-.heroImg{
+.heroImg {
   display: block;
   --hero-radius: 50px 50px 100px 100px / 60px 60px 20px 20px;
   border-radius: var(--hero-radius);
   width: 100%;
-  height:15rem;
+  height: 15rem;
   box-shadow: inset 5px -2px 7px 0px rgb(185 188 231 / 37%),
-        0px 8px 0px 0px var(--theme-divider);
+    0px 8px 0px 0px var(--theme-divider);
   border-radius: var(--hero-radius);
   object-fit: cover;
 }
@@ -152,7 +152,7 @@
 }
 
 .tooltip .tooltip-text::after {
-  content: "";
+  content: '';
   position: absolute;
   top: 100%;
   left: 50%;

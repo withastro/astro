@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "description": "An example on how to use Lit's Web Components within Astro to build your site",
-  "keywords": ["framework","template","astro"],
+  "keywords": [
+    "framework",
+    "template",
+    "astro"
+  ],
   "repository": {
     "directory": "/examples/framework-lit",
     "type": "github",

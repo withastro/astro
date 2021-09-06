@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "description": "A Demonstration on using Preact's ulta lightweight UI library to build your site with Astro",
-  "keywords": ["framework","template","astro"],
+  "keywords": [
+    "framework",
+    "template",
+    "astro"
+  ],
   "repository": {
     "directory": "/examples/framework-preact",
     "type": "github",

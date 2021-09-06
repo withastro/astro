@@ -3,13 +3,16 @@
   "version": "0.0.1",
   "private": true,
   "description": "A Demonstration of using Multiple UI Frameworks such as React, Svelte, Preact and Vue altogether with Astro",
-  "keywords": ["framework","astro","template"],
+  "keywords": [
+    "framework",
+    "astro",
+    "template"
+  ],
   "repository": {
     "directory": "/examples/framework-multiple",
     "type": "github",
     "url": "https://github.com/snowpackjs/astro/tree/main"
   },
-
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

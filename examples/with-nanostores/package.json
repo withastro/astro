@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "description": "A working example on using the aptly named Nanostores State Management plugin with Astro",
-  "keywords": ["kitchen-sink","template","astro"],
+  "keywords": [
+    "kitchen-sink",
+    "template",
+    "astro"
+  ],
   "repository": {
     "directory": "/examples/with-nanostores",
     "type": "github",

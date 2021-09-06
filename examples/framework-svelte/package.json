@@ -3,7 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "description": "See how we combined the power of Svelte alongside Astro ",
-  "keywords": ["framework","template","astro"],
+  "keywords": [
+    "framework",
+    "template",
+    "astro"
+  ],
   "repository": {
     "directory": "/examples/framework-svelte",
     "type": "github",
