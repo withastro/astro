@@ -2,6 +2,13 @@
   "name": "@example/blog",
   "version": "0.0.1",
   "private": true,
+  "description": "Blog Site built using Astro. Use this Template to setup your own Blog",
+  "keywords": ["create-astro","template","astro"],
+  "repository": {
+    "directory": "/examples/blog",
+    "type": "github",
+    "url": "https://github.com/snowpackjs/astro/tree/main"
+  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -14,4 +21,5 @@
   "snowpack": {
     "workspaceRoot": "../.."
   }
+
 }
