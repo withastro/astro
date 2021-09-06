@@ -21,7 +21,6 @@ import components from '../data/components.json';
         Astro is supported by a growing ecosystem of third-pary themes and components.
     </Markdown>
     <div class="card-grid">
-    
         {themes.community.map((item)=>(<Card data={item} />))}
     </div>
     <Markdown>
@@ -30,7 +29,6 @@ import components from '../data/components.json';
         Astro maintains several official themes for common use-cases like documentation, portfolios, and more.
     </Markdown>
     <div class="card-grid">
-    
         {themes.official.map((item)=>(<Card data={item} />))}
     </div>
     <Markdown>
@@ -39,7 +37,6 @@ import components from '../data/components.json';
         Our package ecosystem is growing! Check out these featured community packages.
     </Markdown>
     <div class="card-grid">
-    
         {components.community.map((item)=>(<Card data={item} />))}
     </div>
 </Layout>

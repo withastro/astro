@@ -1,25 +1,11 @@
 ---
-import CodeBar from './Codebar.tsx'
-import CardButtons from './CardButtons.astro'
-
 const {data, index} = Astro.props;
-
-// NOTE: Needed until we get hosted demos of official templates.
-const PLACEHOLDER_THUMBNAILS = [
-    // `#ba5370, #F4E2D8`,
-    // `#22c1c3, #fdbb2d`,
-    // `#7a5e99, #9f5dcf, #e864ca, #fdeff9`,
-    // `#e1eec3, #f05053`,
-    // `#7f00ff, #e100ff`,
-    `var(--theme-bg-accent), var(--theme-accent)`,
-]
-
 const hasScreenshot = !!data.demo;
 const backgroundStyle = hasScreenshot ? `url('https://v1.screenshot.11ty.dev/${encodeURIComponent(data.demo)}/medium/9:16/')` : `linear-gradient(60deg, var(--theme-bg-accent), var(--theme-accent))`
 ---
 <style>
     .card {    
-    position: relative;
+        position: relative;
         display: flex;
         flex-direction: column;
         grid-column: span 1;
@@ -36,13 +22,13 @@ const backgroundStyle = hasScreenshot ? `url('https://v1.screenshot.11ty.dev/${e
         font-size: 1.8rem;
     }
     .background-dimmer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    background: linear-gradient(45deg, #0004, #000B);
-    z-index: 2;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 100%;
+        background: linear-gradient(45deg, #0004, #000B);
+        z-index: 2;
     }
     .card-body, .card-header {
         color: var(--text-color);
@@ -58,7 +44,9 @@ const backgroundStyle = hasScreenshot ? `url('https://v1.screenshot.11ty.dev/${e
 <article class={`card ${hasScreenshot ? 'has-screenshot' : ''}`} style={`background: ${backgroundStyle}; background-size: cover;`}>
     {hasScreenshot && <div class="background-dimmer"></div>}
     <div class="card-body">
-        <a href={data.github} class="card-header" target="_blank">{data.name}
-        <span>{` →`}</span></a>
+        <a href={data.github} class="card-header" target="_blank">
+            {data.name}
+            <span>{` →`}</span>
+        </a>
     </div>
 </article>

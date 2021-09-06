@@ -2,17 +2,6 @@
   "name": "@example/snowpack",
   "version": "0.0.1",
   "private": true,
-  "description": "Astro's First Template, everything has a beginning, and this for Astro's templates, was our 'Hello World'",
-  "keywords": [
-    "kitchen-sink",
-    "template",
-    "astro"
-  ],
-  "repository": {
-    "directory": "/examples/snowpack",
-    "type": "github",
-    "url": "https://github.com/snowpackjs/astro/tree/main"
-  },
   "scripts": {
     "start": "astro dev",
     "build": "astro build",

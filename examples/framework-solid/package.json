@@ -1,18 +1,7 @@
 {
   "name": "@example/framework-solid",
-  "keywords": [
-    "framework",
-    "template",
-    "astro"
-  ],
-  "private": true,
   "version": "0.0.1",
-  "description": "See how to seamlessly use Solid UI to develop Web Components within Astro",
-  "repository": {
-    "directory": "/examples/framework-solid",
-    "type": "github",
-    "url": "https://github.com/snowpackjs/astro/tree/main"
-  },
+  "private": true,
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

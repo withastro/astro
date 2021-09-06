@@ -2,17 +2,6 @@
   "name": "@example/docs",
   "version": "0.0.1",
   "private": true,
-  "description": "Documentation Site built using Astro. Our own Doc's site is based of this template!",
-  "keywords": [
-    "create-astro",
-    "template",
-    "astro"
-  ],
-  "repository": {
-    "directory": "/examples/docs",
-    "type": "github",
-    "url": "https://github.com/snowpackjs/astro/tree/main"
-  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

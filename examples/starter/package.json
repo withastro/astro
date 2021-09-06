@@ -2,16 +2,6 @@
   "name": "@example/starter",
   "version": "0.0.1",
   "private": true,
-  "description": "Astro's default template. This starter template is a perfect launchpad for your Astro project",
-  "keywords": [
-    "create-astro",
-    "template",
-    "astro"
-  ],
-  "repository": {
-    "directory": "/examples/starter",
-    "type": "github"
-  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

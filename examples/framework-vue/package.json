@@ -1,18 +1,7 @@
 {
   "name": "@example/framework-vue",
   "version": "0.0.1",
-  "keywords": [
-    "framework",
-    "template",
-    "astro"
-  ],
   "private": true,
-  "description": "View our demonstration where we use Vue to create UI components for Astro",
-  "repository": {
-    "directory": "/examples/framework-vue",
-    "type": "github",
-    "url": "https://github.com/snowpackjs/astro/tree/main"
-  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

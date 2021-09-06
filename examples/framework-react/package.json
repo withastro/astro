@@ -2,17 +2,6 @@
   "name": "@example/framework-react",
   "version": "0.0.1",
   "private": true,
-  "description": "Explore how to using the powerful React Library to develop components within Astro",
-  "keywords": [
-    "framework",
-    "template",
-    "astro"
-  ],
-  "repository": {
-    "directory": "/examples/framework-react",
-    "type": "github",
-    "url": "https://github.com/snowpackjs/astro/tree/main"
-  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

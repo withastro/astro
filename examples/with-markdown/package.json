@@ -1,18 +1,7 @@
 {
   "name": "@example/with-markdown",
-  "description": "A demonstration on using Markdown with Astro",
   "version": "0.0.1",
   "private": true,
-  "keywords": [
-    "kitchen-sink",
-    "template",
-    "astro"
-  ],
-  "repository": {
-    "directory": "/examples/with-markdown",
-    "type": "github",
-    "url": "https://github.com/snowpackjs/astro/tree/main"
-  },
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
