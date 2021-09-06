@@ -115,7 +115,9 @@ export async function bundleCSS({
       if (buildState[id].contentType !== 'text/html') return;
 
       const $ = cheerio.load(buildState[id].contents);
-      const pageCSS = new Set<string>(); // keep track of page-specific CSS so we remove dupes
+      const stylesheets = new Set<string>(); // keep track of page-specific CSS so we remove dupes
+      const preloads = new Set<string>(); // list of stylesheets preloads, to remove dupes
+
       $('link[href]').each((i, el) => {
         const srcPath = getSrcPath(id, { astroConfig });
         const oldHref = getDistPath($(el).attr('href') || '', { astroConfig, srcPath }); // note: this may be a relative URL; transform to absolute to find a buildOutput match
@@ -125,13 +127,17 @@ export async function bundleCSS({
           return
         }
 
-        // update only URL if it's a rel="preload" tag
         if (el.attribs?.rel === 'preload') {
-          $(el).attr("href", cssHashes.get(newHref) || "");
+          if (preloads.has(newHref)) {
+            $(el).remove();
+          } else {
+            $(el).attr("href", cssHashes.get(newHref) || "");
+            preloads.add(newHref);
+          }
           return
         }
 
-        if (pageCSS.has(newHref)) {
+        if (stylesheets.has(newHref)) {
           $(el).remove(); // this is a dupe; remove
         } else {
           $(el).attr("href", cssHashes.get(newHref) || ""); // new CSS; update href (important! use cssHashes, not cssMap)
@@ -140,8 +146,9 @@ export async function bundleCSS({
           $(el).attr("rel", "stylesheet");
           $(el).attr("type", "text/css");
 
-          pageCSS.add(newHref);
+          stylesheets.add(newHref);
         }
+
       });
       (buildState[id] as any).contents = $.html(); // save updated HTML in global buildState
     })
