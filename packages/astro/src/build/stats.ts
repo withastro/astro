@@ -4,6 +4,7 @@ import type { LogOptions } from '../logger';
 import { info, table } from '../logger.js';
 import { underline, bold } from 'kleur/colors';
 import gzipSize from 'gzip-size';
+import prettyBytes from 'pretty-bytes';
 
 interface BundleStats {
   size: number;
@@ -85,8 +86,7 @@ export function logURLStats(logging: LogOptions, urlStats: URLStatsMap) {
         .get(url)
         ?.stats.map((s) => s.gzipSize)
         .reduce((a, b) => a + b, 0) || 0;
-    const kb = (bytes * 0.001).toFixed(2);
-    const sizePart = kb + ' kB';
+    const sizePart = prettyBytes(bytes, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     log(info, urlPart, sizePart);
   });
 }
