@@ -1,7 +1,7 @@
 ---
 const {content, githubEditUrl, currentPage} = Astro.props;
 const title = content.title;
-const headers = content.astro.headers;
+const headers = content.astro?.headers;
 import MoreMenu from '../RightSidebar/MoreMenu.astro';
 import TableOfContents from '../RightSidebar/TableOfContents.tsx';
 import {getLanguageFromURL} from '../../util.ts';
@@ -38,9 +38,9 @@ const previous = index !== -1 ? (index === 0 ? null : links[index - 1]) : null;
 <article id="article" class="content">
     <section class="main-section">
         <h1 class="content-title" id="overview">{title}</h1>
-        <nav class="block sm:hidden">
+        {headers && <nav class="block sm:hidden">
             <TableOfContents client:media="(max-width: 50em)" headers={headers}/>
-        </nav>
+        </nav>}
         <slot />
     </section>
     <nav class="block sm:hidden">
