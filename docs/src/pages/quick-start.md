@@ -27,7 +27,6 @@ To learn more about installing and using Astro for the first time, please [read 
 
 If you prefer to learn by example, check out our [complete library of examples](https://github.com/snowpackjs/astro/tree/main/examples) on GitHub. You can check out any of these examples locally by running `npm init astro -- --template "EXAMPLE_NAME"`.
 
-
 ## Start your project
 
 From inside your project directory, enter the following command into your terminal:
