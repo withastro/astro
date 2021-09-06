@@ -1,9 +1,10 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Publish to NPM
+modifiedDate: '2021-09-06 @ 11:28:21'
 ---
 
-Building a new Astro component? **Publish it to [npm!](https://npmjs.com/)**
+Building a new Astro component? **Publish it to [npm!][NPM]**
 
 Publishing components is a great way to work with your team, your company, or the entire world. Astro components can be installed from npm and then used in your project, just like any other npm package.
 
@@ -15,12 +16,11 @@ Even if you don't plan on publishing your components to the web, the patterns ou
 
 Here are some of our favorite Astro components, built by developers in our community:
 
-- [`accessible-astro-components`](https://www.npmjs.com/package/accessible-astro-components) ~ A set of accessible modals, buttons, toggles and more.
-- [`<StaticTweet />`](https://www.npmjs.com/package/@rebelchris/astro-static-tweet) ~ A lightweight static-HTML tweet embed.
-- [`<SEO />`](https://github.com/jonasmerlin/astro-seo) ~ SEO tags for your website.
+- [`accessible-astro-components`][Accessible-Astro-Components] ~ A set of accessible modals, buttons, toggles and more.
+- [`<StaticTweet />`][Astro-Static-Tweet] ~ A lightweight static-HTML tweet embed.
+- [`<SEO />`][Astro-SEO] ~ SEO tags for your website.
 
-[Search npm](https://www.npmjs.com/search?q=keywords%3Aastro-component) for the entire component catalog.
-
+[Search npm][Published-Astro-Components] for the entire component catalog.
 
 ## Package Folder Layout
 
@@ -43,11 +43,11 @@ Lets explore the different files that will make up your package:
 
 ### `package.json`
 
-Your package `package.json` file is known as your **package manifest.** Every package published to npm has one. This includes important configuration such as name, description, dependencies, and other package metadata. To publish anything to npm, it helps to have [a basic understanding](https://docs.npmjs.com/creating-a-package-json-file) of this JSON manifest format.
+Your package `package.json` file is known as your **package manifest.** Every package published to npm has one. This includes important configuration such as name, description, dependencies, and other package metadata. To publish anything to npm, it helps to have [a basic understanding][Creating-A-Package.json] of this JSON manifest format.
 
 #### Recommended: "keywords"
 
-When publishing an Astro component, include the `astro-component` keyword in your package.json file. This makes it easier for people to [find your component on npm](https://www.npmjs.com/search?q=keywords%3Aastro-component) and other search catalogs.
+When publishing an Astro component, include the `astro-component` keyword in your package.json file. This makes it easier for people to [find your component on npm][Published-Astro-Components] and other search catalogs.
 
 ```json
 {
@@ -55,10 +55,9 @@ When publishing an Astro component, include the `astro-component` keyword in you
 }
 ```
 
-
 #### Recommended: "exports"
 
-We **strongly recommend** that you include an [exports entry](https://nodejs.org/api/packages.html) in your `package.json`. This entry controls access to internal package files, and gives you more control over how users can import your package.
+We **strongly recommend** that you include an [exports entry][Node-Packages-API] in your `package.json`. This entry controls access to internal package files, and gives you more control over how users can import your package.
 
 ```json
 {
@@ -79,19 +78,20 @@ export { default as Bold } from './Bold.astro';
 export { default as Italic } from './SomeReactComponent.jsx';
 ```
 
-### What about individual file imports? 
+### What about individual file imports?
 
 We **strongly recommend** that you use an `index.js` package entrypoint to avoid individual file imports:
 
 ```js
 // ✅ Do this:
 import {Bold, Capitalize} from 'package-name';
+
 // ❌ Avoid this:
 import Bold from 'package-name/Bold.astro';
 import Capitalize from 'package-name/Capitalize.astro';
 ```
 
-Astro is rendered at build-time, so there should be no performance impact for the user when you use a single `index.js` entrypoint file like this. For any compoents that do get loaded in the browser, you can trust that Astro's production bundler will optimize and remove any unused imports.
+Astro is rendered at build-time, so there should be no performance impact for the user when you use a single `index.js` entrypoint file like this. For any components that do get loaded in the browser, you can trust that Astro's production bundler will optimize and remove any unused imports.
 
 If you need to use individual file imports, be sure to add those files to your package manifest's `exports` entry:
 
@@ -109,15 +109,16 @@ If you need to use individual file imports, be sure to add those files to your p
 
 ## Developing your package
 
-Astro does not have a dedicated "package mode" for development. Instead, you should use a demo project to develop and test your package inside of the repo. This can be a private website only used for development, or a public demo/documentation website for your package. 
+Astro does not have a dedicated "package mode" for development. Instead, you should use a demo project to develop and test your package inside of the repo. This can be a private website only used for development, or a public demo/documentation website for your package.
 
 If you are extracting components from an existing project, you can even continue to use that project to develop your now-extracted components.
 
-For development, we **strongly recommend** that you setup a [**project workspace.**](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#workspaces) Workspaces are a feature supported by all package managers including npm (v7+), yarn, pnpm and others. A workspace will help you verify package.json configuration and also let you import your package by name:
+For development, we **strongly recommend** that you setup a [**project workspace.**][Node-Packages-Workspace] Workspaces are a feature supported by all package managers including npm (v7+), yarn, pnpm and others. A workspace will help you verify package.json configuration and also let you import your package by name:
 
 ```js
 // ✅ With workspaces:
 import {Bold, Capitalize} from 'package-name';
+
 // ❌ Without workspaces:
 import {Bold, Capitalize} from '../../../my-package-directory/index.js';
 ```
@@ -149,21 +150,21 @@ You can optionally choose to move your development website's `src/` and `public/
 
 ## Testing your component
 
-Astro does not currently ship a test runner. This is something that we would like to tackle before our v1.0 release. *(If you are interested in helping out, [join us on Discord!](https://astro.build/chat))*
+Astro does not currently ship a test runner. This is something that we would like to tackle before our v1.0 release. *(If you are interested in helping out, [join us on Discord!][Astro-Discord])*
 
 In the meantime, our current recommendation for testing is:
+
 1. Add a test "fixtures" directory to your `src/pages` directory.
-2. Add a new page for every test that you'd like to run. 
+2. Add a new page for every test that you'd like to run.
 3. Each page should include some different component usage that you'd like to test.
 4. Run `astro build` to build your fixtures, then compare the output of the `dist/__fixtures__/` directory to what you expected.
 
-```
+```bash
 src/pages/__fixtures__/
   ├─ test-name-01.astro
   ├─ test-name-02.astro
   └─ test-name-03.astro
 ```
-
 
 ## Publishing your component
 
@@ -174,3 +175,13 @@ To publish a package to npm, use the `npm publish` command. If that fails, make 
 Notice that there was no `build` step for Astro packages. Any file type that Astro supports can be published directly without a build step, because we know that Astro already supports them natively. This includes all files with extensions like `.astro`, `.ts`, `.jsx`, and `.css`.
 
 If you need some other file type that isn't natively supported by Astro, you are welcome to add a build step to your package. This advanced exercise is left up to you.
+
+[NPM]: https://npmjs.com/
+[Accessible-Astro-Components]: https://www.npmjs.com/package/accessible-astro-components
+[Astro-Static-Tweet]: https://www.npmjs.com/package/@rebelchris/astro-static-tweet 
+[Astro-SEO]: https://github.com/jonasmerlin/astro-seo
+[Published-Astro-Components]: https://www.npmjs.com/search?q=keywords%3Aastro-component
+[Creating-A-Package.json]: https://docs.npmjs.com/creating-a-package-json-file
+[Node-Packages-API]: https://nodejs.org/api/packages.html
+[Node-Packages-Workspace]: https://docs.npmjs.com/cli/v7/configuring-npm/package-json#workspaces
+[Astro-Discord]: https://astro.build/chat
