@@ -1,28 +1,20 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Publish to NPM
-modifiedDate: '2021-09-06 @ 11:28:21'
 ---
 
 Building a new Astro component? **Publish it to [npm!][NPM]**
 
-Publishing components is a great way to work with your team, your company, or the entire world. Astro components can be installed from npm and then used in your project, just like any other npm package.
+Publishing a component is a great way to reuse work across your team, your company, or the entire world. Astro components can be published to and installed from npm, just like any other JavaScript package.
 
 **Astro's ability to publish and reuse popular UI components is one of it's most powerful features!**
 
-Even if you don't plan on publishing your components to the web, the patterns outlined below can help any developer to design reusable UI components without slowing down your development.
+Even if you don't plan on publishing your components online, the patterns outlined below can help any developer design reusable UI components in isolation from their custom website or business logic.
 
-## Featured Packages
+## Featured packages 
+Looking for inspiration? Check out some of [our favorite themes & components][Themes] from the Astro community. You can also [search npm][Published-Astro-Components] to see the entire public catalog.
 
-Here are some of our favorite Astro components, built by developers in our community:
-
-- [`accessible-astro-components`][Accessible-Astro-Components] ~ A set of accessible modals, buttons, toggles and more.
-- [`<StaticTweet />`][Astro-Static-Tweet] ~ A lightweight static-HTML tweet embed.
-- [`<SEO />`][Astro-SEO] ~ SEO tags for your website.
-
-[Search npm][Published-Astro-Components] for the entire component catalog.
-
-## Package Folder Layout
+## Folder layout
 
 Below is our recommended folder layout for package development. The example below shows a single package named `package-name` but you can add more folders to the `packages/` directory to develop multiple packages together in the same repo:
 
@@ -176,6 +168,7 @@ Notice that there was no `build` step for Astro packages. Any file type that Ast
 
 If you need some other file type that isn't natively supported by Astro, you are welcome to add a build step to your package. This advanced exercise is left up to you.
 
+[Themes]: /themes
 [NPM]: https://npmjs.com/
 [Accessible-Astro-Components]: https://www.npmjs.com/package/accessible-astro-components
 [Astro-Static-Tweet]: https://www.npmjs.com/package/@rebelchris/astro-static-tweet 

@@ -24,7 +24,7 @@ export const SIDEBAR = {
     { text: 'RSS', link: 'guides/rss' },
     { text: 'Supported Imports', link: 'guides/imports' },
     { text: 'Aliases', link: 'guides/aliases' },
-    { text: 'Deploy', link: 'guides/deploy' },
+    { text: 'Deploy to the web', link: 'guides/deploy' },
     { text: 'Publish to npm', link: 'guides/publish-to-npm' },
 
     { text: 'Reference', header: true },
