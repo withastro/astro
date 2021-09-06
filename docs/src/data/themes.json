@@ -35,10 +35,10 @@
     {
       "name": "minimal",
       "description": "A minimal theme, with just the bare minimum needed to get started.",
-      "github": "https://github.com/snowpackjs/astro/tree/main/examples/minimum",
+      "github": "https://github.com/snowpackjs/astro/tree/main/examples/minimal",
       "demo": null,
-      "sandbox": "https://github.dev/snowpackjs/astro/tree/main/examples/minimum",
-      "command": "npm init astro -- --template minimum"
+      "sandbox": "https://github.dev/snowpackjs/astro/tree/main/examples/minimal",
+      "command": "npm init astro -- --template minimal"
     }
   ],
   "community": [
