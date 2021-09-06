@@ -1,0 +1,4 @@
+# Commands to start on workspace startup
+tasks:
+  - init: yarn install
+    command: yarn build
