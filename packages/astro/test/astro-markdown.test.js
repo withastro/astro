@@ -40,10 +40,10 @@ Markdown('Empty code blocks do not fail', async ({ runtime }) => {
   assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
-  
+
   const $el = $('pre');
-  assert.ok($el[0].children.length === 1, "There is not a `<code>` in the codeblock");
-  assert.ok($el[1].children.length === 0, "The empty `<pre>` failed to render");
+  assert.ok($el[0].children.length === 1, 'There is not a `<code>` in the codeblock');
+  assert.ok($el[1].children.length === 0, 'The empty `<pre>` failed to render');
 });
 
 Markdown('Scoped styles should not break syntax highlight', async ({ runtime }) => {
