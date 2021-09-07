@@ -1,4 +1,4 @@
-import path from 'path';
+import { extname } from 'path';
 import { AstroRuntimeConfig } from './runtime';
 import { RouteConfigObject, SnowpackConfig } from 'snowpack';
 import { AstroConfig, GetStaticPathsResult, RouteData } from './@types/astro';
@@ -107,6 +107,6 @@ function getOutputExtensionMatch(config: SnowpackConfig) {
     for (const ext of outputExts) {
       if (basename.endsWith(ext)) return ext;
     }
-    return path.extname(basename);
+    return extname(basename);
   };
 }
