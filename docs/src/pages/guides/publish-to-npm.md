@@ -11,6 +11,8 @@ Publishing a component is a great way to reuse work across your team, your compa
 
 Even if you don't plan on publishing your components online, the patterns outlined below can help any developer design reusable UI components in isolation from their custom website or business logic.
 
+> **Note - Experimental:** Published npm components are still marked as experimental and some features are not yet supported. Astro component styles are currently disabled inside of npm packages, and JSX components must be compiled to `.js` in the package.
+
 ## Featured packages 
 Looking for inspiration? Check out some of [our favorite themes & components][Themes] from the Astro community. You can also [search npm][Published-Astro-Components] to see the entire public catalog.
 
