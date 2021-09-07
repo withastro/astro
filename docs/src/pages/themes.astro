@@ -16,9 +16,7 @@ import components from '../data/components.json';
 </style>
 <Layout content={{title: 'Themes'}} hideRightSidebar>
     <Markdown>
-        ## Featured Themes
-
-        Astro is supported by a growing ecosystem of third-pary themes and components.
+        ## Featured Theme
     </Markdown>
     <div class="card-grid">
         {themes.community.map((item)=>(<Card data={item} />))}
@@ -26,7 +24,7 @@ import components from '../data/components.json';
     <Markdown>
         ## Official Themes
 
-        Astro maintains several official themes for common use-cases like documentation, portfolios, and more.
+        Astro maintains several official themes for documentation sites, portfolios, and more.
     </Markdown>
     <div class="card-grid">
         {themes.official.map((item)=>(<Card data={item} />))}
@@ -34,7 +32,7 @@ import components from '../data/components.json';
     <Markdown>
         ## Featured Packages
         
-        Our package ecosystem is growing! Check out these featured community packages.
+        Our package ecosystem is growing! Check out these featured community packages. Search the entire collection [on npm.](https://www.npmjs.com/search?q=keywords%3Aastro-component)
     </Markdown>
     <div class="card-grid">
         {components.community.map((item)=>(<Card data={item} />))}
