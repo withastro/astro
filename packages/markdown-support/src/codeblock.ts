@@ -35,6 +35,7 @@ export function rehypeCodeBlock() {
       }
 
       if (node.tagName !== 'pre') return;
+      if (!node.children[0]) return;
       const code = node.children[0];
       if (code.type !== 'element' || code.tagName !== 'code') return;
       node.properties = { ...code.properties };
