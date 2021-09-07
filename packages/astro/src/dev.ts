@@ -8,6 +8,7 @@ import { performance } from 'perf_hooks';
 import { defaultLogDestination, defaultLogLevel, debug, error, info, parseError } from './logger.js';
 import { createRuntime } from './runtime.js';
 import { stopTimer } from './build/util.js';
+import { matchRouteHandler } from './util.js';
 
 const logging: LogOptions = {
   level: defaultLogLevel,
@@ -27,8 +28,19 @@ export default async function dev(astroConfig: AstroConfig) {
   const server = http.createServer(async (req, res) => {
     timer.load = performance.now();
 
-    const result = await runtime.load(req.url);
-    debug(logging, 'dev', `loaded ${req.url} [${stopTimer(timer.load)}]`);
+    const routeHandlerMatch = matchRouteHandler(runtime.runtimeConfig, req.url || '', 'dest');
+    let reqUrl = req.url;
+    if (routeHandlerMatch) {
+      if ('function' === typeof routeHandlerMatch) {
+        routeHandlerMatch(req, res);
+        debug(logging, 'dev', `proxy interception of ${req.url} [${stopTimer(timer.load)}]`);
+        return;
+      }
+      // it is a string
+      reqUrl = routeHandlerMatch;
+    }
+    const result = await runtime.load(reqUrl);
+    debug(logging, 'dev', `loaded ${reqUrl} [${stopTimer(timer.load)}]`);
 
     switch (result.statusCode) {
       case 200: {

@@ -1,3 +1,6 @@
+import path from 'path';
+import { AstroRuntimeConfig } from './runtime';
+import { RouteConfigObject, SnowpackConfig } from 'snowpack';
 import { AstroConfig, GetStaticPathsResult, RouteData } from './@types/astro';
 import { LogOptions, warn } from './logger.js';
 
@@ -52,4 +55,58 @@ export function addLeadingSlash(path: string) {
 /** Add / to the end of string (but don’t double-up) */
 export function addTrailingSlash(path: string) {
   return path.replace(/\/?$/, '/');
+}
+
+/** Astro adaption of function with the same name in `https://github.com/snowpackjs/snowpack/blob/main/snowpack/src/commands/dev.ts` */
+export function matchRouteHandler(astroRuntimeConfig: AstroRuntimeConfig, reqUrl: string, expectHandler: 'dest'): RouteConfigObject['dest'] | null;
+export function matchRouteHandler(astroRuntimeConfig: AstroRuntimeConfig, reqUrl: string, expectHandler: 'upgrade'): RouteConfigObject['upgrade'] | null;
+export function matchRouteHandler(
+  astroRuntimeConfig: AstroRuntimeConfig,
+  reqUrl: string,
+  expectHandler: 'dest' | 'upgrade'
+): RouteConfigObject['dest'] | RouteConfigObject['upgrade'] | null {
+  const { snowpackConfig, astroConfig } = astroRuntimeConfig;
+  if (reqUrl.startsWith(snowpackConfig.buildOptions.metaUrlPath)) {
+    return null;
+  }
+  const { hostname, port } = astroConfig.devOptions;
+  const reqPath = decodeURI(new URL(reqUrl, astroConfig.buildOptions.site || `http://${hostname}:${port}`).pathname!);
+  const matchOutputExt = getOutputExtensionMatch(snowpackConfig);
+  const reqExt = matchOutputExt(reqPath);
+  const isRoute = !reqExt || reqExt.toLowerCase() === '.html';
+  for (const route of snowpackConfig.routes) {
+    if (route.match === 'routes' && !isRoute) {
+      continue;
+    }
+    if (!route[expectHandler]) {
+      continue;
+    }
+    if (route._srcRegex.test(reqPath)) {
+      return route[expectHandler];
+    }
+  }
+  return null;
+}
+
+function getOutputExtensionMatch(config: SnowpackConfig) {
+  let outputExts: string[] = [];
+  for (const plugin of config.plugins) {
+    if (plugin.resolve) {
+      for (const outputExt of plugin.resolve.output) {
+        const ext = outputExt.toLowerCase();
+        if (!outputExts.includes(ext)) {
+          outputExts.push(ext);
+        }
+      }
+    }
+  }
+  outputExts = outputExts.sort((a, b) => b.split('.').length - a.split('.').length);
+
+  return (base: string): string => {
+    const basename = base.toLowerCase();
+    for (const ext of outputExts) {
+      if (basename.endsWith(ext)) return ext;
+    }
+    return path.extname(basename);
+  };
 }
