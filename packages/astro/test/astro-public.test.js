@@ -18,4 +18,13 @@ Public('css and js files do not get bundled', async ({ build, readFile }) => {
   assert.ok(indexHtml.includes('<img src="/images/twitter.png">'));
 });
 
+Public('dotfiles get copied over', async ({ build, exists }) => {
+  await build().catch((err) => {
+    assert.ok(!err, 'Error during the build');
+  });
+  console.debug(await exists('/.htaccess'));
+  assert.ok(await exists('/.htaccess'));
+  assert.ok(await exists('/.no-jekyll'));
+});
+
 Public.run();

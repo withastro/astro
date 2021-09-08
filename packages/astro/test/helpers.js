@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'url';
 import { build as astroBuild } from '#astro/build';
 import { preview as astroPreview } from '#astro/preview';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { createRuntime } from '#astro/runtime';
 import { loadConfig } from '#astro/config';
 import execa from 'execa';
@@ -141,6 +141,10 @@ export function setupBuild(Suite, fixturePath) {
     context.readFile = async (path) => {
       const resolved = fileURLToPath(new URL(path.replace(/^\//, ''), astroConfig.dist));
       return readFileSync(resolved, { encoding: 'utf8' });
+    };
+    context.exists = async (path) => {
+      const resolved = fileURLToPath(new URL(path.replace(/^\//, ''), astroConfig.dist));
+      return existsSync(resolved, { encoding: 'utf8' });
     };
 
     clearTimeout(timeout);
