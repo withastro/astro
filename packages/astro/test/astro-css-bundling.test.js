@@ -13,7 +13,8 @@ const EXPECTED_CSS = {
   '/index.html': ['/_astro/common-', '/_astro/index-'], // don’t match hashes, which change based on content
   '/one/index.html': ['/_astro/common-', '/_astro/one/index-'],
   '/two/index.html': ['/_astro/common-', '/_astro/two/index-'],
-  '/preload/index.html': ['/_astro/common-', '/_astro/preload/index-']
+  '/preload/index.html': ['/_astro/common-', '/_astro/preload/index-'],
+  '/preload-merge/index.html': ['/_astro/preload-merge/index-']
 };
 const UNEXPECTED_CSS = ['/_astro/components/nav.css', '../css/typography.css', '../css/colors.css', '../css/page-index.css', '../css/page-one.css', '../css/page-two.css'];
 
@@ -47,30 +48,36 @@ CSSBundling('Bundles CSS', async (context) => {
       assert.equal(stylesheet[0].attribs.media, 'print', 'Attribute was not preserved');
       assert.equal(preload.length, 1, 'Preload tag was removed');
     }
+
+    // test 4: preload tags was not removed and attributes was preserved
+    if (filepath === '/preload-merge/index.html') {
+      const preload = $('link[rel="preload"]');
+      assert.equal(preload.length, 1, 'Preload tag was not merged or was removed completly');
+    }
   }
 
-  // test 4: assert all bundled CSS was built and contains CSS
+  // test 5: assert all bundled CSS was built and contains CSS
   for (const url of builtCSS.keys()) {
     const css = await context.readFile(url);
     assert.ok(css, true);
   }
 
-  // test 5: assert ordering is preserved (typography.css before colors.css)
+  // test 6: assert ordering is preserved (typography.css before colors.css)
   const bundledLoc = [...builtCSS].find((k) => k.startsWith('/_astro/common-'));
   const bundledContents = await context.readFile(bundledLoc);
   const typographyIndex = bundledContents.indexOf('body{');
   const colorsIndex = bundledContents.indexOf(':root{');
   assert.ok(typographyIndex < colorsIndex);
 
-  // test 6: assert multiple style blocks were bundled (Nav.astro includes 2 scoped style blocks)
+  // test 7: assert multiple style blocks were bundled (Nav.astro includes 2 scoped style blocks)
   const scopedNavStyles = [...bundledContents.matchAll('.nav.astro-')];
   assert.is(scopedNavStyles.length, 2);
 
-  // test 7: assert <style global> was not scoped (in Nav.astro)
+  // test 8: assert <style global> was not scoped (in Nav.astro)
   const globalStyles = [...bundledContents.matchAll('html{')];
   assert.is(globalStyles.length, 1);
 
-  // test 8: assert keyframes are only scoped for non-global styles (from Nav.astro)
+  // test 9: assert keyframes are only scoped for non-global styles (from Nav.astro)
   const scopedKeyframes = [...bundledContents.matchAll('nav-scoped-fade-astro')];
   const globalKeyframes = [...bundledContents.matchAll('nav-global-fade{')];
   assert.ok(scopedKeyframes.length > 0);
