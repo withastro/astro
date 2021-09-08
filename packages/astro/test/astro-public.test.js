@@ -22,9 +22,12 @@ Public('dotfiles get copied over', async ({ build, exists }) => {
   await build().catch((err) => {
     assert.ok(!err, 'Error during the build');
   });
-  console.debug(await exists('/.htaccess'));
-  assert.ok(await exists('/.htaccess'));
-  assert.ok(await exists('/.no-jekyll'));
+
+  assert.ok(await exists('/.htaccess'), '.htaccess did not get copied over');
+  assert.ok(await exists('/.nojekyll'), '.nojekyll did not get copied over');
+  assert.ok(await exists('/.anotherdotfilewithcontent'), '.anotherdotfilewithcontent did not get copied over');
+  assert.ok(await exists('/.yetanotherdotfile'), '.yetanotherdotfile did not get copied over');
+  assert.ok(await exists('/.well-known/hello.txt'), '.well-known/hello.txt did not get copied over');
 });
 
 Public.run();
