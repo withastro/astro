@@ -4,7 +4,7 @@ import { performance } from 'perf_hooks';
 import send from 'send';
 import { fileURLToPath } from 'url';
 import type { AstroConfig } from './@types/astro';
-import { debug, LogOptions } from './logger.js';
+import { LogOptions } from './logger.js';
 import { defaultLogDestination, defaultLogLevel, error, info } from './logger.js';
 import { createRuntime } from './runtime.js';
 import { matchRouteHandler } from './util.js';

@@ -28,8 +28,8 @@ export default async function dev(astroConfig: AstroConfig) {
   const server = http.createServer(async (req, res) => {
     timer.load = performance.now();
 
-    const routeHandlerMatch = matchRouteHandler(runtime.runtimeConfig, req.url || '', 'dest');
     let reqUrl = req.url;
+    const routeHandlerMatch = matchRouteHandler(runtime.runtimeConfig, reqUrl || '', 'dest');
     if (routeHandlerMatch) {
       if ('function' === typeof routeHandlerMatch) {
         routeHandlerMatch(req, res);
