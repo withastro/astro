@@ -180,7 +180,7 @@ jobs:
 
 ## Netlify
 
-In your codebase, make sure you have a `.nvmrc` file with `v14.15.1` in it.
+In your codebase, make sure you have a [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) file with `node v14.15.1` in it.
 
 You can configure your deploy in two ways, via the Netlify website or with the `netlify.toml` file.
 
