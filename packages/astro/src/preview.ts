@@ -18,9 +18,10 @@ const logging: LogOptions = {
 export async function preview(astroConfig: AstroConfig) {
   const startServerTime = performance.now();
   const runtime = await createRuntime(astroConfig, { mode: 'development', logging });
+
   const { hostname, port } = astroConfig.devOptions;
   // Create the preview server, send static files out of the `dist/` directory.
-  const server = http.createServer(async (req, res) => {
+  const server = http.createServer((req, res) => {
     let reqUrl = req.url;
     const routeHandlerMatch = matchRouteHandler(runtime.runtimeConfig, reqUrl || '', 'dest');
     if (routeHandlerMatch) {
@@ -41,12 +42,16 @@ export async function preview(astroConfig: AstroConfig) {
       info(logging, 'preview', green(`Preview server started in ${Math.floor(endServerTime - startServerTime)}ms.`));
       info(logging, 'preview', `${green('Local:')} http://${hostname}:${port}/`);
     })
+    .on('close', () => {
+      runtime.shutdown();
+    })
     .on('error', (err: NodeJS.ErrnoException) => {
       if (err.code && err.code === 'EADDRINUSE') {
         error(logging, 'preview', `Address ${hostname}:${port} already in use. Try changing devOptions.port in your config file`);
       } else {
         error(logging, 'preview', err.stack);
       }
+      runtime.shutdown();
       process.exit(1);
     });
 }
