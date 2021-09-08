@@ -4,8 +4,10 @@ import { performance } from 'perf_hooks';
 import send from 'send';
 import { fileURLToPath } from 'url';
 import type { AstroConfig } from './@types/astro';
-import type { LogOptions } from './logger.js';
+import { debug, LogOptions } from './logger.js';
 import { defaultLogDestination, defaultLogLevel, error, info } from './logger.js';
+import { createRuntime } from './runtime.js';
+import { matchRouteHandler } from './util.js';
 
 const logging: LogOptions = {
   level: defaultLogLevel,
@@ -15,10 +17,22 @@ const logging: LogOptions = {
 /** The primary dev action */
 export async function preview(astroConfig: AstroConfig) {
   const startServerTime = performance.now();
+  const runtime = await createRuntime(astroConfig, { mode: 'development', logging });
   const { hostname, port } = astroConfig.devOptions;
   // Create the preview server, send static files out of the `dist/` directory.
-  const server = http.createServer((req, res) => {
-    send(req, req.url!, { root: fileURLToPath(astroConfig.dist) }).pipe(res);
+  const server = http.createServer(async (req, res) => {
+    let reqUrl = req.url;
+    const routeHandlerMatch = matchRouteHandler(runtime.runtimeConfig, reqUrl || '', 'dest');
+    if (routeHandlerMatch) {
+      if ('function' === typeof routeHandlerMatch) {
+        routeHandlerMatch(req, res);
+        return;
+      }
+      // it is a string
+      reqUrl = routeHandlerMatch;
+    }
+
+    send(req, reqUrl!, { root: fileURLToPath(astroConfig.dist) }).pipe(res);
   });
   // Start listening on `hostname:port`.
   return server
