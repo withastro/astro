@@ -139,7 +139,15 @@ You can create more pages in the `src/pages` directory, and Astro will use the f
 npm run dev
 ```
 
-Astro will now start serving your application on `http://localhost:3000`. By opening this URL in your browser, you should see the Astro's “Hello, World”
+Astro will now start serving your application on `http://localhost:3000`. By opening this URL in your browser, you should see the Astro's “Hello, World”.
+
+If you need to share your development progress on the local network or check out the app from a phone, just add the following [snowpack](https://www.snowpack.dev/reference/configuration#devoptionshostname) option to `astro.config.mjs`:
+
+```js
+devOptions: {
+  hostname: "0.0.0.0"
+}
+```
 
 ## [Build Astro](#build-astro)
 
