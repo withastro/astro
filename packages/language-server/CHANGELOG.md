@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.2
+
+### Patch Changes
+
+- 1b3a832: Adds diagnostics (errors and warnings)
+
 ## 0.7.1
 
 ### Patch Changes

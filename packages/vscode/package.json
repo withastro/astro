@@ -8,7 +8,7 @@
     "color": "#FFBE2D",
     "theme": "dark"
   },
-  "version": "0.7.1",
+  "version": "0.7.2",
   "author": "Astro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -24,7 +24,7 @@
     "onLanguage:astro"
   ],
   "dependencies": {
-    "@astrojs/language-server": "0.7.1",
+    "@astrojs/language-server": "0.7.2",
     "@astrojs/ts-plugin": "0.1.0",
     "vscode-emmet-helper": "2.1.2",
     "vscode-html-languageservice": "^3.0.3",
@@ -75,70 +75,70 @@
           "description": "Enable the TypeScript plugin"
         },
         "astro.plugin.typescript.diagnostics.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Diagnostics",
-            "description": "Enable diagnostic messages for TypeScript"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Diagnostics",
+          "description": "Enable diagnostic messages for TypeScript"
         },
         "astro.plugin.typescript.hover.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Hover Info",
-            "description": "Enable hover info for TypeScript"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Hover Info",
+          "description": "Enable hover info for TypeScript"
         },
         "astro.plugin.typescript.documentSymbols.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Symbols in Outline",
-            "description": "Enable document symbols for TypeScript"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Symbols in Outline",
+          "description": "Enable document symbols for TypeScript"
         },
         "astro.plugin.typescript.completions.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Completions",
-            "description": "Enable completions for TypeScript"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Completions",
+          "description": "Enable completions for TypeScript"
         },
         "astro.plugin.typescript.findReferences.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Find References",
-            "description": "Enable find-references for TypeScript"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Find References",
+          "description": "Enable find-references for TypeScript"
         },
         "astro.plugin.typescript.definitions.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Go to Definition",
-            "description": "Enable go to definition for TypeScript"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Go to Definition",
+          "description": "Enable go to definition for TypeScript"
         },
         "astro.plugin.typescript.codeActions.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Code Actions",
-            "description": "Enable code actions for TypeScript"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Code Actions",
+          "description": "Enable code actions for TypeScript"
         },
         "astro.plugin.typescript.selectionRange.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Selection Range",
-            "description": "Enable selection range for TypeScript"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Selection Range",
+          "description": "Enable selection range for TypeScript"
         },
         "astro.plugin.typescript.signatureHelp.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Signature Help",
-            "description": "Enable signature help (parameter hints) for TypeScript"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Signature Help",
+          "description": "Enable signature help (parameter hints) for TypeScript"
         },
         "astro.plugin.typescript.rename.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Rename",
-            "description": "Enable rename functionality for JS/TS variables inside Astro files"
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Rename",
+          "description": "Enable rename functionality for JS/TS variables inside Astro files"
         },
         "astro.plugin.typescript.semanticTokens.enable": {
-            "type": "boolean",
-            "default": true,
-            "title": "TypeScript: Semantic Tokens",
-            "description": "Enable semantic tokens (semantic highlight) for TypeScript."
+          "type": "boolean",
+          "default": true,
+          "title": "TypeScript: Semantic Tokens",
+          "description": "Enable semantic tokens (semantic highlight) for TypeScript."
         }
       }
     },
