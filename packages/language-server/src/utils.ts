@@ -38,7 +38,14 @@ export function isPossibleComponent(node: Node): boolean {
  * the same name like a html tag.
  */
 export function isPossibleClientComponent(node: Node): boolean {
-  return isPossibleComponent(node) && (node.tag?.indexOf(':') ?? -1) > -1;
+  if(isPossibleComponent(node) && node.attributes) {
+    for(let [name] of Object.entries(node.attributes)) {
+      if(name.startsWith('client:')) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 /** Flattens an array */
@@ -88,4 +95,33 @@ export function debounceSameArg<T>(fn: (arg: T) => void, shouldCancelPrevious: (
       prevArg = undefined;
     }, miliseconds);
   };
+}
+
+/**
+ * Debounces a function but also waits at minimum the specified number of miliseconds until
+ * the next invocation. This avoids needless calls when a synchronous call (like diagnostics)
+ * took too long and the whole timeout of the next call was eaten up already.
+ *
+ * @param fn The function with it's argument
+ * @param miliseconds Number of miliseconds to debounce/throttle
+ */
+ export function debounceThrottle<T extends (...args: any) => void>(fn: T, miliseconds: number): T {
+  let timeout: any;
+  let lastInvocation = Date.now() - miliseconds;
+
+  function maybeCall(...args: any) {
+      clearTimeout(timeout);
+
+      timeout = setTimeout(() => {
+          if (Date.now() - lastInvocation < miliseconds) {
+              maybeCall(...args);
+              return;
+          }
+
+          fn(...args);
+          lastInvocation = Date.now();
+      }, miliseconds);
+  }
+
+  return maybeCall as any;
 }

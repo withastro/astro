@@ -1,5 +1,5 @@
 import * as ts from 'typescript';
-import { DocumentSnapshot } from './SnapshotManager';
+import { DocumentSnapshot } from './DocumentSnapshot';
 import { ensureRealAstroFilePath, isAstroFilePath, isVirtualAstroFilePath, toRealAstroFilePath } from './utils';
 
 /**

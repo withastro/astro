@@ -3,6 +3,7 @@ import type {
   CompletionContext,
   CompletionItem,
   DefinitionLink,
+  Diagnostic,
   Location,
   Position,
   SignatureHelp,
@@ -58,6 +59,17 @@ export class PluginHost {
 
     return CompletionList.create(flattenedCompletions, isIncomplete);
   }
+
+  async getDiagnostics(textDocument: TextDocumentIdentifier): Promise<Diagnostic[]> {
+    const document = this.getDocument(textDocument.uri);
+    if (!document) {
+        throw new Error('Cannot call methods on an unopened document');
+    }
+
+    return flatten(
+        await this.execute<Diagnostic[]>('getDiagnostics', [document], ExecuteMode.Collect)
+    );
+}
 
   async resolveCompletion(textDocument: TextDocumentIdentifier, completionItem: d.AppCompletionItem): Promise<CompletionItem> {
     const document = this.getDocument(textDocument.uri);

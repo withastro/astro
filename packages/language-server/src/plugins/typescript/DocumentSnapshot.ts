@@ -1,12 +1,12 @@
 import * as ts from 'typescript';
 import { readFileSync } from 'fs';
-import { TextDocumentContentChangeEvent, Position } from 'vscode-languageserver';
+import { TextDocumentContentChangeEvent, Position, Range } from 'vscode-languageserver';
 import { Document, DocumentMapper, IdentityMapper } from '../../core/documents';
 import { isInTag, positionAt, offsetAt } from '../../core/documents/utils';
 import { pathToUrl } from '../../utils';
 import { getScriptKindFromFileName, isAstroFilePath, toVirtualAstroFilePath } from './utils';
-
-const ASTRO_DEFINITION = readFileSync(require.resolve('../../../astro.d.ts'));
+import { EOL } from 'os';
+import astro2tsx from './astro2tsx';
 
 /**
  * The mapper to get from original snapshot positions to generated and vice versa.
@@ -16,10 +16,20 @@ export interface SnapshotFragment extends DocumentMapper {
   offsetAt(position: Position): number;
 }
 
+/**
+ * An error which occured while trying to parse/preprocess the Astro file contents.
+ */
+ export interface ParserError {
+  message: string;
+  range: Range;
+  code: number;
+}
+
 export interface DocumentSnapshot extends ts.IScriptSnapshot {
   version: number;
   filePath: string;
   scriptKind: ts.ScriptKind;
+  parserError: ParserError | null;
   positionAt(offset: number): Position;
   /**
    * Instantiates a source mapper.
@@ -55,6 +65,7 @@ export const createDocumentSnapshot = (filePath: string, currentText: string | n
 class AstroDocumentSnapshot implements DocumentSnapshot {
   version = this.doc.version;
   scriptKind = ts.ScriptKind.Unknown;
+  parserError = null;
 
   constructor(private doc: Document) {}
 
@@ -70,27 +81,7 @@ class AstroDocumentSnapshot implements DocumentSnapshot {
 
   get text() {
     let raw = this.doc.getText();
-    return this.transformContent(raw);
-  }
-
-  /** @internal */
-  private transformContent(content: string) {
-    let raw = content.replace(/---/g, '///');
-    return (
-      raw +
-      // Add TypeScript definitions
-      this.addProps(raw, ASTRO_DEFINITION.toString('utf-8'))
-    );
-  }
-
-  private addProps(content: string, dtsContent: string): string {
-    let defaultExportType = 'Record<string, any>';
-    // Using TypeScript to parse here would cause a double-parse, slowing down the extension
-    // This needs to be done a different way when the new compiler is added.
-    if(/(interface|type) Props/.test(content)) {
-      defaultExportType = 'Props';
-    }
-    return dtsContent + '\n' + `export default function (props: ${defaultExportType}): string;`
+    return astro2tsx(raw).code;
   }
 
   get filePath() {
@@ -118,7 +109,7 @@ class AstroDocumentSnapshot implements DocumentSnapshot {
   }
 
   getLineContainingOffset(offset: number) {
-    const chunks = this.getText(0, offset).split('\n');
+    const chunks = this.getText(0, offset).split(EOL);
     return chunks[chunks.length - 1];
   }
 
@@ -136,6 +127,7 @@ export class DocumentFragmentSnapshot implements Omit<DocumentSnapshot, 'getFrag
   filePath: string;
   url: string;
   text: string;
+  parserError = null;
 
   scriptKind = ts.ScriptKind.TSX;
   scriptInfo = null;
@@ -147,16 +139,7 @@ export class DocumentFragmentSnapshot implements Omit<DocumentSnapshot, 'getFrag
     this.version = parent.version;
     this.filePath = toVirtualAstroFilePath(filePath);
     this.url = toVirtualAstroFilePath(filePath);
-    this.text = this.transformContent(text);
-  }
-
-  /** @internal */
-  private transformContent(content: string) {
-    return (
-      content.replace(/---/g, '///') +
-      // Add TypeScript definitions
-      ASTRO_DEFINITION
-    );
+    this.text = astro2tsx(text).code;
   }
 
   getText(start: number, end: number) {
@@ -180,7 +163,7 @@ export class DocumentFragmentSnapshot implements Omit<DocumentSnapshot, 'getFrag
   }
 
   getLineContainingOffset(offset: number) {
-    const chunks = this.getText(0, offset).split('\n');
+    const chunks = this.getText(0, offset).split(EOL);
     return chunks[chunks.length - 1];
   }
 
@@ -208,6 +191,7 @@ export class DocumentFragmentSnapshot implements Omit<DocumentSnapshot, 'getFrag
 export class TypeScriptDocumentSnapshot implements DocumentSnapshot {
   scriptKind = getScriptKindFromFileName(this.filePath);
   scriptInfo = null;
+  parserError = null;
   url: string;
 
   constructor(public version: number, public readonly filePath: string, private text: string) {

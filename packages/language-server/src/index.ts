@@ -2,7 +2,8 @@ import { RequestType, TextDocumentPositionParams, createConnection, ProposedFeat
 import { Document, DocumentManager } from './core/documents';
 import { ConfigManager } from './core/config';
 import { PluginHost, CSSPlugin, HTMLPlugin, TypeScriptPlugin, AppCompletionItem, AstroPlugin } from './plugins';
-import { urlToPath } from './utils';
+import { DiagnosticsManager } from './core/DiagnosticsManager';
+import { debounceThrottle, urlToPath } from './utils';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string | null, any> = new RequestType('html/tag');
 
@@ -27,6 +28,16 @@ export function startServer() {
     pluginHost.register(new CSSPlugin(docManager, configManager));
     pluginHost.register(new TypeScriptPlugin(docManager, configManager, workspaceUris));
     pluginHost.register(new AstroPlugin(docManager, configManager, workspaceUris));
+    configManager.update(
+      evt.initializationOptions?.configuration?.astro?.plugin ||
+          evt.initializationOptions?.config ||
+          {}
+    );
+    configManager.updateTsJsUserPreferences(
+      evt.initializationOptions?.configuration ||
+          evt.initializationOptions?.typescriptConfig ||
+          {}
+    );
     configManager.updateEmmetConfig(evt.initializationOptions?.configuration?.emmet || evt.initializationOptions?.emmetConfig || {});
 
     return {
@@ -44,6 +55,7 @@ export function startServer() {
             '/',
             '@',
             '<',
+            ' ',
 
             // Emmet
             '>',
@@ -81,6 +93,14 @@ export function startServer() {
 
   connection.onDidCloseTextDocument((evt) => docManager.closeDocument(evt.textDocument.uri));
 
+  const diagnosticsManager = new DiagnosticsManager(
+      connection.sendDiagnostics,
+      docManager,
+      pluginHost.getDiagnostics.bind(pluginHost)
+  );
+
+  const updateAllDiagnostics = debounceThrottle(() => diagnosticsManager.updateAll(), 1000);
+
   connection.onDidChangeTextDocument((evt) => {
     docManager.updateDocument(evt.textDocument.uri, evt.contentChanges);
   });
@@ -94,11 +114,16 @@ export function startServer() {
       .filter((change) => !!change.fileName);
 
     pluginHost.onWatchFileChanges(params);
+    updateAllDiagnostics();
   });
+
+  //connection.onDidChangeTextDocument(updateAllDiagnostics);
 
   // Config
   connection.onDidChangeConfiguration(({ settings }) => {
+    configManager.update(settings.astro?.plugin);
     configManager.updateEmmetConfig(settings.emmet);
+    configManager.updateTsJsUserPreferences(settings);
   });
 
   // Features
@@ -120,6 +145,14 @@ export function startServer() {
   connection.onFoldingRanges((evt) => pluginHost.getFoldingRanges(evt.textDocument));
   connection.onRequest(TagCloseRequest, (evt: any) => pluginHost.doTagComplete(evt.textDocument, evt.position));
   connection.onSignatureHelp((evt, cancellationToken) => pluginHost.getSignatureHelp(evt.textDocument, evt.position, evt.context, cancellationToken));
+
+  docManager.on(
+      'documentChange',
+      debounceThrottle(async (document: Document) => diagnosticsManager.update(document), 1000)
+  );
+  docManager.on('documentClose', (document: Document) =>
+      diagnosticsManager.removeDiagnostics(document)
+  );
 
   connection.listen();
 }

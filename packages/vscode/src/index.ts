@@ -34,12 +34,13 @@ function createLanguageService(context: vscode.ExtensionContext, mode: 'doc', id
   const clientOptions: lsp.LanguageClientOptions = {
     documentSelector: [{ scheme: 'file', language: 'astro' }],
     synchronize: {
-      configurationSection: ['javascript', 'typescript', 'prettier'],
+      configurationSection: ['astro', 'javascript', 'typescript', 'prettier'],
       fileEvents: workspace.createFileSystemWatcher('{**/*.js,**/*.ts}', false, false, false),
     },
     initializationOptions: {
       ...serverInitOptions,
       configuration: {
+        astro: workspace.getConfiguration('astro'),
         prettier: workspace.getConfiguration('prettier'),
         emmet: workspace.getConfiguration('emmet'),
         typescript: workspace.getConfiguration('typescript'),

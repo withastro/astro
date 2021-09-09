@@ -1,17 +1,24 @@
 import type { ConfigManager } from '../../core/config';
 import type { CompletionsProvider, AppCompletionItem, AppCompletionList } from '../interfaces';
-import type { CancellationToken, Hover, SignatureHelp, SignatureHelpContext } from 'vscode-languageserver';
+import type {
+  CancellationToken,
+  Diagnostic,
+  Hover,
+  SignatureHelp,
+  SignatureHelpContext
+} from 'vscode-languageserver';
 import { join as pathJoin, dirname as pathDirname } from 'path';
-import { Document, DocumentManager, isInsideFrontmatter } from '../../core/documents';
+import { Document, DocumentManager } from '../../core/documents';
 import { SourceFile, ImportDeclaration, Node, SyntaxKind } from 'typescript';
 import { CompletionContext, DefinitionLink, FileChangeType, Position, LocationLink } from 'vscode-languageserver';
 import * as ts from 'typescript';
 import { LanguageServiceManager } from './LanguageServiceManager';
 import { SnapshotManager } from './SnapshotManager';
-import { convertToLocationRange, isVirtualAstroFilePath, isVirtualFilePath, getScriptKindFromFileName } from './utils';
+import { convertToLocationRange, isVirtualAstroFilePath, ensureRealAstroFilePath, getScriptKindFromFileName, toVirtualAstroFilePath } from './utils';
 import { isNotNullOrUndefined, pathToUrl } from '../../utils';
 import { CompletionsProviderImpl, CompletionEntryWithIdentifer } from './features/CompletionsProvider';
 import { HoverProviderImpl } from './features/HoverProvider';
+import { DiagnosticsProviderImpl } from './features/DiagnosticsProvider';
 import { isNoTextSpanInGeneratedCode, SnapshotFragmentMap } from './features/utils';
 import { SignatureHelpProviderImpl } from './features/SignatureHelpProvider';
 
@@ -28,6 +35,7 @@ export class TypeScriptPlugin implements CompletionsProvider {
   private readonly completionProvider: CompletionsProviderImpl;
   private readonly hoverProvider: HoverProviderImpl;
   private readonly signatureHelpProvider: SignatureHelpProviderImpl;
+  private readonly diagnosticsProvider: DiagnosticsProviderImpl;
 
   constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
     this.docManager = docManager;
@@ -37,6 +45,7 @@ export class TypeScriptPlugin implements CompletionsProvider {
     this.completionProvider = new CompletionsProviderImpl(this.languageServiceManager);
     this.hoverProvider = new HoverProviderImpl(this.languageServiceManager);
     this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
+    this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
   }
 
   async doHover(document: Document, position: Position): Promise<Hover | null> {
@@ -54,15 +63,11 @@ export class TypeScriptPlugin implements CompletionsProvider {
   }
 
   async getDefinitions(document: Document, position: Position): Promise<DefinitionLink[]> {
-    if (!this.isInsideFrontmatter(document, position)) {
-      return [];
-    }
-
     const { lang, tsDoc } = await this.languageServiceManager.getTypeScriptDoc(document);
     const mainFragment = await tsDoc.getFragment();
 
     const filePath = tsDoc.filePath;
-    const tsFilePath = filePath.endsWith('.ts') ? filePath : filePath + '.ts';
+    const tsFilePath = toVirtualAstroFilePath(filePath);
 
     const fragmentPosition = mainFragment.getGeneratedPosition(position);
     const fragmentOffset = mainFragment.offsetAt(fragmentPosition);
@@ -89,7 +94,7 @@ export class TypeScriptPlugin implements CompletionsProvider {
         const { fragment, snapshot } = await docs.retrieve(def.fileName);
 
         if (isNoTextSpanInGeneratedCode(snapshot.getFullText(), def.textSpan)) {
-          const fileName = isVirtualFilePath(def.fileName) ? def.fileName.substr(0, def.fileName.length - 3) : def.fileName;
+          const fileName = ensureRealAstroFilePath(def.fileName);
           const textSpan = isVirtualAstroFilePath(tsFilePath) ? { start: 0, length: 0 } : def.textSpan;
           return LocationLink.create(
             pathToUrl(fileName),
@@ -101,6 +106,17 @@ export class TypeScriptPlugin implements CompletionsProvider {
       })
     );
     return result.filter(isNotNullOrUndefined);
+  }
+
+  async getDiagnostics(
+    document: Document,
+    cancellationToken?: CancellationToken
+  ): Promise<Diagnostic[]> {
+      if (!this.featureEnabled('diagnostics')) {
+          return [];
+      }
+
+      return this.diagnosticsProvider.getDiagnostics(document, cancellationToken);
   }
 
   async onWatchFileChanges(onWatchFileChangesParams: any[]): Promise<void> {
@@ -139,10 +155,6 @@ export class TypeScriptPlugin implements CompletionsProvider {
    */
   public async getSnapshotManager(fileName: string) {
     return this.languageServiceManager.getSnapshotManager(fileName);
-  }
-
-  private isInsideFrontmatter(document: Document, position: Position) {
-    return isInsideFrontmatter(document.getText(), document.offsetAt(position));
   }
 
   private goToDefinitionFoundOnlyAlias(tsFileName: string, defs: readonly ts.DefinitionInfo[]) {
@@ -186,4 +198,12 @@ export class TypeScriptPlugin implements CompletionsProvider {
       }
     }
   }
+
+  // This exists so we can make features toggleable in the future.
+  private featureEnabled(feature: string) {
+    return (
+      this.configManager.enabled('typescript.enable') &&
+      this.configManager.enabled(`typescript.${feature}.enable`)
+    );
+}
 }

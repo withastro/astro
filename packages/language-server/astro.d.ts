@@ -1,3 +1,15 @@
+export {};
+
+declare global {
+  interface ImportMeta {
+      hot: {
+          accept: Function;
+          dispose: Function;
+      };
+      env: Record<string, string>;
+  }
+}
+
 type AstroRenderedHTML = string;
 
 type FetchContentResult<ContentFrontmatter extends Record<string, any> = Record<string, any>> = {
@@ -9,9 +21,19 @@ type FetchContentResult<ContentFrontmatter extends Record<string, any> = Record<
   url: URL;
 } & ContentFrontmatter;
 
+export type Params = Record<string, string | undefined>;
+
 interface AstroPageRequest {
   url: URL;
   canonicalURL: URL;
+  params: Params;
+}
+
+interface AstroBuiltinProps {
+  'client:load'?: boolean;
+  'client:idle'?: boolean;
+  'client:media'?: string;
+  'client:visible'?: boolean;
 }
 
 interface Astro {
