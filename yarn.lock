@@ -1510,15 +1510,15 @@
     node-gyp "^7.1.0"
     read-package-json-fast "^2.0.1"
 
-"@octokit/action@^3.15.2":
-  version "3.15.2"
-  resolved "https://registry.yarnpkg.com/@octokit/action/-/action-3.15.2.tgz#cbe5b6f391d1450239550871623b92456a1bb019"
-  integrity sha512-bEPPfCCOsMAaOnm3hc1o8DYU3aOcbiIVj51HfSM23IDJNRZmV1m/cRWhm+V017InS96UyadWPiwCcCHX4Ph86Q==
+"@octokit/action@^3.15.3":
+  version "3.15.3"
+  resolved "https://registry.yarnpkg.com/@octokit/action/-/action-3.15.3.tgz#09d6a5ec8e298a8dc45babbae299f5f7da62b129"
+  integrity sha512-UGIgnckGRyaBlko/XSvDYEwTQlqFwD2KoiSQqqYd1MWXu/pNiMOT975ME/MY0zJ++HEpZiiqQBLDKwsm6Yu01g==
   dependencies:
     "@octokit/auth-action" "^1.2.0"
     "@octokit/core" "^3.0.0"
     "@octokit/plugin-paginate-rest" "^2.2.4"
-    "@octokit/plugin-rest-endpoint-methods" "5.10.0"
+    "@octokit/plugin-rest-endpoint-methods" "5.10.1"
     "@octokit/types" "^6.16.1"
     https-proxy-agent "^5.0.0"
 
@@ -1607,10 +1607,10 @@
   resolved "https://registry.yarnpkg.com/@octokit/plugin-request-log/-/plugin-request-log-1.0.4.tgz#5e50ed7083a613816b1e4a28aeec5fb7f1462e85"
   integrity sha512-mLUsMkgP7K/cnFEw07kWqXGF5LKrOkD+lhCrKvPHXWDywAwuDUeDwWBpc69XK3pNX0uKiVt8g5z96PJ6z9xCFA==
 
-"@octokit/plugin-rest-endpoint-methods@5.10.0":
-  version "5.10.0"
-  resolved "https://registry.yarnpkg.com/@octokit/plugin-rest-endpoint-methods/-/plugin-rest-endpoint-methods-5.10.0.tgz#8058acf408d518defa2dc59a46777adbcd7ee8e8"
-  integrity sha512-HiUZliq5wNg15cevJlTo9zDnPXAD0BMRhLxbRNPnq9J3HELKesDTOiou56ax2jC/rECUkK/uJTugrizYKSo/jg==
+"@octokit/plugin-rest-endpoint-methods@5.10.1":
+  version "5.10.1"
+  resolved "https://registry.yarnpkg.com/@octokit/plugin-rest-endpoint-methods/-/plugin-rest-endpoint-methods-5.10.1.tgz#9683c4cf476fb6c80f668c4b468919e69c71f66a"
+  integrity sha512-Rf1iMl40I0dIxjh1g32qZ6Ym/uT8QWZMm2vYGG5Vi8SX1MwZvbuxEGXYgmzTUWSD3PYWSLilE2+4L8kmdLGTMg==
   dependencies:
     "@octokit/types" "^6.27.0"
     deprecation "^2.3.1"
