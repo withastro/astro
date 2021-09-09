@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@astrojs/renderer-lit": "^0.1.0",
-    "astro": "^0.20.4"
+    "astro": "^0.20.5"
   },
   "snowpack": {
     "workspaceRoot": "../.."
