@@ -257,7 +257,7 @@ interface CreateSnowpackOptions {
 
 /** Create a new Snowpack instance to power Astro */
 async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackOptions) {
-  const { projectRoot, src } = astroConfig;
+  const { projectRoot, src, pages } = astroConfig;
   const { mode, logging, resolvePackageUrl } = options;
 
   const frontendPath = new URL('./frontend/', import.meta.url);
@@ -286,7 +286,8 @@ async function createSnowpack(astroConfig: AstroConfig, options: CreateSnowpackO
   const mountOptions = {
     ...(existsSync(astroConfig.public) ? { [fileURLToPath(astroConfig.public)]: { url: '/', static: true, resolve: false } } : {}),
     [fileURLToPath(frontendPath)]: '/_astro_frontend',
-    [fileURLToPath(src)]: `/_astro/${fileURLToPath(src).slice(fileURLToPath(projectRoot).length - 1)}`, // must be last (greediest)
+    [fileURLToPath(src)]: `/_astro/${src.pathname.slice(projectRoot.pathname.length - 1)}`, // must be last (greediest)
+    [fileURLToPath(pages)]: `/_astro/${pages.pathname.slice(projectRoot.pathname.length - 1)}`
   };
 
   // Tailwind: IDK what this does but it makes JIT work 🤷‍♂️
