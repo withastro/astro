@@ -1,18 +1,23 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Fetch = suite('Global Fetch');
+describe('Global Fetch', () => {
+  let fixture;
+  let devServer;
 
-setup(Fetch, './fixtures/fetch');
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/fetch/' });
+    devServer = await fixture.dev();
+  });
 
-Fetch('Is available in non-Astro components.', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Is available in non-Astro components.', async () => {
+    const html = await fixture.fetch('/').then((res) => res.text());
+    const $ = cheerio.load(html);
+    expect($('#jsx').text()).toBe('function');
+  });
 
-  const $ = doc(result.contents);
-  assert.equal($('#jsx').text(), 'function');
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.stop();
+  });
 });
-
-Fetch.run();

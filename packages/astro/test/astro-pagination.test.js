@@ -1,67 +1,54 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Global = suite('Astro.*');
+describe('Pagination', () => {
+  let fixture;
+  let devServer;
 
-setup(Global, './fixtures/astro-pagination');
+  beforeAll(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-pagination/',
+      buildOptions: {
+        site: 'https://mysite.dev/blog/',
+        sitemap: false,
+      },
+    });
+    devServer = await fixture.dev();
+  });
 
-Global('optional root page', async (context) => {
-  {
-    const result = await context.runtime.load('/posts/optional-root-page/');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-  {
-    const result = await context.runtime.load('/posts/optional-root-page/2');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-  {
-    const result = await context.runtime.load('/posts/optional-root-page/3');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
+  test('optional root page', async () => {
+    const results = await Promise.all([fixture.fetch('/posts/optional-root-page/'), fixture.fetch('/posts/optional-root-page/2'), fixture.fetch('/posts/optional-root-page/3')]);
+    for (const result of results) {
+      expect(result.statusCode).toBe(200);
+    }
+  });
+
+  test('named root page', async () => {
+    const results = await Promise.all([fixture.fetch('/posts/named-root-page/1'), fixture.fetch('/posts/named-root-page/2'), fixture.fetch('/posts/named-root-page/3')]);
+    for (const result of results) {
+      expect(result.statusCode).toBe(200);
+    }
+  });
+
+  test('multiple params', async () => {
+    const params = [
+      { color: 'red', p: '1' },
+      { color: 'blue', p: '1' },
+      { color: 'blue', p: '2' },
+    ];
+    await Promise.all(
+      params.map(({ color, p }) => {
+        const html = await fixture.fetch(`/posts/${color}/${p}`).then((res) => res.text());
+        const $ = cheerio.load(html);
+        expect($('#page-a').text()).toBe(p);
+        expect($('#page-b').text()).toBe(p);
+        expect($('#filter').text()).toBe(color);
+      })
+    );
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.stop();
+  });
 });
-
-Global('named root page', async (context) => {
-  {
-    const result = await context.runtime.load('/posts/named-root-page/1');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-  {
-    const result = await context.runtime.load('/posts/named-root-page/2');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-  {
-    const result = await context.runtime.load('/posts/named-root-page/3');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-});
-
-Global('multiple params', async (context) => {
-  {
-    const result = await context.runtime.load('/posts/red/1');
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-    assert.equal($('#page-a').text(), '1');
-    assert.equal($('#page-b').text(), '1');
-    assert.equal($('#filter').text(), 'red');
-  }
-  {
-    const result = await context.runtime.load('/posts/blue/1');
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-    assert.equal($('#page-a').text(), '1');
-    assert.equal($('#page-b').text(), '1');
-    assert.equal($('#filter').text(), 'blue');
-  }
-  {
-    const result = await context.runtime.load('/posts/blue/2');
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-    assert.equal($('#page-a').text(), '2');
-    assert.equal($('#page-b').text(), '2');
-    assert.equal($('#filter').text(), 'blue');
-  }
-});
-
-Global.run();

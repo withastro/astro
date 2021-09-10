@@ -1,13 +1,18 @@
 import type { NextFunction } from 'connect';
 import type http from 'http';
-import type { AstroConfig, ManifestData, RouteCache } from '../@types/astro';
+import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../@types/astro';
 import type { LogOptions } from '../logger';
+import type { HmrContext, ModuleNode } from 'vite';
 
 import chokidar from 'chokidar';
 import connect from 'connect';
 import mime from 'mime';
+import getEtag from 'etag';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
+import path from 'path';
+import { promises as fs } from 'fs';
 import vite from 'vite';
 import { defaultLogOptions, error, info } from '../logger.js';
 import { createRouteManifest, matchRoute } from '../runtime/routing.js';
@@ -15,6 +20,8 @@ import { ssr } from '../runtime/ssr.js';
 import { loadViteConfig } from '../runtime/vite/config.js';
 import * as msg from './messages.js';
 import { errorTemplate } from './template/error.js';
+
+const require = createRequire(import.meta.url);
 
 export interface DevOptions {
   logging: LogOptions;
@@ -39,16 +46,18 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
     hostname: server.hostname,
     port: server.port,
     server: server.app,
-    stop: server.stop,
+    stop: () => server.stop(),
   };
 }
 
 /** Dev server */
-class AstroDevServer {
+export class AstroDevServer {
   app = connect();
+  httpServer: http.Server | undefined;
   hostname: string;
   port: number;
 
+  private internalCache: Map<string, string>;
   private config: AstroConfig;
   private logging: LogOptions;
   private manifest: ManifestData;
@@ -56,8 +65,10 @@ class AstroDevServer {
   private routeCache: RouteCache = {};
   private viteServer: vite.ViteDevServer | undefined;
   private watcher: chokidar.FSWatcher;
+  private mostRecentRoute?: RouteData;
 
   constructor(config: AstroConfig, options: DevOptions) {
+    this.internalCache = new Map();
     this.config = config;
     this.hostname = config.devOptions.hostname || 'localhost';
     this.logging = options.logging;
@@ -94,7 +105,7 @@ class AstroDevServer {
           host: this.hostname,
         },
       },
-      { astroConfig: this.config, logging: this.logging }
+      { astroConfig: this.config, logging: this.logging, devServer: this }
     );
     this.viteServer = await vite.createServer(viteConfig);
 
@@ -104,27 +115,24 @@ class AstroDevServer {
     this.app.use((req, res, next) => this.renderError(req, res, next));
 
     // 4. listen on port
-    await new Promise<void>((resolve, reject) => {
-      this.app
-        .listen(this.port, this.hostname, () => {
-          info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
-          info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}` }));
-          resolve();
-        })
-        .on('error', (err: NodeJS.ErrnoException) => {
-          if (err.code && err.code === 'EADDRINUSE') {
-            error(this.logging, 'astro', `Address ${this.hostname}:${this.port} already in use. Try changing devOptions.port in your config file`);
-          } else {
-            error(this.logging, 'astro', err.stack);
-          }
-          reject();
-          process.exit(1);
-        });
+    this.httpServer = this.app.listen(this.port, this.hostname, () => {
+      info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
+      info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}` }));
+    });
+    this.httpServer.on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code && err.code === 'EADDRINUSE') {
+        error(this.logging, 'astro', `Address ${this.hostname}:${this.port} already in use. Try changing devOptions.port in your config file`);
+      } else {
+        error(this.logging, 'astro', err.stack);
+      }
+      process.exit(1);
     });
   }
 
   /** Stop dev server */
   async stop() {
+    this.internalCache = new Map();
+    if (this.httpServer) this.httpServer.close(); // close HTTP server
     await Promise.all([
       ...(this.viteServer ? [this.viteServer.close()] : []), // close Vite server
       this.watcher.close(), // close chokidar
@@ -138,6 +146,13 @@ class AstroDevServer {
     let pathname = req.url || '/'; // original request
     const reqStart = performance.now();
 
+    if (pathname.startsWith('/@astro')) {
+      const spec = pathname.slice(2);
+      const url = await this.viteServer.moduleGraph.resolveUrl(spec);
+      req.url = url[1];
+      return this.viteServer.middlewares.handle(req, res, next);
+    }
+
     try {
       const route = matchRoute(pathname, this.manifest);
 
@@ -147,8 +162,11 @@ class AstroDevServer {
         return;
       }
 
+      this.mostRecentRoute = route;
+
       // handle .astro and .md pages
       const html = await ssr({
+        astroConfig: this.config,
         filePath: new URL(`./${route.component}`, this.config.projectRoot),
         logging: this.logging,
         mode: 'development',
@@ -168,7 +186,7 @@ class AstroDevServer {
     } catch (e) {
       const err = e as Error;
       this.viteServer.ssrFixStacktrace(err);
-      console.error(err.stack);
+      console.log(err.stack);
       const statusCode = 500;
       const html = errorTemplate({ statusCode, title: 'Internal Error', tabTitle: '500: Error', message: err.message });
       info(this.logging, 'astro', msg.req({ url: pathname, statusCode: 500, reqTime: performance.now() - reqStart }));
@@ -195,6 +213,7 @@ class AstroDevServer {
     const userDefined404 = this.manifest.routes.find((route) => route.component === relPages + '404.astro');
     if (userDefined404) {
       html = await ssr({
+        astroConfig: this.config,
         filePath: new URL(`./${userDefined404.component}`, this.config.projectRoot),
         logging: this.logging,
         mode: 'development',
@@ -215,5 +234,54 @@ class AstroDevServer {
     });
     res.write(html);
     res.end();
+  }
+
+  public async handleHotUpdate({ file, modules }: HmrContext): Promise<void | ModuleNode[]> {
+    if (!this.viteServer) throw new Error(`AstroDevServer.start() not called`);
+
+    for (const module of modules) {
+      this.viteServer.moduleGraph.invalidateModule(module);
+    }
+
+    const route = this.mostRecentRoute;
+    const pathname = route?.pathname ?? '/';
+
+    if (!route) {
+      this.viteServer.ws.send({
+        type: 'full-reload',
+      });
+      return [];
+    }
+
+    try {
+      // try to update the most recent route
+      const html = await ssr({
+        astroConfig: this.config,
+        filePath: new URL(`./${route.component}`, this.config.projectRoot),
+        logging: this.logging,
+        mode: 'development',
+        origin: this.origin,
+        pathname,
+        route,
+        routeCache: this.routeCache,
+        viteServer: this.viteServer,
+      });
+
+      // TODO: log update
+      this.viteServer.ws.send({
+        type: 'custom',
+        event: 'astro:reload',
+        data: { html },
+      });
+      return [];
+    } catch (e) {
+      const err = e as Error;
+      this.viteServer.ssrFixStacktrace(err);
+      console.log(err.stack);
+      this.viteServer.ws.send({
+        type: 'full-reload',
+      });
+      return [];
+    }
   }
 }

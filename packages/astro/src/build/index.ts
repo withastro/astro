@@ -75,7 +75,7 @@ class AstroBuilder {
         // static pages
         if (pathname) {
           allPages.push(
-            ssr({ filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname, viteServer }).then((html) => ({
+            ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname, viteServer }).then((html) => ({
               html,
               name: pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''),
             }))
@@ -97,7 +97,7 @@ class AstroBuilder {
           // TODO: throw error if conflict
           staticPaths.paths.forEach((staticPath) => {
             allPages.push(
-              ssr({ filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname: staticPath, viteServer }).then((html) => ({
+              ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname: staticPath, viteServer }).then((html) => ({
                 html,
                 name: staticPath.replace(/\/?$/, '/index.html').replace(/^\//, ''),
               }))

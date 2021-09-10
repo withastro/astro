@@ -1,59 +1,62 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Attributes = suite('Attributes test');
+let fixture;
+let devServer;
 
-setup(Attributes, './fixtures/astro-attrs');
+describe('Attributes', () => {
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-attrs/' });
+    devServer = await fixture.dev();
+  });
 
-Attributes('Passes attributes to elements as expected', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Passes attributes to elements as expected', async () => {
+    const html = await fixture.fetch('/').then((res) => res.html());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
+    const attrs = {
+      'false-str': 'false',
+      'true-str': 'true',
+      false: undefined,
+      true: '',
+      empty: '',
+      null: undefined,
+      undefined: undefined,
+    };
 
-  const ids = ['false-str', 'true-str', 'false', 'true', 'empty', 'null', 'undefined'];
-  const specs = ['false', 'true', undefined, '', '', undefined, undefined];
+    for (const [k, v] of Object.entries(attrs)) {
+      const attr = $(`#${k}`).attr('attr');
+      expect(attr).toBe(v);
+    }
+  });
 
-  let i = 0;
-  for (const id of ids) {
-    const spec = specs[i];
-    const attr = $(`#${id}`).attr('attr');
-    assert.equal(attr, spec, `Passes ${id} as "${spec}"`);
-    i++;
-  }
+  test('Passes boolean attributes to components as expected', async () => {
+    const html = await fixture.fetch('/component').then((res) => res.text());
+    const $ = cheerio.load(html);
+
+    expect($('#true').attr('attr')).toBe('attr-true');
+    expect($('#true').attr('type')).toBe('boolean');
+    expect($('#false').attr('attr')).toBe('attr-false');
+    expect($('#false').attr('type')).toBe('boolean');
+  });
+
+  test('Passes namespaced attributes as expected', async () => {
+    const html = await fixture.fetch('/namespaced').then((res) => res.text());
+    const $ = cheerio.load(result.contents);
+
+    expect($('div').attr('xmlns:happy')).toBe('https://example.com/schemas/happy');
+    expect($('img').attr('happy:smile')).toBe('sweet');
+  });
+
+  test('Passes namespaced attributes to components as expected', async () => {
+    const html = await fixture.fetch('/namespaced-component');
+    const $ = cheerio.load(html);
+
+    expect($('span').attr('on:click')).toEqual(Function.prototype.toString.call((event) => console.log(event)));
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.close();
+  });
 });
-
-Attributes('Passes boolean attributes to components as expected', async ({ runtime }) => {
-  const result = await runtime.load('/component');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-  assert.equal($('#true').attr('attr'), 'attr-true');
-  assert.equal($('#true').attr('type'), 'boolean');
-  assert.equal($('#false').attr('attr'), 'attr-false');
-  assert.equal($('#false').attr('type'), 'boolean');
-});
-
-Attributes('Passes namespaced attributes as expected', async ({ runtime }) => {
-  const result = await runtime.load('/namespaced');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-  assert.equal($('div').attr('xmlns:happy'), 'https://example.com/schemas/happy');
-  assert.equal($('img').attr('happy:smile'), 'sweet');
-});
-
-Attributes('Passes namespaced attributes to components as expected', async ({ runtime }) => {
-  const result = await runtime.load('/namespaced-component');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-  assert.equal(
-    $('span').attr('on:click'),
-    Function.prototype.toString.call((event) => console.log(event))
-  );
-});
-
-Attributes.run();

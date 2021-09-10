@@ -1,29 +1,52 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const MarkdownPlugin = suite('Astro Markdown plugin tests');
+describe('Astro Markdown plugins', () => {
+  let fixture;
+  let devServer;
 
-setup(MarkdownPlugin, './fixtures/astro-markdown-plugins');
-setupBuild(MarkdownPlugin, './fixtures/astro-markdown-plugins');
+  beforeAll(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-markdown-plugins/',
+      renderers: ['@astrojs/renderer-preact'],
+      markdownOptions: {
+        remarkPlugins: ['remark-code-titles', 'remark-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+        rehypePlugins: [
+          ['rehype-toc', { headings: ['h2', 'h3'] }],
+          ['rehype-add-classes', { 'h1,h2,h3': 'title' }],
+        ],
+      },
+      buildOptions: {
+        sitemap: false,
+      },
+    });
+    devServer = await fixture.dev();
+  });
 
-MarkdownPlugin('Can render markdown with plugins', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Can render markdown with plugins', async () => {
+    const html = await fixture.fetch('/').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
-  assert.equal($('.toc').length, 1, 'Added a TOC');
-  assert.ok($('#hello-world').hasClass('title'), 'Added .title to h1');
+    // test 1: Added a TOC
+    expect($('.toc')).toHaveLength(1);
+
+    // teste 2: Added .title to h1
+    expect($('#hello-world').hasClass('title')).toBeTrue();
+  });
+
+  test('Can render Astro <Markdown> with plugins', async () => {
+    const html = await fixture.fetch('/astro').then((res) => res.text());
+    const $ = cheerio.load(html);
+
+    // test 1: Added a TOC
+    expect($('.toc')).toHaveLength(1);
+
+    // teste 2: Added .title to h1
+    expect($('#hello-world').hasClass('title')).toBeTrue();
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.stop();
+  });
 });
-
-MarkdownPlugin('Can render Astro <Markdown> with plugins', async ({ runtime }) => {
-  const result = await runtime.load('/astro');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-  assert.equal($('.toc').length, 1, 'Added a TOC');
-  assert.ok($('#hello-world').hasClass('title'), 'Added .title to h1');
-});
-
-MarkdownPlugin.run();

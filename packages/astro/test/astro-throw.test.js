@@ -1,27 +1,25 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild } from './helpers.js';
+import { loadFixture } from './test-utils.js';
 
-const Throwable = suite('Throw test');
+describe('Throw', () => {
+  let fixture;
+  let devServer;
 
-setup(Throwable, './fixtures/astro-throw', {
-  runtimeOptions: {
-    mode: 'development',
-  },
-});
-setupBuild(Throwable, './fixtures/astro-throw');
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-throw/' });
+    devServer = await fixture.dev();
+  });
 
-Throwable('Can throw an error from an `.astro` file', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.equal(result.statusCode, 500);
-  assert.equal(result.error.message, 'Oops!');
-});
+  test('Can throw an error from an `.astro` file', async () => {
+    const result = await fixture.fetch('/');
+    expect(result.statusCode).toBe(500);
+  });
 
-Throwable('Does not complete build when Error is thrown', async ({ build }) => {
-  await build().catch((e) => {
-    assert.ok(e, 'Build threw');
+  test('Does not complete build when Error is thrown', async () => {
+    expect(() => fixture.build()).toThrow();
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.stop();
   });
 });
-
-Throwable.run();
