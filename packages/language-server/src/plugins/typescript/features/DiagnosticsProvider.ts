@@ -14,6 +14,11 @@ import { isInGeneratedCode } from './utils';
 
 type BoundaryTuple = [number, number];
 
+interface BoundaryParseResults {
+    script: BoundaryTuple[];
+    markdown: BoundaryTuple[];
+}
+
 export class DiagnosticsProviderImpl implements DiagnosticsProvider {
   private readonly languageServiceManager: LanguageServiceManager;
 
@@ -23,7 +28,7 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 
     async getDiagnostics(
         document: Document,
-        cancellationToken?: CancellationToken
+        _cancellationToken?: CancellationToken
     ): Promise<Diagnostic[]> {
         if (
             (document.getFilePath()?.includes('/node_modules/') ||
@@ -57,12 +62,17 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
 
         const filePath = toVirtualAstroFilePath(tsDoc.filePath);
 
-        const scriptBoundaries = this.getScriptBoundaries(lang, filePath);
+        const {
+            script: scriptBoundaries,
+            markdown: markdownBoundaries
+        } = this.getTagBoundaries(lang, filePath);
 
         const syntaxDiagnostics = lang.getSyntacticDiagnostics(filePath);
         const suggestionDiagnostics = lang.getSuggestionDiagnostics(filePath);
         const semanticDiagnostics = lang.getSemanticDiagnostics(filePath).filter(d => {
-            return isNoWithinScript(scriptBoundaries, d);
+            return (
+                isNoWithinScript(scriptBoundaries, d)
+            );
         });
 
         const diagnostics: ts.Diagnostic[] = [
@@ -72,6 +82,7 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
         ];
 
         const fragment = await tsDoc.getFragment();
+        const sourceFile = lang.getProgram()?.getSourceFile(filePath);
 
         const isNoFalsePositiveInst = isNoFalsePositive();
         return diagnostics
@@ -94,7 +105,8 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
                     isNoCantUseJSX(diag) &&
                     isNoCantEndWithTS(diag) &&
                     isNoSpreadExpected(diag) &&
-                    isNoCantResolveJSONModule(diag)
+                    isNoCantResolveJSONModule(diag) &&
+                    isNoMarkdownBlockQuoteWithinMarkdown(sourceFile, markdownBoundaries, diag)
                 );
             })
             .map(enhanceIfNecessary);
@@ -104,19 +116,35 @@ export class DiagnosticsProviderImpl implements DiagnosticsProvider {
       return this.languageServiceManager.getTypeScriptDoc(document);
     }
 
-    private getScriptBoundaries(lang: ts.LanguageService, tsFilePath: string): BoundaryTuple[] {
+    private getTagBoundaries(lang: ts.LanguageService, tsFilePath: string): BoundaryParseResults {
         const program = lang.getProgram();
         const sourceFile = program?.getSourceFile(tsFilePath);
-        if(!sourceFile) {
-            return [];
-        }
 
-        const boundaries: BoundaryTuple[] = [];
+        const boundaries: BoundaryParseResults = {
+            script: [],
+            markdown: []
+        };
+
+        if(!sourceFile) {
+            return boundaries;
+        }
 
         function findScript(parent: ts.Node) {
             ts.forEachChild(parent, node => {
-                if(ts.isJsxElement(node) && node.openingElement.tagName.getText() === 'script') {
-                    boundaries.push([node.getStart(), node.getEnd()]);
+                if(ts.isJsxElement(node)) {
+                    let tagName = node.openingElement.tagName.getText();
+
+                    switch(tagName) {
+                        case 'script': {
+                            ts.getLineAndCharacterOfPosition(sourceFile!, node.getStart());
+                            boundaries.script.push([node.getStart(), node.getEnd()]);
+                            break;
+                        }
+                        case 'Markdown': {
+                            boundaries.markdown.push([node.getStart(), node.getEnd()]);
+                            break;
+                        }
+                    }
                 }
                 findScript(node);
             });
@@ -201,20 +229,51 @@ function isNoSpreadExpected(diagnostic: Diagnostic) {
     return diagnostic.code !== 1005;
 }
 
-function isNoWithinScript(boundaries: BoundaryTuple[], diagnostic: ts.Diagnostic) {
-    if(diagnostic.start) {
-        for(let [start, end] of boundaries) {
-            if(diagnostic.start > start && diagnostic.start < end) {
-                return false;
-            }
+function isWithinBoundaries(boundaries: BoundaryTuple[], start: number): boolean {
+    for(let [bstart, bend] of boundaries) {
+        if(start > bstart && start < bend) {
+            return true;
         }
     }
-
-    return true;
+    return false;
 }
 
+function diagnosticIsWithinBoundaries(sourceFile: ts.SourceFile | undefined, boundaries: BoundaryTuple[], diagnostic: Diagnostic | ts.Diagnostic) {
+    if('start' in diagnostic) {
+        if(diagnostic.start == null) return false;
+        return isWithinBoundaries(boundaries, diagnostic.start);
+    }
+
+    if(!sourceFile) return false;
+
+    let startRange = (diagnostic as Diagnostic).range.start;
+    let pos = ts.getPositionOfLineAndCharacter(sourceFile, startRange.line, startRange.character);
+    return isWithinBoundaries(boundaries, pos);
+}
+
+function isNoWithinScript(boundaries: BoundaryTuple[], diagnostic: ts.Diagnostic) {
+    return !diagnosticIsWithinBoundaries(undefined, boundaries, diagnostic);
+}
+
+/**
+ * This allows us to have JSON module imports.
+ */
 function isNoCantResolveJSONModule(diagnostic: Diagnostic) {
     return diagnostic.code !== 2732;
+}
+
+/**
+ * This is for using > within a markdown component like:
+ * <Markdown>
+ *   > Blockquote here.
+ * </Markdown>
+ */
+function isNoMarkdownBlockQuoteWithinMarkdown(sourceFile: ts.SourceFile | undefined, boundaries: BoundaryTuple[], diagnostic: Diagnostic | ts.Diagnostic) {
+    if(diagnostic.code !== 1382) {
+        return true;
+    }
+
+    return !diagnosticIsWithinBoundaries(sourceFile, boundaries, diagnostic);
 }
 
 /**
