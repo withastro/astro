@@ -65,7 +65,13 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     );
   }
 
-  const project = ts.parseJsonConfigFileContent(configJson, parseConfigHost, workspaceRoot, {}, basename(tsconfigPath), undefined, [
+  const existingCompilerOptions: ts.CompilerOptions = {
+    jsx: ts.JsxEmit.ReactJSX,
+    module: ts.ModuleKind.ESNext,
+    target: ts.ScriptTarget.ESNext
+  };
+
+  const project = ts.parseJsonConfigFileContent(configJson, parseConfigHost, workspaceRoot, existingCompilerOptions, basename(tsconfigPath), undefined, [
     { extension: '.vue', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
     { extension: '.svelte', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
     { extension: '.astro', isMixedContent: true, scriptKind: ts.ScriptKind.Deferred },
@@ -177,7 +183,6 @@ function getDefaultJsConfig(): {
     allowSyntheticDefaultImports: true,
     allowJs: true
   };
-  Reflect.set(compilerOptions, 'jsx', 'react-jsx');
   return {
     compilerOptions,
     include: ['src'],
