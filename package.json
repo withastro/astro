@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
-    "@octokit/action": "^3.15.3",
+    "@octokit/action": "^3.15.4",
     "@snowpack/plugin-postcss": "^1.4.3",
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.18.0",
