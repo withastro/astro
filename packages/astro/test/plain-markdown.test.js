@@ -1,37 +1,51 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Markdown = suite('Plain Markdown tests');
+describe('Plain Markdown tests', () => {
+  let fixture;
 
-setup(Markdown, './fixtures/plain-markdown');
-setupBuild(Markdown, './fixtures/plain-markdown');
+  beforeAll(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/markdown-plain/',
+      buildOptions: {
+        sitemap: false,
+      },
+      renderers: ['@astrojs/renderer-preact'],
+    });
+  });
 
-Markdown('Can load a simple markdown page with Astro', async ({ runtime }) => {
-  const result = await runtime.load('/post');
+  describe('dev', () => {
+    let devServer;
 
-  assert.equal(result.statusCode, 200);
+    beforeAll(async () => {
+      devServer = await fixture.dev();
+    });
 
-  const $ = doc(result.contents);
+    test('Can load a simple markdown page with Astro', async () => {
+      const html = await fixture.fetch('/post').then((res) => res.text());
+      const $ = cheerio.load(html);
 
-  assert.equal($('p').first().text(), 'Hello world!');
-  assert.equal($('#first').text(), 'Some content');
-  assert.equal($('#interesting-topic').text(), 'Interesting Topic');
+      expect($('p').first().text()).toBe('Hello world!');
+      expect($('#first').text()).toBe('Some content');
+      expect($('#interesting-topic').text()).toBe('Interesting Topic');
+    });
+
+    test('Can load a realworld markdown page with Astro', async () => {
+      const html = await fixture.fetch('/realworld').then((res) => res.text());
+      const $ = cheerio.load(html);
+
+      expect($('pre')).toHaveLength(7);
+    });
+
+    // important: close dev server (free up port and connection)
+    afterAll(async () => {
+      await devServer.stop();
+    });
+  });
+
+  describe('build', () => {
+    test('Builds markdown pages for prod', () => {
+      expect(() => fixture.build()).not.toThrow();
+    });
+  });
 });
-
-Markdown('Can load a realworld markdown page with Astro', async ({ runtime }) => {
-  const result = await runtime.load('/realworld');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  assert.equal(result.statusCode, 200);
-  const $ = doc(result.contents);
-
-  assert.equal($('pre').length, 7);
-});
-
-Markdown('Builds markdown pages for prod', async (context) => {
-  await context.build();
-});
-
-Markdown.run();

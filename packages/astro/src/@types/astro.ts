@@ -3,15 +3,16 @@ import type babel from '@babel/core';
 import type vite from 'vite';
 import type { z } from 'zod';
 import type { AstroConfigSchema } from '../config';
+import type { AstroComponentFactory } from '../internal';
 
 export { AstroMarkdownOptions };
 
 export interface AstroComponentMetadata {
   displayName: string;
   hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';
+  hydrateArgs?: any;
   componentUrl?: string;
   componentExport?: { value: string; namespace?: boolean };
-  value?: undefined | string;
 }
 
 /**
@@ -140,12 +141,7 @@ export interface CollectionRSS {
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
 export interface ComponentInstance {
-  default: {
-    isAstroComponent: boolean;
-    __render?(props: Props, ...children: any[]): string;
-    __renderer?: Renderer;
-  };
-  __renderPage?: (options: RenderPageOptions) => string;
+  default: AstroComponentFactory;
   css?: string[];
   getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }

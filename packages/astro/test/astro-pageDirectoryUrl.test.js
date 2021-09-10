@@ -1,16 +1,22 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { setupBuild } from './helpers.js';
+import { loadFixture } from './test-utils.js';
 
-const PageDirectoryUrl = suite('pageUrlFormat');
+describe('pageUrlFormat', () => {
+  let fixture;
 
-setupBuild(PageDirectoryUrl, './fixtures/astro-page-directory-url');
+  beforeAll(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-page-directory-url',
+      buildOptions: {
+        pageUrlFormat: 'file',
+      },
+    });
 
-PageDirectoryUrl('outputs', async ({ build, readFile }) => {
-  await build();
-  assert.ok(await readFile('/client.html'));
-  assert.ok(await readFile('/nested-md.html'));
-  assert.ok(await readFile('/nested-astro.html'));
+    await fixture.build();
+  });
+
+  test('outputs', async () => {
+    expect(await fixture.readFile('/client.html')).toBeTruthy();
+    expect(await fixture.readFile('/nested-md.html')).toBeTruthy();
+    expect(await fixture.readFile('/nested-astro.html')).toBeTruthy();
+  });
 });
-
-PageDirectoryUrl.run();

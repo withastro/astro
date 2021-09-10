@@ -1,20 +1,22 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import build from '../dist/build/index.js';
+import { loadFixture } from './test-utils';
 
-const Assets = suite('Assets');
+let fixture;
 
-await build({ projectRoot: 'test/fixtures/astro-assets/' });
+describe('Assets', () => {
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-assets/' });
+    await fixture.build();
+  });
 
-Assets('build the base image', () => {});
+  test('built the base image', async () => {
+    await fixture.readFile('/images/twitter.png');
+  });
 
-// let oneX = await readFile('/_astro/src/images/twitter.png');
-// assert.ok(oneX, 'built the base image');
+  test('built the 2x image', async () => {
+    await fixture.readFile('/images/twitter@2x.png');
+  });
 
-// let twoX = await readFile('/_astro/src/images/twitter@2x.png');
-// assert.ok(twoX, 'built the 2x image');
-
-// let threeX = await readFile('/_astro/src/images/twitter@3x.png');
-// assert.ok(threeX, 'build the 3x image');
-
-Assets.run();
+  test('built the 3x image', async () => {
+    await fixture.readFile('/images/twitter@3x.png');
+  });
+});

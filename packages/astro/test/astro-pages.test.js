@@ -1,24 +1,43 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Pages = suite('Pages tests');
+describe('Pages', () => {
+  let fixture;
 
-setup(Pages, './fixtures/astro-pages');
-setupBuild(Pages, './fixtures/astro-pages');
-
-Pages('Can find page with "index" at the end file name', async ({ build, runtime }) => {
-  await build().catch((err) => {
-    assert.ok(!err, 'Error during the build');
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-pages/' });
   });
 
-  const result = await runtime.load('posts/name-with-index');
-  if (result.error) throw new Error(result.error);
+  describe('dev', () => {
+    let devServer;
 
-  const $ = doc(result.contents);
+    beforeAll(async () => {
+      devServer = await fixture.dev();
+    });
 
-  assert.equal($('h1').text(), 'Name with index');
+    test('Can find page with "index" at the end file name', async () => {
+      const html = await fixture.fetch('/posts/name-with-index').then((res) => res.text());
+      const $ = cheerio.load(html);
+
+      expect($('h1').text()).toBe('Name with index');
+    });
+
+    // important: close dev server (free up port and connection)
+    afterAll(async () => {
+      await devServer.stop();
+    });
+  });
+
+  describe('build', () => {
+    beforeAll(async () => {
+      await fixture.build();
+    });
+
+    test('Can find page with "index" at the end file name', async () => {
+      const html = await fixture.readFile('/posts/name-with-index/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('h1').text()).toBe('Name with index');
+    });
+  });
 });
-
-Pages.run();
