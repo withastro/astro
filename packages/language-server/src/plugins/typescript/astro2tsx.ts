@@ -46,6 +46,10 @@ export default function(content: string): Astro2TSXResult {
     .replace(/<(\s*(meta|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)([^>]*))>/g, (whole, inner) => {
       if(whole.endsWith('/>')) return whole;
       return `<${inner} />`;
+    })
+    // Fix doctypes
+    .replace(/<!(doctype html)>/gi, (_whole, main) => {
+      return `<${main.toLowerCase()}/>`;
     });
 
   result.code = (
