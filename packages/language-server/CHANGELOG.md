@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.3
+
+### Patch Changes
+
+- 8f7bd34: Fixes false-positive error when using blockquotes within Markdown component
+
 ## 0.7.2
 
 ### Patch Changes

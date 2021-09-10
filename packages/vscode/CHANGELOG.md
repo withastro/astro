@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 0.7.3
+
+### Patch Changes
+
+- ae4a9e5: Provides special highlighting for component names
+- Updated dependencies [8f7bd34]
+  - @astrojs/language-server@0.7.3
+
 ## 0.7.2
 
 ### Patch Changes
