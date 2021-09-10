@@ -15,6 +15,12 @@ export function req({ url, statusCode, reqTime }: { url: string; statusCode: num
   return `${color(statusCode)} ${pad(url, 40)} ${dim(Math.round(reqTime) + 'ms')}`;
 }
 
+/** Display  */
+export function reload({ url, reqTime }: { url: string; reqTime: number }): string {
+  let color = yellow;
+  return `${pad(url, 40)} ${dim(Math.round(reqTime) + 'ms')}`;
+}
+
 /** Display dev server host and startup time */
 export function devStart({ startupTime }: { startupTime: number }): string {
   return `${pad(`Server started`, 44)} ${dim(`${Math.round(startupTime)}ms`)}`;

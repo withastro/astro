@@ -1,19 +1,22 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Builtins = suite('Node builtins with polyfillNode option');
+describe('Node builtins with polyfillNode option', () => {
+  let fixture;
 
-setup(Builtins, './fixtures/builtins-polyfillnode');
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/builtins-polyfillnode/' });
+  });
 
-Builtins('Doesnt alias to node: prefix', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Doesn’t alias to node: prefix', async () => {
+    const html = await fixture.fetch('/').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
+    expect($('#url').text()).toBe('unicorn.jpg');
+  });
 
-  assert.match($('#url').text(), new RegExp('unicorn.jpg'));
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.stop();
+  });
 });
-
-Builtins.run();

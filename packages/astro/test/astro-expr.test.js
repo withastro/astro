@@ -1,91 +1,107 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Expressions = suite('Expressions');
+describe('Expressions', () => {
+  let fixture;
+  let devServer;
 
-setup(Expressions, './fixtures/astro-expr');
+  beforeAll(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-expr/',
+      renderers: ['@astrojs/renderer-preact'],
+    });
+    devServer = await fixture.dev();
+  });
 
-Expressions('Can load page', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Can load page', async () => {
+    const html = await fixture.fetch('/').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
+    for (let col of ['red', 'yellow', 'blue']) {
+      expect($('#' + col)).toHaveLength(1);
+    }
+  });
 
-  for (let col of ['red', 'yellow', 'blue']) {
-    assert.equal($('#' + col).length, 1);
-  }
+  test('Ignores characters inside of strings', async () => {
+    const html = await fixture.fetch('/strings').then((res) => res.text());
+    const $ = cheerio.load(html);
+
+    for (let col of ['red', 'yellow', 'blue']) {
+      expect($('#' + col)).toHaveLength(1);
+    }
+  });
+
+  test('Ignores characters inside of line comments', async () => {
+    const html = await fixture.fetch('/line-comments').then((res) => res.text());
+    const $ = cheerio.load(html);
+
+    for (let col of ['red', 'yellow', 'blue']) {
+      expect($('#' + col)).toHaveLength(1);
+    }
+  });
+
+  test('Ignores characters inside of multiline comments', async () => {
+    const html = await fixture.fetch('/multiline-comments').then((res) => res.text());
+    const $ = cheerio.load(html);
+
+    for (let col of ['red', 'yellow', 'blue']) {
+      expect($('#' + col)).toHaveLength(1);
+    }
+  });
+
+  test('Allows multiple JSX children in mustache', async () => {
+    const html = await fixture.fetch('/multiple-children').then((res) => res.text());
+
+    expect(html).toEqual(expect.stringContaining('#f'));
+    expect(html).not.toEqual(expect.stringContaining('#t'));
+  });
+
+  test('Allows <> Fragments in expressions', async () => {
+    const html = await fixture.fetch('/multiple-children').then((res) => res.text());
+    const $ = cheerio.load(html);
+
+    expect($('#fragment').children()).toHaveLength(3);
+    expect($('#fragment').children('#a')).toHaveLength(1);
+    expect($('#fragment').children('#b')).toHaveLength(1);
+    expect($('#fragment').children('#c')).toHaveLength(1);
+  });
+
+  test('Does not render falsy values using &&', async () => {
+    const html = await fixture.fetch('/falsy').then((res) => res.text());
+    const $ = cheerio.load(html);
+
+    // test 1: Expected {true && <span id="true" />} to render
+    expect($('#true')).toHaveLength(1);
+
+    // test 2: Expected {0 && "VALUE"} to render "0"
+    expect($('#zero').text()).toBe('0');
+
+    // test 3: Expected {false && <span id="false" />} not to render
+    expect($('#false')).toHaveLength(0);
+
+    // test 4: Expected {null && <span id="null" />} not to render
+    expect($('#null')).toHaveLength(0);
+
+    // test 5: Expected {undefined && <span id="undefined" />} not to render
+    expect($('#undefined')).toHaveLength(0);
+
+    // Inside of a component
+
+    // test 6: Expected {true && <span id="true" />} to render
+    expect($('#frag-true')).toHaveLength(1);
+
+    // test 7: Expected {false && <span id="false" />} not to render
+    expect($('#frag-false')).toHaveLength(0);
+
+    // test 8: Expected {null && <span id="null" />} not to render
+    expect($('#frag-null')).toHaveLength(0);
+
+    // test 9: Expected {undefined && <span id="undefined" />} not to render
+    expect($('#frag-undefined')).toHaveLength(0);
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.close();
+  });
 });
-
-Expressions('Ignores characters inside of strings', async ({ runtime }) => {
-  const result = await runtime.load('/strings');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  for (let col of ['red', 'yellow', 'blue']) {
-    assert.equal($('#' + col).length, 1);
-  }
-});
-
-Expressions('Ignores characters inside of line comments', async ({ runtime }) => {
-  const result = await runtime.load('/line-comments');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  for (let col of ['red', 'yellow', 'blue']) {
-    assert.equal($('#' + col).length, 1);
-  }
-});
-
-Expressions('Ignores characters inside of multiline comments', async ({ runtime }) => {
-  const result = await runtime.load('/multiline-comments');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  for (let col of ['red', 'yellow', 'blue']) {
-    assert.equal($('#' + col).length, 1);
-  }
-});
-
-Expressions('Allows multiple JSX children in mustache', async ({ runtime }) => {
-  const result = await runtime.load('/multiple-children');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  assert.ok(result.contents.includes('#f') && !result.contents.includes('#t'));
-});
-
-Expressions('Allows <> Fragments in expressions', async ({ runtime }) => {
-  const result = await runtime.load('/multiple-children');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-
-  assert.equal($('#fragment').children().length, 3);
-  assert.equal($('#fragment').children('#a').length, 1);
-  assert.equal($('#fragment').children('#b').length, 1);
-  assert.equal($('#fragment').children('#c').length, 1);
-});
-
-Expressions('Does not render falsy values using &&', async ({ runtime }) => {
-  const result = await runtime.load('/falsy');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  assert.equal($('#true').length, 1, `Expected {true && <span id="true" />} to render`);
-  assert.equal($('#zero').text(), '0', `Expected {0 && "VALUE"} to render "0"`);
-  assert.equal($('#false').length, 0, `Expected {false && <span id="false" />} not to render`);
-  assert.equal($('#null').length, 0, `Expected {null && <span id="null" />} not to render`);
-  assert.equal($('#undefined').length, 0, `Expected {undefined && <span id="undefined" />} not to render`);
-
-  // Inside of a component
-  assert.equal($('#frag-true').length, 1, `Expected {true && <span id="true" />} to render`);
-  assert.equal($('#frag-false').length, 0, `Expected {false && <span id="false" />} not to render`);
-  assert.equal($('#frag-null').length, 0, `Expected {null && <span id="null" />} not to render`);
-  assert.equal($('#frag-undefined').length, 0, `Expected {undefined && <span id="undefined" />} not to render`);
-});
-
-Expressions.run();

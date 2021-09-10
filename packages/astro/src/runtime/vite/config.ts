@@ -10,6 +10,7 @@ import { createRequire } from 'module';
 import { getPackageJSON, parseNpmName } from '../util.js';
 import astro from './plugin-astro.js';
 import jsx from './plugin-jsx.js';
+import { AstroDevServer } from '../../dev';
 
 const require = createRequire(import.meta.url);
 
@@ -17,7 +18,7 @@ const require = createRequire(import.meta.url);
 type ViteConfigWithSSR = InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
 
 /** Return a common starting point for all Vite actions */
-export async function loadViteConfig(viteConfig: ViteConfigWithSSR, { astroConfig, logging }: { astroConfig: AstroConfig; logging: LogOptions }): Promise<ViteConfigWithSSR> {
+export async function loadViteConfig(viteConfig: ViteConfigWithSSR, { astroConfig, logging, devServer }: { astroConfig: AstroConfig; logging: LogOptions, devServer?: AstroDevServer }): Promise<ViteConfigWithSSR> {
   const optimizedDeps = new Set<string>(); // dependencies that must be bundled for the client (Vite may not detect all of these)
   const dedupe = new Set<string>(); // dependencies that can’t be duplicated (e.g. React & SolidJS)
   const plugins: Plugin[] = []; // Vite plugins
@@ -73,7 +74,7 @@ export async function loadViteConfig(viteConfig: ViteConfigWithSSR, { astroConfi
         /** Always include these dependencies for optimization */
         include: [...optimizedDeps],
       },
-      plugins: [astro(astroConfig), jsx({ config: astroConfig, logging }), ...plugins],
+      plugins: [astro({ config: astroConfig, devServer }), jsx({ config: astroConfig, logging }), ...plugins],
       publicDir: fileURLToPath(astroConfig.public),
       resolve: {
         dedupe: [...dedupe],
@@ -82,6 +83,8 @@ export async function loadViteConfig(viteConfig: ViteConfigWithSSR, { astroConfi
       server: {
         /** prevent serving outside of project root (will become new default soon) */
         fs: { strict: true },
+        /** disable HMR for test */
+        hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined,
         /** handle Vite URLs */
         proxy: {
           // add proxies here

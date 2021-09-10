@@ -1,73 +1,77 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const DType = suite('doctype');
+describe('Doctype', () => {
+  let fixture;
+  let devServer;
 
-setup(DType, './fixtures/astro-doctype');
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-doctype/' });
+    devServer = await fixture.dev();
+  });
 
-DType('Automatically prepends the standards mode doctype', async ({ runtime }) => {
-  const result = await runtime.load('/prepend');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Automatically prepends the standards mode doctype', async () => {
+    const html = await fixture.fetch('/prepend').then((res) => res.text());
 
-  const html = result.contents.toString('utf-8');
-  assert.ok(html.startsWith('<!doctype html>'), 'Doctype always included');
+    // test that Doctype always included
+    expect(html).toEqual(expect.stringMatching(/^<!doctype html>/));
+  });
+
+  test('No attributes added when doctype is provided by user', async () => {
+    const html = await fixture.fetch('/provided').then((res) => res.text());
+
+    // test that Doctype always included
+    expect(html).toEqual(expect.stringMatching(/^<!doctype html>/));
+  });
+
+  test.skip('Preserves user provided doctype', async () => {
+    const html = await fixture.fetch('/preserve').then((res) => res.text());
+
+    // test that Doctype included was preserved
+    expect(html).toEqual(expect.stringMatching(new RegExp('^<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">')));
+  });
+
+  test('User provided doctype is case insensitive', async () => {
+    const html = await fixture.fetch('/capital').then((res) => res.text());
+
+    // test 1: Doctype left alone
+    expect(html).toEqual(expect.stringMatching(/^<!DOCTYPE html>/));
+
+    // test 2: no closing tag
+    expect(html).not.toEqual(expect.stringContaining('</!DOCTYPE>'));
+  });
+
+  test('Doctype can be provided in a layout', async () => {
+    const html = await fixture.fetch('/in-layout').then((res) => res.text());
+
+    // test 1: doctype is at the front
+    expect(html).toEqual(expect.stringMatching(/^<!doctype html>/));
+
+    // test 2: A link inside of the head
+    const $ = cheerio.load(html);
+    expect($('head link')).toHaveLength(1);
+  });
+
+  test('Doctype is added in a layout without one', async () => {
+    const html = await fixture.fetch('/in-layout-no-doctype').then((res) => res.text());
+
+    // test that doctype is at the front
+    expect(html).toEqual(expect.stringMatching(/^<!doctype html>/));
+  });
+
+  test('Doctype is added in a layout used with markdown pages', async () => {
+    const html = await fixture.fetch('/in-layout-article').then((res) => res.text());
+
+    // test 1: doctype is at the front
+    expect(html).toEqual(expect.stringMatching(/^<!doctype html>/));
+
+    // test 2: A link inside of the head
+    const $ = doc(html);
+    expect($('head link')).toHaveLength(1);
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.close();
+  });
 });
-
-DType('No attributes added when doctype is provided by user', async ({ runtime }) => {
-  const result = await runtime.load('/provided');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const html = result.contents.toString('utf-8');
-  assert.ok(html.startsWith('<!doctype html>'), 'Doctype always included');
-});
-
-DType.skip('Preserves user provided doctype', async ({ runtime }) => {
-  const result = await runtime.load('/preserve');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const html = result.contents.toString('utf-8');
-  assert.ok(html.startsWith('<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">'), 'Doctype included was preserved');
-});
-
-DType('User provided doctype is case insensitive', async ({ runtime }) => {
-  const result = await runtime.load('/capital');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const html = result.contents.toString('utf-8');
-  assert.ok(html.startsWith('<!DOCTYPE html>'), 'Doctype left alone');
-  assert.not.ok(html.includes('</!DOCTYPE>'), 'There should not be a closing tag');
-});
-
-DType('Doctype can be provided in a layout', async ({ runtime }) => {
-  const result = await runtime.load('/in-layout');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const html = result.contents.toString('utf-8');
-  assert.ok(html.startsWith('<!doctype html>'), 'doctype is at the front');
-
-  const $ = doc(html);
-  assert.equal($('head link').length, 1, 'A link inside of the head');
-});
-
-DType('Doctype is added in a layout without one', async ({ runtime }) => {
-  const result = await runtime.load('/in-layout-no-doctype');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const html = result.contents.toString('utf-8');
-  assert.ok(html.startsWith('<!doctype html>'), 'doctype is at the front');
-});
-
-DType('Doctype is added in a layout used with markdown pages', async ({ runtime }) => {
-  const result = await runtime.load('/in-layout-article');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const html = result.contents.toString('utf-8');
-  assert.ok(html.startsWith('<!doctype html>'), 'doctype is at the front');
-
-  const $ = doc(html);
-  assert.equal($('head link').length, 1, 'A link inside of the head');
-});
-
-DType.run();

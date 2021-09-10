@@ -1,62 +1,79 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { setup, setupBuild } from './helpers.js';
-import { doc } from './test-utils.js';
+import cheerio from 'cheerio';
 import path from 'path';
+import { loadFixture } from './test-utils.js';
 
-const Scripts = suite('Hoisted scripts');
+describe('Hoisted scripts', () => {
+  let fixture;
 
-setup(Scripts, './fixtures/astro-scripts');
-setupBuild(Scripts, './fixtures/astro-scripts');
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-scripts/' });
+  });
 
-Scripts('Moves external scripts up', async ({ runtime }) => {
-  const result = await runtime.load('/external');
-  if (result.error) throw new Error(result.error);
-  assert.equal(result.statusCode, 200);
-  const html = result.contents;
+  describe('dev', () => {
+    let devServer;
 
-  const $ = doc(html);
-  assert.equal($('head script[type="module"][data-astro="hoist"]').length, 2);
-  assert.equal($('body script').length, 0);
+    beforeAll(async () => {
+      devServer = await fixture.dev();
+    });
+
+    test('Moves external scripts up', async () => {
+      const html = await fixture.fetch('/external').then((res) => res.text());
+      const $ = doc(html);
+
+      expect($('head script[type="module"][data-astro="hoist"]')).toHaveLength(2);
+      expect($('body script')).toHaveLength(0);
+    });
+
+    test('Moves inline scripts up', async () => {
+      const html = await fixture.fetch('/inline').then((res) => res.text());
+      const $ = doc(html);
+
+      expect($('head script[type="module"][data-astro="hoist"]')).toHaveLength(1);
+      expect($('body script')).toHaveLength(0);
+    });
+
+    // important: close dev server (free up port and connection)
+    afterAll(async () => {
+      await devServer.stop();
+    });
+  });
+
+  describe('build', () => {
+    beforeAll(async () => {
+      await fixture.build();
+    });
+
+    test('Inline page builds the scripts to a single bundle', async () => {
+      /* Inline page */
+      let inline = await fixture.readFile('/inline/index.html');
+      let $ = cheerio.load(inline);
+
+      // test 1: Just one entry module
+      assert.equal($('script')).toHaveLength(1);
+
+      // test 2: attr removed
+      expect($('script').attr('data-astro')).toBe(undefined);
+
+      let entryURL = path.join('inline', $('script').attr('src'));
+      let inlineEntryJS = await fixture.readFile(entryURL);
+
+      // test 3: the JS exists
+      expect(inlineEntryJS).toBeTruthy();
+    });
+
+    test('External page builds the scripts to a single bundle', async () => {
+      let external = await fixture.readFile('/external/index.html');
+      $ = doc(external);
+
+      // test 1: there are two scripts
+      assert.equal($('script')).toHaveLength(2);
+
+      let el = $('script').get(1);
+      entryURL = path.join('external', $(el).attr('src'));
+      let externalEntryJS = await readFile(entryURL);
+
+      // test 2: the JS exists
+      expect(externalEntryJS).toBeTruthy();
+    });
+  });
 });
-
-Scripts('Moves inline scripts up', async ({ runtime }) => {
-  const result = await runtime.load('/inline');
-  if (result.error) throw new Error(result.error);
-  assert.equal(result.statusCode, 200);
-  const html = result.contents;
-
-  const $ = doc(html);
-  assert.equal($('head script[type="module"][data-astro="hoist"]').length, 1);
-  assert.equal($('body script').length, 0);
-});
-
-Scripts('Builds the scripts to a single bundle', async ({ build, readFile }) => {
-  try {
-    await build();
-  } catch (err) {
-    console.error(err.stack);
-    assert.ok(!err);
-    return;
-  }
-
-  /* Inline page */
-  let inline = await readFile('/inline/index.html');
-  let $ = doc(inline);
-  assert.equal($('script').length, 1, 'Just one entry module');
-  assert.equal($('script').attr('data-astro'), undefined, 'attr removed');
-  let entryURL = path.join('inline', $('script').attr('src'));
-  let inlineEntryJS = await readFile(entryURL);
-  assert.ok(inlineEntryJS, 'The JS exists');
-
-  /* External page */
-  let external = await readFile('/external/index.html');
-  $ = doc(external);
-  assert.equal($('script').length, 2, 'There are two scripts');
-  let el = $('script').get(1);
-  entryURL = path.join('external', $(el).attr('src'));
-  let externalEntryJS = await readFile(entryURL);
-  assert.ok(externalEntryJS, 'got JS');
-});
-
-Scripts.run();

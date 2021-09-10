@@ -1,30 +1,35 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Builtins = suite('Node builtins');
+describe('Node builtins', () => {
+  let fixture;
+  let devServer;
 
-setup(Builtins, './fixtures/builtins');
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/builtins/' });
+    devServer = await fixture.dev();
+  });
 
-Builtins('Can be used with the node: prefix', async ({ runtime }) => {
-  // node:fs/promise is not supported in Node v12. Test currently throws.
-  if (process.versions.node <= '13') {
-    return;
-  }
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Can be used with the node: prefix', async () => {
+    // node:fs/promise is not supported in Node v12. Test currently throws.
+    if (process.versions.node <= '13') {
+      return;
+    }
+    const result = await fixture.fetch('/').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
+    expect($('#version').text()).toBe('1.2.0');
+    expect($('#dep-version').text()).toBe('0.0.1');
+  });
 
-  assert.equal($('#version').text(), '1.2.0');
-  assert.equal($('#dep-version').text(), '0.0.1');
+  test('Throw if using the non-prefixed version', async () => {
+    const result = await fixture.fetch('/bare');
+    expect(result.statusCode).toBe(500);
+    expect(result.body).toEqual(expect.stringContaining('Use node:fs instead'));
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.stop();
+  });
 });
-
-Builtins('Throw if using the non-prefixed version', async ({ runtime }) => {
-  const result = await runtime.load('/bare');
-  assert.ok(result.error, 'Produced an error');
-  assert.ok(/Use node:fs instead/.test(result.error.message));
-});
-
-Builtins.run();
