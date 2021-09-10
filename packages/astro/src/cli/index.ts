@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { defaultLogDestination } from '../logger.js';
 import build from '../build/index.js';
 import devServer from '../dev/index.js';
-import { preview } from '../preview/index.js';
+import preview from '../preview/index.js';
 import { reload } from './reload.js';
 import { check } from './check.js';
 import { formatConfigError, loadConfig } from '../config.js';

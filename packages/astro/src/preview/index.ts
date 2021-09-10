@@ -13,7 +13,7 @@ interface PreviewOptions {
 }
 
 /** The primary dev action */
-export async function preview(config: AstroConfig, { logging }: PreviewOptions) {
+export default async function preview(config: AstroConfig, { logging }: PreviewOptions) {
   const {
     dist,
     devOptions: { hostname, port },

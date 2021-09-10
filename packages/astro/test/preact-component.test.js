@@ -1,77 +1,84 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const PreactComponent = suite('Preact component test');
+describe('Preact component', () => {
+  let fixture;
+  let devServer;
 
-setup(PreactComponent, './fixtures/preact-component');
-setupBuild(PreactComponent, './fixtures/preact-component');
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/preact-component/' });
+    devServer = await fixture.dev();
+  });
 
-PreactComponent('Can load class component', async ({ runtime }) => {
-  const result = await runtime.load('/class');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Can load class component', async () => {
+    const html = await fixture.fetch('/class').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
-  assert.equal($('#class-component').length, 1, 'Can use class components');
-});
+    // test 1: Can use class components
+    expect($('#class-component')).toHaveLength(1);
+  });
 
-PreactComponent('Can load function component', async ({ runtime }) => {
-  const result = await runtime.load('/fn');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Can load function component', async () => {
+    const html = await fixture.fetch('/fn').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
-  assert.equal($('#fn-component').length, 1, 'Can use function components');
-  assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
-});
+    // test 1: Can use function components
+    expect($('#fn-component')).toHaveLength(1);
+    // test 2: Can use function components
+    expect($('#arrow-fn-component')).toHaveLength(1);
+  });
 
-PreactComponent('Can load TS component', async ({ runtime }) => {
-  const result = await runtime.load('/ts-components');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-  assert.equal($('.ts-component').length, 1, 'Can use TS components');
-});
+  test('Can load TS component', async () => {
+    const html = await fixture.fetch('/ts-components').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-PreactComponent('Can use hooks', async ({ runtime }) => {
-  const result = await runtime.load('/hooks');
-  assert.ok(!result.error, `build error: ${result.error}`);
+    // test 1: Can use TS components
+    expect($('.ts-component')).toHaveLength(1);
+  });
 
-  const $ = doc(result.contents);
-  assert.equal($('#world').length, 1);
-});
+  test('Can use hooks', async () => {
+    const html = await fixture.fetch('/hooks').then((res) => res.text());
+    const $ = cheerio.load(html);
+    expect($('#world')).toHaveLength(1);
+  });
 
-PreactComponent('Can export a Fragment', async ({ runtime }) => {
-  const result = await runtime.load('/frag');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Can export a Fragment', async () => {
+    const html = await fixture.fetch('/frag').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
-  assert.equal($('body').children().length, 0, "nothing rendered but it didn't throw.");
-});
+    // test 1: nothing rendered but it didn’t throw
+    expect($('body').children()).toHaveLength(0);
+  });
 
-PreactComponent('Can use a pragma comment', async ({ runtime }) => {
-  const result = await runtime.load('/pragma-comment');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Can use a pragma comment', async () => {
+    const html = await fixture.fetch('/pragma-comment').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
-  assert.equal($('.pragma-comment').length, 2, 'rendered the PragmaComment component.');
-});
+    // test 1: rendered the PragmaComment component
+    expect($('.pragma-comment')).toHaveLength(2);
+  });
 
-PreactComponent('Uses the new JSX transform', async ({ runtime }) => {
-  const result = await runtime.load('/pragma-comment');
+  test('Uses the new JSX transform', async () => {
+    const html = await fixture.fetch('/pragma-comment').then((res) => res.text());
 
-  // Grab the imports
-  const exp = /import\("(.+?)"\)/g;
-  let match, componentUrl;
-  while ((match = exp.exec(result.contents))) {
-    if (match[1].includes('PragmaComment.js')) {
-      componentUrl = match[1];
-      break;
+    // Grab the imports
+    const exp = /import\("(.+?)"\)/g;
+    let match, componentUrl;
+    while ((match = exp.exec(html))) {
+      if (match[1].includes('PragmaComment.js')) {
+        componentUrl = match[1];
+        break;
+      }
     }
-  }
-  const component = await runtime.load(componentUrl);
-  const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
+    const component = await fixture.fetch(componentUrl).then((res) => res.text());
+    const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
 
-  assert.ok(jsxRuntime, 'preact/jsx-runtime is used for the component');
+    // test 1: preact/jsx-runtime is used for the component
+    expect(jsxRuntime).toBeTruthy();
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.stop();
+  });
 });
-
-PreactComponent.run();
