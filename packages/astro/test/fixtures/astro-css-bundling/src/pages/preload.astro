@@ -1,0 +1,14 @@
+---
+import Nav from '../components/Nav.astro';
+---
+
+<html>
+  <head>
+    <link rel="preload" href="../css/page-preload.css" />
+    <link rel="stylesheet" href="../css/page-preload.css" media="print" onload="this.media='all'" />
+  </head>
+  <body>
+    <Nav />
+    <h1>Preload page</h1>
+  </body>
+</html>
