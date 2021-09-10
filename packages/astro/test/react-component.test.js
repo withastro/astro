@@ -1,104 +1,98 @@
-import { fileURLToPath } from 'url';
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { createRuntime } from '#astro/runtime';
-import { loadConfig } from '#astro/config';
-import { doc } from './test-utils.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const React = suite('React Components');
+describe('React Components', () => {
+  let fixture;
+  let devServer;
 
-let runtime, setupError;
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/react-component/' });
+    devServer = await fixture.dev();
+  });
 
-React.before(async () => {
-  const astroConfig = await loadConfig(fileURLToPath(new URL('./fixtures/react-component', import.meta.url)));
+  test('Can load React', async () => {
+    const html = await fixture.fetch('/').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const logging = {
-    level: 'error',
-    dest: process.stderr,
-  };
+    // test 1: basic component renders
+    expect($('#react-h2').text()).toBe('Hello world!');
 
-  try {
-    runtime = await createRuntime(astroConfig, { logging });
-  } catch (err) {
-    console.error(err);
-    setupError = err;
-  }
-});
+    // test 2: no reactroot
+    expect($('#react-h2').attr('data-reactroot')).toBe(undefined);
 
-React.after(async () => {
-  (await runtime) && runtime.shutdown();
-});
+    // test 3: Can use function components
+    expect($('#arrow-fn-component')).toHaveLength(1);
 
-React('No error creating the runtime', () => {
-  assert.equal(setupError, undefined);
-});
+    // test 4: Can use spread for components
+    expect($('#component-spread-props')).toHaveLength(1);
 
-React('Can load React', async () => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+    // test 5: spread props renders
+    expect($('#component-spread-props').text(), 'Hello world!');
 
-  const $ = doc(result.contents);
-  assert.equal($('#react-h2').text(), 'Hello world!');
-  assert.equal($('#react-h2').attr('data-reactroot'), undefined, 'no reactroot');
-  assert.equal($('#arrow-fn-component').length, 1, 'Can use function components');
-  assert.equal($('#component-spread-props').length, 1, 'Can use spread for components');
-  assert.equal($('#component-spread-props').text(), 'Hello world!');
-  assert.equal($('.ts-component').length, 1, 'Can use TS components');
-});
+    // test 6: Can use TS components
+    expect($('.ts-component')).toHaveLength(1);
+  });
 
-React('Includes reactroot on hydrating components', async () => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Includes reactroot on hydrating components', async () => {
+    const html = await fixture.fetch('/').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
-  const div = $('#research');
-  assert.equal(div.attr('data-reactroot'), '', 'Has the hydration attr');
-  assert.equal(div.html(), 'foo bar <!-- -->1');
-});
+    const div = $('#research');
 
-React('Throws helpful error message on window SSR', async () => {
-  const result = await runtime.load('/window');
-  assert.match(
-    result.error.toString('utf8'),
-    `[/window]
+    // test 1: has the hydration attr
+    expect(div.attr('data-reactroot')).toBeTruthy();
+
+    // test 2: renders correctly
+    expect(div.html()).toBe('foo bar <!-- -->1');
+  });
+
+  test('Throws helpful error message on window SSR', async () => {
+    const html = await fixture.fetch('/window').then((res) => res.text());
+    expect(html).toEqual(
+      expect.stringContaining(
+        `[/window]
     The window object is not available during server-side rendering (SSR).
     Try using \`import.meta.env.SSR\` to write SSR-friendly code.
     https://docs.astro.build/reference/api-reference/#importmeta`
-  );
-});
+      )
+    );
+  });
 
-React('Can load Vue', async () => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Can load Vue', async () => {
+    const html = await fixture.fetch('/').then((res) => res.text());
+    const $ = cheerio.load(html);
+    expect($('#vue-h2').text()).toBe('Hasta la vista, baby');
+  });
 
-  const $ = doc(result.contents);
-  assert.equal($('#vue-h2').text(), 'Hasta la vista, baby');
-});
+  test('Can use a pragma comment', async () => {
+    const html = await fixture.fetch('/pragma-comment').then((res) => res.text());
+    const $ = cheerio.load(html);
 
-React('Can use a pragma comment', async () => {
-  const result = await runtime.load('/pragma-comment');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-  assert.equal($('.pragma-comment').length, 2, 'rendered the PragmaComment component.');
-});
+    // test 1: rendered the PragmaComment component
+    expect($('.pragma-comment')).toHaveLength(2);
+  });
 
-React('uses the new JSX transform', async () => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('uses the new JSX transform', async () => {
+    const html = await fixture.fetch('/').then((res) => res.text());
 
-  // Grab the imports
-  const exp = /import\("(.+?)"\)/g;
-  let match, componentUrl;
-  while ((match = exp.exec(result.contents))) {
-    if (match[1].includes('Research.js')) {
-      componentUrl = match[1];
-      break;
+    // Grab the imports
+    const exp = /import\("(.+?)"\)/g;
+    let match, componentUrl;
+    while ((match = exp.exec(html))) {
+      if (match[1].includes('Research.js')) {
+        componentUrl = match[1];
+        break;
+      }
     }
-  }
-  const component = await runtime.load(componentUrl);
-  const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
+    const component = await fixture.fetch(componentUrl).then((res) => res.text());
+    const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
 
-  assert.ok(jsxRuntime, 'react/jsx-runtime is used for the component');
+    // test 1: react/jsx-runtime is used for the component
+    expect(jsxRuntime).toBeTruthy();
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.stop();
+  });
 });
-
-React.run();

@@ -1,28 +1,35 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const NoHeadEl = suite('Documents without a head');
+describe('Documents without a head', () => {
+  let fixture;
+  let devServer;
 
-setup(NoHeadEl, './fixtures/no-head-el', {
-  runtimeOptions: {
-    mode: 'development',
-  },
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/no-head-el/' });
+    devServer = await fixture.dev();
+  });
+
+  test('Places style and scripts before the first non-head element', async () => {
+    const html = await fixture.fetch('/').then((res) => res.text());
+    const $ = cheerio.load(html);
+
+    // test 1: Link to css placed after <title>
+    expect($('title').next().is('link')).toBe(true);
+
+    // test 2: Link for a child component
+    expect($('title').next().next().is('link')).toBe(true);
+
+    // test 3: <astro-root> style placed after <link>
+    expect($('title').next().next().next().is('style')).toBe(true);
+
+    // note(drew): commented-out with Vite now handling HMR
+    // assert.equal($('title').next().next().next().next().is('script'), true, 'HMR script after the style');
+    // assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 1, 'Only the hmr client for the page');
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.stop();
+  });
 });
-
-NoHeadEl('Places style and scripts before the first non-head element', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const html = result.contents;
-  const $ = doc(html);
-  assert.equal($('title').next().is('link'), true, 'Link to css placed after the title');
-  assert.equal($('title').next().next().is('link'), true, 'Link for a child component');
-  assert.equal($('title').next().next().next().is('style'), true, 'astro-root style placed after the link');
-  assert.equal($('title').next().next().next().next().is('script'), true, 'HMR script after the style');
-
-  assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 1, 'Only the hmr client for the page');
-});
-
-NoHeadEl.run();

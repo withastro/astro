@@ -1,13 +1,20 @@
-import { suite } from 'uvu';
-import { setupBuild } from './helpers.js';
+import { loadFixture } from './helpers.js';
 
-const GetStaticPaths = suite('getStaticPaths()');
+describe('getStaticPaths()', () => {
+  let fixture;
 
-setupBuild(GetStaticPaths, './fixtures/astro-get-static-paths');
+  beforeAll(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-get-static-paths/',
+      buildOptions: {
+        site: 'https://mysite.dev/blog/',
+        sitemap: false,
+      },
+    });
+  });
 
-GetStaticPaths('is only called once during build', async (context) => {
-  // It would throw if this was not true
-  await context.build();
+  test('is only called once during build', async () => {
+    // It would throw if this was not true
+    expect(() => fixture.build()).not.toThrow();
+  });
 });
-
-GetStaticPaths.run();

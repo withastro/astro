@@ -1,44 +1,43 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { setup, setupBuild } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const ClientOnlyComponents = suite('Client only components tests');
+describe('Client only components', () => {
+  let fixture;
+  let devServer;
 
-setup(ClientOnlyComponents, './fixtures/astro-client-only');
-setupBuild(ClientOnlyComponents, './fixtures/astro-client-only');
+  beforeAll(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-client-only/' });
+    devServer = await fixture.dev();
+  });
 
-ClientOnlyComponents('Loads pages using client:only hydrator', async ({ runtime }) => {
-  let result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  test('Loads pages using client:only hydrator', async () => {
+    const html = await fixture.fetch('/').then((res) => res.html());
+    const $ = cheerio.load(html);
 
-  let html = result.contents;
+    // test 1: <astro-root> is empty
+    expect($('astro-root').html()).toBe('');
 
-  const rootExp = /<astro-root\s[^>]*><\/astro-root>/;
-  assert.ok(rootExp.exec(html), 'astro-root is empty');
-
-  // Grab the svelte import
-  const exp = /import\("(.+?)"\)/g;
-  let match, svelteRenderer;
-  while ((match = exp.exec(result.contents))) {
-    if (match[1].includes('renderers/renderer-svelte/client.js')) {
-      svelteRenderer = match[1];
+    // test 2: svelte renderer is on the page
+    const exp = /import\("(.+?)"\)/g;
+    let match, svelteRenderer;
+    while ((match = exp.exec(result.contents))) {
+      if (match[1].includes('renderers/renderer-svelte/client.js')) {
+        svelteRenderer = match[1];
+      }
     }
-  }
+    expect(svelteRenderer).toBeTruthy();
 
-  assert.ok(svelteRenderer, 'Svelte renderer is on the page');
+    // test 3: can load svelte renderer
+    result = await fixture.fetch(svelteRenderer);
+    expect(result.statusCode).toBe(200);
+  });
 
-  result = await runtime.load(svelteRenderer);
-  assert.equal(result.statusCode, 200, 'Can load svelte renderer');
+  test('Can build a project with svelte dynamic components', async () => {
+    expect(() => fixture.build()).not.toThrow();
+  });
+
+  // important: close dev server (free up port and connection)
+  afterAll(async () => {
+    await devServer.close();
+  });
 });
-
-ClientOnlyComponents('Can be built', async ({ build }) => {
-  try {
-    await build();
-    assert.ok(true, 'Can build a project with svelte dynamic components');
-  } catch (err) {
-    console.log(err);
-    assert.ok(false, 'build threw');
-  }
-});
-
-ClientOnlyComponents.run();

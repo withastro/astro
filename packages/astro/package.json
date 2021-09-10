@@ -17,7 +17,8 @@
     "./debug": "./components/Debug.astro",
     "./components/*": "./components/*",
     "./package.json": "./package.json",
-    "./runtime/*": "./dist/runtime/*"
+    "./runtime/*": "./dist/runtime/*.js",
+    "./internal": "./dist/internal/index.js"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -35,9 +36,10 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "uvu test -i fixtures -i benchmark -i test-utils.js"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
+    "@astrojs/compiler": "^0.1.0-canary.36",
     "@astrojs/markdown-support": "^0.3.1",
     "@babel/core": "^7.15.0",
     "@web/rollup-plugin-html": "^1.9.1",
@@ -50,10 +52,12 @@
     "es-module-lexer": "^0.7.1",
     "esbuild": "^0.12.23",
     "estree-util-value-to-estree": "^1.2.0",
+    "etag": "^1.8.1",
     "fast-xml-parser": "^3.19.0",
     "fdir": "^5.1.0",
     "kleur": "^4.1.4",
     "mime": "^2.5.2",
+    "morphdom": "^2.6.1",
     "node-fetch": "^2.6.1",
     "path-to-regexp": "^6.2.0",
     "picomatch": "^2.3.0",
@@ -66,13 +70,14 @@
     "source-map": "^0.7.3",
     "string-width": "^5.0.0",
     "supports-esm": "^1.0.0",
-    "vite": "^2.5.1",
+    "vite": "^2.5.2",
     "yargs-parser": "^20.2.9",
     "zod": "^3.8.1"
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.15",
     "@types/connect": "^3.4.35",
+    "@types/etag": "^1.8.1",
     "@types/mime": "^2.0.3",
     "@types/node-fetch": "^2.5.12",
     "@types/send": "^0.17.1",

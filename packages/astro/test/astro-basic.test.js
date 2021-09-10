@@ -1,123 +1,109 @@
-import { suite } from 'uvu';
-import http from 'http';
-import { promisify } from 'util';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild, setupPreview } from './helpers.js';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Basics = suite('Basic test');
+describe('Astro basics', () => {
+  describe('dev', () => {
+    let fixture; // fixture #1. Note that .dev() and .preview() share a port, so these fixtures must be kept separate.
+    let devServer;
 
-setup(Basics, './fixtures/astro-basic', {
-  runtimeOptions: {
-    mode: 'development',
-  },
-});
-setupBuild(Basics, './fixtures/astro-basic');
-setupPreview(Basics, './fixtures/astro-basic');
+    beforeAll(async () => {
+      fixture = await loadFixture({ projectRoot: './fixtures/astro-basic/' });
+      devServer = await fixture.dev();
+    });
 
-Basics('Can load page', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+    test('Can load page', async () => {
+      const html = await fixture.fetch(`/`).then((res) => res.text());
+      const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
+      expect($('h1').text()).toBe('Hello world!');
+    });
 
-  assert.equal($('h1').text(), 'Hello world!');
-});
+    test('Correctly serializes boolean attributes', async () => {
+      const html = await fixture.fetch('/').then((res) => res.text());
+      const $ = cheerio.load(html);
 
-Basics('Sets the HMR port when dynamic components used', async ({ runtime }) => {
-  const result = await runtime.load('/client');
-  const html = result.contents;
-  assert.ok(/HMR_WEBSOCKET_PORT/.test(html), 'Sets the websocket port');
-});
+      expect($('h1').attr('data-something')).toBe('');
+      expect($('h2').attr('not-data-ok')).toBe('');
+    });
 
-Basics('Correctly serializes boolean attributes', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  const html = result.contents;
-  const $ = doc(html);
-  assert.equal($('h1').attr('data-something'), '');
-  assert.equal($('h2').attr('not-data-ok'), '');
-});
+    test('Selector with an empty body', async () => {
+      const html = await fixture.fetch('/empty-class').then((res) => res.text());
+      const $ = cheerio.load(html);
 
-Basics('Selector with an empty body', async ({ runtime }) => {
-  const result = await runtime.load('/empty-class');
-  const html = result.contents;
-  const $ = doc(html);
-  assert.equal($('.author').length, 1, 'author class added');
-});
+      expect($('.author')).toHaveLength(1);
+    });
 
-Basics('Build does not include HMR client', async ({ build, readFile }) => {
-  await build().catch((err) => {
-    assert.ok(!err, 'Error during the build');
+    test('Allows forward-slashes in mustache tags (#407)', async () => {
+      const html = await fixture.fetch('/forward-slash').then((res) => res.text());
+      const $ = cheerio.load(html);
+
+      expect($('a[href="/post/one"]')).toHaveLength(1);
+      expect($('a[href="/post/two"]')).toHaveLength(1);
+      expect($('a[href="/post/three"]')).toHaveLength(1);
+    });
+
+    test('Allows spread attributes (#521)', async () => {
+      const html = await fixture.fetch('/spread').then((res) => res.text());
+      const $ = cheerio.load(html);
+
+      expect($('#spread-leading')).toHaveLength(1);
+      expect($('#spread-leading').attr('a')).toBe('0');
+      expect($('#spread-leading').attr('b')).toBe('1');
+      expect($('#spread-leading').attr('c')).toBe('2');
+
+      expect($('#spread-trailing')).toHaveLength(1);
+      expect($('#spread-trailing').attr('a')).toBe('0');
+      expect($('#spread-trailing').attr('b')).toBe('1');
+      expect($('#spread-trailing').attr('c')).toBe('2');
+    });
+
+    test('Allows spread attributes with TypeScript (#521)', async () => {
+      const html = await fixture.fetch('/spread').then((res) => res.text());
+      const $ = cheerio.load(html);
+
+      expect($('#spread-ts')).toHaveLength(1);
+      expect($('#spread-ts').attr('a')).toBe('0');
+      expect($('#spread-ts').attr('b')).toBe('1');
+      expect($('#spread-ts').attr('c')).toBe('2');
+    });
+
+    test('Allows using the Fragment element to be used', async () => {
+      const html = await fixture.fetch('/fragment').then((res) => res.text());
+      const $ = cheerio.load(html);
+
+      // will be 1 if element rendered correctly
+      expect($('#one')).toHaveLength(1);
+    });
+
+    // important: close dev server (free up port and connection)
+    afterAll(async () => {
+      await devServer.stop();
+    });
   });
-  const clientHTML = await readFile('/client/index.html');
-  const $ = doc(clientHTML);
 
-  assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 0, 'No HMR client script');
-  const hmrPortScript = $('script').filter((i, el) => {
-    return $(el)
-      .text()
-      .match(/window\.HMR_WEBSOCKET_PORT/);
+  describe('preview', () => {
+    let fixture; // fixture #2. Note that .dev() and .preview() share a port, so these fixtures must be kept separate.
+    let previewServer;
+
+    beforeAll(async () => {
+      fixture = await loadFixture({ projectRoot: './fixtures/astro-basic' });
+      await fixture.build();
+      previewServer = await fixture.preview();
+    });
+
+    test('returns 200 for valid URLs', async () => {
+      const result = fixture.fetch('/');
+      expect(result.statusCode).toBe(200);
+    });
+
+    test('returns 404 for invalid URLs', async () => {
+      const result = fixture.fetch('/bad-url');
+      expect(result.statusCode).toBe(404);
+    });
+
+    // important: close preview server (free up port and connection)
+    afterAll(() => {
+      previewServer.close();
+    });
   });
-  assert.equal(hmrPortScript.length, 0, 'No script setting the websocket port');
 });
-
-Basics('Preview server works as expected', async ({ build, previewServer }) => {
-  await build().catch((err) => {
-    assert.ok(!err, 'Error during the build');
-  });
-  {
-    const resultOrError = await promisify(http.get)(`http://localhost:${previewServer.address().port}/`).catch((err) => err);
-    assert.equal(resultOrError.statusCode, 200);
-  }
-  {
-    const resultOrError = await promisify(http.get)(`http://localhost:${previewServer.address().port}/bad-url`).catch((err) => err);
-    assert.equal(resultOrError.statusCode, 404);
-  }
-});
-
-Basics('Allows forward-slashes in mustache tags (#407)', async ({ runtime }) => {
-  const result = await runtime.load('/forward-slash');
-  const html = result.contents;
-  const $ = doc(html);
-
-  assert.equal($('a[href="/post/one"]').length, 1);
-  assert.equal($('a[href="/post/two"]').length, 1);
-  assert.equal($('a[href="/post/three"]').length, 1);
-});
-
-Basics('Allows spread attributes (#521)', async ({ runtime }) => {
-  const result = await runtime.load('/spread');
-  const html = result.contents;
-  const $ = doc(html);
-
-  assert.equal($('#spread-leading').length, 1);
-  assert.equal($('#spread-leading').attr('a'), '0');
-  assert.equal($('#spread-leading').attr('b'), '1');
-  assert.equal($('#spread-leading').attr('c'), '2');
-
-  assert.equal($('#spread-trailing').length, 1);
-  assert.equal($('#spread-trailing').attr('a'), '0');
-  assert.equal($('#spread-trailing').attr('b'), '1');
-  assert.equal($('#spread-trailing').attr('c'), '2');
-});
-
-Basics('Allows spread attributes with TypeScript (#521)', async ({ runtime }) => {
-  const result = await runtime.load('/spread');
-  const html = result.contents;
-  const $ = doc(html);
-
-  assert.equal($('#spread-ts').length, 1);
-  assert.equal($('#spread-ts').attr('a'), '0');
-  assert.equal($('#spread-ts').attr('b'), '1');
-  assert.equal($('#spread-ts').attr('c'), '2');
-});
-
-Basics('Allows using the Fragment element to be used', async ({ runtime }) => {
-  const result = await runtime.load('/fragment');
-  assert.ok(!result.error, 'No errors thrown');
-  const html = result.contents;
-  const $ = doc(html);
-  assert.equal($('#one').length, 1, 'Element in a fragment rendered');
-});
-
-Basics.run();
