@@ -14,7 +14,7 @@
       "include": "#astro-expressions"
     },
     {
-      "begin": "(<)([a-zA-Z0-9:-]++)(?=[^>]*></\\2>)",
+      "begin": "(<)([a-z0-9:-]++)(?=[^>]*></\\2>)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
@@ -471,7 +471,7 @@
       ]
     },
     {
-      "begin": "(</?)([A-Z][a-zA-Z0-9-\\.]*|[a-z]+\\.[a-zA-Z0-9-]+)(\\:(load|idle|visible))?",
+      "begin": "(</?)([A-Z][a-zA-Z0-9-\\.]*|[a-z]+\\.[a-zA-Z0-9-]+)",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.html"
