@@ -1,6 +1,12 @@
 ---
 // fetch all commits for just this page's path
-const path = "docs/" + Astro.props.path;
+
+export interface Props {
+  path: string;
+}
+
+const props = Astro.props.path as Props;
+const path = "docs/" + props;
 const url = `https://api.github.com/repos/snowpackjs/astro/commits?path=${path}`;
 const commitsURL = `https://github.com/snowpackjs/astro/commits/main/${path}`;
 
