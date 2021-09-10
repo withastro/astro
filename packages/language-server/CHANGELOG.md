@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.6
+
+### Patch Changes
+
+- ea2d56d: Bump version to fix unpublished version in npm
+
 ## 0.7.4
 
 ### Patch Changes
