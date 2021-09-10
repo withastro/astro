@@ -477,7 +477,7 @@
           "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.component.astro"
+          "name": "support.class.component.astro"
         },
         "3": {
           "name": "keyword.control.loading.astro"
