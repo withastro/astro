@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "author": "Skypack",
   "license": "MIT",
   "type": "commonjs",

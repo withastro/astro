@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.7
+
+### Patch Changes
+
+- 6501757: Fixes false-positive errors on importing images
+
 ## 0.7.6
 
 ### Patch Changes
