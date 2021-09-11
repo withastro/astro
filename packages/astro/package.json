@@ -55,6 +55,7 @@
     "etag": "^1.8.1",
     "fast-xml-parser": "^3.19.0",
     "fdir": "^5.1.0",
+    "get-port": "^5.1.1",
     "kleur": "^4.1.4",
     "mime": "^2.5.2",
     "morphdom": "^2.6.1",
@@ -82,7 +83,9 @@
     "@types/mime": "^2.0.3",
     "@types/node-fetch": "^2.5.12",
     "@types/send": "^0.17.1",
-    "@types/yargs-parser": "^20.2.1"
+    "@types/yargs-parser": "^20.2.1",
+    "sqlite": "^4.0.23",
+    "sqlite3": "^5.0.2"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0",
