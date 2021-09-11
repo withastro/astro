@@ -30,7 +30,7 @@ describe.skip('HMR tests', () => {
     const result = await runtime.load('/static');
     assert.ok(!result.error, `build error: ${result.error}`);
     const html = result.contents;
-    const $ = doc(html);
+    const $ = cheerio.load(html);
     assert.equal($('[src="/_snowpack/hmr-client.js"]').length, 1);
     assert.ok(/window\.HMR_WEBSOCKET_PORT/.test(html), 'websocket port added');
   });
@@ -39,7 +39,7 @@ describe.skip('HMR tests', () => {
     const result = await runtime.load('/no-elements');
     assert.ok(!result.error, `build error: ${result.error}`);
     const html = result.contents;
-    const $ = doc(html);
+    const $ = cheerio.load(html);
     assert.equal($('[src="/_snowpack/hmr-client.js"]').length, 1);
     assert.ok(/window\.HMR_WEBSOCKET_PORT/.test(html), 'websocket port added');
   });

@@ -72,7 +72,7 @@
     "source-map": "^0.7.3",
     "string-width": "^5.0.0",
     "supports-esm": "^1.0.0",
-    "vite": "^2.5.2",
+    "vite": "^2.5.7",
     "yargs-parser": "^20.2.9",
     "zod": "^3.8.1"
   },
