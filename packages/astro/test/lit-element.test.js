@@ -19,7 +19,7 @@ describe('LitElement test', () => {
       return;
     }
     const html = await fixture.fetch('/').then((res) => res.text());
-    const $ = doc(html);
+    const $ = cheerio.load(html);
 
     // test 1: attributes rendered
     expect($('my-element').attr('foo')).toBe('bar');
@@ -31,7 +31,7 @@ describe('LitElement test', () => {
   // Skipped because not supported by Lit
   test.skip('Renders a custom element by the constructor', async () => {
     const html = await fixture.fetch('/ctr').then((res) => res.text());
-    const $ = doc(html);
+    const $ = cheerio.load(html);
 
     // test 1: attributes rendered
     expect($('my-element').attr('foo')).toBe('bar');
