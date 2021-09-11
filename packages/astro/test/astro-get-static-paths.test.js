@@ -1,4 +1,4 @@
-import { loadFixture } from './helpers.js';
+import { loadFixture } from './test-utils';
 
 describe('getStaticPaths()', () => {
   let fixture;
