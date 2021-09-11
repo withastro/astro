@@ -1,12 +1,13 @@
 import execa from 'execa';
 import fs from 'fs';
 import fetch from 'node-fetch';
+import { open } from 'sqlite';
+import sqlite3 from 'sqlite3';
 import { loadConfig } from '../dist/config.js';
 import dev from '../dist/dev/index.js';
 import build from '../dist/build/index.js';
 import preview from '../dist/preview/index.js';
-
-let lastPort = 3000;
+import { fileURLToPath } from 'url';
 
 /**
  * Load Astro fixture
@@ -37,14 +38,11 @@ export async function loadFixture(inlineConfig) {
     }
   }
 
-  // get unique port
-  lastPort += 1; // note: tests run in parallel, and every test/fixture needs its own port. Increment by 1 every time this is called (can support thousands of tests)
-  if (!inlineConfig.devOptions) inlineConfig.devOptions = {};
-  inlineConfig.devOptions.port = lastPort;
-
   // merge configs
   if (!inlineConfig.buildOptions) inlineConfig.buildOptions = {};
   if (inlineConfig.buildOptions.sitemap === undefined) inlineConfig.buildOptions.sitemap = false;
+  if (!inlineConfig.devOptions) inlineConfig.devOptions = {};
+  inlineConfig.devOptions.port = await uniquePort(); // force each test to have its own port
   if (!inlineConfig.devOptions.hostname) inlineConfig.devOptions.hostname = 'localhost';
   if (!inlineConfig.dist) inlineConfig.dist = './dist/';
   if (!inlineConfig.pages) inlineConfig.pages = './src/pages/';
@@ -93,9 +91,29 @@ function merge(a, b) {
 }
 
 const cliURL = new URL('../astro.js', import.meta.url);
+
 /** Start Dev server via CLI */
 export function devCLI(root, additionalArgs = []) {
   const args = [cliURL.pathname, 'dev', '--project-root', root.pathname].concat(additionalArgs);
   const proc = execa('node', args);
   return proc;
+}
+
+let db;
+const DB_PATH = new URL('./test-state.sqlite', import.meta.url);
+
+/**
+ * Get a unique port. Uses sqlite to share state across multiple threads.
+ * Also has better success than get-port due to race conditions and inability to work with multiple processes.
+ */
+export async function uniquePort() {
+  if (!db) db = await open({ filename: fileURLToPath(DB_PATH), driver: sqlite3.Database });
+  let lastPort = 2999; // first run: start at 3001
+  const row = await db.get(`SELECT port FROM test_ports ORDER BY ID DESC LIMIT 1`);
+  if (row) {
+    lastPort = parseInt(row.port, 10);
+  }
+  lastPort += 1; // bump by one
+  await db.run(`INSERT INTO test_ports (port) VALUES (${lastPort});`);
+  return lastPort;
 }
