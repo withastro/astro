@@ -3,9 +3,11 @@ import { loadFixture } from './test-utils.js';
 
 describe('Node builtins with polyfillNode option', () => {
   let fixture;
+  let devServer;
 
   beforeAll(async () => {
     fixture = await loadFixture({ projectRoot: './fixtures/builtins-polyfillnode/' });
+    devServer = await fixture.dev();
   });
 
   test('Doesn’t alias to node: prefix', async () => {
