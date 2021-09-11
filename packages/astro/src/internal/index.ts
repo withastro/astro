@@ -42,7 +42,7 @@ async function _render(child: any) {
 export class AstroComponent {
   private htmlParts: string[];
   private expressions: TemplateStringsArray;
-  
+
   constructor(htmlParts: string[], expressions: TemplateStringsArray) {
     this.htmlParts = htmlParts;
     this.expressions = expressions;
@@ -74,7 +74,7 @@ export const createComponent = (cb: AstroComponentFactory) => {
   // Add a flag to this callback to mark it as an Astro component
   (cb as any).isAstroComponentFactory = true;
   return cb;
-}
+};
 
 function extractHydrationDirectives(inputProps: Record<string | number, any>): { hydrationDirective: [string, any] | null; props: Record<string | number, any> } {
   let props: Record<string | number, any> = {};
@@ -101,7 +101,7 @@ async function generateHydrateScript(scriptOptions: HydrateScriptOptions, metada
   const { hydrate, componentUrl, componentExport } = metadata;
 
   if (!componentExport) {
-    throw new Error(`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`)
+    throw new Error(`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`);
   }
 
   let hydrationSource = '';
@@ -133,7 +133,7 @@ export const renderComponent = async (result: any, displayName: string, Componen
   // children = await renderGenerator(children);
   const { renderers } = result._metadata;
   if (Component && (Component as any).isAstroComponentFactory) {
-    const output = await renderAstroComponent(await (Component as any)(result, Component, _props, children))
+    const output = await renderAstroComponent(await (Component as any)(result, Component, _props, children));
     return output;
   }
 

@@ -66,7 +66,7 @@ describe('Doctype', () => {
     expect(html).toEqual(expect.stringMatching(/^<!doctype html>/));
 
     // test 2: A link inside of the head
-    const $ = doc(html);
+    const $ = cheerio.load(html);
     expect($('head link')).toHaveLength(1);
   });
 
