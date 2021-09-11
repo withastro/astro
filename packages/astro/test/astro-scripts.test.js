@@ -18,7 +18,7 @@ describe('Hoisted scripts', () => {
 
     test('Moves external scripts up', async () => {
       const html = await fixture.fetch('/external').then((res) => res.text());
-      const $ = doc(html);
+      const $ = cheerio.load(html);
 
       expect($('head script[type="module"][data-astro="hoist"]')).toHaveLength(2);
       expect($('body script')).toHaveLength(0);
@@ -26,7 +26,7 @@ describe('Hoisted scripts', () => {
 
     test('Moves inline scripts up', async () => {
       const html = await fixture.fetch('/inline').then((res) => res.text());
-      const $ = doc(html);
+      const $ = cheerio.load(html);
 
       expect($('head script[type="module"][data-astro="hoist"]')).toHaveLength(1);
       expect($('body script')).toHaveLength(0);
@@ -63,7 +63,7 @@ describe('Hoisted scripts', () => {
 
     test('External page builds the scripts to a single bundle', async () => {
       let external = await fixture.readFile('/external/index.html');
-      $ = doc(external);
+      $ = cheerio.load(external);
 
       // test 1: there are two scripts
       assert.equal($('script')).toHaveLength(2);

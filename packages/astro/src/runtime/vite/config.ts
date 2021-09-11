@@ -18,7 +18,10 @@ const require = createRequire(import.meta.url);
 type ViteConfigWithSSR = InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
 
 /** Return a common starting point for all Vite actions */
-export async function loadViteConfig(viteConfig: ViteConfigWithSSR, { astroConfig, logging, devServer }: { astroConfig: AstroConfig; logging: LogOptions, devServer?: AstroDevServer }): Promise<ViteConfigWithSSR> {
+export async function loadViteConfig(
+  viteConfig: ViteConfigWithSSR,
+  { astroConfig, logging, devServer }: { astroConfig: AstroConfig; logging: LogOptions; devServer?: AstroDevServer }
+): Promise<ViteConfigWithSSR> {
   const optimizedDeps = new Set<string>(); // dependencies that must be bundled for the client (Vite may not detect all of these)
   const dedupe = new Set<string>(); // dependencies that can’t be duplicated (e.g. React & SolidJS)
   const plugins: Plugin[] = []; // Vite plugins
@@ -41,7 +44,8 @@ export async function loadViteConfig(viteConfig: ViteConfigWithSSR, { astroConfi
         optimizedDeps.add(name + renderer.client.substr(1));
       }
       // 2. knownEntrypoints and polyfills need to be added to the client
-      for (const dep of [...(renderer.knownEntrypoints || []), ...(renderer.polyfills || [])]) {
+      for (let dep of [...(renderer.knownEntrypoints || []), ...(renderer.polyfills || [])]) {
+        if (dep[0] === '.') dep = name + dep.substr(1); // if local polyfill, use full path
         optimizedDeps.add(dep);
         dedupe.add(dep); // we can try and dedupe renderers by default
       }
