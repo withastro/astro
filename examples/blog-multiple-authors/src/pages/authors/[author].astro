@@ -12,7 +12,7 @@ let canonicalURL = Astro.request.canonicalURL;
 // collection
 import authorData from '../../data/authors.json';
 
-interface Frontmatter {
+interface MarkdownFrontmatter {
   date: number;
   description: string;
   title: string;
@@ -20,7 +20,7 @@ interface Frontmatter {
 }
 
 export function getStaticPaths() {
-  const allPosts = Astro.fetchContent<Frontmatter>('../post/*.md');
+  const allPosts = Astro.fetchContent<MarkdownFrontmatter>('../post/*.md');
   let allAuthorsUnique = [...new Set(allPosts.map(p => p.author))];
   return allAuthorsUnique.map(author => ({params: {author}, props: {allPosts}}));
 }
@@ -42,7 +42,7 @@ const author = authorData[posts[0].author];
       title={title}
       description={description}
       image={posts[0].image}
-      canonicalURL={canonicalURL}
+      canonicalURL={canonicalURL.toString()}
     />
 
     <style lang="scss">
@@ -84,7 +84,7 @@ const author = authorData[posts[0].author];
 
     <main class="wrapper">
       <h2 class="title">
-        <div class="avatar"><img class="avatar-img" src={author.image} alt=""}></div>
+        <div class="avatar"><img class="avatar-img" src={author.image} alt="" /></div>
         {author.name}
       </h2>
       {posts.map((post) => <PostPreview post={post} author={author} />)}

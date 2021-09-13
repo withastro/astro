@@ -10,7 +10,7 @@ let description = 'An example blog on Astro';
 let canonicalURL = Astro.request.canonicalURL;
 
 // collection
-interface Frontmatter {
+interface MarkdownFrontmatter {
   date: number;
   description: string;
   title: string;
@@ -18,7 +18,7 @@ interface Frontmatter {
 
 import authorData from '../../data/authors.json';
 export async function getStaticPaths({paginate, rss}) {
-  const allPosts = Astro.fetchContent<Frontmatter>('../post/*.md');
+  const allPosts = Astro.fetchContent<MarkdownFrontmatter>('../post/*.md');
   const sortedPosts = allPosts.sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf());
 
   // Generate an RSS feed from this collection of posts.
@@ -49,7 +49,7 @@ const { page } = Astro.props;
       title={title}
       description={description}
       image={page.data[0].image}
-      canonicalURL={canonicalURL}
+      canonicalURL={canonicalURL.toString()}
       prev={page.url.prev}
       next={page.url.next}
     />

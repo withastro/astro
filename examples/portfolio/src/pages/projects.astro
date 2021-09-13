@@ -4,13 +4,13 @@ import Footer from '../components/Footer/index.jsx';
 import Nav from '../components/Nav/index.jsx';
 import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
 
-interface Frontmatter {
-  published_at: number;
+interface MarkdownFrontmatter {
+  publishDate: number;
 }
 
-const projects = Astro.fetchContent<Frontmatter>('./project/*.md')
-  .filter(({ published_at }) => !!published_at)
-  .sort((a, b) => new Date(b.published_at).valueOf() - new Date(a.published_at).valueOf());
+const projects = Astro.fetchContent<MarkdownFrontmatter>('./project/*.md')
+  .filter(({ publishDate }) => !!publishDate)
+  .sort((a, b) => new Date(b.publishDate).valueOf() - new Date(a.publishDate).valueOf());
 ---
 
 <html lang="en">
