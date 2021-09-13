@@ -29,6 +29,10 @@ export default function(content: string): Astro2TSXResult {
 
   // Replace frontmatter marks with comments
   let raw = content
+    // Handle case where semicolons is not used in the frontmatter section
+    .replace(/((?!^)(?<!;)\n)(---)/g, (_whole, start, _dashes) => {
+      return start + ';' + '//';
+    })
     .replace(/---/g, '///')
     // Turn comments into JS comments
     .replace(/<\s*!--([^>]*)(.*?)-->/gs, (whole) => {
