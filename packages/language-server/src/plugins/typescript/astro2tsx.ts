@@ -5,7 +5,7 @@ const ASTRO_DEFINITION_BYTES = readFileSync(require.resolve('../../../astro.d.ts
 const ASTRO_DEFINITION_STR = ASTRO_DEFINITION_BYTES.toString('utf-8');
 
 function addProps(content: string, dtsContent: string): string {
-  let defaultExportType = 'AstroBuiltinProps';
+  let defaultExportType = 'AstroBuiltinProps & Record<string, any>';
   // Using TypeScript to parse here would cause a double-parse, slowing down the extension
   // This needs to be done a different way when the new compiler is added.
   if(/(interface|type) Props/.test(content)) {
