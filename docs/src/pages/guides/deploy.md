@@ -31,6 +31,9 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 
 ## GitHub Pages
 
+
+> By default, github pages will deny access to the `_astro/` directory. Add an empty `.nojekyll` file in the `public` folder for your site to function properly.
+
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
 1. Inside your project, create `deploy.sh` with the following content (uncommenting the appropriate lines), and run it to deploy:
 
