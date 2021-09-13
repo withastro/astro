@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 0.7.10
+
+### Patch Changes
+
+- 1958d51: Default Astro.fetchContent to treat type param as any
+- f558e54: When no Props interface is provide, treat as any
+
 ## 0.7.9
 
 ### Patch Changes
