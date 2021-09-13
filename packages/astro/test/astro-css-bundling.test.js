@@ -14,7 +14,7 @@ const EXPECTED_CSS = {
   '/one/index.html': ['/_astro/common-', '/_astro/one/index-'],
   '/two/index.html': ['/_astro/common-', '/_astro/two/index-'],
   '/preload/index.html': ['/_astro/common-', '/_astro/preload/index-'],
-  '/preload-merge/index.html': ['/_astro/preload-merge/index-']
+  '/preload-merge/index.html': ['/_astro/preload-merge/index-'],
 };
 const UNEXPECTED_CSS = ['/_astro/components/nav.css', '../css/typography.css', '../css/colors.css', '../css/page-index.css', '../css/page-one.css', '../css/page-two.css'];
 
