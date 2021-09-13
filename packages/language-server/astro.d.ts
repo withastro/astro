@@ -41,6 +41,7 @@ interface Astro {
   fetchContent<ContentFrontmatter>(globStr: string): FetchContentResult<ContentFrontmatter>[];
   props: Record<string, number | string | any>;
   request: AstroPageRequest;
+  resolve: (path: string) => string;
   site: URL;
 }
 
