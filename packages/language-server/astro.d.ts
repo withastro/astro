@@ -12,14 +12,16 @@ declare global {
 
 type AstroRenderedHTML = string;
 
-type FetchContentResult<ContentFrontmatter extends Record<string, any> = Record<string, any>> = {
+type FetchContentResultBase = {
   astro: {
     headers: string[];
     source: string;
     html: AstroRenderedHTML;
   };
   url: URL;
-} & ContentFrontmatter;
+};
+
+type FetchContentResult<T> = FetchContentResultBase & T;
 
 export type Params = Record<string, string | undefined>;
 
@@ -38,7 +40,7 @@ interface AstroBuiltinProps {
 
 interface Astro {
   isPage: boolean;
-  fetchContent<ContentFrontmatter>(globStr: string): FetchContentResult<ContentFrontmatter>[];
+  fetchContent<T = any>(globStr: string): FetchContentResult<T>[];
   props: Record<string, number | string | any>;
   request: AstroPageRequest;
   resolve: (path: string) => string;
