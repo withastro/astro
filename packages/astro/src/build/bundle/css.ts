@@ -124,31 +124,30 @@ export async function bundleCSS({
         const newHref = cssMap.get(oldHref);
 
         if (!newHref) {
-          return
+          return;
         }
 
         if (el.attribs?.rel === 'preload') {
           if (preloads.has(newHref)) {
             $(el).remove();
           } else {
-            $(el).attr("href", cssHashes.get(newHref) || "");
+            $(el).attr('href', cssHashes.get(newHref) || '');
             preloads.add(newHref);
           }
-          return
+          return;
         }
 
         if (stylesheets.has(newHref)) {
           $(el).remove(); // this is a dupe; remove
         } else {
-          $(el).attr("href", cssHashes.get(newHref) || ""); // new CSS; update href (important! use cssHashes, not cssMap)
+          $(el).attr('href', cssHashes.get(newHref) || ''); // new CSS; update href (important! use cssHashes, not cssMap)
 
           // bonus: add [rel] and [type]. not necessary, but why not?
-          $(el).attr("rel", "stylesheet");
-          $(el).attr("type", "text/css");
+          $(el).attr('rel', 'stylesheet');
+          $(el).attr('type', 'text/css');
 
           stylesheets.add(newHref);
         }
-
       });
       (buildState[id] as any).contents = $.html(); // save updated HTML in global buildState
     })
