@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.8
+
+### Patch Changes
+
+- f2f7fc8: Removes errors shown when using Astro.resolve
+
 ## 0.7.7
 
 ### Patch Changes
