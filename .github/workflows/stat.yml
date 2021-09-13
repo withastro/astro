@@ -18,9 +18,7 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           version: 14
-      - run: npm install @octokit/action
-      # Node.js script can be anywhere. A good convention is to put local GitHub Actions
-      # into the `.github/actions` folder
+      - run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
       - run: node scripts/stats/index.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
