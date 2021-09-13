@@ -19,8 +19,8 @@
   ],
   "rewrites": [
     {
-      "source": "/play",
-      "destination": "https://play.astro.build/play"
+      "source": "/play/:match*",
+      "destination": "https://play.astro.build/play/:match*"
     }
   ]
 }
