@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.9
+
+### Patch Changes
+
+- 6c952ae: Fixes diagnostic issues with omitting semicolons in the frontmatter section
+
 ## 0.7.8
 
 ### Patch Changes
