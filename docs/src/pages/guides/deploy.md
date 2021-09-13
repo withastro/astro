@@ -32,7 +32,7 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 ## GitHub Pages
 
 
-> By default, github pages will deny access to the `_astro/` directory, this will cause most Astro sites to break. To fix it yourself, you just have to add an empty `.nojekyll` file in the `public` folder of your site.    
+> By default, Github Pages will deny access to the `_astro/` directory, this will cause most Astro sites to break. To fix it yourself, you just have to add an empty `.nojekyll` file in the `public` folder of your site.    
 > If you are using any of the scripts provided below, this will **not** be an issue. 
 
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
