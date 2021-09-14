@@ -150,7 +150,7 @@ ${stack}
           scanPromises.push(
             astroRuntime.load(url).then((result: LoadResult) => {
               if (result.statusCode === 404) {
-                if (url.startsWith('/_astro/')) {                
+                if (url.startsWith('/_astro/')) {
                   throw new Error(`${buildState[id].srcPath.href}: could not find file "${url}".`);
                 }
                 warn(logging, 'build', `${buildState[id].srcPath.href}: could not find file "${url}". Marked as external.`);
