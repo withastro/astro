@@ -78,3 +78,10 @@ import '../components/my-element.js';
 ```
 
 The above will only load the element's JavaScript when the user has scrolled it into view. Since it is server rendered they will not see any jank; it will load and hydrate transparently.
+
+## More Documentation
+
+[Astro Renderer Documentation][renderer-docs]
+
+[astro]: https://astro.build
+[renderer-docs]: https://docs.astro.build/reference/renderer-reference
