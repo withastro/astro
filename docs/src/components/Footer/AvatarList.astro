@@ -5,10 +5,10 @@ export interface Props {
   path: string;
 }
 
-let {path} = Astro.props as Props;
-path = 'docs/' + path;
-const url = `https://api.github.com/repos/snowpackjs/astro/commits?path=${path}`;
-const commitsURL = `https://github.com/snowpackjs/astro/commits/main/${path}`;
+const { path } = Astro.props as Props;
+const commitPath = 'docs/' + path;
+const url = `https://api.github.com/repos/snowpackjs/astro/commits?path=${commitPath}`;
+const commitsURL = `https://github.com/snowpackjs/astro/commits/main/${commitPath}`;
 
 async function getCommits(url) {
   try {
