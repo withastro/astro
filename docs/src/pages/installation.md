@@ -78,7 +78,7 @@ Astro is designed to work with the entirety of the npm package ecosystem. This i
 Following the instructions above, you should have a directory with a single `package.json` file inside of it. You can now set up Astro inside your project.
 
 ```bash
-npm install @astrojs/renderer-preact @astrojs/renderer-react @astrojs/renderer-svelte @astrojs/renderer-vue @snowpack/plugin-postcss @snowpack/plugin-sass @snowpack/plugin-svelte @snowpack/plugin-vue astro autoprefixer
+npm install @astrojs/renderer-preact @astrojs/renderer-react @astrojs/renderer-svelte @astrojs/renderer-vue @snowpack/plugin-postcss @snowpack/plugin-sass @snowpack/plugin-svelte @snowpack/plugin-vue astro autoprefixer prismjs vue
 ```
 
 You can now replace the placeholder "scripts" section of your `package.json` file that `npm init` created for you with the following:
