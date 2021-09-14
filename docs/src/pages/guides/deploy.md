@@ -184,6 +184,8 @@ jobs:
 
 You can configure your deploy in two ways, via the Netlify website or with the `netlify.toml` file.
 
+Note: If you are using [an older build image](https://docs.netlify.com/configure-builds/get-started/#build-image-selection), make sure you have a [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) file with Node `v14.15.1` in it at the top level of your codebase. If you use the default build image, you don't need to include this.
+
 With the `netlify.toml` file, add it at the top level of your project with the following settings:
 
 ```toml
@@ -200,8 +202,6 @@ If you don't want to use the `netlify.toml`, when you go to [Netlify](https://ne
 - **Publish directory:** `dist`
 
 Then hit the deploy button.
-
-In your codebase, make sure you have a [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) file with `node v14.15.1` in it if you are using [an older build image](https://docs.netlify.com/configure-builds/get-started/#build-image-selection). By default, you don't need to include this.
 
 ## Google Firebase
 
