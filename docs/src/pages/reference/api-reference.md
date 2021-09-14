@@ -92,8 +92,8 @@ const path = Astro.site.pathname;
 
 ```js
 const {
-  heading as headingSlot, // content wrapped in elements with a `[slot="heading"]` attribute (`<* slot="heading">`)
-  default as defaultSlot, // content wrapped in elements with a `[slot]` attribute (`<* slot=*>`)
+  heading as headingSlot, // true or undefined, based on whether `<* slot="heading">` was used.
+  default as defaultSlot, // true or undefined, based on whether `<* slot>` or `<* default>` was used.
 } = Astro.slots;
 ```
 

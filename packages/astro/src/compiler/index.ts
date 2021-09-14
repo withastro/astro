@@ -167,7 +167,12 @@ async function __render(props, ...children) {
     },
     slots: {
       value: children.reduce(
-        (slots, child) => Object.assign(slots, child.$slots),
+        (slots, child) => {
+          for (let name in child.$slots) {
+            slots[name] = true
+          }
+          return slots
+        },
         {}
       ),
       enumerable: true
