@@ -147,16 +147,16 @@ ${stack}
         if (!buildState[url])
           scanPromises.push(
             astroRuntime.load(url).then((result: LoadResult) => {
+              if (result.statusCode === 404) {
+                if (url.startsWith('/_astro/')) {                
+                  throw new Error(`${buildState[id].srcPath.href}: could not find file "${url}".`);
+                }
+                warn(logging, 'build', `${buildState[id].srcPath.href}: could not find file "${url}". Marked as external.`);
+                return;
+              }
               if (result.statusCode !== 200) {
-                if (!url.startsWith('/_astro/')) {
-                  warn(logging, 'build', `${url} not found. Falling back to ${path.join('public', url)}`);
-                  return;
-                }
-                if (result.statusCode === 404) {
-                  throw new Error(`${buildState[id].srcPath.href}: could not find "${url}"`);
-                }
                 // there shouldn’t be a build error here
-                throw (result as any).error || new Error(`unexpected status ${result.statusCode} when loading ${url}`);
+                throw (result as any).error || new Error(`unexpected ${result.statusCode} response from "${url}".`);
               }
               buildState[url] = {
                 srcPath: new URL(url, projectRoot),
