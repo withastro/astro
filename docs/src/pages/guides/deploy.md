@@ -196,7 +196,7 @@ Create a new `netlify.toml` file at the top level of your project repository wit
   publish = "dist"
 ```
 
-Push the new `netlify.toml` file up to your hosted git repository. Then, set up a new project on [Netlify](https://netlify.com) using you project repo. Netlify will read this file and automatically configure your deployment.
+Push the new `netlify.toml` file up to your hosted git repository. Then, set up a new project on [Netlify](https://netlify.com) for your git repository. Netlify will read this file and automatically configure your deployment.
 
 ### Netlify Website UI
 
