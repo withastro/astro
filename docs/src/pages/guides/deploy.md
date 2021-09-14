@@ -182,11 +182,13 @@ jobs:
 
 ## Netlify
 
-In your codebase, make sure you have a [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) file with `node v14.15.1` in it.
+**Note:** If you are using an older [build image](https://docs.netlify.com/configure-builds/get-started/#build-image-selection) on Netlify, make sure that you set your Node.js version in either a [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) file (example: `node v14.17.6`) or a `NODE_VERSION` environment variable. This step is no longer required by default.
 
-You can configure your deploy in two ways, via the Netlify website or with the `netlify.toml` file.
+You can configure your deployment in two ways, via the Netlify website or with a local project `netlify.toml` file.
 
-With the `netlify.toml` file, add it at the top level of your project with the following settings:
+### `netlify.toml` file
+
+Create a new `netlify.toml` file at the top level of your project repository with the following settings:
 
 ```toml
 [build]
@@ -194,14 +196,14 @@ With the `netlify.toml` file, add it at the top level of your project with the f
   publish = "dist"
 ```
 
-Then, set up a new project on [Netlify](https://netlify.com) from your chosen Git provider.
+Push the new `netlify.toml` file up to your hosted git repository. Then, set up a new project on [Netlify](https://netlify.com) for your git repository. Netlify will read this file and automatically configure your deployment.
 
-If you don't want to use the `netlify.toml`, when you go to [Netlify](https://netlify.com) and set up a new project from Git, input the following settings:
+### Netlify Website UI
+
+You can skip the `netlify.toml` file and go directly to [Netlify](https://netlify.com) to configure your project. Netlify should now detect Astro projects automatically and pre-fill the configuration for you. Make sure that the following settings are entered before hitting the "Deploy" button:
 
 - **Build Command:** `astro build` or `npm run build`
 - **Publish directory:** `dist`
-
-Then hit the deploy button.
 
 ## Google Firebase
 
