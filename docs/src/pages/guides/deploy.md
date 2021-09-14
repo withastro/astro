@@ -182,12 +182,13 @@ jobs:
 
 ## Netlify
 
-You can configure your deploy in two ways, via the Netlify website or with the `netlify.toml` file.
+**Note:** If you are using an older [build image](https://docs.netlify.com/configure-builds/get-started/#build-image-selection) on Netlify, make sure that you set your Node.js version in either a [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) file (example: `node v14.17.6`) or a `NODE_VERSION` environment variable. This step is no longer required by default.
 
-## `netlify.toml` file
+You can configure your deployment in two ways, via the Netlify website or with a local project `netlify.toml` file.
 
+### `netlify.toml` file
 
-Create a new `netlify.toml` file it at the top level of your project repository with the following settings:
+Create a new `netlify.toml` file at the top level of your project repository with the following settings:
 
 ```toml
 [build]
@@ -195,17 +196,14 @@ Create a new `netlify.toml` file it at the top level of your project repository 
   publish = "dist"
 ```
 
-Push the new `netlify.toml` file up to to your hosted git repository. Then, set up a new project on [Netlify](https://netlify.com) using you project repo.
+Push the new `netlify.toml` file up to your hosted git repository. Then, set up a new project on [Netlify](https://netlify.com) using you project repo. Netlify will read this file and automatically configure your deployment.
 
-## Netlify Website UI
+### Netlify Website UI
 
-You can skip the `netlify.toml` file and go directly to [Netlify](https://netlify.com) to configure your project. Netlify should now detect Astro projects automatically and pre-fill the configuration for you. Make sure that the the following settings are entered before hitting the "Deploy" button:
+You can skip the `netlify.toml` file and go directly to [Netlify](https://netlify.com) to configure your project. Netlify should now detect Astro projects automatically and pre-fill the configuration for you. Make sure that the following settings are entered before hitting the "Deploy" button:
 
 - **Build Command:** `astro build` or `npm run build`
 - **Publish directory:** `dist`
-
-**Note:** If using an older build image, make sure that you have a [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) file with `node v14.15.1` in it. This step is no longer required by default.
-
 
 ## Google Firebase
 
