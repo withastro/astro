@@ -1,5 +1,18 @@
 # astro
 
+## 0.20.5
+
+### Patch Changes
+
+- b03f8771: Add human readable config verification errors
+- b03f8771: Sitemaps will not create entries for 404.html pages
+- b03f8771: Fix parsing of an empty `<pre></pre>` tag in markdown files, which expected the pre tag to have a child
+- b03f8771: Add new `<Code>` component, powered by the more modern shiki syntax highlighter.
+- b03f8771: Fix astro bin bug in some pre-ESM versions of Node v14.x
+- Updated dependencies [b03f8771]
+- Updated dependencies [b03f8771]
+  - @astrojs/markdown-support@0.3.1
+
 ## 0.20.4
 
 ### Patch Changes
