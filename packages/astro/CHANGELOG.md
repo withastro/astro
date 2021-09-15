@@ -1,5 +1,12 @@
 # astro
 
+## 0.20.7
+
+### Patch Changes
+
+- 3a0dcbe9: Fix pretty byte output in build stats
+- 98d785af: Expose slots to components
+
 ## 0.20.6
 
 ### Patch Changes
