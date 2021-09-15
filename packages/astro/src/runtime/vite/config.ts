@@ -1,4 +1,4 @@
-import type { InlineConfig } from 'vite';
+import type { InlineConfig, Plugin } from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../../logger';
 
