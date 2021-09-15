@@ -2560,6 +2560,11 @@ ansi-regex@^6.0.0:
   resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-6.0.0.tgz#ecc7f5933cbe5ac7b33e209a5ff409ab1669c6b2"
   integrity sha512-tAaOSrWCHF+1Ear1Z4wnJCXA9GGox4K6Ic85a5qalES2aeEwQGr7UC93mwef49536PkCYjzkp0zIxfFvexJ6zQ==
 
+ansi-regex@^6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-6.0.1.tgz#3183e38fae9a65d7cb5e53945cd5897d0260a06a"
+  integrity sha512-n5M855fKb2SsfMIiFFoVrABHJC8QtHwVx+mHWP3QcEqBHYienj5dHSgjbxtC0WEZXYt4wcD6zrQElDPhFuZgfA==
+
 ansi-styles@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/ansi-styles/-/ansi-styles-1.1.0.tgz#eaecbf66cd706882760b2f4691582b8f55d7a7de"
@@ -5497,6 +5502,11 @@ html-encoding-sniffer@^2.0.1:
   integrity sha512-D5JbOMBIR/TVZkubHT+OyT2705QvogUW4IBn6nHd756OwieSF9aDYFj4dv6HHEVGYbHaLETa3WggZYWWMyy3ZQ==
   dependencies:
     whatwg-encoding "^1.0.5"
+
+html-entities@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/html-entities/-/html-entities-2.3.2.tgz#760b404685cb1d794e4f4b744332e3b00dcfe488"
+  integrity sha512-c3Ab/url5ksaT0WyleslpBEthOzWhrjQbg75y7XUsfSzi3Dgzt0l8w5e7DylRn15MTlMMD58dTfzddNS2kcAjQ==
 
 html-escaper@^2.0.0:
   version "2.0.2"
@@ -10487,6 +10497,13 @@ strip-ansi@^7.0.0:
   integrity sha512-UhDTSnGF1dc0DRbUqr1aXwNoY3RgVkSWG8BrpnuFIxhP57IqbS7IRta2Gfiavds4yCxc5+fEAVVOgBZWnYkvzg==
   dependencies:
     ansi-regex "^6.0.0"
+
+strip-ansi@^7.0.1:
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/strip-ansi/-/strip-ansi-7.0.1.tgz#61740a08ce36b61e50e65653f07060d000975fb2"
+  integrity sha512-cXNxvT8dFNRVfhVME3JAe98mkXDYN2O1l7jmcwMnOslDeESg1rF/OZMtK0nRAhiari1unG5cD4jG3rapUAkLbw==
+  dependencies:
+    ansi-regex "^6.0.1"
 
 strip-bom@^3.0.0:
   version "3.0.0"

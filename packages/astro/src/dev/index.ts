@@ -1,6 +1,6 @@
 import type { NextFunction } from 'connect';
 import type http from 'http';
-import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../@types/astro';
+import type { AstroConfig, ManifestData, RouteCache, RouteData, SSRError } from '../@types/astro';
 import type { LogOptions } from '../logger';
 import type { HmrContext, ModuleNode } from 'vite';
 
@@ -11,8 +11,7 @@ import getEtag from 'etag';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
-import path from 'path';
-import { promises as fs } from 'fs';
+import stripAnsi from 'strip-ansi';
 import vite from 'vite';
 import { defaultLogOptions, error, info } from '../logger.js';
 import { createRouteManifest, matchRoute } from '../runtime/routing.js';
@@ -153,6 +152,8 @@ export class AstroDevServer {
       return this.viteServer.middlewares.handle(req, res, next);
     }
 
+    let filePath: URL | undefined;
+
     try {
       const route = matchRoute(pathname, this.manifest);
 
@@ -165,9 +166,10 @@ export class AstroDevServer {
       this.mostRecentRoute = route;
 
       // handle .astro and .md pages
+      filePath = new URL(`./${route.component}`, this.config.projectRoot);
       const html = await ssr({
         astroConfig: this.config,
-        filePath: new URL(`./${route.component}`, this.config.projectRoot),
+        filePath,
         logging: this.logging,
         mode: 'development',
         origin: this.origin,
@@ -183,12 +185,16 @@ export class AstroDevServer {
       });
       res.write(html);
       res.end();
-    } catch (e) {
-      const err = e as Error;
+    } catch (err: any) {
       this.viteServer.ssrFixStacktrace(err);
-      console.log(err.stack);
+      this.viteServer.ws.send({ type: 'error', err });
       const statusCode = 500;
-      const html = errorTemplate({ statusCode, title: 'Internal Error', tabTitle: '500: Error', message: err.message });
+      const html = errorTemplate({
+        statusCode,
+        title: 'Internal Error',
+        tabTitle: '500: Error',
+        message: stripAnsi(err.message),
+      });
       info(this.logging, 'astro', msg.req({ url: pathname, statusCode: 500, reqTime: performance.now() - reqStart }));
       res.writeHead(statusCode, {
         'Content-Type': mime.getType('.html') as string,
