@@ -23,10 +23,10 @@ export default function astro({ devServer }: AstroPluginOptions): Plugin {
         let source = await fs.promises.readFile(id, 'utf8');
 
         // 1. Transform from `.astro` to valid `.ts`
-        const tsResult = await transform(source, { sourcefile: id });
-
+        // use `sourcemap: "inline"` so that the sourcemap is included in the "code" result that we pass to esbuild.
+        const tsResult = await transform(source, { sourcefile: id, sourcemap: 'inline' });
         // 2. Compile `.ts` to `.js`
-        const { code, map } = await esbuild.transform(tsResult, { loader: 'ts', sourcemap: 'inline', sourcefile: id });
+        const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'inline', sourcefile: id });
 
         return {
           code,

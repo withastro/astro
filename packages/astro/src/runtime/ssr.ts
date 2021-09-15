@@ -49,7 +49,7 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 }
 
 export async function renderToString(result: any, componentFactory: AstroComponentFactory, props: any, children: any) {
-  const Component = componentFactory(result, props, children);
+  const Component = await componentFactory(result, props, children);
   let template = await renderAstroComponent(Component);
   return template
 }
