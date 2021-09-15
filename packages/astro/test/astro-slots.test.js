@@ -85,6 +85,7 @@ Slots('Slots API work on Components', async ({ runtime }) => {
     assert.equal($('#a').length, 1);
     assert.equal($('#b').length, 1);
     assert.equal($('#c').length, 1);
+    assert.equal($('#default').length, 1);
   }
 
   // IDs will not exist because the slots are not filled
@@ -97,6 +98,7 @@ Slots('Slots API work on Components', async ({ runtime }) => {
     assert.equal($('#a').length, 0);
     assert.equal($('#b').length, 0);
     assert.equal($('#c').length, 0);
+    assert.equal($('#default').length, 0);
   }
 
   // IDs will exist because the slots are filled
@@ -109,6 +111,22 @@ Slots('Slots API work on Components', async ({ runtime }) => {
     assert.equal($('#a').length, 1);
     assert.equal($('#b').length, 1);
     assert.equal($('#c').length, 1);
+
+    assert.equal($('#default').length, 0); // the default slot is not filled
+  }
+
+  // Default ID will exist because the default slot is filled
+  {
+    const result = await runtime.load('/slottedapi-default-filled');
+    assert.ok(!result.error, `build error: ${result.error}`);
+
+    const $ = doc(result.contents);
+
+    assert.equal($('#a').length, 0);
+    assert.equal($('#b').length, 0);
+    assert.equal($('#c').length, 0);
+
+    assert.equal($('#default').length, 1); // the default slot is filled
   }
 });
 

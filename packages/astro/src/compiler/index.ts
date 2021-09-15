@@ -169,7 +169,7 @@ async function __render(props, ...children) {
       value: children.reduce(
         (slots, child) => {
           for (let name in child.$slots) {
-            slots[name] = true
+            slots[name] = Boolean(child.$slots[name])
           }
           return slots
         },
