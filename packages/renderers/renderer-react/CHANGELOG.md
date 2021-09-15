@@ -1,5 +1,11 @@
 # @astrojs/renderer-react
 
+## 0.2.1
+
+### Patch Changes
+
+- 97d37f8f: Update READMEs for all renderers
+
 ## 0.2.0
 
 ### Minor Changes
