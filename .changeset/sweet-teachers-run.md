@@ -1,5 +1,5 @@
 ---
-'astro': minor
+'astro': patch
 ---
 
 Remove check for referenced files
