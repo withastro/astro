@@ -128,4 +128,14 @@ Markdown('Can render markdown with --- for horizontal rule', async ({ runtime })
   // It works!
 });
 
+Markdown('Can render markdown content prop (#1259)', async ({ runtime }) => {
+  const result = await runtime.load('/content');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.equal($('h1').text(), 'Foo', 'Markdown rendered correctly via content prop');
+
+  // It works!
+});
+
 Markdown.run();

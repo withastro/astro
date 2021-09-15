@@ -810,6 +810,7 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
       async leave(node, parent, prop, index) {
         switch (node.type) {
           case 'Fragment': {
+            if (curr === 'markdown') curr = 'out';
             buffers[curr] += `)`;
             break;
           }
