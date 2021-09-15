@@ -9,8 +9,8 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.20.5",
-    "@astrojs/renderer-solid": "^0.1.0"
+    "astro": "^0.20.6",
+    "@astrojs/renderer-solid": "^0.1.1"
   },
   "snowpack": {
     "workspaceRoot": "../.."

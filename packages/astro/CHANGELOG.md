@@ -1,5 +1,19 @@
 # astro
 
+## 0.20.6
+
+### Patch Changes
+
+- dd92871f: During CSS bundling separate processing of `rel="preload"` from normal loading stylesheets, to preserve preloads, and source element attributes like `media`.
+- d771dad6: Remove check for referenced files
+- 9cf2df81: Improve stats logging to use `pretty-bytes` so that 20B doesn't get output as 0kB, which is accurate, but confusing
+- 09b2f0e4: Fix passing Markdown content through props (#1259)
+- Updated dependencies [97d37f8f]
+  - @astrojs/renderer-preact@0.2.2
+  - @astrojs/renderer-react@0.2.1
+  - @astrojs/renderer-svelte@0.1.2
+  - @astrojs/renderer-vue@0.1.8
+
 ## 0.20.5
 
 ### Patch Changes
