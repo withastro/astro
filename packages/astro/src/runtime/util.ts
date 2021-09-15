@@ -1,3 +1,4 @@
+import type { ErrorPayload } from 'vite';
 import fs from 'fs';
 import path from 'path';
 
@@ -43,4 +44,34 @@ export function parseNpmName(spec: string): { scope?: string; name: string; subp
     name,
     subpath,
   };
+}
+
+/** generate code frame from esbuild error */
+export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string {
+  if (!loc) return '';
+
+  const lines = src.replace(/\r\n/g, '\n').split('\n');
+
+  // 1. grab 2 lines before, and 3 lines after focused line
+  const visibleLines = [];
+  for (let n = -2; n <= 2; n++) {
+    if (lines[loc.line + n]) visibleLines.push(loc.line + n);
+  }
+
+  // 2. figure out gutter width
+  let gutterWidth = 0;
+  for (const lineNo of visibleLines) {
+    let w = `> ${lineNo}`;
+    if (w.length > gutterWidth) gutterWidth = w.length;
+  }
+
+  // 3. print lines
+  let output = '';
+  for (const lineNo of visibleLines) {
+    const isFocusedLine = lineNo === loc.line - 1;
+    output += isFocusedLine ? '> ' : '  ';
+    output += `${lineNo + 1} | ${lines[lineNo]}\n`;
+    if (isFocusedLine) output += `${[...new Array(gutterWidth)].join(' ')}  | ${[...new Array(loc.column)].join(' ')}^\n`;
+  }
+  return output;
 }

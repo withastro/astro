@@ -1,9 +1,10 @@
 import type { AstroComponentMetadata } from '../@types/astro';
-import { renderAstroComponent } from '../runtime/ssr.js';
 
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import shorthash from 'shorthash';
+import { renderAstroComponent } from '../runtime/astro.js';
+
 const { generate, GENERATOR } = astring;
 // A more robust version alternative to `JSON.stringify` that can handle most values
 // see https://github.com/remcohaszing/estree-util-value-to-estree#readme
