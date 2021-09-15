@@ -1,0 +1,35 @@
+---
+import {Collection, SVG} from '@iconify/json-tools';
+
+export interface Props {
+  collection: string;
+  icon: string;
+  scale?: number;
+  // iconfiy settings
+  inline?: boolean;
+  height?: string | number;
+  width?: string | number;
+  flip?: "horizontal" | "vertical" | "horizontal,vertical";
+  rotate?: string;
+  align?: string;
+  color?: string;
+  box?: boolean;
+}
+
+const { collection: collectionName, icon: iconName, scale = 1, ...iconifySettings} = Astro.props as Props;
+
+// Proof of concept: this should be cleaned up before merging
+const collection = new Collection();
+collection.loadIconifyCollection(collectionName);
+const iconData = collection.getIconData(iconName);
+if (!iconData) {
+  throw new Error(`Icon ${collectionName}:${iconName} not found.`);
+}
+const svg = new SVG(iconData)
+const html: string = svg.getSVG({
+  height: `${scale}em`,
+  width: `${scale}em`,
+  ...iconifySettings,
+});
+---
+{html}

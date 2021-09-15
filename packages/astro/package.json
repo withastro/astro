@@ -56,6 +56,8 @@
     "@babel/generator": "^7.13.9",
     "@babel/parser": "^7.13.15",
     "@babel/traverse": "^7.13.15",
+    "@iconify/json": "^1.1.401",
+    "@iconify/json-tools": "^1.0.10",
     "@snowpack/plugin-postcss": "^1.4.3",
     "@snowpack/plugin-sass": "^1.4.0",
     "@types/send": "^0.17.1",

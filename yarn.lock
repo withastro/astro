@@ -622,6 +622,16 @@
   resolved "https://registry.yarnpkg.com/@hutson/parse-repository-url/-/parse-repository-url-3.0.2.tgz#98c23c950a3d9b6c8f0daed06da6c3af06981340"
   integrity sha512-H9XAx3hc0BQHY6l+IFSWHDySypcXsvsuLhgYLUGywmJ5pswRVQJUHpOsobnLYp2ZUaUlKiKDrgWWhosOwAEM8Q==
 
+"@iconify/json-tools@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@iconify/json-tools/-/json-tools-1.0.10.tgz#d9a7050dbbe8bb29d684d4b3f9446ed2d0bea3cc"
+  integrity sha512-LFelJDOLZ6JHlmlAkgrvmcu4hpNPB91KYcr4f60D/exzU1eNOb4/KCVHIydGHIQFaOacIOD+Xy+B7P1z812cZg==
+
+"@iconify/json@^1.1.401":
+  version "1.1.401"
+  resolved "https://registry.yarnpkg.com/@iconify/json/-/json-1.1.401.tgz#bc1eeef1fb7f59eac7c0d220139d995b6035036b"
+  integrity sha512-h2Ia0ode2yhft4/I//HAuuhZEiQr9JgEBqOTlE2U2hFoeZXx6sCJLu561GEomK4gKuZ5I0tHWJYTBfF0+Kcz4w==
+
 "@jsdevtools/rehype-toc@3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@jsdevtools/rehype-toc/-/rehype-toc-3.0.2.tgz#29c32e6b40cd4b5dafd96cb90d5057ac5dab4a51"
