@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.11
+
+### Patch Changes
+
+- 02bcb91: Prevents false-positive errors when lots of comments are used
+
 ## 0.7.10
 
 ### Patch Changes
