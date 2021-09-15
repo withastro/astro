@@ -1,3 +1,5 @@
+import { encode } from 'html-entities';
+
 interface ErrorTemplateOptions {
   statusCode?: number;
   tabTitle: string;
@@ -29,7 +31,7 @@ export function errorTemplate({ title, message, statusCode, tabTitle }: ErrorTem
         margin-top: 1rem;
         margin-bottom: 0;
       }
-      p {
+      pre {
         color: #999;
         font-size: 1.4em;
         margin-top: 0;
@@ -43,7 +45,7 @@ export function errorTemplate({ title, message, statusCode, tabTitle }: ErrorTem
   <body>
     <main class="wrapper">
       <h1>${statusCode ? `<span class="statusCode">${statusCode}</span> ` : ''}${title}</h1>
-      <p>${message.replace(/\n/g, '<br>')}</p>
+      <pre><code>${encode(message)}</code></pre>
     </main>
   </body>
 </html>
