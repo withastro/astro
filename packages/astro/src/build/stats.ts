@@ -86,7 +86,7 @@ export function logURLStats(logging: LogOptions, urlStats: URLStatsMap) {
         .get(url)
         ?.stats.map((s) => s.gzipSize)
         .reduce((a, b) => a + b, 0) || 0;
-    const sizePart = prettyBytes(bytes, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const sizePart = prettyBytes(bytes);
     log(info, urlPart, sizePart);
   });
 }
