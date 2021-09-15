@@ -5,11 +5,11 @@ on:
     branches:
       - main
   pull_request:
-    paths:
-      - 'packages/**'
-      - 'scripts/**'
-      - '*'
-      - '.*'
+    paths-ignore:
+      - '.vscode/**'
+      - 'docs/**'
+      - 'examples/**'
+      - 'www/**'
 
 jobs:
   build:
