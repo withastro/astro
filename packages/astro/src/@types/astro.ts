@@ -312,6 +312,8 @@ export type RSSResult = { url: string; xml?: string };
 
 export type ScriptInfo = ScriptInfoInline | ScriptInfoExternal;
 
+export type SSRError = Error & vite.ErrorPayload['err'];
+
 export interface ScriptInfoInline {
   content: string;
 }

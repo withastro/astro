@@ -1,15 +1,17 @@
-import cheerio from 'cheerio';
-import * as eslexer from 'es-module-lexer';
+import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from 'vite';
-import type { ComponentInstance, GetStaticPathsResult, Params, Props, RouteCache, RouteData, RuntimeMode, AstroConfig } from '../@types/astro';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
 import type { LogOptions } from '../logger';
 
+import cheerio from 'cheerio';
+import * as eslexer from 'es-module-lexer';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import path from 'path';
+import { renderPage } from './astro.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
-import { parseNpmName, canonicalURL as getCanonicalURL } from './util.js';
-import type { AstroComponent, AstroComponentFactory } from '../internal';
+import { parseNpmName, canonicalURL as getCanonicalURL, codeFrame } from './util.js';
 
 interface SSROptions {
   /** an instance of the AstroConfig */
@@ -35,31 +37,6 @@ interface SSROptions {
 // note: not every request has a Vite browserHash. if we ever receive one, hang onto it
 // this prevents client-side errors such as the "double React bug" (https://reactjs.org/warnings/invalid-hook-call-warning.html#mismatching-versions-of-react-and-react-dom)
 let browserHash: string | undefined;
-
-export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
-  let template = '';
-
-  for await (const value of component) {
-    if (value || value === 0) {
-      template += value;
-    }
-  }
-
-  return template;
-}
-
-export async function renderToString(result: any, componentFactory: AstroComponentFactory, props: any, children: any) {
-  const Component = await componentFactory(result, props, children);
-  let template = await renderAstroComponent(Component);
-  return template;
-}
-
-async function renderPage(result: any, Component: AstroComponentFactory, props: any, children: any) {
-  const template = await renderToString(result, Component, props, children);
-  const styles = Array.from(result.styles).map((style) => `<style>${style}</style>`);
-  const scripts = Array.from(result.scripts);
-  return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
-}
 
 const cache = new Map();
 
@@ -155,79 +132,101 @@ async function resolveImportedModules(viteServer: ViteDevServer, file: string) {
 
 /** use Vite to SSR */
 export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
-  // 1. load module
-  const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
+  try {
+    // 1. load module
+    const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 
-  // 1.5. resolve renderers and imported modules.
-  // important that this happens _after_ ssrLoadModule, otherwise `importedModules` would be empty
-  const [renderers, importedModules] = await Promise.all([resolveRenderers(viteServer, astroConfig.renderers), resolveImportedModules(viteServer, fileURLToPath(filePath))]);
+    // 1.5. resolve renderers and imported modules.
+    // important that this happens _after_ ssrLoadModule, otherwise `importedModules` would be empty
+    const [renderers, importedModules] = await Promise.all([resolveRenderers(viteServer, astroConfig.renderers), resolveImportedModules(viteServer, fileURLToPath(filePath))]);
 
-  // 2. handle dynamic routes
-  let params: Params = {};
-  let pageProps: Props = {};
-  if (route && !route.pathname) {
-    if (route.params.length) {
-      const paramsMatch = route.pattern.exec(pathname)!;
-      params = getParams(route.params)(paramsMatch);
+    // 2. handle dynamic routes
+    let params: Params = {};
+    let pageProps: Props = {};
+    if (route && !route.pathname) {
+      if (route.params.length) {
+        const paramsMatch = route.pattern.exec(pathname)!;
+        params = getParams(route.params)(paramsMatch);
+      }
+      validateGetStaticPathsModule(mod);
+      routeCache[route.component] =
+        routeCache[route.component] ||
+        (
+          await mod.getStaticPaths!({
+            paginate: generatePaginateFunction(route),
+            rss: () => {
+              /* noop */
+            },
+          })
+        ).flat();
+      validateGetStaticPathsResult(routeCache[route.component], logging);
+      const routePathParams: GetStaticPathsResult = routeCache[route.component];
+      const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
+      if (!matchedStaticPath) {
+        throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
+      }
+      pageProps = { ...matchedStaticPath.props } || {};
     }
-    validateGetStaticPathsModule(mod);
-    routeCache[route.component] =
-      routeCache[route.component] ||
-      (
-        await mod.getStaticPaths!({
-          paginate: generatePaginateFunction(route),
-          rss: () => {
-            /* noop */
-          },
-        })
-      ).flat();
-    validateGetStaticPathsResult(routeCache[route.component], logging);
-    const routePathParams: GetStaticPathsResult = routeCache[route.component];
-    const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
-    if (!matchedStaticPath) {
-      throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
-    }
-    pageProps = { ...matchedStaticPath.props } || {};
-  }
 
-  // 3. render page
-  if (!browserHash && (viteServer as any)._optimizeDepsMetadata?.browserHash) browserHash = (viteServer as any)._optimizeDepsMetadata.browserHash; // note: this is "private" and may change over time
-  const fullURL = new URL(pathname, origin);
+    // 3. render page
+    if (!browserHash && (viteServer as any)._optimizeDepsMetadata?.browserHash) browserHash = (viteServer as any)._optimizeDepsMetadata.browserHash; // note: this is "private" and may change over time
+    const fullURL = new URL(pathname, origin);
 
-  const Component = await mod.default;
-  if (!Component) throw new Error(`Expected an exported Astro component but recieved typeof ${typeof Component}`);
-  if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
+    const Component = await mod.default;
+    if (!Component) throw new Error(`Expected an exported Astro component but recieved typeof ${typeof Component}`);
+    if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
-  let html = await renderPage(
-    {
-      styles: new Set(),
-      scripts: new Set(),
-      /** This function returns the `Astro` faux-global */
-      createAstro(props: any) {
-        const site = new URL(origin);
-        const url = new URL('.' + pathname, site);
-        const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin);
-        return { isPage: true, site, request: { url, canonicalURL }, props };
+    let html = await renderPage(
+      {
+        styles: new Set(),
+        scripts: new Set(),
+        /** This function returns the `Astro` faux-global */
+        createAstro(props: any) {
+          const site = new URL(origin);
+          const url = new URL('.' + pathname, site);
+          const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin);
+          return { isPage: true, site, request: { url, canonicalURL }, props };
+        },
+        _metadata: { importedModules, renderers },
       },
-      _metadata: { importedModules, renderers },
-    },
-    Component,
-    {},
-    null
-  );
+      Component,
+      {},
+      null
+    );
 
-  // 4. modify response
-  if (mode === 'development') {
-    // inject Astro HMR code
-    html = injectAstroHMR(html);
-    // inject Vite HMR code
-    html = injectViteClient(html);
-    // replace client hydration scripts
-    html = resolveNpmImports(html);
+    // 4. modify response
+    if (mode === 'development') {
+      // inject Astro HMR code
+      html = injectAstroHMR(html);
+      // inject Vite HMR code
+      html = injectViteClient(html);
+      // replace client hydration scripts
+      html = resolveNpmImports(html);
+    }
+
+    // 5. finish
+    return html;
+  } catch (e: any) {
+    // Astro error (thrown by esbuild so it needs to be formatted for Vite)
+    if (e.errors) {
+      const { location, pluginName, text } = (e as BuildResult).errors[0];
+      const err = new Error(text) as SSRError;
+      if (location) err.loc = { file: location.file, line: location.line, column: location.column };
+      const frame = codeFrame(await fs.promises.readFile(filePath, 'utf8'), err.loc);
+      err.frame = frame;
+      err.id = location?.file;
+      err.message = `${location?.file}: ${text}
+
+${frame}
+`;
+      err.stack = e.stack;
+      if (pluginName) err.plugin = pluginName;
+      throw err;
+    }
+
+    // Vite error (already formatted)
+    throw e;
   }
-
-  // 5. finish
-  return html;
 }
 
 /** Injects Vite client code */
