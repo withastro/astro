@@ -69,7 +69,7 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
   delete configJson.include;
 
   const existingCompilerOptions: ts.CompilerOptions = {
-    jsx: ts.JsxEmit.ReactJSX,
+    jsx: ts.JsxEmit.Preserve,
     module: ts.ModuleKind.ESNext,
     target: ts.ScriptTarget.ESNext
   };
