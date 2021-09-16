@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.13
+
+### Patch Changes
+
+- 1b2afc7: Prevents presence of @types/react from causing false-positive astro errors
+
 ## 0.7.12
 
 ### Patch Changes
