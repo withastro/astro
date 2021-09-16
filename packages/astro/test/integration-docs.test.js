@@ -5,8 +5,8 @@ import { suite } from 'uvu';
 import * as assert from 'uvu/assert';
 import { setup } from './helpers.js';
 
-const SnowpackDev = suite('snowpack.dev');
-setup(SnowpackDev, '../../../examples/snowpack');
+const SnowpackDev = suite('docs.astro.build');
+setup(SnowpackDev, '../../../docs');
 
 // convert file path to its final url
 function formatURL(filepath) {
@@ -17,9 +17,8 @@ function formatURL(filepath) {
 }
 
 // declaring routes individually helps us run many quick tests rather than one giant slow test
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../examples/snowpack/src/pages');
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../docs/src/pages');
 let pages = glob('**/*.{astro,md}', { cwd: root, onlyFiles: true })
-  .filter((page) => !page.includes('proof-of-concept-dynamic'))
   .map(formatURL);
 
 SnowpackDev('Pages successfully scanned', () => {
@@ -29,9 +28,16 @@ SnowpackDev('Pages successfully scanned', () => {
 for (const pathname of pages) {
   SnowpackDev(`Loads "${pathname}"`, async ({ runtime }) => {
     const result = await runtime.load(pathname);
+    if (result.statusCode !== 200) {
+      console.error(result);
+    }
     assert.equal(result.statusCode, 200);
     return;
   });
 }
 
-SnowpackDev.run();
+
+// Skipped on Node <v14
+if (process.env.NODE_VERSION > '14') {
+  SnowpackDev.run();
+}
