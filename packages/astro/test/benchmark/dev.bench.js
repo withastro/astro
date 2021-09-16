@@ -3,7 +3,7 @@ import { Benchmark } from './benchmark.js';
 import { runDevServer } from '../helpers.js';
 import del from 'del';
 
-const snowpackExampleRoot = new URL('../../../../examples/snowpack/', import.meta.url);
+const docsExampleRoot = new URL('../../../../docs/', import.meta.url);
 
 async function runToStarted(root) {
   const args = [];
@@ -24,8 +24,8 @@ async function runToStarted(root) {
 
 const benchmarks = [
   new Benchmark({
-    name: 'Snowpack Example Dev Server Uncached',
-    root: snowpackExampleRoot,
+    name: 'Docs Site Example Dev Server Uncached',
+    root: docsExampleRoot,
     file: new URL('./dev-server-uncached.json', import.meta.url),
     async setup() {
       const spcache = new URL('../../node_modules/.cache/', import.meta.url);
@@ -36,11 +36,11 @@ const benchmarks = [
     },
   }),
   new Benchmark({
-    name: 'Snowpack Example Dev Server Cached',
-    root: snowpackExampleRoot,
+    name: 'Docs Site Example Dev Server Cached',
+    root: docsExampleRoot,
     file: new URL('./dev-server-cached.json', import.meta.url),
     async setup() {
-      // Execute once to make sure Snowpack is cached.
+      // Execute once to make sure Docs Site is cached.
       await this.execute();
     },
     run({ root }) {
