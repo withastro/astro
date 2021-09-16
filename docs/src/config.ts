@@ -70,8 +70,7 @@ export const SIDEBAR = {
     { text: '設定', header: true },
     { text: '新手上路', link: 'zh-TW/getting-started' },
     { text: '快速開始', link: 'zh-TW/quick-start' },
-    { text: '安裝', link: 'zh-TW/installation' },
-    { text: '範例', link: 'zh-TW/examples' },
+    { text: '安裝', link: 'zh-TW/installation' }
   ],
   bg: [
     { text: 'Главни', header: true },
