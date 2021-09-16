@@ -18,8 +18,7 @@ function formatURL(filepath) {
 
 // declaring routes individually helps us run many quick tests rather than one giant slow test
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../../docs/src/pages');
-let pages = glob('**/*.{astro,md}', { cwd: root, onlyFiles: true })
-  .map(formatURL);
+let pages = glob('**/*.{astro,md}', { cwd: root, onlyFiles: true }).map(formatURL);
 
 SnowpackDev('Pages successfully scanned', () => {
   assert.ok(pages.length > 0);
@@ -35,7 +34,6 @@ for (const pathname of pages) {
     return;
   });
 }
-
 
 // Skipped on Node <v14
 if (process.env.NODE_VERSION > '14') {
