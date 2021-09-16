@@ -35,7 +35,7 @@ export default function(content: string): Astro2TSXResult {
     })
     .replace(/---/g, '///')
     // Turn comments into JS comments
-    .replace(/<\s*!--([^>]*)(.*?)-->/g, (whole) => {
+    .replace(/<\s*!--([^-->]*)(.*?)-->/gs, (whole) => {
       return `{/*${whole}*/}`;
     })
     // Turn styles into internal strings
