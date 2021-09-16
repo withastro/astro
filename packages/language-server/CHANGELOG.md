@@ -1,5 +1,15 @@
 # @astrojs/language-server
 
+## 0.7.12
+
+### Patch Changes
+
+- 553969e: Fixes errors when using a tsconfig.json
+
+  Previously when using a tsconfig.json that had an `include` property, that property would cause diagnostics in astro files to show JSX related errors. This fixes that issue.
+
+- b4c1b70: Fixes diagnostic false-positives with comments wrapping HTML
+
 ## 0.7.11
 
 ### Patch Changes
