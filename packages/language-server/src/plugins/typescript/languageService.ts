@@ -65,6 +65,9 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     );
   }
 
+  // Delete include so that astro files don't get excluded.
+  delete configJson.include;
+
   const existingCompilerOptions: ts.CompilerOptions = {
     jsx: ts.JsxEmit.ReactJSX,
     module: ts.ModuleKind.ESNext,
