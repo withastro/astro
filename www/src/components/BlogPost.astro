@@ -1,6 +1,7 @@
 ---
 import Author from './Author.astro';
 import GithubStarButton from './GithubStarButton.astro';
+import GoogleAnalytics from './GoogleAnalytics.astro';
 
 export interface Props {
   title: string;
@@ -25,6 +26,7 @@ const { title, author, publishDate, heroImage } = Astro.props;
       <slot />
     </main>
   </article>
+  <GoogleAnalytics />
 </div>
 
 <style lang="scss">

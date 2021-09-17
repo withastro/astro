@@ -2,11 +2,11 @@
 import BaseHead from '../components/BaseHead.astro';
 import Space from '../components/Space.astro';
 import Main from '../components/Main.astro';
-import Logo from '../components/Logo.astro';
 import Article from '../components/Article.astro';
 import Tagline from '../components/Tagline.astro';
 import MainHeader from '../components/MainHeader.astro';
 import Sponsors from '../components/Sponsors.astro';
+import GoogleAnalytics from '../components/GoogleAnalytics.astro';
 import YouTube from '../components/YouTube.astro';
 import "../components/YouTube.css";
 
@@ -104,14 +104,6 @@ let lang = 'en';
     <script>
       console.log('%cGet early Astro access 👉 https://astro.build/chat', "color:#17c083; font-size: 1.2em; padding: 1em;");
     </script>
-
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130280175-15"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'UA-130280175-15');
-    </script>
+    <GoogleAnalytics />
   </body>
 </html>
