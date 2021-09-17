@@ -3,9 +3,10 @@ import type { AstroComponentMetadata } from '../@types/astro';
 import { valueToEstree, Value } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import shorthash from 'shorthash';
-import { renderAstroComponent } from '../runtime/astro.js';
+import { renderToString, renderAstroComponent } from '../runtime/astro.js';
 
 const { generate, GENERATOR } = astring;
+
 // A more robust version alternative to `JSON.stringify` that can handle most values
 // see https://github.com/remcohaszing/estree-util-value-to-estree#readme
 const customGenerator: astring.Generator = {
@@ -25,16 +26,21 @@ const serialize = (value: Value) =>
     generator: customGenerator,
   });
 
-async function _render(child: any) {
-  // Special: If a child is a function, call it automatically.
-  // This lets you do {() => ...} without the extra boilerplate
-  // of wrapping it in a function and calling it.
-  if (typeof child === 'function') {
+async function _render(child: any): Promise<any> {
+  child = await child;
+  if (Array.isArray(child)) {
+    return (await Promise.all(child.map((value) => _render(value)))).join('\n');
+  } else if (typeof child === 'function') {
+    // Special: If a child is a function, call it automatically.
+    // This lets you do {() => ...} without the extra boilerplate
+    // of wrapping it in a function and calling it.
     return await child();
   } else if (typeof child === 'string') {
     return child;
   } else if (!child && child !== 0) {
     // do nothing, safe to ignore falsey values.
+  } else if (child instanceof AstroComponent) {
+    return await renderAstroComponent(child);
   } else {
     return child;
   }
@@ -43,7 +49,6 @@ async function _render(child: any) {
 export class AstroComponent {
   private htmlParts: string[];
   private expressions: TemplateStringsArray;
-
   constructor(htmlParts: string[], expressions: TemplateStringsArray) {
     this.htmlParts = htmlParts;
     this.expressions = expressions;
@@ -129,12 +134,20 @@ setup("${astroId}", {${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.
   return hydrationScript;
 }
 
-export const renderComponent = async (result: any, displayName: string, Component: unknown, _props: Record<string | number, any>, children: any) => {
+export const renderSlot = async (result: any, slotted: string, fallback?: any) => {
+  if (slotted) {
+    return _render(slotted);
+  }
+  return fallback;
+};
+
+export const renderComponent = async (result: any, displayName: string, Component: unknown, _props: Record<string | number, any>, slots?: any) => {
   Component = await Component;
   // children = await renderGenerator(children);
   const { renderers } = result._metadata;
+
   if (Component && (Component as any).isAstroComponentFactory) {
-    const output = await renderAstroComponent(await (Component as any)(result, Component, _props, children));
+    const output = await renderToString(result, Component as any, _props, slots);
     return output;
   }
 

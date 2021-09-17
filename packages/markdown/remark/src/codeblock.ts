@@ -23,7 +23,7 @@ export function rehypeCodeBlock() {
     const escapeCode = (code: Element): void => {
       code.children = code.children.map((child) => {
         if (child.type === 'text') {
-          return { ...child, value: child.value.replace(/\{/g, 'ASTRO_ESCAPED_LEFT_CURLY_BRACKET\0') };
+          return { ...child, value: child.value.replace(/\{/g, '&lbrace;') };
         }
         return child;
       });

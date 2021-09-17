@@ -12,6 +12,8 @@ import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import stripAnsi from 'strip-ansi';
+import path from 'path';
+import { promises as fs } from 'fs';
 import vite from 'vite';
 import { defaultLogOptions, error, info } from '../logger.js';
 import { createRouteManifest, matchRoute } from '../runtime/routing.js';

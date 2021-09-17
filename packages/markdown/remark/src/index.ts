@@ -4,16 +4,17 @@ import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
 import { remarkExpressions, loadRemarkExpressions } from './remark-expressions.js';
 import rehypeExpressions from './rehype-expressions.js';
+import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
+import rehypeJsx from './rehype-jsx.js';
 import { remarkCodeBlock, rehypeCodeBlock } from './codeblock.js';
+import remarkSlug from './remark-slug.js';
 import { loadPlugins } from './load-plugins.js';
-import raw from 'rehype-raw';
 
 import { unified } from 'unified';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
-import remarkSlug from 'remark-slug';
-import matter from './gray-matter/index.js';
+import matter from 'gray-matter';
 
 export { AstroMarkdownOptions, MarkdownRenderingOptions };
 
@@ -24,29 +25,29 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
   return { ...value, frontmatter };
 }
 
+export const DEFAULT_REMARK_PLUGINS = [
+  'remark-gfm',
+  'remark-footnotes',
+  // TODO: reenable smartypants!
+  '@silvenon/remark-smartypants'
+]
+
+export const DEFAULT_REHYPE_PLUGINS = [
+  // empty
+]
+
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-  const { $: { scopedClassName = null } = {}, footnotes: useFootnotes = true, gfm: useGfm = true, remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
+  const { remarkPlugins = DEFAULT_REMARK_PLUGINS, rehypePlugins = DEFAULT_REHYPE_PLUGINS } = opts ?? {};
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
-  await loadRemarkExpressions(); // Vite bug: dynamically import() these because of CJS interop (this will cache)
+  await Promise.all([loadRemarkExpressions(), loadRemarkJsx()]); // Vite bug: dynamically import() these because of CJS interop (this will cache)
 
   let parser = unified()
     .use(markdown)
-    .use(remarkSlug)
-    .use([remarkExpressions, { addResult: true }]);
+    .use([remarkJsx])
+    .use([remarkExpressions])
 
-  if (remarkPlugins.length === 0) {
-    if (useGfm) {
-      remarkPlugins.push('remark-gfm');
-    }
-
-    if (useFootnotes) {
-      remarkPlugins.push('remark-footnotes');
-    }
-
-    remarkPlugins.push('@silvenon/remark-smartypants');
-  }
   const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
   const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
 
@@ -54,25 +55,25 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     parser.use(plugin, opts);
   });
 
-  if (scopedClassName) {
-    parser.use(scopedStyles(scopedClassName));
-  }
+  // if (scopedClassName) {
+  //   parser.use(scopedStyles(scopedClassName));
+  // }
 
   parser.use(remarkCodeBlock);
-  parser.use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression'] });
-  parser.use(rehypeExpressions);
+  parser.use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement']});
 
   loadedRehypePlugins.forEach(([plugin, opts]) => {
     parser.use(plugin, opts);
   });
+  
+  parser.use(rehypeJsx).use(rehypeExpressions)
 
   let result: string;
   try {
     const vfile = await parser
-      .use(raw)
       .use(rehypeCollectHeaders)
       .use(rehypeCodeBlock)
-      .use(rehypeStringify, { entities: { useNamedReferences: true } })
+      .use(rehypeStringify, { allowParseErrors: true, preferUnquoted: true, allowDangerousHtml: true })
       .process(content);
     result = vfile.toString();
   } catch (err) {
@@ -80,7 +81,9 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   }
 
   return {
-    astro: { headers, source: content, html: result.toString() },
-    content: result.toString(),
+    metadata: { headers, source: content, html: result.toString() },
+    code: result.toString(),
   };
 }
+
+export default renderMarkdownWithFrontmatter;
