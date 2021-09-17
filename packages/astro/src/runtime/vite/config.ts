@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import { getPackageJSON, parseNpmName } from '../util.js';
 import astro from './plugin-astro.js';
+import markdown from './plugin-markdown.js';
 import jsx from './plugin-jsx.js';
 import { AstroDevServer } from '../../dev';
 
@@ -34,6 +35,7 @@ export async function loadViteConfig(
   });
   const userDevDeps = Object.keys(packageJSON?.devDependencies || {});
   const { external, noExternal } = await viteSSRDeps([...userDeps, ...userDevDeps]);
+  // console.log(external.has('tiny-glob'), noExternal.has('tiny-glob'));
 
   // load Astro renderers
   await Promise.all(
@@ -78,7 +80,7 @@ export async function loadViteConfig(
         /** Always include these dependencies for optimization */
         include: [...optimizedDeps],
       },
-      plugins: [astro({ config: astroConfig, devServer }), jsx({ config: astroConfig, logging }), ...plugins],
+      plugins: [astro({ config: astroConfig, devServer }), markdown({ config: astroConfig, devServer }), jsx({ config: astroConfig, logging }), ...plugins],
       publicDir: fileURLToPath(astroConfig.public),
       resolve: {
         dedupe: [...dedupe],
