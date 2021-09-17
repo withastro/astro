@@ -16,6 +16,8 @@ export default function rehypeJsx(): any {
             let attr = entry.value;
             if (attr && typeof attr === 'object') {
               attr = `{${attr.value}}`
+            } else if (attr === null) {
+              attr = `{true}`
             }
             return Object.assign(acc, { [entry.name]: attr });
           }, {})
