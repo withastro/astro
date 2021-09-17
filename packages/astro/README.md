@@ -1,6 +1,6 @@
 <img src="https://github.com/snowpackjs/astro/blob/main/assets/social/banner.png?raw=true" />
 
-**Astro** is a _fresh but familiar_ approach to building websites. Astro combines decades of proven performance best practices with the DX improvements of the component-oriented era. Use your favorite JavaScript framework and automatically ship the bare-minimum amount of JavaScript—by default. 
+**Astro** is a _fresh but familiar_ approach to building websites. Astro combines decades of proven performance best practices with the DX improvements of the component-oriented era. Use your favorite JavaScript framework and automatically ship the bare-minimum amount of JavaScript—by default.
 
 
 ### [Announcement Post →](https://astro.build/blog/introducing-astro)
@@ -21,3 +21,29 @@ npm init astro
 ```
 
 ### [Full Documentation Site →](https://docs.astro.build/)
+
+## Sponsors
+
+You can sponsor Astro's development on [Open Collective][oc]. Astro is generously supported by the following companies and individuals:
+
+### Platinum Sponsors
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><a href="https://www.netlify.com/" target="_blank"><img width="147" height="40" src="./.github/assets/netlify.svg" alt="Netlify" /></a></td>
+    </tr>
+  </tbody>
+</table>
+
+### Sponsors
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center"><a href="https://sentry.io" target="_blank"><img width="147" height="40" src="./.github/assets/sentry.svg" alt="Sentry" /></a></td>
+    </tr>
+  </tbody>
+</table>
+
+[oc]: https://opencollective.com/astrodotbuild

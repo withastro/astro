@@ -6,6 +6,7 @@ import Logo from '../components/Logo.astro';
 import Article from '../components/Article.astro';
 import Tagline from '../components/Tagline.astro';
 import MainHeader from '../components/MainHeader.astro';
+import Sponsors from '../components/Sponsors.astro';
 import YouTube from '../components/YouTube.astro';
 import "../components/YouTube.css";
 
@@ -23,7 +24,7 @@ let lang = 'en';
 
   <body>
     <Space />
-    
+
     <Main>
       <MainHeader />
       <Article>
@@ -35,7 +36,7 @@ let lang = 'en';
         <p>
           For a technology built on top of three different languages, the modern web seems to focus an awful lot on JavaScript. We don&rsquo;t think it has to&mdash;and that&rsquo;s certainly <a href="https://css-tricks.com/the-great-divide/">not</a>&nbsp;<a href="https://bradfrost.com/blog/post/front-of-the-front-end-and-back-of-the-front-end-web-development/">a</a>&nbsp;<a href="https://macwright.com/2020/05/10/spa-fatigue.html">revolutionary</a>&nbsp;<a href="https://css-tricks.com/whats-old-is-new/">concept</a>.
         </p>
-        
+
         <p>
           We&rsquo;ll eagerly jump at the chance to sing JavaScript&rsquo;s praises, but HTML and CSS are pretty great too. There aren&rsquo;t enough modern tools which reflect that, which is why we're building Astro.
         </p>
@@ -59,6 +60,7 @@ let lang = 'en';
           <p>Psst... <a href="https://astro.build/chat">get early access to new features</a> by joining our Discord community.</p>
         </div>
       </Article>
+      <Sponsors />
     </Main>
 
     <style lang="scss">
