@@ -29,7 +29,7 @@ export const DEFAULT_REMARK_PLUGINS = [
   'remark-gfm',
   'remark-footnotes',
   // TODO: reenable smartypants!
-  '@silvenon/remark-smartypants'
+  // '@silvenon/remark-smartypants'
 ]
 
 export const DEFAULT_REHYPE_PLUGINS = [
