@@ -2,6 +2,7 @@ import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from 'vite';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
 import type { LogOptions } from '../logger';
+import type { PathsOutput } from 'fdir';
 
 import cheerio from 'cheerio';
 import * as eslexer from 'es-module-lexer';
@@ -9,6 +10,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import path from 'path';
 import { renderPage } from './astro.js';
+import { fdir } from 'fdir';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 import { parseNpmName, canonicalURL as getCanonicalURL, codeFrame } from './util.js';
@@ -95,7 +97,6 @@ async function resolveImportedModules(viteServer: ViteDevServer, file: string) {
 
   let importedModules: Record<string, any> = {};
   const moduleNodes = Array.from(modulesByFile);
-
   // Loop over the importedModules and grab the exports from each one.
   // We'll pass these to the shared $$result so renderers can match
   // components to their exported identifier and URL
@@ -168,41 +169,71 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       pageProps = { ...matchedStaticPath.props } || {};
     }
 
-    // 3. render page
-    if (!browserHash && (viteServer as any)._optimizeDepsMetadata?.browserHash) browserHash = (viteServer as any)._optimizeDepsMetadata.browserHash; // note: this is "private" and may change over time
-    const fullURL = new URL(pathname, origin);
+  // 3. render page
+  if (!browserHash && (viteServer as any)._optimizeDepsMetadata?.browserHash) browserHash = (viteServer as any)._optimizeDepsMetadata.browserHash; // note: this is "private" and may change over time
+  const fullURL = new URL(pathname, origin);
 
-    const Component = await mod.default;
-    if (!Component) throw new Error(`Expected an exported Astro component but recieved typeof ${typeof Component}`);
-    if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
+  const Component = await mod.default;
+  const ext = path.posix.extname(filePath.pathname);
+  if (!Component)
+    throw new Error(`Expected an exported Astro component but recieved typeof ${typeof Component}`);
+  
+  if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
-    let html = await renderPage(
-      {
-        styles: new Set(),
-        scripts: new Set(),
-        /** This function returns the `Astro` faux-global */
-        createAstro(props: any) {
-          const site = new URL(origin);
-          const url = new URL('.' + pathname, site);
-          const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin);
-          return { isPage: true, site, request: { url, canonicalURL }, props };
-        },
-        _metadata: { importedModules, renderers },
-      },
-      Component,
-      {},
-      null
-    );
+  const result = {
+    styles: new Set(),
+    scripts: new Set(),
+    /** This function returns the `Astro` faux-global */
+    createAstro: (props: any) => {
+      const site = new URL(origin);
+      const url = new URL('.' + pathname, site);
+      const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin)
+      const fetchContent = createFetchContent(fileURLToPath(filePath));
+      return { 
+        isPage: true,
+        site,
+        request: { url, canonicalURL },
+        props,
+        fetchContent
+      };
+    },
+    _metadata: { importedModules, renderers },
+  }
 
-    // 4. modify response
-    if (mode === 'development') {
-      // inject Astro HMR code
-      html = injectAstroHMR(html);
-      // inject Vite HMR code
-      html = injectViteClient(html);
-      // replace client hydration scripts
-      html = resolveNpmImports(html);
+  const createFetchContent = (currentFilePath: string) => {
+    return async (pattern: string) => {
+      const cwd = path.dirname(currentFilePath);
+      const crawler = new fdir().glob(pattern);
+      const files = await crawler.crawlWithOptions(cwd, {
+        resolvePaths: true,
+        includeBasePath: true,
+        filters: [(p) => p !== currentFilePath]
+      }).withPromise() as PathsOutput;
+
+      const contents = await Promise.all(files.map(async file => {
+        const { default: ChildComponent } = (await viteServer.ssrLoadModule(file)) as ComponentInstance;
+        return renderPage({ 
+          ...result,
+          createAstro: (props: any) => {
+            return { props }
+          },
+        }, ChildComponent, {}, null);
+      }))
+      return contents;
     }
+  }
+
+  let html = await renderPage(result, Component, {}, null);
+
+  // 4. modify response
+  if (mode === 'development') {
+    // inject Astro HMR code
+    html = injectAstroHMR(html);
+    // inject Vite HMR code
+    html = injectViteClient(html);
+    // replace client hydration scripts
+    html = resolveNpmImports(html);
+  }
 
     // 5. finish
     return html;
