@@ -1,4 +1,4 @@
-import type { AstroConfig } from './@types/astro';
+import type { AstroConfig, AstroUserConfig } from './@types/astro';
 
 import { existsSync } from 'fs';
 import getPort from 'get-port';
@@ -6,7 +6,6 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { z } from 'zod';
-import { AstroUserConfig } from './@types/config';
 
 export const AstroConfigSchema = z.object({
   projectRoot: z
@@ -41,6 +40,7 @@ export const AstroConfigSchema = z.object({
       gfm: z.boolean().optional(),
       remarkPlugins: z.array(z.any()).optional(),
       rehypePlugins: z.array(z.any()).optional(),
+      render: z.any().optional().default(['@astrojs/markdown-remark', {}]),
     })
     .optional()
     .default({}),
