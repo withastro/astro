@@ -58,3 +58,7 @@ console.log(data);
 <!-- Output the result to the page -->
 <div>{JSON.stringify(data)}</div>
 ```
+
+## Custom 404 Error Page
+
+For a custom 404 error page create a `404.astro` file in `/src/pages`.
