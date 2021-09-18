@@ -53,10 +53,10 @@ This will instruct Astro to build your site and save it directly to disk. Your a
 
 Astro sites are static, so they can be deployed to your favourite host:
 
-- [Vercel](https://vercel.com/)
-- [Netlify](https://www.netlify.com/)
-- [S3 bucket](https://aws.amazon.com/s3/)
+- [AWS S3 bucket](https://aws.amazon.com/s3/)
 - [Google Firebase](https://firebase.google.com/)
+- [Netlify](https://www.netlify.com/)
+- [Vercel](https://vercel.com/)
 - [Read more about deploying Astro in our Deploy guide.](/guides/deploy)
 
 ## Next Steps

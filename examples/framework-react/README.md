@@ -1,38 +1,11 @@
-# Using React with Astro
+# Astro + React Example
 
-This example showcases Astro's built-in support for [React](https://reactjs.org/).
-
-## Installation
-
-### Automatic
-
-Bootstrap your Astro project with this template!
-
-```shell
+```
 npm init astro -- --template framework-react
 ```
 
-### Manual
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/framework-react)
 
-To use React components in your Astro project:
-
-1. Install `@astrojs/renderer-react`
-
-    ```shell
-    npm i @astrojs/renderer-react
-    ```
-
-2. Add `"@astrojs/renderer-react"` to your `renderers` in `astro.config.mjs`.
-
-    ```js
-    export default {
-      renderers: [
-        "@astrojs/renderer-react",
-        // optionally, others...
-      ]
-    }
-    ```
-
-## Usage
+This example showcases Astro working with [React](https://reactjs.org/).
 
 Write your React components as `.jsx` or `.tsx` files in your project.

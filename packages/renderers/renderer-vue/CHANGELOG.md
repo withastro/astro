@@ -1,5 +1,11 @@
 # @astrojs/renderer-vue
 
+## 0.1.8
+
+### Patch Changes
+
+- 97d37f8f: Update READMEs for all renderers
+
 ## 0.1.7
 
 ### Patch Changes

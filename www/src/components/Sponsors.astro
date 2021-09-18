@@ -1,0 +1,40 @@
+<style lang="scss">
+.wrapper {
+  margin-bottom: 3rem;
+  margin-top: 3rem;
+}
+
+.list {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+
+  a {
+    &::before,
+    &::after {
+      display: none;
+    }
+  }
+}
+
+.title {
+  font-size: 1em;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.oc {
+  margin-top: 1.5rem;
+  font-size: 0.75em;
+  text-align: center;
+}
+</style>
+
+<div class="wrapper">
+  <h2 class="title">Sponsored by</h2>
+  <div class="list">
+    <a href="https://www.netlify.com/" target="_blank"><img src="/assets/netlify.svg" width="147" height="40" alt="Netlify" /></a>
+  </div>
+  <div class="oc"><a href="https://opencollective.com/astrodotbuild" target="_blank">Astro on Open Collective</a></div>
+</div>

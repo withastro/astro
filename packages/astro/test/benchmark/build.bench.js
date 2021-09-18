@@ -7,7 +7,7 @@ import del from 'del';
 import { Writable } from 'stream';
 import { format as utilFormat } from 'util';
 
-const snowpackExampleRoot = new URL('../../../../examples/snowpack/', import.meta.url);
+const snowpackExampleRoot = new URL('../../../../docs/', import.meta.url);
 
 export const errorWritable = new Writable({
   objectMode: true,

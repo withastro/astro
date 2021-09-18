@@ -4,6 +4,8 @@
 npm init astro -- --template docs
 ```
 
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/docs)
+
 ## Features
 
 - ✅ **Full Markdown support**
