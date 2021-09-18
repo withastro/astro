@@ -26,9 +26,9 @@ jobs:
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '💡 RFC:')
       with:
         project: 'https://github.com/snowpackjs/astro/projects/3'
-        column_name: 'In Progress'
+        column_name: 'Discussing'
 
-    - name: Assign RFCs to the RFC Tracker
+    - name: Assign RFCs to the Docs Tracker
       uses: srggrs/assign-one-project-github-action@1.2.1
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '📘 DOC:')
       with:
