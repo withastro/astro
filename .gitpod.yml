@@ -1,9 +1,12 @@
+---
 # Commands to start on workspace startup
 tasks:
   - init: yarn install
     command: yarn build
-# Once astro is on [vsx](https://open-vsx.org/), we should be able to specify it as an extension as well!
-# https://www.gitpod.io/docs/vscode-extensions
-# vscode:
-#   extensions:
-#     - astro-build.astro-vscode
+vscode:
+  extensions:
+    # TODO Once astro is on [vsx](https://open-vsx.org/), we should be able to specify it as an extension as well!
+    # https://www.gitpod.io/docs/vscode-extensions
+    - https://marketplace.visualstudio.com/_apis/public/gallery/publishers/astro-build/vsextensions/astro-vscode/0.7.13/vspackage
+    - esbenp.prettier-vscode
+    - dbaeumer.vscode-eslint
