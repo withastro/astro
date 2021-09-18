@@ -8,13 +8,13 @@ Astro ist ein moderner Generator für statische Webseiten (SSG). Um mehr über A
 
 Diese Seite dient als Übersicht der Astro-Dokumentation und alle damit verbundenen Ressourcen.
 
-Du willst erst einmal einen kurzen Überblicke erhalten, um zu verstehen, was Astro ist? [Besuch unsere Homepage.](https://astro.build)
+Du willst erst einmal einen kurzen Überblick erhalten, um zu verstehen, was Astro ist? [Besuch unsere Homepage](https://astro.build).
 
 ## Astro ausprobieren
 
 Der einfachste Weg, Astro auszuprobieren, ist `npm init astro` in einem neuen Verzeichnis deiner Wahl auszuführen. Der CLI-Wizard hilft Dir dabei, ein neues Astro-Projekt aufzusetzen.
 
-Um mit Astro in fünf einfachen Schritten loszulegen, lies [unsere Schnellstart Anleitung](/quick-start)
+Um mit Astro in fünf einfachen Schritten loszulegen, lies [unsere Schnellstart Anleitung](/quick-start).
 
 Alternativ kannst Du unsere [Installations Anleitung](/installation) für eine ausführliche Beschreibung des Installationsprozesses lesen.
 
@@ -56,7 +56,7 @@ Unser [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account ist di
 
 Zusätzlich veröffentlichen wir alle Release-Ankündigungen in unserer [Discord Community](https://astro.build/chat) im `#announcements`-Kanal.
 
-Obwohl nicht jeder Astro-Release einen eigenen Blogpost verdient, kannst Du alle Änderungen für jedes Release in unserem detaillierten [`CHANGELOG.md` im Astro Repository](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) nachlesen.
+Auch wenn nicht jedes Astro-Release einen eigenen Blogpost verdient, kannst Du alle Änderungen für jedes Release in unserem detaillierten [`CHANGELOG.md` im Astro Repository](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) nachlesen.
 
 ## Fehlt etwas?
 
@@ -66,4 +66,4 @@ Wir freuen uns, von Dir zu hören.
 
 ## Credit
 
-Diese Einführung basierte ursprünglich auf dem der Einführung von [React](https://reactjs.org/).
+Diese Einführung basierte ursprünglich auf der Einführung von [React](https://reactjs.org/).
