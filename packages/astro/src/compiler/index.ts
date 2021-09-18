@@ -111,7 +111,7 @@ export async function compileComponent(source: string, { compileOptions, filenam
   const { hostname, port } = compileOptions.astroConfig.devOptions;
   const devSite = `http://${hostname}:${port}`;
   const buildSite = compileOptions.astroConfig.buildOptions.site;
-  const site = (mode === 'production' && buildSite) ? buildSite : devSite;
+  const site = mode === 'production' && buildSite ? buildSite : devSite;
 
   const fileID = path.join('/_astro', path.relative(projectRoot, filename));
   const fileURL = new URL('.' + fileID, mode === 'production' ? site : devSite);

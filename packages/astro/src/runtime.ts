@@ -90,7 +90,7 @@ async function load(config: AstroRuntimeConfig, rawPathname: string | undefined)
   const { logging, snowpackRuntime, snowpack, configManager } = config;
   const { buildOptions, devOptions } = config.astroConfig;
 
-  const site = (config.mode === 'production' && buildOptions.site) ? new URL(buildOptions.site) : new URL(`http://${devOptions.hostname}:${devOptions.port}`);
+  const site = config.mode === 'production' && buildOptions.site ? new URL(buildOptions.site) : new URL(`http://${devOptions.hostname}:${devOptions.port}`);
   const fullurl = new URL(rawPathname || '/', site.origin);
 
   const reqPath = decodeURI(fullurl.pathname);
