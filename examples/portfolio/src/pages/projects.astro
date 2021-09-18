@@ -8,7 +8,7 @@ interface MarkdownFrontmatter {
   published_at: number;
 }
 
-const projects = Astro.fetchContent<MarkdownFrontmatter>('./project/*.md')
+const projects = Astro.fetchContent<MarkdownFrontmatter>('./project/**/*.md')
   .filter(({ published_at }) => !!published_at)
   .sort((a, b) => new Date(b.published_at).valueOf() - new Date(a.published_at).valueOf());
 ---
