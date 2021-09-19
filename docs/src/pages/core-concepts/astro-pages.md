@@ -62,4 +62,4 @@ console.log(data);
 ## Custom 404 Error Page
 
 For a custom 404 error page create a `404.astro` file in `/src/pages`. That builds to a `404.html` page. Most [deploy services](/guides/deploy) will find and use it.  
-This is different to the default behavior building `page.astro` (or `page/index.astro`) to `page/index.html`.
+This is special and different to the default behavior building `page.astro` (or `page/index.astro`) to `page/index.html`.
