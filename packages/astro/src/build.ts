@@ -212,16 +212,21 @@ ${stack}
 
     // write to disk and free up memory
     timer.write = performance.now();
-    await Promise.all(
-      Object.keys(buildState).map(async (id) => {
-        const outPath = new URL(`.${id}`, astroConfig.dist);
-        const parentDir = path.dirname(fileURLToPath(outPath));
-        await fs.promises.mkdir(parentDir, { recursive: true });
-        await fs.promises.writeFile(outPath, buildState[id].contents, buildState[id].encoding);
-        delete buildState[id];
-        delete depTree[id];
-      })
-    );
+    for (const id of Object.keys(buildState)) {
+      const outPath = new URL(`.${id}`, astroConfig.dist);
+      const parentDir = path.dirname(fileURLToPath(outPath));
+      await fs.promises.mkdir(parentDir, {recursive: true});
+      const handle = await fs.promises.open(outPath, "w")
+      await fs.promises.writeFile(handle, buildState[id].contents, buildState[id].encoding);
+
+      // Ensure the file handle is not left hanging which will
+      // result in the garbage collector loggin errors in the console
+      // when it eventually has to close them.
+      await handle.close();
+
+      delete buildState[id];
+      delete depTree[id];
+    };
     debug(logging, 'build', `wrote files to disk [${stopTimer(timer.write)}]`);
 
     /**
