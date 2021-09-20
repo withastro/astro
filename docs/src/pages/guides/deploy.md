@@ -337,7 +337,7 @@ Then click the **Save and Deploy** button.
 
 ## Render
 
-You can deploy your Astro project on [render](https://render.com/) following these steps:
+You can deploy your Astro project on [Render](https://render.com/) following these steps:
 
 1. Create a [render.com account](https://dashboard.render.com/) and sign in
 2. Click the "**new+**"-button at the dashboard and select "**Static Site**"
