@@ -100,7 +100,6 @@ export interface AstroUserConfig {
 // @types/config.ts file, consider replacing it with the following lines:
 //
 // export interface AstroUserConfig extends z.input<typeof AstroConfigSchema> {
-//   markdownOptions?: Partial<AstroMarkdownOptions>;
 // }
 export type AstroConfig = z.output<typeof AstroConfigSchema>;
 
