@@ -40,9 +40,7 @@
     "npm": "7.11.2",
     "yarn": "1.22.10"
   },
-  "dependencies": {
-    "camel-case": "^4.1.2"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
     "@types/jest": "^27.0.1",

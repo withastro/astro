@@ -21,6 +21,6 @@ export async function renderToString(result: any, componentFactory: AstroCompone
 export async function renderPage(result: any, Component: AstroComponentFactory, props: any, children: any) {
   const template = await renderToString(result, Component, props, children);
   const styles = Array.from(result.styles).map((style) => `<style>${style}</style>`);
-  const scripts = Array.from(result.scripts).map((script) => `<script type="module">${script}</script>`);
+  const scripts = Array.from(result.scripts);
   return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
 }

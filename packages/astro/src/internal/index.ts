@@ -1,6 +1,6 @@
 import type { AstroComponentMetadata } from '../@types/astro';
 
-import { valueToEstree, Value } from 'estree-util-value-to-estree';
+import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import shorthash from 'shorthash';
 import { renderToString, renderAstroComponent } from '../runtime/astro.js';
@@ -21,7 +21,7 @@ const customGenerator: astring.Generator = {
     }
   },
 };
-const serialize = (value: Value) =>
+const serialize = (value: any) =>
   generate(valueToEstree(value), {
     generator: customGenerator,
   });
@@ -47,9 +47,10 @@ async function _render(child: any): Promise<any> {
 }
 
 export class AstroComponent {
-  private htmlParts: string[];
-  private expressions: TemplateStringsArray;
-  constructor(htmlParts: string[], expressions: TemplateStringsArray) {
+  private htmlParts: TemplateStringsArray;
+  private expressions: any[];
+
+  constructor(htmlParts: TemplateStringsArray, expressions: any[]) {
     this.htmlParts = htmlParts;
     this.expressions = expressions;
   }
@@ -67,7 +68,7 @@ export class AstroComponent {
   }
 }
 
-export function render(htmlParts: string[], ...expressions: TemplateStringsArray) {
+export async function render(htmlParts: TemplateStringsArray, ...expressions: any[]) {
   return new AstroComponent(htmlParts, expressions);
 }
 
@@ -162,11 +163,10 @@ export const renderComponent = async (result: any, displayName: string, Componen
   const { hydrationDirective, props } = extractHydrationDirectives(_props);
   let html = '';
 
-  if (!hydrationDirective) {
-    return '<pre>Not implemented</pre>';
+  if (hydrationDirective) {
+    metadata.hydrate = hydrationDirective[0] as AstroComponentMetadata['hydrate'];
+    metadata.hydrateArgs = hydrationDirective[1];
   }
-  metadata.hydrate = hydrationDirective[0] as AstroComponentMetadata['hydrate'];
-  metadata.hydrateArgs = hydrationDirective[1];
 
   for (const [url, exported] of Object.entries(result._metadata.importedModules)) {
     for (const [key, value] of Object.entries(exported as any)) {
@@ -186,6 +186,11 @@ export const renderComponent = async (result: any, displayName: string, Componen
   }
 
   ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, null));
+
+  if (!hydrationDirective) {
+    return html;
+  }
+
   const astroId = shorthash.unique(html);
 
   result.scripts.add(await generateHydrateScript({ renderer, astroId, props }, metadata as Required<AstroComponentMetadata>));
