@@ -33,9 +33,7 @@ npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
 
 ### 線上玩玩看
 
-有興趣在瀏覽器試玩 Astro 嗎？有線上的程式碼試玩區。試試看放在 [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3) 的「Hello! World」範本。
-
-註：有些功能（例如：快速重新整理）目前在 CodeSandbox 的效果有限。
+有興趣在瀏覽器試玩 Astro 的話，可以在 Stackblitz、CodeSandbox、Gitpod 或 GitHub Codespaces 使用線上程式碼編輯器。點選[範例資源庫](https://github.com/snowpackjs/astro/tree/main/examples)裡任一個範例的 "Open in Stackblitz" 連結。或者，[點此](https://stackblitz.com/fork/astro)在 Stackblitz 開啟新專案。
 
 ## 學習 Astro
 
