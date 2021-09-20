@@ -345,7 +345,7 @@ You can deploy your Astro project on [Render](https://render.com/) following the
 4. Give your website a name (1. to find it on the dashboard. 2. The onrender.com url is prefixed with it.), select the branch and specify the build command and publish directory  
    - **build command:** `npm run build`
    - **publish directory:** dist
-6. Click the "Create Static Site" -button
+6. Click the **Create Static Site** button
 
 ## Credits
 
