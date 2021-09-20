@@ -1,6 +1,5 @@
 import type { LogOptions } from '../logger';
-
-import del from 'del';
+import rimraf from 'rimraf';
 import { fileURLToPath } from 'url';
 import { defaultLogDestination, defaultLogLevel, info } from '../logger.js';
 
@@ -13,7 +12,7 @@ export async function reload(cwd: string) {
   try {
     info(logging, 'reload', `Clearing the cache...`);
     const viteCache = new URL('node_modules/.vite/', `file://${cwd}/`);
-    await del(fileURLToPath(viteCache));
+    rimraf.sync(fileURLToPath(viteCache));
     return 0;
   } catch {
     return 1;
