@@ -33,7 +33,7 @@ export default async function build(...args) {
   if (!isDev) {
     await esbuild.build({
       ...config,
-      bundle: entryPoints.length === 1, // Note: only use `bundle` with a single entrypoint!
+      bundle: false,
       entryPoints,
       outdir,
       format,

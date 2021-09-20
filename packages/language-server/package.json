@@ -17,7 +17,8 @@
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\"",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "tap --no-coverage test/**"
   },
   "dependencies": {
     "lodash": "^4.17.21",
@@ -33,6 +34,7 @@
   "devDependencies": {
     "astro": "0.19.1",
     "astro-scripts": "0.0.1",
-    "@types/lodash": "^4.14.116"
+    "@types/lodash": "^4.14.116",
+    "tap": "^15.0.9"
   }
 }

@@ -13,7 +13,7 @@
     "dev": "lerna run dev --scope \"{@astrojs/language-server,astro-vscode,@astrojs/ts-plugin}\" --parallel --stream",
     "format": "prettier -w .",
     "lint": "eslint \"packages/**/*.ts\"",
-    "test": "yarn workspace @astrojs/vscode run test"
+    "test": "yarn workspace @astrojs/language-server test"
   },
   "workspaces": [
     "packages/*",

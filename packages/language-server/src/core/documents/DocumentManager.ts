@@ -18,7 +18,7 @@ export class DocumentManager {
     return this.documents.get(normalizeUri(uri));
   }
 
-  openDocument(textDocument: TextDocumentItem) {
+  openDocument(textDocument: Pick<TextDocumentItem, 'text' | 'uri'>) {
     let document: Document;
     if (this.documents.has(textDocument.uri)) {
       document = this.get(textDocument.uri) as Document;
@@ -52,6 +52,17 @@ export class DocumentManager {
     }
 
     this.openedInClient.delete(uri);
+  }
+
+  releaseDocument(uri: string): void {
+    uri = normalizeUri(uri);
+
+    this.locked.delete(uri);
+    this.openedInClient.delete(uri);
+    if (this.deleteCandidates.has(uri)) {
+        this.deleteCandidates.delete(uri);
+        this.closeDocument(uri);
+    }
   }
 
   updateDocument(uri: string, changes: TextDocumentContentChangeEvent[]) {
@@ -90,5 +101,9 @@ export class DocumentManager {
 
   private notify(name: DocumentEvent, document: Document) {
     this.emitter.emit(name, document);
+  }
+
+  static newInstance() {
+    return new DocumentManager(({ uri, text }: { uri: string; text: string }) => new Document(uri, text));
   }
 }
