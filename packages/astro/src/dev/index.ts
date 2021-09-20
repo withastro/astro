@@ -4,16 +4,12 @@ import type { AstroConfig, ManifestData, RouteCache, RouteData, SSRError } from 
 import type { LogOptions } from '../logger';
 import type { HmrContext, ModuleNode } from 'vite';
 
-import chokidar from 'chokidar';
+import { fileURLToPath } from 'url';
 import connect from 'connect';
 import mime from 'mime';
-import getEtag from 'etag';
 import { performance } from 'perf_hooks';
-import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import stripAnsi from 'strip-ansi';
-import path from 'path';
-import { promises as fs } from 'fs';
 import vite from 'vite';
 import { defaultLogOptions, error, info } from '../logger.js';
 import { createRouteManifest, matchRoute } from '../runtime/routing.js';
@@ -65,7 +61,6 @@ export class AstroDevServer {
   private origin: string;
   private routeCache: RouteCache = {};
   private viteServer: vite.ViteDevServer | undefined;
-  private watcher: chokidar.FSWatcher;
   private mostRecentRoute?: RouteData;
 
   constructor(config: AstroConfig, options: DevOptions) {
@@ -76,20 +71,6 @@ export class AstroDevServer {
     this.port = config.devOptions.port;
     this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${this.port}`;
     this.manifest = createRouteManifest({ config });
-
-    // rebuild manifest on change (watch all events, but only rebuild if .astro or .md files are touched)
-    this.watcher = chokidar.watch(fileURLToPath(config.pages), { ignored: ['!**/*.astro', '!**/*.md', '**'] }); // ignore everything but .astro & .md
-    this.watcher.on('add', () => {
-      this.routeCache = {};
-      this.manifest = createRouteManifest({ config: this.config });
-    });
-    this.watcher.on('unlink', () => {
-      this.routeCache = {};
-      this.manifest = createRouteManifest({ config: this.config });
-    });
-    this.watcher.on('change', () => {
-      this.routeCache = {}; // note: manifests don’t need to be rebuilt on file content changes
-    });
   }
 
   /** Start dev server */
@@ -98,6 +79,7 @@ export class AstroDevServer {
     const devStart = performance.now();
 
     // 2. create Vite instance
+    const pagesDirectory = fileURLToPath(this.config.pages);
     const viteConfig = await loadViteConfig(
       {
         mode: 'development',
@@ -109,6 +91,28 @@ export class AstroDevServer {
       { astroConfig: this.config, logging: this.logging, devServer: this }
     );
     this.viteServer = await vite.createServer(viteConfig);
+    this.viteServer.watcher.on('add', (file) => {
+      // Only rebuild routes if new file is a page.
+      if (!file.startsWith(pagesDirectory)) {
+        return;
+      }
+      this.routeCache = {};
+      this.manifest = createRouteManifest({ config: this.config });
+    });
+    this.viteServer.watcher.on('unlink', (file) => {
+      // Only rebuild routes if deleted file is a page.
+      if (!file.startsWith(pagesDirectory)) {
+        return;
+      }
+      this.routeCache = {};
+      this.manifest = createRouteManifest({ config: this.config });
+    });
+    this.viteServer.watcher.on('change', () => {
+      // No need to rebuild routes on file content changes.
+      // However, we DO want to clear the cache in case
+      // the change caused a getStaticPaths() return to change.
+      this.routeCache = {}; 
+    });
 
     // 3. add middlewares
     this.app.use((req, res, next) => this.handleRequest(req, res, next));
@@ -136,7 +140,6 @@ export class AstroDevServer {
     if (this.httpServer) this.httpServer.close(); // close HTTP server
     await Promise.all([
       ...(this.viteServer ? [this.viteServer.close()] : []), // close Vite server
-      this.watcher.close(), // close chokidar
     ]);
   }
 
