@@ -1,4 +1,4 @@
-import unified from 'unified';
+import * as unified from 'unified';
 import type { Plugin, UnifiedPluginImport } from './types';
 
 async function importPlugin(p: string | UnifiedPluginImport): UnifiedPluginImport {

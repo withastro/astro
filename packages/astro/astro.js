@@ -37,12 +37,22 @@ async function main() {
       });
   }
 
+  const version = process.versions.node;
+
+  // Not supported (incomplete ESM): It's very difficult (impossible?) to load the
+  // dependencies below in an unknown module type. If `require` is undefined, then this file
+  // actually was run as ESM but one of the ESM preflight checks above failed. In that case,
+  // it's okay to hard-code the valid Node versions here since they will not change over time.
+  if (typeof require === 'undefined') {
+    console.error(`\nNode.js v${version} is not supported by Astro!
+Please upgrade to a version of Node.js with complete ESM support: "^12.20.0 || ^14.13.1 || >=16.0.0"\n`);
+  }
+
   // Not supported: Report the most helpful error message possible.
   const pkg = require('./package.json');
   const ci = require('ci-info');
   const semver = require('semver');
   const engines = pkg.engines.node;
-  const version = process.versions.node;
 
   // TODO: Remove "semver" in Astro v1.0: This is mainly just to check our work. Once run in
   // the wild for a bit without error, we can assume our engine range is correct and won't

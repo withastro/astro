@@ -59,8 +59,6 @@ Gatsby 使用 React 来渲染你的网站。Astro 更灵活：你可以自由地
 
 Gatsby 需要一个定制的 GraphQL API 来处理所有的网站内容。虽然有些开发者喜欢这种模式，但对 Gatsby 的一个普遍意见是，这种模式随着时间的推移变得过于复杂和难以维护，特别是随着网站的增长。Astro 没有 GraphQL 要求，而是提供熟悉的 API（如`fetch()`和顶层的`await`），以便在需要数据的地方加载数据。
 
-Gatsby 需要一个定制的 GraphQL API 来处理所有的网站内容。虽然有些开发者喜欢这种模式，但对 Gatsby 的一个普遍意见是，这种模式随着时间的推移变得过于复杂和难以维护，特别是随着网站的增长。Astro 没有 GraphQL 要求，而是提供熟悉的 API（如`fetch()`和顶层的`await`），以便在需要数据的地方加载数据。
-
 #### 对比 Gastby 及 Astro 性能
 
 在大多数情况下，Astro 网站的加载速度将明显快于 Gatsby 网站。这是因为 Astro 会自动从页面中剥离不必要的 JavaScript，只对需要它的个别组件进行渲染。这个功能被称为[局部渲染](/core-concepts/component-hydration)。

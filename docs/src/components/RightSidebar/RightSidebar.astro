@@ -2,7 +2,7 @@
 import TableOfContents from './TableOfContents.jsx';
 import MoreMenu from './MoreMenu.astro';
 const {content, githubEditUrl} = Astro.props;
-const headers = content.astro.headers;
+const headers = content.astro?.headers;
 ---
 <style>
   .sidebar-nav {
@@ -19,7 +19,7 @@ const headers = content.astro.headers;
 </style>
 <nav class="sidebar-nav" aria-labelledby="grid-right">
   <div class="sidebar-nav-inner">
-    <TableOfContents client:media="(min-width: 50em)" headers={headers} />
+    {headers && <TableOfContents client:media="(min-width: 50em)" headers={headers} />}
     <MoreMenu editHref={githubEditUrl} />
   </div>
 </nav>

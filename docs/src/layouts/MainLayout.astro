@@ -8,7 +8,7 @@ import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
 import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
 import { SITE } from "../config.ts";
 
-const { content = {} } = Astro.props;
+const { content = {}, hideRightSidebar = false} = Astro.props;
 const currentPage = Astro.request.url.pathname;
 const currentFile = `src/pages${currentPage.replace(/\/$/, "")}.md`;
 const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`;
@@ -111,12 +111,12 @@ const formatTitle = (content, SITE) => content.title ? `${content.title} 🚀 ${
         <LeftSidebar currentPage={currentPage} />
       </aside>
       <div id="grid-main">
-        <PageContent content={content} githubEditUrl={githubEditUrl}>
+        <PageContent content={content} githubEditUrl={githubEditUrl} currentPage={currentPage}>
           <slot />
         </PageContent>
       </div>
       <aside id="grid-right" class="grid-sidebar" title="Table of Contents">
-        <RightSidebar content={content} githubEditUrl={githubEditUrl} />
+        {!hideRightSidebar && <RightSidebar content={content} githubEditUrl={githubEditUrl} />}
       </aside>
     </main>
   </body>

@@ -39,7 +39,7 @@ Nuestra guía sobre [componentes Astro](https://docs.astro.build/core-concepts/a
 
 ### Referencia de la API
 
-Esta sección de documentación es útil cuando deseas obtener más detalles sobre una API de Astro en particular. Por ejemplo, la [referencia de configuración](https://docs.astro.build/reference/configuration-reference) enumera todas las opciones de configuración disponibles. La [referencia de componentes incluidos](https://docs.astro.build/reference/builtin-components) enumera todos los componentes básicos disponibles, como `<Markdown/>` y `<Prism/>`.
+Esta sección de documentación es útil cuando deseas obtener más detalles sobre una API de Astro en particular. Por ejemplo, la [referencia de configuración](https://docs.astro.build/reference/configuration-reference) enumera todas las opciones de configuración disponibles. La [referencia de componentes incluidos](https://docs.astro.build/reference/builtin-components) enumera todos los componentes básicos disponibles, como `<Markdown />` y `<Code />`.
 
 ### Documentación versionada
 

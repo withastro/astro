@@ -1,5 +1,6 @@
 import { promises as fsPromises, existsSync } from 'fs';
 import { performance } from 'perf_hooks';
+import * as assert from 'uvu/assert';
 
 const MUST_BE_AT_LEAST_PERC_OF = 90;
 

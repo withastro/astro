@@ -4,6 +4,9 @@ import BaseHead from '../components/BaseHead.astro';
 import BlogHeader from '../components/BlogHeader.astro';
 import BlogPostPreview from '../components/BlogPostPreview.astro';
 
+interface MarkdownFrontmatter {
+  publishDate: number;
+}
 
 // Component Script:
 // You can write any JavaScript/TypeScript that you'd like here.
@@ -14,8 +17,9 @@ let description = 'The perfect starter for your perfect blog.';
 let permalink = 'https://example.com/';
 
 // Data Fetching: List all Markdown posts in the repo.
-let allPosts = Astro.fetchContent('./posts/*.md');
-allPosts = allPosts.sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
+
+let allPosts = Astro.fetchContent<MarkdownFrontmatter>('./posts/*.md');
+allPosts = allPosts.sort((a, b) => new Date(b.publishDate).valueOf() - new Date(a.publishDate).valueOf());
 
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/

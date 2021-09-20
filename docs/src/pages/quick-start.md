@@ -23,7 +23,9 @@ npm run dev
 npm run build
 ```
 
-If you wish to learn more about the range of methods to install and setup Astro for your project's, please [read our installation guide.](installation)
+To learn more about installing and using Astro for the first time, please [read our installation guide.](installation)
+
+If you prefer to learn by example, check out our [complete library of examples](https://github.com/snowpackjs/astro/tree/main/examples) on GitHub. You can check out any of these examples locally by running `npm init astro -- --template "EXAMPLE_NAME"`.
 
 ## Start your project
 
@@ -51,10 +53,10 @@ This will instruct Astro to build your site and save it directly to disk. Your a
 
 Astro sites are static, so they can be deployed to your favourite host:
 
-- [Vercel](https://vercel.com/)
-- [Netlify](https://www.netlify.com/)
-- [S3 bucket](https://aws.amazon.com/s3/)
+- [AWS S3 bucket](https://aws.amazon.com/s3/)
 - [Google Firebase](https://firebase.google.com/)
+- [Netlify](https://www.netlify.com/)
+- [Vercel](https://vercel.com/)
 - [Read more about deploying Astro in our Deploy guide.](/guides/deploy)
 
 ## Next Steps

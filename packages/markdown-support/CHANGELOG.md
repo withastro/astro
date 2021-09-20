@@ -1,5 +1,12 @@
 # @astrojs/markdown-support
 
+## 0.3.1
+
+### Patch Changes
+
+- b03f8771: Fix parsing of an empty `<pre></pre>` tag in markdown files, which expected the pre tag to have a child
+- b03f8771: Fix the importing of `unified` `Plugin` and `UnifiedPlugin` types
+
 ## 0.3.0
 
 ### Minor Changes

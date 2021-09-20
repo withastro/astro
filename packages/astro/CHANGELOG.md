@@ -1,5 +1,45 @@
 # astro
 
+## 0.20.7
+
+### Patch Changes
+
+- 3a0dcbe9: Fix pretty byte output in build stats
+- 98d785af: Expose slots to components
+
+## 0.20.6
+
+### Patch Changes
+
+- dd92871f: During CSS bundling separate processing of `rel="preload"` from normal loading stylesheets, to preserve preloads, and source element attributes like `media`.
+- d771dad6: Remove check for referenced files
+- 9cf2df81: Improve stats logging to use `pretty-bytes` so that 20B doesn't get output as 0kB, which is accurate, but confusing
+- 09b2f0e4: Fix passing Markdown content through props (#1259)
+- Updated dependencies [97d37f8f]
+  - @astrojs/renderer-preact@0.2.2
+  - @astrojs/renderer-react@0.2.1
+  - @astrojs/renderer-svelte@0.1.2
+  - @astrojs/renderer-vue@0.1.8
+
+## 0.20.5
+
+### Patch Changes
+
+- b03f8771: Add human readable config verification errors
+- b03f8771: Sitemaps will not create entries for 404.html pages
+- b03f8771: Fix parsing of an empty `<pre></pre>` tag in markdown files, which expected the pre tag to have a child
+- b03f8771: Add new `<Code>` component, powered by the more modern shiki syntax highlighter.
+- b03f8771: Fix astro bin bug in some pre-ESM versions of Node v14.x
+- Updated dependencies [b03f8771]
+- Updated dependencies [b03f8771]
+  - @astrojs/markdown-support@0.3.1
+
+## 0.20.4
+
+### Patch Changes
+
+- 231964f0: Adds interfaces for built-in components
+
 ## 0.20.3
 
 ### Patch Changes

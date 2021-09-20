@@ -37,7 +37,7 @@ Oppaamme [Astron komponenteista](/core-concepts/astro-components) esittelee uude
 
 ### API-luettelo
 
-Tämä dokumentaation osa on hyödyllisin halutessasi oppia yksityiskohtia tietystä Astron rajapinnasta. Muun muassa [asetusluettelo](/reference/configuration-reference) listaa kaikki mahdolliset asetusvaihtoehdot. [Ydinkomponenttien luettelo](/reference/builtin-components) listaa kaikki käytössä olevat Astron mukana tulevat komponentit kuten `<Markdown />` ja `<Prism />`.
+Tämä dokumentaation osa on hyödyllisin halutessasi oppia yksityiskohtia tietystä Astron rajapinnasta. Muun muassa [asetusluettelo](/reference/configuration-reference) listaa kaikki mahdolliset asetusvaihtoehdot. [Ydinkomponenttien luettelo](/reference/builtin-components) listaa kaikki käytössä olevat Astron mukana tulevat komponentit kuten `<Markdown />` ja `<Code />`.
 
 ### Dokumentaation versioinnista
 

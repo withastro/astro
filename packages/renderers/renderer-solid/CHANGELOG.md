@@ -1,5 +1,11 @@
 # @astrojs/renderer-solid
 
+## 0.1.1
+
+### Patch Changes
+
+- 97d37f8f: Update READMEs for all renderers
+
 ## 0.1.0
 
 ### Minor Changes

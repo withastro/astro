@@ -9,7 +9,7 @@ The `Astro` global is available in all contexts in `.astro` files. It has the fo
 
 ### `Astro.fetchContent()`
 
-`Astro.fetchContent()` is a way to load local `*.md` files into your static site setup. You can either use this on its own, or within [Astro Collections](/core-concepts/collections).
+`Astro.fetchContent()` is a way to load local `*.md` files into your static site setup.
 
 ```jsx
 // ./src/components/my-component.astro
@@ -58,20 +58,6 @@ const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of po
 | `url`          | `URL` | The URL of the request being rendered.          |
 | `canonicalURL` | `URL` | [Canonical URL][canonical] of the current page. |
 
-⚠️ Temporary restriction: this is only accessible in top-level pages and not in sub-components.
-
-### `Astro.site`
-
-`Astro.site` returns a `URL` made from `buildOptions.site` in your Astro config. If undefined, this will return a URL generated from `localhost`.
-
-```astro
----
-const path = Astro.site.pathname;
----
-
-<h1>Welcome to {path}</h1>
-```
-
 ### `Astro.resolve()`
 
 `Astro.resolve()` helps with creating URLs relative to the current Astro file, allowing you to reference files within your `src/` folder.
@@ -86,6 +72,29 @@ The above will be sent to the browser as-is and the browser will resolve it rela
 
 ```astro
 <img src={Astro.resolve('../images/penguin.png')} />
+```
+
+### `Astro.site`
+
+`Astro.site` returns a `URL` made from `buildOptions.site` in your Astro config. If undefined, this will return a URL generated from `localhost`.
+
+```astro
+---
+const path = Astro.site.pathname;
+---
+
+<h1>Welcome to {path}</h1>
+```
+
+### `Astro.slots`
+
+`Astro.slots` returns an object with any slotted regions passed into the current Astro file.
+
+```js
+const {
+  heading as headingSlot, // true or undefined, based on whether `<* slot="heading">` was used.
+  default as defaultSlot, // true or undefined, based on whether `<* slot>` or `<* default>` was used.
+} = Astro.slots;
 ```
 
 ## `getStaticPaths()`

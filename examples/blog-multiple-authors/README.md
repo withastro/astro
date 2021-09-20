@@ -4,6 +4,8 @@
 npm init astro -- --template blog-multiple-authors
 ```
 
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/blog-multiple-authors)
+
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
 Features:

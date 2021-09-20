@@ -15,11 +15,23 @@ To get started with Astro in 5 quick and easy steps, visit our [Quick-Start guid
 
 Alternatively, read our [Installation Guide](/installation) for a full walk-through on getting set up with Astro.
 
+### Example Projects
+
+If you prefer to learn Astro by example, check out our [complete library of examples](https://github.com/snowpackjs/astro/tree/main/examples) on GitHub.
+
+You can check out any of these examples on your local machine by running `npm init astro` with the `--template` CLI flag. The `--template` flag also supports third-party, community templates.
+
+```bash
+# Run the init wizard and use this official template
+npm init astro -- --template [OFFICIAL_EXAMPLE_NAME]
+# Run the init wizard and use this community template
+npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
+npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
+```
+
 ### Online Playgrounds
 
-If you're interested in playing around with Astro in the browser, you can use an online code playground. Try our "Hello World!" template on [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
-
-_Note: some features (ex: Fast Refresh) are currently limited on CodeSandbox._
+If you're interested in playing around with Astro in the browser, you can use an online code editor like Stackblitz, CodeSandbox, Gitpod, or GitHub Codespaces. Click the "Open in Stackblitz" link in any of the examples in our [examples library](https://github.com/snowpackjs/astro/tree/main/examples). Or, [click here](https://stackblitz.com/fork/astro) to start a new project in [Stackblitz](https://stackblitz.com/fork/astro).
 
 ## Learn Astro
 
@@ -38,7 +50,7 @@ Our helpful guide on [Astro components](/core-concepts/astro-components) introdu
 
 ### API Reference
 
-This documentation section is useful when you want to learn more details about a particular Astro API. For example, [Configuration Reference](/reference/configuration-reference) lists all possible configuration options available to you. [Built-in Components Reference](/reference/builtin-components) lists all available core components, like `<Markdown />` and `<Prism />`.
+This documentation section is useful when you want to learn more details about a particular Astro API. For example, [Configuration Reference](/reference/configuration-reference) lists all possible configuration options available to you. [Built-in Components Reference](/reference/builtin-components) lists all available core components, like `<Markdown />` and `<Code />`.
 
 ### Versioned Documentation
 

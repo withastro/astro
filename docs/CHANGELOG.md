@@ -1,5 +1,11 @@
 # docs
 
+## 0.0.7
+
+### Patch Changes
+
+- 6b8630c6: Github pages disclaimer
+
 ## 0.0.6
 
 ### Patch Changes

@@ -4,7 +4,7 @@ export const SIDEBAR = {
     { text: 'Getting Started', link: 'getting-started' },
     { text: 'Quickstart', link: 'quick-start' },
     { text: 'Installation', link: 'installation' },
-    { text: 'Examples', link: 'examples' },
+    { text: 'Themes', link: 'themes' },
     { text: 'Astro vs. X', link: 'comparing-astro-vs-other-tools' },
 
     { text: 'Basics', header: true },
@@ -24,8 +24,8 @@ export const SIDEBAR = {
     { text: 'RSS', link: 'guides/rss' },
     { text: 'Supported Imports', link: 'guides/imports' },
     { text: 'Aliases', link: 'guides/aliases' },
-    { text: 'Deploy a Website', link: 'guides/deploy' },
-    { text: 'Publish a Component', link: 'guides/publish-to-npm' },
+    { text: 'Deploy to the web', link: 'guides/deploy' },
+    { text: 'Publish to npm', link: 'guides/publish-to-npm' },
 
     { text: 'Reference', header: true },
     { text: 'Built-In Components', link: 'reference/builtin-components' },

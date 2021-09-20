@@ -1,12 +1,20 @@
-# [Astro](https://astro.build)
+# Astro Starter Kit: Minimal
+
+```
+npm init astro -- --template minimal
+```
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/minimal)
+
+> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+
+## 🚀 Project Structure
 
 Inside of your Astro project, you'll see the following folders and files:
 
 ```
 /
 ├── public/
-│   ├── robots.txt
-│   └── favicon.ico
 ├── src/
 │   └── pages/
 │       └── index.astro

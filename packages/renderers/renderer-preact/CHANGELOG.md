@@ -1,5 +1,11 @@
 # @astrojs/renderer-preact
 
+## 0.2.2
+
+### Patch Changes
+
+- 97d37f8f: Update READMEs for all renderers
+
 ## 0.2.1
 
 ### Patch Changes

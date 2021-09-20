@@ -158,10 +158,23 @@ import { __astro_hoisted_scripts } from 'astro/dist/internal/__astro_hoisted_scr
 const __astroScripts = __astro_hoisted_scripts([${result.components.map((n) => `typeof ${n} !== 'undefined' && ${n}`)}], ${JSON.stringify(result.hoistedScripts)});
 const __astroInternal = Symbol('astro.internal');
 const __astroContext = Symbol.for('astro.context');
+const __astroSlotted = Symbol.for('astro.slotted');
 async function __render(props, ...children) {
   const Astro = Object.create(__TopLevelAstro, {
     props: {
       value: props,
+      enumerable: true
+    },
+    slots: {
+      value: children.reduce(
+        (slots, child) => {
+          for (let name in child.$slots) {
+            slots[name] = Boolean(child.$slots[name])
+          }
+          return slots
+        },
+        {}
+      ),
       enumerable: true
     },
     pageCSS: {

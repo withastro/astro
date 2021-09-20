@@ -1,12 +1,11 @@
 /* eslint-disable no-console */
-import type { AstroConfig } from './@types/astro';
-
-import * as colors from 'kleur/colors';
 import { promises as fsPromises } from 'fs';
+import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
-
-import { loadConfig } from './config.js';
+import { z } from 'zod';
+import type { AstroConfig } from './@types/astro';
 import { build } from './build.js';
+import { formatConfigError, loadConfig } from './config.js';
 import devServer from './dev.js';
 import { preview } from './preview.js';
 import { reload } from './reload.js';
@@ -113,7 +112,11 @@ async function runCommand(rawRoot: string, cmd: (a: AstroConfig, opts: any) => P
 
     return cmd(astroConfig, options);
   } catch (err) {
-    console.error(colors.red(err.toString() || err));
+    if (err instanceof z.ZodError) {
+      console.log(formatConfigError(err));
+    } else {
+      console.error(colors.red(err.toString() || err));
+    }
     process.exit(1);
   }
 }
