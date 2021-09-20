@@ -1,0 +1,52 @@
+---
+import { Markdown } from 'astro/components';
+import BaseHead from '../../components/BaseHead.astro';
+import BlogHeader from '../../components/BlogHeader.astro';
+import BlogPost from '../../components/BlogPost.astro';
+
+let title = 'Astro Demo Day September Edition';
+let description = 'TODO';
+let publishDate = 'September 20, 2021';
+let permalink = 'https://astro.build/blog/astro-repl/astro-repl.png';
+let lang = 'en';
+---
+
+<html lang={ lang ?? 'en' }>
+  <head>
+    <BaseHead title={title} description={description} canonicalURL={permalink} image="/assets/blog/introducing-astro.jpg" />
+    <link rel="stylesheet" href={Astro.resolve('../../scss/blog.css')} />
+    <style>
+      .chat-messages {
+
+      }
+    </style>
+  </head>
+
+  <body>
+    <BlogHeader />
+    <BlogPost title={title} author="matthew" heroImage="/assets/blog/introducing-astro.jpg" publishDate={publishDate}>
+      <Markdown>
+        **Astro Demo Day** was today! We had **4** amazing talks, including one big announcement on the future direction of Astro. If you missed it that's really unfortunate, but good news! You can see the full event [on YouTube](https://www.youtube.com/watch?v=-ExcBJrXOd8) or watch the talks in any order by visiting the links below. So you'll never miss another demo day please [subscribe to our channel](https://www.youtube.com/channel/UCeFjmvZEK-MoefuYXptnX6A), or better yet [join our Discord](https://astro.build/chat) and get involved. Today's demos were:
+
+        * [Developing the Astro VSCode extension](https://youtu.be/-ExcBJrXOd8?t=109) 🧑‍💻 from [Matthew Phillips](https://twitter.com/matthewcp)
+        * [Integrating a CMS - Astro+Forestry+Netlify](https://youtu.be/-ExcBJrXOd8?t=763) 🌳 from [Tony Sullivan](https://twitter.com/matthewcp)
+        * [The Astro SEO component](https://youtu.be/-ExcBJrXOd8?t=1384) 🗃 from [Jonas](https://twitter.com/jonasmerlin1)
+        * [Astro's v2 Compiler and a Surprise](https://youtu.be/-ExcBJrXOd8?t=2070) 🪄 from [Drew Powers](https://twitter.com/drwpow) and [Nate Moore](https://twitter.com/n_moore)
+
+        As is always the case our community was very hype about the presentations.
+
+        <img alt="Messages from the Demo Day chat room on Discord" src="/assets/blog/demo-day-september-edition/discord-chat.jpg" class="chat-messages" />
+
+        ## astro@next
+
+        In their talk on the changes coming to the new compiler Drew and Nate unveiled a few new features not available in Astro today. They *also* unveiled a surprising new runtime for Astro. You'll have to watch the talk to learn what those are...
+
+        What I can say, however, is that we are getting close to a PR and preview release of the v2 compiler. In fact it might have already happened! By tomorrow we fully expect you to be able to install and try out the new version of Astro through an `astro@next` tag published to [npm](https://www.npmjs.com/package/astro).
+
+        If you're not already, follow [@astrodotbuild](https://twitter.com/astrodotbuild) on Twitter and await that announcement.
+
+        These demo days keep getting better; I can't wait to see what we have in October!
+      </Markdown>
+    </BlogPost>
+  </body>
+</html>
