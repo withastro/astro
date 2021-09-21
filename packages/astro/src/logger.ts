@@ -65,7 +65,7 @@ export interface LogMessage {
   args: Array<any>;
 }
 
-const levels: Record<LoggerLevel, number> = {
+export const levels: Record<LoggerLevel, number> = {
   debug: 20,
   info: 30,
   warn: 40,

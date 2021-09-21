@@ -79,7 +79,94 @@ export class AstroDevServer {
     const devStart = performance.now();
 
     // 2. create Vite instance
-    const pagesDirectory = fileURLToPath(this.config.pages);
+    this.viteServer = await this.createViteServer();
+
+    // 3. add middlewares
+    this.app.use((req, res, next) => this.handleRequest(req, res, next));
+    this.app.use(this.viteServer.middlewares);
+    this.app.use((req, res, next) => this.renderError(req, res, next));
+
+    // 4. listen on port (and retry if taken)
+    await new Promise<void>((resolve, reject) => {
+      const onError = (err: NodeJS.ErrnoException) => {
+        if (err.code && err.code === 'EADDRINUSE') {
+          info(this.logging, 'astro', msg.portInUse({ port: this.port }));
+          this.port++;
+        } else {
+          error(this.logging, 'astro', err.stack);
+          this.httpServer?.removeListener('error', onError);
+          reject(err);
+        }
+      };
+
+      this.httpServer = this.app.listen(this.port, this.hostname, () => {
+        info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
+        info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}` }));
+        resolve();
+      });
+      this.httpServer.on('error', onError);
+    });
+  }
+
+  /** Stop dev server */
+  async stop() {
+    this.internalCache = new Map();
+    this.httpServer?.close(); // close HTTP server
+    if (this.viteServer) await this.viteServer.close(); // close Vite server
+  }
+
+  /** Handle HMR */
+  public async handleHotUpdate({ file, modules }: HmrContext): Promise<void | ModuleNode[]> {
+    if (!this.viteServer) throw new Error(`AstroDevServer.start() not called`);
+
+    for (const module of modules) {
+      this.viteServer.moduleGraph.invalidateModule(module);
+    }
+
+    const route = this.mostRecentRoute;
+    const pathname = route?.pathname ?? '/';
+
+    if (!route) {
+      this.viteServer.ws.send({
+        type: 'full-reload',
+      });
+      return [];
+    }
+
+    try {
+      // try to update the most recent route
+      const html = await ssr({
+        astroConfig: this.config,
+        filePath: new URL(`./${route.component}`, this.config.projectRoot),
+        logging: this.logging,
+        mode: 'development',
+        origin: this.origin,
+        pathname,
+        route,
+        routeCache: this.routeCache,
+        viteServer: this.viteServer,
+      });
+
+      // TODO: log update
+      this.viteServer.ws.send({
+        type: 'custom',
+        event: 'astro:reload',
+        data: { html },
+      });
+      return [];
+    } catch (e) {
+      const err = e as Error;
+      this.viteServer.ssrFixStacktrace(err);
+      console.log(err.stack);
+      this.viteServer.ws.send({
+        type: 'full-reload',
+      });
+      return [];
+    }
+  }
+
+  /** Set up Vite server */
+  private async createViteServer() {
     const viteConfig = await loadViteConfig(
       {
         mode: 'development',
@@ -90,8 +177,10 @@ export class AstroDevServer {
       },
       { astroConfig: this.config, logging: this.logging, devServer: this }
     );
-    this.viteServer = await vite.createServer(viteConfig);
-    this.viteServer.watcher.on('add', (file) => {
+    const viteServer = await vite.createServer(viteConfig);
+
+    const pagesDirectory = fileURLToPath(this.config.pages);
+    viteServer.watcher.on('add', (file) => {
       // Only rebuild routes if new file is a page.
       if (!file.startsWith(pagesDirectory)) {
         return;
@@ -99,7 +188,7 @@ export class AstroDevServer {
       this.routeCache = {};
       this.manifest = createRouteManifest({ config: this.config });
     });
-    this.viteServer.watcher.on('unlink', (file) => {
+    viteServer.watcher.on('unlink', (file) => {
       // Only rebuild routes if deleted file is a page.
       if (!file.startsWith(pagesDirectory)) {
         return;
@@ -107,40 +196,14 @@ export class AstroDevServer {
       this.routeCache = {};
       this.manifest = createRouteManifest({ config: this.config });
     });
-    this.viteServer.watcher.on('change', () => {
+    viteServer.watcher.on('change', () => {
       // No need to rebuild routes on file content changes.
       // However, we DO want to clear the cache in case
       // the change caused a getStaticPaths() return to change.
-      this.routeCache = {}; 
+      this.routeCache = {};
     });
 
-    // 3. add middlewares
-    this.app.use((req, res, next) => this.handleRequest(req, res, next));
-    this.app.use(this.viteServer.middlewares);
-    this.app.use((req, res, next) => this.renderError(req, res, next));
-
-    // 4. listen on port
-    this.httpServer = this.app.listen(this.port, this.hostname, () => {
-      info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
-      info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}` }));
-    });
-    this.httpServer.on('error', (err: NodeJS.ErrnoException) => {
-      if (err.code && err.code === 'EADDRINUSE') {
-        error(this.logging, 'astro', `Address ${this.hostname}:${this.port} already in use. Try changing devOptions.port in your config file`);
-      } else {
-        error(this.logging, 'astro', err.stack);
-      }
-      process.exit(1);
-    });
-  }
-
-  /** Stop dev server */
-  async stop() {
-    this.internalCache = new Map();
-    if (this.httpServer) this.httpServer.close(); // close HTTP server
-    await Promise.all([
-      ...(this.viteServer ? [this.viteServer.close()] : []), // close Vite server
-    ]);
+    return viteServer;
   }
 
   /** The primary router (runs before Vite, in case we need to modify or intercept anything) */
@@ -245,54 +308,5 @@ export class AstroDevServer {
     });
     res.write(html);
     res.end();
-  }
-
-  public async handleHotUpdate({ file, modules }: HmrContext): Promise<void | ModuleNode[]> {
-    if (!this.viteServer) throw new Error(`AstroDevServer.start() not called`);
-
-    for (const module of modules) {
-      this.viteServer.moduleGraph.invalidateModule(module);
-    }
-
-    const route = this.mostRecentRoute;
-    const pathname = route?.pathname ?? '/';
-
-    if (!route) {
-      this.viteServer.ws.send({
-        type: 'full-reload',
-      });
-      return [];
-    }
-
-    try {
-      // try to update the most recent route
-      const html = await ssr({
-        astroConfig: this.config,
-        filePath: new URL(`./${route.component}`, this.config.projectRoot),
-        logging: this.logging,
-        mode: 'development',
-        origin: this.origin,
-        pathname,
-        route,
-        routeCache: this.routeCache,
-        viteServer: this.viteServer,
-      });
-
-      // TODO: log update
-      this.viteServer.ws.send({
-        type: 'custom',
-        event: 'astro:reload',
-        data: { html },
-      });
-      return [];
-    } catch (e) {
-      const err = e as Error;
-      this.viteServer.ssrFixStacktrace(err);
-      console.log(err.stack);
-      this.viteServer.ws.send({
-        type: 'full-reload',
-      });
-      return [];
-    }
   }
 }

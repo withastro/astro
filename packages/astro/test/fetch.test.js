@@ -1,23 +1,24 @@
+/**
+ * UNCOMMENT: add fetch() in component support
+
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
+let fixture;
+
+beforeAll(async () => {
+  fixture = await loadFixture({ projectRoot: './fixtures/fetch/' });
+  await fixture.build();
+});
+
+
 describe('Global Fetch', () => {
-  let fixture;
-  let devServer;
-
-  beforeAll(async () => {
-    fixture = await loadFixture({ projectRoot: './fixtures/fetch/' });
-    devServer = await fixture.dev();
-  });
-
   test('Is available in non-Astro components.', async () => {
-    const html = await fixture.fetch('/').then((res) => res.text());
+    const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
     expect($('#jsx').text()).toBe('function');
   });
-
-  // important: close dev server (free up port and connection)
-  afterAll(async () => {
-    await devServer.stop();
-  });
 });
+*/
+
+test.skip('is skipped', () => {});

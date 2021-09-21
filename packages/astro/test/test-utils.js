@@ -1,23 +1,16 @@
 import execa from 'execa';
-import fs from 'fs';
 import fetch from 'node-fetch';
-import { open } from 'sqlite';
-import sqlite3 from 'sqlite3';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { loadConfig } from '../dist/config.js';
-import dev from '../dist/dev/index.js';
 import build from '../dist/build/index.js';
 import preview from '../dist/preview/index.js';
-import { fileURLToPath } from 'url';
 
 /**
  * Load Astro fixture
  * @param {Object} inlineConfig Astro config partial (note: must specify projectRoot)
  * @returns {Object} Fixture. Has the following properties:
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
- *
- *   Dev
- *   .dev()          - Async. Starts a dev server (note: you must call `await server.stop()` before test exit)
- *   .fetch()        - Async. Returns a URL from the dev server (must have called .dev() before)
  *
  *   Build
  *   .build()        - Async. Builds into current folder (will erase previous build)
@@ -42,29 +35,19 @@ export async function loadFixture(inlineConfig) {
   if (!inlineConfig.buildOptions) inlineConfig.buildOptions = {};
   if (inlineConfig.buildOptions.sitemap === undefined) inlineConfig.buildOptions.sitemap = false;
   if (!inlineConfig.devOptions) inlineConfig.devOptions = {};
-  inlineConfig.devOptions.port = await uniquePort(); // force each test to have its own port
-  if (!inlineConfig.devOptions.hostname) inlineConfig.devOptions.hostname = 'localhost';
-  if (!inlineConfig.dist) inlineConfig.dist = './dist/';
-  if (!inlineConfig.pages) inlineConfig.pages = './src/pages/';
-  if (!inlineConfig.public) inlineConfig.public = './public/';
-  if (!inlineConfig.src) inlineConfig.src = './src/';
-  let config = await loadConfig(cwd);
-  config = merge(config, {
-    ...inlineConfig,
-    projectRoot: cwd,
-    dist: new URL(inlineConfig.dist, cwd),
-    pages: new URL(inlineConfig.pages, cwd),
-    public: new URL(inlineConfig.public, cwd),
-    src: new URL(inlineConfig.src, cwd),
-  });
+  let config = await loadConfig({ cwd: fileURLToPath(cwd) });
+  config = merge(config, { ...inlineConfig, projectRoot: cwd });
 
   return {
-    build: (opts = {}) => build(config, { logging: 'error', ...opts }),
-    dev: (opts = {}) => dev(config, { logging: 'error', ...opts }),
+    build: (opts = {}) => build(config, { mode: 'development', logging: 'error', ...opts }),
     config,
-    fetch: (url) => fetch(`http://${config.devOptions.hostname}:${config.devOptions.port}${url}`),
-    readFile: (filePath) => fs.promises.readFile(new URL(`${filePath.replace(/^\/?/, '')}`, config.dist), 'utf8'),
-    preview: (opts = {}) => preview(config, { logging: 'error', ...opts }),
+    fetch: (url, init) => fetch(`http://${config.devOptions.hostname}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
+    preview: async (opts = {}) => {
+      const previewServer = await preview(config, { logging: 'error', ...opts });
+      inlineConfig.devOptions.port = previewServer.port; // update port for fetch
+      return previewServer;
+    },
+    readFile: (filePath) => fs.promises.readFile(fileURLToPath(config.dist) + filePath, 'utf8'),
   };
 }
 
@@ -79,7 +62,7 @@ function merge(a, b) {
   const c = {};
   for (const k of allKeys) {
     const needsObjectMerge =
-      typeof a[k] === 'object' && typeof b[k] === 'object' && Object.keys(a[k]).length && Object.keys(b[k]).length && !Array.isArray(a[k]) && !Array.isArray(b[k]);
+      typeof a[k] === 'object' && typeof b[k] === 'object' && (Object.keys(a[k]).length || Object.keys(b[k]).length) && !Array.isArray(a[k]) && !Array.isArray(b[k]);
     if (needsObjectMerge) {
       c[k] = merge(a[k] || {}, b[k] || {});
       continue;
@@ -97,23 +80,4 @@ export function devCLI(root, additionalArgs = []) {
   const args = [cliURL.pathname, 'dev', '--project-root', root.pathname].concat(additionalArgs);
   const proc = execa('node', args);
   return proc;
-}
-
-let db;
-const DB_PATH = new URL('./test-state.sqlite', import.meta.url);
-
-/**
- * Get a unique port. Uses sqlite to share state across multiple threads.
- * Also has better success than get-port due to race conditions and inability to work with multiple processes.
- */
-export async function uniquePort() {
-  if (!db) db = await open({ filename: fileURLToPath(DB_PATH), driver: sqlite3.Database });
-  let lastPort = 2999; // first run: start at 3001
-  const row = await db.get(`SELECT port FROM test_ports ORDER BY ID DESC LIMIT 1`);
-  if (row) {
-    lastPort = parseInt(row.port, 10);
-  }
-  lastPort += 1; // bump by one
-  await db.run(`INSERT INTO test_ports (port) VALUES (${lastPort});`);
-  return lastPort;
 }

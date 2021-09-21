@@ -8,7 +8,7 @@ import { performance } from 'perf_hooks';
 import vite, { ViteDevServer } from 'vite';
 import { fileURLToPath } from 'url';
 import { pad } from '../dev/util.js';
-import { defaultLogOptions, warn } from '../logger.js';
+import { defaultLogOptions, levels, warn } from '../logger.js';
 import { generatePaginateFunction } from '../runtime/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../runtime/routing.js';
 import { generateRssFunction } from '../runtime/rss.js';
@@ -18,6 +18,7 @@ import { kb, profileHTML, profileJS } from './stats.js';
 import { generateSitemap } from '../runtime/sitemap.js';
 
 export interface BuildOptions {
+  mode?: string;
   logging: LogOptions;
 }
 
@@ -30,6 +31,7 @@ export default async function build(config: AstroConfig, options: BuildOptions =
 class AstroBuilder {
   private config: AstroConfig;
   private logging: LogOptions;
+  private mode = 'production';
   private origin: string;
   private routeCache: RouteCache = {};
   private manifest: ManifestData;
@@ -39,6 +41,7 @@ class AstroBuilder {
       warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
     }
 
+    if (options.mode) this.mode = options.mode;
     this.config = config;
     const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
     this.logging = options.logging;
@@ -51,10 +54,10 @@ class AstroBuilder {
     const start = performance.now();
 
     // 1. initialize fresh Vite instance
-    const { config, logging, origin } = this;
+    const { logging, origin } = this;
     const viteConfig = await loadViteConfig(
       {
-        mode: 'production',
+        mode: this.mode,
         server: {
           hmr: { overlay: false },
           middlewareMode: 'ssr',
@@ -65,7 +68,6 @@ class AstroBuilder {
     const viteServer = await vite.createServer(viteConfig);
 
     // 2. get all routes
-    const outDir = new URL('./dist/', this.config.projectRoot);
     const allPages: Promise<{ html: string; name: string }>[] = [];
     const assets: Record<string, string> = {}; // additional assets to be written
     await Promise.all(
@@ -86,7 +88,7 @@ class AstroBuilder {
           const staticPaths = await this.getStaticPathsForRoute(route, viteServer);
           // handle RSS (TODO: improve this?)
           if (staticPaths.rss && staticPaths.rss.xml) {
-            const rssFile = new URL(staticPaths.rss.url.replace(/^\/?/, './'), outDir);
+            const rssFile = new URL(staticPaths.rss.url.replace(/^\/?/, './'), this.config.dist);
             if (assets[fileURLToPath(rssFile)]) {
               throw new Error(
                 `[getStaticPaths] RSS feed ${staticPaths.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`
@@ -97,10 +99,12 @@ class AstroBuilder {
           // TODO: throw error if conflict
           staticPaths.paths.forEach((staticPath) => {
             allPages.push(
-              ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname: staticPath, viteServer }).then((html) => ({
-                html,
-                name: staticPath.replace(/\/?$/, '/index.html').replace(/^\//, ''),
-              }))
+              ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname: staticPath, viteServer }).then(
+                (html) => ({
+                  html,
+                  name: staticPath.replace(/\/?$/, '/index.html').replace(/^\//, ''),
+                })
+              )
             );
           });
         }
@@ -115,15 +119,13 @@ class AstroBuilder {
       build: {
         emptyOutDir: true,
         minify: 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
-        outDir: fileURLToPath(outDir),
+        outDir: fileURLToPath(this.config.dist),
         rollupOptions: {
           input: [],
           output: { format: 'esm' },
         },
         target: 'es2020', // must match an esbuild target
       },
-      root: fileURLToPath(config.projectRoot),
-      server: viteConfig.server,
       plugins: [
         rollupPluginHTML({
           input,
@@ -131,37 +133,43 @@ class AstroBuilder {
         }),
         ...(viteConfig.plugins || []),
       ],
+      publicDir: viteConfig.publicDir,
+      root: viteConfig.root,
+      server: viteConfig.server,
     });
 
     // 4. write assets to disk
-    await Promise.all(
-      Object.keys(assets).map(async (k) => {
-        if (!assets[k]) return;
-        const filePath = new URL(`file://${k}`);
-        await fs.promises.mkdir(new URL('./', filePath), { recursive: true });
-        await fs.promises.writeFile(filePath, assets[k], 'utf8');
-        delete assets[k]; // free up memory
-      })
-    );
+    Object.keys(assets).map((k) => {
+      if (!assets[k]) return;
+      const filePath = new URL(`file://${k}`);
+      fs.mkdirSync(new URL('./', filePath), { recursive: true });
+      fs.writeFileSync(filePath, assets[k], 'utf8');
+      delete assets[k]; // free up memory
+    });
 
     // 5. build sitemap
     let sitemapTime = 0;
     if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
       const sitemapStart = performance.now();
       const sitemap = generateSitemap(input.map(({ name }) => new URL(`/${name}`, this.config.buildOptions.site).href));
-      const sitemapPath = new URL('sitemap.xml', outDir);
+      const sitemapPath = new URL('sitemap.xml', this.config.dist);
       await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
       await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
       sitemapTime = performance.now() - sitemapStart;
     }
 
-    // 6. log output
-    await this.printStats({
-      cwd: outDir,
-      pageCount: input.length,
-      pageTime: Math.round(performance.now() - start),
-      sitemapTime,
-    });
+    // 6. clean up
+    await viteServer.close();
+
+    // 7. log output
+    if (logging.level && levels[logging.level] <= levels['info']) {
+      await this.printStats({
+        cwd: this.config.dist,
+        pageCount: input.length,
+        pageTime: Math.round(performance.now() - start),
+        sitemapTime,
+      });
+    }
   }
 
   /** Extract all static paths from a dynamic route */
