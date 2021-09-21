@@ -9,6 +9,7 @@ import type {
   SignatureHelp,
   SignatureHelpContext,
   TextDocumentIdentifier,
+  WorkspaceEdit
 } from 'vscode-languageserver';
 import type { DocumentManager } from '../core/documents';
 import type * as d from './interfaces';
@@ -125,6 +126,16 @@ export class PluginHost {
     } else {
       return definitions.map((def) => <Location>{ range: def.targetSelectionRange, uri: def.targetUri });
     }
+  }
+
+  async rename(textDocument: TextDocumentIdentifier, position: Position, newName: string): Promise<WorkspaceEdit | null> {
+    const document = this.getDocument(textDocument.uri);
+    if (!document) {
+      throw new Error('Cannot call methods on an unopened document');
+    }
+
+    return this.execute<any>('rename', [document, position, newName], ExecuteMode.FirstNonNull);
+
   }
 
   async getSignatureHelp(

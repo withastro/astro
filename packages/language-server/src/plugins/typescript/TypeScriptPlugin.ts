@@ -5,7 +5,8 @@ import type {
   Diagnostic,
   Hover,
   SignatureHelp,
-  SignatureHelpContext
+  SignatureHelpContext,
+  WorkspaceEdit
 } from 'vscode-languageserver';
 import { join as pathJoin, dirname as pathDirname } from 'path';
 import { Document, DocumentManager } from '../../core/documents';
@@ -50,6 +51,36 @@ export class TypeScriptPlugin implements CompletionsProvider {
 
   async doHover(document: Document, position: Position): Promise<Hover | null> {
     return this.hoverProvider.doHover(document, position);
+  }
+
+  async rename(document: Document, position: Position, newName: string): Promise<WorkspaceEdit | null> {
+    const { lang, tsDoc } = await this.languageServiceManager.getTypeScriptDoc(document);
+    const fragment = await tsDoc.getFragment();
+
+    const offset = fragment.offsetAt(fragment.getGeneratedPosition(position));
+
+    let renames = lang.findRenameLocations(toVirtualAstroFilePath(tsDoc.filePath), offset, false, false, true);
+    if(!renames) {
+      return null;
+    }
+
+    let edit = {
+      changes: {}
+    } as WorkspaceEdit;
+
+    renames.forEach(rename => {
+      const filePath = ensureRealAstroFilePath(rename.fileName);
+      if(!(filePath in edit.changes!)) {
+        edit.changes![filePath] = [];
+      }
+
+      edit.changes![filePath].push({
+        newText: newName,
+        range: convertToLocationRange(fragment, rename.textSpan)
+      });
+    });
+
+    return edit;
   }
 
   async getCompletions(document: Document, position: Position, completionContext?: CompletionContext): Promise<AppCompletionList<CompletionEntryWithIdentifer> | null> {

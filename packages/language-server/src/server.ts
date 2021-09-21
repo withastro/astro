@@ -45,6 +45,7 @@ export function startServer() {
         textDocumentSync: TextDocumentSyncKind.Incremental,
         foldingRangeProvider: true,
         definitionProvider: true,
+        renameProvider: true,
         completionProvider: {
           resolveProvider: true,
           triggerCharacters: [
@@ -145,6 +146,7 @@ export function startServer() {
   connection.onFoldingRanges((evt) => pluginHost.getFoldingRanges(evt.textDocument));
   connection.onRequest(TagCloseRequest, (evt: any) => pluginHost.doTagComplete(evt.textDocument, evt.position));
   connection.onSignatureHelp((evt, cancellationToken) => pluginHost.getSignatureHelp(evt.textDocument, evt.position, evt.context, cancellationToken));
+  connection.onRenameRequest(evt => pluginHost.rename(evt.textDocument, evt.position, evt.newName));
 
   docManager.on(
       'documentChange',
