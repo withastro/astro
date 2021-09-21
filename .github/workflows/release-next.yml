@@ -20,3 +20,5 @@ jobs:
         run: git checkout -- examples/ docs/ www/
       - # 3: publish!
         run: yarn release --tag next--compiler
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
