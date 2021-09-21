@@ -62,6 +62,7 @@ class AstroBuilder {
           hmr: { overlay: false },
           middlewareMode: 'ssr',
         },
+        ...(this.config.vite || {}),
       },
       { astroConfig: this.config, logging }
     );
