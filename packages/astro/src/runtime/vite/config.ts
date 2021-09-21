@@ -66,12 +66,13 @@ export async function loadViteConfig(
   );
 
   // load client-side hydrations
-  (await fs.promises.readdir(new URL('../../client', import.meta.url))).forEach((hydrator) => {
+  fs.readdirSync(new URL('../../client', import.meta.url)).forEach((hydrator) => {
     optimizedDeps.add(`astro/client/${hydrator}`); // always prepare these for client
   });
 
   return deepmerge(
     {
+      cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
       clearScreen: false,
       logLevel: 'error',
       optimizeDeps: {
