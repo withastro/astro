@@ -1,7 +1,6 @@
 import type { AstroConfig, AstroUserConfig } from './@types/astro';
 
 import { existsSync } from 'fs';
-import getPort from 'get-port';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { pathToFileURL } from 'url';
@@ -58,10 +57,7 @@ export const AstroConfigSchema = z.object({
   devOptions: z
     .object({
       hostname: z.string().optional().default('localhost'),
-      port: z
-        .number()
-        .optional()
-        .transform((val) => val || getPort({ port: getPort.makeRange(3000, 3050) })),
+      port: z.number().optional().default(3000),
       tailwindConfig: z.string().optional(),
       trailingSlash: z
         .union([z.literal('always'), z.literal('never'), z.literal('ignore')])
