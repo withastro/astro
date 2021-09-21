@@ -45,6 +45,7 @@
     "@types/rimraf": "^3.0.2",
     "@web/rollup-plugin-html": "^1.9.1",
     "astring": "^1.7.5",
+    "cheerio": "^1.0.0-rc.10",
     "ci-info": "^3.2.0",
     "connect": "^3.7.0",
     "es-module-lexer": "^0.7.1",
