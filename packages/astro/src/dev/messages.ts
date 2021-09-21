@@ -30,3 +30,8 @@ export function devStart({ startupTime }: { startupTime: number }): string {
 export function devHost({ host }: { host: string }): string {
   return `Local: ${bold(magenta(host))}`;
 }
+
+/** Display port in use */
+export function portInUse({ port }: { port: number }): string {
+  return `Port ${port} in use. Trying a new one…`;
+}

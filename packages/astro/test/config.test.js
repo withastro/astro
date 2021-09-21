@@ -1,20 +1,21 @@
-import { loadConfig } from '../dist/config';
 import { devCLI, loadFixture } from './test-utils.js';
+
+let hostnameFixture;
+let portFixture;
+
+beforeAll(async () => {
+  [hostnameFixture, portFixture] = await Promise.all([loadFixture({ projectRoot: './fixtures/config-hostname/' }), loadFixture({ projectRoot: './fixtures/config-port/' })]);
+});
 
 describe('config', () => {
   describe('hostname', () => {
-    const cwd = './fixtures/config-hostname/';
-    const cwdURL = new URL(cwd, import.meta.url);
-
     test('can be specified in astro.config.mjs', async () => {
-      const fixture = await loadFixture({
-        projectRoot: cwd,
-        devOptions: { hostname: '0.0.0.0' },
-      });
-      expect(fixture.config.devOptions.hostname).toBe('0.0.0.0');
+      expect(hostnameFixture.config.devOptions.hostname).toBe('0.0.0.0');
     });
 
     test('can be specified via --hostname flag', async () => {
+      const cwd = './fixtures/config-hostname/';
+      const cwdURL = new URL(cwd, import.meta.url);
       const args = ['--hostname', '127.0.0.1'];
       const proc = devCLI(cwdURL, args);
 
@@ -25,16 +26,13 @@ describe('config', () => {
           break;
         }
       }
-
-      proc.kill();
     });
   });
 
   describe('path', () => {
-    const cwd = './fixtures/config-path/';
-    const cwdURL = new URL(cwd, import.meta.url);
-
     test('can be passed via --config', async () => {
+      const cwd = './fixtures/config-path/';
+      const cwdURL = new URL(cwd, import.meta.url);
       const configPath = new URL('./config/my-config.mjs', cwdURL).pathname;
       const args = ['--config', configPath];
       const process = devCLI(cwdURL, args);
@@ -45,35 +43,12 @@ describe('config', () => {
           break;
         }
       }
-
-      process.kill();
-      // test will time out if the server never started
     });
   });
 
   describe('port', () => {
-    const cwd = './fixtures/config-port/';
-    const cwdURL = new URL(cwd, import.meta.url);
-
-    test.skip('can be specified in astro.config.mjs', async () => {
-      const config = await loadConfig(cwdURL);
-      expect(config.devOptions.port).toEqual(5001);
-    });
-
-    test.skip('can be specified via --port flag', async () => {
-      const args = ['--port', '5002']; // note: this should be on the higher-end of possible ports
-      const proc = devCLI(cwdURL, args);
-
-      proc.stdout.setEncoding('utf8');
-      for await (const chunk of proc.stdout) {
-        if (/Local:/.test(chunk)) {
-          expect(chunk).toEqual(expect.stringContaining(':5002'));
-          break;
-        }
-      }
-
-      proc.kill();
-      // test will time out on a different port
+    test('can be specified in astro.config.mjs', async () => {
+      expect(portFixture.config.devOptions.port).toEqual(5006);
     });
   });
 });

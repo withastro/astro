@@ -1,17 +1,16 @@
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
+let fixture;
+
+beforeAll(async () => {
+  fixture = await loadFixture({ projectRoot: './fixtures/vue-component/' });
+  await fixture.build();
+});
+
 describe('Vue component', () => {
-  let fixture;
-  let devServer;
-
-  beforeAll(async () => {
-    fixture = await loadFixture({ projectRoot: './fixtures/vue-component/' });
-    devServer = await fixture.dev();
-  });
-
   test('Can load Vue', async () => {
-    const html = await fixture.fetch('/').then((res) => res.text());
+    const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
     const allPreValues = $('pre')
@@ -30,10 +29,5 @@ describe('Vue component', () => {
     // test 5: all <astro-root>s have unique uid attributes
     const uniqueRootUIDs = $('astro-root').map((i, el) => $(el).attr('uid'));
     expect(new Set(uniqueRootUIDs).size).toBe(4);
-  });
-
-  // important: close dev server (free up port and connection)
-  afterAll(async () => {
-    await devServer.stop();
   });
 });
