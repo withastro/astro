@@ -1,0 +1,22 @@
+name: release astro@next--compiler
+
+on:
+  push:
+    branches:
+      - next
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - run: yarn
+      - # 1. create new snapshot version
+        run: yarn changeset version --snapshot compiler
+      - # 2. discard examples/docs/www changes (just in case)
+        run: git checkout -- examples/ docs/ www/
+      - # 3: publish!
+        run: yarn release --tag next--compiler
