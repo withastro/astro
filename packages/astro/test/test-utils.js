@@ -47,7 +47,7 @@ export async function loadFixture(inlineConfig) {
       inlineConfig.devOptions.port = previewServer.port; // update port for fetch
       return previewServer;
     },
-    readFile: (filePath) => fs.promises.readFile(fileURLToPath(config.dist) + filePath, 'utf8'),
+    readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
   };
 }
 

@@ -2,7 +2,6 @@ import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from 'vite';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
 import type { LogOptions } from '../logger';
-import type { PathsOutput } from 'fdir';
 
 import cheerio from 'cheerio';
 import * as eslexer from 'es-module-lexer';

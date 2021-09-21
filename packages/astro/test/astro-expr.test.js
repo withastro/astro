@@ -1,5 +1,5 @@
 /**
- * UNCOMMENT: merge https://github.com/snowpackjs/astro-compiler-next/pull/21
+ * UNCOMMENT: @astrojs/compiler transform error
 
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -14,9 +14,8 @@ beforeAll(async () => {
   await fixture.build();
 });
 
-
 describe('Expressions', () => {
-  test.skip('Can load page', async () => {
+  test('Can load page', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
@@ -25,7 +24,7 @@ describe('Expressions', () => {
     }
   });
 
-  test.skip('Ignores characters inside of strings', async () => {
+  test('Ignores characters inside of strings', async () => {
     const html = await fixture.readFile('/strings/index.html');
     const $ = cheerio.load(html);
 
@@ -34,7 +33,7 @@ describe('Expressions', () => {
     }
   });
 
-  test.skip('Ignores characters inside of line comments', async () => {
+  test('Ignores characters inside of line comments', async () => {
     const html = await fixture.readFile('/line-comments/index.html');
     const $ = cheerio.load(html);
 
@@ -43,7 +42,7 @@ describe('Expressions', () => {
     }
   });
 
-  test.skip('Ignores characters inside of multiline comments', async () => {
+  test('Ignores characters inside of multiline comments', async () => {
     const html = await fixture.readFile('/multiline-comments/index.html');
     const $ = cheerio.load(html);
 
@@ -52,14 +51,14 @@ describe('Expressions', () => {
     }
   });
 
-  test.skip('Allows multiple JSX children in mustache', async () => {
+  test('Allows multiple JSX children in mustache', async () => {
     const html = await fixture.readFile('/multiple-children/index.html');
 
     expect(html).toEqual(expect.stringContaining('#f'));
     expect(html).not.toEqual(expect.stringContaining('#t'));
   });
 
-  test.skip('Allows <> Fragments in expressions', async () => {
+  test('Allows <> Fragments in expressions', async () => {
     const html = await fixture.readFile('/multiple-children/index.html');
     const $ = cheerio.load(html);
 
@@ -69,7 +68,7 @@ describe('Expressions', () => {
     expect($('#fragment').children('#c')).toHaveLength(1);
   });
 
-  test.skip('Does not render falsy values using &&', async () => {
+  test('Does not render falsy values using &&', async () => {
     const html = await fixture.readFile('/falsy/index.html');
     const $ = cheerio.load(html);
 
