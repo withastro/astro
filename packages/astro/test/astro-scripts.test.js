@@ -16,8 +16,11 @@ Scripts('Moves external scripts up', async ({ runtime }) => {
   const html = result.contents;
 
   const $ = doc(html);
-  assert.equal($('head script[type="module"][data-astro="hoist"]').length, 2);
+  console.debug(result.contents)
+  assert.equal($('head script[type="module"][data-astro="hoist"]').length, 3);
+  assert.equal($(`script[src*='Astro.resolve(']`).length, 0, 'did not parse out `Astro.resolve` from `src`');
   assert.equal($('body script').length, 0);
+
 });
 
 Scripts('Moves inline scripts up', async ({ runtime }) => {
@@ -31,7 +34,7 @@ Scripts('Moves inline scripts up', async ({ runtime }) => {
   assert.equal($('body script').length, 0);
 });
 
-Scripts('Builds the scripts to a single bundle', async ({ build, readFile }) => {
+Scripts.only('Builds the scripts to a single bundle', async ({ build, readFile }) => {
   try {
     await build();
   } catch (err) {
@@ -52,7 +55,8 @@ Scripts('Builds the scripts to a single bundle', async ({ build, readFile }) => 
   /* External page */
   let external = await readFile('/external/index.html');
   $ = doc(external);
-  assert.equal($('script').length, 2, 'There are two scripts');
+  assert.equal($('script').length, 3, 'There are three scripts');
+  assert.equal($(`script[src*='Astro.resolve(']`).length, 0, 'did not parse out `Astro.resolve` from `src`');
   let el = $('script').get(1);
   entryURL = path.join('external', $(el).attr('src'));
   let externalEntryJS = await readFile(entryURL);
