@@ -22,7 +22,8 @@ jobs:
           - os: windows-latest
             node_version: 14
       fail-fast: false
-
+    env:
+      LANG: en-us
     name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
     steps:
       - name: Checkout

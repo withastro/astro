@@ -87,10 +87,10 @@ describe('Astro basics', () => {
       const result = await fixture.fetch('/bad-url');
       expect(result.status).toBe(404);
     });
-
-    // important: close preview server (free up port and connection)
-    afterAll(async () => {
-      await previewServer.stop();
-    });
   });
+});
+
+// important: close preview server (free up port and connection)
+afterAll(async () => {
+  if (previewServer) await previewServer.stop();
 });

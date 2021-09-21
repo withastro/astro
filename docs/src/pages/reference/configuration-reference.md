@@ -22,7 +22,3 @@ export default /** @type {import('astro').AstroUserConfig} */ (
   }
 );
 ```
-
-## Snowpack Config
-
-Astro is powered internally by Snowpack. You can configure Snowpack directly by creating a `snowpack.config.mjs` file. See [snowpack.dev](https://www.snowpack.dev/reference/configuration) for full documentation on this file.
