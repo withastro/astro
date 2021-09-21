@@ -48,7 +48,7 @@
     "@typescript-eslint/eslint-plugin": "^4.22.0",
     "@typescript-eslint/parser": "^4.18.0",
     "autoprefixer": "^10.2.6",
-    "cheerio": "^1.0.0-rc.6",
+    "cheerio": "^1.0.0-rc.10",
     "cheerio-select-tmp": "^0.1.1",
     "del": "^6.0.0",
     "esbuild": "^0.11.17",
