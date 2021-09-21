@@ -52,7 +52,6 @@
     "estree-util-value-to-estree": "^1.2.0",
     "fast-xml-parser": "^3.19.0",
     "fdir": "^5.1.0",
-    "get-port": "^5.1.1",
     "html-entities": "^2.3.2",
     "kleur": "^4.1.4",
     "mime": "^2.5.2",
@@ -82,9 +81,7 @@
     "@types/mime": "^2.0.3",
     "@types/node-fetch": "^2.5.12",
     "@types/send": "^0.17.1",
-    "@types/yargs-parser": "^20.2.1",
-    "sqlite": "^4.0.23",
-    "sqlite3": "^5.0.2"
+    "@types/yargs-parser": "^20.2.1"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0",

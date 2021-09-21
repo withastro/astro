@@ -2,23 +2,22 @@ import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
-let devServer;
+
+beforeAll(async () => {
+  fixture = await loadFixture({ projectRoot: './fixtures/astro-attrs/' });
+  await fixture.build();
+});
 
 describe('Attributes', () => {
-  beforeAll(async () => {
-    fixture = await loadFixture({ projectRoot: './fixtures/astro-attrs/' });
-    devServer = await fixture.dev();
-  });
-
   test('Passes attributes to elements as expected', async () => {
-    const html = await fixture.fetch('/').then((res) => res.html());
+    const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
     const attrs = {
       'false-str': 'false',
       'true-str': 'true',
       false: undefined,
-      true: '',
+      true: 'true',
       empty: '',
       null: undefined,
       undefined: undefined,
@@ -31,7 +30,7 @@ describe('Attributes', () => {
   });
 
   test('Passes boolean attributes to components as expected', async () => {
-    const html = await fixture.fetch('/component').then((res) => res.text());
+    const html = await fixture.readFile('/component/index.html');
     const $ = cheerio.load(html);
 
     expect($('#true').attr('attr')).toBe('attr-true');
@@ -41,22 +40,17 @@ describe('Attributes', () => {
   });
 
   test('Passes namespaced attributes as expected', async () => {
-    const html = await fixture.fetch('/namespaced').then((res) => res.text());
-    const $ = cheerio.load(result.contents);
+    const html = await fixture.readFile('/namespaced/index.html');
+    const $ = cheerio.load(html);
 
     expect($('div').attr('xmlns:happy')).toBe('https://example.com/schemas/happy');
     expect($('img').attr('happy:smile')).toBe('sweet');
   });
 
   test('Passes namespaced attributes to components as expected', async () => {
-    const html = await fixture.fetch('/namespaced-component');
+    const html = await fixture.readFile('/namespaced-component/index.html');
     const $ = cheerio.load(html);
 
-    expect($('span').attr('on:click')).toEqual(Function.prototype.toString.call((event) => console.log(event)));
-  });
-
-  // important: close dev server (free up port and connection)
-  afterAll(async () => {
-    await devServer.close();
+    expect($('span').attr('on:click')).toEqual('(event) => console.log(event)');
   });
 });
