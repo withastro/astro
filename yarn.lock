@@ -113,6 +113,14 @@
   dependencies:
     typescript "^4.3.5"
 
+"@astrojs/renderer-solid@0.1.1", "@astrojs/renderer-solid@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@astrojs/renderer-solid/-/renderer-solid-0.1.1.tgz#9563e146c8adcb7ae5e42f200775c1d2f17b4ef9"
+  integrity sha512-69ZQIPp5bOhYXp7A/65VJ8sliwYNv4vJWbYh7noyAOrhD4a5kEnbAz6Y36UrldhRxEUr14QRNluMV0UqrxKJUw==
+  dependencies:
+    babel-preset-solid "^1.0.0"
+    solid-js "^1.0.0"
+
 "@babel/code-frame@7.12.11":
   version "7.12.11"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.11.tgz#f4ad435aa263db935b8f10f2c552d23fb716a63f"
@@ -2855,6 +2863,15 @@ babel-plugin-jsx-dom-expressions@^0.29.16:
     "@babel/plugin-syntax-jsx" "^7.10.4"
     "@babel/types" "^7.11.5"
 
+babel-plugin-jsx-dom-expressions@^0.29.17:
+  version "0.29.17"
+  resolved "https://registry.yarnpkg.com/babel-plugin-jsx-dom-expressions/-/babel-plugin-jsx-dom-expressions-0.29.17.tgz#5ce45842a5127b188a8a594d826d2755c121c6d5"
+  integrity sha512-RGd2bUEu6Ym+t/eqS+CwhTMRBnoIgVUEPDD+rUx5GhwLLuGBbJI2tTC0Q92ScX1I5hQpJgveAvaaoDjjyGkgPA==
+  dependencies:
+    "@babel/helper-module-imports" "^7.10.4"
+    "@babel/plugin-syntax-jsx" "^7.10.4"
+    "@babel/types" "^7.11.5"
+
 babel-plugin-module-resolver@^4.1.0:
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/babel-plugin-module-resolver/-/babel-plugin-module-resolver-4.1.0.tgz#22a4f32f7441727ec1fbf4967b863e1e3e9f33e2"
@@ -2891,6 +2908,13 @@ babel-preset-jest@^27.2.0:
   dependencies:
     babel-plugin-jest-hoist "^27.2.0"
     babel-preset-current-node-syntax "^1.0.0"
+
+babel-preset-solid@^1.0.0:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/babel-preset-solid/-/babel-preset-solid-1.1.5.tgz#0f4d7d36723e243ecc17a4354e3df2196602d9c6"
+  integrity sha512-u+s+3zwErLfQzNqE6BfMRxfalxjSCm7BY/ua4pkCHlUuS5KrCFF/i4Bv5G98Z2uC9fWRXoD1nAu5zXA79vwkZA==
+  dependencies:
+    babel-plugin-jsx-dom-expressions "^0.29.17"
 
 babel-preset-solid@^1.1.1:
   version "1.1.3"
@@ -10351,6 +10375,11 @@ socks@^2.3.3, socks@^2.6.1:
   dependencies:
     ip "^1.1.5"
     smart-buffer "^4.1.0"
+
+solid-js@^1.0.0:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/solid-js/-/solid-js-1.1.5.tgz#d06ca0ec0e7dc54912d230ff889df1dd240d4f03"
+  integrity sha512-cwMNe1U/1bqCTMco2za6LDU66jDn/57m5kfrDUhW3ls9YIbaREdktqPFGULrill22qyoFDngEg5hgm6a6vf6wg==
 
 solid-js@^1.1.1:
   version "1.1.4"
