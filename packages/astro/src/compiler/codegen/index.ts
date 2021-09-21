@@ -675,9 +675,15 @@ async function compileHtml(enterNode: TemplateNode, state: CodegenState, compile
                 }
                 if (attributes.hoist) {
                   if (attributes.src) {
-                    state.hoistedScripts.push({
-                      src: attributes.src.substr(1, attributes.src.length - 2),
-                    });
+                    let src = attributes.src.substr(1, attributes.src.length - 2);
+                    const astroResolveMatch = src.match(/^Astro.resolve\(['|"](.*)['|"]\)$/);
+
+                    if (astroResolveMatch !== null) {
+                      const filepath = path.posix.resolve(path.posix.dirname(filename), astroResolveMatch[1]);
+                      src = filepath.replace(astroConfig.src.pathname, '');
+                    }
+
+                    state.hoistedScripts.push({ src });
                   } else if (node.children && node.children.length === 1 && node.children[0].type === 'Text') {
                     state.hoistedScripts.push({
                       content: node.children[0].data,
