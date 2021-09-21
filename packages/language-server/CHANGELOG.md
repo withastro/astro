@@ -1,5 +1,13 @@
 # @astrojs/language-server
 
+## 0.7.14
+
+### Patch Changes
+
+- e0facf6: Adds an AstroCheck export, to allow running diagnostics programmatically
+- 3c903c3: Add DiagnosticSeverity as an export
+- b0a8bc1: Added Rename Symbol capability
+
 ## 0.7.13
 
 ### Patch Changes
