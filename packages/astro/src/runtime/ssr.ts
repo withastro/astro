@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import path from 'path';
 import { renderPage } from './astro.js';
-import { fdir } from 'fdir';
+import glob from 'tiny-glob';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 import { parseNpmName, canonicalURL as getCanonicalURL, codeFrame } from './util.js';
@@ -176,7 +176,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
   const Component = await mod.default;
   const ext = path.posix.extname(filePath.pathname);
   if (!Component)
-    throw new Error(`Expected an exported Astro component but recieved typeof ${typeof Component}`);
+    throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
   
   if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
@@ -201,24 +201,19 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
   }
 
   const createFetchContent = (currentFilePath: string) => {
+    const fetchContentCache = new Map<string, any>();
     return async (pattern: string) => {
       const cwd = path.dirname(currentFilePath);
-      const crawler = new fdir().glob(pattern);
-      const files = await crawler.crawlWithOptions(cwd, {
-        resolvePaths: true,
-        includeBasePath: true,
-        filters: [(p) => p !== currentFilePath]
-      }).withPromise() as PathsOutput;
-
+      const cacheKey = `${cwd}:${pattern}`;
+      if (fetchContentCache.has(cacheKey)) {
+        return fetchContentCache.get(cacheKey);
+      }
+      const files = await glob(pattern, { cwd, absolute: true });
       const contents = await Promise.all(files.map(async file => {
-        const { default: ChildComponent } = (await viteServer.ssrLoadModule(file)) as ComponentInstance;
-        return renderPage({ 
-          ...result,
-          createAstro: (props: any) => {
-            return { props }
-          },
-        }, ChildComponent, {}, null);
+        const { metadata: astro = {}, frontmatter = {} } = (await viteServer.ssrLoadModule(file)) as any;
+        return { ...frontmatter, astro };
       }))
+      fetchContentCache.set(cacheKey, contents);
       return contents;
     }
   }
