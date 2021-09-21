@@ -1,9 +1,9 @@
 import cheerio from 'cheerio';
 import * as eslexer from 'es-module-lexer';
-import { fdir } from 'fdir';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import slash from 'slash';
+import glob from 'tiny-glob';
 import { fileURLToPath } from 'url';
 
 type FileSizes = { [file: string]: number };
@@ -30,8 +30,8 @@ interface HTMLOutput {
 
 /** Scan any directory */
 async function scan(cwd: URL, pattern: string): Promise<URL[]> {
-  const results: string[] = (await new fdir().glob(pattern).withFullPaths().crawl(fileURLToPath(cwd)).withPromise()) as any;
-  return results.map((filepath) => new URL(`file://${slash(filepath)}`));
+  const results = await glob(pattern, { cwd: fileURLToPath(cwd) });
+  return results.map((filepath) => new URL(slash(filepath), cwd));
 }
 
 /** get total HTML size */
