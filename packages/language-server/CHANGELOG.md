@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.15
+
+### Patch Changes
+
+- 6340a79: Adds dts files for using the language server programmatically
+
 ## 0.7.14
 
 ### Patch Changes
