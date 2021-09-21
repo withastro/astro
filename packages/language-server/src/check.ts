@@ -2,6 +2,7 @@ import type { Diagnostic } from 'vscode-languageserver';
 import { DocumentManager } from './core/documents';
 import { ConfigManager } from './core/config';
 import { PluginHost, TypeScriptPlugin } from './plugins';
+export { DiagnosticSeverity } from 'vscode-languageserver-protocol';
 
 interface GetDiagnosticsResult {
   filePath: string;

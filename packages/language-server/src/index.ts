@@ -1,2 +1,2 @@
-export { AstroCheck } from './check';
+export { AstroCheck, DiagnosticSeverity } from './check';
 export { startServer } from './server';
