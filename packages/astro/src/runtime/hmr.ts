@@ -1,4 +1,4 @@
-import '/@vite/client';
+import '@vite/client';
 
 if (import.meta.hot) {
   const parser = new DOMParser();

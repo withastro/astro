@@ -169,66 +169,67 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       pageProps = { ...matchedStaticPath.props } || {};
     }
 
-  // 3. render page
-  if (!browserHash && (viteServer as any)._optimizeDepsMetadata?.browserHash) browserHash = (viteServer as any)._optimizeDepsMetadata.browserHash; // note: this is "private" and may change over time
-  const fullURL = new URL(pathname, origin);
+    // 3. render page
+    if (!browserHash && (viteServer as any)._optimizeDepsMetadata?.browserHash) browserHash = (viteServer as any)._optimizeDepsMetadata.browserHash; // note: this is "private" and may change over time
+    const fullURL = new URL(pathname, origin);
 
-  const Component = await mod.default;
-  const ext = path.posix.extname(filePath.pathname);
-  if (!Component)
-    throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
-  
-  if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
+    const Component = await mod.default;
+    const ext = path.posix.extname(filePath.pathname);
+    if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
-  const result = {
-    styles: new Set(),
-    scripts: new Set(),
-    /** This function returns the `Astro` faux-global */
-    createAstro: (props: any) => {
-      const site = new URL(origin);
-      const url = new URL('.' + pathname, site);
-      const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin)
-      const fetchContent = createFetchContent(fileURLToPath(filePath));
-      return { 
-        isPage: true,
-        site,
-        request: { url, canonicalURL },
-        props,
-        fetchContent
+    if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
+
+    const result = {
+      styles: new Set(),
+      scripts: new Set(),
+      /** This function returns the `Astro` faux-global */
+      createAstro: (props: any) => {
+        const site = new URL(origin);
+        const url = new URL('.' + pathname, site);
+        const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin);
+        const fetchContent = createFetchContent(fileURLToPath(filePath));
+        return {
+          isPage: true,
+          site,
+          request: { url, canonicalURL },
+          props,
+          fetchContent,
+        };
+      },
+      _metadata: { importedModules, renderers },
+    };
+
+    const createFetchContent = (currentFilePath: string) => {
+      const fetchContentCache = new Map<string, any>();
+      return async (pattern: string) => {
+        const cwd = path.dirname(currentFilePath);
+        const cacheKey = `${cwd}:${pattern}`;
+        if (fetchContentCache.has(cacheKey)) {
+          return fetchContentCache.get(cacheKey);
+        }
+        const files = await glob(pattern, { cwd, absolute: true });
+        const contents = await Promise.all(
+          files.map(async (file) => {
+            const { metadata: astro = {}, frontmatter = {} } = (await viteServer.ssrLoadModule(file)) as any;
+            return { ...frontmatter, astro };
+          })
+        );
+        fetchContentCache.set(cacheKey, contents);
+        return contents;
       };
-    },
-    _metadata: { importedModules, renderers },
-  }
+    };
 
-  const createFetchContent = (currentFilePath: string) => {
-    const fetchContentCache = new Map<string, any>();
-    return async (pattern: string) => {
-      const cwd = path.dirname(currentFilePath);
-      const cacheKey = `${cwd}:${pattern}`;
-      if (fetchContentCache.has(cacheKey)) {
-        return fetchContentCache.get(cacheKey);
-      }
-      const files = await glob(pattern, { cwd, absolute: true });
-      const contents = await Promise.all(files.map(async file => {
-        const { metadata: astro = {}, frontmatter = {} } = (await viteServer.ssrLoadModule(file)) as any;
-        return { ...frontmatter, astro };
-      }))
-      fetchContentCache.set(cacheKey, contents);
-      return contents;
+    let html = await renderPage(result, Component, {}, null);
+
+    // 4. modify response
+    if (mode === 'development') {
+      // inject Astro HMR code
+      html = injectAstroHMR(html);
+      // inject Vite HMR code
+      html = injectViteClient(html);
+      // replace client hydration scripts
+      html = resolveNpmImports(html);
     }
-  }
-
-  let html = await renderPage(result, Component, {}, null);
-
-  // 4. modify response
-  if (mode === 'development') {
-    // inject Astro HMR code
-    html = injectAstroHMR(html);
-    // inject Vite HMR code
-    html = injectViteClient(html);
-    // replace client hydration scripts
-    html = resolveNpmImports(html);
-  }
 
     // 5. finish
     return html;
