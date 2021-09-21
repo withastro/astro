@@ -106,7 +106,10 @@ export async function check(astroConfig: AstroConfig) {
     });
   });
 
-  console.log(result);
+  if(result.errors) {
+    console.error(`Found ${result.errors} errors.`)
+  }
+
   const exitCode = result.errors ? 1 : 0;
   return exitCode;
 }
