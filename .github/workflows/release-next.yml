@@ -18,7 +18,8 @@ jobs:
         run: yarn changeset version --snapshot compiler
       - # 2. discard examples/docs/www changes (just in case)
         run: git checkout -- examples/ docs/ www/
-      - # 3: publish!
+      - # 3: auth
+        run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN  }}' > ${{ github.workspace }}/.npmrc
+      - # 4: publish!
         run: yarn release --tag next--compiler
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
