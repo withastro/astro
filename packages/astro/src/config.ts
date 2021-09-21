@@ -106,7 +106,7 @@ interface LoadConfigOptions {
 
 /** Adds '/' to end of string but doesn’t double-up */
 function addTrailingSlash(str: string): string {
-  return str.replace(/\/+?$/, '/');
+  return str.replace(/\/*$/, '/');
 }
 
 interface LoadConfigOptions {
