@@ -1,12 +1,11 @@
-import type { InlineConfig, Plugin } from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../../logger';
 
 import fs from 'fs';
 import slash from 'slash';
-import deepmerge from 'deepmerge';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import vite from 'vite';
 import { getPackageJSON, parseNpmName } from '../util.js';
 import astro from './plugin-astro.js';
 import markdown from './plugin-markdown.js';
@@ -16,7 +15,7 @@ import { AstroDevServer } from '../../dev';
 const require = createRequire(import.meta.url);
 
 // note: ssr is still an experimental API hence the type omission
-type ViteConfigWithSSR = InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
+type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
 
 /** Return a common starting point for all Vite actions */
 export async function loadViteConfig(
@@ -70,7 +69,7 @@ export async function loadViteConfig(
     optimizedDeps.add(`astro/client/${hydrator}`); // always prepare these for client
   });
 
-  return deepmerge(
+  return vite.mergeConfig(
     {
       cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
       clearScreen: false,
