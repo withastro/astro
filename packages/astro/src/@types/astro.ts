@@ -91,6 +91,8 @@ export interface AstroUserConfig {
      */
     trailingSlash?: 'always' | 'never' | 'ignore';
   };
+  /** Pass configuration options to Vite */
+  vite?: vite.InlineConfig;
 }
 
 // NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that

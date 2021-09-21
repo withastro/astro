@@ -66,6 +66,7 @@ export const AstroConfigSchema = z.object({
     })
     .optional()
     .default({}),
+  vite: z.any().optional().default({}), // TODO: we don’t need validation, but can we get better type inference?
 });
 
 /** Turn raw config values into normalized values */
