@@ -1,5 +1,6 @@
 import type { SnapshotFragment, DocumentSnapshot } from '../DocumentSnapshot';
 import type { LanguageServiceManager } from '../LanguageServiceManager';
+import type { TextSpan } from 'typescript';
 
 /**
  * Checks if this a section that should be completely ignored
@@ -17,7 +18,7 @@ export function isInGeneratedCode(text: string, start: number, end: number) {
  * Checks that this isn't a text span that should be completely ignored
  * because it's purely generated.
  */
-export function isNoTextSpanInGeneratedCode(text: string, span: ts.TextSpan) {
+export function isNoTextSpanInGeneratedCode(text: string, span: TextSpan) {
   return !isInGeneratedCode(text, span.start, span.start + span.length);
 }
 

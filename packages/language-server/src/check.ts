@@ -21,6 +21,8 @@ export class AstroCheck {
 
   upsertDocument(doc: { text: string; uri: string }) {
     this.docManager.openDocument({
+      languageId: 'astro',
+      version: 0,
       text: doc.text,
       uri: doc.uri
     });

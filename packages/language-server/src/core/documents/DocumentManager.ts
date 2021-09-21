@@ -18,7 +18,7 @@ export class DocumentManager {
     return this.documents.get(normalizeUri(uri));
   }
 
-  openDocument(textDocument: Pick<TextDocumentItem, 'text' | 'uri'>) {
+  openDocument(textDocument: TextDocumentItem) {
     let document: Document;
     if (this.documents.has(textDocument.uri)) {
       document = this.get(textDocument.uri) as Document;

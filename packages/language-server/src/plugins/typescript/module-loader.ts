@@ -1,5 +1,5 @@
 import ts from 'typescript';
-import type { DocumentSnapshot } from './SnapshotManager';
+import type { DocumentSnapshot } from './DocumentSnapshot';
 import { isVirtualAstroFilePath, ensureRealAstroFilePath, getExtensionFromScriptKind } from './utils';
 import { createAstroSys } from './astro-sys';
 
