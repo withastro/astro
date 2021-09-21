@@ -1,7 +1,6 @@
 import type { TransformResult } from '@astrojs/compiler';
 import type { Plugin } from 'vite';
 import type { AstroConfig, Renderer } from '../../@types/astro.js';
-import type { TransformResult } from '@astrojs/compiler';
 
 import esbuild from 'esbuild';
 import fs from 'fs';

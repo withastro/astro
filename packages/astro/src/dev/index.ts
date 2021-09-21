@@ -174,6 +174,7 @@ export class AstroDevServer {
           middlewareMode: 'ssr',
           host: this.hostname,
         },
+        ...(this.config.vite || {}),
       },
       { astroConfig: this.config, logging: this.logging, devServer: this }
     );
