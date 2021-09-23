@@ -8,6 +8,7 @@ import * as eslexer from 'es-module-lexer';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import path from 'path';
+import slash from 'slash';
 import { renderPage } from './astro.js';
 import glob from 'tiny-glob';
 import { generatePaginateFunction } from './paginate.js';
@@ -87,8 +88,8 @@ async function resolveRenderers(viteServer: ViteDevServer, ids: string[]) {
   return renderers;
 }
 
-async function resolveImportedModules(viteServer: ViteDevServer, file: string) {
-  const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(file);
+async function resolveImportedModules(viteServer: ViteDevServer, file: URL) {
+  const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(slash(fileURLToPath(file))); // note: for some reason Vite expects forward slashes here for Windows, which `slash()` helps resolve
   const modulesByFile = viteServer.moduleGraph.getModulesByFile(url);
   if (!modulesByFile) {
     return {};
@@ -138,7 +139,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     // 1.5. resolve renderers and imported modules.
     // important that this happens _after_ ssrLoadModule, otherwise `importedModules` would be empty
-    const [renderers, importedModules] = await Promise.all([resolveRenderers(viteServer, astroConfig.renderers), resolveImportedModules(viteServer, fileURLToPath(filePath))]);
+    const [renderers, importedModules] = await Promise.all([resolveRenderers(viteServer, astroConfig.renderers), resolveImportedModules(viteServer, filePath)]);
 
     // 2. handle dynamic routes
     let params: Params = {};
