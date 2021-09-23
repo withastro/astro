@@ -1,11 +1,11 @@
 /**
  * UNCOMMENT: add getStaticPaths()
-
+import { expect } from 'chai';
 import { loadFixture } from './test-utils';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({
     projectRoot: './fixtures/astro-get-static-paths/',
     buildOptions: {
@@ -17,11 +17,11 @@ beforeAll(async () => {
 });
 
 describe('getStaticPaths()', () => {
-  test('is only called once during build', () => {
+  it('is only called once during build', () => {
     // useless expect; if build() throws in setup then this test fails
-    expect(true).toBe(true);
+    expect(true).to.equal(true);
   });
 });
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});

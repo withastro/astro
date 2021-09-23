@@ -1,12 +1,12 @@
 /**
  * UNCOMMENT: @astrojs/compiler transform error
-
+import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({
     projectRoot: './fixtures/astro-expr/',
     renderers: ['@astrojs/renderer-preact'],
@@ -15,93 +15,93 @@ beforeAll(async () => {
 });
 
 describe('Expressions', () => {
-  test('Can load page', async () => {
+  it('Can load page', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
     for (let col of ['red', 'yellow', 'blue']) {
-      expect($('#' + col)).toHaveLength(1);
+      expect($('#' + col)).to.have.lengthOf(1);
     }
   });
 
-  test('Ignores characters inside of strings', async () => {
+  it('Ignores characters inside of strings', async () => {
     const html = await fixture.readFile('/strings/index.html');
     const $ = cheerio.load(html);
 
     for (let col of ['red', 'yellow', 'blue']) {
-      expect($('#' + col)).toHaveLength(1);
+      expect($('#' + col)).to.have.lengthOf(1);
     }
   });
 
-  test('Ignores characters inside of line comments', async () => {
+  it('Ignores characters inside of line comments', async () => {
     const html = await fixture.readFile('/line-comments/index.html');
     const $ = cheerio.load(html);
 
     for (let col of ['red', 'yellow', 'blue']) {
-      expect($('#' + col)).toHaveLength(1);
+      expect($('#' + col)).to.have.lengthOf(1);
     }
   });
 
-  test('Ignores characters inside of multiline comments', async () => {
+  it('Ignores characters inside of multiline comments', async () => {
     const html = await fixture.readFile('/multiline-comments/index.html');
     const $ = cheerio.load(html);
 
     for (let col of ['red', 'yellow', 'blue']) {
-      expect($('#' + col)).toHaveLength(1);
+      expect($('#' + col)).to.have.lengthOf(1);
     }
   });
 
-  test('Allows multiple JSX children in mustache', async () => {
+  it('Allows multiple JSX children in mustache', async () => {
     const html = await fixture.readFile('/multiple-children/index.html');
 
-    expect(html).toEqual(expect.stringContaining('#f'));
-    expect(html).not.toEqual(expect.stringContaining('#t'));
+    expect(html).to.include('#f');
+    expect(html).not.to.include('#t');
   });
 
-  test('Allows <> Fragments in expressions', async () => {
+  it('Allows <> Fragments in expressions', async () => {
     const html = await fixture.readFile('/multiple-children/index.html');
     const $ = cheerio.load(html);
 
-    expect($('#fragment').children()).toHaveLength(3);
-    expect($('#fragment').children('#a')).toHaveLength(1);
-    expect($('#fragment').children('#b')).toHaveLength(1);
-    expect($('#fragment').children('#c')).toHaveLength(1);
+    expect($('#fragment').children()).to.have.lengthOf(3);
+    expect($('#fragment').children('#a')).to.have.lengthOf(1);
+    expect($('#fragment').children('#b')).to.have.lengthOf(1);
+    expect($('#fragment').children('#c')).to.have.lengthOf(1);
   });
 
-  test('Does not render falsy values using &&', async () => {
+  it('Does not render falsy values using &&', async () => {
     const html = await fixture.readFile('/falsy/index.html');
     const $ = cheerio.load(html);
 
     // test 1: Expected {true && <span id="true" />} to render
-    expect($('#true')).toHaveLength(1);
+    expect($('#true')).to.have.lengthOf(1);
 
     // test 2: Expected {0 && "VALUE"} to render "0"
-    expect($('#zero').text()).toBe('0');
+    expect($('#zero').text()).to.equal('0');
 
     // test 3: Expected {false && <span id="false" />} not to render
-    expect($('#false')).toHaveLength(0);
+    expect($('#false')).to.have.lengthOf(0);
 
     // test 4: Expected {null && <span id="null" />} not to render
-    expect($('#null')).toHaveLength(0);
+    expect($('#null')).to.have.lengthOf(0);
 
     // test 5: Expected {undefined && <span id="undefined" />} not to render
-    expect($('#undefined')).toHaveLength(0);
+    expect($('#undefined')).to.have.lengthOf(0);
 
     // Inside of a component
 
     // test 6: Expected {true && <span id="true" />} to render
-    expect($('#frag-true')).toHaveLength(1);
+    expect($('#frag-true')).to.have.lengthOf(1);
 
     // test 7: Expected {false && <span id="false" />} not to render
-    expect($('#frag-false')).toHaveLength(0);
+    expect($('#frag-false')).to.have.lengthOf(0);
 
     // test 8: Expected {null && <span id="null" />} not to render
-    expect($('#frag-null')).toHaveLength(0);
+    expect($('#frag-null')).to.have.lengthOf(0);
 
     // test 9: Expected {undefined && <span id="undefined" />} not to render
-    expect($('#frag-undefined')).toHaveLength(0);
+    expect($('#frag-undefined')).to.have.lengthOf(0);
   });
 });
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});

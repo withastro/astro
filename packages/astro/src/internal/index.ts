@@ -3,7 +3,6 @@ import type { AstroComponentMetadata } from '../@types/astro';
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import shorthash from 'shorthash';
-import { renderToString, renderAstroComponent } from '../runtime/astro.js';
 
 const { generate, GENERATOR } = astring;
 
@@ -77,11 +76,11 @@ export interface AstroComponentFactory {
   isAstroComponentFactory?: boolean;
 }
 
-export const createComponent = (cb: AstroComponentFactory) => {
+export function createComponent(cb: AstroComponentFactory) {
   // Add a flag to this callback to mark it as an Astro component
   (cb as any).isAstroComponentFactory = true;
   return cb;
-};
+}
 
 function extractHydrationDirectives(inputProps: Record<string | number, any>): { hydrationDirective: [string, any] | null; props: Record<string | number, any> } {
   let props: Record<string | number, any> = {};
@@ -135,14 +134,14 @@ setup("${astroId}", {${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.
   return hydrationScript;
 }
 
-export const renderSlot = async (result: any, slotted: string, fallback?: any) => {
+export async function renderSlot(result: any, slotted: string, fallback?: any) {
   if (slotted) {
     return _render(slotted);
   }
   return fallback;
-};
+}
 
-export const renderComponent = async (result: any, displayName: string, Component: unknown, _props: Record<string | number, any>, slots?: any) => {
+export async function renderComponent(result: any, displayName: string, Component: unknown, _props: Record<string | number, any>, slots?: any) {
   Component = await Component;
   // children = await renderGenerator(children);
   const { renderers } = result._metadata;
@@ -196,35 +195,73 @@ export const renderComponent = async (result: any, displayName: string, Componen
   result.scripts.add(await generateHydrateScript({ renderer, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
   return `<astro-root uid="${astroId}">${html}</astro-root>`;
-};
+}
 
-export const addAttribute = (value: any, key: string) => {
+export function addAttribute(value: any, key: string) {
   if (value == null || value === false) {
     return '';
   }
   return ` ${key}="${value}"`;
-};
+}
 
-export const spreadAttributes = (values: Record<any, any>) => {
+export function spreadAttributes(values: Record<any, any>) {
   let output = '';
   for (const [key, value] of Object.entries(values)) {
     output += addAttribute(value, key);
   }
   return output;
-};
+}
 
-export const defineStyleVars = (astroId: string, vars: Record<any, any>) => {
+export function defineStyleVars(astroId: string, vars: Record<any, any>) {
   let output = '\n';
   for (const [key, value] of Object.entries(vars)) {
     output += `  --${key}: ${value};\n`;
   }
   return `.${astroId} {${output}}`;
-};
+}
 
-export const defineScriptVars = (vars: Record<any, any>) => {
+export function defineScriptVars(vars: Record<any, any>) {
   let output = '';
   for (const [key, value] of Object.entries(vars)) {
     output += `let ${key} = ${JSON.stringify(value)};\n`;
   }
   return output;
-};
+}
+
+export async function renderToString(result: any, componentFactory: AstroComponentFactory, props: any, children: any) {
+  const Component = await componentFactory(result, props, children);
+  let template = await renderAstroComponent(Component);
+  return template;
+}
+
+export async function renderPage(result: any, Component: AstroComponentFactory, props: any, children: any) {
+  const template = await renderToString(result, Component, props, children);
+  const styles = Array.from(result.styles).map((style: any) => renderElement('style', style));
+  const scripts = Array.from(result.scripts);
+  return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
+}
+
+export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
+  let template = '';
+
+  for await (const value of component) {
+    if (value || value === 0) {
+      template += value;
+    }
+  }
+
+  return template;
+}
+
+function renderElement(name: string, { props: _props, children = '' }: { props: Record<any, any>; children?: string }) {
+  const { hoist: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
+  if (defineVars) {
+    if (name === 'style') {
+      children = defineStyleVars(astroId, defineVars) + '\n' + children;
+    }
+    if (name === 'script') {
+      children = defineScriptVars(defineVars) + '\n' + children;
+    }
+  }
+  return `<${name}${spreadAttributes(props)}>${children}</${name}>`;
+}

@@ -1,12 +1,12 @@
 /**
  * UNCOMMENT: fix "window is not defined" Vite error
-
+import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({
     projectRoot: './fixtures/lit-element/',
     renderers: ['@astrojs/renderer-lit'],
@@ -15,7 +15,7 @@ beforeAll(async () => {
 });
 
 describe('LitElement test', () => {
-  test('Renders a custom element by tag name', async () => {
+  it('Renders a custom element by tag name', async () => {
     // lit SSR is not currently supported on Node.js < 13
     if (process.versions.node <= '13') {
       return;
@@ -24,25 +24,25 @@ describe('LitElement test', () => {
     const $ = cheerio.load(html);
 
     // test 1: attributes rendered
-    expect($('my-element').attr('foo')).toBe('bar');
+    expect($('my-element').attr('foo')).to.equal('bar');
 
     // test 2: shadow rendered
-    expect($('my-element').html()).toEqual(expect.stringContaining(`<div>Testing...</div>`));
+    expect($('my-element').html()).to.include(`<div>Testing...</div>`);
   });
 
   // Skipped because not supported by Lit
-  test.skip('Renders a custom element by the constructor', async () => {
+  it.skip('Renders a custom element by the constructor', async () => {
     const html = await fixture.fetch('/ctr/index.html');
     const $ = cheerio.load(html);
 
     // test 1: attributes rendered
-    expect($('my-element').attr('foo')).toBe('bar');
+    expect($('my-element').attr('foo')).to.equal('bar');
 
     // test 2: shadow rendered
-    expect($('my-element').html()).toEqual(expect.stringContaining(`<div>Testing...</div>`));
+    expect($('my-element').html()).to.include(`<div>Testing...</div>`);
   });
 
-  afterAll(async () => {
+  after(async () => {
     // The Lit renderer adds browser globals that interfere with other tests, so remove them now.
     const globals = Object.keys(globalThis.window || {});
     globals.splice(globals.indexOf('global'), 1);
@@ -53,4 +53,4 @@ describe('LitElement test', () => {
 });
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});
