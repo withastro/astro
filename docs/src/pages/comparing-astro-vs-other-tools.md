@@ -225,7 +225,7 @@ One big reason behind this performance difference is Astro's smaller JavaScript 
 
 Zola uses [Tera](https://tera.netlify.app/) to render your website. Astro lets you create pages using your favorite UI component libraries (React, Preact, Vue, Svelte, and others) or a built-in component syntax which is similar to HTML + JSX. Zola does not support using modern UI components for HTML templating.
 
-#### Comparing Hugo vs. Astro Performance
+#### Comparing Zola vs. Astro Performance
 
 Conceptually, Zola is aligned with Astro's "minimal client-side JavaScript" approach to web development. Zola and Astro both offer similar, zero-JavaScript-by-default performance baselines.
 
