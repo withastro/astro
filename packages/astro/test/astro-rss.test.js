@@ -1,11 +1,11 @@
 /**
  * UNCOMMENT: add getStaticPaths() support
-
+import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({
     projectRoot: './fixtures/astro-rss/',
     buildOptions: {
@@ -18,9 +18,9 @@ beforeAll(async () => {
 describe.skip('RSS Generation', () => {
   it('generates RSS correctly', async () => {
     const rss = await fixture.readFile('/custom/feed.xml');
-    expect(rss).toMatchSnapshot();
+    expect(rss).to.be(''); // TODO: inline snapshot
   });
 });
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});

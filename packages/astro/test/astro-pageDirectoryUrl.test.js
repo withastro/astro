@@ -1,8 +1,9 @@
+import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({
     projectRoot: './fixtures/astro-page-directory-url',
     buildOptions: {
@@ -13,9 +14,9 @@ beforeAll(async () => {
 });
 
 describe('pageUrlFormat', () => {
-  test('outputs', async () => {
-    expect(await fixture.readFile('/client/index.html')).toBeTruthy();
-    expect(await fixture.readFile('/nested-md/index.html')).toBeTruthy();
-    expect(await fixture.readFile('/nested-astro/index.html')).toBeTruthy();
+  it('outputs', async () => {
+    expect(await fixture.readFile('/client/index.html')).to.be.ok;
+    expect(await fixture.readFile('/nested-md/index.html')).to.be.ok;
+    expect(await fixture.readFile('/nested-astro/index.html')).to.be.ok;
   });
 });

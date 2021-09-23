@@ -1,66 +1,66 @@
 /**
  * UNCOMMENT: ???? (this is a really weird transform bug)
-
+import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({ projectRoot: './fixtures/preact-component/' });
   await fixture.build();
 });
 
 describe('Preact component', () => {
-  test('Can load class component', async () => {
+  it('Can load class component', async () => {
     const html = await fixture.readFile('/class/index.html');
     const $ = cheerio.load(html);
 
     // test 1: Can use class components
-    expect($('#class-component')).toHaveLength(1);
+    expect($('#class-component')).to.have.lengthOf(1);
   });
 
-  test('Can load function component', async () => {
+  it('Can load function component', async () => {
     const html = await fixture.readFile('/fn/index.html');
     const $ = cheerio.load(html);
 
     // test 1: Can use function components
-    expect($('#fn-component')).toHaveLength(1);
+    expect($('#fn-component')).to.have.lengthOf(1);
     // test 2: Can use function components
-    expect($('#arrow-fn-component')).toHaveLength(1);
+    expect($('#arrow-fn-component')).to.have.lengthOf(1);
   });
 
-  test('Can load TS component', async () => {
+  it('Can load TS component', async () => {
     const html = await fixture.readFile('/ts-components/index.html');
     const $ = cheerio.load(html);
 
     // test 1: Can use TS components
-    expect($('.ts-component')).toHaveLength(1);
+    expect($('.ts-component')).to.have.lengthOf(1);
   });
 
-  test('Can use hooks', async () => {
+  it('Can use hooks', async () => {
     const html = await fixture.readFile('/hooks/index.html');
     const $ = cheerio.load(html);
-    expect($('#world')).toHaveLength(1);
+    expect($('#world')).to.have.lengthOf(1);
   });
 
-  test('Can export a Fragment', async () => {
+  it('Can export a Fragment', async () => {
     const html = await fixture.readFile('/frag/index.html');
     const $ = cheerio.load(html);
 
     // test 1: nothing rendered but it didn’t throw
-    expect($('body').children()).toHaveLength(0);
+    expect($('body').children()).to.have.lengthOf(0);
   });
 
-  test('Can use a pragma comment', async () => {
+  it('Can use a pragma comment', async () => {
     const html = await fixture.readFile('/pragma-comment/index.html');
     const $ = cheerio.load(html);
 
     // test 1: rendered the PragmaComment component
-    expect($('.pragma-comment')).toHaveLength(2);
+    expect($('.pragma-comment')).to.have.lengthOf(2);
   });
 
-  test('Uses the new JSX transform', async () => {
+  it('Uses the new JSX transform', async () => {
     const html = await fixture.readFile('/pragma-comment/index.html');
 
     // Grab the imports
@@ -76,9 +76,9 @@ describe('Preact component', () => {
     const jsxRuntime = component.imports.filter((i) => i.specifier.includes('jsx-runtime'));
 
     // test 1: preact/jsx-runtime is used for the component
-    expect(jsxRuntime).toBeTruthy();
+    expect(jsxRuntime).to.be.ok;
   });
 });
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});

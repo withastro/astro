@@ -1,12 +1,12 @@
 /**
  * UNCOMMENT: add Astro.fetchContent()
-
+import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({
     projectRoot: './fixtures/astro-pagination/',
     buildOptions: {
@@ -18,19 +18,19 @@ beforeAll(async () => {
 });
 
 describe('Pagination', () => {
-  test('optional root page', async () => {
+  it('optional root page', async () => {
     for (const file of ['/posts/optional-root-page/index.html', '/posts/optional-root-page/2/index.html', '/posts/optional-root-page/3/index.html']) {
-      expect(await fixture.readFile(file)).toBeTruthy();
+      expect(await fixture.readFile(file)).to.be.ok;
     }
   });
 
-  test('named root page', async () => {
+  it('named root page', async () => {
     for (const file of ['/posts/named-root-page/index.html', '/posts/named-root-page/2/index.html', '/posts/named-root-page/3/index.html']) {
-      expect(await fixture.readFile(file)).toBeTruthy();
+      expect(await fixture.readFile(file)).to.be.ok;
     }
   });
 
-  test('multiple params', async () => {
+  it('multiple params', async () => {
     const params = [
       { color: 'red', p: '1' },
       { color: 'blue', p: '1' },
@@ -40,13 +40,13 @@ describe('Pagination', () => {
       params.map(async ({ color, p }) => {
         const html = await fixture.readFile(`/posts/${color}/${p}/index.html`);
         const $ = cheerio.load(html);
-        expect($('#page-a').text()).toBe(p);
-        expect($('#page-b').text()).toBe(p);
-        expect($('#filter').text()).toBe(color);
+        expect($('#page-a').text()).to.equal(p);
+        expect($('#page-b').text()).to.equal(p);
+        expect($('#filter').text()).to.equal(color);
       })
     );
   });
 });
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});

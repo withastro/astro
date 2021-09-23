@@ -1,18 +1,18 @@
 /**
  * UNCOMMENT: fix transform error and "window is not defined" Vite error
-
+import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({ projectRoot: './fixtures/astro-dynamic/' });
   await fixture.build();
 });
 
 describe('Dynamic components', () => {
-  test('Loads client-only packages', async () => {
+  it('Loads client-only packages', async () => {
     const html = await fixture.fetch('/index.html');
 
     // Grab the react-dom import
@@ -25,29 +25,29 @@ describe('Dynamic components', () => {
     }
 
     // test 1: React renderer is on the page
-    expect(reactRenderer).toBeTruthy();
+    expect(reactRenderer).to.be.ok;
 
     // test 2: Can load React renderer
     // const result = await fixture.fetch(reactRenderer);
-    // expect(result.status).toBe(200);
+    // expect(result.status).to.equal(200);
   });
 
-  test('Loads pages using client:media hydrator', async () => {
+  it('Loads pages using client:media hydrator', async () => {
     const html = await fixture.readFile('/media/index.html');
 
     // test 1: static value rendered
-    expect(html).toEqual(expect.stringContaining(`value: "(max-width: 700px)"`));
+    expect(html).to.include(`value: "(max-width: 700px)"`);
 
     // test 2: dynamic value rendered
-    expect(html).toEqual(expect.stringContaining(`value: "(max-width: 600px)"`));
+    expect(html).to.include(`value: "(max-width: 600px)"`);
   });
 
-  test('Loads pages using client:only hydrator', async () => {
+  it('Loads pages using client:only hydrator', async () => {
     const html = await fixture.readFile('/client-only/index.html');
     const $ = cheerio.load(html);
 
     // test 1: <astro-root> is empty
-    expect($('<astro-root>').html()).toBe('');
+    expect($('<astro-root>').html()).to.equal('');
 
     // Grab the svelte import
     const exp = /import\("(.+?)"\)/g;
@@ -59,13 +59,13 @@ describe('Dynamic components', () => {
     }
 
     // test 2: Svelte renderer is on the page
-    expect(svelteRenderer).toBeTruthy();
+    expect(svelteRenderer).to.be.ok;
 
     // test 3: Can load svelte renderer
     // const result = await fixture.fetch(svelteRenderer);
-    // expect(result.status).toBe(200);
+    // expect(result.status).to.equal(200);
   });
 });
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});

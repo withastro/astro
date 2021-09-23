@@ -36,7 +36,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "mocha --timeout 15000"
   },
   "dependencies": {
     "@astrojs/compiler": "^0.1.0-canary.46",
@@ -79,12 +79,16 @@
   },
   "devDependencies": {
     "@types/babel__core": "^7.1.15",
+    "@types/chai": "^4.2.22",
     "@types/connect": "^3.4.35",
     "@types/mime": "^2.0.3",
+    "@types/mocha": "^9.0.0",
     "@types/node-fetch": "^2.5.12",
     "@types/send": "^0.17.1",
     "@types/yargs-parser": "^20.2.1",
-    "cheerio": "^1.0.0-rc.10"
+    "chai": "^4.3.4",
+    "cheerio": "^1.0.0-rc.10",
+    "mocha": "^9.1.1"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0",
