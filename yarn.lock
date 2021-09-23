@@ -113,42 +113,6 @@
   dependencies:
     typescript "^4.3.5"
 
-"@astrojs/renderer-preact@0.0.0-compiler-2021821225719":
-  version "0.0.0-compiler-2021821225719"
-  resolved "https://registry.yarnpkg.com/@astrojs/renderer-preact/-/renderer-preact-0.0.0-compiler-2021821225719.tgz#d6f987ae94820220269e863967dac4203970fc48"
-  integrity sha512-IonFU0ATk9/jfL8P7AgGryHmEWAtirjbfUX/aQYIejOC+H+c6jD7OUIBNGi1KLo5wY9IwCQ06FK/UBOkuboPXw==
-  dependencies:
-    "@babel/plugin-transform-react-jsx" "^7.14.5"
-    preact "^10.5.14"
-    preact-render-to-string "^5.1.19"
-
-"@astrojs/renderer-react@0.0.0-compiler-2021821225719":
-  version "0.0.0-compiler-2021821225719"
-  resolved "https://registry.yarnpkg.com/@astrojs/renderer-react/-/renderer-react-0.0.0-compiler-2021821225719.tgz#b0d86875b9c4fd5a7180d1c45424b69276414843"
-  integrity sha512-018I1M5Ea1P6/eVdW5azxTpoyjXjp9lBGCfSYTW7Zn0UIP9Ry2BgD9BH6cYvHqIK9hyI/5u7VjZttPPP0r/yLA==
-  dependencies:
-    "@babel/plugin-transform-react-jsx" "^7.14.5"
-    react "^17.0.2"
-    react-dom "^17.0.2"
-
-"@astrojs/renderer-svelte@0.0.0-compiler-2021821225719":
-  version "0.0.0-compiler-2021821225719"
-  resolved "https://registry.yarnpkg.com/@astrojs/renderer-svelte/-/renderer-svelte-0.0.0-compiler-2021821225719.tgz#0f3af4c9990caf1e7e870c8e6adfeddfd5437640"
-  integrity sha512-1uEd8+Bo3pHkmn3gmup+HTNR4Nmuu1YH1bDQHIucq7TtiWfUK2FufR7SrlaoXT2otSB4TUwwIq1dKvhgjtUJMQ==
-  dependencies:
-    "@sveltejs/vite-plugin-svelte" "^1.0.0-next.19"
-    svelte "^3.42.3"
-
-"@astrojs/renderer-vue@0.0.0-compiler-2021821225719":
-  version "0.0.0-compiler-2021821225719"
-  resolved "https://registry.yarnpkg.com/@astrojs/renderer-vue/-/renderer-vue-0.0.0-compiler-2021821225719.tgz#56654e2f775a14d1b88a58d5b7854c780c877413"
-  integrity sha512-D6uQwxLtSlKjq2ql6aUkqplimb4zR3xs8kLLQMhfpn6cnXiqwzwzdRYvM8f6q05fO/lNrvDp+m0ed4jbGZKQSg==
-  dependencies:
-    "@vitejs/plugin-vue" "^1.6.0"
-    "@vue/compiler-sfc" "^3.2.6"
-    "@vue/server-renderer" "^3.2.6"
-    vue "^3.2.6"
-
 "@babel/code-frame@7.12.11":
   version "7.12.11"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.12.11.tgz#f4ad435aa263db935b8f10f2c552d23fb716a63f"

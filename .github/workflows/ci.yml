@@ -18,9 +18,10 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         node_version: [12, 14, 16]
-        include:
-          - os: windows-latest
-            node_version: 14
+        # TODO: uncomment this (Vite has trouble resolving imports on Windows)
+        # include:
+        #   - os: windows-latest
+        #     node_version: 14
       fail-fast: false
     env:
       LANG: en-us
