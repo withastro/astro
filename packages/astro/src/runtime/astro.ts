@@ -1,5 +1,7 @@
 import type { AstroComponent, AstroComponentFactory } from '../internal';
 
+import { spreadAttributes, defineStyleVars, defineScriptVars } from '../internal';
+
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
   let template = '';
 
@@ -23,4 +25,17 @@ export async function renderPage(result: any, Component: AstroComponentFactory, 
   const styles = Array.from(result.styles).map((style) => `<style>${style}</style>`);
   const scripts = Array.from(result.scripts);
   return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
+}
+
+function renderElement(name: string, { props: _props, children = ''}: { props: Record<any, any>, children?: string }) {
+  const { hoist: _, "data-astro-id": astroId, "define:vars": defineVars, ...props } = _props;
+  if (defineVars) {
+    if (name === 'style') {
+      children = defineStyleVars(astroId, defineVars) + '\n' + children;
+    }
+    if (name === 'script') {
+      children = defineScriptVars(defineVars) + '\n' + children;
+    }
+  }
+  return `<${name}${spreadAttributes(props)}>${children}</${name}>`
 }
