@@ -14,11 +14,12 @@
     ".": "./astro.js",
     "./client/*": "./dist/client/*",
     "./components": "./components/index.js",
-    "./debug": "./components/Debug.astro",
     "./components/*": "./components/*",
-    "./package.json": "./package.json",
+    "./debug": "./components/Debug.astro",
+    "./internal": "./dist/internal/index.js",
+    "./internal/*": "./dist/internal/*",
     "./runtime/*": "./dist/runtime/*.js",
-    "./internal": "./dist/internal/index.js"
+    "./package.json": "./package.json"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
