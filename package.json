@@ -44,7 +44,6 @@
   "devDependencies": {
     "@changesets/cli": "^2.16.0",
     "@octokit/action": "^3.15.4",
-    "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "del": "^6.0.0",
@@ -53,7 +52,6 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^5.0.0",
-    "jest": "^27.2.1",
     "lerna": "^4.0.0",
     "prettier": "^2.4.1",
     "tiny-glob": "^0.2.8",

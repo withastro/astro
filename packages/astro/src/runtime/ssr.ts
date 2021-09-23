@@ -8,8 +8,9 @@ import * as eslexer from 'es-module-lexer';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import path from 'path';
-import { renderPage } from './astro.js';
+import slash from 'slash';
 import glob from 'tiny-glob';
+import { renderPage } from '../internal/index.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 import { parseNpmName, canonicalURL as getCanonicalURL, codeFrame } from './util.js';
@@ -43,41 +44,25 @@ const cache = new Map();
 
 // TODO: improve validation and error handling here.
 async function resolveRenderers(viteServer: ViteDevServer, ids: string[]) {
-  const resolve = viteServer.config.createResolver();
   const renderers = await Promise.all(
     ids.map(async (renderer) => {
       if (cache.has(renderer)) return cache.get(renderer);
-      const resolvedRenderer: any = {};
 
+      const resolvedRenderer: any = {};
       // We can dynamically import the renderer by itself because it shouldn't have
       // any non-standard imports, the index is just meta info.
       // The other entrypoints need to be loaded through Vite.
-      const { default: instance } = await import(renderer);
+      const {
+        default: { name, client, polyfills, hydrationPolyfills, server },
+      } = await import(renderer);
 
-      // This resolves the renderer's entrypoints to a final URL through Vite
-      const getPath = async (src: string) => {
-        const spec = path.posix.join(instance.name, src);
-        const resolved = await resolve(spec);
-        if (!resolved) {
-          throw new Error(`Unable to resolve "${spec}" to a package!`);
-        }
-        return resolved;
-      };
-
-      resolvedRenderer.name = instance.name;
-      if (instance.client) {
-        resolvedRenderer.source = await getPath(instance.client);
-      }
-      if (Array.isArray(instance.hydrationPolyfills)) {
-        resolvedRenderer.hydrationPolyfills = await Promise.all(instance.hydrationPolyfills.map((src: string) => getPath(src)));
-      }
-      if (Array.isArray(instance.polyfills)) {
-        resolvedRenderer.polyfills = await Promise.all(instance.polyfills.map((src: string) => getPath(src)));
-      }
-
-      const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(await getPath(instance.server));
-      const { default: server } = await viteServer.ssrLoadModule(url);
-      resolvedRenderer.ssr = server;
+      resolvedRenderer.name = name;
+      if (client) resolvedRenderer.source = path.posix.join(renderer, client);
+      if (Array.isArray(hydrationPolyfills)) resolvedRenderer.hydrationPolyfills = hydrationPolyfills.map((src: string) => path.posix.join(renderer, src));
+      if (Array.isArray(polyfills)) resolvedRenderer.polyfills = polyfills.map((src: string) => path.posix.join(renderer, src));
+      const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(path.posix.join(renderer, server));
+      const { default: rendererSSR } = await viteServer.ssrLoadModule(url);
+      resolvedRenderer.ssr = rendererSSR;
 
       cache.set(renderer, resolvedRenderer);
       return resolvedRenderer;
@@ -87,8 +72,8 @@ async function resolveRenderers(viteServer: ViteDevServer, ids: string[]) {
   return renderers;
 }
 
-async function resolveImportedModules(viteServer: ViteDevServer, file: string) {
-  const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(file);
+async function resolveImportedModules(viteServer: ViteDevServer, file: URL) {
+  const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(slash(fileURLToPath(file))); // note: for some reason Vite expects forward slashes here for Windows, which `slash()` helps resolve
   const modulesByFile = viteServer.moduleGraph.getModulesByFile(url);
   if (!modulesByFile) {
     return {};
@@ -138,7 +123,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     // 1.5. resolve renderers and imported modules.
     // important that this happens _after_ ssrLoadModule, otherwise `importedModules` would be empty
-    const [renderers, importedModules] = await Promise.all([resolveRenderers(viteServer, astroConfig.renderers), resolveImportedModules(viteServer, fileURLToPath(filePath))]);
+    const [renderers, importedModules] = await Promise.all([resolveRenderers(viteServer, astroConfig.renderers), resolveImportedModules(viteServer, filePath)]);
 
     // 2. handle dynamic routes
     let params: Params = {};

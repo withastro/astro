@@ -1,3 +1,4 @@
+import { expect } from 'chai';
 import { fileURLToPath } from 'url';
 import { createRouteManifest } from '../dist/runtime/routing.js';
 
@@ -23,9 +24,9 @@ function cleanRoutes(routes) {
 }
 
 describe('route manifest', () => {
-  test('creates routes with trailingSlashes = always', () => {
+  it('creates routes with trailingSlashes = always', () => {
     const { routes } = create('basic', 'always');
-    expect(cleanRoutes(routes)).toEqual([
+    expect(cleanRoutes(routes)).to.deep.equal([
       {
         type: 'page',
         pattern: /^\/$/,
@@ -60,9 +61,9 @@ describe('route manifest', () => {
     ]);
   });
 
-  test('creates routes with trailingSlashes = never', () => {
+  it('creates routes with trailingSlashes = never', () => {
     const { routes } = create('basic', 'never');
-    expect(cleanRoutes(routes)).toEqual([
+    expect(cleanRoutes(routes)).to.deep.equal([
       {
         type: 'page',
         pattern: /^\/$/,
@@ -97,9 +98,9 @@ describe('route manifest', () => {
     ]);
   });
 
-  test('creates routes with trailingSlashes = ignore', () => {
+  it('creates routes with trailingSlashes = ignore', () => {
     const { routes } = create('basic', 'ignore');
-    expect(cleanRoutes(routes)).toEqual([
+    expect(cleanRoutes(routes)).to.deep.equal([
       {
         type: 'page',
         pattern: /^\/$/,
@@ -134,7 +135,7 @@ describe('route manifest', () => {
     ]);
   });
 
-  test('encodes invalid characters', () => {
+  it('encodes invalid characters', () => {
     const { routes } = create('encoding', 'always');
 
     // had to remove ? and " because windows
@@ -143,36 +144,36 @@ describe('route manifest', () => {
     const hash = 'encoding/#.astro';
     // const question_mark = 'encoding/?.astro';
 
-    expect(routes.map((p) => p.pattern)).toEqual([
+    expect(routes.map((p) => p.pattern)).to.deep.equal([
       // /^\/%22$/,
       /^\/%23\/$/,
       // /^\/%3F$/
     ]);
   });
 
-  test('ignores files and directories with leading underscores', () => {
+  it('ignores files and directories with leading underscores', () => {
     const { routes } = create('hidden-underscore', 'always');
 
-    expect(routes.map((r) => r.component).filter(Boolean)).toEqual(['hidden-underscore/index.astro', 'hidden-underscore/e/f/g/h.astro']);
+    expect(routes.map((r) => r.component).filter(Boolean)).to.deep.equal(['hidden-underscore/index.astro', 'hidden-underscore/e/f/g/h.astro']);
   });
 
-  test('ignores files and directories with leading dots except .well-known', () => {
+  it('ignores files and directories with leading dots except .well-known', () => {
     const { routes } = create('hidden-dot', 'always');
 
-    expect(routes.map((r) => r.component).filter(Boolean)).toEqual(['hidden-dot/.well-known/dnt-policy.astro']);
+    expect(routes.map((r) => r.component).filter(Boolean)).to.deep.equal(['hidden-dot/.well-known/dnt-policy.astro']);
   });
 
-  test('fails if dynamic params are not separated', () => {
-    expect(() => create('invalid-params', 'always')).toThrowError('Invalid route invalid-params/[foo][bar].astro — parameters must be separated');
+  it('fails if dynamic params are not separated', () => {
+    expect(() => create('invalid-params', 'always')).to.throw('Invalid route invalid-params/[foo][bar].astro — parameters must be separated');
   });
 
-  test('disallows rest parameters inside segments', () => {
-    expect(() => create('invalid-rest', 'always')).toThrowError('Invalid route invalid-rest/foo-[...rest]-bar.astro — rest parameter must be a standalone segment');
+  it('disallows rest parameters inside segments', () => {
+    expect(() => create('invalid-rest', 'always')).to.throw('Invalid route invalid-rest/foo-[...rest]-bar.astro — rest parameter must be a standalone segment');
   });
 
-  test('ignores things that look like lockfiles', () => {
+  it('ignores things that look like lockfiles', () => {
     const { routes } = create('lockfiles', 'always');
-    expect(cleanRoutes(routes)).toEqual([
+    expect(cleanRoutes(routes)).to.deep.equal([
       {
         type: 'page',
         pattern: /^\/foo\/$/,
@@ -183,10 +184,10 @@ describe('route manifest', () => {
     ]);
   });
 
-  test('allows multiple slugs', () => {
+  it('allows multiple slugs', () => {
     const { routes } = create('multiple-slugs', 'always');
 
-    expect(cleanRoutes(routes)).toEqual([
+    expect(cleanRoutes(routes)).to.deep.equal([
       {
         type: 'page',
         pattern: /^\/([^/]+?)\.([^/]+?)\/$/,
@@ -197,10 +198,10 @@ describe('route manifest', () => {
     ]);
   });
 
-  test('sorts routes correctly', () => {
+  it('sorts routes correctly', () => {
     const { routes } = create('sorting', 'always');
 
-    expect(routes.map((p) => p.component)).toEqual([
+    expect(routes.map((p) => p.component)).to.deep.equal([
       'sorting/index.astro',
       'sorting/about.astro',
       'sorting/post/index.astro',

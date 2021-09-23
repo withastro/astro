@@ -1,21 +1,21 @@
 /**
  * UNCOMMENT: add getStaticPaths() support
-
+import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({ projectRoot: './fixtures/astro-rss/' });
   await fixture.build();
 });
 
 describe('Sitemap Generation', () => {
-  test('Generates Sitemap correctly', async () => {
+  it('Generates Sitemap correctly', async () => {
     let sitemap = await fixture.readFile('/sitemap.xml');
-    expect(sitemap).toMatchSnapshot();
+    expect(sitemap).to.be(''); // TODO: inline snapshot
   });
 });
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});

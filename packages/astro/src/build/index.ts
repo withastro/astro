@@ -37,7 +37,7 @@ class AstroBuilder {
   private manifest: ManifestData;
 
   constructor(config: AstroConfig, options: BuildOptions) {
-    if (!config.buildOptions.site) {
+    if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
       warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
     }
 
