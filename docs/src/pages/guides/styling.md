@@ -166,7 +166,7 @@ As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%40
 ```astro
   <link
     rel="stylesheet"
-    href={Astro.resolve("../assets/global.css")}
+    href={Astro.resolve("../styles/global.css")}
   >
 ```
 
