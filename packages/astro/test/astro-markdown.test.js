@@ -1,12 +1,12 @@
 /**
  * UNCOMMENT: add markdown support
-
+import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({
     projectRoot: './fixtures/astro-markdown/',
     renderers: ['@astrojs/renderer-preact'],
@@ -18,36 +18,36 @@ beforeAll(async () => {
 });
 
 describe('Astro Markdown', () => {
-  test('Can load markdown pages with Astro', async () => {
+  it('Can load markdown pages with Astro', async () => {
     const html = await fixture.readFile('/post/index.html');
     const $ = cheerio.load(html);
 
     // test 1: There is a div added in markdown
-    expect($('#first').length).toBeTruthy();
+    expect($('#first').length).to.be.ok;
 
     // test 2: There is a div added via a component from markdown
-    expect($('#test').length).toBeTruthy();
+    expect($('#test').length).to.be.ok;
   });
 
-  test('Can load more complex jsxy stuff', async () => {
+  it('Can load more complex jsxy stuff', async () => {
     const html = await fixture.readFile('/complex/index.html');
     const $ = cheerio.load(html);
 
-    expect($('#test').text()).toBe('Hello world');
+    expect($('#test').text()).to.equal('Hello world');
   });
 
-  test('Empty code blocks do not fail', async () => {
+  it('Empty code blocks do not fail', async () => {
     const html = await fixture.fetch('/empty-code/index.html');
     const $ = cheerio.load(html);
 
     // test 1: There is not a `<code>` in the codeblock
-    expect($('pre')[0].children).toHaveLength(1);
+    expect($('pre')[0].children).to.have.lengthOf(1);
 
     // test 2: The empty `<pre>` failed to render
-    expect($('pre')[1].children).toHaveLength(0);
+    expect($('pre')[1].children).to.have.lengthOf(0);
   });
 
-  test('Runs code blocks through syntax highlighter', async () => {
+  it('Runs code blocks through syntax highlighter', async () => {
     const html = await fixture.readFile('/code/index.html');
     const $ = cheerio.load(html);
 
@@ -55,104 +55,104 @@ describe('Astro Markdown', () => {
     expect($('code span').length).toBeGreaterThan(0);
   });
 
-  test('Scoped styles should not break syntax highlight', async () => {
+  it('Scoped styles should not break syntax highlight', async () => {
     const html = await fixture.readFile('/scopedStyles-code/index.html');
     const $ = cheerio.load(html);
 
     // test 1: <pre> tag has scopedStyle class passed down
-    expect($('pre').is('[class]')).toBe(true);
+    expect($('pre').is('[class]')).to.equal(true);
 
     // test 2: <pre> tag has correct language
-    expect($('pre').hasClass('language-js')).toBe(true);
+    expect($('pre').hasClass('language-js')).to.equal(true);
 
     // test 3: <code> tag has correct language
-    expect($('code').hasClass('language-js')).toBe(true);
+    expect($('code').hasClass('language-js')).to.equal(true);
 
     // test 4: There are child spans in code blocks
     expect($('code span').length).toBeGreaterThan(0);
   });
 
-  test('Renders correctly when deeply nested on a page', async () => {
+  it('Renders correctly when deeply nested on a page', async () => {
     const html = await fixture.readFile('/deep/index.html');
     const $ = cheerio.load(html);
 
     // test 1: Rendered all children
-    expect($('#deep').children()).toHaveLength(3);
+    expect($('#deep').children()).to.have.lengthOf(3);
 
     // tests 2–4: Only rendered title in each section
-    assert.equal($('.a').children()).toHaveLength(1);
-    assert.equal($('.b').children()).toHaveLength(1);
-    assert.equal($('.c').children()).toHaveLength(1);
+    assert.equal($('.a').children()).to.have.lengthOf(1);
+    assert.equal($('.b').children()).to.have.lengthOf(1);
+    assert.equal($('.c').children()).to.have.lengthOf(1);
 
     // test 5–7: Rendered title in correct section
-    assert.equal($('.a > h2').text()).toBe('A');
-    assert.equal($('.b > h2').text()).toBe('B');
-    assert.equal($('.c > h2').text()).toBe('C');
+    assert.equal($('.a > h2').text()).to.equal('A');
+    assert.equal($('.b > h2').text()).to.equal('B');
+    assert.equal($('.c > h2').text()).to.equal('C');
   });
 
-  test('Renders recursively', async () => {
+  it('Renders recursively', async () => {
     const html = await fixture.readFile('/recursive/index.html');
     const $ = cheerio.load(html);
 
     // tests 1–2: Rendered title correctly
-    expect($('.a > h1').text()).toBe('A');
-    expect($('.b > h1').text()).toBe('B');
-    expect($('.c > h1').text()).toBe('C');
+    expect($('.a > h1').text()).to.equal('A');
+    expect($('.b > h1').text()).to.equal('B');
+    expect($('.c > h1').text()).to.equal('C');
   });
 
-  test('Renders dynamic content though the content attribute', async () => {
+  it('Renders dynamic content though the content attribute', async () => {
     const html = await fixture.readFile('/external/index.html');
     const $ = cheerio.load(html);
 
     // test 1: Rendered markdown content
-    expect($('#outer')).toHaveLength(1);
+    expect($('#outer')).to.have.lengthOf(1);
 
     // test 2: Nested markdown content
-    expect($('#inner')).toHaveLength(1);
+    expect($('#inner')).to.have.lengthOf(1);
 
     // test 3: Scoped class passed down
-    expect($('#inner').is('[class]')).toBe(true);
+    expect($('#inner').is('[class]')).to.equal(true);
   });
 
-  test('Renders curly braces correctly', async () => {
+  it('Renders curly braces correctly', async () => {
     const html = await fixture.readFile('/braces/index.html');
     const $ = cheerio.load(html);
 
     // test 1: Rendered curly braces markdown content
-    expect($('code')).toHaveLength(3);
+    expect($('code')).to.have.lengthOf(3);
 
     // test 2: Rendered curly braces markdown content
-    expect($('code:first-child').text()).toBe('({})');
+    expect($('code:first-child').text()).to.equal('({})');
 
     // test 3: Rendered curly braces markdown content
-    expect($('code:nth-child(2)').text()).toBe('{...props}');
+    expect($('code:nth-child(2)').text()).to.equal('{...props}');
 
     // test 4: Rendered curly braces markdown content
-    expect($('code:last-child').text()).toBe('{/* JavaScript *\/}');
+    expect($('code:last-child').text()).to.equal('{/* JavaScript *\/}');
   });
 
-  test('Does not close parent early when using content attribute (#494)', async () => {
+  it('Does not close parent early when using content attribute (#494)', async () => {
     const html = await fixture.readFile('/close/index.html');
     const $ = cheerio.load(html);
 
     // test <Markdown content /> closed div#target early
-    expect($('#target').children()).toHaveLength(2);
+    expect($('#target').children()).to.have.lengthOf(2);
   });
 
-  test('Can render markdown with --- for horizontal rule', async () => {
+  it('Can render markdown with --- for horizontal rule', async () => {
     const result = await fixture.readFile('/dash/index.html');
-    expect(result.status).toBe(200);
+    expect(result.status).to.equal(200);
   });
 
-  test('Can render markdown content prop (#1259)', async () => {
+  it('Can render markdown content prop (#1259)', async () => {
     const html = await fixture.readFile('/content/index.html');
     const $ = cheerio.load(html);
 
     // test Markdown rendered correctly via content prop
-    expect($('h1').text()).toBe('Foo');
+    expect($('h1').text()).to.equal('Foo');
   });
 });
 
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});

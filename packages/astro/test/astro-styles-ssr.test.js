@@ -1,6 +1,6 @@
 /**
  * UNCOMMENT: fix frontmatter import hoisting
-
+import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
@@ -16,14 +16,14 @@ function cssMinify(css) {
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({ projectRoot: './fixtures/astro-styles-ssr/' });
   await fixture.build();
 });
 
 
 describe('Styles SSR', () => {
-  test('Has <link> tags', async () => {
+  it('Has <link> tags', async () => {
     const MUST_HAVE_LINK_TAGS = [
       '/src/components/ReactCSS.css',
       '/src/components/ReactModules.module.css',
@@ -38,11 +38,11 @@ describe('Styles SSR', () => {
 
     for (const href of MUST_HAVE_LINK_TAGS) {
       const el = $(`link[href="${href}"]`);
-      expect(el).toHaveLength(1);
+      expect(el).to.have.lengthOf(1);
     }
   });
 
-  test('Has correct CSS classes', async () => {
+  it('Has correct CSS classes', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
@@ -59,27 +59,27 @@ describe('Styles SSR', () => {
       const el = $(selector);
       if (selector === '#react-modules' || selector === '#vue-modules') {
         // this will generate differently on Unix vs Windows. Here we simply test that it has transformed
-        expect(el.attr('class')).toEqual(expect.stringMatching(new RegExp(`^_${className}_[A-Za-z0-9-_]+`))); // className should be transformed, surrounded by underscores and other stuff
+        expect(el.attr('class')).to.match(new RegExp(`^_${className}_[A-Za-z0-9-_]+`)); // className should be transformed, surrounded by underscores and other stuff
       } else {
         // if this is not a CSS module, it should remain as expected
-        expect(el.attr('class')).toEqual(expect.stringContaining(className));
+        expect(el.attr('class')).to.include(className);
       }
 
       // add’l test: Vue Scoped styles should have data-v-* attribute
       if (selector === '#vue-scoped') {
         const { attribs } = el.get(0);
         const scopeId = Object.keys(attribs).find((k) => k.startsWith('data-v-'));
-        expect(scopeId).toBeTruthy();
+        expect(scopeId).to.be.ok;
       }
 
       // add’l test: Svelte should have another class
       if (selector === '#svelte-title') {
-        expect(el.attr('class')).not.toBe(className);
+        expect(el.attr('class')).not.to.equal(className);
       }
     }
   });
 
-  test('CSS Module support in .astro', async () => {
+  it('CSS Module support in .astro', async () => {
     const html = await fixture.readFile('/');
     const $ = cheerio.load(html);
 
@@ -95,14 +95,14 @@ describe('Styles SSR', () => {
         })
     );
 
-    expect(css).toBe(`.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px}`);
+    expect(css).to.equal(`.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px}`);
 
     // test 2: element received .astro-XXXXXX class (this selector will succeed if transformed correctly)
     const wrapper = $(`.wrapper${scopedClass}`);
-    expect(wrapper).toHaveLength(1);
+    expect(wrapper).to.have.lengthOf(1);
   });
 
-  test('Astro scoped styles', async () => {
+  it('Astro scoped styles', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
@@ -119,27 +119,27 @@ describe('Styles SSR', () => {
       });
 
     // test 1: Astro component missing scoped class
-    expect(scopedClass).toBe(``);
+    expect(scopedClass).to.equal(``);
 
     // test 2–3: children get scoped class
-    expect(el1.attr('class')).toBe(`blue ${scopedClass}`);
-    expect(el2.attr('class')).toBe(`visible ${scopedClass}`);
+    expect(el1.attr('class')).to.equal(`blue ${scopedClass}`);
+    expect(el2.attr('class')).to.equal(`visible ${scopedClass}`);
 
     const { contents: css } = await fixture.fetch('/src/components/Astro.astro.css').then((res) => res.text());
 
     // test 4: CSS generates as expected
-    expect(cssMinify(css.toString())).toBe(`.blue.${scopedClass}{color:powderblue}.color\\:blue.${scopedClass}{color:powderblue}.visible.${scopedClass}{display:block}`);
+    expect(cssMinify(css.toString())).to.equal(`.blue.${scopedClass}{color:powderblue}.color\\:blue.${scopedClass}{color:powderblue}.visible.${scopedClass}{display:block}`);
   });
 
-  test('Astro scoped styles skipped without <style>', async () => {
+  it('Astro scoped styles skipped without <style>', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
     // test 1: Astro component without <style> should not include scoped class
-    expect($('#no-scope').attr('class')).toBe(undefined);
+    expect($('#no-scope').attr('class')).to.equal(undefined);
   });
 
-  test('Astro scoped styles can be passed to child components', async () => {
+  it('Astro scoped styles can be passed to child components', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
@@ -151,10 +151,10 @@ describe('Styles SSR', () => {
         return match;
       });
 
-    expect($('#passed-in').attr('class')).toBe(`outer ${scopedClass}`);
+    expect($('#passed-in').attr('class')).to.equal(`outer ${scopedClass}`);
   });
 });
 
 */
 
-test.skip('is skipped', () => {});
+it.skip('is skipped', () => {});
