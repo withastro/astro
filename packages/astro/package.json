@@ -36,7 +36,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "mocha --timeout 15000"
+    "test": "mocha --parallel --timeout 15000"
   },
   "dependencies": {
     "@astrojs/compiler": "^0.1.0-canary.46",
