@@ -1,9 +1,10 @@
+import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({
     projectRoot: './fixtures/astro-fallback',
     renderers: ['@astrojs/renderer-preact'],
@@ -12,9 +13,9 @@ beforeAll(async () => {
 });
 
 describe('Dynamic component fallback', () => {
-  test('Shows static content', async () => {
+  it('Shows static content', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
-    expect($('#fallback').text()).toBe('static');
+    expect($('#fallback').text()).to.equal('static');
   });
 });

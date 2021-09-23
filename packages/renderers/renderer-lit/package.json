@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./index.js",
+    "./*": "./*",
     "./server.js": "./server.js",
     "./client-shim.js": "./client-shim.js",
     "./package.json": "./package.json"

@@ -1,15 +1,16 @@
+import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
-beforeAll(async () => {
+before(async () => {
   fixture = await loadFixture({ projectRoot: './fixtures/astro-attrs/' });
   await fixture.build();
 });
 
-describe('Attributes', () => {
-  test('Passes attributes to elements as expected', async () => {
+describe('Attributes', async () => {
+  it('Passes attributes to elements as expected', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
@@ -25,32 +26,32 @@ describe('Attributes', () => {
 
     for (const [k, v] of Object.entries(attrs)) {
       const attr = $(`#${k}`).attr('attr');
-      expect(attr).toBe(v);
+      expect(attr).to.equal(v);
     }
   });
 
-  test('Passes boolean attributes to components as expected', async () => {
+  it('Passes boolean attributes to components as expected', async () => {
     const html = await fixture.readFile('/component/index.html');
     const $ = cheerio.load(html);
 
-    expect($('#true').attr('attr')).toBe('attr-true');
-    expect($('#true').attr('type')).toBe('boolean');
-    expect($('#false').attr('attr')).toBe('attr-false');
-    expect($('#false').attr('type')).toBe('boolean');
+    expect($('#true').attr('attr')).to.equal('attr-true');
+    expect($('#true').attr('type')).to.equal('boolean');
+    expect($('#false').attr('attr')).to.equal('attr-false');
+    expect($('#false').attr('type')).to.equal('boolean');
   });
 
-  test('Passes namespaced attributes as expected', async () => {
+  it('Passes namespaced attributes as expected', async () => {
     const html = await fixture.readFile('/namespaced/index.html');
     const $ = cheerio.load(html);
 
-    expect($('div').attr('xmlns:happy')).toBe('https://example.com/schemas/happy');
-    expect($('img').attr('happy:smile')).toBe('sweet');
+    expect($('div').attr('xmlns:happy')).to.equal('https://example.com/schemas/happy');
+    expect($('img').attr('happy:smile')).to.equal('sweet');
   });
 
-  test('Passes namespaced attributes to components as expected', async () => {
+  it('Passes namespaced attributes to components as expected', async () => {
     const html = await fixture.readFile('/namespaced-component/index.html');
     const $ = cheerio.load(html);
 
-    expect($('span').attr('on:click')).toEqual('(event) => console.log(event)');
+    expect($('span').attr('on:click')).to.deep.equal('(event) => console.log(event)');
   });
 });
