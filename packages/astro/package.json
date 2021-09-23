@@ -39,7 +39,7 @@
     "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.1.0-canary.45",
+    "@astrojs/compiler": "^0.1.0-canary.46",
     "@astrojs/markdown-remark": "^0.3.1",
     "@astrojs/renderer-preact": "0.0.0-compiler-2021821225719",
     "@astrojs/renderer-react": "0.0.0-compiler-2021821225719",
