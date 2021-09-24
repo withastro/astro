@@ -218,3 +218,15 @@ VuePress doesn't support partial hydration, and instead makes the user load and 
 - **Astro performance score**: 99 out of 100 [(full audit)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
 One big reason behind this performance difference is Astro's smaller JavaScript payload: [vuepress.vuejs.org](https://vuepress.vuejs.org/guide/) loads **166kb** of JavaScript on first page load while [docs.astro.build](https://docs.astro.build) loads **78.7kb** (53% less JavaScript, overall) _after_ first load.
+
+## Zola vs. Astro
+
+[Zola](https://www.getzola.org/) is a popular and fast static site generator, powered by Rust.
+
+Zola uses [Tera](https://tera.netlify.app/) to render your website. Astro lets you create pages using your favorite UI component libraries (React, Preact, Vue, Svelte, and others) or a built-in component syntax which is similar to HTML + JSX. Zola does not support using modern UI components for HTML templating.
+
+#### Comparing Zola vs. Astro Performance
+
+Conceptually, Zola is aligned with Astro's "minimal client-side JavaScript" approach to web development. Zola and Astro both offer similar, zero-JavaScript-by-default performance baselines.
+
+Astro offer built-in support for building, bundling and minifying JavaScript. Zola requires using another build tool like Webpack to bundle and process JavaScript. Astro automatically strips unnecessary JavaScript from the page, hydrating only the individual components that need it. This feature is called [partial hydration](/core-concepts/component-hydration). While it is possible to achieve this yourself in Zola, Astro offers it built in by default.
