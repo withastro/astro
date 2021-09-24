@@ -215,8 +215,8 @@ ${stack}
     for (const id of Object.keys(buildState)) {
       const outPath = new URL(`.${id}`, astroConfig.dist);
       const parentDir = path.dirname(fileURLToPath(outPath));
-      await fs.promises.mkdir(parentDir, {recursive: true});
-      const handle = await fs.promises.open(outPath, "w")
+      await fs.promises.mkdir(parentDir, { recursive: true });
+      const handle = await fs.promises.open(outPath, 'w');
       await fs.promises.writeFile(handle, buildState[id].contents, buildState[id].encoding);
 
       // Ensure the file handle is not left hanging which will
@@ -226,7 +226,7 @@ ${stack}
 
       delete buildState[id];
       delete depTree[id];
-    };
+    }
     debug(logging, 'build', `wrote files to disk [${stopTimer(timer.write)}]`);
 
     /**
