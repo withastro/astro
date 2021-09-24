@@ -131,7 +131,7 @@ class AstroBuilder {
         rollupPluginHTML({
           input,
           extractAssets: false,
-        }),
+        }) as any, // CI fix: ignore typing of this plugin
         ...(viteConfig.plugins || []),
       ],
       publicDir: viteConfig.publicDir,

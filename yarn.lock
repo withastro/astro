@@ -2082,7 +2082,7 @@
     "@types/parse5" "^6.0.1"
     parse5 "^6.0.1"
 
-"@web/rollup-plugin-html@^1.9.1":
+"@web/rollup-plugin-html@^1.10.1":
   version "1.10.1"
   resolved "https://registry.yarnpkg.com/@web/rollup-plugin-html/-/rollup-plugin-html-1.10.1.tgz#7995d3aff436f6b5c1a365830a9ff525388b40d8"
   integrity sha512-XYJxHtdllwA5l4X8wh8CailrOykOl3YY+BRqO8+wS/I1Kq0JFISg3EUHdWAyVcw0TRDnHNLbOBJTm2ptAM+eog==
