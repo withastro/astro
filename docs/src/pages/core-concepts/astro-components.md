@@ -188,7 +188,9 @@ You can then pass the component props like this:
 
 ```astro
 ---
-let firstName = "world!"
+// SomeOtherComponent.astro
+import SomeComponent from "./SomeComponent.astro";
+let firstName = "world!";
 ---
 <SomeComponent name={firstName}/>
 ```
