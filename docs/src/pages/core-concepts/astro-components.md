@@ -184,6 +184,17 @@ const { greeting = 'Hello', name } = Astro.props;
 </div>
 ```
 
+You can then pass the component props like this:
+
+```astro
+---
+// SomeOtherComponent.astro
+import SomeComponent from "./SomeComponent.astro";
+let firstName = "world!";
+---
+<SomeComponent name={firstName}/>
+```
+
 ### Slots
 
 `.astro` files use the [`<slot>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/slot) tag to enable component composition. Coming from React or Preact, this is the same concept as `children`. You can think of the `<slot>` element as a placeholder for markup which will be passed in from outside of the component.
