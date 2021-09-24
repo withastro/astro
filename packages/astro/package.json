@@ -47,7 +47,7 @@
     "@astrojs/renderer-svelte": "^0.1.2",
     "@astrojs/renderer-vue": "^0.1.8",
     "@babel/core": "^7.15.5",
-    "@web/rollup-plugin-html": "^1.9.1",
+    "@web/rollup-plugin-html": "^1.10.1",
     "astring": "^1.7.5",
     "cheerio": "^1.0.0-rc.10",
     "ci-info": "^3.2.0",
