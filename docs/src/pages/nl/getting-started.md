@@ -10,7 +10,7 @@ Benieuwd naar een snel overzicht van wat Astro is? [Bezoek onze homepage.](https
 
 ## Probeer Astro
 
-De gemakkelijkste manier om Astro te proberen, is door `npm init astro` uit te voeren in een nieuwe map op je computer. Deze CLI odpracht helpt je in verschillende stappen je eerste Astro project op te zetten.
+De gemakkelijkste manier om Astro te proberen, is door `npm init astro` uit te voeren in een nieuwe map op je computer. Deze CLI opdracht helpt je in verschillende stappen je eerste Astro project op te zetten.
 
 Lees onze [installatiegids](/installation) voor een volledige uitleg over hoe je met Astro aan de slag kunt.
 
