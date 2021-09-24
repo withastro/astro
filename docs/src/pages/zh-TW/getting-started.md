@@ -8,7 +8,7 @@ Astro 是利用現代技術的靜態網站生成工具。可以從[首頁](https
 
 在找 Astro 的簡易概要？[請看首頁](https://astro.build)。
 
-## 試用 Astro
+## 試玩 Astro
 
 試用 Astro 最簡單的方法，就是在機器的新資料夾裡執行 `npm init astro`。我們製作的 CLI 精靈會協助開啟全新的 Astro 專案。
 
@@ -16,11 +16,24 @@ Astro 是利用現代技術的靜態網站生成工具。可以從[首頁](https
 
 或者，閱讀[安裝指南](/installation)，有安裝 Astro 的完整流程。
 
+### 示範專案
+
+比較喜歡從範例來學 Astro 的話，請看放在 Github 的[範例資源庫](https://github.com/snowpackjs/astro/tree/main/examples)。
+
+這裡的範例都可以在本地端機器執行 `npm init astro` 並加上 CLI Flag: `--template`。
+`--template` Flag 也支援第三方、社群的範本。
+
+```bash
+# 執行 init 精靈，並使用官方範本
+npm init astro -- --template [OFFICIAL_EXAMPLE_NAME]
+# 執行 init 精靈，並使用社群範本
+npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
+npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
+```
+
 ### 線上玩玩看
 
-有興趣在瀏覽器試玩 Astro 嗎？有線上的程式碼試玩區。試試看放在 [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3) 的「Hello! World」範本。
-
-註：有些功能（例如：快速重新整理）目前在 CodeSandbox 的效果有限。
+有興趣在瀏覽器試玩 Astro 的話，可以在 Stackblitz、CodeSandbox、Gitpod 或 GitHub Codespaces 使用線上程式碼編輯器。點選[範例資源庫](https://github.com/snowpackjs/astro/tree/main/examples)裡任一個範例的 "Open in Stackblitz" 連結。或者，[點此](https://stackblitz.com/fork/astro)在 Stackblitz 開啟新專案。
 
 ## 學習 Astro
 
