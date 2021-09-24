@@ -103,6 +103,8 @@ yarn changeset version --snapshot XXX
 git checkout -- examples/ docs/ www/
 # 3:
 yarn release --tag next--XXX
+# 4: (Manual) review the publish, and if you're happy then you can throw out all local changes
+git reset --hard
 ```
 
 Full documentation: https://github.com/atlassian/changesets/blob/main/docs/snapshot-releases.md
