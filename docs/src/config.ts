@@ -98,6 +98,10 @@ export const SIDEBAR = {
     { text: 'Velkommen', header: true },
     { text: 'Introduktion', link: 'da/getting-started' },
   ],
+  ja: [
+    { text: 'セットアップ', header: true },
+    { text: 'はじめに', link: 'ja/getting-started' },
+  ],
 };
 
 export const SITE = {
