@@ -19,7 +19,10 @@ jobs:
       - # 2. discard examples/docs/www changes (just in case)
         run: git checkout -- examples/ docs/ www/
       - # 3: use compiler--next renderers (but don’t commit)
-        run: cd packages/astro && yarn add @astrojs/renderer-preact@next--compiler @astrojs/renderer-react@next--compiler @astrojs/renderer-svelte@next--compiler @astrojs/renderer-vue@next--compiler && cd ../..
+        run: |
+          cd packages/astro
+          yarn add @astrojs/renderer-preact@next--compiler @astrojs/renderer-react@next--compiler @astrojs/renderer-svelte@next--compiler @astrojs/renderer-vue@next--compiler
+          cd ../..
       - # 4: auth
         run: echo '//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN  }}' > ${{ github.workspace }}/.npmrc
       - # 5: publish!
