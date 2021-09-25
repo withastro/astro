@@ -161,7 +161,7 @@ function generateAttributes(attrs: Record<string, string>): string {
       result += JSON.stringify(key) + ':' + val + ',';
     }
   }
-  result += `[__astroContext]:props[__astroContext]`;
+  result += `[__astroContext]:$$props[__astroContext]`;
   return result + '}';
 }
 

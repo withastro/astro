@@ -159,10 +159,10 @@ const __astroScripts = __astro_hoisted_scripts([${result.components.map((n) => `
 const __astroInternal = Symbol('astro.internal');
 const __astroContext = Symbol.for('astro.context');
 const __astroSlotted = Symbol.for('astro.slotted');
-async function __render(props, ...children) {
+async function __render($$props, ...children) {
   const Astro = Object.create(__TopLevelAstro, {
     props: {
-      value: props,
+      value: $$props,
       enumerable: true
     },
     slots: {
@@ -178,19 +178,19 @@ async function __render(props, ...children) {
       enumerable: true
     },
     pageCSS: {
-      value: (props[__astroContext] && props[__astroContext].pageCSS) || [],
+      value: ($$props[__astroContext] && $$props[__astroContext].pageCSS) || [],
       enumerable: true
     },
     pageScripts: {
-      value: (props[__astroContext] && props[__astroContext].pageScripts) || [],
+      value: ($$props[__astroContext] && $$props[__astroContext].pageScripts) || [],
       enumerable: true
     },
     isPage: {
-      value: (props[__astroInternal] && props[__astroInternal].isPage) || false,
+      value: ($$props[__astroInternal] && $$props[__astroInternal].isPage) || false,
       enumerable: true
     },
     request: {
-      value: (props[__astroContext] && props[__astroContext].request) || {},
+      value: ($$props[__astroContext] && $$props[__astroContext].request) || {},
       enumerable: true
     },
   });
@@ -202,7 +202,7 @@ export default { isAstroComponent: true, __render, [Symbol.for('astro.hoistedScr
 
 // \`__renderPage()\`: Render the contents of the Astro module as a page. This is a special flow,
 // triggered by loading a component directly by URL.
-export async function __renderPage({request, children, props, css, scripts}) {
+export async function __renderPage({request, children, props: $$props, css, scripts}) {
   const currentChild = {
     isAstroComponent: true,
     layout: typeof __layout === 'undefined' ? undefined : __layout,
@@ -210,10 +210,10 @@ export async function __renderPage({request, children, props, css, scripts}) {
     __render,
   };
 
-  const isLayout = (__astroContext in props);
+  const isLayout = (__astroContext in $$props);
   if(!isLayout) {
     let astroRootUIDCounter = 0;
-    Object.defineProperty(props, __astroContext, {
+    Object.defineProperty($$props, __astroContext, {
       value: {
         pageCSS: css,
         request,
@@ -225,7 +225,7 @@ export async function __renderPage({request, children, props, css, scripts}) {
     });
   }
 
-  Object.defineProperty(props, __astroInternal, {
+  Object.defineProperty($$props, __astroInternal, {
     value: {
       isPage: !isLayout
     },
@@ -233,13 +233,13 @@ export async function __renderPage({request, children, props, css, scripts}) {
     enumerable: false
   });
 
-  const childBodyResult = await currentChild.__render(props, children);
+  const childBodyResult = await currentChild.__render($$props, children);
 
   // find layout, if one was given.
   if (currentChild.layout) {
     return currentChild.layout({
       request,
-      props: {content: currentChild.content, [__astroContext]: props[__astroContext]},
+      props: {content: currentChild.content, [__astroContext]: $$props[__astroContext]},
       children: [childBodyResult],
     });
   }
