@@ -9,11 +9,12 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "@docsearch/react": "^1.0.0-alpha.27"
+    "@docsearch/react": "^1.0.0-alpha.27",
+    "astro-seo": "^0.3.10"
   },
   "devDependencies": {
-    "astro": "^0.20.7",
-    "@snowpack/plugin-dotenv": "^2.1.0"
+    "@snowpack/plugin-dotenv": "^2.1.0",
+    "astro": "^0.20.7"
   },
   "snowpack": {
     "alias": {

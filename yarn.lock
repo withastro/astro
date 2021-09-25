@@ -2548,6 +2548,11 @@ astring@^1.7.4:
   resolved "https://registry.yarnpkg.com/astring/-/astring-1.7.5.tgz#a7d47fceaf32b052d33a3d07c511efeec67447ca"
   integrity sha512-lobf6RWXb8c4uZ7Mdq0U12efYmpD1UFnyOWVJPTa3ukqZrMopav+2hdNu0hgBF0JIBFK9QgrBDfwYvh3DFJDAA==
 
+astro-seo@^0.3.10:
+  version "0.3.10"
+  resolved "https://registry.yarnpkg.com/astro-seo/-/astro-seo-0.3.10.tgz#aedc53e445f100b8d2a114e3fefecea30b82401b"
+  integrity sha512-Sz1SrfBKGqAPvQ1gVTL3JW/rMyjBGGwdK7c4p/vJ9bRawqAgrv0tNLXsjaShTkQANiVLu+xH+6EMUQUfBf9Zaw==
+
 async-limiter@~1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/async-limiter/-/async-limiter-1.0.1.tgz#dd379e94f0db8310b08291f9d64c3209766617fd"
