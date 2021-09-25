@@ -155,7 +155,7 @@ When in prerelease mode, the automatic PR release process will no longer release
 
 Help us translate [docs.astro.build](https://docs.astro.build/) into as many languages as possible! This can be a great way to get involved with open source development without having to code.
 
-Our translation process is loosly based off of [MDN.](https://hacks.mozilla.org/2020/12/an-update-on-mdn-web-docs-localization-strategy/)
+Our translation process is loosely based off of [MDN.](https://hacks.mozilla.org/2020/12/an-update-on-mdn-web-docs-localization-strategy/)
 
 ### Important: Beta Status
 
