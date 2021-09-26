@@ -14,6 +14,7 @@ export const SIDEBAR = {
     { text: 'Layouts', link: 'core-concepts/layouts' },
     { text: 'Routing', link: 'core-concepts/routing' },
     { text: 'Partial Hydration', link: 'core-concepts/component-hydration' },
+    { text: 'Progressive Enhancement', link: 'core-concepts/progressive-enhancement' },
 
     { text: 'Guides', header: true },
     { text: 'Styling & CSS', link: 'guides/styling' },
