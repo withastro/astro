@@ -20,7 +20,7 @@ Alternativamente, lee nuestra guía de [instalación](/installation) para un rec
 
 Si estás interesado en jugar con Astro en el navegador, puedes usar un playground de código en línea. Prueba nuestro template "Hola Mundo!" en [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
 
-_Nota: Algunas caracteristicas (ex: Fast Refresh) actualmente están limitadas en CodeSandbox._
+_Nota: Algunas características (ex: Fast Refresh) actualmente están limitadas en CodeSandbox._
 
 ## Aprende Astro
 
@@ -33,7 +33,7 @@ Como cualquier tecnología desconocida, Astro viene con una ligera curva de apre
 
 ### Aprende la sintaxis de `.astro`
 
-Cuando comienzes a aprender Astro, verás muchos archivos con la extensión `.astro`. Esta es la **sintaxis de componentes de Astro**: un formato de archivo especial similar a HTML que Astro usa para crear templates. Fue diseñado para que resulte familiar a cualquiera que tenga experiencia con HTML o JSX.
+Cuando comiences a aprender Astro, verás muchos archivos con la extensión `.astro`. Esta es la **sintaxis de componentes de Astro**: un formato de archivo especial similar a HTML que Astro usa para crear templates. Fue diseñado para que resulte familiar a cualquiera que tenga experiencia con HTML o JSX.
 
 Nuestra guía sobre [componentes Astro](https://docs.astro.build/core-concepts/astro-components) presenta la sintaxis de Astro y es la mejor manera de aprender.
 
@@ -43,7 +43,7 @@ Esta sección de documentación es útil cuando deseas obtener más detalles sob
 
 ### Documentación versionada
 
-Esta documentación siempre refleja la última versión estable de Astro. Una vez que alcancemos la version v1.0, agregaremos la capacidad de ver documentación versionada.
+Esta documentación siempre refleja la última versión estable de Astro. Una vez que alcancemos la versión v1.0, agregaremos la capacidad de ver documentación versionada.
 
 ## Mantenerse informado
 
