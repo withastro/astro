@@ -95,6 +95,19 @@ To make your Astro component interactive, you will need to convert it to the fro
 
 Alternatively, you could add a `<script>` tag to your Astro component HTML template and send JavaScript to the browser that way. While this is fine for the simple stuff, we recommend a frontend framework for more complex interactive components.
 
+```astro
+---
+// Example: Using Astro with script tags
+---
+<h1>Not clicked</h1>
+<button>Click to change heading</button>
+<script>
+document.querySelector("button").addEventListener("click",() => {
+    document.querySelector("h1").innerText = "clicked"
+})
+</script>
+```
+
 [mdn-io]: https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
 [mdn-ric]: https://developer.mozilla.org/en-US/docs/Web/API/Window/requestIdleCallback
 [mdn-mm]: https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia
