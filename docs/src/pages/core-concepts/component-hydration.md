@@ -98,7 +98,6 @@ Alternatively, you could add a `<script>` tag to your Astro component HTML templ
 ```astro
 ---
 // Example: Using Astro with script tags
-// This is not recommended unless you are implementing very simple interactivity.
 ---
 <h1>Not clicked</h1>
 <button>Click to change heading</button>
