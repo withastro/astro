@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.17
+
+### Patch Changes
+
+- 7c6f6a6: Fixes issue with errors not going away after fixing them
+
 ## 0.7.16
 
 ### Patch Changes
