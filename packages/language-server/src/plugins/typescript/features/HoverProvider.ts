@@ -6,6 +6,8 @@ import { HoverProvider } from '../../interfaces';
 import { getMarkdownDocumentation } from '../previewer';
 import { convertRange, toVirtualAstroFilePath } from '../utils';
 
+const partsMap = new Map([['JSX attribute', 'HTML attribute']]);
+
 export class HoverProviderImpl implements HoverProvider {
   constructor(private readonly lang: LanguageServiceManager) {}
 
@@ -22,7 +24,11 @@ export class HoverProviderImpl implements HoverProvider {
 
     const textSpan = info.textSpan;
 
-    const declaration = ts.displayPartsToString(info.displayParts);
+    const displayParts: ts.SymbolDisplayPart[] = (info.displayParts||[]).map(value => ({
+      text: partsMap.has(value.text) ? partsMap.get(value.text)! : value.text,
+      kind: value.kind
+    }));
+    const declaration = ts.displayPartsToString(displayParts);
     const documentation = getMarkdownDocumentation(info.documentation, info.tags);
 
     // https://microsoft.github.io/language-server-protocol/specification#textDocument_hover
