@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { AstroCheck, DiagnosticSeverity } from '@astrojs/language-server';
 import type { AstroConfig } from './@types/astro';
 import { bold, blue, black, bgWhite, red, cyan, yellow } from 'kleur/colors';
