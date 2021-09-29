@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 0.7.16
+
+### Patch Changes
+
+- b6f44d4: Change hover text to display HTML attribute instead of JSX
+- 4166283: Prevents errors when using the Fragment component
+
 ## 0.7.15
 
 ### Patch Changes
