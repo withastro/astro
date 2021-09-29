@@ -54,6 +54,7 @@ export const SIDEBAR = {
   es: [
     { text: 'Configuración', header: true },
     { text: 'Empezando', link: 'es/getting-started' },
+    { text: 'Instalación', link: 'es/installation' },
   ],
   'zh-CN': [
     { text: '起步', header: true },
