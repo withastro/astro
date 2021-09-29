@@ -106,10 +106,10 @@
     "@algolia/logger-common" "4.10.5"
     "@algolia/requester-common" "4.10.5"
 
-"@astrojs/language-server@^0.7.15":
-  version "0.7.15"
-  resolved "https://registry.yarnpkg.com/@astrojs/language-server/-/language-server-0.7.15.tgz#fba02923ac5e1ba6dc58e692ec5c50cbafff75e9"
-  integrity sha512-zReUVbYHAaLZV3xSighiBDdxNRMryG9EIuXXpASJGdzHnIIZ0px/WYg7nucsHgTdEyIdWwc25dQ/uZBTvcUl0g==
+"@astrojs/language-server@^0.7.16":
+  version "0.7.16"
+  resolved "https://registry.yarnpkg.com/@astrojs/language-server/-/language-server-0.7.16.tgz#54ac89c70ec7a6ab2712d4f15357017e795db34a"
+  integrity sha512-LjWk9Ia8TrKGf4homDCFpL6r9gfB3cPqrEx1COuy5ukzy/cvGGersobwodtwsbOKqOWk7NwJbYbf51IIub7prQ==
   dependencies:
     lodash "^4.17.21"
     source-map "^0.7.3"
