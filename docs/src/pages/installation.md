@@ -25,7 +25,7 @@ npm init astro
 yarn create astro
 ```
 
-[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) wizard lets you choose from a set of [starter templates](/examples) or alternatively, you could import your own Astro project directly from GitHub.
+[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) wizard lets you choose from a set of [starter templates](https://github.com/snowpackjs/astro/tree/main/examples) or alternatively, you could import your own Astro project directly from GitHub.
 
 ```bash
 # Note: Replace "my-astro-project" with the name of your project.
