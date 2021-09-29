@@ -134,7 +134,6 @@ Arriba hay un ejemplo de la sintaxis del componente de Astro, que comprende HTML
 
 Puedes crear más páginas en el directorio `src/pages` y Astro utilizará los archivos creados para generar nuevas páginas de tu sitio web. Por ejemplo, Al crear el archivo `about.astro` en `src/pages/about.astro` (reusando el fragmento de código anterior), Astro generará una página HTML en la dirección URL: `http://localhost/about`.
 
-
 ## [Iniciar Astro](#start-astro)
 
 ```bash
