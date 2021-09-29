@@ -20,7 +20,7 @@ export interface LanguageServiceContainer {
 
 export interface LanguageServiceDocumentContext {
   getWorkspaceRoot(fileName: string): string;
-  createDocument: (fileName: string, content: string) => Document;
+  createDocument: (fileName: string, content: string, overrideText: boolean) => Document;
 }
 
 export async function getLanguageService(path: string, workspaceUris: string[], docContext: LanguageServiceDocumentContext): Promise<LanguageServiceContainer> {

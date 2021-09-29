@@ -18,11 +18,12 @@ export class DocumentManager {
     return this.documents.get(normalizeUri(uri));
   }
 
-  openDocument(textDocument: TextDocumentItem) {
+  openDocument(textDocument: TextDocumentItem & { overrideText: boolean }) {
     let document: Document;
     if (this.documents.has(textDocument.uri)) {
       document = this.get(textDocument.uri) as Document;
-      document.setText(textDocument.text);
+      if(textDocument.overrideText)
+        document.setText(textDocument.text);
     } else {
       document = this.createDocument(textDocument);
       this.documents.set(normalizeUri(textDocument.uri), document);

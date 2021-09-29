@@ -24,7 +24,8 @@ export class AstroCheck {
       languageId: 'astro',
       version: 0,
       text: doc.text,
-      uri: doc.uri
+      uri: doc.uri,
+      overrideText: true
     });
     this.docManager.markAsOpenedInClient(doc.uri);
   }

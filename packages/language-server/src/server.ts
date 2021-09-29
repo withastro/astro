@@ -88,7 +88,7 @@ export function startServer() {
 
   // Documents
   connection.onDidOpenTextDocument((evt) => {
-    docManager.openDocument(evt.textDocument);
+    docManager.openDocument(Object.assign({ overrideText: true }, evt.textDocument));
     docManager.markAsOpenedInClient(evt.textDocument.uri);
   });
 

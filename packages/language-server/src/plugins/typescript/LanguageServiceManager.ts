@@ -42,13 +42,14 @@ export class LanguageServiceManager {
     }, '');
   }
 
-  private createDocument = (fileName: string, content: string) => {
+  private createDocument = (fileName: string, content: string, overrideText: boolean) => {
     const uri = pathToUrl(fileName);
     const document = this.docManager.openDocument({
       languageId: 'astro',
       version: 0,
       text: content,
       uri,
+      overrideText,
     });
     return document;
   };

@@ -50,12 +50,12 @@ export interface DocumentSnapshot extends ts.IScriptSnapshot {
   getFullText(): string;
 }
 
-export const createDocumentSnapshot = (filePath: string, currentText: string | null, createDocument?: (_filePath: string, text: string) => Document): DocumentSnapshot => {
+export const createDocumentSnapshot = (filePath: string, currentText: string | null, createDocument?: (_filePath: string, text: string, overrideText: boolean) => Document): DocumentSnapshot => {
   const text = currentText || (ts.sys.readFile(filePath) ?? '');
 
   if (isAstroFilePath(filePath)) {
     if (!createDocument) throw new Error('Astro documents require the "createDocument" utility to be provided');
-    const snapshot = new AstroDocumentSnapshot(createDocument(filePath, text));
+    const snapshot = new AstroDocumentSnapshot(createDocument(filePath, text, currentText !== null));
     return snapshot;
   }
 
