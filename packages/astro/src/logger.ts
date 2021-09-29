@@ -9,7 +9,21 @@ type ConsoleStream = Writable & {
   fd: 1 | 2;
 };
 
-const dt = new Intl.DateTimeFormat(process.env.LANG ? process.env.LANG.split('.')[0].replace(/_/g, '-') : 'en-US', { hour: '2-digit', minute: '2-digit' });
+function getLoggerLocale(): string {
+  const defaultLocale = 'en-US';
+  if (process.env.LANG) {
+    const extractedLocale = process.env.LANG.split('.')[0].replace(/_/g, '-');
+    // Check if language code is atleast two characters long (ie. en, es).
+    // NOTE: if "c" locale is encountered, the default locale will be returned.
+    if (extractedLocale.length < 2) return defaultLocale;
+    else return extractedLocale;
+  } else return defaultLocale;
+}
+
+const dt = new Intl.DateTimeFormat(getLoggerLocale(), {
+  hour: '2-digit',
+  minute: '2-digit',
+});
 
 export const defaultLogDestination = new Writable({
   objectMode: true,
@@ -74,7 +88,12 @@ export const levels: Record<LoggerLevel, number> = {
 };
 
 /** Full logging API */
-export function log(opts: LogOptions = {}, level: LoggerLevel, type: string | null, ...args: Array<any>) {
+export function log(
+  opts: LogOptions = {},
+  level: LoggerLevel,
+  type: string | null,
+  ...args: Array<any>
+) {
   const logLevel = opts.level ?? defaultLogOptions.level;
   const dest = opts.dest ?? defaultLogOptions.dest;
   const event: LogMessage = {
@@ -93,22 +112,38 @@ export function log(opts: LogOptions = {}, level: LoggerLevel, type: string | nu
 }
 
 /** Emit a message only shown in debug mode */
-export function debug(opts: LogOptions, type: string | null, ...messages: Array<any>) {
+export function debug(
+  opts: LogOptions,
+  type: string | null,
+  ...messages: Array<any>
+) {
   return log(opts, 'debug', type, ...messages);
 }
 
 /** Emit a general info message (be careful using this too much!) */
-export function info(opts: LogOptions, type: string | null, ...messages: Array<any>) {
+export function info(
+  opts: LogOptions,
+  type: string | null,
+  ...messages: Array<any>
+) {
   return log(opts, 'info', type, ...messages);
 }
 
 /** Emit a warning a user should be aware of */
-export function warn(opts: LogOptions, type: string | null, ...messages: Array<any>) {
+export function warn(
+  opts: LogOptions,
+  type: string | null,
+  ...messages: Array<any>
+) {
   return log(opts, 'warn', type, ...messages);
 }
 
 /** Emit a fatal error message the user should address. */
-export function error(opts: LogOptions, type: string | null, ...messages: Array<any>) {
+export function error(
+  opts: LogOptions,
+  type: string | null,
+  ...messages: Array<any>
+) {
   return log(opts, 'error', type, ...messages);
 }
 
@@ -139,7 +174,9 @@ export function parseError(opts: LogOptions, err: CompileError) {
     opts,
     'parse-error',
     `
- ${underline(bold(grey(`${err.filename || ''}:${err.start.line}:${err.start.column}`)))}
+ ${underline(
+   bold(grey(`${err.filename || ''}:${err.start.line}:${err.start.column}`))
+ )}
  ${bold(red(`𝘅 ${err.message}`))}
 ${frame}
 `
