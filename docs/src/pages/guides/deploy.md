@@ -161,8 +161,7 @@ jobs:
 ## GitLab Pages
 
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
-2. Set `build.outDir` in `astro.config.mjs` to `public`.
-3. Create a file called `.gitlab-ci.yml` in the root of your project with the content below. This will build and deploy your site whenever you make changes to your content:
+2. Create a file called `.gitlab-ci.yml` in the root of your project with the content below. This will build and deploy your site whenever you make changes to your content:
 
    ```yaml
    image: node:10.22.0
@@ -173,6 +172,7 @@ jobs:
      script:
        - npm install
        - npm run build
+       - rm -rf ./public/* && cp -r ./dist/* ./public
      artifacts:
        paths:
          - public
