@@ -22,9 +22,9 @@ Astro – это современный сборщик статических с
 Вы можете установить любой из этих примеров на вашу локальную машину с помощью команды `npm init astro` и дополнительного параметра `--template`. Флаг `--template` также поддерживает сторонние шаблоны.
 
 ```bash
-# Run the init wizard and use this official template
+# Запустить инициализацию и использовать официальный шаблон
 npm init astro -- --template [OFFICIAL_EXAMPLE_NAME]
-# Run the init wizard and use this community template
+# Запустить инициализацию и использовать шаблон, предложенный сообществом
 npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
 npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
 ```
