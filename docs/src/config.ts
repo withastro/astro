@@ -106,7 +106,7 @@ export const SIDEBAR = {
   ru: [
     { text: 'Введение', header: true },
     { text: 'Начало работы', link: 'ru/getting-started' },
-  ]
+  ],
 };
 
 export const SITE = {
