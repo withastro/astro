@@ -103,6 +103,10 @@ export const SIDEBAR = {
     { text: 'セットアップ', header: true },
     { text: 'はじめに', link: 'ja/getting-started' },
   ],
+  ru: [
+    { text: 'Введение', header: true },
+    { text: 'Начало работы', link: 'ru/getting-started' },
+  ]
 };
 
 export const SITE = {
