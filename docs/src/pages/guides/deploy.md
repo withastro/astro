@@ -161,7 +161,7 @@ jobs:
 ## GitLab Pages
 
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
-2. Set `build.outDir` in `astro.config.mjs` to `public`.
+2. Set `build` in `astro.config.mjs` to `public` and `public` in `astro.config.mjs` to a newly named folder that is holding everything currently in `public`. The reasoning is because `public` is a second source folder in astro, so if you would like to output to `public` you'll need to pull public assets from a different folder.
 3. Create a file called `.gitlab-ci.yml` in the root of your project with the content below. This will build and deploy your site whenever you make changes to your content:
 
    ```yaml
