@@ -1349,37 +1349,37 @@
     npmlog "^4.1.2"
     write-file-atomic "^3.0.3"
 
-"@lit-labs/ssr-client@^1.0.0-rc.1":
-  version "1.0.0-rc.3"
-  resolved "https://registry.yarnpkg.com/@lit-labs/ssr-client/-/ssr-client-1.0.0-rc.3.tgz#3f6141d4263d80f239fe05421ae39c9ee3c7eba5"
-  integrity sha512-vGawQxjjHXH2HpAlf8xplXXjCu1WMR6PTZHdfR+CQCTQJWGeTlm0l1kgzi9ki0JPUA7Dc6v/Sr3cF2MVCf5fcA==
+"@lit-labs/ssr-client@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@lit-labs/ssr-client/-/ssr-client-1.0.0.tgz#9d5a437f575469023500b7eff3bd27632197f720"
+  integrity sha512-bYnX1uhE7oO/579xRoAdAHnngROQHj93bqCUqw/L4vvRyBWBIeeshoM3OjPX0DFdeJIvZy/1x29t9iaNvTB5bg==
   dependencies:
-    "@lit/reactive-element" "^1.0.0-rc.1"
-    lit "^2.0.0-rc.1"
-    lit-html "^2.0.0-rc.4"
+    "@lit/reactive-element" "^1.0.0"
+    lit "^2.0.0"
+    lit-html "^2.0.0"
 
-"@lit-labs/ssr@^1.0.0-rc.1":
-  version "1.0.0-rc.3"
-  resolved "https://registry.yarnpkg.com/@lit-labs/ssr/-/ssr-1.0.0-rc.3.tgz#221b0884db17e27bc36a2e5c5c6250fe124ed4e4"
-  integrity sha512-RfcIVAP7FQR6KmQsbspTbTri+qLlrLYyjSaM4bhZxlGPGHw4qPJlsOvoIHB1U3vueIXmlsq5zY10Svq/JhXq+w==
+"@lit-labs/ssr@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@lit-labs/ssr/-/ssr-1.0.0.tgz#fd51dd84f8b7979156cc211e581d89a24dcc0d95"
+  integrity sha512-Emn0n9kB9UNaavA2YJiC5uT+qVgo+coSfFn09Bmg3DnEfin1cpwG5hG10VmL8AGfuA8vyKkSMj+Cvp6n0MZgcg==
   dependencies:
-    "@lit-labs/ssr-client" "^1.0.0-rc.1"
+    "@lit-labs/ssr-client" "^1.0.0"
     "@webcomponents/template-shadowroot" "^0.1.0"
     escape-html "^1.0.3"
     koa "^2.7.0"
     koa-node-resolve "^1.0.0-pre.5"
     koa-static "^5.0.0"
-    lit "^2.0.0-rc.1"
-    lit-element "^3.0.0-rc.1"
-    lit-html "^2.0.0-rc.4"
+    lit "^2.0.0"
+    lit-element "^3.0.0"
+    lit-html "^2.0.0"
     node-fetch "^2.6.0"
     parse5 "^6.0.1"
     resolve "^1.10.1"
 
-"@lit/reactive-element@^1.0.0-rc.1", "@lit/reactive-element@^1.0.0-rc.2":
-  version "1.0.0-rc.4"
-  resolved "https://registry.yarnpkg.com/@lit/reactive-element/-/reactive-element-1.0.0-rc.4.tgz#3473f6a687e9925fc2e9ff1b716a86b5f4b576ad"
-  integrity sha512-dJMha+4NFYdpnUJzRrWTFV5Hdp9QHWFuPnaoqonrKl4lGJVnYez9mu8ev9F/5KM47tjAjh22DuRHrdFDHfOijA==
+"@lit/reactive-element@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@lit/reactive-element/-/reactive-element-1.0.0.tgz#7b6e6a85709cda0370c47e425ac2f3b553696a4b"
+  integrity sha512-Kpgenb8UNFsKCsFhggiVvUkCbcFQSd6N8hffYEEGjz27/4rw3cTSsmP9t3q1EHOAsdum60Wo64HvuZDFpEwexA==
 
 "@ljharb/has-package-exports-patterns@0.0.1":
   version "0.0.1"
@@ -6135,29 +6135,29 @@ link-types@^1.1.0:
   resolved "https://registry.yarnpkg.com/link-types/-/link-types-1.1.0.tgz#af65e59db52e70c1ffb18ac4c3cb056bfe796830"
   integrity sha1-r2XlnbUucMH/sYrEw8sFa/55aDA=
 
-lit-element@^3.0.0-rc.1, lit-element@^3.0.0-rc.2:
-  version "3.0.0-rc.4"
-  resolved "https://registry.yarnpkg.com/lit-element/-/lit-element-3.0.0-rc.4.tgz#71abe4e38bbcafb9e8977798121634db331868e4"
-  integrity sha512-6X7RCHTNhAWetVSr8VccALnRcn3W3VDqOfjY5cAfyfGq8Y9IbWnyBP8/ihpRg2atHbM2NsGL6pjDrFL9dRdIKg==
+lit-element@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/lit-element/-/lit-element-3.0.0.tgz#0e9e64ddbc3dd6a8da4d6fbfadbc070a54cf0597"
+  integrity sha512-oPqRhhBBhs+AlI62QLwtWQNU/bNK/h2L1jI3IDroqZubo6XVAkyNy2dW3CRfjij8mrNlY7wULOfyyKKOnfEePA==
   dependencies:
-    "@lit/reactive-element" "^1.0.0-rc.2"
-    lit-html "^2.0.0-rc.4"
+    "@lit/reactive-element" "^1.0.0"
+    lit-html "^2.0.0"
 
-lit-html@^2.0.0-rc.4:
-  version "2.0.0-rc.5"
-  resolved "https://registry.yarnpkg.com/lit-html/-/lit-html-2.0.0-rc.5.tgz#2051f79418bc244853b6e1d93fdf3833cab2cadb"
-  integrity sha512-vFnjzqwQijC9By5F50c3sjI5PXPYoIvbGfpbbDOv+8BBRYdMR+FDYyMeCC3T3iIZx8EE6aIow2aTaG+HS5SV4A==
+lit-html@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/lit-html/-/lit-html-2.0.0.tgz#ba6779269c382e66d7403a96ed99516ccc3d658b"
+  integrity sha512-tJsCapCmc0vtLj6harqd6HfCxnlt/RSkgowtz4SC9dFE3nSL38Tb33I5HMDiyJsRjQZRTgpVsahrnDrR9wg27w==
   dependencies:
     "@types/trusted-types" "^2.0.2"
 
-lit@^2.0.0-rc.1, lit@^2.0.0-rc.2:
-  version "2.0.0-rc.4"
-  resolved "https://registry.yarnpkg.com/lit/-/lit-2.0.0-rc.4.tgz#ea9eb44fa5cc974b7af4a45f8d82172d0b3f9c26"
-  integrity sha512-HPJrSvK377a1E5eSAUG+eTJWIOJFGNtnfbGPHY4vbc0Ud9GTFSwMEbeAOIJnA+5q92cafR38F1bWOyo4a2ncag==
+lit@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/lit/-/lit-2.0.0.tgz#7710095dc518d9858dde579e9c76b9eed71e98ba"
+  integrity sha512-pqi5O/wVzQ9Bn4ERRoYQlt1EAUWyY5Wv888vzpoArbtChc+zfUv1XohRqSdtQZYCogl0eHKd+MQwymg2XJfECg==
   dependencies:
-    "@lit/reactive-element" "^1.0.0-rc.2"
-    lit-element "^3.0.0-rc.2"
-    lit-html "^2.0.0-rc.4"
+    "@lit/reactive-element" "^1.0.0"
+    lit-element "^3.0.0"
+    lit-html "^2.0.0"
 
 load-json-file@^4.0.0:
   version "4.0.0"
