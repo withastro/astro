@@ -8,6 +8,7 @@ import path from 'path';
 import { performance } from 'perf_hooks';
 import glob from 'tiny-glob';
 import hash from 'shorthash';
+import srcsetParse from 'srcset-parse';
 import { fileURLToPath } from 'url';
 import type { AstroConfig, BuildOutput, BundleMap, PageDependencies, RouteData, RuntimeMode, ScriptInfo } from './@types/astro';
 import { bundleCSS } from './build/bundle/css.js';
@@ -19,6 +20,9 @@ import { getDistPath, stopTimer } from './build/util.js';
 import type { LogOptions } from './logger';
 import { debug, defaultLogDestination, defaultLogLevel, error, info, warn } from './logger.js';
 import { createRuntime, LoadResult } from './runtime.js';
+
+// This package isn't real ESM, so have to coerce it
+const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
 
 const defaultLogging: LogOptions = {
   level: defaultLogLevel,
@@ -338,11 +342,19 @@ export function findDeps(html: string, { astroConfig, srcPath }: { astroConfig: 
 
   $('img[srcset]').each((_i, el) => {
     const srcset = $(el).attr('srcset') || '';
-    const sources = srcset.split(',');
-    const srces = sources.map((s) => s.trim().split(' ')[0]);
-    for (const src of srces) {
-      if (!isRemoteOrEmbedded(src)) {
-        pageDeps.images.add(getDistPath(src, { astroConfig, srcPath }));
+    for (const src of matchSrcset(srcset)) {
+      if (!isRemoteOrEmbedded(src.url)) {
+        pageDeps.images.add(getDistPath(src.url, { astroConfig, srcPath }));
+      }
+    }
+  });
+
+  // Add in srcset check for <source>
+  $('source[srcset]').each((_i, el) => {
+    const srcset = $(el).attr('srcset') || '';
+    for (const src of matchSrcset(srcset)) {
+      if (!isRemoteOrEmbedded(src.url)) {
+        pageDeps.images.add(getDistPath(src.url, { astroConfig, srcPath }));
       }
     }
   });
