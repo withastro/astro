@@ -91,6 +91,9 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
         <option value="ja">
           <span>日本語</span>
         </option>
+        <option value="ru">
+          <span>Русский</span>
+        </option>
       </select>
     </div>
   );
