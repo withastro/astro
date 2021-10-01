@@ -44,6 +44,7 @@ React('Can load React', async () => {
   assert.equal($('#component-spread-props').length, 1, 'Can use spread for components');
   assert.equal($('#component-spread-props').text(), 'Hello world!');
   assert.equal($('.ts-component').length, 1, 'Can use TS components');
+  assert.equal($('#pure').length, 1, 'Can use Pure components');
 });
 
 React('Includes reactroot on hydrating components', async () => {
