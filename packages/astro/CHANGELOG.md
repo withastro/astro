@@ -1,5 +1,12 @@
 # astro
 
+## 0.20.9
+
+### Patch Changes
+
+- Updated dependencies [756e3769]
+  - @astrojs/renderer-react@0.2.2
+
 ## 0.20.8
 
 ### Patch Changes
