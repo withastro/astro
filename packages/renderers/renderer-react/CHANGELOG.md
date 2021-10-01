@@ -1,5 +1,11 @@
 # @astrojs/renderer-react
 
+## 0.2.2
+
+### Patch Changes
+
+- 756e3769: Fixes detect to allow rendering React.PureComponents
+
 ## 0.2.1
 
 ### Patch Changes

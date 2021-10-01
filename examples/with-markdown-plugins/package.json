@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.20.8",
+    "astro": "^0.20.9",
     "rehype-add-classes": "^1.0.0",
     "rehype-autolink-headings": "^6.1.0",
     "rehype-toc": "^3.0.2",

@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.3
+
+### Patch Changes
+
+- 0eeb2534: change rm to unlink for node 12 compatability
+
 ## 0.6.2
 
 ### Patch Changes
