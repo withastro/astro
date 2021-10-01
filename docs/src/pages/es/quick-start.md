@@ -8,7 +8,7 @@ lang: es
 # prerrequisitos: revisa que Node.js está en la versión 12.20.0+, 14.13.1+, ó 16+
 node --version
 
-# Crea un nuevo proyecto en el directorio y entra al él
+# crea un nuevo proyecto en el directorio y entra a él
 mkdir my-astro-project && cd $_
 
 # inicializa el proyecto...
@@ -24,7 +24,7 @@ npm run dev
 npm run build
 ```
 
-Para saber más sobre la instalación y uso de Astro por primera vez, por favor [lea nuestro guía de instalación.](installation)
+Para saber más sobre la instalación y uso de Astro por primera vez, por favor [lea nuestra guía de instalación.](installation)
 
 Si prefieres aprender con ejemplos, revisa nuestra [librería completa de ejemplos](https://github.com/snowpackjs/astro/tree/main/examples) en GitHub. Puedes revisar cualquiera de estos ejemplos localmente ejecutando `npm init astro -- --template "EXAMPLE_NAME"`.
 
@@ -36,13 +36,13 @@ Dentro del directorio de tu proyecto, ingresa el siguiente comando en la termina
 npm run dev
 ```
 
-Astro comenzará a correr en el servidor de desarrollo en [http://localhost:3000](http://localhost:3000). Abre ésta ubicación en tu navegador, deberías ver la página de "¡Hola Mundo!" de Astro.
+Astro comenzará a correr en el servidor de desarrollo en [http://localhost:3000](http://localhost:3000). Abre esta ubicación en tu navegador, deberías ver la página de "¡Hola Mundo!" de Astro.
 
 El servidor escuchará los cambios en vivo de los archivos en tu carpeta `src/`, así que, no necesitarás reiniciar la aplicación cuando hagas cambios durante el desarrollo.
 
 ## Construye tu proyecto
 
-Para Construir tu proyecto, ingresa el siguiente comando en la terminal:
+Para construir tu proyecto, ingresa el siguiente comando en la terminal:
 
 ```bash
 npm run build
