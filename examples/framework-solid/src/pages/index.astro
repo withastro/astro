@@ -1,40 +1,32 @@
 ---
-import Counter from '../components/Counter.tsx';
+import Counter from '../components/Counter.jsx';
 ---
 
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width"
-    />
-
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-
-    <style>
-      :global(:root) {
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <style global>
+      :root {
         font-family: system-ui;
-        padding: 2em 0;
       }
-      :global(.counter) {
+      .counter {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         place-items: center;
         font-size: 2em;
-        margin-top: 2em;
+        margin-top: 3em;
       }
-      :global(.children) {
-        display: grid;
-        place-items: center;
-        margin-bottom: 2em;
+      .counter-message {
+        text-align: center;
       }
     </style>
   </head>
   <body>
     <main>
       <Counter client:visible>
-        <h1>Hello Solid!</h1>
+        <h1>Hello, Solid!</h1>
       </Counter>
     </main>
   </body>
