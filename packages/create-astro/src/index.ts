@@ -116,7 +116,7 @@ export async function main() {
       switch (file) {
         case 'CHANGELOG.md': {
           if (fs.existsSync(fileLoc)) {
-            await fs.promises.rm(fileLoc);
+            await fs.promises.unlink(fileLoc);
           }
           break;
         }
