@@ -6,8 +6,6 @@ lang: da
 
 Astro er en moderne statisk side bygger. Lær hvad Astro handler om på [vores hjemmeside](https://astro.build/) eller [vores udgivelsesmeddelelser](https://astro.build/blog/introducing-astro). Denne side er et overblik over Astro-dokumentationen og alle relaterede ressourcer.
 
-Leder du efter et hurtigt overblik over hvad Astro er? [Besøg vores hjemmeside.](https://astro.build)
-
 ## Prøv Astro
 
 Den nemmeste måde at prøve Astro på er ved at køre `npm init astro` i en ny mappe på din maskine. Vores CLI-guide vil hjælpe dig med at starte et nyt Astro projekt.
@@ -16,11 +14,23 @@ Besøg vores [Hurtigstartsguide](/quick-start) for at komme i gang med Astro i 5
 
 Alternativt kan du læse vores [Installationsguide](/installation) for en fuld gennemgang af hvordan du sætter Astro op.
 
+### Eksempelprojekter
+
+Hvis du foretrækker at lære Astro ved hjælp af eksempler, kan du tjekke vores [fulde bibliotek af eksempler](https://github.com/snowpackjs/astro/tree/main/examples) på GitHub.
+
+Du kan tjekke alle disse eksempler på din lokale maskine ved at køre `npm init astro` med CLI-flaget `--template`. Flaget `--template` understøtter også tredjeparts-skabeloner lavet af fællesskabet.
+
+```bash
+# Kør init-guiden og brug denne officielle skabelon
+npm init astro -- --template [OFFICIEL_EKSEMPEL_NAVN]
+# Kør init-guiden og brug denne skabelon lavet af fællesskabet
+npm init astro -- --template [GITHUB_BRUGER]/[REPO_NAVN]
+npm init astro -- --template [GITHUB_BRUGER]/[REPO_NAVN]/sti/til/eksempel
+```
+
 ### Online Legepladser
 
-Hvis du er interesseret i at lege med Astro i browseren, kan du bruge en online kodelegeplads. Prøv vores "Hello World!" skabelon på [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
-
-_Bemærk: Nogle funktioner (f.eks. Hurtig opdatering) er i øjeblikket begrænset på CodeSandbox._
+Hvis du er interesseret i at lege med Astro i browseren, kan du bruge en online kodeeditor som Stackblitz, CodeSandbox, Gitpod eller GitHub Codespaces. Klik på "Open in Stackblitz" linket i et af eksemplerne i vores [liste af eksempler](https://github.com/snowpackjs/astro/tree/main/examples). Eller, [klik her](https://stackblitz.com/fork/astro) for at starte et nyt projekt i [Stackblitz](https://stackblitz.com/fork/astro).
 
 ## Lær Astro
 
@@ -39,7 +49,7 @@ Vores nyttige guide om [Astro-komponenter](/core-concepts/astro-components) intr
 
 ### API Reference
 
-Dette dokumentationsafsnit er nyttigt når du vil lære flere detaljer om en bestemt Astro API. F.eks. indeholder [Konfigurationsreference](/reference/configuration-reference) en liste over alle tilgængelige konfigurationsmuligheder. [Indbyggede komponenter-reference](/reference/builtin-components) indeholder en liste over alle tilgængelige kernekomponenter, såsom `<Markdown />` og `<Prism />`.
+Dette dokumentationsafsnit er nyttigt når du vil lære flere detaljer om en bestemt Astro API. F.eks. indeholder [Konfigurationsreference](/reference/configuration-reference) en liste over alle tilgængelige konfigurationsmuligheder. [Indbyggede komponenter-reference](/reference/builtin-components) indeholder en liste over alle tilgængelige kernekomponenter, såsom `<Markdown />` og `<Code />`.
 
 ### Versioneret dokumentation
 
