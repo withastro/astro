@@ -68,7 +68,7 @@ By contrast, Astro automatically builds your client-side JavaScript & CSS for yo
 
 Gatsby uses React to render your website. Astro is more flexible: you are free to build UI with any popular component library (React, Preact, Vue, Svelte, Solid and others) or Astro's HTML-like component syntax which is similar to HTML + JSX.
 
-Today, both Gatsby and Astro support Static Site Generation (SSG) only. Gatsby has support for incremental rebuilds, while Astro only supports full site rebuilds. Astro has stated plans to support Server-Side Rendering (SSR) in a future release, while Gatsby has no plans to support SSR.
+Gatsby v4 supports both Static Site Generation (SSG) with incremental rebuilds, Deferred Static Generation (DSG), and Server-Side Rendering (SSR). Today, Astro only supports Static Site Generation (SSG).
 
 Gatsby requires a custom GraphQL API for working with all of your site content. While some developers enjoy this model, a common criticism of Gatsby is that this model becomes too complex and difficult to maintain over time, especially as sites grow. Astro has no GraphQL requirement, and instead provides familiar APIs (like `fetch()` and top-level `await`) for data loading close to where the data is needed.
 
