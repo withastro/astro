@@ -178,6 +178,9 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
           request: { url, canonicalURL },
           props,
           fetchContent,
+          resolve(segment: string) {
+            throw new Error(`[astro@0.21.0] "Astro.resolve()" deprecated. Use a "?url" import instead:\n  import resolvedFileUrl from '${segment}?url';\n`)
+          },
         };
       },
       _metadata: { importedModules, renderers },
