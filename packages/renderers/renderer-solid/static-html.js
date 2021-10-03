@@ -1,4 +1,4 @@
-import { createComponent } from 'solid-js';
+import { ssr } from 'solid-js/web/dist/server.js';
 
 /**
  * Astro passes `children` as a string of HTML, so we need
@@ -6,7 +6,7 @@ import { createComponent } from 'solid-js';
  */
 const StaticHtml = ({ innerHTML }) => {
   if (!innerHTML) return null;
-  return () => createComponent('astro-fragment', { innerHTML });
+  return ssr(`<astro-fragment>${innerHTML }</astro-fragment>`);
 };
 
 export default StaticHtml;
