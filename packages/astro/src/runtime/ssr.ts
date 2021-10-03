@@ -123,6 +123,29 @@ async function resolveImportedModules(viteServer: ViteDevServer, file: URL) {
   return importedModules;
 }
 
+/** Create the Astro.fetchContent() runtime function. */
+function createFetchContentFn(url: URL) {
+  return (importMetaGlobResult: Record<string, any>) => {
+    let allEntries = [...Object.entries(importMetaGlobResult)];
+    if (allEntries.length === 0) {
+      throw new Error(`[${url.pathname}] Astro.fetchContent() no matches found.`);
+    }
+    return allEntries
+      .map(([spec, mod]) => {
+        // Only return Markdown files for now.
+        if (!mod.frontmatter) {
+          return;
+        }
+        return {
+          content: mod.metadata,
+          metadata: mod.frontmatter,
+          file: new URL(spec, url),
+        };
+      })
+      .filter(Boolean);
+  };
+};
+
 /** use Vite to SSR */
 export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
   try {
@@ -185,7 +208,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
         const site = new URL(origin);
         const url = new URL('.' + pathname, site);
         const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin);
-        const fetchContent = createFetchContent(fileURLToPath(filePath));
+        const fetchContent = createFetchContentFn(filePath);
         return {
           isPage: true,
           site,
@@ -208,34 +231,6 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       _metadata: { importedModules, renderers },
     };
 
-    function createFetchContent(currentFilePath: string) {
-      const fetchContentCache = new Map<string, any>();
-      return async function fetchContent<T>(pattern: string): Promise<FetchContentResult<T>[]> {
-        const cwd = path.dirname(currentFilePath);
-        const cacheKey = `${cwd}:${pattern}`;
-        if (fetchContentCache.has(cacheKey)) {
-          return fetchContentCache.get(cacheKey);
-        }
-        const files = await glob(pattern, { cwd, absolute: true });
-        const contents: FetchContentResult<T>[] = await Promise.all(
-          files.map(async (file) => {
-            const loadedModule = await viteServer.ssrLoadModule(file);
-            const astro = (loadedModule.metadata || {}) as FetchContentResultBase['astro'];
-            const frontmatter = loadedModule.frontmatter || {};
-            //eslint-disable-next-line no-shadow
-            const result: FetchContentResult<T> = {
-              ...frontmatter,
-              astro,
-              url: new URL('http://example.com') // TODO fix
-            };
-            return result;
-          })
-        );
-        fetchContentCache.set(cacheKey, contents);
-        return contents;
-      };
-    };
-
     let html = await renderPage(result, Component, {}, null);
 
     // 4. modify response
@@ -251,6 +246,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     // 5. finish
     return html;
   } catch (e: any) {
+    viteServer.ssrFixStacktrace(e);
     // Astro error (thrown by esbuild so it needs to be formatted for Vite)
     if (e.errors) {
       const { location, pluginName, text } = (e as BuildResult).errors[0];
