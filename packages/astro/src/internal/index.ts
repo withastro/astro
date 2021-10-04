@@ -143,7 +143,7 @@ export async function renderSlot(result: any, slotted: string, fallback?: any) {
 
 export async function renderComponent(result: any, displayName: string, Component: unknown, _props: Record<string | number, any>, slots?: any) {
   Component = await Component;
-  const children = await renderSlot(result, slots.default);
+  const children = await renderSlot(result, slots?.default);
   const { renderers } = result._metadata;
 
   if (Component && (Component as any).isAstroComponentFactory) {
