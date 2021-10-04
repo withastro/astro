@@ -33,7 +33,7 @@ async function _render(child: any): Promise<any> {
     // Special: If a child is a function, call it automatically.
     // This lets you do {() => ...} without the extra boilerplate
     // of wrapping it in a function and calling it.
-    return await child();
+    return _render(child());
   } else if (typeof child === 'string') {
     return child;
   } else if (!child && child !== 0) {
@@ -143,7 +143,7 @@ export async function renderSlot(result: any, slotted: string, fallback?: any) {
 
 export async function renderComponent(result: any, displayName: string, Component: unknown, _props: Record<string | number, any>, slots?: any) {
   Component = await Component;
-  // children = await renderGenerator(children);
+  const children = await renderSlot(result, slots.default);
   const { renderers } = result._metadata;
 
   if (Component && (Component as any).isAstroComponentFactory) {
@@ -179,15 +179,15 @@ export async function renderComponent(result: any, displayName: string, Componen
 
   let renderer = null;
   for (const r of renderers) {
-    if (await r.ssr.check(Component, props, null)) {
+    if (await r.ssr.check(Component, props, children)) {
       renderer = r;
     }
   }
 
-  ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, null));
+  ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
 
   if (!hydrationDirective) {
-    return html;
+    return html.replace(/\<\/?astro-fragment\>/g, '');
   }
 
   const astroId = shorthash.unique(html);
