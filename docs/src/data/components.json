@@ -18,6 +18,15 @@
       "description": "SEO tags for your website.",
       "github": "https://github.com/jonasmerlin/astro-seo",
       "demo": null
+    },
+    {
+      "name": "Astro SPA",
+      "description": "A component for Astro JS that turns a website into an SPA.",
+      "github": "https://www.npmjs.com/package/astro-spa",
+      "demo": [
+        "https://ohka-bots-site-astro-ksoqn4flk7-li4hm4z1a-tc-001.vercel.app/",
+        "https://astro-spafy-component-demo.netlify.app/"
+      ]
     }
   ]
 }
