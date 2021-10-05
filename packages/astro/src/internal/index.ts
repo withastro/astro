@@ -186,9 +186,7 @@ export async function renderComponent(result: any, displayName: string, Componen
 
   if(renderer === null) {
     if(typeof Component === 'string') {
-      const propsArray = Object.entries(props);
-      html = await renderAstroComponent(await render`<${Component}${ propsArray.length ? ' ' + propsArray.map(([k,v]) => `"${k}"="${v}"`).join(' ') : ''}>${children}</${Component}>`);
-      debugger;
+      html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
     } else {
       throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
     }
