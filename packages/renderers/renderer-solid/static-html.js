@@ -6,7 +6,7 @@ import { ssr } from 'solid-js/web/dist/server.js';
  */
 const StaticHtml = ({ innerHTML }) => {
   if (!innerHTML) return null;
-  return ssr(`<astro-fragment>${innerHTML }</astro-fragment>`);
+  return ssr(`<astro-fragment>${innerHTML}</astro-fragment>`);
 };
 
 export default StaticHtml;
