@@ -17,7 +17,7 @@ function renderToStaticMarkup(Component, props, children) {
         children: ssr(`<astro-fragment>${children}</astro-fragment>`),
       })
   );
-  return { html: `<script>window._$HYDRATION||(window._$HYDRATION={events:[],completed:new WeakSet})</script>` + html };
+  return { html: html + `<script>window._$HYDRATION||(window._$HYDRATION={events:[],completed:new WeakSet})</script>` };
 }
 
 export default {
