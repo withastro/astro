@@ -9421,7 +9421,7 @@ source-map@^0.6.0, source-map@^0.6.1, source-map@~0.6.0, source-map@~0.6.1:
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.6.1.tgz#74722af32e9614e9c287a8d0bbde48b5e2f1a263"
   integrity sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==
 
-source-map@~0.7.2:
+source-map@^0.7.3, source-map@~0.7.2:
   version "0.7.3"
   resolved "https://registry.yarnpkg.com/source-map/-/source-map-0.7.3.tgz#5302f8169031735226544092e64981f751750383"
   integrity sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==
@@ -9515,21 +9515,6 @@ srcset-parse@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/srcset-parse/-/srcset-parse-1.1.0.tgz#73f787f38b73ede2c5af775e0a3465579488122b"
   integrity sha512-JWp4cG2eybkvKA1QUHGoNK6JDEYcOnSuhzNGjZuYUPqXreDl/VkkvP2sZW7Rmh+icuCttrR9ccb2WPIazyM/Cw==
-
-sqlite3@^5.0.2:
-  version "5.0.2"
-  resolved "https://registry.yarnpkg.com/sqlite3/-/sqlite3-5.0.2.tgz#00924adcc001c17686e0a6643b6cbbc2d3965083"
-  integrity sha512-1SdTNo+BVU211Xj1csWa8lV6KM0CtucDwRyA0VHl91wEH1Mgh7RxUpI4rVvG7OhHrzCSGaVyW5g8vKvlrk9DJA==
-  dependencies:
-    node-addon-api "^3.0.0"
-    node-pre-gyp "^0.11.0"
-  optionalDependencies:
-    node-gyp "3.x"
-
-sqlite@^4.0.23:
-  version "4.0.23"
-  resolved "https://registry.yarnpkg.com/sqlite/-/sqlite-4.0.23.tgz#ada09028b38e91883db08ac465d841e814d1bb00"
-  integrity sha512-dSdmSkrdIhUL7xP/fiEMfFuAo4dxb0afag3rK8T4Y9lYxE3g3fXT0J8H9qSFvmcKxnM0zEA8yvLbpdWQ8mom3g==
 
 sshpk@^1.7.0:
   version "1.16.1"
