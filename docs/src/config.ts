@@ -56,6 +56,7 @@ export const SIDEBAR = {
     { text: 'Empezando', link: 'es/getting-started' },
     { text: 'Comienzo rápido', link: 'es/quick-start' },
     { text: 'Instalación', link: 'es/installation' },
+    { text: 'Astro vs. X', link: 'es/comparing-astro-vs-other-tools' },
   ],
   'zh-CN': [
     { text: '起步', header: true },
