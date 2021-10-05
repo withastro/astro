@@ -1,6 +1,3 @@
-/**
- * UNCOMMENT when Component slots lands in new compiler
-
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -15,7 +12,6 @@ before(async () => {
   await fixture.build();
 });
 
-// TODO: waiting on Component slots
 describe('Component children', () => {
   it('Passes string children to framework components', async () => {
     const html = await fixture.readFile('/strings/index.html');
@@ -74,6 +70,3 @@ describe('Component children', () => {
     expect($svelte.children(':last-child').text().trim()).to.equal('Goodbye world');
   });
 });
-*/
-
-it.skip('is skipped', () => {});
