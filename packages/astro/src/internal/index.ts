@@ -141,7 +141,7 @@ export async function renderSlot(result: any, slotted: string, fallback?: any) {
   return fallback;
 }
 
-export async function renderComponent(result: any, displayName: string, Component: unknown, _props: Record<string | number, any>, slots?: any) {
+export async function renderComponent(result: any, displayName: string, Component: unknown, _props: Record<string | number, any>, slots: any = {}) {
   Component = await Component;
   const children = await renderSlot(result, slots?.default);
   const { renderers } = result._metadata;
@@ -184,7 +184,17 @@ export async function renderComponent(result: any, displayName: string, Componen
     }
   }
 
-  ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
+  if(renderer === null) {
+    if(typeof Component === 'string') {
+      const propsArray = Object.entries(props);
+      html = await renderAstroComponent(await render`<${Component}${ propsArray.length ? ' ' + propsArray.map(([k,v]) => `"${k}"="${v}"`).join(' ') : ''}>${children}</${Component}>`);
+      debugger;
+    } else {
+      throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
+    }
+  } else {
+    ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
+  }
 
   if (!hydrationDirective) {
     return html.replace(/\<\/?astro-fragment\>/g, '');

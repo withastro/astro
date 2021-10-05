@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: add Astro slot support
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -16,24 +14,24 @@ describe('Slots', () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
-    expect($('#a').text()).to.equal('A');
-    expect($('#b').text()).to.equal('B');
-    expect($('#c').text()).to.equal('C');
-    expect($('#default').text()).to.equal('Default');
+    expect($('#a').text().trim()).to.equal('A');
+    expect($('#b').text().trim()).to.equal('B');
+    expect($('#c').text().trim()).to.equal('C');
+    expect($('#default').text().trim()).to.equal('Default');
   });
 
   it('Dynamic named slots work', async () => {
     const html = await fixture.readFile('/dynamic/index.html');
     const $ = cheerio.load(html);
 
-    expect($('#a').text()).to.equal('A');
-    expect($('#b').text()).to.equal('B');
-    expect($('#c').text()).to.equal('C');
-    expect($('#default').text()).to.equal('Default');
+    expect($('#a').text().trim()).to.equal('A');
+    expect($('#b').text().trim()).to.equal('B');
+    expect($('#c').text().trim()).to.equal('C');
+    expect($('#default').text().trim()).to.equal('Default');
   });
 
   it('Slots render fallback content by default', async () => {
-    const html = await fixture.fetch('/fallback/index.html');
+    const html = await fixture.readFile('/fallback/index.html');
     const $ = cheerio.load(html);
 
     expect($('#default')).to.have.lengthOf(1);
@@ -50,7 +48,7 @@ describe('Slots', () => {
     const html = await fixture.readFile('/multiple/index.html');
     const $ = cheerio.load(html);
 
-    expect($('#a').text()).to.equal('ABC');
+    expect($('#a').text().trim()).to.equal('ABC');
   });
 
   it('Slots work on Components', async () => {
@@ -67,7 +65,7 @@ describe('Slots', () => {
     expect($('#default').children('astro-component')).to.have.lengthOf(1);
   });
 
-  it('Slots API work on Components', async () => {
+  it.skip('Slots API work on Components', async () => {
     // IDs will exist whether the slots are filled or not
     {
       const html = await fixture.readFile('/slottedapi-default/index.html');
@@ -115,6 +113,3 @@ describe('Slots', () => {
     }
   });
 });
-*/
-
-it.skip('is skipped', () => {});
