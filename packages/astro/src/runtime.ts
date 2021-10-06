@@ -81,8 +81,8 @@ function getParams(array: string[]) {
 }
 
 async function getStaticPathsMemoized(runtimeConfig: AstroRuntimeConfig, component: string, mod: any, args: GetStaticPathsArgs): Promise<GetStaticPathsResult> {
-  runtimeConfig.cache.staticPaths[component] = runtimeConfig.cache.staticPaths[component] || (await mod.exports.getStaticPaths(args)).flat();
-  return runtimeConfig.cache.staticPaths[component];
+  runtimeConfig.cache.staticPaths[component] = runtimeConfig.cache.staticPaths[component] || mod.exports.getStaticPaths(args);
+  return (await runtimeConfig.cache.staticPaths[component]).flat();
 }
 
 /** Pass a URL to Astro to resolve and build */
