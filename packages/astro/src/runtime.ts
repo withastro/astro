@@ -31,7 +31,7 @@ const { CompileError } = parser;
 
 export interface AstroRuntimeConfig {
   astroConfig: AstroConfig;
-  cache: { staticPaths: Record<string, GetStaticPathsResult> };
+  cache: { staticPaths: Record<string, Promise<GetStaticPathsResult>> };
   logging: LogOptions;
   mode: RuntimeMode;
   snowpack: SnowpackDevServer;
