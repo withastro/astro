@@ -1,0 +1,25 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Main from '../components/Main.astro';
+import MainHeader from '../components/MainHeader.astro';
+import Space from '../components/Space.astro';
+import ErrorPage from '../components/ErrorPage.astro';
+
+let title = 'Astro | Page Not Found';
+let description = 'Build faster websites with less client-side JavaScript';
+let permalink = 'https://astro.build/404';
+let lang = 'en';
+---
+<html lang={ lang ?? 'en' }>
+	<head>
+    <BaseHead title={title} description={description} permalink={permalink} />
+    <link rel="stylesheet" href={Astro.resolve('../scss/global.css')} />
+  </head>
+	<body>
+		<Space />
+		<Main>
+			<MainHeader />
+			<ErrorPage />
+		</Main>
+	</body>
+</html>
