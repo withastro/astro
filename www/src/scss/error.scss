@@ -1,0 +1,108 @@
+@use './fonts.scss';
+
+:root {
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-mono: 'IBM Plex Mono', Consolas, 'Andale Mono WT', 'Andale Mono', 'Lucida Console', 'Lucida Sans Typewriter', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
+    'Liberation Mono', 'Nimbus Mono L', Monaco, 'Courier New', Courier, monospace;
+  --color-accent: #ff5d01;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+html {
+  background-color: #000014;
+}
+html,
+body {
+  padding: 0;
+  font-size: clamp(14px, calc(1rem + (3vw - 1.2rem)), 20px);
+  font-family: var(--font-sans);
+  font-weight: 400;
+  background-repeat: no-repeat;
+  color: #f3f4f6;
+}
+.visually-hidden {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+a {
+  position: relative;
+  text-decoration: none;
+  color: var(--color-accent);
+  padding: 0.05em 0.125em;
+  margin: -0.05em -0.125em;
+  transition: color 120ms cubic-bezier(0.23, 1, 0.32, 1);
+  z-index: 0;
+  display: inline-block;
+
+  &:hover,
+  &:focus {
+    color: rgba(0, 0, 0, 1);
+
+    &::before {
+      transform: scaleY(1);
+      background: var(--color-accent);
+    }
+  }
+
+  &:visited {
+    // color: var(--color-accent);
+    color: var(--color-accent);
+    &:hover,
+    &:focus {
+      color: rgba(0, 0, 0, 1);
+    }
+  }
+
+  &::before {
+    transform-origin: bottom center;
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    inset: 0;
+    background: var(--color-accent);
+    pointer-events: none;
+    transform: scaleY(0.05);
+    transition: transform 120ms cubic-bezier(0.23, 1, 0.32, 1), background 120ms cubic-bezier(0.23, 1, 0.32, 1);
+    z-index: -1;
+  }
+}
+
+a + a {
+  margin-left: 2px;
+}
+
+
+section.error-content {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    p.error-code {
+        color: #ff5d01;
+        text-transform: uppercase;
+    }
+    h1 {
+        margin-top: -0.5rem;
+        margin-bottom: 1rem;
+        font-size: 2rem;
+    }
+    p {
+        margin: 1rem 0;
+    }
+    a {
+        margin: 1rem 0;
+    }
+}
