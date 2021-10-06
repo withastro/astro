@@ -1,5 +1,29 @@
 # create-astro
 
+## 0.6.3
+
+### Patch Changes
+
+- 0eeb2534: change rm to unlink for node 12 compatability
+
+## 0.6.2
+
+### Patch Changes
+
+- 11a6f884: Added a check to see if the renderers array is empty and only show the message about using the templates default renderers if it isn't
+
+## 0.6.1
+
+### Patch Changes
+
+- 24dce41c: Adds a new template 'minimal' which does not include a framework
+
+## 0.6.0
+
+### Minor Changes
+
+- cf4c97cf: forced degit template extraction in case of non empty installation directory
+
 ## 0.5.2
 
 ### Patch Changes

@@ -1,13 +1,13 @@
 /* eslint-disable no-console */
-import type { AstroConfig } from './@types/astro';
-
-import * as colors from 'kleur/colors';
 import { promises as fsPromises } from 'fs';
+import * as colors from 'kleur/colors';
 import yargs from 'yargs-parser';
-
-import { loadConfig } from './config.js';
+import { z } from 'zod';
+import type { AstroConfig } from './@types/astro';
 import { build } from './build.js';
+import { formatConfigError, loadConfig } from './config.js';
 import devServer from './dev.js';
+import { preview } from './preview.js';
 import { reload } from './reload.js';
 
 const { readFile } = fsPromises;
@@ -21,7 +21,7 @@ const reloadAndExit = async () => {
 };
 
 type Arguments = yargs.Arguments;
-type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'reload';
+type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload';
 interface CLIState {
   cmd: cliCommand;
   options: {
@@ -57,6 +57,8 @@ function resolveArgs(flags: Arguments): CLIState {
       return { cmd: 'dev', options };
     case 'build':
       return { cmd: 'build', options };
+    case 'preview':
+      return { cmd: 'preview', options };
     default:
       if (flags.reload) {
         return { cmd: 'reload', options };
@@ -73,6 +75,7 @@ function printHelp() {
   ${colors.bold('Commands:')}
   astro dev             Run Astro in development mode.
   astro build           Build a pre-compiled production version of your site.
+  astro preview         Preview your build locally before deploying.
 
   ${colors.bold('Flags:')}
   --config <path>       Specify the path to the Astro config file.
@@ -101,7 +104,7 @@ function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
 }
 
 /** Handle `astro run` command */
-async function runCommand(rawRoot: string, cmd: (a: AstroConfig, options: any) => Promise<void>, options: CLIState['options']) {
+async function runCommand(rawRoot: string, cmd: (a: AstroConfig, opts: any) => Promise<void>, options: CLIState['options']) {
   try {
     const projectRoot = options.projectRoot || rawRoot;
     const astroConfig = await loadConfig(projectRoot, options.config);
@@ -109,14 +112,19 @@ async function runCommand(rawRoot: string, cmd: (a: AstroConfig, options: any) =
 
     return cmd(astroConfig, options);
   } catch (err) {
-    console.error(colors.red(err.toString() || err));
+    if (err instanceof z.ZodError) {
+      console.log(formatConfigError(err));
+    } else {
+      console.error(colors.red(err.toString() || err));
+    }
     process.exit(1);
   }
 }
 
-const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<void>>([
+const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<any>>([
   ['build', buildAndExit],
   ['dev', devServer],
+  ['preview', preview],
   ['reload', reloadAndExit],
 ]);
 
@@ -124,7 +132,6 @@ const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<void>>([
 export async function cli(args: string[]) {
   const flags = yargs(args);
   const state = resolveArgs(flags);
-
   switch (state.cmd) {
     case 'help': {
       printHelp();
@@ -141,6 +148,7 @@ export async function cli(args: string[]) {
       break;
     }
     case 'build':
+    case 'preview':
     case 'dev': {
       if (flags.reload) {
         await reload();

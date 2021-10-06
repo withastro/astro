@@ -1,5 +1,5 @@
 ---
-layout: ~/layouts/Main.astro
+layout: ~/layouts/MainLayout.astro
 title: Deploy a Website
 ---
 
@@ -13,7 +13,8 @@ The following guides are based on some shared assumptions:
 {
   "scripts": {
     "start": "astro dev",
-    "build": "astro build"
+    "build": "astro build",
+    "preview": "astro preview"
   }
 }
 ```
@@ -29,6 +30,8 @@ $ npm run build
 By default, the build output will be placed at `dist/`. You may deploy this `dist/` folder to any of your preferred platforms.
 
 ## GitHub Pages
+
+> **Warning:** By default, Github Pages will break the `_astro/` directory of your deployed website. To disable this behavior and fix this issue, make sure that you use the `deploy.sh` script below or manually add an empty `.nojekyll` file to your `public/` site directory.
 
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
 1. Inside your project, create `deploy.sh` with the following content (uncommenting the appropriate lines), and run it to deploy:
@@ -68,14 +71,15 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 
 ### GitHub Actions
 
-1. Set the correct `buildOptions.site` in `astro.config.mjs`
-2. Create the file `.github/workflows/main.yml` and add in the yaml below. Make sure to edit in your own details.
-3. In Github go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
-4. In the astro project repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
-5. When you push changes to the astro project repo CI will deploy them to \<YOUR USERNAME\>.github.io for you.
+1. In the astro project repo, create `gh-pages` branch then go to Settings > Pages and set to `gh-pages` branch for GitHub Pages and set directory to `/` (root).
+2. Set the correct `buildOptions.site` in `astro.config.mjs`.
+3. Create the file `.github/workflows/main.yml` and add in the yaml below. Make sure to edit in your own details.
+4. In GitHub go to Settings > Developer settings > Personal Access tokens. Generate a new token with repo permissions.
+5. In the astro project repo (not \<YOUR USERNAME\>.github.io) go to Settings > Secrets and add your new personal access token with the name `API_TOKEN_GITHUB`.
+6. When you push changes to the astro project repo CI will deploy them to \<YOUR USERNAME\>.github.io for you.
 
 ```yaml
-# Workflow to build and deploy to your Github Pages repo.
+# Workflow to build and deploy to your GitHub Pages repo.
 
 # Edit your project details here.
 # Remember to add API_TOKEN_GITHUB in repo Settings > Secrets as well!
@@ -124,7 +128,7 @@ jobs:
           destination-repository-name: ${{ env.deployToRepo }}
           user-email: ${{ env.githubEmail }}
           commit-message: Deploy ORIGIN_COMMIT
-          target-branch: main
+          target-branch: gh-pages
 ```
 
 ### Travis CI
@@ -157,7 +161,7 @@ jobs:
 ## GitLab Pages
 
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
-2. Set `build.outDir` in `astro.config.mjs` to `public`.
+2. Set `build` in `astro.config.mjs` to `public` and `public` in `astro.config.mjs` to a newly named folder that is holding everything currently in `public`. The reasoning is because `public` is a second source folder in astro, so if you would like to output to `public` you'll need to pull public assets from a different folder.
 3. Create a file called `.gitlab-ci.yml` in the root of your project with the content below. This will build and deploy your site whenever you make changes to your content:
 
    ```yaml
@@ -178,11 +182,13 @@ jobs:
 
 ## Netlify
 
-In your codebase, make sure you have a `.nvmrc` file with `v14.15.1` in it.
+**Note:** If you are using an older [build image](https://docs.netlify.com/configure-builds/get-started/#build-image-selection) on Netlify, make sure that you set your Node.js version in either a [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) file (example: `node v14.17.6`) or a `NODE_VERSION` environment variable. This step is no longer required by default.
 
-You can configure your deploy in two ways, via the Netlify website or with the `netlify.toml` file.
+You can configure your deployment in two ways, via the Netlify website or with a local project `netlify.toml` file.
 
-With the `netlify.toml` file, add it at the top level of your project with the following settings:
+### `netlify.toml` file
+
+Create a new `netlify.toml` file at the top level of your project repository with the following settings:
 
 ```toml
 [build]
@@ -190,14 +196,14 @@ With the `netlify.toml` file, add it at the top level of your project with the f
   publish = "dist"
 ```
 
-Then, set up a new project on [Netlify](https://netlify.com) from your chosen Git provider.
+Push the new `netlify.toml` file up to your hosted git repository. Then, set up a new project on [Netlify](https://netlify.com) for your git repository. Netlify will read this file and automatically configure your deployment.
 
-If you don't want to use the `netlify.toml`, when you go to [Netlify](https://netlify.com) and set up a new project from Git, input the following settings:
+### Netlify Website UI
+
+You can skip the `netlify.toml` file and go directly to [Netlify](https://netlify.com) to configure your project. Netlify should now detect Astro projects automatically and pre-fill the configuration for you. Make sure that the following settings are entered before hitting the "Deploy" button:
 
 - **Build Command:** `astro build` or `npm run build`
 - **Publish directory:** `dist`
-
-Then hit the deploy button.
 
 ## Google Firebase
 
@@ -230,7 +236,7 @@ Then hit the deploy button.
 
 ## Surge
 
-1. First install [surge](https://www.npmjs.com/package/surge), if you haven’t already.
+1. First install [surge](https://www.npmjs.com/package/surge), if you haven't already.
 
 2. Run `npm run build`.
 
@@ -311,6 +317,36 @@ Follow the wizard started by the extension to give your app a name, choose a fra
 
 The action will work to deploy your app (watch its progress in your repo's Actions tab) and, when successfully completed, you can view your app in the address provided in the extension's progress window by clicking the 'Browse Website' button that appears when the GitHub action has run.
 
+## Cloudflare Pages
+
+You can deploy your Astro project on [Cloudflare Pages](https://pages.cloudflare.com). You need:
+
+- A Cloudflare account. If you don’t already have one, you can create a free Cloudflare account during the process.
+- Your app code pushed to a [GitHub](https://github.com) repository.
+
+Then, set up a new project on Cloudflare Pages.
+
+Use the following build settings:
+
+- **Framework preset**: `None` (As of this writing, Astro is not listed.)
+- **Build command:** `astro build` or `npm run build`
+- **Build output directory:** `dist`
+- **Environment variables (advanced)**: Add an environment variable with the **Variable name** of `NODE_VERSION` and a **Value** of a [Node version that’s compatible with Astro](https://docs.astro.build/installation#prerequisites), since the Cloudflare Pages default version probably won’t work.
+
+Then click the **Save and Deploy** button.
+
+## Render
+
+You can deploy your Astro project on [Render](https://render.com/) following these steps:
+
+1. Create a [render.com account](https://dashboard.render.com/) and sign in
+2. Click the **New +** button from your dashboard and select **Static Site**
+3. Connect your [GitHub](https://github.com/) or [GitLab](https://about.gitlab.com/) repository or alternatively enter the public URL of a public repository
+4. Give your website a name, select the branch and specify the build command and publish directory
+   - **build command:** `npm run build`
+   - **publish directory:** `dist`
+5. Click the **Create Static Site** button
+
 ## Credits
 
-This guide was originally based off of [Vite's](https://vitejs.dev/) well-documented static deploy guide.
+This guide was originally based off [Vite](https://vitejs.dev/)’s well-documented static deploy guide.

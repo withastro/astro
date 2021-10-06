@@ -19,4 +19,9 @@ export const TEMPLATES = [
     value: 'portfolio',
     renderers: ['@astrojs/renderer-preact'],
   },
+  {
+    title: 'Minimal',
+    value: 'minimal',
+    renderers: [],
+  },
 ];

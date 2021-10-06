@@ -35,6 +35,28 @@ Markdown('Runs code blocks through syntax highlighter', async ({ runtime }) => {
   assert.ok($el.length > 0, 'There are child spans in code blocks');
 });
 
+Markdown('Empty code blocks do not fail', async ({ runtime }) => {
+  const result = await runtime.load('/empty-code');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+
+  const $el = $('pre');
+  assert.ok($el[0].children.length === 1, 'There is not a `<code>` in the codeblock');
+  assert.ok($el[1].children.length === 0, 'The empty `<pre>` failed to render');
+});
+
+Markdown('Scoped styles should not break syntax highlight', async ({ runtime }) => {
+  const result = await runtime.load('/scopedStyles-code');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.ok($('pre').is('[class]'), 'Pre tag has scopedStyle class passed down');
+  assert.ok($('pre').hasClass('language-js'), 'Pre tag has correct language');
+  assert.ok($('code').hasClass('language-js'), 'Code tag has correct language');
+  assert.ok($('code span').length > 0, 'There are child spans in code blocks');
+});
+
 Markdown('Bundles client-side JS for prod', async (context) => {
   await context.build();
 
@@ -80,12 +102,40 @@ Markdown('Renders dynamic content though the content attribute', async ({ runtim
   assert.ok($('#inner').is('[class]'), 'Scoped class passed down');
 });
 
+Markdown('Renders curly braces correctly', async ({ runtime }) => {
+  const result = await runtime.load('/braces');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.equal($('code').length, 3, 'Rendered curly braces markdown content');
+  assert.equal($('code:first-child').text(), '({})', 'Rendered curly braces markdown content');
+  assert.equal($('code:nth-child(2)').text(), '{...props}', 'Rendered curly braces markdown content');
+  assert.equal($('code:last-child').text(), '{/* JavaScript */}', 'Rendered curly braces markdown content');
+});
+
 Markdown('Does not close parent early when using content attribute (#494)', async ({ runtime }) => {
   const result = await runtime.load('/close');
   assert.ok(!result.error, `build error: ${result.error}`);
 
   const $ = doc(result.contents);
   assert.equal($('#target').children().length, 2, '<Markdown content /> closed div#target early');
+});
+
+Markdown('Can render markdown with --- for horizontal rule', async ({ runtime }) => {
+  const result = await runtime.load('/dash');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  // It works!
+});
+
+Markdown('Can render markdown content prop (#1259)', async ({ runtime }) => {
+  const result = await runtime.load('/content');
+  assert.ok(!result.error, `build error: ${result.error}`);
+
+  const $ = doc(result.contents);
+  assert.equal($('h1').text(), 'Foo', 'Markdown rendered correctly via content prop');
+
+  // It works!
 });
 
 Markdown.run();

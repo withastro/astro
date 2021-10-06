@@ -1,4 +1,4 @@
-import { Component as BaseComponent, createElement as h } from 'react';
+import { Component as BaseComponent, createElement as h, PureComponent } from 'react';
 import { renderToStaticMarkup as reactRenderToStaticMarkup, renderToString } from 'react-dom/server.js';
 import StaticHtml from './static-html.js';
 
@@ -8,7 +8,7 @@ function check(Component, props, children) {
   if (typeof Component !== 'function') return false;
 
   if (Component.prototype != null && typeof Component.prototype.render === 'function') {
-    return BaseComponent.isPrototypeOf(Component);
+    return BaseComponent.isPrototypeOf(Component) || PureComponent.isPrototypeOf(Component);
   }
 
   let error = null;

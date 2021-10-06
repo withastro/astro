@@ -1,7 +1,9 @@
 import { suite } from 'uvu';
+import http from 'http';
+import { promisify } from 'util';
 import * as assert from 'uvu/assert';
 import { doc } from './test-utils.js';
-import { setup, setupBuild } from './helpers.js';
+import { setup, setupBuild, setupPreview } from './helpers.js';
 
 const Basics = suite('Basic test');
 
@@ -11,6 +13,7 @@ setup(Basics, './fixtures/astro-basic', {
   },
 });
 setupBuild(Basics, './fixtures/astro-basic');
+setupPreview(Basics, './fixtures/astro-basic');
 
 Basics('Can load page', async ({ runtime }) => {
   const result = await runtime.load('/');
@@ -56,6 +59,20 @@ Basics('Build does not include HMR client', async ({ build, readFile }) => {
       .match(/window\.HMR_WEBSOCKET_PORT/);
   });
   assert.equal(hmrPortScript.length, 0, 'No script setting the websocket port');
+});
+
+Basics('Preview server works as expected', async ({ build, previewServer }) => {
+  await build().catch((err) => {
+    assert.ok(!err, 'Error during the build');
+  });
+  {
+    const resultOrError = await promisify(http.get)(`http://localhost:${previewServer.address().port}/`).catch((err) => err);
+    assert.equal(resultOrError.statusCode, 200);
+  }
+  {
+    const resultOrError = await promisify(http.get)(`http://localhost:${previewServer.address().port}/bad-url`).catch((err) => err);
+    assert.equal(resultOrError.statusCode, 404);
+  }
 });
 
 Basics('Allows forward-slashes in mustache tags (#407)', async ({ runtime }) => {

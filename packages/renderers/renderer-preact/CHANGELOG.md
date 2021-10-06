@@ -1,5 +1,17 @@
 # @astrojs/renderer-preact
 
+## 0.2.2
+
+### Patch Changes
+
+- 97d37f8f: Update READMEs for all renderers
+
+## 0.2.1
+
+### Patch Changes
+
+- f7e86150: Fix an issue where preact component UI wouldn't update on hydrate
+
 ## 0.2.0
 
 ### Minor Changes

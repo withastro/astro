@@ -40,18 +40,11 @@ export default async function dev(astroConfig: AstroConfig) {
         res.end();
         break;
       }
-      case 301:
-      case 302: {
-        res.statusCode = result.statusCode;
-        res.setHeader('Location', result.location);
-        res.end();
-        break;
-      }
       case 404: {
         const { hostname, port } = astroConfig.devOptions;
         const fullurl = new URL(req.url || '/', astroConfig.buildOptions.site || `http://${hostname}:${port}`);
         const reqPath = decodeURI(fullurl.pathname);
-        error(logging, 'static', 'Not found', reqPath);
+        error(logging, 'access', 'Not Found:', reqPath);
         res.statusCode = 404;
 
         const fourOhFourResult = await runtime.load('/404');

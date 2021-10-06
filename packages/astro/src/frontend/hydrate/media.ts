@@ -14,10 +14,12 @@ export default async function onMedia(astroId: string, options: HydrateOptions, 
     }
   };
 
-  const mql = matchMedia(options.value!);
-  if (mql.matches) {
-    cb();
-  } else {
-    mql.addEventListener('change', cb, { once: true });
+  if (options.value) {
+    const mql = matchMedia(options.value);
+    if (mql.matches) {
+      cb();
+    } else {
+      mql.addEventListener('change', cb, { once: true });
+    }
   }
 }

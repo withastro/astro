@@ -8,11 +8,6 @@ export interface Props {
 const { authorId } = Astro.props;
 const author = authorData[authorId];
 ---
-<style>
-  .author {
-    margin-bottom: 0.75rem;
-  }
-</style>
 <div class="author">
   <p>by {author.name}{' '}<a href={`https://twitter.com/${author.twitter}`}>@{author.twitter}</a></p>
 </div>

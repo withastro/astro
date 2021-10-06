@@ -1,5 +1,5 @@
 ---
-layout: ~/layouts/Main.astro
+layout: ~/layouts/MainLayout.astro
 title: Quick Start
 ---
 
@@ -17,20 +17,22 @@ npm init astro
 npm install
 
 # start developing!
-npm start
+npm run dev
 
 # when you're ready: build your static site to `dist/`
 npm run build
 ```
 
-If you wish to learn more about the range of methods to install and setup Astro for your project's, please [read our installation guide.](installation)
+To learn more about installing and using Astro for the first time, please [read our installation guide.](installation)
+
+If you prefer to learn by example, check out our [complete library of examples](https://github.com/snowpackjs/astro/tree/main/examples) on GitHub. You can check out any of these examples locally by running `npm init astro -- --template "EXAMPLE_NAME"`.
 
 ## Start your project
 
 From inside your project directory, enter the following command into your terminal:
 
 ```bash
-npm start
+npm run dev
 ```
 
 Astro will now start serving your application on [http://localhost:3000](http://localhost:3000). Opening this URL in your browser, you should see the Astro's "Hello, World".
@@ -47,14 +49,14 @@ npm run build
 
 This will instruct Astro to build your site and save it directly to disk. Your application is now ready in the `dist/` directory.
 
-## Deploy you project
+## Deploy your project
 
 Astro sites are static, so they can be deployed to your favourite host:
 
-- [Vercel](https://vercel.com/)
-- [Netlify](https://www.netlify.com/)
-- [S3 bucket](https://aws.amazon.com/s3/)
+- [AWS S3 bucket](https://aws.amazon.com/s3/)
 - [Google Firebase](https://firebase.google.com/)
+- [Netlify](https://www.netlify.com/)
+- [Vercel](https://vercel.com/)
 - [Read more about deploying Astro in our Deploy guide.](/guides/deploy)
 
 ## Next Steps

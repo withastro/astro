@@ -1,38 +1,10 @@
-# Using Vue with Astro
+# Astro + Vue Example
 
-This example showcases Astro's built-in support for [Vue](https://v3.vuejs.org/).
-
-## Installation
-
-### Automatic
-
-Bootstrap your Astro project with this template!
-
-```shell
+```
 npm init astro -- --template framework-vue
 ```
 
-### Manual
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/framework-vue)
 
-To use Vue components in your Astro project:
+This example showcases Astro working with [Vue](https://v3.vuejs.org/).
 
-1. Install `@astrojs/renderer-vue`
-
-    ```shell
-    npm i @astrojs/renderer-vue
-    ```
-
-2. Add `"@astrojs/renderer-vue"` to your `renderers` in `astro.config.mjs`.
-
-    ```js
-    export default {
-      renderers: [
-        "@astrojs/renderer-vue",
-        // optionally, others...
-      ]
-    }
-    ```
-
-## Usage
-
-Write your Vue components as `.vue` files in your project.

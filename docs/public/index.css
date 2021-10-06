@@ -36,7 +36,7 @@ nav ul {
 }
 
 .content > section > * + * {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
 }
 
 .content > section > :first-child {
@@ -44,13 +44,19 @@ nav ul {
 }
 
 /* Typography */
-:is(h1, h2, h3, h4, h5, h6) {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   margin-bottom: 1rem;
   font-weight: bold;
   line-height: 1;
 }
 
-:is(h1, h2) {
+h1,
+h2 {
   max-width: 40ch;
 }
 
@@ -58,39 +64,34 @@ nav ul {
   margin-top: 3rem;
 }
 
+:is(h4, h5, h6):not(:first-child) {
+  margin-top: 2rem;
+}
+
 h1 {
-  font-size: 2.25rem;
+  font-size: 3.25rem;
+  font-weight: 800;
 }
 
 h2 {
-  font-size: 1.5rem;
+  font-size: 2.5rem;
 }
 
 h3 {
-  font-size: 1.125rem;
+  font-size: 1.75rem;
 }
 
 h4 {
-  font-size: 1rem;
+  font-size: 1.3rem;
 }
 
 h5 {
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 
-@media (min-width: 50em) {
-  h1 {
-    font-size: 3.25rem;
-    font-weight: 800;
-  }
-
-  h2 {
-    font-size: 2rem;
-  }
-
-  h3 {
-    font-size: 1.25rem;
-  }
+p,
+.content ul {
+  line-height: 1.65em;
 }
 
 p,
@@ -105,14 +106,13 @@ small,
 
 a {
   color: var(--theme-text-accent);
-  font-weight: 400;
   text-underline-offset: 0.08em;
   align-items: center;
   gap: 0.5rem;
 }
 
 article > section :is(ul, ol) > * + * {
-  margin-top: 0.75rem;
+  margin-top: 0.25rem;
 }
 
 article > section nav :is(ul, ol) > * + * {
@@ -183,14 +183,15 @@ strong {
 }
 
 /* Supporting Content */
+code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+}
 
 code:not([class*='language']) {
   --border-radius: 3px;
   --padding-block: 0.2rem;
-  --padding-inline: 0.33rem;
-
-  font-family: var(--font-mono);
-  font-size: 0.85em;
+  --padding-inline: 0.4rem;
   color: var(--theme-code-inline-text);
   background-color: var(--theme-code-inline-bg);
   padding: var(--padding-block) var(--padding-inline);
@@ -205,6 +206,10 @@ pre > code:not([class*='language']) {
   margin: 0;
   border-radius: 0;
   color: inherit;
+}
+
+pre > code {
+  font-size: 1em;
 }
 
 table,
@@ -282,21 +287,6 @@ img {
   align-items: center;
 }
 
-header button {
-  background-color: var(--theme-bg);
-}
-
-header button:hover,
-header button:focus {
-  outline: var(--theme-text) solid 1px;
-}
-
-header button:active,
-header button[aria-pressed='true'] {
-  background: var(--theme-text);
-  color: var(--theme-bg);
-}
-
 button {
   display: flex;
   align-items: center;
@@ -312,56 +302,6 @@ button {
   border-radius: 99em;
   color: var(--theme-text);
   background-color: var(--theme-bg);
-}
-
-#theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25em;
-  padding: 0.33em 0.67em;
-  border-radius: 99em;
-  background-color: var(--theme-code-inline-bg);
-}
-
-#theme-toggle > label:focus-within {
-  outline: 2px solid transparent;
-  box-shadow: 0 0 0 0.08em var(--theme-accent), 0 0 0 0.12em white;
-}
-
-#theme-toggle > label {
-  color: var(--theme-code-inline-text);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.5;
-}
-
-#theme-toggle .checked {
-  color: var(--theme-accent);
-  opacity: 1;
-}
-
-input[name='theme-toggle'] {
-  position: absolute;
-  opacity: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: -1;
-}
-
-.sidebar-nav {
-  width: 100%;
-  position: sticky;
-  top: 0;
-}
-.sidebar-nav-inner {
-  height: 100%;
-  padding: 0;
-  padding-top: var(--doc-padding);
-  overflow: auto;
 }
 
 h2.heading {
@@ -412,13 +352,6 @@ h2.heading {
   text-decoration: none;
 }
 
-.edit-on-github {
-  text-decoration: none;
-  font: inherit;
-  color: inherit;
-  font-size: 1rem;
-}
-
 /* Screenreader Only Text */
 .sr-only {
   position: absolute;
@@ -444,24 +377,6 @@ h2.heading {
   white-space: normal;
 }
 
-.skiplink,
-.skiplink:focus,
-.skiplink:focus-visible {
-  position: absolute;
-  padding: 0.25em;
-  font-size: larger;
-  top: 0.5rem;
-  left: 0.5rem;
-  z-index: 999;
-  display: block;
-  background-color: var(--theme-bg);
-  color: var(--theme-text-accent);
-  border-radius: 0.25em;
-  outline: var(--theme-text-accent) solid 1px;
-  outline-offset: 0;
-}
-/* Screenreader Only Text - End */
-
 :target {
-  scroll-margin-top: 4rem;
+  scroll-margin: calc(var(--theme-sidebar-offset, 5rem) + 2rem) 0 2rem;
 }

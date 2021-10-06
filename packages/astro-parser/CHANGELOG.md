@@ -1,5 +1,19 @@
 # @astrojs/parser
 
+## 0.20.2
+
+### Patch Changes
+
+- 5d2ea578: fixed an issue using namespaced attributes in astro files
+
+## 0.18.6
+
+## 0.18.5
+
+### Patch Changes
+
+- cd2b5df4: Prevents locking up checking for --- inside of the HTML portion
+
 ## 0.18.0
 
 ### Patch Changes

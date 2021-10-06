@@ -1,5 +1,7 @@
 # Welcome to [Astro](https://astro.build)
 
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/starter)
+
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
 ## 🚀 Project Structure
@@ -32,7 +34,7 @@ All commands are run from the root of the project, from a terminal:
 | Command         | Action                                      |
 |:----------------|:--------------------------------------------|
 | `npm install`   | Installs dependencies                       |
-| `npm start`     | Starts local dev server at `localhost:3000` |
+| `npm run dev`   | Starts local dev server at `localhost:3000` |
 | `npm run build` | Build your production site to `./dist/`     |
 
 ## 👀 Want to learn more?

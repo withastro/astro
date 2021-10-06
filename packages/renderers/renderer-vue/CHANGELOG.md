@@ -1,5 +1,29 @@
 # @astrojs/renderer-vue
 
+## 0.1.8
+
+### Patch Changes
+
+- 97d37f8f: Update READMEs for all renderers
+
+## 0.1.7
+
+### Patch Changes
+
+- 1339d5e3: Bump Vue version to latest stable
+
+## 0.1.6
+
+### Patch Changes
+
+- a1491cc6: Fix Vue components nesting
+
+## 0.1.5
+
+### Patch Changes
+
+- fdb1c15: Revert #858
+
 ## 0.1.4
 
 ### Patch Changes

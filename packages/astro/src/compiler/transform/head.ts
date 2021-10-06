@@ -73,7 +73,7 @@ export default function (opts: TransformOptions): Transformer {
             start: 0,
             end: 0,
             type: 'Expression',
-            codeChunks: ['Astro.css.map(css => (', '))'],
+            codeChunks: ['Astro.pageCSS.map(css => (', '))'],
             children: [
               {
                 type: 'Element',
@@ -112,6 +112,115 @@ export default function (opts: TransformOptions): Transformer {
                 start: 0,
                 end: 0,
                 children: [],
+              },
+            ],
+          },
+          {
+            start: 0,
+            end: 0,
+            type: 'Expression',
+            codeChunks: ['Astro.pageScripts.map(script => (', '))'],
+            children: [
+              {
+                start: 0,
+                end: 0,
+                type: 'Expression',
+                codeChunks: ['script.src ? (', ') : (', ')'],
+                children: [
+                  {
+                    type: 'Element',
+                    name: 'script',
+                    attributes: [
+                      {
+                        type: 'Attribute',
+                        name: 'type',
+                        value: [
+                          {
+                            type: 'Text',
+                            raw: 'module',
+                            data: 'module',
+                          },
+                        ],
+                      },
+                      {
+                        type: 'Attribute',
+                        name: 'src',
+                        value: [
+                          {
+                            start: 0,
+                            end: 0,
+                            type: 'MustacheTag',
+                            expression: {
+                              start: 0,
+                              end: 0,
+                              type: 'Expression',
+                              codeChunks: ['script.src'],
+                              children: [],
+                            },
+                          },
+                        ],
+                      },
+                      {
+                        type: 'Attribute',
+                        name: 'data-astro',
+                        value: [
+                          {
+                            type: 'Text',
+                            raw: 'hoist',
+                            data: 'hoist',
+                          },
+                        ],
+                      },
+                    ],
+                    start: 0,
+                    end: 0,
+                    children: [],
+                  },
+                  {
+                    type: 'Element',
+                    name: 'script',
+                    attributes: [
+                      {
+                        type: 'Attribute',
+                        name: 'type',
+                        value: [
+                          {
+                            type: 'Text',
+                            raw: 'module',
+                            data: 'module',
+                          },
+                        ],
+                      },
+                      {
+                        type: 'Attribute',
+                        name: 'data-astro',
+                        value: [
+                          {
+                            type: 'Text',
+                            raw: 'hoist',
+                            data: 'hoist',
+                          },
+                        ],
+                      },
+                    ],
+                    start: 0,
+                    end: 0,
+                    children: [
+                      {
+                        start: 0,
+                        end: 0,
+                        type: 'MustacheTag',
+                        expression: {
+                          start: 0,
+                          end: 0,
+                          type: 'Expression',
+                          codeChunks: ['script.content'],
+                          children: [],
+                        },
+                      },
+                    ],
+                  },
+                ],
               },
             ],
           },
@@ -162,22 +271,15 @@ export default function (opts: TransformOptions): Transformer {
         );
       }
 
-      const conditionalNode = {
-        start: 0,
-        end: 0,
-        type: 'Expression',
-        codeChunks: ['Astro.isPage ? (', ') : null'],
-        children: [
-          {
-            start: 0,
-            end: 0,
-            type: 'Fragment',
-            children,
-          },
-        ],
-      };
-
-      eoh.append(conditionalNode);
+      if (eoh.foundHeadOrHtmlElement || eoh.foundHeadAndBodyContent) {
+        const topLevelFragment = {
+          start: 0,
+          end: 0,
+          type: 'Fragment',
+          children,
+        };
+        eoh.append(topLevelFragment);
+      }
     },
   };
 }

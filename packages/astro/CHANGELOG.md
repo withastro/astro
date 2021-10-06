@@ -1,5 +1,373 @@
 # astro
 
+## 0.20.9
+
+### Patch Changes
+
+- Updated dependencies [756e3769]
+  - @astrojs/renderer-react@0.2.2
+
+## 0.20.8
+
+### Patch Changes
+
+- 30835635: Fixed props shadowing
+
+## 0.20.7
+
+### Patch Changes
+
+- 3a0dcbe9: Fix pretty byte output in build stats
+- 98d785af: Expose slots to components
+
+## 0.20.6
+
+### Patch Changes
+
+- dd92871f: During CSS bundling separate processing of `rel="preload"` from normal loading stylesheets, to preserve preloads, and source element attributes like `media`.
+- d771dad6: Remove check for referenced files
+- 9cf2df81: Improve stats logging to use `pretty-bytes` so that 20B doesn't get output as 0kB, which is accurate, but confusing
+- 09b2f0e4: Fix passing Markdown content through props (#1259)
+- Updated dependencies [97d37f8f]
+  - @astrojs/renderer-preact@0.2.2
+  - @astrojs/renderer-react@0.2.1
+  - @astrojs/renderer-svelte@0.1.2
+  - @astrojs/renderer-vue@0.1.8
+
+## 0.20.5
+
+### Patch Changes
+
+- b03f8771: Add human readable config verification errors
+- b03f8771: Sitemaps will not create entries for 404.html pages
+- b03f8771: Fix parsing of an empty `<pre></pre>` tag in markdown files, which expected the pre tag to have a child
+- b03f8771: Add new `<Code>` component, powered by the more modern shiki syntax highlighter.
+- b03f8771: Fix astro bin bug in some pre-ESM versions of Node v14.x
+- Updated dependencies [b03f8771]
+- Updated dependencies [b03f8771]
+  - @astrojs/markdown-support@0.3.1
+
+## 0.20.4
+
+### Patch Changes
+
+- 231964f0: Adds interfaces for built-in components
+
+## 0.20.3
+
+### Patch Changes
+
+- 290f2032: Fix knownEntrypoint warning for \_\_astro_hoisted_scripts.js
+
+## 0.20.2
+
+### Patch Changes
+
+- 788c769d: # Hoisted scripts
+
+  This change adds support for hoisted scripts, allowing you to bundle scripts together for a page and hoist them to the top (in the head):
+
+  ```astro
+  <script hoist>
+    // Anything goes here!
+  </script>
+  ```
+
+- Updated dependencies [5d2ea578]
+  - @astrojs/parser@0.20.2
+
+## 0.20.1
+
+### Patch Changes
+
+- ff92be63: Add a new "astro preview" command
+
+## 0.20.0
+
+### Minor Changes
+
+- affcd04f: **[BREAKING CHANGE]** stop bundling, building, and processing public files. This fixes an issue where we weren't actually honoring the "do not process" property of the public directory.
+
+  If you were using the `public/` directory as expected and not using it to build files for you, then this should not be a breaking change. However, will notice that these files are no longer bundled.
+
+  If you were using the `public/` directory to build files (for example, like `public/index.scss`) then you can expect this to no longer work. As per the correct Astro documentation.
+
+### Patch Changes
+
+- Updated dependencies [397d8f3d]
+  - @astrojs/markdown-support@0.3.0
+
+## 0.19.4
+
+### Patch Changes
+
+- 44fb8ebc: Remove non-null assertions, fix lint issues and enable lint in CI.
+- 9482fade: Makes sure Astro.resolve works in nested component folders
+
+## 0.19.3
+
+### Patch Changes
+
+- f9cd0310: Fix TypeScript "types" reference in package.json
+- f9cd0310: Improve schema validation using zod
+- efb41f22: Add `<Debug>` component for JavaScript-free client-side debugging.
+
+  ```astro
+  ---
+  import Debug from 'astro/debug';
+  const obj = { /* ... */ }
+  ---
+
+  <Debug {obj} />
+  ```
+
+## 0.19.2
+
+### Patch Changes
+
+- 3e605d7e: Add real-world check for ESM-CJS compatability to preflight check
+- 1e0e2f41: Including Prism's `language-` class on code block `<pre>` tags
+- 166c9ed6: Fix an issue where getStaticPaths is called multiple times per build
+- c06da5dd: Add configuration options for url format behavior: buildOptions.pageDirectoryUrl & trailingSlash
+- c06da5dd: Move 404.html output from /404/index.html to /404.html
+
+## 0.19.1
+
+### Patch Changes
+
+- ece0953a: Fix CSS :global() selector bug
+- Updated dependencies [a421329f]
+  - @astrojs/markdown-support@0.2.4
+
+## 0.19.0
+
+### Minor Changes
+
+- 239065e2: **[BREAKING]** Replace the Collections API with new file-based routing.
+
+  This is a breaking change which impacts collections, pagination, and RSS support.
+  Runtime warnings have been added to help you migrate old code to the new API.
+  If you have trouble upgrading, reach out on https://astro.build/chat
+
+  This change was made due to confusion around our Collection API, which many users found difficult to use. The new file-based routing approach should feel more familiar to anyone who has used Next.js or SvelteKit.
+
+  Documentation added:
+
+  - https://astro-docs-git-main-pikapkg.vercel.app/core-concepts/routing
+  - https://astro-docs-git-main-pikapkg.vercel.app/guides/pagination
+  - https://astro-docs-git-main-pikapkg.vercel.app/guides/rss
+  - https://astro-docs-git-main-pikapkg.vercel.app/reference/api-reference#getstaticpaths
+
+- 239065e2: Adds support for Astro.resolve
+
+  `Astro.resolve()` helps with creating URLs relative to the current Astro file, allowing you to reference files within your `src/` folder.
+
+  Astro _does not_ resolve relative links within HTML, such as images:
+
+  ```html
+  <img src="../images/penguin.png" />
+  ```
+
+  The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`:
+
+  ```astro
+  <img src={Astro.resolve('../images/penguin.png')} />
+  ```
+
+- 239065e2: Adds support for client:only hydrator
+
+  The new `client:only` hydrator allows you to define a component that should be skipped during the build and only hydrated in the browser.
+
+  In most cases it is best to render placeholder content during the build, but that may not always be feasible if an NPM dependency attempts to use browser APIs as soon as is imported.
+
+  **Note** If more than one renderer is included in your Astro config, you need to include a hint to determine which renderer to use. Renderers will be matched to the name provided in your Astro config, similar to `<MyComponent client:only="@astrojs/renderer-react" />`. Shorthand can be used for `@astrojs` renderers, i.e. `<MyComponent client:only="react" />` will use `@astrojs/renderer-react`.
+
+  An example usage:
+
+  ```jsx
+  ---
+  import BarChart from '../components/BarChart.jsx';
+  ---
+
+  <BarChart client:only />
+  /**
+   * If multiple renderers are included in the Astro config,
+   * this will ensure that the component is hydrated with
+   * the Preact renderer.
+   */
+  <BarChart client:only="preact" />
+  /**
+   * If a custom renderer is required, use the same name
+   * provided in the Astro config.
+   */
+  <BarChart client:only="my-custom-renderer" />
+  ```
+
+  This allows you to import a chart component dependent on d3.js while making sure that the component isn't rendered at all at build time.
+
+### Patch Changes
+
+- @astrojs/parser@0.18.6
+
+## 0.19.0-next.3
+
+### Minor Changes
+
+- 1971ab3c: Adds support for client:only hydrator
+
+  The new `client:only` hydrator allows you to define a component that should be skipped during the build and only hydrated in the browser.
+
+  In most cases it is best to render placeholder content during the build, but that may not always be feasible if an NPM dependency attempts to use browser APIs as soon as is imported.
+
+  **Note** If more than one renderer is included in your Astro config, you need to include a hint to determine which renderer to use. Renderers will be matched to the name provided in your Astro config, similar to `<MyComponent client:only="@astrojs/renderer-react" />`. Shorthand can be used for `@astrojs` renderers, i.e. `<MyComponent client:only="react" />` will use `@astrojs/renderer-react`.
+
+  An example usage:
+
+  ```jsx
+  ---
+  import BarChart from '../components/BarChart.jsx';
+  ---
+
+  <BarChart client:only />
+  /**
+   * If multiple renderers are included in the Astro config,
+   * this will ensure that the component is hydrated with
+   * the Preact renderer.
+   */
+  <BarChart client:only="preact" />
+  /**
+   * If a custom renderer is required, use the same name
+   * provided in the Astro config.
+   */
+  <BarChart client:only="my-custom-renderer" />
+  ```
+
+  This allows you to import a chart component dependent on d3.js while making sure that the component isn't rendered at all at build time.
+
+### Patch Changes
+
+- 1f13e403: Fix CSS scoping issue
+- 78b5bde1: Adds support for Astro.resolve
+
+  `Astro.resolve()` helps with creating URLs relative to the current Astro file, allowing you to reference files within your `src/` folder.
+
+  Astro _does not_ resolve relative links within HTML, such as images:
+
+  ```html
+  <img src="../images/penguin.png" />
+  ```
+
+  The above will be sent to the browser as-is and the browser will resolve it relative to the current **page**. If you want it to be resolved relative to the .astro file you are working in, use `Astro.resolve`:
+
+  ```astro
+  <img src={Astro.resolve('../images/penguin.png')} />
+  ```
+
+## 0.19.0-next.2
+
+### Patch Changes
+
+- 089d1e7a: update dependencies, and fix a bad .flat() call
+
+## 0.19.0-next.1
+
+### Patch Changes
+
+- c881e71e: Revert 939b9d0 "Allow dev server port to be set by PORT environment variable"
+
+## 0.19.0-next.0
+
+### Minor Changes
+
+- 0f0cc2b9: **[BREAKING]** Replace the Collections API with new file-based routing.
+
+  This is a breaking change which impacts collections, pagination, and RSS support.
+  Runtime warnings have been added to help you migrate old code to the new API.
+  If you have trouble upgrading, reach out on https://astro.build/chat
+
+  This change was made due to confusion around our Collection API, which many users found difficult to use. The new file-based routing approach should feel more familiar to anyone who has used Next.js or SvelteKit.
+
+  Documentation added:
+
+  - https://astro-docs-git-main-pikapkg.vercel.app/core-concepts/routing
+  - https://astro-docs-git-main-pikapkg.vercel.app/guides/pagination
+  - https://astro-docs-git-main-pikapkg.vercel.app/guides/rss
+  - https://astro-docs-git-main-pikapkg.vercel.app/reference/api-reference#getstaticpaths
+
+## 0.18.10
+
+### Patch Changes
+
+- 2321b577: - Allow Markdown with scoped styles to coexist happily with code syntax highlighting via Prism
+- 618ea3a8: Properly escapes script tags with nested client:load directives when passing Astro components into framework components via props. Browsers interpret script end tags in strings as script end tags, resulting in syntax errors.
+- 939b9d01: Allow dev server port to be set by `PORT` environment variable
+- Updated dependencies [1339d5e3]
+  - @astrojs/renderer-vue@0.1.7
+
+## 0.18.9
+
+### Patch Changes
+
+- 8cf0e65a: Fixes a previous revert, makes sure head content is injected into the right place
+- 8cf0e65a: Refactor the CLI entrypoint to support stackblitz and improve the runtime check
+
+## 0.18.8
+
+### Patch Changes
+
+- b1959f0f: Reverts a change to head content that was breaking docs site
+
+## 0.18.7
+
+### Patch Changes
+
+- 268a36f3: Fixes issue with head content being rendered in the wrong place
+- 39df7952: Makes `fetch` available in all framework components
+- Updated dependencies [f7e86150]
+  - @astrojs/renderer-preact@0.2.1
+
+## 0.18.6
+
+### Patch Changes
+
+- 27672096: Exclude remote srcset URLs
+- 03349560: Makes Astro.request available in Astro components
+
+## 0.18.5
+
+### Patch Changes
+
+- a1491cc6: Fix Vue components nesting
+- Updated dependencies [cd2b5df4]
+- Updated dependencies [a1491cc6]
+  - @astrojs/parser@0.18.5
+  - @astrojs/renderer-vue@0.1.6
+
+## 0.18.4
+
+### Patch Changes
+
+- Updated dependencies [460e625]
+  - @astrojs/markdown-support@0.2.3
+
+## 0.18.3
+
+### Patch Changes
+
+- Updated dependencies [7015356]
+  - @astrojs/markdown-support@0.2.2
+
+## 0.18.2
+
+### Patch Changes
+
+- 829d5ba: Fix TSX issue with JSX multi-rendering
+- 23b0d2d: Adds support for image srcset to the build
+- Updated dependencies [70f0a09]
+- Updated dependencies [fdb1c15]
+  - @astrojs/markdown-support@0.2.1
+  - @astrojs/renderer-vue@0.1.5
+
 ## 0.18.1
 
 ### Patch Changes

@@ -1,5 +1,5 @@
 ---
-layout: ~/layouts/Main.astro
+layout: ~/layouts/MainLayout.astro
 title: UI Renderer Reference
 ---
 
@@ -11,7 +11,7 @@ Internally, each framework is supported via a framework **renderer.** A renderer
 
 A renderer is an NPM package that has two responsibilities:
 
-1. _render a component to a static string of HTML_ at build time
+1. _render a component to a static string of HTML_ at build time.
 2. _rehydrate that HTML to create an interactive component_ on the client.
 
 Take a look at any one of Astro's built-in [`renderers`](https://github.com/snowpackjs/astro/tree/main/packages/renderers) to see this in action. We'll go into more detail in the following sections.
@@ -59,18 +59,19 @@ export default {
   snowpackPlugin: '@snowpack/plugin-xxx', // optional, the name of a snowpack plugin to inject
   snowpackPluginOptions: { example: true }, // optional, any options to be forwarded to the snowpack plugin
   knownEntrypoint: ['framework'], // optional, entrypoint modules that will be used by compiled source
-  external: ['dep'] // optional, dependencies that should not be built by snowpack
-  polyfills: ['./shadow-dom-polyfill.js'] // optional, module scripts that should be loaded before client hydration.
-  hydrationPolyfills: ['./hydrate-framework.js'] // optional, polyfills that need to run before hydration ever occurs.
+  external: ['dep'], // optional, dependencies that should not be built by snowpack
+  polyfills: ['./shadow-dom-polyfill.js'], // optional, module scripts that should be loaded before client hydration.
+  hydrationPolyfills: ['./hydrate-framework.js'], // optional, polyfills that need to run before hydration ever occurs.
   jsxImportSource: 'preact', // optional, the name of the library from which JSX is imported
-  jsxTransformOptions: async () => { // optional, a function to transform JSX files
-    const { default: { default: jsx }} = await import('@babel/plugin-transform-react-jsx');
+  jsxTransformOptions: async () => {
+    // optional, a function to transform JSX files
+    const {
+      default: { default: jsx },
+    } = await import('@babel/plugin-transform-react-jsx');
     return {
-      plugins: [
-        jsx({}, { runtime: 'automatic', importSource: 'preact' })
-      ]
-    }
-  }
+      plugins: [jsx({}, { runtime: 'automatic', importSource: 'preact' })],
+    };
+  },
 };
 ```
 
@@ -127,7 +128,7 @@ export default {
 
 `check` is a function that determines whether a Component should be "claimed" by this renderer.
 
-In it's simplest form, it can check for the existence of a flag on Object-based components.
+In its simplest form, it can check for the existence of a flag on Object-based components.
 
 ```js
 function check(Component) {

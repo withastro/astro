@@ -1,5 +1,5 @@
 ---
-layout: ~/layouts/Main.astro
+layout: ~/layouts/MainLayout.astro
 title: Astro Components
 ---
 
@@ -34,7 +34,7 @@ An Astro component represents some snippet of HTML in your project. This can be 
 
 CSS rules inside of a `<style>` tag are automatically scoped to that component. That means that you can reuse class names across multiple components, without worrying about conflicts. Styles are automatically extracted and optimized in the final build so that you don't need to worry about style loading.
 
-For best results, you should only have one `<style>` tag per-Astro component. This isn’t necessarily a limitation, but it will often result in better-optimized CSS in your final build. When you're working with pages, the `<style>` tag can go nested inside of your page `<head>`. For standalone components, the `<style>` tag can go at the top-level of your template.
+For best results, you should only have one `<style>` tag per-Astro component. This isn't necessarily a limitation, but it will often result in better-optimized CSS in your final build. When you're working with pages, the `<style>` tag can go nested inside of your page `<head>`. For standalone components, the `<style>` tag can go at the top-level of your template.
 
 ```html
 <!-- Astro Component CSS example -->
@@ -166,7 +166,9 @@ const { greeting = 'Hello', name } = Astro.props;
 </div>
 ```
 
-You can define your props with TypeScript by exporting a `Props` type interface. In the future, Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
+You can define your props with TypeScript by exporting a `Props` type interface.
+
+> _**In the future**_, Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
 
 ```astro
 ---
@@ -180,6 +182,17 @@ const { greeting = 'Hello', name } = Astro.props;
 <div>
     <h1>{greeting}, {name}!</h1>
 </div>
+```
+
+You can then pass the component props like this:
+
+```astro
+---
+// SomeOtherComponent.astro
+import SomeComponent from "./SomeComponent.astro";
+let firstName = "world!";
+---
+<SomeComponent name={firstName}/>
 ```
 
 ### Slots
@@ -273,6 +286,39 @@ const items = ["Dog", "Cat", "Platipus"];
 </ul>
 ```
 
+### Hoisted scripts
+
+By default Astro does not make any assumptions on how you want scripts to be served, so if you add a `<script>` tag in a page or a component it will be left alone.
+
+However if you'd like all of your scripts to be hoisted out of components and moved to the top of the page, and then later bundled together in production, you can achieve this with hoisted scripts.
+
+A **hoisted script** looks like this:
+
+```astro
+<script hoist>
+  // An inline script
+</script>
+```
+
+Or it can link to an external JavaScript file:
+
+```astro
+<script src={Astro.resolve('./my-component.js')} hoist></script>
+```
+
+A hoisted script can be within a page or a component, and no matter how many times the component is used, the script will only be added once:
+
+```astro
+---
+import TwitterTimeline from '../components/TwitterTimeline.astro';
+---
+
+<-- The script will only be injected into the head once. -->
+<TwitterTimeline />
+<TwitterTimeline />
+<TwitterTimeline />
+```
+
 ## Comparing `.astro` versus `.jsx`
 
 `.astro` files can end up looking very similar to `.jsx` files, but there are a few key differences. Here's a comparison between the two formats.
@@ -296,7 +342,7 @@ const items = ["Dog", "Cat", "Platipus"];
 
 ## URL resolution
 
-It’s important to note that Astro **won’t** transform HTML references for you. For example, consider an `<img>` tag with a relative `src` attribute inside `src/pages/about.astro`:
+It's important to note that Astro **won't** transform HTML references for you. For example, consider an `<img>` tag with a relative `src` attribute inside `src/pages/about.astro`:
 
 ```html
 <!-- ❌ Incorrect: will try and load `/about/thumbnail.png` -->
@@ -312,7 +358,7 @@ Since `src/pages/about.astro` will build to `/about/index.html`, you may not hav
 <img src="/thumbnail.png" />
 ```
 
-The recommended approach is to place files within `public/*`. This references a file it `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
+The recommended approach is to place files within `public/*`. This references a file at `public/thumbnail.png`, which will resolve to `/thumbnail.png` at the final build (since `public/` ends up at `/`).
 
 #### Option 2: Asset import references
 
@@ -325,6 +371,6 @@ import thumbnailSrc from './thumbnail.png';
 <img src={thumbnailSrc} />
 ```
 
-If you’d prefer to organize assets alongside Astro components, you may import the file in JavaScript inside the component script. This works as intended but this makes `thumbnail.png` harder to reference in other parts of your app, as its final URL isn’t easily-predictable (unlike assets in `public/*`, where the final URL is guaranteed to never change).
+If you'd prefer to organize assets alongside Astro components, you may import the file in JavaScript inside the component script. This works as intended but this makes `thumbnail.png` harder to reference in other parts of your app, as its final URL isn't easily-predictable (unlike assets in `public/*`, where the final URL is guaranteed to never change).
 
 [code-ext]: https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode

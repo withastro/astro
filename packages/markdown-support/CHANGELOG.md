@@ -1,5 +1,42 @@
 # @astrojs/markdown-support
 
+## 0.3.1
+
+### Patch Changes
+
+- b03f8771: Fix parsing of an empty `<pre></pre>` tag in markdown files, which expected the pre tag to have a child
+- b03f8771: Fix the importing of `unified` `Plugin` and `UnifiedPlugin` types
+
+## 0.3.0
+
+### Minor Changes
+
+- 397d8f3d: Upgrade `@astrojs/markdown-support` dependencies. The `remark-rehype@9` upgrade enables accessible footnotes with `remark-footnotes`.
+
+## 0.2.4
+
+### Patch Changes
+
+- a421329f: Fix the left-brace issue
+
+## 0.2.3
+
+### Patch Changes
+
+- 460e625: Move remaining missing dependencies
+
+## 0.2.2
+
+### Patch Changes
+
+- 7015356: Move rehype-raw to a dependency
+
+## 0.2.1
+
+### Patch Changes
+
+- 70f0a09: Added remark-slug to default plugins
+
 ## 0.2.0
 
 ### Minor Changes

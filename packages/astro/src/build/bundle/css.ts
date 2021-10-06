@@ -5,7 +5,7 @@ import { performance } from 'perf_hooks';
 import shorthash from 'shorthash';
 import cheerio from 'cheerio';
 import esbuild from 'esbuild';
-import { getDistPath, getSrcPath, stopTimer } from '../util.js';
+import { getDistPath, getSrcPath, IS_ASTRO_FILE_URL, stopTimer } from '../util.js';
 import { debug } from '../../logger.js';
 
 // config
@@ -46,7 +46,9 @@ export async function bundleCSS({
   for (const pageUrl of sortedPages) {
     const { css } = depTree[pageUrl];
     for (const cssUrl of css.keys()) {
-      if (cssMap.has(cssUrl)) {
+      if (!IS_ASTRO_FILE_URL.test(cssUrl)) {
+        // do not add to cssMap, leave as-is.
+      } else if (cssMap.has(cssUrl)) {
         // scenario 1: if multiple URLs require this CSS, upgrade to common chunk
         cssMap.set(cssUrl, COMMON_URL);
       } else {
@@ -83,7 +85,7 @@ export async function bundleCSS({
   await Promise.all(
     Object.keys(buildState).map(async (id) => {
       if (buildState[id].contentType !== 'text/css') return;
-      const { code } = await esbuild.transform(buildState[id].contents as string, {
+      const { code } = await esbuild.transform(buildState[id].contents.toString(), {
         loader: 'css',
         minify: true,
       });
@@ -113,22 +115,38 @@ export async function bundleCSS({
       if (buildState[id].contentType !== 'text/html') return;
 
       const $ = cheerio.load(buildState[id].contents);
-      const pageCSS = new Set<string>(); // keep track of page-specific CSS so we remove dupes
+      const stylesheets = new Set<string>(); // keep track of page-specific CSS so we remove dupes
+      const preloads = new Set<string>(); // list of stylesheets preloads, to remove dupes
+
       $('link[href]').each((i, el) => {
         const srcPath = getSrcPath(id, { astroConfig });
         const oldHref = getDistPath($(el).attr('href') || '', { astroConfig, srcPath }); // note: this may be a relative URL; transform to absolute to find a buildOutput match
         const newHref = cssMap.get(oldHref);
-        if (newHref) {
-          // note: link[href] will select too much, however, remote CSS and non-CSS link tags won’t be in cssMap
-          if (pageCSS.has(newHref)) {
-            $(el).remove(); // this is a dupe; remove
+
+        if (!newHref) {
+          return;
+        }
+
+        if (el.attribs?.rel === 'preload') {
+          if (preloads.has(newHref)) {
+            $(el).remove();
           } else {
-            $(el).attr('href', cssHashes.get(newHref) || ''); // new CSS; update href (important! use cssHashes, not cssMap)
-            pageCSS.add(newHref);
+            $(el).attr('href', cssHashes.get(newHref) || '');
+            preloads.add(newHref);
           }
+          return;
+        }
+
+        if (stylesheets.has(newHref)) {
+          $(el).remove(); // this is a dupe; remove
+        } else {
+          $(el).attr('href', cssHashes.get(newHref) || ''); // new CSS; update href (important! use cssHashes, not cssMap)
+
           // bonus: add [rel] and [type]. not necessary, but why not?
           $(el).attr('rel', 'stylesheet');
           $(el).attr('type', 'text/css');
+
+          stylesheets.add(newHref);
         }
       });
       (buildState[id] as any).contents = $.html(); // save updated HTML in global buildState

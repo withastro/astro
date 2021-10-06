@@ -34,6 +34,11 @@ Components('Allows Components defined in frontmatter', async ({ runtime }) => {
   assert.equal($('h1').length, 1);
 });
 
+Components('Allows variables named props', async ({ runtime }) => {
+  const result = await runtime.load('/props-shadowing');
+  assert.equal(result.statusCode, 500);
+});
+
 Components('Still throws an error for undefined components', async ({ runtime }) => {
   const result = await runtime.load('/undefined-component');
   assert.equal(result.statusCode, 500);

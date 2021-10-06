@@ -3,12 +3,14 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build"
+    "build": "astro build",
+    "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/renderer-lit": "^0.1.0",
-    "astro": "^0.18.1"
+    "@astrojs/renderer-lit": "^0.1.2",
+    "astro": "^0.20.9"
   },
   "snowpack": {
     "workspaceRoot": "../.."

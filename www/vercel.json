@@ -16,5 +16,11 @@
       "source": "/chat",
       "destination": "https://discord.gg/grF4GTXXYm"
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/play/:match*",
+      "destination": "https://play.astro.build/play/:match*"
+    }
   ]
 }
