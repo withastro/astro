@@ -36,21 +36,21 @@ let lang = 'en';
 
         You can try out our latest release today [in the browser](https://gitpod.io#snapshot/5e7cf2f1-8108-4fa5-99d3-ed8de70d8c23) or by running `npm install astro@next--compiler` in a new project directory on your machine.
 
-        Astro is graduating from "proof of concept" to become a production-ready tool for professional web developers. To celebrate, here are more highlights and details on what you can expect in Astro v0.21.0 and beyond.
+        Astro is quickly becoming the production-ready framework for building faster, content-focused websites. To celebrate this milestone, here are some highlights and details on what you can expect in Astro v0.21.0 and beyond.
 
         ## Hello, Vite!
 
-        Astro 0.21 replaces our current internal build engine with Vite. 
+        Astro 0.21 is getting an internal build engine upgrade, replacing Snowpack with [Vite](https://vitejs.dev) going forward.
 
-        Astro was originally built on Snowpack. But after experimenting with Vite we came away very impressed. Vite is well-maintained, well-documented, a bit faster, has great error messages, and has been building clear community buy-in across multiple frameworks. SSR dependency handling can be a bit flakey at times, but the Vite team is aware of this and working on it.
+        We ran some early experiments with Vite and came away extremely impressed. Vite is well-maintained, well-documented, a bit faster, has great error messages, and has been building clear community buy-in across multiple frameworks. SSR handling can be a bit flakey, but the Vite team is aware of this and actively working on it.
 
         So now, when Evan You tweets about [some great performance optimization](https://twitter.com/youyuxi/status/1440718351802646550) that they're making in Vite you can be certain that the same speed is coming to Astro as well. 
+        
+        The reverse is also true: we can now contribute fixes and improvements back to the larger Vite community.  Now, when we fix an SSR bug in Astro (like [adding support for ESM-only npm packages](https://github.com/vitejs/vite/pull/5197)) we're also fixing it for every other Vite user, including [SvelteKit](https://kit.svelte.dev/docs#routing-endpoints).
 
-        Best of all, Vite unlocks access to the entire Rollup ecosystem of plugins. Starting in v0.21.0, you'll enable new features like [image optimizations](https://github.com/JonasKruckenberg/imagetools/tree/main/packages/vite) and [icon loading](https://github.com/antfu/unplugin-icons) with just a few simple plugins. Magic!
+        There's one other huge benefit to choosing Vite: Rollup plugins. Starting in v0.21.0, you'll be able to connect the entire ecosystem of Rollup plugins to Astro. Enable new features like [image optimizations](https://github.com/JonasKruckenberg/imagetools/tree/main/packages/vite) and [icon loading](https://github.com/antfu/unplugin-icons) with just a few simple plugins. Magic!
 
-        This switch from Snowpack to Vite might come as a surprise to some: Both Drew and myself are maintainers on both projects. This was obviously a hard decision for us to make. But ultimately, after working with both build tools I can confidently say that Vite will be a great choice for Astro. We're excited to take what we've learned and contribute our experience back into improving Vite.
-
-        If you're curious to learn more, you can read more about this transition from my perspective as Snowpack maintainer [here.](https://dev.to/fredkschott/5-more-things-i-learned-building-snowpack-to-20-000-stars-5dc9)
+        This switch from Snowpack to Vite might come as a surprise to some: Both Drew and myself are maintainers on both projects. This was [a hard decision](https://dev.to/fredkschott/5-more-things-i-learned-building-snowpack-to-20-000-stars-5dc9) for us to make. But ultimately, after working with both tools I can confidently say that Vite will be a great choice for Astro's future.
 
 
         ## Hello, WASM!
