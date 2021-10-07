@@ -33,7 +33,7 @@ Docusaurus no soporta hidratación parcial, en lugar de eso, hace que el usuario
 - **Puntaje de rendimiento de Docusaurus**: 61 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocusaurus.io%2Fdocs)
 - **Puntaje de rendimiento de Astro**: 99 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
-Una de las más grandes razones detrás de la diferencia en los rendimientos es que la carga de Javascript en Astro es el poco tiempo de carga de Javascropt en Astro: [docusaurus.io/docs](https://docusaurus.io/docs) carga **238kb** de Javascript en la primera carga; mientras que [docs.astro.build](https://docs.astro.build) carga **78.7kb** (en general, 67% menos de JavaScript) _después_ de la primera carga.
+Una de las más grandes razones detrás de la diferencia en los rendimientos es que la carga de Javascript en Astro es el poco tiempo de carga de Javascropt en Astro: [docusaurus.io/docs](https://docusaurus.io/docs) carga **238kb** de Javascript en la primera carga; mientras que [docs.astro.build](https://docs.astro.build/es/getting-started) carga **78.7kb** (en general, 67% menos de JavaScript) _después_ de la primera carga.
 
 ## Elder.js vs. Astro
 
@@ -88,7 +88,7 @@ Gatsby tiene un gran ecosistema de plugins, el cual podría hacer que Gatsby sea
 - **Puntaje de rendimiento de Gatsby**: 64 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fwww.gatsbyjs.com%2Fdocs%2Fquick-start%2F)
 - **Puntaje de rendimiento de Astro**: 99 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
-Una de las más grandes razones detrás de la diferencia en los rendimientos es que la carga de Javascript en Astro es el poco tiempo de carga de Javascropt en Astro: [gatsbyjs.com/docs](https://www.gatsbyjs.com/docs/quick-start/) carga **417kb** de Javascript en la primera carga; mientras que [docs.astro.build](https://docs.astro.build) loads **78.7kb** (en general, 81% menos de JavaScript) _después_ de la primera carga.
+Una de las más grandes razones detrás de la diferencia en los rendimientos es que la carga de Javascript en Astro es el poco tiempo de carga de Javascropt en Astro: [gatsbyjs.com/docs](https://www.gatsbyjs.com/docs/quick-start/) carga **417kb** de Javascript en la primera carga; mientras que [docs.astro.build](https://docs.astro.build/es/getting-started) loads **78.7kb** (en general, 81% menos de JavaScript) _después_ de la primera carga.
 
 ## Hugo vs. Astro
 
@@ -168,7 +168,7 @@ Next.js tiene un gran soporte para optimizar imágenes, lo que podría hacer que
 - **Puntaje de rendimiento de Next.js**: 59 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fnextjs.org%2Fdocs%2Fgetting-started)
 - **Puntaje de rendimiento de Astro**: 99 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
-Una razón de peso por lo que se produce esta diferencia de rendimiento es que Astro tiene una menor carga de JavaScript: [nextjs.org/docs](https://nextjs.org/docs/getting-started) carga **463kb** de JavaScript en la primera carga de la página, mientras que [docs.astro.build](https://docs.astro.build) carga **78.7kb** (en general, 83% menos de JavaScript) _después_ de la primera carga.
+Una razón de peso por lo que se produce esta diferencia de rendimiento es que Astro tiene una menor carga de JavaScript: [nextjs.org/docs](https://nextjs.org/docs/getting-started) carga **463kb** de JavaScript en la primera carga de la página, mientras que [docs.astro.build](https://docs.astro.build/es/getting-started) carga **78.7kb** (en general, 83% menos de JavaScript) _después_ de la primera carga.
 
 ## Nuxt vs. Astro
 
@@ -195,7 +195,7 @@ Nuxt tiene un gran soporte para optimizar imágenes, lo que podría hacer que Nu
 - **Puntaje de rendimiento de Nuxt**: 48 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fnuxtjs.org%2Fdocs%2F2.x%2Fget-started%2Finstallation)
 - **Puntaje de rendimiento de Astro**: 99 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
-Una de las más grandes razones detrás de la diferencia en los rendimientos es que la carga de Javascript en Astro es el poco tiempo de carga de Javascropt en Astro: [nuxtjs.org/docs](https://nuxtjs.org/docs/2.x/get-started/installation) carga **469kb** de Javascript en la primera carga; mientras que [docs.astro.build](https://docs.astro.build) loads **78.7kb** (en general, 83% menos de JavaScript) _después_ de la primera carga.
+Una de las más grandes razones detrás de la diferencia en los rendimientos es que la carga de Javascript en Astro es el poco tiempo de carga de Javascropt en Astro: [nuxtjs.org/docs](https://nuxtjs.org/docs/2.x/get-started/installation) carga **469kb** de Javascript en la primera carga; mientras que [docs.astro.build](https://docs.astro.build/es/getting-started) loads **78.7kb** (en general, 83% menos de JavaScript) _después_ de la primera carga.
 
 ## VuePress vs. Astro
 
@@ -218,7 +218,7 @@ VuePress no soporta hidratación parcial, en su lugar hace que el usuario cargue
 - **Puntaje de rendimiento de Vuepress**: 63 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fvuepress.vuejs.org%2Fguide%2F)
 - **Puntaje de rendimiento de Astro**: 99 de 100 [(ver detalles)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
-Una de las más grandes razones detrás de la diferencia en los rendimientos es que la carga de Javascript en Astro es el poco tiempo de carga de Javascropt en Astro: [vuepress.vuejs.org](https://vuepress.vuejs.org/guide/) carga **166kb** de Javascript en la primera carga; mientras que [docs.astro.build](https://docs.astro.build) loads **78.7kb** (en general, 53% menos de JavaScript) _después_ de la primera carga.
+Una de las más grandes razones detrás de la diferencia en los rendimientos es que la carga de Javascript en Astro es el poco tiempo de carga de Javascropt en Astro: [vuepress.vuejs.org](https://vuepress.vuejs.org/guide/) carga **166kb** de Javascript en la primera carga; mientras que [docs.astro.build](https://docs.astro.build/es/getting-started) loads **78.7kb** (en general, 53% menos de JavaScript) _después_ de la primera carga.
 
 ## Zola vs. Astro
 
