@@ -31,7 +31,7 @@ You can sponsor Astro's development on [Open Collective][oc]. Astro is generousl
 <table>
   <tbody>
     <tr>
-      <td align="center"><a href="https://www.netlify.com/" target="_blank"><img width="147" height="40" src="./.github/assets/netlify.svg" alt="Netlify" /></a></td>
+      <td align="center"><a href="https://www.netlify.com/" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/snowpackjs/astro/main/.github/assets/netlify.svg" alt="Netlify" /></a></td>
     </tr>
   </tbody>
 </table>
@@ -41,7 +41,7 @@ You can sponsor Astro's development on [Open Collective][oc]. Astro is generousl
 <table>
   <tbody>
     <tr>
-      <td align="center"><a href="https://sentry.io" target="_blank"><img width="147" height="40" src="./.github/assets/sentry.svg" alt="Sentry" /></a></td>
+      <td align="center"><a href="https://sentry.io" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/snowpackjs/astro/main/.github/assets/sentry.svg" alt="Sentry" /></a></td>
     </tr>
   </tbody>
 </table>
