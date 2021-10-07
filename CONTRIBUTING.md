@@ -61,6 +61,10 @@ When making a pull request, be sure to add a changeset when something has change
 yarn changeset
 ```
 
+## Dependencies
+
+Astro uses `esbuild` to pre-bundle most dependencies before publishing! Therefore most dependencies, even used in `src/` code, should be added under `devDependencies` by default.
+
 ## Running benchmarks
 
 We have benchmarks to keep performance under control. You can run these by running (from the project root):
