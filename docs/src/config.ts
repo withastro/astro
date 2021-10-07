@@ -56,6 +56,9 @@ export const SIDEBAR = {
     { text: 'Empezando', link: 'es/getting-started' },
     { text: 'Comienzo rápido', link: 'es/quick-start' },
     { text: 'Instalación', link: 'es/installation' },
+
+    { text: 'Fundamentos', header: true },
+    { text: 'Estructura del Proyecto', link: 'es/core-concepts/project-structure' },
   ],
   'zh-CN': [
     { text: '起步', header: true },

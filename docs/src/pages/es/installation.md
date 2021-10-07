@@ -1,6 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
-title: Installation
+title: Instalación
 lang: es
 ---
 
