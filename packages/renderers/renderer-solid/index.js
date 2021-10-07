@@ -1,7 +1,7 @@
 export default {
   name: '@astrojs/renderer-solid',
-  client: './client',
-  server: './server',
+  client: './client.js',
+  server: './server.js',
   knownEntrypoints: ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'],
   external: ['solid-js/web/dist/server.cjs', 'solid-js/store/dist/server.cjs', 'solid-js/dist/server.cjs', 'babel-preset-solid'],
   jsxImportSource: 'solid-js',
