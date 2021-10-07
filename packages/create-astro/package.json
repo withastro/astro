@@ -23,18 +23,19 @@
     "dist",
     "create-astro.js"
   ],
+  "//": "Default to 'devDependencies' (bundled with src/) rather than 'dependencies' (unbundled).",
+  "//": "See CONTRIBUTING.md for more info!",
   "dependencies": {
-    "@types/degit": "^2.8.2",
-    "@types/node-fetch": "^2.5.12",
-    "@types/prompts": "^2.0.12",
-    "degit": "^2.8.4",
+    "degit": "^2.8.4"
+  },
+  "devDependencies": {
     "kleur": "^4.1.1",
     "node-fetch": "^2.6.1",
     "prompts": "^2.4.1",
-    "yargs-parser": "^20.2.7"
-  },
-  "devDependencies": {
+    "yargs-parser": "^20.2.7",
+    "@types/degit": "^2.8.2",
     "@types/node-fetch": "^2.5.12",
+    "@types/prompts": "^2.0.12",
     "uvu": "^0.5.1"
   },
   "engines": {

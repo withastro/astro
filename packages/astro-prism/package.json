@@ -18,6 +18,8 @@
   "keywords": [],
   "author": "Skypack",
   "license": "MIT",
+  "//": "Default to 'devDependencies' (bundled with src/) rather than 'dependencies' (unbundled).",
+  "//": "See CONTRIBUTING.md for more info!",
   "devDependencies": {
     "prismjs": "^1.23.0"
   },
