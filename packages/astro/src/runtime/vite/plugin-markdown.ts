@@ -22,10 +22,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 
         // 2. Transform from `.md` to valid `.astro`
         let render = config.markdownOptions.render;
-        let renderOpts = {};
+        let renderOpts = { mode: "mdx" };
         if (Array.isArray(render)) {
           render = render[0];
-          renderOpts = render[1];
+          renderOpts = render[1] || renderOpts;
         }
         if (typeof render === 'string') {
           ({ default: render } = await import(render));

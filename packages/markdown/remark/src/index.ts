@@ -2,19 +2,21 @@ import type { AstroMarkdownOptions, MarkdownRenderingOptions } from './types';
 
 import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
-import { remarkExpressions, loadRemarkExpressions } from './remark-expressions.js';
+import { remarkExpressions } from './remark-expressions.js';
 import rehypeExpressions from './rehype-expressions.js';
-import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
+import { remarkJsx } from './remark-jsx.js';
 import rehypeJsx from './rehype-jsx.js';
 import { remarkCodeBlock, rehypeCodeBlock } from './codeblock.js';
 import remarkSlug from './remark-slug.js';
 import { loadPlugins } from './load-plugins.js';
 
-import { unified } from 'unified';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
-import rehypeStringify from 'rehype-stringify';
 import matter from 'gray-matter';
+import { unified } from 'unified';
+import rehypeStringify from 'rehype-stringify';
+import remarkGFM from 'remark-gfm';
+import remarkFootnotes from 'remark-footnotes';
 
 export { AstroMarkdownOptions, MarkdownRenderingOptions };
 
@@ -25,9 +27,9 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
   return { ...value, frontmatter };
 }
 
-export const DEFAULT_REMARK_PLUGINS = [
-  'remark-gfm',
-  'remark-footnotes',
+export const DEFAULT_REMARK_PLUGINS: any[] = [
+  remarkGFM,
+  remarkFootnotes,
   // TODO: reenable smartypants!
   // '@silvenon/remark-smartypants'
 ]
@@ -38,10 +40,8 @@ export const DEFAULT_REHYPE_PLUGINS = [
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-  const { remarkPlugins = DEFAULT_REMARK_PLUGINS, rehypePlugins = DEFAULT_REHYPE_PLUGINS } = opts ?? {};
+  const { remarkPlugins = DEFAULT_REMARK_PLUGINS, rehypePlugins = DEFAULT_REHYPE_PLUGINS, mode = 'md' } = opts ?? {};
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
-
-  await Promise.all([loadRemarkExpressions(), loadRemarkJsx()]); // Vite bug: dynamically import() these because of CJS interop (this will cache)
 
   let parser = unified()
     .use(markdown)
@@ -72,11 +72,12 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   try {
     const vfile = await parser
       .use(rehypeCollectHeaders)
-      .use(rehypeCodeBlock)
+      .use([rehypeCodeBlock, { mode }])
       .use(rehypeStringify, { allowParseErrors: true, preferUnquoted: true, allowDangerousHtml: true })
       .process(content);
     result = vfile.toString();
   } catch (err) {
+    console.log(err);
     throw err;
   }
 

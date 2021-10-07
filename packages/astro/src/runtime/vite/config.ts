@@ -34,7 +34,8 @@ export async function loadViteConfig(
   });
   const userDevDeps = Object.keys(packageJSON?.devDependencies || {});
   const { external, noExternal } = await viteSSRDeps([...userDeps, ...userDevDeps]);
-  // console.log(external.has('tiny-glob'), noExternal.has('tiny-glob'));
+
+  // console.log(external);
 
   // load Astro renderers
   await Promise.all(
@@ -99,12 +100,19 @@ export async function loadViteConfig(
       /** Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html) */
       ssr: {
         external: [...external],
-        noExternal: [...noExternal],
+        noExternal: [],
       },
     },
     viteConfig
   );
 }
+
+const MANUAL_NO_EXTERNAL = new Set([
+  'astro',
+  '@astrojs/markdown-remark',
+  'micromark-factory-mdx-expression',
+  'remark',
+])
 
 /** Try and automatically figure out Vite external & noExternal */
 async function viteSSRDeps(deps: string[]): Promise<{ external: Set<string>; noExternal: Set<string> }> {
@@ -149,26 +157,15 @@ async function viteSSRDeps(deps: string[]): Promise<{ external: Set<string>; noE
         return;
       }
 
-      // sort this package
-      let isExternal = true; // external by default
-
-      // ESM gets noExternal
-      if (packageJSON.type === 'module') isExternal = false;
-      // TODO: manual bugfixes for Vite
-      if (pkg.name === '@sveltejs/vite-plugin-svelte') isExternal = true;
-      if (pkg.name === 'micromark-util-events-to-acorn') isExternal = true;
-      if (pkg.name === 'unified') isExternal = true;
-      // TODO: add more checks here if needed
-
       // add to list
-      if (isExternal === true) {
-        external.add(spec);
-      } else {
+      if (packageJSON.type === 'module' || MANUAL_NO_EXTERNAL.has(spec) || spec.startsWith('node:')) {
         noExternal.add(spec);
+      } else {
+        external.add(spec);
       }
 
       // recursively load dependencies for package (but not devDeps)
-      await Promise.all(Object.keys(packageJSON.dependencies || {}).map(sortPkg));
+      await Promise.all(Object.keys(packageJSON.dependencies || {}).map(spec => sortPkg(spec)));
     } catch (err) {
       // can’t load package: skip
       skip.add(spec);

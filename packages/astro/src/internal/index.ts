@@ -54,6 +54,10 @@ export class AstroComponent {
     this.expressions = expressions;
   }
 
+  public render() {
+    return renderAstroComponent(this);
+  }
+
   *[Symbol.iterator]() {
     const { htmlParts, expressions } = this;
 

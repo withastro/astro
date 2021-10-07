@@ -1,7 +1,6 @@
 // Vite bug: dynamically import() modules needed for CJS. Cache in memory to keep side effects
-let mdxExpression: any;
-let mdxExpressionFromMarkdown: any;
-let mdxExpressionToMarkdown: any;
+import { mdxExpression } from 'micromark-extension-mdx-expression';
+import { mdxExpressionFromMarkdown, mdxExpressionToMarkdown } from 'mdast-util-mdx-expression';
 
 export function remarkExpressions(this: any, options: any) {
   let settings = options || {};
@@ -15,17 +14,5 @@ export function remarkExpressions(this: any, options: any) {
     /* istanbul ignore if - other extensions. */
     if (data[field]) data[field].push(value);
     else data[field] = [value];
-  }
-}
-
-export async function loadRemarkExpressions() {
-  if (!mdxExpression) {
-    const micromarkMdxExpression = await import('micromark-extension-mdx-expression');
-    mdxExpression = micromarkMdxExpression.mdxExpression;
-  }
-  if (!mdxExpressionFromMarkdown || !mdxExpressionToMarkdown) {
-    const mdastUtilMdxExpression = await import('mdast-util-mdx-expression');
-    mdxExpressionFromMarkdown = mdastUtilMdxExpression.mdxExpressionFromMarkdown;
-    mdxExpressionToMarkdown = mdastUtilMdxExpression.mdxExpressionToMarkdown;
   }
 }
