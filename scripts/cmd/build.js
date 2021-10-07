@@ -30,9 +30,12 @@ export default async function build(...args) {
   const outdir = 'dist';
   await clean(outdir);
 
+  const external = Object.keys(dependencies);
+
   if (!isDev) {
     await esbuild.build({
       ...config,
+      external,
       bundle: entryPoints.length === 1, // Note: only use `bundle` with a single entrypoint!
       entryPoints,
       outdir,
@@ -44,6 +47,7 @@ export default async function build(...args) {
 
   const builder = await esbuild.build({
     ...config,
+    external,
     watch: {
       onRebuild(error, result) {
         const date = new Date().toISOString();
