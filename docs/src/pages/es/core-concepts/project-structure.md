@@ -10,7 +10,7 @@ Astro incluye una estructura de carpetas y archivos fijos para tu proyecto. Cada
 - `public/*` - Recursos de apoyo al código (fuentes, íconos, imágenes, etc.)
 - `package.json` - Manifiesto del proyecto.
 
-La forma más sencilla de crear un nuevo proyecto es con `npm init astro`. Mira nuestra [Guía de Instalación](/quick-start) para ver cómo crear un proyecto automáticamente (con `npm init astro`) o manualmente.
+La forma más sencilla de crear un nuevo proyecto es con `npm init astro`. Mira nuestra [Guía de Instalación](/es/quick-start) para ver cómo crear un proyecto automáticamente (con `npm init astro`) o manualmente.
 
 ## Estructura del Proyecto
 
