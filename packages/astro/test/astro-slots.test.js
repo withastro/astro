@@ -65,7 +65,7 @@ describe('Slots', () => {
     expect($('#default').children('astro-component')).to.have.lengthOf(1);
   });
 
-  it.skip('Slots API work on Components', async () => {
+  it('Slots API work on Components', async () => {
     // IDs will exist whether the slots are filled or not
     {
       const html = await fixture.readFile('/slottedapi-default/index.html');
@@ -90,7 +90,7 @@ describe('Slots', () => {
 
     // IDs will exist because the slots are filled
     {
-      const html = await fixture.fetch('/slottedapi-filled/index.html');
+      const html = await fixture.readFile('/slottedapi-filled/index.html');
       const $ = cheerio.load(html);
 
       expect($('#a')).to.have.lengthOf(1);
@@ -102,7 +102,7 @@ describe('Slots', () => {
 
     // Default ID will exist because the default slot is filled
     {
-      const html = await fixture.fetch('/slottedapi-default-filled/index.html');
+      const html = await fixture.readFile('/slottedapi-default-filled/index.html');
       const $ = cheerio.load(html);
 
       expect($('#a')).to.have.lengthOf(0);
