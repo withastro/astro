@@ -167,7 +167,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       styles: new Set(),
       scripts: new Set(),
       /** This function returns the `Astro` faux-global */
-      createAstro: (props: any) => {
+      createAstro: (props: any, slots: Record<string, any> | null) => {
         const site = new URL(origin);
         const url = new URL('.' + pathname, site);
         const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin);
@@ -178,6 +178,9 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
           request: { url, canonicalURL },
           props,
           fetchContent,
+          slots: Object.fromEntries(
+            Object.entries(slots || {}).map(([slotName]) => [slotName, true])
+          )
         };
       },
       _metadata: { importedModules, renderers },
