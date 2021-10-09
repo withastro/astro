@@ -103,6 +103,7 @@ export const SIDEBAR = {
   ja: [
     { text: 'セットアップ', header: true },
     { text: 'はじめに', link: 'ja/getting-started' },
+    { text: 'クイックスタート', link: 'ja/quick-start' },
   ],
   ru: [
     { text: 'Введение', header: true },
