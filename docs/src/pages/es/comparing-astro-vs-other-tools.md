@@ -20,7 +20,7 @@ Algunas características, aunque son pocas, aún no están disponibles en Astro 
 
 Docusaurus fue diseñada para construir la documentación de las páginas web y tienen una creación propia y unas características específicas de documentación que Astro no posee. En lugar de eso, Astro ofrece características específicas de documentación mediante un tema oficial [`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs) que puedes utilizar en tu sitio. !Este sitio web se construyó usando ese tema!
 
-#### Comparando el Rendimiento de Docusaurus vs. Astro 
+#### Comparando el Rendimiento de Docusaurus vs. Astro
 
 En la mayoría de casos, los sitios web de Astro cargarán mucho más rápido que los sitios web de Docusaurus. Esto es porque Astro automáticamente quita el código JavaScript innecesario de la página, cargando sólo los componentes individuales que la página que necesita. Esta característica se llama [hidratación parcial](/core-concepts/component-hydration).
 
@@ -55,7 +55,7 @@ Elder.js soporta tanto Static Site Generation (SSG) como Server-Side Rendering (
 
 Eleventy utiliza mucho [plantillas de lenguaje HTML antiguas](https://www.11ty.dev/docs/languages/) para renderizar tu sitio web: Nunjucks, Liquid, Pug, EJS, entre otros. Astro es más flexible: eres libre de crear un componente UI en cualquier librería popular (React, Preact, Vue, Svelte, Solid entre otros) o puedes crear un componente de Astro con una sintaxis parecida a HTML, que es similar a HTML + JSX.
 
-#### Comparando el Rendimiento de Eleventy vs. Astro 
+#### Comparando el Rendimiento de Eleventy vs. Astro
 
 Conceptualmente, Eleventy está alineado con el enfoque de Astro sobre "el uso mínimo de Javascript en el lado del cliente". Tanto Eleventy y Astro ofrecen un rendimiento similar, un uso extremadamente bajo de Javascript por defecto.
 
@@ -73,7 +73,7 @@ Gatsby v4 soporta tanto Static Site Generation (SSG) como Server-Side Rendering 
 
 Gatsby requiere de una API personalizada de GraphQL para trabajar con todo el contenido de tu sitio web. Aunque algunos desarrolladores disfrutan de este modelo, una crítica común a Gatsby es que este modelo se vuelve demasiado complejo y difícil de mantener en el tiempo, especialmente cuando las páginas crecen. Astro no requiere una API de GraphQL, en su lugar ofrece apoyos para API familiares (como `fetch()` y `await`) para la carga de datos cuando se necesite.
 
-#### Comparando el Rendimiento de Gatsby vs. Astro 
+#### Comparando el Rendimiento de Gatsby vs. Astro
 
 En la mayoría de casos, los sitios de Astro cargarán mucho más rápido que los sitios de Gatsby. Esto pasa porque Astro automáticamente quita el código Javascript innecesario de la página, cargando sólo los componentes individuales que se necesiten. Esta característica se llama [hidratación parcial](/core-concepts/component-hydration).
 
@@ -96,7 +96,7 @@ Una de las más grandes razones detrás de la diferencia en los rendimientos es 
 
 Hugo utiliza una [plantilla de lenguajes personalizados](https://gohugo.io/templates/introduction/) para renderizar tu sitio web. Astro te deja crear un componente UI en cualquier librería popular (React, Preact, Vue, Svelte, Solid, entre otros) o puedes crear un componente de Astro con una sintaxis parecida a HTML, que es similar a HTML + JSX.
 
-#### Comparando el Rendimiento de Hugo vs. Astro 
+#### Comparando el Rendimiento de Hugo vs. Astro
 
 Conceptualmente, Hugo está alineado con el enfoque de Astro sobre "el uso mínimo de Javascript en el lado del cliente". Tanto Hugo y Astro ofrecen un rendimiento similar, un uso extremadamente bajo de Javascript por defecto.
 
@@ -108,7 +108,7 @@ Tanto Hugo como Astro, traen incorporado soporte para la construcción, el empaq
 
 Jekyll utiliza una vieja versión de [lenguaje de plantillas](https://jekyllrb.com/docs/liquid/) para renderizar tu sitio web. Astro te permite crear páginas usando una interfaz de usuario de librerías de componentes (React, Preact, Vue, Svelte, entre otros otros) o una sintaxis de componente similar a HTML + JSX. Jekyll no soporta la utilización de componentes modernos para las plantillas de HTML.
 
-#### Comparando el Rendimiento de Jekyll vs. Astro 
+#### Comparando el Rendimiento de Jekyll vs. Astro
 
 Conceptualmente, Eleventy está alineado con el enfoque de Astro sobre "el uso mínimo de Javascript en el lado del cliente". Tanto Jekyll y Astro ofrecen un rendimiento similar, un uso extremadamente bajo de Javascript por defecto.
 
@@ -126,7 +126,7 @@ Tanto SveltKit como Astro, son estructuras o frameworks para crear sitios web. S
 
 SvelteKit soporta tanto Static Site Generation (SSG) como Server-Side Rendering (SSR). Hoy en día, Astro tan sólo soporta Static Site Generation (SSG).
 
-#### Comparando el Rendimiento de SveltKit vs. Astro 
+#### Comparando el Rendimiento de SveltKit vs. Astro
 
 En la mayoría de casos, los sitios de Astro cargarán mucho más rápido que los sitios de SveltKit. Esto pasa porque Astro automáticamente quita el código Javascript innecesario de la página, cargando sólo los componentes individuales que se necesiten. Esta característica se llama [hidratación parcial](/core-concepts/component-hydration).
 
@@ -153,7 +153,7 @@ Tanto Next.js como Astro, son frameworks para crear sitios web. Nesxt.js funcion
 
 Next.js soporta tanto Static Site Generation (SSG) como Server-Side Rendering (SSR). Hoy en día, Astro tan sólo soporta Static Site Generation (SSG).
 
-#### Comparando el Rendimiento de Gatsby vs. Astro 
+#### Comparando el Rendimiento de Gatsby vs. Astro
 
 En la mayoría de casos, los sitios de Astro cargarán mucho más rápido que los sitios de Next.js. Esto pasa porque Astro automáticamente quita el código Javascript innecesario de la página, cargando sólo los componentes individuales que se necesiten. Esta característica se llama [hidratación parcial](/core-concepts/component-hydration).
 
@@ -180,7 +180,7 @@ Tanto Nuxt como Astro, son frameworks para crear sitios web. Nuxt funciona mejor
 
 Nuxt soporta tanto Static Site Generation (SSG) como Server-Side Rendering (SSR). Hoy en día, Astro tan sólo soporta Static Site Generation (SSG).
 
-#### Comparando el Rendimiento de Nuxt vs. Astro 
+#### Comparando el Rendimiento de Nuxt vs. Astro
 
 En la mayoría de casos, los sitios de Astro cargarán mucho más rápido que los sitios de Nuxt. Esto pasa porque Astro automáticamente quita el código Javascript innecesario de la página, cargando sólo los componentes individuales que se necesiten. Esta característica se llama [hidratación parcial](/core-concepts/component-hydration).
 
@@ -205,7 +205,7 @@ VuePress fue diseñado para documentar sitios web y tiene funcionalidades y cara
 
 Actualmente, Evan You (creador de Vue.js) está trabajando en una nueva versión de Vuepress llamado [VitePress.](https://vitepress.vuejs.org/). Si quieres conocer una moderna alternativa a VuePress, [revisa este post de Evan](https://github.com/snowpackjs/astro/issues/1159#issue-974035962) del porqué VitePress podría ser una mejor opción.
 
-#### Comparando el VuePress de Gatsby vs. Astro 
+#### Comparando el VuePress de Gatsby vs. Astro
 
 En la mayoría de casos, los sitios de Astro cargarán mucho más rápido que los sitios de VuePress. Esto pasa porque Astro automáticamente quita el código Javascript innecesario de la página, cargando sólo los componentes individuales que se necesiten. Esta característica se llama [hidratación parcial](/core-concepts/component-hydration).
 
@@ -226,7 +226,7 @@ Una de las más grandes razones detrás de la diferencia en los rendimientos es 
 
 Zola utiliza [Tera](https://tera.netlify.app/) para renderizar tu sitio web. Astro es más flexible: eres libre de crear un componente UI en cualquier librería popular (React, Preact, Vue, Svelte, Solid, entre otros) o puedes crear un componente de Astro con una sintaxis parecida a HTML, que es similar a HTML + JSX. Zola no soporta el uso de componentes modernos para plantillas HTML.
 
-#### Comparando el Rendimiento de Gatsby vs. Astro 
+#### Comparando el Rendimiento de Gatsby vs. Astro
 
 Conceptualmente, Zola está alineado con el enfoque de Astro sobre "el uso mínimo de Javascript en el lado del cliente". Tanto Zola y Astro ofrecen un rendimiento similar, un uso extremadamente bajo de Javascript por defecto.
 
