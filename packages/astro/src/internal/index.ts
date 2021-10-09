@@ -1,3 +1,11 @@
+/**
+ * Astro Internal API
+ * The Astro compiler will rely on these exports to function properly. Any changes to this file
+ * should be accompanied with changes to the compiler.
+ *
+ * Further, this file will be prepared for the client, so be mindful of what’s imported here!
+ */
+
 import type { AstroComponentMetadata } from '../@types/astro';
 
 import { valueToEstree } from 'estree-util-value-to-estree';
@@ -184,8 +192,8 @@ export async function renderComponent(result: any, displayName: string, Componen
     }
   }
 
-  if(renderer === null) {
-    if(typeof Component === 'string') {
+  if (renderer === null) {
+    if (typeof Component === 'string') {
       html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
     } else {
       throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);

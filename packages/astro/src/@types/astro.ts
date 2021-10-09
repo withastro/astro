@@ -105,6 +105,16 @@ export interface AstroUserConfig {
 // }
 export type AstroConfig = z.output<typeof AstroConfigSchema>;
 
+export interface AstroGlobal {
+  fetchContent(glob: string): any[];
+  request: {
+    url: URL;
+  };
+  resolve(url: string): void;
+  site: URL;
+  slots: Record<string, boolean>;
+}
+
 export type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
 
 export interface CollectionRSS {
@@ -141,6 +151,7 @@ export interface CollectionRSS {
 export interface ComponentInstance {
   default: AstroComponentFactory;
   css?: string[];
+  init: () => AstroGlobal;
   getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 

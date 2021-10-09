@@ -1,6 +1,6 @@
 import type { NextFunction } from 'connect';
 import type http from 'http';
-import type { AstroConfig, ManifestData, RouteCache, RouteData, SSRError } from '../@types/astro';
+import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../@types/astro';
 import type { LogOptions } from '../logger';
 import type { HmrContext, ModuleNode } from 'vite';
 
@@ -12,13 +12,11 @@ import { createRequire } from 'module';
 import stripAnsi from 'strip-ansi';
 import vite from 'vite';
 import { defaultLogOptions, error, info } from '../logger.js';
-import { createRouteManifest, matchRoute } from '../runtime/routing.js';
-import { ssr } from '../runtime/ssr.js';
-import { loadViteConfig } from '../runtime/vite/config.js';
+import { ssr } from '../ssr/index.js';
+import { createRouteManifest, matchRoute } from '../ssr/routing.js';
+import { loadViteConfig } from '../ssr/vite/config.js';
 import * as msg from './messages.js';
 import { errorTemplate } from './template/error.js';
-
-const require = createRequire(import.meta.url);
 
 export interface DevOptions {
   logging: LogOptions;
@@ -54,7 +52,6 @@ export class AstroDevServer {
   hostname: string;
   port: number;
 
-  private internalCache: Map<string, string>;
   private config: AstroConfig;
   private logging: LogOptions;
   private manifest: ManifestData;
@@ -64,7 +61,6 @@ export class AstroDevServer {
   private mostRecentRoute?: RouteData;
 
   constructor(config: AstroConfig, options: DevOptions) {
-    this.internalCache = new Map();
     this.config = config;
     this.hostname = config.devOptions.hostname || 'localhost';
     this.logging = options.logging;
@@ -110,7 +106,6 @@ export class AstroDevServer {
 
   /** Stop dev server */
   async stop() {
-    this.internalCache = new Map();
     this.httpServer?.close(); // close HTTP server
     if (this.viteServer) await this.viteServer.close(); // close Vite server
   }

@@ -9,13 +9,13 @@ import vite, { ViteDevServer } from 'vite';
 import { fileURLToPath } from 'url';
 import { pad } from '../dev/util.js';
 import { defaultLogOptions, levels, warn } from '../logger.js';
-import { generatePaginateFunction } from '../runtime/paginate.js';
-import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../runtime/routing.js';
-import { generateRssFunction } from '../runtime/rss.js';
-import { ssr } from '../runtime/ssr.js';
-import { loadViteConfig } from '../runtime/vite/config.js';
+import { ssr } from '../ssr/index.js';
+import { generatePaginateFunction } from '../ssr/paginate.js';
+import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
+import { generateRssFunction } from '../ssr/rss.js';
+import { generateSitemap } from '../ssr/sitemap.js';
+import { loadViteConfig } from '../ssr/vite/config.js';
 import { kb, profileHTML, profileJS } from './stats.js';
-import { generateSitemap } from '../runtime/sitemap.js';
 
 export interface BuildOptions {
   mode?: string;

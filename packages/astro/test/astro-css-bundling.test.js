@@ -2,7 +2,7 @@
  * UNCOMMENT: implement CSS bundling
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils';
+import { loadFixture } from './test-utils.js';
 
 // note: the hashes should be deterministic, but updating the file contents will change hashes
 // be careful not to test that the HTML simply contains CSS, because it always will! filename and quanity matter here (bundling).

@@ -1,4 +1,4 @@
-import { GetStaticPathsResult, PaginatedCollectionProp, PaginateFunction, Params, Props, RouteData } from '../@types/astro';
+import type { GetStaticPathsResult, PaginatedCollectionProp, PaginateFunction, Params, Props, RouteData } from '../@types/astro';
 
 // return filters.map((filter) => {
 //   const filteredRecipes = allRecipes.filter((recipe) =>

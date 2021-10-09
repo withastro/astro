@@ -1,6 +1,6 @@
 import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from 'vite';
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
 import type { LogOptions } from '../logger';
 
 import cheerio from 'cheerio';
@@ -12,6 +12,7 @@ import slash from 'slash';
 import glob from 'tiny-glob';
 import { renderPage } from '../internal/index.js';
 import { generatePaginateFunction } from './paginate.js';
+import { initRenderers } from './renderers.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 import { parseNpmName, canonicalURL as getCanonicalURL, codeFrame } from './util.js';
 
@@ -39,38 +40,6 @@ interface SSROptions {
 // note: not every request has a Vite browserHash. if we ever receive one, hang onto it
 // this prevents client-side errors such as the "double React bug" (https://reactjs.org/warnings/invalid-hook-call-warning.html#mismatching-versions-of-react-and-react-dom)
 let browserHash: string | undefined;
-
-const cache = new Map();
-
-// TODO: improve validation and error handling here.
-async function resolveRenderers(viteServer: ViteDevServer, ids: string[]) {
-  const renderers = await Promise.all(
-    ids.map(async (renderer) => {
-      if (cache.has(renderer)) return cache.get(renderer);
-
-      const resolvedRenderer: any = {};
-      // We can dynamically import the renderer by itself because it shouldn't have
-      // any non-standard imports, the index is just meta info.
-      // The other entrypoints need to be loaded through Vite.
-      const {
-        default: { name, client, polyfills, hydrationPolyfills, server },
-      } = await import(renderer);
-
-      resolvedRenderer.name = name;
-      if (client) resolvedRenderer.source = path.posix.join(renderer, client);
-      if (Array.isArray(hydrationPolyfills)) resolvedRenderer.hydrationPolyfills = hydrationPolyfills.map((src: string) => path.posix.join(renderer, src));
-      if (Array.isArray(polyfills)) resolvedRenderer.polyfills = polyfills.map((src: string) => path.posix.join(renderer, src));
-      const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(path.posix.join(renderer, server));
-      const { default: rendererSSR } = await viteServer.ssrLoadModule(url);
-      resolvedRenderer.ssr = rendererSSR;
-
-      cache.set(renderer, resolvedRenderer);
-      return resolvedRenderer;
-    })
-  );
-
-  return renderers;
-}
 
 async function resolveImportedModules(viteServer: ViteDevServer, file: URL) {
   const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(slash(fileURLToPath(file))); // note: for some reason Vite expects forward slashes here for Windows, which `slash()` helps resolve
@@ -121,13 +90,21 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     // 1. load module
     const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 
-    // 1.5. resolve renderers and imported modules.
+    // 2. resolve renderers and imported modules.
     // important that this happens _after_ ssrLoadModule, otherwise `importedModules` would be empty
-    const [renderers, importedModules] = await Promise.all([resolveRenderers(viteServer, astroConfig.renderers), resolveImportedModules(viteServer, filePath)]);
+    const [renderers, importedModules] = await Promise.all([initRenderers(viteServer, astroConfig.renderers), resolveImportedModules(viteServer, filePath)]);
 
-    // 2. handle dynamic routes
+    // 3. initialize Astro global
+    // mod.init(() => ({
+    //   fetchContent: undefined,
+    //   request: { url: undefined },
+    //   resolve: undefined,
+    //   site: undefined,
+    //   slots: undefined,
+    // }));
+
+    // 3. handle dynamic routes
     let params: Params = {};
-    let pageProps: Props = {};
     if (route && !route.pathname) {
       if (route.params.length) {
         const paramsMatch = route.pattern.exec(pathname)!;
@@ -150,15 +127,12 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       if (!matchedStaticPath) {
         throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
       }
-      pageProps = { ...matchedStaticPath.props } || {};
     }
 
-    // 3. render page
+    // 4. render page
     if (!browserHash && (viteServer as any)._optimizeDepsMetadata?.browserHash) browserHash = (viteServer as any)._optimizeDepsMetadata.browserHash; // note: this is "private" and may change over time
-    const fullURL = new URL(pathname, origin);
 
     const Component = await mod.default;
-    const ext = path.posix.extname(filePath.pathname);
     if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
     if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
@@ -208,7 +182,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     let html = await renderPage(result, Component, {}, null);
 
-    // 4. modify response
+    // 5. modify response
     if (mode === 'development') {
       // inject Astro HMR code
       html = injectAstroHMR(html);
@@ -218,7 +192,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       html = resolveNpmImports(html);
     }
 
-    // 5. finish
+    // 6. finish
     return html;
   } catch (e: any) {
     // Astro error (thrown by esbuild so it needs to be formatted for Vite)

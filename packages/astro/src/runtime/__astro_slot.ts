@@ -1,4 +1,3 @@
-/** */
 export function __astro_slot_content({ name }: { name: string }, ...children: any[]) {
   return { $slot: name, children };
 }
