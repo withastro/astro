@@ -1,6 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
-title: Installation
+title: Instalación
 lang: es
 ---
 
@@ -164,7 +164,7 @@ Con esta instrucción Astro generará tu sitio web y lo guardará directamente e
 
 Te recomendamos fervientemente que te familiarices con la forma en que Astro funciona. Lo puedes hacer explorando nuestra [documentación](/docs/), te sugerimos que consideres las siguientes lecturas:
 
-📚 Aprende más sobre la estructura de proyectos de Astro, en nuestra [guía de estructura de proyecto](/core-concepts/project-structure).
+📚 Aprende más sobre la estructura de proyectos de Astro, en nuestra [guía de estructura de proyecto](/es/core-concepts/project-structure).
 
 📚 Aprende más sobre la sintaxis de los componentes de Astro, en nuestra [guía de componentes de Astro](/core-concepts/astro-components).
 
