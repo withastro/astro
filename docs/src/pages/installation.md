@@ -145,7 +145,7 @@ If you need to share your development progress on the local network or check out
 
 ```js
 devOptions: {
-  hostname: '0.0.0.0';
+  hostname: '0.0.0.0'
 }
 ```
 
