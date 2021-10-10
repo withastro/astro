@@ -11,7 +11,7 @@ const { title, publishDate, href } = Astro.props;
 ---
 <article class="post-preview">
   <header>
-    <h3 class="publish-date">{publishDate}</h3>
+    <p class="publish-date">{publishDate}</p>
     <a href={href}><h1 class="title">{title}</h1></a>
   </header>
   <main>
