@@ -1,6 +1,8 @@
 import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from 'vite';
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
+import type { SSRResult } from '../@types/ssr';
+import type { FetchContentResultBase, FetchContentResult } from '../@types/astro-file';
 import type { LogOptions } from '../logger';
 
 import cheerio from 'cheerio';
@@ -40,32 +42,37 @@ interface SSROptions {
 // this prevents client-side errors such as the "double React bug" (https://reactjs.org/warnings/invalid-hook-call-warning.html#mismatching-versions-of-react-and-react-dom)
 let browserHash: string | undefined;
 
-const cache = new Map();
+const cache = new Map<string, Promise<Renderer>>();
 
 // TODO: improve validation and error handling here.
-async function resolveRenderers(viteServer: ViteDevServer, ids: string[]) {
+async function resolveRenderer(viteServer: ViteDevServer, renderer: string) {
+  const resolvedRenderer: any = {};
+  // We can dynamically import the renderer by itself because it shouldn't have
+  // any non-standard imports, the index is just meta info.
+  // The other entrypoints need to be loaded through Vite.
+  const {
+    default: { name, client, polyfills, hydrationPolyfills, server },
+  } = await import(renderer);
+
+  resolvedRenderer.name = name;
+  if (client) resolvedRenderer.source = path.posix.join(renderer, client);
+  if (Array.isArray(hydrationPolyfills)) resolvedRenderer.hydrationPolyfills = hydrationPolyfills.map((src: string) => path.posix.join(renderer, src));
+  if (Array.isArray(polyfills)) resolvedRenderer.polyfills = polyfills.map((src: string) => path.posix.join(renderer, src));
+  const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(path.posix.join(renderer, server));
+  const { default: rendererSSR } = await viteServer.ssrLoadModule(url);
+  resolvedRenderer.ssr = rendererSSR;
+
+  const completedRenderer: Renderer = resolvedRenderer;
+  return completedRenderer;
+}
+
+async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promise<Renderer[]> {
   const renderers = await Promise.all(
-    ids.map(async (renderer) => {
-      if (cache.has(renderer)) return cache.get(renderer);
-
-      const resolvedRenderer: any = {};
-      // We can dynamically import the renderer by itself because it shouldn't have
-      // any non-standard imports, the index is just meta info.
-      // The other entrypoints need to be loaded through Vite.
-      const {
-        default: { name, client, polyfills, hydrationPolyfills, server },
-      } = await import(renderer);
-
-      resolvedRenderer.name = name;
-      if (client) resolvedRenderer.source = path.posix.join(renderer, client);
-      if (Array.isArray(hydrationPolyfills)) resolvedRenderer.hydrationPolyfills = hydrationPolyfills.map((src: string) => path.posix.join(renderer, src));
-      if (Array.isArray(polyfills)) resolvedRenderer.polyfills = polyfills.map((src: string) => path.posix.join(renderer, src));
-      const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(path.posix.join(renderer, server));
-      const { default: rendererSSR } = await viteServer.ssrLoadModule(url);
-      resolvedRenderer.ssr = rendererSSR;
-
-      cache.set(renderer, resolvedRenderer);
-      return resolvedRenderer;
+    ids.map(renderer => {
+      if (cache.has(renderer)) return cache.get(renderer)!;
+      let promise = resolveRenderer(viteServer, renderer);
+      cache.set(renderer, promise);
+      return promise;
     })
   );
 
@@ -118,12 +125,16 @@ async function resolveImportedModules(viteServer: ViteDevServer, file: URL) {
 /** use Vite to SSR */
 export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
   try {
-    // 1. load module
+    // 1. resolve renderers
+    // Important this happens before load module in case a renderer provides polyfills.
+    const renderers = await resolveRenderers(viteServer, astroConfig.renderers);
+
+    // 1.5. load module
     const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 
-    // 1.5. resolve renderers and imported modules.
+    // 1.75. resolve renderers
     // important that this happens _after_ ssrLoadModule, otherwise `importedModules` would be empty
-    const [renderers, importedModules] = await Promise.all([resolveRenderers(viteServer, astroConfig.renderers), resolveImportedModules(viteServer, filePath)]);
+    const importedModules = await resolveImportedModules(viteServer, filePath);
 
     // 2. handle dynamic routes
     let params: Params = {};
@@ -163,11 +174,11 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
-    const result = {
+    const result: SSRResult = {
       styles: new Set(),
       scripts: new Set(),
       /** This function returns the `Astro` faux-global */
-      createAstro: (props: any, slots: Record<string, any> | null) => {
+      createAstro: (props: Record<string, any>, slots: Record<string, any> | null) => {
         const site = new URL(origin);
         const url = new URL('.' + pathname, site);
         const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin);
@@ -175,30 +186,45 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
         return {
           isPage: true,
           site,
-          request: { url, canonicalURL },
+          request: {
+            canonicalURL,
+            params: {},
+            url
+          },
           props,
           fetchContent,
           slots: Object.fromEntries(
             Object.entries(slots || {}).map(([slotName]) => [slotName, true])
-          )
+          ),
+          // Only temporary to get types working.
+          resolve(_s: string) {
+            throw new Error('Astro.resolve() is not currently supported in next.');
+          }
         };
       },
       _metadata: { importedModules, renderers },
     };
 
-    const createFetchContent = (currentFilePath: string) => {
+    function createFetchContent(currentFilePath: string) {
       const fetchContentCache = new Map<string, any>();
-      return async (pattern: string) => {
+      return async function fetchContent<T>(pattern: string): Promise<FetchContentResult<T>[]> {
         const cwd = path.dirname(currentFilePath);
         const cacheKey = `${cwd}:${pattern}`;
         if (fetchContentCache.has(cacheKey)) {
           return fetchContentCache.get(cacheKey);
         }
         const files = await glob(pattern, { cwd, absolute: true });
-        const contents = await Promise.all(
+        const contents: FetchContentResult<T>[] = await Promise.all(
           files.map(async (file) => {
-            const { metadata: astro = {}, frontmatter = {} } = (await viteServer.ssrLoadModule(file)) as any;
-            return { ...frontmatter, astro };
+            const loadedModule = await viteServer.ssrLoadModule(file);
+            const astro = (loadedModule.metadata || {}) as FetchContentResultBase['astro'];
+            const frontmatter = loadedModule.frontmatter || {};
+            const result: FetchContentResult<T> = {
+              ...frontmatter,
+              astro,
+              url: new URL('http://example.com') // TODO fix
+            };
+            return result;
           })
         );
         fetchContentCache.set(cacheKey, contents);
