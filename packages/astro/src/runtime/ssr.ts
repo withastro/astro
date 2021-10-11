@@ -69,7 +69,7 @@ async function resolveRenderer(viteServer: ViteDevServer, renderer: string) {
 async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promise<Renderer[]> {
   const renderers = await Promise.all(
     ids.map(renderer => {
-      // eslint-disable-next-line no-non-null-assertion
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (cache.has(renderer)) return cache.get(renderer)!;
       let promise = resolveRenderer(viteServer, renderer);
       cache.set(renderer, promise);
@@ -222,7 +222,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
             const loadedModule = await viteServer.ssrLoadModule(file);
             const astro = (loadedModule.metadata || {}) as FetchContentResultBase['astro'];
             const frontmatter = loadedModule.frontmatter || {};
-            //// eslint-disable-next-line no-shadow
+            //eslint-disable-next-line no-shadow
             const result: FetchContentResult<T> = {
               ...frontmatter,
               astro,
