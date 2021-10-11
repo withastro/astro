@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.18
+
+### Patch Changes
+
+- 12b4ed3: Adds support for Astro.slots typing
+
 ## 0.7.17
 
 ### Patch Changes
