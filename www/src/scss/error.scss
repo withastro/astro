@@ -83,26 +83,25 @@ a + a {
   margin-left: 2px;
 }
 
-
 section.error-content {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    p.error-code {
-        color: #ff5d01;
-        text-transform: uppercase;
-    }
-    h1 {
-        margin-top: -0.5rem;
-        margin-bottom: 1rem;
-        font-size: 2rem;
-    }
-    p {
-        margin: 1rem 0;
-    }
-    a {
-        margin: 1rem 0;
-    }
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  p.error-code {
+    color: #ff5d01;
+    text-transform: uppercase;
+  }
+  h1 {
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    font-size: 2rem;
+  }
+  p {
+    margin: 1rem 0;
+  }
+  a {
+    margin: 1rem 0;
+  }
 }
