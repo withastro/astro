@@ -134,7 +134,7 @@ const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<any>>([
   ['dev', devServer],
   ['preview', preview],
   ['reload', reloadAndExit],
-  ['check', checkAndExit]
+  ['check', checkAndExit],
 ]);
 
 /** The primary CLI action */
