@@ -4,19 +4,33 @@ on:
   push:
     branches:
       - "main"
-    paths: 
-      - ".changeset/**"
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   update:
+    name: check for updates in .changeset
     runs-on: ubuntu-latest
+    outputs:
+      run_job: ${{ steps.check_files.outputs.run_job }}
     steps:
-      - name: 'checkout'
+      - name: checkout git branch
         uses: actions/checkout@v2
 
+      - name: Install all dependencies
+        run: yarn
+      
+      - name: check modified files
+        id: check_files
+        run: npx changeset status
+
+  update_latest_branch:
+    name: Update the latest branch
+    needs: update
+    if: needs.update.outputs.run_job == 'true'
+    runs-on: ubuntu-latest
+    steps:
       - name: Push
         uses: s0/git-publish-subdir-action@develop
         env:
