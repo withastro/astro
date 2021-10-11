@@ -9,6 +9,7 @@ import { formatConfigError, loadConfig } from './config.js';
 import devServer from './dev.js';
 import { preview } from './preview.js';
 import { reload } from './reload.js';
+import { check } from './check.js';
 
 const { readFile } = fsPromises;
 const buildAndExit = async (astroConfig: AstroConfig) => {
@@ -19,9 +20,13 @@ const reloadAndExit = async () => {
   const ret = await reload();
   process.exit(ret);
 };
+const checkAndExit = async (astroConfig: AstroConfig) => {
+  const ret = await check(astroConfig);
+  process.exit(ret);
+};
 
 type Arguments = yargs.Arguments;
-type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload';
+type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
 interface CLIState {
   cmd: cliCommand;
   options: {
@@ -59,6 +64,8 @@ function resolveArgs(flags: Arguments): CLIState {
       return { cmd: 'build', options };
     case 'preview':
       return { cmd: 'preview', options };
+    case 'check':
+      return { cmd: 'check', options };
     default:
       if (flags.reload) {
         return { cmd: 'reload', options };
@@ -76,6 +83,7 @@ function printHelp() {
   astro dev             Run Astro in development mode.
   astro build           Build a pre-compiled production version of your site.
   astro preview         Preview your build locally before deploying.
+  astro check           Check your project for errors.
 
   ${colors.bold('Flags:')}
   --config <path>       Specify the path to the Astro config file.
@@ -111,11 +119,11 @@ async function runCommand(rawRoot: string, cmd: (a: AstroConfig, opts: any) => P
     mergeCLIFlags(astroConfig, options);
 
     return cmd(astroConfig, options);
-  } catch (err) {
+  } catch (err: any) {
     if (err instanceof z.ZodError) {
       console.log(formatConfigError(err));
     } else {
-      console.error(colors.red(err.toString() || err));
+      console.error(colors.red(err.toString()));
     }
     process.exit(1);
   }
@@ -126,6 +134,7 @@ const cmdMap = new Map<string, (a: AstroConfig, opts?: any) => Promise<any>>([
   ['dev', devServer],
   ['preview', preview],
   ['reload', reloadAndExit],
+  ['check', checkAndExit]
 ]);
 
 /** The primary CLI action */
@@ -149,7 +158,8 @@ export async function cli(args: string[]) {
     }
     case 'build':
     case 'preview':
-    case 'dev': {
+    case 'dev':
+    case 'check': {
       if (flags.reload) {
         await reload();
       }

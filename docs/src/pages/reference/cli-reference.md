@@ -25,6 +25,12 @@ Start a local static file server to serve your built `dist/` directory. Useful f
 
 This command is meant for local testing only, and is not designed to be run in production. For help with production hosting, check out our guide on [Deploying an Astro Website](/guides/deploy).
 
+### `astro check`
+
+Runs diagnostics (such as type-checking) against your project and reports errors to the console. If any errors are found the process will exit with a code of __1__.
+
+This command is intended to be used in CI workflows.
+
 ## Global Flags
 
 ### `--config path`
