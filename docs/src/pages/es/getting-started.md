@@ -12,9 +12,9 @@ Astro es un creador de sitios estáticos moderno. Aprende de qué trata Astro en
 
 La forma más fácil de probar Astro es ejecutando `npm init astro` en un nuevo directorio en tu máquina. Nuestro asistente CLI te ayudará a comenzar un nuevo proyecto Astro.
 
-Para comenzar con Astro en 5 sencillos y rápidos pasos, visita nuestra guía de [inicio rápido](/quick-start).
+Para comenzar con Astro en 5 sencillos y rápidos pasos, visita nuestra guía de [inicio rápido](/es/quick-start).
 
-Alternativamente, lee nuestra guía de [instalación](/installation) para un recorrido completo de cómo configurar Astro.
+Alternativamente, lee nuestra guía de [instalación](/es/installation) para un recorrido completo de cómo configurar Astro.
 
 ### Playground en línea
 
@@ -27,7 +27,7 @@ _Nota: Algunas características (ex: Fast Refresh) actualmente están limitadas 
 Todo tipo de personas vienen a Astro de diferentes orígenes trayendo consigo diferentes estilos de aprendizaje. Ya sea que prefieras un enfoque más teórico o práctico, esperamos que esta sección te resulte útil.
 
 - Si prefieres **aprender haciendo**, comienza con nuestra biblioteca de [ejemplos](https://github.com/snowpackjs/astro/tree/main/examples).
-- Si prefieres **aprender conceptos paso a paso**, comienza con nuestros [conceptos básicos y guías](https://docs.astro.build/core-concepts/project-structure).
+- Si prefieres **aprender conceptos paso a paso**, comienza con nuestros [conceptos básicos y guías](https://docs.astro.build/es/core-concepts/project-structure).
 
 Como cualquier tecnología desconocida, Astro viene con una ligera curva de aprendizaje. Sin embargo, con práctica y algo de paciencia, sabemos que lo dominarás en poco tiempo.
 

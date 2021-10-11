@@ -56,6 +56,7 @@ export const SIDEBAR = {
     { text: 'Empezando', link: 'es/getting-started' },
     { text: 'Comienzo rápido', link: 'es/quick-start' },
     { text: 'Instalación', link: 'es/installation' },
+    { text: 'Astro vs. X', link: 'es/comparing-astro-vs-other-tools' },
 
     { text: 'Fundamentos', header: true },
     { text: 'Estructura del Proyecto', link: 'es/core-concepts/project-structure' },
@@ -106,6 +107,7 @@ export const SIDEBAR = {
   ja: [
     { text: 'セットアップ', header: true },
     { text: 'はじめに', link: 'ja/getting-started' },
+    { text: 'クイックスタート', link: 'ja/quick-start' },
   ],
   ru: [
     { text: 'Введение', header: true },
