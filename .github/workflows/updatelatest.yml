@@ -22,19 +22,20 @@ jobs:
         run: yarn
       
       - name: check modified files
-        id: check_files
         run: npx changeset status --output ./status.json
 
       - name: check output
+        id: check_files
         run: | 
           output=`echo $(cat status.json)`
           if [[ $output = '{ "changesets": [], "releases": [] }' ]]
           then
-              echo "::set-output name=run_job::false"
+            echo 'No changeset found'
+            echo "::set-output name=run_job::true"
           else
+            echo 'changes found, push to latest skipped'
             echo "::set-output name=run_job::false"
           fi
-            echo $output
 
 
   update_latest_branch:
@@ -44,10 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Push
-        uses: s0/git-publish-subdir-action@develop
+        uses: Automattic/action-commit-to-branch@master
+        with:
+          branch: 'latest'
+          commit_message: 'Update latest from main'
         env:
-          REPO: self
-          BRANCH: latest
-          FOLDER: .
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          MESSAGE: "Update Latest: ({sha}) {msg}" # The commit message
