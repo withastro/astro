@@ -23,7 +23,19 @@ jobs:
       
       - name: check modified files
         id: check_files
-        run: npx changeset status
+        run: npx changeset status --output ./status.json
+
+      - name: check output
+        run: | 
+          output=`echo $(cat status.json)`
+          if [[ $output = '{ "changesets": [], "releases": [] }' ]]
+          then
+              echo "::set-output name=run_job::false"
+          else
+            echo "::set-output name=run_job::false"
+          fi
+            echo $output
+
 
   update_latest_branch:
     name: Update the latest branch
