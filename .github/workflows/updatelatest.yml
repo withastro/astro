@@ -44,10 +44,11 @@ jobs:
     if: needs.update.outputs.run_job == 'true'
     runs-on: ubuntu-latest
     steps:
-      - name: Push
-        uses: Automattic/action-commit-to-branch@master
+      - uses: actions/checkout@v2
         with:
-          branch: 'latest'
-          commit_message: 'Update latest from main'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+      - name: Push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: latest
