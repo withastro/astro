@@ -26,7 +26,7 @@ La forma más sencilla de crear un nuevo proyecto es con `npm init astro`. Mira 
 
 ### `src/`
 
-La carpeta `src/` contiene la matoría del código de tu proyecto. Estos incluyen:
+La carpeta `src/` contiene la mayoría del código de tu proyecto. Estos incluyen:
 
 - [Componentes de Astro](/core-concepts/astro-components)
 - [Páginas](/core-concepts/astro-pages)
@@ -48,7 +48,6 @@ Los componentes de interfaz de usuarios que no sean de Astro (React, Preact, Sve
 La carpeta [layouts](/core-concepts/layouts) son componentes reusables para diseños de páginas HTML. Es recomendable (pero no obligatorio) que pongas tus diseños en esta carpeta. Cómo organizarlos dentro de esta carpeta dependerá de tí.
 
 ### `src/pages`
-
 
 La carpeta [pages](/core-concepts/astro-pages) contiene todas las páginas (`.astro` y `.md`) para tu sitio web. Se **requiere** que pongas tus páginas en esta carpeta.
 
