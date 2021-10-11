@@ -48,6 +48,7 @@ interface Astro {
   request: AstroPageRequest;
   resolve: (path: string) => string;
   site: URL;
+  slots: Record<string, true | undefined>;
 }
 
 // @ts-ignore
