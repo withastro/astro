@@ -49,7 +49,7 @@ Después de que `create-astro` cree la estructura básica de tu proyecto, recuer
 npm install
 ```
 
-Ahora puedes [Iniciar](#start-astro) tu proyecto de Astro. Una vez, que hayas completado tu proyecto, puedes [Compilar](#build-astro) tu proyecto. Astro va a empaquetar tu aplicación y después generará los archivos estáticos, que estarán listos para ser [Desplegados](/guides/deploy) en tu proveedor de hosting favorito.
+Ahora puedes [Iniciar](#start-astro) tu proyecto de Astro. Una vez, que hayas completado tu proyecto, puedes [Compilar](#build-astro) tu proyecto. Astro va a empaquetar tu aplicación y después generará los archivos estáticos, que estarán listos para ser [Desplegados](/es/guides/deploy) en tu proveedor de hosting favorito.
 
 ## Manual de Instalación
 
@@ -94,7 +94,7 @@ Ahora, puedes reemplazar la sección de "scripts" del archivo `package.json` que
 }
 ```
 
-El comando [`dev`](#start-astro) inicia el servidor de desarrollo de Astro en `http://localhost:3000`. Una vez que tu proyecto esté listo, el comando [`build`](#build-astro) genera tu proyecto en el directorio `dist/`. [Lee más sobre cómo desplegar Astro en la guía de despliegue](/guides/deploy).
+El comando [`dev`](#start-astro) inicia el servidor de desarrollo de Astro en `http://localhost:3000`. Una vez que tu proyecto esté listo, el comando [`build`](#build-astro) genera tu proyecto en el directorio `dist/`. [Lee más sobre cómo desplegar Astro en la guía de despliegue](/es/guides/deploy).
 
 ### Crear tu primera página
 
@@ -166,6 +166,6 @@ Te recomendamos fervientemente que te familiarices con la forma en que Astro fun
 
 📚 Aprende más sobre la estructura de proyectos de Astro, en nuestra [guía de estructura de proyecto](/es/core-concepts/project-structure).
 
-📚 Aprende más sobre la sintaxis de los componentes de Astro, en nuestra [guía de componentes de Astro](/core-concepts/astro-components).
+📚 Aprende más sobre la sintaxis de los componentes de Astro, en nuestra [guía de componentes de Astro](/es/core-concepts/astro-components).
 
 📚 Aprende más sobre la rutas basada en archivos de Astro, en nuestra [guía de rutas](core-concepts/astro-pages).
