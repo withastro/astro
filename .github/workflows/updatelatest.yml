@@ -1,0 +1,27 @@
+name: 'Update Latest from main'
+
+on:
+  push:
+    branches:
+      - "main"
+    paths: 
+      - ".changeset/**"
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'checkout'
+        uses: actions/checkout@v2
+
+      - name: Push
+        uses: s0/git-publish-subdir-action@develop
+        env:
+          REPO: self
+          BRANCH: latest
+          FOLDER: .
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MESSAGE: "Update Latest: ({sha}) {msg}" # The commit message
