@@ -2,7 +2,7 @@ import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from 'vite';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
 import type { SSRResult } from '../@types/ssr';
-import type { FetchContentResultBase, FetchContentResult } from '../@types/astro-file';
+import type { Astro } from '../@types/astro-file';
 import type { LogOptions } from '../logger';
 
 import cheerio from 'cheerio';
@@ -125,7 +125,7 @@ async function resolveImportedModules(viteServer: ViteDevServer, file: URL) {
 
 /** Create the Astro.fetchContent() runtime function. */
 function createFetchContentFn(url: URL) {
-  return (importMetaGlobResult: Record<string, any>) => {
+  const fetchContent = (importMetaGlobResult: Record<string, any>) => {
     let allEntries = [...Object.entries(importMetaGlobResult)];
     if (allEntries.length === 0) {
       throw new Error(`[${url.pathname}] Astro.fetchContent() no matches found.`);
@@ -144,6 +144,7 @@ function createFetchContentFn(url: URL) {
       })
       .filter(Boolean);
   };
+  return fetchContent;
 };
 
 /** use Vite to SSR */
@@ -208,7 +209,8 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
         const site = new URL(origin);
         const url = new URL('.' + pathname, site);
         const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin);
-        const fetchContent = createFetchContentFn(filePath);
+        // Cast this type because the actual fetchContent implementation relies on import.meta.globEager
+        const fetchContent = createFetchContentFn(filePath) as unknown as Astro['fetchContent'];
         return {
           isPage: true,
           site,
