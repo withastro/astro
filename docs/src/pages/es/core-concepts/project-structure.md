@@ -26,33 +26,33 @@ La forma más sencilla de crear un nuevo proyecto es con `npm init astro`. Mira 
 
 ### `src/`
 
-La carpeta `src/` contiene la mayoría del código de tu proyecto. Estos incluyen:
+La carpeta src es donde vive la mayor parte del código fuente de tu proyecto. Esto incluye:
 
-- [Componentes de Astro](/core-concepts/astro-components)
-- [Páginas](/core-concepts/astro-pages)
-- [Plantillas](/core-concepts/layouts)
-- [Componentes Frontend de JS](/core-concepts/component-hydration)
-- [Estilos (CSS, Sass)](/guides/styling)
-- [Archivos Markdown](/guides/markdown-content)
+- [Components Astro](/es/core-concepts/astro-components)
+- [Páginas](/es/core-concepts/astro-pages)
+- [Maquetas](/es/core-concepts/layouts)
+- [Componentes frontend JS](/es/core-concepts/component-hydration)
+- [Estilado (CSS, Sass)](/es/guides/styling)
+- [Marcado](/es/guides/markdown-content)
 
-Astro tiene un control total sobre estos archivos para ser procesados, optimizados y empaquetados en tu proyecto final. Algunos archivos (como los componentes de Astro) nunca llegan directamente al navegador y sólo son renderizados al HTML. Otros archivos (como CSS) se envían al navegador, pero pueden ser empaquetados junto con otros archivos CSS, dependiendo de cómo los utilice tú sitio.
+Astro tiene un control total sobre cómo estos archivos se procesan, optimizan y empaquetan en la construcción final de tu sitio. Algunos archivos (como los componentes de Astro) nunca llegan directamente al navegador y, en cambio, se procesan en HTML. Otros archivos (como CSS) se envían al navegador, pero es posible que se incluyan con otros archivos CSS dependiendo de cómo los utilice tu sitio.
 
 ### `src/components`
 
-La carpeta [components](/core-concepts/astro-components) son unidades de interfaz de usuarios reutilizables para tus páginas HTML. Es recomendable (pero no obligatorio) que pongas tus componentes en esta carpeta. Cómo organizarlos dentro de esta carpeta dependerá de tí.
+Los [componentes](/es/core-concepts/astro-components) son unidades reutilizables de Interfaz de Usuario (UI) para tus páginas HTML. Se recomienda (pero no es obligatorio) que coloques tus componentes en este directorio. La forma en que los organices dentro de este directorio depende de ti.
 
-Los componentes de interfaz de usuarios que no sean de Astro (React, Preact, Svelte, Vue, etc.), también pueden estar en la carpeta `src/components`. Astro renderiza automáticamente todos los componentes a HTML, a menos que tengas componentes con hidratación parcial.
+Tus componentes de UI que no son de Astro (React, Preact, Svelte, Vue, etc.) también pueden vivir en el directorio `src/components`. Astro procesará automáticamente todos los componentes en HTML a menos que hayas habilitado un componente de interfaz a través de la hidratación parcial.
 
 ### `src/layouts`
 
-La carpeta [layouts](/core-concepts/layouts) son componentes reusables para diseños de páginas HTML. Es recomendable (pero no obligatorio) que pongas tus diseños en esta carpeta. Cómo organizarlos dentro de esta carpeta dependerá de tí.
+Las [maquetas](/es/core-concepts/layouts) son componentes reutilizables para diseños de páginas HTML. Se recomienda (pero no es obligatorio) que coloques tus componentes de maqueta en este directorio. La forma en que los organices dentro de este directorio depende de ti.
 
 ### `src/pages`
 
-La carpeta [pages](/core-concepts/astro-pages) contiene todas las páginas (`.astro` y `.md`) para tu sitio web. Se **requiere** que pongas tus páginas en esta carpeta.
+Las [páginas](/es/core-concepts/astro-pages) páginas contienen todas las páginas (compatibles con `.astro` y `.md`) de tu sitio web. Es **obligatorio** que coloques tus páginas en este directorio.
 
 ### `public/`
 
-Para la mayoría de usuarios, la mayoría de tus archivos se encontrarán en la carpeta `src/` para que Astro pueda manejar y optimizarlos en el proceso final de compilación. En contraste, la carpeta `public/` es el lugar para que cualquier archivo que no esté dentro del proceso de compilación de Astro sea almacenado.
+Para la mayoría de los usuarios, la mayoría de sus archivos vivirán dentro del directorio `src/` para que Astro pueda manejarlos y optimizarlos adecuadamente en su compilación final. Por el contrario, el directorio `public/` es el lugar para que cualquier archivo viva fuera del proceso de construcción de Astro.
 
-Si pones un archivo en la carpeta `public/`, Astro no lo procesa. En su lugar, lo copiará tal cual en la carpeta de compilación. Esto puede ser útil para archivos estáticos como imágenes y fuentes, o cuando necesitas incluir un archivo específico como `robots.txt` o `manifest.webmanifest`.
+Si colocas un archivo en la carpeta pública, Astro no lo procesará. En su lugar, se copiará intacto en la carpeta de compilación. Esto puede ser útil para activos como imágenes y fuentes, o cuando necesita incluir un archivo específico como `robots.txt` o `manifest.webmanifest`.
