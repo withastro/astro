@@ -207,7 +207,7 @@ You can skip the `netlify.toml` file and go directly to [Netlify](https://netlif
 
 ## Google Cloud
 
-different from most available deploy options here, [Google Cloud](<https://cloud.google.com>) requires some UI clicks to deploy projects. (Most of these actions can also be done using the gcloud CLI).
+different from most available deploy options here, [Google Cloud](https://cloud.google.com) requires some UI clicks to deploy projects. (Most of these actions can also be done using the gcloud CLI).
 
 ### Cloud Run
 
@@ -217,7 +217,7 @@ different from most available deploy options here, [Google Cloud](<https://cloud
 
 3. Create a new service
 
-4. use a container from Docker Hub or build your own using [Cloud Build](<https://cloud.google.com/build>)
+4. use a container from Docker Hub or build your own using [Cloud Build](https://cloud.google.com/build)
 
 5. Configure a port from which the files are served
 
@@ -227,11 +227,11 @@ different from most available deploy options here, [Google Cloud](<https://cloud
 
 1. Create a new GCP project, or select one you already have
 
-2. Create a new bucket under [Cloud Storage](<https://cloud.google.com/storage>)
+2. Create a new bucket under [Cloud Storage](https://cloud.google.com/storage)
 
 3. give it a name and other required settings
 
-4. Upload your `dist` folder into it or upload using [Cloud Build](<https://cloud.google.com/build>)
+4. Upload your `dist` folder into it or upload using [Cloud Build](https://cloud.google.com/build)
 
 5. Enable public acces by adding a new permission to `allUsers` called `Storage Object Viewer`
 
