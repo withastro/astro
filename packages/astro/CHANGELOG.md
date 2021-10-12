@@ -1,5 +1,11 @@
 # astro
 
+## 0.20.11
+
+### Patch Changes
+
+- 6813106a: Improve getStaticPaths memoization to successfully store values in the cache
+
 ## 0.20.10
 
 ### Patch Changes
