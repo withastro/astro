@@ -1,8 +1,7 @@
-/**
- * UNCOMMENT: add support for custom elements
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+import path from 'path';
 
 let fixture;
 
@@ -49,17 +48,8 @@ describe('Custom Elements', () => {
     expect($('my-element template[shadowroot=open]')).to.have.lengthOf(1);
 
     // Hydration
-    // test 3: Component URL is included
-    expect(html).to.include('/src/components/my-element.js');
-  });
-
-  it('Polyfills are added before the hydration script', async () => {
-    const html = await fixture.readFile('/load/index.html');
-    const $ = cheerio.load(html);
-
+    // test 3: Component and polyfill scripts included
     expect($('script[type=module]')).to.have.lengthOf(2);
-    expect($('script[type=module]').attr('src')).to.equal('/_snowpack/link/packages/astro/test/fixtures/custom-elements/my-component-lib/polyfill.js');
-    expect($($('script[type=module]').get(1)).html()).to.include('/_snowpack/link/packages/astro/test/fixtures/custom-elements/my-component-lib/hydration-polyfill.js');
   });
 
   it('Polyfills are added even if not hydrating', async () => {
@@ -67,10 +57,6 @@ describe('Custom Elements', () => {
     const $ = cheerio.load(html);
 
     expect($('script[type=module]')).to.have.lengthOf(1);
-    expect($('script[type=module]').attr('src')).to.equal('/_snowpack/link/packages/astro/test/fixtures/custom-elements/my-component-lib/polyfill.js');
-    expect($($('script[type=module]').get(1)).html()).not.to.include(
-      '/_snowpack/link/packages/astro/test/fixtures/custom-elements/my-component-lib/hydration-polyfill.js'
-    );
   });
 
   it('Custom elements not claimed by renderer are rendered as regular HTML', async () => {
@@ -89,6 +75,3 @@ describe('Custom Elements', () => {
     expect($('client-only-element')).to.have.lengthOf(1);
   });
 });
-*/
-
-it.skip('is skipped', () => {});

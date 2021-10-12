@@ -1,4 +1,5 @@
 import type { AstroComponentMetadata } from '../@types/astro';
+import type { SSRResult } from '../@types/ssr';
 
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
@@ -141,7 +142,7 @@ export async function renderSlot(result: any, slotted: string, fallback?: any) {
   return fallback;
 }
 
-export async function renderComponent(result: any, displayName: string, Component: unknown, _props: Record<string | number, any>, slots: any = {}) {
+export async function renderComponent(result: SSRResult, displayName: string, Component: unknown, _props: Record<string | number, any>, slots: any = {}) {
   Component = await Component;
   const children = await renderSlot(result, slots?.default);
   const { renderers } = result._metadata;
@@ -167,9 +168,16 @@ export async function renderComponent(result: any, displayName: string, Componen
     metadata.hydrateArgs = hydrationDirective[1];
   }
 
+  const isCustomElement = typeof Component === 'string';
   for (const [url, exported] of Object.entries(result._metadata.importedModules)) {
     for (const [key, value] of Object.entries(exported as any)) {
-      if (Component === value) {
+      if(isCustomElement) {
+        if (key === 'tagName' && Component === value) {
+          metadata.componentExport = { value: key };
+          metadata.componentUrl = url;
+          break;
+        }
+      } else if(Component === value) {
         metadata.componentExport = { value: key };
         metadata.componentUrl = url;
         break;
@@ -192,6 +200,11 @@ export async function renderComponent(result: any, displayName: string, Componen
     }
   } else {
     ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
+  }
+
+  if (renderer?.polyfills?.length) {
+    let polyfillScripts = renderer.polyfills.map((src) => `<script type="module">import "${src}";</script>`).join('');
+    html = html + polyfillScripts;
   }
 
   if (!hydrationDirective) {
