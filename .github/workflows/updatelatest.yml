@@ -1,0 +1,54 @@
+name: 'Update Latest from main'
+
+on:
+  push:
+    branches:
+      - "main"
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  update:
+    name: check for updates in .changeset
+    runs-on: ubuntu-latest
+    outputs:
+      run_job: ${{ steps.check_files.outputs.run_job }}
+    steps:
+      - name: checkout git branch
+        uses: actions/checkout@v2
+
+      - name: Install all dependencies
+        run: yarn
+      
+      - name: check modified files
+        run: npx changeset status --output ./status.json
+
+      - name: check output
+        id: check_files
+        run: | 
+          output=`echo $(cat status.json)`
+          if [[ $output = '{ "changesets": [], "releases": [] }' ]]
+          then
+            echo 'No changeset found'
+            echo "::set-output name=run_job::true"
+          else
+            echo 'changes found, push to latest skipped'
+            echo "::set-output name=run_job::false"
+          fi
+
+
+  update_latest_branch:
+    name: Update the latest branch
+    needs: update
+    if: needs.update.outputs.run_job == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: latest
