@@ -139,6 +139,7 @@ export const SIDEBAR = {
   ru: [
     { text: 'Введение', header: true },
     { text: 'Начало работы', link: 'ru/getting-started' },
+    { text: 'Быстрый старт', link: 'ru/quick-start' },
   ],
 };
 
