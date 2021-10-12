@@ -24,8 +24,8 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
         let render = config.markdownOptions.render;
         let renderOpts = {};
         if (Array.isArray(render)) {
-          render = render[0];
           renderOpts = render[1];
+          render = render[0];
         }
         if (typeof render === 'string') {
           ({ default: render } = await import(render));
