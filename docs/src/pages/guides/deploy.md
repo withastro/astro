@@ -357,10 +357,10 @@ You can deploy your Astro project using [Buddy](https://buddy.works). To do so y
 4. In the newly created pipeline add a **[Node.js](https://buddy.works/actions/node-js)** action.
 5. In this action add:
 
-    ```node
-    npm install
-    npm run build
-    ```
+   ```node
+   npm install
+   npm run build
+   ```
 
 6. Add a deployment action - there are many to choose from, you can browse them [here](https://buddy.works/actions). Although their can settings differ, remember to set the **Source path** to `dist`.
 7. Press the **Run** button.
