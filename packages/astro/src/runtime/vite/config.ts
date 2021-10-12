@@ -7,9 +7,10 @@ import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import vite from 'vite';
 import { getPackageJSON, parseNpmName } from '../util.js';
-import astro from './plugin-astro.js';
-import markdown from './plugin-markdown.js';
-import jsx from './plugin-jsx.js';
+import astroVitePlugin from './plugin-astro.js';
+import astroPostprocessVitePlugin from './plugin-astro-postprocess.js';
+import markdownVitePlugin from './plugin-markdown.js';
+import jsxVitePlugin from './plugin-jsx.js';
 import { AstroDevServer } from '../../dev';
 
 const require = createRequire(import.meta.url);
@@ -80,7 +81,13 @@ export async function loadViteConfig(
         /** Always include these dependencies for optimization */
         include: [...optimizedDeps],
       },
-      plugins: [astro({ config: astroConfig, devServer }), markdown({ config: astroConfig, devServer }), jsx({ config: astroConfig, logging }), ...plugins],
+      plugins: [
+        astroVitePlugin({ config: astroConfig, devServer }), 
+        markdownVitePlugin({ config: astroConfig, devServer }), 
+        jsxVitePlugin({ config: astroConfig, logging }), 
+        astroPostprocessVitePlugin({ config: astroConfig, devServer }),
+        ...plugins
+      ],
       publicDir: fileURLToPath(astroConfig.public),
       resolve: {
         dedupe: [...dedupe],
