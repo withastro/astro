@@ -58,7 +58,7 @@ export default {
   server: './server.js', // optional, relative path to the server entrypoint
   snowpackPlugin: '@snowpack/plugin-xxx', // optional, the name of a snowpack plugin to inject
   snowpackPluginOptions: { example: true }, // optional, any options to be forwarded to the snowpack plugin
-  knownEntrypoint: ['framework'], // optional, entrypoint modules that will be used by compiled source
+  knownEntrypoints: ['framework'], // optional, entrypoint modules that will be used by compiled source
   external: ['dep'], // optional, dependencies that should not be built by snowpack
   polyfills: ['./shadow-dom-polyfill.js'], // optional, module scripts that should be loaded before client hydration.
   hydrationPolyfills: ['./hydrate-framework.js'], // optional, polyfills that need to run before hydration ever occurs.
@@ -153,7 +153,7 @@ function check(Component, props, childHTML) {
 `renderToStaticMarkup` is a function that renders a Component to a static string of HTML. There's usually a method exported by frameworks named something like `renderToString`.
 
 ```js
-import { renderToString } from 'xxx';
+import { h, renderToString } from 'xxx';
 
 function renderToStaticMarkup(Component, props, childHTML) {
   const html = renderToString(h(Component, { ...props, innerHTML: childHTML }));
@@ -177,6 +177,19 @@ function renderToStaticMarkup(Component, props, childHTML) {
 }
 ```
 
+The `renderToStaticMarkup` function also supports `async/await` for render functions that return a `Promise`.
+
+```js
+import { h, renderToString } from 'xxx';
+
+async function renderToStaticMarkup(Component, props, childHTML) {
+  const html = await renderToString(
+    h(Component, { ...props, innerHTML: childHTML })
+  );
+  return { html };
+}
+```
+
 ### Client Entrypoint (`client.js`)
 
 The client entrypoint of a renderer is responsible for rehydrating static HTML (the result of `renderToStaticMarkup`) back into a fully interactive component. Its `default` export should be a `function` which accepts the host element of the Component, an `astro-root` custom element.
@@ -184,7 +197,7 @@ The client entrypoint of a renderer is responsible for rehydrating static HTML (
 > If your framework supports non-destructive component hydration (as opposed to a destructive `render` method), be sure to use that! Following your framework's Server Side Rendering (SSR) guide should point you in the right direction.
 
 ```js
-import { hydrate } from 'xxx';
+import { h, hydrate } from 'xxx';
 
 export default (element) => {
   return (Component, props, childHTML) => {
