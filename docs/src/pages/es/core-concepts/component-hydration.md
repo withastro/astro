@@ -33,7 +33,7 @@ En Astro, depende de ti, como desarrollador, "habilitar" explícitamente cualqui
 
 **Hidratación parcial**, el acto de solo hidratar los componentes individuales que requieren JavaScript y dejar el resto de su sitio como HTML estático, puede parecer relativamente sencillo. ¡Debería! Los sitios web se han construido de esta manera durante décadas. Recientemente, las aplicaciones de una sola página (SPA) introdujeron la idea de que todo su sitio web está escrito en JavaScript y compilado/renderizado por cada usuario en el navegador.
 
-_Nota: La hidratación parcial a veces se denomina "mejora progresiva" o "hidratación progresiva". Si bien hay ligeros matices entre los términos, para nuestros propósitos, puede pensar en todos ellos como sinónimos del mismo concepto.
+\_Nota: La hidratación parcial a veces se denomina "mejora progresiva" o "hidratación progresiva". Si bien hay ligeros matices entre los términos, para nuestros propósitos, puede pensar en todos ellos como sinónimos del mismo concepto.
 
 **La hidratación parcial es el secreto de la historia de rendimiento rápido por defecto de Astro.** Next.js, Gatsby y otros marcos de JavaScript no pueden admitir la hidratación parcial porque imaginan todo su sitio web/página como una sola aplicación de JavaScript.
 
@@ -61,7 +61,7 @@ Astro procesa todos los componentes en el servidor **en el momento de la compila
 // Ejemplo: hidratación de un componente React en el navegador.
 import MyReactComponent from '../components/MyReactComponent.jsx';
 ---
-<!-- "client:visible" significa que el componente no cargará ningún Javascript 
+<!-- "client:visible" significa que el componente no cargará ningún Javascript
   del lado del cliente hasta que sea visible en el navegador del usuario. -->
 <MyReactComponent client:visible />
 ```
@@ -86,7 +86,7 @@ Hidrata el componente tan pronto como el navegador coincida con la consulta de m
 
 Hidrata el componente en la carga de la página, similar a `client:load`. El componente se **omitirá** en el momento de la compilación, lo que resulta útil para los componentes que dependen por completo de las API del lado del cliente. Es mejor evitar esto a menos que sea absolutamente necesario; en la mayoría de los casos, es mejor representar el contenido del marcador de posición en el servidor y retrasar las llamadas a la API del navegador hasta que el componente se hidrate en el navegador.
 
-Si se incluye más de un renderizador en Astro [config](/es/reference/configuration-reference), `client:only` necesita una pista para saber qué renderizador usar para el componente. Por ejemplo, `client:only="react"` aseguraría que el componente esté hidratado en el navegador con el renderizador React. Para los renderizadores personalizados no proporcionados por `@astrojs`, use el nombre completo del renderizador proporcionado en su configuración de Astro, es decir,` <client: only="my-custom-renderer" /> `.
+Si se incluye más de un renderizador en Astro [config](/es/reference/configuration-reference), `client:only` necesita una pista para saber qué renderizador usar para el componente. Por ejemplo, `client:only="react"` aseguraría que el componente esté hidratado en el navegador con el renderizador React. Para los renderizadores personalizados no proporcionados por `@astrojs`, use el nombre completo del renderizador proporcionado en su configuración de Astro, es decir,`<client: only="my-custom-renderer" />`.
 
 ## ¿Puedo hidratar los componentes de Astro?
 

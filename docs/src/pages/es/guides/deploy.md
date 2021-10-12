@@ -183,7 +183,7 @@ jobs:
 
 ## Netlify
 
-**Nota:** Si está utilizando una [imagen de compilación](https://docs.netlify.com/configure-builds/get-started/#build-image-selection) antigua  en Netlify, asegúrate de configurar tu versión de Node.js en un archivo [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) (ejemplo:` node v14.17.6`) o una variable de entorno `NODE_VERSION`. Este paso ya no es necesario de forma predeterminada.
+**Nota:** Si está utilizando una [imagen de compilación](https://docs.netlify.com/configure-builds/get-started/#build-image-selection) antigua en Netlify, asegúrate de configurar tu versión de Node.js en un archivo [`.nvmrc`](https://github.com/nvm-sh/nvm#nvmrc) (ejemplo:` node v14.17.6`) o una variable de entorno `NODE_VERSION`. Este paso ya no es necesario de forma predeterminada.
 
 Puedes configurar tu implementación de dos maneras, a través del sitio web de Netlify o con un archivo de proyecto local `netlify.toml`.
 
@@ -344,8 +344,8 @@ Puedes desplegar tu proyecto Astro en [Render](https://render.com/) siguiendo es
 2. Haz clic en el botón **Nuevo +** de tu panel y selecciona **Sitio estático**.
 3. Conecta tu repositorio de [GitHub](https://github.com/) o [GitLab](https://about.gitlab.com/) o, alternativamente, introduce la URL pública de un repositorio público.
 4. Asigna un nombre a tu sitio web, selecciona la rama y especifique el comando de compilación y el directorio de publicación.
-    - **comando de compilación**: `npm run build`
-    - **directorio de publicación**: `dist`
+   - **comando de compilación**: `npm run build`
+   - **directorio de publicación**: `dist`
 5. Haz clic en el botón **Crear sitio estático**.
 
 ## Créditos

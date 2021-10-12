@@ -26,7 +26,6 @@ src/pages/posts/1.md        -> mysite.com/posts/1
 
 Todos los componentes de Astro son responsables de devolver HTML. Las páginas de Astro también devuelven HTML, pero tienen la responsabilidad única de devolver una respuesta de página completa `<html> ... </html>`, incluyendo `<head>` ([MDN <span class = "sr-only">- head</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) y `<body>` ([MDN <span class = "sr-only ">- body</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
 
-
 `<! doctype html>` es opcional y se agregará automáticamente.
 
 ```astro

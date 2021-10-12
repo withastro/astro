@@ -59,12 +59,21 @@ export const SIDEBAR = {
     { text: 'Astro vs. X', link: 'es/comparing-astro-vs-other-tools' },
 
     { text: 'Fundamentos', header: true },
-    { text: 'Estructura del Proyecto', link: 'es/core-concepts/project-structure' },
-    { text: 'Sintaxis del Componente', link: 'es/core-concepts/astro-components' },
+    {
+      text: 'Estructura del Proyecto',
+      link: 'es/core-concepts/project-structure',
+    },
+    {
+      text: 'Sintaxis del Componente',
+      link: 'es/core-concepts/astro-components',
+    },
     { text: 'Páginas', link: 'es/core-concepts/astro-pages' },
     { text: 'Maquetas', link: 'es/core-concepts/layouts' },
     { text: 'Enrutamiento', link: 'es/core-concepts/routing' },
-    { text: 'Hidratación parcial', link: 'es/core-concepts/component-hydration' },
+    {
+      text: 'Hidratación parcial',
+      link: 'es/core-concepts/component-hydration',
+    },
 
     { text: 'Guías', header: true },
     { text: 'Estilo y CSS', link: 'es/guides/styling' },
@@ -79,14 +88,20 @@ export const SIDEBAR = {
     { text: 'Publicar en npm', link: 'es/guides/publish-to-npm' },
 
     { text: 'Referencia', header: true },
-    { text: 'Componentes incorporados', link: 'es/reference/builtin-components' },
+    {
+      text: 'Componentes incorporados',
+      link: 'es/reference/builtin-components',
+    },
     { text: 'Referencia de API', link: 'es/reference/api-reference' },
     { text: 'Referencia de CLI', link: 'es/reference/cli-reference' },
     {
       text: 'Referencia de configuración',
       link: 'es/reference/configuration-reference',
     },
-    { text: 'Referencia de renderizador', link: 'es/reference/renderer-reference' },
+    {
+      text: 'Referencia de renderizador',
+      link: 'es/reference/renderer-reference',
+    },
   ],
   'zh-CN': [
     { text: '起步', header: true },

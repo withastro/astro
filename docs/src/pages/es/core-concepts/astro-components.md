@@ -37,7 +37,6 @@ Las reglas CSS dentro de una etiqueta `<style>` se ajustan automáticamente a es
 
 Para obtener los mejores resultados, solo debes tener una etiqueta `<style>` por componente Astro. Esto no es necesariamente una limitación, pero a menudo dará como resultado un CSS mejor optimizado en su compilación final. Cuando trabajas con páginas, la etiqueta `<style>` puede ir anidada dentro de tu página `<head>`. Para los componentes independientes, la etiqueta `<style>` puede ir al nivel superior de su plantilla.
 
-
 ```html
 <!-- Ejemplo de CSS del componente Astro -->
 <style>
@@ -75,7 +74,7 @@ Sass (una alternativa a CSS) está también disponible mediante `<style lang="sc
 
 Para construir componentes dinámicos, presentamos la idea de un script preliminar del componente. [Frontmatter](https://jekyllrb.com/docs/front-matter/) es un patrón común en Markdown, donde algunos config/metadata están contenidos dentro de una valla de código (`---`) en la parte superior del archivo . Astro hace algo similar, pero con soporte completo para JavaScript y TypeScript en sus componentes.
 
-Recuerda que Astro es un lenguaje de plantillas del lado del servidor, por lo que el script de su componente se ejecutará durante la compilación, pero solo el HTML se representará en el navegador. Para enviar JavaScript al navegador, puedes usar una etiqueta `<script>` en su plantilla HTML o [convertir tu componente para usar un framework de frontend](/es/core-concept/component-hydration) como React, Svelte, Vue, etc. 
+Recuerda que Astro es un lenguaje de plantillas del lado del servidor, por lo que el script de su componente se ejecutará durante la compilación, pero solo el HTML se representará en el navegador. Para enviar JavaScript al navegador, puedes usar una etiqueta `<script>` en su plantilla HTML o [convertir tu componente para usar un framework de frontend](/es/core-concept/component-hydration) como React, Svelte, Vue, etc.
 
 ```astro
 ---
