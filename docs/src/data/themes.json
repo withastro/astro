@@ -49,6 +49,12 @@
       "demo": "https://astro-ink.vercel.app/",
       "sandbox": "https://github.dev/one-aalam/astro-ink",
       "command": "npm init astro -- --template one-aalam/astro-ink"
+    },
+    {
+      "name": "Accessible Astro Starter",
+      "description": "A starter project with accessible features using Astro static site builder",
+      "github": "https://github.com/markteekman/accessible-astro-starter",
+      "demo": "https://accessible-astro.markteekman.nl/"
     }
   ]
 }
