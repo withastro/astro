@@ -80,49 +80,6 @@ async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promi
   return renderers;
 }
 
-async function resolveImportedModules(viteServer: ViteDevServer, file: URL) {
-  const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(slash(fileURLToPath(file))); // note: for some reason Vite expects forward slashes here for Windows, which `slash()` helps resolve
-  const modulesByFile = viteServer.moduleGraph.getModulesByFile(url);
-  if (!modulesByFile) {
-    return {};
-  }
-
-  let importedModules: Record<string, any> = {};
-  const moduleNodes = Array.from(modulesByFile);
-  // Loop over the importedModules and grab the exports from each one.
-  // We'll pass these to the shared $$result so renderers can match
-  // components to their exported identifier and URL
-  // NOTE: Important that this is parallelized as much as possible!
-  await Promise.all(
-    moduleNodes.map((moduleNode) => {
-      const entries = Array.from(moduleNode.importedModules);
-
-      return Promise.all(
-        entries.map((entry) => {
-          // Skip our internal import that every module will have
-          if (entry.id?.endsWith('astro/dist/internal/index.js')) {
-            return;
-          }
-
-          return viteServer.moduleGraph.ensureEntryFromUrl(entry.url).then((mod) => {
-            if (mod.ssrModule) {
-              importedModules[mod.url] = mod.ssrModule;
-              return;
-            } else {
-              return viteServer.ssrLoadModule(mod.url).then((result) => {
-                importedModules[mod.url] = result.ssrModule;
-                return;
-              });
-            }
-          });
-        })
-      );
-    })
-  );
-
-  return importedModules;
-}
-
 /** Create the Astro.fetchContent() runtime function. */
 function createFetchContentFn(url: URL) {
   const fetchContent = (importMetaGlobResult: Record<string, any>) => {
@@ -145,7 +102,7 @@ function createFetchContentFn(url: URL) {
       .filter(Boolean);
   };
   return fetchContent;
-};
+}
 
 /** use Vite to SSR */
 export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
@@ -156,10 +113,6 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     // 1.5. load module
     const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-
-    // 1.75. resolve renderers
-    // important that this happens _after_ ssrLoadModule, otherwise `importedModules` would be empty
-    const importedModules = await resolveImportedModules(viteServer, filePath);
 
     // 2. handle dynamic routes
     let params: Params = {};
@@ -230,7 +183,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
           }
         };
       },
-      _metadata: { importedModules, renderers },
+      _metadata: { renderers },
     };
 
     let html = await renderPage(result, Component, {}, null);

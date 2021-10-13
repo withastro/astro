@@ -2,7 +2,6 @@ import { Astro as AstroGlobal } from './astro-file';
 import { Renderer } from './astro';
 
 export interface SSRMetadata {
-  importedModules: Record<string, any>;
   renderers: Renderer[];
 }
 

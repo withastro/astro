@@ -4,6 +4,7 @@ import type { SSRResult } from '../@types/ssr';
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import shorthash from 'shorthash';
+export { createHydrationMap } from './hydration-map.js';
 
 const { generate, GENERATOR } = astring;
 
@@ -87,7 +88,7 @@ function extractHydrationDirectives(inputProps: Record<string | number, any>): {
   let props: Record<string | number, any> = {};
   let hydrationDirective: [string, any] | null = null;
   for (const [key, value] of Object.entries(inputProps)) {
-    if (key.startsWith('client:')) {
+    if (key.startsWith('client:') && !key.startsWith('client:component-')) {
       hydrationDirective = [key.split(':')[1], value];
     } else {
       props[key] = value;
@@ -157,32 +158,19 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   if (Component == null) {
     throw new Error(`Unable to render ${metadata.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
   }
-  // else if (typeof Component === 'string' && !isCustomElementTag(Component)) {
-  //   throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
-  // }
+
+  // Get hydration metadata
+  if('client:component-path' in _props) {
+    metadata.componentUrl = _props['client:component-path'];
+    metadata.componentExport = { value: _props['client:component-export'] };
+  }
+
   const { hydrationDirective, props } = extractHydrationDirectives(_props);
   let html = '';
 
   if (hydrationDirective) {
     metadata.hydrate = hydrationDirective[0] as AstroComponentMetadata['hydrate'];
     metadata.hydrateArgs = hydrationDirective[1];
-  }
-
-  const isCustomElement = typeof Component === 'string';
-  for (const [url, exported] of Object.entries(result._metadata.importedModules)) {
-    for (const [key, value] of Object.entries(exported as any)) {
-      if(isCustomElement) {
-        if (key === 'tagName' && Component === value) {
-          metadata.componentExport = { value: key };
-          metadata.componentUrl = url;
-          break;
-        }
-      } else if(Component === value) {
-        metadata.componentExport = { value: key };
-        metadata.componentUrl = url;
-        break;
-      }
-    }
   }
 
   let renderer = null;
