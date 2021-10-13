@@ -1,4 +1,14 @@
 {
+  "featured": [
+    {
+      "name": "Ink",
+      "description": "Crisp, minimal, personal blog theme for Astro",
+      "github": "https://github.com/one-aalam/astro-ink",
+      "demo": "https://astro-ink.vercel.app/",
+      "sandbox": "https://github.dev/one-aalam/astro-ink",
+      "command": "npm init astro -- --template one-aalam/astro-ink"
+    }
+  ],
   "official": [
     {
       "name": "Starter Kit",
@@ -43,12 +53,16 @@
   ],
   "community": [
     {
-      "name": "Ink",
-      "description": "Crisp, minimal, personal blog theme for Astro",
-      "github": "https://github.com/one-aalam/astro-ink",
-      "demo": "https://astro-ink.vercel.app/",
-      "sandbox": "https://github.dev/one-aalam/astro-ink",
-      "command": "npm init astro -- --template one-aalam/astro-ink"
+      "name": "Accessible Astro Starter",
+      "description": "A starter project with accessible features using Astro static site builder.",
+      "github": "https://github.com/markteekman/accessible-astro-starter",
+      "demo": "https://accessible-astro.markteekman.nl/"
+    },
+    {
+      "name": "Astro Theme Creek",
+      "description": "Creek is an open source blog theme for Astro SSG.",
+      "github": "https://github.com/robertguss/Astro-Theme-Creek",
+      "demo": "https://astro-theme-creek.netlify.app/"
     }
   ]
 }
