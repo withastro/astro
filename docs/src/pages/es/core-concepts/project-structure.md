@@ -45,7 +45,7 @@ Tus componentes de UI que no son de Astro (React, Preact, Svelte, Vue, etc.) tam
 
 ### `src/layouts`
 
-Las [maquetas](/es/core-concepts/layouts) son componentes reutilizables para maquetar páginas HTML. Se recomienda (pero no es obligatorio) que coloques tus componentes de maqueta en este directorio.  La forma en que los organices dentro de este directorio depende de ti.
+Las [maquetas](/es/core-concepts/layouts) son componentes reutilizables para maquetar páginas HTML. Se recomienda (pero no es obligatorio) que coloques tus componentes de maqueta en este directorio. La forma en que los organices dentro de este directorio depende de ti.
 
 ### `src/pages`
 
