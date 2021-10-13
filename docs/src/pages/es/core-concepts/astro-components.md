@@ -92,11 +92,11 @@ const thisWorks: number = 42;
 
 ### Importaciones de componentes
 
-Un componente Astro puede reutilizar otros componentes Astro dentro de su plantilla HTML. Esto se convierte en la base de nuestro sistema de componentes: crea nuevos componentes y luego reutilízalos en todo tu proyecto.
+Un componente Astro puede reutilizar otros componentes de Astro dentro de su plantilla HTML. Esto se convierte en la base de nuestro sistema de componentes: crea nuevos componentes y luego reutilízalos en todo tu proyecto.
 
 Para utilizar un componente Astro en tu plantilla, primero debes importarlo en el script preliminar del componente. Un componente Astro es siempre la importación predeterminada del archivo.
 
-Una vez importado, puedes usarlo como cualquier otro elemento HTML en tu plantilla. Ten en cuenta que un componente de Astro **DEBE** comenzar con una letra mayúscula. Astro usará esto para distinguir entre elementos HTML nativos (`from`,` input`, etc.) y tus componentes Astro personalizados.
+Una vez importado, puedes usarlo como cualquier otro elemento HTML en tu plantilla. Ten en cuenta que un componente de Astro **DEBE** comenzar con una letra mayúscula. Astro usará esto para distinguir entre elementos HTML nativos (`from`,` input`, etc.) y tus componentes de Astro personalizados.
 
 ```astro
 ---
@@ -115,7 +115,7 @@ import AlgunComponente from './AlgunComponente.astro';
 
 En lugar de inventar nuestra propia sintaxis personalizada para la creación de plantillas dinámicas, te brindamos acceso directo a los valores de JavaScript dentro de su HTML, utilizando algo que se parece a [JSX](https://reactjs.org/docs/introducing-jsx.html) .
 
-Los componentes Astro pueden definir variables locales dentro del script de Frontmatter. Todas las variables de secuencia de comandos están disponibles automáticamente en la plantilla HTML a continuación.
+Los componentes de Astro pueden definir variables locales dentro del script de Frontmatter. Todas las variables de secuencia de comandos están disponibles automáticamente en la plantilla HTML a continuación.
 
 #### Dynamic Values
 

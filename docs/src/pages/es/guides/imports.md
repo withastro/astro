@@ -37,7 +37,7 @@ Todos los navegadores ahora son compatibles con ESM, por lo que Astro puede envi
 
 ## TypeScript
 
-Astro incluye soporte integrado para crear archivos TypeScript (`*.ts`) en JavaScript. Los componentes Astro también son compatibles con TypeScript en la sección de script preliminar.
+Astro incluye soporte integrado para crear archivos TypeScript (`*.ts`) en JavaScript. Los componentes de Astro también son compatibles con TypeScript en la sección de script preliminar.
 
 Ten en cuenta que este soporte integrado es solo de compilación. De forma predeterminada, Astro no verifica el tipo de su código TypeScript.
 
