@@ -84,17 +84,51 @@ export function createComponent(cb: AstroComponentFactory) {
   return cb;
 }
 
-function extractHydrationDirectives(inputProps: Record<string | number, any>): { hydrationDirective: [string, any] | null; props: Record<string | number, any> } {
-  let props: Record<string | number, any> = {};
-  let hydrationDirective: [string, any] | null = null;
+interface ExtractedHydration {
+  hydration: {
+    directive: string;
+    value: string;
+    componentUrl: string;
+    componentExport: { value: string; };
+  } | null;
+  props: Record<string | number, any>
+}
+
+function extractHydrationDirectives(inputProps: Record<string | number, any>): ExtractedHydration {
+  let extracted: ExtractedHydration = {
+    hydration: null,
+    props: {}
+  };
   for (const [key, value] of Object.entries(inputProps)) {
-    if (key.startsWith('client:') && !key.startsWith('client:component-')) {
-      hydrationDirective = [key.split(':')[1], value];
+    if (key.startsWith('client:')) {
+      if(!extracted.hydration) {
+        extracted.hydration = {
+          directive: '',
+          value: '',
+          componentUrl: '',
+          componentExport: { value: '' }
+        };
+      }
+      switch(key) {
+        case 'client:component-path': {
+          extracted.hydration.componentUrl = value;
+          break;
+        }
+        case 'client:component-export': {
+          extracted.hydration.componentExport.value = value;
+          break;
+        }
+        default: {
+          extracted.hydration.directive = key.split(':')[1];
+          extracted.hydration.value = value;
+          break;
+        }
+      }
     } else {
-      props[key] = value;
+      extracted.props[key] = value;
     }
   }
-  return { hydrationDirective, props };
+  return extracted;
 }
 
 interface HydrateScriptOptions {
@@ -159,18 +193,14 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     throw new Error(`Unable to render ${metadata.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
   }
 
-  // Get hydration metadata
-  if('client:component-path' in _props) {
-    metadata.componentUrl = _props['client:component-path'];
-    metadata.componentExport = { value: _props['client:component-export'] };
-  }
-
-  const { hydrationDirective, props } = extractHydrationDirectives(_props);
+  const { hydration, props } = extractHydrationDirectives(_props);
   let html = '';
 
-  if (hydrationDirective) {
-    metadata.hydrate = hydrationDirective[0] as AstroComponentMetadata['hydrate'];
-    metadata.hydrateArgs = hydrationDirective[1];
+  if (hydration) {
+    metadata.hydrate = hydration.directive as AstroComponentMetadata['hydrate'];
+    metadata.hydrateArgs = hydration.value;
+    metadata.componentExport = hydration.componentExport;
+    metadata.componentUrl = hydration.componentUrl;
   }
 
   let renderer = null;
@@ -195,7 +225,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     html = html + polyfillScripts;
   }
 
-  if (!hydrationDirective) {
+  if (!hydration) {
     return html.replace(/\<\/?astro-fragment\>/g, '');
   }
 
