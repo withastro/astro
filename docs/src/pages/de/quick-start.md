@@ -23,7 +23,7 @@ npm run dev
 npm run build
 ```
 
-Um mehr über den Installationsprozess und den ersten Gebrauch von Astro zu lernen, [lese unseren Installations-Leitfaden.](installation)
+Um mehr über den Installationsprozess und den ersten Gebrauch von Astro zu lernen, [lies unseren Installations-Leitfaden.](installation)
 
 Wenn du es bevorzugst anhand eines Beispiels zu lernen, schau dir die [komplette Liste an Beispielen](https://github.com/snowpackjs/astro/tree/main/examples) auf GitHub an. 
 Du kannst jedes Beispiel ausprobieren, indem du `npm init astro -- --template "EXAMPLE_NAME"` ausführst.
@@ -36,9 +36,9 @@ Führe den folgenden Befehl in deinem Projektverzeichnis aus:
 npm run dev
 ```
 
-Astro fängt nun an deine Applikation unter[http://localhost:3000](http://localhost:3000) bereitzustellen. Wenn du diese URL in deinem Browser öffnest, solltest du Astro’s „Hello, World“ sehen.
+Astro fängt nun an deine Anwendung unter [http://localhost:3000](http://localhost:3000) bereitzustellen. Wenn du diese URL in deinem Browser öffnest, solltest du Astro’s „Hello, World“ sehen.
 
-Der Server beobachtet alle Dateiänderungen in deinem `src/`-Verzeichnis, sodass du nicht deine Anwendung bei jeder Änderung neu starten musst.
+Der Server beobachtet alle Dateiänderungen in deinem `src/`-Verzeichnis, sodass du deine Anwendung nicht bei jeder Änderung neu starten musst.
 
 ## Bereite dein Projekt für die Veröffentlichung vor
 
@@ -58,13 +58,13 @@ Astro-Webseiten sind statisch, sodass sie bei deinem bevorzugten Hoster veröffe
 - [Google Firebase](https://firebase.google.com/)
 - [Netlify](https://www.netlify.com/)
 - [Vercel](https://vercel.com/)
-- [Read more about deploying Astro in our Deploy guide.](/guides/deploy)
+- [Erfahre mehr über die Veröffentlichung deines Projektes in unserem Astro Deploy guide.](/guides/deploy)
 
 ## Nächste Schritte
 
 Du hast es geschafft! Du kannst jetzt mit dem Entwickeln beginnen!
 
-Wir empfehlen dir, dass du dir etwas Zeit nimmst, um dich vertraut damit zu machen, wie Astro funktioniert. Das kannst du am Besten machen, indem du dir weitere Seiten in unserer Dokumentation durchliest. Hier ein paar Empfehlungen:
+Wir empfehlen dir, dass du dir etwas Zeit nimmst, um mit Astro vertraut zu werden. Am Besten indem du dir weitere Seiten unserer Dokumentation durchliest. Hier ein paar Empfehlungen:
 
 📚 Lerne mehr über Astro’s [Projektstruktur.](/core-concepts/project-structure)
 
