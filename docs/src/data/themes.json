@@ -8,7 +8,7 @@
       "sandbox": "https://github.dev/one-aalam/astro-ink",
       "command": "npm init astro -- --template one-aalam/astro-ink"
     }
-  ]
+  ],
   "official": [
     {
       "name": "Starter Kit",
