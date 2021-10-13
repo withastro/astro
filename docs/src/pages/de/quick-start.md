@@ -42,13 +42,13 @@ Der Server beobachtet alle Dateiänderungen in deinem `src/`-Verzeichnis, sodass
 
 ## Bereite dein Projekt für die Veröffentlichung vor
 
-Um dein Projekt zu kompilieren, geben in deinem Verzeichnis den folgenden Befehl in dein Terminal ein:
+Um dein Projekt zu kompilieren, gebe in deinem Verzeichnis den folgenden Befehl in dein Terminal ein:
 
 ```bash
 npm run build
 ```
 
-Dadurch wird Astro beauftragt, deine Website zu erstellen und sie direkt auf der Festplatte zu speichern. Deine Applikation steht nun im `dist/`-Verzeichnis für dich bereit.
+Dadurch wird Astro beauftragt, deine Website zu erstellen und sie direkt auf der Festplatte zu speichern. Deine Anwendung steht nun im `dist/`-Verzeichnis für dich bereit.
 
 ## Veröffentliche dein Projekt
 
