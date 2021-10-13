@@ -58,7 +58,7 @@ Los sitios de Astro son estáticos, por lo que puedes desplegarlos en tu servici
 - [Google Firebase](https://firebase.google.com/)
 - [Netlify](https://www.netlify.com/)
 - [Vercel](https://vercel.com/)
-- [Lee más acerca del despliegue con nuestra guía de despliegue de Astro.](/guides/deploy)
+- [Lee más acerca del despliegue con nuestra guía de despliegue de Astro.](/es/guides/deploy)
 
 ## Próximos Pasos
 
@@ -66,8 +66,8 @@ Los sitios de Astro son estáticos, por lo que puedes desplegarlos en tu servici
 
 Te recomendamos que te tomes tu tiempo para familiarizarte con la forma en la que Astro. Lo puedes hacer al explorar con mayor profundidad nuestra documentación. Te sugerimos que consideres lo siguiente.
 
-📚 Aprende más sobre la estructura de proyectos de Astro, en nuestra [guía de estructura de proyecto](/core-concepts/project-structure).
+📚 Aprende más sobre la estructura de proyectos de Astro, en nuestra [guía de estructura de proyecto](/es/core-concepts/project-structure).
 
-📚 Aprende más sobre la sintaxis de los componentes de Astro, en nuestra [guía de componentes de Astro](/core-concepts/astro-components).
+📚 Aprende más sobre la sintaxis de los componentes de Astro, en nuestra [guía de componentes de Astro](/es/core-concepts/astro-components).
 
 📚 Aprende más sobre la rutas basada en archivos de Astro, en nuestra [guía de rutas](core-concepts/astro-pages).
