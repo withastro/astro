@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: fix transform error and "window is not defined" Vite error
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -12,37 +10,29 @@ before(async () => {
 });
 
 describe('Dynamic components', () => {
-  it('Loads client-only packages', async () => {
-    const html = await fixture.fetch('/index.html');
+  it('Loads packages that only run code in client', async () => {
+    const html = await fixture.readFile('/index.html');
 
-    // Grab the react-dom import
-    const exp = /import\("(.+?)"\)/g;
-    let match, reactRenderer;
-    while ((match = exp.exec(html))) {
-      if (match[1].includes('renderers/renderer-react/client.js')) {
-        reactRenderer = match[1];
-      }
-    }
-
-    // test 1: React renderer is on the page
-    expect(reactRenderer).to.be.ok;
-
-    // test 2: Can load React renderer
-    // const result = await fixture.fetch(reactRenderer);
-    // expect(result.status).to.equal(200);
+    const $ = cheerio.load(html)
+    expect($('script').length).to.eq(2)
   });
 
   it('Loads pages using client:media hydrator', async () => {
+    const root = new URL('http://example.com/media/index.html');
     const html = await fixture.readFile('/media/index.html');
+    const $ = cheerio.load(html);
 
     // test 1: static value rendered
-    expect(html).to.include(`value: "(max-width: 700px)"`);
+
+    let js = await fixture.readFile(new URL($('script').attr('src'), root).pathname);
+    expect(js).to.include(`value:"(max-width: 700px)"`);
 
     // test 2: dynamic value rendered
-    expect(html).to.include(`value: "(max-width: 600px)"`);
+    js = await fixture.readFile(new URL($('script').eq(1).attr('src'), root).pathname);
+    expect(js).to.include(`value:"(max-width: 600px)"`);
   });
 
-  it('Loads pages using client:only hydrator', async () => {
+  it.skip('Loads pages using client:only hydrator', async () => {
     const html = await fixture.readFile('/client-only/index.html');
     const $ = cheerio.load(html);
 
@@ -66,6 +56,3 @@ describe('Dynamic components', () => {
     // expect(result.status).to.equal(200);
   });
 });
-*/
-
-it.skip('is skipped', () => {});
