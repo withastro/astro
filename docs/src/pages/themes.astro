@@ -19,7 +19,7 @@ import components from '../data/components.json';
         ## Featured Theme
     </Markdown>
     <div class="card-grid">
-        {themes.community.map((item)=>(<Card data={item} />))}
+        {themes.featured.map((item)=>(<Card data={item} />))}
     </div>
     <Markdown>
         ## Official Themes
@@ -28,6 +28,14 @@ import components from '../data/components.json';
     </Markdown>
     <div class="card-grid">
         {themes.official.map((item)=>(<Card data={item} />))}
+    </div>
+    <Markdown>
+        ## Community Themes
+      
+        Checkout some themes developed by our community!
+    </Markdown>
+    <div class="card-grid">
+        {themes.community.map((item)=>(<Card data={item} />))}
     </div>
     <Markdown>
         ## Featured Packages
