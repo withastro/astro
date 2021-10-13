@@ -9,16 +9,20 @@ function check(Component, props, children) {
     return BaseComponent.isPrototypeOf(Component);
   }
 
-  const { html } = renderToStaticMarkup(Component, props, children);
+  try {
+    const { html } = renderToStaticMarkup(Component, props, children);
 
-  if (typeof html !== 'string') {
+    if (typeof html !== 'string') {
+      return false;
+    }
+
+    // There are edge cases (SolidJS) where Preact *might* render a string,
+    // but components would be <undefined></undefined>
+
+    return !/\<undefined\>/.test(html);
+  } catch {
     return false;
   }
-
-  // There are edge cases (SolidJS) where Preact *might* render a string,
-  // but components would be <undefined></undefined>
-
-  return !/\<undefined\>/.test(html);
 }
 
 function renderToStaticMarkup(Component, props, children) {
