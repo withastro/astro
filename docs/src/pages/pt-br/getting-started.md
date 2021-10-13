@@ -35,7 +35,7 @@ Como qualquer tecnologia emergente, Astro vem com uma leve curva de aprendizado.
 
 Quando você começa a aprender Astro, você verá muitos arquivos usando a extensão `.astro`. Esta é a **Sintaxe de componentes do Astro**: um formato de arquivo HTML especial que o Astro usa para modelagem. Foi projetado para dar o sentimento de familiaridade para qualquer pessoa com experiência HTML ou JSX.
 
-Nosso guia útil em [componentes Astro](/core-concepts/astro-components) apresenta você à sintaxe Astro e é a melhor maneira de aprender.
+Nosso guia útil em [componentes de Astro](/core-concepts/astro-components) apresenta você à sintaxe Astro e é a melhor maneira de aprender.
 
 ### Referência da API
 

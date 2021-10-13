@@ -4,7 +4,7 @@ title: Maquetas
 lang: es
 ---
 
-**Las maquetas** son un tipo especial de [Componente](/es/core-concept/astro-components) que te ayudan a compartir y reutilizar diseños de página comunes dentro de tu proyecto.
+**Las maquetas** son un tipo especial de [Componente](/es/core-concept/astro-components) que te ayudan a compartir y reutilizar maquetas de página comunes dentro de tu proyecto.
 
 Las maquetas son como cualquier otro componente de Astro reutilizable. No hay una nueva sintaxis o API que aprender. Sin embargo, las maquetas de página reutilizables son un patrón tan común en el desarrollo web que creamos esta guía para ayudarte a usarlos.
 
@@ -57,7 +57,7 @@ import BaseLayout from '../layouts/BaseLayout.astro'
 
 ## Maquetas anidadas
 
-Puedes anidar diseños cuando desees crear tipos de página más específicos sin copiar y pegar. Es común en Astro tener un `BaseLayout` genérico y luego muchos más diseños específicos (`PostLayout`, `ProductLayout`, etc.) que se reutilizan y construyen sobre él.
+Puedes anidar maquetas cuando desees crear tipos de página más específicos sin copiar y pegar. Es común en Astro tener un `BaseLayout` genérico y luego muchos más maquetas específicas (`PostLayout`, `ProductLayout`, etc.) que se reutilizan y construyen sobre él.
 
 ```astro
 ---
@@ -78,7 +78,7 @@ const {titulo, author} = Astro.props;
 
 A veces, necesitas un control más granular sobre tu página. Por ejemplo, es posible que desees agregar SEO o etiquetas `meta` sociales en algunas páginas, pero no en otras. Puedes implementar esto con un accesorio en su maqueta (`<BaseLayout addMeta={true}...`) pero en algún momento puede ser más fácil componer tus maquetas sin anidar.
 
-En lugar de definir toda la página `<html>` como un diseño grande, puedes definir los contenidos de `head` y `body` como componentes separados más pequeños. Esto te permite componer varios diseños juntos de formas únicas en cada página.
+En lugar de definir toda la página `<html>` como un diseño grande, puedes definir los contenidos de `head` y `body` como componentes separados más pequeños. Esto te permite componer varias maquetas juntas de formas únicas en cada página.
 
 ```astro
 ---

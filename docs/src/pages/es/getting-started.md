@@ -35,7 +35,7 @@ Como cualquier tecnología desconocida, Astro viene con una ligera curva de apre
 
 Cuando comiences a aprender Astro, verás muchos archivos con la extensión `.astro`. Esta es la **sintaxis de componentes de Astro**: un formato de archivo especial similar a HTML que Astro usa para crear templates. Fue diseñado para que resulte familiar a cualquiera que tenga experiencia con HTML o JSX.
 
-Nuestra guía sobre [componentes Astro](https://docs.astro.build/core-concepts/astro-components) presenta la sintaxis de Astro y es la mejor manera de aprender.
+Nuestra guía sobre [componentes de Astro](https://docs.astro.build/core-concepts/astro-components) presenta la sintaxis de Astro y es la mejor manera de aprender.
 
 ### Referencia de la API
 

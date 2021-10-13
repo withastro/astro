@@ -28,7 +28,7 @@ La forma más sencilla de configurar tu nuevo proyecto es con `npm init astro`. 
 
 La carpeta src es donde vive la mayor parte del código fuente de tu proyecto. Esto incluye:
 
-- [Components Astro](/es/core-concepts/astro-components)
+- [Components de Astro](/es/core-concepts/astro-components)
 - [Páginas](/es/core-concepts/astro-pages)
 - [Maquetas](/es/core-concepts/layouts)
 - [Componentes frontend JS](/es/core-concepts/component-hydration)
@@ -45,7 +45,7 @@ Tus componentes de UI que no son de Astro (React, Preact, Svelte, Vue, etc.) tam
 
 ### `src/layouts`
 
-Las [maquetas](/es/core-concepts/layouts) son componentes reutilizables para diseños de páginas HTML. Se recomienda (pero no es obligatorio) que coloques tus componentes de maqueta en este directorio. La forma en que los organices dentro de este directorio depende de ti.
+Las [maquetas](/es/core-concepts/layouts) son componentes reutilizables para maquetar páginas HTML. Se recomienda (pero no es obligatorio) que coloques tus componentes de maqueta en este directorio.  La forma en que los organices dentro de este directorio depende de ti.
 
 ### `src/pages`
 
