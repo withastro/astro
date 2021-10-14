@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Deploy a Website
+description: Multiple different methods to deploy a website with Astro.
 ---
 
 The following guides are based on some shared assumptions:

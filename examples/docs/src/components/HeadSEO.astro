@@ -21,7 +21,7 @@ const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
 <meta property="og:locale" content={content.ogLocale ?? SITE.defaultLanguage}/>
 <meta property="og:image" content={canonicalImageSrc}/>
 <meta property="og:image:alt" content={imageAlt}/>
-<meta property="og:description" content={content.description ? content.description : SITE.description}/>
+<meta name="description" property="og:description" content={content.description ? content.description : SITE.description}/>
 <meta property="og:site_name" content={SITE.title}/>
 
 <!-- Twitter Tags -->
@@ -32,8 +32,8 @@ const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
 <meta name="twitter:image" content={canonicalImageSrc}/>
 <meta name="twitter:image:alt" content={imageAlt}/>
 
-<!-- 
-  TODO: Add json+ld data, maybe https://schema.org/APIReference makes sense? 
+<!--
+  TODO: Add json+ld data, maybe https://schema.org/APIReference makes sense?
   Docs: https://developers.google.com/search/docs/advanced/structured-data/intro-structured-data
   https://www.npmjs.com/package/schema-dts seems like a great resource for implementing this.
   Even better, there's a React component that integrates with `schema-dts`: https://github.com/google/react-schemaorg

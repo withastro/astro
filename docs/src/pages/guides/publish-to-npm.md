@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Publish to NPM
+description: Learn how to publish Astro components to NPM
 ---
 
 Building a new Astro component? **Publish it to [npm!][npm]**

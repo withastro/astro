@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Astro Components
+description: An intro to the .astro component syntax.
 ---
 
 **Astro Components** (files ending with `.astro`) are the foundation of server-side templating in Astro. Think of the Astro component syntax as HTML enhanced with JavaScript.

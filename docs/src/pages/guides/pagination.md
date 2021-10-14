@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Pagination
+description: An intro to Astro pagination to split large amounts of data into different pages.
 ---
 
 Astro supports built-in, automatic pagination for large collections of data that need to be split into multiple pages. Astro also automatically includes pagination metadata for things like previous/next page URL, total number of pages, and more.
