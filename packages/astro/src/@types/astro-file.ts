@@ -26,12 +26,15 @@ export interface AstroBuiltinProps {
   'client:visible'?: boolean;
 }
 
-export interface Astro {
+export interface TopLevelAstro {
   isPage: boolean;
   fetchContent<T = any>(globStr: string): Promise<FetchContentResult<T>[]>;
-  props: Record<string, number | string | any>;
-  request: AstroPageRequest;
   resolve: (path: string) => string;
   site: URL;
+}
+
+export interface Astro extends TopLevelAstro {
+  props: Record<string, number | string | any>;
+  request: AstroPageRequest;
   slots: Record<string, true | undefined>;
 }

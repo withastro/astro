@@ -1,6 +1,8 @@
 import type { AstroComponentMetadata } from '../@types/astro';
 import type { SSRResult } from '../@types/ssr';
+import type { TopLevelAstro } from '../@types/astro-file';
 
+import { pathToFileURL } from 'url';
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import shorthash from 'shorthash';
@@ -234,6 +236,47 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   result.scripts.add(await generateHydrateScript({ renderer, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
   return `<astro-root uid="${astroId}">${html}</astro-root>`;
+}
+
+/** Create the Astro.fetchContent() runtime function. */
+function createFetchContentFn(url: URL) {
+  const fetchContent = (importMetaGlobResult: Record<string, any>) => {
+    let allEntries = [...Object.entries(importMetaGlobResult)];
+    if (allEntries.length === 0) {
+      throw new Error(`[${url.pathname}] Astro.fetchContent() no matches found.`);
+    }
+    return allEntries
+      .map(([spec, mod]) => {
+        // Only return Markdown files for now.
+        if (!mod.frontmatter) {
+          return;
+        }
+        return {
+          content: mod.metadata,
+          metadata: mod.frontmatter,
+          file: new URL(spec, url),
+        };
+      })
+      .filter(Boolean);
+  };
+  return fetchContent;
+}
+
+export function createAstro(fileURLStr: string, site: string): TopLevelAstro {
+  const url = pathToFileURL(fileURLStr);
+  const fetchContent = createFetchContentFn(url)  as unknown as TopLevelAstro['fetchContent'];
+  return {
+    // TODO I think this is no longer needed.
+    isPage: false,
+    site: new URL(site),
+    fetchContent,
+    resolve(...segments) {
+      return segments.reduce(
+        (url, segment) => new URL(segment, url),
+        url
+      ).pathname
+    }
+  };
 }
 
 export function addAttribute(value: any, key: string) {
