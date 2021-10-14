@@ -272,7 +272,7 @@ export function createAstro(fileURLStr: string, site: string): TopLevelAstro {
     fetchContent,
     resolve(...segments) {
       return segments.reduce(
-        (url, segment) => new URL(segment, url),
+        (u, segment) => new URL(segment, u),
         url
       ).pathname
     }

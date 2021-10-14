@@ -104,6 +104,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       routeCache[route.component] =
         routeCache[route.component] ||
         (
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           await mod.getStaticPaths!({
             paginate: generatePaginateFunction(route),
             rss: () => {
