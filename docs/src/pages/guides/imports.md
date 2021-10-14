@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Supported Imports
+description: Learn how to import different content types with Astro.
 ---
 
 Astro uses Snowpack as its internal build system. Snowpack provides Astro with built-in support for the following file types, with no configuration required:

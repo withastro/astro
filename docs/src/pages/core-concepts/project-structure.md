@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Project Structure
+description: Learn how to structure a project with Astro.
 ---
 
 Astro includes an opinionated folder layout for your project. Every Astro project must include these directories and files:

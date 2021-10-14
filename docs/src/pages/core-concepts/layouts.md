@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Layouts
+description: An intro to layouts, a type of Astro component that is shared between pages for common layouts.
 ---
 
 **Layouts** are a special type of [Component](/core-concepts/astro-components) that help you share and reuse common page layouts within your project.
