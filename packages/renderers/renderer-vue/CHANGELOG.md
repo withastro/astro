@@ -1,5 +1,11 @@
 # @astrojs/renderer-vue
 
+## 0.1.9
+
+### Patch Changes
+
+- 31d06880: Expose name on host component for Vue devtools
+
 ## 0.1.8
 
 ### Patch Changes
