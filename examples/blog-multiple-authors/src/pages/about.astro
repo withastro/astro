@@ -3,14 +3,15 @@ import MainHead from '../components/MainHead.astro';
 import Nav from '../components/Nav.astro';
 
 let title = "About";
-let description = "About page of an example blog on Astro"
+let description = "About page of an example blog on Astro";
+let canonicalURL = Astro.request.canonicalURL;
 ---
 <html lang="en">
   <head>
     <MainHead
       title={title}
       description={description}
-      canonicalURL={Astro.request.canonicalURL}
+      canonicalURL={canonicalURL}
     />
     <style lang="scss">
 
