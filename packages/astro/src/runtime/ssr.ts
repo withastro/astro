@@ -2,7 +2,7 @@ import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from 'vite';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
 import type { SSRResult } from '../@types/ssr';
-import type { Astro } from '../@types/astro-file';
+import type { Astro, TopLevelAstro } from '../@types/astro-file';
 import type { LogOptions } from '../logger';
 
 import cheerio from 'cheerio';
@@ -80,30 +80,6 @@ async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promi
   return renderers;
 }
 
-/** Create the Astro.fetchContent() runtime function. */
-function createFetchContentFn(url: URL) {
-  const fetchContent = (importMetaGlobResult: Record<string, any>) => {
-    let allEntries = [...Object.entries(importMetaGlobResult)];
-    if (allEntries.length === 0) {
-      throw new Error(`[${url.pathname}] Astro.fetchContent() no matches found.`);
-    }
-    return allEntries
-      .map(([spec, mod]) => {
-        // Only return Markdown files for now.
-        if (!mod.frontmatter) {
-          return;
-        }
-        return {
-          content: mod.metadata,
-          metadata: mod.frontmatter,
-          file: new URL(spec, url),
-        };
-      })
-      .filter(Boolean);
-  };
-  return fetchContent;
-}
-
 /** use Vite to SSR */
 export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
   try {
@@ -128,6 +104,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       routeCache[route.component] =
         routeCache[route.component] ||
         (
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           await mod.getStaticPaths!({
             paginate: generatePaginateFunction(route),
             rss: () => {
@@ -158,35 +135,28 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       styles: new Set(),
       scripts: new Set(),
       /** This function returns the `Astro` faux-global */
-      createAstro: (props: Record<string, any>, slots: Record<string, any> | null) => {
+      createAstro(AstroGlobal: TopLevelAstro, props: Record<string, any>, slots: Record<string, any> | null) {
         const site = new URL(origin);
         const url = new URL('.' + pathname, site);
-        const canonicalURL = getCanonicalURL(pathname, astroConfig.buildOptions.site || origin);
-        // Cast this type because the actual fetchContent implementation relies on import.meta.globEager
-        const fetchContent = createFetchContentFn(filePath) as unknown as Astro['fetchContent'];
+        const canonicalURL = getCanonicalURL('.' + pathname, astroConfig.buildOptions.site || origin);
+
         return {
-          isPage: true,
-          site,
+          __proto__: AstroGlobal,
+          props,
           request: {
             canonicalURL,
             params: {},
             url
           },
-          props,
-          fetchContent,
           slots: Object.fromEntries(
             Object.entries(slots || {}).map(([slotName]) => [slotName, true])
-          ),
-          // Only temporary to get types working.
-          resolve(_s: string) {
-            throw new Error('Astro.resolve() is not currently supported in next.');
-          }
-        };
+          )
+        } as unknown as Astro;
       },
       _metadata: { renderers },
     };
 
-    let html = await renderPage(result, Component, {}, null);
+    let html = await renderPage(result, Component, pageProps, null);
 
     // 4. modify response
     if (mode === 'development') {

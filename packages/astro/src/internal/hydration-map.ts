@@ -30,6 +30,7 @@ class HydrationMap {
 
   private getComponentMetadata(Component: any): ComponentMetadata | null {
     if(this.metadataCache.has(Component)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return this.metadataCache.get(Component)!;
     }
     const metadata = this.findComponentMetadata(Component);
