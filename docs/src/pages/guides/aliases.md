@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Aliases
+description: An intro to Snowpack aliases with Astro.
 ---
 
 An **alias** is a handy shortcut for your JavaScript imports. This can be a great option if you dislike long relative import paths with many repeating `../` segments. Define an alias to import things directly from some top-level project directory, no matter how deeply nested a file is located.

@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Quick Start
+description: The easiest way to get started quickly with Astro.
 ---
 
 ```shell

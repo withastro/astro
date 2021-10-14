@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Styling & CSS
+description: Learn how to style components with Astro.
 ---
 
 Astro includes special handling to make writing CSS as easy as possible. Styling inside of Astro components is done by adding a `<style>` tag anywhere.

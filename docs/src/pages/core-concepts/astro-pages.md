@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Pages
+description: An intro to Astro pages, components that function as full pages.
 ---
 
 **Pages** are a special type of [Astro Component](/core-concepts/astro-components) that handle routing, data loading, and templating for each page of your website. You can think of them like any other Astro component, just with extra responsibilities.
@@ -61,5 +62,5 @@ console.log(data);
 
 ## Custom 404 Error Page
 
-For a custom 404 error page create a `404.astro` file in `/src/pages`. That builds to a `404.html` page. Most [deploy services](/guides/deploy) will find and use it.  
+For a custom 404 error page create a `404.astro` file in `/src/pages`. That builds to a `404.html` page. Most [deploy services](/guides/deploy) will find and use it.
 This is special and different to the default behavior building `page.astro` (or `page/index.astro`) to `page/index.html`.

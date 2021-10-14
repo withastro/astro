@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Data Fetching
+description: Learn how to fetch remote data with Astro using the fetch API.
 ---
 
 Astro components and pages can fetch remote data to help generate your pages. Astro provides two different tools to pages to help you do this: **fetch()** and **top-level await.**
