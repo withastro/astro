@@ -1,7 +1,7 @@
 export default {
   name: '@astrojs/renderer-preact',
-  client: './client',
-  server: './server',
+  client: './client.js',
+  server: './server.js',
   knownEntrypoints: ['preact', 'preact/jsx-runtime', 'preact-render-to-string'],
   jsxImportSource: 'preact',
   jsxTransformOptions: async () => {

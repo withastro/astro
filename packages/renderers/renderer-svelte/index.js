@@ -2,8 +2,8 @@ import { svelte } from '@sveltejs/vite-plugin-svelte';
 
 export default {
   name: '@astrojs/renderer-svelte',
-  client: './client',
-  server: './server',
+  client: './client.js',
+  server: './server.js',
   vitePlugins: [
     svelte({
       emitCss: true,

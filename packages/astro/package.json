@@ -81,7 +81,7 @@
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
     "tiny-glob": "^0.2.8",
-    "vite": "^2.5.10",
+    "vite": "^2.6.5",
     "yargs-parser": "^20.2.9",
     "zod": "^3.8.1"
   },
