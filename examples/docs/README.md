@@ -34,6 +34,7 @@ To deploy your site to production, check out our [Deploy an Astro Website](https
 
 Welcome! Check out [our documentation](https://github.com/snowpackjs/astro) or jump into our [Discord server](https://astro.build/chat).
 
+
 ## Customize This Theme
 
 ### Site metadata
@@ -54,6 +55,22 @@ This theme uses a "cool blue" accent color by default. To customize this for you
 -  --theme-accent: hsla(var(--color-blue), 1);
 +  --theme-accent: hsla(var(--color-red), 1);   /* or: hsla(#FF0000, 1); */
 ```
+
+## Page metadata
+
+Astro uses frontmatter in Markdown pages to choose layouts and pass properties to those layouts. If you are using the default layout, you can customize the page in many different ways to optimize SEO and other things. For example, you can use the `title` and `description` properties to set the document title, meta title, meta description, and Open Graph description.
+
+```md
+---
+title: Example title
+description: Really cool docs example that uses Astro
+layout: ../../layouts/MainLayout.astro
+---
+
+# Page content...
+```
+
+For more SEO related properties, look at `src/components/HeadSEO.astro`
 
 
 ### Sidebar navigation
