@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: add fetch() in component support
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -11,14 +9,22 @@ before(async () => {
   await fixture.build();
 });
 
-
 describe('Global Fetch', () => {
-  it('Is available in non-Astro components.', async () => {
+  it('Is available in Astro pages', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
-    expect($('#jsx').text()).to.equal('function');
+    expect($('#astro-page').text()).to.equal('function', 'Fetch supported in .astro page');
+  });
+  it('Is available in Astro components', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    expect($('#astro-component').text()).to.equal('function', 'Fetch supported in .astro components');
+  });
+  it('Is available in non-Astro components', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    expect($('#jsx').text()).to.equal('function', 'Fetch supported in .jsx');
+    expect($('#svelte').text()).to.equal('function', 'Fetch supported in .svelte');
+    expect($('#vue').text()).to.equal('function', 'Fetch supported in .vue');
   });
 });
-*/
-
-it.skip('is skipped', () => {});

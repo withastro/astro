@@ -32,11 +32,10 @@ console.log(data);
 
 ## Using `fetch()` outside of Astro Components
 
-If you want to use `fetch()` in a non-astro component, use the [`node-fetch`](https://github.com/node-fetch/node-fetch) library:
+If you want to use `fetch()` in a non-astro component, it is also globally available:
 
 ```tsx
 // Movies.tsx
-import fetch from 'node-fetch';
 import type { FunctionalComponent } from 'preact';
 import { h } from 'preact';
 
@@ -55,11 +54,3 @@ const Movies: FunctionalComponent = () => {
 
 export default Movies;
 ```
-
-If you load a component using `node-fetch` [interactively](/core-concepts/component-hydration), with `client:load`, `client:visible`, etc., you'll need to either not use `node-fetch` or switch to an [isomorphic](https://en.wikipedia.org/wiki/Isomorphic_JavaScript) library that will run both at build time and on the client, as the [`node-fetch` README.md](https://github.com/node-fetch/node-fetch#motivation) recommends:
-
-> Instead of implementing XMLHttpRequest in Node.js to run browser-specific [Fetch polyfill](https://github.com/github/fetch), why not go from native http to fetch API directly? Hence, node-fetch, minimal code for a window.fetch compatible API on Node.js runtime.
->
-> See Jason Miller's [isomorphic-unfetch](https://www.npmjs.com/package/isomorphic-unfetch) or Leonardo Quixada's [cross-fetch](https://github.com/lquixada/cross-fetch) for isomorphic usage (exports node-fetch for server-side, whatwg-fetch for client-side).
-
-> Quoted from https://github.com/node-fetch/node-fetch#motivation
