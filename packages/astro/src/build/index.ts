@@ -127,13 +127,7 @@ class AstroBuilder {
         },
         target: 'es2020', // must match an esbuild target
       },
-      plugins: [
-        rollupPluginHTML({
-          input,
-          extractAssets: false,
-        }) as any, // CI fix: ignore typing of this plugin
-        ...(viteConfig.plugins || []),
-      ],
+      plugins: [rollupPluginHTML({ input, extractAssets: false }), ...(viteConfig.plugins || [])],
       publicDir: viteConfig.publicDir,
       root: viteConfig.root,
       server: viteConfig.server,

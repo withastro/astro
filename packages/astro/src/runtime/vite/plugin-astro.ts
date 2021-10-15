@@ -32,11 +32,11 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
             site: config.buildOptions.site,
             sourcefile: id,
             sourcemap: 'both',
-            internalURL: 'astro/internal'
+            internalURL: 'astro/internal',
           });
           // 2. Compile `.ts` to `.js`
           const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
-          
+
           return {
             code,
             map,

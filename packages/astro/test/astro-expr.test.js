@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: @astrojs/compiler transform error
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -102,6 +100,3 @@ describe('Expressions', () => {
     expect($('#frag-undefined')).to.have.lengthOf(0);
   });
 });
-*/
-
-it.skip('is skipped', () => {});

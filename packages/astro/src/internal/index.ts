@@ -91,27 +91,27 @@ interface ExtractedHydration {
     directive: string;
     value: string;
     componentUrl: string;
-    componentExport: { value: string; };
+    componentExport: { value: string };
   } | null;
-  props: Record<string | number, any>
+  props: Record<string | number, any>;
 }
 
 function extractHydrationDirectives(inputProps: Record<string | number, any>): ExtractedHydration {
   let extracted: ExtractedHydration = {
     hydration: null,
-    props: {}
+    props: {},
   };
   for (const [key, value] of Object.entries(inputProps)) {
     if (key.startsWith('client:')) {
-      if(!extracted.hydration) {
+      if (!extracted.hydration) {
         extracted.hydration = {
           directive: '',
           value: '',
           componentUrl: '',
-          componentExport: { value: '' }
+          componentExport: { value: '' },
         };
       }
-      switch(key) {
+      switch (key) {
         case 'client:component-path': {
           extracted.hydration.componentUrl = value;
           break;
@@ -212,8 +212,8 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     }
   }
 
-  if(renderer === null) {
-    if(typeof Component === 'string') {
+  if (renderer === null) {
+    if (typeof Component === 'string') {
       html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
     } else {
       throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
@@ -251,10 +251,12 @@ function createFetchContentFn(url: URL) {
         if (!mod.frontmatter) {
           return;
         }
+        const urlSpec = new URL(spec, url).pathname.replace(/[\\/\\\\]/, '/');
         return {
           content: mod.metadata,
           metadata: mod.frontmatter,
           file: new URL(spec, url),
+          url: urlSpec.includes('/pages/') && urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, ''),
         };
       })
       .filter(Boolean);
@@ -264,18 +266,15 @@ function createFetchContentFn(url: URL) {
 
 export function createAstro(fileURLStr: string, site: string): TopLevelAstro {
   const url = pathToFileURL(fileURLStr);
-  const fetchContent = createFetchContentFn(url)  as unknown as TopLevelAstro['fetchContent'];
+  const fetchContent = createFetchContentFn(url) as unknown as TopLevelAstro['fetchContent'];
   return {
     // TODO I think this is no longer needed.
     isPage: false,
     site: new URL(site),
     fetchContent,
     resolve(...segments) {
-      return segments.reduce(
-        (u, segment) => new URL(segment, u),
-        url
-      ).pathname
-    }
+      return segments.reduce((u, segment) => new URL(segment, u), url).pathname;
+    },
   };
 }
 
