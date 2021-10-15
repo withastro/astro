@@ -1,15 +1,15 @@
 import type { Plugin } from 'vite';
 import type { TransformResult } from 'rollup';
-import type { AstroConfig, Renderer } from '../../@types/astro';
-import type { LogOptions } from '../../logger';
+import type { AstroConfig, Renderer } from '../@types/astro';
+import type { LogOptions } from '../core/logger';
 
 import babel from '@babel/core';
 import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import * as eslexer from 'es-module-lexer';
 import path from 'path';
-import { error } from '../../logger.js';
-import { parseNpmName } from '../util.js';
+import { error } from '../core/logger.js';
+import { parseNpmName } from '../core/util.js';
 
 const JSX_RENDERERS = new Map<string, Renderer>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx']);

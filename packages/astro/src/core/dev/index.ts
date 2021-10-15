@@ -1,6 +1,6 @@
 import type { NextFunction } from 'connect';
 import type http from 'http';
-import type { AstroConfig, ManifestData, RouteCache, RouteData, SSRError } from '../@types/astro';
+import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 import type { HmrContext, ModuleNode } from 'vite';
 
@@ -12,9 +12,9 @@ import { createRequire } from 'module';
 import stripAnsi from 'strip-ansi';
 import vite from 'vite';
 import { defaultLogOptions, error, info } from '../logger.js';
-import { createRouteManifest, matchRoute } from '../runtime/routing.js';
-import { ssr } from '../runtime/ssr.js';
-import { loadViteConfig } from '../runtime/vite/config.js';
+import { createRouteManifest, matchRoute } from '../ssr/routing.js';
+import { ssr } from '../ssr/index.js';
+import { createVite } from '../create-vite.js';
 import * as msg from './messages.js';
 import { errorTemplate } from './template/error.js';
 
@@ -167,7 +167,7 @@ export class AstroDevServer {
 
   /** Set up Vite server */
   private async createViteServer() {
-    const viteConfig = await loadViteConfig(
+    const viteConfig = await createVite(
       {
         mode: 'development',
         server: {

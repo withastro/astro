@@ -1,4 +1,4 @@
-import type { GetHydrateCallback, HydrateOptions } from '../@types/hydrate';
+import type { GetHydrateCallback, HydrateOptions } from '../../@types/hydrate';
 
 /**
  * Hydrate this component when a matching media query is found

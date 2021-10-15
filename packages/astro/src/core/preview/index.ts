@@ -1,4 +1,4 @@
-import type { AstroConfig } from '../@types/astro';
+import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../logger.js';
 
 import http from 'http';

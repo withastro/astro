@@ -1,18 +1,18 @@
 /* eslint-disable no-console */
 
 import type { AstroConfig } from '../@types/astro';
-import { LogOptions } from '../logger.js';
+import type { LogOptions } from '../core/logger';
 
 import * as colors from 'kleur/colors';
 import fs from 'fs';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import { defaultLogDestination } from '../logger.js';
-import build from '../build/index.js';
-import devServer from '../dev/index.js';
-import preview from '../preview/index.js';
+import { defaultLogDestination } from '../core/logger.js';
+import build from '../core/build/index.js';
+import devServer from '../core/dev/index.js';
+import preview from '../core/preview/index.js';
+import { formatConfigError, loadConfig } from '../core/config.js';
 import { reload } from './reload.js';
-import { formatConfigError, loadConfig } from '../config.js';
 
 type Arguments = yargs.Arguments;
 type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload';

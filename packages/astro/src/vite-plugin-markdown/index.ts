@@ -1,10 +1,10 @@
 import type { Plugin } from 'vite';
-import type { AstroConfig, Renderer } from '../../@types/astro.js';
+import type { AstroConfig } from '../@types/astro';
 
 import esbuild from 'esbuild';
 import fs from 'fs';
 import { transform } from '@astrojs/compiler';
-import { AstroDevServer } from '../../dev/index.js';
+import { AstroDevServer } from '../core/dev/index.js';
 
 interface AstroPluginOptions {
   config: AstroConfig;

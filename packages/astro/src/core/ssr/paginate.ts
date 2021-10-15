@@ -1,4 +1,4 @@
-import { GetStaticPathsResult, PaginatedCollectionProp, PaginateFunction, Params, Props, RouteData } from '../@types/astro';
+import { GetStaticPathsResult, PaginatedCollectionProp, PaginateFunction, Params, Props, RouteData } from '../../@types/astro';
 
 // return filters.map((filter) => {
 //   const filteredRecipes = allRecipes.filter((recipe) =>
@@ -15,8 +15,8 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
     let { pageSize: _pageSize, params: _params, props: _props } = args;
     const pageSize = _pageSize || 10;
     const paramName = 'page';
-    const additoonalParams = _params || {};
-    const additoonalProps = _props || {};
+    const additionalParams = _params || {};
+    const additionalProps = _props || {};
     let includesFirstPageNumber: boolean;
     if (routeMatch.params.includes(`...${paramName}`)) {
       includesFirstPageNumber = false;
@@ -34,13 +34,13 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
       const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
       const end = Math.min(start + pageSize, data.length);
       const params = {
-        ...additoonalParams,
+        ...additionalParams,
         [paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : undefined,
       };
       return {
         params,
         props: {
-          ...additoonalProps,
+          ...additionalProps,
           page: {
             data: data.slice(start, end),
             start,

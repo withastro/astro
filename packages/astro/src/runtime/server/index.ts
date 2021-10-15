@@ -1,6 +1,6 @@
-import type { AstroComponentMetadata } from '../@types/astro';
-import type { SSRResult } from '../@types/ssr';
-import type { TopLevelAstro } from '../@types/astro-file';
+import type { AstroComponentMetadata } from '../../@types/astro';
+import type { SSRResult } from '../../@types/ssr';
+import type { TopLevelAstro } from '../../@types/astro-file';
 
 import { pathToFileURL } from 'url';
 import { valueToEstree } from 'estree-util-value-to-estree';

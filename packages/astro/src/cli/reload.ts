@@ -1,7 +1,7 @@
-import type { LogOptions } from '../logger';
+import type { LogOptions } from '../core/logger';
 import del from 'del';
 import { fileURLToPath } from 'url';
-import { defaultLogDestination, defaultLogLevel, info } from '../logger.js';
+import { defaultLogDestination, defaultLogLevel, info } from '../core/logger.js';
 
 const logging: LogOptions = {
   level: defaultLogLevel,

@@ -1,17 +1,17 @@
-import type { AstroConfig } from '../../@types/astro';
-import type { LogOptions } from '../../logger';
+import type { AstroConfig } from '../@types/astro';
+import type { LogOptions } from './logger';
+import type { AstroDevServer } from './dev';
 
 import fs from 'fs';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 import vite from 'vite';
-import { getPackageJSON, parseNpmName } from '../util.js';
-import astroVitePlugin from './plugin-astro.js';
-import astroPostprocessVitePlugin from './plugin-astro-postprocess.js';
-import markdownVitePlugin from './plugin-markdown.js';
-import jsxVitePlugin from './plugin-jsx.js';
-import { AstroDevServer } from '../../dev';
+import astroVitePlugin from '../vite-plugin-astro/index.js';
+import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
+import markdownVitePlugin from '../vite-plugin-markdown/index.js';
+import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import { getPackageJSON, parseNpmName } from './util.js';
 
 const require = createRequire(import.meta.url);
 
@@ -19,7 +19,7 @@ const require = createRequire(import.meta.url);
 type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
 
 /** Return a common starting point for all Vite actions */
-export async function loadViteConfig(
+export async function createVite(
   viteConfig: ViteConfigWithSSR,
   { astroConfig, logging, devServer }: { astroConfig: AstroConfig; logging: LogOptions; devServer?: AstroDevServer }
 ): Promise<ViteConfigWithSSR> {
@@ -66,7 +66,7 @@ export async function loadViteConfig(
   );
 
   // load client-side hydrations
-  fs.readdirSync(new URL('../../client', import.meta.url)).forEach((hydrator) => {
+  fs.readdirSync(new URL('../runtime/client/', import.meta.url)).forEach((hydrator) => {
     optimizedDeps.add(`astro/client/${hydrator}`); // always prepare these for client
   });
 
@@ -82,11 +82,11 @@ export async function loadViteConfig(
         include: [...optimizedDeps],
       },
       plugins: [
-        astroVitePlugin({ config: astroConfig, devServer }), 
-        markdownVitePlugin({ config: astroConfig, devServer }), 
-        jsxVitePlugin({ config: astroConfig, logging }), 
+        astroVitePlugin({ config: astroConfig, devServer }),
+        markdownVitePlugin({ config: astroConfig, devServer }),
+        jsxVitePlugin({ config: astroConfig, logging }),
         astroPostprocessVitePlugin({ config: astroConfig, devServer }),
-        ...plugins
+        ...plugins,
       ],
       publicDir: fileURLToPath(astroConfig.public),
       resolve: {

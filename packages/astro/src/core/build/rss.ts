@@ -1,6 +1,6 @@
-import type { RSSFunction, RSSFunctionArgs, RSSResult, RouteData } from '../@types/astro';
+import type { RSSFunction, RSSFunctionArgs, RSSResult, RouteData } from '../../@types/astro';
 import parser from 'fast-xml-parser';
-import { canonicalURL } from './util.js';
+import { canonicalURL } from '../util.js';
 
 /** Validates getStaticPaths.rss */
 export function validateRSS(args: GenerateRSSArgs): void {

@@ -12,12 +12,11 @@
   },
   "exports": {
     ".": "./astro.js",
-    "./client/*": "./dist/client/*",
+    "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.js",
     "./components/*": "./components/*",
     "./debug": "./components/Debug.astro",
-    "./internal": "./dist/internal/index.js",
-    "./internal/*": "./dist/internal/*",
+    "./internal": "./dist/runtime/server/index.js",
     "./runtime/*": "./dist/runtime/*.js",
     "./package.json": "./package.json"
   },

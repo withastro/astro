@@ -1,4 +1,4 @@
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../@types/astro';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import { rollupPluginHTML } from '@web/rollup-plugin-html';
@@ -9,13 +9,13 @@ import vite, { ViteDevServer } from 'vite';
 import { fileURLToPath } from 'url';
 import { pad } from '../dev/util.js';
 import { defaultLogOptions, levels, warn } from '../logger.js';
-import { generatePaginateFunction } from '../runtime/paginate.js';
-import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../runtime/routing.js';
-import { generateRssFunction } from '../runtime/rss.js';
-import { ssr } from '../runtime/ssr.js';
-import { loadViteConfig } from '../runtime/vite/config.js';
+import { ssr } from '../ssr/index.js';
+import { createVite } from '../create-vite.js';
+import { generatePaginateFunction } from '../ssr/paginate.js';
+import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
+import { generateRssFunction } from './rss.js';
+import { generateSitemap } from './sitemap.js';
 import { kb, profileHTML, profileJS } from './stats.js';
-import { generateSitemap } from '../runtime/sitemap.js';
 
 export interface BuildOptions {
   mode?: string;
@@ -55,7 +55,7 @@ class AstroBuilder {
 
     // 1. initialize fresh Vite instance
     const { logging, origin } = this;
-    const viteConfig = await loadViteConfig(
+    const viteConfig = await createVite(
       {
         mode: this.mode,
         server: {

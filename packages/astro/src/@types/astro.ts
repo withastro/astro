@@ -1,8 +1,8 @@
 import type babel from '@babel/core';
 import type vite from 'vite';
 import type { z } from 'zod';
-import type { AstroConfigSchema } from '../config';
-import type { AstroComponentFactory } from '../internal';
+import type { AstroConfigSchema } from '../core/config';
+import type { AstroComponentFactory } from '../runtime/server';
 
 export interface AstroComponentMetadata {
   displayName: string;

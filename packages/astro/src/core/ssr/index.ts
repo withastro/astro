@@ -1,8 +1,8 @@
 import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from 'vite';
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../@types/astro';
-import type { SSRResult } from '../@types/ssr';
-import type { Astro, TopLevelAstro } from '../@types/astro-file';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../../@types/astro';
+import type { SSRResult } from '../../@types/ssr';
+import type { Astro, TopLevelAstro } from '../../@types/astro-file';
 import type { LogOptions } from '../logger';
 
 import cheerio from 'cheerio';
@@ -10,12 +10,10 @@ import * as eslexer from 'es-module-lexer';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import path from 'path';
-import slash from 'slash';
-import glob from 'tiny-glob';
-import { renderPage } from '../internal/index.js';
+import { renderPage } from '../../runtime/server/index.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
-import { parseNpmName, canonicalURL as getCanonicalURL, codeFrame } from './util.js';
+import { parseNpmName, canonicalURL as getCanonicalURL, codeFrame } from '../util.js';
 
 interface SSROptions {
   /** an instance of the AstroConfig */
@@ -68,7 +66,7 @@ async function resolveRenderer(viteServer: ViteDevServer, renderer: string) {
 
 async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promise<Renderer[]> {
   const renderers = await Promise.all(
-    ids.map(renderer => {
+    ids.map((renderer) => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (cache.has(renderer)) return cache.get(renderer)!;
       let promise = resolveRenderer(viteServer, renderer);
@@ -96,15 +94,15 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     if (route && !route.pathname) {
       if (route.params.length) {
         const paramsMatch = route.pattern.exec(pathname);
-        if(paramsMatch) {
+        if (paramsMatch) {
           params = getParams(route.params)(paramsMatch);
         }
       }
       validateGetStaticPathsModule(mod);
       routeCache[route.component] =
         routeCache[route.component] ||
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         (
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           await mod.getStaticPaths!({
             paginate: generatePaginateFunction(route),
             rss: () => {
@@ -146,11 +144,9 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
           request: {
             canonicalURL,
             params: {},
-            url
+            url,
           },
-          slots: Object.fromEntries(
-            Object.entries(slots || {}).map(([slotName]) => [slotName, true])
-          )
+          slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
         } as unknown as Astro;
       },
       _metadata: { renderers },

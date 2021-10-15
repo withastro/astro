@@ -1,9 +1,10 @@
-import * as babel from '@babel/core';
-import * as babelTraverse from '@babel/traverse';
 import type * as t from '@babel/types';
 import type { Plugin } from 'vite';
-import type { AstroConfig } from '../../@types/astro.js';
-import { AstroDevServer } from '../../dev/index.js';
+import type { AstroConfig } from '../@types/astro.js';
+
+import * as babel from '@babel/core';
+import * as babelTraverse from '@babel/traverse';
+import { AstroDevServer } from '../core/dev/index.js';
 
 interface AstroPluginOptions {
   config: AstroConfig;
@@ -44,16 +45,16 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
                   if (/[a-z]\:\/\//.test(value)) {
                     return;
                   }
-                    path.replaceWith({
-                      type: 'CallExpression',
-                      callee: {
-                        type: 'MemberExpression',
-                        object: { type: 'MetaProperty', meta: { type: 'Identifier', name: 'import' }, property: { type: 'Identifier', name: 'meta' } },
-                        property: { type: 'Identifier', name: 'globEager' },
-                        computed: false,
-                      },
-                      arguments: [path.node],
-                    } as any);
+                  path.replaceWith({
+                    type: 'CallExpression',
+                    callee: {
+                      type: 'MemberExpression',
+                      object: { type: 'MetaProperty', meta: { type: 'Identifier', name: 'import' }, property: { type: 'Identifier', name: 'meta' } },
+                      property: { type: 'Identifier', name: 'globEager' },
+                      computed: false,
+                    },
+                    arguments: [path.node],
+                  } as any);
                 },
               },
             };

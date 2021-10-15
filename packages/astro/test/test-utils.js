@@ -2,9 +2,9 @@ import execa from 'execa';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { loadConfig } from '../dist/config.js';
-import build from '../dist/build/index.js';
-import preview from '../dist/preview/index.js';
+import { loadConfig } from '../dist/core/config.js';
+import build from '../dist/core/build/index.js';
+import preview from '../dist/core/preview/index.js';
 
 /**
  * Load Astro fixture

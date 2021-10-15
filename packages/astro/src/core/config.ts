@@ -1,4 +1,4 @@
-import type { AstroConfig, AstroUserConfig } from './@types/astro';
+import type { AstroConfig, AstroUserConfig } from '../@types/astro';
 
 import { existsSync } from 'fs';
 import * as colors from 'kleur/colors';
