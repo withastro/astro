@@ -1,5 +1,5 @@
 /**
- * UNCOMMENT: fix Vite error for external files
+ * UNCOMMENT: add support for smarter "external" scripts in Rollup
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 

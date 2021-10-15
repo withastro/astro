@@ -40,7 +40,7 @@
     "test": "mocha --parallel --timeout 15000"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.1.14",
+    "@astrojs/compiler": "^0.1.15",
     "@astrojs/markdown-remark": "^0.3.1",
     "@astrojs/renderer-preact": "^0.2.2",
     "@astrojs/renderer-react": "^0.2.1",
@@ -56,16 +56,16 @@
     "connect": "^3.7.0",
     "del": "^6.0.0",
     "es-module-lexer": "^0.7.1",
-    "esbuild": "^0.12.28",
+    "esbuild": "^0.13.6",
     "estree-util-value-to-estree": "^1.2.0",
     "fast-xml-parser": "^3.19.0",
     "html-entities": "^2.3.2",
     "kleur": "^4.1.4",
     "mime": "^2.5.2",
     "morphdom": "^2.6.1",
-    "node-fetch": "^2.6.1",
+    "node-fetch": "^2.6.5",
     "path-to-regexp": "^6.2.0",
-    "sass": "^1.42.0",
+    "sass": "^1.43.2",
     "semver": "^7.3.5",
     "send": "^0.17.1",
     "shiki": "^0.9.10",
@@ -78,7 +78,7 @@
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
     "tiny-glob": "^0.2.8",
-    "vite": "^2.6.5",
+    "vite": "^2.6.7",
     "yargs-parser": "^20.2.9",
     "zod": "^3.8.1"
   },
@@ -93,7 +93,7 @@
     "@types/yargs-parser": "^20.2.1",
     "chai": "^4.3.4",
     "cheerio": "^1.0.0-rc.10",
-    "mocha": "^9.1.1"
+    "mocha": "^9.1.2"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0",

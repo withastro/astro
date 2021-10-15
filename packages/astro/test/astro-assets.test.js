@@ -1,8 +1,7 @@
 /**
  * UNCOMMENT: add support for automatic <img> and srcset in build
-
 import { expect } from 'chai';
-import { loadFixture } from './test-utils';
+import { loadFixture } from './test-utils.js';
 
 let fixture;
 

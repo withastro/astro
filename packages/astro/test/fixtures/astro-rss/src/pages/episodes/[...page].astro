@@ -1,5 +1,4 @@
 ---
-
 export function getStaticPaths({paginate, rss}) {
   const episodes = Astro.fetchContent('../episode/*.md').sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
   rss({
@@ -11,14 +10,14 @@ export function getStaticPaths({paginate, rss}) {
     },
     customData: `<language>en-us</language>` +
       `<itunes:author>MF Doom</itunes:author>`,
-    items: episodes.map((item) => ({
-      title: item.title,
-      link: item.url,
-      description: item.description,
-      pubDate: item.pubDate + 'Z',
-      customData: `<itunes:episodeType>${item.type}</itunes:episodeType>` +
-        `<itunes:duration>${item.duration}</itunes:duration>` +
-        `<itunes:explicit>${item.explicit || false}</itunes:explicit>`,
+    items: episodes.map(({ metadata, url }) => ({
+      title: metadata.title,
+      link: url,
+      description: metadata.description,
+      pubDate: metadata.pubDate + 'Z',
+      customData: `<itunes:episodeType>${metadata.type}</itunes:episodeType>` +
+        `<itunes:duration>${metadata.duration}</itunes:duration>` +
+        `<itunes:explicit>${metadata.explicit || false}</itunes:explicit>`,
     })),
     dest: '/custom/feed.xml',
   });
