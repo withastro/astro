@@ -12,9 +12,9 @@ Vous cherchez un rapide condensé de ce qu'offre Astro ? [Visitez notre page d'a
 
 La manière la plus simple d'essayer Astro est de lancer `npm init astro` à partir d'un nouveau dossier depuis votre machine. Notre utilitaire CLI vous assistera dans la création d'un nouveau projet Astro.
 
-Pour bien débuter avec Astro en 5 étapes rapides et faciles, visitez notre [Guide de démarrage rapide](quick-start).
+Pour bien débuter avec Astro en 5 étapes rapides et faciles, visitez notre [Guide de démarrage rapide](/fr/quick-start).
 
-Autrement, lisez notre [Guide d'installation](/installation) pour un accompagnement pas-à-pas sur la mise en place d'Astro.
+Autrement, lisez notre [Guide d'installation](/fr/installation) pour un accompagnement pas-à-pas sur la mise en place d'Astro.
 
 ### Terrains de jeu en ligne (Online Playground)
 
