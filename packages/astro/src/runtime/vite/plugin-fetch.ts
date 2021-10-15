@@ -15,7 +15,9 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
   return false
 }
 
-const SUPPORTED_FILES = /\.(astro|svelte|vue|[jt]sx?)$/;
+// This matches any JS-like file (that we know of)
+// See https://regex101.com/r/Cgofir/1
+const SUPPORTED_FILES = /\.(astro|svelte|vue|[cm]?js|jsx|[cm]?ts|tsx)$/;
 const DEFINE_FETCH = `import fetch from 'node-fetch';\n`;
 
 export default function pluginFetch(): Plugin {
