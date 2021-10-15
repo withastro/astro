@@ -11,6 +11,7 @@ import astroVitePlugin from './plugin-astro.js';
 import astroPostprocessVitePlugin from './plugin-astro-postprocess.js';
 import markdownVitePlugin from './plugin-markdown.js';
 import jsxVitePlugin from './plugin-jsx.js';
+import fetchVitePlugin from './plugin-fetch.js';
 import { AstroDevServer } from '../../dev';
 
 const require = createRequire(import.meta.url);
@@ -86,6 +87,7 @@ export async function loadViteConfig(
         markdownVitePlugin({ config: astroConfig, devServer }), 
         jsxVitePlugin({ config: astroConfig, logging }), 
         astroPostprocessVitePlugin({ config: astroConfig, devServer }),
+        fetchVitePlugin(),
         ...plugins
       ],
       publicDir: fileURLToPath(astroConfig.public),
