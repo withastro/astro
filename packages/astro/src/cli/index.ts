@@ -12,7 +12,6 @@ import build from '../core/build/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
 import { formatConfigError, loadConfig } from '../core/config.js';
-import { reload } from './reload.js';
 
 type Arguments = yargs.Arguments;
 type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload';
@@ -129,7 +128,6 @@ export async function cli(args: string[]) {
       break;
     }
     case 'dev': {
-      if (flags.reload) await reload(projectRoot);
       try {
         const server = await devServer(config, { logging });
         await new Promise(() => {}); // don’t close dev server
@@ -139,7 +137,6 @@ export async function cli(args: string[]) {
       break;
     }
     case 'build': {
-      if (flags.reload) await reload(projectRoot);
       try {
         await build(config, { logging });
         process.exit(0);
@@ -149,7 +146,6 @@ export async function cli(args: string[]) {
       break;
     }
     case 'preview': {
-      if (flags.reload) await reload(projectRoot);
       try {
         await preview(config, { logging }); // this will keep running
       } catch (err) {

@@ -17,7 +17,7 @@
     "./components/*": "./components/*",
     "./debug": "./components/Debug.astro",
     "./internal": "./dist/runtime/server/index.js",
-    "./runtime/*": "./dist/runtime/*.js",
+    "./runtime/*": "./dist/runtime/*",
     "./package.json": "./package.json"
   },
   "imports": {

@@ -1,13 +1,13 @@
 import { pathToFileURL } from 'url';
 
 interface ModuleInfo {
-  module: Record<string, any>,
+  module: Record<string, any>;
   specifier: string;
 }
 
 interface ComponentMetadata {
   componentExport: string;
-  componentUrl: string
+  componentUrl: string;
 }
 
 class HydrationMap {
@@ -29,8 +29,7 @@ class HydrationMap {
   }
 
   private getComponentMetadata(Component: any): ComponentMetadata | null {
-    if(this.metadataCache.has(Component)) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    if (this.metadataCache.has(Component)) {
       return this.metadataCache.get(Component)!;
     }
     const metadata = this.findComponentMetadata(Component);
@@ -40,20 +39,20 @@ class HydrationMap {
 
   private findComponentMetadata(Component: any): ComponentMetadata | null {
     const isCustomElement = typeof Component === 'string';
-    for (const { module, specifier }  of this.modules) {
+    for (const { module, specifier } of this.modules) {
       const id = specifier.startsWith('.') ? new URL(specifier, this.fileURL).pathname : specifier;
       for (const [key, value] of Object.entries(module)) {
-        if(isCustomElement) {
+        if (isCustomElement) {
           if (key === 'tagName' && Component === value) {
             return {
               componentExport: key,
-              componentUrl: id
+              componentUrl: id,
             };
           }
-        } else if(Component === value) {
+        } else if (Component === value) {
           return {
             componentExport: key,
-            componentUrl: id
+            componentUrl: id,
           };
         }
       }

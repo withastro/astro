@@ -2,7 +2,9 @@
 
 We welcome contributions of any size and skill level. As an open source project, we believe in giving back to our contributors and are happy to help with guidance on PRs, technical writing, and turning any feature idea into a reality.
 
-## Prerequisite
+## Quick Guide
+
+### Prerequisite
 
 ```shell
 node: "^12.20.0 || ^14.13.1 || >=16.0.0"
@@ -10,7 +12,7 @@ yarn: "^1.22.10"
 # otherwise, your build will fail
 ```
 
-## Setting up your local repo
+### Setting up your local repo
 
 Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, `www`, `docs`, and every package in the repo.
 
@@ -20,7 +22,7 @@ yarn install
 yarn build:all
 ```
 
-## Development
+### Development
 
 ```shell
 # starts a file-watching, live-reloading dev script for active development
@@ -29,7 +31,7 @@ yarn dev
 yarn build
 ```
 
-## Running tests
+### Running tests
 
 ```shell
 # run this in the top-level project root to run all tests
@@ -39,7 +41,7 @@ yarn test
 yarn test -g "$STRING_MATCH"
 ```
 
-## Other useful commands
+### Other useful commands
 
 ```shell
 # auto-format the entire project
@@ -53,7 +55,7 @@ yarn format
 yarn lint
 ```
 
-## Making a Pull Request
+### Making a Pull Request
 
 When making a pull request, be sure to add a changeset when something has changed with Astro. Non-packages (`examples/*`, `docs/*`, and `www/*`) do not need changesets.
 
@@ -61,7 +63,7 @@ When making a pull request, be sure to add a changeset when something has change
 yarn changeset
 ```
 
-## Running benchmarks
+### Running benchmarks
 
 We have benchmarks to keep performance under control. You can run these by running (from the project root):
 
@@ -79,6 +81,30 @@ node test/benchmark/dev.bench.js --save
 ```
 
 Which will update the build and dev benchmarks.
+
+## Code Structure
+
+Server-side rendering (SSR) can be complicated. The Astro package (`packages/astro`) is structured in a way to help think about the different systems.
+
+- `components/`: Built-in components to use in your project (e.g. `import Code from 'astro/components/Code.astro'`)
+- `src/`: Astro source
+  - `@types/`: TypeScript types. These are centralized to cut down on circular dependencies
+  - `cli/`: Code that powers the `astro` CLI command
+  - `core/`: Code that executes **in the top-level scope** (in Node). Within, you’ll find code that powers the `astro build` and `astro dev` commands, as well as top-level SSR code.
+  - `runtime/`: Code that executes **in different scopes** (i.e. not in a pure Node context). You’ll have to think about code differently here.
+    - `client/`: Code that executes **in the browser.** Astro’s partial hydration code lives here, and only browser-compatible code can be used.
+    - `server/`: Code that executes **inside Vite’s SSR.** Though this is a Node environment inside, this will be executed independently from `core/` and may have to be structured differently.
+  - `vite-plugin-*/`: Any Vite plugins that Astro needs to run. For the most part, these also execute within Vite similar to `src/runtime/server/`, but it’s also helpful to think about them as independent modules. _Note: at the moment these are internal while they’re in development_
+
+### Thinking about SSR
+
+There are 3 contexts in which code executes:
+
+- **Node.js**: this code lives in `src/core/`.
+- **Inside Vite**: this code lives in `src/runtime/server/`.
+- **In the browser**: this code lives in `src/runtime/client/`.
+
+Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
 
 # Releasing Astro
 

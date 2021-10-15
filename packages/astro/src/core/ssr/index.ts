@@ -67,7 +67,6 @@ async function resolveRenderer(viteServer: ViteDevServer, renderer: string) {
 async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promise<Renderer[]> {
   const renderers = await Promise.all(
     ids.map((renderer) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       if (cache.has(renderer)) return cache.get(renderer)!;
       let promise = resolveRenderer(viteServer, renderer);
       cache.set(renderer, promise);
@@ -101,7 +100,6 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       validateGetStaticPathsModule(mod);
       routeCache[route.component] =
         routeCache[route.component] ||
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         (
           await mod.getStaticPaths!({
             paginate: generatePaginateFunction(route),

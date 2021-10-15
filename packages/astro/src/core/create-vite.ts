@@ -67,7 +67,7 @@ export async function createVite(
 
   // load client-side hydrations
   fs.readdirSync(new URL('../runtime/client/', import.meta.url)).forEach((hydrator) => {
-    optimizedDeps.add(`astro/client/${hydrator}`); // always prepare these for client
+    optimizedDeps.add(`astro/runtime/client/${hydrator}`); // always prepare these for client
   });
 
   return vite.mergeConfig(
