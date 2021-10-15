@@ -7,7 +7,7 @@
 // Assume ESM to start, and then call `require()` below once CJS is confirmed.
 // Needed for Stackblitz: https://github.com/stackblitz/webcontainer-core/issues/281
 
-const CI_INTRUCTIONS = {
+const CI_INSTRUCTIONS = {
   NETLIFY: 'https://docs.netlify.com/configure-builds/manage-dependencies/#node-js-and-javascript',
   GITHUB_ACTIONS: 'https://docs.github.com/en/actions/guides/building-and-testing-nodejs#specifying-the-nodejs-version',
   VERCEL: 'https://vercel.com/docs/runtimes#official-runtimes/node-js/node-js-version',
@@ -80,8 +80,8 @@ Please upgrade Node.js to a supported version: "${engines}"\n`);
     }
     console.log(`${ci.name} CI Environment Detected!\nAdditional steps may be needed to set your Node.js version:`);
     console.log(`Documentation: https://docs.astro.build/guides/deploy`);
-    if (CI_INTRUCTIONS[platform]) {
-      console.log(`${ci.name} Documentation: ${CI_INTRUCTIONS[platform]}`);
+    if (CI_INSTRUCTIONS[platform]) {
+      console.log(`${ci.name} Documentation: ${CI_INSTRUCTIONS[platform]}`);
     }
     console.log(``);
   }
