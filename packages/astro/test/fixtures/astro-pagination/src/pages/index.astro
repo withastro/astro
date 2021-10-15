@@ -1,5 +1,4 @@
 ---
-import Child from '../components/Child.astro';
 ---
 <html>
 <head>
@@ -9,7 +8,5 @@ import Child from '../components/Child.astro';
 <body>
   <div id="pathname">{Astro.request.url.pathname}</div>
   <a id="site" href={Astro.site}>Home</a>
-
-  <Child />
 </body>
 </html>

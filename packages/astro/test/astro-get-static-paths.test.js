@@ -1,5 +1,5 @@
 /**
- * UNCOMMENT: add getStaticPaths()
+ * UNCOMMENT: fix "Error: can only be called once!"
 import { expect } from 'chai';
 import { loadFixture } from './test-utils';
 

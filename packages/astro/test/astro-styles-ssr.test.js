@@ -1,5 +1,5 @@
 /**
- * UNCOMMENT: fix frontmatter import hoisting
+ * UNCOMMENT: Add styles support
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';

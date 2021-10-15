@@ -1,5 +1,5 @@
 /**
- * UNCOMMENT: add Astro.fetchContent()
+ * UNCOMMENT: there’s a bug with Canonical URLs
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
