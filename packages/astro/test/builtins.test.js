@@ -1,5 +1,5 @@
 /**
- * UNCOMMENT: separate this fixture into two
+ * UNCOMMENT: Fix "Unexpected "\x00" bug
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';

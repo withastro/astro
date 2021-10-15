@@ -1,5 +1,5 @@
 /**
- * UNCOMMENT: fix layout bug
+ * UNCOMMENT: compiler doesn’t insert <!doctype>
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';

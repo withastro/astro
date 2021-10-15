@@ -15,7 +15,6 @@ before(async () => {
   await fixture.build();
 });
 
-
 describe('Astro.*', () => {
   it('Astro.request.url', async () => {
     const html = await fixture.readFile('/index.html');

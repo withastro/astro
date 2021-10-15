@@ -87,7 +87,7 @@ export async function profileJS({ cwd, entryHTML }: { cwd: URL; entryHTML?: URL 
       const relPath = url.pathname.replace(cwd.pathname, '');
       if (sizes[relPath]) return;
       try {
-        let code = url.protocol === 'file:' ? await fs.promises.readFile(url, 'utf8') : await fetch(url).then((body) => body.text());
+        let code = url.protocol === 'file:' ? await fs.promises.readFile(url, 'utf8') : await fetch(url.href).then((body) => body.text());
         sizes[relPath] = Buffer.byteLength(code);
         const staticImports = eslexer.parse(code)[0].filter(({ d }) => {
           if (!visitedEntry) return true; // if we’re on the entry file, count async imports, too
