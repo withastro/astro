@@ -1,19 +1,18 @@
 /* eslint-disable no-console */
 
-import type { AstroConfig } from '../@types/astro';
-import { LogOptions } from '../logger.js';
+import type { AstroConfig } from '../@types/astro-core';
+import { LogOptions } from '../core/logger.js';
 
 import * as colors from 'kleur/colors';
 import fs from 'fs';
 import yargs from 'yargs-parser';
 import { z } from 'zod';
-import { defaultLogDestination } from '../logger.js';
-import build from '../build/index.js';
-import devServer from '../dev/index.js';
-import preview from '../preview/index.js';
-import { reload } from './reload.js';
+import { defaultLogDestination } from '../core/logger.js';
+import build from '../core/build/index.js';
+import devServer from '../core/dev/index.js';
+import preview from '../core/preview/index.js';
 import { check } from './check.js';
-import { formatConfigError, loadConfig } from '../config.js';
+import { formatConfigError, loadConfig } from '../core/config.js';
 
 type Arguments = yargs.Arguments;
 type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
@@ -133,7 +132,6 @@ export async function cli(args: string[]) {
       return;
     }
     case 'dev': {
-      if (flags.reload) await reload(projectRoot);
       try {
         const server = await devServer(config, { logging });
         await new Promise(() => {}); // don’t close dev server
@@ -143,7 +141,6 @@ export async function cli(args: string[]) {
       return;
     }
     case 'build': {
-      if (flags.reload) await reload(projectRoot);
       try {
         await build(config, { logging });
         process.exit(0);
@@ -158,7 +155,6 @@ export async function cli(args: string[]) {
       return;
     }
     case 'preview': {
-      if (flags.reload) await reload(projectRoot);
       try {
         await preview(config, { logging }); // this will keep running
       } catch (err) {

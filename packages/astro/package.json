@@ -4,7 +4,7 @@
   "author": "Skypack",
   "license": "MIT",
   "type": "module",
-  "types": "./dist/types/@types/public.d.ts",
+  "types": "./dist/types/@types/astro-public.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowpackjs/astro.git",
@@ -12,14 +12,25 @@
   },
   "exports": {
     ".": "./astro.js",
-    "./client/*": "./dist/client/*",
+    "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.js",
     "./components/*": "./components/*",
     "./debug": "./components/Debug.astro",
-    "./internal": "./dist/internal/index.js",
-    "./internal/*": "./dist/internal/*",
-    "./runtime/*": "./dist/runtime/*.js",
-    "./package.json": "./package.json"
+    "./internal": "./dist/runtime/server/index.js",
+    "./internal/*": "./dist/runtime/server/*",
+    "./package.json": "./package.json",
+    "./runtime/*": "./dist/runtime/*",
+    "./server/*": "./dist/runtime/server/*",
+    "./vite-plugin-astro": "./dist/vite-plugin-astro/index.js",
+    "./vite-plugin-astro/*": "./dist/vite-plugin-astro/*",
+    "./vite-plugin-astro-postprocess": "./dist/vite-plugin-astro-postprocess/index.js",
+    "./vite-plugin-astro-postprocess/*": "./dist/vite-plugin-astro-postprocess/*",
+    "./vite-plugin-fetch": "./dist/vite-plugin-fetch/index.js",
+    "./vite-plugin-fetch/*": "./dist/vite-plugin-fetch/*",
+    "./vite-plugin-jsx/*": "./dist/vite-plugin-jsx/*",
+    "./vite-plugin-jsx": "./dist/vite-plugin-jsx/index.js",
+    "./vite-plugin-markdown": "./dist/vite-plugin-markdown/index.js",
+    "./vite-plugin-markdown/*": "./dist/vite-plugin-markdown/*"
   },
   "imports": {
     "#astro/*": "./dist/*.js"
@@ -30,7 +41,8 @@
   "files": [
     "components",
     "dist",
-    "astro.js"
+    "astro.js",
+    "README.md"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -49,16 +61,13 @@
     "@astrojs/renderer-react": "0.2.2",
     "@astrojs/renderer-svelte": "0.1.2",
     "@astrojs/renderer-vue": "0.1.9",
-    "@babel/code-frame": "^7.12.13",
-    "@babel/core": "^7.15.5",
+    "@babel/core": "^7.15.8",
     "@babel/traverse": "^7.15.4",
-    "@babel/types": "^7.15.6",
     "@web/rollup-plugin-html": "^1.10.1",
     "astring": "^1.7.5",
     "cheerio": "^1.0.0-rc.10",
     "ci-info": "^3.2.0",
     "connect": "^3.7.0",
-    "del": "^6.0.0",
     "es-module-lexer": "^0.7.1",
     "esbuild": "^0.13.6",
     "estree-util-value-to-estree": "^1.2.0",
@@ -76,7 +85,6 @@
     "shorthash": "^0.0.2",
     "slash": "^4.0.0",
     "sourcemap-codec": "^1.4.8",
-    "srcset-parse": "^1.1.0",
     "string-width": "^5.0.0",
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
@@ -87,6 +95,7 @@
   },
   "devDependencies": {
     "@astrojs/parser": "^0.20.2",
+    "@babel/types": "^7.15.6",
     "@types/babel__core": "^7.1.15",
     "@types/chai": "^4.2.22",
     "@types/connect": "^3.4.35",
