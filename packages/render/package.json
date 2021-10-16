@@ -1,0 +1,33 @@
+{
+  "name": "@astrojs/render",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/snowpackjs/astro.git",
+    "directory": "packages/render"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./internal": "./dist/internal/index.js"
+  },
+  "scripts": {
+    "prepublish": "yarn build",
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
+    "postbuild": "del \"dist/@types/**/*.js\"",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "serialize-javascript": "^6.0.0",
+    "shorthash": "^0.0.2"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0",
+    "npm": ">=6.14.0"
+  },
+  "devDependencies": {
+    "@types/serialize-javascript": "^5.0.1",
+    "del": "^6.0.0"
+  }
+}
