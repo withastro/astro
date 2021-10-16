@@ -36,7 +36,7 @@
     "packages/astro/test/fixtures/custom-elements/my-component-lib"
   ],
   "volta": {
-    "node": "14.16.1",
+    "node": "14.18.1",
     "npm": "7.11.2",
     "yarn": "1.22.10"
   },
