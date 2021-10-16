@@ -1,7 +1,7 @@
 import type { AstroComponentFactory } from '../internal'
 
 import { createResult, renderToString, AstroElement } from './utils.js';
-import { config, validateConfig } from '../config/index.js';
+import { config } from '../config/index.js';
 
 export interface RenderResult {
   html: { code: string };
@@ -9,9 +9,8 @@ export interface RenderResult {
   js: AstroElement[];
 }
 
-export async function render(Component: AstroComponentFactory, props: Record<string, any>): Promise<RenderResult> {
-  validateConfig(config);
-  const result = createResult(config!)
+export async function render(Component: AstroComponentFactory, props: Record<string, any>, req: { url: string }): Promise<RenderResult> {
+  const result = createResult(config!, req);
   const template = await renderToString(result, Component, props);
   const styles = Array.from(result.styles).map(({ props, children }: any) => new AstroElement('style', props, children));
   const scripts = Array.from(result.scripts).map(({ props, children }: any) => new AstroElement('script', props, children));

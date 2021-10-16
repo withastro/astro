@@ -1,9 +1,11 @@
 import type { AstroConfigMinimal } from '../@types/config-minimal';
 
-export let config: AstroConfigMinimal | null = null;
+export let config: AstroConfigMinimal = {
+  site: 'https://example.com',
+  renderers: []
+};
 
-export function setConfig(options: AstroConfigMinimal): void {
-  validateConfig(options);
+export function configure(options: AstroConfigMinimal): void {
   if (!config) {
     config = {} as any;
   }
@@ -12,11 +14,3 @@ export function setConfig(options: AstroConfigMinimal): void {
   }
 }
 
-export function validateConfig(config: unknown) {
-  if (!config) {
-    throw new Error(`[Astro]: You must call \`setConfig(value)\` before rendering!`)
-  }
-  if (typeof config !== 'object') {
-    throw new Error(`[Astro]: \`config\` must be of type "object". Found typeof "${typeof config}"!`)
-  }
-}

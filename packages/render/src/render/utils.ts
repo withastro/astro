@@ -4,7 +4,7 @@ import type { Renderer } from '../@types/astro';
 import type { AstroConfigMinimal } from '../@types/config-minimal'
 import type { AstroComponentFactory, AstroComponent } from '../internal';
 
-import { defineStyleVars, defineScriptVars, spreadAttributes } from '../internal';
+import { defineStyleVars, defineScriptVars, spreadAttributes } from '../internal/index.js';
 
 export interface CreateResultOptions {
   /** production website, needed for some RSS & Sitemap functions */
@@ -14,15 +14,15 @@ export interface CreateResultOptions {
   renderers?: Renderer[];
 }
 
-export function createResult({ origin, pathname = '/', renderers = [] }: AstroConfigMinimal): SSRResult {
+export function createResult({ site: origin, renderers = [] }: AstroConfigMinimal, req: { url: string }): SSRResult {
   const result: SSRResult = {
       styles: new Set(),
       scripts: new Set(),
       /** This function returns the `Astro` faux-global */
       createAstro(astroGlobal: TopLevelAstro, props: Record<string, any>, slots: Record<string, any> | null) {
         const site = new URL(origin);
-        const url = new URL('.' + pathname, site);
-        const canonicalURL = getCanonicalURL('.' + pathname, origin);
+        const url = new URL(req.url);
+        const canonicalURL = getCanonicalURL(url.pathname, origin);
 
         return {
           __proto__: astroGlobal,
@@ -94,6 +94,6 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 
 export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: Record<string|number, any>, slots: Record<string, AstroComponentFactory>|null = null) {
   const Component = await componentFactory(result, props, slots);
-  let template = await renderAstroComponent(Component);
+  const template = await renderAstroComponent(Component);
   return template;
 }
