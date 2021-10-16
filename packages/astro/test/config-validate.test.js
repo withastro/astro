@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { z } from 'zod';
 import stripAnsi from 'strip-ansi';
-import { formatConfigError, validateConfig } from '../dist/config.js';
+import { formatConfigError, validateConfig } from '../dist/core/config.js';
 
 describe('Config Validation', () => {
   it('empty user config is valid', async () => {
