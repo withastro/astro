@@ -17,6 +17,11 @@ const defaultConfig = {
   sourcesContent: false,
 };
 
+const dt = new Intl.DateTimeFormat('en-us', {
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
 export default async function build(...args) {
   const config = Object.assign({}, defaultConfig);
   const isDev = args.slice(-1)[0] === 'IS_DEV';
@@ -46,7 +51,7 @@ export default async function build(...args) {
     ...config,
     watch: {
       onRebuild(error, result) {
-        const date = new Date().toISOString();
+        const date = dt.format(new Date());
         if (error || (result && result.errors.length)) {
           console.error(dim(`[${date}] `) + red(error || result.errors.join('\n')));
         } else {
