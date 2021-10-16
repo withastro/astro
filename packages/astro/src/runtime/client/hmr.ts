@@ -7,7 +7,7 @@ if (import.meta.hot) {
     const doc = parser.parseFromString(html, 'text/html');
 
     morphdom(document.head, doc.head, {
-      onBeforeElUpdated: function (fromEl, toEl) {
+      onBeforeElUpdated(fromEl, toEl) {
         if (fromEl.isEqualNode(toEl)) {
           return false;
         }
@@ -17,7 +17,7 @@ if (import.meta.hot) {
     });
 
     morphdom(document.body, doc.body, {
-      onBeforeElUpdated: function (fromEl, toEl) {
+      onBeforeElUpdated(fromEl, toEl) {
         if (fromEl.localName === 'astro-root') {
           return fromEl.getAttribute('uid') !== toEl.getAttribute('uid');
         }
