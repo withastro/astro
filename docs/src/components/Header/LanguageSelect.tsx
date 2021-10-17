@@ -26,6 +26,7 @@ const LanguageSelect: FunctionalComponent<{ lang: string }> = ({ lang }) => {
       <select
         class="language-select"
         value={lang}
+        aria-label="Select language"
         onChange={(e) => {
           const newLang = e.target.value;
           if (newLang === 'en') {
