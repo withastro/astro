@@ -76,15 +76,15 @@ allPosts = allPosts.sort((a, b) => new Date(b.publishDate).valueOf() - new Date(
   <body>
     <BlogHeader />
     <div class="layout">
-      <article class="content">
+      <main class="content">
         <section class="intro">
           <h1 class="latest">{title}</h1>
           <p>{description}</p>
         </section>
-        <section>
+        <section aria-label="Blog post list">
           {allPosts.map(p => <BlogPostPreview post={p} />)}
         </section>
-      </article>
+      </main>
     </div>
   </body>
 </html>
