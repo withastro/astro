@@ -11,7 +11,7 @@ let lang = 'en';
 
 <html lang={ lang ?? 'en' }>
   <head>
-    <BaseHead title={title} description={description} permalink={permalink} />
+    <BaseHead title={title} description={description} canonicalURL={permalink} />
     <link rel="stylesheet" href={Astro.resolve('../../scss/blog.css')} />
 
     <style>
