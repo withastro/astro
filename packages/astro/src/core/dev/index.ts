@@ -2,14 +2,14 @@ import type { NextFunction } from 'connect';
 import type http from 'http';
 import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../../@types/astro-core';
 import type { LogOptions } from '../logger';
-import type { HmrContext, ModuleNode } from 'vite';
+import type { HmrContext, ModuleNode } from '../vite';
 
 import { fileURLToPath } from 'url';
 import connect from 'connect';
 import mime from 'mime';
 import { performance } from 'perf_hooks';
 import stripAnsi from 'strip-ansi';
-import vite from 'vite';
+import vite from '../vite.js';
 import { defaultLogOptions, error, info } from '../logger.js';
 import { ssr } from '../ssr/index.js';
 import { createRouteManifest, matchRoute } from '../ssr/routing.js';
@@ -151,7 +151,8 @@ export class AstroDevServer {
     } catch (e) {
       const err = e as Error;
       this.viteServer.ssrFixStacktrace(err);
-      console.log(err.stack);
+      // eslint-disable-next-line
+      console.error(err.stack);
       this.viteServer.ws.send({
         type: 'full-reload',
       });

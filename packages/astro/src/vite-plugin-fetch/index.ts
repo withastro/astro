@@ -1,4 +1,4 @@
-import type { Plugin } from 'vite';
+import type { Plugin } from '../core/vite';
 import MagicString from 'magic-string';
 
 // https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726

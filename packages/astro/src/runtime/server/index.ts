@@ -266,7 +266,7 @@ function createFetchContentFn(url: URL) {
 }
 
 export function createAstro(fileURLStr: string, site: string): TopLevelAstro {
-  const url = pathToFileURL(fileURLStr);
+  const url = new URL(fileURLStr);
   const fetchContent = createFetchContentFn(url) as unknown as TopLevelAstro['fetchContent'];
   return {
     // TODO I think this is no longer needed.
