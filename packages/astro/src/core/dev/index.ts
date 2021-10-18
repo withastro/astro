@@ -151,7 +151,8 @@ export class AstroDevServer {
     } catch (e) {
       const err = e as Error;
       this.viteServer.ssrFixStacktrace(err);
-      console.log(err.stack);
+      // eslint-disable-next-line
+      console.error(err.stack);
       this.viteServer.ws.send({
         type: 'full-reload',
       });
