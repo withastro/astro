@@ -13,4 +13,4 @@ package-lock.json
 # do not commit .env files or any files that end with `.env`
 *.env
 
-!packages/astro/vite/dist
+!packages/astro/vendor/vite/dist
