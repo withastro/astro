@@ -337,6 +337,7 @@ h2.heading {
   display: inline-flex;
   gap: 0.5em;
   width: 100%;
+  padding: 0.15em 0 0.15em 0;
 }
 
 .header-link.depth-3 {
