@@ -6,7 +6,7 @@ import { pathToFileURL } from 'url';
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import shorthash from 'shorthash';
-export { createHydrationMap } from './hydration-map.js';
+export { createMetadata } from './metadata.js';
 
 const { generate, GENERATOR } = astring;
 
