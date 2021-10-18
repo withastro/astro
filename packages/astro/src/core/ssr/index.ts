@@ -76,15 +76,22 @@ async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promi
   return renderers;
 }
 
-/** use Vite to SSR */
-export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
-  try {
-    // 1. resolve renderers
+export async function loadSsrModule(filePath: URL, astroConfig: AstroConfig, viteServer: ViteDevServer) {
+      // 1. resolve renderers
     // Important this happens before load module in case a renderer provides polyfills.
     const renderers = await resolveRenderers(viteServer, astroConfig.renderers);
 
     // 1.5. load module
     const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
+    return { renderers, mod };
+}
+
+/** use Vite to SSR */
+export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
+  try {
+    // 1.
+    // Import the module and renderers
+    const { renderers, mod } = await loadSsrModule(filePath, astroConfig, viteServer);
 
     // 2. handle dynamic routes
     let params: Params = {};

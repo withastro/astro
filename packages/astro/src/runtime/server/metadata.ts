@@ -10,7 +10,7 @@ interface ComponentMetadata {
   componentUrl: string;
 }
 
-class Metadata {
+export class Metadata {
   public fileURL: URL;
   private metadataCache: Map<any, ComponentMetadata | null>;
   constructor(fileURL: string, public modules: ModuleInfo[], components: any[]) {

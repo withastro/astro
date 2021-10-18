@@ -10,7 +10,7 @@ import { fileURLToPath } from 'url';
 import { createVite } from '../create-vite.js';
 import { pad } from '../dev/util.js';
 import { defaultLogOptions, levels, warn } from '../logger.js';
-import { ssr } from '../ssr/index.js';
+import { loadSsrModule, ssr } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generateRssFunction } from '../ssr/rss.js';
@@ -75,6 +75,8 @@ class AstroBuilder {
       this.manifest.routes.map(async (route) => {
         const { pathname } = route;
         const filePath = new URL(`./${route.component}`, this.config.projectRoot);
+        const { mod } = await loadSsrModule(filePath, this.config, viteServer);
+        console.log("METADATA", mod.$$metadata);
         // static pages
         if (pathname) {
           allPages.push(

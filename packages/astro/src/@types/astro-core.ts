@@ -2,7 +2,7 @@ import type babel from '@babel/core';
 import type vite from 'vite';
 import type { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
-import type { AstroComponentFactory } from '../runtime/server';
+import type { AstroComponentFactory, Metadata } from '../runtime/server';
 
 export interface AstroComponentMetadata {
   displayName: string;
@@ -141,6 +141,7 @@ export interface CollectionRSS {
 export interface ComponentInstance {
   default: AstroComponentFactory;
   css?: string[];
+  $$metadata: Metadata;
   getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
