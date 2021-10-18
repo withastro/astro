@@ -10,10 +10,8 @@ const { post } = Astro.props;
     <p class="publish-date">{post.publishDate}</p>
     <a href={post.url}><h1 class="title">{post.title}</h1></a>
   </header>
-  <main>
-    <p>{post.description}</p>
-    <a href={post.url}>Read more</a>
-  </main>
+  <p>{post.description}</p>
+  <a href={post.url}>Read more</a>
 </article>
 
 <style>

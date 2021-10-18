@@ -61,12 +61,12 @@ let lang = 'en';
   <body>
     <BlogHeader />
     <div class="layout">
-      <article class="content">
+      <main class="content">
         <section class="intro">
           <h1 class="latest">The Astro Blog</h1>
           <p>{description}</p>
         </section>
-        <section>
+        <section aria-label="Blog post list">
           <BlogPostPreview title="Astro 0.21 Preview: Vite + WASM = ⚡️" publishDate="October 6, 2021" href="/blog/astro-021-preview">
             <span>Get a sneak preview of what's next for Astro, including our new Vite build engine and WASM-powered Go compiler.</span>
           </BlogPostPreview>
@@ -95,7 +95,7 @@ let lang = 'en';
             <span>We're excited to announce Astro as a new way to build static websites and deliver lightning-fast performance without sacrificing a modern developer experience.</span>
           </BlogPostPreview>
         </section>
-      </article>
+      </main>
     </div>
   </body>
 </html>
