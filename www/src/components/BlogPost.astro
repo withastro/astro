@@ -9,15 +9,16 @@ export interface Props {
   author?: string;
   publishDate: string;
   heroImage: string;
+  heroImageAlt: string;
 }
 
-const { title, author, publishDate, heroImage } = Astro.props;
+const { title, author, publishDate, heroImage, heroImageAlt } = Astro.props;
 ---
 
 <div class="layout">
   <article>
     <header>
-      {heroImage && <img width="720" height="420" class="hero-image" loading="lazy" src={heroImage} />}
+      {heroImage && <img width="720" height="420" class="hero-image" loading="lazy" src={heroImage} alt={heroImageAlt}/>}
       <p class="publish-date">{publishDate}</p>
       <h1 class="title">{title}</h1>
       {author && <Author authorId={author} />}
