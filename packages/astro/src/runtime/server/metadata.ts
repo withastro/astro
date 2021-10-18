@@ -10,7 +10,7 @@ interface ComponentMetadata {
   componentUrl: string;
 }
 
-class HydrationMap {
+class Metadata {
   public fileURL: URL;
   private metadataCache: Map<any, ComponentMetadata | null>;
   constructor(fileURL: string, public modules: ModuleInfo[], components: any[]) {
@@ -61,6 +61,12 @@ class HydrationMap {
   }
 }
 
-export function createHydrationMap(fileURL: string, modules: ModuleInfo[], components: any[]) {
-  return new HydrationMap(fileURL, modules, components);
+interface CreateMetadataOptions {
+  modules:  ModuleInfo[];
+  hydratedComponents: any[];
+  hoisted: any[];
+}
+
+export function createMetadata(fileURL: string, options: CreateMetadataOptions) {
+  return new Metadata(fileURL, options.modules, options.hydratedComponents);
 }
