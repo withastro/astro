@@ -5,7 +5,7 @@ import { rollupPluginHTML } from '@web/rollup-plugin-html';
 import fs from 'fs';
 import { bold, cyan, green, dim } from 'kleur/colors';
 import { performance } from 'perf_hooks';
-import vite, { ViteDevServer } from 'vite';
+import vite, { ViteDevServer } from '../vite.js';
 import { fileURLToPath } from 'url';
 import { createVite } from '../create-vite.js';
 import { pad } from '../dev/util.js';

@@ -2,16 +2,21 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-let previewServer;
-
-before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/astro-basic/' });
-  await fixture.build();
-  previewServer = await fixture.preview();
-});
-
 describe('Astro basics', () => {
+  let fixture;
+  let previewServer;
+
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-basic/' });
+    await fixture.build();
+    previewServer = await fixture.preview();
+  });
+
+  // important: close preview server (free up port and connection)
+  after(async () => {
+    if (previewServer) await previewServer.stop();
+  });
+
   describe('build', () => {
     it('Can load page', async () => {
       const html = await fixture.readFile(`/index.html`);
@@ -89,9 +94,4 @@ describe('Astro basics', () => {
       expect(result.status).to.equal(404);
     });
   });
-});
-
-// important: close preview server (free up port and connection)
-after(async () => {
-  if (previewServer) await previewServer.stop();
 });

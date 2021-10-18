@@ -1,5 +1,3 @@
-import { pathToFileURL } from 'url';
-
 interface ModuleInfo {
   module: Record<string, any>;
   specifier: string;
@@ -14,7 +12,7 @@ class HydrationMap {
   public fileURL: URL;
   private metadataCache: Map<any, ComponentMetadata | null>;
   constructor(fileURL: string, public modules: ModuleInfo[], components: any[]) {
-    this.fileURL = pathToFileURL(fileURL);
+    this.fileURL = new URL(fileURL);
     this.metadataCache = new Map<any, ComponentMetadata | null>();
   }
 
