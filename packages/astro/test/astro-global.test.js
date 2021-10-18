@@ -51,7 +51,7 @@ describe('Astro.*', () => {
   it('Astro.resolve in development', async () => {
     const html = await fixture.readFile('/resolve/index.html');
     const $ = cheerio.load(html);
-    expect($('img').attr('src')).to.equal('/src/images/penguin.png');
-    expect($('#inner-child img').attr('src')).to.equal('/src/components/nested/images/penguin.png');
+    expect($('img').attr('src')).to.include('/src/images/penguin.png');
+    expect($('#inner-child img').attr('src')).to.include('/src/components/nested/images/penguin.png');
   });
 });

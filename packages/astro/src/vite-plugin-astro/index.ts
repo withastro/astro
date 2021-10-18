@@ -1,5 +1,5 @@
 import type { TransformResult } from '@astrojs/compiler';
-import type { Plugin } from 'vite';
+import type { Plugin } from '../core/vite';
 import type { AstroConfig } from '../@types/astro-core';
 
 import esbuild from 'esbuild';
