@@ -6,8 +6,6 @@ lang: zh-Hant-TW
 
 Astro 是利用現代技術的靜態網站生成工具。可以從[首頁](https://astro.build/)或[釋出版本貼文](https://astro.build/blog/introducing-astro)來了解 Astro 的用途。此頁面是 Astro 文件與所有相關資源的概要。
 
-在找 Astro 的簡易概要？[請看首頁](https://astro.build)。
-
 ## 試玩 Astro
 
 試用 Astro 最簡單的方法，就是在機器的新資料夾裡執行 `npm init astro`。我們製作的 CLI 精靈會協助開啟全新的 Astro 專案。

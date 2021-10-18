@@ -6,8 +6,6 @@ lang: fr
 
 Astro est un générateur de site statique moderne. Comprenez ce qu'est Astro en visitant [notre page d'accueil](https://astro.build/) ou [notre annonce de sortie](https://astro.build/blog/introducing-astro). Cette page est une vue d'ensemble de la documentation d'Astro et de toutes les ressources associées.
 
-Vous cherchez un rapide condensé de ce qu'offre Astro ? [Visitez notre page d'accueil.](https://astro.build)
-
 ## Essayer Astro
 
 La manière la plus simple d'essayer Astro est de lancer `npm init astro` à partir d'un nouveau dossier depuis votre machine. Notre utilitaire CLI vous assistera dans la création d'un nouveau projet Astro.

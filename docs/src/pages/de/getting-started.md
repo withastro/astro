@@ -8,8 +8,6 @@ Astro ist ein moderner Generator für statische Webseiten (SSG). Um mehr über A
 
 Diese Seite dient als Übersicht der Astro-Dokumentation und alle damit verbundenen Ressourcen.
 
-Du willst erst einmal einen kurzen Überblick erhalten, um zu verstehen, was Astro ist? [Besuch unsere Homepage](https://astro.build).
-
 ## Astro ausprobieren
 
 Der einfachste Weg, Astro auszuprobieren, ist `npm init astro` in einem neuen Verzeichnis deiner Wahl auszuführen. Der CLI-Wizard hilft Dir dabei, ein neues Astro-Projekt aufzusetzen.

@@ -6,8 +6,6 @@ lang: fi
 
 Astro on moderni työkalu staattisten sivustojen luomiseen. Voit löytää lisätietoa Astrosta englanniksi [kotisivultamme](https://astro.build/) tai [julkistusviestistämme](https://astro.build/blog/introducing-astro). Tämä sivu on yleiskatsaus Astron dokumentaatioon ja liittyviin sisältöihin.
 
-Haluatko nähdä nopean yleiskatsauksen siitä mikä Astro on? [Tutustu kotisivuumme.](https://astro.build)
-
 ## Kokeile Astroa
 
 Helpoin tapa kokeilla Astroa on suorittaa `npm init astro` uudessa hakemistossa omalla koneellasi. Tämä CLI-komento käy lävitse tarvittavat vaiheet uuden Astro-projektin alkuunsaattamiseksi.

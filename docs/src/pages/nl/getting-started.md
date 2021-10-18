@@ -6,8 +6,6 @@ lang: nl
 
 Astro is een moderne statische sitebouwer. Leer alles over Astro op onze [homepage](https://astro.build/) of ons [release-bericht](https://astro.build/blog/introducing-astro). Deze pagina is een overzicht van de Astro documentatie en alle gerelateerde bronnen.
 
-Benieuwd naar een snel overzicht van wat Astro is? [Bezoek onze homepage.](https://astro.build)
-
 ## Probeer Astro
 
 De gemakkelijkste manier om Astro te proberen, is door `npm init astro` uit te voeren in een nieuwe map op je computer. Deze CLI opdracht helpt je in verschillende stappen je eerste Astro project op te zetten.

@@ -6,8 +6,6 @@ lang: es
 
 Astro es un creador de sitios estáticos moderno. Aprende de qué trata Astro en nuestra [página principal](https://astro.build/) o nuestra [publicación de lanzamiento](https://astro.build/blog/introducing-astro). Esta página es una descripción general de la documentación de Astro y todos los recursos relacionados.
 
-¿Buscas una descripción general rápida de lo que es Astro? Visita nuestra [página](https://astro.build/) principal.
-
 ## Prueba Astro
 
 La forma más fácil de probar Astro es ejecutando `npm init astro` en un nuevo directorio en tu máquina. Nuestro asistente CLI te ayudará a comenzar un nuevo proyecto Astro.

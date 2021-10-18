@@ -6,8 +6,6 @@ lang: kr
 
 Astro는 현대적인 정적 사이트 생성기(Static Site Generator)입니다. [홈페이지](https://astro.build/)나 [블로그](https://astro.build/blog/introducing-astro) 글을 통해 Astro에 대한 모든 것을 알아보세요. 이 페이지는 Astro 문서와 관련된 리소스를 소개합니다.
 
-Astro가 궁금하다면 [홈페이지](https://astro.build)에서 간단한 소개글을 읽어보세요.
-
 ## Astro 시작하기
 
 Astro를 시작하는 가장 쉬운 방법은 `npm init astro` 명령어를 실행하는 것입니다. 새로운 디렉토리에서 명령어를 실행해주세요. CLI 도우미가 새로운 프로젝트를 시작할 수 있도록 도와줍니다.
