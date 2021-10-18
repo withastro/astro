@@ -117,6 +117,7 @@ For Markdown files, the `content` prop also has an `astro` property which holds 
 > Keep in mind that the only guaranteed properties coming from the `content` prop are `astro` and `url`.
 
 ### Images and videos
+
 Using images or videos follows Astro's normal import rules:
 
 - Place them in the `public/` as explained on the [project-structure page](/core-concepts/project-structure/#public)
