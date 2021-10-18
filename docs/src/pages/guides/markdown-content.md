@@ -116,6 +116,13 @@ For Markdown files, the `content` prop also has an `astro` property which holds 
 
 > Keep in mind that the only guaranteed properties coming from the `content` prop are `astro` and `url`.
 
+### Images and videos
+Using images or videos follows Astro's normal import rules:
+
+- Place them in the `public/` as explained on the [project-structure page](/core-concepts/project-structure/#public)
+  - Example: Image is located at `/public/assets/img/astonaut.png` → Markdown: `![Astronaut](assets/img/astronaut.png)`
+- Or use `import` as explained on the [imports page](/guides/imports#other-assets) (when using Astro's Markdown Component)
+
 ## Astro's Markdown Component
 
 Astro has a dedicated component used to let you render your markdown as HTML components. This is a special component that is only exposed to `.astro` files. To use the `<Markdown>` component, within your frontmatter block use the following import statement:
