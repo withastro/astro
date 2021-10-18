@@ -6,7 +6,7 @@ import fs from 'fs';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
-import vite from 'vite';
+import vite from './vite.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
