@@ -43,7 +43,7 @@
     "dist",
     "astro.js",
     "README.md",
-    "vite"
+    "vendor"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
