@@ -113,7 +113,7 @@ body {
   gap: 1em;
 }
 
-.layout > article {
+.layout > :is(main, article) {
   grid-column: 2;
 }
 
