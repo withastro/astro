@@ -59,5 +59,17 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
         return devServer.handleHotUpdate(context);
       }
     },
+    transformIndexHtml(html) {
+      return [
+        {
+          injectTo: 'head-prepend',
+          tag: 'script',
+          attrs: {
+            type: 'module',
+            src: '/@astro/runtime/client/hmr',
+          },
+        },
+      ];
+    },
   };
 }
