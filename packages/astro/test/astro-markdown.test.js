@@ -1,23 +1,21 @@
-/**
- * UNCOMMENT: add markdown support
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({
-    projectRoot: './fixtures/astro-markdown/',
-    renderers: ['@astrojs/renderer-preact'],
-    buildOptions: {
-      sitemap: false,
-    },
-  });
-  await fixture.build();
-});
-
 describe('Astro Markdown', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-markdown/',
+      renderers: ['@astrojs/renderer-preact'],
+      buildOptions: {
+        sitemap: false,
+      },
+    });
+    await fixture.build();
+  });
+
   it('Can load markdown pages with Astro', async () => {
     const html = await fixture.readFile('/post/index.html');
     const $ = cheerio.load(html);
@@ -37,7 +35,7 @@ describe('Astro Markdown', () => {
   });
 
   it('Empty code blocks do not fail', async () => {
-    const html = await fixture.fetch('/empty-code/index.html');
+    const html = await fixture.readFile('/empty-code/index.html');
     const $ = cheerio.load(html);
 
     // test 1: There is not a `<code>` in the codeblock
@@ -47,15 +45,17 @@ describe('Astro Markdown', () => {
     expect($('pre')[1].children).to.have.lengthOf(0);
   });
 
-  it('Runs code blocks through syntax highlighter', async () => {
+  // This doesn't work because the markdown plugin doesn't have Prism support yet.
+  it.skip('Runs code blocks through syntax highlighter', async () => {
     const html = await fixture.readFile('/code/index.html');
     const $ = cheerio.load(html);
 
     // test 1: There are child spans in code blocks
-    expect($('code span').length).toBeGreaterThan(0);
+    expect($('code span').length).greaterThan(0);
   });
 
-  it('Scoped styles should not break syntax highlight', async () => {
+  // Blocked by lack of syntax highlighting
+  it.skip('Scoped styles should not break syntax highlight', async () => {
     const html = await fixture.readFile('/scopedStyles-code/index.html');
     const $ = cheerio.load(html);
 
@@ -80,28 +80,19 @@ describe('Astro Markdown', () => {
     expect($('#deep').children()).to.have.lengthOf(3);
 
     // tests 2–4: Only rendered title in each section
-    assert.equal($('.a').children()).to.have.lengthOf(1);
-    assert.equal($('.b').children()).to.have.lengthOf(1);
-    assert.equal($('.c').children()).to.have.lengthOf(1);
+    expect($('.a').children()).to.have.lengthOf(1);
+    expect($('.b').children()).to.have.lengthOf(1);
+    expect($('.c').children()).to.have.lengthOf(1);
 
     // test 5–7: Rendered title in correct section
-    assert.equal($('.a > h2').text()).to.equal('A');
-    assert.equal($('.b > h2').text()).to.equal('B');
-    assert.equal($('.c > h2').text()).to.equal('C');
+    expect($('.a > h2').text()).to.equal('A');
+    expect($('.b > h2').text()).to.equal('B');
+    expect($('.c > h2').text()).to.equal('C');
   });
 
-  it('Renders recursively', async () => {
-    const html = await fixture.readFile('/recursive/index.html');
-    const $ = cheerio.load(html);
-
-    // tests 1–2: Rendered title correctly
-    expect($('.a > h1').text()).to.equal('A');
-    expect($('.b > h1').text()).to.equal('B');
-    expect($('.c > h1').text()).to.equal('C');
-  });
-
-  it('Renders dynamic content though the content attribute', async () => {
+  it.skip('Renders dynamic content though the content attribute', async () => {
     const html = await fixture.readFile('/external/index.html');
+    console.log(html)
     const $ = cheerio.load(html);
 
     // test 1: Rendered markdown content
@@ -140,8 +131,8 @@ describe('Astro Markdown', () => {
   });
 
   it('Can render markdown with --- for horizontal rule', async () => {
-    const result = await fixture.readFile('/dash/index.html');
-    expect(result.status).to.equal(200);
+    const html = await fixture.readFile('/dash/index.html');
+    expect(!!html).to.equal(true);
   });
 
   it('Can render markdown content prop (#1259)', async () => {
@@ -152,7 +143,3 @@ describe('Astro Markdown', () => {
     expect($('h1').text()).to.equal('Foo');
   });
 });
-
-*/
-
-it.skip('is skipped', () => {});

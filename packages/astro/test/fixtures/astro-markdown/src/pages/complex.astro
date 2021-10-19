@@ -8,13 +8,11 @@ const title = 'My Blog Post';
 const description = 'This is a post about some stuff.';
 ---
 
-<Markdown>
-  <Layout>
-
+<Layout>
+  <Markdown>
     ## Interesting Topic
 
     <Hello name={`world`} />
     <Counter client:load />
-
-  </Layout>
-</Markdown>
+  </Markdown>
+</Layout>
