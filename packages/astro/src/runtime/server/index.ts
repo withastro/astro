@@ -43,7 +43,7 @@ async function _render(child: any): Promise<any> {
     return child;
   } else if (!child && child !== 0) {
     // do nothing, safe to ignore falsey values.
-  } else if (child instanceof AstroComponent) {
+  } else if (child instanceof AstroComponent || child.toString() === '[object AstroComponent]') {
     return await renderAstroComponent(child);
   } else {
     return child;
@@ -57,6 +57,10 @@ export class AstroComponent {
   constructor(htmlParts: TemplateStringsArray, expressions: any[]) {
     this.htmlParts = htmlParts;
     this.expressions = expressions;
+  }
+
+  get [Symbol.toStringTag]() {
+    return 'AstroComponent';
   }
 
   *[Symbol.iterator]() {
