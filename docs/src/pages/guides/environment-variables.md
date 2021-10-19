@@ -19,10 +19,10 @@ VITE_POKEAPI="https://pokeapi.co/api/v2"
 
 ## Getting environment variables
 
-Instead of using `process.env`, with Vite you use `import.meta.env`, which uses the `import.meta` feature added in ES2020 (don't worry about browser support though, Vite replaces all `import.meta.env` mentions with static values). For example, to get the `VITE_POKEAPI` environment variable, you could use `__SNOWPACK_ENV__.SNOWPACK_PUBLIC_POKEAPI`.
+Instead of using `process.env`, with Vite you use `import.meta.env`, which uses the `import.meta` feature added in ES2020 (don't worry about browser support though, Vite replaces all `import.meta.env` mentions with static values). For example, to get the `VITE_POKEAPI` environment variable, you could use `import.meta.env.VITE_POKEAPI`.
 
 ```js
-fetch(`${import.meta.env.SNOWPACK_PUBLIC_POKEAPI}/pokemon/squirtle`
+fetch(`${import.meta.env.VITE_POKEAPI}/pokemon/squirtle`
 ```
 
 > ⚠️WARNING⚠️:
