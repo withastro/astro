@@ -1,7 +1,7 @@
 'use strict';
 
 var require$$0 = require('events');
-var build = require('./chunks/dep-d8f4aa6e.js');
+var build = require('./chunks/dep-35df7f96.js');
 var perf_hooks = require('perf_hooks');
 require('fs');
 require('path');
@@ -682,7 +682,7 @@ cli
     .action(async (root, options) => {
     // output structure is preserved even after bundling so require()
     // is ok here
-    const { createServer } = await Promise.resolve().then(function () { return require('./chunks/dep-d8f4aa6e.js'); }).then(function (n) { return n.index$1; });
+    const { createServer } = await Promise.resolve().then(function () { return require('./chunks/dep-35df7f96.js'); }).then(function (n) { return n.index$1; });
     try {
         const server = await createServer({
             root,
@@ -731,7 +731,7 @@ cli
     .option('--emptyOutDir', `[boolean] force empty outDir when it's outside of root`)
     .option('-w, --watch', `[boolean] rebuilds when modules have changed on disk`)
     .action(async (root, options) => {
-    const { build: build$1 } = await Promise.resolve().then(function () { return require('./chunks/dep-d8f4aa6e.js'); }).then(function (n) { return n.build$1; });
+    const { build: build$1 } = await Promise.resolve().then(function () { return require('./chunks/dep-35df7f96.js'); }).then(function (n) { return n.build$1; });
     const buildOptions = cleanOptions(options);
     try {
         await build$1({
@@ -754,7 +754,7 @@ cli
     .command('optimize [root]')
     .option('--force', `[boolean] force the optimizer to ignore the cache and re-bundle`)
     .action(async (root, options) => {
-    const { optimizeDeps } = await Promise.resolve().then(function () { return require('./chunks/dep-d8f4aa6e.js'); }).then(function (n) { return n.index; });
+    const { optimizeDeps } = await Promise.resolve().then(function () { return require('./chunks/dep-35df7f96.js'); }).then(function (n) { return n.index; });
     try {
         const config = await build.resolveConfig({
             root,

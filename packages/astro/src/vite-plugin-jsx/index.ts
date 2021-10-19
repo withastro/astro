@@ -1,5 +1,5 @@
-import type { Plugin } from '../core/vite';
 import type { TransformResult } from 'rollup';
+import type { Plugin } from '../core/vite';
 import type { AstroConfig, Renderer } from '../@types/astro-core';
 import type { LogOptions } from '../core/logger';
 
