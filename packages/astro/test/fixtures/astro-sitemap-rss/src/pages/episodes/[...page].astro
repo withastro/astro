@@ -10,14 +10,14 @@ export function getStaticPaths({paginate, rss}) {
     },
     customData: `<language>en-us</language>` +
       `<itunes:author>MF Doom</itunes:author>`,
-    items: episodes.map(({ metadata, url }) => ({
-      title: metadata.title,
-      link: url,
-      description: metadata.description,
-      pubDate: metadata.pubDate + 'Z',
-      customData: `<itunes:episodeType>${metadata.type}</itunes:episodeType>` +
-        `<itunes:duration>${metadata.duration}</itunes:duration>` +
-        `<itunes:explicit>${metadata.explicit || false}</itunes:explicit>`,
+    items: episodes.map((episode) => ({
+      title: episode.title,
+      link: episode.url,
+      description: episode.description,
+      pubDate: episode.pubDate + 'Z',
+      customData: `<itunes:episodeType>${episode.type}</itunes:episodeType>` +
+        `<itunes:duration>${episode.duration}</itunes:duration>` +
+        `<itunes:explicit>${episode.explicit || false}</itunes:explicit>`,
     })),
     dest: '/custom/feed.xml',
   });
