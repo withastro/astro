@@ -1,7 +1,5 @@
-/**
- * UNCOMMENT: fix "Error: can only be called once!"
 import { expect } from 'chai';
-import { loadFixture } from './test-utils';
+import { loadFixture } from './test-utils.js';
 
 let fixture;
 
@@ -22,6 +20,3 @@ describe('getStaticPaths()', () => {
     expect(true).to.equal(true);
   });
 });
-*/
-
-it.skip('is skipped', () => {});
