@@ -29,7 +29,6 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
         return null;
       }
 
-      console.log('trying', id);
       // Handle the second-pass JS AST Traversal
       const result = await babel.transformAsync(code, {
         sourceType: 'module',
@@ -73,7 +72,6 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
         return null;
       }
 
-      debugger;
       return { code: result.code, map: result.map };
     },
   };

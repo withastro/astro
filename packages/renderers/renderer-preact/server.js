@@ -20,8 +20,7 @@ function check(Component, props, children) {
     // but components would be <undefined></undefined>
 
     return !/\<undefined\>/.test(html);
-  } catch(err) {
-    debugger;
+  } catch {
     return false;
   }
 }
