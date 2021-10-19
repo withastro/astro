@@ -5,7 +5,10 @@ const outer = `# Outer`;
 const inner = `## Inner`;
 ---
 
-<div>
+<style>
+  #root { color: green; }
+</style>
+<div id="root">
   <Markdown content={outer} />
 
   <Markdown>

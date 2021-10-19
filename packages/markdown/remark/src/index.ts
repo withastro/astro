@@ -39,6 +39,7 @@ export const DEFAULT_REHYPE_PLUGINS = [
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
   const { remarkPlugins = DEFAULT_REMARK_PLUGINS, rehypePlugins = DEFAULT_REHYPE_PLUGINS } = opts ?? {};
+  const scopedClassName = opts?.$?.scopedClassName;
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
   await Promise.all([loadRemarkExpressions(), loadRemarkJsx()]); // Vite bug: dynamically import() these because of CJS interop (this will cache)
@@ -47,7 +48,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     .use(markdown)
     .use([remarkJsx])
     .use([remarkExpressions])
-    .use([remarkPrism])
+    .use([remarkPrism(scopedClassName)])
 
   const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
   const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
@@ -56,9 +57,9 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     parser.use([[plugin, opts]]);
   });
 
-  // if (scopedClassName) {
-  //   parser.use(scopedStyles(scopedClassName));
-  // }
+  if (scopedClassName) {
+     parser.use([scopedStyles(scopedClassName)]);
+  }
 
   //parser.use(remarkCodeBlock);
   parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement']}]]);
