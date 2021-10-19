@@ -6,8 +6,7 @@ import { remarkExpressions, loadRemarkExpressions } from './remark-expressions.j
 import rehypeExpressions from './rehype-expressions.js';
 import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
 import rehypeJsx from './rehype-jsx.js';
-import { remarkCodeBlock, rehypeCodeBlock } from './codeblock.js';
-import remarkSlug from './remark-slug.js';
+//import { remarkCodeBlock } from './codeblock.js';
 import { loadPlugins } from './load-plugins.js';
 
 import { unified } from 'unified';
@@ -59,7 +58,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   //   parser.use(scopedStyles(scopedClassName));
   // }
 
-  parser.use(remarkCodeBlock);
+  //parser.use(remarkCodeBlock);
   parser.use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement']});
 
   loadedRehypePlugins.forEach(([plugin, opts]) => {
@@ -71,12 +70,13 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   let result: string;
   try {
     const vfile = await parser
-      .use(rehypeCollectHeaders)
-      .use(rehypeCodeBlock)
+    .use(rehypeCollectHeaders)
       .use(rehypeStringify, { allowParseErrors: true, preferUnquoted: true, allowDangerousHtml: true })
       .process(content);
     result = vfile.toString();
   } catch (err) {
+    debugger;
+    console.error(err);
     throw err;
   }
 

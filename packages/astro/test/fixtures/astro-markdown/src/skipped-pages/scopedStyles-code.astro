@@ -3,12 +3,12 @@ import { Markdown } from 'astro/components';
 import Layout from '../layouts/content.astro';
 
 ---
-<Markdown>
 <Layout>
-  ## Interesting Topic
+  <Markdown>
+    ## Interesting Topic
 
-  ```js
-  const thing = () => {};
-  ```
+    ```js
+    const thing = () => {};
+    ```
+  </Markdown>
 </Layout>
-</Markdown>

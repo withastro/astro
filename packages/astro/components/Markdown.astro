@@ -1,5 +1,6 @@
 ---
 import { renderMarkdown } from '@astrojs/markdown-remark';
+import stripIndent from 'strip-indent';
 
 export interface Props {
   content?: string;
@@ -10,23 +11,22 @@ interface InternalProps extends Props {
   $scope: string;
 }
 
-const { content, $scope } = Astro.props as InternalProps;
+let { content, $scope } = Astro.props as InternalProps;
 let html = null;
 
-// This flow is only triggered if a user passes `<Markdown content={content} />`
-if (content) {
-  const { content: htmlContent } = await renderMarkdown(content, {
-    mode: 'md',
-    $: {
-      scopedClassName: $scope
-    }
-  });
-  html = htmlContent;
+// If no content prop provided, use the slot.
+if(!content) {
+  const renderSlot = (Astro as any).privateRenderSlotDoNotUse;
+  content = stripIndent(await renderSlot('default'));
 }
 
-/*
-  If we have rendered `html` for `content`, render that
-  Otherwise, just render the slotted content
-*/
+const { code: htmlContent } = await renderMarkdown(content, {
+  mode: 'md',
+  $: {
+    scopedClassName: $scope
+  }
+});
+
+html = htmlContent;
 ---
 {html ? html : <slot />}

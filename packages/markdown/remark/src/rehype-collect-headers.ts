@@ -22,11 +22,10 @@ export default function createCollectHeaders() {
           text += child.value;
         });
 
-        let slug = node?.data?.id || slugger.slug(text);
+        let slug = node?.properties?.id || slugger.slug(text);
 
-        node.data = node.data || {};
-        node.data.properties = node.data.properties || {};
-        node.data.properties = { ...(node.data.properties as Properties), slug };
+        node.properties = node.properties || {};
+        node.properties.id = slug;
         headers.push({ depth, slug, text });
       });
     };

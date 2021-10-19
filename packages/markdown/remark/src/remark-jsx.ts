@@ -7,7 +7,7 @@ export function remarkJsx(this: any, options: any) {
   let settings = options || {};
   let data = this.data();
 
-  add('micromarkExtensions', mdxJsx({}));
+  // TODO this seems to break adding slugs, no idea why add('micromarkExtensions', mdxJsx({}));
   add('fromMarkdownExtensions', mdxJsxFromMarkdown);
   add('toMarkdownExtensions', mdxJsxToMarkdown);
 

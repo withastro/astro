@@ -9,7 +9,7 @@ import * as eslexer from 'es-module-lexer';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import path from 'path';
-import { renderPage } from '../../runtime/server/index.js';
+import { renderPage, renderSlot } from '../../runtime/server/index.js';
 import { parseNpmName, canonicalURL as getCanonicalURL, codeFrame } from '../util.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
@@ -144,6 +144,9 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
             url,
           },
           slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
+          privateRenderSlotDoNotUse(slotName: string) {
+            return renderSlot(result, slots ? slots[slotName] : null)
+          }
         } as unknown as AstroGlobal;
       },
       _metadata: { renderers },
