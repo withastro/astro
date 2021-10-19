@@ -7,6 +7,7 @@ import rehypeExpressions from './rehype-expressions.js';
 import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
 import rehypeJsx from './rehype-jsx.js';
 //import { remarkCodeBlock } from './codeblock.js';
+import remarkPrism from './remark-prism.js';
 import { loadPlugins } from './load-plugins.js';
 
 import { unified } from 'unified';
@@ -46,12 +47,13 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     .use(markdown)
     .use([remarkJsx])
     .use([remarkExpressions])
+    .use([remarkPrism])
 
   const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
   const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
 
   loadedRemarkPlugins.forEach(([plugin, opts]) => {
-    parser.use(plugin, opts);
+    parser.use([[plugin, opts]]);
   });
 
   // if (scopedClassName) {
@@ -59,18 +61,18 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   // }
 
   //parser.use(remarkCodeBlock);
-  parser.use(markdownToHtml, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement']});
+  parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement']}]]);
 
   loadedRehypePlugins.forEach(([plugin, opts]) => {
-    parser.use(plugin, opts);
+    parser.use([[plugin, opts]]);
   });
   
-  parser.use(rehypeJsx).use(rehypeExpressions)
+  parser.use([rehypeJsx]).use(rehypeExpressions)
 
   let result: string;
   try {
     const vfile = await parser
-    .use(rehypeCollectHeaders)
+    .use([rehypeCollectHeaders])
       .use(rehypeStringify, { allowParseErrors: true, preferUnquoted: true, allowDangerousHtml: true })
       .process(content);
     result = vfile.toString();
