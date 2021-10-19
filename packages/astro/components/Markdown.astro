@@ -11,7 +11,7 @@ interface InternalProps extends Props {
   $scope: string;
 }
 
-let { content, $scope } = Astro.props as InternalProps;
+let { content, class: className } = Astro.props as InternalProps;
 let html = null;
 
 // If no content prop provided, use the slot.
@@ -23,7 +23,7 @@ if(!content) {
 const { code: htmlContent } = await renderMarkdown(content, {
   mode: 'md',
   $: {
-    scopedClassName: $scope
+    scopedClassName: className
   }
 });
 
