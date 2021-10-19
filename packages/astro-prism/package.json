@@ -15,6 +15,7 @@
   "exports": {
     ".": "./index.mjs"
   },
+  "types": "./index.d.ts",
   "keywords": [],
   "author": "Skypack",
   "license": "MIT",

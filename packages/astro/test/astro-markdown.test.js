@@ -46,7 +46,7 @@ describe('Astro Markdown', () => {
   });
 
   // This doesn't work because the markdown plugin doesn't have Prism support yet.
-  it.skip('Runs code blocks through syntax highlighter', async () => {
+  it('Runs code blocks through syntax highlighter', async () => {
     const html = await fixture.readFile('/code/index.html');
     const $ = cheerio.load(html);
 
