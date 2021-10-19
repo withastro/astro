@@ -4,13 +4,11 @@ import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Prop
 import type { AstroGlobal, TopLevelAstro, SSRResult } from '../../@types/astro-runtime';
 import type { LogOptions } from '../logger';
 
-import cheerio from 'cheerio';
-import * as eslexer from 'es-module-lexer';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import path from 'path';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
-import { parseNpmName, canonicalURL as getCanonicalURL, codeFrame } from '../util.js';
+import { canonicalURL as getCanonicalURL, codeFrame } from '../util.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 
@@ -34,10 +32,6 @@ interface SSROptions {
   /** Vite instance */
   viteServer: ViteDevServer;
 }
-
-// note: not every request has a Vite browserHash. if we ever receive one, hang onto it
-// this prevents client-side errors such as the "double React bug" (https://reactjs.org/warnings/invalid-hook-call-warning.html#mismatching-versions-of-react-and-react-dom)
-let browserHash: string | undefined;
 
 const cache = new Map<string, Promise<Renderer>>();
 
@@ -117,11 +111,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     }
 
     // 3. render page
-    if (!browserHash && (viteServer as any)._optimizeDepsMetadata?.browserHash) browserHash = (viteServer as any)._optimizeDepsMetadata.browserHash; // note: this is "private" and may change over time
-    const fullURL = new URL(pathname, origin);
-
     const Component = await mod.default;
-    const ext = path.posix.extname(filePath.pathname);
     if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
     if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
@@ -145,8 +135,8 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
           },
           slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
           privateRenderSlotDoNotUse(slotName: string) {
-            return renderSlot(result, slots ? slots[slotName] : null)
-          }
+            return renderSlot(result, slots ? slots[slotName] : null);
+          },
         } as unknown as AstroGlobal;
       },
       _metadata: { renderers },
@@ -156,12 +146,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     // 4. modify response
     if (mode === 'development') {
-      // inject Astro HMR code
-      html = injectAstroHMR(html);
-      // inject Vite HMR code
-      html = injectViteClient(html);
-      // replace client hydration scripts
-      html = resolveNpmImports(html);
+      html = await viteServer.transformIndexHtml(fileURLToPath(filePath), html, pathname);
     }
 
     // 5. finish
@@ -188,56 +173,4 @@ ${frame}
     // Vite error (already formatted)
     throw e;
   }
-}
-
-/** Injects Vite client code */
-function injectViteClient(html: string): string {
-  return html.replace('<head>', `<head><script type="module" src="/@vite/client"></script>`);
-}
-
-/** Injects Astro HMR client code */
-function injectAstroHMR(html: string): string {
-  return html.replace('<head>', `<head><script type="module" src="/@astro/runtime/client/hmr"></script>`);
-}
-
-/** Convert npm specifier into Vite URL */
-function resolveViteNpmPackage(spec: string): string {
-  const pkg = parseNpmName(spec);
-  if (!pkg) return spec;
-  let viteURL = '/node_modules/.vite/'; // start with /node_modules/.vite
-  viteURL += `${pkg.name}${pkg.subpath ? pkg.subpath.substr(1) : ''}`.replace(/[\/\.]/g, '_'); // flatten package name by replacing slashes (and dots) with underscores
-  viteURL += '.js'; // add .js
-  if (browserHash) viteURL += `?v=${browserHash}`; // add browserHash (if provided)
-  return viteURL;
-}
-
-/** Replaces npm imports with Vite-friendly paths */
-function resolveNpmImports(html: string): string {
-  const $ = cheerio.load(html);
-
-  // find all <script type="module">
-  const moduleScripts = $('script[type="module"]');
-  if (!moduleScripts.length) return html; // if none, return
-
-  // for each <script>, update all npm imports with Vite-friendly imports
-  moduleScripts.each((_, el) => {
-    let code = $(el).html() || '';
-    if (!code || $(el).attr('src')) return;
-    try {
-      const scan = () => eslexer.parse(code)[0].filter(({ n }) => n && parseNpmName(n));
-      let specs = scan();
-      while (specs.length) {
-        const next = specs[0];
-        let pkgName = resolveViteNpmPackage(next.n as string);
-        if (next.d !== -1) pkgName = JSON.stringify(pkgName); // if dynamic import, stringify
-        code = code.substring(0, next.s) + pkgName + code.substring(next.e);
-        specs = scan();
-      }
-      $(el).html(code);
-    } catch (err) {
-      // if invalid JS, ignore (error will be thrown elsewhere)
-    }
-  });
-
-  return $.html();
 }
