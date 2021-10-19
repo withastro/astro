@@ -19,6 +19,6 @@
   "dependencies": {
     "@lit-labs/ssr": "^1.0.0",
     "@webcomponents/template-shadowroot": "^0.1.0",
-    "lit": "^2.0.0"
+    "lit": "^2.0.2"
   }
 }
