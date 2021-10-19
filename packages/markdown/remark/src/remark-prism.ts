@@ -44,22 +44,30 @@ function runHighlighter(lang: string, code: string) {
   return { classLanguage, html };
 }
 
-/**  */
-function transformer(tree: any) {
-  const visitor = (node: any) => {
-    let {lang, value} = node;
-    node.type = 'html';
+type MaybeString = string | null | undefined;
 
-    let { html, classLanguage } = runHighlighter(lang, value);
-    node.value = `<pre class="${classLanguage}"><code class="${classLanguage}">${html}</code></pre>`;
-    return node;
-  };
-  return visit(tree, 'code', visitor)
+/**  */
+function transformer(className: MaybeString) {
+  return function(tree: any) {
+    const visitor = (node: any) => {
+      let {lang, value} = node;
+      node.type = 'html';
+
+      let { html, classLanguage } = runHighlighter(lang, value);
+      let classes = [classLanguage];
+      if(className) {
+        classes.push(className);
+      }
+      node.value = `<pre class="${classes.join(' ')}"><code class="${classLanguage}">${html}</code></pre>`;
+      return node;
+    };
+    return visit(tree, 'code', visitor)
+  } 
 }
 
 
-function plugin() {
-  return transformer;
+function plugin(className: MaybeString) {
+  return transformer.bind(null, className);
 }
 
 export default plugin;

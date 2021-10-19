@@ -45,7 +45,6 @@ describe('Astro Markdown', () => {
     expect($('pre')[1].children).to.have.lengthOf(0);
   });
 
-  // This doesn't work because the markdown plugin doesn't have Prism support yet.
   it('Runs code blocks through syntax highlighter', async () => {
     const html = await fixture.readFile('/code/index.html');
     const $ = cheerio.load(html);
@@ -54,13 +53,13 @@ describe('Astro Markdown', () => {
     expect($('code span').length).greaterThan(0);
   });
 
-  // Blocked by lack of syntax highlighting
-  it.skip('Scoped styles should not break syntax highlight', async () => {
+  it('Scoped styles should not break syntax highlight', async () => {
     const html = await fixture.readFile('/scopedStyles-code/index.html');
     const $ = cheerio.load(html);
 
     // test 1: <pre> tag has scopedStyle class passed down
     expect($('pre').is('[class]')).to.equal(true);
+    expect($('pre').attr('class').split(' ').length).to.equal(2)
 
     // test 2: <pre> tag has correct language
     expect($('pre').hasClass('language-js')).to.equal(true);
@@ -69,7 +68,7 @@ describe('Astro Markdown', () => {
     expect($('code').hasClass('language-js')).to.equal(true);
 
     // test 4: There are child spans in code blocks
-    expect($('code span').length).toBeGreaterThan(0);
+    expect($('code span').length).to.be.greaterThan(0);
   });
 
   it('Renders correctly when deeply nested on a page', async () => {
@@ -90,9 +89,8 @@ describe('Astro Markdown', () => {
     expect($('.c > h2').text()).to.equal('C');
   });
 
-  it.skip('Renders dynamic content though the content attribute', async () => {
+  it('Renders dynamic content though the content attribute', async () => {
     const html = await fixture.readFile('/external/index.html');
-    console.log(html)
     const $ = cheerio.load(html);
 
     // test 1: Rendered markdown content
