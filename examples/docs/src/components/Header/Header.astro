@@ -4,8 +4,8 @@ import * as CONFIG from '../../config.ts';
 import AstroLogo from './AstroLogo.astro';
 import SkipToContent from './SkipToContent.astro';
 import SidebarToggle from './SidebarToggle.tsx';
-import LanguageSelect from './LanguageSelect.jsx';
-import Search from "./Search.jsx";
+import LanguageSelect from './LanguageSelect.tsx';
+import Search from "./Search.tsx";
 
 const {currentPage} = Astro.props;
 const lang = currentPage && getLanguageFromURL(currentPage);

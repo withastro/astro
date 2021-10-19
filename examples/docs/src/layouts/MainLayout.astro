@@ -6,7 +6,7 @@ import Footer from '../components/Footer/Footer.astro';
 import PageContent from '../components/PageContent/PageContent.astro';
 import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
 import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
-import * as CONFIG from "../config.ts";
+import * as CONFIG from "../config";
 
 const { content = {} } = Astro.props;
 const currentPage = Astro.request.url.pathname;
@@ -14,7 +14,7 @@ const currentFile = `src/pages${currentPage.replace(/\/$/, "")}.md`;
 const githubEditUrl = CONFIG.GITHUB_EDIT_URL && (CONFIG.GITHUB_EDIT_URL + currentFile);
 ---
 
-<html dir="{content.dir ?? 'ltr'}" lang="{content.lang ?? 'en-us'}" class="initial">
+<html dir={content.dir ?? 'ltr'} lang={content.lang ?? 'en-us'} class="initial">
   <head>
     <HeadCommon />
     <HeadSEO {content} canonicalURL={Astro.request.canonicalURL} />

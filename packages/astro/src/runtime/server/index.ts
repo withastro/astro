@@ -214,6 +214,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   for (const r of renderers) {
     if (await r.ssr.check(Component, props, children)) {
       renderer = r;
+      break;
     }
   }
 
