@@ -11,6 +11,9 @@ interface AstroPluginOptions {
   devServer?: AstroDevServer;
 }
 
+// esbuild transforms the component-scoped Astro into Astro2, so need to check both. 
+const validAstroGlobalNames = new Set(['Astro', 'Astro2']);
+
 export default function astro({ config, devServer }: AstroPluginOptions): Plugin {
   return {
     name: '@astrojs/vite-plugin-astro-postprocess',
@@ -38,7 +41,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
                   if (
                     path.parent.type !== 'CallExpression' ||
                     path.parent.callee.type !== 'MemberExpression' ||
-                    (path.parent.callee.object as any).name !== 'Astro' ||
+                    !validAstroGlobalNames.has((path.parent.callee.object as any).name) ||
                     (path.parent.callee.property as any).name !== 'fetchContent'
                   ) {
                     return;
@@ -68,6 +71,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
       if (!result || !result.code) {
         return null;
       }
+
       return { code: result.code, map: result.map };
     },
   };

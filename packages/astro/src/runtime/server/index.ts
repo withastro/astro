@@ -258,10 +258,10 @@ function createFetchContentFn(url: URL) {
         }
         const urlSpec = new URL(spec, url).pathname.replace(/[\\/\\\\]/, '/');
         return {
+          ...mod.frontmatter,
           content: mod.metadata,
-          metadata: mod.frontmatter,
           file: new URL(spec, url),
-          url: urlSpec.includes('/pages/') && urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, ''),
+          url: urlSpec.includes('/pages/') && urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, '')
         };
       })
       .filter(Boolean);
