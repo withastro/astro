@@ -4,6 +4,7 @@ setup: |
   import Cool from '../../components/Author.astro'
 name: Nate Moore
 value: 128
+description: Just a Hello World Post!
 ---
 
 # Hello world!
