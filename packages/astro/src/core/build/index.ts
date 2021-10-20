@@ -10,7 +10,7 @@ import vite, { ViteDevServer } from '../vite.js';
 import { fileURLToPath } from 'url';
 import { createVite } from '../create-vite.js';
 import { pad } from '../dev/util.js';
-import { defaultLogOptions, levels, warn } from '../logger.js';
+import { debug, defaultLogOptions, levels, timerMessage, warn } from '../logger.js';
 import { ssr } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
@@ -53,9 +53,10 @@ class AstroBuilder {
 
   /** Build all pages */
   async build() {
-    const start = performance.now();
+    const timer: Record<string, number> = {}; // keep track of performance timers
 
     // 1. initialize fresh Vite instance
+    timer.viteStart = performance.now();
     const { logging, origin } = this;
     const viteConfig = await createVite(
       {
@@ -70,8 +71,10 @@ class AstroBuilder {
     );
     const viteServer = await vite.createServer(viteConfig);
     this.viteServer = viteServer;
+    debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
 
     // 2. get all routes
+    timer.renderStart = performance.now();
     const assets: Record<string, string> = {}; // additional assets to be written
     const allPages: Record<string, RouteData & { paths: string[] }> = {};
 
@@ -121,8 +124,10 @@ class AstroBuilder {
         )
       )
     );
+    debug(logging, 'build', timerMessage('All pages rendered', timer.renderStart));
 
     // 3. build with Vite
+    timer.buildStart = performance.now();
     await vite.build({
       logLevel: 'error',
       mode: 'production',
@@ -144,8 +149,10 @@ class AstroBuilder {
       root: viteConfig.root,
       server: viteConfig.server,
     });
+    debug(logging, 'build', timerMessage('Vite build finished', timer.buildStart));
 
     // 4. write assets to disk
+    timer.assetsStart = performance.now();
     Object.keys(assets).map((k) => {
       if (!assets[k]) return;
       const filePath = new URL(`file://${k}`);
@@ -153,29 +160,25 @@ class AstroBuilder {
       fs.writeFileSync(filePath, assets[k], 'utf8');
       delete assets[k]; // free up memory
     });
+    debug(logging, 'build', timerMessage('Additional assets copied', timer.assetsStart));
 
     // 5. build sitemap
-    let sitemapTime = 0;
+    timer.sitemapStart = performance.now();
     if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
       const sitemapStart = performance.now();
       const sitemap = generateSitemap(input.map(({ name }) => new URL(`/${name}`, this.config.buildOptions.site).href));
       const sitemapPath = new URL('./sitemap.xml', this.config.dist);
       await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
       await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
-      sitemapTime = performance.now() - sitemapStart;
     }
+    debug(logging, 'build', timerMessage('Sitemap built', timer.sitemapStart));
 
     // 6. clean up
     await viteServer.close();
 
     // 7. log output
     if (logging.level && levels[logging.level] <= levels['info']) {
-      await this.printStats({
-        cwd: this.config.dist,
-        pageCount: input.length,
-        pageTime: Math.round(performance.now() - start),
-        sitemapTime,
-      });
+      await this.printStats({ cwd: this.config.dist, pageCount: input.length });
     }
   }
 
@@ -196,12 +199,11 @@ class AstroBuilder {
   }
 
   /** Stats */
-  private async printStats({ cwd, pageTime, pageCount, sitemapTime }: { cwd: URL; pageTime: number; pageCount: number; sitemapTime: number }) {
-    const end = Math.round(performance.now() - pageTime);
+  private async printStats({ cwd, pageCount }: { cwd: URL; pageCount: number }) {
     const [js, html] = await Promise.all([profileJS({ cwd, entryHTML: new URL('./index.html', cwd) }), profileHTML({ cwd })]);
 
     /* eslint-disable no-console */
-    console.log(`${pad(bold(cyan('Done')), 70)}${dim(` ${pad(`${end}ms`, 8, 'left')}`)}
+    console.log(`${bold(cyan('Done'))}
 Pages (${pageCount} total)
   ${green(`✔ All pages under ${kb(html.maxSize)}`)}
 JS
@@ -213,6 +215,5 @@ CSS
 Images
   ${green(`✔ All images under 50 kB`)}
 `);
-    if (sitemapTime > 0) console.log(`Sitemap\n  ${green(`✔ Built in ${sitemapTime}`)}`);
   }
 }

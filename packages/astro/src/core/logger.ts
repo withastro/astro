@@ -185,3 +185,10 @@ if (process.argv.includes('--verbose')) {
 } else {
   defaultLogLevel = 'info';
 }
+
+/** Print out a timer message for debug() */
+export function timerMessage(message: string, startTime: number = performance.now()) {
+  let timeDiff = performance.now() - startTime;
+  let timeDisplay = timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
+  return `${message}: ${dim(timeDisplay)}]`;
+}
