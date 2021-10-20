@@ -73,7 +73,6 @@
     "estree-util-value-to-estree": "^1.2.0",
     "fast-xml-parser": "^3.19.0",
     "html-entities": "^2.3.2",
-    "htmlparser2": "^7.1.2",
     "kleur": "^4.1.4",
     "mime": "^2.5.2",
     "morphdom": "^2.6.1",

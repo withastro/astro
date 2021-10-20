@@ -124,10 +124,10 @@ It’s recommended to only use this in scenarios where a `<link>` tag won’t wo
 
 ## Autoprefixer
 
-[Autoprefixer][autoprefixer] takes care of cross-browser CSS compatibility for you. Use it in astro by installing it (`npm install --save-dev autoprefixer`) and adding a `postcss.config.js` file to the root of your project:
+[Autoprefixer][autoprefixer] takes care of cross-browser CSS compatibility for you. Use it in astro by installing it (`npm install --save-dev autoprefixer`) and adding a `postcss.config.cjs` file to the root of your project:
 
 ```js
-// postcss.config.js
+// postcss.config.cjs
 module.exports = {
   autoprefixer: {
     /* (optional) autoprefixer settings */
@@ -139,7 +139,7 @@ _Note: Astro v0.21 and later requires this manual setup for autoprefixer. Previo
 
 ## PostCSS
 
-You can use any PostCSS plugin by adding a `postcss.config.js` file to the root of your project. Follow the documentation for the plugin you’re trying to install for configuration and setup.
+You can use any PostCSS plugin by adding a `postcss.config.cjs` file to the root of your project. Follow the documentation for the plugin you’re trying to install for configuration and setup.
 
 ---
 
@@ -208,10 +208,10 @@ Astro can be configured to use [Tailwind][tailwind] easily! Install the dependen
 npm install --save-dev tailwindcss
 ```
 
-And create 2 files in your project root: `tailwind.config.js` and `postcss.config.js`:
+And create 2 files in your project root: `tailwind.config.cjs` and `postcss.config.cjs`:
 
 ```js
-// tailwind.config.js
+// tailwind.config.cjs
 module.exports = {
   mode: 'jit',
   purge: ['./public/**/*.html', './src/**/*.{astro,js,jsx,svelte,ts,tsx,vue}'],
@@ -220,7 +220,7 @@ module.exports = {
 ```
 
 ```js
-// postcss.config.js
+// postcss.config.cjs
 module.exports = {
   tailwind: {},
 };
@@ -250,7 +250,7 @@ As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%40
 
 ### 🎭 PostCSS
 
-Using PostCSS is as simple as placing a [`postcss.config.js`](https://github.com/postcss/postcss#usage) file in the root of your project.
+Using PostCSS is as simple as placing a [`postcss.config.cjs`](https://github.com/postcss/postcss#usage) file in the root of your project.
 
 Be aware that this plugin will run on all CSS in your project, including any files that compiled to CSS (like `.scss` Sass files, for example).
 

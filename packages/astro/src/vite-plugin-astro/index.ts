@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import { transform } from '@astrojs/compiler';
 import { decode } from 'sourcemap-codec';
 import { AstroDevServer } from '../core/dev/index.js';
-import { preprocessStyle } from './styles.js';
+import { getViteTransform, TransformHook, transformWithVite } from './styles.js';
 
 interface AstroPluginOptions {
   config: AstroConfig;
@@ -17,12 +17,12 @@ interface AstroPluginOptions {
 
 /** Transform .astro files for Vite */
 export default function astro({ config, devServer }: AstroPluginOptions): vite.Plugin {
-  let viteConfig: vite.ResolvedConfig;
+  let viteTransform: TransformHook;
   return {
     name: '@astrojs/vite-plugin-astro',
     enforce: 'pre', // run transforms before other plugins can
     configResolved(resolvedConfig) {
-      viteConfig = resolvedConfig; // gain access to vite:css
+      viteTransform = getViteTransform(resolvedConfig);
     },
     // note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
     async load(id) {
@@ -33,10 +33,6 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
       // everything else is treated as a fragment
       const isPage = id.startsWith(fileURLToPath(config.pages)) || id.startsWith(fileURLToPath(config.layouts));
       let source = await fs.promises.readFile(id, 'utf8');
-
-      // preprocess styles before compiler runs
-      source = await preprocessStyle({ source, filePath: id, config, viteConfig });
-
       let tsResult: TransformResult | undefined;
 
       try {
@@ -49,6 +45,11 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           sourcefile: id,
           sourcemap: 'both',
           internalURL: 'astro/internal',
+          preprocessStyle: async (value: string, attrs: Record<string, string>) => {
+            if (!attrs || !attrs.lang) return null;
+            const result = await transformWithVite(value, attrs, id, viteTransform);
+            return result;
+          },
         });
         // Compile `.ts` to `.js`
         const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
@@ -73,7 +74,8 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
         return devServer.handleHotUpdate(context);
       }
     },
-    transformIndexHtml(html) {
+    transformIndexHtml() {
+      // note: this runs only in dev
       return [
         {
           injectTo: 'head-prepend',
