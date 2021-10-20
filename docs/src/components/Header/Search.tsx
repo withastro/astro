@@ -67,7 +67,8 @@ export default function Search(props) {
             onClose={onClose}
             indexName="astro"
             apiKey="0f387260ad74f9cbf4353facd29c919c"
-            searchParameters={{ facetFilters: [`lang:${lang}`] }}
+            // Set facetFilters once Astro docs have been indexed by language
+            // searchParameters={{ facetFilters: [`lang:${lang}`] }}
             transformItems={(items) => {
               return items.map((item) => {
                 // We transform the absolute URL into a relative URL to
