@@ -77,10 +77,10 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     // Important this happens before load module in case a renderer provides polyfills.
     const renderers = await resolveRenderers(viteServer, astroConfig.renderers);
 
-    // 1.5. load module
+    // 2. load module
     const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 
-    // 2. handle dynamic routes
+    // 3. handle dynamic routes
     let params: Params = {};
     let pageProps: Props = {};
     if (route && !route.pathname) {
@@ -91,9 +91,8 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
         }
       }
       validateGetStaticPathsModule(mod);
-      routeCache[route.component] =
-        routeCache[route.component] ||
-        (
+      if (!routeCache[route.component]) {
+        routeCache[route.component] = await (
           await mod.getStaticPaths!({
             paginate: generatePaginateFunction(route),
             rss: () => {
@@ -101,6 +100,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
             },
           })
         ).flat();
+      }
       validateGetStaticPathsResult(routeCache[route.component], logging);
       const routePathParams: GetStaticPathsResult = routeCache[route.component];
       const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
@@ -110,7 +110,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       pageProps = { ...matchedStaticPath.props } || {};
     }
 
-    // 3. render page
+    // 4. render page
     const Component = await mod.default;
     if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
@@ -144,12 +144,12 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     let html = await renderPage(result, Component, pageProps, null);
 
-    // 4. modify response
+    // 5. modify response
     if (mode === 'development') {
       html = await viteServer.transformIndexHtml(fileURLToPath(filePath), html, pathname);
     }
 
-    // 5. finish
+    // 6. finish
     return html;
   } catch (e: any) {
     viteServer.ssrFixStacktrace(e);
