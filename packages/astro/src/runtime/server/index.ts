@@ -91,7 +91,7 @@ export function createComponent(cb: AstroComponentFactory) {
   return cb;
 }
 
-interface ExtractedHydration {
+interface ExtractedProps {
   hydration: {
     directive: string;
     value: string;
@@ -101,8 +101,8 @@ interface ExtractedHydration {
   props: Record<string | number, any>;
 }
 
-function extractHydrationDirectives(inputProps: Record<string | number, any>): ExtractedHydration {
-  let extracted: ExtractedHydration = {
+function extractDirectives(inputProps: Record<string | number, any>): ExtractedProps {
+  let extracted: ExtractedProps = {
     hydration: null,
     props: {},
   };
@@ -131,6 +131,9 @@ function extractHydrationDirectives(inputProps: Record<string | number, any>): E
           break;
         }
       }
+    } else if (key === 'class:list' || key === 'className:list') {
+      // support "class" or "className" from an expression passed into a component (#782)
+      extracted.props[key.slice(0, -5)] = serializeListValue(value)
     } else {
       extracted.props[key] = value;
     }
@@ -200,7 +203,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     throw new Error(`Unable to render ${metadata.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
   }
 
-  const { hydration, props } = extractHydrationDirectives(_props);
+  const { hydration, props } = extractDirectives(_props);
   let html = '';
 
   if (hydration) {
@@ -287,6 +290,12 @@ export function addAttribute(value: any, key: string) {
   if (value == null || value === false) {
     return '';
   }
+
+  // support "class" from an expression passed into an element (#782)
+  if (key === 'class:list') {
+    return ` ${key.slice(0, -5)}="${serializeListValue(value)}"`;
+  }
+
   return ` ${key}="${value}"`;
 }
 
@@ -296,6 +305,33 @@ export function spreadAttributes(values: Record<any, any>) {
     output += addAttribute(value, key);
   }
   return output;
+}
+
+function serializeListValue(value: any) {
+  const hash: Record<string, any> = {}
+
+  push(value)
+
+  return Object.keys(hash).join(' ');
+
+  function push(item: any) {
+    // push individual iteratables
+    if (item && typeof item.forEach === 'function') item.forEach(push)
+
+    // otherwise, push object value keys by truthiness
+    else if (item === Object(item)) Object.keys(item).forEach(
+      name => {
+        if (item[name]) push(name)
+      }
+    )
+
+    // otherwise, push any other values as a string
+    else if (item = item != null && String(item).trim()) item.split(/\s+/).forEach(
+      (name: string) => {
+        hash[name] = true
+      }
+    )
+  }
 }
 
 export function defineStyleVars(astroId: string, vars: Record<any, any>) {
