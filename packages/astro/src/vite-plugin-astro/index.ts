@@ -28,7 +28,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
       let tsResult: TransformResult | undefined;
 
       try {
-        // 1. Transform from `.astro` to valid `.ts`
+        // `.astro` -> `.ts`
         // use `sourcemap: "inline"` so that the sourcemap is included in the "code" result that we pass to esbuild.
         tsResult = await transform(source, {
           site: config.buildOptions.site,
@@ -36,7 +36,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
           sourcemap: 'both',
           internalURL: 'astro/internal',
         });
-        // 2. Compile `.ts` to `.js`
+        // `.ts` -> `.js`
         const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
 
         return {

@@ -73,14 +73,20 @@ async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promi
 /** use Vite to SSR */
 export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
   try {
-    // 1. resolve renderers
+    /*
+     * Renderers
+     * Load all renderers to be used for SSR
+     */
     // Important this happens before load module in case a renderer provides polyfills.
     const renderers = await resolveRenderers(viteServer, astroConfig.renderers);
 
-    // 2. load module
+    /*
+     * Pre-render
+     * Load module through Vite and do pre-render work like dynamic routing
+     */
     const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 
-    // 3. handle dynamic routes
+    // handle dynamic routes
     let params: Params = {};
     let pageProps: Props = {};
     if (route && !route.pathname) {
@@ -110,7 +116,10 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       pageProps = { ...matchedStaticPath.props } || {};
     }
 
-    // 4. render page
+    /*
+     * Render
+     * Convert .astro to .html
+     */
     const Component = await mod.default;
     if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 
@@ -144,12 +153,14 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     let html = await renderPage(result, Component, pageProps, null);
 
-    // 5. modify response
+    /*
+     * Dev Server
+     * Apply Vite HMR, Astro HMR, and other dev-only transformations needed from Vite plugins.
+     */
     if (mode === 'development') {
       html = await viteServer.transformIndexHtml(fileURLToPath(filePath), html, pathname);
     }
 
-    // 6. finish
     return html;
   } catch (e: any) {
     viteServer.ssrFixStacktrace(e);

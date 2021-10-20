@@ -52,20 +52,20 @@ export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string 
 
   const lines = src.replace(/\r\n/g, '\n').split('\n');
 
-  // 1. grab 2 lines before, and 3 lines after focused line
+  // grab 2 lines before, and 3 lines after focused line
   const visibleLines = [];
   for (let n = -2; n <= 2; n++) {
     if (lines[loc.line + n]) visibleLines.push(loc.line + n);
   }
 
-  // 2. figure out gutter width
+  // figure out gutter width
   let gutterWidth = 0;
   for (const lineNo of visibleLines) {
     let w = `> ${lineNo}`;
     if (w.length > gutterWidth) gutterWidth = w.length;
   }
 
-  // 3. print lines
+  // print lines
   let output = '';
   for (const lineNo of visibleLines) {
     const isFocusedLine = lineNo === loc.line - 1;

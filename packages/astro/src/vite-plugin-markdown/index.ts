@@ -20,7 +20,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
       if (id.endsWith('.md')) {
         let source = await fs.promises.readFile(id, 'utf8');
 
-        // 2. Transform from `.md` to valid `.astro`
+        // `.md` -> `.astro`
         let render = config.markdownOptions.render;
         let renderOpts = {};
         if (Array.isArray(render)) {
@@ -46,14 +46,14 @@ ${setup}
           astroResult = `${prelude}\n${astroResult}`;
         }
 
-        // 2. Transform from `.astro` to valid `.ts`
+        // `.astro` -> `.ts`
         let { code: tsResult } = await transform(astroResult, { sourcefile: id, sourcemap: 'inline', internalURL: 'astro/internal' });
 
         tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
 export const frontmatter = ${JSON.stringify(content)};
 ${tsResult}`;
 
-        // 3. Compile `.ts` to `.js`
+        // `.ts` -> `.js`
         const { code, map } = await esbuild.transform(tsResult, { loader: 'ts', sourcemap: 'inline', sourcefile: id });
 
         return {
