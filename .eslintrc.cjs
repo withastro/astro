@@ -12,10 +12,10 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    'multiline-comment-style': ['warn', 'starred-block'],
     'no-console': 'warn',
     'no-shadow': 'error',
     'prefer-const': 'off',
-    'prefer-rest-params': 'off',
-    'require-jsdoc': 'off',
+    // 'require-jsdoc': 'error', // re-enable this to enforce JSDoc for all functions
   },
 };

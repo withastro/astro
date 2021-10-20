@@ -42,21 +42,21 @@ export async function createVite(
   await Promise.all(
     astroConfig.renderers.map(async (name) => {
       const { default: renderer } = await import(name);
-      // 1. prepare client-side hydration code for browser
+      // prepare client-side hydration code for browser
       if (renderer.client) {
         optimizedDeps.add(name + renderer.client.substr(1));
       }
-      // 2. knownEntrypoints and polyfills need to be added to the client
+      // knownEntrypoints and polyfills need to be added to the client
       for (let dep of [...(renderer.knownEntrypoints || []), ...(renderer.polyfills || [])]) {
         if (dep[0] === '.') dep = name + dep.substr(1); // if local polyfill, use full path
         optimizedDeps.add(dep);
         dedupe.add(dep); // we can try and dedupe renderers by default
       }
-      // 3. let renderer inject Vite plugins
+      // let renderer inject Vite plugins
       if (renderer.vitePlugins) {
         plugins.push(...renderer.vitePlugins);
       }
-      // 4. mark external packages as external to Vite
+      // mark external packages as external to Vite
       if (renderer.external) {
         for (const dep of renderer.external) {
           external.add(dep);

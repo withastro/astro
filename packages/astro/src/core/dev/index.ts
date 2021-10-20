@@ -70,18 +70,22 @@ export class AstroDevServer {
 
   /** Start dev server */
   async start() {
-    // 1. profile startup time
-    const devStart = performance.now();
-
-    // 2. create Vite instance
+    /*
+     * Setup
+     * Create the Vite serer in dev mode
+     */
+    const devStart = performance.now(); // profile startup time
     this.viteServer = await this.createViteServer();
 
-    // 3. add middlewares
+    // middlewares
     this.app.use((req, res, next) => this.handleRequest(req, res, next));
     this.app.use(this.viteServer.middlewares);
     this.app.use((req, res, next) => this.renderError(req, res, next));
 
-    // 4. listen on port (and retry if taken)
+    /*
+     * Listen
+     * Start external connect server and listen on configured port
+     */
     await new Promise<void>((resolve, reject) => {
       const onError = (err: NodeJS.ErrnoException) => {
         if (err.code && err.code === 'EADDRINUSE') {
@@ -193,9 +197,11 @@ export class AstroDevServer {
       this.manifest = createRouteManifest({ config: this.config });
     });
     viteServer.watcher.on('change', () => {
-      // No need to rebuild routes on file content changes.
-      // However, we DO want to clear the cache in case
-      // the change caused a getStaticPaths() return to change.
+      /*
+       * No need to rebuild routes on file content changes.
+       * However, we DO want to clear the cache in case
+       * the change caused a getStaticPaths() return to change.
+       */
       this.routeCache = {};
     });
 

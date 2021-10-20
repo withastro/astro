@@ -55,7 +55,10 @@ class AstroBuilder {
   async build() {
     const timer: Record<string, number> = {}; // keep track of performance timers
 
-    // 1. initialize fresh Vite instance
+    /*
+     * Setup
+     * Create the Vite server with production build settings
+     */
     timer.viteStart = performance.now();
     const { logging, origin } = this;
     const viteConfig = await createVite(
@@ -73,12 +76,15 @@ class AstroBuilder {
     this.viteServer = viteServer;
     debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
 
-    // 2. get all routes
+    /*
+     * Render pages
+     * Convert .astro -> .html
+     */
     timer.renderStart = performance.now();
     const assets: Record<string, string> = {}; // additional assets to be written
     const allPages: Record<string, RouteData & { paths: string[] }> = {};
 
-    // 2a. determine all possible routes first before rendering
+    // pre-render: determine all possible routes from dynamic pages
     await Promise.all(
       this.manifest.routes.map(async (route) => {
         // static route
@@ -100,7 +106,7 @@ class AstroBuilder {
       })
     );
 
-    // 2b. after all paths have been determined, render all pages
+    // render: convert Astro to HTML
     const input: InputHTMLOptions[] = [];
     await Promise.all(
       Object.entries(allPages).map(([component, route]) =>
@@ -126,7 +132,10 @@ class AstroBuilder {
     );
     debug(logging, 'build', timerMessage('All pages rendered', timer.renderStart));
 
-    // 3. build with Vite
+    /*
+     * Production Build
+     * Use Vite’s build process to generate files
+     */
     timer.buildStart = performance.now();
     await vite.build({
       logLevel: 'error',
@@ -151,7 +160,13 @@ class AstroBuilder {
     });
     debug(logging, 'build', timerMessage('Vite build finished', timer.buildStart));
 
-    // 4. write assets to disk
+    /*
+     * Post-build files
+     * Write other files to disk Vite may not know about.
+     * TODO: is there a way to handle these as part of the previous step?
+     */
+
+    // RSS
     timer.assetsStart = performance.now();
     Object.keys(assets).map((k) => {
       if (!assets[k]) return;
@@ -162,10 +177,9 @@ class AstroBuilder {
     });
     debug(logging, 'build', timerMessage('Additional assets copied', timer.assetsStart));
 
-    // 5. build sitemap
+    // Sitemap
     timer.sitemapStart = performance.now();
     if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
-      const sitemapStart = performance.now();
       const sitemap = generateSitemap(input.map(({ name }) => new URL(`/${name}`, this.config.buildOptions.site).href));
       const sitemapPath = new URL('./sitemap.xml', this.config.dist);
       await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
@@ -173,10 +187,11 @@ class AstroBuilder {
     }
     debug(logging, 'build', timerMessage('Sitemap built', timer.sitemapStart));
 
-    // 6. clean up
+    /*
+     * Clean up
+     * Close the Vite server instance, and print stats
+     */
     await viteServer.close();
-
-    // 7. log output
     if (logging.level && levels[logging.level] <= levels['info']) {
       await this.printStats({ cwd: this.config.dist, pageCount: input.length });
     }
