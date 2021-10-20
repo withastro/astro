@@ -141,9 +141,11 @@ const sidebarSections = SIDEBAR[langCode].reduce((col, item) => {
   .sponsor-logo__vercel {
     width: 90px;
   }
-
+  :global(:root.theme-dark .sponsors-title) {
+    color: hsl(var(--color-base-gray), 75%);
+  }
   .sponsors-title {
-    color: hsl(var(--color-base-gray), 50%);
+    color: hsl(var(--color-base-gray), 25%);
     font-size: 0.8em;
     font-weight: 300;
     letter-spacing: 0.0625em;
