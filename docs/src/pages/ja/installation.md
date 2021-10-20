@@ -55,7 +55,7 @@ npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]/path/to/
 npm install
 ```
 
-これで、Astro プロジェクトを[スタート](#astroの開始)できます。Astro の実行に必要なファイルの準備ができたら、プロジェクトを[ビルド](#astroのビルド)できます。 Astro はアプリケーションをパッケージ化し、静的ファイルを用意しますので、好きなホスティングサービスに[デプロイ](/guides/deploy)できます。
+これで、Astro プロジェクトを[スタート](#astro-の開始)できます。Astro の実行に必要なファイルの準備ができたら、プロジェクトを[ビルド](#astro-のビルド)できます。 Astro はアプリケーションをパッケージ化し、静的ファイルを用意しますので、好きなホスティングサービスに[デプロイ](/guides/deploy)できます。
 
 ## 手動インストール
 
@@ -101,7 +101,7 @@ npm install astro
 }
 ```
 
-[`dev`](#astroの開始)コマンドは、Astro Dev Server（`http://localhost:3000`）を起動します。プロジェクトの準備ができたら、[`build`](#astroのビルド)コマンドで、プロジェクトを`dist/`ディレクトリに出力します。Astro のデプロイについては、[デプロイガイド](/guides/deploy)をご覧ください。
+[`dev`](#astro-の開始)コマンドは、Astro Dev Server（`http://localhost:3000`）を起動します。プロジェクトの準備ができたら、[`build`](#astro-のビルド)コマンドで、プロジェクトを`dist/`ディレクトリに出力します。Astro のデプロイについては、[デプロイガイド](/guides/deploy)をご覧ください。
 
 ### 最初のページを作る
 
@@ -141,7 +141,7 @@ console.log('これはターミナルに表示されます')
 
 `src/pages`ディレクトリには、さらに多くのページを作成でき、Astro はそのファイル名を使ってサイトに新しいページを作成します。たとえば、`src/pages/about.astro`に（前のスニペットを再利用して）新しいファイルを作成すると、`http://localhost/about`という URL に新しいページが作成されます。
 
-## [Astro の開始](#astroの開始)
+## [Astro の開始](#astro-の開始)
 
 ```bash
 npm run dev
@@ -157,7 +157,7 @@ devOptions: {
 }
 ```
 
-## [Astro のビルド](#astroのビルド)
+## [Astro のビルド](#astro-のビルド)
 
 ```bash
 npm run build
