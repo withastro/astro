@@ -5,19 +5,19 @@ description: npm、pnpm、YarnでのAstroのインストール方法
 lang: ja
 ---
 
-新しいプロジェクトにAstroをインストールするには、いくつかの方法があります。
+新しいプロジェクトに Astro をインストールするには、いくつかの方法があります。
 
 ## 事前準備
 
 - **Node.js** - `v12.20.0`、`v14.13.1`、`v16.0.0`、またはそれ以上。
-- **テキストエディター** - [VS Code](https://code.visualstudio.com/) と [公式Astro extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)をオススメします。
-- **ターミナル** - Astroは主にターミナルのコマンドラインからアクセスします。
+- **テキストエディター** - [VS Code](https://code.visualstudio.com/) と [公式 Astro extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)をオススメします。
+- **ターミナル** - Astro は主にターミナルのコマンドラインからアクセスします。
 
-解説のため、このドキュメントでは [`npm`](https://www.npmjs.com/) を使用しますが、npmの代わりに [`Yarn`](https://yarnpkg.com/) や [`pnpm`](https://pnpm.io/) を使用してもかまいません。
+解説のため、このドキュメントでは [`npm`](https://www.npmjs.com/) を使用しますが、npm の代わりに [`Yarn`](https://yarnpkg.com/) や [`pnpm`](https://pnpm.io/) を使用してもかまいません。
 
 ## ウィザードによる作成
 
-新しいプロジェクトにAstroをインストールするには、`npm init astro`がもっとも簡単な方法です。ターミナルでこのコマンドを実行すると、新しいプロジェクトのセットアップを支援する`create-astro`インストールウィザードが起動します。
+新しいプロジェクトに Astro をインストールするには、`npm init astro`がもっとも簡単な方法です。ターミナルでこのコマンドを実行すると、新しいプロジェクトのセットアップを支援する`create-astro`インストールウィザードが起動します。
 
 ```shell
 # npm
@@ -30,7 +30,7 @@ yarn create astro
 pnpm create astro
 ```
 
-[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro)ウィザードでは、[スターターテンプレート](https://github.com/snowpackjs/astro/tree/main/examples)から好きなものを選べます。代わりにGitHubから自分のAstroプロジェクトを直接インポートもできます。
+[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro)ウィザードでは、[スターターテンプレート](https://github.com/snowpackjs/astro/tree/main/examples)から好きなものを選べます。代わりに GitHub から自分の Astro プロジェクトを直接インポートもできます。
 
 ```bash
 # 注: "my-astro-project" はあなたのプロジェクト名に置き換えてください。
@@ -49,17 +49,17 @@ npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]
 npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]/path/to/template
 ```
 
-`create-astro` でプロジェクトを作成したら、npmやお好みのパッケージマネージャーを使って、プロジェクトの依存関係をインストールすることを忘れないでください。この例では、npmを使用します。
+`create-astro` でプロジェクトを作成したら、npm やお好みのパッケージマネージャーを使って、プロジェクトの依存関係をインストールすることを忘れないでください。この例では、npm を使用します。
 
 ```bash
 npm install
 ```
 
-これで、Astroプロジェクトを[スタート](#astroの開始)できます。Astroの実行に必要なファイルの準備ができたら、プロジェクトを[ビルド](#astroのビルド)できます。 Astroはアプリケーションをパッケージ化し、静的ファイルを用意しますので、好きなホスティングサービスに[デプロイ](/guides/deploy)できます。
+これで、Astro プロジェクトを[スタート](#astroの開始)できます。Astro の実行に必要なファイルの準備ができたら、プロジェクトを[ビルド](#astroのビルド)できます。 Astro はアプリケーションをパッケージ化し、静的ファイルを用意しますので、好きなホスティングサービスに[デプロイ](/guides/deploy)できます。
 
 ## 手動インストール
 
-Astroは、`create-astro`ウィザードを使わなくてもインストールできます。以下に、Astroを動作させるために必要な追加手順を示します。
+Astro は、`create-astro`ウィザードを使わなくてもインストールできます。以下に、Astro を動作させるために必要な追加手順を示します。
 
 ### プロジェクトのセットアップ
 
@@ -78,13 +78,12 @@ cd my-astro-project
 npm init --yes
 ```
 
-Astroは、npmパッケージ・エコシステム全体を扱うように設計されています。
-これは、プロジェクトのルートにある「package.json」と呼ばれるプロジェクト・マニフェストで管理されます。もし、`package.json`ファイルに慣れていないのであれば、[npmのドキュメント](https://docs.npmjs.com/creating-a-package-json-file)を参照することを強くオススメします。
+Astro は、npm パッケージ・エコシステム全体を扱うように設計されています。
+これは、プロジェクトのルートにある「package.json」と呼ばれるプロジェクト・マニフェストで管理されます。もし、`package.json`ファイルに慣れていないのであれば、[npm のドキュメント](https://docs.npmjs.com/creating-a-package-json-file)を参照することを強くオススメします。
 
+### Astro のインストール
 
-### Astroのインストール
-
-上記の手順で、「package.json」ファイルのあるディレクトリが完成しました。これで、プロジェクト内にAstroをインストールできます。
+上記の手順で、「package.json」ファイルのあるディレクトリが完成しました。これで、プロジェクト内に Astro をインストールできます。
 
 ```bash
 npm install astro
@@ -102,7 +101,7 @@ npm install astro
 }
 ```
 
- [`dev`](#astroの開始)コマンドは、Astro Dev Server（`http://localhost:3000`）を起動します。プロジェクトの準備ができたら、[`build`](#astroのビルド)コマンドで、プロジェクトを`dist/`ディレクトリに出力します。Astroのデプロイについては、[デプロイガイド](/guides/deploy)をご覧ください。
+[`dev`](#astroの開始)コマンドは、Astro Dev Server（`http://localhost:3000`）を起動します。プロジェクトの準備ができたら、[`build`](#astroのビルド)コマンドで、プロジェクトを`dist/`ディレクトリに出力します。Astro のデプロイについては、[デプロイガイド](/guides/deploy)をご覧ください。
 
 ### 最初のページを作る
 
@@ -138,17 +137,17 @@ console.log('これはターミナルに表示されます')
 </script>
 ```
 
-上記は、Astroコンポーネント構文の一例で、HTMLとJSXの両方で構成されています。
+上記は、Astro コンポーネント構文の一例で、HTML と JSX の両方で構成されています。
 
-`src/pages`ディレクトリには、さらに多くのページを作成でき、Astroはそのファイル名を使ってサイトに新しいページを作成します。たとえば、`src/pages/about.astro`に（前のスニペットを再利用して）新しいファイルを作成すると、`http://localhost/about`というURLに新しいページが作成されます。
+`src/pages`ディレクトリには、さらに多くのページを作成でき、Astro はそのファイル名を使ってサイトに新しいページを作成します。たとえば、`src/pages/about.astro`に（前のスニペットを再利用して）新しいファイルを作成すると、`http://localhost/about`という URL に新しいページが作成されます。
 
-## [Astroの開始](#astroの開始)
+## [Astro の開始](#astroの開始)
 
 ```bash
 npm run dev
 ```
 
-これでAstroは、`http://localhost:3000`でアプリケーションのサービスを開始します。このURLをブラウザで開くと、Astroの「Hello, World」が表示されるはずです。
+これで Astro は、`http://localhost:3000`でアプリケーションのサービスを開始します。この URL をブラウザで開くと、Astro の「Hello, World」が表示されるはずです。
 
 開発の進捗状況をローカルネットワーク上で共有したり、スマートフォンからアプリを確認したければ、以下の[snowpack](https://www.snowpack.dev/reference/configuration#devoptionshostname)オプションを`astro.config.mjs`に追加してください。
 
@@ -158,25 +157,23 @@ devOptions: {
 }
 ```
 
-## [Astroのビルド](#astroのビルド)
+## [Astro のビルド](#astroのビルド)
 
 ```bash
 npm run build
 ```
 
-このコマンドを実行すると、Astroはサイトを構築し、ディスクに直接保存するように指示します。
+このコマンドを実行すると、Astro はサイトを構築し、ディスクに直接保存するように指示します。
 `dist/`ディレクトリをみると構築されたアプリケーションが確認できます。
-
 
 ## 次のステップ
 
 これで開発を始める準備が整いました。
 
-Astroがどのように機能しているかをもっとよく知ることを強くオススメします。そのためには、これらのドキュメントを探索することを検討してみてください。
+Astro がどのように機能しているかをもっとよく知ることを強くオススメします。そのためには、これらのドキュメントを探索することを検討してみてください。
 
+📚 Astro のプロジェクト構造については、[プロジェクト構造ガイド](/core-concepts/project-structure)をご覧ください。
 
-📚 Astroのプロジェクト構造については、[プロジェクト構造ガイド](/core-concepts/project-structure)をご覧ください。
+📚 Astro のコンポーネント構文については[Astro コンポーネントガイド](/core-concepts/astro-components)を参照してください。
 
-📚 Astroのコンポーネント構文については[Astroコンポーネントガイド](/core-concepts/astro-components)を参照してください。
-
-📚 Astroのファイルベースのルーティングについては、[ルーティングガイド](core-concepts/astro-pages)を参照してください。
+📚 Astro のファイルベースのルーティングについては、[ルーティングガイド](core-concepts/astro-pages)を参照してください。
