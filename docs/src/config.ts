@@ -150,6 +150,7 @@ export const SIDEBAR = {
     { text: 'セットアップ', header: true },
     { text: 'はじめに', link: 'ja/getting-started' },
     { text: 'クイックスタート', link: 'ja/quick-start' },
+    { text: 'インストール', link: 'ja/installation' },
   ],
   ru: [
     { text: 'Введение', header: true },
