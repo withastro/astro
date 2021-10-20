@@ -38,9 +38,11 @@ const cache = new Map<string, Promise<Renderer>>();
 // TODO: improve validation and error handling here.
 async function resolveRenderer(viteServer: ViteDevServer, renderer: string) {
   const resolvedRenderer: any = {};
-  // We can dynamically import the renderer by itself because it shouldn't have
-  // any non-standard imports, the index is just meta info.
-  // The other entrypoints need to be loaded through Vite.
+  /*
+   * We can dynamically import the renderer by itself because it shouldn't have
+   * any non-standard imports, the index is just meta info.
+   * The other entrypoints need to be loaded through Vite.
+   */
   const {
     default: { name, client, polyfills, hydrationPolyfills, server },
   } = await import(renderer);

@@ -18,8 +18,10 @@ const IMPORT_STATEMENTS: Record<string, string> = {
   preact: "import { h } from 'preact'",
   'solid-js': "import 'solid-js/web'",
 };
-// The `tsx` loader in esbuild will remove unused imports, so we need to
-// be careful about esbuild not treating h, React, Fragment, etc. as unused.
+/*
+ * The `tsx` loader in esbuild will remove unused imports, so we need to
+ * be careful about esbuild not treating h, React, Fragment, etc. as unused.
+ */
 const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
 
 interface AstroPluginJSXOptions {
@@ -53,14 +55,23 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         }
       }
 
-      // attempt 0: if we only have one renderer, we can skip a bunch of work!
+      /*
+       * Single JSX renderer
+       * If we only have one renderer, we can skip a bunch of work!
+       */
       if (JSX_RENDERERS.size === 1) {
         return transformJSX({ code, id, renderer: [...JSX_RENDERERS.values()][0], ssr: ssr || false });
       }
 
-      // attempt 1: try and guess framework from imports (file can’t import React and Preact)
+      /*
+       * Multiple JSX renderers
+       * Determine for each .jsx or .tsx file what it wants to use to Render
+       */
 
       // we need valid JS here, so we can use `h` and `Fragment` as placeholders
+
+      // try and guess renderer from imports (file can’t import React and Preact)
+
       // NOTE(fks, matthewp): Make sure that you're transforming the original contents here.
       const { code: codeToScan } = await esbuild.transform(code + PREVENT_UNUSED_IMPORTS, {
         loader: getLoader(path.extname(id)),
@@ -85,7 +96,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         }
       }
 
-      // attempt 2: look for @jsxImportSource comment
+      // if no imports were found, look for @jsxImportSource comment
       if (!importSource) {
         const multiline = code.match(/\/\*\*[\S\s]*\*\//gm) || [];
         for (const comment of multiline) {

@@ -197,9 +197,11 @@ export class AstroDevServer {
       this.manifest = createRouteManifest({ config: this.config });
     });
     viteServer.watcher.on('change', () => {
-      // No need to rebuild routes on file content changes.
-      // However, we DO want to clear the cache in case
-      // the change caused a getStaticPaths() return to change.
+      /*
+       * No need to rebuild routes on file content changes.
+       * However, we DO want to clear the cache in case
+       * the change caused a getStaticPaths() return to change.
+       */
       this.routeCache = {};
     });
 

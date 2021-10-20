@@ -72,8 +72,10 @@ export const AstroConfigSchema = z.object({
 /** Turn raw config values into normalized values */
 export async function validateConfig(userConfig: any, root: string): Promise<AstroConfig> {
   const fileProtocolRoot = pathToFileURL(root + path.sep);
-  // We need to extend the global schema to add transforms that are relative to root.
-  // This is type checked against the global schema to make sure we still match.
+  /*
+   * We need to extend the global schema to add transforms that are relative to root.
+   * This is type checked against the global schema to make sure we still match.
+   */
   const AstroConfigRelativeSchema = AstroConfigSchema.extend({
     projectRoot: z
       .string()

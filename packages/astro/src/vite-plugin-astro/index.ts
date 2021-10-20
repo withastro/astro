@@ -29,7 +29,6 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
 
       try {
         // `.astro` -> `.ts`
-        // use `sourcemap: "inline"` so that the sourcemap is included in the "code" result that we pass to esbuild.
         tsResult = await transform(source, {
           site: config.buildOptions.site,
           sourcefile: id,

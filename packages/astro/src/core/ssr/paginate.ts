@@ -1,15 +1,5 @@
 import { GetStaticPathsResult, PaginatedCollectionProp, PaginateFunction, Params, Props, RouteData } from '../../@types/astro-core';
 
-// return filters.map((filter) => {
-//   const filteredRecipes = allRecipes.filter((recipe) =>
-//       filterKeys.some((key) => recipe[key] === filter)
-//   );
-//   return paginate(filteredRecipes, {
-//       params: { slug: slugify(filter) },
-//       props: { filter },
-//   });
-// });
-
 export function generatePaginateFunction(routeMatch: RouteData): PaginateFunction {
   return function paginateUtility(data: any[], args: { pageSize?: number; params?: Params; props?: Props } = {}) {
     let { pageSize: _pageSize, params: _params, props: _props } = args;
