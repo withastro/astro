@@ -1,3 +1,4 @@
+import type { InputHTMLOptions } from '@web/rollup-plugin-html';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro-core';
 import type { LogOptions } from '../logger';
 
@@ -69,49 +70,46 @@ class AstroBuilder {
     const viteServer = await vite.createServer(viteConfig);
 
     // 2. get all routes
-    const allPages: Promise<{ html: string; name: string }>[] = [];
+    const input: InputHTMLOptions[] = [];
     const assets: Record<string, string> = {}; // additional assets to be written
-    await Promise.all(
-      this.manifest.routes.map(async (route) => {
-        const { pathname } = route;
-        const filePath = new URL(`./${route.component}`, this.config.projectRoot);
-        // static pages
-        if (pathname) {
-          allPages.push(
-            ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname, viteServer }).then((html) => ({
-              html,
-              name: pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''),
-            }))
+    for (const route of this.manifest.routes) {
+      const { pathname } = route;
+      const filePath = new URL(`./${route.component}`, this.config.projectRoot);
+      // static pages (note: should these be )
+      if (pathname) {
+        input.push(
+          await ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname, viteServer }).then((html) => ({
+            html,
+            name: pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''),
+          }))
+        );
+      }
+      // dynamic pages
+      else {
+        const staticPaths = await this.getStaticPathsForRoute(route, viteServer);
+        // handle RSS (TODO: improve this?)
+        if (staticPaths.rss && staticPaths.rss.xml) {
+          const rssFile = new URL(staticPaths.rss.url.replace(/^\/?/, './'), this.config.dist);
+          if (assets[fileURLToPath(rssFile)]) {
+            throw new Error(
+              `[getStaticPaths] RSS feed ${staticPaths.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`
+            );
+          }
+          assets[fileURLToPath(rssFile)] = staticPaths.rss.xml;
+        }
+        // TODO: throw error if conflict
+        for (const staticPath of staticPaths.paths) {
+          input.push(
+            await ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname: staticPath, viteServer }).then(
+              (html) => ({
+                html,
+                name: staticPath.replace(/\/?$/, '/index.html').replace(/^\//, ''),
+              })
+            )
           );
         }
-        // dynamic pages
-        else {
-          const staticPaths = await this.getStaticPathsForRoute(route, viteServer);
-          // handle RSS (TODO: improve this?)
-          if (staticPaths.rss && staticPaths.rss.xml) {
-            const rssFile = new URL(staticPaths.rss.url.replace(/^\/?/, './'), this.config.dist);
-            if (assets[fileURLToPath(rssFile)]) {
-              throw new Error(
-                `[getStaticPaths] RSS feed ${staticPaths.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`
-              );
-            }
-            assets[fileURLToPath(rssFile)] = staticPaths.rss.xml;
-          }
-          // TODO: throw error if conflict
-          staticPaths.paths.forEach((staticPath) => {
-            allPages.push(
-              ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname: staticPath, viteServer }).then(
-                (html) => ({
-                  html,
-                  name: staticPath.replace(/\/?$/, '/index.html').replace(/^\//, ''),
-                })
-              )
-            );
-          });
-        }
-      })
-    );
-    const input = await Promise.all(allPages);
+      }
+    }
 
     // 3. build with Vite
     await vite.build({
@@ -177,6 +175,7 @@ class AstroBuilder {
     validateGetStaticPathsModule(mod);
     const rss = generateRssFunction(this.config.buildOptions.site, route);
     const staticPaths: GetStaticPathsResult = (await mod.getStaticPaths!({ paginate: generatePaginateFunction(route), rss: rss.generator })).flat();
+    this.routeCache[route.component] = staticPaths;
     validateGetStaticPathsResult(staticPaths, this.logging);
     return {
       paths: staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean),
