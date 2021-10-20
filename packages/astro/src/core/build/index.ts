@@ -36,6 +36,7 @@ class AstroBuilder {
   private origin: string;
   private routeCache: RouteCache = {};
   private manifest: ManifestData;
+  private viteServer?: ViteDevServer;
 
   constructor(config: AstroConfig, options: BuildOptions) {
     if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
@@ -68,48 +69,58 @@ class AstroBuilder {
       { astroConfig: this.config, logging }
     );
     const viteServer = await vite.createServer(viteConfig);
+    this.viteServer = viteServer;
 
     // 2. get all routes
-    const input: InputHTMLOptions[] = [];
     const assets: Record<string, string> = {}; // additional assets to be written
-    for (const route of this.manifest.routes) {
-      const { pathname } = route;
-      const filePath = new URL(`./${route.component}`, this.config.projectRoot);
-      // static pages (note: should these be )
-      if (pathname) {
-        input.push(
-          await ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname, viteServer }).then((html) => ({
-            html,
-            name: pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''),
-          }))
-        );
-      }
-      // dynamic pages
-      else {
-        const staticPaths = await this.getStaticPathsForRoute(route, viteServer);
-        // handle RSS (TODO: improve this?)
-        if (staticPaths.rss && staticPaths.rss.xml) {
-          const rssFile = new URL(staticPaths.rss.url.replace(/^\/?/, './'), this.config.dist);
+    const allPages: Record<string, RouteData & { paths: string[] }> = {};
+
+    // 2a. determine all possible routes first before rendering
+    await Promise.all(
+      this.manifest.routes.map(async (route) => {
+        // static route
+        if (route.pathname) {
+          allPages[route.component] = { ...route, paths: [route.pathname] };
+          return;
+        }
+        // dynamic route
+        const result = await this.getStaticPathsForRoute(route);
+        // handle RSS while generating routes
+        if (result.rss?.xml) {
+          const rssFile = new URL(result.rss.url.replace(/^\/?/, './'), this.config.dist);
           if (assets[fileURLToPath(rssFile)]) {
-            throw new Error(
-              `[getStaticPaths] RSS feed ${staticPaths.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`
-            );
+            throw new Error(`[getStaticPaths] RSS feed ${result.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
           }
-          assets[fileURLToPath(rssFile)] = staticPaths.rss.xml;
+          assets[fileURLToPath(rssFile)] = result.rss.xml;
         }
-        // TODO: throw error if conflict
-        for (const staticPath of staticPaths.paths) {
-          input.push(
-            await ssr({ astroConfig: this.config, filePath, logging, mode: 'production', origin, route, routeCache: this.routeCache, pathname: staticPath, viteServer }).then(
-              (html) => ({
-                html,
-                name: staticPath.replace(/\/?$/, '/index.html').replace(/^\//, ''),
-              })
-            )
-          );
-        }
-      }
-    }
+        allPages[route.component] = { ...route, paths: result.paths };
+      })
+    );
+
+    // 2b. after all paths have been determined, render all pages
+    const input: InputHTMLOptions[] = [];
+    await Promise.all(
+      Object.entries(allPages).map(([component, route]) =>
+        Promise.all(
+          route.paths.map(async (pathname) => {
+            input.push({
+              html: await ssr({
+                astroConfig: this.config,
+                filePath: new URL(`./${component}`, this.config.projectRoot),
+                logging,
+                mode: 'production',
+                origin,
+                pathname,
+                route,
+                routeCache: this.routeCache,
+                viteServer,
+              }),
+              name: pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''),
+            });
+          })
+        )
+      )
+    );
 
     // 3. build with Vite
     await vite.build({
@@ -169,9 +180,10 @@ class AstroBuilder {
   }
 
   /** Extract all static paths from a dynamic route */
-  private async getStaticPathsForRoute(route: RouteData, viteServer: ViteDevServer): Promise<{ paths: string[]; rss?: RSSResult }> {
+  private async getStaticPathsForRoute(route: RouteData): Promise<{ paths: string[]; rss?: RSSResult }> {
+    if (!this.viteServer) throw new Error(`vite.createServer() not called!`);
     const filePath = new URL(`./${route.component}`, this.config.projectRoot);
-    const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
+    const mod = (await this.viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
     validateGetStaticPathsModule(mod);
     const rss = generateRssFunction(this.config.buildOptions.site, route);
     const staticPaths: GetStaticPathsResult = (await mod.getStaticPaths!({ paginate: generatePaginateFunction(route), rss: rss.generator })).flat();
