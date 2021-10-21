@@ -49,7 +49,8 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
             if (!attrs || !attrs.lang) return null;
             const result = await transformWithVite(value, attrs, id, viteTransform);
             if (!result) {
-              return result;
+              // TODO: compiler supports `null`, but types don't yet
+              return (result as any);
             }
             return { code: result.code, map: result.map?.toString() }
           },
