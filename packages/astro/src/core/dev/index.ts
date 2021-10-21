@@ -5,6 +5,7 @@ import type { LogOptions } from '../logger';
 import type { HmrContext, ModuleNode } from '../vite';
 
 import { fileURLToPath } from 'url';
+import {promisify} from 'util';
 import connect from 'connect';
 import mime from 'mime';
 import { performance } from 'perf_hooks';
@@ -68,24 +69,16 @@ export class AstroDevServer {
     this.manifest = createRouteManifest({ config });
   }
 
-  /** Start dev server */
   async start() {
-    /*
-     * Setup
-     * Create the Vite serer in dev mode
-     */
-    const devStart = performance.now(); // profile startup time
-    this.viteServer = await this.createViteServer();
+    const devStart = performance.now();
 
-    // middlewares
+    // Setup the dev server and connect it to Vite (via middleware)
+    this.viteServer = await this.createViteServer();
     this.app.use((req, res, next) => this.handleRequest(req, res, next));
     this.app.use(this.viteServer.middlewares);
     this.app.use((req, res, next) => this.renderError(req, res, next));
 
-    /*
-     * Listen
-     * Start external connect server and listen on configured port
-     */
+    // Listen on port (and retry if taken)
     await new Promise<void>((resolve, reject) => {
       const onError = (err: NodeJS.ErrnoException) => {
         if (err.code && err.code === 'EADDRINUSE') {
@@ -97,7 +90,6 @@ export class AstroDevServer {
           reject(err);
         }
       };
-
       this.httpServer = this.app.listen(this.port, this.hostname, () => {
         info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
         info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}` }));
@@ -107,13 +99,15 @@ export class AstroDevServer {
     });
   }
 
-  /** Stop dev server */
   async stop() {
-    this.httpServer?.close(); // close HTTP server
-    if (this.viteServer) await this.viteServer.close(); // close Vite server
+    if (this.viteServer) {
+      await this.viteServer.close();
+    }
+    if (this.httpServer) {
+      await promisify(this.httpServer.close)();
+    }
   }
 
-  /** Handle HMR */
   public async handleHotUpdate({ file, modules }: HmrContext): Promise<void | ModuleNode[]> {
     if (!this.viteServer) throw new Error(`AstroDevServer.start() not called`);
 
@@ -164,7 +158,6 @@ export class AstroDevServer {
     }
   }
 
-  /** Set up Vite server */
   private async createViteServer() {
     const viteConfig = await createVite(
       {
@@ -197,11 +190,9 @@ export class AstroDevServer {
       this.manifest = createRouteManifest({ config: this.config });
     });
     viteServer.watcher.on('change', () => {
-      /*
-       * No need to rebuild routes on file content changes.
-       * However, we DO want to clear the cache in case
-       * the change caused a getStaticPaths() return to change.
-       */
+      // No need to rebuild routes on file content changes.
+      // However, we DO want to clear the cache in case
+      // the change caused a getStaticPaths() return to change.
       this.routeCache = {};
     });
 

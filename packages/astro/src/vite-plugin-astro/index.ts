@@ -28,14 +28,16 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
       let tsResult: TransformResult | undefined;
 
       try {
-        // `.astro` -> `.ts`
+        // Transform from `.astro` to valid `.ts`
+        // use `sourcemap: "both"` so that sourcemap is included in the code
+        // result passed to esbuild, but also available in the catch handler.
         tsResult = await transform(source, {
           site: config.buildOptions.site,
           sourcefile: id,
           sourcemap: 'both',
           internalURL: 'astro/internal',
         });
-        // `.ts` -> `.js`
+        // Compile `.ts` to `.js`
         const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
 
         return {
