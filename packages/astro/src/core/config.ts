@@ -22,6 +22,11 @@ export const AstroConfigSchema = z.object({
     .optional()
     .default('./src/pages')
     .transform((val) => new URL(val)),
+  layouts: z
+    .string()
+    .optional()
+    .default('./src/layouts')
+    .transform((val) => new URL(val)),
   public: z
     .string()
     .optional()
@@ -86,6 +91,10 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
     pages: z
       .string()
       .default('./src/pages')
+      .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+    layouts: z
+      .string()
+      .default('./src/layouts')
       .transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
     public: z
       .string()
