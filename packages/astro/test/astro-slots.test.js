@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/astro-slots/' });
-  await fixture.build();
-});
-
 describe('Slots', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-slots/' });
+    await fixture.build();
+  });
+
   it('Basic named slots work', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);

@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/fetch/' });
-  await fixture.build();
-});
-
 describe('Global Fetch', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/fetch/' });
+    await fixture.build();
+  });
+
   it('Is available in Astro pages', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);

@@ -3,17 +3,17 @@ import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import path from 'path';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({
-    projectRoot: './fixtures/custom-elements/',
-    renderers: ['@astrojs/test-custom-element-renderer'],
-  });
-  await fixture.build();
-});
-
 describe('Custom Elements', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/custom-elements/',
+      renderers: ['@astrojs/test-custom-element-renderer'],
+    });
+    await fixture.build();
+  });
+
   it('Work as constructors', async () => {
     const html = await fixture.readFile('/ctr/index.html');
     const $ = cheerio.load(html);

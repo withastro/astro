@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/astro-attrs/' });
-  await fixture.build();
-});
-
 describe('Attributes', async () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-attrs/' });
+    await fixture.build();
+  });
+
   it('Passes attributes to elements as expected', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);

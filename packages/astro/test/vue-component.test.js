@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/vue-component/' });
-  await fixture.build();
-});
-
 describe('Vue component', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/vue-component/' });
+    await fixture.build();
+  });
+
   it('Can load Vue', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
