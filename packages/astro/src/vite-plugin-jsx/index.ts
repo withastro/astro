@@ -27,12 +27,28 @@ interface AstroPluginJSXOptions {
   logging: LogOptions;
 }
 
+// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
+function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
+  if (options === undefined) {
+    return false;
+  }
+  if (typeof options === 'boolean') {
+    return options;
+  }
+  if (typeof options == 'object') {
+    return !!options.ssr;
+  }
+  return false;
+}
+
+
 /** Use Astro config to allow for alternate or multiple JSX renderers (by default Vite will assume React) */
 export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin {
   return {
     name: '@astrojs/vite-plugin-jsx',
     enforce: 'pre', // run transforms before other plugins
-    async transform(code, id, ssr) {
+    async transform(code, id, ssrOrOptions) {
+      const ssr = isSSR(ssrOrOptions);
       if (!JSX_EXTENSIONS.has(path.extname(id))) {
         return null;
       }
@@ -61,7 +77,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
           loader: getLoader(path.extname(id)),
           jsx: 'preserve'
         });
-        return transformJSX({ code: jsxCode, id, renderer: [...JSX_RENDERERS.values()][0], ssr: ssr || false });
+        return transformJSX({ code: jsxCode, id, renderer: [...JSX_RENDERERS.values()][0], ssr });
       }
 
       // Attempt: Multiple JSX renderers
@@ -115,7 +131,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
           loader: getLoader(path.extname(id)),
           jsx: 'preserve'
         });
-        return transformJSX({ code: jsxCode, id, renderer: JSX_RENDERERS.get(importSource) as Renderer, ssr: ssr || false });
+        return transformJSX({ code: jsxCode, id, renderer: JSX_RENDERERS.get(importSource) as Renderer, ssr });
       }
 
       // if we still can’t tell, throw error
