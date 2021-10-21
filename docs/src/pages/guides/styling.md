@@ -6,62 +6,140 @@ description: Learn how to style components with Astro.
 
 Astro includes special handling to make writing CSS as easy as possible. Styling inside of Astro components is done by adding a `<style>` tag anywhere.
 
-By default, all Astro component styles are **scoped**, meaning they only apply to the current component. These styles are automatically extracted and optimized for you in the final build, so that you don't need to worry about style loading.
+## Astro component styles
 
-To create global styles, add a `:global()` wrapper around a selector (the same as if you were using [CSS Modules][css-modules]).
+By default, all Astro component styles are **scoped**, meaning they only apply to the current component. This can be very easy to work with, as you only have to worry about what’s in your current document at any given time.
 
 ```html
 <!-- src/components/MyComponent.astro -->
 <style>
   /* Scoped class selector within the component */
-  .scoped {
-    font-weight: bold;
+  .text {
+    font-family: cursive;
   }
   /* Scoped element selector within the component */
   h1 {
     color: red;
   }
-  /* Global style */
+</style>
+
+<h1>I’m a scoped style and I’m red!</h1>
+<p class="text">I'm a scoped style and I’m cursive!</p>
+```
+
+Note that the `h1` selector won’t bleed out of the current component! These styles won’t apply any other `h1` tags outside this document. Not even child components.
+
+_Tip: even though you can use element selectors, using classnames is preferred. This is not only slightly more performant, but is also easier to read, especially in a large document._
+
+### Global styles
+
+Of course, the real power of CSS is being able to reuse as much as possible! The preferred method of loading global styles is by using a standard `<link>` tag like you’re used to. It can even be used in conjunction with Astro’s scoped `<style>` tag:
+
+```html
+<!-- src/pages/index.astro -->
+<head>
+  <!-- load styles from src/styles/utils.css using Astro.resolve() -->
+  <link rel="stylesheet" type="text/css"
+  href={Astro.resolve('../styles/utils.css')} />
+</head>
+<body>
+  <!-- scoped Astro styles that apply only to the current page (not to children or other components) -->
+  <style>
+    .title {
+      font-size: 32px;
+      font-weight: bold;
+    }
+  </style>
+
+  <!-- the ".title" class is scoped, but we can also use our global "align-center" and "margin top: 4" utility classes from utils.css -->
+  <h1 class="title align-center mt4">Scoped Page Title</h1>
+</body>
+```
+
+_Note: `Astro.resolve()` is a handy utility that helps resolve files from anywhere ([docs][astro-resolve])_
+
+#### Styling children
+
+If you’d like scoped styles to apply to children, you can use the special `:global()` function borrowed from [CSS Modules][css-modules]:
+
+```astro
+<!-- src/components/MyComponent.astro -->
+---
+import PostContent from './Post.astro';
+---
+<style>
+  /* Scoped to current component only */
+  h1 {
+    color: red;
+  }
+
+  /* Scoped to all descendents of the scoped .blog-post class */
+  .blog-post :global(h1) {
+    color: blue;
+  }
+</style>
+
+<h1>Title</h1>
+<article class="blog-post">
+  <PostContent />
+</article>
+```
+
+This is a great way to style things like blog posts, or documents with CMS-powered content where the contents live outside of Astro. But be careful when styling children unconditionally, as it breaks component encapsulation. Components that appear different based on whether or not they have a certain parent component can become unwieldy quickly.
+
+#### Global styles within style tag
+
+If you’d like to use global styles but you don’t want to use a normal `<link>` tag (recommended), there is a `<style global>` escape hatch:
+
+```html
+<style global>
+  /* Applies to all h1 tags in your entire site */
+  h1 {
+    font-size: 32px;
+  }
+</style>
+
+<h1>Globally-styled</h1>
+```
+
+You can achieve the same by using the `:global()` function at the root of a selector:
+
+```html
+<style>
+  /* Applies to all h1 tags in your entire site */
   :global(h1) {
     font-size: 32px;
   }
-</style>
 
-<div class="scoped">I'm a scoped style and only apply to this component</div>
-<h1>I have both scoped and global styles</h1>
+  /* normal scoped h1 that applies to this file only */
+  h1 {
+    color: blue;
+  }
+</style>
 ```
 
-To include every selector in a `<style>` as global styles, use `<style global>`. It's best to avoid using this escape hatch if possible, but it can be useful if you find yourself repeating `:global()` multiple times in the same `<style>`.
+It’s recommended to only use this in scenarios where a `<link>` tag won’t work. It’s harder to track down errant global styles when they’re scattered around and not in a central CSS file.
 
-```html
-<!-- src/components/MyComponent.astro -->
-<style>
-  /* Scoped class selector within the component */
-  .scoped {
-    font-weight: bold;
-  }
-  /* Scoped element selector within the component */
-  h1 {
-    color: red;
-  }
-</style>
+📚 Read our full guide on [Astro component syntax][astro-component] to learn more about using the `<style>` tag.
 
-<style global>
-  /* Global style */
-  h1 {
-    font-size: 32px;
-  }
-</style>
+## Autoprefixer
 
-<div class="scoped">I'm a scoped style and only apply to this component</div>
-<h1>I have both scoped and global styles</h1>
+[Autoprefixer][autoprefixer] takes care of cross-browser CSS compatibility for you. Use it in astro by installing it (`npm install --save-dev autoprefixer`) and adding a `postcss.config.cjs` file to the root of your project:
+
+```js
+// postcss.config.cjs
+module.exports = {
+  autoprefixer: {
+    /* (optional) autoprefixer settings */
+  },
+};
 ```
 
-📚 Read our full guide on [Astro component syntax](/core-concepts/astro-components#css-styles) to learn more about using the `<style>` tag.
+_Note: Astro v0.21 and later requires this manual setup for autoprefixer. Previous versions ran this automatically._
 
-## Cross-Browser Compatibility
+## PostCSS
 
-We also automatically add browser prefixes using [Autoprefixer][autoprefixer]. By default, Astro loads the [Browserslist defaults][browserslist-defaults], but you may also specify your own by placing a [Browserslist][browserslist] file in your project root.
+You can use any PostCSS plugin by adding a `postcss.config.cjs` file to the root of your project. Follow the documentation for the plugin you’re trying to install for configuration and setup.
 
 ---
 
@@ -78,7 +156,7 @@ Styling in Astro is meant to be as flexible as you'd like it to be! The followin
 
 ¹ _`.astro` files have no runtime, therefore Scoped CSS takes the place of CSS Modules (styles are still scoped to components, but don't need dynamic values)_
 
-All styles in Astro are automatically [**autoprefixed**](#cross-browser-compatibility), minified and bundled, so you can just write CSS and we'll handle the rest ✨.
+All styles in Astro are automatically minified and bundled, so you can just write CSS and we'll handle the rest ✨.
 
 ---
 
@@ -104,22 +182,25 @@ Vue in Astro supports the same methods as `vue-loader` does:
 
 Svelte in Astro also works exactly as expected: [Svelte Styling Docs][svelte-style].
 
-### 👓 Sass
+### 🎨 CSS Preprocessors (Sass, Stylus, etc.)
 
-Astro also supports [Sass][sass] out-of-the-box. To enable for each framework:
+Astro supports CSS preprocessors such as [Sass][sass], [Stylus][stylus], and [Less][less] through [Vite][vite-preprocessors]. It can be enabled via the following:
 
-- **Astro**: `<style lang="scss">` or `<style lang="sass">`
+- **Sass**: Run `npm install -D sass` and use `<style lang="scss">` or `<style lang="sass">` (indented) in `.astro` files
+- **Stylus**: Run `npm install -D stylus` and use `<style lang="styl">` or `<style lang="stylus">` in `.astro` files
+- **Less**: Run `npm install -D less` and use `<style lang="less">` in `.astro` files.
+
+You can also use all of the above within JS frameworks as well! Simply follow the patterns each framework recommends:
+
 - **React** / **Preact**: `import Styles from './styles.module.scss'`;
-- **Vue**: `<style lang="scss">` or `<style lang="sass">`
-- **Svelte**: `<style lang="scss">` or `<style lang="sass">`
+- **Vue**: `<style lang="scss">`
+- **Svelte**: `<style lang="scss">`
 
-💁‍ Sass is great! If you haven't used Sass in a while, please give it another try. The new and improved [Sass Modules][sass-use] are a great fit with modern web development, and it's blazing-fast since being rewritten in Dart. And the best part? **You know it already!** Use `.scss` to write familiar CSS syntax you're used to, and only sprinkle in Sass features if/when you need them.'
+Additionally, [PostCSS](#-postcss) is supported, but the setup is [slightly different](#-postcss).
 
-**Note**: If you use .scss files rather than .css files, your stylesheet links should still point to .css files because of Astro’s auto-compilation process. When Astro “needs” the styling files, it’ll be “looking for” the final .css file(s) that it compiles from the .scss file(s). For example, if you have a .scss file at `./src/styles/global.scss`, use this link: `<link rel="stylesheet" href="{Astro.resolve('../styles/global.css')}">` — **not** `<link rel="stylesheet" href="{Astro.resolve('../styles/global.scss')}">`.
+_Note: CSS inside `public/` will **not** be transformed! Place it within `src/` instead._
 
 ### 🍃 Tailwind
-
-> Note that Astro's Tailwind support _only_ works with Tailwind JIT mode.
 
 Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
 
@@ -127,10 +208,10 @@ Astro can be configured to use [Tailwind][tailwind] easily! Install the dependen
 npm install --save-dev tailwindcss
 ```
 
-And also create a `tailwind.config.js` in your project root:
+And create 2 files in your project root: `tailwind.config.cjs` and `postcss.config.cjs`:
 
 ```js
-// tailwind.config.js
+// tailwind.config.cjs
 module.exports = {
   mode: 'jit',
   purge: ['./public/**/*.html', './src/**/*.{astro,js,jsx,svelte,ts,tsx,vue}'],
@@ -138,15 +219,11 @@ module.exports = {
 };
 ```
 
-Be sure to add the config path to `astro.config.mjs`, so that Astro enables JIT support in the dev server.
-
-```diff
-  // astro.config.mjs
-  export default {
-+   devOptions: {
-+     tailwindConfig: './tailwind.config.js',
-+   },
-  };
+```js
+// postcss.config.cjs
+module.exports = {
+  tailwind: {},
+};
 ```
 
 Now you're ready to write Tailwind! Our recommended approach is to create a `src/styles/global.css` file (or whatever you‘d like to name your global stylesheet) with [Tailwind utilities][tailwind-utilities] like so:
@@ -162,7 +239,7 @@ As an alternative to `src/styles/global.css`, You may also add Tailwind utilitie
 
 #### Migrating from v0.19
 
-As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process `public/` files. Previously, we'd recommended putting your tailwind files in the `public/` directory. If you started a project with this pattern, you should move any Tailwind styles into the `src` directory and import them in your template using [Astro.resolve()](/reference/api-reference#astroresolve):
+As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process `public/` files. Previously, we'd recommended putting your tailwind files in the `public/` directory. If you started a project with this pattern, you should move any Tailwind styles into the `src` directory and import them in your template using [Astro.resolve()][astro-resolve]:
 
 ```astro
   <link
@@ -171,43 +248,13 @@ As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%40
   >
 ```
 
-### Importing from npm
-
-If you want to import third-party libraries into an Astro component, you can use a `<style lang="scss">` tag to enable [Sass][sass] and use the [@use][sass-use] rule.
-
-```html
-<!-- Loads Boostrap -->
-<style lang="scss">
-  @use "bootstrap/scss/bootstrap";
-</style>
-```
-
 ### 🎭 PostCSS
 
-[PostCSS](https://postcss.org/) is a popular CSS transpiler with support for [a huge ecosystem of plugins.](https://github.com/postcss/postcss#plugins)
-
-**To use PostCSS with Snowpack:** add the [@snowpack/plugin-postcss](https://www.npmjs.com/package/@snowpack/plugin-postcss) plugin to your project.
-
-```diff
-// snowpack.config.js
-"plugins": [
-+  "@snowpack/plugin-postcss"
-]
-```
-
-PostCSS requires a [`postcss.config.js`](https://github.com/postcss/postcss#usage) file in your project. By default, the plugin looks in the root directory of your project, but you can customize this yourself with the `config` option. See [the plugin README](https://www.npmjs.com/package/@snowpack/plugin-postcss) for all available options.
-
-```js
-// postcss.config.js
-// Example (empty) postcss config file
-module.exports = {
-  plugins: [
-    // ...
-  ],
-};
-```
+Using PostCSS is as simple as placing a [`postcss.config.cjs`](https://github.com/postcss/postcss#usage) file in the root of your project.
 
 Be aware that this plugin will run on all CSS in your project, including any files that compiled to CSS (like `.scss` Sass files, for example).
+
+_Note: CSS in `public/` **will not be transformed!** Instead, place it within `src/` if you’d like PostCSS to run over your styles._
 
 ## Bundling
 
@@ -550,6 +597,8 @@ This guide wouldn't be possible without the following blog posts, which expand o
 Also please check out the [Stylelint][stylelint] project to whip your styles into shape. You lint your JS, why not your CSS?
 
 [autoprefixer]: https://github.com/postcss/autoprefixer
+[astro-component]: /core-concepts/astro-components#css-styles
+[astro-resolve]: /reference/api-reference#astroresolve
 [bem]: http://getbem.com/introduction/
 [box-model]: https://developer.mozilla.org/en-US/docs/Learn/CSS/Building_blocks/The_box_model
 [browserslist]: https://github.com/browserslist/browserslist
@@ -560,6 +609,7 @@ Also please check out the [Stylelint][stylelint] project to whip your styles int
 [css-treeshaking]: https://css-tricks.com/how-do-you-remove-unused-css-from-a-site/
 [fouc]: https://en.wikipedia.org/wiki/Flash_of_unstyled_content
 [layout-isolated]: https://web.archive.org/web/20210227162315/https://visly.app/blogposts/layout-isolated-components
+[less]: https://lesscss.org/
 [issues]: https://github.com/snowpackjs/astro/issues
 [magic-number]: https://css-tricks.com/magic-numbers-in-css/
 [material-ui]: https://material.io/components
@@ -568,11 +618,13 @@ Also please check out the [Stylelint][stylelint] project to whip your styles int
 [sass-use]: https://sass-lang.com/documentation/at-rules/use
 [smacss]: http://smacss.com/
 [styled-components]: https://styled-components.com/
+[stylus]: https://stylus-lang.com/
 [styled-jsx]: https://github.com/vercel/styled-jsx
 [stylelint]: https://stylelint.io/
 [svelte-style]: https://svelte.dev/docs#style
 [tailwind]: https://tailwindcss.com
 [tailwind-utilities]: https://tailwindcss.com/docs/adding-new-utilities#using-css
 [utility-css]: https://frontstuff.io/in-defense-of-utility-first-css
+[vite-preprocessors]: https://vitejs.dev/guide/features.html#css-pre-processors
 [vue-css-modules]: https://vue-loader.vuejs.org/guide/css-modules.html
 [vue-scoped]: https://vue-loader.vuejs.org/guide/scoped-css.html

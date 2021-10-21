@@ -81,8 +81,6 @@ export interface AstroUserConfig {
     hostname?: string;
     /** The port to run the dev server on. */
     port?: number;
-    /** Path to tailwind.config.js, if used */
-    tailwindConfig?: string;
     /**
      * Configure The trailing slash behavior of URL route matching:
      *   'always' - Only match URLs that include a trailing slash (ex: "/foo/")

@@ -16,6 +16,13 @@ import { getPackageJSON, parseNpmName } from './util.js';
 
 const require = createRequire(import.meta.url);
 
+/**
+ * Tailwind fixes
+ * These fix Tailwind HMR in dev, and must be declared before Vite initiates.
+ * These are Tailwind-specific, so they’re safe to add.
+ */
+(process.env as any).TAILWIND_MODE = 'watch';
+
 // note: ssr is still an experimental API hence the type omission
 type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
 
