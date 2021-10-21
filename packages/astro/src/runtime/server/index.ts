@@ -10,18 +10,14 @@ export { createMetadata } from './metadata.js';
 
 const { generate, GENERATOR } = astring;
 
-/*
- * A more robust version alternative to `JSON.stringify` that can handle most values
- * See https://github.com/remcohaszing/estree-util-value-to-estree#readme
- */
+// A more robust version alternative to `JSON.stringify` that can handle most values
+// see https://github.com/remcohaszing/estree-util-value-to-estree#readme
 const customGenerator: astring.Generator = {
   ...GENERATOR,
   Literal(node, state) {
     if (node.raw != null) {
-      /*
-       * escape closing script tags in strings so browsers wouldn't interpret them as
-       * closing the actual end tag in HTML
-       */
+      // escape closing script tags in strings so browsers wouldn't interpret them as
+      // closing the actual end tag in HTML
       state.write(node.raw.replace('</script>', '<\\/script>'));
     } else {
       GENERATOR.Literal(node, state);
@@ -39,11 +35,9 @@ async function _render(child: any): Promise<any> {
   if (Array.isArray(child)) {
     return (await Promise.all(child.map((value) => _render(value)))).join('\n');
   } else if (typeof child === 'function') {
-    /*
-     * Special: If a child is a function, call it automatically.
-     * This lets you do {() => ...} without the extra boilerplate
-     * of wrapping it in a function and calling it.
-     */
+    // Special: If a child is a function, call it automatically.
+    // This lets you do {() => ...} without the extra boilerplate
+    // of wrapping it in a function and calling it.
     return _render(child());
   } else if (typeof child === 'string') {
     return child;
@@ -267,7 +261,7 @@ function createFetchContentFn(url: URL) {
           ...mod.frontmatter,
           content: mod.metadata,
           file: new URL(spec, url),
-          url: urlSpec.includes('/pages/') && urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, ''),
+          url: urlSpec.includes('/pages/') && urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, '')
         };
       })
       .filter(Boolean);
