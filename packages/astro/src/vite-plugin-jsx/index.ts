@@ -27,12 +27,28 @@ interface AstroPluginJSXOptions {
   logging: LogOptions;
 }
 
+// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
+function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
+  if (options === undefined) {
+    return false;
+  }
+  if (typeof options === 'boolean') {
+    return options;
+  }
+  if (typeof options == 'object') {
+    return !!options.ssr;
+  }
+  return false;
+}
+
+
 /** Use Astro config to allow for alternate or multiple JSX renderers (by default Vite will assume React) */
 export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin {
   return {
     name: '@astrojs/vite-plugin-jsx',
     enforce: 'pre', // run transforms before other plugins
-    async transform(code, id, ssr) {
+    async transform(code, id, ssrOrOptions) {
+      const ssr = isSSR(ssrOrOptions);
       if (!JSX_EXTENSIONS.has(path.extname(id))) {
         return null;
       }
@@ -56,22 +72,26 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
       // Attempt: Single JSX renderer 
       // If we only have one renderer, we can skip a bunch of work!
       if (JSX_RENDERERS.size === 1) {
-        return transformJSX({ code, id, renderer: [...JSX_RENDERERS.values()][0], ssr: ssr || false });
+        // downlevel any non-standard syntax, but preserve JSX
+        const { code: jsxCode } = await esbuild.transform(code, {
+          loader: getLoader(path.extname(id)),
+          jsx: 'preserve'
+        });
+        return transformJSX({ code: jsxCode, id, renderer: [...JSX_RENDERERS.values()][0], ssr });
       }
 
       // Attempt: Multiple JSX renderers
-      // Determine for each .jsx or .tsx file what it wants to use to Render
-      // we need valid JS here, so we can use `h` and `Fragment` as placeholders
-      // NOTE(fks, matthewp): Make sure that you're transforming the original contents here.
-      const { code: codeToScan } = await esbuild.transform(code + PREVENT_UNUSED_IMPORTS, {
+      // we need valid JS to scan, so we can use `h` and `Fragment` as placeholders
+      const { code: jsCode } = await esbuild.transform(code + PREVENT_UNUSED_IMPORTS, {
         loader: getLoader(path.extname(id)),
         jsx: 'transform',
         jsxFactory: 'h',
         jsxFragment: 'Fragment',
       });
+
       let imports: eslexer.ImportSpecifier[] = [];
-      if (/import/.test(codeToScan)) {
-        let [i] = eslexer.parse(codeToScan);
+      if (/import/.test(jsCode)) {
+        let [i] = eslexer.parse(jsCode);
         imports = i as any;
       }
       let importSource: string | undefined;
@@ -106,7 +126,12 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
           error(logging, 'renderer', `${colors.yellow(id)} No renderer installed for ${importSource}. Try adding \`@astrojs/renderer-${importSource}\` to your dependencies.`);
           return null;
         }
-        return transformJSX({ code, id, renderer: JSX_RENDERERS.get(importSource) as Renderer, ssr: ssr || false });
+        // downlevel any non-standard syntax, but preserve JSX
+        const { code: jsxCode } = await esbuild.transform(code, {
+          loader: getLoader(path.extname(id)),
+          jsx: 'preserve'
+        });
+        return transformJSX({ code: jsxCode, id, renderer: JSX_RENDERERS.get(importSource) as Renderer, ssr });
       }
 
       // if we still can’t tell, throw error
