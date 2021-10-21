@@ -48,7 +48,10 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           preprocessStyle: async (value: string, attrs: Record<string, string>) => {
             if (!attrs || !attrs.lang) return null;
             const result = await transformWithVite(value, attrs, id, viteTransform);
-            return result;
+            if (!result) {
+              return result;
+            }
+            return { code: result.code, map: result.map?.toString() }
           },
         });
         // Compile `.ts` to `.js`
