@@ -3,20 +3,8 @@ import MainHead from '../../components/MainHead.astro';
 import Nav from '../../components/Nav.astro';
 import PostPreview from '../../components/PostPreview.astro';
 import Pagination from '../../components/Pagination.astro';
-
-// page
-let title = 'Don’s Blog';
-let description = 'An example blog on Astro';
-let canonicalURL = Astro.request.canonicalURL;
-
-// collection
-interface MarkdownFrontmatter {
-  date: number;
-  description: string;
-  title: string;
-}
-
 import authorData from '../../data/authors.json';
+
 export async function getStaticPaths({paginate, rss}) {
   const allPosts = Astro.fetchContent<MarkdownFrontmatter>('../post/*.md');
   const sortedPosts = allPosts.sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf());
@@ -38,6 +26,19 @@ export async function getStaticPaths({paginate, rss}) {
   // Return a paginated collection of paths for all posts
   return paginate(sortedPosts, {pageSize: 1});
 }
+
+// page
+let title = 'Don’s Blog';
+let description = 'An example blog on Astro';
+let canonicalURL = Astro.request.canonicalURL;
+
+// collection
+interface MarkdownFrontmatter {
+  date: number;
+  description: string;
+  title: string;
+}
+
 
 const { page } = Astro.props;
 ---

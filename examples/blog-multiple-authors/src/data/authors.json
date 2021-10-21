@@ -1,10 +1,10 @@
 {
   "don": {
     "name": "Don Quixote",
-    "image": "/authors/don.jpg"
+    "image": "/images/don.jpg"
   },
   "sancho": {
     "name": "Sancho Panza",
-    "image": "/authors/sancho.jpg"
+    "image": "/images/sancho.jpg"
   }
 }

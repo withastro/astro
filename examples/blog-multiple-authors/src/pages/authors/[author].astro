@@ -1,16 +1,16 @@
 ---
+
 import MainHead from '../../components/MainHead.astro';
 import Nav from '../../components/Nav.astro';
 import PostPreview from '../../components/PostPreview.astro';
 import Pagination from '../../components/Pagination.astro';
-
-// page
-let title = 'Don’s Blog';
-let description = 'An example blog on Astro';
-let canonicalURL = Astro.request.canonicalURL;
-
-// collection
 import authorData from '../../data/authors.json';
+
+export function getStaticPaths() {
+  const allPosts = Astro.fetchContent<MarkdownFrontmatter>('../post/*.md');
+  let allAuthorsUnique = [...new Set(allPosts.map(p => p.author))];
+  return allAuthorsUnique.map(author => ({params: {author}, props: {allPosts}}));
+}
 
 interface MarkdownFrontmatter {
   date: number;
@@ -19,14 +19,10 @@ interface MarkdownFrontmatter {
   author: string;
 }
 
-export function getStaticPaths() {
-  const allPosts = Astro.fetchContent<MarkdownFrontmatter>('../post/*.md');
-  let allAuthorsUnique = [...new Set(allPosts.map(p => p.author))];
-  return allAuthorsUnique.map(author => ({params: {author}, props: {allPosts}}));
-}
-
 const { allPosts } = Astro.props;
-const { params } = Astro.request;
+const { params, canonicalURL } = Astro.request;
+const title = 'Don’s Blog';
+const description = 'An example blog on Astro';
 
 /** filter posts by author, sort by date */
 const posts = allPosts
