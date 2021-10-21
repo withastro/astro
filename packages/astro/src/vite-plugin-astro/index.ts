@@ -45,7 +45,6 @@ export default function astro({ config, devServer }: AstroPluginOptions): Plugin
           map,
         };
       } catch (err: any) {
-        debugger;
         // if esbuild threw the error, find original code source to display
         if (err.errors && tsResult?.map) {
           const json = JSON.parse(tsResult.map);
