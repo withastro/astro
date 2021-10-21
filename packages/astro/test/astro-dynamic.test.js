@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/astro-dynamic/' });
-  await fixture.build();
-});
-
 describe('Dynamic components', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-dynamic/' });
+    await fixture.build();
+  });
+
   it('Loads packages that only run code in client', async () => {
     const html = await fixture.readFile('/index.html');
 

@@ -2,20 +2,20 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({
-    projectRoot: './fixtures/astro-global/',
-    buildOptions: {
-      site: 'https://mysite.dev/blog/',
-      sitemap: false,
-    },
-  });
-  await fixture.build();
-});
-
 describe('Astro.*', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-global/',
+      buildOptions: {
+        site: 'https://mysite.dev/blog/',
+        sitemap: false,
+      },
+    });
+    await fixture.build();
+  });
+
   it('Astro.request.url', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
