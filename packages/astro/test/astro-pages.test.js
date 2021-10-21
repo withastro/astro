@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/astro-pages/' });
-  await fixture.build();
-});
-
 describe('Pages', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-pages/' });
+    await fixture.build();
+  });
+
   it('Can find page with "index" at the end file name', async () => {
     const html = await fixture.readFile('/posts/name-with-index/index.html');
     const $ = cheerio.load(html);

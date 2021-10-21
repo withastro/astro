@@ -1,14 +1,14 @@
 import { expect } from 'chai';
 import { devCLI, loadFixture } from './test-utils.js';
 
-let hostnameFixture;
-let portFixture;
-
-before(async () => {
-  [hostnameFixture, portFixture] = await Promise.all([loadFixture({ projectRoot: './fixtures/config-hostname/' }), loadFixture({ projectRoot: './fixtures/config-port/' })]);
-});
-
 describe('config', () => {
+  let hostnameFixture;
+  let portFixture;
+  
+  before(async () => {
+    [hostnameFixture, portFixture] = await Promise.all([loadFixture({ projectRoot: './fixtures/config-hostname/' }), loadFixture({ projectRoot: './fixtures/config-port/' })]);
+  });
+
   describe('hostname', () => {
     it('can be specified in astro.config.mjs', async () => {
       expect(hostnameFixture.config.devOptions.hostname).to.equal('0.0.0.0');

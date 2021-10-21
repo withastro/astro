@@ -2,17 +2,17 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({
-    projectRoot: './fixtures/astro-children/',
-    renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-vue', '@astrojs/renderer-svelte'],
-  });
-  await fixture.build();
-});
-
 describe('Component children', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-children/',
+      renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-vue', '@astrojs/renderer-svelte'],
+    });
+    await fixture.build();
+  });
+
   it('Passes string children to framework components', async () => {
     const html = await fixture.readFile('/strings/index.html');
     const $ = cheerio.load(html);
