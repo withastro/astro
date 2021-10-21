@@ -15,10 +15,8 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
   return false;
 }
 
-/*
- * This matches any JS-like file (that we know of)
- * See https://regex101.com/r/Cgofir/1
- */
+// This matches any JS-like file (that we know of)
+// See https://regex101.com/r/Cgofir/1
 const SUPPORTED_FILES = /\.(astro|svelte|vue|[cm]?js|jsx|[cm]?ts|tsx)$/;
 const DEFINE_FETCH = `import fetch from 'node-fetch';\n`;
 
@@ -28,17 +26,14 @@ export default function pluginFetch(): Plugin {
     enforce: 'post',
     async transform(code, id, opts) {
       const ssr = isSSR(opts);
-
       // If this isn't an SSR pass, `fetch` will already be available!
       if (!ssr) {
         return null;
       }
-
       // Only transform JS-like files
       if (!id.match(SUPPORTED_FILES)) {
         return null;
       }
-
       // Optimization: only run on probable matches
       if (!code.includes('fetch')) {
         return null;
@@ -46,14 +41,11 @@ export default function pluginFetch(): Plugin {
 
       const s = new MagicString(code);
       s.prepend(DEFINE_FETCH);
-
       const result = s.toString();
-
       const map = s.generateMap({
         source: id,
         includeContent: true,
       });
-
       return { code: result, map };
     },
   };

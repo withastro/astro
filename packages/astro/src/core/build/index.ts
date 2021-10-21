@@ -51,16 +51,9 @@ class AstroBuilder {
     this.manifest = createRouteManifest({ config });
   }
 
-  /** Build all pages */
   async build() {
-    const timer: Record<string, number> = {}; // keep track of performance timers
-
-    /*
-     * Setup
-     * Create the Vite server with production build settings
-     */
-    timer.viteStart = performance.now();
     const { logging, origin } = this;
+    const timer: Record<string, number> = {viteStart: performance.now()};
     const viteConfig = await createVite(
       {
         mode: this.mode,
@@ -76,25 +69,22 @@ class AstroBuilder {
     this.viteServer = viteServer;
     debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
 
-    /*
-     * Render pages
-     * Convert .astro -> .html
-     */
     timer.renderStart = performance.now();
-    const assets: Record<string, string> = {}; // additional assets to be written
+    const assets: Record<string, string> = {};
     const allPages: Record<string, RouteData & { paths: string[] }> = {};
-
-    // pre-render: determine all possible routes from dynamic pages
+    // Collect all routes ahead-of-time, before we start the build.
+    // NOTE: This enforces that `getStaticPaths()` is only called once per route,
+    // and is then cached across all future SSR builds. In the past, we've had trouble
+    // with parallelized builds without guaranteeing that this is called first.
     await Promise.all(
       this.manifest.routes.map(async (route) => {
-        // static route
+        // static route:
         if (route.pathname) {
           allPages[route.component] = { ...route, paths: [route.pathname] };
           return;
         }
-        // dynamic route
+        // dynamic route:
         const result = await this.getStaticPathsForRoute(route);
-        // handle RSS while generating routes
         if (result.rss?.xml) {
           const rssFile = new URL(result.rss.url.replace(/^\/?/, './'), this.config.dist);
           if (assets[fileURLToPath(rssFile)]) {
@@ -106,7 +96,10 @@ class AstroBuilder {
       })
     );
 
-    // render: convert Astro to HTML
+    // After all routes have been collected, start building them.
+    // TODO: test parallel vs. serial performance. Promise.all() may be 
+    // making debugging harder without any perf gain. If parallel is best, 
+    // then we should set a max number of parallel builds.
     const input: InputHTMLOptions[] = [];
     await Promise.all(
       Object.entries(allPages).map(([component, route]) =>
@@ -132,10 +125,8 @@ class AstroBuilder {
     );
     debug(logging, 'build', timerMessage('All pages rendered', timer.renderStart));
 
-    /*
-     * Production Build
-     * Use Vite’s build process to generate files
-     */
+    // Bundle the assets in your final build: This currently takes the HTML output
+    // of every page (stored in memory) and bundles the assets pointed to on those pages. 
     timer.buildStart = performance.now();
     await vite.build({
       logLevel: 'error',
@@ -160,13 +151,7 @@ class AstroBuilder {
     });
     debug(logging, 'build', timerMessage('Vite build finished', timer.buildStart));
 
-    /*
-     * Post-build files
-     * Write other files to disk Vite may not know about.
-     * TODO: is there a way to handle these as part of the previous step?
-     */
-
-    // RSS
+    // Write any additionally generated assets to disk.
     timer.assetsStart = performance.now();
     Object.keys(assets).map((k) => {
       if (!assets[k]) return;
@@ -177,9 +162,10 @@ class AstroBuilder {
     });
     debug(logging, 'build', timerMessage('Additional assets copied', timer.assetsStart));
 
-    // Sitemap
+    // Build your final sitemap.
     timer.sitemapStart = performance.now();
     if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
+      const sitemapStart = performance.now();
       const sitemap = generateSitemap(input.map(({ name }) => new URL(`/${name}`, this.config.buildOptions.site).href));
       const sitemapPath = new URL('./sitemap.xml', this.config.dist);
       await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
@@ -187,10 +173,7 @@ class AstroBuilder {
     }
     debug(logging, 'build', timerMessage('Sitemap built', timer.sitemapStart));
 
-    /*
-     * Clean up
-     * Close the Vite server instance, and print stats
-     */
+    // You're done! Time to clean up.
     await viteServer.close();
     if (logging.level && levels[logging.level] <= levels['info']) {
       await this.printStats({ cwd: this.config.dist, pageCount: input.length });

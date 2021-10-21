@@ -106,6 +106,7 @@ export interface AstroUserConfig {
  * export interface AstroUserConfig extends z.input<typeof AstroConfigSchema> {
  * }
  */
+
 export type AstroConfig = z.output<typeof AstroConfigSchema>;
 
 export type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
