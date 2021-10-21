@@ -4,6 +4,15 @@ export default {
   name: '@astrojs/renderer-vue',
   client: './client.js',
   server: './server.js',
-  knownEntrypoints: ['vue', '@vue/server-renderer'],
-  vitePlugins: [vue()],
+  viteConfig() {
+    return {
+      optimizeDeps: {
+        include: ['@astrojs/renderer-vue/client.js', 'vue'],
+      },
+      plugins: [vue()],
+      ssr: {
+        external: ['@vue/server-renderer'],
+      },
+    };
+  },
 };

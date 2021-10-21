@@ -2,20 +2,14 @@
 // Component Imports
 import Counter from '../components/Counter.tsx'
 
-
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 ---
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width"
-    />
-
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <style>
       :global(:root) {
         font-family: system-ui;
@@ -23,22 +17,22 @@ import Counter from '../components/Counter.tsx'
       }
       :global(.counter) {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        place-items: center;
         font-size: 2em;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         margin-top: 2em;
+        place-items: center;
       }
       :global(.children) {
         display: grid;
-        place-items: center;
         margin-bottom: 2em;
+        place-items: center;
       }
     </style>
   </head>
   <body>
     <main>
       <Counter client:visible>
-        <h1>Hello Preact!</h1>
+        <h1>Hello, Preact!</h1>
       </Counter>
     </main>
   </body>

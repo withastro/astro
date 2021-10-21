@@ -240,14 +240,12 @@ export interface RenderPageOptions {
 export interface Renderer {
   /** Name of the renderer (required) */
   name: string;
-  hydrationPolyfills?: string[];
-  /** Don’t try and build these dependencies for client */
-  external?: string[];
-  /** Clientside requirements */
-  knownEntrypoints?: string[];
-  polyfills?: string[];
   /** Import statement for renderer */
   source?: string;
+  /** Scripts to be injected before component */
+  polyfills?: string[];
+  /** Polyfills that need to run before hydration ever occurs */
+  hydrationPolyfills?: string[];
   /** JSX identifier (e.g. 'react' or 'solid-js') */
   jsxImportSource?: string;
   /** Babel transform options */
@@ -259,8 +257,12 @@ export interface Renderer {
       html: string;
     }>;
   };
-  /** Add plugins to Vite, if any */
-  vitePlugins?: vite.Plugin[];
+  /** Return configuration object for Vite ("options" should match https://vitejs.dev/guide/api-plugin.html#config) */
+  viteConfig?: (options: { mode: 'string'; command: 'build' | 'serve' }) => Promise<vite.InlineConfig>;
+  /** @deprecated Don’t try and build these dependencies for client (deprecated in 0.21) */
+  external?: string[];
+  /** @deprecated Clientside requirements (deprecated in 0.21) */
+  knownEntrypoints?: string[];
 }
 
 export interface RouteData {

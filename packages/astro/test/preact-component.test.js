@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: ???? (this is a really weird transform bug)
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -7,7 +5,10 @@ import { loadFixture } from './test-utils.js';
 let fixture;
 
 before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/preact-component/' });
+  fixture = await loadFixture({
+    projectRoot: './fixtures/preact-component/',
+    renderers: ['@astrojs/renderer-preact'],
+  });
   await fixture.build();
 });
 
@@ -20,7 +21,8 @@ describe('Preact component', () => {
     expect($('#class-component')).to.have.lengthOf(1);
   });
 
-  it('Can load function component', async () => {
+  // TODO: fix compiler bug (not interpreting <ArrowFunction /> as a component)
+  it.skip('Can load function component', async () => {
     const html = await fixture.readFile('/fn/index.html');
     const $ = cheerio.load(html);
 
@@ -57,10 +59,12 @@ describe('Preact component', () => {
     const $ = cheerio.load(html);
 
     // test 1: rendered the PragmaComment component
-    expect($('.pragma-comment')).to.have.lengthOf(2);
+    expect($('.pragma-comment')).to.have.lengthOf(1);
+    expect($('.pragma-comment-tsx')).to.have.lengthOf(1);
   });
 
-  it('Uses the new JSX transform', async () => {
+  // In moving over to Vite, the jsx-runtime import is now obscured. TODO: update the method of finding this.
+  it.skip('Uses the new JSX transform', async () => {
     const html = await fixture.readFile('/pragma-comment/index.html');
 
     // Grab the imports
@@ -79,6 +83,3 @@ describe('Preact component', () => {
     expect(jsxRuntime).to.be.ok;
   });
 });
-*/
-
-it.skip('is skipped', () => {});

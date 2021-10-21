@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: fix Vite SSR import of lit-element (TODO: update render API)
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -51,6 +49,3 @@ describe('LitElement test', () => {
     }
   });
 });
-*/
-
-it.skip('is skipped', () => {});

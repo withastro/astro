@@ -5,7 +5,7 @@ import type { LogOptions } from '../logger';
 import type { HmrContext, ModuleNode } from '../vite';
 
 import { fileURLToPath } from 'url';
-import {promisify} from 'util';
+import { promisify } from 'util';
 import connect from 'connect';
 import mime from 'mime';
 import { performance } from 'perf_hooks';

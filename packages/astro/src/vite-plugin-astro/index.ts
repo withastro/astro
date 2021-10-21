@@ -40,7 +40,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
         // use `sourcemap: "both"` so that sourcemap is included in the code
         // result passed to esbuild, but also available in the catch handler.
         tsResult = await transform(source, {
-          as: isPage ? "document" : "fragment",
+          as: isPage ? 'document' : 'fragment',
           site: config.buildOptions.site,
           sourcefile: id,
           sourcemap: 'both',
@@ -50,9 +50,9 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
             const result = await transformWithVite(value, attrs, id, viteTransform);
             if (!result) {
               // TODO: compiler supports `null`, but types don't yet
-              return (result as any);
+              return result as any;
             }
-            return { code: result.code, map: result.map?.toString() }
+            return { code: result.code, map: result.map?.toString() };
           },
         });
         // Compile `.ts` to `.js`

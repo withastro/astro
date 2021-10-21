@@ -2,8 +2,6 @@ export default {
   name: '@astrojs/renderer-solid',
   client: './client.js',
   server: './server.js',
-  external: ['solid-js/web/dist/server.js', 'solid-js/store/dist/server.js', 'solid-js/dist/server.js', 'babel-preset-solid'],
-  knownEntrypoints: ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'],
   jsxImportSource: 'solid-js',
   jsxTransformOptions: async ({ isSSR }) => {
     const [{ default: solid }] = await Promise.all([import('babel-preset-solid')]);
@@ -18,14 +16,41 @@ export default {
         {
           cwd: process.cwd(),
           alias: {
-            'solid-js': 'solid-js/dist/server.js',
             'solid-js/store': 'solid-js/store/dist/server.js',
             'solid-js/web': 'solid-js/web/dist/server.js',
+            'solid-js': 'solid-js/dist/server.js',
           },
         },
       ]);
     }
 
     return options;
+  },
+  viteConfig(options) {
+    // https://github.com/solidjs/vite-plugin-solid
+
+    // We inject the dev mode only if the user explicitely wants it or if we are in dev (serve) mode
+    const replaceDev = options.mode === 'development' || options.command === 'serve';
+
+    const nestedDeps = ['solid-js', 'solid-js/web', 'solid-js/store', 'solid-js/html', 'solid-js/h'];
+
+    return {
+      /**
+       * We only need esbuild on .ts or .js files.
+       * .tsx & .jsx files are handled by us
+       */
+      esbuild: { include: /\.ts$/ },
+      resolve: {
+        conditions: ['solid', ...(replaceDev ? ['development'] : [])],
+        dedupe: nestedDeps,
+        alias: [{ find: /^solid-refresh$/, replacement: '/@solid-refresh' }],
+      },
+      optimizeDeps: {
+        include: nestedDeps,
+      },
+      ssr: {
+        external: ['solid-js/web/dist/server.js', 'solid-js/store/dist/server.js', 'solid-js/dist/server.js', 'babel-preset-solid'],
+      },
+    };
   },
 };

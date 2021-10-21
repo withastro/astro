@@ -13,8 +13,5 @@
   },
   "dependencies": {
     "nanostores": "^0.3.3"
-  },
-  "snowpack": {
-    "workspaceRoot": "../.."
   }
 }

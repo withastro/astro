@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-import path from 'path';
 
 describe('Custom Elements', () => {
   let fixture;
