@@ -53,25 +53,27 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         }
       }
 
-      // Attempt: Single JSX renderer 
-      // If we only have one renderer, we can skip a bunch of work!
-      if (JSX_RENDERERS.size === 1) {
-        return transformJSX({ code, id, renderer: [...JSX_RENDERERS.values()][0], ssr: ssr || false });
-      }
-
       // Attempt: Multiple JSX renderers
       // Determine for each .jsx or .tsx file what it wants to use to Render
       // we need valid JS here, so we can use `h` and `Fragment` as placeholders
       // NOTE(fks, matthewp): Make sure that you're transforming the original contents here.
-      const { code: codeToScan } = await esbuild.transform(code + PREVENT_UNUSED_IMPORTS, {
+      const { code: jsCode } = await esbuild.transform(code + PREVENT_UNUSED_IMPORTS, {
         loader: getLoader(path.extname(id)),
         jsx: 'transform',
         jsxFactory: 'h',
         jsxFragment: 'Fragment',
       });
+
+
+      // Attempt: Single JSX renderer 
+      // If we only have one renderer, we can skip a bunch of work!
+      if (JSX_RENDERERS.size === 1) {
+        return transformJSX({ code: jsCode, id, renderer: [...JSX_RENDERERS.values()][0], ssr: ssr || false });
+      }
+
       let imports: eslexer.ImportSpecifier[] = [];
-      if (/import/.test(codeToScan)) {
-        let [i] = eslexer.parse(codeToScan);
+      if (/import/.test(jsCode)) {
+        let [i] = eslexer.parse(jsCode);
         imports = i as any;
       }
       let importSource: string | undefined;
@@ -106,7 +108,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
           error(logging, 'renderer', `${colors.yellow(id)} No renderer installed for ${importSource}. Try adding \`@astrojs/renderer-${importSource}\` to your dependencies.`);
           return null;
         }
-        return transformJSX({ code, id, renderer: JSX_RENDERERS.get(importSource) as Renderer, ssr: ssr || false });
+        return transformJSX({ code: jsCode, id, renderer: JSX_RENDERERS.get(importSource) as Renderer, ssr: ssr || false });
       }
 
       // if we still can’t tell, throw error
