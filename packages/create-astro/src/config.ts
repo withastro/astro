@@ -12,7 +12,6 @@ export const createConfig = ({ renderers }: { renderers: string[] }) => {
   devOptions: {
     // hostname: 'localhost',  // The hostname to run the dev server on.
     // port: 3000,             // The port to run the dev server on.
-    // tailwindConfig: '',     // Path to tailwind.config.js if used, e.g. './tailwind.config.js'
   },`,
     `  renderers: ${JSON.stringify(renderers, undefined, 2)
       .split('\n')

@@ -1,18 +1,6 @@
-/**
- * UNCOMMENT: Add styles support
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-
-/** Basic CSS minification; removes some flakiness in testing CSS *\/
-function cssMinify(css) {
-  return css
-    .trim() // remove whitespace
-    .replace(/\r?\n\s*\/g, '') // collapse lines
-    .replace(/\s*\{/g, '{') // collapse selectors
-    .replace(/:\s*\/g, ':') // collapse attributes
-    .replace(/;}/g, '}'); // collapse block
-}
 
 let fixture;
 
@@ -21,26 +9,26 @@ before(async () => {
   await fixture.build();
 });
 
-
 describe('Styles SSR', () => {
-  it('Has <link> tags', async () => {
-    const MUST_HAVE_LINK_TAGS = [
-      '/src/components/ReactCSS.css',
-      '/src/components/ReactModules.module.css',
-      '/src/components/SvelteScoped.css',
-      '/src/components/VueCSS.css',
-      '/src/components/VueModules.css',
-      '/src/components/VueScoped.css',
-    ];
+  // TODO: convert <style> to <link>
+  // it('Has <link> tags', async () => {
+  //   const MUST_HAVE_LINK_TAGS = [
+  //     '/src/components/ReactCSS.css',
+  //     '/src/components/ReactModules.module.css',
+  //     '/src/components/SvelteScoped.css',
+  //     '/src/components/VueCSS.css',
+  //     '/src/components/VueModules.css',
+  //     '/src/components/VueScoped.css',
+  //   ];
 
-    const html = await fixture.readFile('/index.html');
-    const $ = cheerio.load(html);
+  //   const html = await fixture.readFile('/index.html');
+  //   const $ = cheerio.load(html);
 
-    for (const href of MUST_HAVE_LINK_TAGS) {
-      const el = $(`link[href="${href}"]`);
-      expect(el).to.have.lengthOf(1);
-    }
-  });
+  //   for (const href of MUST_HAVE_LINK_TAGS) {
+  //     const el = $(`link[href="${href}"]`);
+  //     expect(el).to.have.lengthOf(1);
+  //   }
+  // });
 
   it('Has correct CSS classes', async () => {
     const html = await fixture.readFile('/index.html');
@@ -80,29 +68,28 @@ describe('Styles SSR', () => {
   });
 
   it('CSS Module support in .astro', async () => {
-    const html = await fixture.readFile('/');
+    const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
     let scopedClass;
 
     // test 1: <style> tag in <head> is transformed
-    const css = cssMinify(
-      $('style')
-        .html()
-        .replace(/\.astro-[A-Za-z0-9-]+/, (match) => {
-          scopedClass = match; // get class hash from result
-          return match;
-        })
-    );
+    const css = $('style')
+      .html()
+      .replace(/\.astro-[A-Za-z0-9-]+/, (match) => {
+        scopedClass = match; // get class hash from result
+        return match;
+      });
 
-    expect(css).to.equal(`.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px}`);
+    expect(css).to.equal(`.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px;}.outer${scopedClass}{color:red;}`);
 
     // test 2: element received .astro-XXXXXX class (this selector will succeed if transformed correctly)
     const wrapper = $(`.wrapper${scopedClass}`);
     expect(wrapper).to.have.lengthOf(1);
   });
 
-  it('Astro scoped styles', async () => {
+  // TODO: fix compiler bug
+  it.skip('Astro scoped styles', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
@@ -128,7 +115,7 @@ describe('Styles SSR', () => {
     const { contents: css } = await fixture.fetch('/src/components/Astro.astro.css').then((res) => res.text());
 
     // test 4: CSS generates as expected
-    expect(cssMinify(css.toString())).to.equal(`.blue.${scopedClass}{color:powderblue}.color\\:blue.${scopedClass}{color:powderblue}.visible.${scopedClass}{display:block}`);
+    expect(css.toString()).to.equal(`.blue.${scopedClass}{color:powderblue}.color\\:blue.${scopedClass}{color:powderblue}.visible.${scopedClass}{display:block}`);
   });
 
   it('Astro scoped styles skipped without <style>', async () => {
@@ -139,7 +126,8 @@ describe('Styles SSR', () => {
     expect($('#no-scope').attr('class')).to.equal(undefined);
   });
 
-  it('Astro scoped styles can be passed to child components', async () => {
+  // TODO: fix compiler bug
+  it.skip('Astro scoped styles can be passed to child components', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
@@ -154,7 +142,3 @@ describe('Styles SSR', () => {
     expect($('#passed-in').attr('class')).to.equal(`outer ${scopedClass}`);
   });
 });
-
-*/
-
-it.skip('is skipped', () => {});

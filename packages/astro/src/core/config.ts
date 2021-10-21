@@ -63,7 +63,6 @@ export const AstroConfigSchema = z.object({
     .object({
       hostname: z.string().optional().default('localhost'),
       port: z.number().optional().default(3000),
-      tailwindConfig: z.string().optional(),
       trailingSlash: z
         .union([z.literal('always'), z.literal('never'), z.literal('ignore')])
         .optional()

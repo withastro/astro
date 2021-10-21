@@ -8,10 +8,6 @@
 
 // @ts-check
 export default /** @type {import('astro').AstroUserConfig} */ ({
-  // Enable Tailwind by telling Astro where your Tailwind config file lives.
-  devOptions: {
-    tailwindConfig: './tailwind.config.js',
-  },
   // Enable the Preact renderer to support Preact JSX components.
   renderers: ['@astrojs/renderer-preact'],
 });
