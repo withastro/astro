@@ -15,10 +15,7 @@ import { getPackageJSON, parseNpmName } from './util.js';
 
 const require = createRequire(import.meta.url);
 
-/*
- * External packages
- * Should always be in ssr.external
- */
+// Some packages are just external, and that’s the way it goes.
 const ALWAYS_EXTERNAL = new Set(['@sveltejs/vite-plugin-svelte', 'micromark-util-events-to-acorn', 'estree-util-value-to-estree', 'shorthash', 'unified']);
 
 /*
@@ -44,17 +41,14 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
   const userDevDeps = Object.keys(packageJSON?.devDependencies || {});
   const { external, noExternal } = await viteSSRDeps([...userDeps, ...userDevDeps]); // TODO: improve this?
 
-  /*
-   * Base Vite config
-   * Starting point for Astro core
-   */
+  // First, start with the Vite configuration that Astro core needs
   let viteConfig: ViteConfigWithSSR = {
     cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
-    clearScreen: false,
-    logLevel: 'error',
+    clearScreen: false, // we want to control the output, not Vite
+    logLevel: 'error', // log errors only
     optimizeDeps: {
       entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
-      include: [...userDeps],
+      include: [...userDeps], // tell Vite to prebuild everything in a user’s package.json dependencies
     },
     plugins: [
       astroVitePlugin({ config: astroConfig, devServer }),
@@ -66,8 +60,6 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
     publicDir: fileURLToPath(astroConfig.public),
     root: fileURLToPath(astroConfig.projectRoot),
     server: {
-      /** prevent serving outside of project root (will become new default soon) */
-      fs: { strict: true },
       /** disable HMR for test */
       hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined,
       /** handle Vite URLs */
@@ -82,10 +74,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
     },
   };
 
-  /*
-   * Astro Renderers
-   * Extend base Vite config
-   */
+  // Add in Astro renderers, which will extend the base config
   for (const name of astroConfig.renderers) {
     try {
       const { default: renderer } = await import(name);
@@ -98,10 +87,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
     }
   }
 
-  /*
-   * Combine configs
-   * Add in user Vite config and internal overrides
-   */
+  // Add in user settings last, followed by any Vite configuration passed in from the parent function (overrides)
   viteConfig = vite.mergeConfig(viteConfig, astroConfig.vite || {}); // merge in Vite config from astro.config.mjs
   viteConfig = vite.mergeConfig(viteConfig, inlineConfig); // merge in inline Vite config
   return viteConfig;
