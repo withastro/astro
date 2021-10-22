@@ -15,8 +15,5 @@
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2",
     "remark-slug": "^6.0.0"
-  },
-  "snowpack": {
-    "workspaceRoot": "../.."
   }
 }

@@ -1,12 +1,16 @@
-/**
- * UNCOMMENT: fix Vite SSR import of lit-element (TODO: update render API)
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 let fixture;
 
+const NODE_VERSION = parseFloat(process.versions.node);
+
 before(async () => {
+  // @lit-labs/ssr/ requires Node 13.9 or higher
+  if (NODE_VERSION < 13.9) {
+    return;
+  }
   fixture = await loadFixture({
     projectRoot: './fixtures/lit-element/',
     renderers: ['@astrojs/renderer-lit'],
@@ -16,8 +20,8 @@ before(async () => {
 
 describe('LitElement test', () => {
   it('Renders a custom element by tag name', async () => {
-    // lit SSR is not currently supported on Node.js < 13
-    if (process.versions.node <= '13') {
+    // @lit-labs/ssr/ requires Node 13.9 or higher
+    if (NODE_VERSION < 13.9) {
       return;
     }
     const html = await fixture.readFile('/index.html');
@@ -51,6 +55,3 @@ describe('LitElement test', () => {
     }
   });
 });
-*/
-
-it.skip('is skipped', () => {});

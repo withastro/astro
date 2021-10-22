@@ -41,7 +41,6 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
   return false;
 }
 
-
 /** Use Astro config to allow for alternate or multiple JSX renderers (by default Vite will assume React) */
 export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin {
   return {
@@ -69,13 +68,13 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         }
       }
 
-      // Attempt: Single JSX renderer 
+      // Attempt: Single JSX renderer
       // If we only have one renderer, we can skip a bunch of work!
       if (JSX_RENDERERS.size === 1) {
         // downlevel any non-standard syntax, but preserve JSX
         const { code: jsxCode } = await esbuild.transform(code, {
           loader: getLoader(path.extname(id)),
-          jsx: 'preserve'
+          jsx: 'preserve',
         });
         return transformJSX({ code: jsxCode, id, renderer: [...JSX_RENDERERS.values()][0], ssr });
       }
@@ -129,7 +128,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         // downlevel any non-standard syntax, but preserve JSX
         const { code: jsxCode } = await esbuild.transform(code, {
           loader: getLoader(path.extname(id)),
-          jsx: 'preserve'
+          jsx: 'preserve',
         });
         return transformJSX({ code: jsxCode, id, renderer: JSX_RENDERERS.get(importSource) as Renderer, ssr });
       }

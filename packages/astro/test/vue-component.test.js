@@ -6,7 +6,10 @@ describe('Vue component', () => {
   let fixture;
 
   before(async () => {
-    fixture = await loadFixture({ projectRoot: './fixtures/vue-component/' });
+    fixture = await loadFixture({
+      projectRoot: './fixtures/vue-component/',
+      renderers: ['@astrojs/renderer-vue'],
+    });
     await fixture.build();
   });
 
