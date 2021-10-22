@@ -33,16 +33,4 @@ describe('Class List', async () => {
     expect($('[class="test set"]')).to.have.lengthOf(1);
     expect($('[class="hello goodbye world friend"]')).to.have.lengthOf(1);
   });
-
-  it('Passes class:list attributes as expected to react components', async () => {
-    const html = await fixture.readFile('/react-component/index.html');
-    const $ = cheerio.load(html);
-
-    expect($('[class="test control"]')).to.have.lengthOf(1);
-    expect($('[class="test expression"]')).to.have.lengthOf(1);
-    expect($('[class="test true"]')).to.have.lengthOf(1);
-    expect($('[class="test truthy"]')).to.have.lengthOf(1);
-    expect($('[class="test set"]')).to.have.lengthOf(1);
-    expect($('[class="hello goodbye world friend"]')).to.have.lengthOf(1);
-  });
 });
