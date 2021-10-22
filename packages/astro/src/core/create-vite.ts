@@ -141,12 +141,8 @@ async function viteSSRDeps(deps: string[]): Promise<{ external: Set<string>; noE
         return;
       }
 
-      // if ESM, try noExternal
-      if (packageJSON.type === 'module') {
-        noExternal.add(spec);
-      }
       // otherwise, assume external by default
-      else {
+      if (packageJSON.type !== 'module') {
         external.add(spec);
       }
 
