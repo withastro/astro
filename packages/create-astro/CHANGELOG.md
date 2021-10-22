@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.4
+
+### Patch Changes
+
+- 28f00566: Updates create-astro to use the latest branch
+
 ## 0.6.3
 
 ### Patch Changes
