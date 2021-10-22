@@ -13,7 +13,7 @@ describe('Solid component', () => {
     await fixture.build();
   });
 
-  it('Can load class component', async () => {
+  it('Can load a component', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
