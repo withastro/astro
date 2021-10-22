@@ -74,7 +74,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   try {
     const vfile = await parser
     .use([rehypeCollectHeaders])
-      .use(rehypeStringify, { allowParseErrors: true, preferUnquoted: true, allowDangerousHtml: true })
+      .use(rehypeStringify, { allowParseErrors: true, preferUnquoted: false, allowDangerousHtml: true })
       .process(content);
     result = vfile.toString();
   } catch (err) {
