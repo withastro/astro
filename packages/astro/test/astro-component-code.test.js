@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: fix top-level expressions in components
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -20,7 +18,7 @@ describe('<Code', () => {
     expect($('pre > code')).to.have.lengthOf(1);
 
     // test: contains some generated spans
-    expect($('pre > code span').length).toBeGreaterThan(1);
+    expect($('pre > code span').length).to.be.greaterThan(1);
   });
 
   it('<Code lang="...">', async () => {
@@ -30,7 +28,7 @@ describe('<Code', () => {
     expect($('pre').attr('class'), 'astro-code');
     expect($('pre > code')).to.have.lengthOf(1);
     // test: contains many generated spans
-    expect($('pre > code span').length).toBeGreaterThanOrEqual(6);
+    expect($('pre > code span').length).to.be.greaterThanOrEqual(6);
   });
 
   it('<Code theme="...">', async () => {
@@ -84,6 +82,3 @@ describe('<Code', () => {
     ]);
   });
 });
-*/
-
-it.skip('is skipped', () => {});
