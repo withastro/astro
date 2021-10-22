@@ -3,14 +3,14 @@ export default {
   client: './client.js',
   server: './server.js',
   jsxImportSource: 'solid-js',
-  jsxTransformOptions: async ({ isSSR }) => {
+  jsxTransformOptions: async ({ ssr }) => {
     const [{ default: solid }] = await Promise.all([import('babel-preset-solid')]);
     const options = {
       presets: [solid({}, { generate: isSSR ? 'ssr' : 'dom', hydratable: true })],
       plugins: [],
     };
 
-    if (isSSR) {
+    if (ssr) {
       options.plugins.push([
         'babel-plugin-module-resolver',
         {
