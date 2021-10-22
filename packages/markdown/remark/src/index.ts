@@ -8,12 +8,14 @@ import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
 import rehypeJsx from './rehype-jsx.js';
 //import { remarkCodeBlock } from './codeblock.js';
 import remarkPrism from './remark-prism.js';
+import remarkUnwrap from './remark-unwrap.js';
 import { loadPlugins } from './load-plugins.js';
 
 import { unified } from 'unified';
 import markdown from 'remark-parse';
 import markdownToHtml from 'remark-rehype';
 import rehypeStringify from 'rehype-stringify';
+import rehypeRaw from 'rehype-raw';
 import matter from 'gray-matter';
 
 export { AstroMarkdownOptions, MarkdownRenderingOptions };
@@ -40,14 +42,17 @@ export const DEFAULT_REHYPE_PLUGINS = [
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
   const { remarkPlugins = DEFAULT_REMARK_PLUGINS, rehypePlugins = DEFAULT_REHYPE_PLUGINS } = opts ?? {};
   const scopedClassName = opts?.$?.scopedClassName;
+  const mode = opts?.mode ?? "mdx";
+  const isMDX = mode === 'mdx';
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
   await Promise.all([loadRemarkExpressions(), loadRemarkJsx()]); // Vite bug: dynamically import() these because of CJS interop (this will cache)
 
   let parser = unified()
     .use(markdown)
-    .use([remarkJsx])
-    .use([remarkExpressions])
+    .use(isMDX ? [remarkJsx] : [])
+    .use(isMDX ? [remarkExpressions] : [])
+    .use([remarkUnwrap])
     .use([remarkPrism(scopedClassName)])
 
   const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
@@ -68,13 +73,16 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     parser.use([[plugin, opts]]);
   });
   
-  parser.use([rehypeJsx]).use(rehypeExpressions)
+  parser
+    .use(isMDX ? [rehypeJsx] : [])
+    .use(isMDX ? [rehypeExpressions] : [])
+    .use(isMDX ? [] : [rehypeRaw])
 
   let result: string;
   try {
     const vfile = await parser
     .use([rehypeCollectHeaders])
-      .use(rehypeStringify, { allowParseErrors: true, preferUnquoted: false, allowDangerousHtml: true })
+      .use(rehypeStringify, { allowParseErrors: true, allowDangerousHtml: true })
       .process(content);
     result = vfile.toString();
   } catch (err) {
