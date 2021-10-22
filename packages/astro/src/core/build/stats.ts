@@ -1,4 +1,3 @@
-import cheerio from 'cheerio';
 import * as eslexer from 'es-module-lexer';
 import fetch from 'node-fetch';
 import fs from 'fs';
@@ -60,23 +59,28 @@ export async function profileJS({ cwd, entryHTML }: { cwd: URL; entryHTML?: URL 
 
   // profile HTML entry (do this first, before all JS in a project is scanned)
   if (entryHTML) {
-    let $ = cheerio.load(await fs.promises.readFile(entryHTML));
     let entryScripts: URL[] = [];
     let visitedEntry = false; // note: a quirk of Vite is that the entry file is async-loaded. Count that, but don’t count subsequent async loads
 
+    // Note: this function used cheerio to scan HTML, read deps, and build
+    // an accurate, “production-ready” benchmark for how much HTML, JS, and CSS
+    // you shipped. Disabled for now, because we have a post-merge cleanup item
+    // to revisit these build stats.
+    //
+    // let $ = cheerio.load(await fs.promises.readFile(entryHTML));
     // scan <script> files, keep adding to total until done
-    $('script').each((n, el) => {
-      const src = $(el).attr('src');
-      const innerHTML = $(el).html();
-      // if inline script, add to overall JS weight
-      if (innerHTML) {
-        htmlSize += Buffer.byteLength(innerHTML);
-      }
-      // otherwise if external script, load & scan it
-      if (src) {
-        entryScripts.push(new URL(src, entryHTML));
-      }
-    });
+    // $('script').each((n, el) => {
+    //   const src = $(el).attr('src');
+    //   const innerHTML = $(el).html();
+    //   // if inline script, add to overall JS weight
+    //   if (innerHTML) {
+    //     htmlSize += Buffer.byteLength(innerHTML);
+    //   }
+    //   // otherwise if external script, load & scan it
+    //   if (src) {
+    //     entryScripts.push(new URL(src, entryHTML));
+    //   }
+    // });
 
     let scanPromises: Promise<void>[] = [];
 
