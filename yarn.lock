@@ -6927,10 +6927,17 @@ mdast-util-mdx-expression@^1.1.0:
     "@types/estree-jsx" "^0.0.1"
     strip-indent "^4.0.0"
 
-mdast-util-mdx-jsx@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/mdast-util-mdx-jsx/-/mdast-util-mdx-jsx-1.1.0.tgz#e44bf620c3d218b0d9d836b30927098f1c080d72"
-  integrity sha512-iPeyjvvPU7biH1bw/1VM9PLSM9ZXy7409RRB4GKMWl2CASjwz27i6DIHAyjAsYdwdtPXXvX/TJ6AsfWP9M5DSA==
+mdast-util-mdx-expression@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/mdast-util-mdx-expression/-/mdast-util-mdx-expression-1.1.1.tgz#657522e78b84f5c85cd2395776aba8dcfb7bbb0f"
+  integrity sha512-RDLRkBFmBKCJl6/fQdxxKL2BqNtoPFoNBmQAlj5ZNKOijIWRKjdhPkeufsUOaexLj+78mhJc+L7d1MYka8/LdQ==
+  dependencies:
+    "@types/estree-jsx" "^0.0.1"
+
+mdast-util-mdx-jsx@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/mdast-util-mdx-jsx/-/mdast-util-mdx-jsx-1.1.1.tgz#f2ee5e3b74282a8fecf3a6608bb19ed656751a34"
+  integrity sha512-C4W4hXmagipaeMwi5O8y+lVWE4qP2MDxfKlIh0lZN6MZWSPpQTK5RPwKBH4DdYHorgjbV2rKk84rNWlRtvoZCg==
   dependencies:
     "@types/estree-jsx" "^0.0.1"
     "@types/mdast" "^3.0.0"

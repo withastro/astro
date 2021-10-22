@@ -13,18 +13,21 @@ interface InternalProps extends Props {
 let { content, class: className } = Astro.props as InternalProps;
 let html = null;
 
+const { privateRenderMarkdownDoNotUse: renderMarkdown } = (Astro as any);
+
 // If no content prop provided, use the slot.
 if (!content) {
-  const { privateRenderSlotDoNotUse: renderSlot, privateRenderMarkdownDoNotUse: renderMarkdown } = (Astro as any);
+  const { privateRenderSlotDoNotUse: renderSlot } = (Astro as any);
   content = dedent(await renderSlot('default'));
-  const htmlContent = await renderMarkdown(content, {
-    mode: 'md',
-    $: {
-      scopedClassName: className
-    }
-  });
-
-  html = htmlContent;
 }
+
+const htmlContent = await renderMarkdown(content, {
+  mode: 'md',
+  $: {
+    scopedClassName: className
+  }
+});
+
+html = htmlContent;
 ---
 {html ? html : <slot />}
