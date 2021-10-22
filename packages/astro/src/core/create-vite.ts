@@ -78,12 +78,17 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
   for (const name of astroConfig.renderers) {
     try {
       const { default: renderer } = await import(name);
-      if (renderer && typeof renderer.viteConfig === 'function') {
+      if (!renderer) continue;
+      // if a renderer provides viteConfig(), call it and pass in results
+      if (renderer.viteConfig) {
+        if (typeof renderer.viteConfig !== 'function') {
+          throw new Error(`${name}: viteConfig(options) must be a function! Got ${typeof renderer.viteConfig}.`);
+        }
         const rendererConfig = await renderer.viteConfig({ mode: inlineConfig.mode, command: inlineConfig.mode === 'production' ? 'build' : 'serve' }); // is this command true?
         viteConfig = vite.mergeConfig(viteConfig, rendererConfig) as vite.InlineConfig;
       }
     } catch (err) {
-      throw new Error(`${name}\n  ${err}`);
+      throw new Error(`${name}: ${err}`);
     }
   }
 
