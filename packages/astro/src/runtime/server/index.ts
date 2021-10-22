@@ -339,7 +339,7 @@ export function defineStyleVars(astroId: string, vars: Record<any, any>) {
   for (const [key, value] of Object.entries(vars)) {
     output += `  --${key}: ${value};\n`;
   }
-  return `.${astroId} {${output}}`;
+  return `.astro-${astroId} {${output}}`;
 }
 
 export function defineScriptVars(vars: Record<any, any>) {
