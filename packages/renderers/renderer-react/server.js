@@ -4,6 +4,10 @@ import StaticHtml from './static-html.js';
 
 const reactTypeof = Symbol.for('react.element');
 
+function errorIsComingFromPreactComponent(err) {
+  return err.message && err.message.startsWith("Cannot read property '__H'");
+}
+
 function check(Component, props, children) {
   if (typeof Component !== 'function') return false;
 
@@ -20,7 +24,9 @@ function check(Component, props, children) {
         isReactComponent = true;
       }
     } catch (err) {
-      error = err;
+      if(!errorIsComingFromPreactComponent(err)) {
+        error = err;
+      }
     }
 
     return React.createElement('div');
