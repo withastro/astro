@@ -1,2 +1,1 @@
-
 globalThis.somePolyfillHere = '';

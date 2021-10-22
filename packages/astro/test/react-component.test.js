@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: improve Vite automatic React support
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -7,7 +5,10 @@ import { loadFixture } from './test-utils.js';
 let fixture;
 
 before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/react-component/' });
+  fixture = await loadFixture({
+    projectRoot: './fixtures/react-component/',
+    renderers: ['@astrojs/renderer-react', '@astrojs/renderer-vue'],
+  });
   await fixture.build();
 });
 
@@ -22,8 +23,9 @@ describe('React Components', () => {
     // test 2: no reactroot
     expect($('#react-h2').attr('data-reactroot')).to.equal(undefined);
 
+    // TODO: fix compiler bug with arrow components
     // test 3: Can use function components
-    expect($('#arrow-fn-component')).to.have.lengthOf(1);
+    // expect($('#arrow-fn-component')).to.have.lengthOf(1);
 
     // test 4: Can use spread for components
     expect($('#component-spread-props')).to.have.lengthOf(1);
@@ -32,13 +34,14 @@ describe('React Components', () => {
     expect($('#component-spread-props').text(), 'Hello world!');
 
     // test 6: Can use TS components
-    expect($('.ts-component')).toHaveLength(1);
+    expect($('.ts-component')).to.have.lengthOf(1);
 
     // test 7: Can use Pure components
-    expect($('#pure')).toHaveLength(1);
+    expect($('#pure')).to.have.lengthOf(1);
   });
 
-  it('Includes reactroot on hydrating components', async () => {
+  // TODO: fix ocmpiler bug
+  it.skip('Includes reactroot on hydrating components', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
@@ -51,10 +54,11 @@ describe('React Components', () => {
     expect(div.html()).to.equal('foo bar <!-- -->1');
   });
 
-  it('Throws helpful error message on window SSR', async () => {
+  // TODO: Vite does not throw a helpful error message on window SSR
+  it.skip('Throws helpful error message on window SSR', async () => {
     const html = await fixture.readFile('/window/index.html');
     expect(html).to.include(
-        `[/window]
+      `[/window]
     The window object is not available during server-side rendering (SSR).
     Try using \`import.meta.env.SSR\` to write SSR-friendly code.
     https://docs.astro.build/reference/api-reference/#importmeta`
@@ -67,15 +71,16 @@ describe('React Components', () => {
     expect($('#vue-h2').text()).to.equal('Hasta la vista, baby');
   });
 
+  // TODO: fix
   it('Can use a pragma comment', async () => {
-    const html = await fixture.fetch('/pragma-comment/index.html');
+    const html = await fixture.readFile('/pragma-comment/index.html');
     const $ = cheerio.load(html);
 
     // test 1: rendered the PragmaComment component
     expect($('.pragma-comment')).to.have.lengthOf(2);
   });
 
-  // note(drew): unsure how to update this test?
+  // In moving over to Vite, the jsx-runtime import is now obscured. TODO: update the method of finding this.
   it.skip('uses the new JSX transform', async () => {
     const html = await fixture.fetch('/index.html');
 
@@ -95,6 +100,3 @@ describe('React Components', () => {
     expect(jsxRuntime).to.be.ok;
   });
 });
-*/
-
-it.skip('is skipped', () => {});

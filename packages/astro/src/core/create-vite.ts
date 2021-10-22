@@ -2,7 +2,6 @@ import type { AstroConfig } from '../@types/astro-core';
 import type { AstroDevServer } from './dev';
 import type { LogOptions } from './logger';
 
-import fs from 'fs';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
@@ -16,7 +15,10 @@ import { getPackageJSON, parseNpmName } from './util.js';
 
 const require = createRequire(import.meta.url);
 
-/**
+// Some packages are just external, and that’s the way it goes.
+const ALWAYS_EXTERNAL = new Set(['@sveltejs/vite-plugin-svelte', 'micromark-util-events-to-acorn', 'estree-util-value-to-estree', 'shorthash', 'unified']);
+
+/*
  * Tailwind fixes
  * These fix Tailwind HMR in dev, and must be declared before Vite initiates.
  * These are Tailwind-specific, so they’re safe to add.
@@ -26,100 +28,74 @@ const require = createRequire(import.meta.url);
 // note: ssr is still an experimental API hence the type omission
 type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
 
-/** Return a common starting point for all Vite actions */
-export async function createVite(
-  viteConfig: ViteConfigWithSSR,
-  { astroConfig, logging, devServer }: { astroConfig: AstroConfig; logging: LogOptions; devServer?: AstroDevServer }
-): Promise<ViteConfigWithSSR> {
-  const optimizedDeps = new Set<string>(); // dependencies that must be bundled for the client (Vite may not detect all of these)
-  const dedupe = new Set<string>(); // dependencies that can’t be duplicated (e.g. React & SolidJS)
-  const plugins: Plugin[] = []; // Vite plugins
+interface CreateViteOptions {
+  astroConfig: AstroConfig;
+  devServer?: AstroDevServer;
+  logging: LogOptions;
+}
 
-  // load project deps
+/** Return a common starting point for all Vite actions */
+export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, devServer }: CreateViteOptions): Promise<ViteConfigWithSSR> {
   const packageJSON = (await getPackageJSON(astroConfig.projectRoot)) || {};
   const userDeps = Object.keys(packageJSON?.dependencies || {});
-  userDeps.forEach((dep) => {
-    optimizedDeps.add(dep); // prepare all user deps for client ahead of time
-  });
   const userDevDeps = Object.keys(packageJSON?.devDependencies || {});
-  const { external, noExternal } = await viteSSRDeps([...userDeps, ...userDevDeps]);
-  // console.log(external.has('tiny-glob'), noExternal.has('tiny-glob'));
+  const { external, noExternal } = await viteSSRDeps([...userDeps, ...userDevDeps]); // TODO: improve this?
 
-  // load Astro renderers
-  await Promise.all(
-    astroConfig.renderers.map(async (name) => {
-      const { default: renderer } = await import(name);
-      // prepare client-side hydration code for browser
-      if (renderer.client) {
-        optimizedDeps.add(name + renderer.client.substr(1));
-      }
-      // knownEntrypoints and polyfills need to be added to the client
-      for (let dep of [...(renderer.knownEntrypoints || []), ...(renderer.polyfills || [])]) {
-        if (dep[0] === '.') dep = name + dep.substr(1); // if local polyfill, use full path
-        optimizedDeps.add(dep);
-        dedupe.add(dep); // we can try and dedupe renderers by default
-      }
-      // let renderer inject Vite plugins
-      if (renderer.vitePlugins) {
-        plugins.push(...renderer.vitePlugins);
-      }
-      // mark external packages as external to Vite
-      if (renderer.external) {
-        for (const dep of renderer.external) {
-          external.add(dep);
-          noExternal.delete(dep);
-        }
-      }
-    })
-  );
-
-  // load client-side hydrations
-  fs.readdirSync(new URL('../runtime/client', import.meta.url)).forEach((hydrator) => {
-    optimizedDeps.add(`astro/client/${hydrator}`); // always prepare these for client
-  });
-
-  return vite.mergeConfig(
-    {
-      cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
-      clearScreen: false,
-      logLevel: 'error',
-      optimizeDeps: {
-        /** Try and scan a user’s project (won’t catch everything) */
-        entries: ['src/**/*'],
-        /** Always include these dependencies for optimization */
-        include: [...optimizedDeps],
-      },
-      plugins: [
-        astroVitePlugin({ config: astroConfig, devServer }),
-        markdownVitePlugin({ config: astroConfig, devServer }),
-        jsxVitePlugin({ config: astroConfig, logging }),
-        astroPostprocessVitePlugin({ config: astroConfig, devServer }),
-        fetchVitePlugin(),
-        ...plugins,
-      ],
-      publicDir: fileURLToPath(astroConfig.public),
-      resolve: {
-        dedupe: [...dedupe],
-      },
-      root: fileURLToPath(astroConfig.projectRoot),
-      server: {
-        /** prevent serving outside of project root (will become new default soon) */
-        fs: { strict: true },
-        /** disable HMR for test */
-        hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined,
-        /** handle Vite URLs */
-        proxy: {
-          // add proxies here
-        },
-      },
-      /** Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html) */
-      ssr: {
-        external: [...external],
-        noExternal: [...noExternal],
+  // First, start with the Vite configuration that Astro core needs
+  let viteConfig: ViteConfigWithSSR = {
+    cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
+    clearScreen: false, // we want to control the output, not Vite
+    logLevel: 'error', // log errors only
+    optimizeDeps: {
+      entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
+      include: [...userDeps], // tell Vite to prebuild everything in a user’s package.json dependencies
+    },
+    plugins: [
+      astroVitePlugin({ config: astroConfig, devServer }),
+      markdownVitePlugin({ config: astroConfig, devServer }),
+      jsxVitePlugin({ config: astroConfig, logging }),
+      astroPostprocessVitePlugin({ config: astroConfig, devServer }),
+      fetchVitePlugin(),
+    ],
+    publicDir: fileURLToPath(astroConfig.public),
+    root: fileURLToPath(astroConfig.projectRoot),
+    server: {
+      /** disable HMR for test */
+      hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined,
+      /** handle Vite URLs */
+      proxy: {
+        // add proxies here
       },
     },
-    vite.mergeConfig(viteConfig, astroConfig.vite || {}) // merge in user vite settings
-  );
+    /** Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html) */
+    ssr: {
+      external: [...external, ...ALWAYS_EXTERNAL],
+      noExternal: [...noExternal],
+    },
+  };
+
+  // Add in Astro renderers, which will extend the base config
+  for (const name of astroConfig.renderers) {
+    try {
+      const { default: renderer } = await import(name);
+      if (!renderer) continue;
+      // if a renderer provides viteConfig(), call it and pass in results
+      if (renderer.viteConfig) {
+        if (typeof renderer.viteConfig !== 'function') {
+          throw new Error(`${name}: viteConfig(options) must be a function! Got ${typeof renderer.viteConfig}.`);
+        }
+        const rendererConfig = await renderer.viteConfig({ mode: inlineConfig.mode, command: inlineConfig.mode === 'production' ? 'build' : 'serve' }); // is this command true?
+        viteConfig = vite.mergeConfig(viteConfig, rendererConfig) as vite.InlineConfig;
+      }
+    } catch (err) {
+      throw new Error(`${name}: ${err}`);
+    }
+  }
+
+  // Add in user settings last, followed by any Vite configuration passed in from the parent function (overrides)
+  viteConfig = vite.mergeConfig(viteConfig, astroConfig.vite || {}); // merge in Vite config from astro.config.mjs
+  viteConfig = vite.mergeConfig(viteConfig, inlineConfig); // merge in inline Vite config
+  return viteConfig;
 }
 
 /** Try and automatically figure out Vite external & noExternal */
@@ -165,22 +141,13 @@ async function viteSSRDeps(deps: string[]): Promise<{ external: Set<string>; noE
         return;
       }
 
-      // sort this package
-      let isExternal = true; // external by default
-
-      // ESM gets noExternal
-      if (packageJSON.type === 'module') isExternal = false;
-      // TODO: manual bugfixes for Vite
-      if (pkg.name === '@sveltejs/vite-plugin-svelte') isExternal = true;
-      if (pkg.name === 'micromark-util-events-to-acorn') isExternal = true;
-      if (pkg.name === 'unified') isExternal = true;
-      // TODO: add more checks here if needed
-
-      // add to list
-      if (isExternal === true) {
-        external.add(spec);
-      } else {
+      // if ESM, try noExternal
+      if (packageJSON.type === 'module') {
         noExternal.add(spec);
+      }
+      // otherwise, assume external by default
+      else {
+        external.add(spec);
       }
 
       // recursively load dependencies for package (but not devDeps)

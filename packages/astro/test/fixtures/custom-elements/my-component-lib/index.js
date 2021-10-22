@@ -6,5 +6,12 @@ export default {
   ],
   hydrationPolyfills: [
     './hydration-polyfill.js'
-  ]
+  ],
+  viteConfig() {
+    return {
+      optimizeDeps: {
+        include: ['@astrojs/test-custom-element-renderer/polyfill.js', '@astrojs/test-custom-element-renderer/hydration-polyfill.js']
+      }
+    }
+  }
 };

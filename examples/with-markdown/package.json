@@ -10,8 +10,5 @@
   },
   "devDependencies": {
     "astro": "^0.20.12"
-  },
-  "snowpack": {
-    "workspaceRoot": "../.."
   }
 }

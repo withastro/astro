@@ -1,4 +1,3 @@
-import { createComponent } from 'solid-js';
 import { renderToString, ssr, createComponent } from 'solid-js/web/dist/server.js';
 
 function check(Component, props, children) {

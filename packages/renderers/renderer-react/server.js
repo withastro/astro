@@ -1,5 +1,5 @@
-import { Component as BaseComponent, createElement as h, PureComponent } from 'react';
-import { renderToStaticMarkup as reactRenderToStaticMarkup, renderToString } from 'react-dom/server.js';
+import React from 'react';
+import ReactDOM from 'react-dom/server.js';
 import StaticHtml from './static-html.js';
 
 const reactTypeof = Symbol.for('react.element');
@@ -8,7 +8,7 @@ function check(Component, props, children) {
   if (typeof Component !== 'function') return false;
 
   if (Component.prototype != null && typeof Component.prototype.render === 'function') {
-    return BaseComponent.isPrototypeOf(Component) || PureComponent.isPrototypeOf(Component);
+    return React.Component.isPrototypeOf(Component) || React.PureComponent.isPrototypeOf(Component);
   }
 
   let error = null;
@@ -23,7 +23,7 @@ function check(Component, props, children) {
       error = err;
     }
 
-    return h('div');
+    return React.createElement('div');
   }
 
   renderToStaticMarkup(Tester, props, children, {});
@@ -35,12 +35,16 @@ function check(Component, props, children) {
 }
 
 function renderToStaticMarkup(Component, props, children, metadata) {
-  const vnode = h(Component, { ...props, children: h(StaticHtml, { value: children }), innerHTML: children });
+  const vnode = React.createElement(Component, {
+    ...props,
+    children: React.createElement(StaticHtml, { value: children }),
+    innerHTML: children,
+  });
   let html;
   if (metadata && metadata.hydrate) {
-    html = renderToString(vnode);
+    html = ReactDOM.renderToString(vnode);
   } else {
-    html = reactRenderToStaticMarkup(vnode);
+    html = ReactDOM.renderToStaticMarkup(vnode);
   }
   return { html };
 }

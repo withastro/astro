@@ -4,10 +4,17 @@ export default {
   name: '@astrojs/renderer-svelte',
   client: './client.js',
   server: './server.js',
-  vitePlugins: [
-    svelte({
-      emitCss: true,
-      compilerOptions: { hydratable: true },
-    }),
-  ],
+  viteConfig() {
+    return {
+      optimizeDeps: {
+        include: ['@astrojs/renderer-svelte/client.js', 'svelte', 'svelte/internal'],
+      },
+      plugins: [
+        svelte({
+          emitCss: true,
+          compilerOptions: { hydratable: true },
+        }),
+      ],
+    };
+  },
 };

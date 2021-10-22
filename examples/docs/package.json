@@ -14,15 +14,5 @@
   "devDependencies": {
     "astro": "^0.20.12",
     "@snowpack/plugin-dotenv": "^2.1.0"
-  },
-  "snowpack": {
-    "alias": {
-      "components": "./src/components",
-      "~": "./src"
-    },
-    "plugins": [
-      "@snowpack/plugin-dotenv"
-    ],
-    "workspaceRoot": "../.."
   }
 }

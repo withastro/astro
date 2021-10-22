@@ -1,8 +1,7 @@
-import type { AstroComponentMetadata } from '../../@types/astro-core';
+import type { AstroComponentMetadata, Renderer } from '../../@types/astro-core';
 import type { SSRResult } from '../../@types/astro-runtime';
 import type { TopLevelAstro } from '../../@types/astro-runtime';
 
-import { pathToFileURL } from 'url';
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import shorthash from 'shorthash';
@@ -210,14 +209,15 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     metadata.componentUrl = hydration.componentUrl;
   }
 
-  let renderer = null;
+  let renderer: Renderer | undefined;
   for (const r of renderers) {
     if (await r.ssr.check(Component, props, children)) {
       renderer = r;
+      break;
     }
   }
 
-  if (renderer === null) {
+  if (!renderer) {
     if (typeof Component === 'string') {
       html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
     } else {
@@ -261,7 +261,7 @@ function createFetchContentFn(url: URL) {
           ...mod.frontmatter,
           content: mod.metadata,
           file: new URL(spec, url),
-          url: urlSpec.includes('/pages/') && urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, '')
+          url: urlSpec.includes('/pages/') && urlSpec.replace(/^.*\/pages\//, '/').replace(/\.md$/, ''),
         };
       })
       .filter(Boolean);
