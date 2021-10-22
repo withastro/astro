@@ -132,9 +132,24 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
             url,
           },
           slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
+          // This is used for <Markdown> but shouldn't be used publicly
           privateRenderSlotDoNotUse(slotName: string) {
             return renderSlot(result, slots ? slots[slotName] : null);
           },
+          // <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
+          async privateRenderMarkdownDoNotUse(content: string, opts: any) {
+            let render = astroConfig.markdownOptions.render;
+            let renderOpts = {};
+            if (Array.isArray(render)) {
+              renderOpts = render[1];
+              render = render[0];
+            }
+            if (typeof render === 'string') {
+              ({ default: render } = await import(render));
+            }
+            const { code } = await render(content, { ...renderOpts, ...(opts ?? {}) });
+            return code
+          }
         } as unknown as AstroGlobal;
       },
       _metadata: { renderers },
