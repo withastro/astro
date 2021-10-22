@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: fix top-level expressions in components
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -84,6 +82,3 @@ describe('<Code', () => {
     ]);
   });
 });
-*/
-
-it.skip('is skipped', () => {});
