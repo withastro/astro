@@ -51,6 +51,22 @@ export default function(content: string): Astro2TSXResult {
       if(whole.endsWith('/>')) return whole;
       return `<${inner} />`;
     })
+    // Replace `@` prefixed attributes with `_` prefix
+    .replace(/<([$A-Z_a-z][^\s\/>]*)([^\/>]*)>/g, (whole: string, tag: string, attrs: string) => {
+      if (attrs.includes('@')) {
+        return `<${tag}${attrs.replace(
+          // the following regular expression captures:
+          //   $1. any character that may appear before an attribute name (https://html.spec.whatwg.org/#before-attribute-name-state)
+          // then, one `@` at sign, then:
+          //   $2. any characters that may appear in an attribute name (https://html.spec.whatwg.org/#attribute-name-state)
+          // then, looking ahead any one character that may not appear in an attribute name, or the end
+          /([\f\n\r\t "'])@([^\f\n\r\t /=>"'<]+)(?=[\f\n\r\t /=>"'<]|$)/g,
+          '$1_$2'
+        )}>`
+      } else {
+        return whole;
+      }
+    })
     // Fix doctypes
     .replace(/<!(doctype html)>/gi, (_whole, main) => {
       return `<${main.toLowerCase()}/>`;
