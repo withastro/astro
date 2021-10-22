@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 0.7.19
+
+### Patch Changes
+
+- 2910b03: Add support for at-prefixed attributes
+- Updated dependencies [2910b03]
+  - @astrojs/language-server@0.7.19
+
 ## 0.7.18
 
 ### Patch Changes

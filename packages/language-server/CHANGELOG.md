@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.7.19
+
+### Patch Changes
+
+- 2910b03: Add support for at-prefixed attributes
+
 ## 0.7.18
 
 ### Patch Changes
