@@ -1,5 +1,5 @@
 import type { TransformResult } from 'rollup';
-import type { Plugin } from '../core/vite';
+import type { Plugin, ResolvedConfig } from '../core/vite';
 import type { AstroConfig, Renderer } from '../@types/astro-core';
 import type { LogOptions } from '../core/logger';
 
@@ -43,14 +43,21 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
 
 /** Use Astro config to allow for alternate or multiple JSX renderers (by default Vite will assume React) */
 export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin {
+  let viteConfig: ResolvedConfig;
+
   return {
     name: '@astrojs/vite-plugin-jsx',
     enforce: 'pre', // run transforms before other plugins
+    configResolved(resolvedConfig) {
+      viteConfig = resolvedConfig;
+    },
     async transform(code, id, ssrOrOptions) {
       const ssr = isSSR(ssrOrOptions);
       if (!JSX_EXTENSIONS.has(path.extname(id))) {
         return null;
       }
+
+      const { mode } = viteConfig;
 
       // load renderers (on first run only)
       if (JSX_RENDERERS.size === 0) {
@@ -76,7 +83,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
           loader: getLoader(path.extname(id)),
           jsx: 'preserve',
         });
-        return transformJSX({ code: jsxCode, id, renderer: [...JSX_RENDERERS.values()][0], ssr });
+        return transformJSX({ code: jsxCode, id, renderer: [...JSX_RENDERERS.values()][0], mode, ssr });
       }
 
       // Attempt: Multiple JSX renderers
@@ -130,7 +137,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
           loader: getLoader(path.extname(id)),
           jsx: 'preserve',
         });
-        return transformJSX({ code: jsxCode, id, renderer: JSX_RENDERERS.get(importSource) as Renderer, ssr });
+        return transformJSX({ code: jsxCode, id, renderer: JSX_RENDERERS.get(importSource) as Renderer, mode, ssr });
       }
 
       // if we still can’t tell, throw error
@@ -170,14 +177,15 @@ async function loadJSXRenderers(rendererNames: string[]): Promise<Map<string, Re
 interface TransformJSXOptions {
   code: string;
   id: string;
-  ssr: boolean;
+  mode: string;
   renderer: Renderer; // note MUST check for JSX beforehand!
+  ssr: boolean;
 }
 
 /** Transform JSX with Babel */
-async function transformJSX({ code, id, ssr, renderer }: TransformJSXOptions): Promise<TransformResult> {
+async function transformJSX({ code, mode, id, ssr, renderer }: TransformJSXOptions): Promise<TransformResult> {
   const { jsxTransformOptions } = renderer;
-  const options = await jsxTransformOptions!({ isSSR: ssr || false }); // must filter for this beforehand
+  const options = await jsxTransformOptions!({ mode, ssr }); // must filter for this beforehand
   const result = await new Promise<babel.BabelFileResult | null>((resolve, reject) => {
     const plugins = [...(options.plugins || [])];
     babel.transform(
