@@ -162,7 +162,7 @@ export interface JSXTransformConfig {
   plugins?: babel.PluginItem[];
 }
 
-export type JSXTransformFn = (options: { isSSR: boolean }) => Promise<JSXTransformConfig>;
+export type JSXTransformFn = (options: { mode: string; ssr: boolean }) => Promise<JSXTransformConfig>;
 
 export interface ManifestData {
   routes: RouteData[];
