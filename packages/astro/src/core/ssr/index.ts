@@ -128,7 +128,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
           props,
           request: {
             canonicalURL,
-            params: {},
+            params,
             url,
           },
           slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
