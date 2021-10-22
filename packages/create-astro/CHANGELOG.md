@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.5
+
+### Patch Changes
+
+- 025f5e3f: Fix to revert change pointing create-astro at the latest branch
+
 ## 0.6.4
 
 ### Patch Changes
