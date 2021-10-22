@@ -64,7 +64,7 @@ export async function main() {
 
   const hash = args.commit ? `#${args.commit}` : '';
 
-  const templateTarget = options.template.includes('/') ? options.template : `snowpackjs/astro/examples/${options.template}`;
+  const templateTarget = options.template.includes('/') ? options.template : `snowpackjs/astro/examples/${options.template}#latest`;
 
   const emitter = degit(`${templateTarget}${hash}`, {
     cache: false,
