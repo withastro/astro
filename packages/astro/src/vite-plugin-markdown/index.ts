@@ -30,10 +30,12 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
         if (typeof render === 'string') {
           ({ default: render } = await import(render));
         }
-        let { frontmatter, metadata, code: astroResult } = await render(source, renderOpts);
+        let renderResult = await render(source, renderOpts);
+        let { frontmatter, metadata, code: astroResult } = renderResult;
 
         // Extract special frontmatter keys
         const { layout = '', components = '', setup = '', ...content } = frontmatter;
+        content.astro = metadata;
         const prelude = `---
 ${layout ? `import Layout from '${layout}';` : ''}
 ${components ? `import * from '${components}';` : ''}
