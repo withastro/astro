@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.6
+
+### Patch Changes
+
+- d5fdeefe: Changes create-astro to pull examples from the latest branch
+
 ## 0.6.5
 
 ### Patch Changes
