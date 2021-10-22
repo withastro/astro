@@ -1,10 +1,9 @@
 ---
-import { renderMarkdown } from '@astrojs/markdown-remark';
-import stripIndent from 'strip-indent';
-
 export interface Props {
   content?: string;
 }
+
+const dedent = (str: string) => str.split('\n').map(ln => ln.trimStart()).join('\n');
 
 // Internal props that should not be part of the external interface.
 interface InternalProps extends Props {
@@ -14,13 +13,15 @@ interface InternalProps extends Props {
 let { content, class: className } = Astro.props as InternalProps;
 let html = null;
 
+const { privateRenderMarkdownDoNotUse: renderMarkdown } = (Astro as any);
+
 // If no content prop provided, use the slot.
-if(!content) {
-  const renderSlot = (Astro as any).privateRenderSlotDoNotUse;
-  content = stripIndent(await renderSlot('default'));
+if (!content) {
+  const { privateRenderSlotDoNotUse: renderSlot } = (Astro as any);
+  content = dedent(await renderSlot('default'));
 }
 
-const { code: htmlContent } = await renderMarkdown(content, {
+const htmlContent = await renderMarkdown(content, {
   mode: 'md',
   $: {
     scopedClassName: className
