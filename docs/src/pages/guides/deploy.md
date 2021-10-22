@@ -162,11 +162,27 @@ jobs:
 ## GitLab Pages
 
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
-2. Set `build` in `astro.config.mjs` to `public` and `public` in `astro.config.mjs` to a newly named folder that is holding everything currently in `public`. The reasoning is because `public` is a second source folder in astro, so if you would like to output to `public` you'll need to pull public assets from a different folder.
+2. Set `dist` in `astro.config.mjs` to `public` and `public` in `astro.config.mjs` to a newly named folder that is holding everything currently in `public`. The reasoning is because `public` is a second source folder in astro, so if you would like to output to `public` you'll need to pull public assets from a different folder. Your `astro.config.mjs` might end up looking like this:
+
+```js
+export default /** @type {import('astro').AstroUserConfig} */ ({
+  // Enable the Preact renderer to support Preact JSX components.
+  renderers: ['@astrojs/renderer-preact'],
+  // files in `static/` will be blindly copied to `public/`
+  public: 'static',
+  // `public/` is where the built website will be output to
+  dist: 'public',
+  buildOptions: {
+    sitemap: true,
+    site: 'https://astro.build/',
+  },
+});
+```
+
 3. Create a file called `.gitlab-ci.yml` in the root of your project with the content below. This will build and deploy your site whenever you make changes to your content:
 
    ```yaml
-   image: node:10.22.0
+   image: node:14
    pages:
      cache:
        paths:
@@ -178,7 +194,7 @@ jobs:
        paths:
          - public
      only:
-       - master
+       - main
    ```
 
 ## Netlify
@@ -390,7 +406,7 @@ You can deploy your Astro project using [Buddy](https://buddy.works). To do so y
 4. In the newly created pipeline add a **[Node.js](https://buddy.works/actions/node-js)** action.
 5. In this action add:
 
-   ```node
+   ```bash
    npm install
    npm run build
    ```

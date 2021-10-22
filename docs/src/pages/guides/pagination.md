@@ -60,7 +60,7 @@ const { page } = Astro.props;
 ---
 <h1>Page {page.currentPage}</h1>
 <ul>
-  {page.data.map(item => <li>{item.title}</h1>)}
+  {page.data.map(item => <li>{item.title}</li>)}
 </ul>
 ```
 
