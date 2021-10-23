@@ -17,11 +17,7 @@ export function canonicalURL(url: string, base?: string): URL {
   pathname = pathname.replace(/\/1\/?$/, ''); // neither is a trailing /1/ (impl. detail of collections)
   if (!path.extname(pathname)) pathname = pathname.replace(/(\/+)?$/, '/'); // add trailing slash if there’s no extension
   pathname = pathname.replace(/\/+/g, '/'); // remove duplicate slashes (URL() won’t)
-  if (base) {
-    return new URL('.' + pathname, base);
-  } else {
-    return new URL(pathname, base);
-  }
+  return new URL(pathname, base);
 }
 
 /** Resolve final output URL */
