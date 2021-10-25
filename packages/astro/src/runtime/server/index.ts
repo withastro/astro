@@ -239,7 +239,8 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     return html.replace(/\<\/?astro-fragment\>/g, '');
   }
 
-  const astroId = shorthash.unique(html);
+  // Include componentExport name and componentUrl in hash to dedupe identical islands
+  const astroId = shorthash.unique(`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}`);
 
   result.scripts.add(await generateHydrateScript({ renderer, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
