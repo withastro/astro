@@ -122,7 +122,7 @@ When using the [Collections API](/core-concepts/collections), `createCollection(
 | `pageSize`  |                 `number`                 | Specify number of items per page (default: `25`).                                                          |
 | `routes`    |                `params[]`                | **Required for URL Params.** Return an array of all possible URL `param` values in `{ name: value }` form. |
 | `permalink` |         `({ params }) => string`         | **Required for URL Params.** Given a `param` object of `{ name: value }`, generate the final URL.\*        |
-| `rss`       | [RSS](/reference/api-reference#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/reference/api-reference#rss-feed))        |
+| `rss`       | [RSS](/docs/reference/api-reference.md#rss-feed) | Optional: generate an RSS 2.0 feed from this collection ([docs](/docs/reference/api-reference.md#rss-feed))        |
 
 _\* Note: don't create confusing URLs with `permalink`, e.g. rearranging params conditionally based on their values._
 
