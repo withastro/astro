@@ -4,7 +4,6 @@
   "author": "Skypack",
   "license": "MIT",
   "type": "module",
-  "types": "./dist/types/@types/astro-public.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowpackjs/astro.git",
@@ -53,7 +52,7 @@
     "test": "mocha --parallel --timeout 15000"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.2.16",
+    "@astrojs/compiler": "^0.2.17",
     "@astrojs/language-server": "^0.7.16",
     "@astrojs/markdown-remark": "^0.3.1",
     "@astrojs/markdown-support": "0.3.1",
@@ -73,13 +72,14 @@
     "estree-util-value-to-estree": "^1.2.0",
     "fast-xml-parser": "^3.19.0",
     "html-entities": "^2.3.2",
+    "htmlparser2": "^7.1.2",
     "kleur": "^4.1.4",
     "mime": "^2.5.2",
     "morphdom": "^2.6.1",
     "node-fetch": "^2.6.5",
     "path-to-regexp": "^6.2.0",
     "remark-slug": "^7.0.0",
-    "sass": "^1.43.2",
+    "sass": "^1.43.3",
     "semver": "^7.3.5",
     "send": "^0.17.1",
     "shiki": "^0.9.10",

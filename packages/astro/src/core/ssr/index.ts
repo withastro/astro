@@ -9,6 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
 import { canonicalURL as getCanonicalURL, codeFrame } from '../util.js';
+import { addLinkTagsToHTML, getStylesForID } from './css.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 
@@ -148,18 +149,25 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
               ({ default: render } = await import(render));
             }
             const { code } = await render(content, { ...renderOpts, ...(opts ?? {}) });
-            return code
-          }
+            return code;
+          },
         } as unknown as AstroGlobal;
       },
       _metadata: { renderers },
     };
 
     let html = await renderPage(result, Component, pageProps, null);
+
     // run transformIndexHtml() in development to add HMR client to the page.
     if (mode === 'development') {
       html = await viteServer.transformIndexHtml(fileURLToPath(filePath), html, pathname);
     }
+
+    // insert CSS imported from Astro and JS components
+    const styles = getStylesForID(fileURLToPath(filePath), viteServer);
+    const relativeStyles = new Set<string>([...styles].map((url) => url.replace(fileURLToPath(astroConfig.projectRoot), '/')));
+    html = addLinkTagsToHTML(html, relativeStyles);
+
     return html;
   } catch (e: any) {
     viteServer.ssrFixStacktrace(e);

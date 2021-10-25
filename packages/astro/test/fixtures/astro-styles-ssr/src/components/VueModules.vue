@@ -1,6 +1,7 @@
-<style module>
+<style module lang="scss">
+$type: cursive;
 .title {
-  font-family: cursive;
+  font-family: $type;
 }
 </style>
 
