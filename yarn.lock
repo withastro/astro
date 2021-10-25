@@ -106,10 +106,10 @@
     "@algolia/logger-common" "4.10.5"
     "@algolia/requester-common" "4.10.5"
 
-"@astrojs/compiler@^0.2.17":
-  version "0.2.17"
-  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.2.17.tgz#bb814a70af9c3694160d9fe8f7a0c96b4b194429"
-  integrity sha512-qWGC1UT0olUR/iXHOrD4tnwJSttiVDWfY4KDodhzTkctaXqpc69dBb3gpN8r1jiqZQCPT9Wqmb9GSKWqbUDn2A==
+"@astrojs/compiler@^0.2.18":
+  version "0.2.18"
+  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.2.18.tgz#d274f10506eca194802bde49950f7ed26677e80a"
+  integrity sha512-CQQnzni/3cy1yNWKHllg1xWAbnKnjJ8JSctv/jElS9XmbcZmWgesauAf06rxZ1/CzJ7haaFcLZSivynPXNYSrw==
   dependencies:
     typescript "^4.3.5"
 
