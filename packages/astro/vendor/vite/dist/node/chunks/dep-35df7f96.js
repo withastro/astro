@@ -67628,7 +67628,9 @@ function clientInjectionsPlugin(config) {
     return {
         name: 'vite:client-inject',
         transform(code, id) {
-            if (id === normalizedClientEntry || id === normalizedEnvEntry) {
+            if (id === normalizedClientEntry || id === normalizedEnvEntry ||
+             // Note that this is only needed for the Astro fork.
+             id.includes('astro_runtime_client_hmr')) {
                 let options = config.server.hmr;
                 options = options && typeof options !== 'boolean' ? options : {};
                 const host = options.host || null;
