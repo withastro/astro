@@ -1,9 +1,10 @@
 ---
 import {SITE, OPEN_GRAPH} from '../config.ts';
+import { getLanguageFromURL } from '../util.ts';
 export interface Props {
   content: any,
   site: any,
-  canonicalURL: URL | string,
+  canonicalURL: URL,
 };
 const {
         content = {},
@@ -12,9 +13,13 @@ const {
 const imageSrc = content?.image?.src ?? OPEN_GRAPH.image.src;
 const canonicalImageSrc = new URL(imageSrc, Astro.site);
 const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
+const lang = canonicalURL && getLanguageFromURL(canonicalURL.pathname);
 ---
 <!-- Page Metadata -->
 <link rel="canonical" href={canonicalURL}/>
+
+<!-- Algolia docsearch language facet -->
+<meta name="docsearch:language" content="{lang}" />
 
 <!-- OpenGraph Tags -->
 <meta property="og:title" content={content.title ?? SITE.title}/>

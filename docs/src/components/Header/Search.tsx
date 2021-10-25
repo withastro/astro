@@ -5,10 +5,11 @@ import { DocSearchModal, useDocSearchKeyboardEvents } from '@docsearch/react';
 import '@docsearch/css//dist/style.css';
 import './Search.css';
 
-export default function Search() {
+export default function Search(props) {
   const [isOpen, setIsOpen] = useState(false);
   const searchButtonRef = useRef();
   const [initialQuery, setInitialQuery] = useState(null);
+  const {lang = 'en'} = props;
 
   const onOpen = useCallback(() => {
     setIsOpen(true);
@@ -66,6 +67,8 @@ export default function Search() {
             onClose={onClose}
             indexName="astro"
             apiKey="0f387260ad74f9cbf4353facd29c919c"
+            // Set facetFilters once Astro docs have been indexed by language
+            // searchParameters={{ facetFilters: [`lang:${lang}`] }}
             transformItems={(items) => {
               return items.map((item) => {
                 // We transform the absolute URL into a relative URL to
