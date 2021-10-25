@@ -23,9 +23,8 @@ describe('React Components', () => {
     // test 2: no reactroot
     expect($('#react-h2').attr('data-reactroot')).to.equal(undefined);
 
-    // TODO: fix compiler bug with arrow components
     // test 3: Can use function components
-    // expect($('#arrow-fn-component')).to.have.lengthOf(1);
+    expect($('#arrow-fn-component')).to.have.lengthOf(1);
 
     // test 4: Can use spread for components
     expect($('#component-spread-props')).to.have.lengthOf(1);

@@ -21,8 +21,7 @@ describe('Preact component', () => {
     expect($('#class-component')).to.have.lengthOf(1);
   });
 
-  // TODO: fix compiler bug (not interpreting <ArrowFunction /> as a component)
-  it.skip('Can load function component', async () => {
+  it('Can load function component', async () => {
     const html = await fixture.readFile('/fn/index.html');
     const $ = cheerio.load(html);
 
