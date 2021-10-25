@@ -16,6 +16,20 @@ interface AstroPluginOptions {
   devServer?: AstroDevServer;
 }
 
+// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
+function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
+  if (options === undefined) {
+    return false;
+  }
+  if (typeof options === 'boolean') {
+    return options;
+  }
+  if (typeof options == 'object') {
+    return !!options.ssr;
+  }
+  return false;
+}
+
 /** Transform .astro files for Vite */
 export default function astro({ config, devServer }: AstroPluginOptions): vite.Plugin {
   let viteTransform: TransformHook;
@@ -26,7 +40,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
       viteTransform = getViteTransform(resolvedConfig);
     },
     // note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
-    async load(id, ssr) {
+    async load(id, opts) {
       if (!id.endsWith('.astro')) {
         return null;
       }
@@ -48,7 +62,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           internalURL: 'astro/internal',
           preprocessStyle: async (value: string, attrs: Record<string, string>) => {
             if (!attrs || !attrs.lang) return null;
-            const result = await transformWithVite({ value, attrs, id, transformHook: viteTransform, ssr });
+            const result = await transformWithVite({ value, attrs, id, transformHook: viteTransform, ssr: isSSR(opts) });
             if (!result) {
               // TODO: compiler supports `null`, but types don't yet
               return result as any;
