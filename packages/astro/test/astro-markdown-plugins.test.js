@@ -1,31 +1,32 @@
-/**
- * UNCOMMENT: add markdown plugin support
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
-
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({
-    projectRoot: './fixtures/astro-markdown-plugins/',
-    renderers: ['@astrojs/renderer-preact'],
-    markdownOptions: {
-      remarkPlugins: ['remark-code-titles', 'remark-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: [
-        ['rehype-toc', { headings: ['h2', 'h3'] }],
-        ['rehype-add-classes', { 'h1,h2,h3': 'title' }],
-      ],
-    },
-    buildOptions: {
-      sitemap: false,
-    },
-  });
-  await fixture.build();
-});
+import markdownRemark from '@astrojs/markdown-remark';
 
 
 describe('Astro Markdown plugins', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-markdown-plugins/',
+      renderers: ['@astrojs/renderer-preact'],
+      markdownOptions: {
+        render: [markdownRemark, {
+          remarkPlugins: ['remark-code-titles', 'remark-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+          rehypePlugins: [
+            ['rehype-toc', { headings: ['h2', 'h3'] }],
+            ['rehype-add-classes', { 'h1,h2,h3': 'title' }],
+          ],
+        }],
+      },
+      buildOptions: {
+        sitemap: false,
+      },
+    });
+    await fixture.build();
+  });
+
   it('Can render markdown with plugins', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
@@ -34,7 +35,7 @@ describe('Astro Markdown plugins', () => {
     expect($('.toc')).to.have.lengthOf(1);
 
     // teste 2: Added .title to h1
-    expect($('#hello-world').hasClass('title')).toBeTrue();
+    expect($('#hello-world').hasClass('title')).to.equal(true);
   });
 
   it('Can render Astro <Markdown> with plugins', async () => {
@@ -45,9 +46,6 @@ describe('Astro Markdown plugins', () => {
     expect($('.toc')).to.have.lengthOf(1);
 
     // teste 2: Added .title to h1
-    expect($('#hello-world').hasClass('title')).toBeTrue();
+    expect($('#hello-world').hasClass('title')).to.equal(true);
   });
 });
-*/
-
-it.skip('is skipped', () => {});

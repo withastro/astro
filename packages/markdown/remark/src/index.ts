@@ -6,7 +6,6 @@ import { remarkExpressions, loadRemarkExpressions } from './remark-expressions.j
 import rehypeExpressions from './rehype-expressions.js';
 import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
 import rehypeJsx from './rehype-jsx.js';
-//import { remarkCodeBlock } from './codeblock.js';
 import remarkPrism from './remark-prism.js';
 import remarkUnwrap from './remark-unwrap.js';
 import { loadPlugins } from './load-plugins.js';
@@ -53,7 +52,6 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     .use(isMDX ? [remarkJsx] : [])
     .use(isMDX ? [remarkExpressions] : [])
     .use([remarkUnwrap])
-    .use([remarkPrism(scopedClassName)])
 
   const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
   const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
@@ -66,7 +64,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
      parser.use([scopedStyles(scopedClassName)]);
   }
 
-  //parser.use(remarkCodeBlock);
+  parser.use([remarkPrism(scopedClassName)]);
   parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement']}]]);
 
   loadedRehypePlugins.forEach(([plugin, opts]) => {
@@ -86,7 +84,6 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
       .process(content);
     result = vfile.toString();
   } catch (err) {
-    debugger;
     console.error(err);
     throw err;
   }
