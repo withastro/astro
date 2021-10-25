@@ -323,10 +323,17 @@ function serializeListValue(value: any) {
         if (item[name]) push(name);
       });
     // otherwise, push any other values as a string
-    else if ((item = item != null && String(item).trim()))
-      item.split(/\s+/).forEach((name: string) => {
-        hash[name] = true;
-      });
+    else {
+      // get the item as a string
+      item = item == null ? '' : String(item).trim();
+
+      // add the item if it is filled
+      if (item) {
+        item.split(/\s+/).forEach((name: string) => {
+          hash[name] = true;
+        });
+      }
+    }
   }
 }
 
