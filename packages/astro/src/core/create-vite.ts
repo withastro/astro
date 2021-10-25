@@ -16,7 +16,18 @@ import { getPackageJSON, parseNpmName } from './util.js';
 const require = createRequire(import.meta.url);
 
 // Some packages are just external, and that’s the way it goes.
-const ALWAYS_EXTERNAL = new Set(['@sveltejs/vite-plugin-svelte', 'micromark-util-events-to-acorn', 'estree-util-value-to-estree', 'shorthash', 'unified']);
+const ALWAYS_EXTERNAL = new Set([
+  '@sveltejs/vite-plugin-svelte',
+  'micromark-util-events-to-acorn',
+  'estree-util-value-to-estree',
+  'prismjs',
+  'shorthash',
+  'unified'
+]);
+const ALWAYS_NOEXTERNAL = new Set([
+  // This is only because Vite's native ESM doesn't resolve "exports" correctly.
+  'astro'
+]);
 
 /*
  * Tailwind fixes
@@ -70,7 +81,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
     /** Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html) */
     ssr: {
       external: [...external, ...ALWAYS_EXTERNAL],
-      noExternal: [...noExternal],
+      noExternal: [...noExternal, ...ALWAYS_NOEXTERNAL],
     },
   };
 
