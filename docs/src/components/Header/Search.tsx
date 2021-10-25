@@ -9,7 +9,7 @@ export default function Search(props) {
   const [isOpen, setIsOpen] = useState(false);
   const searchButtonRef = useRef();
   const [initialQuery, setInitialQuery] = useState(null);
-  const {lang = 'en'} = props;
+  const { lang = 'en' } = props;
 
   const onOpen = useCallback(() => {
     setIsOpen(true);
