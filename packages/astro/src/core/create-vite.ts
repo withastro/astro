@@ -11,7 +11,7 @@ import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.j
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import fetchVitePlugin from '../vite-plugin-fetch/index.js';
-import { getPackageJSON, parseNpmName } from './util.js';
+import { getPackageJSON, parseNpmName, resolveDependency } from './util.js';
 
 const require = createRequire(import.meta.url);
 
@@ -88,7 +88,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
   // Add in Astro renderers, which will extend the base config
   for (const name of astroConfig.renderers) {
     try {
-      const { default: renderer } = await import(name);
+      const { default: renderer } = await import(resolveDependency(name, astroConfig));
       if (!renderer) continue;
       // if a renderer provides viteConfig(), call it and pass in results
       if (renderer.viteConfig) {
