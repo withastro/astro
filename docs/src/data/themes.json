@@ -43,6 +43,14 @@
       "command": "npm init astro -- --template portfolio"
     },
     {
+      "name": "Portfolio-svelte",
+      "description": "A portfolio theme using Svelte components, perfect for your personal or professional online portfolio.",
+      "github": "https://github.com/snowpackjs/astro/tree/main/examples/portfolio-svelte",
+      "demo": null,
+      "sandbox": "https://github.dev/snowpackjs/astro/tree/main/examples/portfolio-svelte",
+      "command": "npm init astro -- --template portfolio-svelte"
+    },
+    {
       "name": "Minimal",
       "description": "A minimal theme, with just the bare minimum needed to get started.",
       "github": "https://github.com/snowpackjs/astro/tree/main/examples/minimal",
