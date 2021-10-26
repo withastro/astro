@@ -1,6 +1,9 @@
+import type { AstroConfig } from '../@types/astro-core';
 import type { ErrorPayload } from 'vite';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import resolve from 'resolve';
 
 /** Normalize URL to its canonical form */
 export function canonicalURL(url: string, base?: string): URL {
@@ -70,4 +73,10 @@ export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string 
     if (isFocusedLine) output += `${[...new Array(gutterWidth)].join(' ')}  | ${[...new Array(loc.column)].join(' ')}^\n`;
   }
   return output;
+}
+
+export function resolveDependency(dep: string, astroConfig: AstroConfig) {
+  return resolve.sync(dep, {
+    basedir: fileURLToPath(astroConfig.projectRoot)
+  });
 }

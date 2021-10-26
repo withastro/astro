@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import path from 'path';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
-import { canonicalURL as getCanonicalURL, codeFrame } from '../util.js';
+import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency } from '../util.js';
 import { addLinkTagsToHTML, getStylesForID } from './css.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
@@ -37,14 +37,14 @@ interface SSROptions {
 const cache = new Map<string, Promise<Renderer>>();
 
 // TODO: improve validation and error handling here.
-async function resolveRenderer(viteServer: ViteDevServer, renderer: string) {
+async function resolveRenderer(viteServer: ViteDevServer, renderer: string, astroConfig: AstroConfig) {
   const resolvedRenderer: any = {};
   // We can dynamically import the renderer by itself because it shouldn't have
   // any non-standard imports, the index is just meta info.
   // The other entrypoints need to be loaded through Vite.
   const {
     default: { name, client, polyfills, hydrationPolyfills, server },
-  } = await import(renderer);
+  } = await import(resolveDependency(renderer, astroConfig));
 
   resolvedRenderer.name = name;
   if (client) resolvedRenderer.source = path.posix.join(renderer, client);
@@ -58,11 +58,12 @@ async function resolveRenderer(viteServer: ViteDevServer, renderer: string) {
   return completedRenderer;
 }
 
-async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promise<Renderer[]> {
+async function resolveRenderers(viteServer: ViteDevServer, astroConfig: AstroConfig): Promise<Renderer[]> {
+  const ids: string[] = astroConfig.renderers;
   const renderers = await Promise.all(
     ids.map((renderer) => {
       if (cache.has(renderer)) return cache.get(renderer)!;
-      let promise = resolveRenderer(viteServer, renderer);
+      let promise = resolveRenderer(viteServer, renderer, astroConfig);
       cache.set(renderer, promise);
       return promise;
     })
@@ -75,7 +76,7 @@ async function resolveRenderers(viteServer: ViteDevServer, ids: string[]): Promi
 export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
   try {
     // Important: This needs to happen first, in case a renderer provides polyfills.
-    const renderers = await resolveRenderers(viteServer, astroConfig.renderers);
+    const renderers = await resolveRenderers(viteServer, astroConfig);
     // Load the module from the Vite SSR Runtime.
     const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
     // Handle dynamic routes
