@@ -1,4 +1,16 @@
 ---
+export let title = "Netlify Becomes Astro's Official Hosting Partner";
+export let description = `We are happy to announce that Netlify has become Astro’s first corporate sponsor and exclusive hosting partner, donating $2,500 each month towards the ongoing open source maintenance and development of Astro.`;
+export let publishDate = 'September 9, 2021';
+export let heroImage = '/assets/blog/astro-netlify-social.jpg';
+export let lang = 'en';
+
+export async function getData() {
+  return {
+    title,description,publishDate,heroImage,lang
+  };
+}
+
 import { Markdown, Prism } from 'astro/components';
 import BlogHead from '../../components/BlogHead.astro';
 import BlogHeader from '../../components/BlogHeader.astro';
@@ -7,13 +19,8 @@ import BlockQuote from '../../components/BlockQuote.astro';
 import GoogleAnalytics from '../../components/GoogleAnalytics.astro';
 import Note from '../../components/Note.astro';
 import Shell from '../../components/Shell.astro';
-import { mediaQueries } from '../../config.js';
+import { mediaQueries } from '../../config';
 
-let title = "Netlify Becomes Astro's Official Hosting Partner";
-let description = `We are happy to announce that Netlify has become Astro’s first corporate sponsor and exclusive hosting partner, donating $2,500 each month towards the ongoing open source maintenance and development of Astro.`;
-let publishDate = 'September 9, 2021';
-let heroImage = '/assets/blog/astro-netlify-social.jpg';
-let lang = 'en';
 ---
 
 <html lang={ lang ?? 'en' }>

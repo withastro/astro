@@ -7,6 +7,8 @@ let title = 'Astro Blog';
 let description = 'Everything you need to know about Astro, direct from mission control.';
 let permalink = 'https://astro.build/blog';
 let lang = 'en';
+const pages = import.meta.globEager('./{**, !index}.astro');
+console.debug(pages['./demo-day-2021-09.astro']);
 ---
 
 <html lang={ lang ?? 'en' }>
@@ -67,6 +69,7 @@ let lang = 'en';
           <p>{description}</p>
         </section>
         <section aria-label="Blog post list">
+        <!--  {posts.map(post => <BlogPostPreview {post}/>)} -->
           <BlogPostPreview title="Astro 0.21 Preview: Vite + WASM = ⚡️" publishDate="October 6, 2021" href="/blog/astro-021-preview">
             <span>Get a sneak preview of what's next for Astro, including our new Vite build engine and WASM-powered Go compiler.</span>
           </BlogPostPreview>
