@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: there’s a bug with Canonical URLs
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -25,7 +23,7 @@ describe('Pagination', () => {
   });
 
   it('named root page', async () => {
-    for (const file of ['/posts/named-root-page/index.html', '/posts/named-root-page/2/index.html', '/posts/named-root-page/3/index.html']) {
+    for (const file of ['/posts/named-root-page/1/index.html', '/posts/named-root-page/2/index.html', '/posts/named-root-page/3/index.html']) {
       expect(await fixture.readFile(file)).to.be.ok;
     }
   });
@@ -47,6 +45,3 @@ describe('Pagination', () => {
     );
   });
 });
-*/
-
-it.skip('is skipped', () => {});

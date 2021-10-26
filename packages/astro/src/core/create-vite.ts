@@ -2,39 +2,20 @@ import type { AstroConfig } from '../@types/astro-core';
 import type { AstroDevServer } from './dev';
 import type { LogOptions } from './logger';
 
-import slash from 'slash';
 import { fileURLToPath } from 'url';
-import { createRequire } from 'module';
 import vite from './vite.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import fetchVitePlugin from '../vite-plugin-fetch/index.js';
-import { getPackageJSON, parseNpmName, resolveDependency } from './util.js';
-
-const require = createRequire(import.meta.url);
+import { getPackageJSON, resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
-const ALWAYS_EXTERNAL = new Set([
-  '@sveltejs/vite-plugin-svelte',
-  'micromark-util-events-to-acorn',
-  'estree-util-value-to-estree',
-  'prismjs',
-  'shorthash',
-  'unified'
-]);
+const ALWAYS_EXTERNAL = new Set(['@sveltejs/vite-plugin-svelte', 'estree-util-value-to-estree', 'micromark-util-events-to-acorn', 'prismjs', 'shorthash', 'unified']);
 const ALWAYS_NOEXTERNAL = new Set([
-  // This is only because Vite's native ESM doesn't resolve "exports" correctly.
-  'astro'
+  'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
 ]);
-
-/*
- * Tailwind fixes
- * These fix Tailwind HMR in dev, and must be declared before Vite initiates.
- * These are Tailwind-specific, so they’re safe to add.
- */
-(process.env as any).TAILWIND_MODE = 'watch';
 
 // note: ssr is still an experimental API hence the type omission
 type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
@@ -49,8 +30,6 @@ interface CreateViteOptions {
 export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, devServer }: CreateViteOptions): Promise<ViteConfigWithSSR> {
   const packageJSON = (await getPackageJSON(astroConfig.projectRoot)) || {};
   const userDeps = Object.keys(packageJSON?.dependencies || {});
-  const userDevDeps = Object.keys(packageJSON?.devDependencies || {});
-  const { external, noExternal } = await viteSSRDeps([...userDeps, ...userDevDeps]); // TODO: improve this?
 
   // First, start with the Vite configuration that Astro core needs
   let viteConfig: ViteConfigWithSSR = {
@@ -80,8 +59,8 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
     },
     /** Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html) */
     ssr: {
-      external: [...external, ...ALWAYS_EXTERNAL],
-      noExternal: [...noExternal, ...ALWAYS_NOEXTERNAL],
+      external: [...ALWAYS_EXTERNAL],
+      noExternal: [...ALWAYS_NOEXTERNAL],
     },
   };
 
@@ -107,76 +86,4 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
   viteConfig = vite.mergeConfig(viteConfig, astroConfig.vite || {}); // merge in Vite config from astro.config.mjs
   viteConfig = vite.mergeConfig(viteConfig, inlineConfig); // merge in inline Vite config
   return viteConfig;
-}
-
-/** Try and automatically figure out Vite external & noExternal */
-async function viteSSRDeps(deps: string[]): Promise<{ external: Set<string>; noExternal: Set<string> }> {
-  const skip = new Set<string>();
-  const external = new Set<string>();
-  const noExternal = new Set<string>();
-
-  /** categorize package as ESM or CJS */
-  async function sortPkg(spec: string): Promise<void> {
-    // already sorted; skip
-    if (external.has(spec) || noExternal.has(spec) || skip.has(spec)) return;
-
-    // not an npm package: ignore
-    const pkg = parseNpmName(spec);
-    if (!pkg) {
-      skip.add(spec);
-      return;
-    }
-
-    try {
-      const moduleLoc = require.resolve(spec);
-
-      // node can’t find this: skip
-      if (!moduleLoc) {
-        skip.add(spec);
-        return;
-      }
-
-      // load module’s package.json
-      let cwd = new URL('../', `file://${slash(moduleLoc)}/`);
-      let packageJSON = await getPackageJSON(cwd);
-      while (!packageJSON) {
-        const next = new URL('../', cwd);
-        if (next.href === cwd.href) return; // we’re at root; skip
-        cwd = next;
-        packageJSON = await getPackageJSON(cwd);
-      }
-
-      // couldn’t locate: skip
-      if (!packageJSON) {
-        skip.add(spec);
-        return;
-      }
-
-      // otherwise, assume external by default
-      if (packageJSON.type !== 'module') {
-        external.add(spec);
-      }
-
-      // recursively load dependencies for package (but not devDeps)
-      await Promise.all(Object.keys(packageJSON.dependencies || {}).map(sortPkg));
-    } catch (err) {
-      // can’t load package: skip
-      skip.add(spec);
-      return;
-    }
-  }
-
-  // for top-level, load deps and devDeps (just in case)
-  await Promise.all(deps.map(sortPkg));
-
-  // sort (when debugging, makes packages easier to find)
-  const externalSorted = [...external];
-  externalSorted.sort((a, b) => a.localeCompare(b, 'en-us', { numeric: true }));
-  const noExternalSorted = [...noExternal];
-  noExternalSorted.sort((a, b) => a.localeCompare(b, 'en-us', { numeric: true }));
-
-  return {
-    external: new Set([...externalSorted]),
-    noExternal: new Set([...noExternalSorted]),
-  };
 }

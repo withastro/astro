@@ -90,31 +90,19 @@ body {
 }
 
 body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
   font-family: var(--font-body);
   font-size: 1rem;
   font-size: clamp(0.875rem, 0.4626rem + 1.0309vw + var(--user-font-scale), 1.125rem);
   line-height: 1.625;
 }
 
-body {
+.wrapper {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 65em;
+  padding-left: 2rem;
+  padding-right: 2rem;
   width: 100%;
-  display: grid;
-  --gutter: 0.5rem;
-  --doc-padding: 2rem;
-}
-
-.layout {
-  display: grid;
-  grid-auto-flow: column;
-  grid-template-columns: minmax(var(--gutter), 1fr) minmax(0, var(--max-width)) minmax(var(--gutter), 1fr);
-  gap: 1em;
-}
-
-.layout > :is(main, article) {
-  grid-column: 2;
 }
 
 nav ul {
