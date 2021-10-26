@@ -19,9 +19,8 @@ export function getStylesForID(id: string, viteServer: vite.ViteDevServer): Set<
     const moduleName = idToModuleMap.get(entryModule);
     if (!moduleName) return;
     for (const importedModule of moduleName.importedModules) {
-      if (!importedModule.id || scanned.has(importedModule.id)) return;
+      if (!importedModule.id || scanned.has(importedModule.id)) continue;
       const ext = path.extname(importedModule.id.toLowerCase());
-
       if (STYLE_EXTENSIONS.has(ext)) {
         css.add(importedModule.id); // if style file, add to list
       } else {

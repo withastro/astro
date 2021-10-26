@@ -1,8 +1,8 @@
 import type babel from '@babel/core';
-import type vite from 'vite';
 import type { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory } from '../runtime/server';
+import type vite from '../../vendor/vite';
 
 export interface AstroComponentMetadata {
   displayName: string;
@@ -94,16 +94,14 @@ export interface AstroUserConfig {
   vite?: vite.InlineConfig;
 }
 
-/*
- * NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
- * we can add JSDoc-style documentation and link to the definition file in our repo.
- * However, Zod comes with the ability to auto-generate AstroConfig from the schema
- * above. If we ever get to the point where we no longer need the dedicated
- * @types/config.ts file, consider replacing it with the following lines:
- *
- * export interface AstroUserConfig extends z.input<typeof AstroConfigSchema> {
- * }
- */
+// NOTE(fks): We choose to keep our hand-generated AstroUserConfig interface so that
+// we can add JSDoc-style documentation and link to the definition file in our repo.
+// However, Zod comes with the ability to auto-generate AstroConfig from the schema
+// above. If we ever get to the point where we no longer need the dedicated
+// @types/config.ts file, consider replacing it with the following lines:
+//
+// export interface AstroUserConfig extends z.input<typeof AstroConfigSchema> {
+// }
 
 export type AstroConfig = z.output<typeof AstroConfigSchema>;
 
