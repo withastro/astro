@@ -338,12 +338,12 @@ function serializeListValue(value: any) {
   }
 }
 
-export function defineStyleVars(astroId: string, vars: Record<any, any>) {
+export function defineStyleVars(selector: string, vars: Record<any, any>) {
   let output = '\n';
   for (const [key, value] of Object.entries(vars)) {
     output += `  --${key}: ${value};\n`;
   }
-  return `.astro-${astroId} {${output}}`;
+  return `${selector} {${output}}`;
 }
 
 export function defineScriptVars(vars: Record<any, any>) {
@@ -380,10 +380,15 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 }
 
 function renderElement(name: string, { props: _props, children = '' }: { props: Record<any, any>; children?: string }) {
-  const { hoist: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
+  // Do not print `hoist`, `lang`, `global`
+  const { hoist: _0, lang: _1, global = false, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
   if (defineVars) {
     if (name === 'style') {
-      children = defineStyleVars(astroId, defineVars) + '\n' + children;
+      if (global) {
+        children = defineStyleVars(`:root`, defineVars) + '\n' + children;
+      } else {
+        children = defineStyleVars(`.astro-${astroId}`, defineVars) + '\n' + children;
+      }
     }
     if (name === 'script') {
       children = defineScriptVars(defineVars) + '\n' + children;
