@@ -1,7 +1,7 @@
 import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from '../vite';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../../@types/astro-core';
-import type { AstroGlobal, TopLevelAstro, SSRResult } from '../../@types/astro-runtime';
+import type { AstroGlobal, TopLevelAstro, SSRResult, SSRElement } from '../../@types/astro-runtime';
 import type { LogOptions } from '../logger';
 
 import { fileURLToPath } from 'url';
@@ -118,8 +118,8 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     // This object starts here as an empty shell (not yet the result) but then
     // calling the render() function will populate the object with scripts, styles, etc.
     const result: SSRResult = {
-      styles: new Set(),
-      scripts: new Set(),
+      styles: new Set<SSRElement>(),
+      scripts: new Set<SSRElement>(),
       /** This function returns the `Astro` faux-global */
       createAstro(astroGlobal: TopLevelAstro, props: Record<string, any>, slots: Record<string, any> | null) {
         const site = new URL(origin);
@@ -193,3 +193,4 @@ ${frame}
     throw e;
   }
 }
+
