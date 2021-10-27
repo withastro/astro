@@ -118,8 +118,8 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     // This object starts here as an empty shell (not yet the result) but then
     // calling the render() function will populate the object with scripts, styles, etc.
     const result: SSRResult = {
-      styles: new ObjectSet<SSRElement>(),
-      scripts: new ObjectSet<SSRElement>(),
+      styles: new Set<SSRElement>(),
+      scripts: new Set<SSRElement>(),
       /** This function returns the `Astro` faux-global */
       createAstro(astroGlobal: TopLevelAstro, props: Record<string, any>, slots: Record<string, any> | null) {
         const site = new URL(origin);
@@ -194,62 +194,3 @@ ${frame}
   }
 }
 
-
-// This util is a Set<T> that supports objects!
-class ObjectSet<T> implements Set<T> {
-  private keyset = new Set<string>();
-  private set = new Set<T>();
-
-  public keys;
-  public values;
-  public entries;
-  public forEach;
-  
-  [Symbol.iterator] = this.set[Symbol.iterator];
-  [Symbol.toStringTag] = this.set[Symbol.toStringTag];
-
-  constructor() {
-    this.keys = this.set.keys.bind(this.set);
-    this.values = this.set.values.bind(this.set);
-    this.entries = this.set.entries.bind(this.set);
-    this.forEach = this.set.forEach.bind(this.set);
-  }
-
-  add(item: T) {
-    const key = JSON.stringify(item);
-    if (this.keyset.has(key)) {
-      return this;
-    } else {
-      this.set.add(item);
-    }
-    return this;
-  }
-
-  has(item: T) {
-    const key = JSON.stringify(item);
-    return this.keyset.has(key);
-  }
-
-  delete(item: T) {
-    const key = JSON.stringify(item);
-    if (this.keyset.has(key)) {
-      for (const value of this.set.values()) {
-        const compare = JSON.stringify(item);
-        if (key === compare) {
-          this.set.delete(value);
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  clear() {
-    this.keyset.clear();
-    this.set.clear();
-  }
-
-  get size() {
-    return this.set.size;
-  }
-}
