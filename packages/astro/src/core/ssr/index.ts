@@ -199,9 +199,21 @@ ${frame}
 class ObjectSet<T> implements Set<T> {
   private keyset = new Set<string>();
   private set = new Set<T>();
+
+  public keys;
+  public values;
+  public entries;
+  public forEach;
   
   [Symbol.iterator] = this.set[Symbol.iterator];
   [Symbol.toStringTag] = this.set[Symbol.toStringTag];
+
+  constructor() {
+    this.keys = this.set.keys.bind(this.set);
+    this.values = this.set.values.bind(this.set);
+    this.entries = this.set.entries.bind(this.set);
+    this.forEach = this.set.forEach.bind(this.set);
+  }
 
   add(item: T) {
     const key = JSON.stringify(item);
@@ -235,22 +247,6 @@ class ObjectSet<T> implements Set<T> {
   clear() {
     this.keyset.clear();
     this.set.clear();
-  }
-
-  forEach(callbackfn: (value: T, value2: T, set: Set<T>) => void, thisArg?: any) {
-    return this.set.forEach(callbackfn, thisArg);
-  };
-
-  keys() {
-    return this.set.keys();
-  }
-
-  values() {
-    return this.set.values()
-  }
-
-  entries() {
-    return this.set.entries()
   }
 
   get size() {
