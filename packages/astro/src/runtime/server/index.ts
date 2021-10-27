@@ -1,5 +1,5 @@
 import type { AstroComponentMetadata, Renderer } from '../../@types/astro-core';
-import type { SSRResult } from '../../@types/astro-runtime';
+import type { SSRResult, SSRElement } from '../../@types/astro-runtime';
 import type { TopLevelAstro } from '../../@types/astro-runtime';
 
 import { valueToEstree } from 'estree-util-value-to-estree';
@@ -147,7 +147,7 @@ interface HydrateScriptOptions {
 }
 
 /** For hydrated components, generate a <script type="module"> to load the component */
-async function generateHydrateScript(scriptOptions: HydrateScriptOptions, metadata: Required<AstroComponentMetadata>) {
+async function generateHydrateScript(scriptOptions: HydrateScriptOptions, metadata: Required<AstroComponentMetadata>): Promise<SSRElement> {
   const { renderer, astroId, props } = scriptOptions;
   const { hydrate, componentUrl, componentExport } = metadata;
 
@@ -168,13 +168,14 @@ async function generateHydrateScript(scriptOptions: HydrateScriptOptions, metada
   return () => {};
 `;
 
-  const hydrationScript = `<script type="module">
-import setup from 'astro/client/${hydrate}.js';
+  const hydrationScript = {
+    props: { type: 'module' },
+    children: `import setup from 'astro/client/${hydrate}.js';
 setup("${astroId}", {${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''}}, async () => {
   ${hydrationSource}
 });
-</script>
-`;
+`,
+  };
 
   return hydrationScript;
 }
@@ -354,16 +355,16 @@ export function defineScriptVars(vars: Record<any, any>) {
   return output;
 }
 
-export async function renderToString(result: any, componentFactory: AstroComponentFactory, props: any, children: any) {
+export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any) {
   const Component = await componentFactory(result, props, children);
   let template = await renderAstroComponent(Component);
   return template;
 }
 
-export async function renderPage(result: any, Component: AstroComponentFactory, props: any, children: any) {
+export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
   const template = await renderToString(result, Component, props, children);
-  const styles = Array.from(result.styles).map((style: any) => renderElement('style', style));
-  const scripts = Array.from(result.scripts);
+  const styles = Array.from(result.styles).map((style) => renderElement('style', style));
+  const scripts = Array.from(result.scripts).map((script) => renderElement('script', script));
   return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
 }
 
@@ -379,9 +380,9 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
   return template;
 }
 
-function renderElement(name: string, { props: _props, children = '' }: { props: Record<any, any>; children?: string }) {
+function renderElement(name: string, { props: _props, children = '' }: SSRElement) {
   // Do not print `hoist`, `lang`, `global`
-  const { hoist: _0, lang: _1, global = false, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
+  const { lang: _, global = false, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
   if (defineVars) {
     if (name === 'style') {
       if (global) {
@@ -391,6 +392,7 @@ function renderElement(name: string, { props: _props, children = '' }: { props: 
       }
     }
     if (name === 'script') {
+      delete props.hoist;
       children = defineScriptVars(defineVars) + '\n' + children;
     }
   }

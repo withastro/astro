@@ -1,7 +1,7 @@
 import type { BuildResult } from 'esbuild';
 import type { ViteDevServer } from '../vite';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../../@types/astro-core';
-import type { AstroGlobal, TopLevelAstro, SSRResult } from '../../@types/astro-runtime';
+import type { AstroGlobal, TopLevelAstro, SSRResult, SSRElement } from '../../@types/astro-runtime';
 import type { LogOptions } from '../logger';
 
 import { fileURLToPath } from 'url';
@@ -118,8 +118,8 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     // This object starts here as an empty shell (not yet the result) but then
     // calling the render() function will populate the object with scripts, styles, etc.
     const result: SSRResult = {
-      styles: new Set(),
-      scripts: new Set(),
+      styles: new ObjectSet<SSRElement>(),
+      scripts: new ObjectSet<SSRElement>(),
       /** This function returns the `Astro` faux-global */
       createAstro(astroGlobal: TopLevelAstro, props: Record<string, any>, slots: Record<string, any> | null) {
         const site = new URL(origin);
@@ -191,5 +191,69 @@ ${frame}
 
     // Generic error (probably from Vite, and already formatted)
     throw e;
+  }
+}
+
+
+// This util is a Set<T> that supports objects!
+class ObjectSet<T> implements Set<T> {
+  private keyset = new Set<string>();
+  private set = new Set<T>();
+  
+  [Symbol.iterator] = this.set[Symbol.iterator];
+  [Symbol.toStringTag] = this.set[Symbol.toStringTag];
+
+  add(item: T) {
+    const key = JSON.stringify(item);
+    if (this.keyset.has(key)) {
+      return this;
+    } else {
+      this.set.add(item);
+    }
+    return this;
+  }
+
+  has(item: T) {
+    const key = JSON.stringify(item);
+    return this.keyset.has(key);
+  }
+
+  delete(item: T) {
+    const key = JSON.stringify(item);
+    if (this.keyset.has(key)) {
+      for (const value of this.set.values()) {
+        const compare = JSON.stringify(item);
+        if (key === compare) {
+          this.set.delete(value);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  clear() {
+    this.keyset.clear();
+    this.set.clear();
+  }
+
+  forEach(callbackfn: (value: T, value2: T, set: Set<T>) => void, thisArg?: any) {
+    return this.set.forEach(callbackfn, thisArg);
+  };
+
+  keys() {
+    return this.set.keys();
+  }
+
+  values() {
+    return this.set.values()
+  }
+
+  entries() {
+    return this.set.entries()
+  }
+
+  get size() {
+    return this.set.size;
   }
 }

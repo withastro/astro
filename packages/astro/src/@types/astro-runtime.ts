@@ -52,8 +52,13 @@ export interface SSRMetadata {
 }
 
 export interface SSRResult {
-  styles: Set<string>;
-  scripts: Set<string>;
+  styles: Set<SSRElement>;
+  scripts: Set<SSRElement>;
   createAstro(Astro: TopLevelAstro, props: Record<string, any>, slots: Record<string, any> | null): AstroGlobal;
   _metadata: SSRMetadata;
+}
+
+export interface SSRElement {
+  props: Record<string, any>;
+  children: string;
 }
