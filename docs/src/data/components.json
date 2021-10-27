@@ -2,13 +2,13 @@
   "official": [],
   "community": [
     {
-      "name": "accessible-astro-components",
+      "name": "Accessible Astro Components",
       "description": "A set of accessible modals, buttons, toggles and more.",
       "github": "https://www.npmjs.com/package/accessible-astro-components",
       "demo": null
     },
     {
-      "name": "astro-static-tweet",
+      "name": "Astro Static Tweet",
       "description": "A lightweight static-HTML tweet embed.",
       "github": "https://www.npmjs.com/package/@rebelchris/astro-static-tweet",
       "demo": null
