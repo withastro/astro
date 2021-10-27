@@ -92,7 +92,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 
   return {
     metadata: { headers, source: content, html: result.toString() },
-    code: result.toString().replace(/\>\s*\<\//gm, '></'),
+    code: result.toString(),
   };
 }
 
