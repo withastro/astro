@@ -382,14 +382,15 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 
 function renderElement(name: string, { props: _props, children = '' }: SSRElement) {
   // Do not print `hoist`, `lang`, `global`
-  const { lang: _, global = false, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
+  const { lang: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
   if (defineVars) {
     if (name === 'style') {
-      if (global) {
+      if (props.global) {
         children = defineStyleVars(`:root`, defineVars) + '\n' + children;
       } else {
         children = defineStyleVars(`.astro-${astroId}`, defineVars) + '\n' + children;
       }
+      delete props.global;
     }
     if (name === 'script') {
       delete props.hoist;
