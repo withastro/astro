@@ -50,14 +50,14 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
     publicDir: fileURLToPath(astroConfig.public),
     root: fileURLToPath(astroConfig.projectRoot),
     server: {
-      /** disable HMR for test */
-      hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined,
-      /** handle Vite URLs */
+      force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
+      hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined, // disable HMR for test
+      // handle Vite URLs
       proxy: {
         // add proxies here
       },
     },
-    /** Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html) */
+    // Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
     ssr: {
       external: [...ALWAYS_EXTERNAL],
       noExternal: [...ALWAYS_NOEXTERNAL],
