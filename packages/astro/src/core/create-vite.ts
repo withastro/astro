@@ -9,7 +9,7 @@ import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.j
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import fetchVitePlugin from '../vite-plugin-fetch/index.js';
-import { getPackageJSON, resolveDependency } from './util.js';
+import { resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
 const ALWAYS_EXTERNAL = new Set([
@@ -37,17 +37,13 @@ interface CreateViteOptions {
 
 /** Return a common starting point for all Vite actions */
 export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, devServer }: CreateViteOptions): Promise<ViteConfigWithSSR> {
-  const packageJSON = (await getPackageJSON(astroConfig.projectRoot)) || {};
-  const userDeps = Object.keys(packageJSON?.dependencies || {});
-
   // First, start with the Vite configuration that Astro core needs
   let viteConfig: ViteConfigWithSSR = {
     cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
     clearScreen: false, // we want to control the output, not Vite
     logLevel: 'error', // log errors only
     optimizeDeps: {
-      entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
-      include: [...userDeps], // tell Vite to prebuild everything in a user’s package.json dependencies
+      entries: ['src/**/*'] // Try and scan a user’s project (won’t catch everything),
     },
     plugins: [
       astroVitePlugin({ config: astroConfig, devServer }),
