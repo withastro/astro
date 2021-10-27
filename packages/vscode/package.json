@@ -36,6 +36,7 @@
     "execa": "^5.0.0"
   },
   "main": "./dist/index.js",
+  "browser": "./dist/index.js",
   "files": [
     "dist/",
     "languages/",
