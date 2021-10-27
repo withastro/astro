@@ -66472,13 +66472,14 @@ async function instantiateModule(url, server, context = { global }, urlStack = [
             if (pendingDeps.length === 1) {
                 pendingImports.set(url, pendingDeps);
             }
-            await ssrLoadModule(dep, server, context, urlStack);
+            let val = await ssrLoadModule(dep, server, context, urlStack);
             if (pendingDeps.length === 1) {
                 pendingImports.delete(url);
             }
             else {
                 pendingDeps.splice(pendingDeps.indexOf(dep), 1);
             }
+          return val;
         }
         return (_b = moduleGraph.urlToModuleMap.get(dep)) === null || _b === void 0 ? void 0 : _b.ssrModule;
     };
