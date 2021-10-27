@@ -2,7 +2,7 @@ import type { AstroConfig } from '../@types/astro-core';
 import type { ErrorPayload } from 'vite';
 import fs from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import resolve from 'resolve';
 
 /** Normalize URL to its canonical form */
@@ -76,7 +76,8 @@ export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string 
 }
 
 export function resolveDependency(dep: string, astroConfig: AstroConfig) {
-  return resolve.sync(dep, {
+  const resolved = resolve.sync(dep, {
     basedir: fileURLToPath(astroConfig.projectRoot)
   });
+  return pathToFileURL(resolved).toString();
 }
