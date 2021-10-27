@@ -9,7 +9,7 @@ import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.j
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import fetchVitePlugin from '../vite-plugin-fetch/index.js';
-import { getPackageJSON, resolveDependency } from './util.js';
+import { resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
 const ALWAYS_EXTERNAL = new Set([
@@ -37,8 +37,6 @@ interface CreateViteOptions {
 
 /** Return a common starting point for all Vite actions */
 export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, devServer }: CreateViteOptions): Promise<ViteConfigWithSSR> {
-  const packageJSON = (await getPackageJSON(astroConfig.projectRoot)) || {};
-
   // First, start with the Vite configuration that Astro core needs
   let viteConfig: ViteConfigWithSSR = {
     cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
