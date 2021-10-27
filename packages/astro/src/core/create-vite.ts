@@ -18,6 +18,7 @@ const ALWAYS_EXTERNAL = new Set([
   'micromark-util-events-to-acorn',
   'node-fetch',
   'prismjs',
+  'shiki',
   'shorthash',
   'unified',
   'whatwg-url',

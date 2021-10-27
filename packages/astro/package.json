@@ -78,6 +78,7 @@
     "morphdom": "^2.6.1",
     "node-fetch": "^2.6.5",
     "path-to-regexp": "^6.2.0",
+    "prismjs": "^1.25.0",
     "remark-slug": "^7.0.0",
     "resolve": "^1.20.0",
     "sass": "^1.43.3",
