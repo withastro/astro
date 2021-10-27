@@ -4,6 +4,7 @@ import createCollectHeaders from './rehype-collect-headers.js';
 import scopedStyles from './remark-scoped-styles.js';
 import { remarkExpressions, loadRemarkExpressions } from './remark-expressions.js';
 import rehypeExpressions from './rehype-expressions.js';
+import rehypeIslands from './rehype-islands.js';
 import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
 import rehypeJsx from './rehype-jsx.js';
 import remarkPrism from './remark-prism.js';
@@ -75,12 +76,13 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     .use(isMDX ? [rehypeJsx] : [])
     .use(isMDX ? [rehypeExpressions] : [])
     .use(isMDX ? [] : [rehypeRaw])
+    .use(rehypeIslands)
 
   let result: string;
   try {
     const vfile = await parser
     .use([rehypeCollectHeaders])
-      .use(rehypeStringify, { allowParseErrors: true, allowDangerousHtml: true })
+      .use(rehypeStringify, { allowDangerousHtml: true })
       .process(content);
     result = vfile.toString();
   } catch (err) {
@@ -90,7 +92,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 
   return {
     metadata: { headers, source: content, html: result.toString() },
-    code: result.toString(),
+    code: result.toString().replace(/\>\s*\<\//gm, '></'),
   };
 }
 
