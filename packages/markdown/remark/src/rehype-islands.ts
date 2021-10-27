@@ -1,5 +1,9 @@
 import {SKIP, visit} from 'unist-util-visit';
 
+// This fixes some confusing bugs coming from somewhere inside of our Markdown pipeline.
+// `unist`/`remark`/`rehype` (not sure) often generate malformed HTML inside of <astro-root>
+// For hydration to work properly, frameworks need the DOM to be the exact same on server/client.
+// This reverts some "helpful corrections" that are applied to our perfectly valid HTML!
 export default function rehypeIslands(): any {
   return function (node: any): any {
     return visit(node, 'element', (el) => {
