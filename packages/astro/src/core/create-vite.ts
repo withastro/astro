@@ -38,7 +38,6 @@ interface CreateViteOptions {
 /** Return a common starting point for all Vite actions */
 export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, devServer }: CreateViteOptions): Promise<ViteConfigWithSSR> {
   const packageJSON = (await getPackageJSON(astroConfig.projectRoot)) || {};
-  const userDeps = Object.keys(packageJSON?.dependencies || {});
 
   // First, start with the Vite configuration that Astro core needs
   let viteConfig: ViteConfigWithSSR = {
@@ -46,8 +45,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
     clearScreen: false, // we want to control the output, not Vite
     logLevel: 'error', // log errors only
     optimizeDeps: {
-      entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
-      include: [...userDeps], // tell Vite to prebuild everything in a user’s package.json dependencies
+      entries: ['src/**/*'] // Try and scan a user’s project (won’t catch everything),
     },
     plugins: [
       astroVitePlugin({ config: astroConfig, devServer }),
