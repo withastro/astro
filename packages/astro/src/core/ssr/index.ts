@@ -1,5 +1,5 @@
 import type { BuildResult } from 'esbuild';
-import type { ViteDevServer } from '../vite';
+import type vite from '../vite';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../../@types/astro-core';
 import type { AstroGlobal, TopLevelAstro, SSRResult, SSRElement } from '../../@types/astro-runtime';
 import type { LogOptions } from '../logger';
@@ -9,7 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
 import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency } from '../util.js';
-import { addLinkTagsToHTML, getStylesForID } from './css.js';
+import { getStylesForID } from './css.js';
+import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 
@@ -31,13 +32,13 @@ interface SSROptions {
   /** pass in route cache because SSR can’t manage cache-busting */
   routeCache: RouteCache;
   /** Vite instance */
-  viteServer: ViteDevServer;
+  viteServer: vite.ViteDevServer;
 }
 
 const cache = new Map<string, Promise<Renderer>>();
 
 // TODO: improve validation and error handling here.
-async function resolveRenderer(viteServer: ViteDevServer, renderer: string, astroConfig: AstroConfig) {
+async function resolveRenderer(viteServer: vite.ViteDevServer, renderer: string, astroConfig: AstroConfig) {
   const resolvedRenderer: any = {};
   // We can dynamically import the renderer by itself because it shouldn't have
   // any non-standard imports, the index is just meta info.
@@ -58,7 +59,7 @@ async function resolveRenderer(viteServer: ViteDevServer, renderer: string, astr
   return completedRenderer;
 }
 
-async function resolveRenderers(viteServer: ViteDevServer, astroConfig: AstroConfig): Promise<Renderer[]> {
+async function resolveRenderers(viteServer: vite.ViteDevServer, astroConfig: AstroConfig): Promise<Renderer[]> {
   const ids: string[] = astroConfig.renderers;
   const renderers = await Promise.all(
     ids.map((renderer) => {
@@ -159,15 +160,35 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     let html = await renderPage(result, Component, pageProps, null);
 
-    // run transformIndexHtml() in development to add HMR client to the page.
+    // inject tags
+    const tags: vite.HtmlTagDescriptor[] = [];
+
+    // inject Astro HMR client (dev only)
+    if (mode === 'development') {
+      tags.push({
+        tag: 'script',
+        attrs: { type: 'module' },
+        children: `import 'astro/runtime/client/hmr.js';`,
+        injectTo: 'head',
+      });
+    }
+
+    // inject CSS
+    [...getStylesForID(fileURLToPath(filePath), viteServer)].forEach((href) => {
+      tags.push({
+        tag: 'link',
+        attrs: { type: 'text/css', rel: 'stylesheet', href },
+        injectTo: 'head',
+      });
+    });
+
+    // add injected tags
+    html = injectTags(html, tags);
+
+    // run transformIndexHtml() in dev to run Vite dev transformations
     if (mode === 'development') {
       html = await viteServer.transformIndexHtml(fileURLToPath(filePath), html, pathname);
     }
-
-    // insert CSS imported from Astro and JS components
-    const styles = getStylesForID(fileURLToPath(filePath), viteServer);
-    const relativeStyles = new Set<string>([...styles].map((url) => url.replace(fileURLToPath(astroConfig.projectRoot), '/')));
-    html = addLinkTagsToHTML(html, relativeStyles);
 
     return html;
   } catch (e: any) {
@@ -193,4 +214,3 @@ ${frame}
     throw e;
   }
 }
-
