@@ -18,7 +18,7 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
 // This matches any JS-like file (that we know of)
 // See https://regex101.com/r/Cgofir/1
 const SUPPORTED_FILES = /\.(astro|svelte|vue|[cm]?js|jsx|[cm]?ts|tsx)$/;
-const IGNORED_FILES = new Set(['astro/dist/runtime/server/index.js']);
+const IGNORED_MODULES = [/astro\/dist\/runtime\/server/, /\/node-fetch\//];
 const DEFINE_FETCH = `import fetch from 'node-fetch';\n`;
 
 export default function pluginFetch(): Plugin {
@@ -26,11 +26,6 @@ export default function pluginFetch(): Plugin {
     name: '@astrojs/vite-plugin-fetch',
     enforce: 'post',
     async transform(code, id, opts) {
-      // Ignore internal files, etc.
-      for (const ignored of IGNORED_FILES) {
-        if (id.endsWith(ignored)) return null;
-      }
-
       const ssr = isSSR(opts);
       // If this isn't an SSR pass, `fetch` will already be available!
       if (!ssr) {
@@ -44,7 +39,12 @@ export default function pluginFetch(): Plugin {
       if (!code.includes('fetch')) {
         return null;
       }
-
+      // Ignore specific modules
+      for (const ignored of IGNORED_MODULES) {
+        if (id.match(ignored)) {
+          return null;
+        }
+      }
       const s = new MagicString(code);
       s.prepend(DEFINE_FETCH);
       const result = s.toString();

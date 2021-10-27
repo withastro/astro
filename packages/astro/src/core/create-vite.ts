@@ -12,7 +12,16 @@ import fetchVitePlugin from '../vite-plugin-fetch/index.js';
 import { getPackageJSON, resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
-const ALWAYS_EXTERNAL = new Set(['@sveltejs/vite-plugin-svelte', 'estree-util-value-to-estree', 'micromark-util-events-to-acorn', 'prismjs', 'shorthash', 'unified']);
+const ALWAYS_EXTERNAL = new Set([
+  '@sveltejs/vite-plugin-svelte',
+  'estree-util-value-to-estree',
+  'micromark-util-events-to-acorn',
+  'node-fetch',
+  'prismjs',
+  'shorthash',
+  'unified',
+  'whatwg-url',
+]);
 const ALWAYS_NOEXTERNAL = new Set([
   'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
 ]);
