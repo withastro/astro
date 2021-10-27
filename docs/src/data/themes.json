@@ -19,7 +19,7 @@
       "command": "npm init astro"
     },
     {
-      "name": "docs",
+      "name": "Docs",
       "description": "A documentation website theme, complete with i18n, search, dark mode and more.",
       "github": "https://github.com/snowpackjs/astro/tree/main/examples/docs",
       "demo": null,
@@ -27,7 +27,7 @@
       "command": "npm init astro -- --template docs"
     },
     {
-      "name": "blog",
+      "name": "Blog",
       "description": "A blog theme, perfect for personal and company blogs.",
       "github": "https://github.com/snowpackjs/astro/tree/main/examples/blog",
       "demo": null,
@@ -35,7 +35,7 @@
       "command": "npm init astro -- --template blog"
     },
     {
-      "name": "portfolio",
+      "name": "Portfolio",
       "description": "A portfolio theme, perfect for your personal or professional online portfolio.",
       "github": "https://github.com/snowpackjs/astro/tree/main/examples/portfolio",
       "demo": null,
@@ -43,7 +43,7 @@
       "command": "npm init astro -- --template portfolio"
     },
     {
-      "name": "minimal",
+      "name": "Minimal",
       "description": "A minimal theme, with just the bare minimum needed to get started.",
       "github": "https://github.com/snowpackjs/astro/tree/main/examples/minimal",
       "demo": null,
@@ -56,13 +56,17 @@
       "name": "Accessible Astro Starter",
       "description": "A starter project with accessible features using Astro static site builder.",
       "github": "https://github.com/markteekman/accessible-astro-starter",
-      "demo": "https://accessible-astro.markteekman.nl/"
+      "demo": "https://accessible-astro.markteekman.nl/",
+      "sandbox": "https://github.dev/markteekman/accessible-astro-starter",
+      "command": "npm init astro -- --template markteekman/accessible-astro-starter"
     },
     {
       "name": "Astro Theme Creek",
       "description": "Creek is an open source blog theme for Astro SSG.",
       "github": "https://github.com/robertguss/Astro-Theme-Creek",
-      "demo": "https://astro-theme-creek.netlify.app/"
+      "demo": "https://astro-theme-creek.netlify.app/",
+      "sandbox": "https://github.dev/robertguss/Astro-Theme-Creek",
+      "command": "npm init astro -- --template robertguss/Astro-Theme-Creek"
     }
   ]
 }
