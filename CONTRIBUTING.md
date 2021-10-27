@@ -34,6 +34,15 @@ yarn dev
 yarn build
 ```
 
+#### Debugging Vite
+
+You can debug vite by prefixing any command with `DEBUG` like so:
+
+```
+DEBUG=vite:* astro dev        # debug everything in Vite
+DEBUG=vite:[name] astro dev   # debug specific process, e.g. "vite:deps" or "vite:transform"
+```
+
 ### Running tests
 
 ```shell
