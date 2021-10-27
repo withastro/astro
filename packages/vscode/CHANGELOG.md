@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.7.20
+
+### Patch Changes
+
+- 5034f23: Adds support for running as a [Web Extension](https://code.visualstudio.com/api/extension-guides/web-extensions)
+
 ## 0.7.19
 
 ### Patch Changes
