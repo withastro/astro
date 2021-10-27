@@ -5,6 +5,7 @@
   "exports": {
     ".": "./index.js",
     "./*": "./*",
+    "./compat": "./compat/index.js",
     "./client.js": "./client.js",
     "./server.js": "./server.js",
     "./package.json": "./package.json"
