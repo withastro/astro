@@ -14,17 +14,6 @@ export function canonicalURL(url: string, base?: string): URL {
   return new URL(pathname, base);
 }
 
-/** get user dependency list for Vite */
-export async function getPackageJSON(projectRoot: URL): Promise<Record<string, any> | undefined> {
-  const possibleLocs = new Set(['./package.json']);
-  for (const possibleLoc of possibleLocs) {
-    const packageJSONLoc = new URL(possibleLoc, projectRoot);
-    if (fs.existsSync(packageJSONLoc)) {
-      return JSON.parse(await fs.promises.readFile(packageJSONLoc, 'utf8'));
-    }
-  }
-}
-
 /** is a specifier an npm package? */
 export function parseNpmName(spec: string): { scope?: string; name: string; subpath?: string } | undefined {
   // not an npm package
