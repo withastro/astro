@@ -8,6 +8,7 @@ export default {
     return {
       optimizeDeps: {
         include: ['@astrojs/renderer-svelte/client.js', 'svelte', 'svelte/internal'],
+        exclude: ['@astrojs/renderer-svelte/server.js'],
       },
       plugins: [
         svelte({

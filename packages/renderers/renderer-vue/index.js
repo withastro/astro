@@ -8,6 +8,7 @@ export default {
     return {
       optimizeDeps: {
         include: ['@astrojs/renderer-vue/client.js', 'vue'],
+        exclude: ['@astrojs/renderer-vue/server.js'],
       },
       plugins: [vue()],
       ssr: {
