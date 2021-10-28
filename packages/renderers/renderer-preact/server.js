@@ -11,7 +11,6 @@ function check(Component, props, children) {
 
   try {
     const { html } = renderToStaticMarkup(Component, props, children);
-
     if (typeof html !== 'string') {
       return false;
     }
@@ -20,7 +19,7 @@ function check(Component, props, children) {
     // but components would be <undefined></undefined>
 
     return !/\<undefined\>/.test(html);
-  } catch {
+  } catch (err) {
     return false;
   }
 }

@@ -53,7 +53,7 @@ class AstroBuilder {
 
   async build() {
     const { logging, origin } = this;
-    const timer: Record<string, number> = {viteStart: performance.now()};
+    const timer: Record<string, number> = { viteStart: performance.now() };
     const viteConfig = await createVite(
       {
         mode: this.mode,
@@ -97,8 +97,8 @@ class AstroBuilder {
     );
 
     // After all routes have been collected, start building them.
-    // TODO: test parallel vs. serial performance. Promise.all() may be 
-    // making debugging harder without any perf gain. If parallel is best, 
+    // TODO: test parallel vs. serial performance. Promise.all() may be
+    // making debugging harder without any perf gain. If parallel is best,
     // then we should set a max number of parallel builds.
     const input: InputHTMLOptions[] = [];
     await Promise.all(
@@ -126,7 +126,7 @@ class AstroBuilder {
     debug(logging, 'build', timerMessage('All pages rendered', timer.renderStart));
 
     // Bundle the assets in your final build: This currently takes the HTML output
-    // of every page (stored in memory) and bundles the assets pointed to on those pages. 
+    // of every page (stored in memory) and bundles the assets pointed to on those pages.
     timer.buildStart = performance.now();
     await vite.build({
       logLevel: 'error',

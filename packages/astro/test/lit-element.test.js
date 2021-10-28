@@ -45,13 +45,13 @@ describe('LitElement test', () => {
     // test 2: shadow rendered
     expect($('my-element').html()).to.include(`<div>Testing...</div>`);
   });
+});
 
-  after(async () => {
-    // The Lit renderer adds browser globals that interfere with other tests, so remove them now.
-    const globals = Object.keys(globalThis.window || {});
-    globals.splice(globals.indexOf('global'), 1);
-    for (let name of globals) {
-      delete globalThis[name];
-    }
-  });
+after(async () => {
+  // The Lit renderer adds browser globals that interfere with other tests, so remove them now.
+  const globals = Object.keys(globalThis.window || {});
+  globals.splice(globals.indexOf('global'), 1);
+  for (let name of globals) {
+    delete globalThis[name];
+  }
 });

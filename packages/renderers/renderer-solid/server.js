@@ -2,9 +2,12 @@ import { renderToString, ssr, createComponent } from 'solid-js/web/dist/server.j
 
 function check(Component, props, children) {
   if (typeof Component !== 'function') return false;
-
-  const { html } = renderToStaticMarkup(Component, props, children);
-  return typeof html === 'string';
+  try {
+    const { html } = renderToStaticMarkup(Component, props, children);
+    return typeof html === 'string';
+  } catch (err) {
+    return false;
+  }
 }
 
 function renderToStaticMarkup(Component, props, children) {

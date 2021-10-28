@@ -105,7 +105,7 @@ describe('Styles SSR', () => {
       });
 
     // test 1: Astro component has some scoped class
-    expect(scopedClass).to.be.ok();
+    expect(scopedClass).to.be.ok;
 
     // test 2–3: children get scoped class
     expect(el1.attr('class')).to.equal(`blue ${scopedClass}`);
