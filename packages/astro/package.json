@@ -67,7 +67,7 @@
     "astring": "^1.7.5",
     "ci-info": "^3.2.0",
     "connect": "^3.7.0",
-    "es-module-lexer": "^0.7.1",
+    "es-module-lexer": "^0.9.3",
     "esbuild": "^0.13.6",
     "estree-util-value-to-estree": "^1.2.0",
     "fast-xml-parser": "^3.19.0",

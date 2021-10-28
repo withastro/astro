@@ -5,6 +5,7 @@ import type { TopLevelAstro } from '../../@types/astro-runtime';
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import shorthash from 'shorthash';
+import { fileURLToPath } from 'url';
 export { createMetadata } from './metadata.js';
 
 const { generate, GENERATOR } = astring;
@@ -117,7 +118,11 @@ function extractDirectives(inputProps: Record<string | number, any>): ExtractedP
       }
       switch (key) {
         case 'client:component-path': {
-          extracted.hydration.componentUrl = value;
+          try {
+            extracted.hydration.componentUrl = fileURLToPath(new URL(`file://${value}`));
+          } catch {
+            extracted.hydration.componentUrl = value;
+          }
           break;
         }
         case 'client:component-export': {
@@ -365,13 +370,17 @@ export async function renderToString(result: SSRResult, componentFactory: AstroC
 const uniqueElements = (item: any, index: number, all: any[]) => {
   const props = JSON.stringify(item.props);
   const children = item.children;
-  return index === all.findIndex(i => JSON.stringify(i.props) === props && i.children == children)
-}
+  return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
+};
 
 export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
   const template = await renderToString(result, Component, props, children);
-  const styles = Array.from(result.styles).filter(uniqueElements).map((style) => renderElement('style', style));
-  const scripts = Array.from(result.scripts).filter(uniqueElements).map((script) => renderElement('script', script));
+  const styles = Array.from(result.styles)
+    .filter(uniqueElements)
+    .map((style) => renderElement('style', style));
+  const scripts = Array.from(result.scripts)
+    .filter(uniqueElements)
+    .map((script) => renderElement('script', script));
   return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
 }
 

@@ -6,7 +6,7 @@ on:
       - main
 
 env:
-  node_version: 14
+  node_version: 16
 
 jobs:
   format:
