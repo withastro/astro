@@ -33,31 +33,3 @@ export function getStylesForID(id: string, viteServer: vite.ViteDevServer): Set<
 
   return css;
 }
-
-/** add CSS <link> tags to HTML */
-export function addLinkTagsToHTML(html: string, styles: Set<string>): string {
-  let output = html;
-
-  try {
-    // get position of </head>
-    let headEndPos = -1;
-    const parser = new htmlparser2.Parser({
-      onclosetag(tagname) {
-        if (tagname === 'head') {
-          headEndPos = parser.startIndex;
-        }
-      },
-    });
-    parser.write(html);
-    parser.end();
-
-    // update html
-    if (headEndPos !== -1) {
-      output = html.substring(0, headEndPos) + [...styles].map((href) => `<link rel="stylesheet" type="text/css" href="${href}">`).join('') + html.substring(headEndPos);
-    }
-  } catch (err) {
-    // on invalid HTML, do nothing
-  }
-
-  return output;
-}

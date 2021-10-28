@@ -1,5 +1,3 @@
-import '@vite/client';
-
 if (import.meta.hot) {
   const parser = new DOMParser();
   import.meta.hot.on('astro:reload', async ({ html }: { html: string }) => {

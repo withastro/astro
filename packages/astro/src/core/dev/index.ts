@@ -79,24 +79,7 @@ export class AstroDevServer {
     this.app.use((req, res, next) => this.renderError(req, res, next));
 
     // Listen on port (and retry if taken)
-    await new Promise<void>((resolve, reject) => {
-      const onError = (err: NodeJS.ErrnoException) => {
-        if (err.code && err.code === 'EADDRINUSE') {
-          info(this.logging, 'astro', msg.portInUse({ port: this.port }));
-          this.port++;
-        } else {
-          error(this.logging, 'astro', err.stack);
-          this.httpServer?.removeListener('error', onError);
-          reject(err);
-        }
-      };
-      this.httpServer = this.app.listen(this.port, this.hostname, () => {
-        info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
-        info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}` }));
-        resolve();
-      });
-      this.httpServer.on('error', onError);
-    });
+    await this.listen(devStart);
   }
 
   async stop() {
@@ -158,6 +141,38 @@ export class AstroDevServer {
     }
   }
 
+  /** Expose dev server to this.port */
+  public listen(devStart: number): Promise<void> {
+    let showedPortTakenMsg = false;
+    return new Promise<void>((resolve, reject) => {
+      const listen = () => {
+        this.httpServer = this.app.listen(this.port, this.hostname, () => {
+          info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
+          info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}` }));
+          resolve();
+        });
+        this.httpServer?.on('error', onError);
+      };
+
+      const onError = (err: NodeJS.ErrnoException) => {
+        if (err.code && err.code === 'EADDRINUSE') {
+          if (!showedPortTakenMsg) {
+            info(this.logging, 'astro', msg.portInUse({ port: this.port }));
+            showedPortTakenMsg = true; // only print this once
+          }
+          this.port++;
+          return listen(); // retry
+        } else {
+          error(this.logging, 'astro', err.stack);
+          this.httpServer?.removeListener('error', onError);
+          reject(err); // reject
+        }
+      };
+
+      listen();
+    });
+  }
+
   private async createViteServer() {
     const viteConfig = await createVite(
       {
@@ -205,16 +220,7 @@ export class AstroDevServer {
 
     let pathname = req.url || '/'; // original request
     const reqStart = performance.now();
-
-    if (pathname.startsWith('/@astro')) {
-      const spec = pathname.slice(2);
-      const url = await this.viteServer.moduleGraph.resolveUrl(spec);
-      req.url = url[1];
-      return this.viteServer.middlewares.handle(req, res, next);
-    }
-
     let filePath: URL | undefined;
-
     try {
       const route = matchRoute(pathname, this.manifest);
 

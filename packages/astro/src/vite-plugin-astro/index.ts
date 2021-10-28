@@ -103,18 +103,5 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
         return devServer.handleHotUpdate(context);
       }
     },
-    transformIndexHtml() {
-      // note: this runs only in dev
-      return [
-        {
-          injectTo: 'head-prepend',
-          tag: 'script',
-          attrs: {
-            type: 'module',
-            src: '/@astro/runtime/client/hmr',
-          },
-        },
-      ];
-    },
   };
 }
