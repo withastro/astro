@@ -151,7 +151,6 @@ export class AstroDevServer {
           info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}` }));
           resolve();
         });
-        this.httpServer?.on('error', onError);
       };
 
       const onError = (err: NodeJS.ErrnoException) => {
@@ -170,6 +169,7 @@ export class AstroDevServer {
       };
 
       listen();
+      this.httpServer?.on('error', onError);
     });
   }
 
