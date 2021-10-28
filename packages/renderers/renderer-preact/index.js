@@ -15,6 +15,7 @@ export default {
     return {
       optimizeDeps: {
         include: ['@astrojs/renderer-preact/client.js', 'preact', 'preact/jsx-runtime', 'preact-render-to-string'],
+        exclude: ['@astrojs/renderer-preact/server.js'],
       },
       ssr: {
         external: ['preact-render-to-string'],

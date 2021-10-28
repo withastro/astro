@@ -47,6 +47,7 @@ export default {
       },
       optimizeDeps: {
         include: nestedDeps,
+        exclude: ['@astrojs/renderer-solid/server.js'],
       },
       ssr: {
         external: ['solid-js/web/dist/server.js', 'solid-js/store/dist/server.js', 'solid-js/dist/server.js', 'babel-preset-solid'],
