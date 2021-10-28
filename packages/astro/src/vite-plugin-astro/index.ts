@@ -46,7 +46,8 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
       }
       // pages and layouts should be transformed as full documents (implicit <head> <body> etc)
       // everything else is treated as a fragment
-      const isPage = id.startsWith(fileURLToPath(config.pages)) || id.startsWith(fileURLToPath(config.layouts));
+      const normalizedID = fileURLToPath(new URL(`file://${id}`));
+      const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || id.startsWith(fileURLToPath(config.layouts));
       let source = await fs.promises.readFile(id, 'utf8');
       let tsResult: TransformResult | undefined;
 

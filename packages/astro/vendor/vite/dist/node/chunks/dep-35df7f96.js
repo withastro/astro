@@ -21319,7 +21319,7 @@ function buildHtmlPlugin(config) {
                                     .map((child) => child.content || '')
                                     .join('');
                                 // <script type="module">...</script>
-                                const filePath = id.replace(config.root, '');
+                                const filePath = id.replace(config.root, '').replace(/^\/+/, '/');
                                 addToHTMLProxyCache(config, filePath, inlineModuleIndex, contents);
                                 js += `\nimport "${id}?html-proxy&index=${inlineModuleIndex}.js"`;
                                 shouldRemove = true;
@@ -56977,14 +56977,14 @@ const devHtmlHook = async (html, { path: htmlPath, server, originalUrl }) => {
                 processNodeUrl(src, s, config, htmlPath, originalUrl);
             }
             else if (isModule) {
-                const url = filePath.replace(config.root, '');
+                const url = filePath.replace(config.root, '').replace(/^\/+/, '/');
                 const contents = node.children
                     .map((child) => child.content || '')
                     .join('');
                 // add HTML Proxy to Map
                 addToHTMLProxyCache(config, url, scriptModuleIndex, contents);
                 // inline js module. convert to src="proxy"
-                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${config.base + url.slice(1)}?html-proxy&index=${scriptModuleIndex}.js"></script>`);
+                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${filePath}?html-proxy&index=${scriptModuleIndex}.js"></script>`);
             }
         }
         // elements with [href/src] attrs

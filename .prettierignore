@@ -1,6 +1,7 @@
 **/dist
 **/node_modules
 **/fixtures
+packages/astro/vendor/**/*
 **/.vercel
 .github
 .changeset
