@@ -212,7 +212,7 @@ export function addAttribute(value: any, key: string) {
   return ` ${key}="${value}"`;
 }
 
-// Adds support for `<Component ...{value} />
+// Adds support for `<Component {...value} />
 export function spreadAttributes(values: Record<any, any>) {
   let output = '';
   for (const [key, value] of Object.entries(values)) {
