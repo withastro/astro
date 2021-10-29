@@ -18,19 +18,18 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         node_version: [12, 14, 16]
-        # TODO: uncomment this (Vite has trouble resolving imports on Windows)
-        # include:
-        #   - os: windows-latest
-        #     node_version: 14
+        include:
+          - os: windows-latest
+            node_version: 16
       fail-fast: false
     env:
       LANG: en-us
     name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
     steps:
-      - name: Checkout
+      - name: Check out code using Git
         uses: actions/checkout@v2
 
-      - name: Set node version to ${{ matrix.node_version }}
+      - name: Set Node version to ${{ matrix.node_version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node_version }}
@@ -50,16 +49,16 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
-    name: 'Lint: node-14, ubuntu-latest'
+    name: 'Lint: node-16, ubuntu-latest'
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-      - name: Set node version to 14
+      - name: Set Node version to 16
         uses: actions/setup-node@v2
         with:
-          node-version: 14
+          node-version: 16
           cache: 'yarn'
 
       - name: Debug
@@ -79,14 +78,15 @@ jobs:
   #   runs-on: ubuntu-latest
   #   name: 'Smoke: node-14, ubuntu-latest'
   #   steps:
-  #     - uses: actions/checkout@v2
+  #     - name: Check out code using Git
+  #       uses: actions/checkout@v2
   #       with:
   #         fetch-depth: 0
 
-  #     - name: Set node version to 14
+  #     - name: Set Node version to 16
   #       uses: actions/setup-node@v2
   #       with:
-  #         node-version: 14
+  #         node-version: 16
   #         cache: 'yarn'
 
   #     - name: Debug

@@ -3695,7 +3695,7 @@ class SourceMapTree {
             return null;
         const source = this.sources[segment[1]];
         // So now we can recurse down, until we hit the original source file.
-        return source.traceSegment(segment[2], segment[3], 
+        return source.traceSegment(segment[2], segment[3],
         // A child map's recorded name for this segment takes precedence over the
         // parent's mapped name. Imagine a mangler changing the name over, etc.
         segment.length === 5 ? names[segment[4]] : name);
@@ -6002,7 +6002,7 @@ async function fileToBuiltUrl(id, config, pluginContext, skipPublicCheck = false
         const { search, hash } = require$$0$8.parse(id);
         const postfix = (search || '') + (hash || '');
         const output = (_b = (_a = config.build) === null || _a === void 0 ? void 0 : _a.rollupOptions) === null || _b === void 0 ? void 0 : _b.output;
-        const assetFileNames = (_c = (output && !Array.isArray(output) ? output.assetFileNames : undefined)) !== null && _c !== void 0 ? _c : 
+        const assetFileNames = (_c = (output && !Array.isArray(output) ? output.assetFileNames : undefined)) !== null && _c !== void 0 ? _c :
         // defaults to '<assetsDir>/[name].[hash][extname]'
         // slightly different from rollup's one ('assets/[name]-[hash][extname]')
         path__default.posix.join(config.build.assetsDir, '[name].[hash][extname]');
@@ -6036,7 +6036,7 @@ async function urlToBuiltUrl(url, importer, config, pluginContext) {
     const file = url.startsWith('/')
         ? path__default.join(config.root, url)
         : path__default.join(path__default.dirname(importer), url);
-    return fileToBuiltUrl(file, config, pluginContext, 
+    return fileToBuiltUrl(file, config, pluginContext,
     // skip public check since we just did it above
     true);
 }
@@ -19888,7 +19888,7 @@ function cssPlugin(config) {
                                 ? moduleGraph.createFileOnlyEntry(file)
                                 : await moduleGraph.ensureEntryFromUrl((await fileToUrl(file, config, this)).replace(config.base, '/')));
                         }
-                        moduleGraph.updateModuleInfo(thisModule, depModules, 
+                        moduleGraph.updateModuleInfo(thisModule, depModules,
                         // The root CSS proxy module is self-accepting and should not
                         // have an explicit accept list
                         new Set(), isSelfAccepting);
@@ -20104,7 +20104,7 @@ function cssPostPlugin(config) {
                             }
                             return true;
                         });
-                        chunk.code = chunk.code.replace(emptyChunkRE, 
+                        chunk.code = chunk.code.replace(emptyChunkRE,
                         // remove css import while preserving source map location
                         (m) => `/* empty css ${''.padEnd(m.length - 15)}*/`);
                     }
@@ -21068,7 +21068,7 @@ function buildImportAnalysisPlugin(config) {
                                 markPos = code.indexOf(preloadMarker);
                             }
                             if (markPos > 0) {
-                                s.overwrite(markPos - 1, markPos + preloadMarker.length + 1, 
+                                s.overwrite(markPos - 1, markPos + preloadMarker.length + 1,
                                 // the dep list includes the main chunk, so only need to
                                 // preload when there are actual other deps.
                                 deps.size > 1 ||
@@ -21179,7 +21179,7 @@ function htmlInlineScriptProxyPlugin(config) {
             if (proxyMatch) {
                 const index = Number(proxyMatch[1]);
                 const file = cleanUrl(id);
-                const url = file.replace(config.root, '');
+                const url = file.replace(normalizePath$4(config.root), '');
                 const result = htmlProxyMap.get(config).get(url)[index];
                 if (result) {
                     return result;
@@ -21319,7 +21319,7 @@ function buildHtmlPlugin(config) {
                                     .map((child) => child.content || '')
                                     .join('');
                                 // <script type="module">...</script>
-                                const filePath = id.replace(config.root, '');
+                                const filePath = id.replace(normalizePath$4(config.root), '')
                                 addToHTMLProxyCache(config, filePath, inlineModuleIndex, contents);
                                 js += `\nimport "${id}?html-proxy&index=${inlineModuleIndex}.js"`;
                                 shouldRemove = true;
@@ -22936,12 +22936,12 @@ var commondir = function (basedir, relfiles) {
     else {
         var files = basedir;
     }
-    
+
     var res = files.slice(1).reduce(function (ps, file) {
         if (!file.match(/^([A-Za-z]:)?\/|\\/)) {
             throw new Error('relative path without a basedir');
         }
-        
+
         var xs = file.split(/\/+|\\+/);
         for (
             var i = 0;
@@ -22950,7 +22950,6 @@ var commondir = function (basedir, relfiles) {
         );
         return ps.slice(0, i);
     }, files[0].split(/\/+|\\+/));
-    
     // Windows correctly handles paths with forward-slashes
     return res.length > 1 ? res.join('/') : '/'
 };
@@ -42228,7 +42227,7 @@ async function createPluginContainer({ plugins, logger, root, build: { rollupOpt
                     errLocation = numberToPos(ctx._activeCode, pos);
                 }
                 catch (err2) {
-                    logger.error(source.red(`Error in error handler:\n${err2.stack || err2.message}\n`), 
+                    logger.error(source.red(`Error in error handler:\n${err2.stack || err2.message}\n`),
                     // print extra newline to separate the two errors
                     { error: err2 });
                     throw err;
@@ -53717,7 +53716,7 @@ common.setupOutgoing = function(outgoing, options, req, forward) {
   if (options.auth) {
     outgoing.auth = options.auth;
   }
-  
+
   if (options.ca) {
       outgoing.ca = options.ca;
   }
@@ -55234,12 +55233,12 @@ var httpProxy$1 = ProxyServer;
 /*!
  * Caron dimonio, con occhi di bragia
  * loro accennando, tutte le raccoglie;
- * batte col remo qualunque s’adagia 
+ * batte col remo qualunque s’adagia
  *
  * Charon the demon, with the eyes of glede,
  * Beckoning to them, collects them all together,
  * Beats with his oar whoever lags behind
- *          
+ *
  *          Dante - The Divine Comedy (Canto III)
  */
 
@@ -56829,7 +56828,7 @@ function transformMiddleware(server) {
             !((_a = req.url) === null || _a === void 0 ? void 0 : _a.startsWith(CLIENT_PUBLIC_PATH)) &&
             !((_b = req.url) === null || _b === void 0 ? void 0 : _b.includes('vite/dist/client'))) {
             // missing dep pending reload, hold request until reload happens
-            server._pendingReload.then(() => 
+            server._pendingReload.then(() =>
             // If the refresh has not happened after timeout, Vite considers
             // something unexpected has happened. In this case, Vite
             // returns an empty response that will error.
@@ -56903,7 +56902,7 @@ function transformMiddleware(server) {
                     const type = isDirectCSSRequest(url) ? 'css' : 'js';
                     const isDep = DEP_VERSION_RE.test(url) ||
                         (cacheDirPrefix && url.startsWith(cacheDirPrefix));
-                    return send$1(req, res, result.code, type, result.etag, 
+                    return send$1(req, res, result.code, type, result.etag,
                     // allow browser to cache npm deps!
                     isDep ? 'max-age=31536000,immutable' : 'no-cache', result.map);
                 }
@@ -56977,14 +56976,14 @@ const devHtmlHook = async (html, { path: htmlPath, server, originalUrl }) => {
                 processNodeUrl(src, s, config, htmlPath, originalUrl);
             }
             else if (isModule) {
-                const url = filePath.replace(config.root, '');
+                const url = filePath.replace(normalizePath$4(config.root), '');
                 const contents = node.children
                     .map((child) => child.content || '')
                     .join('');
                 // add HTML Proxy to Map
                 addToHTMLProxyCache(config, url, scriptModuleIndex, contents);
                 // inline js module. convert to src="proxy"
-                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${config.base + url.slice(1)}?html-proxy&index=${scriptModuleIndex}.js"></script>`);
+                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${filePath}?html-proxy&index=${scriptModuleIndex}.js"></script>`);
             }
         }
         // elements with [href/src] attrs
@@ -65840,7 +65839,7 @@ IndexedSourceMapConsumer.prototype.sourceContentFor =
  * and an object is returned with the following properties:
  *
  *   - line: The line number in the generated source, or null.  The
- *     line number is 1-based. 
+ *     line number is 1-based.
  *   - column: The column number in the generated source, or null.
  *     The column number is 0-based.
  */
@@ -67332,7 +67331,7 @@ function importAnalysisPlugin(config) {
                 return [url, resolved.id];
             };
             for (let index = 0; index < imports.length; index++) {
-                const { s: start, e: end, ss: expStart, se: expEnd, d: dynamicIndex, 
+                const { s: start, e: end, ss: expStart, se: expEnd, d: dynamicIndex,
                 // #2083 User may use escape path,
                 // so use imports[index].n to get the unescaped string
                 // @ts-ignore

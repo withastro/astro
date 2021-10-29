@@ -5,24 +5,26 @@ on:
     branches:
       - main
 
-env:
-  node_version: 14
-
 jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Check out code using Git
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
-      - uses: actions/setup-node@v2
+      - name: Set Node version to 16
+        uses: actions/setup-node@v2
         with:
-          node-version: ${{ env.node_version }}
-      - run: yarn --frozen-lockfile --ignore-engines
+          node-version: 16
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn --frozen-lockfile --ignore-engines
         env:
           CI: true
       - run: yarn lerna run build --scope @astrojs/parser
-      - run: yarn format
+      - name: Format code
+        run: yarn format
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:

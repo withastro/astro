@@ -79,7 +79,8 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     // Important: This needs to happen first, in case a renderer provides polyfills.
     const renderers = await resolveRenderers(viteServer, astroConfig);
     // Load the module from the Vite SSR Runtime.
-    const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
+    const viteFriendlyURL = `/@fs${filePath.pathname}`;
+    const mod = (await viteServer.ssrLoadModule(viteFriendlyURL)) as ComponentInstance;
     // Handle dynamic routes
     let params: Params = {};
     let pageProps: Props = {};
@@ -174,7 +175,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     }
 
     // inject CSS
-    [...getStylesForID(fileURLToPath(filePath), viteServer)].forEach((href) => {
+    [...getStylesForID(filePath.pathname, viteServer)].forEach((href) => {
       tags.push({
         tag: 'link',
         attrs: { type: 'text/css', rel: 'stylesheet', href },
@@ -187,7 +188,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
 
     // run transformIndexHtml() in dev to run Vite dev transformations
     if (mode === 'development') {
-      html = await viteServer.transformIndexHtml(fileURLToPath(filePath), html, pathname);
+      html = await viteServer.transformIndexHtml(filePath.pathname, html, pathname);
     }
 
     return html;
