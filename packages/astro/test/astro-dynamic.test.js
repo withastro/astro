@@ -13,8 +13,8 @@ describe('Dynamic components', () => {
   it('Loads packages that only run code in client', async () => {
     const html = await fixture.readFile('/index.html');
 
-    const $ = cheerio.load(html)
-    expect($('script').length).to.eq(2)
+    const $ = cheerio.load(html);
+    expect($('script').length).to.eq(2);
   });
 
   it('Loads pages using client:media hydrator', async () => {

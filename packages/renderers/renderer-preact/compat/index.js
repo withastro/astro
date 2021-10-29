@@ -15,7 +15,7 @@ export default {
     return {
       alias: {
         react: 'preact/compat',
-        'react-dom': 'preact/compat'
+        'react-dom': 'preact/compat',
       },
       resolve: {
         dedupe: ['react', 'react-dom'],
