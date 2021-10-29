@@ -8,7 +8,6 @@ import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
 
 // INVESTIGATE:
-// 1. Refactoring this into multiple modules
 // 2. Less anys when possible and make it well known when they are needed.
 
 // Used to render slots and expressions
