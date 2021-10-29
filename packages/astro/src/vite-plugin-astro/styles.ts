@@ -1,4 +1,4 @@
-import type vite from '../core/vite';
+import type vite from 'vite';
 
 import { PREPROCESSOR_EXTENSIONS } from '../core/ssr/css.js';
 

@@ -1,6 +1,6 @@
 import type { TransformResult } from '@astrojs/compiler';
 import type { SourceMapInput } from 'rollup';
-import type vite from '../core/vite';
+import type vite from 'vite';
 import type { AstroConfig } from '../@types/astro-core';
 
 import esbuild from 'esbuild';
@@ -14,20 +14,6 @@ import { getViteTransform, TransformHook, transformWithVite } from './styles.js'
 interface AstroPluginOptions {
   config: AstroConfig;
   devServer?: AstroDevServer;
-}
-
-// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
-function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
-  if (options === undefined) {
-    return false;
-  }
-  if (typeof options === 'boolean') {
-    return options;
-  }
-  if (typeof options == 'object') {
-    return !!options.ssr;
-  }
-  return false;
 }
 
 /** Transform .astro files for Vite */
@@ -63,7 +49,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           internalURL: 'astro/internal',
           preprocessStyle: async (value: string, attrs: Record<string, string>) => {
             if (!attrs || !attrs.lang) return null;
-            const result = await transformWithVite({ value, attrs, id, transformHook: viteTransform, ssr: isSSR(opts) });
+            const result = await transformWithVite({ value, attrs, id, transformHook: viteTransform, ssr: opts?.ssr || false });
             if (!result) {
               // TODO: compiler supports `null`, but types don't yet
               return result as any;

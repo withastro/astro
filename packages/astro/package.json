@@ -41,8 +41,8 @@
     "components",
     "dist",
     "astro.js",
-    "README.md",
-    "vendor"
+    "CHANGELOG.md",
+    "README.md"
   ],
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
@@ -93,7 +93,7 @@
     "strip-indent": "^4.0.0",
     "supports-esm": "^1.0.0",
     "tiny-glob": "^0.2.8",
-    "vite": "^2.6.10",
+    "vite": "^2.7.0-beta.0",
     "yargs-parser": "^20.2.9",
     "zod": "^3.8.1"
   },

@@ -1,13 +1,14 @@
 import type { InputHTMLOptions } from '@web/rollup-plugin-html';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro-core';
 import type { LogOptions } from '../logger';
+import type { ViteDevServer } from 'vite';
 
 import { rollupPluginHTML } from '@web/rollup-plugin-html';
 import fs from 'fs';
 import { bold, cyan, green, dim } from 'kleur/colors';
 import { performance } from 'perf_hooks';
-import vite, { ViteDevServer } from '../vite.js';
 import { fileURLToPath } from 'url';
+import vite from 'vite';
 import { createVite } from '../create-vite.js';
 import { pad } from '../dev/util.js';
 import { debug, defaultLogOptions, levels, timerMessage, warn } from '../logger.js';
