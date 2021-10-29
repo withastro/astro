@@ -1,6 +1,7 @@
 **/dist
 **/node_modules
 **/fixtures
+**/vendor
 **/.vercel
 .github
 .changeset
