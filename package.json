@@ -23,10 +23,9 @@
     "test:templates": "lerna run test --scope create-astro --stream"
   },
   "workspaces": [
-    "compiled/*",
+    "packages/*",
     "packages/markdown/*",
     "packages/renderers/*",
-    "packages/*",
     "examples/*",
     "scripts",
     "www",

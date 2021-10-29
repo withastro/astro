@@ -1,5 +1,28 @@
 # astro
 
+## 0.21.0-next.0
+
+### Minor Changes
+
+- 1d2da117: Use new compiler, move Astro to Vite
+
+### Patch Changes
+
+- d2bcbbca: Fix logger locale parsing
+- 2c157956: Improve renderer APIs for Vite
+- d1a73e4c: Feat: add CSS preprocessors in Astro Next
+- Updated dependencies [a38460ca]
+- Updated dependencies [e50cfa7b]
+- Updated dependencies [cb733cf6]
+- Updated dependencies [2c157956]
+- Updated dependencies [26240770]
+- Updated dependencies [bd2ac137]
+  - @astrojs/renderer-preact@0.3.0-next.0
+  - @astrojs/renderer-react@0.3.0-next.0
+  - @astrojs/renderer-svelte@0.2.0-next.0
+  - @astrojs/renderer-vue@0.2.0-next.0
+  - @astrojs/markdown-remark@0.3.2-next.0
+
 ## 0.20.12
 
 ### Patch Changes

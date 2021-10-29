@@ -1,5 +1,11 @@
 # @astrojs/markdown-support
 
+## 0.3.2-next.0
+
+### Patch Changes
+
+- e50cfa7b: Adds prism support within the plugin
+
 ## 0.3.1
 
 ### Patch Changes

@@ -1,5 +1,16 @@
 # @astrojs/renderer-vue
 
+## 0.2.0-next.0
+
+### Minor Changes
+
+- 26240770: Update renderers for Vite
+
+### Patch Changes
+
+- a38460ca: Point renderer entrypoints to resolved JS files
+- 2c157956: Improve renderer APIs for Vite
+
 ## 0.1.9
 
 ### Patch Changes

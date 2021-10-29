@@ -1,5 +1,17 @@
 # @astrojs/renderer-react
 
+## 0.3.0-next.0
+
+### Minor Changes
+
+- 26240770: Update renderers for Vite
+
+### Patch Changes
+
+- a38460ca: Point renderer entrypoints to resolved JS files
+- cb733cf6: Improve support for third-party React packages
+- 2c157956: Improve renderer APIs for Vite
+
 ## 0.2.2
 
 ### Patch Changes
