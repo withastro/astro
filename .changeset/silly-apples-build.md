@@ -1,5 +1,5 @@
 ---
-'@astrojs/markdown-remark': patch
+'@astrojs/markdown-remark': minor
 ---
 
-Adds prism support within the plugin
+Adds prism support within the Markdown plugin.
