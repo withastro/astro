@@ -1,29 +1,51 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
+import markdownRemark from '@astrojs/markdown-remark';
 
-const MarkdownPlugin = suite('Astro Markdown plugin tests');
 
-setup(MarkdownPlugin, './fixtures/astro-markdown-plugins');
-setupBuild(MarkdownPlugin, './fixtures/astro-markdown-plugins');
+describe('Astro Markdown plugins', () => {
+  let fixture;
 
-MarkdownPlugin('Can render markdown with plugins', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-markdown-plugins/',
+      renderers: ['@astrojs/renderer-preact'],
+      markdownOptions: {
+        render: [markdownRemark, {
+          remarkPlugins: ['remark-code-titles', 'remark-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+          rehypePlugins: [
+            ['rehype-toc', { headings: ['h2', 'h3'] }],
+            ['rehype-add-classes', { 'h1,h2,h3': 'title' }],
+          ],
+        }],
+      },
+      buildOptions: {
+        sitemap: false,
+      },
+    });
+    await fixture.build();
+  });
 
-  const $ = doc(result.contents);
-  assert.equal($('.toc').length, 1, 'Added a TOC');
-  assert.ok($('#hello-world').hasClass('title'), 'Added .title to h1');
+  it('Can render markdown with plugins', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+
+    // test 1: Added a TOC
+    expect($('.toc')).to.have.lengthOf(1);
+
+    // teste 2: Added .title to h1
+    expect($('#hello-world').hasClass('title')).to.equal(true);
+  });
+
+  it('Can render Astro <Markdown> with plugins', async () => {
+    const html = await fixture.readFile('/astro/index.html');
+    const $ = cheerio.load(html);
+
+    // test 1: Added a TOC
+    expect($('.toc')).to.have.lengthOf(1);
+
+    // teste 2: Added .title to h1
+    expect($('#hello-world').hasClass('title')).to.equal(true);
+  });
 });
-
-MarkdownPlugin('Can render Astro <Markdown> with plugins', async ({ runtime }) => {
-  const result = await runtime.load('/astro');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-  assert.equal($('.toc').length, 1, 'Added a TOC');
-  assert.ok($('#hello-world').hasClass('title'), 'Added .title to h1');
-});
-
-MarkdownPlugin.run();

@@ -1,6 +1,5 @@
-
 export default {
   devOptions: {
-    port: 3001
+    port: 5006
   }
 }

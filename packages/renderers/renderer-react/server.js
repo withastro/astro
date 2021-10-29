@@ -1,14 +1,24 @@
-import { Component as BaseComponent, createElement as h, PureComponent } from 'react';
-import { renderToStaticMarkup as reactRenderToStaticMarkup, renderToString } from 'react-dom/server.js';
+import React from 'react';
+import ReactDOM from 'react-dom/server.js';
 import StaticHtml from './static-html.js';
 
 const reactTypeof = Symbol.for('react.element');
 
+function errorIsComingFromPreactComponent(err) {
+  return err.message && (err.message.startsWith("Cannot read property '__H'") || err.message.includes("(reading '__H')"));
+}
+
 function check(Component, props, children) {
+  // Note: there are packages that do some unholy things to create "components".
+  // Checking the $$typeof property catches most of these patterns.
+  if (typeof Component === 'object') {
+    const $$typeof = Component['$$typeof'];
+    return $$typeof && $$typeof.toString().slice('Symbol('.length).startsWith('react');
+  }
   if (typeof Component !== 'function') return false;
 
   if (Component.prototype != null && typeof Component.prototype.render === 'function') {
-    return BaseComponent.isPrototypeOf(Component) || PureComponent.isPrototypeOf(Component);
+    return React.Component.isPrototypeOf(Component) || React.PureComponent.isPrototypeOf(Component);
   }
 
   let error = null;
@@ -20,10 +30,12 @@ function check(Component, props, children) {
         isReactComponent = true;
       }
     } catch (err) {
-      error = err;
+      if (!errorIsComingFromPreactComponent(err)) {
+        error = err;
+      }
     }
 
-    return h('div');
+    return React.createElement('div');
   }
 
   renderToStaticMarkup(Tester, props, children, {});
@@ -35,12 +47,16 @@ function check(Component, props, children) {
 }
 
 function renderToStaticMarkup(Component, props, children, metadata) {
-  const vnode = h(Component, { ...props, children: h(StaticHtml, { value: children }), innerHTML: children });
+  delete props['class'];
+  const vnode = React.createElement(Component, {
+    ...props,
+    children: React.createElement(StaticHtml, { value: children }),
+  });
   let html;
   if (metadata && metadata.hydrate) {
-    html = renderToString(vnode);
+    html = ReactDOM.renderToString(vnode);
   } else {
-    html = reactRenderToStaticMarkup(vnode);
+    html = ReactDOM.renderToStaticMarkup(vnode);
   }
   return { html };
 }

@@ -1,32 +1,39 @@
 ---
-import { renderMarkdown } from '@astrojs/markdown-support';
-
 export interface Props {
   content?: string;
 }
+
+const dedent = (str: string) => str.split('\n').map(ln => ln.trimStart()).join('\n');
 
 // Internal props that should not be part of the external interface.
 interface InternalProps extends Props {
   $scope: string;
 }
 
-const { content, $scope } = Astro.props as InternalProps;
+let { content, class: className } = Astro.props as InternalProps;
 let html = null;
+let htmlContent = '';
 
-// This flow is only triggered if a user passes `<Markdown content={content} />`
-if (content) {
-  const { content: htmlContent } = await renderMarkdown(content, {
-    mode: 'md',
-    $: {
-      scopedClassName: $scope
-    }
-  });
-  html = htmlContent;
+const { privateRenderMarkdownDoNotUse: renderMarkdown } = (Astro as any);
+
+// If no content prop provided, use the slot.
+if (!content) {
+  const { privateRenderSlotDoNotUse: renderSlot } = (Astro as any);
+  content = await renderSlot('default');
+  if (content.trim().length > 0) {
+    content = dedent(content);
+  }
 }
 
-/*
-  If we have rendered `html` for `content`, render that
-  Otherwise, just render the slotted content
-*/
+if (content) {
+  htmlContent = await renderMarkdown(content, {
+    mode: 'md',
+    $: {
+      scopedClassName: className
+    }
+  });
+}
+
+html = htmlContent;
 ---
 {html ? html : <slot />}

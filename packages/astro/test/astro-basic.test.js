@@ -1,123 +1,97 @@
-import { suite } from 'uvu';
-import http from 'http';
-import { promisify } from 'util';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild, setupPreview } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Basics = suite('Basic test');
+describe('Astro basics', () => {
+  let fixture;
+  let previewServer;
 
-setup(Basics, './fixtures/astro-basic', {
-  runtimeOptions: {
-    mode: 'development',
-  },
-});
-setupBuild(Basics, './fixtures/astro-basic');
-setupPreview(Basics, './fixtures/astro-basic');
-
-Basics('Can load page', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  assert.equal($('h1').text(), 'Hello world!');
-});
-
-Basics('Sets the HMR port when dynamic components used', async ({ runtime }) => {
-  const result = await runtime.load('/client');
-  const html = result.contents;
-  assert.ok(/HMR_WEBSOCKET_PORT/.test(html), 'Sets the websocket port');
-});
-
-Basics('Correctly serializes boolean attributes', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  const html = result.contents;
-  const $ = doc(html);
-  assert.equal($('h1').attr('data-something'), '');
-  assert.equal($('h2').attr('not-data-ok'), '');
-});
-
-Basics('Selector with an empty body', async ({ runtime }) => {
-  const result = await runtime.load('/empty-class');
-  const html = result.contents;
-  const $ = doc(html);
-  assert.equal($('.author').length, 1, 'author class added');
-});
-
-Basics('Build does not include HMR client', async ({ build, readFile }) => {
-  await build().catch((err) => {
-    assert.ok(!err, 'Error during the build');
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-basic/' });
+    await fixture.build();
+    previewServer = await fixture.preview();
   });
-  const clientHTML = await readFile('/client/index.html');
-  const $ = doc(clientHTML);
 
-  assert.equal($('script[src="/_snowpack/hmr-client.js"]').length, 0, 'No HMR client script');
-  const hmrPortScript = $('script').filter((i, el) => {
-    return $(el)
-      .text()
-      .match(/window\.HMR_WEBSOCKET_PORT/);
+  // important: close preview server (free up port and connection)
+  after(async () => {
+    if (previewServer) await previewServer.stop();
   });
-  assert.equal(hmrPortScript.length, 0, 'No script setting the websocket port');
-});
 
-Basics('Preview server works as expected', async ({ build, previewServer }) => {
-  await build().catch((err) => {
-    assert.ok(!err, 'Error during the build');
+  describe('build', () => {
+    it('Can load page', async () => {
+      const html = await fixture.readFile(`/index.html`);
+      const $ = cheerio.load(html);
+
+      expect($('h1').text()).to.equal('Hello world!');
+    });
+
+    it('Correctly serializes boolean attributes', async () => {
+      const html = await fixture.readFile('/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('h1').attr('data-something')).to.equal('');
+      expect($('h2').attr('not-data-ok')).to.equal('');
+    });
+
+    it('Selector with an empty body', async () => {
+      const html = await fixture.readFile('/empty-class/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('.author')).to.have.lengthOf(1);
+    });
+
+    it('Allows forward-slashes in mustache tags (#407)', async () => {
+      const html = await fixture.readFile('/forward-slash/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('a[href="/post/one"]')).to.have.lengthOf(1);
+      expect($('a[href="/post/two"]')).to.have.lengthOf(1);
+      expect($('a[href="/post/three"]')).to.have.lengthOf(1);
+    });
+
+    it('Allows spread attributes (#521)', async () => {
+      const html = await fixture.readFile('/spread/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('#spread-leading')).to.have.lengthOf(1);
+      expect($('#spread-leading').attr('a')).to.equal('0');
+      expect($('#spread-leading').attr('b')).to.equal('1');
+      expect($('#spread-leading').attr('c')).to.equal('2');
+
+      expect($('#spread-trailing')).to.have.lengthOf(1);
+      expect($('#spread-trailing').attr('a')).to.equal('0');
+      expect($('#spread-trailing').attr('b')).to.equal('1');
+      expect($('#spread-trailing').attr('c')).to.equal('2');
+    });
+
+    it('Allows spread attributes with TypeScript (#521)', async () => {
+      const html = await fixture.readFile('/spread/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('#spread-ts')).to.have.lengthOf(1);
+      expect($('#spread-ts').attr('a')).to.equal('0');
+      expect($('#spread-ts').attr('b')).to.equal('1');
+      expect($('#spread-ts').attr('c')).to.equal('2');
+    });
+
+    it('Allows using the Fragment element to be used', async () => {
+      const html = await fixture.readFile('/fragment/index.html');
+      const $ = cheerio.load(html);
+
+      // will be 1 if element rendered correctly
+      expect($('#one')).to.have.lengthOf(1);
+    });
   });
-  {
-    const resultOrError = await promisify(http.get)(`http://localhost:${previewServer.address().port}/`).catch((err) => err);
-    assert.equal(resultOrError.statusCode, 200);
-  }
-  {
-    const resultOrError = await promisify(http.get)(`http://localhost:${previewServer.address().port}/bad-url`).catch((err) => err);
-    assert.equal(resultOrError.statusCode, 404);
-  }
+
+  describe('preview', () => {
+    it('returns 200 for valid URLs', async () => {
+      const result = await fixture.fetch('/');
+      expect(result.status).to.equal(200);
+    });
+
+    it('returns 404 for invalid URLs', async () => {
+      const result = await fixture.fetch('/bad-url');
+      expect(result.status).to.equal(404);
+    });
+  });
 });
-
-Basics('Allows forward-slashes in mustache tags (#407)', async ({ runtime }) => {
-  const result = await runtime.load('/forward-slash');
-  const html = result.contents;
-  const $ = doc(html);
-
-  assert.equal($('a[href="/post/one"]').length, 1);
-  assert.equal($('a[href="/post/two"]').length, 1);
-  assert.equal($('a[href="/post/three"]').length, 1);
-});
-
-Basics('Allows spread attributes (#521)', async ({ runtime }) => {
-  const result = await runtime.load('/spread');
-  const html = result.contents;
-  const $ = doc(html);
-
-  assert.equal($('#spread-leading').length, 1);
-  assert.equal($('#spread-leading').attr('a'), '0');
-  assert.equal($('#spread-leading').attr('b'), '1');
-  assert.equal($('#spread-leading').attr('c'), '2');
-
-  assert.equal($('#spread-trailing').length, 1);
-  assert.equal($('#spread-trailing').attr('a'), '0');
-  assert.equal($('#spread-trailing').attr('b'), '1');
-  assert.equal($('#spread-trailing').attr('c'), '2');
-});
-
-Basics('Allows spread attributes with TypeScript (#521)', async ({ runtime }) => {
-  const result = await runtime.load('/spread');
-  const html = result.contents;
-  const $ = doc(html);
-
-  assert.equal($('#spread-ts').length, 1);
-  assert.equal($('#spread-ts').attr('a'), '0');
-  assert.equal($('#spread-ts').attr('b'), '1');
-  assert.equal($('#spread-ts').attr('c'), '2');
-});
-
-Basics('Allows using the Fragment element to be used', async ({ runtime }) => {
-  const result = await runtime.load('/fragment');
-  assert.ok(!result.error, 'No errors thrown');
-  const html = result.contents;
-  const $ = doc(html);
-  assert.equal($('#one').length, 1, 'Element in a fragment rendered');
-});
-
-Basics.run();

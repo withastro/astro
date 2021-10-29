@@ -18,7 +18,7 @@ let permalink = 'https://example.com/';
 
 // Data Fetching: List all Markdown posts in the repo.
 
-let allPosts = Astro.fetchContent<MarkdownFrontmatter>('./posts/*.md');
+let allPosts = await Astro.fetchContent('./posts/*.md');
 allPosts = allPosts.sort((a, b) => new Date(b.publishDate).valueOf() - new Date(a.publishDate).valueOf());
 
 // Full Astro Component Syntax:
@@ -30,14 +30,6 @@ allPosts = allPosts.sort((a, b) => new Date(b.publishDate).valueOf() - new Date(
     <link rel="stylesheet" href="/blog.css" />
 
     <style>
-      body {
-        width: 100%;
-        display: grid;
-        grid-template-rows: 3.5rem 1fr;
-        --gutter: 0.5rem;
-        --doc-padding: 2rem;
-      }
-
       header {
         width: 100%;
         height: 100%;
@@ -75,7 +67,7 @@ allPosts = allPosts.sort((a, b) => new Date(b.publishDate).valueOf() - new Date(
 
   <body>
     <BlogHeader />
-    <div class="layout">
+    <div class="wrapper">
       <main class="content">
         <section class="intro">
           <h1 class="latest">{title}</h1>

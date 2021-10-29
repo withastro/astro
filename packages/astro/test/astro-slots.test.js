@@ -1,133 +1,115 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Slots = suite('Slot test');
+describe('Slots', () => {
+  let fixture;
 
-setup(Slots, './fixtures/astro-slots', {
-  runtimeOptions: {
-    mode: 'development',
-  },
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-slots/' });
+    await fixture.build();
+  });
+
+  it('Basic named slots work', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+
+    expect($('#a').text().trim()).to.equal('A');
+    expect($('#b').text().trim()).to.equal('B');
+    expect($('#c').text().trim()).to.equal('C');
+    expect($('#default').text().trim()).to.equal('Default');
+  });
+
+  it('Dynamic named slots work', async () => {
+    const html = await fixture.readFile('/dynamic/index.html');
+    const $ = cheerio.load(html);
+
+    expect($('#a').text().trim()).to.equal('A');
+    expect($('#b').text().trim()).to.equal('B');
+    expect($('#c').text().trim()).to.equal('C');
+    expect($('#default').text().trim()).to.equal('Default');
+  });
+
+  it('Slots render fallback content by default', async () => {
+    const html = await fixture.readFile('/fallback/index.html');
+    const $ = cheerio.load(html);
+
+    expect($('#default')).to.have.lengthOf(1);
+  });
+
+  it('Slots override fallback content', async () => {
+    const html = await fixture.readFile('/fallback-override/index.html');
+    const $ = cheerio.load(html);
+
+    expect($('#override')).to.have.lengthOf(1);
+  });
+
+  it('Slots work with multiple elements', async () => {
+    const html = await fixture.readFile('/multiple/index.html');
+    const $ = cheerio.load(html);
+
+    expect($('#a').text().trim()).to.equal('ABC');
+  });
+
+  it('Slots work on Components', async () => {
+    const html = await fixture.readFile('/component/index.html');
+    const $ = cheerio.load(html);
+
+    // test 1: #a renders
+    expect($('#a')).to.have.lengthOf(1);
+
+    // test 2: Slotted component into #a
+    expect($('#a').children('astro-component')).to.have.lengthOf(1);
+
+    // test 3: Slotted component into default slot
+    expect($('#default').children('astro-component')).to.have.lengthOf(1);
+  });
+
+  it('Slots API work on Components', async () => {
+    // IDs will exist whether the slots are filled or not
+    {
+      const html = await fixture.readFile('/slottedapi-default/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('#a')).to.have.lengthOf(1);
+      expect($('#b')).to.have.lengthOf(1);
+      expect($('#c')).to.have.lengthOf(1);
+      expect($('#default')).to.have.lengthOf(1);
+    }
+
+    // IDs will not exist because the slots are not filled
+    {
+      const html = await fixture.readFile('/slottedapi-empty/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('#a')).to.have.lengthOf(0);
+      expect($('#b')).to.have.lengthOf(0);
+      expect($('#c')).to.have.lengthOf(0);
+      expect($('#default')).to.have.lengthOf(0);
+    }
+
+    // IDs will exist because the slots are filled
+    {
+      const html = await fixture.readFile('/slottedapi-filled/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('#a')).to.have.lengthOf(1);
+      expect($('#b')).to.have.lengthOf(1);
+      expect($('#c')).to.have.lengthOf(1);
+
+      expect($('#default')).to.have.lengthOf(0); // the default slot is not filled
+    }
+
+    // Default ID will exist because the default slot is filled
+    {
+      const html = await fixture.readFile('/slottedapi-default-filled/index.html');
+      const $ = cheerio.load(html);
+
+      expect($('#a')).to.have.lengthOf(0);
+      expect($('#b')).to.have.lengthOf(0);
+      expect($('#c')).to.have.lengthOf(0);
+
+      expect($('#default')).to.have.lengthOf(1); // the default slot is filled
+    }
+  });
 });
-setupBuild(Slots, './fixtures/astro-slots');
-
-Slots('Basic named slots work', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  assert.equal($('#a').text(), 'A');
-  assert.equal($('#b').text(), 'B');
-  assert.equal($('#c').text(), 'C');
-  assert.equal($('#default').text(), 'Default');
-});
-
-Slots('Dynamic named slots work', async ({ runtime }) => {
-  const result = await runtime.load('/dynamic');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  assert.equal($('#a').text(), 'A');
-  assert.equal($('#b').text(), 'B');
-  assert.equal($('#c').text(), 'C');
-  assert.equal($('#default').text(), 'Default');
-});
-
-Slots('Slots render fallback content by default', async ({ runtime }) => {
-  const result = await runtime.load('/fallback');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  assert.equal($('#default').length, 1);
-});
-
-Slots('Slots override fallback content', async ({ runtime }) => {
-  const result = await runtime.load('/fallback-override');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  assert.equal($('#override').length, 1);
-});
-
-Slots('Slots work with multiple elements', async ({ runtime }) => {
-  const result = await runtime.load('/multiple');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  assert.equal($('#a').text(), 'ABC');
-});
-
-Slots('Slots work on Components', async ({ runtime }) => {
-  const result = await runtime.load('/component');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  assert.equal($('#a').length, 1);
-  assert.equal($('#a').children('astro-component').length, 1, 'Slotted component into #a');
-  assert.equal($('#default').children('astro-component').length, 1, 'Slotted component into default slot');
-});
-
-Slots('Slots API work on Components', async ({ runtime }) => {
-  // IDs will exist whether the slots are filled or not
-  {
-    const result = await runtime.load('/slottedapi-default');
-    assert.ok(!result.error, `build error: ${result.error}`);
-
-    const $ = doc(result.contents);
-
-    assert.equal($('#a').length, 1);
-    assert.equal($('#b').length, 1);
-    assert.equal($('#c').length, 1);
-    assert.equal($('#default').length, 1);
-  }
-
-  // IDs will not exist because the slots are not filled
-  {
-    const result = await runtime.load('/slottedapi-empty');
-    assert.ok(!result.error, `build error: ${result.error}`);
-
-    const $ = doc(result.contents);
-
-    assert.equal($('#a').length, 0);
-    assert.equal($('#b').length, 0);
-    assert.equal($('#c').length, 0);
-    assert.equal($('#default').length, 0);
-  }
-
-  // IDs will exist because the slots are filled
-  {
-    const result = await runtime.load('/slottedapi-filled');
-    assert.ok(!result.error, `build error: ${result.error}`);
-
-    const $ = doc(result.contents);
-
-    assert.equal($('#a').length, 1);
-    assert.equal($('#b').length, 1);
-    assert.equal($('#c').length, 1);
-
-    assert.equal($('#default').length, 0); // the default slot is not filled
-  }
-
-  // Default ID will exist because the default slot is filled
-  {
-    const result = await runtime.load('/slottedapi-default-filled');
-    assert.ok(!result.error, `build error: ${result.error}`);
-
-    const $ = doc(result.contents);
-
-    assert.equal($('#a').length, 0);
-    assert.equal($('#b').length, 0);
-    assert.equal($('#c').length, 0);
-
-    assert.equal($('#default').length, 1); // the default slot is filled
-  }
-});
-
-Slots.run();

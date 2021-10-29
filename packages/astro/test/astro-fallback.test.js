@@ -1,18 +1,21 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Fallback = suite('Dynamic component fallback');
+describe('Dynamic component fallback', () => {
+  let fixture;
 
-setup(Fallback, './fixtures/astro-fallback');
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-fallback',
+      renderers: ['@astrojs/renderer-preact'],
+    });
+    await fixture.build();
+  });
 
-Fallback('Shows static content', async (context) => {
-  const result = await context.runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-  assert.equal($('#fallback').text(), 'static');
+  it('Shows static content', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    expect($('#fallback').text()).to.equal('static');
+  });
 });
-
-Fallback.run();

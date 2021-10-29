@@ -4,14 +4,15 @@
   "type": "module",
   "exports": {
     ".": "./index.js",
-    "./client": "./client.js",
-    "./server": "./server.js",
+    "./*": "./*",
+    "./client.js": "./client.js",
+    "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
   "dependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.14.9",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "@babel/plugin-transform-react-jsx": "^7.14.5"
+    "react-dom": "^17.0.2"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"

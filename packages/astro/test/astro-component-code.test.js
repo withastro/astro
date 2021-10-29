@@ -1,84 +1,84 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Components = suite('<Code>');
+let fixture;
 
-setup(Components, './fixtures/astro-component-code');
-
-Components('<Code> without lang or theme', async ({ runtime }) => {
-  let result = await runtime.load('/no-lang');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-  assert.equal($('pre').length, 1);
-  assert.equal($('pre').attr('style'), 'background-color: #0d1117; overflow-x: auto;', 'applies default and overflow');
-  assert.equal($('pre > code').length, 1);
-  assert.ok($('pre > code span').length > 1, 'contains some generated spans');
+before(async () => {
+  fixture = await loadFixture({ projectRoot: './fixtures/astro-component-code/' });
+  await fixture.build();
 });
 
-Components('<Code lang="...">', async ({ runtime }) => {
-  let result = await runtime.load('/basic');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-  assert.equal($('pre').length, 1);
-  assert.equal($('pre').attr('class'), 'astro-code');
-  assert.equal($('pre > code').length, 1);
-  assert.ok($('pre > code span').length >= 6, 'contains many generated spans');
-});
+describe('<Code', () => {
+  it('<Code> without lang or theme', async () => {
+    let html = await fixture.readFile('/no-lang/index.html');
+    const $ = cheerio.load(html);
+    expect($('pre')).to.have.lengthOf(1);
+    expect($('pre').attr('style')).to.equal('background-color: #0d1117; overflow-x: auto;', 'applies default and overflow');
+    expect($('pre > code')).to.have.lengthOf(1);
 
-Components('<Code theme="...">', async ({ runtime }) => {
-  let result = await runtime.load('/custom-theme');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-  assert.equal($('pre').length, 1);
-  assert.equal($('pre').attr('class'), 'astro-code');
-  assert.equal($('pre').attr('style'), 'background-color: #2e3440ff; overflow-x: auto;', 'applies custom theme');
-});
+    // test: contains some generated spans
+    expect($('pre > code span').length).to.be.greaterThan(1);
+  });
 
-Components('<Code wrap>', async ({ runtime }) => {
-  {
-    let result = await runtime.load('/wrap-true');
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-    assert.equal($('pre').length, 1);
-    assert.equal($('pre').attr('style'), 'background-color: #0d1117; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;', 'applies wrap overflow');
-  }
-  {
-    let result = await runtime.load('/wrap-false');
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-    assert.equal($('pre').length, 1);
-    assert.equal($('pre').attr('style'), 'background-color: #0d1117; overflow-x: auto;', 'applies wrap overflow');
-  }
-  {
-    let result = await runtime.load('/wrap-null');
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-    assert.equal($('pre').length, 1);
-    assert.equal($('pre').attr('style'), 'background-color: #0d1117', 'applies wrap overflow');
-  }
-});
+  it('<Code lang="...">', async () => {
+    let html = await fixture.readFile('/basic/index.html');
+    const $ = cheerio.load(html);
+    expect($('pre')).to.have.lengthOf(1);
+    expect($('pre').attr('class'), 'astro-code');
+    expect($('pre > code')).to.have.lengthOf(1);
+    // test: contains many generated spans
+    expect($('pre > code span').length).to.be.greaterThanOrEqual(6);
+  });
 
-Components('<Code lang="..." theme="css-variables">', async ({ runtime }) => {
-  let result = await runtime.load('/css-theme');
-  assert.ok(!result.error, `build error: ${result.error}`);
-  const $ = doc(result.contents);
-  assert.equal($('pre').length, 1);
-  assert.equal($('pre').attr('class'), 'astro-code');
-  assert.equal(
-    $('pre, pre span')
-      .map((i, f) => (f.attribs ? f.attribs.style : 'no style found'))
-      .toArray(),
-    [
+  it('<Code theme="...">', async () => {
+    let html = await fixture.readFile('/custom-theme/index.html');
+    const $ = cheerio.load(html);
+    expect($('pre')).to.have.lengthOf(1);
+    expect($('pre').attr('class')).to.equal('astro-code');
+    expect($('pre').attr('style')).to.equal('background-color: #2e3440ff; overflow-x: auto;', 'applies custom theme');
+  });
+
+  it('<Code wrap>', async () => {
+    {
+      let html = await fixture.readFile('/wrap-true/index.html');
+      const $ = cheerio.load(html);
+      expect($('pre')).to.have.lengthOf(1);
+      // test: applies wrap overflow
+      expect($('pre').attr('style')).to.equal('background-color: #0d1117; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;');
+    }
+    {
+      let html = await fixture.readFile('/wrap-false/index.html');
+      const $ = cheerio.load(html);
+      expect($('pre')).to.have.lengthOf(1);
+      // test: applies wrap overflow
+      expect($('pre').attr('style')).to.equal('background-color: #0d1117; overflow-x: auto;');
+    }
+    {
+      let html = await fixture.readFile('/wrap-null/index.html');
+      const $ = cheerio.load(html);
+      expect($('pre')).to.have.lengthOf(1);
+      // test: applies wrap overflow
+      expect($('pre').attr('style')).to.equal('background-color: #0d1117');
+    }
+  });
+
+  it('<Code lang="..." theme="css-variables">', async () => {
+    let html = await fixture.readFile('/css-theme/index.html');
+    const $ = cheerio.load(html);
+    expect($('pre')).to.have.lengthOf(1);
+    expect($('pre').attr('class')).to.equal('astro-code');
+    expect(
+      $('pre, pre span')
+        .map((i, f) => (f.attribs ? f.attribs.style : 'no style found'))
+        .toArray()
+    ).to.deep.equal([
       'background-color: var(--astro-code-color-background); overflow-x: auto;',
       'color: var(--astro-code-token-constant)',
       'color: var(--astro-code-token-function)',
       'color: var(--astro-code-color-text)',
       'color: var(--astro-code-token-string-expression)',
       'color: var(--astro-code-color-text)',
-    ]
-  );
+    ]);
+  });
 });
-
-Components.run();

@@ -1,9 +1,10 @@
 ---
+import MoreMenu from '../RightSidebar/MoreMenu.astro';
+import TableOfContents from '../RightSidebar/TableOfContents.tsx';
+
 const {content, githubEditUrl} = Astro.props;
 const title = content.title;
 const headers = content.astro.headers;
-import MoreMenu from '../RightSidebar/MoreMenu.astro';
-import TableOfContents from '../RightSidebar/TableOfContents.tsx';
 ---
 <style>
       .content {
@@ -31,7 +32,7 @@ import TableOfContents from '../RightSidebar/TableOfContents.tsx';
     <section class="main-section">
         <h1 class="content-title" id="overview">{title}</h1>
         <nav class="block sm:hidden">
-            <TableOfContents client:media="(max-width: 50em)" headers={headers}/>
+            <TableOfContents client:media="(max-width: 50em)" headers={headers} />
         </nav>
         <slot />
     </section>

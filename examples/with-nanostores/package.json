@@ -8,13 +8,11 @@
     "build": "astro build",
     "preview": "astro preview"
   },
-  "devDependencies": {
-    "astro": "^0.20.12"
-  },
   "dependencies": {
     "nanostores": "^0.3.3"
   },
-  "snowpack": {
-    "workspaceRoot": "../.."
+  "devDependencies": {
+    "@astrojs/renderer-solid": "^0.1.1",
+    "astro": "^0.20.12"
   }
 }

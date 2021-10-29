@@ -4,13 +4,14 @@
   "type": "module",
   "exports": {
     ".": "./index.js",
-    "./client": "./client.js",
-    "./server": "./server.js",
+    "./*": "./*",
+    "./client.js": "./client.js",
+    "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "svelte": "^3.35.0",
-    "@snowpack/plugin-svelte": "^3.7.0"
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.29",
+    "svelte": "^3.44.0"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"

@@ -3,9 +3,10 @@
   "include": ["src", "index.d.ts"],
   "compilerOptions": {
     "allowJs": true,
-    "target": "ES2019",
+    "declarationDir": "./dist/types",
     "module": "ES2020",
     "outDir": "./dist",
-    "declarationDir": "./dist/types"
+    "target": "ES2019",
+    "types": ["vite/client"]
   }
 }

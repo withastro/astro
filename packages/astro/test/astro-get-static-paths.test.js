@@ -1,13 +1,22 @@
-import { suite } from 'uvu';
-import { setupBuild } from './helpers.js';
+import { expect } from 'chai';
+import { loadFixture } from './test-utils.js';
 
-const GetStaticPaths = suite('getStaticPaths()');
+describe('getStaticPaths()', () => {
+  let fixture;
 
-setupBuild(GetStaticPaths, './fixtures/astro-get-static-paths');
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-get-static-paths/',
+      buildOptions: {
+        site: 'https://mysite.dev/blog/',
+        sitemap: false,
+      },
+    });
+    await fixture.build();
+  });
 
-GetStaticPaths('is only called once during build', async (context) => {
-  // It would throw if this was not true
-  await context.build();
+  it('is only called once during build', () => {
+    // useless expect; if build() throws in setup then this test fails
+    expect(true).to.equal(true);
+  });
 });
-
-GetStaticPaths.run();

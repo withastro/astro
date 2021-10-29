@@ -1,18 +1,30 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Fetch = suite('Global Fetch');
+describe('Global Fetch', () => {
+  let fixture;
 
-setup(Fetch, './fixtures/fetch');
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/fetch/' });
+    await fixture.build();
+  });
 
-Fetch('Is available in non-Astro components.', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-  assert.equal($('#jsx').text(), 'function');
+  it('Is available in Astro pages', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    expect($('#astro-page').text()).to.equal('function', 'Fetch supported in .astro page');
+  });
+  it('Is available in Astro components', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    expect($('#astro-component').text()).to.equal('function', 'Fetch supported in .astro components');
+  });
+  it('Is available in non-Astro components', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    expect($('#jsx').text()).to.equal('function', 'Fetch supported in .jsx');
+    expect($('#svelte').text()).to.equal('function', 'Fetch supported in .svelte');
+    expect($('#vue').text()).to.equal('function', 'Fetch supported in .vue');
+  });
 });
-
-Fetch.run();

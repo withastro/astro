@@ -1,26 +1,37 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup, setupBuild } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Vue = suite('Vue component test');
+describe('Vue component', () => {
+  let fixture;
 
-setup(Vue, './fixtures/vue-component');
-setupBuild(Vue, './fixtures/vue-component');
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/vue-component/',
+      renderers: ['@astrojs/renderer-vue'],
+    });
+    await fixture.build();
+  });
 
-Vue('Can load Vue', async ({ runtime }) => {
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  it('Can load Vue', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
-  const allPreValues = $('pre')
-    .toArray()
-    .map((el) => $(el).text());
-  assert.equal(allPreValues, ['0', '1', '10', '100', '1000'], 'renders all components correctly');
-  assert.equal($('astro-root').length, 4, 'renders 3 astro-roots');
-  assert.equal($('astro-root[uid]').length, 4, 'all astro-roots have uid attributes');
-  const uniqueRootUIDs = $('astro-root').map((i, el) => $(el).attr('uid'));
-  assert.equal(new Set(uniqueRootUIDs).size, 4, 'all astro-roots have unique uid attributes');
+    const allPreValues = $('pre')
+      .toArray()
+      .map((el) => $(el).text());
+
+    // test 1: renders all components correctly
+    expect(allPreValues).to.deep.equal(['0', '1', '10', '100', '1000']);
+
+    // test 2: renders 3 <astro-root>s
+    expect($('astro-root')).to.have.lengthOf(4);
+
+    // test 3: all <astro-root>s have uid attributes
+    expect($('astro-root[uid]')).to.have.lengthOf(4);
+
+    // test 5: all <astro-root>s have unique uid attributes
+    const uniqueRootUIDs = $('astro-root').map((i, el) => $(el).attr('uid'));
+    expect(new Set(uniqueRootUIDs).size).to.equal(4);
+  });
 });
-
-Vue.run();

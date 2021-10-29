@@ -1,21 +1,18 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { setup, setupBuild } from './helpers.js';
+import { expect } from 'chai';
+import { loadFixture } from './test-utils.js';
 
-const Public = suite('Public');
+describe('Public', () => {
+  let fixture;
 
-setup(Public, './fixtures/astro-public');
-setupBuild(Public, './fixtures/astro-public');
-
-Public('css and js files do not get bundled', async ({ build, readFile }) => {
-  await build().catch((err) => {
-    assert.ok(!err, 'Error during the build');
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-public/' });
+    await fixture.build();
   });
 
-  let indexHtml = await readFile('/index.html');
-  assert.ok(indexHtml.includes('<script src="/example.js"></script>'));
-  assert.ok(indexHtml.includes('<link href="/example.css" ref="stylesheet">'));
-  assert.ok(indexHtml.includes('<img src="/images/twitter.png">'));
+  it('css and js files do not get bundled', async () => {
+    let indexHtml = await fixture.readFile('/index.html');
+    expect(indexHtml).to.include('<script src="/example.js"></script>');
+    expect(indexHtml).to.include('<link href="/example.css" ref="stylesheet">');
+    expect(indexHtml).to.include('<img src="/images/twitter.png">');
+  });
 });
-
-Public.run();

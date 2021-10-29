@@ -5,19 +5,14 @@
   "type": "module",
   "exports": {
     ".": "./index.js",
+    "./*": "./*",
     "./server.js": "./server.js",
     "./client-shim.js": "./client-shim.js",
     "./package.json": "./package.json"
   },
-  "files": [
-    "index.js",
-    "client-shim.js",
-    "server.js",
-    "server-shim.js"
-  ],
   "dependencies": {
     "@lit-labs/ssr": "^1.0.0",
     "@webcomponents/template-shadowroot": "^0.1.0",
-    "lit": "^2.0.0"
+    "lit": "^2.0.2"
   }
 }

@@ -9,10 +9,8 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "tailwindcss": "^2.1.2",
-    "astro": "^0.20.12"
-  },
-  "snowpack": {
-    "workspaceRoot": "../.."
+    "astro": "^0.20.12",
+    "autoprefixer": "^10.3.7",
+    "tailwindcss": "^2.2.17"
   }
 }

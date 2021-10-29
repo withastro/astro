@@ -1,54 +1,57 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Global = suite('Astro.*');
+describe('Astro.*', () => {
+  let fixture;
 
-setup(Global, './fixtures/astro-global');
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/astro-global/',
+      buildOptions: {
+        site: 'https://mysite.dev/blog/',
+        sitemap: false,
+      },
+    });
+    await fixture.build();
+  });
 
-Global('Astro.request.url', async (context) => {
-  const result = await context.runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
+  it('Astro.request.url', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
-  assert.equal($('#pathname').text(), '/');
-  assert.equal($('#child-pathname').text(), '/');
-  assert.equal($('#nested-child-pathname').text(), '/');
+    expect($('#pathname').text()).to.equal('/');
+    expect($('#child-pathname').text()).to.equal('/');
+    expect($('#nested-child-pathname').text()).to.equal('/');
+  });
+
+  it('Astro.request.canonicalURL', async () => {
+    // given a URL, expect the following canonical URL
+    const canonicalURLs = {
+      '/index.html': 'https://mysite.dev/blog/',
+      '/post/post/index.html': 'https://mysite.dev/blog/post/post/',
+      '/posts/1/index.html': 'https://mysite.dev/blog/posts/',
+      '/posts/2/index.html': 'https://mysite.dev/blog/posts/2/',
+    };
+
+    for (const [url, canonicalURL] of Object.entries(canonicalURLs)) {
+      const html = await fixture.readFile(url);
+
+      const $ = cheerio.load(html);
+      expect($('link[rel="canonical"]').attr('href')).to.equal(canonicalURL);
+    }
+  });
+
+  it('Astro.site', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    expect($('#site').attr('href')).to.equal('https://mysite.dev/blog/');
+  });
+
+  it('Astro.resolve in development', async () => {
+    const html = await fixture.readFile('/resolve/index.html');
+    const $ = cheerio.load(html);
+    expect($('img').attr('src')).to.include('/src/images/penguin.png');
+    expect($('#inner-child img').attr('src')).to.include('/src/components/nested/images/penguin.png');
+  });
 });
-
-Global('Astro.request.canonicalURL', async (context) => {
-  // given a URL, expect the following canonical URL
-  const canonicalURLs = {
-    '/': 'https://mysite.dev/blog/',
-    '/post/post': 'https://mysite.dev/blog/post/post/',
-    '/posts/1': 'https://mysite.dev/blog/posts/',
-    '/posts/2': 'https://mysite.dev/blog/posts/2/',
-  };
-
-  for (const [url, canonicalURL] of Object.entries(canonicalURLs)) {
-    const result = await context.runtime.load(url);
-    const $ = doc(result.contents);
-    assert.equal($('link[rel="canonical"]').attr('href'), canonicalURL);
-  }
-});
-
-Global('Astro.site', async (context) => {
-  const result = await context.runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-  assert.equal($('#site').attr('href'), 'https://mysite.dev/blog/');
-});
-
-Global('Astro.resolve in development', async (context) => {
-  const result = await context.runtime.load('/resolve');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const html = result.contents;
-  const $ = doc(html);
-  assert.equal($('img').attr('src'), '/_astro/src/images/penguin.png');
-  assert.equal($('#inner-child img').attr('src'), '/_astro/src/components/nested/images/penguin.png');
-});
-
-Global.run();

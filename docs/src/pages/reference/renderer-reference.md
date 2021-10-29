@@ -38,8 +38,8 @@ A renderer should include any framework dependencies as package dependencies. Fo
 // package.json
 "name": "@astrojs/renderer-react",
 "dependencies": {
-  "react": "^17.0.0",
-  "react-dom": "^17.0.0"
+  "react": "^17.0.2",
+  "react-dom": "^17.0.2"
 }
 ```
 
@@ -49,22 +49,32 @@ This means that Astro users don't need to install the UI framework packages them
 
 The main entrypoint of a renderer is a simple JS file which exports a manifest for the renderer. The required values are `name`, `server`, and `client`.
 
-Additionally, this entrypoint can define a [Snowpack plugin](https://www.snowpack.dev/guides/plugins) that should be used to load non-JavaScript files.
+Additionally, this entrypoint can define a [Vite config object](https://vitejs.dev/config/) that should be used to load non-JavaScript files.
 
 ```js
+import myVitePlugin from 'vite-plugin-myplugin';
+
 export default {
   name: '@astrojs/renderer-xxx', // the renderer name
   client: './client.js', // relative path to the client entrypoint
-  server: './server.js', // optional, relative path to the server entrypoint
-  snowpackPlugin: '@snowpack/plugin-xxx', // optional, the name of a snowpack plugin to inject
-  snowpackPluginOptions: { example: true }, // optional, any options to be forwarded to the snowpack plugin
-  knownEntrypoints: ['framework'], // optional, entrypoint modules that will be used by compiled source
-  external: ['dep'], // optional, dependencies that should not be built by snowpack
-  polyfills: ['./shadow-dom-polyfill.js'], // optional, module scripts that should be loaded before client hydration.
-  hydrationPolyfills: ['./hydrate-framework.js'], // optional, polyfills that need to run before hydration ever occurs.
-  jsxImportSource: 'preact', // optional, the name of the library from which JSX is imported
-  jsxTransformOptions: async () => {
-    // optional, a function to transform JSX files
+  server: './server.js', // (optional) relative path to the server entrypoint
+  viteConfig(options = { mode: 'development', command: 'serve' }) {
+    // (optional) return config object for Vite (https://vitejs.dev/config/)
+    return {
+      plugins: [myVitePlugin()], // tip: usually this will depend on a Vite plugin
+      optimizeDeps: {
+        include: ['my-client-dep'], // tip: it’s always a good idea to specify any client-side hydration deps here
+      },
+      ssr: {
+        external: ['my-client-dep/node/server.js'], // tip: use ssr.external in case you encounter code meant only for Node
+      },
+    };
+  },
+  polyfills: ['./shadow-dom-polyfill.js'], // (optional) scripts that should be injected on the page for the component
+  hydrationPolyfills: ['./hydrate-framework.js'], // (optional) polyfills that need to run before hydration ever occurs
+  jsxImportSource: 'preact', // (optional) the name of the library from which JSX is imported ("react", "preact", "solid-js", etc.)
+  jsxTransformOptions: async (options = { mode: 'development', ssr: true }) => {
+    // (optional) a function to transform JSX files
     const {
       default: { default: jsx },
     } = await import('@babel/plugin-transform-react-jsx');
@@ -91,19 +101,15 @@ This is an `async` function that returns information about how to transform matc
 
 > Keep in mind that this transform doesn't need to handle TSX separately from JSX, Astro handles that for you!
 
-The arguments passed to `jsxTransformOptions` follow Snowpack's `load()` plugin hook. These allow you to pass separate Babel configurations for various conditions, like if your files should be compiled differently in SSR mode.
+`jsxTransformOptions` receives context about whether it’s running in `development` or `production` mode, as well as whether or not it’s running in SSR or client hydration. These allow you to pass separate Babel configurations for various conditions, like if your files should be compiled differently in SSR mode.
 
 ```ts
 export interface JSXTransformOptions {
   (context: {
-    /** True if builder is in dev mode (`astro dev`) */
-    isDev: boolean;
-    /** True if HMR is enabled (add any HMR code to the output here). */
-    isHmrEnabled: boolean;
+    /** "development" or "production" */
+    mode: string;
     /** True if builder is in SSR mode */
-    isSSR: boolean;
-    /** True if file being transformed is inside of a package. */
-    isPackage: boolean;
+    ssr: boolean;
   }) => {
     plugins?: any[];
     presets?: any[];

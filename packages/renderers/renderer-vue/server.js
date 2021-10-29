@@ -3,7 +3,7 @@ import { h, createSSRApp } from 'vue';
 import StaticHtml from './static-html.js';
 
 function check(Component) {
-  return Component['ssrRender'];
+  return !!Component['ssrRender'];
 }
 
 async function renderToStaticMarkup(Component, props, children) {

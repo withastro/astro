@@ -1,44 +1,57 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const LitElement = suite('LitElement test');
+let fixture;
 
-setup(LitElement, './fixtures/lit-element');
+const NODE_VERSION = parseFloat(process.versions.node);
 
-LitElement('Renders a custom element by tag name', async ({ runtime }) => {
-  // lit SSR is not currently supported on Node.js < 13
-  if (process.versions.node <= '13') {
+before(async () => {
+  // @lit-labs/ssr/ requires Node 13.9 or higher
+  if (NODE_VERSION < 13.9) {
     return;
   }
-  const result = await runtime.load('/');
-  assert.ok(!result.error, `build error: ${result.error}`);
-
-  const $ = doc(result.contents);
-
-  assert.equal($('my-element').attr('foo'), 'bar', 'attributes rendered');
-  assert.ok($('my-element').html().includes(`<div>Testing...</div>`), 'shadow rendered');
+  fixture = await loadFixture({
+    projectRoot: './fixtures/lit-element/',
+    renderers: ['@astrojs/renderer-lit'],
+  });
+  await fixture.build();
 });
 
-// Skipped because not supported by Lit
-LitElement.skip('Renders a custom element by the constructor', async ({ runtime }) => {
-  const result = await runtime.load('/ctr');
-  assert.ok(!result.error, `build error: ${result.error}`);
+describe('LitElement test', () => {
+  it('Renders a custom element by tag name', async () => {
+    // @lit-labs/ssr/ requires Node 13.9 or higher
+    if (NODE_VERSION < 13.9) {
+      return;
+    }
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
 
-  const $ = doc(result.contents);
+    // test 1: attributes rendered
+    expect($('my-element').attr('foo')).to.equal('bar');
 
-  assert.equal($('my-element').attr('foo'), 'bar', 'attributes rendered');
-  assert.ok($('my-element').html().includes(`<div>Testing...</div>`), 'shadow rendered');
+    // test 2: shadow rendered
+    expect($('my-element').html()).to.include(`<div>Testing...</div>`);
+  });
+
+  // Skipped because not supported by Lit
+  it.skip('Renders a custom element by the constructor', async () => {
+    const html = await fixture.fetch('/ctr/index.html');
+    const $ = cheerio.load(html);
+
+    // test 1: attributes rendered
+    expect($('my-element').attr('foo')).to.equal('bar');
+
+    // test 2: shadow rendered
+    expect($('my-element').html()).to.include(`<div>Testing...</div>`);
+  });
 });
 
-// The Lit renderer adds browser globals that interfere with other tests, so remove them now.
-LitElement.after(() => {
+after(async () => {
+  // The Lit renderer adds browser globals that interfere with other tests, so remove them now.
   const globals = Object.keys(globalThis.window || {});
   globals.splice(globals.indexOf('global'), 1);
   for (let name of globals) {
     delete globalThis[name];
   }
 });
-
-LitElement.run();

@@ -1,5 +1,8 @@
 ---
-import Child from '../components/Child.jsx';
+import Test from '../components/AstroComponent.astro';
+import JsxComponent from '../components/JsxComponent.jsx';
+import SvelteComponent from '../components/SvelteComponent.svelte';
+import VueComponent from '../components/VueComponent.vue';
 ---
 
 <html lang="en">
@@ -7,6 +10,10 @@ import Child from '../components/Child.jsx';
   <title>Global fetch</title>
 </head>
 <body>
-  <Child />
+  <span id="astro-page">{typeof fetch}</span>
+  <Test />
+  <JsxComponent />
+  <SvelteComponent />
+  <VueComponent />
 </body>
 </html>

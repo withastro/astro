@@ -3,3 +3,4 @@
 !packages/astro/**/*.js
 !packages/astro/**/*.ts
 packages/astro/test/**/*.js
+packages/astro/vendor/vite/**/*

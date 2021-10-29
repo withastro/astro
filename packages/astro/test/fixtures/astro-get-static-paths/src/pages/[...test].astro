@@ -1,5 +1,5 @@
 ---
-export function getStaticPaths({paginate}) {
+export function getStaticPaths({ paginate }) {
   if (globalThis.isCalledOnce) {
     throw new Error("Can only be called once!");
   }
@@ -10,7 +10,7 @@ export function getStaticPaths({paginate}) {
     {params: {test: 'c'}},
   ];
 }
-const { params} = Astro.request;
+const { params } = Astro.request;
 ---
 
 <html>

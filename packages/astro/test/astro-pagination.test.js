@@ -1,67 +1,47 @@
-import { suite } from 'uvu';
-import * as assert from 'uvu/assert';
-import { doc } from './test-utils.js';
-import { setup } from './helpers.js';
+import { expect } from 'chai';
+import cheerio from 'cheerio';
+import { loadFixture } from './test-utils.js';
 
-const Global = suite('Astro.*');
+let fixture;
 
-setup(Global, './fixtures/astro-pagination');
-
-Global('optional root page', async (context) => {
-  {
-    const result = await context.runtime.load('/posts/optional-root-page/');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-  {
-    const result = await context.runtime.load('/posts/optional-root-page/2');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-  {
-    const result = await context.runtime.load('/posts/optional-root-page/3');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
+before(async () => {
+  fixture = await loadFixture({
+    projectRoot: './fixtures/astro-pagination/',
+    buildOptions: {
+      site: 'https://mysite.dev/blog/',
+      sitemap: false,
+    },
+  });
+  await fixture.build();
 });
 
-Global('named root page', async (context) => {
-  {
-    const result = await context.runtime.load('/posts/named-root-page/1');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-  {
-    const result = await context.runtime.load('/posts/named-root-page/2');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-  {
-    const result = await context.runtime.load('/posts/named-root-page/3');
-    assert.ok(!result.error, `build error: ${result.error}`);
-  }
-});
+describe('Pagination', () => {
+  it('optional root page', async () => {
+    for (const file of ['/posts/optional-root-page/index.html', '/posts/optional-root-page/2/index.html', '/posts/optional-root-page/3/index.html']) {
+      expect(await fixture.readFile(file)).to.be.ok;
+    }
+  });
 
-Global('multiple params', async (context) => {
-  {
-    const result = await context.runtime.load('/posts/red/1');
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-    assert.equal($('#page-a').text(), '1');
-    assert.equal($('#page-b').text(), '1');
-    assert.equal($('#filter').text(), 'red');
-  }
-  {
-    const result = await context.runtime.load('/posts/blue/1');
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-    assert.equal($('#page-a').text(), '1');
-    assert.equal($('#page-b').text(), '1');
-    assert.equal($('#filter').text(), 'blue');
-  }
-  {
-    const result = await context.runtime.load('/posts/blue/2');
-    assert.ok(!result.error, `build error: ${result.error}`);
-    const $ = doc(result.contents);
-    assert.equal($('#page-a').text(), '2');
-    assert.equal($('#page-b').text(), '2');
-    assert.equal($('#filter').text(), 'blue');
-  }
-});
+  it('named root page', async () => {
+    for (const file of ['/posts/named-root-page/1/index.html', '/posts/named-root-page/2/index.html', '/posts/named-root-page/3/index.html']) {
+      expect(await fixture.readFile(file)).to.be.ok;
+    }
+  });
 
-Global.run();
+  it('multiple params', async () => {
+    const params = [
+      { color: 'red', p: '1' },
+      { color: 'blue', p: '1' },
+      { color: 'blue', p: '2' },
+    ];
+    await Promise.all(
+      params.map(async ({ color, p }) => {
+        const html = await fixture.readFile(`/posts/${color}/${p}/index.html`);
+        const $ = cheerio.load(html);
+        expect($('#page-a').text()).to.equal(p);
+        expect($('#page-b').text()).to.equal(p);
+        expect($('#filter').text()).to.equal(color);
+      })
+    );
+  });
+});

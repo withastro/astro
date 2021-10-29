@@ -4,14 +4,16 @@
   "type": "module",
   "exports": {
     ".": "./index.js",
-    "./client": "./client.js",
-    "./server": "./server.js",
+    "./*": "./*",
+    "./compat": "./compat/index.js",
+    "./client.js": "./client.js",
+    "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "preact": "^10.5.13",
-    "preact-render-to-string": "^5.1.18",
-    "@babel/plugin-transform-react-jsx": "^7.14.5"
+    "@babel/plugin-transform-react-jsx": "^7.14.9",
+    "preact": "^10.5.15",
+    "preact-render-to-string": "^5.1.19"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
