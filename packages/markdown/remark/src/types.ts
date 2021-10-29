@@ -4,7 +4,7 @@ export type UnifiedPluginImport = Promise<{ default: unified.Plugin }>;
 export type Plugin = string | [string, any] | UnifiedPluginImport | [UnifiedPluginImport, any];
 
 export interface AstroMarkdownOptions {
-  mode?: 'md' | 'mdx';
+  mode?: 'md'|'mdx';
   remarkPlugins?: Plugin[];
   rehypePlugins?: Plugin[];
 }

@@ -20,7 +20,7 @@ export default {
           '@webcomponents/template-shadowroot/template-shadowroot.js',
           'lit/experimental-hydrate-support.js',
         ],
-        exclude: ['@astrojs/renderer-lit/server.js'],
+        exclude: ['@astrojs/renderer-lit/server.js']
       },
       ssr: {
         external: [

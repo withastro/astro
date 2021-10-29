@@ -15,7 +15,7 @@ export interface RollupCommonJSOptions {
    * statements or `transformMixedEsModules` is `true`.
    * @default undefined
    */
-  include?: string | RegExp | readonly (string | RegExp)[];
+  include?: string | RegExp | readonly (string | RegExp)[]
   /**
    * A minimatch pattern, or array of patterns, which specifies the files in
    * the build the plugin should _ignore_. By default, all files with
@@ -23,24 +23,24 @@ export interface RollupCommonJSOptions {
    * can exclude additional files. See also the `include` option.
    * @default undefined
    */
-  exclude?: string | RegExp | readonly (string | RegExp)[];
+  exclude?: string | RegExp | readonly (string | RegExp)[]
   /**
    * For extensionless imports, search for extensions other than .js in the
    * order specified. Note that you need to make sure that non-JavaScript files
    * are transpiled by another plugin first.
    * @default [ '.js' ]
    */
-  extensions?: ReadonlyArray<string>;
+  extensions?: ReadonlyArray<string>
   /**
    * If true then uses of `global` won't be dealt with by this plugin
    * @default false
    */
-  ignoreGlobal?: boolean;
+  ignoreGlobal?: boolean
   /**
    * If false, skips source map generation for CommonJS modules. This will improve performance.
    * @default true
    */
-  sourceMap?: boolean;
+  sourceMap?: boolean
   /**
    * Some `require` calls cannot be resolved statically to be translated to
    * imports.
@@ -52,7 +52,7 @@ export interface RollupCommonJSOptions {
    * code or use it as a fallback for `dynamicRequireTargets`.
    * @default false
    */
-  ignoreDynamicRequires?: boolean;
+  ignoreDynamicRequires?: boolean
   /**
    * Instructs the plugin whether to enable mixed module transformations. This
    * is useful in scenarios with modules that contain a mix of ES `import`
@@ -64,13 +64,13 @@ export interface RollupCommonJSOptions {
    * ElectronJS. See also the `ignore` option.
    * @default false
    */
-  transformMixedEsModules?: boolean;
+  transformMixedEsModules?: boolean
   /**
    * Sometimes you have to leave require statements unconverted. Pass an array
    * containing the IDs or a `id => boolean` function.
    * @default []
    */
-  ignore?: ReadonlyArray<string> | ((id: string) => boolean);
+  ignore?: ReadonlyArray<string> | ((id: string) => boolean)
   /**
    * Controls how to render imports from external dependencies. By default,
    * this plugin assumes that all external dependencies are CommonJS. This
@@ -88,7 +88,7 @@ export interface RollupCommonJSOptions {
    * module.
    * @default false
    */
-  esmExternals?: boolean | ReadonlyArray<string> | ((id: string) => boolean);
+  esmExternals?: boolean | ReadonlyArray<string> | ((id: string) => boolean)
   /**
    * Controls what is returned when requiring an ES module from a CommonJS file.
    * When using the `esmExternals` option, this will also apply to external
@@ -139,7 +139,12 @@ export interface RollupCommonJSOptions {
    * and allows you to return different values for different modules.
    * @default false
    */
-  requireReturnsDefault?: boolean | 'auto' | 'preferred' | 'namespace' | ((id: string) => boolean | 'auto' | 'preferred' | 'namespace');
+  requireReturnsDefault?:
+    | boolean
+    | 'auto'
+    | 'preferred'
+    | 'namespace'
+    | ((id: string) => boolean | 'auto' | 'preferred' | 'namespace')
   /**
    * Some modules contain dynamic `require` calls, or require modules that
    * contain circular dependencies, which are not handled well by static
@@ -153,5 +158,5 @@ export interface RollupCommonJSOptions {
    * with paths that are far away from your project's folder, that may require
    * replacing strings like `"/Users/John/Desktop/foo-project/"` -\> `"/"`.
    */
-  dynamicRequireTargets?: string | ReadonlyArray<string>;
+  dynamicRequireTargets?: string | ReadonlyArray<string>
 }

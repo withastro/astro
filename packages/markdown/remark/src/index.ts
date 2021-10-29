@@ -32,17 +32,17 @@ export const DEFAULT_REMARK_PLUGINS = [
   'remark-footnotes',
   // TODO: reenable smartypants!
   // '@silvenon/remark-smartypants'
-];
+]
 
 export const DEFAULT_REHYPE_PLUGINS = [
   // empty
-];
+]
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
   const { remarkPlugins = DEFAULT_REMARK_PLUGINS, rehypePlugins = DEFAULT_REHYPE_PLUGINS } = opts ?? {};
   const scopedClassName = opts?.$?.scopedClassName;
-  const mode = opts?.mode ?? 'mdx';
+  const mode = opts?.mode ?? "mdx";
   const isMDX = mode === 'mdx';
   const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
@@ -52,7 +52,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     .use(markdown)
     .use(isMDX ? [remarkJsx] : [])
     .use(isMDX ? [remarkExpressions] : [])
-    .use([remarkUnwrap]);
+    .use([remarkUnwrap])
 
   const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
   const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
@@ -62,25 +62,28 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
   });
 
   if (scopedClassName) {
-    parser.use([scopedStyles(scopedClassName)]);
+     parser.use([scopedStyles(scopedClassName)]);
   }
 
   parser.use([remarkPrism(scopedClassName)]);
-  parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'] }]]);
+  parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement']}]]);
 
   loadedRehypePlugins.forEach(([plugin, opts]) => {
     parser.use([[plugin, opts]]);
   });
-
+  
   parser
     .use(isMDX ? [rehypeJsx] : [])
     .use(isMDX ? [rehypeExpressions] : [])
     .use(isMDX ? [] : [rehypeRaw])
-    .use(rehypeIslands);
+    .use(rehypeIslands)
 
   let result: string;
   try {
-    const vfile = await parser.use([rehypeCollectHeaders]).use(rehypeStringify, { allowDangerousHtml: true }).process(content);
+    const vfile = await parser
+    .use([rehypeCollectHeaders])
+      .use(rehypeStringify, { allowDangerousHtml: true })
+      .process(content);
     result = vfile.toString();
   } catch (err) {
     console.error(err);

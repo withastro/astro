@@ -1,4 +1,4 @@
-import { SKIP, visit } from 'unist-util-visit';
+import {SKIP, visit} from 'unist-util-visit';
 
 // This fixes some confusing bugs coming from somewhere inside of our Markdown pipeline.
 // `unist`/`remark`/`rehype` (not sure) often generate malformed HTML inside of <astro-root>
@@ -11,11 +11,11 @@ export default function rehypeIslands(): any {
       if (el.tagName == 'astro-root') {
         visit(el, 'text', (child, index, parent) => {
           if (child.type === 'text') {
-            // Sometimes comments can be trapped as text, which causes them to be escaped
+            // Sometimes comments can be trapped as text, which causes them to be escaped 
             // This casts them back to real HTML comments
             if (parent && child.value.indexOf('<!--') > -1 && index != null) {
-              parent.children.splice(index, 1, { ...child, type: 'comment', value: child.value.replace('<!--', '').replace('-->', '').trim() });
-              return [SKIP, index];
+              parent.children.splice(index, 1, { ...child, type: 'comment', value: child.value.replace('<!--', '').replace('-->', '').trim()});
+              return [SKIP, index]
             }
             // For some reason `rehype` likes to inject extra linebreaks,
             // but React and Vue throw hydration errors when they see these!
@@ -24,7 +24,7 @@ export default function rehypeIslands(): any {
             child.value = child.value.replace(/\n+/g, '');
             return child;
           }
-        });
+        })
       }
     });
   };

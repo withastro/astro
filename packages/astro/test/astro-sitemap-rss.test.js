@@ -24,7 +24,7 @@ describe('Sitemaps', () => {
       );
     });
   });
-
+  
   describe('Sitemap Generation', () => {
     it('Generates Sitemap correctly', async () => {
       let sitemap = await fixture.readFile('/sitemap.xml');
