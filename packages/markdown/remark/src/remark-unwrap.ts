@@ -1,4 +1,4 @@
-import { visit, SKIP } from 'unist-util-visit';
+import {visit, SKIP} from 'unist-util-visit'
 
 // Remove the wrapping paragraph for <astro-root> islands
 export default function remarkUnwrap() {
@@ -18,17 +18,21 @@ export default function remarkUnwrap() {
         insideAstroRoot = false;
       }
       astroRootNodes.add(node);
-    });
+    })
 
     visit(tree, 'paragraph', (node, index, parent) => {
-      if (parent && typeof index === 'number' && containsAstroRootNode(node)) {
-        parent.children.splice(index, 1, ...node.children);
-        return [SKIP, index];
+      if (
+        parent &&
+        typeof index === 'number' &&
+        containsAstroRootNode(node)
+      ) {
+        parent.children.splice(index, 1, ...node.children)
+        return [SKIP, index]
       }
-    });
-  };
+    })
+  }
 
   function containsAstroRootNode(node: any) {
-    return node.children.map((child: any) => astroRootNodes.has(child)).reduce((all: boolean, v: boolean) => (all ? all : v), false);
+    return node.children.map((child: any) => astroRootNodes.has(child)).reduce((all: boolean, v: boolean) => all ? all : v, false)
   }
 }

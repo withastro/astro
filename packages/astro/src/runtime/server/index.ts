@@ -365,17 +365,13 @@ export async function renderToString(result: SSRResult, componentFactory: AstroC
 const uniqueElements = (item: any, index: number, all: any[]) => {
   const props = JSON.stringify(item.props);
   const children = item.children;
-  return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
-};
+  return index === all.findIndex(i => JSON.stringify(i.props) === props && i.children == children)
+}
 
 export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
   const template = await renderToString(result, Component, props, children);
-  const styles = Array.from(result.styles)
-    .filter(uniqueElements)
-    .map((style) => renderElement('style', style));
-  const scripts = Array.from(result.scripts)
-    .filter(uniqueElements)
-    .map((script) => renderElement('script', script));
+  const styles = Array.from(result.styles).filter(uniqueElements).map((style) => renderElement('style', style));
+  const scripts = Array.from(result.scripts).filter(uniqueElements).map((script) => renderElement('script', script));
   return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
 }
 

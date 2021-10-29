@@ -60,7 +60,7 @@ class Metadata {
 }
 
 interface CreateMetadataOptions {
-  modules: ModuleInfo[];
+  modules:  ModuleInfo[];
   hydratedComponents: any[];
   hoisted: any[];
 }

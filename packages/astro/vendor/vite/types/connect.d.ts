@@ -8,32 +8,47 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 /// <reference types="node" />
-import * as http from 'http';
+import * as http from 'http'
 
 export namespace Connect {
-  export type ServerHandle = HandleFunction | http.Server;
+  export type ServerHandle = HandleFunction | http.Server
 
   export class IncomingMessage extends http.IncomingMessage {
-    originalUrl?: http.IncomingMessage['url'];
+    originalUrl?: http.IncomingMessage['url']
   }
 
-  export type NextFunction = (err?: any) => void;
+  export type NextFunction = (err?: any) => void
 
-  export type SimpleHandleFunction = (req: IncomingMessage, res: http.ServerResponse) => void;
-  export type NextHandleFunction = (req: IncomingMessage, res: http.ServerResponse, next: NextFunction) => void;
-  export type ErrorHandleFunction = (err: any, req: IncomingMessage, res: http.ServerResponse, next: NextFunction) => void;
-  export type HandleFunction = SimpleHandleFunction | NextHandleFunction | ErrorHandleFunction;
+  export type SimpleHandleFunction = (
+    req: IncomingMessage,
+    res: http.ServerResponse
+  ) => void
+  export type NextHandleFunction = (
+    req: IncomingMessage,
+    res: http.ServerResponse,
+    next: NextFunction
+  ) => void
+  export type ErrorHandleFunction = (
+    err: any,
+    req: IncomingMessage,
+    res: http.ServerResponse,
+    next: NextFunction
+  ) => void
+  export type HandleFunction =
+    | SimpleHandleFunction
+    | NextHandleFunction
+    | ErrorHandleFunction
 
   export interface ServerStackItem {
-    route: string;
-    handle: ServerHandle;
+    route: string
+    handle: ServerHandle
   }
 
   export interface Server extends NodeJS.EventEmitter {
-    (req: http.IncomingMessage, res: http.ServerResponse, next?: Function): void;
+    (req: http.IncomingMessage, res: http.ServerResponse, next?: Function): void
 
-    route: string;
-    stack: ServerStackItem[];
+    route: string
+    stack: ServerStackItem[]
 
     /**
      * Utilize the given middleware `handle` to the given `route`,
@@ -46,16 +61,20 @@ export namespace Connect {
      * be invoked on _/admin_, and _/admin/settings_, however it would
      * not be invoked for _/_, or _/posts_.
      */
-    use(fn: NextHandleFunction): Server;
-    use(fn: HandleFunction): Server;
-    use(route: string, fn: NextHandleFunction): Server;
-    use(route: string, fn: HandleFunction): Server;
+    use(fn: NextHandleFunction): Server
+    use(fn: HandleFunction): Server
+    use(route: string, fn: NextHandleFunction): Server
+    use(route: string, fn: HandleFunction): Server
 
     /**
      * Handle server requests, punting them down
      * the middleware stack.
      */
-    handle(req: http.IncomingMessage, res: http.ServerResponse, next: Function): void;
+    handle(
+      req: http.IncomingMessage,
+      res: http.ServerResponse,
+      next: Function
+    ): void
 
     /**
      * Listen for connections.
@@ -79,9 +98,14 @@ export namespace Connect {
      *      http.createServer(app).listen(80);
      *      https.createServer(options, app).listen(443);
      */
-    listen(port: number, hostname?: string, backlog?: number, callback?: Function): http.Server;
-    listen(port: number, hostname?: string, callback?: Function): http.Server;
-    listen(path: string, callback?: Function): http.Server;
-    listen(handle: any, listeningListener?: Function): http.Server;
+    listen(
+      port: number,
+      hostname?: string,
+      backlog?: number,
+      callback?: Function
+    ): http.Server
+    listen(port: number, hostname?: string, callback?: Function): http.Server
+    listen(path: string, callback?: Function): http.Server
+    listen(handle: any, listeningListener?: Function): http.Server
   }
 }

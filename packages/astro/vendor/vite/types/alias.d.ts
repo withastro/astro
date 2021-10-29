@@ -27,24 +27,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-import { PluginHooks } from 'rollup';
+import { PluginHooks } from 'rollup'
 
 export interface Alias {
-  find: string | RegExp;
-  replacement: string;
+  find: string | RegExp
+  replacement: string
   /**
    * Instructs the plugin to use an alternative resolving algorithm,
    * rather than the Rollup's resolver.
    * @default null
    */
-  customResolver?: ResolverFunction | ResolverObject | null;
+  customResolver?: ResolverFunction | ResolverObject | null
 }
 
-export type ResolverFunction = PluginHooks['resolveId'];
+export type ResolverFunction = PluginHooks['resolveId']
 
 export interface ResolverObject {
-  buildStart?: PluginHooks['buildStart'];
-  resolveId: ResolverFunction;
+  buildStart?: PluginHooks['buildStart']
+  resolveId: ResolverFunction
 }
 
 /**
@@ -56,4 +56,4 @@ export interface ResolverObject {
  * This is passed to \@rollup/plugin-alias as the "entries" field
  * https://github.com/rollup/plugins/tree/master/packages/alias#entries
  */
-export type AliasOptions = readonly Alias[] | { [find: string]: string };
+export type AliasOptions = readonly Alias[] | { [find: string]: string }
