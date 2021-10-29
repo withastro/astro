@@ -12,7 +12,7 @@ function runHighlighter(lang: string, code: string) {
   let classLanguage = `language-${lang}`
 
   if (lang == null) {
-    lang = 'shell';
+    lang = 'plaintext';
   }
 
   const ensureLoaded = (lang: string) => {
