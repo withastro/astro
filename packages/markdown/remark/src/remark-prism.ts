@@ -12,7 +12,7 @@ function runHighlighter(lang: string, code: string) {
   let classLanguage = `language-${lang}`
 
   if (lang == null) {
-    console.warn('Prism.astro: No language provided.');
+    lang = 'shell';
   }
 
   const ensureLoaded = (lang: string) => {
