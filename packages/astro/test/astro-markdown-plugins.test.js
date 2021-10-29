@@ -3,7 +3,6 @@ import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import markdownRemark from '@astrojs/markdown-remark';
 
-
 describe('Astro Markdown plugins', () => {
   let fixture;
 
@@ -12,13 +11,16 @@ describe('Astro Markdown plugins', () => {
       projectRoot: './fixtures/astro-markdown-plugins/',
       renderers: ['@astrojs/renderer-preact'],
       markdownOptions: {
-        render: [markdownRemark, {
-          remarkPlugins: ['remark-code-titles', 'remark-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-          rehypePlugins: [
-            ['rehype-toc', { headings: ['h2', 'h3'] }],
-            ['rehype-add-classes', { 'h1,h2,h3': 'title' }],
-          ],
-        }],
+        render: [
+          markdownRemark,
+          {
+            remarkPlugins: ['remark-code-titles', 'remark-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+            rehypePlugins: [
+              ['rehype-toc', { headings: ['h2', 'h3'] }],
+              ['rehype-add-classes', { 'h1,h2,h3': 'title' }],
+            ],
+          },
+        ],
       },
       buildOptions: {
         sitemap: false,

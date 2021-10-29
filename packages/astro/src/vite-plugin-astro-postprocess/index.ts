@@ -11,7 +11,7 @@ interface AstroPluginOptions {
   devServer?: AstroDevServer;
 }
 
-// esbuild transforms the component-scoped Astro into Astro2, so need to check both. 
+// esbuild transforms the component-scoped Astro into Astro2, so need to check both.
 const validAstroGlobalNames = new Set(['Astro', 'Astro2']);
 
 export default function astro({ config, devServer }: AstroPluginOptions): Plugin {

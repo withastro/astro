@@ -59,7 +59,7 @@ describe('Astro Markdown', () => {
 
     // test 1: <pre> tag has scopedStyle class passed down
     expect($('pre').is('[class]')).to.equal(true);
-    expect($('pre').attr('class').split(' ').length).to.equal(2)
+    expect($('pre').attr('class').split(' ').length).to.equal(2);
 
     // test 2: <pre> tag has correct language
     expect($('pre').hasClass('language-js')).to.equal(true);
@@ -117,7 +117,7 @@ describe('Astro Markdown', () => {
     expect($('code:nth-child(2)').text()).to.equal('{...props}');
 
     // test 4: Rendered curly braces markdown content
-    expect($('code:last-child').text()).to.equal('{/* JavaScript *\/}');
+    expect($('code:last-child').text()).to.equal('{/* JavaScript */}');
   });
 
   it('Does not close parent early when using content attribute (#494)', async () => {

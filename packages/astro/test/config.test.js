@@ -4,7 +4,7 @@ import { devCLI, loadFixture } from './test-utils.js';
 describe('config', () => {
   let hostnameFixture;
   let portFixture;
-  
+
   before(async () => {
     [hostnameFixture, portFixture] = await Promise.all([loadFixture({ projectRoot: './fixtures/config-hostname/' }), loadFixture({ projectRoot: './fixtures/config-port/' })]);
   });
