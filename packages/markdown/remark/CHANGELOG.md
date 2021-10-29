@@ -1,5 +1,16 @@
 # @astrojs/markdown-support
 
+## 0.4.0-next.0
+
+### Minor Changes
+
+- d84bfe71: Adds prism support within the Markdown plugin.
+
+### Patch Changes
+
+- Updated dependencies [d84bfe71]
+  - @astrojs/prism@0.3.0-next.0
+
 ## 0.3.1
 
 ### Patch Changes

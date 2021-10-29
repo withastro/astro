@@ -1,5 +1,11 @@
 # @astrojs/prism
 
+## 0.3.0-next.0
+
+### Minor Changes
+
+- d84bfe71: Adds typings for the main entrypoint
+
 ## 0.2.2
 
 ### Patch Changes

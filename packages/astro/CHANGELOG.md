@@ -1,5 +1,29 @@
 # astro
 
+## 0.21.0-next.0
+
+### Minor Changes
+
+- d84bfe71: Astro 0.21 Beta release! This introduces the new version of Astro that includes:
+
+  - A new, faster, Go-based compiler
+  - A runtime backed by Vite, with faster dev experience
+  - New features
+
+  See more at https://astro.build/blog/astro-021-preview/
+
+### Patch Changes
+
+- Updated dependencies [d84bfe71]
+- Updated dependencies [d84bfe71]
+- Updated dependencies [d84bfe71]
+  - @astrojs/prism@0.3.0-next.0
+  - @astrojs/markdown-remark@0.4.0-next.0
+  - @astrojs/renderer-preact@0.3.0-next.0
+  - @astrojs/renderer-react@0.3.0-next.0
+  - @astrojs/renderer-svelte@0.2.0-next.0
+  - @astrojs/renderer-vue@0.2.0-next.0
+
 ## 0.20.12
 
 ### Patch Changes
