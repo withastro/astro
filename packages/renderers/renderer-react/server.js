@@ -9,6 +9,12 @@ function errorIsComingFromPreactComponent(err) {
 }
 
 function check(Component, props, children) {
+  // Note: there are packages that do some unholy things to create "components".
+  // Checking the $$typeof property catches most of these patterns.
+  if (typeof Component === 'object') {
+    const $$typeof = Component['$$typeof'];
+    return $$typeof && $$typeof.toString().slice('Symbol('.length).startsWith('react');
+  }
   if (typeof Component !== 'function') return false;
 
   if (Component.prototype != null && typeof Component.prototype.render === 'function') {
@@ -41,10 +47,10 @@ function check(Component, props, children) {
 }
 
 function renderToStaticMarkup(Component, props, children, metadata) {
+  delete props['class'];
   const vnode = React.createElement(Component, {
     ...props,
     children: React.createElement(StaticHtml, { value: children }),
-    innerHTML: children,
   });
   let html;
   if (metadata && metadata.hydrate) {
