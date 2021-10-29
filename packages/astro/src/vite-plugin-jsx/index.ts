@@ -18,11 +18,14 @@ const IMPORT_STATEMENTS: Record<string, string> = {
   preact: "import { h } from 'preact'",
   'solid-js': "import 'solid-js/web'",
 };
+
+// A code snippet to inject into JS files to prevent esbuild reference bugs.
 // The `tsx` loader in esbuild will remove unused imports, so we need to
 // be careful about esbuild not treating h, React, Fragment, etc. as unused.
 const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
 
-// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
+// This check on a flexible "options" object is needed because Vite uses this flexible argument for ssr.
+// More context: https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
 function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
   if (options === undefined) {
     return false;
@@ -34,6 +37,58 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
     return !!options.ssr;
   }
   return false;
+}
+
+function getEsbuildLoader(fileExt: string): string {
+  return fileExt.substr(1);
+}
+
+async function importJSXRenderers(rendererNames: string[]): Promise<Map<string, Renderer>> {
+  const renderers = new Map<string, Renderer>();
+  await Promise.all(
+    rendererNames.map((name) =>
+      import(name).then(({ default: renderer }) => {
+        if (!renderer.jsxImportSource) return;
+        renderers.set(renderer.jsxImportSource, renderer);
+      })
+    )
+  );
+  return renderers;
+}
+
+interface TransformJSXOptions {
+  code: string;
+  id: string;
+  mode: string;
+  renderer: Renderer;
+  ssr: boolean;
+}
+
+async function transformJSX({ code, mode, id, ssr, renderer }: TransformJSXOptions): Promise<TransformResult> {
+  const { jsxTransformOptions } = renderer;
+  const options = await jsxTransformOptions!({ mode, ssr });
+  const plugins = [...(options.plugins || [])];
+  const result = await babel.transformAsync(
+    code,
+    {
+      presets: options.presets,
+      plugins,
+      cwd: process.cwd(),
+      filename: id,
+      ast: false,
+      compact: false,
+      sourceMaps: true,
+      configFile: false,
+      babelrc: false,
+    }
+  );
+  // TODO: Be more strict about bad return values here. 
+  // Should we throw an error instead? Should we never return `{code: ""}`?
+  if (!result) return null;
+  return {
+    code: result.code || '',
+    map: result.map,
+  };
 }
 
 interface AstroPluginJSXOptions {
@@ -63,7 +118,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
       // load renderers (on first run only)
       if (!jsxRenderers) {
         jsxRenderers = new Map();
-        const possibleRenderers = await loadJSXRenderers(config.renderers);
+        const possibleRenderers = await importJSXRenderers(config.renderers);
         if (possibleRenderers.size === 0) {
           // note: we have filtered out all non-JSX files, so this error should only show if a JSX file is loaded with no matching renderers
           throw new Error(
@@ -83,7 +138,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
       if (jsxRenderers.size === 1) {
         // downlevel any non-standard syntax, but preserve JSX
         const { code: jsxCode } = await esbuild.transform(code, {
-          loader: getLoader(path.extname(id)),
+          loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
           jsx: 'preserve',
         });
         return transformJSX({ code: jsxCode, id, renderer: [...jsxRenderers.values()][0], mode, ssr });
@@ -92,7 +147,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
       // Attempt: Multiple JSX renderers
       // we need valid JS to scan, so we can use `h` and `Fragment` as placeholders
       const { code: jsCode } = await esbuild.transform(code + PREVENT_UNUSED_IMPORTS, {
-        loader: getLoader(path.extname(id)),
+        loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
         jsx: 'transform',
         jsxFactory: 'h',
         jsxFragment: 'Fragment',
@@ -137,7 +192,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         }
         // downlevel any non-standard syntax, but preserve JSX
         const { code: jsxCode } = await esbuild.transform(code, {
-          loader: getLoader(path.extname(id)),
+          loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
           jsx: 'preserve',
         });
         return transformJSX({ code: jsxCode, id, renderer: jsxRenderers.get(importSource) as Renderer, mode, ssr });
@@ -155,67 +210,5 @@ Add ${colors.cyan(IMPORT_STATEMENTS[defaultRenderer] || `import '${defaultRender
       );
       return null;
     },
-  };
-}
-
-/** Returns esbuild loader for a given file */
-function getLoader(fileExt: string): esbuild.Loader {
-  return fileExt.substr(1) as any;
-}
-
-/** Load JSX renderers from config */
-async function loadJSXRenderers(rendererNames: string[]): Promise<Map<string, Renderer>> {
-  const renderers = new Map<string, Renderer>();
-  await Promise.all(
-    rendererNames.map((name) =>
-      import(name).then(({ default: renderer }) => {
-        if (!renderer.jsxImportSource) return;
-        renderers.set(renderer.jsxImportSource, renderer);
-      })
-    )
-  );
-  return renderers;
-}
-
-interface TransformJSXOptions {
-  code: string;
-  id: string;
-  mode: string;
-  renderer: Renderer; // note MUST check for JSX beforehand!
-  ssr: boolean;
-}
-
-/** Transform JSX with Babel */
-async function transformJSX({ code, mode, id, ssr, renderer }: TransformJSXOptions): Promise<TransformResult> {
-  const { jsxTransformOptions } = renderer;
-  const options = await jsxTransformOptions!({ mode, ssr }); // must filter for this beforehand
-  const result = await new Promise<babel.BabelFileResult | null>((resolve, reject) => {
-    const plugins = [...(options.plugins || [])];
-    babel.transform(
-      code,
-      {
-        presets: options.presets,
-        plugins,
-        cwd: process.cwd(),
-        filename: id,
-        ast: false,
-        compact: false,
-        sourceMaps: true,
-        configFile: false,
-        babelrc: false,
-      },
-      (err, res) => {
-        if (err) {
-          reject(err);
-        } else {
-          return resolve(res);
-        }
-      }
-    );
-  });
-  if (!result) return null;
-  return {
-    code: result.code || '',
-    map: result.map,
   };
 }
