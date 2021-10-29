@@ -36,5 +36,10 @@
     "astro-scripts": "0.0.1",
     "www": "1.1.0"
   },
-  "changesets": []
+  "changesets": [
+    "dull-bikes-doubt",
+    "pink-trainers-learn",
+    "silly-apples-build",
+    "tiny-bulldogs-lie"
+  ]
 }

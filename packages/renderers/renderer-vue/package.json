@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-vue",
-  "version": "0.1.9",
+  "version": "0.2.0-next.0",
   "type": "module",
   "exports": {
     ".": "./index.js",

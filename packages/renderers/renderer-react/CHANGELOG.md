@@ -1,5 +1,11 @@
 # @astrojs/renderer-react
 
+## 0.3.0-next.0
+
+### Minor Changes
+
+- d84bfe71: Updates the renderers to confirm to the new renderer API.
+
 ## 0.2.2
 
 ### Patch Changes
