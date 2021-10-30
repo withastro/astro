@@ -5,9 +5,10 @@ import type { AstroGlobal, TopLevelAstro, SSRResult, SSRElement } from '../../@t
 import type { LogOptions } from '../logger';
 
 import { fileURLToPath } from 'url';
+import { Writable } from 'stream';
 import fs from 'fs';
 import path from 'path';
-import { renderPage, renderSlot } from '../../runtime/server/index.js';
+import { renderPageToStream, renderSlot } from '../../runtime/server/index.js';
 import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency } from '../util.js';
 import { getStylesForID } from './css.js';
 import { injectTags } from './html.js';
@@ -158,39 +159,45 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
       _metadata: { renderers },
     };
 
-    let html = await renderPage(result, Component, pageProps, null);
+    const writableStream = new Writable()
+    writableStream._write = (chunk, encoding, next) => {
+      console.log(chunk.toString())
+      next()
+    }
+
+    await renderPageToStream(writableStream, result, Component, pageProps, null);
 
     // inject tags
-    const tags: vite.HtmlTagDescriptor[] = [];
+    // const tags: vite.HtmlTagDescriptor[] = [];
 
-    // inject Astro HMR client (dev only)
-    if (mode === 'development') {
-      tags.push({
-        tag: 'script',
-        attrs: { type: 'module' },
-        children: `import 'astro/runtime/client/hmr.js';`,
-        injectTo: 'head',
-      });
-    }
+    // // inject Astro HMR client (dev only)
+    // if (mode === 'development') {
+    //   tags.push({
+    //     tag: 'script',
+    //     attrs: { type: 'module' },
+    //     children: `import 'astro/runtime/client/hmr.js';`,
+    //     injectTo: 'head',
+    //   });
+    // }
 
-    // inject CSS
-    [...getStylesForID(fileURLToPath(filePath), viteServer)].forEach((href) => {
-      tags.push({
-        tag: 'link',
-        attrs: { type: 'text/css', rel: 'stylesheet', href },
-        injectTo: 'head',
-      });
-    });
+    // // inject CSS
+    // [...getStylesForID(fileURLToPath(filePath), viteServer)].forEach((href) => {
+    //   tags.push({
+    //     tag: 'link',
+    //     attrs: { type: 'text/css', rel: 'stylesheet', href },
+    //     injectTo: 'head',
+    //   });
+    // });
 
-    // add injected tags
-    html = injectTags(html, tags);
+    // // add injected tags
+    // html = injectTags(html, tags);
 
-    // run transformIndexHtml() in dev to run Vite dev transformations
-    if (mode === 'development') {
-      html = await viteServer.transformIndexHtml(fileURLToPath(filePath), html, pathname);
-    }
+    // // run transformIndexHtml() in dev to run Vite dev transformations
+    // if (mode === 'development') {
+    //   html = await viteServer.transformIndexHtml(fileURLToPath(filePath), html, pathname);
+    // }
 
-    return html;
+    // return html;
   } catch (e: any) {
     viteServer.ssrFixStacktrace(e);
     // Astro error (thrown by esbuild so it needs to be formatted for Vite)
