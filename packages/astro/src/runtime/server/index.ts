@@ -372,9 +372,11 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
   const template = await renderToString(result, Component, props, children);
   const styles = Array.from(result.styles)
     .filter(uniqueElements)
+    .reverse()
     .map((style) => renderElement('style', style));
   const scripts = Array.from(result.scripts)
     .filter(uniqueElements)
+    .reverse()
     .map((script) => renderElement('script', script));
   return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
 }
