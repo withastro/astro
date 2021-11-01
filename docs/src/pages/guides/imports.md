@@ -108,7 +108,7 @@ It can also be useful to place images in the `public/`-folder as explained on th
 const wasm = await WebAssembly.instantiateStreaming(fetch('/example.wasm'));
 ```
 
-Astro supports loading WASM files directly into your application using the browser's [`WebAssembly`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly) API. Read our [WASM guide](/guides/wasm) to learn more.
+Astro supports loading WASM files directly into your application using the browser's [`WebAssembly`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly) API.
 
 ## NPM Packages
 
