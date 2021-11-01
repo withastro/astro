@@ -1,3 +1,6 @@
 {
-  "moduleResolution": "node"
+  "moduleResolution": "node",
+  "compilerOptions": {
+    "experimentalDecorators": true
+  }
 }

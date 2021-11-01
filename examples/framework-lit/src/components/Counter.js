@@ -1,7 +1,5 @@
 import { LitElement, html } from 'lit';
 
-export const tagName = 'my-counter';
-
 class Counter extends LitElement {
   static get properties() {
     return {
@@ -31,4 +29,4 @@ class Counter extends LitElement {
   }
 }
 
-customElements.define(tagName, Counter);
+customElements.define('my-counter', Counter);

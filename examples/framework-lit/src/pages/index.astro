@@ -2,6 +2,7 @@
 import Lorem from '../components/Lorem.astro';
 import '../components/Test.js';
 import '../components/Counter.js';
+import '../components/Greeting.ts';
 ---
 
 <!doctype html>
@@ -15,5 +16,6 @@ import '../components/Counter.js';
     <my-counter client:load />
     <Lorem />
     <calc-add num={33} />
+    <simple-greeting name="World" />
   </body>
 </html>

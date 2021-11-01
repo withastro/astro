@@ -1,7 +1,5 @@
 import { LitElement, html } from 'lit';
 
-export const tagName = 'calc-add';
-
 class CalcAdd extends LitElement {
   static get properties() {
     return {
@@ -16,4 +14,5 @@ class CalcAdd extends LitElement {
   }
 }
 
+const tagName = 'calc-add'
 customElements.define(tagName, CalcAdd);
