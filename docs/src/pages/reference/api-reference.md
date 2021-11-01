@@ -107,7 +107,7 @@ This function is required because Astro is a static site builder. That means tha
 ---
 export async function getStaticPaths() {
   return [
-    { params: { /* required */ }, props: { /* optional */ },
+    { params: { /* required */ }, props: { /* optional */ } },
     { params: { ... } },
     { params: { ... } },
     // ...
