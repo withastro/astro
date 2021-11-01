@@ -41,7 +41,7 @@ class Metadata {
       const id = specifier.startsWith('.') ? new URL(specifier, this.fileURL).pathname : specifier;
       for (const [key, value] of Object.entries(module)) {
         if (isCustomElement) {
-          if (key === 'tagName' && Component === value) {
+          if ((key === 'tagName' || key === '__astroTagName') && Component === value) {
             return {
               componentExport: key,
               componentUrl: id,

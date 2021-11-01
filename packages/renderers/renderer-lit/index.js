@@ -1,3 +1,5 @@
+import pluginLit from './vite-plugin-lit.js';
+
 // NOTE: @lit-labs/ssr uses syntax incompatible with anything < Node v13.9.0.
 // Throw an error if using that Node version.
 
@@ -13,6 +15,9 @@ export default {
   hydrationPolyfills: ['./hydration-support.js'],
   viteConfig() {
     return {
+      plugins: [
+        pluginLit(),
+      ],
       optimizeDeps: {
         include: [
           '@astrojs/renderer-lit/client-shim.js',
