@@ -164,20 +164,20 @@ jobs:
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
 2. Set `dist` in `astro.config.mjs` to `public` and `public` in `astro.config.mjs` to a newly named folder that is holding everything currently in `public`. The reasoning is because `public` is a second source folder in astro, so if you would like to output to `public` you'll need to pull public assets from a different folder. Your `astro.config.mjs` might end up looking like this:
 
-```js
-export default /** @type {import('astro').AstroUserConfig} */ ({
-  // Enable the Preact renderer to support Preact JSX components.
-  renderers: ['@astrojs/renderer-preact'],
-  // files in `static/` will be blindly copied to `public/`
-  public: 'static',
-  // `public/` is where the built website will be output to
-  dist: 'public',
-  buildOptions: {
-    sitemap: true,
-    site: 'https://astro.build/',
-  },
-});
-```
+   ```js
+   export default /** @type {import('astro').AstroUserConfig} */ ({
+     // Enable the Preact renderer to support Preact JSX components.
+     renderers: ['@astrojs/renderer-preact'],
+     // files in `static/` will be blindly copied to `public/`
+     public: 'static',
+     // `public/` is where the built website will be output to
+     dist: 'public',
+     buildOptions: {
+       sitemap: true,
+       site: 'https://astro.build/',
+     },
+   });
+   ```
 
 3. Create a file called `.gitlab-ci.yml` in the root of your project with the content below. This will build and deploy your site whenever you make changes to your content:
 
@@ -224,35 +224,35 @@ You can skip the `netlify.toml` file and go directly to [Netlify](https://netlif
 
 ## Google Cloud
 
-different from most available deploy options here, [Google Cloud](https://cloud.google.com) requires some UI clicks to deploy projects. (Most of these actions can also be done using the gcloud CLI).
+Different from most available deploy options here, [Google Cloud](https://cloud.google.com) requires some UI clicks to deploy projects. (Most of these actions can also be done using the gcloud CLI).
 
 ### Cloud Run
 
-1. Create a new GCP project, or select one you already have
+1. Create a new GCP project, or select one you already have.
 
-2. Make sure the Cloud Run API is enabled
+2. Make sure the Cloud Run API is enabled.
 
-3. Create a new service
+3. Create a new service.
 
-4. use a container from Docker Hub or build your own using [Cloud Build](https://cloud.google.com/build)
+4. Use a container from Docker Hub or build your own using [Cloud Build](https://cloud.google.com/build).
 
-5. Configure a port from which the files are served
+5. Configure a port from which the files are served.
 
-6. Enable public access by adding a new permission to `allUsers` called `Cloud Run Invoker`
+6. Enable public access by adding a new permission to `allUsers` called `Cloud Run Invoker`.
 
 ### Cloud Storage
 
-1. Create a new GCP project, or select one you already have
+1. Create a new GCP project, or select one you already have.
 
-2. Create a new bucket under [Cloud Storage](https://cloud.google.com/storage)
+2. Create a new bucket under [Cloud Storage](https://cloud.google.com/storage).
 
-3. give it a name and other required settings
+3. Give it a name and other required settings.
 
-4. Upload your `dist` folder into it or upload using [Cloud Build](https://cloud.google.com/build)
+4. Upload your `dist` folder into it or upload using [Cloud Build](https://cloud.google.com/build).
 
-5. Enable public acces by adding a new permission to `allUsers` called `Storage Object Viewer`
+5. Enable public access by adding a new permission to `allUsers` called `Storage Object Viewer`.
 
-6. Edit the website configuration and add `ìndex.html` as entrypoint and `404.html` as errorpage
+6. Edit the website configuration and add `ìndex.html` as entrypoint and `404.html` as errorpage.
 
 ## Google Firebase
 
