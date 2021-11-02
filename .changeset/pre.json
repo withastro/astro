@@ -34,9 +34,11 @@
     "@astrojs/renderer-svelte": "0.1.2",
     "@astrojs/renderer-vue": "0.1.9",
     "astro-scripts": "0.0.1",
-    "www": "1.1.0"
+    "www": "1.1.0",
+    "@example/portfolio-svelte": "0.0.1"
   },
   "changesets": [
+    "curvy-years-kiss",
     "dull-bikes-doubt",
     "pink-trainers-learn",
     "silly-apples-build",
