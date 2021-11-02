@@ -87,7 +87,7 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 interface HydrateScriptOptions {
   renderer: any;
   astroId: string;
-  props: any;
+  props: Record<string | number, any>;
 }
 
 /** For hydrated components, generate a <script type="module"> to load the component */
