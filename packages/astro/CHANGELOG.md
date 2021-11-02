@@ -1,5 +1,15 @@
 # astro
 
+## 0.21.0-next.1
+
+### Patch Changes
+
+- 11ee158a: Fix issue with `style` and `script` processing where siblings would be skipped
+
+  Fix `Fragment` and `<>` handling for backwards compatability
+
+  Fix CSS `--custom-proprty` parsing when using scoped CSS
+
 ## 0.21.0-next.0
 
 ### Minor Changes
