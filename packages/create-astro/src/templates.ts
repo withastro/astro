@@ -20,6 +20,11 @@ export const TEMPLATES = [
     renderers: ['@astrojs/renderer-preact'],
   },
   {
+    title: 'Portfolio Svelte',
+    value: 'portfolio-svelte',
+    renderers: ['@astrojs/renderer-svelte'],
+  },
+  {
     title: 'Minimal',
     value: 'minimal',
     renderers: [],
