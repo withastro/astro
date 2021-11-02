@@ -3,7 +3,7 @@ import type { SSRResult, SSRElement } from '../../@types/astro-runtime';
 import type { TopLevelAstro } from '../../@types/astro-runtime';
 
 import shorthash from 'shorthash';
-import { extractDirectives, generateHydrateScript } from './hydration';
+import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
 
