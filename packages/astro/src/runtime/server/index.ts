@@ -6,6 +6,7 @@ import shorthash from 'shorthash';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
+export type { Metadata } from './metadata';
 
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.

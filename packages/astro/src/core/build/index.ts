@@ -12,7 +12,7 @@ import { fileURLToPath } from 'url';
 import { createVite } from '../create-vite.js';
 import { pad } from '../dev/util.js';
 import { debug, defaultLogOptions, levels, timerMessage, warn } from '../logger.js';
-import { ssr } from '../ssr/index.js';
+import { preload as ssrPreload, render as ssrRender } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generateRssFunction } from '../ssr/rss.js';
@@ -103,7 +103,7 @@ class AstroBuilder {
     // TODO: test parallel vs. serial performance. Promise.all() may be
     // making debugging harder without any perf gain. If parallel is best,
     // then we should set a max number of parallel builds.
-    const input: InputHTMLOptions[] = [];
+    /*const input: InputHTMLOptions[] = [];
     await Promise.all(
       Object.entries(allPages).map(([component, route]) =>
         Promise.all(
@@ -126,7 +126,24 @@ class AstroBuilder {
         )
       )
     );
-    debug(logging, 'build', timerMessage('All pages rendered', timer.renderStart));
+    debug(logging, 'build', timerMessage('All pages rendered', timer.renderStart));*/
+
+    const pageModulesAndRenderers = await Promise.all(
+      Object.entries(allPages).map(([component, route]) =>
+        ssrPreload({
+          astroConfig: this.config,
+          filePath: new URL(`./${component}`, this.config.projectRoot),
+          logging,
+          mode: 'production',
+          origin,
+          pathname: route.paths[0],
+          route,
+          routeCache: this.routeCache,
+          viteServer,
+        })
+      )
+    );
+    
 
     // Bundle the assets in your final build: This currently takes the HTML output
     // of every page (stored in memory) and bundles the assets pointed to on those pages.
@@ -139,13 +156,14 @@ class AstroBuilder {
         minify: 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
         outDir: fileURLToPath(this.config.dist),
         rollupOptions: {
+          // The `input` will be populated in the build rollup plugin.
           input: [],
           output: { format: 'esm' },
         },
         target: 'es2020', // must match an esbuild target
       },
       plugins: [
-        rollupPluginAstroBuild({ astroConfig: this.config, inputs: input }),
+        rollupPluginAstroBuild({ astroConfig: this.config, pageModulesAndRenderers }),
         rollupPluginHTML({
           rootDir: viteConfig.root,
           input,
@@ -171,7 +189,7 @@ class AstroBuilder {
     debug(logging, 'build', timerMessage('Additional assets copied', timer.assetsStart));
 
     // Build your final sitemap.
-    timer.sitemapStart = performance.now();
+    /*timer.sitemapStart = performance.now();
     if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
       const sitemapStart = performance.now();
       const sitemap = generateSitemap(input.map(({ name }) => new URL(`/${name}`, this.config.buildOptions.site).href));
@@ -179,13 +197,13 @@ class AstroBuilder {
       await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
       await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
     }
-    debug(logging, 'build', timerMessage('Sitemap built', timer.sitemapStart));
+    debug(logging, 'build', timerMessage('Sitemap built', timer.sitemapStart));*/
 
     // You're done! Time to clean up.
     await viteServer.close();
-    if (logging.level && levels[logging.level] <= levels['info']) {
+    /*if (logging.level && levels[logging.level] <= levels['info']) {
       await this.printStats({ cwd: this.config.dist, pageCount: input.length });
-    }
+    }*/
   }
 
   /** Extract all static paths from a dynamic route */

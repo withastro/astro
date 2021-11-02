@@ -1,7 +1,7 @@
 import type babel from '@babel/core';
 import type { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
-import type { AstroComponentFactory } from '../runtime/server';
+import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type vite from '../../vendor/vite';
 
 export interface AstroComponentMetadata {
@@ -139,11 +139,9 @@ export interface CollectionRSS {
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
 export interface ComponentInstance {
-  $$metadata: {
-    modules: { module: Record<string, unknown>; specifier: string }[];
-    fileURL: URL;
-  };
+  $$metadata: Metadata;
   default: AstroComponentFactory;
+  css?: string[];
   getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
