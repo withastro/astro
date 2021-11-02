@@ -41,7 +41,6 @@ export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: str
 export type Params = Record<string, string | undefined>;
 
 export interface TopLevelAstro {
-  isPage: boolean;
   fetchContent<T = any>(globStr: string): Promise<FetchContentResult<T>[]>;
   resolve: (path: string) => string;
   site: URL;
