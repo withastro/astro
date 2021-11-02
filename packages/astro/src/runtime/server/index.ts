@@ -192,7 +192,7 @@ export function createAstro(fileURLStr: string, site: string): TopLevelAstro {
     site: new URL(site),
     fetchContent,
     // INVESTIGATE is there a use-case for multi args?
-    resolve(...segments) {
+    resolve(...segments: string[]) {
       return segments.reduce((u, segment) => new URL(segment, u), url).pathname;
     },
   };
