@@ -127,7 +127,8 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 
   // If no one claimed the renderer
   if (!renderer) {
-    // This is a custom element without a renderer.
+    // This is a custom element without a renderer. Because of that, render it
+    // as a string and the user is responsible for adding a script tag for the component definition.
     if (typeof Component === 'string') {
       html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
     } else {
@@ -180,6 +181,9 @@ function createFetchContentFn(url: URL) {
       })
       .filter(Boolean);
   };
+  // This has to be cast because the type of fetchContent is the type of the function
+  // that receives the import.meta.glob result, but the user is using it as
+  // another type.
   return fetchContent as unknown as TopLevelAstro['fetchContent'];
 }
 
