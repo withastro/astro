@@ -47,6 +47,7 @@ Om je project te bouwen voor productie kun je het volgende commando uitvoeren in
 ```bash
 npm run build
 ```
+
 Dit zorgt ervoor dat Astro je project bouwt. De applicatie is nu beschikbaar in de `dist/` folder.
 
 ## Host je project
