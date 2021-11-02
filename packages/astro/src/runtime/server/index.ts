@@ -90,7 +90,7 @@ export async function renderSlot(_result: any, slotted: string, fallback?: any) 
   return fallback;
 }
 
-export const Fragment = Symbol("Astro.Fragment");
+export const Fragment = Symbol('Astro.Fragment');
 
 export async function renderComponent(result: SSRResult, displayName: string, Component: unknown, _props: Record<string | number, any>, slots: any = {}) {
   Component = await Component;
