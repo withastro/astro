@@ -1,4 +1,3 @@
-
 export function serializeListValue(value: any) {
   const hash: Record<string, any> = {};
 

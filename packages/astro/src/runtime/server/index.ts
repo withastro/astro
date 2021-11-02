@@ -225,8 +225,6 @@ export function spreadAttributes(values: Record<any, any>) {
   return output;
 }
 
-
-
 // Adds CSS variables to an inline style tag
 export function defineStyleVars(selector: string, vars: Record<any, any>) {
   let output = '\n';

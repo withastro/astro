@@ -24,7 +24,7 @@ const customGenerator: astring.Generator = {
 };
 
 // Serializes props passed into a component so that they can be reused during hydration.
-// The value is any 
+// The value is any
 export function serializeProps(value: any) {
   return generate(valueToEstree(value), {
     generator: customGenerator,
@@ -82,7 +82,6 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
   }
   return extracted;
 }
-
 
 interface HydrateScriptOptions {
   renderer: any;
