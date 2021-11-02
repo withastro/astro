@@ -2,33 +2,18 @@ import type { AstroComponentMetadata, Renderer } from '../../@types/astro-core';
 import type { SSRResult, SSRElement } from '../../@types/astro-runtime';
 import type { TopLevelAstro } from '../../@types/astro-runtime';
 
-import { valueToEstree } from 'estree-util-value-to-estree';
-import * as astring from 'astring';
 import shorthash from 'shorthash';
+import { extractDirectives, generateHydrateScript } from './hydration.js';
+import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
 
-const { generate, GENERATOR } = astring;
+// INVESTIGATE:
+// 2. Less anys when possible and make it well known when they are needed.
 
-// A more robust version alternative to `JSON.stringify` that can handle most values
-// see https://github.com/remcohaszing/estree-util-value-to-estree#readme
-const customGenerator: astring.Generator = {
-  ...GENERATOR,
-  Literal(node, state) {
-    if (node.raw != null) {
-      // escape closing script tags in strings so browsers wouldn't interpret them as
-      // closing the actual end tag in HTML
-      state.write(node.raw.replace('</script>', '<\\/script>'));
-    } else {
-      GENERATOR.Literal(node, state);
-    }
-  },
-};
-
-const serialize = (value: any) =>
-  generate(valueToEstree(value), {
-    generator: customGenerator,
-  });
-
+// Used to render slots and expressions
+// INVESTIGATE: Can we have more specific types both for the argument and output?
+// If these are intentional, add comments that these are intention and why.
+// Or maybe type UserValue = any; ?
 async function _render(child: any): Promise<any> {
   child = await child;
   if (Array.isArray(child)) {
@@ -42,13 +27,18 @@ async function _render(child: any): Promise<any> {
     return child;
   } else if (!child && child !== 0) {
     // do nothing, safe to ignore falsey values.
-  } else if (child instanceof AstroComponent || child.toString() === '[object AstroComponent]') {
+  }
+  // Add a comment explaining why each of these are needed.
+  // Maybe create clearly named function for what this is doing.
+  else if (child instanceof AstroComponent || child.toString() === '[object AstroComponent]') {
     return await renderAstroComponent(child);
   } else {
     return child;
   }
 }
 
+// The return value when rendering a component.
+// This is the result of calling render(), should this be named to RenderResult or...?
 export class AstroComponent {
   private htmlParts: TemplateStringsArray;
   private expressions: any[];
@@ -79,108 +69,21 @@ export async function render(htmlParts: TemplateStringsArray, ...expressions: an
   return new AstroComponent(htmlParts, expressions);
 }
 
+// The callback passed to to $$createComponent
 export interface AstroComponentFactory {
   (result: any, props: any, slots: any): ReturnType<typeof render>;
   isAstroComponentFactory?: boolean;
 }
 
+// Used in creating the component. aka the main export.
 export function createComponent(cb: AstroComponentFactory) {
   // Add a flag to this callback to mark it as an Astro component
+  // INVESTIGATE does this need to cast
   (cb as any).isAstroComponentFactory = true;
   return cb;
 }
 
-interface ExtractedProps {
-  hydration: {
-    directive: string;
-    value: string;
-    componentUrl: string;
-    componentExport: { value: string };
-  } | null;
-  props: Record<string | number, any>;
-}
-
-function extractDirectives(inputProps: Record<string | number, any>): ExtractedProps {
-  let extracted: ExtractedProps = {
-    hydration: null,
-    props: {},
-  };
-  for (const [key, value] of Object.entries(inputProps)) {
-    if (key.startsWith('client:')) {
-      if (!extracted.hydration) {
-        extracted.hydration = {
-          directive: '',
-          value: '',
-          componentUrl: '',
-          componentExport: { value: '' },
-        };
-      }
-      switch (key) {
-        case 'client:component-path': {
-          extracted.hydration.componentUrl = value;
-          break;
-        }
-        case 'client:component-export': {
-          extracted.hydration.componentExport.value = value;
-          break;
-        }
-        default: {
-          extracted.hydration.directive = key.split(':')[1];
-          extracted.hydration.value = value;
-          break;
-        }
-      }
-    } else if (key === 'class:list') {
-      // support "class" from an expression passed into a component (#782)
-      extracted.props[key.slice(0, -5)] = serializeListValue(value);
-    } else {
-      extracted.props[key] = value;
-    }
-  }
-  return extracted;
-}
-
-interface HydrateScriptOptions {
-  renderer: any;
-  astroId: string;
-  props: any;
-}
-
-/** For hydrated components, generate a <script type="module"> to load the component */
-async function generateHydrateScript(scriptOptions: HydrateScriptOptions, metadata: Required<AstroComponentMetadata>): Promise<SSRElement> {
-  const { renderer, astroId, props } = scriptOptions;
-  const { hydrate, componentUrl, componentExport } = metadata;
-
-  if (!componentExport) {
-    throw new Error(`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`);
-  }
-
-  let hydrationSource = '';
-  if (renderer.hydrationPolyfills) {
-    hydrationSource += `await Promise.all([${renderer.hydrationPolyfills.map((src: string) => `\n  import("${src}")`).join(', ')}]);\n`;
-  }
-
-  hydrationSource += renderer.source
-    ? `const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${renderer.source}")]);
-  return (el, children) => hydrate(el)(Component, ${serialize(props)}, children);
-`
-    : `await import("${componentUrl}");
-  return () => {};
-`;
-
-  const hydrationScript = {
-    props: { type: 'module' },
-    children: `import setup from 'astro/client/${hydrate}.js';
-setup("${astroId}", {${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''}}, async () => {
-  ${hydrationSource}
-});
-`,
-  };
-
-  return hydrationScript;
-}
-
-export async function renderSlot(result: any, slotted: string, fallback?: any) {
+export async function renderSlot(_result: any, slotted: string, fallback?: any) {
   if (slotted) {
     return _render(slotted);
   }
@@ -213,6 +116,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     metadata.componentUrl = hydration.componentUrl;
   }
 
+  // Call the renderers `check` hook to see if any claim this component.
   let renderer: Renderer | undefined;
   for (const r of renderers) {
     if (await r.ssr.check(Component, props, children)) {
@@ -221,7 +125,10 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     }
   }
 
+  // If no one claimed the renderer
   if (!renderer) {
+    // This is a custom element without a renderer. Because of that, render it
+    // as a string and the user is responsible for adding a script tag for the component definition.
     if (typeof Component === 'string') {
       html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
     } else {
@@ -231,6 +138,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
   }
 
+  // This is used to add polyfill scripts to the page, if the renderer needs them.
   if (renderer?.polyfills?.length) {
     let polyfillScripts = renderer.polyfills.map((src) => `<script type="module">import "${src}";</script>`).join('');
     html = html + polyfillScripts;
@@ -243,6 +151,8 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   // Include componentExport name and componentUrl in hash to dedupe identical islands
   const astroId = shorthash.unique(`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}`);
 
+  // Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
+  // INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
   result.scripts.add(await generateHydrateScript({ renderer, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
   return `<astro-root uid="${astroId}">${html}</astro-root>`;
@@ -271,23 +181,28 @@ function createFetchContentFn(url: URL) {
       })
       .filter(Boolean);
   };
-  return fetchContent;
+  // This has to be cast because the type of fetchContent is the type of the function
+  // that receives the import.meta.glob result, but the user is using it as
+  // another type.
+  return fetchContent as unknown as TopLevelAstro['fetchContent'];
 }
 
+// This is used to create the top-level Astro global; the one that you can use
+// Inside of getStaticPaths.
 export function createAstro(fileURLStr: string, site: string): TopLevelAstro {
   const url = new URL(fileURLStr);
-  const fetchContent = createFetchContentFn(url) as unknown as TopLevelAstro['fetchContent'];
+  const fetchContent = createFetchContentFn(url);
   return {
-    // TODO I think this is no longer needed.
-    isPage: false,
     site: new URL(site),
     fetchContent,
-    resolve(...segments) {
+    // INVESTIGATE is there a use-case for multi args?
+    resolve(...segments: string[]) {
       return segments.reduce((u, segment) => new URL(segment, u), url).pathname;
     },
   };
 }
 
+// A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string) {
   if (value == null || value === false) {
     return '';
@@ -301,6 +216,7 @@ export function addAttribute(value: any, key: string) {
   return ` ${key}="${value}"`;
 }
 
+// Adds support for `<Component {...value} />
 export function spreadAttributes(values: Record<any, any>) {
   let output = '';
   for (const [key, value] of Object.entries(values)) {
@@ -309,36 +225,9 @@ export function spreadAttributes(values: Record<any, any>) {
   return output;
 }
 
-function serializeListValue(value: any) {
-  const hash: Record<string, any> = {};
 
-  push(value);
 
-  return Object.keys(hash).join(' ');
-
-  function push(item: any) {
-    // push individual iteratables
-    if (item && typeof item.forEach === 'function') item.forEach(push);
-    // otherwise, push object value keys by truthiness
-    else if (item === Object(item))
-      Object.keys(item).forEach((name) => {
-        if (item[name]) push(name);
-      });
-    // otherwise, push any other values as a string
-    else {
-      // get the item as a string
-      item = item == null ? '' : String(item).trim();
-
-      // add the item if it is filled
-      if (item) {
-        item.split(/\s+/).forEach((name: string) => {
-          hash[name] = true;
-        });
-      }
-    }
-  }
-}
-
+// Adds CSS variables to an inline style tag
 export function defineStyleVars(selector: string, vars: Record<any, any>) {
   let output = '\n';
   for (const [key, value] of Object.entries(vars)) {
@@ -347,6 +236,7 @@ export function defineStyleVars(selector: string, vars: Record<any, any>) {
   return `${selector} {${output}}`;
 }
 
+// Adds variables to an inline script.
 export function defineScriptVars(vars: Record<any, any>) {
   let output = '';
   for (const [key, value] of Object.entries(vars)) {
@@ -355,6 +245,7 @@ export function defineScriptVars(vars: Record<any, any>) {
   return output;
 }
 
+// Calls a component and renders it into a string of HTML
 export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any) {
   const Component = await componentFactory(result, props, children);
   let template = await renderAstroComponent(Component);
@@ -368,6 +259,8 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
   return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
 };
 
+// Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
+// styles and scripts into the head.
 export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
   const template = await renderToString(result, Component, props, children);
   const styles = Array.from(result.styles)
