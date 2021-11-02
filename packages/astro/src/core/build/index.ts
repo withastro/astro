@@ -142,7 +142,11 @@ class AstroBuilder {
         target: 'es2020', // must match an esbuild target
       },
       plugins: [
-        rollupPluginHTML({ input, extractAssets: false }) as any, // "any" needed for CI; also we don’t need typedefs for this anyway
+        rollupPluginHTML({
+          rootDir: viteConfig.root,
+          input,
+          extractAssets: false,
+        }) as any, // "any" needed for CI; also we don’t need typedefs for this anyway
         ...(viteConfig.plugins || []),
       ],
       publicDir: viteConfig.publicDir,

@@ -1,26 +1,26 @@
 name: 'Collect Stats'
 
-on:  
+on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron:  '0 12 * * *'
-
-env:
-  node_version: 14
 
 jobs:
   stat:
     if: github.repository == 'snowpackjs/astro'
     runs-on: ubuntu-latest
     steps:
-      # Check out code using git
-      - uses: actions/checkout@v2
-      # Install Node 14
-      - uses: actions/setup-node@v1
+      - name: Check out code using Git
+        uses: actions/checkout@v2
+      - name: Set Node version to 16
+        uses: actions/setup-node@v2
         with:
-          version: 14
-      - run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
-      - run: node scripts/stats/index.js
+          node-version: 16
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+      - name: Collect stats
+        run: node scripts/stats/index.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Commit changes
