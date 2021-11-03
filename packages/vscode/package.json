@@ -233,6 +233,16 @@
           "meta.embedded.block.csharp": "csharp",
           "meta.embedded.block.fsharp": "fsharp"
         }
+      },
+      {
+        "scopeName": "text.html.markdown.astro",
+        "path": "./syntaxes/astro.inject-to-markdown.tmLanguage.json",
+        "injectTo": [
+          "text.html.markdown"
+        ],
+        "embeddedLanguages": {
+          "meta.embedded.block.astro": "astro"
+        }
       }
     ]
   }
