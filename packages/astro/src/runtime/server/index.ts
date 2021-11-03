@@ -107,7 +107,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   }
 
   const metadata: AstroComponentMetadata = { displayName };
-  const assets: AstroComponentAssets = { styles: result.styles, scripts: result.scripts };
+  const assets: AstroComponentAssets = { styles: result.styles, scripts: result.scripts, useHydrationScript: false };
 
   if (Component == null) {
     throw new Error(`Unable to render ${metadata.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
@@ -121,6 +121,8 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     metadata.hydrateArgs = hydration.value;
     metadata.componentExport = hydration.componentExport;
     metadata.componentUrl = hydration.componentUrl;
+
+    assets.useHydrationScript = true
   }
 
   // Call the renderers `check` hook to see if any claim this component.
@@ -151,7 +153,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     html = html + polyfillScripts;
   }
 
-  if (!hydration) {
+  if (!assets.useHydrationScript) {
     return html.replace(/\<\/?astro-fragment\>/g, '');
   }
 

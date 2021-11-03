@@ -16,6 +16,9 @@ export interface AstroComponentMetadata {
 export interface AstroComponentAssets {
   styles: Set<SSRElement>;
   scripts: Set<SSRElement>;
+
+  /** Whether the component should inject the client.js hydration script. */
+  useHydrationScript: boolean;
 }
 
 /**
