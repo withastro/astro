@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.8.0
+
+### Minor Changes
+
+- cf48420: Adds syntax highlighting support for Astro fenced codeblocks in all Markdown files
+
 ## 0.7.20
 
 ### Patch Changes
