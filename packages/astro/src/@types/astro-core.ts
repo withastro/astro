@@ -2,6 +2,7 @@ import type babel from '@babel/core';
 import type { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory } from '../runtime/server';
+import type { SSRElement } from './astro-runtime';
 import type vite from '../../vendor/vite';
 
 export interface AstroComponentMetadata {
@@ -10,6 +11,11 @@ export interface AstroComponentMetadata {
   hydrateArgs?: any;
   componentUrl?: string;
   componentExport?: string;
+}
+
+export interface AstroComponentAssets {
+  styles: Set<SSRElement>;
+  scripts: Set<SSRElement>;
 }
 
 /**
@@ -105,7 +111,7 @@ export interface AstroUserConfig {
 
 export type AstroConfig = z.output<typeof AstroConfigSchema>;
 
-export type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
+export type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata, assets?: AstroComponentAssets) => Promise<U>;
 
 export interface CollectionRSS {
   /** (required) Title of the RSS Feed */

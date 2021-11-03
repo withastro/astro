@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata, Renderer } from '../../@types/astro-core';
+import type { AstroComponentAssets, AstroComponentMetadata, Renderer } from '../../@types/astro-core';
 import type { SSRResult, SSRElement } from '../../@types/astro-runtime';
 import type { TopLevelAstro } from '../../@types/astro-runtime';
 
@@ -106,7 +106,8 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     return output;
   }
 
-  let metadata: AstroComponentMetadata = { displayName };
+  const metadata: AstroComponentMetadata = { displayName };
+  const assets: AstroComponentAssets = { styles: result.styles, scripts: result.scripts };
 
   if (Component == null) {
     throw new Error(`Unable to render ${metadata.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
@@ -141,7 +142,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
       throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
     }
   } else {
-    ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children, metadata));
+    ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children, metadata, assets));
   }
 
   // This is used to add polyfill scripts to the page, if the renderer needs them.
@@ -159,7 +160,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 
   // Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
   // INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
-  result.scripts.add(await generateHydrateScript({ renderer, astroId, props }, metadata as Required<AstroComponentMetadata>));
+  assets.scripts.add(await generateHydrateScript({ renderer, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
   return `<astro-root uid="${astroId}">${html}</astro-root>`;
 }
