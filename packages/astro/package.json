@@ -88,6 +88,7 @@
     "shorthash": "^0.0.2",
     "slash": "^4.0.0",
     "sourcemap-codec": "^1.4.8",
+    "srcset-parse": "^1.1.0",
     "string-width": "^5.0.0",
     "strip-ansi": "^7.0.1",
     "strip-indent": "^4.0.0",

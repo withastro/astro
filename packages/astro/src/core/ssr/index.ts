@@ -73,14 +73,19 @@ async function resolveRenderers(viteServer: vite.ViteDevServer, astroConfig: Ast
   return renderers;
 }
 
+export async function loadModule(filePath: URL, viteServer: vite.ViteDevServer): Promise<ComponentInstance> {
+  const viteFriendlyURL = `/@fs${filePath.pathname}`;
+  const mod = (await viteServer.ssrLoadModule(viteFriendlyURL)) as ComponentInstance;
+  return mod;
+}
+
 /** use Vite to SSR */
 export async function ssr({ astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer }: SSROptions): Promise<string> {
   try {
     // Important: This needs to happen first, in case a renderer provides polyfills.
     const renderers = await resolveRenderers(viteServer, astroConfig);
     // Load the module from the Vite SSR Runtime.
-    const viteFriendlyURL = `/@fs${filePath.pathname}`;
-    const mod = (await viteServer.ssrLoadModule(viteFriendlyURL)) as ComponentInstance;
+    const mod = await loadModule(filePath, viteServer);
     // Handle dynamic routes
     let params: Params = {};
     let pageProps: Props = {};
