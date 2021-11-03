@@ -141,7 +141,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
       throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
     }
   } else {
-    ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
+    ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children, metadata));
   }
 
   // This is used to add polyfill scripts to the page, if the renderer needs them.
