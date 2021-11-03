@@ -139,8 +139,12 @@ export interface CollectionRSS {
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
 export interface ComponentInstance {
+  $$metadata: {
+    modules: { module: ComponentInstance; specifier: string }[];
+    fileURL: URL;
+    metadataCache: Map<string, unknown>;
+  };
   default: AstroComponentFactory;
-  css?: string[];
   getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
@@ -262,6 +266,9 @@ export interface Renderer {
   /** @deprecated Clientside requirements (deprecated in 0.21) */
   knownEntrypoints?: string[];
 }
+
+/** <link> tags with attributes represented by an object */
+export type Resource = Record<string, string>;
 
 export interface RouteData {
   component: string;

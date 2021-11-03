@@ -6,9 +6,9 @@ if (import.meta.hot) {
 
     morphdom(document.head, doc.head, {
       onBeforeElUpdated(fromEl, toEl) {
-        if (fromEl.isEqualNode(toEl)) {
-          return false;
-        }
+        // if (fromEl.isEqualNode(toEl)) {
+        //   return false;
+        // }
 
         return true;
       },

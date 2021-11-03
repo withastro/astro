@@ -4,6 +4,7 @@ import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../../@ty
 import type { LogOptions } from '../logger';
 import type { HmrContext, ModuleNode } from '../vite';
 
+import path from 'path';
 import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 import connect from 'connect';
@@ -13,6 +14,8 @@ import stripAnsi from 'strip-ansi';
 import vite from '../vite.js';
 import { defaultLogOptions, error, info } from '../logger.js';
 import { ssr } from '../ssr/index.js';
+import { STYLE_EXTENSIONS } from '../ssr/css.js';
+import { collectResources } from '../ssr/html.js';
 import { createRouteManifest, matchRoute } from '../ssr/routing.js';
 import { createVite } from '../create-vite.js';
 import * as msg from './messages.js';
@@ -51,7 +54,6 @@ export class AstroDevServer {
   httpServer: http.Server | undefined;
   hostname: string;
   port: number;
-
   private config: AstroConfig;
   private logging: LogOptions;
   private manifest: ManifestData;
@@ -92,49 +94,94 @@ export class AstroDevServer {
   }
 
   public async handleHotUpdate({ file, modules }: HmrContext): Promise<void | ModuleNode[]> {
-    if (!this.viteServer) throw new Error(`AstroDevServer.start() not called`);
+    const { viteServer } = this;
+    if (!viteServer) throw new Error(`AstroDevServer.start() not called`);
 
     for (const module of modules) {
-      this.viteServer.moduleGraph.invalidateModule(module);
+      viteServer.moduleGraph.invalidateModule(module);
     }
 
     const route = this.mostRecentRoute;
     const pathname = route?.pathname ?? '/';
 
     if (!route) {
-      this.viteServer.ws.send({
+      viteServer.ws.send({
         type: 'full-reload',
       });
       return [];
     }
 
     try {
+      const filePath = new URL(`./${route.component}`, this.config.projectRoot);
       // try to update the most recent route
       const html = await ssr({
         astroConfig: this.config,
-        filePath: new URL(`./${route.component}`, this.config.projectRoot),
+        filePath,
         logging: this.logging,
         mode: 'development',
         origin: this.origin,
         pathname,
         route,
         routeCache: this.routeCache,
-        viteServer: this.viteServer,
+        viteServer,
       });
 
+      // collect style tags to be reloaded (needed for Tailwind HMR, etc.)
+      let invalidatedModules: vite.ModuleNode[] = [];
+      await Promise.all(
+        collectResources(html)
+          .filter(({ href }) => {
+            if (!href) return false;
+            const ext = path.extname(href);
+            return STYLE_EXTENSIONS.has(ext);
+          })
+          .map(async ({ href }) => {
+            const viteModule =
+              viteServer.moduleGraph.getModuleById(`${href}?direct`) ||
+              (await viteServer.moduleGraph.getModuleByUrl(`${href}?direct`)) ||
+              viteServer.moduleGraph.getModuleById(href) ||
+              (await viteServer.moduleGraph.getModuleByUrl(href));
+            if (viteModule) {
+              invalidatedModules.push(viteModule);
+              viteServer.moduleGraph.invalidateModule(viteModule);
+            }
+          })
+      );
+
       // TODO: log update
-      this.viteServer.ws.send({
+      viteServer.ws.send({
         type: 'custom',
         event: 'astro:reload',
         data: { html },
       });
+
+      for (const viteModule of invalidatedModules) {
+        // Note: from the time viteServer.moduleGraph.invalidateModule() is called above until now, CSS
+        // is building in the background. For things like Tailwind, this can take some time. If the
+        // CSS is still processing by the time HMR fires, we’ll end up with stale styles on the page.
+        // TODO: fix this hack by figuring out how to add these styles to the { modules } above
+        setTimeout(() => {
+          viteServer.ws.send({
+            type: 'update',
+            updates: [
+              {
+                type: viteModule.type === 'js' ? 'js-update' : 'css-update',
+                path: viteModule.id || viteModule.file || viteModule.url,
+                acceptedPath: viteModule.url,
+                timestamp: Date.now(),
+              },
+            ],
+          });
+        }, 150);
+      }
+
       return [];
     } catch (e) {
       const err = e as Error;
-      this.viteServer.ssrFixStacktrace(err);
+      viteServer.ssrFixStacktrace(err);
       // eslint-disable-next-line
       console.error(err.stack);
-      this.viteServer.ws.send({
+      viteServer.ws.send({
         type: 'full-reload',
       });
       return [];

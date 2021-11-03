@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "astro": "^0.21.0-next.1",
-    "autoprefixer": "^10.3.7",
-    "tailwindcss": "^2.2.17"
+    "autoprefixer": "^10.4.0",
+    "tailwindcss": "^2.2.19"
   }
 }
