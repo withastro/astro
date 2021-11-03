@@ -155,7 +155,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   }
 
   // Include componentExport name and componentUrl in hash to dedupe identical islands
-  const astroId = shorthash.unique(`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}`);
+  const astroId = shorthash.unique(`<!--${metadata.componentExport}:${metadata.componentUrl}-->\n${html}`);
 
   // Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
   // INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.

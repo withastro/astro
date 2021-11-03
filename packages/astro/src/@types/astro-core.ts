@@ -9,7 +9,7 @@ export interface AstroComponentMetadata {
   hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';
   hydrateArgs?: any;
   componentUrl?: string;
-  componentExport?: { value: string; namespace?: boolean };
+  componentExport?: string;
 }
 
 /**

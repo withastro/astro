@@ -36,7 +36,7 @@ interface ExtractedProps {
     directive: string;
     value: string;
     componentUrl: string;
-    componentExport: { value: string };
+    componentExport: string;
   } | null;
   props: Record<string | number, any>;
 }
@@ -55,7 +55,7 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
           directive: '',
           value: '',
           componentUrl: '',
-          componentExport: { value: '' },
+          componentExport: '',
         };
       }
       switch (key) {
@@ -64,7 +64,7 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
           break;
         }
         case 'client:component-export': {
-          extracted.hydration.componentExport.value = value;
+          extracted.hydration.componentExport = value;
           break;
         }
         default: {
@@ -104,7 +104,7 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
   }
 
   hydrationSource += renderer.source
-    ? `const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${renderer.source}")]);
+    ? `const [{ ${componentExport}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${renderer.source}")]);
   return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
 `
     : `await import("${componentUrl}");
