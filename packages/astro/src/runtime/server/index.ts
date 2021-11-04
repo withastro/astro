@@ -135,14 +135,23 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
       }
     }
   } else {
-    console.log(metadata);
-    // renderer = 
+    // Attempt: use explicitly passed renderer name
+    if (metadata.hydrateArgs) {
+      const rendererName = metadata.hydrateArgs;
+      renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${rendererName}` || name === rendererName)[0];
+    }
+    // Attempt: can we guess the renderer from the export extension?
+    if (!renderer) {
+      const extname = metadata.componentUrl?.split('.').pop();
+      renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${extname}` || name === extname)[0];
+    }
   }
 
   // If no one claimed the renderer
   if (!renderer) {
     if (metadata.hydrate === 'only') {
-      // noop
+      // TODO: improve error message
+      throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
     } else if (typeof Component === 'string') {
       // This is a custom element without a renderer. Because of that, render it
       // as a string and the user is responsible for adding a script tag for the component definition.
