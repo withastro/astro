@@ -32,16 +32,24 @@ async function renderToStaticMarkup(Component, props, children, metadata, assets
 const toHyphenName = name => name.replace(/^HTMLElement$/, 'hElement').replace(/[A-Z]/g, '-$&').toLowerCase().replace(/^-/, 'html-')
 
 /** Returns separated attributes and slots from the given props, based upon the given observed attributes. */
-const toAttrsAndSlots = (props, observedAttributes) => {
-	observedAttributes = new Set(observedAttributes || [])
+const toAttrsAndSlots = (props, preservedAttributes) => {
+	preservedAttributes = preservedAttributes || []
+	preservedAttributes = new Set([ ...globalAttributes, ...preservedAttributes ])
 
 	let attrs = ''
 	let slots = ''
 
 	for (let name in props) {
-		if (name === 'client:script') continue
+		if (
+			preservedAttributes.has(name) ||
+			/^aria-/.test(name) ||
+			/^data-/.test(name) ||
+			/^on./.test(name)
+		) {
+			attrs += ` ${name}="${props[name]}"`
+		}
 
-		if (observedAttributes.has(name)) {
+		if (preservedAttributes.has(name)) {
 			attrs += ` ${name}="${props[name]}"`
 		} else {
 			slots += `<data slot="${name}">${props[name]}</data> `
@@ -50,5 +58,35 @@ const toAttrsAndSlots = (props, observedAttributes) => {
 
 	return { attrs, slots }
 }
+
+/** Global attributes common to all HTML elements. */
+const globalAttributes = [
+	'accesskey',
+	'autocapitalize',
+	'autofocus',
+	'class',
+	'contenteditable',
+	'dir',
+	'draggable',
+	'enterkeyhint',
+	'exportparts',
+	'hidden',
+	'id',
+	'is',
+	'itemid',
+	'itemprop',
+	'itemref',
+	'itemscope',
+	'itemtype',
+	'lang',
+	'nonce',
+	'part',
+	'slot',
+	'spellcheck',
+	'style',
+	'tabindex',
+	'title',
+	'translate'
+]
 
 export default { check, renderToStaticMarkup }
