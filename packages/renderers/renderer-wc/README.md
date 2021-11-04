@@ -65,7 +65,7 @@ __src/pages/index.astro__
 import { Heading } from '../components/heading.js';
 ---
 
-<my-element></my-element>
+<Heading>Automatic Heading Level</Heading>
 ```
 
 ## More Documentation
