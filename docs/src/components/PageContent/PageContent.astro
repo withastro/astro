@@ -1,11 +1,11 @@
 ---
-const {content, githubEditUrl, currentPage} = Astro.props;
-const title = content.title;
-const headers = content.astro?.headers;
 import MoreMenu from '../RightSidebar/MoreMenu.astro';
 import TableOfContents from '../RightSidebar/TableOfContents.tsx';
 import {getLanguageFromURL} from '../../util.ts';
 import {SIDEBAR} from '../../config.ts';
+const {content, githubEditUrl, currentPage} = Astro.props;
+const title = content.title;
+const headers = content.astro?.headers;
 const langCode = getLanguageFromURL(currentPage);
 const links = SIDEBAR[langCode].filter(x => x.link && typeof x.header === 'undefined');
 // handle cases with a trailing slash or not
