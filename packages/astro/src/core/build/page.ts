@@ -4,7 +4,7 @@ import type { ViteDevServer } from '../vite';
 import _path from 'path';
 import { fileURLToPath } from 'url';
 import { LogOptions } from '../logger';
-import { loadModule } from '../ssr/index.js';
+import { loadModule, ssr } from '../ssr/index.js';
 import { validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generatePaginateFunction } from './paginate.js';
 import { generateRssFunction } from './rss.js';
@@ -70,9 +70,22 @@ function formatOutFile(path: string, pageUrlFormat: AstroConfig['buildOptions'][
   return `${path}.html`;
 }
 /** Build static page */
-export async function buildStaticPage({ astroConfig, buildState, path, route, astroRuntime }: PageBuildOptions): Promise<void> {
+export async function buildStaticPage({ astroConfig, buildState, path, route }: PageBuildOptions): Promise<void> {
   const location = convertMatchToLocation(route, astroConfig);
   const normalizedPath = astroConfig.devOptions.trailingSlash === 'never' ? path : path.endsWith('/') ? path : `${path}/`;
+
+  const r = ssr({
+    astroConfig,
+    filePath: location.fileURL,
+    logging,
+    mode: 'production', 
+    origin,
+    pathname: path,
+    route,
+    routeCache,
+    viteServer
+  })
+
   const result = await astroRuntime.load(normalizedPath);
   if (result.statusCode !== 200) {
     let err = (result as any).error;
