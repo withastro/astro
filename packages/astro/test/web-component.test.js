@@ -40,6 +40,14 @@ describe('Web component', () => {
     expect($('script[type="module"]')).to.have.lengthOf(1);
   });
 
+  it('Can preserve global html attributes on a component', async () => {
+    const html = await fixture.readFile('/class/index.html');
+    const $ = cheerio.load(html);
+
+    // test 1: get element with preserved class attribute
+    expect($('html-blue[class="preserved"]')).to.have.lengthOf(1);
+  });
+
   it('Can assign attributes and slots to a component', async () => {
     const html = await fixture.readFile('/props/index.html');
     const $ = cheerio.load(html);
