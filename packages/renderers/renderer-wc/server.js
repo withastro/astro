@@ -8,7 +8,7 @@ async function renderToStaticMarkup(Component, props, children, metadata, assets
 	assets.useHydrationScript = false
 
 	const definedName = getNameByCustomElement(Component)
-	const assuredName = definedName || toHyphenName(metadata.displayName || Component.name)
+	const assuredName = definedName || toHyphenName(metadata.displayName)
 
 	const { attrs, slots } = toAttrsAndSlots(props, Component.observedAttributes)
 
