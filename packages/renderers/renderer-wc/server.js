@@ -5,17 +5,23 @@ async function check(Component, _props, _children) {
 }
 
 async function renderToStaticMarkup(Component, props, children, metadata, assets) {
+	// disable the default client hydration script
 	assets.useHydrationScript = false
 
+	/** Custom Element tag name, if defined from `customElements`. */
 	const definedName = getNameByCustomElement(Component)
+
+	/** Custom Element tag name, falling back on the display name. */
 	const assuredName = definedName || toHyphenName(metadata.displayName)
 
 	const { attrs, slots } = toAttrsAndSlots(props, Component.observedAttributes)
 
+	// hydrate the custom element with its component js
 	if (metadata.componentUrl) {
 		assets.scripts.add({
 			props: { type: 'module' },
 			children: `import('${metadata.componentUrl}')${
+				// if necessary, automatically define the custom element using the generated name
 				definedName
 					? ``
 				: `.then(exports=>customElements.define('${assuredName}',exports['${metadata.componentExport}']))`
