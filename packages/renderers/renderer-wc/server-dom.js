@@ -49,7 +49,7 @@ export const HTMLElement = class HTMLElement {
 	}
 };
 
-// shim the global object
+// shim dom objects onto the global object
 
 globalThis.HTMLElement = HTMLElement;
 globalThis.customElements = customElements;
