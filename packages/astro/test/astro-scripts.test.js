@@ -1,18 +1,16 @@
-/**
- * UNCOMMENT: add Vite external script support
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import path from 'path';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/astro-scripts/' });
-  await fixture.build();
-});
-
 describe('Hoisted scripts', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-scripts/' });
+    await fixture.build();
+  });
+
   it('Moves external scripts up', async () => {
     const html = await fixture.readFile('/external/index.html');
     const $ = cheerio.load(html);
@@ -62,6 +60,3 @@ describe('Hoisted scripts', () => {
     expect(externalEntryJS).to.be.ok;
   });
 });
-*/
-
-it.skip('is skipped', () => {});
