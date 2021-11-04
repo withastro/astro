@@ -4,53 +4,68 @@ import htmlparser2 from 'htmlparser2';
 
 /** Inject tags into HTML (note: for best performance, group as many tags as possible into as few calls as you can) */
 export function injectTags(html: string, tags: vite.HtmlTagDescriptor[]): string {
-  // TODO: this usually takes 5ms or less, but if it becomes a bottleneck we can create a WeakMap cache
   let output = html;
   if (!tags.length) return output;
 
   const pos = { 'head-prepend': -1, head: -1, 'body-prepend': -1, body: -1 };
 
-  try {
-    // parse html
-    const parser = new htmlparser2.Parser({
-      onopentag(tagname) {
-        if (tagname === 'head') pos['head-prepend'] = parser.endIndex + 1;
-        if (tagname === 'body') pos['body-prepend'] = parser.endIndex + 1;
-      },
-      onclosetag(tagname) {
-        if (tagname === 'head') pos['head'] = parser.startIndex;
-        if (tagname === 'body') pos['body'] = parser.startIndex;
-      },
-    });
-    parser.write(html);
-    parser.end();
+  // parse html
+  const parser = new htmlparser2.Parser({
+    onopentag(tagname) {
+      if (tagname === 'head') pos['head-prepend'] = parser.endIndex + 1;
+      if (tagname === 'body') pos['body-prepend'] = parser.endIndex + 1;
+    },
+    onclosetag(tagname) {
+      if (tagname === 'head') pos['head'] = parser.startIndex;
+      if (tagname === 'body') pos['body'] = parser.startIndex;
+    },
+  });
+  parser.write(html);
+  parser.end();
 
-    // inject
-    const lastToFirst = Object.entries(pos).sort((a, b) => b[1] - a[1]);
-    lastToFirst.forEach(([name, i]) => {
-      if (i === -1) {
-        // TODO: warn on missing tag? Is this an HTML partial?
-        return;
+  // inject
+  const lastToFirst = Object.entries(pos).sort((a, b) => b[1] - a[1]);
+  lastToFirst.forEach(([name, i]) => {
+    if (i === -1) {
+      // TODO: warn on missing tag? Is this an HTML partial?
+      return;
+    }
+    let selected = tags.filter(({ injectTo }) => {
+      if (name === 'head-prepend' && !injectTo) {
+        return true; // "head-prepend" is the default
+      } else {
+        return injectTo === name;
       }
-      let selected = tags.filter(({ injectTo }) => {
-        if (name === 'head-prepend' && !injectTo) {
-          return true; // "head-prepend" is the default
-        } else {
-          return injectTo === name;
-        }
-      });
-      if (!selected.length) return;
-      output = output.substring(0, i) + serializeTags(selected) + html.substring(i);
     });
-  } catch (err) {
-    // on invalid HTML, do nothing
-  }
+    if (!selected.length) return;
+    output = output.substring(0, i) + serializeTags(selected) + html.substring(i);
+  });
 
   return output;
 }
 
-// Everything below © Vite
+type Resource = Record<string, string>;
+
+/** Collect resources (scans final, rendered HTML so expressions have been applied) */
+export function collectResources(html: string): Resource[] {
+  let resources: Resource[] = [];
+  const parser = new htmlparser2.Parser({
+    // <link> tags are self-closing, so only use onopentag (avoid onattribute or onclosetag)
+    onopentag(tagname, attrs) {
+      if (tagname === 'link') resources.push(attrs);
+    },
+  });
+  parser.write(html);
+  parser.end();
+  return resources;
+}
+
+// -------------------------------------------------------------------------------
+// Everything below © Vite. Rather than invent our own tag creating API, we borrow
+// Vite’s `transformIndexHtml()` API for ease-of-use and consistency. But we need
+// to borrow a few private methods in Vite to make that available here.
 // https://github.com/vitejs/vite/blob/main/packages/vite/src/node/plugins/html.ts
+// -------------------------------------------------------------------------------
 
 // Vite is released under the MIT license:
 

@@ -4,7 +4,6 @@ import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Prop
 import type { AstroGlobal, TopLevelAstro, SSRResult, SSRElement } from '../../@types/astro-runtime';
 import type { LogOptions } from '../logger';
 
-import { fileURLToPath } from 'url';
 import fs from 'fs';
 import path from 'path';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
@@ -164,7 +163,7 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     // inject tags
     const tags: vite.HtmlTagDescriptor[] = [];
 
-    // inject Astro HMR client (dev only)
+    // dev only: inject Astro HMR client
     if (mode === 'development') {
       tags.push({
         tag: 'script',

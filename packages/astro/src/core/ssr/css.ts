@@ -1,7 +1,6 @@
 import type vite from '../../../vendor/vite';
 
 import path from 'path';
-import htmlparser2 from 'htmlparser2';
 
 // https://vitejs.dev/guide/features.html#css-pre-processors
 export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
