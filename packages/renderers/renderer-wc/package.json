@@ -1,0 +1,11 @@
+{
+  "name": "@astrojs/renderer-wc",
+  "version": "0.1.0-next.0",
+  "description": "A Web Components renderer for Astro",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./server.js": "./server.js",
+    "./server-dom.js": "./server-dom.js"
+  }
+}
