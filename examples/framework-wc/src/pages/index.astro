@@ -1,0 +1,33 @@
+---
+import Heading from '../components/Heading.js'
+
+// Full Astro Component Syntax:
+// https://docs.astro.build/core-concepts/astro-components/
+---
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+	</head>
+	<body>
+		<main>
+			<Heading client:once>
+				Hello, Web Components!
+			</Heading>
+			<section>
+				<Heading>
+					Heading, Section Heading!
+				</Heading>
+				<section>
+					<Heading>
+						Heading, Sub-section Heading!
+					</Heading>
+				</section>
+			</section>
+			<Heading level="2">
+				Hello, Web Components!
+			</Heading>
+		</main>
+	</body>
+</html>
