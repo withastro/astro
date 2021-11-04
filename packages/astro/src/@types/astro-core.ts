@@ -140,9 +140,8 @@ export interface CollectionRSS {
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
 export interface ComponentInstance {
   $$metadata: {
-    modules: { module: ComponentInstance; specifier: string }[];
+    modules: { module: Record<string, unknown>; specifier: string }[];
     fileURL: URL;
-    metadataCache: Map<string, unknown>;
   };
   default: AstroComponentFactory;
   getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
