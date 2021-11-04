@@ -16,7 +16,7 @@ if (import.meta.hot) {
         if (fromEl.tagName === toEl.tagName && (toEl.tagName === 'LINK' || toEl.tagName === 'SCRIPT')) {
           return false;
         }
-        
+
         return true;
       },
     });
