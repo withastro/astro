@@ -8,21 +8,12 @@ async function renderToStaticMarkup(Component, props, children, metadata, assets
 	assets.useHydrationScript = false
 
 	const definedName = getNameByCustomElement(Component)
-	const assuredName = definedName || toHyphenName(Component.name)
+	const assuredName = definedName || toHyphenName(metadata.displayName || Component.name)
 
 	const { attrs, slots } = toAttrsAndSlots(props, Component.observedAttributes)
 
 	if (metadata.componentUrl) {
 		assets.scripts.add({
-			props: { type: 'module' },
-			children: `import('${metadata.componentUrl}')${
-				definedName
-					? ``
-				: `.then(exports=>customElements.define('${assuredName}',exports['${metadata.componentExport}']))`
-			}`,
-		})
-
-		assets.styles.add({
 			props: { type: 'module' },
 			children: `import('${metadata.componentUrl}')${
 				definedName
@@ -38,7 +29,7 @@ async function renderToStaticMarkup(Component, props, children, metadata, assets
 }
 
 /** Returns a component name as an HTML tag. */
-const toHyphenName = name => name.replace(/[A-Z]/g, '-$&').toLowerCase().replace(/^-/, 'html-')
+const toHyphenName = name => name.replace(/^HTMLElement$/, 'hElement').replace(/[A-Z]/g, '-$&').toLowerCase().replace(/^-/, 'html-')
 
 /** Returns separated attributes and slots from the given props, based upon the given observed attributes. */
 const toAttrsAndSlots = (props, observedAttributes) => {
