@@ -42,8 +42,8 @@ const toAttrsAndSlots = (props, preservedAttributes) => {
 	for (let name in props) {
 		if (
 			preservedAttributes.has(name) ||
-			/^aria-/.test(name) ||
-			/^data-/.test(name) ||
+			/^aria-./.test(name) ||
+			/^data-./.test(name) ||
 			/^on./.test(name)
 		) {
 			attrs += ` ${name}="${props[name]}"`
