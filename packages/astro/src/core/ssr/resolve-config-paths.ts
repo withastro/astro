@@ -1,6 +1,6 @@
 import { tsconfigResolverSync, TsConfigResultSuccess } from 'tsconfig-resolver';
 import fs from 'fs'
-import { posix as ps } from 'path'
+import path from 'path'
 import type * as vite from 'vite'
 
 /** Return the nearest tsconfig.json or jsconfig.json configuration result. */
@@ -35,7 +35,7 @@ const getConfigResolver = (): { baseUrl: string, paths: { [alias: string]: strin
 		}
 
 		// resolve the base url from the configuration file directory
-		baseUrl = ps.resolve(ps.dirname(configResult.path), baseUrl)
+		baseUrl = path.posix.resolve(path.posix.dirname(configResult.path), baseUrl)
 
 		// guarantee paths is an object
 		paths = Object(paths)
@@ -45,7 +45,7 @@ const getConfigResolver = (): { baseUrl: string, paths: { [alias: string]: strin
 			delete paths[alias]
 
 			paths[alias.replace(/\*$/, '')] = values = [].concat(values as any).map(
-				(value: string) => ps.resolve(baseUrl, value).replace(/\*$/, '')
+				(value: string) => path.posix.resolve(baseUrl, value).replace(/\*$/, '')
 			)
 		}
 
@@ -80,7 +80,7 @@ export default function resolveConfigPaths(): vite.PluginOption {
 
 			// otherwise, conditionally resolve from the baseUrl
 
-			const resolvedSource = ps.resolve(resolver.baseUrl, source)
+			const resolvedSource = path.posix.resolve(resolver.baseUrl, source)
 
 			if (fs.existsSync(resolvedSource)) {
 				return resolvedSource
