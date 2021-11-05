@@ -1,4 +1,4 @@
-import type { BuildOutput, BundleMap } from '../@types/astro';
+import type { BuildOutput, BundleMap } from '../../@types/astro-build';
 import type { LogOptions } from '../logger';
 
 import { info, table } from '../logger.js';

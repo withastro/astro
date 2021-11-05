@@ -1,9 +1,11 @@
-import type { AstroConfig, RouteData, RuntimeMode, ScriptInfo } from '../../@types/astro-core';
-import type { BuildOutput, BundleMap, PageDependencies } from '../../@types/astro-build';
+import type { AstroConfig, RouteCache, RouteData, RuntimeMode, ScriptInfo } from '../../@types/astro-core';
+import type { BuildOutput, BundleMap, PageDependencies, ServerFetch } from '../../@types/astro-build';
+import type { LogOptions } from '../logger';
 
 import cheerio from 'cheerio';
+import connect from 'connect';
 import del from 'del';
-import eslexer from 'es-module-lexer';
+import * as eslexer from 'es-module-lexer';
 import fs from 'fs';
 import { bold, green, red, underline, yellow } from 'kleur/colors';
 import mime from 'mime';
@@ -13,6 +15,7 @@ import glob from 'tiny-glob';
 import hash from 'shorthash';
 import srcsetParse from 'srcset-parse';
 import { fileURLToPath } from 'url';
+import fetch from 'node-fetch';
 
 import { bundleCSS } from './bundle/css.js';
 import { bundleJS, bundleHoistedJS, collectJSImports } from './bundle/js.js';
@@ -20,7 +23,6 @@ import { buildStaticPage, getStaticPathsForPage } from './page.js';
 import { generateSitemap } from './sitemap.js';
 import { collectBundleStats, logURLStats, mapBundleStatsToURLStats } from './stats.js';
 import { getDistPath, stopTimer } from './util.js';
-import type { LogOptions } from '../logger';
 import { debug, defaultLogDestination, defaultLogLevel, error, info, warn } from '../logger.js';
 import { createVite } from '../create-vite.js';
 import vite, { ViteDevServer } from '../vite.js';
@@ -39,17 +41,18 @@ function isRemoteOrEmbedded(url: string) {
   return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//') || url.startsWith('data:');
 }
 
+interface BuildOptions {
+  logging: LogOptions;
+}
+
 /** The primary build action */
-export async function build(astroConfig: AstroConfig, logging: LogOptions = defaultLogging): Promise<0 | 1> {
+export default async function build(astroConfig: AstroConfig, options: BuildOptions = { logging: defaultLogging }): Promise<0 | 1> {
   const { projectRoot } = astroConfig;
+  const { logging } = options;
   const buildState: BuildOutput = {};
   const depTree: BundleMap = {};
   const timer: Record<string, number> = {};
-
-  const runtimeLogging: LogOptions = {
-    level: 'error',
-    dest: defaultLogDestination,
-  };
+  const routeCache: RouteCache = {};
 
   // warn users if missing config item in build that may result in broken SEO (can’t disable, as they should provide this)
   if (!astroConfig.buildOptions.site) {
@@ -69,7 +72,17 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
     },
     { astroConfig, logging }
   );
+  const app = connect();
   const viteServer = await vite.createServer(viteConfig);
+  app.use(viteServer.middlewares);
+  const port = astroConfig.devOptions.port;
+  const origin = astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).origin : `http://localhost:${port}`;
+  await new Promise<void>(resolve => {
+    app.listen(port, () => {
+      resolve();
+    });
+  });
+  const fetchPath: ServerFetch = (pathName: string) => fetch(new URL(pathName, `http://localhost:${port}`).toString());
 
   const manifest = createRouteManifest({ config: astroConfig });
 
@@ -120,9 +133,12 @@ export async function build(astroConfig: AstroConfig, logging: LogOptions = defa
             await buildStaticPage({
               astroConfig,
               buildState,
+              logging,
+              origin,
               route,
               path: p,
-              astroRuntime,
+              routeCache,
+              viteServer
             });
           }
         })
@@ -146,6 +162,7 @@ ${stack}
       } else {
         error(logging, 'build', e.message);
       }
+      console.error(e); // TODO REMOVE
       error(logging, 'build', red('✕ building pages failed!'));
 
       await viteServer.close();
@@ -172,22 +189,24 @@ ${stack}
       for (const url of [...pageDeps.js, ...pageDeps.css, ...pageDeps.images]) {
         if (!buildState[url])
           scanPromises.push(
-            astroRuntime.load(url).then((result: LoadResult) => {
-              if (result.statusCode === 404) {
+            fetchPath(url).then(async (result) => {
+              if (result.status === 404) {
                 if (url.startsWith('/_astro/')) {
                   throw new Error(`${buildState[id].srcPath.href}: could not find file "${url}".`);
                 }
                 warn(logging, 'build', `${buildState[id].srcPath.href}: could not find file "${url}". Marked as external.`);
                 return;
               }
-              if (result.statusCode !== 200) {
+              if (result.status !== 200) {
                 // there shouldn’t be a build error here
-                throw (result as any).error || new Error(`unexpected ${result.statusCode} response from "${url}".`);
+                throw (result as any).error || new Error(`unexpected ${result.status} response from "${url}".`);
               }
+              let contentType = result.headers.get('content-type');
+              let buffer = Buffer.from(await result.arrayBuffer());
               buildState[url] = {
                 srcPath: new URL(url, projectRoot),
-                contents: result.contents,
-                contentType: result.contentType || mime.getType(url) || '',
+                contents: buffer,
+                contentType: contentType || mime.getType(url) || '',
               };
             })
           );
@@ -206,7 +225,7 @@ ${stack}
       bundleCSS({ buildState, astroConfig, logging, depTree }).then(() => {
         debug(logging, 'build', `bundled CSS [${stopTimer(timer.prebundleCSS)}]`);
       }),
-      bundleHoistedJS({ buildState, astroConfig, logging, depTree, runtime: astroRuntime, dist: astroConfig.dist }),
+      bundleHoistedJS({ buildState, depTree, fetchPath, dist: astroConfig.dist }),
       // TODO: optimize images?
     ]);
     // TODO: minify HTML?
@@ -284,7 +303,7 @@ ${stack}
     info(logging, 'build', yellow(`! bundling...`));
     if (jsImports.size > 0) {
       timer.bundleJS = performance.now();
-      const jsStats = await bundleJS(jsImports, { dist: astroConfig.dist, astroRuntime });
+      const jsStats = await bundleJS(jsImports, { dist: astroConfig.dist, fetchPath, viteServer });
       mapBundleStatsToURLStats({ urlStats, depTree, bundleStats: jsStats });
       debug(logging, 'build', `bundled JS [${stopTimer(timer.bundleJS)}]`);
       info(logging, 'build', green(`✔`), 'bundling complete.');
@@ -294,12 +313,12 @@ ${stack}
      * 6. Print stats
      */
     logURLStats(logging, urlStats);
-    await astroRuntime.shutdown();
+    await viteServer.close();
     info(logging, 'build', bold(green('▶ Build Complete!')));
     return 0;
-  } catch (err) {
+  } catch (err: any) {
     error(logging, 'build', err.message);
-    await astroRuntime.shutdown();
+    await viteServer.close();
     return 1;
   }
 }

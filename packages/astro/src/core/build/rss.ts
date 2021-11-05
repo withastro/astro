@@ -1,4 +1,4 @@
-import type { RSSFunctionArgs, RouteData } from '../@types/astro';
+import type { RSSFunctionArgs, RouteData } from '../../@types/astro-core';
 import parser from 'fast-xml-parser';
 import { canonicalURL } from './util.js';
 

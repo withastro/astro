@@ -1,4 +1,5 @@
 import type { ScriptInfo } from './astro-core';
+import type { Response as FetchResponse } from 'node-fetch';
 
 /** Entire output of `astro build`, stored in memory */
 export interface BuildOutput {
@@ -33,3 +34,5 @@ export interface PageDependencies {
   /** Async hoisted Javascript */
   hoistedJS: Map<string, ScriptInfo>;
 }
+
+export type ServerFetch = (pathName: string) => Promise<FetchResponse>;

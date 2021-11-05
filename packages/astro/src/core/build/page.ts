@@ -1,9 +1,9 @@
-import type { AstroConfig, RouteData } from '../../@types/astro-core';
+import type { AstroConfig, RouteCache, RouteData } from '../../@types/astro-core';
 import type { BuildOutput } from '../../@types/astro-build';
 import type { ViteDevServer } from '../vite';
+import type { LogOptions } from '../logger';
 import _path from 'path';
 import { fileURLToPath } from 'url';
-import { LogOptions } from '../logger';
 import { loadModule, ssr } from '../ssr/index.js';
 import { validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generatePaginateFunction } from './paginate.js';
@@ -18,15 +18,19 @@ function convertMatchToLocation(routeMatch: RouteData, astroConfig: AstroConfig)
   const url = new URL(`./${routeMatch.component}`, astroConfig.projectRoot);
   return {
     fileURL: url,
-    snowpackURL: `/_astro/${routeMatch.component}.js`,
+    snowpackURL: `/_astro/${routeMatch.component}.js`, // TODO remove
   };
 }
 
 interface PageBuildOptions {
   astroConfig: AstroConfig;
   buildState: BuildOutput;
+  logging: LogOptions;
+  origin: string;
   path: string;
   route: RouteData;
+  routeCache: RouteCache;
+  viteServer: ViteDevServer;
 }
 
 /** Build dynamic page */
@@ -70,11 +74,11 @@ function formatOutFile(path: string, pageUrlFormat: AstroConfig['buildOptions'][
   return `${path}.html`;
 }
 /** Build static page */
-export async function buildStaticPage({ astroConfig, buildState, path, route }: PageBuildOptions): Promise<void> {
+export async function buildStaticPage({ astroConfig, buildState, logging, origin, path, route, routeCache, viteServer }: PageBuildOptions): Promise<void> {
   const location = convertMatchToLocation(route, astroConfig);
-  const normalizedPath = astroConfig.devOptions.trailingSlash === 'never' ? path : path.endsWith('/') ? path : `${path}/`;
+  //const normalizedPath = astroConfig.devOptions.trailingSlash === 'never' ? path : path.endsWith('/') ? path : `${path}/`;
 
-  const r = ssr({
+  const html = await ssr({
     astroConfig,
     filePath: location.fileURL,
     logging,
@@ -84,18 +88,11 @@ export async function buildStaticPage({ astroConfig, buildState, path, route }: 
     route,
     routeCache,
     viteServer
-  })
+  });
 
-  const result = await astroRuntime.load(normalizedPath);
-  if (result.statusCode !== 200) {
-    let err = (result as any).error;
-    if (!(err instanceof Error)) err = new Error(err);
-    err.filename = fileURLToPath(location.fileURL);
-    throw err;
-  }
   buildState[formatOutFile(path, astroConfig.buildOptions.pageUrlFormat)] = {
     srcPath: location.fileURL,
-    contents: result.contents,
+    contents: html,
     contentType: 'text/html',
     encoding: 'utf8',
   };

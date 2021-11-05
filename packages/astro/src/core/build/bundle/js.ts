@@ -1,8 +1,8 @@
 import type { InputOptions, OutputOptions, OutputChunk } from 'rollup';
-import type { AstroConfig, ScriptInfo } from '../../../@types/astro-core';
-//import type { AstroConfig, BundleMap, BuildOutput, ScriptInfo, InlineScriptInfo } from '../../../@types/astro-build';
-import type { AstroRuntime } from '../../runtime';
+import type { AstroConfig, ScriptInfo, ScriptInfoInline } from '../../../@types/astro-core';
+import type { BundleMap, BuildOutput, ServerFetch } from '../../../@types/astro-build';
 import type { LogOptions } from '../../logger.js';
+import type { ViteDevServer } from 'vite';
 
 import { fileURLToPath } from 'url';
 import { rollup } from 'rollup';
@@ -14,7 +14,8 @@ import path from 'path';
 
 interface BundleOptions {
   dist: URL;
-  astroRuntime: AstroRuntime;
+  fetchPath: ServerFetch;
+  viteServer: ViteDevServer;
 }
 
 /** Collect JS imports from build output */
@@ -32,18 +33,14 @@ function pageUrlToVirtualJSEntry(pageUrl: string) {
 
 export async function bundleHoistedJS({
   buildState,
-  astroConfig,
-  logging,
+  fetchPath,
   depTree,
-  dist,
-  runtime,
+  dist
 }: {
-  astroConfig: AstroConfig;
   buildState: BuildOutput;
-  logging: LogOptions;
   depTree: BundleMap;
   dist: URL;
-  runtime: AstroRuntime;
+  fetchPath: ServerFetch;
 }) {
   const sortedPages = Object.keys(depTree); // these were scanned in parallel; sort to create somewhat deterministic order
   sortedPages.sort((a, b) => a.localeCompare(b, 'en', { numeric: true }));
@@ -104,17 +101,18 @@ export async function bundleHoistedJS({
         },
         async load(id: string) {
           if (virtualScripts.has(id)) {
-            let info = virtualScripts.get(id) as InlineScriptInfo;
+            let info = virtualScripts.get(id) as ScriptInfoInline;
             return info.content;
           }
 
-          const result = await runtime.load(id);
+          // TODO replace with fetch
+          const result = await fetchPath(id);
 
-          if (result.statusCode !== 200) {
+          if (!result.ok) {
             return null;
           }
 
-          return result.contents.toString('utf-8');
+          return await result.text();
         },
       },
     ],
@@ -181,7 +179,7 @@ export async function bundleHoistedJS({
 }
 
 /** Bundle JS action */
-export async function bundleJS(imports: Set<string>, { astroRuntime, dist }: BundleOptions): Promise<BundleStatsMap> {
+export async function bundleJS(imports: Set<string>, { fetchPath, dist }: BundleOptions): Promise<BundleStatsMap> {
   const ROOT = 'astro:root';
   const validImports = [...imports].filter((url) => IS_ASTRO_FILE_URL.test(url));
   const root = `
@@ -213,13 +211,13 @@ export async function bundleJS(imports: Set<string>, { astroRuntime, dist }: Bun
             return root;
           }
 
-          const result = await astroRuntime.load(id);
+          const result = await fetchPath(id);
 
-          if (result.statusCode !== 200) {
+          if (!result.ok) {
             return null;
           }
 
-          return result.contents.toString('utf-8');
+          return await result.text();
         },
       },
     ],

@@ -1,4 +1,4 @@
-import type { AstroConfig } from '../@types/astro';
+import type { AstroConfig } from '../../@types/astro-core';
 import { performance } from 'perf_hooks';
 
 import fs from 'fs';

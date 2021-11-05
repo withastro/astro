@@ -192,9 +192,9 @@ export async function ssr({ astroConfig, filePath, logging, mode, origin, pathna
     html = injectTags(html, tags);
 
     // run transformIndexHtml() in dev to run Vite dev transformations
-    if (mode === 'development') {
+    //if (mode === 'development') {
       html = await viteServer.transformIndexHtml(filePath.pathname, html, pathname);
-    }
+    //}
 
     return html;
   } catch (e: any) {

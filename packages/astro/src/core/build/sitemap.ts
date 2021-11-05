@@ -1,4 +1,4 @@
-import type { BuildOutput } from '../@types/astro';
+import type { BuildOutput } from '../../@types/astro-build';
 import { canonicalURL } from './util.js';
 
 /** Construct sitemap.xml given a set of URLs */
