@@ -87,7 +87,7 @@ const colors = { foregroundColor: "rgb(221 243 228)", backgroundColor: "rgb(24 1
 
 ## Components in Markdown
 
-In Astro v0.21, Components can be used within Markdown files.
+In Astro v0.21, Components from any framework can be used within Markdown files.
 
 ```md
 ---
@@ -98,7 +98,11 @@ setup: |
 
 # Hydrating on visibility
 
-<MyReactComponent client:visible />
+<MyReactComponent client:visible>
+
+# Hello world!
+
+</MyReactComponent>
 ```
 
 
