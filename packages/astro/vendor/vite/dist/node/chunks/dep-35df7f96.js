@@ -56983,7 +56983,7 @@ const devHtmlHook = async (html, { path: htmlPath, server, originalUrl }) => {
                 // add HTML Proxy to Map
                 addToHTMLProxyCache(config, url, scriptModuleIndex, contents);
                 // inline js module. convert to src="proxy"
-                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${filePath}?html-proxy&index=${scriptModuleIndex}.js"></script>`);
+                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${config.base + url.slice(1)}?html-proxy&index=${scriptModuleIndex}.js"></script>`);
             }
         }
         // elements with [href/src] attrs
