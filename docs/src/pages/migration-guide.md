@@ -71,7 +71,7 @@ In Astro v0.21, variables can be passed from Frontmatter into inline `<style>` a
 // tick.astro
 const colors = { foregroundColor: "rgb(221 243 228)", backgroundColor: "rgb(24 121 78)" }
 ---
-<style define:vars={green}>
+<style define:vars={colors}>
   h-tick {
     background-color: var(--backgroundColor);
     border-radius: 50%;
