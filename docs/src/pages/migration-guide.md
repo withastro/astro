@@ -125,10 +125,10 @@ In prior releases, these variables were prefixed with `SNOWPACK_PUBLIC_` and req
 
 ```ini
 SECRET_PASSWORD=password123
-VITE_ANYBODY=there
+PUBLIC_ANYBODY=there
 ```
 
-In that example, only `VITE_ANYBODY` will be exposed as `import.meta.env.VITE_ANYBODY` to your client source code, but `SECRET_PASSWORD` will not.
+In that example, only `PUBLIC_ANYBODY` will be exposed as `import.meta.env.PUBLIC_ANYBODY` to your client source code, but `SECRET_PASSWORD` will not.
 
 
 
