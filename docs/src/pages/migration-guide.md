@@ -160,8 +160,8 @@ div {
 ```
 
 ```diff
-- <link rel="stylesheet" href="./Div.css">
-+ <link rel="stylesheet" href="./Div.scss">
+- <link rel="stylesheet" href={Astro.resolve('./Div.css')}>
++ <link rel="stylesheet" href={Astro.resolve('./Div.scss')}>
 ```
 
 
