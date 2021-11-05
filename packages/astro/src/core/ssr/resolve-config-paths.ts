@@ -62,7 +62,7 @@ export default function resolveConfigPaths(): vite.PluginOption {
 	if (!resolver) return {} as vite.PluginOption
 
 	return {
-		name: 'resolve-config-paths',
+		name: '@astrojs/vite-plugin-tsconfig-alias',
 		enforce: 'pre',
 		resolveId(source: string): string | null {
 			// conditionally resolve from each alias
