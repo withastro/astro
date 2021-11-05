@@ -5,7 +5,7 @@ description: How to migrate projects from Astro v0.20.
 ---
 
 Starting in v0.21, Astro is now built with [Vite].
-As a result, configurations written in `snowpack.config.mjs` should be moved into `astro.config.js`.
+As a result, configurations written in `snowpack.config.mjs` should be moved into `astro.config.mjs`.
 
 ```js
 // @ts-check
