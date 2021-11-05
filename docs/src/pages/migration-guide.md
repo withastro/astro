@@ -69,13 +69,13 @@ In Astro v0.21, variables can be passed from Frontmatter into inline `<style>` a
 ```astro
 ---
 // tick.astro
-import { green } from '@radix-ui/colors'
+const colors = { foregroundColor: "rgb(221 243 228)", backgroundColor: "rgb(24 121 78)" }
 ---
 <style define:vars={green}>
   h-tick {
-    background-color: var(--green4);
+    background-color: var(--backgroundColor);
     border-radius: 50%;
-    color: var(--green11);
+    color: var(--foregroundColor);
     height: 15px;
     width: 15px;
   }
