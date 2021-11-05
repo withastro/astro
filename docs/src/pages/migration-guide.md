@@ -186,7 +186,7 @@ To learn more about Vite plugins, please visit their [plugin guide](https://vite
 
 
 
-## Writing plugins
+## Custom Renderers
 
 In Astro v0.21, plugins previously using `snowpackPlugin` or `snowpackPluginOptions` should now use `viteConfig()`.
 
