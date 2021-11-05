@@ -52,7 +52,7 @@ const getConfigResolver = (): { baseUrl: string, paths: { [alias: string]: strin
 	return null
 }
 
-export default function resolveConfigPaths(): vite.PluginOption {
+export default function configAliasVitePlugin(): vite.PluginOption {
 	/** Resolver from the tsconfig.json or jsconfig.json configuration. */
 	const resolver = getConfigResolver()
 
