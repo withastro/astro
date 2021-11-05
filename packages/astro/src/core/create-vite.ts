@@ -55,6 +55,9 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
     ],
     publicDir: fileURLToPath(astroConfig.public),
     root: fileURLToPath(astroConfig.projectRoot),
+    resolve: {
+      alias: astroConfig.alias
+    },
     server: {
       force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
       hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined, // disable HMR for test

@@ -45,6 +45,12 @@ export interface AstroUserConfig {
    */
   public?: string;
   /**
+   * Object or Array of Objects defining aliases used to replace values in import statements.
+   * 
+   * Use absolute paths beginning with a slash. Relative alias values will be used as-is and will not be resolved into file system paths.
+   */
+  alias?: vite.AliasOptions;
+  /**
    * Framework component renderers enable UI framework rendering (static and dynamic).
    * When you define this in your configuration, all other defaults are disabled.
    * Default: [
