@@ -12,8 +12,8 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
   vite: {
     resolve: {
       alias: {
-        '~': './src',
-        'components': './src/components',
+        '~': '/src',
+        'components': '/src/components',
       }
     }
   }
