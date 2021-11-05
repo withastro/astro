@@ -37,11 +37,8 @@ const getConfigResolver = (): { baseUrl: string, paths: { [alias: string]: strin
 		// resolve the base url from the configuration file directory
 		baseUrl = path.posix.resolve(path.posix.dirname(configResult.path), baseUrl)
 
-		// guarantee paths is an object
-		paths = Object(paths)
-
 		// sanitize and resolve all aliases from the configuration file directory
-		for (let [ alias, values ] of Object.entries(paths)) {
+		for (let [ alias, values ] of Object.entries(Object(paths))) {
 			delete paths[alias]
 
 			paths[alias.replace(/\*$/, '')] = values = [].concat(values as any).map(
