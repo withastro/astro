@@ -8,6 +8,7 @@ import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import resolveConfigPaths from './ssr/resolve-config-paths.js';
 import fetchVitePlugin from '../vite-plugin-fetch/index.js';
 import { resolveDependency } from './util.js';
 
@@ -47,6 +48,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
       entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
     },
     plugins: [
+      resolveConfigPaths(),
       astroVitePlugin({ config: astroConfig, devServer }),
       markdownVitePlugin({ config: astroConfig, devServer }),
       jsxVitePlugin({ config: astroConfig, logging }),
