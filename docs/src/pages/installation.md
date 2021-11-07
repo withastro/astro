@@ -41,7 +41,7 @@ npm init astro my-astro-project -- --template starter
 # yarn
 yarn create astro my-astro-project --template starter
 # pnpm
-pnpm create astro my-astro-project --template starter
+pnpm create astro my-astro-project -- --template starter
 # Using a third-party template
 npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]
 # Using a third-party template, inside a repo
