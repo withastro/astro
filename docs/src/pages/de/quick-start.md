@@ -1,6 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Schnellstart
+description: Die einfachste Art, schnell mit Astro loszulegen.
 ---
 
 ```shell
@@ -23,7 +24,7 @@ npm run dev
 npm run build
 ```
 
-Um mehr über den Installationsprozess und den ersten Gebrauch von Astro zu lernen, [lies unseren Installations-Leitfaden.](installation)
+Um mehr über den Installationsprozess und den ersten Gebrauch von Astro zu lernen, [lies unseren Installations-Leitfaden.](de/installation)
 
 Wenn du es bevorzugst anhand eines Beispiels zu lernen, schau dir die [komplette Liste an Beispielen](https://github.com/snowpackjs/astro/tree/main/examples) auf GitHub an.
 Du kannst jedes Beispiel ausprobieren, indem du `npm init astro -- --template "EXAMPLE_NAME"` ausführst.

@@ -14,7 +14,7 @@ Der einfachste Weg, Astro auszuprobieren, ist `npm init astro` in einem neuen Ve
 
 Um mit Astro in fünf einfachen Schritten loszulegen, lies [unsere Schnellstart Anleitung](/de/quick-start).
 
-Alternativ kannst Du unsere [Installations Anleitung](/installation) für eine ausführliche Beschreibung des Installationsprozesses lesen.
+Alternativ kannst Du unsere [Installations Anleitung](/de/installation) für eine ausführliche Beschreibung des Installationsprozesses lesen.
 
 ### Online-Spielplätze
 
