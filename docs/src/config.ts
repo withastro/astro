@@ -41,6 +41,7 @@ export const SIDEBAR = {
   de: [
     { text: 'Willkommen', header: true },
     { text: 'Einführung', link: 'de/getting-started' },
+    { text: 'Schnellstart', link: 'de/quick-start' },
   ],
   nl: [
     { text: 'Welkom', header: true },

@@ -12,7 +12,7 @@ Diese Seite dient als Übersicht der Astro-Dokumentation und alle damit verbunde
 
 Der einfachste Weg, Astro auszuprobieren, ist `npm init astro` in einem neuen Verzeichnis deiner Wahl auszuführen. Der CLI-Wizard hilft Dir dabei, ein neues Astro-Projekt aufzusetzen.
 
-Um mit Astro in fünf einfachen Schritten loszulegen, lies [unsere Schnellstart Anleitung](/quick-start).
+Um mit Astro in fünf einfachen Schritten loszulegen, lies [unsere Schnellstart Anleitung](/de/quick-start).
 
 Alternativ kannst Du unsere [Installations Anleitung](/installation) für eine ausführliche Beschreibung des Installationsprozesses lesen.
 
