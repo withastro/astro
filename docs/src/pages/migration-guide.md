@@ -44,7 +44,7 @@ These aliases are integrated automatically into [VSCode](https://code.visualstud
 
 ## Passing variables into scripts and styles
 
-In Astro v0.21, variables can be passed from Frontmatter into inline `<style>` and `<script>`.
+In Astro v0.21, server-side variables can be passed into client-side `<style>` or `<script>`.
 
 ```astro
 ---
