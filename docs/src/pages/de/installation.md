@@ -54,7 +54,7 @@ Nachdem `create-astro` dein Projekt vorbereitet hat, denke daran, die Projektabh
 npm install
 ```
 
-Sie können Ihr Astro-Projekt nun [Starten](#start-astro). Nachdem Sie Ihr Astro-Projekt fertiggestellt haben, können Sie Ihr Projekt [Bauen](#build-astro). Astro wird dann die statischen Seiten generieren und für Sie bereitstellen, welche Sie anschließend bei Ihrem bevorzugten Hosting-Anbieter [Ausrollen](/guides/deploy) können.
+Du kannst dein Astro-Projekt nun [Starten](#start-astro). Nachdem du dein Astro-Projekt fertiggestellt hast, kannst du dein Projekt [Bauen](#build-astro). Astro wird dann die statischen Seiten generieren und für dich bereitstellen, welche du anschließend bei deinem bevorzugten Hosting-Anbieter [Ausrollen](/guides/deploy) kannst.
 
 
 ## Manuelle Installation
@@ -98,7 +98,7 @@ Du kannst jetzt den Platzhalter-Abschnitt "scripts" deiner `package.json` Datei,
   },
 }
 ```
-Der Befehl [`dev`](#start-astro) startet den Astro Entwicklungs Server auf `http://localhost:3000`. Sobald dein Projekt fertig ist, generiert der Befehl [`build`](#build-astro) dein fertiges Projekt in das Verzeichnis `dist/` . [Lese mehr über das Veröffentlichen im Deployment Leitfaden.](/guides/deploy) 
+Der Befehl [`dev`](#start-astro) startet den Astro Entwicklungs Server auf `http://localhost:3000`. Sobald dein Projekt fertig ist, generiert der Befehl [`build`](#build-astro) dein fertiges Projekt in das Verzeichnis `dist/`. [Lese mehr über das Veröffentlichen im Deployment Leitfaden.](/guides/deploy) 
 
 ### Erstelle deine erste Seite
 
@@ -106,12 +106,12 @@ Der Befehl [`dev`](#start-astro) startet den Astro Entwicklungs Server auf `http
 Öffne deinen bevorzugten Texteditor und erstelle eine neue Datei in deinem Projekt: 
 
 1. Erstelle eine neue Datei unter `src/pages/index.astro`
-2. Kopiere den folgenden Code-Schnipsel (einschließlich `---` Bindestriche) und füge ihn ein. 
+2. Kopiere den folgenden Code-Schnipsel (einschließlich der Bindestriche `---`) und füge ihn ein. 
 
 ```astro
 ---
-// JavaScript/TypeScript-Code, der zwischen dem (---) Bindestrichen geschrieben wurde, wird ausschließlich auf dem Server ausgeführt!
-console.log('Sehen Sie mich im Terminal ')
+// JavaScript/TypeScript-Code, der zwischen den (---) Bindestrichen geschrieben wurde, wird ausschließlich auf dem Server ausgeführt!
+console.log('Sieh mich mich im Terminal ')
 ---
 
 <html>
@@ -130,7 +130,7 @@ console.log('Sehen Sie mich im Terminal ')
 
 <script>
  // Hier eingegebener JS-Code wird vollständig im Browser ausgeführt 
- console.log('Sehen Sie mich in den devTools')
+ console.log('Sieh mich in den devTools')
 </script>
 ```
 
