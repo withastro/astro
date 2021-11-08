@@ -75,7 +75,7 @@ export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL; 
       // if the existing resolvers find the file, return that resolution
       if (resolvedId) return resolvedId;
 
-      // condition bypass this resolver if the source id is a relative or absolute path
+      // conditionally bypass this resolver if the source id is a relative or absolute path
       if (matchResolvablePath.test(source)) return null;
 
       // conditionally resolve the source id from any matching alias
