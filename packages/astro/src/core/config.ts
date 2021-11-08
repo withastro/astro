@@ -3,7 +3,7 @@ import type { AstroConfig, AstroUserConfig } from '../@types/astro-core';
 import { existsSync } from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import { pathToFileURL } from 'url';
+import { pathToFileURL, fileURLToPath } from 'url';
 import { z } from 'zod';
 import load from '@proload/core';
 import pluginTypeScript from '@proload/plugin-typescript';
@@ -123,14 +123,19 @@ interface LoadConfigOptions {
 export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfig> {
   const root = options.cwd ? path.resolve(options.cwd) : process.cwd();
   let userConfig: AstroUserConfig = {};
-  // Load a user-config, if one is specified
-  const astroUserConfigPath = new URL(`./${options.filename}`, `file://${root}/`);
-  if (existsSync(astroUserConfigPath)) {
-    userConfig = (await import(astroUserConfigPath.href)).default;
+
+  // Load a user-specified config
+  if (options.filename) {
+    const astroUserConfigPath = new URL(`./${options.filename}`, `file://${root}/`);
+    if (existsSync(astroUserConfigPath)) {
+      userConfig = (await import(astroUserConfigPath.href)).default;
+    } else {
+      throw new Error(`Unable to resolve "${fileURLToPath(astroUserConfigPath)}"`);
+    }
   } else {
-    // Load `astro.config.[cm]?[jt]s` using Proload
+    // Automatically load `astro.config.[cm]?[jt]s` using Proload
     const config = await load('astro', { mustExist: false, cwd: root });
-    if (typeof config !== 'undefined') {
+    if (config) {
       userConfig = config.value;
     }
   }
