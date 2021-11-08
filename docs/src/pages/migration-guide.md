@@ -42,26 +42,6 @@ These aliases are integrated automatically into [VSCode](https://code.visualstud
 
 
 
-## Aliases (#1749)
-
-In Astro v0.21, import aliases can also be added using the `alias` property.
-
-```js
-export default {
-  vite: {
-    resolve: {
-      alias: {
-        @components: '/src/components',
-      }
-    }
-  }
-}
-```
-
-Note: Always start alias values with `/`. Relative alias starting with `.` will be used as-is and will not be resolved.
-
-
-
 ## Passing variables into scripts and styles
 
 In Astro v0.21, variables can be passed from Frontmatter into inline `<style>` and `<script>`.
