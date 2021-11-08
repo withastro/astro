@@ -5,10 +5,6 @@ import * as colors from 'kleur/colors';
 import path from 'path';
 import { pathToFileURL } from 'url';
 import { z } from 'zod';
-import load from '@proload/core';
-import pluginTypeScript from '@proload/plugin-typescript';
-
-load.use([pluginTypeScript]);
 
 export const AstroConfigSchema = z.object({
   projectRoot: z
@@ -109,6 +105,11 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
   return AstroConfigRelativeSchema.parseAsync(userConfig);
 }
 
+interface LoadConfigOptions {
+  cwd?: string;
+  filename?: string;
+}
+
 /** Adds '/' to end of string but doesn’t double-up */
 function addTrailingSlash(str: string): string {
   return str.replace(/\/*$/, '/');
@@ -122,17 +123,11 @@ interface LoadConfigOptions {
 /** Attempt to load an `astro.config.mjs` file */
 export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfig> {
   const root = options.cwd ? path.resolve(options.cwd) : process.cwd();
+  const astroConfigPath = new URL(`./${options.filename || 'astro.config.mjs'}`, `file://${root}/`);
   let userConfig: AstroUserConfig = {};
-  // Load a user-config, if one is specified
-  const astroUserConfigPath = new URL(`./${options.filename}`, `file://${root}/`);
-  if (existsSync(astroUserConfigPath)) {
-    userConfig = (await import(astroUserConfigPath.href)).default;
-  } else {
-    // Load `astro.config.[cm]?[jt]s` using Proload
-    const config = await load('astro', { mustExist: false, cwd: root });
-    if (typeof config !== 'undefined') {
-      userConfig = config.value;
-    }
+  // Load a user-config, if one exists and is provided
+  if (existsSync(astroConfigPath)) {
+    userConfig = (await import(astroConfigPath.href)).default;
   }
   // normalize, validate, and return
   return validateConfig(userConfig, root);
