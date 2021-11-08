@@ -2,249 +2,490 @@
 /* The classes and methods here are not intended to recreate the Document Object Model. */
 /* The functionalities here are placeholder shims to access top-level DOM objects. */
 
-class InternalMap extends WeakMap {
-	get(ref, els) {
-		return super.has(ref) ? super.get(ref) : super.set(ref, els) && els
+// add utilities for handling internal data
+
+const INTERNALS = new WeakMap()
+
+const INTERNALS_FOR = (ref) => INTERNALS.has(ref) ? INTERNALS.get(ref) : INTERNALS.set(ref, {}).get(ref)
+
+/** @type {<T>(value: T, internals: {}, prop: string) => T} */
+const REGISTER = (value, internals, name = Object(value).name) => {
+	if (globalThis[name] === undefined) {
+		globalThis[name] = value
 	}
+
+	Object.assign(INTERNALS_FOR(value), internals)
+
+	return value
 }
 
-const internal = new InternalMap()
+// shim event target constructors
+
+/** Event interface representing an event which takes place. */
+export const Event = REGISTER(globalThis.Event || class Event {})
+
+/** Event interface representing an event which takes place. */
+export const CustomEvent = REGISTER(globalThis.CustomEvent || class CustomEvent extends Event {})
 
 /** EventTarget interface representing any object that can handle events. */
-export const EventTarget = globalThis.EventTarget || class EventTarget {}
+export const EventTarget = REGISTER(globalThis.EventTarget || class EventTarget {
+	addEventListener(/** @type {string} */ type, /** @type {any} */ listener) {
+		void type
+		void listener
+	}
+
+	dispatchEvent(/** @type {Event} */ event) {
+		void event
+
+		return true
+	}
+
+	removeEventListener(/** @type {string} */ type, /** @type {any} */ listener) {
+		void type
+		void listener
+	}
+})
+
+export const Window = REGISTER(globalThis.Window || class Window extends EventTarget {
+	cancelAnimationFrame(/** @type {number} */ id) {
+		return clearTimeout(id)
+	}
+
+	cancelIdleCallback(/** @type {number} */ id) {
+		return clearTimeout(id)
+	}
+
+	matchMedia(/** @type {string} */ mediaQueryString) {
+		void mediaQueryString
+
+		/** @type {MediaQueryList} */
+		const mediaQueryList = Object.create(MediaQueryList.prototype)
+
+		return mediaQueryList
+	}
+
+	requestAnimationFrame(/** @type {Function} */ callback) {
+		return setTimeout(callback, 1000 / 60)
+	}
+
+	requestIdleCallback(/** @type {Function} */ callback) {
+		void callback
+
+		return setTimeout(callback, 1000 / 60)
+	}
+
+	get customElements() {
+		/** @type {WindowInternals} */
+		const _internals = INTERNALS_FOR(this)
+
+		return _internals.customElements
+	}
+
+	get document() {
+		/** @type {WindowInternals} */
+		const _internals = INTERNALS_FOR(this)
+
+		return _internals.document
+	}
+
+	get location() {
+		/** @type {WindowInternals} */
+		const _internals = INTERNALS_FOR(this)
+
+		return _internals.location
+	}
+
+	get window() {
+		return this
+	}
+})
+
+/** MediaQueryList interface representing media queries applied to a document. */
+export const MediaQueryList = REGISTER(globalThis.MediaQueryList || class MediaQueryList extends EventTarget {})
 
 /** Node interface representing the base class for all DOM objects. */
-export const Node = globalThis.Node || class Node extends EventTarget {
-	append() {}
+export const Node = REGISTER(globalThis.Node || class Node extends EventTarget {
+	append(/** @type {NodeOrString[]} */ ...nodesOrDOMStrings) {
+		void nodesOrDOMStrings
+	}
 
-	appendChild(childNode) {
+	appendChild(/** @type {Node} */ childNode) {
 		return childNode
 	}
 
-	after() {}
+	after(/** @type {NodeOrString[]} */ ...nodesOrDOMStrings) {
+		void nodesOrDOMStrings
+	}
 
-	before() {}
+	before(/** @type {NodeOrString[]} */ ...nodesOrDOMStrings) {
+		void nodesOrDOMStrings
+	}
 
-	replaceChild(newChild, oldChild) {
+	prepend(/** @type {NodeOrString[]} */ ...nodesOrDOMStrings) {
+		void nodesOrDOMStrings
+	}
+
+	replaceChild(/** @type {Node} */ newChild, /** @type {Node} */ oldChild) {
+		void newChild
+
 		return oldChild
 	}
 
-	removeChild(childNode) {
+	removeChild(/** @type {Node} */ childNode) {
 		return childNode
-	}
-
-	get children() {
-		return []
-	}
-
-	get childNodes() {
-		return []
 	}
 
 	get attributes() {
 		return {}
 	}
 
-	/** Content contained within the current node. */
+	/** @type {Node[]} */ 
+	get childNodes() {
+		return []
+	}
+
+	/** @type {Element[]} */ 
+	get children() {
+		return []
+	}
+
+	get ownerDocument() {
+		/** @type {NodeInternals} */
+		const internals = INTERNALS_FOR(this)
+
+		internals.ownerDocument = internals.ownerDocument || null
+
+		return internals.ownerDocument
+	}
+
 	get textContent() {
 		return ''
 	}
-}
+})
 
 /** Element interface representing the base class for all element objects. */
-export const Element = globalThis.Element || class Element extends Node {
-	hasAttribute(name) {
+export const Element = REGISTER(globalThis.Element || class Element extends Node {
+	hasAttribute(/** @type {string} */ name) {
+		void name
+
 		return false
 	}
 
-	getAttribute(name) {
+	getAttribute(/** @type {string} */ name) {
+		void name
+
 		return null
 	}
 
-	setAttribute(name, value) {}
+	setAttribute(/** @type {string} */ name, /** @type {string} */ value) {
+		void name
+		void value
+	}
 
-	attachShadow(init) {
-		init = Object(init)
+	attachShadow(/** @type {{ mode?: string }} */ init) {
+		/** @type {ElementInternals} */
+		const internals = INTERNALS_FOR(this)
 
-		let _internal = internal.get(this, { shadowInit: {}, shadowRoot: null })
+		if (internals.shadowRoot) throw new Error('The operation is not supported.')
 
-		if (_internal.shadowRoot) throw new Error('The operation is not supported.')
+		internals.shadowInit = internals.shadowInit || Object(init)
+		internals.shadowRoot = internals.shadowRoot || (/^open$/.test(internals.shadowInit.mode) ? new ShadowRoot : null)
 
-		_internal.shadowInit = Object(init)
-		_internal.shadowRoot = new ShadowRoot()
-
-		internal.get(_internal.shadowRoot, {}).host = this
-
-		return _internal.shadowRoot
+		return internals.shadowRoot
 	}
 
 	get innerHTML() {
-		return ''
+		/** @type {ElementInternals} */
+		const internals = INTERNALS_FOR(this)
+
+		return internals.innerHTML
 	}
 
-	get nodeName() {
-		return internal.get(this, {}).tagName || ''
+	set innerHTML(value) {
+		/** @type {ElementInternals} */
+		const internals = INTERNALS_FOR(this)
+
+		internals.innerHTML = String(value)
 	}
 
 	get shadowRoot() {
-		const isOpenShadowRoot = /^open$/i.test(internal.get(this, {}).shadowInit?.mode)
+		/** @type {ElementInternals} */
+		const internals = INTERNALS_FOR(this)
 
-		return isOpenShadowRoot ? internal.get(this, { shadowRoot: null }).shadowRoot : null
+		internals.shadowInit = internals.shadowInit || {}
+		internals.shadowRoot = internals.shadowRoot || null
+
+		const shadowRootOrNull = /^open$/.test(internals.shadowInit.mode) ? internals.shadowRoot : null
+
+		return shadowRootOrNull
+	}
+
+	get nodeName() {
+		/** @type {ElementInternals} */
+		const internals = INTERNALS_FOR(this)
+
+		return internals.name || ''
 	}
 
 	get tagName() {
-		return internal.get(this, {}).tagName || ''
+		/** @type {ElementInternals} */
+		const internals = INTERNALS_FOR(this)
+
+		return internals.name || ''
 	}
-}
+})
 
 /** Document interface representing an entire document tree. */
-export const Document = globalThis.Document || class Document extends Node {
-	createElement(name) {
+export const Document = REGISTER(globalThis.Document || class Document extends Node {
+	createElement(/** @type {string} */ name) {
 		name = String(name).toUpperCase()
 
-		const element = Object.create((internal.get(this, {}).customElements?.constructorByName?.get(name) || HTMLElement).prototype)
+		/** @type {ElementRegistryInternals} */
+		const internals = INTERNALS_FOR(this.defaultView.customElements)
 
-		internal.set(element, { tagName: name })
+		const TypeOfHTMLElement = internals.constructorByName.get(name) || HTMLUnknownElement
+
+		/** @type {HTMLElement} */ 
+		const element = Object.create(TypeOfHTMLElement.prototype)
+
+		Object.assign(INTERNALS_FOR(element), { name, ownerDocument: this })
 
 		return element
 	}
 
+	/** @type {StyleSheet[]} */
 	get adoptedStyleSheets() {
 		return []
 	}
 
+	get body() {
+		/** @type {DocumentInternals} */
+		const internals = INTERNALS_FOR(this)
+
+		return internals.body || null
+	}
+
+	get defaultView() {
+		/** @type {DocumentInternals} */
+		const internals = INTERNALS_FOR(this)
+
+		return internals.defaultView || null
+	}
+
+	get documentElement() {
+		/** @type {DocumentInternals} */
+		const internals = INTERNALS_FOR(this)
+
+		return internals.documentElement || null
+	}
+
+	get head() {
+		/** @type {DocumentInternals} */
+		const internals = INTERNALS_FOR(this)
+
+		return internals.head || null
+	}
+
+	/** @type {StyleSheet[]} */
 	get styleSheets() {
 		return []
 	}
-}
+})
 
 /** Document interface representing a minimal document tree. */
-export const DocumentFragment = globalThis.DocumentFragment || class DocumentFragment extends Node {}
+export const DocumentFragment = REGISTER(globalThis.DocumentFragment || class DocumentFragment extends Node {})
 
 /** Document interface representing a document subtree. */
-export const ShadowRoot = globalThis.ShadowRoot || class ShadowRoot extends DocumentFragment {
+export const ShadowRoot = REGISTER(globalThis.ShadowRoot || class ShadowRoot extends DocumentFragment {
 	get innerHTML() {
 		return ''
 	}
-}
+})
 
 /** HTMLDocument interface representing an entire HTML document tree. */
-export const HTMLDocument = globalThis.HTMLDocument || class HTMLDocument extends Document {}
+export const HTMLDocument = REGISTER(globalThis.HTMLDocument || class HTMLDocument extends Document {})
 
 /** HTMLElement interface representing any HTML element. */
-export const HTMLElement = globalThis.HTMLElement || class HTMLElement extends Element {}
+export const HTMLElement = REGISTER(globalThis.HTMLElement || class HTMLElement extends Element {})
+
+export const HTMLDivElement = REGISTER(globalThis.HTMLDivElement || class HTMLDivElement extends HTMLElement {})
+
+export const HTMLHeadElement = REGISTER(globalThis.HTMLHeadElement || class HTMLHeadElement extends HTMLElement {})
+
+export const HTMLHtmlElement = REGISTER(globalThis.HTMLHtmlElement || class HTMLHtmlElement extends HTMLElement {})
+
+export const HTMLImageElement = REGISTER(globalThis.HTMLImageElement || class HTMLImageElement extends HTMLElement {})
+
+export const HTMLStyleElement = REGISTER(globalThis.HTMLStyleElement || class HTMLStyleElement extends HTMLElement {})
+
+export const HTMLTemplateElement = REGISTER(globalThis.HTMLTemplateElement || class HTMLTemplateElement extends HTMLElement {})
+
+export const HTMLUnknownElement = REGISTER(globalThis.HTMLUnknownElement || class HTMLUnknownElement extends HTMLElement {})
+
+export const Image = REGISTER(globalThis.Image || function Image() {
+	Object.assign(INTERNALS_FOR(this), { name: 'img', ownerDocument: globalThis.document })
+})
+
+Image.prototype = HTMLImageElement.prototype
 
 /** CustomElementRegistry used to register new custom elements and get information about previously registered custom elements. */
-export const CustomElementRegistry = globalThis.CustomElementRegistry || class CustomElementRegistry {
+export const CustomElementRegistry = REGISTER(globalThis.CustomElementRegistry || class CustomElementRegistry {
 	/** Defines a new custom element using the given tag name and HTMLElement constructor. */
-	define(name, constructor, options) {
+	define(/** @type {string} */ name, /** @type {typeof HTMLElement} */ constructor, options) {
+		void options
+
+		/** @type {ElementRegistryInternals} */
+		const internals = INTERNALS_FOR(this)
+
 		name = String(name).toUpperCase()
 
-		const _internal = internal.get(this, { constructorByName: new Map(), nameByConstructor: new InternalMap() })
-
-		_internal.constructorByName = _internal.constructorByName || new Map()
-		_internal.nameByConstructor = _internal.nameByConstructor || new InternalMap()
-
-		_internal.constructorByName.set(name, constructor)
-		_internal.nameByConstructor.set(constructor, name)
+		internals.constructorByName.set(name, constructor)
+		internals.nameByConstructor.set(constructor, name)
 	}
 
 	/** Returns the constructor associated with the given tag name. */
-	get(name) {
+	get(/** @type {string} */ name) {
+		/** @type {ElementRegistryInternals} */
+		const internals = INTERNALS_FOR(this)
+
 		name = String(name).toUpperCase()
 
-		return internal.get(this, {}).constructorByName?.get(name)
+		return internals.constructorByName.get(name)
 	}
-}
-
-export const StyleSheet = globalThis.StyleSheet || class StyleSheet {}
-
-export const CSSStyleSheet = globalThis.CSSStyleSheet || class CSSStyleSheet extends StyleSheet {
-	replace() {}
-}
-
-/** MutationObserver provides the ability to watch for changes to the DOM tree. */
-export const MutationObserver = globalThis.MutationObserver || class MutationObserver {
-	disconnect() {}
-
-	observe() {}
-
-	takeRecords() {
-		return []
-	}
-
-	unobserve() {}
-}
-
-/** IntersectionObserver provides the ability to watch for changes in the intersection of elements. */
-export const IntersectionObserver = globalThis.IntersectionObserver || class IntersectionObserver {
-	disconnect() {}
-
-	observe() {}
-
-	takeRecords() {
-		return []
-	}
-
-	unobserve() {}
-}
-
-/** ResizeObserver provides the ability to watch for changes made to the dimensions of elements. */
-export const ResizeObserver = globalThis.ResizeObserver || class ResizeObserver {
-	disconnect() {}
-
-	observe() {}
-
-	takeRecords() {
-		return []
-	}
-
-	unobserve() {}
-}
-
-// shim dom objects onto the global object
-
-globalThis.CSSStyleSheet = CSSStyleSheet
-globalThis.CustomElementRegistry = CustomElementRegistry
-globalThis.Document = Document
-globalThis.DocumentFragment = DocumentFragment
-globalThis.Element = Element
-globalThis.EventTarget = EventTarget
-globalThis.HTMLDocument = HTMLDocument
-globalThis.HTMLElement = HTMLElement
-globalThis.IntersectionObserver = IntersectionObserver
-globalThis.MutationObserver = MutationObserver
-globalThis.Node = Node
-globalThis.ResizeObserver = ResizeObserver
-globalThis.ShadowRoot = ShadowRoot
-globalThis.StyleSheet = StyleSheet
-
-globalThis.cancelAnimationFrame = globalThis.cancelAnimationFrame || clearTimeout
-globalThis.cancelIdleCallback = globalThis.cancelIdleCallback || clearTimeout
-globalThis.customElements = globalThis.customElements || new CustomElementRegistry()
-globalThis.document = globalThis.document || new HTMLDocument()
-globalThis.document.head = globalThis.document.head || globalThis.document.createElement('head')
-globalThis.document.body = globalThis.document.body || null
-globalThis.location = globalThis.location || new URL('http://localhost')
-globalThis.requestAnimationFrame = globalThis.requestAnimationFrame || setTimeout
-globalThis.requestIdleCallback = globalThis.requestIdleCallback || setTimeout
-
-if (!globalThis.window) globalThis.window = globalThis.document.window = globalThis
-
-// utilities for custom element handling
-
-internal.set(globalThis.document, {
-	customElements: internal.get(customElements, {})
 })
 
-/** Returns a Custom Element by a given tag name. */
-export const getCustomElementByName = (name) => {
+export const StyleSheet = REGISTER(globalThis.StyleSheet || class StyleSheet {})
+
+export const CSSStyleSheet = REGISTER(globalThis.CSSStyleSheet || class CSSStyleSheet extends StyleSheet {
+	async replace(/** @type {string} */ text) {
+		void text
+
+		return new CSSStyleSheet()
+	}
+
+	replaceSync(/** @type {string} */ text) {
+		void text
+
+		return new CSSStyleSheet()
+	}
+
+	get cssRules() {
+		return []
+	}
+})
+
+/** MutationObserver provides the ability to watch for changes to the DOM tree. */
+export const MutationObserver = REGISTER(globalThis.MutationObserver || class MutationObserver {
+	disconnect() {}
+
+	observe() {}
+
+	takeRecords() {
+		return []
+	}
+
+	unobserve() {}
+})
+
+/** IntersectionObserver provides the ability to watch for changes in the intersection of elements. */
+export const IntersectionObserver = REGISTER(globalThis.IntersectionObserver || class IntersectionObserver {
+	disconnect() {}
+
+	observe() {}
+
+	takeRecords() {
+		return []
+	}
+
+	unobserve() {}
+})
+
+/** ResizeObserver provides the ability to watch for changes made to the dimensions of elements. */
+export const ResizeObserver = REGISTER(globalThis.ResizeObserver || class ResizeObserver {
+	disconnect() {}
+
+	observe() {}
+
+	takeRecords() {
+		return []
+	}
+
+	unobserve() {}
+})
+
+// shim globalThis as an instance of Window
+
+if (!(globalThis instanceof Window)) {
+	Object.setPrototypeOf(globalThis, Window.prototype)
+
+	Object.assign(INTERNALS_FOR(globalThis), {
+		customElements: globalThis.customElements || new CustomElementRegistry(),
+		document: globalThis.document || new HTMLDocument(),
+		location: globalThis.location || new URL('http://0.0.0.0/'),
+	})
+
+	Object.assign(INTERNALS_FOR(globalThis.customElements), {
+		constructorByName: new Map([
+			['DIV', HTMLDivElement],
+			['HTML', HTMLHtmlElement],
+			['IMG', HTMLImageElement],
+			['STYLE', HTMLStyleElement],
+			['TEMPLATE', HTMLTemplateElement],
+		]),
+		nameByConstructor: new Map([
+			[HTMLDivElement, 'DIV'],
+			[HTMLHtmlElement, 'HTML'],
+			[HTMLImageElement, 'IMG'],
+			[HTMLStyleElement, 'STYLE'],
+			[HTMLTemplateElement, 'TEMPLATE'],
+		]),
+	})
+
+	Object.assign(INTERNALS_FOR(globalThis.document), {
+		documentElement: Object.create(HTMLHtmlElement.prototype),
+		body: null,
+		defaultView: globalThis.window,
+		head: Object.create(HTMLHeadElement.prototype)
+	})
+
+	Object.assign(INTERNALS_FOR(globalThis.document.documentElement), {
+		name: 'HTML',
+		ownerDocument: globalThis.document,
+	})
+
+	Object.assign(INTERNALS_FOR(globalThis.document.head), {
+		name: 'HEAD',
+		ownerDocument: globalThis.document,
+	})
+}
+
+export const window = globalThis.window
+export const customElements = globalThis.customElements
+export const document = globalThis.document
+
+// utilities for working with internals
+
+/** Returns an Element constructor by a given tag name. */
+export const getTypeOfElementByName = (/** @type {string} */ name) => {
 	name = String(name).toUpperCase()
 
-	return internal.get(globalThis.customElements, {}).constructorByName?.get(name)
+	/** @type {ElementRegistryInternals} */
+	const internals = INTERNALS_FOR(customElements)
+
+	return internals.constructorByName.get(name)
 }
 
-/** Returns a tag names by a given Custom Element. */
-export const getNameByCustomElement = (constructor) => {
-	return internal.get(globalThis.customElements, {}).nameByConstructor?.get(constructor)?.toLowerCase()
+/** Returns a tag name by a given Element constructor. */
+export const getNameByTypeOfElement = (/** @type {typeof HTMLElement} */ TypeOfHTMLElement) => {
+	/** @type {ElementRegistryInternals} */
+	const internals = INTERNALS_FOR(customElements)
+
+	return internals.nameByConstructor.get(TypeOfHTMLElement) || null
 }
+
+/** @typedef {{ ownerDocument: Document }} NodeInternals */
+/** @typedef {{ customElements: CustomElementRegistry, document: HTMLDocument, location: URL }} WindowInternals */
+/** @typedef {{ body: HTMLElement, defaultView: WindowOrWorkerGlobalScope, documentElement: HTMLHtmlElement, head: HTMLHeadElement }} DocumentInternals */
+/** @typedef {{ name: string, innerHTML: string, shadowRoot: ShadowRoot, shadowInit: { mode?: string } }} ElementInternals */
+/** @typedef {{ constructorByName: Map<string, typeof HTMLElement>, nameByConstructor: Map<typeof HTMLElement, string> }} ElementRegistryInternals */
+/** @typedef {string | Node} NodeOrString */

@@ -1,4 +1,4 @@
-import { HTMLElement, getNameByCustomElement } from './server-dom.js'
+import { HTMLElement, getNameByTypeOfElement } from './server-dom.js'
 
 async function check(Component, _props, _children) {
 	return HTMLElement.isPrototypeOf(Component)
@@ -9,7 +9,7 @@ async function renderToStaticMarkup(Component, props, children, metadata, assets
 	assets.useHydrationScript = false
 
 	/** Custom Element tag name, if defined from `customElements`. */
-	const definedName = getNameByCustomElement(Component)
+	const definedName = getNameByTypeOfElement(Component)
 
 	/** Custom Element tag name, falling back on the display name. */
 	const assuredName = definedName || toHyphenName(metadata.displayName)
