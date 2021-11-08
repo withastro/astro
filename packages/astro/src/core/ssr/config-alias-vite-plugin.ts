@@ -13,7 +13,7 @@ interface ConfigAliasResult {
 
 const matchResolvablePath = /^\.*\//;
 
-const matchTailingAsterisk = /\/\*$/;
+const matchTrailingAsterisk = /\/\*$/;
 
 /** Returns the results of a config file if it exists, otherwise null. */
 const getExistingConfig = (searchName: string, cwd: string | undefined): TsConfigResultSuccess | null => {
@@ -42,9 +42,9 @@ const getConfigAlias = (cwd: string | undefined): ConfigAliasResult | null => {
   const paths = Object.keys(Object(compilerOptions.paths)).reduce(
     (paths, alias) =>
       Object.assign(paths, {
-        [alias.replace(matchTailingAsterisk, '/')]: []
+        [alias.replace(matchTrailingAsterisk, '/')]: []
           .concat(compilerOptions.paths[alias])
-          .map((aliasPath) => path.posix.resolve(baseUrl, aliasPath).replace(matchTailingAsterisk, '/')),
+          .map((aliasPath) => path.posix.resolve(baseUrl, aliasPath).replace(matchTrailingAsterisk, '/')),
       }),
     {}
   );
