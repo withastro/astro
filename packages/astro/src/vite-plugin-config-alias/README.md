@@ -22,5 +22,5 @@ import Test from '../components/Test.astro'
 
 import Test from 'components/Test.astro'
 
-import Test from '@components/Test'
+import Test from 'components:Test'
 ```
