@@ -1720,10 +1720,10 @@
   dependencies:
     "@octokit/openapi-types" "^10.2.2"
 
-"@proload/core@^0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@proload/core/-/core-0.2.0.tgz#8209619cea579b6cabd0cbdfb14b56d8ea3957b1"
-  integrity sha512-R9yatvCXMPM9LDlTfqVCeXeIl9ZFZ8mJYXuhZaqzPP4v38Tuldcj60WtZObLzKJbRCGA6Uf+YEQ265m2EnTgZg==
+"@proload/core@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@proload/core/-/core-0.2.1.tgz#d1218e8aac6b85bde87a0578668b5fbf37d215a3"
+  integrity sha512-4V7hNxF3cswyDxUrHubiHjXkMC2O8qN1/ruPvm7vg9DtYMSaVaISe7TC3NPA+5rVO1cn/CmkbDc9yU/n7w2ZmA==
   dependencies:
     deepmerge "^4.2.2"
     escalade "^3.1.1"
