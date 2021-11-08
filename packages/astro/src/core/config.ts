@@ -3,8 +3,12 @@ import type { AstroConfig, AstroUserConfig } from '../@types/astro-core';
 import { existsSync } from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
-import { pathToFileURL } from 'url';
+import { pathToFileURL, fileURLToPath } from 'url';
 import { z } from 'zod';
+import load from '@proload/core';
+import loadTypeScript from '@proload/plugin-tsm';
+
+load.use([loadTypeScript]);
 
 export const AstroConfigSchema = z.object({
   projectRoot: z
@@ -105,11 +109,6 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
   return AstroConfigRelativeSchema.parseAsync(userConfig);
 }
 
-interface LoadConfigOptions {
-  cwd?: string;
-  filename?: string;
-}
-
 /** Adds '/' to end of string but doesn’t double-up */
 function addTrailingSlash(str: string): string {
   return str.replace(/\/*$/, '/');
@@ -123,11 +122,18 @@ interface LoadConfigOptions {
 /** Attempt to load an `astro.config.mjs` file */
 export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfig> {
   const root = options.cwd ? path.resolve(options.cwd) : process.cwd();
-  const astroConfigPath = new URL(`./${options.filename || 'astro.config.mjs'}`, `file://${root}/`);
   let userConfig: AstroUserConfig = {};
-  // Load a user-config, if one exists and is provided
-  if (existsSync(astroConfigPath)) {
-    userConfig = (await import(astroConfigPath.href)).default;
+  let userConfigPath: string|undefined;
+
+  if (options.filename) {
+    userConfigPath = /^\.*\//.test(options.filename) ? options.filename : `./${options.filename}`;
+    userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`))
+  }
+  // Automatically load config file using Proload
+  // If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
+  const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
+  if (config) {
+    userConfig = config.value;
   }
   // normalize, validate, and return
   return validateConfig(userConfig, root);
