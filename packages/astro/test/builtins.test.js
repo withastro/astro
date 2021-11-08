@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: Fix "Unexpected "\x00" bug
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -11,7 +9,6 @@ before(async () => {
   await fixture.build();
 });
 
-// TODO: find a way to build one file at-a-time (different fixtures?)
 describe('Node builtins', () => {
   it('Can be used with the node: prefix', async () => {
     // node:fs/promise is not supported in Node v12. Test currently throws.
@@ -31,6 +28,3 @@ describe('Node builtins', () => {
     expect(result.body).to.include('Use node:fs instead');
   });
 });
-*/
-
-it.skip('is skipped', () => {});
