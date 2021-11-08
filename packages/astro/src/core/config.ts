@@ -126,7 +126,7 @@ export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfi
   let userConfigPath: string|undefined;
 
   if (options.filename) {
-    userConfigPath = options.filename.startsWith('.') ? options.filename : `./${options.filename}`;
+    userConfigPath = /^\.*\//.test(options.filename) ? options.filename : `./${options.filename}`;
     userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`))
   }
   // Automatically load config file using Proload
