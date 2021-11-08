@@ -55,14 +55,16 @@ class AstroBuilder {
     const { logging, origin } = this;
     const timer: Record<string, number> = { viteStart: performance.now() };
     const viteConfig = await createVite(
-      {
-        mode: this.mode,
-        server: {
-          hmr: { overlay: false },
-          middlewareMode: 'ssr',
+      vite.mergeConfig(
+        {
+          mode: this.mode,
+          server: {
+            hmr: { overlay: false },
+            middlewareMode: 'ssr',
+          },
         },
-        ...(this.config.vite || {}),
-      },
+        this.config.vite || {}
+      ),
       { astroConfig: this.config, logging }
     );
     const viteServer = await vite.createServer(viteConfig);

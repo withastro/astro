@@ -222,14 +222,16 @@ export class AstroDevServer {
 
   private async createViteServer() {
     const viteConfig = await createVite(
-      {
-        mode: 'development',
-        server: {
-          middlewareMode: 'ssr',
-          host: this.hostname,
+      vite.mergeConfig(
+        {
+          mode: 'development',
+          server: {
+            middlewareMode: 'ssr',
+            host: this.hostname,
+          },
         },
-        ...(this.config.vite || {}),
-      },
+        this.config.vite || {}
+      ),
       { astroConfig: this.config, logging: this.logging, devServer: this }
     );
     const viteServer = await vite.createServer(viteConfig);
