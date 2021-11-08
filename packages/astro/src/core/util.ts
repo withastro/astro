@@ -71,3 +71,7 @@ export function resolveDependency(dep: string, astroConfig: AstroConfig) {
   // For Windows compat, we need a fully resolved `file://` URL string
   return pathToFileURL(resolved).toString();
 }
+
+export function viteifyPath(pathname: string): string {
+  return `/@fs${pathname}`;
+}

@@ -1,6 +1,7 @@
 import type { InputHTMLOptions } from '@web/rollup-plugin-html';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro-core';
 import type { LogOptions } from '../logger';
+import type { AllPagesData } from './types';
 
 import { rollupPluginHTML } from '@web/rollup-plugin-html';
 import { rollupPluginAstroBuild } from '../../vite-plugin-build/index.js';
@@ -12,7 +13,7 @@ import { fileURLToPath } from 'url';
 import { createVite } from '../create-vite.js';
 import { pad } from '../dev/util.js';
 import { debug, defaultLogOptions, levels, timerMessage, warn } from '../logger.js';
-import { preload as ssrPreload, render as ssrRender } from '../ssr/index.js';
+import { ComponentPreload, preload as ssrPreload, render as ssrRender } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generateRssFunction } from '../ssr/rss.js';
@@ -74,7 +75,7 @@ class AstroBuilder {
 
     timer.renderStart = performance.now();
     const assets: Record<string, string> = {};
-    const allPages: Record<string, RouteData & { paths: string[] }> = {};
+    const allPages: AllPagesData = {};
     // Collect all routes ahead-of-time, before we start the build.
     // NOTE: This enforces that `getStaticPaths()` is only called once per route,
     // and is then cached across all future SSR builds. In the past, we've had trouble
@@ -83,7 +84,21 @@ class AstroBuilder {
       this.manifest.routes.map(async (route) => {
         // static route:
         if (route.pathname) {
-          allPages[route.component] = { ...route, paths: [route.pathname] };
+          allPages[route.component] = {
+            route,
+            paths: [route.pathname],
+            preload: await ssrPreload({
+              astroConfig: this.config,
+              filePath: new URL(`./${route.component}`, this.config.projectRoot),
+              logging,
+              mode: 'production',
+              origin,
+              pathname: route.pathname,
+              route,
+              routeCache: this.routeCache,
+              viteServer,
+            })
+          };
           return;
         }
         // dynamic route:
@@ -95,7 +110,21 @@ class AstroBuilder {
           }
           assets[fileURLToPath(rssFile)] = result.rss.xml;
         }
-        allPages[route.component] = { ...route, paths: result.paths };
+        allPages[route.component] = {
+          route,
+          paths: result.paths,
+          preload: await ssrPreload({
+            astroConfig: this.config,
+            filePath: new URL(`./${route.component}`, this.config.projectRoot),
+            logging,
+            mode: 'production',
+            origin,
+            pathname: result.paths[0],
+            route,
+            routeCache: this.routeCache,
+            viteServer,
+          })
+        };
       })
     );
 
@@ -128,9 +157,9 @@ class AstroBuilder {
     );
     debug(logging, 'build', timerMessage('All pages rendered', timer.renderStart));*/
 
-    const pageModulesAndRenderers = await Promise.all(
-      Object.entries(allPages).map(([component, route]) =>
-        ssrPreload({
+    /*const pageModulesAndRenderers = await Promise.all(
+      Object.entries(allPages).map(([component, route]) =>({
+        preload: ssrPreload({
           astroConfig: this.config,
           filePath: new URL(`./${component}`, this.config.projectRoot),
           logging,
@@ -141,8 +170,8 @@ class AstroBuilder {
           routeCache: this.routeCache,
           viteServer,
         })
-      )
-    );
+      }))
+    );*/
     
 
     // Bundle the assets in your final build: This currently takes the HTML output
@@ -153,7 +182,7 @@ class AstroBuilder {
       mode: 'production',
       build: {
         emptyOutDir: true,
-        minify: 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
+        minify: false, // 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
         outDir: fileURLToPath(this.config.dist),
         rollupOptions: {
           // The `input` will be populated in the build rollup plugin.
@@ -163,12 +192,19 @@ class AstroBuilder {
         target: 'es2020', // must match an esbuild target
       },
       plugins: [
-        rollupPluginAstroBuild({ astroConfig: this.config, pageModulesAndRenderers }),
-        rollupPluginHTML({
+        rollupPluginAstroBuild({
+          astroConfig: this.config,
+          logging,
+          origin,
+          allPages,
+          routeCache: this.routeCache,
+          viteServer
+        }),
+        /*rollupPluginHTML({
           rootDir: viteConfig.root,
           input,
           extractAssets: false,
-        }) as any, // "any" needed for CI; also we don’t need typedefs for this anyway
+        }) as any,*/ // "any" needed for CI; also we don’t need typedefs for this anyway
         ...(viteConfig.plugins || []),
       ],
       publicDir: viteConfig.publicDir,

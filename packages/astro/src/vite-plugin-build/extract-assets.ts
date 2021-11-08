@@ -1,6 +1,7 @@
-import { Document, Element } from 'parse5';
+import { Document, Element, Node } from 'parse5';
 import path from 'path';
-import { findElements, getTagName, getAttribute } from '@web/parse5-utils';
+import { findElements, getTagName, getAttribute, findNodes } from '@web/parse5-utils';
+import adapter from 'parse5/lib/tree-adapters/default.js';
 
 const hashedLinkRels = ['stylesheet'];
 const linkRels = [...hashedLinkRels, 'icon', 'manifest', 'apple-touch-icon', 'mask-icon'];
@@ -61,6 +62,22 @@ function isAsset(node: Element) {
   } catch (e) {
     return true;
   }
+}
+
+function isInlineScript(node: Element): boolean {
+  switch (getTagName(node)) {
+    case 'script':
+      if (getAttribute(node, 'type') === 'module' && !getAttribute(node, 'src')) {
+        return true;
+      }
+      return false;
+    default:
+      return false;
+  }
+}
+
+function isInlineStyle(node: Element): boolean {
+  return getTagName(node) === 'style';
 }
 
 export function isHashedAsset(node: Element) {
@@ -155,6 +172,25 @@ export function getSourcePaths(node: Element) {
   return paths;
 }
 
+export function getTextContent(node: Node): string {
+  if (adapter.isCommentNode(node)) {
+    return node.data || '';
+  }
+  if (adapter.isTextNode(node)) {
+    return node.value || '';
+  }
+  const subtree = findNodes(node, n => adapter.isTextNode(n));
+  return subtree.map(getTextContent).join('');
+}
+
 export function findAssets(document: Document) {
   return findElements(document, isAsset);
+}
+
+export function findInlineScripts(document: Document) {
+  return findElements(document, isInlineScript);
+}
+
+export function findInlineStyles(document: Document) {
+  return findElements(document, isInlineStyle);
 }

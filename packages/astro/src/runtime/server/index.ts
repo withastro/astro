@@ -270,10 +270,16 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
   const template = await renderToString(result, Component, props, children);
   const styles = Array.from(result.styles)
     .filter(uniqueElements)
-    .map((style) => renderElement('style', style));
+    .map((style) => renderElement('style', {
+      ...style,
+      props: { ...style.props, 'astro-style': true }
+    }));
   const scripts = Array.from(result.scripts)
     .filter(uniqueElements)
-    .map((script) => renderElement('script', script));
+    .map((script, i) => renderElement('script', {
+      ...script,
+      props: { ...script.props, 'astro-script': result._metadata.pathname + '/script-' + i }
+    }));
   return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
 }
 
