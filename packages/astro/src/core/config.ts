@@ -6,9 +6,9 @@ import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';
 import { z } from 'zod';
 import load from '@proload/core';
-import pluginTypeScript from '@proload/plugin-typescript';
+import loadTypeScript from '@proload/plugin-tsm';
 
-load.use([pluginTypeScript]);
+load.use([loadTypeScript]);
 
 export const AstroConfigSchema = z.object({
   projectRoot: z
