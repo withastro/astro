@@ -1,5 +1,5 @@
 import type { BuildResult } from 'esbuild';
-import type vite from '../vite';
+import type vite from 'vite';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../../@types/astro-core';
 import type { AstroGlobal, TopLevelAstro, SSRResult, SSRElement } from '../../@types/astro-runtime';
 import type { LogOptions } from '../logger';

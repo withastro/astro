@@ -1,5 +1,5 @@
 import type { TransformResult } from 'rollup';
-import type { Plugin, ResolvedConfig } from '../core/vite';
+import type { Plugin, ResolvedConfig } from 'vite';
 import type { AstroConfig, Renderer } from '../@types/astro-core';
 import type { LogOptions } from '../core/logger';
 
@@ -22,20 +22,6 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 // be careful about esbuild not treating h, React, Fragment, etc. as unused.
 const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
 
-// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
-function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
-  if (options === undefined) {
-    return false;
-  }
-  if (typeof options === 'boolean') {
-    return options;
-  }
-  if (typeof options == 'object') {
-    return !!options.ssr;
-  }
-  return false;
-}
-
 interface AstroPluginJSXOptions {
   config: AstroConfig;
   logging: LogOptions;
@@ -51,8 +37,8 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
     configResolved(resolvedConfig) {
       viteConfig = resolvedConfig;
     },
-    async transform(code, id, ssrOrOptions) {
-      const ssr = isSSR(ssrOrOptions);
+    async transform(code, id, opts) {
+      const ssr = opts?.ssr || false;
       if (!JSX_EXTENSIONS.has(path.extname(id))) {
         return null;
       }

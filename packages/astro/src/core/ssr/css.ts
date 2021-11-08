@@ -1,4 +1,4 @@
-import type vite from '../../../vendor/vite';
+import type vite from 'vite';
 
 import path from 'path';
 

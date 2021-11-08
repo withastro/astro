@@ -97,7 +97,7 @@
     "supports-esm": "^1.0.0",
     "tiny-glob": "^0.2.8",
     "tsconfig-resolver": "^3.0.1",
-    "vite": "^2.6.10",
+    "vite": "^2.7.0-beta.3",
     "yargs-parser": "^20.2.9",
     "zod": "^3.8.1"
   },

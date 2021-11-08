@@ -1,5 +1,5 @@
 import type * as t from '@babel/types';
-import type { Plugin } from '../core/vite';
+import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro-core';
 import type { AstroDevServer } from '../core/dev/index';
 
