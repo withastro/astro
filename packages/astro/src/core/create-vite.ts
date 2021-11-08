@@ -48,7 +48,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
       entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
     },
     plugins: [
-      configAliasVitePlugin(),
+      configAliasVitePlugin({ config: astroConfig }),
       astroVitePlugin({ config: astroConfig, devServer }),
       markdownVitePlugin({ config: astroConfig, devServer }),
       jsxVitePlugin({ config: astroConfig, logging }),

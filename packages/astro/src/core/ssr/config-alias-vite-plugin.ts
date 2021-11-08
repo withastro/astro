@@ -1,91 +1,88 @@
 import { tsconfigResolverSync, TsConfigResultSuccess } from 'tsconfig-resolver';
-import fs from 'fs'
 import path from 'path'
+import url from 'url'
 import type * as vite from 'vite'
+import astro from '../../vite-plugin-astro';
+
+interface ConfigAliasResult {
+	baseUrl: string,
+	paths: {
+		[key: string]: string[]
+	}
+}
+
+const matchResolvablePath = /^\.*\//
+
+const matchTailingAsterisk = /\/\*$/
+
+/** Returns the results of a config file if it exists, otherwise null. */
+const getExistingConfig = (searchName: string, cwd: string | undefined): TsConfigResultSuccess | null => {
+	const config = tsconfigResolverSync({ cwd, searchName })
+
+	return config.exists ? config : null
+}
 
 /** Return the nearest tsconfig.json or jsconfig.json configuration result. */
-const getConfigResult = (): TsConfigResultSuccess | null => {
-	/** Closest tsconfig.json */
-	const tsConfig = tsconfigResolverSync({ searchName: 'tsconfig.json' })
+const getConfigAlias = (cwd: string | undefined): ConfigAliasResult | null => {
+	/** Closest tsconfig.json or jsconfig.json */
+	const config = getExistingConfig('tsconfig.json', cwd) || getExistingConfig('jsconfig.json', cwd)
 
-	// return tsconfig.json, if it exists
-	if (tsConfig.exists) return tsConfig
+	// if no config was found, return null
+	if (!config) return null
 
-	/** Closest jsconfig.json */
-	const jsConfig = tsconfigResolverSync({ searchName: 'jsconfig.json' })
+	const compilerOptions = Object(config.config.compilerOptions)
 
-	// return jsconfig.json, if it exists
-	if (jsConfig.exists) return jsConfig
+	// if no compilerOptions.baseUrl was defined, return null
+	if (!compilerOptions.baseUrl) return null
 
-	// return null if no config exists
-	return null
-}
+	// resolve the base url from the configuration file directory
+	const baseUrl = path.posix.resolve(path.posix.dirname(config.path), compilerOptions.baseUrl)
 
-/** Return the resolvers from the tsconfig.json or jsconfig.json configuration. */
-const getConfigResolver = (): { baseUrl: string, paths: { [alias: string]: string[] } } | null => {
-	/** Configuration result */
-	const configResult = getConfigResult()
-
-	if (configResult && configResult.config.compilerOptions?.baseUrl) {
-		let { baseUrl, paths } = configResult.config.compilerOptions as {
-			baseUrl: string
-			paths: {
-				[key: string]: string[];
-			}
-		}
-
-		// resolve the base url from the configuration file directory
-		baseUrl = path.posix.resolve(path.posix.dirname(configResult.path), baseUrl)
-
-		// sanitize and resolve all aliases from the configuration file directory
-		for (let [ alias, values ] of Object.entries(Object(paths))) {
-			delete paths[alias]
-
-			paths[alias.replace(/\*$/, '')] = values = [].concat(values as any).map(
-				(value: string) => path.posix.resolve(baseUrl, value).replace(/\*$/, '')
+	// sanitize all aliases from the configuration file directory
+	const paths = Object.keys(Object(compilerOptions.paths)).reduce(
+		(paths, alias) => Object.assign(paths, {
+			[alias.replace(matchTailingAsterisk, '/')]: [].concat(compilerOptions.paths[alias]).map(
+				aliasPath => path.posix.resolve(baseUrl, aliasPath).replace(matchTailingAsterisk, '/')
 			)
-		}
+		}),
+		{}
+	)
 
-		return { baseUrl, paths }
-	}
-
-	return null
+	return { baseUrl, paths }
 }
 
-export default function configAliasVitePlugin(): vite.PluginOption {
-	/** Resolver from the tsconfig.json or jsconfig.json configuration. */
-	const resolver = getConfigResolver()
+export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL, [key: string]: unknown }): vite.PluginOption {
+	/** Aliases from the tsconfig.json or jsconfig.json configuration. */
+	const configAlias = getConfigAlias(astroConfig.projectRoot && url.fileURLToPath(astroConfig.projectRoot))
 
-	if (!resolver) return {} as vite.PluginOption
+	if (!configAlias) return {} as vite.PluginOption
 
 	return {
 		name: '@astrojs/vite-plugin-tsconfig-alias',
 		enforce: 'pre',
-		resolveId(source: string): string | null {
+		async resolveId(source: string, importer, options) {
+			const resolution = await this.resolve(source, importer, { skipSelf: true, ...options })
+
+			if (resolution) return resolution
+
+			// if this is a relative or absolute path, return null
+			if (matchResolvablePath.test(source)) {
+				return null
+			}
+
 			// conditionally resolve from each alias
-			for (let [ alias, values ] of Object.entries(resolver.paths)) {
+			for (let [ alias, values ] of Object.entries(configAlias.paths)) {
 				if (source.startsWith(alias)) {
 					for (const value of values) {
 						const resolvedSource = source.replace(alias, value)
 
-						if (fs.existsSync(resolvedSource)) {
-							return resolvedSource
-						}
+						return resolvedSource
 					}
 				}
 			}
 
 			// otherwise, conditionally resolve from the baseUrl
-
-			const resolvedSource = path.posix.resolve(resolver.baseUrl, source)
-
-			if (fs.existsSync(resolvedSource)) {
-				return resolvedSource
-			}
-
-			// otherwise, continue resolving elsewhere
-
-			return null
+			return path.posix.resolve(configAlias.baseUrl, source)
 		}
 	}
 }
