@@ -1,5 +1,12 @@
 # astro
 
+## 0.21.0-next.2
+
+### Patch Changes
+
+- fbae2bc5: Add support for `.cjs`, `.js`, and `.ts` Astro config files
+- 2e1bded7: fix: Improve Tailwind HMR
+
 ## 0.21.0-next.1
 
 ### Patch Changes
