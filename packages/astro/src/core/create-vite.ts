@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import vite from './vite.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
+import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import fetchVitePlugin from '../vite-plugin-fetch/index.js';
@@ -47,6 +48,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
       entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
     },
     plugins: [
+      configAliasVitePlugin({ config: astroConfig }),
       astroVitePlugin({ config: astroConfig, devServer }),
       markdownVitePlugin({ config: astroConfig, devServer }),
       jsxVitePlugin({ config: astroConfig, logging }),
