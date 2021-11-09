@@ -144,6 +144,6 @@ describe('Astro Markdown', () => {
   it("doesn't occurs TypeError when no elements", async () => {
     const html = await fixture.readFile('/no-elements/index.html');
     // render html without error
-    expect(!!html).to.equal(true);
+    expect(html).to.be.ok;
   });
 });
