@@ -140,4 +140,10 @@ describe('Astro Markdown', () => {
     // test Markdown rendered correctly via content prop
     expect($('h1').text()).to.equal('Foo');
   });
+
+  it("doesn't occurs TypeError when no elements", async () => {
+    const html = await fixture.readFile('/no-elements/index.html');
+    // render html without error
+    expect(html).to.be.ok;
+  });
 });
