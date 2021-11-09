@@ -5,7 +5,7 @@
 </style>
 <body>
   <h1>Icons</h1>
-  <img src="../images/twitter.png" srcset="../images/twitter.png 1x, ../images/twitter@2x.png 2x, ../images/twitter@3x.png 3x" />
+  <img src={Astro.resolve('../images/twitter.png')} srcset={`${Astro.resolve('../images/twitter.png')} 1x, ${Astro.resolve('../images/twitter@2x.png')} 2x, ${Astro.resolve('../images/twitter@3x.png')} 3x`} />
   <img srcset="https://ik.imagekit.io/demo/tr:w-300,h-300/medium_cafe_B1iTdD0C.jpg, https://ik.imagekit.io/demo/tr:w-450,h-450/medium_cafe_B1iTdD0C.jpg 600w, https://ik.imagekit.io/demo/tr:w-600,h-600/medium_cafe_B1iTdD0C.jpg 800w">
   <img srcset="https://ik.imagekit.io/demo/tr:w-300,h-300/medium_cafe_B1iTdD0C.jpg, https://ik.imagekit.io/demo/tr:w-450,h-450/medium_cafe_B1iTdD0C.jpg 1.5x, https://ik.imagekit.io/demo/tr:w-600,h-600/medium_cafe_B1iTdD0C.jpg 2x">
   <!--

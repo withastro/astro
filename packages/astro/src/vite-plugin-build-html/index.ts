@@ -1,16 +1,21 @@
 
-import type { AstroConfig,  RouteCache, RouteData } from '../@types/astro-core';
+import type { AstroConfig,  RouteCache } from '../@types/astro-core';
 import type { LogOptions } from '../core/logger';
 import type { ViteDevServer, Plugin as VitePlugin } from 'vite';
 import type { OutputChunk, PreRenderedChunk } from 'rollup';
 import type { AllPagesData } from '../core/build/types';
 import { addRollupInput } from './add-rollup-input.js';
-import { findAssets, findInlineScripts, findInlineStyles, findStyleLinks, getTextContent, isStylesheetLink } from './extract-assets.js';
+import { findAssets, findInlineScripts, findInlineStyles, getTextContent, isStylesheetLink } from './extract-assets.js';
 import { render as ssrRender } from '../core/ssr/index.js';
-import { getAttribute, insertBefore, remove, createScript, createElement } from '@web/parse5-utils';
+import { getAttribute, getTagName, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
 import { viteifyPath } from '../core/util.js';
 import parse5 from 'parse5';
+import srcsetParse from 'srcset-parse';
 import * as path from 'path';
+import fs from 'fs/promises';
+
+// This package isn't real ESM, so have to coerce it
+const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
 
 const PLUGIN_NAME = '@astro/rollup-plugin-build';
 const ASTRO_PAGE_PREFIX = '@astro-page';
@@ -18,8 +23,21 @@ const ASTRO_SCRIPT_PREFIX = '@astro-script';
 const ASTRO_STYLE_PREFIX = '@astro-style';
 const ASTRO_EMPTY = '@astro-empty';
 
+const tagsWithSrcSet = new Set(['img', 'source']);
+
 const isAstroInjectedLink = (node: parse5.Element) => isStylesheetLink(node) && getAttribute(node, 'data-astro-injected') === '';
-const isBuildableLink = (node: parse5.Element, srcRoot: string) => isAstroInjectedLink(node) || (getAttribute(node, 'href') && getAttribute(node, 'href')?.startsWith(srcRoot));
+const isBuildableLink = (node: parse5.Element, srcRoot: string) => isAstroInjectedLink(node) || getAttribute(node, 'href')?.startsWith(srcRoot);
+const isBuildableImage = (node: parse5.Element, srcRoot: string) => getTagName(node) === 'img' && getAttribute(node, 'src')?.startsWith(srcRoot);
+const hasSrcSet = (node: parse5.Element) => tagsWithSrcSet.has(getTagName(node)) && !!getAttribute(node, 'srcset');
+
+function getStyleId(pathname: string) {
+  let styleId = ASTRO_STYLE_PREFIX + pathname;
+  if(styleId.endsWith('/')) {
+    styleId += 'index';
+  }
+  styleId += '.css';
+  return styleId;
+};
 
 interface PluginOptions {
   astroConfig: AstroConfig;
@@ -43,7 +61,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
   //
   const astroScriptMap = new Map<string, string>();
   const astroPageMap = new Map<string, string>();
-  const astroAssetMap = new Map<string, string>();
+  const astroStyleMap = new Map<string, string>();
+  const astroAssetMap = new Map<string, Promise<Buffer>>();
 
   return {
     name: PLUGIN_NAME,
@@ -107,15 +126,27 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               //imports.push(id); // TODO should this be a top-level input instead?
               assetInput.add(id);
             }
+
+            if(isBuildableImage(node, srcRoot)) {
+              const src = getAttribute(node, 'src');
+              if(src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
+                astroAssetMap.set(src, fs.readFile(src));
+              }
+            }
+
+            if(hasSrcSet(node)) {
+              const candidates = matchSrcset(getAttribute(node, 'srcset')!);
+              for(const {url} of candidates) {
+                if(url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
+                  astroAssetMap.set(url, fs.readFile(url));
+                }
+              }
+            }
           }
 
           if(styles) {
-            let styleId = ASTRO_STYLE_PREFIX + pathname;
-            if(styleId.endsWith('/')) {
-              styleId += 'index';
-            }
-            styleId += '.css';
-            astroAssetMap.set(styleId, styles);
+            const styleId = getStyleId(pathname);
+            astroStyleMap.set(styleId, styles);
           }
 
           if(imports.length) {
@@ -153,8 +184,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
       if(astroPageMap.has(id)) {
         return astroPageMap.get(id)!;
       }
-      if(astroAssetMap.has(id)) {
-        return astroAssetMap.get(id)!;
+      if(astroStyleMap.has(id)) {
+        return astroStyleMap.get(id)!;
       }
       // Load scripts
       if(astroScriptMap.has(id)) {
@@ -199,9 +230,9 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         }
       }
 
-      // Emit out our assets
+      // Emit out our styles
       const assetIdMap = new Map<string, string>(); 
-      for(const [id, content] of astroAssetMap) {
+      for(const [id, content] of astroStyleMap) {
         let pathCSSName = id.substr(ASTRO_STYLE_PREFIX.length + 1);
         // Index page
         if(pathCSSName === '.css') {
@@ -213,6 +244,15 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           source: content
         });
         assetIdMap.set(id, referenceId);
+      }
+
+      for(const [assetPath, dataPromise] of astroAssetMap) {
+        const referenceId = this.emitFile({
+          type: 'asset',
+          name: path.basename(assetPath),
+          source: await dataPromise
+        });
+        assetIdMap.set(assetPath, referenceId);
       }
 
       for(const [id, html] of renderedPageMap) {
@@ -242,8 +282,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           }
         }
 
-        const styleId = ASTRO_STYLE_PREFIX + pathname + '.css';
-        if(astroAssetMap.has(styleId)) {
+        const styleId = getStyleId(pathname);
+        if(astroStyleMap.has(styleId)) {
           let i = 0;
           for(const style of findInlineStyles(document)) {
             if(getAttribute(style, 'astro-style')) {
@@ -262,17 +302,46 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           }
         }
 
-        for(const link of findStyleLinks(document)) {
-          const href = getAttribute(link, 'href');
-          if(isBuildableLink(link, srcRoot) && href && cssChunkMap.has(href)) {
+        for(const node of findAssets(document)) {
+          if(isBuildableLink(node, srcRoot)) {
+            const href = getAttribute(node, 'href')!;
             const referenceId = cssChunkMap.get(href)!;
             const fileName = this.getFileName(referenceId);
             const relPath = path.relative(pathname, '/' + fileName);
-            insertBefore(link.parentNode, createElement('link', {
+            insertBefore(node.parentNode, createElement('link', {
               rel: 'stylesheet',
               href: relPath
-            }), link);
-            remove(link);
+            }), node);
+            remove(node);
+          }
+
+          if(isBuildableImage(node, srcRoot)) {
+            const src = getAttribute(node, 'src')!;
+            const referenceId = assetIdMap.get(src);
+            if(referenceId) {
+              const fileName = this.getFileName(referenceId);
+              const relPath = path.relative(pathname, '/' + fileName);
+              setAttribute(node, 'src', relPath);
+            }
+          }
+
+          // Could be a `source` or an `img`.
+          if(hasSrcSet(node)) {
+            const srcset = getAttribute(node, 'srcset')!;
+            let changedSrcset = srcset;
+            const urls = matchSrcset(srcset).map(c => c.url);
+            for(const url of urls) {
+              if(assetIdMap.has(url)) {
+                const referenceId = assetIdMap.get(url)!;
+                const fileName = this.getFileName(referenceId);
+                const relPath = path.relative(pathname, '/' + fileName);
+                changedSrcset = changedSrcset.replace(url, relPath);
+              }
+            }
+            // If anything changed, update it
+            if(changedSrcset !== srcset) {
+              setAttribute(node, 'srcset', changedSrcset);
+            }
           }
         }
 
