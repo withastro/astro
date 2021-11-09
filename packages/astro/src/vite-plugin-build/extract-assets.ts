@@ -80,6 +80,10 @@ function isInlineStyle(node: Element): boolean {
   return getTagName(node) === 'style';
 }
 
+export function isStylesheetLink(node: Element): boolean {
+  return getTagName(node) === 'link' && getAttribute(node, 'rel') === 'stylesheet';
+}
+
 export function isHashedAsset(node: Element) {
   switch (getTagName(node)) {
     case 'img':
@@ -193,4 +197,8 @@ export function findInlineScripts(document: Document) {
 
 export function findInlineStyles(document: Document) {
   return findElements(document, isInlineStyle);
+}
+
+export function findStyleLinks(document: Document) {
+  return findElements(document, isStylesheetLink);
 }

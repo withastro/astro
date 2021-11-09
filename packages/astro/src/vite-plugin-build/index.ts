@@ -3,16 +3,20 @@ import type { AstroConfig, ComponentInstance, Renderer, RouteCache, RouteData } 
 import type { InputHTMLOptions } from '@web/rollup-plugin-html';
 import type { LogOptions } from '../core/logger';
 import type { ComponentPreload } from '../core/ssr';
-import type { ViteDevServer } from 'vite';
-import type { OutputChunk, EmittedFile } from 'rollup';
+import { ViteDevServer, Plugin as VitePlugin, resolveConfig } from 'vite';
+import type { OutputChunk, EmittedFile, ResolveIdHook, LoadHook } from 'rollup';
 import type { AllPagesData } from '../core/build/types';
 import { addRollupInput } from './add-rollup-input.js';
-import { findAssets, findInlineScripts, findInlineStyles, getSourcePaths, getTextContent } from './extract-assets.js';
+import { findAssets, findInlineScripts, findInlineStyles, findStyleLinks, getSourcePaths, getTextContent, isStylesheetLink } from './extract-assets.js';
 import { render as ssrRender } from '../core/ssr/index.js';
 import { getAttribute, getTagName, setTextContent, insertBefore, remove, removeAttribute, setAttribute, createScript, createElement } from '@web/parse5-utils';
 import { resolveDependency, viteifyPath } from '../core/util.js';
+import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
+import { getViteResolve, getViteLoad } from './resolve.js';
+import { getViteTransform, transformWithVite, TransformHook } from '../vite-plugin-astro/styles.js';
 import parse5 from 'parse5';
 import * as path from 'path';
+import { transform } from '@babel/core';
 
 type AllPages = Record<string, RouteData & { paths: string[] }>;
 
@@ -24,7 +28,8 @@ const ASTRO_ASSET_PREFIX = '@astro-asset';
 
 const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`;
 const cssLangRE = new RegExp(cssLangs);
-const isCSSRequest = (request: string) => cssLangRE.test(request);
+const isCSSRequest = (request: string) => STYLE_EXTENSIONS.has(path.extname(request));
+const isAstroInjectedLink = (node: parse5.Element) => isStylesheetLink(node) && getAttribute(node, 'data-astro-injected') === '';
 
 interface PluginOptions {
   astroConfig: AstroConfig;
@@ -35,7 +40,7 @@ interface PluginOptions {
   viteServer: ViteDevServer;
 }
 
-export function rollupPluginAstroBuild(options: PluginOptions): Plugin {
+export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
   const { astroConfig, logging, origin, allPages, routeCache, viteServer } = options;
 
   const srcRoot = astroConfig.src.pathname;
@@ -53,9 +58,22 @@ export function rollupPluginAstroBuild(options: PluginOptions): Plugin {
 
   const cssChunkMap = new Map<string, string>();
   const chunkToRefMap = new Map<string, string>();
+  const styleSourceMap = new Map<string, string>();
+
+  let viteResolve: ResolveIdHook;
+  let viteLoad: LoadHook;
+  let viteTransform: TransformHook;
 
   return {
     name: PLUGIN_NAME,
+
+    enforce: 'pre',
+
+    configResolved(resolvedConfig) {
+      viteResolve = getViteResolve(resolvedConfig);
+      viteLoad = getViteLoad(resolvedConfig);
+      viteTransform = getViteTransform(resolvedConfig);
+    },
 
     async options(inputOptions) {
       let projectRoot = astroConfig.projectRoot.pathname;
@@ -109,21 +127,17 @@ export function rollupPluginAstroBuild(options: PluginOptions): Plugin {
           }
           
           for(let node of findAssets(document)) {
-            if(getTagName(node) === 'link' && getAttribute(node, 'rel') === 'stylesheet' && getAttribute(node, 'href')) {
+            if(isAstroInjectedLink(node)) {
               const pathname = getAttribute(node, 'href')!;
-              if(pathname.startsWith(srcRoot)) {
-                const id = viteifyPath(pathname);
-                //imports.push(id); // TODO should this be a top-level input instead?
-                assetInput.add(id);
-                console.log('LINK', id);
-              }
+              const id = viteifyPath(pathname);
+              //imports.push(id); // TODO should this be a top-level input instead?
+              assetInput.add(id);
             }
           }
 
           if(styles) {
             const styleId = ASTRO_STYLE_PREFIX + pathname + '.css';
             astroAssetMap.set(styleId, styles);
-            //assetInput.add(styleId);
           }
 
           htmlInput.add(id);
@@ -137,12 +151,17 @@ export function rollupPluginAstroBuild(options: PluginOptions): Plugin {
       return out;
     },
 
-    resolveId(source) {
+    async resolveId(id, importer, options) {
       switch(true) {
-        case astroScriptMap.has(source):
-        case astroPageMap.has(source): {
-          return source;
+        case astroScriptMap.has(id):
+        case astroPageMap.has(id): {
+          return id;
         }
+      }
+
+      if(isCSSRequest(id)) {
+        let resolved = await viteResolve.call(this, id, importer, options as any);
+        return resolved;
       }
 
       return undefined;
@@ -154,7 +173,6 @@ export function rollupPluginAstroBuild(options: PluginOptions): Plugin {
         return astroPageMap.get(id);
       }
       if(astroAssetMap.has(id)) {
-        console.log("ASKING FOR", id);
         return astroAssetMap.get(id)!;
       }
       // Load scripts
@@ -162,57 +180,66 @@ export function rollupPluginAstroBuild(options: PluginOptions): Plugin {
         return astroScriptMap.get(id)!;
       }
 
+      if(isCSSRequest(id)) {
+        let result = await viteLoad.call(this, id);
+        return result || null;
+      }
+
       return null;
     },
 
-    /*
-    async renderChunk(code, chunk, opts) {
-      console.log('rendering', chunk.facadeModuleId)
-      debugger;
+    async transform(value, id) {
+      if(isCSSRequest(id)) {
+        let result = await transformWithVite({
+          id,
+          value,
+          attrs: {
+            lang: path.extname(id).substr(1)
+          },
+          transformHook: viteTransform,
+          ssr: false
+        });
+        if(result) {
+          styleSourceMap.set(id, result.code);
+        } else {
+          styleSourceMap.set(id, value);
+        }
+
+        return result;
+      }
+
       return null;
     },
-    */
 
-    /*
-    buildStart(options) {
-      debugger;
-    },
-    */
-    
-
-    renderChunk(code, chunk) {
-      let isPureCSS = false;
-      for(const [name] of Object.entries(chunk.modules)) {
-        if(!isCSSRequest(name)) {
+    renderChunk(_code, chunk) {
+      let chunkCSS = '';
+      let isPureCSS = true;
+      const chunks = [];
+      for(const [id] of Object.entries(chunk.modules)) {
+        if(!isCSSRequest(id)) {
           isPureCSS = false;
+        }
+        if(styleSourceMap.has(id)) {
+          chunkCSS += styleSourceMap.get(id)!;
+          chunks.push(id);
         }
       }
 
       if(isPureCSS) {
-        // DO What?
-        cssChunkMap.set(chunk.fileName, '');
+        const referenceId = this.emitFile({
+          name: chunk.name + '.css',
+          type: 'asset',
+          source: chunkCSS
+        });
+        for(const id of chunks) {
+          cssChunkMap.set(id, referenceId);
+        }
       }
 
       return null;
     },
 
-    renderStart() {
-
-      const emitFile = this.emitFile;
-      this.emitFile = function(emittedFile: EmittedFile) {
-        const refId = emitFile.call(this, emittedFile);
-        if(emittedFile.fileName) {
-          chunkToRefMap.set(emittedFile.fileName, refId);
-        }
-        return refId;
-      };
-    },
-
     async generateBundle(_options, bundle) {
-      console.log(Object.keys(bundle));
-      const c = chunkToRefMap;
-      const s = cssChunkMap;
-      debugger;
       const facadeIdMap = new Map<string, string>();
       for(const [, output] of Object.entries(bundle)) {
         if(output.type === 'chunk') {
@@ -255,9 +282,10 @@ export function rollupPluginAstroBuild(options: PluginOptions): Plugin {
               if(i === 0) {
                 //removeAttribute(script, 'astro-script');
                 //setAttribute(script, 'src', bundlePath);
+                const relPath = path.relative(pathname, bundlePath);
                 insertBefore(script.parentNode, createScript({
                   type: 'module',
-                  src: bundlePath
+                  src: relPath
                 }), script);
               }
               remove(script);
@@ -269,10 +297,10 @@ export function rollupPluginAstroBuild(options: PluginOptions): Plugin {
         const styleId = ASTRO_STYLE_PREFIX + pathname + '.css';
         if(astroAssetMap.has(styleId)) {
           let i = 0;
-          for(let style of findInlineStyles(document)) {
+          for(const style of findInlineStyles(document)) {
             if(getAttribute(style, 'astro-style')) {
               if(i === 0) {
-                let relPath = path.relative(pathname, '/' + assetIdMap.get(styleId)!);
+                const relPath = path.relative(pathname, '/' + assetIdMap.get(styleId)!);
                 insertBefore(style.parentNode, createElement('link', {
                   rel: 'stylesheet',
                   href: relPath
@@ -285,61 +313,28 @@ export function rollupPluginAstroBuild(options: PluginOptions): Plugin {
           }
         }
 
+        for(const link of findStyleLinks(document)) {
+          const href = getAttribute(link, 'href');
+          if(isAstroInjectedLink(link) && href && cssChunkMap.has(href)) {
+            const referenceId = cssChunkMap.get(href)!;
+            const fileName = this.getFileName(referenceId);
+            const relPath = path.relative(pathname, '/' + fileName);
+            insertBefore(link.parentNode, createElement('link', {
+              rel: 'stylesheet',
+              href: relPath
+            }), link);
+            remove(link);
+          }
+        }
+
         const outHTML = parse5.serialize(document);
         const outPath = path.join(pathname.substr(1), 'index.html');
         this.emitFile({
           fileName: outPath,
           source: outHTML,
           type: 'asset'
-        })
-        console.log(outPath)
+        });
       }
     }
   }
 }
-
-/*
-export function rollupPluginAstroBuildNext({ allPages }: PluginOptions): Plugin {
-  const idToRouteMap = new Map(Object.entries(allPages).flatMap(([, route]) => route.paths.map(p => [pageId(p), route])));
-
-  return {
-    name: PLUGIN_NAME,
-
-    options(inputOptions) {
-      //reset();
-
-      let input: InputOption[] = [];
-      if(Array.isArray(inputOptions.input)) {
-        input.push(...inputOptions.input);
-      }
-
-      //input.push('hello world')
-      input.push(...idToRouteMap.keys())
-      console.log("INPUT", input);
-
-      return Object.assign(inputOptions, {
-        input
-      });
-    },
-
-    resolveId(spec) {
-      if(spec === PLUGIN_NAME) {
-        return PLUGIN_NAME;
-      }
-      if(idToRouteMap.has(spec)) {
-        return spec;
-      }
-    },
-
-    load(id) {
-      if(idToRouteMap.has(id)) {
-        console.log("OK", idToRouteMap.get(id))
-      }
-    }
-
-    async generateBundle(options, bundle) {
-      
-    }
-  };
-}
-*/
