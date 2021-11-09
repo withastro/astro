@@ -1,5 +1,5 @@
 /**
- * UNCOMMENT: when "window is not defined" error fixed in Vite
+ * UNCOMMENT: fix "Error: Unable to render PersistentCounter because it is null!"
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -11,7 +11,6 @@ before(async () => {
   await fixture.build();
 });
 
-// TODO: fix "window is not defined" error in Vite
 describe('Client only components', () => {
   it('Loads pages using client:only hydrator', async () => {
     const html = await fixture.readFile('/index.html');

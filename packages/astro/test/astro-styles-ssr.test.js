@@ -87,8 +87,7 @@ describe('Styles SSR', () => {
     expect(wrapper).to.have.lengthOf(1);
   });
 
-  // TODO: add dynamic class scoping in compiler
-  it.skip('Astro scoped styles', async () => {
+  it('Astro scoped styles', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
@@ -111,10 +110,13 @@ describe('Styles SSR', () => {
     expect(el1.attr('class')).to.equal(`blue ${scopedClass}`);
     expect(el2.attr('class')).to.equal(`visible ${scopedClass}`);
 
-    const css = $('style').text();
+    let css = '';
+    $('style').each((_, el) => {
+      css += $(el).html();
+    });
 
     // test 4: CSS generates as expected
-    expect(css.toString()).to.equal(`.blue.${scopedClass}{color:powderblue}.color\\:blue.${scopedClass}{color:powderblue}.visible.${scopedClass}{display:block}`);
+    expect(css).to.include(`.blue.${scopedClass}{color:powderblue;}.color\\:blue.${scopedClass}{color:powderblue;}.visible.${scopedClass}{display:block;}`);
   });
 
   it('Astro scoped styles skipped without <style>', async () => {
@@ -125,19 +127,10 @@ describe('Styles SSR', () => {
     expect($('#no-scope').attr('class')).to.equal(undefined);
   });
 
-  // TODO: add behavior in compiler
-  it.skip('Astro scoped styles can be passed to child components', async () => {
+  it('Astro scoped styles can be passed to child components', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 
-    let scopedClass;
-    $('style')
-      .html()
-      .replace(/outer\.(astro-[A-Za-z0-9-]+)/, (match, p1) => {
-        scopedClass = p1;
-        return match;
-      });
-
-    expect($('#passed-in').attr('class')).to.equal(`outer ${scopedClass}`);
+    expect($('#passed-in').attr('class')).to.match(/outer astro-[A-Z0-9]+ astro-[A-Z0-9]+/);
   });
 });

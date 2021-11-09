@@ -39,7 +39,7 @@ describe('React Components', () => {
     expect($('#pure')).to.have.lengthOf(1);
   });
 
-  // TODO: fix ocmpiler bug
+  // TODO: fix compiler bug
   it.skip('Includes reactroot on hydrating components', async () => {
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
