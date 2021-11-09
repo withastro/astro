@@ -30,6 +30,7 @@ const cssLangs = `\\.(css|less|sass|scss|styl|stylus|pcss|postcss)($|\\?)`;
 const cssLangRE = new RegExp(cssLangs);
 const isCSSRequest = (request: string) => STYLE_EXTENSIONS.has(path.extname(request));
 const isAstroInjectedLink = (node: parse5.Element) => isStylesheetLink(node) && getAttribute(node, 'data-astro-injected') === '';
+const isBuildableLink = (node: parse5.Element, srcRoot: string) => isAstroInjectedLink(node) || (getAttribute(node, 'href') && getAttribute(node, 'href')?.startsWith(srcRoot));
 
 interface PluginOptions {
   astroConfig: AstroConfig;
@@ -127,7 +128,7 @@ export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
           }
           
           for(let node of findAssets(document)) {
-            if(isAstroInjectedLink(node)) {
+            if(isBuildableLink(node, srcRoot)) {
               const pathname = getAttribute(node, 'href')!;
               const id = viteifyPath(pathname);
               //imports.push(id); // TODO should this be a top-level input instead?
@@ -140,9 +141,11 @@ export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
             astroAssetMap.set(styleId, styles);
           }
 
-          htmlInput.add(id);
-          const jsSource = imports.map(id => `import '${id}';`).join('\n');
-          astroPageMap.set(id, jsSource);
+          if(imports.length) {
+            htmlInput.add(id);
+            const jsSource = imports.map(id => `import '${id}';`).join('\n');
+            astroPageMap.set(id, jsSource);
+          }
         }
       }
 
@@ -190,14 +193,16 @@ export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
 
     async transform(value, id) {
       if(isCSSRequest(id)) {
+        const extension = path.extname(id).substr(1);
         let result = await transformWithVite({
           id,
           value,
           attrs: {
-            lang: path.extname(id).substr(1)
+            lang: extension
           },
           transformHook: viteTransform,
-          ssr: false
+          ssr: false,
+          force: false
         });
         if(result) {
           styleSourceMap.set(id, result.code);
@@ -315,7 +320,7 @@ export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
 
         for(const link of findStyleLinks(document)) {
           const href = getAttribute(link, 'href');
-          if(isAstroInjectedLink(link) && href && cssChunkMap.has(href)) {
+          if(isBuildableLink(link, srcRoot) && href && cssChunkMap.has(href)) {
             const referenceId = cssChunkMap.get(href)!;
             const fileName = this.getFileName(referenceId);
             const relPath = path.relative(pathname, '/' + fileName);

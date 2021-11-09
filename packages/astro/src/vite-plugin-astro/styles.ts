@@ -18,12 +18,13 @@ interface TransformWithViteOptions {
   id: string;
   transformHook: TransformHook;
   ssr?: boolean;
+  force?: boolean;
 }
 
 /** Transform style using Vite hook */
-export async function transformWithVite({ value, attrs, transformHook, id, ssr }: TransformWithViteOptions): Promise<vite.TransformResult | null> {
-  const lang = (`.${attrs.lang}` || '').toLowerCase(); // add leading "."; don’t be case-sensitive
-  if (!PREPROCESSOR_EXTENSIONS.has(lang)) {
+export async function transformWithVite({ value, attrs, transformHook, id, ssr, force }: TransformWithViteOptions): Promise<vite.TransformResult | null> {
+  let lang = (`.${attrs.lang}` || '').toLowerCase(); // add leading "."; don’t be case-sensitive
+  if (!force && !PREPROCESSOR_EXTENSIONS.has(lang)) {
     return null; // only preprocess langs supported by Vite
   }
   return transformHook(value, id + `?astro&type=style&lang${lang}`, ssr);
