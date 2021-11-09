@@ -59,12 +59,11 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
   }
 
   // compile the baseUrl expression and push it to the list
+  // - `baseUrl` changes the way non-relative specifiers are resolved
+  // - if `baseUrl` exists then all non-relative specifiers are resolved relative to it
   aliases.push({
     find: /^(?!\.*\/)(.+)$/,
-    replacement: `${baseUrl
-      .split('')
-      .map((segment) => (segment === '$' ? '$$' : segment))
-      .join('')}/$1`,
+    replacement: `${[...baseUrl].map((segment) => (segment === '$' ? '$$' : segment)).join('')}/$1`,
   });
 
   return aliases;
