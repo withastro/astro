@@ -16,6 +16,7 @@ const PLUGIN_NAME = '@astro/rollup-plugin-build';
 const ASTRO_PAGE_PREFIX = '@astro-page';
 const ASTRO_SCRIPT_PREFIX = '@astro-script';
 const ASTRO_STYLE_PREFIX = '@astro-style';
+const ASTRO_EMPTY = '@astro-empty';
 
 const isAstroInjectedLink = (node: parse5.Element) => isStylesheetLink(node) && getAttribute(node, 'data-astro-injected') === '';
 const isBuildableLink = (node: parse5.Element, srcRoot: string) => isAstroInjectedLink(node) || (getAttribute(node, 'href') && getAttribute(node, 'href')?.startsWith(srcRoot));
@@ -107,7 +108,11 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           }
 
           if(styles) {
-            const styleId = ASTRO_STYLE_PREFIX + pathname + '.css';
+            let styleId = ASTRO_STYLE_PREFIX + pathname;
+            if(styleId.endsWith('/')) {
+              styleId += 'index';
+            }
+            styleId += '.css';
             astroAssetMap.set(styleId, styles);
           }
 
@@ -120,15 +125,20 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
       }
 
       const allInputs = new Set([...jsInput, ...htmlInput, ...assetInput]);
-      let out = addRollupInput(inputOptions, Array.from(allInputs));
-      return out;
+      // You always need at least 1 input, so add an placeholder just so we can build HTML/CSS
+      if(!allInputs.size) {
+        allInputs.add(ASTRO_EMPTY);
+      }
+      const outOptions = addRollupInput(inputOptions, Array.from(allInputs));
+      return outOptions;
     },
 
 
     async resolveId(id) {
       switch(true) {
         case astroScriptMap.has(id):
-        case astroPageMap.has(id): {
+        case astroPageMap.has(id):
+        case id === ASTRO_EMPTY: {
           return id;
         }
       }
@@ -147,6 +157,10 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
       // Load scripts
       if(astroScriptMap.has(id)) {
         return astroScriptMap.get(id)!;
+      }
+      // Give this module actual code so it doesnt warn about an empty chunk
+      if(id === ASTRO_EMPTY) {
+        return 'console.log("empty");';
       }
 
       return null;
@@ -171,11 +185,13 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
     async generateBundle(_options, bundle) {
       const facadeIdMap = new Map<string, string>();
-      for(const [, output] of Object.entries(bundle)) {
+      for(const [chunkId, output] of Object.entries(bundle)) {
         if(output.type === 'chunk') {
           const chunk = output as OutputChunk;
           const id = chunk.facadeModuleId;
-          if(id) {
+          if(id === ASTRO_EMPTY) {
+            delete bundle[chunkId];
+          } else if(id) {
             facadeIdMap.set(id, chunk.fileName);
           }
         }
@@ -189,7 +205,6 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         if(pathCSSName === '.css') {
           pathCSSName = 'index.css';
         }
-        //let fileName = 'assets/' + id.substr(ASTRO_STYLE_PREFIX.length + 1);
         const referenceId = this.emitFile({
           type: 'asset',
           name: pathCSSName,
