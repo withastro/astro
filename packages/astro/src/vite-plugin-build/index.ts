@@ -4,7 +4,7 @@ import type { InputHTMLOptions } from '@web/rollup-plugin-html';
 import type { LogOptions } from '../core/logger';
 import type { ComponentPreload } from '../core/ssr';
 import { ViteDevServer, Plugin as VitePlugin, resolveConfig } from 'vite';
-import type { OutputChunk, EmittedFile, ResolveIdHook, LoadHook } from 'rollup';
+import type { OutputChunk, EmittedFile, ResolveIdHook, LoadHook, PreRenderedChunk } from 'rollup';
 import type { AllPagesData } from '../core/build/types';
 import { addRollupInput } from './add-rollup-input.js';
 import { findAssets, findInlineScripts, findInlineStyles, findStyleLinks, getSourcePaths, getTextContent, isStylesheetLink } from './extract-assets.js';
@@ -16,7 +16,6 @@ import { getViteResolve, getViteLoad } from './resolve.js';
 import { getViteTransform, transformWithVite, TransformHook } from '../vite-plugin-astro/styles.js';
 import parse5 from 'parse5';
 import * as path from 'path';
-import { transform } from '@babel/core';
 
 type AllPages = Record<string, RouteData & { paths: string[] }>;
 
@@ -202,7 +201,7 @@ export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
           },
           transformHook: viteTransform,
           ssr: false,
-          force: false
+          force: true
         });
         if(result) {
           styleSourceMap.set(id, result.code);
@@ -244,6 +243,22 @@ export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
       return null;
     },
 
+    outputOptions(outputOptions) {
+      Object.assign(outputOptions, {
+        entryFileNames(chunk: PreRenderedChunk) {
+          if(chunk.name.startsWith(ASTRO_PAGE_PREFIX)) {
+            let pageName = chunk.name.substr(ASTRO_PAGE_PREFIX.length + 1);
+            if(!pageName) {
+              pageName = 'index';
+            }
+            return `assets/${pageName}.[hash].js`;
+          }
+          return 'assets/[name].[hash].js';
+        }
+      });
+      return outputOptions;
+    },
+
     async generateBundle(_options, bundle) {
       const facadeIdMap = new Map<string, string>();
       for(const [, output] of Object.entries(bundle)) {
@@ -261,13 +276,18 @@ export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
       // Emit out our assets
       const assetIdMap = new Map<string, string>(); 
       for(const [id, content] of astroAssetMap) {
-        let fileName = 'assets/' + id.substr(ASTRO_STYLE_PREFIX.length + 1);
-        this.emitFile({
+        let pathCSSName = id.substr(ASTRO_STYLE_PREFIX.length + 1);
+        // Index page
+        if(pathCSSName === '.css') {
+          pathCSSName = 'index.css';
+        }
+        //let fileName = 'assets/' + id.substr(ASTRO_STYLE_PREFIX.length + 1);
+        const referenceId = this.emitFile({
           type: 'asset',
-          fileName,
+          name: pathCSSName,
           source: content
         });
-        assetIdMap.set(id, fileName);
+        assetIdMap.set(id, referenceId);
       }
 
       for(const [id, html] of renderedPageMap) {
@@ -285,8 +305,6 @@ export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
           for(let script of findInlineScripts(document)) {
             if(getAttribute(script, 'astro-script')) {
               if(i === 0) {
-                //removeAttribute(script, 'astro-script');
-                //setAttribute(script, 'src', bundlePath);
                 const relPath = path.relative(pathname, bundlePath);
                 insertBefore(script.parentNode, createScript({
                   type: 'module',
@@ -305,7 +323,8 @@ export function rollupPluginAstroBuild(options: PluginOptions): VitePlugin {
           for(const style of findInlineStyles(document)) {
             if(getAttribute(style, 'astro-style')) {
               if(i === 0) {
-                const relPath = path.relative(pathname, '/' + assetIdMap.get(styleId)!);
+                const fileName = this.getFileName(assetIdMap.get(styleId)!);
+                const relPath = path.relative(pathname, '/' + fileName);
                 insertBefore(style.parentNode, createElement('link', {
                   rel: 'stylesheet',
                   href: relPath
