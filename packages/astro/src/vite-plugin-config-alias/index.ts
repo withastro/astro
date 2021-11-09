@@ -91,13 +91,13 @@ export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL; 
       for (const alias of configAlias) {
         if (alias.find.test(sourceId)) {
           /** Processed Source ID with our alias applied. */
-          const aliasedSource = sourceId.replace(alias.find, alias.replacement);
+          const aliasedSourceId = sourceId.replace(alias.find, alias.replacement);
 
           /** Resolved ID conditionally handled by any other resolver. (this also gives priority to all other resolvers) */
-          const resolvedId = await this.resolve(aliasedSource, importer, { skipSelf: true, ...options });
-    
+          const resolvedAliasedId = await this.resolve(aliasedSourceId, importer, { skipSelf: true, ...options });
+
           // if the existing resolvers find the file, return that resolution
-          if (resolvedId) return resolvedId;
+          if (resolvedAliasedId) return resolvedAliasedId;
         }
       }
     },
