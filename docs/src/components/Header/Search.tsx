@@ -1,11 +1,11 @@
 /* jsxImportSource: react */
 import { useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import docsearch from '@docsearch/react';
-import '@docsearch/css//dist/style.css';
+import * as docsearch from '@docsearch/react';
+import '@docsearch/css/dist/style.css';
 import './Search.css';
 
-const { DocSearchModal, useDocSearchKeyboardEvents } = docsearch
+const { DocSearchModal, useDocSearchKeyboardEvents } = ((docsearch as unknown as { default: typeof docsearch }).default || docsearch)
 
 export default function Search(props) {
   const [isOpen, setIsOpen] = useState(false);
