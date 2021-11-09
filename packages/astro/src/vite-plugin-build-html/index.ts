@@ -26,13 +26,14 @@ interface PluginOptions {
   cssChunkMap: Map<string, string>;
   logging: LogOptions;
   allPages: AllPagesData;
+  pageNames: string[];
   origin: string;
   routeCache: RouteCache;
   viteServer: ViteDevServer;
 }
 
 export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
-  const { astroConfig, cssChunkMap, logging, origin, allPages, routeCache, viteServer } = options;
+  const { astroConfig, cssChunkMap, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
   const srcRoot = astroConfig.src.pathname;
 
@@ -62,6 +63,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         }
 
         for(const pathname of pageData.paths) {
+          pageNames.push(pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''));
           const id = ASTRO_PAGE_PREFIX + pathname;
           const html = await ssrRender(renderers, mod, {
             astroConfig,
