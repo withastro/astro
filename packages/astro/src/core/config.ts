@@ -123,11 +123,11 @@ interface LoadConfigOptions {
 export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfig> {
   const root = options.cwd ? path.resolve(options.cwd) : process.cwd();
   let userConfig: AstroUserConfig = {};
-  let userConfigPath: string|undefined;
+  let userConfigPath: string | undefined;
 
   if (options.filename) {
     userConfigPath = /^\.*\//.test(options.filename) ? options.filename : `./${options.filename}`;
-    userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`))
+    userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
   }
   // Automatically load config file using Proload
   // If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
