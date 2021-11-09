@@ -3,8 +3,9 @@ import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData
 import type { LogOptions } from '../logger';
 import type { AllPagesData } from './types';
 
-import { rollupPluginHTML } from '@web/rollup-plugin-html';
-import { rollupPluginAstroBuild } from '../../vite-plugin-build/index.js';
+import { rollupPluginHTML } from '@web/rollup-plugin-html'; // TODO uninstall
+import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
+import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import fs from 'fs';
 import { bold, cyan, green, dim } from 'kleur/colors';
 import { performance } from 'perf_hooks';
@@ -172,6 +173,8 @@ class AstroBuilder {
         })
       }))
     );*/
+
+    const cssChunkMap = new Map<string, string>();
     
 
     // Bundle the assets in your final build: This currently takes the HTML output
@@ -192,19 +195,18 @@ class AstroBuilder {
         target: 'es2020', // must match an esbuild target
       },
       plugins: [
-        rollupPluginAstroBuild({
+        rollupPluginAstroBuildHTML({
           astroConfig: this.config,
+          cssChunkMap,
           logging,
           origin,
           allPages,
           routeCache: this.routeCache,
           viteServer
         }),
-        /*rollupPluginHTML({
-          rootDir: viteConfig.root,
-          input,
-          extractAssets: false,
-        }) as any,*/ // "any" needed for CI; also we don’t need typedefs for this anyway
+        rollupPluginAstroBuildCSS({
+          cssChunkMap
+        }),
         ...(viteConfig.plugins || []),
       ],
       publicDir: viteConfig.publicDir,
