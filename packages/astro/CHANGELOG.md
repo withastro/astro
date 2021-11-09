@@ -4,8 +4,16 @@
 
 ### Patch Changes
 
-- fbae2bc5: Add support for `.cjs`, `.js`, and `.ts` Astro config files
-- 2e1bded7: fix: Improve Tailwind HMR
+- fbae2bc5: **Improve support for Astro config files.**
+
+In addition to properly loading `.cjs` and `.js` files in all cases, Astro now supports `astro.config.ts` files. 
+
+For convenience, you may now also move your `astro.config.js` file to a top-level `config/` directory.
+
+- 2e1bded7: Improve Tailwind HMR in `dev` mode
+- Fix bug when using `<Markdown></Markdown>` with no content
+- Support `PUBLIC_` prefixed `.env` variables
+- Respect `tsconfig.json` and `jsconfig.json` paths as aliases
 
 ## 0.21.0-next.1
 
