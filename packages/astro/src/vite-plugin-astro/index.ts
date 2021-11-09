@@ -9,7 +9,6 @@ import { fileURLToPath } from 'url';
 import { transform } from '@astrojs/compiler';
 import { decode } from 'sourcemap-codec';
 import { AstroDevServer } from '../core/dev/index.js';
-import { codeFrame } from '../core/util.js';
 import { getViteTransform, TransformHook, transformWithVite } from './styles.js';
 
 interface AstroPluginOptions {
@@ -88,7 +87,32 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           map,
         };
       } catch (err: any) {
-        // if esbuild threw the error, find original code source to display (if it’s mapped)
+        // improve compiler errors
+        if (err.stack.includes('wasm-function')) {
+          const search = new URLSearchParams({
+            labels: 'compiler',
+            title: '🐛 BUG: `@astrojs/compiler` panic',
+            body: `### Describe the Bug
+
+\`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
+
+**${id.replace(fileURLToPath(config.projectRoot), '')}**
+\`\`\`astro
+${source}
+\`\`\`
+`,
+          });
+          err.url = `https://github.com/snowpackjs/astro/issues/new?${search.toString()}`;
+          err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
+
+Please open
+a GitHub issue using the link below:
+${err.url}`;
+          // TODO: remove stack replacement when compiler throws better errors
+          err.stack = `    at ${id}`;
+        }
+
+        // improve esbuild errors
         if (err.errors && tsResult?.map) {
           const json = JSON.parse(tsResult.map);
           const mappings = decode(json.mappings);
@@ -96,23 +120,6 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           if (Array.isArray(focusMapping) && focusMapping.length) {
             err.sourceLoc = { file: id, line: (focusMapping[0][2] || 0) + 1, column: (focusMapping[0][3] || 0) + 1 };
           }
-        }
-
-        let message = '';
-        if (typeof err === 'string') message = err;
-        if (err && typeof err === 'object') {
-          if (err.stack && typeof err.stack === 'object' && err.stack.message) {
-            message = err.stack.message;
-          } else if (typeof err.toString === 'function') {
-            message = err.toString();
-          }
-        }
-
-        // WASM panic
-        if (message && message === 'RuntimeError: unreachable') {
-          err.message = 'Syntax error';
-          err.sourceLoc = { file: id, line: 0, column: 0 }; // TODO: can WASM show us the last character it erred on?
-          throw new Error(`${id}: ${err.message}`);
         }
 
         throw err;

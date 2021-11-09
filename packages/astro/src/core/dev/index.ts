@@ -178,7 +178,6 @@ export class AstroDevServer {
       return [];
     } catch (e) {
       const err = e as Error;
-      viteServer.ssrFixStacktrace(err);
       // eslint-disable-next-line
       console.error(err.stack);
       viteServer.ws.send({
@@ -302,7 +301,6 @@ export class AstroDevServer {
       res.write(html);
       res.end();
     } catch (err: any) {
-      this.viteServer.ssrFixStacktrace(err);
       this.viteServer.ws.send({ type: 'error', err });
       const statusCode = 500;
       const html = errorTemplate({
@@ -310,6 +308,8 @@ export class AstroDevServer {
         title: 'Internal Error',
         tabTitle: '500: Error',
         message: stripAnsi(err.message),
+        url: err.url || undefined,
+        stack: stripAnsi(err.stack),
       });
       info(this.logging, 'astro', msg.req({ url: pathname, statusCode: 500, reqTime: performance.now() - reqStart }));
       res.writeHead(statusCode, {
