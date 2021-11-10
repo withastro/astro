@@ -128,9 +128,10 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
             if(isBuildableImage(node, srcRoot)) {
               const src = getAttribute(node, 'src');
-              console.log("READING", src);
               if(src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
-                astroAssetMap.set(src, fs.readFile(src));
+                const fileURL = new URL(`file://${src}`);
+                console.log("READING", fileURL);
+                astroAssetMap.set(src, fs.readFile(fileURL));
               }
             }
 
