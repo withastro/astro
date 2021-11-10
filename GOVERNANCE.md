@@ -8,7 +8,7 @@ This document outlines the governance model for Astro. This includes detailed de
 Consequences for CoC violations are detailed in [Moderation](#moderation).
 
 👉 **Want to trigger a vote, nomination, or perform some other action?**  
-Scroll down to [Playbook](#playbook).
+Scroll down to [Playbook](#governance-playbook).
 
 ## Get Involved
 
