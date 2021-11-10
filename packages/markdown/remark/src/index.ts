@@ -7,6 +7,7 @@ import rehypeExpressions from './rehype-expressions.js';
 import rehypeIslands from './rehype-islands.js';
 import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
 import rehypeJsx from './rehype-jsx.js';
+import rehypeEscape from './rehype-escape.js';
 import remarkPrism from './remark-prism.js';
 import remarkUnwrap from './remark-unwrap.js';
 import { loadPlugins } from './load-plugins.js';
@@ -76,6 +77,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     .use(isMDX ? [rehypeJsx] : [])
     .use(isMDX ? [rehypeExpressions] : [])
     .use(isMDX ? [] : [rehypeRaw])
+    .use(isMDX ? [rehypeEscape] : [])
     .use(rehypeIslands);
 
   let result: string;
