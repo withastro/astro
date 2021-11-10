@@ -40,10 +40,11 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 ${layout ? `import Layout from '${layout}';` : ''}
 ${components ? `import * from '${components}';` : ''}
 ${setup}
+const $$content = ${JSON.stringify(content)}
 ---`;
         // If the user imported "Layout", wrap the content in a Layout
         if (/\bLayout\b/.test(prelude)) {
-          astroResult = `${prelude}\n<Layout content={${JSON.stringify(content)}}>\n\n${astroResult}\n\n</Layout>`;
+          astroResult = `${prelude}\n<Layout content={$$content}>\n\n${astroResult}\n\n</Layout>`;
         } else {
           astroResult = `${prelude}\n${astroResult}`;
         }
