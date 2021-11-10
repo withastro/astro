@@ -32,8 +32,6 @@ const isBuildableLink = (node: parse5.Element, srcRoot: string) => isAstroInject
 const isBuildableImage = (node: parse5.Element, srcRoot: string) => getTagName(node) === 'img' && getAttribute(node, 'src')?.startsWith(srcRoot);
 const hasSrcSet = (node: parse5.Element) => tagsWithSrcSet.has(getTagName(node)) && !!getAttribute(node, 'srcset');
 
-
-
 interface PluginOptions {
   astroConfig: AstroConfig;
   astroStyleMap: Map<string, string>;
@@ -129,9 +127,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             if(isBuildableImage(node, srcRoot)) {
               const src = getAttribute(node, 'src');
               if(src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
-                const fileURL = new URL(`file://${src}`);
-                console.log("READING", fileURL);
-                astroAssetMap.set(src, fs.readFile(fileURL));
+                astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
               }
             }
 
@@ -139,7 +135,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               const candidates = matchSrcset(getAttribute(node, 'srcset')!);
               for(const {url} of candidates) {
                 if(url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
-                  astroAssetMap.set(url, fs.readFile(url));
+                  astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
                 }
               }
             }
