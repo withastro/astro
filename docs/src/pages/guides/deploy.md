@@ -414,11 +414,12 @@ You can deploy your Astro project using [Buddy](https://buddy.works). To do so y
 6. Add a deployment action - there are many to choose from, you can browse them [here](https://buddy.works/actions). Although their can settings differ, remember to set the **Source path** to `dist`.
 7. Press the **Run** button.
 
-
 ## Layer0
+
 You can deploy your Astro project using the steps in the following sections.
 
 ### Create the Astro Site
+
 If you don't have an existing Astro site, you can create one by running:
 
 ```bash
@@ -454,22 +455,25 @@ Paste the following into routes.ts:
 
 ```js
 // routes.ts
-import { Router } from '@layer0/core'
+import { Router } from '@layer0/core';
 
 export default new Router()
-  .get('/:path*/:file.:ext(js|css|png|ico|jpg|gif|svg)', ({ cache, serveStatic }) => {
-    cache({
-      browser: {
-        // cache js, css, and images in the browser for one hour...
-        maxAgeSeconds: 60 * 60,
-      },
-      edge: {
-        // ... and at the edge for one year
-        maxAgeSeconds: 60 * 60 * 24 * 365,
-      },
-    })
-    serveStatic('dist/:path*/:file.:ext')
-  })
+  .get(
+    '/:path*/:file.:ext(js|css|png|ico|jpg|gif|svg)',
+    ({ cache, serveStatic }) => {
+      cache({
+        browser: {
+          // cache js, css, and images in the browser for one hour...
+          maxAgeSeconds: 60 * 60,
+        },
+        edge: {
+          // ... and at the edge for one year
+          maxAgeSeconds: 60 * 60 * 24 * 365,
+        },
+      });
+      serveStatic('dist/:path*/:file.:ext');
+    }
+  )
   .match('/:path*', ({ cache, serveStatic, setResponseHeader }) => {
     cache({
       // prevent the browser from caching html...
@@ -478,16 +482,16 @@ export default new Router()
         // ...cache html at the edge for one year
         maxAgeSeconds: 60 * 60 * 24 * 365,
       },
-    })
-    setResponseHeader('content-type', 'text/html; charset=UTF-8')
-    serveStatic('dist/:path*')
-  })
+    });
+    setResponseHeader('content-type', 'text/html; charset=UTF-8');
+    serveStatic('dist/:path*');
+  });
 ```
 
 You can remove the origin backend from `layer0.config.js`:
 
 ```js
-module.exports = {}
+module.exports = {};
 ```
 
 ### Deploy to Layer0
@@ -501,7 +505,6 @@ $ npm run build
 # Deploy it to Layer0
 $ 0 deploy
 ```
-
 
 ## Credits
 
