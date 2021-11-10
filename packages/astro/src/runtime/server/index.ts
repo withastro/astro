@@ -208,6 +208,8 @@ export function createAstro(fileURLStr: string, site: string): TopLevelAstro {
   };
 }
 
+const toAttributeString = (value: any) => String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;')
+
 // A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string) {
   if (value == null || value === false) {
@@ -216,10 +218,10 @@ export function addAttribute(value: any, key: string) {
 
   // support "class" from an expression passed into an element (#782)
   if (key === 'class:list') {
-    return ` ${key.slice(0, -5)}="${serializeListValue(value)}"`;
+    return ` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`;
   }
 
-  return ` ${key}="${value}"`;
+  return ` ${key}="${toAttributeString(value)}"`;
 }
 
 // Adds support for `<Component {...value} />
