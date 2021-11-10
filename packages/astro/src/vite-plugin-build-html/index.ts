@@ -155,7 +155,6 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           }
 
           if(assetImports.length) {
-            console.log('assetImports', assetImports);
             const pageStyleId = getAstroPageStyleId(pathname);
             const jsSource = assetImports.map(sid => `import '${sid}';`).join('\n');
             astroPageStyleMap.set(pageStyleId, jsSource);
