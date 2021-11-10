@@ -8,7 +8,7 @@ import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js'
 import * as path from 'path';
 
 
-const PLUGIN_NAME = '@astro/rollup-plugin-build-css';
+const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
 // This is a virtual module that represents the .astro <style> usage on a page
 const ASTRO_STYLE_PREFIX = '@astro-inline-style';
