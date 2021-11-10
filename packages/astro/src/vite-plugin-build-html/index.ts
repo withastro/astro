@@ -324,6 +324,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               case 'stylesheet': {
                 if(!pageCSSAdded) {
                   const attrs = Object.fromEntries(node.attrs.map(attr => [attr.name, attr.value]));
+                  delete attrs['data-astro-injected'];
                   pageCSSAdded = appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
                 }
                 remove(node);

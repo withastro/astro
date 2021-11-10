@@ -1,10 +1,10 @@
 
-import type { ResolveIdHook, LoadHook, RenderedChunk, OutputChunk } from 'rollup';
+import type { ResolveIdHook, LoadHook, RenderedChunk } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 
 import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
 import { getViteResolve, getViteLoad } from './resolve.js';
-import { getViteTransform, transformWithVite, TransformHook } from '../vite-plugin-astro/styles.js';
+import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import * as path from 'path';
 
 
@@ -81,11 +81,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
       if(isStyleVirtualModule(id)) {
         return id;
       }
-      if(isCSSRequest(id)) {
-        let resolved = await viteResolve.call(this, id, importer, options as any);
-        return resolved;
-      }
-
       return undefined;
     },
 
@@ -97,11 +92,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
       if(isStyleVirtualModule(id)) {
         return astroStyleMap.get(id)!;
       }
-      if(isCSSRequest(id)) {
-        let result = await viteLoad.call(this, id);
-        return result || null;
-      }
-
       return null;
     },
 
@@ -111,17 +101,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
         return null;
       }
       if(isCSSRequest(id)) {
-        const extension = path.extname(id).substr(1);
-        let result = await transformWithVite({
-          id,
-          value,
-          attrs: {
-            lang: extension
-          },
-          transformHook: viteTransform,
-          ssr: false,
-          force: true
-        });
+        let result = await viteTransform(value, id);
         if(result) {
           styleSourceMap.set(id, result.code);
         } else {
