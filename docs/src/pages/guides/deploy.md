@@ -444,7 +444,7 @@ $ npm run build
 # First, globally install the Layer0 CLI:
 $ npm i -g @layer0/cli
 
-# Then, add Layer0 to your MkDocs site:
+# Then, add Layer0 to your Astro site:
 $ 0 init
 ```
 
