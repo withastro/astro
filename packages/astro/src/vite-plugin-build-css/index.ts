@@ -58,8 +58,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
   const { astroPageStyleMap, astroStyleMap, chunkToReferenceIdMap, pureCSSChunks } = options;
   const styleSourceMap = new Map<string, string>();
 
-  let viteResolve: ResolveIdHook;
-  let viteLoad: LoadHook;
   let viteTransform: TransformHook;
 
   return {
@@ -68,11 +66,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
     enforce: 'pre',
 
     configResolved(resolvedConfig) {
-      viteResolve = getViteResolve(resolvedConfig);
-      viteLoad = getViteLoad(resolvedConfig);
       viteTransform = getViteTransform(resolvedConfig);
     },
-
 
     async resolveId(id) {
       if(isPageStyleVirtualModule(id)) {
