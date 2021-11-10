@@ -128,6 +128,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
             if(isBuildableImage(node, srcRoot)) {
               const src = getAttribute(node, 'src');
+              console.log("READING", src);
               if(src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
                 astroAssetMap.set(src, fs.readFile(src));
               }
@@ -157,6 +158,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           }
 
           if(assetImports.length) {
+            console.log('assetImports', assetImports);
             const pageStyleId = getAstroPageStyleId(pathname);
             const jsSource = assetImports.map(sid => `import '${sid}';`).join('\n');
             astroPageStyleMap.set(pageStyleId, jsSource);
