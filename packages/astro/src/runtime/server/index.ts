@@ -208,7 +208,7 @@ export function createAstro(fileURLStr: string, site: string): TopLevelAstro {
   };
 }
 
-const toAttributeString = (value: any) => String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;')
+const toAttributeString = (value: any) => String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;');
 
 // A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string) {
