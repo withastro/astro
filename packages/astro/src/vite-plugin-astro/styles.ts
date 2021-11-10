@@ -1,6 +1,6 @@
 import type vite from '../core/vite';
 
-import { PREPROCESSOR_EXTENSIONS } from '../core/ssr/css.js';
+import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
 
 export type TransformHook = (code: string, id: string, ssr?: boolean) => Promise<vite.TransformResult>;
 
@@ -23,7 +23,7 @@ interface TransformWithViteOptions {
 /** Transform style using Vite hook */
 export async function transformWithVite({ value, attrs, transformHook, id, ssr }: TransformWithViteOptions): Promise<vite.TransformResult | null> {
   const lang = (`.${attrs.lang}` || '').toLowerCase(); // add leading "."; don’t be case-sensitive
-  if (!PREPROCESSOR_EXTENSIONS.has(lang)) {
+  if (!STYLE_EXTENSIONS.has(lang)) {
     return null; // only preprocess langs supported by Vite
   }
   return transformHook(value, id + `?astro&type=style&lang${lang}`, ssr);
