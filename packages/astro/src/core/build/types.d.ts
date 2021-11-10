@@ -7,3 +7,4 @@ export interface PageBuildData {
   route: RouteData;
 }
 export type AllPagesData = Record<string, PageBuildData>;
+

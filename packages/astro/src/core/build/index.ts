@@ -2,6 +2,7 @@ import type { InputHTMLOptions } from '@web/rollup-plugin-html';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro-core';
 import type { LogOptions } from '../logger';
 import type { AllPagesData } from './types';
+import type { RenderedChunk } from 'rollup';
 
 import { rollupPluginHTML } from '@web/rollup-plugin-html'; // TODO uninstall
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
@@ -130,16 +131,23 @@ class AstroBuilder {
     );
     debug(logging, 'build', timerMessage('All pages loaded', timer.loadStart));
 
-    // A map of original file names to the final css chunk ID. Used by both
-    // the HTML and CSS plugins.
-    const cssChunkMap = new Map<string, string>();
+    // Pure CSS chunks are chunks that only contain CSS.
+    // This is all of them, and chunkToReferenceIdMap maps them to a hash id used to find the final file.
+    const pureCSSChunks = new Set<RenderedChunk>();
+    const chunkToReferenceIdMap = new Map<string, string>();
+
+    // This is a mapping of pathname to the string source of all collected
+    // inline <style> for a page.
+    const astroStyleMap = new Map<string, string>();
+    // This is a virtual JS module that imports all dependent styles for a page.
+    const astroPageStyleMap = new Map<string, string>();
 
     const pageNames: string[] = [];
 
     // Bundle the assets in your final build: This currently takes the HTML output
     // of every page (stored in memory) and bundles the assets pointed to on those pages.
     timer.buildStart = performance.now();
-    let buildRes = await vite.build({
+    await vite.build({
       logLevel: 'error',
       mode: 'production',
       build: {
@@ -156,7 +164,10 @@ class AstroBuilder {
       plugins: [
         rollupPluginAstroBuildHTML({
           astroConfig: this.config,
-          cssChunkMap,
+          astroPageStyleMap,
+          astroStyleMap,
+          chunkToReferenceIdMap,
+          pureCSSChunks,
           logging,
           origin,
           allPages,
@@ -165,7 +176,10 @@ class AstroBuilder {
           viteServer
         }),
         rollupPluginAstroBuildCSS({
-          cssChunkMap
+          astroPageStyleMap,
+          astroStyleMap,
+          chunkToReferenceIdMap,
+          pureCSSChunks
         }),
         ...(viteConfig.plugins || []),
       ],

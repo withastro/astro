@@ -4,9 +4,9 @@ import Nav from '../components/Nav.astro';
 
 <html>
   <head>
-    <link rel="stylesheet" href="../css/typography.css" />
-    <link rel="stylesheet" href="../css/colors.css" />
-    <link rel="stylesheet" href="../css/page-two.css" />
+    <link rel="stylesheet" href={Astro.resolve('../css/typography.css')} />
+    <link rel="stylesheet" href={Astro.resolve('../css/colors.css')} />
+    <link rel="stylesheet" href={Astro.resolve('../css/page-two.css')} />
   </head>
   <body>
     <Nav />

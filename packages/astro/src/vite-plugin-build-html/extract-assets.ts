@@ -3,7 +3,7 @@ import path from 'path';
 import { findElements, getTagName, getAttribute, findNodes } from '@web/parse5-utils';
 import adapter from 'parse5/lib/tree-adapters/default.js';
 
-const hashedLinkRels = ['stylesheet'];
+const hashedLinkRels = ['stylesheet', 'preload'];
 const linkRels = [...hashedLinkRels, 'icon', 'manifest', 'apple-touch-icon', 'mask-icon'];
 
 function getSrcSetUrls(srcset: string) {
