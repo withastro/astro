@@ -7,7 +7,7 @@ import type { AllPagesData } from '../core/build/types';
 import parse5 from 'parse5';
 import srcsetParse from 'srcset-parse';
 import * as npath from 'path';
-import fs from 'fs/promises';
+import { promises as fs } from 'fs';
 import { getAttribute, getTagName, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
 import { addRollupInput } from './add-rollup-input.js';
 import { findAssets, findInlineScripts, findInlineStyles, getTextContent, isStylesheetLink } from './extract-assets.js';
