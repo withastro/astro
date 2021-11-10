@@ -107,10 +107,8 @@ describe('Styles SSR', () => {
     expect(el1.attr('class')).to.equal(`blue ${scopedClass}`);
     expect(el2.attr('class')).to.equal(`visible ${scopedClass}`);
 
-    let css = '';
-    $('style').each((_, el) => {
-      css += $(el).html();
-    });
+    const href = '/' + $('link').attr('href');
+    const css = await fixture.readFile(href);
 
     // test 4: CSS generates as expected
     expect(css).to.include(`.blue.${scopedClass}{color:powderblue;}.color\\:blue.${scopedClass}{color:powderblue;}.visible.${scopedClass}{display:block;}`);
