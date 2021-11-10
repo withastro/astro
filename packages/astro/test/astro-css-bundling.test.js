@@ -11,11 +11,9 @@ const EXPECTED_CSS = {
   '/preload/index.html': ['../assets/preload'],
   '/preload-merge/index.html': ['../assets/preload-merge'],
 };
-const UNEXPECTED_CSS = ['/_astro/components/nav.css', '../css/typography.css', '../css/colors.css', '../css/page-index.css', '../css/page-one.css', '../css/page-two.css'];
+const UNEXPECTED_CSS = ['/src/components/nav.css', '../css/typography.css', '../css/colors.css', '../css/page-index.css', '../css/page-one.css', '../css/page-two.css'];
 
 describe('CSS Bundling', function() {
-  this.timeout(60000);
-
   let fixture;
 
   before(async () => {

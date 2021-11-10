@@ -1,10 +1,8 @@
-import type { InputHTMLOptions } from '@web/rollup-plugin-html';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro-core';
 import type { LogOptions } from '../logger';
 import type { AllPagesData } from './types';
 import type { RenderedChunk } from 'rollup';
 
-import { rollupPluginHTML } from '@web/rollup-plugin-html'; // TODO uninstall
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import fs from 'fs';
@@ -152,7 +150,7 @@ class AstroBuilder {
       mode: 'production',
       build: {
         emptyOutDir: true,
-        minify: false, // 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
+        minify: 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
         outDir: fileURLToPath(this.config.dist),
         rollupOptions: {
           // The `input` will be populated in the build rollup plugin.
