@@ -1,5 +1,5 @@
 import { Document, Element, Node } from 'parse5';
-import path from 'path';
+import npath from 'path';
 import { findElements, getTagName, getAttribute, findNodes } from '@web/parse5-utils';
 import adapter from 'parse5/lib/tree-adapters/default.js';
 
@@ -109,11 +109,11 @@ export function resolveAssetFilePath(
 ) {
   const _browserPath =
     absolutePathPrefix && browserPath[0] === '/'
-      ? '/' + path.posix.relative(absolutePathPrefix, browserPath)
+      ? '/' + npath.posix.relative(absolutePathPrefix, browserPath)
       : browserPath;
-  return path.join(
+  return npath.join(
     _browserPath.startsWith('/') ? projectRootDir : htmlDir,
-    _browserPath.split('/').join(path.sep),
+    _browserPath.split('/').join(npath.sep),
   );
 }
 

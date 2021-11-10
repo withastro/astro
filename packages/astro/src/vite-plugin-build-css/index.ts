@@ -74,7 +74,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
     },
 
 
-    async resolveId(id, importer, options) {
+    async resolveId(id) {
       if(isPageStyleVirtualModule(id)) {
         return id;
       }

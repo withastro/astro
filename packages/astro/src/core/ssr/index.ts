@@ -175,16 +175,16 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
         },
         // <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
         async privateRenderMarkdownDoNotUse(content: string, opts: any) {
-          let render = astroConfig.markdownOptions.render;
+          let mdRender = astroConfig.markdownOptions.render;
           let renderOpts = {};
-          if (Array.isArray(render)) {
-            renderOpts = render[1];
-            render = render[0];
+          if (Array.isArray(mdRender)) {
+            renderOpts = mdRender[1];
+            mdRender = mdRender[0];
           }
-          if (typeof render === 'string') {
-            ({ default: render } = await import(render));
+          if (typeof mdRender === 'string') {
+            ({ default: mdRender } = await import(mdRender));
           }
-          const { code } = await render(content, { ...renderOpts, ...(opts ?? {}) });
+          const { code } = await mdRender(content, { ...renderOpts, ...(opts ?? {}) });
           return code;
         },
       } as unknown as AstroGlobal;

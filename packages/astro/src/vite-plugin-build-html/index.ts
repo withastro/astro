@@ -6,13 +6,13 @@ import type { OutputChunk, PreRenderedChunk, RenderedChunk } from 'rollup';
 import type { AllPagesData } from '../core/build/types';
 import parse5 from 'parse5';
 import srcsetParse from 'srcset-parse';
-import * as path from 'path';
+import * as npath from 'path';
 import fs from 'fs/promises';
 import { getAttribute, getTagName, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
 import { addRollupInput } from './add-rollup-input.js';
 import { findAssets, findInlineScripts, findInlineStyles, getTextContent, isStylesheetLink } from './extract-assets.js';
 import { render as ssrRender } from '../core/ssr/index.js';
-import { getAstroStyleId, getAstroStylePathFromId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
+import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
 import { viteifyPath } from '../core/util.js';
 
 
@@ -105,9 +105,9 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             const astroScript = getAttribute(script, 'astro-script');
             if(astroScript) {
               const js = getTextContent(script);
-              const id = ASTRO_SCRIPT_PREFIX + astroScript;
-              frontEndImports.push(id);
-              astroScriptMap.set(id, js);
+              const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
+              frontEndImports.push(scriptId);
+              astroScriptMap.set(scriptId, js);
             }
           }
 
@@ -121,9 +121,9 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           const assetImports = [];
           for(let node of findAssets(document)) {
             if(isBuildableLink(node, srcRoot)) {
-              const pathname = getAttribute(node, 'href')!;
-              const id = viteifyPath(pathname);
-              assetImports.push(id);
+              const href = getAttribute(node, 'href')!;
+              const linkId = viteifyPath(href);
+              assetImports.push(linkId);
             }
 
             if(isBuildableImage(node, srcRoot)) {
@@ -152,13 +152,13 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
           if(frontEndImports.length) {
             htmlInput.add(id);
-            const jsSource = frontEndImports.map(id => `import '${id}';`).join('\n');
+            const jsSource = frontEndImports.map(sid => `import '${sid}';`).join('\n');
             astroPageMap.set(id, jsSource);
           }
 
           if(assetImports.length) {
             const pageStyleId = getAstroPageStyleId(pathname);
-            const jsSource = assetImports.map(id => `import '${id}';`).join('\n');
+            const jsSource = assetImports.map(sid => `import '${sid}';`).join('\n');
             astroPageStyleMap.set(pageStyleId, jsSource);
             assetInput.add(pageStyleId);
           }
@@ -240,7 +240,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
       for(const [assetPath, dataPromise] of astroAssetMap) {
         const referenceId = this.emitFile({
           type: 'asset',
-          name: path.basename(assetPath),
+          name: npath.basename(assetPath),
           source: await dataPromise
         });
         assetIdMap.set(assetPath, referenceId);
@@ -269,7 +269,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           const lastNode = ref;
           for(const referenceId of referenceIds) {
             const chunkFileName = this.getFileName(referenceId);
-            const relPath = path.relative(pathname, '/' + chunkFileName);
+            const relPath = npath.relative(pathname, '/' + chunkFileName);
 
             // This prevents added links more than once per type.
             const key = pathname + relPath + attrs.rel || 'stylesheet';
@@ -303,7 +303,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           for(let script of findInlineScripts(document)) {
             if(getAttribute(script, 'astro-script')) {
               if(i === 0) {
-                const relPath = path.relative(pathname, bundlePath);
+                const relPath = npath.relative(pathname, bundlePath);
                 insertBefore(script.parentNode, createScript({
                   type: 'module',
                   src: relPath
@@ -345,7 +345,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             const referenceId = assetIdMap.get(src);
             if(referenceId) {
               const fileName = this.getFileName(referenceId);
-              const relPath = path.relative(pathname, '/' + fileName);
+              const relPath = npath.relative(pathname, '/' + fileName);
               setAttribute(node, 'src', relPath);
             }
           }
@@ -359,7 +359,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               if(assetIdMap.has(url)) {
                 const referenceId = assetIdMap.get(url)!;
                 const fileName = this.getFileName(referenceId);
-                const relPath = path.relative(pathname, '/' + fileName);
+                const relPath = npath.relative(pathname, '/' + fileName);
                 changedSrcset = changedSrcset.replace(url, relPath);
               }
             }
@@ -384,7 +384,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
 
         const outHTML = parse5.serialize(document);
-        const outPath = path.join(pathname.substr(1), 'index.html');
+        const outPath = npath.join(pathname.substr(1), 'index.html');
         this.emitFile({
           fileName: outPath,
           source: outHTML,
