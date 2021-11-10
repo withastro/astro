@@ -269,7 +269,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           const lastNode = ref;
           for(const referenceId of referenceIds) {
             const chunkFileName = this.getFileName(referenceId);
-            const relPath = npath.relative(pathname, '/' + chunkFileName);
+            const relPath = npath.posix.relative(pathname, '/' + chunkFileName);
 
             // This prevents added links more than once per type.
             const key = pathname + relPath + attrs.rel || 'stylesheet';
@@ -303,7 +303,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           for(let script of findInlineScripts(document)) {
             if(getAttribute(script, 'astro-script')) {
               if(i === 0) {
-                const relPath = npath.relative(pathname, bundlePath);
+                const relPath = npath.posix.relative(pathname, bundlePath);
                 insertBefore(script.parentNode, createScript({
                   type: 'module',
                   src: relPath
@@ -345,7 +345,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             const referenceId = assetIdMap.get(src);
             if(referenceId) {
               const fileName = this.getFileName(referenceId);
-              const relPath = npath.relative(pathname, '/' + fileName);
+              const relPath = npath.posix.relative(pathname, '/' + fileName);
               setAttribute(node, 'src', relPath);
             }
           }
@@ -359,7 +359,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               if(assetIdMap.has(url)) {
                 const referenceId = assetIdMap.get(url)!;
                 const fileName = this.getFileName(referenceId);
-                const relPath = npath.relative(pathname, '/' + fileName);
+                const relPath = npath.posix.relative(pathname, '/' + fileName);
                 changedSrcset = changedSrcset.replace(url, relPath);
               }
             }
@@ -381,10 +381,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           }
         }
 
-
-
         const outHTML = parse5.serialize(document);
-        const outPath = npath.join(pathname.substr(1), 'index.html');
+        const outPath = npath.posix.join(pathname.substr(1), 'index.html');
         this.emitFile({
           fileName: outPath,
           source: outHTML,
