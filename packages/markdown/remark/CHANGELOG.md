@@ -1,5 +1,11 @@
 # @astrojs/markdown-support
 
+## 0.4.0-next.1
+
+### Patch Changes
+
+- 7eaabbb0: Fix bug where code blocks would not be escaped properly
+
 ## 0.4.0-next.0
 
 ### Minor Changes

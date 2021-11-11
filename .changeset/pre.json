@@ -38,12 +38,16 @@
     "@example/portfolio-svelte": "0.0.1"
   },
   "changesets": [
+    "beige-kings-listen",
+    "curvy-glasses-rest",
     "curvy-years-kiss",
     "dull-bikes-doubt",
     "giant-shirts-sing",
     "pink-trainers-learn",
     "shaggy-guests-type",
     "silly-apples-build",
-    "tiny-bulldogs-lie"
+    "silly-peas-battle",
+    "tiny-bulldogs-lie",
+    "young-steaks-report"
   ]
 }
