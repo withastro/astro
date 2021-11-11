@@ -5,16 +5,16 @@ import {Markdown} from 'astro/components';
 import themes from '../data/themes.json';
 import components from '../data/components.json';
 ---
-<style>
-    .card-grid {
-        display: grid;
-        grid-column-gap: 15px;
-        grid-row-gap: 15px;
-        grid-auto-flow: dense;
-        grid-template-columns: repeat(auto-fit,minmax(300px,1fr))
-    }
-</style>
 <Layout content={{title: 'Themes'}} hideRightSidebar>
+    <style>
+        .card-grid {
+            display: grid;
+            grid-column-gap: 15px;
+            grid-row-gap: 15px;
+            grid-auto-flow: dense;
+            grid-template-columns: repeat(auto-fit,minmax(300px,1fr))
+        }
+    </style>
     <Markdown>
         ## Featured Theme
     </Markdown>
