@@ -19,7 +19,9 @@ npm install
 
 # start de ontwikkeling!
 npm run dev
+```
 
+```shell
 # zodra je klaar bent, bouw dan je website met het volgende commanda
 npm run build
 ```

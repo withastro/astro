@@ -19,7 +19,9 @@ npm install
 
 # aloita kehittäminen!
 npm run dev
+```
 
+```shell
 # kun olet valmis: luo oma staattinen sivustosi hakemistoon `dist/`
 npm run build
 ```

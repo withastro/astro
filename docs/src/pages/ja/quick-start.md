@@ -19,7 +19,9 @@ npm install
 
 # 開発を始めよう
 npm run dev
+```
 
+```shell
 # 準備ができたら、`dist/`に静的サイトを構築します。
 npm run build
 ```
