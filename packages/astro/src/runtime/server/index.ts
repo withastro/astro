@@ -222,7 +222,12 @@ export function addAttribute(value: any, key: string) {
     return ` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`;
   }
 
-  return ` ${key}="${toAttributeString(value)}"`;
+  // Boolean only needs the key
+  if(value === true && key.startsWith('data-')) {
+    return ` ${key}`;
+  } else {
+    return ` ${key}="${toAttributeString(value)}"`;
+  }
 }
 
 // Adds support for `<Component {...value} />
@@ -278,14 +283,21 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
         props: { ...style.props, 'astro-style': true },
       })
     );
+  let needsHydrationStyles = false;
   const scripts = Array.from(result.scripts)
     .filter(uniqueElements)
-    .map((script, i) =>
-      renderElement('script', {
+    .map((script, i) => {
+      if('data-astro-component-hydration' in script.props) {
+        needsHydrationStyles = true;
+      }
+      return renderElement('script', {
         ...script,
         props: { ...script.props, 'astro-script': result._metadata.pathname + '/script-' + i },
-      })
-    );
+      });
+    });
+  if(needsHydrationStyles) {
+    styles.push(renderElement('style', { props: { 'astro-style': true },children: 'astro-root, astro-fragment { display: contents; }' }))
+  }
   return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
 }
 

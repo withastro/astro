@@ -125,4 +125,13 @@ describe('Styles SSR', () => {
 
     expect($('#passed-in').attr('class')).to.match(/outer astro-[A-Z0-9]+ astro-[A-Z0-9]+/);
   });
+
+  it('Using hydrated components adds astro-root styles', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+
+    const href = '/' + $('link').attr('href');
+    const css = await fixture.readFile(href);
+    expect(css).to.include('display: contents;');
+  });
 });

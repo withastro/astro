@@ -7,6 +7,7 @@ import VueCSS from '../components/VueCSS.vue';
 import VueScoped from '../components/VueScoped.vue';
 import VueModules from '../components/VueModules.vue';
 import SvelteScoped from '../components/SvelteScoped.svelte';
+import ReactDynamic from '../components/ReactDynamic.jsx';
 ---
 
 <html>
@@ -33,6 +34,7 @@ import SvelteScoped from '../components/SvelteScoped.svelte';
       <VueScoped />
       <VueModules />
       <SvelteScoped />
+      <ReactDynamic client:load />
     </div>
   </body>
 </html>
