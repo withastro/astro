@@ -7,7 +7,7 @@ import parse5 from 'parse5';
 import srcsetParse from 'srcset-parse';
 import * as npath from 'path';
 import { promises as fs } from 'fs';
-import { getAttribute, getTagName, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
+import { getAttribute, hasAttribute, getTagName, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
 import { addRollupInput } from './add-rollup-input.js';
 import { findAssets, findInlineScripts, findInlineStyles, getTextContent, isStylesheetLink } from './extract-assets.js';
 import { render as ssrRender } from '../core/ssr/index.js';
@@ -109,7 +109,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
           let styles = '';
           for (const node of findInlineStyles(document)) {
-            if (getAttribute(node, 'astro-style')) {
+            if (hasAttribute(node, 'astro-style')) {
               styles += getTextContent(node);
             }
           }
@@ -374,7 +374,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
         // Page styles for <style> usage, if not already appended via links.
         for (const style of findInlineStyles(document)) {
-          if (getAttribute(style, 'astro-style')) {
+          if (hasAttribute(style, 'astro-style')) {
             if (!pageCSSAdded) {
               pageCSSAdded = appendStyleChunksBefore(style, pathname, cssChunkMap.get(styleId));
             }
