@@ -5,7 +5,8 @@ import * as docsearch from '@docsearch/react';
 import '@docsearch/css/dist/style.css';
 import './Search.css';
 
-const { DocSearchModal, useDocSearchKeyboardEvents } = ((docsearch as unknown as { default: typeof docsearch }).default || docsearch)
+const { DocSearchModal, useDocSearchKeyboardEvents } =
+  (docsearch as unknown as { default: typeof docsearch }).default || docsearch;
 
 export default function Search(props) {
   const [isOpen, setIsOpen] = useState(false);

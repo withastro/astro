@@ -13,8 +13,8 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
     resolve: {
       alias: {
         '~': '/src',
-        'components': '/src/components',
-      }
-    }
-  }
-})
+        components: '/src/components',
+      },
+    },
+  },
+});
