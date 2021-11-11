@@ -223,7 +223,7 @@ export function addAttribute(value: any, key: string) {
   }
 
   // Boolean only needs the key
-  if(value === true) {
+  if(value === true && key.startsWith('data-')) {
     return ` ${key}`;
   } else {
     return ` ${key}="${toAttributeString(value)}"`;
