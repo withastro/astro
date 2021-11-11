@@ -9,7 +9,7 @@ import * as npath from 'path';
 import { promises as fs } from 'fs';
 import { getAttribute, hasAttribute, getTagName, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
 import { addRollupInput } from './add-rollup-input.js';
-import { findAssets, findInlineScripts, findInlineStyles, getTextContent, isStylesheetLink } from './extract-assets.js';
+import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getTextContent, isStylesheetLink } from './extract-assets.js';
 import { render as ssrRender } from '../core/ssr/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
 import { viteifyPath } from '../core/util.js';
@@ -29,6 +29,7 @@ const isAstroInjectedLink = (node: parse5.Element) => isStylesheetLink(node) && 
 const isBuildableLink = (node: parse5.Element, srcRoot: string) => isAstroInjectedLink(node) || getAttribute(node, 'href')?.startsWith(srcRoot);
 const isBuildableImage = (node: parse5.Element, srcRoot: string) => getTagName(node) === 'img' && getAttribute(node, 'src')?.startsWith(srcRoot);
 const hasSrcSet = (node: parse5.Element) => tagsWithSrcSet.has(getTagName(node)) && !!getAttribute(node, 'srcset');
+const isHoistedScript = (node: parse5.Element) => getTagName(node) === 'script' && hasAttribute(node, 'hoist');
 
 interface PluginOptions {
   astroConfig: AstroConfig;
@@ -66,7 +67,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
     async options(inputOptions) {
       const htmlInput: Set<string> = new Set();
-      const assetInput: Set<string> = new Set(); // TODO remove?
+      const assetInput: Set<string> = new Set();
       const jsInput: Set<string> = new Set();
 
       for (const [component, pageData] of Object.entries(allPages)) {
@@ -104,6 +105,20 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
               frontEndImports.push(scriptId);
               astroScriptMap.set(scriptId, js);
+            }
+          }
+
+          for(const script of findExternalScripts(document)) {
+            if(isHoistedScript(script)) {
+              debugger;
+              const astroScript = getAttribute(script, 'astro-script');
+              const src = getAttribute(script, 'src');
+              if (astroScript) {
+                const js = `import '${src}';`;
+                const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
+                frontEndImports.push(scriptId);
+                astroScriptMap.set(scriptId, js);
+              }
             }
           }
 
@@ -297,10 +312,11 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           const bundlePath = '/' + bundleId;
 
           // Update scripts
-          let i = 0;
+          let pageBundleAdded = false;
           for (let script of findInlineScripts(document)) {
             if (getAttribute(script, 'astro-script')) {
-              if (i === 0) {
+              if (!pageBundleAdded) {
+                pageBundleAdded = true;
                 const relPath = npath.posix.relative(pathname, bundlePath);
                 insertBefore(
                   script.parentNode,
@@ -313,7 +329,24 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               }
               remove(script);
             }
-            i++;
+          }
+
+          for (let script of findExternalScripts(document)) {
+            if (getAttribute(script, 'astro-script')) {
+              if (!pageBundleAdded) {
+                pageBundleAdded = true;
+                const relPath = npath.posix.relative(pathname, bundlePath);
+                insertBefore(
+                  script.parentNode,
+                  createScript({
+                    type: 'module',
+                    src: relPath,
+                  }),
+                  script
+                );
+              }
+              remove(script);
+            }
           }
         }
 

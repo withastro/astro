@@ -1,6 +1,6 @@
 import { Document, Element, Node } from 'parse5';
 import npath from 'path';
-import { findElements, getTagName, getAttribute, findNodes } from '@web/parse5-utils';
+import { findElements, getTagName, getAttribute, findNodes, hasAttribute } from '@web/parse5-utils';
 import adapter from 'parse5/lib/tree-adapters/default.js';
 
 const hashedLinkRels = ['stylesheet', 'preload'];
@@ -66,6 +66,18 @@ function isInlineScript(node: Element): boolean {
   switch (getTagName(node)) {
     case 'script':
       if (getAttribute(node, 'type') === 'module' && !getAttribute(node, 'src')) {
+        return true;
+      }
+      return false;
+    default:
+      return false;
+  }
+}
+
+function isExternalScript(node: Element): boolean {
+  switch (getTagName(node)) {
+    case 'script':
+      if (getAttribute(node, 'type') === 'module' && hasAttribute(node, 'src')) {
         return true;
       }
       return false;
@@ -180,6 +192,10 @@ export function findAssets(document: Document) {
 
 export function findInlineScripts(document: Document) {
   return findElements(document, isInlineScript);
+}
+
+export function findExternalScripts(document: Document) {
+  return findElements(document, isExternalScript);
 }
 
 export function findInlineStyles(document: Document) {
