@@ -21,7 +21,8 @@ npm install
 npm run dev
 ```
 
-Para los sitios de producción, 
+Para los sitios de producción,
+
 ```shell
 # cuando estés listo: crea tu sitio estático en la carpeta `dist/`
 npm run build

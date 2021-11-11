@@ -22,6 +22,7 @@ npm run dev
 ```
 
 For production sites,
+
 ```shell
 # when you're ready: build your static site to `dist/`
 npm run build

@@ -21,7 +21,8 @@ npm install
 npm run dev
 ```
 
-Für Produktionsstandorte, 
+Für Produktionsstandorte,
+
 ```shell
 # Wenn du bereit bist: Exportiere deine Seite nach `dist/`
 npm run build
