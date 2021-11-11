@@ -48,10 +48,10 @@ describe('Astro.*', () => {
     expect($('#site').attr('href')).to.equal('https://mysite.dev/blog/');
   });
 
-  it('Astro.resolve in development', async () => {
+  it('Astro.resolve built', async () => {
     const html = await fixture.readFile('/resolve/index.html');
     const $ = cheerio.load(html);
-    expect($('img').attr('src')).to.include('/src/images/penguin.png');
-    expect($('#inner-child img').attr('src')).to.include('/src/components/nested/images/penguin.png');
+    expect($('img').attr('src')).to.include('assets/penguin.ccd44411.png'); // Main src/images
+    expect($('#inner-child img').attr('src')).to.include('assets/penguin.b9ab122a.png');
   });
 });

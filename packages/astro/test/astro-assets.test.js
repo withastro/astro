@@ -1,29 +1,45 @@
-/**
- * UNCOMMENT: add support for automatic <img> and srcset in build
 import { expect } from 'chai';
+import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
+import srcsetParse from 'srcset-parse';
 
-let fixture;
+// This package isn't real ESM, so have to coerce it
+const matchSrcset = (srcsetParse).default;
 
-before(async () => {
-  fixture = await loadFixture({ projectRoot: './fixtures/astro-assets/' });
-  await fixture.build();
-});
-
-// TODO: add automatic asset bundling
+// Asset bundling
 describe('Assets', () => {
+  let fixture;
+
+  before(async () => {
+    fixture = await loadFixture({ projectRoot: './fixtures/astro-assets/' });
+    await fixture.build();
+  });
+
   it('built the base image', async () => {
-    await fixture.readFile('/images/twitter.png');
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    const imgPath = $('img').attr('src');
+    const data = await fixture.readFile('/' + imgPath);
+    expect(!!data).to.equal(true);
   });
 
   it('built the 2x image', async () => {
-    await fixture.readFile('/images/twitter@2x.png');
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    const srcset = $('img').attr('srcset');
+    const candidates = matchSrcset(srcset);
+    const match = candidates.find(a => a.density === 2);
+    const data = await fixture.readFile('/' + match.url);
+    expect(!!data).to.equal(true);
   });
 
   it('built the 3x image', async () => {
-    await fixture.readFile('/images/twitter@3x.png');
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    const srcset = $('img').attr('srcset');
+    const candidates = matchSrcset(srcset);
+    const match = candidates.find(a => a.density === 3);
+    const data = await fixture.readFile('/' + match.url);
+    expect(!!data).to.equal(true);
   });
 });
-*/
-
-it.skip('is skipped', () => {});

@@ -48,6 +48,7 @@ export interface TopLevelAstro {
 
 export interface SSRMetadata {
   renderers: Renderer[];
+  pathname: string;
 }
 
 export interface SSRResult {

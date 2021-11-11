@@ -14,7 +14,7 @@ describe('Dynamic components', () => {
     const html = await fixture.readFile('/index.html');
 
     const $ = cheerio.load(html);
-    expect($('script').length).to.eq(2);
+    expect($('script').length).to.eq(1);
   });
 
   it('Loads pages using client:media hydrator', async () => {
@@ -23,12 +23,10 @@ describe('Dynamic components', () => {
     const $ = cheerio.load(html);
 
     // test 1: static value rendered
-
     let js = await fixture.readFile(new URL($('script').attr('src'), root).pathname);
     expect(js).to.include(`value:"(max-width: 700px)"`);
 
     // test 2: dynamic value rendered
-    js = await fixture.readFile(new URL($('script').eq(1).attr('src'), root).pathname);
     expect(js).to.include(`value:"(max-width: 600px)"`);
   });
 

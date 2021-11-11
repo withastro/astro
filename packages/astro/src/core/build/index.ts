@@ -1,17 +1,19 @@
-import type { InputHTMLOptions } from '@web/rollup-plugin-html';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro-core';
 import type { LogOptions } from '../logger';
+import type { AllPagesData } from './types';
+import type { RenderedChunk } from 'rollup';
 
-import { rollupPluginHTML } from '@web/rollup-plugin-html';
+import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
+import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import fs from 'fs';
-import { bold, cyan, green, dim } from 'kleur/colors';
+import { bold, cyan, green } from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import vite, { ViteDevServer } from '../vite.js';
 import { fileURLToPath } from 'url';
 import { createVite } from '../create-vite.js';
 import { pad } from '../dev/util.js';
 import { debug, defaultLogOptions, levels, timerMessage, warn } from '../logger.js';
-import { ssr } from '../ssr/index.js';
+import { preload as ssrPreload } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generateRssFunction } from '../ssr/rss.js';
@@ -71,9 +73,9 @@ class AstroBuilder {
     this.viteServer = viteServer;
     debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
 
-    timer.renderStart = performance.now();
+    timer.loadStart = performance.now();
     const assets: Record<string, string> = {};
-    const allPages: Record<string, RouteData & { paths: string[] }> = {};
+    const allPages: AllPagesData = {};
     // Collect all routes ahead-of-time, before we start the build.
     // NOTE: This enforces that `getStaticPaths()` is only called once per route,
     // and is then cached across all future SSR builds. In the past, we've had trouble
@@ -82,7 +84,21 @@ class AstroBuilder {
       this.manifest.routes.map(async (route) => {
         // static route:
         if (route.pathname) {
-          allPages[route.component] = { ...route, paths: [route.pathname] };
+          allPages[route.component] = {
+            route,
+            paths: [route.pathname],
+            preload: await ssrPreload({
+              astroConfig: this.config,
+              filePath: new URL(`./${route.component}`, this.config.projectRoot),
+              logging,
+              mode: 'production',
+              origin,
+              pathname: route.pathname,
+              route,
+              routeCache: this.routeCache,
+              viteServer,
+            })
+          };
           return;
         }
         // dynamic route:
@@ -94,38 +110,37 @@ class AstroBuilder {
           }
           assets[fileURLToPath(rssFile)] = result.rss.xml;
         }
-        allPages[route.component] = { ...route, paths: result.paths };
+        allPages[route.component] = {
+          route,
+          paths: result.paths,
+          preload: await ssrPreload({
+            astroConfig: this.config,
+            filePath: new URL(`./${route.component}`, this.config.projectRoot),
+            logging,
+            mode: 'production',
+            origin,
+            pathname: result.paths[0],
+            route,
+            routeCache: this.routeCache,
+            viteServer,
+          })
+        };
       })
     );
+    debug(logging, 'build', timerMessage('All pages loaded', timer.loadStart));
 
-    // After all routes have been collected, start building them.
-    // TODO: test parallel vs. serial performance. Promise.all() may be
-    // making debugging harder without any perf gain. If parallel is best,
-    // then we should set a max number of parallel builds.
-    const input: InputHTMLOptions[] = [];
-    await Promise.all(
-      Object.entries(allPages).map(([component, route]) =>
-        Promise.all(
-          route.paths.map(async (pathname) => {
-            input.push({
-              html: await ssr({
-                astroConfig: this.config,
-                filePath: new URL(`./${component}`, this.config.projectRoot),
-                logging,
-                mode: 'production',
-                origin,
-                pathname,
-                route,
-                routeCache: this.routeCache,
-                viteServer,
-              }),
-              name: pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''),
-            });
-          })
-        )
-      )
-    );
-    debug(logging, 'build', timerMessage('All pages rendered', timer.renderStart));
+    // Pure CSS chunks are chunks that only contain CSS.
+    // This is all of them, and chunkToReferenceIdMap maps them to a hash id used to find the final file.
+    const pureCSSChunks = new Set<RenderedChunk>();
+    const chunkToReferenceIdMap = new Map<string, string>();
+
+    // This is a mapping of pathname to the string source of all collected
+    // inline <style> for a page.
+    const astroStyleMap = new Map<string, string>();
+    // This is a virtual JS module that imports all dependent styles for a page.
+    const astroPageStyleMap = new Map<string, string>();
+
+    const pageNames: string[] = [];
 
     // Bundle the assets in your final build: This currently takes the HTML output
     // of every page (stored in memory) and bundles the assets pointed to on those pages.
@@ -138,17 +153,32 @@ class AstroBuilder {
         minify: 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
         outDir: fileURLToPath(this.config.dist),
         rollupOptions: {
+          // The `input` will be populated in the build rollup plugin.
           input: [],
           output: { format: 'esm' },
         },
         target: 'es2020', // must match an esbuild target
       },
       plugins: [
-        rollupPluginHTML({
-          rootDir: viteConfig.root,
-          input,
-          extractAssets: false,
-        }) as any, // "any" needed for CI; also we don’t need typedefs for this anyway
+        rollupPluginAstroBuildHTML({
+          astroConfig: this.config,
+          astroPageStyleMap,
+          astroStyleMap,
+          chunkToReferenceIdMap,
+          pureCSSChunks,
+          logging,
+          origin,
+          allPages,
+          pageNames,
+          routeCache: this.routeCache,
+          viteServer
+        }),
+        rollupPluginAstroBuildCSS({
+          astroPageStyleMap,
+          astroStyleMap,
+          chunkToReferenceIdMap,
+          pureCSSChunks
+        }),
         ...(viteConfig.plugins || []),
       ],
       publicDir: viteConfig.publicDir,
@@ -172,7 +202,7 @@ class AstroBuilder {
     timer.sitemapStart = performance.now();
     if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
       const sitemapStart = performance.now();
-      const sitemap = generateSitemap(input.map(({ name }) => new URL(`/${name}`, this.config.buildOptions.site).href));
+      const sitemap = generateSitemap(pageNames.map(pageName => new URL(`/${pageName}`, this.config.buildOptions.site).href));
       const sitemapPath = new URL('./sitemap.xml', this.config.dist);
       await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
       await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
@@ -182,7 +212,7 @@ class AstroBuilder {
     // You're done! Time to clean up.
     await viteServer.close();
     if (logging.level && levels[logging.level] <= levels['info']) {
-      await this.printStats({ cwd: this.config.dist, pageCount: input.length });
+      await this.printStats({ cwd: this.config.dist, pageCount: pageNames.length });
     }
   }
 
