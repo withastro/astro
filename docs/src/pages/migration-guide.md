@@ -1,6 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
-title: Migrating to v0.21
+title: Migrate to v0.21
 description: How to migrate projects from Astro v0.20.
 ---
 
