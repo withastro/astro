@@ -198,6 +198,7 @@ code:not([class*='language']) {
   margin: calc(var(--padding-block) * -1) -0.125em;
   border-radius: var(--border-radius);
   box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.08);
+  word-break: break-word;
 }
 
 pre > code:not([class*='language']) {
