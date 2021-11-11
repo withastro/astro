@@ -1,5 +1,5 @@
 {
-  "name": "@example/minimal",
+  "name": "@example/subpath",
   "version": "0.0.1",
   "private": true,
   "scripts": {
