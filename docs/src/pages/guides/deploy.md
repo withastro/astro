@@ -37,7 +37,7 @@ By default, the build output will be placed at `dist/`. You may deploy this `dis
 1. Set the correct `buildOptions.site` in `astro.config.mjs`.
 1. Inside your project, create `deploy.sh` with the following content (uncommenting the appropriate lines), and run it to deploy:
 
-   ```bash{13,20,23}
+   ```bash
    #!/usr/bin/env sh
 
    # abort on errors

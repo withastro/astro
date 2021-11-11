@@ -19,7 +19,7 @@ const lang = canonicalURL && getLanguageFromURL(canonicalURL.pathname);
 <link rel="canonical" href={canonicalURL}/>
 
 <!-- Algolia docsearch language facet -->
-<meta name="docsearch:language" content="{lang}" />
+<meta name="docsearch:language" content={lang} />
 
 <!-- OpenGraph Tags -->
 <meta property="og:title" content={content.title ?? SITE.title}/>
