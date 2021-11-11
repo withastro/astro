@@ -108,8 +108,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             }
           }
 
-          for(const script of findExternalScripts(document)) {
-            if(isHoistedScript(script)) {
+          for (const script of findExternalScripts(document)) {
+            if (isHoistedScript(script)) {
               debugger;
               const astroScript = getAttribute(script, 'astro-script');
               const src = getAttribute(script, 'src');
