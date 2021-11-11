@@ -94,7 +94,32 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           map,
         };
       } catch (err: any) {
-        // if esbuild threw the error, find original code source to display (if it’s mapped)
+        // improve compiler errors
+        if (err.stack.includes('wasm-function')) {
+          const search = new URLSearchParams({
+            labels: 'compiler',
+            title: '🐛 BUG: `@astrojs/compiler` panic',
+            body: `### Describe the Bug
+
+\`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
+
+**${id.replace(fileURLToPath(config.projectRoot), '')}**
+\`\`\`astro
+${source}
+\`\`\`
+`,
+          });
+          err.url = `https://github.com/snowpackjs/astro/issues/new?${search.toString()}`;
+          err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
+
+Please open
+a GitHub issue using the link below:
+${err.url}`;
+          // TODO: remove stack replacement when compiler throws better errors
+          err.stack = `    at ${id}`;
+        }
+
+        // improve esbuild errors
         if (err.errors && tsResult?.map) {
           const json = JSON.parse(tsResult.map);
           const mappings = decode(json.mappings);
@@ -103,6 +128,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
             err.sourceLoc = { file: id, line: (focusMapping[0][2] || 0) + 1, column: (focusMapping[0][3] || 0) + 1 };
           }
         }
+
         throw err;
       }
     },

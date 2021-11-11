@@ -81,7 +81,7 @@ async function errorHandler(e: unknown, viteServer: vite.ViteDevServer, filePath
   const anyError = e as any;
   if (anyError.errors) {
     const { location, pluginName, text } = (e as BuildResult).errors[0];
-    const err = new Error(text) as SSRError;
+    const err = e as SSRError;
     if (location) err.loc = { file: location.file, line: location.line, column: location.column };
     const frame = codeFrame(await fs.promises.readFile(filePath, 'utf8'), err.loc);
     err.frame = frame;
@@ -89,7 +89,6 @@ async function errorHandler(e: unknown, viteServer: vite.ViteDevServer, filePath
     err.message = `${location?.file}: ${text}
 ${frame}
 `;
-    err.stack = anyError.stack;
     if (pluginName) err.plugin = pluginName;
     throw err;
   }
