@@ -1,10 +1,10 @@
-# Astro Starter Kit: Minimal
+# Astro Starter Kit: A site deployed to a subpath
 
 ```
-npm init astro -- --template minimal
+npm init astro -- --template subpath
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/minimal)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/subpath)
 
 > 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
 
@@ -16,6 +16,8 @@ Inside of your Astro project, you'll see the following folders and files:
 /
 ├── public/
 ├── src/
+│   └── components/
+│       └── Time.jsx
 │   └── pages/
 │       └── index.astro
 └── package.json
