@@ -19,7 +19,10 @@ npm install
 
 # Fange an zu entwickeln!
 npm run dev
+```
 
+Für Produktionsstandorte, 
+```shell
 # Wenn du bereit bist: Exportiere deine Seite nach `dist/`
 npm run build
 ```
