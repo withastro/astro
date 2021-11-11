@@ -1,7 +1,7 @@
 // @ts-check
 import { Octokit } from '@octokit/action';
 import { execSync } from 'child_process';
-import { appendFileSync, readFileSync, writeFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 
 const octokit = new Octokit();
 const owner = 'snowpackjs';
@@ -110,9 +110,12 @@ export async function run() {
     (await countCards(COLUMN_ID_RFCS_ACCEPTED)).length + (await countCards(COLUMN_ID_RFCS_PRIORITIZED)).length,
     // Date (ISO)
     `"${new Date().toISOString()}"`,
-  ];
+  ].join(',');
 
-  appendFileSync('scripts/stats/stats.csv', entry.join(',') + '\n');
+  const statCsv = readFileSync('scripts/stats/stats.csv', {encoding: 'utf-8'});
+  const [statHeader, ...statItems] = statCsv.split('\n');
+  const updatedStatCsv = [statHeader, entry, ...statItems].join('\n');
+  writeFileSync('scripts/stats/stats.csv', updatedStatCsv);
 }
 
 run();
