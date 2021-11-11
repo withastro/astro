@@ -29,16 +29,16 @@ export class Metadata {
   // Recursively collect all of the hydrated components' paths.
   getAllHydratedComponentPaths(): Set<string> {
     const paths = new Set<string>();
-    for(const component of this.hydratedComponents) {
+    for (const component of this.hydratedComponents) {
       const path = this.getPath(component);
-      if(path) {
+      if (path) {
         paths.add(path);
       }
     }
 
-    for(const {module: mod} of this.modules) {
-      if(typeof mod.$$metadata !== 'undefined') {
-        for(const path of mod.$$metadata.getAllHydratedComponentPaths()) {
+    for (const { module: mod } of this.modules) {
+      if (typeof mod.$$metadata !== 'undefined') {
+        for (const path of mod.$$metadata.getAllHydratedComponentPaths()) {
           paths.add(path);
         }
       }

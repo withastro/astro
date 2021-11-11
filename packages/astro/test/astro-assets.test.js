@@ -4,7 +4,7 @@ import { loadFixture } from './test-utils.js';
 import srcsetParse from 'srcset-parse';
 
 // This package isn't real ESM, so have to coerce it
-const matchSrcset = (srcsetParse).default;
+const matchSrcset = srcsetParse.default;
 
 // Asset bundling
 describe('Assets', () => {
@@ -28,7 +28,7 @@ describe('Assets', () => {
     const $ = cheerio.load(html);
     const srcset = $('img').attr('srcset');
     const candidates = matchSrcset(srcset);
-    const match = candidates.find(a => a.density === 2);
+    const match = candidates.find((a) => a.density === 2);
     const data = await fixture.readFile('/' + match.url);
     expect(!!data).to.equal(true);
   });
@@ -38,7 +38,7 @@ describe('Assets', () => {
     const $ = cheerio.load(html);
     const srcset = $('img').attr('srcset');
     const candidates = matchSrcset(srcset);
-    const match = candidates.find(a => a.density === 3);
+    const match = candidates.find((a) => a.density === 3);
     const data = await fixture.readFile('/' + match.url);
     expect(!!data).to.equal(true);
   });

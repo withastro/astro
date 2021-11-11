@@ -1,4 +1,3 @@
-
 import type { ResolveIdHook, LoadHook, RenderedChunk } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 
@@ -6,7 +5,6 @@ import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
 import { getViteResolve, getViteLoad } from './resolve.js';
 import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import * as path from 'path';
-
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -19,7 +17,7 @@ const isCSSRequest = (request: string) => STYLE_EXTENSIONS.has(path.extname(requ
 
 export function getAstroPageStyleId(pathname: string) {
   let styleId = ASTRO_PAGE_STYLE_PREFIX + pathname;
-  if(styleId.endsWith('/')) {
+  if (styleId.endsWith('/')) {
     styleId += 'index';
   }
   styleId += '.js';
@@ -28,7 +26,7 @@ export function getAstroPageStyleId(pathname: string) {
 
 export function getAstroStyleId(pathname: string) {
   let styleId = ASTRO_STYLE_PREFIX + pathname;
-  if(styleId.endsWith('/')) {
+  if (styleId.endsWith('/')) {
     styleId += 'index';
   }
   styleId += '.css';
@@ -70,34 +68,34 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
     },
 
     async resolveId(id) {
-      if(isPageStyleVirtualModule(id)) {
+      if (isPageStyleVirtualModule(id)) {
         return id;
       }
-      if(isStyleVirtualModule(id)) {
+      if (isStyleVirtualModule(id)) {
         return id;
       }
       return undefined;
     },
 
     async load(id) {
-      if(isPageStyleVirtualModule(id)) {
+      if (isPageStyleVirtualModule(id)) {
         const source = astroPageStyleMap.get(id)!;
         return source;
       }
-      if(isStyleVirtualModule(id)) {
+      if (isStyleVirtualModule(id)) {
         return astroStyleMap.get(id)!;
       }
       return null;
     },
 
     async transform(value, id) {
-      if(isStyleVirtualModule(id)) {
+      if (isStyleVirtualModule(id)) {
         styleSourceMap.set(id, value);
         return null;
       }
-      if(isCSSRequest(id)) {
+      if (isCSSRequest(id)) {
         let result = await viteTransform(value, id);
-        if(result) {
+        if (result) {
           styleSourceMap.set(id, result.code);
         } else {
           styleSourceMap.set(id, value);
@@ -112,20 +110,20 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
     renderChunk(_code, chunk) {
       let chunkCSS = '';
       let isPureCSS = true;
-      for(const [id] of Object.entries(chunk.modules)) {
-        if(!isCSSRequest(id) && !isPageStyleVirtualModule(id)) {
+      for (const [id] of Object.entries(chunk.modules)) {
+        if (!isCSSRequest(id) && !isPageStyleVirtualModule(id)) {
           isPureCSS = false;
         }
-        if(styleSourceMap.has(id)) {
+        if (styleSourceMap.has(id)) {
           chunkCSS += styleSourceMap.get(id)!;
         }
       }
 
-      if(isPureCSS) {
+      if (isPureCSS) {
         const referenceId = this.emitFile({
           name: chunk.name + '.css',
           type: 'asset',
-          source: chunkCSS
+          source: chunkCSS,
         });
         pureCSSChunks.add(chunk);
         chunkToReferenceIdMap.set(chunk.fileName, referenceId);
@@ -136,11 +134,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
     // Delete CSS chunks so JS is not produced for them.
     generateBundle(_options, bundle) {
-      for(const [chunkId, chunk] of Object.entries(bundle)) {
-        if(chunk.type === 'chunk' && pureCSSChunks.has(chunk)) {
+      for (const [chunkId, chunk] of Object.entries(bundle)) {
+        if (chunk.type === 'chunk' && pureCSSChunks.has(chunk)) {
           delete bundle[chunkId];
         }
       }
-    }
-  }
+    },
+  };
 }

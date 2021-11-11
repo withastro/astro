@@ -97,7 +97,7 @@ class AstroBuilder {
               route,
               routeCache: this.routeCache,
               viteServer,
-            })
+            }),
           };
           return;
         }
@@ -123,7 +123,7 @@ class AstroBuilder {
             route,
             routeCache: this.routeCache,
             viteServer,
-          })
+          }),
         };
       })
     );
@@ -171,13 +171,13 @@ class AstroBuilder {
           allPages,
           pageNames,
           routeCache: this.routeCache,
-          viteServer
+          viteServer,
         }),
         rollupPluginAstroBuildCSS({
           astroPageStyleMap,
           astroStyleMap,
           chunkToReferenceIdMap,
-          pureCSSChunks
+          pureCSSChunks,
         }),
         ...(viteConfig.plugins || []),
       ],
@@ -202,7 +202,7 @@ class AstroBuilder {
     timer.sitemapStart = performance.now();
     if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
       const sitemapStart = performance.now();
-      const sitemap = generateSitemap(pageNames.map(pageName => new URL(`/${pageName}`, this.config.buildOptions.site).href));
+      const sitemap = generateSitemap(pageNames.map((pageName) => new URL(`/${pageName}`, this.config.buildOptions.site).href));
       const sitemapPath = new URL('./sitemap.xml', this.config.dist);
       await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
       await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');

@@ -11,9 +11,7 @@ describe('Styles SSR', () => {
   });
 
   it('Has <link> tags', async () => {
-    const MUST_HAVE_LINK_TAGS = [
-      'assets/index'
-    ];
+    const MUST_HAVE_LINK_TAGS = ['assets/index'];
 
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
@@ -71,11 +69,10 @@ describe('Styles SSR', () => {
     let scopedClass;
 
     // test 1: <style> tag in <head> is transformed
-    const css = raw
-      .replace(/\.astro-[A-Za-z0-9-]+/, (match) => {
-        scopedClass = match; // get class hash from result
-        return match;
-      });
+    const css = raw.replace(/\.astro-[A-Za-z0-9-]+/, (match) => {
+      scopedClass = match; // get class hash from result
+      return match;
+    });
 
     expect(css).to.include(`.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px;}.outer${scopedClass}{color:red;}`);
 

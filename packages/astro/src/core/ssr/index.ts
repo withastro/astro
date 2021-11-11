@@ -73,7 +73,7 @@ async function resolveRenderers(viteServer: vite.ViteDevServer, astroConfig: Ast
 }
 
 async function errorHandler(e: unknown, viteServer: vite.ViteDevServer, filePath: URL) {
-  if(e instanceof Error) {
+  if (e instanceof Error) {
     viteServer.ssrFixStacktrace(e);
   }
 
@@ -191,7 +191,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
     },
     _metadata: {
       renderers,
-      pathname 
+      pathname,
     },
   };
 
@@ -217,7 +217,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
       attrs: {
         rel: 'stylesheet',
         href,
-        'data-astro-injected': true
+        'data-astro-injected': true,
       },
       injectTo: 'head',
     });
@@ -237,7 +237,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 export async function ssr(ssrOpts: SSROptions): Promise<string> {
   try {
     const [renderers, mod] = await preload(ssrOpts);
-    return render(renderers, mod, ssrOpts);    
+    return render(renderers, mod, ssrOpts);
   } catch (e: unknown) {
     await errorHandler(e, ssrOpts.viteServer, ssrOpts.filePath);
     throw e;

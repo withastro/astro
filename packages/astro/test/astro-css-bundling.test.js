@@ -13,7 +13,7 @@ const EXPECTED_CSS = {
 };
 const UNEXPECTED_CSS = ['/src/components/nav.css', '../css/typography.css', '../css/colors.css', '../css/page-index.css', '../css/page-one.css', '../css/page-two.css'];
 
-describe('CSS Bundling', function() {
+describe('CSS Bundling', function () {
   let fixture;
 
   before(async () => {

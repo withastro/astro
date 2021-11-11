@@ -11,9 +11,7 @@ function getSrcSetUrls(srcset: string) {
     return [];
   }
   const srcsetParts = srcset.includes(',') ? srcset.split(',') : [srcset];
-  const urls = srcsetParts
-    .map(url => url.trim())
-    .map(url => (url.includes(' ') ? url.split(' ')[0] : url));
+  const urls = srcsetParts.map((url) => url.trim()).map((url) => (url.includes(' ') ? url.split(' ')[0] : url));
   return urls;
 }
 
@@ -101,20 +99,9 @@ export function isHashedAsset(node: Element) {
   }
 }
 
-export function resolveAssetFilePath(
-  browserPath: string,
-  htmlDir: string,
-  projectRootDir: string,
-  absolutePathPrefix?: string,
-) {
-  const _browserPath =
-    absolutePathPrefix && browserPath[0] === '/'
-      ? '/' + npath.posix.relative(absolutePathPrefix, browserPath)
-      : browserPath;
-  return npath.join(
-    _browserPath.startsWith('/') ? projectRootDir : htmlDir,
-    _browserPath.split('/').join(npath.sep),
-  );
+export function resolveAssetFilePath(browserPath: string, htmlDir: string, projectRootDir: string, absolutePathPrefix?: string) {
+  const _browserPath = absolutePathPrefix && browserPath[0] === '/' ? '/' + npath.posix.relative(absolutePathPrefix, browserPath) : browserPath;
+  return npath.join(_browserPath.startsWith('/') ? projectRootDir : htmlDir, _browserPath.split('/').join(npath.sep));
 }
 
 export function getSourceAttribute(node: Element) {
@@ -149,9 +136,9 @@ export function getSourcePaths(node: Element) {
 
   let location: Location = { start: 0, end: 0 };
   const src = getAttribute(node, key);
-  if(node.sourceCodeLocation) {
+  if (node.sourceCodeLocation) {
     let loc = node.sourceCodeLocation.attrs[key];
-    if(loc) {
+    if (loc) {
       location.start = loc.startOffset;
       location.end = loc.endOffset;
     }
@@ -160,16 +147,16 @@ export function getSourcePaths(node: Element) {
     throw new Error(`Missing attribute ${key} in element ${node.nodeName}`);
   }
 
-  let paths: {path: string, location: Location}[] = [];
-  if(src && key === 'srcset') {
-    paths = getSrcSetUrls(src).map(path => ({
+  let paths: { path: string; location: Location }[] = [];
+  if (src && key === 'srcset') {
+    paths = getSrcSetUrls(src).map((path) => ({
       path,
-      location
+      location,
     }));
-  } else if(src) {
+  } else if (src) {
     paths.push({
       path: src,
-      location
+      location,
     });
   }
 
@@ -183,7 +170,7 @@ export function getTextContent(node: Node): string {
   if (adapter.isTextNode(node)) {
     return node.value || '';
   }
-  const subtree = findNodes(node, n => adapter.isTextNode(n));
+  const subtree = findNodes(node, (n) => adapter.isTextNode(n));
   return subtree.map(getTextContent).join('');
 }
 
