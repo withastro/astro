@@ -93,6 +93,28 @@ export async function renderSlot(_result: any, slotted: string, fallback?: any) 
 
 export const Fragment = Symbol('Astro.Fragment');
 
+function guessRenderers(componentUrl?: string): string[] {
+  const extname = componentUrl?.split('.').pop();
+  switch (extname) {
+    case 'svelte':
+      return ['@astrojs/renderer-svelte'];
+    case 'vue':
+      return ['@astrojs/renderer-vue'];
+    case 'jsx':
+    case 'tsx':
+      return ['@astrojs/renderer-react', '@astrojs/renderer-preact'];
+    default:
+      return ['@astrojs/renderer-react', '@astrojs/renderer-preact', '@astrojs/renderer-vue', '@astrojs/renderer-svelte'];
+  }
+}
+
+function formatList(values: string[]): string {
+  if (values.length === 1) {
+    return values[0];
+  }
+  return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`
+}
+
 export async function renderComponent(result: SSRResult, displayName: string, Component: unknown, _props: Record<string | number, any>, slots: any = {}) {
   Component = await Component;
   const children = await renderSlot(result, slots?.default);
@@ -122,11 +144,20 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     metadata.componentExport = hydration.componentExport;
     metadata.componentUrl = hydration.componentUrl;
   }
+  const probableRendererNames = guessRenderers(metadata.componentUrl);
+
+  if (Array.isArray(renderers) && renderers.length === 0) {
+    const message = `Unable to render ${metadata.displayName}! 
+
+There are no \`renderers\` set in your \`astro.config.mjs\` file.
+Did you mean to enable ${formatList(probableRendererNames.map(r => "`" + r + "`"))}?`;
+    throw new Error(message);
+  }
 
   // Call the renderers `check` hook to see if any claim this component.
   let renderer: Renderer | undefined;
   if (renderers.length === 1) {
-      renderer = renderers[0];
+    renderer = renderers[0];
   } else if (metadata.hydrate !== 'only') {
     for (const r of renderers) {
       if (await r.ssr.check(Component, props, children)) {
@@ -151,14 +182,39 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   if (!renderer) {
     if (metadata.hydrate === 'only') {
       // TODO: improve error message
-      throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
+      throw new Error(`Unable to render ${metadata.displayName}!
+
+Using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.
+Did you mean to pass <${metadata.displayName} client:only="${probableRendererNames.map(r => r.replace("@astrojs/renderer-", '')).join("|")}" />
+`);
     } else if (typeof Component === 'string') {
       // This is a custom element without a renderer. Because of that, render it
       // as a string and the user is responsible for adding a script tag for the component definition.
       html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
     } else {
-      throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
+      const matchingRenderers = renderers.filter(r => probableRendererNames.includes(r.name));
+      const plural = renderers.length > 1;
+      if (matchingRenderers.length === 0) {
+        throw new Error(`Unable to render ${metadata.displayName}!
+
+There ${plural ? 'are' : 'is'} ${renderers.length} renderer${plural ? 's' : ''} configured in your \`astro.config.mjs\` file,
+but ${plural ? 'none were' : 'it was not'} able to server-side render ${metadata.displayName}.
+
+Did you mean to enable ${formatList(probableRendererNames.map(r => "`" + r + "`"))}?`);
+    } else {
+        throw new Error(`Unable to render ${metadata.displayName}!
+
+This component likely uses ${formatList(probableRendererNames)},
+but Astro encountered an error during server-side rendering.
+
+Please ensure that ${metadata.displayName}:
+1. Does not unconditionally access browser-specific globals like \`window\` or \`document\`.
+   If this is unavoidable, use the \`client:only\` hydration directive.
+2. Does not conditionally return \`null\` or \`undefined\` when rendered on the server.
+
+If you're still stuck, please open an issue on GitHub or join us at https://astro.build/chat.`);
     }
+      }
   } else {
     if (metadata.hydrate === 'only') {
       html = await renderSlot(result, slots?.fallback);
