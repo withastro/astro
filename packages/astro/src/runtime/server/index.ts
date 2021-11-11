@@ -223,7 +223,7 @@ export function addAttribute(value: any, key: string) {
   }
 
   // Boolean only needs the key
-  if(value === true && key.startsWith('data-')) {
+  if (value === true && key.startsWith('data-')) {
     return ` ${key}`;
   } else {
     return ` ${key}="${toAttributeString(value)}"`;
@@ -287,7 +287,7 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
   const scripts = Array.from(result.scripts)
     .filter(uniqueElements)
     .map((script, i) => {
-      if('data-astro-component-hydration' in script.props) {
+      if ('data-astro-component-hydration' in script.props) {
         needsHydrationStyles = true;
       }
       return renderElement('script', {
@@ -295,8 +295,8 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
         props: { ...script.props, 'astro-script': result._metadata.pathname + '/script-' + i },
       });
     });
-  if(needsHydrationStyles) {
-    styles.push(renderElement('style', { props: { 'astro-style': true },children: 'astro-root, astro-fragment { display: contents; }' }))
+  if (needsHydrationStyles) {
+    styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
   }
   return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
 }
