@@ -1,5 +1,15 @@
 # astro
 
+## 0.21.0-next.3
+
+### Patch Changes
+
+- 7eaabbb0: Fix error with Markdown content attribute parsing
+- fd52bcee: Update the build to build/bundle assets
+- 7eaabbb0: Fix bug with attribute serialization
+- Updated dependencies [7eaabbb0]
+  - @astrojs/markdown-remark@0.4.0-next.1
+
 ## 0.21.0-next.2
 
 ### Patch Changes
