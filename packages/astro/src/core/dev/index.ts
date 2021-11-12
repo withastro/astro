@@ -234,7 +234,7 @@ export class AstroDevServer {
           server: {
             middlewareMode: 'ssr',
             host: this.hostname,
-          },
+          }
         },
         this.config.vite || {}
       ),
@@ -287,6 +287,9 @@ export class AstroDevServer {
 
       // 404: continue to Vite
       if (!route) {
+        // Send through, stripping off the `/blog/` part so that Vite matches it.
+        const newPathname = routePathname.startsWith('/') ? routePathname : '/' + routePathname;
+        req.url = newPathname;
         next();
         return;
       }
