@@ -7,7 +7,7 @@ import send from 'send';
 import { fileURLToPath } from 'url';
 import * as msg from '../dev/messages.js';
 import { error, info } from '../logger.js';
-import { subpathNotUsedTemplate } from '../dev/template/error.js';
+import { subpathNotUsedTemplate } from '../dev/template/4xx.js';
 
 interface PreviewOptions {
   logging: LogOptions;
@@ -29,7 +29,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
   const server = http.createServer((req, res) => {
     if(!req.url!.startsWith(base)) {
       res.statusCode = 404;
-      res.end(subpathNotUsedTemplate(base));
+      res.end(subpathNotUsedTemplate(base, req.url!));
       return;
     }
 
