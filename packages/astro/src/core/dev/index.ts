@@ -19,7 +19,8 @@ import { collectResources } from '../ssr/html.js';
 import { createRouteManifest, matchRoute } from '../ssr/routing.js';
 import { createVite } from '../create-vite.js';
 import * as msg from './messages.js';
-import { errorTemplate } from './template/error.js';
+import notFoundTemplate from './template/4xx.js';
+import serverErrorTemplate from './template/5xx.js';
 
 export interface DevOptions {
   logging: LogOptions;
@@ -303,7 +304,7 @@ export class AstroDevServer {
     } catch (err: any) {
       this.viteServer.ws.send({ type: 'error', err });
       const statusCode = 500;
-      const html = errorTemplate({
+      const html = serverErrorTemplate({
         statusCode,
         title: 'Internal Error',
         tabTitle: '500: Error',
@@ -347,7 +348,7 @@ export class AstroDevServer {
     }
     // if not found, fall back to default template
     else {
-      html = errorTemplate({ statusCode, title: 'Not found', tabTitle: '404: Not Found', message: pathname });
+      html = notFoundTemplate({ statusCode, title: 'Not found', tabTitle: '404: Not Found', pathname });
     }
     info(this.logging, 'astro', msg.req({ url: pathname, statusCode, reqTime: performance.now() - reqStart }));
     res.writeHead(statusCode, {
