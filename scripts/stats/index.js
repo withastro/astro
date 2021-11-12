@@ -112,7 +112,7 @@ export async function run() {
     `"${new Date().toISOString()}"`,
   ].join(',');
 
-  const statCsv = readFileSync('scripts/stats/stats.csv', {encoding: 'utf-8'});
+  const statCsv = readFileSync('scripts/stats/stats.csv', { encoding: 'utf-8' });
   const [statHeader, ...statItems] = statCsv.split('\n');
   const updatedStatCsv = [statHeader, entry, ...statItems].join('\n');
   writeFileSync('scripts/stats/stats.csv', updatedStatCsv);
