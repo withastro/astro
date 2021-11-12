@@ -37,7 +37,7 @@ Por defecto, la salida de la compilación se colocará en `dist/`. Puedes desple
 1. Establece el `buildOptions.site` correcto en `astro.config.mjs`.
 2. Dentro de tu proyecto, crea `deploy.sh` con el siguiente contenido (sin comentar las líneas apropiadas) y ejecútalo para implementar:
 
-   ```bash{13,20,23}
+   ```bash
    #!/usr/bin/env sh
 
    # abortar en errores

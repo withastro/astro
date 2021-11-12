@@ -26,5 +26,8 @@
   },
   "dependencies": {
     "@docsearch/react": "^1.0.0-alpha.27"
+  },
+  "volta": {
+    "node": "14.18.1"
   }
 }
