@@ -1,7 +1,7 @@
 import './shim.js';
 
 function getConstructor(Component) {
-  if(typeof Component === 'string') {
+  if (typeof Component === 'string') {
     const tagName = Component;
     Component = customElements.get(tagName);
   }
@@ -10,14 +10,17 @@ function getConstructor(Component) {
 
 function check(component) {
   const Component = getConstructor(component);
-  if(typeof Component === 'function' && globalThis.HTMLElement.isPrototypeOf(Component)) {
+  if (typeof Component === 'function' && globalThis.HTMLElement.isPrototypeOf(Component)) {
     return true;
   }
   return false;
 }
 
-function renderToStaticMarkup(component) {
+function renderToStaticMarkup(component, props, innerHTML) {
   const Component = getConstructor(component);
+  if (!Component) {
+    return `<${component}>${innerHTML}</${component}>`;
+  }
   const el = new Component();
   el.connectedCallback();
   const html = `<${el.localName}><template shadowroot="open">${el.shadowRoot.innerHTML}</template>${el.innerHTML}</${el.localName}>`

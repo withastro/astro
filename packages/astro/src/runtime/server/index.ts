@@ -112,7 +112,7 @@ function formatList(values: string[]): string {
   if (values.length === 1) {
     return values[0];
   }
-  return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`
+  return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
 }
 
 export async function renderComponent(result: SSRResult, displayName: string, Component: unknown, _props: Record<string | number, any>, slots: any = {}) {
@@ -131,7 +131,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 
   let metadata: AstroComponentMetadata = { displayName };
 
-  if (Component == null && !_props['client:only']) {
+  if (Component === null && !_props['client:only']) {
     throw new Error(`Unable to render ${metadata.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
   }
 
@@ -150,7 +150,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     const message = `Unable to render ${metadata.displayName}! 
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
-Did you mean to enable ${formatList(probableRendererNames.map(r => "`" + r + "`"))}?`;
+Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`;
     throw new Error(message);
   }
 
@@ -185,14 +185,10 @@ Did you mean to enable ${formatList(probableRendererNames.map(r => "`" + r + "`"
       throw new Error(`Unable to render ${metadata.displayName}!
 
 Using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.
-Did you mean to pass <${metadata.displayName} client:only="${probableRendererNames.map(r => r.replace("@astrojs/renderer-", '')).join("|")}" />
+Did you mean to pass <${metadata.displayName} client:only="${probableRendererNames.map((r) => r.replace('@astrojs/renderer-', '')).join('|')}" />
 `);
-    } else if (typeof Component === 'string') {
-      // This is a custom element without a renderer. Because of that, render it
-      // as a string and the user is responsible for adding a script tag for the component definition.
-      html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
-    } else {
-      const matchingRenderers = renderers.filter(r => probableRendererNames.includes(r.name));
+    } else if (typeof Component !== 'string') {
+      const matchingRenderers = renderers.filter((r) => probableRendererNames.includes(r.name));
       const plural = renderers.length > 1;
       if (matchingRenderers.length === 0) {
         throw new Error(`Unable to render ${metadata.displayName}!
@@ -200,8 +196,8 @@ Did you mean to pass <${metadata.displayName} client:only="${probableRendererNam
 There ${plural ? 'are' : 'is'} ${renderers.length} renderer${plural ? 's' : ''} configured in your \`astro.config.mjs\` file,
 but ${plural ? 'none were' : 'it was not'} able to server-side render ${metadata.displayName}.
 
-Did you mean to enable ${formatList(probableRendererNames.map(r => "`" + r + "`"))}?`);
-    } else {
+Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`);
+      } else {
         throw new Error(`Unable to render ${metadata.displayName}!
 
 This component likely uses ${formatList(probableRendererNames)},
@@ -213,14 +209,20 @@ Please ensure that ${metadata.displayName}:
 2. Does not conditionally return \`null\` or \`undefined\` when rendered on the server.
 
 If you're still stuck, please open an issue on GitHub or join us at https://astro.build/chat.`);
-    }
       }
+    }
   } else {
     if (metadata.hydrate === 'only') {
       html = await renderSlot(result, slots?.fallback);
     } else {
       ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
     }
+  }
+
+  // This is a custom element without a renderer. Because of that, render it
+  // as a string and the user is responsible for adding a script tag for the component definition.
+  if (!html && typeof Component === 'string') {
+      html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
   }
 
   // This is used to add polyfill scripts to the page, if the renderer needs them.
