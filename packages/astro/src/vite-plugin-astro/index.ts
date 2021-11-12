@@ -1,7 +1,7 @@
 import type { TransformResult } from '@astrojs/compiler';
 import type { SourceMapInput } from 'rollup';
 import type vite from '../core/vite';
-import type { AstroConfig } from '../@types/astro-core';
+import type { AstroConfig } from '../@types/astro';
 
 import esbuild from 'esbuild';
 import fs from 'fs';

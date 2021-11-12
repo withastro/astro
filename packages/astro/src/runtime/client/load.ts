@@ -1,4 +1,4 @@
-import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro-runtime';
+import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
 
 /**
  * Hydrate this component immediately

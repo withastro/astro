@@ -1,5 +1,5 @@
 import type { RenderedChunk } from 'rollup';
-import type { Plugin as VitePlugin } from 'vite';
+import type { Plugin as VitePlugin } from '../core/vite';
 
 import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
 import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';

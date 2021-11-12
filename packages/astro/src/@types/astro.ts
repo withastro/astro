@@ -2,7 +2,14 @@ import type babel from '@babel/core';
 import type { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
-import type vite from '../../vendor/vite';
+import type vite from '../core/vite';
+
+export interface AstroBuiltinProps {
+  'client:load'?: boolean;
+  'client:idle'?: boolean;
+  'client:media'?: string;
+  'client:visible'?: boolean;
+}
 
 export interface AstroComponentMetadata {
   displayName: string;
@@ -13,8 +20,34 @@ export interface AstroComponentMetadata {
 }
 
 /**
- * The Astro User Config Format:
- * This is the type interface for your astro.config.mjs default export.
+ * Astro.* available in all components
+ * Docs: https://docs.astro.build/reference/api-reference/#astro-global
+ */
+export interface AstroGlobal extends AstroGlobalPartial {
+  /** set props for this astro component (along with default values) */
+  props: Record<string, number | string | any>;
+  /** get information about this page */
+  request: {
+    /** get the current page URL */
+    url: URL;
+    /** get the current canonical URL */
+    canonicalURL: URL;
+    /** get page params (dynamic pages only) */
+    params: Params;
+  };
+  /** see if slots are used */
+  slots: Record<string, true | undefined>;
+}
+
+export interface AstroGlobalPartial {
+  fetchContent<T = any>(globStr: string): Promise<FetchContentResult<T>[]>;
+  resolve: (path: string) => string;
+  site: URL;
+}
+
+/**
+ * Astro User Config
+ * Docs: https://docs.astro.build/reference/configuration-reference/
  */
 export interface AstroUserConfig {
   /**
@@ -103,39 +136,13 @@ export interface AstroUserConfig {
 // export interface AstroUserConfig extends z.input<typeof AstroConfigSchema> {
 // }
 
+/**
+ * Resolved Astro Config
+ * Config with user settings along with all defaults filled in.
+ */
 export type AstroConfig = z.output<typeof AstroConfigSchema>;
 
 export type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
-
-export interface CollectionRSS {
-  /** (required) Title of the RSS Feed */
-  title: string;
-  /** (required) Description of the RSS Feed */
-  description: string;
-  /** Specify arbitrary metadata on opening <xml> tag */
-  xmlns?: Record<string, string>;
-  /** Specify custom data in opening of file */
-  customData?: string;
-  /**
-   * Specify where the RSS xml file should be written.
-   * Relative to final build directory. Example: '/foo/bar.xml'
-   * Defaults to '/rss.xml'.
-   */
-  dest?: string;
-  /** Return data about each item */
-  items: {
-    /** (required) Title of item */
-    title: string;
-    /** (required) Link to item */
-    link: string;
-    /** Publication date of item */
-    pubDate?: Date;
-    /** Item description */
-    description?: string;
-    /** Append some other XML-valid data to this item */
-    customData?: string;
-  }[];
-}
 
 /** Generic interface for a component (Astro, Svelte, React, etc.) */
 export interface ComponentInstance {
@@ -145,14 +152,36 @@ export interface ComponentInstance {
   getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
-export type GetStaticPathsArgs = { paginate: PaginateFunction; rss: RSSFunction };
+/**
+ * Astro.fetchContent() result
+ * Docs: https://docs.astro.build/reference/api-reference/#astrofetchcontent
+ */
+export type FetchContentResult<T> = FetchContentResultBase & T;
 
-export interface GetStaticPathsOptions {
+export type FetchContentResultBase = {
+  astro: {
+    headers: string[];
+    source: string;
+    html: string;
+  };
+  url: URL;
+};
+
+export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: string | null) => void>;
+
+/**
+ * getStaticPaths() options
+ * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
+ */ export interface GetStaticPathsOptions {
   paginate?: PaginateFunction;
   rss?: (...args: any[]) => any;
 }
 
-export type GetStaticPathsResult = { params: Params; props?: Props }[] | { params: Params; props?: Props }[];
+export type GetStaticPathsResult = { params: Params; props?: Props }[];
+
+export interface HydrateOptions {
+  value?: string;
+}
 
 export interface JSXTransformConfig {
   /** Babel presets */
@@ -167,7 +196,24 @@ export interface ManifestData {
   routes: RouteData[];
 }
 
-export interface PaginatedCollectionProp<T = any> {
+/**
+ * paginate() Options
+ * Docs: https://docs.astro.build/guides/pagination/#calling-the-paginate-function
+ */
+export interface PaginateOptions {
+  /** the number of items per-page (default: `10`) */
+  pageSize?: number;
+  /** key: value object of page params (ex: `{ tag: 'javascript' }`) */
+  params?: Params;
+  /** object of props to forward to `page` result */
+  props?: Props;
+}
+
+/**
+ * Page Prop
+ * Docs: https://docs.astro.build/guides/pagination/#using-the-page-prop
+ */
+export interface Page<T = any> {
   /** result */
   data: T[];
   /** metadata */
@@ -193,33 +239,7 @@ export interface PaginatedCollectionProp<T = any> {
   };
 }
 
-export interface PaginatedCollectionResult<T = any> {
-  /** result */
-  data: T[];
-  /** metadata */
-  /** the count of the first item on the page, starting from 0 */
-  start: number;
-  /** the count of the last item on the page, starting from 0 */
-  end: number;
-  /** total number of results */
-  total: number;
-  /** the current page number, starting from 1 */
-  currentPage: number;
-  /** number of items per page (default: 25) */
-  size: number;
-  /** number of last page */
-  lastPage: number;
-  url: {
-    /** url of the current page */
-    current: string;
-    /** url of the previous page (if there is one) */
-    prev: string | undefined;
-    /** url of the next page (if there is one) */
-    next: string | undefined;
-  };
-}
-
-export type PaginateFunction = (data: [], args?: { pageSize?: number; params?: Params; props?: Props }) => GetStaticPathsResult;
+export type PaginateFunction = (data: [], args?: PaginateOptions) => GetStaticPathsResult;
 
 export type Params = Record<string, string | undefined>;
 
@@ -236,6 +256,10 @@ export interface RenderPageOptions {
   css?: string[];
 }
 
+/**
+ * Astro Renderer
+ * Docs: https://docs.astro.build/reference/renderer-reference/
+ */
 export interface Renderer {
   /** Name of the renderer (required) */
   name: string;
@@ -264,9 +288,6 @@ export interface Renderer {
   knownEntrypoints?: string[];
 }
 
-/** <link> tags with attributes represented by an object */
-export type Resource = Record<string, string>;
-
 export interface RouteData {
   component: string;
   generate: (data?: any) => string;
@@ -280,9 +301,11 @@ export type RouteCache = Record<string, GetStaticPathsResult>;
 
 export type RuntimeMode = 'development' | 'production';
 
-export type RSSFunction = (args: RSSFunctionArgs) => void;
-
-export interface RSSFunctionArgs {
+/**
+ * RSS
+ * Docs: https://docs.astro.build/reference/api-reference/#rss
+ */
+export interface RSS {
   /** (required) Title of the RSS Feed */
   title: string;
   /** (required) Description of the RSS Feed */
@@ -312,16 +335,25 @@ export interface RSSFunctionArgs {
   }[];
 }
 
-export type RSSResult = { url: string; xml?: string };
+export type RSSFunction = (args: RSS) => void;
 
-export type ScriptInfo = ScriptInfoInline | ScriptInfoExternal;
+export type RSSResult = { url: string; xml?: string };
 
 export type SSRError = Error & vite.ErrorPayload['err'];
 
-export interface ScriptInfoInline {
-  content: string;
+export interface SSRElement {
+  props: Record<string, any>;
+  children: string;
 }
 
-export interface ScriptInfoExternal {
-  src: string;
+export interface SSRMetadata {
+  renderers: Renderer[];
+  pathname: string;
+}
+
+export interface SSRResult {
+  styles: Set<SSRElement>;
+  scripts: Set<SSRElement>;
+  createAstro(Astro: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null): AstroGlobal;
+  _metadata: SSRMetadata;
 }

@@ -1,4 +1,4 @@
-import type { AstroConfig } from '../@types/astro-core';
+import type { AstroConfig } from '../@types/astro';
 import type { ErrorPayload } from 'vite';
 import eol from 'eol';
 import path from 'path';

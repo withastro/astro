@@ -1,6 +1,6 @@
 import type { NextFunction } from 'connect';
 import type http from 'http';
-import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../../@types/astro-core';
+import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 import type { HmrContext, ModuleNode } from '../vite';
 

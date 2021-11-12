@@ -1,6 +1,6 @@
-import type { AstroConfig, RouteCache } from '../@types/astro-core';
+import type { AstroConfig, RouteCache } from '../@types/astro';
 import type { LogOptions } from '../core/logger';
-import type { ViteDevServer, Plugin as VitePlugin } from 'vite';
+import type { ViteDevServer, Plugin as VitePlugin } from '../core/vite';
 import type { OutputChunk, PreRenderedChunk, RenderedChunk } from 'rollup';
 import type { AllPagesData } from '../core/build/types';
 import parse5 from 'parse5';

@@ -1,6 +1,6 @@
 import type { TransformResult } from 'rollup';
 import type { Plugin, ResolvedConfig } from '../core/vite';
-import type { AstroConfig, Renderer } from '../@types/astro-core';
+import type { AstroConfig, Renderer } from '../@types/astro';
 import type { LogOptions } from '../core/logger';
 
 import babel from '@babel/core';
