@@ -29,8 +29,6 @@ export function errorTemplate({ title, message, statusCode, tabTitle }: ErrorTem
           align-items: center;
           height: 100vh;
           width: 100vw;
-          padding-left: 2rem;
-          padding-right: 2rem;
         }
         h1 {
           font-weight: 800;
