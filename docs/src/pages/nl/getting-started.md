@@ -35,7 +35,7 @@ Onze gids over [Astro-componenten](/core-concepts/astro-components) helpt je doo
 
 ### API referentie
 
-Deze documentatiesectie is handig als je meer details wilt weten over een bepaalde Astro API. [Configuratie referentie](/reference/configuration-reference) vermeldt bijvoorbeeld alle mogelijke configuratieopties die beschikbaar zijn. [Ingebouwde Componenten Referentie](/reference/builtin-components) geeft een overzicht van alle beschikbare kerncomponenten, zoals <Markdown /> en <Code />.
+Deze documentatiesectie is handig als je meer details wilt weten over een bepaalde Astro API. [Configuratie referentie](/reference/configuration-reference) vermeldt bijvoorbeeld alle mogelijke configuratieopties die beschikbaar zijn. [Ingebouwde Componenten Referentie](/reference/builtin-components) geeft een overzicht van alle beschikbare kerncomponenten, zoals `<Markdown />` en `<Code />`.
 
 ### Documentatie versies
 
