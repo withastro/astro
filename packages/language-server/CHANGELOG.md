@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.8.1
+
+### Patch Changes
+
+- b20db6e: Bump TypeScript from 4.3.1-rc to 4.5.1-rc
+
 ## 0.7.19
 
 ### Patch Changes
