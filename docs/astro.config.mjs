@@ -8,5 +8,5 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
     '@astrojs/renderer-preact',
     // Needed for Algolia search component
     '@astrojs/renderer-react',
-  ]
+  ],
 });
