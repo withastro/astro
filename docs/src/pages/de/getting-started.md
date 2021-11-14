@@ -7,7 +7,7 @@ lang: de
 
 Astro ist ein moderner Static-Site-Renderer (auch SSG - Static-Site-Generator). Erfahre worum es bei Astro eigentlich geht auf [unserer Homepage](https://astro.build/), oder lies [unseren Release Blogpost](https://astro.build/blog/introducing-astro).
 
-Diese Seite dient als Übersicht der Astro-Dokumentation und aller damit verbundenen Ressourcen.
+Diese Seite dient als Übersicht für die Astro-Dokumentation und alle damit verbundenen Ressourcen.
 
 ## Astro ausprobieren
 
