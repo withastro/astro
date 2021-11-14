@@ -10,7 +10,7 @@ import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import vite, { ViteDevServer } from '../vite.js';
 import { fileURLToPath } from 'url';
-import { createVite } from '../create-vite.js';
+import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { debug, defaultLogOptions, info, levels, timerMessage, warn } from '../logger.js';
 import { preload as ssrPreload } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
@@ -37,6 +37,7 @@ class AstroBuilder {
   private routeCache: RouteCache = {};
   private manifest: ManifestData;
   private viteServer?: ViteDevServer;
+  private viteConfig?: ViteConfigWithSSR;
 
   constructor(config: AstroConfig, options: BuildOptions) {
     if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
@@ -69,6 +70,7 @@ class AstroBuilder {
       ),
       { astroConfig: this.config, logging }
     );
+    this.viteConfig = viteConfig;
     const viteServer = await vite.createServer(viteConfig);
     this.viteServer = viteServer;
     debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
@@ -206,6 +208,10 @@ class AstroBuilder {
     });
     debug(logging, 'build', timerMessage('Vite build finished', timer.buildStart));
 
+    timer.swStart = performance.now();
+    await this.rebuildSW()
+    debug(logging, 'build', timerMessage('Service Worker created', timer.swStart));
+
     // Write any additionally generated assets to disk.
     timer.assetsStart = performance.now();
     Object.keys(assets).map((k) => {
@@ -248,6 +254,13 @@ class AstroBuilder {
       paths: staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean),
       rss: rss.rss,
     };
+  }
+
+  private async rebuildSW() {
+    const pwaPlugin = ((this.viteConfig?.plugins ?? []).find(plugin => plugin && !Array.isArray(plugin) && plugin.name === 'vite-plugin-pwa') as vite.Plugin)?.api
+    if (pwaPlugin) {
+      await pwaPlugin.generateSW()
+    }
   }
 
   /** Stats */
