@@ -33,16 +33,9 @@ npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/Pfad/zum/Beispiel
 
 ### Online-Playgrounds
 
-Falls du Astro gerne in deinem Browser ausprobieren willst, kannst du einen Online-Code-Editor wie z. B. Stackblitz, CodeSandbox, Gitpod, or GitHub Codespaces verwenden. Nutze den "Open in Stackblitz"-Link in einem Besipiel aus unserer [Beispiel-Bibliothek](https://github.com/snowpackjs/astro/tree/main/examples). Oder [klicke hier](https://stackblitz.com/fork/astro), um ein neues Projekt in [Stackblitz](https://stackblitz.com/fork/astro) aufzusetzen.
+Falls du Astro gerne in deinem Browser ausprobieren willst, kannst du einen Online-Code-Editor wie z. B. Stackblitz, CodeSandbox, Gitpod, or GitHub Codespaces verwenden. Nutze den "Open in Stackblitz"-Link zu einem beliebigen Besipiel aus unserer [Beispiel-Bibliothek](https://github.com/snowpackjs/astro/tree/main/examples), oder [klicke hier](https://stackblitz.com/fork/astro), um ein neues Projekt in [Stackblitz](https://stackblitz.com/fork/astro) aufzusetzen.
 
 ## Astro lernen
-
-All manner of people come to Astro from different backgrounds bringing with them different learning styles. Whether you prefer a more theoretical or a practical approach, we hope you'll find this section helpful.
-
-- If you prefer to **learn by doing**, start with our [examples library](https://github.com/snowpackjs/astro/tree/main/examples).  
-- If you prefer to **learn concepts step by step**, start with our [basic concepts and guides](/core-concepts/project-structure).
-
-Like any unfamiliar technology, Astro comes with a slight learning curve. However, with practice and some patience, we know, you _will_ get the hang of it, in no time.
 
 Verschiedene Menschen mit unterschiedlichen Hintergründen und unterschiedlichen Lernansätzen kommen zu Astro. Gleichgültig ob du einen theoretischen oder einen praktischen Ansatz bevorzugst, wir hoffen, dass dieser Abschnitt hilfreich für dich ist.
 
