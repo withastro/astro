@@ -47,7 +47,7 @@ Der Server wird nun auf alle Änderungen in deinem `src/`-Verzeichnisch lauschen
 
 ## Kompiliere dein Projekt
 
-In deinem Projektverzeichnis führe den folgenden Befehl in deinen Terminal aus:
+In deinem Projektverzeichnis führe den folgenden Befehl in deinem Terminal aus:
 
 ```bash
 npm run build
