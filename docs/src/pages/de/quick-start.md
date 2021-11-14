@@ -21,7 +21,7 @@ npm install
 npm run dev
 ```
 
-Export für die Produktion:
+Export - fertig zum Ausrollen:
 
 ```shell
 # Wenn du soweit bist, exportiere deine Site nach `dist/`
