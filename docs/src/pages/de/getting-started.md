@@ -27,8 +27,8 @@ Du kanst jedes dieser Beispiele lokal auf deinem Rechner ausprobieren, indem du 
 # Rufe den Wizard zur Initialisierung auf und verwende diese offizielle Vorlage
 npm init astro -- --template [OFFIZIELLES_BEISPIEL_NAME]
 # Rufe den Wizard zur Initialisierung auf und verwende diese Community-Vorlage
-npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
-npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/Pfad/zum/Beispiel
+npm init astro -- --template [GITHUB_NAME]/[REPO_NAME]
+npm init astro -- --template [GITHUB_NAME]/[REPO_NAME]/pfad/zur/vorlage
 ```
 
 ### Online-Playgrounds
