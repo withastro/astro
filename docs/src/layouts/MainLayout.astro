@@ -5,7 +5,8 @@ import Header from '../components/Header/Header.astro';
 import Footer from '../components/Footer/Footer.astro';
 import PageContent from '../components/PageContent/PageContent.astro';
 import LeftSidebar from '../components/LeftSidebar/LeftSidebar.astro';
-import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
+// import RightSidebar from '../components/RightSidebar/RightSidebar.astro';
+import RightSidebarV2 from '../components/RightSidebarV2/index.astro';
 import { SITE } from "../config.ts";
 
 const { content = {}, hideRightSidebar = false} = Astro.props;
@@ -13,13 +14,15 @@ const currentPage = Astro.request.url.pathname;
 const currentFile = `src/pages${currentPage.replace(/\/$/, "")}.md`;
 const githubEditUrl = `https://github.com/snowpackjs/astro/blob/main/docs/${currentFile}`;
 const formatTitle = (content, SITE) => content.title ? `${content.title} 🚀 ${SITE.title}` : SITE.title;
+
+const headers = content.astro?.headers;
 ---
 <html dir={content.dir ?? 'ltr'} lang={content.lang ?? 'en-us'} class="initial">
   <head>
     <HeadCommon />
     <HeadSEO {content} canonicalURL={Astro.request.canonicalURL} />
     <title>{formatTitle(content, SITE)}</title>
-    <style>
+    {`<style>
       body {
         width: 100%;
         display: grid;
@@ -100,7 +103,7 @@ const formatTitle = (content, SITE) => content.title ? `${content.title} 🚀 ${
           display: flex;
         }
       }
-    </style>
+    </style>`}
   </head>
 
   <body>
@@ -115,8 +118,10 @@ const formatTitle = (content, SITE) => content.title ? `${content.title} 🚀 ${
         </PageContent>
       </div>
       <aside id="grid-right" class="grid-sidebar" title="Table of Contents">
-        {!hideRightSidebar && <RightSidebar content={content} githubEditUrl={githubEditUrl} />}
+        {!hideRightSidebar && <RightSidebarV2 content={content} githubEditUrl={githubEditUrl} />}
       </aside>
     </main>
+    <script define:vars={{headers}}></script>
+    <script type="module" src="/rightSidebar.js" ></script>
   </body>
 </html>

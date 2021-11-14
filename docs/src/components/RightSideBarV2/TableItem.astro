@@ -1,0 +1,9 @@
+---
+const { uid, title, link, depth }= Astro.props;
+---
+<li style="display:flex;flex-direction: column; position:relative;" >
+  <a href={link} style="text-decoration: none; transition-property:border-color;transition-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95); transition-duration: 100ms;" class={`header-link depth-${depth}`}>
+    <p id={uid} class="inactive-link-color" style="transition-property:color;transition-timing-function: cubic-bezier(0.445, 0.05, 0.55, 0.95); transition-duration: 150ms;" >{title}</p>
+  </a>
+  <slot/> 
+</li>

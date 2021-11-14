@@ -9,4 +9,12 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
     // Needed for Algolia search component
     '@astrojs/renderer-react',
   ],
+  vite: {
+    resolve: {
+      alias: {
+        '~': '/src',
+        'components': '/src/components',
+      }
+    }
+  }
 });

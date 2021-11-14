@@ -1,0 +1,168 @@
+---
+// import TableOfContents from "./TableOfContent.astro"
+import TableItem from "./TableItem.astro"
+import MoreMenu from "./MoreMenu.astro"
+
+const {content, githubEditUrl} = Astro.props;
+const headers = content.astro?.headers;
+
+function returnArrows(type){
+  let tempObj = {}
+  while(true){
+    for (let index = 0; index < headers.length; index) {
+      let header = headers[index];
+      if( header.depth===2 ){
+        let Head2 = header[type] // Getting value from type  
+        tempObj[Head2] = {}; 
+        index++;
+        header = headers[index];
+        while( index < headers.length && header.depth !== 2  )     {
+            let Head3 = header[type];
+            tempObj[Head2][Head3] = {};
+            index++;
+            header =  headers[index];
+            while( index < headers.length && header.depth !== 2 && header.depth !== 3  )     {
+                let Head4 = header[type];
+                tempObj[Head2][Head3][Head4] = {};
+                index++;
+                header =  headers[index];
+            }
+        }
+      }
+    }
+    return tempObj;
+  }
+}
+
+let arrowDepthHeadings = returnArrows("text");
+
+let arrowDepthSlug = returnArrows("slug"); // Basically Id of H1,H2
+
+let o = -1;
+---
+{`<style>
+  .inactive-link-color {
+  color: var(--theme-text-light);
+}
+
+.inactive-link-color:hover {
+  color: var(--theme-accent);
+}
+
+.active-link-color {
+  color: var(--theme-accent);
+}
+  .sidebar-nav {
+    width: 100%;
+    position: sticky;
+    top: 0;
+  }
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25em;
+  padding: 0.33em 0.67em;
+  border-radius: 99em;
+  background-color: var(--theme-code-inline-bg);
+}
+
+.theme-toggle > label:focus-within {
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 0.08em var(--theme-accent), 0 0 0 0.12em white;
+}
+
+.theme-toggle > label {
+  color: var(--theme-code-inline-text);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+  cursor: pointer;
+}
+
+.theme-toggle .checked {
+  color: var(--theme-accent);
+  opacity: 1;
+}
+
+input[name='theme-toggle'] {
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+}
+
+  .sidebar-nav-inner {
+    height: 100%;
+    padding: 0;
+    padding-top: var(--doc-padding);
+    overflow: auto;
+  }
+</style>`}
+
+<nav class="sidebar-nav" aria-labelledby="grid-right">
+  <div class="sidebar-nav-inner">
+    <h2 class="heading">On this page</h2>
+      <ul style="padding:8px;display:flex;flex-direction: column;">
+        {
+          Object.keys(arrowDepthHeadings).map((i,index)=>{
+            o++;
+            return (
+              <TableItem  
+                uid={Object.keys(arrowDepthSlug)[index]+'-link'}  
+                link={'#'+Object.keys(arrowDepthSlug)[index]} 
+                title={`${index+1}. ${i}`} 
+                depth={2}
+              >
+                {
+                  Object.keys(arrowDepthHeadings[i]).length===0 ? null : (
+                    <ul style="display:flex; flex-direction: column; position: relative;">
+                      {
+                        Object.keys(arrowDepthHeadings[i]).map((j,jIndex)=>{
+                          o++;
+                          return(
+                            <TableItem
+                              uid={Object.keys(Object.values(arrowDepthSlug)[index])[jIndex]+'-link'}  
+                              link={'#'+Object.keys(Object.values(arrowDepthSlug)[index])[jIndex]}
+                              title={`${jIndex+1}. ${j}`}
+                              depth={3}
+                            >
+                              {
+                                Object.keys(arrowDepthHeadings[i][j]).length===0 ? null : (
+                                  <ul style="display:flex; flex-direction: column; position: relative;">
+                                    {
+                                      Object.keys(arrowDepthHeadings[i][j]).map((k,kIndex) => {
+                                        o++;
+                                        return (
+                                          <TableItem 
+                                            uid={Object.keys(Object.values(Object.values(arrowDepthSlug)[index])[jIndex])[kIndex]+'-link'}
+                                            link={'#'+Object.keys(Object.values(Object.values(arrowDepthSlug)[index])[jIndex] )[kIndex]}  
+                                            title={` ${kIndex+1}. ${k}`}
+                                            depth={4}
+                                          >
+                                          </TableItem>
+                                        )
+                                      })
+                                    }
+                                  </ul>
+                                )
+                              }
+                            </TableItem>
+                          )
+                        })
+                      }
+                    </ul>
+                  )
+                }
+              </TableItem>
+            )
+          })
+        }
+    </ul>
+    <MoreMenu editHref={githubEditUrl} />
+  </div>
+</nav>
