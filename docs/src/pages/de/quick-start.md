@@ -69,7 +69,7 @@ Astro-Sites sind statisch, sodass sie ganz einfach bei deinem bevorzugten Hoster
 
 Geschafft! Du kannst jetzt mit der Entwicklung beginnen!
 
-Wir empfehlen dir, dir etwas Zeit zu nehmen, um mit der Art und Weise vertraut zu werden, wie Astro funktioniert. Am besten ist, wenn du dich weiterführend mit der Dokumentation vertraut machst. Hier ein paar Empfehlungen:
+Wir möchten dich ermutigen, dir etwas Zeit zu nehmen, um mit der Art und Weise vertraut zu werden, wie Astro funktioniert. Am besten ist, wenn du dich dazu weiterführend mit der Dokumentation befasst. Hier ein paar Empfehlungen:
 
 📚 Lerne mehr über Astros Projektstruktur in unserer [Anleitung zur Projektstruktur](/core-concepts/project-structure)
 
