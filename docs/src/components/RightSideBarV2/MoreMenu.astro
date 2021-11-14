@@ -1,14 +1,15 @@
 ---
+import ThemeToggleButton from './ThemeToggleButton.tsx';
 const {editHref} = Astro.props;
 ---
-{`<style>
+<style>
   .edit-on-github {
     text-decoration: none;
     font: inherit;
     color: inherit;
     font-size: 1rem;
   }
-</style>`}
+</style>
 <h2 class="heading">More</h2>
 <ul>
   <li class={`header-link depth-2`}>
@@ -62,3 +63,6 @@ const {editHref} = Astro.props;
     </a>
   </li>
 </ul>
+<div style="margin: 2rem 0; text-align: center;">
+  <ThemeToggleButton client:visible />
+</div>
