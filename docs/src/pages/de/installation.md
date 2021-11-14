@@ -64,8 +64,8 @@ Du kannst Astro auch ohne die Hilfe des `create-astro`-Assistenten einrichten. N
 
 ```bash
 # Verzeichnis erzeugen und in das Verzeichnis wechseln
-mkdir my-astro-project
-cd my-astro-project
+mkdir mein-astro-projekt
+cd mein-astro-projekt
 ```
 
 Erstelle ein leeres Verzeichnis mit dem Namen deines Projekts und navigiere dann dorthin.
@@ -81,15 +81,13 @@ Astro ist darauf ausgerichtet mit dem gesamten npm-Paket-Ökosystem zu arbeiten.
 
 ### Installiere Astro
 
-Following the instructions above, you should have a directory with a single `package.json` file inside of it. You can now set up Astro inside your project.
-
 Soweit du den obigen Anweisungen gefolgt bist, solltest du ein Verzeichnis mit einer einzelnen `package.json`-Datei darin haben. Du kannst Astro jetzt in deinem Projekt aufsetzen.
 
 ```bash
 npm install astro
 ```
 
-Du kannst jetzt den Platzhalter im Abschnitt "scripts" deiner `package.json`-Datei, die `npm init` für dich erstellt hat, durch Folgendes ersetzen:
+Jetzt kannst du den Platzhalter im Abschnitt "scripts" deiner `package.json`-Datei, die `npm init` für dich erstellt hat, durch Folgendes ersetzen:
 
 ```diff
   "scripts": {
@@ -107,7 +105,7 @@ Der Befehl [`dev`](#start-astro) startet den Astro Entwicklungsserver auf `http:
 
 Öffne deinen bevorzugten Texteditor und erstelle eine neue Datei in deinem Projekt:
 
-1. Erstelle eine neue Datei unter `src/pages/index.astro`
+1. Erstelle eine neue Datei unter `src/pages/index.astro`.
 2. Kopiere den folgenden Code-Schnipsel (einschließlich der Bindestriche `---`) und füge ihn ein.
 
 ```astro
@@ -149,15 +147,7 @@ npm run dev
 
 Astro wird von nun an deine Anwendung unter `http://localhost:3000` bereitstellen. Wenn du diese URL in deinem Browser öffnest, solltest du Astros "Hello, World" sehen.
 
-If you need to share your development progress on the local network or check out the app from a phone, just add the following [snowpack](https://www.snowpack.dev/reference/configuration#devoptionshostname) option to `astro.config.mjs`:
-
-```js
-devOptions: {
-  hostname: '0.0.0.0',
-}
-```
-
-Falls du deinen Entwicklungsfortschritt im lokalen Netzwerk teilen oder die App von einem Telefon aus testen möchtest, füge einfach die folgende [snowpack](https://www.snowpack.dev/reference/configuration#devoptionshostname)-Option in `astro.config.mjs` hinzu:
+Falls du deinen Entwicklungsfortschritt im lokalen Netzwerk teilen oder die Anwendung von einem Telefon aus testen möchtest, füge einfach die folgende [snowpack](https://www.snowpack.dev/reference/configuration#devoptionshostname)-Option in `astro.config.mjs` hinzu:
 
 ```js
 devOptions: {
