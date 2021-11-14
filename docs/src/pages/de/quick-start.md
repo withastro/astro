@@ -8,8 +8,8 @@ description: Die einfachste Weg schnell mit Astro loszulegen.
 # Vorbereitung: Überprüfe, ob Node.js die Version 12.20.0+, 14.13.1+, oder 16+ ist
 node --version
 
-# Erstelle einen neuen Projektordner und navigiere direkt dorthin
-mkdir my-astro-project && cd $_
+# Erstelle einen neues Projektverzeichnis und navigiere direkt dorthin
+mkdir mein-astro-projekt && cd $_
 
 # Bereite dich auf den Start vor
 npm init astro
@@ -31,7 +31,7 @@ npm run build
 Um mehr über den Installationsprozess und den ersten Einsatz von Astro zu lernen [lies unsere Installationsanleitung](de/installation).
 
 Wenn du bevorzugst anhand eines Beispiels zu lernen, werfe einen Blick auf die [komplette Liste der Beispiele](https://github.com/snowpackjs/astro/tree/main/examples) auf GitHub.  
-Du kannst jedes dieser Beispiele ausprobieren, indem du `npm init astro -- --template "EXAMPLE_NAME"` ausführst.
+Du kannst jedes dieser Beispiele ausprobieren, indem du `npm init astro -- --template "BEISPIEL_NAME"` ausführst.
 
 ## Starte dein Projekt
 
