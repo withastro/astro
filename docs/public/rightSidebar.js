@@ -66,12 +66,8 @@ function unsetAppliedClass(...previousElements) {
 
 // getParentPTag()
 function getParentPTag(elementId) {
-  return getRelativeLinkElement(elementId) // `p` tag
-              .parentElement // `a` tag
-              .parentElement //  `li` tag
-              .parentElement // `ul` tag
-              .previousElementSibling // Parent `a` tag
-              .firstElementChild; // Parent's `p` tag
+  return getRelativeLinkElement(elementId).parentElement.parentElement // `p` tag // `a` tag //  `li` tag
+    .parentElement.previousElementSibling.firstElementChild; // `ul` tag // Parent `a` tag // Parent's `p` tag
 }
 
 // isChildless is checking for ul element is there or not
