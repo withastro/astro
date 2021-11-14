@@ -5,7 +5,7 @@ description: Die einfachste Weg schnell mit Astro loszulegen.
 ---
 
 ```shell
-# Vorbereitung: Überprüfe, ob Node.js 12.20.0+, 14.13.1+, oder 16+ ist
+# Vorbereitung: Überprüfe, ob Node.js die Version 12.20.0+, 14.13.1+, oder 16+ ist
 node --version
 
 # Erstelle einen neuen Projektordner und navigiere direkt dorthin
@@ -24,13 +24,13 @@ npm run dev
 Export für die Produktion:
 
 ```shell
-# Wenn du soweit bist - exportiere deine Site nach `dist/`
+# Wenn du soweit bist, exportiere deine Site nach `dist/`
 npm run build
 ```
 
 Um mehr über den Installationsprozess und den ersten Einsatz von Astro zu lernen [lies unsere Installationsanleitung](de/installation).
 
-Wenn du bevorzugst anhand eines Beispiels zu lernen, wirf einen Blick auf die [komplette Liste der Beispiele](https://github.com/snowpackjs/astro/tree/main/examples) auf GitHub.
+Wenn du bevorzugst anhand eines Beispiels zu lernen, werfe einen Blick auf die [komplette Liste der Beispiele](https://github.com/snowpackjs/astro/tree/main/examples) auf GitHub.  
 Du kannst jedes dieser Beispiele ausprobieren, indem du `npm init astro -- --template "EXAMPLE_NAME"` ausführst.
 
 ## Starte dein Projekt
@@ -57,7 +57,7 @@ Dies weist Astro an deine Site zu erstellen und direkt zu speichern. Deine Anwen
 
 ## Veröffentliche dein Projekt
 
-Astro-Sites sind statisch, sodass sie bei deinem bevorzugten Hoster veröffentlicht werden können:
+Astro-Sites sind statisch, sodass sie ganz einfach bei deinem bevorzugten Hoster veröffentlicht werden können:
 
 - [AWS S3 bucket](https://aws.amazon.com/s3/)
 - [Google Firebase](https://firebase.google.com/)
