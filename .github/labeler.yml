@@ -1,0 +1,12 @@
+# See https://github.com/actions/labeler
+
+example:
+- examples/**/*
+
+i18n:
+- any:
+  - 'docs/src/pages/*/**'
+  - '!docs/src/pages/core-concepts/**'
+  - '!docs/src/pages/guides/**'
+  - '!docs/src/pages/migration/**'
+  - '!docs/src/pages/reference/**'
