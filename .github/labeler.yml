@@ -7,10 +7,10 @@ action:
 - .github/workflows/**
 
 docs:
-- any: ['docs/**']
+- docs/**
 
 www:
-- any: ['www/**']
+- www/**
 
 i18n:
 - any:
