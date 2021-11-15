@@ -1,6 +1,6 @@
 import type { AstroConfig } from '../@types/astro-core';
 import type { ErrorPayload } from 'vite';
-import fs from 'fs';
+import eol from 'eol';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import resolve from 'resolve';
@@ -41,7 +41,7 @@ export function parseNpmName(spec: string): { scope?: string; name: string; subp
 /** generate code frame from esbuild error */
 export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string {
   if (!loc) return '';
-  const lines = src.replace(/\r\n/g, '\n').split('\n');
+  const lines = eol.lf(src).split('\n');
   // grab 2 lines before, and 3 lines after focused line
   const visibleLines = [];
   for (let n = -2; n <= 2; n++) {

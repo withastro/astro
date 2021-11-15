@@ -63,8 +63,8 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           sourcemap: 'both',
           internalURL: 'astro/internal',
           preprocessStyle: async (value: string, attrs: Record<string, string>) => {
-            if (!attrs || !attrs.lang) return null;
-            const result = await transformWithVite({ value, attrs, id, transformHook: viteTransform, ssr: isSSR(opts) });
+            const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
+            const result = await transformWithVite({ value, lang, id, transformHook: viteTransform, ssr: isSSR(opts) });
             if (!result) {
               // TODO: compiler supports `null`, but types don't yet
               return result as any;

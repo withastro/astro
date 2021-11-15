@@ -129,8 +129,10 @@ It’s recommended to only use this in scenarios where a `<link>` tag won’t wo
 ```js
 // postcss.config.cjs
 module.exports = {
-  autoprefixer: {
-    /* (optional) autoprefixer settings */
+  plugins: {
+    autoprefixer: {
+      /* (optional) autoprefixer settings */
+    },
   },
 };
 ```

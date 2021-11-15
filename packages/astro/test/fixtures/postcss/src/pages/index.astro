@@ -1,0 +1,24 @@
+---
+import AstroComponent from '../components/Astro.astro';
+import JSX from '../components/Solid.jsx';
+import Svelte from '../components/Svelte.svelte';
+import Vue from '../components/Vue.vue';
+---
+<head>
+  <link rel="stylesheet" type="text/css" href="/global.css">
+  <link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/linked.css')}>
+  <style>
+    .astro-page {
+      appearance: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="astro-page">
+    <AstroComponent />
+    <JSX />
+    <Svelte />
+    <Vue />
+  </div>
+</body>
