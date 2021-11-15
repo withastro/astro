@@ -24,8 +24,8 @@ Puoi testare uno qualsiasi di questi esempi sulla tua macchina locale lanciando 
 # Avvia la procedura guidata e usa questo template ufficiale
 npm init astro -- --template [NOME_ESEMPIO_UFFICIALE]
 # Avvia la procedura guidata e usa questo template della community
-npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
-npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
+npm init astro -- --template [UTENTE_GITHUB]/[NOME_REPO]
+npm init astro -- --template [UTENTE_GITHUB]/[NOME_REPO]/percorso/al/esempio
 ```
 
 ### Online Playgrounds
