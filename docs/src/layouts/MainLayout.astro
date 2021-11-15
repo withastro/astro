@@ -121,6 +121,7 @@ const headers = content.astro?.headers;
         {!hideRightSidebar && <RightSidebarV2 content={content} githubEditUrl={githubEditUrl} />}
       </aside>
     </main>
+    <!-- Don't remove headers from here, it's used by rightSidebar.js -->
     <script define:vars={{headers}}></script>
     <script type="module" src="/rightSidebar.js" ></script>
   </body>
