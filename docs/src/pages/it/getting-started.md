@@ -22,7 +22,7 @@ Puoi testare uno qualsiasi di questi esempi sulla tua macchina locale lanciando 
 
 ```bash
 # Avvia la procedura guidata e usa questo template ufficiale
-npm init astro -- --template [OFFICIAL_EXAMPLE_NAME]
+npm init astro -- --template [NOME_ESEMPIO_UFFICIALE]
 # Avvia la procedura guidata e usa questo template della community
 npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
 npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
