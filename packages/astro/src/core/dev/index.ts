@@ -234,7 +234,7 @@ export class AstroDevServer {
           server: {
             middlewareMode: 'ssr',
             host: this.hostname,
-          }
+          },
         },
         this.config.vite || {}
       ),
@@ -278,7 +278,7 @@ export class AstroDevServer {
     let filePath: URL | undefined;
     try {
       let routePathname = pathname.startsWith(this.pathname) ? pathname.substr(this.pathname.length) || '/' : undefined;
-      if(!routePathname) {
+      if (!routePathname) {
         next();
         return;
       }
@@ -363,7 +363,7 @@ export class AstroDevServer {
     }
     // if not found, fall back to default template
     else {
-      if(pathname === '/' && !pathname.startsWith(this.pathname)) {
+      if (pathname === '/' && !pathname.startsWith(this.pathname)) {
         html = subpathNotUsedTemplate(this.pathname, pathname);
       } else {
         html = notFoundTemplate({ statusCode, title: 'Not found', tabTitle: '404: Not Found', pathname });

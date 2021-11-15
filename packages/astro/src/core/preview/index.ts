@@ -27,7 +27,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 
   // Create the preview server, send static files out of the `dist/` directory.
   const server = http.createServer((req, res) => {
-    if(!req.url!.startsWith(base)) {
+    if (!req.url!.startsWith(base)) {
       res.statusCode = 404;
       res.end(subpathNotUsedTemplate(base, req.url!));
       return;

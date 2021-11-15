@@ -184,7 +184,7 @@ class AstroBuilder {
       publicDir: viteConfig.publicDir,
       root: viteConfig.root,
       server: viteConfig.server,
-      base: this.config.buildOptions.site ? new URL(this.config.buildOptions.site).pathname : '/'
+      base: this.config.buildOptions.site ? new URL(this.config.buildOptions.site).pathname : '/',
     });
     debug(logging, 'build', timerMessage('Vite build finished', timer.buildStart));
 
