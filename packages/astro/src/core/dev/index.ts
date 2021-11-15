@@ -19,7 +19,7 @@ import { collectResources } from '../ssr/html.js';
 import { createRouteManifest, matchRoute } from '../ssr/routing.js';
 import { createVite } from '../create-vite.js';
 import * as msg from './messages.js';
-import notFoundTemplate from './template/4xx.js';
+import notFoundTemplate, { subpathNotUsedTemplate } from './template/4xx.js';
 import serverErrorTemplate from './template/5xx.js';
 
 export interface DevOptions {
@@ -59,6 +59,9 @@ export class AstroDevServer {
   private logging: LogOptions;
   private manifest: ManifestData;
   private mostRecentRoute?: RouteData;
+  private site: URL | undefined;
+  private pathname: string;
+  private url: URL;
   private origin: string;
   private routeCache: RouteCache = {};
   private viteServer: vite.ViteDevServer | undefined;
@@ -69,6 +72,9 @@ export class AstroDevServer {
     this.logging = options.logging;
     this.port = config.devOptions.port;
     this.origin = `http://localhost:${this.port}`;
+    this.site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
+    this.pathname = this.site ? this.site.pathname + '/' : '/';
+    this.url = new URL(this.pathname, this.origin);
     this.manifest = createRouteManifest({ config });
   }
 
@@ -195,7 +201,7 @@ export class AstroDevServer {
       const listen = () => {
         this.httpServer = this.app.listen(this.port, this.hostname, () => {
           info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
-          info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}` }));
+          info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}${this.pathname}` }));
           resolve();
         });
         this.httpServer?.on('error', onError);
@@ -228,7 +234,7 @@ export class AstroDevServer {
           server: {
             middlewareMode: 'ssr',
             host: this.hostname,
-          },
+          }
         },
         this.config.vite || {}
       ),
@@ -271,10 +277,19 @@ export class AstroDevServer {
     const reqStart = performance.now();
     let filePath: URL | undefined;
     try {
-      const route = matchRoute(pathname, this.manifest);
+      let routePathname = pathname.startsWith(this.pathname) ? pathname.substr(this.pathname.length) || '/' : undefined;
+      if(!routePathname) {
+        next();
+        return;
+      }
+
+      const route = matchRoute(routePathname, this.manifest);
 
       // 404: continue to Vite
       if (!route) {
+        // Send through, stripping off the `/blog/` part so that Vite matches it.
+        const newPathname = routePathname.startsWith('/') ? routePathname : '/' + routePathname;
+        req.url = newPathname;
         next();
         return;
       }
@@ -348,7 +363,11 @@ export class AstroDevServer {
     }
     // if not found, fall back to default template
     else {
-      html = notFoundTemplate({ statusCode, title: 'Not found', tabTitle: '404: Not Found', pathname });
+      if(pathname === '/' && !pathname.startsWith(this.pathname)) {
+        html = subpathNotUsedTemplate(this.pathname, pathname);
+      } else {
+        html = notFoundTemplate({ statusCode, title: 'Not found', tabTitle: '404: Not Found', pathname });
+      }
     }
     info(this.logging, 'astro', msg.req({ url: pathname, statusCode, reqTime: performance.now() - reqStart }));
     res.writeHead(statusCode, {
