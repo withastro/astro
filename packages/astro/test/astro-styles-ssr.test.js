@@ -74,7 +74,7 @@ describe('Styles SSR', () => {
       return match;
     });
 
-    expect(css).to.include(`.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px;}.outer${scopedClass}{color:red;}`);
+    expect(css).to.include(`.wrapper${scopedClass}{margin-left:auto;margin-right:auto;max-width:1200px}.outer${scopedClass}{color:red}`);
 
     // test 2: element received .astro-XXXXXX class (this selector will succeed if transformed correctly)
     const wrapper = $(`.wrapper${scopedClass}`);
@@ -108,7 +108,7 @@ describe('Styles SSR', () => {
     const css = await fixture.readFile(href);
 
     // test 4: CSS generates as expected
-    expect(css).to.include(`.blue.${scopedClass}{color:powderblue;}.color\\:blue.${scopedClass}{color:powderblue;}.visible.${scopedClass}{display:block;}`);
+    expect(css).to.include(`.blue.${scopedClass}{color:#b0e0e6}.color\\:blue.${scopedClass}{color:#b0e0e6}.visible.${scopedClass}{display:block}`);
   });
 
   it('Astro scoped styles skipped without <style>', async () => {
@@ -132,6 +132,6 @@ describe('Styles SSR', () => {
 
     const href = '/' + $('link').attr('href');
     const css = await fixture.readFile(href);
-    expect(css).to.include('display: contents;');
+    expect(css).to.include('display:contents');
   });
 });
