@@ -6,19 +6,17 @@ import type { RenderedChunk } from 'rollup';
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import fs from 'fs';
-import { bold, cyan, green } from 'kleur/colors';
+import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import vite, { ViteDevServer } from '../vite.js';
 import { fileURLToPath } from 'url';
 import { createVite } from '../create-vite.js';
-import { pad } from '../dev/util.js';
-import { debug, defaultLogOptions, levels, timerMessage, warn } from '../logger.js';
+import { debug, defaultLogOptions, info, levels, timerMessage, warn } from '../logger.js';
 import { preload as ssrPreload } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generateRssFunction } from '../ssr/rss.js';
 import { generateSitemap } from '../ssr/sitemap.js';
-import { kb, profileHTML, profileJS } from './stats.js';
 
 export interface BuildOptions {
   mode?: string;
@@ -55,7 +53,9 @@ class AstroBuilder {
 
   async build() {
     const { logging, origin } = this;
-    const timer: Record<string, number> = { viteStart: performance.now() };
+    const timer: Record<string, number> = {};
+    timer.init = performance.now();
+    timer.viteStart = performance.now();
     const viteConfig = await createVite(
       vite.mergeConfig(
         {
@@ -97,12 +97,30 @@ class AstroBuilder {
               route,
               routeCache: this.routeCache,
               viteServer,
-            }),
+            })
+              .then((routes) => {
+                const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
+                debug(logging, 'build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
+                return routes;
+              })
+              .catch((err) => {
+                debug(logging, 'build', `├── ${colors.bold(colors.red(' '))} ${route.component}`);
+                throw err;
+              }),
           };
           return;
         }
         // dynamic route:
-        const result = await this.getStaticPathsForRoute(route);
+        const result = await this.getStaticPathsForRoute(route)
+          .then((routes) => {
+            const label = routes.paths.length === 1 ? 'page' : 'pages';
+            debug(logging, 'build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(`[${routes.paths.length} ${label}]`)}`);
+            return routes;
+          })
+          .catch((err) => {
+            debug(logging, 'build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+            throw err;
+          });
         if (result.rss?.xml) {
           const rssFile = new URL(result.rss.url.replace(/^\/?/, './'), this.config.dist);
           if (assets[fileURLToPath(rssFile)]) {
@@ -212,7 +230,7 @@ class AstroBuilder {
     // You're done! Time to clean up.
     await viteServer.close();
     if (logging.level && levels[logging.level] <= levels['info']) {
-      await this.printStats({ cwd: this.config.dist, pageCount: pageNames.length });
+      await this.printStats({ logging, timeStart: timer.init, pageCount: pageNames.length });
     }
   }
 
@@ -233,21 +251,13 @@ class AstroBuilder {
   }
 
   /** Stats */
-  private async printStats({ cwd, pageCount }: { cwd: URL; pageCount: number }) {
-    const [js, html] = await Promise.all([profileJS({ cwd, entryHTML: new URL('./index.html', cwd) }), profileHTML({ cwd })]);
-
+  private async printStats({ logging, timeStart, pageCount }: { logging: LogOptions; timeStart: number; pageCount: number }) {
     /* eslint-disable no-console */
-    console.log(`${bold(cyan('Done'))}
-Pages (${pageCount} total)
-  ${green(`✔ All pages under ${kb(html.maxSize)}`)}
-JS
-  ${pad('initial load', 50)}${pad(kb(js.entryHTML || 0), 8, 'left')}
-  ${pad('total size', 50)}${pad(kb(js.total), 8, 'left')}
-CSS
-  ${pad('initial load', 50)}${pad('0 kB', 8, 'left')}
-  ${pad('total size', 50)}${pad('0 kB', 8, 'left')}
-Images
-  ${green(`✔ All images under 50 kB`)}
-`);
+    debug(logging, ''); // empty line for debug
+    const buildTime = performance.now() - timeStart;
+    const total = buildTime < 750 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
+    const perPage = `${Math.round(buildTime / pageCount)}ms`;
+    info(logging, 'build', `${pageCount} pages built in ${colors.bold(total)} ${colors.dim(`(${perPage}/page)`)}`);
+    info(logging, 'build', `🚀 ${colors.cyan(colors.bold('Done'))}`);
   }
 }
