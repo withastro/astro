@@ -8,6 +8,8 @@ import srcsetParse from 'srcset-parse';
 import * as npath from 'path';
 import { promises as fs } from 'fs';
 import { getAttribute, hasAttribute, getTagName, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
+import slash from 'slash';
+import { fileURLToPath } from 'url';
 import { addRollupInput } from './add-rollup-input.js';
 import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getTextContent, isStylesheetLink } from './extract-assets.js';
 import { render as ssrRender } from '../core/ssr/index.js';
@@ -26,7 +28,12 @@ const ASTRO_EMPTY = '@astro-empty';
 const tagsWithSrcSet = new Set(['img', 'source']);
 
 const isAstroInjectedLink = (node: parse5.Element) => isStylesheetLink(node) && getAttribute(node, 'data-astro-injected') === '';
-const isBuildableLink = (node: parse5.Element, srcRoot: string) => isAstroInjectedLink(node) || getAttribute(node, 'href')?.startsWith(srcRoot);
+const isBuildableLink = (node: parse5.Element, srcRoot: string) => {
+  if (isAstroInjectedLink(node)) return true;
+  const href = getAttribute(node, 'href');
+  if (typeof href !== 'string' || !href.length) return false;
+  return href.startsWith(srcRoot) || `/${href}`.startsWith(srcRoot); // Windows fix: some paths are missing leading "/"
+};
 const isBuildableImage = (node: parse5.Element, srcRoot: string) => getTagName(node) === 'img' && getAttribute(node, 'src')?.startsWith(srcRoot);
 const hasSrcSet = (node: parse5.Element) => tagsWithSrcSet.has(getTagName(node)) && !!getAttribute(node, 'srcset');
 const isHoistedScript = (node: parse5.Element) => getTagName(node) === 'script' && hasAttribute(node, 'hoist');

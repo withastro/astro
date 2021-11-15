@@ -73,5 +73,5 @@ export function resolveDependency(dep: string, astroConfig: AstroConfig) {
 }
 
 export function viteifyPath(pathname: string): string {
-  return `/@fs${pathname}`;
+  return `/@fs/${pathname.replace(/^\//, '')}`;
 }

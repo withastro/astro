@@ -5,6 +5,7 @@ import adapter from 'parse5/lib/tree-adapters/default.js';
 
 const hashedLinkRels = ['stylesheet', 'preload'];
 const linkRels = [...hashedLinkRels, 'icon', 'manifest', 'apple-touch-icon', 'mask-icon'];
+const windowsPathRE = /^[A-Z]:\//;
 
 function getSrcSetUrls(srcset: string) {
   if (!srcset) {
@@ -53,6 +54,10 @@ function isAsset(node: Element) {
   }
   if (!path) {
     return false;
+  }
+  // Windows fix: if path starts with C:/, avoid URL parsing
+  if (windowsPathRE.test(path)) {
+    return true;
   }
   try {
     new URL(path);
