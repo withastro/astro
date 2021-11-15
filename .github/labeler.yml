@@ -3,6 +3,12 @@
 example:
 - examples/**/*
 
+docs:
+- any: ['docs/**']
+
+www:
+- any: ['www/**']
+
 i18n:
 - any:
   - 'docs/src/pages/*/**'
