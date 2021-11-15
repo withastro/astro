@@ -1,0 +1,21 @@
+# See https://github.com/actions/labeler
+
+example:
+- examples/**/*
+
+action:
+- .github/workflows/**
+
+docs:
+- docs/**
+
+www:
+- www/**
+
+i18n:
+- any:
+  - 'docs/src/pages/*/**'
+  - '!docs/src/pages/core-concepts/**'
+  - '!docs/src/pages/guides/**'
+  - '!docs/src/pages/migration/**'
+  - '!docs/src/pages/reference/**'
