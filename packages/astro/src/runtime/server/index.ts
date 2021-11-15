@@ -118,7 +118,6 @@ function formatList(values: string[]): string {
 export async function renderComponent(result: SSRResult, displayName: string, Component: unknown, _props: Record<string | number, any>, slots: any = {}) {
   Component = await Component;
   const children = await renderSlot(result, slots?.default);
-  const { renderers } = result._metadata;
 
   if (Component === Fragment) {
     return children;
@@ -129,11 +128,12 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     return output;
   }
 
-  let metadata: AstroComponentMetadata = { displayName };
-
   if (Component === null && !_props['client:only']) {
-    throw new Error(`Unable to render ${metadata.displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
+    throw new Error(`Unable to render ${displayName} because it is ${Component}!\nDid you forget to import the component or is it possible there is a typo?`);
   }
+
+  const { renderers } = result._metadata;
+  const metadata: AstroComponentMetadata = { displayName };
 
   const { hydration, props } = extractDirectives(_props);
   let html = '';
@@ -156,15 +156,13 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 
   // Call the renderers `check` hook to see if any claim this component.
   let renderer: Renderer | undefined;
-  if (renderers.length === 1) {
-    renderer = renderers[0];
-  } else if (metadata.hydrate !== 'only') {
-    for (const r of renderers) {
-      if (await r.ssr.check(Component, props, children)) {
-        renderer = r;
-        break;
+  if (metadata.hydrate !== 'only') {
+      for (const r of renderers) {
+        if (await r.ssr.check(Component, props, children)) {
+          renderer = r;
+          break;
+        }
       }
-    }
   } else {
     // Attempt: use explicitly passed renderer name
     if (metadata.hydrateArgs) {
@@ -222,7 +220,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
   // This is a custom element without a renderer. Because of that, render it
   // as a string and the user is responsible for adding a script tag for the component definition.
   if (!html && typeof Component === 'string') {
-      html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
+    html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
   }
 
   // This is used to add polyfill scripts to the page, if the renderer needs them.
