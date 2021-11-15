@@ -1,4 +1,4 @@
-import type {RenderedChunk } from 'rollup';
+import type { RenderedChunk } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 
 import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
@@ -66,8 +66,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
     configResolved(resolvedConfig) {
       viteTransform = getViteTransform(resolvedConfig);
 
-      const viteCSSPost = resolvedConfig.plugins.find(p => p.name === 'vite:css-post');
-      if(viteCSSPost) {
+      const viteCSSPost = resolvedConfig.plugins.find((p) => p.name === 'vite:css-post');
+      if (viteCSSPost) {
         // Prevent this plugin's bundling behavior from running since we need to
         // do that ourselves in order to handle updating the HTML.
         delete viteCSSPost.renderChunk;
