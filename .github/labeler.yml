@@ -3,6 +3,9 @@
 example:
 - examples/**/*
 
+action:
+- .github/workflows/**
+
 docs:
 - any: ['docs/**']
 
