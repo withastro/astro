@@ -115,7 +115,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
       return null;
     },
 
-    async renderChunk(_code, chunk, options) {
+    async renderChunk(_code, chunk) {
       let chunkCSS = '';
       let isPureCSS = true;
       for (const [id] of Object.entries(chunk.modules)) {
