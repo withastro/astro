@@ -4,7 +4,6 @@ import path from 'path';
 
 // https://vitejs.dev/guide/features.html#css-pre-processors
 export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
-export const PREPROCESSOR_EXTENSIONS = new Set(['.pcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
 
 /** find unloaded styles */
 export function getStylesForID(id: string, viteServer: vite.ViteDevServer): Set<string> {
