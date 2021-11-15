@@ -1,5 +1,19 @@
 # astro
 
+## 0.21.0-next.4
+
+### Patch Changes
+
+- b958088c: Make astro-root be a display: contents element
+- 65d17857: Fixes hoisted scripts to be bundled during the build
+- fca1a99d: Provides first-class support for a site deployed to a subpath
+
+  Now you can deploy your site to a subpath more easily. Astro will use your `buildOptions.site` URL and host the dev server from there.
+
+  If your site config is `http://example.com/blog` you will need to go to `http://localhost:3000/blog/` in dev and when using `astro preview`.
+
+  Includes a helpful 404 page when encountering this in dev and preview.
+
 ## 0.21.0-next.3
 
 ### Patch Changes
