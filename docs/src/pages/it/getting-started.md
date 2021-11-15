@@ -52,9 +52,11 @@ La nostra utile guida ai [componenti Astro](/core-concepts/astro-components) ti 
 Questa parte della documentazione è utile quando si vuole comprendere meglio una particolare API di Astro. Ad esempio, la [Reference di Configurazione](/reference/configuration-reference) elenca tutte le possibili opzioni di configurazione possibili. La [Reference dei componenti incorporati](/reference/builtin-components) elenca tutti i componenti principali disponibili, come `<Markdown />` e `<Code />`.
 
 ### Documentazione a versioni
+
 Questa documentazione fa riferimento sempre all'ultima versione stabile di Astro. Una volta raggiunta la v1.0, inseriremo la possibilità di navigare tra le versioni della documentazione.
 
 ## Rimani aggiornato
+
 L'account Twitter [@astrodotbuild](https://twitter.com/astrodotbuild) è la fonte ufficiale del team Astro per rimanere aggiornati.
 
 Pubblichiamo anche annunci sui rilasci nella nostra [community Discord](https://astro.build/chat) nel canale #announcements.
