@@ -1,10 +1,10 @@
-import type { ResolveIdHook, LoadHook, RenderedChunk } from 'rollup';
+import type {RenderedChunk } from 'rollup';
 import type { Plugin as VitePlugin } from 'vite';
 
 import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
-import { getViteResolve, getViteLoad } from './resolve.js';
 import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import * as path from 'path';
+import esbuild from 'esbuild';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -65,6 +65,14 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
     configResolved(resolvedConfig) {
       viteTransform = getViteTransform(resolvedConfig);
+
+      const viteCSSPost = resolvedConfig.plugins.find(p => p.name === 'vite:css-post');
+      if(viteCSSPost) {
+        // Prevent this plugin's bundling behavior from running since we need to
+        // do that ourselves in order to handle updating the HTML.
+        delete viteCSSPost.renderChunk;
+        delete viteCSSPost.generateBundle;
+      }
     },
 
     async resolveId(id) {
@@ -107,7 +115,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
       return null;
     },
 
-    renderChunk(_code, chunk) {
+    async renderChunk(_code, chunk) {
       let chunkCSS = '';
       let isPureCSS = true;
       for (const [id] of Object.entries(chunk.modules)) {
@@ -120,10 +128,14 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
       }
 
       if (isPureCSS) {
+        const { code: minifiedCSS } = await esbuild.transform(chunkCSS, {
+          loader: 'css',
+          minify: true,
+        });
         const referenceId = this.emitFile({
           name: chunk.name + '.css',
           type: 'asset',
-          source: chunkCSS,
+          source: minifiedCSS,
         });
         pureCSSChunks.add(chunk);
         chunkToReferenceIdMap.set(chunk.fileName, referenceId);
