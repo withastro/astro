@@ -60,7 +60,7 @@ export class AstroDevServer {
   private manifest: ManifestData;
   private mostRecentRoute?: RouteData;
   private site: URL | undefined;
-  private pathname: string;
+  private devRoot: string;
   private url: URL;
   private origin: string;
   private routeCache: RouteCache = {};
@@ -73,8 +73,8 @@ export class AstroDevServer {
     this.port = config.devOptions.port;
     this.origin = `http://localhost:${this.port}`;
     this.site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
-    this.pathname = this.site ? this.site.pathname : '/';
-    this.url = new URL(this.pathname, this.origin);
+    this.devRoot = this.site ? this.site.pathname : '/';
+    this.url = new URL(this.devRoot, this.origin);
     this.manifest = createRouteManifest({ config });
   }
 
@@ -201,7 +201,7 @@ export class AstroDevServer {
       const listen = () => {
         this.httpServer = this.app.listen(this.port, this.hostname, () => {
           info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
-          info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}${this.pathname}` }));
+          info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}${this.devRoot}` }));
           resolve();
         });
         this.httpServer?.on('error', onError);
@@ -280,11 +280,11 @@ export class AstroDevServer {
       let routePathname: string = pathname;
       // If using a subpath, ensure that the user has included the pathname
       // such as /blog in the URL.
-      if(this.pathname !== '/') {
-        if(pathname.startsWith(this.pathname)) {
+      if(this.devRoot !== '/') {
+        if(pathname.startsWith(this.devRoot)) {
           // This includes the subpath, so strip off the subpath so that
           // matchRoute finds this route.
-          routePathname = pathname.substr(this.pathname.length) || '';
+          routePathname = pathname.substr(this.devRoot.length) || '';
           if(!routePathname.startsWith('/')) {
             routePathname = '/' + routePathname;
           }
@@ -375,8 +375,8 @@ export class AstroDevServer {
     }
     // if not found, fall back to default template
     else {
-      if (pathname === '/' && !pathname.startsWith(this.pathname)) {
-        html = subpathNotUsedTemplate(this.pathname, pathname);
+      if (pathname === '/' && !pathname.startsWith(this.devRoot)) {
+        html = subpathNotUsedTemplate(this.devRoot, pathname);
       } else {
         html = notFoundTemplate({ statusCode, title: 'Not found', tabTitle: '404: Not Found', pathname });
       }
