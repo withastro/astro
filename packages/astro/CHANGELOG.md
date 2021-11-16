@@ -1,5 +1,30 @@
 # astro
 
+## 0.21.0-next.4
+
+### Patch Changes
+
+- b958088c: Make astro-root be a display: contents element
+- 65d17857: Fixes hoisted scripts to be bundled during the build
+- 3b8f201c: Add build output
+- 824c1f20: Re-implement client:only support
+- 3cd1458a: Bugfix: Bundled CSS missing files on Windows
+- 4e55be90: Fixes layout file detection on non-unix environments
+- fca1a99d: Provides first-class support for a site deployed to a subpath
+
+  Now you can deploy your site to a subpath more easily. Astro will use your `buildOptions.site` URL and host the dev server from there.
+
+  If your site config is `http://example.com/blog` you will need to go to `http://localhost:3000/blog/` in dev and when using `astro preview`.
+
+  Includes a helpful 404 page when encountering this in dev and preview.
+
+- 65216ef9: Bugfix: PostCSS not working in all contexts
+- Updated dependencies [3cd1458a]
+  - @astrojs/renderer-preact@0.3.0-next.1
+  - @astrojs/renderer-react@0.3.0-next.1
+  - @astrojs/renderer-svelte@0.2.0-next.1
+  - @astrojs/renderer-vue@0.2.0-next.1
+
 ## 0.21.0-next.3
 
 ### Patch Changes

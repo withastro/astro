@@ -1,5 +1,11 @@
 # @astrojs/renderer-preact
 
+## 0.3.0-next.1
+
+### Patch Changes
+
+- 3cd1458a: Bugfix: Bundled CSS missing files on Windows
+
 ## 0.3.0-next.0
 
 ### Minor Changes

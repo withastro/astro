@@ -35,19 +35,28 @@
     "@astrojs/renderer-vue": "0.1.9",
     "astro-scripts": "0.0.1",
     "www": "1.1.0",
-    "@example/portfolio-svelte": "0.0.1"
+    "@example/portfolio-svelte": "0.0.1",
+    "@example/subpath": "0.0.1"
   },
   "changesets": [
     "beige-kings-listen",
     "curvy-glasses-rest",
     "curvy-years-kiss",
     "dull-bikes-doubt",
+    "dull-steaks-dance",
     "giant-shirts-sing",
+    "little-dogs-help",
+    "many-donkeys-report",
     "pink-trainers-learn",
+    "polite-ladybugs-train",
+    "quick-cheetahs-itch",
     "shaggy-guests-type",
     "silly-apples-build",
     "silly-peas-battle",
+    "strong-bugs-confess",
     "tiny-bulldogs-lie",
+    "twelve-oranges-approve",
+    "twenty-rabbits-repeat",
     "young-steaks-report"
   ]
 }
