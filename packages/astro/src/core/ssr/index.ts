@@ -10,7 +10,7 @@ import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
 import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyPath } from '../util.js';
-import { getStylesForID } from './css.js';
+import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
@@ -217,7 +217,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
   }
 
   // inject CSS
-  [...getStylesForID(filePath, viteServer)].forEach((href) => {
+  [...getStylesForURL(filePath, viteServer)].forEach((href) => {
     tags.push({
       tag: 'link',
       attrs: {

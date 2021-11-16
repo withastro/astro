@@ -8,7 +8,7 @@ import slash from 'slash';
 export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
 
 /** find unloaded styles */
-export function getStylesForID(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
+export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
   const css = new Set<string>();
   const { idToModuleMap } = viteServer.moduleGraph;
   const rootID = slash(fileURLToPath(filePath)); // Vite fix: Windows URLs must have forward slashes
