@@ -6,9 +6,11 @@ import type { LogOptions } from '../logger';
 
 import fs from 'fs';
 import path from 'path';
+import slash from 'slash';
+import { fileURLToPath } from 'url';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
 import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyPath } from '../util.js';
-import { getStylesForID } from './css.js';
+import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
@@ -215,7 +217,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
   }
 
   // inject CSS
-  [...getStylesForID(filePath.pathname, viteServer)].forEach((href) => {
+  [...getStylesForURL(filePath, viteServer)].forEach((href) => {
     tags.push({
       tag: 'link',
       attrs: {
@@ -232,7 +234,8 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
   // run transformIndexHtml() in dev to run Vite dev transformations
   if (mode === 'development') {
-    html = await viteServer.transformIndexHtml(filePath.pathname, html, pathname);
+    const viteFilePath = slash(fileURLToPath(filePath)); // Vite Windows fix: URLs on Windows have forward slashes (not .pathname, which has a leading '/' on Windows)
+    html = await viteServer.transformIndexHtml(viteFilePath, html, pathname);
   }
 
   return html;

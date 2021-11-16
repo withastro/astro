@@ -10,10 +10,10 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "^1.9.3",
-    "@vue/compiler-sfc": "^3.2.20",
-    "@vue/server-renderer": "^3.2.20",
-    "vue": "^3.2.20"
+    "@vitejs/plugin-vue": "^1.9.4",
+    "@vue/compiler-sfc": "^3.2.22",
+    "@vue/server-renderer": "^3.2.22",
+    "vue": "^3.2.22"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"

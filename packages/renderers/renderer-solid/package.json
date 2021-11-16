@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "babel-plugin-module-resolver": "^4.1.0",
-    "babel-preset-solid": "^1.1.7",
-    "solid-js": "^1.1.7"
+    "babel-preset-solid": "^1.2.3",
+    "solid-js": "^1.2.3"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
