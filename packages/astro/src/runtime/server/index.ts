@@ -157,12 +157,12 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
   // Call the renderers `check` hook to see if any claim this component.
   let renderer: Renderer | undefined;
   if (metadata.hydrate !== 'only') {
-      for (const r of renderers) {
-        if (await r.ssr.check(Component, props, children)) {
-          renderer = r;
-          break;
-        }
+    for (const r of renderers) {
+      if (await r.ssr.check(Component, props, children)) {
+        renderer = r;
+        break;
       }
+    }
   } else {
     // Attempt: use explicitly passed renderer name
     if (metadata.hydrateArgs) {
