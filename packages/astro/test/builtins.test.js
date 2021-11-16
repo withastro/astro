@@ -22,9 +22,10 @@ describe('Node builtins', () => {
     expect($('#dep-version').text()).to.equal('0.0.1');
   });
 
-  it('Throw if using the non-prefixed version', async () => {
-    const result = await fixture.readFile('/bare/index.html');
-    expect(result.status).to.equal(500);
-    expect(result.body).to.include('Use node:fs instead');
+  it('Can also be used with the non-prefixed version', async () => {
+    const html = await fixture.readFile('/bare/index.html');
+    const $ = cheerio.load(html);
+
+    expect($('h1').text()).to.equal('true');
   });
 });

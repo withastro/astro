@@ -1,12 +1,12 @@
 ---
-import fs from 'fs';
+import { builtinModules } from 'module';
 ---
 
 <html>
 <head>
-<title>This should throw</title>
+<title>Bare node import</title>
 </head>
 <body>
-<h1>Test</h1>
+<h1>{Array.isArray(builtinModules)}</h1>
 </body>
 </html>
