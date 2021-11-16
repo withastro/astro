@@ -73,7 +73,7 @@ export class AstroDevServer {
     this.port = config.devOptions.port;
     this.origin = `http://localhost:${this.port}`;
     this.site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
-    this.pathname = this.site ? this.site.pathname + '/' : '/';
+    this.pathname = this.site ? this.site.pathname : '/';
     this.url = new URL(this.pathname, this.origin);
     this.manifest = createRouteManifest({ config });
   }
@@ -277,10 +277,21 @@ export class AstroDevServer {
     const reqStart = performance.now();
     let filePath: URL | undefined;
     try {
-      let routePathname = pathname.startsWith(this.pathname) ? pathname.substr(this.pathname.length) || '/' : undefined;
-      if (!routePathname) {
-        next();
-        return;
+      let routePathname: string = pathname;
+      // If using a subpath, ensure that this is coming from
+      if(this.pathname !== '/') {
+        if(pathname.startsWith(this.pathname)) {
+          // This includes the subpath, so strip off the subpath so that
+          // matchRoute finds this route.
+          routePathname = pathname.substr(this.pathname.length) || '';
+          if(!routePathname.startsWith('/')) {
+            routePathname = '/' + routePathname;
+          }
+        } else {
+          // Not using the subpath, so forward to Vite's middleware
+          next();
+          return;
+        }
       }
 
       const route = matchRoute(routePathname, this.manifest);
