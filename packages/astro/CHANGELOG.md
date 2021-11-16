@@ -1,5 +1,11 @@
 # astro
 
+## 0.21.0-next.5
+
+### Patch Changes
+
+- 0f9c1910: Fixes routing regression in next.4. Subpath support was inadvertedly prevent any non-index routes from working when not using a subpath.
+
 ## 0.21.0-next.4
 
 ### Patch Changes
