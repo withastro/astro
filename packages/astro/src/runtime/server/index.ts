@@ -139,6 +139,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
     if (typeof Component === 'string') {
       html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
     } else {
+      console.log('could not render this');
       throw new Error(`Astro is unable to render ${metadata.displayName}!\nIs there a renderer to handle this type of component defined in your Astro config?`);
     }
   } else {

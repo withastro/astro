@@ -38,7 +38,7 @@ interface ExtractedProps {
     componentUrl: string;
     componentExport: { value: string };
   } | null;
-  props: Record<string | number, any>;
+  props: Record<string | number | symbol, any>;
 }
 
 // Used to extract the directives, aka `client:load` information about a component.
