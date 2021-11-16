@@ -280,12 +280,12 @@ export class AstroDevServer {
       let routePathname: string = pathname;
       // If using a subpath, ensure that the user has included the pathname
       // such as /blog in the URL.
-      if(this.devRoot !== '/') {
-        if(pathname.startsWith(this.devRoot)) {
+      if (this.devRoot !== '/') {
+        if (pathname.startsWith(this.devRoot)) {
           // This includes the subpath, so strip off the subpath so that
           // matchRoute finds this route.
           routePathname = pathname.substr(this.devRoot.length) || '';
-          if(!routePathname.startsWith('/')) {
+          if (!routePathname.startsWith('/')) {
             routePathname = '/' + routePathname;
           }
         } else {
