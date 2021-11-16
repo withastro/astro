@@ -278,7 +278,8 @@ export class AstroDevServer {
     let filePath: URL | undefined;
     try {
       let routePathname: string = pathname;
-      // If using a subpath, ensure that this is coming from
+      // If using a subpath, ensure that the user has included the pathname
+      // such as /blog in the URL.
       if(this.pathname !== '/') {
         if(pathname.startsWith(this.pathname)) {
           // This includes the subpath, so strip off the subpath so that
