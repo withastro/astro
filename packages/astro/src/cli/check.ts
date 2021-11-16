@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 import { AstroCheck, DiagnosticSeverity } from '@astrojs/language-server';
-import type { AstroConfig } from '../@types/astro-core';
+import type { AstroConfig } from '../@types/astro';
 
 import { bold, black, bgWhite, red, cyan, yellow } from 'kleur/colors';
 import glob from 'fast-glob';

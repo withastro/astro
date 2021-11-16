@@ -1,7 +1,21 @@
 import type { BuildResult } from 'esbuild';
 import type vite from '../vite';
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../../@types/astro-core';
-import type { AstroGlobal, TopLevelAstro, SSRResult, SSRElement } from '../../@types/astro-runtime';
+import type {
+  AstroConfig,
+  AstroGlobal,
+  AstroGlobalPartial,
+  ComponentInstance,
+  GetStaticPathsResult,
+  Params,
+  Props,
+  Renderer,
+  RouteCache,
+  RouteData,
+  RuntimeMode,
+  SSRElement,
+  SSRError,
+  SSRResult,
+} from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import fs from 'fs';
@@ -157,7 +171,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
     styles: new Set<SSRElement>(),
     scripts: new Set<SSRElement>(),
     /** This function returns the `Astro` faux-global */
-    createAstro(astroGlobal: TopLevelAstro, props: Record<string, any>, slots: Record<string, any> | null) {
+    createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
       const site = new URL(origin);
       const url = new URL('.' + pathname, site);
       const canonicalURL = getCanonicalURL('.' + pathname, astroConfig.buildOptions.site || origin);

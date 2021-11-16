@@ -1,6 +1,5 @@
-import type { AstroComponentMetadata, Renderer } from '../../@types/astro-core';
-import type { SSRResult, SSRElement } from '../../@types/astro-runtime';
-import type { TopLevelAstro } from '../../@types/astro-runtime';
+import type { AstroComponentMetadata, Renderer } from '../../@types/astro';
+import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/astro';
 
 import shorthash from 'shorthash';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
@@ -269,12 +268,12 @@ function createFetchContentFn(url: URL) {
   // This has to be cast because the type of fetchContent is the type of the function
   // that receives the import.meta.glob result, but the user is using it as
   // another type.
-  return fetchContent as unknown as TopLevelAstro['fetchContent'];
+  return fetchContent as unknown as AstroGlobalPartial['fetchContent'];
 }
 
 // This is used to create the top-level Astro global; the one that you can use
 // Inside of getStaticPaths.
-export function createAstro(fileURLStr: string, site: string): TopLevelAstro {
+export function createAstro(fileURLStr: string, site: string): AstroGlobalPartial {
   const url = new URL(fileURLStr);
   const fetchContent = createFetchContentFn(url);
   return {

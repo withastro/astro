@@ -1,5 +1,5 @@
-import type { AstroComponentMetadata } from '../../@types/astro-core';
-import type { SSRElement } from '../../@types/astro-runtime';
+import type { AstroComponentMetadata } from '../../@types/astro';
+import type { SSRElement } from '../../@types/astro';
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import { serializeListValue } from './util.js';

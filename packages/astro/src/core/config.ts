@@ -1,6 +1,5 @@
-import type { AstroConfig, AstroUserConfig } from '../@types/astro-core';
+import type { AstroConfig, AstroUserConfig } from '../@types/astro';
 
-import { existsSync } from 'fs';
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';

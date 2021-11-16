@@ -1,4 +1,4 @@
-import type { AstroConfig } from '../@types/astro-core';
+import type { AstroConfig } from '../@types/astro';
 import type { AstroDevServer } from './dev';
 import type { LogOptions } from './logger';
 

@@ -4,7 +4,7 @@
   "author": "Skypack",
   "license": "MIT",
   "type": "module",
-  "types": "./dist/types/@types/astro-core.d.ts",
+  "types": "./dist/types/@types/astro.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/snowpackjs/astro.git",
