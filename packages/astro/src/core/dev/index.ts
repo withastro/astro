@@ -83,8 +83,8 @@ export class AstroDevServer {
 
     // Setup the dev server and connect it to Vite (via middleware)
     this.viteServer = await this.createViteServer();
-    this.app.use((req, res, next) => this.handleRequest(req, res, next));
     this.app.use(this.viteServer.middlewares);
+    this.app.use((req, res, next) => this.handleRequest(req, res, next));
     this.app.use((req, res, next) => this.renderError(req, res, next));
 
     // Listen on port (and retry if taken)
