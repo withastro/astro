@@ -1,3 +1,5 @@
+# Automatically labels PRs based on the configuration file
+# you are probably looking for 👉 `.github/labeler.yml`
 name: Label PRs
 
 on:
@@ -10,3 +12,4 @@ jobs:
     - uses: actions/labeler@v3
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
+        sync-labels: true
