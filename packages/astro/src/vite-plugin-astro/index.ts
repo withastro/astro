@@ -89,7 +89,11 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
         }
 
         // Compile `.ts` to `.js`
-        const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
+        const { code, map } = await esbuild.transform(tsResult.code, {
+          loader: 'ts',
+          sourcemap: 'external',
+          sourcefile: id,
+        });
 
         return {
           code,
@@ -119,16 +123,6 @@ a GitHub issue using the link below:
 ${err.url}`;
           // TODO: remove stack replacement when compiler throws better errors
           err.stack = `    at ${id}`;
-        }
-
-        // improve esbuild errors
-        if (err.errors && tsResult?.map) {
-          const json = JSON.parse(tsResult.map);
-          const mappings = decode(json.mappings);
-          const focusMapping = mappings[err.errors[0].location.line + 1];
-          if (Array.isArray(focusMapping) && focusMapping.length) {
-            err.sourceLoc = { file: id, line: (focusMapping[0][2] || 0) + 1, column: (focusMapping[0][3] || 0) + 1 };
-          }
         }
 
         throw err;

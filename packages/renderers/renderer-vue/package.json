@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@vitejs/plugin-vue": "^1.9.4",
-    "@vue/compiler-sfc": "^3.2.22",
-    "@vue/server-renderer": "^3.2.22",
     "vue": "^3.2.22"
   },
   "engines": {

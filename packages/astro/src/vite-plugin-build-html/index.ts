@@ -137,8 +137,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           for (let node of findAssets(document)) {
             if (isBuildableLink(node, srcRoot)) {
               const href = getAttribute(node, 'href')!;
-              const linkId = `/@fs${href}`;
-              assetImports.push(linkId);
+              assetImports.push(href);
             }
 
             if (isBuildableImage(node, srcRoot)) {

@@ -137,6 +137,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         const { code: jsxCode } = await esbuild.transform(code, {
           loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
           jsx: 'preserve',
+          sourcefile: id,
         });
         return transformJSX({ code: jsxCode, id, renderer: [...jsxRenderers.values()][0], mode, ssr });
       }
@@ -148,6 +149,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         jsx: 'transform',
         jsxFactory: 'h',
         jsxFragment: 'Fragment',
+        sourcefile: id,
       });
 
       let imports: eslexer.ImportSpecifier[] = [];
@@ -191,8 +193,15 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         const { code: jsxCode } = await esbuild.transform(code, {
           loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
           jsx: 'preserve',
+          sourcefile: id,
         });
-        return transformJSX({ code: jsxCode, id, renderer: jsxRenderers.get(importSource) as Renderer, mode, ssr });
+        return await transformJSX({
+          code: jsxCode,
+          id,
+          renderer: jsxRenderers.get(importSource) as Renderer,
+          mode,
+          ssr,
+        });
       }
 
       // if we still can’t tell, throw error

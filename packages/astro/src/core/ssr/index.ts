@@ -18,9 +18,9 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
+import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
-import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
 import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyURL } from '../util.js';
@@ -88,25 +88,54 @@ async function resolveRenderers(viteServer: vite.ViteDevServer, astroConfig: Ast
   return renderers;
 }
 
-async function errorHandler(e: unknown, viteServer: vite.ViteDevServer, filePath: URL) {
+interface ErrorHandlerOptions {
+  filePath: URL;
+  viteServer: vite.ViteDevServer;
+}
+
+async function errorHandler(e: unknown, { viteServer, filePath }: ErrorHandlerOptions) {
+  // normalize error stack line-endings to \n
+  if ((e as any).stack) {
+    (e as any).stack = eol.lf((e as any).stack);
+  }
+
+  // fix stack trace with Vite (this searches its module graph for matches)
   if (e instanceof Error) {
     viteServer.ssrFixStacktrace(e);
   }
 
   // Astro error (thrown by esbuild so it needs to be formatted for Vite)
-  const anyError = e as any;
-  if (anyError.errors) {
+  if (Array.isArray((e as any).errors)) {
     const { location, pluginName, text } = (e as BuildResult).errors[0];
     const err = e as SSRError;
     if (location) err.loc = { file: location.file, line: location.line, column: location.column };
-    const frame = codeFrame(await fs.promises.readFile(filePath, 'utf8'), err.loc);
-    err.frame = frame;
+    let src = err.pluginCode;
+    if (!src && err.id && fs.existsSync(err.id)) src = await fs.promises.readFile(err.id, 'utf8');
+    if (!src) src = await fs.promises.readFile(filePath, 'utf8');
+    err.frame = codeFrame(src, err.loc);
     err.id = location?.file;
     err.message = `${location?.file}: ${text}
-${frame}
+${err.frame}
 `;
     if (pluginName) err.plugin = pluginName;
     throw err;
+  } else if ((e as any).stack) {
+    const err = e as SSRError;
+    const [message, maybeLoc] = err.stack.split('\n');
+    const fileMatch = maybeLoc.match(/at[^\(]+\(([^\)]+)/);
+    if (fileMatch && fileMatch[1]) {
+      let [srcLoc, lineStr, columnStr] = fileMatch[1].split(':');
+      let line = lineStr ? parseInt(lineStr, 10) : undefined;
+      let column = columnStr ? parseInt(columnStr, 10) : undefined;
+      if (fs.existsSync(srcLoc) && typeof line === 'number' && typeof column === 'number') {
+        err.loc = { file: srcLoc, line, column };
+        err.frame = codeFrame(await fs.promises.readFile(srcLoc, 'utf8'), err.loc);
+        err.id = srcLoc;
+        err.message = `${srcLoc}: ${err.message || message}
+${err.frame}
+`;
+      }
+    }
   }
 
   // Generic error (probably from Vite, and already formatted)
@@ -227,7 +256,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
       // HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure
       // `import.meta.hot` is properly handled by Vite
       children: await getHmrScript(),
-      injectTo: 'head',
+      injectTo: 'head-prepend',
     });
   }
 
@@ -269,7 +298,7 @@ export async function ssr(ssrOpts: SSROptions): Promise<string> {
     const [renderers, mod] = await preload(ssrOpts);
     return await render(renderers, mod, ssrOpts); // note(drew): without "await", errors won’t get caught by errorHandler()
   } catch (e: unknown) {
-    await errorHandler(e, ssrOpts.viteServer, ssrOpts.filePath);
+    await errorHandler(e, { viteServer: ssrOpts.viteServer, filePath: ssrOpts.filePath });
     throw e;
   }
 }
