@@ -3,7 +3,7 @@
 example:
 - examples/**/*
 
-action:
+'🚨 action':
 - .github/workflows/**
 
 docs:
