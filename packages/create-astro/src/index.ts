@@ -10,10 +10,10 @@ import { TEMPLATES } from './templates.js';
 import { createConfig } from './config.js';
 
 // NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
-// to no longer require `--` to pass args and instead pass `--` directly to us. This 
-// broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here 
+// to no longer require `--` to pass args and instead pass `--` directly to us. This
+// broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
 // fixes the issue so that create-astro now works on all npm version.
-const cleanArgv = process.argv.filter(arg => arg !== '--')
+const cleanArgv = process.argv.filter((arg) => arg !== '--');
 const args = yargs(cleanArgv);
 prompts.override(args);
 
