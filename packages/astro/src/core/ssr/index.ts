@@ -225,7 +225,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
     tags.push({
       tag: 'script',
       attrs: { type: 'module' },
-      // HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure 
+      // HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure
       // `import.meta.hot` is properly handled by Vite
       children: await getHmrScript(),
       injectTo: 'head',
