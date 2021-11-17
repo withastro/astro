@@ -1,30 +1,30 @@
 'use strict';
 
 var require$$0 = require('events');
-var build = require('./chunks/dep-35df7f96.js');
+var build = require('./chunks/dep-56ab4c22.js');
 var perf_hooks = require('perf_hooks');
 require('fs');
 require('path');
-require('util');
-require('stream');
 require('os');
-require('url');
-require('crypto');
-require('module');
-require('esbuild');
-require('worker_threads');
-require('assert');
-require('child_process');
-require('readline');
-require('zlib');
-require('resolve');
-require('querystring');
 require('tty');
+require('util');
 require('net');
+require('url');
 require('http');
-require('buffer');
+require('stream');
+require('resolve');
+require('module');
 require('https');
+require('zlib');
+require('crypto');
 require('tls');
+require('assert');
+require('buffer');
+require('querystring');
+require('esbuild');
+require('child_process');
+require('worker_threads');
+require('readline');
 
 function toArr(any) {
 	return any == null ? [] : Array.isArray(any) ? any : [any];
@@ -373,7 +373,10 @@ class Command {
         body: commands.map((command) => `  $ ${name}${command.name === "" ? "" : ` ${command.name}`} --help`).join("\n")
       });
     }
-    const options = this.isGlobalCommand ? globalOptions : [...this.options, ...globalOptions || []];
+    let options = this.isGlobalCommand ? globalOptions : [...this.options, ...globalOptions || []];
+    if (!this.isGlobalCommand && !this.isDefaultCommand) {
+      options = options.filter((option) => option.name !== "version");
+    }
     if (options.length > 0) {
       const longestOptionName = findLongest(options.map((option) => option.rawName));
       sections.push({
@@ -550,7 +553,7 @@ class CAC extends require$$0.EventEmitter {
       run = false;
       this.unsetMatchedCommand();
     }
-    if (this.options.version && this.showVersionOnExit) {
+    if (this.options.version && this.showVersionOnExit && this.matchedCommandName == null) {
       this.outputVersion();
       run = false;
       this.unsetMatchedCommand();
@@ -645,8 +648,6 @@ function cleanOptions(options) {
     delete ret['--'];
     delete ret.c;
     delete ret.config;
-    delete ret.r;
-    delete ret.root;
     delete ret.base;
     delete ret.l;
     delete ret.logLevel;
@@ -661,7 +662,6 @@ function cleanOptions(options) {
 }
 cli
     .option('-c, --config <file>', `[string] use specified config file`)
-    .option('-r, --root <path>', `[string] use specified root directory`)
     .option('--base <path>', `[string] public base path (default: /)`)
     .option('-l, --logLevel <level>', `[string] info | warn | error | silent`)
     .option('--clearScreen', `[boolean] allow/disable clear screen when logging`)
@@ -671,7 +671,8 @@ cli
 // dev
 cli
     .command('[root]') // default command
-    .alias('serve')
+    .alias('serve') // the command is called 'serve' in Vite's API
+    .alias('dev') // alias to align with the script name
     .option('--host [host]', `[string] specify hostname`)
     .option('--port <port>', `[number] specify port`)
     .option('--https', `[boolean] use TLS + HTTP/2`)
@@ -682,7 +683,7 @@ cli
     .action(async (root, options) => {
     // output structure is preserved even after bundling so require()
     // is ok here
-    const { createServer } = await Promise.resolve().then(function () { return require('./chunks/dep-35df7f96.js'); }).then(function (n) { return n.index$1; });
+    const { createServer } = await Promise.resolve().then(function () { return require('./chunks/dep-56ab4c22.js'); }).then(function (n) { return n.index$1; });
     try {
         const server = await createServer({
             root,
@@ -731,7 +732,7 @@ cli
     .option('--emptyOutDir', `[boolean] force empty outDir when it's outside of root`)
     .option('-w, --watch', `[boolean] rebuilds when modules have changed on disk`)
     .action(async (root, options) => {
-    const { build: build$1 } = await Promise.resolve().then(function () { return require('./chunks/dep-35df7f96.js'); }).then(function (n) { return n.build$1; });
+    const { build: build$1 } = await Promise.resolve().then(function () { return require('./chunks/dep-56ab4c22.js'); }).then(function (n) { return n.build$1; });
     const buildOptions = cleanOptions(options);
     try {
         await build$1({
@@ -754,7 +755,7 @@ cli
     .command('optimize [root]')
     .option('--force', `[boolean] force the optimizer to ignore the cache and re-bundle`)
     .action(async (root, options) => {
-    const { optimizeDeps } = await Promise.resolve().then(function () { return require('./chunks/dep-35df7f96.js'); }).then(function (n) { return n.index; });
+    const { optimizeDeps } = await Promise.resolve().then(function () { return require('./chunks/dep-56ab4c22.js'); }).then(function (n) { return n.index; });
     try {
         const config = await build.resolveConfig({
             root,
@@ -773,24 +774,25 @@ cli
     .command('preview [root]')
     .option('--host [host]', `[string] specify hostname`)
     .option('--port <port>', `[number] specify port`)
+    .option('--strictPort', `[boolean] exit if specified port is already in use`)
     .option('--https', `[boolean] use TLS + HTTP/2`)
     .option('--open [path]', `[boolean | string] open browser on startup`)
-    .option('--strictPort', `[boolean] exit if specified port is already in use`)
     .action(async (root, options) => {
     try {
-        const config = await build.resolveConfig({
+        const server = await build.preview({
             root,
             base: options.base,
             configFile: options.config,
             logLevel: options.logLevel,
-            server: {
-                open: options.open,
+            preview: {
+                port: options.port,
                 strictPort: options.strictPort,
-                https: options.https
+                host: options.host,
+                https: options.https,
+                open: options.open
             }
-        }, 'serve', 'production');
-        const server = await build.preview(config, cleanOptions(options));
-        build.printHttpServerUrls(server, config);
+        });
+        server.printUrls();
     }
     catch (e) {
         build.createLogger(options.logLevel).error(build.source.red(`error when starting preview server:\n${e.stack}`), { error: e });

@@ -12,11 +12,11 @@ import { EventEmitter } from 'events';
 import * as events from 'events';
 import * as fs from 'fs';
 import * as http from 'http';
-import * as https from 'https';
 import { IncomingMessage } from 'http';
 import { InputOptions } from 'rollup';
 import { LoadResult } from 'rollup';
 import { ModuleFormat } from 'rollup';
+import { ModuleInfo } from 'rollup';
 import * as net from 'net';
 import { OutgoingHttpHeaders } from 'http';
 import { OutputBundle } from 'rollup';
@@ -33,8 +33,9 @@ import { RollupOutput } from 'rollup';
 import { RollupWatcher } from 'rollup';
 import { SecureContextOptions } from 'tls';
 import { Server } from 'http';
-import { Server as Server_2 } from 'https';
-import { Server as Server_3 } from 'net';
+import { Server as Server_2 } from 'net';
+import { Server as Server_3 } from 'https';
+import { ServerOptions as ServerOptions_2 } from 'https';
 import { ServerResponse } from 'http';
 import { Socket } from 'net';
 import { SourceDescription } from 'rollup';
@@ -46,6 +47,7 @@ import { TransformResult as TransformResult_3 } from 'rollup';
 import { URL } from 'url';
 import * as url from 'url';
 import { WatcherOptions } from 'rollup';
+import { WebSocketServer as WebSocketServer_2 } from 'ws';
 import { ZlibOptions } from 'zlib';
 
 export declare interface Alias {
@@ -253,6 +255,63 @@ export declare interface BuildOptions {
      * https://rollupjs.org/guide/en/#watchoptions
      */
     watch?: WatcherOptions | null;
+}
+
+export declare interface CommonServerOptions {
+    /**
+     * Specify server port. Note if the port is already being used, Vite will
+     * automatically try the next available port so this may not be the actual
+     * port the server ends up listening on.
+     */
+    port?: number;
+    /**
+     * If enabled, vite will exit if specified port is already in use
+     */
+    strictPort?: boolean;
+    /**
+     * Specify which IP addresses the server should listen on.
+     * Set to 0.0.0.0 to listen on all addresses, including LAN and public addresses.
+     */
+    host?: string | boolean;
+    /**
+     * Enable TLS + HTTP/2.
+     * Note: this downgrades to TLS only when the proxy option is also used.
+     */
+    https?: boolean | ServerOptions_2;
+    /**
+     * Open browser window on startup
+     */
+    open?: boolean | string;
+    /**
+     * Configure custom proxy rules for the dev server. Expects an object
+     * of `{ key: options }` pairs.
+     * Uses [`http-proxy`](https://github.com/http-party/node-http-proxy).
+     * Full options [here](https://github.com/http-party/node-http-proxy#options).
+     *
+     * Example `vite.config.js`:
+     * ``` js
+     * module.exports = {
+     *   proxy: {
+     *     // string shorthand
+     *     '/foo': 'http://localhost:4567/foo',
+     *     // with options
+     *     '/api': {
+     *       target: 'http://jsonplaceholder.typicode.com',
+     *       changeOrigin: true,
+     *       rewrite: path => path.replace(/^\/api/, '')
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    proxy?: Record<string, string | ProxyOptions>;
+    /**
+     * Configure CORS for the dev server.
+     * Uses https://github.com/expressjs/cors.
+     * Set to `true` to allow all methods from any origin, or configure separately
+     * using an object.
+     */
+    cors?: CorsOptions | boolean;
 }
 
 export declare interface ConfigEnv {
@@ -516,21 +575,28 @@ export declare interface FileSystemServeOptions {
      * Strictly restrict file accessing outside of allowing paths.
      *
      * Set to `false` to disable the warning
-     * Default to false at this moment, will enabled by default in the future versions.
      *
-     * @experimental
-     * @default undefined
+     * @default true
      */
-    strict?: boolean | undefined;
+    strict?: boolean;
     /**
      * Restrict accessing files outside the allowed directories.
      *
      * Accepts absolute path or a path relative to project root.
      * Will try to search up for workspace root by default.
+     */
+    allow?: string[];
+    /**
+     * Restrict accessing files that matches the patterns.
+     *
+     * This will have higher priority than `allow`.
+     * Glob patterns are supported.
+     *
+     * @default ['.env', '.env.*', '*.crt', '*.pem']
      *
      * @experimental
      */
-    allow?: string[];
+    deny?: string[];
 }
 
 export declare interface FSWatcher extends fs.FSWatcher {
@@ -916,7 +982,10 @@ export declare interface InternalResolveOptions extends ResolveOptions {
     tryPrefix?: string;
     skipPackageJson?: boolean;
     preferRelative?: boolean;
+    preserveSymlinks?: boolean;
     isRequire?: boolean;
+    isFromTsImporter?: boolean;
+    tryEsmOnly?: boolean;
 }
 
 export declare interface JsonOptions {
@@ -997,12 +1066,12 @@ export declare type Matcher = AnymatchPattern | AnymatchPattern[]
 export declare function mergeConfig(a: Record<string, any>, b: Record<string, any>, isRoot?: boolean): Record<string, any>;
 
 export declare class ModuleGraph {
+    private resolveId;
     urlToModuleMap: Map<string, ModuleNode>;
     idToModuleMap: Map<string, ModuleNode>;
     fileToModulesMap: Map<string, Set<ModuleNode>>;
     safeModulesPath: Set<string>;
-    container: PluginContainer;
-    constructor(container: PluginContainer);
+    constructor(resolveId: (url: string) => Promise<PartialResolvedId | null>);
     getModuleByUrl(rawUrl: string): Promise<ModuleNode | undefined>;
     getModuleById(id: string): ModuleNode | undefined;
     getModulesByFile(file: string): Set<ModuleNode> | undefined;
@@ -1017,7 +1086,7 @@ export declare class ModuleGraph {
     updateModuleInfo(mod: ModuleNode, importedModules: Set<string | ModuleNode>, acceptedModules: Set<string | ModuleNode>, isSelfAccepting: boolean): Promise<Set<ModuleNode> | undefined>;
     ensureEntryFromUrl(rawUrl: string): Promise<ModuleNode>;
     createFileOnlyEntry(file: string): ModuleNode;
-    resolveUrl(url: string): Promise<[string, string]>;
+    resolveUrl(url: string): Promise<ResolvedUrl>;
 }
 
 export declare class ModuleNode {
@@ -1031,6 +1100,8 @@ export declare class ModuleNode {
     id: string | null;
     file: string | null;
     type: 'js' | 'css';
+    info?: ModuleInfo;
+    meta?: Record<string, any>;
     importers: Set<ModuleNode>;
     importedModules: Set<ModuleNode>;
     acceptedHmrDeps: Set<ModuleNode>;
@@ -1164,17 +1235,31 @@ export declare interface Plugin extends Plugin_2 {
      */
     resolveId?(this: PluginContext, source: string, importer: string | undefined, options: {
         custom?: CustomPluginOptions;
-    }, ssr?: boolean): Promise<ResolveIdResult> | ResolveIdResult;
-    load?(this: PluginContext, id: string, ssr?: boolean): Promise<LoadResult> | LoadResult;
-    transform?(this: TransformPluginContext, code: string, id: string, ssr?: boolean): Promise<TransformResult_3> | TransformResult_3;
+        ssr?: boolean;
+    }): Promise<ResolveIdResult> | ResolveIdResult;
+    load?(this: PluginContext, id: string, options?: {
+        ssr?: boolean;
+    }): Promise<LoadResult> | LoadResult;
+    transform?(this: TransformPluginContext, code: string, id: string, options?: {
+        ssr?: boolean;
+    }): Promise<TransformResult_3> | TransformResult_3;
 }
 
 export declare interface PluginContainer {
     options: InputOptions;
+    getModuleInfo(id: string): ModuleInfo | null;
     buildStart(options: InputOptions): Promise<void>;
-    resolveId(id: string, importer?: string, skip?: Set<Plugin>, ssr?: boolean): Promise<PartialResolvedId | null>;
-    transform(code: string, id: string, inMap?: SourceDescription['map'], ssr?: boolean): Promise<SourceDescription | null>;
-    load(id: string, ssr?: boolean): Promise<LoadResult | null>;
+    resolveId(id: string, importer?: string, options?: {
+        skip?: Set<Plugin>;
+        ssr?: boolean;
+    }): Promise<PartialResolvedId | null>;
+    transform(code: string, id: string, options?: {
+        inMap?: SourceDescription['map'];
+        ssr?: boolean;
+    }): Promise<SourceDescription | null>;
+    load(id: string, options?: {
+        ssr?: boolean;
+    }): Promise<LoadResult | null>;
     close(): Promise<void>;
 }
 
@@ -1186,9 +1271,30 @@ export declare type PluginOption = Plugin | false | null | undefined;
  * @param serverOptions - what host and port to use
  * @experimental
  */
-export declare function preview(config: ResolvedConfig, serverOptions: Pick<ServerOptions, 'port' | 'host'>): Promise<Server>;
+export declare function preview(inlineConfig: InlineConfig): Promise<PreviewServer>;
 
-export declare function printHttpServerUrls(server: Server_3, config: ResolvedConfig): void;
+export declare interface PreviewOptions extends CommonServerOptions {
+}
+
+export declare interface PreviewServer {
+    /**
+     * The resolved vite config object
+     */
+    config: ResolvedConfig;
+    /**
+     * native Node http server instance
+     */
+    httpServer: Server;
+    /**
+     * Print server urls
+     */
+    printUrls: () => void;
+}
+
+/**
+ * @deprecated Use `server.printUrls()` instead
+ */
+export declare function printHttpServerUrls(server: Server_2, config: ResolvedConfig): void;
 
 export declare interface ProxyOptions extends HttpProxy.ServerOptions {
     /**
@@ -1231,15 +1337,25 @@ export declare type ResolvedConfig = Readonly<Omit<UserConfig, 'plugins' | 'alia
     plugins: readonly Plugin[];
     server: ResolvedServerOptions;
     build: ResolvedBuildOptions;
+    preview: ResolvedPreviewOptions;
     assetsInclude: (file: string) => boolean;
     logger: Logger;
     createResolver: (options?: Partial<InternalResolveOptions>) => ResolveFn;
     optimizeDeps: Omit<DepOptimizationOptions, 'keepNames'>;
 }>;
 
+export declare interface ResolvedPreviewOptions extends PreviewOptions {
+}
+
 export declare interface ResolvedServerOptions extends ServerOptions {
     fs: Required<FileSystemServeOptions>;
 }
+
+export declare type ResolvedUrl = [
+url: string,
+resolvedId: string,
+meta: object | null | undefined
+];
 
 export declare function resolveEnvPrefix({ envPrefix }: UserConfig): string[];
 
@@ -1255,7 +1371,7 @@ export declare interface ResolveOptions {
 
 export declare function resolvePackageData(id: string, basedir: string, preserveSymlinks?: boolean): PackageData | undefined;
 
-export declare function resolvePackageEntry(id: string, { dir, data, setResolvedCache, getResolvedCache }: PackageData, options: InternalResolveOptions, targetWeb: boolean, preserveSymlinks?: boolean): string | undefined;
+export declare function resolvePackageEntry(id: string, { dir, data, setResolvedCache, getResolvedCache }: PackageData, targetWeb: boolean, options: InternalResolveOptions): string | undefined;
 
 export declare type ResolverFunction = PluginHooks['resolveId']
 
@@ -1273,7 +1389,7 @@ export declare interface ResolverObject {
  */
 export declare interface RollupCommonJSOptions {
     /**
-     * A minimatch pattern, or array of patterns, which specifies the files in
+     * A picomatch pattern, or array of patterns, which specifies the files in
      * the build the plugin should operate on. By default, all files with
      * extension `".cjs"` or those in `extensions` are included, but you can narrow
      * this list by only including specific files. These files will be analyzed
@@ -1283,7 +1399,7 @@ export declare interface RollupCommonJSOptions {
      */
     include?: string | RegExp | readonly (string | RegExp)[]
     /**
-     * A minimatch pattern, or array of patterns, which specifies the files in
+     * A picomatch pattern, or array of patterns, which specifies the files in
      * the build the plugin should _ignore_. By default, all files with
      * extensions other than those in `extensions` or `".cjs"` are ignored, but you
      * can exclude additional files. See also the `include` option.
@@ -1337,6 +1453,26 @@ export declare interface RollupCommonJSOptions {
      * @default []
      */
     ignore?: ReadonlyArray<string> | ((id: string) => boolean)
+    /**
+     * In most cases, where `require` calls are inside a `try-catch` clause,
+     * they should be left unconverted as it requires an optional dependency
+     * that may or may not be installed beside the rolled up package.
+     * Due to the conversion of `require` to a static `import` - the call is hoisted
+     * to the top of the file, outside of the `try-catch` clause.
+     *
+     * - `true`: All `require` calls inside a `try` will be left unconverted.
+     * - `false`: All `require` calls inside a `try` will be converted as if the `try-catch` clause is not there.
+     * - `remove`: Remove all `require` calls from inside any `try` block.
+     * - `string[]`: Pass an array containing the IDs to left unconverted.
+     * - `((id: string) => boolean|'remove')`: Pass a function that control individual IDs.
+     *
+     * @default false
+     */
+    ignoreTryCatch?:
+    | boolean
+    | 'remove'
+    | ReadonlyArray<string>
+    | ((id: string) => boolean | 'remove')
     /**
      * Controls how to render imports from external dependencies. By default,
      * this plugin assumes that all external dependencies are CommonJS. This
@@ -1454,18 +1590,7 @@ export declare function send(req: IncomingMessage, res: ServerResponse, content:
 
 export declare type ServerHook = (server: ViteDevServer) => (() => void) | void | Promise<(() => void) | void>;
 
-export declare interface ServerOptions {
-    host?: string | boolean;
-    port?: number;
-    /**
-     * Enable TLS + HTTP/2.
-     * Note: this downgrades to TLS only when the proxy option is also used.
-     */
-    https?: boolean | https.ServerOptions;
-    /**
-     * Open browser window on startup
-     */
-    open?: boolean | string;
+export declare interface ServerOptions extends CommonServerOptions {
     /**
      * Force dep pre-optimization regardless of whether deps have changed.
      */
@@ -1479,40 +1604,6 @@ export declare interface ServerOptions {
      * https://github.com/paulmillr/chokidar#api
      */
     watch?: WatchOptions;
-    /**
-     * Configure custom proxy rules for the dev server. Expects an object
-     * of `{ key: options }` pairs.
-     * Uses [`http-proxy`](https://github.com/http-party/node-http-proxy).
-     * Full options [here](https://github.com/http-party/node-http-proxy#options).
-     *
-     * Example `vite.config.js`:
-     * ``` js
-     * module.exports = {
-     *   proxy: {
-     *     // string shorthand
-     *     '/foo': 'http://localhost:4567/foo',
-     *     // with options
-     *     '/api': {
-     *       target: 'http://jsonplaceholder.typicode.com',
-     *       changeOrigin: true,
-     *       rewrite: path => path.replace(/^\/api/, '')
-     *     }
-     *   }
-     * }
-     * ```
-     */
-    proxy?: Record<string, string | ProxyOptions>;
-    /**
-     * Configure CORS for the dev server.
-     * Uses https://github.com/expressjs/cors.
-     * Set to `true` to allow all methods from any origin, or configure separately
-     * using an object.
-     */
-    cors?: CorsOptions | boolean;
-    /**
-     * If enabled, vite will exit if specified port is already in use
-     */
-    strictPort?: boolean;
     /**
      * Create Vite dev server to be used as a middleware in an existing server
      */
@@ -1823,6 +1914,10 @@ export declare interface UserConfig {
      * Build specific options
      */
     build?: BuildOptions;
+    /**
+     * Preview specific options, e.g. host, port, https...
+     */
+    preview?: PreviewOptions;
     /**
      * Dep optimization options
      */
@@ -2455,7 +2550,7 @@ export declare namespace WebSocket {
         host?: string | undefined
         port?: number | undefined
         backlog?: number | undefined
-        server?: Server | Server_2 | undefined
+        server?: Server | Server_3 | undefined
         verifyClient?:
         | VerifyClientCallbackAsync
         | VerifyClientCallbackSync
@@ -2571,8 +2666,8 @@ export declare namespace WebSocket {
 }
 
 export declare interface WebSocketServer {
-    on: WebSocket.Server['on'];
-    off: WebSocket.Server['off'];
+    on: WebSocketServer_2['on'];
+    off: WebSocketServer_2['off'];
     send(payload: HMRPayload): void;
     close(): Promise<void>;
 }
