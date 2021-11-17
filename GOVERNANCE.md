@@ -214,6 +214,30 @@ This process kicks off once a valid nomination has been made. See ["Maintainer -
 8. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
 9. **If the vote fails:** the project Steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
 
+
+#### Draft message to send to accepted maintainer, informing them of the decision:
+
+```
+Hey ${NAME}!
+
+**I have some exciting news — you've been given the role of L2 Contributor (aka Maintainer/Moderator) in the Astro community!**
+
+Some background: I nominated you for the role in the (private) #maintainers channel, and the consensus was overwhelmingly positive. Some quotes from the nomination thread that sum up the impact you've already had on the project so far:
+
+- ...
+- ...
+- ...
+
+Thank you for ${1 SENTENCE DESCRIPTION OF CONTRIBUTIONS}. Your impact has definitely been felt and we would be thrilled to have your help building a healthy future for Astro! There is no required time commitment: you can continue to contribute as often or as little as you'd like. This is mainly a chance to recognize your contributions and give you more privileges in Discord and GitHub.
+
+Please let me know if you’re interested in accepting this invitation. If so, we’ll start getting your roles up to date. And if you have any questions, feel free to let me know.
+
+Best,
+${MY_NAME}
+
+*PS: As a reminder, our Governance document describes the following privileges and responsibilities for the  **L2 - Maintainer** role: https://github.com/snowpackjs/astro/blob/main/GOVERNANCE.md*
+```
+
 ## Voting: Core Maintainer (L3) Nomination
 
 This process kicks off once a valid nomination has been made. See ["Core Maintainer - Nomination Process"](#nomination-process) above for more details on nomination.
@@ -229,6 +253,27 @@ This process kicks off once a valid nomination has been made. See ["Core Maintai
 1. The vote must receive an overwhelming majority (70%+) to pass.
 1. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
 1. **If the vote fails:** the project Steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
+
+
+#### Draft message to send to accepted maintainer, informing them of the decision:
+
+```
+Hey $NAME!
+ 
+I have some exciting news—you’ve been nominated and accepted as a core maintainer of Astro! The core maintainer group held a vote and overwhelmingly agree that you would be a great addition to the team. Congratulations! Thanks for all of your significant contributions to Astro to date and your continued dedication to this project and our community. We would be thrilled to have your help ensuring a healthy future for Astro!
+
+Please let me know if you’re interested in accepting this invitation. If so, we’ll start getting your roles and permissions up to date.
+
+As a reminder, our Governance document describes the following privileges and responsibilities for a **Core Maintainer**:
+
+#### Privileges
+
+$COPY_AND_PASTE_FROM_ABOVE
+
+#### Responsibilities
+
+$COPY_AND_PASTE_FROM_ABOVE
+```
 
 ## Voting: Governance Change
 
@@ -304,6 +349,7 @@ Responses will be determined by the reviewers on the basis of the information ga
 - asking for an apology (private or public)
 - permanent ban from the GitHub org and Discord server
 - revoked contributor status
+
 
 ---
 
