@@ -165,7 +165,7 @@ export const SIDEBAR = {
   it: [
     { text: 'Impostare', header: true },
     { text: 'Come iniziare', link: 'it/getting-started' },
-  ]
+  ],
 };
 
 export const SITE = {
