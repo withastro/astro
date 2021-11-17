@@ -15,7 +15,7 @@ import { resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
 const ALWAYS_EXTERNAL = new Set([
-  ...builtinModules.map(name => `node:${name}`),
+  ...builtinModules.map((name) => `node:${name}`),
   '@sveltejs/vite-plugin-svelte',
   'estree-util-value-to-estree',
   'micromark-util-events-to-acorn',
