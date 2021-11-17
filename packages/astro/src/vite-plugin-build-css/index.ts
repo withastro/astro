@@ -73,7 +73,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
         delete viteCSSPost.generateBundle;
 
         // Move our plugin to be right before this one.
-        const ourIndex = plugins.findIndex(p => p.name === PLUGIN_NAME);
+        const ourIndex = plugins.findIndex((p) => p.name === PLUGIN_NAME);
         const ourPlugin = plugins[ourIndex];
 
         // Remove us from where we are now and place us right before the viteCSSPost plugin
@@ -147,22 +147,17 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
     // Delete CSS chunks so JS is not produced for them.
     generateBundle(opts, bundle) {
-      if(pureCSSChunks.size) {
+      if (pureCSSChunks.size) {
         const pureChunkFilenames = new Set([...pureCSSChunks].map((chunk) => chunk.fileName));
         const emptyChunkFiles = [...pureChunkFilenames]
           .map((file) => path.basename(file))
           .join('|')
-          .replace(/\./g, '\\.')
-        const emptyChunkRE = new RegExp(
-          opts.format === 'es'
-            ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?`
-            : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`,
-          'g'
-        )
+          .replace(/\./g, '\\.');
+        const emptyChunkRE = new RegExp(opts.format === 'es' ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?` : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`, 'g');
 
         for (const [chunkId, chunk] of Object.entries(bundle)) {
           if (chunk.type === 'chunk') {
-            if(pureCSSChunks.has(chunk)) {
+            if (pureCSSChunks.has(chunk)) {
               // Delete pure CSS chunks, these are JavaScript chunks that only import
               // other CSS files, so are empty at the end of bundling.
               delete bundle[chunkId];
@@ -178,8 +173,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
           }
         }
       }
-
-
     },
   };
 }

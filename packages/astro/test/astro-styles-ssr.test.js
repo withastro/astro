@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('Styles SSR', function() {
+describe('Styles SSR', function () {
   this.timeout(5000);
 
   let fixture;
