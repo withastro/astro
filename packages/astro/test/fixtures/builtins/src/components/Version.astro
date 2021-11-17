@@ -1,5 +1,5 @@
 ---
-import fs from 'node:fs/promises';
+import { promises as fs } from 'node:fs';
 
 const url = new URL('../../package.json', import.meta.url);
 const json = await fs.readFile(url, 'utf-8');
