@@ -1,8 +1,7 @@
-import type { RenderedChunk, TransformPluginContext } from 'rollup';
-import type { Plugin as VitePlugin } from '../core/vite';
+import type { RenderedChunk } from 'rollup';
+import { Plugin as VitePlugin } from '../core/vite';
 
 import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
-import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import * as path from 'path';
 import esbuild from 'esbuild';
 
@@ -56,28 +55,27 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
   const { astroPageStyleMap, astroStyleMap, chunkToReferenceIdMap, pureCSSChunks } = options;
   const styleSourceMap = new Map<string, string>();
 
-  let viteTransform: TransformHook;
-  let vueTransform: VitePlugin['transform'] | undefined;
-
   return {
     name: PLUGIN_NAME,
 
-    enforce: 'pre',
-
     configResolved(resolvedConfig) {
-      viteTransform = getViteTransform(resolvedConfig);
 
-      const viteCSSPost = resolvedConfig.plugins.find((p) => p.name === 'vite:css-post');
-      if (viteCSSPost) {
+      const plugins = resolvedConfig.plugins as VitePlugin[];
+      const viteCSSPostIndex = resolvedConfig.plugins.findIndex((p) => p.name === 'vite:css-post');
+      if (viteCSSPostIndex !== -1) {
+        const viteCSSPost = plugins[viteCSSPostIndex];
         // Prevent this plugin's bundling behavior from running since we need to
         // do that ourselves in order to handle updating the HTML.
         delete viteCSSPost.renderChunk;
         delete viteCSSPost.generateBundle;
-      }
 
-      const viteVue = resolvedConfig.plugins.find((p) => p.name === 'vite:vue');
-      if(viteVue) {
-        vueTransform = viteVue.transform;
+        // Move our plugin to be right before this one.
+        const ourIndex = plugins.findIndex(p => p.name === PLUGIN_NAME);
+        const ourPlugin = plugins[ourIndex];
+
+        // Remove us from where we are now and place us right before the viteCSSPost plugin
+        plugins.splice(ourIndex, 1);
+        plugins.splice(viteCSSPostIndex - 1, 0, ourPlugin);
       }
     },
 
@@ -108,31 +106,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
         return null;
       }
 
-      // Vue scoped styles need to go through the Vue plugin.
-      let [,rawQuery] = id.split('?', 2);
-      let shouldTransformVueScoped = false;
-      if(rawQuery) {
-        const params = new URLSearchParams(rawQuery);
-        shouldTransformVueScoped = params.has('vue') && params.has('scoped');
-      }
-      if(shouldTransformVueScoped && vueTransform) {
-        let result = await vueTransform.call(this, value, id);
-        if(result) {
-          let code = result;
-          if(typeof result === 'object' && typeof result.code === 'string') {
-            code = result.code;
-          }
-          styleSourceMap.set(id, code as string);
-        }
-      } else if (isCSSRequest(id)) {
-        let result = await viteTransform.call(this, value, id);
-        if (result) {
-          styleSourceMap.set(id, result.code);
-        } else {
-          styleSourceMap.set(id, value);
-        }
-
-        return result;
+      if (isCSSRequest(id)) {
+        styleSourceMap.set(id, value);
       }
 
       return null;
