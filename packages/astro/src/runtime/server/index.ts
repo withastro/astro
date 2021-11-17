@@ -145,7 +145,13 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   }
   const probableRendererNames = guessRenderers(metadata.componentUrl);
 
-  if (Array.isArray(renderers) && renderers.length === 0) {
+  /** Type of value for `Component`, distinguishing `null` from an `object` reference. */
+  const typeOfComponent = Component === null ? 'null' : typeof Component;
+
+  /** Whether `Component` requires a renderer to be displayed. */
+  const isRenderRequiredComponent = renderers.length === 0 && (typeOfComponent === 'function' || typeOfComponent === 'object');
+
+  if (isRenderRequiredComponent) {
     const message = `Unable to render ${metadata.displayName}! 
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
