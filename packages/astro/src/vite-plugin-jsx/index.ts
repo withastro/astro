@@ -68,21 +68,18 @@ async function transformJSX({ code, mode, id, ssr, renderer }: TransformJSXOptio
   const { jsxTransformOptions } = renderer;
   const options = await jsxTransformOptions!({ mode, ssr });
   const plugins = [...(options.plugins || [])];
-  const result = await babel.transformAsync(
-    code,
-    {
-      presets: options.presets,
-      plugins,
-      cwd: process.cwd(),
-      filename: id,
-      ast: false,
-      compact: false,
-      sourceMaps: true,
-      configFile: false,
-      babelrc: false,
-    }
-  );
-  // TODO: Be more strict about bad return values here. 
+  const result = await babel.transformAsync(code, {
+    presets: options.presets,
+    plugins,
+    cwd: process.cwd(),
+    filename: id,
+    ast: false,
+    compact: false,
+    sourceMaps: true,
+    configFile: false,
+    babelrc: false,
+  });
+  // TODO: Be more strict about bad return values here.
   // Should we throw an error instead? Should we never return `{code: ""}`?
   if (!result) return null;
   return {
