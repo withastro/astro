@@ -2166,10 +2166,10 @@
     "@unocss/inspector" "0.15.6"
     "@unocss/scope" "0.15.6"
 
-"@vitejs/plugin-vue@^1.9.4":
-  version "1.10.2"
-  resolved "https://registry.yarnpkg.com/@vitejs/plugin-vue/-/plugin-vue-1.10.2.tgz#d718479e2789d8a94b63e00f23f1898ba239253a"
-  integrity sha512-/QJ0Z9qfhAFtKRY+r57ziY4BSbGUTGsPRMpB/Ron3QPwBZM4OZAZHdTa4a8PafCwU5DTatXG8TMDoP8z+oDqJw==
+"@vitejs/plugin-vue@^1.10.0-beta.0":
+  version "1.10.0-beta.0"
+  resolved "https://registry.yarnpkg.com/@vitejs/plugin-vue/-/plugin-vue-1.10.0-beta.0.tgz#6c5619482c51e2748b19e0e0d8c855e1aa01b893"
+  integrity sha512-HVdqMh9Bi9Wdk9YN5ho+VlBTxmZFWO2LCM/856pSlRK2qN2i7O2mFHFVAjTCRLtZjBpOwwB6W9RkKem4Q7oiwg==
 
 "@vue/compiler-core@3.2.26":
   version "3.2.26"
@@ -2189,7 +2189,7 @@
     "@vue/compiler-core" "3.2.26"
     "@vue/shared" "3.2.26"
 
-"@vue/compiler-sfc@3.2.26":
+"@vue/compiler-sfc@3.2.26", "@vue/compiler-sfc@^3.2.22":
   version "3.2.26"
   resolved "https://registry.yarnpkg.com/@vue/compiler-sfc/-/compiler-sfc-3.2.26.tgz#3ce76677e4aa58311655a3bea9eb1cb804d2273f"
   integrity sha512-ePpnfktV90UcLdsDQUh2JdiTuhV0Skv2iYXxfNMOK/F3Q+2BO0AulcVcfoksOpTJGmhhfosWfMyEaEf0UaWpIw==
@@ -2248,7 +2248,7 @@
     "@vue/shared" "3.2.26"
     csstype "^2.6.8"
 
-"@vue/server-renderer@3.2.26":
+"@vue/server-renderer@3.2.26", "@vue/server-renderer@^3.2.22":
   version "3.2.26"
   resolved "https://registry.yarnpkg.com/@vue/server-renderer/-/server-renderer-3.2.26.tgz#f16a4b9fbcc917417b4cea70c99afce2701341cf"
   integrity sha512-Jp5SggDUvvUYSBIvYEhy76t4nr1vapY/FIFloWmQzn7UxqaHrrBpbxrqPcTrSgGrcaglj0VBp22BKJNre4aA1w==
