@@ -1,4 +1,4 @@
-import type { RenderedChunk } from 'rollup';
+import type { RenderedChunk, TransformPluginContext } from 'rollup';
 import type { Plugin as VitePlugin } from '../core/vite';
 
 import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
@@ -57,6 +57,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
   const styleSourceMap = new Map<string, string>();
 
   let viteTransform: TransformHook;
+  let vueTransform: VitePlugin['transform'] | undefined;
 
   return {
     name: PLUGIN_NAME,
@@ -72,6 +73,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
         // do that ourselves in order to handle updating the HTML.
         delete viteCSSPost.renderChunk;
         delete viteCSSPost.generateBundle;
+      }
+
+      const viteVue = resolvedConfig.plugins.find((p) => p.name === 'vite:vue');
+      if(viteVue) {
+        vueTransform = viteVue.transform;
       }
     },
 
@@ -101,8 +107,25 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
         styleSourceMap.set(id, value);
         return null;
       }
-      if (isCSSRequest(id)) {
-        let result = await viteTransform(value, id);
+
+      // Vue scoped styles need to go through the Vue plugin.
+      let [,rawQuery] = id.split('?', 2);
+      let shouldTransformVueScoped = false;
+      if(rawQuery) {
+        const params = new URLSearchParams(rawQuery);
+        shouldTransformVueScoped = params.has('vue') && params.has('scoped');
+      }
+      if(shouldTransformVueScoped && vueTransform) {
+        let result = await vueTransform.call(this, value, id);
+        if(result) {
+          let code = result;
+          if(typeof result === 'object' && typeof result.code === 'string') {
+            code = result.code;
+          }
+          styleSourceMap.set(id, code as string);
+        }
+      } else if (isCSSRequest(id)) {
+        let result = await viteTransform.call(this, value, id);
         if (result) {
           styleSourceMap.set(id, result.code);
         } else {
@@ -145,12 +168,40 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
     },
 
     // Delete CSS chunks so JS is not produced for them.
-    generateBundle(_options, bundle) {
-      for (const [chunkId, chunk] of Object.entries(bundle)) {
-        if (chunk.type === 'chunk' && pureCSSChunks.has(chunk)) {
-          delete bundle[chunkId];
+    generateBundle(opts, bundle) {
+      if(pureCSSChunks.size) {
+        const pureChunkFilenames = new Set([...pureCSSChunks].map((chunk) => chunk.fileName));
+        const emptyChunkFiles = [...pureChunkFilenames]
+          .map((file) => path.basename(file))
+          .join('|')
+          .replace(/\./g, '\\.')
+        const emptyChunkRE = new RegExp(
+          opts.format === 'es'
+            ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?`
+            : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`,
+          'g'
+        )
+
+        for (const [chunkId, chunk] of Object.entries(bundle)) {
+          if (chunk.type === 'chunk') {
+            if(pureCSSChunks.has(chunk)) {
+              // Delete pure CSS chunks, these are JavaScript chunks that only import
+              // other CSS files, so are empty at the end of bundling.
+              delete bundle[chunkId];
+            } else {
+              // Remove any pure css chunk imports from JavaScript.
+              // Note that this code comes from Vite's CSS build plugin.
+              chunk.code = chunk.code.replace(
+                emptyChunkRE,
+                // remove css import while preserving source map location
+                (m) => `/* empty css ${''.padEnd(m.length - 15)}*/`
+              );
+            }
+          }
         }
       }
+
+
     },
   };
 }
