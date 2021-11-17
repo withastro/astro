@@ -30,7 +30,7 @@ async function _render(child: any): Promise<any> {
   }
   // Add a comment explaining why each of these are needed.
   // Maybe create clearly named function for what this is doing.
-  else if (child instanceof AstroComponent || child.toString() === '[object AstroComponent]') {
+  else if (child instanceof AstroComponent || Object.prototype.toString.call(child) === '[object AstroComponent]') {
     return await renderAstroComponent(child);
   } else {
     return child;
