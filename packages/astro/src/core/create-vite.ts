@@ -22,7 +22,7 @@ const ALWAYS_EXTERNAL = new Set([
   'shiki',
   'shorthash',
   'unified',
-  'whatwg-url',
+  'whatwg-url'
 ]);
 const ALWAYS_NOEXTERNAL = new Set([
   'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
