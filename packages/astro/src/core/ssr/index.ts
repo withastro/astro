@@ -225,7 +225,9 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
     tags.push({
       tag: 'script',
       attrs: { type: 'module' },
-      children: `import 'astro/runtime/client/hmr.js';`,
+      // HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure 
+      // `import.meta.hot` is properly handled by Vite
+      children: await getHmrScript(),
       injectTo: 'head',
     });
   }
@@ -253,6 +255,15 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
   }
 
   return html;
+}
+
+let hmrScript: string;
+async function getHmrScript() {
+  if (hmrScript) return hmrScript;
+  const filePath = fileURLToPath(new URL('../../runtime/client/hmr.js', import.meta.url));
+  const content = await fs.promises.readFile(filePath);
+  hmrScript = content.toString();
+  return hmrScript;
 }
 
 export async function ssr(ssrOpts: SSROptions): Promise<string> {
