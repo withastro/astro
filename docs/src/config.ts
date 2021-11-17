@@ -162,6 +162,10 @@ export const SIDEBAR = {
     { text: 'Начало работы', link: 'ru/getting-started' },
     { text: 'Быстрый старт', link: 'ru/quick-start' },
   ],
+  it: [
+    { text: 'Impostare', header: true },
+    { text: 'Come iniziare', link: 'it/getting-started' },
+  ]
 };
 
 export const SITE = {
