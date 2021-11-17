@@ -59,7 +59,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
     name: PLUGIN_NAME,
 
     configResolved(resolvedConfig) {
-
+      // Our plugin needs to run before `vite:css-post` which does a lot of what we do
+      // for bundling CSS, but since we need to control CSS we should go first.
+      // We move to right before the vite:css-post plugin so that things like the
+      // Vue plugin go before us.
       const plugins = resolvedConfig.plugins as VitePlugin[];
       const viteCSSPostIndex = resolvedConfig.plugins.findIndex((p) => p.name === 'vite:css-post');
       if (viteCSSPostIndex !== -1) {
