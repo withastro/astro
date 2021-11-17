@@ -39,6 +39,7 @@
     "@example/subpath": "0.0.1"
   },
   "changesets": [
+    "beige-hairs-design",
     "beige-kings-listen",
     "bright-glasses-jump",
     "curvy-glasses-rest",
@@ -46,11 +47,14 @@
     "dull-bikes-doubt",
     "dull-steaks-dance",
     "giant-shirts-sing",
+    "heavy-boxes-deliver",
     "little-dogs-help",
     "many-donkeys-report",
     "pink-trainers-learn",
     "polite-ladybugs-train",
     "quick-cheetahs-itch",
+    "real-cats-act",
+    "serious-knives-hug",
     "shaggy-guests-type",
     "silly-apples-build",
     "silly-peas-battle",
