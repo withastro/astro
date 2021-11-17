@@ -1,8 +1,7 @@
 import type { RenderedChunk } from 'rollup';
-import type { Plugin as VitePlugin } from '../core/vite';
+import { Plugin as VitePlugin } from '../core/vite';
 
 import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
-import { getViteTransform, TransformHook } from '../vite-plugin-astro/styles.js';
 import * as path from 'path';
 import esbuild from 'esbuild';
 
@@ -56,22 +55,30 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
   const { astroPageStyleMap, astroStyleMap, chunkToReferenceIdMap, pureCSSChunks } = options;
   const styleSourceMap = new Map<string, string>();
 
-  let viteTransform: TransformHook;
-
   return {
     name: PLUGIN_NAME,
 
-    enforce: 'pre',
-
     configResolved(resolvedConfig) {
-      viteTransform = getViteTransform(resolvedConfig);
-
-      const viteCSSPost = resolvedConfig.plugins.find((p) => p.name === 'vite:css-post');
-      if (viteCSSPost) {
+      // Our plugin needs to run before `vite:css-post` which does a lot of what we do
+      // for bundling CSS, but since we need to control CSS we should go first.
+      // We move to right before the vite:css-post plugin so that things like the
+      // Vue plugin go before us.
+      const plugins = resolvedConfig.plugins as VitePlugin[];
+      const viteCSSPostIndex = resolvedConfig.plugins.findIndex((p) => p.name === 'vite:css-post');
+      if (viteCSSPostIndex !== -1) {
+        const viteCSSPost = plugins[viteCSSPostIndex];
         // Prevent this plugin's bundling behavior from running since we need to
         // do that ourselves in order to handle updating the HTML.
         delete viteCSSPost.renderChunk;
         delete viteCSSPost.generateBundle;
+
+        // Move our plugin to be right before this one.
+        const ourIndex = plugins.findIndex(p => p.name === PLUGIN_NAME);
+        const ourPlugin = plugins[ourIndex];
+
+        // Remove us from where we are now and place us right before the viteCSSPost plugin
+        plugins.splice(ourIndex, 1);
+        plugins.splice(viteCSSPostIndex - 1, 0, ourPlugin);
       }
     },
 
@@ -101,15 +108,9 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
         styleSourceMap.set(id, value);
         return null;
       }
-      if (isCSSRequest(id)) {
-        let result = await viteTransform(value, id);
-        if (result) {
-          styleSourceMap.set(id, result.code);
-        } else {
-          styleSourceMap.set(id, value);
-        }
 
-        return result;
+      if (isCSSRequest(id)) {
+        styleSourceMap.set(id, value);
       }
 
       return null;
@@ -145,12 +146,40 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
     },
 
     // Delete CSS chunks so JS is not produced for them.
-    generateBundle(_options, bundle) {
-      for (const [chunkId, chunk] of Object.entries(bundle)) {
-        if (chunk.type === 'chunk' && pureCSSChunks.has(chunk)) {
-          delete bundle[chunkId];
+    generateBundle(opts, bundle) {
+      if(pureCSSChunks.size) {
+        const pureChunkFilenames = new Set([...pureCSSChunks].map((chunk) => chunk.fileName));
+        const emptyChunkFiles = [...pureChunkFilenames]
+          .map((file) => path.basename(file))
+          .join('|')
+          .replace(/\./g, '\\.')
+        const emptyChunkRE = new RegExp(
+          opts.format === 'es'
+            ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?`
+            : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`,
+          'g'
+        )
+
+        for (const [chunkId, chunk] of Object.entries(bundle)) {
+          if (chunk.type === 'chunk') {
+            if(pureCSSChunks.has(chunk)) {
+              // Delete pure CSS chunks, these are JavaScript chunks that only import
+              // other CSS files, so are empty at the end of bundling.
+              delete bundle[chunkId];
+            } else {
+              // Remove any pure css chunk imports from JavaScript.
+              // Note that this code comes from Vite's CSS build plugin.
+              chunk.code = chunk.code.replace(
+                emptyChunkRE,
+                // remove css import while preserving source map location
+                (m) => `/* empty css ${''.padEnd(m.length - 15)}*/`
+              );
+            }
+          }
         }
       }
+
+
     },
   };
 }
