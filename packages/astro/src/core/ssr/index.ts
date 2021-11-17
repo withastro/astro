@@ -23,7 +23,7 @@ import path from 'path';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
-import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyPath } from '../util.js';
+import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyURL } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
@@ -119,8 +119,7 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
   // Important: This needs to happen first, in case a renderer provides polyfills.
   const renderers = await resolveRenderers(viteServer, astroConfig);
   // Load the module from the Vite SSR Runtime.
-  const viteFriendlyURL = viteifyPath(filePath.pathname);
-  const mod = (await viteServer.ssrLoadModule(viteFriendlyURL)) as ComponentInstance;
+  const mod = (await viteServer.ssrLoadModule(viteifyURL(filePath))) as ComponentInstance;
 
   return [renderers, mod];
 }
@@ -250,8 +249,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
   // run transformIndexHtml() in dev to run Vite dev transformations
   if (mode === 'development') {
-    const viteFilePath = slash(fileURLToPath(filePath)); // Vite Windows fix: URLs on Windows have forward slashes (not .pathname, which has a leading '/' on Windows)
-    html = await viteServer.transformIndexHtml(viteFilePath, html, pathname);
+    html = await viteServer.transformIndexHtml(viteifyURL(filePath), html, pathname);
   }
 
   return html;
@@ -269,7 +267,7 @@ async function getHmrScript() {
 export async function ssr(ssrOpts: SSROptions): Promise<string> {
   try {
     const [renderers, mod] = await preload(ssrOpts);
-    return render(renderers, mod, ssrOpts);
+    return await render(renderers, mod, ssrOpts); // note(drew): without "await", errors won’t get caught by errorHandler()
   } catch (e: unknown) {
     await errorHandler(e, ssrOpts.viteServer, ssrOpts.filePath);
     throw e;
