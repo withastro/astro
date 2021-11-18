@@ -37,6 +37,8 @@ function* render(tagName, attrs, children) {
     }
   }
 
+  instance.connectedCallback();
+
   yield `<${tagName}`;
   yield* instance.renderAttributes();
   yield `>`;

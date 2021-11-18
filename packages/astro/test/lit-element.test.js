@@ -46,7 +46,7 @@ describe('LitElement test', () => {
     // by default objects will be stringifed to [object Object]
     expect(stripExpressionMarkers($('my-element').html())).to.include(`<div id="data">data: 1</div>`);
 
-    // test ^: reactive properties are not rendered as attributes
+    // test 6: reactive properties are not rendered as attributes
     expect($('my-element').attr('obj')).to.equal(undefined);
     expect($('my-element').attr('bool')).to.equal(undefined);
     expect($('my-element').attr('str')).to.equal(undefined);
