@@ -8,7 +8,6 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import os from 'os';
 import { transform } from '@astrojs/compiler';
-import { decode } from 'sourcemap-codec';
 import { AstroDevServer } from '../core/dev/index.js';
 import { getViteTransform, TransformHook, transformWithVite } from './styles.js';
 
@@ -89,11 +88,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
         }
 
         // Compile `.ts` to `.js`
-        const { code, map } = await esbuild.transform(tsResult.code, {
-          loader: 'ts',
-          sourcemap: 'external',
-          sourcefile: id,
-        });
+        const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
 
         return {
           code,

@@ -119,23 +119,6 @@ ${err.frame}
 `;
     if (pluginName) err.plugin = pluginName;
     throw err;
-  } else if ((e as any).stack) {
-    const err = e as SSRError;
-    const [message, maybeLoc] = err.stack.split('\n');
-    const fileMatch = maybeLoc && maybeLoc.match(/at[^\(]+\(([^\)]+)/);
-    if (fileMatch && fileMatch[1]) {
-      let [srcLoc, lineStr, columnStr] = fileMatch[1].split(':');
-      let line = lineStr ? parseInt(lineStr, 10) : undefined;
-      let column = columnStr ? parseInt(columnStr, 10) : undefined;
-      if (fs.existsSync(srcLoc) && typeof line === 'number' && typeof column === 'number') {
-        err.loc = { file: srcLoc, line, column };
-        err.frame = codeFrame(await fs.promises.readFile(srcLoc, 'utf8'), err.loc);
-        err.id = srcLoc;
-        err.message = `${srcLoc}: ${err.message || message}
-${err.frame}
-`;
-      }
-    }
   }
 
   // Generic error (probably from Vite, and already formatted)
@@ -256,7 +239,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
       // HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure
       // `import.meta.hot` is properly handled by Vite
       children: await getHmrScript(),
-      injectTo: 'head-prepend',
+      injectTo: 'head',
     });
   }
 

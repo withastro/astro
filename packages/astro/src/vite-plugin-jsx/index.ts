@@ -138,6 +138,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
           loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
           jsx: 'preserve',
           sourcefile: id,
+          sourcemap: 'inline',
         });
         return transformJSX({ code: jsxCode, id, renderer: [...jsxRenderers.values()][0], mode, ssr });
       }
@@ -150,6 +151,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
         jsxFactory: 'h',
         jsxFragment: 'Fragment',
         sourcefile: id,
+        sourcemap: 'inline',
       });
 
       let imports: eslexer.ImportSpecifier[] = [];
@@ -194,14 +196,9 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
           loader: getEsbuildLoader(path.extname(id)) as esbuild.Loader,
           jsx: 'preserve',
           sourcefile: id,
+          sourcemap: 'inline',
         });
-        return await transformJSX({
-          code: jsxCode,
-          id,
-          renderer: jsxRenderers.get(importSource) as Renderer,
-          mode,
-          ssr,
-        });
+        return await transformJSX({ code: jsxCode, id, renderer: jsxRenderers.get(importSource) as Renderer, mode, ssr });
       }
 
       // if we still can’t tell, throw error
