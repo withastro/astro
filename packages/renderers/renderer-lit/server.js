@@ -28,8 +28,13 @@ function* render(tagName, attrs, children) {
   const instance = new LitElementRenderer(tagName);
 
   // LitElementRenderer creates a new element instance, so copy over.
+  const Ctr = getCustomElementConstructor(tagName);
   for (let [name, value] of Object.entries(attrs)) {
-    instance.setAttribute(name, value);
+    if (name in Ctr.prototype) {
+      instance.setProperty(name, value);
+    } else {
+      instance.setAttribute(name, value);
+    }
   }
 
   yield `<${tagName}`;
