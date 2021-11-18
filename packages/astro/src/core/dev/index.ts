@@ -26,7 +26,7 @@ export interface DevOptions {
   logging: LogOptions;
 }
 
-interface DevServer {
+export interface DevServer {
   hostname: string;
   port: number;
   server: connect.Server;
@@ -96,7 +96,7 @@ export class AstroDevServer {
       await this.viteServer.close();
     }
     if (this.httpServer) {
-      await promisify(this.httpServer.close)();
+      await promisify(this.httpServer.close.bind(this.httpServer))();
     }
   }
 

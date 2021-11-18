@@ -3,13 +3,25 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { loadConfig } from '../dist/core/config.js';
+import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
+/**
+ * @typedef {import('node-fetch').Response} Response
+ * @typedef {import('../src/core/dev/index').DevServer} DevServer
+ *
+ *
+ * @typedef {Object} Fixture
+ * @property {typeof build} build
+ * @property {(url: string, opts: any) => Promise<Response>} fetch
+ * @property {(path: string) => Promise<string>} readFile
+ * @property {() => Promise<DevServer>} startDevServer
+ */
 
 /**
  * Load Astro fixture
  * @param {Object} inlineConfig Astro config partial (note: must specify projectRoot)
- * @returns {Object} Fixture. Has the following properties:
+ * @returns {Fixture} The fixture. Has the following properties:
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *
  *   Build
@@ -40,6 +52,7 @@ export async function loadFixture(inlineConfig) {
 
   return {
     build: (opts = {}) => build(config, { mode: 'development', logging: 'error', ...opts }),
+    startDevServer: () => dev(config, { logging: 'error' }),
     config,
     fetch: (url, init) => fetch(`http://${config.devOptions.hostname}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
     preview: async (opts = {}) => {
