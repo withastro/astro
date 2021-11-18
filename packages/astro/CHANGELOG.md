@@ -1,5 +1,13 @@
 # astro
 
+## 0.21.0-next.6
+
+### Patch Changes
+
+- dbc49ed6: Fix HMR regression
+- 6b598b24: Fix middleware order
+- 0ce86dfd: Fixes Vue scoped styles when built
+
 ## 0.21.0-next.5
 
 ### Patch Changes
