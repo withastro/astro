@@ -154,7 +154,7 @@ export function getSourcePaths(node: Element) {
   let location: Location = { start: 0, end: 0 };
   const src = getAttribute(node, key);
   if (node.sourceCodeLocation) {
-    let loc = node.sourceCodeLocation.attrs[key];
+    let loc = node.sourceCodeLocation.attrs?.[key];
     if (loc) {
       location.start = loc.startOffset;
       location.end = loc.endOffset;
