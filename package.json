@@ -11,7 +11,7 @@
     "benchmark": "yarn workspace astro run benchmark",
     "build": "yarn build:core",
     "build:one": "lerna run build --scope",
-    "build:all": "lerna run build --scope \"{astro,@astrojs/*}\"",
+    "build:all": "lerna run build --scope \"{astro,create-astro,@astrojs/*}\"",
     "build:core": "lerna run build --scope \"{astro,@astrojs/parser,@astrojs/markdown-remark}\"",
     "dev": "yarn dev:core --parallel --stream",
     "dev:one": "lerna run dev --scope --parallel --stream",

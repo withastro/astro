@@ -20,7 +20,7 @@ prompts.override(args);
 export function mkdirp(dir: string) {
   try {
     fs.mkdirSync(dir, { recursive: true });
-  } catch (e) {
+  } catch (e: any) {
     if (e.code === 'EEXIST') return;
     throw e;
   }
@@ -102,7 +102,7 @@ export async function main() {
     // emitter.on('info', info => { console.log(info.message) });
     console.log(`${green(`>`)} ${gray(`Copying project files...`)}`);
     await emitter.clone(cwd);
-  } catch (err) {
+  } catch (err: any) {
     // degit is compiled, so the stacktrace is pretty noisy. Just report the message.
     console.error(red(err.message));
 
