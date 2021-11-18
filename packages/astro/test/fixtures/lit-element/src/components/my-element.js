@@ -5,7 +5,7 @@ export const tagName = 'my-element';
 export class MyElement extends LitElement {
   static properties = {
     bool: {type: Boolean},
-    str: {type: String},
+    str: {type: String, attribute: 'str-attr'},
     obj: {type: Object},
   }
 
@@ -20,7 +20,7 @@ export class MyElement extends LitElement {
   render() {
     return html`
       <div>Testing...</div>
-      <div id="bool">${this.bool}</div>
+      <div id="bool">${this.bool ? 'A' : 'B'}</div>
       <div id="str">${this.str}</div>
       <div id="data">data: ${this.obj.data}</div>
     `;
