@@ -2,27 +2,25 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('Styles SSR', function () {
-  this.timeout(10000);
+let fixture;
+let index$;
+let bundledCSS;
 
-  let fixture;
-  let index$;
-  let bundledCSS;
-
-  before(async () => {
-    fixture = await loadFixture({
-      projectRoot: './fixtures/astro-styles-ssr/',
-      renderers: ['@astrojs/renderer-react', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
-    });
-    await fixture.build();
-
-    // get bundled CSS (will be hashed, hence DOM query)
-    const html = await fixture.readFile('/index.html');
-    index$ = cheerio.load(html);
-    const bundledCSSHREF = index$('link[rel=stylesheet][href^=assets/]').attr('href');
-    bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
+before(async () => {
+  fixture = await loadFixture({
+    projectRoot: './fixtures/astro-styles-ssr/',
+    renderers: ['@astrojs/renderer-react', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
   });
+  await fixture.build();
 
+  // get bundled CSS (will be hashed, hence DOM query)
+  const html = await fixture.readFile('/index.html');
+  index$ = cheerio.load(html);
+  const bundledCSSHREF = index$('link[rel=stylesheet][href^=assets/]').attr('href');
+  bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
+});
+
+describe('Styles SSR', function () {
   describe('Astro styles', () => {
     it('HTML and CSS scoped correctly', async () => {
       const $ = index$;
