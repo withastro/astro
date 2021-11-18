@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.7-next.1
+
+### Patch Changes
+
+- 6c66d483: Fix issue with v7.x+ versions of npm init, which changed default flag handling
+
 ## 0.6.7-next.0
 
 ### Patch Changes
