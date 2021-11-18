@@ -122,7 +122,7 @@ ${err.frame}
   } else if ((e as any).stack) {
     const err = e as SSRError;
     const [message, maybeLoc] = err.stack.split('\n');
-    const fileMatch = maybeLoc.match(/at[^\(]+\(([^\)]+)/);
+    const fileMatch = maybeLoc && maybeLoc.match(/at[^\(]+\(([^\)]+)/);
     if (fileMatch && fileMatch[1]) {
       let [srcLoc, lineStr, columnStr] = fileMatch[1].split(':');
       let line = lineStr ? parseInt(lineStr, 10) : undefined;
