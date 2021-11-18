@@ -5,7 +5,7 @@ import { loadFixture } from './test-utils.js';
 describe('Development Routing', () => {
   describe('No site config', () => {
     /** @type {import('./test-utils').Fixture} */
-    let fixture
+    let fixture;
     /** @type {import('./test-utils').DevServer} */
     let devServer;
 
@@ -15,7 +15,7 @@ describe('Development Routing', () => {
     });
 
     after(async () => {
-      devServer && await devServer.stop();
+      devServer && (await devServer.stop());
     });
 
     it('200 when loading /', async () => {
@@ -26,12 +26,12 @@ describe('Development Routing', () => {
     it('200 when loading non-root page', async () => {
       const response = await fixture.fetch('/another');
       expect(response.status).to.equal(200);
-    })
+    });
   });
 
   describe('No subpath used', () => {
     /** @type {import('./test-utils').Fixture} */
-    let fixture
+    let fixture;
     /** @type {import('./test-utils').DevServer} */
     let devServer;
 
@@ -41,7 +41,7 @@ describe('Development Routing', () => {
     });
 
     after(async () => {
-      devServer && await devServer.stop();
+      devServer && (await devServer.stop());
     });
 
     it('200 when loading /', async () => {
@@ -52,12 +52,12 @@ describe('Development Routing', () => {
     it('200 when loading non-root page', async () => {
       const response = await fixture.fetch('/another');
       expect(response.status).to.equal(200);
-    })
+    });
   });
 
   describe('Subpath with trailing slash', () => {
     /** @type {import('./test-utils').Fixture} */
-    let fixture
+    let fixture;
     /** @type {import('./test-utils').DevServer} */
     let devServer;
 
@@ -67,7 +67,7 @@ describe('Development Routing', () => {
     });
 
     after(async () => {
-      devServer && await devServer.stop();
+      devServer && (await devServer.stop());
     });
 
     it('404 when loading /', async () => {
@@ -93,7 +93,7 @@ describe('Development Routing', () => {
 
   describe('Subpath without trailing slash', () => {
     /** @type {import('./test-utils').Fixture} */
-    let fixture
+    let fixture;
     /** @type {import('./test-utils').DevServer} */
     let devServer;
 
@@ -103,7 +103,7 @@ describe('Development Routing', () => {
     });
 
     after(async () => {
-      devServer && await devServer.stop();
+      devServer && (await devServer.stop());
     });
 
     it('404 when loading /', async () => {
