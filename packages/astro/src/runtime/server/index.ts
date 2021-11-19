@@ -17,7 +17,7 @@ export type { Metadata } from './metadata';
 async function _render(child: any): Promise<any> {
   child = await child;
   if (Array.isArray(child)) {
-    return (await Promise.all(child.map((value) => _render(value)))).join('\n');
+    return (await Promise.all(child.map((value) => _render(value)))).join('');
   } else if (typeof child === 'function') {
     // Special: If a child is a function, call it automatically.
     // This lets you do {() => ...} without the extra boilerplate
