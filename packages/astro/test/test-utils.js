@@ -18,9 +18,6 @@ import preview from '../dist/core/preview/index.js';
  * @property {() => Promise<DevServer>} startDevServer
  */
 
-// Keep a port counter, so we know that parallel test running gets different ports
-let currentPort = 3000;
-
 /**
  * Load Astro fixture
  * @param {Object} inlineConfig Astro config partial (note: must specify projectRoot)
@@ -55,9 +52,10 @@ export async function loadFixture(inlineConfig) {
 
   return {
     build: (opts = {}) => build(config, { mode: 'development', logging: 'error', ...opts }),
-    startDevServer: () => {
-      config.devOptions.port = currentPort++;
-      return dev(config, { logging: 'error' });
+    startDevServer: async () => {
+      const devServer = await dev(config, { logging: 'error' });
+      console.log(`Dev server running on port ${devServer.port}`);
+      return devServer;
     },
     config,
     fetch: (url, init) => fetch(`http://${config.devOptions.hostname}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
