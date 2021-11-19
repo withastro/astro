@@ -42,7 +42,7 @@ Verschiedene Menschen mit unterschiedlichen Hintergründen und unterschiedlichen
 - Falls du **praktisches Lernen** bevorzugst, starte direkt mit ein Beispiel aus unserer [Beispiel-Liste](https://github.com/snowpackjs/astro/tree/main/examples).
 - Falls du bevorzugst **Schritt für Schritt zu lernen**, starte mit unseren [grundlegenden Konzepten und Anleitungen](/core-concepts/project-structure).  
 
-Wie jede unbekannte Technik, bringt auch der Beginn der Arbeit mit Astro eine gewisse Lernkurve mit sich. Wir sind jedoch sicher, dass du mit ein bisschen Übung und Geduld schnell lernen _wirst_, wie Astro funktioniert.
+Wie jede unbekannte Technik, bringt Astro eine gewisse Lernkurve mit sich. Wir sind jedoch sicher, dass du mit ein bisschen Übung und Geduld schnell lernen _wirst_, wie Astro funktioniert.
 
 ### Lerne die `.astro`-Syntax
 
