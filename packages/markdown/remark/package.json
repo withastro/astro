@@ -31,7 +31,6 @@
     "rehype-stringify": "^9.0.1",
     "remark-footnotes": "^4.0.1",
     "remark-gfm": "^2.0.0",
-    "remark-mdx": "^1.6.22",
     "remark-parse": "^10.0.0",
     "remark-rehype": "^9.0.0",
     "remark-slug": "^7.0.0",
