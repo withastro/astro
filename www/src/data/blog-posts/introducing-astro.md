@@ -2,6 +2,7 @@
 setup: |
   import Shell from '../../components/Shell.astro'
   import Note from '../../components/Note.astro'
+  import BlockQuote from '../../components/BlockQuote.astro'
 title: "Introducing Astro: Ship Less JavaScript"
 description: | 
   We're excited to announce Astro as a new way to build static websites and deliver lightning-fast performance without sacrificing a modern developer experience.
@@ -35,7 +36,7 @@ This post marks the first public beta release of Astro. **Missing features and b
 
 Starting a new project in Astro is easy:
 
-<Shell code={`
+```shell
 # create your project
 mkdir new-project-directory
 cd new-project-directory
@@ -46,7 +47,7 @@ npm install
 
 # start the dev server and open your browser
 npm run dev
-`} />
+```
 
 <Note>
 
