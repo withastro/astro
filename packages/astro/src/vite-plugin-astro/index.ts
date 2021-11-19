@@ -123,10 +123,10 @@ ${err.url}`;
         throw err;
       }
     },
-    async handleHotUpdate(context) {
-      if (devServer) {
-        return devServer.handleHotUpdate(context);
-      }
-    },
+    // async handleHotUpdate(context) {
+    //   if (devServer) {
+    //     return devServer.handleHotUpdate(context);
+    //   }
+    // },
   };
 }
