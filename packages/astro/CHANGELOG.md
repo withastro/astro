@@ -1,5 +1,11 @@
 # astro
 
+## 0.21.0-next.10
+
+### Patch Changes
+
+- c7682168: Fix build by making vendored vite resolve to copy
+
 ## 0.21.0-next.9
 
 ### Patch Changes
