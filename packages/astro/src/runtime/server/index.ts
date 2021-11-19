@@ -262,6 +262,7 @@ function createFetchContentFn(url: URL) {
         const urlSpec = new URL(spec, url).pathname;
         return {
           ...mod.frontmatter,
+          Content: mod.default,
           content: mod.metadata,
           file: new URL(spec, url),
           url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, '/').replace(/(\/index)?\.md$/, '') : undefined,
