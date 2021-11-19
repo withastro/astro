@@ -26,7 +26,7 @@ export interface DevOptions {
   logging: LogOptions;
 }
 
-interface DevServer {
+export interface DevServer {
   hostname: string;
   port: number;
   server: connect.Server;
@@ -83,8 +83,8 @@ export class AstroDevServer {
 
     // Setup the dev server and connect it to Vite (via middleware)
     this.viteServer = await this.createViteServer();
-    this.app.use((req, res, next) => this.handleRequest(req, res, next));
     this.app.use(this.viteServer.middlewares);
+    this.app.use((req, res, next) => this.handleRequest(req, res, next));
     this.app.use((req, res, next) => this.renderError(req, res, next));
 
     // Listen on port (and retry if taken)
@@ -96,7 +96,7 @@ export class AstroDevServer {
       await this.viteServer.close();
     }
     if (this.httpServer) {
-      await promisify(this.httpServer.close)();
+      await promisify(this.httpServer.close.bind(this.httpServer))();
     }
   }
 

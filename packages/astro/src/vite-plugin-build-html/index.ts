@@ -8,13 +8,10 @@ import srcsetParse from 'srcset-parse';
 import * as npath from 'path';
 import { promises as fs } from 'fs';
 import { getAttribute, hasAttribute, getTagName, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
-import slash from 'slash';
-import { fileURLToPath } from 'url';
 import { addRollupInput } from './add-rollup-input.js';
 import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getTextContent, isStylesheetLink } from './extract-assets.js';
 import { render as ssrRender } from '../core/ssr/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
-import { viteifyPath } from '../core/util.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
@@ -140,8 +137,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           for (let node of findAssets(document)) {
             if (isBuildableLink(node, srcRoot)) {
               const href = getAttribute(node, 'href')!;
-              const linkId = viteifyPath(href);
-              assetImports.push(linkId);
+              assetImports.push(href);
             }
 
             if (isBuildableImage(node, srcRoot)) {

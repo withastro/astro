@@ -2,6 +2,7 @@ import type { AstroConfig } from '../@types/astro';
 import type { ErrorPayload } from 'vite';
 import eol from 'eol';
 import path from 'path';
+import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import resolve from 'resolve';
 
@@ -72,6 +73,13 @@ export function resolveDependency(dep: string, astroConfig: AstroConfig) {
   return pathToFileURL(resolved).toString();
 }
 
-export function viteifyPath(pathname: string): string {
-  return `/@fs/${pathname.replace(/^\//, '')}`;
+/**
+ * Vite-ify URL
+ * Given a file URL, return an ID that matches Vite’s module graph. Needed for resolution and stack trace fixing.
+ * Must match the following format:
+ * Linux/Mac:  /Users/astro/code/my-project/src/pages/index.astro
+ * Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
+ */
+export function viteifyURL(filePath: URL): string {
+  return slash(fileURLToPath(filePath));
 }

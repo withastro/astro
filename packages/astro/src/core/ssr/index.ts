@@ -18,12 +18,12 @@ import type {
 } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
+import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
-import slash from 'slash';
 import { fileURLToPath } from 'url';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
-import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyPath } from '../util.js';
+import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyURL } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
@@ -88,22 +88,34 @@ async function resolveRenderers(viteServer: vite.ViteDevServer, astroConfig: Ast
   return renderers;
 }
 
-async function errorHandler(e: unknown, viteServer: vite.ViteDevServer, filePath: URL) {
+interface ErrorHandlerOptions {
+  filePath: URL;
+  viteServer: vite.ViteDevServer;
+}
+
+async function errorHandler(e: unknown, { viteServer, filePath }: ErrorHandlerOptions) {
+  // normalize error stack line-endings to \n
+  if ((e as any).stack) {
+    (e as any).stack = eol.lf((e as any).stack);
+  }
+
+  // fix stack trace with Vite (this searches its module graph for matches)
   if (e instanceof Error) {
     viteServer.ssrFixStacktrace(e);
   }
 
   // Astro error (thrown by esbuild so it needs to be formatted for Vite)
-  const anyError = e as any;
-  if (anyError.errors) {
+  if (Array.isArray((e as any).errors)) {
     const { location, pluginName, text } = (e as BuildResult).errors[0];
     const err = e as SSRError;
     if (location) err.loc = { file: location.file, line: location.line, column: location.column };
-    const frame = codeFrame(await fs.promises.readFile(filePath, 'utf8'), err.loc);
-    err.frame = frame;
+    let src = err.pluginCode;
+    if (!src && err.id && fs.existsSync(err.id)) src = await fs.promises.readFile(err.id, 'utf8');
+    if (!src) src = await fs.promises.readFile(filePath, 'utf8');
+    err.frame = codeFrame(src, err.loc);
     err.id = location?.file;
     err.message = `${location?.file}: ${text}
-${frame}
+${err.frame}
 `;
     if (pluginName) err.plugin = pluginName;
     throw err;
@@ -119,8 +131,7 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
   // Important: This needs to happen first, in case a renderer provides polyfills.
   const renderers = await resolveRenderers(viteServer, astroConfig);
   // Load the module from the Vite SSR Runtime.
-  const viteFriendlyURL = viteifyPath(filePath.pathname);
-  const mod = (await viteServer.ssrLoadModule(viteFriendlyURL)) as ComponentInstance;
+  const mod = (await viteServer.ssrLoadModule(viteifyURL(filePath))) as ComponentInstance;
 
   return [renderers, mod];
 }
@@ -250,8 +261,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
   // run transformIndexHtml() in dev to run Vite dev transformations
   if (mode === 'development') {
-    const viteFilePath = slash(fileURLToPath(filePath)); // Vite Windows fix: URLs on Windows have forward slashes (not .pathname, which has a leading '/' on Windows)
-    html = await viteServer.transformIndexHtml(viteFilePath, html, pathname);
+    html = await viteServer.transformIndexHtml(viteifyURL(filePath), html, pathname);
   }
 
   return html;
@@ -269,9 +279,9 @@ async function getHmrScript() {
 export async function ssr(ssrOpts: SSROptions): Promise<string> {
   try {
     const [renderers, mod] = await preload(ssrOpts);
-    return render(renderers, mod, ssrOpts);
+    return await render(renderers, mod, ssrOpts); // note(drew): without "await", errors won’t get caught by errorHandler()
   } catch (e: unknown) {
-    await errorHandler(e, ssrOpts.viteServer, ssrOpts.filePath);
+    await errorHandler(e, { viteServer: ssrOpts.viteServer, filePath: ssrOpts.filePath });
     throw e;
   }
 }

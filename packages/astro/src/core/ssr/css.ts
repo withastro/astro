@@ -1,8 +1,7 @@
 import type vite from '../vite';
 
-import { fileURLToPath } from 'url';
 import path from 'path';
-import slash from 'slash';
+import { viteifyURL } from '../util.js';
 
 // https://vitejs.dev/guide/features.html#css-pre-processors
 export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
@@ -11,7 +10,7 @@ export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.scss', '.sass', '.st
 export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
   const css = new Set<string>();
   const { idToModuleMap } = viteServer.moduleGraph;
-  const rootID = slash(fileURLToPath(filePath)); // Vite fix: Windows URLs must have forward slashes
+  const rootID = viteifyURL(filePath);
   const moduleGraph = idToModuleMap.get(rootID);
   if (!moduleGraph) return css;
 
