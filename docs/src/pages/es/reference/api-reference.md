@@ -12,9 +12,9 @@ La variable `Astro` global está disponible en todos los contextos en los archiv
 
 `Astro.fetchContent()` is a way to load local `*.md` files into your static site setup.
 
-```jsx
-// ./src/components/my-component.astro
+```astro
 ---
+// ./src/components/my-component.astro
 const data = Astro.fetchContent('../pages/post/*.md'); // returns an array of posts that live at ./src/pages/post/*.md
 ---
 

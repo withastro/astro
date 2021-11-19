@@ -14,7 +14,7 @@ To add a custom alias to your project, locate your project `snowpack.config.mjs`
 
 To add a new import alias, define a new `alias` entry:
 
-```ts
+```js
 // snowpack.config.mjs
 export default {
   alias: {
