@@ -22,7 +22,7 @@ describe('config', () => {
 
       proc.stdout.setEncoding('utf8');
       for await (const chunk of proc.stdout) {
-        if (/Local:/.it(chunk)) {
+        if (/Local:/.test(chunk)) {
           expect(chunk).to.include('127.0.0.1');
           break;
         }
@@ -40,7 +40,7 @@ describe('config', () => {
 
       process.stdout.setEncoding('utf8');
       for await (const chunk of process.stdout) {
-        if (/Server started/.it(chunk)) {
+        if (/Server started/.test(chunk)) {
           break;
         }
       }
