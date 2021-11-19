@@ -1,5 +1,11 @@
 # @astrojs/renderer-vue
 
+## 0.2.0-next.2
+
+### Patch Changes
+
+- 8986d33b: Improve error display
+
 ## 0.2.0-next.1
 
 ### Patch Changes
