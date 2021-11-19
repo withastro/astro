@@ -9,7 +9,7 @@ describe('<Debug />', () => {
   if (isMacOS) return;
 
   /** @type {import('./test-utils').Fixture} */
-  let fixture
+  let fixture;
   /** @type {import('./test-utils').DevServer} */
   let devServer;
 
@@ -19,7 +19,7 @@ describe('<Debug />', () => {
   });
 
   after(async () => {
-    devServer && await devServer.stop();
+    devServer && (await devServer.stop());
   });
 
   it('Works in markdown pages', async () => {
