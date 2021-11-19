@@ -103,7 +103,7 @@ If a page uses dynamic params in the filename, that component will need to expor
 
 This function is required because Astro is a static site builder. That means that your entire site is built ahead of time. If Astro doesn't know to generate a page at build time, your users won't see it when they visit your site.
 
-```jsx
+```astro
 ---
 export async function getStaticPaths() {
   return [
@@ -129,7 +129,7 @@ The `params` key of every returned object tells Astro what routes to build. The 
 
 For example, suppose that you have a page at `src/pages/posts/[id].astro`. If you export `getStaticPaths` from this page and return the following for paths:
 
-```js
+```astro
 ---
 export async function getStaticPaths() {
   return [
@@ -150,7 +150,7 @@ To pass additional data to each generated page, you can also set a `props` value
 
 For example, suppose that you generate pages based off of data fetched from a remote API. You can pass the full data object to the page component inside of `getStaticPaths`:
 
-```js
+```astro
 ---
 export async function getStaticPaths() {
   const data = await fetch('...').then(response => response.json());

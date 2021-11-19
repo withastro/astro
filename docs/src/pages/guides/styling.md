@@ -303,7 +303,7 @@ Read on if you're looking for some strong opinions 🙂. We'll describe the appr
 
 You don't need an explanation on component-based design. You already know that reusing components is a good idea. And it's this idea that got people used to concepts like [Styled Components][styled-components] and [Styled JSX][styled-jsx]. But rather than burden your users with slow load times of CSS-in-JS, Astro has something better: **built-in scoped styles.**
 
-```jsx
+```astro
 ---
 // src/components/Button.astro -->
 ---
@@ -326,7 +326,7 @@ That `.btn` class is scoped within that component, and won't leak out. It means 
 
 By contrast, Astro does allow global styles via the `:global()` and `<style global>` escape hatches. However, this should be avoided if possible. To illustrate this: say you used your button in a `<Nav />` component, and you wanted to style it differently there. You might be tempted to have something like:
 
-```jsx
+```astro
 ---
 // src/components/Nav.astro
 import Button from './Button.astro';
@@ -347,7 +347,7 @@ This is undesirable because now `<Nav>` and `<Button>` fight over what the final
 
 Instead, let `<Button>` control its own styles, and try a prop:
 
-```jsx
+```astro
 ---
 // src/components/Button.astro
 const { theme } = Astro.props;
@@ -437,7 +437,7 @@ While this guide will never be long enough to answer the question _"How should a
 
 The layout consists of a big, giant, full-width post at top, followed by two half-width posts below it. And below that, we want a bunch of smaller posts to fill out the rest of the page. For simplicity, we'll just call these `<BigPost>` (1), `<MediumPost>` (2), and `<SmallPost>` (3). We add them to our page like so:
 
-```jsx
+```astro
 ---
 // src/pages/index.astro
 
@@ -467,7 +467,7 @@ This _looks_ clean, but looks can be deceiving. At first glance, we may think th
 
 This is actually the **Global CSS Problem** in disguise—multiple components fight over how they all lay out together, without layout being one, central responsibility (kinda like global CSS)! Now that we identified the problem, one way to fix this is to hoist the entire layout to the top level, and load all components there, too:
 
-```jsx
+```astro
 ---
 // src/pages/index.astro
 
