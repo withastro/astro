@@ -6,6 +6,7 @@ permalink: 'https://astro.build/blog/astro-021-preview'
 lang: 'en'
 heroImage: '/assets/blog/astro-021-preview/hero.png'
 heroImageAlt: 'Spacecraft overlooking Earth'
+socialImage: '/assets/blog/astro-021-preview/social.png'
 ---
 
 Astro v0.21.0 will be our biggest release yet. At a high-level, it includes:

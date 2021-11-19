@@ -5,8 +5,9 @@ description: 'Astro v0.21.0 is finally here!'
 publishDate: 'November 19, 2021'
 permalink: 'https://astro.build/blog/astro-021-release'
 lang: 'en'
+socialImage: '/assets/blog/astro-021-release/social.png'
 heroImage: '/assets/blog/astro-021-preview/hero.png'
-heroImageAlt: 'Spacecraft overlooking Earth'
+heroImageAlt: 'Astro v0.21 Release Notes'
 ---
 
 Astro v0.21.0 is finally here! This is by far our biggest release ever, including a ground-up rewrite of some major Astro internals. After months of development and public testing, we are so excited to get this new version of Astro into your hands, featuring:

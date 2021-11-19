@@ -12,12 +12,12 @@ export function getStaticPaths() {
   }));
 }
 
-const { Content, title, author, description, publishDate, heroImage, heroImageAlt, permalink, lang } = Astro.props.post;
+const { Content, title, author, description, publishDate, heroImage, heroImageAlt, socialImage, permalink, lang } = Astro.props.post;
 ---
 
 <html lang={lang ?? 'en'}>
   <head>
-    <BaseHead title={title} description={description} canonicalURL={permalink} image="https://astro.build/assets/blog/astro-021-preview/social.png" />
+    <BaseHead title={title} description={description} canonicalURL={permalink} image={socialImage} />
     <link rel="stylesheet" href={Astro.resolve('../../scss/blog.scss')} />
   </head>
   <body>
