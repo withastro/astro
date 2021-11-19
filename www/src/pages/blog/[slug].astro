@@ -1,0 +1,31 @@
+---
+import { Markdown, Code, Debug } from 'astro/components';
+import BaseHead from '../../components/BaseHead.astro';
+import BlogHeader from '../../components/BlogHeader.astro';
+import BlogPost from '../../components/BlogPost.astro';
+import GoogleAnalytics from '../../components/GoogleAnalytics.astro';
+
+export function getStaticPaths() {
+  const posts = Astro.fetchContent('../../data/blog-posts/*.md');
+  return (posts.map(p => ({
+    params: {slug: p.file.pathname.split('/').pop().split('.').shift()},
+    props: {post: p},
+  })));
+}
+
+const {title, author, description, publishDate, heroImage, heroImageAlt, permalink, lang, content} = Astro.props.post;
+---
+
+<html lang={ lang ?? 'en' }>
+  <head>
+    <BaseHead title={title} description={description} canonicalURL={permalink} image="https://astro.build/assets/blog/astro-021-preview/social.png" />
+    <link rel="stylesheet" href={Astro.resolve('../../scss/blog.scss')} />
+  </head>
+  <body>
+    <BlogHeader />
+    <BlogPost title={title} author={author} publishDate={publishDate}  heroImage={heroImage}  heroImageAlt={heroImageAlt}>
+      {content.html}
+    </BlogPost>
+    <GoogleAnalytics />
+  </body>
+</html>
