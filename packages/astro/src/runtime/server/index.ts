@@ -375,7 +375,7 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
   if (needsHydrationStyles) {
     styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
   }
-  return template.replace('</head>', styles.join('') + scripts.join('') + '</head>');
+  return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {

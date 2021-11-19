@@ -174,7 +174,7 @@ export async function main() {
         return indent + importStatements.join('\n');
       })
       .replace(/^(\s*)<!-- ASTRO:COMPONENT_MARKUP -->/gm, (_, indent) => {
-        return components.map((ln) => indent + ln).join('');
+        return components.map((ln) => indent + ln).join('\n');
       });
     await fs.promises.writeFile(pageFileLoc, newContent);
   }
