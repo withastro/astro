@@ -2996,9 +2996,9 @@ const NULL_BYTE_PLACEHOLDER = `__x00__`;
 const CLIENT_PUBLIC_PATH = `/@vite/client`;
 const ENV_PUBLIC_PATH = `/@vite/env`;
 // eslint-disable-next-line node/no-missing-require
-const CLIENT_ENTRY = require.resolve('vite/dist/client/client.mjs');
+const CLIENT_ENTRY = require.resolve('../../client/client.mjs');
 // eslint-disable-next-line node/no-missing-require
-const ENV_ENTRY = require.resolve('vite/dist/client/env.mjs');
+const ENV_ENTRY = require.resolve('../../client/env.mjs');
 const CLIENT_DIR = path__default.dirname(CLIENT_ENTRY);
 // ** READ THIS ** before editing `KNOWN_ASSET_TYPES`.
 //   If you add an asset to `KNOWN_ASSET_TYPES`, make sure to also add it
