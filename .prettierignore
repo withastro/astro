@@ -3,6 +3,8 @@
 **/fixtures
 **/vendor
 **/.vercel
+**/examples/docs
+**/www
 .github
 .changeset
 README.md
