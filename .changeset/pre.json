@@ -1,5 +1,5 @@
 {
-  "mode": "pre",
+  "mode": "exit",
   "tag": "next",
   "initialVersions": {
     "docs": "0.0.7",
@@ -39,39 +39,9 @@
     "@example/subpath": "0.0.1"
   },
   "changesets": [
-    "beige-hairs-design",
-    "beige-kings-listen",
-    "bright-glasses-jump",
-    "curvy-glasses-rest",
-    "curvy-years-kiss",
-    "dull-bikes-doubt",
-    "dull-steaks-dance",
-    "few-pumpkins-report",
-    "four-kids-melt",
-    "friendly-dingos-lie",
-    "giant-beds-cough",
-    "giant-shirts-sing",
-    "heavy-boxes-deliver",
-    "large-grapes-lie",
-    "little-dogs-help",
-    "many-donkeys-report",
-    "pink-trainers-learn",
-    "polite-ladybugs-train",
-    "popular-plants-report",
-    "quick-cheetahs-itch",
-    "rare-cars-lick",
-    "real-cats-act",
-    "serious-knives-hug",
-    "serious-rocks-juggle",
-    "seven-bottles-warn",
-    "shaggy-guests-type",
-    "silly-apples-build",
-    "silly-peas-battle",
-    "strong-bugs-confess",
-    "tiny-bulldogs-lie",
-    "twelve-oranges-approve",
-    "twenty-rabbits-repeat",
-    "two-ducks-sit",
-    "young-steaks-report"
+    "changeset-1",
+    "changeset-2",
+    "changeset-3",
+    "changeset-4"
   ]
 }
