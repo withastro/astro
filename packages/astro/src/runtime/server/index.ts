@@ -224,8 +224,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
   // This is used to add polyfill scripts to the page, if the renderer needs them.
   if (renderer?.polyfills?.length) {
-    let polyfillScripts = renderer.polyfills.map((src) => `<script type="module">import "${src}";</script>`).join('');
-    html = html + polyfillScripts;
+    for(const src of renderer.polyfills) {
+      result.scripts.add({
+        props: { type: 'module' },
+        children: `import "${src}";`,
+      });
+    }
   }
 
   if (!hydration) {
