@@ -6,7 +6,7 @@ publishDate: 'November 19, 2021'
 permalink: 'https://astro.build/blog/astro-021-release'
 lang: 'en'
 socialImage: '/assets/blog/astro-021-release/social.png'
-heroImage: '/assets/blog/astro-021-release/hero.png'
+heroImage: '/assets/blog/astro-021-preview/hero.png'
 heroImageAlt: 'Astro v0.21 Release Notes'
 ---
 
