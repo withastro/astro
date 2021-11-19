@@ -54,7 +54,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
   // The filepath root of the src folder
   const srcRoot = astroConfig.src.pathname;
-  // The web path of hte src folter
+  // The web path of the src folter
   const srcRootWeb = srcRoot.substr(astroConfig.projectRoot.pathname.length - 1);
 
   // A map of pages to rendered HTML
