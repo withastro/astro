@@ -13,4 +13,4 @@ description: Just a Hello World Post!
 
 This is so cool!
 
-Do variables work {frontmatter.value * 2}?
+Do variables work {frontmatter.value \* 2}?
