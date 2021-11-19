@@ -72,7 +72,7 @@
     "connect": "^3.7.0",
     "eol": "^0.9.1",
     "es-module-lexer": "^0.7.1",
-    "esbuild": "^0.13.6",
+    "esbuild": "0.13.7",
     "estree-util-value-to-estree": "^1.2.0",
     "fast-xml-parser": "^3.19.0",
     "html-entities": "^2.3.2",
