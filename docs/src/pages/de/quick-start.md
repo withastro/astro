@@ -57,7 +57,7 @@ Dies weist Astro an deine Site zu erstellen und direkt zu speichern. Deine Anwen
 
 ## Veröffentliche dein Projekt
 
-Astro-Sites sind statisch, sodass sie ganz einfach bei deinem bevorzugten Hoster ausgerollt werden können:
+Astro-Sites sind statisch, sodass sie ganz einfach bei deinem bevorzugten Hoster veröffentlicht werden können:
 
 - [AWS S3 bucket](https://aws.amazon.com/s3/)
 - [Google Firebase](https://firebase.google.com/)
