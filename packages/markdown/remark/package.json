@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "0.4.0-next.1",
+  "version": "0.4.0-next.2",
   "main": "./dist/index.js",
   "type": "module",
   "repository": {
