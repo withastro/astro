@@ -1,5 +1,15 @@
 # astro
 
+## 0.21.0-next.8
+
+### Patch Changes
+
+- c82ceff7: Bug fix for Debug when passed JSON contain HTML strings
+- 53d9cf5e: Fixes dev server not stopping cleanly
+- 8986d33b: Improve error display
+- Updated dependencies [8986d33b]
+  - @astrojs/renderer-vue@0.2.0-next.2
+
 ## 0.21.0-next.7
 
 ### Patch Changes
