@@ -22469,7 +22469,7 @@ function terserPlugin(config) {
         // root with vite itself, so we have to pass in the basedir and resolve
         // terser first.
         // eslint-disable-next-line node/no-restricted-require
-        const terserPath = require.resolve('vite/dist/node/terser', {
+        const terserPath = require.resolve('../terser', {
             paths: [basedir]
         });
         return require(terserPath).minify(code, options);
@@ -43009,7 +43009,7 @@ async function doBuild(inlineConfig = {}) {
     const options = config.build;
     const ssr = !!options.ssr;
     const libOptions = options.lib;
-    config.logger.info(source.cyan(`vite v${require('vite/package.json').version} ${source.green(`building ${ssr ? `SSR bundle ` : ``}for ${config.mode}...`)}`));
+    config.logger.info(source.cyan(`vite v${require('../../../package.json').version} ${source.green(`building ${ssr ? `SSR bundle ` : ``}for ${config.mode}...`)}`));
     const resolve = (p) => path__default.resolve(config.root, p);
     const input = libOptions
         ? resolve(libOptions.entry)
