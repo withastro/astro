@@ -227,9 +227,9 @@ Puedes omitir el archivo `netlify.toml` e ir directamente a [Netlify](https://ne
 
    ```json
    {
-    "projects": {
-      "default": "<YOUR_FIREBASE_ID>"
-    }
+     "projects": {
+       "default": "<YOUR_FIREBASE_ID>"
+     }
    }
    ```
 

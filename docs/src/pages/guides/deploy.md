@@ -275,9 +275,9 @@ Different from most available deploy options here, [Google Cloud](https://cloud.
 
    ```json
    {
-    "projects": {
-      "default": "<YOUR_FIREBASE_ID>"
-    }
+     "projects": {
+       "default": "<YOUR_FIREBASE_ID>"
+     }
    }
    ```
 
