@@ -8,8 +8,8 @@ export interface Props {
   title: string;
   author?: string;
   publishDate: string;
-  heroImage: string;
-  heroImageAlt: string;
+  heroImage?: string;
+  heroImageAlt?: string;
 }
 
 const { title, author, publishDate, heroImage, heroImageAlt } = Astro.props;
@@ -18,7 +18,7 @@ const { title, author, publishDate, heroImage, heroImageAlt } = Astro.props;
 <div class="layout">
   <article>
     <header>
-      {heroImage && <img width="720" height="420" class="hero-image" loading="lazy" src={heroImage} alt={heroImageAlt}/>}
+      <img width="720" height="420" class="hero-image" loading="lazy" src={heroImage || '/social.jpg'} alt={heroImageAlt || ""} />
       <p class="publish-date">{publishDate}</p>
       <h1 class="title">{title}</h1>
       {author && <Author authorId={author} />}
