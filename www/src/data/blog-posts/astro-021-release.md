@@ -34,8 +34,6 @@ Leave feedback, report bugs, and get involved with Astro's development in our [D
 
 Most people don't know this, but the first version of the Astro compiler was originally forked from [Svelte](https://svelte.dev/docs#Compile_time). Forking an existing compiler let us get up and running quickly, but cost us some unneccesary complexity that only grew over time.
 
-Big rewrites are rarely easy, and this one was no exception.
-
-Ultimately, it came down to timing. The timing was right for us to make a big investment in Astro now and deprecate our original forked compiler in favor of something designed with Astro in mind. This new compiler (written in Go) and new Vite-powered build engine will form a stable foundation that will last this project for years to come.
+Big rewrites are rarely easy, and this one was no exception. The timing was right for us to make a big investment in Astro now and deprecate our original forked compiler in favor of something designed with Astro in mind. This new compiler (written in Go) and new Vite-powered build engine will form a stable foundation that will last this project for years to come.
 
 *Thank you to Rich Harris and the entire Svelte team for building a great open source compiler that served Astro well in its early days.*
