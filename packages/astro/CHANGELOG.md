@@ -1,5 +1,13 @@
 # astro
 
+## 0.21.0-next.11
+
+### Patch Changes
+
+- 00d2b625: Add Vite dependencies to astro
+- Updated dependencies [00d2b625]
+  - @astrojs/markdown-remark@0.4.0-next.2
+
 ## 0.21.0-next.10
 
 ### Patch Changes
