@@ -23,6 +23,11 @@ describe('Development Routing', () => {
       expect(response.status).to.equal(200);
     });
 
+    it('200 when adding search params', async () => {
+      const response = await fixture.fetch('/?foo=bar');
+      expect(response.status).to.equal(200);
+    });
+
     it('200 when loading non-root page', async () => {
       const response = await fixture.fetch('/another');
       expect(response.status).to.equal(200);
