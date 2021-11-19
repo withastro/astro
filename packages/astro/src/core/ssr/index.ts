@@ -29,6 +29,8 @@ import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 
+const svelteAndVueStylesRE = /\?[^&]+&type=style&lang/;
+
 interface SSROptions {
   /** an instance of the AstroConfig */
   astroConfig: AstroConfig;
@@ -245,15 +247,23 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
   // inject CSS
   [...getStylesForURL(filePath, viteServer)].forEach((href) => {
-    tags.push({
-      tag: 'link',
-      attrs: {
-        rel: 'stylesheet',
-        href,
-        'data-astro-injected': true,
-      },
-      injectTo: 'head',
-    });
+    if (mode === 'development' && svelteAndVueStylesRE.test(href)) {
+      tags.push({
+        tag: 'script',
+        attrs: { type: 'module', src: href },
+        injectTo: 'head',
+      });
+    } else {
+      tags.push({
+        tag: 'link',
+        attrs: {
+          rel: 'stylesheet',
+          href,
+          'data-astro-injected': true,
+        },
+        injectTo: 'head',
+      });
+    }
   });
 
   // add injected tags
