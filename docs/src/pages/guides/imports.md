@@ -73,7 +73,7 @@ If you prefer not to write CSS, Astro also supports all popular CSS-in-JS librar
 
 ## CSS Modules
 
-```js
+```jsx
 // 1. Converts './style.module.css' classnames to unique, scoped values.
 // 2. Returns an object mapping the original classnames to their final, scoped value.
 import styles from './style.module.css';

@@ -58,9 +58,9 @@ Astro treats any `.md` files inside of the `/src/pages` directory as pages. Thes
 
 Markdown pages have a special frontmatter property for `layout`. This defines the relative path to an `.astro` component which should wrap your Markdown content, for example a [Layout](/core-concepts/layouts) component. All other frontmatter properties defined in your `.md` page will be exposed to the component as properties of the `content` prop. The rendered Markdown content is placed into the default `<slot />` element.
 
-```jsx
-// src/pages/index.md
+```markdown
 ---
+# src/pages/index.md
 layout: ../../layouts/BaseLayout.astro
 title: My cool page
 ---
@@ -68,9 +68,9 @@ title: My cool page
 # Hello World!
 ```
 
-```jsx
-// src/layouts/BaseLayout.astro
+```astro
 ---
+// src/layouts/BaseLayout.astro
 const { content } = Astro.props;
 ---
 <html>
@@ -176,7 +176,7 @@ const expressions = 'Lorem ipsum';
     - Automatic indentation normalization
     - Automatic escaping of expressions inside code blocks
 
-    ```jsx
+    ```js
       // This content is not transformed!
       const object = { someOtherValue };
     ```
@@ -185,7 +185,7 @@ const expressions = 'Lorem ipsum';
     - Recursive Markdown support (Component children are also processed as Markdown)
 
     <MyFancyCodePreview client:visible>
-      ```jsx
+      ```js
       const object = { someOtherValue };
       ```
     </MyFancyCodePreview client:visible>

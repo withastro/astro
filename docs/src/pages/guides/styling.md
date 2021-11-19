@@ -567,7 +567,7 @@ So in short: stop trying to deduplicate layouts when there's nothing to deduplic
 
 In other words, don't do this:
 
-```jsx
+```astro
 <!-- src/components/MyComponent.astro -->
 <style lang="scss">
   .wrapper {
