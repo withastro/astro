@@ -21,6 +21,7 @@ import { createVite } from '../create-vite.js';
 import * as msg from './messages.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from './template/4xx.js';
 import serverErrorTemplate from './template/5xx.js';
+import { viteifyURL } from '../util.js';
 
 export interface DevOptions {
   logging: LogOptions;
@@ -305,9 +306,6 @@ export class AstroDevServer {
         next();
         return;
       }
-
-      this.mostRecentRoute = route;
-
       // handle .astro and .md pages
       filePath = new URL(`./${route.component}`, this.config.projectRoot);
       const html = await ssr({
@@ -321,6 +319,7 @@ export class AstroDevServer {
         routeCache: this.routeCache,
         viteServer: this.viteServer,
       });
+      this.mostRecentRoute = route;
       info(this.logging, 'astro', msg.req({ url: pathname, statusCode: 200, reqTime: performance.now() - reqStart }));
       res.writeHead(200, {
         'Content-Type': mime.getType('.html') as string,
@@ -329,9 +328,17 @@ export class AstroDevServer {
       res.write(html);
       res.end();
     } catch (err: any) {
-      this.viteServer.ws.send({ type: 'error', err });
       const statusCode = 500;
-      const html = serverErrorTemplate({
+      const mod = filePath && this.viteServer.moduleGraph.getModuleById(viteifyURL(filePath));
+      if (mod) {
+        for (const m of [mod, ...mod.importedModules]) {
+          this.viteServer.moduleGraph.invalidateModule(m);
+        }
+      } else {
+        this.viteServer.moduleGraph.invalidateAll();
+      }
+      this.viteServer.ws.send({ type: 'error', err });
+      let html = serverErrorTemplate({
         statusCode,
         title: 'Internal Error',
         tabTitle: '500: Error',
@@ -339,6 +346,7 @@ export class AstroDevServer {
         url: err.url || undefined,
         stack: stripAnsi(err.stack),
       });
+      html = await this.viteServer.transformIndexHtml(pathname, html, pathname);
       info(this.logging, 'astro', msg.req({ url: pathname, statusCode: 500, reqTime: performance.now() - reqStart }));
       res.writeHead(statusCode, {
         'Content-Type': mime.getType('.html') as string,
