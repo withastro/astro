@@ -68,7 +68,7 @@ Nicht jedes Astro-Release verdient einen eigenen Blogpost, aber du kannst ein de
 
 ## Fehlt etwas?
 
-Falls etwas in der Dokumentation fehlt, oder falls du einen bestimmten Teil verwirrend findest, [erstelle bitte ein Issue](https://github.com/snowpackjs/astro/issues/new/choose) mit deinen Verbesserungsvorschlägen, oder tweete an den [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account. Wir freuen uns, von dir zu hören!
+Falls etwas in der Dokumentation fehlt, oder falls du einen bestimmten Teil verwirrend findest, [erstelle bitte ein Issue](https://github.com/snowpackjs/astro/issues/new/choose) mit deinen Verbesserungsvorschlägen oder tweete an den [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account. Wir freuen uns, von dir zu hören!
 
 ## Credit
 
