@@ -1,5 +1,16 @@
 # @astrojs/markdown-support
 
+## 0.4.0
+
+### Minor Changes
+
+- e6aaeff5: Initial release.
+
+### Patch Changes
+
+- Updated dependencies [e6aaeff5]
+  - @astrojs/prism@0.3.0
+
 ## 0.4.0-next.2
 
 ### Patch Changes

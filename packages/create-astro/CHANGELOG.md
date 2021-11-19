@@ -1,5 +1,7 @@
 # create-astro
 
+## 0.6.7
+
 ## 0.6.7-next.1
 
 ### Patch Changes
