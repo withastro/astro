@@ -3,8 +3,8 @@
 **/fixtures
 **/vendor
 **/.vercel
-**/examples/docs
-**/www
+examples/docs/**/*.md
+www/**/*.md
 .github
 .changeset
 README.md
