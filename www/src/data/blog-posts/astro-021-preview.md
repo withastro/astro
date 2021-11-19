@@ -55,24 +55,24 @@ Our most requested feature ***by far*** has been the ability to use components d
 
 Starting in v0.21.0, you can import components inside of your Markdown frontmatter via an optional `setup` script. Once imported, your components can be used anywhere on the page:
 
-<!-- Pre-formatted due to an Astro v0.21 components-in-markdown error. This is a tricky snippet. -->
-<pre class="astro-code" style="background-color: #0d1117; overflow-x: auto;"><code><span class="line"><span style="color: #8B949E">---</span></span>
-<span class="line"><span style="color: #FFA657">title</span><span style="color: #C9D1D9">: </span><span style="color: #A5D6FF">'Astro 0.21 Early Preview'</span></span>
-<span class="line"><span style="color: #FFA657">setup</span><span style="color: #C9D1D9">: </span><span style="color: #FF7B72">|</span></span>
-<span class="line"><span style="color: #C9D1D9">  </span><span style="color: #FF7B72">import</span><span style="color: #C9D1D9"> Logo </span><span style="color: #FF7B72">from</span><span style="color: #C9D1D9"> </span><span style="color: #A5D6FF">'../components/Logo.astro'</span><span style="color: #C9D1D9">;</span></span>
-<span class="line"><span style="color: #C9D1D9">  </span><span style="color: #FF7B72">import</span><span style="color: #C9D1D9"> ReactCounter </span><span style="color: #FF7B72">from</span><span style="color: #C9D1D9"> </span><span style="color: #A5D6FF">'../components/Counter.jsx'</span><span style="color: #C9D1D9">;</span></span>
-<span class="line"><span style="color: #8B949E">---</span></span>
-<span class="line"></span>
-<span class="line"><span style="color: #C9D1D9"># Astro now supports components in Markdown!</span></span>
-<span class="line"></span>
-<span class="line"><span style="color: #C9D1D9">&lt;</span><span style="color: #7EE787">Logo</span><span style="color: #C9D1D9"> /&gt;</span></span>
-<span class="line"></span>
-<span class="line"><span style="color: #C9D1D9">- Back to markdown here. </span></span>
-<span class="line"><span style="color: #C9D1D9">- Supports static Astro components.</span></span>
-<span class="line"><span style="color: #C9D1D9">- Supports dynamic React/Vue/Svelte components!</span></span>
-<span class="line"></span>
-<span class="line"><span style="color: #C9D1D9">&lt;</span><span style="color: #7EE787">ReactCounter</span><span style="color: #C9D1D9"> </span><span style="color: #79C0FF">start</span><span style="color: #C9D1D9">={</span><span style="color: #79C0FF">0</span><span style="color: #C9D1D9">} </span><span style="color: #79C0FF">client:load</span><span style="color: #C9D1D9"> /&gt; </span></span>
-<span class="line"></span></code></pre>
+```astro
+---
+title: 'Astro 0.21 Early Preview'
+setup: |
+  import Logo from '../components/Logo.astro';
+  import ReactCounter from '../components/Counter.jsx';
+---
+
+# Astro now supports components in Markdown!
+
+<Logo />
+
+- Back to markdown here. 
+- Supports static Astro components.
+- Supports dynamic React/Vue/Svelte components!
+
+<ReactCounter start={0} client:load /> 
+```
 
 This new `setup` script was designed for maximum flexibility. We'll keep improving this API going forward with planned support for default components, default layouts, and markdown component overrides.
 
