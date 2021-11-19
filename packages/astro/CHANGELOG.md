@@ -1,5 +1,12 @@
 # astro
 
+## 0.21.0-next.9
+
+### Patch Changes
+
+- 41c6a772: Fix for dev server not starting
+- 3b511059: Fix for OSX .astro file corruption
+
 ## 0.21.0-next.8
 
 ### Patch Changes
