@@ -8,7 +8,6 @@ Welcome to the Astro style guide. This document is meant to guide you on the cod
 
 For the RFC writing guide, check out the [RFC issue template](https://github.com/snowpackjs/astro/issues/new/choose).
 
-
 ### Linting (Style Rules)
 
 We use tools like ESLint and TypeScript to automatically enforce some parts of our style guide. Run the `yarn lint` command to lint the codebase. We also use tools like Prettier to automatically enforce code formatting. Run the `yarn format` command to format the entire codebase.
@@ -16,20 +15,19 @@ We use tools like ESLint and TypeScript to automatically enforce some parts of o
 Anything enforced by linting and formatting is considered a **style rule.** It is strictly required that you follow all style rules while working in the codebase. Run the `yarn lint` and `yarn format` commands to check your code at any time.
 
 These style rules are maintained in configuration files, and therefore not documented in this document. Read any of the following configuration files to learn more about the style rules that we strictly enforced across the codebase:
+
 - [ESLint](https://github.com/snowpackjs/astro/blob/main/.eslintrc.cjs) (Linting)
 - [Prettier](https://github.com/snowpackjs/astro/blob/main/.prettierrc.json) (Formatting)
 
 Alternatively, don't worry too much about style rules and trust that our tools will catch these issues for you and offer inline suggestions as you work.
 
-
 ### Style Rules vs. Style Guidance
 
 We will try to enforce most of our style guide with linting and formatting tools, but not everything can be reasonably captured in a lint rule.
 
-Anything else in this document -- that is, anything not automatically enforced by linting -- is considered **style guidance.** Do your best to follow all style guidance outlined in this style guide, and expect code reviewers to be looking for these things in your Pull Request. However, no tool exists to catch you when you break guidance. 
+Anything else in this document -- that is, anything not automatically enforced by linting -- is considered **style guidance.** Do your best to follow all style guidance outlined in this style guide, and expect code reviewers to be looking for these things in your Pull Request. However, no tool exists to catch you when you break guidance.
 
 The reason that we don't treat these as strict rules is simple: we are all human. It would be silly to expect 100% accuracy without automated tooling to enforce it. Authors and reviewers will both miss things every once-in-a-while, and that is okay.
-
 
 ### How to Request a Style Change
 
@@ -53,7 +51,7 @@ _Note: This process is new, we are still figuring it out! This process will be m
 
 ## TypeScript Style Guide
 
-Empty! Right now, everything in our official style guide is captured and enforced as style rules in the automated tooling, as outlined above. 
+Empty! Right now, everything in our official style guide is captured and enforced as style rules in the automated tooling, as outlined above.
 
 ## Writing
 
