@@ -25,13 +25,13 @@ const ASTRO_EMPTY = '@astro-empty';
 const tagsWithSrcSet = new Set(['img', 'source']);
 
 const isAstroInjectedLink = (node: parse5.Element) => isStylesheetLink(node) && getAttribute(node, 'data-astro-injected') === '';
-const isBuildableLink = (node: parse5.Element, srcRoot: string) => {
+const isBuildableLink = (node: parse5.Element, srcRoot: string, srcRootWeb: string) => {
   if (isAstroInjectedLink(node)) return true;
   const href = getAttribute(node, 'href');
   if (typeof href !== 'string' || !href.length) return false;
-  return href.startsWith(srcRoot) || `/${href}`.startsWith(srcRoot); // Windows fix: some paths are missing leading "/"
+  return href.startsWith(srcRoot) || href.startsWith(srcRootWeb) || `/${href}`.startsWith(srcRoot); // Windows fix: some paths are missing leading "/"
 };
-const isBuildableImage = (node: parse5.Element, srcRoot: string) => getTagName(node) === 'img' && getAttribute(node, 'src')?.startsWith(srcRoot);
+const isBuildableImage = (node: parse5.Element, srcRoot: string, srcRootWeb: string) => getTagName(node) === 'img' && (getAttribute(node, 'src')?.startsWith(srcRoot) || getAttribute(node, 'src')?.startsWith(srcRootWeb));
 const hasSrcSet = (node: parse5.Element) => tagsWithSrcSet.has(getTagName(node)) && !!getAttribute(node, 'srcset');
 const isHoistedScript = (node: parse5.Element) => getTagName(node) === 'script' && hasAttribute(node, 'hoist');
 
@@ -52,7 +52,10 @@ interface PluginOptions {
 export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
   const { astroConfig, astroStyleMap, astroPageStyleMap, chunkToReferenceIdMap, pureCSSChunks, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
+  // The filepath root of the src folder
   const srcRoot = astroConfig.src.pathname;
+  // The web path of the src folter
+  const srcRootWeb = srcRoot.substr(astroConfig.projectRoot.pathname.length - 1);
 
   // A map of pages to rendered HTML
   const renderedPageMap = new Map<string, string>();
@@ -135,12 +138,12 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
           const assetImports = [];
           for (let node of findAssets(document)) {
-            if (isBuildableLink(node, srcRoot)) {
+            if (isBuildableLink(node, srcRoot, srcRootWeb)) {
               const href = getAttribute(node, 'href')!;
               assetImports.push(href);
             }
 
-            if (isBuildableImage(node, srcRoot)) {
+            if (isBuildableImage(node, srcRoot, srcRootWeb)) {
               const src = getAttribute(node, 'src');
               if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
                 astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
@@ -356,7 +359,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         const styleId = getAstroPageStyleId(pathname);
         let pageCSSAdded = false;
         for (const node of findAssets(document)) {
-          if (isBuildableLink(node, srcRoot)) {
+          if (isBuildableLink(node, srcRoot, srcRootWeb)) {
             const rel = getAttribute(node, 'rel');
             switch (rel) {
               case 'stylesheet': {
@@ -378,7 +381,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             }
           }
 
-          if (isBuildableImage(node, srcRoot)) {
+          if (isBuildableImage(node, srcRoot, srcRootWeb)) {
             const src = getAttribute(node, 'src')!;
             const referenceId = assetIdMap.get(src);
             if (referenceId) {
