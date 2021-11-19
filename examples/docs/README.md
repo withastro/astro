@@ -60,7 +60,7 @@ This theme uses a "cool blue" accent color by default. To customize this for you
 
 Astro uses frontmatter in Markdown pages to choose layouts and pass properties to those layouts. If you are using the default layout, you can customize the page in many different ways to optimize SEO and other things. For example, you can use the `title` and `description` properties to set the document title, meta title, meta description, and Open Graph description.
 
-```md
+```markdown
 ---
 title: Example title
 description: Really cool docs example that uses Astro

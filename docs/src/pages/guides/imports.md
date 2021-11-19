@@ -128,7 +128,7 @@ We encourage Astro users to avoid Node.js builtins (`fs`, `path`, etc) whenever 
 
 Our aim is to provide Astro alternatives to common Node.js builtins. However, no such alternatives exist today. So, if you _really_ need to use these builtin modules we don't want to stop you. Astro supports Node.js builtins using Node's newer `node:` prefix. If you want to read a file, for example, you can do so like this:
 
-```jsx
+```astro
 ---
 // Example: import the "fs/promises" builtin from Node.js
 import fs from 'node:fs/promises';

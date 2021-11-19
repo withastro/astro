@@ -128,7 +128,7 @@ Using images or videos follows Astro's normal import rules:
 
 Astro has a dedicated component used to let you render your markdown as HTML components. This is a special component that is only exposed to `.astro` files. To use the `<Markdown>` component, within your frontmatter block use the following import statement:
 
-```jsx
+```astro
 ---
 import { Markdown } from 'astro/components';
 ---
@@ -136,7 +136,7 @@ import { Markdown } from 'astro/components';
 
 You can utilize this within your `.astro` file by doing the following:
 
-```jsx
+```astro
 ---
 import { Markdown } from 'astro/components';
 ---
@@ -152,7 +152,7 @@ import { Markdown } from 'astro/components';
 
 `<Markdown>` components provide more flexibility and allow you to use plain HTML or custom components. For example:
 
-````jsx
+````astro
 ---
 // For now, this import _must_ be named "Markdown" and _must not_ be wrapped with a custom component
 // We're working on easing these restrictions!
@@ -197,7 +197,7 @@ const expressions = 'Lorem ipsum';
 
 If you have Markdown in a remote source, you may pass it directly to the Markdown component through the `content` attribute. For example, the example below fetches the README from Snowpack's GitHub repository and renders it as HTML.
 
-```jsx
+```astro
 ---
 import { Markdown } from 'astro/components';
 
@@ -211,7 +211,7 @@ const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpa
 
 There might be times when you want to combine both dynamic, and static markdown. If that is the case, you can nest `<Markdown>` components with each other to get the best of both worlds.
 
-```jsx
+```astro
 ---
 import { Markdown } from 'astro/components';
 

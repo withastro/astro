@@ -126,7 +126,7 @@ Recomendamos a los usuarios de Astro que eviten los archivos incorporados en Nod
 
 Nuestro objetivo es proporcionar alternativas de Astro a las incorporaciones comunes de Node.js. Sin embargo, hoy en día no existen tales alternativas. Entonces, si _realmente_ necesitas usar estos módulos incorporados, no queremos detenerte. Astro soporta incorporaciones de Node.js usando el prefijo `node:` más nuevo de Node. Si deseas leer un archivo, por ejemplo, puedes hacerlo así:
 
-```jsx
+```astro
 ---
 // Ejemplo: importar el "fs/promises" incorporado desde Node.js
 import fs from 'node:fs/promises';
