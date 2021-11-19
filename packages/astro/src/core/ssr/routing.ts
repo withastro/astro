@@ -83,7 +83,7 @@ interface Item {
 }
 
 /** Create manifest of all static routes */
-export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?: string }): ManifestData {
+export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?: string }, logging: LogOptions): ManifestData {
   const components: string[] = [];
   const routes: RouteData[] = [];
 
@@ -194,7 +194,13 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
     });
   }
 
-  walk(fileURLToPath(config.pages), [], []);
+  if (fs.existsSync(config.pages)) {
+    walk(fileURLToPath(config.pages), [], []);
+  } else {
+    const pagesDirRootRelative = config.pages.href.slice(config.projectRoot.href.length);
+
+    warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
+  }
 
   return {
     routes,
