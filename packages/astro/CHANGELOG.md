@@ -1,5 +1,12 @@
 # astro
 
+## 0.21.0-next.12
+
+### Patch Changes
+
+- 8733599e: Adds missing vite dependency, vixing svelte and vue
+- 2e0c790b: Fix Lit renderer built
+
 ## 0.21.0-next.11
 
 ### Patch Changes
