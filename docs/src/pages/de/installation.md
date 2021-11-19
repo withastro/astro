@@ -54,7 +54,7 @@ Nachdem `create-astro` dein Projekt eingerichtet hat, denke daran die Abhängigk
 npm install
 ```
 
-Du kannst dein Astro-Projekt nun [starten](#start-astro). Sobald du dein Astro-Projekt fertiggestellt hast, kannst du dein Projekt [kompilieren](#build-astro). Astro wird dann deine Anwendung fertig packen und dafür die statischen Seiten generieren, die du bei deinem bevorzugten Hosting-Anbieter [ausrollen](/guides/deploy) kannst.
+Du kannst dein Astro-Projekt nun [starten](#start-astro). Sobald du dein Astro-Projekt fertiggestellt hast, kannst du dein Projekt [kompilieren](#build-astro). Astro wird dann deine Anwendung fertig packen und dafür die statischen Seiten generieren, die du bei deinem bevorzugten Hosting-Anbieter [veröffentlichen](/guides/deploy) kannst.
 
 ## Manuelle Installation
 
