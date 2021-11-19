@@ -17,7 +17,7 @@ export type { Metadata } from './metadata';
 async function _render(child: any): Promise<any> {
   child = await child;
   if (Array.isArray(child)) {
-    return (await Promise.all(child.map((value) => _render(value)))).join('\n');
+    return (await Promise.all(child.map((value) => _render(value)))).join('');
   } else if (typeof child === 'function') {
     // Special: If a child is a function, call it automatically.
     // This lets you do {() => ...} without the extra boilerplate
@@ -375,7 +375,7 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
   if (needsHydrationStyles) {
     styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
   }
-  return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
+  return template.replace('</head>', styles.join('') + scripts.join('') + '</head>');
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
