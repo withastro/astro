@@ -31,7 +31,8 @@ const isBuildableLink = (node: parse5.Element, srcRoot: string, srcRootWeb: stri
   if (typeof href !== 'string' || !href.length) return false;
   return href.startsWith(srcRoot) || href.startsWith(srcRootWeb) || `/${href}`.startsWith(srcRoot); // Windows fix: some paths are missing leading "/"
 };
-const isBuildableImage = (node: parse5.Element, srcRoot: string, srcRootWeb: string) => getTagName(node) === 'img' && (getAttribute(node, 'src')?.startsWith(srcRoot) || getAttribute(node, 'src')?.startsWith(srcRootWeb));
+const isBuildableImage = (node: parse5.Element, srcRoot: string, srcRootWeb: string) =>
+  getTagName(node) === 'img' && (getAttribute(node, 'src')?.startsWith(srcRoot) || getAttribute(node, 'src')?.startsWith(srcRootWeb));
 const hasSrcSet = (node: parse5.Element) => tagsWithSrcSet.has(getTagName(node)) && !!getAttribute(node, 'srcset');
 const isHoistedScript = (node: parse5.Element) => getTagName(node) === 'script' && hasAttribute(node, 'hoist');
 
