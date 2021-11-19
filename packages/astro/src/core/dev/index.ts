@@ -110,7 +110,7 @@ export class AstroDevServer {
     }
 
     const route = this.mostRecentRoute;
-    const pathname = route?.pathname ?? '/';
+    const [pathname, search = undefined] = (route?.pathname ?? '/').split('?');
 
     if (!route) {
       viteServer.ws.send({
@@ -274,7 +274,7 @@ export class AstroDevServer {
   private async handleRequest(req: http.IncomingMessage, res: http.ServerResponse, next: NextFunction) {
     if (!this.viteServer) throw new Error(`AstroDevServer.start() not called`);
 
-    let pathname = req.url || '/'; // original request
+    let [pathname, search = undefined] = (req.url || '/').split('?'); // original request
     const reqStart = performance.now();
     let filePath: URL | undefined;
     try {
