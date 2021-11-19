@@ -71,9 +71,11 @@ const posts = Astro.fetchContent('../../data/blog-posts/*.md').sort((a, b) => (n
         <section aria-label="Blog post list">
         {posts.map(p => {
           const href = `/blog/${p.file.pathname.split('/').pop().split('.').shift()}`;
-          return <BlogPostPreview title={p.title} publishDate={p.publishDate} href={href}>
-            <span>{p.description}</span>
-          </BlogPostPreview>
+          return (
+            <BlogPostPreview title={p.title} publishDate={p.publishDate} href={href}>
+              <span>{p.description}</span>
+            </BlogPostPreview>
+          );
         })}
         </section>
       </main>
