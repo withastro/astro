@@ -104,7 +104,7 @@ class AstroBuilder {
                 return routes;
               })
               .catch((err) => {
-                debug(logging, 'build', `├── ${colors.bold(colors.red(' '))} ${route.component}`);
+                debug(logging, 'build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
                 throw err;
               }),
           };
