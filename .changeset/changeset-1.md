@@ -1,4 +1,5 @@
 ---
+'@astrojs/renderer-lit': minor
 '@astrojs/renderer-preact': minor
 '@astrojs/renderer-react': minor
 '@astrojs/renderer-solid': minor
