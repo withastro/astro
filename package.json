@@ -15,7 +15,7 @@
     "build:core": "lerna run build --scope \"{astro,@astrojs/parser,@astrojs/markdown-remark}\"",
     "dev": "yarn dev:core --parallel --stream",
     "dev:one": "lerna run dev --scope --parallel --stream",
-    "dev:all": "lerna run dev --scope \"{astro,@astrojs/*}\" --parallel --stream",
+    "dev:all": "lerna run dev --scope \"{astro,create-astro,@astrojs/*}\" --parallel --stream",
     "dev:core": "lerna run dev --scope \"{astro,@astrojs/parser,@astrojs/markdown-remark}\" --parallel --stream",
     "format": "prettier -w .",
     "lint": "eslint \"packages/**/*.ts\"",
