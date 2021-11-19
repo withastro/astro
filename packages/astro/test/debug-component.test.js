@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { loadFixture } from './test-utils.js';
 
-describe('<Debug />', () => {
+describe.skip('<Debug />', () => {
   /** @type {import('./test-utils').Fixture} */
   let fixture
   /** @type {import('./test-utils').DevServer} */
