@@ -17,7 +17,7 @@ const { Content, title, author, description, publishDate, heroImage, heroImageAl
 
 <html lang={lang ?? 'en'}>
   <head>
-    <BaseHead title={title} description={description} canonicalURL={permalink} image={socialImage} />
+    <BaseHead title={title} description={description} canonicalURL={permalink} image={socialImage && `https://astro.build${socialImage}`} />
     <link rel="stylesheet" href={Astro.resolve('../../scss/blog.scss')} />
   </head>
   <body>
