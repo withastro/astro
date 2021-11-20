@@ -167,17 +167,20 @@ const { greeting = 'Hello', name } = Astro.props;
 </div>
 ```
 
-You can define your props with TypeScript by exporting a `Props` type interface.
+You can define your props with TypeScript by exporting a `Props` type interface. Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
 
-> _**In the future**_, Astro will automatically pick up any exported `Props` interface and give type warnings/errors for your project.
+Make sure to keep all `import` and `export` statements at the top of the component, before any other JavaScript or TypeScript logic!
 
 ```astro
 ---
+// include any `import` and `export` statements first
 // Example: <SomeComponent />  (WARNING: "name" prop is required)
 export interface Props {
   name: string;
   greeting?: string;
 }
+
+// with `import`s and `export`s out of the way, include the rest of the component logic here
 const { greeting = 'Hello', name } = Astro.props;
 ---
 <div>
