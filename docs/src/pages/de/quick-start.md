@@ -63,7 +63,7 @@ Astro-Sites sind statisch, sodass sie ganz einfach bei deinem bevorzugten Hoster
 - [Google Firebase](https://firebase.google.com/)
 - [Netlify](https://www.netlify.com/)
 - [Vercel](https://vercel.com/)
-- [Erfahre mehr über das Veröffentlichen in der Anleitung zum Ausrollen](/guides/deploy).
+- [Erfahre mehr über das Veröffentlichen von Astro-Builds](/guides/deploy).
 
 ## Nächste Schritte
 
