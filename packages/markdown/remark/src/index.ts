@@ -28,12 +28,7 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
   return { ...value, frontmatter };
 }
 
-export const DEFAULT_REMARK_PLUGINS = [
-  'remark-gfm',
-  'remark-footnotes',
-  // TODO: reenable smartypants!
-  // '@silvenon/remark-smartypants'
-];
+export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-footnotes', '@silvenon/remark-smartypants'];
 
 export const DEFAULT_REHYPE_PLUGINS = [
   // empty
