@@ -36,7 +36,7 @@ export const DEFAULT_REHYPE_PLUGINS = [
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-  const { remarkPlugins = DEFAULT_REMARK_PLUGINS, rehypePlugins = DEFAULT_REHYPE_PLUGINS } = opts ?? {};
+  let { remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
   const scopedClassName = opts?.$?.scopedClassName;
   const mode = opts?.mode ?? 'mdx';
   const isMDX = mode === 'mdx';
@@ -49,6 +49,11 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
     .use(isMDX ? [remarkJsx] : [])
     .use(isMDX ? [remarkExpressions] : [])
     .use([remarkUnwrap]);
+
+  if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
+    remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
+    rehypePlugins = [...DEFAULT_REHYPE_PLUGINS];
+  }
 
   const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
   const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
