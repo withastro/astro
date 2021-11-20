@@ -1,4 +1,3 @@
-import type { MarkdownParserResponse } from 'astro';
 import type { AstroMarkdownOptions, MarkdownRenderingOptions } from './types';
 
 import createCollectHeaders from './rehype-collect-headers.js';
@@ -23,7 +22,7 @@ import matter from 'gray-matter';
 export { AstroMarkdownOptions, MarkdownRenderingOptions };
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
-export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null): Promise<MarkdownParserResponse> {
+export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null) {
   const { data: frontmatter, content } = matter(contents);
   const value = await renderMarkdown(content, opts);
   return { ...value, frontmatter };
