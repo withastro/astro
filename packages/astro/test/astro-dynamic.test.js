@@ -30,24 +30,26 @@ describe('Dynamic components', () => {
     expect(js).to.include(`value:"(max-width: 600px)"`);
   });
 
-  it.skip('Loads pages using client:only hydrator', async () => {
+  it('Loads pages using client:only hydrator', async () => {
     const html = await fixture.readFile('/client-only/index.html');
     const $ = cheerio.load(html);
 
     // test 1: <astro-root> is empty
     expect($('<astro-root>').html()).to.equal('');
+    const script = $('script').text();
+    console.log(script);
 
     // Grab the svelte import
-    const exp = /import\("(.+?)"\)/g;
-    let match, svelteRenderer;
-    while ((match = exp.exec(result.contents))) {
-      if (match[1].includes('renderers/renderer-svelte/client.js')) {
-        svelteRenderer = match[1];
-      }
-    }
+    // const exp = /import\("(.+?)"\)/g;
+    // let match, svelteRenderer;
+    // while ((match = exp.exec(result.contents))) {
+    //   if (match[1].includes('renderers/renderer-svelte/client.js')) {
+    //     svelteRenderer = match[1];
+    //   }
+    // }
 
     // test 2: Svelte renderer is on the page
-    expect(svelteRenderer).to.be.ok;
+    // expect(svelteRenderer).to.be.ok;
 
     // test 3: Can load svelte renderer
     // const result = await fixture.fetch(svelteRenderer);

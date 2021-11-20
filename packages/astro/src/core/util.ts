@@ -1,7 +1,8 @@
-import type { AstroConfig } from '../@types/astro-core';
+import type { AstroConfig } from '../@types/astro';
 import type { ErrorPayload } from 'vite';
-import fs from 'fs';
+import eol from 'eol';
 import path from 'path';
+import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import resolve from 'resolve';
 
@@ -41,7 +42,7 @@ export function parseNpmName(spec: string): { scope?: string; name: string; subp
 /** generate code frame from esbuild error */
 export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string {
   if (!loc) return '';
-  const lines = src.replace(/\r\n/g, '\n').split('\n');
+  const lines = eol.lf(src).split('\n');
   // grab 2 lines before, and 3 lines after focused line
   const visibleLines = [];
   for (let n = -2; n <= 2; n++) {
@@ -72,6 +73,13 @@ export function resolveDependency(dep: string, astroConfig: AstroConfig) {
   return pathToFileURL(resolved).toString();
 }
 
-export function viteifyPath(pathname: string): string {
-  return `/@fs${pathname}`;
+/**
+ * Vite-ify URL
+ * Given a file URL, return an ID that matches Vite’s module graph. Needed for resolution and stack trace fixing.
+ * Must match the following format:
+ * Linux/Mac:  /Users/astro/code/my-project/src/pages/index.astro
+ * Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
+ */
+export function viteifyURL(filePath: URL): string {
+  return slash(fileURLToPath(filePath));
 }

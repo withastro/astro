@@ -1,5 +1,5 @@
 import type { Plugin } from '../core/vite';
-import type { AstroConfig } from '../@types/astro-core';
+import type { AstroConfig } from '../@types/astro';
 
 import esbuild from 'esbuild';
 import fs from 'fs';
@@ -42,8 +42,10 @@ ${components ? `import * from '${components}';` : ''}
 ${setup}
 const $$content = ${JSON.stringify(content)}
 ---`;
+        const imports = `${layout ? `import Layout from '${layout}';` : ''}
+${setup}`.trim();
         // If the user imported "Layout", wrap the content in a Layout
-        if (/\bLayout\b/.test(prelude)) {
+        if (/\bLayout\b/.test(imports)) {
           astroResult = `${prelude}\n<Layout content={$$content}>\n\n${astroResult}\n\n</Layout>`;
         } else {
           astroResult = `${prelude}\n${astroResult}`;

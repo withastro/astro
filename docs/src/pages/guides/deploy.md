@@ -273,11 +273,11 @@ Different from most available deploy options here, [Google Cloud](https://cloud.
 
    `.firebaserc`:
 
-   ```js
+   ```json
    {
-    "projects": {
-      "default": "<YOUR_FIREBASE_ID>"
-    }
+     "projects": {
+       "default": "<YOUR_FIREBASE_ID>"
+     }
    }
    ```
 

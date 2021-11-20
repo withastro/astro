@@ -16,6 +16,10 @@ export class Metadata {
     this.metadataCache = new Map<any, ComponentMetadata | null>();
   }
 
+  resolvePath(specifier: string): string {
+    return specifier.startsWith('.') ? new URL(specifier, this.fileURL).pathname : specifier;
+  }
+
   getPath(Component: any): string | null {
     const metadata = this.getComponentMetadata(Component);
     return metadata?.componentUrl || null;
@@ -58,7 +62,7 @@ export class Metadata {
   private findComponentMetadata(Component: any): ComponentMetadata | null {
     const isCustomElement = typeof Component === 'string';
     for (const { module, specifier } of this.modules) {
-      const id = specifier.startsWith('.') ? new URL(specifier, this.fileURL).pathname : specifier;
+      const id = this.resolvePath(specifier);
       for (const [key, value] of Object.entries(module)) {
         if (isCustomElement) {
           if (key === 'tagName' && Component === value) {

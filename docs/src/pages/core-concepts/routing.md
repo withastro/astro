@@ -37,7 +37,7 @@ Dynamic parameters are encoded into the filename using `[bracket]` notation:
 
 Consider the following page `pages/post/[pid].astro`:
 
-```jsx
+```astro
 ---
 // Example: src/pages/post/[pid].astro
 const {pid} = Astro.request.params;

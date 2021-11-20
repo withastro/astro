@@ -1,6 +1,6 @@
 import type { NextFunction } from 'connect';
 import type http from 'http';
-import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../../@types/astro-core';
+import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 import type { HmrContext, ModuleNode } from '../vite';
 
@@ -21,12 +21,13 @@ import { createVite } from '../create-vite.js';
 import * as msg from './messages.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from './template/4xx.js';
 import serverErrorTemplate from './template/5xx.js';
+import { viteifyURL } from '../util.js';
 
 export interface DevOptions {
   logging: LogOptions;
 }
 
-interface DevServer {
+export interface DevServer {
   hostname: string;
   port: number;
   server: connect.Server;
@@ -60,7 +61,7 @@ export class AstroDevServer {
   private manifest: ManifestData;
   private mostRecentRoute?: RouteData;
   private site: URL | undefined;
-  private pathname: string;
+  private devRoot: string;
   private url: URL;
   private origin: string;
   private routeCache: RouteCache = {};
@@ -73,8 +74,8 @@ export class AstroDevServer {
     this.port = config.devOptions.port;
     this.origin = `http://localhost:${this.port}`;
     this.site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
-    this.pathname = this.site ? this.site.pathname + '/' : '/';
-    this.url = new URL(this.pathname, this.origin);
+    this.devRoot = this.site ? this.site.pathname : '/';
+    this.url = new URL(this.devRoot, this.origin);
     this.manifest = createRouteManifest({ config });
   }
 
@@ -83,8 +84,8 @@ export class AstroDevServer {
 
     // Setup the dev server and connect it to Vite (via middleware)
     this.viteServer = await this.createViteServer();
-    this.app.use((req, res, next) => this.handleRequest(req, res, next));
     this.app.use(this.viteServer.middlewares);
+    this.app.use((req, res, next) => this.handleRequest(req, res, next));
     this.app.use((req, res, next) => this.renderError(req, res, next));
 
     // Listen on port (and retry if taken)
@@ -96,7 +97,7 @@ export class AstroDevServer {
       await this.viteServer.close();
     }
     if (this.httpServer) {
-      await promisify(this.httpServer.close)();
+      await promisify(this.httpServer.close.bind(this.httpServer))();
     }
   }
 
@@ -109,7 +110,7 @@ export class AstroDevServer {
     }
 
     const route = this.mostRecentRoute;
-    const pathname = route?.pathname ?? '/';
+    const [pathname, search = undefined] = (route?.pathname ?? '/').split('?');
 
     if (!route) {
       viteServer.ws.send({
@@ -201,7 +202,7 @@ export class AstroDevServer {
       const listen = () => {
         this.httpServer = this.app.listen(this.port, this.hostname, () => {
           info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
-          info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}${this.pathname}` }));
+          info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}${this.devRoot}` }));
           resolve();
         });
         this.httpServer?.on('error', onError);
@@ -273,14 +274,26 @@ export class AstroDevServer {
   private async handleRequest(req: http.IncomingMessage, res: http.ServerResponse, next: NextFunction) {
     if (!this.viteServer) throw new Error(`AstroDevServer.start() not called`);
 
-    let pathname = req.url || '/'; // original request
+    let [pathname, search = undefined] = (req.url || '/').split('?'); // original request
     const reqStart = performance.now();
     let filePath: URL | undefined;
     try {
-      let routePathname = pathname.startsWith(this.pathname) ? pathname.substr(this.pathname.length) || '/' : undefined;
-      if (!routePathname) {
-        next();
-        return;
+      let routePathname: string = pathname;
+      // If using a subpath, ensure that the user has included the pathname
+      // such as /blog in the URL.
+      if (this.devRoot !== '/') {
+        if (pathname.startsWith(this.devRoot)) {
+          // This includes the subpath, so strip off the subpath so that
+          // matchRoute finds this route.
+          routePathname = pathname.substr(this.devRoot.length) || '';
+          if (!routePathname.startsWith('/')) {
+            routePathname = '/' + routePathname;
+          }
+        } else {
+          // Not using the subpath, so forward to Vite's middleware
+          next();
+          return;
+        }
       }
 
       const route = matchRoute(routePathname, this.manifest);
@@ -293,9 +306,6 @@ export class AstroDevServer {
         next();
         return;
       }
-
-      this.mostRecentRoute = route;
-
       // handle .astro and .md pages
       filePath = new URL(`./${route.component}`, this.config.projectRoot);
       const html = await ssr({
@@ -309,6 +319,7 @@ export class AstroDevServer {
         routeCache: this.routeCache,
         viteServer: this.viteServer,
       });
+      this.mostRecentRoute = route;
       info(this.logging, 'astro', msg.req({ url: pathname, statusCode: 200, reqTime: performance.now() - reqStart }));
       res.writeHead(200, {
         'Content-Type': mime.getType('.html') as string,
@@ -317,9 +328,17 @@ export class AstroDevServer {
       res.write(html);
       res.end();
     } catch (err: any) {
-      this.viteServer.ws.send({ type: 'error', err });
       const statusCode = 500;
-      const html = serverErrorTemplate({
+      const mod = filePath && this.viteServer.moduleGraph.getModuleById(viteifyURL(filePath));
+      if (mod) {
+        for (const m of [mod, ...mod.importedModules]) {
+          this.viteServer.moduleGraph.invalidateModule(m);
+        }
+      } else {
+        this.viteServer.moduleGraph.invalidateAll();
+      }
+      this.viteServer.ws.send({ type: 'error', err });
+      let html = serverErrorTemplate({
         statusCode,
         title: 'Internal Error',
         tabTitle: '500: Error',
@@ -327,6 +346,7 @@ export class AstroDevServer {
         url: err.url || undefined,
         stack: stripAnsi(err.stack),
       });
+      html = await this.viteServer.transformIndexHtml(pathname, html, pathname);
       info(this.logging, 'astro', msg.req({ url: pathname, statusCode: 500, reqTime: performance.now() - reqStart }));
       res.writeHead(statusCode, {
         'Content-Type': mime.getType('.html') as string,
@@ -363,8 +383,8 @@ export class AstroDevServer {
     }
     // if not found, fall back to default template
     else {
-      if (pathname === '/' && !pathname.startsWith(this.pathname)) {
-        html = subpathNotUsedTemplate(this.pathname, pathname);
+      if (pathname === '/' && !pathname.startsWith(this.devRoot)) {
+        html = subpathNotUsedTemplate(this.devRoot, pathname);
       } else {
         html = notFoundTemplate({ statusCode, title: 'Not found', tabTitle: '404: Not Found', pathname });
       }

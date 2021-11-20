@@ -37,7 +37,7 @@ Los parámetros dinámicos se codifican en el nombre del archivo usando la notac
 
 Considera la siguiente página `pages/post/[pid].astro`:
 
-```jsx
+```astro
 ---
 // Example: src/pages/post/[pid].astro
 const {pid} = Astro.request.params;

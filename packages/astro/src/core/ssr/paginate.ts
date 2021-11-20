@@ -1,12 +1,12 @@
-import { GetStaticPathsResult, PaginatedCollectionProp, PaginateFunction, Params, Props, RouteData } from '../../@types/astro-core';
+import { GetStaticPathsResult, Page, PaginateFunction, Params, Props, RouteData } from '../../@types/astro';
 
 export function generatePaginateFunction(routeMatch: RouteData): PaginateFunction {
   return function paginateUtility(data: any[], args: { pageSize?: number; params?: Params; props?: Props } = {}) {
     let { pageSize: _pageSize, params: _params, props: _props } = args;
     const pageSize = _pageSize || 10;
     const paramName = 'page';
-    const additoonalParams = _params || {};
-    const additoonalProps = _props || {};
+    const additionalParams = _params || {};
+    const additionalProps = _props || {};
     let includesFirstPageNumber: boolean;
     if (routeMatch.params.includes(`...${paramName}`)) {
       includesFirstPageNumber = false;
@@ -24,13 +24,13 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
       const start = pageSize === Infinity ? 0 : (pageNum - 1) * pageSize; // currentPage is 1-indexed
       const end = Math.min(start + pageSize, data.length);
       const params = {
-        ...additoonalParams,
+        ...additionalParams,
         [paramName]: includesFirstPageNumber || pageNum > 1 ? String(pageNum) : undefined,
       };
       return {
         params,
         props: {
-          ...additoonalProps,
+          ...additionalProps,
           page: {
             data: data.slice(start, end),
             start,
@@ -44,7 +44,7 @@ export function generatePaginateFunction(routeMatch: RouteData): PaginateFunctio
               next: pageNum === lastPage ? undefined : routeMatch.generate({ ...params, page: String(pageNum + 1) }),
               prev: pageNum === 1 ? undefined : routeMatch.generate({ ...params, page: !includesFirstPageNumber && pageNum - 1 === 1 ? undefined : String(pageNum - 1) }),
             },
-          } as PaginatedCollectionProp,
+          } as Page,
         },
       };
     });

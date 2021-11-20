@@ -1,6 +1,7 @@
 import type { CompileError } from '@astrojs/parser';
 
 import { bold, blue, dim, red, grey, underline, yellow } from 'kleur/colors';
+import { performance } from 'perf_hooks';
 import { Writable } from 'stream';
 import stringWidth from 'string-width';
 import { format as utilFormat } from 'util';
@@ -36,7 +37,7 @@ export const defaultLogDestination = new Writable({
     dest.write(dim(dt.format(new Date()) + ' '));
 
     let type = event.type;
-    if (type !== null) {
+    if (type) {
       if (event.level === 'info') {
         type = bold(blue(type));
       } else if (event.level === 'warn') {
@@ -190,5 +191,5 @@ if (process.argv.includes('--verbose')) {
 export function timerMessage(message: string, startTime: number = performance.now()) {
   let timeDiff = performance.now() - startTime;
   let timeDisplay = timeDiff < 750 ? `${Math.round(timeDiff)}ms` : `${(timeDiff / 1000).toFixed(1)}s`;
-  return `${message}: ${dim(timeDisplay)}]`;
+  return `${message}   ${dim(timeDisplay)}`;
 }

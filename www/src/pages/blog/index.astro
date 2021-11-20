@@ -7,6 +7,8 @@ let title = 'Astro Blog';
 let description = 'Everything you need to know about Astro, direct from mission control.';
 let permalink = 'https://astro.build/blog';
 let lang = 'en';
+
+const posts = Astro.fetchContent('../../data/blog-posts/*.md').sort((a, b) => (new Date(b.publishDate) - new Date(a.publishDate)));
 ---
 
 <html lang={ lang ?? 'en' }>
@@ -67,33 +69,14 @@ let lang = 'en';
           <p>{description}</p>
         </section>
         <section aria-label="Blog post list">
-          <BlogPostPreview title="Astro 0.21 Preview: Vite + WASM = ⚡️" publishDate="October 6, 2021" href="/blog/astro-021-preview">
-            <span>Get a sneak preview of what's next for Astro, including our new Vite build engine and WASM-powered Go compiler.</span>
-          </BlogPostPreview>
-
-          <BlogPostPreview title="Astro Demo Day September Edition" publishDate="September 20, 2021" href="/blog/demo-day-2021-09">
-            <span>Astro September Demo Day was today and we had 4 amazing talks, including one with big announcements on the future direction of Astro.</span>
-          </BlogPostPreview>
-
-          <BlogPostPreview title="Introducing the Astro REPL" publishDate="September 17, 2021" href="/blog/astro-repl">
-            <span>The power of Astro, right in your browser.</span>
-          </BlogPostPreview>
-
-          <BlogPostPreview title="Netlify Becomes Astro's Official Hosting Partner" publishDate="September 9, 2021" href="/blog/netlify-astro-hosting-sponsorship">
-            <span>We are happy to announce that Netlify has become Astro’s first corporate sponsor and exclusive hosting partner, donating $2,500 each month towards the ongoing open source maintenance and development of Astro.</span>
-          </BlogPostPreview>
-
-          <BlogPostPreview title="Astro 0.19" publishDate="August 18, 2021" href="/blog/astro-019">
-            <span>Introducing: Next.js-inspired file routing • Astro.resolve() • client:only components • translations.</span>
-          </BlogPostPreview>
-
-          <BlogPostPreview title="Astro 0.18" publishDate="July 27, 2021" href="/blog/astro-018">
-            <span>Introducing: Responsive partial hydration • Solid.js support • Lit SSR support • Named slots • Global style support.</span>
-          </BlogPostPreview>
-
-          <BlogPostPreview title="Introducing Astro: Ship Less JavaScript" publishDate="June 8, 2021" href="/blog/introducing-astro">
-            <span>We're excited to announce Astro as a new way to build static websites and deliver lightning-fast performance without sacrificing a modern developer experience.</span>
-          </BlogPostPreview>
+        {posts.map(p => {
+          const href = `/blog/${p.file.pathname.split('/').pop().split('.').shift()}`;
+          return (
+            <BlogPostPreview title={p.title} publishDate={p.publishDate} href={href}>
+              <span>{p.description}</span>
+            </BlogPostPreview>
+          );
+        })}
         </section>
       </main>
     </div>

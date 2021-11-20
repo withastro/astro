@@ -1,17 +1,35 @@
 import type { BuildResult } from 'esbuild';
 import type vite from '../vite';
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRError } from '../../@types/astro-core';
-import type { AstroGlobal, TopLevelAstro, SSRResult, SSRElement } from '../../@types/astro-runtime';
+import type {
+  AstroConfig,
+  AstroGlobal,
+  AstroGlobalPartial,
+  ComponentInstance,
+  GetStaticPathsResult,
+  Params,
+  Props,
+  Renderer,
+  RouteCache,
+  RouteData,
+  RuntimeMode,
+  SSRElement,
+  SSRError,
+  SSRResult,
+} from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
+import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
-import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyPath } from '../util.js';
-import { getStylesForID } from './css.js';
+import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyURL } from '../util.js';
+import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
+
+const svelteAndVueStylesRE = /\?[^&]+&type=style&lang/;
 
 interface SSROptions {
   /** an instance of the AstroConfig */
@@ -72,22 +90,34 @@ async function resolveRenderers(viteServer: vite.ViteDevServer, astroConfig: Ast
   return renderers;
 }
 
-async function errorHandler(e: unknown, viteServer: vite.ViteDevServer, filePath: URL) {
+interface ErrorHandlerOptions {
+  filePath: URL;
+  viteServer: vite.ViteDevServer;
+}
+
+async function errorHandler(e: unknown, { viteServer, filePath }: ErrorHandlerOptions) {
+  // normalize error stack line-endings to \n
+  if ((e as any).stack) {
+    (e as any).stack = eol.lf((e as any).stack);
+  }
+
+  // fix stack trace with Vite (this searches its module graph for matches)
   if (e instanceof Error) {
     viteServer.ssrFixStacktrace(e);
   }
 
   // Astro error (thrown by esbuild so it needs to be formatted for Vite)
-  const anyError = e as any;
-  if (anyError.errors) {
+  if (Array.isArray((e as any).errors)) {
     const { location, pluginName, text } = (e as BuildResult).errors[0];
     const err = e as SSRError;
     if (location) err.loc = { file: location.file, line: location.line, column: location.column };
-    const frame = codeFrame(await fs.promises.readFile(filePath, 'utf8'), err.loc);
-    err.frame = frame;
+    let src = err.pluginCode;
+    if (!src && err.id && fs.existsSync(err.id)) src = await fs.promises.readFile(err.id, 'utf8');
+    if (!src) src = await fs.promises.readFile(filePath, 'utf8');
+    err.frame = codeFrame(src, err.loc);
     err.id = location?.file;
     err.message = `${location?.file}: ${text}
-${frame}
+${err.frame}
 `;
     if (pluginName) err.plugin = pluginName;
     throw err;
@@ -103,8 +133,7 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
   // Important: This needs to happen first, in case a renderer provides polyfills.
   const renderers = await resolveRenderers(viteServer, astroConfig);
   // Load the module from the Vite SSR Runtime.
-  const viteFriendlyURL = viteifyPath(filePath.pathname);
-  const mod = (await viteServer.ssrLoadModule(viteFriendlyURL)) as ComponentInstance;
+  const mod = (await viteServer.ssrLoadModule(viteifyURL(filePath))) as ComponentInstance;
 
   return [renderers, mod];
 }
@@ -155,7 +184,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
     styles: new Set<SSRElement>(),
     scripts: new Set<SSRElement>(),
     /** This function returns the `Astro` faux-global */
-    createAstro(astroGlobal: TopLevelAstro, props: Record<string, any>, slots: Record<string, any> | null) {
+    createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
       const site = new URL(origin);
       const url = new URL('.' + pathname, site);
       const canonicalURL = getCanonicalURL('.' + pathname, astroConfig.buildOptions.site || origin);
@@ -209,22 +238,32 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
     tags.push({
       tag: 'script',
       attrs: { type: 'module' },
-      children: `import 'astro/runtime/client/hmr.js';`,
+      // HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure
+      // `import.meta.hot` is properly handled by Vite
+      children: await getHmrScript(),
       injectTo: 'head',
     });
   }
 
   // inject CSS
-  [...getStylesForID(filePath.pathname, viteServer)].forEach((href) => {
-    tags.push({
-      tag: 'link',
-      attrs: {
-        rel: 'stylesheet',
-        href,
-        'data-astro-injected': true,
-      },
-      injectTo: 'head',
-    });
+  [...getStylesForURL(filePath, viteServer)].forEach((href) => {
+    if (mode === 'development' && svelteAndVueStylesRE.test(href)) {
+      tags.push({
+        tag: 'script',
+        attrs: { type: 'module', src: href },
+        injectTo: 'head',
+      });
+    } else {
+      tags.push({
+        tag: 'link',
+        attrs: {
+          rel: 'stylesheet',
+          href,
+          'data-astro-injected': true,
+        },
+        injectTo: 'head',
+      });
+    }
   });
 
   // add injected tags
@@ -232,18 +271,27 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
   // run transformIndexHtml() in dev to run Vite dev transformations
   if (mode === 'development') {
-    html = await viteServer.transformIndexHtml(filePath.pathname, html, pathname);
+    html = await viteServer.transformIndexHtml(viteifyURL(filePath), html, pathname);
   }
 
   return html;
 }
 
+let hmrScript: string;
+async function getHmrScript() {
+  if (hmrScript) return hmrScript;
+  const filePath = fileURLToPath(new URL('../../runtime/client/hmr.js', import.meta.url));
+  const content = await fs.promises.readFile(filePath);
+  hmrScript = content.toString();
+  return hmrScript;
+}
+
 export async function ssr(ssrOpts: SSROptions): Promise<string> {
   try {
     const [renderers, mod] = await preload(ssrOpts);
-    return render(renderers, mod, ssrOpts);
+    return await render(renderers, mod, ssrOpts); // note(drew): without "await", errors won’t get caught by errorHandler()
   } catch (e: unknown) {
-    await errorHandler(e, ssrOpts.viteServer, ssrOpts.filePath);
+    await errorHandler(e, { viteServer: ssrOpts.viteServer, filePath: ssrOpts.filePath });
     throw e;
   }
 }

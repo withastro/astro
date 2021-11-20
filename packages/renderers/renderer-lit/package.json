@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-lit",
-  "version": "0.2.0-next.0",
+  "version": "0.2.0",
   "description": "A Lit renderer for Astro",
   "type": "module",
   "exports": {

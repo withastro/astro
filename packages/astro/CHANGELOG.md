@@ -1,5 +1,115 @@
 # astro
 
+## 0.21.0
+
+### Minor Changes
+
+- e6aaeff5: Astro 0.21 is here! [Read the complete migration guide](https://docs.astro.build/migration/0.21.0/).
+
+  This new version of Astro includes:
+
+  - A new, faster, [Go-based compiler](https://github.com/snowpackjs/astro-compiler)
+  - A completely new runtime backed by [Vite](https://vitejs.dev/), with significantly dev experience improvements
+  - Improved support for loading Astro config files, including `.cjs`, `.js`, and `.ts` files
+  - And [many more features](https://astro.build/blog/astro-021-preview/)!
+
+### Patch Changes
+
+- Updated dependencies [e6aaeff5]
+- Updated dependencies [e6aaeff5]
+- Updated dependencies [e6aaeff5]
+  - @astrojs/renderer-preact@0.3.0
+  - @astrojs/renderer-react@0.3.0
+  - @astrojs/renderer-svelte@0.2.0
+  - @astrojs/renderer-vue@0.2.0
+  - @astrojs/markdown-remark@0.4.0
+  - @astrojs/prism@0.3.0
+
+## 0.21.0-next.12
+
+### Patch Changes
+
+- 8733599e: Adds missing vite dependency, vixing svelte and vue
+- 2e0c790b: Fix Lit renderer built
+
+## 0.21.0-next.11
+
+### Patch Changes
+
+- 00d2b625: Add Vite dependencies to astro
+- Updated dependencies [00d2b625]
+  - @astrojs/markdown-remark@0.4.0-next.2
+
+## 0.21.0-next.10
+
+### Patch Changes
+
+- c7682168: Fix build by making vendored vite resolve to copy
+
+## 0.21.0-next.9
+
+### Patch Changes
+
+- 41c6a772: Fix for dev server not starting
+- 3b511059: Fix for OSX .astro file corruption
+
+## 0.21.0-next.8
+
+### Patch Changes
+
+- c82ceff7: Bug fix for Debug when passed JSON contain HTML strings
+- 53d9cf5e: Fixes dev server not stopping cleanly
+- 8986d33b: Improve error display
+- Updated dependencies [8986d33b]
+  - @astrojs/renderer-vue@0.2.0-next.2
+
+## 0.21.0-next.7
+
+### Patch Changes
+
+- dbc49ed6: Fix HMR regression
+- 6b598b24: Fix middleware order
+- 0ce86dfd: Fixes Vue scoped styles when built
+
+## 0.21.0-next.6
+
+### Patch Changes
+
+- dbc49ed6: Fix HMR regression
+- 6b598b24: Fix middleware order
+- 0ce86dfd: Fixes Vue scoped styles when built
+
+## 0.21.0-next.5
+
+### Patch Changes
+
+- 0f9c1910: Fixes routing regression in next.4. Subpath support was inadvertedly prevent any non-index routes from working when not using a subpath.
+
+## 0.21.0-next.4
+
+### Patch Changes
+
+- b958088c: Make astro-root be a display: contents element
+- 65d17857: Fixes hoisted scripts to be bundled during the build
+- 3b8f201c: Add build output
+- 824c1f20: Re-implement client:only support
+- 3cd1458a: Bugfix: Bundled CSS missing files on Windows
+- 4e55be90: Fixes layout file detection on non-unix environments
+- fca1a99d: Provides first-class support for a site deployed to a subpath
+
+  Now you can deploy your site to a subpath more easily. Astro will use your `buildOptions.site` URL and host the dev server from there.
+
+  If your site config is `http://example.com/blog` you will need to go to `http://localhost:3000/blog/` in dev and when using `astro preview`.
+
+  Includes a helpful 404 page when encountering this in dev and preview.
+
+- 65216ef9: Bugfix: PostCSS not working in all contexts
+- Updated dependencies [3cd1458a]
+  - @astrojs/renderer-preact@0.3.0-next.1
+  - @astrojs/renderer-react@0.3.0-next.1
+  - @astrojs/renderer-svelte@0.2.0-next.1
+  - @astrojs/renderer-vue@0.2.0-next.1
+
 ## 0.21.0-next.3
 
 ### Patch Changes

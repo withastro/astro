@@ -1,5 +1,12 @@
 # @astrojs/prism
 
+## 0.3.0
+
+### Patch Changes
+
+- e6aaeff5: - Adds compatibility to work with Astro 0.21.
+  - New typings added for the primary export.
+
 ## 0.3.0-next.0
 
 ### Minor Changes

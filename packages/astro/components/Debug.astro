@@ -1,4 +1,6 @@
 ---
+import Code from './Code.astro';
+
 const key = Object.keys(Astro.props)[0];
 const value = Astro.props[key];
 ---
@@ -8,7 +10,7 @@ const value = Astro.props[key];
     <h2 class="debug-title"><span class="debug-label">Debug</span> <span class="debug-name">"{key}"</span></h2>
   </div>
 
-  <pre>{JSON.stringify(value, null, 2)}</pre>
+  <Code code={JSON.stringify(value, null, 2)} />
 </div>
 
 <style>

@@ -53,7 +53,7 @@ In your Astro template import this component as a side-effect and use the elemen
 
 __src/pages/index.astro__
 
-```jsx
+```astro
 ---
 import '../components/my-element.js';
 ---
@@ -69,7 +69,7 @@ The renderer automatically handles adding appropriate polyfills for support in b
 
 Hydration is also handled automatically. You can use the same hydration directives such as `client:load`, `client:idle` and `client:visible` as you can with other libraries that Astro supports.
 
-```jsx
+```astro
 ---
 import '../components/my-element.js';
 ---

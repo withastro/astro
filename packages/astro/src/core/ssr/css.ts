@@ -1,16 +1,17 @@
-import type vite from '../../../vendor/vite';
+import type vite from '../vite';
 
 import path from 'path';
+import { viteifyURL } from '../util.js';
 
 // https://vitejs.dev/guide/features.html#css-pre-processors
 export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
-export const PREPROCESSOR_EXTENSIONS = new Set(['.pcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
 
 /** find unloaded styles */
-export function getStylesForID(id: string, viteServer: vite.ViteDevServer): Set<string> {
+export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
   const css = new Set<string>();
   const { idToModuleMap } = viteServer.moduleGraph;
-  const moduleGraph = idToModuleMap.get(id);
+  const rootID = viteifyURL(filePath);
+  const moduleGraph = idToModuleMap.get(rootID);
   if (!moduleGraph) return css;
 
   // recursively crawl module graph to get all style files imported by parent id
@@ -28,7 +29,7 @@ export function getStylesForID(id: string, viteServer: vite.ViteDevServer): Set<
       scanned.add(importedModule.id);
     }
   }
-  crawlCSS(id);
+  crawlCSS(rootID);
 
   return css;
 }
