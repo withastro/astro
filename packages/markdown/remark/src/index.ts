@@ -30,9 +30,7 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
 
 export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', '@silvenon/remark-smartypants'];
 
-export const DEFAULT_REHYPE_PLUGINS = [
-  // empty
-];
+export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
