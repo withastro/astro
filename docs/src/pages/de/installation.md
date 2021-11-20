@@ -99,7 +99,7 @@ Jetzt kannst du den Platzhalter im Abschnitt "scripts" deiner `package.json`-Dat
 }
 ```
 
-Der Befehl [`dev`](#start-astro) startet den Astro Entwicklungsserver auf `http://localhost:3000`. Sobald dein Projekt fertig ist, gibt der Befehl [`build`](#build-astro) dein Projekt in das Verzeichnis `dist/` aus. [Lese mehr über das Veröffentlichen in der Anleitung zum Ausrollen](/guides/deploy).
+Der Befehl [`dev`](#start-astro) startet den Astro Entwicklungsserver auf `http://localhost:3000`. Sobald dein Projekt fertig ist, gibt der Befehl [`build`](#build-astro) dein Projekt in das Verzeichnis `dist/` aus. [Lese mehr über das Veröffentlichen von Astro-Builds](/guides/deploy).
 
 ### Erstelle deine erste Seite
 
