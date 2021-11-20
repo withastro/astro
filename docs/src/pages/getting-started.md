@@ -30,7 +30,9 @@ npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
 
 ### Online Playgrounds
 
-If you're interested in playing around with Astro in the browser, you can use an online code editor like Stackblitz, CodeSandbox, Gitpod, or GitHub Codespaces. Click the "Open in Stackblitz" link in any of the examples in our [examples library](https://github.com/snowpackjs/astro/tree/main/examples). Or, [click here](https://stackblitz.com/fork/astro) to start a new project in [Stackblitz](https://stackblitz.com/fork/astro).
+If you're interested in playing around with Astro in the browser, you can instantly spin up a new Astro project with our UI at [astro.new](https://astro.new/).
+
+You can try Astro in online code editors like Stackblitz, CodeSandbox, Gitpod, and GitHub Codespaces. Click the "Open in Stackblitz" link in any of the examples in our [examples library](https://github.com/snowpackjs/astro/tree/main/examples). Or, [click here](https://stackblitz.com/fork/astro) to start a new project in [Stackblitz](https://stackblitz.com/fork/astro).
 
 ## Learn Astro
 
