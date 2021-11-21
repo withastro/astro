@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@astrojs/prism": "^0.3.0",
-    "@silvenon/remark-smartypants": "^1.0.0",
+    "@silvenon/remark-smartypants": "^2.0.0",
     "assert": "^2.0.0",
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",
