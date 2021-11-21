@@ -1,5 +1,5 @@
 import React from 'react';
-import { useStore } from 'nanostores/react';
+import { useStore } from '@nanostores/react';
 
 import { admins } from '../store/admins.js';
 import { counter, increaseCounter, decreaseCounter } from '../store/counter.js';
