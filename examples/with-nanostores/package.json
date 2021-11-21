@@ -9,7 +9,10 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "nanostores": "^0.3.3"
+    "@nanostores/preact": "^0.1.2",
+    "@nanostores/react": "^0.1.2",
+    "@nanostores/vue": "^0.4.1",
+    "nanostores": "^0.5.6"
   },
   "devDependencies": {
     "@astrojs/renderer-solid": "^0.2.0",
