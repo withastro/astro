@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Astro vs. X
-description: Astroと他の静的サイトジェネレーター（Gatsby、Next.js。Nuxt、Hugo、Eleventyなど）の比較
+description: Astroと他の静的サイトジェネレーター（Gatsby、Next.js、Nuxt、Hugo、Eleventyなど）の比較
 lang: ja
 ---
 
