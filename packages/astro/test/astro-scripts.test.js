@@ -69,7 +69,7 @@ describe.only('Scripts (hoisted and not)', () => {
     expect($('script')).to.have.lengthOf(1);
 
     // test 2: inside assets
-    let entryURL = path.join('external', $('script').attr('src'));
+    let entryURL = $('script').attr('src');
     expect(entryURL.includes('assets/')).to.equal(true);
   });
 
@@ -82,7 +82,7 @@ describe.only('Scripts (hoisted and not)', () => {
     expect($('script')).to.have.lengthOf(1);
 
     // test 2: inside assets
-    let entryURL = path.join('external', $('script').attr('src'));
+    let entryURL = $('script').attr('src');
     expect(entryURL.includes('assets/')).to.equal(true);
   });
 });
