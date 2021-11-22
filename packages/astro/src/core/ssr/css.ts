@@ -18,6 +18,9 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
   function crawlCSS(entryModule: string, scanned = new Set<string>()) {
     const moduleName = idToModuleMap.get(entryModule);
     if (!moduleName) return;
+    if (!moduleName.id) return;
+    // mark the entrypoint as scanned to avoid an infinite loop
+    scanned.add(moduleName.id)
     for (const importedModule of moduleName.importedModules) {
       if (!importedModule.id || scanned.has(importedModule.id)) continue;
       const ext = path.extname(importedModule.id.toLowerCase());
