@@ -1379,6 +1379,21 @@
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
 
+"@nanostores/preact@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@nanostores/preact/-/preact-0.1.2.tgz#cbf2f46a9d9a87b97724be59af24d69bc7b11f10"
+  integrity sha512-99ngXNZvrma2rGUspzVFxSiXurip8d35Y3FtqcmRqto2MIhMjjwoBHPIaWRFyNTHoiHenyaFioef2BlXA+KVEg==
+
+"@nanostores/react@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@nanostores/react/-/react-0.1.2.tgz#5313435164ef6633ac19c710ea25f57213e89ed1"
+  integrity sha512-H7IFdtCa0SiSoTt6GwOGwtNScLzyZEoafarGZwBicqk5WrtVaPpKMse93v8RcxvRB6MFW6mozQxvaXFfVlpG0g==
+
+"@nanostores/vue@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@nanostores/vue/-/vue-0.4.1.tgz#38ce674819713aaf1144e9c911161777d4b42627"
+  integrity sha512-b0nNzKD2fTi8R48Jrlg6j+/InPH9r1HOl0iOnpNmL84BOxl+jQnbgyzNlf+3VWAEQSD955hJ/HTl/N1bjJSz5g==
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://registry.yarnpkg.com/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -6491,10 +6506,10 @@ mdast-util-mdx-expression@^1.1.1:
   dependencies:
     "@types/estree-jsx" "^0.0.1"
 
-mdast-util-mdx-jsx@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/mdast-util-mdx-jsx/-/mdast-util-mdx-jsx-1.1.2.tgz#caf934ae313066117972ddfb02f6bcfc9e24e7bd"
-  integrity sha512-1/bDUZvPGNVxiAjrVsehMZTaNomihpbIMoMr8/UcAQ4h7itDFhN93LtO9XzQPlEM+CMueCoRYGQfl7N+5R+8Mg==
+mdast-util-mdx-jsx@^1.1.3:
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/mdast-util-mdx-jsx/-/mdast-util-mdx-jsx-1.1.3.tgz#2ac899145bb1720d025bd369e66f4656f0527df4"
+  integrity sha512-7ajr7ml3Adpt5SjZj5ABe13HQwRwtn26gqaWMHvZuASb+XyoYoods9tWlxqEyeuSJJ1b5ON4/Ipajp0YQIQlFQ==
   dependencies:
     "@types/estree-jsx" "^0.0.1"
     "@types/mdast" "^3.0.0"
@@ -6699,10 +6714,10 @@ micromark-extension-gfm@^2.0.0:
     micromark-util-combine-extensions "^1.0.0"
     micromark-util-types "^1.0.0"
 
-micromark-extension-mdx-expression@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/micromark-extension-mdx-expression/-/micromark-extension-mdx-expression-1.0.2.tgz#75b7024b9b4de138703a790fa8815f2e790d0ecd"
-  integrity sha512-KbkM9D9x/ZOV6gLwaN8izl2ZMI3sg+C4JLuUSmd8zJ4Z2d3mSWrznJRLuXkZcyN9lLaRm4Dz2VPjae3AkC5X1A==
+micromark-extension-mdx-expression@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/micromark-extension-mdx-expression/-/micromark-extension-mdx-expression-1.0.3.tgz#cd3843573921bf55afcfff4ae0cd2e857a16dcfa"
+  integrity sha512-TjYtjEMszWze51NJCZmhv7MEBcgYRgb3tJeMAJ+HQCAaZHHRBaDCccqQzGizR/H4ODefP44wRTgOn2vE5I6nZA==
   dependencies:
     micromark-factory-mdx-expression "^1.0.0"
     micromark-factory-space "^1.0.0"
@@ -7186,10 +7201,10 @@ nanoid@^3.1.30:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.30.tgz#63f93cc548d2a113dc5dfbc63bfa09e2b9b64362"
   integrity sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==
 
-nanostores@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/nanostores/-/nanostores-0.3.3.tgz#3f6a858d3e2700c70c7942301380550f66a8e9ee"
-  integrity sha512-+MemxV/HzzTPJQCvzEmwfIFMAIcDEiod37A5F1ERyKQqtm6hbEfuNokfmJfecYM2gjunlPdPHA5lQ9cwHHSYNg==
+nanostores@^0.5.6:
+  version "0.5.6"
+  resolved "https://registry.yarnpkg.com/nanostores/-/nanostores-0.5.6.tgz#d744c511ccbe417a6cdcdde6892196ef7df59cc0"
+  integrity sha512-GGqPf5sjDF5QM9jVhLpO+LMeTO0IqsCrQxvfUcBXezG/563ZcflCKFFYCokn5lSOv1he5awNHII9qQVqcQQceA==
 
 natural-compare@^1.4.0:
   version "1.4.0"
