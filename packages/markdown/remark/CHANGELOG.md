@@ -1,4 +1,4 @@
-# @astrojs/markdown-support
+# @astrojs/markdown-remark
 
 ## 0.4.0
 
