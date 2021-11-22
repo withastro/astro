@@ -87,7 +87,7 @@
     "path-to-regexp": "^6.2.0",
     "postcss": "^8.3.8",
     "prismjs": "^1.25.0",
-    "remark-slug": "^7.0.0",
+    "rehype-slug": "^5.0.0",
     "resolve": "^1.20.0",
     "rollup": "^2.57.0",
     "sass": "^1.43.3",
