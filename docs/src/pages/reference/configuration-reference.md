@@ -5,7 +5,7 @@ title: Configuration Reference
 
 To configure Astro, add an `astro.config.mjs` file in the root of your project. All settings are optional.
 
-You can view the full configuration API (including information about default configuration) on [GitHub.](https://github.com/snowpackjs/astro/blob/latest/packages/astro/src/@types/astro.ts)
+You can view the full configuration API (including information about default configuration) on [GitHub.](https://github.com/snowpackjs/astro/blob/latest/packages/astro/src/%40types/astro.ts)
 
 ```js
 // Example: astro.config.mjs
