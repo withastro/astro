@@ -1,5 +1,21 @@
 # astro
 
+## 0.21.2
+
+### Patch Changes
+
+- 22dd6bf6: Support `lang="postcss"` in addition to `lang="pcss"`
+- d3476f24: Bump Sass dependency version
+- 679d4395: Added `MarkdownParser` and `MarkdownParserResponse` to `@types`
+- e4945232: Fix a host of compiler bugs, including:
+  - CSS scoping of `*` character inside of `calc()` expressions
+  - Encoding of double quotes inside of quoted attributes
+  - Expressions inside of `<table>` elements
+- 8cb77959: Fixes building of non-hoisted scripts
+- fc5f4163: Fix regression with `astro build` 404.astro output
+- Updated dependencies [679d4395]
+  - @astrojs/markdown-remark@0.5.0
+
 ## 0.21.1
 
 ### Patch Changes
