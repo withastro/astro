@@ -1,5 +1,12 @@
 # astro
 
+## 0.21.1
+
+### Patch Changes
+
+- 8775730e: Fix CSS scanning bug that could lead to infinite loops
+- aec4e8da: Fix client:only behavior when only a single renderer is configured
+
 ## 0.21.0
 
 ### Minor Changes
