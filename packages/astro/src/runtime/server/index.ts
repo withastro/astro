@@ -170,7 +170,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
     }
     // Attempt: user only has a single renderer, default to that
     if (!renderer && renderers.length === 1) {
-      renderer = renderers[0]
+      renderer = renderers[0];
     }
     // Attempt: can we guess the renderer from the export extension?
     if (!renderer) {
