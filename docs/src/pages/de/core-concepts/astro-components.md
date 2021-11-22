@@ -29,7 +29,7 @@ Zum Beispiel ist diese dreizeilige Datei eine gültige Astro-Komponente:
 
 Eine Astro-Komponente repräsentiert einen Schnipsel HTML in deinem Projekt. Dies kann eine mehrfach verwendbare Komponente sein, oder eine vollständige Seite HTML einschließlich `<html>`-, `<head>`- und `<body>`-Elementen. Lies auch unsere Anleitung zu [Astro-Seiten](/core-concepts/astro-pages), um zu lernen wie du deine erste vollständige HTML-Seite mit Astro erzeugen kannst.
 
-**Jede Astro-Komponente muss ein HTML-Template beinhalten.** Auch wenn du deine Komponente auf vielfältige Weise erweitern kannst (siehe unten), bestimmt am Ende des Tages doch das HTML-Template, wie deine gerenderte Komponente aussehen wird. 
+**Jede Astro-Komponente muss ein HTML-Template beinhalten.** Auch wenn du deine Komponente auf vielfältige Weise erweitern kannst (siehe unten), bestimmt am Ende des Tages doch das HTML-Template, wie deine gerenderte Komponente aussehen wird.
 
 ### CSS-Styles
 
@@ -215,6 +215,7 @@ let firstName = "Welt!";
   <h1>Hallo Welt!</h1>
 </MeineKomponente>
 ```
+
 Beachte dass, wenn der `<slot>`-Tag in einem HTML-Template nicht verwendet wird, alle untergeordneten Elemente, die an die Komponente übergeben werden, nicht gerendert werden.
 
 Slots werden sogar noch mächtiger, wenn **benannte Slots** verwendet werden. Anders als ein einzelnes `<slot>`-Element, das _alle_ untergeordneten Elemente rendert, erlauben benannte Slots mehrere Orte zu bestimmen, an denen untergeordnete Elemente plaziert werden sollen.
@@ -262,7 +263,7 @@ Slots können auch **Rückfall-Platzhalter** rendern. Wenn keine passenden unter
 
 ### Fragmente & Mehrfache Elemente
 
-Ein Astro-Komponenten-Template kann so viele Elemente in der obersten Ebene rendern, wie du willst. Anders als bei anderen UI-Komponenten-Bibliotheken musst du nicht alles mit einzelnen `<div>`-Elementen umschließen, wenn du das nicht bevorzugst. 
+Ein Astro-Komponenten-Template kann so viele Elemente in der obersten Ebene rendern, wie du willst. Anders als bei anderen UI-Komponenten-Bibliotheken musst du nicht alles mit einzelnen `<div>`-Elementen umschließen, wenn du das nicht bevorzugst.
 
 ```html
 <!-- Eine Astro-Komponente kann mehrere Elemente in der obersten Ebene beinhalten: -->
@@ -327,22 +328,22 @@ import TwitterTimeline from '../components/TwitterTimeline.astro';
 
 `.astro`-Dateien können im Laufe der Entwicklung `.jsx`-Dateien sehr ähnlich werden, aber es gibt einige wesentliche Unterschiede. Hier ein Vergleich beider Formate.
 
-| Merkmal                         | Astro                                               | JSX                                                   |
-| ------------------------------- | --------------------------------------------------- | ----------------------------------------------------- |
-| Dateiendungen                   | `.astro`                                            | `.jsx` or `.tsx`                                      |
-| Selbstdefinierte Komponenten    | `<Großschreibung>`                                  | `<Großschreibung>`                                    |
-| Syntax Ausdruck                 | `{}`                                                | `{}`                                                  |
-| Spread-Attribute                | `{...props}`                                        | `{...props}`                                          |
-| Boolsche Attribute              | `autocomplete` === `autocomplete={true}`            | `autocomplete` === `autocomplete={true}`              |
-| Inline-Funktionen               | `{items.map(item => <li>{item}</li>)}`              | `{items.map(item => <li>{item}</li>)}`                |
-| IDE-Unterstützung               | WIP - [VS Code][code-ext]                           | Phänomenal                                            |
-| Benötigt JS-Import              | Nein                                                | Ja, (`React` oder `h`) müssen im Geltungsbereich sein |
-| Fragmente                       | Autom. oberste Ebene, `<>` innerhalb von Funktionen | Einfassen mit `<Fragment>` oder `<>`                  |
-| Mehrere Bibliotheken pro Datei  | Ja                                                  | Nein                                                  |
-| Änderungen von `<head>`         | Einfach `<head>` verwenden                          | Je nach Bibliothek (`<Head>`, `<svelte:head>`, etc.)  |
-| Kommentarstil                   | `<!-- HTML -->`                                     | `{/* JavaScript */}`                                  |
-| Spezielle Zeichen               | `&nbsp;`                                            | `{'\xa0'}` oder `{String.fromCharCode(160)}`          |
-| Attribute                       | `dash-case`                                         | `camelCase`                                           |
+| Merkmal                        | Astro                                               | JSX                                                   |
+| ------------------------------ | --------------------------------------------------- | ----------------------------------------------------- |
+| Dateiendungen                  | `.astro`                                            | `.jsx` or `.tsx`                                      |
+| Selbstdefinierte Komponenten   | `<Großschreibung>`                                  | `<Großschreibung>`                                    |
+| Syntax Ausdruck                | `{}`                                                | `{}`                                                  |
+| Spread-Attribute               | `{...props}`                                        | `{...props}`                                          |
+| Boolsche Attribute             | `autocomplete` === `autocomplete={true}`            | `autocomplete` === `autocomplete={true}`              |
+| Inline-Funktionen              | `{items.map(item => <li>{item}</li>)}`              | `{items.map(item => <li>{item}</li>)}`                |
+| IDE-Unterstützung              | WIP - [VS Code][code-ext]                           | Phänomenal                                            |
+| Benötigt JS-Import             | Nein                                                | Ja, (`React` oder `h`) müssen im Geltungsbereich sein |
+| Fragmente                      | Autom. oberste Ebene, `<>` innerhalb von Funktionen | Einfassen mit `<Fragment>` oder `<>`                  |
+| Mehrere Bibliotheken pro Datei | Ja                                                  | Nein                                                  |
+| Änderungen von `<head>`        | Einfach `<head>` verwenden                          | Je nach Bibliothek (`<Head>`, `<svelte:head>`, etc.)  |
+| Kommentarstil                  | `<!-- HTML -->`                                     | `{/* JavaScript */}`                                  |
+| Spezielle Zeichen              | `&nbsp;`                                            | `{'\xa0'}` oder `{String.fromCharCode(160)}`          |
+| Attribute                      | `dash-case`                                         | `camelCase`                                           |
 
 ## URL-Auflösung
 
@@ -376,6 +377,5 @@ import thumbnailSrc from './thumbnail.png';
 ```
 
 Falls du bevorzugst Assets gemeinsam mit Astro-Komponenten zu verwalten, kannst du die Datei mit JavaScript innerhalb des Komponenten-Skriptes importieren. Dies wird wie beabsichtigt funktionieren, erschwert jedoch die Referenzierung von `thumnail.png` an anderen Stellen innerhalb der Anwendung, da die finale URL nur schwer vorhersagbar ist (anders als mit Assets in `public/*`, wo sich die Adresse garantiert nie ändern wird).
-
 
 [code-ext]: https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode
