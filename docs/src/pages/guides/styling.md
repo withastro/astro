@@ -224,8 +224,10 @@ module.exports = {
 ```js
 // postcss.config.cjs
 module.exports = {
-  tailwind: {},
-};
+  plugins: {
+    tailwindcss: {},
+  },
+}
 ```
 
 Now you're ready to write Tailwind! Our recommended approach is to create a `src/styles/global.css` file (or whatever you‘d like to name your global stylesheet) with [Tailwind utilities][tailwind-utilities] like so:
