@@ -28,7 +28,7 @@ export async function renderMarkdownWithFrontmatter(contents: string, opts?: Mar
   return { ...value, frontmatter };
 }
 
-export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', '@silvenon/remark-smartypants'];
+export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 
 export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
 

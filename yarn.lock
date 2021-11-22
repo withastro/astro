@@ -1646,15 +1646,6 @@
   resolved "https://registry.yarnpkg.com/@sideway/pinpoint/-/pinpoint-2.0.0.tgz#cff8ffadc372ad29fd3f78277aeb29e632cc70df"
   integrity sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==
 
-"@silvenon/remark-smartypants@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@silvenon/remark-smartypants/-/remark-smartypants-2.0.0.tgz#7ceef615530eafc701dc046f4b892c60e355df19"
-  integrity sha512-hTF6/30+0eHA1lJ5fPd8SfmDI2LMTKr7kj17SNU+EP250febUcIkTsyEMVXzWpS3tmsMAlCWjbLxQ+oGpJzg4Q==
-  dependencies:
-    retext "^8.1.0"
-    retext-smartypants "^5.1.0"
-    unist-util-visit "^4.1.0"
-
 "@snowpack/plugin-dotenv@^2.1.0":
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/@snowpack/plugin-dotenv/-/plugin-dotenv-2.2.0.tgz#624348a83e28ae523a7d2695cbe81f53381bc964"
@@ -8667,6 +8658,15 @@ remark-rehype@^10.0.1:
     "@types/mdast" "^3.0.0"
     mdast-util-to-hast "^12.0.0"
     unified "^10.0.0"
+
+remark-smartypants@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/remark-smartypants/-/remark-smartypants-2.0.0.tgz#836cff43ec139b2e5ec9e488d80596ed677d1cb2"
+  integrity sha512-Rc0VDmr/yhnMQIz8n2ACYXlfw/P/XZev884QU1I5u+5DgJls32o97Vc1RbK3pfumLsJomS2yy8eT4Fxj/2MDVA==
+  dependencies:
+    retext "^8.1.0"
+    retext-smartypants "^5.1.0"
+    unist-util-visit "^4.1.0"
 
 request@^2.88.0, request@^2.88.2:
   version "2.88.2"

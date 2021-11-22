@@ -31,7 +31,7 @@ Astro comes with the `@astrojs/markdown-remark` package - the default parser.
 In addition to custom components inside the [`<Markdown>` component](/guides/markdown-content#astros-markdown-component), the default parser comes with these plugins pre-enabled:
 
 - [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm)
-- [Smartypants](https://github.com/silvenon/remark-smartypants)
+- [remark-smartypants](https://github.com/silvenon/remark-smartypants)
 - [rehype-slug](https://github.com/rehypejs/rehype-slug)
 - [Prism](https://prismjs.com/) 
 
