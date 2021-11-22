@@ -76,7 +76,7 @@ export class AstroDevServer {
     this.site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
     this.devRoot = this.site ? this.site.pathname : '/';
     this.url = new URL(this.devRoot, this.origin);
-    this.manifest = createRouteManifest({ config });
+    this.manifest = createRouteManifest({ config }, this.logging);
   }
 
   async start() {
@@ -250,7 +250,7 @@ export class AstroDevServer {
         return;
       }
       this.routeCache = {};
-      this.manifest = createRouteManifest({ config: this.config });
+      this.manifest = createRouteManifest({ config: this.config }, this.logging);
     });
     viteServer.watcher.on('unlink', (file) => {
       // Only rebuild routes if deleted file is a page.
@@ -258,7 +258,7 @@ export class AstroDevServer {
         return;
       }
       this.routeCache = {};
-      this.manifest = createRouteManifest({ config: this.config });
+      this.manifest = createRouteManifest({ config: this.config }, this.logging);
     });
     viteServer.watcher.on('change', () => {
       // No need to rebuild routes on file content changes.

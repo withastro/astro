@@ -21,12 +21,15 @@ describe('config', () => {
       const proc = devCLI(cwdURL, args);
 
       proc.stdout.setEncoding('utf8');
+
       for await (const chunk of proc.stdout) {
         if (/Local:/.test(chunk)) {
           expect(chunk).to.include('127.0.0.1');
           break;
         }
       }
+
+      proc.kill();
     });
   });
 
@@ -36,14 +39,17 @@ describe('config', () => {
       const cwdURL = new URL(cwd, import.meta.url);
       const configPath = new URL('./config/my-config.mjs', cwdURL).pathname;
       const args = ['--config', configPath];
-      const process = devCLI(cwdURL, args);
+      const proc = devCLI(cwdURL, args);
 
-      process.stdout.setEncoding('utf8');
-      for await (const chunk of process.stdout) {
+      proc.stdout.setEncoding('utf8');
+
+      for await (const chunk of proc.stdout) {
         if (/Server started/.test(chunk)) {
           break;
         }
       }
+
+      proc.kill();
     });
   });
 
