@@ -238,8 +238,7 @@ describe('Styles SSR', function () {
       expect(bundledCSS).to.match(new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:"Comic Sans MS"`));
     });
 
-    // TODO: fix Sass in Svelte
-    it.skip('<style lang="sass">', async () => {
+    it('<style lang="sass">', async () => {
       const $ = index$;
       const el = $('#svelte-sass');
       const classes = el.attr('class').split(' ');
@@ -252,8 +251,7 @@ describe('Styles SSR', function () {
       expect(bundledCSS).to.match(new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:"Comic Sans MS"`));
     });
 
-    // TODO: fix Sass in Svelte
-    it.skip('<style lang="scss">', async () => {
+    it('<style lang="scss">', async () => {
       const $ = index$;
       const el = $('#svelte-scss');
       const classes = el.attr('class').split(' ');

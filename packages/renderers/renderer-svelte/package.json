@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
-    "svelte": "^3.44.1"
+    "svelte": "^3.44.2",
+    "svelte-preprocess": "^4.9.8"
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
