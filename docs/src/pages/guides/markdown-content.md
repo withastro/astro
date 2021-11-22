@@ -18,8 +18,8 @@ export default {
       'parser-name', // or import('parser-name') or (contents) => {...}
       {
         // options
-      }
-    ]
+      },
+    ],
   },
 };
 ```
@@ -33,7 +33,7 @@ In addition to custom components inside the [`<Markdown>` component](/guides/mar
 - [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm)
 - [remark-smartypants](https://github.com/silvenon/remark-smartypants)
 - [rehype-slug](https://github.com/rehypejs/rehype-slug)
-- [Prism](https://prismjs.com/) 
+- [Prism](https://prismjs.com/)
 
 Also, Astro supports third-party plugins for Markdown. You can provide your plugins in `astro.config.mjs`.
 
@@ -60,9 +60,9 @@ export default {
           // If you need to provide options for the plugin, you can use an array and put the options as the second item.
           // 'rehype-slug',
           // ['rehype-autolink-headings', { behavior: 'prepend'}],
-        ]
-      }
-    ]
+        ],
+      },
+    ],
   },
 };
 ```
@@ -79,8 +79,8 @@ export default {
         remarkPlugins: [
           [import('remark-autolink-headings'), { behavior: 'prepend' }],
         ],
-      }
-    ]
+      },
+    ],
   },
 };
 ```
