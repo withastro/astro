@@ -13,7 +13,7 @@ export function Counter({ children }) {
         <pre>{count}</pre>
         <button onClick={add}>+</button>
       </div>
-      <div className="children">{children}</div>
+      <div className="counter-message">{children}</div>
     </>
   );
 }
