@@ -106,10 +106,10 @@
     "@algolia/logger-common" "4.11.0"
     "@algolia/requester-common" "4.11.0"
 
-"@astrojs/compiler@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.3.3.tgz#78f4c9938a9e89fbaaf1bb02cd5c797a6d06d667"
-  integrity sha512-iARMoTw6RgpLZyHoJPE34FSVphMZDGJ6U7FCqSErGfRzLhL6YY4o/UT4woqZ5yjcPLnoArNEx/KQfAYB07Stsw==
+"@astrojs/compiler@^0.3.4":
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.3.4.tgz#63f2b4245342806f2b8bde7897ba637b08bda0cc"
+  integrity sha512-MWbXeBe6BJT613XmbBESsd4/hiVkOWKIE9/uZo7YJ/1smMoFNwrwOIvhfPGbjVxX1gnMvA6yFJW5rzLcPxi8Gw==
   dependencies:
     typescript "^4.3.5"
 
@@ -1378,6 +1378,21 @@
     fs-extra "^8.1.0"
     globby "^11.0.0"
     read-yaml-file "^1.1.0"
+
+"@nanostores/preact@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@nanostores/preact/-/preact-0.1.2.tgz#cbf2f46a9d9a87b97724be59af24d69bc7b11f10"
+  integrity sha512-99ngXNZvrma2rGUspzVFxSiXurip8d35Y3FtqcmRqto2MIhMjjwoBHPIaWRFyNTHoiHenyaFioef2BlXA+KVEg==
+
+"@nanostores/react@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@nanostores/react/-/react-0.1.2.tgz#5313435164ef6633ac19c710ea25f57213e89ed1"
+  integrity sha512-H7IFdtCa0SiSoTt6GwOGwtNScLzyZEoafarGZwBicqk5WrtVaPpKMse93v8RcxvRB6MFW6mozQxvaXFfVlpG0g==
+
+"@nanostores/vue@^0.4.1":
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/@nanostores/vue/-/vue-0.4.1.tgz#38ce674819713aaf1144e9c911161777d4b42627"
+  integrity sha512-b0nNzKD2fTi8R48Jrlg6j+/InPH9r1HOl0iOnpNmL84BOxl+jQnbgyzNlf+3VWAEQSD955hJ/HTl/N1bjJSz5g==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -7179,10 +7194,10 @@ nanoid@^3.1.30:
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.1.30.tgz#63f93cc548d2a113dc5dfbc63bfa09e2b9b64362"
   integrity sha512-zJpuPDwOv8D2zq2WRoMe1HsfZthVewpel9CAvTfc/2mBD1uUT/agc5f7GHGWXlYkFvi1mVxe4IjvP2HNrop7nQ==
 
-nanostores@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/nanostores/-/nanostores-0.3.3.tgz#3f6a858d3e2700c70c7942301380550f66a8e9ee"
-  integrity sha512-+MemxV/HzzTPJQCvzEmwfIFMAIcDEiod37A5F1ERyKQqtm6hbEfuNokfmJfecYM2gjunlPdPHA5lQ9cwHHSYNg==
+nanostores@^0.5.6:
+  version "0.5.6"
+  resolved "https://registry.yarnpkg.com/nanostores/-/nanostores-0.5.6.tgz#d744c511ccbe417a6cdcdde6892196ef7df59cc0"
+  integrity sha512-GGqPf5sjDF5QM9jVhLpO+LMeTO0IqsCrQxvfUcBXezG/563ZcflCKFFYCokn5lSOv1he5awNHII9qQVqcQQceA==
 
 natural-compare@^1.4.0:
   version "1.4.0"

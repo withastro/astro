@@ -21,7 +21,8 @@ before(async () => {
 
 describe('Error display', () => {
   describe('Astro', () => {
-    it('syntax error', async () => {
+    // This test is redundant w/ runtime error since it no longer produces an Astro syntax error
+    it.skip('syntax error', async () => {
       if (isMacOS) return;
 
       const res = await fixture.fetch('/astro-syntax-error');
@@ -31,6 +32,7 @@ describe('Error display', () => {
 
       // error message includes "unrecoverable error"
       const body = await res.text();
+      console.log(res.body);
       expect(body).to.include('unrecoverable error');
     });
 
