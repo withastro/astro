@@ -1,5 +1,11 @@
 # @astrojs/renderer-lit
 
+## 0.2.1
+
+### Patch Changes
+
+- ec01d1b4: renderer-lit will bind to properties rather than attributes fixing certain binding issues
+
 ## 0.2.0
 
 ### Minor Changes
