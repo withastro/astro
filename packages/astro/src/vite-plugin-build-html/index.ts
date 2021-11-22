@@ -10,6 +10,7 @@ import { promises as fs } from 'fs';
 import { getAttribute, hasAttribute, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
 import { addRollupInput } from './add-rollup-input.js';
 import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getTextContent, getAttributes } from './extract-assets.js';
+import { HTMLCache } from './html-cache.js';
 import { isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory, hasSrcSet } from './util.js';
 import { render as ssrRender } from '../core/ssr/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
@@ -46,15 +47,17 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
   // The web path of the src folter
   const srcRootWeb = srcRoot.substr(astroConfig.projectRoot.pathname.length - 1);
 
-  // A map of pages to rendered HTML
-  const renderedPageMap = new Map<string, string>();
-
   //
   const astroScriptMap = new Map<string, string>();
   const astroPageMap = new Map<string, string>();
   const astroAssetMap = new Map<string, Promise<Buffer>>();
 
   const cssChunkMap = new Map<string, string[]>();
+
+  const htmlCache = new HTMLCache({
+    projectRoot: astroConfig.projectRoot,
+    dist: astroConfig.dist,
+  });
 
   return {
     name: PLUGIN_NAME,
@@ -73,104 +76,106 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           jsInput.add(path);
         }
 
-        for (const pathname of pageData.paths) {
-          pageNames.push(pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''));
-          const id = ASTRO_PAGE_PREFIX + pathname;
-          const html = await ssrRender(renderers, mod, {
-            astroConfig,
-            filePath: new URL(`./${component}`, astroConfig.projectRoot),
-            logging,
-            mode: 'production',
-            origin,
-            pathname,
-            route: pageData.route,
-            routeCache,
-            viteServer,
-          });
-          renderedPageMap.set(id, html);
+        await Promise.all(
+          pageData.paths.map(async (pathname) => {
+            pageNames.push(pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''));
+            const id = ASTRO_PAGE_PREFIX + pathname;
+            const html = await ssrRender(renderers, mod, {
+              astroConfig,
+              filePath: new URL(`./${component}`, astroConfig.projectRoot),
+              logging,
+              mode: 'production',
+              origin,
+              pathname,
+              route: pageData.route,
+              routeCache,
+              viteServer,
+            });
+            await htmlCache.set(id, html);
 
-          const document = parse5.parse(html, {
-            sourceCodeLocationInfo: true,
-          });
+            const document = parse5.parse(html, {
+              sourceCodeLocationInfo: true,
+            });
 
-          const frontEndImports = [];
-          for (const script of findInlineScripts(document)) {
-            const astroScript = getAttribute(script, 'astro-script');
-            if (astroScript) {
-              const js = getTextContent(script);
-              const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
-              frontEndImports.push(scriptId);
-              astroScriptMap.set(scriptId, js);
-            }
-          }
-
-          for (const script of findExternalScripts(document)) {
-            if (isHoistedScript(script)) {
+            const frontEndImports = [];
+            for (const script of findInlineScripts(document)) {
               const astroScript = getAttribute(script, 'astro-script');
-              const src = getAttribute(script, 'src');
               if (astroScript) {
-                const js = `import '${src}';`;
+                const js = getTextContent(script);
                 const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
                 frontEndImports.push(scriptId);
                 astroScriptMap.set(scriptId, js);
               }
-            } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
-              const src = getAttribute(script, 'src');
-              if (src) jsInput.add(src);
-            }
-          }
-
-          let styles = '';
-          for (const node of findInlineStyles(document)) {
-            if (hasAttribute(node, 'astro-style')) {
-              styles += getTextContent(node);
-            }
-          }
-
-          const assetImports = [];
-          for (let node of findAssets(document)) {
-            if (isBuildableLink(node, srcRoot, srcRootWeb)) {
-              const href = getAttribute(node, 'href')!;
-              assetImports.push(href);
             }
 
-            if (isBuildableImage(node, srcRoot, srcRootWeb)) {
-              const src = getAttribute(node, 'src');
-              if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
-                astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
+            for (const script of findExternalScripts(document)) {
+              if (isHoistedScript(script)) {
+                const astroScript = getAttribute(script, 'astro-script');
+                const src = getAttribute(script, 'src');
+                if (astroScript) {
+                  const js = `import '${src}';`;
+                  const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
+                  frontEndImports.push(scriptId);
+                  astroScriptMap.set(scriptId, js);
+                }
+              } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
+                const src = getAttribute(script, 'src');
+                if (src) jsInput.add(src);
               }
             }
 
-            if (hasSrcSet(node)) {
-              const candidates = matchSrcset(getAttribute(node, 'srcset')!);
-              for (const { url } of candidates) {
-                if (url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
-                  astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
+            let styles = '';
+            for (const node of findInlineStyles(document)) {
+              if (hasAttribute(node, 'astro-style')) {
+                styles += getTextContent(node);
+              }
+            }
+
+            const assetImports = [];
+            for (let node of findAssets(document)) {
+              if (isBuildableLink(node, srcRoot, srcRootWeb)) {
+                const href = getAttribute(node, 'href')!;
+                assetImports.push(href);
+              }
+
+              if (isBuildableImage(node, srcRoot, srcRootWeb)) {
+                const src = getAttribute(node, 'src');
+                if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
+                  astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
+                }
+              }
+
+              if (hasSrcSet(node)) {
+                const candidates = matchSrcset(getAttribute(node, 'srcset')!);
+                for (const { url } of candidates) {
+                  if (url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
+                    astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
+                  }
                 }
               }
             }
-          }
 
-          if (styles) {
-            const styleId = getAstroStyleId(pathname);
-            astroStyleMap.set(styleId, styles);
-            // Put this at the front of imports
-            assetImports.unshift(styleId);
-          }
+            if (styles) {
+              const styleId = getAstroStyleId(pathname);
+              astroStyleMap.set(styleId, styles);
+              // Put this at the front of imports
+              assetImports.unshift(styleId);
+            }
 
-          if (frontEndImports.length) {
-            htmlInput.add(id);
-            const jsSource = frontEndImports.map((sid) => `import '${sid}';`).join('\n');
-            astroPageMap.set(id, jsSource);
-          }
+            if (frontEndImports.length) {
+              htmlInput.add(id);
+              const jsSource = frontEndImports.map((sid) => `import '${sid}';`).join('\n');
+              astroPageMap.set(id, jsSource);
+            }
 
-          if (assetImports.length) {
-            const pageStyleId = getAstroPageStyleId(pathname);
-            const jsSource = assetImports.map((sid) => `import '${sid}';`).join('\n');
-            astroPageStyleMap.set(pageStyleId, jsSource);
-            assetInput.add(pageStyleId);
-          }
-        }
+            if (assetImports.length) {
+              const pageStyleId = getAstroPageStyleId(pathname);
+              const jsSource = assetImports.map((sid) => `import '${sid}';`).join('\n');
+              astroPageStyleMap.set(pageStyleId, jsSource);
+              assetInput.add(pageStyleId);
+            }
+          })
+        );
       }
 
       const allInputs = new Set([...jsInput, ...htmlInput, ...assetInput]);
@@ -298,159 +303,165 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         return added;
       };
 
-      for (const [id, html] of renderedPageMap) {
-        const pathname = id.substr(ASTRO_PAGE_PREFIX.length);
-        const document = parse5.parse(html, {
-          sourceCodeLocationInfo: true,
-        });
+      await Promise.all(
+        [...htmlCache.idMap.keys()].map(async (id) => {
+          const html = await htmlCache.get(id);
+          if (!html) throw new Error(`Could not get HTML for ${id}`);
+          const pathname = id.substr(ASTRO_PAGE_PREFIX.length);
+          const document = parse5.parse(html, {
+            sourceCodeLocationInfo: true,
+          });
 
-        // This is the module for the page-level bundle which includes
-        // hoisted scripts and hydrated components.
-        const pageAssetId = facadeIdMap.get(id);
-        const bundlePath = '/' + pageAssetId;
+          // This is the module for the page-level bundle which includes
+          // hoisted scripts and hydrated components.
+          const pageAssetId = facadeIdMap.get(id);
+          const bundlePath = '/' + pageAssetId;
 
-        // Update scripts
-        let pageBundleAdded = false;
+          // Update scripts
+          let pageBundleAdded = false;
 
-        // Update inline scripts. These could be hydrated component scripts or hoisted inline scripts
-        for (let script of findInlineScripts(document)) {
-          if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
-            if (!pageBundleAdded) {
-              pageBundleAdded = true;
-              const relPath = npath.posix.relative(pathname, bundlePath);
-              insertBefore(
-                script.parentNode,
-                createScript({
-                  type: 'module',
-                  src: relPath,
-                }),
-                script
-              );
-            }
-            remove(script);
-          }
-        }
-
-        // Update external scripts. These could be hoisted or in the src folder.
-        for (let script of findExternalScripts(document)) {
-          if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
-            if (!pageBundleAdded) {
-              pageBundleAdded = true;
-              const relPath = npath.posix.relative(pathname, bundlePath);
-              insertBefore(
-                script.parentNode,
-                createScript({
-                  type: 'module',
-                  src: relPath,
-                }),
-                script
-              );
-            }
-            remove(script);
-          } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
-            const src = getAttribute(script, 'src');
-            // On windows the facadeId doesn't start with / but does not Unix :/
-            if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
-              const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));
-              const relPath = npath.posix.relative(pathname, assetRootPath);
-              const attrs = getAttributes(script);
-              insertBefore(
-                script.parentNode,
-                createScript({
-                  ...attrs,
-                  src: relPath,
-                }),
-                script
-              );
+          // Update inline scripts. These could be hydrated component scripts or hoisted inline scripts
+          for (let script of findInlineScripts(document)) {
+            if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
+              if (!pageBundleAdded) {
+                pageBundleAdded = true;
+                const relPath = npath.posix.relative(pathname, bundlePath);
+                insertBefore(
+                  script.parentNode,
+                  createScript({
+                    type: 'module',
+                    src: relPath,
+                  }),
+                  script
+                );
+              }
               remove(script);
             }
           }
-        }
 
-        const styleId = getAstroPageStyleId(pathname);
-        let pageCSSAdded = false;
-        for (const node of findAssets(document)) {
-          if (isBuildableLink(node, srcRoot, srcRootWeb)) {
-            const rel = getAttribute(node, 'rel');
-            switch (rel) {
-              case 'stylesheet': {
-                if (!pageCSSAdded) {
-                  const attrs = getAttributes(node);
-                  delete attrs['data-astro-injected'];
-                  pageCSSAdded = appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
-                }
-                remove(node);
-                break;
+          // Update external scripts. These could be hoisted or in the src folder.
+          for (let script of findExternalScripts(document)) {
+            if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
+              if (!pageBundleAdded) {
+                pageBundleAdded = true;
+                const relPath = npath.posix.relative(pathname, bundlePath);
+                insertBefore(
+                  script.parentNode,
+                  createScript({
+                    type: 'module',
+                    src: relPath,
+                  }),
+                  script
+                );
               }
-              case 'preload': {
-                if (getAttribute(node, 'as') === 'style') {
-                  const attrs = getAttributes(node);
-                  appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
+              remove(script);
+            } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
+              const src = getAttribute(script, 'src');
+              // On windows the facadeId doesn't start with / but does not Unix :/
+              if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
+                const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));
+                const relPath = npath.posix.relative(pathname, assetRootPath);
+                const attrs = getAttributes(script);
+                insertBefore(
+                  script.parentNode,
+                  createScript({
+                    ...attrs,
+                    src: relPath,
+                  }),
+                  script
+                );
+                remove(script);
+              }
+            }
+          }
+
+          const styleId = getAstroPageStyleId(pathname);
+          let pageCSSAdded = false;
+          for (const node of findAssets(document)) {
+            if (isBuildableLink(node, srcRoot, srcRootWeb)) {
+              const rel = getAttribute(node, 'rel');
+              switch (rel) {
+                case 'stylesheet': {
+                  if (!pageCSSAdded) {
+                    const attrs = getAttributes(node);
+                    delete attrs['data-astro-injected'];
+                    pageCSSAdded = appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
+                  }
                   remove(node);
+                  break;
+                }
+                case 'preload': {
+                  if (getAttribute(node, 'as') === 'style') {
+                    const attrs = getAttributes(node);
+                    appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
+                    remove(node);
+                  }
                 }
               }
             }
-          }
 
-          if (isBuildableImage(node, srcRoot, srcRootWeb)) {
-            const src = getAttribute(node, 'src')!;
-            const referenceId = assetIdMap.get(src);
-            if (referenceId) {
-              const fileName = this.getFileName(referenceId);
-              const relPath = npath.posix.relative(pathname, '/' + fileName);
-              setAttribute(node, 'src', relPath);
-            }
-          }
-
-          // Could be a `source` or an `img`.
-          if (hasSrcSet(node)) {
-            const srcset = getAttribute(node, 'srcset')!;
-            let changedSrcset = srcset;
-            const urls = matchSrcset(srcset).map((c) => c.url);
-            for (const url of urls) {
-              if (assetIdMap.has(url)) {
-                const referenceId = assetIdMap.get(url)!;
+            if (isBuildableImage(node, srcRoot, srcRootWeb)) {
+              const src = getAttribute(node, 'src')!;
+              const referenceId = assetIdMap.get(src);
+              if (referenceId) {
                 const fileName = this.getFileName(referenceId);
                 const relPath = npath.posix.relative(pathname, '/' + fileName);
-                changedSrcset = changedSrcset.replace(url, relPath);
+                setAttribute(node, 'src', relPath);
               }
             }
-            // If anything changed, update it
-            if (changedSrcset !== srcset) {
-              setAttribute(node, 'srcset', changedSrcset);
+
+            // Could be a `source` or an `img`.
+            if (hasSrcSet(node)) {
+              const srcset = getAttribute(node, 'srcset')!;
+              let changedSrcset = srcset;
+              const urls = matchSrcset(srcset).map((c) => c.url);
+              for (const url of urls) {
+                if (assetIdMap.has(url)) {
+                  const referenceId = assetIdMap.get(url)!;
+                  const fileName = this.getFileName(referenceId);
+                  const relPath = npath.posix.relative(pathname, '/' + fileName);
+                  changedSrcset = changedSrcset.replace(url, relPath);
+                }
+              }
+              // If anything changed, update it
+              if (changedSrcset !== srcset) {
+                setAttribute(node, 'srcset', changedSrcset);
+              }
             }
           }
-        }
 
-        // Page styles for <style> usage, if not already appended via links.
-        for (const style of findInlineStyles(document)) {
-          if (hasAttribute(style, 'astro-style')) {
-            if (!pageCSSAdded) {
-              pageCSSAdded = appendStyleChunksBefore(style, pathname, cssChunkMap.get(styleId));
+          // Page styles for <style> usage, if not already appended via links.
+          for (const style of findInlineStyles(document)) {
+            if (hasAttribute(style, 'astro-style')) {
+              if (!pageCSSAdded) {
+                pageCSSAdded = appendStyleChunksBefore(style, pathname, cssChunkMap.get(styleId));
+              }
+
+              remove(style);
             }
-
-            remove(style);
           }
-        }
 
-        const outHTML = parse5.serialize(document);
-        const name = pathname.substr(1);
-        let outPath: string;
+          const outHTML = parse5.serialize(document);
+          const name = pathname.substr(1);
+          let outPath: string;
 
-        // Output directly to 404.html rather than 400/index.html
-        // Supports any other status codes, too
-        if (name.match(STATUS_CODE_RE)) {
-          outPath = npath.posix.join(`${name}.html`);
-        } else {
-          outPath = npath.posix.join(name, 'index.html');
-        }
+          // Output directly to 404.html rather than 400/index.html
+          // Supports any other status codes, too
+          if (name.match(STATUS_CODE_RE)) {
+            outPath = npath.posix.join(`${name}.html`);
+          } else {
+            outPath = npath.posix.join(name, 'index.html');
+          }
 
-        this.emitFile({
-          fileName: outPath,
-          source: outHTML,
-          type: 'asset',
-        });
-      }
+          this.emitFile({
+            fileName: outPath,
+            source: outHTML,
+            type: 'asset',
+          });
+        })
+      );
+
+      await htmlCache.teardown();
     },
   };
 }
