@@ -430,9 +430,9 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         // Output directly to 404.html rather than 400/index.html
         // Supports any other status codes, too
         if (name.match(STATUS_CODE_RE)) {
-          outPath = npath.posix.join(`${name}.html`)
+          outPath = npath.posix.join(`${name}.html`);
         } else {
-          outPath = npath.posix.join(name, 'index.html')
+          outPath = npath.posix.join(name, 'index.html');
         }
 
         this.emitFile({
