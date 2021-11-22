@@ -168,7 +168,7 @@ Next.js verfügt über sehr gute integrierte Bildoptimierungen, was Next.js zur 
 - **Next.js Leistungswert**: 59 von 100 [(vollständige Prüfung)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fnextjs.org%2Fdocs%2Fgetting-started)
 - **Astro Leistungswert**: 99 von 100 [(vollständige Prüfung)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
-Ein wesentlicher Grund für diesen Leistungsunterschied liegt in Astros geringerer JavaScript-Last: [nextjs.org/docs](https://nextjs.org/docs/getting-started) lädt **463kB**  JavaScript mit dem ersten Seitenaufruf, während [docs.astro.build](https://docs.astro.build) **78.7kB** (83% weniger JavaScript insgesamt) _nach_ dem ersten Seitenaufruf lädt.
+Ein wesentlicher Grund für diesen Leistungsunterschied liegt in Astros geringerer JavaScript-Last: [nextjs.org/docs](https://nextjs.org/docs/getting-started) lädt **463kB** JavaScript mit dem ersten Seitenaufruf, während [docs.astro.build](https://docs.astro.build) **78.7kB** (83% weniger JavaScript insgesamt) _nach_ dem ersten Seitenaufruf lädt.
 
 ## Nuxt vs. Astro
 
@@ -225,7 +225,6 @@ Ein wesentlicher Grund für diesen Leistungsunterschied liegt in Astros geringer
 [Zola](https://www.getzola.org/) ist ein beliebter statischer Site-Renderer auf der Grundlage von Rust.
 
 Zola verwendet [Tera](https://tera.netlify.app/), um deine Website zu rendern. Astro erlaubt dir deine Websites mit deiner bevorzugten UI-Komponenten-Bibliothek (React, Preact, Vue, Svelte, Solid und andere) zu erzeugen, oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX. Zola unterstützt keine modernen UI-Bibliotheken für die Erstellung von HTML-Vorlagen.
-
 
 ### Leistungsvergleich Zola vs. Astro
 
