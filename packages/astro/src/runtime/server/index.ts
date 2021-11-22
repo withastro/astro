@@ -168,6 +168,10 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
       const rendererName = metadata.hydrateArgs;
       renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${rendererName}` || name === rendererName)[0];
     }
+    // Attempt: user only has a single renderer, default to that
+    if (!renderer && renderers.length === 1) {
+      renderer = renderers[0]
+    }
     // Attempt: can we guess the renderer from the export extension?
     if (!renderer) {
       const extname = metadata.componentUrl?.split('.').pop();
