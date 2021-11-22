@@ -3,7 +3,7 @@ import cheerio from 'cheerio';
 import path from 'path';
 import { loadFixture } from './test-utils.js';
 
-describe.only('Scripts (hoisted and not)', () => {
+describe('Scripts (hoisted and not)', () => {
   let fixture;
 
   before(async () => {
@@ -62,7 +62,6 @@ describe.only('Scripts (hoisted and not)', () => {
 
   it('External page using non-hoist scripts that are modules are built standalone', async () => {
     let external = await fixture.readFile('/external-no-hoist/index.html');
-    console.log(external)
     let $ = cheerio.load(external);
 
     // test 1: there is 1 scripts
@@ -75,7 +74,6 @@ describe.only('Scripts (hoisted and not)', () => {
 
   it('External page using non-hoist scripts that are not modules are built standalone', async () => {
     let external = await fixture.readFile('/external-no-hoist-classic/index.html');
-    console.log(external)
     let $ = cheerio.load(external);
 
     // test 1: there is 1 scripts

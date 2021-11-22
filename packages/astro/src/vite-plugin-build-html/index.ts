@@ -105,7 +105,6 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           }
 
           for (const script of findExternalScripts(document)) {
-            console.log('testing', srcRoot, getAttribute(script, 'src'), isInSrcDirectory(script, 'src', srcRoot, srcRootWeb))
             if (isHoistedScript(script)) {
               const astroScript = getAttribute(script, 'astro-script');
               const src = getAttribute(script, 'src');
@@ -350,7 +349,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             remove(script);
           } else if(isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
             const src = getAttribute(script, 'src');
-            console.log("FACADE MAP", facadeIdMap, src);
+            // On windows the facadeId doesn't start with / but does not Unix :/
             if(src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
               const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));
               const relPath = npath.posix.relative(pathname, assetRootPath);
