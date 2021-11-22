@@ -4,7 +4,7 @@ import path from 'path';
 import { viteifyURL } from '../util.js';
 
 // https://vitejs.dev/guide/features.html#css-pre-processors
-export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
+export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.postcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
 
 /** find unloaded styles */
 export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
