@@ -351,7 +351,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           } else if(isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
             const src = getAttribute(script, 'src');
             console.log("FACADE MAP", facadeIdMap, src);
-            if(src && (facadeIdMap.has(src) && facadeIdMap.has(src.substr(1)))) {
+            if(src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
               const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));
               const relPath = npath.posix.relative(pathname, assetRootPath);
               const attrs = getAttributes(script);
