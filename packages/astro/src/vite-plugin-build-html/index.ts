@@ -21,7 +21,7 @@ const ASTRO_PAGE_PREFIX = '@astro-page';
 const ASTRO_SCRIPT_PREFIX = '@astro-script';
 
 const ASTRO_EMPTY = '@astro-empty';
-
+const STATUS_CODE_RE = /^404$/;
 const tagsWithSrcSet = new Set(['img', 'source']);
 
 const isAstroInjectedLink = (node: parse5.Element) => isStylesheetLink(node) && getAttribute(node, 'data-astro-injected') === '';
@@ -424,7 +424,17 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         }
 
         const outHTML = parse5.serialize(document);
-        const outPath = npath.posix.join(pathname.substr(1), 'index.html');
+        const name = pathname.substr(1);
+        let outPath: string;
+
+        // Output directly to 404.html rather than 400/index.html
+        // Supports any other status codes, too
+        if (name.match(STATUS_CODE_RE)) {
+          outPath = npath.posix.join(`${name}.html`)
+        } else {
+          outPath = npath.posix.join(name, 'index.html')
+        }
+
         this.emitFile({
           fileName: outPath,
           source: outHTML,
