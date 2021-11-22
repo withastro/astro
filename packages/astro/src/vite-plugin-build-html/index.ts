@@ -114,9 +114,9 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
                 frontEndImports.push(scriptId);
                 astroScriptMap.set(scriptId, js);
               }
-            } else if(isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
+            } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
               const src = getAttribute(script, 'src');
-              if(src) jsInput.add(src);
+              if (src) jsInput.add(src);
             }
           }
 
@@ -347,17 +347,21 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               );
             }
             remove(script);
-          } else if(isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
+          } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
             const src = getAttribute(script, 'src');
             // On windows the facadeId doesn't start with / but does not Unix :/
-            if(src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
+            if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
               const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));
               const relPath = npath.posix.relative(pathname, assetRootPath);
               const attrs = getAttributes(script);
-              insertBefore(script.parentNode, createScript({
-                ...attrs,
-                src: relPath
-              }), script);
+              insertBefore(
+                script.parentNode,
+                createScript({
+                  ...attrs,
+                  src: relPath,
+                }),
+                script
+              );
               remove(script);
             }
           }
