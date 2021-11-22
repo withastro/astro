@@ -11,6 +11,7 @@ import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
 import fetchVitePlugin from '../vite-plugin-fetch/index.js';
+import sitemapVitePlugin from '../vite-plugin-sitemap/index.js';
 import { resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
@@ -56,6 +57,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
       jsxVitePlugin({ config: astroConfig, logging }),
       astroPostprocessVitePlugin({ config: astroConfig, devServer }),
       fetchVitePlugin(),
+      sitemapVitePlugin({ config: astroConfig })
     ],
     publicDir: fileURLToPath(astroConfig.public),
     root: fileURLToPath(astroConfig.projectRoot),

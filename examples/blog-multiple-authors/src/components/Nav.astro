@@ -3,6 +3,8 @@ export interface Props {
   title: string;
 }
 const { title } = Astro.props;
+const routes = await Astro.generateRouteManifest();
+console.log(routes);
 ---
 
 <style lang="scss">

@@ -284,6 +284,10 @@ export function createAstro(fileURLStr: string, site: string): AstroGlobalPartia
   return {
     site: new URL(site),
     fetchContent,
+    async generateRouteManifest() {
+      const { default: routes } = await import('virtual:@astrojs/sitemap');
+      return routes;
+    },
     // INVESTIGATE is there a use-case for multi args?
     resolve(...segments: string[]) {
       return segments.reduce((u, segment) => new URL(segment, u), url).pathname;
