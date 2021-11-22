@@ -110,11 +110,8 @@ export async function cli(args: string[]) {
   if (flags.silent) logging.level = 'silent';
   let config: AstroConfig;
   try {
-    console.log('test', 1, { cwd: projectRoot, filename: options.config });
     config = await loadConfig({ cwd: projectRoot, filename: options.config });
-    console.log('test', 2, { devOptions: config.devOptions, options });
     mergeCLIFlags(config, options);
-    console.log('test', 3);
   } catch (err) {
     if (err instanceof z.ZodError) {
       console.log(formatConfigError(err));
