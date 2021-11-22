@@ -174,7 +174,7 @@ Ein wesentlicher Grund für diesen Leistungsunterschied liegt in Astros geringer
 
 [Nuxt](https://nuxtjs.org/) ist eine beliebte Website- und Anwendungsbibliothek für Vue. Es ist ähnlich aufgebaut wie Next.js.
 
-Nuxt verwendet React, um deine Website zu rendern. Astro ist hierin flexibler: Du kannst frei entscheiden mit welcher UI-Komponenten-Bibliothek du deine Oberfläche erzeugen willst (React, Preact, Vue, Svelte, Solid und andere), oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX.
+Nuxt verwendet Vue, um deine Website zu rendern. Astro ist hierin flexibler: Du kannst frei entscheiden mit welcher UI-Komponenten-Bibliothek du deine Oberfläche erzeugen willst (React, Preact, Vue, Svelte, Solid und andere), oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX.
 
 Sowohl Nuxt als auch Astro sind Bibliotheken für die Erzeugung von Websites. Nuxt funktioniert am besten mit hochdynamischen Websites (wie Dashboards und Nachrichteneingängen), während Astro am besten mit größtenteils statischen Websites funktioniert (wie Content- und E-Commerce-Websites).
 
