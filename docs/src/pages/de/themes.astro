@@ -5,7 +5,7 @@ import { Markdown } from 'astro/components';
 import themes from '../data/themes.json';
 import components from '../data/components.json';
 ---
-<Layout content={{title: 'Motive'}} hideRightSidebar>
+<Layout content={{title: 'Vorlagen'}} hideRightSidebar>
     <style>
         .card-grid {
             display: grid;
@@ -16,23 +16,23 @@ import components from '../data/components.json';
         }
     </style>
     <Markdown>
-        ## Vorgestelltes Motiv
+        ## Vorgestellte Vorlagen
     </Markdown>
     <div class="card-grid">
         {themes.featured.map((item)=>(<Card data={item} />))}
     </div>
     <Markdown>
-        ## Offizielle Motive
+        ## Offizielle Vorlagen
 
-        Astro pflegt verschiedene offizielle Motive für Dokumentationssites, Portfolios und mehr.
+        Astro pflegt verschiedene offizielle Vorlagen für Dokumentationssites, Portfolios und mehr.
     </Markdown>
     <div class="card-grid">
         {themes.official.map((item)=>(<Card data={item} />))}
     </div>
     <Markdown>
-        ## Motive aus der Community
+        ## Vorlagen aus der Community
       
-        Sieh dir einige von unserer Community entwickelte Motive an!
+        Sieh dir einige von unserer Community entwickelte Vorlagen an!
     </Markdown>
     <div class="card-grid">
         {themes.community.map((item)=>(<Card data={item} />))}
