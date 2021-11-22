@@ -28,10 +28,6 @@ describe('Error display', () => {
 
       // 500 returned
       expect(res.status).to.equal(500);
-
-      // error message includes "unrecoverable error"
-      const body = await res.text();
-      expect(body).to.include('unrecoverable error');
     });
 
     it('runtime error', async () => {
