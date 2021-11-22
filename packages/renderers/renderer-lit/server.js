@@ -2,14 +2,6 @@ import './server-shim.js';
 import '@lit-labs/ssr/lib/render-lit-html.js';
 import { LitElementRenderer } from '@lit-labs/ssr/lib/lit-element-renderer.js';
 
-const reservedReactProperties = new Set([
-  'children',
-  'localName',
-  'ref',
-  'style',
-  'className',
-]);
-
 function isCustomElementTag(name) {
   return typeof name === 'string' && /-/.test(name);
 }
@@ -38,15 +30,6 @@ function* render(tagName, attrs, children) {
   // LitElementRenderer creates a new element instance, so copy over.
   const Ctr = getCustomElementConstructor(tagName);
   for (let [name, value] of Object.entries(attrs)) {
-    // check if this is a property reserved by JSX parser
-    if (reservedReactProperties.has(name)) {
-      console.warn(
-        `${tagName} contains property ${name} which is a ` +
-          `reserved property. It will be used by Astro and not set on ` +
-          `the element.`
-      );
-      continue;
-    }
     // check if this is a reactive property
     if (name in Ctr.prototype) {
       instance.setProperty(name, value);
