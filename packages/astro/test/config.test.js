@@ -14,7 +14,7 @@ describe('config', () => {
       expect(hostnameFixture.config.devOptions.hostname).to.equal('0.0.0.0');
     });
 
-    it.skip('can be specified via --hostname flag', async () => {
+    it('can be specified via --hostname flag', async () => {
       const cwd = './fixtures/config-hostname/';
       const cwdURL = new URL(cwd, import.meta.url);
       const args = ['--hostname', '127.0.0.1'];

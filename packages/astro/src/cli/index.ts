@@ -36,6 +36,7 @@ function resolveArgs(flags: Arguments): CLIState {
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined,
+    hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
   };
 
   if (flags.version) {
@@ -109,8 +110,11 @@ export async function cli(args: string[]) {
   if (flags.silent) logging.level = 'silent';
   let config: AstroConfig;
   try {
+    console.log('test', 1, { cwd: projectRoot, filename: options.config });
     config = await loadConfig({ cwd: projectRoot, filename: options.config });
+    console.log('test', 2, { devOptions: config.devOptions, options });
     mergeCLIFlags(config, options);
+    console.log('test', 3);
   } catch (err) {
     if (err instanceof z.ZodError) {
       console.log(formatConfigError(err));
