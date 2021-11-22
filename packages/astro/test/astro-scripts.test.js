@@ -3,7 +3,7 @@ import cheerio from 'cheerio';
 import path from 'path';
 import { loadFixture } from './test-utils.js';
 
-describe('Scripts (hoisted and not)', () => {
+describe.only('Scripts (hoisted and not)', () => {
   let fixture;
 
   before(async () => {

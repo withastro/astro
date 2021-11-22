@@ -105,6 +105,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           }
 
           for (const script of findExternalScripts(document)) {
+            console.log('testing', srcRoot, isInSrcDirectory(script, 'src', srcRoot, srcRootWeb))
             if (isHoistedScript(script)) {
               const astroScript = getAttribute(script, 'astro-script');
               const src = getAttribute(script, 'src');
