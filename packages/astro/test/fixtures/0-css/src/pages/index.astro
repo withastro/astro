@@ -9,14 +9,14 @@ import ReactModulesSass from '../components/ReactModulesSass.jsx';
 import ReactModulesScss from '../components/ReactModulesScss.jsx';
 import ReactSass from '../components/ReactSass.jsx';
 import ReactScss from '../components/ReactScss.jsx';
+import SvelteCSS from '../components/SvelteCSS.svelte';
+import SvelteSass from '../components/SvelteSass.svelte';
+import SvelteScss from '../components/SvelteScss.svelte';
 import VueCSS from '../components/VueCSS.vue';
 import VueModules from '../components/VueModules.vue';
 import VueSass from '../components/VueSass.vue';
 import VueScoped from '../components/VueScoped.vue';
 import VueScss from '../components/VueScss.vue';
-import SvelteCSS from '../components/SvelteCSS.svelte';
-import SvelteSass from '../components/SvelteSass.svelte';
-import SvelteScss from '../components/SvelteScss.svelte';
 import ReactDynamic from '../components/ReactDynamic.jsx';
 ---
 
@@ -33,6 +33,7 @@ import ReactDynamic from '../components/ReactDynamic.jsx';
         color: red;
       }
     </style>
+    <link rel="stylesheet" type="text/css" href="/global.css">
     <link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/linked.css')}>
     <link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/linked.scss')}>
     <link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/linked.sass')}>
@@ -49,14 +50,14 @@ import ReactDynamic from '../components/ReactDynamic.jsx';
       <ReactModulesScss />
       <ReactSass />
       <ReactScss />
+      <SvelteCSS />
+      <SvelteSass />
+      <SvelteScss />
       <VueCSS />
       <VueModules />
       <VueSass />
       <VueScoped />
       <VueScss />
-      <SvelteCSS />
-      <SvelteSass />
-      <SvelteScss />
       <ReactDynamic client:load />
     </div>
   </body>
