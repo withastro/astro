@@ -1,4 +1,4 @@
-import { VitePWA } from 'vite-plugin-pwa'
+import { VitePWA } from 'vite-plugin-pwa';
 
 // Full Astro Configuration API Documentation:
 // https://docs.astro.build/reference/configuration-reference
@@ -11,6 +11,6 @@ import { VitePWA } from 'vite-plugin-pwa'
 // @ts-check
 export default /** @type {import('astro').AstroUserConfig} */ ({
   vite: {
-      plugins: [VitePWA()]
-  }
+    plugins: [VitePWA()],
+  },
 });
