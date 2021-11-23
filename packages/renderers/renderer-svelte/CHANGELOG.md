@@ -1,5 +1,11 @@
 # @astrojs/renderer-svelte
 
+## 0.2.1
+
+### Patch Changes
+
+- 4cec1256: Add TypeScript, Sass support to Svelte
+
 ## 0.2.0
 
 ### Minor Changes
