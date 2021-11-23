@@ -111,6 +111,12 @@ export async function main() {
       console.log(yellow("This seems to be a cache related problem. Remove the folder '~/.degit/github/snowpackjs' to fix this error."));
       console.log(yellow('For more information check out this issue: https://github.com/snowpackjs/astro/issues/655'));
     }
+
+    // Helpful message when encountering the "could not find commit hash for ..." error
+    if (err.code === 'MISSING_REF') {
+      console.log(yellow("This seems to be an issue with degit. Please check if you have 'git' installed on your system, and install it if you don't have (https://git-scm.com)."));
+      console.log(yellow("If you do have 'git' installed, please file a new issue here: https://github.com/snowpackjs/astro/issues"));
+    }
     process.exit(1);
   }
 
