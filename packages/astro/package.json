@@ -1,8 +1,10 @@
 {
   "name": "astro",
   "version": "0.21.2",
-  "author": "Skypack",
+  "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
+  "author": "withastro",
   "license": "MIT",
+  "homepage": "https://astro.build",
   "type": "module",
   "types": "./dist/types/@types/astro.d.ts",
   "repository": {
