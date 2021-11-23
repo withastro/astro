@@ -16,11 +16,14 @@ export default async function onVisible(astroId: string, _options: HydrateOption
     }
   };
 
-  const io = new IntersectionObserver(([entry]) => {
-    if (!entry.isIntersecting) return;
-    // As soon as we hydrate, disconnect this IntersectionObserver for every `astro-root`
-    io.disconnect();
-    cb();
+  const io = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      // As soon as we hydrate, disconnect this IntersectionObserver for every `astro-root`
+      io.disconnect();
+      cb();
+      break; // break loop on first match
+    }
   });
 
   for (const root of roots) {
