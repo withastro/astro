@@ -3,9 +3,12 @@ import type { LogOptions } from '../core/logger';
 import type { ViteDevServer, Plugin as VitePlugin } from '../core/vite';
 import type { OutputChunk, PreRenderedChunk, RenderedChunk } from 'rollup';
 import type { AllPagesData } from '../core/build/types';
+import type { ViteFetch } from '../core/build/util';
+import type { RequestInit } from 'fetch';
 import parse5 from 'parse5';
 import srcsetParse from 'srcset-parse';
 import * as npath from 'path';
+import mime from 'mime';
 import { promises as fs } from 'fs';
 import { getAttribute, hasAttribute, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
 import { addRollupInput } from './add-rollup-input.js';
@@ -36,10 +39,11 @@ interface PluginOptions {
   origin: string;
   routeCache: RouteCache;
   viteServer: ViteDevServer;
+  fetch: ViteFetch;
 }
 
-export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
-  const { astroConfig, astroStyleMap, astroPageStyleMap, chunkToReferenceIdMap, pureCSSChunks, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
+export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin[] {
+  const { astroConfig, astroStyleMap, astroPageStyleMap, chunkToReferenceIdMap, fetch, pureCSSChunks, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
   // The filepath root of the src folder
   const srcRoot = astroConfig.src.pathname;
@@ -56,7 +60,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
   const cssChunkMap = new Map<string, string[]>();
 
-  return {
+  return [{
     name: PLUGIN_NAME,
 
     enforce: 'pre',
@@ -452,5 +456,30 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         });
       }
     },
-  };
+  }, {
+    name: '@astro/rollup-plugin-build-load-fallback',
+    enforce: 'post',
+    resolveId(id) {
+      // If we got here, nothing picked up this module, so let's try
+      // and grab it from the viteServer used for SSR loading.
+      if(id[0] === '/') {
+        return id;
+      }
+      return null;
+    },
+    async load(id) {
+      const init: RequestInit = {
+        headers: {
+          accept: mime.getType(id)
+        }
+      };
+
+      const res = await fetch(id, init);
+      if(res.ok) {
+        return await res.text();
+      }
+
+      return null;
+    }
+  }];
 }

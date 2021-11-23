@@ -17,6 +17,7 @@ import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generateRssFunction } from '../ssr/rss.js';
 import { generateSitemap } from '../ssr/sitemap.js';
+import { createFetch } from './util.js';
 
 export interface BuildOptions {
   mode?: string;
@@ -34,6 +35,7 @@ class AstroBuilder {
   private logging: LogOptions;
   private mode = 'production';
   private origin: string;
+  private port: number;
   private routeCache: RouteCache = {};
   private manifest: ManifestData;
   private viteServer?: ViteDevServer;
@@ -46,9 +48,9 @@ class AstroBuilder {
 
     if (options.mode) this.mode = options.mode;
     this.config = config;
-    const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
+    this.port = config.devOptions.port;
     this.logging = options.logging;
-    this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${port}`;
+    this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${this.port}`;
     this.manifest = createRouteManifest({ config }, this.logging);
   }
 
@@ -62,8 +64,7 @@ class AstroBuilder {
         {
           mode: this.mode,
           server: {
-            hmr: { overlay: false },
-            middlewareMode: 'ssr',
+            hmr: { overlay: false }
           },
         },
         this.config.vite || {}
@@ -72,10 +73,13 @@ class AstroBuilder {
     );
     this.viteConfig = viteConfig;
     const viteServer = await vite.createServer(viteConfig);
+    // Listen to the server so that we can make fetch requests if needed.
+    await viteServer.listen(this.port);
     this.viteServer = viteServer;
     debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
 
     timer.loadStart = performance.now();
+    const fetch = createFetch(this.origin);
     const assets: Record<string, string> = {};
     const allPages: AllPagesData = {};
     // Collect all routes ahead-of-time, before we start the build.
@@ -185,6 +189,7 @@ class AstroBuilder {
           astroPageStyleMap,
           astroStyleMap,
           chunkToReferenceIdMap,
+          fetch,
           pureCSSChunks,
           logging,
           origin,
