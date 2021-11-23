@@ -11,7 +11,7 @@ Doch manchmal wird Client-seitiges JavaScript zwingend benötigt. Diese Anleitun
 ```astro
 ---
 // Beispiel: Eine React-Komponente importieren und anschließend verwenden.
-// Standardmäßig rendert Astro dies als HTML und CSS während deines Build 
+// Standardmäßig rendert Astro dies als HTML und CSS während deines Build
 // - ohne Client-seitiges JavaScript.
 // (Du brauchst Client-seitiges JavaScript? Lies weiter...)
 import MeineReactKomponente from '../components/MeineReactKomponente.jsx';
@@ -39,11 +39,11 @@ _Beachte: Partielle Anreicherung (Partial Hydration) wird manchmal auch als "sch
 
 ## Konzept: Architektur aus Inseln
 
-**Architektur aus Inseln** ist die Idee partielle Anreicherung zu verwenden, um komplette Websites zu erzeugen. Architektur aus Inseln ist eine Alternative zu der beliebten Idee  deine gesamte Website in eine Client-seitige JavaScript-Anwendung zu packen, welche von den Nutzerinnen und Nutzern heruntergeladen werden muss.
+**Architektur aus Inseln** ist die Idee partielle Anreicherung zu verwenden, um komplette Websites zu erzeugen. Architektur aus Inseln ist eine Alternative zu der beliebten Idee deine gesamte Website in eine Client-seitige JavaScript-Anwendung zu packen, welche von den Nutzerinnen und Nutzern heruntergeladen werden muss.
 
 Um Jason Miller zu zitieren, der [den Begriff aufgebracht hat](https://jasonformat.com/islands-architecture/):
 
-> In einem Modell aus "Inseln" ist Server-seitiges Rendering nicht die angeflanschte Optimierung, die darauf abzielt die SEO- oder UX-Werte zu verbessern. Stattdessen ist es die grundlegende Methode mit der Seiten an den Browser ausgeliefert werden. Das HTML das als Antwort auf eine Navigation zurückgegeben wird, enthält eine bedeutsame und unmittelbar gerenderte Repräsentation des Inhaltes, den die Nutzerin oder der Nutzer angefordert hat. 
+> In einem Modell aus "Inseln" ist Server-seitiges Rendering nicht die angeflanschte Optimierung, die darauf abzielt die SEO- oder UX-Werte zu verbessern. Stattdessen ist es die grundlegende Methode mit der Seiten an den Browser ausgeliefert werden. Das HTML das als Antwort auf eine Navigation zurückgegeben wird, enthält eine bedeutsame und unmittelbar gerenderte Repräsentation des Inhaltes, den die Nutzerin oder der Nutzer angefordert hat.
 
 Neben den offensichtlichen Leistungsvorteilen, wenn weniger JavaScript an den Browser geschickt und dort ausgeführt wird, verfügt eine Architektur aus Inseln über zwei wesentliche Vorteile:
 
@@ -61,7 +61,7 @@ Astro rendert jede Komponente auf dem Server **während des Build-Prozesses**, s
 // Beispiel: eine React-Komponente im Browser anreichern.
 import MeineReactKomponente from '../components/MeineReactKomponente.jsx';
 ---
-<!-- "client:visible" bedeutet, die Komponente lädt solange kein 
+<!-- "client:visible" bedeutet, die Komponente lädt solange kein
      Client-seitiges JavaScript, bis sie im Browser sichtbar wird. -->
 <MeineReactKomponente client:visible />
 ```
