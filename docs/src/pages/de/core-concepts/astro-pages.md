@@ -10,7 +10,7 @@ Astro unterstützt Markdown für Content-lastige Seiten, wie Blog-Posts und Doku
 
 ## Dateibasiertes Routing
 
-Astro verwendet Seiten für etwas das  **dateibasiertes Routing** genannt wird. Jede Datei in deinem `src/pages`-Verzeichnis wird eine Seite deiner Website - unter Verwendung des Dateinamens für die Festlegung der endgültigen Route.
+Astro verwendet Seiten für etwas das **dateibasiertes Routing** genannt wird. Jede Datei in deinem `src/pages`-Verzeichnis wird eine Seite deiner Website - unter Verwendung des Dateinamens für die Festlegung der endgültigen Route.
 
 Astro-Komponenten (`.astro`) und Markdown-Dateien (`.md`) sind die einzigen Seitenformate, die in Astro unterstützt werden. Andere Seitentypen (wie z. B. `.jsx`-React-Komponenten) werden nicht unterstützt, aber du kannst andere Formate als UI-Komponenten _innerhalb_ einer `.astro`-Seite verwenden, um ein vergleichbares Ergebnis zu erhalten.
 
@@ -24,7 +24,7 @@ src/pages/posts/1.md        -> meinesite.com/posts/1
 
 ## Seiten-Templating
 
-Alle Astro-Komponenten geben HTML aus. Astro-Seiten geben ebenfalls HTML aus, müssen zusätzlich jedoch die besondere Aufgabe erfüllen eine vollständige _Seiteanantwort_ zu liefern - einschließlich  `<html>...</html>`, `<head>` ([MDN<span class="sr-only">- head</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) und `<body>` ([MDN<span class="sr-only">- body</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
+Alle Astro-Komponenten geben HTML aus. Astro-Seiten geben ebenfalls HTML aus, müssen zusätzlich jedoch die besondere Aufgabe erfüllen eine vollständige _Seiteanantwort_ zu liefern - einschließlich `<html>...</html>`, `<head>` ([MDN<span class="sr-only">- head</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) und `<body>` ([MDN<span class="sr-only">- body</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
 
 `<!doctype html>` ist optional - es wird automatisch hinzugefügt.
 
@@ -62,6 +62,6 @@ console.log(data);
 
 ## Eigene 404-Fehlerseite
 
-Um eine eigene allgemeine 404-Fehlerseite zu erhalten, erzeuge eine `404.astro`-Datei in `/src/pages`. Diese Datei kompiliert zu einer `404.html`-Seite. Die meisten [Veröffentlichungsdienste](/guides/deploy) können diese Seite aufgreifen und verwenden sie entsprechend.   
+Um eine eigene allgemeine 404-Fehlerseite zu erhalten, erzeuge eine `404.astro`-Datei in `/src/pages`. Diese Datei kompiliert zu einer `404.html`-Seite. Die meisten [Veröffentlichungsdienste](/guides/deploy) können diese Seite aufgreifen und verwenden sie entsprechend.
 
 Dieses Verhalten unterscheidet sich von dem standardmäßigen Verhalten beim Kompilieren von `page.astro` (oder `page/index.astro`) zu `page/index.html`.
