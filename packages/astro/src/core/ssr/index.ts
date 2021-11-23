@@ -29,7 +29,7 @@ import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 
-const svelteAndVueStylesRE = /\?[^&]+&type=style&lang/;
+const svelteStylesRE = /svelte\?svelte&type=style/;
 
 interface SSROptions {
   /** an instance of the AstroConfig */
@@ -247,7 +247,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
   // inject CSS
   [...getStylesForURL(filePath, viteServer)].forEach((href) => {
-    if (mode === 'development' && svelteAndVueStylesRE.test(href)) {
+    if (mode === 'development' && svelteStylesRE.test(href)) {
       tags.push({
         tag: 'script',
         attrs: { type: 'module', src: href },
