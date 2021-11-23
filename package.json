@@ -4,7 +4,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/astro.git"
+    "url": "https://github.com/withastro/astro.git"
   },
   "scripts": {
     "release": "yarn build:all && changeset publish",

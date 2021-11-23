@@ -31,7 +31,7 @@
 
   This new version of Astro includes:
 
-  - A new, faster, [Go-based compiler](https://github.com/snowpackjs/astro-compiler)
+  - A new, faster, [Go-based compiler](https://github.com/withastro/astro-compiler)
   - A completely new runtime backed by [Vite](https://vitejs.dev/), with significantly dev experience improvements
   - Improved support for loading Astro config files, including `.cjs`, `.js`, and `.ts` files
   - And [many more features](https://astro.build/blog/astro-021-preview/)!
@@ -1039,7 +1039,7 @@ _Rolling back to 0.13.10 to prevent a regression in the dev server output._
 ### Patch Changes
 
 - 6573bea: Fixed README header aspect ratio
-- 2671b6f: Fix [472](https://github.com/snowpackjs/astro/issues/472) by not injecting `astro-*` scoped class unless it is actually used
+- 2671b6f: Fix [472](https://github.com/withastro/astro/issues/472) by not injecting `astro-*` scoped class unless it is actually used
 - b547892: Makes providing a head element on pages optional
 - b547892: Allows astro documents to omit the head element
 - 0abd251: Allows renderers to provide knownEntrypoint config values
@@ -1189,7 +1189,7 @@ _Rolling back to 0.13.10 to prevent a regression in the dev server output._
 ### Patch Changes
 
 - 0d6afae: Fixes a few small bugs with the `Markdown` component when there are multiple instances on the same page
-- 1d930ff: Adds [`--verbose`](https://docs.astro.build/cli.md#--verbose) and [`--reload`](https://github.com/snowpackjs/astro/blob/main/docs/cli/#--reload) flags to the `astro` CLI.
+- 1d930ff: Adds [`--verbose`](https://docs.astro.build/cli.md#--verbose) and [`--reload`](https://github.com/withastro/astro/blob/main/docs/cli/#--reload) flags to the `astro` CLI.
 
 ## 0.12.3
 

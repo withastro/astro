@@ -13,49 +13,49 @@
     {
       "name": "Starter Kit",
       "description": "A default starter project for Astro. Flexible enough to handle anything that you might want to build.",
-      "github": "https://github.com/snowpackjs/astro/tree/main/examples/starter",
+      "github": "https://github.com/withastro/astro/tree/main/examples/starter",
       "demo": null,
-      "sandbox": "https://github.dev/snowpackjs/astro/tree/main/examples/starter",
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/starter",
       "command": "npm init astro"
     },
     {
       "name": "Docs",
       "description": "A documentation website theme, complete with i18n, search, dark mode and more.",
-      "github": "https://github.com/snowpackjs/astro/tree/main/examples/docs",
+      "github": "https://github.com/withastro/astro/tree/main/examples/docs",
       "demo": null,
-      "sandbox": "https://github.dev/snowpackjs/astro/tree/main/examples/docs",
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/docs",
       "command": "npm init astro -- --template docs"
     },
     {
       "name": "Blog",
       "description": "A blog theme, perfect for personal and company blogs.",
-      "github": "https://github.com/snowpackjs/astro/tree/main/examples/blog",
+      "github": "https://github.com/withastro/astro/tree/main/examples/blog",
       "demo": null,
-      "sandbox": "https://github.dev/snowpackjs/astro/tree/main/examples/blog",
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/blog",
       "command": "npm init astro -- --template blog"
     },
     {
       "name": "Portfolio",
       "description": "A portfolio theme, perfect for your personal or professional online portfolio.",
-      "github": "https://github.com/snowpackjs/astro/tree/main/examples/portfolio",
+      "github": "https://github.com/withastro/astro/tree/main/examples/portfolio",
       "demo": null,
-      "sandbox": "https://github.dev/snowpackjs/astro/tree/main/examples/portfolio",
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/portfolio",
       "command": "npm init astro -- --template portfolio"
     },
     {
       "name": "Portfolio-svelte",
       "description": "A portfolio theme using Svelte components, perfect for your personal or professional online portfolio.",
-      "github": "https://github.com/snowpackjs/astro/tree/main/examples/portfolio-svelte",
+      "github": "https://github.com/withastro/astro/tree/main/examples/portfolio-svelte",
       "demo": null,
-      "sandbox": "https://github.dev/snowpackjs/astro/tree/main/examples/portfolio-svelte",
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/portfolio-svelte",
       "command": "npm init astro -- --template portfolio-svelte"
     },
     {
       "name": "Minimal",
       "description": "A minimal theme, with just the bare minimum needed to get started.",
-      "github": "https://github.com/snowpackjs/astro/tree/main/examples/minimal",
+      "github": "https://github.com/withastro/astro/tree/main/examples/minimal",
       "demo": null,
-      "sandbox": "https://github.dev/snowpackjs/astro/tree/main/examples/minimal",
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/minimal",
       "command": "npm init astro -- --template minimal"
     }
   ],

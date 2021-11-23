@@ -24,7 +24,7 @@ _Nota: algumas funcionalidades (ex: Fast Refresh) no momento estão limitadas no
 
 Todos os tipos de pessoas vêm ao Astro com diferentes bagagens trazendo com eles diferentes estilos de aprendizagem. Se você prefere uma abordagem mais teórica ou prática, esperamos que você encontre esta seção útil.
 
-- Se você prefere **aprender fazendo**, comece com nossa [biblioteca de exemplos](https://github.com/snowpackjs/astro/tree/main/examples).
+- Se você prefere **aprender fazendo**, comece com nossa [biblioteca de exemplos](https://github.com/withastro/astro/tree/main/examples).
 - Se você prefere **aprender conceitos passo-a-passo**, comece com [conceitos básicos e guias](/core-concepts/project-structure).
 
 Como qualquer tecnologia emergente, Astro vem com uma leve curva de aprendizado. No entanto, com prática e alguma paciência, sabemos que você _vai_ pegar o jeito da coisa.
@@ -49,11 +49,11 @@ A conta do Twitter [@astrodotbuild](https://twitter.com/astrodotbuild) é a font
 
 Também publicamos anúncios de lançamento em nossa [comunidade no Discord](https://astro.build/chat) no canal #announcements.
 
-Nem todo lançamento do Astro merece sua própria postagem no blog, mas você pode encontrar um changelog detalhado para cada lançamento no arquivo [`CHANGELOG.md` no repositório Astro](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md).
+Nem todo lançamento do Astro merece sua própria postagem no blog, mas você pode encontrar um changelog detalhado para cada lançamento no arquivo [`CHANGELOG.md` no repositório Astro](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md).
 
 ## Algo está faltando?
 
-Se algo estiver faltando na documentação ou se você achar alguma parte confusa, por favor [registre uma nova issue para a documentação](https://github.com/snowpackjs/astro/issues/new/choose) com suas sugestões de melhoria, ou tweet na conta do Twitter [@astrodotbuild](https://twitter.com/astrodotbuild). Nós adoramos ouvir de você!
+Se algo estiver faltando na documentação ou se você achar alguma parte confusa, por favor [registre uma nova issue para a documentação](https://github.com/withastro/astro/issues/new/choose) com suas sugestões de melhoria, ou tweet na conta do Twitter [@astrodotbuild](https://twitter.com/astrodotbuild). Nós adoramos ouvir de você!
 
 ## Créditos
 

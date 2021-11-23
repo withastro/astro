@@ -14,7 +14,7 @@ A renderer is an NPM package that has two responsibilities:
 1. _render a component to a static string of HTML_ at build time.
 2. _rehydrate that HTML to create an interactive component_ on the client.
 
-Take a look at any one of Astro's built-in [`renderers`](https://github.com/snowpackjs/astro/tree/main/packages/renderers) to see this in action. We'll go into more detail in the following sections.
+Take a look at any one of Astro's built-in [`renderers`](https://github.com/withastro/astro/tree/main/packages/renderers) to see this in action. We'll go into more detail in the following sections.
 
 ## Building Your Own Renderer
 

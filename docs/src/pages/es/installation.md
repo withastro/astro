@@ -26,7 +26,7 @@ npm init astro
 yarn create astro
 ```
 
-El asistente de instalación [`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro), te permite escoger de una lista de [plantillas de inicio](/examples); por otro lado, puedes importar tus propios proyectos de Astro directamente desde GitHub.
+El asistente de instalación [`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro), te permite escoger de una lista de [plantillas de inicio](/examples); por otro lado, puedes importar tus propios proyectos de Astro directamente desde GitHub.
 
 ```bash
 # Nota: Reemplaza "my-astro-project" con el nombre de tu proyecto.

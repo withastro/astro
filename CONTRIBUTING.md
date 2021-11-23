@@ -186,7 +186,7 @@ When in prerelease mode, the automatic PR release process will no longer release
 1. Run `yarn release` to publish your new release.
 1. Run `git push && git push --tags` to push your new release to GitHub.
 1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
-1. Go to https://github.com/snowpackjs/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/snowpackjs/astro/blob/latest/packages/astro/CHANGELOG.md.
+1. Go to https://github.com/withastro/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/withastro/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
 
 ## Translations

@@ -9,7 +9,7 @@
   "types": "./dist/types/@types/astro.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/astro.git",
+    "url": "https://github.com/withastro/astro.git",
     "directory": "packages/astro"
   },
   "exports": {

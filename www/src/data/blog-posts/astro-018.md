@@ -42,7 +42,7 @@ Named slots are particularly useful for page layouts. A layout can now specify s
 
 <img src="/assets/blog/astro-018/solid-logo-dark.svg" alt="Solid.js logo" style="background-color: rgb(65, 64, 66); padding: 2rem 4rem;" />
 
-[Solid](https://www.solidjs.com/) is a JSX-based UI framework that bills itself as the familiar, modern, more reactive alternative to React. We're really excited about Solid, and with the new [Solid renderer](https://github.com/snowpackjs/astro/tree/main/packages/renderers/renderer-solid) for Astro you can use Solid as a first-class framework in your project.
+[Solid](https://www.solidjs.com/) is a JSX-based UI framework that bills itself as the familiar, modern, more reactive alternative to React. We're really excited about Solid, and with the new [Solid renderer](https://github.com/withastro/astro/tree/main/packages/renderers/renderer-solid) for Astro you can use Solid as a first-class framework in your project.
 
 Adding support for Solid (our third officially-supported JSX framework) wasn't easy, and required a major refactoring of how Astro handles JSX. The final result was worth it: Astro is now much better at supporting different types of JSX and can even support the new React v17 JSX transform. This new foundation for Astro should support us well into the future.
 
@@ -53,7 +53,7 @@ The release of Solid v1.0 is the perfect showcase for Astro's multi-framework pr
 
 ![Lit logo](/assets/blog/astro-018/lit-logo.svg)
 
-Server-side rendering (SSR) for web components is finally here, thanks to Lit and the new [Lit renderer for Astro](https://github.com/snowpackjs/astro/tree/main/packages/renderers/renderer-lit).
+Server-side rendering (SSR) for web components is finally here, thanks to Lit and the new [Lit renderer for Astro](https://github.com/withastro/astro/tree/main/packages/renderers/renderer-lit).
 
 Thanks to the [Declarative Shadow DOM](https://web.dev/declarative-shadow-dom/) -- a new HTML feature that's now available in Chrome -- the Lit project was able to release experimental SSR support for Lit. Define a custom element in JavaScript and server render it with Astro as you would any other component from React or Vue. Unlike other JS components, you still use the custom element tag name in your HTML.
 
@@ -66,7 +66,7 @@ We've been absolutely blown away by the love Astro has recieved in such a short 
 - Featured articles and guides from [Netlify](https://www.netlify.com/blog/2021/07/23/build-a-modern-shopping-site-with-astro-and-serverless-functions/), [Cloudflare](https://developers.cloudflare.com/pages/framework-guides/astro), [CSS Tricks](https://css-tricks.com/a-look-at-building-with-astro/), and more.
 - Over 2,000 developers have downloaded the [Astro VSCode extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)
 - Over 500 weekly visitors to our [amazing Discord](https://astro.build/chat)
-- Over 300 public projects using Astro [on Github](https://github.com/snowpackjs/astro)
+- Over 300 public projects using Astro [on Github](https://github.com/withastro/astro)
 - 2 (TWO!) Astro jobs already posted on Discord!
 - [GitHub adds support for Astro component syntax highlighting](https://twitter.com/n_moore/status/1417881860051509250)
 
