@@ -4,7 +4,7 @@ title: Using environment variables
 description: Learn how to use environment variables in an Astro project.
 ---
 
-Astro uses Vite for environment variables, and allows you to use any of its methods to get and set environment variables. Note that all environment variables must be prefixed with `PUBLIC_` to be accessible by client side code. 
+Astro uses Vite for environment variables, and allows you to use any of its methods to get and set environment variables. Note that all environment variables must be prefixed with `PUBLIC_` to be accessible by client side code.
 
 The ability to access private variables on the server side is [still being discussed](https://github.com/snowpackjs/astro/issues/1765).
 
@@ -24,7 +24,7 @@ PUBLIC_POKEAPI="https://pokeapi.co/api/v2"
 Instead of using `process.env`, with Vite you use `import.meta.env`, which uses the `import.meta` feature added in ES2020 (don't worry about browser support though, Vite replaces all `import.meta.env` mentions with static values). For example, to get the `PUBLIC_POKEAPI` environment variable, you could use `import.meta.env.PUBLIC_POKEAPI`.
 
 ```js
-fetch(`${import.meta.env.PUBLIC_POKEAPI}/pokemon/squirtle`)
+fetch(`${import.meta.env.PUBLIC_POKEAPI}/pokemon/squirtle`);
 ```
 
 > ⚠️WARNING⚠️:
