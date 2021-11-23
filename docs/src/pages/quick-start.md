@@ -30,7 +30,7 @@ npm run build
 
 To learn more about installing and using Astro for the first time, please [read our installation guide.](/installation)
 
-If you prefer to learn by example, check out our [complete library of examples](https://github.com/snowpackjs/astro/tree/main/examples) on GitHub. You can check out any of these examples locally by running `npm init astro -- --template "EXAMPLE_NAME"`.
+If you prefer to learn by example, check out our [complete library of examples](https://github.com/withastro/astro/tree/main/examples) on GitHub. You can check out any of these examples locally by running `npm init astro -- --template "EXAMPLE_NAME"`.
 
 ## Start your project
 

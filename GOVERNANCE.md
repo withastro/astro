@@ -234,7 +234,7 @@ Please let me know if you’re interested in accepting this invitation. If so, w
 Best,
 ${MY_NAME}
 
-*PS: As a reminder, our Governance document describes the following privileges and responsibilities for the  **L2 - Maintainer** role: https://github.com/snowpackjs/astro/blob/main/GOVERNANCE.md*
+*PS: As a reminder, our Governance document describes the following privileges and responsibilities for the  **L2 - Maintainer** role: https://github.com/withastro/astro/blob/main/GOVERNANCE.md*
 ```
 
 ## Voting: Core Maintainer (L3) Nomination

@@ -29,7 +29,7 @@ yarn create astro
 pnpm create astro
 ```
 
-Mit dem [`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) Assistenten kannst du aus einer Reihe von [Starter-Vorlagen](https://github.com/snowpackjs/astro/tree/main/examples) wählen. Alternativ kannst du auch dein eigenes Astro-Projekt direkt von GitHub importieren.
+Mit dem [`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro) Assistenten kannst du aus einer Reihe von [Starter-Vorlagen](https://github.com/withastro/astro/tree/main/examples) wählen. Alternativ kannst du auch dein eigenes Astro-Projekt direkt von GitHub importieren.
 
 ```bash
 # Hinweis: Ersetze "my-astro-project" durch den Namen deines Projekts.

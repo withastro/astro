@@ -105,7 +105,7 @@ ${source}
 \`\`\`
 `,
           });
-          err.url = `https://github.com/snowpackjs/astro/issues/new?${search.toString()}`;
+          err.url = `https://github.com/withastro/astro/issues/new?${search.toString()}`;
           err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
 
 Please open

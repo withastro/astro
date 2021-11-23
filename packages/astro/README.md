@@ -1,4 +1,4 @@
-<img src="https://github.com/snowpackjs/astro/blob/main/assets/social/banner.jpg?raw=true" />
+<img src="https://github.com/withastro/astro/blob/main/assets/social/banner.jpg?raw=true" />
 
 **Astro** is a _fresh but familiar_ approach to building websites. Astro combines decades of proven performance best practices with the DX improvements of the component-oriented era. Use your favorite JavaScript framework and automatically ship the bare-minimum amount of JavaScript—by default.
 
@@ -31,8 +31,8 @@ You can sponsor Astro's development on [Open Collective][oc]. Astro is generousl
 <table>
   <tbody>
     <tr>
-      <td align="center"><a href="https://www.netlify.com/" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/snowpackjs/astro/main/.github/assets/netlify.svg" alt="Netlify" /></a></td>
-      <td align="center"><a href="https://www.vercel.com/" target="_blank"><img width="150" height="34" src="https://raw.githubusercontent.com/snowpackjs/astro/main/.github/assets/vercel.svg" alt="Vercel" /></a></td>
+      <td align="center"><a href="https://www.netlify.com/" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify.svg" alt="Netlify" /></a></td>
+      <td align="center"><a href="https://www.vercel.com/" target="_blank"><img width="150" height="34" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/vercel.svg" alt="Vercel" /></a></td>
     </tr>
   </tbody>
 </table>
@@ -42,7 +42,7 @@ You can sponsor Astro's development on [Open Collective][oc]. Astro is generousl
 <table>
   <tbody>
     <tr>
-      <td align="center"><a href="https://sentry.io" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/snowpackjs/astro/main/.github/assets/sentry.svg" alt="Sentry" /></a></td>
+      <td align="center"><a href="https://sentry.io" target="_blank"><img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/sentry.svg" alt="Sentry" /></a></td>
     </tr>
   </tbody>
 </table>

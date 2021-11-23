@@ -94,7 +94,7 @@ By building your site to static HTML by default, Astro makes it difficult (but n
 
 Astro is built by the team of open source developers behind [Snowpack](https://snowpack.dev) and [Skypack](https://skypack.dev), with additional contributions from the community.
 
-**Astro is and always will be free.** It is an open source project released under the [MIT license](https://github.com/snowpackjs/astro/blob/main/LICENSE). 
+**Astro is and always will be free.** It is an open source project released under the [MIT license](https://github.com/withastro/astro/blob/main/LICENSE). 
 
 We care deeply about building a more sustainable future for open source software.  At the same time, we need to support Astro's development long-term. This requires money (donations alone aren't enough.) 
 

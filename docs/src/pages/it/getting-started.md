@@ -16,7 +16,7 @@ In alternativa, leggi la nostra [Guida all'Installazione](/installation) per una
 
 ### Esempi
 
-Se preferisci imparare Astro tramite esempi, dai un'occhiata alla nostra [libreria completa degli esempi](https://github.com/snowpackjs/astro/tree/main/examples) su GitHub.
+Se preferisci imparare Astro tramite esempi, dai un'occhiata alla nostra [libreria completa degli esempi](https://github.com/withastro/astro/tree/main/examples) su GitHub.
 
 Puoi testare uno qualsiasi di questi esempi sulla tua macchina locale lanciando `npm init astro` con la flag `--template` da CLI. La flag `--template` supporta anche template di terze parti della community.
 
@@ -30,13 +30,13 @@ npm init astro -- --template [UTENTE_GITHUB]/[NOME_REPO]/percorso/al/esempio
 
 ### Online Playgrounds
 
-Se ti interessa provare Astro in un browser, puoi utilizzare un code editor online come Stackblitz, CodeSandbox, Gitpod o GitHub Codespaces. Clicca sul link "Open in Stackblitz" in uno dei nostri esempi nella [libreria degli esempi](https://github.com/snowpackjs/astro/tree/main/examples). In alternativa, [clicca qui](https://stackblitz.com/fork/astro) per avviare un nuovo progetto in [Stackblitz](https://stackblitz.com/fork/astro).
+Se ti interessa provare Astro in un browser, puoi utilizzare un code editor online come Stackblitz, CodeSandbox, Gitpod o GitHub Codespaces. Clicca sul link "Open in Stackblitz" in uno dei nostri esempi nella [libreria degli esempi](https://github.com/withastro/astro/tree/main/examples). In alternativa, [clicca qui](https://stackblitz.com/fork/astro) per avviare un nuovo progetto in [Stackblitz](https://stackblitz.com/fork/astro).
 
 ## Impara Astro
 
 In Astro arrivano persone di tutti i tipi, con il loro background di conoscenze e stili d'apprendimento diversi. Sia che tu preferisca un approccio più teorico o più pratico, speriamo troverai questa sezione utile.
 
-- Se preferisci **imparare facendo cose**, puoi iniziare con la nostra [libreria degli esempi](https://github.com/snowpackjs/astro/tree/main/examples).
+- Se preferisci **imparare facendo cose**, puoi iniziare con la nostra [libreria degli esempi](https://github.com/withastro/astro/tree/main/examples).
 - Se preferisci **imparare i concetti passo-passo**, puoi iniziare da [guide e concetti base](/core-concepts/project-structure).
 
 Come ogni tecnologia poco familiare, Astro si presenta con una leggera curva di apprendimento. Tuttavia, con un po' di pratica e pazienza, sappiamo che ci riuscirai in poco tempo.
@@ -61,11 +61,11 @@ L'account Twitter [@astrodotbuild](https://twitter.com/astrodotbuild) è la font
 
 Pubblichiamo anche annunci sui rilasci nella nostra [community Discord](https://astro.build/chat) nel canale #announcements.
 
-Non tutte le release di Astro saranno accompagnate da un post sul blog, ma puoi sempre trovare un changelog dettagliato per ogni release nel [file `CHANGELOG.md` nella repository Astro](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md).
+Non tutte le release di Astro saranno accompagnate da un post sul blog, ma puoi sempre trovare un changelog dettagliato per ogni release nel [file `CHANGELOG.md` nella repository Astro](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md).
 
 ## Manca Qualcosa?
 
-Se manca qualcosa nella documentazione o trovi qualche parte confusionaria, per favore [segnala un problema sulla documentazione](https://github.com/snowpackjs/astro/issues/new/choose) con i tuoi suggerimenti per migliorarla, oppure twitta all'account Twitter [@astrodotbuild](https://twitter.com/astrodotbuild). Ci piace ascoltarvi!
+Se manca qualcosa nella documentazione o trovi qualche parte confusionaria, per favore [segnala un problema sulla documentazione](https://github.com/withastro/astro/issues/new/choose) con i tuoi suggerimenti per migliorarla, oppure twitta all'account Twitter [@astrodotbuild](https://twitter.com/astrodotbuild). Ci piace ascoltarvi!
 
 ## Crediti
 

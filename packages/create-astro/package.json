@@ -4,7 +4,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/astro.git",
+    "url": "https://github.com/withastro/astro.git",
     "directory": "packages/create-astro"
   },
   "exports": {

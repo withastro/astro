@@ -7,8 +7,8 @@ export interface Props {
 
 const { path } = Astro.props as Props;
 const commitPath = 'docs/' + path;
-const url = `https://api.github.com/repos/snowpackjs/astro/commits?path=${commitPath}`;
-const commitsURL = `https://github.com/snowpackjs/astro/commits/main/${commitPath}`;
+const url = `https://api.github.com/repos/withastro/astro/commits?path=${commitPath}`;
+const commitsURL = `https://github.com/withastro/astro/commits/main/${commitPath}`;
 
 async function getCommits(url) {
   try {

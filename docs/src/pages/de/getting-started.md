@@ -26,7 +26,7 @@ _Hinweis: Einige Funktionen (z.B. Fast Refresh) funktionieren aktuell nur begren
 
 Es kommen eine Menge verschiedener Menschen mit unterschiedlichen Hintergründen und anderen Lernweisen zu Astro. Unabhängig davon, ob Du lieber theoretisch oder praktisch lernst, hoffen wir, dass Dir dieser Abschnitt weiterhilft.
 
-- Falls Du lieber **praktisch lernst**, suche Dir ein Beispiel aus unserer [Beispiel Liste](https://github.com/snowpackjs/astro/tree/main/examples) aus und fange direkt an.
+- Falls Du lieber **praktisch lernst**, suche Dir ein Beispiel aus unserer [Beispiel Liste](https://github.com/withastro/astro/tree/main/examples) aus und fange direkt an.
 
 - Falls Du lieber **theoretisch lernst**, kannst Du mit unseren [grundlegenden Konzepten und Anleitungen](/core-concepts/project-structure) beginnen.
 
@@ -54,11 +54,11 @@ Unser [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account ist di
 
 Zusätzlich veröffentlichen wir alle Release-Ankündigungen in unserer [Discord Community](https://astro.build/chat) im `#announcements`-Kanal.
 
-Auch wenn nicht jedes Astro-Release einen eigenen Blogpost verdient, kannst Du alle Änderungen für jedes Release in unserem detaillierten [`CHANGELOG.md` im Astro Repository](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) nachlesen.
+Auch wenn nicht jedes Astro-Release einen eigenen Blogpost verdient, kannst Du alle Änderungen für jedes Release in unserem detaillierten [`CHANGELOG.md` im Astro Repository](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md) nachlesen.
 
 ## Fehlt etwas?
 
-Falls Dir etwas in der Dokumentation fehlt, oder Du einen Teil verwirrend findest, [erstell bitte ein Issue](https://github.com/snowpackjs/astro/issues/new/choose) mit deinen Verbesserungsvorschlägen für die Dokumentation oder tweete an den [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account.
+Falls Dir etwas in der Dokumentation fehlt, oder Du einen Teil verwirrend findest, [erstell bitte ein Issue](https://github.com/withastro/astro/issues/new/choose) mit deinen Verbesserungsvorschlägen für die Dokumentation oder tweete an den [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account.
 
 Wir freuen uns, von Dir zu hören.
 
