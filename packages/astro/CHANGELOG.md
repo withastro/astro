@@ -172,8 +172,6 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 - Fix bug when using `<Markdown></Markdown>` with no content
 - Support `PUBLIC_` prefixed `.env` variables
 - Respect `tsconfig.json` and `jsconfig.json` paths as aliases
-- fbae2bc5: Add support for `.cjs`, `.js`, and `.ts` Astro config files
-- 2e1bded7: fix: Improve Tailwind HMR
 
 ## 0.21.0-next.1
 
