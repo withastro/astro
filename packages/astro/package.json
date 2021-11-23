@@ -55,7 +55,7 @@
     "test": "mocha --parallel --timeout 15000"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.3.4",
+    "@astrojs/compiler": "^0.3.8",
     "@astrojs/language-server": "^0.7.16",
     "@astrojs/markdown-remark": "^0.5.0",
     "@astrojs/prism": "0.3.0",
