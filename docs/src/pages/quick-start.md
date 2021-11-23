@@ -74,4 +74,4 @@ We recommend that you to take some time to get more familiar with the way Astro 
 
 📚 Learn more about Astro's component syntax in our [Astro Components guide.](/core-concepts/astro-components)
 
-📚 Learn more about Astro's file-based routing in our [Routing guide.](core-concepts/astro-pages)
+📚 Learn more about Astro's file-based routing in our [Routing guide.](/core-concepts/astro-pages)
