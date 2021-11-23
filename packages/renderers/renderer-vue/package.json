@@ -1,6 +1,12 @@
 {
   "name": "@astrojs/renderer-vue",
   "version": "0.2.0",
+  "description": "Use Vue components within Astro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/renderers/renderer-vue"
+  },
   "type": "module",
   "exports": {
     ".": "./index.js",
