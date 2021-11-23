@@ -1,5 +1,20 @@
 # astro
 
+## 0.21.3
+
+### Patch Changes
+
+- 8a5de030: Fix client:visible with multiple copies of same component
+- 9ed6b3c0: Update compiler with the following patches:
+  - Fix components supporting only one style or script
+  - Fix regression where leading `<style>` elements could break generated tags
+  - Fix case-sensitivity of void elements
+  - Fix expressions not working within SVG elements
+  - Fix panic when preprocessed style is empty
+- 7a7427e4: Fix CSS URLs on Windows
+- Updated dependencies [4cec1256]
+  - @astrojs/renderer-svelte@0.2.1
+
 ## 0.21.2
 
 ### Patch Changes
