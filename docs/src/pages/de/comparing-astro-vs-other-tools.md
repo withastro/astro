@@ -53,7 +53,7 @@ Elder.js unterstützt sowohl statische Site-Generierung (SSG) als auch Server-se
 
 [Eleventy](https://www.11ty.dev/) ist ein beliebter statischer Site-Renderer auf der Grundlage von Node.js.
 
-Eleventy verwendet verschiedene [ältere Sprachen für HTML-Vorlagen](https://www.11ty.dev/docs/languages/), um deine Website zu rendern: Nunjucks, Liquid, Pug, EJS und andere. Astro erlaubt dir deine Websites mit deiner bevorzugten UI-Komponenten-Bibliothek (React, Preact, Vue, Svelte und andere) zu erzeugen, oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX. Eleventy unterstützt keine modernen UI-Bibliotheken für die Erstellung von HTML-Vorlagen.
+Eleventy verwendet verschiedene [ältere Sprachen für HTML-Templates](https://www.11ty.dev/docs/languages/), um deine Website zu rendern: Nunjucks, Liquid, Pug, EJS und andere. Astro erlaubt dir deine Websites mit deiner bevorzugten UI-Komponenten-Bibliothek (React, Preact, Vue, Svelte und andere) zu erzeugen, oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX. Eleventy unterstützt keine modernen UI-Bibliotheken für die Erstellung von HTML-Templates.
 
 ### Leistungsvergleich Eleventy vs. Astro
 
@@ -94,7 +94,7 @@ Ein wesentlicher Grund für diesen Leistungsunterschied liegt in Astros geringer
 
 [Hugo](https://gohugo.io/) ist ein beliebter statischer Site-Renderer auf der Grundlage von Go.
 
-Hugo verwendet eine eigene [Templating Language](https://gohugo.io/templates/introduction/), um deine Website zu rendern. Astro erlaubt dir deine Websites mit deiner bevorzugten UI-Komponenten-Bibliothek (React, Preact, Vue, Svelte, Solid und andere) zu erzeugen, oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX. Hugo unterstützt keine modernen UI-Bibliotheken für die Erstellung von HTML-Vorlagen.
+Hugo verwendet eine eigene [Templating Language](https://gohugo.io/templates/introduction/), um deine Website zu rendern. Astro erlaubt dir deine Websites mit deiner bevorzugten UI-Komponenten-Bibliothek (React, Preact, Vue, Svelte, Solid und andere) zu erzeugen, oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX. Hugo unterstützt keine modernen UI-Bibliotheken für die Erstellung von HTML-Templates.
 
 ### Leistungsvergleich Hugo vs. Astro
 
@@ -106,7 +106,7 @@ Sowohl Hugo als auch Astro bieten von vornherein Unterstützung beim Kompilieren
 
 [Jekyll](https://jekyllrb.com/) ist ein beliebter statischer Site-Renderer auf der Grundlage von Ruby.
 
-Jekyll verwendet eine ältere [Templating Language](https://jekyllrb.com/docs/liquid/) mit dem Namen Liquid, um deine Website zu rendern. Astro erlaubt dir deine Websites mit deiner bevorzugten UI-Komponenten-Bibliothek (React, Preact, Vue, Svelte, Solid und andere) zu erzeugen, oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX. Jekyll unterstützt keine modernen UI-Bibliotheken für die Erstellung von HTML-Vorlagen.
+Jekyll verwendet eine ältere [Templating Language](https://jekyllrb.com/docs/liquid/) mit dem Namen Liquid, um deine Website zu rendern. Astro erlaubt dir deine Websites mit deiner bevorzugten UI-Komponenten-Bibliothek (React, Preact, Vue, Svelte, Solid und andere) zu erzeugen, oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX. Jekyll unterstützt keine modernen UI-Bibliotheken für die Erstellung von HTML-Templates.
 
 ### Leistungsvergleich Jekyll vs. Astro
 
@@ -224,7 +224,7 @@ Ein wesentlicher Grund für diesen Leistungsunterschied liegt in Astros geringer
 
 [Zola](https://www.getzola.org/) ist ein beliebter statischer Site-Renderer auf der Grundlage von Rust.
 
-Zola verwendet [Tera](https://tera.netlify.app/), um deine Website zu rendern. Astro erlaubt dir deine Websites mit deiner bevorzugten UI-Komponenten-Bibliothek (React, Preact, Vue, Svelte, Solid und andere) zu erzeugen, oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX. Zola unterstützt keine modernen UI-Bibliotheken für die Erstellung von HTML-Vorlagen.
+Zola verwendet [Tera](https://tera.netlify.app/), um deine Website zu rendern. Astro erlaubt dir deine Websites mit deiner bevorzugten UI-Komponenten-Bibliothek (React, Preact, Vue, Svelte, Solid und andere) zu erzeugen, oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX. Zola unterstützt keine modernen UI-Bibliotheken für die Erstellung von HTML-Templates.
 
 ### Leistungsvergleich Zola vs. Astro
 
