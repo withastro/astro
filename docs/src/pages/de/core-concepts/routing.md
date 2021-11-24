@@ -21,7 +21,7 @@ src/pages/posts/1.md         -> meinesite.com/posts/1
 
 ## Dynamische Routen
 
-Manchmal musst du zu einer einzelnen Page-Komponente mehrere URL generieren. Astro verwendet Datei-basiertes Routing, um **dynamische Routing-Parameter** zu unterstützen, so dass eine Seite - basierend auf einem Filter - zu verschiedenen dynamischen Routen passt. 
+Manchmal musst du zu einer einzelnen Page-Komponente mehrere URL generieren. Astro verwendet Datei-basiertes Routing, um **dynamische Routing-Parameter** zu unterstützen, so dass eine Seite - basierend auf einem Filter - zu verschiedenen dynamischen Routen passt.
 
 Es ist wichtig dabei zu beachten, dass Astro statische Seiten generiert. Es gibt keinen Astro-Server, der die Seiten auf Anfrage generiert und ausliefert. Dies bedeutet, dass jede Seite vorab erzeugt werden muss. Seiten die dynamische Routen verwenden, müssen daher eine `getStaticPaths()`-Funktion exportieren, die Astro genau vorgibt, welche Seiten generiert werden müssen. Du erfährst mehr darüber in der vollständigen [API-Referenz](/reference/api-reference#getstaticpaths).
 
@@ -77,7 +77,7 @@ Rest-Parameter sind standardmäßig optional, `pages/post/[...slug]` würde also
 
 #### Beispiel: Rest-Parameter
 
-Für ein `real-world`-Beispiel würdest du den `Github File Viewer` folgendermaßen implementieren: 
+Für ein `real-world`-Beispiel würdest du den `Github File Viewer` folgendermaßen implementieren:
 
 ```
 /[org]/[repo]/tree/[branch]/[...file]
