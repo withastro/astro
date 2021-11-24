@@ -32,9 +32,9 @@ npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
 
 ### オンラインコードエディター
 
-ブラウザでAstroを使ってみたいという方は、[astro.new](https://astro.new/)にあるUIを使ってすぐに新しいAstroプロジェクトを立ち上げられます。
+ブラウザで Astro を使ってみたいという方は、[astro.new](https://astro.new/)にある UI を使ってすぐに新しい Astro プロジェクトを立ち上げられます。
 
-Stackblitz、CodeSandbox、Gitpod、GitHub CodespacesなどのオンラインコードエディターでもAstroを試せます。[サンプル集](https://github.com/snowpackjs/astro/tree/main/examples)にあるサンプルの中の「Open in Stackblitz」リンクをクリックしてください。また、[ここをクリック](https://stackblitz.com/fork/astro)すると、[Stackblitz](https://stackblitz.com/fork/astro)で新しいプロジェクトを始められます。
+Stackblitz、CodeSandbox、Gitpod、GitHub Codespaces などのオンラインコードエディターでも Astro を試せます。[サンプル集](https://github.com/snowpackjs/astro/tree/main/examples)にあるサンプルの中の「Open in Stackblitz」リンクをクリックしてください。また、[ここをクリック](https://stackblitz.com/fork/astro)すると、[Stackblitz](https://stackblitz.com/fork/astro)で新しいプロジェクトを始められます。
 
 ## Astro を学ぶ
 
