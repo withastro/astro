@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - actions
   pull_request:
     paths-ignore:
       - '.vscode/**'
@@ -13,97 +13,36 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node_version: [12, 14, 16]
-        include:
-          - os: windows-latest
-            node_version: 16
-          - os: macos-latest
-            node_version: 16
-      fail-fast: false
-    env:
-      LANG: en-us
-    name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
+    name: Build Packages
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    runs-on: ubuntu-latest
     steps:
-      - name: Check out code using Git
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+
+      - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set Node version to ${{ matrix.node_version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node_version }}
-          cache: 'yarn'
-
       - name: Debug
         run: yarn versions
 
-      - name: Install dependencies
+      - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines
 
-      - name: Build Astro
+      - name: Build Packages
         run: yarn build:all
 
-      - name: Test
-        run: yarn test
-
-  lint:
-    runs-on: ubuntu-latest
-    name: 'Lint: node-16, ubuntu-latest'
-    steps:
-      - uses: actions/checkout@v2
+      - name: Upload Package Artifacts
+        uses: actions/upload-artifact@v2
         with:
-          fetch-depth: 0
-
-      - name: Set Node version to 16
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          cache: 'yarn'
-
-      - name: Debug
-        run: yarn versions
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-engines
-
-      - name: Build
-        run: yarn build:all
-
-      - name: Lint
-        run: yarn lint
-
-  # NOTE: temporarily disabled until `next` branch can build docs again
-  # smoke:
-  #   runs-on: ubuntu-latest
-  #   name: 'Smoke: node-14, ubuntu-latest'
-  #   steps:
-  #     - name: Check out code using Git
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-
-  #     - name: Set Node version to 16
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: 16
-  #         cache: 'yarn'
-
-  #     - name: Debug
-  #       run: yarn versions
-
-  #     - name: Install dependencies
-  #       run: yarn install --frozen-lockfile --ignore-engines
-
-  #     - name: Build
-  #       run: yarn build:all
-
-  #     - name: "Smoke Test: Build 'docs'"
-  #       run: yarn build
-  #       working-directory: ./docs
-
-  #     - name: "Smoke Test: Build 'www'"
-  #       run: yarn build
-  #       working-directory: ./www
+          name: astro
+          path: |
+            packages/astro/**/*
+            !**/node_modules
+            !packages/astro/src/**/*
+            !packages/astro/test/**/*
+            !packages/astro/tsconfig.json
+          if-no-files-found: error
