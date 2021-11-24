@@ -81,9 +81,9 @@ jobs:
           mv artifacts.tar.gz ../artifacts.tar.gz
           cd ..
           tar -xvzpf artifacts.tar.gz
-          rm -R -f artifacts
-          rm -R -f tmp
-          rm -f artifacts.tar.gz
+          rmdir artifacts
+          rmdir tmp
+          rm artifacts.tar.gz
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
