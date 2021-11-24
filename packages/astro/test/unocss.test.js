@@ -9,12 +9,7 @@ describe('unocss', () => {
     fixture = await loadFixture({
       projectRoot: './fixtures/with-unocss/',
     });
-    try {
-      await fixture.build();
-    } catch(err) {
-      console.log('wha...', err);
-    }
-    
+    await fixture.build();
   });
 
   it('Build when they create their own URLs', async () => {

@@ -17,7 +17,6 @@ import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generateRssFunction } from '../ssr/rss.js';
 import { generateSitemap } from '../ssr/sitemap.js';
-import { createFetch } from './util.js';
 
 export interface BuildOptions {
   mode?: string;
@@ -79,7 +78,6 @@ class AstroBuilder {
     debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
 
     timer.loadStart = performance.now();
-    const fetch = createFetch(this.origin);
     const assets: Record<string, string> = {};
     const allPages: AllPagesData = {};
     // Collect all routes ahead-of-time, before we start the build.
@@ -189,7 +187,6 @@ class AstroBuilder {
           astroPageStyleMap,
           astroStyleMap,
           chunkToReferenceIdMap,
-          fetch,
           pureCSSChunks,
           logging,
           origin,

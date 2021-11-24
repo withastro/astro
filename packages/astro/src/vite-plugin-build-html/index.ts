@@ -3,12 +3,9 @@ import type { LogOptions } from '../core/logger';
 import type { ViteDevServer, Plugin as VitePlugin } from '../core/vite';
 import type { OutputChunk, PreRenderedChunk, RenderedChunk } from 'rollup';
 import type { AllPagesData } from '../core/build/types';
-import type { ViteFetch } from '../core/build/util';
-import type { RequestInit } from 'fetch';
 import parse5 from 'parse5';
 import srcsetParse from 'srcset-parse';
 import * as npath from 'path';
-import mime from 'mime';
 import { promises as fs } from 'fs';
 import { getAttribute, hasAttribute, insertBefore, remove, createScript, createElement, setAttribute } from '@web/parse5-utils';
 import { addRollupInput } from './add-rollup-input.js';
@@ -39,11 +36,10 @@ interface PluginOptions {
   origin: string;
   routeCache: RouteCache;
   viteServer: ViteDevServer;
-  fetch: ViteFetch;
 }
 
 export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin[] {
-  const { astroConfig, astroStyleMap, astroPageStyleMap, chunkToReferenceIdMap, fetch, pureCSSChunks, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
+  const { astroConfig, astroStyleMap, astroPageStyleMap, chunkToReferenceIdMap, pureCSSChunks, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
   // The filepath root of the src folder
   const srcRoot = astroConfig.src.pathname;
@@ -468,18 +464,12 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin[]
       return null;
     },
     async load(id) {
-      const init: RequestInit = {
-        headers: {
-          accept: mime.getType(id)
-        }
-      };
-
-      const res = await fetch(id, init);
-      if(res.ok) {
-        return await res.text();
+      try {
+        const mod = await viteServer.ssrLoadModule(id);
+        return mod.default;
+      } catch {
+        return null;
       }
-
-      return null;
     }
   }];
 }
