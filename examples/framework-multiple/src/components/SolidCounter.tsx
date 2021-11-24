@@ -13,7 +13,7 @@ export default function SolidCounter({ children }) {
         <pre>{count()}</pre>
         <button onClick={add}>+</button>
       </div>
-      <div class="children">{children}</div>
+      <div class="counter-message">{children}</div>
     </>
   );
 }

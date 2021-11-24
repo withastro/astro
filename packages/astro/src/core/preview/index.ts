@@ -23,7 +23,7 @@ interface PreviewServer {
 /** The primary dev action */
 export default async function preview(config: AstroConfig, { logging }: PreviewOptions): Promise<PreviewServer> {
   const startServerTime = performance.now();
-  const base = config.buildOptions.site ? new URL(config.buildOptions.site).pathname + '/' : '/';
+  const base = config.buildOptions.site ? new URL(config.buildOptions.site).pathname : '/';
 
   // Create the preview server, send static files out of the `dist/` directory.
   const server = http.createServer((req, res) => {

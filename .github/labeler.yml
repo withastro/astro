@@ -3,7 +3,7 @@
 example:
 - examples/**/*
 
-action:
+'🚨 action':
 - .github/workflows/**
 
 docs:
@@ -12,6 +12,9 @@ docs:
 www:
 - www/**
 
+test:
+- packages/**/*.test.js
+
 i18n:
 - any:
   - 'docs/src/pages/*/**'
@@ -19,3 +22,33 @@ i18n:
   - '!docs/src/pages/guides/**'
   - '!docs/src/pages/migration/**'
   - '!docs/src/pages/reference/**'
+
+core:
+- packages/astro/**
+
+create-astro:
+- packages/create-astro/**
+
+markdown:
+- packages/markdown/**
+
+renderer:
+- packages/renderers/**
+
+framework-lit:
+- packages/renderers/renderer-lit/**
+
+framework-preact:
+- packages/renderers/renderer-preact/**
+
+framework-react:
+- packages/renderers/renderer-react/**
+
+framework-solid:
+- packages/renderers/renderer-solid/**
+
+framework-svelte:
+- packages/renderers/renderer-svelte/**
+
+framework-vue:
+- packages/renderers/renderer-vue/**

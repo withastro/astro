@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import { useStore } from 'nanostores/preact';
+import { useStore } from '@nanostores/preact';
 
 import { admins } from '../store/admins.js';
 import { counter, increaseCounter, decreaseCounter } from '../store/counter.js';

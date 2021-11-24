@@ -1,5 +1,5 @@
-import { renderToString } from '@vue/server-renderer';
 import { h, createSSRApp } from 'vue';
+import { renderToString } from 'vue/server-renderer';
 import StaticHtml from './static-html.js';
 
 function check(Component) {

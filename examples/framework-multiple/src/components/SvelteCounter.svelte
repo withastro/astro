@@ -13,10 +13,10 @@
 </script>
 
 <div class="counter">
-    <button on:click={subtract}>-</button>
-    <pre>{ count }</pre>
-    <button on:click={add}>+</button>
+  <button on:click={subtract}>-</button>
+  <pre>{ count }</pre>
+  <button on:click={add}>+</button>
 </div>
-<div class="children">
-    <slot />
+<div class="counter-message">
+  <slot />
 </div>

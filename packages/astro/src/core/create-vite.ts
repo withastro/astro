@@ -2,6 +2,7 @@ import type { AstroConfig } from '../@types/astro';
 import type { AstroDevServer } from './dev';
 import type { LogOptions } from './logger';
 
+import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
 import vite from './vite.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
@@ -14,6 +15,7 @@ import { resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
 const ALWAYS_EXTERNAL = new Set([
+  ...builtinModules.map((name) => `node:${name}`),
   '@sveltejs/vite-plugin-svelte',
   'estree-util-value-to-estree',
   'micromark-util-events-to-acorn',
@@ -29,7 +31,7 @@ const ALWAYS_NOEXTERNAL = new Set([
 ]);
 
 // note: ssr is still an experimental API hence the type omission
-type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
+export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
 
 interface CreateViteOptions {
   astroConfig: AstroConfig;

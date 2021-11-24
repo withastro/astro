@@ -10,7 +10,7 @@ import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import vite, { ViteDevServer } from '../vite.js';
 import { fileURLToPath } from 'url';
-import { createVite } from '../create-vite.js';
+import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { debug, defaultLogOptions, info, levels, timerMessage, warn } from '../logger.js';
 import { preload as ssrPreload } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
@@ -37,6 +37,7 @@ class AstroBuilder {
   private routeCache: RouteCache = {};
   private manifest: ManifestData;
   private viteServer?: ViteDevServer;
+  private viteConfig?: ViteConfigWithSSR;
 
   constructor(config: AstroConfig, options: BuildOptions) {
     if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
@@ -48,7 +49,7 @@ class AstroBuilder {
     const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
     this.logging = options.logging;
     this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${port}`;
-    this.manifest = createRouteManifest({ config });
+    this.manifest = createRouteManifest({ config }, this.logging);
   }
 
   async build() {
@@ -69,6 +70,7 @@ class AstroBuilder {
       ),
       { astroConfig: this.config, logging }
     );
+    this.viteConfig = viteConfig;
     const viteServer = await vite.createServer(viteConfig);
     this.viteServer = viteServer;
     debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
@@ -104,7 +106,7 @@ class AstroBuilder {
                 return routes;
               })
               .catch((err) => {
-                debug(logging, 'build', `├── ${colors.bold(colors.red(' '))} ${route.component}`);
+                debug(logging, 'build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
                 throw err;
               }),
           };

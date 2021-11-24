@@ -8,13 +8,19 @@ import yargs from 'yargs-parser';
 import { FRAMEWORKS, COUNTER_COMPONENTS } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
 import { createConfig } from './config.js';
-const args = yargs(process.argv);
+
+// NOTE: In the v7.x version of npm, the default behavior of `npm init` was changed
+// to no longer require `--` to pass args and instead pass `--` directly to us. This
+// broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
+// fixes the issue so that create-astro now works on all npm version.
+const cleanArgv = process.argv.filter((arg) => arg !== '--');
+const args = yargs(cleanArgv);
 prompts.override(args);
 
 export function mkdirp(dir: string) {
   try {
     fs.mkdirSync(dir, { recursive: true });
-  } catch (e) {
+  } catch (e: any) {
     if (e.code === 'EEXIST') return;
     throw e;
   }
@@ -96,7 +102,7 @@ export async function main() {
     // emitter.on('info', info => { console.log(info.message) });
     console.log(`${green(`>`)} ${gray(`Copying project files...`)}`);
     await emitter.clone(cwd);
-  } catch (err) {
+  } catch (err: any) {
     // degit is compiled, so the stacktrace is pretty noisy. Just report the message.
     console.error(red(err.message));
 
@@ -104,6 +110,12 @@ export async function main() {
     if (err.message === 'zlib: unexpected end of file') {
       console.log(yellow("This seems to be a cache related problem. Remove the folder '~/.degit/github/snowpackjs' to fix this error."));
       console.log(yellow('For more information check out this issue: https://github.com/snowpackjs/astro/issues/655'));
+    }
+
+    // Helpful message when encountering the "could not find commit hash for ..." error
+    if (err.code === 'MISSING_REF') {
+      console.log(yellow("This seems to be an issue with degit. Please check if you have 'git' installed on your system, and install it if you don't have (https://git-scm.com)."));
+      console.log(yellow("If you do have 'git' installed, please file a new issue here: https://github.com/snowpackjs/astro/issues"));
     }
     process.exit(1);
   }

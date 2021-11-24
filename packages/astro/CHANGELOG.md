@@ -1,5 +1,107 @@
 # astro
 
+## 0.21.2
+
+### Patch Changes
+
+- 22dd6bf6: Support `lang="postcss"` in addition to `lang="pcss"`
+- d3476f24: Bump Sass dependency version
+- 679d4395: Added `MarkdownParser` and `MarkdownParserResponse` to `@types`
+- e4945232: Fix a host of compiler bugs, including:
+  - CSS scoping of `*` character inside of `calc()` expressions
+  - Encoding of double quotes inside of quoted attributes
+  - Expressions inside of `<table>` elements
+- 8cb77959: Fixes building of non-hoisted scripts
+- fc5f4163: Fix regression with `astro build` 404.astro output
+- Updated dependencies [679d4395]
+  - @astrojs/markdown-remark@0.5.0
+
+## 0.21.1
+
+### Patch Changes
+
+- 8775730e: Fix CSS scanning bug that could lead to infinite loops
+- aec4e8da: Fix client:only behavior when only a single renderer is configured
+
+## 0.21.0
+
+### Minor Changes
+
+- e6aaeff5: Astro 0.21 is here! [Read the complete migration guide](https://docs.astro.build/migration/0.21.0/).
+
+  This new version of Astro includes:
+
+  - A new, faster, [Go-based compiler](https://github.com/snowpackjs/astro-compiler)
+  - A completely new runtime backed by [Vite](https://vitejs.dev/), with significantly dev experience improvements
+  - Improved support for loading Astro config files, including `.cjs`, `.js`, and `.ts` files
+  - And [many more features](https://astro.build/blog/astro-021-preview/)!
+
+### Patch Changes
+
+- Updated dependencies [e6aaeff5]
+- Updated dependencies [e6aaeff5]
+- Updated dependencies [e6aaeff5]
+  - @astrojs/renderer-preact@0.3.0
+  - @astrojs/renderer-react@0.3.0
+  - @astrojs/renderer-svelte@0.2.0
+  - @astrojs/renderer-vue@0.2.0
+  - @astrojs/markdown-remark@0.4.0
+  - @astrojs/prism@0.3.0
+
+## 0.21.0-next.12
+
+### Patch Changes
+
+- 8733599e: Adds missing vite dependency, vixing svelte and vue
+- 2e0c790b: Fix Lit renderer built
+
+## 0.21.0-next.11
+
+### Patch Changes
+
+- 00d2b625: Add Vite dependencies to astro
+- Updated dependencies [00d2b625]
+  - @astrojs/markdown-remark@0.4.0-next.2
+
+## 0.21.0-next.10
+
+### Patch Changes
+
+- c7682168: Fix build by making vendored vite resolve to copy
+
+## 0.21.0-next.9
+
+### Patch Changes
+
+- 41c6a772: Fix for dev server not starting
+- 3b511059: Fix for OSX .astro file corruption
+
+## 0.21.0-next.8
+
+### Patch Changes
+
+- c82ceff7: Bug fix for Debug when passed JSON contain HTML strings
+- 53d9cf5e: Fixes dev server not stopping cleanly
+- 8986d33b: Improve error display
+- Updated dependencies [8986d33b]
+  - @astrojs/renderer-vue@0.2.0-next.2
+
+## 0.21.0-next.7
+
+### Patch Changes
+
+- dbc49ed6: Fix HMR regression
+- 6b598b24: Fix middleware order
+- 0ce86dfd: Fixes Vue scoped styles when built
+
+## 0.21.0-next.6
+
+### Patch Changes
+
+- dbc49ed6: Fix HMR regression
+- 6b598b24: Fix middleware order
+- 0ce86dfd: Fixes Vue scoped styles when built
+
 ## 0.21.0-next.5
 
 ### Patch Changes

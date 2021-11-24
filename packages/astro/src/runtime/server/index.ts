@@ -17,7 +17,7 @@ export type { Metadata } from './metadata';
 async function _render(child: any): Promise<any> {
   child = await child;
   if (Array.isArray(child)) {
-    return (await Promise.all(child.map((value) => _render(value)))).join('\n');
+    return (await Promise.all(child.map((value) => _render(value)))).join('');
   } else if (typeof child === 'function') {
     // Special: If a child is a function, call it automatically.
     // This lets you do {() => ...} without the extra boilerplate
@@ -30,7 +30,7 @@ async function _render(child: any): Promise<any> {
   }
   // Add a comment explaining why each of these are needed.
   // Maybe create clearly named function for what this is doing.
-  else if (child instanceof AstroComponent || child.toString() === '[object AstroComponent]') {
+  else if (child instanceof AstroComponent || Object.prototype.toString.call(child) === '[object AstroComponent]') {
     return await renderAstroComponent(child);
   } else {
     return child;
@@ -145,7 +145,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   }
   const probableRendererNames = guessRenderers(metadata.componentUrl);
 
-  if (Array.isArray(renderers) && renderers.length === 0) {
+  if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string') {
     const message = `Unable to render ${metadata.displayName}! 
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
@@ -167,6 +167,10 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
     if (metadata.hydrateArgs) {
       const rendererName = metadata.hydrateArgs;
       renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${rendererName}` || name === rendererName)[0];
+    }
+    // Attempt: user only has a single renderer, default to that
+    if (!renderer && renderers.length === 1) {
+      renderer = renderers[0];
     }
     // Attempt: can we guess the renderer from the export extension?
     if (!renderer) {
@@ -224,8 +228,12 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
   // This is used to add polyfill scripts to the page, if the renderer needs them.
   if (renderer?.polyfills?.length) {
-    let polyfillScripts = renderer.polyfills.map((src) => `<script type="module">import "${src}";</script>`).join('');
-    html = html + polyfillScripts;
+    for (const src of renderer.polyfills) {
+      result.scripts.add({
+        props: { type: 'module' },
+        children: `import "${src}";`,
+      });
+    }
   }
 
   if (!hydration) {
@@ -258,6 +266,7 @@ function createFetchContentFn(url: URL) {
         const urlSpec = new URL(spec, url).pathname;
         return {
           ...mod.frontmatter,
+          Content: mod.default,
           content: mod.metadata,
           file: new URL(spec, url),
           url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, '/').replace(/(\/index)?\.md$/, '') : undefined,

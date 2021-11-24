@@ -1,4 +1,5 @@
 import { createSignal } from 'solid-js';
+import './Counter.css';
 
 export default function Counter({ children }) {
   const [count, setCount] = createSignal(0);

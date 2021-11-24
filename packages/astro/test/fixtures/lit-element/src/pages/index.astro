@@ -7,6 +7,11 @@ import '../components/my-element.js';
   <title>LitElements</title>
 </head>
 <body>
-  <my-element foo="bar"></my-element>
+  <my-element
+      foo="bar"
+      str-attr={'initialized'}
+      bool={false}
+      obj={{data: 1}}>
+  </my-element>
 </body>
 </html>
