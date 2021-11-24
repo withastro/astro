@@ -81,8 +81,8 @@ jobs:
           mv artifacts.tar.gz ../artifacts.tar.gz
           cd ..
           tar -xvzpf artifacts.tar.gz
-          rm -rf artifacts
-          rm -rf tmp
+          rm -R -f artifacts
+          rm -R -f tmp
           rm -f artifacts.tar.gz
 
       - name: Install NPM Dependencies
