@@ -40,7 +40,7 @@ jobs:
           if-no-files-found: error
   
   test:
-    name: Test
+    name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
     if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     runs-on: ${{ matrix.os }}
     strategy:
@@ -59,10 +59,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Setup Node
+      - name: Setup node@${{ matrix.node_version }}
         uses: actions/setup-node@v2
         with:
-          node-version: 16.x
+          node-version: ${{ matrix.node_version }}
           cache: 'yarn'
 
       - name: Download Build Artifacts
