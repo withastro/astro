@@ -93,12 +93,11 @@ jobs:
         run: yarn test
 
   lint:
-    name: 'Lint'
+    name: Lint
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -111,4 +110,3 @@ jobs:
 
       - name: Lint
         run: yarn lint
-
