@@ -21,8 +21,8 @@ let title = 'My Astro Site';
 
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     
-    <link rel="stylesheet" href="/style/global.css">
-    <link rel="stylesheet" href="/style/home.css">
+    <link rel="stylesheet" href={Astro.resolve('../styles/global.scss')}>
+    <link rel="stylesheet" href={Astro.resolve('../styles/home.scss')}>
 
     <style>
         header {
