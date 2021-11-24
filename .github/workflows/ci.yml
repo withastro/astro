@@ -30,7 +30,7 @@ jobs:
         run: yarn versions
 
       - name: Install NPM Dependencies
-        run: yarn install --frozen-lockfile --ignore-engines
+        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
 
       - name: Build Packages
         run: yarn build:all
