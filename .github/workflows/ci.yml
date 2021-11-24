@@ -23,7 +23,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 16.x
+          node-version: 16
           cache: 'yarn'
 
       - name: Install NPM Dependencies
@@ -91,3 +91,24 @@ jobs:
 
       - name: Test
         run: yarn test
+
+  lint:
+    name: 'Lint'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+
+      - name: Install NPM Dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+
+      - name: Lint
+        run: yarn lint
+
