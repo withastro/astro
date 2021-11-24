@@ -35,7 +35,7 @@ jobs:
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts/packages
+          name: artifacts
           path: packages/**/dist/*
           if-no-files-found: error
   
@@ -64,6 +64,8 @@ jobs:
       - name: Copy Artifacts
         run: |
           cd artifacts
+          mkdir packages
+          mv * packages
           tar -cvzpf artifacts.tar.gz *
           mv artifacts.tar.gz ../artifacts.tar.gz
           cd ..
