@@ -35,7 +35,7 @@ jobs:
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: artifacts
+          name: artifacts/packages
           path: packages/**/dist/*
           if-no-files-found: error
   
