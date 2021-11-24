@@ -38,7 +38,7 @@ interface PluginOptions {
   viteServer: ViteDevServer;
 }
 
-export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin[] {
+export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
   const { astroConfig, astroStyleMap, astroPageStyleMap, chunkToReferenceIdMap, pureCSSChunks, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
   // The filepath root of the src folder
@@ -56,7 +56,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin[]
 
   const cssChunkMap = new Map<string, string[]>();
 
-  return [{
+  return {
     name: PLUGIN_NAME,
 
     enforce: 'pre',
@@ -452,26 +452,5 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin[]
         });
       }
     },
-  }, {
-    name: '@astro/rollup-plugin-build-load-fallback',
-    enforce: 'post',
-    resolveId(id) {
-      // If we got here, nothing picked up this module, so let's try
-      // and grab it from the viteServer used for SSR loading.
-      if(id[0] === '/') {
-        return id;
-      }
-      return null;
-    },
-    async load(id) {
-      try {
-        // This uses ssrLoadModule and not transformResult because
-        // transformResult is always giving JavaScript.
-        const mod = await viteServer.ssrLoadModule(id);
-        return mod.default;
-      } catch {
-        return null;
-      }
-    }
-  }];
+  };
 }

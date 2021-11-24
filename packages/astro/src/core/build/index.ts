@@ -5,6 +5,7 @@ import type { RenderedChunk } from 'rollup';
 
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
+import { rollupPluginAstroBuildLoadFallback } from '../../vite-plugin-build-load-fallback/index.js';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
@@ -200,6 +201,10 @@ class AstroBuilder {
           pureCSSChunks,
         }),
         ...(viteConfig.plugins || []),
+        rollupPluginAstroBuildLoadFallback({
+          astroConfig: this.config,
+          viteServer
+        }),
       ],
       publicDir: viteConfig.publicDir,
       root: viteConfig.root,
