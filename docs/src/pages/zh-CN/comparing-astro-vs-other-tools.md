@@ -18,7 +18,7 @@ Astro 仍然缺少一些功能，一些 API 还没有最终确定。虽然项目
 
 [Docusaurus](https://docusaurus.io/) 是一个流行的文档网站创建工具。Docusaurus 使用 React 来生成你的网站界面，而 Astro 支持 React、 Vue.js 、Svelte 以及原始 HTML 模板。
 
-Docusaurus 是为建立文档网站而设计的，它有一些内置的、针对文档的网站功能，而 Astro 却没有。相反，Astro 通过一个官方的 [`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs) 主题提供了特定的文档功能，你可以在你的网站尝试使用。本网站就是用这个模板建立的!
+Docusaurus 是为建立文档网站而设计的，它有一些内置的、针对文档的网站功能，而 Astro 却没有。相反，Astro 通过一个官方的 [`docs`](https://github.com/withastro/astro/tree/main/examples/docs) 主题提供了特定的文档功能，你可以在你的网站尝试使用。本网站就是用这个模板建立的!
 
 #### 对比 Docusaurus 及 Astro 性能
 
@@ -187,7 +187,7 @@ Nuxt 有很好的内置图片优化功能，这可以使 Nuxt 成为一些图片
 
 [VuePress](https://vuepress.vuejs.org/guide/)是一个流行的文档网站建设者。VuePress 使用 Vue.js 来生成你的网站用户界面，而 Astro 支持 React、Vue.js、Svelte 和原始 HTML 模板化。
 
-VuePress 是为建立文档网站而设计的，它有一些内置的、针对文档的网站功能，而 Astro 没有。相反，Astro 通过官方的[`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs)主题提供了特定的文档功能，你可以在你的网站使用。这个网站就是用这个模板建立的!
+VuePress 是为建立文档网站而设计的，它有一些内置的、针对文档的网站功能，而 Astro 没有。相反，Astro 通过官方的[`docs`](https://github.com/withastro/astro/tree/main/examples/docs)主题提供了特定的文档功能，你可以在你的网站使用。这个网站就是用这个模板建立的!
 
 #### 对比 VuePress 及 Astro 性能
 

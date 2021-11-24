@@ -25,10 +25,15 @@ import preview from '../dist/core/preview/index.js';
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *
  *   Build
- *   .build()        - Async. Builds into current folder (will erase previous build)
- *   .readFile(path) - Async. Read a file from the build.
- *   .preview()      - Async. Starts a preview server. Note this can’t be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
- *   .fetch(url)     - Async. Returns a URL from the prevew server (must have called .preview() before)
+ *   .build()          - Async. Builds into current folder (will erase previous build)
+ *   .readFile(path)   - Async. Read a file from the build.
+ *
+ *   Dev
+ *   .startDevServer() - Async. Starts a dev server at an available port. Be sure to call devServer.stop() before test exit.
+ *   .fetch(url)       - Async. Returns a URL from the prevew server (must have called .preview() before)
+ *
+ *   Preview
+ *   .preview()        - Async. Starts a preview server. Note this can’t be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
  */
 export async function loadFixture(inlineConfig) {
   if (!inlineConfig || !inlineConfig.projectRoot) throw new Error("Must provide { projectRoot: './fixtures/...' }");
@@ -52,7 +57,11 @@ export async function loadFixture(inlineConfig) {
 
   return {
     build: (opts = {}) => build(config, { mode: 'development', logging: 'error', ...opts }),
-    startDevServer: () => dev(config, { logging: 'error' }),
+    startDevServer: async (opts = {}) => {
+      const devServer = await dev(config, { logging: 'error', ...opts });
+      inlineConfig.devOptions.port = devServer.port; // update port
+      return devServer;
+    },
     config,
     fetch: (url, init) => fetch(`http://${config.devOptions.hostname}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
     preview: async (opts = {}) => {

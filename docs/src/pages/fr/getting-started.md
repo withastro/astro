@@ -24,7 +24,7 @@ _Note: quelques-unes des fonctionnalités (ex : Rafraîchissement Rapide) sont p
 
 Tous les développeurs qui essaient Astro n'ont ni la même expérience, ni les mêmes méthodes d'apprentissage. Que vous préfériez une approche plutôt théorique ou pratique, nous espérons que vous trouverez l'aide qu'il vous faut dans cette section.
 
-- Si vous préférez une **approche pratique**, commencez avec notre [librairie d'exemples](https://github.com/snowpackjs/astro/tree/main/examples).
+- Si vous préférez une **approche pratique**, commencez avec notre [librairie d'exemples](https://github.com/withastro/astro/tree/main/examples).
 - Si vous préférez **apprendre les concepts étape par étape**, commencez avec nos [fondamentaux et guides](/core-concepts/project-structure).
 
 Comme toute nouvelle technologie, Astro possède une certaine courbe d'apprentissage. Malgré cela, avec de la pratique et de la patience, nous savons, que _vous_ allez prendre la main, en très peu de temps.
@@ -49,11 +49,11 @@ Le compte Twitter [@astrodotbuild](https://twitter.com/astrodotbuild) est la sou
 
 Nous publions également les annonces de nouvelles versions sur notre [Communauté Discord](https://astro.build/chat) dans le salon #announcements.
 
-Toutes les releases d'Astro ne requièrent pas leur propre article de blog, mais vous pouvez trouver un changelog détaillé de toutes les releases dans le [fichier `CHANGELOG.md` du dépôt Astro](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md).
+Toutes les releases d'Astro ne requièrent pas leur propre article de blog, mais vous pouvez trouver un changelog détaillé de toutes les releases dans le [fichier `CHANGELOG.md` du dépôt Astro](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md).
 
 ## Quelque chose vous manque ?
 
-Si vous pensez que quelque chose manque dans la documentation ou si vous en trouvez une partie déroutante, veuillez [créer une "issue" sur le dépôt de la documentation](https://github.com/snowpackjs/astro/issues/new/choose) avec vos suggestions d'amélioration, ou bien mentionnez le compte [@astrodotbuild](https://twitter.com/astrodotbuild) sur Twitter. Nous adorons avoir de vos nouvelles !
+Si vous pensez que quelque chose manque dans la documentation ou si vous en trouvez une partie déroutante, veuillez [créer une "issue" sur le dépôt de la documentation](https://github.com/withastro/astro/issues/new/choose) avec vos suggestions d'amélioration, ou bien mentionnez le compte [@astrodotbuild](https://twitter.com/astrodotbuild) sur Twitter. Nous adorons avoir de vos nouvelles !
 
 ## Crédits
 

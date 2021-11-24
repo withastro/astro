@@ -37,9 +37,9 @@ This switch from Snowpack to Vite might come as a surprise to some: Both Drew an
 
 ## Hello, WASM!
 
-Astro 0.21 features another huge low-level improvement: the brand new [@astrojs/compiler](https://github.com/snowpackjs/astro-compiler-next). Astro's new compiler is written in Go and distributed as WASM. You can run it right in your browser, or on the server in Node.js and Deno. 
+Astro 0.21 features another huge low-level improvement: the brand new [@astrojs/compiler](https://github.com/withastro/astro-compiler-next). Astro's new compiler is written in Go and distributed as WASM. You can run it right in your browser, or on the server in Node.js and Deno. 
 
-The new [@astrojs/compiler](https://github.com/snowpackjs/astro-compiler-next) unlocks:
+The new [@astrojs/compiler](https://github.com/withastro/astro-compiler-next) unlocks:
 
 - **Flexibility:** Run the compiler anywhere with WASM.
 - **Speed:** Build sites faster with Go's compiled-language performance.
@@ -89,7 +89,7 @@ Now, Astro's dev server sends HTML updates to the browser and then runs a small 
 
 ## Try it today
 
-If you've read this far, we'd love your help trying out the latest release before launch. You can try out our latest release today [in the browser](https://gitpod.io#snapshot/5e7cf2f1-8108-4fa5-99d3-ed8de70d8c23) or by running `npm install astro@next--compiler` in a new project directory. You can follow our progress and leave feedback in the `next` PR on GitHub: https://github.com/snowpackjs/astro/pull/1406
+If you've read this far, we'd love your help trying out the latest release before launch. You can try out our latest release today [in the browser](https://gitpod.io#snapshot/5e7cf2f1-8108-4fa5-99d3-ed8de70d8c23) or by running `npm install astro@next--compiler` in a new project directory. You can follow our progress and leave feedback in the `next` PR on GitHub: https://github.com/withastro/astro/pull/1406
 
 Leave feedback, report bugs, and get involved with Astro's development in our [Discord server](https://astro.build/chat). You can also [follow along](https://twitter.com/astrodotbuild) on Twitter.
 

@@ -14,11 +14,12 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
     render: [
       astroRemark,
       {
-        remarkPlugins: ['remark-code-titles', 'remark-slug'],
+        remarkPlugins: ['remark-code-titles'],
         rehypePlugins: [
           ['rehype-autolink-headings', { behavior: 'prepend' }],
           ['rehype-toc', { headings: ['h2', 'h3'] }],
           ['rehype-add-classes', { 'h1,h2,h3': 'title' }],
+          'rehype-slug',
         ],
       },
     ],

@@ -16,7 +16,7 @@ Alternativt kan du læse vores [Installationsguide](/installation) for en fuld g
 
 ### Eksempelprojekter
 
-Hvis du foretrækker at lære Astro ved hjælp af eksempler, kan du tjekke vores [fulde bibliotek af eksempler](https://github.com/snowpackjs/astro/tree/main/examples) på GitHub.
+Hvis du foretrækker at lære Astro ved hjælp af eksempler, kan du tjekke vores [fulde bibliotek af eksempler](https://github.com/withastro/astro/tree/main/examples) på GitHub.
 
 Du kan tjekke alle disse eksempler på din lokale maskine ved at køre `npm init astro` med CLI-flaget `--template`. Flaget `--template` understøtter også tredjeparts-skabeloner lavet af fællesskabet.
 
@@ -30,13 +30,13 @@ npm init astro -- --template [GITHUB_BRUGER]/[REPO_NAVN]/sti/til/eksempel
 
 ### Online Legepladser
 
-Hvis du er interesseret i at lege med Astro i browseren, kan du bruge en online kodeeditor som Stackblitz, CodeSandbox, Gitpod eller GitHub Codespaces. Klik på "Open in Stackblitz" linket i et af eksemplerne i vores [liste af eksempler](https://github.com/snowpackjs/astro/tree/main/examples). Eller, [klik her](https://stackblitz.com/fork/astro) for at starte et nyt projekt i [Stackblitz](https://stackblitz.com/fork/astro).
+Hvis du er interesseret i at lege med Astro i browseren, kan du bruge en online kodeeditor som Stackblitz, CodeSandbox, Gitpod eller GitHub Codespaces. Klik på "Open in Stackblitz" linket i et af eksemplerne i vores [liste af eksempler](https://github.com/withastro/astro/tree/main/examples). Eller, [klik her](https://stackblitz.com/fork/astro) for at starte et nyt projekt i [Stackblitz](https://stackblitz.com/fork/astro).
 
 ## Lær Astro
 
 Alle slags mennesker kommer til Astro fra forskellige baggrunde og medbringer forskellige læringsstile. Uanset om du foretrækker en mere teoretisk eller praktisk tilgang, håber vi at du finder dette afsnit nyttigt.
 
-- Hvis du foretrækker at **lære ved at gøre**, kan du starte med vores [liste af eksempler](https://github.com/snowpackjs/astro/tree/main/examples).
+- Hvis du foretrækker at **lære ved at gøre**, kan du starte med vores [liste af eksempler](https://github.com/withastro/astro/tree/main/examples).
 - Hvis du foretrækker at **lære koncepter trin for trin**, kan du starte med vores [grundlæggende koncepter og vejledninger](/core-concepts/project-structure).
 
 Som enhver anden ukendt teknologi har Astro en lille indlæringskurve. Men med øvelse og lidt tålmodighed, ved vi at du _vil_ få styr på det på ingen tid.
@@ -61,11 +61,11 @@ Twitter-kontoen [@astrodotbuild](https://twitter.com/astrodotbuild) er den offic
 
 Vi sender også udgivelsesmeddelelser til vores [Discord-fællesskab](https://astro.build/chat) i #announcements kanalen.
 
-Ikke hver Astro udgivelse fortjener sit eget blogindlæg, men du kan finde en detaljeret ændringsliste for hver udgivelse i [`CHANGELOG.md` filen i Astro-repositoriet](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md).
+Ikke hver Astro udgivelse fortjener sit eget blogindlæg, men du kan finde en detaljeret ændringsliste for hver udgivelse i [`CHANGELOG.md` filen i Astro-repositoriet](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md).
 
 ## Mangler der noget?
 
-Hvis der mangler noget i dokumentationen, eller hvis du synes, at en del er forvirrende, skal du [indsende et Issue om dokumentationen](https://github.com/snowpackjs/astro/issues/new/choose) med dit forslag til forbedringer, eller tweet på [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-kontoen. Vi elsker at høre fra dig!
+Hvis der mangler noget i dokumentationen, eller hvis du synes, at en del er forvirrende, skal du [indsende et Issue om dokumentationen](https://github.com/withastro/astro/issues/new/choose) med dit forslag til forbedringer, eller tweet på [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-kontoen. Vi elsker at høre fra dig!
 
 ## Kredit
 

@@ -13,58 +13,39 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
 ---
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-
-    <style>
-        :global(:root) {
-            font-family: system-ui;
-            padding: 2em 0;
-        }
-        :global(.counter) {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            place-items: center;
-            font-size: 2em;
-            margin-top: 2em;
-        }
-        :global(.children) {
-            display: grid;
-            place-items: center;
-            margin-bottom: 2em;
-        }
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/global.css')}>
   </head>
   <body>
-      <main>
+    <main>
 
-        <react.Counter client:visible>
-            <h1>Hello React!</h1>
-            <p>What's up?</p>
-        </react.Counter>
+      <react.Counter client:visible>
+        <h1>Hello React!</h1>
+        <p>What's up?</p>
+      </react.Counter>
 
-        <PreactCounter client:visible>
-          <h1>Hello Preact!</h1>
-        </PreactCounter>
+      <PreactCounter client:visible>
+        <h1>Hello Preact!</h1>
+      </PreactCounter>
 
-        <SolidCounter client:visible>
-          <h1>Hello Solid!</h1>
-        </SolidCounter>
+      <SolidCounter client:visible>
+        <h1>Hello Solid!</h1>
+      </SolidCounter>
 
-        <VueCounter client:visible>
-            <h1>Hello Vue!</h1>
-        </VueCounter>
+      <VueCounter client:visible>
+        <h1>Hello Vue!</h1>
+      </VueCounter>
 
-        <SvelteCounter client:visible>
-            <h1>Hello Svelte!</h1>
-        </SvelteCounter>
+      <SvelteCounter client:visible>
+        <h1>Hello Svelte!</h1>
+      </SvelteCounter>
 
-        <A />
-        
-        <Renamed />
+      <A />
 
-      </main>
+      <Renamed />
+
+    </main>
   </body>
 </html>

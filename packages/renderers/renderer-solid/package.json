@@ -1,6 +1,12 @@
 {
   "name": "@astrojs/renderer-solid",
   "version": "0.2.0",
+  "description": "Use Solid components within Astro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/renderers/renderer-solid"
+  },
   "type": "module",
   "exports": {
     ".": "./index.js",

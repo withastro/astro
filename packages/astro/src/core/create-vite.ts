@@ -31,7 +31,7 @@ const ALWAYS_NOEXTERNAL = new Set([
 ]);
 
 // note: ssr is still an experimental API hence the type omission
-type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
+export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
 
 interface CreateViteOptions {
   astroConfig: AstroConfig;

@@ -4,7 +4,7 @@
     <pre>{{ count }}</pre>
     <button @click="add()">+</button>
   </div>
-  <div class="children">
+  <div class="counter-message">
     <slot />
   </div>
 </template>

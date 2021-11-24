@@ -8,12 +8,12 @@ export function PreactCounter({ children }) {
 
   return (
     <>
-      <div className="counter">
+      <div class="counter">
         <button onClick={subtract}>-</button>
         <pre>{count}</pre>
         <button onClick={add}>+</button>
       </div>
-      <div className="children">{children}</div>
+      <div class="counter-message">{children}</div>
     </>
   );
 }

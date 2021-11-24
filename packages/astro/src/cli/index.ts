@@ -36,6 +36,7 @@ function resolveArgs(flags: Arguments): CLIState {
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined,
+    hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
   };
 
   if (flags.version) {

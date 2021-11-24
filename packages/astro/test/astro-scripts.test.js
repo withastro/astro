@@ -3,7 +3,7 @@ import cheerio from 'cheerio';
 import path from 'path';
 import { loadFixture } from './test-utils.js';
 
-describe('Hoisted scripts', () => {
+describe('Scripts (hoisted and not)', () => {
   let fixture;
 
   before(async () => {
@@ -45,7 +45,7 @@ describe('Hoisted scripts', () => {
     expect(inlineEntryJS).to.be.ok;
   });
 
-  it('External page builds the scripts to a single bundle', async () => {
+  it('External page builds the hoisted scripts to a single bundle', async () => {
     let external = await fixture.readFile('/external/index.html');
     let $ = cheerio.load(external);
 
@@ -58,5 +58,29 @@ describe('Hoisted scripts', () => {
 
     // test 2: the JS exists
     expect(externalEntryJS).to.be.ok;
+  });
+
+  it('External page using non-hoist scripts that are modules are built standalone', async () => {
+    let external = await fixture.readFile('/external-no-hoist/index.html');
+    let $ = cheerio.load(external);
+
+    // test 1: there is 1 scripts
+    expect($('script')).to.have.lengthOf(1);
+
+    // test 2: inside assets
+    let entryURL = $('script').attr('src');
+    expect(entryURL.includes('assets/')).to.equal(true);
+  });
+
+  it('External page using non-hoist scripts that are not modules are built standalone', async () => {
+    let external = await fixture.readFile('/external-no-hoist-classic/index.html');
+    let $ = cheerio.load(external);
+
+    // test 1: there is 1 scripts
+    expect($('script')).to.have.lengthOf(1);
+
+    // test 2: inside assets
+    let entryURL = $('script').attr('src');
+    expect(entryURL.includes('assets/')).to.equal(true);
   });
 });

@@ -3,7 +3,7 @@ import Styles from './ReactModules.module.css';
 
 function ReactModules() {
   return (
-    <h1 id="react-modules" className={Styles.title}>
+    <h1 id="react-module-css" className={Styles.title}>
       React Modules
     </h1>
   );

@@ -30,7 +30,7 @@ yarn create astro
 pnpm create astro
 ```
 
-[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro)ウィザードでは、[スターターテンプレート](https://github.com/snowpackjs/astro/tree/main/examples)から好きなものを選べます。代わりに GitHub から自分の Astro プロジェクトを直接インポートもできます。
+[`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro)ウィザードでは、[スターターテンプレート](https://github.com/withastro/astro/tree/main/examples)から好きなものを選べます。代わりに GitHub から自分の Astro プロジェクトを直接インポートもできます。
 
 ```bash
 # 注: "my-astro-project" はあなたのプロジェクト名に置き換えてください。

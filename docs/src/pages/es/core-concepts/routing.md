@@ -83,7 +83,7 @@ Para un ejemplo del mundo real, puede implementar el visor de archivos de GitHub
 /[org]/[repo]/tree/[branch]/[...file]
 ```
 
-En este ejemplo, una solicitud de `/snowpackjs/astro/tree/main/docs/public/favicon.svg` daría como resultado que los siguientes parámetros estuvieran disponibles para la página:
+En este ejemplo, una solicitud de `/withastro/astro/tree/main/docs/public/favicon.svg` daría como resultado que los siguientes parámetros estuvieran disponibles para la página:
 
 ```js
 {

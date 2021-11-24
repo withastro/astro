@@ -82,7 +82,7 @@ function isInlineScript(node: Element): boolean {
 function isExternalScript(node: Element): boolean {
   switch (getTagName(node)) {
     case 'script':
-      if (getAttribute(node, 'type') === 'module' && hasAttribute(node, 'src')) {
+      if (hasAttribute(node, 'src')) {
         return true;
       }
       return false;
@@ -189,6 +189,10 @@ export function getTextContent(node: Node): string {
   }
   const subtree = findNodes(node, (n) => adapter.isTextNode(n));
   return subtree.map(getTextContent).join('');
+}
+
+export function getAttributes(node: Element): Record<string, any> {
+  return Object.fromEntries(node.attrs.map((attr) => [attr.name, attr.value]));
 }
 
 export function findAssets(document: Document) {

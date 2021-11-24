@@ -1,13 +1,15 @@
 {
   "name": "astro",
-  "version": "0.21.0",
-  "author": "Skypack",
+  "version": "0.21.3",
+  "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
+  "author": "withastro",
   "license": "MIT",
+  "homepage": "https://astro.build",
   "type": "module",
   "types": "./dist/types/@types/astro.d.ts",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/astro.git",
+    "url": "https://github.com/withastro/astro.git",
     "directory": "packages/astro"
   },
   "exports": {
@@ -53,13 +55,13 @@
     "test": "mocha --parallel --timeout 15000"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.3.3",
+    "@astrojs/compiler": "^0.3.8",
     "@astrojs/language-server": "^0.7.16",
-    "@astrojs/markdown-remark": "^0.4.0",
+    "@astrojs/markdown-remark": "^0.5.0",
     "@astrojs/prism": "0.3.0",
     "@astrojs/renderer-preact": "^0.3.0",
     "@astrojs/renderer-react": "0.3.0",
-    "@astrojs/renderer-svelte": "0.2.0",
+    "@astrojs/renderer-svelte": "0.2.1",
     "@astrojs/renderer-vue": "0.2.0",
     "@babel/core": "^7.15.8",
     "@babel/traverse": "^7.15.4",
@@ -87,10 +89,10 @@
     "path-to-regexp": "^6.2.0",
     "postcss": "^8.3.8",
     "prismjs": "^1.25.0",
-    "remark-slug": "^7.0.0",
+    "rehype-slug": "^5.0.0",
     "resolve": "^1.20.0",
     "rollup": "^2.57.0",
-    "sass": "^1.43.3",
+    "sass": "^1.43.4",
     "semver": "^7.3.5",
     "send": "^0.17.1",
     "shiki": "^0.9.10",

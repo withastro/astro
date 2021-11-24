@@ -90,7 +90,7 @@ export interface AstroUserConfig {
   renderers?: string[];
   /** Options for rendering markdown content */
   markdownOptions?: {
-    render?: [string, Record<string, any>];
+    render?: [string | MarkdownParser, Record<string, any>];
   };
   /** Options specific to `astro build` */
   buildOptions?: {
@@ -194,6 +194,20 @@ export type JSXTransformFn = (options: { mode: string; ssr: boolean }) => Promis
 
 export interface ManifestData {
   routes: RouteData[];
+}
+
+export type MarkdownParser = (contents: string, options?: Record<string, any>) => MarkdownParserResponse | PromiseLike<MarkdownParserResponse>;
+
+export interface MarkdownParserResponse {
+  frontmatter: {
+    [key: string]: any;
+  };
+  metadata: {
+    headers: any[];
+    source: string;
+    html: string;
+  };
+  code: string;
 }
 
 /**

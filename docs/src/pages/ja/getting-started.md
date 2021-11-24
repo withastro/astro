@@ -18,7 +18,7 @@ Astro の簡単な概要を知りたい方は[ホームページ](https://astro.
 
 ## サンプルプロジェクト
 
-サンプルを使って Astro を学びたい方は、GitHub にある[全サンプル](https://github.com/snowpackjs/astro/tree/main/examples)をご覧ください。
+サンプルを使って Astro を学びたい方は、GitHub にある[全サンプル](https://github.com/withastro/astro/tree/main/examples)をご覧ください。
 
 これらのサンプルは、`--template` という CLI フラグを付けて `npm init astro` を実行すると、ローカルマシンでチェックアウトできます。また、 `--template` フラグは、サードパーティのコミュニティテンプレートもサポートしています。
 
@@ -40,7 +40,7 @@ npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
 
 Astro には、さまざまなバックグラウンドを持った人が集まっており、学習スタイルもさまざまです。このセクションでは、より理論的なアプローチや実践的なアプローチなど、さまざまな学習スタイルをご紹介していますので、参考になれば幸いです。
 
-- 実際にやってみて学びたいという方は、まず[サンプルライブラリ](https://github.com/snowpackjs/astro/tree/main/examples)から始めてください。
+- 実際にやってみて学びたいという方は、まず[サンプルライブラリ](https://github.com/withastro/astro/tree/main/examples)から始めてください。
 - また、コンセプトを段階的に学びたい方は、[基本コンセプトとガイド](/core-concepts/project-structure)をご覧ください。
 
 他の慣れない技術と同様、Astro にも若干の習得が必要です。しかし、練習と忍耐力があれば、すぐに使いこなせるようになること間違いなしでしょう。
@@ -65,11 +65,11 @@ Astro チームからの最新情報は、[@astrodotbuild](https://twitter.com/a
 
 また、[Discord コミュニティ](https://astro.build/chat)の #announcements チャンネルにもリリースのお知らせを投稿しています。
 
-すべてのリリースがブログ記事で紹介されるわけではありませんが、[Astro リポジトリの `CHANGELOG.md` ファイル](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md)には、すべてのリリースの詳細な変更履歴が記載されています。
+すべてのリリースがブログ記事で紹介されるわけではありませんが、[Astro リポジトリの `CHANGELOG.md` ファイル](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md)には、すべてのリリースの詳細な変更履歴が記載されています。
 
 ## 何か足りない？
 
-ドキュメントに何か足りないところがあったり、わかりにくいところを見つけたら、改善のための提案を[ドキュメントの Issue として提出してください](https://github.com/snowpackjs/astro/issues/new/choose)。または [@astrodotbuild](https://twitter.com/astrodotbuild) の Twitter アカウントにつぶやいてください。皆様のご意見をお待ちしております。
+ドキュメントに何か足りないところがあったり、わかりにくいところを見つけたら、改善のための提案を[ドキュメントの Issue として提出してください](https://github.com/withastro/astro/issues/new/choose)。または [@astrodotbuild](https://twitter.com/astrodotbuild) の Twitter アカウントにつぶやいてください。皆様のご意見をお待ちしております。
 
 ## クレジット
 

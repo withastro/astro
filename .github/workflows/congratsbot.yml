@@ -8,7 +8,7 @@ on:
 jobs:
   congrats:
     name: "discord:congratsbot"
-    if: github.repository == 'snowpackjs/astro'
+    if: github.repository == 'withastro/astro'
     runs-on: ubuntu-latest
     steps:
       - id: setup
@@ -21,4 +21,4 @@ jobs:
           # DISCORD_AVATAR: ${{ github.event.pull_request.user.avatar_url }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: '**Sweet!** <${{ github.event.commits[0].author.name }}> just merged ["\"${{ steps.setup.outputs.COMMIT_MSG }}\""](<https://github.com/snowpackjs/astro/commits/main>) ```${{ github.event.commits[0].message }}```'
+          args: '**Sweet!** <${{ github.event.commits[0].author.name }}> just merged ["\"${{ steps.setup.outputs.COMMIT_MSG }}\""](<https://github.com/withastro/astro/commits/main>) ```${{ github.event.commits[0].message }}```'
