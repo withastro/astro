@@ -14,7 +14,7 @@ on:
 jobs:
   build:
     name: Build Packages
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,3 +46,28 @@ jobs:
             !**/tsconfig.json
             !**/node_modules
           if-no-files-found: error
+  
+  test:
+    name: Test
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+          cache: 'yarn'
+
+      - name: Install NPM Dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Print Package Artifacts
+        run: ls -R astro/
