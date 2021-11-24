@@ -38,8 +38,11 @@ jobs:
           name: astro
           path: |
             packages/astro/**/*
+            packages/create-astro/**/*
+            packages/markdown/**/*
+            packages/renderers/**/*
+            !**/src
+            !**/test
+            !**/tsconfig.json
             !**/node_modules
-            !packages/astro/src/**/*
-            !packages/astro/test/**/*
-            !packages/astro/tsconfig.json
           if-no-files-found: error
