@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: 💡 Ideas, Suggestions and RFCs
+    url: https://github.com/withastro/rfcs
+    about: Propose and discuss future improvements to Astro
   - name: 👾 Chat
     url: https://astro.build/chat
     about: Our Discord server is active, come join us!
