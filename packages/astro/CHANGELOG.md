@@ -1,5 +1,11 @@
 # astro
 
+## 0.21.4
+
+### Patch Changes
+
+- 76559faa: Chore: update compiler
+
 ## 0.21.3
 
 ### Patch Changes
