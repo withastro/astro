@@ -36,8 +36,8 @@ You can sponsor Astro's development on [Open Collective][oc]. Astro is generousl
       <img width="147" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/netlify-dark.svg#gh-dark-mode-only" alt="Netlify" />
       </a></td>
       <td align="center"><a href="https://www.vercel.com/" target="_blank">
-      <img width="150" height="34" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/vercel.svg#gh-light-mode-only" alt="Vercel" />
-      <img width="150" height="34" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/vercel-dark.svg#gh-dark-mode-only" alt="Vercel" />
+      <img width="150" height="34" src="https://raw.githubusercontent.com/x7md/astro/main/.github/assets/vercel.svg#gh-light-mode-only" alt="Vercel" />
+      <img width="150" height="34" src="https://raw.githubusercontent.com/x7md/astro/main/.github/assets/vercel-dark.svg#gh-dark-mode-only" alt="Vercel" />
       </a></td>
     </tr>
   </tbody>
