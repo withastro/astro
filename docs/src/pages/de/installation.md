@@ -12,11 +12,11 @@ Es gibt verschiedene Möglichkeiten, Astro in einem neuen Projekt zu installiere
 - **Texteditor** - Wir empfehlen [VS Code](https://code.visualstudio.com/) mit unserer [Offiziellen Astro Erweiterung](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode).
 - **Terminal** - Auf Astro wird hauptsächlich über die Befehlszeile des Terminals zugegriffen.
 
-Zu Demonstrationszwecken verwenden wir in den folgenden Beispielen [`npm`](https://www.npmjs.com/), aber du kannst auch [`yarn`](https://yarnpkg.com/) oder [`pnpm`](https://pnpm.io/) verwenden, wenn du eine npm-alternative bevorzugst.
+Zu Demonstrationszwecken verwenden wir in den folgenden Beispielen [`npm`](https://www.npmjs.com/), aber Du kannst auch [`yarn`](https://yarnpkg.com/) oder [`pnpm`](https://pnpm.io/) verwenden, wenn Du eine Alternative zu npm bevorzugst.
 
 ## Projekt mit Astro erzeugen
 
-`npm init astro` ist der einfachste Weg, Astro in einem neuen Projekt zu installieren. Führe den Befehl in deinem Terminal aus, um unseren `create-astro`-Installationsassistenten zu starten, der dir bei der Einrichtung eines neuen Projekts hilft.
+`npm init astro` ist der einfachste Weg, Astro in einem neuen Projekt zu installieren. Führe den Befehl in Deinem Terminal aus, um unseren `create-astro`-Installationsassistenten zu starten, der Dir bei der Einrichtung eines neuen Projektes hilft.
 
 ```shell
 # Mit NPM
@@ -29,10 +29,10 @@ yarn create astro
 pnpm create astro
 ```
 
-Mit dem [`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro) Assistenten kannst du aus einer Reihe von [Starter-Vorlagen](https://github.com/withastro/astro/tree/main/examples) wählen. Alternativ kannst du auch dein eigenes Astro-Projekt direkt von GitHub importieren.
+Mit dem [`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro) Assistenten kannst Du aus einer Reihe von [Starter-Vorlagen](https://github.com/withastro/astro/tree/main/examples) wählen. Alternativ kannst Du auch Dein eigenes Astro-Projekt direkt von GitHub importieren.
 
 ```bash
-# Hinweis: Ersetze "my-astro-project" durch den Namen deines Projekts.
+# Hinweis: Ersetze "my-astro-project" durch den Namen Deines Projekts.
 
 # npm 6.x
 npm init astro my-astro-project --template starter
@@ -44,17 +44,17 @@ yarn create astro my-astro-project --template starter
 pnpm create astro my-astro-project -- --template starter
 # Verwenden einer Drittanbietervorlage
 npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]
-# Verwenden einer Drittanbietervorlage innerhalb eines repos
+# Verwenden einer Drittanbietervorlage innerhalb eines Repos
 npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]/path/to/template
 ```
 
-Nachdem `create-astro` dein Projekt vorbereitet hat, denke daran, die Projektabhängigkeiten mit npm oder dem Paketmanager deiner Wahl zu installieren. In diesem Beispiel verwenden wir npm:
+Nachdem `create-astro` Dein Projekt vorbereitet hat, denke daran, die Projektabhängigkeiten mit npm oder dem Paketmanager Deiner Wahl zu installieren. In diesem Beispiel verwenden wir npm:
 
 ```bash
 npm install
 ```
 
-Du kannst dein Astro-Projekt nun [Starten](#start-astro). Nachdem du dein Astro-Projekt fertiggestellt hast, kannst du dein Projekt [Bauen](#build-astro). Astro wird dann die statischen Seiten generieren und für dich bereitstellen, welche du anschließend bei deinem bevorzugten Hosting-Anbieter [Ausrollen](/guides/deploy) kannst.
+Du kannst Dein Astro-Projekt nun [starten](#start-astro). Nachdem Du Dein Astro-Projekt fertiggestellt hast, kannst Du Dein Projekt [bauen](#build-astro). Astro wird dann die statischen Seiten generieren und für Dich bereitstellen, welche Du anschließend bei Deinem bevorzugten Hosting-Anbieter [ausrollen](/guides/deploy) kannst.
 
 ## Manuelle Installation
 
@@ -68,26 +68,26 @@ mkdir my-astro-project
 cd my-astro-project
 ```
 
-Erstelle ein leeres Verzeichnis mit dem Namen deines Projekts und navigiere dann in dieses:
+Erstelle ein leeres Verzeichnis mit dem Namen Deines Projekts und navigiere dann in dieses:
 
 ### `package.json` erzeugen
 
 ```bash
-# Dieser Befehl erstellt eine grundlegende package.json Datei für dich
+# Dieser Befehl erstellt eine grundlegende package.json Datei für Dich
 npm init --yes
 ```
 
-Astro wurde entwickelt, um mit dem gesamten npm-Paket-Ökosystem zu arbeiten. Dies wird durch ein Projektmanifest im Stammverzeichnis Ihres Projekts verwaltet, das als `package.json` bekannt ist. Wenn du mit der Datei `package.json` nicht vertraut bist, empfehlen wir dir dringend, dich ein wenig einzulesen [npm-Dokumentation] (https://docs.npmjs.com/creating-a-package-json-file).
+Astro wurde entwickelt, um mit dem gesamten npm-Paket-Ökosystem zu arbeiten. Dies wird durch ein Projektmanifest im Stammverzeichnis des Projektes verwaltet, das als `package.json` bekannt ist. Wenn Du mit der Datei `package.json` nicht vertraut bist, empfehlen wir Dir dringend, Dich ein wenig einzulesen [npm-Dokumentation] (https://docs.npmjs.com/creating-a-package-json-file).
 
 ### Astro installieren
 
-Wenn du die obigen Anweisungen ausgeführt hast, solltest du ein Verzeichnis mit einer einzelnen `package.json` Datei darin haben. Du kannst Astro jetzt in deinem Projekt einrichten.
+Wenn Du die obigen Anweisungen ausgeführt hast, solltest Du ein Verzeichnis mit einer einzelnen `package.json` Datei darin haben. Du kannst Astro jetzt in Deinem Projekt einrichten.
 
 ```bash
 npm install astro
 ```
 
-Du kannst jetzt den Platzhalter-Abschnitt "scripts" deiner `package.json` Datei, welche durch `npm init` für dich erstellt wurde, durch Folgendes ersetzen:
+Du kannst jetzt den Platzhalter-Abschnitt "scripts" Deiner `package.json` Datei, welche durch `npm init` für Dich erstellt wurde, durch folgende Zeilen ersetzen:
 
 ```diff
   "scripts": {
@@ -99,11 +99,11 @@ Du kannst jetzt den Platzhalter-Abschnitt "scripts" deiner `package.json` Datei,
 }
 ```
 
-Der Befehl [`dev`](#start-astro) startet den Astro Entwicklungs Server auf `http://localhost:3000`. Sobald dein Projekt fertig ist, generiert der Befehl [`build`](#build-astro) dein fertiges Projekt in das Verzeichnis `dist/`. [Lese mehr über das Veröffentlichen im Deployment Leitfaden.](/guides/deploy)
+Der Befehl [`dev`](#start-astro) startet den Astro Entwicklungs Server auf `http://localhost:3000`. Sobald Dein Projekt fertig ist, generiert der Befehl [`build`](#build-astro) Dein fertiges Projekt in das Verzeichnis `dist/`. [Lies mehr über das Veröffentlichen im Deployment-Leitfaden.](/guides/deploy)
 
-### Erstelle deine erste Seite
+### Erstelle Deine erste Seite
 
-Öffne deinen bevorzugten Texteditor und erstelle eine neue Datei in deinem Projekt:
+Öffne Deinen bevorzugten Texteditor und erstelle eine neue Datei in Deinem Projekt:
 
 1. Erstelle eine neue Datei unter `src/pages/index.astro`
 2. Kopiere den folgenden Code-Schnipsel (einschließlich der Bindestriche `---`) und füge ihn ein.
@@ -111,7 +111,7 @@ Der Befehl [`dev`](#start-astro) startet den Astro Entwicklungs Server auf `http
 ```astro
 ---
 // JavaScript/TypeScript-Code, der zwischen den (---) Bindestrichen geschrieben wurde, wird ausschließlich auf dem Server ausgeführt!
-console.log('Sieh mich mich im Terminal ')
+console.log('Sieh mich im Terminal.');
 ---
 
 <html>
@@ -129,14 +129,14 @@ console.log('Sieh mich mich im Terminal ')
 </style>
 
 <script>
- // Hier eingegebener JS-Code wird vollständig im Browser ausgeführt
- console.log('Sieh mich in den devTools')
+ // Hier eingegebener JS-Code wird vollständig im Browser ausgeführt:
+ console.log('Sieh mich in den DevTools / WebInspector.')
 </script>
 ```
 
 Oben ist ein Beispiel für die Syntax von Astro-Komponenten, die sowohl HTML als auch JSX umfasst.
 
-Du kannst weitere Seiten im Verzeichnis `src/pages` erstellen - Astro verwendet den Dateinamen, um neue Seiten auf deiner Seite zu erstellen. Durch das Erstellen einer neuen Datei unter `src/pages/about.astro` (der voherige Code-Schnipsel kann wiedervewendet werden) generiert Astro beispielsweise eine neue Seite unter der URL: `http://localhost/about`
+Du kannst weitere Seiten im Verzeichnis `src/pages` erstellen - Astro verwendet den Dateinamen, um neue Seiten auf Deiner Seite zu erstellen. Durch das Erstellen einer neuen Datei unter `src/pages/about.astro` (der voherige Code-Schnipsel kann wiedervewendet werden) generiert Astro beispielsweise eine neue Seite unter der URL: `http://localhost/about`
 
 ## [Astro starten](#start-astro)
 
@@ -144,9 +144,9 @@ Du kannst weitere Seiten im Verzeichnis `src/pages` erstellen - Astro verwendet 
 npm run dev
 ```
 
-Astro stellt nun deine Anwendung auf `http://localhost:3000` bereit. Wenn du diese URL in deinem Browser öffnest, solltest du das „Hello, World“ von Astro sehen.
+Astro stellt nun Deine Anwendung auf `http://localhost:3000` bereit. Wenn Du diese URL in Deinem Browser öffnest, solltest Du das „Hello, World“ von Astro sehen.
 
-Wenn Du deinen Entwicklungsfortschritt im lokalen Netzwerk teilst oder die App von einem Telefon aus testen möchtest, füge einfach die folgende Option [snowpack](https://www.snowpack.dev/reference/configuration#devoptionshostname) zu `astro.config.mjs`:
+Wenn Du Deinen Entwicklungsfortschritt im lokalen Netzwerk teilst, oder die App von einem Telefon aus testen möchtest, füge einfach die folgende Option [snowpack](https://www.snowpack.dev/reference/configuration#devoptionshostname) zu `astro.config.mjs`:
 
 ```js
 devOptions: {
@@ -160,13 +160,13 @@ devOptions: {
 npm run build
 ```
 
-Dadurch wird Astro angewiesen, deine Seite zu erstellen und direkt auf der Festplatte zu speichern. Deine Anwendung steht nun im Verzeichnis `dist/` bereit.
+Dadurch wird Astro angewiesen, Deine Seite zu erstellen und direkt auf der Festplatte zu speichern. Deine Anwendung steht nun im Verzeichnis `dist/` bereit.
 
 ## Nächste Schritte
 
 Erfolg! Du kannst jetzt mit der Entwicklung beginnen!
 
-Wir empfehlen dir dringend, dich mit der Funktionsweise von Astro vertraut zu machen. Du kannst dies tun, indem du unsere Dokumentation weiter erkundest. Wir empfehlen dir insbesondere folgende weiterführende Informationen:
+Wir empfehlen Dir dringend, Dich mit der Funktionsweise von Astro vertraut zu machen. Du kannst dies tun, indem Du unsere weitere Dokumentation erkundest. Wir empfehlen Dir insbesondere folgende weiterführende Informationen:
 
 📚 Erfahre mehr über die Projektstruktur von Astro in unserem [Leitfaden zur Projektstruktur.](/core-concepts/project-structure)
 
