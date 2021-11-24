@@ -34,7 +34,6 @@ class AstroBuilder {
   private logging: LogOptions;
   private mode = 'production';
   private origin: string;
-  private port: number;
   private routeCache: RouteCache = {};
   private manifest: ManifestData;
   private viteServer?: ViteDevServer;
@@ -47,9 +46,9 @@ class AstroBuilder {
 
     if (options.mode) this.mode = options.mode;
     this.config = config;
-    this.port = config.devOptions.port;
+    const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
     this.logging = options.logging;
-    this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${this.port}`;
+    this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${port}`;
     this.manifest = createRouteManifest({ config }, this.logging);
   }
 
@@ -63,7 +62,8 @@ class AstroBuilder {
         {
           mode: this.mode,
           server: {
-            hmr: { overlay: false }
+            hmr: { overlay: false },
+            middlewareMode: 'ssr',
           },
         },
         this.config.vite || {}
@@ -72,8 +72,6 @@ class AstroBuilder {
     );
     this.viteConfig = viteConfig;
     const viteServer = await vite.createServer(viteConfig);
-    // Listen to the server so that we can make fetch requests if needed.
-    await viteServer.listen(this.port);
     this.viteServer = viteServer;
     debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
 

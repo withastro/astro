@@ -465,6 +465,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin[]
     },
     async load(id) {
       try {
+        // This uses ssrLoadModule and not transformResult because
+        // transformResult is always giving JavaScript.
         const mod = await viteServer.ssrLoadModule(id);
         return mod.default;
       } catch {
