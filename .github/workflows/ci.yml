@@ -35,7 +35,7 @@ jobs:
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: astro
+          name: artifacts
           path: |
             packages/astro/**/*
             packages/create-astro/**/*
@@ -63,11 +63,24 @@ jobs:
           node-version: 16.x
           cache: 'yarn'
 
-      - name: Install NPM Dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
-
       - name: Download Build Artifacts
         uses: actions/download-artifact@v2
 
       - name: Print Package Artifacts
-        run: ls -R astro/
+        run: ls -R artifacts/
+
+      - name: Copy Artifacts
+        run: |
+          mv artifacts/astro/* packages/astro/
+          mv artifacts/create-astro/* packages/create-astro/
+          mv artifacts/markdown/* packages/markdown/
+          mv artifacts/renderers/* packages/renderers/
+
+      - name: Install NPM Dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+
+      - name: Print Packages
+        run: ls -R packages/
+
+      # - name: Test
+      #   run: yarn test
