@@ -36,15 +36,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
-          path: |
-            packages/astro/**/*
-            packages/create-astro/**/*
-            packages/markdown/**/*
-            packages/renderers/**/*
-            !**/src
-            !**/test
-            !**/tsconfig.json
-            !**/node_modules
+          path: packages/**/dist/*
           if-no-files-found: error
   
   test:
@@ -71,10 +63,7 @@ jobs:
 
       - name: Copy Artifacts
         run: |
-          mv artifacts/astro/* packages/astro/
-          mv artifacts/create-astro/* packages/create-astro/
-          mv artifacts/markdown/* packages/markdown/
-          mv artifacts/renderers/* packages/renderers/
+          mv -f artifacts/* packages/
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
