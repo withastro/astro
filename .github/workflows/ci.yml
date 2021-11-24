@@ -26,9 +26,6 @@ jobs:
           node-version: 16.x
           cache: 'yarn'
 
-      - name: Debug
-        run: yarn versions
-
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
 
