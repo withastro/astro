@@ -48,8 +48,6 @@ jobs:
         os: [ubuntu-latest]
         node_version: [12, 14, 16]
         include:
-          - os: windows-latest
-            node_version: 16
           - os: macos-latest
             node_version: 16
       fail-fast: false
@@ -72,6 +70,7 @@ jobs:
         run: ls -R artifacts/
 
       - name: Copy Artifacts
+        shell: bash
         run: |
           cd artifacts
           mkdir -p ../tmp/packages
@@ -81,9 +80,9 @@ jobs:
           mv artifacts.tar.gz ../artifacts.tar.gz
           cd ..
           tar -xvzpf artifacts.tar.gz
-          rmdir artifacts
-          rmdir tmp
-          rm artifacts.tar.gz
+          rm -rf artifacts
+          rm -rf tmp
+          rm -f artifacts.tar.gz
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
