@@ -17,14 +17,14 @@ jobs:
     if: "!contains(github.event.head_commit.message, 'skip ci')"
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: 16.x
           cache: 'yarn'
-
-      - name: Checkout
-        uses: actions/checkout@v2
 
       - name: Debug
         run: yarn versions
