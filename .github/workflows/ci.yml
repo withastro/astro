@@ -42,7 +42,17 @@ jobs:
   test:
     name: Test
     if: "!contains(github.event.head_commit.message, '[skip-ci]')"
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node_version: [12, 14, 16]
+        include:
+          - os: windows-latest
+            node_version: 16
+          - os: macos-latest
+            node_version: 16
+      fail-fast: false
     needs:
       - build
     steps:
@@ -78,8 +88,5 @@ jobs:
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
 
-      - name: Print Packages
-        run: ls -R packages/
-
-      # - name: Test
-      #   run: yarn test
+      - name: Test
+        run: yarn test
