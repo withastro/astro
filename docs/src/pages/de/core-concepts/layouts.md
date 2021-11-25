@@ -92,7 +92,7 @@ const {title, description} = Astro.props;
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 ```
 
-Beachte dass dieses Layout deine **page shell** nicht mit einschließt und nur einige generische Elemente auflistet, die in deinem `<head>`-Block erscheinen sollen. Du hast  mehr Kontrolle über die Struktur der einzelnen Seite und kannst mehrere Layout-Komponenten kombinieren.
+Beachte dass dieses Layout deine **page shell** nicht mit einschließt und nur einige generische Elemente auflistet, die in deinem `<head>`-Block erscheinen sollen. Du hast mehr Kontrolle über die Struktur der einzelnen Seite und kannst mehrere Layout-Komponenten kombinieren.
 
 ```astro
 ---
