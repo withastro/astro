@@ -56,7 +56,7 @@ Um dabei die besten Ergebnisse zu erzielen, solltest du nicht mehr als ein `<sty
 <html>
   <head>
     <style>
-      ...;
+      ...
     </style>
   </head>
   <body>
@@ -83,7 +83,7 @@ Bedenke dass Astro eine Server-seitige Template-Sprache ist, also wird dein Komp
 // Dieser JavaScript-Code wird während des Build ausgeführt.
 // Siehe weiter unten, was du damit machen kannst.
 console.log('Dies hier wird mit dem Build ausgeführt - ist in der CLI-Ausgabe zu sehen');
-// Tip: TypeScript wird ebenfalls direkt unterstützt!
+// Tipp: TypeScript wird ebenfalls direkt unterstützt!
 const thisWorks: number = 42;
 ---
 <div class="example-1">
@@ -137,7 +137,7 @@ const name = "Dein Name hier";
 ---
 <div>
   <div data-name={name}>Attribut-Ausdrücke unterstützt</div>
-  <div data-hint={`Verwende JS-Template-Zeichenketten, um ${"variables"} zu mischen.`}>So gut!</div>
+  <div data-hint={`Verwende Template Literals, um ${"variables"} zu mischen.`}>So gut!</div>
 </div>
 ```
 
@@ -170,7 +170,7 @@ const { greeting = 'Hallo', name } = Astro.props;
 
 Du kannst deine Eigenschaften mit TypeScript definieren, indem du eine `Props`-Type-Schnittstelle exportierst. Astro wird automatisch jede exportierte `Props`-Type-Schnittstelle erfassen und Type-Warnungen/Errors für dein Projekt generieren und ausgeben.
 
-Stelle sicher, dass du alle `import`- und `export`-Anweisungen oben in der Komponente gibst - vor jeder weiteren JavaScript- oder TypeScript-Logik!
+Stelle sicher, dass du alle `import`- und `export`-Anweisungen oben in der Komponente angibst - vor jeder weiteren JavaScript- oder TypeScript-Logik!
 
 ```astro
 ---
@@ -241,7 +241,7 @@ Slots werden sogar noch mächtiger, wenn **benannte Slots** verwendet werden. An
 
 <!-- Verwendung -->
 <MeineKomponente>
-  <h1 slot="header">Halo Welt!</h1>
+  <h1 slot="header">Hallo Welt!</h1>
   <p>Lorem ipsum ...</p>
   <FooterKomponente slot="footer" />
 </MeineKomponente>
@@ -272,7 +272,7 @@ Ein Astro-Komponenten-Template kann so viele Elemente in der obersten Ebene rend
 <div id="c" />
 ```
 
-Wie auch immer, wenn du innerhalb eines JSX-Ausdrucks arbeitest, musst du mehrere Elemente stets mit einem **Fragment** umschließen. Fragmente lassen dich einen Satz von Elementen rendern, ohne dem DOM zusätzliche Noden hinzuzufügen. Dies wird bei JSX-Ausdrücken auf Grund einer Beschränkung in JavaScript vorausgesetzt: Du kannst niemals mehr als ein Element in einem JavaScript-Ausdruck oder einer JavaScript-Funktion `zurückgeben`. Die Verwendung eines Fragments löst dieses Problem.
+Allerdings musst du innerhalb eines JSX-Ausdrucks mehrere Elemente immer mit einem **Fragment** umschließen. Fragmente lassen dich auf einmal mehrere Elementen rendern, ohne dem DOM zusätzliche Nodes hinzuzufügen. Dies wird bei JSX-Ausdrücken auf Grund einer Beschränkung in JavaScript vorausgesetzt: Du kannst niemals mehr als ein Element in einem JavaScript-Ausdruck oder einer JavaScript-Funktion `zurückgeben`. Die Verwendung eines Fragments löst dieses Problem.
 
 Ein Fragment muss mit `<>` öffnen und mit `</>` schließen. Keine Sorge, wenn du es vergisst, wird dich der Astro-Kompilierer daran erinnern.
 
@@ -293,9 +293,9 @@ const items = ["Hund", "Katze", "Schnabeltier"];
 
 ### Priorisierte Skripte
 
-Standardmäßig stellt Astro keine Vermutungen an, wie du deine Skripte ausgeliefert haben willst. Wenn du also einer Seite oder einer Komponente ein `<script>`-Tag hinzufügst, wird es nicht angerührt.
+Standardmäßig macht Astro keine Annahmen dazu, wie deine Skripte bereitgestellt werden sollen. Wenn du also einer Seite oder einer Komponente ein `<script>`-Tag hinzufügst, wird es nicht angerührt.
 
-Wie auch immer, falls du alle deine Skripte aus Komponenten herausgehoben, an den Anfang der Seite gestellt und anschließend für die Veröffentlichung gepackt haben willst, kannst du dies mit priorisierten Skripten (hoisted scripts) tun.
+Wenn du jedoch die Skripte aus der Komponente lösen und an den Anfang der Seite verschieben und anschließend für die Veröffentlichung gebündelt haben möchtest, kannst du das mit priorisierten Skripten machen. 
 
 Ein **priorisiertes Skript** sieht so aus:
 
@@ -311,7 +311,7 @@ Oder es kann auf eine externe Skript-Datei verweisen:
 <script src={Astro.resolve('./meine-komponente.js')} hoist></script>
 ```
 
-Ein priorisiertes Skript kann innerhalb einer Seite oder Komponente stehen, und gleichgültig wie oft die Komponente verwendet wird, das Skript wird nur einmal hinzugefügt:
+Ein priorisiertes Skript kann innerhalb einer Seite oder Komponente stehen, und unabhängig davon wie oft die Komponente verwendet wird, das Skript wird nur einmal hinzugefügt:
 
 ```astro
 ---
@@ -347,14 +347,14 @@ import TwitterTimeline from '../components/TwitterTimeline.astro';
 
 ## URL-Auflösung
 
-Es ist wichtig zu verstehen, dass Astro HTML-Referenzen **nicht** transformiert. Zum Beispiel, nimm ein `<img>`-Tag mit einem relativen `src`-Attribut in `src/pages/about.astro`:
+Es ist wichtig zu verstehen, dass Astro HTML-Referenzen **nicht** transformiert. Zum Beispiel in einem `<img>`-Tag mit einem relativen `src`-Attribut in `src/pages/about.astro`:
 
 ```html
 <!-- ❌ Inkorrekt: wird versuchen `/about/thumbnail.png` zu laden -->
 <img src="./thumbnail.png" />
 ```
 
-Da `src/pages/about.astro` nach `/about/index.html` gespeichert wird, wirst du nicht erwartet haben, dass das Bild nach `/about/thumbnail.png` gespeichert wird. Um den Konflikt zu bereinigen, wähle eine der zwei folgenden Optionen:
+Da `src/pages/about.astro` als `/about/index.html` gespeichert wird, wird es dich möglicherweise überraschen, dass das Bild nach `/about/thumbnail.png` gespeichert wird. Um Konflikte zu vermeiden, wähle eine der zwei folgenden Optionen:
 
 #### Option 1: Absolute URL
 
@@ -363,7 +363,7 @@ Da `src/pages/about.astro` nach `/about/index.html` gespeichert wird, wirst du n
 <img src="/thumbnail.png" />
 ```
 
-Der empfohlene Ansatz ist Dateien innerhalb von `public/*` zu speichern. Dies referenziert eine Datei unter `public/thumbnail.png`, welche nach dem Build nach `/thumbnail.png` auflösen wird (da `public/` dabei unter `/` endet).
+Der empfohlene Ansatz ist Dateien innerhalb von `public/*` zu speichern. Dies referenziert eine Datei unter `public/thumbnail.png`, welche nach dem Build zu `/thumbnail.png` aufgelöst wird (da `public/` dabei unter `/` endet).
 
 #### Option 2: Asset-Import-Referenzen
 
