@@ -45,7 +45,7 @@ Deine Nicht-Astro-Komponenten (React, Preact, Svelte, Vue etc.) können ebenfall
 
 ### `src/layouts`
 
-[Layoute](/core-concepts/layouts) sind mehrfach verwendbare Komponenten für HTML-Seiten-Layoute. Es wird empfohlen (aber dies ist nicht zwingend notwendig), Layout-Komponenten in diesem Verzeichnis anzulegen. Wie diese darin strukturiert sind, kannst du frei entscheiden.
+[Layouts](/core-concepts/layouts) sind mehrfach verwendbare Komponenten für die Gestaltung einzelner Seiten. Es wird empfohlen (aber dies ist nicht zwingend notwendig) Layout-Komponenten in diesem Verzeichnis anzulegen. Wie diese darin strukturiert sind, kannst du frei entscheiden.
 
 ### `src/pages`
 
