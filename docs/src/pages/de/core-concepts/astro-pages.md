@@ -24,7 +24,7 @@ src/pages/posts/1.md        -> meinesite.com/posts/1
 
 ## Seiten-Templating
 
-Alle Astro-Komponenten geben HTML aus. Astro-Seiten geben ebenfalls HTML aus, müssen zusätzlich jedoch die besondere Aufgabe erfüllen eine vollständige _Seiteanantwort_ zu liefern - einschließlich `<html>...</html>`, `<head>` ([MDN<span class="sr-only">- head</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) und `<body>` ([MDN<span class="sr-only">- body</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
+Alle Astro-Komponenten geben HTML aus. Astro-Seiten geben ebenfalls HTML aus, müssen zusätzlich jedoch die besondere Aufgabe erfüllen eine vollständige _Seitenantwort_ zu liefern - einschließlich `<html>...</html>`, `<head>` ([MDN<span class="sr-only">- head</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) und `<body>` ([MDN<span class="sr-only">- body</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
 
 `<!doctype html>` ist optional - es wird automatisch hinzugefügt.
 
@@ -51,7 +51,7 @@ Astro-Seiten können Daten abrufen, die benötigt werden, um deine Seiten zu gen
 
 ```astro
 ---
-// Beispiel: Astro-Komponenten-Skripte, ausgeführt während des Build-Prozesses
+// Beispiel: Astro-Komponenten-Skripte, werden ausgeführt während des Build-Prozesses
 const response = await fetch('http://beispiel.de/filme.json');
 const data = await response.json();
 console.log(data);
