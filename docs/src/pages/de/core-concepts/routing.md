@@ -8,7 +8,7 @@ Astro verwendet **Datei-basiertes Routing**, um während des Build-Prozesses - e
 
 ## Statische Routen
 
-Astro-Komponenten (`.astro`) und Markdown-Dateien (`.md`) im `src/pages`-Verzeichnis werden zu Seiten deiner Website. Die Route zu jeder Seite wird zusammengesetzt aus den Dateinamen und dem Pfad zu den Dateien innerhalb des `src/pages`-Verzeichnisses. Dies bedeutet, dass in einem Astro-Projekt keine separate Routing-Konfiguration verwaltet werden muss.
+Astro-Komponenten (`.astro`) und Markdown-Dateien (`.md`) im `src/pages`-Verzeichnis werden zu Seiten deiner Website. Die Route zu jeder Seite wird zusammengesetzt aus den Dateinamen und dem Pfad zu den Dateien innerhalb des `src/pages`-Verzeichnisses. Das bedeutet, dass in einem Astro-Projekt keine separate Routing-Konfiguration verwaltet werden muss.
 
 ```bash
 # Beispiel: Statische Routen
@@ -21,7 +21,7 @@ src/pages/posts/1.md         -> meinesite.com/posts/1
 
 ## Dynamische Routen
 
-Manchmal musst du zu einer einzelnen Page-Komponente mehrere URL generieren. Astro verwendet Datei-basiertes Routing, um **dynamische Routing-Parameter** zu unterstützen, so dass eine Seite - basierend auf einem Filter - zu verschiedenen dynamischen Routen passt.
+Manchmal musst du zu einer einzelnen Page-Komponente mehrere URLs generieren. Astro verwendet Datei-basiertes Routing, um **dynamische Routing-Parameter** zu unterstützen, so dass eine Seite - basierend auf einem Filter - zu verschiedenen dynamischen Routen passt.
 
 Es ist wichtig dabei zu beachten, dass Astro statische Seiten generiert. Es gibt keinen Astro-Server, der die Seiten auf Anfrage generiert und ausliefert. Dies bedeutet, dass jede Seite vorab erzeugt werden muss. Seiten die dynamische Routen verwenden, müssen daher eine `getStaticPaths()`-Funktion exportieren, die Astro genau vorgibt, welche Seiten generiert werden müssen. Du erfährst mehr darüber in der vollständigen [API-Referenz](/reference/api-reference#getstaticpaths).
 
@@ -96,7 +96,7 @@ In diesem Beispiel würde eine Abfrage von `/snowpackjs/astro/tree/main/docs/pub
 
 ## Warnungen
 
-- Staische Routen ohne Pfad-Parameter werden stets Vorrang haben vor allen anderen Routen, und Routen mit benannten Pfad-Parametern vor allen mit Rest-Parametern. Wirf einen Blick auf die folgenden Beispiele:
+- Statische Routen ohne Pfad-Parameter haben stets Vorrang vor allen anderen Routen, und Routen mit benannten Pfad-Parametern haben Vorrang vor Routen mit Rest-Parametern. Schau dir folgende Beispiele an:
   - `pages/post/create.astro` - wird `/post/create` entsprechen
   - `pages/post/[pid].astro` - wird `/post/1`, `/post/abc` etc. entsprechen, aber nicht `/post/create`
   - `pages/post/[...slug].astro` - wird `/post/1/2`, `/post/a/b/c` etc. entsprechen, aber nicht `/post/create`, `/post/abc`
