@@ -157,7 +157,7 @@ devOptions: {
 
 ## [Kompiliere dein Projekt](#build-astro)
 
-In deinem Projektverzeichnis führe den folgenden Befehl in deinem Terminal aus:
+Führe in deinem Projektverzeichnis den folgenden Befehl im Terminal aus:
 
 ```bash
 npm run build
@@ -169,7 +169,7 @@ Dies weist Astro an deine Site zu erstellen und direkt zu speichern. Deine Anwen
 
 Geschafft! Du kannst jetzt mit dem Entwickeln beginnen!
 
-Wir möchten dich ermutigen, dir etwas Zeit zu nehmen, um mit der Art und Weise vertraut zu werden, wie Astro funktioniert. Am besten ist, wenn du dich dazu weiterführend mit der Dokumentation befasst. Hier ein paar Empfehlungen:
+Wir möchten dich ermutigen, dir etwas Zeit zu nehmen, um mit der Art und Weise vertraut zu werden, wie Astro funktioniert. Am besten befasst du dich weitergehend mit der Dokumentation. Hier ein paar Empfehlungen:
 
 📚 Lerne mehr über Astros Projektstruktur in unserer [Anleitung zur Projektstruktur](/core-concepts/project-structure)
 
