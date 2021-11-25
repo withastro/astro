@@ -12,19 +12,19 @@ Falls dein bevorzugter Site-Renderer hier nicht aufgeführt ist, [frag uns danac
 
 Eine kurze Anmerkung zum Entwicklungsstand des Projektes: **Astro ist noch im Beta-Stadium.** Viele der Werkzeuge, die hier aufgeführt werden, sind sehr viel weiter fortgeschritten. Einige sind mehr als zwölf Jahre älter als Astro!
 
-Einige Features sind noch nicht verfügbar, und einige API noch nicht vollständig. Wie auch immer, das Projekt wird bezüglich seiner Fehleranfälligkeit als stabil angesehen, und verschiedene Websites im Produktivstadium wurden bereits damit realisiert. Dies ist ein wichtiger Punkt, wenn es um eine Entscheidung in Bezug auf den Einsatz von Astro geht.
+Einige Features sind noch nicht verfügbar und Teile der API noch nicht vollständig. Wie auch immer, das Projekt wird bezüglich seiner Fehleranfälligkeit als stabil angesehen und verschiedene Websites wurden schon für den produktiven Einsatz mit Astro umgesetzt. Dies ist ein wichtiger Punkt, wenn es um eine Entscheidung in Bezug auf den Einsatz von Astro geht.
 
 ## Docusaurus vs. Astro
 
 [Docusaurus](https://docusaurus.io/) ist ein populärer Dokumentationssite-Renderer. Docusaurus verwendet React, um deine Website-UI zu generieren, während Astro in diesem Bereich React, Preact, Vue, Svelte, Solid und andere unterstützt - sowie auch eine an HTML angelehnte Komponenten-Syntax, die sich ähnlich verhält wie HTML + JSX.
 
-Docusaurus wurde entwickelt, um Dokumentationswebsites zu erzeugen, und bietet einige dokumentationsspezifische Features, über die Astro nicht verfügt. Stattdessen kannst du in Astro auf dokumentationsspezifische Features mittels einer offiziellen [`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs)-Vorlage zugreifen, die du für deine Site verwenden kannst. Diese Dokumentationswebsite wurde unter Verwendung dieser Vorlage erstellt!
+Docusaurus wurde entwickelt, um Dokumentationswebsites zu erzeugen und bietet einige dokumentationsspezifische Features, über die Astro nicht verfügt. Stattdessen kannst du in Astro auf dokumentationsspezifische Features mittels einer offiziellen [`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs)-Vorlage zugreifen, die du für deine Site verwenden kannst. Diese Dokumentationswebsite wurde unter Verwendung dieser Vorlage erstellt!
 
 ### Leistungsvergleich Docusaurus vs. Astro
 
-In den meisten Fällen werden Astro-Websites deutlich schneller laden als Docusaurus-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt.
+In den meisten Fällen werden Astro-Websites deutlich schneller laden als Docusaurus-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt.
 
-Docusaurus unterstützt keine partielle Anreicherung. Stattdessen wird die gesamte Seite im Browser mit JavaScript angereichert, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und insgesamt schlechterer Leistung deiner Website. Es gibt keine Möglichkeit dieses Verhalten in Docusaurus abzuschalten.
+Docusaurus unterstützt Partial Hydration nicht. Stattdessen wird die gesamte Seite im Browser mit JavaScript angereichert, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und insgesamt schlechterer Leistung deiner Website. Es gibt keine Möglichkeit dieses Verhalten in Docusaurus abzuschalten.
 
 ### Fallstudie: Kompilieren einer Dokumentationswebsite
 
@@ -41,7 +41,7 @@ Ein wesentlicher Grund für diesen Leistungsunterschied liegt in Astros geringer
 
 Elder.js verwendet Svelte, um deine Website zu rendern. Astro ist hierin flexibler: Du kannst frei entscheiden mit welcher UI-Komponenten-Bibliothek du deine Oberfläche erzeugen willst (React, Preact, Vue, Svelte, Solid und andere), oder du verwendest die an HTML angelehnte Komponenten-Syntax von Astro, die sich ähnlich verhält wie HTML + JSX.
 
-Elder.js hat eine besondere Stellung in dieser Auflistung, da es neben Astro der einzige Site-Renderer ist, der [partielle Anreicherung](/core-concepts/component-hydration) unterstützt. Sowohl Astro als auch Elder.js vermeiden automatisch unnötiges JavaScript auf der Seite und reichern nur die Komponenten damit an, die dies benötigen. Elders API für partielle Anreicherung unterscheidet sich etwas von der Astros. Und Astro unterstützt einige Features, über die Elder.js nicht verfügt (wie z. B. `client:media`). Wie auch immer, beide Werkzeuge erzeugen leistungsmäßig betrachtet sehr ähnliche Sites.
+Elder.js hat eine besondere Stellung in dieser Auflistung, da es neben Astro der einzige Site-Renderer ist, der [Partial Hydration](/core-concepts/component-hydration) unterstützt. Sowohl Astro als auch Elder.js vermeiden automatisch unnötiges JavaScript auf der Seite und reichern nur die Komponenten damit an, die dies benötigen. Elders API für Partial Hydration unterscheidet sich etwas von der, die Astro verwendet. Und Astro unterstützt einige Features, über die Elder.js nicht verfügt (wie z. B. `client:media`). Wie auch immer, beide Werkzeuge erzeugen bezüglich der Leistung betrachtet sehr ähnliche Sites.
 
 Elder.js verwendet eine spezifische Routing-Lösung, die für neue Entwickler ungewohnt erscheinen kann. Astro verwendet [dateibasiertes Routing](/core-concepts/routing), das sich für alle vertraut anfühlen sollte, die Erfahrung mit Next.js, SvelteKit oder auch anderen Site-Renderern wie Eleventy haben.
 
@@ -61,7 +61,7 @@ Konzeptuell ist Eleventy auf Augenhöhe mit Astros "minimalistischem Einsatz von
 
 Eleventy erreicht dies, indem es dich dazu anhält JavaScript gänzlich zu vermeiden. Eleventy-Sites werden oft mit sehr wenig bis hin zu gar keinem JavaScript geschrieben. Dies wird allerdings dann zum Thema, wenn du tatsächlich Client-seitig JavaScript einsetzen musst. Es bleibt dann dir überlassen eine entsprechende Build-Pipeline für deine Skripte und weitere Elemente aufzubauen. Dies kann sich sehr zeitaufwendig gestalten, und es zwingt dich das Packen der Anwendung, sowie Minifizierung und weitere komplizierte Optimierungen von Hand aufzusetzen.
 
-Im Gegensatz dazu kompiliert Astro automatisch dein Client-seitiges JavaScript & CSS für dich. Astro entfernt automatisch unnötiges JavaScript von der Seite und reichert nur die individuellen Komponenten damit an, die dies benötigen. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt. Während es dir natürlich möglich ist dieses Feature in Eleventy von Hand einzurichten, steht es dir in Astro bereits von vornherein zur Verfügung.
+Im Gegensatz dazu kompiliert Astro automatisch dein Client-seitiges JavaScript & CSS für dich. Astro entfernt automatisch unnötiges JavaScript von der Seite und reichert nur die individuellen Komponenten damit an, die dies benötigen. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt. Während es dir natürlich möglich ist dieses Feature in Eleventy von Hand einzurichten, steht es dir in Astro bereits von vornherein zur Verfügung.
 
 ## Gatsby vs. Astro
 
@@ -75,9 +75,9 @@ Gatsby erfordert für deine gesamte Arbeit mit Site-Inhalten eine eigene GraphQL
 
 ### Leistungsvergleich Gatsby vs. Astro
 
-In den meisten Fällen werden Astro-Websites deutlich schneller laden als Gatsby-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt.
+In den meisten Fällen werden Astro-Websites deutlich schneller laden als Gatsby-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt.
 
-Gatsby unterstützt keine partielle Anreicherung und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. Gatsby verfügt über ein [Community Plugin](https://www.gatsbyjs.com/plugins/gatsby-plugin-no-javascript/), das sämtliches JavaScript von einer Seite entfernt, doch dies führt auch dazu, dass viele Websites nicht mehr wie beabsichtigt funktionieren. In Bezug auf Interaktivität auf einzelnen Seiten ist entprechend nur eine Entscheidung zwischen ganz oder gar nicht möglich.
+Gatsby unterstützt Partial Hydration nicht und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. Gatsby verfügt über ein [Community Plugin](https://www.gatsbyjs.com/plugins/gatsby-plugin-no-javascript/), das sämtliches JavaScript von einer Seite entfernt, doch dies führt auch dazu, dass viele Websites nicht mehr wie beabsichtigt funktionieren. In Bezug auf Interaktivität auf einzelnen Seiten ist entprechend nur eine Entscheidung zwischen ganz oder gar nicht möglich.
 
 Gatsby verfügt über ein großes Plugin-Ökosystem, was in Abhängigkeit von dem, was du benötigst, Gatsby zur besseren Wahl machen kann. [gatsby-plugin-image](https://www.gatsbyjs.com/plugins/gatsby-plugin-image/) z. B. ist ein beliebtes Plugin für Bildoptimierungen, das Gatsby zur besseren Wahl für bilderlastige Websites machen könnte.
 
@@ -100,7 +100,7 @@ Hugo verwendet eine eigene [Templating Language](https://gohugo.io/templates/int
 
 Konzeptuell ist Hugo auf Augenhöhe mit Astros "minimalistischem Einsatz von Client-seitigem JavaScript" bei der Web-Entwicklung. Hugo und Astro bieten somit eine ähnliche Leistungsgrundlage durch ihre jeweilige Null-JavaScript-Strategie.
 
-Sowohl Hugo als auch Astro bieten von vornherein Unterstützung beim Kompilieren, Packen und Minifizieren von JavaScript. Astro entfernt automatisch unnötiges JavaScript von der Seite und reichert nur die individuellen Komponenten damit an, die dies benötigen. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt. Während es dir natürlich möglich ist dieses Feature in Hugo von Hand einzurichten, steht es dir in Astro ebenfalls bereits von vornherein zur Verfügung.
+Sowohl Hugo als auch Astro bieten von vornherein Unterstützung beim Kompilieren, Packen und Minifizieren von JavaScript. Astro entfernt automatisch unnötiges JavaScript von der Seite und reichert nur die individuellen Komponenten damit an, die dies benötigen. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt. Während es dir natürlich möglich ist dieses Feature in Hugo von Hand einzurichten, steht es dir in Astro ebenfalls bereits von vornherein zur Verfügung.
 
 ## Jekyll vs. Astro
 
@@ -114,7 +114,7 @@ Konzeptuell ist Jekyll auf Augenhöhe mit Astros "minimalistischem Einsatz von C
 
 Jekyll erreicht dies, indem es dich dazu anhält JavaScript gänzlich zu vermeiden. Jekyll-Sites werden oft mit sehr wenig bis hin zu gar keinem JavaScript geschrieben. Dies wird allerdings dann zum Thema, wenn du tatsächlich Client-seitig JavaScript einsetzen musst. Es bleibt dann dir überlassen eine entsprechende Build-Pipeline für deine Skripte und weitere Elemente aufzubauen. Dies kann sich sehr zeitaufwendig gestalten, und es zwingt dich das Packen der Anwendung, sowie Minifizierung und weitere komplizierte Optimierungen von Hand aufzusetzen.
 
-Im Gegensatz dazu kompiliert Astro automatisch dein Client-seitiges JavaScript für dich. Astro sendet nur die minimal notwendige Menge an JavaScript an den Browser, minifiziert, gepackt und optimiert für die Veröffentlichung. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt. Während es dir natürlich möglich ist dieses Feature in Jekyll von Hand einzurichten, steht es dir in Astro bereits von vornherein zur Verfügung.
+Im Gegensatz dazu kompiliert Astro automatisch dein Client-seitiges JavaScript für dich. Astro sendet nur die minimal notwendige Menge an JavaScript an den Browser, minifiziert, gepackt und optimiert für die Veröffentlichung. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt. Während es dir natürlich möglich ist dieses Feature in Jekyll von Hand einzurichten, steht es dir in Astro bereits von vornherein zur Verfügung.
 
 ## SvelteKit vs. Astro
 
@@ -128,9 +128,9 @@ SvelteKit unterstützt sowohl statische Site-Generierung (Static Site Generation
 
 ### Leistungsvergleich SvelteKit vs. Astro
 
-In den meisten Fällen werden Astro-Websites schneller laden als SvelteKit-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt.
+In den meisten Fällen werden Astro-Websites schneller laden als SvelteKit-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt.
 
-SvelteKit unterstützt keine partielle Anreicherung und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. SvelteKit unterstützt mit [Page-Level Static und Zero-JavaScript Pages](https://kit.svelte.dev/docs#ssr-and-javascript-hydrate) das Entfernen von JavaScript per Seite oder für die gesamte Anwendung. Wie auch immer, eine Unterstützung für die Anreicherung individueller Komponenten einer Seite ist nicht geplant. In Bezug auf Interaktivität auf einzelnen Seiten ist entprechend nur eine Entscheidung zwischen ganz oder gar nicht möglich.
+SvelteKit unterstützt Partial Hydration nicht und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. SvelteKit unterstützt mit [Page-Level Static und Zero-JavaScript Pages](https://kit.svelte.dev/docs#ssr-and-javascript-hydrate) das Entfernen von JavaScript per Seite oder für die gesamte Anwendung. Wie auch immer, eine Unterstützung für die Anreicherung individueller Komponenten einer Seite ist nicht geplant. In Bezug auf Interaktivität auf einzelnen Seiten ist entprechend nur eine Entscheidung zwischen ganz oder gar nicht möglich.
 
 ### Fallstudie: Kompilieren einer Dokumentationswebsite
 
@@ -155,9 +155,9 @@ Next.js unterstützt sowohl statische Site-Generierung (Static Site Generation, 
 
 ### Leistungsvergleich Next.js vs. Astro
 
-In den meisten Fällen werden Astro-Websites deutlich schneller laden als Next.js-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt.
+In den meisten Fällen werden Astro-Websites deutlich schneller laden als Next.js-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt.
 
-Next.js unterstützt keine partielle Anreicherung und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. Next.js verfügt über [Experimental Support](https://piccalil.li/blog/new-year-new-website/#heading-no-client-side-react-code) für vollständig statische, Null-JavaScript-Seiten. Wie auch immer, eine Unterstützung für die Anreicherung individueller Komponenten einer Seite ist nicht geplant. In Bezug auf Interaktivität auf einzelnen Seiten ist entprechend nur eine Entscheidung zwischen ganz oder gar nicht möglich.
+Next.js unterstützt Partial Hydration nicht und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. Next.js verfügt über [Experimental Support](https://piccalil.li/blog/new-year-new-website/#heading-no-client-side-react-code) für vollständig statische, Null-JavaScript-Seiten. Wie auch immer, eine Unterstützung für die Anreicherung individueller Komponenten einer Seite ist nicht geplant. In Bezug auf Interaktivität auf einzelnen Seiten ist entprechend nur eine Entscheidung zwischen ganz oder gar nicht möglich.
 
 Next.js verfügt über sehr gute integrierte Bildoptimierungen, was Next.js zur besseren Wahl für bilderlastige Websites machen könnte.
 
@@ -182,9 +182,9 @@ Nuxt unterstützt sowohl statische Site-Generierung (Static Site Generation, SSG
 
 ### Leistungsvergleich Nuxt vs. Astro
 
-In den meisten Fällen werden Astro-Websites deutlich schneller laden als Nuxt-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt.
+In den meisten Fällen werden Astro-Websites deutlich schneller laden als Nuxt-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt.
 
-Nuxt unterstützt keine partielle Anreicherung und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. Es besteht keine Möglichkeit dieses Verhalten abzuschalten.
+Nuxt unterstützt Partial Hydration nicht und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. Es besteht keine Möglichkeit dieses Verhalten abzuschalten.
 
 Nuxt verfügt über sehr gute integrierte Bildoptimierungen, was Nuxt zur besseren Wahl für bilderlastige Websites machen könnte.
 
@@ -207,9 +207,9 @@ Evan You (Erfinder von Vue) arbeitet zur Zeit an einer neuen Version von VuePres
 
 ### Leistungsvergleich VuePress vs. Astro
 
-In den meisten Fällen werden Astro-Websites deutlich schneller laden als VuePress-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt.
+In den meisten Fällen werden Astro-Websites deutlich schneller laden als VuePress-Websites. Dies liegt vor allem daran, dass Astro unnötiges JavaScript vermeidet und nur diejenigen Komponenten einer Seite mit JavaScript anreichert, die dies benötigen. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt.
 
-VuePress unterstützt keine partielle Anreicherung und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. Es besteht keine Möglichkeit dieses Verhalten abzuschalten.
+VuePress unterstützt Partial Hydration nicht und lässt stattdessen den Browser die gesamte Seite erneut laden und mit JavaScript anreichern, selbst wenn der größte Teil der Seite statisch ist. Dies führt zu längeren Ladezeiten und schlechterer Leistung für deine Website. Es besteht keine Möglichkeit dieses Verhalten abzuschalten.
 
 ### Fallstudie: Kompilieren einer Dokumentationswebsite
 
@@ -230,4 +230,4 @@ Zola verwendet [Tera](https://tera.netlify.app/), um deine Website zu rendern. A
 
 Konzeptuell ist Zola auf Augenhöhe mit Astros "minimalistischem Einsatz von Client-seitigem JavaScript" bei der Web-Entwicklung. Zola und Astro bieten somit eine ähnliche Leistungsgrundlage durch ihre jeweilige Null-JavaScript-Strategie.
 
-Sowohl Zola als auch Astro bieten Unterstützung beim Kompilieren, Packen und Minifizieren von JavaScript. Zola benötigt hierfür ein zusätzliches Werkzeug wie Webpack, um JavaScript zu packen und zu verarbeiten. Astro entfernt automatisch unnötiges JavaScript von der Seite und reichert nur die individuellen Komponenten damit an, die dies benötigen. Dieses Feature wird [partielle Anreicherung](/core-concepts/component-hydration) genannt. Während es dir natürlich möglich ist dieses Feature in Zola von Hand einzurichten, steht es dir in Astro bereits von vornherein zur Verfügung.
+Sowohl Zola als auch Astro bieten Unterstützung beim Kompilieren, Packen und Minifizieren von JavaScript. Zola benötigt hierfür ein zusätzliches Werkzeug wie Webpack, um JavaScript zu packen und zu verarbeiten. Astro entfernt automatisch unnötiges JavaScript von der Seite und reichert nur die individuellen Komponenten damit an, die dies benötigen. Dieses Feature wird [Partial Hydration](/core-concepts/component-hydration) genannt. Während es dir natürlich möglich ist dieses Feature in Zola von Hand einzurichten, steht es dir in Astro bereits von vornherein zur Verfügung.
