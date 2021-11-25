@@ -1,12 +1,12 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Layouts
-description: Eine Einführung in Layouts - eine Art Astro-Komponente für gemeinsame Layouts, die von verschiedenen Seiten verwendet werden.
+description: Eine Einführung in Layouts - eine Art Astro-Komponente, die für gemeinsame Layouts auf verschiedenen Seiten verwendet wird.
 ---
 
 **Layouts** sind eine besondere Art der [Komponente](/core-concepts/astro-components) - sie können dir helfen gemeinsame Seiten-Layouts über dein Projekt verteilt zu nutzen.
 
-Layouts verhalten sich so, wie andere mehrfach verwendbare Astro-Komponenten auch. Es gibt keine neue Syntax oder API zu erlernen. Wie auch immer, mehrfach verwendbare Layouts sind ein so weit verbreitetes Modell im Bereich der Web-Entwicklung, dass wir diese Anleitung verfasst haben, um dich bei der Verwendung zu unterstützen.
+Layouts verhalten sich so, wie andere mehrfach verwendbare Astro-Komponenten auch. Es gibt keine neue Syntax oder API zu erlernen. Allerdings sind mehrfach verwendbare Layouts ein so weit verbreitetes Modell im Bereich der Web-Entwicklung, dass wir diese Anleitung verfasst haben, um dich bei der Verwendung zu unterstützen.
 
 ## Anwendung
 
@@ -34,15 +34,15 @@ const {title} = Astro.props;
       <a href="#">Posts</a>
       <a href="#">Kontakt</a>
     </nav>
-    <!-- slot: Deine Seiteninhalte werden hier eingespeist. -->
+    <!-- slot: Deine Seiteninhalte werden hier eingefügt. -->
     <slot />
   </body>
 </html>
 ```
 
-📚 Über das `<slot />`-Element lässt sich Astro in definieren, wo untergeordnete Elemente (die an das Layout übergeben werden) zu positionieren sind. Erfahre mehr darüber wie `<slot/>` funktioniert in unserer [Anleitung zu Astro-Komponenten](/core-concepts/astro-components).
+📚 Über das `<slot />`-Element lässt sich in Astro definieren, wo untergeordnete Elemente (die an das Layout übergeben werden) erscheinen sollen. Erfahre mehr darüber wie `<slot />` funktioniert in unserer [Anleitung zu Astro-Komponenten](/core-concepts/astro-components).
 
-Sobald du dein erstes Layout erstellt hast, kannst du es so verwenden, wie du jede andere Komponente in einer Seite verwenden würdest. Bedenke dass dein Layout den gesamten Seitenaufbau enthält: `<html>`, `<head>`, und `<body>`. Du musst einzig den Seiteninhalt hinzufügen.
+Sobald du dein erstes Layout erstellt hast, kannst du es so verwenden, wie du jede andere Komponente in einer Seite verwenden würdest. Denke daran, dass dein Layout den gesamten Seitenaufbau enthält: `<html>`, `<head>`, und `<body>`. Du musst nur den Seiteninhalt hinzufügen.
 
 ```astro
 ---
@@ -69,16 +69,16 @@ const {title, author} = Astro.props;
 <BasisLayout title={title}>
   <!-- Fügt neue Post-spezifische Inhalte zu jeder Seite hinzu. -->
   <div>Post-Autor/Autorin: {author}</div>
-  <!-- slot: Deine Seiteninhalte werden hier eingespeist. -->
+  <!-- slot: Deine Seiteninhalte werden hier eingefügt. -->
   <slot />
 </BasisLayout>
 ```
 
-## Layouts komponieren
+## Layouts zusammenstellen
 
-Manchmal benötigst du detailliertere Kontrolle über deine Seiten. Zum Beispiel willst du vielleicht SEO- oder Social-Media-`meta`-Tags auf bestimmten Seiten hinzufügen, auf anderen aber nicht. Du könntest dies mittels Props in deinem Layout realisieren (`<BasisLayout addMeta={true} ...`) - ab einem bestimmten Punkt ist es möglicherweise jedoch leichter deine Layouts unverschachtelt zu komponieren.
+Manchmal benötigst du detailliertere Kontrolle über deine Seiten. Zum Beispiel willst du vielleicht SEO- oder Social-Media-`meta`-Tags auf bestimmten Seiten hinzufügen, auf anderen aber nicht. Das kannst du mit Props in deinem Layout erreichen (`<BasisLayout addMeta={true} ...`) - ab einem bestimmten Punkt ist es möglicherweise jedoch leichter deine Layouts nicht zu verschachteln.
 
-Anstatt deine gesamte `<html>`-Seite als ein einziges großes Layout zu definieren, kannst du die `head`- und `body`-Inhalte als kleinere, getrennte Komponenten definieren. Hierdurch kannst du verschiedene Layouts auf jeder Seite komponieren.
+Anstatt deine gesamte `<html>`-Seite als ein einziges großes Layout zu definieren, kannst du die `head`- und `body`-Inhalte als kleinere, getrennte Komponenten definieren. Hierdurch kannst du verschiedene Layouts auf jeder Seite zusammenstellen.
 
 ```astro
 ---
@@ -92,7 +92,7 @@ const {title, description} = Astro.props;
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
 ```
 
-Beachte dass dieses Layout deine **page shell** nicht mit einschließt und nur einige generische Elemente auflistet, die in deinem `<head>`-Block erscheinen sollen. Hierdurch kannst du mehrere Layout-Komponenten kombinieren, bei mehr Kontrolle über die Struktur der einzelnen Seite.
+Beachte dass dieses Layout deine **page shell** nicht mit einschließt und nur einige generische Elemente auflistet, die in deinem `<head>`-Block erscheinen sollen. Du hast  mehr Kontrolle über die Struktur der einzelnen Seite und kannst mehrere Layout-Komponenten kombinieren.
 
 ```astro
 ---
@@ -152,4 +152,4 @@ const { content } = Astro.props;
 </html>
 ```
 
-📚 Lerne mehr über die Unterstützung von Markdown in Astro in unserer [Markdown-Anleitung](/guides/markdown-content).
+📚 Lerne mehr über die Verwendung von Markdown in Astro in unserer [Markdown-Anleitung](/guides/markdown-content).
