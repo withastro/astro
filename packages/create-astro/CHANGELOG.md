@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.8
+
+### Patch Changes
+
+- 3e1bdb1a: Add a helpful message for the "could not find commit hash for ..." error
+
 ## 0.6.7
 
 ## 0.6.7-next.1

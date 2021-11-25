@@ -22,7 +22,7 @@ _Huomaa: jotkin toiminnallisuudet (mm. nopea päivitys) ovat toistaiseksi rajall
 
 Ihmisillä on monenlaisia taustoja ja erilaisia oppimistyylejä. Toivomme sinun saavan irti tästä osiosta riippumatta siitä oletko enemmän teoriatason vaiko käytännön tason oppija.
 
-- Jos suosit **oppimista tekemällä**, kokeile aloittaa [esimerkkikirjastostamme](https://github.com/snowpackjs/astro/tree/main/examples).
+- Jos suosit **oppimista tekemällä**, kokeile aloittaa [esimerkkikirjastostamme](https://github.com/withastro/astro/tree/main/examples).
 - Jos suosit **konseptien oppimista vaihe vaiheelta**, kokeile aloittaa [peruskonsepteista ja oppaista](/core-concepts/project-structure).
 
 Astrolla on oma oppimiskäyränsä kuten millä tahansa ennestään tuntemattomalla teknologialla. Harjoittelulla ja kärsivällisyydellä _tulet_ pääsemään asioista kärryille.
@@ -47,11 +47,11 @@ Twitterin [@astrodotbuild](https://twitter.com/astrodotbuild)-tunnus on virallin
 
 Tulemme kertomaan julkaisuista myös [Discord-yhteisössä](https://astro.build/chat) kanavalla #announcements.
 
-Kaikki Astro-julkaisut eivät tule olemaan oman blogikirjoituksensa arvoisia, mutta löydät yksityiskohtaisen muutoslokin jokaiselle julkaisulle [`CHANGELOG.md`-tiedostosta Astron repossa](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md).
+Kaikki Astro-julkaisut eivät tule olemaan oman blogikirjoituksensa arvoisia, mutta löydät yksityiskohtaisen muutoslokin jokaiselle julkaisulle [`CHANGELOG.md`-tiedostosta Astron repossa](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md).
 
 ## Puuttuuko jotakin?
 
-Mikäli havaitset puutteita dokumentaatiossa tai että osa siitä ovat hämmentäviä, jätäthän [ilmoituksen dokumentaation ongelmasta](https://github.com/snowpackjs/astro/issues/new/choose) sisältäen ehdotuksesi sen parantamiseksi, tai twiittaa [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-tunnukselle. Otamme palautetta vastaan mielellämme!
+Mikäli havaitset puutteita dokumentaatiossa tai että osa siitä ovat hämmentäviä, jätäthän [ilmoituksen dokumentaation ongelmasta](https://github.com/withastro/astro/issues/new/choose) sisältäen ehdotuksesi sen parantamiseksi, tai twiittaa [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-tunnukselle. Otamme palautetta vastaan mielellämme!
 
 ## Kiitokset
 

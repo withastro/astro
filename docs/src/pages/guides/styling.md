@@ -251,7 +251,7 @@ As an alternative to `src/styles/global.css`, You may also add Tailwind utilitie
 
 #### Migrating from v0.19
 
-As of [version 0.20.0](https://github.com/snowpackjs/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process `public/` files. Previously, we'd recommended putting your tailwind files in the `public/` directory. If you started a project with this pattern, you should move any Tailwind styles into the `src` directory and import them in your template using [Astro.resolve()][astro-resolve]:
+As of [version 0.20.0](https://github.com/withastro/astro/releases/tag/astro%400.20.0), Astro will no longer bundle, build and process `public/` files. Previously, we'd recommended putting your tailwind files in the `public/` directory. If you started a project with this pattern, you should move any Tailwind styles into the `src` directory and import them in your template using [Astro.resolve()][astro-resolve]:
 
 ```astro
   <link
@@ -622,7 +622,7 @@ Also please check out the [Stylelint][stylelint] project to whip your styles int
 [fouc]: https://en.wikipedia.org/wiki/Flash_of_unstyled_content
 [layout-isolated]: https://web.archive.org/web/20210227162315/https://visly.app/blogposts/layout-isolated-components
 [less]: https://lesscss.org/
-[issues]: https://github.com/snowpackjs/astro/issues
+[issues]: https://github.com/withastro/astro/issues
 [magic-number]: https://css-tricks.com/magic-numbers-in-css/
 [material-ui]: https://material.io/components
 [peace-on-css]: https://didoo.medium.com/let-there-be-peace-on-css-8b26829f1be0

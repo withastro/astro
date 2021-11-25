@@ -130,7 +130,7 @@ Not all developers speak English. In fact, most don't. Luckily, some amazing con
 - [Suomi](https://docs.astro.build/fi/getting-started)
 - [Русский](https://docs.astro.build/ru/getting-started)
 
-These are still a work in progress, and we'll keep working towards 100% translation as we creep closer to a v1.0 release. If you know a few languages and are able to contribute, [we could really use your help!](https://github.com/snowpackjs/astro/blob/main/CONTRIBUTING.md#translations)
+These are still a work in progress, and we'll keep working towards 100% translation as we creep closer to a v1.0 release. If you know a few languages and are able to contribute, [we could really use your help!](https://github.com/withastro/astro/blob/main/CONTRIBUTING.md#translations)
 
 ## Open Collective
 
@@ -142,7 +142,7 @@ We created an Open Collective because corporate sponsorship is one of the few pr
 
 Chances are, your company benefits from open source software. Invest in the technologies that power your business by sponsoring Astro and any other open source projects that you use. **Bonus:** thousands of developers will see your logo on our README and the [astro.build homepage](https://astro.build), every day. 
 
-100% of funds raised are invested directly back into the project and our community. You can read more about how funds are distributed by reading our [FUNDING.md](https://github.com/snowpackjs/astro/blob/main/FUNDING.md) doc on GitHub.
+100% of funds raised are invested directly back into the project and our community. You can read more about how funds are distributed by reading our [FUNDING.md](https://github.com/withastro/astro/blob/main/FUNDING.md) doc on GitHub.
 
 We'll be tweeting out personal "thank you" messages to every person and company who hits the ["Sponsor"](https://opencollective.com/astrodotbuild) button in the next 48 hours. Our first, very special THANK YOU goes out to [Chris Jennings](https://twitter.com/ckj), CCO and co-founder of [Sentry](https://sentry.io/), for being our first official sponsor! 🎉
 

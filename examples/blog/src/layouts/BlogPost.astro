@@ -10,7 +10,7 @@ const {title, description, publishDate, author, heroImage, permalink, alt} = con
 <html lang={ content.lang || 'en' }>
   <head>
     <BaseHead title={title} description={description} permalink={permalink} />
-    <link rel="stylesheet" href="/blog.css" />
+    <link rel="stylesheet" href={Astro.resolve('../styles/blog.css')} />
   </head>
 
   <body>

@@ -24,7 +24,7 @@ _주의: 몇몇 기능은 아직 CodeSandbox에서 동작하지 않을 수 있�
 
 사람들은 다양한 배경에서 각자 다른 학습 스타일로 Astro에 입문합니다. 이 섹션이 이론적인 접근 방식이나 실용적인 접근 방식을 선호하는 사람 모두에게 도움이 되기를 바랍니다.
 
-- **직접 경험하며 배우는** 방식을 선호한다면, [예제 라이브러리](https://github.com/snowpackjs/astro/tree/main/examples)에서 시작해보세요.
+- **직접 경험하며 배우는** 방식을 선호한다면, [예제 라이브러리](https://github.com/withastro/astro/tree/main/examples)에서 시작해보세요.
 - **개념부터 차근차근 익히는** 방식을 선호한다면, [기본 개념 가이드](/core-concepts/project-structure)에서 시작해보세요.
 
 다른 낯선 기술과 마찬가지로 Astro에는 러닝 커브(learning curve)가 있습니다. 하지만 약간의 인내심을 가지고 연습한다면 충분히, 쉽게 습득할 수 있습니다.
@@ -49,11 +49,11 @@ API 참조 섹션은 특정 Astro API를 자세히 배우고 싶을 때 유용�
 
 또한 [디스코드](https://astro.build/chat)의 #announcements 채널에서도 릴리즈 소식을 찾아볼 수 있습니다.
 
-모든 릴리즈가 블로그에 게시되는 것은 아닙니다. 블로그에 게시되지 않은 버전 릴리즈에 관한 자세한 수정사항은 [Astro 리포지터리 안의 `CHANGELOG.md`](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) 파일에서 읽어볼 수 있습니다.
+모든 릴리즈가 블로그에 게시되는 것은 아닙니다. 블로그에 게시되지 않은 버전 릴리즈에 관한 자세한 수정사항은 [Astro 리포지터리 안의 `CHANGELOG.md`](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md) 파일에서 읽어볼 수 있습니다.
 
 ## 빠진 항목이 있나요?
 
-문서에서 빠진 항목을 발견하거나 혼동되는 부분이 있다면 개선을 위한 제안과 함께 [문서의 리포지터리](https://github.com/snowpackjs/astro/issues/new/choose)에 이슈를 올리거나 [@astrodotbuild](https://twitter.com/astrodotbuild) 트위터 계정으로 트윗해주세요. 여러분의 참여를 기다립니다!
+문서에서 빠진 항목을 발견하거나 혼동되는 부분이 있다면 개선을 위한 제안과 함께 [문서의 리포지터리](https://github.com/withastro/astro/issues/new/choose)에 이슈를 올리거나 [@astrodotbuild](https://twitter.com/astrodotbuild) 트위터 계정으로 트윗해주세요. 여러분의 참여를 기다립니다!
 
 ## 크레딧
 

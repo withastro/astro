@@ -24,7 +24,7 @@ Astro 是一个现代的静态网站生成工具. 你可以从 [我们的主页]
 
 各种各样的人来自不同的背景，带来了不同的学习方式，来到 Astro。无论你喜欢的是理论性强的方法还是实践性强的方法，我们希望你会发现本节内容对你有帮助。
 
-- 如果你喜欢在**实践中**学习，请从我们的 [实例库](https://github.com/snowpackjs/astro/tree/main/examples) 开始学习。
+- 如果你喜欢在**实践中**学习，请从我们的 [实例库](https://github.com/withastro/astro/tree/main/examples) 开始学习。
 
 - 如果你喜欢**逐步学习概念**，请从我们的[基本概念和指南](/core-concepts/project-structure)开始。
 
@@ -50,11 +50,11 @@ Astro 是一个现代的静态网站生成工具. 你可以从 [我们的主页]
 
 我们也在我们的 [Discord 社区](https://astro.build/chat) 的 #announcements 频道中发布 release 公告。
 
-当然并非每个 Astro 的发布都会有自己的 release 公告，你可以在 Astro 仓库的 [`CHANGELOG.md`文件](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) 中找到每个版本的详细更新日志。
+当然并非每个 Astro 的发布都会有自己的 release 公告，你可以在 Astro 仓库的 [`CHANGELOG.md`文件](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md) 中找到每个版本的详细更新日志。
 
 ## 勘误与建议
 
-如果你在阅读的过程中发现文档中缺少什么，或者你发现某些部分令人困惑，请 [为文档提交问题](https://github.com/snowpackjs/astro/issues/new/choose) ，提出你的改进建议，或者在 [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter 账户上发推文。我们希望听到你的建议!
+如果你在阅读的过程中发现文档中缺少什么，或者你发现某些部分令人困惑，请 [为文档提交问题](https://github.com/withastro/astro/issues/new/choose) ，提出你的改进建议，或者在 [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter 账户上发推文。我们希望听到你的建议!
 
 ## 参考
 

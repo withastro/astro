@@ -83,7 +83,7 @@ For a real-world example, you might implement GitHub's file viewer like so:
 /[org]/[repo]/tree/[branch]/[...file]
 ```
 
-In this example, a request for `/snowpackjs/astro/tree/main/docs/public/favicon.svg` would result in the following parameters being available to the page:
+In this example, a request for `/withastro/astro/tree/main/docs/public/favicon.svg` would result in the following parameters being available to the page:
 
 ```js
 {

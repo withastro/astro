@@ -8,7 +8,7 @@ Astro comes with out-of-the-box Markdown support powered by the expansive [remar
 
 ## Parsers
 
-Astro lets you use any Markdown parser you want. It just needs to be a function that follows the `MarkdownParser` type declared inside [this file](https://github.com/snowpackjs/astro/blob/main/packages/astro/src/@types/astro.ts). You can declare it inside `astro.config.mjs`:
+Astro lets you use any Markdown parser you want. It just needs to be a function that follows the `MarkdownParser` type declared inside [this file](https://github.com/withastro/astro/blob/main/packages/astro/src/@types/astro.ts). You can declare it inside `astro.config.mjs`:
 
 ```js
 // astro.config.mjs

@@ -25,7 +25,7 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
       if (!importedModule.id || scanned.has(importedModule.id)) continue;
       const ext = path.extname(importedModule.id.toLowerCase());
       if (STYLE_EXTENSIONS.has(ext)) {
-        css.add(importedModule.id); // if style file, add to list
+        css.add(importedModule.url || importedModule.id); // if style file, add to list
       } else {
         crawlCSS(importedModule.id, scanned); // otherwise, crawl file to see if it imports any CSS
       }
