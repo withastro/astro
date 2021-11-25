@@ -56,7 +56,7 @@ Um dabei die besten Ergebnisse zu erzielen, solltest du nicht mehr als ein `<sty
 <html>
   <head>
     <style>
-      ...
+      ...;
     </style>
   </head>
   <body>
@@ -295,7 +295,7 @@ const items = ["Hund", "Katze", "Schnabeltier"];
 
 Standardmäßig macht Astro keine Annahmen dazu, wie deine Skripte bereitgestellt werden sollen. Wenn du also einer Seite oder einer Komponente ein `<script>`-Tag hinzufügst, wird es nicht angerührt.
 
-Wenn du jedoch die Skripte aus der Komponente lösen und an den Anfang der Seite verschieben und anschließend für die Veröffentlichung gebündelt haben möchtest, kannst du das mit priorisierten Skripten machen. 
+Wenn du jedoch die Skripte aus der Komponente lösen und an den Anfang der Seite verschieben und anschließend für die Veröffentlichung gebündelt haben möchtest, kannst du das mit priorisierten Skripten machen.
 
 Ein **priorisiertes Skript** sieht so aus:
 
