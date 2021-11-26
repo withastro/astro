@@ -154,7 +154,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           eslint: true
-          eslint_args: "packages/**/*.ts"
+          eslint_args: '"packages/**/*.ts"'
           eslint_extensions: ts
           prettier: true
           auto_fix: true
