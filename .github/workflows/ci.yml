@@ -153,7 +153,7 @@ jobs:
           eslint: true
           eslint_args: "packages/**/*.ts"
           prettier: true
-          auto_fix: ${{ github.repository_owner == 'withastro' }}
+          auto_fix: true
           git_name: "GitHub Actions"
           git_email: "actions-user@github.com"
           commit_message: '[ci] ${linter} fix'
