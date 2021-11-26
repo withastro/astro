@@ -40,17 +40,19 @@
     "npm": "7.11.2",
     "yarn": "1.22.10"
   },
-  "dependencies": {},
-  "devDependencies": {
+  "//": "dependencies are very specific packages needed for GitHub Actions, to improve execution speed",
+  "dependencies": {
     "@changesets/cli": "^2.16.0",
-    "@octokit/action": "^3.15.4",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
-    "del": "^6.0.0",
-    "esbuild": "0.13.7",
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-prettier": "^4.0.0"
+  },
+  "devDependencies": {
+    "@octokit/action": "^3.15.4",
+    "del": "^6.0.0",
+    "esbuild": "0.13.7",
     "execa": "^5.0.0",
     "lerna": "^4.0.0",
     "prettier": "^2.4.1",
