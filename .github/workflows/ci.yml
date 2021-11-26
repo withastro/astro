@@ -150,11 +150,10 @@ jobs:
       - name: Lint
         uses: wearerequired/lint-action@v1
         env:
-          ACTIONS_STEP_DEBUG: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           eslint: true
-          eslint_args: '"packages/**/*.ts"'
+          eslint_dir: packages
           eslint_extensions: ts
           prettier: true
           auto_fix: true
