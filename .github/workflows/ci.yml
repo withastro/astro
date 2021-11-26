@@ -48,8 +48,7 @@ jobs:
           if-no-files-found: error
   
   # Test depends on Build's output, which allows us to skip any build process!
-  # We also run `yarn install` with the `--production` flag to speed things up.
-  # Note: anything needed for `yarn test` should be in the _root_ package.json `dependencies`.
+  # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
     if: "!contains(github.event.head_commit.message, '[skip-ci]')"
@@ -125,8 +124,7 @@ jobs:
         working-directory: ${{ matrix.target }}
 
   # Lint can run in parallel with Build.
-  # We run `yarn install` with the `--production` flag to speed things up.
-  # Note: anything needed for `yarn test` should be in the _root_ package.json `dependencies`.
+  # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
   lint:
     name: Lint
     if: "!contains(github.event.head_commit.message, '[skip-ci]')"
