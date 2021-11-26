@@ -153,9 +153,7 @@ jobs:
   changelog:
     name: Changelog
     if: ${{ !contains(github.event.head_commit.message, '[skip-ci]') && github.ref_name == 'main' && github.repository_owner == 'withastro' }}
-    needs:
-      - build
-      - test
+    needs: [test, smoke]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
