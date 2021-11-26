@@ -147,6 +147,8 @@ jobs:
 
       - name: Run linters
         uses: wearerequired/lint-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           eslint: true
           prettier: true
