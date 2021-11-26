@@ -44,7 +44,7 @@ export const SIDEBAR = {
     { text: 'Erste Schritte', link: 'getting-started' },
     { text: 'Schnellstart', link: 'quick-start' },
     { text: 'Installation', link: 'installation' },
-    { text: 'Themes', link: 'themes' },
+    { text: 'Vorlagen', link: 'themes' },
     { text: 'Astro vs. X', link: 'comparing-astro-vs-other-tools' },
     { text: 'Migration auf v0.21', link: 'migration/0.21.0' },
 
