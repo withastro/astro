@@ -16,6 +16,8 @@ defaults:
     shell: bash
 
 jobs:
+  # Build installs all devDependencies and runs our full build pipeline.
+  # We upload all `dist/` artifacts to GitHub, which can be shared by all dependent jobs.
   build:
     name: Build Packages
     if: "!contains(github.event.head_commit.message, '[skip-ci]')"
@@ -45,6 +47,9 @@ jobs:
           path: packages/**/dist/*
           if-no-files-found: error
   
+  # Test depends on Build's output, which allows us to skip any build process!
+  # We also run `yarn install` with the `--production` flag to speed things up.
+  # Note: anything needed for `yarn test` should be in the _root_ package.json `dependencies`.
   test:
     name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
     if: "!contains(github.event.head_commit.message, '[skip-ci]')"
@@ -88,6 +93,9 @@ jobs:
       - name: Test
         run: yarn test
 
+  # Lint can run in parallel with Build.
+  # We run `yarn install` with the `--production` flag to speed things up.
+  # Note: anything needed for `yarn test` should be in the _root_ package.json `dependencies`.
   lint:
     name: Lint
     if: "!contains(github.event.head_commit.message, '[skip-ci]')"
@@ -109,6 +117,8 @@ jobs:
       - name: Lint
         run: yarn lint
 
+  # Changelog can only run _after_ Build and Test.
+  # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog
     if: "!contains(github.event.head_commit.message, '[skip-ci]')"
