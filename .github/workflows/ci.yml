@@ -145,17 +145,19 @@ jobs:
         env:
           CI: true
 
-      - name: Run linters
+      - name: Lint
         uses: wearerequired/lint-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           eslint: true
+          eslint_args: "packages/**/*.ts"
           prettier: true
-          auto_fix: true
+          auto_fix: ${{ github.repository_owner == 'withastro' }}
           git_name: "GitHub Actions"
-          git_email: "actions-user@github.com" 
+          git_email: "actions-user@github.com"
           commit_message: '[ci] ${linter} fix'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
   # Changelog can only run _after_ Build and Test.
   # We download all `dist/` artifacts from GitHub to skip the build process.
