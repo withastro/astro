@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    branches:
-      - actions
+    branches-ignore:
+      - 'changeset-release/*'
   pull_request:
     paths-ignore:
       - '.vscode/**'
@@ -182,8 +182,8 @@ jobs:
         uses: changesets/action@master
         with:
           publish: changeset publish
-          commit: 'chore: release'
-          title: 'chore: release'
+          commit: '[ci] release'
+          title: '[ci] release'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -191,7 +191,7 @@ jobs:
       - name: Generate Notification
         id: notification
         if: steps.changesets.outputs.published == 'true'
-        run: message=$(node ./.github/notify.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::${message//$'\n'/'%0A'}
+        run: message=$(node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::${message//$'\n'/'%0A'}
 
       - name: Discord Notification
         if: steps.changesets.outputs.published == 'true'
