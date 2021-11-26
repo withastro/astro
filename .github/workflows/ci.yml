@@ -131,6 +131,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -153,8 +155,8 @@ jobs:
           eslint_extensions: ts
           prettier: true
           auto_fix: true
-          git_name: Astrobot
-          git_email: actions-user
+          git_name: GitHub Action
+          git_email: 'github-action@users.noreply.github.com'
           commit_message: '[ci] ${linter} fix'
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
