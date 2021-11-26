@@ -14,7 +14,6 @@ on:
 defaults:
   run:
     shell: bash
-    working-directory: .github
 
 jobs:
   build:
@@ -79,7 +78,7 @@ jobs:
         run: ls -R artifacts/
 
       - name: Extract Artifacts
-        run: ./extract-artifacts.sh
+        run: ./.github/extract-artifacts.sh
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -132,7 +131,7 @@ jobs:
         uses: actions/download-artifact@v2
 
       - name: Extract Artifacts
-        run: ./extract-artifacts.sh
+        run: ./.github/extract-artifacts.sh
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
