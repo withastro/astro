@@ -11,6 +11,11 @@ on:
       - 'examples/**'
       - 'www/**'
 
+defaults:
+  run:
+    shell: bash
+    working-directory: .github
+
 jobs:
   build:
     name: Build Packages
@@ -28,6 +33,8 @@ jobs:
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        env:
+          CI: true
 
       - name: Build Packages
         run: yarn build:all
@@ -71,23 +78,13 @@ jobs:
       - name: Print Package Artifacts
         run: ls -R artifacts/
 
-      - name: Copy Artifacts
-        shell: bash
-        run: |
-          cd artifacts
-          mkdir -p ../tmp/packages
-          mv * ../tmp/packages
-          cd ../tmp
-          tar -cvzpf artifacts.tar.gz *
-          mv artifacts.tar.gz ../artifacts.tar.gz
-          cd ..
-          tar -xvzpf artifacts.tar.gz
-          rm -rf artifacts
-          rm -rf tmp
-          rm -f artifacts.tar.gz
+      - name: Extract Artifacts
+        run: ./extract-artifacts.sh
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        env:
+          CI: true
 
       - name: Test
         run: yarn test
@@ -107,6 +104,60 @@ jobs:
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        env:
+          CI: true
 
       - name: Lint
         run: yarn lint
+
+  changelog:
+    name: Changelog
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+      
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v2
+
+      - name: Extract Artifacts
+        run: ./extract-artifacts.sh
+
+      - name: Install NPM Dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        env:
+          CI: true
+
+      - name: Debug Changesets
+        id: changesets
+        run: |
+          echo ::set-output name=published::true
+          echo ::set-output name=publishedPackages::'[{"name": "astro", "version": "0.21.3"}, {"name": "@astrojs/renderer-lit", "version": "0.3.1"}]'
+      
+      # - name: Create Release Pull Request or Publish to npm
+      #   id: changesets
+      #   uses: changesets/action@master
+      #   with:
+      #     publish: changeset publish
+      #     commit: '[skip-ci] chore: release'
+      #     title: '[skip-ci] chore: release'
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Generate Notification
+        id: notification
+        if: steps.changesets.outputs.published == 'true'
+        run: message=$(node .github/notify.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::$message
+      
+      - name: Debug
+        if: steps.changesets.outputs.published == 'true'
+        run: echo '${{ steps.notification.outputs.message }}'
