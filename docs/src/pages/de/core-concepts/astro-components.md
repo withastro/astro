@@ -110,7 +110,7 @@ import EineKomponente from './EineKomponente.astro';
 </div>
 ```
 
-📚 Du kannst auch Komponenten aus anderen Frontend-Bibliotheken wie React, Svelte, Vue und anderen importieren und verwenden. Lies unsere Anleitung zu [Komponenten-Anreicherung](/core-concepts/component-hydration), um mehr zu erfahren.
+📚 Du kannst auch Komponenten aus anderen Frontend-Bibliotheken wie React, Svelte, Vue und anderen importieren und verwenden. Lies unsere Anleitung zu [Partial Hydration](/core-concepts/component-hydration), um mehr zu erfahren.
 
 ### Dynamische JSX-Ausdrücke
 
