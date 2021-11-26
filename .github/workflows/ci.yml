@@ -121,10 +121,10 @@ jobs:
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+    if: ${{ !contains(github.event.head_commit.message, '[skip-ci]') && github.ref_name == 'main' && github.repository_owner == 'withastro' }}
     needs:
       - build
-    #   - test
+      - test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -147,32 +147,28 @@ jobs:
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
         env:
           CI: true
-
-      - name: Test Changesets
-        run: yarn changeset --help
-
-      - name: Debug Changesets
-        id: changesets
-        run: |
-          echo ::set-output name=published::true
-          echo ::set-output name=publishedPackages::'[{"name": "astro", "version": "0.21.3"}, {"name": "@astrojs/renderer-lit", "version": "0.3.1"}]'
       
-      # - name: Create Release Pull Request or Publish to npm
-      #   id: changesets
-      #   uses: changesets/action@master
-      #   with:
-      #     publish: changeset publish
-      #     commit: '[skip-ci] chore: release'
-      #     title: '[skip-ci] chore: release'
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@master
+        with:
+          publish: changeset publish
+          commit: 'chore: release'
+          title: 'chore: release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Generate Notification
         id: notification
         if: steps.changesets.outputs.published == 'true'
         run: message=$(node ./.github/notify.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::${message//$'\n'/'%0A'}
-      
-      - name: Debug
+
+      - name: Discord Notification
         if: steps.changesets.outputs.published == 'true'
-        run: echo '${{ steps.notification.outputs.message }}'
+        id: discord-notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@0.3.2
+        with:
+          args: ${{ steps.notification.outputs.message }}
