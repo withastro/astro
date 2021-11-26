@@ -81,7 +81,7 @@ jobs:
         run: ./.github/extract-artifacts.sh
 
       - name: Install NPM Dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: yarn install  --production true --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
