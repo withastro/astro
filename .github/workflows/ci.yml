@@ -150,6 +150,7 @@ jobs:
       - name: Lint
         uses: wearerequired/lint-action@v1
         env:
+          ACTIONS_STEP_DEBUG: true
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           eslint: true
