@@ -154,6 +154,7 @@ jobs:
         with:
           eslint: true
           eslint_args: "packages/**/*.ts"
+          eslint_extensions: ts
           prettier: true
           auto_fix: true
           git_name: "GitHub Actions"
