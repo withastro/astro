@@ -56,7 +56,12 @@ Um dabei die besten Ergebnisse zu erzielen, solltest du nicht mehr als ein `<sty
 <html>
   <head>
     <style>
-      ...;
+      .kreis {
+        background-color: red;
+        border-radius: 999px;
+        height: 50px;
+        width: 50px;
+      }
     </style>
   </head>
   <body>
