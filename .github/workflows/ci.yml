@@ -156,7 +156,6 @@ jobs:
           auto_fix: true
           git_name: GitHub Action
           git_email: github-action@users.noreply.github.com
-          git_no_verify: true
           commit_message: '[ci] ${linter} fix'
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
