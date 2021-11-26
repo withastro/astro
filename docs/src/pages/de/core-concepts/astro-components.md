@@ -56,7 +56,7 @@ Um dabei die besten Ergebnisse zu erzielen, solltest du nicht mehr als ein `<sty
 <html>
   <head>
     <style>
-      ...
+      ...;
     </style>
   </head>
   <body>
