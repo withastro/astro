@@ -158,7 +158,7 @@ jobs:
       - name: Generate Notification
         id: notification
         if: steps.changesets.outputs.published == 'true'
-        run: message=$(node ./.github/notify.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::$message
+        run: message=$(node ./.github/notify.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::${message//$'\n'/'%0A'}
       
       - name: Debug
         if: steps.changesets.outputs.published == 'true'
