@@ -151,7 +151,7 @@ jobs:
   # Changelog can only run _after_ Build and Test.
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
-    name: Changelog
+    name: Changelog PR or Release
     if: ${{ !contains(github.event.head_commit.message, '[skip-ci]') && github.ref_name == 'main' && github.repository_owner == 'withastro' }}
     needs: [test, smoke]
     runs-on: ubuntu-latest
