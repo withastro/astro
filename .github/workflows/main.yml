@@ -26,35 +26,6 @@ jobs:
         with:
           args: '**Sweet!** <${{ github.event.commits[0].author.name }}> just merged ["\"${{ steps.setup.outputs.COMMIT_MSG }}\""](<https://github.com/withastro/astro/commits/main>) ```${{ github.event.commits[0].message }}```'
 
-  format:
-    name: Format
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          cache: 'yarn'
-
-      - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
-        env:
-          CI: true
-
-      - name: Format
-        run: yarn format
-
-      - name: Commit Changest
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: '[ci] format'
-          branch: ${{ github.head_ref }}
-
   check_for_update:
     name: Check for Updates
     runs-on: ubuntu-latest

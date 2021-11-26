@@ -145,8 +145,15 @@ jobs:
         env:
           CI: true
 
-      - name: Lint
-        run: yarn lint
+      - name: Run linters
+        uses: wearerequired/lint-action@v1
+        with:
+          eslint: true
+          prettier: true
+          auto_fix: true
+          git_name: "GitHub Actions"
+          git_email: "actions-user@github.com" 
+          commit_message: '[ci] ${linter} fix'
 
   # Changelog can only run _after_ Build and Test.
   # We download all `dist/` artifacts from GitHub to skip the build process.
