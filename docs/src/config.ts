@@ -46,7 +46,7 @@ export const SIDEBAR = {
     { text: 'Installation', link: 'installation' },
     { text: 'Vorlagen', link: 'themes' },
     { text: 'Astro vs. X', link: 'comparing-astro-vs-other-tools' },
-    { text: 'Migration auf v0.21', link: 'migration/0.21.0' },
+    { text: 'Umstellung auf v0.21', link: 'migration/0.21.0' },
 
     { text: 'Grundlagen', header: true },
     { text: 'Projekt-Struktur', link: 'core-concepts/project-structure' },
