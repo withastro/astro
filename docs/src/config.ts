@@ -41,7 +41,7 @@ export const SIDEBAR = {
   ],
   de: [
     { text: 'Setup', header: true },
-    { text: 'Getting Started', link: 'getting-started' },
+    { text: 'Erste Schritte', link: 'getting-started' },
     { text: 'Schnellstart', link: 'quick-start' },
     { text: 'Installation', link: 'installation' },
     { text: 'Themes', link: 'themes' },
