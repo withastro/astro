@@ -11,6 +11,7 @@ on:
       - 'examples/**'
       - 'www/**'
 
+# Automatically cancel old actions on the same branch 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
