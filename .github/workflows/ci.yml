@@ -2,8 +2,8 @@ name: CI
 
 on:
   push:
-    branches-ignore:
-      - 'changeset-release/*'
+    branches:
+      - main
   pull_request:
     paths-ignore:
       - '.vscode/**'
