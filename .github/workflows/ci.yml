@@ -142,6 +142,9 @@ jobs:
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
         env:
           CI: true
+      
+      - name: Status
+        run: git status
 
       - name: Lint
         uses: wearerequired/lint-action@v1
