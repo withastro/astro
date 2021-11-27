@@ -11,7 +11,7 @@ on:
       - 'examples/**'
       - 'www/**'
 
-# Automatically cancel old actions on the same branch 
+# Automatically cancel in-progress actions on the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -51,6 +51,45 @@ jobs:
           name: artifacts
           path: packages/**/dist/*
           if-no-files-found: error
+  
+  # Lint can run in parallel with Build.
+  # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
+  lint:
+    name: Lint
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+
+      - name: Install NPM Dependencies
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        env:
+          CI: true
+      
+      - name: Status
+        run: git status
+
+      - name: Lint
+        uses: wearerequired/lint-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          eslint: true
+          eslint_args: --ignore-pattern test --ignore-pattern vendor
+          eslint_dir: packages/astro
+          eslint_extensions: ts
+          prettier: true
+          auto_fix: true
+          git_name: GitHub Action
+          git_email: github-action@users.noreply.github.com
+          commit_message: '[ci] ${linter} fix'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
   
   # Test depends on Build's output, which allows us to skip any build process!
   # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
@@ -128,56 +167,15 @@ jobs:
         run: yarn build
         working-directory: ${{ matrix.target }}
 
-  # Lint can run in parallel with Build.
-  # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
-  lint:
-    name: Lint
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: 16
-          cache: 'yarn'
-
-      - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
-        env:
-          CI: true
-      
-      - name: Status
-        run: git status
-
-      - name: Lint
-        uses: wearerequired/lint-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          eslint: true
-          eslint_args: --ignore-pattern test --ignore-pattern vendor
-          eslint_dir: packages/astro
-          eslint_extensions: ts
-          prettier: true
-          auto_fix: true
-          git_name: GitHub Action
-          git_email: github-action@users.noreply.github.com
-          commit_message: '[ci] ${linter} fix'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
   # Changelog can only run _after_ Build and Test.
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
     if: ${{ !contains(github.event.head_commit.message, '[skip-ci]') && github.ref_name == 'main' && github.repository_owner == 'withastro' }}
-    needs: [test, smoke]
+    needs: [lint, test, smoke]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -196,7 +194,7 @@ jobs:
         env:
           CI: true
       
-      - name: Create Release Pull Request or Publish to npm
+      - name: Create Release Pull Request or Publish
         id: changesets
         uses: changesets/action@master
         with:
@@ -206,6 +204,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      
+      - name: Setup GPR
+        if: steps.changesets.outputs.published == 'true'
+        uses: actions/setup-node@v2
+        with:
+          registry-url: 'https://npm.pkg.github.com'
+
+      - name: Publish to GPR
+        if: steps.changesets.outputs.published == 'true'
+        uses: changesets/action@master
+        with:
+          publish: changeset publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Notification
         id: notification
