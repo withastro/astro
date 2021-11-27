@@ -87,7 +87,7 @@ In this example, a request for `/withastro/astro/tree/main/docs/public/favicon.s
 
 ```js
 {
-	org: 'snowpackjs',
+	org: 'withastro',
 	repo: 'astro',
 	branch: 'main',
 	file: 'docs/public/favicon.svg'
