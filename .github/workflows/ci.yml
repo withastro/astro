@@ -204,20 +204,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      
-      - name: Setup GPR
-        if: steps.changesets.outputs.published == 'true'
-        uses: actions/setup-node@v2
-        with:
-          registry-url: 'https://npm.pkg.github.com'
-
-      - name: Publish to GPR
-        if: steps.changesets.outputs.published == 'true'
-        uses: changesets/action@master
-        with:
-          publish: changeset publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Notification
         id: notification
