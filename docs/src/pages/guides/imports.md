@@ -4,7 +4,7 @@ title: Supported Imports
 description: Learn how to import different content types with Astro.
 ---
 
-Astro uses Snowpack as its internal build system. Snowpack provides Astro with built-in support for the following file types, with no configuration required:
+Astro uses Vite as its internal build system. Vite provides Astro with built-in support for the following file types, with no configuration required:
 
 - JavaScript (`.js`, `.mjs`)
 - TypeScript (`.ts`, `.tsx`)
@@ -17,7 +17,7 @@ Astro uses Snowpack as its internal build system. Snowpack provides Astro with 
 - Markdown (`.md`)
 - WASM (`.wasm`)
 
-Any files in your `public/` directory are copied into the final build, untouched by Snowpack or Astro. The following applies to files in your `src/` directory, which Astro is ultimately responsible for.
+Any files in your `public/` directory are copied into the final build, untouched by Vite or Astro. The following applies to files in your `src/` directory, which Astro is ultimately responsible for.
 
 ## JavaScript & ESM
 
@@ -120,7 +120,7 @@ import ReactDOM from 'react-dom';
 
 Astro lets you import npm packages directly in the browser. Even if a package was published using a legacy format, Astro will up-convert the package to ESM before serving it to the browser.
 
-When you start up your dev server or run a new build, you may see a message that Snowpack is "installing dependencies". This means that Snowpack is converting your dependencies to run in the browser. This needs to run only once, or until you next change your dependency tree by adding or removing dependencies.
+When you start up your dev server or run a new build, you may see a message that Vite is "installing dependencies". This means that Vite is converting your dependencies to run in the browser. This needs to run only once, or until you next change your dependency tree by adding or removing dependencies.
 
 ## Node Builtins
 
