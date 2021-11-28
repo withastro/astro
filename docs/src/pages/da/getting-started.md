@@ -33,7 +33,7 @@ npm init astro -- --template [GITHUB_BRUGER]/[REPO_NAVN]/sti/til/eksempel
 
 Hvis du er interesseret i at lege med Astro i browseren, kan du straks starte et nyt Astro projekt med vores brugerflade på [astro.new](https://astro.new/).
 
-Du kan prøve Astro i online kodeeditorer som Stackblitz, CodeSandbox, Gitpod eller GitHub Codespaces. Klik på "Open in Stackblitz" linket i et af eksemplerne i vores [liste af eksempler](https://github.com/snowpackjs/astro/tree/main/examples). Eller, [klik her](https://stackblitz.com/fork/astro) for at starte et nyt projekt i [Stackblitz](https://stackblitz.com/fork/astro).
+Du kan prøve Astro i online kodeeditorer som Stackblitz, CodeSandbox, Gitpod eller GitHub Codespaces. Klik på "Open in Stackblitz" linket i et af eksemplerne i vores [liste af eksempler](https://github.com/withastro/astro/tree/main/examples). Eller, [klik her](https://stackblitz.com/fork/astro) for at starte et nyt projekt i [Stackblitz](https://stackblitz.com/fork/astro).
 
 ## Lær Astro
 
