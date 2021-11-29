@@ -10,12 +10,6 @@ on:
       - 'docs/**'
       - 'examples/**'
       - 'www/**'
-  pull_request_target:
-    paths-ignore:
-      - '.vscode/**'
-      - 'docs/**'
-      - 'examples/**'
-      - 'www/**'
 
 permissions:
   checks: write
