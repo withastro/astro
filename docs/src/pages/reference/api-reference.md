@@ -277,7 +277,7 @@ interface RSSArgument {
 
 > In this section we use `[dot]` to mean `.`. This is because of a bug in our build engine that is rewriting `import[dot]meta[dot]env` if we use `.` instead of `[dot]`.
 
-All ESM modules include a `import.meta` property. Astro adds `import[dot]meta[dot]env` through [Snowpack](https://www.snowpack.dev/).
+All ESM modules include a `import.meta` property. Astro adds `import[dot]meta[dot]env` through [Vite](https://vitejs.dev/guide/env-and-mode.html).
 
 **`import[dot]meta[dot]env[dot]SSR`** can be used to know when rendering on the server. Sometimes you might want different logic, for example a component that should only be rendered in the client:
 
