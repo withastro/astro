@@ -234,7 +234,7 @@ async function handleMessage(payload) {
                     // can't use querySelector with `[href*=]` here since the link may be
                     // using relative paths so we need to use link.href to grab the full
                     // URL for the include check.
-                    const el = [].slice.call(document.querySelectorAll(`link`)).find((e) => e.href.includes(path));
+                    const el = Array.from(document.querySelectorAll('link')).find((e) => e.href.includes(path));
                     if (el) {
                         const newPath = `${base}${path.slice(1)}${path.includes('?') ? '&' : '?'}t=${timestamp}`;
                         el.href = new URL(newPath, el.href).href;

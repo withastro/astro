@@ -4613,7 +4613,7 @@ function parse($TEXT, options) {
             }
             if (S.token.value == "import" && !is_token(peek(), "punc", "(") && !is_token(peek(), "punc", ".")) {
                 next();
-                var node = import_();
+                var node = import_statement();
                 semicolon();
                 return node;
             }
@@ -4765,7 +4765,7 @@ function parse($TEXT, options) {
               case "export":
                 if (!is_token(peek(), "punc", "(")) {
                     next();
-                    var node = export_();
+                    var node = export_statement();
                     if (is("punc", ";")) semicolon();
                     return node;
                 }
@@ -5942,7 +5942,7 @@ function parse($TEXT, options) {
         };
 
         const is_not_method_start = () =>
-            !is("punc", "(") && !is("punc", ",") && !is("punc", "}") && !is("operator", "=");
+            !is("punc", "(") && !is("punc", ",") && !is("punc", "}") && !is("punc", ";") && !is("operator", "=");
 
         var is_async = false;
         var is_static = false;
@@ -6057,7 +6057,15 @@ function parse($TEXT, options) {
         }
     }
 
-    function import_() {
+    function maybe_import_assertion() {
+        if (is("name", "assert") && !has_newline_before(S.token)) {
+            next();
+            return object_or_destructuring_();
+        }
+        return null;
+    }
+
+    function import_statement() {
         var start = prev();
 
         var imported_name;
@@ -6080,16 +6088,20 @@ function parse($TEXT, options) {
             unexpected();
         }
         next();
+
+        const assert_clause = maybe_import_assertion();
+
         return new AST_Import({
-            start: start,
-            imported_name: imported_name,
-            imported_names: imported_names,
+            start,
+            imported_name,
+            imported_names,
             module_name: new AST_String({
                 start: mod_str,
                 value: mod_str.value,
                 quote: mod_str.quote,
                 end: mod_str,
             }),
+            assert_clause,
             end: S.token,
         });
     }
@@ -6197,7 +6209,7 @@ function parse($TEXT, options) {
         return names;
     }
 
-    function export_() {
+    function export_statement() {
         var start = S.token;
         var is_default;
         var exported_names;
@@ -6215,6 +6227,8 @@ function parse($TEXT, options) {
                 }
                 next();
 
+                const assert_clause = maybe_import_assertion();
+
                 return new AST_Export({
                     start: start,
                     is_default: is_default,
@@ -6226,6 +6240,7 @@ function parse($TEXT, options) {
                         end: mod_str,
                     }),
                     end: prev(),
+                    assert_clause
                 });
             } else {
                 return new AST_Export({
@@ -6271,6 +6286,7 @@ function parse($TEXT, options) {
             exported_value: exported_value,
             exported_definition: exported_definition,
             end: prev(),
+            assert_clause: null
         });
     }
 
@@ -7604,12 +7620,13 @@ var AST_NameMapping = DEFNODE("NameMapping", "foreign_name name", {
     },
 });
 
-var AST_Import = DEFNODE("Import", "imported_name imported_names module_name", {
+var AST_Import = DEFNODE("Import", "imported_name imported_names module_name assert_clause", {
     $documentation: "An `import` statement",
     $propdoc: {
         imported_name: "[AST_SymbolImport] The name of the variable holding the module's default export.",
         imported_names: "[AST_NameMapping*] The names of non-default imported variables",
         module_name: "[AST_String] String literal describing where this module came from",
+        assert_clause: "[AST_Object?] The import assertion"
     },
     _walk: function(visitor) {
         return visitor._visit(this, function() {
@@ -7638,14 +7655,15 @@ var AST_ImportMeta = DEFNODE("ImportMeta", null, {
     $documentation: "A reference to import.meta",
 });
 
-var AST_Export = DEFNODE("Export", "exported_definition exported_value is_default exported_names module_name", {
+var AST_Export = DEFNODE("Export", "exported_definition exported_value is_default exported_names module_name assert_clause", {
     $documentation: "An `export` statement",
     $propdoc: {
         exported_definition: "[AST_Defun|AST_Definitions|AST_DefClass?] An exported definition",
         exported_value: "[AST_Node?] An exported value",
         exported_names: "[AST_NameMapping*?] List of exported names",
         module_name: "[AST_String?] Name of the file to load exports from",
-        is_default: "[Boolean] Whether this is the default exported value of this module"
+        is_default: "[Boolean] Whether this is the default exported value of this module",
+        assert_clause: "[AST_Object?] The import assertion"
     },
     _walk: function (visitor) {
         return visitor._visit(this, function () {
@@ -8898,6 +8916,24 @@ def_transform(AST_PrefixedTemplateString, function(self, tw) {
         return body;
     };
 
+    const assert_clause_from_moz = (assertions) => {
+        if (assertions && assertions.length > 0) {
+            return new AST_Object({
+                start: my_start_token(assertions),
+                end: my_end_token(assertions),
+                properties: assertions.map((assertion_kv) =>
+                    new AST_ObjectKeyVal({
+                        start: my_start_token(assertion_kv),
+                        end: my_end_token(assertion_kv),
+                        key: assertion_kv.key.name || assertion_kv.key.value,
+                        value: from_moz(assertion_kv.value)
+                    })
+                )
+            });
+        }
+        return null;
+    };
+
     var MOZ_TO_ME = {
         Program: function(M) {
             return new AST_Toplevel({
@@ -9218,7 +9254,8 @@ def_transform(AST_PrefixedTemplateString, function(self, tw) {
                 end         : my_end_token(M),
                 imported_name: imported_name,
                 imported_names : imported_names,
-                module_name : from_moz(M.source)
+                module_name : from_moz(M.source),
+                assert_clause: assert_clause_from_moz(M.assertions)
             });
         },
         ExportAllDeclaration: function(M) {
@@ -9231,7 +9268,8 @@ def_transform(AST_PrefixedTemplateString, function(self, tw) {
                         foreign_name: new AST_SymbolExportForeign({ name: "*" })
                     })
                 ],
-                module_name: from_moz(M.source)
+                module_name: from_moz(M.source),
+                assert_clause: assert_clause_from_moz(M.assertions)
             });
         },
         ExportNamedDeclaration: function(M) {
@@ -9245,7 +9283,8 @@ def_transform(AST_PrefixedTemplateString, function(self, tw) {
                         name: from_moz(specifier.local)
                     });
                 }) : null,
-                module_name: from_moz(M.source)
+                module_name: from_moz(M.source),
+                assert_clause: assert_clause_from_moz(M.assertions)
             });
         },
         ExportDefaultDeclaration: function(M) {
@@ -9537,12 +9576,30 @@ def_transform(AST_PrefixedTemplateString, function(self, tw) {
         };
     });
 
+    const assert_clause_to_moz = assert_clause => {
+        const assertions = [];
+        if (assert_clause) {
+            for (const { key, value } of assert_clause.properties) {
+                const key_moz = is_basic_identifier_string(key)
+                    ? { type: "Identifier", name: key }
+                    : { type: "Literal", value: key, raw: JSON.stringify(key) };
+                assertions.push({
+                    type: "ImportAttribute",
+                    key: key_moz,
+                    value: to_moz(value)
+                });
+            }
+        }
+        return assertions;
+    };
+
     def_to_moz(AST_Export, function To_Moz_ExportDeclaration(M) {
         if (M.exported_names) {
             if (M.exported_names[0].name.name === "*") {
                 return {
                     type: "ExportAllDeclaration",
-                    source: to_moz(M.module_name)
+                    source: to_moz(M.module_name),
+                    assertions: assert_clause_to_moz(M.assert_clause)
                 };
             }
             return {
@@ -9555,7 +9612,8 @@ def_transform(AST_PrefixedTemplateString, function(self, tw) {
                     };
                 }),
                 declaration: to_moz(M.exported_definition),
-                source: to_moz(M.module_name)
+                source: to_moz(M.module_name),
+                assertions: assert_clause_to_moz(M.assert_clause)
             };
         }
         return {
@@ -9589,7 +9647,8 @@ def_transform(AST_PrefixedTemplateString, function(self, tw) {
         return {
             type: "ImportDeclaration",
             specifiers: specifiers,
-            source: to_moz(M.module_name)
+            source: to_moz(M.module_name),
+            assertions: assert_clause_to_moz(M.assert_clause)
         };
     });
 
@@ -10146,6 +10205,48 @@ function is_some_comments(comment) {
     );
 }
 
+class Rope {
+    constructor() {
+        this.committed = "";
+        this.current = "";
+    }
+
+    append(str) {
+        this.current += str;
+    }
+
+    insertAt(char, index) {
+        const { committed, current } = this;
+        if (index < committed.length) {
+            this.committed = committed.slice(0, index) + char + committed.slice(index);
+        } else if (index === committed.length) {
+            this.committed += char;
+        } else {
+            index -= committed.length;
+            this.committed += current.slice(0, index) + char;
+            this.current = current.slice(index);
+        }
+    }
+
+    charAt(index) {
+        const { committed } = this;
+        if (index < committed.length) return committed[index];
+        return this.current[index - committed.length];
+    }
+
+    curLength() {
+        return this.current.length;
+    }
+
+    length() {
+        return this.committed.length + this.current.length;
+    }
+
+    toString() {
+        return this.committed + this.current;
+    }
+}
+
 function OutputStream(options) {
 
     var readonly = !options;
@@ -10210,7 +10311,7 @@ function OutputStream(options) {
     var current_col = 0;
     var current_line = 1;
     var current_pos = 0;
-    var OUTPUT = "";
+    var OUTPUT = new Rope();
     let printed_comments = new Set();
 
     var to_utf8 = options.ascii_only ? function(str, identifier) {
@@ -10341,19 +10442,18 @@ function OutputStream(options) {
     var ensure_line_len = options.max_line_len ? function() {
         if (current_col > options.max_line_len) {
             if (might_add_newline) {
-                var left = OUTPUT.slice(0, might_add_newline);
-                var right = OUTPUT.slice(might_add_newline);
+                OUTPUT.insertAt("\n", might_add_newline);
+                const curLength = OUTPUT.curLength();
                 if (mappings) {
-                    var delta = right.length - current_col;
+                    var delta = curLength - current_col;
                     mappings.forEach(function(mapping) {
                         mapping.line++;
                         mapping.col += delta;
                     });
                 }
-                OUTPUT = left + "\n" + right;
                 current_line++;
                 current_pos++;
-                current_col = right.length;
+                current_col = curLength;
             }
         }
         if (might_add_newline) {
@@ -10387,13 +10487,13 @@ function OutputStream(options) {
 
             if (prev === ":" && ch === "}" || (!ch || !";}".includes(ch)) && prev !== ";") {
                 if (options.semicolons || requireSemicolonChars.has(ch)) {
-                    OUTPUT += ";";
+                    OUTPUT.append(";");
                     current_col++;
                     current_pos++;
                 } else {
                     ensure_line_len();
                     if (current_col > 0) {
-                        OUTPUT += "\n";
+                        OUTPUT.append("\n");
                         current_pos++;
                         current_line++;
                         current_col = 0;
@@ -10417,7 +10517,7 @@ function OutputStream(options) {
                 || (ch == "/" && ch == prev)
                 || ((ch == "+" || ch == "-") && ch == last)
             ) {
-                OUTPUT += " ";
+                OUTPUT.append(" ");
                 current_col++;
                 current_pos++;
             }
@@ -10435,7 +10535,7 @@ function OutputStream(options) {
             if (!might_add_newline) do_add_mapping();
         }
 
-        OUTPUT += str;
+        OUTPUT.append(str);
         has_parens = str[str.length - 1] == "(";
         current_pos += str.length;
         var a = str.split(/\r?\n/), n = a.length - 1;
@@ -10475,15 +10575,15 @@ function OutputStream(options) {
 
     var newline = options.beautify ? function() {
         if (newline_insert < 0) return print("\n");
-        if (OUTPUT[newline_insert] != "\n") {
-            OUTPUT = OUTPUT.slice(0, newline_insert) + "\n" + OUTPUT.slice(newline_insert);
+        if (OUTPUT.charAt(newline_insert) != "\n") {
+            OUTPUT.insertAt("\n", newline_insert);
             current_pos++;
             current_line++;
         }
         newline_insert++;
     } : options.max_line_len ? function() {
         ensure_line_len();
-        might_add_newline = OUTPUT.length;
+        might_add_newline = OUTPUT.length();
     } : noop;
 
     var semicolon = options.beautify ? function() {
@@ -10549,13 +10649,14 @@ function OutputStream(options) {
         if (might_add_newline) {
             ensure_line_len();
         }
-        return OUTPUT;
+        return OUTPUT.toString();
     }
 
     function has_nlb() {
-        let n = OUTPUT.length - 1;
+        const output = OUTPUT.toString();
+        let n = output.length - 1;
         while (n >= 0) {
-            const code = OUTPUT.charCodeAt(n);
+            const code = output.charCodeAt(n);
             if (code === CODE_LINE_BREAK) {
                 return true;
             }
@@ -10692,7 +10793,7 @@ function OutputStream(options) {
             !/comment[134]/.test(c.type)
         ))) return;
         printed_comments.add(comments);
-        var insert = OUTPUT.length;
+        var insert = OUTPUT.length();
         comments.filter(comment_filter, node).forEach(function(c, i) {
             if (printed_comments.has(c)) return;
             printed_comments.add(c);
@@ -10721,7 +10822,7 @@ function OutputStream(options) {
                 need_space = true;
             }
         });
-        if (OUTPUT.length > insert) newline_insert = insert;
+        if (OUTPUT.length() > insert) newline_insert = insert;
     }
 
     var stack = [];
@@ -10751,7 +10852,7 @@ function OutputStream(options) {
             var encoded = encode_string(str, quote);
             if (escape_directive === true && !encoded.includes("\\")) {
                 // Insert semicolons to break directive prologue
-                if (!EXPECT_DIRECTIVE.test(OUTPUT)) {
+                if (!EXPECT_DIRECTIVE.test(OUTPUT.toString())) {
                     force_semicolon();
                 }
                 force_semicolon();
@@ -11607,6 +11708,10 @@ function OutputStream(options) {
             output.space();
         }
         self.module_name.print(output);
+        if (self.assert_clause) {
+            output.print("assert");
+            self.assert_clause.print(output);
+        }
         output.semicolon();
     });
     DEFPRINT(AST_ImportMeta, function(self, output) {
@@ -11671,6 +11776,10 @@ function OutputStream(options) {
             output.print("from");
             output.space();
             self.module_name.print(output);
+        }
+        if (self.assert_clause) {
+            output.print("assert");
+            self.assert_clause.print(output);
         }
         if (self.exported_value
                 && !(self.exported_value instanceof AST_Defun ||
@@ -13222,6 +13331,8 @@ AST_Toplevel.DEFMETHOD("mangle_names", function(options) {
     }
 
     const mangled_names = this.mangled_names = new Set();
+    unmangleable_names = new Set();
+
     if (options.cache) {
         this.globals.forEach(collect);
         if (options.cache.props) {
@@ -13274,7 +13385,6 @@ AST_Toplevel.DEFMETHOD("mangle_names", function(options) {
     this.walk(tw);
 
     if (options.keep_fnames || options.keep_classnames) {
-        unmangleable_names = new Set();
         // Collect a set of short names which are unmangleable,
         // for use in avoiding collisions in next_mangled.
         to_mangle.forEach(def => {
@@ -13290,9 +13400,9 @@ AST_Toplevel.DEFMETHOD("mangle_names", function(options) {
     unmangleable_names = null;
 
     function collect(symbol) {
-        const should_mangle = !options.reserved.has(symbol.name)
-            && !(symbol.export & MASK_EXPORT_DONT_MANGLE);
-        if (should_mangle) {
+        if (symbol.export & MASK_EXPORT_DONT_MANGLE) {
+            unmangleable_names.add(symbol.name);
+        } else if (!options.reserved.has(symbol.name)) {
             to_mangle.push(symbol);
         }
     }
@@ -14330,6 +14440,7 @@ const is_pure_native_fn = make_nested_lookup({
         "isExtensible",
         "isFrozen",
         "isSealed",
+        "hasOwn",
         "keys",
     ],
     String: [
@@ -19357,7 +19468,7 @@ def_optimize(AST_Switch, function(self, compressor) {
     // that way the next micro-optimization will merge them.
     // ** bail micro-optimization if not a simple switch case with breaks
     if (body.every((branch, i) =>
-        (branch === default_or_exact || !branch.expression.has_side_effects(compressor))
+        (branch === default_or_exact || branch.expression instanceof AST_Constant)
         && (branch.body.length === 0 || aborts(branch) || body.length - 1 === i))
     ) {
         for (let i = 0; i < body.length; i++) {
@@ -19445,12 +19556,16 @@ def_optimize(AST_Switch, function(self, compressor) {
 
 
     // Prune side-effect free branches that fall into default.
-    if (default_or_exact) {
+    DEFAULT: if (default_or_exact) {
         let default_index = body.indexOf(default_or_exact);
         let default_body_index = default_index;
         for (; default_body_index < body.length - 1; default_body_index++) {
             if (!is_inert_body(body[default_body_index])) break;
         }
+        if (default_body_index < body.length - 1) {
+            break DEFAULT;
+        }
+
         let side_effect_index = body.length - 1;
         for (; side_effect_index >= 0; side_effect_index--) {
             let branch = body[side_effect_index];
@@ -20497,16 +20612,16 @@ def_optimize(AST_UnaryPostfix, function(self, compressor) {
 
 def_optimize(AST_UnaryPrefix, function(self, compressor) {
     var e = self.expression;
-    if (self.operator == "delete"
-        && !(e instanceof AST_SymbolRef
-            || e instanceof AST_PropAccess
-            || is_identifier_atom(e))) {
-        if (e instanceof AST_Sequence) {
-            const exprs = e.expressions.slice();
-            exprs.push(make_node(AST_True, self));
-            return make_sequence(self, exprs).optimize(compressor);
-        }
-        return make_sequence(self, [ e, make_node(AST_True, self) ]).optimize(compressor);
+    if (
+        self.operator == "delete" &&
+        !(
+            e instanceof AST_SymbolRef ||
+            e instanceof AST_PropAccess ||
+            e instanceof AST_Chain ||
+            is_identifier_atom(e)
+        )
+    ) {
+        return make_sequence(self, [e, make_node(AST_True, self)]).optimize(compressor);
     }
     var seq = self.lift_sequences(compressor);
     if (seq !== self) {
@@ -21338,7 +21453,15 @@ function is_reachable(self, defs) {
         if (node instanceof AST_Scope && node !== self) {
             var parent = info.parent();
 
-            if (parent instanceof AST_Call && parent.expression === node) return;
+            if (
+                parent instanceof AST_Call
+                && parent.expression === node
+                // Async/Generators aren't guaranteed to sync evaluate all of
+                // their body steps, so it's possible they close over the variable.
+                && !(node.async || node.is_generator)
+            ) {
+                return;
+            }
 
             if (walk(node, find_ref)) return walk_abort;
 
@@ -21990,7 +22113,16 @@ def_optimize(AST_Sub, function(self, compressor) {
 });
 
 def_optimize(AST_Chain, function (self, compressor) {
-    if (is_nullish(self.expression, compressor)) return make_node(AST_Undefined, self);
+    if (is_nullish(self.expression, compressor)) {
+        let parent = compressor.parent();
+        // It's valid to delete a nullish optional chain, but if we optimized
+        // this to `delete undefined` then it would appear to be a syntax error
+        // when we try to optimize the delete. Thankfully, `delete 0` is fine.
+        if (parent instanceof AST_UnaryPrefix && parent.operator === "delete") {
+            return make_node_from_constant(0, self);
+        }
+        return make_node(AST_Undefined, self);
+    }
     return self;
 });
 
