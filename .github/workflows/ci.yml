@@ -26,6 +26,10 @@ on:
       - 'examples/**'
       - 'www/**'
 
+permissions:
+  checks: write
+  contents: read
+
 # Automatically cancel in-progress actions on the same branch
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github. head_ref || github.ref }}
