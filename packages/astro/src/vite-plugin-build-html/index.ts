@@ -13,6 +13,7 @@ import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, g
 import { isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory, hasSrcSet } from './util.js';
 import { render as ssrRender } from '../core/ssr/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
+import { viteifyURL } from '../core/util.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
@@ -69,6 +70,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
       for (const [component, pageData] of Object.entries(allPages)) {
         const [renderers, mod] = pageData.preload;
 
+        // Hydrated components are statically identified.
         for (const path of mod.$$metadata.getAllHydratedComponentPaths()) {
           jsInput.add(path);
         }
@@ -138,6 +140,10 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               const src = getAttribute(node, 'src');
               if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
                 astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
+              } else if(src?.startsWith(srcRootWeb) && !astroAssetMap.has(src)) {
+                const resolved = new URL('.' + src, astroConfig.projectRoot);
+                const id = viteifyURL(resolved);
+                astroAssetMap.set(src, fs.readFile(new URL(`file://${id}`)));
               }
             }
 
@@ -146,6 +152,10 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               for (const { url } of candidates) {
                 if (url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
                   astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
+                } else if(url.startsWith(srcRootWeb) && !astroAssetMap.has(url)) {
+                  const resolved = new URL('.' + url, astroConfig.projectRoot);
+                  const id = viteifyURL(resolved);
+                  astroAssetMap.set(url, fs.readFile(new URL(`file://${id}`)));
                 }
               }
             }
@@ -347,7 +357,11 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             }
             remove(script);
           } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
-            const src = getAttribute(script, 'src');
+            let src = getAttribute(script, 'src');
+            // If this is projectRoot relative, get the fullpath to match the facadeId.
+            if(src?.startsWith(srcRootWeb)) {
+              src = new URL('.' + src, astroConfig.projectRoot).pathname;
+            }
             // On windows the facadeId doesn't start with / but does not Unix :/
             if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
               const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));

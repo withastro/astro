@@ -57,6 +57,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
         // result passed to esbuild, but also available in the catch handler.
         tsResult = await transform(source, {
           as: isPage ? 'document' : 'fragment',
+          projectRoot: config.projectRoot.toString(),
           site: config.buildOptions.site,
           sourcefile: id,
           sourcemap: 'both',
