@@ -11,8 +11,98 @@ on:
       - 'examples/**'
       - 'www/**'
 
+permissions:
+  checks: write
+  contents: read
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
+  # Lint can run in parallel with Build.
+  # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
+  lint:
+    name: Lint
+    # Lint cannot run on forks, so just skip those! See https://github.com/wearerequired/lint-action/issues/13
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+
+      - name: Install NPM Dependencies
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        env:
+          CI: true
+      
+      - name: Status
+        run: git status
+
+      - name: Lint
+        uses: wearerequired/lint-action@v1.10.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          eslint: true
+          eslint_args: --ignore-pattern test --ignore-pattern vendor
+          eslint_dir: packages/astro
+          eslint_extensions: ts
+          prettier: true
+          auto_fix: true
+          git_name: GitHub Action
+          git_email: github-action@users.noreply.github.com
+          commit_message: '[ci] ${linter} fix'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          neutral_check_on_warning: true
+
+  # Build installs all devDependencies and runs our full build pipeline.
+  # We upload all `dist/` artifacts to GitHub, which can be shared by all dependent jobs.
   build:
+    name: Build Packages
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+
+      - name: Install NPM Dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        env:
+          CI: true
+
+      - name: Build Packages
+        run: yarn build:all
+
+      - name: Upload Package Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifacts
+          path: packages/**/dist/*
+          if-no-files-found: error
+  
+  # Test depends on Build's output, which allows us to skip any build process!
+  # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
+  test:
+    name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -24,86 +114,114 @@ jobs:
           - os: macos-latest
             node_version: 16
       fail-fast: false
-    env:
-      LANG: en-us
-    name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
+    needs:
+      - build
     steps:
-      - name: Check out code using Git
+      - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set Node version to ${{ matrix.node_version }}
+      - name: Setup node@${{ matrix.node_version }}
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node_version }}
           cache: 'yarn'
 
-      - name: Debug
-        run: yarn versions
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v2
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-engines
+      - name: Extract Artifacts
+        run: ./.github/extract-artifacts.sh
 
-      - name: Build Astro
-        run: yarn build:all
+      - name: Install NPM Dependencies
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        env:
+          CI: true
 
       - name: Test
         run: yarn test
 
-  lint:
+  smoke:
+    name: 'Smoke Test: ${{ matrix.target }}'
     runs-on: ubuntu-latest
-    name: 'Lint: node-16, ubuntu-latest'
+    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
+    strategy:
+      matrix:
+        target: [docs, www]
+    needs:
+      - build
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v2
 
-      - name: Set Node version to 16
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: 16
           cache: 'yarn'
 
-      - name: Debug
-        run: yarn versions
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v2
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-engines
+      - name: Extract Artifacts
+        run: ./.github/extract-artifacts.sh
+
+      - name: Install NPM Dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        env:
+          CI: true
 
       - name: Build
-        run: yarn build:all
+        run: yarn build
+        working-directory: ${{ matrix.target }}
 
-      - name: Lint
-        run: yarn lint
+  # Changelog can only run _after_ Build and Test.
+  # We download all `dist/` artifacts from GitHub to skip the build process.
+  changelog:
+    name: Changelog PR or Release
+    if: ${{ !contains(github.event.head_commit.message, '[skip-ci]') && github.ref_name == 'main' && github.repository_owner == 'withastro' }}
+    needs: [lint, test, smoke]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
-  # NOTE: temporarily disabled until `next` branch can build docs again
-  # smoke:
-  #   runs-on: ubuntu-latest
-  #   name: 'Smoke: node-14, ubuntu-latest'
-  #   steps:
-  #     - name: Check out code using Git
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+      
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v2
 
-  #     - name: Set Node version to 16
-  #       uses: actions/setup-node@v2
-  #       with:
-  #         node-version: 16
-  #         cache: 'yarn'
+      - name: Extract Artifacts
+        run: ./.github/extract-artifacts.sh
 
-  #     - name: Debug
-  #       run: yarn versions
+      - name: Install NPM Dependencies
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        env:
+          CI: true
+      
+      - name: Create Release Pull Request or Publish
+        id: changesets
+        uses: changesets/action@master
+        with:
+          publish: changeset publish
+          commit: '[ci] release'
+          title: '[ci] release'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-  #     - name: Install dependencies
-  #       run: yarn install --frozen-lockfile --ignore-engines
+      - name: Generate Notification
+        id: notification
+        if: steps.changesets.outputs.published == 'true'
+        run: message=$(node scripts/notify/index.js '${{ steps.changesets.outputs.publishedPackages }}') && echo ::set-output name=message::${message//$'\n'/'%0A'}
 
-  #     - name: Build
-  #       run: yarn build:all
-
-  #     - name: "Smoke Test: Build 'docs'"
-  #       run: yarn build
-  #       working-directory: ./docs
-
-  #     - name: "Smoke Test: Build 'www'"
-  #       run: yarn build
-  #       working-directory: ./www
+      - name: Discord Notification
+        if: steps.changesets.outputs.published == 'true'
+        id: discord-notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@0.3.2
+        with:
+          args: ${{ steps.notification.outputs.message }}

@@ -4,3 +4,5 @@
 !packages/astro/**/*.ts
 packages/astro/test/**/*.js
 packages/astro/vendor/vite/**/*
+.github
+.changeset
