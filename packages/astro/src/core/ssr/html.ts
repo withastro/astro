@@ -27,8 +27,9 @@ export function injectTags(html: string, tags: vite.HtmlTagDescriptor[]): string
   const lastToFirst = Object.entries(pos).sort((a, b) => b[1] - a[1]);
   lastToFirst.forEach(([name, i]) => {
     if (i === -1) {
-      // TODO: warn on missing tag? Is this an HTML partial?
-      return;
+      // if page didn’t generate <head> or <body>, guess
+      if (name === 'head-prepend' || name === 'head') i = 0;
+      if (name === 'body-prepend' || name === 'body') i = html.length;
     }
     let selected = tags.filter(({ injectTo }) => {
       if (name === 'head-prepend' && !injectTo) {

@@ -146,7 +146,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
   const probableRendererNames = guessRenderers(metadata.componentUrl);
 
   if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string') {
-    const message = `Unable to render ${metadata.displayName}! 
+    const message = `Unable to render ${metadata.displayName}!
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
 Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`;
@@ -384,7 +384,13 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
   if (needsHydrationStyles) {
     styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
   }
-  return template.replace('</head>', styles.join('\n') + scripts.join('\n') + '</head>');
+
+  // inject styles & scripts at end of <head>
+  let headPos = template.indexOf('</head>');
+  if (headPos === -1) {
+    return styles.join('\n') + scripts.join('\n') + template; // if no </head>, prepend styles & scripts
+  }
+  return template.substring(0, headPos) + styles.join('\n') + scripts.join('\n') + template.substring(headPos);
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
