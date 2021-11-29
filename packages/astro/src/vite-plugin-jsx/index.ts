@@ -10,6 +10,7 @@ import * as eslexer from 'es-module-lexer';
 import path from 'path';
 import { error } from '../core/logger.js';
 import { parseNpmName } from '../core/util.js';
+import { isSSR } from '../vite-common/util.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, Renderer>>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx']);
@@ -23,21 +24,6 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 // The `tsx` loader in esbuild will remove unused imports, so we need to
 // be careful about esbuild not treating h, React, Fragment, etc. as unused.
 const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
-
-// This check on a flexible "options" object is needed because Vite uses this flexible argument for ssr.
-// More context: https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
-function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
-  if (options === undefined) {
-    return false;
-  }
-  if (typeof options === 'boolean') {
-    return options;
-  }
-  if (typeof options == 'object') {
-    return !!options.ssr;
-  }
-  return false;
-}
 
 function getEsbuildLoader(fileExt: string): string {
   return fileExt.substr(1);

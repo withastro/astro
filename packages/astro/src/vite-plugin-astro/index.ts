@@ -10,24 +10,11 @@ import os from 'os';
 import { transform } from '@astrojs/compiler';
 import { AstroDevServer } from '../core/dev/index.js';
 import { getViteTransform, TransformHook, transformWithVite } from './styles.js';
+import { isSSR } from '../vite-common/util.js';
 
 interface AstroPluginOptions {
   config: AstroConfig;
   devServer?: AstroDevServer;
-}
-
-// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
-function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
-  if (options === undefined) {
-    return false;
-  }
-  if (typeof options === 'boolean') {
-    return options;
-  }
-  if (typeof options == 'object') {
-    return !!options.ssr;
-  }
-  return false;
 }
 
 /** Transform .astro files for Vite */

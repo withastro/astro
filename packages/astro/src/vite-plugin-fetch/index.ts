@@ -1,19 +1,6 @@
 import type { Plugin } from '../core/vite';
 import MagicString from 'magic-string';
-
-// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
-function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
-  if (options === undefined) {
-    return false;
-  }
-  if (typeof options === 'boolean') {
-    return options;
-  }
-  if (typeof options == 'object') {
-    return !!options.ssr;
-  }
-  return false;
-}
+import { isSSR } from '../vite-common/util.js';
 
 // This matches any JS-like file (that we know of)
 // See https://regex101.com/r/Cgofir/1
