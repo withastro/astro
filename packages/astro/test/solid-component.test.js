@@ -2,22 +2,50 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-  fixture = await loadFixture({
-    projectRoot: './fixtures/solid-component/',
-    renderers: ['@astrojs/renderer-solid'],
-  });
-  await fixture.build();
-});
-
 describe('Solid component', () => {
-  it('Can load a component', async () => {
-    const html = await fixture.readFile('/index.html');
-    const $ = cheerio.load(html);
+  let fixture;
 
-    // test 1: Works
-    expect($('.hello')).to.have.lengthOf(1);
+  before(async () => {
+    fixture = await loadFixture({
+      projectRoot: './fixtures/solid-component/',
+      renderers: ['@astrojs/renderer-solid'],
+    });
+  });
+
+  describe('build', () => {
+    before(async () => {
+      await fixture.build();
+    });
+
+    it('Can load a component', async () => {
+      const html = await fixture.readFile('/index.html');
+      const $ = cheerio.load(html);
+
+      // test 1: Works
+      expect($('.hello')).to.have.lengthOf(1);
+    });
+  });
+
+  describe('dev', () => {
+    let devServer;
+
+    before(async () => {
+      devServer = await fixture.startDevServer();
+    });
+
+    after(async () => {
+      devServer & devServer.stop();
+    });
+
+    it('scripts proxy correctly', async () => {
+      const html = await fixture.fetch('/').then((res) => res.text());
+      const $ = cheerio.load(html);
+
+      for (const script of $('script').toArray()) {
+        const { src } = script.attribs;
+        if (!src) continue;
+        expect((await fixture.fetch(src)).status, `404: ${src}`).to.equal(200);
+      }
+    });
   });
 });
