@@ -29,7 +29,7 @@ jobs:
   # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
   lint:
     name: Lint
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }} && ${{ !contains(github.event.head_commit.message, '[skip-ci]') }}
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
