@@ -2,6 +2,7 @@ import type { AstroConfig } from '../@types/astro';
 import type { ErrorPayload } from 'vite';
 import eol from 'eol';
 import path from 'path';
+import fs from 'fs';
 import slash from 'slash';
 import { fileURLToPath, pathToFileURL } from 'url';
 import resolve from 'resolve';
@@ -82,4 +83,11 @@ export function resolveDependency(dep: string, astroConfig: AstroConfig) {
  */
 export function viteifyURL(filePath: URL): string {
   return slash(fileURLToPath(filePath));
+}
+
+export function isFile(fileUrl: URL): boolean {
+  try {
+    return fs.statSync(fileURLToPath(fileUrl)).isFile();
+  } catch (e) {}
+  return false;
 }

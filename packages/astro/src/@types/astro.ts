@@ -196,6 +196,11 @@ export interface ManifestData {
   routes: RouteData[];
 }
 
+export interface BuildManifestData {
+  routes: RouteData[];
+  urls: Set<string>;
+}
+
 export type MarkdownParser = (contents: string, options?: Record<string, any>) => MarkdownParserResponse | PromiseLike<MarkdownParserResponse>;
 
 export interface MarkdownParserResponse {

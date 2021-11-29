@@ -99,7 +99,7 @@ export async function cli(args: string[]) {
   const flags = yargs(args);
   const state = resolveArgs(flags);
   const options = { ...state.options };
-  const projectRoot = options.projectRoot || flags._[3];
+  const projectRoot = options.projectRoot;
 
   // logLevel
   let logging: LogOptions = {
@@ -143,7 +143,8 @@ export async function cli(args: string[]) {
     }
     case 'build': {
       try {
-        await build(config, { logging });
+        const input = flags._.slice(3);
+        await build(config, { logging, input });
         process.exit(0);
       } catch (err) {
         throwAndExit(err);

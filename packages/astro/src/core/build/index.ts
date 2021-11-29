@@ -1,4 +1,4 @@
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, BuildManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 import type { AllPagesData } from './types';
 import type { RenderedChunk } from 'rollup';
@@ -9,18 +9,20 @@ import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import vite, { ViteDevServer } from '../vite.js';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
-import { debug, defaultLogOptions, info, levels, timerMessage, warn } from '../logger.js';
+import { debug, defaultLogOptions, info, levels, timerMessage, warn, error } from '../logger.js';
 import { preload as ssrPreload } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generateRssFunction } from '../ssr/rss.js';
 import { generateSitemap } from '../ssr/sitemap.js';
+import { viteifyURL, isFile } from '../util.js';
 
 export interface BuildOptions {
   mode?: string;
   logging: LogOptions;
+  input?: string[];
 }
 
 /** `astro build` */
@@ -33,6 +35,8 @@ class AstroBuilder {
   private config: AstroConfig;
   private logging: LogOptions;
   private mode = 'production';
+  private input: string[] = [];
+  private isIncremental: boolean;
   private origin: string;
   private routeCache: RouteCache = {};
   private manifest: ManifestData;
@@ -40,16 +44,91 @@ class AstroBuilder {
   private viteConfig?: ViteConfigWithSSR;
 
   constructor(config: AstroConfig, options: BuildOptions) {
-    if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
-      warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
-    }
-
     if (options.mode) this.mode = options.mode;
     this.config = config;
     const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
     this.logging = options.logging;
     this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${port}`;
     this.manifest = createRouteManifest({ config }, this.logging);
+    this.input = options.input ?? [];
+    this.isIncremental = this.input.length > 0;
+
+    if (!this.isIncremental && !config.buildOptions.site && config.buildOptions.sitemap !== false) {
+      warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
+    }
+  }
+
+  private isPage(fileUrl: string|URL): boolean {
+    const normalizedID = fileURLToPath(fileUrl);
+    return normalizedID.startsWith(fileURLToPath(this.config.pages));
+  }
+
+  // Build Manifest is a sparse version of Route Manifest.
+  // It only contains the routes that should be rebuilt for incremental builds.
+  async getBuildManifest(): Promise<BuildManifestData> {
+    if (!this.isIncremental) {
+      return { ...this.manifest, urls: new Set() };
+    }
+
+    const manifest: BuildManifestData = { routes: [], urls: new Set() };
+    const pages = new Set<string>();
+    const nonPages = new Set<string>();
+
+    await Promise.all(this.input.map(async (input) => {
+      // Attempt: does this URL pathname match a known route?
+      const match = this.manifest.routes.find(route => route.pattern.test(input));
+      if (match) {
+        pages.add(match.component);
+        manifest.urls.add(input);
+        return;
+      }
+
+      // Attempt: input is a likely pathname, let's also try to match /index
+      if (input.startsWith('/') && input.indexOf('.') === -1) {
+        const matchIndex = this.manifest.routes.find(route => route.pattern.test(`${input}/index`));
+        if (matchIndex) {
+          pages.add(matchIndex.component);
+          manifest.urls.add(`${input}/`);
+          return;
+        }
+
+        error(this.logging, '404', `${input}`);
+        return;
+      }
+
+      // Attempt: this input is a file URL relative to the site root
+      const fileUrl = new URL(`./${input.replace(/^\.?\//, '')}`, this.config.projectRoot);
+      if (!isFile(fileUrl)) {
+        error(this.logging, '404', `${input}`);
+        return;
+      }
+
+      if (this.isPage(fileUrl)) {
+        pages.add(fileUrl.toString().replace(this.config.projectRoot.toString(), ''));
+      } else {
+        nonPages.add(fileUrl.toString().replace(this.config.projectRoot.toString(), ''))
+      }
+    }))
+
+    // Run ssrLoadModule for any pages we don't know we have to rebuild
+    // This will populate the moduleGraph
+    if (nonPages.size > 0) {
+      // TODO: use `ssrPreload` instead of calling `ssrLoadModule` directly
+      await Promise.all(this.manifest.routes.map(route => pages.has(route.component) ? null : this.viteServer?.ssrLoadModule(viteifyURL(new URL(route.component, this.config.projectRoot))))); 
+      await Promise.all(Array.from(nonPages.values()).map(file => {
+        const fileUrl = new URL(`./${file.replace(/^\.\//, '')}`, this.config.projectRoot);
+        const module = this.viteServer?.moduleGraph.getModuleById(viteifyURL(fileUrl));
+        const importers = module?.importers ?? new Set();
+        for (const importer of importers) {
+          if (importer.file && this.isPage(pathToFileURL(importer.file))) {
+            pages.add(pathToFileURL(importer.file).toString().replace(this.config.projectRoot.toString(), ''));
+          }
+        }
+      }))
+    }
+
+    manifest.routes = this.manifest.routes.filter(route => pages.has(route.component))
+    return manifest;
   }
 
   async build() {
@@ -78,12 +157,20 @@ class AstroBuilder {
     timer.loadStart = performance.now();
     const assets: Record<string, string> = {};
     const allPages: AllPagesData = {};
+    timer.manifestStart = performance.now();
+    const manifest = await this.getBuildManifest();
+    debug(logging, 'build', timerMessage('Generated Build Manifest', timer.manifestStart));
+
+    if (this.isIncremental && manifest.routes.length === 0) {
+      process.exit(1);
+    }
+
     // Collect all routes ahead-of-time, before we start the build.
     // NOTE: This enforces that `getStaticPaths()` is only called once per route,
     // and is then cached across all future SSR builds. In the past, we've had trouble
     // with parallelized builds without guaranteeing that this is called first.
     await Promise.all(
-      this.manifest.routes.map(async (route) => {
+      manifest.routes.map(async (route) => {
         // static route:
         if (route.pathname) {
           allPages[route.component] = {
@@ -130,9 +217,28 @@ class AstroBuilder {
           }
           assets[fileURLToPath(rssFile)] = result.rss.xml;
         }
+        
+        let paths: string[] = [];
+        if (manifest.urls.size > 0) {
+          const urls = Array.from(manifest.urls);
+          paths = result.paths.filter(p => urls.find(url => p.replace(/\/$/, '').startsWith(url.replace(/\/\*?$/, ''))));
+        } else {
+          paths = result.paths;    
+        }
+    
+
+        if (paths.length === 0) {
+          if (manifest.urls.size === 1) {
+            error(this.logging, '404', `${route.component} was matched but \`getStaticPaths\` did not return "${manifest.urls.values().next().value}"`);
+          } else {
+            error(this.logging, '404', `${route.component} was matched but \`getStaticPaths\` did not return any of the specified URLs'`);
+          }
+          return;
+        }
+
         allPages[route.component] = {
           route,
-          paths: result.paths,
+          paths,
           preload: await ssrPreload({
             astroConfig: this.config,
             filePath: new URL(`./${route.component}`, this.config.projectRoot),
@@ -148,6 +254,10 @@ class AstroBuilder {
       })
     );
     debug(logging, 'build', timerMessage('All pages loaded', timer.loadStart));
+
+    if (this.isIncremental && Object.keys(allPages).length === 0) {
+      process.exit(1);
+    }
 
     // Pure CSS chunks are chunks that only contain CSS.
     // This is all of them, and chunkToReferenceIdMap maps them to a hash id used to find the final file.
@@ -201,7 +311,7 @@ class AstroBuilder {
         }),
         ...(viteConfig.plugins || []),
       ],
-      publicDir: viteConfig.publicDir,
+      publicDir: this.isIncremental ? false : viteConfig.publicDir,
       root: viteConfig.root,
       server: viteConfig.server,
       base: this.config.buildOptions.site ? new URL(this.config.buildOptions.site).pathname : '/',
@@ -219,15 +329,18 @@ class AstroBuilder {
     });
     debug(logging, 'build', timerMessage('Additional assets copied', timer.assetsStart));
 
-    // Build your final sitemap.
-    timer.sitemapStart = performance.now();
-    if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
-      const sitemap = generateSitemap(pageNames.map((pageName) => new URL(`/${pageName}`, this.config.buildOptions.site).href));
-      const sitemapPath = new URL('./sitemap.xml', this.config.dist);
-      await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
-      await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
+    // TODO: should this be updated incrementally rather than skipped?
+    if (!this.isIncremental) {
+      // Build your final sitemap.
+      timer.sitemapStart = performance.now();
+      if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
+        const sitemap = generateSitemap(pageNames.map((pageName) => new URL(`/${pageName}`, this.config.buildOptions.site).href));
+        const sitemapPath = new URL('./sitemap.xml', this.config.dist);
+        await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
+        await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
+      }
+      debug(logging, 'build', timerMessage('Sitemap built', timer.sitemapStart));
     }
-    debug(logging, 'build', timerMessage('Sitemap built', timer.sitemapStart));
 
     // You're done! Time to clean up.
     await viteServer.close();
@@ -259,7 +372,7 @@ class AstroBuilder {
     const buildTime = performance.now() - timeStart;
     const total = buildTime < 750 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
     const perPage = `${Math.round(buildTime / pageCount)}ms`;
-    info(logging, 'build', `${pageCount} pages built in ${colors.bold(total)} ${colors.dim(`(${perPage}/page)`)}`);
+    info(logging, 'build', `${pageCount} ${pageCount === 1 ? 'page' : 'pages'} ${this.isIncremental ? 'rebuilt' : 'built'} in ${colors.bold(total)} ${pageCount > 1 ? colors.dim(`(${perPage}/page)`) : ''}`.trim());
     info(logging, 'build', `🚀 ${colors.cyan(colors.bold('Done'))}`);
   }
 }
