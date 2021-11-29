@@ -203,9 +203,9 @@ jobs:
       
       - name: Create Release Pull Request or Publish
         id: changesets
-        uses: changesets/action@master
+        uses: changesets/action@v1
         with:
-          publish: changeset publish
+          publish: yarn changeset publish
           commit: '[ci] release'
           title: '[ci] release'
         env:
