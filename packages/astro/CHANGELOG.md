@@ -1,5 +1,19 @@
 # astro
 
+## 0.21.5
+
+### Patch Changes
+
+- 341ec3cd: Fixes dev errors in hydrated components
+
+  The errors would occur when there was state changes in hydrated components. This only occurs in dev but does result in the hydrated component not working. This fixes the underlying issue.
+
+- 4436592d: Fix crash with unexpected file types in pages directory
+- 50f3b8d7: Bugfix: improve style and script injection for partial pages
+- fad6bd09: Fixes use of `PUBLIC_` to reference env vars
+
+  Previously `PUBLIC_` worked in server-only components such as .astro components. However if you had a client-side component you had to use `VITE_`. This was a bug with our build that is now fixed.
+
 ## 0.21.4
 
 ### Patch Changes
