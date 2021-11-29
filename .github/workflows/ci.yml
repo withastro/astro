@@ -45,7 +45,9 @@ jobs:
         run: git status
 
       - name: Debug
-        run: echo ${{ github.event_name }}
+        run: |
+          echo ${{ github.event_name }}
+          echo ${{ github.head_ref }}
 
       - name: Lint
         uses: wearerequired/lint-action@v1
