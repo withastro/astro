@@ -38,38 +38,55 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
     }).pipe(res);
   });
 
-  // Start listening on `hostname:port`.
   let port = config.devOptions.port;
   const { hostname } = config.devOptions;
-  await new Promise<http.Server>((resolve, reject) => {
-    const onError = (err: NodeJS.ErrnoException) => {
-      if (err.code && err.code === 'EADDRINUSE') {
-        info(logging, 'astro', msg.portInUse({ port }));
-        port++;
-      } else {
-        error(logging, 'preview', err.stack);
-        server.removeListener('error', onError);
-        reject(err);
-      }
-    };
+  let httpServer: http.Server;
 
-    server
-      .listen(port, hostname, () => {
-        info(logging, 'preview', msg.devStart({ startupTime: performance.now() - startServerTime }));
-        info(logging, 'preview', msg.devHost({ host: `http://${hostname}:${port}${base}` }));
-        resolve(server);
-      })
-      .on('error', (err: NodeJS.ErrnoException) => {
-        process.exit(1);
-      });
-  });
+  /** Expose dev server to `port` */
+  function startServer(timerStart: number): Promise<void> {
+    let showedPortTakenMsg = false;
+    let showedListenMsg = false;
+    return new Promise<void>((resolve, reject) => {
+      const listen = () => {
+        httpServer = server.listen(port, hostname, () => {
+          if (!showedListenMsg) {
+            info(logging, 'astro', msg.devStart({ startupTime: performance.now() - timerStart }));
+            info(logging, 'astro', msg.devHost({ host: `http://${hostname}:${port}${base}` }));
+          }
+          showedListenMsg = true;
+          resolve();
+        });
+        httpServer?.on('error', onError);
+      };
+
+      const onError = (err: NodeJS.ErrnoException) => {
+        if (err.code && err.code === 'EADDRINUSE') {
+          if (!showedPortTakenMsg) {
+            info(logging, 'astro', msg.portInUse({ port }));
+            showedPortTakenMsg = true; // only print this once
+          }
+          port++;
+          return listen(); // retry
+        } else {
+          error(logging, 'astro', err.stack);
+          httpServer?.removeListener('error', onError);
+          reject(err); // reject
+        }
+      };
+
+      listen();
+    });
+  }
+
+  // Start listening on `hostname:port`.
+  await startServer(startServerTime);
 
   return {
     hostname,
     port,
-    server,
+    server: httpServer!,
     stop: async () => {
-      server.close();
+      httpServer.close();
     },
   };
 }
