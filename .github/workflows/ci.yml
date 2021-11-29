@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - main
+      - next
+  pull_request:
+    branches:
+      - main
+      - next
   pull_request_target:
     branches:
-      - "*"
+      - main
+      - next
 
 
 permissions:
@@ -31,7 +37,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository ✨ (push)
-        if: ${{ github.event_name == 'push' || github.event_name == 'pull_request_target' || github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
+        if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner) && !contains(github.event.head_commit.message, '[skip-ci]' }}
         uses: actions/checkout@v2
 
       - name: Check out repository 🎉 (pull_request_target)
