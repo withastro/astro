@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-  pull_request_target:
+  pull_request:
     paths-ignore:
       - '.vscode/**'
       - 'docs/**'
@@ -13,7 +13,7 @@ on:
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github. head_ref || github.ref }}
   cancel-in-progress: true
 
 defaults:
@@ -43,6 +43,9 @@ jobs:
       
       - name: Status
         run: git status
+
+      - name: Debug
+        run: echo ${{ github.event_name }}
 
       - name: Lint
         uses: wearerequired/lint-action@v1
