@@ -184,7 +184,7 @@ describe('route manifest', () => {
     ]);
   });
 
- it('ignores invalid route extensions', () => {
+  it('ignores invalid route extensions', () => {
     const { routes } = create('invalid-extension', 'always');
     expect(cleanRoutes(routes)).to.deep.equal([
       {
