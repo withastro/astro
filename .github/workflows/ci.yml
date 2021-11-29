@@ -4,16 +4,18 @@ on:
   push:
     branches:
       - main
-      - next
   pull_request:
-    branches:
-      - main
-      - next
+    paths-ignore:
+      - '.vscode/**'
+      - 'docs/**'
+      - 'examples/**'
+      - 'www/**'
   pull_request_target:
-    branches:
-      - main
-      - next
-
+    paths-ignore:
+      - '.vscode/**'
+      - 'docs/**'
+      - 'examples/**'
+      - 'www/**'
 
 permissions:
   checks: write
@@ -21,7 +23,7 @@ permissions:
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github. head_ref || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request_target' && github.head_ref || github.ref }}
   cancel-in-progress: true
 
 defaults:
@@ -33,19 +35,11 @@ jobs:
   # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
   lint:
     name: Lint
-    if: ${{ !contains(github.event.head_commit.message, '[skip-ci]' }}
+    if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner) && !contains(github.event.head_commit.message, '[skip-ci]' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Check out repository ✨ (push)
-        if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner) && !contains(github.event.head_commit.message, '[skip-ci]' }}
+      - name: Check out repository
         uses: actions/checkout@v2
-
-      - name: Check out repository 🎉 (pull_request_target)
-        if: ${{ github.event_name == 'pull_request_target' }}
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -62,18 +56,20 @@ jobs:
         run: git status
 
       - name: Lint
-        uses: wearerequired/lint-action@v1
+        uses: wearerequired/lint-action@v1.10.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          auto_fix: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           eslint: true
           eslint_args: --ignore-pattern test --ignore-pattern vendor
           eslint_dir: packages/astro
           eslint_extensions: ts
           prettier: true
-          git_name: github-actions[bot]
-          git_email: github-actions[bot]@users.noreply.github.com
+          auto_fix: true
+          git_name: GitHub Action
+          git_email: github-action@users.noreply.github.com
           commit_message: '[ci] ${linter} fix'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           neutral_check_on_warning: true
 
   # Build installs all devDependencies and runs our full build pipeline.
