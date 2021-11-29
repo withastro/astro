@@ -42,7 +42,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
   const { hostname } = config.devOptions;
   let httpServer: http.Server;
 
-  /** Expose dev server to this.port */
+  /** Expose dev server to `port` */
   function startServer(timerStart: number): Promise<void> {
     let showedPortTakenMsg = false;
     let showedListenMsg = false;
