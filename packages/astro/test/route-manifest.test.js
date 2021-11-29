@@ -184,6 +184,27 @@ describe('route manifest', () => {
     ]);
   });
 
+ it('ignores invalid route extensions', () => {
+    const { routes } = create('invalid-extension', 'always');
+    expect(cleanRoutes(routes)).to.deep.equal([
+      {
+        type: 'page',
+        pattern: /^\/$/,
+        params: [],
+        component: 'invalid-extension/index.astro',
+        pathname: '/',
+      },
+
+      {
+        type: 'page',
+        pattern: /^\/about\/$/,
+        params: [],
+        component: 'invalid-extension/about.astro',
+        pathname: '/about',
+      },
+    ]);
+  });
+
   it('allows multiple slugs', () => {
     const { routes } = create('multiple-slugs', 'always');
 
