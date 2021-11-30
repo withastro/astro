@@ -77,9 +77,9 @@ export function resolveDependency(dep: string, astroConfig: AstroConfig) {
  * Vite-ify URL
  * Given a file URL, return an ID that matches Vite’s module graph. Needed for resolution and stack trace fixing.
  * Must match the following format:
- * Linux/Mac:  /Users/astro/code/my-project/src/pages/index.astro
- * Windows:    C:/Users/astro/code/my-project/src/pages/index.astro
+ * Linux/Mac:  /@fs/Users/astro/code/my-project/src/pages/index.astro
+ * Windows:    /@fs/C:/Users/astro/code/my-project/src/pages/index.astro
  */
 export function viteifyURL(filePath: URL): string {
-  return slash(fileURLToPath(filePath));
+  return `/@fs${filePath.pathname}`;
 }
