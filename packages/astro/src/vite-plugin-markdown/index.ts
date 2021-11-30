@@ -57,7 +57,7 @@ ${setup}`.trim();
           site: config.buildOptions.site,
           sourcefile: id,
           sourcemap: 'inline',
-          internalURL: 'astro/internal'
+          internalURL: 'astro/internal',
         });
 
         tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};

@@ -140,7 +140,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               const src = getAttribute(node, 'src');
               if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
                 astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
-              } else if(src?.startsWith(srcRootWeb) && !astroAssetMap.has(src)) {
+              } else if (src?.startsWith(srcRootWeb) && !astroAssetMap.has(src)) {
                 const resolved = new URL('.' + src, astroConfig.projectRoot);
                 const assetId = viteifyURL(resolved);
                 astroAssetMap.set(src, fs.readFile(new URL(`file://${assetId}`)));
@@ -152,7 +152,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               for (const { url } of candidates) {
                 if (url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
                   astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
-                } else if(url.startsWith(srcRootWeb) && !astroAssetMap.has(url)) {
+                } else if (url.startsWith(srcRootWeb) && !astroAssetMap.has(url)) {
                   const resolved = new URL('.' + url, astroConfig.projectRoot);
                   const assetId = viteifyURL(resolved);
                   astroAssetMap.set(url, fs.readFile(new URL(`file://${assetId}`)));
@@ -359,7 +359,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
             let src = getAttribute(script, 'src');
             // If this is projectRoot relative, get the fullpath to match the facadeId.
-            if(src?.startsWith(srcRootWeb)) {
+            if (src?.startsWith(srcRootWeb)) {
               src = new URL('.' + src, astroConfig.projectRoot).pathname;
             }
             // On windows the facadeId doesn't start with / but does not Unix :/

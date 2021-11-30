@@ -299,7 +299,7 @@ export function createAstro(fileURLStr: string, site: string, projectRootStr: st
       let resolved = segments.reduce((u, segment) => new URL(segment, u), url).pathname;
       // When inside of project root, remove the leading path so you are
       // left with only `/src/images/tower.png`
-      if(resolved.startsWith(projectRoot.pathname)) {
+      if (resolved.startsWith(projectRoot.pathname)) {
         resolved = '/' + resolved.substr(projectRoot.pathname.length);
       }
       return resolved;
