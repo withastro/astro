@@ -15,6 +15,7 @@ import preview from '../dist/core/preview/index.js';
  * @property {typeof build} build
  * @property {(url: string, opts: any) => Promise<Response>} fetch
  * @property {(path: string) => Promise<string>} readFile
+ * @property {(path: string) => Promise<string[]>} readdir
  * @property {() => Promise<DevServer>} startDevServer
  */
 
@@ -59,7 +60,8 @@ export async function loadFixture(inlineConfig) {
     build: (opts = {}) => build(config, { mode: 'development', logging: 'error', ...opts }),
     startDevServer: async (opts = {}) => {
       const devServer = await dev(config, { logging: 'error', ...opts });
-      inlineConfig.devOptions.port = devServer.port; // update port
+      config.devOptions.port = devServer.port; // update port
+      inlineConfig.devOptions.port = devServer.port;
       return devServer;
     },
     config,
@@ -70,6 +72,7 @@ export async function loadFixture(inlineConfig) {
       return previewServer;
     },
     readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
+    readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
   };
 }
 

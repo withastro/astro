@@ -1,0 +1,83 @@
+name: Main Checks
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# Automatically cancel in-progress actions on the same branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  congrats:
+    name: congratsbot
+    if: ${{ github.repository_owner == 'withastro' && !contains(github.event.head_commit.message, '[skip-ci]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: setup
+        run:  |
+              TRIMMED=$(echo "${{ github.event.commits[0].message }}" | sed '1!d;q')
+              echo "::set-output name=COMMIT_MSG::${TRIMMED}" 
+      - name: Send a Discord notification when a PR is merged
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
+          # DISCORD_AVATAR: ${{ github.event.pull_request.user.avatar_url }}
+        uses: Ilshidur/action-discord@0.3.2
+        with:
+          args: '**Sweet!** <${{ github.event.commits[0].author.name }}> just merged ["\"${{ steps.setup.outputs.COMMIT_MSG }}\""](<https://github.com/withastro/astro/commits/main>) ```${{ github.event.commits[0].message }}```'
+
+  check_for_update:
+    name: Check for Updates
+    runs-on: ubuntu-latest
+    outputs:
+      run_job: ${{ steps.check_files.outputs.run_job }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'yarn'
+
+      - name: Install NPM Dependencies
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        env:
+          CI: true
+      
+      - name: Check Modified
+        run: yarn changeset status --output ./status.json
+
+      - name: Check Output
+        id: check_files
+        run: | 
+          output=`echo $(cat status.json)`
+          if [[ $output = '{ "changesets": [], "releases": [] }' ]]
+          then
+            echo 'No changeset found'
+            echo "::set-output name=run_job::true"
+          else
+            echo 'changes found, push to latest skipped'
+            echo "::set-output name=run_job::false"
+          fi
+  
+  update:
+    name: Update the latest branch
+    needs: check_for_update
+    if: needs.check_for_update.outputs.run_job == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: latest

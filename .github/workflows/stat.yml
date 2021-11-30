@@ -7,7 +7,7 @@ on:
 
 jobs:
   stat:
-    if: github.repository == 'withastro/astro'
+    if: github.repository_owner == 'withastro'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code using Git

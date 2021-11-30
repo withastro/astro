@@ -203,6 +203,7 @@ class AstroBuilder {
       ],
       publicDir: viteConfig.publicDir,
       root: viteConfig.root,
+      envPrefix: 'PUBLIC_',
       server: viteConfig.server,
       base: this.config.buildOptions.site ? new URL(this.config.buildOptions.site).pathname : '/',
     });

@@ -56982,8 +56982,10 @@ const devHtmlHook = async (html, { path: htmlPath, server, originalUrl }) => {
                     .join('');
                 // add HTML Proxy to Map
                 addToHTMLProxyCache(config, url, scriptModuleIndex, contents);
-                // inline js module. convert to src="proxy"
-                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${config.base + url.slice(1)}?html-proxy&index=${scriptModuleIndex}.js"></script>`);
+                const modulePath = `${config.base + htmlPath.slice(1)}?html-proxy&index=${scriptModuleIndex}.js`;
+                // invalidate the module so the newly cached contents will be served
+                server === null || server === void 0 ? void 0 : server.moduleGraph.invalidateId(config.root + modulePath);
+                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${modulePath}"></script>`);
             }
         }
         // elements with [href/src] attrs
@@ -57112,6 +57114,12 @@ class ModuleGraph {
         mod.transformResult = null;
         mod.ssrTransformResult = null;
         invalidateSSRModule(mod, seen);
+    }
+    invalidateId(id) {
+        const mod = this.idToModuleMap.get(id);
+        if (mod) {
+            this.invalidateModule(mod);
+        }
     }
     invalidateAll() {
         const seen = new Set();

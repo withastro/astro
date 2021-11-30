@@ -225,11 +225,6 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
   let html = await renderPage(result, Component, pageProps, null);
 
-  // inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-  if (!/<!doctype html/i.test(html)) {
-    html = '<!DOCTYPE html>\n' + html;
-  }
-
   // inject tags
   const tags: vite.HtmlTagDescriptor[] = [];
 
@@ -272,6 +267,11 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
   // run transformIndexHtml() in dev to run Vite dev transformations
   if (mode === 'development') {
     html = await viteServer.transformIndexHtml(viteifyURL(filePath), html, pathname);
+  }
+
+  // inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
+  if (!/<!doctype html/i.test(html)) {
+    html = '<!DOCTYPE html>\n' + html;
   }
 
   return html;

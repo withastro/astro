@@ -168,6 +168,7 @@ export const SIDEBAR = {
     { text: 'クイックスタート', link: 'ja/quick-start' },
     { text: 'インストール', link: 'ja/installation' },
     { text: 'テーマ', link: 'ja/themes' },
+    { text: 'Astro vs. X', link: 'ja/comparing-astro-vs-other-tools' },
   ],
   ru: [
     { text: 'Введение', header: true },

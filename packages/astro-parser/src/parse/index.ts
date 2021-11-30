@@ -29,7 +29,7 @@ export class Parser {
   js: Script[] = [];
   meta_tags = {};
   last_auto_closed_tag?: LastAutoClosedTag;
-  feature_flags: number = 0;
+  feature_flags = 0;
 
   constructor(template: string, options: ParserOptions) {
     if (typeof template !== 'string') {

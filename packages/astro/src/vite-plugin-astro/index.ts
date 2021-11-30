@@ -6,7 +6,6 @@ import type { AstroConfig } from '../@types/astro';
 import esbuild from 'esbuild';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import os from 'os';
 import { transform } from '@astrojs/compiler';
 import { AstroDevServer } from '../core/dev/index.js';
 import { getViteTransform, TransformHook, transformWithVite } from './styles.js';
@@ -32,13 +31,11 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
 
 /** Transform .astro files for Vite */
 export default function astro({ config, devServer }: AstroPluginOptions): vite.Plugin {
-  let platform: NodeJS.Platform;
   let viteTransform: TransformHook;
   return {
     name: '@astrojs/vite-plugin-astro',
     enforce: 'pre', // run transforms before other plugins can
     configResolved(resolvedConfig) {
-      platform = os.platform(); // TODO: remove macOS hack
       viteTransform = getViteTransform(resolvedConfig);
     },
     // note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
@@ -52,6 +49,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
       const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
       let source = await fs.promises.readFile(id, 'utf8');
       let tsResult: TransformResult | undefined;
+      let cssTransformError: Error | undefined;
 
       try {
         // Transform from `.astro` to valid `.ts`
@@ -65,22 +63,28 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           internalURL: 'astro/internal',
           preprocessStyle: async (value: string, attrs: Record<string, string>) => {
             const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
-            const result = await transformWithVite({ value, lang, id, transformHook: viteTransform, ssr: isSSR(opts) });
-            if (!result) {
-              // TODO: compiler supports `null`, but types don't yet
-              return result as any;
-            }
-            let map: SourceMapInput | undefined;
-            if (result.map) {
-              if (typeof result.map === 'string') {
-                map = result.map;
-              } else if (result.map.mappings) {
-                map = result.map.toString();
+            try {
+              const result = await transformWithVite({ value, lang, id, transformHook: viteTransform, ssr: isSSR(opts) });
+              let map: SourceMapInput | undefined;
+              if (!result) return null as any; // TODO: add type in compiler to fix "any"
+              if (result.map) {
+                if (typeof result.map === 'string') {
+                  map = result.map;
+                } else if (result.map.mappings) {
+                  map = result.map.toString();
+                }
               }
+              return { code: result.code, map };
+            } catch (err) {
+              // save error to throw in plugin context
+              cssTransformError = err as any;
+              return null;
             }
-            return { code: result.code, map };
           },
         });
+
+        // throw CSS transform errors here if encountered
+        if (cssTransformError) throw cssTransformError;
 
         // Compile `.ts` to `.js`
         const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
