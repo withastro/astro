@@ -86,6 +86,7 @@ interface Item {
 export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?: string }, logging: LogOptions): ManifestData {
   const components: string[] = [];
   const routes: RouteData[] = [];
+  const validExtensions: Set<string> = new Set(['.astro', '.md']);
 
   function walk(dir: string, parentSegments: Part[][], parentParams: string[]) {
     let items: Item[] = [];
@@ -104,7 +105,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
         return;
       }
       // filter out "foo.astro_tmp" files, etc
-      if (!isDir && !/^(\.[a-z0-9]+)+$/i.test(ext)) {
+      if (!isDir && !validExtensions.has(ext)) {
         return;
       }
       const segment = isDir ? basename : name;

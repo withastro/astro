@@ -42,6 +42,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@changesets/changelog-github": "^0.4.2",
     "@changesets/cli": "^2.16.0",
     "@octokit/action": "^3.15.4",
     "@typescript-eslint/eslint-plugin": "^5.0.0",

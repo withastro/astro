@@ -14,7 +14,7 @@ Astro lets you use any Markdown parser you want. It just needs to be a function 
 // astro.config.mjs
 export default {
   markdownOptions: {
-    parser: [
+    render: [
       'parser-name', // or import('parser-name') or (contents) => {...}
       {
         // options
@@ -47,7 +47,7 @@ If you want to add a plugin, you need to install the npm package dependency in y
 // astro.config.mjs
 export default {
   markdownOptions: {
-    parser: [
+    render: [
       '@astrojs/markdown-remark',
       {
         remarkPlugins: [
@@ -73,7 +73,7 @@ You can provide names of the plugins as well as import them:
 // astro.config.mjs
 export default {
   markdownOptions: {
-    parser: [
+    render: [
       '@astrojs/markdown-remark',
       {
         remarkPlugins: [
