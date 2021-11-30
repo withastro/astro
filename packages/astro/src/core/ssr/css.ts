@@ -9,27 +9,23 @@ export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.postcss', '.scss', '
 /** find unloaded styles */
 export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
   const css = new Set<string>();
-  const { idToModuleMap } = viteServer.moduleGraph;
   const rootID = viteifyURL(filePath);
-  const moduleGraph = idToModuleMap.get(rootID);
-  if (!moduleGraph) return css;
 
   // recursively crawl module graph to get all style files imported by parent id
   function crawlCSS(entryModule: string, scanned = new Set<string>()) {
-    const moduleName = idToModuleMap.get(entryModule);
-    if (!moduleName) return;
-    if (!moduleName.id) return;
+    const moduleName = viteServer.moduleGraph.urlToModuleMap.get(entryModule);
+    if (!moduleName || !moduleName.id) return;
     // mark the entrypoint as scanned to avoid an infinite loop
-    scanned.add(moduleName.id);
+    scanned.add(moduleName.url);
     for (const importedModule of moduleName.importedModules) {
-      if (!importedModule.id || scanned.has(importedModule.id)) continue;
-      const ext = path.extname(importedModule.id.toLowerCase());
+      if (!importedModule.url || scanned.has(importedModule.url)) continue;
+      const ext = path.extname(importedModule.url.toLowerCase());
       if (STYLE_EXTENSIONS.has(ext)) {
-        css.add(importedModule.url || importedModule.id); // if style file, add to list
+        css.add(importedModule.url); // if style file, add to list
       } else {
-        crawlCSS(importedModule.id, scanned); // otherwise, crawl file to see if it imports any CSS
+        crawlCSS(importedModule.url, scanned); // otherwise, crawl file to see if it imports any CSS
       }
-      scanned.add(importedModule.id);
+      scanned.add(importedModule.url);
     }
   }
   crawlCSS(rootID);
