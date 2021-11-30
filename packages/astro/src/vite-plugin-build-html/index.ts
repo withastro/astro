@@ -142,8 +142,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
                 astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
               } else if(src?.startsWith(srcRootWeb) && !astroAssetMap.has(src)) {
                 const resolved = new URL('.' + src, astroConfig.projectRoot);
-                const id = viteifyURL(resolved);
-                astroAssetMap.set(src, fs.readFile(new URL(`file://${id}`)));
+                const assetId = viteifyURL(resolved);
+                astroAssetMap.set(src, fs.readFile(new URL(`file://${assetId}`)));
               }
             }
 
@@ -154,8 +154,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
                   astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
                 } else if(url.startsWith(srcRootWeb) && !astroAssetMap.has(url)) {
                   const resolved = new URL('.' + url, astroConfig.projectRoot);
-                  const id = viteifyURL(resolved);
-                  astroAssetMap.set(url, fs.readFile(new URL(`file://${id}`)));
+                  const assetId = viteifyURL(resolved);
+                  astroAssetMap.set(url, fs.readFile(new URL(`file://${assetId}`)));
                 }
               }
             }
