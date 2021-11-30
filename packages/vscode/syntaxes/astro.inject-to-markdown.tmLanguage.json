@@ -42,7 +42,7 @@
 									"include": "#frontmatter"
 								},
 								{
-									"begin": "^(?=\\S)|(?!\\G)",
+									"begin": "(?<=^\\s*)(?=\\S)|(?!\\G)",
 									"end": "(?<=\\s*([`~]{3,})\\s*$)(^|\\G)",
 									"patterns": [
 										{
@@ -57,13 +57,13 @@
 			]
 		},
 		"frontmatter": {
-			"begin": "^-{3}\\s*$",
+			"begin": "(^\\s*|(?<=\\s*))-{3}\\s*$",
 			"beginCaptures": {
 				"0": {
 					"name": "punctuation.definition.tag.xi.begin.t"
 				}
 			},
-			"end": "^-{3}\\s*$",
+			"end": "(^\\s*|(?<=\\s*))-{3}\\s*$",
 			"endCaptures": {
 				"0": {
 					"name": "punctuation.definition.tag.xi.end.t"
