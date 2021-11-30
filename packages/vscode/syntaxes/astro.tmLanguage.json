@@ -615,6 +615,16 @@
         }
       ]
     },
+    "string-template-literal": {
+      "begin": "`",
+      "end": "`",
+      "name": "string.quoted.single.html",
+      "patterns": [
+        {
+          "include": "source.tsx#template-substitution-element"
+        }
+      ]
+    },
     "tag-generic-attribute": {
       "match": "(@|\\b)([a-zA-Z\\-:]+)",
       "name": "entity.other.attribute-name.html"
@@ -695,6 +705,9 @@
         },
         {
           "include": "#string-single-quoted"
+        },
+        {
+          "include": "#string-template-literal"
         },
         {
           "include": "#astro-load-directive"
