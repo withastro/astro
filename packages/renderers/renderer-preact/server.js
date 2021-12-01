@@ -25,7 +25,7 @@ function check(Component, props, children) {
 }
 
 function renderToStaticMarkup(Component, props, children) {
-  const html = render(h(Component, { ...props, children: h(StaticHtml, { value: children }), innerHTML: children }));
+  const html = render(h(Component, props, children ? h(StaticHtml, { value: children }) : undefined));
   return { html };
 }
 
