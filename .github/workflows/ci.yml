@@ -25,8 +25,6 @@ jobs:
   # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
   lint:
     name: Lint
-    # Lint cannot run on forks, so just skip those! See https://github.com/wearerequired/lint-action/issues/13
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -46,7 +44,14 @@ jobs:
       - name: Status
         run: git status
 
+      # Lint autofix cannot run on forks, so just skip those! See https://github.com/wearerequired/lint-action/issues/13
+      - name: Lint (External)
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.owner.login != github.repository_owner }}
+        run: yarn lint
+        
+      # Otherwise, run lint autofixer
       - name: Lint
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
         uses: wearerequired/lint-action@v1.10.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
