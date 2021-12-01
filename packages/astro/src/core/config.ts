@@ -47,6 +47,7 @@ export const AstroConfigSchema = z.object({
       gfm: z.boolean().optional(),
       render: z.any().optional().default(['@astrojs/markdown-remark', {}]),
     })
+    .strict()
     .optional()
     .default({}),
   buildOptions: z

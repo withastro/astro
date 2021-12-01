@@ -13,6 +13,12 @@ describe('Config Validation', () => {
     expect(configError instanceof z.ZodError).to.equal(true);
   });
 
+  it('errors when an older markdownOptions format is used', async () => {
+    const configError = await validateConfig({ markdownOptions: { rehypePlugins: ["rehype-autolink-headings"] } }, process.cwd()).catch((err) => err);
+    expect(configError instanceof z.ZodError).to.equal(true);
+    expect(configError.issues[0].message).to.equal("Unrecognized key(s) in object: 'rehypePlugins'")
+  });
+
   it('A validation error can be formatted correctly', async () => {
     const configError = await validateConfig({ buildOptions: { sitemap: 42 } }, process.cwd()).catch((err) => err);
     expect(configError instanceof z.ZodError).to.equal(true);
