@@ -21,7 +21,6 @@ import { createVite } from '../create-vite.js';
 import * as msg from './messages.js';
 import notFoundTemplate, { subpathNotUsedTemplate } from './template/4xx.js';
 import serverErrorTemplate from './template/5xx.js';
-import { viteifyURL } from '../util.js';
 
 export interface DevOptions {
   logging: LogOptions;
@@ -329,14 +328,7 @@ export class AstroDevServer {
       res.end();
     } catch (err: any) {
       const statusCode = 500;
-      const mod = filePath && this.viteServer.moduleGraph.getModuleById(viteifyURL(filePath));
-      if (mod) {
-        for (const m of [mod, ...mod.importedModules]) {
-          this.viteServer.moduleGraph.invalidateModule(m);
-        }
-      } else {
-        this.viteServer.moduleGraph.invalidateAll();
-      }
+      await this.viteServer.moduleGraph.invalidateAll();
       this.viteServer.ws.send({ type: 'error', err });
       let html = serverErrorTemplate({
         statusCode,

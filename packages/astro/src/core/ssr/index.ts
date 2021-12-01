@@ -266,7 +266,8 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
   // run transformIndexHtml() in dev to run Vite dev transformations
   if (mode === 'development') {
-    html = await viteServer.transformIndexHtml(viteifyURL(filePath), html, pathname);
+    const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
+    html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
   }
 
   // inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)

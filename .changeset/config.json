@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@1.6.0/schema.json",
-  "changelog": "@changesets/changelog-github",
+  "changelog": ["@changesets/changelog-github", { "repo": "withastro/astro" }],
   "commit": false,
   "linked": [["astro", "@astrojs/parser"]],
   "access": "public",
