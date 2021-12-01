@@ -1,16 +1,16 @@
-import { h, Fragment } from 'preact';
-import { useStore } from '@nanostores/preact';
+import { createSignal } from 'solid-js';
+import { useStore } from 'solid-nanostores';
 
 import { admins } from '../store/admins.js';
 import { counter, increaseCounter, decreaseCounter } from '../store/counter.js';
 
-const AdminsPreact = () => {
+const AdminsSolid = () => {
   const list = useStore(admins);
   const count = useStore(counter);
 
   return (
     <>
-      <h1>Preact</h1>
+      <h1>Solid</h1>
       <ul>
         {list.map((admin) => (
           <li key={admin.id}>{JSON.stringify(admin, null, 2)}</li>
@@ -25,6 +25,6 @@ const AdminsPreact = () => {
       <br />
     </>
   );
-};
+}
 
-export default AdminsPreact;
+export default AdminsSolid;
