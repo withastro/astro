@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.8.2
+
+### Patch Changes
+
+- 528c6bd: Adds missing dependencies
+
 ## 0.8.1
 
 ### Patch Changes

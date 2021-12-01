@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 0.8.2
+
+### Patch Changes
+
+- a408131: Several fixes for the syntax highlighter
+- Updated dependencies [528c6bd]
+  - @astrojs/language-server@0.8.2
+
 ## 0.8.1
 
 ### Patch Changes
