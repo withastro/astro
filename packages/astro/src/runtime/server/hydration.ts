@@ -75,12 +75,12 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 
           // throw an error if an invalid hydration directive was provided
           if (HydrationDirectives.indexOf(extracted.hydration.directive) < 0) {
-            throw new Error(`Error: invalid hydration directive "${key}". Supported hydration methods: ${HydrationDirectives.map(d => `"client:${d}"`).join(', ')}`)
+            throw new Error(`Error: invalid hydration directive "${key}". Supported hydration methods: ${HydrationDirectives.map((d) => `"client:${d}"`).join(', ')}`);
           }
 
           // throw an error if the query wasn't provided for client:media
           if (extracted.hydration.directive === 'media' && typeof extracted.hydration.value !== 'string') {
-            throw new Error('Error: Media query must be provided for "client:media", similar to client:media="(max-width: 600px)"')
+            throw new Error('Error: Media query must be provided for "client:media", similar to client:media="(max-width: 600px)"');
           }
 
           break;

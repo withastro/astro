@@ -61,7 +61,7 @@ describe('Error display', () => {
 
       // error message contains error
       const body = await res.text();
-      
+
       // error message contains error
       expect(body).to.include('Error: invalid hydration directive');
     });
@@ -76,7 +76,7 @@ describe('Error display', () => {
 
       // error message contains error
       const body = await res.text();
-      
+
       // error message contains error
       expect(body).to.include('Error: Media query must be provided');
     });
