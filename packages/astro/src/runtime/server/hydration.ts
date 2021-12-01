@@ -31,6 +31,8 @@ export function serializeProps(value: any) {
   });
 }
 
+const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
+
 interface ExtractedProps {
   hydration: {
     directive: string;
@@ -40,8 +42,6 @@ interface ExtractedProps {
   } | null;
   props: Record<string | number, any>;
 }
-
-const DIRECTIVES = ['load', 'idle', 'visible', 'media', 'only'];
 
 // Used to extract the directives, aka `client:load` information about a component.
 // Finds these special props and removes them from what gets passed into the component.
@@ -70,12 +70,19 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
           break;
         }
         default: {
-          const directive = key.split(':')[1];
-          if (DIRECTIVES.indexOf(directive) < 0) {
-            throw new Error(`Error: invalid hydration directive "${key}". Supported hydration methods: ${DIRECTIVES.map(d => `"client:${d}"`).join(', ')}`)
-          }
           extracted.hydration.directive = key.split(':')[1];
           extracted.hydration.value = value;
+
+          // throw an error if an invalid hydration directive was provided
+          if (HydrationDirectives.indexOf(extracted.hydration.directive) < 0) {
+            throw new Error(`Error: invalid hydration directive "${key}". Supported hydration methods: ${HydrationDirectives.map(d => `"client:${d}"`).join(', ')}`)
+          }
+
+          // throw an error if the query wasn't provided for client:media
+          if (extracted.hydration.directive === 'media' && typeof extracted.hydration.value !== 'string') {
+            throw new Error('Error: Media query must be provided for "client:media", similar to client:media="(max-width: 600px)"')
+          }
+
           break;
         }
       }
