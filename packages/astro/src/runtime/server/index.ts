@@ -225,7 +225,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
   // This is a custom element without a renderer. Because of that, render it
   // as a string and the user is responsible for adding a script tag for the component definition.
   if (!html && typeof Component === 'string') {
-    html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}${voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`}`);
+    html = await renderAstroComponent(
+      await render`<${Component}${spreadAttributes(props)}${children === undefined && voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`}`
+    );
   }
 
   // This is used to add polyfill scripts to the page, if the renderer needs them.
