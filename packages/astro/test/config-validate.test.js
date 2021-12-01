@@ -14,9 +14,9 @@ describe('Config Validation', () => {
   });
 
   it('errors when an older markdownOptions format is used', async () => {
-    const configError = await validateConfig({ markdownOptions: { rehypePlugins: ["rehype-autolink-headings"] } }, process.cwd()).catch((err) => err);
+    const configError = await validateConfig({ markdownOptions: { rehypePlugins: ['rehype-autolink-headings'] } }, process.cwd()).catch((err) => err);
     expect(configError instanceof z.ZodError).to.equal(true);
-    expect(configError.issues[0].message).to.equal("Unrecognized key(s) in object: 'rehypePlugins'")
+    expect(configError.issues[0].message).to.equal("Unrecognized key(s) in object: 'rehypePlugins'");
   });
 
   it('A validation error can be formatted correctly', async () => {
