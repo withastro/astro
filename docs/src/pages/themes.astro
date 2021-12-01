@@ -31,7 +31,7 @@ import components from '../data/components.json';
     </div>
     <Markdown>
         ## Community Themes
-      
+
         Checkout some themes developed by our community!
     </Markdown>
     <div class="card-grid">
@@ -39,14 +39,14 @@ import components from '../data/components.json';
     </div>
     <Markdown>
         ## Featured Packages
-        
+
         Our package ecosystem is growing! Check out these featured community packages. Search the entire collection [on npm.](https://www.npmjs.com/search?q=keywords%3Aastro-component)
     </Markdown>
     <div class="card-grid">
         {components.community.map((item)=>(<Card data={item} />))}
     </div>
     <Markdown>
-        > Want to see your own work featured? [Share it to Discord!](https://astro.build/chat)  
+        > Want to see your own work featured? [Share it to Discord!](https://astro.build/chat)
         We'll often take our favorites from the `#showcase` channel and post them here.
     </Markdown>
 </Layout>

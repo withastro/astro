@@ -1,67 +1,75 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Einführung
+description: Eine einfache Einführung in Astro
 lang: de
 ---
 
-Astro ist ein moderner Generator für statische Webseiten (SSG). Um mehr über Astro zu erfahren, schau Dir [unsere Homepage](https://astro.build/) an, und lies [unseren Release Blogpost](https://astro.build/blog/introducing-astro).
+Astro ist ein moderner Static-Site-Renderer (auch SSG - Static-Site-Generator). Erfahre worum es bei Astro eigentlich geht auf [unserer Homepage](https://astro.build/), oder lies [unseren Release Blogpost](https://astro.build/blog/introducing-astro).
 
-Diese Seite dient als Übersicht der Astro-Dokumentation und alle damit verbundenen Ressourcen.
+Diese Seite dient als Übersicht für die Astro-Dokumentation und alle damit verbundenen Ressourcen.
 
 ## Astro ausprobieren
 
-Der einfachste Weg, Astro auszuprobieren, ist `npm init astro` in einem neuen Verzeichnis deiner Wahl auszuführen. Der CLI-Wizard hilft Dir dabei, ein neues Astro-Projekt aufzusetzen.
+Der einfachste Weg Astro auszuprobieren ist `npm init astro` in einem neuen Verzeichnis auf deinem Rechner auszuführen. Der CLI-Wizard wird dir helfen ein neues Astro-Projekt aufzusetzen.
 
-Um mit Astro in fünf einfachen Schritten loszulegen, lies [unsere Schnellstart Anleitung](/de/quick-start).
+Um in fünf einfachen Schritten mit Astro loszulegen, lies [unsere Schnellstart-Anleitung](/de/quick-start).
 
-Alternativ kannst Du unsere [Installations Anleitung](/de/installation) für eine ausführliche Beschreibung des Installationsprozesses lesen.
+Alternativ kannst du unsere [Installationsanleitung](/de/installation) lesen, um eine ausführlichere Schritt-für-Schritt-Anleitung zu erhalten.
 
-### Online-Spielplätze
+### Beispiel-Projekte
 
-Falls Du lieber erst einmal mit Astro in Deinem Browser herumspielen willst, kannst Du einen Online-Code-Spielplatz benutzen. Probiere unsere »Hello World«-Vorlage auf [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).
+Falls du Astro lieber anhand von Beispielen kennenlernen möchtest, sieh dir unsere [vollständige Beispiel-Bibliothek](https://github.com/snowpackjs/astro/tree/main/examples) auf GitHub an.
 
-_Hinweis: Einige Funktionen (z.B. Fast Refresh) funktionieren aktuell nur begrenzt auf CodeSandbox._
+Du kanst jedes dieser Beispiele lokal auf deinem Rechner ausprobieren, indem du `npm init astro` mit der CLI-Kennzeichnung `--template` im Terminal aufrufst. Die Kennzeichnung `--template` unterstützt auch externe Vorlagen und Vorlagen der Community.
+
+```bash
+# Rufe den Wizard zur Initialisierung auf und verwende diese offizielle Vorlage
+npm init astro -- --template [OFFIZIELLES_BEISPIEL_NAME]
+# Rufe den Wizard zur Initialisierung auf und verwende diese Community-Vorlage
+npm init astro -- --template [GITHUB_NAME]/[REPO_NAME]
+npm init astro -- --template [GITHUB_NAME]/[REPO_NAME]/pfad/zur/vorlage
+```
+
+### Online-Playgrounds
+
+Falls du Astro gerne in deinem Browser ausprobieren willst, kannst du einen Online-Code-Editor wie z. B. Stackblitz, CodeSandbox, Gitpod oder GitHub Codespaces verwenden. Nutze den "Open in Stackblitz"-Link zu einem beliebigen Besipiel aus unserer [Beispiel-Bibliothek](https://github.com/snowpackjs/astro/tree/main/examples), oder [klicke hier](https://stackblitz.com/fork/astro), um ein neues Projekt in [Stackblitz](https://stackblitz.com/fork/astro) aufzusetzen.
 
 ## Astro lernen
 
-Es kommen eine Menge verschiedener Menschen mit unterschiedlichen Hintergründen und anderen Lernweisen zu Astro. Unabhängig davon, ob Du lieber theoretisch oder praktisch lernst, hoffen wir, dass Dir dieser Abschnitt weiterhilft.
+Verschiedene Menschen mit unterschiedlichen Hintergründen und unterschiedlichen Lernansätzen kommen zu Astro. Gleichgültig ob du einen theoretischen oder einen praktischen Ansatz bevorzugst, wir hoffen, dass dieser Abschnitt hilfreich für dich ist.
 
-- Falls Du lieber **praktisch lernst**, suche Dir ein Beispiel aus unserer [Beispiel Liste](https://github.com/withastro/astro/tree/main/examples) aus und fange direkt an.
+- Falls du **praktisches Lernen** bevorzugst, starte direkt mit ein Beispiel aus unserer [Beispiel-Liste](https://github.com/snowpackjs/astro/tree/main/examples).
+- Falls du bevorzugst **Schritt für Schritt zu lernen**, starte mit unseren [grundlegenden Konzepten und Anleitungen](/core-concepts/project-structure).
 
-- Falls Du lieber **theoretisch lernst**, kannst Du mit unseren [grundlegenden Konzepten und Anleitungen](/core-concepts/project-structure) beginnen.
-
-Wie alle unbekannten Technologien, hat auch Astro eine leichte Lernkurve. Mit ein bisschen Übung und Geduld, sind wir aber _sicher_, dass Du schnell lernst, wie Du mit Astro umgehen kannst.
+Wie jede unbekannte Technik, bringt Astro eine gewisse Lernkurve mit sich. Wir sind jedoch sicher, dass du mit ein bisschen Übung und Geduld schnell lernen _wirst_, wie Astro funktioniert.
 
 ### Lerne die `.astro`-Syntax
 
-When du mit Astro anfängst, wirst Du schnell Dateien mit der Dateiendung `.astro` finden. Das ist die **Astro-Komponenten-Syntax**: ein spezielles, HTML-ähnliches Dateiformat, welches Astro für Vorlagen benutzt. Es wurde angelehnt an HTML und JSX entworfen und sollte jedem, der damit Erfahrung hat, direkt bekannt vorkommen.
+Wenn du anfängst mit Astro zu arbeiten, wirst du viele Dateien mit der Dateiendung `.astro` sehen. Das ist **Astros Komponenten-Syntax**: ein spezielles, HTML-ähnliches Dateiformat, welches Astro für Vorlagen benutzt. Es wurde in Anlehnung an HTML und JSX entworfen und sollte allen, die mit diesen Formaten Erfahrung haben, bekannt vorkommen.
 
-Unsere Anleitung zu [Astro-Komponenten](/core-concepts/astro-components) sollte eine gute Einführung in die Astro-Syntax sein und ist der beste Weg, um diese zu lernen.
+Unsere unterstützende Anleitung zu [Astro-Komponenten](/core-concepts/astro-components) ist eine gute Einführung in die Astro-Syntax - und der beste Weg sie zu lernen.
 
-### API Dokumentation
+### API-Referenz
 
-Dieser Dokumentationsabschnitt sollte für Dich nützlich sein, wenn Du mehr Details über eine bestimme Astro-API erfahren möchtest.
+Dieser Abschnitt der Dokumentation ist nützlich, wenn du weitere Details zu einer bestimmen Astro-API erhalten möchtest. Zum Besipiel listet die [Referenz zur Konfiguration](/reference/configuration-reference) alle möglichen Konfigurationseigenschaften auf, die dir zur Verfügung stehen. Die [Referenz zu integrierten Komponenten](/reference/builtin-components) listet alle verfügbaren Kernkomponenten wie z. B. `<Markdown />` und `<Code />` auf.
 
-So listet z.B. die [Konfigurationsdokumentation](/reference/configuration-reference) alle möglichen Konfigurationseigenschaften auf, die Dir zur Verfügung stehen. In der [Dokumentation über eingebaute Komponenten](/reference/builtin-components) findest Du alle verfügbaren Kernkomponenten wie `<Markdown />` und `<Code />`.
+### Versionsdokumentation
 
-### Versionierte Dokumentation
+Diese Dokumentation ist immer auf dem Stand der letzten _stabilen_ Version von Astro. Sobald wir den v1.0-Meilenstein erreicht haben, werden wir auch die Möglichkeit anbieten eine versionsspezifische Dokumentation einzusehen.
 
-Diese Dokumentation ist immer auf dem Stand der letzten _stable_ Version von Astro. Sobald wir den Meilenstein der Version v1.0 erreicht haben, wollen wir versionierte Dokumentation einführen.
+## Auf dem Laufenden bleiben
 
-## Bleib auf dem Laufenden
+Der [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account ist die offizielle Quelle für Ankündigungen vom Astro-Team.
 
-Unser [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account ist die offizielle Quelle für Neuigkeiten vom Astro-Team.
+Zusätzlich veröffentlichen wir alle Ankündigungen in unserer [Discord-Community](https://astro.build/chat) im `#announcements`-Channel.
 
-Zusätzlich veröffentlichen wir alle Release-Ankündigungen in unserer [Discord Community](https://astro.build/chat) im `#announcements`-Kanal.
-
-Auch wenn nicht jedes Astro-Release einen eigenen Blogpost verdient, kannst Du alle Änderungen für jedes Release in unserem detaillierten [`CHANGELOG.md` im Astro Repository](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md) nachlesen.
+Nicht jedes Astro-Release verdient einen eigenen Blogpost, aber du kannst ein detailliertes Log aller Änderungen für jedes Release im [`CHANGELOG.md` des Astro Repository](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) nachlesen.
 
 ## Fehlt etwas?
 
-Falls Dir etwas in der Dokumentation fehlt, oder Du einen Teil verwirrend findest, [erstell bitte ein Issue](https://github.com/withastro/astro/issues/new/choose) mit deinen Verbesserungsvorschlägen für die Dokumentation oder tweete an den [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account.
-
-Wir freuen uns, von Dir zu hören.
+Falls etwas in der Dokumentation fehlt, oder falls du einen bestimmten Teil verwirrend findest, [erstelle bitte ein Issue](https://github.com/snowpackjs/astro/issues/new/choose) mit deinen Verbesserungsvorschlägen oder tweete an den [@astrodotbuild](https://twitter.com/astrodotbuild) Twitter-Account. Wir freuen uns, von dir zu hören!
 
 ## Credit
 
-Diese Einführung basierte ursprünglich auf der Einführung von [React](https://reactjs.org/).
+Diese Einführung basierte ursprünglich auf der Einführung zu [React](https://reactjs.org/).
