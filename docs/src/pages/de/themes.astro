@@ -1,9 +1,9 @@
 ---
-import Layout from '../layouts/MainLayout.astro';
-import Card from '../components/Card.astro';
+import Layout from '../../layouts/MainLayout.astro';
+import Card from '../../components/Card.astro';
 import { Markdown } from 'astro/components';
-import themes from '../data/themes.json';
-import components from '../data/components.json';
+import themes from '../../data/themes.json';
+import components from '../../data/components.json';
 ---
 <Layout content={{title: 'Vorlagen'}} hideRightSidebar>
     <style>
@@ -31,7 +31,7 @@ import components from '../data/components.json';
     </div>
     <Markdown>
         ## Vorlagen aus der Community
-      
+
         Sieh dir einige von unserer Community entwickelte Vorlagen an!
     </Markdown>
     <div class="card-grid">
@@ -39,14 +39,14 @@ import components from '../data/components.json';
     </div>
     <Markdown>
         ## Vorgestellte Packages
-        
+
         Unser Package-Ökosystem wächst stetig! Sieh dir die hier vorgestellten Packages unserer Community an. Durchsuche unsere vollständige Sammlung [auf npm.](https://www.npmjs.com/search?q=keywords%3Aastro-component)
     </Markdown>
     <div class="card-grid">
         {components.community.map((item)=>(<Card data={item} />))}
     </div>
     <Markdown>
-        > Möchtest du deine eigene Arbeit hier sehen? [Teile sie in Discord!](https://astro.build/chat)  
+        > Möchtest du deine eigene Arbeit hier sehen? [Teile sie in Discord!](https://astro.build/chat)
         Wir teilen hier regelmäßig unsere Favoriten aus dem #showcase-Channel.
     </Markdown>
 </Layout>
