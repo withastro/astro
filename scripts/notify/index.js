@@ -1,4 +1,6 @@
-const path = require('path');
+import path from 'path';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
 
 async function run() {
