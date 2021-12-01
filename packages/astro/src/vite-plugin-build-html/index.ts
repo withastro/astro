@@ -256,11 +256,10 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
       // Create a mapping of chunks to dependent chunks, used to add the proper
       // link tags for CSS.
       for (const chunk of pureCSSChunks) {
-        const referenceId = chunkToReferenceIdMap.get(chunk.fileName)!;
-        const chunkReferenceIds = [referenceId];
-        for (const imp of chunk.imports) {
-          if (chunkToReferenceIdMap.has(imp)) {
-            chunkReferenceIds.push(chunkToReferenceIdMap.get(imp)!);
+        const chunkReferenceIds: string[] = [];
+        for (const [specifier, chunkRefID] of chunkToReferenceIdMap.entries()) {
+          if (chunk.imports.includes(specifier) || specifier === chunk.fileName) {
+            chunkReferenceIds.push(chunkRefID);
           }
         }
         for (const [id] of Object.entries(chunk.modules)) {
