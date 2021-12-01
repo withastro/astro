@@ -10,7 +10,7 @@ describe('CSS Bundling (ESM import)', () => {
     await fixture.build();
   });
 
-  it('CSS output in import order', async () => {
+  it.skip('CSS output in import order', async () => {
     // note: this test is a little confusing, but the main idea is that
     // page-2.astro contains all of page-1.astro, plus some unique styles.
     // we only test page-2 to ensure the proper order is observed.
