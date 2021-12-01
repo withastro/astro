@@ -94,11 +94,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
     async load(id) {
       if (isPageStyleVirtualModule(id)) {
-        const source = astroPageStyleMap.get(id)!;
-        return source;
+        return astroPageStyleMap.get(id) || null;
       }
       if (isStyleVirtualModule(id)) {
-        return astroStyleMap.get(id)!;
+        return astroStyleMap.get(id) || null;
       }
       return null;
     },
@@ -106,13 +105,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
     async transform(value, id) {
       if (isStyleVirtualModule(id)) {
         styleSourceMap.set(id, value);
-        return null;
       }
-
       if (isCSSRequest(id)) {
         styleSourceMap.set(id, value);
       }
-
       return null;
     },
 
