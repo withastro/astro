@@ -7,6 +7,8 @@ import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
 export type { Metadata } from './metadata';
 
+const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
+
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
 
@@ -223,7 +225,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
   // This is a custom element without a renderer. Because of that, render it
   // as a string and the user is responsible for adding a script tag for the component definition.
   if (!html && typeof Component === 'string') {
-    html = await renderAstroComponent(await render`<${Component}${spreadAttributes(props)}>${children}</${Component}>`);
+    html = await renderAstroComponent(
+      await render`<${Component}${spreadAttributes(props)}${(children == null || children == '') && voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`}`
+    );
   }
 
   // This is used to add polyfill scripts to the page, if the renderer needs them.
