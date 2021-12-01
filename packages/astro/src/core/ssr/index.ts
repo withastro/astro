@@ -209,8 +209,13 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
             renderOpts = mdRender[1];
             mdRender = mdRender[0];
           }
+          // ['rehype-toc', opts]
           if (typeof mdRender === 'string') {
             ({ default: mdRender } = await import(mdRender));
+          }
+          // [import('rehype-toc'), opts]
+          else if (mdRender instanceof Promise) {
+            ({ default: mdRender } = await mdRender);
           }
           const { code } = await mdRender(content, { ...renderOpts, ...(opts ?? {}) });
           return code;
