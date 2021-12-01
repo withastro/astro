@@ -41,6 +41,8 @@ interface ExtractedProps {
   props: Record<string | number, any>;
 }
 
+const DIRECTIVES = ['load', 'idle', 'visible', 'media', 'only'];
+
 // Used to extract the directives, aka `client:load` information about a component.
 // Finds these special props and removes them from what gets passed into the component.
 export function extractDirectives(inputProps: Record<string | number, any>): ExtractedProps {
@@ -68,6 +70,11 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
           break;
         }
         default: {
+          const directive = key.split(':')[1];
+          console.log('Checking for ' + key);
+          if (DIRECTIVES.indexOf(directive) < 0) {
+            throw new Error(`Error: invalid hydration directive "${key}". Supported hydration methods: ${DIRECTIVES.map(d => `"client:${d}"`).join(', ')}`)
+          }
           extracted.hydration.directive = key.split(':')[1];
           extracted.hydration.value = value;
           break;

@@ -50,6 +50,21 @@ describe('Error display', () => {
 
       // TODO: improve stacktrace
     });
+
+    it('hydration error', async () => {
+      if (isMacOS) return;
+
+      const res = await fixture.fetch('/astro-hydration-error');
+
+      // 500 returned
+      expect(res.status).to.equal(500);
+
+      // error message contains error
+      const body = await res.text();
+      
+      // error message contains error
+      expect(body).to.include('Error: invalid hydration directive');
+    })
   });
 
   describe('JS', () => {
