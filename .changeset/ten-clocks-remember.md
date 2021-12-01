@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Bugfix: script proxying on Windows yields undefined error
+Bugfix: Windows error in dev for hydrated components
