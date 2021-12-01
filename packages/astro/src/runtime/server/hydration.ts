@@ -71,7 +71,6 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
         }
         default: {
           const directive = key.split(':')[1];
-          console.log('Checking for ' + key);
           if (DIRECTIVES.indexOf(directive) < 0) {
             throw new Error(`Error: invalid hydration directive "${key}". Supported hydration methods: ${DIRECTIVES.map(d => `"client:${d}"`).join(', ')}`)
           }
