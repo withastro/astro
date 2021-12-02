@@ -1,8 +1,11 @@
 import { hydrate, createComponent } from 'solid-js/web';
 
 export default (element) => (Component, props, childHTML) => {
-  const children = document.createElement('astro-fragment');
-  children.innerHTML = childHTML;
+  let children;
+  if (childHTML != null) {
+    children = document.createElement('astro-fragment');
+    children.innerHTML = childHTML;
+  }
 
   // Using Solid's `hydrate` method ensures that a `root` is created
   // in order to properly handle reactivity. It also handles

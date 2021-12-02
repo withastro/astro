@@ -7,7 +7,11 @@ function check(Component) {
 }
 
 async function renderToStaticMarkup(Component, props, children) {
-  const app = createSSRApp({ render: () => h(Component, props, { default: () => h(StaticHtml, { value: children }) }) });
+  const slots = {};
+  if (children != null) {
+    slots.default = () => h(StaticHtml, { value: children });
+  }
+  const app = createSSRApp({ render: () => h(Component, props, slots) });
   const html = await renderToString(app);
   return { html };
 }
