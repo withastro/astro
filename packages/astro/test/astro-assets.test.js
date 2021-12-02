@@ -42,4 +42,20 @@ describe('Assets', () => {
     const data = await fixture.readFile('/' + match.url);
     expect(!!data).to.equal(true);
   });
+
+  it('built image from an import specifier', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    const src = '/' + $('#import-no-url').attr('src');
+    const data = await fixture.readFile(src);
+    expect(!!data).to.equal(true);
+  });
+
+  it('built image from an import specifier using ?url', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    const src = '/' + $('#import-url').attr('src');
+    const data = await fixture.readFile(src);
+    expect(!!data).to.equal(true);
+  });
 });
