@@ -115,28 +115,30 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@astrojs/compiler@^0.5.4":
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.5.4.tgz#cb74173fae07f1ab34f0915ea730067ed533e02f"
-  integrity sha512-yKhY7qh2YNDsH+6kiMleVEU/SYnJ7s1dOnME5PzlJPi0IYbQEuqC7SKxhxCAVDBiZRzbCceLR8J3tqLI0Vn2Hg==
+"@astrojs/compiler@^0.5.6":
+  version "0.5.6"
+  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.5.6.tgz#570662f0d63dc44ddb82000729d47cbd477e724c"
+  integrity sha512-lyUt5YEb8SutMjERYtJjExUqDAo4/HrRtfFlDmba1RxeE3A2AdK4BZq5R2n3JKp8JWFkqso9cJaVPZ463P3htA==
   dependencies:
     typescript "^4.3.5"
 
-"@astrojs/language-server@^0.7.16":
-  version "0.7.19"
-  resolved "https://registry.yarnpkg.com/@astrojs/language-server/-/language-server-0.7.19.tgz#28475a8b6ce2d96362d07a69ba2fed893b68dff4"
-  integrity sha512-6ZZtId4NGvMyXILbOdsAE6gllCxd7tpFL6zrMdtQcVvd1XZAABq7hmUDAD1BIfG0HHVz7cHxe5Wxq+cLWIYyVw==
+"@astrojs/language-server@^0.8.2":
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/@astrojs/language-server/-/language-server-0.8.2.tgz#4cb52e8d0b477c91c8665d999ee0018ecf701e84"
+  integrity sha512-AD2KDWM5CJMyhvD+ME8yJNvppliLizY34zRO+sFJ0xZ0YDIcIW9+Q0Y2gdYGoPLsr0xCu5SLpF0EmlHmTtfYEw==
   dependencies:
     lodash "^4.17.21"
     source-map "^0.7.3"
     ts-morph "^12.0.0"
-    typescript "^4.3.1-rc"
+    typescript "^4.5.1-rc"
     vscode-css-languageservice "^5.1.1"
     vscode-emmet-helper "2.1.2"
     vscode-html-languageservice "^3.0.3"
     vscode-languageserver "6.1.1"
     vscode-languageserver-protocol "^3.16.0"
     vscode-languageserver-textdocument "^1.0.1"
+    vscode-languageserver-types "^3.16.0"
+    vscode-uri "^3.0.2"
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.14.5":
   version "7.14.5"
@@ -11178,7 +11180,7 @@ typescript@4.4.4:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.4.4.tgz#2cd01a1a1f160704d3101fd5a58ff0f9fcb8030c"
   integrity sha512-DqGhF5IKoBl8WNf8C1gu8q0xZSInh9j1kJJMqT3a94w1JzVaBU4EXOSMrz9yDqMT0xt3selp83fuFMQ0uzv6qA==
 
-typescript@^4.3.1-rc, typescript@^4.3.5:
+typescript@^4.3.5, typescript@^4.5.1-rc:
   version "4.5.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
   integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
