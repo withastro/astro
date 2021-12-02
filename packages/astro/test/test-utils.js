@@ -1,4 +1,4 @@
-import execa from 'execa';
+import { execa } from 'execa';
 import fetch from 'node-fetch';
 import fs from 'fs';
 import { fileURLToPath } from 'url';

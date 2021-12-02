@@ -1,5 +1,5 @@
 import assert from 'assert';
-import execa from 'execa';
+import { execa } from 'execa';
 import { FIXTURES_URL } from './helpers.js';
 import { existsSync } from 'fs';
 
