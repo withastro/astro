@@ -78,7 +78,7 @@
     "estree-util-value-to-estree": "^1.2.0",
     "estree-walker": "^3.0.0",
     "fast-glob": "^3.2.7",
-    "fast-xml-parser": "^3.19.0",
+    "fast-xml-parser": "^4.0.0-beta.3",
     "html-entities": "^2.3.2",
     "htmlparser2": "^7.1.2",
     "kleur": "^4.1.4",

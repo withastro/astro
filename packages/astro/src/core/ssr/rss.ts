@@ -1,6 +1,6 @@
 import type { RSSFunction, RSS, RSSResult, RouteData } from '../../@types/astro';
 
-import parser from 'fast-xml-parser';
+import { XMLValidator } from 'fast-xml-parser';
 import { canonicalURL } from '../util.js';
 
 /** Validates getStaticPaths.rss */
@@ -62,7 +62,7 @@ export function generateRSS(args: GenerateRSSArgs): string {
   xml += `</channel></rss>`;
 
   // validate user’s inputs to see if it’s valid XML
-  const isValid = parser.validate(xml);
+  const isValid = XMLValidator.validate(xml);
   if (isValid !== true) {
     // If valid XML, isValid will be `true`. Otherwise, this will be an error object. Throw.
     throw new Error(isValid as any);
