@@ -7,6 +7,7 @@ const emojis = ['🎉', '🥳', '🚀', '🧑‍🚀', '🎊', '🏆', '✅', '�
 const descriptors = ['new releases', 'fresh new code', 'shiny updates', 'exciting stuff', 'package updates', 'awesome updates', 'bug fixes and features', 'updates'];
 const verbs = [
   'just went out!',
+  'just launched!',
   'now available!',
   'in the wild!',
   'now live!',
