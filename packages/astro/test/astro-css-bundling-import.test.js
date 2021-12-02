@@ -10,7 +10,7 @@ describe('CSS Bundling (ESM import)', () => {
     await fixture.build();
   });
 
-  it.skip('CSS output in import order', async () => {
+  it('CSS output in import order', async () => {
     // note: this test is a little confusing, but the main idea is that
     // page-2.astro contains all of page-1.astro, plus some unique styles.
     // we only test page-2 to ensure the proper order is observed.
@@ -29,11 +29,10 @@ describe('CSS Bundling (ESM import)', () => {
     expect(css.indexOf('p{color:green}')).to.be.greaterThan(css.indexOf('p{color:red}'));
 
     // test 2: insure green comes after blue (page-1.css)
-    expect(css.indexOf('p{color:green}')).to.be.greaterThan(css.indexOf('p{color:red}'));
+    expect(css.indexOf('p{color:green}')).to.be.greaterThan(css.indexOf('p{color:#00f}'));
   });
 
-  // TODO: need more investigation to fix this
-  it.skip('no empty CSS files', async () => {
+  it('no empty CSS files', async () => {
     for (const page of ['/page-1/index.html', '/page-2/index.html']) {
       const html = await fixture.readFile(page);
       const $ = cheerio.load(html);

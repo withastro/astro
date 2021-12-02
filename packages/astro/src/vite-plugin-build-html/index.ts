@@ -55,6 +55,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
   const astroAssetMap = new Map<string, Promise<Buffer>>();
 
   const cssChunkMap = new Map<string, string[]>();
+  const pageStyleImportOrder: string[] = [];
 
   return {
     name: PLUGIN_NAME,
@@ -176,6 +177,11 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             const jsSource = assetImports.map((sid) => `import '${sid}';`).join('\n');
             astroPageStyleMap.set(pageStyleId, jsSource);
             assetInput.add(pageStyleId);
+
+            // preserve asset order in the order we encounter them
+            for (const assetHref of assetImports) {
+              if (!pageStyleImportOrder.includes(assetHref)) pageStyleImportOrder.push(assetHref);
+            }
           }
         }
       }
@@ -260,17 +266,43 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         assetIdMap.set(assetPath, referenceId);
       }
 
+      // Sort CSS in order of appearance in HTML (pageStyleImportOrder)
+      // This is the “global ordering” used below
+      const sortedCSSChunks = [...pureCSSChunks];
+      sortedCSSChunks.sort((a, b) => {
+        let aIndex = Math.min(
+          ...Object.keys(a.modules).map((id) => {
+            const i = pageStyleImportOrder.findIndex((url) => id.endsWith(url));
+            return i >= 0 ? i : Infinity; // if -1 is encountered (unknown order), move to the end (Infinity)
+          })
+        );
+        let bIndex = Math.min(
+          ...Object.keys(b.modules).map((id) => {
+            const i = pageStyleImportOrder.findIndex((url) => id.endsWith(url));
+            return i >= 0 ? i : Infinity;
+          })
+        );
+        return aIndex - bIndex;
+      });
+      const sortedChunkNames = sortedCSSChunks.map(({ fileName }) => fileName);
+
       // Create a mapping of chunks to dependent chunks, used to add the proper
       // link tags for CSS.
-      for (const chunk of pureCSSChunks) {
-        const chunkReferenceIds: string[] = [];
-        for (const [specifier, chunkRefID] of chunkToReferenceIdMap.entries()) {
-          if (chunk.imports.includes(specifier) || specifier === chunk.fileName) {
-            chunkReferenceIds.push(chunkRefID);
-          }
+      for (const chunk of sortedCSSChunks) {
+        const chunkModules = [chunk.fileName, ...chunk.imports];
+        // For each HTML output, sort CSS in HTML order Note: here we actually
+        // want -1 to be first. Since the last CSS “wins”, we want to load
+        // “unknown” (-1) CSS ordering first, followed by “known” ordering at
+        // the end so it takes priority
+        chunkModules.sort((a, b) => sortedChunkNames.indexOf(a) - sortedChunkNames.indexOf(b));
+
+        const referenceIDs: string[] = [];
+        for (const chunkID of chunkModules) {
+          const referenceID = chunkToReferenceIdMap.get(chunkID);
+          if (referenceID) referenceIDs.push(referenceID);
         }
-        for (const [id] of Object.entries(chunk.modules)) {
-          cssChunkMap.set(id, chunkReferenceIds);
+        for (const id of Object.keys(chunk.modules)) {
+          cssChunkMap.set(id, referenceIDs);
         }
       }
 
