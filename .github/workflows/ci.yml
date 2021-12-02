@@ -64,7 +64,7 @@ jobs:
           auto_fix: true
           git_name: GitHub Action
           git_email: github-action@users.noreply.github.com
-          commit_message: '[ci] ${linter} fix'
+          commit_message: 'chore(lint): ${linter} fix'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           neutral_check_on_warning: true
 
@@ -72,7 +72,6 @@ jobs:
   # We upload all `dist/` artifacts to GitHub, which can be shared by all dependent jobs.
   build:
     name: Build Packages
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -103,7 +102,6 @@ jobs:
   # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -144,7 +142,6 @@ jobs:
   smoke:
     name: 'Smoke Test: ${{ matrix.target }}'
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     strategy:
       matrix:
         target: [docs, www]
@@ -179,7 +176,7 @@ jobs:
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
-    if: ${{ !contains(github.event.head_commit.message, '[skip-ci]') && github.ref_name == 'main' && github.repository_owner == 'withastro' }}
+    if: ${{ github.ref_name == 'main' && github.repository_owner == 'withastro' }}
     needs: [lint, test, smoke]
     runs-on: ubuntu-latest
     steps:
@@ -209,7 +206,7 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: yarn changeset publish
-          commit: '[ci] release'
+          commit: 'chore: release'
           title: '[ci] release'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

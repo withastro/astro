@@ -16,7 +16,7 @@ concurrency:
 jobs:
   congrats:
     name: congratsbot
-    if: ${{ github.repository_owner == 'withastro' && !contains(github.event.head_commit.message, '[skip-ci]') }}
+    if: ${{ github.repository_owner == 'withastro' }}
     runs-on: ubuntu-latest
     steps:
       - id: setup
