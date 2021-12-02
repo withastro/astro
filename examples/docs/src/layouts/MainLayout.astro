@@ -118,5 +118,7 @@ const githubEditUrl = CONFIG.GITHUB_EDIT_URL && (CONFIG.GITHUB_EDIT_URL + curren
         <RightSidebar content={content} githubEditUrl={githubEditUrl} />
       </aside>
     </main>
+    <script type="module" src={Astro.resolve('./script.js')} hoist></script>
+    <img src={Astro.resolve('../images/twitter.png')} />
   </body>
 </html>
