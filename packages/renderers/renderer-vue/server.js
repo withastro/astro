@@ -8,7 +8,7 @@ function check(Component) {
 
 async function renderToStaticMarkup(Component, props, children) {
   const slots = {};
-  if (children) {
+  if (children != null) {
     slots.default = () => h(StaticHtml, { value: children });
   }
   const app = createSSRApp({ render: () => h(Component, props, slots) });

@@ -16,6 +16,9 @@ describe('Slots: React', () => {
 
     expect($('#default-self-closing').text().trim()).to.equal('Fallback');
     expect($('#default-empty').text().trim()).to.equal('Fallback');
+    expect($('#zero').text().trim()).to.equal('0');
+    expect($('#false').text().trim()).to.equal('');
+    expect($('#string').text().trim()).to.equal('');
     expect($('#content').text().trim()).to.equal('Hello world!');
   });
 });

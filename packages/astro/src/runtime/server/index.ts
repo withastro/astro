@@ -160,7 +160,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
   let renderer: Renderer | undefined;
   if (metadata.hydrate !== 'only') {
     for (const r of renderers) {
-      if (await r.ssr.check(Component, props, children ? children : undefined)) {
+      if (await r.ssr.check(Component, props, children)) {
         renderer = r;
         break;
       }
@@ -219,7 +219,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
     if (metadata.hydrate === 'only') {
       html = await renderSlot(result, slots?.fallback);
     } else {
-      ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children ? children : undefined));
+      ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
     }
   }
 

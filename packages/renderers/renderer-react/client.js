@@ -4,6 +4,6 @@ import StaticHtml from './static-html.js';
 
 export default (element) => (Component, props, children) =>
   hydrate(
-    createElement(Component, { ...props, suppressHydrationWarning: true }, children ? createElement(StaticHtml, { value: children, suppressHydrationWarning: true }) : undefined),
+    createElement(Component, { ...props, suppressHydrationWarning: true }, children != null ? createElement(StaticHtml, { value: children, suppressHydrationWarning: true }) : children),
     element
   );

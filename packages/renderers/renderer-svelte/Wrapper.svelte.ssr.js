@@ -4,7 +4,7 @@ import { create_ssr_component, missing_component, validate_component } from 'sve
 const App = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   const { __astro_component: Component, __astro_children, ...props } = $$props;
   const children = {};
-  if (__astro_children) {
+  if (__astro_children != null) {
     children.default = () => `<astro-fragment>${__astro_children}</astro-fragment>`;
   }
 
