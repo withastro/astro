@@ -1,2 +1,0 @@
-[build]
-  ignore = "git diff --quiet main HEAD www/"
