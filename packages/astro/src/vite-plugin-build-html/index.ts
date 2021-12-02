@@ -243,12 +243,12 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             if (!pageName) {
               pageName = 'index';
             }
-            return `assets/${pageName}.[hash].cjs`;
+            return `assets/${pageName}.[hash].mjs`;
           }
-          return 'assets/[name].[hash].cjs';
+          return 'assets/[name].[hash].mjs';
         },
         chunkFileNames(chunk: PreRenderedChunk) {
-          return 'assets/[name].[hash].cjs';
+          return 'assets/[name].[hash].mjs';
         }
       });
       return outputOptions;

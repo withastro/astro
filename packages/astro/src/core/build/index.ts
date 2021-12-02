@@ -180,7 +180,7 @@ class AstroBuilder {
           // The `input` will be populated in the build rollup plugin.
           input: [],
           output: {
-            format: 'cjs'
+            format: 'esm'
           },
         },
         target: 'es2020', // must match an esbuild target
@@ -255,7 +255,7 @@ class AstroBuilder {
     let url = new URL('./' + out.fileName, this.config.dist);
     let pageData = facadeIdToPageDataMap.get(out.facadeModuleId)!;
     let compiledModule = await import(url.toString());
-    let Component = compiledModule.default.default;
+    let Component = compiledModule.default;
 
     const [renderers, mod] = pageData.preload;
     
