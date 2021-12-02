@@ -5,6 +5,7 @@ import type { RenderedChunk } from 'rollup';
 
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
+import { vitePluginNewBuild } from '../../vite-plugin-new-build/index.js';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { performance } from 'perf_hooks';
@@ -186,6 +187,7 @@ class AstroBuilder {
         target: 'es2020', // must match an esbuild target
       },
       plugins: [
+        vitePluginNewBuild(),
         rollupPluginAstroBuildHTML({
           astroConfig: this.config,
           astroPageStyleMap,

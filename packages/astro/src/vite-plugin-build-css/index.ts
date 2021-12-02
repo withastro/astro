@@ -145,6 +145,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
     // Delete CSS chunks so JS is not produced for them.
     generateBundle(opts, bundle) {
+      debugger;
       if (pureCSSChunks.size) {
         const pureChunkFilenames = new Set([...pureCSSChunks].map((chunk) => chunk.fileName));
         const emptyChunkFiles = [...pureChunkFilenames]
