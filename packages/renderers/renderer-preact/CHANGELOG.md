@@ -1,5 +1,11 @@
 # @astrojs/renderer-preact
 
+## 0.3.1
+
+### Patch Changes
+
+- [#2078](https://github.com/withastro/astro/pull/2078) [`ac3e8702`](https://github.com/withastro/astro/commit/ac3e870280e983a7977da79b6eec0568d38d8420) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix behavior of renderers when no children are passed in
+
 ## 0.3.0
 
 ### Minor Changes

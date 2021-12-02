@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/renderer-preact",
   "description": "Use Preact components within Astro",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
