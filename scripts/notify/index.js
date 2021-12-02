@@ -4,16 +4,7 @@ const require = createRequire(import.meta.url);
 const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
 
 const emojis = ['🎉', '🥳', '🚀', '🧑‍🚀', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
-const descriptors = [
-  'new releases',
-  'fresh new code',
-  'shiny updates',
-  'exciting stuff',
-  'package updates',
-  'awesome updates',
-  'bug fixes and features',
-  'updates'
-];
+const descriptors = ['new releases', 'fresh new code', 'shiny updates', 'exciting stuff', 'package updates', 'awesome updates', 'bug fixes and features', 'updates'];
 const verbs = [
   'just went out!',
   'now available!',
@@ -22,10 +13,10 @@ const verbs = [
   'hit the registry!',
   'to share!',
   'for you!',
-  'for y\'all!',
-  'comin\' your way!',
-  'comin\' atcha!',
-  'comin\' in hot!',
+  "for y'all!",
+  "comin' your way!",
+  "comin' atcha!",
+  "comin' in hot!",
   ', freshly minted on the blockchain! (jk)',
 ];
 
