@@ -83,7 +83,7 @@
     "htmlparser2": "^7.1.2",
     "kleur": "^4.1.4",
     "magic-string": "^0.25.7",
-    "mime": "^2.5.2",
+    "mime": "^3.0.0",
     "morphdom": "^2.6.1",
     "node-fetch": "^3.0.0",
     "parse5": "^6.0.1",
