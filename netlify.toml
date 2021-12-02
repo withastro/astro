@@ -1,2 +1,2 @@
 [build]
-  ignore = "git diff --quiet main HEAD www/ docs/"
+  ignore = "git diff --quiet $COMMIT_REF $CACHED_COMMIT_REF -- docs/ www/"
