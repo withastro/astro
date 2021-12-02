@@ -56984,7 +56984,10 @@ const devHtmlHook = async (html, { path: htmlPath, server, originalUrl }) => {
                 addToHTMLProxyCache(config, url, scriptModuleIndex, contents);
                 const modulePath = `${config.base + htmlPath.slice(1)}?html-proxy&index=${scriptModuleIndex}.js`;
                 // invalidate the module so the newly cached contents will be served
-                server === null || server === void 0 ? void 0 : server.moduleGraph.invalidateId(config.root + modulePath);
+                const module = server === null || server === void 0 ? void 0 : server.moduleGraph.getModuleById(modulePath);
+                if (module) {
+                    server === null || server === void 0 ? void 0 : server.moduleGraph.invalidateModule(module);
+                }
                 s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${modulePath}"></script>`);
             }
         }
@@ -57114,12 +57117,6 @@ class ModuleGraph {
         mod.transformResult = null;
         mod.ssrTransformResult = null;
         invalidateSSRModule(mod, seen);
-    }
-    invalidateId(id) {
-        const mod = this.idToModuleMap.get(id);
-        if (mod) {
-            this.invalidateModule(mod);
-        }
     }
     invalidateAll() {
         const seen = new Set();
