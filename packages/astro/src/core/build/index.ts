@@ -1,6 +1,6 @@
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro';
 import type { LogOptions } from '../logger';
-import type { AllPagesData } from './types';
+import type { AllPagesData, PageBuildData } from './types';
 import type { RenderedChunk } from 'rollup';
 
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
@@ -12,7 +12,7 @@ import vite, { ViteDevServer } from '../vite.js';
 import { fileURLToPath } from 'url';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { debug, defaultLogOptions, info, levels, timerMessage, warn } from '../logger.js';
-import { preload as ssrPreload } from '../ssr/index.js';
+import { preload as ssrPreload, renderComponent, getParamsAndProps } from '../ssr/index.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
 import { createRouteManifest, validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generateRssFunction } from '../ssr/rss.js';
@@ -162,20 +162,26 @@ class AstroBuilder {
 
     const pageNames: string[] = [];
 
+    // Blah
+    const facadeIdToPageDataMap = new Map<string, PageBuildData>();
+
     // Bundle the assets in your final build: This currently takes the HTML output
     // of every page (stored in memory) and bundles the assets pointed to on those pages.
     timer.buildStart = performance.now();
-    await vite.build({
+    let result = await vite.build({
       logLevel: 'error',
       mode: 'production',
       build: {
         emptyOutDir: true,
-        minify: 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
+        minify: false,// 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
         outDir: fileURLToPath(this.config.dist),
+        ssr: true,
         rollupOptions: {
           // The `input` will be populated in the build rollup plugin.
           input: [],
-          output: { format: 'esm' },
+          output: {
+            format: 'cjs'
+          },
         },
         target: 'es2020', // must match an esbuild target
       },
@@ -192,6 +198,7 @@ class AstroBuilder {
           pageNames,
           routeCache: this.routeCache,
           viteServer,
+          facadeIdToPageDataMap,
         }),
         rollupPluginAstroBuildCSS({
           astroPageStyleMap,
@@ -208,6 +215,13 @@ class AstroBuilder {
       base: this.config.buildOptions.site ? new URL(this.config.buildOptions.site).pathname : '/',
     });
     debug(logging, 'build', timerMessage('Vite build finished', timer.buildStart));
+
+    /* TODO REMOVE THIS NEW HACKY CODE */
+    console.log('End build step, now generating');
+    for(let out of (result as any).output) {
+      if(out.facadeModuleId)
+        await this.doTheRest(out, facadeIdToPageDataMap);
+    }
 
     // Write any additionally generated assets to disk.
     timer.assetsStart = performance.now();
@@ -234,6 +248,35 @@ class AstroBuilder {
     await viteServer.close();
     if (logging.level && levels[logging.level] <= levels['info']) {
       await this.printStats({ logging, timeStart: timer.init, pageCount: pageNames.length });
+    }
+  }
+
+  private async doTheRest(out: any, facadeIdToPageDataMap: Map<string, PageBuildData>) {
+    let url = new URL('./' + out.fileName, this.config.dist);
+    let pageData = facadeIdToPageDataMap.get(out.facadeModuleId)!;
+    let compiledModule = await import(url.toString());
+    let Component = compiledModule.default.default;
+
+    const [renderers, mod] = pageData.preload;
+    
+    for(let path of pageData.paths) {
+      try {
+        const [params, pageProps] = await getParamsAndProps({
+          route: pageData.route,
+          routeCache: this.routeCache,
+          logging: this.logging,
+          pathname: path,
+          mod
+        })
+        console.log(`Generating: ${path}`);
+        let html = await renderComponent(renderers, Component, this.config, path, this.origin, params, pageProps);
+        let outFolder = new URL('.' + path + '/', this.config.dist);
+        let outFile = new URL('./index.html', outFolder);
+        await fs.promises.mkdir(outFolder, { recursive: true });
+        await fs.promises.writeFile(outFile, html, 'utf-8');
+      } catch(err) {
+        console.error("did not work", err);
+      }
     }
   }
 

@@ -18,7 +18,7 @@ describe('Astro basics', () => {
   });
 
   describe('build', () => {
-    it('Can load page', async () => {
+    it.only('Can load page', async () => {
       const html = await fixture.readFile(`/index.html`);
       const $ = cheerio.load(html);
 

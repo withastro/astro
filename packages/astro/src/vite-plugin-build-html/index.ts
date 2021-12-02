@@ -2,7 +2,7 @@ import type { AstroConfig, RouteCache } from '../@types/astro';
 import type { LogOptions } from '../core/logger';
 import type { ViteDevServer, Plugin as VitePlugin } from '../core/vite';
 import type { OutputChunk, PreRenderedChunk, RenderedChunk } from 'rollup';
-import type { AllPagesData } from '../core/build/types';
+import type { AllPagesData, PageBuildData } from '../core/build/types';
 import parse5 from 'parse5';
 import srcsetParse from 'srcset-parse';
 import * as npath from 'path';
@@ -36,6 +36,8 @@ interface PluginOptions {
   origin: string;
   routeCache: RouteCache;
   viteServer: ViteDevServer;
+
+  facadeIdToPageDataMap: Map<string, PageBuildData>;
 }
 
 export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
@@ -72,10 +74,16 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
         // Hydrated components are statically identified.
         for (const path of mod.$$metadata.getAllHydratedComponentPaths()) {
-          jsInput.add(path);
+          //jsInput.add(path);
         }
 
+        let astroModuleId = new URL('./' + component, astroConfig.projectRoot).pathname;
+        jsInput.add(astroModuleId);
+        options.facadeIdToPageDataMap.set(astroModuleId, pageData);
+
         for (const pathname of pageData.paths) {
+
+          /*
           pageNames.push(pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''));
           const id = ASTRO_PAGE_PREFIX + pathname;
           const html = await ssrRender(renderers, mod, {
@@ -183,6 +191,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               if (!pageStyleImportOrder.includes(assetHref)) pageStyleImportOrder.push(assetHref);
             }
           }
+
+          */
         }
       }
 
@@ -233,10 +243,13 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             if (!pageName) {
               pageName = 'index';
             }
-            return `assets/${pageName}.[hash].js`;
+            return `assets/${pageName}.[hash].cjs`;
           }
-          return 'assets/[name].[hash].js';
+          return 'assets/[name].[hash].cjs';
         },
+        chunkFileNames(chunk: PreRenderedChunk) {
+          return 'assets/[name].[hash].cjs';
+        }
       });
       return outputOptions;
     },
