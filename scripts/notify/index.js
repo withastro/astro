@@ -53,7 +53,7 @@ async function run() {
   } else {
     console.log(`${emoji} Some ${descriptor} ${verb}\n`);
     for (const { name, version, url } of packages) {
-      console.log(`• \`${name}@${version}\` Read the [Release Notes →](<${url}>)`);
+      console.log(`• \`${name}@${version}\` Read the [release notes →](<${url}>)`);
     }
   }
 }
