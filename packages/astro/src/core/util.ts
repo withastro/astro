@@ -81,5 +81,5 @@ export function resolveDependency(dep: string, astroConfig: AstroConfig) {
  * Windows:    /@fs/C:/Users/astro/code/my-project/src/pages/index.astro
  */
 export function viteifyURL(filePath: URL): string {
-  return `/@fs${filePath.pathname}`;
+  return `/@fs${slash(fileURLToPath(filePath)).replace(/^\/?/, '/')}`;
 }

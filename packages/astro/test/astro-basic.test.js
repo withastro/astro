@@ -81,6 +81,11 @@ describe('Astro basics', () => {
       // will be 1 if element rendered correctly
       expect($('#one')).to.have.lengthOf(1);
     });
+
+    it('supports special chars in filename', async () => {
+      // will have already erred by now, but add test anyway
+      expect(await fixture.readFile('/special-“characters” -in-file/index.html')).to.be.ok;
+    });
   });
 
   it('Supports void elements whose name is a string (#2062)', async () => {
