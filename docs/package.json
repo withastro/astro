@@ -24,7 +24,7 @@
     "start-server-and-test": "^1.12.6"
   },
   "dependencies": {
-    "@docsearch/react": "^1.0.0-alpha.27"
+    "@docsearch/react": "^3.0.0-alpha.41"
   },
   "volta": {
     "node": "14.18.1"
