@@ -50,8 +50,8 @@ export const SIDEBAR = {
 
     { text: 'Grundlagen', header: true },
     { text: 'Projektstruktur', link: 'de/core-concepts/project-structure' },
-    { text: 'Komponenten-Syntax', link: 'de/core-concepts/astro-components' },
-    { text: 'Seiten', link: 'de/core-concepts/astro-pages' },
+    { text: 'Astro-Komponenten', link: 'de/core-concepts/astro-components' },
+    { text: 'Astro-Seiten', link: 'de/core-concepts/astro-pages' },
     { text: 'Layouts', link: 'de/core-concepts/layouts' },
     { text: 'Routing', link: 'de/core-concepts/routing' },
     { text: 'Partial Hydration', link: 'de/core-concepts/component-hydration' },

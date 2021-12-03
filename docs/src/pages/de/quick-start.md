@@ -28,7 +28,7 @@ Export - fertig zum Veröffentlichen:
 npm run build
 ```
 
-Um mehr über den Installationsprozess und den ersten Einsatz von Astro zu lernen [lies unsere Installationsanleitung](de/installation).
+Um mehr über den Installationsprozess und den ersten Einsatz von Astro zu lernen [lies unsere Installationsanleitung](/de/installation).
 
 Wenn du es bevorzugst anhand eines Beispiels zu lernen, werfe einen Blick auf die [komplette Liste der Beispiele](https://github.com/snowpackjs/astro/tree/main/examples) auf GitHub.  
 Du kannst jedes dieser Beispiele ausprobieren, indem du `npm init astro -- --template "BEISPIEL_NAME"` ausführst.
@@ -71,8 +71,8 @@ Geschafft! Du kannst jetzt mit dem Entwickeln beginnen!
 
 Wir möchten dich ermutigen, dir etwas Zeit zu nehmen, um mit der Art und Weise vertraut zu werden, wie Astro funktioniert. Am besten befasst du dich weitergehend mit der Dokumentation. Hier ein paar Empfehlungen:
 
-📚 Lerne mehr über Astros Projektstruktur in unserer [Anleitung zur Projektstruktur](/core-concepts/project-structure)
+📚 Lerne mehr über Astros Projektstruktur in unserer [Anleitung zur Projektstruktur](/de/core-concepts/project-structure)
 
-📚 Lerne mehr über Astros Komponenten-Syntax in unserer [Astro-Komponenten-Anleitung](/core-concepts/astro-components)
+📚 Lerne mehr über Astros Komponenten-Syntax in unserer [Astro-Komponenten-Anleitung](/de/core-concepts/astro-components)
 
 📚 Lerne mehr über Astros dateibasiertes Routing in unserer [Routing-Anleitung](core-concepts/astro-pages)
