@@ -278,7 +278,7 @@ describe('CSS', function () {
     });
 
     it('resolved imported CSS with ?url', async () => {
-      const href= $('link[href$="imported-url.css"]').attr('href');
+      const href = $('link[href$="imported-url.css"]').attr('href');
       expect((await fixture.fetch(href)).status).to.equal(200);
     });
 
