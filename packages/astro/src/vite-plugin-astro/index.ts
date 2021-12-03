@@ -51,6 +51,15 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
       let tsResult: TransformResult | undefined;
       let cssTransformError: Error | undefined;
 
+      // Precheck: verify that the frontmatter is valid TS before sending to our compiler.
+      // The compiler doesn't currently validate the frontmatter, so invalid JS/TS can cause issues
+      // in the final output. This prevents bad JS from becoming a compiler panic or otherwise
+      // breaking the final output.
+      const scannedFrontmatter = (/^\-\-\-(.*)^\-\-\-/ms).exec(source);
+      if (scannedFrontmatter) {
+        await esbuild.transform(scannedFrontmatter[1], { loader: 'ts', sourcemap: false, sourcefile: id });
+      }
+
       try {
         // Transform from `.astro` to valid `.ts`
         // use `sourcemap: "both"` so that sourcemap is included in the code
@@ -88,6 +97,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
         if (cssTransformError) throw cssTransformError;
 
         // Compile `.ts` to `.js`
+        console.log(tsResult.code);
         const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
 
         return {
