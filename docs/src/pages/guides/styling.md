@@ -129,9 +129,7 @@ It’s recommended to only use this in scenarios where a `<link>` tag won’t wo
 ```js
 // postcss.config.cjs
 module.exports = {
-  plugins: [
-    require("autoprefixer")
-  ],
+  plugins: [require('autoprefixer')],
 };
 ```
 
@@ -222,9 +220,7 @@ module.exports = {
 ```js
 // postcss.config.cjs
 module.exports = {
-  plugins: [
-    require("tailwindcss")
-  ],
+  plugins: [require('tailwindcss')],
 };
 ```
 
