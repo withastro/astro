@@ -29,7 +29,7 @@ yarn create astro
 pnpm create astro
 ```
 
-Der [`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro)-Assistent lässt dich aus einer Reihe von [Start-Vorlagen](https://github.com/snowpackjs/astro/tree/main/examples) auswählen. Alternativ könntest du auch dein eigenes Astro-Projekt direkt aus GitHub heraus importieren.
+Der [`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro)-Assistent lässt dich aus einer Reihe von [Start-Vorlagen](https://github.com/snowpackjs/astro/tree/main/examples) auswählen. Alternativ könntest du auch dein eigenes Astro-Projekt direkt aus GitHub heraus importieren.
 
 ```bash
 # Hinweis: Ersetze "mein-astro-projekt" durch den Namen deines Projekts.
@@ -173,6 +173,6 @@ Wir möchten dich ermutigen, dir etwas Zeit zu nehmen, um mit der Art und Weise 
 
 📚 Lerne mehr über Astros Projektstruktur in unserer [Anleitung zur Projektstruktur](/de/core-concepts/project-structure)
 
-📚 Lerne mehr über Astros Komponenten-Syntax in unserer [Astro-Komponenten-Anleitung](/de/core-concepts/astro-components)
+📚 Lerne mehr über Astros Komponenten-Syntax in unserem Artikel über [Astro-Komponenten](/de/core-concepts/astro-components)
 
-📚 Lerne mehr über Astros dateibasiertes Routing in unserer [Routing-Anleitung](/de/core-concepts/astro-pages)
+📚 Lerne mehr über Astros dateibasiertes Routing in unserer Routing-Anleitung im Artikel über [Astro-Seiten](/de/core-concepts/astro-pages) oder im erweiterten Artikel [Routing](/de/core-concepts/routing)
