@@ -73,7 +73,6 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
 export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL; [key: string]: unknown }): vite.PluginOption {
   /** Aliases from the tsconfig.json or jsconfig.json configuration. */
   const configAlias = getConfigAlias(astroConfig.projectRoot && url.fileURLToPath(astroConfig.projectRoot));
-  console.log(configAlias)
 
   // if no config alias was found, bypass this plugin
   if (!configAlias) return {} as vite.PluginOption;
