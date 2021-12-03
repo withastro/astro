@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Schnellstart
-description: Die einfachste Weg schnell mit Astro loszulegen.
+description: Der einfachste Weg schnell mit Astro loszulegen.
 ---
 
 ```shell
@@ -30,7 +30,7 @@ npm run build
 
 Um mehr über den Installationsprozess und den ersten Einsatz von Astro zu lernen [lies unsere Installationsanleitung](/de/installation).
 
-Wenn du es bevorzugst anhand eines Beispiels zu lernen, werfe einen Blick auf die [komplette Liste der Beispiele](https://github.com/snowpackjs/astro/tree/main/examples) auf GitHub.  
+Wenn du es bevorzugst anhand eines Beispiels zu lernen, werfe einen Blick auf die [komplette Liste der Beispiele](https://github.com/withastro/astro/tree/main/examples) auf GitHub.  
 Du kannst jedes dieser Beispiele ausprobieren, indem du `npm init astro -- --template "BEISPIEL_NAME"` ausführst.
 
 ## Starte dein Projekt
@@ -73,6 +73,6 @@ Wir möchten dich ermutigen, dir etwas Zeit zu nehmen, um mit der Art und Weise 
 
 📚 Lerne mehr über Astros Projektstruktur in unserer [Anleitung zur Projektstruktur](/de/core-concepts/project-structure)
 
-📚 Lerne mehr über Astros Komponenten-Syntax in unserer [Astro-Komponenten-Anleitung](/de/core-concepts/astro-components)
+📚 Lerne mehr über Astros Komponenten-Syntax in unserem Artikel über [Astro-Komponenten](/de/core-concepts/astro-components)
 
-📚 Lerne mehr über Astros dateibasiertes Routing in unserer [Routing-Anleitung](core-concepts/astro-pages)
+📚 Lerne mehr über Astros dateibasiertes Routing in unserer Routing-Anleitung im Artikel über [Astro-Seiten](/de/core-concepts/astro-pages)
