@@ -18,7 +18,7 @@ Einige Features sind noch nicht verfügbar und Teile der API noch nicht vollstä
 
 [Docusaurus](https://docusaurus.io/) ist ein populärer Dokumentationssite-Renderer. Docusaurus verwendet React, um deine Website-UI zu generieren, während Astro in diesem Bereich React, Preact, Vue, Svelte, Solid und andere unterstützt - sowie auch eine an HTML angelehnte Komponenten-Syntax, die sich ähnlich verhält wie HTML + JSX.
 
-Docusaurus wurde entwickelt, um Dokumentationswebsites zu erzeugen und bietet einige dokumentationsspezifische Features, über die Astro nicht verfügt. Stattdessen kannst du in Astro auf dokumentationsspezifische Features mittels einer offiziellen [`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs)-Vorlage zugreifen, die du für deine Site verwenden kannst. Diese Dokumentationswebsite wurde unter Verwendung dieser Vorlage erstellt!
+Docusaurus wurde entwickelt, um Dokumentationswebsites zu erzeugen und bietet einige dokumentationsspezifische Features, über die Astro nicht verfügt. Stattdessen kannst du in Astro auf dokumentationsspezifische Features mittels einer offiziellen [`docs`](https://github.com/withastro/astro/tree/main/examples/docs)-Vorlage zugreifen, die du für deine Site verwenden kannst. Diese Dokumentationswebsite wurde unter Verwendung dieser Vorlage erstellt!
 
 ### Leistungsvergleich Docusaurus vs. Astro
 
@@ -201,9 +201,9 @@ Ein wesentlicher Grund für diesen Leistungsunterschied liegt in Astros geringer
 
 [VuePress](https://vuepress.vuejs.org/guide/) ist ein populärer Dokumentationssite-Renderer auf der Grundlage von Vue. VuePress verwendet Vue, um deine Website-UI zu generieren, während Astro in diesem Bereich React, Preact, Vue, Svelte, Solid und andere unterstützt - sowie auch eine an HTML angelehnte Komponenten-Syntax, die sich ähnlich verhält wie HTML + JSX.
 
-VuePress wurde entwickelt, um Dokumentationswebsites zu erzeugen und bietet einige dokumentationsspezifische Features, über die Astro nicht verfügt. Stattdessen verfügst du in Astro über dokumentationsspezifische Features mittels einer offiziellen [`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs)-Vorlage, die du für deine Site verwenden kannst. Diese Website wurde unter Verwendung dieser Vorlage erstellt!
+VuePress wurde entwickelt, um Dokumentationswebsites zu erzeugen und bietet einige dokumentationsspezifische Features, über die Astro nicht verfügt. Stattdessen verfügst du in Astro über dokumentationsspezifische Features mittels einer offiziellen [`docs`](https://github.com/withastro/astro/tree/main/examples/docs)-Vorlage, die du für deine Site verwenden kannst. Diese Website wurde unter Verwendung dieser Vorlage erstellt!
 
-Evan You (Erfinder von Vue) arbeitet zur Zeit an einer neuen Version von VuePress, genannt [VitePress](https://vitepress.vuejs.org/). Wenn du eine moderne Alternative zu VuePress suchst, [lies Evans Post](https://github.com/snowpackjs/astro/issues/1159#issue-974035962) darüber, warum VitePress hierfür eine bessere Option darstellen kann.
+Evan You (Erfinder von Vue) arbeitet zur Zeit an einer neuen Version von VuePress, genannt [VitePress](https://vitepress.vuejs.org/). Wenn du eine moderne Alternative zu VuePress suchst, [lies Evans Post](https://github.com/withastro/astro/issues/1159#issue-974035962) darüber, warum VitePress hierfür eine bessere Option darstellen kann.
 
 ### Leistungsvergleich VuePress vs. Astro
 
