@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Layouts
-description: Eine Einführung in Layouts - eine Art Astro-Komponente, die für gemeinsame Layouts auf verschiedenen Seiten verwendet wird.
+description: Einführung in Layouts - eine Art der Astro-Komponente, die für gemeinsame Layouts auf verschiedenen Seiten verwendet wird.
 ---
 
 **Layouts** sind eine besondere Art der [Komponente](/de/core-concepts/astro-components) - sie können dir helfen gemeinsame Seiten-Layouts über dein Projekt verteilt zu nutzen.
