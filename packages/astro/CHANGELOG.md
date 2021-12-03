@@ -1,5 +1,15 @@
 # astro
 
+## 0.21.9
+
+### Patch Changes
+
+- [#2107](https://github.com/withastro/astro/pull/2107) [`4c444676`](https://github.com/withastro/astro/commit/4c44467668045733b4e5c3bbed8a1bde2ba421de) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression in build caused by use of URL module
+
+  Using this module breaks the build because Vite tries to shim it, incorrectly.
+
+* [#2106](https://github.com/withastro/astro/pull/2106) [`583459d0`](https://github.com/withastro/astro/commit/583459d0b6476fc79b351648c0db3c2869edfa12) Thanks [@matthewp](https://github.com/matthewp)! - Fix for using ?url with CSS imports
+
 ## 0.21.8
 
 ### Patch Changes
