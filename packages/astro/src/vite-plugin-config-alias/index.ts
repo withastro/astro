@@ -11,7 +11,7 @@ export declare interface Alias {
 }
 
 /** Returns a path with its slashes replaced with posix slashes. */
-const normalize = (pathname: string) => String(pathname).split(path.sep).join(path.sep);
+const normalize = (pathname: string) => String(pathname).split(path.sep).join(path.posix.sep).replace(/^\/?/, '/');
 
 /** Returns the results of a config file if it exists, otherwise null. */
 const getExistingConfig = (searchName: string, cwd: string | undefined): tsr.TsConfigResultSuccess | null => {
@@ -35,7 +35,7 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
   if (!compilerOptions.baseUrl) return null;
 
   // resolve the base url from the configuration file directory
-  const baseUrl = path.resolve(path.dirname(normalize(config.path)), normalize(compilerOptions.baseUrl));
+  const baseUrl = path.posix.resolve(path.posix.dirname(normalize(config.path)), normalize(compilerOptions.baseUrl));
 
   /** List of compiled alias expressions. */
   const aliases: Alias[] = [];
@@ -52,7 +52,7 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
 
     for (let value of values) {
       /** String used to replace a matched path. */
-      const replacement = [...path.resolve(baseUrl, value)].map((segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment)).join('');
+      const replacement = [...path.posix.resolve(baseUrl, value)].map((segment) => (segment === '*' ? `$${++matchId}` : segment === '$' ? '$$' : segment)).join('');
 
       aliases.push({ find, replacement });
     }
