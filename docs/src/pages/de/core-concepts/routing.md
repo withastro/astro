@@ -83,11 +83,11 @@ F체r ein `real-world`-Beispiel w체rdest du den `Github File Viewer` folgenderma�
 /[org]/[repo]/tree/[branch]/[...file]
 ```
 
-In diesem Beispiel w체rde eine Abfrage von `/snowpackjs/astro/tree/main/docs/public/favicon.svg` folgende Parameter f체r die Seite verf체gbar machen:
+In diesem Beispiel w체rde eine Abfrage von `/withastro/astro/tree/main/docs/public/favicon.svg` folgende Parameter f체r die Seite verf체gbar machen:
 
 ```js
 {
-	org: 'snowpackjs',
+	org: 'withastro',
 	repo: 'astro',
 	branch: 'main',
 	file: 'docs/public/favicon.svg'
