@@ -35,7 +35,7 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
   if (!compilerOptions.baseUrl) return null;
 
   // resolve the base url from the configuration file directory
-  const baseUrl = path.posix.resolve(path.posix.dirname(normalize(config.path)), normalize(compilerOptions.baseUrl));
+  const baseUrl = path.posix.resolve(path.posix.dirname(normalize(config.path).replace(/^\/?/, '/')), normalize(compilerOptions.baseUrl));
 
   /** List of compiled alias expressions. */
   const aliases: Alias[] = [];
