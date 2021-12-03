@@ -224,6 +224,18 @@ module.exports = {
 };
 ```
 
+Then in the `astro.config.mjs` file, point to the Tailwind config file:
+
+```js
+export default /** @type {import('astro').AstroUserConfig} */ ({
+  // Comment out "renderers: []" to enable Astro's default component support.
+  renderers: [],
+  devOptions: {
+    tailwindConfig: './tailwind.config.cjs'
+  }
+})
+```
+
 Now you're ready to write Tailwind! Our recommended approach is to create a `src/styles/global.css` file (or whatever you‘d like to name your global stylesheet) with [Tailwind utilities][tailwind-utilities] like so:
 
 ```css
