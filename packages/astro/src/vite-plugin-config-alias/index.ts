@@ -11,7 +11,7 @@ export declare interface Alias {
 }
 
 /** Returns a path with its slashes replaced with posix slashes. */
-const normalize = (pathname: string) => String(pathname).split(path.sep).join(path.posix.sep).replace(/^\/?/, '/');
+const normalize = (pathname: string) => String(pathname).split(path.sep).join(path.posix.sep);
 
 /** Returns the results of a config file if it exists, otherwise null. */
 const getExistingConfig = (searchName: string, cwd: string | undefined): tsr.TsConfigResultSuccess | null => {
@@ -35,7 +35,7 @@ const getConfigAlias = (cwd: string | undefined): Alias[] | null => {
   if (!compilerOptions.baseUrl) return null;
 
   // resolve the base url from the configuration file directory
-  const baseUrl = path.posix.resolve(path.posix.dirname(normalize(config.path)), normalize(compilerOptions.baseUrl));
+  const baseUrl = path.posix.resolve(path.posix.dirname(normalize(config.path).replace(/^\/?/, '/')), normalize(compilerOptions.baseUrl));
 
   /** List of compiled alias expressions. */
   const aliases: Alias[] = [];
