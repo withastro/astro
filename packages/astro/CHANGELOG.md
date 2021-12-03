@@ -1,5 +1,11 @@
 # astro
 
+## 0.21.8
+
+### Patch Changes
+
+- [#2096](https://github.com/withastro/astro/pull/2096) [`11798a32`](https://github.com/withastro/astro/commit/11798a3209521664e02989e5ea3e791c8c5fb036) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Updates @astro/compiler and @astro/language-server.
+
 ## 0.21.7
 
 ### Patch Changes
