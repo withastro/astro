@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Astro-Seiten
-description: Eine Einführung in Astro-Seiten, Komponenten die wie komplette Seiten funktionieren.
+description: Einführung in Astro-Seiten, Astro-Komponenten die wie vollständige Seiten funktionieren.
 ---
 
 **Seiten** sind eine spezielle Art der [Astro-Komponente](/de/core-concepts/astro-components), die das Routing, das Laden von Daten und das Templating für eine Seite deiner Website erledigt. Du kannst sie dir wie eine einfache Astro-Komponente vorstellen - jedoch mit erweiterter Zuständigkeit.
