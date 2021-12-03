@@ -55,6 +55,10 @@ export const SIDEBAR = {
     { text: 'Layouts', link: 'de/core-concepts/layouts' },
     { text: 'Routing', link: 'de/core-concepts/routing' },
     { text: 'Partial Hydration', link: 'de/core-concepts/component-hydration' },
+    
+    { text: 'Anleitungen', header: true },
+    
+    { text: 'Referenz', header: true },
   ],
   nl: [
     { text: 'Welkom', header: true },
