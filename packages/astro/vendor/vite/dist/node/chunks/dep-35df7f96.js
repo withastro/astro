@@ -5771,6 +5771,7 @@ const assetUrlRE = /__VITE_ASSET__([a-z\d]{8})__(?:\$_(.*?)__)?/g;
 const assetUrlQuotedRE = /"__VITE_ASSET__([a-z\d]{8})__(?:\$_(.*?)__)?"/g;
 const rawRE = /(\?|&)raw(?:&|$)/;
 const urlRE = /(\?|&)url(?:&|$)/;
+const isURLRequest = (id) => urlRE.test(id)
 const chunkToEmittedAssetsMap = new WeakMap();
 const assetCache = new WeakMap();
 const assetHashToFilenameMap = new WeakMap();
@@ -19848,7 +19849,7 @@ function cssPlugin(config) {
             removedPureCssFilesCache.set(config, new Map());
         },
         async transform(raw, id) {
-            if (!isCSSRequest(id) || commonjsProxyRE.test(id)) {
+            if (!isCSSRequest(id) || commonjsProxyRE.test(id) || isURLRequest(id)) {
                 return;
             }
             const urlReplacer = async (url, importer) => {
@@ -19929,7 +19930,7 @@ function cssPostPlugin(config) {
             hasEmitted = false;
         },
         async transform(css, id, ssr) {
-            if (!isCSSRequest(id) || commonjsProxyRE.test(id)) {
+            if (!isCSSRequest(id) || commonjsProxyRE.test(id) || isURLRequest(id)) {
                 return;
             }
             const inlined = inlineRE.test(id);
