@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Projektstruktur
-description: Lerne mit Astro ein Projekt zu strukturieren.
+description: Lerne ein Projekt mit Astro zu strukturieren.
 ---
 
 Astro verwendet eine dogmatische Verzeichnisstruktur für dein Projekt. Jedes Astro-Projekt muss die folgenden Verzeichnisse und Dateien enthalten:
