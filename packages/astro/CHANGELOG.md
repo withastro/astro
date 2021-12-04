@@ -1,5 +1,25 @@
 # astro
 
+## 0.21.10
+
+### Patch Changes
+
+- [#2109](https://github.com/withastro/astro/pull/2109) [`3e4cfea4`](https://github.com/withastro/astro/commit/3e4cfea4e29ab958d69e4502c1f634a007393a7b) Thanks [@Mikkel-T](https://github.com/Mikkel-T)! - Fixes aliases on windows.
+
+* [#2117](https://github.com/withastro/astro/pull/2117) [`8346a1f2`](https://github.com/withastro/astro/commit/8346a1f2b9e38d68788e0c6dc62f872a46ebe8a7) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes regression introduced in `@astrojs/compiler` related to active formatting elements
+
+  See [CHANGELOG](https://github.com/withastro/compiler/blob/main/lib/compiler/CHANGELOG.md#057).
+
+## 0.21.9
+
+### Patch Changes
+
+- [#2107](https://github.com/withastro/astro/pull/2107) [`4c444676`](https://github.com/withastro/astro/commit/4c44467668045733b4e5c3bbed8a1bde2ba421de) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression in build caused by use of URL module
+
+  Using this module breaks the build because Vite tries to shim it, incorrectly.
+
+* [#2106](https://github.com/withastro/astro/pull/2106) [`583459d0`](https://github.com/withastro/astro/commit/583459d0b6476fc79b351648c0db3c2869edfa12) Thanks [@matthewp](https://github.com/matthewp)! - Fix for using ?url with CSS imports
+
 ## 0.21.8
 
 ### Patch Changes

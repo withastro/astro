@@ -2,7 +2,6 @@ import type { AstroComponentMetadata, Renderer } from '../../@types/astro';
 import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/astro';
 
 import shorthash from 'shorthash';
-import { pathToFileURL } from 'url';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
@@ -289,7 +288,7 @@ function createFetchContentFn(url: URL) {
 // Inside of getStaticPaths.
 export function createAstro(fileURLStr: string, site: string, projectRootStr: string): AstroGlobalPartial {
   const url = new URL(fileURLStr);
-  const projectRoot = projectRootStr === '.' ? pathToFileURL(process.cwd()) : new URL(projectRootStr);
+  const projectRoot = new URL(projectRootStr);
   const fetchContent = createFetchContentFn(url);
   return {
     site: new URL(site),
