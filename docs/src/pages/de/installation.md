@@ -4,7 +4,7 @@ title: Installation
 description: So installierst du Astro mit NPM, PNPM oder Yarn.
 ---
 
-Es gibt verschiedene Möglichkeiten Astro in einem neuen Projekt zu installieren.
+Es gibt verschiedene Möglichkeiten Astro mit einem neuen Projekt zu installieren.
 
 ## Vorbereitungen
 
@@ -29,7 +29,7 @@ yarn create astro
 pnpm create astro
 ```
 
-Der [`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro)-Assistent lässt dich aus einer Reihe von [Start-Vorlagen](https://github.com/snowpackjs/astro/tree/main/examples) auswählen. Alternativ könntest du auch dein eigenes Astro-Projekt direkt aus GitHub heraus importieren.
+Der [`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro)-Assistent lässt dich aus einer Reihe von [Start-Vorlagen](https://github.com/withastro/astro/tree/main/examples) auswählen. Alternativ könntest du auch dein eigenes Astro-Projekt direkt aus GitHub heraus importieren.
 
 ```bash
 # Hinweis: Ersetze "mein-astro-projekt" durch den Namen deines Projekts.
@@ -171,8 +171,8 @@ Geschafft! Du kannst jetzt mit dem Entwickeln beginnen!
 
 Wir möchten dich ermutigen, dir etwas Zeit zu nehmen, um mit der Art und Weise vertraut zu werden, wie Astro funktioniert. Am besten befasst du dich weitergehend mit der Dokumentation. Hier ein paar Empfehlungen:
 
-📚 Lerne mehr über Astros Projektstruktur in unserer [Anleitung zur Projektstruktur](/core-concepts/project-structure)
+📚 Lerne mehr über die Projektstruktur in Astro in unserem [Artikel zur Projektstruktur](/de/core-concepts/project-structure)
 
-📚 Lerne mehr über Astros Komponenten-Syntax in unserer [Astro-Komponenten-Anleitung](/core-concepts/astro-components)
+📚 Lerne mehr über die Komponenten-Syntax in Astro in unserem [Artikel zu Astro-Komponenten](/de/core-concepts/astro-components)
 
-📚 Lerne mehr über Astros dateibasiertes Routing in unserer [Routing-Anleitung](core-concepts/astro-pages)
+📚 Lerne mehr über das dateibasierte Routing in Astro in unserem [Artikel zu Astro-Seiten](/de/core-concepts/astro-pages) und unserem [Artikel über Routing](/de/core-concepts/routing).
