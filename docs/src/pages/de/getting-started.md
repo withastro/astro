@@ -1,6 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
-title: Einführung
+title: Erste Schritte
 description: Eine einfache Einführung in Astro
 lang: de
 ---
