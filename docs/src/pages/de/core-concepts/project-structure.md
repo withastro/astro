@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Projektstruktur
-description: Lerne mit Astro ein Projekt zu strukturieren.
+description: Lerne wie die Projektstruktur in Astro aufgebaut ist.
 ---
 
 Astro verwendet eine dogmatische Verzeichnisstruktur für dein Projekt. Jedes Astro-Projekt muss die folgenden Verzeichnisse und Dateien enthalten:
@@ -10,7 +10,7 @@ Astro verwendet eine dogmatische Verzeichnisstruktur für dein Projekt. Jedes As
 - `public/*` - Deine Nicht-Code-Assets (Schriften, Icons etc.)
 - `package.json` - Ein Projekt-Manifest
 
-Der einfachste Weg dein neues Projekt aufzusetzen, ist mittels `npm init astro`. Lies unsere [Installationsanleitung](/quick-start), um einen vollständigen Überblick darüber zu erhalten, wie ein Projekt automatisch (mit `npm init astro`) oder manuell aufgesetzt werden kann.
+Der einfachste Weg dein neues Projekt aufzusetzen, ist mittels `npm init astro`. Lies unsere [Installationsanleitung](/de/quick-start), um einen vollständigen Überblick darüber zu erhalten, wie ein Projekt automatisch (mit `npm init astro`) oder manuell aufgesetzt werden kann.
 
 ## Projektstruktur
 
@@ -29,9 +29,9 @@ Der einfachste Weg dein neues Projekt aufzusetzen, ist mittels `npm init astro`.
 Das `src`-Verzeichnis beinhaltet den Großteil des Source-Code zu deinem Projekt. Dazu zählen:
 
 - [Astro-Komponenten](/core-concepts/astro-components)
-- [Seiten](/core-concepts/astro-pages)
-- [Layoute](/core-concepts/layouts)
-- [Frontend-JS-Komponenten](/core-concepts/component-hydration)
+- [Astro-Seiten](/de/core-concepts/astro-pages)
+- [Layouts](/de/core-concepts/layouts)
+- [JavaScript-Komponenten](/de/core-concepts/component-hydration)
 - [Styling (CSS, Sass)](/guides/styling)
 - [Markdown](/guides/markdown-content)
 
@@ -39,17 +39,17 @@ Astro hat vollständige Kontrolle darüber, wie diese Dateien verarbeitet, optim
 
 ### `src/components`
 
-[Komponenten](/core-concepts/astro-components) sind mehrfach verwendbare Einheiten der UI deiner Seiten. Es wird empfohlen (aber dies ist nicht zwingend notwendig), Komponenten in diesem Verzeichnis anzulegen. Wie diese darin strukturiert sind, kannst du frei entscheiden.
+[Komponenten](/de/core-concepts/astro-components) sind mehrfach verwendbare Einheiten der UI deiner Seiten. Es wird empfohlen (aber dies ist nicht zwingend notwendig), Komponenten in diesem Verzeichnis anzulegen. Wie diese darin strukturiert sind, kannst du frei entscheiden.
 
-Deine Nicht-Astro-Komponenten (React, Preact, Svelte, Vue etc.) können ebenfalls im `src/components`-Verzeichnis abgelegt werden. Astro wird automatisch alle Komponeneten als HTML rendern, solange du nicht mittels [partieller Anreicherung](/core-concepts/component-hydration) eine bestimmte Frontend-Komponente aktiviert hast.
+Deine Nicht-Astro-Komponenten (React, Preact, Svelte, Vue etc.) können ebenfalls im `src/components`-Verzeichnis abgelegt werden. Astro wird automatisch alle Komponeneten als HTML rendern, solange du nicht mittels [Partial Hydration](/de/core-concepts/component-hydration) eine bestimmte Frontend-Komponente aktiviert hast.
 
 ### `src/layouts`
 
-[Layouts](/core-concepts/layouts) sind mehrfach verwendbare Komponenten für die Gestaltung einzelner Seiten. Es wird empfohlen (aber dies ist nicht zwingend notwendig) Layout-Komponenten in diesem Verzeichnis anzulegen. Wie diese darin strukturiert sind, kannst du frei entscheiden.
+[Layouts](/de/core-concepts/layouts) sind mehrfach verwendbare Komponenten für die Gestaltung einzelner Seiten. Es wird empfohlen (aber dies ist nicht zwingend notwendig) Layout-Komponenten in diesem Verzeichnis anzulegen. Wie diese darin strukturiert sind, kannst du frei entscheiden.
 
 ### `src/pages`
 
-[`src/pages`](/core-concepts/astro-pages) enthält alle Seiten (`.astro` und `.md` werden unterstützt) für deine Website. Es ist **zwingend** notwendig, dass du deine Seiten in diesem Verzeichnis anlegst.
+[`src/pages`](/de/core-concepts/astro-pages) enthält alle Seiten (`.astro` und `.md` werden unterstützt) für deine Website. Es ist **zwingend** notwendig, dass du deine Seiten in diesem Verzeichnis anlegst.
 
 ### `public/`
 
