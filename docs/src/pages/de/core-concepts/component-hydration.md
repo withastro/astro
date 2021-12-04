@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Partial Hydration in Astro
-description: Lerne wie Partial Hydration unter Verwendung der "Insel-Architektur" in Astro funktioniert.
+description: Lerne wie Partial Hydration unter Verwendung der "Islands-Architecture" in Astro funktioniert.
 ---
 
 **Astro generiert jede Website standardmäßig mit Null Client-seitigem JavaScript.** Verwende irgendeine Frontend-UI-Bibliothek, die dir gefällt (React, Svelte, Vue etc.), und Astro wird deine Arbeit im Build-Prozess automatisch als HTML rendern und sämtliches JavaScript entfernen. Dies führt dazu, dass jede Seite standardmäßig schnell lädt.
