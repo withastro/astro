@@ -103,7 +103,7 @@
       }
     },
     "astro:lang": {
-      "begin": "(<)(?:(S(?i:cript|tyle))|((?i:script|style)))\\b",
+      "begin": "(<)(?:(S(?i:cript|tyle))|((?i:script|style)))(?![\\w:-])",
       "beginCaptures": {
         "0": {
           "name": "meta.tag.metadata.$2$3.start.html"
@@ -118,7 +118,7 @@
           "name": "entity.name.tag.html"
         }
       },
-      "end": "(</)(?:(S(?i:cript|tyle))|((?i:script|style)))\\s*(>)",
+      "end": "(</)(?:(S(?i:cript|tyle))|((?i:script|style)))(?![\\w:-])\\s*(>)",
       "endCaptures": {
         "0": {
           "name": "meta.tag.metadata.$2$3.end.html"
@@ -152,9 +152,9 @@
           ]
         },
         {
-          "name": "source.css.embedded.html",
           "begin": "(?<=(?i:lang)=(['\"`]?)(?i:css)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</(?i:script|style))",
+          "end": "(?=</[\\w:-])",
+          "contentName": "source.css",
           "patterns": [
             {
               "include": "source.css"
@@ -162,9 +162,9 @@
           ]
         },
         {
-          "name": "source.js.embedded.html",
           "begin": "(?<=(?i:lang)=(['\"`]?)(?i:jsx?)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</(?i:script|style))",
+          "end": "(?=</[\\w:-])",
+          "contentName": "source.js",
           "patterns": [
             {
               "include": "source.js"
@@ -172,9 +172,9 @@
           ]
         },
         {
-          "name": "source.less.embedded.html",
           "begin": "(?<=(?i:lang)=(['\"`]?)(?i:less)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</(?i:script|style))",
+          "end": "(?=</[\\w:-])",
+          "contentName": "source.css.css",
           "patterns": [
             {
               "include": "source.css.less"
@@ -182,9 +182,9 @@
           ]
         },
         {
-          "name": "source.sass.embedded.html",
           "begin": "(?<=(?i:lang)=(['\"`]?)(?i:sass)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</(?i:script|style))",
+          "end": "(?=</[\\w:-])",
+          "contentName": "source.sass",
           "patterns": [
             {
               "include": "source.sass"
@@ -192,9 +192,9 @@
           ]
         },
         {
-          "name": "source.scss.embedded.html",
           "begin": "(?<=(?i:lang)=(['\"`]?)(?i:scss)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</(?i:script|style))",
+          "end": "(?=</[\\w:-])",
+          "contentName": "source.css.scss",
           "patterns": [
             {
               "include": "source.css.scss"
@@ -202,9 +202,9 @@
           ]
         },
         {
-          "name": "source.stylus.embedded.html",
           "begin": "(?<=(?i:lang)=(['\"`]?)(?i:styl(?:us)?)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</(?i:script|style))",
+           "end": "(?=</[\\w:-])",
+          "contentName": "source.stylus",
           "patterns": [
             {
               "include": "source.stylus"
@@ -212,9 +212,19 @@
           ]
         },
         {
-          "name": "source.ts.embedded.html",
-          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:tsx?)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</(?i:script|style))",
+          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:ts)\\1[^>]*>)(?!\\G)",
+          "end": "(?=</[\\w:-])",
+          "contentName": "source.ts",
+          "patterns": [
+            {
+              "include": "source.ts"
+            }
+          ]
+        },
+        {
+          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:tsx)\\1[^>]*>)(?!\\G)",
+          "end": "(?=</[\\w:-])",
+          "contentName": "source.tsx",
           "patterns": [
             {
               "include": "source.tsx"
@@ -222,9 +232,9 @@
           ]
         },
         {
-          "name": "source.js.embedded.html",
-          "begin": "(?<=<(?i:script|style)[^>]*>)(?!\\G)",
-          "end": "(?=</(?i:script|style))",
+          "begin": "(?<=<(?i:script)[^>]*>)(?!\\G)",
+          "end": "(?=</[\\w:-])",
+          "contentName": "source.js",
           "patterns": [
             {
               "include": "source.js"
@@ -232,9 +242,9 @@
           ]
         },
         {
-          "name": "source.css.embedded.html",
-          "begin": "(?<=<(?i:script|style)[^>]*>)(?!\\G)",
-          "end": "(?=</(?i:script|style))",
+          "begin": "(?<=<(?i:style)[^>]*>)(?!\\G)",
+          "end": "(?=</[\\w:-])",
+          "contentName": "source.css",
           "patterns": [
             {
               "include": "source.css"
