@@ -12,7 +12,7 @@
     "@docsearch/react": "^1.0.0-alpha.27"
   },
   "devDependencies": {
-    "astro": "^0.21.10",
+    "astro": "^0.21.11",
     "@snowpack/plugin-dotenv": "^2.1.0"
   }
 }
