@@ -104,7 +104,7 @@ We recommend using `"type": "module"` so that your `index.js` can be used as an 
 
 #### `package.json#exports`
 
-The entry points allowed by Astro to import your component or any of its [files][#package-json-files].
+The entry points allowed by Astro to import your component or any of its [files](#packagejsonfiles).
 
 ```json
 {
