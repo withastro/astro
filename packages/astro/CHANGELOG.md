@@ -1,5 +1,17 @@
 # astro
 
+## 0.21.11
+
+### Patch Changes
+
+- [#2137](https://github.com/withastro/astro/pull/2137) [`cc1dae55`](https://github.com/withastro/astro/commit/cc1dae55c8bbf0a7d862e227f7daed138c485be4) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Exclude 404 pages from sitemap generation
+
+* [#2112](https://github.com/withastro/astro/pull/2112) [`da7b41f5`](https://github.com/withastro/astro/commit/da7b41f5b8eb6d3a3e3a765be447e03ef5691979) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: fix missing styles in build
+
+- [#2116](https://github.com/withastro/astro/pull/2116) [`d9d3906a`](https://github.com/withastro/astro/commit/d9d3906a3c215436a1e3d2ab64e63d23a772e059) Thanks [@e111077](https://github.com/e111077)! - add lit renderer reflection tests
+
+* [#2135](https://github.com/withastro/astro/pull/2135) [`77c3fda3`](https://github.com/withastro/astro/commit/77c3fda379b5858a74fa54d278058efaf33fdac5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Patch `fetch` support to prioritize authored code. Existing `fetch` imports and declarations are respected.
+
 ## 0.21.10
 
 ### Patch Changes
