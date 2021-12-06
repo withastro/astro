@@ -23,7 +23,7 @@
     "lodash": "^4.17.21",
     "source-map": "^0.7.3",
     "ts-morph": "^12.0.0",
-    "typescript": "^4.5.1-rc",
+    "typescript": "^4.5.2",
     "vscode-css-languageservice": "^5.1.1",
     "vscode-emmet-helper": "2.1.2",
     "vscode-html-languageservice": "^3.0.3",
