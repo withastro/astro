@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.9
+
+### Patch Changes
+
+- [#2124](https://github.com/withastro/astro/pull/2124) [`c0f29bcf`](https://github.com/withastro/astro/commit/c0f29bcf8c2b943e4a8101cae4f893b13a4b832c) Thanks [@leosvelperez](https://github.com/leosvelperez)! - Parse --renderers flag correctly when passed to the create-astro cli
+
 ## 0.6.8
 
 ### Patch Changes
