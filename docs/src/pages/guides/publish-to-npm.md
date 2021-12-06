@@ -22,12 +22,12 @@ Looking for inspiration? Check out some of [our favorite themes & components][/t
 > - [JSON Manifest (`package.json`)](https://docs.npmjs.com/creating-a-package-json-file)
 > - [Workspaces](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#workspaces)
 
-To create a new package, we recommend developing with **workspaces**. This will allow you to develop your component alongside a working instance of Astro.
+To create a new package, we recommend developing with **workspaces**. This will allow you to develop your component alongside a working copy of Astro.
 
 ```
 my-project/
    ├─ demo/
-      └─ ... for testing and demonstration of packages
+      └─ ... for testing and demonstration
    ├─ package.json
    └─ packages/
       └─ my-component/
@@ -36,9 +36,9 @@ my-project/
          └─ ... additional files used by the package
 ```
 
-This example, named `my-project`, demonstrates a project with a single package, named `my-component`. Additional directories can be added within the `packages` directory to develop multiple packages together in the same project.
+In this example, named `my-project`, we create a project with a single package, named `my-component`, and a `demo` directory for testing and demonstrating the component.
 
-The `package.json` in the project root instructs your package manager to work with any directories within `packages`.
+This is configured in the project root’s `package.json` file.
 
 ```json
 {
@@ -48,6 +48,12 @@ The `package.json` in the project root instructs your package manager to work wi
     "packages/*"
   ]
 }
+```
+
+In this example, multiple packages can be developed together from the `packages` directory. These packages can also be referenced from `demo`, where you can install a working copy of Astro.
+
+```shell
+npm init astro demo --template minimal
 ```
 
 Now let’s explore the files that will make up your individual package:
