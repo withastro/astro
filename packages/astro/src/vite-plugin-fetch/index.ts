@@ -1,5 +1,6 @@
 import type { Plugin } from '../core/vite';
 import MagicString from 'magic-string';
+import { walk } from 'estree-walker';
 
 // https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
 function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
@@ -39,6 +40,26 @@ export default function pluginFetch(): Plugin {
       if (!code.includes('fetch')) {
         return null;
       }
+
+      const ast = this.parse(code);
+      let fetchDeclared = false;
+      walk(ast, {
+        enter(node, parent) {
+          if (fetchDeclared) return this.skip();
+          if (node.type === 'Identifier') {
+            // Identifier is OK in any type of Expression (CallExpression, UnaryExpression, etc)
+            if (node.name === 'fetch' && !parent.type.endsWith('Expression')) {
+              fetchDeclared = true;
+            }
+          }
+        }
+      })
+
+      // Fetch is already declared, do not inject a re-declaration!
+      if (fetchDeclared) {
+        return null;
+      }
+
       // Ignore specific modules
       for (const ignored of IGNORED_MODULES) {
         if (id.match(ignored)) {
