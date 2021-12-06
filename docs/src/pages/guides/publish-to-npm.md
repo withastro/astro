@@ -194,8 +194,8 @@ import * as Example from 'example-astro-component';
 import MyAstroComponent from 'example-astro-component/astro';
 import MyReactComponent from 'example-astro-component/react';
 ---
-<Example.MyAstroComponent />
-<Example.MyReactComponent />
+<MyAstroComponent />
+<MyReactComponent />
 ```
 
 ---
