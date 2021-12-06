@@ -165,6 +165,7 @@ class AstroBuilder {
 
     // Blah
     const facadeIdToPageDataMap = new Map<string, PageBuildData>();
+    const facadeIdToAssetsMap = new Map<string, string[]>();
 
     // Bundle the assets in your final build: This currently takes the HTML output
     // of every page (stored in memory) and bundles the assets pointed to on those pages.
@@ -207,6 +208,7 @@ class AstroBuilder {
           astroStyleMap,
           chunkToReferenceIdMap,
           pureCSSChunks,
+          facadeIdToAssetsMap,
         }),
         ...(viteConfig.plugins || []),
       ],
@@ -222,7 +224,7 @@ class AstroBuilder {
     console.log('End build step, now generating');
     for(let out of (result as any).output) {
       if(out.facadeModuleId)
-        await this.doTheRest(out, facadeIdToPageDataMap);
+        await this.renderPages(out, facadeIdToPageDataMap, facadeIdToAssetsMap);
     }
 
     // Write any additionally generated assets to disk.
@@ -253,9 +255,11 @@ class AstroBuilder {
     }
   }
 
-  private async doTheRest(out: any, facadeIdToPageDataMap: Map<string, PageBuildData>) {
+  private async renderPages(out: any, facadeIdToPageDataMap: Map<string, PageBuildData>, facadeIdToAssetsMap: Map<string, string[]>) {
     let url = new URL('./' + out.fileName, this.config.dist);
-    let pageData = facadeIdToPageDataMap.get(out.facadeModuleId)!;
+    const facadeId: string = out.facadeModuleId;
+    let pageData = facadeIdToPageDataMap.get(facadeId)!;
+    let linkIds = facadeIdToAssetsMap.get(facadeId) || [];
     let compiledModule = await import(url.toString());
     let Component = compiledModule.default;
 
@@ -271,7 +275,7 @@ class AstroBuilder {
           mod
         })
         console.log(`Generating: ${path}`);
-        let html = await renderComponent(renderers, Component, this.config, path, this.origin, params, pageProps);
+        let html = await renderComponent(renderers, Component, this.config, path, this.origin, params, pageProps, linkIds);
         let outFolder = new URL('.' + path + '/', this.config.dist);
         let outFile = new URL('./index.html', outFolder);
         await fs.promises.mkdir(outFolder, { recursive: true });

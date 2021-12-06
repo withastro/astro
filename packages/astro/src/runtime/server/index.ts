@@ -396,12 +396,16 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
     styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
   }
 
+  const links = Array.from(result.links)
+    .filter(uniqueElements)
+    .map(link => renderElement('link', link))
+
   // inject styles & scripts at end of <head>
   let headPos = template.indexOf('</head>');
   if (headPos === -1) {
-    return styles.join('\n') + scripts.join('\n') + template; // if no </head>, prepend styles & scripts
+    return links.join('\n') + styles.join('\n') + scripts.join('\n') + template; // if no </head>, prepend styles & scripts
   }
-  return template.substring(0, headPos) + styles.join('\n') + scripts.join('\n') + template.substring(headPos);
+  return template.substring(0, headPos) + links.join('\n') + styles.join('\n') + scripts.join('\n') + template.substring(headPos);
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
