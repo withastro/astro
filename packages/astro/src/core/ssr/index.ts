@@ -23,7 +23,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { renderPage, renderSlot } from '../../runtime/server/index.js';
-import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency, viteifyURL } from '../util.js';
+import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
@@ -133,7 +133,7 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
   // Important: This needs to happen first, in case a renderer provides polyfills.
   const renderers = await resolveRenderers(viteServer, astroConfig);
   // Load the module from the Vite SSR Runtime.
-  const mod = (await viteServer.ssrLoadModule(viteifyURL(filePath))) as ComponentInstance;
+  const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 
   return [renderers, mod];
 }

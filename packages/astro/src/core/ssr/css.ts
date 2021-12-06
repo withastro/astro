@@ -1,34 +1,40 @@
 import type vite from '../vite';
 
 import path from 'path';
-import { viteifyURL } from '../util.js';
+import { viteID } from '../util.js';
 
 // https://vitejs.dev/guide/features.html#css-pre-processors
 export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.postcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
 
-/** find unloaded styles */
+/**
+ * getStylesForURL
+ * Given a filePath URL, crawl Vite’s module graph to find style files
+ */
 export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
   const css = new Set<string>();
-  const rootID = viteifyURL(filePath);
 
   // recursively crawl module graph to get all style files imported by parent id
-  function crawlCSS(entryModule: string, scanned = new Set<string>()) {
-    const moduleName = viteServer.moduleGraph.urlToModuleMap.get(entryModule);
+  function crawlCSS(id: string, scanned = new Set<string>()) {
+    // note: use .idToModuleMap() for lookups (.urlToModuleMap() may produce different
+    // URLs for modules depending on conditions, making resolution difficult)
+    const moduleName = viteServer.moduleGraph.idToModuleMap.get(id);
     if (!moduleName || !moduleName.id) return;
-    // mark the entrypoint as scanned to avoid an infinite loop
-    scanned.add(moduleName.url);
+
+    scanned.add(moduleName.id);
+
+    // scan importedModules
     for (const importedModule of moduleName.importedModules) {
-      if (!importedModule.url || scanned.has(importedModule.url)) continue;
+      if (!importedModule.id || scanned.has(importedModule.id)) continue;
       const ext = path.extname(importedModule.url.toLowerCase());
       if (STYLE_EXTENSIONS.has(ext)) {
-        css.add(importedModule.url); // if style file, add to list
-      } else {
-        crawlCSS(importedModule.url, scanned); // otherwise, crawl file to see if it imports any CSS
+        css.add(importedModule.url); // note: return `url`s for HTML (not .id, which will break Windows)
       }
-      scanned.add(importedModule.url);
+      crawlCSS(importedModule.id, scanned);
+      scanned.add(importedModule.id);
     }
   }
-  crawlCSS(rootID);
+
+  crawlCSS(viteID(filePath));
 
   return css;
 }
