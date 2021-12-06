@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.8.3
+
+### Patch Changes
+
+- fef3091: Updates `typescript` from 4.5.1-rc to 4.5.2 (stable)
+
 ## 0.8.2
 
 ### Patch Changes

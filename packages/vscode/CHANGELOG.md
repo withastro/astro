@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 0.8.3
+
+### Patch Changes
+
+- cad5430: Fix plain script and style blocks
+- Updated dependencies [fef3091]
+  - @astrojs/language-server@0.8.3
+
 ## 0.8.2
 
 ### Patch Changes
