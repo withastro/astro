@@ -50,6 +50,12 @@ describe('LitElement test', () => {
     expect($('my-element').attr('obj')).to.equal(undefined);
     expect($('my-element').attr('bool')).to.equal(undefined);
     expect($('my-element').attr('str')).to.equal(undefined);
+
+    // test 7: reflected reactive props are rendered as attributes
+    expect($('my-element').attr('reflectedbool')).to.equal('');
+    expect($('my-element').attr('reflected-str')).to.equal('default reflected string');
+    expect($('my-element').attr('reflected-str-prop')).to.equal('initialized reflected');
+
   });
 
   // Skipped because not supported by Lit
