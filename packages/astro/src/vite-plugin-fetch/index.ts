@@ -52,8 +52,8 @@ export default function pluginFetch(): Plugin {
               fetchDeclared = true;
             }
           }
-        }
-      })
+        },
+      });
 
       // Fetch is already declared, do not inject a re-declaration!
       if (fetchDeclared) {
