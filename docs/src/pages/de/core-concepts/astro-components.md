@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Astro-Komponenten
-description: Eine Einführung in die .astro-Komponenten-Syntax.
+description: Einführung in die .astro-Komponenten-Syntax.
 ---
 
 **Astro-Komponenten** (Dateien mit der Endung `.astro`) sind die Grundlage des Server-seitigen Templating in Astro. Du kannst dir die Astro-Komponenten-Syntax als HTML - erweitert um JavaScript - vorstellen.
@@ -27,7 +27,7 @@ Zum Beispiel ist diese dreizeilige Datei eine gültige Astro-Komponente:
 </div>
 ```
 
-Eine Astro-Komponente repräsentiert einen Schnipsel HTML in deinem Projekt. Dies kann eine mehrfach verwendbare Komponente sein, oder eine vollständige Seite HTML einschließlich `<html>`-, `<head>`- und `<body>`-Elementen. Lies auch unsere Anleitung zu [Astro-Seiten](/core-concepts/astro-pages), um zu lernen wie du deine erste vollständige HTML-Seite mit Astro erzeugen kannst.
+Eine Astro-Komponente repräsentiert einen Schnipsel HTML in deinem Projekt. Dies kann eine mehrfach verwendbare Komponente sein, oder eine vollständige Seite HTML einschließlich `<html>`-, `<head>`- und `<body>`-Elementen. Lies auch unsere Anleitung zu [Astro-Seiten](/de/core-concepts/astro-pages), um zu lernen wie du deine erste vollständige HTML-Seite mit Astro erzeugen kannst.
 
 **Jede Astro-Komponente muss ein HTML-Template beinhalten.** Auch wenn du deine Komponente auf vielfältige Weise erweitern kannst (siehe unten), bestimmt am Ende des Tages doch das HTML-Template, wie deine gerenderte Komponente aussehen wird.
 
@@ -80,7 +80,7 @@ Sass (eine Alternative zu CSS) ist ebenfalls verfügbar via `<style lang="scss">
 
 Um dynamische Komponenten zu erzeugen, bringen wir die Idee eines Frontmatter-Komponenten-Skripts ein. [Frontmatter](https://jekyllrb.com/docs/front-matter/) ist ein in Markdown übliches Muster, bei dem Konfigurations- und Metadaten innerhalb einer Code-Begrenzung (`---`) am Anfang der Datei stehen. Astro bietet etwas Vergleichbares, jedoch mit vollständiger Unterstützung für JavaScript & TypeScript innerhalb deiner Komponenten.
 
-Bedenke dass Astro eine Server-seitige Template-Sprache ist, also wird dein Komponenten-Skript während des Build ausgeführt, aber für den Browser wird nur das HTML gerendert. Um auch JavaScript an den Browser zu senden, kannst du ein `<script>`-Tag in deinem HTML-Template verwenden - oder du [konvertierst deine Komponente für die Verwendung einer bestimmten Frontend-Bibliothek](/core-concepts/component-hydration) wie React, Svelte, Vue etc.
+Bedenke dass Astro eine Server-seitige Template-Sprache ist, also wird dein Komponenten-Skript während des Build ausgeführt, aber für den Browser wird nur das HTML gerendert. Um auch JavaScript an den Browser zu senden, kannst du ein `<script>`-Tag in deinem HTML-Template verwenden - oder du [konvertierst deine Komponente für die Verwendung einer bestimmten Frontend-Bibliothek](/de/core-concepts/component-hydration) wie React, Svelte, Vue etc.
 
 ```astro
 ---
@@ -115,7 +115,7 @@ import EineKomponente from './EineKomponente.astro';
 </div>
 ```
 
-📚 Du kannst auch Komponenten aus anderen Frontend-Bibliotheken wie React, Svelte, Vue und anderen importieren und verwenden. Lies unsere Anleitung zu [Partial Hydration](/core-concepts/component-hydration), um mehr zu erfahren.
+📚 Du kannst auch Komponenten aus anderen Frontend-Bibliotheken wie React, Svelte, Vue und anderen importieren und verwenden. Lies unsere Anleitung zu [Partial Hydration](/de/core-concepts/component-hydration), um mehr zu erfahren.
 
 ### Dynamische JSX-Ausdrücke
 
@@ -252,7 +252,7 @@ Slots werden sogar noch mächtiger, wenn **benannte Slots** verwendet werden. An
 </MeineKomponente>
 ```
 
-Slots können auch **Rückfall-Platzhalter** rendern. Wenn keine passenden untergeordneten Elemente an einen `<slot>` weitergereicht werden, wird dieses `<slot>`-Element seine eigenen untergeordneten Platzhalter-Elemente rendern.
+Slots können auch **Fallback-Platzhalter** rendern. Wenn keine passenden untergeordneten Elemente an einen `<slot>` weitergereicht werden, wird dieses `<slot>`-Element seine eigenen untergeordneten Platzhalter-Elemente rendern.
 
 ```astro
 <!-- MeineKomponente.astro -->
