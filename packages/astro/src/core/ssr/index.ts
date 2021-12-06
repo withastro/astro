@@ -139,10 +139,18 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
   return [renderers, mod];
 }
 
-export async function renderComponent(renderers: Renderer[], Component: AstroComponentFactory, astroConfig: AstroConfig, pathname: string, origin: string, params: Params, pageProps: Props): Promise<string> {
+export async function renderComponent(renderers: Renderer[], Component: AstroComponentFactory, astroConfig: AstroConfig, pathname: string, origin: string, params: Params, pageProps: Props, links: string[] = []): Promise<string> {
+  const _links = new Set<SSRElement>(links.map(href => ({
+    props: {
+      rel: 'stylesheet',
+      href
+    },
+    children: ''
+  })));
   const result: SSRResult = {
     styles: new Set<SSRElement>(),
     scripts: new Set<SSRElement>(),
+    links: _links,
     /** This function returns the `Astro` faux-global */
     createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
       const site = new URL(origin);
@@ -267,6 +275,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
   const result: SSRResult = {
     styles: new Set<SSRElement>(),
     scripts: new Set<SSRElement>(),
+    links: new Set<SSRElement>(),
     /** This function returns the `Astro` faux-global */
     createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
       const site = new URL(origin);

@@ -49,10 +49,11 @@ interface PluginOptions {
   astroPageStyleMap: Map<string, string>;
   chunkToReferenceIdMap: Map<string, string>;
   pureCSSChunks: Set<RenderedChunk>;
+  facadeIdToAssetsMap: Map<string, string[]>;
 }
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
-  const { astroPageStyleMap, astroStyleMap, chunkToReferenceIdMap, pureCSSChunks } = options;
+  const { astroPageStyleMap, astroStyleMap, chunkToReferenceIdMap, pureCSSChunks, facadeIdToAssetsMap } = options;
   const styleSourceMap = new Map<string, string>();
 
   return {
@@ -127,17 +128,26 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
       // if (!chunkCSS) return null; // don’t output empty .css files
 
       if (isPureCSS) {
-        const { code: minifiedCSS } = await esbuild.transform(chunkCSS, {
-          loader: 'css',
-          minify: true,
-        });
-        const referenceId = this.emitFile({
-          name: chunk.name + '.css',
-          type: 'asset',
-          source: minifiedCSS,
-        });
         pureCSSChunks.add(chunk);
-        chunkToReferenceIdMap.set(chunk.fileName, referenceId);
+      }
+
+      const { code: minifiedCSS } = await esbuild.transform(chunkCSS, {
+        loader: 'css',
+        minify: true,
+      });
+      const referenceId = this.emitFile({
+        name: chunk.name + '.css',
+        type: 'asset',
+        source: minifiedCSS,
+      });
+      
+      chunkToReferenceIdMap.set(chunk.fileName, referenceId);
+      if(chunk.type === 'chunk') {
+        const facadeId = chunk.facadeModuleId!;
+        if(!facadeIdToAssetsMap.has(facadeId)) {
+          facadeIdToAssetsMap.set(facadeId, []);
+        }
+        facadeIdToAssetsMap.get(facadeId)!.push(this.getFileName(referenceId));
       }
 
       return null;
@@ -145,7 +155,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
     // Delete CSS chunks so JS is not produced for them.
     generateBundle(opts, bundle) {
-      debugger;
       if (pureCSSChunks.size) {
         const pureChunkFilenames = new Set([...pureCSSChunks].map((chunk) => chunk.fileName));
         const emptyChunkFiles = [...pureChunkFilenames]
