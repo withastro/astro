@@ -1,5 +1,7 @@
 ---
 import Test from '../components/AstroComponent.astro';
+import AlreadyImported from '../components/AlreadyImported.astro';
+import CustomDeclaration from '../components/CustomDeclaration.astro';
 import JsxComponent from '../components/JsxComponent.jsx';
 import SvelteComponent from '../components/SvelteComponent.svelte';
 import VueComponent from '../components/VueComponent.vue';
@@ -12,6 +14,8 @@ import VueComponent from '../components/VueComponent.vue';
 <body>
   <span id="astro-page">{typeof fetch}</span>
   <Test />
+  <AlreadyImported />
+  <CustomDeclaration />
   <JsxComponent />
   <SvelteComponent />
   <VueComponent />
