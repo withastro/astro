@@ -55,7 +55,6 @@ describe('LitElement test', () => {
     expect($('my-element').attr('reflectedbool')).to.equal('');
     expect($('my-element').attr('reflected-str')).to.equal('default reflected string');
     expect($('my-element').attr('reflected-str-prop')).to.equal('initialized reflected');
-
   });
 
   // Skipped because not supported by Lit
