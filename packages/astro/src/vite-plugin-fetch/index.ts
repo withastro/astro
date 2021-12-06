@@ -1,4 +1,5 @@
 import type { Plugin } from '../core/vite';
+import type { BaseNode, Identifier } from 'estree';
 import MagicString from 'magic-string';
 import { walk } from 'estree-walker';
 
@@ -21,6 +22,10 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
 const SUPPORTED_FILES = /\.(astro|svelte|vue|[cm]?js|jsx|[cm]?ts|tsx)$/;
 const IGNORED_MODULES = [/astro\/dist\/runtime\/server/, /\/node-fetch\//];
 const DEFINE_FETCH = `import fetch from 'node-fetch';\n`;
+
+function isIdentifier(node: BaseNode): node is Identifier {
+  return node.type === 'Identifier';
+}
 
 export default function pluginFetch(): Plugin {
   return {
@@ -46,7 +51,7 @@ export default function pluginFetch(): Plugin {
       walk(ast, {
         enter(node, parent) {
           if (fetchDeclared) return this.skip();
-          if (node.type === 'Identifier') {
+          if (isIdentifier(node)) {
             // Identifier is OK in any type of Expression (CallExpression, UnaryExpression, etc)
             if (node.name === 'fetch' && !parent.type.endsWith('Expression')) {
               fetchDeclared = true;
