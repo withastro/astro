@@ -1,5 +1,13 @@
 # astro
 
+## 0.21.12
+
+### Patch Changes
+
+- [#2115](https://github.com/withastro/astro/pull/2115) [`0ef682c9`](https://github.com/withastro/astro/commit/0ef682c924a0836790acd2d4f8c1663eb99ffb75) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve error message on bad JS/TS frontmatter
+
+* [#2156](https://github.com/withastro/astro/pull/2156) [`ef3950c6`](https://github.com/withastro/astro/commit/ef3950c647e523ff6f36cfa096c4a92596d32afa) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: missing CSS files
+
 ## 0.21.11
 
 ### Patch Changes
