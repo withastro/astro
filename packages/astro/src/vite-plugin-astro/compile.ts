@@ -3,12 +3,10 @@ import type { TransformResult } from '@astrojs/compiler';
 import type { SourceMapInput } from 'rollup';
 import type { TransformHook } from './styles';
 
-import esbuild from 'esbuild';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { transform } from '@astrojs/compiler';
-import { AstroDevServer } from '../core/dev/index.js';
-import { getViteTransform, transformWithVite } from './styles.js';
+import { transformWithVite } from './styles.js';
 
 type CompilationCache = Map<string, TransformResult>;
 
