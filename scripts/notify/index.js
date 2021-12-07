@@ -4,7 +4,7 @@ const require = createRequire(import.meta.url);
 const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
 
 const emojis = ['🎉', '🥳', '🚀', '🧑‍🚀', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
-const descriptors = ['new releases', 'fresh new code', 'shiny updates', 'exciting stuff', 'package updates', 'awesome updates', 'bug fixes and features', 'updates'];
+const descriptors = ['new releases', 'hot and fresh updates', 'shiny updates', 'exciting changes', 'package updates', 'awesome updates', 'bug fixes and features', 'updates'];
 const verbs = [
   'just went out!',
   'just launched!',
@@ -14,30 +14,43 @@ const verbs = [
   'hit the registry!',
   'to share!',
   'for you!',
-  'for y’all!',
+  'for y’all! 🤠',
   'comin’ your way!',
   'comin’ atcha!',
   'comin’ in hot!',
-  ', freshly minted on the blockchain! (jk)',
-  ', now with 100% more reticulated splines!',
+  'freshly minted on the blockchain! (jk)',
+  '[is] out (now with 100% more reticulated splines!)',
   '(as seen on TV!)',
   'just dropped!',
-  ', artisanally hand-crafted just for you.',
-  ', oh happy day!',
-  '—enjoy!',
-  '(be the first on your block to download it!)',
-  ', made with love',
-  ', our best version yet!',
-  'DOWNLOAD! DOWNLOAD! DOWNLOAD!',
-  '! HUZZAH!',
-  'has landed!',
-  '! The internet just got a little more fun.',
-  ', from our family to yours.',
-  ', go forth and build!',
+  '– artisanally hand-crafted just for you.',
+  '– oh happy day!',
+  '– enjoy!',
+  'now out. Be the first on your block to download!',
+  'made with love 💕',
+  '[is] out! Our best [version] yet!',
+  '[is] here. DOWNLOAD! DOWNLOAD! DOWNLOAD!',
+  '... HUZZAH!',
+  '[has] landed!',
+  'landed! The internet just got a little more fun.',
+  '– from our family to yours.',
+  '– go forth and build!',
 ];
 
 function item(items) {
   return items[Math.floor(Math.random() * items.length)];
+}
+
+const plurals = new Map([
+  ['is', 'are'],
+  ['has', 'have']
+])
+
+function pluralize(text) {
+  return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) => plurals.has(match) ? plurals.get(match) : `${match}s`)
+}
+
+function singularlize(text) {
+  return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) => `${match}`)
 }
 
 async function run() {
@@ -56,9 +69,9 @@ async function run() {
 
   if (packages.length === 1) {
     const { name, version, url } = packages[0];
-    console.log(`${emoji} \`${name}@${version}\` ${verb}\nRead the [release notes →](<${url}>)`);
+    console.log(`${emoji} \`${name}@${version}\` ${singularlize(verb)}\nRead the [release notes →](<${url}>)`);
   } else {
-    console.log(`${emoji} Some ${descriptor} ${verb}\n`);
+    console.log(`${emoji} Some ${descriptor} ${pluralize(verb)}\n`);
     for (const { name, version, url } of packages) {
       console.log(`• \`${name}@${version}\` Read the [release notes →](<${url}>)`);
     }
