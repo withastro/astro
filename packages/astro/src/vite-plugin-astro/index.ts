@@ -111,7 +111,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
             await esbuild.transform(scannedFrontmatter[1], { loader: 'ts', sourcemap: false, sourcefile: id });
           } catch (frontmatterErr: any) {
             // Improve the error by replacing the phrase "unexpected end of file"
-            // with the word "frontmatter" in the error message.
+            // with "unexpected end of frontmatter" in the esbuild error message.
             if (frontmatterErr && frontmatterErr.message) {
               frontmatterErr.message = frontmatterErr.message.replace('end of file', 'end of frontmatter');
             }
