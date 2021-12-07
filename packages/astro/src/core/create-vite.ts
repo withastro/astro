@@ -14,16 +14,16 @@ import { resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
 const ALWAYS_EXTERNAL = new Set([
-	...builtinModules.map((name) => `node:${name}`),
-	'@sveltejs/vite-plugin-svelte',
-	'estree-util-value-to-estree',
-	'micromark-util-events-to-acorn',
-	'node-fetch',
-	'prismjs',
-	'shiki',
-	'shorthash',
-	'unified',
-	'whatwg-url',
+  ...builtinModules.map((name) => `node:${name}`),
+  '@sveltejs/vite-plugin-svelte',
+  'serialize-javascript',
+  'micromark-util-events-to-acorn',
+  'node-fetch',
+  'prismjs',
+  'shiki',
+  'shorthash',
+  'unified',
+  'whatwg-url',
 ]);
 const ALWAYS_NOEXTERNAL = new Set([
 	'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
@@ -40,38 +40,42 @@ interface CreateViteOptions {
 
 /** Return a common starting point for all Vite actions */
 export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, devServer }: CreateViteOptions): Promise<ViteConfigWithSSR> {
-	// First, start with the Vite configuration that Astro core needs
-	let viteConfig: ViteConfigWithSSR = {
-		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
-		clearScreen: false, // we want to control the output, not Vite
-		logLevel: 'error', // log errors only
-		optimizeDeps: {
-			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
-		},
-		plugins: [
-			configAliasVitePlugin({ config: astroConfig }),
+  // First, start with the Vite configuration that Astro core needs
+  let viteConfig: ViteConfigWithSSR = {
+    cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
+    clearScreen: false, // we want to control the output, not Vite
+    logLevel: 'error', // log errors only
+    optimizeDeps: {
+      entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
+    },
+    plugins: [
+      configAliasVitePlugin({ config: astroConfig }),
 			astroVitePlugin({ config: astroConfig, devServer, logging }),
 			markdownVitePlugin({ config: astroConfig, devServer }),
 			jsxVitePlugin({ config: astroConfig, logging }),
-			astroPostprocessVitePlugin({ config: astroConfig, devServer }),
-		],
-		publicDir: fileURLToPath(astroConfig.public),
-		root: fileURLToPath(astroConfig.projectRoot),
-		envPrefix: 'PUBLIC_',
-		server: {
-			force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
-			hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined, // disable HMR for test
-			// handle Vite URLs
-			proxy: {
-				// add proxies here
-			},
-		},
-		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
-		ssr: {
-			external: [...ALWAYS_EXTERNAL],
-			noExternal: [...ALWAYS_NOEXTERNAL],
-		},
-	};
+			astroPostprocessVitePlugin({ config: astroConfig, devServer })
+    ],
+    publicDir: fileURLToPath(astroConfig.public),
+    root: fileURLToPath(astroConfig.projectRoot),
+    envPrefix: 'PUBLIC_',
+    server: {
+      force: true, // force dependency rebuild (TODO: enabled only while next is unstable; eventually only call in "production" mode?)
+      hmr: process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'production' ? false : undefined, // disable HMR for test
+      // handle Vite URLs
+      proxy: {
+        // add proxies here
+      },
+      fs: {
+        // Allow serving files from one level up to the project root
+        allow: ['..']
+      }
+    },
+    // Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
+    ssr: {
+      external: [...ALWAYS_EXTERNAL],
+      noExternal: [...ALWAYS_NOEXTERNAL],
+    },
+  };
 
 	// Add in Astro renderers, which will extend the base config
 	for (const name of astroConfig.renderers) {
