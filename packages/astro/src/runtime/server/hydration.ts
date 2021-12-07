@@ -5,7 +5,7 @@ import serialize from 'serialize-javascript';
 
 // Serializes props passed into a component so that they can be reused during hydration.
 export function serializeProps(value: any) {
-  return serialize(value)
+  return serialize(value);
 }
 
 const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];

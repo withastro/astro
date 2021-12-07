@@ -67,8 +67,8 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
       },
       fs: {
         // Allow serving files from one level up to the project root
-        allow: ['..']
-      }
+        allow: ['..'],
+      },
     },
     // Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
     ssr: {
