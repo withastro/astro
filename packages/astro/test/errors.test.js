@@ -21,10 +21,9 @@ before(async () => {
 
 describe('Error display', () => {
   describe('Astro', () => {
-
     it('syntax error in template', async () => {
       // if (isMacOS) return;
-      const res = await fixture.fetch('/astro-syntax-error')
+      const res = await fixture.fetch('/astro-syntax-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
       console.log(res.body);
