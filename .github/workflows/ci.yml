@@ -62,8 +62,8 @@ jobs:
           eslint_extensions: ts
           prettier: true
           auto_fix: true
-          git_name: GitHub Action
-          git_email: github-action@users.noreply.github.com
+          git_name: github-actions[bot]
+          git_email: github-actions[bot]@users.noreply.github.com
           commit_message: 'chore(lint): ${linter} fix'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           neutral_check_on_warning: true
