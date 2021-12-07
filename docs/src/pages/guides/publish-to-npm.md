@@ -17,7 +17,7 @@ Looking for inspiration? Check out some of [our favorite themes & components][/t
 ## Creating a package
 
 > Before diving in, it will help have a basic understanding of:
-> 
+>
 > - [Node Modules](https://docs.npmjs.com/creating-node-js-modules)
 > - [JSON Manifest (`package.json`)](https://docs.npmjs.com/creating-a-package-json-file)
 > - [Workspaces](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#workspaces)
@@ -43,10 +43,7 @@ This is configured in the project root’s `package.json` file.
 ```json
 {
   "name": "my-project",
-  "workspaces": [
-    "demo",
-    "packages/*"
-  ]
+  "workspaces": ["demo", "packages/*"]
 }
 ```
 
@@ -73,16 +70,8 @@ The `package.json` in the package directory includes all of the information rela
     "./astro": "./MyAstroComponent.astro",
     "./react": "./MyReactComponent.jsx"
   },
-  "files": [
-    "index.js",
-    "MyAstroComponent.astro",
-    "MyReactComponent.jsx"
-  ],
-  "keywords": [
-    "astro-component",
-    "... etc",
-    "... etc"
-  ]
+  "files": ["index.js", "MyAstroComponent.astro", "MyReactComponent.jsx"],
+  "keywords": ["astro-component", "... etc", "... etc"]
 }
 ```
 
@@ -92,7 +81,7 @@ The short description of your component used to help others know what it does.
 
 ```json
 {
-  "description": "An Astro Element Generator",
+  "description": "An Astro Element Generator"
 }
 ```
 
@@ -128,11 +117,7 @@ In this example, importing `my-component` would use `index.js`, while importing 
 
 ```json
 {
-  "files": [
-    "index.js",
-    "MyAstroComponent.astro",
-    "MyReactComponent.jsx"
-  ]
+  "files": ["index.js", "MyAstroComponent.astro", "MyReactComponent.jsx"]
 }
 ```
 
@@ -144,11 +129,7 @@ We recommend adding the `astro-component` as a special keyword to maximize its d
 
 ```json
 {
-  "keywords": [
-    "astro-component",
-    "... etc",
-    "... etc"
-  ]
+  "keywords": ["astro-component", "... etc", "... etc"]
 }
 ```
 
