@@ -8,7 +8,7 @@
     "directory": "packages/create-astro"
   },
   "exports": {
-    ".": "./create-astro.js"
+    ".": "./create-astro.mjs"
   },
   "bin": {
     "create-astro": "./create-astro.mjs"
