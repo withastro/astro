@@ -10,6 +10,7 @@ import { transform } from '@astrojs/compiler';
 import { AstroDevServer } from '../core/dev/index.js';
 import { getViteTransform, TransformHook, transformWithVite } from './styles.js';
 
+const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
   config: AstroConfig;
   devServer?: AstroDevServer;
@@ -51,15 +52,6 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
       let tsResult: TransformResult | undefined;
       let cssTransformError: Error | undefined;
 
-      // Precheck: verify that the frontmatter is valid TS before sending to our compiler.
-      // The compiler doesn't currently validate the frontmatter, so invalid JS/TS can cause issues
-      // in the final output. This prevents bad JS from becoming a compiler panic or otherwise
-      // breaking the final output.
-      const scannedFrontmatter = (/^\-\-\-(.*)^\-\-\-/ms).exec(source);
-      if (scannedFrontmatter) {
-        await esbuild.transform(scannedFrontmatter[1], { loader: 'ts', sourcemap: false, sourcefile: id });
-      }
-
       try {
         // Transform from `.astro` to valid `.ts`
         // use `sourcemap: "both"` so that sourcemap is included in the code
@@ -96,8 +88,8 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
         // throw CSS transform errors here if encountered
         if (cssTransformError) throw cssTransformError;
 
-        // Compile `.ts` to `.js`
-        console.log(tsResult.code);
+        // Compile all TypeScript to JavaScript.
+        // Also, catches invalid JS/TS in the compiled output before returning.
         const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
 
         return {
@@ -105,6 +97,28 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
           map,
         };
       } catch (err: any) {
+        // Verify frontmatter: a common reason that this plugin fails is that
+        // the user provided invalid JS/TS in the component frontmatter.
+        // If the frontmatter is invalid, the `err` object may be a compiler
+        // panic or some other vague/confusing compiled error message.
+        //
+        // Before throwing, it is better to verify the frontmatter here, and
+        // let esbuild throw a more specific exception if the code is invalid.
+        // If frontmatter is valid or cannot be parsed, then continue.
+        const scannedFrontmatter = FRONTMATTER_PARSE_REGEXP.exec(source);
+        if (scannedFrontmatter) {
+          try {
+            await esbuild.transform(scannedFrontmatter[1], { loader: 'ts', sourcemap: false, sourcefile: id });
+          } catch (frontmatterErr: any) {
+            // Improve the error by replacing the phrase "unexpected end of file"
+            // with the word "frontmatter" in the error message.
+            if (frontmatterErr && frontmatterErr.message) {
+              frontmatterErr.message = frontmatterErr.message.replace('end of file', 'end of frontmatter');
+            }
+            throw frontmatterErr;
+          }
+        }
+
         // improve compiler errors
         if (err.stack.includes('wasm-function')) {
           const search = new URLSearchParams({
