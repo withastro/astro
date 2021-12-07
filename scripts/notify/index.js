@@ -42,15 +42,15 @@ function item(items) {
 
 const plurals = new Map([
   ['is', 'are'],
-  ['has', 'have']
-])
+  ['has', 'have'],
+]);
 
 function pluralize(text) {
-  return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) => plurals.has(match) ? plurals.get(match) : `${match}s`)
+  return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) => (plurals.has(match) ? plurals.get(match) : `${match}s`));
 }
 
 function singularlize(text) {
-  return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) => `${match}`)
+  return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) => `${match}`);
 }
 
 async function run() {
