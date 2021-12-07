@@ -30,7 +30,6 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
         css.add(importedModule.url); // note: return `url`s for HTML (not .id, which will break Windows)
       }
       crawlCSS(importedModule.id, scanned);
-      scanned.add(importedModule.id);
     }
   }
 
