@@ -4,159 +4,221 @@ title: Publish to NPM
 description: Learn how to publish Astro components to NPM
 ---
 
-Building a new Astro component? **Publish it to [npm!][npm]**
+Building a new Astro component? **Publish it to [npm!](https://npmjs.com/)**
 
 Publishing a component is a great way to reuse work across your team, your company, or the entire world. Astro components can be published to and installed from npm, just like any other JavaScript package.
 
-**Astro's ability to publish and reuse popular UI components is one of it's most powerful features!**
+**Astro's ability to publish and reuse popular components is one of it's most powerful features!**
 
-Even if you don't plan on publishing your components online, the patterns outlined below can help any developer design reusable UI components in isolation from their custom website or business logic.
+Even if you don't plan on publishing your components online, the patterns outlined below can help any developer design reusable components in isolation from their custom website or business logic.
 
-> **Note - Experimental:** Published npm components are still marked as experimental and some features are not yet supported. Astro component styles are currently disabled inside of npm packages, and JSX components must be compiled to `.js` in the package.
+Looking for inspiration? Check out some of [our favorite themes & components][/themes] from the Astro community. You can also [search npm](https://www.npmjs.com/search?q=keywords:astro-component) to see the entire public catalog.
 
-## Featured packages
+## Creating a package
 
-Looking for inspiration? Check out some of [our favorite themes & components][themes] from the Astro community. You can also [search npm][published-astro-components] to see the entire public catalog.
+> Before diving in, it will help have a basic understanding of:
+> 
+> - [Node Modules](https://docs.npmjs.com/creating-node-js-modules)
+> - [JSON Manifest (`package.json`)](https://docs.npmjs.com/creating-a-package-json-file)
+> - [Workspaces](https://docs.npmjs.com/cli/v7/configuring-npm/package-json#workspaces)
 
-## Folder layout
+To create a new package, we recommend developing with **workspaces**. This will allow you to develop your component alongside a working copy of Astro.
 
-Below is our recommended folder layout for package development. The example below shows a single package named `package-name` but you can add more folders to the `packages/` directory to develop multiple packages together in the same repo:
-
-```bash
-packages/
-└─ package-name/
-  ├─ package.json
-  ├─ index.js
-  ├─ Capitalize.astro
-  └─ Bold.astro
-public/
-  # see "Developing your package" below.
-src/
-  # see "Developing your package" below.
+```
+my-project/
+   ├─ demo/
+      └─ ... for testing and demonstration
+   ├─ package.json
+   └─ packages/
+      └─ my-component/
+         ├─ index.js
+         ├─ package.json
+         └─ ... additional files used by the package
 ```
 
-Lets explore the different files that will make up your package:
+In this example, named `my-project`, we create a project with a single package, named `my-component`, and a `demo` directory for testing and demonstrating the component.
 
-### `package.json`
-
-Your package `package.json` file is known as your **package manifest.** Every package published to npm has one. This includes important configuration such as name, description, dependencies, and other package metadata. To publish anything to npm, it helps to have [a basic understanding][creating-a-package.json] of this JSON manifest format.
-
-#### Recommended: "keywords"
-
-When publishing an Astro component, include the `astro-component` keyword in your package.json file. This makes it easier for people to [find your component on npm][published-astro-components] and other search catalogs.
+This is configured in the project root’s `package.json` file.
 
 ```json
 {
-  "keywords": ["astro-component", ...]
-}
-```
-
-#### Recommended: "exports"
-
-We **strongly recommend** that you include an [exports entry][node-packages-api] in your `package.json`. This entry controls access to internal package files, and gives you more control over how users can import your package.
-
-```json
-{
-  "exports": "./index.js"
-}
-```
-
-### `index.js`
-
-We **strongly recommend** that every Astro package include an `index.js` file known as the **package entrypoint**. This is the file defined in your package `"exports"` entry (see above) that gets loaded when a user imports your package by name. Using a JavaScript entrypoint file lets you package multiple Astro components together into a single interface:
-
-```js
-// Example package entrypoint: index.js
-// This lets users do: `import {Capitalize} from 'package-name';`
-export { default as Capitalize } from './Capitalize.astro';
-export { default as Bold } from './Bold.astro';
-// also supported: React, Svelte, Vue, etc.:
-export { default as Italic } from './SomeReactComponent.jsx';
-```
-
-### What about individual file imports?
-
-We **strongly recommend** that you use an `index.js` package entrypoint to avoid individual file imports:
-
-```js
-// ✅ Do this:
-import { Bold, Capitalize } from 'package-name';
-
-// ❌ Avoid this:
-import Bold from 'package-name/Bold.astro';
-import Capitalize from 'package-name/Capitalize.astro';
-```
-
-Astro is rendered at build-time, so there should be no performance impact for the user when you use a single `index.js` entrypoint file like this. For any components that do get loaded in the browser, you can trust that Astro's production bundler will optimize and remove any unused imports.
-
-If you need to use individual file imports, be sure to add those files to your package manifest's `exports` entry:
-
-```diff
-{
-  "name": "@example/my-package",
-  "version": "1.0.0",
-- "exports": "./index.js"
-+ "exports": {
-+    "./Bold.astro": "./Bold.astro",
-+    "./Capitalize.astro": "./Capitalize.astro"
-+ }
-}
-```
-
-## Developing your package
-
-Astro does not have a dedicated "package mode" for development. Instead, you should use a demo project to develop and test your package inside of the repo. This can be a private website only used for development, or a public demo/documentation website for your package.
-
-If you are extracting components from an existing project, you can even continue to use that project to develop your now-extracted components.
-
-For development, we **strongly recommend** that you setup a [**project workspace.**][node-packages-workspace] Workspaces are a feature supported by all package managers including npm (v7+), yarn, pnpm and others. A workspace will help you verify package.json configuration and also let you import your package by name:
-
-```js
-// ✅ With workspaces:
-import { Bold, Capitalize } from 'package-name';
-
-// ❌ Without workspaces:
-import { Bold, Capitalize } from '../../../my-package-directory/index.js';
-```
-
-To turn your project into a workspace, create a `package.json` file at the top-most level of your repository (if one doesn't already exist) and add a `"workspaces"` entry that identifies your `packages/` directory as a collection of packages:
-
-```diff
-{
-  "name": "my-workspace",
-  "Description": "this is the package.json that sits at the top-level of your repo.",
-+ "workspaces": ["./packages/*"]
-}
-```
-
-Save this change, and re-run your package manager's "install" command to set up your new workspace. If everything went well, you can now import your workspace packages by name.
-
-You can optionally choose to move your development website's `src/` and `public/` directories into a workspace directory of their own. This is optional, and only recommended if you are familiar with how workspaces work.
-
-```diff
-{
-  "name": "my-workspace",
-  "Description": "this is the package.json that sits at the top-level of your repo.",
+  "name": "my-project",
   "workspaces": [
-    "./packages/*",
-+   "./demo"
+    "demo",
+    "packages/*"
   ]
 }
 ```
 
+In this example, multiple packages can be developed together from the `packages` directory. These packages can also be referenced from `demo`, where you can install a working copy of Astro.
+
+```shell
+npm init astro demo --template minimal
+```
+
+Now let’s explore the files that will make up your individual package:
+
+### `package.json`
+
+The `package.json` in the package directory includes all of the information related to your package, including its description, dependencies, and any other package metadata.
+
+```json
+{
+  "name": "my-component",
+  "description": "... description",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./astro": "./MyAstroComponent.astro",
+    "./react": "./MyReactComponent.jsx"
+  },
+  "files": [
+    "index.js",
+    "MyAstroComponent.astro",
+    "MyReactComponent.jsx"
+  ],
+  "keywords": [
+    "astro-component",
+    "... etc",
+    "... etc"
+  ]
+}
+```
+
+#### `package.json#description`
+
+The short description of your component used to help others know what it does.
+
+```json
+{
+  "description": "An Astro Element Generator",
+}
+```
+
+#### `package.json#type`
+
+The module format used by Node.js and Astro to interpret your `index.js` files.
+
+```json
+{
+  "type": "module"
+}
+```
+
+We recommend using `"type": "module"` so that your `index.js` can be used as an entrypoint with `import` and `export`.
+
+#### `package.json#exports`
+
+The entry points allowed by Astro to import your component or any of its [files](#packagejsonfiles).
+
+```json
+{
+  "exports": {
+    ".": "./index.js",
+    "./astro": "./MyAstroComponent.astro",
+    "./react": "./MyReactComponent.jsx"
+  }
+}
+```
+
+In this example, importing `my-component` would use `index.js`, while importing `my-component/astro` or `my-component/react` would use `MyAstroComponent.astro` or `MyReactComponent.jsx`.
+
+#### `package.json#files`
+
+```json
+{
+  "files": [
+    "index.js",
+    "MyAstroComponent.astro",
+    "MyReactComponent.jsx"
+  ]
+}
+```
+
+#### `package.json#keywords`
+
+An array of keywords relevant to your component that are used to help others [find your component on npm](https://www.npmjs.com/search?q=keywords:astro-component) and any other search catalogs.
+
+We recommend adding the `astro-component` as a special keyword to maximize its discoverability in the Astro ecosystem.
+
+```json
+{
+  "keywords": [
+    "astro-component",
+    "... etc",
+    "... etc"
+  ]
+}
+```
+
+---
+
+### `index.js`
+
+The main **package entrypoint** used whenever your package is imported.
+
+```js
+export { default as MyAstroComponent } from './MyAstroComponent.astro';
+
+export { default as MyReactComponent } from './MyReactComponent.jsx';
+```
+
+This allows you to package multiple components together into a single interface.
+
+#### Example: Using Named Imports
+
+```astro
+---
+import { MyAstroComponent } from 'my-component';
+import { MyReactComponent } from 'my-component';
+---
+<MyAstroComponent />
+<MyReactComponent />
+```
+
+#### Example: Using Namespace Imports
+
+```astro
+---
+import * as Example from 'example-astro-component';
+---
+<Example.MyAstroComponent />
+<Example.MyReactComponent />
+```
+
+#### Example: Using Individual Imports
+
+```astro
+---
+import MyAstroComponent from 'example-astro-component/astro';
+import MyReactComponent from 'example-astro-component/react';
+---
+<MyAstroComponent />
+<MyReactComponent />
+```
+
+---
+
+## Developing your package
+
+Astro does not have a dedicated "package mode" for development. Instead, you should use a demo project to develop and test your package inside of your project. This can be a private website only used for development, or a public demo/documentation website for your package.
+
+If you are extracting components from an existing project, you can even continue to use that project to develop your now-extracted components.
+
 ## Testing your component
 
-Astro does not currently ship a test runner. This is something that we would like to tackle before our v1.0 release. _(If you are interested in helping out, [join us on Discord!][astro-discord])_
+Astro does not currently ship a test runner. This is something that we would like to tackle before our v1.0 release. _(If you are interested in helping out, [join us on Discord!](https://astro.build/chat))_
 
 In the meantime, our current recommendation for testing is:
 
-1. Add a test "fixtures" directory to your `src/pages` directory.
+1. Add a test `fixtures` directory to your `demo/src/pages` directory.
 2. Add a new page for every test that you'd like to run.
 3. Each page should include some different component usage that you'd like to test.
 4. Run `astro build` to build your fixtures, then compare the output of the `dist/__fixtures__/` directory to what you expected.
 
 ```bash
-src/pages/__fixtures__/
+my-project/demo/src/pages/__fixtures__/
   ├─ test-name-01.astro
   ├─ test-name-02.astro
   └─ test-name-03.astro
@@ -171,14 +233,3 @@ To publish a package to npm, use the `npm publish` command. If that fails, make 
 Notice that there was no `build` step for Astro packages. Any file type that Astro supports can be published directly without a build step, because we know that Astro already supports them natively. This includes all files with extensions like `.astro`, `.ts`, `.jsx`, and `.css`.
 
 If you need some other file type that isn't natively supported by Astro, you are welcome to add a build step to your package. This advanced exercise is left up to you.
-
-[themes]: /themes
-[npm]: https://npmjs.com/
-[accessible-astro-components]: https://www.npmjs.com/package/accessible-astro-components
-[astro-static-tweet]: https://www.npmjs.com/package/@rebelchris/astro-static-tweet
-[astro-seo]: https://github.com/jonasmerlin/astro-seo
-[published-astro-components]: https://www.npmjs.com/search?q=keywords%3Aastro-component
-[creating-a-package.json]: https://docs.npmjs.com/creating-a-package-json-file
-[node-packages-api]: https://nodejs.org/api/packages.html
-[node-packages-workspace]: https://docs.npmjs.com/cli/v7/configuring-npm/package-json#workspaces
-[astro-discord]: https://astro.build/chat
