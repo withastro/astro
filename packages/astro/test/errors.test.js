@@ -1,9 +1,5 @@
 import { expect } from 'chai';
-import os from 'os';
 import { loadFixture } from './test-utils.js';
-
-// TODO: fix these tests on macOS
-const isMacOS = os.platform() === 'darwin';
 
 let fixture;
 let devServer;
@@ -22,7 +18,6 @@ before(async () => {
 describe('Error display', () => {
   describe('Astro', () => {
     it('syntax error in template', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/astro-syntax-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -31,7 +26,6 @@ describe('Error display', () => {
     });
 
     it('syntax error in frontmatter', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/astro-frontmatter-syntax-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -40,7 +34,6 @@ describe('Error display', () => {
     });
 
     it('runtime error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/astro-runtime-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -49,7 +42,6 @@ describe('Error display', () => {
     });
 
     it('hydration error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/astro-hydration-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -57,7 +49,6 @@ describe('Error display', () => {
     });
 
     it('client:media error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/astro-client-media-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -67,7 +58,6 @@ describe('Error display', () => {
 
   describe('JS', () => {
     it('syntax error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/js-syntax-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -75,7 +65,6 @@ describe('Error display', () => {
     });
 
     it('runtime error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/js-runtime-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -85,7 +74,6 @@ describe('Error display', () => {
 
   describe('Preact', () => {
     it('syntax error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/preact-syntax-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -93,7 +81,6 @@ describe('Error display', () => {
     });
 
     it('runtime error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/preact-runtime-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -103,7 +90,6 @@ describe('Error display', () => {
 
   describe('React', () => {
     it('syntax error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/react-syntax-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -111,7 +97,6 @@ describe('Error display', () => {
     });
 
     it('runtime error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/react-runtime-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -121,7 +106,6 @@ describe('Error display', () => {
 
   describe('Solid', () => {
     it('syntax error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/solid-syntax-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -129,7 +113,6 @@ describe('Error display', () => {
     });
 
     it('runtime error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/solid-runtime-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -139,7 +122,6 @@ describe('Error display', () => {
 
   describe('Svelte', () => {
     it('syntax error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/svelte-syntax-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -147,7 +129,6 @@ describe('Error display', () => {
     });
 
     it('runtime error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/svelte-runtime-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
@@ -157,7 +138,6 @@ describe('Error display', () => {
 
   describe('Vue', () => {
     it('syntax error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/vue-syntax-error');
       const body = await res.text();
       expect(res.status).to.equal(500);
@@ -165,7 +145,6 @@ describe('Error display', () => {
     });
 
     it('runtime error', async () => {
-      // if (isMacOS) return;
       const res = await fixture.fetch('/vue-runtime-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
