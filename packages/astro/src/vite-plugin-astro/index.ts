@@ -1,17 +1,12 @@
-import type { TransformResult } from '@astrojs/compiler';
-import type { SourceMapInput } from 'rollup';
 import type vite from '../core/vite';
 import type { AstroConfig } from '../@types/astro';
 
-
 import esbuild from 'esbuild';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { transform } from '@astrojs/compiler';
 import { AstroDevServer } from '../core/dev/index.js';
-import { getViteTransform, TransformHook, transformWithVite } from './styles.js';
+import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';
-import { cachedCompilation } from './compile.js';
+import { cachedCompilation, invalidateCompilation } from './compile.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -20,7 +15,7 @@ interface AstroPluginOptions {
 }
 
 /** Transform .astro files for Vite */
-export default function astro({ config, devServer }: AstroPluginOptions): vite.Plugin {
+export default function astro({ config }: AstroPluginOptions): vite.Plugin {
   let viteTransform: TransformHook;
   return {
     name: '@astrojs/vite-plugin-astro',
@@ -28,13 +23,13 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
     configResolved(resolvedConfig) {
       viteTransform = getViteTransform(resolvedConfig);
     },
+    // note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
     async resolveId(id) {
       // serve sub-part requests (*?astro) as virtual modules
       if (parseAstroRequest(id).query.astro) {
         return id;
       }
     },
-    // note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
     async load(id, opts) {
       let { filename, query } = parseAstroRequest(id);
       if(query.astro) {
@@ -133,10 +128,9 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
       }
       
     },
-    // async handleHotUpdate(context) {
-    //   if (devServer) {
-    //     return devServer.handleHotUpdate(context);
-    //   }
-    // },
+    async handleHotUpdate(context) {
+      // Invalidate the compilation cache so it recompiles
+      invalidateCompilation(config, context.file);
+    }
   };
 }
