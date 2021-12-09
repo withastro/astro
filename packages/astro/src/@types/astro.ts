@@ -363,6 +363,7 @@ export interface SSRElement {
 export interface SSRMetadata {
   renderers: Renderer[];
   pathname: string;
+  experimentalStaticBuild: boolean;
 }
 
 export interface SSRResult {
