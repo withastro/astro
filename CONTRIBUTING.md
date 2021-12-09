@@ -22,7 +22,7 @@ Astro uses yarn workspaces, so you should **always run `yarn install` from the t
 ```shell
 git clone && cd ...
 yarn install
-yarn build:all
+yarn build
 ```
 
 ### Development

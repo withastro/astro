@@ -89,7 +89,7 @@ jobs:
           CI: true
 
       - name: Build Packages
-        run: yarn build:all
+        run: yarn build
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
