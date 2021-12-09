@@ -86,7 +86,7 @@ jobs:
       - name: Cache Turbo
         uses: actions/cache@v2
         with:
-          path: "**/.turbo/"
+          path: "**/.turbo"
           key: "turbo-${{ github.ref_name }}-${{ hashFiles('**/yarn.lock') }}-${{ github.sha }}"
           restore-keys: |
             turbo-${{ github.ref_name }}-${{ hashFiles('**/yarn.lock') }}-${{ github.sha }}
@@ -105,7 +105,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
-          path: packages/**/dist/*
+          path: packages/**/dist/**
           if-no-files-found: error
   
   # Test depends on Build's output, which allows us to skip any build process!
@@ -144,7 +144,7 @@ jobs:
       - name: Cache Turbo
         uses: actions/cache@v2
         with:
-          path: "**/.turbo/"
+          path: "**/.turbo"
           key: turbo-${{ github.sha }}
 
       - name: Install NPM Dependencies
@@ -188,7 +188,7 @@ jobs:
       - name: Cache Turbo
         uses: actions/cache@v2
         with:
-          path: "**/.turbo/"
+          path: "**/.turbo"
           key: turbo-${{ github.sha }}
 
       - name: Install NPM Dependencies
@@ -227,7 +227,7 @@ jobs:
       - name: Cache Turbo
         uses: actions/cache@v2
         with:
-          path: "**/.turbo/"
+          path: "**/.turbo"
           key: turbo-${{ github.sha }}
 
       - name: Install NPM Dependencies
