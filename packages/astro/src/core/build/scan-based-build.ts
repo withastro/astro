@@ -15,6 +15,7 @@ export interface ScanBasedBuildOptions {
   allPages: AllPagesData;
   astroConfig: AstroConfig;
   logging: LogOptions;
+  origin: string;
   pageNames: string[];
   routeCache: RouteCache;
   viteConfig: ViteConfigWithSSR;
@@ -22,7 +23,7 @@ export interface ScanBasedBuildOptions {
 }
 
 export async function build(opts: ScanBasedBuildOptions) {
-  const { allPages, astroConfig, logging, pageNames, routeCache, viteConfig, viteServer } = opts;
+  const { allPages, astroConfig, logging, origin, pageNames, routeCache, viteConfig, viteServer } = opts;
 
   // Internal maps used to coordinate the HTML and CSS plugins.
   const internals = createBuildInternals();
