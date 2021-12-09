@@ -110,6 +110,7 @@ class AstroBuilder {
         allPages,
         astroConfig: this.config,
         logging: this.logging,
+        origin: this.origin,
         pageNames,
         routeCache: this.routeCache,
         viteConfig: this.viteConfig,
