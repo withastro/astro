@@ -11,7 +11,7 @@ import type { AstroComponentFactory } from '../../runtime/server';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import vite from '../vite.js';
-import { info } from '../../core/logger.js';
+import { debug, info, error } from '../../core/logger.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { renderComponent, getParamsAndProps } from '../ssr/index.js';
@@ -94,7 +94,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 }
 
 async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
-  console.log('End build step, now generating');
+  debug(opts.logging, 'generate', 'End build step, now generating');
   const generationPromises = [];
   for (let output of result.output) {
     if (output.type === 'chunk' && output.facadeModuleId) {
@@ -155,7 +155,7 @@ async function generatePath(path: string, opts: StaticBuildOptions, gopts: Gener
     await fs.promises.mkdir(outFolder, { recursive: true });
     await fs.promises.writeFile(outFile, html, 'utf-8');
   } catch (err) {
-    console.error(`Error rendering:`, err);
+    error(opts.logging, 'build', `Error rendering:`, err)
   }
 }
 
