@@ -30,8 +30,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
   // pages and layouts should be transformed as full documents (implicit <head> <body> etc)
   // everything else is treated as a fragment
   const normalizedID = fileURLToPath(new URL(`file://${filename}`));
-  const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) ||
-    normalizedID.startsWith(fileURLToPath(config.layouts));
+  const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
   //let source = await fs.promises.readFile(id, 'utf8');
   let cssTransformError: Error | undefined;
 
@@ -51,10 +50,11 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
       const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
       try {
         const result = await transformWithVite({
-          value, lang,
+          value,
+          lang,
           id: filename,
           transformHook: viteTransform,
-          ssr: isSSR(opts)
+          ssr: isSSR(opts),
         });
 
         let map: SourceMapInput | undefined;
@@ -82,7 +82,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 }
 
 export function invalidateCompilation(config: AstroConfig, filename: string) {
-  if(configCache.has(config)) {
+  if (configCache.has(config)) {
     const cache = configCache.get(config)!;
     cache.delete(filename);
   }
@@ -90,16 +90,16 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 
 export async function cachedCompilation(config: AstroConfig, filename: string, source: string | null, viteTransform: TransformHook, opts: boolean | undefined) {
   let cache: CompilationCache;
-  if(!configCache.has(config)) {
+  if (!configCache.has(config)) {
     cache = new Map();
     configCache.set(config, cache);
   } else {
     cache = configCache.get(config)!;
   }
-  if(cache.has(filename)) {
+  if (cache.has(filename)) {
     return cache.get(filename)!;
   }
-  if(source === null) {
+  if (source === null) {
     throw new Error(`Oh no, this should have been cached.`);
   }
   const transformResult = await compile(config, filename, source, viteTransform, opts);

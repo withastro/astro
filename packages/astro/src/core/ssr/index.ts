@@ -139,14 +139,25 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
   return [renderers, mod];
 }
 
-export async function renderComponent(renderers: Renderer[], Component: AstroComponentFactory, astroConfig: AstroConfig, pathname: string, origin: string, params: Params, pageProps: Props, links: string[] = []): Promise<string> {
-  const _links = new Set<SSRElement>(links.map(href => ({
-    props: {
-      rel: 'stylesheet',
-      href
-    },
-    children: ''
-  })));
+export async function renderComponent(
+  renderers: Renderer[],
+  Component: AstroComponentFactory,
+  astroConfig: AstroConfig,
+  pathname: string,
+  origin: string,
+  params: Params,
+  pageProps: Props,
+  links: string[] = []
+): Promise<string> {
+  const _links = new Set<SSRElement>(
+    links.map((href) => ({
+      props: {
+        rel: 'stylesheet',
+        href,
+      },
+      children: '',
+    }))
+  );
   const result: SSRResult = {
     styles: new Set<SSRElement>(),
     scripts: new Set<SSRElement>(),
@@ -188,7 +199,7 @@ export async function renderComponent(renderers: Renderer[], Component: AstroCom
     _metadata: {
       renderers,
       pathname,
-      experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild
+      experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
     },
   };
 
@@ -197,7 +208,19 @@ export async function renderComponent(renderers: Renderer[], Component: AstroCom
   return html;
 }
 
-export async function getParamsAndProps({route, routeCache, logging, pathname, mod}: {route: RouteData | undefined, routeCache: RouteCache, pathname: string, mod: ComponentInstance, logging: LogOptions}): Promise<[Params, Props]> {
+export async function getParamsAndProps({
+  route,
+  routeCache,
+  logging,
+  pathname,
+  mod,
+}: {
+  route: RouteData | undefined;
+  routeCache: RouteCache;
+  pathname: string;
+  mod: ComponentInstance;
+  logging: LogOptions;
+}): Promise<[Params, Props]> {
   // Handle dynamic routes
   let params: Params = {};
   let pageProps: Props = {};
@@ -318,7 +341,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
     _metadata: {
       renderers,
       pathname,
-      experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild
+      experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
     },
   };
 

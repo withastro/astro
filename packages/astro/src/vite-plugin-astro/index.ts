@@ -32,15 +32,14 @@ export default function astro({ config }: AstroPluginOptions): vite.Plugin {
     },
     async load(id, opts) {
       let { filename, query } = parseAstroRequest(id);
-      if(query.astro) {
-        if(query.type === 'style') {
-          if(filename.startsWith('/') && !filename.startsWith(config.projectRoot.pathname)) {
+      if (query.astro) {
+        if (query.type === 'style') {
+          if (filename.startsWith('/') && !filename.startsWith(config.projectRoot.pathname)) {
             filename = new URL('.' + filename, config.projectRoot).pathname;
           }
-          const transformResult = await cachedCompilation(config, filename, null,
-            viteTransform, opts);
+          const transformResult = await cachedCompilation(config, filename, null, viteTransform, opts);
 
-          if(typeof query.index === 'undefined') {
+          if (typeof query.index === 'undefined') {
             throw new Error(`Requests for Astro CSS must include an index.`);
           }
 
@@ -48,7 +47,7 @@ export default function astro({ config }: AstroPluginOptions): vite.Plugin {
           const code = csses[query.index];
 
           return {
-            code 
+            code,
           };
         }
       }
@@ -61,15 +60,14 @@ export default function astro({ config }: AstroPluginOptions): vite.Plugin {
       }
 
       try {
-        const transformResult = await cachedCompilation(config, id, source,
-          viteTransform, opts);
+        const transformResult = await cachedCompilation(config, id, source, viteTransform, opts);
 
         // Compile all TypeScript to JavaScript.
         // Also, catches invalid JS/TS in the compiled output before returning.
         const { code, map } = await esbuild.transform(transformResult.code, {
           loader: 'ts',
           sourcemap: 'external',
-          sourcefile: id
+          sourcefile: id,
         });
 
         return {
@@ -123,14 +121,13 @@ export default function astro({ config }: AstroPluginOptions): vite.Plugin {
           // TODO: remove stack replacement when compiler throws better errors
           err.stack = `    at ${id}`;
         }
-    
+
         throw err;
       }
-      
     },
     async handleHotUpdate(context) {
       // Invalidate the compilation cache so it recompiles
       invalidateCompilation(config, context.file);
-    }
+    },
   };
 }

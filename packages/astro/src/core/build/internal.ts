@@ -21,7 +21,7 @@ export interface BuildInternals {
  * @returns {BuildInternals}
  */
 export function createBuildInternals(): BuildInternals {
-    // Pure CSS chunks are chunks that only contain CSS.
+  // Pure CSS chunks are chunks that only contain CSS.
   // This is all of them, and chunkToReferenceIdMap maps them to a hash id used to find the final file.
   const pureCSSChunks = new Set<RenderedChunk>();
   const chunkToReferenceIdMap = new Map<string, string>();

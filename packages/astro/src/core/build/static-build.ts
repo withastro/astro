@@ -53,7 +53,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
   const internals = createBuildInternals();
 
   // Perform the SSR build
-  const result = (await ssrBuild(opts, internals, jsInput) as RollupOutput);
+  const result = (await ssrBuild(opts, internals, jsInput)) as RollupOutput;
 
   // Generate each of the pages.
   await generatePages(result, opts, internals, facadeIdToPageDataMap);
@@ -61,19 +61,19 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
   const { astroConfig, viteConfig } = opts;
-  
+
   return await vite.build({
     logLevel: 'error',
     mode: 'production',
     build: {
       emptyOutDir: true,
-      minify: false,// 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
+      minify: false, // 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
       outDir: fileURLToPath(astroConfig.dist),
       ssr: true,
       rollupOptions: {
         input: Array.from(input),
         output: {
-          format: 'esm'
+          format: 'esm',
         },
       },
       target: 'es2020', // must match an esbuild target
@@ -81,7 +81,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
     plugins: [
       vitePluginNewBuild(),
       rollupPluginAstroBuildCSS({
-        internals
+        internals,
       }),
       ...(viteConfig.plugins || []),
     ],
@@ -96,16 +96,13 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
   console.log('End build step, now generating');
   const generationPromises = [];
-  for(let output of result.output) {
-    if(output.type === 'chunk' && output.facadeModuleId) {
-      generationPromises.push(
-        generatePage(output, opts, internals, facadeIdToPageDataMap)
-      );
+  for (let output of result.output) {
+    if (output.type === 'chunk' && output.facadeModuleId) {
+      generationPromises.push(generatePage(output, opts, internals, facadeIdToPageDataMap));
     }
   }
   await Promise.all(generationPromises);
 }
-
 
 async function generatePage(output: OutputChunk, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
   const { astroConfig } = opts;
@@ -120,11 +117,11 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
   const generationOptions: Readonly<GeneratePathOptions> = {
     pageData,
     linkIds,
-    Component
+    Component,
   };
-  
-  const renderPromises = pageData.paths.map(path => {
-    return generatePath(path, opts, generationOptions)
+
+  const renderPromises = pageData.paths.map((path) => {
+    return generatePath(path, opts, generationOptions);
   });
   return await Promise.all(renderPromises);
 }
@@ -147,7 +144,7 @@ async function generatePath(path: string, opts: StaticBuildOptions, gopts: Gener
       routeCache,
       logging,
       pathname: path,
-      mod
+      mod,
     });
 
     info(logging, 'generate', `Generating: ${path}`);
@@ -157,13 +154,10 @@ async function generatePath(path: string, opts: StaticBuildOptions, gopts: Gener
     const outFile = new URL('./index.html', outFolder);
     await fs.promises.mkdir(outFolder, { recursive: true });
     await fs.promises.writeFile(outFile, html, 'utf-8');
-
-  } catch(err) {
+  } catch (err) {
     console.error(`Error rendering:`, err);
   }
 }
-
-
 
 export function vitePluginNewBuild(): VitePlugin {
   return {
@@ -173,7 +167,7 @@ export function vitePluginNewBuild(): VitePlugin {
       // Delete this hook because it causes assets not to be built
       const plugins = resolvedConfig.plugins as VitePlugin[];
       const viteAsset = plugins.find((p) => p.name === 'vite:asset');
-      if(viteAsset) {
+      if (viteAsset) {
         delete viteAsset.generateBundle;
       }
     },
@@ -185,9 +179,9 @@ export function vitePluginNewBuild(): VitePlugin {
         },
         chunkFileNames(_chunk: PreRenderedChunk) {
           return 'assets/[name].[hash].mjs';
-        }
+        },
       });
       return outputOptions;
     },
-  }
+  };
 }

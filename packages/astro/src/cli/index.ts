@@ -38,7 +38,7 @@ function resolveArgs(flags: Arguments): CLIState {
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined,
     hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
-    experimentalStaticBuild: typeof flags.experimentalStaticBuild === 'boolean' ? flags.experimentalStaticBuild: false,
+    experimentalStaticBuild: typeof flags.experimentalStaticBuild === 'boolean' ? flags.experimentalStaticBuild : false,
   };
 
   if (flags.version) {

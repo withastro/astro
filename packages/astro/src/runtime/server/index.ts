@@ -372,15 +372,16 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 // styles and scripts into the head.
 export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
   const template = await renderToString(result, Component, props, children);
-  const styles = result._metadata.experimentalStaticBuild ? [] :
-     Array.from(result.styles)
-    .filter(uniqueElements)
-    .map((style) =>
-      renderElement('style', {
-        ...style,
-        props: { ...style.props, 'astro-style': true },
-      })
-    );
+  const styles = result._metadata.experimentalStaticBuild
+    ? []
+    : Array.from(result.styles)
+        .filter(uniqueElements)
+        .map((style) =>
+          renderElement('style', {
+            ...style,
+            props: { ...style.props, 'astro-style': true },
+          })
+        );
   let needsHydrationStyles = false;
   const scripts = Array.from(result.scripts)
     .filter(uniqueElements)
@@ -399,7 +400,7 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
 
   const links = Array.from(result.links)
     .filter(uniqueElements)
-    .map(link => renderElement('link', link))
+    .map((link) => renderElement('link', link));
 
   // inject styles & scripts at end of <head>
   let headPos = template.indexOf('</head>');
