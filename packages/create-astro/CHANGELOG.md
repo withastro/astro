@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.6.10
+
+### Patch Changes
+
+- [#2150](https://github.com/withastro/astro/pull/2150) [`d5ebd9d1`](https://github.com/withastro/astro/commit/d5ebd9d178ed4e5d15ef43f32217c16d44f19151) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix create-astro export map entry
+
 ## 0.6.9
 
 ### Patch Changes
