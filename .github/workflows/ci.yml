@@ -141,7 +141,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: ${{ runner.os }}-turbo-${{ hashFiles('**/dist') }}
+          key: ${{ runner.os }}-turbo-${{ matrix.node_version }}-${{ hashFiles('**/dist') }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
@@ -179,7 +179,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: ${{ runner.os }}-turbo-${{ hashFiles('**/dist') }}
+          key: ${{ runner.os }}-turbo-16-${{ hashFiles('**/dist') }}
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
