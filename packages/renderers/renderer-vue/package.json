@@ -2,6 +2,7 @@
   "name": "@astrojs/renderer-vue",
   "version": "0.2.1",
   "description": "Use Vue components within Astro",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",

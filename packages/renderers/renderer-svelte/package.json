@@ -2,6 +2,7 @@
   "name": "@astrojs/renderer-svelte",
   "version": "0.2.2",
   "description": "Use Svelte components within Astro",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
