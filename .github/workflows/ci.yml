@@ -153,12 +153,12 @@ jobs:
           CI: true
 
       - name: Test
-        if: ${{ matrix.os != "windows-latest" }}
+        if: ${{ matrix.os != 'windows-latest' }}
         run: yarn test
 
       # Turbo seems to make the tests hang on Windows, just run them directly
       - name: Test (Windows)
-        if: ${{ matrix.os == "windows-latest" }}
+        if: ${{ matrix.os == 'windows-latest' }}
         run: yarn workspace astro run test
 
   smoke:
