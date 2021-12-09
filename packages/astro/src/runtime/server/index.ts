@@ -372,7 +372,8 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 // styles and scripts into the head.
 export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
   const template = await renderToString(result, Component, props, children);
-  const styles = Array.from(result.styles)
+  const styles = result._metadata.experimentalStaticBuild ? [] :
+     Array.from(result.styles)
     .filter(uniqueElements)
     .map((style) =>
       renderElement('style', {
