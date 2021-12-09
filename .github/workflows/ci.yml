@@ -87,11 +87,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: "turbo-${{ github.ref_name }}-${{ hashFiles('**/yarn.lock') }}-${{ github.sha }}"
+          key: "turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}"
           restore-keys: |
-            turbo-${{ github.ref_name }}-${{ hashFiles('**/yarn.lock') }}-${{ github.sha }}
-            turbo-${{ github.ref_name }}-${{ hashFiles('**/yarn.lock') }}-
-            turbo-${{ github.ref_name }}-
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-
+            turbo-${{ github.ref }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -145,7 +145,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: turbo-${{ github.sha }}
+          key: "turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}"
+          restore-keys: |
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-
+            turbo-${{ github.ref }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -189,7 +193,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: turbo-${{ github.sha }}
+          key: "turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}"
+          restore-keys: |
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-
+            turbo-${{ github.ref }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -204,7 +212,7 @@ jobs:
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
-    if: ${{ github.ref_name == 'main' && github.repository_owner == 'withastro' }}
+    if: ${{ github.ref == 'main' && github.repository_owner == 'withastro' }}
     needs: [lint, test, smoke]
     runs-on: ubuntu-latest
     steps:
@@ -228,7 +236,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: turbo-${{ github.sha }}
+          key: "turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}"
+          restore-keys: |
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-
+            turbo-${{ github.ref }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
