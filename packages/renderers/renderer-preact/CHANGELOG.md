@@ -1,5 +1,11 @@
 # @astrojs/renderer-preact
 
+## 0.3.2
+
+### Patch Changes
+
+- [#2170](https://github.com/withastro/astro/pull/2170) [`5af24efb`](https://github.com/withastro/astro/commit/5af24efb3493b8f5b6a8f980c792455c7dc34eb5) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix preact 10.6 regression by pinning to preact 10.5
+
 ## 0.3.1
 
 ### Patch Changes
