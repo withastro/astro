@@ -80,7 +80,7 @@ export function generateRssFunction(site: string | undefined, route: RouteData):
         throw new Error(`[${route.component}] rss() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
       }
       const { dest, ...rssData } = args;
-      const feedURL = dest || '/feed.xml';
+      const feedURL = dest || '/rss.xml';
       result.url = feedURL;
       result.xml = generateRSS({ rssData, site, srcFile: route.component, feedURL });
     },
