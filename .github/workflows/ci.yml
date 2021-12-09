@@ -87,7 +87,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo/"
-          key: turbo-${{ github.sha }}
+          key: turbo-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            turbo-${{ github.ref_name }}-${{ github.sha }}
+            turbo-${{ github.ref_name }}-
+            turbo-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
