@@ -155,7 +155,7 @@ async function generatePath(path: string, opts: StaticBuildOptions, gopts: Gener
     await fs.promises.mkdir(outFolder, { recursive: true });
     await fs.promises.writeFile(outFile, html, 'utf-8');
   } catch (err) {
-    error(opts.logging, 'build', `Error rendering:`, err)
+    error(opts.logging, 'build', `Error rendering:`, err);
   }
 }
 
