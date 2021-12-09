@@ -341,7 +341,7 @@ import TwitterTimeline from '../components/TwitterTimeline.astro';
 | Multiple frameworks per-file | Yes                                        | No                                                 |
 | Modifying `<head>`           | Just use `<head>`                          | Per-framework (`<Head>`, `<svelte:head>`, etc)     |
 | Comment Style                | `<!-- HTML -->`                            | `{/* JavaScript */}`                               |
-| Special Characters           | `&nbsp;`                                   | `{'\xa0'}` or `{String.fromCharCode(160)}`         |
+| Special Characters           | `&nbsp;`                                   | `&nbsp;`                                           |
 | Attributes                   | `dash-case`                                | `camelCase`                                        |
 
 ## URL resolution
