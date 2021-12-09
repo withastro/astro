@@ -87,10 +87,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo/"
-          key: turbo-${{ github.ref_name }}-${{ hashfiles("**/yarn.lock") }}-${{ github.sha }}
+          key: turbo-${{ github.ref_name }}-${{ hashFiles("**/yarn.lock") }}-${{ github.sha }}
           restore-keys: |
-            turbo-${{ github.ref_name }}-${{ hashfiles("**/yarn.lock") }}-${{ github.sha }}
-            turbo-${{ github.ref_name }}-${{ hashfiles("**/yarn.lock") }}-
+            turbo-${{ github.ref_name }}-${{ hashFiles("**/yarn.lock") }}-${{ github.sha }}
+            turbo-${{ github.ref_name }}-${{ hashFiles("**/yarn.lock") }}-
             turbo-${{ github.ref_name }}-
 
       - name: Install NPM Dependencies
