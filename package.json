@@ -24,7 +24,8 @@
           "^build"
         ],
         "outputs": [
-          "dist/**"
+          "**/dist/**",
+          "!**/vendor/**"
         ]
       },
       "dev": {
