@@ -1,4 +1,4 @@
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, Params, RouteData } from '../../@types/astro-core';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, Params, RouteData } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import fs from 'fs';
@@ -83,9 +83,10 @@ interface Item {
 }
 
 /** Create manifest of all static routes */
-export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?: string }): ManifestData {
+export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?: string }, logging: LogOptions): ManifestData {
   const components: string[] = [];
   const routes: RouteData[] = [];
+  const validExtensions: Set<string> = new Set(['.astro', '.md']);
 
   function walk(dir: string, parentSegments: Part[][], parentParams: string[]) {
     let items: Item[] = [];
@@ -104,7 +105,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
         return;
       }
       // filter out "foo.astro_tmp" files, etc
-      if (!isDir && !/^(\.[a-z0-9]+)+$/i.test(ext)) {
+      if (!isDir && !validExtensions.has(ext)) {
         return;
       }
       const segment = isDir ? basename : name;
@@ -194,7 +195,13 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
     });
   }
 
-  walk(fileURLToPath(config.pages), [], []);
+  if (fs.existsSync(config.pages)) {
+    walk(fileURLToPath(config.pages), [], []);
+  } else {
+    const pagesDirRootRelative = config.pages.href.slice(config.projectRoot.href.length);
+
+    warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
+  }
 
   return {
     routes,

@@ -19,14 +19,16 @@ npm install
 
 # start de ontwikkeling!
 npm run dev
+```
 
+```shell
 # zodra je klaar bent, bouw dan je website met het volgende commanda
 npm run build
 ```
 
 Voor meer informatie over het voor het gebruik van Astro en het installeren ervan: [lees onze installatie handleiding.](/installation)
 
-Als je liever leert doormiddel van voorbeelden, bekijk dan de [complete bibliotheek van voorbeelden](https://github.com/snowpackjs/astro/tree/main/examples) op GitHub. Je kan deze voorbeelden lokaal bekijken door het volgende commando uit te voeren: `npm init astro -- --template "EXAMPLE_NAME"`.
+Als je liever leert doormiddel van voorbeelden, bekijk dan de [complete bibliotheek van voorbeelden](https://github.com/withastro/astro/tree/main/examples) op GitHub. Je kan deze voorbeelden lokaal bekijken door het volgende commando uit te voeren: `npm init astro -- --template "EXAMPLE_NAME"`.
 
 ## Start je project
 

@@ -18,7 +18,7 @@ Astro 仍然缺少一些功能，一些 API 还没有最终确定。虽然项目
 
 [Docusaurus](https://docusaurus.io/) 是一个流行的文档网站创建工具。Docusaurus 使用 React 来生成你的网站界面，而 Astro 支持 React、 Vue.js 、Svelte 以及原始 HTML 模板。
 
-Docusaurus 是为建立文档网站而设计的，它有一些内置的、针对文档的网站功能，而 Astro 却没有。相反，Astro 通过一个官方的 [`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs) 主题提供了特定的文档功能，你可以在你的网站尝试使用。本网站就是用这个模板建立的!
+Docusaurus 是为建立文档网站而设计的，它有一些内置的、针对文档的网站功能，而 Astro 却没有。相反，Astro 通过一个官方的 [`docs`](https://github.com/withastro/astro/tree/main/examples/docs) 主题提供了特定的文档功能，你可以在你的网站尝试使用。本网站就是用这个模板建立的!
 
 #### 对比 Docusaurus 及 Astro 性能
 
@@ -178,7 +178,7 @@ Nuxt 有很好的内置图片优化功能，这可以使 Nuxt 成为一些图片
 
 [nuxtjs.org/docs](https://nuxtjs.org/docs/2.x/get-started/installation)是 Nuxt 官方文档网站，用 Nuxt 构建。该网站提供了大量设计模板和功能插件，可以与官方 Astro 文档网站进行比较。让我们对这两个网站构建工具进行一个粗略的真实的比较。
 
-- **新的性能得分**。48 分（满分 100 分）[(更多详情)]（https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fnuxtjs.org%2Fdocs%2F2.x%2Fget-started%2Finstallation）
+- **新的性能得分**。48 分（满分 100 分）[(更多详情)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fnuxtjs.org%2Fdocs%2F2.x%2Fget-started%2Finstallation)
 - **Astro 性能得分**。95 分（满分 100 分）[(更多详情)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
 这种性能差异背后的一个重要原因是 Astro 的 JavaScript 有效载荷较小。[nuxtjs.org/docs](https://nuxtjs.org/docs/2.x/get-started/installation)在首次加载时加载了**469kb**的 JavaScript，而[docs.astro.build](https://docs.astro.build)只加载了**9.3kb**（总体而言，JavaScript 减少了 98%）。
@@ -187,7 +187,7 @@ Nuxt 有很好的内置图片优化功能，这可以使 Nuxt 成为一些图片
 
 [VuePress](https://vuepress.vuejs.org/guide/)是一个流行的文档网站建设者。VuePress 使用 Vue.js 来生成你的网站用户界面，而 Astro 支持 React、Vue.js、Svelte 和原始 HTML 模板化。
 
-VuePress 是为建立文档网站而设计的，它有一些内置的、针对文档的网站功能，而 Astro 没有。相反，Astro 通过官方的[`docs`](https://github.com/snowpackjs/astro/tree/main/examples/docs)主题提供了特定的文档功能，你可以在你的网站使用。这个网站就是用这个模板建立的!
+VuePress 是为建立文档网站而设计的，它有一些内置的、针对文档的网站功能，而 Astro 没有。相反，Astro 通过官方的[`docs`](https://github.com/withastro/astro/tree/main/examples/docs)主题提供了特定的文档功能，你可以在你的网站使用。这个网站就是用这个模板建立的!
 
 #### 对比 VuePress 及 Astro 性能
 

@@ -1,5 +1,5 @@
-import type { AstroComponentMetadata } from '../../@types/astro-core';
-import type { SSRElement } from '../../@types/astro-runtime';
+import type { AstroComponentMetadata } from '../../@types/astro';
+import type { SSRElement } from '../../@types/astro';
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
 import { serializeListValue } from './util.js';
@@ -30,6 +30,8 @@ export function serializeProps(value: any) {
     generator: customGenerator,
   });
 }
+
+const HydrationDirectives = ['load', 'idle', 'media', 'visible', 'only'];
 
 interface ExtractedProps {
   hydration: {
@@ -70,6 +72,17 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
         default: {
           extracted.hydration.directive = key.split(':')[1];
           extracted.hydration.value = value;
+
+          // throw an error if an invalid hydration directive was provided
+          if (HydrationDirectives.indexOf(extracted.hydration.directive) < 0) {
+            throw new Error(`Error: invalid hydration directive "${key}". Supported hydration methods: ${HydrationDirectives.map((d) => `"client:${d}"`).join(', ')}`);
+          }
+
+          // throw an error if the query wasn't provided for client:media
+          if (extracted.hydration.directive === 'media' && typeof extracted.hydration.value !== 'string') {
+            throw new Error('Error: Media query must be provided for "client:media", similar to client:media="(max-width: 600px)"');
+          }
+
           break;
         }
       }
@@ -112,7 +125,7 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 `;
 
   const hydrationScript = {
-    props: { type: 'module' },
+    props: { type: 'module', 'data-astro-component-hydration': true },
     children: `import setup from 'astro/client/${hydrate}.js';
 setup("${astroId}", {${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''}}, async () => {
   ${hydrationSource}

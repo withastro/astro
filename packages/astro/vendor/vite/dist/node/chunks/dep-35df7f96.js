@@ -2996,9 +2996,9 @@ const NULL_BYTE_PLACEHOLDER = `__x00__`;
 const CLIENT_PUBLIC_PATH = `/@vite/client`;
 const ENV_PUBLIC_PATH = `/@vite/env`;
 // eslint-disable-next-line node/no-missing-require
-const CLIENT_ENTRY = require.resolve('vite/dist/client/client.mjs');
+const CLIENT_ENTRY = require.resolve('../../client/client.mjs');
 // eslint-disable-next-line node/no-missing-require
-const ENV_ENTRY = require.resolve('vite/dist/client/env.mjs');
+const ENV_ENTRY = require.resolve('../../client/env.mjs');
 const CLIENT_DIR = path__default.dirname(CLIENT_ENTRY);
 // ** READ THIS ** before editing `KNOWN_ASSET_TYPES`.
 //   If you add an asset to `KNOWN_ASSET_TYPES`, make sure to also add it
@@ -5771,6 +5771,7 @@ const assetUrlRE = /__VITE_ASSET__([a-z\d]{8})__(?:\$_(.*?)__)?/g;
 const assetUrlQuotedRE = /"__VITE_ASSET__([a-z\d]{8})__(?:\$_(.*?)__)?"/g;
 const rawRE = /(\?|&)raw(?:&|$)/;
 const urlRE = /(\?|&)url(?:&|$)/;
+const isURLRequest = (id) => urlRE.test(id)
 const chunkToEmittedAssetsMap = new WeakMap();
 const assetCache = new WeakMap();
 const assetHashToFilenameMap = new WeakMap();
@@ -19848,7 +19849,7 @@ function cssPlugin(config) {
             removedPureCssFilesCache.set(config, new Map());
         },
         async transform(raw, id) {
-            if (!isCSSRequest(id) || commonjsProxyRE.test(id)) {
+            if (!isCSSRequest(id) || commonjsProxyRE.test(id) || isURLRequest(id)) {
                 return;
             }
             const urlReplacer = async (url, importer) => {
@@ -19929,7 +19930,7 @@ function cssPostPlugin(config) {
             hasEmitted = false;
         },
         async transform(css, id, ssr) {
-            if (!isCSSRequest(id) || commonjsProxyRE.test(id)) {
+            if (!isCSSRequest(id) || commonjsProxyRE.test(id) || isURLRequest(id)) {
                 return;
             }
             const inlined = inlineRE.test(id);
@@ -22469,7 +22470,7 @@ function terserPlugin(config) {
         // root with vite itself, so we have to pass in the basedir and resolve
         // terser first.
         // eslint-disable-next-line node/no-restricted-require
-        const terserPath = require.resolve('vite/dist/node/terser', {
+        const terserPath = require.resolve('../terser', {
             paths: [basedir]
         });
         return require(terserPath).minify(code, options);
@@ -43009,7 +43010,7 @@ async function doBuild(inlineConfig = {}) {
     const options = config.build;
     const ssr = !!options.ssr;
     const libOptions = options.lib;
-    config.logger.info(source.cyan(`vite v${require('vite/package.json').version} ${source.green(`building ${ssr ? `SSR bundle ` : ``}for ${config.mode}...`)}`));
+    config.logger.info(source.cyan(`vite v${require('../../../package.json').version} ${source.green(`building ${ssr ? `SSR bundle ` : ``}for ${config.mode}...`)}`));
     const resolve = (p) => path__default.resolve(config.root, p);
     const input = libOptions
         ? resolve(libOptions.entry)
@@ -56982,8 +56983,13 @@ const devHtmlHook = async (html, { path: htmlPath, server, originalUrl }) => {
                     .join('');
                 // add HTML Proxy to Map
                 addToHTMLProxyCache(config, url, scriptModuleIndex, contents);
-                // inline js module. convert to src="proxy"
-                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${filePath}?html-proxy&index=${scriptModuleIndex}.js"></script>`);
+                const modulePath = `${config.base + htmlPath.slice(1)}?html-proxy&index=${scriptModuleIndex}.js`;
+                // invalidate the module so the newly cached contents will be served
+                const module = server === null || server === void 0 ? void 0 : server.moduleGraph.getModuleById(modulePath);
+                if (module) {
+                    server === null || server === void 0 ? void 0 : server.moduleGraph.invalidateModule(module);
+                }
+                s.overwrite(node.loc.start.offset, node.loc.end.offset, `<script type="module" src="${modulePath}"></script>`);
             }
         }
         // elements with [href/src] attrs

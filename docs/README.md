@@ -1,4 +1,4 @@
-# Astro Docs <img width="19.2" height="25.6" src="https://raw.githubusercontent.com/snowpackjs/astro/main/assets/brand/logo.svg" alt="Astro logo">
+# Astro Docs <img width="19.2" height="25.6" src="https://raw.githubusercontent.com/withastro/astro/main/assets/brand/logo.svg" alt="Astro logo">
 
 ## Contributing
 

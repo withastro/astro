@@ -1,0 +1,32 @@
+---
+import Time from '../components/Time.jsx'
+---
+
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+	<link rel="stylesheet" href={Astro.resolve('../styles/main.scss')}>
+	<meta name="viewport" content="width=device-width" />
+	<title>Welcome to Astro</title>
+</head>
+
+<body>
+	<h1>Welcome to <a href="https://astro.build/">Astro</a></h1>
+
+	<main id="app">
+		Today: <Time client:idle />
+	</main>
+
+	<article>
+		<h2>Animals</h2>
+
+		<figure>
+			<img src="/blog/images/penguin.png" />
+			<figcaption>A penguin</figcaption>
+		</figure>
+	</article>
+</body>
+
+</html>

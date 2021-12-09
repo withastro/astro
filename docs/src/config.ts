@@ -6,6 +6,7 @@ export const SIDEBAR = {
     { text: 'Installation', link: 'installation' },
     { text: 'Themes', link: 'themes' },
     { text: 'Astro vs. X', link: 'comparing-astro-vs-other-tools' },
+    { text: 'Migrate to v0.21', link: 'migration/0.21.0' },
 
     { text: 'Basics', header: true },
     { text: 'Project Structure', link: 'core-concepts/project-structure' },
@@ -39,8 +40,25 @@ export const SIDEBAR = {
     { text: 'Renderer Reference', link: 'reference/renderer-reference' },
   ],
   de: [
-    { text: 'Willkommen', header: true },
-    { text: 'Einführung', link: 'de/getting-started' },
+    { text: 'Einrichtung', header: true },
+    { text: 'Erste Schritte', link: 'de/getting-started' },
+    { text: 'Schnellstart', link: 'de/quick-start' },
+    { text: 'Installation', link: 'de/installation' },
+    { text: 'Vorlagen', link: 'de/themes' },
+    { text: 'Astro vs. X', link: 'de/comparing-astro-vs-other-tools' },
+    { text: 'Umstellung auf v0.21', link: 'de/migration/0.21.0' },
+
+    { text: 'Grundlagen', header: true },
+    { text: 'Projektstruktur', link: 'de/core-concepts/project-structure' },
+    { text: 'Astro-Komponenten', link: 'de/core-concepts/astro-components' },
+    { text: 'Astro-Seiten', link: 'de/core-concepts/astro-pages' },
+    { text: 'Layouts', link: 'de/core-concepts/layouts' },
+    { text: 'Routing', link: 'de/core-concepts/routing' },
+    { text: 'Partial Hydration', link: 'de/core-concepts/component-hydration' },
+
+    { text: 'Anleitungen', header: true },
+
+    { text: 'Referenz', header: true },
   ],
   nl: [
     { text: 'Welkom', header: true },
@@ -121,6 +139,7 @@ export const SIDEBAR = {
     { text: '新手上路', link: 'zh-TW/getting-started' },
     { text: '快速開始', link: 'zh-TW/quick-start' },
     { text: '安裝', link: 'zh-TW/installation' },
+    { text: '佈景主題', link: 'zh-TW/themes' },
   ],
   bg: [
     { text: 'Главни', header: true },
@@ -154,11 +173,16 @@ export const SIDEBAR = {
     { text: 'クイックスタート', link: 'ja/quick-start' },
     { text: 'インストール', link: 'ja/installation' },
     { text: 'テーマ', link: 'ja/themes' },
+    { text: 'Astro vs. X', link: 'ja/comparing-astro-vs-other-tools' },
   ],
   ru: [
     { text: 'Введение', header: true },
     { text: 'Начало работы', link: 'ru/getting-started' },
     { text: 'Быстрый старт', link: 'ru/quick-start' },
+  ],
+  it: [
+    { text: 'Impostare', header: true },
+    { text: 'Come iniziare', link: 'it/getting-started' },
   ],
 };
 

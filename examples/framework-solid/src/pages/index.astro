@@ -6,19 +6,14 @@ import Counter from '../components/Counter.jsx';
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <style global>
-      :root {
+    <style>
+      html,
+      body {
         font-family: system-ui;
+        margin: 0;
       }
-      .counter {
-        display: grid;
-        font-size: 2em;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        margin-top: 3em;
-        place-items: center;
-      }
-      .counter-message {
-        text-align: center;
+      body {
+        padding: 2rem;
       }
     </style>
   </head>

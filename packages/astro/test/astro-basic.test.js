@@ -81,6 +81,31 @@ describe('Astro basics', () => {
       // will be 1 if element rendered correctly
       expect($('#one')).to.have.lengthOf(1);
     });
+
+    it('supports special chars in filename', async () => {
+      // will have already erred by now, but add test anyway
+      expect(await fixture.readFile('/special-“characters” -in-file/index.html')).to.be.ok;
+    });
+  });
+
+  it('Supports void elements whose name is a string (#2062)', async () => {
+    const html = await fixture.readFile('/input/index.html');
+    const $ = cheerio.load(html);
+
+    // <Input />
+    expect($('body > :nth-child(1)').prop('outerHTML')).to.equal('<input>');
+
+    // <Input type="password" />
+    expect($('body > :nth-child(2)').prop('outerHTML')).to.equal('<input type="password">');
+
+    // <Input type="text" />
+    expect($('body > :nth-child(3)').prop('outerHTML')).to.equal('<input type="text">');
+
+    // <Input type="select"><option>option</option></Input>
+    expect($('body > :nth-child(4)').prop('outerHTML')).to.equal('<select><option>option</option></select>');
+
+    // <Input type="textarea">textarea</Input>
+    expect($('body > :nth-child(5)').prop('outerHTML')).to.equal('<textarea>textarea</textarea>');
   });
 
   describe('preview', () => {

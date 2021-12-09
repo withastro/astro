@@ -1,7 +1,7 @@
 import './shim.js';
 
 function getConstructor(Component) {
-  if(typeof Component === 'string') {
+  if (typeof Component === 'string') {
     const tagName = Component;
     Component = customElements.get(tagName);
   }
@@ -10,13 +10,13 @@ function getConstructor(Component) {
 
 function check(component) {
   const Component = getConstructor(component);
-  if(typeof Component === 'function' && globalThis.HTMLElement.isPrototypeOf(Component)) {
+  if (typeof Component === 'function' && globalThis.HTMLElement.isPrototypeOf(Component)) {
     return true;
   }
   return false;
 }
 
-function renderToStaticMarkup(component) {
+function renderToStaticMarkup(component, props, innerHTML) {
   const Component = getConstructor(component);
   const el = new Component();
   el.connectedCallback();

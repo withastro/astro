@@ -4,7 +4,7 @@
 npm init astro -- --template docs
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/docs)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/docs)
 
 ## Features
 
@@ -21,18 +21,18 @@ npm init astro -- --template docs
 
 All commands are run from the root of the project, from a terminal:
 
-| Command          | Action                                       |
-|:-----------------|:---------------------------------------------|
-| `npm install`    | Installs dependencies                        |
-| `npm run dev`    | Starts local dev server at `localhost:3000`  |
-| `npm run build`  | Build your production site to `./dist/`      |
-| `npm run preview`| Preview your build locally, before deploying |
+| Command           | Action                                       |
+|:----------------  |:-------------------------------------------- |
+| `npm install`     | Installs dependencies                        |
+| `npm run dev`     | Starts local dev server at `localhost:3000`  |
+| `npm run build`   | Build your production site to `./dist/`      |
+| `npm run preview` | Preview your build locally, before deploying |
 
 To deploy your site to production, check out our [Deploy an Astro Website](https://docs.astro.build/guides/deploy) guide.
 
 ## New to Astro?
 
-Welcome! Check out [our documentation](https://github.com/snowpackjs/astro) or jump into our [Discord server](https://astro.build/chat).
+Welcome! Check out [our documentation](https://github.com/withastro/astro) or jump into our [Discord server](https://astro.build/chat).
 
 
 ## Customize This Theme
@@ -60,7 +60,7 @@ This theme uses a "cool blue" accent color by default. To customize this for you
 
 Astro uses frontmatter in Markdown pages to choose layouts and pass properties to those layouts. If you are using the default layout, you can customize the page in many different ways to optimize SEO and other things. For example, you can use the `title` and `description` properties to set the document title, meta title, meta description, and Open Graph description.
 
-```md
+```markdown
 ---
 title: Example title
 description: Really cool docs example that uses Astro

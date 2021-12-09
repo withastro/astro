@@ -1,17 +1,14 @@
 {
   "name": "@astrojs/prism",
-  "version": "0.3.0-next.0",
+  "version": "0.3.0",
   "description": "IYKYK",
   "main": "index.mjs",
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/astro.git",
+    "url": "https://github.com/withastro/astro.git",
     "directory": "packages/astro-prism"
   },
-  "scripts": {
-    "build": "echo 'build'",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "exports": {
     ".": "./index.mjs"
   },

@@ -1,10 +1,8 @@
 <script>
-  import { getValue } from 'nanostores'
-
   import { users } from '../store/users.js';
   import { counter, increaseCounter, decreaseCounter } from '../store/counter.js';
 
-  const list = getValue(users).filter(user => user.isAdmin);
+  const list = users.get().filter((user) => user.isAdmin);
 </script>
 
 <h1>Svelte</h1>

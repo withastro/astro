@@ -3,20 +3,38 @@ import fetch from 'node-fetch';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { loadConfig } from '../dist/core/config.js';
+import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
+/**
+ * @typedef {import('node-fetch').Response} Response
+ * @typedef {import('../src/core/dev/index').DevServer} DevServer
+ *
+ *
+ * @typedef {Object} Fixture
+ * @property {typeof build} build
+ * @property {(url: string, opts: any) => Promise<Response>} fetch
+ * @property {(path: string) => Promise<string>} readFile
+ * @property {(path: string) => Promise<string[]>} readdir
+ * @property {() => Promise<DevServer>} startDevServer
+ */
 
 /**
  * Load Astro fixture
  * @param {Object} inlineConfig Astro config partial (note: must specify projectRoot)
- * @returns {Object} Fixture. Has the following properties:
+ * @returns {Fixture} The fixture. Has the following properties:
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *
  *   Build
- *   .build()        - Async. Builds into current folder (will erase previous build)
- *   .readFile(path) - Async. Read a file from the build.
- *   .preview()      - Async. Starts a preview server. Note this can’t be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
- *   .fetch(url)     - Async. Returns a URL from the prevew server (must have called .preview() before)
+ *   .build()          - Async. Builds into current folder (will erase previous build)
+ *   .readFile(path)   - Async. Read a file from the build.
+ *
+ *   Dev
+ *   .startDevServer() - Async. Starts a dev server at an available port. Be sure to call devServer.stop() before test exit.
+ *   .fetch(url)       - Async. Returns a URL from the prevew server (must have called .preview() before)
+ *
+ *   Preview
+ *   .preview()        - Async. Starts a preview server. Note this can’t be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
  */
 export async function loadFixture(inlineConfig) {
   if (!inlineConfig || !inlineConfig.projectRoot) throw new Error("Must provide { projectRoot: './fixtures/...' }");
@@ -40,6 +58,12 @@ export async function loadFixture(inlineConfig) {
 
   return {
     build: (opts = {}) => build(config, { mode: 'development', logging: 'error', ...opts }),
+    startDevServer: async (opts = {}) => {
+      const devServer = await dev(config, { logging: 'error', ...opts });
+      config.devOptions.port = devServer.port; // update port
+      inlineConfig.devOptions.port = devServer.port;
+      return devServer;
+    },
     config,
     fetch: (url, init) => fetch(`http://${config.devOptions.hostname}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
     preview: async (opts = {}) => {
@@ -48,6 +72,7 @@ export async function loadFixture(inlineConfig) {
       return previewServer;
     },
     readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
+    readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
   };
 }
 

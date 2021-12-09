@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: add markdown support
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -28,12 +26,9 @@ describe('Markdown tests', () => {
   });
 
   it('Can load a realworld markdown page with Astro', async () => {
-    const html = await fixture.fetch('/realworld/index.html');
+    const html = await fixture.readFile('/realworld/index.html');
     const $ = cheerio.load(html);
 
     expect($('pre')).to.have.lengthOf(7);
   });
 });
-*/
-
-it.skip('is skipped', () => {});

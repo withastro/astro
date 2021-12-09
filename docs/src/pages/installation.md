@@ -29,7 +29,7 @@ yarn create astro
 pnpm create astro
 ```
 
-[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) wizard lets you choose from a set of [starter templates](https://github.com/snowpackjs/astro/tree/main/examples) or alternatively, you could import your own Astro project directly from GitHub.
+[`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro) wizard lets you choose from a set of [starter templates](https://github.com/withastro/astro/tree/main/examples) or alternatively, you could import your own Astro project directly from GitHub.
 
 ```bash
 # Note: Replace "my-astro-project" with the name of your project.
@@ -41,7 +41,7 @@ npm init astro my-astro-project -- --template starter
 # yarn
 yarn create astro my-astro-project --template starter
 # pnpm
-pnpm create astro my-astro-project --template starter
+pnpm create astro my-astro-project -- --template starter
 # Using a third-party template
 npm init astro my-astro-project -- --template [GITHUB_USER]/[REPO_NAME]
 # Using a third-party template, inside a repo
@@ -151,7 +151,7 @@ If you need to share your development progress on the local network or check out
 
 ```js
 devOptions: {
-  hostname: '0.0.0.0';
+  hostname: '0.0.0.0',
 }
 ```
 

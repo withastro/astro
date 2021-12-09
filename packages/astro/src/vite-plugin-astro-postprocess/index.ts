@@ -1,6 +1,6 @@
 import type * as t from '@babel/types';
 import type { Plugin } from '../core/vite';
-import type { AstroConfig } from '../@types/astro-core';
+import type { AstroConfig } from '../@types/astro';
 import type { AstroDevServer } from '../core/dev/index';
 
 import * as babelTraverse from '@babel/traverse';

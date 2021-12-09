@@ -1,5 +1,3 @@
-/**
- * UNCOMMENT: when "window is not defined" error fixed in Vite
 import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
@@ -11,7 +9,6 @@ before(async () => {
   await fixture.build();
 });
 
-// TODO: fix "window is not defined" error in Vite
 describe('Client only components', () => {
   it('Loads pages using client:only hydrator', async () => {
     const html = await fixture.readFile('/index.html');
@@ -19,22 +16,19 @@ describe('Client only components', () => {
 
     // test 1: <astro-root> is empty
     expect($('astro-root').html()).to.equal('');
+    const src = $('script').attr('src');
 
+    const script = await fixture.readFile(src);
     // test 2: svelte renderer is on the page
-    const exp = /import\("(.+?)"\)/g;
+    const exp = /import\("(.\/client.*)"\)/g;
     let match, svelteRenderer;
-    while ((match = exp.exec(result.contents))) {
-      if (match[1].includes('renderers/renderer-svelte/client.js')) {
-        svelteRenderer = match[1];
-      }
+    while ((match = exp.exec(script))) {
+      svelteRenderer = match[1].replace(/^\./, '/assets/');
     }
     expect(svelteRenderer).to.be.ok;
 
     // test 3: can load svelte renderer
-    // result = await fixture.fetch(svelteRenderer);
-    // expect(result.status).to.equal(200);
+    const svelteClient = await fixture.readFile(svelteRenderer);
+    expect(svelteClient).to.be.ok;
   });
 });
-*/
-
-it.skip('is skipped', () => {});

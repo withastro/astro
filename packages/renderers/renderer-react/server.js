@@ -50,7 +50,7 @@ function renderToStaticMarkup(Component, props, children, metadata) {
   delete props['class'];
   const vnode = React.createElement(Component, {
     ...props,
-    children: React.createElement(StaticHtml, { value: children }),
+    children: children != null ? React.createElement(StaticHtml, { value: children }) : undefined,
   });
   let html;
   if (metadata && metadata.hydrate) {

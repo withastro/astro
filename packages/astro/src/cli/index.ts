@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
-import type { AstroConfig } from '../@types/astro-core';
-import { LogOptions } from '../core/logger.js';
+import type { AstroConfig } from '../@types/astro';
+import type { LogOptions } from '../core/logger';
 
 import * as colors from 'kleur/colors';
 import fs from 'fs';
@@ -36,6 +36,7 @@ function resolveArgs(flags: Arguments): CLIState {
     sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined,
+    hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
   };
 
   if (flags.version) {

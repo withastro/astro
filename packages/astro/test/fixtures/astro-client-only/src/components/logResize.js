@@ -1,3 +1,3 @@
 window.addEventListener("resize", function() {
-    console.log("window resized");
+  console.log("window resized");
 });

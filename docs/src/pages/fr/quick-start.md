@@ -19,7 +19,9 @@ npm install
 
 # Commencez à coder !
 npm run dev
+```
 
+```shell
 # Quand votre site est fin prêt, compilez-en une version statique dans le dossier `dist/`
 npm run build
 ```

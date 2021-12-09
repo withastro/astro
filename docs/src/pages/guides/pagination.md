@@ -86,7 +86,7 @@ For example, if you want to group your paginated markdown posts by some tag, you
 
 Nested pagination works by returning an array of `paginate()` results from `getStaticPaths()`, one for each grouping. In the following example, we will implement nested pagination to build the URLs listed above:
 
-```js
+```astro
 ---
 // Example: /src/pages/[tag]/[page].astro
 export function getStaticPaths({paginate}) {

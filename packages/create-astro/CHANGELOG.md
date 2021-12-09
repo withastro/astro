@@ -1,5 +1,37 @@
 # create-astro
 
+## 0.6.10
+
+### Patch Changes
+
+- [#2150](https://github.com/withastro/astro/pull/2150) [`d5ebd9d1`](https://github.com/withastro/astro/commit/d5ebd9d178ed4e5d15ef43f32217c16d44f19151) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix create-astro export map entry
+
+## 0.6.9
+
+### Patch Changes
+
+- [#2124](https://github.com/withastro/astro/pull/2124) [`c0f29bcf`](https://github.com/withastro/astro/commit/c0f29bcf8c2b943e4a8101cae4f893b13a4b832c) Thanks [@leosvelperez](https://github.com/leosvelperez)! - Parse --renderers flag correctly when passed to the create-astro cli
+
+## 0.6.8
+
+### Patch Changes
+
+- 3e1bdb1a: Add a helpful message for the "could not find commit hash for ..." error
+
+## 0.6.7
+
+## 0.6.7-next.1
+
+### Patch Changes
+
+- 6c66d483: Fix issue with v7.x+ versions of npm init, which changed default flag handling
+
+## 0.6.7-next.0
+
+### Patch Changes
+
+- 6c66d483: Fix issue with v7.x+ versions of npm init, which changed default flag handling
+
 ## 0.6.6
 
 ### Patch Changes

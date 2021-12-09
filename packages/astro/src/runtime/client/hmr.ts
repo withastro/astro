@@ -6,7 +6,14 @@ if (import.meta.hot) {
 
     morphdom(document.head, doc.head, {
       onBeforeElUpdated(fromEl, toEl) {
+        // Do not update identical tags
         if (fromEl.isEqualNode(toEl)) {
+          return false;
+        }
+
+        // Do not update <link> or <script> tags
+        // to avoid re-fetching their contents
+        if (fromEl.tagName === toEl.tagName && (toEl.tagName === 'LINK' || toEl.tagName === 'SCRIPT')) {
           return false;
         }
 

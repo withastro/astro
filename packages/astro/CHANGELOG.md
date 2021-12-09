@@ -1,5 +1,282 @@
 # astro
 
+## 0.21.12
+
+### Patch Changes
+
+- [#2115](https://github.com/withastro/astro/pull/2115) [`0ef682c9`](https://github.com/withastro/astro/commit/0ef682c924a0836790acd2d4f8c1663eb99ffb75) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve error message on bad JS/TS frontmatter
+
+* [#2156](https://github.com/withastro/astro/pull/2156) [`ef3950c6`](https://github.com/withastro/astro/commit/ef3950c647e523ff6f36cfa096c4a92596d32afa) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: missing CSS files
+
+## 0.21.11
+
+### Patch Changes
+
+- [#2137](https://github.com/withastro/astro/pull/2137) [`cc1dae55`](https://github.com/withastro/astro/commit/cc1dae55c8bbf0a7d862e227f7daed138c485be4) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Exclude 404 pages from sitemap generation
+
+* [#2112](https://github.com/withastro/astro/pull/2112) [`da7b41f5`](https://github.com/withastro/astro/commit/da7b41f5b8eb6d3a3e3a765be447e03ef5691979) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: fix missing styles in build
+
+- [#2116](https://github.com/withastro/astro/pull/2116) [`d9d3906a`](https://github.com/withastro/astro/commit/d9d3906a3c215436a1e3d2ab64e63d23a772e059) Thanks [@e111077](https://github.com/e111077)! - add lit renderer reflection tests
+
+* [#2135](https://github.com/withastro/astro/pull/2135) [`77c3fda3`](https://github.com/withastro/astro/commit/77c3fda379b5858a74fa54d278058efaf33fdac5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Patch `fetch` support to prioritize authored code. Existing `fetch` imports and declarations are respected.
+
+## 0.21.10
+
+### Patch Changes
+
+- [#2109](https://github.com/withastro/astro/pull/2109) [`3e4cfea4`](https://github.com/withastro/astro/commit/3e4cfea4e29ab958d69e4502c1f634a007393a7b) Thanks [@Mikkel-T](https://github.com/Mikkel-T)! - Fixes aliases on windows.
+
+* [#2117](https://github.com/withastro/astro/pull/2117) [`8346a1f2`](https://github.com/withastro/astro/commit/8346a1f2b9e38d68788e0c6dc62f872a46ebe8a7) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes regression introduced in `@astrojs/compiler` related to active formatting elements
+
+  See [CHANGELOG](https://github.com/withastro/compiler/blob/main/lib/compiler/CHANGELOG.md#057).
+
+## 0.21.9
+
+### Patch Changes
+
+- [#2107](https://github.com/withastro/astro/pull/2107) [`4c444676`](https://github.com/withastro/astro/commit/4c44467668045733b4e5c3bbed8a1bde2ba421de) Thanks [@matthewp](https://github.com/matthewp)! - Fixes regression in build caused by use of URL module
+
+  Using this module breaks the build because Vite tries to shim it, incorrectly.
+
+* [#2106](https://github.com/withastro/astro/pull/2106) [`583459d0`](https://github.com/withastro/astro/commit/583459d0b6476fc79b351648c0db3c2869edfa12) Thanks [@matthewp](https://github.com/matthewp)! - Fix for using ?url with CSS imports
+
+## 0.21.8
+
+### Patch Changes
+
+- [#2096](https://github.com/withastro/astro/pull/2096) [`11798a32`](https://github.com/withastro/astro/commit/11798a3209521664e02989e5ea3e791c8c5fb036) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Updates @astro/compiler and @astro/language-server.
+
+## 0.21.7
+
+### Patch Changes
+
+- [#2065](https://github.com/withastro/astro/pull/2065) [`c6e4e283`](https://github.com/withastro/astro/commit/c6e4e2831e122cced890dfad47825fab3bd32db9) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: improve CSS import order
+
+* [#2081](https://github.com/withastro/astro/pull/2081) [`62a5e98c`](https://github.com/withastro/astro/commit/62a5e98c9008a1ac88c3c38db64b74723f8fd422) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: CSS import ordering, empty CSS output on build
+
+- [#2086](https://github.com/withastro/astro/pull/2086) [`2a2eaadc`](https://github.com/withastro/astro/commit/2a2eaadc2f5ca0ac88eb3fd987881a47b41e9bdd) Thanks [@matthewp](https://github.com/matthewp)! - Fixes invalidation of proxy module (inline script modules)
+
+* [#2048](https://github.com/withastro/astro/pull/2048) [`1301f3da`](https://github.com/withastro/astro/commit/1301f3daa9991078652577f2addf4aaad6014712) Thanks [@matthewp](https://github.com/matthewp)! - Updates Astro.resolve to return project-relative paths
+
+- [#2078](https://github.com/withastro/astro/pull/2078) [`ac3e8702`](https://github.com/withastro/astro/commit/ac3e870280e983a7977da79b6eec0568d38d8420) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix behavior of renderers when no children are passed in
+
+* [#2091](https://github.com/withastro/astro/pull/2091) [`0a826c99`](https://github.com/withastro/astro/commit/0a826c999c8ee30d5ee2ae61ac4165fb9797da70) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: allow special characters in filenames
+
+- [#2064](https://github.com/withastro/astro/pull/2064) [`5bda895f`](https://github.com/withastro/astro/commit/5bda895fcb7d1aa21223aa89d33912f97716c3ab) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Fixes an issue where void elements are rendered with opening and closing tags.
+
+* [#2076](https://github.com/withastro/astro/pull/2076) [`920d3da1`](https://github.com/withastro/astro/commit/920d3da135f29a3b4229aa7166902ae00be0a51f) Thanks [@tony-sull](https://github.com/tony-sull)! - Improving build validation and error messages for client hydration directives
+
+- [#2075](https://github.com/withastro/astro/pull/2075) [`b348ca6c`](https://github.com/withastro/astro/commit/b348ca6c9fbc13dcf49718c7b3335f06b1ea0982) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: allow dynamic importing of rehype plugins
+
+- Updated dependencies [[`ac3e8702`](https://github.com/withastro/astro/commit/ac3e870280e983a7977da79b6eec0568d38d8420)]:
+  - @astrojs/renderer-preact@0.3.1
+  - @astrojs/renderer-react@0.3.1
+  - @astrojs/renderer-svelte@0.2.2
+  - @astrojs/renderer-vue@0.2.1
+
+## 0.21.6
+
+### Patch Changes
+
+- [#2050](https://github.com/withastro/astro/pull/2050) [`4e06767c`](https://github.com/withastro/astro/commit/4e06767c0148539f6fe868c4fc0335755908c110) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix `astro preview` port retry logic
+
+* [#2049](https://github.com/withastro/astro/pull/2049) [`c491d1f4`](https://github.com/withastro/astro/commit/c491d1f423cc8ed7ba25d7d0dea6336ad9659a55) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: Sass compile errors cause compiler panic
+
+- [#2066](https://github.com/withastro/astro/pull/2066) [`f5efbe14`](https://github.com/withastro/astro/commit/f5efbe141cf3b0956252a42ffc35a95211ee7513) Thanks [@drwpow](https://github.com/drwpow)! - Bugfix: Windows error in dev for hydrated components
+
+## 0.21.5
+
+### Patch Changes
+
+- 341ec3cd: Fixes dev errors in hydrated components
+
+  The errors would occur when there was state changes in hydrated components. This only occurs in dev but does result in the hydrated component not working. This fixes the underlying issue.
+
+- 4436592d: Fix crash with unexpected file types in pages directory
+- 50f3b8d7: Bugfix: improve style and script injection for partial pages
+- fad6bd09: Fixes use of `PUBLIC_` to reference env vars
+
+  Previously `PUBLIC_` worked in server-only components such as .astro components. However if you had a client-side component you had to use `VITE_`. This was a bug with our build that is now fixed.
+
+## 0.21.4
+
+### Patch Changes
+
+- 76559faa: Chore: update compiler
+
+## 0.21.3
+
+### Patch Changes
+
+- 8a5de030: Fix client:visible with multiple copies of same component
+- 9ed6b3c0: Update compiler with the following patches:
+  - Fix components supporting only one style or script
+  - Fix regression where leading `<style>` elements could break generated tags
+  - Fix case-sensitivity of void elements
+  - Fix expressions not working within SVG elements
+  - Fix panic when preprocessed style is empty
+- 7a7427e4: Fix CSS URLs on Windows
+- Updated dependencies [4cec1256]
+  - @astrojs/renderer-svelte@0.2.1
+
+## 0.21.2
+
+### Patch Changes
+
+- 22dd6bf6: Support `lang="postcss"` in addition to `lang="pcss"`
+- d3476f24: Bump Sass dependency version
+- 679d4395: Added `MarkdownParser` and `MarkdownParserResponse` to `@types`
+- e4945232: Fix a host of compiler bugs, including:
+  - CSS scoping of `*` character inside of `calc()` expressions
+  - Encoding of double quotes inside of quoted attributes
+  - Expressions inside of `<table>` elements
+- 8cb77959: Fixes building of non-hoisted scripts
+- fc5f4163: Fix regression with `astro build` 404.astro output
+- Updated dependencies [679d4395]
+  - @astrojs/markdown-remark@0.5.0
+
+## 0.21.1
+
+### Patch Changes
+
+- 8775730e: Fix CSS scanning bug that could lead to infinite loops
+- aec4e8da: Fix client:only behavior when only a single renderer is configured
+
+## 0.21.0
+
+### Minor Changes
+
+- e6aaeff5: Astro 0.21 is here! [Read the complete migration guide](https://docs.astro.build/migration/0.21.0/).
+
+  This new version of Astro includes:
+
+  - A new, faster, [Go-based compiler](https://github.com/withastro/astro-compiler)
+  - A completely new runtime backed by [Vite](https://vitejs.dev/), with significantly dev experience improvements
+  - Improved support for loading Astro config files, including `.cjs`, `.js`, and `.ts` files
+  - And [many more features](https://astro.build/blog/astro-021-preview/)!
+
+### Patch Changes
+
+- Updated dependencies [e6aaeff5]
+- Updated dependencies [e6aaeff5]
+- Updated dependencies [e6aaeff5]
+  - @astrojs/renderer-preact@0.3.0
+  - @astrojs/renderer-react@0.3.0
+  - @astrojs/renderer-svelte@0.2.0
+  - @astrojs/renderer-vue@0.2.0
+  - @astrojs/markdown-remark@0.4.0
+  - @astrojs/prism@0.3.0
+
+## 0.21.0-next.12
+
+### Patch Changes
+
+- 8733599e: Adds missing vite dependency, vixing svelte and vue
+- 2e0c790b: Fix Lit renderer built
+
+## 0.21.0-next.11
+
+### Patch Changes
+
+- 00d2b625: Add Vite dependencies to astro
+- Updated dependencies [00d2b625]
+  - @astrojs/markdown-remark@0.4.0-next.2
+
+## 0.21.0-next.10
+
+### Patch Changes
+
+- c7682168: Fix build by making vendored vite resolve to copy
+
+## 0.21.0-next.9
+
+### Patch Changes
+
+- 41c6a772: Fix for dev server not starting
+- 3b511059: Fix for OSX .astro file corruption
+
+## 0.21.0-next.8
+
+### Patch Changes
+
+- c82ceff7: Bug fix for Debug when passed JSON contain HTML strings
+- 53d9cf5e: Fixes dev server not stopping cleanly
+- 8986d33b: Improve error display
+- Updated dependencies [8986d33b]
+  - @astrojs/renderer-vue@0.2.0-next.2
+
+## 0.21.0-next.7
+
+### Patch Changes
+
+- dbc49ed6: Fix HMR regression
+- 6b598b24: Fix middleware order
+- 0ce86dfd: Fixes Vue scoped styles when built
+
+## 0.21.0-next.6
+
+### Patch Changes
+
+- dbc49ed6: Fix HMR regression
+- 6b598b24: Fix middleware order
+- 0ce86dfd: Fixes Vue scoped styles when built
+
+## 0.21.0-next.5
+
+### Patch Changes
+
+- 0f9c1910: Fixes routing regression in next.4. Subpath support was inadvertedly prevent any non-index routes from working when not using a subpath.
+
+## 0.21.0-next.4
+
+### Patch Changes
+
+- b958088c: Make astro-root be a display: contents element
+- 65d17857: Fixes hoisted scripts to be bundled during the build
+- 3b8f201c: Add build output
+- 824c1f20: Re-implement client:only support
+- 3cd1458a: Bugfix: Bundled CSS missing files on Windows
+- 4e55be90: Fixes layout file detection on non-unix environments
+- fca1a99d: Provides first-class support for a site deployed to a subpath
+
+  Now you can deploy your site to a subpath more easily. Astro will use your `buildOptions.site` URL and host the dev server from there.
+
+  If your site config is `http://example.com/blog` you will need to go to `http://localhost:3000/blog/` in dev and when using `astro preview`.
+
+  Includes a helpful 404 page when encountering this in dev and preview.
+
+- 65216ef9: Bugfix: PostCSS not working in all contexts
+- Updated dependencies [3cd1458a]
+  - @astrojs/renderer-preact@0.3.0-next.1
+  - @astrojs/renderer-react@0.3.0-next.1
+  - @astrojs/renderer-svelte@0.2.0-next.1
+  - @astrojs/renderer-vue@0.2.0-next.1
+
+## 0.21.0-next.3
+
+### Patch Changes
+
+- 7eaabbb0: Fix error with Markdown content attribute parsing
+- fd52bcee: Update the build to build/bundle assets
+- 7eaabbb0: Fix bug with attribute serialization
+- Updated dependencies [7eaabbb0]
+  - @astrojs/markdown-remark@0.4.0-next.1
+
+## 0.21.0-next.2
+
+### Patch Changes
+
+- fbae2bc5: **Improve support for Astro config files.**
+
+In addition to properly loading `.cjs` and `.js` files in all cases, Astro now supports `astro.config.ts` files.
+
+For convenience, you may now also move your `astro.config.js` file to a top-level `config/` directory.
+
+- 2e1bded7: Improve Tailwind HMR in `dev` mode
+- Fix bug when using `<Markdown></Markdown>` with no content
+- Support `PUBLIC_` prefixed `.env` variables
+- Respect `tsconfig.json` and `jsconfig.json` paths as aliases
+
 ## 0.21.0-next.1
 
 ### Patch Changes
@@ -881,7 +1158,7 @@ _Rolling back to 0.13.10 to prevent a regression in the dev server output._
 ### Patch Changes
 
 - 6573bea: Fixed README header aspect ratio
-- 2671b6f: Fix [472](https://github.com/snowpackjs/astro/issues/472) by not injecting `astro-*` scoped class unless it is actually used
+- 2671b6f: Fix [472](https://github.com/withastro/astro/issues/472) by not injecting `astro-*` scoped class unless it is actually used
 - b547892: Makes providing a head element on pages optional
 - b547892: Allows astro documents to omit the head element
 - 0abd251: Allows renderers to provide knownEntrypoint config values
@@ -1031,7 +1308,7 @@ _Rolling back to 0.13.10 to prevent a regression in the dev server output._
 ### Patch Changes
 
 - 0d6afae: Fixes a few small bugs with the `Markdown` component when there are multiple instances on the same page
-- 1d930ff: Adds [`--verbose`](https://docs.astro.build/cli.md#--verbose) and [`--reload`](https://github.com/snowpackjs/astro/blob/main/docs/cli/#--reload) flags to the `astro` CLI.
+- 1d930ff: Adds [`--verbose`](https://docs.astro.build/cli.md#--verbose) and [`--reload`](https://github.com/withastro/astro/blob/main/docs/cli/#--reload) flags to the `astro` CLI.
 
 ## 0.12.3
 

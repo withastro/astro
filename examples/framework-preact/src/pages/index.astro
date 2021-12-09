@@ -11,21 +11,13 @@ import Counter from '../components/Counter.tsx'
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <style>
-      :global(:root) {
+      html,
+      body {
         font-family: system-ui;
-        padding: 2em 0;
+        margin: 0;
       }
-      :global(.counter) {
-        display: grid;
-        font-size: 2em;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        margin-top: 2em;
-        place-items: center;
-      }
-      :global(.children) {
-        display: grid;
-        margin-bottom: 2em;
-        place-items: center;
+      body {
+        padding: 2rem;
       }
     </style>
   </head>

@@ -1,4 +1,38 @@
-# @astrojs/markdown-support
+# @astrojs/markdown-remark
+
+## 0.5.0
+
+### Minor Changes
+
+- 679d4395: - Upgraded dependencies
+  - Replaced `remark-slug` with `rehype-slug` because [it was deprecated](https://github.com/remarkjs/remark-slug)
+  - Replaced `@silvenon/remark-smartypants` with `remark-smartypants` because its name was changed
+  - Disable **all** built-in plugins when custom remark and/or rehype plugins are added
+  - Removed `remark-footnotes` because [`remark-gfm` now supports footnotes](https://github.com/remarkjs/remark-gfm/releases/tag/3.0.0)
+  - Re-added `remark-smartypants` and `rehype-slug` to the default plugins list
+
+## 0.4.0
+
+### Minor Changes
+
+- e6aaeff5: Initial release.
+
+### Patch Changes
+
+- Updated dependencies [e6aaeff5]
+  - @astrojs/prism@0.3.0
+
+## 0.4.0-next.2
+
+### Patch Changes
+
+- 00d2b625: Move gray-matter to deps
+
+## 0.4.0-next.1
+
+### Patch Changes
+
+- 7eaabbb0: Fix bug where code blocks would not be escaped properly
 
 ## 0.4.0-next.0
 

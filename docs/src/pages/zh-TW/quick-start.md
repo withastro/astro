@@ -19,7 +19,9 @@ npm install
 
 # 開始開發！
 npm run dev
+```
 
+```shell
 # 做好之後：把靜態網站 build 進 `dist/`
 npm run build
 ```

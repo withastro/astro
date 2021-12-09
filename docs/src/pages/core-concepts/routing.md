@@ -37,7 +37,7 @@ Dynamic parameters are encoded into the filename using `[bracket]` notation:
 
 Consider the following page `pages/post/[pid].astro`:
 
-```jsx
+```astro
 ---
 // Example: src/pages/post/[pid].astro
 const {pid} = Astro.request.params;
@@ -83,11 +83,11 @@ For a real-world example, you might implement GitHub's file viewer like so:
 /[org]/[repo]/tree/[branch]/[...file]
 ```
 
-In this example, a request for `/snowpackjs/astro/tree/main/docs/public/favicon.svg` would result in the following parameters being available to the page:
+In this example, a request for `/withastro/astro/tree/main/docs/public/favicon.svg` would result in the following parameters being available to the page:
 
 ```js
 {
-	org: 'snowpackjs',
+	org: 'withastro',
 	repo: 'astro',
 	branch: 'main',
 	file: 'docs/public/favicon.svg'

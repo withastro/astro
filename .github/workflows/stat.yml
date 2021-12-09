@@ -7,7 +7,7 @@ on:
 
 jobs:
   stat:
-    if: github.repository == 'snowpackjs/astro'
+    if: github.repository_owner == 'withastro'
     runs-on: ubuntu-latest
     steps:
       - name: Check out code using Git

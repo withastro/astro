@@ -19,14 +19,18 @@ npm install
 
 # start developing!
 npm run dev
+```
 
+For production sites,
+
+```shell
 # when you're ready: build your static site to `dist/`
 npm run build
 ```
 
 To learn more about installing and using Astro for the first time, please [read our installation guide.](/installation)
 
-If you prefer to learn by example, check out our [complete library of examples](https://github.com/snowpackjs/astro/tree/main/examples) on GitHub. You can check out any of these examples locally by running `npm init astro -- --template "EXAMPLE_NAME"`.
+If you prefer to learn by example, check out our [complete library of examples](https://github.com/withastro/astro/tree/main/examples) on GitHub. You can check out any of these examples locally by running `npm init astro -- --template "EXAMPLE_NAME"`.
 
 ## Start your project
 
@@ -70,4 +74,4 @@ We recommend that you to take some time to get more familiar with the way Astro 
 
 📚 Learn more about Astro's component syntax in our [Astro Components guide.](/core-concepts/astro-components)
 
-📚 Learn more about Astro's file-based routing in our [Routing guide.](core-concepts/astro-pages)
+📚 Learn more about Astro's file-based routing in our [Routing guide.](/core-concepts/astro-pages)

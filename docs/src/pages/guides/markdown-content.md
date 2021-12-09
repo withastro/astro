@@ -6,32 +6,62 @@ description: An intro to Markdown with Astro.
 
 Astro comes with out-of-the-box Markdown support powered by the expansive [remark](https://remark.js.org/) ecosystem.
 
-## Remark and Rehype Plugins
+## Parsers
 
-In addition to custom components inside the [`<Markdown>` component](/guides/markdown-content#astros-markdown-component), Astro comes with [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants), [Remark-slug](https://github.com/remarkjs/remark-slug) and syntax highlighting via [Prism](https://prismjs.com/) pre-enabled.
-
-Also, Astro supports third-party plugins for Markdown. You can provide your plugins in `astro.config.mjs`.
-
-> **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for [GitHub-flavored Markdown](https://github.github.com/gfm/) support, [Footnotes](https://github.com/remarkjs/remark-footnotes) syntax, [Smartypants](https://github.com/silvenon/remark-smartypants), [Remark-slug](https://github.com/remarkjs/remark-slug). You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
-
-### Add a Markdown plugin in Astro
-
-If you want to add a plugin, you need to install the npm package dependency in your project and then update the `markdownOptions.remarkPlugins` or `markdownOptions.rehypePlugins` depends on what plugin you want to have:
+Astro lets you use any Markdown parser you want. It just needs to be a function that follows the `MarkdownParser` type declared inside [this file](https://github.com/withastro/astro/blob/main/packages/astro/src/@types/astro.ts). You can declare it inside `astro.config.mjs`:
 
 ```js
 // astro.config.mjs
 export default {
   markdownOptions: {
-    remarkPlugins: [
-      // Add a Remark plugin that you want to enable for your project.
-      // If you need to provide options for the plugin, you can use an array and put the options as the second item.
-      // ['remark-autolink-headings', { behavior: 'prepend'}],
+    render: [
+      'parser-name', // or import('parser-name') or (contents) => {...}
+      {
+        // options
+      },
     ],
-    rehypePlugins: [
-      // Add a Rehype plugin that you want to enable for your project.
-      // If you need to provide options for the plugin, you can use an array and put the options as the second item.
-      // 'rehype-slug',
-      // ['rehype-autolink-headings', { behavior: 'prepend'}],
+  },
+};
+```
+
+Astro comes with the `@astrojs/markdown-remark` package - the default parser.
+
+### Remark and Rehype Plugins
+
+In addition to custom components inside the [`<Markdown>` component](/guides/markdown-content#astros-markdown-component), the default parser comes with these plugins pre-enabled:
+
+- [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm)
+- [remark-smartypants](https://github.com/silvenon/remark-smartypants)
+- [rehype-slug](https://github.com/rehypejs/rehype-slug)
+- [Prism](https://prismjs.com/)
+
+Also, Astro supports third-party plugins for Markdown. You can provide your plugins in `astro.config.mjs`.
+
+> **Note:** Enabling custom `remarkPlugins` or `rehypePlugins` removes Astro's built-in support for the plugins previously mentioned. You must explicitly add these plugins to your `astro.config.mjs` file, if desired.
+
+### Add a Markdown plugin in Astro
+
+If you want to add a plugin, you need to install the npm package dependency in your project and then update `remarkPlugins` or `rehypePlugins` inside the `@astrojs/markdown-remark` options depending on what plugin you want to have:
+
+```js
+// astro.config.mjs
+export default {
+  markdownOptions: {
+    render: [
+      '@astrojs/markdown-remark',
+      {
+        remarkPlugins: [
+          // Add a Remark plugin that you want to enable for your project.
+          // If you need to provide options for the plugin, you can use an array and put the options as the second item.
+          // ['remark-autolink-headings', { behavior: 'prepend'}],
+        ],
+        rehypePlugins: [
+          // Add a Rehype plugin that you want to enable for your project.
+          // If you need to provide options for the plugin, you can use an array and put the options as the second item.
+          // 'rehype-slug',
+          // ['rehype-autolink-headings', { behavior: 'prepend'}],
+        ],
+      },
     ],
   },
 };
@@ -43,8 +73,13 @@ You can provide names of the plugins as well as import them:
 // astro.config.mjs
 export default {
   markdownOptions: {
-    remarkPlugins: [
-      [import('remark-autolink-headings'), { behavior: 'prepend' }],
+    render: [
+      '@astrojs/markdown-remark',
+      {
+        remarkPlugins: [
+          [import('remark-autolink-headings'), { behavior: 'prepend' }],
+        ],
+      },
     ],
   },
 };
@@ -58,9 +93,9 @@ Astro treats any `.md` files inside of the `/src/pages` directory as pages. Thes
 
 Markdown pages have a special frontmatter property for `layout`. This defines the relative path to an `.astro` component which should wrap your Markdown content, for example a [Layout](/core-concepts/layouts) component. All other frontmatter properties defined in your `.md` page will be exposed to the component as properties of the `content` prop. The rendered Markdown content is placed into the default `<slot />` element.
 
-```jsx
-// src/pages/index.md
+```markdown
 ---
+# src/pages/index.md
 layout: ../../layouts/BaseLayout.astro
 title: My cool page
 ---
@@ -68,9 +103,9 @@ title: My cool page
 # Hello World!
 ```
 
-```jsx
-// src/layouts/BaseLayout.astro
+```astro
 ---
+// src/layouts/BaseLayout.astro
 const { content } = Astro.props;
 ---
 <html>
@@ -128,7 +163,7 @@ Using images or videos follows Astro's normal import rules:
 
 Astro has a dedicated component used to let you render your markdown as HTML components. This is a special component that is only exposed to `.astro` files. To use the `<Markdown>` component, within your frontmatter block use the following import statement:
 
-```jsx
+```astro
 ---
 import { Markdown } from 'astro/components';
 ---
@@ -136,7 +171,7 @@ import { Markdown } from 'astro/components';
 
 You can utilize this within your `.astro` file by doing the following:
 
-```jsx
+```astro
 ---
 import { Markdown } from 'astro/components';
 ---
@@ -152,7 +187,7 @@ import { Markdown } from 'astro/components';
 
 `<Markdown>` components provide more flexibility and allow you to use plain HTML or custom components. For example:
 
-````jsx
+````astro
 ---
 // For now, this import _must_ be named "Markdown" and _must not_ be wrapped with a custom component
 // We're working on easing these restrictions!
@@ -176,7 +211,7 @@ const expressions = 'Lorem ipsum';
     - Automatic indentation normalization
     - Automatic escaping of expressions inside code blocks
 
-    ```jsx
+    ```js
       // This content is not transformed!
       const object = { someOtherValue };
     ```
@@ -185,7 +220,7 @@ const expressions = 'Lorem ipsum';
     - Recursive Markdown support (Component children are also processed as Markdown)
 
     <MyFancyCodePreview client:visible>
-      ```jsx
+      ```js
       const object = { someOtherValue };
       ```
     </MyFancyCodePreview client:visible>
@@ -197,7 +232,7 @@ const expressions = 'Lorem ipsum';
 
 If you have Markdown in a remote source, you may pass it directly to the Markdown component through the `content` attribute. For example, the example below fetches the README from Snowpack's GitHub repository and renders it as HTML.
 
-```jsx
+```astro
 ---
 import { Markdown } from 'astro/components';
 
@@ -211,7 +246,7 @@ const content = await fetch('https://raw.githubusercontent.com/snowpackjs/snowpa
 
 There might be times when you want to combine both dynamic, and static markdown. If that is the case, you can nest `<Markdown>` components with each other to get the best of both worlds.
 
-```jsx
+```astro
 ---
 import { Markdown } from 'astro/components';
 

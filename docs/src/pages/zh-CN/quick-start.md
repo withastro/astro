@@ -19,7 +19,9 @@ npm install
 
 # 启动项目
 npm run dev
+```
 
+```shell
 # 将项目打包到 dist 文件夹下
 npm run build
 ```

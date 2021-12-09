@@ -4,11 +4,11 @@ import Nav from '../components/Nav.astro';
 
 <html>
   <head>
-    <link rel="preload" as="style" href="../css/page-preload-merge.css" />
-    <link rel="preload" as="style" href="../css/page-preload-merge-2.css" />
+    <link rel="preload" as="style" href={Astro.resolve('../css/page-preload-merge.css')} />
+    <link rel="preload" as="style" href={Astro.resolve('../css/page-preload-merge-2.css')} />
 
-    <link rel="stylesheet" href="../css/page-preload-merge.css" />
-    <link rel="stylesheet" href="../css/page-preload-merge-2.css" />
+    <link rel="stylesheet" href={Astro.resolve('../css/page-preload-merge.css')} />
+    <link rel="stylesheet" href={Astro.resolve('../css/page-preload-merge-2.css')} />
   </head>
   <body>
     <Nav />
