@@ -137,11 +137,11 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
         type: 'asset',
         source: minifiedCSS,
       });
-      
+
       internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
-      if(chunk.type === 'chunk') {
+      if (chunk.type === 'chunk') {
         const facadeId = chunk.facadeModuleId!;
-        if(!internals.facadeIdToAssetsMap.has(facadeId)) {
+        if (!internals.facadeIdToAssetsMap.has(facadeId)) {
           internals.facadeIdToAssetsMap.set(facadeId, []);
         }
         internals.facadeIdToAssetsMap.get(facadeId)!.push(this.getFileName(referenceId));

@@ -2,10 +2,10 @@
 export default {
   data() {
     return {
-      greeting: 'Hello World!'
-    }
-  }
-}
+      greeting: 'Hello World!',
+    };
+  },
+};
 </script>
 
 <template>

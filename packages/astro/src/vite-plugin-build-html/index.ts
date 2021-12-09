@@ -234,7 +234,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             return `assets/${pageName}.[hash].js`;
           }
           return 'assets/[name].[hash].js';
-        }
+        },
       });
       return outputOptions;
     },

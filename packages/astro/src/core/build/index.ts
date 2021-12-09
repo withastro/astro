@@ -1,4 +1,4 @@
-import type { AstroConfig,  ManifestData, RouteCache } from '../../@types/astro';
+import type { AstroConfig, ManifestData, RouteCache } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 import type { PageBuildData } from './types';
 
@@ -78,7 +78,7 @@ class AstroBuilder {
       manifest: this.manifest,
       origin,
       routeCache: this.routeCache,
-      viteServer: this.viteServer
+      viteServer: this.viteServer,
     });
     debug(logging, 'build', timerMessage('All pages loaded', timer.loadStart));
 
@@ -90,14 +90,14 @@ class AstroBuilder {
     timer.buildStart = performance.now();
 
     // Use the new faster static based build.
-    if(this.config.buildOptions.experimentalStaticBuild) {
+    if (this.config.buildOptions.experimentalStaticBuild) {
       await staticBuild({
         allPages,
         astroConfig: this.config,
         logging: this.logging,
         origin: this.origin,
         routeCache: this.routeCache,
-        viteConfig: this.viteConfig
+        viteConfig: this.viteConfig,
       });
     } else {
       await scanBasedBuild({
