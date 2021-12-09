@@ -83,6 +83,12 @@ jobs:
           node-version: 16
           cache: 'yarn'
 
+      - name: Cache turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: ${{ runner.os }}-${{ hashFiles('**/lockfiles') }}
+
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
