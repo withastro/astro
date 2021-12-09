@@ -33,9 +33,8 @@ export async function build(opts: ScanBasedBuildOptions) {
     mode: 'production',
     build: {
       emptyOutDir: true,
-      minify: false, // 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
+      minify: 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
       outDir: fileURLToPath(astroConfig.dist),
-      ssr: true,
       rollupOptions: {
         // The `input` will be populated in the build rollup plugin.
         input: [],
