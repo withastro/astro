@@ -87,7 +87,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: ${{ runner.os }}-${{ hashFiles('**/.turbo/**') }}
+          key: ${{ runner.os }}-turbo-${{ hashFiles('**/yarn.lock') }}
 
       - name: Install NPM Dependencies
         run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -135,7 +135,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: ${{ runner.os }}-${{ hashFiles('**/.turbo/**') }}
+          key: ${{ runner.os }}-turbo-${{ hashFiles('**/yarn.lock') }}
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v2
@@ -173,7 +173,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: ${{ runner.os }}-${{ hashFiles('**/.turbo/**') }}
+          key: ${{ runner.os }}-turbo-${{ hashFiles('**/yarn.lock') }}
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v2
@@ -207,6 +207,12 @@ jobs:
         with:
           node-version: 16
           cache: 'yarn'
+
+      - name: Cache Turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: ${{ runner.os }}-turbo-${{ hashFiles('**/yarn.lock') }}
       
       - name: Download Build Artifacts
         uses: actions/download-artifact@v2
