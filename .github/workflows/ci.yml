@@ -146,7 +146,6 @@ jobs:
         with:
           path: "**/.turbo/"
           key: turbo-${{ github.sha }}
-    
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -154,7 +153,13 @@ jobs:
           CI: true
 
       - name: Test
+        if: ${{ matrix.os != "windows-latest" }}
         run: yarn test
+
+      # Turbo seems to make the tests hang on Windows, just run them directly
+      - name: Test (Windows)
+        if: ${{ matrix.os == "windows-latest" }}
+        run: yarn workspace astro run test
 
   smoke:
     name: 'Smoke Test: ${{ matrix.target }}'
