@@ -97,12 +97,15 @@ jobs:
         env:
           CI: true
 
+      - name: Debug
+        run: echo "${{ github.event.head_commit.message }}"
+
       - name: Build Packages
         if: ${{ !contains(github.event.head_commit.message, '[force-ci]') }}
         run: yarn build
 
       - name: Build Packages (force)
-        if: ${{ contains(github.event.head_commit.message, '[force-ci]') }}
+        if: ${{ !contains(github.event.head_commit.message, '[force-ci]') }}
         run: yarn build --force
 
       - name: Upload Package Artifacts
