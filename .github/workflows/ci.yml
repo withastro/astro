@@ -37,7 +37,7 @@ jobs:
           cache: 'yarn'
 
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
       
@@ -83,19 +83,29 @@ jobs:
           node-version: 16
           cache: 'yarn'
 
+      - name: Cache Turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: "turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}"
+          restore-keys: |
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-
+            turbo-${{ github.ref }}-
+
       - name: Install NPM Dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
       - name: Build Packages
-        run: yarn build:all
+        run: yarn build
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
-          path: packages/**/dist/*
+          path: packages/**/dist/**
           if-no-files-found: error
   
   # Test depends on Build's output, which allows us to skip any build process!
@@ -131,13 +141,29 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
+      - name: Cache Turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: "turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}"
+          restore-keys: |
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-
+            turbo-${{ github.ref }}-
+
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
       - name: Test
+        if: ${{ matrix.os != 'windows-latest' }}
         run: yarn test
+
+      # Turbo seems to make the tests hang on Windows, just run them directly
+      - name: Test (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: yarn workspace astro run test
 
   smoke:
     name: 'Smoke Test: ${{ matrix.target }}'
@@ -163,8 +189,18 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
+      - name: Cache Turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: "turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}"
+          restore-keys: |
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-
+            turbo-${{ github.ref }}-
+
       - name: Install NPM Dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
@@ -176,7 +212,7 @@ jobs:
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
-    if: ${{ github.ref_name == 'main' && github.repository_owner == 'withastro' }}
+    if: ${{ github.ref == 'main' && github.repository_owner == 'withastro' }}
     needs: [lint, test, smoke]
     runs-on: ubuntu-latest
     steps:
@@ -196,8 +232,18 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
+      - name: Cache Turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: "turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}"
+          restore-keys: |
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-${{ github.sha }}
+            turbo-${{ github.ref }}-${{ hashFiles('packages/**/src/**') }}-
+            turbo-${{ github.ref }}-
+
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
       
