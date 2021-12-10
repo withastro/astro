@@ -87,7 +87,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: turbo-cache-${{ hashFiles('.github/workflows/ci.yml', 'packages/**/src/**.ts', 'packages/**/src/**.astro', 'packages/**/src/**.js', '**/yarn.lock') }}
+          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -141,7 +141,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: turbo-cache-${{ hashFiles('.github/workflows/ci.yml', 'packages/**/src/**.ts', 'packages/**/src/**.astro', 'packages/**/src/**.js', '**/yarn.lock') }}
+          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -185,7 +185,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: turbo-cache-${{ hashFiles('.github/workflows/ci.yml', 'packages/**/src/**.ts', 'packages/**/src/**.astro', 'packages/**/src/**.js', '**/yarn.lock') }}
+          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -224,7 +224,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/.turbo"
-          key: turbo-cache-${{ hashFiles('.github/workflows/ci.yml', 'packages/**/src/**.ts', 'packages/**/src/**.astro', 'packages/**/src/**.js', '**/yarn.lock') }}
+          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
