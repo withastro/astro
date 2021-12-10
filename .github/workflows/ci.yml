@@ -98,7 +98,12 @@ jobs:
           CI: true
 
       - name: Build Packages
+        if: "!contains(toJSON(github.event.commits.*.msg), '[force-ci]')"
         run: yarn build
+
+      - name: Build Packages (force)
+        if: "contains(toJSON(github.event.commits.*.msg), '[force-ci]')"
+        run: yarn build --force
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
