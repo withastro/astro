@@ -97,8 +97,10 @@ jobs:
         env:
           CI: true
 
-      - name: Debug
-        run: echo "${{ github.event.head_commit.message }}"
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
 
       - name: Build Packages
         if: ${{ !contains(github.event.head_commit.message, '[force-ci]') }}
