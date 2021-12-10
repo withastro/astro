@@ -88,6 +88,9 @@ jobs:
         with:
           path: "**/.turbo"
           key: turbo-cache-${{ github.ref }}
+          restore-keys: |
+            turbo-cache-${{ github.ref }}
+            turbo-cache-main
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -95,7 +98,7 @@ jobs:
           CI: true
 
       - name: Build Packages
-        run: yarn build --since=origin/main
+        run: yarn build
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
