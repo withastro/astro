@@ -16,7 +16,7 @@ function renderToStaticMarkup(Component, props, children) {
       ...props,
       // In Solid SSR mode, `ssr` creates the expected structure for `children`.
       // In Solid client mode, `ssr` is just a stub.
-      children: ssr(`<astro-fragment>${children}</astro-fragment>`),
+      children: children != null ? ssr(`<astro-fragment>${children}</astro-fragment>`) : children,
     })
   );
   return { html: html + `<script>window._$HYDRATION||(window._$HYDRATION={events:[],completed:new WeakSet})</script>` };

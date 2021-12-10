@@ -27,4 +27,10 @@ describe('Global Fetch', () => {
     expect($('#svelte').text()).to.equal('function', 'Fetch supported in .svelte');
     expect($('#vue').text()).to.equal('function', 'Fetch supported in .vue');
   });
+  it('Respects existing code', async () => {
+    const html = await fixture.readFile('/index.html');
+    const $ = cheerio.load(html);
+    expect($('#already-imported').text()).to.equal('function', 'Existing fetch imports respected');
+    expect($('#custom-declaration').text()).to.equal('number', 'Custom fetch declarations respected');
+  });
 });

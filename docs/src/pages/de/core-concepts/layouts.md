@@ -1,10 +1,10 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Layouts
-description: Eine Einführung in Layouts - eine Art Astro-Komponente, die für gemeinsame Layouts auf verschiedenen Seiten verwendet wird.
+description: Einführung in Layouts, eine Art der Astro-Komponente, die für gemeinsame Layouts auf verschiedenen Seiten verwendet wird.
 ---
 
-**Layouts** sind eine besondere Art der [Komponente](/core-concepts/astro-components) - sie können dir helfen gemeinsame Seiten-Layouts über dein Projekt verteilt zu nutzen.
+**Layouts** sind eine besondere Art [Komponente](/de/core-concepts/astro-components) - sie können dir helfen gemeinsame Seiten-Layouts über dein Projekt verteilt zu nutzen.
 
 Layouts verhalten sich so, wie andere mehrfach verwendbare Astro-Komponenten auch. Es gibt keine neue Syntax oder API zu erlernen. Allerdings sind mehrfach verwendbare Layouts ein so weit verbreitetes Modell im Bereich der Web-Entwicklung, dass wir diese Anleitung verfasst haben, um dich bei der Verwendung zu unterstützen.
 
@@ -40,7 +40,7 @@ const {title} = Astro.props;
 </html>
 ```
 
-📚 Über das `<slot />`-Element lässt sich in Astro definieren, wo untergeordnete Elemente (die an das Layout übergeben werden) erscheinen sollen. Erfahre mehr darüber wie `<slot />` funktioniert in unserer [Anleitung zu Astro-Komponenten](/core-concepts/astro-components).
+📚 Über das `<slot />`-Element lässt sich in Astro definieren, wo untergeordnete Elemente (die an das Layout übergeben werden) erscheinen sollen. Erfahre mehr darüber wie `<slot />` funktioniert in unserer [Anleitung zu Astro-Komponenten](/de/core-concepts/astro-components).
 
 Sobald du dein erstes Layout erstellt hast, kannst du es so verwenden, wie du jede andere Komponente in einer Seite verwenden würdest. Denke daran, dass dein Layout den gesamten Seitenaufbau enthält: `<html>`, `<head>`, und `<body>`. Du musst nur den Seiteninhalt hinzufügen.
 
@@ -122,11 +122,11 @@ Für Markdown-Dateien ist ein Layout unerlässlich. Markdown-Dateien können ein
 
 ```markdown
 ---
-title: Blog-Post
+title: Blogpost
 layout: ../layouts/PostLayout.astro
 ---
 
-Dieser Blog-Post wird innerhalb des `<PostLayout />`-Layout **gerendert**.
+Dieser Blogpost wird innerhalb des `<PostLayout />`-Layout **gerendert**.
 ```
 
 Markdown-Seiten übergeben immer eine oder mehrere `content`-Eigenschaften an ihr Layout. Dies ist sehr hilfreich, um Informationen über die Seite, einen Titel, Metadaten, eine Index-Tabelle, Kopfzeilen und anderes für die Seite zur Verfügung zu haben.

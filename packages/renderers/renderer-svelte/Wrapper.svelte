@@ -13,7 +13,7 @@ const { __astro_component: Component, __astro_children, ...props } = $$props;
 </script>
 
 <svelte:component this={Component} {...props}>
-  {#if __astro_children}
+  {#if __astro_children != null}
     <astro-fragment>
       {@html __astro_children}
     </astro-fragment>

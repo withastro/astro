@@ -178,7 +178,7 @@ Nuxt 有很好的内置图片优化功能，这可以使 Nuxt 成为一些图片
 
 [nuxtjs.org/docs](https://nuxtjs.org/docs/2.x/get-started/installation)是 Nuxt 官方文档网站，用 Nuxt 构建。该网站提供了大量设计模板和功能插件，可以与官方 Astro 文档网站进行比较。让我们对这两个网站构建工具进行一个粗略的真实的比较。
 
-- **新的性能得分**。48 分（满分 100 分）[(更多详情)]（https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fnuxtjs.org%2Fdocs%2F2.x%2Fget-started%2Finstallation）
+- **新的性能得分**。48 分（满分 100 分）[(更多详情)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fnuxtjs.org%2Fdocs%2F2.x%2Fget-started%2Finstallation)
 - **Astro 性能得分**。95 分（满分 100 分）[(更多详情)](https://lighthouse-dot-webdotdevsite.appspot.com//lh/html?url=https%3A%2F%2Fdocs.astro.build%2Fgetting-started)
 
 这种性能差异背后的一个重要原因是 Astro 的 JavaScript 有效载荷较小。[nuxtjs.org/docs](https://nuxtjs.org/docs/2.x/get-started/installation)在首次加载时加载了**469kb**的 JavaScript，而[docs.astro.build](https://docs.astro.build)只加载了**9.3kb**（总体而言，JavaScript 减少了 98%）。

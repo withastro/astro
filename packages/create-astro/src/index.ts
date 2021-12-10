@@ -14,7 +14,7 @@ import { createConfig } from './config.js';
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
 // fixes the issue so that create-astro now works on all npm version.
 const cleanArgv = process.argv.filter((arg) => arg !== '--');
-const args = yargs(cleanArgv);
+const args = yargs(cleanArgv, { array: ['renderers'] });
 prompts.override(args);
 
 export function mkdirp(dir: string) {

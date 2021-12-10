@@ -1,10 +1,10 @@
 ---
 layout: ~/layouts/MainLayout.astro
-title: Seiten
-description: Eine Einführung in Astro-Seiten, Komponenten die wie komplette Seiten funktionieren.
+title: Astro-Seiten
+description: Eine Einführung in Astro-Seiten - Komponenten die wie vollständige Seiten funktionieren.
 ---
 
-**Seiten** sind eine spezielle Art der [Astro-Komponente](/core-concepts/astro-components), die das Routing, das Laden von Daten und das Templating für eine Seite deiner Website erledigt. Du kannst sie dir wie eine einfache Astro-Komponente vorstellen - jedoch mit erweiterter Zuständigkeit.
+**Seiten** sind eine spezielle Art der [Astro-Komponente](/de/core-concepts/astro-components), die das Routing, das Laden von Daten und das Templating für eine Seite deiner Website erledigt. Du kannst sie dir wie eine einfache Astro-Komponente vorstellen - jedoch mit erweiterter Zuständigkeit.
 
 Astro unterstützt Markdown für Content-lastige Seiten, wie Blog-Posts und Dokumentationen. Lies [Markdown-Inhalte](/guides/markdown-content), um mehr über das Schreiben von Seiten mit Markdown zu erfahren.
 

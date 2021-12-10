@@ -7,6 +7,9 @@ export class MyElement extends LitElement {
     bool: {type: Boolean},
     str: {type: String, attribute: 'str-attr'},
     obj: {type: Object},
+    reflectedBool: {type: Boolean, reflect: true},
+    reflectedStr: {type: String, reflect: true, attribute: 'reflected-str'},
+    reflectedStrProp: {type: String, reflect: true, attribute: 'reflected-str-prop'},
   }
 
   constructor() {
@@ -16,6 +19,9 @@ export class MyElement extends LitElement {
     this.obj = {data: null};
     // not a reactive property
     this.foo = 'not initialized';
+    // reflected props
+    this.reflectedBool = true;
+    this.reflectedStr = 'default reflected string';
   }
   render() {
     return html`

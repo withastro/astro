@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-svelte",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Use Svelte components within Astro",
   "repository": {
     "type": "git",

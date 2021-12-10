@@ -25,8 +25,6 @@ jobs:
   # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
   lint:
     name: Lint
-    # Lint cannot run on forks, so just skip those! See https://github.com/wearerequired/lint-action/issues/13
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -39,14 +37,21 @@ jobs:
           cache: 'yarn'
 
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
       
       - name: Status
         run: git status
 
+      # Lint autofix cannot run on forks, so just skip those! See https://github.com/wearerequired/lint-action/issues/13
+      - name: Lint (External)
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.owner.login != github.repository_owner }}
+        run: yarn lint
+        
+      # Otherwise, run lint autofixer
       - name: Lint
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
         uses: wearerequired/lint-action@v1.10.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -57,9 +62,9 @@ jobs:
           eslint_extensions: ts
           prettier: true
           auto_fix: true
-          git_name: GitHub Action
-          git_email: github-action@users.noreply.github.com
-          commit_message: '[ci] ${linter} fix'
+          git_name: github-actions[bot]
+          git_email: github-actions[bot]@users.noreply.github.com
+          commit_message: 'chore(lint): ${linter} fix'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           neutral_check_on_warning: true
 
@@ -67,7 +72,6 @@ jobs:
   # We upload all `dist/` artifacts to GitHub, which can be shared by all dependent jobs.
   build:
     name: Build Packages
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -79,26 +83,31 @@ jobs:
           node-version: 16
           cache: 'yarn'
 
+      - name: Cache Turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+
       - name: Install NPM Dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
       - name: Build Packages
-        run: yarn build:all
+        run: yarn build
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
-          path: packages/**/dist/*
+          path: packages/**/dist/**
           if-no-files-found: error
   
   # Test depends on Build's output, which allows us to skip any build process!
   # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -128,18 +137,29 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
+      - name: Cache Turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
       - name: Test
+        if: ${{ matrix.os != 'windows-latest' }}
         run: yarn test
+
+      # Turbo seems to make the tests hang on Windows, just run them directly
+      - name: Test (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: yarn workspace astro run test
 
   smoke:
     name: 'Smoke Test: ${{ matrix.target }}'
     runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[skip-ci]')"
     strategy:
       matrix:
         target: [docs, www]
@@ -161,8 +181,14 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
+      - name: Cache Turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+
       - name: Install NPM Dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
@@ -174,7 +200,7 @@ jobs:
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
-    if: ${{ !contains(github.event.head_commit.message, '[skip-ci]') && github.ref_name == 'main' && github.repository_owner == 'withastro' }}
+    if: ${{ github.ref == 'main' && github.repository_owner == 'withastro' }}
     needs: [lint, test, smoke]
     runs-on: ubuntu-latest
     steps:
@@ -194,8 +220,14 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
+      - name: Cache Turbo
+        uses: actions/cache@v2
+        with:
+          path: "**/.turbo"
+          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
       
@@ -204,7 +236,7 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: yarn changeset publish
-          commit: '[ci] release'
+          commit: 'chore: release'
           title: '[ci] release'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

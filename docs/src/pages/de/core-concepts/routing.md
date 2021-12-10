@@ -1,7 +1,7 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Routing
-description: Eine Einführung in das Routing mit Astro.
+description: Einführung in das Routing in Astro.
 ---
 
 Astro verwendet **Datei-basiertes Routing**, um während des Build-Prozesses - entsprechend der Datei-Struktur im `src/pages`-Verzeichnis deines Projekts - die gültigen Routen und URL festzulegen. Wenn eine Datei zum `src/pages`-Verzeichnis deines Projekts hinzugefügt wird, ist sie basierend auf ihrem Dateinmanen automatisch über die entsprechende Route mit der entsprechenden URL erreichbar.
@@ -83,11 +83,11 @@ Für ein `real-world`-Beispiel würdest du den `Github File Viewer` folgenderma�
 /[org]/[repo]/tree/[branch]/[...file]
 ```
 
-In diesem Beispiel würde eine Abfrage von `/snowpackjs/astro/tree/main/docs/public/favicon.svg` folgende Parameter für die Seite verfügbar machen:
+In diesem Beispiel würde eine Abfrage von `/withastro/astro/tree/main/docs/public/favicon.svg` folgende Parameter für die Seite verfügbar machen:
 
 ```js
 {
-	org: 'snowpackjs',
+	org: 'withastro',
 	repo: 'astro',
 	branch: 'main',
 	file: 'docs/public/favicon.svg'

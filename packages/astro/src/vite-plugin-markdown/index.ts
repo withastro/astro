@@ -52,7 +52,13 @@ ${setup}`.trim();
         }
 
         // Transform from `.astro` to valid `.ts`
-        let { code: tsResult } = await transform(astroResult, { sourcefile: id, sourcemap: 'inline', internalURL: 'astro/internal' });
+        let { code: tsResult } = await transform(astroResult, {
+          projectRoot: config.projectRoot.toString(),
+          site: config.buildOptions.site,
+          sourcefile: id,
+          sourcemap: 'inline',
+          internalURL: 'astro/internal',
+        });
 
         tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
 export const frontmatter = ${JSON.stringify(content)};

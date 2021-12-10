@@ -286,15 +286,22 @@ function createFetchContentFn(url: URL) {
 
 // This is used to create the top-level Astro global; the one that you can use
 // Inside of getStaticPaths.
-export function createAstro(fileURLStr: string, site: string): AstroGlobalPartial {
+export function createAstro(fileURLStr: string, site: string, projectRootStr: string): AstroGlobalPartial {
   const url = new URL(fileURLStr);
+  const projectRoot = new URL(projectRootStr);
   const fetchContent = createFetchContentFn(url);
   return {
     site: new URL(site),
     fetchContent,
     // INVESTIGATE is there a use-case for multi args?
     resolve(...segments: string[]) {
-      return segments.reduce((u, segment) => new URL(segment, u), url).pathname;
+      let resolved = segments.reduce((u, segment) => new URL(segment, u), url).pathname;
+      // When inside of project root, remove the leading path so you are
+      // left with only `/src/images/tower.png`
+      if (resolved.startsWith(projectRoot.pathname)) {
+        resolved = '/' + resolved.substr(projectRoot.pathname.length);
+      }
+      return resolved;
     },
   };
 }

@@ -55,6 +55,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
   const astroAssetMap = new Map<string, Promise<Buffer>>();
 
   const cssChunkMap = new Map<string, string[]>();
+  const pageStyleImportOrder: string[] = [];
 
   return {
     name: PLUGIN_NAME,
@@ -69,6 +70,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
       for (const [component, pageData] of Object.entries(allPages)) {
         const [renderers, mod] = pageData.preload;
 
+        // Hydrated components are statically identified.
         for (const path of mod.$$metadata.getAllHydratedComponentPaths()) {
           jsInput.add(path);
         }
@@ -138,6 +140,9 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               const src = getAttribute(node, 'src');
               if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
                 astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
+              } else if (src?.startsWith(srcRootWeb) && !astroAssetMap.has(src)) {
+                const resolved = new URL('.' + src, astroConfig.projectRoot);
+                astroAssetMap.set(src, fs.readFile(resolved));
               }
             }
 
@@ -146,6 +151,9 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
               for (const { url } of candidates) {
                 if (url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
                   astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
+                } else if (url.startsWith(srcRootWeb) && !astroAssetMap.has(url)) {
+                  const resolved = new URL('.' + url, astroConfig.projectRoot);
+                  astroAssetMap.set(url, fs.readFile(resolved));
                 }
               }
             }
@@ -169,6 +177,11 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             const jsSource = assetImports.map((sid) => `import '${sid}';`).join('\n');
             astroPageStyleMap.set(pageStyleId, jsSource);
             assetInput.add(pageStyleId);
+
+            // preserve asset order in the order we encounter them
+            for (const assetHref of assetImports) {
+              if (!pageStyleImportOrder.includes(assetHref)) pageStyleImportOrder.push(assetHref);
+            }
           }
         }
       }
@@ -253,17 +266,43 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
         assetIdMap.set(assetPath, referenceId);
       }
 
+      // Sort CSS in order of appearance in HTML (pageStyleImportOrder)
+      // This is the “global ordering” used below
+      const sortedCSSChunks = [...pureCSSChunks];
+      sortedCSSChunks.sort((a, b) => {
+        let aIndex = Math.min(
+          ...Object.keys(a.modules).map((id) => {
+            const i = pageStyleImportOrder.findIndex((url) => id.endsWith(url));
+            return i >= 0 ? i : Infinity; // if -1 is encountered (unknown order), move to the end (Infinity)
+          })
+        );
+        let bIndex = Math.min(
+          ...Object.keys(b.modules).map((id) => {
+            const i = pageStyleImportOrder.findIndex((url) => id.endsWith(url));
+            return i >= 0 ? i : Infinity;
+          })
+        );
+        return aIndex - bIndex;
+      });
+      const sortedChunkNames = sortedCSSChunks.map(({ fileName }) => fileName);
+
       // Create a mapping of chunks to dependent chunks, used to add the proper
       // link tags for CSS.
-      for (const chunk of pureCSSChunks) {
-        const chunkReferenceIds: string[] = [];
-        for (const [specifier, chunkRefID] of chunkToReferenceIdMap.entries()) {
-          if (chunk.imports.includes(specifier) || specifier === chunk.fileName) {
-            chunkReferenceIds.push(chunkRefID);
-          }
+      for (const chunk of sortedCSSChunks) {
+        const chunkModules = [chunk.fileName, ...chunk.imports];
+        // For each HTML output, sort CSS in HTML order Note: here we actually
+        // want -1 to be first. Since the last CSS “wins”, we want to load
+        // “unknown” (-1) CSS ordering first, followed by “known” ordering at
+        // the end so it takes priority
+        chunkModules.sort((a, b) => sortedChunkNames.indexOf(a) - sortedChunkNames.indexOf(b));
+
+        const referenceIDs: string[] = [];
+        for (const chunkID of chunkModules) {
+          const referenceID = chunkToReferenceIdMap.get(chunkID);
+          if (referenceID) referenceIDs.push(referenceID);
         }
-        for (const [id] of Object.entries(chunk.modules)) {
-          cssChunkMap.set(id, chunkReferenceIds);
+        for (const id of Object.keys(chunk.modules)) {
+          cssChunkMap.set(id, referenceIDs);
         }
       }
 
@@ -347,7 +386,11 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
             }
             remove(script);
           } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
-            const src = getAttribute(script, 'src');
+            let src = getAttribute(script, 'src');
+            // If this is projectRoot relative, get the fullpath to match the facadeId.
+            if (src?.startsWith(srcRootWeb)) {
+              src = new URL('.' + src, astroConfig.projectRoot).pathname;
+            }
             // On windows the facadeId doesn't start with / but does not Unix :/
             if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
               const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));
