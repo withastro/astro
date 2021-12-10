@@ -46,7 +46,8 @@ jobs:
           cache: 'yarn'
 
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines
+        if: steps.cache-npm.outputs.cache-hit != 'true'
+        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
       

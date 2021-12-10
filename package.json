@@ -7,20 +7,46 @@
     "url": "https://github.com/withastro/astro.git"
   },
   "scripts": {
-    "release": "yarn build:all && changeset publish",
-    "benchmark": "yarn workspace astro run benchmark",
-    "build": "yarn build:core",
-    "build:one": "lerna run build --scope",
-    "build:all": "lerna run build --scope \"{astro,create-astro,@astrojs/*}\"",
-    "build:core": "lerna run build --scope \"{astro,@astrojs/parser,@astrojs/markdown-remark}\"",
-    "dev": "yarn dev:core --parallel --stream",
-    "dev:one": "lerna run dev --scope --parallel --stream",
-    "dev:all": "lerna run dev --scope \"{astro,create-astro,@astrojs/*}\" --parallel --stream",
-    "dev:core": "lerna run dev --scope \"{astro,@astrojs/parser,@astrojs/markdown-remark}\" --parallel --stream",
-    "format": "prettier -w .",
+    "release": "yarn build && changeset publish",
+    "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
+    "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
+    "test": "turbo run test --scope=astro",
+    "test:templates": "turbo run test --scope=create-astro",
+    "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
-    "test": "yarn workspace astro run test",
-    "test:templates": "lerna run test --scope create-astro --stream"
+    "format": "prettier -w ."
+  },
+  "turbo": {
+    "baseBranch": "origin/main",
+    "pipeline": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "**/dist/**",
+          "!**/vendor/**"
+        ]
+      },
+      "dev": {
+        "cache": false
+      },
+      "test": {
+        "outputs": []
+      },
+      "test:templates": {
+        "outputs": []
+      },
+      "benchmark": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": []
+      },
+      "lint": {
+        "outputs": []
+      }
+    }
   },
   "workspaces": [
     "compiled/*",
@@ -53,9 +79,9 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^5.0.0",
-    "lerna": "^4.0.0",
     "prettier": "^2.4.1",
     "tiny-glob": "^0.2.8",
+    "turbo": "^1.0.0",
     "typescript": "4.4.4"
   },
   "engines": {
