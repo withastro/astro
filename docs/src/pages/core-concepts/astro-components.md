@@ -340,7 +340,7 @@ import TwitterTimeline from '../components/TwitterTimeline.astro';
 | Fragments                    | Automatic top-level, `<>` inside functions | Wrap with `<Fragment>` or `<>`                     |
 | Multiple frameworks per-file | Yes                                        | No                                                 |
 | Modifying `<head>`           | Just use `<head>`                          | Per-framework (`<Head>`, `<svelte:head>`, etc)     |
-| Comment Style                | `<!-- HTML -->`                            | `{/* JavaScript */}                                |
+| Comment Style                | `<!-- HTML -->`                            | `{/_ JavaScript _/}                                |
 | Special Characters           | `&nbsp;`                                   | `&nbsp;`                                           |
 | Attributes                   | `dash-case`                                | `camelCase`                                        |
 
