@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.8.4
+
+### Patch Changes
+
+- 481e009: Add Node v12 support, testing
+
 ## 0.8.3
 
 ### Patch Changes
