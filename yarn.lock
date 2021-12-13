@@ -8697,9 +8697,9 @@ tty-table@^2.8.10:
     yargs "^15.1.0"
 
 turbo@^1.0.0:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/turbo/-/turbo-1.0.8.tgz#d8da5fcce277060c3504394e09be69ad343f44cb"
-  integrity sha512-qGmZDLVkjMMcgDZLtzMfeKqk8kfg6QIIy/Nl74uWb2yujXhSzGVw2URjbRplH0BzqRkdus/m6IJWlvDRLSZ8PQ==
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/turbo/-/turbo-1.0.9.tgz#a955d1db1ec0080e542be427bd0eeb9ebb38a357"
+  integrity sha512-th0vdSpiO0gWQfehhTsG6vDXnq2fRXwvWSy1/LW2PBosv7VGgD2RENRVpjvPCNo7xEnkF6hZXnBfz0Tlvwu32A==
   dependencies:
     zlib "^1.0.5"
 
@@ -8760,10 +8760,10 @@ typedarray@^0.0.6:
   resolved "https://registry.yarnpkg.com/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
 
-typescript@4.4.4:
-  version "4.4.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.4.4.tgz#2cd01a1a1f160704d3101fd5a58ff0f9fcb8030c"
-  integrity sha512-DqGhF5IKoBl8WNf8C1gu8q0xZSInh9j1kJJMqT3a94w1JzVaBU4EXOSMrz9yDqMT0xt3selp83fuFMQ0uzv6qA==
+typescript@4.5.2:
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
+  integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
 
 typescript@^4.3.5, typescript@^4.5.2:
   version "4.5.3"

@@ -1,4 +1,8 @@
-import { SKIP, visit } from 'unist-util-visit';
+import { SKIP, visit as _visit } from 'unist-util-visit';
+
+// This is a workaround.
+// It fixes a compatibility issue between different, incompatible ASTs given by plugins to Unist
+const visit = _visit as (node: any, type: string, callback?: (node: any, index: number, parent: any) => any) => any;
 
 // This fixes some confusing bugs coming from somewhere inside of our Markdown pipeline.
 // `unist`/`remark`/`rehype` (not sure) often generate malformed HTML inside of <astro-root>

@@ -16,7 +16,7 @@
     "lint:linkcheck:remote": "blc -ro --user-agent 'broken-link-checker/0.7.8' 'https://docs.astro.build/'"
   },
   "devDependencies": {
-    "astro": "^0.21.0-next.2",
+    "astro": "^0.21.12",
     "broken-link-checker": "^0.7.8",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.4.1",
