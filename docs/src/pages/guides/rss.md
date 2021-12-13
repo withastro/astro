@@ -10,7 +10,7 @@ You can create an RSS feed from any Astro page that uses a `getStaticPaths()` fu
 
 > We hope to make this feature available to all other pages before v1.0. As a workaround, you can convert a static route to a dynamic route that only generates a single page. See [Routing](/core-concepts/routing) for more information about dynamic routes.
 
-Create an RSS Feed by calling the `rss()` function that is passed as an argument to `getStaticPaths()`. This will create an `feed.xml` file in your final build based on the data that you provide using the `items` array.
+Create an RSS Feed by calling the `rss()` function that is passed as an argument to `getStaticPaths()`. This will create an `rss.xml` file in your final build based on the data that you provide using the `items` array.
 
 ```js
 // Example: /src/pages/posts/[...page].astro
