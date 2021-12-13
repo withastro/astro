@@ -2,12 +2,16 @@
   "name": "@astrojs/renderer-preact",
   "description": "Use Preact components within Astro",
   "version": "0.3.2",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/renderers/renderer-preact"
   },
-  "type": "module",
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
   "exports": {
     ".": "./index.js",
     "./*": "./*",

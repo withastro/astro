@@ -2,11 +2,15 @@
   "name": "create-astro",
   "version": "0.6.10",
   "type": "module",
+  "author": "withastro",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/create-astro"
   },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
   "exports": {
     ".": "./create-astro.mjs"
   },
