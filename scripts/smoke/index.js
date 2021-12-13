@@ -1,10 +1,9 @@
 import fs from 'fs';
-import {execa} from 'execa';
+import { execa } from 'execa';
 import { fileURLToPath } from 'url';
 
-
-// NOTE: Only needed for Windows, due to a Turbo bug. 
-// Once Turbo works on Windows, we can remove this script 
+// NOTE: Only needed for Windows, due to a Turbo bug.
+// Once Turbo works on Windows, we can remove this script
 // and update our CI to run through Turbo.
 
 export default async function run() {
