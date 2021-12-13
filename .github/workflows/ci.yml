@@ -83,11 +83,15 @@ jobs:
           node-version: 16
           cache: 'yarn'
 
-      - name: Cache Turbo
+      - name: Cache Node Modules
+        id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/.turbo"
-          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+          path: "**/node_modules"
+          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+            cache-node_modules-${{ hashFiles('**/yarn.lock') }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -95,7 +99,7 @@ jobs:
           CI: true
 
       - name: Build Packages
-        run: yarn build
+        run: yarn build --force
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
@@ -137,11 +141,12 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
-      - name: Cache Turbo
+      - name: Cache Node Modules
+        id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/.turbo"
-          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+          path: "**/node_modules"
+          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -181,11 +186,12 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
-      - name: Cache Turbo
+      - name: Cache Node Modules
+        id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/.turbo"
-          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+          path: "**/node_modules"
+          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -220,11 +226,12 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
-      - name: Cache Turbo
+      - name: Cache Node Modules
+        id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/.turbo"
-          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+          path: "**/node_modules"
+          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
