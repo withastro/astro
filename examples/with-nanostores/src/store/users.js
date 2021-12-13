@@ -19,7 +19,7 @@ const initialValue = [
     age: 46,
     isAdmin: true,
   },
-]
+];
 
 const users = atom(initialValue);
 

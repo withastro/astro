@@ -26,7 +26,7 @@ export default {
   setup() {
     const list = useStore(admins);
     const count = useStore(counter);
-    
+
     return { list, count, increaseCounter, decreaseCounter };
   },
 };

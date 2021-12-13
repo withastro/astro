@@ -25,6 +25,6 @@ const AdminsSolid = () => {
       <br />
     </>
   );
-}
+};
 
 export default AdminsSolid;

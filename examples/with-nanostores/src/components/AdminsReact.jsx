@@ -7,7 +7,7 @@ import { counter, increaseCounter, decreaseCounter } from '../store/counter.js';
 const AdminsReact = () => {
   const list = useStore(admins);
   const count = useStore(counter);
-  
+
   return (
     <>
       <h1>React</h1>
