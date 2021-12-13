@@ -163,11 +163,11 @@ jobs:
         run: yarn workspace astro run test
 
   smoke:
-    name: 'Smoke Test: ${{ matrix.target }}'
-    runs-on: ubuntu-latest
+    name: 'Test (Smoke) ${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        target: [docs, www]
+        os: [windows-latest, ubuntu-latest]
     needs:
       - build
     steps:
@@ -177,7 +177,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 14
           cache: 'yarn'
 
       - name: Download Build Artifacts
@@ -198,9 +198,15 @@ jobs:
         env:
           CI: true
 
-      - name: Build
-        run: yarn build
-        working-directory: ${{ matrix.target }}
+      - name: Test
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: yarn run build:examples --concurrency=1
+
+      # Turbo seems to fail on Windows, so run a custom script directly.
+      - name: Test (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: node ./scripts/smoke/index.js
+
 
   # Changelog can only run _after_ Build and Test.
   # We download all `dist/` artifacts from GitHub to skip the build process.
