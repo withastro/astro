@@ -125,7 +125,7 @@ describe('Error display', () => {
       const res = await fixture.fetch('/svelte-syntax-error');
       expect(res.status).to.equal(500);
       const body = await res.text();
-      expect(body).to.include('ParseError');
+      expect(body).to.include('Internal Error');
     });
 
     it('runtime error', async () => {
