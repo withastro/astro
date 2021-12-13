@@ -1,4 +1,4 @@
-# Astro Starter Kit: Minimal
+# Astro Starter Kit: Vite PWA
 
 ```
 npm init astro -- --template with-vite-plugin-pwa
