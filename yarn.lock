@@ -123,9 +123,9 @@
     typescript "^4.3.5"
 
 "@astrojs/language-server@^0.8.2":
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/@astrojs/language-server/-/language-server-0.8.3.tgz#59ebfb01210f48226151235845a2398f31804500"
-  integrity sha512-9cgKUK/onWROvSOvzwNGMXL31D0B3J4xk62X6I23JbqlF/hR1nbMJcqb+/YiMN+hMXu/ImvVQUQIkCMkaIxWyA==
+  version "0.8.4"
+  resolved "https://registry.yarnpkg.com/@astrojs/language-server/-/language-server-0.8.4.tgz#826cb8caba56704a8fa306a2f71e6a0e4f9065ac"
+  integrity sha512-708BHd8clydMkrsUrh05vPL13RSoU6Cjuu6QExps1co7PDo218EgDBku+JS8g/pnDqDfQwC2Rmo/6GwZ/hfXpA==
   dependencies:
     lodash "^4.17.21"
     source-map "^0.7.3"
