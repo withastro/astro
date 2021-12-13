@@ -8697,9 +8697,9 @@ tty-table@^2.8.10:
     yargs "^15.1.0"
 
 turbo@^1.0.0:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/turbo/-/turbo-1.0.7.tgz#59816a0cd6df4467732b76a2cf28115b4eeb79d4"
-  integrity sha512-EJRTi3UamxaeXHsSvZxio4DfOv392dt7P7EDGfQ24F3P9oJdD6ffLJhBdQZN2EmCNq5qRnePzzKwNNL2TldmuA==
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/turbo/-/turbo-1.0.8.tgz#d8da5fcce277060c3504394e09be69ad343f44cb"
+  integrity sha512-qGmZDLVkjMMcgDZLtzMfeKqk8kfg6QIIy/Nl74uWb2yujXhSzGVw2URjbRplH0BzqRkdus/m6IJWlvDRLSZ8PQ==
   dependencies:
     zlib "^1.0.5"
 
