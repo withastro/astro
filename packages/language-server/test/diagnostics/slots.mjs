@@ -11,5 +11,7 @@ checker.upsertDocument({
 {Astro.slots.a && <span>testing</span>}
 `});
 
-let [{diagnostics}] = await checker.getDiagnostics();
-t.equal(diagnostics.length, 0, 'No errors found');
+(async function() {
+  let [{diagnostics}] = await checker.getDiagnostics();
+  t.equal(diagnostics.length, 0, 'No errors found');
+})();

@@ -19,5 +19,7 @@ checker.upsertDocument({
 </html>
 `});
 
-let [{diagnostics}] = await checker.getDiagnostics();
-t.equal(diagnostics.length, 0, 'No errors found');
+(async function() {
+  let [{diagnostics}] = await checker.getDiagnostics();
+  t.equal(diagnostics.length, 0, 'No errors found');
+})();

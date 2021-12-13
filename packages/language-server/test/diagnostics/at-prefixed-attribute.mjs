@@ -10,5 +10,7 @@ checker.upsertDocument({
   text: `<div @is="div" @click="" @dog @cat @rat>Hello, world!</div>`
 });
 
-let [{diagnostics}] = await checker.getDiagnostics();
-t.equal(diagnostics.length, 0, 'No errors found');
+(async function() {
+  let [{diagnostics}] = await checker.getDiagnostics();
+  t.equal(diagnostics.length, 0, 'No errors found');
+})();
