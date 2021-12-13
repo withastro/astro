@@ -32,8 +32,8 @@ export async function getStaticPaths({rss}) {
       pubDate: item.date,
     })),
     // Optional: Customize where the file is written to.
-    // Otherwise, defaults to "/feed.xml"
-    dest: "/my/custom/rss.xml",
+    // Otherwise, defaults to "/rss.xml"
+    dest: "/my/custom/feed.xml",
   });
   // Return your paths
   return [...];
