@@ -81,9 +81,9 @@ Remember that Astro is a server-side templating language, so your component scri
 // Anything inside the `---` code fence is your component script.
 // This JavaScript code runs at build-time.
 // See below to learn more about what you can do.
-console.log('This runs at build-time, is visible in the CLI output');
 // Tip: TypeScript is also supported out-of-the-box!
 const thisWorks: number = 42;
+console.log('This runs at build-time, is visible in the CLI output', thisWorks);
 ---
 <div class="example-1">
   <h1>Hello world!</h1>
