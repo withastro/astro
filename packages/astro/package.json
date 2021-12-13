@@ -2,16 +2,17 @@
   "name": "astro",
   "version": "0.21.12",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
+  "type": "module",
   "author": "withastro",
   "license": "MIT",
-  "homepage": "https://astro.build",
-  "type": "module",
-  "types": "./dist/types/@types/astro.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/astro"
   },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "types": "./dist/types/@types/astro.d.ts",
   "exports": {
     ".": "./astro.js",
     "./client/*": "./dist/runtime/client/*",

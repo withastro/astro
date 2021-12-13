@@ -1,21 +1,23 @@
 {
   "name": "@astrojs/prism",
   "version": "0.3.0",
-  "description": "IYKYK",
-  "main": "index.mjs",
+  "description": "Supports Prism highlighting in Astro projects",
+  "author": "withastro",
+  "license": "MIT",
+  "bugs": "https://github.com/withastro/astro/issues",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/astro-prism"
   },
+  "homepage": "https://astro.build",
+  "main": "index.mjs",
   "scripts": {},
   "exports": {
     ".": "./index.mjs"
   },
   "types": "./index.d.ts",
   "keywords": [],
-  "author": "Skypack",
-  "license": "MIT",
   "devDependencies": {
     "prismjs": "^1.23.0"
   },
