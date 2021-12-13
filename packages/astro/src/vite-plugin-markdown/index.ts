@@ -53,6 +53,7 @@ ${setup}`.trim();
 
         // Transform from `.astro` to valid `.ts`
         let { code: tsResult } = await transform(astroResult, {
+          as: 'fragment',
           projectRoot: config.projectRoot.toString(),
           site: config.buildOptions.site,
           sourcefile: id,

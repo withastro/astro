@@ -57,7 +57,7 @@ export default function astro({ config, devServer }: AstroPluginOptions): vite.P
         // use `sourcemap: "both"` so that sourcemap is included in the code
         // result passed to esbuild, but also available in the catch handler.
         tsResult = await transform(source, {
-          as: isPage ? 'document' : 'fragment',
+          as: 'fragment',
           projectRoot: config.projectRoot.toString(),
           site: config.buildOptions.site,
           sourcefile: id,
