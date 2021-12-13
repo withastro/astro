@@ -86,7 +86,6 @@ const thisWorks: number = 42;
 console.log('This runs at build-time, is visible in the CLI output', thisWorks);
 ---
 <div class="example-1">
-  <span>{thisWorks}</span>
   <h1>Hello world!</h1>
 </div>
 ```
