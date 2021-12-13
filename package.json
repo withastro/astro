@@ -78,7 +78,7 @@
     "eslint": "^8.0.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "execa": "^5.0.0",
+    "execa": "^6.0.0",
     "prettier": "^2.4.1",
     "tiny-glob": "^0.2.8",
     "turbo": "^1.0.0",

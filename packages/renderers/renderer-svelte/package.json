@@ -16,7 +16,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
+    "@sveltejs/vite-plugin-svelte": "1.0.0-next.30",
     "svelte": "^3.44.2",
     "svelte-preprocess": "^4.9.8"
   },

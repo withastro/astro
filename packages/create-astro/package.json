@@ -31,7 +31,7 @@
     "kleur": "^4.1.1",
     "node-fetch": "^3.0.0",
     "prompts": "^2.4.1",
-    "yargs-parser": "^20.2.7"
+    "yargs-parser": "^21.0.0"
   },
   "devDependencies": {
     "uvu": "^0.5.1"

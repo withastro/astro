@@ -55,7 +55,7 @@
     "test": "mocha --parallel --timeout 15000"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.5.7",
+    "@astrojs/compiler": "^0.5.4",
     "@astrojs/language-server": "^0.8.2",
     "@astrojs/markdown-remark": "^0.5.0",
     "@astrojs/prism": "0.3.0",
@@ -73,17 +73,17 @@
     "ci-info": "^3.2.0",
     "connect": "^3.7.0",
     "eol": "^0.9.1",
-    "es-module-lexer": "^0.7.1",
+    "es-module-lexer": "^0.9.3",
     "esbuild": "0.13.7",
     "estree-util-value-to-estree": "^1.2.0",
     "estree-walker": "^3.0.0",
     "fast-glob": "^3.2.7",
-    "fast-xml-parser": "^3.19.0",
+    "fast-xml-parser": "^4.0.0-beta.3",
     "html-entities": "^2.3.2",
     "htmlparser2": "^7.1.2",
     "kleur": "^4.1.4",
     "magic-string": "^0.25.7",
-    "mime": "^2.5.2",
+    "mime": "^3.0.0",
     "morphdom": "^2.6.1",
     "node-fetch": "^3.0.0",
     "parse5": "^6.0.1",
@@ -106,7 +106,7 @@
     "supports-esm": "^1.0.0",
     "tsconfig-resolver": "^3.0.1",
     "vite": "^2.6.10",
-    "yargs-parser": "^20.2.9",
+    "yargs-parser": "^21.0.0",
     "zod": "^3.8.1"
   },
   "devDependencies": {
