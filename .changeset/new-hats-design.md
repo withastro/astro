@@ -12,7 +12,6 @@
 '@astrojs/test-custom-element-renderer': minor
 '@astrojs/markdown-remark': minor
 '@astrojs/renderer-lit': minor
-'www': minor
 ---
 
 Support for Node v14.15+, dropping Node v12.
