@@ -1,5 +1,4 @@
 ---
-'docs': minor
 'astro': minor
 '@astrojs/parser': minor
 '@astrojs/prism': minor
