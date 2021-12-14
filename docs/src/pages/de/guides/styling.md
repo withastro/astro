@@ -416,7 +416,7 @@ Zusammengefasst kannst du dir Styles im Scope der Komponente als das Rückgrat d
 
 ### Weitere Vorschläge
 
-"Aber halt!", wirst du vielleicht sagen, nachdem du den vorherigen Abschnitt gelesen hast. "Das berücksichtigt nicht [meinen Anwendungsfall]!" Wenn du nach weiteren Ratschlägen zu einigen gängigen Styling-Problemen suchst, könnten dich die folgenden Vorschläge ineteressieren. Sie stehen alle miteinander in Verbindung und passen zu der Philosophie von  **Hybrides Scoped-CSS + Utility-CSS**.
+"Aber halt!", wirst du vielleicht sagen, nachdem du den vorherigen Abschnitt gelesen hast. "Das berücksichtigt nicht [meinen Anwendungsfall]!" Wenn du nach weiteren Ratschlägen zu einigen gängigen Styling-Problemen suchst, könnten dich die folgenden Vorschläge ineteressieren. Sie stehen alle miteinander in Verbindung und passen zu der Philosophie von **Hybrides Scoped-CSS + Utility-CSS**.
 
 1. Unterteile deine App in Layout-Komponenten und Basis-Komponenten
 2. Vermeide Flexbox- und Grid-Bibliotheken (schreibe deine eigenen!)
