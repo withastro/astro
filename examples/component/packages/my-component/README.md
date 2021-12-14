@@ -1,0 +1,3 @@
+# Example `@example/my-component`
+
+...
