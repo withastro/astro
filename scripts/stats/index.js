@@ -105,9 +105,9 @@ export async function run() {
     // Bugs: Accepted
     (await countCards(COLUMN_ID_BUGS_ACCEPTED)).length + (await countCards(COLUMN_ID_BUGS_PRIORITIZED)).length,
     // RFC: In Progress
-    0,    // (await countCards(COLUMN_ID_RFCS_IN_PROGRESS)).length,
+    0, // (await countCards(COLUMN_ID_RFCS_IN_PROGRESS)).length,
     // RFC: Accepted
-    0,    // (await countCards(COLUMN_ID_RFCS_ACCEPTED)).length + (await countCards(COLUMN_ID_RFCS_PRIORITIZED)).length,
+    0, // (await countCards(COLUMN_ID_RFCS_ACCEPTED)).length + (await countCards(COLUMN_ID_RFCS_PRIORITIZED)).length,
     // Date (ISO)
     `"${new Date().toISOString()}"`,
   ].join(',');
