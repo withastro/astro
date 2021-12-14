@@ -126,18 +126,21 @@ export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfi
 	let userConfig: AstroUserConfig = {};
 	let userConfigPath: string | undefined;
 
-	if (options.filename) {
-		userConfigPath = /^\.*\//.test(options.filename) ? options.filename : `./${options.filename}`;
-		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
-	}
-	// Automatically load config file using Proload
-	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
-	if (config) {
-		userConfig = config.value;
-	}
-	// normalize, validate, and return
-	return validateConfig(userConfig, root);
+  if (options.filename) {
+    userConfigPath = /^\.*\//.test(options.filename) ? options.filename : `./${options.filename}`;
+    userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
+  }
+  // Automatically load config file using Proload
+  // If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
+  let config;
+  try {
+    config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
+  } catch (e) {}
+  if (config) {
+    userConfig = config.value;
+  }
+  // normalize, validate, and return
+  return validateConfig(userConfig, root);
 }
 
 export function formatConfigError(err: z.ZodError) {
