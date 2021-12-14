@@ -82,8 +82,8 @@ export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL; 
 		enforce: 'pre',
 		async resolveId(sourceId: string, importer, options) {
 			try {
-			/** Resolved ID conditionally handled by any other resolver. (this gives priority to all other resolvers) */
-			const resolvedId = await this.resolve(sourceId, importer, { skipSelf: true, ...options });
+				/** Resolved ID conditionally handled by any other resolver. (this gives priority to all other resolvers) */
+				const resolvedId = await this.resolve(sourceId, importer, { skipSelf: true, ...options });
 			} catch (e) {}
 
 			// if any other resolver handles the file, return that resolution
@@ -95,8 +95,10 @@ export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL; 
 					/** Processed Source ID with our alias applied. */
 					const aliasedSourceId = sourceId.replace(alias.find, alias.replacement);
 
-					/** Resolved ID conditionally handled by any other resolver. (this also gives priority to all other resolvers) */
-					const resolvedAliasedId = await this.resolve(aliasedSourceId, importer, { skipSelf: true, ...options });
+					try {
+						/** Resolved ID conditionally handled by any other resolver. (this also gives priority to all other resolvers) */
+						const resolvedAliasedId = await this.resolve(aliasedSourceId, importer, { skipSelf: true, ...options });
+					} catch (e) {}
 
 					// if the existing resolvers find the file, return that resolution
 					if (resolvedAliasedId) return resolvedAliasedId;
