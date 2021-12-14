@@ -609,7 +609,7 @@ Diese Anleitung wäre nicht möglich ohne die folgenden Blogposts, die auf diese
 - [**Layout-isolated Components**][layout-isolated] von Emil Sjölander
 - [**In defense of utility-first CSS**][utility-css] von Sarah Dayan
 
-Wirf bitte auch einen Blick auf das [Stylelint][stylelint]-Projekt, mit dem du deine Styles in Form bringen kannst. Du bringst dein JS in Form, warum nicht dein CSS?
+Wirf bitte auch einen Blick auf das [Stylelint][stylelint]-Projekt, mit dem du deine Styles in Form bringen kannst. Du bringst dein JS in Form, warum nicht auch dein CSS?
 
 [autoprefixer]: https://github.com/postcss/autoprefixer
 [astro-component]: /de/core-concepts/astro-components#css-styles
