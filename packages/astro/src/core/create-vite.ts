@@ -17,7 +17,6 @@ const ALWAYS_EXTERNAL = new Set([
   ...builtinModules.map((name) => `node:${name}`),
   '@sveltejs/vite-plugin-svelte',
   '@proload/core',
-  '@proload/core/lib/esm/requireOrImport.mjs',
   '@babel/core',
   'serialize-javascript',
   'micromark-util-events-to-acorn',
@@ -26,7 +25,7 @@ const ALWAYS_EXTERNAL = new Set([
   'shiki',
   'shorthash',
   'unified',
-  'whatwg-url',
+  'whatwg-url'
 ]);
 const ALWAYS_NOEXTERNAL = new Set([
 	'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
@@ -50,6 +49,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
     logLevel: 'error', // log errors only
     optimizeDeps: {
       entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
+      exclude: [...ALWAYS_EXTERNAL],
     },
     plugins: [
       configAliasVitePlugin({ config: astroConfig }),
