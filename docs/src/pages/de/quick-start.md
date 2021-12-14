@@ -5,7 +5,7 @@ description: Die einfachste Weg schnell mit Astro loszulegen.
 ---
 
 ```shell
-# Vorbereitung: Überprüfe, ob Node.js die Version 12.20.0+, 14.13.1+, oder 16+ ist
+# Vorbereitung: Überprüfe, ob Node.js die Version 14.15.0+, oder 16+ ist
 node --version
 
 # Erstelle einen neues Projektverzeichnis und navigiere direkt dorthin

@@ -5,7 +5,7 @@ description: The easiest way to get started quickly with Astro.
 ---
 
 ```shell
-# prerequisite: check that Node.js is 12.20.0+, 14.13.1+, or 16+
+# prerequisite: check that Node.js is 14.15.0+, or 16+
 node --version
 
 # Make a new project directory, and navigate directly into it

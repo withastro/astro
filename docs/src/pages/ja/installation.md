@@ -9,7 +9,7 @@ lang: ja
 
 ## 事前準備
 
-- **Node.js** - `v12.20.0`、`v14.13.1`、`v16.0.0`、またはそれ以上。
+- **Node.js** -`v14.15.0`、`v16.0.0`、またはそれ以上。
 - **テキストエディター** - [VS Code](https://code.visualstudio.com/) と [公式 Astro extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)をオススメします。
 - **ターミナル** - Astro は主にターミナルのコマンドラインからアクセスします。
 

@@ -11,10 +11,6 @@ before(async () => {
 
 describe('Node builtins', () => {
   it('Can be used with the node: prefix', async () => {
-    // node:fs/promise is not supported in Node v12. Test currently throws.
-    if (process.versions.node <= '13') {
-      return;
-    }
     const html = await fixture.readFile('/index.html');
     const $ = cheerio.load(html);
 

@@ -5,7 +5,7 @@ description: De makkelijkste manier om snel te beginnen met Astro.
 ---
 
 ```shell
-# voorwaarde: check dat Node.js versie een van de volgende is: 12.20.0+, 14.13.1+, of 16+
+# voorwaarde: check dat Node.js versie een van de volgende is: 14.15.0+, of 16+
 node --version
 
 # maak een nieuwe project folder en navigeer naar deze folder
