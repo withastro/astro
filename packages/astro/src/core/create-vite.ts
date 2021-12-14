@@ -30,7 +30,7 @@ const ALWAYS_EXTERNAL = new Set([
   'unified',
   'whatwg-url',
   'astro/dist/core/config.js',
-  'rollup'
+  'rollup',
 ]);
 
 // note: ssr is still an experimental API hence the type omission
