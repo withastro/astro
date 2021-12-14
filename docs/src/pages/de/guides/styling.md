@@ -186,7 +186,7 @@ Svelte funktioniert in Astro ebenfalls genauso wie gewohnt: [Svelte-Styling-Docs
 
 ### 🎨 CSS-Präprozessoren (Sass, Stylus, etc.)
 
-Astro unterstützt als CSS-Präprozessoren [Sass][sass], [Stylus][stylus], und [Less][less] mittels [Vite][vite-preprocessors]. Der jeweils gewünschte Präprozessor kann wie folgt aufgesetzt werden:
+Astro unterstützt als CSS-Präprozessoren [Sass][sass], [Stylus][stylus] und [Less][less] mittels [Vite][vite-preprocessors]. Der jeweils gewünschte Präprozessor kann wie folgt aufgesetzt werden:
 
 - **Sass**: Führe `npm install -D sass` aus und verwende `<style lang="scss">` oder `<style lang="sass">` (eingerückt) in `.astro`-Dateien
 - **Stylus**: Führe `npm install -D stylus` aus und verwende `<style lang="styl">` oder `<style lang="stylus">` in `.astro`-Dateien
