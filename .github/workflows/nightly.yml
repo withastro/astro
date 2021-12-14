@@ -53,7 +53,7 @@ jobs:
         id: createpr
         uses: peter-evans/create-pull-request@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.NIGHTLY_PERSONAL_GITHUB_TOKEN }}
           commit-message: '[ci] update lockfile'
           title: '[ci] update lockfile'
           body: >
@@ -64,6 +64,6 @@ jobs:
         if: steps.createpr.outputs.pull-request-operation == 'created'
         uses: peter-evans/enable-pull-request-automerge@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.NIGHTLY_PERSONAL_GITHUB_TOKEN }}
           pull-request-number: ${{ steps.createpr.outputs.pull-request-number }}
           merge-method: squash
