@@ -6,7 +6,6 @@ import { builtinModules, createRequire } from 'module';
 import { fileURLToPath } from 'url';
 import vite from './vite.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
-import externalVitePlugin from '../vite-plugin-external/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
@@ -55,7 +54,6 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
       exclude: [...ALWAYS_EXTERNAL],
     },
     plugins: [
-      externalVitePlugin({ config: astroConfig }),
       configAliasVitePlugin({ config: astroConfig }),
 			astroVitePlugin({ config: astroConfig, devServer, logging }),
 			markdownVitePlugin({ config: astroConfig, devServer }),
