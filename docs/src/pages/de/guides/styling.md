@@ -29,7 +29,7 @@ Standardmäßig werden in Astro-Komponenten alle Styles nur auf Elemente im Rahm
 </p>
 ```
 
-Beachte dass der der `h1`-Selektor hier nicht über die Komponente hinaus wirksam wird! Die Styles werden nicht auf andere `h1`-Tags außerhalb dieses Dokuments angewandt - auch nicht in untergeordneten Komponenten.
+Beachte dass der `h1`-Selektor hier nicht über die Komponente hinaus wirksam wird! Die Styles werden nicht auf andere `h1`-Tags außerhalb dieses Dokuments angewandt - auch nicht in untergeordneten Komponenten.
 
 _Tipp: Auch wenn es möglich ist hier Element-Selektoren zu verwenden, sollten doch bevorzugt Klassen-Namen verwendet werden. Das ist nicht nur ein klein wenig performanter, es ist auch leichter zu lesen, insbesondere in einem umfangreichen Dokument._
 
@@ -93,7 +93,7 @@ Dies ist eine sehr gute Methode, um Dinge zu stylen wie Blogposts oder Dokumente
 
 #### Globale Styles innerhalb eines `<style>`-Tags
 
-Fals du globale Styles verwenden willst, ohne einen normalen `<link>`-Tag im `<head>`-Block zu verwenden (die empfohlene Variante), gibt es dafür mit `<style global>` eine Notlösung:
+Falls du globale Styles verwenden willst, ohne einen normalen `<link>`-Tag im `<head>`-Block zu verwenden (die empfohlene Variante), gibt es dafür mit `<style global>` eine Notlösung:
 
 ```html
 <style global>
@@ -288,7 +288,7 @@ Wir denken, es gibt einen Mittelweg zwischen intuitivem, aber langsamem CSS-in-J
 
 **Dieser Ansatz ist gut für…**
 
-- Entwickler und Entwicklerinnen die etwas neues bezüglich Styling ausprobieren wollen
+- Entwickler und Entwicklerinnen die etwas Neues bezüglich Styling ausprobieren wollen
 - Entwickler und Entwicklerinnen die ein paar dogmatische Annahmen bezüglich der CSS-Architektur zu schätzen wissen
 
 **Dieser Ansatz ist _NICHT_ gut für…**
@@ -301,7 +301,7 @@ Lies weiter, wenn du nach ein paar dogmatischen Annahmen suchst 🙂. Wir werden
 
 #### Scoped Styles
 
-Du benötigst keine Erläuterung zu Komponenten-basiertem Design. Dir ist bereits klar, dass die Wiederverwendung von Komponenten eine gute Idee ist. Und es war diese Idee, die die Leute dazu brachte sich an Konzepte wie [gestylte Komponenten][styled-components] und [gestyltes JSX][styled-jsx] zu gewöhnen. Aber anstatt deine Nutzerinnen und Nutzer mit den langen Ladezeiten von CSS-in-JS zu belasten, kannst du mit Astro etwas besseres einsetzen: **eingebaute Styles im Scope der Komponente**.
+Du benötigst keine Erläuterung zu Komponenten-basiertem Design. Dir ist bereits klar, dass die Wiederverwendung von Komponenten eine gute Idee ist. Und es war diese Idee, die die Leute dazu brachte sich an Konzepte wie [gestylte Komponenten][styled-components] und [gestyltes JSX][styled-jsx] zu gewöhnen. Aber anstatt deine Nutzerinnen und Nutzer mit den langen Ladezeiten von CSS-in-JS zu belasten, kannst du mit Astro etwas Besseres einsetzen: **eingebaute Styles im Scope der Komponente**.
 
 ```astro
 ---
@@ -343,7 +343,7 @@ import Button from './Button.astro';
 </nav>
 ```
 
-Dies ist allerdings nicht erstrebenswert, da nun `<Nav>` und `<Button>` bei der endgültigen Gestaltung des Buttons konkurrieren. Sobald du jetzt den einen veränderst, musst du auch den anderen anpassen, und sie sind nicht mehr wirklich isoliert, so wie zuvor (sie sind nun verbunden in bidirektionaler Abhängigkeit). Es ist sehr leicht sich vorzustellen, dass dieses Modell nur ein paar mal wiederholt werden muss, bis die Befürchtung aufkommt, dass jede Veränderung von Styles _irgendwo_ das Styling in einem ganz anderem Teil der Anwendung kaputt macht (queue `peter-griffin-css-blinds.gif`).
+Dies ist allerdings nicht erstrebenswert, da nun `<Nav>` und `<Button>` bei der endgültigen Gestaltung des Buttons konkurrieren. Sobald du jetzt den einen veränderst, musst du auch den anderen anpassen, und sie sind nicht mehr wirklich isoliert, so wie zuvor (sie sind nun verbunden in bidirektionaler Abhängigkeit). Es ist sehr leicht sich vorzustellen, dass dieses Modell nur ein paar mal wiederholt werden muss, bis die Befürchtung aufkommt, dass jede Veränderung von Styles _irgendwo_ das Styling in einem ganz anderem Teil der Anwendung kaputt macht.
 
 Stattdessen kannst du `<Button>` seine eigenen Styles kontrollieren lassen und es mit einer Prop versuchen:
 
@@ -366,7 +366,7 @@ const { theme } = Astro.props;
 </button>
 ```
 
-An anderer Stelle kannst du nun `<Button theme="nav">` verwenden, um zu bestimmen, welche Art von Button es ist. Dies bewahrt den Vertrag, in dem steht, dass _Button sich um seine Styles kümmert und Nav sich um seine_. Und nun kannst du den einen bearbeiten ohne den anderen zu beeinflussen. Der schlimmstmögliche Fall bei der Verwendung globaler Styles ist, dass eine Komponente kaputt und nicht mehr nutzbar ist (ihr fehlen wesentliche Teile ihrer Styles). Aber der schlimmstmögliche Fall bei der Verwendung von Props (z. B. bei einem Tippfehler) ist, dass die Komponente zurückgesetzt wird auf ihren ursprünglichen, aber immer noch nutzbaren, Zustand.
+An anderer Stelle kannst du nun `<Button theme="nav">` verwenden, um zu bestimmen, welche Art von Button es ist. Dies bewahrt den Vertrag, in dem steht, dass _Button sich um seine Styles kümmert und Nav sich um seine_. Und du kannst den einen bearbeiten ohne den anderen zu beeinflussen. Der schlimmstmögliche Fall bei der Verwendung globaler Styles ist, dass eine Komponente kaputt und nicht mehr nutzbar ist (ihr fehlen wesentliche Teile ihrer Styles). Aber der schlimmstmögliche Fall bei der Verwendung von Props (z. B. bei einem Tippfehler) ist, dass die Komponente zurückgesetzt wird auf ihren ursprünglichen, aber immer noch nutzbaren, Zustand.
 
 💁 **Warum dies mit Astro gut funktioniert**. Astro ist im Wesentlichen von JavaScript-Modulen inspiriert: Du musst zu jeder Zeit nur wissen, was sich in deiner Datei befindet, und du musst dir niemals Gedanken darüber machen, welches Element aus einer anderen Datei Einfluss darauf hat, wie der Code ausgeführt wird. Aber wir sind damit nicht allein; Vue und Svelte haben beide die Idee vorangetrieben und popularisiert, dass Markup und Styles in ein und derselben Komponenten-Datei gut zusammenpassen. [Du kannst verschiedene Belange immer noch gut voneinander trennen][peace-on-css], sogar wenn Markup, Styles und Logik in einer Datei enthalten sind. Und tatsächlich ist es genau das, was Komponeten-Design so mächtig macht! Du kannst also einfach CSS schreiben ohne fürchten zu müssen, dass du einen Namen verwendest, der bereits von einer anderen Komponente in der App verwendet wird.
 
@@ -591,7 +591,7 @@ Wenn du Komponenten verwendest, die sich neu arrangieren oder anders dargestellt
 
 Dieser letzte Punkt behandelt eine natürliche Beschränkung von **Styles im Scope**. Und diese bezieht sich auch auf Breakpoints! Du kennst diesen einen, seltsamen Breakpoint, bei dem deine `<Card />`-Komponente bei einer bestimmten Größe ungünstig umbricht? Du solltest dieses Problem innerhalb von `<Card />` lösen, und nicht _irgendwo_ anders.
 
-Selbst wenn du am Ende einen willkürlichen Wert wie `@media (min-width: 732px)` verwendest, wird das wahrscheinlich besser funktionieren, als es irgendwo mit einer _globalen_ [magischen Zahl][magic-number] zu probieren, die aber doch nur in einem einzigen Kontext angewandt wird (eine willkürliche Zahl mag für den Rest der Anwendung "rätselhaft" sein, aber sie hat immer noch eine "konkrete" Bedeutung im Kontext einer Komponente, die diesen Wert benötigt).
+Selbst wenn du am Ende einen willkürlichen Wert wie `@media (min-width: 732px)` verwendest, wird das wahrscheinlich besser funktionieren, als es irgendwo mit einer _globalen_ [magischen Zahl][magic-number] zu probieren, die aber doch nur _in einem einzigen Kontext_ angewandt wird (eine willkürliche Zahl mag für den Rest der Anwendung "rätselhaft" sein, aber sie hat immer noch eine "konkrete" Bedeutung im Kontext einer Komponente, die diesen Wert benötigt).
 
 Zugegeben, diese Art von Konflikt vollständig zu lösen war bisher nahezu unmöglich; glücklicherweise gibt es inzwischen wachsende [Unterstützung für Container-Queries!][container-queries].
 
