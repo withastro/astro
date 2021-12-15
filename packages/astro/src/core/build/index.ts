@@ -7,6 +7,7 @@ import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.j
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import fs from 'fs';
 import * as colors from 'kleur/colors';
+import { polyfill } from '@astropub/webapi';
 import { performance } from 'perf_hooks';
 import vite, { ViteDevServer } from '../vite.js';
 import { fileURLToPath } from 'url';
@@ -25,6 +26,9 @@ export interface BuildOptions {
 
 /** `astro build` */
 export default async function build(config: AstroConfig, options: BuildOptions = { logging: defaultLogOptions }): Promise<void> {
+  // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
+  polyfill(globalThis);
+
   const builder = new AstroBuilder(config, options);
   await builder.build();
 }
