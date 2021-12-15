@@ -97,7 +97,7 @@ async function generatePages(result: RollupOutput, opts: StaticBuildOptions, int
   debug(opts.logging, 'generate', 'End build step, now generating');
   const generationPromises = [];
   for (let output of result.output) {
-    if (output.type === 'chunk' && output.facadeModuleId) {
+    if (output.type === 'chunk' && output.facadeModuleId && output.facadeModuleId.endsWith('.astro')) {
       generationPromises.push(generatePage(output, opts, internals, facadeIdToPageDataMap));
     }
   }
