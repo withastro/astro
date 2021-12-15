@@ -64,8 +64,8 @@ jobs:
           auto_fix: true
           git_name: github-actions[bot]
           git_email: github-actions[bot]@users.noreply.github.com
-          commit_message: 'chore(lint): ${linter} fix'
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: '[ci] ${linter} fix'
+          github_token: ${{ secrets.NIGHTLY_PERSONAL_GITHUB_TOKEN }}
           neutral_check_on_warning: true
 
   # Build installs all devDependencies and runs our full build pipeline.
@@ -258,7 +258,7 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: yarn changeset publish
-          commit: 'chore: release'
+          commit: '[ci] release'
           title: '[ci] release'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
