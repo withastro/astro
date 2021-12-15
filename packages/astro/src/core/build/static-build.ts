@@ -1,5 +1,5 @@
 import type { OutputChunk, PreRenderedChunk, RollupOutput } from 'rollup';
-import type { Plugin as VitePlugin, ViteDevServer } from '../vite';
+import type { Plugin as VitePlugin } from '../vite';
 import type { AstroConfig, RouteCache } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';

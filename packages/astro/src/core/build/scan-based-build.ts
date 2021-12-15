@@ -1,5 +1,4 @@
-import type { RenderedChunk } from 'rollup';
-import type { ViteDevServer } from 'vite';
+import type { ViteDevServer } from '../vite.js';
 import type { AstroConfig, RouteCache } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
