@@ -9,6 +9,7 @@ import { fileURLToPath } from 'url';
 import { promisify } from 'util';
 import connect from 'connect';
 import mime from 'mime';
+import { polyfill } from '@astropub/webapi';
 import { performance } from 'perf_hooks';
 import stripAnsi from 'strip-ansi';
 import vite from '../vite.js';
@@ -35,6 +36,9 @@ export interface DevServer {
 
 /** `astro dev` */
 export default async function dev(config: AstroConfig, options: DevOptions = { logging: defaultLogOptions }): Promise<DevServer> {
+  // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
+  polyfill(globalThis);
+
   // start dev server
   const server = new AstroDevServer(config, options);
   await server.start();
