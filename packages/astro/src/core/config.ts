@@ -132,10 +132,7 @@ export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfi
   }
   // Automatically load config file using Proload
   // If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-  let config;
-  try {
-    config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
-  } catch (e) {}
+  const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
   if (config) {
     userConfig = config.value;
   }
