@@ -1,6 +1,5 @@
 import type { AstroConfig, ManifestData, RouteCache } from '../../@types/astro';
 import type { LogOptions } from '../logger';
-import type { PageBuildData } from './types';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
