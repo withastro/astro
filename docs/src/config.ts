@@ -58,7 +58,7 @@ export const SIDEBAR = {
 
     { text: 'Anleitungen', header: true },
     { text: 'Styling & CSS', link: 'de/guides/styling' },
-    
+
     { text: 'Referenz', header: true },
   ],
   nl: [

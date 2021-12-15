@@ -10,7 +10,6 @@ Astro verfügt über eine besondere Möglichkeit, um das Schreiben von CSS so ei
 
 Standardmäßig werden in Astro-Komponenten alle Styles nur auf Elemente im Rahmen der Komponente (genannt **Scope**) angewandt, der sie hinzugefügt wurden. Dies kann die Arbeit mit Styles erheblich erleichtern, da du dich zu jeder Zeit nur um die Gestaltung der Komponente kümmern musst, an der du arbeitest.
 
-
 ```html
 <!-- src/components/MeineKomponente.astro -->
 <style>
@@ -25,7 +24,9 @@ Standardmäßig werden in Astro-Komponenten alle Styles nur auf Elemente im Rahm
 </style>
 
 <h1>Ich bin ein Style im Scope der Komponente, und ich bin rot!</h1>
-<p class="text">Ich bin ein Style im Scope der Komponente, und ich bin kursiv!!</p>
+<p class="text">
+  Ich bin ein Style im Scope der Komponente, und ich bin kursiv!!
+</p>
 ```
 
 Beachte dass der der `h1`-Selektor hier nicht über die Komponente hinaus wirksam wird! Die Styles werden nicht auf andere `h1`-Tags außerhalb dieses Dokuments angewandt - auch nicht in untergeordneten Komponenten.
@@ -63,7 +64,7 @@ _Beachte: `Astro.resolve()` ist ein nützliches Hilfsmittel, um Verweise auf Dat
 
 #### Styling untergeordneter Elemente
 
-Falls du Styles, die im Scope der Komponente gesetzt werden, auch auf untergeordnete Komponenten anwenden willst, kannst du auf die `:global()`-Funktion aus den [CSS-Modules][css-modules] zurückgreifen: 
+Falls du Styles, die im Scope der Komponente gesetzt werden, auch auf untergeordnete Komponenten anwenden willst, kannst du auf die `:global()`-Funktion aus den [CSS-Modules][css-modules] zurückgreifen:
 
 ```astro
 <!-- src/components/MeineKomponente.astro -->
@@ -88,7 +89,7 @@ import PostContent from './Post.astro';
 </article>
 ```
 
-Dies ist eine sehr gute Methode, um Dinge zu stylen wie Blogposts oder Dokumente, die mit Inhalten aus einem CMS außerhalb von Astro gefüttert werden. Aber Vorsicht, wenn untergeordnete Elemente frei von Abhängigkeiten gestaltet werden, bricht dies auch die Verkapselung der Komponente auf. Das Arbeiten mit Komponenten die unterschiedlich aussehen, abhängig davon ob sie ein bestimmtes übergeordnetes Element haben oder nicht, kann sehr schnell unübersichtlich werden.  
+Dies ist eine sehr gute Methode, um Dinge zu stylen wie Blogposts oder Dokumente, die mit Inhalten aus einem CMS außerhalb von Astro gefüttert werden. Aber Vorsicht, wenn untergeordnete Elemente frei von Abhängigkeiten gestaltet werden, bricht dies auch die Verkapselung der Komponente auf. Das Arbeiten mit Komponenten die unterschiedlich aussehen, abhängig davon ob sie ein bestimmtes übergeordnetes Element haben oder nicht, kann sehr schnell unübersichtlich werden.
 
 #### Globale Styles innerhalb eines `<style>`-Tags
 
@@ -127,7 +128,7 @@ Es wird empfohlen diese Methoden nur dort einzusetzen, wo ein `<link>`-Tag nicht
 
 ## Autoprefixer
 
-[Autoprefixer][autoprefixer] kümmert sich für dich um Browser-übergreifende CSS-Kompatibilität. Installiere autoprefixer (`npm install --save-dev autoprefixer`) und füge eine Datei mit dem Namen `postcss.config.cjs` deinem Hauptverzeichnis hinzu: 
+[Autoprefixer][autoprefixer] kümmert sich für dich um Browser-übergreifende CSS-Kompatibilität. Installiere autoprefixer (`npm install --save-dev autoprefixer`) und füge eine Datei mit dem Namen `postcss.config.cjs` deinem Hauptverzeichnis hinzu:
 
 ```js
 // postcss.config.cjs
@@ -148,13 +149,12 @@ Du kannst jedes beliebige PostCSS-Plugin verwenden, indem du eine `postcss.confi
 
 Styling in Astro sollte so flexibel sein, wie du es haben willst! Die folgenden Optionen werden unterstützt:
 
-| Framework        | Globales CSS | Scoped CSS |  CSS-Modules  |
-| :--------------- | :----------: | :--------: | :----------: |
-| `.astro`         |      ✅      |     ✅     |     N/A¹     |
-| `.jsx` \| `.tsx` |      ✅      |     ❌     |      ✅      |
-| `.vue`           |      ✅      |     ✅     |      ✅      |
-| `.svelte`        |      ✅      |     ✅     |      ❌      |
-
+| Framework        | Globales CSS | Scoped CSS | CSS-Modules |
+| :--------------- | :----------: | :--------: | :---------: |
+| `.astro`         |      ✅      |     ✅     |    N/A¹     |
+| `.jsx` \| `.tsx` |      ✅      |     ❌     |     ✅      |
+| `.vue`           |      ✅      |     ✅     |     ✅      |
+| `.svelte`        |      ✅      |     ✅     |     ❌      |
 
 ¹ _`.astro`-Dateien haben keine Laufzeit, daher nimmt Scoped-CSS hier den Platz von CSS-Modules ein (Styles sind im Scope der Komponenten, benötigen aber keine dynamischen Werte)_
 
@@ -228,7 +228,7 @@ module.exports = {
 };
 ```
 
-Damit bist du ausgerüstet, um Tailwind einzusetzen! Der von uns empfohlene Ansatz ist, eine Datei `src/styles/global.css` (oder wie du dein globales Stylesheet bevorzugterweise nennst) mit den [Tailwind-Utilities][tailwind-utilities] darin zu erzeugen - ungefähr in dieser Form: 
+Damit bist du ausgerüstet, um Tailwind einzusetzen! Der von uns empfohlene Ansatz ist, eine Datei `src/styles/global.css` (oder wie du dein globales Stylesheet bevorzugterweise nennst) mit den [Tailwind-Utilities][tailwind-utilities] darin zu erzeugen - ungefähr in dieser Form:
 
 ```css
 /* src/styles/global.css */
@@ -260,7 +260,7 @@ Mit der [Version 0.20.0](https://github.com/withastro/astro/releases/tag/astro%4
 
 ### 🎭 PostCSS
 
-PostCSS zu verwenden ist so einfach wie eine [`postcss.config.cjs`](https://github.com/postcss/postcss#usage)-Datei in deinem Hauptverzeichnis zu erzeugen. 
+PostCSS zu verwenden ist so einfach wie eine [`postcss.config.cjs`](https://github.com/postcss/postcss#usage)-Datei in deinem Hauptverzeichnis zu erzeugen.
 
 Beachte, dass dieses Plugin sämtliches CSS in deinem Projekt verarbeitet, einschließlich jeglicher Dateien die nach CSS kompiliert wurden (wie zum Beispiel `.scss`-Sass-Dateien).
 
@@ -276,7 +276,7 @@ Sämtliches CSS wird minifiziert und automatisch gebündelt, wenn du `astro buil
 
 Wir werden unsere Styling-Optimierungen im Laufe der Zeit stetig weiterentwickeln und würden gerne euer Feedback dazu hören! Falls `astro build` unerwartete Styles generiert, oder wenn du Vorschläge zur Verbesserung hast, [eröffne bitte ein Issue][issues].
 
-_Beachte: Wenn einige Seiten-Styles gemeinsam gebündelt werden und andere Seiten-Styles auf die Seite bezogen bleiben, entwickeln sich hieraus meistens keine Probleme. Aber wenn Teile deiner Styles gebündelt werden, könnten sie _technisch_ auch in einer anderen Reihenfolge laden, als von dir in deiner Kaskade intendiert. Auch wenn dieses Problem nicht nur Astro zu eigen ist - es besteht potentiell bei so ziemlich jedem Bündelungsprozess - so kann es dich doch unerwartet treffen, wenn du diese Möglichkeit nicht von vorne herein in Betracht ziehst. Stelle sicher, dass du deinen abschließenden Build eingehend diesbezüglich inspizierst - und [melde bitte auftretende Probleme][issues], auf die du stößt._
+_Beachte: Wenn einige Seiten-Styles gemeinsam gebündelt werden und andere Seiten-Styles auf die Seite bezogen bleiben, entwickeln sich hieraus meistens keine Probleme. Aber wenn Teile deiner Styles gebündelt werden, könnten sie \_technisch_ auch in einer anderen Reihenfolge laden, als von dir in deiner Kaskade intendiert. Auch wenn dieses Problem nicht nur Astro zu eigen ist - es besteht potentiell bei so ziemlich jedem Bündelungsprozess - so kann es dich doch unerwartet treffen, wenn du diese Möglichkeit nicht von vorne herein in Betracht ziehst. Stelle sicher, dass du deinen abschließenden Build eingehend diesbezüglich inspizierst - und [melde bitte auftretende Probleme][issues], auf die du stößt.\_
 
 ## Fortgeschrittene Styling-Architektur
 
@@ -320,9 +320,9 @@ Du benötigst keine Erläuterung zu Komponenten-basiertem Design. Dir ist bereit
 </button>
 ```
 
-_Beachte: Wir verwenden hier in sämtlichen Beispielen `lang="scss"`, welches das Verschachteln und Teilen von [Farben und Variablen][sass-use] stark vereinfacht. Dies ist jedoch gänzlich optional, und du kannst ebenso gut normales CSS verwenden._  
+_Beachte: Wir verwenden hier in sämtlichen Beispielen `lang="scss"`, welches das Verschachteln und Teilen von [Farben und Variablen][sass-use] stark vereinfacht. Dies ist jedoch gänzlich optional, und du kannst ebenso gut normales CSS verwenden._
 
-Die `.btn`-Klasse ist auf die Komponente begrenzt und wird nicht über das Dokument hinaus wirksam. Dies bedeutet, du kannst dich **auf das Styling und musst dich nicht auf die Benennung konzentrieren**. Dieser Ansatz, der das Lokale an den Anfang stellt, fügt sich sehr gut in das ESM-getriebene Design von Astro, das Einkapselung und Wiederverwendbarkeit über eine globale Wirksamkeit stellt. Auch wenn es sich um ein einfaches Beispiel handelt, sollte festgehalten werden, dass dies **extrem gut skaliert**. Und für den Fall, dass du gemeinsame Werte zwischen Komponenten teilen willst, empfehlen wir das [Sass-Modulsystem][sass-use], das sehr einfach zu verwenden ist und sich perfekt in ein Design einfügt, in dem die Komponente an den Anfang gestellt wird. 
+Die `.btn`-Klasse ist auf die Komponente begrenzt und wird nicht über das Dokument hinaus wirksam. Dies bedeutet, du kannst dich **auf das Styling und musst dich nicht auf die Benennung konzentrieren**. Dieser Ansatz, der das Lokale an den Anfang stellt, fügt sich sehr gut in das ESM-getriebene Design von Astro, das Einkapselung und Wiederverwendbarkeit über eine globale Wirksamkeit stellt. Auch wenn es sich um ein einfaches Beispiel handelt, sollte festgehalten werden, dass dies **extrem gut skaliert**. Und für den Fall, dass du gemeinsame Werte zwischen Komponenten teilen willst, empfehlen wir das [Sass-Modulsystem][sass-use], das sehr einfach zu verwenden ist und sich perfekt in ein Design einfügt, in dem die Komponente an den Anfang gestellt wird.
 
 Im Kontrast zu diesem Ansatz erlaubt Astro auch globale Styles mittels der `:global()` und `<style global>`-Notlösungen. Es sollte jedoch soweit möglich vermieden werden sie einzusetzen. Ein einfaches Beispiel: Nehmen wir an, du hast deinen Button in einer `<Nav />`-Komponente verwendet und willst ihn dort anders gestalten. Du könntest versucht sein, das folgendermaßen zu probieren:
 
@@ -374,7 +374,7 @@ An anderer Stelle kannst du nun `<Button theme="nav">` verwenden, um zu bestimme
 
 Vor Kurzem gab es eine Debatte über die ausschließliche Verwendung von Komponenten-Styles im Scope vs. die ausschließliche Verwendung von Utility-CSS. Aber wir stimmen Leuten wie Sarah Dayan zu, die fragen, [warum können wir nicht beides haben][utility-css]? Tatsache ist doch, dass während es großartig ist, Styles im Scope der Komponente zu haben, es immer noch hunderte von Male vorkommt, dass wenn die Website vollständig zusammengesetzt ist, zwei Elemente nicht _gut_ zusammenspielen und eines von beiden einen kleinen Stupser braucht. Oder es wird vielleicht eine abweichende Behandlung eines Textes in einer Komponenten-Instanz benötigt.
 
-Zwar ist die Vorstellung von perfekten, makellosen Komponenten schön, aber sie ist auch unrealistisch. Kein Design-System ist absolut perfekt, und jedes Design-System zeigt auch Ungereimtheiten. Und es passiert bei dem Versuch diese Ungereimtheiten aufzulösen, dass Komponenten ohne Utility-CSS durcheinander geraten. Utility-CSS ist großartig darin kleinere Optimierungen hinzuzufügen, um die Website fertigzustellen und ausliefern zu können. Aber es ist an sich auch unvollständig auf ganz eigene Art - wenn du z. B. jemals versuchst responsive Styles oder Fokussierungen mit Utility-CSS zu verwalten, kann das schnell zu einem großen Durcheinander werden!   
+Zwar ist die Vorstellung von perfekten, makellosen Komponenten schön, aber sie ist auch unrealistisch. Kein Design-System ist absolut perfekt, und jedes Design-System zeigt auch Ungereimtheiten. Und es passiert bei dem Versuch diese Ungereimtheiten aufzulösen, dass Komponenten ohne Utility-CSS durcheinander geraten. Utility-CSS ist großartig darin kleinere Optimierungen hinzuzufügen, um die Website fertigzustellen und ausliefern zu können. Aber es ist an sich auch unvollständig auf ganz eigene Art - wenn du z. B. jemals versuchst responsive Styles oder Fokussierungen mit Utility-CSS zu verwalten, kann das schnell zu einem großen Durcheinander werden!  
 **Utility-CSS funktioniert am besten in Partnerschaft mit Styles im Scope der Komponente**. Und um so leicht wie möglich anwendbar zu sein, sollte Utility-CSS global sein (und sollte möglicherweise auch das einzige globale CSS sein - vielleicht neben reset.css), so dass du nicht mit Importen arbeiten musst, die allesamt willkürlich sind.
 
 Einige größere Probleme, die am besten mit Utility-CSS gelöst werden, sind:
@@ -389,10 +389,7 @@ In Astro empfehlen wir folgendes Setup hierfür:
 
 ```html
 <head>
-  <link
-    rel="stylesheet"
-    href={Astro.resolve("../styles/global.css")}
-  >
+  <link rel="stylesheet" href={Astro.resolve("../styles/global.css")} >
 </head>
 ```
 
@@ -425,7 +422,7 @@ Zusammengefasst kannst du dir Styles im Scope der Komponente als das Rückgrat d
 
 #### Vorschlag #1: Unterteile deine App in Layout-Komponenten und Basis-Komponenten
 
-Sicher wird diese Anleitung niemals lang genug sein, um die Frage zu beantworten _"Wie sollte eine Seite aufgebaut sein?"_ (das ist ein [Design-Problem!][cassie-evans-css]). 
+Sicher wird diese Anleitung niemals lang genug sein, um die Frage zu beantworten _"Wie sollte eine Seite aufgebaut sein?"_ (das ist ein [Design-Problem!][cassie-evans-css]).
 Und doch liegt darin versteckt auch eine etwas spezifischere Frage, die wir beantworten _können_: _"Ein bestimmtes Layout angenommen - wie sollten Komponenten und Styles darin organisiert sein?"_ Die Antwort ist, **brenne niemals das Layout in Komponenten ein**. Erzeuge Layout-Komponenten, die das Layout bestimmen, und Basis-Komponenten (Buttons, Karten etc.) die nicht das Layout bestimmen. _Was bedeutet das?_ Gehen wir das an einem Beispiel durch, damit es klarer wird. Angenommen wir haben eine Seite, die folgendermaßen aussieht (die Zahlen stehen für unterschiedliche Komponenten):
 
 ```
@@ -559,7 +556,7 @@ Viele Front-End-Entwicklerinnen und -Entwickler kennen den folgenden Gedankengan
 
 Während die Logik in sich stimmig ist, ist es in Wirklichkeit doch so, dass #2 nur selten auf ein Projekt zutrifft. Möglicherweise wurden viele Teile der Website nicht entwickelt, um in diese netten, gepflegten 12-Säulen-Raster einer Bibliothek zu passen. Sogar relativ bescheidene Websites können _hunderte_ Layouts enthalten, wenn du sämtliche Breakpoints mit einrechnest. Frage dich einmal selbst: _Wenn die Website, die ich baue, wirklich soviele unterschiedliche Layouts beinhaltet, warum verwende ich dann eine schwergewichtige Grid-Bibliothek, die mir nur generische Layouts ermöglicht?_
 
-Ein paar gut geschriebene Zeilen CSS-Grid hier und da werden sich perfekt an jede Situation anpassen; das Ganze ist höchstwahrscheinlich leichtgewichtiger und einfacher zu verwalten, als die schwergewichtige Bibliothek, mit der du doch so lange gekämpft hast. Anders herum betrachtet: Wenn du schon einige Stunden benötigst, um eine proprietäre Styling-Bibliothek zu lernen, dich mit ihr auseinanderzusetzen, Probleme zu melden etc., wäre es nicht besser diese Zeit darauf zu verwenden den Umgang mit Flexbox und Grid zu erlernen? Viele Leute brauchen nur eine Stunde, um die Grundlagen ausreichend zu verstehen - und damit kommt man schon ziemlich weit! Es gibt großartige kostenlose Lernmöglichkeiten, in die du deine Zeit investieren kannnst:  
+Ein paar gut geschriebene Zeilen CSS-Grid hier und da werden sich perfekt an jede Situation anpassen; das Ganze ist höchstwahrscheinlich leichtgewichtiger und einfacher zu verwalten, als die schwergewichtige Bibliothek, mit der du doch so lange gekämpft hast. Anders herum betrachtet: Wenn du schon einige Stunden benötigst, um eine proprietäre Styling-Bibliothek zu lernen, dich mit ihr auseinanderzusetzen, Probleme zu melden etc., wäre es nicht besser diese Zeit darauf zu verwenden den Umgang mit Flexbox und Grid zu erlernen? Viele Leute brauchen nur eine Stunde, um die Grundlagen ausreichend zu verstehen - und damit kommt man schon ziemlich weit! Es gibt großartige kostenlose Lernmöglichkeiten, in die du deine Zeit investieren kannnst:
 
 - [Flexbox Froggy](https://flexboxfroggy.com/)
 - [CSS Grid Garden](https://cssgridgarden.com/)
