@@ -15,6 +15,6 @@ export default function astro({ config }: AstroPluginOptions): vite.Plugin {
         console.log({ source, importer, options });
       }
       return null;
-    }
+    },
   };
 }
