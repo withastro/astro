@@ -140,10 +140,10 @@
     vscode-languageserver-types "^3.16.0"
     vscode-uri "^3.0.2"
 
-"@astropub/webapi@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@astropub/webapi/-/webapi-0.4.0.tgz#ce03357e562758fe8ac9b461fec4206a888c8e56"
-  integrity sha512-KpHOH9WsIJk2E3Z/suAZri3a6I9GrkZnmm+BHAZp4OBAXUUyNTIid9mIC8tiiHNbY2A6OLbBvfteuD+BYQfcrw==
+"@astropub/webapi@^0.5.0":
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/@astropub/webapi/-/webapi-0.5.0.tgz#df0a16eed8101761a51b0ecfe24bc31ac5142d38"
+  integrity sha512-CYAjp3/T5JKNYHm7RNmARiq11yDDQjaCCqsZp3zxX73urYwnqaGqPqVRbuO9M3Iz7Ng7tY4rswZVKHNoB6aPRw==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.16.0":
   version "7.16.0"
@@ -9109,9 +9109,9 @@ vite-plugin-pwa@^0.11.5:
     workbox-window "^6.4.2"
 
 vite@^2.6.10:
-  version "2.7.2"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-2.7.2.tgz#f9937114cf2e730a7e2e4c4f8c26ed0ed1c3bb6b"
-  integrity sha512-wMffVVdKZRZP/HwW3yttKL8X+IJePz7bUcnGm0vqljffpVwHpjWC3duZtJQHAGvy+wrTjmwU7vkULpZ1dVXY6w==
+  version "2.7.3"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-2.7.3.tgz#e983cf4f71f42c192436bfcad1b75932642da293"
+  integrity sha512-GAY1P+9fLJOju1SRm8+hykVnEXog+E+KXuqqyMBQDriKCUIKzWnPn142yNNhSdf/ixYGYdUa5ce3A8WaEajzGw==
   dependencies:
     esbuild "^0.13.12"
     postcss "^8.3.11"
