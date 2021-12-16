@@ -14,4 +14,4 @@
 '@astrojs/renderer-lit': minor
 ---
 
-Support for Node v14.15+, dropping Node v12.
+Officially drop support for Node v12. The minimum supported version is now Node v14.15+,
