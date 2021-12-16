@@ -218,7 +218,7 @@ jobs:
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
-    if: ${{ github.ref == 'main' && github.repository_owner == 'withastro' }}
+    if: ${{ github.ref_name == 'main' && github.repository_owner == 'withastro' }}
     needs: [lint, test, smoke]
     runs-on: ubuntu-latest
     steps:
