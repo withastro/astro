@@ -1,5 +1,16 @@
 # astro
 
+## 0.22.0
+
+### Minor Changes
+
+- [#2206](https://github.com/withastro/astro/pull/2206) [`91173fe9`](https://github.com/withastro/astro/commit/91173fe9380017310d9f32e7c4ffbf2b26287c30) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Replaced `fetch` walk-n-replace with globalThis polyfill
+
+### Patch Changes
+
+- Updated dependencies [[`b8c821a0`](https://github.com/withastro/astro/commit/b8c821a0743ed004691eae0eea471a368d2fa35f)]:
+  - @astrojs/renderer-svelte@0.2.3
+
 ## 0.21.12
 
 ### Patch Changes
