@@ -3131,7 +3131,7 @@ debug@2.6.9, debug@^2.1.1:
   dependencies:
     ms "2.0.0"
 
-debug@4, debug@^4.0.0, debug@^4.1.0, debug@^4.1.1, debug@^4.3.2, debug@^4.3.3:
+debug@4, debug@^4.0.0, debug@^4.1.0, debug@^4.1.1, debug@^4.3.2:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.3.tgz#04266e0b70a98d4462e6e288e38259213332b664"
   integrity sha512-/zxw5+vh1Tfv+4Qn7a5nsbcJKPaSvCDhojn6FEl9vupwK2VCSDtEiEtqr8DFtzYFOdz63LBkxec7DYuc2jon6Q==
@@ -7631,7 +7631,7 @@ rollup-plugin-terser@^7.0.0:
     serialize-javascript "^4.0.0"
     terser "^5.0.0"
 
-rollup@^2.43.1, rollup@^2.57.0, rollup@^2.59.0, rollup@^2.60.2:
+rollup@^2.43.1, rollup@^2.57.0, rollup@^2.59.0, rollup@^2.60.0:
   version "2.61.1"
   resolved "https://registry.yarnpkg.com/rollup/-/rollup-2.61.1.tgz#1a5491f84543cf9e4caf6c61222d9a3f8f2ba454"
   integrity sha512-BbTXlEvB8d+XFbK/7E5doIcRtxWPRiqr0eb5vQ0+2paMM04Ye4PZY5nHOQef2ix24l/L0SpLd5hwcH15QHPdvA==
@@ -8946,17 +8946,18 @@ vfile@^5.0.0:
     unist-util-stringify-position "^3.0.0"
     vfile-message "^3.0.0"
 
-vite-plugin-pwa@^0.11.5:
-  version "0.11.12"
-  resolved "https://registry.yarnpkg.com/vite-plugin-pwa/-/vite-plugin-pwa-0.11.12.tgz#02b4cfccd7ad098cfb291415c62c3b7281b7c538"
-  integrity sha512-XqFmA4y9C4RBb5osSsa26GVwOSwbzf2GNVcT5+06KYYdguqLpuI9FW7iV/akZqg0OUNUpH4tHfme8SnHA4PIXA==
+vite-plugin-pwa@0.11.5:
+  version "0.11.5"
+  resolved "https://registry.yarnpkg.com/vite-plugin-pwa/-/vite-plugin-pwa-0.11.5.tgz#dfa6541dbd8938303b737541bdad57b6d26234ec"
+  integrity sha512-qn79L7008ZMn9GS0ClxypOBRA3Ft8/a8saIQ03SC2R1QndbZVW+YQVHTlFno33Wp6fu5UJacoHWuZYCuKZKaOA==
   dependencies:
-    debug "^4.3.3"
+    chalk "^4.1.2"
+    debug "^4.3.2"
     fast-glob "^3.2.7"
     pretty-bytes "^5.6.0"
-    rollup "^2.60.2"
-    workbox-build "^6.4.2"
-    workbox-window "^6.4.2"
+    rollup "^2.60.0"
+    workbox-build "^6.4.0"
+    workbox-window "^6.4.0"
 
 vite@^2.6.10:
   version "2.7.3"
@@ -9217,7 +9218,7 @@ workbox-broadcast-update@6.4.2:
   dependencies:
     workbox-core "6.4.2"
 
-workbox-build@^6.4.2:
+workbox-build@^6.4.0:
   version "6.4.2"
   resolved "https://registry.yarnpkg.com/workbox-build/-/workbox-build-6.4.2.tgz#47f9baa946c3491533cd5ccb1f194a7160e8a6e3"
   integrity sha512-WMdYLhDIsuzViOTXDH+tJ1GijkFp5khSYolnxR/11zmfhNDtuo7jof72xPGFy+KRpsz6tug39RhivCj77qqO0w==
@@ -9353,7 +9354,7 @@ workbox-sw@6.4.2:
   resolved "https://registry.yarnpkg.com/workbox-sw/-/workbox-sw-6.4.2.tgz#9a6db5f74580915dc2f0dbd47d2ffe057c94a795"
   integrity sha512-A2qdu9TLktfIM5NE/8+yYwfWu+JgDaCkbo5ikrky2c7r9v2X6DcJ+zSLphNHHLwM/0eVk5XVf1mC5HGhYpMhhg==
 
-workbox-window@6.4.2, workbox-window@^6.4.2:
+workbox-window@6.4.2, workbox-window@^6.4.0:
   version "6.4.2"
   resolved "https://registry.yarnpkg.com/workbox-window/-/workbox-window-6.4.2.tgz#5319a3e343fa1e4bd15a1f53a07b58999d064c8a"
   integrity sha512-KVyRKmrJg7iB+uym/B/CnEUEFG9CvnTU1Bq5xpXHbtgD9l+ShDekSl1wYpqw/O0JfeeQVOFb8CiNfvnwWwqnWQ==
