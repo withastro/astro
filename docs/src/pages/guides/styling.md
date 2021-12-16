@@ -211,7 +211,10 @@ And create 2 files in your project root: `tailwind.config.cjs` and `postcss.conf
 ```js
 // tailwind.config.cjs
 module.exports = {
-  content: ['./public/**/*.html', './src/**/*.{astro,js,jsx,svelte,ts,tsx,vue}'],
+  content: [
+    './public/**/*.html',
+    './src/**/*.{astro,js,jsx,svelte,ts,tsx,vue}',
+  ],
   // more options here
 };
 ```
