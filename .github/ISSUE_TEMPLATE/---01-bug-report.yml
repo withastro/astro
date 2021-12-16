@@ -11,7 +11,7 @@ body:
         Thank you for taking the time to file a bug report! Please fill out this form as completely as possible.
 
         ✅ I am using the **latest version of Astro** and all plugins.
-        ✅ I am using a version of Node that supports ESM (`v12.20.0+`, `v14.13.1+`, or `v16.0.0+`)
+        ✅ I am using a version of Node that supports ESM (`v14.15.0+`, or `v16.0.0+`)
   - type: input
     attributes:
       label: What version of `astro` are you using?

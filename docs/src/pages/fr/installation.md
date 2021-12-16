@@ -8,7 +8,7 @@ Il y a plusieurs façons d'installer Astro dans un nouveau projet.
 
 ## Prérequis
 
-- **Node.js** - `v12.20.0`, `v14.13.1`, `v16.0.0`, or plus.
+- **Node.js** - `v14.15.0`, `v16.0.0`, or plus.
 - **Éditeur de texte** - Privilégiez [VS Code](https://code.visualstudio.com/) et [l'extension Astro officielle](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode).
 - **Terminal** - Astro s'utilise principalement en ligne de commande.
 

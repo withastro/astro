@@ -8,7 +8,7 @@ Astron voi asentaa parilla eri tavalla uuteen projektiin.
 
 ## Vaatimukset
 
-- **Node.js** - `v12.20.0`, `v14.13.1`, `v16.0.0` tai uudempi.
+- **Node.js** - `v14.15.0`, `v16.0.0` tai uudempi.
 - **Tekstieditori** - Suosittelemme [VS Codea](https://code.visualstudio.com/) yhdessä [Astro-laajennoksen](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode) kanssa.
 - **Terminaali** - Astroa käytetään pääasiassa komentorivin kautta.
 
