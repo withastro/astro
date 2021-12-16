@@ -10,9 +10,10 @@
   },
   "dependencies": {
     "@nanostores/preact": "^0.1.2",
-    "@nanostores/react": "^0.1.2",
+    "@nanostores/react": "^0.1.5",
     "@nanostores/vue": "^0.4.1",
-    "nanostores": "^0.5.6"
+    "nanostores": "^0.5.7",
+    "solid-nanostores": "0.0.6"
   },
   "devDependencies": {
     "@astrojs/renderer-solid": "^0.2.1",

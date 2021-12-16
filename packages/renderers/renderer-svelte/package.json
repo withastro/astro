@@ -2,12 +2,16 @@
   "name": "@astrojs/renderer-svelte",
   "version": "0.2.2",
   "description": "Use Svelte components within Astro",
+  "type": "module",
+  "author": "withastro",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/renderers/renderer-svelte"
   },
-  "type": "module",
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
   "exports": {
     ".": "./index.js",
     "./*": "./*",
@@ -16,7 +20,7 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.30",
+    "@sveltejs/vite-plugin-svelte": "1.0.0-next.30",
     "svelte": "^3.44.2",
     "svelte-preprocess": "^4.9.8"
   },

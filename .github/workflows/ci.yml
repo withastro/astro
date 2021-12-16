@@ -83,11 +83,15 @@ jobs:
           node-version: 16
           cache: 'yarn'
 
-      - name: Cache Turbo
+      - name: Cache Node Modules
+        id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/.turbo"
-          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+          path: "**/node_modules"
+          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+            cache-node_modules-${{ hashFiles('**/yarn.lock') }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -95,7 +99,7 @@ jobs:
           CI: true
 
       - name: Build Packages
-        run: yarn build
+        run: yarn build --force
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
@@ -137,11 +141,12 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
-      - name: Cache Turbo
+      - name: Cache Node Modules
+        id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/.turbo"
-          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+          path: "**/node_modules"
+          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -158,11 +163,11 @@ jobs:
         run: yarn workspace astro run test
 
   smoke:
-    name: 'Smoke Test: ${{ matrix.target }}'
-    runs-on: ubuntu-latest
+    name: 'Test (Smoke) ${{ matrix.os }}'
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        target: [docs, www]
+        os: [windows-latest, ubuntu-latest]
     needs:
       - build
     steps:
@@ -172,7 +177,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: 16
+          node-version: 14
           cache: 'yarn'
 
       - name: Download Build Artifacts
@@ -181,20 +186,27 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
-      - name: Cache Turbo
+      - name: Cache Node Modules
+        id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/.turbo"
-          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+          path: "**/node_modules"
+          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
-      - name: Build
-        run: yarn build
-        working-directory: ${{ matrix.target }}
+      - name: Test
+        if: ${{ matrix.os != 'windows-latest' }}
+        run: yarn run build:examples --concurrency=1
+
+      # Turbo seems to fail on Windows, so run a custom script directly.
+      - name: Test (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: node ./scripts/smoke/index.js
+
 
   # Changelog can only run _after_ Build and Test.
   # We download all `dist/` artifacts from GitHub to skip the build process.
@@ -220,11 +232,12 @@ jobs:
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
-      - name: Cache Turbo
+      - name: Cache Node Modules
+        id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/.turbo"
-          key: turbo-${{ hashFiles('.github/workflows/ci.yml') }}-${{ github.ref }}
+          path: "**/node_modules"
+          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000

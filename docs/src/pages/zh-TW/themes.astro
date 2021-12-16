@@ -1,20 +1,20 @@
 ---
 import Layout from '../../layouts/MainLayout.astro';
 import Card from '../../components/Card.astro';
-import {Markdown} from 'astro/components';
+import { Markdown } from 'astro/components';
 import themes from '../../data/themes.json';
 import components from '../../data/components.json';
 ---
-<style>
-    .card-grid {
-        display: grid;
-        grid-column-gap: 15px;
-        grid-row-gap: 15px;
-        grid-auto-flow: dense;
-        grid-template-columns: repeat(auto-fit,minmax(300px,1fr))
-    }
-</style>
-<Layout content={{title: 'Themes'}} hideRightSidebar>
+<Layout content={{title: '佈景主題'}} hideRightSidebar>
+    <style>
+        .card-grid {
+            display: grid;
+            grid-column-gap: 15px;
+            grid-row-gap: 15px;
+            grid-auto-flow: dense;
+            grid-template-columns: repeat(auto-fit,minmax(300px,1fr))
+        }
+    </style>
     <Markdown>
         ## 精選佈景主題
     </Markdown>
@@ -46,7 +46,7 @@ import components from '../../data/components.json';
         {components.community.map((item)=>(<Card data={item} />))}
     </div>
     <Markdown>
-        > 想要讓自己的作品成為精選嗎？[在 Discord 分享！](https://astro.build/chat)
+        > 想要讓自己的作品成為精選嗎？[在 Discord 分享！](https://astro.build/chat)  
         我們常在 `#showcase` 頻道取材，把深受喜愛的在這裡發布。
     </Markdown>
 </Layout>

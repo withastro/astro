@@ -81,9 +81,9 @@ Remember that Astro is a server-side templating language, so your component scri
 // Anything inside the `---` code fence is your component script.
 // This JavaScript code runs at build-time.
 // See below to learn more about what you can do.
-console.log('This runs at build-time, is visible in the CLI output');
 // Tip: TypeScript is also supported out-of-the-box!
 const thisWorks: number = 42;
+console.log('This runs at build-time, is visible in the CLI output', thisWorks);
 ---
 <div class="example-1">
   <h1>Hello world!</h1>
@@ -340,8 +340,8 @@ import TwitterTimeline from '../components/TwitterTimeline.astro';
 | Fragments                    | Automatic top-level, `<>` inside functions | Wrap with `<Fragment>` or `<>`                     |
 | Multiple frameworks per-file | Yes                                        | No                                                 |
 | Modifying `<head>`           | Just use `<head>`                          | Per-framework (`<Head>`, `<svelte:head>`, etc)     |
-| Comment Style                | `<!-- HTML -->`                            | `{/* JavaScript */}`                               |
-| Special Characters           | `&nbsp;`                                   | `{'\xa0'}` or `{String.fromCharCode(160)}`         |
+| Comment Style                | `<!-- HTML -->`                            | `{/_ JavaScript _/}                                |
+| Special Characters           | `&nbsp;`                                   | `&nbsp;`                                           |
 | Attributes                   | `dash-case`                                | `camelCase`                                        |
 
 ## URL resolution

@@ -1,13 +1,17 @@
 {
   "name": "@astrojs/markdown-remark",
   "version": "0.5.0",
-  "main": "./dist/index.js",
   "type": "module",
+  "author": "withastro",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/markdown/remark"
   },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "main": "./dist/index.js",
   "exports": {
     ".": "./dist/index.js"
   },

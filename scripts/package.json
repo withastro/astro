@@ -10,7 +10,7 @@
   "dependencies": {
     "arg": "^5.0.0",
     "esbuild": "0.13.7",
-    "globby": "^11.0.3",
+    "globby": "^12.0.2",
     "tar": "^6.1.0"
   }
 }

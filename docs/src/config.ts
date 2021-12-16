@@ -57,6 +57,7 @@ export const SIDEBAR = {
     { text: 'Partial Hydration', link: 'de/core-concepts/component-hydration' },
 
     { text: 'Anleitungen', header: true },
+    { text: 'Styling & CSS', link: 'de/guides/styling' },
 
     { text: 'Referenz', header: true },
   ],

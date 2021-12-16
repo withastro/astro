@@ -3,7 +3,7 @@ import cheerio from 'cheerio';
 import eol from 'eol';
 import { loadFixture } from './test-utils.js';
 
-const PREFIXED_CSS = `{-webkit-appearance:none;-moz-appearance:none;appearance:none}`;
+const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none}`;
 
 let fixture;
 let bundledCSS;
