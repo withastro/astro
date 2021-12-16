@@ -1,5 +1,12 @@
 # astro
 
+## 0.21.13
+
+### Patch Changes
+
+- Updated dependencies [[`b8c821a0`](https://github.com/withastro/astro/commit/b8c821a0743ed004691eae0eea471a368d2fa35f)]:
+  - @astrojs/renderer-svelte@0.2.3
+
 ## 0.21.12
 
 ### Patch Changes
