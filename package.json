@@ -55,6 +55,8 @@
     "packages/renderers/*",
     "packages/*",
     "examples/*",
+    "examples/component/demo",
+    "examples/component/packages/*",
     "scripts",
     "www",
     "docs",

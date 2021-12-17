@@ -1,0 +1,22 @@
+{
+  "name": "@example/my-component",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./Button": "./Button.astro",
+    "./Heading": "./Heading.astro"
+  },
+  "files": [
+    "index.js",
+    "Button.astro",
+    "Heading.jsx"
+  ],
+  "keywords": [
+    "astro-component",
+    "button",
+    "heading",
+    "example"
+  ]
+}
