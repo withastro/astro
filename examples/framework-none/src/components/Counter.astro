@@ -1,0 +1,32 @@
+---
+// Full Astro Component Syntax:
+// https://docs.astro.build/core-concepts/astro-components/
+
+const { initialCount = 0 } = Astro.props;
+---
+
+<div class="counter">
+  <button data-decrement>-</button>
+  <pre>{ initialCount }</pre>
+  <button data-increment>+</button>
+</div>
+
+<div class="counter-message">
+  <slot />
+</div>
+
+<!-- Reference this component's script. It will be deduped and injected into <head> -->
+<script hoist type="module" src={Astro.resolve('../scripts/counter.js')}></script>
+
+<style>
+.counter {
+  display: grid;
+  font-size: 2em;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 2em;
+  place-items: center;
+}
+.counter-message {
+  text-align: center;
+}
+</style>

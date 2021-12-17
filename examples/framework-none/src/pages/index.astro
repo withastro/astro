@@ -1,0 +1,35 @@
+---
+// Component Imports
+import Counter from '../components/Counter.astro'
+
+// Full Astro Component Syntax:
+// https://docs.astro.build/core-concepts/astro-components/
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <style>
+      html,
+      body {
+        font-family: system-ui;
+        margin: 0;
+      }
+      body {
+        padding: 2rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <Counter>
+        <h1>Hello, Astro + JS!</h1>
+      </Counter>
+
+      <Counter initialCount={5}>
+        <h2>Use Astro to pass in server-side props</h2>
+      </Counter>
+    </main>
+  </body>
+</html>
