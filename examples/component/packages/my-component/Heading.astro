@@ -13,6 +13,6 @@ const {
 } as Props
 
 props.role = role || 'heading'
-props.level = level || 1
+props['aria-level'] = level || '1'
 ---
 <h {...props}><slot /></h>
