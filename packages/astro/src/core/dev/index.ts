@@ -38,7 +38,7 @@ export interface DevServer {
 export default async function dev(config: AstroConfig, options: DevOptions = { logging: defaultLogOptions }): Promise<DevServer> {
   // polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
   polyfill(globalThis, {
-    exclude: 'window document'
+    exclude: 'window document',
   });
 
   // start dev server
