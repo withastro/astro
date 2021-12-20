@@ -14,6 +14,8 @@ export interface BuildInternals {
 
   // A mapping to entrypoints (facadeId) to assets (styles) that are added.
   facadeIdToAssetsMap: Map<string, string[]>;
+
+  entrySpecifierToBundleMap: Map<string, string>;
 }
 
 /**
@@ -41,5 +43,6 @@ export function createBuildInternals(): BuildInternals {
     astroStyleMap,
     astroPageStyleMap,
     facadeIdToAssetsMap,
+    entrySpecifierToBundleMap: new Map<string, string>(),
   };
 }

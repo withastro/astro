@@ -1,8 +1,8 @@
 import type { AstroComponentMetadata } from '../../@types/astro';
-import type { SSRElement } from '../../@types/astro';
+import type { SSRElement, SSRResult } from '../../@types/astro';
 import { valueToEstree } from 'estree-util-value-to-estree';
 import * as astring from 'astring';
-import { serializeListValue } from './util.js';
+import { hydrationSpecifier, serializeListValue } from './util.js';
 
 const { generate, GENERATOR } = astring;
 
@@ -69,6 +69,9 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
           extracted.hydration.componentExport.value = value;
           break;
         }
+        case 'client:component-hydration': {
+          break;
+        }
         default: {
           extracted.hydration.directive = key.split(':')[1];
           extracted.hydration.value = value;
@@ -98,13 +101,14 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 
 interface HydrateScriptOptions {
   renderer: any;
+  result: SSRResult;
   astroId: string;
   props: Record<string | number, any>;
 }
 
 /** For hydrated components, generate a <script type="module"> to load the component */
 export async function generateHydrateScript(scriptOptions: HydrateScriptOptions, metadata: Required<AstroComponentMetadata>): Promise<SSRElement> {
-  const { renderer, astroId, props } = scriptOptions;
+  const { renderer, result, astroId, props } = scriptOptions;
   const { hydrate, componentUrl, componentExport } = metadata;
 
   if (!componentExport) {
@@ -117,16 +121,17 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
   }
 
   hydrationSource += renderer.source
-    ? `const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${renderer.source}")]);
+    ? `const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${await result.resolve(renderer.source)}")]);
   return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
 `
     : `await import("${componentUrl}");
   return () => {};
 `;
 
+
   const hydrationScript = {
     props: { type: 'module', 'data-astro-component-hydration': true },
-    children: `import setup from 'astro/client/${hydrate}.js';
+    children: `import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';
 setup("${astroId}", {${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''}}, async () => {
   ${hydrationSource}
 });

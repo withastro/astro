@@ -2,8 +2,6 @@ import type { BuildResult } from 'esbuild';
 import type vite from '../vite';
 import type {
   AstroConfig,
-  AstroGlobal,
-  AstroGlobalPartial,
   ComponentInstance,
   GetStaticPathsResult,
   Params,
@@ -14,7 +12,6 @@ import type {
   RuntimeMode,
   SSRElement,
   SSRError,
-  SSRResult,
 } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 import type { AstroComponentFactory } from '../../runtime/server/index';
@@ -23,12 +20,13 @@ import eol from 'eol';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { renderPage, renderSlot } from '../../runtime/server/index.js';
-import { canonicalURL as getCanonicalURL, codeFrame, resolveDependency } from '../util.js';
+import { renderPage } from '../../runtime/server/index.js';
+import { codeFrame, resolveDependency } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
+import { createResult } from './result.js';
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
@@ -139,6 +137,7 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
   return [renderers, mod];
 }
 
+// TODO REMOVE
 export async function renderComponent(
   renderers: Renderer[],
   Component: AstroComponentFactory,
@@ -149,7 +148,8 @@ export async function renderComponent(
   pageProps: Props,
   links: string[] = []
 ): Promise<string> {
-  const _links = new Set<SSRElement>(
+  const result = createResult({ astroConfig, origin, params, pathname, renderers });
+  result.links = new Set<SSRElement>(
     links.map((href) => ({
       props: {
         rel: 'stylesheet',
@@ -158,50 +158,6 @@ export async function renderComponent(
       children: '',
     }))
   );
-  const result: SSRResult = {
-    styles: new Set<SSRElement>(),
-    scripts: new Set<SSRElement>(),
-    links: _links,
-    /** This function returns the `Astro` faux-global */
-    createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
-      const site = new URL(origin);
-      const url = new URL('.' + pathname, site);
-      const canonicalURL = getCanonicalURL('.' + pathname, astroConfig.buildOptions.site || origin);
-      return {
-        __proto__: astroGlobal,
-        props,
-        request: {
-          canonicalURL,
-          params,
-          url,
-        },
-        slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
-        // This is used for <Markdown> but shouldn't be used publicly
-        privateRenderSlotDoNotUse(slotName: string) {
-          return renderSlot(result, slots ? slots[slotName] : null);
-        },
-        // <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
-        async privateRenderMarkdownDoNotUse(content: string, opts: any) {
-          let mdRender = astroConfig.markdownOptions.render;
-          let renderOpts = {};
-          if (Array.isArray(mdRender)) {
-            renderOpts = mdRender[1];
-            mdRender = mdRender[0];
-          }
-          if (typeof mdRender === 'string') {
-            ({ default: mdRender } = await import(mdRender));
-          }
-          const { code } = await mdRender(content, { ...renderOpts, ...(opts ?? {}) });
-          return code;
-        },
-      } as unknown as AstroGlobal;
-    },
-    _metadata: {
-      renderers,
-      pathname,
-      experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
-    },
-  };
 
   let html = await renderPage(result, Component, pageProps, null);
 
@@ -292,57 +248,10 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
   if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
   if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
-  // Create the result object that will be passed into the render function.
-  // This object starts here as an empty shell (not yet the result) but then
-  // calling the render() function will populate the object with scripts, styles, etc.
-  const result: SSRResult = {
-    styles: new Set<SSRElement>(),
-    scripts: new Set<SSRElement>(),
-    links: new Set<SSRElement>(),
-    /** This function returns the `Astro` faux-global */
-    createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
-      const site = new URL(origin);
-      const url = new URL('.' + pathname, site);
-      const canonicalURL = getCanonicalURL('.' + pathname, astroConfig.buildOptions.site || origin);
-      return {
-        __proto__: astroGlobal,
-        props,
-        request: {
-          canonicalURL,
-          params,
-          url,
-        },
-        slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
-        // This is used for <Markdown> but shouldn't be used publicly
-        privateRenderSlotDoNotUse(slotName: string) {
-          return renderSlot(result, slots ? slots[slotName] : null);
-        },
-        // <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
-        async privateRenderMarkdownDoNotUse(content: string, opts: any) {
-          let mdRender = astroConfig.markdownOptions.render;
-          let renderOpts = {};
-          if (Array.isArray(mdRender)) {
-            renderOpts = mdRender[1];
-            mdRender = mdRender[0];
-          }
-          // ['rehype-toc', opts]
-          if (typeof mdRender === 'string') {
-            ({ default: mdRender } = await import(mdRender));
-          }
-          // [import('rehype-toc'), opts]
-          else if (mdRender instanceof Promise) {
-            ({ default: mdRender } = await mdRender);
-          }
-          const { code } = await mdRender(content, { ...renderOpts, ...(opts ?? {}) });
-          return code;
-        },
-      } as unknown as AstroGlobal;
-    },
-    _metadata: {
-      renderers,
-      pathname,
-      experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
-    },
+  const result = createResult({ astroConfig, origin, params, pathname, renderers });
+  result.resolve = async (s: string) => {
+    const [, path] = await viteServer.moduleGraph.resolveUrl(s);
+    return path;
   };
 
   let html = await renderPage(result, Component, pageProps, null);
@@ -389,7 +298,8 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
   // run transformIndexHtml() in dev to run Vite dev transformations
   if (mode === 'development') {
     const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
-    html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
+    console.log("TRANFORM", relativeURL, html);
+    //html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
   }
 
   // inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
