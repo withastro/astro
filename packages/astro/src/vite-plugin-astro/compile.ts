@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import { transform } from '@astrojs/compiler';
 import { transformWithVite } from './styles.js';
 
-type CompilationCache = Map<string, Promise<TransformResult>>;
+type CompilationCache = Map<string, TransformResult>;
 
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
@@ -100,9 +100,10 @@ export async function cachedCompilation(config: AstroConfig, filename: string, s
     return cache.get(filename)!;
   }
   if (source === null) {
-    throw new Error(`Requested compiling Astro CSS before the Astro file was compiled. For file: ${filename}`);
+    const fileUrl = new URL(`file://${filename}`);
+    source = await fs.promises.readFile(fileUrl, 'utf-8');
   }
-  const transformResult = compile(config, filename, source, viteTransform, opts);
+  const transformResult = await compile(config, filename, source, viteTransform, opts);
   cache.set(filename, transformResult);
   return transformResult;
 }
