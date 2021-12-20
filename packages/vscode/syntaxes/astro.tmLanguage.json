@@ -419,6 +419,7 @@
             }
           },
           "name": "expression.embbeded.astro",
+          "contentName": "source.tsx",
           "patterns": [
             {
               "include": "source.tsx"
