@@ -111,7 +111,7 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
   const facadeId: string = output.facadeModuleId as string;
   let pageData = facadeIdToPageDataMap.get(facadeId);
 
-  if(!pageData) {
+  if (!pageData) {
     throw new Error(`Unable to find a PageBuildData for the Astro page: ${facadeId}. There are the PageBuilDatas we have ${Array.from(facadeIdToPageDataMap.keys()).join(', ')}`);
   }
 
