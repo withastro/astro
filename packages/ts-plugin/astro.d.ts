@@ -22,4 +22,8 @@ interface Astro {
   site: URL;
 }
 
-declare const Astro: Astro;
+declare var Astro: Astro;
+declare var Fragment: string;
+
+void Astro;
+void Fragment;

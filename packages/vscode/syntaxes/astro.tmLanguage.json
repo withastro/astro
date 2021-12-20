@@ -66,7 +66,7 @@
     },
     "astro:component": {
       "name": "meta.tag.component.astro",
-      "begin": "(</?)([$A-Z_][^/?!\\s:<>]*|[^/?!\\s:<>.]+\\.[^/?!\\s:<>]+)\\b",
+      "begin": "(</?)([$A-Z_][^/?!\\s<>]*|[^/?!\\s<>.]+\\.[^/?!\\s<>]+)\\b",
       "beginCaptures": {
         "1": {
           "name": "punctuation.definition.tag.begin.astro"
@@ -333,7 +333,7 @@
       "patterns": [
         {
           "name": "meta.tag.any.$2.start.html",
-          "begin": "(<)([^/?!\\s:<>]+)(?=\\s|/?>)",
+          "begin": "(<)([^/?!\\s<>]+)(?=\\s|/?>)",
           "beginCaptures": {
             "1": {
               "name": "punctuation.definition.tag.begin.html"
@@ -356,7 +356,7 @@
         },
         {
           "name": "meta.tag.any.$2.end.html",
-          "begin": "(</)([^/?!\\s:<>]+)(?=\\s|/?>)",
+          "begin": "(</)([^/?!\\s<>]+)(?=\\s|/?>)",
           "beginCaptures": {
             "1": {
               "name": "punctuation.definition.tag.begin.html"
