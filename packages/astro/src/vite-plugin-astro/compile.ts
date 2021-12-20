@@ -100,7 +100,7 @@ export async function cachedCompilation(config: AstroConfig, filename: string, s
     return cache.get(filename)!;
   }
   if (source === null) {
-    throw new Error(`Oh no, this should have been cached.`);
+    throw new Error(`Requested compiling Astro CSS before the Astro file was compiled. For file: ${filename}`);
   }
   const transformResult = await compile(config, filename, source, viteTransform, opts);
   cache.set(filename, transformResult);
