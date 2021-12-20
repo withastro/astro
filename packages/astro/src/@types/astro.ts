@@ -367,9 +367,10 @@ export interface SSRMetadata {
 }
 
 export interface SSRResult {
-	styles: Set<SSRElement>;
-	scripts: Set<SSRElement>;
-	links: Set<SSRElement>;
-	createAstro(Astro: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null): AstroGlobal;
-	_metadata: SSRMetadata;
+  styles: Set<SSRElement>;
+  scripts: Set<SSRElement>;
+  links: Set<SSRElement>;
+  createAstro(Astro: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null): AstroGlobal;
+  resolve: (s: string) => Promise<string>;
+  _metadata: SSRMetadata;
 }
