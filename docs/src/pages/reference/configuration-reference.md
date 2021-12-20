@@ -27,7 +27,7 @@ The `projectRoot` option sets the working directory used by Astro. All other pat
 
 The `public` option sets the directory used to resolve public assets. By default, this is the `public` directory.
 
-The `dist` option sets the directory used to write the production build of the project.
+The `dist` option sets the directory used to output the final build of the project.
 
 The `src` option sets the directory used to resolve source files, like `pages`. By default, this is the `src` directory.
 
