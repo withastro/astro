@@ -109,9 +109,10 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 
   let url = new URL('./' + output.fileName, astroConfig.dist);
   const facadeId: string = output.facadeModuleId as string;
-  let pageData = facadeIdToPageDataMap.get(facadeId)
+  let pageData =
+    facadeIdToPageDataMap.get(facadeId) ||
     // Check with a leading `/` because on Windows it doesn't have one.
-    || facadeIdToPageDataMap.get('/' + facadeId);
+    facadeIdToPageDataMap.get('/' + facadeId);
 
   if (!pageData) {
     throw new Error(`Unable to find a PageBuildData for the Astro page: ${facadeId}. There are the PageBuilDatas we have ${Array.from(facadeIdToPageDataMap.keys()).join(', ')}`);
