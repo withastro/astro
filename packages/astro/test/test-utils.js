@@ -9,6 +9,7 @@ import preview from '../dist/core/preview/index.js';
 /**
  * @typedef {import('node-fetch').Response} Response
  * @typedef {import('../src/core/dev/index').DevServer} DevServer
+ * @typedef {import('../src/@types/astro').AstroConfig AstroConfig}
  *
  *
  * @typedef {Object} Fixture
@@ -21,7 +22,7 @@ import preview from '../dist/core/preview/index.js';
 
 /**
  * Load Astro fixture
- * @param {Object} inlineConfig Astro config partial (note: must specify projectRoot)
+ * @param {AstroConfig} inlineConfig Astro config partial (note: must specify projectRoot)
  * @returns {Fixture} The fixture. Has the following properties:
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *

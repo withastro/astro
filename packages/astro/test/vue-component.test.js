@@ -7,6 +7,9 @@ describe('Vue component', () => {
 
   before(async () => {
     fixture = await loadFixture({
+      devOptions: {
+        port: 3005,
+      },
       projectRoot: './fixtures/vue-component/',
       renderers: ['@astrojs/renderer-vue'],
     });
