@@ -33,6 +33,7 @@ export default function astro({ config }: AstroPluginOptions): vite.Plugin {
     async load(id, opts) {
       let { filename, query } = parseAstroRequest(id);
       if (query.astro) {
+        console.log("TODO REMOVE [LOAD]", filename);
         if (query.type === 'style') {
           if (filename.startsWith('/') && !filename.startsWith(config.projectRoot.pathname)) {
             filename = new URL('.' + filename, config.projectRoot).pathname;

@@ -31,6 +31,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
   // everything else is treated as a fragment
   const normalizedID = fileURLToPath(new URL(`file://${filename}`));
   const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
+  console.log("TODO REMOVE [COMPILE] - ", filename, normalizedID, isPage)
   //let source = await fs.promises.readFile(id, 'utf8');
   let cssTransformError: Error | undefined;
 
@@ -99,6 +100,7 @@ export async function cachedCompilation(config: AstroConfig, filename: string, s
   if (cache.has(filename)) {
     return cache.get(filename)!;
   }
+  console.log("TODO REMOVE [CACHE] ", filename, !!source);
   if (source === null) {
     const fileUrl = new URL(`file://${filename}`);
     source = await fs.promises.readFile(fileUrl, 'utf-8');
