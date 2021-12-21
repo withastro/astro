@@ -17,6 +17,7 @@ import type {
   SSRResult,
 } from '../../@types/astro';
 import type { LogOptions } from '../logger';
+import type { AstroComponentFactory } from '../../runtime/server/index';
 
 import eol from 'eol';
 import fs from 'fs';
@@ -138,6 +139,120 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
   return [renderers, mod];
 }
 
+export async function renderComponent(
+  renderers: Renderer[],
+  Component: AstroComponentFactory,
+  astroConfig: AstroConfig,
+  pathname: string,
+  origin: string,
+  params: Params,
+  pageProps: Props,
+  links: string[] = []
+): Promise<string> {
+  const _links = new Set<SSRElement>(
+    links.map((href) => ({
+      props: {
+        rel: 'stylesheet',
+        href,
+      },
+      children: '',
+    }))
+  );
+  const result: SSRResult = {
+    styles: new Set<SSRElement>(),
+    scripts: new Set<SSRElement>(),
+    links: _links,
+    /** This function returns the `Astro` faux-global */
+    createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
+      const site = new URL(origin);
+      const url = new URL('.' + pathname, site);
+      const canonicalURL = getCanonicalURL('.' + pathname, astroConfig.buildOptions.site || origin);
+      return {
+        __proto__: astroGlobal,
+        props,
+        request: {
+          canonicalURL,
+          params,
+          url,
+        },
+        slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
+        // This is used for <Markdown> but shouldn't be used publicly
+        privateRenderSlotDoNotUse(slotName: string) {
+          return renderSlot(result, slots ? slots[slotName] : null);
+        },
+        // <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
+        async privateRenderMarkdownDoNotUse(content: string, opts: any) {
+          let mdRender = astroConfig.markdownOptions.render;
+          let renderOpts = {};
+          if (Array.isArray(mdRender)) {
+            renderOpts = mdRender[1];
+            mdRender = mdRender[0];
+          }
+          if (typeof mdRender === 'string') {
+            ({ default: mdRender } = await import(mdRender));
+          }
+          const { code } = await mdRender(content, { ...renderOpts, ...(opts ?? {}) });
+          return code;
+        },
+      } as unknown as AstroGlobal;
+    },
+    _metadata: {
+      renderers,
+      pathname,
+      experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
+    },
+  };
+
+  let html = await renderPage(result, Component, pageProps, null);
+
+  return html;
+}
+
+export async function getParamsAndProps({
+  route,
+  routeCache,
+  logging,
+  pathname,
+  mod,
+}: {
+  route: RouteData | undefined;
+  routeCache: RouteCache;
+  pathname: string;
+  mod: ComponentInstance;
+  logging: LogOptions;
+}): Promise<[Params, Props]> {
+  // Handle dynamic routes
+  let params: Params = {};
+  let pageProps: Props = {};
+  if (route && !route.pathname) {
+    if (route.params.length) {
+      const paramsMatch = route.pattern.exec(pathname);
+      if (paramsMatch) {
+        params = getParams(route.params)(paramsMatch);
+      }
+    }
+    validateGetStaticPathsModule(mod);
+    if (!routeCache[route.component]) {
+      routeCache[route.component] = await (
+        await mod.getStaticPaths!({
+          paginate: generatePaginateFunction(route),
+          rss: () => {
+            /* noop */
+          },
+        })
+      ).flat();
+    }
+    validateGetStaticPathsResult(routeCache[route.component], logging);
+    const routePathParams: GetStaticPathsResult = routeCache[route.component];
+    const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
+    if (!matchedStaticPath) {
+      throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
+    }
+    pageProps = { ...matchedStaticPath.props } || {};
+  }
+  return [params, pageProps];
+}
+
 /** use Vite to SSR */
 export async function render(renderers: Renderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<string> {
   const { astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer } = ssrOpts;
@@ -183,6 +298,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
   const result: SSRResult = {
     styles: new Set<SSRElement>(),
     scripts: new Set<SSRElement>(),
+    links: new Set<SSRElement>(),
     /** This function returns the `Astro` faux-global */
     createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
       const site = new URL(origin);
@@ -225,6 +341,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
     _metadata: {
       renderers,
       pathname,
+      experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
     },
   };
 

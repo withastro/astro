@@ -1,8 +1,9 @@
 import type { AstroConfig, RouteCache } from '../@types/astro';
 import type { LogOptions } from '../core/logger';
 import type { ViteDevServer, Plugin as VitePlugin } from '../core/vite';
-import type { OutputChunk, PreRenderedChunk, RenderedChunk } from 'rollup';
+import type { OutputChunk, PreRenderedChunk } from 'rollup';
 import type { AllPagesData } from '../core/build/types';
+import type { BuildInternals } from '../core/build/internal';
 import parse5 from 'parse5';
 import srcsetParse from 'srcset-parse';
 import * as npath from 'path';
@@ -26,20 +27,17 @@ const STATUS_CODE_RE = /^404$/;
 
 interface PluginOptions {
   astroConfig: AstroConfig;
-  astroStyleMap: Map<string, string>;
-  astroPageStyleMap: Map<string, string>;
-  chunkToReferenceIdMap: Map<string, string>;
+  internals: BuildInternals;
   logging: LogOptions;
   allPages: AllPagesData;
   pageNames: string[];
-  pureCSSChunks: Set<RenderedChunk>;
   origin: string;
   routeCache: RouteCache;
   viteServer: ViteDevServer;
 }
 
 export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
-  const { astroConfig, astroStyleMap, astroPageStyleMap, chunkToReferenceIdMap, pureCSSChunks, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
+  const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
   // The filepath root of the src folder
   const srcRoot = astroConfig.src.pathname;
@@ -161,7 +159,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
           if (styles) {
             const styleId = getAstroStyleId(pathname);
-            astroStyleMap.set(styleId, styles);
+            internals.astroStyleMap.set(styleId, styles);
             // Put this at the front of imports
             assetImports.unshift(styleId);
           }
@@ -175,7 +173,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
           if (assetImports.length) {
             const pageStyleId = getAstroPageStyleId(pathname);
             const jsSource = assetImports.map((sid) => `import '${sid}';`).join('\n');
-            astroPageStyleMap.set(pageStyleId, jsSource);
+            internals.astroPageStyleMap.set(pageStyleId, jsSource);
             assetInput.add(pageStyleId);
 
             // preserve asset order in the order we encounter them
@@ -268,7 +266,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
       // Sort CSS in order of appearance in HTML (pageStyleImportOrder)
       // This is the “global ordering” used below
-      const sortedCSSChunks = [...pureCSSChunks];
+      const sortedCSSChunks = [...internals.pureCSSChunks];
       sortedCSSChunks.sort((a, b) => {
         let aIndex = Math.min(
           ...Object.keys(a.modules).map((id) => {
@@ -298,7 +296,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
         const referenceIDs: string[] = [];
         for (const chunkID of chunkModules) {
-          const referenceID = chunkToReferenceIdMap.get(chunkID);
+          const referenceID = internals.chunkToReferenceIdMap.get(chunkID);
           if (referenceID) referenceIDs.push(referenceID);
         }
         for (const id of Object.keys(chunk.modules)) {

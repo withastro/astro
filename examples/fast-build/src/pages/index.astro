@@ -1,0 +1,32 @@
+---
+import imgUrl from '../images/penguin.jpg';
+import grayscaleUrl from '../images/random.jpg?grayscale=true';
+import Greeting from '../components/Greeting.vue';
+---
+
+<html>
+<head>
+  <title>Demo app</title>
+  <style>
+    h1 { color: salmon; }
+  </style>
+</head>
+<body>
+  <section>
+    <h1>Images</h1>
+
+    <h2>Imported in JS</h2>
+    <img src={imgUrl} />
+  </section>
+
+  <section>
+    <h1>Component CSS</h1>
+    <Greeting />
+  </section>
+
+  <section>
+    <h1>ImageTools</h1>
+    <img src={grayscaleUrl} />
+  </section>
+</body>
+</html>

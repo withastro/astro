@@ -372,14 +372,16 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 // styles and scripts into the head.
 export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
   const template = await renderToString(result, Component, props, children);
-  const styles = Array.from(result.styles)
-    .filter(uniqueElements)
-    .map((style) =>
-      renderElement('style', {
-        ...style,
-        props: { ...style.props, 'astro-style': true },
-      })
-    );
+  const styles = result._metadata.experimentalStaticBuild
+    ? []
+    : Array.from(result.styles)
+        .filter(uniqueElements)
+        .map((style) =>
+          renderElement('style', {
+            ...style,
+            props: { ...style.props, 'astro-style': true },
+          })
+        );
   let needsHydrationStyles = false;
   const scripts = Array.from(result.scripts)
     .filter(uniqueElements)
@@ -396,12 +398,16 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
     styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
   }
 
+  const links = Array.from(result.links)
+    .filter(uniqueElements)
+    .map((link) => renderElement('link', link));
+
   // inject styles & scripts at end of <head>
   let headPos = template.indexOf('</head>');
   if (headPos === -1) {
-    return styles.join('\n') + scripts.join('\n') + template; // if no </head>, prepend styles & scripts
+    return links.join('\n') + styles.join('\n') + scripts.join('\n') + template; // if no </head>, prepend styles & scripts
   }
-  return template.substring(0, headPos) + styles.join('\n') + scripts.join('\n') + template.substring(headPos);
+  return template.substring(0, headPos) + links.join('\n') + styles.join('\n') + scripts.join('\n') + template.substring(headPos);
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {

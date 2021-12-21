@@ -58,6 +58,7 @@ export const AstroConfigSchema = z.object({
         .union([z.literal('file'), z.literal('directory')])
         .optional()
         .default('directory'),
+      experimentalStaticBuild: z.boolean().optional().default(false),
     })
     .optional()
     .default({}),

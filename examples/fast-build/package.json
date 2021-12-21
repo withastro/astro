@@ -1,0 +1,16 @@
+{
+  "name": "@example/fast-build",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev --experimental-static-build",
+    "start": "astro dev",
+    "build": "astro build --experimental-static-build",
+    "preview": "astro preview"
+  },
+  "devDependencies": {
+    "astro": "^0.21.6",
+    "unocss": "^0.15.5",
+    "vite-imagetools": "^4.0.1"
+  }
+}

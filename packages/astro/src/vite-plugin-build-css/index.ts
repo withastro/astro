@@ -1,9 +1,10 @@
 import type { RenderedChunk } from 'rollup';
-import { Plugin as VitePlugin } from '../core/vite';
+import type { BuildInternals } from '../core/build/internal';
 
-import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
 import * as path from 'path';
 import esbuild from 'esbuild';
+import { Plugin as VitePlugin } from '../core/vite';
+import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -45,14 +46,11 @@ function isPageStyleVirtualModule(id: string) {
 }
 
 interface PluginOptions {
-  astroStyleMap: Map<string, string>;
-  astroPageStyleMap: Map<string, string>;
-  chunkToReferenceIdMap: Map<string, string>;
-  pureCSSChunks: Set<RenderedChunk>;
+  internals: BuildInternals;
 }
 
 export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
-  const { astroPageStyleMap, astroStyleMap, chunkToReferenceIdMap, pureCSSChunks } = options;
+  const { internals } = options;
   const styleSourceMap = new Map<string, string>();
 
   return {
@@ -94,10 +92,10 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
     async load(id) {
       if (isPageStyleVirtualModule(id)) {
-        return astroPageStyleMap.get(id) || null;
+        return internals.astroPageStyleMap.get(id) || null;
       }
       if (isStyleVirtualModule(id)) {
-        return astroStyleMap.get(id) || null;
+        return internals.astroStyleMap.get(id) || null;
       }
       return null;
     },
@@ -127,17 +125,26 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
       // if (!chunkCSS) return null; // don’t output empty .css files
 
       if (isPureCSS) {
-        const { code: minifiedCSS } = await esbuild.transform(chunkCSS, {
-          loader: 'css',
-          minify: true,
-        });
-        const referenceId = this.emitFile({
-          name: chunk.name + '.css',
-          type: 'asset',
-          source: minifiedCSS,
-        });
-        pureCSSChunks.add(chunk);
-        chunkToReferenceIdMap.set(chunk.fileName, referenceId);
+        internals.pureCSSChunks.add(chunk);
+      }
+
+      const { code: minifiedCSS } = await esbuild.transform(chunkCSS, {
+        loader: 'css',
+        minify: true,
+      });
+      const referenceId = this.emitFile({
+        name: chunk.name + '.css',
+        type: 'asset',
+        source: minifiedCSS,
+      });
+
+      internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
+      if (chunk.type === 'chunk') {
+        const facadeId = chunk.facadeModuleId!;
+        if (!internals.facadeIdToAssetsMap.has(facadeId)) {
+          internals.facadeIdToAssetsMap.set(facadeId, []);
+        }
+        internals.facadeIdToAssetsMap.get(facadeId)!.push(this.getFileName(referenceId));
       }
 
       return null;
@@ -145,8 +152,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
     // Delete CSS chunks so JS is not produced for them.
     generateBundle(opts, bundle) {
-      if (pureCSSChunks.size) {
-        const pureChunkFilenames = new Set([...pureCSSChunks].map((chunk) => chunk.fileName));
+      if (internals.pureCSSChunks.size) {
+        const pureChunkFilenames = new Set([...internals.pureCSSChunks].map((chunk) => chunk.fileName));
         const emptyChunkFiles = [...pureChunkFilenames]
           .map((file) => path.basename(file))
           .join('|')
@@ -155,7 +162,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
         for (const [chunkId, chunk] of Object.entries(bundle)) {
           if (chunk.type === 'chunk') {
-            if (pureCSSChunks.has(chunk)) {
+            if (internals.pureCSSChunks.has(chunk)) {
               // Delete pure CSS chunks, these are JavaScript chunks that only import
               // other CSS files, so are empty at the end of bundling.
               delete bundle[chunkId];

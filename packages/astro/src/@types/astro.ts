@@ -363,11 +363,13 @@ export interface SSRElement {
 export interface SSRMetadata {
   renderers: Renderer[];
   pathname: string;
+  experimentalStaticBuild: boolean;
 }
 
 export interface SSRResult {
   styles: Set<SSRElement>;
   scripts: Set<SSRElement>;
+  links: Set<SSRElement>;
   createAstro(Astro: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null): AstroGlobal;
   _metadata: SSRMetadata;
 }

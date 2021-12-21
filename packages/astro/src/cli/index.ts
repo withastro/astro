@@ -25,6 +25,7 @@ interface CLIState {
     hostname?: string;
     port?: number;
     config?: string;
+    experimentalStaticBuild?: boolean;
   };
 }
 
@@ -37,6 +38,7 @@ function resolveArgs(flags: Arguments): CLIState {
     port: typeof flags.port === 'number' ? flags.port : undefined,
     config: typeof flags.config === 'string' ? flags.config : undefined,
     hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
+    experimentalStaticBuild: typeof flags.experimentalStaticBuild === 'boolean' ? flags.experimentalStaticBuild : false,
   };
 
   if (flags.version) {
@@ -73,6 +75,7 @@ function printHelp() {
   --config <path>       Specify the path to the Astro config file.
   --project-root <path> Specify the path to the project root folder.
   --no-sitemap          Disable sitemap generation (build only).
+  --experimental-static-build A more performant build that expects assets to be define statically.
   --verbose             Enable verbose logging
   --silent              Disable logging
   --version             Show the version number and exit.
@@ -92,6 +95,7 @@ function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
   if (typeof flags.site === 'string') astroConfig.buildOptions.site = flags.site;
   if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
   if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
+  if (typeof flags.experimentalStaticBuild === 'boolean') astroConfig.buildOptions.experimentalStaticBuild = flags.experimentalStaticBuild;
 }
 
 /** The primary CLI action */
