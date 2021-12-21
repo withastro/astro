@@ -7,7 +7,7 @@ To configure Astro, add an `astro.config.mjs` file to the root of your project.
 
 ```js
 export default /** @type {import('astro').AstroUserConfig} */ ({
-  // all options are optional, and these values represent their defaults
+  // all options are optional; these values are the defaults
   projectRoot: './',
   public: './public/',
   dist: './dist/',
@@ -19,6 +19,7 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
     '@astrojs/renderer-react',
     '@astrojs/renderer-preact',
   ],
+  vite: {},
 });
 ```
 
