@@ -26,6 +26,7 @@ export default function astro({ config }: AstroPluginOptions): vite.Plugin {
     // note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
     async resolveId(id) {
       // serve sub-part requests (*?astro) as virtual modules
+      console.log("RESOLVE", parseAstroRequest(id))
       if (parseAstroRequest(id).query.astro) {
         return id;
       }
