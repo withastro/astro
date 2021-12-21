@@ -33,7 +33,7 @@ The `dist` option sets the directory used to output the final build of the proje
 
 The `src` option sets the directory used to resolve source files, like `pages`. By default, this is the `src` directory.
 
-The `pages` option sets the directory used to resolve pages, relative to the `src` option. By default, this is the `pages` directory.
+The `pages` option sets the directory used to resolve pages, relative to the `src` option. By default, this is the `pages` directory within `src`.
 
 The `renderers` option assigns the framework renderers to be used by Astro. By default, Astro provides renderers for Svelte, Vue, React, and Preact. To assign no renderers at all, provide an empty array (`[]`).
 
