@@ -8,7 +8,7 @@
     "color": "#FFBE2D",
     "theme": "dark"
   },
-  "version": "0.8.4",
+  "version": "0.8.5",
   "author": "Astro",
   "license": "MIT",
   "publisher": "astro-build",
@@ -24,8 +24,8 @@
     "onLanguage:astro"
   ],
   "dependencies": {
-    "@astrojs/language-server": "0.8.4",
-    "@astrojs/ts-plugin": "0.1.0",
+    "@astrojs/language-server": "0.8.5",
+    "@astrojs/ts-plugin": "0.1.1",
     "vscode-emmet-helper": "2.1.2",
     "vscode-html-languageservice": "^3.0.3",
     "vscode-languageclient": "~7.0.0"

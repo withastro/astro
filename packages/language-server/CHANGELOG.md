@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.8.5
+
+### Patch Changes
+
+- f1f3091: Fix commenting, namespaced elements, and Fragment typings
+
 ## 0.8.4
 
 ### Patch Changes

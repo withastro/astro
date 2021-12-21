@@ -1,5 +1,14 @@
 # astro-vscode
 
+## 0.8.5
+
+### Patch Changes
+
+- f1f3091: Fix commenting, namespaced elements, and Fragment typings
+- Updated dependencies [f1f3091]
+  - @astrojs/language-server@0.8.5
+  - @astrojs/ts-plugin@0.1.1
+
 ## 0.8.4
 
 ### Patch Changes
