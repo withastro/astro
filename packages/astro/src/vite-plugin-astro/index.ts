@@ -56,6 +56,7 @@ export default function astro({ config }: AstroPluginOptions): vite.Plugin {
       return null;
     },
     async transform(source, id, opts) {
+      console.log("MAYBE TRANSFORM", id);
       if (!id.endsWith('.astro')) {
         return;
       }
