@@ -45,8 +45,9 @@ describe('Svelte component', () => {
 
       for (const script of $('script').toArray()) {
         const { src } = script.attribs;
+
         if (!src) continue;
-        console.log({ src });
+
         expect((await fixture.fetch(src)).status, `404: ${src}`).to.equal(200);
       }
     });

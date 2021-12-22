@@ -34,7 +34,6 @@ async function fetch(url) {
 
 function assert(a, b, message) {
   if (a !== b) throw new Error(red(`✘ ${message}`));
-  // console.log(green(`✔ ${message}`)); // don’t show successes
 }
 
 async function testTemplate(template) {

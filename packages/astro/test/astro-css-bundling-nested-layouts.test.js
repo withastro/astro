@@ -29,7 +29,6 @@ describe('nested layouts', () => {
     const stylesheets = $('link[rel=stylesheet]')
       .toArray()
       .map((el) => el.attribs.href);
-    console.log({ stylesheets });
 
     // page-one.[hash].css exists
     expect(stylesheets.some((href) => /page-one\.\w+\.css/.test(href))).to.be.true;
