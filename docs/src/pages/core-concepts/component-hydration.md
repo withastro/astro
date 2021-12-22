@@ -62,10 +62,11 @@ Astro renders every component on the server **at build time**, unless [client:on
 import MyReactComponent from '../components/MyReactComponent.jsx';
 ---
 <!-- "client:visible" means the component won't load any client-side
-     JavaScript for the component until it becomes visible in the 
+     JavaScript for the component until it becomes visible in the
      user's browser. -->
 <MyReactComponent client:visible />
 ```
+
 Note that the renderer JS (e.g. React) and the component's CSS are downloaded with the page. The `client:*` directives only dictate when the component JS is imported and when the component is hydrated.
 
 ### `<MyComponent client:load />`
