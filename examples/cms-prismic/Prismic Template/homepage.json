@@ -1,0 +1,187 @@
+{
+    "Main" : {
+      "body" : {
+        "type" : "Slices",
+        "fieldset" : "Slice zone",
+        "config" : {
+          "labels" : {
+            "featured_projects" : [ ],
+            "featured_posts" : [ ],
+            "agenda" : [ ],
+            "skills_expertise" : [ ]
+          },
+          "choices" : {
+            "skills_expertise" : {
+              "type" : "Slice",
+              "fieldset" : "Skills & Expertise section",
+              "description" : "A section to list your skills and fields of expertise",
+              "icon" : "format_list_bulleted",
+              "display" : "grid",
+              "non-repeat" : {
+                "skills_title" : {
+                  "type" : "StructuredText",
+                  "config" : {
+                    "single" : "heading2,heading3,heading4,heading5,heading6",
+                    "label" : "Skills title",
+                    "placeholder" : "Enter section title"
+                  }
+                }
+              },
+              "repeat" : {
+                "skill_picto" : {
+                  "type" : "Image",
+                  "config" : {
+                    "constraint" : { },
+                    "thumbnails" : [ ],
+                    "label" : "Skill picto"
+                  }
+                },
+                "skill_name" : {
+                  "type" : "StructuredText",
+                  "config" : {
+                    "single" : "heading3",
+                    "label" : "Skill name",
+                    "placeholder" : "Enter skill name here"
+                  }
+                },
+                "skill_text" : {
+                  "type" : "StructuredText",
+                  "config" : {
+                    "multi" : "paragraph,strong,em,hyperlink,list-item,o-list-item",
+                    "allowTargetBlank" : true,
+                    "label" : "Skill text",
+                    "placeholder" : "Enter skill text here"
+                  }
+                }
+              }
+            },
+            "featured_projects" : {
+              "type" : "Slice",
+              "fieldset" : "Featured projects",
+              "description" : "A selection of featured projects",
+              "icon" : "grade",
+              "display" : "list",
+              "non-repeat" : {
+                "featured_projects_title" : {
+                  "type" : "StructuredText",
+                  "config" : {
+                    "single" : "heading2",
+                    "label" : "Featured projects title",
+                    "placeholder" : "Enter section title"
+                  }
+                }
+              },
+              "repeat" : {
+                "featured_project_thumbnail" : {
+                  "type" : "Image",
+                  "config" : {
+                    "constraint" : { },
+                    "thumbnails" : [ ],
+                    "label" : "Featured project thumbnail"
+                  }
+                },
+                "featured_project" : {
+                  "type" : "Link",
+                  "config" : {
+                    "select" : "document",
+                    "customtypes" : [ "project", "portfolio_project" ],
+                    "label" : "Featured project",
+                    "placeholder" : "Select a project that you want to get featured"
+                  }
+                },
+                "featured_project_description" : {
+                  "type" : "StructuredText",
+                  "config" : {
+                    "multi" : "paragraph,strong,em,hyperlink",
+                    "allowTargetBlank" : true,
+                    "label" : "featured project description",
+                    "placeholder" : "Enter project snippet description here"
+                  }
+                }
+              }
+            },
+            "featured_posts" : {
+              "type" : "Slice",
+              "fieldset" : "Featured posts",
+              "description" : "A concise selection of featured blogposts",
+              "icon" : "grade",
+              "display" : "list",
+              "non-repeat" : {
+                "featured_blogpost_title" : {
+                  "type" : "StructuredText",
+                  "config" : {
+                    "single" : "heading2,heading3,heading4,heading5,heading6",
+                    "label" : "Featured Blogpost Title",
+                    "placeholder" : "Section title"
+                  }
+                }
+              },
+              "repeat" : {
+                "featured_blogpost" : {
+                  "type" : "Link",
+                  "config" : {
+                    "select" : "document",
+                    "customtypes" : [ "blog_post" ],
+                    "label" : "Featured blogpost",
+                    "placeholder" : "Select a blogpost that you want to get featured"
+                  }
+                },
+                "cta_text1" : {
+                  "type" : "Text",
+                  "config" : {
+                    "label" : "CTA_text",
+                    "placeholder" : "Insert the text of the CTA for the featured post"
+                  }
+                }
+              }
+            },
+            "agenda" : {
+              "type" : "Slice",
+              "fieldset" : "Agenda",
+              "description" : "A list of events that you will attend",
+              "icon" : "date_range",
+              "display" : "list",
+              "non-repeat" : {
+                "agenda_section_title" : {
+                  "type" : "StructuredText",
+                  "config" : {
+                    "single" : "heading2",
+                    "label" : "Agenda section title",
+                    "placeholder" : "Enter section title"
+                  }
+                }
+              },
+              "repeat" : {
+                "event_image" : {
+                  "type" : "Image",
+                  "config" : {
+                    "constraint" : { },
+                    "thumbnails" : [ ],
+                    "label" : "Event image"
+                  }
+                },
+                "featured_event" : {
+                  "type" : "Link",
+                  "config" : {
+                    "select" : "document",
+                    "customtypes" : [ "portfolio_author_events" ],
+                    "label" : "Featured event",
+                    "placeholder" : "Select an event from your list"
+                  }
+                },
+                "featured_event_description" : {
+                  "type" : "StructuredText",
+                  "config" : {
+                    "multi" : "paragraph,strong,em,hyperlink",
+                    "allowTargetBlank" : true,
+                    "label" : "featured event description",
+                    "placeholder" : "Enter event snippet description here"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }

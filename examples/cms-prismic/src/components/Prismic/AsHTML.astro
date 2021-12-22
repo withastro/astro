@@ -1,0 +1,8 @@
+---
+import PrismicDOM from 'prismic-dom'
+
+const { data } = Astro.props
+
+const HTML = PrismicDOM.RichText.asHtml(data)
+---
+{ HTML }

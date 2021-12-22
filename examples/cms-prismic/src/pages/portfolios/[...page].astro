@@ -1,0 +1,30 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import PortfolioCard from '@/components/PortfolioCard.astro'
+import Pagination from '@/components/Pagination.astro'
+import { initApi, Predicates } from '@/api/prismic.js'
+
+export async function getStaticPaths({paginate, rss}) {
+    const api = await initApi()
+    const document = await api.query(
+        Predicates.at('document.type', 'project'),
+        { orderings : '[document.last_publication_date]' }
+    )
+    const { results } = document
+    return paginate(results, { pageSize: 4 })
+}
+
+const { page } = Astro.props
+---
+<BaseLayout>
+	<div class="row">
+        {
+            page.data.map(portfolio => (
+                <div class="col-6 col-6-medium col-12-small">
+                    <PortfolioCard data={portfolio} />
+                </div>
+            ))
+        }
+    </div>
+    { page.lastPage > 1 && <Pagination prevUrl={page.url.prev} nextUrl={page.url.next} /> }
+</BaseLayout>
