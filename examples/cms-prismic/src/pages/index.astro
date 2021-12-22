@@ -1,0 +1,37 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import Portfolio from '@/components/Portfolio.astro'
+import Blog from '@/components/Blog.astro'
+import { initApi, Predicates } from '@/api/prismic.js'
+
+const api = await initApi()
+const { results } = await api.query(
+	Predicates.at('document.type', 'homepage'),
+	{ 
+		'fetchLinks' : [
+			'project.title', 'project.description',
+			'blog_post.title', 'blog_post.content', 'blog_post.image',
+			'event.title', 'event.date', 'event.description'
+			] 
+	})
+	
+const { body } = results[0].data
+---
+<BaseLayout>
+	<div class="row">
+	{
+		body.map(slice => (
+			slice.slice_type === 'featured_projects' ?
+			<div class="col-12">
+				<Portfolio portfolioData={slice} />
+			</div> :
+			slice.slice_type === 'featured_posts' ?
+			<div class="col-12">
+				<Blog blogData={slice} />
+			</div> :
+			null
+		))
+	}
+		
+	</div>
+</BaseLayout>

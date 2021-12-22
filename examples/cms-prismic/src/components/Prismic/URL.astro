@@ -1,0 +1,7 @@
+---
+import PrismicDOM from 'prismic-dom'
+
+const { link } = Astro.props
+const URL = PrismicDOM.Link.url(link);
+---
+{ URL }
