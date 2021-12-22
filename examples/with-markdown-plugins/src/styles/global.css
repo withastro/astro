@@ -1,53 +1,53 @@
 body {
-  font-family: system-ui;
+	font-family: system-ui;
 }
 
 .content {
-  max-width: 640px;
-  margin: 40px auto;
-  padding: 0 20px;
+	max-width: 640px;
+	margin: 40px auto;
+	padding: 0 20px;
 }
 
 .title {
-  position: relative;
+	position: relative;
 }
 .title a {
-  position: absolute;
-  display: block;
-  height: 100%;
-  width: 100%;
-  color: inherit;
+	position: absolute;
+	display: block;
+	height: 100%;
+	width: 100%;
+	color: inherit;
 }
 
 .title a:before {
-  position: absolute;
-  right: 100%;
-  display: block;
-  content: '#';
-  margin-right: 0.2em;
-  visibility: hidden;
-  opacity: 0.5;
+	position: absolute;
+	right: 100%;
+	display: block;
+	content: '#';
+	margin-right: 0.2em;
+	visibility: hidden;
+	opacity: 0.5;
 }
 
 .title:hover a:before {
-  visibility: visible;
+	visibility: visible;
 }
 
 .remark-code-title,
 pre[class^='language-'] {
-  padding: 10px;
-  margin: 0;
+	padding: 10px;
+	margin: 0;
 }
 
 .remark-code-title {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  border-radius: 4px 4px 0 0;
-  background: rgba(0, 0, 0, 0.08);
-  font-family: monospace;
-  font-weight: bold;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+	border-radius: 4px 4px 0 0;
+	background: rgba(0, 0, 0, 0.08);
+	font-family: monospace;
+	font-weight: bold;
 }
 
 pre[class^='language-'] {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 0 0 4px 4px;
+	background: rgba(0, 0, 0, 0.05);
+	border-radius: 0 0 4px 4px;
 }

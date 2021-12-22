@@ -1,63 +1,63 @@
 ---
 export interface Props {
-  title: string;
+	title: string;
 }
 const { title } = Astro.props;
 ---
 
-<style lang="scss">
-.header {
-  text-align: center;
-
-  @media (min-width: 600px) {
-    display: flex;
-    align-items: center;
-    padding: 2rem;
-  }
-}
-
-.title {
-  margin: 0;
-  font-size: 1.2em;
-  letter-spacing: -0.03em;
-  font-weight: 400;
-  margin-right: 1em;
-}
-
-.nav {
-  text-align: center;
-
-  @media (min-width: 600px) {
-    display: flex;
-  }
-}
-
-ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-li {
-  margin: 0;
-}
-
-a {
-  display: block;
-  font-size: 1.2em;
-  letter-spacing: -0.02em;
-  margin-left: 0.75em;
-  margin-right: 0.75em;
-}
-</style>
-
 <nav class="header">
-  <h1 class="title">Don’s Blog</h1>
-  <ul class="nav">
-    <li><a href="/">Home</a></li>
-    <li><a href="/posts">All Posts</a></li>
-    <li><a href="/authors/don">Author: Don</a></li>
-    <li><a href="/authors/sancho">Author: Sancho</a></li>
-    <li><a href="/about">About</a></li>
-  </ul>
+	<h1 class="title">Don’s Blog</h1>
+	<ul class="nav">
+		<li><a href="/">Home</a></li>
+		<li><a href="/posts">All Posts</a></li>
+		<li><a href="/authors/don">Author: Don</a></li>
+		<li><a href="/authors/sancho">Author: Sancho</a></li>
+		<li><a href="/about">About</a></li>
+	</ul>
 </nav>
+
+<style lang="scss">
+	.header {
+		text-align: center;
+
+		@media (min-width: 600px) {
+			display: flex;
+			align-items: center;
+			padding: 2rem;
+		}
+	}
+
+	.title {
+		margin: 0;
+		font-size: 1.2em;
+		letter-spacing: -0.03em;
+		font-weight: 400;
+		margin-right: 1em;
+	}
+
+	.nav {
+		text-align: center;
+
+		@media (min-width: 600px) {
+			display: flex;
+		}
+	}
+
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	li {
+		margin: 0;
+	}
+
+	a {
+		display: block;
+		font-size: 1.2em;
+		letter-spacing: -0.02em;
+		margin-left: 0.75em;
+		margin-right: 0.75em;
+	}
+</style>

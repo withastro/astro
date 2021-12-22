@@ -1,7 +1,7 @@
 export const COUNTER_COMPONENTS = {
-  '@astrojs/renderer-preact': {
-    filename: `src/components/PreactCounter.jsx`,
-    content: `import { useState } from 'preact/hooks';
+	'@astrojs/renderer-preact': {
+		filename: `src/components/PreactCounter.jsx`,
+		content: `import { useState } from 'preact/hooks';
 
 export default function PreactCounter() {
   const [count, setCount] = useState(0);
@@ -17,10 +17,10 @@ export default function PreactCounter() {
   );
 }
 `,
-  },
-  '@astrojs/renderer-react': {
-    filename: `src/components/ReactCounter.jsx`,
-    content: `import { useState } from 'react';
+	},
+	'@astrojs/renderer-react': {
+		filename: `src/components/ReactCounter.jsx`,
+		content: `import { useState } from 'react';
 
 export default function ReactCounter() {
   const [count, setCount] = useState(0);
@@ -36,10 +36,10 @@ export default function ReactCounter() {
   );
 }
 `,
-  },
-  '@astrojs/renderer-solid': {
-    filename: `src/components/SolidCounter.jsx`,
-    content: `import { createSignal } from "solid-js";
+	},
+	'@astrojs/renderer-solid': {
+		filename: `src/components/SolidCounter.jsx`,
+		content: `import { createSignal } from "solid-js";
 
 export default function SolidCounter() {
   const [count, setCount] = createSignal(0);
@@ -55,10 +55,10 @@ export default function SolidCounter() {
   );
 }
 `,
-  },
-  '@astrojs/renderer-svelte': {
-    filename: `src/components/SvelteCounter.svelte`,
-    content: `<script>
+	},
+	'@astrojs/renderer-svelte': {
+		filename: `src/components/SvelteCounter.svelte`,
+		content: `<script>
   let count = 0;
 
   function add() {
@@ -76,10 +76,10 @@ export default function SolidCounter() {
   <button on:click={add}>+</button>
 </div>
 `,
-  },
-  '@astrojs/renderer-vue': {
-    filename: `src/components/VueCounter.vue`,
-    content: `<template>
+	},
+	'@astrojs/renderer-vue': {
+		filename: `src/components/VueCounter.vue`,
+		content: `<template>
   <div id="vue" class="counter">
       <button @click="subtract()">-</button>
       <pre>{{ count }}</pre>
@@ -104,28 +104,28 @@ export default {
 }
 </script>
 `,
-  },
+	},
 };
 
 export const FRAMEWORKS = [
-  {
-    title: 'Preact',
-    value: '@astrojs/renderer-preact',
-  },
-  {
-    title: 'React',
-    value: '@astrojs/renderer-react',
-  },
-  {
-    title: 'Solid',
-    value: '@astrojs/renderer-solid',
-  },
-  {
-    title: 'Svelte',
-    value: '@astrojs/renderer-svelte',
-  },
-  {
-    title: 'Vue',
-    value: '@astrojs/renderer-vue',
-  },
+	{
+		title: 'Preact',
+		value: '@astrojs/renderer-preact',
+	},
+	{
+		title: 'React',
+		value: '@astrojs/renderer-react',
+	},
+	{
+		title: 'Solid',
+		value: '@astrojs/renderer-solid',
+	},
+	{
+		title: 'Svelte',
+		value: '@astrojs/renderer-svelte',
+	},
+	{
+		title: 'Vue',
+		value: '@astrojs/renderer-vue',
+	},
 ];

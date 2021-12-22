@@ -1,48 +1,48 @@
 ---
 export interface Props {
-  title?: string;
-  type?: 'tip' | 'warning' | 'error'
+	title?: string;
+	type?: 'tip' | 'warning' | 'error';
 }
 const { type = 'tip', title } = Astro.props;
 ---
 
 <aside class={`note type-${type}`}>
-  {title && <label>{title}</label>}
-  <slot />
+	{title && <label>{title}</label>}
+	<slot />
 </aside>
 
 <style>
-  .note {
-    --padding-block: 1rem;
-    --padding-inline: 1.25rem;
+	.note {
+		--padding-block: 1rem;
+		--padding-inline: 1.25rem;
 
-    display: flex;
-    flex-direction: column;
+		display: flex;
+		flex-direction: column;
 
-    padding: var(--padding-block) var(--padding-inline);
-    margin-left: calc(var(--padding-inline) * -1);
-    margin-right: calc(var(--padding-inline) * -1);
-    
-    background: var(--theme-bg-offset);
-    border-left: calc(var(--padding-inline) / 2) solid var(--color);
-    border-radius: 0;
-  }
+		padding: var(--padding-block) var(--padding-inline);
+		margin-left: calc(var(--padding-inline) * -1);
+		margin-right: calc(var(--padding-inline) * -1);
 
-  .note label {
-    font-weight: 500;
-    color: var(--color);
-  }
+		background: var(--theme-bg-offset);
+		border-left: calc(var(--padding-inline) / 2) solid var(--color);
+		border-radius: 0;
+	}
 
-  .note.type-tip {
-    --color: var(--color-green);
-    --color-rgb: var(--color-green-rgb);
-  }
-  .note.type-warning {
-    --color: var(--color-yellow);
-    --color-rgb: var(--color-yellow-rgb);
-  }
-  .note.type-error {
-    --color: var(--color-red);
-    --color-rgb: var(--color-red-rgb);
-  }
+	.note label {
+		font-weight: 500;
+		color: var(--color);
+	}
+
+	.note.type-tip {
+		--color: var(--color-green);
+		--color-rgb: var(--color-green-rgb);
+	}
+	.note.type-warning {
+		--color: var(--color-yellow);
+		--color-rgb: var(--color-yellow-rgb);
+	}
+	.note.type-error {
+		--color: var(--color-red);
+		--color-rgb: var(--color-red-rgb);
+	}
 </style>

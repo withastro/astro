@@ -2,34 +2,34 @@
 const { content } = Astro.props;
 ---
 
-<html lang={ content.lang || 'en' }>
-  <head>
-    <meta charset="utf-8" />
+<html lang={content.lang || 'en'}>
+	<head>
+		<meta charset="utf-8" />
 
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
-    <title>{content.title}</title>
-    <link rel="stylesheet" href={Astro.resolve('../styles/global.css')}>
-    <style>
-      .nav {
-        border-bottom: 1px solid #ccc;
-        margin-bottom: 40px;
-        padding-bottom: 20px;
-      }
-      .nav > * + * {
-        margin-left: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <main class="content">
-      <header>
-        <nav class="nav">
-          <a href="/">Home</a>
-          <a href="/about">About</a>
-        </nav>
-      </header>
-      <slot />
-    </main>
-  </body>
+		<title>{content.title}</title>
+		<link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
+		<style>
+			.nav {
+				border-bottom: 1px solid #ccc;
+				margin-bottom: 40px;
+				padding-bottom: 20px;
+			}
+			.nav > * + * {
+				margin-left: 10px;
+			}
+		</style>
+	</head>
+	<body>
+		<main class="content">
+			<header>
+				<nav class="nav">
+					<a href="/">Home</a>
+					<a href="/about">About</a>
+				</nav>
+			</header>
+			<slot />
+		</main>
+	</body>
 </html>

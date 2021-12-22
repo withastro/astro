@@ -2,12 +2,12 @@
 const { title = 'Jeanine White: Personal Site', description = 'The personal site of Jeanine White' } = Astro.props;
 ---
 
-<meta charset="UTF-8">
-<meta name="description" property="og:description" content={description}>
-<meta name="viewport" content="width=device-width">
+<meta charset="UTF-8" />
+<meta name="description" property="og:description" content={description} />
+<meta name="viewport" content="width=device-width" />
 <title>{title}</title>
 
 <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-<link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/global.scss')}>
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/global.scss')} />
+<link rel="preconnect" href="https://fonts.gstatic.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;700;900&display=swap" rel="stylesheet" />

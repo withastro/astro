@@ -5,48 +5,49 @@ import { Markdown } from 'astro/components';
 import themes from '../../data/themes.json';
 import components from '../../data/components.json';
 ---
-<Layout content={{title: 'Vorlagen'}} hideRightSidebar>
-    <style>
-        .card-grid {
-            display: grid;
-            grid-column-gap: 15px;
-            grid-row-gap: 15px;
-            grid-auto-flow: dense;
-            grid-template-columns: repeat(auto-fit,minmax(300px,1fr))
-        }
-    </style>
-    <Markdown>
-        ## Vorgestellte Vorlagen
-    </Markdown>
-    <div class="card-grid">
-        {themes.featured.map((item)=>(<Card data={item} />))}
-    </div>
-    <Markdown>
-        ## Offizielle Vorlagen
 
-        Astro pflegt verschiedene offizielle Vorlagen für Dokumentationssites, Portfolios und mehr.
-    </Markdown>
-    <div class="card-grid">
-        {themes.official.map((item)=>(<Card data={item} />))}
-    </div>
-    <Markdown>
-        ## Vorlagen aus der Community
+<Layout content={{ title: 'Vorlagen' }} hideRightSidebar>
+	<style>
+		.card-grid {
+			display: grid;
+			grid-column-gap: 15px;
+			grid-row-gap: 15px;
+			grid-auto-flow: dense;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		}
+	</style>
+	<Markdown>
+		## Vorgestellte Vorlagen
+	</Markdown>
+	<div class="card-grid">
+		{themes.featured.map((item) => <Card data={item} />)}
+	</div>
+	<Markdown>
+		## Offizielle Vorlagen
 
-        Sieh dir einige von unserer Community entwickelte Vorlagen an!
-    </Markdown>
-    <div class="card-grid">
-        {themes.community.map((item)=>(<Card data={item} />))}
-    </div>
-    <Markdown>
-        ## Vorgestellte Packages
+		Astro pflegt verschiedene offizielle Vorlagen für Dokumentationssites, Portfolios und mehr.
+	</Markdown>
+	<div class="card-grid">
+		{themes.official.map((item) => <Card data={item} />)}
+	</div>
+	<Markdown>
+		## Vorlagen aus der Community
 
-        Unser Package-Ökosystem wächst stetig! Sieh dir die hier vorgestellten Packages unserer Community an. Durchsuche unsere vollständige Sammlung [auf npm.](https://www.npmjs.com/search?q=keywords%3Aastro-component)
-    </Markdown>
-    <div class="card-grid">
-        {components.community.map((item)=>(<Card data={item} />))}
-    </div>
-    <Markdown>
-        > Möchtest du deine eigene Arbeit hier sehen? [Teile sie in Discord!](https://astro.build/chat)
-        Wir teilen hier regelmäßig unsere Favoriten aus dem #showcase-Channel.
-    </Markdown>
+		Sieh dir einige von unserer Community entwickelte Vorlagen an!
+	</Markdown>
+	<div class="card-grid">
+		{themes.community.map((item) => <Card data={item} />)}
+	</div>
+	<Markdown>
+		## Vorgestellte Packages
+
+		Unser Package-Ökosystem wächst stetig! Sieh dir die hier vorgestellten Packages unserer Community an. Durchsuche unsere vollständige Sammlung [auf npm.](https://www.npmjs.com/search?q=keywords%3Aastro-component)
+	</Markdown>
+	<div class="card-grid">
+		{components.community.map((item) => <Card data={item} />)}
+	</div>
+	<Markdown>
+		> Möchtest du deine eigene Arbeit hier sehen? [Teile sie in Discord!](https://astro.build/chat)
+		> Wir teilen hier regelmäßig unsere Favoriten aus dem #showcase-Channel.
+	</Markdown>
 </Layout>

@@ -2,65 +2,69 @@
 import MainHead from '../components/MainHead.astro';
 import Nav from '../components/Nav.astro';
 
-let title = "About";
-let description = "About page of an example blog on Astro";
+let title = 'About';
+let description = 'About page of an example blog on Astro';
 let canonicalURL = Astro.request.canonicalURL;
 ---
+
 <html lang="en">
-  <head>
-    <MainHead
-      title={title}
-      description={description}
-      canonicalURL={canonicalURL}
-    />
-    <style lang="scss">
+	<head>
+		<MainHead {title} {description} {canonicalURL} />
+		<style lang="scss">
+			.text {
+				padding-bottom: 6rem;
 
-      .text {
-        padding-bottom: 6rem;
+				p {
+					font-size: 1.2em;
+					line-height: 2;
+					margin-top: 2em;
+					margin-bottom: 2em;
+				}
+			}
 
-        p {
-          font-size: 1.2em;
-          line-height: 2;
-          margin-top: 2em;
-          margin-bottom: 2em;
-        }
-      }
+			.hero {
+				display: block;
+				height: 16rem;
+				overflow: hidden;
+				margin: 4rem 0;
 
-      .hero {
-        display: block;
-        height: 16rem;
-        overflow: hidden;
-        margin: 4rem 0;
+				&-img {
+					width: 100%;
+					height: 100%;
+					object-fit: cover;
+				}
+			}
 
-        &-img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-        }
-      }
+			.title {
+				font-size: 3em;
+				letter-spacing: -0.04em;
+				margin-top: 2rem;
+				margin-bottom: 0;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<Nav {title} />
 
-      .title {
-        font-size: 3em;
-        letter-spacing: -0.04em;
-        margin-top: 2rem;
-        margin-bottom: 0;
-        text-align: center;
-      }
-    </style>
-  </head>
-  <body>
-    <Nav title={title} />
-
-    <main class="wrapper">
-      <h2 class="title">{title}</h2>
-      <div class="hero">
-        <img class="hero-img" src="/images/chapter-01.jpg" alt="">
-      </div>
-      <div class="text">
-        <p>The book cover and spine above and the images which follow were not part of the original Ormsby translation—they are taken from the 1880 edition of J. W. Clark, illustrated by Gustave Doré. Clark in his edition states that, “The English text of ‘Don Quixote’ adopted in this edition is that of Jarvis, with occasional corrections from Motteaux.”</p>
-        <p>See in the introduction below John Ormsby’s critique of both the Jarvis and Motteaux translations. It has been elected in the present Project Gutenberg edition to attach the famous engravings of Gustave Doré to the Ormsby translation instead of the Jarvis/Motteaux. The detail of many of the Doré engravings can be fully appreciated only by utilizing the “Full Size” button to expand them to their original dimensions. Ormsby in his Preface has criticized the fanciful nature of Doré’s illustrations; others feel these woodcuts and steel engravings well match Quixote’s dreams.</p>
-      </div>
-    </main>
-
-  </body>
+		<main class="wrapper">
+			<h2 class="title">{title}</h2>
+			<div class="hero">
+				<img class="hero-img" src="/images/chapter-01.jpg" alt="" />
+			</div>
+			<div class="text">
+				<p>
+					The book cover and spine above and the images which follow were not part of the original Ormsby translation—they are taken from the 1880 edition of J. W. Clark,
+					illustrated by Gustave Doré. Clark in his edition states that, “The English text of ‘Don Quixote’ adopted in this edition is that of Jarvis, with occasional corrections
+					from Motteaux.”
+				</p>
+				<p>
+					See in the introduction below John Ormsby’s critique of both the Jarvis and Motteaux translations. It has been elected in the present Project Gutenberg edition to attach
+					the famous engravings of Gustave Doré to the Ormsby translation instead of the Jarvis/Motteaux. The detail of many of the Doré engravings can be fully appreciated only by
+					utilizing the “Full Size” button to expand them to their original dimensions. Ormsby in his Preface has criticized the fanciful nature of Doré’s illustrations; others
+					feel these woodcuts and steel engravings well match Quixote’s dreams.
+				</p>
+			</div>
+		</main>
+	</body>
 </html>

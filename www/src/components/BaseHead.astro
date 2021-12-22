@@ -1,9 +1,9 @@
 ---
 export interface Props {
-  title: string;
-  description: string;
-  canonicalURL: URL | string,
-  image?: string;
+	title: string;
+	description: string;
+	canonicalURL: URL | string;
+	image?: string;
 }
 const { title, description, image = 'https://astro.build/social.jpg?v=1', canonicalURL } = Astro.props;
 ---
@@ -11,16 +11,16 @@ const { title, description, image = 'https://astro.build/social.jpg?v=1', canoni
 <!-- Global Metadata -->
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width" />
-<meta name="theme-color" content="#ff5e00"/>
+<meta name="theme-color" content="#ff5e00" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
-<link rel="sitemap" href="/sitemap.xml"/>
+<link rel="sitemap" href="/sitemap.xml" />
 
 <!-- Primary Meta Tags -->
 <title>{title}</title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
-<link rel="canonical" href={canonicalURL}/>
+<link rel="canonical" href={canonicalURL} />
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />

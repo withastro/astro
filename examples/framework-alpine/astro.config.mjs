@@ -8,6 +8,6 @@
 
 // @ts-check
 export default /** @type {import('astro').AstroUserConfig} */ ({
-  // No renderers are needed for AlpineJS support, just use Astro components!
-  renderers: [],
+	// No renderers are needed for AlpineJS support, just use Astro components!
+	renderers: [],
 });

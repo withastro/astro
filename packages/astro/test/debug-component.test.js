@@ -6,24 +6,24 @@ import os from 'os';
 const isMacOS = os.platform() === 'darwin';
 
 describe('<Debug />', () => {
-  if (isMacOS) return;
+	if (isMacOS) return;
 
-  /** @type {import('./test-utils').Fixture} */
-  let fixture;
-  /** @type {import('./test-utils').DevServer} */
-  let devServer;
+	/** @type {import('./test-utils').Fixture} */
+	let fixture;
+	/** @type {import('./test-utils').DevServer} */
+	let devServer;
 
-  before(async () => {
-    fixture = await loadFixture({ projectRoot: './fixtures/debug-component/' });
-    devServer = await fixture.startDevServer();
-  });
+	before(async () => {
+		fixture = await loadFixture({ projectRoot: './fixtures/debug-component/' });
+		devServer = await fixture.startDevServer();
+	});
 
-  after(async () => {
-    devServer && (await devServer.stop());
-  });
+	after(async () => {
+		devServer && (await devServer.stop());
+	});
 
-  it('Works in markdown pages', async () => {
-    const response = await fixture.fetch('/posts/first');
-    expect(response.status).to.equal(200);
-  });
+	it('Works in markdown pages', async () => {
+		const response = await fixture.fetch('/posts/first');
+		expect(response.status).to.equal(200);
+	});
 });
