@@ -1,109 +1,111 @@
 ---
 import { getLanguageFromURL } from '../../languages.ts';
 import { SIDEBAR } from '../../config.ts';
-const {currentPage} = Astro.props;
+const { currentPage } = Astro.props;
 const currentPageMatch = currentPage.slice(1);
 const langCode = getLanguageFromURL(currentPage);
-// SIDEBAR is a flat array. Group it by sections to properly render. 
+// SIDEBAR is a flat array. Group it by sections to properly render.
 const sidebarSections = SIDEBAR[langCode].reduce((col, item) => {
-  if (item.header) {
-    col.push({...item, children: []});
-  } else {
-    col[col.length-1].children.push(item);
-  }
-  return col;
+	if (item.header) {
+		col.push({ ...item, children: [] });
+	} else {
+		col[col.length - 1].children.push(item);
+	}
+	return col;
 }, []);
-
 ---
 
 <nav aria-labelledby="grid-left">
-  <ul class="nav-groups">  
-    {sidebarSections.map(section => (
-      <li>
-        <div class="nav-group">
-          <h2 class="nav-group-title">{section.text}</h2>
-          <ul>
-            {section.children.map(child => (
-              <li class="nav-link"><a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPageMatch === child.link ? 'page' : 'false'}`}>{child.text}</a></li>
-            ))}
-          </ul>
-        </div>
-      </li>
-    ))}
-  </ul>
+	<ul class="nav-groups">
+		{sidebarSections.map((section) => (
+			<li>
+				<div class="nav-group">
+					<h2 class="nav-group-title">{section.text}</h2>
+					<ul>
+						{section.children.map((child) => (
+							<li class="nav-link">
+								<a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPageMatch === child.link ? 'page' : 'false'}`}>
+									{child.text}
+								</a>
+							</li>
+						))}
+					</ul>
+				</div>
+			</li>
+		))}
+	</ul>
 </nav>
 
 <script>
-  window.addEventListener('DOMContentLoaded', (event) => {
-    var target = document.querySelector('[aria-current="page"]');
-    if (target && (target.offsetTop > (window.innerHeight - 100))) {
-      document.querySelector('.nav-groups').scrollTop = target.offsetTop;
-    }
-  });
+	window.addEventListener('DOMContentLoaded', (event) => {
+		var target = document.querySelector('[aria-current="page"]');
+		if (target && target.offsetTop > window.innerHeight - 100) {
+			document.querySelector('.nav-groups').scrollTop = target.offsetTop;
+		}
+	});
 </script>
 
 <style>
-  nav {
-    width: 100%;
-    margin-right: 1rem;
-  }
-  .nav-groups {
-    height: 100%;
-    padding: 2rem 0;
-    overflow-x: visible;
-    overflow-y: auto;
-    max-height: 100vh;
-  }
+	nav {
+		width: 100%;
+		margin-right: 1rem;
+	}
+	.nav-groups {
+		height: 100%;
+		padding: 2rem 0;
+		overflow-x: visible;
+		overflow-y: auto;
+		max-height: 100vh;
+	}
 
-  .nav-groups > li + li {
-    margin-top: 2rem;
-  }
+	.nav-groups > li + li {
+		margin-top: 2rem;
+	}
 
-  .nav-groups > :first-child {
-    padding-top: var(--doc-padding);
-  }
+	.nav-groups > :first-child {
+		padding-top: var(--doc-padding);
+	}
 
-  .nav-groups > :last-child {
-    padding-bottom: 2rem;
-    margin-bottom: var(--theme-navbar-height);
-  }
+	.nav-groups > :last-child {
+		padding-bottom: 2rem;
+		margin-bottom: var(--theme-navbar-height);
+	}
 
-  .nav-group-title {
-    font-size: 1.0rem;
-    font-weight: 700;
-    padding: 0.1rem 1rem;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-  }
+	.nav-group-title {
+		font-size: 1rem;
+		font-weight: 700;
+		padding: 0.1rem 1rem;
+		text-transform: uppercase;
+		margin-bottom: 0.5rem;
+	}
 
-  .nav-link a {
-    font-size: 1.0rem;
-    margin: 1px;
-    padding: 0.3rem 1rem;
-    font: inherit;
-    color: inherit;
-    text-decoration: none;
-    display: block;
-  }
-  .nav-link a:hover,
-  .nav-link a:focus {
-    background-color: var(--theme-bg-hover);
-  }
+	.nav-link a {
+		font-size: 1rem;
+		margin: 1px;
+		padding: 0.3rem 1rem;
+		font: inherit;
+		color: inherit;
+		text-decoration: none;
+		display: block;
+	}
+	.nav-link a:hover,
+	.nav-link a:focus {
+		background-color: var(--theme-bg-hover);
+	}
 
-  .nav-link a[aria-current="page"] {
-    color: var(--theme-text-accent);
-    background-color: var(--theme-bg-accent);
-    font-weight: 600;
-  }
+	.nav-link a[aria-current='page'] {
+		color: var(--theme-text-accent);
+		background-color: var(--theme-bg-accent);
+		font-weight: 600;
+	}
 
-  :global(:root.theme-dark) .nav-link a[aria-current="page"] {
-    color: hsla(var(--color-base-white), 100%, 1);
-  }
+	:global(:root.theme-dark) .nav-link a[aria-current='page'] {
+		color: hsla(var(--color-base-white), 100%, 1);
+	}
 
-  @media (min-width: 50em) {
-    .nav-groups {
-      padding: 0;
-    }
-  }
-
+	@media (min-width: 50em) {
+		.nav-groups {
+			padding: 0;
+		}
+	}
 </style>

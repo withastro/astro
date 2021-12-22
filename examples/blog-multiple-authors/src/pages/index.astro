@@ -7,9 +7,9 @@ import Pagination from '../components/Pagination.astro';
 import authorData from '../data/authors.json';
 
 interface MarkdownFrontmatter {
-  date: number;
-  image: string;
-  author: string;
+	date: number;
+	image: string;
+	author: string;
 }
 
 // Component Script:
@@ -28,26 +28,22 @@ let firstPage = allPosts.slice(0, 2);
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 ---
+
 <html lang="en">
-  <head>
-    <title>{title}</title>
-    <MainHead
-      title={title}
-      description={description}
-      image={allPosts[0].image}
-      canonicalURL={canonicalURL}
-    />
-  </head>
+	<head>
+		<title>{title}</title>
+		<MainHead {title} {description} image={allPosts[0].image} {canonicalURL} />
+	</head>
 
-  <body>
-    <Nav title={title} />
+	<body>
+		<Nav {title} />
 
-    <main class="wrapper">
-      {allPosts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
-    </main>
+		<main class="wrapper">
+			{allPosts.map((post) => <PostPreview post={post} author={authorData[post.author]} />)}
+		</main>
 
-    <footer>
-      <Pagination prevUrl="/posts" nextUrl="/posts/2" />
-    </footer>
-  </body>
+		<footer>
+			<Pagination prevUrl="/posts" nextUrl="/posts/2" />
+		</footer>
+	</body>
 </html>

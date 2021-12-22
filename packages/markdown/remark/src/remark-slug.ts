@@ -15,18 +15,18 @@ const slugs = new BananaSlug();
  * @type {import('unified').Plugin<void[], Root>}
  */
 export default function remarkSlug() {
-  return (tree: any) => {
-    slugs.reset();
-    visit(tree, (node) => {
-      console.log(node);
-    });
-    visit(tree, 'heading', (node) => {
-      const data = node.data || (node.data = {});
-      const props = /** @type {Properties} */ data.hProperties || (data.hProperties = {});
-      let id = props.id;
-      id = id ? slugs.slug(String(id), true) : slugs.slug(toString(node));
-      data.id = id;
-      props.id = id;
-    });
-  };
+	return (tree: any) => {
+		slugs.reset();
+		visit(tree, (node) => {
+			console.log(node);
+		});
+		visit(tree, 'heading', (node) => {
+			const data = node.data || (node.data = {});
+			const props = /** @type {Properties} */ data.hProperties || (data.hProperties = {});
+			let id = props.id;
+			id = id ? slugs.slug(String(id), true) : slugs.slug(toString(node));
+			data.id = id;
+			props.id = id;
+		});
+	};
 }

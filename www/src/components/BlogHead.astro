@@ -3,5 +3,6 @@ import BaseHead from './BaseHead.astro';
 
 const { title, description, image, canonicalURL } = Astro.props;
 ---
-<BaseHead title={title} description={description} image={image} canonicalURL={canonicalURL} />
+
+<BaseHead {title} {description} {image} {canonicalURL} />
 <link rel="stylesheet" href={Astro.resolve('../scss/blog.scss')} />

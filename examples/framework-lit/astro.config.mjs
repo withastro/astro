@@ -8,6 +8,6 @@
 
 // @ts-check
 export default /** @type {import('astro').AstroUserConfig} */ ({
-  // Enable the lit renderer to support LitHTML components and templates.
-  renderers: ['@astrojs/renderer-lit'],
+	// Enable the lit renderer to support LitHTML components and templates.
+	renderers: ['@astrojs/renderer-lit'],
 });

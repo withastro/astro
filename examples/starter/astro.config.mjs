@@ -8,8 +8,8 @@
 
 // @ts-check
 export default /** @type {import('astro').AstroUserConfig} */ (
-  {
-    // Set "renderers" to "[]" to disable all default, builtin component support.
-    // renderers: [],
-  }
+	{
+		// Set "renderers" to "[]" to disable all default, builtin component support.
+		// renderers: [],
+	}
 );

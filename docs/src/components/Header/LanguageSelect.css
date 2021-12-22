@@ -1,50 +1,50 @@
 .language-select {
-  flex-grow: 1;
-  width: 48px;
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0.33em 2rem;
-  overflow: visible;
-  font-weight: 500;
-  font-size: 1rem;
-  font-family: inherit;
-  line-height: inherit;
-  background-color: var(--theme-bg);
-  border-color: var(--theme-text-lighter);
-  color: var(--theme-text-light);
-  border-style: solid;
-  border-width: 1px;
-  border-radius: 0.25rem;
-  outline: 0;
-  cursor: pointer;
-  transition-timing-function: ease-out;
-  transition-duration: 0.2s;
-  transition-property: border-color, color;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: 97%;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  -webkit-font-smoothing: antialiased;
-  -webkit-appearance: none;
+	flex-grow: 1;
+	width: 48px;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0.33em 2rem;
+	overflow: visible;
+	font-weight: 500;
+	font-size: 1rem;
+	font-family: inherit;
+	line-height: inherit;
+	background-color: var(--theme-bg);
+	border-color: var(--theme-text-lighter);
+	color: var(--theme-text-light);
+	border-style: solid;
+	border-width: 1px;
+	border-radius: 0.25rem;
+	outline: 0;
+	cursor: pointer;
+	transition-timing-function: ease-out;
+	transition-duration: 0.2s;
+	transition-property: border-color, color;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+	background-position: 97%;
+	background-repeat: no-repeat;
+	background-size: 1.5em 1.5em;
+	-webkit-font-smoothing: antialiased;
+	-webkit-appearance: none;
 }
 .language-select-wrapper .language-select:hover,
 .language-select-wrapper .language-select:focus {
-  color: var(--theme-text);
-  border-color: var(--theme-text-light);
+	color: var(--theme-text);
+	border-color: var(--theme-text-light);
 }
 .language-select-wrapper {
-  color: var(--theme-text-light);
-  position: relative;
+	color: var(--theme-text-light);
+	position: relative;
 }
 .language-select-wrapper > svg {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  pointer-events: none;
+	position: absolute;
+	top: 8px;
+	left: 8px;
+	pointer-events: none;
 }
 
 @media (min-width: 50em) {
-  .language-select {
-    width: 100%;
-  }
+	.language-select {
+		width: 100%;
+	}
 }

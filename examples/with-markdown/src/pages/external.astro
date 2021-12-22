@@ -7,11 +7,13 @@ const content = `Markdown *content* to render`;
 ---
 
 <Layout content={{ title }}>
-  <main>
-    <div>
-      <Markdown {content} />
-      <p>Some other stuff</p>
-    </div>
-    <p>Lastly...</p>
-  </main>
+	<main>
+		<div>
+			<Markdown {content}>
+
+			</Markdown>
+			<p>Some other stuff</p>
+		</div>
+		<p>Lastly...</p>
+	</main>
 </Layout>

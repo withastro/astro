@@ -1,151 +1,149 @@
 ---
 // fetch all commits for just this page's path
-const path = "docs/" + Astro.props.path;
+const path = 'docs/' + Astro.props.path;
 const url = `https://api.github.com/repos/withastro/astro/commits?path=${path}`;
 const commitsURL = `https://github.com/withastro/astro/commits/main/${path}`;
 
 async function getCommits(url) {
-  try {
-    const token = import.meta.env.SNOWPACK_PUBLIC_GITHUB_TOKEN;
-    if (!token) {
-      throw new Error(
-        'Cannot find "SNOWPACK_PUBLIC_GITHUB_TOKEN" used for escaping rate-limiting.'
-      );
-    }
+	try {
+		const token = import.meta.env.SNOWPACK_PUBLIC_GITHUB_TOKEN;
+		if (!token) {
+			throw new Error('Cannot find "SNOWPACK_PUBLIC_GITHUB_TOKEN" used for escaping rate-limiting.');
+		}
 
-    const auth = `Basic ${Buffer.from(token, "binary").toString("base64")}`;
+		const auth = `Basic ${Buffer.from(token, 'binary').toString('base64')}`;
 
-    const res = await fetch(url, {
-      method: "GET",
-      headers: {
-        Authorization: auth,
-        "User-Agent": "astro-docs/1.0",
-      },
-    });
+		const res = await fetch(url, {
+			method: 'GET',
+			headers: {
+				Authorization: auth,
+				'User-Agent': 'astro-docs/1.0',
+			},
+		});
 
-    const data = await res.json();
+		const data = await res.json();
 
-    if (!res.ok) {
-      throw new Error(
-        `Request to fetch commits failed. Reason: ${res.statusText}
+		if (!res.ok) {
+			throw new Error(
+				`Request to fetch commits failed. Reason: ${res.statusText}
        Message: ${data.message}`
-      );
-    }
+			);
+		}
 
-    return data;
-  } catch (e) {
-    console.warn(`[error]  /src/components/AvatarList.astro 
+		return data;
+	} catch (e) {
+		console.warn(`[error]  /src/components/AvatarList.astro 
     ${e?.message ?? e}`);
-    return new Array();
-  }
+		return new Array();
+	}
 }
 
 function removeDups(arr) {
-  if (!arr) {
-    return new Array();
-  }
-  let map = new Map();
+	if (!arr) {
+		return new Array();
+	}
+	let map = new Map();
 
-  for (let item of arr) {
-    let author = item.author;
-    // Deduplicate based on author.id
-    map.set(author.id, { login: author.login, id: author.id });
-  }
+	for (let item of arr) {
+		let author = item.author;
+		// Deduplicate based on author.id
+		map.set(author.id, { login: author.login, id: author.id });
+	}
 
-  return Array.from(map.values());
+	return Array.from(map.values());
 }
 
 const data = await getCommits(url);
 const unique = removeDups(data);
 const recentContributors = unique.slice(0, 3); // only show avatars for the 3 most recent contributors
 const additionalContributors = unique.length - recentContributors.length; // list the rest of them as # of extra contributors
-
 ---
+
 <!-- Thanks to @5t3ph for https://smolcss.dev/#smol-avatar-list! -->
 <div class="contributors">
-<ul class="avatar-list" style={`--avatar-count: ${recentContributors.length}`}>
-
-{recentContributors.map((item) => (
-      <li><a href={`https://github.com/${item.login}`}><img alt={`Contributor ${item.login}`} title={`Contributor ${item.login}`} width="64" height="64" src={`https://avatars.githubusercontent.com/u/${item.id}`}/></a></li>
-      
-))}
-  </ul>
-  {additionalContributors > 0 && <span><a href={commitsURL}>{`and ${additionalContributors} additional contributor${additionalContributors > 1 ? 's' : ''}.`}</a></span>}
-  {unique.length === 0 && <a href={commitsURL}>Contributors</a>}
+	<ul class="avatar-list" style={`--avatar-count: ${recentContributors.length}`}>
+		{recentContributors.map((item) => (
+			<li>
+				<a href={`https://github.com/${item.login}`}>
+					<img alt={`Contributor ${item.login}`} title={`Contributor ${item.login}`} width="64" height="64" src={`https://avatars.githubusercontent.com/u/${item.id}`} />
+				</a>
+			</li>
+		))}
+	</ul>
+	{additionalContributors > 0 && (
+		<span>
+			<a href={commitsURL}>{`and ${additionalContributors} additional contributor${additionalContributors > 1 ? 's' : ''}.`}</a>
+		</span>
+	)}
+	{unique.length === 0 && <a href={commitsURL}>Contributors</a>}
 </div>
 
 <style>
-.avatar-list {
-  --avatar-size: 2.5rem;
-  --avatar-count: 3;
+	.avatar-list {
+		--avatar-size: 2.5rem;
+		--avatar-count: 3;
 
-  display: grid;
-  list-style: none;
-  /* Default to displaying most of the avatar to
+		display: grid;
+		list-style: none;
+		/* Default to displaying most of the avatar to
   enable easier access on touch devices, ensuring
   the WCAG touch target size is met or exceeded */
-  grid-template-columns: repeat(
-    var(--avatar-count),
-    max(44px, calc(var(--avatar-size) / 1.15))
-  );
-  /* `padding` matches added visual dimensions of
+		grid-template-columns: repeat(var(--avatar-count), max(44px, calc(var(--avatar-size) / 1.15)));
+		/* `padding` matches added visual dimensions of
   the `box-shadow` to help create a more accurate
   computed component size */
-  padding: 0.08em;
-  font-size: var(--avatar-size);
-}
+		padding: 0.08em;
+		font-size: var(--avatar-size);
+	}
 
-@media (any-hover: hover) and (any-pointer: fine) {
-  .avatar-list {
-    /* We create 1 extra cell to enable the computed 
+	@media (any-hover: hover) and (any-pointer: fine) {
+		.avatar-list {
+			/* We create 1 extra cell to enable the computed 
     width to match the final visual width */
-    grid-template-columns: repeat(
-      calc(var(--avatar-count) + 1),
-      calc(var(--avatar-size) / 1.75)
-    );
-  }
-}
+			grid-template-columns: repeat(calc(var(--avatar-count) + 1), calc(var(--avatar-size) / 1.75));
+		}
+	}
 
-.avatar-list li {
-  width: var(--avatar-size);
-  height: var(--avatar-size);
-}
+	.avatar-list li {
+		width: var(--avatar-size);
+		height: var(--avatar-size);
+	}
 
-.avatar-list li:hover ~ li a,
-.avatar-list li:focus-within ~ li a {
-  transform: translateX(33%);
-}
+	.avatar-list li:hover ~ li a,
+	.avatar-list li:focus-within ~ li a {
+		transform: translateX(33%);
+	}
 
-.avatar-list img,
-.avatar-list a {
-  display: block;
-  border-radius: 50%;
-}
+	.avatar-list img,
+	.avatar-list a {
+		display: block;
+		border-radius: 50%;
+	}
 
-.avatar-list a {
-  transition: transform 180ms ease-in-out;
-}
+	.avatar-list a {
+		transition: transform 180ms ease-in-out;
+	}
 
-.avatar-list img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  background-color: #fff;
-  box-shadow: 0 0 0 0.05em #fff, 0 0 0 0.08em rgba(0, 0, 0, 0.15);
-}
+	.avatar-list img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		background-color: #fff;
+		box-shadow: 0 0 0 0.05em #fff, 0 0 0 0.08em rgba(0, 0, 0, 0.15);
+	}
 
-.avatar-list a:focus {
-  outline: 2px solid transparent;
-  /* Double-layer trick to work for dark and light backgrounds */
-  box-shadow: 0 0 0 0.08em var(--theme-accent), 0 0 0 0.12em white;
-}
+	.avatar-list a:focus {
+		outline: 2px solid transparent;
+		/* Double-layer trick to work for dark and light backgrounds */
+		box-shadow: 0 0 0 0.08em var(--theme-accent), 0 0 0 0.12em white;
+	}
 
-.contributors {
-  display: flex;
-  align-items: center;
-}
+	.contributors {
+		display: flex;
+		align-items: center;
+	}
 
-.contributors > * + * {
-  margin-left: .75rem;
-}
+	.contributors > * + * {
+		margin-left: 0.75rem;
+	}
 </style>

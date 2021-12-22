@@ -1,25 +1,27 @@
 ---
 import TableOfContents from './TableOfContents.tsx';
 import MoreMenu from './MoreMenu.astro';
-const {content, githubEditUrl} = Astro.props;
+const { content, githubEditUrl } = Astro.props;
 const headers = content.astro.headers;
 ---
-<style>
-  .sidebar-nav {
-    width: 100%;
-    position: sticky;
-    top: 0;
-  }
-  .sidebar-nav-inner {
-    height: 100%;
-    padding: 0;
-    padding-top: var(--doc-padding);
-    overflow: auto;
-  }
-</style>
+
 <nav class="sidebar-nav" aria-labelledby="grid-right">
-  <div class="sidebar-nav-inner">
-    <TableOfContents client:media="(min-width: 50em)" headers={headers} />
-    <MoreMenu editHref={githubEditUrl} />
-  </div>
+	<div class="sidebar-nav-inner">
+		<TableOfContents client:media="(min-width: 50em)" {headers} />
+		<MoreMenu editHref={githubEditUrl} />
+	</div>
 </nav>
+
+<style>
+	.sidebar-nav {
+		width: 100%;
+		position: sticky;
+		top: 0;
+	}
+	.sidebar-nav-inner {
+		height: 100%;
+		padding: 0;
+		padding-top: var(--doc-padding);
+		overflow: auto;
+	}
+</style>

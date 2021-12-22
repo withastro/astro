@@ -6,24 +6,24 @@ const { initialCount = 0 } = Astro.props;
 ---
 
 <div class="counter" x-data=`{ count: ${initialCount} }`>
-  <button x-on:click="count--">-</button>
-  <pre x-text="count">{ initialCount }</pre>
-  <button x-on:click="count++">+</button>
+	<button x-on:click="count--">-</button>
+	<pre x-text="count">{ initialCount }</pre>
+	<button x-on:click="count++">+</button>
 </div>
 
 <div class="counter-message">
-  <slot />
+	<slot />
 </div>
 
 <style>
-.counter {
-  display: grid;
-  font-size: 2em;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 2em;
-  place-items: center;
-}
-.counter-message {
-  text-align: center;
-}
+	.counter {
+		display: grid;
+		font-size: 2em;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		margin-top: 2em;
+		place-items: center;
+	}
+	.counter-message {
+		text-align: center;
+	}
 </style>
