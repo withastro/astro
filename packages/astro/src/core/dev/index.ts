@@ -57,7 +57,20 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 
 /** Dev server */
 export class AstroDevServer {
-  app = connect();
+  app: connect.Server = connect();
+  config: AstroConfig;
+  devRoot: string;
+  hostname: string;
+  httpServer: http.Server | undefined;
+  logging: LogOptions;
+  manifest: ManifestData;
+  mostRecentRoute?: RouteData;
+  origin: string;
+  port: number;
+  routeCache: RouteCache = {};
+  site: URL | undefined;
+  url: URL;
+  viteServer: vite.ViteDevServer | undefined;
 
   constructor(config: AstroConfig, options: DevOptions) {
     this.config = config;
@@ -382,18 +395,4 @@ export class AstroDevServer {
     res.write(html);
     res.end();
   }
-
-  config: AstroConfig;
-  devRoot: string;
-  hostname: string;
-  httpServer: http.Server | undefined;
-  logging: LogOptions;
-  manifest: ManifestData;
-  mostRecentRoute?: RouteData;
-  origin: string;
-  port: number;
-  routeCache: RouteCache = {};
-  site: URL | undefined;
-  url: URL;
-  viteServer: vite.ViteDevServer | undefined;
 }
