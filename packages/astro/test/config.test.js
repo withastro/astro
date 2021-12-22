@@ -37,7 +37,7 @@ describe('config', () => {
     it('can be passed via --config', async () => {
       const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
       const configFileURL = new URL('./fixtures/config-path/config/my-config.mjs', import.meta.url);
-      const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), '--config', fileURLToPath(configFileURL));
+      const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), '--config', configFileURL.pathname);
 
       let stdout = '';
 
