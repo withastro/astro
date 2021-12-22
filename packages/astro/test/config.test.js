@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { devCLI, loadFixture } from './test-utils.js';
+import { cli, loadFixture } from './test-utils.js';
+import { fileURLToPath } from 'url';
 
 describe('config', () => {
   let hostnameFixture;
@@ -15,41 +16,40 @@ describe('config', () => {
     });
 
     it('can be specified via --hostname flag', async () => {
-      const cwd = './fixtures/config-hostname/';
-      const cwdURL = new URL(cwd, import.meta.url);
-      const args = ['--hostname', '127.0.0.1'];
-      const proc = devCLI(cwdURL, args);
+      const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+      const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), '--hostname', '127.0.0.1');
 
-      proc.stdout.setEncoding('utf8');
+      let stdout = '';
 
       for await (const chunk of proc.stdout) {
-        if (/Local:/.test(chunk)) {
-          expect(chunk).to.include('127.0.0.1');
-          break;
-        }
+        stdout += chunk;
+
+        if (chunk.includes('Local:')) break;
       }
 
       proc.kill();
+
+      expect(stdout).to.include('127.0.0.1');
     });
   });
 
   describe('path', () => {
     it('can be passed via --config', async () => {
-      const cwd = './fixtures/config-path/';
-      const cwdURL = new URL(cwd, import.meta.url);
-      const configPath = new URL('./config/my-config.mjs', cwdURL).pathname;
-      const args = ['--config', configPath];
-      const proc = devCLI(cwdURL, args);
+      const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+      const configFileURL = new URL('./fixtures/config-path/config/my-config.mjs', import.meta.url);
+      const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), '--config', configFileURL.pathname);
 
-      proc.stdout.setEncoding('utf8');
+      let stdout = '';
 
       for await (const chunk of proc.stdout) {
-        if (/Server started/.test(chunk)) {
-          break;
-        }
+        stdout += chunk;
+
+        if (chunk.includes('Local:')) break;
       }
 
       proc.kill();
+
+      expect(stdout).to.include('127.0.0.1');
     });
   });
 

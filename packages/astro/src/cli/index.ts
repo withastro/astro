@@ -64,7 +64,7 @@ function resolveArgs(flags: Arguments): CLIState {
 
 /** Display --help flag */
 function printHelp() {
-  console.error(`  ${colors.bold('astro')} - Futuristic web development tool.
+  console.log(`  ${colors.bold('astro')} - Futuristic web development tool.
   ${colors.bold('Commands:')}
   astro dev             Run Astro in development mode.
   astro build           Build a pre-compiled production version of your site.
@@ -85,8 +85,11 @@ function printHelp() {
 
 /** Display --version flag */
 async function printVersion() {
-  const pkg = JSON.parse(await fs.promises.readFile(new URL('../package.json', import.meta.url), 'utf8'));
-  console.error(pkg.version);
+  const pkgURL = new URL('../../package.json', import.meta.url);
+  const pkg = JSON.parse(await fs.promises.readFile(pkgURL, 'utf8'));
+  const pkgVersion = pkg.version;
+
+  console.log(pkgVersion);
 }
 
 /** Merge CLI flags & config options (CLI flags take priority) */
@@ -105,11 +108,21 @@ export async function cli(args: string[]) {
   const options = { ...state.options };
   const projectRoot = options.projectRoot || flags._[3];
 
+  switch (state.cmd) {
+    case 'help':
+      printHelp();
+      return process.exit(0);
+    case 'version':
+      await printVersion();
+      return process.exit(0);
+  }
+
   // logLevel
   let logging: LogOptions = {
     dest: defaultLogDestination,
     level: 'info',
   };
+
   if (flags.verbose) logging.level = 'debug';
   if (flags.silent) logging.level = 'silent';
   let config: AstroConfig;
@@ -118,7 +131,7 @@ export async function cli(args: string[]) {
     mergeCLIFlags(config, options);
   } catch (err) {
     if (err instanceof z.ZodError) {
-      console.log(formatConfigError(err));
+      console.error(formatConfigError(err));
     } else {
       console.error(colors.red((err as any).toString() || err));
     }
@@ -126,23 +139,15 @@ export async function cli(args: string[]) {
   }
 
   switch (state.cmd) {
-    case 'help': {
-      printHelp();
-      process.exit(1);
-      return;
-    }
-    case 'version': {
-      await printVersion();
-      process.exit(0);
-      return;
-    }
     case 'dev': {
       try {
-        const server = await devServer(config, { logging });
+        await devServer(config, { logging });
+
         await new Promise(() => {}); // don’t close dev server
       } catch (err) {
         throwAndExit(err);
       }
+
       return;
     }
     case 'build': {
@@ -156,8 +161,7 @@ export async function cli(args: string[]) {
     }
     case 'check': {
       const ret = await check(config);
-      process.exit(ret);
-      return;
+      return process.exit(ret);
     }
     case 'preview': {
       try {

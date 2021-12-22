@@ -38,8 +38,8 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
     }).pipe(res);
   });
 
-  let port = config.devOptions.port;
-  const { hostname } = config.devOptions;
+  let { hostname, port } = config.devOptions;
+
   let httpServer: http.Server;
 
   /** Expose dev server to `port` */

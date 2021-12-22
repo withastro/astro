@@ -57,27 +57,27 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 
 /** Dev server */
 export class AstroDevServer {
-  app = connect();
-  httpServer: http.Server | undefined;
+  app: connect.Server = connect();
+  config: AstroConfig;
+  devRoot: string;
   hostname: string;
+  httpServer: http.Server | undefined;
+  logging: LogOptions;
+  manifest: ManifestData;
+  mostRecentRoute?: RouteData;
+  origin: string;
   port: number;
-  private config: AstroConfig;
-  private logging: LogOptions;
-  private manifest: ManifestData;
-  private mostRecentRoute?: RouteData;
-  private site: URL | undefined;
-  private devRoot: string;
-  private url: URL;
-  private origin: string;
-  private routeCache: RouteCache = {};
-  private viteServer: vite.ViteDevServer | undefined;
+  routeCache: RouteCache = {};
+  site: URL | undefined;
+  url: URL;
+  viteServer: vite.ViteDevServer | undefined;
 
   constructor(config: AstroConfig, options: DevOptions) {
     this.config = config;
     this.hostname = config.devOptions.hostname || 'localhost';
     this.logging = options.logging;
     this.port = config.devOptions.port;
-    this.origin = `http://localhost:${this.port}`;
+    this.origin = `http://${this.hostname}:${this.port}`;
     this.site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
     this.devRoot = this.site ? this.site.pathname : '/';
     this.url = new URL(this.devRoot, this.origin);
@@ -204,7 +204,7 @@ export class AstroDevServer {
   public listen(devStart: number): Promise<void> {
     let showedPortTakenMsg = false;
     return new Promise<void>((resolve, reject) => {
-      const listen = () => {
+      const appListen = () => {
         this.httpServer = this.app.listen(this.port, this.hostname, () => {
           info(this.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
           info(this.logging, 'astro', msg.devHost({ host: `http://${this.hostname}:${this.port}${this.devRoot}` }));
@@ -220,7 +220,7 @@ export class AstroDevServer {
             showedPortTakenMsg = true; // only print this once
           }
           this.port++;
-          return listen(); // retry
+          return appListen(); // retry
         } else {
           error(this.logging, 'astro', err.stack);
           this.httpServer?.removeListener('error', onError);
@@ -228,7 +228,7 @@ export class AstroDevServer {
         }
       };
 
-      listen();
+      appListen();
     });
   }
 
