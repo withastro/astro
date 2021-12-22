@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { cli, loadFixture } from './test-utils.js';
+import { fileURLToPath } from 'url';
 
 describe('config', () => {
   let hostnameFixture;
@@ -16,7 +17,7 @@ describe('config', () => {
 
     it('can be specified via --hostname flag', async () => {
       const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-      const proc = cli('dev', '--project-root', projectRootURL.pathname, '--hostname', '127.0.0.1');
+      const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), '--hostname', '127.0.0.1');
 
       let stdout = '';
 
@@ -36,7 +37,7 @@ describe('config', () => {
     it('can be passed via --config', async () => {
       const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
       const configFileURL = new URL('./fixtures/config-path/config/my-config.mjs', import.meta.url);
-      const proc = cli('dev', '--project-root', projectRootURL.pathname, '--config', configFileURL.pathname);
+      const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), '--config', fileURLToPath(configFileURL));
 
       let stdout = '';
 

@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { cli } from './test-utils.js';
 import { promises as fs } from 'fs';
+import { fileURLToPath } from 'url';
 
 describe('astro cli', () => {
   it('astro', async () => {
@@ -21,7 +22,7 @@ describe('astro cli', () => {
   it('astro dev', async () => {
     const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 
-    const proc = cli('dev', '--project-root', projectRootURL.pathname);
+    const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL));
 
     let stdout = '';
 
@@ -39,7 +40,7 @@ describe('astro cli', () => {
   it('astro build', async () => {
     const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 
-    const proc = await cli('build', '--project-root', projectRootURL.pathname);
+    const proc = await cli('build', '--project-root', fileURLToPath(projectRootURL));
 
     expect(proc.stdout).to.include('Done');
   });
