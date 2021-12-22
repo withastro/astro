@@ -1,0 +1,8 @@
+---
+import PrismicDOM from 'prismic-dom'
+
+const { data } = Astro.props
+
+const Text = PrismicDOM.RichText.asText(data).substring(0,80) + "..."
+---
+{ Text }
