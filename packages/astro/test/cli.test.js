@@ -29,7 +29,7 @@ describe('astro cli', () => {
     for await (const chunk of proc.stdout) {
       stdout += chunk;
 
-      if (/Server started/.test(chunk)) break;
+      if (chunk.includes('Local:')) break;
     }
 
     proc.kill();
