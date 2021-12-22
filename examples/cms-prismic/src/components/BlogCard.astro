@@ -1,0 +1,21 @@
+---
+import AsText from './Prismic/AsText.astro'
+import Date from './Prismic/Date.astro'
+import Excerpt from './Prismic/Excerpt.astro'
+
+const { data } = Astro.props
+const { uid, first_publication_date, data: postData } = data
+---
+<section class="box">
+    <a href={`/blog/${uid}`} class="image featured"><img src={postData.image.url} alt={postData.image.alt} style="max-height: 250px; object-fit: cover; object-position: 50% 65%;" /></a>
+    <header>
+        <h3><AsText data={postData.title}/></h3>
+        <p><Date dateRaw={first_publication_date}/></p>
+    </header>
+    <p><Excerpt data={postData.content}/></p>
+    <footer>
+        <ul class="actions">
+            <li><a href={`/blog/${uid}`} class="button icon solid fa-file-alt">Continue Reading</a></li>
+        </ul>
+    </footer>
+</section>

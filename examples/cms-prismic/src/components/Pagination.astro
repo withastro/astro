@@ -1,0 +1,36 @@
+---
+export interface Props {
+  prevUrl: string;
+  nextUrl: string;
+}
+
+const { prevUrl, nextUrl } = Astro.props;
+---
+<style lang="scss">
+.nav {
+  display: flex;
+  margin-right: auto;
+  margin-left: auto;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+.prev {
+  margin-right: auto;
+}
+.next {
+  margin-left: auto;
+}
+.prev span {
+  margin-right: .5rem;
+}
+.next span {
+  margin-left: .5rem;
+}
+</style>
+
+<div class="wrapper">
+  <nav class="nav">
+    <a class="prev button" href={prevUrl || '#'} aria-label="Previous Page" style={!prevUrl && "pointer-events: none; background-color: gray;"}><span class="fas fa-arrow-left"></span>Prev</a>
+    <a class="next button" href={nextUrl || '#'} aria-label="Next Page" style={!nextUrl && "pointer-events: none; background-color: gray;"}>Next<span class="fas fa-arrow-right"></span></a>
+  </nav>
+</div>

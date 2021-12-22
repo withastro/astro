@@ -1,0 +1,77 @@
+---
+import Events from './Events.astro'
+import AsText from './Prismic/AsText.astro'
+import AsHTML from './Prismic/AsHTML.astro'
+import PrismicDOM from 'prismic-dom'
+import { initApi, Predicates } from '@/api/prismic.js'
+
+const api = await initApi()
+const { results } = await api.query(
+    Predicates.at('document.type', 'footer'),
+    { 'fetchLinks' : ['event.title', 'event.date', 'event.description'] }
+)
+const { heading, address_label, address, email_label, email, phone_label, phone, body } = results[0].data
+---
+<section id="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-8 col-12-medium">
+                <section>
+                {
+                    body.map(slice => (
+                        slice.slice_type === 'events' && 
+                        <header>
+                            <h2><AsText data={slice.primary.events_section_title}/></h2>
+                        </header>
+                        <Events data={slice.items}/>
+                    ))
+                }
+                </section>
+            </div>
+            <div class="col-4 col-12-medium" style="">
+                <section>
+                    <header>
+                        <h2><AsText data={heading}/></h2>
+                    </header>
+                    <ul class="social">
+                        {
+                            body.map(slice => (
+                                slice.slice_type === 'social_media' &&
+                                <li><a class="icon brands fa-facebook-f" href={PrismicDOM.Link.url(slice.primary.facebook)}><span class="label">Facebook</span></a></li>
+                                <li><a class="icon brands fa-twitter" href={PrismicDOM.Link.url(slice.primary.twitter)}><span class="label">Twitter</span></a></li>
+                                <li><a class="icon brands fa-dribbble" href={PrismicDOM.Link.url(slice.primary.dribbble)}><span class="label">Dribbble</span></a></li>
+                                <li><a class="icon brands fa-tumblr" href={PrismicDOM.Link.url(slice.primary.tumblr)}><span class="label">Tumblr</span></a></li>
+                                <li><a class="icon brands fa-linkedin-in" href={PrismicDOM.Link.url(slice.primary.linkedin)}><span class="label">LinkedIn</span></a></li>
+                            ))
+                        }
+                        
+                    </ul>
+                    <ul class="contact">
+                        <li>
+                            <h3><AsText data={address_label}/></h3>
+                            <AsHTML data={address}/>
+                        </li>
+                        <li>
+                            <h3><AsText data={email_label}/></h3>
+                            <p><a href="#"><AsText data={email}/></a></p>
+                        </li>
+                        <li>
+                            <h3><AsText data={phone_label}/></h3>
+                            <p><AsText data={phone}/></p>
+                        </li>
+                    </ul>
+                </section>
+            </div>
+            <div class="col-12">
+
+                <!-- Copyright -->
+                    <div id="copyright">
+                        <ul class="links">
+                            <li>&copy; Untitled. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+                        </ul>
+                    </div>
+
+            </div>
+        </div>
+    </div>
+</section>
