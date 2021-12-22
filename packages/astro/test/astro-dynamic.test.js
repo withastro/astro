@@ -37,7 +37,6 @@ describe('Dynamic components', () => {
     // test 1: <astro-root> is empty
     expect($('<astro-root>').html()).to.equal('');
     const script = $('script').text();
-    console.log(script);
 
     // Grab the svelte import
     // const exp = /import\("(.+?)"\)/g;
