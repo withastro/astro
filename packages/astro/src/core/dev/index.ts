@@ -77,7 +77,7 @@ export class AstroDevServer {
     this.hostname = config.devOptions.hostname || 'localhost';
     this.logging = options.logging;
     this.port = config.devOptions.port;
-    this.origin = `http://localhost:${this.port}`;
+    this.origin = `http://${this.hostname}:${this.port}`;
     this.site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
     this.devRoot = this.site ? this.site.pathname : '/';
     this.url = new URL(this.devRoot, this.origin);
