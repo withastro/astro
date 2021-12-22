@@ -99,11 +99,13 @@ function merge(a, b) {
   return c;
 }
 
-const cliURL = new URL('../astro.js', import.meta.url);
+const cliPath = fileURLToPath(new URL('../astro.js', import.meta.url));
 
-/** Start Dev server via CLI */
-export function devCLI(root, additionalArgs = []) {
-  const args = [cliURL.pathname, 'dev', '--project-root', root.pathname].concat(additionalArgs);
-  const proc = execa('node', args);
-  return proc;
+/** Returns a process running the Astro CLI. */
+export function cli(/** @type {string[]} */ ...args) {
+  const spawned = execa('node', [cliPath, ...args]);
+
+  spawned.stdout.setEncoding('utf8');
+
+  return spawned;
 }
