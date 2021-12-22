@@ -9,7 +9,9 @@ import type { BuildInternals } from '../../core/build/internal.js';
 import type { AstroComponentFactory } from '../../runtime/server';
 
 import fs from 'fs';
+import npath from 'path';
 import { fileURLToPath } from 'url';
+import glob from 'fast-glob';
 import vite from '../vite.js';
 import { debug, info, error } from '../../core/logger.js';
 import { createBuildInternals } from '../../core/build/internal.js';
@@ -30,21 +32,25 @@ export interface StaticBuildOptions {
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
-	// The JavaScript entrypoints.
-	const jsInput: Set<string> = new Set();
+  // The pages
+  const pageInput = new Set<string>();
+
+  // The JavaScript entrypoints.
+  const jsInput = new Set<string>();
 
 	// A map of each page .astro file, to the PageBuildData which contains information
 	// about that page, such as its paths.
 	const facadeIdToPageDataMap = new Map<string, PageBuildData>();
 
-	for (const [component, pageData] of Object.entries(allPages)) {
-		const [renderers, mod] = pageData.preload;
+  for (const [component, pageData] of Object.entries(allPages)) {
+    const [renderers, mod] = pageData.preload;
+    const metadata = mod.$$metadata;
 
     const topLevelImports = new Set([
       // Any component that gets hydrated
-      ...mod.$$metadata.hydratedComponentPaths(),
+      ...metadata.hydratedComponentPaths(),
       // Any hydration directive like astro/client/idle.js
-      ...mod.$$metadata.hydrationDirectiveSpecifiers(),
+      ...metadata.hydrationDirectiveSpecifiers(),
       // The client path for each renderer
       ...renderers.filter(renderer => !!renderer.source).map(renderer => renderer.source!),
     ]);
@@ -53,19 +59,23 @@ export async function staticBuild(opts: StaticBuildOptions) {
       jsInput.add(specifier);
     }
 
-		let astroModuleId = new URL('./' + component, astroConfig.projectRoot).pathname;
-		jsInput.add(astroModuleId);
-		facadeIdToPageDataMap.set(astroModuleId, pageData);
-	}
+    let astroModuleId = new URL('./' + component, astroConfig.projectRoot).pathname;
+    pageInput.add(astroModuleId);
+    facadeIdToPageDataMap.set(astroModuleId, pageData);
+  }
 
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
-	// Perform the SSR build
-	const result = (await ssrBuild(opts, internals, jsInput)) as RollupOutput;
+  // Run the SSR build and client build in parallel 
+  const [ssrResult] = await Promise.all([
+    ssrBuild(opts, internals, pageInput),
+    clientBuild(opts, internals, jsInput)
+  ]) as RollupOutput[];
 
-	// Generate each of the pages.
-	await generatePages(result, opts, internals, facadeIdToPageDataMap);
+  // Generate each of the pages.
+  await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
+  await cleanSsrOutput(opts);
 }
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
@@ -76,7 +86,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
     mode: 'production',
     build: {
       emptyOutDir: true,
-      minify: false, // 'esbuild', // significantly faster than "terser" but may produce slightly-bigger bundles
+      minify: false,
       outDir: fileURLToPath(astroConfig.dist),
       ssr: true,
       rollupOptions: {
@@ -88,7 +98,42 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
       target: 'es2020', // must match an esbuild target
     },
     plugins: [
-      vitePluginNewBuild(input, internals),
+      vitePluginNewBuild(input, internals, 'mjs'),
+      rollupPluginAstroBuildCSS({
+        internals,
+      }),
+      ...(viteConfig.plugins || []),
+    ],
+    publicDir: viteConfig.publicDir,
+    root: viteConfig.root,
+    envPrefix: 'PUBLIC_',
+    server: viteConfig.server,
+    base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+  });
+}
+
+async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
+  const { astroConfig, viteConfig } = opts;
+
+  return await vite.build({
+    logLevel: 'error',
+    mode: 'production',
+    build: {
+      emptyOutDir: false,
+      minify: 'esbuild',
+      outDir: fileURLToPath(astroConfig.dist),
+      rollupOptions: {
+        input: Array.from(input),
+        output: {
+          format: 'esm',
+        },
+        preserveEntrySignatures: 'exports-only',
+      },
+      target: 'es2020', // must match an esbuild target
+      
+    },
+    plugins: [
+      vitePluginNewBuild(input, internals, 'js'),
       rollupPluginAstroBuildCSS({
         internals,
       }),
@@ -166,7 +211,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
       mod,
     });
 
-    info(logging, 'generate', `Generating: ${pathname}`);
+    debug(logging, 'generate', `Generating: ${pathname}`);
 
     const result = createResult({ astroConfig, origin, params, pathname, renderers });
     result.links = new Set<SSRElement>(
@@ -183,8 +228,9 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
       if(typeof hashedFilePath !== 'string') {
         throw new Error(`Cannot find the built path for ${specifier}`);
       }
-      console.log("WE GOT", hashedFilePath)
-      return hashedFilePath;
+      const relPath = npath.posix.relative(pathname, '/' + hashedFilePath);
+      const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
+      return fullyRelativePath;
     };
   
     let html = await renderPage(result, Component, pageProps, null);
@@ -197,7 +243,19 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
   }
 }
 
-export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals): VitePlugin {
+async function cleanSsrOutput(opts: StaticBuildOptions) {
+  // The SSR output is all .mjs files, the client output is not.
+  const files = await glob('**/*.mjs', {
+    cwd: opts.astroConfig.dist.pathname,
+    //ignore: ['node_modules/**'].concat(filePathsToIgnore.map((ignore) => `${ignore}/**`)),
+  });
+  await Promise.all(files.map(async filename => {
+    const url = new URL(filename, opts.astroConfig.dist);
+    await fs.promises.rm(url);
+  }));
+}
+
+export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals, ext: 'js' | 'mjs'): VitePlugin {
   return {
     name: '@astro/rollup-plugin-new-build',
 
@@ -213,10 +271,10 @@ export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals
     outputOptions(outputOptions) {
       Object.assign(outputOptions, {
         entryFileNames(_chunk: PreRenderedChunk) {
-          return 'assets/[name].[hash].mjs';
+          return 'assets/[name].[hash].' + ext;
         },
         chunkFileNames(_chunk: PreRenderedChunk) {
-          return 'assets/[name].[hash].mjs';
+          return 'assets/[name].[hash].' + ext;
         },
       });
       return outputOptions;
@@ -239,8 +297,6 @@ export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals
           internals.entrySpecifierToBundleMap.set(specifier, chunk.fileName);
         }
       }
-
-      console.log(internals.entrySpecifierToBundleMap);
     }
   };
 }

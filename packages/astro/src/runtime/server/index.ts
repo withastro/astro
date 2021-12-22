@@ -152,40 +152,41 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
 Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`;
-		throw new Error(message);
-	}
+    throw new Error(message);
+  }
 
-	// Call the renderers `check` hook to see if any claim this component.
-	let renderer: Renderer | undefined;
-	if (metadata.hydrate !== 'only') {
-		for (const r of renderers) {
-			if (await r.ssr.check(Component, props, children)) {
-				renderer = r;
-				break;
-			}
-		}
-	} else {
-		// Attempt: use explicitly passed renderer name
-		if (metadata.hydrateArgs) {
-			const rendererName = metadata.hydrateArgs;
-			renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${rendererName}` || name === rendererName)[0];
-		}
-		// Attempt: user only has a single renderer, default to that
-		if (!renderer && renderers.length === 1) {
-			renderer = renderers[0];
-		}
-		// Attempt: can we guess the renderer from the export extension?
-		if (!renderer) {
-			const extname = metadata.componentUrl?.split('.').pop();
-			renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${extname}` || name === extname)[0];
-		}
-	}
+  // Call the renderers `check` hook to see if any claim this component.
+  let renderer: Renderer | undefined;
+  debugger;
+  if (metadata.hydrate !== 'only') {
+    for (const r of renderers) {
+      if (await r.ssr.check(Component, props, children)) {
+        renderer = r;
+        break;
+      }
+    }
+  } else {
+    // Attempt: use explicitly passed renderer name
+    if (metadata.hydrateArgs) {
+      const rendererName = metadata.hydrateArgs;
+      renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${rendererName}` || name === rendererName)[0];
+    }
+    // Attempt: user only has a single renderer, default to that
+    if (!renderer && renderers.length === 1) {
+      renderer = renderers[0];
+    }
+    // Attempt: can we guess the renderer from the export extension?
+    if (!renderer) {
+      const extname = metadata.componentUrl?.split('.').pop();
+      renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${extname}` || name === extname)[0];
+    }
+  }
 
-	// If no one claimed the renderer
-	if (!renderer) {
-		if (metadata.hydrate === 'only') {
-			// TODO: improve error message
-			throw new Error(`Unable to render ${metadata.displayName}!
+  // If no one claimed the renderer
+  if (!renderer) {
+    if (metadata.hydrate === 'only') {
+      // TODO: improve error message
+      throw new Error(`Unable to render ${metadata.displayName}!
 
 Using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.
 Did you mean to pass <${metadata.displayName} client:only="${probableRendererNames.map((r) => r.replace('@astrojs/renderer-', '')).join('|')}" />

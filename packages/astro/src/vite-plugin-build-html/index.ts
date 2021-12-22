@@ -37,457 +37,460 @@ interface PluginOptions {
 }
 
 export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
-	const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
+  const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
-	// The filepath root of the src folder
-	const srcRoot = astroConfig.src.pathname;
-	// The web path of the src folter
-	const srcRootWeb = srcRoot.substr(astroConfig.projectRoot.pathname.length - 1);
+  // The filepath root of the src folder
+  const srcRoot = astroConfig.src.pathname;
+  // The web path of the src folter
+  const srcRootWeb = srcRoot.substr(astroConfig.projectRoot.pathname.length - 1);
 
-	// A map of pages to rendered HTML
-	const renderedPageMap = new Map<string, string>();
+  // A map of pages to rendered HTML
+  const renderedPageMap = new Map<string, string>();
 
-	//
-	const astroScriptMap = new Map<string, string>();
-	const astroPageMap = new Map<string, string>();
-	const astroAssetMap = new Map<string, Promise<Buffer>>();
+  //
+  const astroScriptMap = new Map<string, string>();
+  const astroPageMap = new Map<string, string>();
+  const astroAssetMap = new Map<string, Promise<Buffer>>();
 
-	const cssChunkMap = new Map<string, string[]>();
-	const pageStyleImportOrder: string[] = [];
+  const cssChunkMap = new Map<string, string[]>();
+  const pageStyleImportOrder: string[] = [];
 
-	return {
-		name: PLUGIN_NAME,
+  return {
+    name: PLUGIN_NAME,
 
-		enforce: 'pre',
+    enforce: 'pre',
 
-		async options(inputOptions) {
-			const htmlInput: Set<string> = new Set();
-			const assetInput: Set<string> = new Set();
-			const jsInput: Set<string> = new Set();
+    async options(inputOptions) {
+      const htmlInput: Set<string> = new Set();
+      const assetInput: Set<string> = new Set();
+      const jsInput: Set<string> = new Set();
 
-			for (const [component, pageData] of Object.entries(allPages)) {
-				const [renderers, mod] = pageData.preload;
+      for (const [component, pageData] of Object.entries(allPages)) {
+        const [renderers, mod] = pageData.preload;
 
-				// Hydrated components are statically identified.
-				for (const path of mod.$$metadata.getAllHydratedComponentPaths()) {
-					jsInput.add(path);
-				}
+        // Hydrated components are statically identified.
+        for (const path of mod.$$metadata.hydratedComponentPaths()) {
+          jsInput.add(path);
+        }
 
-				for (const pathname of pageData.paths) {
-					pageNames.push(pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''));
-					const id = ASTRO_PAGE_PREFIX + pathname;
-					const html = await ssrRender(renderers, mod, {
-						astroConfig,
-						filePath: new URL(`./${component}`, astroConfig.projectRoot),
-						logging,
-						mode: 'production',
-						origin,
-						pathname,
-						route: pageData.route,
-						routeCache,
-						viteServer,
-					});
-					renderedPageMap.set(id, html);
+        for (const pathname of pageData.paths) {
+          pageNames.push(pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''));
+          const id = ASTRO_PAGE_PREFIX + pathname;
+          const html = await ssrRender(renderers, mod, {
+            astroConfig,
+            filePath: new URL(`./${component}`, astroConfig.projectRoot),
+            logging,
+            mode: 'production',
+            origin,
+            pathname,
+            route: pageData.route,
+            routeCache,
+            viteServer,
+          });
+          renderedPageMap.set(id, html);
 
-					const document = parse5.parse(html, {
-						sourceCodeLocationInfo: true,
-					});
+          const document = parse5.parse(html, {
+            sourceCodeLocationInfo: true,
+          });
 
-					const frontEndImports = [];
-					for (const script of findInlineScripts(document)) {
-						const astroScript = getAttribute(script, 'astro-script');
-						if (astroScript) {
-							const js = getTextContent(script);
-							const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
-							frontEndImports.push(scriptId);
-							astroScriptMap.set(scriptId, js);
-						}
-					}
+          const frontEndImports = [];
+          for (const script of findInlineScripts(document)) {
+            const astroScript = getAttribute(script, 'astro-script');
+            if (astroScript) {
+              const js = getTextContent(script);
+              const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
+              frontEndImports.push(scriptId);
+              astroScriptMap.set(scriptId, js);
+            }
+          }
 
-					for (const script of findExternalScripts(document)) {
-						if (isHoistedScript(script)) {
-							const astroScript = getAttribute(script, 'astro-script');
-							const src = getAttribute(script, 'src');
-							if (astroScript) {
-								const js = `import '${src}';`;
-								const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
-								frontEndImports.push(scriptId);
-								astroScriptMap.set(scriptId, js);
-							}
-						} else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
-							const src = getAttribute(script, 'src');
-							if (src) jsInput.add(src);
-						}
-					}
+          for (const script of findExternalScripts(document)) {
+            if (isHoistedScript(script)) {
+              const astroScript = getAttribute(script, 'astro-script');
+              const src = getAttribute(script, 'src');
+              if (astroScript) {
+                const js = `import '${src}';`;
+                const scriptId = ASTRO_SCRIPT_PREFIX + astroScript;
+                frontEndImports.push(scriptId);
+                astroScriptMap.set(scriptId, js);
+              }
+            } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
+              const src = getAttribute(script, 'src');
+              if (src) jsInput.add(src);
+            }
+          }
 
-					const assetImports = [];
-					const styleId = getAstroStyleId(pathname);
-					let styles = 0;
-					for (const node of findInlineStyles(document)) {
-						if (hasAttribute(node, 'astro-style')) {
-							const style = getTextContent(node) || ' '; // If an empty node, add whitespace
-							const thisStyleId = `${styleId}/${++styles}.css`;
-							internals.astroStyleMap.set(thisStyleId, style);
-							assetImports.push(thisStyleId);
-						}
-					}
+          let styles = '';
+          for (const node of findInlineStyles(document)) {
+            if (hasAttribute(node, 'astro-style')) {
+              styles += getTextContent(node);
+            }
+          }
 
-					for (let node of findAssets(document)) {
-						if (isBuildableLink(node, srcRoot, srcRootWeb)) {
-							const href = getAttribute(node, 'href')!;
-							assetImports.push(href);
-						}
+          const assetImports = [];
+          for (let node of findAssets(document)) {
+            if (isBuildableLink(node, srcRoot, srcRootWeb)) {
+              const href = getAttribute(node, 'href')!;
+              assetImports.push(href);
+            }
 
-						if (isBuildableImage(node, srcRoot, srcRootWeb)) {
-							const src = getAttribute(node, 'src');
-							if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
-								astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
-							} else if (src?.startsWith(srcRootWeb) && !astroAssetMap.has(src)) {
-								const resolved = new URL('.' + src, astroConfig.projectRoot);
-								astroAssetMap.set(src, fs.readFile(resolved));
-							}
-						}
+            if (isBuildableImage(node, srcRoot, srcRootWeb)) {
+              const src = getAttribute(node, 'src');
+              if (src?.startsWith(srcRoot) && !astroAssetMap.has(src)) {
+                astroAssetMap.set(src, fs.readFile(new URL(`file://${src}`)));
+              } else if (src?.startsWith(srcRootWeb) && !astroAssetMap.has(src)) {
+                const resolved = new URL('.' + src, astroConfig.projectRoot);
+                astroAssetMap.set(src, fs.readFile(resolved));
+              }
+            }
 
-						if (hasSrcSet(node)) {
-							const candidates = matchSrcset(getAttribute(node, 'srcset')!);
-							for (const { url } of candidates) {
-								if (url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
-									astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
-								} else if (url.startsWith(srcRootWeb) && !astroAssetMap.has(url)) {
-									const resolved = new URL('.' + url, astroConfig.projectRoot);
-									astroAssetMap.set(url, fs.readFile(resolved));
-								}
-							}
-						}
-					}
+            if (hasSrcSet(node)) {
+              const candidates = matchSrcset(getAttribute(node, 'srcset')!);
+              for (const { url } of candidates) {
+                if (url.startsWith(srcRoot) && !astroAssetMap.has(url)) {
+                  astroAssetMap.set(url, fs.readFile(new URL(`file://${url}`)));
+                } else if (url.startsWith(srcRootWeb) && !astroAssetMap.has(url)) {
+                  const resolved = new URL('.' + url, astroConfig.projectRoot);
+                  astroAssetMap.set(url, fs.readFile(resolved));
+                }
+              }
+            }
+          }
 
-					if (frontEndImports.length) {
-						htmlInput.add(id);
-						const jsSource = frontEndImports.map((sid) => `import '${sid}';`).join('\n');
-						astroPageMap.set(id, jsSource);
-					}
+          if (styles) {
+            const styleId = getAstroStyleId(pathname);
+            internals.astroStyleMap.set(styleId, styles);
+            // Put this at the front of imports
+            assetImports.unshift(styleId);
+          }
 
-					if (assetImports.length) {
-						const pageStyleId = getAstroPageStyleId(pathname);
-						const jsSource = assetImports.map((sid) => `import '${sid}';`).join('\n');
-						internals.astroPageStyleMap.set(pageStyleId, jsSource);
-						assetInput.add(pageStyleId);
+          if (frontEndImports.length) {
+            htmlInput.add(id);
+            const jsSource = frontEndImports.map((sid) => `import '${sid}';`).join('\n');
+            astroPageMap.set(id, jsSource);
+          }
 
-						// preserve asset order in the order we encounter them
-						for (const assetHref of assetImports) {
-							if (!pageStyleImportOrder.includes(assetHref)) pageStyleImportOrder.push(assetHref);
-						}
-					}
-				}
-			}
+          if (assetImports.length) {
+            const pageStyleId = getAstroPageStyleId(pathname);
+            const jsSource = assetImports.map((sid) => `import '${sid}';`).join('\n');
+            internals.astroPageStyleMap.set(pageStyleId, jsSource);
+            assetInput.add(pageStyleId);
 
-			const allInputs = new Set([...jsInput, ...htmlInput, ...assetInput]);
-			// You always need at least 1 input, so add an placeholder just so we can build HTML/CSS
-			if (!allInputs.size) {
-				allInputs.add(ASTRO_EMPTY);
-			}
-			const outOptions = addRollupInput(inputOptions, Array.from(allInputs));
-			return outOptions;
-		},
+            // preserve asset order in the order we encounter them
+            for (const assetHref of assetImports) {
+              if (!pageStyleImportOrder.includes(assetHref)) pageStyleImportOrder.push(assetHref);
+            }
+          }
+        }
+      }
 
-		async resolveId(id) {
-			switch (true) {
-				case astroScriptMap.has(id):
-				case astroPageMap.has(id):
-				case id === ASTRO_EMPTY: {
-					return id;
-				}
-			}
+      const allInputs = new Set([...jsInput, ...htmlInput, ...assetInput]);
+      // You always need at least 1 input, so add an placeholder just so we can build HTML/CSS
+      if (!allInputs.size) {
+        allInputs.add(ASTRO_EMPTY);
+      }
+      const outOptions = addRollupInput(inputOptions, Array.from(allInputs));
+      return outOptions;
+    },
 
-			return undefined;
-		},
+    async resolveId(id) {
+      switch (true) {
+        case astroScriptMap.has(id):
+        case astroPageMap.has(id):
+        case id === ASTRO_EMPTY: {
+          return id;
+        }
+      }
 
-		async load(id) {
-			// Load pages
-			if (astroPageMap.has(id)) {
-				return astroPageMap.get(id)!;
-			}
-			// Load scripts
-			if (astroScriptMap.has(id)) {
-				return astroScriptMap.get(id)!;
-			}
-			// Give this module actual code so it doesnt warn about an empty chunk
-			if (id === ASTRO_EMPTY) {
-				return 'console.log("empty");';
-			}
+      return undefined;
+    },
 
-			return null;
-		},
+    async load(id) {
+      // Load pages
+      if (astroPageMap.has(id)) {
+        return astroPageMap.get(id)!;
+      }
+      // Load scripts
+      if (astroScriptMap.has(id)) {
+        return astroScriptMap.get(id)!;
+      }
+      // Give this module actual code so it doesnt warn about an empty chunk
+      if (id === ASTRO_EMPTY) {
+        return 'console.log("empty");';
+      }
 
-		outputOptions(outputOptions) {
-			Object.assign(outputOptions, {
-				entryFileNames(chunk: PreRenderedChunk) {
-					// Removes the `@astro-page` prefix from JS chunk names.
-					if (chunk.name.startsWith(ASTRO_PAGE_PREFIX)) {
-						let pageName = chunk.name.substr(ASTRO_PAGE_PREFIX.length + 1);
-						if (!pageName) {
-							pageName = 'index';
-						}
-						return `assets/${pageName}.[hash].js`;
-					}
-					return 'assets/[name].[hash].js';
-				},
-			});
-			return outputOptions;
-		},
+      return null;
+    },
 
-		async generateBundle(_options, bundle) {
-			const facadeIdMap = new Map<string, string>();
-			for (const [chunkId, output] of Object.entries(bundle)) {
-				if (output.type === 'chunk') {
-					const chunk = output as OutputChunk;
-					const id = chunk.facadeModuleId;
-					if (id === ASTRO_EMPTY) {
-						delete bundle[chunkId];
-					} else if (id) {
-						facadeIdMap.set(id, chunk.fileName);
-					}
-				}
-			}
+    outputOptions(outputOptions) {
+      Object.assign(outputOptions, {
+        entryFileNames(chunk: PreRenderedChunk) {
+          // Removes the `@astro-page` prefix from JS chunk names.
+          if (chunk.name.startsWith(ASTRO_PAGE_PREFIX)) {
+            let pageName = chunk.name.substr(ASTRO_PAGE_PREFIX.length + 1);
+            if (!pageName) {
+              pageName = 'index';
+            }
+            return `assets/${pageName}.[hash].js`;
+          }
+          return 'assets/[name].[hash].js';
+        },
+      });
+      return outputOptions;
+    },
 
-			// Emit assets (images, etc)
-			const assetIdMap = new Map<string, string>();
-			for (const [assetPath, dataPromise] of astroAssetMap) {
-				const referenceId = this.emitFile({
-					type: 'asset',
-					name: npath.basename(assetPath),
-					source: await dataPromise,
-				});
-				assetIdMap.set(assetPath, referenceId);
-			}
+    async generateBundle(_options, bundle) {
+      const facadeIdMap = new Map<string, string>();
+      for (const [chunkId, output] of Object.entries(bundle)) {
+        if (output.type === 'chunk') {
+          const chunk = output as OutputChunk;
+          const id = chunk.facadeModuleId;
+          if (id === ASTRO_EMPTY) {
+            delete bundle[chunkId];
+          } else if (id) {
+            facadeIdMap.set(id, chunk.fileName);
+          }
+        }
+      }
 
-			// Sort CSS in order of appearance in HTML (pageStyleImportOrder)
-			// This is the “global ordering” used below
-			const sortedCSSChunks = [...internals.pureCSSChunks];
-			sortedCSSChunks.sort((a, b) => {
-				let aIndex = Math.min(
-					...Object.keys(a.modules).map((id) => {
-						const i = pageStyleImportOrder.findIndex((url) => id.endsWith(url));
-						return i >= 0 ? i : Infinity; // if -1 is encountered (unknown order), move to the end (Infinity)
-					})
-				);
-				let bIndex = Math.min(
-					...Object.keys(b.modules).map((id) => {
-						const i = pageStyleImportOrder.findIndex((url) => id.endsWith(url));
-						return i >= 0 ? i : Infinity;
-					})
-				);
-				return aIndex - bIndex;
-			});
-			const sortedChunkNames = sortedCSSChunks.map(({ fileName }) => fileName);
+      // Emit assets (images, etc)
+      const assetIdMap = new Map<string, string>();
+      for (const [assetPath, dataPromise] of astroAssetMap) {
+        const referenceId = this.emitFile({
+          type: 'asset',
+          name: npath.basename(assetPath),
+          source: await dataPromise,
+        });
+        assetIdMap.set(assetPath, referenceId);
+      }
 
-			// Create a mapping of chunks to dependent chunks, used to add the proper
-			// link tags for CSS.
-			for (const chunk of sortedCSSChunks) {
-				const chunkModules = [chunk.fileName, ...chunk.imports];
-				// For each HTML output, sort CSS in HTML order Note: here we actually
-				// want -1 to be first. Since the last CSS “wins”, we want to load
-				// “unknown” (-1) CSS ordering first, followed by “known” ordering at
-				// the end so it takes priority
-				chunkModules.sort((a, b) => sortedChunkNames.indexOf(a) - sortedChunkNames.indexOf(b));
+      // Sort CSS in order of appearance in HTML (pageStyleImportOrder)
+      // This is the “global ordering” used below
+      const sortedCSSChunks = [...internals.pureCSSChunks];
+      sortedCSSChunks.sort((a, b) => {
+        let aIndex = Math.min(
+          ...Object.keys(a.modules).map((id) => {
+            const i = pageStyleImportOrder.findIndex((url) => id.endsWith(url));
+            return i >= 0 ? i : Infinity; // if -1 is encountered (unknown order), move to the end (Infinity)
+          })
+        );
+        let bIndex = Math.min(
+          ...Object.keys(b.modules).map((id) => {
+            const i = pageStyleImportOrder.findIndex((url) => id.endsWith(url));
+            return i >= 0 ? i : Infinity;
+          })
+        );
+        return aIndex - bIndex;
+      });
+      const sortedChunkNames = sortedCSSChunks.map(({ fileName }) => fileName);
 
-				const referenceIDs: string[] = [];
-				for (const chunkID of chunkModules) {
-					const referenceID = internals.chunkToReferenceIdMap.get(chunkID);
-					if (referenceID) referenceIDs.push(referenceID);
-				}
-				for (const id of Object.keys(chunk.modules)) {
-					cssChunkMap.set(id, referenceIDs);
-				}
-			}
+      // Create a mapping of chunks to dependent chunks, used to add the proper
+      // link tags for CSS.
+      for (const chunk of sortedCSSChunks) {
+        const chunkModules = [chunk.fileName, ...chunk.imports];
+        // For each HTML output, sort CSS in HTML order Note: here we actually
+        // want -1 to be first. Since the last CSS “wins”, we want to load
+        // “unknown” (-1) CSS ordering first, followed by “known” ordering at
+        // the end so it takes priority
+        chunkModules.sort((a, b) => sortedChunkNames.indexOf(a) - sortedChunkNames.indexOf(b));
 
-			// Keep track of links added so we don't do so twice.
-			const linkChunksAdded = new Set<string>();
-			const appendStyleChunksBefore = (ref: parse5.Element, pathname: string, referenceIds: string[] | undefined, attrs: Record<string, any> = {}) => {
-				let added = false;
-				if (referenceIds) {
-					const lastNode = ref;
-					for (const referenceId of referenceIds) {
-						const chunkFileName = this.getFileName(referenceId);
-						const relPath = npath.posix.relative(pathname, '/' + chunkFileName);
+        const referenceIDs: string[] = [];
+        for (const chunkID of chunkModules) {
+          const referenceID = internals.chunkToReferenceIdMap.get(chunkID);
+          if (referenceID) referenceIDs.push(referenceID);
+        }
+        for (const id of Object.keys(chunk.modules)) {
+          cssChunkMap.set(id, referenceIDs);
+        }
+      }
 
-						// This prevents added links more than once per type.
-						const key = pathname + relPath + attrs.rel || 'stylesheet';
-						if (!linkChunksAdded.has(key)) {
-							linkChunksAdded.add(key);
-							insertBefore(
-								lastNode.parentNode,
-								createElement('link', {
-									rel: 'stylesheet',
-									...attrs,
-									href: relPath,
-								}),
-								lastNode
-							);
-							added = true;
-						}
-					}
-				}
-				return added;
-			};
+      // Keep track of links added so we don't do so twice.
+      const linkChunksAdded = new Set<string>();
+      const appendStyleChunksBefore = (ref: parse5.Element, pathname: string, referenceIds: string[] | undefined, attrs: Record<string, any> = {}) => {
+        let added = false;
+        if (referenceIds) {
+          const lastNode = ref;
+          for (const referenceId of referenceIds) {
+            const chunkFileName = this.getFileName(referenceId);
+            const relPath = npath.posix.relative(pathname, '/' + chunkFileName);
 
-			for (const [id, html] of renderedPageMap) {
-				const pathname = id.substr(ASTRO_PAGE_PREFIX.length);
-				const document = parse5.parse(html, {
-					sourceCodeLocationInfo: true,
-				});
+            // This prevents added links more than once per type.
+            const key = pathname + relPath + attrs.rel || 'stylesheet';
+            if (!linkChunksAdded.has(key)) {
+              linkChunksAdded.add(key);
+              insertBefore(
+                lastNode.parentNode,
+                createElement('link', {
+                  rel: 'stylesheet',
+                  ...attrs,
+                  href: relPath,
+                }),
+                lastNode
+              );
+              added = true;
+            }
+          }
+        }
+        return added;
+      };
 
-				// This is the module for the page-level bundle which includes
-				// hoisted scripts and hydrated components.
-				const pageAssetId = facadeIdMap.get(id);
-				const bundlePath = '/' + pageAssetId;
+      for (const [id, html] of renderedPageMap) {
+        const pathname = id.substr(ASTRO_PAGE_PREFIX.length);
+        const document = parse5.parse(html, {
+          sourceCodeLocationInfo: true,
+        });
 
-				// Update scripts
-				let pageBundleAdded = false;
+        // This is the module for the page-level bundle which includes
+        // hoisted scripts and hydrated components.
+        const pageAssetId = facadeIdMap.get(id);
+        const bundlePath = '/' + pageAssetId;
 
-				// Update inline scripts. These could be hydrated component scripts or hoisted inline scripts
-				for (let script of findInlineScripts(document)) {
-					if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
-						if (!pageBundleAdded) {
-							pageBundleAdded = true;
-							const relPath = npath.posix.relative(pathname, bundlePath);
-							insertBefore(
-								script.parentNode,
-								createScript({
-									type: 'module',
-									src: relPath,
-								}),
-								script
-							);
-						}
-						remove(script);
-					}
-				}
+        // Update scripts
+        let pageBundleAdded = false;
 
-				// Update external scripts. These could be hoisted or in the src folder.
-				for (let script of findExternalScripts(document)) {
-					if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
-						if (!pageBundleAdded) {
-							pageBundleAdded = true;
-							const relPath = npath.posix.relative(pathname, bundlePath);
-							insertBefore(
-								script.parentNode,
-								createScript({
-									type: 'module',
-									src: relPath,
-								}),
-								script
-							);
-						}
-						remove(script);
-					} else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
-						let src = getAttribute(script, 'src');
-						// If this is projectRoot relative, get the fullpath to match the facadeId.
-						if (src?.startsWith(srcRootWeb)) {
-							src = new URL('.' + src, astroConfig.projectRoot).pathname;
-						}
-						// On windows the facadeId doesn't start with / but does not Unix :/
-						if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
-							const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));
-							const relPath = npath.posix.relative(pathname, assetRootPath);
-							const attrs = getAttributes(script);
-							insertBefore(
-								script.parentNode,
-								createScript({
-									...attrs,
-									src: relPath,
-								}),
-								script
-							);
-							remove(script);
-						}
-					}
-				}
+        // Update inline scripts. These could be hydrated component scripts or hoisted inline scripts
+        for (let script of findInlineScripts(document)) {
+          if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
+            if (!pageBundleAdded) {
+              pageBundleAdded = true;
+              const relPath = npath.posix.relative(pathname, bundlePath);
+              insertBefore(
+                script.parentNode,
+                createScript({
+                  type: 'module',
+                  src: relPath,
+                }),
+                script
+              );
+            }
+            remove(script);
+          }
+        }
 
-				const styleId = getAstroPageStyleId(pathname);
-				let pageCSSAdded = false;
-				for (const node of findAssets(document)) {
-					if (isBuildableLink(node, srcRoot, srcRootWeb)) {
-						const rel = getAttribute(node, 'rel');
-						switch (rel) {
-							case 'stylesheet': {
-								if (!pageCSSAdded) {
-									const attrs = getAttributes(node);
-									delete attrs['data-astro-injected'];
-									pageCSSAdded = appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
-								}
-								remove(node);
-								break;
-							}
-							case 'preload': {
-								if (getAttribute(node, 'as') === 'style') {
-									const attrs = getAttributes(node);
-									appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
-									remove(node);
-								}
-							}
-						}
-					}
+        // Update external scripts. These could be hoisted or in the src folder.
+        for (let script of findExternalScripts(document)) {
+          if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
+            if (!pageBundleAdded) {
+              pageBundleAdded = true;
+              const relPath = npath.posix.relative(pathname, bundlePath);
+              insertBefore(
+                script.parentNode,
+                createScript({
+                  type: 'module',
+                  src: relPath,
+                }),
+                script
+              );
+            }
+            remove(script);
+          } else if (isInSrcDirectory(script, 'src', srcRoot, srcRootWeb)) {
+            let src = getAttribute(script, 'src');
+            // If this is projectRoot relative, get the fullpath to match the facadeId.
+            if (src?.startsWith(srcRootWeb)) {
+              src = new URL('.' + src, astroConfig.projectRoot).pathname;
+            }
+            // On windows the facadeId doesn't start with / but does not Unix :/
+            if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
+              const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));
+              const relPath = npath.posix.relative(pathname, assetRootPath);
+              const attrs = getAttributes(script);
+              insertBefore(
+                script.parentNode,
+                createScript({
+                  ...attrs,
+                  src: relPath,
+                }),
+                script
+              );
+              remove(script);
+            }
+          }
+        }
 
-					if (isBuildableImage(node, srcRoot, srcRootWeb)) {
-						const src = getAttribute(node, 'src')!;
-						const referenceId = assetIdMap.get(src);
-						if (referenceId) {
-							const fileName = this.getFileName(referenceId);
-							const relPath = npath.posix.relative(pathname, '/' + fileName);
-							setAttribute(node, 'src', relPath);
-						}
-					}
+        const styleId = getAstroPageStyleId(pathname);
+        let pageCSSAdded = false;
+        for (const node of findAssets(document)) {
+          if (isBuildableLink(node, srcRoot, srcRootWeb)) {
+            const rel = getAttribute(node, 'rel');
+            switch (rel) {
+              case 'stylesheet': {
+                if (!pageCSSAdded) {
+                  const attrs = getAttributes(node);
+                  delete attrs['data-astro-injected'];
+                  pageCSSAdded = appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
+                }
+                remove(node);
+                break;
+              }
+              case 'preload': {
+                if (getAttribute(node, 'as') === 'style') {
+                  const attrs = getAttributes(node);
+                  appendStyleChunksBefore(node, pathname, cssChunkMap.get(styleId), attrs);
+                  remove(node);
+                }
+              }
+            }
+          }
 
-					// Could be a `source` or an `img`.
-					if (hasSrcSet(node)) {
-						const srcset = getAttribute(node, 'srcset')!;
-						let changedSrcset = srcset;
-						const urls = matchSrcset(srcset).map((c) => c.url);
-						for (const url of urls) {
-							if (assetIdMap.has(url)) {
-								const referenceId = assetIdMap.get(url)!;
-								const fileName = this.getFileName(referenceId);
-								const relPath = npath.posix.relative(pathname, '/' + fileName);
-								changedSrcset = changedSrcset.replace(url, relPath);
-							}
-						}
-						// If anything changed, update it
-						if (changedSrcset !== srcset) {
-							setAttribute(node, 'srcset', changedSrcset);
-						}
-					}
-				}
+          if (isBuildableImage(node, srcRoot, srcRootWeb)) {
+            const src = getAttribute(node, 'src')!;
+            const referenceId = assetIdMap.get(src);
+            if (referenceId) {
+              const fileName = this.getFileName(referenceId);
+              const relPath = npath.posix.relative(pathname, '/' + fileName);
+              setAttribute(node, 'src', relPath);
+            }
+          }
 
-				// Page styles for <style> usage, if not already appended via links.
-				for (const style of findInlineStyles(document)) {
-					if (hasAttribute(style, 'astro-style')) {
-						if (!pageCSSAdded) {
-							pageCSSAdded = appendStyleChunksBefore(style, pathname, cssChunkMap.get(styleId));
-						}
+          // Could be a `source` or an `img`.
+          if (hasSrcSet(node)) {
+            const srcset = getAttribute(node, 'srcset')!;
+            let changedSrcset = srcset;
+            const urls = matchSrcset(srcset).map((c) => c.url);
+            for (const url of urls) {
+              if (assetIdMap.has(url)) {
+                const referenceId = assetIdMap.get(url)!;
+                const fileName = this.getFileName(referenceId);
+                const relPath = npath.posix.relative(pathname, '/' + fileName);
+                changedSrcset = changedSrcset.replace(url, relPath);
+              }
+            }
+            // If anything changed, update it
+            if (changedSrcset !== srcset) {
+              setAttribute(node, 'srcset', changedSrcset);
+            }
+          }
+        }
 
-						remove(style);
-					}
-				}
+        // Page styles for <style> usage, if not already appended via links.
+        for (const style of findInlineStyles(document)) {
+          if (hasAttribute(style, 'astro-style')) {
+            if (!pageCSSAdded) {
+              pageCSSAdded = appendStyleChunksBefore(style, pathname, cssChunkMap.get(styleId));
+            }
 
-				const outHTML = parse5.serialize(document);
-				const name = pathname.substr(1);
-				let outPath: string;
+            remove(style);
+          }
+        }
 
-				// Output directly to 404.html rather than 400/index.html
-				// Supports any other status codes, too
-				if (name.match(STATUS_CODE_RE)) {
-					outPath = npath.posix.join(`${name}.html`);
-				} else {
-					outPath = npath.posix.join(name, 'index.html');
-				}
+        const outHTML = parse5.serialize(document);
+        const name = pathname.substr(1);
+        let outPath: string;
 
-				this.emitFile({
-					fileName: outPath,
-					source: outHTML,
-					type: 'asset',
-				});
-			}
-		},
-	};
+        // Output directly to 404.html rather than 400/index.html
+        // Supports any other status codes, too
+        if (name.match(STATUS_CODE_RE)) {
+          outPath = npath.posix.join(`${name}.html`);
+        } else {
+          outPath = npath.posix.join(name, 'index.html');
+        }
+
+        this.emitFile({
+          fileName: outPath,
+          source: outHTML,
+          type: 'asset',
+        });
+      }
+    },
+  };
 }

@@ -26,12 +26,12 @@ export class Metadata {
 
   private metadataCache: Map<any, ComponentMetadata | null>;
 
-  constructor(fileURL: string, opts: CreateMetadataOptions) {
+  constructor(filePathname: string, opts: CreateMetadataOptions) {
     this.modules = opts.modules;
     this.hoisted = opts.hoisted;
     this.hydratedComponents = opts.hydratedComponents;
     this.hydrationDirectives = opts.hydrationDirectives;
-    this.fileURL = new URL(fileURL);
+    this.fileURL = new URL(filePathname, 'http://example.com');
     this.metadataCache = new Map<any, ComponentMetadata | null>();
   }
 
@@ -128,6 +128,6 @@ export class Metadata {
 	}
 }
 
-export function createMetadata(fileURL: string, options: CreateMetadataOptions) {
-  return new Metadata(fileURL, options);
+export function createMetadata(filePathname: string, options: CreateMetadataOptions) {
+  return new Metadata(filePathname, options);
 }

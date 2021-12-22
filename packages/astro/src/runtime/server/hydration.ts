@@ -121,7 +121,7 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 	}
 
   hydrationSource += renderer.source
-    ? `const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${componentUrl}"), import("${await result.resolve(renderer.source)}")]);
+    ? `const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(componentUrl)}"), import("${await result.resolve(renderer.source)}")]);
   return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
 `
 		: `await import("${componentUrl}");
