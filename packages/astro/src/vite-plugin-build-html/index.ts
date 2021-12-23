@@ -125,7 +125,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 					let styles = 0;
 					for (const node of findInlineStyles(document)) {
 						if (hasAttribute(node, 'astro-style')) {
-							const style = getTextContent(node);
+							const style = getTextContent(node) || ' '; // If an empty node, add whitespace
 							const thisStyleId = `${styleId}/${++styles}.css`;
 							internals.astroStyleMap.set(thisStyleId, style);
 							assetImports.push(thisStyleId);
