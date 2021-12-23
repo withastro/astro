@@ -1,0 +1,26 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import AsText from '@/components/Prismic/AsText.astro'
+import AsHTML from '@/components/Prismic/AsHTML.astro'
+import Date from '@/components/Prismic/Date.astro'
+import { initApi, Predicates } from '@/api/prismic.js'
+
+export async function getStaticPaths() {
+    const api = await initApi()
+    const { results } = await api.query(Predicates.at('document.type', 'project'))
+    return results.map(project => ({ params: { uid: project.uid}, props: { project }}))
+}
+
+const { project } = Astro.props
+const { first_publication_date, data } = project
+---
+<BaseLayout>
+  <article class="box post">
+    { data.image && <a href={data.image.url} target="_blank" class="image featured"><img src={data.image.url} alt={data.image.alt} style="max-height: 550px; object-fit: cover; object-position: 50% 65%;" /></a> }
+    <header>
+      <h2><AsText data={data.title}/></h2>
+      <p><Date dateRaw={first_publication_date}/></p>
+    </header>
+    <AsHTML data={data.description}/>
+  </article>
+</BaseLayout>

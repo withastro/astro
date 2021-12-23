@@ -1,0 +1,44 @@
+{
+    "Main" : {
+      "uid" : {
+        "type" : "UID",
+        "config" : {
+          "label" : "uid"
+        }
+      },
+      "title" : {
+        "type" : "StructuredText",
+        "config" : {
+          "single" : "heading1,heading2,heading3,heading4,heading5,heading6",
+          "label" : "Title",
+          "placeholder" : "Project title"
+        }
+      },
+      "description" : {
+        "type" : "StructuredText",
+        "config" : {
+          "multi" : "paragraph,preformatted,heading1,heading2,heading3,heading4,heading5,heading6,strong,em,hyperlink,image,embed,list-item,o-list-item,rtl",
+          "allowTargetBlank" : true,
+          "label" : "Description",
+          "placeholder" : "Project description"
+        }
+      },
+      "image" : {
+        "type" : "Image",
+        "config" : {
+          "constraint" : { },
+          "thumbnails" : [ ],
+          "label" : "Image"
+        }
+      },
+      "link" : {
+        "type" : "Link",
+        "config" : {
+          "allowTargetBlank" : true,
+          "label" : "Link",
+          "placeholder" : "project link",
+          "select" : null
+        }
+      }
+    }
+  }

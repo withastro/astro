@@ -1,0 +1,24 @@
+---
+import Navbar from './Navbar.astro'
+import AsText from '../Prismic/AsText.astro'
+import { initApi, Predicates } from '@/api/prismic.js'
+
+const api = await initApi()
+const { results } = await api.query(Predicates.at('document.type', 'header'))
+const { title, hero_image, subheading, tag_line } = results[0].data
+const { pathname } = Astro.request.url
+---
+
+<section id="header">
+  <h1><a href="/"><AsText data={title}/></a></h1>
+  <Navbar/>
+  {
+    pathname === '/' &&
+    <section id="banner" style={`background: #CCE8F4 url(${hero_image.url}); background-position: center center; background-size: cover; background-repeat: no-repeat;`}>
+      <header>
+        <h2><AsText data={subheading}/></h2>
+        <p><AsText data={tag_line}/></p>
+      </header>
+    </section>
+  }
+</section>
