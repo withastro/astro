@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { describeIfNotWindows, loadFixture } from './test-utils.js';
 
 let fixture;
 
@@ -75,7 +75,7 @@ describe('React Components', () => {
 		});
 	});
 
-	describe('dev', () => {
+	describeIfNotWindows('dev', () => {
 		let devServer;
 
 		before(async () => {

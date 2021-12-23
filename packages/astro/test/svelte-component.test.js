@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { describeIfNotWindows, loadFixture } from './test-utils.js';
 
 describe('Svelte component', () => {
 	let fixture;
@@ -28,7 +28,7 @@ describe('Svelte component', () => {
 		});
 	});
 
-	describe('dev', () => {
+	describeIfNotWindows('dev', () => {
 		let devServer;
 
 		before(async () => {
