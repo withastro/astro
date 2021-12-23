@@ -1,21 +1,23 @@
 import { expect } from 'chai';
-import { loadFixture } from './test-utils.js';
-
-let fixture;
-let devServer;
-
-before(async () => {
-	fixture = await loadFixture({
-		projectRoot: './fixtures/errors',
-		renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-react', '@astrojs/renderer-solid', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
-		vite: {
-			optimizeDeps: false, // necessary to prevent Vite throwing on bad files
-		},
-	});
-	devServer = await fixture.startDevServer();
-});
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Error display', () => {
+	if(isWindows) return;
+
+	let fixture;
+	let devServer;
+	
+	before(async () => {
+		fixture = await loadFixture({
+			projectRoot: './fixtures/errors',
+			renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-react', '@astrojs/renderer-solid', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
+			vite: {
+				optimizeDeps: false, // necessary to prevent Vite throwing on bad files
+			},
+		});
+		devServer = await fixture.startDevServer();
+	});
+
 	describe('Astro', () => {
 		it('syntax error in template', async () => {
 			const res = await fixture.fetch('/astro-syntax-error');
