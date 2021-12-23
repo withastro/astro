@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { describeIfNotWindows, loadFixture } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Vue component', () => {
 	let fixture;
@@ -43,7 +43,9 @@ describe('Vue component', () => {
 		});
 	});
 
-	describeIfNotWindows('dev', () => {
+	if(isWindows) return;
+
+	describe('dev', () => {
 		let devServer;
 
 		before(async () => {
