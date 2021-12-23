@@ -277,7 +277,8 @@ describe('CSS', function () {
 			expect((await fixture.fetch(href)).status).to.equal(200);
 		});
 
-		it('resolved imported CSS with ?url', async () => {
+		// Waiting on https://github.com/vitejs/vite/pull/5940
+		it.skip('resolved imported CSS with ?url', async () => {
 			const href = $('link[href$="imported-url.css"]').attr('href');
 			expect((await fixture.fetch(href)).status).to.equal(200);
 		});
