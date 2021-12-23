@@ -60,7 +60,7 @@ jobs:
           eslint_args: --ignore-pattern test --ignore-pattern vendor
           eslint_dir: packages/astro
           eslint_extensions: ts
-          prettier: true
+          prettier: false
           auto_fix: true
           git_name: github-actions[bot]
           git_email: github-actions[bot]@users.noreply.github.com
