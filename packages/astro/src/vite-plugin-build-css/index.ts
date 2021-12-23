@@ -29,7 +29,6 @@ export function getAstroStyleId(pathname: string) {
 	if (styleId.endsWith('/')) {
 		styleId += 'index';
 	}
-	styleId += '.css';
 	return styleId;
 }
 

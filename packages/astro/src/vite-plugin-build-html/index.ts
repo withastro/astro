@@ -120,14 +120,18 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 						}
 					}
 
-					let styles = '';
+					const assetImports = [];
+					const styleId = getAstroStyleId(pathname);
+					let styles = 0;
 					for (const node of findInlineStyles(document)) {
 						if (hasAttribute(node, 'astro-style')) {
-							styles += getTextContent(node);
+							const style = getTextContent(node) || ' '; // If an empty node, add whitespace
+							const thisStyleId = `${styleId}/${++styles}.css`;
+							internals.astroStyleMap.set(thisStyleId, style);
+							assetImports.push(thisStyleId);
 						}
 					}
 
-					const assetImports = [];
 					for (let node of findAssets(document)) {
 						if (isBuildableLink(node, srcRoot, srcRootWeb)) {
 							const href = getAttribute(node, 'href')!;
@@ -155,13 +159,6 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 								}
 							}
 						}
-					}
-
-					if (styles) {
-						const styleId = getAstroStyleId(pathname);
-						internals.astroStyleMap.set(styleId, styles);
-						// Put this at the front of imports
-						assetImports.unshift(styleId);
 					}
 
 					if (frontEndImports.length) {
