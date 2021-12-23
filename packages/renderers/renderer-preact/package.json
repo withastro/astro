@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/renderer-preact",
   "description": "Use Preact components within Astro",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
