@@ -20,7 +20,7 @@ describe('Error display', () => {
 
 	after(async () => {
 		await devServer.stop();
-	});	
+	});
 
 	describe('Astro', () => {
 		it('syntax error in template', async () => {
