@@ -9595,7 +9595,7 @@ vite-plugin-pwa@0.11.5:
     workbox-build "^6.4.0"
     workbox-window "^6.4.0"
 
-vite@^2.7.2:
+vite@^2.7.6:
   version "2.7.6"
   resolved "https://registry.yarnpkg.com/vite/-/vite-2.7.6.tgz#766c7524d27ba21ff27ab37aaffba7abf2e72917"
   integrity sha512-PBNoc87rDYLtkpFU9dbVeGdbcyKzz6c34oScqivE3FEa3BhVa4ASupCzcz0eDIiSECovfLcQnLUJt9vhiEU08g==
