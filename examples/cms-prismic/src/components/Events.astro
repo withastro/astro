@@ -1,8 +1,0 @@
----
-import Event from './Event.astro'
-
-const { data } = Astro.props
----
-<ul class="dates">
-    { data.map(event => (<Event eventItem={event}/>)) }
-</ul>

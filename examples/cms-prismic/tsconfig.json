@@ -1,9 +1,0 @@
-{
-    "compilerOptions": {
-        "baseUrl": ".",
-        "paths": {
-            "@/*": ["src/*"]
-          }
-      },
-    "moduleResolution": "node"
-}
