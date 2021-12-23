@@ -64,7 +64,7 @@
     "@astrojs/renderer-react": "0.4.0",
     "@astrojs/renderer-svelte": "0.3.0",
     "@astrojs/renderer-vue": "0.3.0",
-    "@astropub/webapi": "^0.7.1",
+    "@astropub/webapi": "^0.7.3",
     "@babel/core": "^7.15.8",
     "@babel/traverse": "^7.15.4",
     "@proload/core": "^0.2.1",
