@@ -23,7 +23,7 @@ export interface BuildOptions {
 export default async function build(config: AstroConfig, options: BuildOptions = { logging: defaultLogOptions }): Promise<void> {
 	// polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
 	polyfill(globalThis, {
-		exclude: 'window document',
+		exclude: 'window',
 	});
 
 	const builder = new AstroBuilder(config, options);
