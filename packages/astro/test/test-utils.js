@@ -113,6 +113,6 @@ export function cli(/** @type {string[]} */ ...args) {
 
 export const isWindows = os.platform() === 'win32';
 
-console.log("IS WINDOWS", isWindows);
-throw new Error('testing')
+console.log('IS WINDOWS', isWindows);
+throw new Error('testing');
 export const describeIfNotWindows = isWindows ? describe.skip : describe;
