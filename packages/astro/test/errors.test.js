@@ -2,11 +2,11 @@ import { expect } from 'chai';
 import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Error display', () => {
-	if(isWindows) return;
+	if (isWindows) return;
 
 	let fixture;
 	let devServer;
-	
+
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/errors',
