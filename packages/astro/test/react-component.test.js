@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 let fixture;
 
@@ -74,6 +74,8 @@ describe('React Components', () => {
 			expect(div.html()).to.equal('foo bar <!-- -->1');
 		});
 	});
+
+	if (isWindows) return;
 
 	describe('dev', () => {
 		let devServer;

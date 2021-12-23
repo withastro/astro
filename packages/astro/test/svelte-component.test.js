@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Svelte component', () => {
 	let fixture;
@@ -27,6 +27,8 @@ describe('Svelte component', () => {
 			expect($('#svelte-ts').text()).to.equal('Hello, TypeScript');
 		});
 	});
+
+	if (isWindows) return;
 
 	describe('dev', () => {
 		let devServer;

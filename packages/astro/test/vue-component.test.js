@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Vue component', () => {
 	let fixture;
@@ -42,6 +42,8 @@ describe('Vue component', () => {
 			expect(new Set(uniqueRootUIDs).size).to.equal(4);
 		});
 	});
+
+	if (isWindows) return;
 
 	describe('dev', () => {
 		let devServer;

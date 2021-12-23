@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Solid component', () => {
 	let fixture;
@@ -28,6 +28,8 @@ describe('Solid component', () => {
 			expect($('.hello')).to.have.lengthOf(1);
 		});
 	});
+
+	if (isWindows) return;
 
 	describe('dev', () => {
 		let devServer;

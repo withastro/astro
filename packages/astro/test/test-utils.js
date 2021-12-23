@@ -6,6 +6,7 @@ import { loadConfig } from '../dist/core/config.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
+import os from 'os';
 /**
  * @typedef {import('node-fetch').Response} Response
  * @typedef {import('../src/core/dev/index').DevServer} DevServer
@@ -109,3 +110,5 @@ export function cli(/** @type {string[]} */ ...args) {
 
 	return spawned;
 }
+
+export const isWindows = os.platform() === 'win32';
