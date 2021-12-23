@@ -12,10 +12,10 @@ export interface BuildInternals {
 	// This is a virtual JS module that imports all dependent styles for a page.
 	astroPageStyleMap: Map<string, string>;
 
-  // A mapping to entrypoints (facadeId) to assets (styles) that are added.
-  facadeIdToAssetsMap: Map<string, string[]>;
+	// A mapping to entrypoints (facadeId) to assets (styles) that are added.
+	facadeIdToAssetsMap: Map<string, string[]>;
 
-  entrySpecifierToBundleMap: Map<string, string>;
+	entrySpecifierToBundleMap: Map<string, string>;
 }
 
 /**
@@ -37,12 +37,12 @@ export function createBuildInternals(): BuildInternals {
 	// A mapping to entrypoints (facadeId) to assets (styles) that are added.
 	const facadeIdToAssetsMap = new Map<string, string[]>();
 
-  return {
-    pureCSSChunks,
-    chunkToReferenceIdMap,
-    astroStyleMap,
-    astroPageStyleMap,
-    facadeIdToAssetsMap,
-    entrySpecifierToBundleMap: new Map<string, string>(),
-  };
+	return {
+		pureCSSChunks,
+		chunkToReferenceIdMap,
+		astroStyleMap,
+		astroPageStyleMap,
+		facadeIdToAssetsMap,
+		entrySpecifierToBundleMap: new Map<string, string>(),
+	};
 }

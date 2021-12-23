@@ -3,7 +3,7 @@ import { renderToString } from 'vue/server-renderer';
 import StaticHtml from './static-html.js';
 
 function check(Component) {
-  return !!Component['ssrRender'] || !!Component.render;
+	return !!Component['ssrRender'] || !!Component.render;
 }
 
 async function renderToStaticMarkup(Component, props, children) {

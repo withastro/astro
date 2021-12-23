@@ -1,18 +1,6 @@
 import type { BuildResult } from 'esbuild';
 import type vite from '../vite';
-import type {
-  AstroConfig,
-  ComponentInstance,
-  GetStaticPathsResult,
-  Params,
-  Props,
-  Renderer,
-  RouteCache,
-  RouteData,
-  RuntimeMode,
-  SSRElement,
-  SSRError,
-} from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRElement, SSRError } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 import type { AstroComponentFactory } from '../../runtime/server/index';
 
@@ -148,20 +136,20 @@ export async function renderComponent(
 	pageProps: Props,
 	links: string[] = []
 ): Promise<string> {
-  const result = createResult({ astroConfig, origin, params, pathname, renderers });
-  result.links = new Set<SSRElement>(
-    links.map((href) => ({
-      props: {
-        rel: 'stylesheet',
-        href,
-      },
-      children: '',
-    }))
-  );
+	const result = createResult({ astroConfig, origin, params, pathname, renderers });
+	result.links = new Set<SSRElement>(
+		links.map((href) => ({
+			props: {
+				rel: 'stylesheet',
+				href,
+			},
+			children: '',
+		}))
+	);
 
-  let html = await renderPage(result, Component, pageProps, null);
+	let html = await renderPage(result, Component, pageProps, null);
 
-  return html;
+	return html;
 }
 
 export async function getParamsAndProps({
@@ -211,103 +199,103 @@ export async function getParamsAndProps({
 
 /** use Vite to SSR */
 export async function render(renderers: Renderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<string> {
-  const { astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer } = ssrOpts;
+	const { astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer } = ssrOpts;
 
-  // Handle dynamic routes
-  let params: Params = {};
-  let pageProps: Props = {};
-  if (route && !route.pathname) {
-    if (route.params.length) {
-      const paramsMatch = route.pattern.exec(pathname);
-      if (paramsMatch) {
-        params = getParams(route.params)(paramsMatch);
-      }
-    }
-    validateGetStaticPathsModule(mod);
-    if (!routeCache[route.component]) {
-      routeCache[route.component] = await (
-        await mod.getStaticPaths!({
-          paginate: generatePaginateFunction(route),
-          rss: () => {
-            /* noop */
-          },
-        })
-      ).flat();
-    }
-    validateGetStaticPathsResult(routeCache[route.component], logging);
-    const routePathParams: GetStaticPathsResult = routeCache[route.component];
-    const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
-    if (!matchedStaticPath) {
-      throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
-    }
-    pageProps = { ...matchedStaticPath.props } || {};
-  }
+	// Handle dynamic routes
+	let params: Params = {};
+	let pageProps: Props = {};
+	if (route && !route.pathname) {
+		if (route.params.length) {
+			const paramsMatch = route.pattern.exec(pathname);
+			if (paramsMatch) {
+				params = getParams(route.params)(paramsMatch);
+			}
+		}
+		validateGetStaticPathsModule(mod);
+		if (!routeCache[route.component]) {
+			routeCache[route.component] = await (
+				await mod.getStaticPaths!({
+					paginate: generatePaginateFunction(route),
+					rss: () => {
+						/* noop */
+					},
+				})
+			).flat();
+		}
+		validateGetStaticPathsResult(routeCache[route.component], logging);
+		const routePathParams: GetStaticPathsResult = routeCache[route.component];
+		const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
+		if (!matchedStaticPath) {
+			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
+		}
+		pageProps = { ...matchedStaticPath.props } || {};
+	}
 
-  // Validate the page component before rendering the page
-  const Component = await mod.default;
-  if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
-  if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
+	// Validate the page component before rendering the page
+	const Component = await mod.default;
+	if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
+	if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
-  const result = createResult({ astroConfig, origin, params, pathname, renderers });
-  result.resolve = async (s: string) => {
-    const [, path] = await viteServer.moduleGraph.resolveUrl(s);
-    return path;
-  };
+	const result = createResult({ astroConfig, origin, params, pathname, renderers });
+	result.resolve = async (s: string) => {
+		const [, path] = await viteServer.moduleGraph.resolveUrl(s);
+		return path;
+	};
 
-  let html = await renderPage(result, Component, pageProps, null);
+	let html = await renderPage(result, Component, pageProps, null);
 
-  // inject tags
-  const tags: vite.HtmlTagDescriptor[] = [];
+	// inject tags
+	const tags: vite.HtmlTagDescriptor[] = [];
 
-  // dev only: inject Astro HMR client
-  if (mode === 'development') {
-    tags.push({
-      tag: 'script',
-      attrs: { type: 'module' },
-      // HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure
-      // `import.meta.hot` is properly handled by Vite
-      children: await getHmrScript(),
-      injectTo: 'head',
-    });
-  }
+	// dev only: inject Astro HMR client
+	if (mode === 'development') {
+		tags.push({
+			tag: 'script',
+			attrs: { type: 'module' },
+			// HACK: inject the direct contents of our `astro/runtime/client/hmr.js` to ensure
+			// `import.meta.hot` is properly handled by Vite
+			children: await getHmrScript(),
+			injectTo: 'head',
+		});
+	}
 
-  // inject CSS
-  [...getStylesForURL(filePath, viteServer)].forEach((href) => {
-    if (mode === 'development' && svelteStylesRE.test(href)) {
-      tags.push({
-        tag: 'script',
-        attrs: { type: 'module', src: href },
-        injectTo: 'head',
-      });
-    } else {
-      tags.push({
-        tag: 'link',
-        attrs: {
-          rel: 'stylesheet',
-          href,
-          'data-astro-injected': true,
-        },
-        injectTo: 'head',
-      });
-    }
-  });
+	// inject CSS
+	[...getStylesForURL(filePath, viteServer)].forEach((href) => {
+		if (mode === 'development' && svelteStylesRE.test(href)) {
+			tags.push({
+				tag: 'script',
+				attrs: { type: 'module', src: href },
+				injectTo: 'head',
+			});
+		} else {
+			tags.push({
+				tag: 'link',
+				attrs: {
+					rel: 'stylesheet',
+					href,
+					'data-astro-injected': true,
+				},
+				injectTo: 'head',
+			});
+		}
+	});
 
-  // add injected tags
-  html = injectTags(html, tags);
+	// add injected tags
+	html = injectTags(html, tags);
 
-  // run transformIndexHtml() in dev to run Vite dev transformations
-  if (mode === 'development') {
-    const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
-    console.log("TRANFORM", relativeURL, html);
-    //html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
-  }
+	// run transformIndexHtml() in dev to run Vite dev transformations
+	if (mode === 'development') {
+		const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
+		console.log('TRANFORM', relativeURL, html);
+		//html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
+	}
 
-  // inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-  if (!/<!doctype html/i.test(html)) {
-    html = '<!DOCTYPE html>\n' + html;
-  }
+	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
+	if (!/<!doctype html/i.test(html)) {
+		html = '<!DOCTYPE html>\n' + html;
+	}
 
-  return html;
+	return html;
 }
 
 let hmrScript: string;

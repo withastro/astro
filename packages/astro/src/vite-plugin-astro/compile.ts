@@ -27,38 +27,38 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
 }
 
 async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: boolean | undefined) {
-  // pages and layouts should be transformed as full documents (implicit <head> <body> etc)
-  // everything else is treated as a fragment
-  const filenameURL = new URL(`file://${filename}`);
-  const normalizedID = fileURLToPath(filenameURL);
-  const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
-  const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1)
+	// pages and layouts should be transformed as full documents (implicit <head> <body> etc)
+	// everything else is treated as a fragment
+	const filenameURL = new URL(`file://${filename}`);
+	const normalizedID = fileURLToPath(filenameURL);
+	const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
+	const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
 
 	let cssTransformError: Error | undefined;
 
-  // Transform from `.astro` to valid `.ts`
-  // use `sourcemap: "both"` so that sourcemap is included in the code
-  // result passed to esbuild, but also available in the catch handler.
-  const transformResult = await transform(source, {
-    as: isPage ? 'document' : 'fragment',
-    pathname,
-    projectRoot: config.projectRoot.toString(),
-    site: config.buildOptions.site,
-    sourcefile: filename,
-    sourcemap: 'both',
-    internalURL: 'astro/internal',
-    experimentalStaticExtraction: config.buildOptions.experimentalStaticBuild,
-    // TODO add experimental flag here
-    preprocessStyle: async (value: string, attrs: Record<string, string>) => {
-      const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
-      try {
-        const result = await transformWithVite({
-          value,
-          lang,
-          id: filename,
-          transformHook: viteTransform,
-          ssr: isSSR(opts),
-        });
+	// Transform from `.astro` to valid `.ts`
+	// use `sourcemap: "both"` so that sourcemap is included in the code
+	// result passed to esbuild, but also available in the catch handler.
+	const transformResult = await transform(source, {
+		as: isPage ? 'document' : 'fragment',
+		pathname,
+		projectRoot: config.projectRoot.toString(),
+		site: config.buildOptions.site,
+		sourcefile: filename,
+		sourcemap: 'both',
+		internalURL: 'astro/internal',
+		experimentalStaticExtraction: config.buildOptions.experimentalStaticBuild,
+		// TODO add experimental flag here
+		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
+			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
+			try {
+				const result = await transformWithVite({
+					value,
+					lang,
+					id: filename,
+					transformHook: viteTransform,
+					ssr: isSSR(opts),
+				});
 
 				let map: SourceMapInput | undefined;
 				if (!result) return null as any; // TODO: add type in compiler to fix "any"

@@ -152,41 +152,41 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
 Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`;
-    throw new Error(message);
-  }
+		throw new Error(message);
+	}
 
-  // Call the renderers `check` hook to see if any claim this component.
-  let renderer: Renderer | undefined;
-  debugger;
-  if (metadata.hydrate !== 'only') {
-    for (const r of renderers) {
-      if (await r.ssr.check(Component, props, children)) {
-        renderer = r;
-        break;
-      }
-    }
-  } else {
-    // Attempt: use explicitly passed renderer name
-    if (metadata.hydrateArgs) {
-      const rendererName = metadata.hydrateArgs;
-      renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${rendererName}` || name === rendererName)[0];
-    }
-    // Attempt: user only has a single renderer, default to that
-    if (!renderer && renderers.length === 1) {
-      renderer = renderers[0];
-    }
-    // Attempt: can we guess the renderer from the export extension?
-    if (!renderer) {
-      const extname = metadata.componentUrl?.split('.').pop();
-      renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${extname}` || name === extname)[0];
-    }
-  }
+	// Call the renderers `check` hook to see if any claim this component.
+	let renderer: Renderer | undefined;
+	debugger;
+	if (metadata.hydrate !== 'only') {
+		for (const r of renderers) {
+			if (await r.ssr.check(Component, props, children)) {
+				renderer = r;
+				break;
+			}
+		}
+	} else {
+		// Attempt: use explicitly passed renderer name
+		if (metadata.hydrateArgs) {
+			const rendererName = metadata.hydrateArgs;
+			renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${rendererName}` || name === rendererName)[0];
+		}
+		// Attempt: user only has a single renderer, default to that
+		if (!renderer && renderers.length === 1) {
+			renderer = renderers[0];
+		}
+		// Attempt: can we guess the renderer from the export extension?
+		if (!renderer) {
+			const extname = metadata.componentUrl?.split('.').pop();
+			renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${extname}` || name === extname)[0];
+		}
+	}
 
-  // If no one claimed the renderer
-  if (!renderer) {
-    if (metadata.hydrate === 'only') {
-      // TODO: improve error message
-      throw new Error(`Unable to render ${metadata.displayName}!
+	// If no one claimed the renderer
+	if (!renderer) {
+		if (metadata.hydrate === 'only') {
+			// TODO: improve error message
+			throw new Error(`Unable to render ${metadata.displayName}!
 
 Using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.
 Did you mean to pass <${metadata.displayName} client:only="${probableRendererNames.map((r) => r.replace('@astrojs/renderer-', '')).join('|')}" />
@@ -213,46 +213,46 @@ Please ensure that ${metadata.displayName}:
 2. Does not conditionally return \`null\` or \`undefined\` when rendered on the server.
 
 If you're still stuck, please open an issue on GitHub or join us at https://astro.build/chat.`);
-      }
-    }
-  } else {
-    if (metadata.hydrate === 'only') {
-      html = await renderSlot(result, slots?.fallback);
-    } else {
-      ({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
-    }
-  }
+			}
+		}
+	} else {
+		if (metadata.hydrate === 'only') {
+			html = await renderSlot(result, slots?.fallback);
+		} else {
+			({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
+		}
+	}
 
-  // This is a custom element without a renderer. Because of that, render it
-  // as a string and the user is responsible for adding a script tag for the component definition.
-  if (!html && typeof Component === 'string') {
-    html = await renderAstroComponent(
-      await render`<${Component}${spreadAttributes(props)}${(children == null || children == '') && voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`}`
-    );
-  }
+	// This is a custom element without a renderer. Because of that, render it
+	// as a string and the user is responsible for adding a script tag for the component definition.
+	if (!html && typeof Component === 'string') {
+		html = await renderAstroComponent(
+			await render`<${Component}${spreadAttributes(props)}${(children == null || children == '') && voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`}`
+		);
+	}
 
-  // This is used to add polyfill scripts to the page, if the renderer needs them.
-  if (renderer?.polyfills?.length) {
-    for (const src of renderer.polyfills) {
-      result.scripts.add({
-        props: { type: 'module' },
-        children: `import "${src}";`,
-      });
-    }
-  }
+	// This is used to add polyfill scripts to the page, if the renderer needs them.
+	if (renderer?.polyfills?.length) {
+		for (const src of renderer.polyfills) {
+			result.scripts.add({
+				props: { type: 'module' },
+				children: `import "${src}";`,
+			});
+		}
+	}
 
-  if (!hydration) {
-    return html.replace(/\<\/?astro-fragment\>/g, '');
-  }
+	if (!hydration) {
+		return html.replace(/\<\/?astro-fragment\>/g, '');
+	}
 
-  // Include componentExport name and componentUrl in hash to dedupe identical islands
-  const astroId = shorthash.unique(`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}`);
+	// Include componentExport name and componentUrl in hash to dedupe identical islands
+	const astroId = shorthash.unique(`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}`);
 
-  // Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
-  // INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
-  result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
+	// Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
+	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
+	result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
-  return `<astro-root uid="${astroId}">${html ?? ''}</astro-root>`;
+	return `<astro-root uid="${astroId}">${html ?? ''}</astro-root>`;
 }
 
 /** Create the Astro.fetchContent() runtime function. */
