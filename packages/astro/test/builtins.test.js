@@ -15,7 +15,7 @@ describe('Node builtins', () => {
 		const $ = cheerio.load(html);
 
 		expect($('#version').text()).to.equal('1.2.0');
-		expect($('#dep-version').text()).to.equal('0.0.1');
+		expect($('#dep-version').text()).to.equal('0.1.0');
 	});
 
 	it('Can also be used with the non-prefixed version', async () => {
