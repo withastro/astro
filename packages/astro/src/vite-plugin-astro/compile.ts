@@ -12,21 +12,7 @@ type CompilationCache = Map<string, TransformResult>;
 
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
-// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
-function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
-	if (options === undefined) {
-		return false;
-	}
-	if (typeof options === 'boolean') {
-		return options;
-	}
-	if (typeof options == 'object') {
-		return !!options.ssr;
-	}
-	return false;
-}
-
-async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: boolean | undefined) {
+async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts?: { ssr?: boolean }) {
 	// pages and layouts should be transformed as full documents (implicit <head> <body> etc)
 	// everything else is treated as a fragment
 	const filenameURL = new URL(`file://${filename}`);
@@ -57,7 +43,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 					lang,
 					id: filename,
 					transformHook: viteTransform,
-					ssr: isSSR(opts),
+					ssr: Boolean(opts?.ssr),
 				});
 
 				let map: SourceMapInput | undefined;
@@ -91,7 +77,7 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 	}
 }
 
-export async function cachedCompilation(config: AstroConfig, filename: string, source: string | null, viteTransform: TransformHook, opts: boolean | undefined) {
+export async function cachedCompilation(config: AstroConfig, filename: string, source: string | null, viteTransform: TransformHook, opts?: { ssr?: boolean; }) {
 	let cache: CompilationCache;
 	if (!configCache.has(config)) {
 		cache = new Map();
