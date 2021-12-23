@@ -18,6 +18,10 @@ describe('Error display', () => {
 		devServer = await fixture.startDevServer();
 	});
 
+	after(async () => {
+		await devServer.stop();
+	});	
+
 	describe('Astro', () => {
 		it('syntax error in template', async () => {
 			const res = await fixture.fetch('/astro-syntax-error');
@@ -201,8 +205,4 @@ describe('Error display', () => {
 			expect(body).to.match(/Cannot read.*undefined/); // note: error differs slightly between Node versions
 		});
 	});
-});
-
-after(async () => {
-	await devServer.stop();
 });
