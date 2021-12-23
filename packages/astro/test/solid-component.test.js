@@ -29,7 +29,7 @@ describe('Solid component', () => {
 		});
 	});
 
-	if(isWindows) return;
+	if (isWindows) return;
 
 	describe('dev', () => {
 		let devServer;
