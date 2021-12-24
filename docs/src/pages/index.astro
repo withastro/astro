@@ -27,13 +27,11 @@ import Layout from '../layouts/MainLayout.astro';
 		'en-US'
 	).substr(0, 5);
 	let newLang = newLangWithRegion.substr(0, 2);
-	if (newLang === 'en') {
-		window.location.pathname = '/getting-started';
-	} else if (KNOWN_LANGUAGES.includes(newLangWithRegion)) {
+	if (KNOWN_LANGUAGES.includes(newLangWithRegion)) {
 		window.location.pathname = '/' + newLangWithRegion + '/getting-started';
 	} else if (KNOWN_LANGUAGES.includes(newLang)) {
 		window.location.pathname = '/' + newLang + '/getting-started';
 	} else {
-		window.location.pathname = '/getting-started';
+		window.location.pathname = '/en/getting-started';
 	}
 </script>

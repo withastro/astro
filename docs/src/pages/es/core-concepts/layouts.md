@@ -4,7 +4,7 @@ title: Maquetas
 lang: es
 ---
 
-**Las maquetas** son un tipo especial de [Componente](/es/core-concept/astro-components) que te ayudan a compartir y reutilizar maquetas de página comunes dentro de tu proyecto.
+**Las maquetas** son un tipo especial de [Componente](/es/core-concepts/astro-components) que te ayudan a compartir y reutilizar maquetas de página comunes dentro de tu proyecto.
 
 Las maquetas son como cualquier otro componente de Astro reutilizable. No hay una nueva sintaxis o API que aprender. Sin embargo, las maquetas de página reutilizables son un patrón tan común en el desarrollo web que creamos esta guía para ayudarte a usarlos.
 

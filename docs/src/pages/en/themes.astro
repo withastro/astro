@@ -1,0 +1,53 @@
+---
+import Layout from '../../layouts/MainLayout.astro';
+import Card from '../../components/Card.astro';
+import { Markdown } from 'astro/components';
+import themes from '../../data/themes.json';
+import components from '../../data/components.json';
+---
+
+<Layout content={{ title: 'Themes' }} hideRightSidebar>
+	<style>
+		.card-grid {
+			display: grid;
+			grid-column-gap: 15px;
+			grid-row-gap: 15px;
+			grid-auto-flow: dense;
+			grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		}
+	</style>
+	<Markdown>
+		## Featured Theme
+	</Markdown>
+	<div class="card-grid">
+		{themes.featured.map((item) => <Card data={item} />)}
+	</div>
+	<Markdown>
+		## Official Themes
+
+		Astro maintains several official themes for documentation sites, portfolios, and more.
+	</Markdown>
+	<div class="card-grid">
+		{themes.official.map((item) => <Card data={item} />)}
+	</div>
+	<Markdown>
+		## Community Themes
+
+		Checkout some themes developed by our community!
+	</Markdown>
+	<div class="card-grid">
+		{themes.community.map((item) => <Card data={item} />)}
+	</div>
+	<Markdown>
+		## Featured Packages
+
+		Our package ecosystem is growing! Check out these featured community packages. Search the entire collection [on npm.](https://www.npmjs.com/search?q=keywords%3Aastro-component)
+	</Markdown>
+	<div class="card-grid">
+		{components.community.map((item) => <Card data={item} />)}
+	</div>
+	<Markdown>
+		> Want to see your own work featured? [Share it to Discord!](https://astro.build/chat)
+		> We'll often take our favorites from the `#showcase` channel and post them here.
+	</Markdown>
+</Layout>

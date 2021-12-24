@@ -106,7 +106,7 @@ Todos los demás activos que no se mencionan explícitamente anteriormente se pu
 const wasm = await WebAssembly.instantiateStreaming(fetch('/example.wasm'));
 ```
 
-Astro admite la carga de archivos WASM directamente en tu aplicación utilizando la API [`WebAssembly`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly) del navegador. Lee nuestra [guía WASM](/es/guides/wasm) para obtener más información.
+Astro admite la carga de archivos WASM directamente en tu aplicación utilizando la API [`WebAssembly`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WebAssembly) del navegador.
 
 ## Paquetes npm
 
