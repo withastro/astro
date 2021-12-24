@@ -39,7 +39,7 @@ You can sponsor Astro's development on [Open Collective][oc]. Astro is generousl
   </tbody>
 </table>
 
-### Sponsors
+### Gold Sponsors
 
 <table>
   <tbody>
@@ -55,6 +55,8 @@ You can sponsor Astro's development on [Open Collective][oc]. Astro is generousl
     </tr>
   </tbody>
 </table>
+
+### Sponsors
 
 <table>
   <tbody>
