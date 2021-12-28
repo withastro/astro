@@ -186,7 +186,6 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 			if (!allInputs.size) {
 				allInputs.add(ASTRO_EMPTY);
 			}
-			console.log("ALL INPUTS", allInputs)
 			const outOptions = addRollupInput(inputOptions, Array.from(allInputs));
 			return outOptions;
 		},
