@@ -2,7 +2,6 @@ import type { BuildResult } from 'esbuild';
 import type vite from '../vite';
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRElement, SSRError } from '../../@types/astro';
 import type { LogOptions } from '../logger';
-import type { AstroComponentFactory } from '../../runtime/server/index';
 
 import eol from 'eol';
 import fs from 'fs';
@@ -123,33 +122,6 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 
 	return [renderers, mod];
-}
-
-// TODO REMOVE
-export async function renderComponent(
-	renderers: Renderer[],
-	Component: AstroComponentFactory,
-	astroConfig: AstroConfig,
-	pathname: string,
-	origin: string,
-	params: Params,
-	pageProps: Props,
-	links: string[] = []
-): Promise<string> {
-	const result = createResult({ astroConfig, origin, params, pathname, renderers });
-	result.links = new Set<SSRElement>(
-		links.map((href) => ({
-			props: {
-				rel: 'stylesheet',
-				href,
-			},
-			children: '',
-		}))
-	);
-
-	let html = await renderPage(result, Component, pageProps, null);
-
-	return html;
 }
 
 export async function getParamsAndProps({

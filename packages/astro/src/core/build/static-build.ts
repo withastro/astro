@@ -32,7 +32,7 @@ export interface StaticBuildOptions {
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
-	// The pages
+	// The pages to be built for rendering purposes.
 	const pageInput = new Set<string>();
 
 	// The JavaScript entrypoints.
@@ -219,6 +219,8 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 				children: '',
 			}))
 		);
+		// Override the `resolve` method so that hydrated components are given the
+		// hashed filepath to the component.
 		result.resolve = async (specifier: string) => {
 			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
 			if (typeof hashedFilePath !== 'string') {
@@ -243,7 +245,6 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
 		cwd: opts.astroConfig.dist.pathname,
-		//ignore: ['node_modules/**'].concat(filePathsToIgnore.map((ignore) => `${ignore}/**`)),
 	});
 	await Promise.all(
 		files.map(async (filename) => {

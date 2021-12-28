@@ -157,7 +157,6 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 
 	// Call the renderers `check` hook to see if any claim this component.
 	let renderer: Renderer | undefined;
-	debugger;
 	if (metadata.hydrate !== 'only') {
 		for (const r of renderers) {
 			if (await r.ssr.check(Component, props, children)) {

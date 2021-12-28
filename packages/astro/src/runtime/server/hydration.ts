@@ -69,6 +69,8 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 					extracted.hydration.componentExport.value = value;
 					break;
 				}
+				// This is a special prop added to prove that the client hydration method
+				// was added statically.
 				case 'client:component-hydration': {
 					break;
 				}
@@ -96,6 +98,7 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 			extracted.props[key] = value;
 		}
 	}
+
 	return extracted;
 }
 
