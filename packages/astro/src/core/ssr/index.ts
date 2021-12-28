@@ -211,7 +211,6 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	const result = createResult({ astroConfig, origin, params, pathname, renderers });
 	result.resolve = async (s: string) => {
 		const [, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
-		console.log("DEBUGGING WINDOWS", s, resolvedPath);
 		return resolvedPath;
 	};
 
