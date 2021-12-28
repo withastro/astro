@@ -1,37 +1,46 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro'
-import Portfolio from '@/components/Portfolio.astro'
-import Blog from '@/components/Blog.astro'
 import { initApi, Predicates } from '@/api/prismic.js'
+import AsText from '@/components/Prismic/AsText.astro'
+import SetupGuide from '@/components/SetupGuide.astro'
 
 const api = await initApi()
-const { results } = await api.query(
-	Predicates.at('document.type', 'homepage'),
-	{ 
-		'fetchLinks' : [
-			'project.title', 'project.description',
-			'blog_post.title', 'blog_post.content', 'blog_post.image',
-			'event.title', 'event.date', 'event.description'
-			] 
-	})
+
+let title
+
+if (!!api) {
+	const { results } = await api.query(
+    	Predicates.at('document.type', 'homepage')
+	)
+	title = results[0].data.title
 	
-const { body } = results[0].data
+}
+
+const status = !!api ? 'Connected.' : 'Not connected.'
+
 ---
-<BaseLayout>
-	<div class="row">
-	{
-		body.map(slice => (
-			slice.slice_type === 'featured_projects' ?
-			<div class="col-12">
-				<Portfolio portfolioData={slice} />
-			</div> :
-			slice.slice_type === 'featured_posts' ?
-			<div class="col-12">
-				<Blog blogData={slice} />
-			</div> :
-			null
-		))
-	}
-		
-	</div>
-</BaseLayout>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Astro 🚀 x Prismic Example</title>
+	<link rel="stylesheet" href={Astro.resolve('../styles/style.css')} />
+</head>
+<body>
+	<main class="container">
+		<h1>Astro 🚀 x Prismic Example</h1>
+		<div>
+			<p>Prismic API status: <span style={`${!!api ? 'color: green;' : 'color: red;'}`}>{status}</span></p>
+		</div>
+
+		{
+			!!api ?
+			<div>
+				<h2><AsText data={title}/></h2>
+			</div>
+			:
+			<SetupGuide />
+		}
+	</main>
+</body>
+</html>
