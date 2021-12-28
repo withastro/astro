@@ -210,8 +210,8 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
 	const result = createResult({ astroConfig, origin, params, pathname, renderers });
 	result.resolve = async (s: string) => {
-		const [, path] = await viteServer.moduleGraph.resolveUrl(s);
-		return path;
+		const [, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
+		return resolvedPath;
 	};
 
 	let html = await renderPage(result, Component, pageProps, null);
@@ -256,10 +256,9 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	html = injectTags(html, tags);
 
 	// run transformIndexHtml() in dev to run Vite dev transformations
-	if (mode === 'development') {
+	if (mode === 'development' && !astroConfig.buildOptions.experimentalStaticBuild) {
 		const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
-		console.log('TRANFORM', relativeURL, html);
-		//html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
+		html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
 	}
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
