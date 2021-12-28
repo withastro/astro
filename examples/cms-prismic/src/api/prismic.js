@@ -7,7 +7,7 @@ const { PUBLIC_PRISMIC_ENDPOINT } = import.meta.env;
 
 // Initialize the Prismic api
 function initApi(req){
-  if (!PUBLIC_PRISMIC_ENDPOINT) {
+  if (PUBLIC_PRISMIC_ENDPOINT) {
     return Prismic.client(PUBLIC_PRISMIC_ENDPOINT, {
       // accessToken: 'your-access-token', // uncomment this if your API needs a token
       req: req
