@@ -1,5 +1,11 @@
 # astro
 
+## 0.22.3
+
+### Patch Changes
+
+- [#2292](https://github.com/withastro/astro/pull/2292) [`2e55dc26`](https://github.com/withastro/astro/commit/2e55dc2686b0e2bff2e2ec76c184a17a3d2368c4) Thanks [@matthewp](https://github.com/matthewp)! - Rolls back a feature flag feature that was breaking the docs site
+
 ## 0.22.2
 
 ### Patch Changes
@@ -1041,10 +1047,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1064,10 +1070,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
