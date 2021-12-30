@@ -50,7 +50,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		},
 		plugins: [
 			configAliasVitePlugin({ config: astroConfig }),
-			astroVitePlugin({ config: astroConfig, devServer }),
+			astroVitePlugin({ config: astroConfig, devServer, logging }),
 			markdownVitePlugin({ config: astroConfig, devServer }),
 			jsxVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig, devServer }),

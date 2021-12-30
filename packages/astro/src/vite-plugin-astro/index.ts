@@ -1,5 +1,6 @@
 import type vite from '../core/vite';
 import type { AstroConfig } from '../@types/astro';
+import type { LogOptions } from '../core/logger';
 
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
@@ -11,11 +12,12 @@ import { cachedCompilation, invalidateCompilation } from './compile.js';
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
 	config: AstroConfig;
+	logging: LogOptions;
 	devServer?: AstroDevServer;
 }
 
 /** Transform .astro files for Vite */
-export default function astro({ config }: AstroPluginOptions): vite.Plugin {
+export default function astro({ config, logging }: AstroPluginOptions): vite.Plugin {
 	let viteTransform: TransformHook;
 	return {
 		name: '@astrojs/vite-plugin-astro',
@@ -118,8 +120,11 @@ export default function astro({ config }: AstroPluginOptions): vite.Plugin {
     Please open
     a GitHub issue using the link below:
     ${err.url}`;
-					// TODO: remove stack replacement when compiler throws better errors
-					err.stack = `    at ${id}`;
+
+					if(logging.level !== 'debug') {
+						// TODO: remove stack replacement when compiler throws better errors
+						err.stack = `    at ${id}`;
+					}
 				}
 
 				throw err;
