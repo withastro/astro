@@ -1,5 +1,3 @@
-import { hydrationSpecifier } from './util.js';
-
 interface ModuleInfo {
 	module: Record<string, any>;
 	specifier: string;
@@ -10,28 +8,11 @@ interface ComponentMetadata {
 	componentUrl: string;
 }
 
-interface CreateMetadataOptions {
-	modules: ModuleInfo[];
-	hydratedComponents: any[];
-	hydrationDirectives: Set<string>;
-	hoisted: any[];
-}
-
 export class Metadata {
 	public fileURL: URL;
-	public modules: ModuleInfo[];
-	public hoisted: any[];
-	public hydratedComponents: any[];
-	public hydrationDirectives: Set<string>;
-
 	private metadataCache: Map<any, ComponentMetadata | null>;
-
-	constructor(filePathname: string, opts: CreateMetadataOptions) {
-		this.modules = opts.modules;
-		this.hoisted = opts.hoisted;
-		this.hydratedComponents = opts.hydratedComponents;
-		this.hydrationDirectives = opts.hydrationDirectives;
-		this.fileURL = new URL(filePathname, 'http://example.com');
+	constructor(fileURL: string, public modules: ModuleInfo[], public hydratedComponents: any[], public hoisted: any[]) {
+		this.fileURL = new URL(fileURL);
 		this.metadataCache = new Map<any, ComponentMetadata | null>();
 	}
 
@@ -49,50 +30,24 @@ export class Metadata {
 		return metadata?.componentExport || null;
 	}
 
-	/**
-	 * Gets the paths of all hydrated components within this component
-	 * and children components.
-	 */
-	*hydratedComponentPaths() {
-		const found = new Set<string>();
-		for (const metadata of this.deepMetadata()) {
-			for (const component of metadata.hydratedComponents) {
-				const path = this.getPath(component);
-				if (path && !found.has(path)) {
-					found.add(path);
-					yield path;
-				}
+	// Recursively collect all of the hydrated components' paths.
+	getAllHydratedComponentPaths(): Set<string> {
+		const paths = new Set<string>();
+		for (const component of this.hydratedComponents) {
+			const path = this.getPath(component);
+			if (path) {
+				paths.add(path);
 			}
 		}
-	}
 
-	/**
-	 * Gets all of the hydration specifiers used within this component.
-	 */
-	*hydrationDirectiveSpecifiers() {
-		for (const directive of this.hydrationDirectives) {
-			yield hydrationSpecifier(directive);
-		}
-	}
-
-	private *deepMetadata(): Generator<Metadata, void, unknown> {
-		// Yield self
-		yield this;
-		// Keep a Set of metadata objects so we only yield them out once.
-		const seen = new Set<Metadata>();
 		for (const { module: mod } of this.modules) {
 			if (typeof mod.$$metadata !== 'undefined') {
-				const md = mod.$$metadata as Metadata;
-				// Call children deepMetadata() which will yield the child metadata
-				// and any of its children metadatas
-				for (const childMetdata of md.deepMetadata()) {
-					if (!seen.has(childMetdata)) {
-						seen.add(childMetdata);
-						yield childMetdata;
-					}
+				for (const path of mod.$$metadata.getAllHydratedComponentPaths()) {
+					paths.add(path);
 				}
 			}
 		}
+		return paths;
 	}
 
 	private getComponentMetadata(Component: any): ComponentMetadata | null {
@@ -128,6 +83,12 @@ export class Metadata {
 	}
 }
 
-export function createMetadata(filePathname: string, options: CreateMetadataOptions) {
-	return new Metadata(filePathname, options);
+interface CreateMetadataOptions {
+	modules: ModuleInfo[];
+	hydratedComponents: any[];
+	hoisted: any[];
+}
+
+export function createMetadata(fileURL: string, options: CreateMetadataOptions) {
+	return new Metadata(fileURL, options.modules, options.hydratedComponents, options.hoisted);
 }

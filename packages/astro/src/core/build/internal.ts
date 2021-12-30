@@ -14,10 +14,6 @@ export interface BuildInternals {
 
 	// A mapping to entrypoints (facadeId) to assets (styles) that are added.
 	facadeIdToAssetsMap: Map<string, string[]>;
-
-	// A mapping of specifiers like astro/client/idle.js to the hashed bundled name.
-	// Used to render pages with the correct specifiers.
-	entrySpecifierToBundleMap: Map<string, string>;
 }
 
 /**
@@ -45,6 +41,5 @@ export function createBuildInternals(): BuildInternals {
 		astroStyleMap,
 		astroPageStyleMap,
 		facadeIdToAssetsMap,
-		entrySpecifierToBundleMap: new Map<string, string>(),
 	};
 }

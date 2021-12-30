@@ -249,7 +249,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	// Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
 	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
-	result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
+	result.scripts.add(await generateHydrateScript({ renderer, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
 	return `<astro-root uid="${astroId}">${html ?? ''}</astro-root>`;
 }
