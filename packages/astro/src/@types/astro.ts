@@ -371,6 +371,5 @@ export interface SSRResult {
 	scripts: Set<SSRElement>;
 	links: Set<SSRElement>;
 	createAstro(Astro: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null): AstroGlobal;
-	resolve: (s: string) => Promise<string>;
 	_metadata: SSRMetadata;
 }

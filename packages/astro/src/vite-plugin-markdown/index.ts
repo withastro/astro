@@ -51,12 +51,8 @@ ${setup}`.trim();
 					astroResult = `${prelude}\n${astroResult}`;
 				}
 
-				const filenameURL = new URL(`file://${id}`);
-				const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
-
 				// Transform from `.astro` to valid `.ts`
 				let { code: tsResult } = await transform(astroResult, {
-					pathname,
 					projectRoot: config.projectRoot.toString(),
 					site: config.buildOptions.site,
 					sourcefile: id,

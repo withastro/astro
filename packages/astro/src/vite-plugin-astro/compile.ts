@@ -29,10 +29,8 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
 async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: boolean | undefined) {
 	// pages and layouts should be transformed as full documents (implicit <head> <body> etc)
 	// everything else is treated as a fragment
-	const filenameURL = new URL(`file://${filename}`);
-	const normalizedID = fileURLToPath(filenameURL);
+	const normalizedID = fileURLToPath(new URL(`file://${filename}`));
 	const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
-	const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
 
 	let cssTransformError: Error | undefined;
 
@@ -41,7 +39,6 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
 		as: isPage ? 'document' : 'fragment',
-		pathname,
 		projectRoot: config.projectRoot.toString(),
 		site: config.buildOptions.site,
 		sourcefile: filename,
