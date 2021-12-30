@@ -121,7 +121,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
     a GitHub issue using the link below:
     ${err.url}`;
 
-					if(logging.level !== 'debug') {
+					if (logging.level !== 'debug') {
 						// TODO: remove stack replacement when compiler throws better errors
 						err.stack = `    at ${id}`;
 					}
