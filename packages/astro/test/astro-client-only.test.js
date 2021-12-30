@@ -20,7 +20,7 @@ describe('Client only components', () => {
 
 		const script = await fixture.readFile(src);
 		// test 2: svelte renderer is on the page
-		const exp = /import\("(.\/client.*)"\)/g;
+		const exp = /import\("(.\/@astrojs_renderer-svelte_client.*)"\)/g;
 		let match, svelteRenderer;
 		while ((match = exp.exec(script))) {
 			svelteRenderer = match[1].replace(/^\./, '/assets/');
