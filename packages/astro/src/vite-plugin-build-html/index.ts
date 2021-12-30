@@ -69,7 +69,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 				const [renderers, mod] = pageData.preload;
 
 				// Hydrated components are statically identified.
-				for (const path of mod.$$metadata.getAllHydratedComponentPaths()) {
+				for (const path of mod.$$metadata.hydratedComponentPaths()) {
 					jsInput.add(path);
 				}
 
