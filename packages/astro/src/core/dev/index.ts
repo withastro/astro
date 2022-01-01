@@ -319,7 +319,7 @@ export class AstroDevServer {
 				logging: this.logging,
 				mode: 'development',
 				origin: this.origin,
-				pathname,
+				pathname: routePathname,
 				route,
 				routeCache: this.routeCache,
 				viteServer: this.viteServer,
