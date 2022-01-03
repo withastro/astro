@@ -5,26 +5,26 @@ import BlogPost from '../../components/BlogPost.astro';
 import GoogleAnalytics from '../../components/GoogleAnalytics.astro';
 
 export function getStaticPaths() {
-  const posts = Astro.fetchContent('../../data/blog-posts/*.md');
-  return posts.map(p => ({
-    params: { slug: p.file.pathname.split('/').pop().split('.').shift() },
-    props: { post: p },
-  }));
+	const posts = Astro.fetchContent('../../data/blog-posts/*.md');
+	return posts.map((p) => ({
+		params: { slug: p.file.pathname.split('/').pop().split('.').shift() },
+		props: { post: p },
+	}));
 }
 
 const { Content, title, author, description, publishDate, heroImage, heroImageAlt, socialImage, permalink, lang } = Astro.props.post;
 ---
 
 <html lang={lang ?? 'en'}>
-  <head>
-    <BaseHead title={title} description={description} canonicalURL={permalink} image={socialImage && `https://astro.build${socialImage}`} />
-    <link rel="stylesheet" href={Astro.resolve('../../scss/blog.scss')} />
-  </head>
-  <body>
-    <BlogHeader />
-    <BlogPost title={title} author={author} publishDate={publishDate}  heroImage={heroImage}  heroImageAlt={heroImageAlt}>
-      <Content />
-    </BlogPost>
-    <GoogleAnalytics />
-  </body>
+	<head>
+		<BaseHead {title} {description} canonicalURL={permalink} image={socialImage && `https://astro.build${socialImage}`} />
+		<link rel="stylesheet" href={Astro.resolve('../../scss/blog.scss')} />
+	</head>
+	<body>
+		<BlogHeader />
+		<BlogPost {title} {author} {publishDate} {heroImage} {heroImageAlt}>
+			<Content />
+		</BlogPost>
+		<GoogleAnalytics />
+	</body>
 </html>

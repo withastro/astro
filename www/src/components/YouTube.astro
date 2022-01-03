@@ -42,10 +42,11 @@ const button = Object.assign(
 button.setAttribute('aria-label', host.getAttribute('alt'));
 
 host.replaceChildren(button);
-`.replace(/[\n\r\t]+/g, '')
+`.replace(/[\n\r\t]+/g, '');
 ---
+
 <lite-youtube {...Astro.props}>
 	<a href={`https://www.youtube.com/watch?v=${Astro.props.v}`}>
 		<img src={`https://i.ytimg.com/vi/${Astro.props.v}/hqdefault.jpg`} loading="lazy" alt={Astro.props.alt} />
-	</a><script type="module" src="data:text/javascript," onload={onload}></script>
+	</a><script type="module" src="data:text/javascript," {onload}></script>
 </lite-youtube>

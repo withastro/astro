@@ -10,7 +10,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // @ts-check
 export default /** @type {import('astro').AstroUserConfig} */ ({
-  vite: {
-    plugins: [VitePWA()],
-  },
+	vite: {
+		plugins: [VitePWA()],
+	},
 });

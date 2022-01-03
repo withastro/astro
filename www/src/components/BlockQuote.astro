@@ -1,42 +1,42 @@
 ---
 export interface Props {
-  author: string;
-  source: string;
-  sourceHref: string;
+	author: string;
+	source: string;
+	sourceHref: string;
 }
 const { author, source, sourceHref } = Astro.props;
 ---
 
 <blockquote>
-  <slot />
-  <div class="source">
-    <p>{author}</p>
-    <a href={sourceHref}>{source}</a>
-  </div>
+	<slot />
+	<div class="source">
+		<p>{author}</p>
+		<a href={sourceHref}>{source}</a>
+	</div>
 </blockquote>
 
 <style>
-  blockquote {
-    font-size: 1.5rem;
-    --padding-block: 1rem;
-    --padding-inline: 1.25rem;
-    --color: var(--theme-divider);
+	blockquote {
+		font-size: 1.5rem;
+		--padding-block: 1rem;
+		--padding-inline: 1.25rem;
+		--color: var(--theme-divider);
 
-    display: flex;
-    flex-direction: column;
+		display: flex;
+		flex-direction: column;
 
-    padding: var(--padding-block) var(--padding-inline);
-    margin-left: calc(var(--padding-inline) * -1);
-    margin-right: calc(var(--padding-inline) * -1);
-    
-    background: transparent;
-    border-left: calc(var(--padding-inline) / 2) solid var(--color);
-    border-radius: 0;
-  }
+		padding: var(--padding-block) var(--padding-inline);
+		margin-left: calc(var(--padding-inline) * -1);
+		margin-right: calc(var(--padding-inline) * -1);
 
-  blockquote .source {
-    font-weight: 500;
-    color: var(--color);
-    font-size: 1rem;
-  }
+		background: transparent;
+		border-left: calc(var(--padding-inline) / 2) solid var(--color);
+		border-radius: 0;
+	}
+
+	blockquote .source {
+		font-weight: 500;
+		color: var(--color);
+		font-size: 1rem;
+	}
 </style>

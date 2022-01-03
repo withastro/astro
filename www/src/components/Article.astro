@@ -1,69 +1,69 @@
 <article>
-    <slot></slot>
+	<slot></slot>
 </article>
 
 <style lang="scss">
-  article {
-    text-align: left;
-    line-height: 1.5;
-    display: flex;
-    flex-direction: column;
-  }
-  :global(article > * + *) {
-    margin-top: 1rem;
-  }
-  h1 {
-    font-family: var(--font-sans);
-    font-weight: 400;
-    font-size: 16px;
-    overflow: hidden;
-    width: 100%;
-  }
-  em {
-    font-style: normal;
-    color: var(--color-green);
-  }
-  a {
-    color: rgba(255, 255, 255, 0.8);
-    position: relative;
-    display: flex;
-    font-family: var(--font-mono);
-    font-size: 1rem;
-    font-weight: 700;
-    text-decoration: none;
-    height: 40px;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding-left: 24px;
-    padding-right: 24px;
-    width: max-content;
-    margin: 2.5rem auto;
-  }
-  a:hover,
-  a:focus {
-    background: white;
-    color: black;
-  }
+	article {
+		text-align: left;
+		line-height: 1.5;
+		display: flex;
+		flex-direction: column;
+	}
+	:global(article > * + *) {
+		margin-top: 1rem;
+	}
+	h1 {
+		font-family: var(--font-sans);
+		font-weight: 400;
+		font-size: 16px;
+		overflow: hidden;
+		width: 100%;
+	}
+	em {
+		font-style: normal;
+		color: var(--color-green);
+	}
+	a {
+		color: rgba(255, 255, 255, 0.8);
+		position: relative;
+		display: flex;
+		font-family: var(--font-mono);
+		font-size: 1rem;
+		font-weight: 700;
+		text-decoration: none;
+		height: 40px;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		padding-left: 24px;
+		padding-right: 24px;
+		width: max-content;
+		margin: 2.5rem auto;
+	}
+	a:hover,
+	a:focus {
+		background: white;
+		color: black;
+	}
 
-  a::before,
-  a::after {
-    content: "";
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 8px;
-    border: 2px solid white;
-    border-left-style: dotted;
-    border-right-style: dotted;
-  }
-  a::before {
-    border-right: 0;
-    left: 0;
-  }
-  a::after {
-    border-left: 0;
-    right: 0;
-  }
+	a::before,
+	a::after {
+		content: '';
+		display: block;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 8px;
+		border: 2px solid white;
+		border-left-style: dotted;
+		border-right-style: dotted;
+	}
+	a::before {
+		border-right: 0;
+		left: 0;
+	}
+	a::after {
+		border-left: 0;
+		right: 0;
+	}
 </style>

@@ -8,8 +8,8 @@ import { createElement as h } from 'react';
  * entirely static and will never change via `shouldComponentUpdate`.
  */
 const StaticHtml = ({ value }) => {
-  if (!value) return null;
-  return h('astro-fragment', { suppressHydrationWarning: true, dangerouslySetInnerHTML: { __html: value } });
+	if (!value) return null;
+	return h('astro-fragment', { suppressHydrationWarning: true, dangerouslySetInnerHTML: { __html: value } });
 };
 
 /**

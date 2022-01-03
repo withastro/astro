@@ -1,5 +1,17 @@
 # @astrojs/renderer-svelte
 
+## 0.3.0
+
+### Minor Changes
+
+- [#2202](https://github.com/withastro/astro/pull/2202) [`45cea6ae`](https://github.com/withastro/astro/commit/45cea6aec5a310fed4cb8da0d96670d6b99a2539) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Officially drop support for Node v12. The minimum supported version is now Node v14.15+,
+
+## 0.2.3
+
+### Patch Changes
+
+- [#2216](https://github.com/withastro/astro/pull/2216) [`b8c821a0`](https://github.com/withastro/astro/commit/b8c821a0743ed004691eae0eea471a368d2fa35f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Pin `@sveltejs/vite-plugin-svelte` to `1.0.0-next.30` for now
+
 ## 0.2.2
 
 ### Patch Changes

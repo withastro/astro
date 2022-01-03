@@ -8,7 +8,7 @@ lang: zh-CN
 
 ## 环境要求
 
-- **Node.js** - `v12.20.0`、`v14.13.1` 和 `v16.0.0`，或更高版本。
+- **Node.js** - `v14.15.0` 和 `v16.0.0`，或更高版本。
 - **文本编辑器** - 我们推荐使用 [VS Code](https://code.visualstudio.com/) 搭配 [Astro 官方插件](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)。
 - **命令行终端** - Astro 主要是通过终端的命令行执行。
 

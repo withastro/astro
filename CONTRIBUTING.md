@@ -10,7 +10,7 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisite
 
 ```shell
-node: "^12.20.0 || ^14.13.1 || >=16.0.0"
+node: "^14.15.0 || >=16.0.0"
 yarn: "^1.22.10"
 # otherwise, your build will fail
 ```

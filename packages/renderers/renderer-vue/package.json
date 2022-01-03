@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-vue",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Use Vue components within Astro",
   "type": "module",
   "author": "withastro",
@@ -24,6 +24,6 @@
     "vue": "^3.2.22"
   },
   "engines": {
-    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    "node": "^14.15.0 || >=16.0.0"
   }
 }

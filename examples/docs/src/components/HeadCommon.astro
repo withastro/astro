@@ -1,11 +1,11 @@
 <!-- Global Metadata -->
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width" />
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="alternate icon" type="image/x-icon" href="/favicon.ico" />
 
-<link rel="sitemap" href="/sitemap.xml"/>
+<link rel="sitemap" href="/sitemap.xml" />
 
 <!-- Global CSS -->
 <link rel="stylesheet" href={Astro.resolve('../styles/theme.css')} />
@@ -13,22 +13,22 @@
 <link rel="stylesheet" href={Astro.resolve('../styles/index.css')} />
 
 <!-- Preload Fonts -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital@0;1&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital@0;1&display=swap" rel="stylesheet" />
 
 <!-- Scrollable a11y code helper -->
-<script type="module" src="/make-scrollable-code-focusable.js" />
+<script type="module" src="/make-scrollable-code-focusable.js"></script>
 
 <!-- This is intentionally inlined to avoid FOUC -->
 <script>
-  const root = document.documentElement;
-  const theme = localStorage.getItem('theme');
-  if (theme === 'dark' || (!theme) && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    root.classList.add('theme-dark');
-  } else {
-    root.classList.remove('theme-dark');
-  }
+	const root = document.documentElement;
+	const theme = localStorage.getItem('theme');
+	if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+		root.classList.add('theme-dark');
+	} else {
+		root.classList.remove('theme-dark');
+	}
 </script>
 
 <!-- Global site tag (gtag.js) - Google Analytics -->

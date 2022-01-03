@@ -8,8 +8,8 @@ import { h } from 'preact';
  * entirely static and will never change via `shouldComponentUpdate`.
  */
 const StaticHtml = ({ value }) => {
-  if (!value) return null;
-  return h('astro-fragment', { dangerouslySetInnerHTML: { __html: value } });
+	if (!value) return null;
+	return h('astro-fragment', { dangerouslySetInnerHTML: { __html: value } });
 };
 
 /**

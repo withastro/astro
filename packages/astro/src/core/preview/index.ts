@@ -10,83 +10,83 @@ import { error, info } from '../logger.js';
 import { subpathNotUsedTemplate } from '../dev/template/4xx.js';
 
 interface PreviewOptions {
-  logging: LogOptions;
+	logging: LogOptions;
 }
 
 interface PreviewServer {
-  hostname: string;
-  port: number;
-  server: http.Server;
-  stop(): Promise<void>;
+	hostname: string;
+	port: number;
+	server: http.Server;
+	stop(): Promise<void>;
 }
 
 /** The primary dev action */
 export default async function preview(config: AstroConfig, { logging }: PreviewOptions): Promise<PreviewServer> {
-  const startServerTime = performance.now();
-  const base = config.buildOptions.site ? new URL(config.buildOptions.site).pathname : '/';
+	const startServerTime = performance.now();
+	const base = config.buildOptions.site ? new URL(config.buildOptions.site).pathname : '/';
 
-  // Create the preview server, send static files out of the `dist/` directory.
-  const server = http.createServer((req, res) => {
-    if (!req.url!.startsWith(base)) {
-      res.statusCode = 404;
-      res.end(subpathNotUsedTemplate(base, req.url!));
-      return;
-    }
+	// Create the preview server, send static files out of the `dist/` directory.
+	const server = http.createServer((req, res) => {
+		if (!req.url!.startsWith(base)) {
+			res.statusCode = 404;
+			res.end(subpathNotUsedTemplate(base, req.url!));
+			return;
+		}
 
-    send(req, req.url!.substr(base.length - 1), {
-      root: fileURLToPath(config.dist),
-    }).pipe(res);
-  });
+		send(req, req.url!.substr(base.length - 1), {
+			root: fileURLToPath(config.dist),
+		}).pipe(res);
+	});
 
-  let port = config.devOptions.port;
-  const { hostname } = config.devOptions;
-  let httpServer: http.Server;
+	let { hostname, port } = config.devOptions;
 
-  /** Expose dev server to `port` */
-  function startServer(timerStart: number): Promise<void> {
-    let showedPortTakenMsg = false;
-    let showedListenMsg = false;
-    return new Promise<void>((resolve, reject) => {
-      const listen = () => {
-        httpServer = server.listen(port, hostname, () => {
-          if (!showedListenMsg) {
-            info(logging, 'astro', msg.devStart({ startupTime: performance.now() - timerStart }));
-            info(logging, 'astro', msg.devHost({ host: `http://${hostname}:${port}${base}` }));
-          }
-          showedListenMsg = true;
-          resolve();
-        });
-        httpServer?.on('error', onError);
-      };
+	let httpServer: http.Server;
 
-      const onError = (err: NodeJS.ErrnoException) => {
-        if (err.code && err.code === 'EADDRINUSE') {
-          if (!showedPortTakenMsg) {
-            info(logging, 'astro', msg.portInUse({ port }));
-            showedPortTakenMsg = true; // only print this once
-          }
-          port++;
-          return listen(); // retry
-        } else {
-          error(logging, 'astro', err.stack);
-          httpServer?.removeListener('error', onError);
-          reject(err); // reject
-        }
-      };
+	/** Expose dev server to `port` */
+	function startServer(timerStart: number): Promise<void> {
+		let showedPortTakenMsg = false;
+		let showedListenMsg = false;
+		return new Promise<void>((resolve, reject) => {
+			const listen = () => {
+				httpServer = server.listen(port, hostname, () => {
+					if (!showedListenMsg) {
+						info(logging, 'astro', msg.devStart({ startupTime: performance.now() - timerStart }));
+						info(logging, 'astro', msg.devHost({ host: `http://${hostname}:${port}${base}` }));
+					}
+					showedListenMsg = true;
+					resolve();
+				});
+				httpServer?.on('error', onError);
+			};
 
-      listen();
-    });
-  }
+			const onError = (err: NodeJS.ErrnoException) => {
+				if (err.code && err.code === 'EADDRINUSE') {
+					if (!showedPortTakenMsg) {
+						info(logging, 'astro', msg.portInUse({ port }));
+						showedPortTakenMsg = true; // only print this once
+					}
+					port++;
+					return listen(); // retry
+				} else {
+					error(logging, 'astro', err.stack);
+					httpServer?.removeListener('error', onError);
+					reject(err); // reject
+				}
+			};
 
-  // Start listening on `hostname:port`.
-  await startServer(startServerTime);
+			listen();
+		});
+	}
 
-  return {
-    hostname,
-    port,
-    server: httpServer!,
-    stop: async () => {
-      httpServer.close();
-    },
-  };
+	// Start listening on `hostname:port`.
+	await startServer(startServerTime);
+
+	return {
+		hostname,
+		port,
+		server: httpServer!,
+		stop: async () => {
+			httpServer.close();
+		},
+	};
 }

@@ -1,54 +1,55 @@
 ---
 export interface Props {
-  post: any;
+	post: any;
 }
 
 const { post } = Astro.props;
 ---
+
 <article class="post-preview">
-  <header>
-    <p class="publish-date">{post.publishDate}</p>
-    <a href={post.url}><h1 class="title">{post.title}</h1></a>
-  </header>
-  <p>{post.description}</p>
-  <a href={post.url}>Read more</a>
+	<header>
+		<p class="publish-date">{post.publishDate}</p>
+		<a href={post.url}><h1 class="title">{post.title}</h1></a>
+	</header>
+	<p>{post.description}</p>
+	<a href={post.url}>Read more</a>
 </article>
 
 <style>
-.content :global(main > * + *) {
-  margin-top: 1rem;
-}
+	.content :global(main > * + *) {
+		margin-top: 1rem;
+	}
 
-.post-preview {
-  padding-bottom: 2rem;
-  margin-bottom: 2rem;
-  border-bottom: 4px solid var(--theme-divider);
-}
+	.post-preview {
+		padding-bottom: 2rem;
+		margin-bottom: 2rem;
+		border-bottom: 4px solid var(--theme-divider);
+	}
 
-header {
-  align-items: flex-start;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding-bottom: 2rem;
-  text-align: left;
-}
+	header {
+		align-items: flex-start;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		padding-bottom: 2rem;
+		text-align: left;
+	}
 
-.title,
-.author,
-.publish-date {
-  margin: 0;
-}
+	.title,
+	.author,
+	.publish-date {
+		margin: 0;
+	}
 
-.publish-date,
-.author {
-  font-size: 1.25rem;
-  color: var(--theme-text-lighter);
-}
+	.publish-date,
+	.author {
+		font-size: 1.25rem;
+		color: var(--theme-text-lighter);
+	}
 
-.title {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--theme-text);
-}
+	.title {
+		font-size: 2.25rem;
+		font-weight: 700;
+		color: var(--theme-text);
+	}
 </style>

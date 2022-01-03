@@ -3,17 +3,17 @@ import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Pages', () => {
-  let fixture;
+	let fixture;
 
-  before(async () => {
-    fixture = await loadFixture({ projectRoot: './fixtures/astro-pages/' });
-    await fixture.build();
-  });
+	before(async () => {
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-pages/' });
+		await fixture.build();
+	});
 
-  it('Can find page with "index" at the end file name', async () => {
-    const html = await fixture.readFile('/posts/name-with-index/index.html');
-    const $ = cheerio.load(html);
+	it('Can find page with "index" at the end file name', async () => {
+		const html = await fixture.readFile('/posts/name-with-index/index.html');
+		const $ = cheerio.load(html);
 
-    expect($('h1').text()).to.equal('Name with index');
-  });
+		expect($('h1').text()).to.equal('Name with index');
+	});
 });

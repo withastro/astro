@@ -9,40 +9,43 @@ import AdminsSolid from '../components/AdminsSolid.jsx';
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 ---
+
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width">
-    <title>Astro</title>
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Astro</title>
 
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
-    <link rel="stylesheet" href={Astro.resolve('../styles/global.css')}>
-    <link rel="stylesheet" href={Astro.resolve('../styles/home.css')}>
+		<link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
+		<link rel="stylesheet" href={Astro.resolve('../styles/home.css')} />
 
-    <style>
-        header {
-            display: flex;
-            flex-direction: column;
-            gap: 1em;
-            max-width: min(100%, 68ch);
-        }
-    </style>
-</head>
-<body>
-    <main>
-        <header>
-            <div>
-                <img width="60" height="80" src="/assets/logo.svg" alt="Astro logo">
-                <h1>Welcome to <a href="https://astro.build/">Astro</a> -
-                <a href="https://github.com/nanostores/nanostores">nanostores</a></h1>
-            </div>
-        </header>
-        <AdminsReact client:load />
-        <AdminsSvelte client:load />
-        <AdminsVue client:load />
-        <AdminsPreact client:load />
-        <AdminsSolid client:load />
-    </main>
-</body>
+		<style>
+			header {
+				display: flex;
+				flex-direction: column;
+				gap: 1em;
+				max-width: min(100%, 68ch);
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<header>
+				<div>
+					<img width="60" height="80" src="/assets/logo.svg" alt="Astro logo" />
+					<h1>
+						Welcome to <a href="https://astro.build/">Astro</a> -
+						<a href="https://github.com/nanostores/nanostores">nanostores</a>
+					</h1>
+				</div>
+			</header>
+			<AdminsReact client:load />
+			<AdminsSvelte client:load />
+			<AdminsVue client:load />
+			<AdminsPreact client:load />
+			<AdminsSolid client:load />
+		</main>
+	</body>
 </html>

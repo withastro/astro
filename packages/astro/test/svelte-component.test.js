@@ -1,51 +1,57 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Svelte component', () => {
-  let fixture;
+	let fixture;
 
-  before(async () => {
-    fixture = await loadFixture({
-      projectRoot: './fixtures/svelte-component/',
-      renderers: ['@astrojs/renderer-svelte'],
-    });
-  });
+	before(async () => {
+		fixture = await loadFixture({
+			devOptions: {
+				port: 3007,
+			},
+			projectRoot: './fixtures/svelte-component/',
+			renderers: ['@astrojs/renderer-svelte'],
+		});
+	});
 
-  describe('build', () => {
-    before(async () => {
-      await fixture.build();
-    });
+	describe('build', () => {
+		before(async () => {
+			await fixture.build();
+		});
 
-    it('Works with TypeScript', async () => {
-      const html = await fixture.readFile('/typescript/index.html');
-      const $ = cheerio.load(html);
+		it('Works with TypeScript', async () => {
+			const html = await fixture.readFile('/typescript/index.html');
+			const $ = cheerio.load(html);
 
-      expect($('#svelte-ts').text()).to.equal('Hello, TypeScript');
-    });
-  });
+			expect($('#svelte-ts').text()).to.equal('Hello, TypeScript');
+		});
+	});
 
-  describe('dev', () => {
-    let devServer;
+	if (isWindows) return;
 
-    before(async () => {
-      devServer = await fixture.startDevServer();
-    });
+	describe('dev', () => {
+		let devServer;
 
-    after(async () => {
-      devServer && (await devServer.stop());
-    });
+		before(async () => {
+			devServer = await fixture.startDevServer();
+		});
 
-    it('scripts proxy correctly', async () => {
-      const html = await fixture.fetch('/').then((res) => res.text());
-      const $ = cheerio.load(html);
+		after(async () => {
+			devServer && (await devServer.stop());
+		});
 
-      for (const script of $('script').toArray()) {
-        const { src } = script.attribs;
-        if (!src) continue;
-        console.log({ src });
-        expect((await fixture.fetch(src)).status, `404: ${src}`).to.equal(200);
-      }
-    });
-  });
+		it('scripts proxy correctly', async () => {
+			const html = await fixture.fetch('/').then((res) => res.text());
+			const $ = cheerio.load(html);
+
+			for (const script of $('script').toArray()) {
+				const { src } = script.attribs;
+
+				if (!src) continue;
+
+				expect((await fixture.fetch(src)).status, `404: ${src}`).to.equal(200);
+			}
+		});
+	});
 });

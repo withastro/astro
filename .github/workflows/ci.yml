@@ -60,7 +60,7 @@ jobs:
           eslint_args: --ignore-pattern test --ignore-pattern vendor
           eslint_dir: packages/astro
           eslint_extensions: ts
-          prettier: true
+          prettier: false
           auto_fix: true
           git_name: github-actions[bot]
           git_email: github-actions[bot]@users.noreply.github.com
@@ -88,10 +88,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/node_modules"
-          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
           restore-keys: |
-            cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
-            cache-node_modules-${{ hashFiles('**/yarn.lock') }}-
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -116,7 +116,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: [12, 14, 16]
+        node_version: [14, 16]
         include:
           - os: windows-latest
             node_version: 16
@@ -146,7 +146,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/node_modules"
-          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -191,7 +194,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/node_modules"
-          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -212,7 +218,7 @@ jobs:
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
-    if: ${{ github.ref == 'main' && github.repository_owner == 'withastro' }}
+    if: ${{ github.ref_name == 'main' && github.repository_owner == 'withastro' }}
     needs: [lint, test, smoke]
     runs-on: ubuntu-latest
     steps:
@@ -237,7 +243,10 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/node_modules"
-          key: cache-node_modules-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-
 
       - name: Install NPM Dependencies
         run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
@@ -249,7 +258,7 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: yarn changeset publish
-          commit: 'chore: release'
+          commit: '[ci] release'
           title: '[ci] release'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

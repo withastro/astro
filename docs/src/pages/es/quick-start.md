@@ -5,7 +5,7 @@ lang: es
 ---
 
 ```shell
-# prerrequisitos: revisa que Node.js está en la versión 12.20.0+, 14.13.1+, ó 16+
+# prerrequisitos: revisa que Node.js está en la versión 14.15.0+, ó 16+
 node --version
 
 # crea un nuevo proyecto en el directorio y entra a él

@@ -8,7 +8,7 @@ Es gibt verschiedene Möglichkeiten Astro mit einem neuen Projekt zu installiere
 
 ## Vorbereitungen
 
-- **Node.js** - `v12.20.0`, `v14.13.1`, `v16.0.0` oder höher
+- **Node.js** - `v14.15.0`, `v16.0.0` oder höher
 - **Texteditor** - Wir empfehlen [VS Code](https://code.visualstudio.com/) mit unserer [offiziellen Astro-Erweiterung](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)
 - **Terminal** - Astro wird im Wesentlichen über die Befehlszeile des Terminals gesteuert
 
