@@ -4,10 +4,26 @@ import BlogHeader from '../../components/BlogHeader.astro';
 import BlogPost from '../../components/BlogPost.astro';
 import GoogleAnalytics from '../../components/GoogleAnalytics.astro';
 
-export function getStaticPaths() {
-	const posts = Astro.fetchContent('../../data/blog-posts/*.md');
+export function getPostSlug(post) {
+	return post.file.pathname.split('/').pop().split('.').shift();
+}
+
+export function getStaticPaths({rss}) {
+	const posts = Astro.fetchContent('../../data/blog-posts/*.md').sort((a, b) => new Date(b.publishDate) - new Date(a.publishDate));
+
+	rss({
+		title: 'Astro Blog',
+		description: 'Everything you need to know about Astro, direct from mission control.',
+		items: posts.map(p => ({
+			title: p.title,
+			description: p.description,
+			link: `blog/${getPostSlug(p)}`,
+			pubDate: p.publishDate,
+		}))
+	});
+
 	return posts.map((p) => ({
-		params: { slug: p.file.pathname.split('/').pop().split('.').shift() },
+		params: { slug: getPostSlug(p) },
 		props: { post: p },
 	}));
 }
