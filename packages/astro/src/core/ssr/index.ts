@@ -214,7 +214,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 		// The legacy build needs these to remain unresolved so that vite HTML
 		// Can do the resolution. Without this condition the build output will be
 		// broken in the legacy build. This can be removed once the legacy build is removed.
-		if(astroConfig.buildOptions.experimentalStaticBuild) {
+		if (astroConfig.buildOptions.experimentalStaticBuild) {
 			const [, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
 			return resolvedPath;
 		} else {
