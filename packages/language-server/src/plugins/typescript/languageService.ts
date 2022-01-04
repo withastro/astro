@@ -55,18 +55,7 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
     },
   };
 
-  let configJson = (tsconfigPath && ts.readConfigFile(tsconfigPath, ts.sys.readFile).config) || getDefaultJsConfig();
-  if (!configJson.extends) {
-    configJson = Object.assign(
-      {
-        exclude: getDefaultExclude(),
-      },
-      configJson
-    );
-  }
-
-  // Delete include so that astro files don't get excluded.
-  delete configJson.include;
+  const configJson = getDefaultJsConfig();
 
   const existingCompilerOptions: ts.CompilerOptions = {
     jsx: ts.JsxEmit.Preserve,
@@ -174,22 +163,19 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
   }
 }
 
-/**
- * This should only be used when there's no jsconfig/tsconfig at all
- */
 function getDefaultJsConfig(): {
-  compilerOptions: ts.CompilerOptions;
-  include: string[];
+   compilerOptions: ts.CompilerOptions;
+   exclude: string[];
 } {
-  let compilerOptions = {
-    maxNodeModuleJsDepth: 2,
-    allowSyntheticDefaultImports: true,
-    allowJs: true
-  };
-  return {
-    compilerOptions,
-    include: ['src'],
-  };
+   let compilerOptions = {
+      maxNodeModuleJsDepth: 2,
+      allowSyntheticDefaultImports: true,
+      allowJs: true,
+   };
+   return {
+      compilerOptions,
+      exclude: getDefaultExclude(),
+   };
 }
 
 function getDefaultExclude() {
