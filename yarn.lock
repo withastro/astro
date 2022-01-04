@@ -129,10 +129,10 @@
   dependencies:
     typescript "^4.3.5"
 
-"@astrojs/language-server@^0.8.2":
-  version "0.8.5"
-  resolved "https://registry.yarnpkg.com/@astrojs/language-server/-/language-server-0.8.5.tgz#f3eb869348d7da802ba88ecb559271abb842a333"
-  integrity sha512-3Ra2HjnJnfKjSsLrZeWuXIvpW/LBtoUOcnSYAR/pqfOcSZDZXHOXLsySLTkS46zQoMJK0F+V+IRUmZ+vTGUQwA==
+"@astrojs/language-server@^0.8.6":
+  version "0.8.6"
+  resolved "https://registry.yarnpkg.com/@astrojs/language-server/-/language-server-0.8.6.tgz#72b76429e9100c5b075ef3cd125d77fc36647916"
+  integrity sha512-Ta9v/19bczh9LXOYsRFQU8Rk8K/y6oSo510Jzp5xqJ+miWLQDLvLEL4BsyKpPBVBg2kyMBrpZ7LNSzGhQL4XVQ==
   dependencies:
     lodash "^4.17.21"
     source-map "^0.7.3"
