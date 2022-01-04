@@ -1,11 +1,10 @@
 ---
 export async function getStaticPaths() {
     // get english pages that moved from `/` to `/en/`
-    const englishPages = Astro.fetchContent('./en/**.md');
+    const englishPages = Astro.fetchContent('./en/**/*.md');
 
     // add pages that are `*.astro` files as well
     const otherPages = [{ url: "/en/themes" }];
-
     return [...englishPages, ...otherPages].map((page) => ({
         params: {
             slug: page.url.slice(4),
