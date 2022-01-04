@@ -1,5 +1,12 @@
 # @astrojs/language-server
 
+## 0.8.6
+
+### Patch Changes
+
+- 97559b6: Removes errors with import.meta.hot
+- 4c93d24: Prevent reading tsconfig in .astro files
+
 ## 0.8.5
 
 ### Patch Changes
