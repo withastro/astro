@@ -39,6 +39,23 @@ You can sponsor Astro's development on [Open Collective][oc]. Astro is generousl
   </tbody>
 </table>
 
+### Gold Sponsors
+
+<table>
+  <tbody>
+    <tr>
+      <td align="center">
+        <a href="https://divRIOTS.com#gh-light-mode-only" target="_blank">
+        <img width="150" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/divriots.svg#gh-light-mode-only" alt="‹div›RIOTS" />
+        </a>
+        <a href="https://divRIOTS.com#gh-dark-mode-only" target="_blank">
+        <img width="150" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/divriots-dark.svg#gh-dark-mode-only" alt="‹div›RIOTS" />
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
 ### Sponsors
 
 <table>
