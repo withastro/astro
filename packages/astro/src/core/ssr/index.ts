@@ -209,9 +209,17 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
 	const result = createResult({ astroConfig, origin, params, pathname, renderers });
+	// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/renderer-preact/client.js"
 	result.resolve = async (s: string) => {
-		const [, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
-		return resolvedPath;
+		// The legacy build needs these to remain unresolved so that vite HTML
+		// Can do the resolution. Without this condition the build output will be
+		// broken in the legacy build. This can be removed once the legacy build is removed.
+		if(astroConfig.buildOptions.experimentalStaticBuild) {
+			const [, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
+			return resolvedPath;
+		} else {
+			return s;
+		}
 	};
 
 	let html = await renderPage(result, Component, pageProps, null);
