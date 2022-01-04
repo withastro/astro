@@ -1,15 +1,5 @@
 export {};
 
-declare global {
-  interface ImportMeta {
-      hot: {
-          accept: Function;
-          dispose: Function;
-      };
-      env: Record<string, string>;
-  }
-}
-
 type AstroRenderedHTML = string;
 
 type AstroElement = any;
