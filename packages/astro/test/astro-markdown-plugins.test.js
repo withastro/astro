@@ -15,7 +15,11 @@ describe('Astro Markdown plugins', () => {
 					markdownRemark,
 					{
 						remarkPlugins: ['remark-code-titles', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-						rehypePlugins: [[import('rehype-toc'), { headings: ['h2', 'h3'] }], [import('../../../examples/with-markdown-plugins/add-classes.mjs'), { 'h1,h2,h3': 'title' }], 'rehype-slug'],
+						rehypePlugins: [
+							[import('rehype-toc'), { headings: ['h2', 'h3'] }],
+							[import('../../../examples/with-markdown-plugins/add-classes.mjs'), { 'h1,h2,h3': 'title' }],
+							'rehype-slug',
+						],
 					},
 				],
 			},
