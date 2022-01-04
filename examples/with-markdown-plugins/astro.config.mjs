@@ -18,7 +18,7 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
 				rehypePlugins: [
 					['rehype-autolink-headings', { behavior: 'prepend' }],
 					['rehype-toc', { headings: ['h2', 'h3'] }],
-					['rehype-add-classes', { 'h1,h2,h3': 'title' }],
+					[new URL('./add-classes.mjs', import.meta.url).pathname, { 'h1,h2,h3': 'title' }],
 					'rehype-slug',
 				],
 			},
