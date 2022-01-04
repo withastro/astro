@@ -1,5 +1,11 @@
 # astro
 
+## 0.22.4
+
+### Patch Changes
+
+- [#2302](https://github.com/withastro/astro/pull/2302) [`9db22b97`](https://github.com/withastro/astro/commit/9db22b97b604e2ab1908b28e3461aefb222dcf97) Thanks [@matthewp](https://github.com/matthewp)! - Fix to allow the static build to build hydrated components
+
 ## 0.22.3
 
 ### Patch Changes
@@ -1047,10 +1053,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1070,10 +1076,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
