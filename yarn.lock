@@ -147,10 +147,10 @@
     vscode-languageserver-types "^3.16.0"
     vscode-uri "^3.0.2"
 
-"@astropub/webapi@^0.7.3":
-  version "0.7.4"
-  resolved "https://registry.yarnpkg.com/@astropub/webapi/-/webapi-0.7.4.tgz#a24d4d5412b580d687b92cc043b3289cb1d1f34a"
-  integrity sha512-LpGMWrI0SWGCWol9Em4/wcAtiQHQFV3MoQUYzdpCRWg1UOpXi38d+2xDtWWEgOxb433IXLYQ6XubLLqIx5m3bQ==
+"@astropub/webapi@^0.10.1":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@astropub/webapi/-/webapi-0.10.1.tgz#1b312f82aa591317833fcdaae10468247a4c274b"
+  integrity sha512-vXf2qM0t9lFF48gBdlYiGGjYRJWsWhfK32EhsNKr32XKDQFoX1Vwnilc3vGK+ahjwsnY9l9CX/VFMu9xNqhGZw==
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.16.7":
   version "7.16.7"
