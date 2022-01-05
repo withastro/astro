@@ -57,7 +57,6 @@ export async function build(opts: ScanBasedBuildOptions) {
 			rollupPluginAstroBuildCSS({
 				internals,
 			}),
-			...(viteConfig.plugins || []),
 		],
 		publicDir: viteConfig.publicDir,
 		root: viteConfig.root,
