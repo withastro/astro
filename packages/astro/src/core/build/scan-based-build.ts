@@ -43,7 +43,7 @@ export async function build(opts: ScanBasedBuildOptions) {
 			},
 			target: 'es2020', // must match an esbuild target
 		},
-		plugins: [
+		plugins: [ ...new Set([
 			rollupPluginAstroBuildHTML({
 				astroConfig,
 				internals,
@@ -57,7 +57,8 @@ export async function build(opts: ScanBasedBuildOptions) {
 			rollupPluginAstroBuildCSS({
 				internals,
 			}),
-		],
+			...(viteConfig.plugins || []),
+		]) ],
 		publicDir: viteConfig.publicDir,
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
