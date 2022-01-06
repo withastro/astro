@@ -206,6 +206,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	// Validate the page component before rendering the page
 	const Component = await mod.default;
 	if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
+	if (typeof Component === 'string') return Component;
 	if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
 	const result = createResult({ astroConfig, origin, params, pathname, renderers });

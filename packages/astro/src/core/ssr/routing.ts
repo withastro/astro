@@ -86,7 +86,7 @@ interface Item {
 export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?: string }, logging: LogOptions): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
-	const validExtensions: Set<string> = new Set(['.astro', '.md']);
+	const validExtensions: Set<string> = new Set(['.astro', '.md', '.html']);
 
 	function walk(dir: string, parentSegments: Part[][], parentParams: string[]) {
 		let items: Item[] = [];

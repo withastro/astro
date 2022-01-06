@@ -5,6 +5,7 @@ import type { LogOptions } from './logger';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
 import vite from './vite.js';
+import htmlVitePlugin from '../vite-plugin-html/index.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
@@ -50,6 +51,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		},
 		plugins: [
 			configAliasVitePlugin({ config: astroConfig }),
+			htmlVitePlugin({ config: astroConfig, logging }),
 			astroVitePlugin({ config: astroConfig, devServer, logging }),
 			markdownVitePlugin({ config: astroConfig, devServer }),
 			jsxVitePlugin({ config: astroConfig, logging }),
