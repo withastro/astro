@@ -1,5 +1,17 @@
 # astro
 
+## 0.22.7
+
+### Patch Changes
+
+- [#2324](https://github.com/withastro/astro/pull/2324) [`77ef43e6`](https://github.com/withastro/astro/commit/77ef43e66cf701de848a2998af646ee7762497d8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update compiler to remove console.log (sorry everyone!)
+
+* [`e0de21ef`](https://github.com/withastro/astro/commit/e0de21ef57227eb4c56f216280b8aa5e5e848937) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add `<guid>` to RSS feed.
+
+- [#2318](https://github.com/withastro/astro/pull/2318) [`c0204c0a`](https://github.com/withastro/astro/commit/c0204c0a416865eab9b905b61231ed9a304120a8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `@astrojs/compiler` to [`0.7.3`](https://github.com/withastro/compiler/blob/main/lib/compiler/CHANGELOG.md#073)
+
+* [#2319](https://github.com/withastro/astro/pull/2319) [`e6379d51`](https://github.com/withastro/astro/commit/e6379d514df4924ac8679a8c5a251b56a1a6bee3) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Updated @astropub/webapi
+
 ## 0.22.6
 
 ### Patch Changes
@@ -1070,10 +1082,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1093,10 +1105,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
