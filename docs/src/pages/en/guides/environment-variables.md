@@ -29,3 +29,20 @@ fetch(`${import.meta.env.PUBLIC_POKEAPI}/pokemon/squirtle`);
 
 > ⚠️WARNING⚠️:
 > Because Vite statically replaces `import.meta.env`, you cannot access it with dynamic keys like `import.meta.env[key]`.
+
+## IntelliSense for TypeScript
+
+By default, Vite provides type definition for `import.meta.env` in `vite/client.d.ts`. While you can define more custom env variables in `.env.[mode]` files, you may want to get TypeScript IntelliSense for user-defined env variables which prefixed with `PUBLIC_`.
+
+To achieve, you can create an `env.d.ts` in `src` directory, then augment `ImportMetaEnv` like this:
+
+```ts
+interface ImportMetaEnv {
+  readonly PUBLIC_POKEAPI: string
+  // more env variables...
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}
+```
