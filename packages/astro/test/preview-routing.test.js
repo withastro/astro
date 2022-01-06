@@ -10,7 +10,12 @@ describe('Preview Routing', () => {
 		let previewServer;
 
 		before(async () => {
-			fixture = await loadFixture({ projectRoot: './fixtures/with-subpath-no-trailing-slash/' });
+			fixture = await loadFixture({
+				projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+				devOptions: {
+					port: 4000
+				}
+			});
 			await fixture.build();
 			previewServer = await fixture.preview();
 		});
