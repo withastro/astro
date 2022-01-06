@@ -38,11 +38,11 @@ To achieve, you can create an `env.d.ts` in `src` directory, then augment `Impor
 
 ```ts
 interface ImportMetaEnv {
-  readonly PUBLIC_POKEAPI: string
+  readonly PUBLIC_POKEAPI: string;
   // more env variables...
 }
 
 interface ImportMeta {
-  readonly env: ImportMetaEnv
+  readonly env: ImportMetaEnv;
 }
 ```
