@@ -14,8 +14,8 @@ describe('Preview Routing', () => {
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					devOptions: {
 						trailingSlash: 'never',
-						port: 4000
-					}
+						port: 4000,
+					},
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -68,8 +68,8 @@ describe('Preview Routing', () => {
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					devOptions: {
 						trailingSlash: 'always',
-						port: 4001
-					}
+						port: 4001,
+					},
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -127,8 +127,8 @@ describe('Preview Routing', () => {
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					devOptions: {
 						trailingSlash: 'ignore',
-						port: 4002
-					}
+						port: 4002,
+					},
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -187,12 +187,12 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					buildOptions: {
-							pageUrlFormat: 'file'
+						pageUrlFormat: 'file',
 					},
 					devOptions: {
 						trailingSlash: 'never',
-						port: 4003
-					}
+						port: 4003,
+					},
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -244,12 +244,12 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					buildOptions: {
-						pageUrlFormat: 'file'
+						pageUrlFormat: 'file',
 					},
 					devOptions: {
 						trailingSlash: 'always',
-						port: 4004
-					}
+						port: 4004,
+					},
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -306,12 +306,12 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					buildOptions: {
-						pageUrlFormat: 'file'
+						pageUrlFormat: 'file',
 					},
 					devOptions: {
 						trailingSlash: 'ignore',
-						port: 4005
-					}
+						port: 4005,
+					},
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -368,12 +368,12 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					buildOptions: {
-						pageUrlFormat: 'file'
+						pageUrlFormat: 'file',
 					},
 					devOptions: {
 						trailingSlash: 'ignore',
-						port: 4006
-					}
+						port: 4006,
+					},
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -397,7 +397,6 @@ describe('Preview Routing', () => {
 				const response = await fixture.fetch('/blog/another.html');
 				expect(response.status).to.equal(200);
 			});
-
 
 			it('200 when loading dynamic route', async () => {
 				const response = await fixture.fetch('/blog/1.html');

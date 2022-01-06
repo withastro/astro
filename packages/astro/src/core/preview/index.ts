@@ -12,7 +12,6 @@ import { prependForwardSlash } from '../path.js';
 import * as npath from 'path';
 import * as fs from 'fs';
 
-
 interface PreviewOptions {
 	logging: LogOptions;
 }
@@ -27,10 +26,10 @@ export interface PreviewServer {
 type SendStreamWithPath = send.SendStream & { path: string };
 
 function removeBase(base: string, pathname: string) {
-  if(base === pathname) {
-    return '/';
-  }
-  let requrl = pathname.substr(base.length);
+	if (base === pathname) {
+		return '/';
+	}
+	let requrl = pathname.substr(base.length);
 	return prependForwardSlash(requrl);
 }
 
@@ -47,27 +46,31 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 			return;
 		}
 
-		switch(config.devOptions.trailingSlash) {
+		switch (config.devOptions.trailingSlash) {
 			case 'always': {
-				if(!req.url?.endsWith('/')) {
+				if (!req.url?.endsWith('/')) {
 					res.statusCode = 404;
-					res.end(template({
-						title: 'Not found',
-						tabTitle: 'Not found',
-						pathname: req.url!,
-					}));
+					res.end(
+						template({
+							title: 'Not found',
+							tabTitle: 'Not found',
+							pathname: req.url!,
+						})
+					);
 					return;
 				}
 				break;
 			}
 			case 'never': {
-				if(req.url?.endsWith('/')) {
+				if (req.url?.endsWith('/')) {
 					res.statusCode = 404;
-					res.end(template({
-						title: 'Not found',
-						tabTitle: 'Not found',
-						pathname: req.url!,
-					}));
+					res.end(
+						template({
+							title: 'Not found',
+							tabTitle: 'Not found',
+							pathname: req.url!,
+						})
+					);
 					return;
 				}
 				break;
@@ -79,13 +82,13 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 
 		let sendpath = removeBase(base, req.url!);
 		const sendOptions: send.SendOptions = {
-			root: fileURLToPath(config.dist)
+			root: fileURLToPath(config.dist),
 		};
-		if(config.buildOptions.pageUrlFormat === 'file' && !sendpath.endsWith('.html')) {
+		if (config.buildOptions.pageUrlFormat === 'file' && !sendpath.endsWith('.html')) {
 			sendOptions.index = false;
 			const parts = sendpath.split('/');
 			let lastPart = parts.pop();
-			switch(config.devOptions.trailingSlash) {
+			switch (config.devOptions.trailingSlash) {
 				case 'always': {
 					lastPart = parts.pop();
 					break;
@@ -96,7 +99,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 				}
 				case 'ignore': {
 					// this could end in slash, so resolve either way
-					if(lastPart === '') {
+					if (lastPart === '') {
 						lastPart = parts.pop();
 					}
 					break;
@@ -106,14 +109,14 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 			sendpath = npath.sep + npath.join(...parts, `${part}.html`);
 		}
 		send(req, sendpath, sendOptions)
-		.once('directory', function(this: SendStreamWithPath, _res, path) {
-			if(config.buildOptions.pageUrlFormat === 'directory' && !path.endsWith('index.html')) {
-				return this.sendIndex(path);
-			} else {
-				this.error(404);
-			}
-		})
-		.pipe(res);
+			.once('directory', function (this: SendStreamWithPath, _res, path) {
+				if (config.buildOptions.pageUrlFormat === 'directory' && !path.endsWith('index.html')) {
+					return this.sendIndex(path);
+				} else {
+					this.error(404);
+				}
+			})
+			.pipe(res);
 	});
 
 	let { hostname, port } = config.devOptions;

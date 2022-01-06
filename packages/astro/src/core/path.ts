@@ -1,6 +1,5 @@
-
 export function appendForwardSlash(path: string) {
-  return path.endsWith('/') ? path : path + '/';
+	return path.endsWith('/') ? path : path + '/';
 }
 
 export function prependForwardSlash(path: string) {
@@ -29,7 +28,7 @@ export function isRelativePath(path: string) {
 }
 
 export function prependDotSlash(path: string) {
-	if(isRelativePath(path)) {
+	if (isRelativePath(path)) {
 		return path;
 	}
 
