@@ -7,6 +7,10 @@ export function prependForwardSlash(path: string) {
 	return path[0] === '/' ? path : '/' + path;
 }
 
+export function removeEndingForwardSlash(path: string) {
+	return path.endsWith('/') ? path.slice(0, path.length - 1) : path;
+}
+
 export function startsWithDotDotSlash(path: string) {
 	const c1 = path[0];
 	const c2 = path[1];

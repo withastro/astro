@@ -7,8 +7,10 @@ import send from 'send';
 import { fileURLToPath } from 'url';
 import * as msg from '../dev/messages.js';
 import { error, info } from '../logger.js';
-import { subpathNotUsedTemplate } from '../dev/template/4xx.js';
-import { appendForwardSlash, prependForwardSlash } from '../path.js';
+import { subpathNotUsedTemplate, default as template } from '../dev/template/4xx.js';
+import { prependForwardSlash } from '../path.js';
+import * as npath from 'path';
+import * as fs from 'fs';
 
 
 interface PreviewOptions {
@@ -45,27 +47,71 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 			return;
 		}
 
-		const requrl = removeBase(base, req.url!);
-
-		// Redirect /docs to /docs/
-		if(requrl === '/' && !req.url!.endsWith('/')) {
-			res.writeHead(301, {
-				'Location': appendForwardSlash(base)
-			});
-			res.end();
-			return;
+		switch(config.devOptions.trailingSlash) {
+			case 'always': {
+				if(!req.url?.endsWith('/')) {
+					res.statusCode = 404;
+					res.end(template({
+						title: 'Not found',
+						tabTitle: 'Not found',
+						pathname: req.url!,
+					}));
+					return;
+				}
+				break;
+			}
+			case 'never': {
+				if(req.url?.endsWith('/')) {
+					res.statusCode = 404;
+					res.end(template({
+						title: 'Not found',
+						tabTitle: 'Not found',
+						pathname: req.url!,
+					}));
+					return;
+				}
+				break;
+			}
+			case 'ignore': {
+				break;
+			}
 		}
-		send(req, requrl, {
-			root: fileURLToPath(config.dist),
-		})
+
+		let sendpath = removeBase(base, req.url!);
+		const sendOptions: send.SendOptions = {
+			root: fileURLToPath(config.dist)
+		};
+		if(config.buildOptions.pageUrlFormat === 'file' && !sendpath.endsWith('.html')) {
+			sendOptions.index = false;
+			const parts = sendpath.split('/');
+			let lastPart = parts.pop();
+			switch(config.devOptions.trailingSlash) {
+				case 'always': {
+					lastPart = parts.pop();
+					break;
+				}
+				case 'never': {
+					// lastPart is the actually last part like `page`
+					break;
+				}
+				case 'ignore': {
+					// this could end in slash, so resolve either way
+					if(lastPart === '') {
+						lastPart = parts.pop();
+					}
+					break;
+				}
+			}
+			const part = lastPart || 'index';
+			sendpath = npath.sep + npath.join(...parts, `${part}.html`);
+		}
+		send(req, sendpath, sendOptions)
 		.once('directory', function(this: SendStreamWithPath, _res, path) {
-			// If no forward slash is added, add it now and redirect.
-			const stream = this;
-      if (!stream.hasTrailingSlash()) {
-        const p = appendForwardSlash(base) + path.substr(config.dist.pathname.length);
-        stream.path = p;
-        return stream.redirect(path);
-      }
+			if(config.buildOptions.pageUrlFormat === 'directory' && !path.endsWith('index.html')) {
+				return this.sendIndex(path);
+			} else {
+				this.error(404);
+			}
 		})
 		.pipe(res);
 	});

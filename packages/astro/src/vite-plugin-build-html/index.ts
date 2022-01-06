@@ -14,7 +14,7 @@ import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, g
 import { isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory, hasSrcSet } from './util.js';
 import { render as ssrRender } from '../core/ssr/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
-import { prependDotSlash } from '../core/path.js';
+import { prependDotSlash, removeEndingForwardSlash } from '../core/path.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
@@ -80,7 +80,9 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 				}
 
 				for (const pathname of pageData.paths) {
-					pageNames.push(pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''));
+					const pathrepl = astroConfig.buildOptions.pageUrlFormat === 'directory' ?
+						'/index.html' : pathname === '/' ? 'index.html' : '.html';
+					pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
 					const id = ASTRO_PAGE_PREFIX + pathname;
 					const html = await ssrRender(renderers, mod, {
 						astroConfig,
@@ -482,8 +484,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
 				// Output directly to 404.html rather than 400/index.html
 				// Supports any other status codes, too
-				if (name.match(STATUS_CODE_RE)) {
-					outPath = npath.posix.join(`${name}.html`);
+				if (name.match(STATUS_CODE_RE) || astroConfig.buildOptions.pageUrlFormat === 'file') {
+					outPath = `${removeEndingForwardSlash(name || 'index')}.html`;
 				} else {
 					outPath = npath.posix.join(name, 'index.html');
 				}
