@@ -21,7 +21,7 @@ export function startsWithDotSlash(path: string) {
 }
 
 export function isRelativePath(path: string) {
-	return startsWithDotDotSlash(path) && startsWithDotSlash(path);
+	return startsWithDotDotSlash(path) || startsWithDotSlash(path);
 }
 
 export function prependDotSlash(path: string) {
