@@ -15,8 +15,8 @@ describe('pageUrlFormat', () => {
 	});
 
 	it('outputs', async () => {
-		expect(await fixture.readFile('/client/index.html')).to.be.ok;
-		expect(await fixture.readFile('/nested-md/index.html')).to.be.ok;
-		expect(await fixture.readFile('/nested-astro/index.html')).to.be.ok;
+		expect(await fixture.readFile('/client.html')).to.be.ok;
+		expect(await fixture.readFile('/nested-md.html')).to.be.ok;
+		expect(await fixture.readFile('/nested-astro.html')).to.be.ok;
 	});
 });
