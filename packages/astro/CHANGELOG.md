@@ -1,5 +1,11 @@
 # astro
 
+## 0.22.8
+
+### Patch Changes
+
+- [#2330](https://github.com/withastro/astro/pull/2330) [`71ca0912`](https://github.com/withastro/astro/commit/71ca09125a86e74c73d30d01839e27859e1ade1a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes subpath support in `astro preview`
+
 ## 0.22.7
 
 ### Patch Changes
@@ -1082,10 +1088,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1105,10 +1111,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
