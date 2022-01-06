@@ -8,16 +8,28 @@ import { fileURLToPath } from 'url';
 import * as msg from '../dev/messages.js';
 import { error, info } from '../logger.js';
 import { subpathNotUsedTemplate } from '../dev/template/4xx.js';
+import { appendForwardSlash, prependForwardSlash } from '../path.js';
+
 
 interface PreviewOptions {
 	logging: LogOptions;
 }
 
-interface PreviewServer {
+export interface PreviewServer {
 	hostname: string;
 	port: number;
 	server: http.Server;
 	stop(): Promise<void>;
+}
+
+type SendStreamWithPath = send.SendStream & { path: string };
+
+function removeBase(base: string, pathname: string) {
+  if(base === pathname) {
+    return '/';
+  }
+  let requrl = pathname.substr(base.length);
+	return prependForwardSlash(requrl);
 }
 
 /** The primary dev action */
@@ -33,9 +45,29 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 			return;
 		}
 
-		send(req, req.url!.substr(base.length - 1), {
+		const requrl = removeBase(base, req.url!);
+
+		// Redirect /docs to /docs/
+		if(requrl === '/' && !req.url!.endsWith('/')) {
+			res.writeHead(301, {
+				'Location': appendForwardSlash(base)
+			});
+			res.end();
+			return;
+		}
+		send(req, requrl, {
 			root: fileURLToPath(config.dist),
-		}).pipe(res);
+		})
+		.once('directory', function(this: SendStreamWithPath, _res, path) {
+			// If no forward slash is added, add it now and redirect.
+			const stream = this;
+      if (!stream.hasTrailingSlash()) {
+        const p = appendForwardSlash(base) + path.substr(config.dist.pathname.length);
+        stream.path = p;
+        return stream.redirect(path);
+      }
+		})
+		.pipe(res);
 	});
 
 	let { hostname, port } = config.devOptions;
