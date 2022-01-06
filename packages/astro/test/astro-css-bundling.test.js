@@ -5,7 +5,7 @@ import { loadFixture } from './test-utils.js';
 // note: the hashes should be deterministic, but updating the file contents will change hashes
 // be careful not to test that the HTML simply contains CSS, because it always will! filename and quanity matter here (bundling).
 const EXPECTED_CSS = {
-	'/index.html': ['assets/index', 'assets/typography'], // don’t match hashes, which change based on content
+	'/index.html': ['./assets/index', './assets/typography'], // don’t match hashes, which change based on content
 	'/one/index.html': ['../assets/one'],
 	'/two/index.html': ['../assets/two', '../assets/typography'],
 	'/preload/index.html': ['../assets/preload'],
