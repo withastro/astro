@@ -10,7 +10,8 @@ import os from 'os';
 /**
  * @typedef {import('node-fetch').Response} Response
  * @typedef {import('../src/core/dev/index').DevServer} DevServer
- * @typedef {import('../src/@types/astro').AstroConfig AstroConfig}
+ * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
+ * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
  *
  *
  * @typedef {Object} Fixture
@@ -19,6 +20,7 @@ import os from 'os';
  * @property {(path: string) => Promise<string>} readFile
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {() => Promise<DevServer>} startDevServer
+ * @property {() => Promise<PreviewServer>} preview
  */
 
 /**

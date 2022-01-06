@@ -7,17 +7,31 @@ import send from 'send';
 import { fileURLToPath } from 'url';
 import * as msg from '../dev/messages.js';
 import { error, info } from '../logger.js';
-import { subpathNotUsedTemplate } from '../dev/template/4xx.js';
+import { subpathNotUsedTemplate, default as template } from '../dev/template/4xx.js';
+import { prependForwardSlash } from '../path.js';
+import * as npath from 'path';
+import * as fs from 'fs';
+
 
 interface PreviewOptions {
 	logging: LogOptions;
 }
 
-interface PreviewServer {
+export interface PreviewServer {
 	hostname: string;
 	port: number;
 	server: http.Server;
 	stop(): Promise<void>;
+}
+
+type SendStreamWithPath = send.SendStream & { path: string };
+
+function removeBase(base: string, pathname: string) {
+  if(base === pathname) {
+    return '/';
+  }
+  let requrl = pathname.substr(base.length);
+	return prependForwardSlash(requrl);
 }
 
 /** The primary dev action */
@@ -33,9 +47,73 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 			return;
 		}
 
-		send(req, req.url!.substr(base.length - 1), {
-			root: fileURLToPath(config.dist),
-		}).pipe(res);
+		switch(config.devOptions.trailingSlash) {
+			case 'always': {
+				if(!req.url?.endsWith('/')) {
+					res.statusCode = 404;
+					res.end(template({
+						title: 'Not found',
+						tabTitle: 'Not found',
+						pathname: req.url!,
+					}));
+					return;
+				}
+				break;
+			}
+			case 'never': {
+				if(req.url?.endsWith('/')) {
+					res.statusCode = 404;
+					res.end(template({
+						title: 'Not found',
+						tabTitle: 'Not found',
+						pathname: req.url!,
+					}));
+					return;
+				}
+				break;
+			}
+			case 'ignore': {
+				break;
+			}
+		}
+
+		let sendpath = removeBase(base, req.url!);
+		const sendOptions: send.SendOptions = {
+			root: fileURLToPath(config.dist)
+		};
+		if(config.buildOptions.pageUrlFormat === 'file' && !sendpath.endsWith('.html')) {
+			sendOptions.index = false;
+			const parts = sendpath.split('/');
+			let lastPart = parts.pop();
+			switch(config.devOptions.trailingSlash) {
+				case 'always': {
+					lastPart = parts.pop();
+					break;
+				}
+				case 'never': {
+					// lastPart is the actually last part like `page`
+					break;
+				}
+				case 'ignore': {
+					// this could end in slash, so resolve either way
+					if(lastPart === '') {
+						lastPart = parts.pop();
+					}
+					break;
+				}
+			}
+			const part = lastPart || 'index';
+			sendpath = npath.sep + npath.join(...parts, `${part}.html`);
+		}
+		send(req, sendpath, sendOptions)
+		.once('directory', function(this: SendStreamWithPath, _res, path) {
+			if(config.buildOptions.pageUrlFormat === 'directory' && !path.endsWith('index.html')) {
+				return this.sendIndex(path);
+			} else {
+				this.error(404);
+			}
+		})
+		.pipe(res);
 	});
 
 	let { hostname, port } = config.devOptions;

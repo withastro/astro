@@ -17,7 +17,7 @@ before(async () => {
 	// get bundled CSS (will be hashed, hence DOM query)
 	const html = await fixture.readFile('/index.html');
 	const $ = cheerio.load(html);
-	const bundledCSSHREF = $('link[rel=stylesheet][href^=assets/]').attr('href');
+	const bundledCSSHREF = $('link[rel=stylesheet][href^=./assets/]').attr('href');
 	bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
 });
 

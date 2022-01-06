@@ -14,6 +14,7 @@ import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, g
 import { isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory, hasSrcSet } from './util.js';
 import { render as ssrRender } from '../core/ssr/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
+import { prependDotSlash, removeEndingForwardSlash } from '../core/path.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
@@ -34,6 +35,11 @@ interface PluginOptions {
 	origin: string;
 	routeCache: RouteCache;
 	viteServer: ViteDevServer;
+}
+
+function relativePath(from: string, to: string): string {
+	const rel = npath.posix.relative(from, to);
+	return prependDotSlash(rel);
 }
 
 export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
@@ -74,7 +80,9 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 				}
 
 				for (const pathname of pageData.paths) {
-					pageNames.push(pathname.replace(/\/?$/, '/index.html').replace(/^\//, ''));
+					const pathrepl = astroConfig.buildOptions.pageUrlFormat === 'directory' ?
+						'/index.html' : pathname === '/' ? 'index.html' : '.html';
+					pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
 					const id = ASTRO_PAGE_PREFIX + pathname;
 					const html = await ssrRender(renderers, mod, {
 						astroConfig,
@@ -309,7 +317,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 					const lastNode = ref;
 					for (const referenceId of referenceIds) {
 						const chunkFileName = this.getFileName(referenceId);
-						const relPath = npath.posix.relative(pathname, '/' + chunkFileName);
+						const relPath = relativePath(pathname, '/' + chunkFileName);
 
 						// This prevents added links more than once per type.
 						const key = pathname + relPath + attrs.rel || 'stylesheet';
@@ -350,7 +358,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 					if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
 						if (!pageBundleAdded) {
 							pageBundleAdded = true;
-							const relPath = npath.posix.relative(pathname, bundlePath);
+							const relPath = relativePath(pathname, bundlePath);
 							insertBefore(
 								script.parentNode,
 								createScript({
@@ -369,7 +377,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 					if (getAttribute(script, 'astro-script') && typeof pageAssetId === 'string') {
 						if (!pageBundleAdded) {
 							pageBundleAdded = true;
-							const relPath = npath.posix.relative(pathname, bundlePath);
+							const relPath = relativePath(pathname, bundlePath);
 							insertBefore(
 								script.parentNode,
 								createScript({
@@ -389,7 +397,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 						// On windows the facadeId doesn't start with / but does not Unix :/
 						if (src && (facadeIdMap.has(src) || facadeIdMap.has(src.substr(1)))) {
 							const assetRootPath = '/' + (facadeIdMap.get(src) || facadeIdMap.get(src.substr(1)));
-							const relPath = npath.posix.relative(pathname, assetRootPath);
+							const relPath = relativePath(pathname, assetRootPath);
 							const attrs = getAttributes(script);
 							insertBefore(
 								script.parentNode,
@@ -434,7 +442,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 						const referenceId = assetIdMap.get(src);
 						if (referenceId) {
 							const fileName = this.getFileName(referenceId);
-							const relPath = npath.posix.relative(pathname, '/' + fileName);
+							const relPath = relativePath(pathname, '/' + fileName);
 							setAttribute(node, 'src', relPath);
 						}
 					}
@@ -448,7 +456,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 							if (assetIdMap.has(url)) {
 								const referenceId = assetIdMap.get(url)!;
 								const fileName = this.getFileName(referenceId);
-								const relPath = npath.posix.relative(pathname, '/' + fileName);
+								const relPath = relativePath(pathname, '/' + fileName);
 								changedSrcset = changedSrcset.replace(url, relPath);
 							}
 						}
@@ -476,8 +484,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 
 				// Output directly to 404.html rather than 400/index.html
 				// Supports any other status codes, too
-				if (name.match(STATUS_CODE_RE)) {
-					outPath = npath.posix.join(`${name}.html`);
+				if (name.match(STATUS_CODE_RE) || astroConfig.buildOptions.pageUrlFormat === 'file') {
+					outPath = `${removeEndingForwardSlash(name || 'index')}.html`;
 				} else {
 					outPath = npath.posix.join(name, 'index.html');
 				}

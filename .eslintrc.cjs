@@ -12,6 +12,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-this-alias': 'off',
     'no-console': 'warn',
     'no-shadow': 'error',
     'prefer-const': 'off',
