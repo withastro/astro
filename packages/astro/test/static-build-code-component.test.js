@@ -5,14 +5,13 @@ import { loadFixture } from './test-utils.js';
 describe('Code component inside static build', () => {
 	let fixture;
 
-
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/static-build-code-component/',
 			renderers: [],
 			buildOptions: {
 				experimentalStaticBuild: true,
-			}
+			},
 		});
 		await fixture.build();
 	});

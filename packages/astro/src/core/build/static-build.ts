@@ -113,7 +113,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	const { astroConfig, viteConfig } = opts;
 
 	// Nothing to do if there is no client-side JS.
-	if(!input.size) {
+	if (!input.size) {
 		return null;
 	}
 
@@ -265,15 +265,17 @@ export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals
 
 		config(config, options) {
 			const extra: Partial<UserConfig> = {};
-			const noExternal = [], external = [];
-			if(options.command === 'build' && config.build?.ssr) {
+			const noExternal = [],
+				external = [];
+			if (options.command === 'build' && config.build?.ssr) {
 				noExternal.push('astro');
 				external.push('shiki');
 			}
 
 			// @ts-ignore
 			extra.ssr = {
-				external, noExternal
+				external,
+				noExternal,
 			};
 			return extra;
 		},

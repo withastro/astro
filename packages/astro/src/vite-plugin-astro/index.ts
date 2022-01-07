@@ -37,7 +37,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			let { filename, query } = parseAstroRequest(id);
 			if (query.astro) {
 				if (query.type === 'style') {
-					if(filename.startsWith('/@fs')) {
+					if (filename.startsWith('/@fs')) {
 						filename = filename.slice('/@fs'.length);
 					} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
 						filename = new URL('.' + filename, config.projectRoot).pathname;
