@@ -1,5 +1,5 @@
 import type { OutputChunk, PreRenderedChunk, RollupOutput } from 'rollup';
-import type { Plugin as VitePlugin } from '../vite';
+import type { Plugin as VitePlugin, UserConfig } from '../vite';
 import type { AstroConfig, RouteCache, SSRElement } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
@@ -13,7 +13,7 @@ import npath from 'path';
 import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import vite from '../vite.js';
-import { debug, info, error } from '../../core/logger.js';
+import { debug, error } from '../../core/logger.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { getParamsAndProps } from '../ssr/index.js';
@@ -111,6 +111,11 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 
 async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
+
+	// Nothing to do if there is no client-side JS.
+	if(!input.size) {
+		return null;
+	}
 
 	return await vite.build({
 		logLevel: 'error',
@@ -257,6 +262,21 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals, ext: 'js' | 'mjs'): VitePlugin {
 	return {
 		name: '@astro/rollup-plugin-new-build',
+
+		config(config, options) {
+			const extra: Partial<UserConfig> = {};
+			const noExternal = [], external = [];
+			if(options.command === 'build' && config.build?.ssr) {
+				noExternal.push('astro');
+				external.push('shiki');
+			}
+
+			// @ts-ignore
+			extra.ssr = {
+				external, noExternal
+			};
+			return extra;
+		},
 
 		configResolved(resolvedConfig) {
 			// Delete this hook because it causes assets not to be built
