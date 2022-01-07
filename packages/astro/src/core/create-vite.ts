@@ -91,8 +91,6 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		}
 	}
 
-	// Add in user settings last, followed by any Vite configuration passed in from the parent function (overrides)
-	viteConfig = vite.mergeConfig(viteConfig, astroConfig.vite || {}); // merge in Vite config from astro.config.mjs
 	viteConfig = vite.mergeConfig(viteConfig, inlineConfig); // merge in inline Vite config
 	return viteConfig;
 }
