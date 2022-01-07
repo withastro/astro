@@ -8,6 +8,7 @@ import { AstroDevServer } from '../core/dev/index.js';
 import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';
 import { cachedCompilation, invalidateCompilation } from './compile.js';
+import ancestor from 'common-ancestor-path';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -36,7 +37,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			let { filename, query } = parseAstroRequest(id);
 			if (query.astro) {
 				if (query.type === 'style') {
-					if (filename.startsWith('/') && !filename.startsWith(config.projectRoot.pathname)) {
+					if(filename.startsWith('/@fs')) {
+						filename = filename.slice('/@fs'.length);
+					} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
 						filename = new URL('.' + filename, config.projectRoot).pathname;
 					}
 					const transformResult = await cachedCompilation(config, filename, null, viteTransform, opts);
