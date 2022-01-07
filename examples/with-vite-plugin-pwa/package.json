@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.22.8",
+    "astro": "^0.22.9",
     "vite-plugin-pwa": "0.11.5"
   }
 }
