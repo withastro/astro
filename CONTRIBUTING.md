@@ -25,6 +25,12 @@ yarn install
 yarn build
 ```
 
+In [#2254](https://github.com/withastro/astro/pull/2254) a `.git-blame-ignore-revs` file was added to ignore repo-wide formatting changes. To improve your experience, you should run the following command locally.
+
+```shell
+git config --local blame.ignoreRevsFile .git-blame-ignore-revs
+```
+
 ### Development
 
 ```shell
