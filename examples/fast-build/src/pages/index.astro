@@ -3,6 +3,7 @@ import imgUrl from '../images/penguin.jpg';
 import grayscaleUrl from '../images/random.jpg?grayscale=true';
 import Greeting from '../components/Greeting.vue';
 import Counter from '../components/Counter.vue';
+import { Code } from 'astro/components';
 ---
 
 <html>
@@ -31,6 +32,13 @@ import Counter from '../components/Counter.vue';
     <h1>ImageTools</h1>
     <img src={grayscaleUrl} />
   </section>
+
+	<section>
+		<h1>Astro components</h1>
+		<Code lang="css" code={`body {
+	color: salmon;
+}`} />
+	</section>
 
   <section>
     <h1>Hydrated component</h1>
