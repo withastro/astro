@@ -36,5 +36,5 @@ export function prependDotSlash(path: string) {
 }
 
 export function trimSlashes(path: string) {
-	return path.replace(/^\/|\/$/g, '')
+	return path.replace(/^\/|\/$/g, '');
 }

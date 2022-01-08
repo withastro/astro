@@ -16,8 +16,7 @@ interface ErrorTemplateOptions {
 
 /** Display all errors */
 export default function template({ title, pathname, statusCode = 404, tabTitle, body }: ErrorTemplateOptions): string {
-	return (
-`<!doctype html>
+	return `<!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8">
@@ -56,8 +55,7 @@ export default function template({ title, pathname, statusCode = 404, tabTitle, 
 			}
 			</main>
 	</body>
-</html>`
-	);
+</html>`;
 }
 
 export function subpathNotUsedTemplate(base: string, pathname: string) {
@@ -66,10 +64,8 @@ export function subpathNotUsedTemplate(base: string, pathname: string) {
 		statusCode: 404,
 		title: 'Not found',
 		tabTitle: '404: Not Found',
-		body: (
-`<p>In your <code>buildOptions.site</code> you have your base path set to <a href="${base}">${base}</a>. Do you want to go there instead?</p>
-<p>Come to our <a href="https://astro.build/chat">Discord</a> if you need help.</p>`
-		),
+		body: `<p>In your <code>buildOptions.site</code> you have your base path set to <a href="${base}">${base}</a>. Do you want to go there instead?</p>
+<p>Come to our <a href="https://astro.build/chat">Discord</a> if you need help.</p>`,
 	});
 }
 

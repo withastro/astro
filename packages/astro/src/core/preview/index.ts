@@ -1,12 +1,12 @@
 import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../logger';
-import type { Stats } from 'fs'
+import type { Stats } from 'fs';
 
 import http from 'http';
 import { performance } from 'perf_hooks';
 import send from 'send';
 import { fileURLToPath } from 'url';
-import fs from 'fs'
+import fs from 'fs';
 import * as msg from '../dev/messages.js';
 import { error, info } from '../logger.js';
 import { subpathNotUsedTemplate, notFoundTemplate, default as template } from '../dev/template/4xx.js';
@@ -28,13 +28,13 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 	const startServerTime = performance.now();
 	const pageUrlFormat = config.buildOptions.pageUrlFormat;
 	const trailingSlash = config.devOptions.trailingSlash;
-	const forceTrailingSlash = trailingSlash === 'always'
-	const blockTrailingSlash = trailingSlash === 'never'
+	const forceTrailingSlash = trailingSlash === 'always';
+	const blockTrailingSlash = trailingSlash === 'never';
 
 	/** Default file served from a directory. */
 	const defaultFile = 'index.html';
 
-	const defaultOrigin = 'http://localhost'
+	const defaultOrigin = 'http://localhost';
 
 	const sendOptions = {
 		extensions: pageUrlFormat === 'file' ? ['html'] : false,
@@ -47,7 +47,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 
 	// Create the preview server, send static files out of the `dist/` directory.
 	const server = http.createServer((req, res) => {
-		const requestURL = new URL(req.url as string, defaultOrigin)
+		const requestURL = new URL(req.url as string, defaultOrigin);
 
 		// respond 404 to requests outside the base request directory
 		if (!requestURL.pathname.startsWith(baseURL.pathname)) {
@@ -57,28 +57,28 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		}
 
 		/** Relative request path. */
-		const pathname = requestURL.pathname.slice(baseURL.pathname.length - 1)
+		const pathname = requestURL.pathname.slice(baseURL.pathname.length - 1);
 
-		const isRoot = pathname === '/'
-		const hasTrailingSlash = isRoot || pathname.endsWith('/')
+		const isRoot = pathname === '/';
+		const hasTrailingSlash = isRoot || pathname.endsWith('/');
 
-		let tryTrailingSlash = true
-		let tryHtmlExtension = true
+		let tryTrailingSlash = true;
+		let tryHtmlExtension = true;
 
-		let url: URL
+		let url: URL;
 
 		const onErr = (message: string) => {
 			res.statusCode = 404;
 			res.end(notFoundTemplate(pathname, message));
-		}
+		};
 
 		const onStat = (err: NodeJS.ErrnoException | null, stat: Stats) => {
 			switch (true) {
 				// retry nonexistent paths without an html extension
 				case err && tryHtmlExtension && hasTrailingSlash && !blockTrailingSlash:
 				case err && tryHtmlExtension && !hasTrailingSlash && !forceTrailingSlash && !pathname.endsWith('.html'):
-					tryHtmlExtension = false
-					return fs.stat(url = new URL(url.pathname + '.html', url), onStat);
+					tryHtmlExtension = false;
+					return fs.stat((url = new URL(url.pathname + '.html', url)), onStat);
 
 				// 404 on nonexistent paths (that are yet handled)
 				case err !== null:
@@ -94,8 +94,8 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 
 				// retry on directories when a default file is missing but allowed (that are yet handled)
 				case stat.isDirectory() && tryTrailingSlash:
-					tryTrailingSlash = false
-					return fs.stat(url = new URL(url.pathname + (url.pathname.endsWith('/') ? defaultFile : '/' + defaultFile), url), onStat);
+					tryTrailingSlash = false;
+					return fs.stat((url = new URL(url.pathname + (url.pathname.endsWith('/') ? defaultFile : '/' + defaultFile), url)), onStat);
 
 				// 404 on existent directories (that are yet handled)
 				case stat.isDirectory():
@@ -108,9 +108,9 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 						index: false,
 					}).pipe(res);
 			}
-		}
+		};
 
-		fs.stat(url = new URL(trimSlashes(pathname), config.dist), onStat);
+		fs.stat((url = new URL(trimSlashes(pathname), config.dist)), onStat);
 	});
 
 	let { hostname, port } = config.devOptions;
