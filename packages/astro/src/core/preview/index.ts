@@ -126,7 +126,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 				httpServer = server.listen(port, hostname, () => {
 					if (!showedListenMsg) {
 						info(logging, 'astro', msg.devStart({ startupTime: performance.now() - timerStart }));
-						info(logging, 'astro', msg.devHost({ host: `http://${hostname}:${port}${baseURL}` }));
+						info(logging, 'astro', msg.devHost({ host: `http://${hostname}:${port}${baseURL.pathname}` }));
 					}
 					showedListenMsg = true;
 					resolve();
