@@ -80,8 +80,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 				}
 
 				for (const pathname of pageData.paths) {
-					const pathrepl = astroConfig.buildOptions.pageUrlFormat === 'directory' ? '/index.html' : pathname === '/' ? 'index.html' : '.html';
-					pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
+					pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
 					const id = ASTRO_PAGE_PREFIX + pathname;
 					const html = await ssrRender(renderers, mod, {
 						astroConfig,
