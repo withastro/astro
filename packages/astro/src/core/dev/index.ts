@@ -89,6 +89,9 @@ export class AstroDevServer {
 
 		// Setup the dev server and connect it to Vite (via middleware)
 		this.viteServer = await this.createViteServer();
+		if (this.devRoot !== '/') {
+			this.app.use((req, res, next) => this.stripDevRoot(req, res, next));
+		}
 		this.app.use(this.viteServer.middlewares);
 		this.app.use((req, res, next) => this.handleRequest(req, res, next));
 		this.app.use((req, res, next) => this.renderError(req, res, next));
@@ -275,6 +278,20 @@ export class AstroDevServer {
 		return viteServer;
 	}
 
+	private async stripDevRoot(req: http.IncomingMessage, res: http.ServerResponse, next: NextFunction) {
+		if (!this.viteServer) throw new Error(`AstroDevServer.start() not called`);
+		if (this.devRoot === '/') throw new Error(`AstroDevServer.stripDevRoot() called when there's no devRoot`);
+
+		let pathname = req.url || '/';
+		if (!pathname.startsWith(this.devRoot)) {
+			this.renderError(req, res, next);
+			return;
+		}
+		pathname = pathname.substr(this.devRoot.length) || '';
+		req.url = pathname.startsWith('/') ? pathname : '/' + pathname;
+		next();
+	}
+
 	/** The primary router (runs before Vite, in case we need to modify or intercept anything) */
 	private async handleRequest(req: http.IncomingMessage, res: http.ServerResponse, next: NextFunction) {
 		if (!this.viteServer) throw new Error(`AstroDevServer.start() not called`);
@@ -286,20 +303,6 @@ export class AstroDevServer {
 			let routePathname: string = pathname;
 			// If using a subpath, ensure that the user has included the pathname
 			// such as /blog in the URL.
-			if (this.devRoot !== '/') {
-				if (pathname.startsWith(this.devRoot)) {
-					// This includes the subpath, so strip off the subpath so that
-					// matchRoute finds this route.
-					routePathname = pathname.substr(this.devRoot.length) || '';
-					if (!routePathname.startsWith('/')) {
-						routePathname = '/' + routePathname;
-					}
-				} else {
-					// Not using the subpath, so forward to Vite's middleware
-					next();
-					return;
-				}
-			}
 
 			const route = matchRoute(routePathname, this.manifest);
 

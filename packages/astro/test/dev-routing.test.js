@@ -42,6 +42,11 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/2');
 			expect(response.status).to.equal(500);
 		});
+
+		it('200 when loading /twitter.png', async () => {
+			const response = await fixture.fetch('/twitter.png');
+			expect(response.status).to.equal(200);
+		});
 	});
 
 	describe('No subpath used', () => {
@@ -77,6 +82,11 @@ describe('Development Routing', () => {
 		it('500 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/2');
 			expect(response.status).to.equal(500);
+		});
+
+		it('200 when loading /twitter.png', async () => {
+			const response = await fixture.fetch('/twitter.png');
+			expect(response.status).to.equal(200);
 		});
 	});
 
@@ -124,6 +134,11 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/blog/2/');
 			expect(response.status).to.equal(500);
 		});
+
+		it('200 when loading /blog/twitter.png', async () => {
+			const response = await fixture.fetch('/blog/twitter.png');
+			expect(response.status).to.equal(200);
+		});
 	});
 
 	describe('Subpath without trailing slash', () => {
@@ -169,6 +184,11 @@ describe('Development Routing', () => {
 		it('500 when loading invalid dynamic route', async () => {
 			const response = await fixture.fetch('/blog/2/');
 			expect(response.status).to.equal(500);
+		});
+
+		it('200 when loading /blog/twitter.png', async () => {
+			const response = await fixture.fetch('/blog/twitter.png');
+			expect(response.status).to.equal(200);
 		});
 	});
 });

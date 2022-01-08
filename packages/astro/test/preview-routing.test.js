@@ -55,6 +55,11 @@ describe('Preview Routing', () => {
 				const response = await fixture.fetch('/blog/2');
 				expect(response.status).to.equal(404);
 			});
+
+			it('200 when loading /blog/twitter.png', async () => {
+				const response = await fixture.fetch('/blog/twitter.png');
+				expect(response.status).to.equal(200);
+			});
 		});
 
 		describe('Subpath without trailing slash and trailingSlash: always', () => {
@@ -112,6 +117,11 @@ describe('Preview Routing', () => {
 			it('404 when loading invalid dynamic route', async () => {
 				const response = await fixture.fetch('/blog/2/');
 				expect(response.status).to.equal(404);
+			});
+
+			it('200 when loading /blog/twitter.png', async () => {
+				const response = await fixture.fetch('/blog/twitter.png');
+				expect(response.status).to.equal(200);
 			});
 		});
 
@@ -171,6 +181,11 @@ describe('Preview Routing', () => {
 				const response = await fixture.fetch('/blog/2/');
 				expect(response.status).to.equal(404);
 			});
+
+			it('200 when loading /blog/twitter.png', async () => {
+				const response = await fixture.fetch('/blog/twitter.png');
+				expect(response.status).to.equal(200);
+			});
 		});
 	});
 
@@ -229,6 +244,11 @@ describe('Preview Routing', () => {
 			it('404 when loading invalid dynamic route', async () => {
 				const response = await fixture.fetch('/blog/2');
 				expect(response.status).to.equal(404);
+			});
+
+			it('200 when loading /blog/twitter.png', async () => {
+				const response = await fixture.fetch('/blog/twitter.png');
+				expect(response.status).to.equal(200);
 			});
 		});
 
@@ -291,6 +311,11 @@ describe('Preview Routing', () => {
 				const response = await fixture.fetch('/blog/2/');
 				expect(response.status).to.equal(404);
 			});
+
+			it('200 when loading /blog/twitter.png', async () => {
+				const response = await fixture.fetch('/blog/twitter.png');
+				expect(response.status).to.equal(200);
+			});
 		});
 
 		describe('Subpath without trailing slash and trailingSlash: ignore', () => {
@@ -352,6 +377,11 @@ describe('Preview Routing', () => {
 				const response = await fixture.fetch('/blog/2/');
 				expect(response.status).to.equal(404);
 			});
+
+			it('200 when loading /blog/twitter.png', async () => {
+				const response = await fixture.fetch('/blog/twitter.png');
+				expect(response.status).to.equal(200);
+			});
 		});
 
 		describe('Exact file path', () => {
@@ -402,6 +432,11 @@ describe('Preview Routing', () => {
 			it('404 when loading invalid dynamic route', async () => {
 				const response = await fixture.fetch('/blog/2.html');
 				expect(response.status).to.equal(404);
+			});
+
+			it('200 when loading /blog/twitter.png', async () => {
+				const response = await fixture.fetch('/blog/twitter.png');
+				expect(response.status).to.equal(200);
 			});
 		});
 	});
