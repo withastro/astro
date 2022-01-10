@@ -44,8 +44,8 @@
   ],
   "repository": {
     "type": "git",
-    "directory": "vscode",
-    "url": "https://github.com/snowpackjs/astro"
+    "url": "https://github.com/withastro/language-tools.git",
+    "directory": "packages/vscode"
   },
   "contributes": {
     "typescriptServerPlugins": [

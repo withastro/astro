@@ -49,4 +49,4 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: 'A new release of the Astro VSCode extension just went out! [Release notes →](<https://github.com/withastro/astro-language-tools/releases/>)'
+          args: 'A new release of the Astro VSCode extension just went out! [Release notes →](<https://github.com/withastro/language-tools/releases/>)'

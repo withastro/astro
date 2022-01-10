@@ -4,7 +4,7 @@
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/snowpackjs/astro-language-tools.git"
+    "url": "https://github.com/withastro/language-tools.git"
   },
   "scripts": {
     "release": "yarn build && changeset publish",
