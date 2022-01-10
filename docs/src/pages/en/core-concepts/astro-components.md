@@ -275,6 +275,8 @@ When working inside a JSX expression, however, you must wrap multiple elements i
 
 A Fragment must open with `<>` and close with `</>`. Don't worry if you forget this, Astro's compiler will warn you that you need to add one.
 
+> **Note:** Astro also supports opening a fragment with `<Fragment>` and closing it with `</Fragment>` if you prefer to use that syntax.
+
 ```astro
 ---
 const items = ["Dog", "Cat", "Platipus"];
@@ -327,22 +329,22 @@ import TwitterTimeline from '../components/TwitterTimeline.astro';
 
 `.astro` files can end up looking very similar to `.jsx` files, but there are a few key differences. Here's a comparison between the two formats.
 
-| Feature                      | Astro                                      | JSX                                                |
-| ---------------------------- | ------------------------------------------ | -------------------------------------------------- |
-| File extension               | `.astro`                                   | `.jsx` or `.tsx`                                   |
-| User-Defined Components      | `<Capitalized>`                            | `<Capitalized>`                                    |
-| Expression Syntax            | `{}`                                       | `{}`                                               |
-| Spread Attributes            | `{...props}`                               | `{...props}`                                       |
-| Boolean Attributes           | `autocomplete` === `autocomplete={true}`   | `autocomplete` === `autocomplete={true}`           |
-| Inline Functions             | `{items.map(item => <li>{item}</li>)}`     | `{items.map(item => <li>{item}</li>)}`             |
-| IDE Support                  | WIP - [VS Code][code-ext]                  | Phenomenal                                         |
-| Requires JS import           | No                                         | Yes, `jsxPragma` (`React` or `h`) must be in scope |
-| Fragments                    | Automatic top-level, `<>` inside functions | Wrap with `<Fragment>` or `<>`                     |
-| Multiple frameworks per-file | Yes                                        | No                                                 |
-| Modifying `<head>`           | Just use `<head>`                          | Per-framework (`<Head>`, `<svelte:head>`, etc)     |
-| Comment Style                | `<!-- HTML -->`                            | `{/_ JavaScript _/}                                |
-| Special Characters           | `&nbsp;`                                   | `&nbsp;`                                           |
-| Attributes                   | `dash-case`                                | `camelCase`                                        |
+| Feature                      | Astro                                                      | JSX                                                |
+| ---------------------------- | ---------------------------------------------------------- | -------------------------------------------------- |
+| File extension               | `.astro`                                                   | `.jsx` or `.tsx`                                   |
+| User-Defined Components      | `<Capitalized>`                                            | `<Capitalized>`                                    |
+| Expression Syntax            | `{}`                                                       | `{}`                                               |
+| Spread Attributes            | `{...props}`                                               | `{...props}`                                       |
+| Boolean Attributes           | `autocomplete` === `autocomplete={true}`                   | `autocomplete` === `autocomplete={true}`           |
+| Inline Functions             | `{items.map(item => <li>{item}</li>)}`                     | `{items.map(item => <li>{item}</li>)}`             |
+| IDE Support                  | WIP - [VS Code][code-ext]                                  | Phenomenal                                         |
+| Requires JS import           | No                                                         | Yes, `jsxPragma` (`React` or `h`) must be in scope |
+| Fragments                    | Automatic top-level, `<Fragment>` or `<>` inside functions | Wrap with `<Fragment>` or `<>`                     |
+| Multiple frameworks per-file | Yes                                                        | No                                                 |
+| Modifying `<head>`           | Just use `<head>`                                          | Per-framework (`<Head>`, `<svelte:head>`, etc)     |
+| Comment Style                | `<!-- HTML -->`                                            | `{/_ JavaScript _/}                                |
+| Special Characters           | `&nbsp;`                                                   | `&nbsp;`                                           |
+| Attributes                   | `dash-case`                                                | `camelCase`                                        |
 
 ## URL resolution
 
