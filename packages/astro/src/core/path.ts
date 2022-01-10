@@ -34,3 +34,7 @@ export function prependDotSlash(path: string) {
 
 	return './' + path;
 }
+
+export function trimSlashes(path: string) {
+	return path.replace(/^\/|\/$/g, '');
+}
