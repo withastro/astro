@@ -2,7 +2,9 @@
 	box-sizing: border-box;
 	margin: 0;
 }
-
+html {
+	scroll-behavior: smooth;
+}
 /* Global focus outline reset */
 *:focus:not(:focus-visible) {
 	outline: none;
