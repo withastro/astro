@@ -12,7 +12,7 @@ export default async function run() {
 		.readdirSync(examplesUrl)
 		.map((filename) => new URL(filename, examplesUrl))
 		.filter((fileUrl) => fs.statSync(fileUrl).isDirectory());
-	const allProjectsToTest = [...examplesToTest, new URL('../../www', import.meta.url), new URL('../../docs', import.meta.url)];
+	const allProjectsToTest = [...examplesToTest, new URL('../../docs', import.meta.url)];
 
 	console.log('');
 	for (const projectToTest of allProjectsToTest) {
