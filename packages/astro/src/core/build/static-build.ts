@@ -31,8 +31,8 @@ export interface StaticBuildOptions {
 }
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	const pathrepl = opts.astroConfig.buildOptions.pageUrlFormat === "directory" ? "/index.html" : pathname === "/" ? "index.html" : ".html";
-	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ""));
+	const pathrepl = opts.astroConfig.buildOptions.pageUrlFormat === 'directory' ? '/index.html' : pathname === '/' ? 'index.html' : '.html';
+	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
 }
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -208,7 +208,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	const { Component, internals, linkIds, pageData } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
-  addPageName(pathname, opts);
+	addPageName(pathname, opts);
 
 	const [renderers, mod] = pageData.preload;
 
