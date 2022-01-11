@@ -1,4 +1,4 @@
-import type { OutputChunk, PreRenderedChunk, RollupOutput } from 'rollup';
+import type { OutputChunk, OutputAsset, PreRenderedChunk, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig } from '../vite';
 import type { AstroConfig, RouteCache, SSRElement } from '../../@types/astro';
 import type { AllPagesData } from './types';
@@ -33,6 +33,17 @@ export interface StaticBuildOptions {
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	const pathrepl = opts.astroConfig.buildOptions.pageUrlFormat === 'directory' ? '/index.html' : pathname === '/' ? 'index.html' : '.html';
 	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
+}
+
+// Determines of a Rollup chunk is an entrypoint page.
+function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
+	if(output.type !== 'chunk') {
+		return false;
+	}
+	const chunk = output as OutputChunk;
+	return chunk.facadeModuleId &&
+		(internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId) ||
+			internals.entrySpecifierToBundleMap.has('/' + chunk.facadeModuleId));
 }
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -158,8 +169,8 @@ async function generatePages(result: RollupOutput, opts: StaticBuildOptions, int
 	debug(opts.logging, 'generate', 'End build step, now generating');
 	const generationPromises = [];
 	for (let output of result.output) {
-		if (output.type === 'chunk' && output.facadeModuleId && output.facadeModuleId.endsWith('.astro')) {
-			generationPromises.push(generatePage(output, opts, internals, facadeIdToPageDataMap));
+		if (chunkIsPage(output, internals)) {
+			generationPromises.push(generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap));
 		}
 	}
 	await Promise.all(generationPromises);
