@@ -9,7 +9,6 @@ on:
       - '.vscode/**'
       - 'docs/**'
       - 'examples/**'
-      - 'www/**'
 
 # Automatically cancel in-progress actions on the same branch
 concurrency:

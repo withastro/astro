@@ -9,7 +9,7 @@
   "scripts": {
     "release": "yarn build && changeset publish",
     "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
-    "build:examples": "turbo run build --scope=docs --scope=www --scope=\"@example/*\"",
+    "build:examples": "turbo run build --scope=docs --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "test": "turbo run test --scope=astro",
     "test:templates": "turbo run test --scope=create-astro",
@@ -58,7 +58,6 @@
     "examples/component/demo",
     "examples/component/packages/*",
     "scripts",
-    "www",
     "docs",
     "packages/astro/test/fixtures/builtins/packages/*",
     "packages/astro/test/fixtures/builtins-polyfillnode",
