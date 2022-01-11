@@ -41,7 +41,9 @@ function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternal
 		return false;
 	}
 	const chunk = output as OutputChunk;
-	return chunk.facadeModuleId && internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId);
+	return chunk.facadeModuleId &&
+		(internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId) ||
+			internals.entrySpecifierToBundleMap.has('/' + chunk.facadeModuleId));
 }
 
 export async function staticBuild(opts: StaticBuildOptions) {
