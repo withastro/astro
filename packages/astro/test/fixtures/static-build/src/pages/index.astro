@@ -1,6 +1,25 @@
+---
+import MainHead from '../components/MainHead.astro';
+import Nav from '../components/Nav/index.jsx';
+---
 <html>
 <head>
-<title>Testing</title>
+<MainHead title="Testing" />
+<style lang="scss">
+			$w-s: 750px;
+
+			.hero {
+				position: relative;
+				overflow: hidden;
+
+				@media (min-width: $w-s) {
+					height: 45vw;
+				}
+			}
+</style>
 </head>
-<body><h1>Testing</h1></body>
+<body>
+<Nav />
+<h1>Testing</h1>
+</body>
 </html>

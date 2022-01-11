@@ -37,7 +37,7 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 
 // Determines of a Rollup chunk is an entrypoint page.
 function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
-	if(output.type !== 'chunk') {
+	if (output.type !== 'chunk') {
 		return false;
 	}
 	const chunk = output as OutputChunk;
@@ -191,6 +191,7 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 	}
 
 	let linkIds = internals.facadeIdToAssetsMap.get(facadeId) || [];
+
 	let compiledModule = await import(url.toString());
 	let Component = compiledModule.default;
 
@@ -244,6 +245,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 				children: '',
 			}))
 		);
+
 		// Override the `resolve` method so that hydrated components are given the
 		// hashed filepath to the component.
 		result.resolve = async (specifier: string) => {
