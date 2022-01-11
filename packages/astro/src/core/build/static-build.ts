@@ -37,13 +37,11 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 
 // Determines of a Rollup chunk is an entrypoint page.
 function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
-	if(output.type !== 'chunk') {
+	if (output.type !== 'chunk') {
 		return false;
 	}
 	const chunk = output as OutputChunk;
-	return chunk.facadeModuleId &&
-		(internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId) ||
-			internals.entrySpecifierToBundleMap.has('/' + chunk.facadeModuleId));
+	return chunk.facadeModuleId && (internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId) || internals.entrySpecifierToBundleMap.has('/' + chunk.facadeModuleId));
 }
 
 export async function staticBuild(opts: StaticBuildOptions) {
