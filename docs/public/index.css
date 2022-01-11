@@ -2,9 +2,7 @@
 	box-sizing: border-box;
 	margin: 0;
 }
-html {
-	scroll-behavior: smooth;
-}
+
 /* Global focus outline reset */
 *:focus:not(:focus-visible) {
 	outline: none;
@@ -18,6 +16,12 @@ html {
 @media (min-width: 50em) {
 	:root {
 		--max-width: 46em;
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	:root {
+		scroll-behavior: smooth;
 	}
 }
 
