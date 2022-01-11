@@ -25,8 +25,14 @@ export interface StaticBuildOptions {
 	astroConfig: AstroConfig;
 	logging: LogOptions;
 	origin: string;
+	pageNames: string[];
 	routeCache: RouteCache;
 	viteConfig: ViteConfigWithSSR;
+}
+
+function addPageName(pathname: string, opts: StaticBuildOptions): void {
+	const pathrepl = opts.astroConfig.buildOptions.pageUrlFormat === 'directory' ? '/index.html' : pathname === '/' ? 'index.html' : '.html';
+	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
 }
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -198,8 +204,11 @@ interface GeneratePathOptions {
 }
 
 async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: GeneratePathOptions) {
-	const { astroConfig, logging, origin, routeCache } = opts;
+	const { astroConfig, logging, origin, pageNames, routeCache } = opts;
 	const { Component, internals, linkIds, pageData } = gopts;
+
+	// This adds the page name to the array so it can be shown as part of stats.
+	addPageName(pathname, opts);
 
 	const [renderers, mod] = pageData.preload;
 
