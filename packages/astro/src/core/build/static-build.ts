@@ -1,6 +1,6 @@
 import type { OutputChunk, OutputAsset, PreRenderedChunk, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig } from '../vite';
-import type { AstroConfig, RouteCache, SSRElement } from '../../@types/astro';
+import type { AstroConfig, Renderer, RouteCache, SSRElement } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -163,18 +163,41 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	});
 }
 
+async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
+	// All of the PageDatas have the same renderers, so just grab one.
+	const pageData = Object.values(opts.allPages)[0];
+	// These renderers have been loaded through Vite. To generate pages
+	// we need the ESM loaded version. This creates that.
+	const viteLoadedRenderers = pageData.preload[0];
+
+	const renderers = await Promise.all(viteLoadedRenderers.map(async r => {
+		const mod = await import(r.serverEntry);
+		return Object.create(r, {
+			ssr: {
+				value: mod.default
+			}
+		}) as Renderer;
+	}));
+
+	return renderers;
+}
+
 async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
 	debug(opts.logging, 'generate', 'End build step, now generating');
+
+	// Get renderers to be shared for each page generation.
+	const renderers = await collectRenderers(opts);
+
 	const generationPromises = [];
 	for (let output of result.output) {
 		if (chunkIsPage(output, internals)) {
-			generationPromises.push(generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap));
+			generationPromises.push(generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers));
 		}
 	}
 	await Promise.all(generationPromises);
 }
 
-async function generatePage(output: OutputChunk, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
+async function generatePage(output: OutputChunk, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>, renderers: Renderer[]) {
 	const { astroConfig } = opts;
 
 	let url = new URL('./' + output.fileName, astroConfig.dist);
@@ -198,6 +221,7 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 		internals,
 		linkIds,
 		Component,
+		renderers,
 	};
 
 	const renderPromises = pageData.paths.map((path) => {
@@ -211,16 +235,17 @@ interface GeneratePathOptions {
 	internals: BuildInternals;
 	linkIds: string[];
 	Component: AstroComponentFactory;
+	renderers: Renderer[];
 }
 
 async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: GeneratePathOptions) {
 	const { astroConfig, logging, origin, pageNames, routeCache } = opts;
-	const { Component, internals, linkIds, pageData } = gopts;
+	const { Component, internals, linkIds, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	addPageName(pathname, opts);
 
-	const [renderers, mod] = pageData.preload;
+	const [mod] = pageData.preload;
 
 	try {
 		const [params, pageProps] = await getParamsAndProps({
