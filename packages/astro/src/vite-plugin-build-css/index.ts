@@ -13,7 +13,8 @@ const ASTRO_STYLE_PREFIX = '@astro-inline-style';
 
 const ASTRO_PAGE_STYLE_PREFIX = '@astro-page-all-styles';
 
-const isCSSRequest = (request: string) => STYLE_EXTENSIONS.has(path.extname(request));
+const cssRe = new RegExp(`\\.(${Array.from(STYLE_EXTENSIONS).map(s => s.slice(1)).join('|')})($|\\?)`);
+const isCSSRequest = (request: string): boolean => cssRe.test(request);
 
 export function getAstroPageStyleId(pathname: string) {
 	let styleId = ASTRO_PAGE_STYLE_PREFIX + pathname;
@@ -109,6 +110,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			return null;
 		},
 
+
+
 		async renderChunk(_code, chunk) {
 			let chunkCSS = '';
 			let isPureCSS = true;
@@ -121,7 +124,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				}
 			}
 
-			// if (!chunkCSS) return null; // don’t output empty .css files
+			if (!chunkCSS) return null; // don’t output empty .css files
 
 			if (isPureCSS) {
 				internals.pureCSSChunks.add(chunk);
@@ -139,11 +142,14 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 			internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
 			if (chunk.type === 'chunk') {
-				const facadeId = chunk.facadeModuleId!;
-				if (!internals.facadeIdToAssetsMap.has(facadeId)) {
-					internals.facadeIdToAssetsMap.set(facadeId, []);
+				const fileName = this.getFileName(referenceId);
+				if(chunk.facadeModuleId) {
+					const facadeId = chunk.facadeModuleId!;
+					if (!internals.facadeIdToAssetsMap.has(facadeId)) {
+						internals.facadeIdToAssetsMap.set(facadeId, []);
+					}
+					internals.facadeIdToAssetsMap.get(facadeId)!.push(fileName);
 				}
-				internals.facadeIdToAssetsMap.get(facadeId)!.push(this.getFileName(referenceId));
 			}
 
 			return null;
@@ -151,16 +157,39 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 		// Delete CSS chunks so JS is not produced for them.
 		generateBundle(opts, bundle) {
-			if (internals.pureCSSChunks.size) {
-				const pureChunkFilenames = new Set([...internals.pureCSSChunks].map((chunk) => chunk.fileName));
-				const emptyChunkFiles = [...pureChunkFilenames]
-					.map((file) => path.basename(file))
-					.join('|')
-					.replace(/\./g, '\\.');
-				const emptyChunkRE = new RegExp(opts.format === 'es' ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?` : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`, 'g');
+			const hasPureCSSChunks = internals.pureCSSChunks.size;
+			const pureChunkFilenames = new Set([...internals.pureCSSChunks].map((chunk) => chunk.fileName));
+			const emptyChunkFiles = [...pureChunkFilenames]
+				.map((file) => path.basename(file))
+				.join('|')
+				.replace(/\./g, '\\.');
+			const emptyChunkRE = new RegExp(opts.format === 'es' ? `\\bimport\\s*"[^"]*(?:${emptyChunkFiles})";\n?` : `\\brequire\\(\\s*"[^"]*(?:${emptyChunkFiles})"\\);\n?`, 'g');
 
-				for (const [chunkId, chunk] of Object.entries(bundle)) {
-					if (chunk.type === 'chunk') {
+			for (const [chunkId, chunk] of Object.entries(bundle)) {
+				if (chunk.type === 'chunk') {
+					// If the chunk has a facadeModuleId it is an entrypoint chunk.
+					// This find shared chunks of CSS and adds them to the main CSS chunks,
+					// so that shared CSS is added to the page.
+					if(chunk.facadeModuleId) {
+						if(!internals.facadeIdToAssetsMap.has(chunk.facadeModuleId)) {
+							internals.facadeIdToAssetsMap.set(chunk.facadeModuleId, []);
+						}
+						const assets = internals.facadeIdToAssetsMap.get(chunk.facadeModuleId)!;
+						const assetSet = new Set(assets);
+						for(const imp of chunk.imports) {
+							if(internals.chunkToReferenceIdMap.has(imp) && !pureChunkFilenames.has(imp)) {
+								const referenceId = internals.chunkToReferenceIdMap.get(imp)!;
+								const fileName = this.getFileName(referenceId);
+								if(!assetSet.has(fileName)) {
+									assetSet.add(fileName);
+									assets.push(fileName);
+								}
+							}
+						}
+					}
+
+					// Removes imports for pure CSS chunks.
+					if(hasPureCSSChunks) {
 						if (internals.pureCSSChunks.has(chunk)) {
 							// Delete pure CSS chunks, these are JavaScript chunks that only import
 							// other CSS files, so are empty at the end of bundling.
