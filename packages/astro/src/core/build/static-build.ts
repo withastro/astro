@@ -88,7 +88,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
 	// condition, so we are doing it ourselves
-	await prepareOutDir(astroConfig);
+	prepareOutDir(astroConfig);
 
 	// Run the SSR build and client build in parallel
 	const [ssrResult] = (await Promise.all([ssrBuild(opts, internals, pageInput), clientBuild(opts, internals, jsInput)])) as RollupOutput[];
