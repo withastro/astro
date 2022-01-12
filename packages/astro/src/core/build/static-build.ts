@@ -19,6 +19,7 @@ import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js'
 import { getParamsAndProps } from '../ssr/index.js';
 import { createResult } from '../ssr/result.js';
 import { renderPage } from '../../runtime/server/index.js';
+import { prepareOutDir } from './fs.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -35,28 +36,7 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
 }
 
-export function emptyDir(dir: string, skip?: Set<string>): void {
-  for (const file of fs.readdirSync(dir)) {
-    if (skip?.has(file)) {
-      continue
-    }
-    const abs = npath.resolve(dir, file)
-    // baseline is Node 12 so can't use rmSync :(
-    if (fs.lstatSync(abs).isDirectory()) {
-      emptyDir(abs)
-      fs.rmdirSync(abs)
-    } else {
-      fs.unlinkSync(abs)
-    }
-  }
-}
 
-function prepareOutDir(astroConfig: AstroConfig) {
-	const outDir = fileURLToPath(astroConfig.dist);
-	if (fs.existsSync(outDir)) {
-		return emptyDir(outDir, new Set(['.git']));
-	}
-}
 
 // Determines of a Rollup chunk is an entrypoint page.
 function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
@@ -105,7 +85,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
-	// Empty out the dist folder, if needed
+	// Empty out the dist folder, if needed. Vite has a config for doing this
+	// but because we are running 2 vite builds in parallel, that would cause a race
+	// condition, so we are doing it ourselves
 	await prepareOutDir(astroConfig);
 
 	// Run the SSR build and client build in parallel
