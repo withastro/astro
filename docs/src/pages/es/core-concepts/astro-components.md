@@ -27,7 +27,7 @@ Por ejemplo, este archivo de tres líneas es un componente Astro válido:
 </div>
 ```
 
-Un componente Astro representa un fragmento de HTML en tu proyecto. Puede ser un componente reutilizable o una página completa de HTML que incluya elementos `<html>`, `<head>` y `<body>`. Consulta nuestra guía sobre [Páginas de Astro](/es/core-concept/astro-pages) para aprender a crear tu primera página HTML completa con Astro.
+Un componente Astro representa un fragmento de HTML en tu proyecto. Puede ser un componente reutilizable o una página completa de HTML que incluya elementos `<html>`, `<head>` y `<body>`. Consulta nuestra guía sobre [Páginas de Astro](/es/core-concepts/astro-pages) para aprender a crear tu primera página HTML completa con Astro.
 
 **Cada componente de Astro debe incluir una plantilla HTML.** Aunque puede mejorar su componente de varias maneras (ver más abajo), al fin y al cabo es la plantilla HTML la que dicta cómo se verá tu componente Astro renderizado.
 
@@ -74,7 +74,7 @@ Sass (una alternativa a CSS) está también disponible mediante `<style lang="sc
 
 Para construir componentes dinámicos, presentamos la idea de un script preliminar del componente. [Frontmatter](https://jekyllrb.com/docs/front-matter/) es un patrón común en Markdown, donde algunos config/metadata están contenidos dentro de una valla de código (`---`) en la parte superior del archivo . Astro hace algo similar, pero con soporte completo para JavaScript y TypeScript en sus componentes.
 
-Recuerda que Astro es un lenguaje de plantillas del lado del servidor, por lo que el script de su componente se ejecutará durante la compilación, pero solo el HTML se representará en el navegador. Para enviar JavaScript al navegador, puedes usar una etiqueta `<script>` en su plantilla HTML o [convertir tu componente para usar un framework de frontend](/es/core-concept/component-hydration) como React, Svelte, Vue, etc.
+Recuerda que Astro es un lenguaje de plantillas del lado del servidor, por lo que el script de su componente se ejecutará durante la compilación, pero solo el HTML se representará en el navegador. Para enviar JavaScript al navegador, puedes usar una etiqueta `<script>` en su plantilla HTML o [convertir tu componente para usar un framework de frontend](/es/core-concepts/component-hydration) como React, Svelte, Vue, etc.
 
 ```astro
 ---
@@ -109,7 +109,7 @@ import AlgunComponente from './AlgunComponente.astro';
 </div>
 ```
 
-📚 También puedes importar y usar componentes de otros frameworks frontend como React, Svelte y Vue. Lee nuestra guía sobre [Hidratación de componentes](/es/core-concept/component-hydration) para obtener más información.
+📚 También puedes importar y usar componentes de otros frameworks frontend como React, Svelte y Vue. Lee nuestra guía sobre [Hidratación de componentes](/es/core-concepts/component-hydration) para obtener más información.
 
 ### Expresiones JSX dinámicas
 

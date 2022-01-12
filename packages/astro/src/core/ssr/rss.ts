@@ -45,6 +45,7 @@ export function generateRSS(args: GenerateRSSArgs): string {
 		if (!result.link) throw new Error(`[${srcFile}] rss.items required "link" property is missing. got: "${JSON.stringify(result)}"`);
 		xml += `<title><![CDATA[${result.title}]]></title>`;
 		xml += `<link>${canonicalURL(result.link, site).href}</link>`;
+		xml += `<guid>${canonicalURL(result.link, site).href}</guid>`;
 		if (result.description) xml += `<description><![CDATA[${result.description}]]></description>`;
 		if (result.pubDate) {
 			// note: this should be a Date, but if user provided a string or number, we can work with that, too.

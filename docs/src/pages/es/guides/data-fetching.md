@@ -56,7 +56,7 @@ const Movies: FunctionalComponent = () => {
 export default Movies;
 ```
 
-Si cargas un componente usando `node-fetch` [interactivamente](/es/core-concept/component-hydration), con `client:load`, `client:visible`, etc., necesitarás no usar `node-fetch` o cambiar a una librería [isomórfica](https://en.wikipedia.org/wiki/Isomorphic_JavaScript) que se ejecutará tanto en el momento de la compilación como en el cliente, como [`node-fetch` README.md](https://github.com/node-fetch/node-fetch#motivation) recomienda:
+Si cargas un componente usando `node-fetch` [interactivamente](/es/core-concepts/component-hydration), con `client:load`, `client:visible`, etc., necesitarás no usar `node-fetch` o cambiar a una librería [isomórfica](https://en.wikipedia.org/wiki/Isomorphic_JavaScript) que se ejecutará tanto en el momento de la compilación como en el cliente, como [`node-fetch` README.md](https://github.com/node-fetch/node-fetch#motivation) recomienda:
 
 > En lugar de implementar XMLHttpRequest en Node.js para ejecutar [Fetch polyfill] específico del navegador (https://github.com/github/fetch), ¿por qué no pasar de http nativo a buscar API directamente? Por lo tanto, node-fetch, código mínimo para una API compatible con window.fetch en tiempo de ejecución de Node.js.
 >

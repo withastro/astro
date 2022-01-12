@@ -1,3 +1,10 @@
+function formatList(values: string[]): string {
+	if (values.length === 1) {
+		return values[0];
+	}
+	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
+}
+
 export function serializeListValue(value: any) {
 	const hash: Record<string, any> = {};
 
@@ -26,4 +33,13 @@ export function serializeListValue(value: any) {
 			}
 		}
 	}
+}
+
+/**
+ * Get the import specifier for a given hydration directive.
+ * @param hydrate The hydration directive such as `idle` or `visible`
+ * @returns
+ */
+export function hydrationSpecifier(hydrate: string) {
+	return `astro/client/${hydrate}.js`;
 }

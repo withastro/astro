@@ -9,9 +9,6 @@ example:
 docs:
 - docs/**
 
-www:
-- www/**
-
 test:
 - packages/**/*.test.js
 

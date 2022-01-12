@@ -19,6 +19,12 @@
 	}
 }
 
+@media (prefers-reduced-motion: no-preference) {
+	:root {
+		scroll-behavior: smooth;
+	}
+}
+
 body {
 	display: flex;
 	flex-direction: column;

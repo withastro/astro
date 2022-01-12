@@ -32,6 +32,16 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/another');
 			expect(response.status).to.equal(200);
 		});
+
+		it('200 when loading dynamic route', async () => {
+			const response = await fixture.fetch('/1');
+			expect(response.status).to.equal(200);
+		});
+
+		it('500 when loading invalid dynamic route', async () => {
+			const response = await fixture.fetch('/2');
+			expect(response.status).to.equal(500);
+		});
 	});
 
 	describe('No subpath used', () => {
@@ -57,6 +67,16 @@ describe('Development Routing', () => {
 		it('200 when loading non-root page', async () => {
 			const response = await fixture.fetch('/another');
 			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading dynamic route', async () => {
+			const response = await fixture.fetch('/1');
+			expect(response.status).to.equal(200);
+		});
+
+		it('500 when loading invalid dynamic route', async () => {
+			const response = await fixture.fetch('/2');
+			expect(response.status).to.equal(500);
 		});
 	});
 
@@ -94,6 +114,16 @@ describe('Development Routing', () => {
 			const response = await fixture.fetch('/blog/another/');
 			expect(response.status).to.equal(200);
 		});
+
+		it('200 when loading dynamic route', async () => {
+			const response = await fixture.fetch('/blog/1/');
+			expect(response.status).to.equal(200);
+		});
+
+		it('500 when loading invalid dynamic route', async () => {
+			const response = await fixture.fetch('/blog/2/');
+			expect(response.status).to.equal(500);
+		});
 	});
 
 	describe('Subpath without trailing slash', () => {
@@ -129,6 +159,16 @@ describe('Development Routing', () => {
 		it('200 when loading another page with subpath used', async () => {
 			const response = await fixture.fetch('/blog/another/');
 			expect(response.status).to.equal(200);
+		});
+
+		it('200 when loading dynamic route', async () => {
+			const response = await fixture.fetch('/blog/1/');
+			expect(response.status).to.equal(200);
+		});
+
+		it('500 when loading invalid dynamic route', async () => {
+			const response = await fixture.fetch('/blog/2/');
+			expect(response.status).to.equal(500);
 		});
 	});
 });

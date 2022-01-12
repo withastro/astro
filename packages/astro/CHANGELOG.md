@@ -1,5 +1,52 @@
 # astro
 
+## 0.22.9
+
+### Patch Changes
+
+- [#2337](https://github.com/withastro/astro/pull/2337) [`180dfcf2`](https://github.com/withastro/astro/commit/180dfcf2fc39c4697e178c47a3d3a5459d845cdf) Thanks [@matthewp](https://github.com/matthewp)! - Fix using the Code component in static build
+
+## 0.22.8
+
+### Patch Changes
+
+- [#2330](https://github.com/withastro/astro/pull/2330) [`71ca0912`](https://github.com/withastro/astro/commit/71ca09125a86e74c73d30d01839e27859e1ade1a) Thanks [@matthewp](https://github.com/matthewp)! - Fixes subpath support in `astro preview`
+
+## 0.22.7
+
+### Patch Changes
+
+- [#2324](https://github.com/withastro/astro/pull/2324) [`77ef43e6`](https://github.com/withastro/astro/commit/77ef43e66cf701de848a2998af646ee7762497d8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update compiler to remove console.log (sorry everyone!)
+
+* [`e0de21ef`](https://github.com/withastro/astro/commit/e0de21ef57227eb4c56f216280b8aa5e5e848937) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Add `<guid>` to RSS feed.
+
+- [#2318](https://github.com/withastro/astro/pull/2318) [`c0204c0a`](https://github.com/withastro/astro/commit/c0204c0a416865eab9b905b61231ed9a304120a8) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `@astrojs/compiler` to [`0.7.3`](https://github.com/withastro/compiler/blob/main/lib/compiler/CHANGELOG.md#073)
+
+* [#2319](https://github.com/withastro/astro/pull/2319) [`e6379d51`](https://github.com/withastro/astro/commit/e6379d514df4924ac8679a8c5a251b56a1a6bee3) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Updated @astropub/webapi
+
+## 0.22.6
+
+### Patch Changes
+
+- [#2299](https://github.com/withastro/astro/pull/2299) [`5fbdd56f`](https://github.com/withastro/astro/commit/5fbdd56f157f58d9d768f9d5388340aaa316da81) Thanks [@tadeuzagallo](https://github.com/tadeuzagallo)! - Fix dynamic routes for sites with subpath
+
+* [#2308](https://github.com/withastro/astro/pull/2308) [`e98659b7`](https://github.com/withastro/astro/commit/e98659b7d65c02e4e60a3621d0ce13ca5f9878f5) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update the Astro compiler, fixing a number of bugs
+
+## 0.22.5
+
+### Patch Changes
+
+- [#2305](https://github.com/withastro/astro/pull/2305) [`193ca60f`](https://github.com/withastro/astro/commit/193ca60f40c8875b1d655dcd0682560cc2e2487e) Thanks [@matthewp](https://github.com/matthewp)! - Fixes `astro check` errors with import.meta usage
+
+- Updated dependencies [[`34486676`](https://github.com/withastro/astro/commit/344866762c3a96b92bd754cf3706db73e2d74647)]:
+  - @astrojs/renderer-svelte@0.3.1
+
+## 0.22.4
+
+### Patch Changes
+
+- [#2302](https://github.com/withastro/astro/pull/2302) [`9db22b97`](https://github.com/withastro/astro/commit/9db22b97b604e2ab1908b28e3461aefb222dcf97) Thanks [@matthewp](https://github.com/matthewp)! - Fix to allow the static build to build hydrated components
+
 ## 0.22.3
 
 ### Patch Changes
