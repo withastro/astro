@@ -12,9 +12,7 @@ describe('Static build', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/static-build/',
-			renderers: [
-				'@astrojs/renderer-preact'
-			],
+			renderers: ['@astrojs/renderer-preact'],
 			buildOptions: {
 				experimentalStaticBuild: true,
 			},
@@ -37,16 +35,16 @@ describe('Static build', () => {
 			const html = await fixture.readFile(pathname);
 			const $ = cheerio.load(html);
 			const links = $('link[rel=stylesheet]');
-			for(const link of links) {
+			for (const link of links) {
 				const href = $(link).attr('href');
 				const data = await fixture.readFile(addLeadingSlash(href));
-				if(expected.test(data)) {
+				if (expected.test(data)) {
 					return true;
 				}
 			}
 
 			return false;
-		}
+		};
 	}
 
 	describe('Shared CSS', () => {

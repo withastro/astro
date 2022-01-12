@@ -13,7 +13,11 @@ const ASTRO_STYLE_PREFIX = '@astro-inline-style';
 
 const ASTRO_PAGE_STYLE_PREFIX = '@astro-page-all-styles';
 
-const cssRe = new RegExp(`\\.(${Array.from(STYLE_EXTENSIONS).map(s => s.slice(1)).join('|')})($|\\?)`);
+const cssRe = new RegExp(
+	`\\.(${Array.from(STYLE_EXTENSIONS)
+		.map((s) => s.slice(1))
+		.join('|')})($|\\?)`
+);
 const isCSSRequest = (request: string): boolean => cssRe.test(request);
 
 export function getAstroPageStyleId(pathname: string) {
@@ -110,8 +114,6 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			return null;
 		},
 
-
-
 		async renderChunk(_code, chunk) {
 			let chunkCSS = '';
 			let isPureCSS = true;
@@ -143,7 +145,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
 			if (chunk.type === 'chunk') {
 				const fileName = this.getFileName(referenceId);
-				if(chunk.facadeModuleId) {
+				if (chunk.facadeModuleId) {
 					const facadeId = chunk.facadeModuleId!;
 					if (!internals.facadeIdToAssetsMap.has(facadeId)) {
 						internals.facadeIdToAssetsMap.set(facadeId, []);
@@ -170,17 +172,17 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 					// If the chunk has a facadeModuleId it is an entrypoint chunk.
 					// This find shared chunks of CSS and adds them to the main CSS chunks,
 					// so that shared CSS is added to the page.
-					if(chunk.facadeModuleId) {
-						if(!internals.facadeIdToAssetsMap.has(chunk.facadeModuleId)) {
+					if (chunk.facadeModuleId) {
+						if (!internals.facadeIdToAssetsMap.has(chunk.facadeModuleId)) {
 							internals.facadeIdToAssetsMap.set(chunk.facadeModuleId, []);
 						}
 						const assets = internals.facadeIdToAssetsMap.get(chunk.facadeModuleId)!;
 						const assetSet = new Set(assets);
-						for(const imp of chunk.imports) {
-							if(internals.chunkToReferenceIdMap.has(imp) && !pureChunkFilenames.has(imp)) {
+						for (const imp of chunk.imports) {
+							if (internals.chunkToReferenceIdMap.has(imp) && !pureChunkFilenames.has(imp)) {
 								const referenceId = internals.chunkToReferenceIdMap.get(imp)!;
 								const fileName = this.getFileName(referenceId);
-								if(!assetSet.has(fileName)) {
+								if (!assetSet.has(fileName)) {
 									assetSet.add(fileName);
 									assets.push(fileName);
 								}
@@ -189,7 +191,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 					}
 
 					// Removes imports for pure CSS chunks.
-					if(hasPureCSSChunks) {
+					if (hasPureCSSChunks) {
 						if (internals.pureCSSChunks.has(chunk)) {
 							// Delete pure CSS chunks, these are JavaScript chunks that only import
 							// other CSS files, so are empty at the end of bundling.
