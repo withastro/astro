@@ -82,6 +82,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
+	// Empty out the dist folder
+	await fs.promises.rm(astroConfig.dist, { recursive: true });
+
 	// Run the SSR build and client build in parallel
 	const [ssrResult] = (await Promise.all([ssrBuild(opts, internals, pageInput), clientBuild(opts, internals, jsInput)])) as RollupOutput[];
 
@@ -97,7 +100,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		logLevel: 'error',
 		mode: 'production',
 		build: {
-			emptyOutDir: true,
+			emptyOutDir: false,
 			minify: false,
 			outDir: fileURLToPath(astroConfig.dist),
 			ssr: true,
