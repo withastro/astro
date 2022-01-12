@@ -51,6 +51,13 @@ export function emptyDir(dir: string, skip?: Set<string>): void {
   }
 }
 
+function prepareOutDir(astroConfig: AstroConfig) {
+	const outDir = fileURLToPath(astroConfig.dist);
+	if (fs.existsSync(outDir)) {
+		return emptyDir(outDir, new Set(['.git']));
+	}
+}
+
 // Determines of a Rollup chunk is an entrypoint page.
 function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
 	if (output.type !== 'chunk') {
@@ -98,8 +105,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
-	// Empty out the dist folder
-	await emptyDir(fileURLToPath(astroConfig.dist), new Set(['.git']));
+	// Empty out the dist folder, if needed
+	await prepareOutDir(astroConfig);
 
 	// Run the SSR build and client build in parallel
 	const [ssrResult] = (await Promise.all([ssrBuild(opts, internals, pageInput), clientBuild(opts, internals, jsInput)])) as RollupOutput[];
