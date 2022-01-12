@@ -35,6 +35,22 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
 }
 
+export function emptyDir(dir: string, skip?: Set<string>): void {
+  for (const file of fs.readdirSync(dir)) {
+    if (skip?.has(file)) {
+      continue
+    }
+    const abs = npath.resolve(dir, file)
+    // baseline is Node 12 so can't use rmSync :(
+    if (fs.lstatSync(abs).isDirectory()) {
+      emptyDir(abs)
+      fs.rmdirSync(abs)
+    } else {
+      fs.unlinkSync(abs)
+    }
+  }
+}
+
 // Determines of a Rollup chunk is an entrypoint page.
 function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
 	if (output.type !== 'chunk') {
@@ -83,7 +99,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const internals = createBuildInternals();
 
 	// Empty out the dist folder
-	await fs.promises.rm(astroConfig.dist, { recursive: true });
+	await emptyDir(fileURLToPath(astroConfig.dist), new Set(['.git']));
 
 	// Run the SSR build and client build in parallel
 	const [ssrResult] = (await Promise.all([ssrBuild(opts, internals, pageInput), clientBuild(opts, internals, jsInput)])) as RollupOutput[];
