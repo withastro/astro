@@ -245,7 +245,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	// This adds the page name to the array so it can be shown as part of stats.
 	addPageName(pathname, opts);
 
-	const [mod] = pageData.preload;
+	const [,mod] = pageData.preload;
 
 	try {
 		const [params, pageProps] = await getParamsAndProps({
