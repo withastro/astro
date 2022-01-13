@@ -1,5 +1,11 @@
 # @astrojs/renderer-solid
 
+## 0.3.1
+
+### Patch Changes
+
+- [#2359](https://github.com/withastro/astro/pull/2359) [`f482c626`](https://github.com/withastro/astro/commit/f482c626a6e3472052d13cb0d348323ef4e822a8) Thanks [@toSayNothing](https://github.com/toSayNothing)! - fix renderer-solid
+
 ## 0.3.0
 
 ### Minor Changes
