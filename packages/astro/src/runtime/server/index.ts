@@ -235,7 +235,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		for (const src of renderer.polyfills) {
 			result.scripts.add({
 				props: { type: 'module' },
-				children: `import "${src}";`,
+				children: `import "${await result.resolve(src)}";`,
 			});
 		}
 	}

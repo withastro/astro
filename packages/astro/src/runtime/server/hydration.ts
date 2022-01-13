@@ -120,7 +120,7 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 
 	let hydrationSource = '';
 	if (renderer.hydrationPolyfills) {
-		hydrationSource += `await Promise.all([${renderer.hydrationPolyfills.map((src: string) => `\n  import("${src}")`).join(', ')}]);\n`;
+		hydrationSource += `await Promise.all([${(await Promise.all(renderer.hydrationPolyfills.map(async (src: string) => `\n  import("${await result.resolve(src)}")`))).join(', ')}]);\n`;
 	}
 
 	hydrationSource += renderer.source
@@ -129,7 +129,7 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 		  )}")]);
   return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
 `
-		: `await import("${componentUrl}");
+		: `await import("${await result.resolve(componentUrl)}");
   return () => {};
 `;
 

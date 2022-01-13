@@ -58,6 +58,14 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// about that page, such as its paths.
 	const facadeIdToPageDataMap = new Map<string, PageBuildData>();
 
+	// Collects polyfills and passes them as top-level inputs
+	const polyfills = getRenderers(opts).flatMap(renderer => {
+		return (renderer.polyfills || []).concat(renderer.hydrationPolyfills || []);
+	});
+	for(const polyfill of polyfills) {
+		jsInput.add(polyfill);
+	}
+
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const [renderers, mod] = pageData.preload;
 		const metadata = mod.$$metadata;
@@ -169,12 +177,18 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	});
 }
 
-async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
+function getRenderers(opts: StaticBuildOptions) {
 	// All of the PageDatas have the same renderers, so just grab one.
 	const pageData = Object.values(opts.allPages)[0];
 	// These renderers have been loaded through Vite. To generate pages
 	// we need the ESM loaded version. This creates that.
 	const viteLoadedRenderers = pageData.preload[0];
+
+	return viteLoadedRenderers;
+}
+
+async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
+	const viteLoadedRenderers = getRenderers(opts);
 
 	const renderers = await Promise.all(
 		viteLoadedRenderers.map(async (r) => {
