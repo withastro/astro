@@ -1,7 +1,7 @@
-import type { RSSFunction, RSS, RSSResult, RouteData } from '../../@types/astro';
+import type { RSSFunction, RSS, RSSResult, FeedResult, RouteData } from '../../@types/astro';
 
 import { XMLValidator } from 'fast-xml-parser';
-import { canonicalURL } from '../util.js';
+import { canonicalURL, PRETTY_FEED_V3 } from '../util.js';
 
 /** Validates getStaticPaths.rss */
 export function validateRSS(args: GenerateRSSArgs): void {
@@ -20,7 +20,11 @@ export function generateRSS(args: GenerateRSSArgs): string {
 	const { srcFile, feedURL, rssData, site } = args;
 	if ((rssData as any).item) throw new Error(`[${srcFile}] rss() \`item()\` function was deprecated, and is now \`items: object[]\`.`);
 
-	let xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"`;
+	let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
+	if (typeof rssData.stylesheet === 'string') {
+		xml += `<?xml-stylesheet href="${rssData.stylesheet}" type="text/xsl"?>`;
+	}
+	xml += `<rss version="2.0"`;
 
 	// xmlns
 	if (rssData.xmlns) {
@@ -72,18 +76,35 @@ export function generateRSS(args: GenerateRSSArgs): string {
 	return xml;
 }
 
+export function generateRSSStylesheet() {
+	return PRETTY_FEED_V3;
+}
+
 /** Generated function to be run  */
 export function generateRssFunction(site: string | undefined, route: RouteData): { generator: RSSFunction; rss?: RSSResult } {
 	let result: RSSResult = {} as any;
 	return {
-		generator: function rssUtility(args: any) {
+		generator: function rssUtility(args: RSS) {
 			if (!site) {
 				throw new Error(`[${route.component}] rss() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
 			}
 			const { dest, ...rssData } = args;
 			const feedURL = dest || '/rss.xml';
-			result.url = feedURL;
-			result.xml = generateRSS({ rssData, site, srcFile: route.component, feedURL });
+			if (rssData.stylesheet === true) {
+				rssData.stylesheet = feedURL.replace(/\.xml$/, '.xsl');
+				result.xsl = {
+					url: rssData.stylesheet,
+					content: generateRSSStylesheet(),
+				}
+			} else if (typeof rssData.stylesheet === 'string') {
+				result.xsl = {
+					url: rssData.stylesheet,
+				}
+			}
+			result.xml = {
+				url: feedURL,
+				content: generateRSS({ rssData, site, srcFile: route.component, feedURL })
+			};
 		},
 		rss: result,
 	};
