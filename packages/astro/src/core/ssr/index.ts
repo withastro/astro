@@ -52,9 +52,10 @@ async function resolveRenderer(viteServer: vite.ViteDevServer, renderer: string,
 
 	resolvedRenderer.name = name;
 	if (client) resolvedRenderer.source = path.posix.join(renderer, client);
+	resolvedRenderer.serverEntry = path.posix.join(renderer, server);
 	if (Array.isArray(hydrationPolyfills)) resolvedRenderer.hydrationPolyfills = hydrationPolyfills.map((src: string) => path.posix.join(renderer, src));
 	if (Array.isArray(polyfills)) resolvedRenderer.polyfills = polyfills.map((src: string) => path.posix.join(renderer, src));
-	const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(path.posix.join(renderer, server));
+	const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(resolvedRenderer.serverEntry);
 	const { default: rendererSSR } = await viteServer.ssrLoadModule(url);
 	resolvedRenderer.ssr = rendererSSR;
 

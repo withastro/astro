@@ -279,6 +279,8 @@ export interface Renderer {
 	name: string;
 	/** Import statement for renderer */
 	source?: string;
+	/** Import statement for the server renderer */
+	serverEntry: string;
 	/** Scripts to be injected before component */
 	polyfills?: string[];
 	/** Polyfills that need to run before hydration ever occurs */
