@@ -36,8 +36,6 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
 }
 
-
-
 // Determines of a Rollup chunk is an entrypoint page.
 function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
 	if (output.type !== 'chunk') {
@@ -178,14 +176,16 @@ async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
 	// we need the ESM loaded version. This creates that.
 	const viteLoadedRenderers = pageData.preload[0];
 
-	const renderers = await Promise.all(viteLoadedRenderers.map(async r => {
-		const mod = await import(r.serverEntry);
-		return Object.create(r, {
-			ssr: {
-				value: mod.default
-			}
-		}) as Renderer;
-	}));
+	const renderers = await Promise.all(
+		viteLoadedRenderers.map(async (r) => {
+			const mod = await import(r.serverEntry);
+			return Object.create(r, {
+				ssr: {
+					value: mod.default,
+				},
+			}) as Renderer;
+		})
+	);
 
 	return renderers;
 }
@@ -253,7 +253,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	// This adds the page name to the array so it can be shown as part of stats.
 	addPageName(pathname, opts);
 
-	const [,mod] = pageData.preload;
+	const [, mod] = pageData.preload;
 
 	try {
 		const [params, pageProps] = await getParamsAndProps({
