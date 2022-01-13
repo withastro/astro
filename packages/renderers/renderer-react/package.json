@@ -17,7 +17,8 @@
     "./*": "./*",
     "./client.js": "./client.js",
     "./server.js": "./server.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./jsx-runtime": "./jsx-runtime.js"
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.16.0",

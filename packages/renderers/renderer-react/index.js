@@ -8,7 +8,10 @@ export default {
 			default: { default: jsx },
 		} = await import('@babel/plugin-transform-react-jsx');
 		return {
-			plugins: [jsx({}, { runtime: 'automatic', importSource: 'react' })],
+			plugins: [jsx({}, {
+				runtime: 'automatic',
+				importSource: '@astrojs/renderer-react'
+			})],
 		};
 	},
 	viteConfig() {
