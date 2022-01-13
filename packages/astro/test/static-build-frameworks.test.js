@@ -28,4 +28,11 @@ describe('Static build - frameworks', () => {
 		const html = await fixture.readFile('/react/index.html');
 		expect(html).to.be.a('string');
 	});
+
+	it('can build nested framework usage', async () => {
+		const html = await fixture.readFile('/nested/index.html');
+		const $ = cheerio.load(html);
+		const counter = $('.nested-counter .counter');
+		expect(counter.length).to.equal(1, 'Found the counter');
+	});
 });

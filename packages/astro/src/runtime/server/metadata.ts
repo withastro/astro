@@ -57,7 +57,7 @@ export class Metadata {
 		const found = new Set<string>();
 		for (const metadata of this.deepMetadata()) {
 			for (const component of metadata.hydratedComponents) {
-				const path = this.getPath(component);
+				const path = metadata.getPath(component);
 				if (path && !found.has(path)) {
 					found.add(path);
 					yield path;
@@ -70,8 +70,14 @@ export class Metadata {
 	 * Gets all of the hydration specifiers used within this component.
 	 */
 	*hydrationDirectiveSpecifiers() {
-		for (const directive of this.hydrationDirectives) {
-			yield hydrationSpecifier(directive);
+		const found = new Set<string>();
+		for(const metadata of this.deepMetadata()) {
+			for (const directive of metadata.hydrationDirectives) {
+				if(!found.has(directive)) {
+					found.add(directive);
+					yield hydrationSpecifier(directive);
+				}
+			}
 		}
 	}
 

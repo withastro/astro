@@ -20,9 +20,17 @@ describe('Static build', () => {
 		await fixture.build();
 	});
 
-	it('Builds out .astro pags', async () => {
+	it('Builds out .astro pages', async () => {
 		const html = await fixture.readFile('/index.html');
 		expect(html).to.be.a('string');
+	});
+
+	it('can build pages using fetchContent', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const link = $('.posts a');
+		const href = link.attr('href');
+		expect(href).to.be.equal('/posts/thoughts');
 	});
 
 	it('Builds out .md pages', async () => {
