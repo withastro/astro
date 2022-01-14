@@ -71,9 +71,9 @@ export class Metadata {
 	 */
 	*hydrationDirectiveSpecifiers() {
 		const found = new Set<string>();
-		for(const metadata of this.deepMetadata()) {
+		for (const metadata of this.deepMetadata()) {
 			for (const directive of metadata.hydrationDirectives) {
-				if(!found.has(directive)) {
+				if (!found.has(directive)) {
 					found.add(directive);
 					yield hydrationSpecifier(directive);
 				}

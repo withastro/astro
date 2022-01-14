@@ -3,7 +3,7 @@ import cheerio from 'cheerio';
 import { loadFixture, isWindows } from './test-utils.js';
 
 describe('Static build - frameworks', () => {
-	if(isWindows) {
+	if (isWindows) {
 		return;
 	}
 
