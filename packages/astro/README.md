@@ -1,4 +1,4 @@
-<a href="https://astro.build">
+<a href="https://astro.build" target="_blank">
   <img src="https://github.com/natemoo-re/astro/blob/hero/assets/social/banner.svg?raw=true" width="830" height="436" />
 </a>
 
