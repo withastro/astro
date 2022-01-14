@@ -1,5 +1,11 @@
 # @astrojs/renderer-react
 
+## 0.4.1
+
+### Patch Changes
+
+- [#2369](https://github.com/withastro/astro/pull/2369) [`20eaddb2`](https://github.com/withastro/astro/commit/20eaddb2a723253c7fbde3e56955a549bdf3f342) Thanks [@matthewp](https://github.com/matthewp)! - Fix for using the React renderer with the static build
+
 ## 0.4.0
 
 ### Minor Changes

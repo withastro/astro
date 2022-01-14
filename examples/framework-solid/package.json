@@ -10,6 +10,6 @@
   },
   "devDependencies": {
     "@astrojs/renderer-solid": "^0.3.1",
-    "astro": "^0.22.11"
+    "astro": "^0.22.12"
   }
 }
