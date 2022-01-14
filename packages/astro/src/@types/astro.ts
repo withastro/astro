@@ -109,7 +109,7 @@ export interface AstroUserConfig {
 		 */
 		pageUrlFormat?: 'file' | 'directory';
 		/**
-		 * Control if draft pages should be included in the build.
+		 * Control if markdown draft pages should be included in the build.
 		 * 	`true`: Include draft pages
 		 * 	`false`: Exclude draft pages
 		 * Default: false
