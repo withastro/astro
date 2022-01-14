@@ -1,8 +1,12 @@
 import { expect } from 'chai';
 import cheerio from 'cheerio';
-import { loadFixture } from './test-utils.js';
+import { loadFixture, isWindows } from './test-utils.js';
 
 describe('Static build - frameworks', () => {
+	if(isWindows) {
+		return;
+	}
+
 	let fixture;
 
 	before(async () => {
