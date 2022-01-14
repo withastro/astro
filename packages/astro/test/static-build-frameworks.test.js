@@ -12,11 +12,7 @@ describe('Static build - frameworks', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/static-build-frameworks/',
-			renderers: [
-				'@astrojs/renderer-preact',
-				'@astrojs/renderer-react',
-				'@astrojs/renderer-lit'
-			],
+			renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-react', '@astrojs/renderer-lit'],
 			buildOptions: {
 				experimentalStaticBuild: true,
 			},

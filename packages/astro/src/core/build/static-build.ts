@@ -59,10 +59,10 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const facadeIdToPageDataMap = new Map<string, PageBuildData>();
 
 	// Collects polyfills and passes them as top-level inputs
-	const polyfills = getRenderers(opts).flatMap(renderer => {
+	const polyfills = getRenderers(opts).flatMap((renderer) => {
 		return (renderer.polyfills || []).concat(renderer.hydrationPolyfills || []);
 	});
-	for(const polyfill of polyfills) {
+	for (const polyfill of polyfills) {
 		jsInput.add(polyfill);
 	}
 
