@@ -294,6 +294,8 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			logging,
 			pathname,
 			mod,
+			// Do not validate as validation already occurred for static routes
+			// and validation is relatively expensive.
 			validate: false
 		});
 
