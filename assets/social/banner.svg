@@ -14,7 +14,7 @@
 			animation-name: loop-3;
 		}
 		#banner {
-			animation: marquee 15s linear infinite;
+			animation: marquee 30s linear infinite;
 		}
 		@media (prefers-reduced-motion: reduce) {
 			.bg, #banner {
