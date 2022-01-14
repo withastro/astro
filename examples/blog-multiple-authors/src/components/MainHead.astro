@@ -18,7 +18,9 @@ const { title, description, image, type, next, prev, canonicalURL } = Astro.prop
 <meta name="description" content={description} />
 <link rel="preconnect" href="https://fonts.gstatic.com" />
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
+<style global>
+	@import "../styles/global.css";
+</style>
 <!-- Sitemap -->
 <link rel="sitemap" href="/sitemap.xml" />
 <!-- RSS -->
