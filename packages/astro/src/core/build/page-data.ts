@@ -10,6 +10,7 @@ import { preload as ssrPreload } from '../ssr/index.js';
 import { validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
 import { generatePaginateFunction } from '../ssr/paginate.js';
 import { generateRssFunction } from '../ssr/rss.js';
+import { assignStaticPaths } from '../ssr/route-cache.js';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;
@@ -112,8 +113,8 @@ async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: Rout
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 	validateGetStaticPathsModule(mod);
 	const rss = generateRssFunction(astroConfig.buildOptions.site, route);
-	const staticPaths: GetStaticPathsResult = (await mod.getStaticPaths!({ paginate: generatePaginateFunction(route), rss: rss.generator })).flat();
-	routeCache[route.component] = staticPaths;
+	await assignStaticPaths(routeCache, route, mod, rss.generator);
+	const staticPaths = routeCache[route.component];
 	validateGetStaticPathsResult(staticPaths, logging);
 	return {
 		paths: staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean),

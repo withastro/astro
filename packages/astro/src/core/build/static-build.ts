@@ -31,6 +31,8 @@ export interface StaticBuildOptions {
 	viteConfig: ViteConfigWithSSR;
 }
 
+const MAX_CONCURRENT_RENDERS = 10;
+
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	const pathrepl = opts.astroConfig.buildOptions.pageUrlFormat === 'directory' ? '/index.html' : pathname === '/' ? 'index.html' : '.html';
 	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
@@ -43,6 +45,29 @@ function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternal
 	}
 	const chunk = output as OutputChunk;
 	return chunk.facadeModuleId && (internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId) || internals.entrySpecifierToBundleMap.has('/' + chunk.facadeModuleId));
+}
+
+// Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
+function *throttle(max: number, inPaths: string[]) {
+  let tmp = [];
+  let i = 0;
+  for(let path of inPaths) {
+    tmp.push(path);
+    if(i === max) {
+      yield tmp;
+			// Empties the array, to avoid allocating a new one.
+      tmp.length = 0;
+      i = 0;
+    } else {
+      i++;
+    }
+  }
+
+	// If tmp has items in it, that means there were less than {max} paths remaining
+	// at the end, so we need to yield these too.
+  if(tmp.length) {
+    yield tmp;
+  }
 }
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -246,10 +271,17 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 		renderers,
 	};
 
-	const renderPromises = pageData.paths.map((path) => {
-		return generatePath(path, opts, generationOptions);
-	});
-	return await Promise.all(renderPromises);
+	const renderPromises = [];
+	// Throttle the paths to avoid overloading the CPU with too many tasks.
+	for(const paths of throttle(MAX_CONCURRENT_RENDERS, pageData.paths)) {
+		for(const path of paths) {
+			renderPromises.push(generatePath(path, opts, generationOptions));
+		}
+		// This blocks generating more paths until these 10 complete.
+		await Promise.all(renderPromises);
+		// This empties the array without allocating a new one.
+		renderPromises.length = 0;
+  }
 }
 
 interface GeneratePathOptions {
@@ -276,6 +308,9 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			logging,
 			pathname,
 			mod,
+			// Do not validate as validation already occurred for static routes
+			// and validation is relatively expensive.
+			validate: false
 		});
 
 		debug(logging, 'generate', `Generating: ${pathname}`);
