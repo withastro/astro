@@ -180,7 +180,7 @@ export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: str
 export type GetStaticPathsItem = { params: Params; props?: Props };
 export type GetStaticPathsResult = GetStaticPathsItem[];
 export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
-	keyed: Map<string, GetStaticPathsItem>
+	keyed: Map<string, GetStaticPathsItem>;
 };
 
 export interface HydrateOptions {

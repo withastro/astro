@@ -1,6 +1,19 @@
 import type { BuildResult } from 'esbuild';
 import type vite from '../vite';
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, GetStaticPathsResultKeyed, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRElement, SSRError } from '../../@types/astro';
+import type {
+	AstroConfig,
+	ComponentInstance,
+	GetStaticPathsResult,
+	GetStaticPathsResultKeyed,
+	Params,
+	Props,
+	Renderer,
+	RouteCache,
+	RouteData,
+	RuntimeMode,
+	SSRElement,
+	SSRError,
+} from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import eol from 'eol';
@@ -132,7 +145,7 @@ export async function getParamsAndProps({
 	logging,
 	pathname,
 	mod,
-	validate = true
+	validate = true,
 }: {
 	route: RouteData | undefined;
 	routeCache: RouteCache;
@@ -151,13 +164,13 @@ export async function getParamsAndProps({
 				params = getParams(route.params)(paramsMatch);
 			}
 		}
-		if(validate) {
+		if (validate) {
 			validateGetStaticPathsModule(mod);
 		}
 		if (!routeCache[route.component]) {
 			await assignStaticPaths(routeCache, route, mod);
 		}
-		if(validate) {
+		if (validate) {
 			// This validation is expensive so we only want to do it in dev.
 			validateGetStaticPathsResult(routeCache[route.component], logging);
 		}

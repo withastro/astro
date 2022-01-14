@@ -10,15 +10,17 @@ export async function callGetStaticPaths(mod: ComponentInstance, route: RouteDat
 	const staticPaths: GetStaticPathsResult = await (
 		await mod.getStaticPaths!({
 			paginate: generatePaginateFunction(route),
-			rss: rssFn || (() => {
-				/* noop */
-			}),
+			rss:
+				rssFn ||
+				(() => {
+					/* noop */
+				}),
 		})
 	).flat();
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
-	for(const sp of keyedStaticPaths) {
+	for (const sp of keyedStaticPaths) {
 		const paramsKey = JSON.stringify(sp.params);
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
@@ -43,7 +45,7 @@ export async function ensureRouteCached(routeCache: RouteCache, route: RouteData
 
 export function findPathItemByKey(staticPaths: GetStaticPathsResultKeyed, paramsKey: string, logging: LogOptions) {
 	let matchedStaticPath = staticPaths.keyed.get(paramsKey);
-	if(matchedStaticPath) {
+	if (matchedStaticPath) {
 		return matchedStaticPath;
 	}
 
