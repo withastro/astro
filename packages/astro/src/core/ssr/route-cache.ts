@@ -27,13 +27,13 @@ export async function callGetStaticPaths(mod: ComponentInstance, route: RouteDat
 }
 
 export async function assignStaticPaths(routeCache: RouteCache, route: RouteData, mod: ComponentInstance, rssFn?: RSSFn): Promise<void> {
-	const staticPaths = await callGetStaticPaths(mod, route);
+	const staticPaths = await callGetStaticPaths(mod, route, rssFn);
 	routeCache[route.component] = staticPaths;
 }
 
 export async function ensureRouteCached(routeCache: RouteCache, route: RouteData, mod: ComponentInstance, rssFn?: RSSFn): Promise<GetStaticPathsResultKeyed> {
 	if (!routeCache[route.component]) {
-		const staticPaths = await callGetStaticPaths(mod, route);
+		const staticPaths = await callGetStaticPaths(mod, route, rssFn);
 		routeCache[route.component] = staticPaths;
 		return staticPaths;
 	} else {
