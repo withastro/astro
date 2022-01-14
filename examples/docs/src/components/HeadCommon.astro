@@ -8,9 +8,11 @@
 <link rel="sitemap" href="/sitemap.xml" />
 
 <!-- Global CSS -->
-<link rel="stylesheet" href={Astro.resolve('../styles/theme.css')} />
-<link rel="stylesheet" href={Astro.resolve('../styles/code.css')} />
-<link rel="stylesheet" href={Astro.resolve('../styles/index.css')} />
+<style global>
+	@import "../styles/theme.css";
+	@import "../styles/code.css";
+	@import "../styles/index.css";
+</style>
 
 <!-- Preload Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
