@@ -1,5 +1,11 @@
 # @astrojs/renderer-lit
 
+## 0.3.1
+
+### Patch Changes
+
+- [#2370](https://github.com/withastro/astro/pull/2370) [`a7967530`](https://github.com/withastro/astro/commit/a7967530dfe9cfab5d6d866c8d2bcba9c47de39c) Thanks [@matthewp](https://github.com/matthewp)! - Makes the renderer compatible with the static build
+
 ## 0.3.0
 
 ### Minor Changes

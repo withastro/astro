@@ -1,5 +1,16 @@
 # astro
 
+## 0.22.12
+
+### Patch Changes
+
+- [#2370](https://github.com/withastro/astro/pull/2370) [`a7967530`](https://github.com/withastro/astro/commit/a7967530dfe9cfab5d6d866c8d2bcba9c47de39c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes support for Lit within the static build
+
+* [#2373](https://github.com/withastro/astro/pull/2373) [`92532b88`](https://github.com/withastro/astro/commit/92532b88820bc45f3f02bca0054e8433c3f7a743) Thanks [@matthewp](https://github.com/matthewp)! - Hydrated component fix with the static build
+
+* Updated dependencies [[`20eaddb2`](https://github.com/withastro/astro/commit/20eaddb2a723253c7fbde3e56955a549bdf3f342)]:
+  - @astrojs/renderer-react@0.4.1
+
 ## 0.22.11
 
 ### Patch Changes
@@ -1116,10 +1127,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1139,10 +1150,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
