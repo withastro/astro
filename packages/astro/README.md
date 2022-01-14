@@ -1,4 +1,6 @@
-<img src="https://github.com/natemoo-re/astro/blob/hero/assets/social/banner.svg?raw=true" width="830" height="436" />
+<a href="https://astro.build">
+  <img src="https://github.com/natemoo-re/astro/blob/hero/assets/social/banner.svg?raw=true" width="830" height="436" />
+</a>
 
 **Astro** is a _fresh but familiar_ approach to building websites. Astro combines decades of proven performance best practices with the DX improvements of the component-oriented era. Use your favorite JavaScript framework and automatically ship the bare-minimum amount of JavaScript—by default.
 
