@@ -50,10 +50,3 @@ export function findPathItemByKey(staticPaths: GetStaticPathsResultKeyed, params
 	debug(logging, 'findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
 	matchedStaticPath = staticPaths.find(({ params: _params }) => JSON.stringify(_params) === paramsKey);
 }
-
-/*
-export function doAThing() {
-	const staticPaths: GetStaticPathsResult = (await mod.getStaticPaths!({ paginate: generatePaginateFunction(route), rss: rss.generator })).flat();
-	routeCache[route.component] = staticPaths;
-})
-*/
