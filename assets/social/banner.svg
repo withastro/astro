@@ -2,19 +2,23 @@
 	<style>
 		.bg {
 			transform-origin: center center;
-			animation: loop 15s ease-in-out infinite;
 		}
-		.bg:nth-child(1) {
-			animation-name: loop-1;
-		}
-		.bg:nth-child(2) {
-			animation-name: loop-2;
-		}
-		.bg:nth-child(3) {
-			animation-name: loop-3;
-		}
-		#banner {
-			animation: marquee 15s linear infinite;
+		@media (prefers-reduced-motion: no-preference) {
+			.bg {
+				animation: loop 15s ease-in-out infinite;
+			}
+			.bg:nth-child(1) {
+				animation-name: loop-1;
+			}
+			.bg:nth-child(2) {
+				animation-name: loop-2;
+			}
+			.bg:nth-child(3) {
+				animation-name: loop-3;
+			}
+			#banner {
+				animation: marquee 15s linear infinite;
+			}
 		}
 		@keyframes marquee {
 			0% {
