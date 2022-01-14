@@ -177,7 +177,11 @@ export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: str
 	rss?: (...args: any[]) => any;
 }
 
-export type GetStaticPathsResult = { params: Params; props?: Props }[];
+export type GetStaticPathsItem = { params: Params; props?: Props };
+export type GetStaticPathsResult = GetStaticPathsItem[];
+export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
+	keyed: Map<string, GetStaticPathsItem>
+};
 
 export interface HydrateOptions {
 	value?: string;
@@ -313,7 +317,7 @@ export interface RouteData {
 	type: 'page';
 }
 
-export type RouteCache = Record<string, GetStaticPathsResult>;
+export type RouteCache = Record<string, GetStaticPathsResultKeyed>;
 
 export type RuntimeMode = 'development' | 'production';
 

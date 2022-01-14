@@ -1,6 +1,6 @@
 import type { BuildResult } from 'esbuild';
 import type vite from '../vite';
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRElement, SSRError } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, GetStaticPathsResultKeyed, Params, Props, Renderer, RouteCache, RouteData, RuntimeMode, SSRElement, SSRError } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import eol from 'eol';
@@ -14,6 +14,7 @@ import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 import { createResult } from './result.js';
+import { assignStaticPaths, ensureRouteCached, findPathItemByKey } from './route-cache.js';
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
@@ -131,16 +132,18 @@ export async function getParamsAndProps({
 	logging,
 	pathname,
 	mod,
+	validate = true
 }: {
 	route: RouteData | undefined;
 	routeCache: RouteCache;
 	pathname: string;
 	mod: ComponentInstance;
 	logging: LogOptions;
+	validate?: boolean;
 }): Promise<[Params, Props]> {
 	// Handle dynamic routes
 	let params: Params = {};
-	let pageProps: Props = {};
+	let pageProps: Props;
 	if (route && !route.pathname) {
 		if (route.params.length) {
 			const paramsMatch = route.pattern.exec(pathname);
@@ -148,24 +151,27 @@ export async function getParamsAndProps({
 				params = getParams(route.params)(paramsMatch);
 			}
 		}
-		validateGetStaticPathsModule(mod);
-		if (!routeCache[route.component]) {
-			routeCache[route.component] = await (
-				await mod.getStaticPaths!({
-					paginate: generatePaginateFunction(route),
-					rss: () => {
-						/* noop */
-					},
-				})
-			).flat();
+		if(validate) {
+			validateGetStaticPathsModule(mod);
 		}
-		validateGetStaticPathsResult(routeCache[route.component], logging);
-		const routePathParams: GetStaticPathsResult = routeCache[route.component];
-		const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
+		if (!routeCache[route.component]) {
+			await assignStaticPaths(routeCache, route, mod);
+		}
+		if(validate) {
+			// This validation is expensive so we only want to do it in dev.
+			validateGetStaticPathsResult(routeCache[route.component], logging);
+		}
+		const staticPaths: GetStaticPathsResultKeyed = routeCache[route.component];
+		const paramsKey = JSON.stringify(params);
+		const matchedStaticPath = findPathItemByKey(staticPaths, paramsKey, logging);
 		if (!matchedStaticPath) {
 			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
 		}
-		pageProps = { ...matchedStaticPath.props } || {};
+		// This is written this way for performance; instead of spreading the props
+		// which is O(n), create a new object that extends props.
+		pageProps = Object.create(matchedStaticPath.props || Object.prototype);
+	} else {
+		pageProps = {};
 	}
 	return [params, pageProps];
 }
@@ -185,16 +191,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 			}
 		}
 		validateGetStaticPathsModule(mod);
-		if (!routeCache[route.component]) {
-			routeCache[route.component] = await (
-				await mod.getStaticPaths!({
-					paginate: generatePaginateFunction(route),
-					rss: () => {
-						/* noop */
-					},
-				})
-			).flat();
-		}
+		await ensureRouteCached(routeCache, route, mod);
 		validateGetStaticPathsResult(routeCache[route.component], logging);
 		const routePathParams: GetStaticPathsResult = routeCache[route.component];
 		const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
