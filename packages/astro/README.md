@@ -23,8 +23,8 @@ That being said, there are quite a few Astro sites in production already. We're 
 <table>
   <tbody>
     <tr>
-      <td>👾 Try it in your browser</td>
-      <td>📦 Try it locally</td>
+      <td>👾 Online</td>
+      <td>📦 Local</td>
     </tr>
     <tr>
 <td>
