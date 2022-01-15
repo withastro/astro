@@ -2,7 +2,11 @@
   <img src="https://github.com/natemoo-re/astro/blob/hero/assets/social/banner.svg?raw=true" />
 </a>
 
+<div center>
+
 **Astro** is a new kind of static site builder for the modern web&mdash;powerful developer experience meets lightweight output.
+
+</div>
 
 ### [🚀 Read the launch post →](https://astro.build/blog/introducing-astro)
 
@@ -16,15 +20,31 @@ That being said, there are quite a few Astro sites in production already. We're 
 
 ## Quick Start
 
-### [👾 Try it in your browser →](https://astro.new/)
+<table>
+  <tbody>
+    <tr>
+      <td>👾 Try it in your browser</td>
+      <td>📦 Try it locally</td>
+    </tr>
+    <tr>
+<td>
 
-### 📦 Try it locally 👇
+[Launch astro.new →](https://astro.new)
+
+</td>
+<td>
 
 Get started with Astro using our interactive CLI!
 
 ```bash
 npm init astro my-astro-project
 ```
+
+</td>
+    </tr>
+  </tbody>
+</table>
+
 
 ### [Full Documentation Site →](https://docs.astro.build/)
 
