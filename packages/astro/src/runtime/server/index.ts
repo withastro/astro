@@ -235,7 +235,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		for (const src of renderer.polyfills) {
 			result.scripts.add({
 				props: { type: 'module' },
-				children: `import "${src}";`,
+				children: `import "${await result.resolve(src)}";`,
 			});
 		}
 	}
@@ -286,8 +286,8 @@ function createFetchContentFn(url: URL) {
 
 // This is used to create the top-level Astro global; the one that you can use
 // Inside of getStaticPaths.
-export function createAstro(fileURLStr: string, site: string, projectRootStr: string): AstroGlobalPartial {
-	const url = new URL(fileURLStr);
+export function createAstro(filePathname: string, site: string, projectRootStr: string): AstroGlobalPartial {
+	const url = new URL(filePathname, site);
 	const projectRoot = new URL(projectRootStr);
 	const fetchContent = createFetchContentFn(url);
 	return {

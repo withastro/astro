@@ -177,7 +177,11 @@ export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: str
 	rss?: (...args: any[]) => any;
 }
 
-export type GetStaticPathsResult = { params: Params; props?: Props }[];
+export type GetStaticPathsItem = { params: Params; props?: Props };
+export type GetStaticPathsResult = GetStaticPathsItem[];
+export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
+	keyed: Map<string, GetStaticPathsItem>;
+};
 
 export interface HydrateOptions {
 	value?: string;
@@ -279,6 +283,8 @@ export interface Renderer {
 	name: string;
 	/** Import statement for renderer */
 	source?: string;
+	/** Import statement for the server renderer */
+	serverEntry: string;
 	/** Scripts to be injected before component */
 	polyfills?: string[];
 	/** Polyfills that need to run before hydration ever occurs */
@@ -311,7 +317,7 @@ export interface RouteData {
 	type: 'page';
 }
 
-export type RouteCache = Record<string, GetStaticPathsResult>;
+export type RouteCache = Record<string, GetStaticPathsResultKeyed>;
 
 export type RuntimeMode = 'development' | 'production';
 

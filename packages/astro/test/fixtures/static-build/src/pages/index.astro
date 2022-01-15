@@ -1,6 +1,7 @@
 ---
 import MainHead from '../components/MainHead.astro';
 import Nav from '../components/Nav/index.jsx';
+let allPosts = await Astro.fetchContent('./posts/*.md');
 ---
 <html>
 <head>
@@ -21,5 +22,10 @@ import Nav from '../components/Nav/index.jsx';
 <body>
 <Nav />
 <h1>Testing</h1>
+<ul class="posts">
+	{allPosts.map(post => (
+		<li><a href={post.url}>post.title</a></li>
+	))}
+</ul>
 </body>
 </html>

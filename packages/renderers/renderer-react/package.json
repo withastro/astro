@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/renderer-react",
   "description": "Use React components within Astro",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -17,7 +17,8 @@
     "./*": "./*",
     "./client.js": "./client.js",
     "./server.js": "./server.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./jsx-runtime": "./jsx-runtime.js"
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.16.0",

@@ -1,5 +1,30 @@
 # astro
 
+## 0.22.13
+
+### Patch Changes
+
+- [#2391](https://github.com/withastro/astro/pull/2391) [`c8a257ad`](https://github.com/withastro/astro/commit/c8a257adc4b2ed92aaf4aa74b0e1ac4db48530f2) Thanks [@matthewp](https://github.com/matthewp)! - Improvements performance for building sites with thousands of pages with the static build
+
+## 0.22.12
+
+### Patch Changes
+
+- [#2370](https://github.com/withastro/astro/pull/2370) [`a7967530`](https://github.com/withastro/astro/commit/a7967530dfe9cfab5d6d866c8d2bcba9c47de39c) Thanks [@matthewp](https://github.com/matthewp)! - Fixes support for Lit within the static build
+
+* [#2373](https://github.com/withastro/astro/pull/2373) [`92532b88`](https://github.com/withastro/astro/commit/92532b88820bc45f3f02bca0054e8433c3f7a743) Thanks [@matthewp](https://github.com/matthewp)! - Hydrated component fix with the static build
+
+* Updated dependencies [[`20eaddb2`](https://github.com/withastro/astro/commit/20eaddb2a723253c7fbde3e56955a549bdf3f342)]:
+  - @astrojs/renderer-react@0.4.1
+
+## 0.22.11
+
+### Patch Changes
+
+- [#2367](https://github.com/withastro/astro/pull/2367) [`2aa5ba5c`](https://github.com/withastro/astro/commit/2aa5ba5c52d0fa6eb2d17ca0b38a761ab40f8ca4) Thanks [@matthewp](https://github.com/matthewp)! - Fixes use of framework renderers in the static build
+
+* [#2365](https://github.com/withastro/astro/pull/2365) [`20d0cce6`](https://github.com/withastro/astro/commit/20d0cce681d5e913ca19c2466055f69541bced23) Thanks [@matthewp](https://github.com/matthewp)! - Fixes shared CSS within the static build
+
 ## 0.22.10
 
 ### Patch Changes

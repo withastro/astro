@@ -1,6 +1,6 @@
 import type { OutputChunk, OutputAsset, PreRenderedChunk, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig } from '../vite';
-import type { AstroConfig, RouteCache, SSRElement } from '../../@types/astro';
+import type { AstroConfig, Renderer, RouteCache, SSRElement } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -19,6 +19,7 @@ import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js'
 import { getParamsAndProps } from '../ssr/index.js';
 import { createResult } from '../ssr/result.js';
 import { renderPage } from '../../runtime/server/index.js';
+import { prepareOutDir } from './fs.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -29,6 +30,8 @@ export interface StaticBuildOptions {
 	routeCache: RouteCache;
 	viteConfig: ViteConfigWithSSR;
 }
+
+const MAX_CONCURRENT_RENDERS = 10;
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	const pathrepl = opts.astroConfig.buildOptions.pageUrlFormat === 'directory' ? '/index.html' : pathname === '/' ? 'index.html' : '.html';
@@ -44,6 +47,29 @@ function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternal
 	return chunk.facadeModuleId && (internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId) || internals.entrySpecifierToBundleMap.has('/' + chunk.facadeModuleId));
 }
 
+// Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
+function* throttle(max: number, inPaths: string[]) {
+	let tmp = [];
+	let i = 0;
+	for (let path of inPaths) {
+		tmp.push(path);
+		if (i === max) {
+			yield tmp;
+			// Empties the array, to avoid allocating a new one.
+			tmp.length = 0;
+			i = 0;
+		} else {
+			i++;
+		}
+	}
+
+	// If tmp has items in it, that means there were less than {max} paths remaining
+	// at the end, so we need to yield these too.
+	if (tmp.length) {
+		yield tmp;
+	}
+}
+
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
@@ -56,6 +82,14 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// A map of each page .astro file, to the PageBuildData which contains information
 	// about that page, such as its paths.
 	const facadeIdToPageDataMap = new Map<string, PageBuildData>();
+
+	// Collects polyfills and passes them as top-level inputs
+	const polyfills = getRenderers(opts).flatMap((renderer) => {
+		return (renderer.polyfills || []).concat(renderer.hydrationPolyfills || []);
+	});
+	for (const polyfill of polyfills) {
+		jsInput.add(polyfill);
+	}
 
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const [renderers, mod] = pageData.preload;
@@ -82,6 +116,11 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
 
+	// Empty out the dist folder, if needed. Vite has a config for doing this
+	// but because we are running 2 vite builds in parallel, that would cause a race
+	// condition, so we are doing it ourselves
+	prepareOutDir(astroConfig);
+
 	// Run the SSR build and client build in parallel
 	const [ssrResult] = (await Promise.all([ssrBuild(opts, internals, pageInput), clientBuild(opts, internals, jsInput)])) as RollupOutput[];
 
@@ -97,7 +136,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		logLevel: 'error',
 		mode: 'production',
 		build: {
-			emptyOutDir: true,
+			emptyOutDir: false,
 			minify: false,
 			outDir: fileURLToPath(astroConfig.dist),
 			ssr: true,
@@ -163,18 +202,49 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	});
 }
 
+function getRenderers(opts: StaticBuildOptions) {
+	// All of the PageDatas have the same renderers, so just grab one.
+	const pageData = Object.values(opts.allPages)[0];
+	// These renderers have been loaded through Vite. To generate pages
+	// we need the ESM loaded version. This creates that.
+	const viteLoadedRenderers = pageData.preload[0];
+
+	return viteLoadedRenderers;
+}
+
+async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
+	const viteLoadedRenderers = getRenderers(opts);
+
+	const renderers = await Promise.all(
+		viteLoadedRenderers.map(async (r) => {
+			const mod = await import(r.serverEntry);
+			return Object.create(r, {
+				ssr: {
+					value: mod.default,
+				},
+			}) as Renderer;
+		})
+	);
+
+	return renderers;
+}
+
 async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
 	debug(opts.logging, 'generate', 'End build step, now generating');
+
+	// Get renderers to be shared for each page generation.
+	const renderers = await collectRenderers(opts);
+
 	const generationPromises = [];
 	for (let output of result.output) {
 		if (chunkIsPage(output, internals)) {
-			generationPromises.push(generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap));
+			generationPromises.push(generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers));
 		}
 	}
 	await Promise.all(generationPromises);
 }
 
-async function generatePage(output: OutputChunk, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
+async function generatePage(output: OutputChunk, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>, renderers: Renderer[]) {
 	const { astroConfig } = opts;
 
 	let url = new URL('./' + output.fileName, astroConfig.dist);
@@ -198,12 +268,20 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 		internals,
 		linkIds,
 		Component,
+		renderers,
 	};
 
-	const renderPromises = pageData.paths.map((path) => {
-		return generatePath(path, opts, generationOptions);
-	});
-	return await Promise.all(renderPromises);
+	const renderPromises = [];
+	// Throttle the paths to avoid overloading the CPU with too many tasks.
+	for (const paths of throttle(MAX_CONCURRENT_RENDERS, pageData.paths)) {
+		for (const path of paths) {
+			renderPromises.push(generatePath(path, opts, generationOptions));
+		}
+		// This blocks generating more paths until these 10 complete.
+		await Promise.all(renderPromises);
+		// This empties the array without allocating a new one.
+		renderPromises.length = 0;
+	}
 }
 
 interface GeneratePathOptions {
@@ -211,16 +289,17 @@ interface GeneratePathOptions {
 	internals: BuildInternals;
 	linkIds: string[];
 	Component: AstroComponentFactory;
+	renderers: Renderer[];
 }
 
 async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: GeneratePathOptions) {
 	const { astroConfig, logging, origin, pageNames, routeCache } = opts;
-	const { Component, internals, linkIds, pageData } = gopts;
+	const { Component, internals, linkIds, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	addPageName(pathname, opts);
 
-	const [renderers, mod] = pageData.preload;
+	const [, mod] = pageData.preload;
 
 	try {
 		const [params, pageProps] = await getParamsAndProps({
@@ -229,6 +308,9 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			logging,
 			pathname,
 			mod,
+			// Do not validate as validation already occurred for static routes
+			// and validation is relatively expensive.
+			validate: false,
 		});
 
 		debug(logging, 'generate', `Generating: ${pathname}`);
