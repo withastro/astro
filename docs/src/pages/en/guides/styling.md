@@ -239,7 +239,9 @@ Lastly, add it to your Astro page (or layout template):
 
 ```astro
 <head>
-  <link rel="stylesheet" href={Astro.resolve('../styles/global.css')}>
+	<style global>
+			@import "../styles/global.css";
+	</style>
 </head>
 ```
 
