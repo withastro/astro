@@ -41,9 +41,8 @@ _Note: Partial hydration is sometimes called "progressive enhancement" or "progr
 
 **Island architecture** is the idea of using partial hydration to build entire websites. Island architecture is an alternative to the popular idea of building your website into a client-side JavaScript bundle that must be shipped to the user.
 
-To quote Jason Miller, who [coined the phrase](https://jasonformat.com/islands-architecture/):
-
 > In an "islands" model, server rendering is not a bolt-on optimization aimed at improving SEO or UX. Instead, it is a fundamental part of how pages are delivered to the browser. The HTML returned in response to navigation contains a meaningful and immediately renderable representation of the content the user requested.
+> <br/> -- [Jason Miller](https://jasonformat.com/islands-architecture/)
 
 Besides the obvious performance benefits of sending less JavaScript down to the browser, there are two key benefits to island architecture:
 

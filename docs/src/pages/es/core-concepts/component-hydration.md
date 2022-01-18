@@ -41,9 +41,8 @@ En Astro, depende de ti, como desarrollador, "habilitar" explícitamente cualqui
 
 **La arquitectura de la isla** es la idea de utilizar la hidratación parcial para construir sitios web completos. La arquitectura de la isla es una alternativa a la idea popular de construir su sitio web en un paquete de JavaScript del lado del cliente que debe enviarse al usuario.
 
-Para citar a Jason Miller, quien [acuñó la frase](https://jasonformat.com/islands-architecture/):
-
 > En un modelo de "islas", la representación del servidor no es una optimización complementaria destinada a mejorar el SEO o la UX. En cambio, es una parte fundamental de cómo se envían las páginas al navegador. El HTML devuelto en respuesta a la navegación contiene una representación significativa e inmediatamente renderizable del contenido solicitado por el usuario.
+> <br/> -- [Jason Miller](https://jasonformat.com/islands-architecture/)
 
 Además de los obvios beneficios de rendimiento de enviar menos JavaScript al navegador, existen dos beneficios clave para la arquitectura de la isla:
 
