@@ -10,7 +10,7 @@
 
 ### [🚀 Read the launch post →](https://astro.build/blog/introducing-astro)
 
-### [📚 Learn Astro →](https://docs.astro.build/)
+### [📚 Learn Astro →](https://docs.astro.build/en/getting-started/)
 
 ## Project Status
 
@@ -52,9 +52,6 @@ npm init astro my-astro-project
     </tr>
   </tbody>
 </table>
-
-
-### [Full Documentation Site →](https://docs.astro.build/)
 
 ## Sponsors
 
