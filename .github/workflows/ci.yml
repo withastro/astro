@@ -106,7 +106,7 @@ jobs:
           CI: true
 
       - name: Build Packages
-        run: pnpm run build --force
+        run: pnpm run build
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
