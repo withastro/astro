@@ -8,10 +8,10 @@
     "astro-scripts": "./index.js"
   },
   "dependencies": {
-    "arg": "^5.0.0",
-    "kleur": "^4.1.4",
+    "arg": "^5.0.1",
     "esbuild": "0.13.7",
-    "globby": "^12.0.2",
-    "tar": "^6.1.0"
+    "globby": "^12.2.0",
+    "kleur": "^4.1.4",
+    "tar": "^6.1.11"
   }
 }
