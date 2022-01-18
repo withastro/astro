@@ -219,7 +219,14 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 	if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
-	const result = createResult({ astroConfig, logging, origin, params, pathname, renderers });
+	// Add hoisted script tags
+	const scripts = astroConfig.buildOptions.experimentalStaticBuild ?
+		new Set<SSRElement>(Array.from(mod.$$metadata.hoistedScriptPaths()).map(src => ({
+			props: { type: 'module', src },
+			children: ''
+		}))) : new Set<SSRElement>();
+
+	const result = createResult({ astroConfig, logging, origin, params, pathname, renderers, scripts });
 	// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/renderer-preact/client.js"
 	result.resolve = async (s: string) => {
 		// The legacy build needs these to remain unresolved so that vite HTML

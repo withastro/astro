@@ -18,7 +18,7 @@ interface CreateMetadataOptions {
 }
 
 export class Metadata {
-	public fileURL: URL;
+	public mockURL: URL;
 	public modules: ModuleInfo[];
 	public hoisted: any[];
 	public hydratedComponents: any[];
@@ -31,12 +31,12 @@ export class Metadata {
 		this.hoisted = opts.hoisted;
 		this.hydratedComponents = opts.hydratedComponents;
 		this.hydrationDirectives = opts.hydrationDirectives;
-		this.fileURL = new URL(filePathname, 'http://example.com');
+		this.mockURL = new URL(filePathname, 'http://example.com');
 		this.metadataCache = new Map<any, ComponentMetadata | null>();
 	}
 
 	resolvePath(specifier: string): string {
-		return specifier.startsWith('.') ? new URL(specifier, this.fileURL).pathname : specifier;
+		return specifier.startsWith('.') ? new URL(specifier, this.mockURL).pathname : specifier;
 	}
 
 	getPath(Component: any): string | null {
@@ -77,6 +77,16 @@ export class Metadata {
 					found.add(directive);
 					yield hydrationSpecifier(directive);
 				}
+			}
+		}
+	}
+
+	* hoistedScriptPaths() {
+		for(const metadata of this.deepMetadata()) {
+			let i = 0, pathname = metadata.mockURL.pathname;
+			while(i < metadata.hoisted.length) {
+				yield `${pathname}?astro&type=script&index=${i}`;
+				i++;
 			}
 		}
 	}

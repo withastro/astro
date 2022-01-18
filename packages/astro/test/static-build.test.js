@@ -77,4 +77,21 @@ describe('Static build', () => {
 			expect(found).to.equal(true, 'Did not find shared CSS module code');
 		});
 	});
+
+	describe('Hoisted scripts', () => {
+		it('Get bundled together on the page', async () => {
+			const html = await fixture.readFile('/hoisted/index.html');
+			const $ = cheerio.load(html);
+			expect($('script[type="module"]').length).to.equal(1, 'hoisted script added');
+		});
+
+		it('Do not get added to the wrong page', async () => {
+			const hoistedHTML = await fixture.readFile('/hoisted/index.html');
+			const $ = cheerio.load(hoistedHTML);
+			const href = $('script[type="module"]').attr('src');
+			const indexHTML = await fixture.readFile('/index.html');
+			const $$ = cheerio.load(indexHTML);
+			expect($$(`script[src="${href}"]`).length).to.equal(0, 'no script added to different page');
+		})
+	});
 });
