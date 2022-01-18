@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.8.7
+
+### Patch Changes
+
+- 897ab35: Provide vite client types to Astro files
+
 ## 0.8.6
 
 ### Patch Changes
