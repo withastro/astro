@@ -1,5 +1,4 @@
 import esbuild from 'esbuild';
-import svelte from '../utils/svelte-plugin.js';
 import del from 'del';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
@@ -40,7 +39,7 @@ export default async function build(...args) {
 			entryPoints,
 			outdir,
 			format,
-			plugins: [svelte({ isDev })],
+			plugins: [],
 		});
 		return;
 	}
