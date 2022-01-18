@@ -69,13 +69,13 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					const hoistedScript = scripts[query.index];
 
 					if(!hoistedScript) {
-						throw new Error(`No hoisted script at index ${i}`);
+						throw new Error(`No hoisted script at index ${query.index}`);
 					}
 
 					return {
 						code: hoistedScript.type === 'inline' ?
-							hoistedScript.code :
-							`import "${hoistedScript.src}";`
+							hoistedScript.code! :
+							`import "${hoistedScript.src!}";`
 					};
 				}
 			}
