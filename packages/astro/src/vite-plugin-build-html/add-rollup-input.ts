@@ -1,4 +1,4 @@
-import { InputOptions } from 'rollup';
+import type { InputOptions } from 'rollup';
 
 function fromEntries<V>(entries: [string, V][]) {
 	const obj: Record<string, V> = {};

@@ -21,7 +21,7 @@ export interface ScanBasedBuildOptions {
 	viteServer: ViteDevServer;
 }
 
-export async function build(opts: ScanBasedBuildOptions) {
+export async function build(opts: ScanBasedBuildOptions): ReturnType<typeof vite.build> {
 	const { allPages, astroConfig, logging, origin, pageNames, routeCache, viteConfig, viteServer } = opts;
 
 	// Internal maps used to coordinate the HTML and CSS plugins.

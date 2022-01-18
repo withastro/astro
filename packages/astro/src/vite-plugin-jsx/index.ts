@@ -88,8 +88,8 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 		configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;
 		},
-		async transform(code, id, ssrOrOptions) {
-			const ssr = isSSR(ssrOrOptions);
+		async transform(code, id, options) {
+			const ssr = Boolean(options?.ssr);
 			if (!JSX_EXTENSIONS.has(path.extname(id))) {
 				return null;
 			}

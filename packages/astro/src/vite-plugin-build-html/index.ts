@@ -61,7 +61,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 	const cssChunkMap = new Map<string, string[]>();
 	const pageStyleImportOrder: string[] = [];
 
-	return {
+	const plugin: VitePlugin = {
 		name: PLUGIN_NAME,
 
 		enforce: 'pre',
@@ -496,4 +496,6 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 			}
 		},
 	};
+
+	return plugin;
 }

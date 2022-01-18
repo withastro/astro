@@ -1,6 +1,6 @@
 import type { AstroComponentMetadata } from '../../@types/astro';
-import type { SSRElement } from '../../@types/astro';
-import { serializeListValue } from './util.js';
+import type { SSRElement, SSRResult } from '../../@types/astro';
+import { serializeListValue, hydrationSpecifier } from './util.js';
 import serialize from 'serialize-javascript';
 
 // Serializes props passed into a component so that they can be reused during hydration.
