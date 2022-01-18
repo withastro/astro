@@ -16,7 +16,6 @@ export interface BuildInternals {
 	facadeIdToAssetsMap: Map<string, string[]>;
 
 	hoistedScriptIdToHoistedMap: Map<string, Set<string>>;
-
 	facadeIdToHoistedEntryMap: Map<string, string>;
 
 	// A mapping of specifiers like astro/client/idle.js to the hashed bundled name.
