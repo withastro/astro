@@ -23,11 +23,19 @@ That being said, there are quite a few Astro sites in production already. We're 
 <table>
   <tbody>
     <tr>
-      <td>👾 Online</td>
-      <td>📦 Local</td>
+      <td>
+        <img width="441" height="1px">
+        <strong>👾 Online</strong>
+      </td>
+      <td>
+        <img width="441" height="1px">
+        <strong>📦 Local</strong>
+      </td>
     </tr>
     <tr>
 <td>
+
+Try Astro in your browser!
 
 [Launch astro.new →](https://astro.new)
 
