@@ -171,6 +171,8 @@ function getDefaultJsConfig(): {
       maxNodeModuleJsDepth: 2,
       allowSyntheticDefaultImports: true,
       allowJs: true,
+      // By providing vite/client here, our users get proper typing on import.meta in .astro files
+      types: ['vite/client']
    };
    return {
       compilerOptions,
