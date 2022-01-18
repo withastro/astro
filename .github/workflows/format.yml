@@ -13,19 +13,22 @@ jobs:
         uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.23.x
       - name: Set Node version to 16
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'yarn'
+          cache: 'pnpm'
       - name: Install dependencies
-        run: yarn --frozen-lockfile --ignore-engines
+        run: pnpm install --frozen-lockfile --ignore-engines
         env:
           CI: true
       - name: Format code
-        run: yarn format
+        run: pnpm run format
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: '[ci] yarn format'
+          commit_message: '[ci] format'
           branch: ${{ github.head_ref }}

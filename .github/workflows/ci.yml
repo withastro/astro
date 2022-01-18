@@ -21,7 +21,7 @@ defaults:
 
 jobs:
   # Lint can run in parallel with Build.
-  # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
+  # We also run `pnpm install` with the `--prefer-offline` flag to speed things up.
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -29,14 +29,18 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.23.x
+
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
       
@@ -46,7 +50,7 @@ jobs:
       # Lint autofix cannot run on forks, so just skip those! See https://github.com/wearerequired/lint-action/issues/13
       - name: Lint (External)
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.owner.login != github.repository_owner }}
-        run: yarn lint
+        run: pnpm run lint
         
       # Otherwise, run lint autofixer
       - name: Lint
@@ -80,25 +84,25 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Cache Node Modules
         id: cache-node
         uses: actions/cache@v2
         with:
           path: "**/node_modules"
-          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
           restore-keys: |
-            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
-            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
       - name: Build Packages
-        run: yarn build --force
+        run: pnpm run build --force
 
       - name: Upload Package Artifacts
         uses: actions/upload-artifact@v2
@@ -108,7 +112,7 @@ jobs:
           if-no-files-found: error
   
   # Test depends on Build's output, which allows us to skip any build process!
-  # We also run `yarn install` with the `--prefer-offline` flag to speed things up.
+  # We also run `pnpm install` with the `--prefer-offline` flag to speed things up.
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
     runs-on: ${{ matrix.os }}
@@ -132,7 +136,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node_version }}
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v2
@@ -145,24 +149,24 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/node_modules"
-          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
           restore-keys: |
-            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
-            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
       - name: Test
         if: ${{ matrix.os != 'windows-latest' }}
-        run: yarn test
+        run: pnpm run test
 
       # Turbo seems to make the tests hang on Windows, just run them directly
       - name: Test (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
-        run: yarn workspace astro run test
+        run: pnpm run test --filter=astro
 
   smoke:
     name: 'Test (Smoke) ${{ matrix.os }}'
@@ -180,7 +184,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 14
-          cache: 'yarn'
+          cache: 'pnpm'
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v2
@@ -193,19 +197,19 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/node_modules"
-          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
           restore-keys: |
-            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
-            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
 
       - name: Test
         if: ${{ matrix.os != 'windows-latest' }}
-        run: yarn run build:examples --concurrency=1
+        run: pnpm run build:examples --concurrency=1
 
       # Turbo seems to fail on Windows, so run a custom script directly.
       - name: Test (Windows)
@@ -229,7 +233,7 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'yarn'
+          cache: 'pnpm'
       
       - name: Download Build Artifacts
         uses: actions/download-artifact@v2
@@ -242,13 +246,13 @@ jobs:
         uses: actions/cache@v2
         with:
           path: "**/node_modules"
-          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
+          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
           restore-keys: |
-            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-${{ github.run_id }}
-            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}-
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install NPM Dependencies
-        run: yarn install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
         env:
           CI: true
       
@@ -256,7 +260,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: yarn changeset publish
+          publish: pnpm exec changeset publish
           commit: '[ci] release'
           title: '[ci] release'
         env:

@@ -11,10 +11,10 @@ Every pull request needs to be reviewed by another contributor to the documentat
 - Clone the Project
 
   `git clone git@github.com:withastro/astro.git`
-- Run `yarn install` to install latest dependencies.
-  > This project uses yarn to manage dependencies. [Make sure that you have yarn v1 installed.](https://classic.yarnpkg.com/)
-- Run `yarn workspace docs dev` to start the dev server.
-- Run `yarn workspace docs build` to build the final site for production.
+- Run `pnpm install` to install latest dependencies.
+  > This project uses pnpm to manage dependencies.
+- Run `pnpm run dev --filter docs` to start the dev server.
+- Run `pnpm run build --filter docs` to build the final site for production.
   > The environment variable `SNOWPACK_PUBLIC_GITHUB_TOKEN` must be set to a personal access token with `public_repo` permissions to prevent rate-limiting.
 
 ## Deploying

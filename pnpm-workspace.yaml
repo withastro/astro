@@ -1,0 +1,13 @@
+packages:
+  - "compiled/*"
+  - "packages/markdown/*"
+  - "packages/renderers/*"
+  - "packages/*"
+  - "examples/*"
+  - "examples/component/demo"
+  - "examples/component/packages/*"
+  - "scripts"
+  - "docs"
+  - "packages/astro/test/fixtures/builtins/packages/*"
+  - "packages/astro/test/fixtures/builtins-polyfillnode"
+  - "packages/astro/test/fixtures/custom-elements/my-component-lib"

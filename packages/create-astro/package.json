@@ -20,7 +20,7 @@
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "prepare": "yarn build",
+    "prepare": "pnpm run build",
     "test": "rm -rf test/fixtures && mkdir test/fixtures && node --unhandled-rejections=strict test/create-astro.test.js"
   },
   "files": [
@@ -38,7 +38,8 @@
     "yargs-parser": "^21.0.0"
   },
   "devDependencies": {
-    "uvu": "^0.5.1"
+    "uvu": "^0.5.1",
+    "astro-scripts": "0.0.1"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"

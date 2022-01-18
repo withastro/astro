@@ -19,7 +19,7 @@ export default async function run() {
 		const filePath = fileURLToPath(projectToTest);
 		console.log('  🤖 Testing', filePath, '\n');
 		try {
-			await execa('yarn', ['build'], { cwd: fileURLToPath(projectToTest), stdout: 'inherit', stderr: 'inherit' });
+			await execa('pnpm', ['run', 'build'], { cwd: fileURLToPath(projectToTest), stdout: 'inherit', stderr: 'inherit' });
 		} catch (err) {
 			console.log(err);
 			process.exit(1);

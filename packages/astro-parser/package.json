@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "prepublish": "yarn build",
+    "prepublish": "pnpm run build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
