@@ -80,6 +80,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.23.x
+
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
@@ -132,6 +136,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.23.x
+
       - name: Setup node@${{ matrix.node_version }}
         uses: actions/setup-node@v2
         with:
@@ -179,6 +187,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.23.x
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -228,6 +240,10 @@ jobs:
       - uses: actions/checkout@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.23.x
 
       - name: Setup Node
         uses: actions/setup-node@v2
