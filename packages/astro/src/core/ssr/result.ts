@@ -52,6 +52,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 						warn(args.logging, `deprecation`, `${bold('Astro.resolve()')} is deprecated. We see that you are trying to resolve ${path}.
 ${extra}`);
+						// Intentionally return an empty string so that it is not relied upon.
+						return '';
 					}
 
 					return astroGlobal.resolve(path);
