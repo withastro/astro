@@ -221,7 +221,7 @@ jobs:
 
       - name: Test
         if: ${{ matrix.os != 'windows-latest' }}
-        run: pnpm run build:examples --concurrency=1
+        run: pnpm run build:examples
 
       # Turbo seems to fail on Windows, so run a custom script directly.
       - name: Test (Windows)
