@@ -22,7 +22,7 @@ jobs:
           node-version: 16
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-engines
+        run: pnpm install 
         env:
           CI: true
       - name: Format code

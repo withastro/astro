@@ -51,7 +51,7 @@ jobs:
 
       - name: Install NPM Dependencies
         if: steps.cache-npm.outputs.cache-hit != 'true'
-        run: pnpm install --prefer-offline --frozen-lockfile --ignore-engines --registry https://registry.npmjs.org --network-timeout 300000
+        run: pnpm install --prefer-offline  --registry https://registry.npmjs.org
         env:
           CI: true
       

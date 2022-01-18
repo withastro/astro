@@ -22,7 +22,7 @@ jobs:
           node-version: 16
           cache: 'pnpm'
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile --ignore-engines --ignore-scripts
+        run: pnpm install  --ignore-scripts
       - name: Collect stats
         run: node scripts/stats/index.js
         env:
