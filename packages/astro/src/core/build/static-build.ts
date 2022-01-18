@@ -117,8 +117,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
 			topLevelImports.add(moduleId);
 		}
-		
-		//internals.facadeIdToHoistedMap.set(astroModuleId, );
 
 		for (const specifier of topLevelImports) {
 			jsInput.add(specifier);

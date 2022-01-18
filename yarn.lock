@@ -130,7 +130,7 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@astrojs/compiler@^0.8.0":
+"@astrojs/compiler@^0.8.2":
   version "0.8.2"
   resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.8.2.tgz#4aebb1c75bdfebbdaf920fa5a47bac5a9b406684"
   integrity sha512-DnEjHlGzLaZDZ/uDdU1cmx8Hvair9fB1SmIj6yQCNIPqfKs/ZyUDyRrIzvHxri8xkaBTynL7cpzENJF99ub4Gg==
@@ -7442,11 +7442,6 @@ preact-render-to-string@^5.1.19:
   integrity sha512-bj8sn/oytIKO6RtOGSS/1+5CrQyRSC99eLUnEVbqUa6MzJX5dYh7wu9bmT0d6lm/Vea21k9KhCQwvr2sYN3rrQ==
   dependencies:
     pretty-format "^3.8.0"
-
-preact@^10.6.4:
-  version "10.6.4"
-  resolved "https://registry.yarnpkg.com/preact/-/preact-10.6.4.tgz#ad12c409ff1b4316158486e0a7b8d43636f7ced8"
-  integrity sha512-WyosM7pxGcndU8hY0OQlLd54tOU+qmG45QXj2dAYrL11HoyU/EzOSTlpJsirbBr1QW7lICxSsVJJmcmUglovHQ==
 
 preact@~10.5.15:
   version "10.5.15"

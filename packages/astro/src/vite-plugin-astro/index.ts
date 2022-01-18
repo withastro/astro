@@ -66,16 +66,16 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					const transformResult = await cachedCompilation(config,
 						normalizeFilename(filename), null, viteTransform, opts);
 					const scripts = transformResult.scripts;
-					const r = scripts[query.index];
+					const hoistedScript = scripts[query.index];
 
-					if(!r) {
-						throw new Error(`No hoisted script at index ${query.index}`);
+					if(!hoistedScript) {
+						throw new Error(`No hoisted script at index ${i}`);
 					}
 
 					return {
-						code: r.type === 'inline' ?
-							r.code! :
-							`import "${r.src!}";`
+						code: hoistedScript.type === 'inline' ?
+							hoistedScript.code :
+							`import "${hoistedScript.src}";`
 					};
 				}
 			}
