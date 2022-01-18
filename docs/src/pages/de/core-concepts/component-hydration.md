@@ -41,9 +41,8 @@ _Beachte: Partial Hydration (Partielle Anreicherung) wird manchmal auch als “P
 
 **Islands Architecture** ist die Idee Partial Hydration zu verwenden, um komplette Websites zu erzeugen. Islands Architecture ist eine Alternative zu der beliebten Idee deine gesamte Website in eine Client-seitige JavaScript-Anwendung zu packen, welche von den Nutzerinnen und Nutzern heruntergeladen werden muss.
 
-Um Jason Miller zu zitieren, der [den Begriff aufgebracht hat](https://jasonformat.com/islands-architecture/):
-
 > In einem Modell aus "Inseln" ist Server-seitiges Rendering nicht die angeflanschte Optimierung, die darauf abzielt die SEO- oder UX-Werte zu verbessern. Stattdessen ist es die grundlegende Methode mit der Seiten an den Browser ausgeliefert werden. Das HTML das als Antwort auf eine Navigation zurückgegeben wird, enthält eine bedeutsame und unmittelbar gerenderte Repräsentation des Inhaltes, den die Nutzerin oder der Nutzer angefordert hat.
+> <br/> -- [Jason Miller](https://jasonformat.com/islands-architecture/)
 
 Neben den offensichtlichen Leistungsvorteilen, wenn weniger JavaScript an den Browser geschickt und dort ausgeführt wird, verfügt eine Islands Architecture über zwei wesentliche Vorteile:
 
