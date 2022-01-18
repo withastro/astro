@@ -9,7 +9,9 @@ const { content } = Astro.props;
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
 		<title>{content.title}</title>
-		<link rel="stylesheet" href={Astro.resolve('../styles/global.css')} />
+		<style global>
+			@import "../styles/global.css";
+		</style>
 		<style>
 			.nav {
 				border-bottom: 1px solid #ccc;

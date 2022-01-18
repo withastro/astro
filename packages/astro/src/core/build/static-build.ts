@@ -315,12 +315,13 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 
 		debug(logging, 'generate', `Generating: ${pathname}`);
 
+		const rootpath = new URL(astroConfig.buildOptions.site || 'http://localhost/').pathname;
 		const result = createResult({ astroConfig, origin, params, pathname, renderers });
 		result.links = new Set<SSRElement>(
 			linkIds.map((href) => ({
 				props: {
 					rel: 'stylesheet',
-					href,
+					href: npath.posix.join(rootpath, href)
 				},
 				children: '',
 			}))
