@@ -4,7 +4,7 @@ import type { BuildInternals } from '../core/build/internal';
 import * as path from 'path';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from '../core/vite';
-import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
+import { isCSSRequest } from '../core/ssr/css.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -12,13 +12,6 @@ const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 const ASTRO_STYLE_PREFIX = '@astro-inline-style';
 
 const ASTRO_PAGE_STYLE_PREFIX = '@astro-page-all-styles';
-
-const cssRe = new RegExp(
-	`\\.(${Array.from(STYLE_EXTENSIONS)
-		.map((s) => s.slice(1))
-		.join('|')})($|\\?)`
-);
-const isCSSRequest = (request: string): boolean => cssRe.test(request);
 
 export function getAstroPageStyleId(pathname: string) {
 	let styleId = ASTRO_PAGE_STYLE_PREFIX + pathname;
