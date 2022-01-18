@@ -321,7 +321,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			linkIds.map((href) => ({
 				props: {
 					rel: 'stylesheet',
-					href: npath.posix.join(rootpath, href)
+					href: npath.posix.join(rootpath, href),
 				},
 				children: '',
 			}))
