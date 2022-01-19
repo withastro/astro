@@ -92,7 +92,9 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 				const { url, content } = result.rss.xsl;
 				const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
 				if (assets[fileURLToPath(stylesheetFile)]) {
-					throw new Error(`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`);
+					throw new Error(
+						`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
+					);
 				}
 				assets[fileURLToPath(stylesheetFile)] = content;
 			}

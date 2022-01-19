@@ -339,8 +339,8 @@ export interface RSS {
 	description: string;
 	/** Specify arbitrary metadata on opening <xml> tag */
 	xmlns?: Record<string, string>;
-	/** 
-	 * If false (default), does not include XSL stylesheet. 
+	/**
+	 * If false (default), does not include XSL stylesheet.
 	 * If true, automatically includes 'pretty-feed-v3'.
 	 * If a string value, specifies a local custom XSL stylesheet, for example '/custom-feed.xsl'.
 	 */
@@ -370,7 +370,7 @@ export interface RSS {
 
 export type RSSFunction = (args: RSS) => void;
 
-export type FeedResult = { url: string; content?: string; };
+export type FeedResult = { url: string; content?: string };
 export type RSSResult = { xml: FeedResult; xsl?: FeedResult };
 
 export type SSRError = Error & vite.ErrorPayload['err'];

@@ -95,15 +95,15 @@ export function generateRssFunction(site: string | undefined, route: RouteData):
 				result.xsl = {
 					url: rssData.stylesheet,
 					content: generateRSSStylesheet(),
-				}
+				};
 			} else if (typeof rssData.stylesheet === 'string') {
 				result.xsl = {
 					url: rssData.stylesheet,
-				}
+				};
 			}
 			result.xml = {
 				url: feedURL,
-				content: generateRSS({ rssData, site, srcFile: route.component, feedURL })
+				content: generateRSS({ rssData, site, srcFile: route.component, feedURL }),
 			};
 		},
 		rss: result,
