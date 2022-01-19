@@ -85,6 +85,19 @@ class AstroBuilder {
 			routeCache: this.routeCache,
 			viteServer: this.viteServer,
 		});
+
+		// Filter pages by using conditions based on their frontmatter.
+		Object.entries(allPages).forEach(([page, data]) => {
+			if ('frontmatter' in data.preload[1]) {
+				// TODO: add better type inference to data.preload[1]
+				const frontmatter = (data.preload[1] as any).frontmatter;
+				if (Boolean(frontmatter.draft) && !this.config.buildOptions.drafts) {
+					debug(logging, 'build', timerMessage(`Skipping draft page ${page}`, timer.loadStart));
+					delete allPages[page];
+				}
+			}
+		});
+
 		debug(logging, 'build', timerMessage('All pages loaded', timer.loadStart));
 
 		// The names of each pages

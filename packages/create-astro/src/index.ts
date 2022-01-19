@@ -108,7 +108,7 @@ export async function main() {
 
 		// Warning for issue #655
 		if (err.message === 'zlib: unexpected end of file') {
-			console.log(yellow("This seems to be a cache related problem. Remove the folder '~/.degit/github/snowpackjs' to fix this error."));
+			console.log(yellow("This seems to be a cache related problem. Remove the folder '~/.degit/github/withastro' to fix this error."));
 			console.log(yellow('For more information check out this issue: https://github.com/withastro/astro/issues/655'));
 		}
 

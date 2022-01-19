@@ -33,8 +33,6 @@ npm init astro -- --template [GITHUB_USER]/[REPO_NAME]
 npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
 ```
 
-</Code>
-
 ### جربه على المُتصفح
 
 إن كنت مهتمًا وتريد اللعب وتجربة Astro على المتصفح، بمقدورك استخدام online code playground، جرب قالب مشروعنا "Hello World" على [CodeSandbox](https://codesandbox.io/s/astro-template-hugb3).

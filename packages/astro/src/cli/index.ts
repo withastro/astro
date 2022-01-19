@@ -26,6 +26,7 @@ interface CLIState {
 		port?: number;
 		config?: string;
 		experimentalStaticBuild?: boolean;
+		drafts?: boolean;
 	};
 }
 
@@ -39,6 +40,7 @@ function resolveArgs(flags: Arguments): CLIState {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
 		experimentalStaticBuild: typeof flags.experimentalStaticBuild === 'boolean' ? flags.experimentalStaticBuild : false,
+		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 
 	if (flags.version) {
@@ -72,14 +74,15 @@ function printHelp() {
   astro check           Check your project for errors.
 
   ${colors.bold('Flags:')}
-  --config <path>       Specify the path to the Astro config file.
-  --project-root <path> Specify the path to the project root folder.
-  --no-sitemap          Disable sitemap generation (build only).
-  --experimental-static-build A more performant build that expects assets to be define statically.
-  --verbose             Enable verbose logging
-  --silent              Disable logging
-  --version             Show the version number and exit.
-  --help                Show this help message.
+  --config <path>				Specify the path to the Astro config file.
+  --project-root <path>			Specify the path to the project root folder.
+  --no-sitemap					Disable sitemap generation (build only).
+  --experimental-static-build	A more performant build that expects assets to be define statically.
+  --drafts                      Include markdown draft pages in the build.
+  --verbose						Enable verbose logging
+  --silent						Disable logging
+  --version						Show the version number and exit.
+  --help						Show this help message.
 `);
 }
 
@@ -99,6 +102,7 @@ function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
 	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
 	if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
 	if (typeof flags.experimentalStaticBuild === 'boolean') astroConfig.buildOptions.experimentalStaticBuild = flags.experimentalStaticBuild;
+	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
 }
 
 /** The primary CLI action */
