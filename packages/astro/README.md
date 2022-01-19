@@ -1,5 +1,5 @@
 <a href="https://astro.build">
-  <img src="https://github.com/withastro/astro/blob/main/assets/social/banner.svg?raw=true" />
+  <img src="https://raw.githubusercontent.com/withastro/astro/main/assets/social/banner.svg" />
 </a>
 
 <div center>
