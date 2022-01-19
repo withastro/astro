@@ -96,7 +96,7 @@ Markdown pages have a special frontmatter property for `layout`. This defines th
 ```markdown
 ---
 # src/pages/index.md
-layout: ../../layouts/BaseLayout.astro
+layout: ../layouts/BaseLayout.astro
 title: My cool page
 draft: false
 ---
