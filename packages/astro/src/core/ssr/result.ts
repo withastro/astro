@@ -39,19 +39,23 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					url,
 				},
 				resolve(path: string) {
-					if(astroConfig.buildOptions.experimentalStaticBuild) {
+					if (astroConfig.buildOptions.experimentalStaticBuild) {
 						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
-						if(isCSSRequest(path)) {
+						if (isCSSRequest(path)) {
 							extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
 
 <style global>
 @import "${path}";
 </style>
-`
+`;
 						}
 
-						warn(args.logging, `deprecation`, `${bold('Astro.resolve()')} is deprecated. We see that you are trying to resolve ${path}.
-${extra}`);
+						warn(
+							args.logging,
+							`deprecation`,
+							`${bold('Astro.resolve()')} is deprecated. We see that you are trying to resolve ${path}.
+${extra}`
+						);
 						// Intentionally return an empty string so that it is not relied upon.
 						return '';
 					}
