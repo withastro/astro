@@ -158,7 +158,7 @@ For Markdown files, the `content` prop also has an `astro` property which holds 
 Using images or videos follows Astro's normal import rules:
 
 - Place them in the `public/` as explained on the [project-structure page](/en/core-concepts/project-structure/#public)
-  - Example: Image is located at `/public/assets/img/astonaut.png` → Markdown: `![Astronaut](assets/img/astronaut.png)`
+  - Example: Image is located at `/public/assets/img/astonaut.png` → Markdown: `![Astronaut](/assets/img/astronaut.png)`
 - Or use `import` as explained on the [imports page](/en/guides/imports#other-assets) (when using Astro's Markdown Component)
 
 ### Markdown draft pages
