@@ -34,3 +34,27 @@ describe('Sitemaps', () => {
 		});
 	});
 });
+
+describe('Sitemaps served from subdirectory', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-sitemap-rss/',
+			buildOptions: {
+				site: 'https://astro.build/base-directory/',
+				sitemap: true,
+			},
+		});
+		await fixture.build();
+	});
+
+	describe('Sitemap Generation', () => {
+		it('Generates Sitemap correctly', async () => {
+			let sitemap = await fixture.readFile('/sitemap.xml');
+			expect(sitemap).to.equal(
+				`<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://astro.build/base-directory/episode/fazers/</loc></url><url><loc>https://astro.build/base-directory/episode/rap-snitch-knishes/</loc></url><url><loc>https://astro.build/base-directory/episode/rhymes-like-dimes/</loc></url><url><loc>https://astro.build/base-directory/episodes/</loc></url></urlset>\n`
+			);
+		});
+	});
+});
