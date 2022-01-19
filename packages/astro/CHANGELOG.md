@@ -1,5 +1,26 @@
 # astro
 
+## 0.22.15
+
+### Patch Changes
+
+- [#2371](https://github.com/withastro/astro/pull/2371) [`85ad1aab`](https://github.com/withastro/astro/commit/85ad1aab67b9f1b9214db3200458ac37675b9afb) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add support for styled RSS feeds using the new `stylesheet` option
+
+* [#2416](https://github.com/withastro/astro/pull/2416) [`5208c88a`](https://github.com/withastro/astro/commit/5208c88aeb512250f2a443edede574710dbccffa) Thanks [@matthewp](https://github.com/matthewp)! - Adds Astro.resolve deprecation for the static build
+
+- [#2392](https://github.com/withastro/astro/pull/2392) [`24aa3245`](https://github.com/withastro/astro/commit/24aa3245aef4e12a80946c6d56f731b14aed6220) Thanks [@obnoxiousnerd](https://github.com/obnoxiousnerd)! - Support markdown draft pages.
+  Markdown draft pages are markdown pages which have `draft` set in their frontmatter. By default, these will not be built by Astro while running `astro build`. To disable this behavior, you need to set `buildOptions.drafts` to `true` or pass the `--drafts` flag while running `astro build`. An exaple of a markdown draft page is:
+
+  ```markdown
+  ---
+  # src/pages/blog-post.md
+  title: My Blog Post
+  draft: true
+  ---
+
+  This is my blog post which is currently incomplete.
+  ```
+
 ## 0.22.14
 
 ### Patch Changes
@@ -1139,10 +1160,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1162,10 +1183,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
