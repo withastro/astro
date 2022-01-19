@@ -1,10 +1,14 @@
 import type { AstroConfig, AstroGlobal, AstroGlobalPartial, Params, Renderer, SSRElement, SSRResult } from '../../@types/astro';
 
+import { bold } from 'kleur/colors';
 import { canonicalURL as getCanonicalURL } from '../util.js';
+import { isCSSRequest } from './css.js';
 import { renderSlot } from '../../runtime/server/index.js';
+import { warn, LogOptions } from '../logger.js';
 
 export interface CreateResultArgs {
 	astroConfig: AstroConfig;
+	logging: LogOptions;
 	origin: string;
 	params: Params;
 	pathname: string;
@@ -33,6 +37,26 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					canonicalURL,
 					params,
 					url,
+				},
+				resolve(path: string) {
+					if(astroConfig.buildOptions.experimentalStaticBuild) {
+						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
+						if(isCSSRequest(path)) {
+							extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
+
+<style global>
+@import "${path}";
+</style>
+`
+						}
+
+						warn(args.logging, `deprecation`, `${bold('Astro.resolve()')} is deprecated. We see that you are trying to resolve ${path}.
+${extra}`);
+						// Intentionally return an empty string so that it is not relied upon.
+						return '';
+					}
+
+					return astroGlobal.resolve(path);
 				},
 				slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
 				// This is used for <Markdown> but shouldn't be used publicly
