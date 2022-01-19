@@ -380,7 +380,7 @@ Use the following build settings:
 - **Framework preset**: `Astro`
 - **Build command:** `npm run build`
 - **Build output directory:** `dist`
-- **Environment variables (advanced)**: Currently, Cloudflare Pages supports `NODE_VERSION = 12.18.0` in the Pages build environment by default. Astro requires `14.15.0`, `v16.0.0`, or higher. You can add an environment variable with the **Variable name** of `NODE_VERSION` and a **Value** of a [Node version that’s compatible with Astro](https://docs.astro.build/installation#prerequisites) or by specifying the node version of your project in a `.nvmrc` or `.node-version` file.  
+- **Environment variables (advanced)**: Currently, Cloudflare Pages supports `NODE_VERSION = 12.18.0` in the Pages build environment by default. Astro requires `14.15.0`, `v16.0.0`, or higher. You can add an environment variable with the **Variable name** of `NODE_VERSION` and a **Value** of a [Node version that’s compatible with Astro](https://docs.astro.build/installation#prerequisites) or by specifying the node version of your project in a `.nvmrc` or `.node-version` file.
 
 Then click the **Save and Deploy** button.
 
