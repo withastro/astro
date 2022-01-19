@@ -98,6 +98,7 @@ Markdown pages have a special frontmatter property for `layout`. This defines th
 # src/pages/index.md
 layout: ../../layouts/BaseLayout.astro
 title: My cool page
+draft: false
 ---
 
 # Hello World!
@@ -128,6 +129,7 @@ For Markdown files, the `content` prop also has an `astro` property which holds 
   "date": "Tuesday, July 27 2021",
   "author": "Matthew Phillips",
   "description": "Astro 0.18 is our biggest release since Astro launch.",
+  "draft": false,
   **/
   "astro": {
     "headers": [
@@ -158,6 +160,34 @@ Using images or videos follows Astro's normal import rules:
 - Place them in the `public/` as explained on the [project-structure page](/en/core-concepts/project-structure/#public)
   - Example: Image is located at `/public/assets/img/astonaut.png` → Markdown: `![Astronaut](assets/img/astronaut.png)`
 - Or use `import` as explained on the [imports page](/en/guides/imports#other-assets) (when using Astro's Markdown Component)
+
+### Markdown draft pages
+
+Markdown pages which have the property `draft` set in their frontmatter are referred to as "draft pages". By default, Astro excludes these pages from the build when building the static version of your page (i.e `astro build`), which means that you can exclude draft/incomplete pages from the production build by setting `draft` to `true`. To enable building of draft pages, you can set `buildOptions.drafts` to `true` in the configuration file, or pass the `--drafts` flag when running `astro build`. Markdown pages which do not have the `draft` property set are not affected. An example of a markdown draft page can be:
+
+```markdown
+---
+# src/pages/blog-post.md
+title: My Blog Post
+draft: true
+---
+
+This is my blog post which is currently incomplete.
+```
+
+An example of a markdown post which is not a draft:
+
+```markdown
+---
+# src/pages/blog-post.md
+title: My Blog Post
+draft: false
+---
+
+This is my blog post...
+```
+
+> This feature only applies to local markdown pages, not the `<Markdown />` component, or remote markdown.
 
 ## Astro's Markdown Component
 

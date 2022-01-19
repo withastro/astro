@@ -61,7 +61,7 @@ The `renderers` option defines the framework renderers to be used by Astro.
 
 #### buildOptions
 
-The `buildOptions` option configures how a site is built, including its base URL (`buildOptions.site`), whether it includes a sitemap (`buildOptions.sitemap`), and whether its pages should be files (`path.html`) or directories (`path/index.html`) (`buildOptions.pageUrlFormat`).
+The `buildOptions` option configures how a site is built, including its base URL (`buildOptions.site`), whether it includes a sitemap (`buildOptions.sitemap`), whether markdown draft pages should be included in the build (`buildOptions.drafts`), and whether its pages should be files (`path.html`) or directories (`path/index.html`) (`buildOptions.pageUrlFormat`).
 
 #### devOptions
 

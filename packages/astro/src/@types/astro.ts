@@ -108,6 +108,13 @@ export interface AstroUserConfig {
 		 * Default: 'directory'
 		 */
 		pageUrlFormat?: 'file' | 'directory';
+		/**
+		 * Control if markdown draft pages should be included in the build.
+		 * 	`true`: Include draft pages
+		 * 	`false`: Exclude draft pages
+		 * Default: false
+		 */
+		drafts?: boolean;
 	};
 	/** Options for the development server run with `astro dev`. */
 	devOptions?: {
