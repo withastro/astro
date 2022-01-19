@@ -4,7 +4,7 @@ title: RSS
 description: An intro to RSS in Astro
 ---
 
-Astro supports fast, automatic RSS feed generation for blogs and other content websites.
+Astro supports fast, automatic RSS feed generation for blogs and other content websites. For more information about RSS feeds in general, see [aboutfeeds.com](https://aboutfeeds.com/).
 
 You can create an RSS feed from any Astro page that uses a `getStaticPaths()` function for routing. Only dynamic routes can use `getStaticPaths()` today (see [Routing](/en/core-concepts/routing)).
 
@@ -22,6 +22,8 @@ export async function getStaticPaths({rss}) {
   rss({
     // The RSS Feed title, description, and custom metadata.
     title: 'Don\'s Blog',
+    // See "Styling" section below
+    stylesheet: true,
     description: 'An example blog on Astro',
     customData: `<language>en-us</language>`,
     // The list of items for your RSS feed, sorted.
@@ -41,3 +43,11 @@ export async function getStaticPaths({rss}) {
 ```
 
 Note: RSS feeds will **not** be built during development. Currently, RSS feeds are only generated during your final build.
+
+### Styling
+
+RSS Feeds can be styled with an XSL stylesheet for a more pleasant user experience when they are opened directly in a browser. By default, Astro does not set a stylesheet for RSS feeds, but it can be enabled by setting the `stylesheet` option.
+
+Astro can automatically use [Pretty Feed](https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl), a popular open-source XSL stylesheet. To enable this behavior, pass `stylesheet: true`. 
+
+If you'd like to use a custom XSL stylesheet, you can pass a string value like `stylesheet: '/my-custom-stylesheet.xsl'`. This file should be in your `public/` directory (in this case, `public/my-custom-stylesheet.xsl`).

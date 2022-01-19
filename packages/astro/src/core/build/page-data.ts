@@ -79,11 +79,22 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 					throw err;
 				});
 			if (result.rss?.xml) {
-				const rssFile = new URL(result.rss.url.replace(/^\/?/, './'), astroConfig.dist);
-				if (assets[fileURLToPath(rssFile)]) {
-					throw new Error(`[getStaticPaths] RSS feed ${result.rss.url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
+				const { url, content } = result.rss.xml;
+				if (content) {
+					const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+					if (assets[fileURLToPath(rssFile)]) {
+						throw new Error(`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
+					}
+					assets[fileURLToPath(rssFile)] = content;
 				}
-				assets[fileURLToPath(rssFile)] = result.rss.xml;
+			}
+			if (result.rss?.xsl?.content) {
+				const { url, content } = result.rss.xsl;
+				const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+				if (assets[fileURLToPath(stylesheetFile)]) {
+					throw new Error(`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`);
+				}
+				assets[fileURLToPath(stylesheetFile)] = content;
 			}
 			allPages[route.component] = {
 				route,
