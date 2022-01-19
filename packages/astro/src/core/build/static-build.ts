@@ -71,6 +71,12 @@ function* throttle(max: number, inPaths: string[]) {
 	}
 }
 
+function getByFacadeId<T>(facadeId: string, map: Map<string, T>): T | undefined {
+	return map.get(facadeId) ||
+		// Check with a leading `/` because on Windows it doesn't have one.
+		map.get('/' + facadeId);
+}
+
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
@@ -261,17 +267,14 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 
 	let url = new URL('./' + output.fileName, astroConfig.dist);
 	const facadeId: string = output.facadeModuleId as string;
-	let pageData =
-		facadeIdToPageDataMap.get(facadeId) ||
-		// Check with a leading `/` because on Windows it doesn't have one.
-		facadeIdToPageDataMap.get('/' + facadeId);
+	let pageData = getByFacadeId<PageBuildData>(facadeId, facadeIdToPageDataMap);
 
 	if (!pageData) {
 		throw new Error(`Unable to find a PageBuildData for the Astro page: ${facadeId}. There are the PageBuilDatas we have ${Array.from(facadeIdToPageDataMap.keys()).join(', ')}`);
 	}
 
-	let linkIds = internals.facadeIdToAssetsMap.get(facadeId) || [];
-	let hoistedId = internals.facadeIdToHoistedEntryMap.get(facadeId) || null;
+	const linkIds = getByFacadeId<string[]>(facadeId, internals.facadeIdToAssetsMap) || [];
+	const hoistedId = getByFacadeId<string>(facadeId, internals.facadeIdToHoistedEntryMap) || null;
 
 	let compiledModule = await import(url.toString());
 	let Component = compiledModule.default;
