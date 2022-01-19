@@ -1,4 +1,4 @@
-import { ssr } from 'solid-js/web/dist/server.js';
+import { ssr } from 'solid-js/web';
 
 /**
  * Astro passes `children` as a string of HTML, so we need
