@@ -124,7 +124,7 @@ export async function main() {
 		// Helpful message when encountering the "could not find commit hash for ..." error
 		if (err.code === 'MISSING_REF') {
 			console.log(yellow("This seems to be an issue with degit. Please check if you have 'git' installed on your system, and install it if you don't have (https://git-scm.com)."));
-			console.log(yellow("If you do have 'git' installed, please file a new issue here: https://github.com/withastro/astro/issues"));
+			console.log(yellow("If you do have 'git' installed, please run this command with the --verbose flag and file a new issue with the command output here: https://github.com/withastro/astro/issues"));
 		}
 		process.exit(1);
 	}
