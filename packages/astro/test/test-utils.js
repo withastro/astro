@@ -85,6 +85,7 @@ export async function loadFixture(inlineConfig) {
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
 		clean: () =>
 			new Promise((resolve, reject) => {
+				console.log('[🧽 CLEANING UP]', config.dist.pathname);
 				rimraf(config.dist.pathname, { maxBusyTries: 10 }, (error) => (error ? reject(error) : resolve()));
 			}),
 	};
