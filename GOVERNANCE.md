@@ -125,7 +125,7 @@ Some contributors will not reach this level, and that's okay! L2 Maintainers sti
 - All privileges of the [Maintainer role](#level-2---maintainer), plus...
 - All of the privileges of L2, including...
 - `@core` role on [Discord](https://astro.build/chat)
-- New name color on Discord: **deep, dark blue**.
+- New name color on Discord: **yellow**.
 - Invitation to the private #core channel on Discord.
 - Invitation to the `core` team on GitHub.
 - Ability to merge all GitHub PRs.
