@@ -141,10 +141,12 @@ To release a snapshot, run the following locally:
 ```shell
 # Note: XXX should be a keyword to identify this release. Ex: `--snapshot routing` & `--tag next--routing`
 
-# 1: yarn changeset version --snapshot XXX
+# 1:
+yarn changeset version --snapshot XXX
 # 2: (Manual) review the diff, and make sure that you're not releasing more than you need to.
 git checkout -- examples/ docs/
-# 3: yarn release --tag next--XXX
+# 3:
+yarn release --tag next--XXX
 # 4: (Manual) review the publish, and if you're happy then you can throw out all local changes
 git reset --hard
 ```
