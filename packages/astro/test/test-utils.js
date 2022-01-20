@@ -7,7 +7,6 @@ import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
 import os from 'os';
-import rimraf from 'rimraf';
 
 /**
  * @typedef {import('node-fetch').Response} Response
@@ -83,11 +82,10 @@ export async function loadFixture(inlineConfig) {
 		},
 		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
-		clean: () =>
-			new Promise((resolve, reject) => {
-				console.log('[🧽 CLEANING UP]', config.dist.pathname);
-				rimraf(config.dist.pathname, { maxBusyTries: 10 }, (error) => (error ? reject(error) : resolve()));
-			}),
+		clean: () => {
+			console.log('[🧽 CLEANING UP]', config.dist.pathname);
+			return fs.promises.rm(config.dist, { maxRetries: 10, recursive: true, force: true });
+		},
 	};
 }
 
