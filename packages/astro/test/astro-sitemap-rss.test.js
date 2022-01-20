@@ -15,6 +15,8 @@ describe('Sitemaps', () => {
 		await fixture.build();
 	});
 
+	after(() => fixture.clean());
+
 	describe('RSS Generation', () => {
 		it('generates RSS correctly', async () => {
 			const rss = await fixture.readFile('/custom/feed.xml');
@@ -48,6 +50,8 @@ describe('Sitemaps served from subdirectory', () => {
 		});
 		await fixture.build();
 	});
+
+	after(() => fixture.clean());
 
 	describe('Sitemap Generation', () => {
 		it('Generates Sitemap correctly', async () => {
