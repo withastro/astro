@@ -26,9 +26,7 @@ export const defaultLogDestination = new Writable({
 	objectMode: true,
 	write(event: LogMessage, _, callback) {
 		let dest: ConsoleStream = process.stderr;
-		if (levels[event.level] < levels['error']) {
-			dest = process.stdout;
-		}
+		if (levels[event.level] < levels['error']) dest = process.stdout;
 
 		dest.write(dim(dt.format(new Date()) + ' '));
 
