@@ -303,17 +303,6 @@ export type Params = Record<string, string | undefined>;
 
 export type Props = Record<string, unknown>;
 
-export interface RenderPageOptions {
-	request: {
-		params?: Params;
-		url: URL;
-		canonicalURL: URL;
-	};
-	children: any[];
-	props: Props;
-	css?: string[];
-}
-
 type Body = string;
 
 export interface EndpointOutput<Output extends Body = Body> {

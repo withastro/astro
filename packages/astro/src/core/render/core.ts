@@ -1,7 +1,7 @@
 import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params, Props, Renderer, RouteData, SSRElement } from '../../@types/astro';
 import type { LogOptions } from '../logger.js';
 
-import { renderEndpoint, renderPage } from '../../runtime/server/index.js';
+import { renderEndpoint, renderToString } from '../../runtime/server/index.js';
 import { getParams } from '../routing/index.js';
 import { createResult } from './result.js';
 import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
@@ -97,7 +97,7 @@ export async function render(opts: RenderOptions): Promise<string> {
 		scripts,
 	});
 
-	let html = await renderPage(result, Component, pageProps, null);
+	let html = await renderToString(result, Component, pageProps, null);
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
 	if (!legacyBuild && !/<!doctype html/i.test(html)) {
