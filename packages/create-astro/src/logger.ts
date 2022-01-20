@@ -34,12 +34,16 @@ export const defaultLogDestination = new Writable({
 
 		let type = event.type;
 		if (type) {
-			if (event.level === 'info') {
-				type = bold(blue(type));
-			} else if (event.level === 'warn') {
-				type = bold(yellow(type));
-			} else if (event.level === 'error') {
-				type = bold(red(type));
+			switch (event.level) {
+				case 'info':
+					type = bold(blue(type));
+					break;
+				case 'warn':
+					type = bold(yellow(type));
+					break;
+				case 'error':
+					type = bold(red(type));
+					break;
 			}
 
 			dest.write(`[${type}] `);
