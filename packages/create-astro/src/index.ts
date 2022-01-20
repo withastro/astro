@@ -32,7 +32,7 @@ const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import
 const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
 
 export async function main() {
-	logger.debug("Verbose logging turned on")
+	logger.debug('Verbose logging turned on');
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
 	console.log(`If you encounter a problem, visit ${cyan('https://github.com/withastro/astro/issues')} to search or file a new issue.\n`);
 
@@ -80,11 +80,11 @@ export async function main() {
 		verbose: defaultLogLevel === 'debug' ? true : false,
 	});
 
-	logger.debug('Initialized degit with following config:',`${templateTarget}${hash}`, {
+	logger.debug('Initialized degit with following config:', `${templateTarget}${hash}`, {
 		cache: false,
 		force: true,
 		verbose: defaultLogLevel === 'debug' ? true : false,
-	})
+	});
 
 	const selectedTemplate = TEMPLATES.find((template) => template.value === options.template);
 	let renderers: string[] = [];
@@ -107,12 +107,14 @@ export async function main() {
 
 	// Copy
 	try {
-		emitter.on('info', info => { logger.debug(info.message) });
+		emitter.on('info', (info) => {
+			logger.debug(info.message);
+		});
 		console.log(`${green(`>`)} ${gray(`Copying project files...`)}`);
 		await emitter.clone(cwd);
 	} catch (err: any) {
 		// degit is compiled, so the stacktrace is pretty noisy. Only report the stacktrace when using verbose mode.
-		logger.debug(err)
+		logger.debug(err);
 		console.error(red(err.message));
 
 		// Warning for issue #655
@@ -124,7 +126,11 @@ export async function main() {
 		// Helpful message when encountering the "could not find commit hash for ..." error
 		if (err.code === 'MISSING_REF') {
 			console.log(yellow("This seems to be an issue with degit. Please check if you have 'git' installed on your system, and install it if you don't have (https://git-scm.com)."));
-			console.log(yellow("If you do have 'git' installed, please run this command with the --verbose flag and file a new issue with the command output here: https://github.com/withastro/astro/issues"));
+			console.log(
+				yellow(
+					"If you do have 'git' installed, please run this command with the --verbose flag and file a new issue with the command output here: https://github.com/withastro/astro/issues"
+				)
+			);
 		}
 		process.exit(1);
 	}

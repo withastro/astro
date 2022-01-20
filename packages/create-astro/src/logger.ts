@@ -61,11 +61,11 @@ export type LoggerEvent = 'debug' | 'info' | 'warn' | 'error';
 
 export let defaultLogLevel: LoggerLevel;
 if (process.argv.includes('--verbose')) {
-  defaultLogLevel = 'debug';
+	defaultLogLevel = 'debug';
 } else if (process.argv.includes('--silent')) {
-  defaultLogLevel = 'silent';
+	defaultLogLevel = 'silent';
 } else {
-  defaultLogLevel = 'info';
+	defaultLogLevel = 'info';
 }
 
 export interface LogOptions {
