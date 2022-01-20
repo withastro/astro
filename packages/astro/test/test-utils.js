@@ -82,10 +82,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
-		clean: () => {
-			console.log('[🧽 CLEANING UP]', config.dist.pathname);
-			return fs.promises.rm(config.dist, { maxRetries: 10, recursive: true, force: true });
-		},
+		clean: () => fs.promises.rm(config.dist, { maxRetries: 10, recursive: true, force: true }),
 	};
 }
 

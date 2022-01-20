@@ -15,19 +15,7 @@ describe('Sitemaps', () => {
 		await fixture.build();
 	});
 
-	after(async () => {
-		await fixture.clean();
-		try {
-			const files = await fixture.readdir('');
-			console.log('👎 UH OH... DIST CONTAINS FILES:', files);
-		} catch (error) {
-			if (error.code === 'ENOENT') {
-				console.log('👍 DIST CLEANED');
-			} else {
-				console.log(error);
-			}
-		}
-	});
+	after(async () => fixture.clean());
 
 	describe('RSS Generation', () => {
 		it('generates RSS correctly', async () => {
