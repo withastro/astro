@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.8.8
+
+### Patch Changes
+
+- 526d5c7: Bring back loading the user js/tsconfig.json, notably, this allow us to support aliases
+
 ## 0.8.7
 
 ### Patch Changes
