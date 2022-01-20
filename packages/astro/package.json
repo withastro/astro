@@ -124,6 +124,7 @@
     "@types/yargs-parser": "^20.2.1",
     "chai": "^4.3.4",
     "cheerio": "^1.0.0-rc.10",
+    "execa": "^6.0.0",
     "mocha": "^9.1.3"
   },
   "engines": {
