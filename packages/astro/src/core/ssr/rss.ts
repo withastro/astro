@@ -47,9 +47,12 @@ export function generateRSS(args: GenerateRSSArgs): string {
 		if (typeof result !== 'object') throw new Error(`[${srcFile}] rss.items expected an object. got: "${JSON.stringify(result)}"`);
 		if (!result.title) throw new Error(`[${srcFile}] rss.items required "title" property is missing. got: "${JSON.stringify(result)}"`);
 		if (!result.link) throw new Error(`[${srcFile}] rss.items required "link" property is missing. got: "${JSON.stringify(result)}"`);
+		let itemLink = result.link;
+		// If the item's link is already a valid URL, don't mess with it.
+		if (!/^(?:https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/i.test(url)) itemLink = canonicalURL(result.link, site).href;
 		xml += `<title><![CDATA[${result.title}]]></title>`;
-		xml += `<link>${canonicalURL(result.link, site).href}</link>`;
-		xml += `<guid>${canonicalURL(result.link, site).href}</guid>`;
+		xml += `<link>${itemLink}</link>`;
+		xml += `<guid>${itemLink}</guid>`;
 		if (result.description) xml += `<description><![CDATA[${result.description}]]></description>`;
 		if (result.pubDate) {
 			// note: this should be a Date, but if user provided a string or number, we can work with that, too.
