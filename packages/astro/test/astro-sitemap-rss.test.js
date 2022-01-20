@@ -15,7 +15,7 @@ describe('Sitemaps', () => {
 		await fixture.build();
 	});
 
-	after(async () => fixture.clean());
+	after(() => fixture.clean());
 
 	describe('RSS Generation', () => {
 		it('generates RSS correctly', async () => {
