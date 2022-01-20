@@ -49,7 +49,7 @@ export function generateRSS(args: GenerateRSSArgs): string {
 		if (!result.link) throw new Error(`[${srcFile}] rss.items required "link" property is missing. got: "${JSON.stringify(result)}"`);
 		let itemLink = result.link;
 		// If the item's link is already a valid URL, don't mess with it.
-		if (!/^(?:https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/i.test(url)) itemLink = canonicalURL(result.link, site).href;
+		if (!/^(?:https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/i.test(result.link)) itemLink = canonicalURL(result.link, site).href;
 		xml += `<title><![CDATA[${result.title}]]></title>`;
 		xml += `<link>${itemLink}</link>`;
 		xml += `<guid>${itemLink}</guid>`;
