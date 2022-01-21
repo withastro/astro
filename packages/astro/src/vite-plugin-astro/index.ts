@@ -19,6 +19,15 @@ interface AstroPluginOptions {
 
 /** Transform .astro files for Vite */
 export default function astro({ config, logging }: AstroPluginOptions): vite.Plugin {
+	function normalizeFilename(filename: string) {
+		if (filename.startsWith('/@fs')) {
+			filename = filename.slice('/@fs'.length);
+		} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
+			filename = new URL('.' + filename, config.projectRoot).pathname;
+		}
+		return filename;
+	}
+
 	let viteTransform: TransformHook;
 	return {
 		name: '@astrojs/vite-plugin-astro',
@@ -37,22 +46,36 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			let { filename, query } = parseAstroRequest(id);
 			if (query.astro) {
 				if (query.type === 'style') {
-					if (filename.startsWith('/@fs')) {
-						filename = filename.slice('/@fs'.length);
-					} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
-						filename = new URL('.' + filename, config.projectRoot).pathname;
-					}
-					const transformResult = await cachedCompilation(config, filename, null, viteTransform, opts);
-
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
 
+					const transformResult = await cachedCompilation(config,
+						normalizeFilename(filename), null, viteTransform, opts);
 					const csses = transformResult.css;
 					const code = csses[query.index];
 
 					return {
 						code,
+					};
+				} else if(query.type === 'script') {
+					if(typeof query.index === 'undefined') {
+						throw new Error(`Requests for hoisted scripts must include an index`);
+					}
+
+					const transformResult = await cachedCompilation(config,
+						normalizeFilename(filename), null, viteTransform, opts);
+					const scripts = transformResult.scripts;
+					const hoistedScript = scripts[query.index];
+
+					if(!hoistedScript) {
+						throw new Error(`No hoisted script at index ${query.index}`);
+					}
+
+					return {
+						code: hoistedScript.type === 'inline' ?
+							hoistedScript.code! :
+							`import "${hoistedScript.src!}";`
 					};
 				}
 			}

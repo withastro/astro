@@ -20,6 +20,7 @@ import { getParamsAndProps } from '../ssr/index.js';
 import { createResult } from '../ssr/result.js';
 import { renderPage } from '../../runtime/server/index.js';
 import { prepareOutDir } from './fs.js';
+import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -70,6 +71,12 @@ function* throttle(max: number, inPaths: string[]) {
 	}
 }
 
+function getByFacadeId<T>(facadeId: string, map: Map<string, T>): T | undefined {
+	return map.get(facadeId) ||
+		// Check with a leading `/` because on Windows it doesn't have one.
+		map.get('/' + facadeId);
+}
+
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
@@ -91,7 +98,12 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		jsInput.add(polyfill);
 	}
 
+	// Build internals needed by the CSS plugin
+	const internals = createBuildInternals();
+
 	for (const [component, pageData] of Object.entries(allPages)) {
+		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
+		const astroModuleId = astroModuleURL.pathname;
 		const [renderers, mod] = pageData.preload;
 		const metadata = mod.$$metadata;
 
@@ -104,17 +116,22 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			...renderers.filter((renderer) => !!renderer.source).map((renderer) => renderer.source!),
 		]);
 
+		// Add hoisted scripts
+		const hoistedScripts = new Set(metadata.hoistedScriptPaths());
+		if(hoistedScripts.size) {
+			const moduleId = new URL('./hoisted.js', astroModuleURL + '/').pathname;
+			internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
+			topLevelImports.add(moduleId);
+		}
+
 		for (const specifier of topLevelImports) {
 			jsInput.add(specifier);
 		}
 
-		let astroModuleId = new URL('./' + component, astroConfig.projectRoot).pathname;
+		
 		pageInput.add(astroModuleId);
 		facadeIdToPageDataMap.set(astroModuleId, pageData);
 	}
-
-	// Build internals needed by the CSS plugin
-	const internals = createBuildInternals();
 
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
@@ -189,6 +206,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		},
 		plugins: [
 			vitePluginNewBuild(input, internals, 'js'),
+			vitePluginHoistedScripts(internals),
 			rollupPluginAstroBuildCSS({
 				internals,
 			}),
@@ -249,16 +267,14 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 
 	let url = new URL('./' + output.fileName, astroConfig.dist);
 	const facadeId: string = output.facadeModuleId as string;
-	let pageData =
-		facadeIdToPageDataMap.get(facadeId) ||
-		// Check with a leading `/` because on Windows it doesn't have one.
-		facadeIdToPageDataMap.get('/' + facadeId);
+	let pageData = getByFacadeId<PageBuildData>(facadeId, facadeIdToPageDataMap);
 
 	if (!pageData) {
 		throw new Error(`Unable to find a PageBuildData for the Astro page: ${facadeId}. There are the PageBuilDatas we have ${Array.from(facadeIdToPageDataMap.keys()).join(', ')}`);
 	}
 
-	let linkIds = internals.facadeIdToAssetsMap.get(facadeId) || [];
+	const linkIds = getByFacadeId<string[]>(facadeId, internals.facadeIdToAssetsMap) || [];
+	const hoistedId = getByFacadeId<string>(facadeId, internals.facadeIdToHoistedEntryMap) || null;
 
 	let compiledModule = await import(url.toString());
 	let Component = compiledModule.default;
@@ -267,6 +283,7 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 		pageData,
 		internals,
 		linkIds,
+		hoistedId,
 		Component,
 		renderers,
 	};
@@ -288,13 +305,14 @@ interface GeneratePathOptions {
 	pageData: PageBuildData;
 	internals: BuildInternals;
 	linkIds: string[];
+	hoistedId: string | null;
 	Component: AstroComponentFactory;
 	renderers: Renderer[];
 }
 
 async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: GeneratePathOptions) {
-	const { astroConfig, logging, origin, pageNames, routeCache } = opts;
-	const { Component, internals, linkIds, pageData, renderers } = gopts;
+	const { astroConfig, logging, origin, routeCache } = opts;
+	const { Component, internals, linkIds, hoistedId, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	addPageName(pathname, opts);
@@ -316,8 +334,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		debug(logging, 'generate', `Generating: ${pathname}`);
 
 		const rootpath = new URL(astroConfig.buildOptions.site || 'http://localhost/').pathname;
-		const result = createResult({ astroConfig, logging, origin, params, pathname, renderers });
-		result.links = new Set<SSRElement>(
+		const links = new Set<SSRElement>(
 			linkIds.map((href) => ({
 				props: {
 					rel: 'stylesheet',
@@ -326,6 +343,14 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 				children: '',
 			}))
 		);
+		const scripts = hoistedId ? new Set<SSRElement>([{
+			props: {
+				type: 'module',
+				src: npath.posix.join(rootpath, hoistedId),
+			},
+			children: ''
+		}]) : new Set<SSRElement>();
+		const result = createResult({ astroConfig, logging, origin, params, pathname, renderers, links, scripts });
 
 		// Override the `resolve` method so that hydrated components are given the
 		// hashed filepath to the component.

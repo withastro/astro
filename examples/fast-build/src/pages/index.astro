@@ -4,6 +4,8 @@ import grayscaleUrl from '../images/random.jpg?grayscale=true';
 import Greeting from '../components/Greeting.vue';
 import Counter from '../components/Counter.vue';
 import { Code } from 'astro/components';
+import InlineHoisted from '../components/InlineHoisted.astro';
+import ExternalHoisted from '../components/ExternalHoisted.astro';
 ---
 
 <html>
@@ -44,5 +46,11 @@ import { Code } from 'astro/components';
     <h1>Hydrated component</h1>
     <Counter client:idle />
   </section>
+
+	<section>
+		<h1>Hoisted scripts</h1>
+		<InlineHoisted />
+		<ExternalHoisted />
+	</section>
 </body>
 </html>

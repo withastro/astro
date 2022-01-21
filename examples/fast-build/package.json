@@ -11,6 +11,7 @@
   },
   "devDependencies": {
     "astro": "^0.22.16",
+    "preact": "~10.5.15",
     "unocss": "^0.15.5",
     "vite-imagetools": "^4.0.1"
   }
