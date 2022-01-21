@@ -7,6 +7,7 @@ import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
 import os from 'os';
+
 /**
  * @typedef {import('node-fetch').Response} Response
  * @typedef {import('../src/core/dev/index').DevServer} DevServer
@@ -21,12 +22,13 @@ import os from 'os';
  * @property {(path: string) => Promise<string[]>} readdir
  * @property {() => Promise<DevServer>} startDevServer
  * @property {() => Promise<PreviewServer>} preview
+ * @property {() => Promise<void>} clean
  */
 
 /**
  * Load Astro fixture
  * @param {AstroConfig} inlineConfig Astro config partial (note: must specify projectRoot)
- * @returns {Fixture} The fixture. Has the following properties:
+ * @returns {Promise<Fixture>} The fixture. Has the following properties:
  *   .config     - Returns the final config. Will be automatically passed to the methods below:
  *
  *   Build
@@ -39,6 +41,9 @@ import os from 'os';
  *
  *   Preview
  *   .preview()        - Async. Starts a preview server. Note this can’t be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
+ *
+ *   Clean-up
+ *   .clean()          - Async. Removes the project’s dist folder.
  */
 export async function loadFixture(inlineConfig) {
 	if (!inlineConfig || !inlineConfig.projectRoot) throw new Error("Must provide { projectRoot: './fixtures/...' }");
@@ -77,6 +82,7 @@ export async function loadFixture(inlineConfig) {
 		},
 		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
+		clean: () => fs.promises.rm(config.dist, { maxRetries: 10, recursive: true, force: true }),
 	};
 }
 
