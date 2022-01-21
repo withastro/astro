@@ -9,33 +9,44 @@ export type { Metadata } from './metadata';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 
+const typeOf = (value: any, type = typeof value) => (
+	value === null
+		? 'null'
+	: type === 'object'
+		? Object.prototype.toString.call(value) === '[object AstroComponent]'
+			? 'astro-component'
+		: Symbol.iterator in value
+			? 'iterable'
+		: typeof value.then === 'function'
+			? 'promise'
+		: type
+	: type
+);
+
+const isObject = (value: any) => value === Object(value)
+const toString = (value: any) => !isObject(value) || Symbol.toPrimitive in value || 'toString' in value ? String(value) : ''
+
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
 
-// Used to render slots and expressions
-// INVESTIGATE: Can we have more specific types both for the argument and output?
-// If these are intentional, add comments that these are intention and why.
-// Or maybe type UserValue = any; ?
-async function _render(child: any): Promise<any> {
-	child = await child;
-	if (Array.isArray(child)) {
-		return (await Promise.all(child.map((value) => _render(value)))).join('');
-	} else if (typeof child === 'function') {
-		// Special: If a child is a function, call it automatically.
-		// This lets you do {() => ...} without the extra boilerplate
-		// of wrapping it in a function and calling it.
-		return _render(child());
-	} else if (typeof child === 'string') {
-		return child;
-	} else if (!child && child !== 0) {
-		// do nothing, safe to ignore falsey values.
-	}
-	// Add a comment explaining why each of these are needed.
-	// Maybe create clearly named function for what this is doing.
-	else if (child instanceof AstroComponent || Object.prototype.toString.call(child) === '[object AstroComponent]') {
-		return await renderAstroComponent(child);
-	} else {
-		return child;
+/** Render slots and expressions. */
+async function _render(child: any): Promise<string> {
+	switch (typeOf(child)) {
+		case 'null':
+		case 'undefined':
+		case child === '' && 'string':
+		case child === false && 'boolean':
+			return ''
+		case 'astro-component':
+			return renderAstroComponent(child)
+		case 'iterable':
+			return Promise.all(Array.from(child, _render)).then(array => array.join(''))
+		case 'promise':
+			return child.then(_render)
+		case 'function':
+			return _render(child())
+		default:
+			return toString(child)
 	}
 }
 
@@ -306,32 +317,42 @@ export function createAstro(filePathname: string, site: string, projectRootStr: 
 	};
 }
 
-const toAttributeString = (value: any) => String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;');
+const toAttributeString = (value: any): string => String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;');
 
 // A helper used to turn expressions into attribute key/value
-export function addAttribute(value: any, key: string) {
-	if (value == null || value === false) {
-		return '';
-	}
-
+export async function addAttribute(value: any, key: string): Promise<string> {
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
 		return ` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`;
 	}
 
-	// Boolean only needs the key
-	if (value === true && key.startsWith('data-')) {
-		return ` ${key}`;
-	} else {
-		return ` ${key}="${toAttributeString(value)}"`;
+	const attributeValue = await getAttributeValue(value)
+
+	return attributeValue === '' ? ` ${key}` : ` ${key}="${attributeValue}"`
+}
+
+// A helper used to turn expressions into attribute key/value
+export async function getAttributeValue(value: any): Promise<string> {
+	switch (typeOf(value)) {
+		case 'null':
+		case 'undefined':
+		case value === '' && 'string':
+		case value === false && 'boolean':
+			return ''
+		case 'iterable':
+			return (await Promise.all(Array.from(value, getAttributeValue))).join('')
+		case 'promise':
+			return value.then(getAttributeValue)
+		default:
+			return toAttributeString(toString(value))
 	}
 }
 
 // Adds support for `<Component {...value} />
-export function spreadAttributes(values: Record<any, any>) {
+export async function spreadAttributes(values: Record<any, any>) {
 	let output = '';
 	for (const [key, value] of Object.entries(values)) {
-		output += addAttribute(value, key);
+		output += await addAttribute(value, key);
 	}
 	return output;
 }
@@ -414,7 +435,7 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 	let template = '';
 
 	for await (const value of component) {
-		if (value || value === 0) {
+		if (value) {
 			template += value;
 		}
 	}
