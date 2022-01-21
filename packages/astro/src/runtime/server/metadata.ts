@@ -81,10 +81,11 @@ export class Metadata {
 		}
 	}
 
-	* hoistedScriptPaths() {
-		for(const metadata of this.deepMetadata()) {
-			let i = 0, pathname = metadata.mockURL.pathname;
-			while(i < metadata.hoisted.length) {
+	*hoistedScriptPaths() {
+		for (const metadata of this.deepMetadata()) {
+			let i = 0,
+				pathname = metadata.mockURL.pathname;
+			while (i < metadata.hoisted.length) {
 				yield `${pathname}?astro&type=script&index=${i}`;
 				i++;
 			}

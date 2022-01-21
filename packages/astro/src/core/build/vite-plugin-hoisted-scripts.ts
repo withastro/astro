@@ -10,19 +10,19 @@ export function vitePluginHoistedScripts(internals: BuildInternals): VitePlugin 
 		name: '@astro/rollup-plugin-astro-hoisted-scripts',
 
 		resolveId(id) {
-			if(virtualHoistedEntry(id)) {
+			if (virtualHoistedEntry(id)) {
 				return id;
 			}
 		},
 
 		load(id) {
-			if(virtualHoistedEntry(id)) {
+			if (virtualHoistedEntry(id)) {
 				let code = '';
-				for(let path of internals.hoistedScriptIdToHoistedMap.get(id)!) {
-					code += `import "${path}";`
+				for (let path of internals.hoistedScriptIdToHoistedMap.get(id)!) {
+					code += `import "${path}";`;
 				}
 				return {
-					code
+					code,
 				};
 			}
 			return void 0;
@@ -31,13 +31,13 @@ export function vitePluginHoistedScripts(internals: BuildInternals): VitePlugin 
 		async generateBundle(_options, bundle) {
 			// Find all page entry points and create a map of the entry point to the hashed hoisted script.
 			// This is used when we render so that we can add the script to the head.
-			for(const [id, output] of Object.entries(bundle)) {
-				if(output.type === 'chunk' && output.facadeModuleId && virtualHoistedEntry(output.facadeModuleId)) {
+			for (const [id, output] of Object.entries(bundle)) {
+				if (output.type === 'chunk' && output.facadeModuleId && virtualHoistedEntry(output.facadeModuleId)) {
 					const facadeId = output.facadeModuleId!;
-					const filename = facadeId.slice(0, facadeId.length - "/hoisted.js".length);
+					const filename = facadeId.slice(0, facadeId.length - '/hoisted.js'.length);
 					internals.facadeIdToHoistedEntryMap.set(filename, id);
 				}
 			}
-		}
+		},
 	};
 }

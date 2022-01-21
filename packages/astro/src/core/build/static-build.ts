@@ -72,9 +72,11 @@ function* throttle(max: number, inPaths: string[]) {
 }
 
 function getByFacadeId<T>(facadeId: string, map: Map<string, T>): T | undefined {
-	return map.get(facadeId) ||
+	return (
+		map.get(facadeId) ||
 		// Check with a leading `/` because on Windows it doesn't have one.
-		map.get('/' + facadeId);
+		map.get('/' + facadeId)
+	);
 }
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -118,7 +120,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 		// Add hoisted scripts
 		const hoistedScripts = new Set(metadata.hoistedScriptPaths());
-		if(hoistedScripts.size) {
+		if (hoistedScripts.size) {
 			const moduleId = new URL('./hoisted.js', astroModuleURL + '/').pathname;
 			internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
 			topLevelImports.add(moduleId);
@@ -128,7 +130,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			jsInput.add(specifier);
 		}
 
-		
 		pageInput.add(astroModuleId);
 		facadeIdToPageDataMap.set(astroModuleId, pageData);
 	}
@@ -343,13 +344,17 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 				children: '',
 			}))
 		);
-		const scripts = hoistedId ? new Set<SSRElement>([{
-			props: {
-				type: 'module',
-				src: npath.posix.join(rootpath, hoistedId),
-			},
-			children: ''
-		}]) : new Set<SSRElement>();
+		const scripts = hoistedId
+			? new Set<SSRElement>([
+					{
+						props: {
+							type: 'module',
+							src: npath.posix.join(rootpath, hoistedId),
+						},
+						children: '',
+					},
+			  ])
+			: new Set<SSRElement>();
 		const result = createResult({ astroConfig, logging, origin, params, pathname, renderers, links, scripts });
 
 		// Override the `resolve` method so that hydrated components are given the

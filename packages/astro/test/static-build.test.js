@@ -92,6 +92,6 @@ describe('Static build', () => {
 			const indexHTML = await fixture.readFile('/index.html');
 			const $$ = cheerio.load(indexHTML);
 			expect($$(`script[src="${href}"]`).length).to.equal(0, 'no script added to different page');
-		})
+		});
 	});
 });

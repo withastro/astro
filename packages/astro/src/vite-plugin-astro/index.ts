@@ -50,32 +50,28 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
 
-					const transformResult = await cachedCompilation(config,
-						normalizeFilename(filename), null, viteTransform, opts);
+					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
 					const csses = transformResult.css;
 					const code = csses[query.index];
 
 					return {
 						code,
 					};
-				} else if(query.type === 'script') {
-					if(typeof query.index === 'undefined') {
+				} else if (query.type === 'script') {
+					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
 
-					const transformResult = await cachedCompilation(config,
-						normalizeFilename(filename), null, viteTransform, opts);
+					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
 					const scripts = transformResult.scripts;
 					const hoistedScript = scripts[query.index];
 
-					if(!hoistedScript) {
+					if (!hoistedScript) {
 						throw new Error(`No hoisted script at index ${query.index}`);
 					}
 
 					return {
-						code: hoistedScript.type === 'inline' ?
-							hoistedScript.code! :
-							`import "${hoistedScript.src!}";`
+						code: hoistedScript.type === 'inline' ? hoistedScript.code! : `import "${hoistedScript.src!}";`,
 					};
 				}
 			}
