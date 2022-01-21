@@ -219,6 +219,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 	if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
+
 	// Add hoisted script tags
 	const scripts = astroConfig.buildOptions.experimentalStaticBuild
 		? new Set<SSRElement>(
@@ -228,6 +229,18 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 				}))
 		  )
 		: new Set<SSRElement>();
+
+	// Inject HMR scripts
+	if(mode === 'development' && astroConfig.buildOptions.experimentalStaticBuild) {
+		scripts.add({
+			props: { type: 'module', src: '/@vite/client' },
+			children: '',
+		});
+		scripts.add({
+			props: { type: 'module', src: new URL('../../runtime/client/hmr.js', import.meta.url).pathname },
+			children: '',
+		});
+	}
 
 	const result = createResult({ astroConfig, logging, origin, params, pathname, renderers, scripts });
 	// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/renderer-preact/client.js"
@@ -249,7 +262,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	const tags: vite.HtmlTagDescriptor[] = [];
 
 	// dev only: inject Astro HMR client
-	if (mode === 'development') {
+	if (mode === 'development' && !astroConfig.buildOptions.experimentalStaticBuild) {
 		tags.push({
 			tag: 'script',
 			attrs: { type: 'module' },
