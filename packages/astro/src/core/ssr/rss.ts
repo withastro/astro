@@ -83,13 +83,14 @@ export function generateRSSStylesheet() {
 }
 
 /** Generated function to be run  */
-export function generateRssFunction(site: string | undefined, route: RouteData): { generator: RSSFunction; rss?: RSSResult } {
-	let result: RSSResult = {} as any;
+export function generateRssFunction(site: string | undefined, route: RouteData): { generator: RSSFunction; rss?: RSSResult[] } {
+	let results: RSSResult[] = [];
 	return {
 		generator: function rssUtility(args: RSS) {
 			if (!site) {
 				throw new Error(`[${route.component}] rss() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
 			}
+			let result: RSSResult = {} as any;
 			const { dest, ...rssData } = args;
 			const feedURL = dest || '/rss.xml';
 			if (rssData.stylesheet === true) {
@@ -107,7 +108,8 @@ export function generateRssFunction(site: string | undefined, route: RouteData):
 				url: feedURL,
 				content: generateRSS({ rssData, site, srcFile: route.component, feedURL }),
 			};
+			results.push(result);
 		},
-		rss: result,
+		rss: results,
 	};
 }
