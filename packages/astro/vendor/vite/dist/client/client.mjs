@@ -199,6 +199,11 @@ function warnFailedFetch(err, path) {
 socket.addEventListener('message', async ({ data }) => {
     handleMessage(JSON.parse(data));
 });
+
+/**
+ * This cleans up the query params and removes the `direct` param which is internal.
+ *  Other query params are preserved.
+ */
 function cleanUrl(pathname) {
   let url = new URL(pathname, location);
   url.searchParams.delete('direct');
