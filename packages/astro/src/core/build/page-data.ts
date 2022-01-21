@@ -78,25 +78,30 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 					debug(logging, 'build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
 					throw err;
 				});
-			if (result.rss?.xml) {
-				const { url, content } = result.rss.xml;
-				if (content) {
-					const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
-					if (assets[fileURLToPath(rssFile)]) {
-						throw new Error(`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
+			if (result.rss?.length) {
+				for (let i = 0; i < result.rss.length; i++) {
+					const rss = result.rss[i];
+					if (rss.xml) {
+						const { url, content } = rss.xml;
+						if (content) {
+							const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+							if (assets[fileURLToPath(rssFile)]) {
+								throw new Error(`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
+							}
+							assets[fileURLToPath(rssFile)] = content;
+						}
 					}
-					assets[fileURLToPath(rssFile)] = content;
+					if (rss.xsl?.content) {
+						const { url, content } = rss.xsl;
+						const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+						if (assets[fileURLToPath(stylesheetFile)]) {
+							throw new Error(
+								`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
+							);
+						}
+						assets[fileURLToPath(stylesheetFile)] = content;
+					}	
 				}
-			}
-			if (result.rss?.xsl?.content) {
-				const { url, content } = result.rss.xsl;
-				const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
-				if (assets[fileURLToPath(stylesheetFile)]) {
-					throw new Error(
-						`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
-					);
-				}
-				assets[fileURLToPath(stylesheetFile)] = content;
 			}
 			allPages[route.component] = {
 				route,
@@ -119,7 +124,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 	return { assets, allPages };
 }
 
-async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: RouteData): Promise<{ paths: string[]; rss?: RSSResult }> {
+async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: RouteData): Promise<{ paths: string[]; rss?: RSSResult[] }> {
 	const { astroConfig, logging, routeCache, viteServer } = opts;
 	if (!viteServer) throw new Error(`vite.createServer() not called!`);
 	const filePath = new URL(`./${route.component}`, astroConfig.projectRoot);

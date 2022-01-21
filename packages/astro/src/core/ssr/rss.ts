@@ -1,7 +1,7 @@
 import type { RSSFunction, RSS, RSSResult, FeedResult, RouteData } from '../../@types/astro';
 
 import { XMLValidator } from 'fast-xml-parser';
-import { canonicalURL, PRETTY_FEED_V3 } from '../util.js';
+import { canonicalURL, isValidURL, PRETTY_FEED_V3 } from '../util.js';
 
 /** Validates getStaticPaths.rss */
 export function validateRSS(args: GenerateRSSArgs): void {
@@ -48,8 +48,10 @@ export function generateRSS(args: GenerateRSSArgs): string {
 		if (!result.title) throw new Error(`[${srcFile}] rss.items required "title" property is missing. got: "${JSON.stringify(result)}"`);
 		if (!result.link) throw new Error(`[${srcFile}] rss.items required "link" property is missing. got: "${JSON.stringify(result)}"`);
 		xml += `<title><![CDATA[${result.title}]]></title>`;
-		xml += `<link>${canonicalURL(result.link, site).href}</link>`;
-		xml += `<guid>${canonicalURL(result.link, site).href}</guid>`;
+		// If the item's link is already a valid URL, don't mess with it.
+		const itemLink = isValidURL(result.link) ? result.link : canonicalURL(result.link, site).href;
+		xml += `<link>${itemLink}</link>`;
+		xml += `<guid>${itemLink}</guid>`;
 		if (result.description) xml += `<description><![CDATA[${result.description}]]></description>`;
 		if (result.pubDate) {
 			// note: this should be a Date, but if user provided a string or number, we can work with that, too.
@@ -81,13 +83,14 @@ export function generateRSSStylesheet() {
 }
 
 /** Generated function to be run  */
-export function generateRssFunction(site: string | undefined, route: RouteData): { generator: RSSFunction; rss?: RSSResult } {
-	let result: RSSResult = {} as any;
+export function generateRssFunction(site: string | undefined, route: RouteData): { generator: RSSFunction; rss?: RSSResult[] } {
+	let results: RSSResult[] = [];
 	return {
 		generator: function rssUtility(args: RSS) {
 			if (!site) {
 				throw new Error(`[${route.component}] rss() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
 			}
+			let result: RSSResult = {} as any;
 			const { dest, ...rssData } = args;
 			const feedURL = dest || '/rss.xml';
 			if (rssData.stylesheet === true) {
@@ -105,7 +108,8 @@ export function generateRssFunction(site: string | undefined, route: RouteData):
 				url: feedURL,
 				content: generateRSS({ rssData, site, srcFile: route.component, feedURL }),
 			};
+			results.push(result);
 		},
-		rss: result,
+		rss: results,
 	};
 }
