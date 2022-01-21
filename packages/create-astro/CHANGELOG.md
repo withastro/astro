@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.7.1
+
+### Patch Changes
+
+- [#2429](https://github.com/withastro/astro/pull/2429) [`fda857eb`](https://github.com/withastro/astro/commit/fda857eb22508f55233e297a887b356ea7b87398) Thanks [@Mikkel-T](https://github.com/Mikkel-T)! - Added an option to create-astro to use verbose logging which should help debug degit issues
+
 ## 0.7.0
 
 ### Minor Changes
