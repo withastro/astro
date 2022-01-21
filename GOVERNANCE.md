@@ -41,7 +41,6 @@ Have you done something (big or small) to contribute to the health, success, or 
 
 - New role on [Discord](https://astro.build/chat): `@contributor`
 - New name color on Discord: **light blue**.
-- Access to exclusive Astro emotes on Discord.
 - Invitations to contributor-only events, sticker drops, and the occasional swag drop.
 
 #### Responsibilities
@@ -101,7 +100,7 @@ There is no strict minimum number of contributions needed to reach this level, a
 
 #### Nomination
 
-To be nominated, a nominee is expected to already be performing some of the responsibilities of a Maintainer over the course of at least a couple of weeks. In the past we have used **10 merged pull requests** as a rough minimum for potential Maintainers, but there is no hard requirement.
+To be nominated, a nominee is expected to already be performing some of the responsibilities of a Maintainer over the course of at least a couple of weeks.
 
 In some rare cases, this role may be revoked by a project Steward. However, under normal circumstances this role is granted for as long as the contributor wishes to engage with the project.
 
@@ -126,7 +125,7 @@ Some contributors will not reach this level, and that's okay! L2 Maintainers sti
 - All privileges of the [Maintainer role](#level-2---maintainer), plus...
 - All of the privileges of L2, including...
 - `@core` role on [Discord](https://astro.build/chat)
-- New name color on Discord: **deep, dark blue**.
+- New name color on Discord: **yellow**.
 - Invitation to the private #core channel on Discord.
 - Invitation to the `core` team on GitHub.
 - Ability to merge all GitHub PRs.
@@ -205,13 +204,13 @@ This process kicks off once a valid nomination has been made. See ["Maintainer -
 **Who can vote:** All Maintainers (L2 and above).
 
 1. A vote thread should be created in Discord #maintainers channel (the private channel for all maintainers).
-2. A vote thread can be created by any core maintainer, or the Steward.
-3. Once a vote thread is created, existing Core Maintainers can discuss the nomination in private.
+2. A vote thread can be created by any maintainer, core maintainer, or the Steward.
+3. Once a vote thread is created, existing Maintainers can discuss the nomination in private.
 4. The normal 3 day voting & discussion window begins with the thread creation.
 5. Voting can be done in the thread (visible to other voters) or in a private DM to the project Steward.
 6. Once the vote is complete, the thread is deleted.
 7. The vote must receive an overwhelming majority (70%+) to pass.
-8. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
+8. **If the vote passes:** the nominee will be made a Maintainer and all privileges will be made available to them.
 9. **If the vote fails:** the project Steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
 
 #### Draft message to send to accepted maintainer, informing them of the decision:
@@ -244,14 +243,14 @@ This process kicks off once a valid nomination has been made. See ["Core Maintai
 **Who can vote:** All Core Maintainers (L3 and above).
 
 1. A vote thread should be created in Discord #core channel (the private channel for core maintainers).
-1. A vote thread can be created by any core maintainer, or the Steward.
-1. Once a vote thread is created, existing Core Maintainers can discuss the nomination in private.
-1. The normal 3 day voting & discussion window begins with the thread creation.
-1. Voting can be done in the thread (visible to other voters) or in a private DM to the project Steward.
-1. Once the vote is complete, the thread is deleted.
-1. The vote must receive an overwhelming majority (70%+) to pass.
-1. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
-1. **If the vote fails:** the project Steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
+2. A vote thread can be created by any core maintainer, or the Steward.
+3. Once a vote thread is created, existing Core Maintainers can discuss the nomination in private.
+4. The normal 3 day voting & discussion window begins with the thread creation.
+5. Voting can be done in the thread (visible to other voters) or in a private DM to the project Steward.
+6. Once the vote is complete, the thread is deleted.
+7. The vote must receive an overwhelming majority (70%+) to pass.
+8. **If the vote passes:** the nominee will be made a Core Maintainer and all privileges will be made available to them.
+9. **If the vote fails:** the project Steward is responsible for informing the nominee with constructive, actionable feedback. (Note: this is not required if the nomination was made in the #core channel, or if the nominee was otherwise not made aware of their nomination).
 
 #### Draft message to send to accepted maintainer, informing them of the decision:
 

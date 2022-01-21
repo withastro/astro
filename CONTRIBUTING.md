@@ -126,7 +126,7 @@ Understanding in which environment code runs, and at which stage in the process,
 
 ## Releasing Astro
 
-_Note: Only priviledged contributors (L3+) can release new versions of Astro._
+_Note: Only core contributors (L3+) can release new versions of Astro._
 
 The repo is set up with automatic releases, using the changeset GitHub action & bot.
 
