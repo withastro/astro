@@ -100,7 +100,7 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 							);
 						}
 						assets[fileURLToPath(stylesheetFile)] = content;
-					}	
+					}
 				}
 			}
 			allPages[route.component] = {

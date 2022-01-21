@@ -16,9 +16,9 @@ export function canonicalURL(url: string, base?: string): URL {
 }
 
 /** Check if a URL is already valid */
-export function isValidURL(url: string):boolean {
+export function isValidURL(url: string): boolean {
 	try {
-		new URL(url)
+		new URL(url);
 		return true;
 	} catch (e) {}
 	return false;
