@@ -49,7 +49,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				// Convert /src/pages/index.astro?astro&type=style to /Users/name/
 				// Because this needs to be the id for the Vite CSS plugin to property resolve
 				// relative @imports.
-				if(query.type === 'style' && isBrowserPath(id)) {
+				if (query.type === 'style' && isBrowserPath(id)) {
 					const outId = npath.posix.join(config.projectRoot.pathname, id);
 					return outId;
 				}

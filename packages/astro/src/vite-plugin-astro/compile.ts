@@ -52,7 +52,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
 			// When using this flag CSS because <link> and therefore goes through Vite's
 			// CSS pipeline. We don't need to transform here.
-			if(config.buildOptions.experimentalStaticBuild) {
+			if (config.buildOptions.experimentalStaticBuild) {
 				return { code: value };
 			}
 

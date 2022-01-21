@@ -219,7 +219,6 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	if (!Component) throw new Error(`Expected an exported Astro component but received typeof ${typeof Component}`);
 	if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
-
 	// Add hoisted script tags
 	const scripts = astroConfig.buildOptions.experimentalStaticBuild
 		? new Set<SSRElement>(
@@ -231,7 +230,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 		: new Set<SSRElement>();
 
 	// Inject HMR scripts
-	if(mode === 'development' && astroConfig.buildOptions.experimentalStaticBuild) {
+	if (mode === 'development' && astroConfig.buildOptions.experimentalStaticBuild) {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
