@@ -32,7 +32,7 @@ export function getStaticPaths({paginate, rss}) {
       `<itunes:author>MF Doom</itunes:author>`,
     items: episodes.map((episode) => ({
       title: episode.title,
-      link: `https://example.com/${episode.url}`,
+      link: `https://example.com${episode.url}/`,
       description: episode.description,
       pubDate: episode.pubDate + 'Z',
       customData: `<itunes:episodeType>${episode.type}</itunes:episodeType>` +
