@@ -12,12 +12,12 @@ export function validateRSS(args: GenerateRSSArgs): void {
 	if (!Array.isArray(rssData.items)) throw new Error(`[${srcFile}] rss.items should be an array of items`);
 }
 
-type GenerateRSSArgs = { site: string; rssData: RSS; srcFile: string; feedURL: string };
+type GenerateRSSArgs = { site: string; rssData: RSS; srcFile: string };
 
 /** Generate RSS 2.0 feed */
 export function generateRSS(args: GenerateRSSArgs): string {
 	validateRSS(args);
-	const { srcFile, feedURL, rssData, site } = args;
+	const { srcFile, rssData, site } = args;
 	if ((rssData as any).item) throw new Error(`[${srcFile}] rss() \`item()\` function was deprecated, and is now \`items: object[]\`.`);
 
 	let xml = `<?xml version="1.0" encoding="UTF-8"?>`;
@@ -38,7 +38,7 @@ export function generateRSS(args: GenerateRSSArgs): string {
 	// title, description, customData
 	xml += `<title><![CDATA[${rssData.title}]]></title>`;
 	xml += `<description><![CDATA[${rssData.description}]]></description>`;
-	xml += `<link>${canonicalURL(feedURL, site).href}</link>`;
+	xml += `<link>${canonicalURL(site).href}</link>`;
 	if (typeof rssData.customData === 'string') xml += rssData.customData;
 	// items
 	for (const result of rssData.items) {
@@ -106,7 +106,7 @@ export function generateRssFunction(site: string | undefined, route: RouteData):
 			}
 			result.xml = {
 				url: feedURL,
-				content: generateRSS({ rssData, site, srcFile: route.component, feedURL }),
+				content: generateRSS({ rssData, site, srcFile: route.component }),
 			};
 			results.push(result);
 		},
