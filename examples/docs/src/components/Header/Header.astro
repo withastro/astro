@@ -20,7 +20,7 @@ const lang = currentPage && getLanguageFromURL(currentPage);
 		<div class="logo flex">
 			<AstroLogo size={40} />
 			<a href="/">
-				<h1>Documentation</h1>
+				<h1>{CONFIG.SITE.title ?? "Documentation"}</h1>
 			</a>
 		</div>
 		<div style="flex-grow: 1;"></div>
