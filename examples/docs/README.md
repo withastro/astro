@@ -143,9 +143,22 @@ export const SIDEBAR = {
 // ...
 ```
 
+If you plan to use Spanish as the the default language, you just need to modify the redirect path in `src/pages/index.astro`:
+
+```diff
+<script>
+-	window.location.pathname = `/en/introduction`;
++ window.location.pathname = `/es/introduction`;
+</script>
+```
+
+You can also remove the above script and write a landing page in Spanish instead.
+
 ### What if I don't plan to support multiple languages?
 
 That's totally fine! Not all projects need (or can support) multiple languages. You can continue to use this theme without ever adding a second language.
+
+If that single language is not English, you can just replace `en` in directory layouts and configurations with the preferred language.
 
 ### Search (Powered by Algolia)
 
