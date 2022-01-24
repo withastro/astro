@@ -199,16 +199,6 @@ function warnFailedFetch(err, path) {
 socket.addEventListener('message', async ({ data }) => {
     handleMessage(JSON.parse(data));
 });
-
-/**
- * This cleans up the query params and removes the `direct` param which is internal.
- *  Other query params are preserved.
- */
-function cleanUrl(pathname) {
-  let url = new URL(pathname, location);
-  url.searchParams.delete('direct');
-  return url.pathname + url.search;
-}
 let isFirstUpdate = true;
 async function handleMessage(payload) {
     switch (payload.type) {
@@ -240,13 +230,11 @@ async function handleMessage(payload) {
                     // css-update
                     // this is only sent when a css file referenced with <link> is updated
                     let { path, timestamp } = update;
-                    let searchUrl = cleanUrl(path);
+                    path = path.replace(/\?.*/, '');
                     // can't use querySelector with `[href*=]` here since the link may be
                     // using relative paths so we need to use link.href to grab the full
                     // URL for the include check.
-                    const el = [].slice.call(document.querySelectorAll(`link`)).find((e) => {
-                      return cleanUrl(e.href).includes(searchUrl)
-                    });
+                    const el = Array.from(document.querySelectorAll('link')).find((e) => e.href.includes(path));
                     if (el) {
                         const newPath = `${base}${path.slice(1)}${path.includes('?') ? '&' : '?'}t=${timestamp}`;
                         el.href = new URL(newPath, el.href).href;
@@ -389,8 +377,6 @@ function removeStyle(id) {
     const style = sheetsMap.get(id);
     if (style) {
         if (style instanceof CSSStyleSheet) {
-            // @ts-ignore
-            document.adoptedStyleSheets.indexOf(style);
             // @ts-ignore
             document.adoptedStyleSheets = document.adoptedStyleSheets.filter((s) => s !== style);
         }

@@ -12,11 +12,11 @@ import { EventEmitter } from 'events';
 import * as events from 'events';
 import * as fs from 'fs';
 import * as http from 'http';
-import * as https from 'https';
 import { IncomingMessage } from 'http';
 import { InputOptions } from 'rollup';
 import { LoadResult } from 'rollup';
 import { ModuleFormat } from 'rollup';
+import { ModuleInfo } from 'rollup';
 import * as net from 'net';
 import { OutgoingHttpHeaders } from 'http';
 import { OutputBundle } from 'rollup';
@@ -35,8 +35,8 @@ import { SecureContextOptions } from 'tls';
 import { Server } from 'http';
 import { Server as Server_2 } from 'https';
 import { Server as Server_3 } from 'net';
+import { ServerOptions as ServerOptions_2 } from 'https';
 import { ServerResponse } from 'http';
-import { Socket } from 'net';
 import { SourceDescription } from 'rollup';
 import { SourceMap } from 'rollup';
 import * as stream from 'stream';
@@ -253,6 +253,63 @@ export declare interface BuildOptions {
      * https://rollupjs.org/guide/en/#watchoptions
      */
     watch?: WatcherOptions | null;
+}
+
+export declare interface CommonServerOptions {
+    /**
+     * Specify server port. Note if the port is already being used, Vite will
+     * automatically try the next available port so this may not be the actual
+     * port the server ends up listening on.
+     */
+    port?: number;
+    /**
+     * If enabled, vite will exit if specified port is already in use
+     */
+    strictPort?: boolean;
+    /**
+     * Specify which IP addresses the server should listen on.
+     * Set to 0.0.0.0 to listen on all addresses, including LAN and public addresses.
+     */
+    host?: string | boolean;
+    /**
+     * Enable TLS + HTTP/2.
+     * Note: this downgrades to TLS only when the proxy option is also used.
+     */
+    https?: boolean | ServerOptions_2;
+    /**
+     * Open browser window on startup
+     */
+    open?: boolean | string;
+    /**
+     * Configure custom proxy rules for the dev server. Expects an object
+     * of `{ key: options }` pairs.
+     * Uses [`http-proxy`](https://github.com/http-party/node-http-proxy).
+     * Full options [here](https://github.com/http-party/node-http-proxy#options).
+     *
+     * Example `vite.config.js`:
+     * ``` js
+     * module.exports = {
+     *   proxy: {
+     *     // string shorthand
+     *     '/foo': 'http://localhost:4567/foo',
+     *     // with options
+     *     '/api': {
+     *       target: 'http://jsonplaceholder.typicode.com',
+     *       changeOrigin: true,
+     *       rewrite: path => path.replace(/^\/api/, '')
+     *     }
+     *   }
+     * }
+     * ```
+     */
+    proxy?: Record<string, string | ProxyOptions>;
+    /**
+     * Configure CORS for the dev server.
+     * Uses https://github.com/expressjs/cors.
+     * Set to `true` to allow all methods from any origin, or configure separately
+     * using an object.
+     */
+    cors?: CorsOptions | boolean;
 }
 
 export declare interface ConfigEnv {
@@ -516,21 +573,28 @@ export declare interface FileSystemServeOptions {
      * Strictly restrict file accessing outside of allowing paths.
      *
      * Set to `false` to disable the warning
-     * Default to false at this moment, will enabled by default in the future versions.
      *
-     * @experimental
-     * @default undefined
+     * @default true
      */
-    strict?: boolean | undefined;
+    strict?: boolean;
     /**
      * Restrict accessing files outside the allowed directories.
      *
      * Accepts absolute path or a path relative to project root.
      * Will try to search up for workspace root by default.
+     */
+    allow?: string[];
+    /**
+     * Restrict accessing files that matches the patterns.
+     *
+     * This will have higher priority than `allow`.
+     * Glob patterns are supported.
+     *
+     * @default ['.env', '.env.*', '*.crt', '*.pem']
      *
      * @experimental
      */
-    allow?: string[];
+    deny?: string[];
 }
 
 export declare interface FSWatcher extends fs.FSWatcher {
@@ -906,6 +970,7 @@ export declare interface InternalResolveOptions extends ResolveOptions {
     isBuild: boolean;
     isProduction: boolean;
     ssrConfig?: SSROptions;
+    packageCache?: PackageCache;
     /**
      * src code mode also attempts the following:
      * - resolving /xxx as URLs
@@ -916,7 +981,10 @@ export declare interface InternalResolveOptions extends ResolveOptions {
     tryPrefix?: string;
     skipPackageJson?: boolean;
     preferRelative?: boolean;
+    preserveSymlinks?: boolean;
     isRequire?: boolean;
+    isFromTsImporter?: boolean;
+    tryEsmOnly?: boolean;
 }
 
 export declare interface JsonOptions {
@@ -997,12 +1065,12 @@ export declare type Matcher = AnymatchPattern | AnymatchPattern[]
 export declare function mergeConfig(a: Record<string, any>, b: Record<string, any>, isRoot?: boolean): Record<string, any>;
 
 export declare class ModuleGraph {
+    private resolveId;
     urlToModuleMap: Map<string, ModuleNode>;
     idToModuleMap: Map<string, ModuleNode>;
     fileToModulesMap: Map<string, Set<ModuleNode>>;
     safeModulesPath: Set<string>;
-    container: PluginContainer;
-    constructor(container: PluginContainer);
+    constructor(resolveId: (url: string) => Promise<PartialResolvedId | null>);
     getModuleByUrl(rawUrl: string): Promise<ModuleNode | undefined>;
     getModuleById(id: string): ModuleNode | undefined;
     getModulesByFile(file: string): Set<ModuleNode> | undefined;
@@ -1017,7 +1085,7 @@ export declare class ModuleGraph {
     updateModuleInfo(mod: ModuleNode, importedModules: Set<string | ModuleNode>, acceptedModules: Set<string | ModuleNode>, isSelfAccepting: boolean): Promise<Set<ModuleNode> | undefined>;
     ensureEntryFromUrl(rawUrl: string): Promise<ModuleNode>;
     createFileOnlyEntry(file: string): ModuleNode;
-    resolveUrl(url: string): Promise<[string, string]>;
+    resolveUrl(url: string): Promise<ResolvedUrl>;
 }
 
 export declare class ModuleNode {
@@ -1031,6 +1099,8 @@ export declare class ModuleNode {
     id: string | null;
     file: string | null;
     type: 'js' | 'css';
+    info?: ModuleInfo;
+    meta?: Record<string, any>;
     importers: Set<ModuleNode>;
     importedModules: Set<ModuleNode>;
     acceptedHmrDeps: Set<ModuleNode>;
@@ -1047,9 +1117,12 @@ export declare function normalizePath(id: string): string;
 export declare function optimizeDeps(config: ResolvedConfig, force?: boolean | undefined, asCommand?: boolean, newDeps?: Record<string, string>, // missing imports encountered after server has started
 ssr?: boolean): Promise<DepOptimizationMetadata | null>;
 
+/** Cache for package.json resolution and package.json contents */
+export declare type PackageCache = Map<string, PackageData>;
+
 export declare interface PackageData {
     dir: string;
-    hasSideEffects: (id: string) => boolean;
+    hasSideEffects: (id: string) => boolean | 'no-treeshake';
     webResolvedImports: Record<string, string | undefined>;
     nodeResolvedImports: Record<string, string | undefined>;
     setResolvedCache: (key: string, entry: string, targetWeb: boolean) => void;
@@ -1164,17 +1237,31 @@ export declare interface Plugin extends Plugin_2 {
      */
     resolveId?(this: PluginContext, source: string, importer: string | undefined, options: {
         custom?: CustomPluginOptions;
-    }, ssr?: boolean): Promise<ResolveIdResult> | ResolveIdResult;
-    load?(this: PluginContext, id: string, ssr?: boolean): Promise<LoadResult> | LoadResult;
-    transform?(this: TransformPluginContext, code: string, id: string, ssr?: boolean): Promise<TransformResult_3> | TransformResult_3;
+        ssr?: boolean;
+    }): Promise<ResolveIdResult> | ResolveIdResult;
+    load?(this: PluginContext, id: string, options?: {
+        ssr?: boolean;
+    }): Promise<LoadResult> | LoadResult;
+    transform?(this: TransformPluginContext, code: string, id: string, options?: {
+        ssr?: boolean;
+    }): Promise<TransformResult_3> | TransformResult_3;
 }
 
 export declare interface PluginContainer {
     options: InputOptions;
+    getModuleInfo(id: string): ModuleInfo | null;
     buildStart(options: InputOptions): Promise<void>;
-    resolveId(id: string, importer?: string, skip?: Set<Plugin>, ssr?: boolean): Promise<PartialResolvedId | null>;
-    transform(code: string, id: string, inMap?: SourceDescription['map'], ssr?: boolean): Promise<SourceDescription | null>;
-    load(id: string, ssr?: boolean): Promise<LoadResult | null>;
+    resolveId(id: string, importer?: string, options?: {
+        skip?: Set<Plugin>;
+        ssr?: boolean;
+    }): Promise<PartialResolvedId | null>;
+    transform(code: string, id: string, options?: {
+        inMap?: SourceDescription['map'];
+        ssr?: boolean;
+    }): Promise<SourceDescription | null>;
+    load(id: string, options?: {
+        ssr?: boolean;
+    }): Promise<LoadResult | null>;
     close(): Promise<void>;
 }
 
@@ -1186,8 +1273,29 @@ export declare type PluginOption = Plugin | false | null | undefined;
  * @param serverOptions - what host and port to use
  * @experimental
  */
-export declare function preview(config: ResolvedConfig, serverOptions: Pick<ServerOptions, 'port' | 'host'>): Promise<Server>;
+export declare function preview(inlineConfig: InlineConfig): Promise<PreviewServer>;
 
+export declare interface PreviewOptions extends CommonServerOptions {
+}
+
+export declare interface PreviewServer {
+    /**
+     * The resolved vite config object
+     */
+    config: ResolvedConfig;
+    /**
+     * native Node http server instance
+     */
+    httpServer: Server;
+    /**
+     * Print server urls
+     */
+    printUrls: () => void;
+}
+
+/**
+ * @deprecated Use `server.printUrls()` instead
+ */
 export declare function printHttpServerUrls(server: Server_3, config: ResolvedConfig): void;
 
 export declare interface ProxyOptions extends HttpProxy.ServerOptions {
@@ -1231,15 +1339,26 @@ export declare type ResolvedConfig = Readonly<Omit<UserConfig, 'plugins' | 'alia
     plugins: readonly Plugin[];
     server: ResolvedServerOptions;
     build: ResolvedBuildOptions;
+    preview: ResolvedPreviewOptions;
     assetsInclude: (file: string) => boolean;
     logger: Logger;
     createResolver: (options?: Partial<InternalResolveOptions>) => ResolveFn;
     optimizeDeps: Omit<DepOptimizationOptions, 'keepNames'>;
+    /* Excluded from this release type: packageCache */
 }>;
+
+export declare interface ResolvedPreviewOptions extends PreviewOptions {
+}
 
 export declare interface ResolvedServerOptions extends ServerOptions {
     fs: Required<FileSystemServeOptions>;
 }
+
+export declare type ResolvedUrl = [
+url: string,
+resolvedId: string,
+meta: object | null | undefined
+];
 
 export declare function resolveEnvPrefix({ envPrefix }: UserConfig): string[];
 
@@ -1253,9 +1372,9 @@ export declare interface ResolveOptions {
     preserveSymlinks?: boolean;
 }
 
-export declare function resolvePackageData(id: string, basedir: string, preserveSymlinks?: boolean): PackageData | undefined;
+export declare function resolvePackageData(id: string, basedir: string, preserveSymlinks?: boolean, packageCache?: PackageCache): PackageData | null;
 
-export declare function resolvePackageEntry(id: string, { dir, data, setResolvedCache, getResolvedCache }: PackageData, options: InternalResolveOptions, targetWeb: boolean, preserveSymlinks?: boolean): string | undefined;
+export declare function resolvePackageEntry(id: string, { dir, data, setResolvedCache, getResolvedCache }: PackageData, targetWeb: boolean, options: InternalResolveOptions): string | undefined;
 
 export declare type ResolverFunction = PluginHooks['resolveId']
 
@@ -1273,7 +1392,7 @@ export declare interface ResolverObject {
  */
 export declare interface RollupCommonJSOptions {
     /**
-     * A minimatch pattern, or array of patterns, which specifies the files in
+     * A picomatch pattern, or array of patterns, which specifies the files in
      * the build the plugin should operate on. By default, all files with
      * extension `".cjs"` or those in `extensions` are included, but you can narrow
      * this list by only including specific files. These files will be analyzed
@@ -1283,7 +1402,7 @@ export declare interface RollupCommonJSOptions {
      */
     include?: string | RegExp | readonly (string | RegExp)[]
     /**
-     * A minimatch pattern, or array of patterns, which specifies the files in
+     * A picomatch pattern, or array of patterns, which specifies the files in
      * the build the plugin should _ignore_. By default, all files with
      * extensions other than those in `extensions` or `".cjs"` are ignored, but you
      * can exclude additional files. See also the `include` option.
@@ -1337,6 +1456,26 @@ export declare interface RollupCommonJSOptions {
      * @default []
      */
     ignore?: ReadonlyArray<string> | ((id: string) => boolean)
+    /**
+     * In most cases, where `require` calls are inside a `try-catch` clause,
+     * they should be left unconverted as it requires an optional dependency
+     * that may or may not be installed beside the rolled up package.
+     * Due to the conversion of `require` to a static `import` - the call is hoisted
+     * to the top of the file, outside of the `try-catch` clause.
+     *
+     * - `true`: All `require` calls inside a `try` will be left unconverted.
+     * - `false`: All `require` calls inside a `try` will be converted as if the `try-catch` clause is not there.
+     * - `remove`: Remove all `require` calls from inside any `try` block.
+     * - `string[]`: Pass an array containing the IDs to left unconverted.
+     * - `((id: string) => boolean|'remove')`: Pass a function that control individual IDs.
+     *
+     * @default false
+     */
+    ignoreTryCatch?:
+    | boolean
+    | 'remove'
+    | ReadonlyArray<string>
+    | ((id: string) => boolean | 'remove')
     /**
      * Controls how to render imports from external dependencies. By default,
      * this plugin assumes that all external dependencies are CommonJS. This
@@ -1454,18 +1593,7 @@ export declare function send(req: IncomingMessage, res: ServerResponse, content:
 
 export declare type ServerHook = (server: ViteDevServer) => (() => void) | void | Promise<(() => void) | void>;
 
-export declare interface ServerOptions {
-    host?: string | boolean;
-    port?: number;
-    /**
-     * Enable TLS + HTTP/2.
-     * Note: this downgrades to TLS only when the proxy option is also used.
-     */
-    https?: boolean | https.ServerOptions;
-    /**
-     * Open browser window on startup
-     */
-    open?: boolean | string;
+export declare interface ServerOptions extends CommonServerOptions {
     /**
      * Force dep pre-optimization regardless of whether deps have changed.
      */
@@ -1479,40 +1607,6 @@ export declare interface ServerOptions {
      * https://github.com/paulmillr/chokidar#api
      */
     watch?: WatchOptions;
-    /**
-     * Configure custom proxy rules for the dev server. Expects an object
-     * of `{ key: options }` pairs.
-     * Uses [`http-proxy`](https://github.com/http-party/node-http-proxy).
-     * Full options [here](https://github.com/http-party/node-http-proxy#options).
-     *
-     * Example `vite.config.js`:
-     * ``` js
-     * module.exports = {
-     *   proxy: {
-     *     // string shorthand
-     *     '/foo': 'http://localhost:4567/foo',
-     *     // with options
-     *     '/api': {
-     *       target: 'http://jsonplaceholder.typicode.com',
-     *       changeOrigin: true,
-     *       rewrite: path => path.replace(/^\/api/, '')
-     *     }
-     *   }
-     * }
-     * ```
-     */
-    proxy?: Record<string, string | ProxyOptions>;
-    /**
-     * Configure CORS for the dev server.
-     * Uses https://github.com/expressjs/cors.
-     * Set to `true` to allow all methods from any origin, or configure separately
-     * using an object.
-     */
-    cors?: CorsOptions | boolean;
-    /**
-     * If enabled, vite will exit if specified port is already in use
-     */
-    strictPort?: boolean;
     /**
      * Create Vite dev server to be used as a middleware in an existing server
      */
@@ -1824,6 +1918,10 @@ export declare interface UserConfig {
      */
     build?: BuildOptions;
     /**
+     * Preview specific options, e.g. host, port, https...
+     */
+    preview?: PreviewOptions;
+    /**
      * Dep optimization options
      */
     optimizeDeps?: DepOptimizationOptions;
@@ -1927,6 +2025,11 @@ export declare interface ViteDevServer {
      */
     transformWithEsbuild(code: string, filename: string, options?: EsbuildTransformOptions, inMap?: object): Promise<ESBuildTransformResult>;
     /**
+     * Transform module code into SSR format.
+     * @experimental
+     */
+    ssrTransform(code: string, inMap: SourceMap | null, url: string): Promise<TransformResult | null>;
+    /**
      * Load a given URL as an instantiated module for SSR.
      */
     ssrLoadModule(url: string): Promise<Record<string, any>>;
@@ -1946,9 +2049,17 @@ export declare interface ViteDevServer {
      * Print server urls
      */
     printUrls(): void;
+    /**
+     * Restart the server.
+     *
+     * @param forceOptimize - force the optimizer to re-bundle, same as --force cli flag
+     */
+    restart(forceOptimize?: boolean): Promise<void>;
     /* Excluded from this release type: _optimizeDepsMetadata */
     /* Excluded from this release type: _ssrExternals */
     /* Excluded from this release type: _globImporters */
+    /* Excluded from this release type: _restartPromise */
+    /* Excluded from this release type: _forceOptimizeOnRestart */
     /* Excluded from this release type: _isRunningOptimizer */
     /* Excluded from this release type: _registerMissingImport */
     /* Excluded from this release type: _pendingReload */
@@ -2069,280 +2180,264 @@ export declare interface WatchOptions {
     | boolean
 }
 
+export declare class WebSocket extends EventEmitter {
+    /** The connection is not yet open. */
+    static readonly CONNECTING: 0
+    /** The connection is open and ready to communicate. */
+    static readonly OPEN: 1
+    /** The connection is in the process of closing. */
+    static readonly CLOSING: 2
+    /** The connection is closed. */
+    static readonly CLOSED: 3
+
+    binaryType: 'nodebuffer' | 'arraybuffer' | 'fragments'
+    readonly bufferedAmount: number
+    readonly extensions: string
+    readonly protocol: string
+    /** The current state of the connection */
+    readonly readyState:
+    | typeof WebSocket.CONNECTING
+    | typeof WebSocket.OPEN
+    | typeof WebSocket.CLOSING
+    | typeof WebSocket.CLOSED
+    readonly url: string
+
+    /** The connection is not yet open. */
+    readonly CONNECTING: 0
+    /** The connection is open and ready to communicate. */
+    readonly OPEN: 1
+    /** The connection is in the process of closing. */
+    readonly CLOSING: 2
+    /** The connection is closed. */
+    readonly CLOSED: 3
+
+    onopen: (event: WebSocket.Event) => void
+    onerror: (event: WebSocket.ErrorEvent) => void
+    onclose: (event: WebSocket.CloseEvent) => void
+    onmessage: (event: WebSocket.MessageEvent) => void
+
+    constructor(
+    address: string | URL,
+    options?: WebSocket.ClientOptions | ClientRequestArgs
+    )
+    constructor(
+    address: string | URL,
+    protocols?: string | string[],
+    options?: WebSocket.ClientOptions | ClientRequestArgs
+    )
+
+    close(code?: number, data?: string | Buffer): void
+    ping(data?: any, mask?: boolean, cb?: (err: Error) => void): void
+    pong(data?: any, mask?: boolean, cb?: (err: Error) => void): void
+    send(data: any, cb?: (err?: Error) => void): void
+    send(
+    data: any,
+    options: {
+        mask?: boolean | undefined
+        binary?: boolean | undefined
+        compress?: boolean | undefined
+        fin?: boolean | undefined
+    },
+    cb?: (err?: Error) => void
+    ): void
+    terminate(): void
+
+    // HTML5 WebSocket events
+    addEventListener(
+    method: 'message',
+    cb: (event: WebSocket.MessageEvent) => void,
+    options?: WebSocket.EventListenerOptions
+    ): void
+    addEventListener(
+    method: 'close',
+    cb: (event: WebSocket.CloseEvent) => void,
+    options?: WebSocket.EventListenerOptions
+    ): void
+    addEventListener(
+    method: 'error',
+    cb: (event: WebSocket.ErrorEvent) => void,
+    options?: WebSocket.EventListenerOptions
+    ): void
+    addEventListener(
+    method: 'open',
+    cb: (event: WebSocket.Event) => void,
+    options?: WebSocket.EventListenerOptions
+    ): void
+
+    removeEventListener(
+    method: 'message',
+    cb: (event: WebSocket.MessageEvent) => void
+    ): void
+    removeEventListener(
+    method: 'close',
+    cb: (event: WebSocket.CloseEvent) => void
+    ): void
+    removeEventListener(
+    method: 'error',
+    cb: (event: WebSocket.ErrorEvent) => void
+    ): void
+    removeEventListener(
+    method: 'open',
+    cb: (event: WebSocket.Event) => void
+    ): void
+
+    // Events
+    on(
+    event: 'close',
+    listener: (this: WebSocket, code: number, reason: Buffer) => void
+    ): this
+    on(event: 'error', listener: (this: WebSocket, err: Error) => void): this
+    on(
+    event: 'upgrade',
+    listener: (this: WebSocket, request: IncomingMessage) => void
+    ): this
+    on(
+    event: 'message',
+    listener: (
+    this: WebSocket,
+    data: WebSocket.RawData,
+    isBinary: boolean
+    ) => void
+    ): this
+    on(event: 'open', listener: (this: WebSocket) => void): this
+    on(
+    event: 'ping' | 'pong',
+    listener: (this: WebSocket, data: Buffer) => void
+    ): this
+    on(
+    event: 'unexpected-response',
+    listener: (
+    this: WebSocket,
+    request: ClientRequest,
+    response: IncomingMessage
+    ) => void
+    ): this
+    on(
+    event: string | symbol,
+    listener: (this: WebSocket, ...args: any[]) => void
+    ): this
+
+    once(
+    event: 'close',
+    listener: (this: WebSocket, code: number, reason: Buffer) => void
+    ): this
+    once(event: 'error', listener: (this: WebSocket, err: Error) => void): this
+    once(
+    event: 'upgrade',
+    listener: (this: WebSocket, request: IncomingMessage) => void
+    ): this
+    once(
+    event: 'message',
+    listener: (
+    this: WebSocket,
+    data: WebSocket.RawData,
+    isBinary: boolean
+    ) => void
+    ): this
+    once(event: 'open', listener: (this: WebSocket) => void): this
+    once(
+    event: 'ping' | 'pong',
+    listener: (this: WebSocket, data: Buffer) => void
+    ): this
+    once(
+    event: 'unexpected-response',
+    listener: (
+    this: WebSocket,
+    request: ClientRequest,
+    response: IncomingMessage
+    ) => void
+    ): this
+    once(
+    event: string | symbol,
+    listener: (this: WebSocket, ...args: any[]) => void
+    ): this
+
+    off(
+    event: 'close',
+    listener: (this: WebSocket, code: number, reason: Buffer) => void
+    ): this
+    off(event: 'error', listener: (this: WebSocket, err: Error) => void): this
+    off(
+    event: 'upgrade',
+    listener: (this: WebSocket, request: IncomingMessage) => void
+    ): this
+    off(
+    event: 'message',
+    listener: (
+    this: WebSocket,
+    data: WebSocket.RawData,
+    isBinary: boolean
+    ) => void
+    ): this
+    off(event: 'open', listener: (this: WebSocket) => void): this
+    off(
+    event: 'ping' | 'pong',
+    listener: (this: WebSocket, data: Buffer) => void
+    ): this
+    off(
+    event: 'unexpected-response',
+    listener: (
+    this: WebSocket,
+    request: ClientRequest,
+    response: IncomingMessage
+    ) => void
+    ): this
+    off(
+    event: string | symbol,
+    listener: (this: WebSocket, ...args: any[]) => void
+    ): this
+
+    addListener(
+    event: 'close',
+    listener: (code: number, reason: Buffer) => void
+    ): this
+    addListener(event: 'error', listener: (err: Error) => void): this
+    addListener(
+    event: 'upgrade',
+    listener: (request: IncomingMessage) => void
+    ): this
+    addListener(
+    event: 'message',
+    listener: (data: WebSocket.RawData, isBinary: boolean) => void
+    ): this
+    addListener(event: 'open', listener: () => void): this
+    addListener(event: 'ping' | 'pong', listener: (data: Buffer) => void): this
+    addListener(
+    event: 'unexpected-response',
+    listener: (request: ClientRequest, response: IncomingMessage) => void
+    ): this
+    addListener(event: string | symbol, listener: (...args: any[]) => void): this
+
+    removeListener(
+    event: 'close',
+    listener: (code: number, reason: Buffer) => void
+    ): this
+    removeListener(event: 'error', listener: (err: Error) => void): this
+    removeListener(
+    event: 'upgrade',
+    listener: (request: IncomingMessage) => void
+    ): this
+    removeListener(
+    event: 'message',
+    listener: (data: WebSocket.RawData, isBinary: boolean) => void
+    ): this
+    removeListener(event: 'open', listener: () => void): this
+    removeListener(event: 'ping' | 'pong', listener: (data: Buffer) => void): this
+    removeListener(
+    event: 'unexpected-response',
+    listener: (request: ClientRequest, response: IncomingMessage) => void
+    ): this
+    removeListener(
+    event: string | symbol,
+    listener: (...args: any[]) => void
+    ): this
+}
+
 export declare namespace WebSocket {
-    // WebSocket socket.
-    export class WebSocket extends EventEmitter {
-        /** The connection is not yet open. */
-        static readonly CONNECTING: 0
-        /** The connection is open and ready to communicate. */
-        static readonly OPEN: 1
-        /** The connection is in the process of closing. */
-        static readonly CLOSING: 2
-        /** The connection is closed. */
-        static readonly CLOSED: 3
-
-        binaryType: 'nodebuffer' | 'arraybuffer' | 'fragments'
-        readonly bufferedAmount: number
-        readonly extensions: string
-        readonly protocol: string
-        /** The current state of the connection */
-        readonly readyState:
-        | typeof WebSocket.CONNECTING
-        | typeof WebSocket.OPEN
-        | typeof WebSocket.CLOSING
-        | typeof WebSocket.CLOSED
-        readonly url: string
-
-        /** The connection is not yet open. */
-        readonly CONNECTING: 0
-        /** The connection is open and ready to communicate. */
-        readonly OPEN: 1
-        /** The connection is in the process of closing. */
-        readonly CLOSING: 2
-        /** The connection is closed. */
-        readonly CLOSED: 3
-
-        onopen: (event: WebSocket.OpenEvent) => void
-        onerror: (event: WebSocket.ErrorEvent) => void
-        onclose: (event: WebSocket.CloseEvent) => void
-        onmessage: (event: WebSocket.MessageEvent) => void
-
-        constructor(
-        address: string | URL,
-        options?: WebSocket.ClientOptions | ClientRequestArgs
-        )
-        constructor(
-        address: string | URL,
-        protocols?: string | string[],
-        options?: WebSocket.ClientOptions | ClientRequestArgs
-        )
-
-        close(code?: number, data?: string): void
-        ping(data?: any, mask?: boolean, cb?: (err: Error) => void): void
-        pong(data?: any, mask?: boolean, cb?: (err: Error) => void): void
-        send(data: any, cb?: (err?: Error) => void): void
-        send(
-        data: any,
-        options: {
-            mask?: boolean | undefined
-            binary?: boolean | undefined
-            compress?: boolean | undefined
-            fin?: boolean | undefined
-        },
-        cb?: (err?: Error) => void
-        ): void
-        terminate(): void
-
-        // HTML5 WebSocket events
-        addEventListener(
-        method: 'message',
-        cb: (event: { data: any; type: string; target: WebSocket }) => void,
-        options?: WebSocket.EventListenerOptions
-        ): void
-        addEventListener(
-        method: 'close',
-        cb: (event: {
-            wasClean: boolean
-            code: number
-            reason: string
-            target: WebSocket
-        }) => void,
-        options?: WebSocket.EventListenerOptions
-        ): void
-        addEventListener(
-        method: 'error',
-        cb: (event: {
-            error: any
-            message: any
-            type: string
-            target: WebSocket
-        }) => void,
-        options?: WebSocket.EventListenerOptions
-        ): void
-        addEventListener(
-        method: 'open',
-        cb: (event: { target: WebSocket }) => void,
-        options?: WebSocket.EventListenerOptions
-        ): void
-        addEventListener(
-        method: string,
-        listener: () => void,
-        options?: WebSocket.EventListenerOptions
-        ): void
-
-        removeEventListener(
-        method: 'message',
-        cb?: (event: { data: any; type: string; target: WebSocket }) => void
-        ): void
-        removeEventListener(
-        method: 'close',
-        cb?: (event: {
-            wasClean: boolean
-            code: number
-            reason: string
-            target: WebSocket
-        }) => void
-        ): void
-        removeEventListener(
-        method: 'error',
-        cb?: (event: {
-            error: any
-            message: any
-            type: string
-            target: WebSocket
-        }) => void
-        ): void
-        removeEventListener(
-        method: 'open',
-        cb?: (event: { target: WebSocket }) => void
-        ): void
-        removeEventListener(method: string, listener?: () => void): void
-
-        // Events
-        on(
-        event: 'close',
-        listener: (this: WebSocket, code: number, reason: string) => void
-        ): this
-        on(event: 'error', listener: (this: WebSocket, err: Error) => void): this
-        on(
-        event: 'upgrade',
-        listener: (this: WebSocket, request: IncomingMessage) => void
-        ): this
-        on(
-        event: 'message',
-        listener: (this: WebSocket, data: WebSocket.Data) => void
-        ): this
-        on(event: 'open', listener: (this: WebSocket) => void): this
-        on(
-        event: 'ping' | 'pong',
-        listener: (this: WebSocket, data: Buffer) => void
-        ): this
-        on(
-        event: 'unexpected-response',
-        listener: (
-        this: WebSocket,
-        request: ClientRequest,
-        response: IncomingMessage
-        ) => void
-        ): this
-        on(
-        event: string | symbol,
-        listener: (this: WebSocket, ...args: any[]) => void
-        ): this
-
-        once(
-        event: 'close',
-        listener: (this: WebSocket, code: number, reason: string) => void
-        ): this
-        once(event: 'error', listener: (this: WebSocket, err: Error) => void): this
-        once(
-        event: 'upgrade',
-        listener: (this: WebSocket, request: IncomingMessage) => void
-        ): this
-        once(
-        event: 'message',
-        listener: (this: WebSocket, data: WebSocket.Data) => void
-        ): this
-        once(event: 'open', listener: (this: WebSocket) => void): this
-        once(
-        event: 'ping' | 'pong',
-        listener: (this: WebSocket, data: Buffer) => void
-        ): this
-        once(
-        event: 'unexpected-response',
-        listener: (
-        this: WebSocket,
-        request: ClientRequest,
-        response: IncomingMessage
-        ) => void
-        ): this
-        once(
-        event: string | symbol,
-        listener: (this: WebSocket, ...args: any[]) => void
-        ): this
-
-        off(
-        event: 'close',
-        listener: (this: WebSocket, code: number, reason: string) => void
-        ): this
-        off(event: 'error', listener: (this: WebSocket, err: Error) => void): this
-        off(
-        event: 'upgrade',
-        listener: (this: WebSocket, request: IncomingMessage) => void
-        ): this
-        off(
-        event: 'message',
-        listener: (this: WebSocket, data: WebSocket.Data) => void
-        ): this
-        off(event: 'open', listener: (this: WebSocket) => void): this
-        off(
-        event: 'ping' | 'pong',
-        listener: (this: WebSocket, data: Buffer) => void
-        ): this
-        off(
-        event: 'unexpected-response',
-        listener: (
-        this: WebSocket,
-        request: ClientRequest,
-        response: IncomingMessage
-        ) => void
-        ): this
-        off(
-        event: string | symbol,
-        listener: (this: WebSocket, ...args: any[]) => void
-        ): this
-
-        addListener(
-        event: 'close',
-        listener: (code: number, message: string) => void
-        ): this
-        addListener(event: 'error', listener: (err: Error) => void): this
-        addListener(
-        event: 'upgrade',
-        listener: (request: IncomingMessage) => void
-        ): this
-        addListener(
-        event: 'message',
-        listener: (data: WebSocket.Data) => void
-        ): this
-        addListener(event: 'open', listener: () => void): this
-        addListener(event: 'ping' | 'pong', listener: (data: Buffer) => void): this
-        addListener(
-        event: 'unexpected-response',
-        listener: (request: ClientRequest, response: IncomingMessage) => void
-        ): this
-        addListener(
-        event: string | symbol,
-        listener: (...args: any[]) => void
-        ): this
-
-        removeListener(
-        event: 'close',
-        listener: (code: number, message: string) => void
-        ): this
-        removeListener(event: 'error', listener: (err: Error) => void): this
-        removeListener(
-        event: 'upgrade',
-        listener: (request: IncomingMessage) => void
-        ): this
-        removeListener(
-        event: 'message',
-        listener: (data: WebSocket.Data) => void
-        ): this
-        removeListener(event: 'open', listener: () => void): this
-        removeListener(
-        event: 'ping' | 'pong',
-        listener: (data: Buffer) => void
-        ): this
-        removeListener(
-        event: 'unexpected-response',
-        listener: (request: ClientRequest, response: IncomingMessage) => void
-        ): this
-        removeListener(
-        event: string | symbol,
-        listener: (...args: any[]) => void
-        ): this
-    }
+    /**
+     * Data represents the raw message payload received over the WebSocket.
+     */
+    export type RawData = Buffer | ArrayBuffer | Buffer[]
 
     /**
      * Data represents the message payload received over the WebSocket.
@@ -2421,7 +2516,7 @@ export declare namespace WebSocket {
         concurrencyLimit?: number | undefined
     }
 
-    export interface OpenEvent {
+    export interface Event {
         type: string
         target: WebSocket
     }
@@ -2460,12 +2555,16 @@ export declare namespace WebSocket {
         | VerifyClientCallbackAsync
         | VerifyClientCallbackSync
         | undefined
-        handleProtocols?: any
+        handleProtocols?: (
+        protocols: Set<string>,
+        request: IncomingMessage
+        ) => string | false
         path?: string | undefined
         noServer?: boolean | undefined
         clientTracking?: boolean | undefined
         perMessageDeflate?: boolean | PerMessageDeflateOptions | undefined
         maxPayload?: number | undefined
+        skipUTF8Validation?: boolean | undefined
     }
 
     export interface AddressInfo {
@@ -2486,7 +2585,7 @@ export declare namespace WebSocket {
         close(cb?: (err?: Error) => void): void
         handleUpgrade(
         request: IncomingMessage,
-        socket: Socket,
+        socket: Duplex,
         upgradeHead: Buffer,
         callback: (client: WebSocket, request: IncomingMessage) => void
         ): void
@@ -2563,12 +2662,21 @@ export declare namespace WebSocket {
         ): this
     }
 
+    const WebSocketServer: typeof Server
+    export type WebSocketServer = Server
+    const WebSocket: typeof WebSocketAlias
+    export type WebSocket = WebSocketAlias
+
     // WebSocket stream
     export function createWebSocketStream(
     websocket: WebSocket,
     options?: DuplexOptions
     ): Duplex
 }
+
+export declare const WebSocketAlias: typeof WebSocket;
+
+export declare type WebSocketAlias = WebSocket
 
 export declare interface WebSocketServer {
     on: WebSocket.Server['on'];
