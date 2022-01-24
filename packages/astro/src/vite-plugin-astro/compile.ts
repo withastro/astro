@@ -50,6 +50,13 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 		experimentalStaticExtraction: config.buildOptions.experimentalStaticBuild,
 		// TODO add experimental flag here
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
+			// When using this flag CSS is added via <link> and therefore goes
+			// through Vite's CSS pipeline. We don't need to transform here, it will be
+			// transformed on CSS requests.
+			if (config.buildOptions.experimentalStaticBuild) {
+				return { code: value };
+			}
+
 			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 			try {
 				const result = await transformWithVite({

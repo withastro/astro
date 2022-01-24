@@ -3,6 +3,7 @@ import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger';
 
 import esbuild from 'esbuild';
+import npath from 'path';
 import { fileURLToPath } from 'url';
 import { AstroDevServer } from '../core/dev/index.js';
 import { getViteTransform, TransformHook } from './styles.js';
@@ -29,6 +30,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	}
 
 	let viteTransform: TransformHook;
+
+	// Variables for determing if an id starts with /src...
+	const srcRootWeb = config.src.pathname.slice(config.projectRoot.pathname.length - 1);
+	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
+
 	return {
 		name: '@astrojs/vite-plugin-astro',
 		enforce: 'pre', // run transforms before other plugins can
@@ -38,7 +44,16 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
 		async resolveId(id) {
 			// serve sub-part requests (*?astro) as virtual modules
-			if (parseAstroRequest(id).query.astro) {
+			const { query } = parseAstroRequest(id);
+			if (query.astro) {
+				// Convert /src/pages/index.astro?astro&type=style to /Users/name/
+				// Because this needs to be the id for the Vite CSS plugin to property resolve
+				// relative @imports.
+				if (query.type === 'style' && isBrowserPath(id)) {
+					const outId = npath.posix.join(config.projectRoot.pathname, id);
+					return outId;
+				}
+
 				return id;
 			}
 		},
