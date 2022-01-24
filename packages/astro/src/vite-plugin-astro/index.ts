@@ -89,7 +89,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
 
-					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
+					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, { ssr: Boolean(opts?.ssr) });
 					const scripts = transformResult.scripts;
 					const hoistedScript = scripts[query.index];
 
