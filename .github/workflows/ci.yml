@@ -99,7 +99,7 @@ jobs:
         id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/node_modules"
+          path: ~/.pnpm-store
           key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
           restore-keys: |
             cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
@@ -161,7 +161,7 @@ jobs:
         id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/node_modules"
+          path: ~/.pnpm-store
           key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
           restore-keys: |
             cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
@@ -216,7 +216,7 @@ jobs:
         id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/node_modules"
+          path: ~/.pnpm-store
           key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
           restore-keys: |
             cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
@@ -269,7 +269,7 @@ jobs:
         id: cache-node
         uses: actions/cache@v2
         with:
-          path: "**/node_modules"
+          path: ~/.pnpm-store
           key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
           restore-keys: |
             cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
