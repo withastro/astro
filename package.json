@@ -7,7 +7,7 @@
     "url": "https://github.com/withastro/astro.git"
   },
   "scripts": {
-    "release": "yarn build && changeset publish",
+    "release": "pnpm run build && changeset publish",
     "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:examples": "turbo run build --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
@@ -36,7 +36,7 @@
   ],
   "volta": {
     "node": "14.17.0",
-    "yarn": "1.22.10"
+    "npm": "7.11.2"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.2",

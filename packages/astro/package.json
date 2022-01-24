@@ -113,6 +113,7 @@
     "zod": "^3.8.1"
   },
   "devDependencies": {
+    "astro-scripts": "workspace:*",
     "@astrojs/parser": "^0.22.1",
     "@babel/types": "^7.15.6",
     "@types/chai": "^4.2.22",
