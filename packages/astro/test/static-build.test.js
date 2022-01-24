@@ -16,6 +16,9 @@ describe('Static build', () => {
 			buildOptions: {
 				experimentalStaticBuild: true,
 			},
+			ssr: {
+				noExternal: ['@astrojs/test-static-build-pkg'],
+			},
 		});
 		await fixture.build();
 	});
@@ -93,5 +96,11 @@ describe('Static build', () => {
 			const $$ = cheerio.load(indexHTML);
 			expect($$(`script[src="${href}"]`).length).to.equal(0, 'no script added to different page');
 		});
+	});
+
+	it('honors ssr config', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		expect($('#ssr-config').text()).to.equal('testing');
 	});
 });

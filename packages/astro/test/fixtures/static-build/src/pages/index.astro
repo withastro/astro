@@ -1,6 +1,7 @@
 ---
 import MainHead from '../components/MainHead.astro';
 import Nav from '../components/Nav/index.jsx';
+import { test as ssrConfigTest } from '@astrojs/test-static-build-pkg';
 let allPosts = await Astro.fetchContent('./posts/*.md');
 ---
 <html>
@@ -27,5 +28,6 @@ let allPosts = await Astro.fetchContent('./posts/*.md');
 		<li><a href={post.url}>post.title</a></li>
 	))}
 </ul>
+<div id="ssr-config">{ssrConfigTest}</div>
 </body>
 </html>

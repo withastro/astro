@@ -178,7 +178,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
 		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
-	});
+		ssr: viteConfig.ssr,
+	} as ViteConfigWithSSR);
 }
 
 async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
