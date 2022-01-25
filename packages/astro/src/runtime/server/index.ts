@@ -255,7 +255,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 }
 
 /** Create the Astro.fetchContent() runtime function. */
-function createFetchContentFn(url: URL) {
+function createFetchContentFn(url: URL, site: URL) {
 	const fetchContent = (importMetaGlobResult: Record<string, any>) => {
 		let allEntries = [...Object.entries(importMetaGlobResult)];
 		if (allEntries.length === 0) {
@@ -273,7 +273,7 @@ function createFetchContentFn(url: URL) {
 					Content: mod.default,
 					content: mod.metadata,
 					file: new URL(spec, url),
-					url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, '/').replace(/(\/index)?\.md$/, '') : undefined,
+					url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, site.pathname).replace(/(\/index)?\.md$/, '') : undefined,
 				};
 			})
 			.filter(Boolean);
@@ -289,7 +289,7 @@ function createFetchContentFn(url: URL) {
 export function createAstro(filePathname: string, site: string, projectRootStr: string): AstroGlobalPartial {
 	const url = new URL(filePathname, site);
 	const projectRoot = new URL(projectRootStr);
-	const fetchContent = createFetchContentFn(url);
+	const fetchContent = createFetchContentFn(url, new URL(site));
 	return {
 		site: new URL(site),
 		fetchContent,
