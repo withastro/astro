@@ -395,32 +395,398 @@ importers:
     devDependencies:
       prismjs: 1.26.0
 
+  packages/astro/test/fixtures/0-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-assets:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-attrs:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-basic:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-children:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-class-list:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-client-only:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-component-code:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-components:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-css-bundling:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-css-bundling-import:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-css-bundling-nested-layouts:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-doctype:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-dynamic:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-envs:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-expr:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-external-files:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-fallback:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-get-static-paths:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-global:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-jsx:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-markdown:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-markdown-drafts:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-markdown-plugins:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-page-directory-url:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-pages:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-pagination:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-partial-html:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-public:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-scripts:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-sitemap-rss:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/astro-slots:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/builtins:
     specifiers:
       '@astrojs/astro-test-builtins-dep': file:./packages/dep
+      astro: workspace:*
     dependencies:
       '@astrojs/astro-test-builtins-dep': link:packages/dep
+      astro: link:../../..
 
   packages/astro/test/fixtures/builtins/packages/dep:
     specifiers: {}
 
+  packages/astro/test/fixtures/config-hostname:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/config-path:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/config-port:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/custom-elements:
     specifiers:
       '@astrojs/test-custom-element-renderer': workspace:*
+      astro: workspace:*
     dependencies:
       '@astrojs/test-custom-element-renderer': link:my-component-lib
+      astro: link:../../..
 
   packages/astro/test/fixtures/custom-elements/my-component-lib:
     specifiers: {}
 
+  packages/astro/test/fixtures/debug-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/errors:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/fetch:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/lit-element:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/markdown:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/postcss:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/preact-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/react-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/remote-css:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/route-manifest:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/sass:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/slots-preact:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/slots-react:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/slots-solid:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/slots-svelte:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/slots-vue:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/solid-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/static-build:
     specifiers:
       '@astrojs/test-static-build-pkg': file:./pkg
+      astro: workspace:*
     dependencies:
       '@astrojs/test-static-build-pkg': link:pkg
+      astro: link:../../..
+
+  packages/astro/test/fixtures/static-build-code-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/static-build-frameworks:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
 
   packages/astro/test/fixtures/static-build/pkg:
     specifiers: {}
+
+  packages/astro/test/fixtures/svelte-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/vue-component:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/with-subpath-no-trailing-slash:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/with-subpath-trailing-slash:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/without-site-config:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
+  packages/astro/test/fixtures/without-subpath:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
 
   packages/astro/vendor/vite:
     specifiers:
