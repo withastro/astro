@@ -1,4 +1,5 @@
-import type { AstroConfig, AstroUserConfig } from '../@types/astro';
+import type { AstroConfig, AstroUserConfig, CLIFlags } from '../@types/astro';
+import type { Arguments as Flags } from 'yargs-parser';
 
 import * as colors from 'kleur/colors';
 import path from 'path';
@@ -116,19 +117,47 @@ function addTrailingSlash(str: string): string {
 	return str.replace(/\/*$/, '/');
 }
 
+/** Convert the generic "yargs" flag object into our own, custom TypeScript object. */
+function resolveFlags(flags: Partial<Flags>): CLIFlags {
+	return {
+		projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
+		site: typeof flags.site === 'string' ? flags.site : undefined,
+		sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
+		port: typeof flags.port === 'number' ? flags.port : undefined,
+		config: typeof flags.config === 'string' ? flags.config : undefined,
+		hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
+		experimentalStaticBuild: typeof flags.experimentalStaticBuild === 'boolean' ? flags.experimentalStaticBuild : false,
+		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
+	};
+}
+
+/** Merge CLI flags & user config object (CLI flags take priority) */
+function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
+	astroConfig.buildOptions = astroConfig.buildOptions || {};
+	astroConfig.devOptions = astroConfig.devOptions || {};
+	if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
+	if (typeof flags.site === 'string') astroConfig.buildOptions.site = flags.site;
+	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
+	if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
+	if (typeof flags.experimentalStaticBuild === 'boolean') astroConfig.buildOptions.experimentalStaticBuild = flags.experimentalStaticBuild;
+	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
+	return astroConfig;
+}
+
 interface LoadConfigOptions {
 	cwd?: string;
-	filename?: string;
+	flags?: Flags;
 }
 
 /** Attempt to load an `astro.config.mjs` file */
-export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfig> {
-	const root = options.cwd ? path.resolve(options.cwd) : process.cwd();
+export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
+	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const flags = resolveFlags(configOptions.flags || {});
 	let userConfig: AstroUserConfig = {};
 	let userConfigPath: string | undefined;
 
-	if (options.filename) {
-		userConfigPath = /^\.*\//.test(options.filename) ? options.filename : `./${options.filename}`;
+	if (flags?.config) {
+		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
 		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
 	}
 	// Automatically load config file using Proload
@@ -138,7 +167,9 @@ export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfi
 		userConfig = config.value;
 	}
 	// normalize, validate, and return
-	return validateConfig(userConfig, root);
+	const mergedConfig = mergeCLIFlags(userConfig, flags);
+	const validatedConfig = await validateConfig(mergedConfig, root);
+	return validatedConfig;
 }
 
 export function formatConfigError(err: z.ZodError) {
