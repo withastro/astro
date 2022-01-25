@@ -147,7 +147,7 @@ export interface AstroUserConfig {
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
-export type AstroConfig = z.output<typeof AstroConfigSchema>;
+export type AstroConfig = z.output<typeof AstroConfigSchema> & { __filePath?: string};
 
 export type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
 

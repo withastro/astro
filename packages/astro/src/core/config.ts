@@ -78,7 +78,7 @@ export const AstroConfigSchema = z.object({
 });
 
 /** Turn raw config values into normalized values */
-export async function validateConfig(userConfig: any, root: string): Promise<AstroConfig> {
+export async function validateConfig(userConfig: any, root: string, userConfigPath?: string): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// We need to extend the global schema to add transforms that are relative to root.
 	// This is type checked against the global schema to make sure we still match.
@@ -108,7 +108,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 			.default('./dist')
 			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
 	});
-	return AstroConfigRelativeSchema.parseAsync(userConfig);
+	return AstroConfigRelativeSchema.parseAsync(userConfig).then(value => Object.assign(value, { __filePath: userConfigPath }));
 }
 
 /** Adds '/' to end of string but doesn’t double-up */
@@ -136,9 +136,10 @@ export async function loadConfig(options: LoadConfigOptions): Promise<AstroConfi
 	const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
 	if (config) {
 		userConfig = config.value;
+		userConfigPath = config.filePath;
 	}
 	// normalize, validate, and return
-	return validateConfig(userConfig, root);
+	return validateConfig(userConfig, root, userConfigPath);
 }
 
 export function formatConfigError(err: z.ZodError) {

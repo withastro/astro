@@ -11,11 +11,12 @@ import { defaultLogDestination } from '../core/logger.js';
 import build from '../core/build/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
+import { add } from './add.js';
 import { check } from './check.js';
 import { formatConfigError, loadConfig } from '../core/config.js';
 
 type Arguments = yargs.Arguments;
-type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
+type cliCommand = 'help' | 'version' | 'add' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
 interface CLIState {
 	cmd: cliCommand;
 	options: {
@@ -51,6 +52,8 @@ function resolveArgs(flags: Arguments): CLIState {
 
 	const cmd = flags._[2];
 	switch (cmd) {
+		case 'add':
+			return { cmd: 'add', options };
 		case 'dev':
 			return { cmd: 'dev', options };
 		case 'build':
@@ -68,6 +71,7 @@ function resolveArgs(flags: Arguments): CLIState {
 function printHelp() {
 	console.log(`  ${colors.bold('astro')} - Futuristic web development tool.
   ${colors.bold('Commands:')}
+	astro add             Add an integration to Astro.
   astro dev             Run Astro in development mode.
   astro build           Build a pre-compiled production version of your site.
   astro preview         Preview your build locally before deploying.
@@ -110,7 +114,12 @@ export async function cli(args: string[]) {
 	const flags = yargs(args);
 	const state = resolveArgs(flags);
 	const options = { ...state.options };
-	const projectRoot = options.projectRoot || flags._[3];
+	let projectRoot = options.projectRoot;
+	if (!projectRoot) {
+		if (state.cmd !== 'add') {
+			projectRoot = flags._[3];
+		}
+	}
 
 	switch (state.cmd) {
 		case 'help':
@@ -143,6 +152,16 @@ export async function cli(args: string[]) {
 	}
 
 	switch (state.cmd) {
+		case 'add': {
+			try {
+				await add(flags._.slice(3), { astroConfig: config, logging });
+				process.exit(0);
+			} catch (err) {
+				throwAndExit(err);
+			}
+
+			return;
+		}
 		case 'dev': {
 			try {
 				await devServer(config, { logging });
