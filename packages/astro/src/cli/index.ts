@@ -56,18 +56,11 @@ function resolveCommand(flags: Arguments): CLICommand {
 		return 'help';
 	}
 	const cmd = flags._[2];
-	switch (cmd) {
-		case 'dev':
-			return 'dev';
-		case 'build':
-			return 'build';
-		case 'preview':
-			return 'preview';
-		case 'check':
-			return 'check';
-		default:
-			return 'help';
+	const supportedCommands = new Set(['dev', 'build', 'preview', 'check']);
+	if (supportedCommands.has(cmd)) {
+		return cmd as 'dev' | 'build' | 'preview' | 'check';
 	}
+	return 'help';
 }
 
 /** The primary CLI action */
@@ -117,6 +110,7 @@ export async function cli(args: string[]) {
 
 			return;
 		}
+
 		case 'build': {
 			try {
 				await build(config, { logging });
@@ -126,10 +120,12 @@ export async function cli(args: string[]) {
 			}
 			return;
 		}
+
 		case 'check': {
 			const ret = await check(config);
 			return process.exit(ret);
 		}
+
 		case 'preview': {
 			try {
 				await preview(config, { logging }); // this will keep running
@@ -138,6 +134,7 @@ export async function cli(args: string[]) {
 			}
 			return;
 		}
+
 		default: {
 			throw new Error(`Error running ${cmd}`);
 		}
