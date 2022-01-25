@@ -1,5 +1,5 @@
 import { execa } from 'execa';
-import fetch from 'node-fetch';
+import { fetch } from '@astropub/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { loadConfig } from '../dist/core/config.js';
