@@ -1,5 +1,5 @@
 import { execa } from 'execa';
-import fetch from 'node-fetch';
+import { polyfill } from '@astropub/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { loadConfig } from '../dist/core/config.js';
@@ -7,6 +7,11 @@ import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
 import os from 'os';
+
+// polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
+polyfill(globalThis, {
+	exclude: 'window document',
+});
 
 /**
  * @typedef {import('node-fetch').Response} Response
