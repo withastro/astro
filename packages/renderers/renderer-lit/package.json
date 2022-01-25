@@ -21,7 +21,9 @@
   },
   "dependencies": {
     "@lit-labs/ssr": "^2.0.1",
-    "@webcomponents/template-shadowroot": "^0.1.0",
+    "@webcomponents/template-shadowroot": "^0.1.0"
+  },
+  "peerDependencies": {
     "lit": "^2.0.2"
   }
 }

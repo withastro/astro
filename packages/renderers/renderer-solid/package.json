@@ -21,7 +21,9 @@
   },
   "dependencies": {
     "babel-plugin-module-resolver": "^4.1.0",
-    "babel-preset-solid": "^1.2.3",
+    "babel-preset-solid": "^1.2.3"
+  },
+  "peerDependencies": {
     "solid-js": "^1.2.3"
   },
   "engines": {

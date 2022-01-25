@@ -22,8 +22,10 @@
   },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.16.0",
-    "preact": "~10.5.15",
     "preact-render-to-string": "^5.1.19"
+  },
+  "peerDependencies": {
+    "preact": "^10.6.4"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"
