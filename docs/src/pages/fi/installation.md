@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Asennus
-lang: fi
 ---
 
 Astron voi asentaa parilla eri tavalla uuteen projektiin.

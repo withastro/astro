@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Páginas
-lang: es
 ---
 
 **Páginas** son un tipo especial de [Componente de Astro](/es/core-concepts/astro-components) que manejan el enrutamiento, la carga de datos y la creación de plantillas para cada página de su sitio web. Puedes pensar en ellos como cualquier otro componente de Astro, solo que con responsabilidades adicionales.

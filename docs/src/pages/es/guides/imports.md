@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Importaciones soportadas
-lang: es
 ---
 
 Astro usa Snowpack como su sistema de construcción interno. Snowpack proporciona a Astro soporte integrado para los siguientes tipos de archivos, sin necesidad de configuración:

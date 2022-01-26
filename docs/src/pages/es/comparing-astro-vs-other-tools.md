@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Astro versus X
-lang: es
 ---
 
 Con frecuencia nos preguntamos, "¿Cómo se comporta Astro en comparación a mi generador de páginas web favorito, **\_\_\_\_**?". Esta guía fue escrita para responder a esa pregunta, al comparar varios generadores de páginas web y alternativas a Astro.

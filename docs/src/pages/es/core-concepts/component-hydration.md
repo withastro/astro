@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Hidratación Parcial en Astro
-lang: es
 ---
 
 **Astro genera todos los sitios web sin JavaScript en el lado del cliente, de forma predeterminada.** Utiliza cualquier componente de interfaz de usuario que desee (React, Svelte, Vue, etc.) y Astro lo representará automáticamente en HTML en el momento de la compilación y elimina todo el JavaScript. Esto mantiene todos los sitios rápidos de forma predeterminada.

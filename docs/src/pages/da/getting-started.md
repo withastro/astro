@@ -2,7 +2,6 @@
 layout: ~/layouts/MainLayout.astro
 title: Introduktion
 description: En grundlæggende introduktion til Astro.
-lang: da
 ---
 
 Astro er en moderne statisk side bygger. Lær hvad Astro handler om på [vores hjemmeside](https://astro.build/) eller [vores udgivelsesmeddelelser](https://astro.build/blog/introducing-astro). Denne side er et overblik over Astro-dokumentationen og alle relaterede ressourcer.

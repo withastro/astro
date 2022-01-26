@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: 시작하기
-lang: kr
 ---
 
 Astro는 현대적인 정적 사이트 생성기(Static Site Generator)입니다. [홈페이지](https://astro.build/)나 [블로그](https://astro.build/blog/introducing-astro) 글을 통해 Astro에 대한 모든 것을 알아보세요. 이 페이지는 Astro 문서와 관련된 리소스를 소개합니다.

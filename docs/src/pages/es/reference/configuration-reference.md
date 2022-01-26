@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Referencia de Configuración
-lang: es
 ---
 
 Para configurar Astro, agrega un archivo `astro.config.mjs` en la raíz de tu proyecto. Todos los ajustes son opcionales.

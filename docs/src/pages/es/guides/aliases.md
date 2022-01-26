@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Alias
-lang: es
 ---
 
 Un **alias** es un atajo útil para tus importaciones de JavaScript. Esta puede ser una gran opción si no te gustan las rutas de importación relativas largas con muchos segmentos repetidos `../`. Define un alias para importar cosas directamente desde algún directorio de proyecto de nivel superior, sin importar qué tan profundamente anidado esté ubicado un archivo.

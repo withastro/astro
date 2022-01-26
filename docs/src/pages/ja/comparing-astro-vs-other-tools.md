@@ -2,7 +2,6 @@
 layout: ~/layouts/MainLayout.astro
 title: Astro vs. X
 description: Astroと他の静的サイトジェネレーター（Gatsby、Next.js、Nuxt、Hugo、Eleventyなど）の比較
-lang: ja
 ---
 
 よく、「Astro は、私が気に入ってる静的サイトジェネレーターの **\_\_\_\_** と比べてどうですか？」と聞かれます。このガイドは、いくつかの人気の静的サイトジェネレーターと Astro の代わりに使えるツールについて、その質問に答えるために書かれました。

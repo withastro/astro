@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Componentes integrados
-lang: es
 ---
 
 Astro incluye varios componentes integrados para que los utilices en tus proyectos. Todos los componentes integrados están disponibles a través de `import {} from 'astro/components';`.

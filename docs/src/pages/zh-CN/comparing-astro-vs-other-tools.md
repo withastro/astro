@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Astro 对比其他框架
-lang: zh-CN
 ---
 
 我们经常被问到这个问题, "Astro 和我最喜欢的网站构建工具**\_\_\_\_**相比如何？"本指南是为了帮助回答这个问题而编写的，适用于几个流行的网站构建工具以及 Astro 替代品。

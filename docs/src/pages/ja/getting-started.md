@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: はじめに
-lang: ja
 ---
 
 Astro（アストロ）は、モダンな静的サイトジェネレーターです。Astro については、[ホームページ](https://astro.build/)や[リリース記事](https://astro.build/blog/introducing-astro)をご覧ください。このページでは、Astro のドキュメントおよび関連リソースの概要を紹介します。

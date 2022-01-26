@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Obtención de datos
-lang: es
 ---
 
 Los componentes y las páginas de Astro pueden obtener datos remotos para ayudar a generar tus páginas. Astro proporciona dos herramientas diferentes a las páginas para ayudarte a hacer esto: **fetch()** y **await de nivel superior**.

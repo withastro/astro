@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Enrutamiento
-lang: es
 ---
 
 Astro utiliza **enrutamiento basado en archivos** para generar sus URL de compilación en función del archivo de maqueta del directorio `src/pages` de tu proyecto. Cuando se agrega un archivo al directorio `src/pages` de tu proyecto, está automáticamente disponible como una ruta basada en su nombre de archivo.

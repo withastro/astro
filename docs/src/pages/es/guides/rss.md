@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: RSS
-lang: es
 ---
 
 Astro admite la generación de feeds RSS rápida y automática para blogs y otros sitios web de contenido.

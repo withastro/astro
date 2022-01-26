@@ -2,7 +2,6 @@
 layout: ~/layouts/MainLayout.astro
 title: Erste Schritte
 description: Eine einfache Einführung in Astro
-lang: de
 ---
 
 Astro ist ein moderner Static-Site-Renderer (auch SSG - Static-Site-Generator). Erfahre worum es bei Astro eigentlich geht auf [unserer Homepage](https://astro.build/), oder lies [unseren Release Blogpost](https://astro.build/blog/introducing-astro).

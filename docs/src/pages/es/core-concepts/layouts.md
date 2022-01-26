@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Maquetas
-lang: es
 ---
 
 **Las maquetas** son un tipo especial de [Componente](/es/core-concepts/astro-components) que te ayudan a compartir y reutilizar maquetas de página comunes dentro de tu proyecto.

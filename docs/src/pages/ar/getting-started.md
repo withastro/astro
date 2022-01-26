@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: باشر بالبدأ
-lang: ar
 dir: rtl
 ---
 

@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: 快速入门
-lang: zh-CN
 ---
 
 ```shell

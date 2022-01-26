@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: 入门指南
-lang: zh-CN
 ---
 
 Astro 是一个现代的静态网站生成工具. 你可以从 [我们的主页](https://astro.build/) 或者 [我们的 release 公告](https://astro.build/blog/introducing-astro) 中了解到 Astro 的全部内容,本页是 Astro 文档和所有相关资源的概述。

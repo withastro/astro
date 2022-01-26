@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: 範例
-lang: zh-Hant-TW
 ---
 
 如果喜歡從做中學，可以看看放在 Github 的[範例資源庫](https://github.com/withastro/astro/tree/main/examples)。

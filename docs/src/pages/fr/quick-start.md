@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Démarrage rapide
-lang: fr
 ---
 
 ```shell

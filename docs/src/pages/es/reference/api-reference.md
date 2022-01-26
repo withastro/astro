@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Referencia de API
-lang: es
 ---
 
 ## `Astro` global

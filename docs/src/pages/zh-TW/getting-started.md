@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: 新手上路
-lang: zh-Hant-TW
 ---
 
 Astro 是利用現代技術的靜態網站生成工具。可以從[首頁](https://astro.build/)或[釋出版本貼文](https://astro.build/blog/introducing-astro)來了解 Astro 的用途。此頁面是 Astro 文件與所有相關資源的概要。

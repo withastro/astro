@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Bien démarrer
-lang: fr
 ---
 
 Astro est un générateur de site statique moderne. Comprenez ce qu'est Astro en visitant [notre page d'accueil](https://astro.build/) ou [notre annonce de sortie](https://astro.build/blog/introducing-astro). Cette page est une vue d'ensemble de la documentation d'Astro et de toutes les ressources associées.

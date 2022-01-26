@@ -1,7 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: 安装指南
-lang: zh-CN
 ---
 
 可以使用多种方式创建 Astro 新项目
