@@ -114,13 +114,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        node_version: [14, 16]
-        include:
-          - os: windows-latest
-            node_version: 16
-          - os: macos-latest
-            node_version: 16
+        os: [windows-latest]
+        node_version: [16]
       fail-fast: false
     needs:
       - build
