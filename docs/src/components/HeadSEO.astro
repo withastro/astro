@@ -10,7 +10,8 @@ const { content = {}, canonicalURL } = Astro.props;
 const imageSrc = content?.image?.src ?? OPEN_GRAPH.image.src;
 const canonicalImageSrc = new URL(imageSrc, Astro.site);
 const imageAlt = content?.image?.alt ?? OPEN_GRAPH.image.alt;
-const lang = getLanguageFromURL(canonicalURL?.pathname || "");
+const lang = getLanguageFromURL(canonicalURL?.pathname || "/");
+const ogLocale = lang.replace(/-/g, '_');
 ---
 
 <!-- Page Metadata -->
@@ -23,7 +24,7 @@ const lang = getLanguageFromURL(canonicalURL?.pathname || "");
 <meta property="og:title" content={content.title ?? SITE.title} />
 <meta property="og:type" content="article" />
 <meta property="og:url" content={canonicalURL} />
-<meta property="og:locale" content={lang.replace(/-/g, '_')} />
+<meta property="og:locale" content={ogLocale} />
 <meta property="og:image" content={canonicalImageSrc} />
 <meta property="og:image:alt" content={imageAlt} />
 <meta
