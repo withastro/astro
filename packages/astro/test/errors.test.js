@@ -1,225 +1,208 @@
 import { expect } from 'chai';
-import os from 'os';
-import { loadFixture } from './test-utils.js';
-
-// TODO: fix these tests on macOS
-const isMacOS = os.platform() === 'darwin';
-
-let fixture;
-let devServer;
-
-before(async () => {
-  fixture = await loadFixture({
-    projectRoot: './fixtures/errors',
-    renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-react', '@astrojs/renderer-solid', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
-    vite: {
-      optimizeDeps: false, // necessary to prevent Vite throwing on bad files
-    },
-  });
-  devServer = await fixture.startDevServer();
-});
+import { isWindows, loadFixture } from './test-utils.js';
 
 describe('Error display', () => {
-  describe('Astro', () => {
-    it('syntax error', async () => {
-      if (isMacOS) return;
+	if (isWindows) return;
 
-      const res = await fixture.fetch('/astro-syntax-error');
+	let fixture;
+	let devServer;
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+	before(async () => {
+		fixture = await loadFixture({
+			projectRoot: './fixtures/errors',
+			renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-react', '@astrojs/renderer-solid', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
+			vite: {
+				optimizeDeps: false, // necessary to prevent Vite throwing on bad files
+			},
+		});
+		devServer = await fixture.startDevServer();
+	});
 
-      // error message includes "unrecoverable error"
-      const body = await res.text();
-      expect(body).to.include('unrecoverable error');
-    });
+	after(async () => {
+		await devServer.stop();
+	});
 
-    it('runtime error', async () => {
-      if (isMacOS) return;
+	describe('Astro', () => {
+		it('syntax error in template', async () => {
+			const res = await fixture.fetch('/astro-syntax-error');
 
-      const res = await fixture.fetch('/astro-runtime-error');
+			expect(res.status).to.equal(500);
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			const body = await res.text();
 
-      // error message contains error
-      const body = await res.text();
-      expect(body).to.include('ReferenceError: title is not defined');
+			expect(body).to.include('Unexpected &quot;}&quot;');
+		});
 
-      // TODO: improve stacktrace
-    });
-  });
+		it('syntax error in frontmatter', async () => {
+			const res = await fixture.fetch('/astro-frontmatter-syntax-error');
 
-  describe('JS', () => {
-    it('syntax error', async () => {
-      if (isMacOS) return;
+			expect(res.status).to.equal(500);
 
-      const res = await fixture.fetch('/js-syntax-error');
+			const body = await res.text();
 
-      // 500 returnd
-      expect(res.status).to.equal(500);
+			expect(body).to.include('Unexpected end of frontmatter');
+		});
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('Parse failure');
-    });
+		it('runtime error', async () => {
+			const res = await fixture.fetch('/astro-runtime-error');
 
-    it('runtime error', async () => {
-      if (isMacOS) return;
+			expect(res.status).to.equal(500);
 
-      const res = await fixture.fetch('/js-runtime-error');
+			const body = await res.text();
 
-      // 500 returnd
-      expect(res.status).to.equal(500);
+			expect(body).to.include('ReferenceError: title is not defined');
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('ReferenceError: undefinedvar is not defined');
-    });
-  });
+			// TODO: improve and test stacktrace
+		});
 
-  describe('Preact', () => {
-    it('syntax error', async () => {
-      if (isMacOS) return;
+		it('hydration error', async () => {
+			const res = await fixture.fetch('/astro-hydration-error');
 
-      const res = await fixture.fetch('/preact-syntax-error');
+			expect(res.status).to.equal(500);
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			const body = await res.text();
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('Syntax error');
-    });
+			expect(body).to.include('Error: invalid hydration directive');
+		});
 
-    it('runtime error', async () => {
-      if (isMacOS) return;
+		it('client:media error', async () => {
+			const res = await fixture.fetch('/astro-client-media-error');
 
-      const res = await fixture.fetch('/preact-runtime-error');
+			expect(res.status).to.equal(500);
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			const body = await res.text();
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('Error: PreactRuntimeError');
-    });
-  });
+			expect(body).to.include('Error: Media query must be provided');
+		});
+	});
 
-  describe('React', () => {
-    it('syntax error', async () => {
-      if (isMacOS) return;
+	describe('JS', () => {
+		it('syntax error', async () => {
+			const res = await fixture.fetch('/js-syntax-error');
 
-      const res = await fixture.fetch('/react-syntax-error');
+			expect(res.status).to.equal(500);
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			const body = await res.text();
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('Syntax error');
-    });
+			expect(body).to.include('Parse failure');
+		});
 
-    it('runtime error', async () => {
-      if (isMacOS) return;
+		it('runtime error', async () => {
+			const res = await fixture.fetch('/js-runtime-error');
 
-      const res = await fixture.fetch('/react-runtime-error');
+			expect(res.status).to.equal(500);
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			const body = await res.text();
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('Error: ReactRuntimeError');
-    });
-  });
+			expect(body).to.include('ReferenceError: undefinedvar is not defined');
+		});
+	});
 
-  describe('Solid', () => {
-    it('syntax error', async () => {
-      if (isMacOS) return;
+	describe('Preact', () => {
+		it('syntax error', async () => {
+			const res = await fixture.fetch('/preact-syntax-error');
 
-      const res = await fixture.fetch('/solid-syntax-error');
+			expect(res.status).to.equal(500);
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			const body = await res.text();
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('Syntax error');
-    });
+			expect(body).to.include('Syntax error');
+		});
 
-    it('runtime error', async () => {
-      if (isMacOS) return;
+		it('runtime error', async () => {
+			const res = await fixture.fetch('/preact-runtime-error');
 
-      const res = await fixture.fetch('/solid-runtime-error');
+			expect(res.status).to.equal(500);
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			const body = await res.text();
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('Error: SolidRuntimeError');
-    });
-  });
+			expect(body).to.include('Error: PreactRuntimeError');
+		});
+	});
 
-  describe('Svelte', () => {
-    it('syntax error', async () => {
-      if (isMacOS) return;
+	describe('React', () => {
+		it('syntax error', async () => {
+			const res = await fixture.fetch('/react-syntax-error');
 
-      const res = await fixture.fetch('/svelte-syntax-error');
+			expect(res.status).to.equal(500);
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			const body = await res.text();
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('ParseError');
-    });
+			expect(body).to.include('Syntax error');
+		});
 
-    it('runtime error', async () => {
-      if (isMacOS) return;
+		it('runtime error', async () => {
+			const res = await fixture.fetch('/react-runtime-error');
 
-      const res = await fixture.fetch('/svelte-runtime-error');
+			expect(res.status).to.equal(500);
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			const body = await res.text();
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.include('Error: SvelteRuntimeError');
-    });
-  });
+			expect(body).to.include('Error: ReactRuntimeError');
+		});
+	});
 
-  describe('Vue', () => {
-    it('syntax error', async () => {
-      if (isMacOS) return;
+	describe('Solid', () => {
+		it('syntax error', async () => {
+			const res = await fixture.fetch('/solid-syntax-error');
 
-      const res = await fixture.fetch('/vue-syntax-error');
+			expect(res.status).to.equal(500);
 
-      const body = await res.text();
+			const body = await res.text();
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			expect(body).to.include('Syntax error');
+		});
 
-      // error message is helpful
-      expect(body).to.include('Parse failure');
-    });
+		it('runtime error', async () => {
+			const res = await fixture.fetch('/solid-runtime-error');
 
-    it('runtime error', async () => {
-      if (isMacOS) return;
+			expect(res.status).to.equal(500);
 
-      const res = await fixture.fetch('/vue-runtime-error');
+			const body = await res.text();
 
-      // 500 returned
-      expect(res.status).to.equal(500);
+			expect(body).to.include('Error: SolidRuntimeError');
+		});
+	});
 
-      // error message is helpful
-      const body = await res.text();
-      expect(body).to.match(/Cannot read.*undefined/); // note: error differs slightly between Node versions
-    });
-  });
-});
+	describe('Svelte', () => {
+		it('syntax error', async () => {
+			const res = await fixture.fetch('/svelte-syntax-error');
 
-after(async () => {
-  await devServer.stop();
+			expect(res.status).to.equal(500);
+
+			const body = await res.text();
+
+			expect(body).to.include('Internal Error');
+		});
+
+		it('runtime error', async () => {
+			const res = await fixture.fetch('/svelte-runtime-error');
+
+			expect(res.status).to.equal(500);
+
+			const body = await res.text();
+
+			expect(body).to.include('Error: SvelteRuntimeError');
+		});
+	});
+
+	describe('Vue', () => {
+		it('syntax error', async () => {
+			const res = await fixture.fetch('/vue-syntax-error');
+			const body = await res.text();
+
+			expect(res.status).to.equal(500);
+			expect(body).to.include('Parse failure');
+		});
+
+		it('runtime error', async () => {
+			const res = await fixture.fetch('/vue-runtime-error');
+
+			expect(res.status).to.equal(500);
+
+			const body = await res.text();
+
+			expect(body).to.match(/Cannot read.*undefined/); // note: error differs slightly between Node versions
+		});
+	});
 });

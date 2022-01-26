@@ -15,7 +15,7 @@ Astro – это современный сборщик статических с
 
 ### Примеры проектов
 
-Если вы предпочитаете учить Astro по примерам, вы можете воспользоваться [полной библиотекой примеров](https://github.com/snowpackjs/astro/tree/main/examples) на GitHub.
+Если вы предпочитаете учить Astro по примерам, вы можете воспользоваться [полной библиотекой примеров](https://github.com/withastro/astro/tree/main/examples) на GitHub.
 
 Вы можете установить любой из этих примеров на вашу локальную машину с помощью команды `npm init astro` и дополнительного параметра `--template`. Флаг `--template` также поддерживает сторонние шаблоны.
 
@@ -30,13 +30,13 @@ npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
 ### Онлайн-песочницы
 
 Если вы хотите попробовать Astro прямо в браузере, можно использовать онлайн-редакторы кода, например, Stackblitz, CodeSandbox, Gitpod или GitHub Codespaces.
-Также вы можете нажать на кнопку "Open in Stackblitz" в любом из примеров в нашей [библиотеке](https://github.com/snowpackjs/astro/tree/main/examples). Или [нажмите здесь](https://stackblitz.com/fork/astro), чтобы запустить новый проект на [Stackblitz](https://stackblitz.com/fork/astro).
+Также вы можете нажать на кнопку "Open in Stackblitz" в любом из примеров в нашей [библиотеке](https://github.com/withastro/astro/tree/main/examples). Или [нажмите здесь](https://stackblitz.com/fork/astro), чтобы запустить новый проект на [Stackblitz](https://stackblitz.com/fork/astro).
 
 ## Изучаем Astro
 
 Люди, приходящие в Astro из разных областей, приносят свой уникальный стиль изучения. Независимо от того, какой стиль изучения вы предпочитаете: теоретический или практический, мы надеемся, этот раздел будет вам полезен.
 
-- Если вы предпочитаете **изучение на практике**, начните с нашей [библиотеки примеров](https://github.com/snowpackjs/astro/tree/main/examples).
+- Если вы предпочитаете **изучение на практике**, начните с нашей [библиотеки примеров](https://github.com/withastro/astro/tree/main/examples).
 - Если вы предпочитаете **изучать принципы шаг за шагом**, начните с [основных принципов и руководств](/core-concepts/project-structure).
 
 Как любая новая технология, Astro требует немного изучения.
@@ -62,11 +62,11 @@ npm init astro -- --template [GITHUB_USER]/[REPO_NAME]/path/to/example
 
 Также мы выкладываем анонсы релизов в нашем сообществе в [Discord](https://astro.build/chat) в канале #announcements.
 
-Не каждый релиз Astro заслуживает отдельной публикации в нашем блоге, но вы можете найти все детали в описании изменений к релизу в файле [`CHANGELOG.md`](https://github.com/snowpackjs/astro/blob/main/packages/astro/CHANGELOG.md) в нашем репозитории на Github.
+Не каждый релиз Astro заслуживает отдельной публикации в нашем блоге, но вы можете найти все детали в описании изменений к релизу в файле [`CHANGELOG.md`](https://github.com/withastro/astro/blob/main/packages/astro/CHANGELOG.md) в нашем репозитории на Github.
 
 ## Что-то упущено?
 
-Если в документации что-то пропущено или какая-то часть не совсем понятна, пожалуйста, [создайте issue по документации](https://github.com/snowpackjs/astro/issues/new/choose) с вашими предложениями об исправлениях или улучшениях, или упомяните наш [@astrodotbuild](https://twitter.com/astrodotbuild) Твиттер аккаунт в вашем твите. Мы всегда рады услышать ваши мысли об Astro!
+Если в документации что-то пропущено или какая-то часть не совсем понятна, пожалуйста, [создайте issue по документации](https://github.com/withastro/astro/issues/new/choose) с вашими предложениями об исправлениях или улучшениях, или упомяните наш [@astrodotbuild](https://twitter.com/astrodotbuild) Твиттер аккаунт в вашем твите. Мы всегда рады услышать ваши мысли об Astro!
 
 ## Благодарность
 

@@ -1,44 +1,44 @@
 ---
 export interface Props {
-  prevUrl: string;
-  nextUrl: string;
+	prevUrl: string;
+	nextUrl: string;
 }
 
 const { prevUrl, nextUrl } = Astro.props;
 ---
 
-<style lang="scss">
-.nav {
-  display: flex;
-  margin-right: auto;
-  margin-left: auto;
-  padding-top: 4rem;
-  padding-bottom: 4rem;
-}
-
-.prev,
-.next {
-  display: block;
-  text-transform: uppercase;
-  font-size: 0.8em;
-
-  &[href="#"] {
-    display: none;
-  }
-}
-
-.prev {
-  margin-right: auto;
-}
-
-.next {
-  margin-left: auto;
-}
-</style>
-
 <div class="wrapper">
-  <nav class="nav">
-    <a class="prev" href={prevUrl || '#'} aria-label="Previous Page">Prev</a>
-    <a class="next" href={nextUrl || '#'} aria-label="Next Page">Next</a>
-  </nav>
+	<nav class="nav">
+		<a class="prev" href={prevUrl || '#'} aria-label="Previous Page">Prev</a>
+		<a class="next" href={nextUrl || '#'} aria-label="Next Page">Next</a>
+	</nav>
 </div>
+
+<style lang="scss">
+	.nav {
+		display: flex;
+		margin-right: auto;
+		margin-left: auto;
+		padding-top: 4rem;
+		padding-bottom: 4rem;
+	}
+
+	.prev,
+	.next {
+		display: block;
+		text-transform: uppercase;
+		font-size: 0.8em;
+
+		&[href='#'] {
+			display: none;
+		}
+	}
+
+	.prev {
+		margin-right: auto;
+	}
+
+	.next {
+		margin-left: auto;
+	}
+</style>

@@ -3,113 +3,113 @@ import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('Slots', () => {
-  let fixture;
+	let fixture;
 
-  before(async () => {
-    fixture = await loadFixture({ projectRoot: './fixtures/astro-slots/' });
-    await fixture.build();
-  });
+	before(async () => {
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-slots/' });
+		await fixture.build();
+	});
 
-  it('Basic named slots work', async () => {
-    const html = await fixture.readFile('/index.html');
-    const $ = cheerio.load(html);
+	it('Basic named slots work', async () => {
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
 
-    expect($('#a').text().trim()).to.equal('A');
-    expect($('#b').text().trim()).to.equal('B');
-    expect($('#c').text().trim()).to.equal('C');
-    expect($('#default').text().trim()).to.equal('Default');
-  });
+		expect($('#a').text().trim()).to.equal('A');
+		expect($('#b').text().trim()).to.equal('B');
+		expect($('#c').text().trim()).to.equal('C');
+		expect($('#default').text().trim()).to.equal('Default');
+	});
 
-  it('Dynamic named slots work', async () => {
-    const html = await fixture.readFile('/dynamic/index.html');
-    const $ = cheerio.load(html);
+	it('Dynamic named slots work', async () => {
+		const html = await fixture.readFile('/dynamic/index.html');
+		const $ = cheerio.load(html);
 
-    expect($('#a').text().trim()).to.equal('A');
-    expect($('#b').text().trim()).to.equal('B');
-    expect($('#c').text().trim()).to.equal('C');
-    expect($('#default').text().trim()).to.equal('Default');
-  });
+		expect($('#a').text().trim()).to.equal('A');
+		expect($('#b').text().trim()).to.equal('B');
+		expect($('#c').text().trim()).to.equal('C');
+		expect($('#default').text().trim()).to.equal('Default');
+	});
 
-  it('Slots render fallback content by default', async () => {
-    const html = await fixture.readFile('/fallback/index.html');
-    const $ = cheerio.load(html);
+	it('Slots render fallback content by default', async () => {
+		const html = await fixture.readFile('/fallback/index.html');
+		const $ = cheerio.load(html);
 
-    expect($('#default')).to.have.lengthOf(1);
-  });
+		expect($('#default')).to.have.lengthOf(1);
+	});
 
-  it('Slots override fallback content', async () => {
-    const html = await fixture.readFile('/fallback-override/index.html');
-    const $ = cheerio.load(html);
+	it('Slots override fallback content', async () => {
+		const html = await fixture.readFile('/fallback-override/index.html');
+		const $ = cheerio.load(html);
 
-    expect($('#override')).to.have.lengthOf(1);
-  });
+		expect($('#override')).to.have.lengthOf(1);
+	});
 
-  it('Slots work with multiple elements', async () => {
-    const html = await fixture.readFile('/multiple/index.html');
-    const $ = cheerio.load(html);
+	it('Slots work with multiple elements', async () => {
+		const html = await fixture.readFile('/multiple/index.html');
+		const $ = cheerio.load(html);
 
-    expect($('#a').text().trim()).to.equal('ABC');
-  });
+		expect($('#a').text().trim()).to.equal('ABC');
+	});
 
-  it('Slots work on Components', async () => {
-    const html = await fixture.readFile('/component/index.html');
-    const $ = cheerio.load(html);
+	it('Slots work on Components', async () => {
+		const html = await fixture.readFile('/component/index.html');
+		const $ = cheerio.load(html);
 
-    // test 1: #a renders
-    expect($('#a')).to.have.lengthOf(1);
+		// test 1: #a renders
+		expect($('#a')).to.have.lengthOf(1);
 
-    // test 2: Slotted component into #a
-    expect($('#a').children('astro-component')).to.have.lengthOf(1);
+		// test 2: Slotted component into #a
+		expect($('#a').children('astro-component')).to.have.lengthOf(1);
 
-    // test 3: Slotted component into default slot
-    expect($('#default').children('astro-component')).to.have.lengthOf(1);
-  });
+		// test 3: Slotted component into default slot
+		expect($('#default').children('astro-component')).to.have.lengthOf(1);
+	});
 
-  it('Slots API work on Components', async () => {
-    // IDs will exist whether the slots are filled or not
-    {
-      const html = await fixture.readFile('/slottedapi-default/index.html');
-      const $ = cheerio.load(html);
+	it('Slots API work on Components', async () => {
+		// IDs will exist whether the slots are filled or not
+		{
+			const html = await fixture.readFile('/slottedapi-default/index.html');
+			const $ = cheerio.load(html);
 
-      expect($('#a')).to.have.lengthOf(1);
-      expect($('#b')).to.have.lengthOf(1);
-      expect($('#c')).to.have.lengthOf(1);
-      expect($('#default')).to.have.lengthOf(1);
-    }
+			expect($('#a')).to.have.lengthOf(1);
+			expect($('#b')).to.have.lengthOf(1);
+			expect($('#c')).to.have.lengthOf(1);
+			expect($('#default')).to.have.lengthOf(1);
+		}
 
-    // IDs will not exist because the slots are not filled
-    {
-      const html = await fixture.readFile('/slottedapi-empty/index.html');
-      const $ = cheerio.load(html);
+		// IDs will not exist because the slots are not filled
+		{
+			const html = await fixture.readFile('/slottedapi-empty/index.html');
+			const $ = cheerio.load(html);
 
-      expect($('#a')).to.have.lengthOf(0);
-      expect($('#b')).to.have.lengthOf(0);
-      expect($('#c')).to.have.lengthOf(0);
-      expect($('#default')).to.have.lengthOf(0);
-    }
+			expect($('#a')).to.have.lengthOf(0);
+			expect($('#b')).to.have.lengthOf(0);
+			expect($('#c')).to.have.lengthOf(0);
+			expect($('#default')).to.have.lengthOf(0);
+		}
 
-    // IDs will exist because the slots are filled
-    {
-      const html = await fixture.readFile('/slottedapi-filled/index.html');
-      const $ = cheerio.load(html);
+		// IDs will exist because the slots are filled
+		{
+			const html = await fixture.readFile('/slottedapi-filled/index.html');
+			const $ = cheerio.load(html);
 
-      expect($('#a')).to.have.lengthOf(1);
-      expect($('#b')).to.have.lengthOf(1);
-      expect($('#c')).to.have.lengthOf(1);
+			expect($('#a')).to.have.lengthOf(1);
+			expect($('#b')).to.have.lengthOf(1);
+			expect($('#c')).to.have.lengthOf(1);
 
-      expect($('#default')).to.have.lengthOf(0); // the default slot is not filled
-    }
+			expect($('#default')).to.have.lengthOf(0); // the default slot is not filled
+		}
 
-    // Default ID will exist because the default slot is filled
-    {
-      const html = await fixture.readFile('/slottedapi-default-filled/index.html');
-      const $ = cheerio.load(html);
+		// Default ID will exist because the default slot is filled
+		{
+			const html = await fixture.readFile('/slottedapi-default-filled/index.html');
+			const $ = cheerio.load(html);
 
-      expect($('#a')).to.have.lengthOf(0);
-      expect($('#b')).to.have.lengthOf(0);
-      expect($('#c')).to.have.lengthOf(0);
+			expect($('#a')).to.have.lengthOf(0);
+			expect($('#b')).to.have.lengthOf(0);
+			expect($('#c')).to.have.lengthOf(0);
 
-      expect($('#default')).to.have.lengthOf(1); // the default slot is filled
-    }
-  });
+			expect($('#default')).to.have.lengthOf(1); // the default slot is filled
+		}
+	});
 });

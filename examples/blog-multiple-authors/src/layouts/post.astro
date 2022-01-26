@@ -7,73 +7,72 @@ const { content } = Astro.props;
 let canonicalURL = Astro.request.canonicalURL;
 ---
 
-<html lang={ content.lang || 'en' }>
-  <head>
-    <title>{content.title}</title>
-    <MainHead title={content.title} description={content.description} image={content.image} canonicalURL={canonicalURL} />
-    <style lang="scss">
-      .title {
-        margin-top: 4rem;
-        margin-bottom: 4rem;
-        font-size: 3em;
-        letter-spacing: -0.04em;
-        text-align: center;
-      }
+<html lang={content.lang || 'en'}>
+	<head>
+		<title>{content.title}</title>
+		<MainHead title={content.title} description={content.description} image={content.image} {canonicalURL} />
+		<style lang="scss">
+			.title {
+				margin-top: 4rem;
+				margin-bottom: 4rem;
+				font-size: 3em;
+				letter-spacing: -0.04em;
+				text-align: center;
+			}
 
-      .description {
-        margin-bottom: 4rem;
-        font-size: 1.4em;
-        font-weight: 400;
-        text-align: justify;
-        text-transform: uppercase;
-      }
+			.description {
+				margin-bottom: 4rem;
+				font-size: 1.4em;
+				font-weight: 400;
+				text-align: justify;
+				text-transform: uppercase;
+			}
 
-      .img {
-        display: block;
-        width: 100%;
-        height: auto;
-      }
+			.img {
+				display: block;
+				width: 100%;
+				height: auto;
+			}
 
-      .article {
-        margin-top: 4rem;
-        margin-bottom: 6rem;
+			.article {
+				margin-top: 4rem;
+				margin-bottom: 6rem;
 
-        :global(p) {
-          font-size: 1.3em;
-          line-height: 2;
-          margin-top: 2em;
-          margin-bottom: 2em;
-        }
-      }
+				:global(p) {
+					font-size: 1.3em;
+					line-height: 2;
+					margin-top: 2em;
+					margin-bottom: 2em;
+				}
+			}
 
-      .posts {
-        text-transform: uppercase;
-      }
+			.posts {
+				text-transform: uppercase;
+			}
 
-      .footer {
-        margin-top: 6rem;
-        padding-bottom: 6rem;
-        text-align: center;
-      }
-    </style>
-  </head>
+			.footer {
+				margin-top: 6rem;
+				padding-bottom: 6rem;
+				text-align: center;
+			}
+		</style>
+	</head>
 
-  <body>
-    <Nav />
+	<body>
+		<Nav />
 
-    <main class="wrapper">
-      <h2 class="title">{content.title}</h2>
-      <p class="description">{content.description}</p>
-      <img class="img" src={content.image} alt="">
-      <article class="article">
-        <slot />
-      </article>
-      <footer class="footer">
-        <a class="posts" href="/posts">All Posts</a>
-      </footer>
-    </main>
+		<main class="wrapper">
+			<h2 class="title">{content.title}</h2>
+			<p class="description">{content.description}</p>
+			<img class="img" src={content.image} alt="" />
+			<article class="article">
+				<slot />
+			</article>
+			<footer class="footer">
+				<a class="posts" href="/posts">All Posts</a>
+			</footer>
+		</main>
 
-    <footer>
-    </footer>
-  </body>
+		<footer></footer>
+	</body>
 </html>

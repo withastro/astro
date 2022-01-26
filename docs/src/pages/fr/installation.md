@@ -8,7 +8,7 @@ Il y a plusieurs façons d'installer Astro dans un nouveau projet.
 
 ## Prérequis
 
-- **Node.js** - `v12.20.0`, `v14.13.1`, `v16.0.0`, or plus.
+- **Node.js** - `v14.15.0`, `v16.0.0`, or plus.
 - **Éditeur de texte** - Privilégiez [VS Code](https://code.visualstudio.com/) et [l'extension Astro officielle](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode).
 - **Terminal** - Astro s'utilise principalement en ligne de commande.
 
@@ -26,7 +26,7 @@ npm init astro
 yarn create astro
 ```
 
-L'assistant d'installation [`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) vous propose de choisir entre différents [squelettes d'application](/examples), mais offre aussi la possibilité d'importer un projet Astro directement depuis GitHub.
+L'assistant d'installation [`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro) vous propose de choisir entre différents [squelettes d'application](/examples), mais offre aussi la possibilité d'importer un projet Astro directement depuis GitHub.
 
 ```bash
 # Note : remplacez "my-astro-project" avec le nom de votre projet.

@@ -1,0 +1,11 @@
+---
+import Counter from '../components/Counter.svelte'
+---
+<main>
+  <Counter id="default-self-closing" client:visible/>
+  <Counter id="default-empty" client:visible></Counter>
+  <Counter case="zero" client:visible>{0}</Counter>
+  <Counter case="false" client:visible>{false}</Counter>
+  <Counter case="string" client:visible>{''}</Counter>
+  <Counter id="content" client:visible><h1 id="slotted">Hello world!</h1></Counter>
+</main>

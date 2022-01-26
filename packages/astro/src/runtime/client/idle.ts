@@ -5,19 +5,19 @@ import type { GetHydrateCallback, HydrateOptions } from '../../@types/astro';
  * (or after a short delay, if `requestIdleCallback`) isn't supported
  */
 export default async function onIdle(astroId: string, _options: HydrateOptions, getHydrateCallback: GetHydrateCallback) {
-  const cb = async () => {
-    const roots = document.querySelectorAll(`astro-root[uid="${astroId}"]`);
-    const innerHTML = roots[0].querySelector(`astro-fragment`)?.innerHTML ?? null;
-    const hydrate = await getHydrateCallback();
+	const cb = async () => {
+		const roots = document.querySelectorAll(`astro-root[uid="${astroId}"]`);
+		const innerHTML = roots[0].querySelector(`astro-fragment`)?.innerHTML ?? null;
+		const hydrate = await getHydrateCallback();
 
-    for (const root of roots) {
-      hydrate(root, innerHTML);
-    }
-  };
+		for (const root of roots) {
+			hydrate(root, innerHTML);
+		}
+	};
 
-  if ('requestIdleCallback' in window) {
-    (window as any).requestIdleCallback(cb);
-  } else {
-    setTimeout(cb, 200);
-  }
+	if ('requestIdleCallback' in window) {
+		(window as any).requestIdleCallback(cb);
+	} else {
+		setTimeout(cb, 200);
+	}
 }

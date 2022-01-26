@@ -18,48 +18,48 @@ const items = ['A', 'B', 'C'];
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
 ---
+
 <Layout content={{ title }}>
-  <Markdown>
-    # Introducing {title}
+	<Markdown>
+		# Introducing {title}
 
-    **Astro Markdown** brings native Markdown support to HTML!
+		**Astro Markdown** brings native Markdown support to HTML!
 
-    > It's inspired by [`MDX`](https://mdxjs.com/) and powered by [`remark`](https://github.com/remarkjs/remark).
+		> It's inspired by [`MDX`](https://mdxjs.com/) and powered by [`remark`](https://github.com/remarkjs/remark).
 
-    The best part? It comes with all the Astro features you expect.
+		The best part? It comes with all the Astro features you expect.
 
-    [Other example](./other)
+		[Other example](./other)
 
-    ## Embed framework components
+		## Embed framework components
 
-    <ReactCounter client:visible />
-    <PreactCounter client:visible />
-    <VueCounter client:visible />
-    <SvelteCounter client:visible />
+		<ReactCounter client:visible />
+		<PreactCounter client:visible />
+		<VueCounter client:visible />
+		<SvelteCounter client:visible />
 
-    ## Use Expressions
+		## Use Expressions
 
-    You can use any {variable} in scope and use JavaScript for templating ({items.join(', ')})
+		You can use any {variable} in scope and use JavaScript for templating ({items.join(', ')})
 
-    ## Oh yeah...
+		## Oh yeah...
 
-    <ReactCounter client:visible>
+		<ReactCounter client:visible>
 
-      🤯 It's also _recursive_!
+		🤯 It's also _recursive_!
 
-      ### Markdown can be embedded in any child component
+		### Markdown can be embedded in any child component
 
-    </ReactCounter>
+		</ReactCounter>
 
-    ## Code
+		## Code
 
-    Should work!
+		Should work!
 
-    ```js
-    import Something from './another';
+		```js
+		import Something from './another';
 
-    const thing = new Something();
-    ```
-
-  </Markdown>
+		const thing = new Something();
+		```
+	</Markdown>
 </Layout>

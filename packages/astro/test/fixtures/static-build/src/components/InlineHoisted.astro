@@ -1,0 +1,13 @@
+<script type="module" hoist>
+	import { h, render } from 'preact';
+
+
+	const mount = document.querySelector('#inline-hoist');
+
+	function App() {
+		return h('strong', null, 'Hello again');
+	}
+
+	render(h(App), mount);
+</script>
+<div id="inline-hoist"></div>

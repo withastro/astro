@@ -1,0 +1,13 @@
+---
+export interface Props extends Record<any, any> {
+	type?: string;
+}
+
+const { type, ...props } = {
+	...Astro.props,
+} as Props;
+
+props.type = type || 'button';
+---
+
+<button {...props}><slot /></button>

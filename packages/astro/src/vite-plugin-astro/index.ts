@@ -1,127 +1,175 @@
-import type { TransformResult } from '@astrojs/compiler';
-import type { SourceMapInput } from 'rollup';
 import type vite from '../core/vite';
 import type { AstroConfig } from '../@types/astro';
+import type { LogOptions } from '../core/logger';
 
 import esbuild from 'esbuild';
-import fs from 'fs';
+import npath from 'path';
 import { fileURLToPath } from 'url';
-import os from 'os';
-import { transform } from '@astrojs/compiler';
 import { AstroDevServer } from '../core/dev/index.js';
-import { getViteTransform, TransformHook, transformWithVite } from './styles.js';
+import { getViteTransform, TransformHook } from './styles.js';
+import { parseAstroRequest } from './query.js';
+import { cachedCompilation, invalidateCompilation } from './compile.js';
+import ancestor from 'common-ancestor-path';
 
+const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
-  config: AstroConfig;
-  devServer?: AstroDevServer;
-}
-
-// https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
-function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
-  if (options === undefined) {
-    return false;
-  }
-  if (typeof options === 'boolean') {
-    return options;
-  }
-  if (typeof options == 'object') {
-    return !!options.ssr;
-  }
-  return false;
+	config: AstroConfig;
+	logging: LogOptions;
+	devServer?: AstroDevServer;
 }
 
 /** Transform .astro files for Vite */
-export default function astro({ config, devServer }: AstroPluginOptions): vite.Plugin {
-  let platform: NodeJS.Platform;
-  let viteTransform: TransformHook;
-  return {
-    name: '@astrojs/vite-plugin-astro',
-    enforce: 'pre', // run transforms before other plugins can
-    configResolved(resolvedConfig) {
-      platform = os.platform(); // TODO: remove macOS hack
-      viteTransform = getViteTransform(resolvedConfig);
-    },
-    // note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
-    async load(id, opts) {
-      if (!id.endsWith('.astro')) {
-        return null;
-      }
-      // pages and layouts should be transformed as full documents (implicit <head> <body> etc)
-      // everything else is treated as a fragment
-      const normalizedID = fileURLToPath(new URL(`file://${id}`));
-      const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
-      let source = await fs.promises.readFile(id, 'utf8');
-      let tsResult: TransformResult | undefined;
+export default function astro({ config, logging }: AstroPluginOptions): vite.Plugin {
+	function normalizeFilename(filename: string) {
+		if (filename.startsWith('/@fs')) {
+			filename = filename.slice('/@fs'.length);
+		} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
+			filename = new URL('.' + filename, config.projectRoot).pathname;
+		}
+		return filename;
+	}
 
-      try {
-        // Transform from `.astro` to valid `.ts`
-        // use `sourcemap: "both"` so that sourcemap is included in the code
-        // result passed to esbuild, but also available in the catch handler.
-        tsResult = await transform(source, {
-          as: isPage ? 'document' : 'fragment',
-          site: config.buildOptions.site,
-          sourcefile: id,
-          sourcemap: 'both',
-          internalURL: 'astro/internal',
-          preprocessStyle: async (value: string, attrs: Record<string, string>) => {
-            const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
-            const result = await transformWithVite({ value, lang, id, transformHook: viteTransform, ssr: isSSR(opts) });
-            if (!result) {
-              // TODO: compiler supports `null`, but types don't yet
-              return result as any;
-            }
-            let map: SourceMapInput | undefined;
-            if (result.map) {
-              if (typeof result.map === 'string') {
-                map = result.map;
-              } else if (result.map.mappings) {
-                map = result.map.toString();
-              }
-            }
-            return { code: result.code, map };
-          },
-        });
+	let viteTransform: TransformHook;
 
-        // Compile `.ts` to `.js`
-        const { code, map } = await esbuild.transform(tsResult.code, { loader: 'ts', sourcemap: 'external', sourcefile: id });
+	// Variables for determing if an id starts with /src...
+	const srcRootWeb = config.src.pathname.slice(config.projectRoot.pathname.length - 1);
+	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
 
-        return {
-          code,
-          map,
-        };
-      } catch (err: any) {
-        // improve compiler errors
-        if (err.stack.includes('wasm-function')) {
-          const search = new URLSearchParams({
-            labels: 'compiler',
-            title: '🐛 BUG: `@astrojs/compiler` panic',
-            body: `### Describe the Bug
+	return {
+		name: '@astrojs/vite-plugin-astro',
+		enforce: 'pre', // run transforms before other plugins can
+		configResolved(resolvedConfig) {
+			viteTransform = getViteTransform(resolvedConfig);
+		},
+		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
+		async resolveId(id) {
+			// serve sub-part requests (*?astro) as virtual modules
+			const { query } = parseAstroRequest(id);
+			if (query.astro) {
+				// Convert /src/pages/index.astro?astro&type=style to /Users/name/
+				// Because this needs to be the id for the Vite CSS plugin to property resolve
+				// relative @imports.
+				if (query.type === 'style' && isBrowserPath(id)) {
+					const outId = npath.posix.join(config.projectRoot.pathname, id);
+					return outId;
+				}
 
-\`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
+				return id;
+			}
+		},
+		async load(id, opts) {
+			let { filename, query } = parseAstroRequest(id);
+			if (query.astro) {
+				if (query.type === 'style') {
+					if (typeof query.index === 'undefined') {
+						throw new Error(`Requests for Astro CSS must include an index.`);
+					}
 
-**${id.replace(fileURLToPath(config.projectRoot), '')}**
-\`\`\`astro
-${source}
-\`\`\`
-`,
-          });
-          err.url = `https://github.com/snowpackjs/astro/issues/new?${search.toString()}`;
-          err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
+					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
+					const csses = transformResult.css;
+					const code = csses[query.index];
 
-Please open
-a GitHub issue using the link below:
-${err.url}`;
-          // TODO: remove stack replacement when compiler throws better errors
-          err.stack = `    at ${id}`;
-        }
+					return {
+						code,
+					};
+				} else if (query.type === 'script') {
+					if (typeof query.index === 'undefined') {
+						throw new Error(`Requests for hoisted scripts must include an index`);
+					}
 
-        throw err;
-      }
-    },
-    // async handleHotUpdate(context) {
-    //   if (devServer) {
-    //     return devServer.handleHotUpdate(context);
-    //   }
-    // },
-  };
+					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
+					const scripts = transformResult.scripts;
+					const hoistedScript = scripts[query.index];
+
+					if (!hoistedScript) {
+						throw new Error(`No hoisted script at index ${query.index}`);
+					}
+
+					return {
+						code: hoistedScript.type === 'inline' ? hoistedScript.code! : `import "${hoistedScript.src!}";`,
+					};
+				}
+			}
+
+			return null;
+		},
+		async transform(source, id, opts) {
+			if (!id.endsWith('.astro')) {
+				return;
+			}
+
+			try {
+				const transformResult = await cachedCompilation(config, id, source, viteTransform, opts);
+
+				// Compile all TypeScript to JavaScript.
+				// Also, catches invalid JS/TS in the compiled output before returning.
+				const { code, map } = await esbuild.transform(transformResult.code, {
+					loader: 'ts',
+					sourcemap: 'external',
+					sourcefile: id,
+				});
+
+				return {
+					code,
+					map,
+				};
+			} catch (err: any) {
+				// Verify frontmatter: a common reason that this plugin fails is that
+				// the user provided invalid JS/TS in the component frontmatter.
+				// If the frontmatter is invalid, the `err` object may be a compiler
+				// panic or some other vague/confusing compiled error message.
+				//
+				// Before throwing, it is better to verify the frontmatter here, and
+				// let esbuild throw a more specific exception if the code is invalid.
+				// If frontmatter is valid or cannot be parsed, then continue.
+				const scannedFrontmatter = FRONTMATTER_PARSE_REGEXP.exec(source);
+				if (scannedFrontmatter) {
+					try {
+						await esbuild.transform(scannedFrontmatter[1], { loader: 'ts', sourcemap: false, sourcefile: id });
+					} catch (frontmatterErr: any) {
+						// Improve the error by replacing the phrase "unexpected end of file"
+						// with "unexpected end of frontmatter" in the esbuild error message.
+						if (frontmatterErr && frontmatterErr.message) {
+							frontmatterErr.message = frontmatterErr.message.replace('end of file', 'end of frontmatter');
+						}
+						throw frontmatterErr;
+					}
+				}
+
+				// improve compiler errors
+				if (err.stack.includes('wasm-function')) {
+					const search = new URLSearchParams({
+						labels: 'compiler',
+						title: '🐛 BUG: `@astrojs/compiler` panic',
+						body: `### Describe the Bug
+    
+    \`@astrojs/compiler\` encountered an unrecoverable error when compiling the following file.
+    
+    **${id.replace(fileURLToPath(config.projectRoot), '')}**
+    \`\`\`astro
+    ${source}
+    \`\`\`
+    `,
+					});
+					err.url = `https://github.com/withastro/astro/issues/new?${search.toString()}`;
+					err.message = `Error: Uh oh, the Astro compiler encountered an unrecoverable error!
+    
+    Please open
+    a GitHub issue using the link below:
+    ${err.url}`;
+
+					if (logging.level !== 'debug') {
+						// TODO: remove stack replacement when compiler throws better errors
+						err.stack = `    at ${id}`;
+					}
+				}
+
+				throw err;
+			}
+		},
+		async handleHotUpdate(context) {
+			// Invalidate the compilation cache so it recompiles
+			invalidateCompilation(config, context.file);
+		},
+	};
 }

@@ -1,38 +1,46 @@
 import type vite from '../vite';
 
 import path from 'path';
-import { viteifyURL } from '../util.js';
+import { viteID } from '../util.js';
 
 // https://vitejs.dev/guide/features.html#css-pre-processors
 export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.postcss', '.scss', '.sass', '.styl', '.stylus', '.less']);
 
-/** find unloaded styles */
+const cssRe = new RegExp(
+	`\\.(${Array.from(STYLE_EXTENSIONS)
+		.map((s) => s.slice(1))
+		.join('|')})($|\\?)`
+);
+export const isCSSRequest = (request: string): boolean => cssRe.test(request);
+
+/**
+ * getStylesForURL
+ * Given a filePath URL, crawl Vite’s module graph to find style files
+ */
 export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
-  const css = new Set<string>();
-  const { idToModuleMap } = viteServer.moduleGraph;
-  const rootID = viteifyURL(filePath);
-  const moduleGraph = idToModuleMap.get(rootID);
-  if (!moduleGraph) return css;
+	const css = new Set<string>();
 
-  // recursively crawl module graph to get all style files imported by parent id
-  function crawlCSS(entryModule: string, scanned = new Set<string>()) {
-    const moduleName = idToModuleMap.get(entryModule);
-    if (!moduleName) return;
-    if (!moduleName.id) return;
-    // mark the entrypoint as scanned to avoid an infinite loop
-    scanned.add(moduleName.id);
-    for (const importedModule of moduleName.importedModules) {
-      if (!importedModule.id || scanned.has(importedModule.id)) continue;
-      const ext = path.extname(importedModule.id.toLowerCase());
-      if (STYLE_EXTENSIONS.has(ext)) {
-        css.add(importedModule.id); // if style file, add to list
-      } else {
-        crawlCSS(importedModule.id, scanned); // otherwise, crawl file to see if it imports any CSS
-      }
-      scanned.add(importedModule.id);
-    }
-  }
-  crawlCSS(rootID);
+	// recursively crawl module graph to get all style files imported by parent id
+	function crawlCSS(id: string, scanned = new Set<string>()) {
+		// note: use .idToModuleMap() for lookups (.urlToModuleMap() may produce different
+		// URLs for modules depending on conditions, making resolution difficult)
+		const moduleName = viteServer.moduleGraph.idToModuleMap.get(id);
+		if (!moduleName || !moduleName.id) return;
 
-  return css;
+		scanned.add(moduleName.id);
+
+		// scan importedModules
+		for (const importedModule of moduleName.importedModules) {
+			if (!importedModule.id || scanned.has(importedModule.id)) continue;
+			const ext = path.extname(importedModule.url.toLowerCase());
+			if (STYLE_EXTENSIONS.has(ext)) {
+				css.add(importedModule.url); // note: return `url`s for HTML (not .id, which will break Windows)
+			}
+			crawlCSS(importedModule.id, scanned);
+		}
+	}
+
+	crawlCSS(viteID(filePath));
+
+	return css;
 }

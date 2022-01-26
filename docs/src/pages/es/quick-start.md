@@ -5,7 +5,7 @@ lang: es
 ---
 
 ```shell
-# prerrequisitos: revisa que Node.js está en la versión 12.20.0+, 14.13.1+, ó 16+
+# prerrequisitos: revisa que Node.js está en la versión 14.15.0+, ó 16+
 node --version
 
 # crea un nuevo proyecto en el directorio y entra a él
@@ -30,7 +30,7 @@ npm run build
 
 Para saber más sobre la instalación y uso de Astro por primera vez, por favor [lea nuestra guía de instalación.](installation)
 
-Si prefieres aprender con ejemplos, revisa nuestra [librería completa de ejemplos](https://github.com/snowpackjs/astro/tree/main/examples) en GitHub. Puedes revisar cualquiera de estos ejemplos localmente ejecutando `npm init astro -- --template "EXAMPLE_NAME"`.
+Si prefieres aprender con ejemplos, revisa nuestra [librería completa de ejemplos](https://github.com/withastro/astro/tree/main/examples) en GitHub. Puedes revisar cualquiera de estos ejemplos localmente ejecutando `npm init astro -- --template "EXAMPLE_NAME"`.
 
 ## Comienza con tu proyecto
 

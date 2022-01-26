@@ -199,6 +199,16 @@ function warnFailedFetch(err, path) {
 socket.addEventListener('message', async ({ data }) => {
     handleMessage(JSON.parse(data));
 });
+
+/**
+ * This cleans up the query params and removes the `direct` param which is internal.
+ *  Other query params are preserved.
+ */
+function cleanUrl(pathname) {
+  let url = new URL(pathname, location);
+  url.searchParams.delete('direct');
+  return url.pathname + url.search;
+}
 let isFirstUpdate = true;
 async function handleMessage(payload) {
     switch (payload.type) {
@@ -230,11 +240,13 @@ async function handleMessage(payload) {
                     // css-update
                     // this is only sent when a css file referenced with <link> is updated
                     let { path, timestamp } = update;
-                    path = path.replace(/\?.*/, '');
+                    let searchUrl = cleanUrl(path);
                     // can't use querySelector with `[href*=]` here since the link may be
                     // using relative paths so we need to use link.href to grab the full
                     // URL for the include check.
-                    const el = [].slice.call(document.querySelectorAll(`link`)).find((e) => e.href.includes(path));
+                    const el = [].slice.call(document.querySelectorAll(`link`)).find((e) => {
+                      return cleanUrl(e.href).includes(searchUrl)
+                    });
                     if (el) {
                         const newPath = `${base}${path.slice(1)}${path.includes('?') ? '&' : '?'}t=${timestamp}`;
                         el.href = new URL(newPath, el.href).href;

@@ -1,5 +1,23 @@
 # @astrojs/renderer-lit
 
+## 0.3.1
+
+### Patch Changes
+
+- [#2370](https://github.com/withastro/astro/pull/2370) [`a7967530`](https://github.com/withastro/astro/commit/a7967530dfe9cfab5d6d866c8d2bcba9c47de39c) Thanks [@matthewp](https://github.com/matthewp)! - Makes the renderer compatible with the static build
+
+## 0.3.0
+
+### Minor Changes
+
+- [#2202](https://github.com/withastro/astro/pull/2202) [`45cea6ae`](https://github.com/withastro/astro/commit/45cea6aec5a310fed4cb8da0d96670d6b99a2539) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Officially drop support for Node v12. The minimum supported version is now Node v14.15+,
+
+## 0.2.1
+
+### Patch Changes
+
+- ec01d1b4: renderer-lit will bind to properties rather than attributes fixing certain binding issues
+
 ## 0.2.0
 
 ### Minor Changes

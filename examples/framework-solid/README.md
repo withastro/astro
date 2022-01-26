@@ -4,7 +4,7 @@
 npm init astro -- --template framework-solid
 ```
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/snowpackjs/astro/tree/latest/examples/framework-solid)
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/withastro/astro/tree/latest/examples/framework-solid)
 
 This example showcases Astro working with [Solid](https://www.solidjs.com/).
 

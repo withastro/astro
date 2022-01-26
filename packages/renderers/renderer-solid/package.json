@@ -1,7 +1,17 @@
 {
   "name": "@astrojs/renderer-solid",
-  "version": "0.2.0",
+  "version": "0.3.1",
+  "description": "Use Solid components within Astro",
   "type": "module",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/renderers/renderer-solid"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
   "exports": {
     ".": "./index.js",
     "./*": "./*",
@@ -15,6 +25,6 @@
     "solid-js": "^1.2.3"
   },
   "engines": {
-    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+    "node": "^14.15.0 || >=16.0.0"
   }
 }

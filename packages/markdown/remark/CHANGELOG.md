@@ -1,4 +1,26 @@
-# @astrojs/markdown-support
+# @astrojs/markdown-remark
+
+## 0.6.0
+
+### Minor Changes
+
+- [#2202](https://github.com/withastro/astro/pull/2202) [`45cea6ae`](https://github.com/withastro/astro/commit/45cea6aec5a310fed4cb8da0d96670d6b99a2539) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Officially drop support for Node v12. The minimum supported version is now Node v14.15+,
+
+### Patch Changes
+
+- Updated dependencies [[`45cea6ae`](https://github.com/withastro/astro/commit/45cea6aec5a310fed4cb8da0d96670d6b99a2539)]:
+  - @astrojs/prism@0.4.0
+
+## 0.5.0
+
+### Minor Changes
+
+- 679d4395: - Upgraded dependencies
+  - Replaced `remark-slug` with `rehype-slug` because [it was deprecated](https://github.com/remarkjs/remark-slug)
+  - Replaced `@silvenon/remark-smartypants` with `remark-smartypants` because its name was changed
+  - Disable **all** built-in plugins when custom remark and/or rehype plugins are added
+  - Removed `remark-footnotes` because [`remark-gfm` now supports footnotes](https://github.com/remarkjs/remark-gfm/releases/tag/3.0.0)
+  - Re-added `remark-smartypants` and `rehype-slug` to the default plugins list
 
 ## 0.4.0
 

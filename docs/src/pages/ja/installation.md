@@ -9,7 +9,7 @@ lang: ja
 
 ## 事前準備
 
-- **Node.js** - `v12.20.0`、`v14.13.1`、`v16.0.0`、またはそれ以上。
+- **Node.js** -`v14.15.0`、`v16.0.0`、またはそれ以上。
 - **テキストエディター** - [VS Code](https://code.visualstudio.com/) と [公式 Astro extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)をオススメします。
 - **ターミナル** - Astro は主にターミナルのコマンドラインからアクセスします。
 
@@ -30,7 +30,7 @@ yarn create astro
 pnpm create astro
 ```
 
-[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro)ウィザードでは、[スターターテンプレート](https://github.com/snowpackjs/astro/tree/main/examples)から好きなものを選べます。代わりに GitHub から自分の Astro プロジェクトを直接インポートもできます。
+[`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro)ウィザードでは、[スターターテンプレート](https://github.com/withastro/astro/tree/main/examples)から好きなものを選べます。代わりに GitHub から自分の Astro プロジェクトを直接インポートもできます。
 
 ```bash
 # 注: "my-astro-project" はあなたのプロジェクト名に置き換えてください。

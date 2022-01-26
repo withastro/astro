@@ -8,7 +8,7 @@ lang: zh-CN
 
 ## 环境要求
 
-- **Node.js** - `v12.20.0`、`v14.13.1` 和 `v16.0.0`，或更高版本。
+- **Node.js** - `v14.15.0` 和 `v16.0.0`，或更高版本。
 - **文本编辑器** - 我们推荐使用 [VS Code](https://code.visualstudio.com/) 搭配 [Astro 官方插件](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode)。
 - **命令行终端** - Astro 主要是通过终端的命令行执行。
 
@@ -28,7 +28,7 @@ npm init astro
 yarn create astro
 ```
 
-[`create-astro`](https://github.com/snowpackjs/astro/tree/main/packages/create-astro) 工具让你从预设的 [启动模板](/examples) 中选择，或者你也可以直接从 Github 导入自己的 Astro 项目。
+[`create-astro`](https://github.com/withastro/astro/tree/main/packages/create-astro) 工具让你从预设的 [启动模板](/examples) 中选择，或者你也可以直接从 Github 导入自己的 Astro 项目。
 
 ```bash
 # 提醒：把「my-astro-project」改为项目的名称。

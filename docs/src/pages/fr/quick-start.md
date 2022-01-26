@@ -5,7 +5,7 @@ lang: fr
 ---
 
 ```shell
-# Prérequis : vérifiez que Node.js est en version 12.20.0+, 14.13.1+, ou 16+
+# Prérequis : vérifiez que Node.js est en version 14.15.0+, ou 16+
 node --version
 
 # Créez un nouveau dossier, et placez-vous dedans

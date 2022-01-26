@@ -6,14 +6,14 @@ const inner = `## Inner`;
 ---
 
 <style>
-  #root { color: green; }
+	#root { color: green; }
 </style>
 <div id="root">
-  <Markdown content={outer} />
+	<Markdown content={outer} />
 
-  <Markdown>
-    # Nested
+	<Markdown>
+		# Nested
 
-    <Markdown content={inner} />
-  </Markdown>
+		<Markdown content={inner} />
+	</Markdown>
 </div>

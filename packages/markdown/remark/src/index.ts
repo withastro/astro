@@ -23,76 +23,74 @@ export { AstroMarkdownOptions, MarkdownRenderingOptions };
 
 /** Internal utility for rendering a full markdown file and extracting Frontmatter data */
 export async function renderMarkdownWithFrontmatter(contents: string, opts?: MarkdownRenderingOptions | null) {
-  const { data: frontmatter, content } = matter(contents);
-  const value = await renderMarkdown(content, opts);
-  return { ...value, frontmatter };
+	const { data: frontmatter, content } = matter(contents);
+	const value = await renderMarkdown(content, opts);
+	return { ...value, frontmatter };
 }
 
-export const DEFAULT_REMARK_PLUGINS = [
-  'remark-gfm',
-  'remark-footnotes',
-  // TODO: reenable smartypants!
-  // '@silvenon/remark-smartypants'
-];
+export const DEFAULT_REMARK_PLUGINS = ['remark-gfm', 'remark-smartypants'];
 
-export const DEFAULT_REHYPE_PLUGINS = [
-  // empty
-];
+export const DEFAULT_REHYPE_PLUGINS = ['rehype-slug'];
 
 /** Shared utility for rendering markdown */
 export async function renderMarkdown(content: string, opts?: MarkdownRenderingOptions | null) {
-  const { remarkPlugins = DEFAULT_REMARK_PLUGINS, rehypePlugins = DEFAULT_REHYPE_PLUGINS } = opts ?? {};
-  const scopedClassName = opts?.$?.scopedClassName;
-  const mode = opts?.mode ?? 'mdx';
-  const isMDX = mode === 'mdx';
-  const { headers, rehypeCollectHeaders } = createCollectHeaders();
+	let { remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
+	const scopedClassName = opts?.$?.scopedClassName;
+	const mode = opts?.mode ?? 'mdx';
+	const isMDX = mode === 'mdx';
+	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
-  await Promise.all([loadRemarkExpressions(), loadRemarkJsx()]); // Vite bug: dynamically import() these because of CJS interop (this will cache)
+	await Promise.all([loadRemarkExpressions(), loadRemarkJsx()]); // Vite bug: dynamically import() these because of CJS interop (this will cache)
 
-  let parser = unified()
-    .use(markdown)
-    .use(isMDX ? [remarkJsx] : [])
-    .use(isMDX ? [remarkExpressions] : [])
-    .use([remarkUnwrap]);
+	let parser = unified()
+		.use(markdown)
+		.use(isMDX ? [remarkJsx] : [])
+		.use(isMDX ? [remarkExpressions] : [])
+		.use([remarkUnwrap]);
 
-  const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
-  const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
+	if (remarkPlugins.length === 0 && rehypePlugins.length === 0) {
+		remarkPlugins = [...DEFAULT_REMARK_PLUGINS];
+		rehypePlugins = [...DEFAULT_REHYPE_PLUGINS];
+	}
 
-  loadedRemarkPlugins.forEach(([plugin, opts]) => {
-    parser.use([[plugin, opts]]);
-  });
+	const loadedRemarkPlugins = await Promise.all(loadPlugins(remarkPlugins));
+	const loadedRehypePlugins = await Promise.all(loadPlugins(rehypePlugins));
 
-  if (scopedClassName) {
-    parser.use([scopedStyles(scopedClassName)]);
-  }
+	loadedRemarkPlugins.forEach(([plugin, opts]) => {
+		parser.use([[plugin, opts]]);
+	});
 
-  parser.use([remarkPrism(scopedClassName)]);
-  parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'] }]]);
+	if (scopedClassName) {
+		parser.use([scopedStyles(scopedClassName)]);
+	}
 
-  loadedRehypePlugins.forEach(([plugin, opts]) => {
-    parser.use([[plugin, opts]]);
-  });
+	parser.use([remarkPrism(scopedClassName)]);
+	parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'] }]]);
 
-  parser
-    .use(isMDX ? [rehypeJsx] : [])
-    .use(isMDX ? [rehypeExpressions] : [])
-    .use(isMDX ? [] : [rehypeRaw])
-    .use(isMDX ? [rehypeEscape] : [])
-    .use(rehypeIslands);
+	loadedRehypePlugins.forEach(([plugin, opts]) => {
+		parser.use([[plugin, opts]]);
+	});
 
-  let result: string;
-  try {
-    const vfile = await parser.use([rehypeCollectHeaders]).use(rehypeStringify, { allowDangerousHtml: true }).process(content);
-    result = vfile.toString();
-  } catch (err) {
-    console.error(err);
-    throw err;
-  }
+	parser
+		.use(isMDX ? [rehypeJsx] : [])
+		.use(isMDX ? [rehypeExpressions] : [])
+		.use(isMDX ? [] : [rehypeRaw])
+		.use(isMDX ? [rehypeEscape] : [])
+		.use(rehypeIslands);
 
-  return {
-    metadata: { headers, source: content, html: result.toString() },
-    code: result.toString(),
-  };
+	let result: string;
+	try {
+		const vfile = await parser.use([rehypeCollectHeaders]).use(rehypeStringify, { allowDangerousHtml: true }).process(content);
+		result = vfile.toString();
+	} catch (err) {
+		console.error(err);
+		throw err;
+	}
+
+	return {
+		metadata: { headers, source: content, html: result.toString() },
+		code: result.toString(),
+	};
 }
 
 export default renderMarkdownWithFrontmatter;

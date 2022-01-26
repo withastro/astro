@@ -4,13 +4,13 @@ const { path } = Astro.props;
 ---
 
 <footer>
-  <AvatarList path={path} />
+	<AvatarList {path} />
 </footer>
 
 <style>
-footer {
-  margin-top: auto;
-  padding: 2rem 0;
-  border-top: 3px solid var(--theme-divider);
-}
+	footer {
+		margin-top: auto;
+		padding: 2rem 0;
+		border-top: 3px solid var(--theme-divider);
+	}
 </style>

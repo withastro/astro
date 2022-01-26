@@ -5,7 +5,7 @@ lang: ja
 ---
 
 ```shell
-# 必須条件: Node.jsが12.20.0+、14.13.1+、または16+であることを確認する。
+# 必須条件: Node.jsが14.15.0+、または16+であることを確認する。
 node --version
 
 # 新しいプロジェクトディレクトリを作成し、その中に直接移動します
@@ -28,7 +28,7 @@ npm run build
 
 はじめて Astro をインストールして使用する場合は、[インストールガイド](/ja/installation)をご覧ください。
 
-サンプルを見ながら学びたいという方は、GitHub にある[全サンプル](https://github.com/snowpackjs/astro/tree/main/examples)をご覧ください。 `npm init astro -- --template "EXAMPLE_NAME"` を実行すれば、これらのサンプルをローカルにチェックアウトできます。
+サンプルを見ながら学びたいという方は、GitHub にある[全サンプル](https://github.com/withastro/astro/tree/main/examples)をご覧ください。 `npm init astro -- --template "EXAMPLE_NAME"` を実行すれば、これらのサンプルをローカルにチェックアウトできます。
 
 ## プロジェクトの開始
 

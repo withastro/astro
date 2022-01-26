@@ -1,25 +1,30 @@
 import { atom } from 'nanostores';
 
-const users = atom([
-  {
-    name: 'Imanadmin',
-    age: 2,
-    isAdmin: true,
-  },
-  {
-    name: 'Imnotadmin',
-    age: 35,
-    isAdmin: false,
-  },
-  {
-    name: 'Wowsomuchadmin',
-    age: 3634,
-    isAdmin: true,
-  },
-]);
+const initialValue = [
+	{
+		id: 1,
+		name: 'User Admin',
+		age: 28,
+		isAdmin: true,
+	},
+	{
+		id: 2,
+		name: 'NOT Admin',
+		age: 35,
+		isAdmin: false,
+	},
+	{
+		id: 3,
+		name: 'Another Admin',
+		age: 46,
+		isAdmin: true,
+	},
+];
+
+const users = atom(initialValue);
 
 const addUser = function addUser(user) {
-  users.set([...users.get(), user]);
+	users.set([...users.get(), user]);
 };
 
 export { users, addUser };

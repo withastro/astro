@@ -22,7 +22,6 @@ jobs:
         run: yarn --frozen-lockfile --ignore-engines
         env:
           CI: true
-      - run: yarn lerna run build --scope @astrojs/parser
       - name: Format code
         run: yarn format
       - name: Commit changes

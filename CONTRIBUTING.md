@@ -10,19 +10,25 @@ We welcome contributions of any size and skill level. As an open source project,
 ### Prerequisite
 
 ```shell
-node: "^12.20.0 || ^14.13.1 || >=16.0.0"
+node: "^14.15.0 || >=16.0.0"
 yarn: "^1.22.10"
 # otherwise, your build will fail
 ```
 
 ### Setting up your local repo
 
-Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, `www`, `docs`, and every package in the repo.
+Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, `docs`, and every package in the repo.
 
 ```shell
 git clone && cd ...
 yarn install
-yarn build:all
+yarn build
+```
+
+In [#2254](https://github.com/withastro/astro/pull/2254) a `.git-blame-ignore-revs` file was added to ignore repo-wide formatting changes. To improve your experience, you should run the following command locally.
+
+```shell
+git config --local blame.ignoreRevsFile .git-blame-ignore-revs
 ```
 
 ### Development
@@ -69,7 +75,7 @@ yarn lint
 
 ### Making a Pull Request
 
-When making a pull request, be sure to add a changeset when something has changed with Astro. Non-packages (`examples/*`, `docs/*`, and `www/*`) do not need changesets.
+When making a pull request, be sure to add a changeset when something has changed with Astro. Non-packages (`examples/*`, `docs/*`) do not need changesets.
 
 ```shell
 yarn changeset
@@ -120,7 +126,7 @@ Understanding in which environment code runs, and at which stage in the process,
 
 ## Releasing Astro
 
-_Note: Only priviledged contributors (L3+) can release new versions of Astro._
+_Note: Only [core maintainers (L3+)](https://github.com/withastro/astro/blob/main/GOVERNANCE.md#level-3-l3---core-maintainer) can release new versions of Astro._
 
 The repo is set up with automatic releases, using the changeset GitHub action & bot.
 
@@ -138,7 +144,7 @@ To release a snapshot, run the following locally:
 # 1:
 yarn changeset version --snapshot XXX
 # 2: (Manual) review the diff, and make sure that you're not releasing more than you need to.
-git checkout -- examples/ docs/ www/
+git checkout -- examples/ docs/
 # 3:
 yarn release --tag next--XXX
 # 4: (Manual) review the publish, and if you're happy then you can throw out all local changes
@@ -185,8 +191,8 @@ When in prerelease mode, the automatic PR release process will no longer release
 1. Run `yarn changeset version` to create your new release.
 1. Run `yarn release` to publish your new release.
 1. Run `git push && git push --tags` to push your new release to GitHub.
-1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, the www site, etc.
-1. Go to https://github.com/snowpackjs/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/snowpackjs/astro/blob/latest/packages/astro/CHANGELOG.md.
+1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, etc.
+1. Go to https://github.com/withastro/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/withastro/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
 
 ## Translations

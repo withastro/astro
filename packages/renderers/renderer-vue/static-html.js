@@ -7,13 +7,13 @@ import { h, defineComponent } from 'vue';
  * This is the Vue + JSX equivalent of using `<div v-html="value" />`
  */
 const StaticHtml = defineComponent({
-  props: {
-    value: String,
-  },
-  setup({ value }) {
-    if (!value) return () => null;
-    return () => h('astro-fragment', { innerHTML: value });
-  },
+	props: {
+		value: String,
+	},
+	setup({ value }) {
+		if (!value) return () => null;
+		return () => h('astro-fragment', { innerHTML: value });
+	},
 });
 
 /**

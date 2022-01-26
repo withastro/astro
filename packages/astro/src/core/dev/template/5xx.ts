@@ -2,24 +2,24 @@ import { encode } from 'html-entities';
 import { baseCSS } from './css.js';
 
 interface ErrorTemplateOptions {
-  /** a short description of the error */
-  message: string;
-  /** information about where the error occurred */
-  stack?: string;
-  /** HTTP error code */
-  statusCode?: number;
-  /** HTML <title> */
-  tabTitle: string;
-  /** page title */
-  title: string;
-  /** show user a URL for more info or action to take */
-  url?: string;
+	/** a short description of the error */
+	message: string;
+	/** information about where the error occurred */
+	stack?: string;
+	/** HTTP error code */
+	statusCode?: number;
+	/** HTML <title> */
+	tabTitle: string;
+	/** page title */
+	title: string;
+	/** show user a URL for more info or action to take */
+	url?: string;
 }
 
 /** Display all errors */
 export default function template({ title, url, message, stack, statusCode, tabTitle }: ErrorTemplateOptions): string {
-  let error = url ? message.replace(url, '') : message;
-  return `<!doctype html>
+	let error = url ? message.replace(url, '') : message;
+	return `<!doctype html>
   <html lang="en">
     <head>
       <meta charset="UTF-8">
