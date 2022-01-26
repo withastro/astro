@@ -290,7 +290,6 @@ export function createAstro(filePathname: string, _site: string, projectRootStr:
 	const site = new URL(_site);
 	const url = new URL(filePathname, site);
 	const projectRoot = new URL(projectRootStr);
-	console.log('SITE', _site, site);
 	const fetchContent = createFetchContentFn(url, site);
 	return {
 		site,
