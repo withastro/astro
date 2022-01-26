@@ -147,7 +147,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 	}
 	const probableRendererNames = guessRenderers(metadata.componentUrl);
 
-	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string') {
+	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string' && !HTMLElement.isPrototypeOf(Component as object)) {
 		const message = `Unable to render ${metadata.displayName}!
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
@@ -163,6 +163,12 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 				renderer = r;
 				break;
 			}
+		}
+
+		if (!renderer && HTMLElement.isPrototypeOf(Component as object)) {
+			const output = renderHTMLElement(result, Component as typeof HTMLElement, _props, slots);
+
+			return output;
 		}
 	} else {
 		// Attempt: use explicitly passed renderer name
@@ -420,6 +426,36 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 	}
 
 	return template;
+}
+
+export async function renderHTMLElement(result: SSRResult, constructor: typeof HTMLElement, props: any, children: any) {
+	const name = getHTMLElementName(constructor);
+
+	let attrHTML = '';
+
+	for (const attr in props) {
+		attrHTML += ` ${attr}="${toAttributeString(await props[attr])}"`;
+	}
+
+	children = await children;
+	children = children == null ? children : '';
+
+	const html = `<${name}${attrHTML}>${children}</${name}>`;
+
+	result.scripts.add({
+		props: { type: 'module' },
+		children: `customElements.define(${JSON.stringify(name)}, ${String(constructor)})`,
+	});
+
+	return html;
+}
+
+function getHTMLElementName(constructor: typeof HTMLElement) {
+	const definedName = (customElements as CustomElementRegistry & { getName(_constructor: typeof HTMLElement): string }).getName(constructor);
+	if (definedName) return definedName
+
+	const assignedName = constructor.name.replace(/^HTML|Element$/g, '').replace(/[A-Z]/g, '-$&').toLowerCase().replace(/^-/, 'html-')
+	return assignedName
 }
 
 function renderElement(name: string, { props: _props, children = '' }: SSRElement) {
