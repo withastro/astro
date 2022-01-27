@@ -442,11 +442,6 @@ export async function renderHTMLElement(result: SSRResult, constructor: typeof H
 
 	const html = `<${name}${attrHTML}>${children}</${name}>`;
 
-	result.scripts.add({
-		props: { type: 'module' },
-		children: `customElements.define(${JSON.stringify(name)}, ${String(constructor)})`,
-	});
-
 	return html;
 }
 
