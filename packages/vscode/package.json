@@ -9,7 +9,7 @@
     "theme": "dark"
   },
   "version": "0.8.8",
-  "author": "Astro",
+  "author": "withastro",
   "license": "MIT",
   "publisher": "astro-build",
   "scripts": {

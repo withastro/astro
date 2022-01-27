@@ -1,29 +1,8 @@
-# Astro Language Tools
-
-This repository contains tooling for the [Astro](https://astro.build/) language, powering the [VSCode extension](https://marketplace.visualstudio.com/items?itemName=astro-build.astro-vscode). The packages included are:
-
-* The Astro VSCode Extension
-* The Astro Language Server
-
-This enables all of the editing features you depend on in VSCode. Any time you open a `.astro` file these tools power editing functionality such as:
-
-* [Go to Definition](https://code.visualstudio.com/docs/editor/editingevolved#_go-to-definition)
-* Code hover hints
-* Code completion
-* Function signatures
-* Syntax highlighting
-* Code folding
-* Emmet
-
-Soon we hope to port these to other editors compatible with the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/).
-
-## Development
+# Contributing
 
 > See the [overview video](https://www.loom.com/share/609f7b61795349328730f14e1ae2166e) on how the extension works.
 
-Changes to the Astro Language Tools are subject to [Astro Governance](https://github.com/snowpackjs/astro/blob/main/GOVERNANCE.md).
-
-### Setup
+## Setup
 
 All Astro projects use Yarn and [Lerna](https://lerna.js.org/) to enable development in a monorepo. Once you've cloned the project install dependencies and do an initial build:
 
@@ -32,7 +11,7 @@ yarn
 yarn build
 ```
 
-### Debugging
+## Debugging
 
 During the normal course of development on the VSCode extension you'll want to run the debugger. First run the build in watch mode with:
 
@@ -40,7 +19,7 @@ During the normal course of development on the VSCode extension you'll want to r
 yarn dev
 ```
 
-#### Turn Off Extension
+### Turn Off Extension
 
 If you have the Extension installed you'll need to turn it off, or your development extension will not be used and you'll be confused why your changes are not working.
 
@@ -50,7 +29,7 @@ If you have the Extension installed you'll need to turn it off, or your developm
 
 <img width="1530" alt="Show the steps of disabling the extension" src="https://user-images.githubusercontent.com/361671/130800518-177b2e9f-f2e0-46ff-adac-31ff099b67fe.png">
 
-#### Start Debugger
+### Start Debugger
 
 Then in VSCode:
 
@@ -61,7 +40,7 @@ Then in VSCode:
 
 This will launch a new window for your editor. Here you can navigate to a test Astro project that you will use to develop your changes.
 
-#### Open Debug Console
+### Open Debug Console
 
 The Debug console in the main editor is where you will get logging information. When developing in the language server, logging is helpful to figure out what is going on.
 
@@ -71,7 +50,7 @@ The Debug console in the main editor is where you will get logging information. 
 
 <img width="1628" alt="Steps to open the command palette" src="https://user-images.githubusercontent.com/361671/130805127-83e3935f-39a3-435d-9116-64eb53e115f4.png">
 
-#### Make changes and set breakpoints
+### Make changes and set breakpoints
 
 Now you can start developing your changes. You can set breakpoints or add `debugger;` statements. To see your changes reflect you'll need to take these steps:
 

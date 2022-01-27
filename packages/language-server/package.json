@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/language-server",
   "version": "0.8.8",
-  "author": "Skypack",
+  "author": "withastro",
   "license": "MIT",
   "type": "commonjs",
   "main": "dist/index.js",

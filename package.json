@@ -8,7 +8,6 @@
   },
   "scripts": {
     "release": "yarn build && changeset publish",
-    "benchmark": "yarn workspace astro run benchmark",
     "build": "lerna run build --scope \"{@astrojs/language-server,astro-vscode,@astrojs/ts-plugin}\"",
     "dev": "lerna run dev --scope \"{@astrojs/language-server,astro-vscode,@astrojs/ts-plugin}\" --parallel --stream",
     "format": "prettier -w .",

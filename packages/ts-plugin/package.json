@@ -14,7 +14,7 @@
         "build": "astro-scripts build \"src/**/*.ts\"",
         "dev": "astro-scripts dev \"src/**/*.ts\""
     },
-    "author": "Skypack",
+    "author": "withastro",
     "license": "MIT",
     "devDependencies": {
         "@tsconfig/node12": "^1.0.0",
