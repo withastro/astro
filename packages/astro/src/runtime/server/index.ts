@@ -5,6 +5,7 @@ import shorthash from 'shorthash';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
+export { escapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
@@ -308,9 +309,23 @@ export function createAstro(filePathname: string, site: string, projectRootStr: 
 
 const toAttributeString = (value: any) => String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;');
 
+const STATIC_DIRECTIVES = new Set([
+	'set:html',
+	'set:text'
+])
+
 // A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string) {
 	if (value == null || value === false) {
+		return '';
+	}
+
+	// compiler directives cannot be applied dynamically, log a warning and ignore.
+	if (STATIC_DIRECTIVES.has(key)) {
+		// eslint-disable-next-line no-console
+		console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
+
+Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);
 		return '';
 	}
 
