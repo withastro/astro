@@ -49,7 +49,7 @@ The `src` option sets the directory used to resolve source files, like `pages`. 
 
 #### pages
 
-The `pages` option sets the directory used to resolve pages, relative to the `src` option.
+The `pages` option sets the directory used to resolve pages, relative to the `projectRoot` option.
 
 **Default**: The `src/pages` directory within the `projectRoot` directory.
 
