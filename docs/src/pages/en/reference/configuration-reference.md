@@ -12,7 +12,7 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
   public: './public/',
   dist: './dist/',
   src: './src/',
-  pages: './pages/',
+  pages: './src/pages/',
   renderers: [
     '@astrojs/renderer-svelte',
     '@astrojs/renderer-vue',
@@ -51,7 +51,7 @@ The `src` option sets the directory used to resolve source files, like `pages`. 
 
 The `pages` option sets the directory used to resolve pages, relative to the `src` option.
 
-**Default**: The `pages` directory within the `src` directory.
+**Default**: The `src/pages` directory within the `projectRoot` directory.
 
 #### renderers
 
