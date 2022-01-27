@@ -1,5 +1,4 @@
 import { visit } from 'unist-util-visit';
-import type { Root, Properties } from 'hast';
 import slugger from 'github-slugger';
 
 /**  */
@@ -7,7 +6,7 @@ export default function createCollectHeaders() {
 	const headers: any[] = [];
 
 	function rehypeCollectHeaders() {
-		return function (tree: Root) {
+		return function (tree: any) {
 			visit(tree, (node) => {
 				if (node.type !== 'element') return;
 				const { tagName } = node;

@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/test-builtins",
-  "version": "0.0.0",
+  "version": "1.2.0",
   "private": true,
   "dependencies": {
     "astro": "workspace:*",

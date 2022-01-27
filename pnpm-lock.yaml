@@ -245,12 +245,14 @@ importers:
       '@proload/core': ^0.2.1
       '@proload/plugin-tsm': ^0.1.0
       '@types/babel__core': ^7.1.15
+      '@types/babel__traverse': ^7.14.2
       '@types/chai': ^4.2.22
       '@types/common-ancestor-path': ^1.0.0
       '@types/connect': ^3.4.35
+      '@types/estree': ^0.0.50
       '@types/mime': ^2.0.3
       '@types/mocha': ^9.0.0
-      '@types/node-fetch': ^3.0.0
+      '@types/parse5': ^6.0.3
       '@types/resolve': ^1.20.1
       '@types/rimraf': ^3.0.2
       '@types/send': ^0.17.1
@@ -360,12 +362,14 @@ importers:
     devDependencies:
       '@astrojs/parser': link:../astro-parser
       '@babel/types': 7.16.8
+      '@types/babel__traverse': 7.14.2
       '@types/chai': 4.3.0
       '@types/common-ancestor-path': 1.0.0
       '@types/connect': 3.4.35
+      '@types/estree': 0.0.50
       '@types/mime': 2.0.3
       '@types/mocha': 9.1.0
-      '@types/node-fetch': 3.0.3
+      '@types/parse5': 6.0.3
       '@types/resolve': 1.20.1
       '@types/rimraf': 3.0.2
       '@types/send': 0.17.1
@@ -378,11 +382,13 @@ importers:
 
   packages/astro-parser:
     specifiers:
+      '@types/node': ^15.12.2
       acorn: ^8.6.0
       astro-scripts: workspace:*
       locate-character: ^2.0.5
       magic-string: ^0.25.3
     dependencies:
+      '@types/node': 15.14.9
       acorn: 8.7.0
       locate-character: 2.0.5
       magic-string: 0.25.7
@@ -517,8 +523,10 @@ importers:
 
   packages/astro/test/fixtures/astro-jsx:
     specifiers:
+      '@astrojs/renderer-solid': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/renderer-solid': link:../../../../renderers/renderer-solid
       astro: link:../../..
 
   packages/astro/test/fixtures/astro-markdown:
@@ -635,8 +643,10 @@ importers:
 
   packages/astro/test/fixtures/errors:
     specifiers:
+      '@astrojs/renderer-solid': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/renderer-solid': link:../../../../renderers/renderer-solid
       astro: link:../../..
 
   packages/astro/test/fixtures/fetch:
@@ -647,8 +657,10 @@ importers:
 
   packages/astro/test/fixtures/lit-element:
     specifiers:
+      '@astrojs/renderer-lit': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/renderer-lit': link:../../../../renderers/renderer-lit
       astro: link:../../..
 
   packages/astro/test/fixtures/markdown:
@@ -659,8 +671,10 @@ importers:
 
   packages/astro/test/fixtures/postcss:
     specifiers:
+      '@astrojs/renderer-solid': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/renderer-solid': link:../../../../renderers/renderer-solid
       astro: link:../../..
 
   packages/astro/test/fixtures/preact-component:
@@ -707,8 +721,10 @@ importers:
 
   packages/astro/test/fixtures/slots-solid:
     specifiers:
+      '@astrojs/renderer-solid': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/renderer-solid': link:../../../../renderers/renderer-solid
       astro: link:../../..
 
   packages/astro/test/fixtures/slots-svelte:
@@ -725,8 +741,10 @@ importers:
 
   packages/astro/test/fixtures/solid-component:
     specifiers:
+      '@astrojs/renderer-solid': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/renderer-solid': link:../../../../renderers/renderer-solid
       astro: link:../../..
 
   packages/astro/test/fixtures/static-build:
@@ -745,8 +763,10 @@ importers:
 
   packages/astro/test/fixtures/static-build-frameworks:
     specifiers:
+      '@astrojs/renderer-lit': workspace:*
       astro: workspace:*
     dependencies:
+      '@astrojs/renderer-lit': link:../../../../renderers/renderer-lit
       astro: link:../../..
 
   packages/astro/test/fixtures/static-build/pkg:
@@ -942,8 +962,8 @@ importers:
   packages/create-astro:
     specifiers:
       '@types/degit': ^2.8.2
-      '@types/node-fetch': ^3.0.0
       '@types/prompts': ^2.0.12
+      '@types/yargs-parser': ^20.2.1
       astro-scripts: workspace:*
       degit: ^2.8.4
       kleur: ^4.1.1
@@ -953,7 +973,6 @@ importers:
       yargs-parser: ^21.0.0
     dependencies:
       '@types/degit': 2.8.3
-      '@types/node-fetch': 3.0.3
       '@types/prompts': 2.0.14
       degit: 2.8.4
       kleur: 4.1.4
@@ -961,6 +980,7 @@ importers:
       prompts: 2.4.2
       yargs-parser: 21.0.0
     devDependencies:
+      '@types/yargs-parser': 20.2.1
       astro-scripts: link:../../scripts
       uvu: 0.5.3
 
@@ -3112,7 +3132,6 @@ packages:
     resolution: {integrity: sha512-K2waXdXBi2302XUdcHcR1jCeU0LL4TD9HRs/gk0N2Xvrht+G/BfJa4QObBQZfhMdxiCpV3COl5Nfq4uKTeTnJA==}
     dependencies:
       '@babel/types': 7.16.8
-    dev: false
 
   /@types/chai/4.3.0:
     resolution: {integrity: sha512-/ceqdqeRraGolFTcfoXNiqjyQhZzbINDngeoAq9GoHa8PPK1yNzTaxWjA6BFWp5Ua9JpXEMSS4s5i9tS0hOJtw==}
@@ -3237,12 +3256,6 @@ packages:
       '@types/unist': 2.0.6
     dev: false
 
-  /@types/node-fetch/3.0.3:
-    resolution: {integrity: sha512-HhggYPH5N+AQe/OmN6fmhKmRRt2XuNJow+R3pQwJxOOF9GuwM7O2mheyGeIrs5MOIeNjDEdgdoyHBOrFeJBR3g==}
-    deprecated: This is a stub types definition. node-fetch provides its own type definitions, so you do not need this installed.
-    dependencies:
-      node-fetch: 3.2.0
-
   /@types/node/12.20.42:
     resolution: {integrity: sha512-aI3/oo5DzyiI5R/xAhxxRzfZlWlsbbqdgxfTPkqu/Zt+23GXiJvMCyPJT4+xKSXOnLqoL8jJYMLTwvK2M3a5hw==}
     dev: true
@@ -3260,7 +3273,6 @@ packages:
 
   /@types/parse5/6.0.3:
     resolution: {integrity: sha512-SuT16Q1K51EAVPz1K29DJ/sXjhSQ0zjvsypYJ6tlwVsRV9jwW5Adq2ch8Dq8kDBCkYnELS7N7VNCSB5nC56t/g==}
-    dev: false
 
   /@types/prismjs/1.16.8:
     resolution: {integrity: sha512-I8v3yZIvhIwB55MhV+9+FhK5OMokviuQQP4vGmffW18iQGw5cyB6CaBGWFhcIJk+0cyi/PNhNPedlUYTAHoc2Q==}
@@ -4506,6 +4518,7 @@ packages:
   /data-uri-to-buffer/4.0.0:
     resolution: {integrity: sha512-Vr3mLBA8qWmcuschSLAOogKgQ/Jwxulv3RNE4FXnYWRGujzrRWQI4m12fQqRkwX06C0KanhLr4hK+GydchZsaA==}
     engines: {node: '>= 12'}
+    dev: false
 
   /dataloader/1.4.0:
     resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
@@ -5502,6 +5515,7 @@ packages:
     dependencies:
       node-domexception: 1.0.0
       web-streams-polyfill: 3.2.0
+    dev: false
 
   /file-entry-cache/6.0.1:
     resolution: {integrity: sha512-7Gps/XWymbLk2QLYK4NzpMOrYjMhdIxXuIvy2QBsLE6ljuodKvdkWs/cpyJJ3CVIVpH0Oi1Hvg1ovbMzLdFBBg==}
@@ -5615,6 +5629,7 @@ packages:
     engines: {node: '>=12.20.0'}
     dependencies:
       fetch-blob: 3.1.4
+    dev: false
 
   /fraction.js/4.1.2:
     resolution: {integrity: sha512-o2RiJQ6DZaR/5+Si0qJUIy637QMRudSi9kU/FFzx9EZazrIdnBgpU+3sEWCxAVhH2RtxW2Oz+T4p2o8uOPVcgA==}
@@ -7490,6 +7505,7 @@ packages:
   /node-domexception/1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+    dev: false
 
   /node-fetch/2.6.7:
     resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
@@ -7509,6 +7525,7 @@ packages:
       data-uri-to-buffer: 4.0.0
       fetch-blob: 3.1.4
       formdata-polyfill: 4.0.10
+    dev: false
 
   /node-forge/0.10.0:
     resolution: {integrity: sha512-PPmu8eEeG9saEUvI97fm4OYxXVB6bFvyNTyiUOBichBpFG8A1Ljw3bY62+5oOjDEMHRnd0Y7HQ+x7uzxOzC6JA==}
@@ -10094,6 +10111,7 @@ packages:
   /web-streams-polyfill/3.2.0:
     resolution: {integrity: sha512-EqPmREeOzttaLRm5HS7io98goBgZ7IVz79aDvqjD0kYXLtFZTc0T/U6wHTPKyIjb+MdN7DFIIX6hgdBEpWmfPA==}
     engines: {node: '>= 8'}
+    dev: false
 
   /webidl-conversions/3.0.1:
     resolution: {integrity: sha1-JFNCdeKnvGvnvIZhHMFq4KVlSHE=}
