@@ -51,7 +51,8 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "mocha --parallel --timeout 15000 --ignore **/lit-element.test.js && mocha **/lit-element.test.js"
+    "test": "mocha --parallel --timeout 15000 --ignore **/lit-element.test.js && mocha **/lit-element.test.js",
+    "test:match": "mocha --timeout 15000 -g"
   },
   "dependencies": {
     "@astrojs/compiler": "^0.9.2",

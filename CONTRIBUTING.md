@@ -54,9 +54,10 @@ DEBUG=vite:[name] astro dev   # debug specific process, e.g. "vite:deps" or "vit
 ```shell
 # run this in the top-level project root to run all tests
 yarn test
-# run only a few tests, great for working on a single feature
-# (example - `yarn test -g "RSS"` runs `astro-rss.test.js`)
-yarn test -g "$STRING_MATCH"
+# run only a few tests, based on describe() or it() string match
+# great for development, and working on a single feature!
+# (example - `yarn test:match "RSS"` runs tests in `astro-rss.test.js`)
+yarn test:match "$STRING_MATCH"
 ```
 
 ### Other useful commands
