@@ -26,4 +26,10 @@ ${string}`);
  */
 export class UnescapedString extends String {}
 
-export const unescapeHTML = (str: any) => new UnescapedString(str);
+/** 
+ * unescapeHTML marks a string as raw, unescaped HTML. 
+ * This should only be generated internally, not a public API.
+ *
+ * Need to cast the return value `as unknown as string` so TS doesn't yell at us.
+ */
+export const unescapeHTML = (str: any) => new UnescapedString(str) as unknown as string;
