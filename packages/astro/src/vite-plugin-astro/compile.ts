@@ -55,7 +55,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 				let prefix = '';
 				// In the static build, strip away at-imports so that they can be resolved
 				// by the pseudo-module that gets created.
-				if(config.buildOptions.experimentalStaticBuild) {
+				if (config.buildOptions.experimentalStaticBuild) {
 					value = value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match) => {
 						prefix += match;
 						// Replace with an empty string of the same length, to preserve source maps.
@@ -79,7 +79,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 						map = result.map.toString();
 					}
 				}
-				const code = prefix += result.code;
+				const code = (prefix += result.code);
 				return { code, map };
 			} catch (err) {
 				// save error to throw in plugin context
