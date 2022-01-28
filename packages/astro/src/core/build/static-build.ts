@@ -126,7 +126,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		// Add hoisted scripts
 		const hoistedScripts = new Set(metadata.hoistedScriptPaths());
 		if (hoistedScripts.size) {
-			const moduleId = fileURLToPath(new URL('./hoisted.js', astroModuleURL + '/'));
+			const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
 			internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
 			topLevelImports.add(moduleId);
 		}
