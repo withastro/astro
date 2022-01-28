@@ -50,15 +50,18 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 		experimentalStaticExtraction: config.buildOptions.experimentalStaticBuild,
 		// TODO add experimental flag here
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
-			// When using this flag CSS is added via <link> and therefore goes
-			// through Vite's CSS pipeline. We don't need to transform here, it will be
-			// transformed on CSS requests.
-			if (config.buildOptions.experimentalStaticBuild) {
-				return { code: value };
-			}
-
 			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 			try {
+				let prefix = '';
+				// In the static build, strip away at-imports so that they can be resolved
+				// by the pseudo-module that gets created.
+				if(config.buildOptions.experimentalStaticBuild) {
+					value = value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match) => {
+						prefix += match;
+						// Replace with an empty string of the same length, to preserve source maps.
+						return new Array(match.length).fill(' ').join('');
+					});
+				}
 				const result = await transformWithVite({
 					value,
 					lang,
@@ -76,7 +79,8 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 						map = result.map.toString();
 					}
 				}
-				return { code: result.code, map };
+				const code = prefix += result.code;
+				return { code, map };
 			} catch (err) {
 				// save error to throw in plugin context
 				cssTransformError = err as any;
