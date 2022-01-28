@@ -7,7 +7,7 @@ import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
 import { escapeHTML, UnescapedString, unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
-export { escapeHTML, unescapeHTML };
+export { escapeHTML, unescapeHTML } from './escape.js';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 
@@ -30,7 +30,7 @@ async function _render(child: any): Promise<any> {
 		// of wrapping it in a function and calling it.
 		return _render(child());
 	} else if (typeof child === 'string') {
-		return escapeHTML(child);
+		return escapeHTML(child, { deprecated: true });
 	} else if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 	}
@@ -91,9 +91,9 @@ export function createComponent(cb: AstroComponentFactory) {
 
 export async function renderSlot(_result: any, slotted: string, fallback?: any) {
 	if (slotted) {
-		return _render(slotted);
+		return unescapeHTML(await _render(slotted));
 	}
-	return fallback;
+	return unescapeHTML(fallback);
 }
 
 export const Fragment = Symbol('Astro.Fragment');
@@ -339,14 +339,14 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
-		return ` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`;
+		return unescapeHTML(` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`);
 	}
 
 	// Boolean only needs the key
 	if (value === true && key.startsWith('data-')) {
-		return ` ${key}`;
+		return unescapeHTML(` ${key}`);
 	} else {
-		return ` ${key}="${toAttributeString(value)}"`;
+		return unescapeHTML(` ${key}="${toAttributeString(value)}"`);
 	}
 }
 
@@ -356,7 +356,7 @@ export function spreadAttributes(values: Record<any, any>) {
 	for (const [key, value] of Object.entries(values)) {
 		output += addAttribute(value, key);
 	}
-	return output;
+	return unescapeHTML(output);
 }
 
 // Adds CSS variables to an inline style tag
