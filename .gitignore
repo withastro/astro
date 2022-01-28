@@ -6,6 +6,7 @@ dist/
 _site/
 *.log
 package-lock.json
+.turbo/
 
 # .vscode files other than at top-level
 **/.vscode

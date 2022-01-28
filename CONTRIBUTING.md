@@ -4,7 +4,7 @@
 
 ## Setup
 
-All Astro projects use Yarn and [Lerna](https://lerna.js.org/) to enable development in a monorepo. Once you've cloned the project install dependencies and do an initial build:
+All Astro projects use Yarn and [Turbo](https://turborepo.org/) to enable development in a monorepo. Once you've cloned the project install dependencies and do an initial build:
 
 ```shell
 yarn

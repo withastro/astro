@@ -32,8 +32,7 @@
   },
   "devDependencies": {
     "@types/vscode": "^1.52.0",
-    "astro-scripts": "file:../../scripts",
-    "execa": "^5.0.0"
+    "astro-scripts": "file:../../scripts"
   },
   "main": "./dist/index.js",
   "browser": "./dist/index.js",

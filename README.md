@@ -6,7 +6,7 @@ Notably, it contains an implementation of the [Language Server Protocol (LSP)](h
 
 ## Packages
 
-This repository is a monorepo managed through [Lerna](https://lerna.js.org/), which means that multiple packages are in this same repo (`packages` folder), here's a list:
+This repository is a monorepo managed through [Turbo](https://turborepo.org/), which means that multiple packages are in this same repo (`packages` folder), here's a list:
 
 ### [`@astrojs/language-server`](packages/language-server)
 
