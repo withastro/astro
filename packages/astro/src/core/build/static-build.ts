@@ -105,7 +105,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
-		const astroModuleId = astroModuleURL.pathname;
+		const astroModuleId = fileURLToPath(astroModuleURL);
 		const [renderers, mod] = pageData.preload;
 		const metadata = mod.$$metadata;
 
@@ -121,7 +121,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		// Add hoisted scripts
 		const hoistedScripts = new Set(metadata.hoistedScriptPaths());
 		if (hoistedScripts.size) {
-			const moduleId = new URL('./hoisted.js', astroModuleURL + '/').pathname;
+			const moduleId = fileURLToPath(new URL('./hoisted.js', astroModuleURL + '/'));
 			internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
 			topLevelImports.add(moduleId);
 		}
@@ -177,7 +177,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: astroConfig.buildOptions.site ? fileURLToPath(new URL(astroConfig.buildOptions.site)) : '/',
 		ssr: viteConfig.ssr,
 	} as ViteConfigWithSSR);
 }
@@ -218,7 +218,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: astroConfig.buildOptions.site ? fileURLToPath(new URL(astroConfig.buildOptions.site)) : '/',
 	});
 }
 
@@ -383,7 +383,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 async function cleanSsrOutput(opts: StaticBuildOptions) {
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
-		cwd: opts.astroConfig.dist.pathname,
+		cwd: fileURLToPath(opts.astroConfig.dist),
 	});
 	await Promise.all(
 		files.map(async (filename) => {

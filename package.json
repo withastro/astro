@@ -63,7 +63,7 @@
     "packages/astro/test/fixtures/builtins/packages/*",
     "packages/astro/test/fixtures/builtins-polyfillnode",
     "packages/astro/test/fixtures/custom-elements/my-component-lib",
-    "packages/astro/test/fixtures/static-build/pkg"
+    "packages/astro/test/fixtures/static build/pkg"
   ],
   "volta": {
     "node": "14.17.0",
