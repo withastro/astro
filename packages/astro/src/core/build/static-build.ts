@@ -213,7 +213,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		},
 		plugins: [
 			vitePluginNewBuild(input, internals, 'js'),
-			vitePluginHoistedScripts(internals),
+			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
 			}),

@@ -1,11 +1,13 @@
+import type { AstroConfig } from '../../@types/astro';
 import type { Plugin as VitePlugin } from '../vite';
 import type { BuildInternals } from '../../core/build/internal.js';
+import { fileURLToPath } from 'url';
 
 function virtualHoistedEntry(id: string) {
 	return id.endsWith('.astro/hoisted.js') || id.endsWith('.md/hoisted.js');
 }
 
-export function vitePluginHoistedScripts(internals: BuildInternals): VitePlugin {
+export function vitePluginHoistedScripts(astroConfig: AstroConfig, internals: BuildInternals): VitePlugin {
 	return {
 		name: '@astro/rollup-plugin-astro-hoisted-scripts',
 
@@ -34,7 +36,8 @@ export function vitePluginHoistedScripts(internals: BuildInternals): VitePlugin 
 			for (const [id, output] of Object.entries(bundle)) {
 				if (output.type === 'chunk' && output.facadeModuleId && virtualHoistedEntry(output.facadeModuleId)) {
 					const facadeId = output.facadeModuleId!;
-					const filename = facadeId.slice(0, facadeId.length - '/hoisted.js'.length);
+					const pathname = facadeId.slice(0, facadeId.length - '/hoisted.js'.length);
+					const filename = fileURLToPath(new URL('.' + pathname, astroConfig.projectRoot));
 					internals.facadeIdToHoistedEntryMap.set(filename, id);
 				}
 			}
