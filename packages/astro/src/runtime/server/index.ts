@@ -5,8 +5,9 @@ import shorthash from 'shorthash';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
-export { escapeHTML } from './escape.js';
+import { escapeHTML, UnescapedString, unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
+export { escapeHTML, unescapeHTML };
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 
@@ -19,7 +20,9 @@ const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|l
 // Or maybe type UserValue = any; ?
 async function _render(child: any): Promise<any> {
 	child = await child;
-	if (Array.isArray(child)) {
+	if (child instanceof UnescapedString) {
+		return child;
+	} else if (Array.isArray(child)) {
 		return (await Promise.all(child.map((value) => _render(value)))).join('');
 	} else if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.
@@ -27,7 +30,7 @@ async function _render(child: any): Promise<any> {
 		// of wrapping it in a function and calling it.
 		return _render(child());
 	} else if (typeof child === 'string') {
-		return child;
+		return escapeHTML(child);
 	} else if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 	}
@@ -62,7 +65,7 @@ export class AstroComponent {
 			const html = htmlParts[i];
 			const expression = expressions[i];
 
-			yield _render(html);
+			yield _render(unescapeHTML(html));
 			yield _render(expression);
 		}
 	}
@@ -127,7 +130,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 
 	if (Component && (Component as any).isAstroComponentFactory) {
 		const output = await renderToString(result, Component as any, _props, slots);
-		return output;
+		return unescapeHTML(output);
 	}
 
 	if (Component === null && !_props['client:only']) {
@@ -248,7 +251,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
-		return html.replace(/\<\/?astro-fragment\>/g, '');
+		return unescapeHTML(html.replace(/\<\/?astro-fragment\>/g, ''));
 	}
 
 	// Include componentExport name and componentUrl in hash to dedupe identical islands
@@ -258,7 +261,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
 	result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
-	return `<astro-root uid="${astroId}">${html ?? ''}</astro-root>`;
+	return unescapeHTML(`<astro-root uid="${astroId}">${html ?? ''}</astro-root>`);
 }
 
 /** Create the Astro.fetchContent() runtime function. */
