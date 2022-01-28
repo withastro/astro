@@ -14,6 +14,7 @@ import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import vite from '../vite.js';
 import { debug, error } from '../../core/logger.js';
+import { prependForwardSlash } from '../../core/path.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { getParamsAndProps } from '../ssr/index.js';
@@ -40,12 +41,16 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 }
 
 // Determines of a Rollup chunk is an entrypoint page.
-function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
+function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | OutputChunk, internals: BuildInternals) {
 	if (output.type !== 'chunk') {
 		return false;
 	}
 	const chunk = output as OutputChunk;
-	return chunk.facadeModuleId && (internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId) || internals.entrySpecifierToBundleMap.has('/' + chunk.facadeModuleId));
+	if(chunk.facadeModuleId) {
+		const facadeToEntryId = prependForwardSlash(chunk.facadeModuleId.slice(fileURLToPath(astroConfig.projectRoot).length));
+		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
+	}
+	return false;
 }
 
 // Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
@@ -105,7 +110,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
-		const astroModuleId = fileURLToPath(astroModuleURL);
+		const astroModuleId = prependForwardSlash(component);
 		const [renderers, mod] = pageData.preload;
 		const metadata = mod.$$metadata;
 
@@ -131,7 +136,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		}
 
 		pageInput.add(astroModuleId);
-		facadeIdToPageDataMap.set(astroModuleId, pageData);
+		facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
 	}
 
 	// Empty out the dist folder, if needed. Vite has a config for doing this
@@ -257,7 +262,7 @@ async function generatePages(result: RollupOutput, opts: StaticBuildOptions, int
 
 	const generationPromises = [];
 	for (let output of result.output) {
-		if (chunkIsPage(output, internals)) {
+		if (chunkIsPage(opts.astroConfig, output, internals)) {
 			generationPromises.push(generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers));
 		}
 	}
