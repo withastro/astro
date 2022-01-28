@@ -4,9 +4,10 @@ import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/ast
 import shorthash from 'shorthash';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { serializeListValue } from './util.js';
-export { createMetadata } from './metadata.js';
 import { escapeHTML, UnescapedString, unescapeHTML } from './escape.js';
+
 export type { Metadata } from './metadata';
+export { createMetadata } from './metadata.js';
 export { escapeHTML, unescapeHTML } from './escape.js';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
@@ -23,7 +24,7 @@ async function _render(child: any): Promise<any> {
 	if (child instanceof UnescapedString) {
 		return child;
 	} else if (Array.isArray(child)) {
-		return (await Promise.all(child.map((value) => _render(value)))).join('');
+		return unescapeHTML((await Promise.all(child.map((value) => _render(value)))).join(''));
 	} else if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.
 		// This lets you do {() => ...} without the extra boilerplate
@@ -37,7 +38,7 @@ async function _render(child: any): Promise<any> {
 	// Add a comment explaining why each of these are needed.
 	// Maybe create clearly named function for what this is doing.
 	else if (child instanceof AstroComponent || Object.prototype.toString.call(child) === '[object AstroComponent]') {
-		return await renderAstroComponent(child);
+		return unescapeHTML(await renderAstroComponent(child));
 	} else {
 		return child;
 	}
@@ -91,9 +92,9 @@ export function createComponent(cb: AstroComponentFactory) {
 
 export async function renderSlot(_result: any, slotted: string, fallback?: any) {
 	if (slotted) {
-		return unescapeHTML(await _render(slotted));
+		return await _render(slotted);
 	}
-	return unescapeHTML(await _render(fallback));
+	return fallback;
 }
 
 export const Fragment = Symbol('Astro.Fragment');
@@ -125,7 +126,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 	const children = await renderSlot(result, slots?.default);
 
 	if (Component === Fragment) {
-		return children;
+		return unescapeHTML(children);
 	}
 
 	if (Component && (Component as any).isAstroComponentFactory) {
@@ -236,7 +237,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
 		html = await renderAstroComponent(
-			await render`<${Component}${spreadAttributes(props)}${(children == null || children == '') && voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`}`
+			await render`<${Component}${spreadAttributes(props)}${unescapeHTML((children == null || children == '') && voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`)}`
 		);
 	}
 
@@ -381,7 +382,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any) {
 	const Component = await componentFactory(result, props, children);
 	let template = await renderAstroComponent(Component);
-	return template;
+	return unescapeHTML(template);
 }
 
 // Filter out duplicate elements in our set
@@ -434,15 +435,15 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
-	let template = '';
+	let template = [];
 
 	for await (const value of component) {
 		if (value || value === 0) {
-			template += value;
+			template.push(value);
 		}
 	}
 
-	return template;
+	return unescapeHTML(await _render(template));
 }
 
 export async function renderHTMLElement(result: SSRResult, constructor: typeof HTMLElement, props: any, slots: any) {
