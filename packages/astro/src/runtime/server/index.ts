@@ -93,7 +93,7 @@ export async function renderSlot(_result: any, slotted: string, fallback?: any) 
 	if (slotted) {
 		return unescapeHTML(await _render(slotted));
 	}
-	return unescapeHTML(fallback);
+	return unescapeHTML(await _render(fallback));
 }
 
 export const Fragment = Symbol('Astro.Fragment');
