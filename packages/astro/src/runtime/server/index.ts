@@ -309,10 +309,7 @@ export function createAstro(filePathname: string, site: string, projectRootStr: 
 
 const toAttributeString = (value: any) => String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;');
 
-const STATIC_DIRECTIVES = new Set([
-	'set:html',
-	'set:text'
-])
+const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string) {
