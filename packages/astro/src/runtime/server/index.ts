@@ -459,10 +459,14 @@ export async function renderHTMLElement(result: SSRResult, constructor: typeof H
 
 function getHTMLElementName(constructor: typeof HTMLElement) {
 	const definedName = (customElements as CustomElementRegistry & { getName(_constructor: typeof HTMLElement): string }).getName(constructor);
-	if (definedName) return definedName
+	if (definedName) return definedName;
 
-	const assignedName = constructor.name.replace(/^HTML|Element$/g, '').replace(/[A-Z]/g, '-$&').toLowerCase().replace(/^-/, 'html-')
-	return assignedName
+	const assignedName = constructor.name
+		.replace(/^HTML|Element$/g, '')
+		.replace(/[A-Z]/g, '-$&')
+		.toLowerCase()
+		.replace(/^-/, 'html-');
+	return assignedName;
 }
 
 function renderElement(name: string, { props: _props, children = '' }: SSRElement) {
