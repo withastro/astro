@@ -14,6 +14,7 @@ import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import vite from '../vite.js';
 import { debug, error } from '../../core/logger.js';
+import { prependForwardSlash } from '../../core/path.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { getParamsAndProps } from '../ssr/index.js';
@@ -40,12 +41,16 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 }
 
 // Determines of a Rollup chunk is an entrypoint page.
-function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
+function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | OutputChunk, internals: BuildInternals) {
 	if (output.type !== 'chunk') {
 		return false;
 	}
 	const chunk = output as OutputChunk;
-	return chunk.facadeModuleId && (internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId) || internals.entrySpecifierToBundleMap.has('/' + chunk.facadeModuleId));
+	if(chunk.facadeModuleId) {
+		const facadeToEntryId = prependForwardSlash(chunk.facadeModuleId.slice(fileURLToPath(astroConfig.projectRoot).length));
+		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
+	}
+	return false;
 }
 
 // Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
@@ -74,8 +79,8 @@ function* throttle(max: number, inPaths: string[]) {
 function getByFacadeId<T>(facadeId: string, map: Map<string, T>): T | undefined {
 	return (
 		map.get(facadeId) ||
-		// Check with a leading `/` because on Windows it doesn't have one.
-		map.get('/' + facadeId)
+		// Windows the facadeId has forward slashes, no idea why
+		map.get(facadeId.replace(/\//g, '\\'))
 	);
 }
 
@@ -105,7 +110,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
-		const astroModuleId = astroModuleURL.pathname;
+		const astroModuleId = prependForwardSlash(component);
 		const [renderers, mod] = pageData.preload;
 		const metadata = mod.$$metadata;
 
@@ -121,7 +126,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		// Add hoisted scripts
 		const hoistedScripts = new Set(metadata.hoistedScriptPaths());
 		if (hoistedScripts.size) {
-			const moduleId = new URL('./hoisted.js', astroModuleURL + '/').pathname;
+			const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
 			internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
 			topLevelImports.add(moduleId);
 		}
@@ -131,7 +136,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		}
 
 		pageInput.add(astroModuleId);
-		facadeIdToPageDataMap.set(astroModuleId, pageData);
+		facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
 	}
 
 	// Empty out the dist folder, if needed. Vite has a config for doing this
@@ -177,7 +182,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: astroConfig.buildOptions.site ? fileURLToPath(new URL(astroConfig.buildOptions.site)) : '/',
 		ssr: viteConfig.ssr,
 	} as ViteConfigWithSSR);
 }
@@ -208,7 +213,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		},
 		plugins: [
 			vitePluginNewBuild(input, internals, 'js'),
-			vitePluginHoistedScripts(internals),
+			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
 			}),
@@ -218,7 +223,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: astroConfig.buildOptions.site ? fileURLToPath(new URL(astroConfig.buildOptions.site)) : '/',
 	});
 }
 
@@ -257,7 +262,7 @@ async function generatePages(result: RollupOutput, opts: StaticBuildOptions, int
 
 	const generationPromises = [];
 	for (let output of result.output) {
-		if (chunkIsPage(output, internals)) {
+		if (chunkIsPage(opts.astroConfig, output, internals)) {
 			generationPromises.push(generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers));
 		}
 	}
@@ -272,7 +277,7 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 	let pageData = getByFacadeId<PageBuildData>(facadeId, facadeIdToPageDataMap);
 
 	if (!pageData) {
-		throw new Error(`Unable to find a PageBuildData for the Astro page: ${facadeId}. There are the PageBuilDatas we have ${Array.from(facadeIdToPageDataMap.keys()).join(', ')}`);
+		throw new Error(`Unable to find a PageBuildData for the Astro page: ${facadeId}. There are the PageBuildDatas we have ${Array.from(facadeIdToPageDataMap.keys()).join(', ')}`);
 	}
 
 	const linkIds = getByFacadeId<string[]>(facadeId, internals.facadeIdToAssetsMap) || [];
@@ -383,7 +388,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 async function cleanSsrOutput(opts: StaticBuildOptions) {
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
-		cwd: opts.astroConfig.dist.pathname,
+		cwd: fileURLToPath(opts.astroConfig.dist),
 	});
 	await Promise.all(
 		files.map(async (filename) => {
