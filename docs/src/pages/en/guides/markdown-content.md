@@ -33,7 +33,6 @@ In addition to custom components inside the [`<Markdown>` component](/en/guides/
 - [GitHub-flavored Markdown](https://github.com/remarkjs/remark-gfm)
 - [remark-smartypants](https://github.com/silvenon/remark-smartypants)
 - [rehype-slug](https://github.com/rehypejs/rehype-slug)
-- [Prism](https://prismjs.com/)
 
 Also, Astro supports third-party plugins for Markdown. You can provide your plugins in `astro.config.mjs`.
 
@@ -79,6 +78,27 @@ export default {
         remarkPlugins: [
           [import('remark-autolink-headings'), { behavior: 'prepend' }],
         ],
+      },
+    ],
+  },
+};
+```
+
+### Syntax Highlighting
+
+Astro comes with built-in support for [Prism](https://prismjs.com/) and [Shiki](https://shiki.matsu.io/). By default, Prism is enabled. You can modify this behavior by updating the `@astrojs/markdown-remark` options:
+
+```js
+// astro.config.mjs
+export default {
+  markdownOptions: {
+    render: [
+      '@astrojs/markdown-remark',
+      {
+        // Pick a syntax highlighter. Can be 'prism' (default), 'shiki' or false to disable any highlighting.
+        syntaxHighlight: 'prism',
+        // If you are using shiki, here you can define a global theme.
+        shikiTheme: 'github-dark',
       },
     ],
   },
