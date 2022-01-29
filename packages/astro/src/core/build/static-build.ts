@@ -164,7 +164,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					format: 'esm',
 				},
 			},
-			target: 'es2020', // must match an esbuild target
+			target: 'esnext', // must match an esbuild target
 		},
 		plugins: [
 			vitePluginNewBuild(input, internals, 'mjs'),
@@ -204,7 +204,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 				},
 				preserveEntrySignatures: 'exports-only',
 			},
-			target: 'es2020', // must match an esbuild target
+			target: 'esnext', // must match an esbuild target
 		},
 		plugins: [
 			vitePluginNewBuild(input, internals, 'js'),
