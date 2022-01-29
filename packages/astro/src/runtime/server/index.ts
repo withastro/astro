@@ -5,6 +5,7 @@ import shorthash from 'shorthash';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { serializeListValue } from './util.js';
 export { createMetadata } from './metadata.js';
+export { escapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
@@ -147,7 +148,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 	}
 	const probableRendererNames = guessRenderers(metadata.componentUrl);
 
-	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string') {
+	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string' && !HTMLElement.isPrototypeOf(Component as object)) {
 		const message = `Unable to render ${metadata.displayName}!
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
@@ -163,6 +164,12 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 				renderer = r;
 				break;
 			}
+		}
+
+		if (!renderer && HTMLElement.isPrototypeOf(Component as object)) {
+			const output = renderHTMLElement(result, Component as typeof HTMLElement, _props, slots);
+
+			return output;
 		}
 	} else {
 		// Attempt: use explicitly passed renderer name
@@ -255,7 +262,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 }
 
 /** Create the Astro.fetchContent() runtime function. */
-function createFetchContentFn(url: URL) {
+function createFetchContentFn(url: URL, site: URL) {
 	const fetchContent = (importMetaGlobResult: Record<string, any>) => {
 		let allEntries = [...Object.entries(importMetaGlobResult)];
 		if (allEntries.length === 0) {
@@ -273,7 +280,7 @@ function createFetchContentFn(url: URL) {
 					Content: mod.default,
 					content: mod.metadata,
 					file: new URL(spec, url),
-					url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, '/').replace(/(\/index)?\.md$/, '') : undefined,
+					url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, site.pathname).replace(/(\/index)?\.md$/, '') : undefined,
 				};
 			})
 			.filter(Boolean);
@@ -286,12 +293,13 @@ function createFetchContentFn(url: URL) {
 
 // This is used to create the top-level Astro global; the one that you can use
 // Inside of getStaticPaths.
-export function createAstro(filePathname: string, site: string, projectRootStr: string): AstroGlobalPartial {
+export function createAstro(filePathname: string, _site: string, projectRootStr: string): AstroGlobalPartial {
+	const site = new URL(_site);
 	const url = new URL(filePathname, site);
 	const projectRoot = new URL(projectRootStr);
-	const fetchContent = createFetchContentFn(url);
+	const fetchContent = createFetchContentFn(url, site);
 	return {
-		site: new URL(site),
+		site,
 		fetchContent,
 		// INVESTIGATE is there a use-case for multi args?
 		resolve(...segments: string[]) {
@@ -308,9 +316,20 @@ export function createAstro(filePathname: string, site: string, projectRootStr: 
 
 const toAttributeString = (value: any) => String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;');
 
+const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
+
 // A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string) {
 	if (value == null || value === false) {
+		return '';
+	}
+
+	// compiler directives cannot be applied dynamically, log a warning and ignore.
+	if (STATIC_DIRECTIVES.has(key)) {
+		// eslint-disable-next-line no-console
+		console.warn(`[astro] The "${key}" directive cannot be applied dynamically at runtime. It will not be rendered as an attribute.
+
+Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the dynamic spread syntax (\`{...{ "${key}": value }}\`).`);
 		return '';
 	}
 
@@ -420,6 +439,35 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 	}
 
 	return template;
+}
+
+export async function renderHTMLElement(result: SSRResult, constructor: typeof HTMLElement, props: any, children: any) {
+	const name = getHTMLElementName(constructor);
+
+	let attrHTML = '';
+
+	for (const attr in props) {
+		attrHTML += ` ${attr}="${toAttributeString(await props[attr])}"`;
+	}
+
+	children = await children;
+	children = children == null ? children : '';
+
+	const html = `<${name}${attrHTML}>${children}</${name}>`;
+
+	return html;
+}
+
+function getHTMLElementName(constructor: typeof HTMLElement) {
+	const definedName = (customElements as CustomElementRegistry & { getName(_constructor: typeof HTMLElement): string }).getName(constructor);
+	if (definedName) return definedName;
+
+	const assignedName = constructor.name
+		.replace(/^HTML|Element$/g, '')
+		.replace(/[A-Z]/g, '-$&')
+		.toLowerCase()
+		.replace(/^-/, 'html-');
+	return assignedName;
 }
 
 function renderElement(name: string, { props: _props, children = '' }: SSRElement) {

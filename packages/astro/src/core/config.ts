@@ -53,7 +53,10 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	buildOptions: z
 		.object({
-			site: z.string().optional(),
+			site: z
+				.string()
+				.optional()
+				.transform((val) => (val ? addTrailingSlash(val) : val)),
 			sitemap: z.boolean().optional().default(true),
 			pageUrlFormat: z
 				.union([z.literal('file'), z.literal('directory')])

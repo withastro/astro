@@ -11,7 +11,7 @@ describe('Static build', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			projectRoot: './fixtures/static-build/',
+			projectRoot: './fixtures/static build/',
 			renderers: ['@astrojs/renderer-preact'],
 			buildOptions: {
 				experimentalStaticBuild: true,
