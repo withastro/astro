@@ -6,7 +6,7 @@ const remarkShiki = async (theme: shiki.Theme) => {
 
 	return () => (tree: any) => {
 		visit(tree, 'code', (node) => {
-			const highlighted = highlighter.codeToHtml(node.value, { lang: node.lang ?? undefined });
+			const highlighted = highlighter.codeToHtml(node.value, { lang: node.lang ?? 'plaintext' });
 
 			node.type = 'html';
 			node.value = highlighted;

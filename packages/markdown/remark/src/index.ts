@@ -39,7 +39,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 	const scopedClassName = opts?.$?.scopedClassName;
 	const mode = opts?.mode ?? 'mdx';
 	const syntaxHighlight = opts?.syntaxHighlight ?? 'prism';
-	const shikiTheme = opts?.shikiTheme ?? 'github-light';
+	const shikiTheme = opts?.shikiTheme ?? 'github-dark';
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
