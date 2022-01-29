@@ -1,11 +1,11 @@
 import type { AstroConfig } from '../@types/astro';
-import type { AstroDevServer } from './dev';
 import type { LogOptions } from './logger';
 
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
 import vite from './vite.js';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
+import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
@@ -34,12 +34,11 @@ export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[
 
 interface CreateViteOptions {
 	astroConfig: AstroConfig;
-	devServer?: AstroDevServer;
 	logging: LogOptions;
 }
 
 /** Return a common starting point for all Vite actions */
-export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, devServer }: CreateViteOptions): Promise<ViteConfigWithSSR> {
+export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging }: CreateViteOptions): Promise<ViteConfigWithSSR> {
 	// First, start with the Vite configuration that Astro core needs
 	let viteConfig: ViteConfigWithSSR = {
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
@@ -50,10 +49,11 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		},
 		plugins: [
 			configAliasVitePlugin({ config: astroConfig }),
-			astroVitePlugin({ config: astroConfig, devServer, logging }),
-			markdownVitePlugin({ config: astroConfig, devServer }),
+			astroVitePlugin({ config: astroConfig, logging }),
+			astroViteServerPlugin({ config: astroConfig, logging }),
+			markdownVitePlugin({ config: astroConfig }),
 			jsxVitePlugin({ config: astroConfig, logging }),
-			astroPostprocessVitePlugin({ config: astroConfig, devServer }),
+			astroPostprocessVitePlugin({ config: astroConfig }),
 		],
 		publicDir: fileURLToPath(astroConfig.public),
 		root: fileURLToPath(astroConfig.projectRoot),

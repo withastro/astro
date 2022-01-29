@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger';
+import type { LogOptions } from '../core/logger.js';
 
 import * as colors from 'kleur/colors';
 import fs from 'fs';

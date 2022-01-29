@@ -4,17 +4,15 @@ import type { AstroConfig } from '../@types/astro';
 import esbuild from 'esbuild';
 import fs from 'fs';
 import { transform } from '@astrojs/compiler';
-import { AstroDevServer } from '../core/dev/index.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
-	devServer?: AstroDevServer;
 }
 
 /** Transform .astro files for Vite */
 export default function markdown({ config }: AstroPluginOptions): Plugin {
 	return {
-		name: '@astrojs/vite-plugin-markdown',
+		name: 'astro:markdown',
 		enforce: 'pre', // run transforms before other plugins can
 		async load(id) {
 			if (id.endsWith('.md')) {

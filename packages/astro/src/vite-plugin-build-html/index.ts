@@ -1,5 +1,5 @@
 import type { AstroConfig, RouteCache } from '../@types/astro';
-import type { LogOptions } from '../core/logger';
+import type { LogOptions } from '../core/logger.js';
 import type { ViteDevServer, Plugin as VitePlugin } from '../core/vite';
 import type { OutputChunk, PreRenderedChunk } from 'rollup';
 import type { AllPagesData } from '../core/build/types';

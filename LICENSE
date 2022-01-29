@@ -37,8 +37,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 
 """
-This license applies to parts of the `packages/create-astro` subdirectory originating from the
-https://github.com/sveltejs/kit repository:
+This license applies to parts of the `packages/create-astro` and `packages/astro` subdirectories originating from the https://github.com/sveltejs/kit repository:
 
 Copyright (c) 2020 [these people](https://github.com/sveltejs/kit/graphs/contributors)
 

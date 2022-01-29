@@ -78,7 +78,7 @@ export default function configAliasVitePlugin(astroConfig: { projectRoot?: URL; 
 	if (!configAlias) return {} as vite.PluginOption;
 
 	return {
-		name: '@astrojs/vite-plugin-config-alias',
+		name: 'astro:tsconfig-alias',
 		enforce: 'pre',
 		async resolveId(sourceId: string, importer, options) {
 			/** Resolved ID conditionally handled by any other resolver. (this gives priority to all other resolvers) */

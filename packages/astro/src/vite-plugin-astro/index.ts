@@ -1,11 +1,10 @@
 import type vite from '../core/vite';
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger';
+import type { LogOptions } from '../core/logger.js';
 
 import esbuild from 'esbuild';
 import npath from 'path';
 import { fileURLToPath } from 'url';
-import { AstroDevServer } from '../core/dev/index.js';
 import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';
 import { cachedCompilation, invalidateCompilation } from './compile.js';
@@ -15,7 +14,6 @@ const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
 	config: AstroConfig;
 	logging: LogOptions;
-	devServer?: AstroDevServer;
 }
 
 /** Transform .astro files for Vite */
@@ -36,7 +34,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
 
 	return {
-		name: '@astrojs/vite-plugin-astro',
+		name: 'astro:build',
 		enforce: 'pre', // run transforms before other plugins can
 		configResolved(resolvedConfig) {
 			viteTransform = getViteTransform(resolvedConfig);
