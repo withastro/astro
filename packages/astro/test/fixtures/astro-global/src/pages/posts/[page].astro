@@ -16,7 +16,7 @@ const { params, canonicalURL} = Astro.request;
     {page.data.map((data) => (
       <div>
         <h1>{data.title}</h1>
-        <a href={data.url}>Read</a>
+        <a class="post-url" href={data.url}>Read</a>
       </div>
     ))}
   </body>

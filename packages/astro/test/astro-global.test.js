@@ -54,4 +54,10 @@ describe('Astro.*', () => {
 		expect($('img').attr('src')).to.include('assets/penguin.ccd44411.png'); // Main src/images
 		expect($('#inner-child img').attr('src')).to.include('assets/penguin.b9ab122a.png');
 	});
+
+	it('Astro.fetchContent() returns the correct "url" property, including buildOptions.site subpath', async () => {
+		const html = await fixture.readFile('/posts/1/index.html');
+		const $ = cheerio.load(html);
+		expect($('.post-url').attr('href')).to.equal('/blog/post/post-2');
+	});
 });
