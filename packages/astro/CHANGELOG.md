@@ -1,5 +1,17 @@
 # astro
 
+## 0.22.20
+
+### Patch Changes
+
+- [#2491](https://github.com/withastro/astro/pull/2491) [`c7a6ed9a`](https://github.com/withastro/astro/commit/c7a6ed9a8df88fcc643ec2667627fbf9b670db53) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Fixed top-level await and other es features with the static build
+
+* [#2479](https://github.com/withastro/astro/pull/2479) [`005751a9`](https://github.com/withastro/astro/commit/005751a920c14423648fd45b53cebc94e5108e9f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add the `escapeHTML` utility to `astro/internal`
+
+- [#2490](https://github.com/withastro/astro/pull/2490) [`69d5b709`](https://github.com/withastro/astro/commit/69d5b70900c6392bae1db89efcad57dbdcfa87da) Thanks [@matthewp](https://github.com/matthewp)! - Fix for CSS preprocessing using the static build
+
+* [#2491](https://github.com/withastro/astro/pull/2491) [`c7a6ed9a`](https://github.com/withastro/astro/commit/c7a6ed9a8df88fcc643ec2667627fbf9b670db53) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Renders server-side HTMLElement as HTML tag
+
 ## 0.22.19
 
 ### Patch Changes
@@ -1190,10 +1202,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1213,10 +1225,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
