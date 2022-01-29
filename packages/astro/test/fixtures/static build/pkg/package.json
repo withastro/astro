@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/test-static-build-pkg",
   "main": "./oops.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "exports": {
     ".": {
       "import": "./pkg.js",
