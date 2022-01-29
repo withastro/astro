@@ -46,7 +46,7 @@ function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | OutputChunk
 		return false;
 	}
 	const chunk = output as OutputChunk;
-	if(chunk.facadeModuleId) {
+	if (chunk.facadeModuleId) {
 		const facadeToEntryId = prependForwardSlash(chunk.facadeModuleId.slice(fileURLToPath(astroConfig.projectRoot).length));
 		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
 	}
