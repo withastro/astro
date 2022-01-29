@@ -9,9 +9,9 @@ export const escapeHTML = (string: any, { deprecated = false }: { deprecated?: b
 	console.warn(`Unescaped HTML content found inside expression!
 
 The next minor version of Astro will automatically escape all
-expression content. See https://err.astro.build/0001 for more info.
+expression content. Please use the `set:html` directive.
 
-Expression:
+Expression content:
 ${string}`);
 	warned.add(string);
 
