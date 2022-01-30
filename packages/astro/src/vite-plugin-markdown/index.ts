@@ -4,17 +4,30 @@ import type { AstroConfig } from '../@types/astro';
 import esbuild from 'esbuild';
 import fs from 'fs';
 import { transform } from '@astrojs/compiler';
+import resolve from 'resolve';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
 }
+
+let count = 0;
+const buildCache: Record<string, () => Promise<string>> = {};
 
 /** Transform .astro files for Vite */
 export default function markdown({ config }: AstroPluginOptions): Plugin {
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre', // run transforms before other plugins can
+		async resolveId(id) {
+			if (buildCache[id]) {
+				return id;
+			}
+		},
 		async load(id) {
+			if (buildCache[id]) {
+				console.log('LOAD', id);
+				return {code: await buildCache[id]()};
+			}
 			if (id.endsWith('.md')) {
 				let source = await fs.promises.readFile(id, 'utf8');
 
@@ -31,6 +44,10 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				let renderResult = await render(source, renderOpts);
 				let { frontmatter, metadata, code: astroResult } = renderResult;
 
+				const cacheId = `MD_BUILD_${count++}`;
+				console.log('CREATE', cacheId, id);
+				buildCache[cacheId] = (async () => {
+					
 				// Extract special frontmatter keys
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
 				content.astro = metadata;
@@ -68,11 +85,24 @@ ${tsResult}`;
 
 				// Compile from `.ts` to `.js`
 				const { code, map } = await esbuild.transform(tsResult, { loader: 'ts', sourcemap: 'inline', sourcefile: id });
+				return code;
+				})
 
 				return {
-					code,
+					code: `
+						export const frontmatter = ${JSON.stringify(frontmatter)};
+						export default async function render(...args) {
+							return (await import(${JSON.stringify(cacheId)})).default(...args);
+						};
+						render.isAstroComponentFactory = true;`,
+						
 					map: null,
 				};
+
+				// return {
+				// 	code,
+				// 	map: null,
+				// };
 			}
 
 			return null;
