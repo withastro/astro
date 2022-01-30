@@ -90,12 +90,8 @@ export async function cli(args: string[]) {
 	try {
 		config = await loadConfig({ cwd: projectRoot, flags });
 	} catch (err) {
-		if (err instanceof z.ZodError) {
-			console.error(formatConfigError(err));
-		} else {
-			console.error(colors.red((err as any).toString() || err));
-		}
-		process.exit(1);
+		throwAndExit(err);
+		return;
 	}
 
 	switch (cmd) {
@@ -143,6 +139,13 @@ export async function cli(args: string[]) {
 
 /** Display error and exit */
 function throwAndExit(err: any) {
-	console.error(colors.red(err.toString() || err));
+	if (err instanceof z.ZodError) {
+		console.error(formatConfigError(err));
+	} else if (err.stack) {
+		const [mainMsg, ...stackMsg] = err.stack.split('\n');
+		console.error(colors.red(mainMsg) + '\n' + colors.dim(stackMsg.join('\n')));
+	} else {
+		console.error(colors.red(err.toString() || err));
+	}
 	process.exit(1);
 }

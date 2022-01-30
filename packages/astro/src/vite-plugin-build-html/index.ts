@@ -1,4 +1,4 @@
-import type { AstroConfig, RouteCache } from '../@types/astro';
+import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger.js';
 import type { ViteDevServer, Plugin as VitePlugin } from '../core/vite';
 import type { OutputChunk, PreRenderedChunk } from 'rollup';
@@ -15,6 +15,7 @@ import { isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory, h
 import { render as ssrRender } from '../core/ssr/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
 import { prependDotSlash, removeEndingForwardSlash } from '../core/path.js';
+import { RouteCache } from '../core/ssr/route-cache.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;

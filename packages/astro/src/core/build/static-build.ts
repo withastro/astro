@@ -1,6 +1,6 @@
 import type { OutputChunk, OutputAsset, PreRenderedChunk, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig } from '../vite';
-import type { AstroConfig, Renderer, RouteCache, SSRElement } from '../../@types/astro';
+import type { AstroConfig, Renderer, SSRElement } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -22,6 +22,7 @@ import { createResult } from '../ssr/result.js';
 import { renderPage } from '../../runtime/server/index.js';
 import { prepareOutDir } from './fs.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
+import { RouteCache } from '../ssr/route-cache.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -182,7 +183,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? fileURLToPath(new URL(astroConfig.buildOptions.site)) : '/',
+		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
 		ssr: viteConfig.ssr,
 	} as ViteConfigWithSSR);
 }
@@ -223,7 +224,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? fileURLToPath(new URL(astroConfig.buildOptions.site)) : '/',
+		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
 	});
 }
 
@@ -332,10 +333,6 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			routeCache,
 			logging,
 			pathname,
-			mod,
-			// Do not validate as validation already occurred for static routes
-			// and validation is relatively expensive.
-			validate: false,
 		});
 
 		debug(logging, 'generate', `Generating: ${pathname}`);

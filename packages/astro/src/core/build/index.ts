@@ -1,4 +1,4 @@
-import type { AstroConfig, ManifestData, RouteCache } from '../../@types/astro';
+import type { AstroConfig, ManifestData } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import fs from 'fs';
@@ -13,6 +13,7 @@ import { generateSitemap } from '../ssr/sitemap.js';
 import { collectPagesData } from './page-data.js';
 import { build as scanBasedBuild } from './scan-based-build.js';
 import { staticBuild } from './static-build.js';
+import { RouteCache } from '../ssr/route-cache.js';
 
 export interface BuildOptions {
 	mode?: string;
@@ -35,7 +36,7 @@ class AstroBuilder {
 	private logging: LogOptions;
 	private mode = 'production';
 	private origin: string;
-	private routeCache: RouteCache = {};
+	private routeCache: RouteCache;
 	private manifest: ManifestData;
 	private viteServer?: ViteDevServer;
 	private viteConfig?: ViteConfigWithSSR;
@@ -49,6 +50,7 @@ class AstroBuilder {
 		this.config = config;
 		const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
 		this.logging = options.logging;
+		this.routeCache = new RouteCache(this.logging);
 		this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${port}`;
 		this.manifest = createRouteManifest({ config }, this.logging);
 	}

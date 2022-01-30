@@ -1,6 +1,6 @@
 import type vite from '../core/vite';
 import type http from 'http';
-import type { AstroConfig, ManifestData, RouteCache, RouteData } from '../@types/astro';
+import type { AstroConfig, ManifestData, RouteData } from '../@types/astro';
 import { info, LogOptions } from '../core/logger.js';
 import { fileURLToPath } from 'url';
 import { createRouteManifest, matchRoute } from '../core/ssr/routing.js';
@@ -12,6 +12,7 @@ import * as msg from '../core/messages.js';
 
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import serverErrorTemplate from '../template/5xx.js';
+import { RouteCache } from '../core/ssr/route-cache.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -126,22 +127,19 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 		name: 'astro:server',
 		configureServer(viteServer) {
 			const pagesDirectory = fileURLToPath(config.pages);
-			let routeCache: RouteCache = {};
+			let routeCache = new RouteCache(logging);
 			let manifest: ManifestData = createRouteManifest({ config: config }, logging);
-			/** rebuild the route cache + manifest if the changed file impacts routing. */
-			function rebuildManifestIfNeeded(file: string) {
-				if (file.startsWith(pagesDirectory)) {
-					routeCache = {};
+			/** rebuild the route cache + manifest, as needed. */
+			function rebuildManifest(needsManifestRebuild: boolean, file: string) {
+				routeCache.clearAll();
+				if (needsManifestRebuild) {
 					manifest = createRouteManifest({ config: config }, logging);
 				}
 			}
 			// Rebuild route manifest on file change, if needed.
-			viteServer.watcher.on('add', rebuildManifestIfNeeded);
-			viteServer.watcher.on('unlink', rebuildManifestIfNeeded);
-			// No need to rebuild routes on content-only changes.
-			// However, we DO want to clear the cache in case
-			// the change caused a getStaticPaths() return to change.
-			viteServer.watcher.on('change', () => (routeCache = {}));
+			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
+			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
+			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
 			return () => {
 				removeViteHttpMiddleware(viteServer.middlewares);
 				viteServer.middlewares.use(async (req, res) => {
