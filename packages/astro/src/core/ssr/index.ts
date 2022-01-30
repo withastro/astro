@@ -125,17 +125,7 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
 	return [renderers, mod];
 }
 
-export async function getParamsAndProps({
-	route,
-	routeCache,
-	pathname,
-	logging,
-}: {
-	route: RouteData | undefined;
-	routeCache: RouteCache;
-	pathname: string;
-	logging: LogOptions;
-}): Promise<[Params, Props]> {
+export async function getParamsAndProps({ route, routeCache, pathname }: { route: RouteData | undefined; routeCache: RouteCache; pathname: string }): Promise<[Params, Props]> {
 	// Handle dynamic routes
 	let params: Params = {};
 	let pageProps: Props;
@@ -151,7 +141,7 @@ export async function getParamsAndProps({
 			throw new Error(`[${route.component}] Internal error: route cache was empty, but expected to be full.`);
 		}
 		const paramsKey = JSON.stringify(params);
-		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, paramsKey, logging);
+		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, paramsKey);
 		if (!matchedStaticPath) {
 			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
 		}

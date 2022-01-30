@@ -73,12 +73,12 @@ export class RouteCache {
 	}
 }
 
-export function findPathItemByKey(staticPaths: GetStaticPathsResultKeyed, paramsKey: string, logging: LogOptions) {
+export function findPathItemByKey(staticPaths: GetStaticPathsResultKeyed, paramsKey: string) {
 	let matchedStaticPath = staticPaths.keyed.get(paramsKey);
 	if (matchedStaticPath) {
 		return matchedStaticPath;
 	}
 
-	debug(logging, 'findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
+	debug('findPathItemByKey', `Unexpected cache miss looking for ${paramsKey}`);
 	matchedStaticPath = staticPaths.find(({ params: _params }) => JSON.stringify(_params) === paramsKey);
 }

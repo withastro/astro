@@ -256,7 +256,7 @@ async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
 }
 
 async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
-	debug(opts.logging, 'generate', 'End build step, now generating');
+	debug('build', 'Finish build. Begin generating.');
 
 	// Get renderers to be shared for each page generation.
 	const renderers = await collectRenderers(opts);
@@ -331,11 +331,10 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		const [params, pageProps] = await getParamsAndProps({
 			route: pageData.route,
 			routeCache,
-			logging,
 			pathname,
 		});
 
-		debug(logging, 'generate', `Generating: ${pathname}`);
+		debug('build', `Generating: ${pathname}`);
 
 		const rootpath = new URL(astroConfig.buildOptions.site || 'http://localhost/').pathname;
 		const links = new Set<SSRElement>(
