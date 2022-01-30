@@ -1,19 +1,30 @@
 ---
-export async function getStaticPaths() {
+
+// NOTE: This should be setup(), however the compiler currently only hoists
+// getStaticPaths(). So we're using getStaticPaths() for the moment.
+export async function getStaticPaths({content, buildStaticPaths, rss}) {
+    // content() instructions:
+        // To fetch via glob:
+        // console.log(await content('./en/**/*.md'));
+        // To fetch via glob + filter (filtering improves HMR):
+        // console.log(await content('./en/**/*.md', (f) => f.file.includes('getting-started')));
+
     // get english pages that moved from `/` to `/en/`
-    const englishPages = Astro.fetchContent('./en/**/*.md');
+    const englishPages = await content('./en/**/*.md');
 
     // add pages that are `*.astro` files as well
     const otherPages = [{ url: "/en/themes" }];
-    return [...englishPages, ...otherPages].map((page) => ({
+    buildStaticPaths([...englishPages, ...otherPages].map((page) => ({
         params: {
-            slug: page.url.slice(4),
+            slug: page.url ? page.url.slice(4) : page.file.replace(/^.*src.pages.en/, ''),
         },
         props: {
-            englishSlug: page.url,
+            englishSlug: page.url ? page.url : page.file.replace(/^.*src.pages/, ''),
         }
-    }));
+    })));
 }
 ---
-
-<meta http-equiv="refresh" content={`0;url=${Astro.props.englishSlug}`} />
+<!-- 
+    Commented out so that the page doesn't redirect while testing.
+    <meta http-equiv="refresh" content={`0;url=${Astro.props.englishSlug}`} /> 
+-->

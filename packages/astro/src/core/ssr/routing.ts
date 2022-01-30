@@ -1,4 +1,4 @@
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, Params, RouteData } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, GetStaticPathsResultObject, ManifestData, Params, RouteData } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import fs from 'fs';
@@ -45,7 +45,8 @@ export function validateGetStaticPathsModule(mod: ComponentInstance) {
 }
 
 /** Throw error for malformed getStaticPaths() response */
-export function validateGetStaticPathsResult(result: GetStaticPathsResult, logging: LogOptions) {
+export function validateGetStaticPathsResult(resultObj: GetStaticPathsResultObject, logging: LogOptions) {
+	const result = resultObj.staticPaths;
 	if (!Array.isArray(result)) {
 		throw new Error(`[getStaticPaths] invalid return value. Expected an array of path objects, but got \`${JSON.stringify(result)}\`.`);
 	}

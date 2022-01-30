@@ -8,9 +8,8 @@ import * as colors from 'kleur/colors';
 import { debug } from '../logger.js';
 import { preload as ssrPreload } from '../ssr/index.js';
 import { validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
-import { generatePaginateFunction } from '../ssr/paginate.js';
 import { generateRssFunction } from '../ssr/rss.js';
-import { assignStaticPaths } from '../ssr/route-cache.js';
+import { callGetStaticPaths } from '../ssr/route-cache.js';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;
@@ -131,9 +130,12 @@ async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: Rout
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 	validateGetStaticPathsModule(mod);
 	const rss = generateRssFunction(astroConfig.buildOptions.site, route);
-	await assignStaticPaths(routeCache, route, mod, rss.generator);
-	const staticPaths = routeCache[route.component];
-	validateGetStaticPathsResult(staticPaths, logging);
+	routeCache[route.component] = routeCache[route.component] || await callGetStaticPaths(filePath, mod, route, (f) => viteServer.ssrLoadModule(f));
+	if (routeCache[route.component].rss) {
+		rss.generator(routeCache[route.component].rss!);
+	}
+	validateGetStaticPathsResult(routeCache[route.component], logging);
+	const staticPaths = routeCache[route.component].staticPaths;
 	return {
 		paths: staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean),
 		rss: rss.rss,

@@ -27,7 +27,7 @@ import { injectTags } from './html.js';
 import { generatePaginateFunction } from './paginate.js';
 import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
 import { createResult } from './result.js';
-import { assignStaticPaths, ensureRouteCached, findPathItemByKey } from './route-cache.js';
+import { callGetStaticPaths, findPathItemByKey } from './route-cache.js';
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
@@ -45,7 +45,7 @@ interface SSROptions {
 	/** the web request (needed for dynamic routes) */
 	pathname: string;
 	/** optional, in case we need to render something outside of a dev server */
-	route?: RouteData;
+	route: RouteData;
 	/** pass in route cache because SSR can’t manage cache-busting */
 	routeCache: RouteCache;
 	/** Vite instance */
@@ -130,12 +130,11 @@ ${err.frame}
 
 export type ComponentPreload = [Renderer[], ComponentInstance];
 
-export async function preload({ astroConfig, filePath, viteServer }: SSROptions): Promise<ComponentPreload> {
+export async function preload({ astroConfig, route, routeCache, filePath, viteServer }: SSROptions): Promise<ComponentPreload> {
 	// Important: This needs to happen first, in case a renderer provides polyfills.
 	const renderers = await resolveRenderers(viteServer, astroConfig);
 	// Load the module from the Vite SSR Runtime.
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-
 	return [renderers, mod];
 }
 
@@ -168,13 +167,13 @@ export async function getParamsAndProps({
 			validateGetStaticPathsModule(mod);
 		}
 		if (!routeCache[route.component]) {
-			await assignStaticPaths(routeCache, route, mod);
+			throw new Error(`[${route.component}] Internal error: route cache was empty, but expected to be full.`);
 		}
 		if (validate) {
 			// This validation is expensive so we only want to do it in dev.
 			validateGetStaticPathsResult(routeCache[route.component], logging);
 		}
-		const staticPaths: GetStaticPathsResultKeyed = routeCache[route.component];
+		const staticPaths: GetStaticPathsResultKeyed = routeCache[route.component].staticPaths;
 		const paramsKey = JSON.stringify(params);
 		const matchedStaticPath = findPathItemByKey(staticPaths, paramsKey, logging);
 		if (!matchedStaticPath) {
@@ -204,9 +203,9 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 			}
 		}
 		validateGetStaticPathsModule(mod);
-		await ensureRouteCached(routeCache, route, mod);
+		routeCache[route.component] = routeCache[route.component] || (await callGetStaticPaths(filePath, mod, route, (f) => viteServer.ssrLoadModule(f)));
 		validateGetStaticPathsResult(routeCache[route.component], logging);
-		const routePathParams: GetStaticPathsResult = routeCache[route.component];
+		const routePathParams: GetStaticPathsResult = routeCache[route.component].staticPaths;
 		const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
 		if (!matchedStaticPath) {
 			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);

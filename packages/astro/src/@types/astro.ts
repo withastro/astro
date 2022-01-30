@@ -173,8 +173,9 @@ export interface ComponentInstance {
 	$$metadata: Metadata;
 	default: AstroComponentFactory;
 	css?: string[];
-	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
+	getStaticPaths?: (options: GetStaticPathsOptions) => void | GetStaticPathsResultKeyed;
 }
+
 
 /**
  * Astro.fetchContent() result
@@ -191,20 +192,40 @@ export type FetchContentResultBase = {
 	url: URL;
 };
 
+export type NewFetchContentResult<T = unknown> = {
+	file: string,
+	data: T,
+	Content: any,
+	content: {
+		headers: string[];
+		source: string;
+		html: string;
+	},
+};
+
 export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: string | null) => void>;
 
 /**
  * getStaticPaths() options
  * Docs: https://docs.astro.build/reference/api-reference/#getstaticpaths
- */ export interface GetStaticPathsOptions {
-	paginate?: PaginateFunction;
-	rss?: (...args: any[]) => any;
+ */ 
+export interface GetStaticPathsOptions {
+	content<T = any>(globStr: string, filter?: (data: any) => boolean): Promise<NewFetchContentResult<T>[]>;
+	paginate: PaginateFunction;
+	buildStaticPaths: (paths: GetStaticPathsResultKeyed) => void;
+	rss: (...args: any[]) => any;
 }
 
 export type GetStaticPathsItem = { params: Params; props?: Props };
 export type GetStaticPathsResult = GetStaticPathsItem[];
 export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 	keyed: Map<string, GetStaticPathsItem>;
+};
+export type GetStaticPathsResultObject = {
+	filePath: URL;
+	rss: undefined | RSS;
+	staticPaths: GetStaticPathsResultKeyed; // TODO: if setup(), this is optional
+	linkedContent: string[];
 };
 
 export interface HydrateOptions {
@@ -341,7 +362,7 @@ export interface RouteData {
 	type: 'page';
 }
 
-export type RouteCache = Record<string, GetStaticPathsResultKeyed>;
+export type RouteCache = Record<string, GetStaticPathsResultObject>;
 
 export type RuntimeMode = 'development' | 'production';
 

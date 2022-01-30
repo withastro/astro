@@ -128,20 +128,27 @@ export default function createPlugin({ config, logging }: AstroPluginOptions): v
 			const pagesDirectory = fileURLToPath(config.pages);
 			let routeCache: RouteCache = {};
 			let manifest: ManifestData = createRouteManifest({ config: config }, logging);
-			/** rebuild the route cache + manifest if the changed file impacts routing. */
-			function rebuildManifestIfNeeded(file: string) {
-				if (file.startsWith(pagesDirectory)) {
-					routeCache = {};
+			/** rebuild the route cache + manifest, as needed. */
+			function rebuildManifest(needsManifestRebuild: boolean, file: string) {
+				for (const [routeComponent, routeCacheEntry] of Object.entries(routeCache)) {
+					if (fileURLToPath(routeCacheEntry.filePath) === file || routeCacheEntry.linkedContent.includes(file)) {
+						delete routeCache[routeComponent];
+						// Vite doesn't give us a way to trigger a page-specific HMR event manually.
+						// Instead, just trigger a full page reload, which should be fine for most users.
+						// The routeCache entry deletion prevents stale pages from reloading.
+						viteServer.ws.send({
+							type: 'full-reload',
+						});
+					}
+				}
+				if (needsManifestRebuild) {
 					manifest = createRouteManifest({ config: config }, logging);
 				}
 			}
 			// Rebuild route manifest on file change, if needed.
-			viteServer.watcher.on('add', rebuildManifestIfNeeded);
-			viteServer.watcher.on('unlink', rebuildManifestIfNeeded);
-			// No need to rebuild routes on content-only changes.
-			// However, we DO want to clear the cache in case
-			// the change caused a getStaticPaths() return to change.
-			viteServer.watcher.on('change', () => (routeCache = {}));
+			viteServer.watcher.on('add', rebuildManifest.bind(null, true));
+			viteServer.watcher.on('unlink', rebuildManifest.bind(null, true));
+			viteServer.watcher.on('change', rebuildManifest.bind(null, false));
 			return () => {
 				removeViteHttpMiddleware(viteServer.middlewares);
 				viteServer.middlewares.use(async (req, res) => {

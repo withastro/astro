@@ -1,5 +1,4 @@
-import type { AstroComponentMetadata, Renderer } from '../../@types/astro';
-import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/astro';
+import type { AstroComponentMetadata, Renderer, AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/astro';
 
 import shorthash from 'shorthash';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
@@ -264,6 +263,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 /** Create the Astro.fetchContent() runtime function. */
 function createFetchContentFn(url: URL, site: URL) {
 	const fetchContent = (importMetaGlobResult: Record<string, any>) => {
+		// 	
 		let allEntries = [...Object.entries(importMetaGlobResult)];
 		if (allEntries.length === 0) {
 			throw new Error(`[${url.pathname}] Astro.fetchContent() no matches found.`);
