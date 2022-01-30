@@ -348,7 +348,7 @@ You can deploy Astro to [Vercel](http://vercel.com) through the CLI or the Verce
 
 ### CLI
 
-1. Install the [Vercel CLI](https://vercel.com/cli).
+1. Install the [Vercel CLI](https://vercel.com/cli) and run `vercel` to deploy.
 2. When asked `Want to override the settings? [y/N]`, choose `Y`.
 3. Update `Output Directory` to `./dist`.
 4. Your application is deployed! (e.g. [astro.vercel.app](https://astro.vercel.app/))

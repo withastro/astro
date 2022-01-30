@@ -300,7 +300,7 @@ Puede implementar Astro en [Vercel](http://vercel.com) a través de la CLI o las
 
 ### CLI
 
-1. Instale la [Vercel CLI](https://vercel.com/cli).
+1. Instale la [Vercel CLI](https://vercel.com/cli) y ejecute `vercel` para implementar.
 2. Cuando se le pregunte `¿Desea anular la configuración? [s/N]`, seleccione `S`.
 3. Actualice `Directorio de salida` a `./dist`.
 4. ¡Su aplicación está implementada! (por ejemplo, [astro.vercel.app](https://astro.vercel.app/))
