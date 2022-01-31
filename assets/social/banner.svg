@@ -1,25 +1,4 @@
 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 1012 506">
-	<style>
-		.bg {
-			transform-origin: center center;
-		}
-		#banner {
-			animation: marquee 30s linear infinite;
-		}
-		@media (prefers-reduced-motion: reduce) {
-			#banner {
-				animation-play-state: paused;
-			}
-		}
-		@keyframes marquee {
-			0% {
-				transform: translateX(66px);
-			}
-			100% {
-				transform: translateX(-130px);
-			}
-		}
-	</style>
 
 	<path fill="#F1BCBE" d="M0 0h1012v506H0z"/>
 	<g id="bgs" clip-path="url(#a)">
