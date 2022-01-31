@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Bug fix for define:vars with the --experimental-static-build flag
+Bug fix for `define:vars` with the --experimental-static-build flag
