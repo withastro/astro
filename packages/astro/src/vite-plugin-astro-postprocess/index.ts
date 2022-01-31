@@ -1,22 +1,20 @@
 import type * as t from '@babel/types';
 import type { Plugin } from '../core/vite';
 import type { AstroConfig } from '../@types/astro';
-import type { AstroDevServer } from '../core/dev/index';
 
 import * as babelTraverse from '@babel/traverse';
 import * as babel from '@babel/core';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
-	devServer?: AstroDevServer;
 }
 
 // esbuild transforms the component-scoped Astro into Astro2, so need to check both.
 const validAstroGlobalNames = new Set(['Astro', 'Astro2']);
 
-export default function astro({ config, devServer }: AstroPluginOptions): Plugin {
+export default function astro({ config }: AstroPluginOptions): Plugin {
 	return {
-		name: '@astrojs/vite-plugin-astro-postprocess',
+		name: 'astro:postprocess',
 		async transform(code, id) {
 			// Currently only supported in ".astro" & ".md" files
 			if (!id.endsWith('.astro') && !id.endsWith('.md')) {

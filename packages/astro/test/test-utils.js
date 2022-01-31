@@ -73,10 +73,10 @@ export async function loadFixture(inlineConfig) {
 	return {
 		build: (opts = {}) => build(config, { mode: 'development', logging: 'error', ...opts }),
 		startDevServer: async (opts = {}) => {
-			const devServer = await dev(config, { logging: 'error', ...opts });
-			config.devOptions.port = devServer.port; // update port
-			inlineConfig.devOptions.port = devServer.port;
-			return devServer;
+			const devResult = await dev(config, { logging: 'error', ...opts });
+			config.devOptions.port = devResult.address.port; // update port
+			inlineConfig.devOptions.port = devResult.address.port;
+			return devResult;
 		},
 		config,
 		fetch: (url, init) => fetch(`http://${config.devOptions.hostname}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
