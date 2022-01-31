@@ -395,10 +395,10 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => {
-			const children = result._metadata.experimentalStaticBuild ? '' : style.children;
+			const styleChildren = result._metadata.experimentalStaticBuild ? '' : style.children;
 
 			return renderElement('style', {
-				children,
+				children: styleChildren,
 				props: { ...style.props, 'astro-style': true },
 			});
 		});
