@@ -224,7 +224,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: appendForwardSlash(astroConfig.buildOptions.site ? (new URL(astroConfig.buildOptions.site)).pathname : '/'),
+		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
 	});
 }
 
@@ -383,8 +383,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 }
 
 function getOutRoot(astroConfig: AstroConfig): URL {
-	const rootPathname = appendForwardSlash(astroConfig.buildOptions.site ?
-		new URL(astroConfig.buildOptions.site).pathname : '/');
+	const rootPathname = appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/');
 	return new URL('.' + rootPathname, astroConfig.dist);
 }
 
@@ -392,16 +391,20 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string): URL {
 	const outRoot = getOutRoot(astroConfig);
 
 	// This is the root folder to write to.
-	switch(astroConfig.buildOptions.pageUrlFormat) {
-		case 'directory': return new URL('.' + appendForwardSlash(pathname), outRoot);
-		case 'file': return outRoot;
+	switch (astroConfig.buildOptions.pageUrlFormat) {
+		case 'directory':
+			return new URL('.' + appendForwardSlash(pathname), outRoot);
+		case 'file':
+			return outRoot;
 	}
 }
 
 function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string): URL {
-	switch(astroConfig.buildOptions.pageUrlFormat) {
-		case 'directory': return new URL('./index.html', outFolder);
-		case 'file': return new URL('.' + pathname + '.html', outFolder);
+	switch (astroConfig.buildOptions.pageUrlFormat) {
+		case 'directory':
+			return new URL('./index.html', outFolder);
+		case 'file':
+			return new URL('.' + pathname + '.html', outFolder);
 	}
 }
 
