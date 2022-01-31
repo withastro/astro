@@ -264,9 +264,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 /** Create the Astro.fetchContent() runtime function. */
 function createFetchContentFn(url: URL, site: URL) {
 	let sitePathname = site.pathname;
-	if(!sitePathname.endsWith('/')) {
-		sitePathname += '/';
-	}
 	const fetchContent = (importMetaGlobResult: Record<string, any>) => {
 		let allEntries = [...Object.entries(importMetaGlobResult)];
 		if (allEntries.length === 0) {
