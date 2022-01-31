@@ -38,6 +38,7 @@
     "remark-parse": "^10.0.1",
     "remark-rehype": "^10.0.1",
     "remark-smartypants": "^2.0.0",
+    "shiki": "^0.10.0",
     "unified": "^10.1.1",
     "unist-util-map": "^3.0.0",
     "unist-util-visit": "^4.1.0"

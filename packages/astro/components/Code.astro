@@ -43,7 +43,7 @@ function repairShikiTheme(html: string): string {
 }
 
 const highlighter = await shiki.getHighlighter({ theme });
-const _html = highlighter.codeToHtml(code, lang);
+const _html = highlighter.codeToHtml(code, { lang });
 const html = repairShikiTheme(_html);
 ---
 
