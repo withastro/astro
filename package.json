@@ -14,25 +14,6 @@
     "lint": "eslint \"packages/**/*.ts\"",
     "test": "yarn workspace @astrojs/language-server test"
   },
-  "turbo": {
-    "baseBranch": "origin/main",
-    "pipeline": {
-      "build": {
-        "dependsOn": [
-          "^build"
-        ],
-        "outputs": [
-          "**/dist/**"
-        ]
-      },
-      "dev": {
-        "cache": false
-      },
-      "lint": {
-        "outputs": []
-      }
-    }
-  },
   "workspaces": [
     "packages/*",
     "scripts"
@@ -55,5 +36,6 @@
   },
   "engines": {
     "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
-  }
+  },
+  "packageManager": "yarn@1.22.5"
 }
