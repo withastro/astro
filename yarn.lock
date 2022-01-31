@@ -8460,10 +8460,10 @@ vite-plugin-pwa@0.11.5:
     workbox-build "^6.4.0"
     workbox-window "^6.4.0"
 
-vite@^2.8.0-beta.3:
-  version "2.8.0-beta.3"
-  resolved "https://registry.yarnpkg.com/vite/-/vite-2.8.0-beta.3.tgz#db9bb3ef0c4f1648fefe231c8503cfa3629897cd"
-  integrity sha512-UPdERgwLg1Q80GNvqI6EUuzTEzpp6YjL5DmAsjuMYuIA1HVHG8q+V7ujKlJkb9irx7xvK2VmyunXR0j5ixbjhQ==
+vite@^2.8.0-beta.4:
+  version "2.8.0-beta.4"
+  resolved "https://registry.yarnpkg.com/vite/-/vite-2.8.0-beta.4.tgz#16cba814635a7bb867c67c6a99bb7664d35dc977"
+  integrity sha512-5ucv9VxVqTxn0GlqQYMqLrJXxHFfSymsBxDfTp8o9o1kBGSFxu89kW7Zw3CyWveerOOSiOInzIHdkU6V19f5PQ==
   dependencies:
     esbuild "0.14.3"
     postcss "^8.4.5"
