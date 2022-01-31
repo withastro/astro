@@ -237,7 +237,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
 		html = await renderAstroComponent(
-			await render`<${Component}${spreadAttributes(props)}${unescapeHTML((children == null || children == '') && voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`)}`
+			await render`<${Component}${spreadAttributes(props)}${unescapeHTML(
+				(children == null || children == '') && voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`
+			)}`
 		);
 	}
 

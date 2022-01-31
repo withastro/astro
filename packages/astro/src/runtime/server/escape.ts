@@ -17,7 +17,7 @@ ${string}`);
 
 	// Return unescaped content for now. To be removed.
 	return string;
-}
+};
 
 /**
  * RawString is a "blessed" version of String
@@ -25,8 +25,8 @@ ${string}`);
  */
 export class UnescapedString extends String {}
 
-/** 
- * unescapeHTML marks a string as raw, unescaped HTML. 
+/**
+ * unescapeHTML marks a string as raw, unescaped HTML.
  * This should only be generated internally, not a public API.
  *
  * Need to cast the return value `as unknown as string` so TS doesn't yell at us.
