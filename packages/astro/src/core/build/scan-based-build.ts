@@ -1,5 +1,5 @@
 import type { ViteDevServer } from '../vite.js';
-import type { AstroConfig, RouteCache } from '../../@types/astro';
+import type { AstroConfig } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite.js';
@@ -9,6 +9,7 @@ import vite from '../vite.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
+import { RouteCache } from '../ssr/route-cache.js';
 
 export interface ScanBasedBuildOptions {
 	allPages: AllPagesData;
