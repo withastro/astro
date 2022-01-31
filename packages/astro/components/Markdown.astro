@@ -41,4 +41,4 @@ if (content) {
 html = htmlContent;
 ---
 
-{html ? html : <slot />}
+{html ? <Fragment set:html={html} /> : <slot />}
