@@ -296,13 +296,30 @@ También puedes implementar en un [dominio personalizado](http://surge.sh/help/a
 
 ## Vercel
 
-Para implementar tu proyecto Astro con [Vercel para Git](https://vercel.com/docs/git), asegúrate de que lo has enviado a un repositorio de Git.
+Puede implementar Astro en [Vercel](http://vercel.com) a través de la CLI o las integraciones de Vercel Git.
 
-Ve a https://vercel.com/import/git e importa el proyecto en Vercel utilizando tu elección de Git (GitHub, GitLab o BitBucket). Sigue el asistente para seleccionar la raíz del proyecto con el `package.json` del proyecto y anula el paso de compilación usando `npm run build` y el directorio de salida sea `./dist`.
+### CLI
 
-Una vez que se has importado tu proyecto, todos los envíos posteriores a las ramas generarán vistas previas de desarrollos y todos los cambios realizados en la rama de producción (comúnmente "main") darán como resultado un despliegue de producción.
+1. Instale la [Vercel CLI](https://vercel.com/cli) y ejecute `vercel` para implementar.
+2. Cuando se le pregunte `¿Desea anular la configuración? [s/N]`, seleccione `S`.
+3. Actualice `Directorio de salida` a `./dist`.
+4. ¡Su aplicación está implementada! (por ejemplo, [astro.vercel.app](https://astro.vercel.app/))
 
-Una vez desplegado, obtendrás una URL para ver tu aplicación en vivo, como la siguiente: https://astro.vercel.app
+```jsx
+$ npm i -g vercel
+$ vercel
+```
+
+### Git
+
+1. Inserte su código en su repositorio git (GitHub, GitLab, BitBucket).
+2. [Importe su proyecto](https://vercel.com/new) a Vercel.
+3. Actualice `Directorio de salida` a `./dist`.
+4. ¡Su aplicación está implementada! (por ejemplo, [astro.vercel.app](https://astro.vercel.app/))
+
+Después de que su proyecto haya sido importado e implementado, todos los envíos subsiguientes a las sucursales generarán [Vista previa de implementaciones] (https://vercel.com/docs/concepts/deployments/environments#preview), y todos los cambios realizados en la rama de producción (comúnmente “principal”) dará como resultado una [Implementación de producción](https://vercel.com/docs/concepts/deployments/environments#production).
+
+Obtenga más información sobre [Git Integration] de Vercel (https://vercel.com/docs/concepts/git).
 
 ## Aplicaciones web estáticas de Azure
 
