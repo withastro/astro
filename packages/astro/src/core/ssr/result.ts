@@ -3,6 +3,7 @@ import type { AstroConfig, AstroGlobal, AstroGlobalPartial, Params, Renderer, SS
 import { bold } from 'kleur/colors';
 import { canonicalURL as getCanonicalURL } from '../util.js';
 import { isCSSRequest } from './css.js';
+import { isScriptRequest } from './script.js';
 import { renderSlot } from '../../runtime/server/index.js';
 import { warn, LogOptions } from '../logger.js';
 
@@ -49,6 +50,17 @@ export function createResult(args: CreateResultArgs): SSRResult {
 <style global>
 @import "${path}";
 </style>
+`;
+						} else if (isScriptRequest(path)) {
+							extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
+
+<script type="module" src={(await import("${path}?url")).default}></script>
+
+or consider make it a module like so:
+
+<script type="module" hoist>
+	import MyModule from "${path}";
+</script>
 `;
 						}
 
