@@ -392,16 +392,16 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 // styles and scripts into the head.
 export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
 	const template = await renderToString(result, Component, props, children);
-	const styles = result._metadata.experimentalStaticBuild
-		? []
-		: Array.from(result.styles)
-				.filter(uniqueElements)
-				.map((style) =>
-					renderElement('style', {
-						...style,
-						props: { ...style.props, 'astro-style': true },
-					})
-				);
+	const styles = Array.from(result.styles)
+		.filter(uniqueElements)
+		.map((style) => {
+			const styleChildren = result._metadata.experimentalStaticBuild ? '' : style.children;
+
+			return renderElement('style', {
+				children: styleChildren,
+				props: { ...style.props, 'astro-style': true },
+			});
+		});
 	let needsHydrationStyles = false;
 	const scripts = Array.from(result.scripts)
 		.filter(uniqueElements)
