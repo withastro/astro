@@ -55,11 +55,11 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 					})
 						.then((routes) => {
 							const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
-							debug(logging, 'build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
+							debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
 							return routes;
 						})
 						.catch((err) => {
-							debug(logging, 'build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
+							debug('build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
 							throw err;
 						}),
 				};
@@ -69,11 +69,11 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 			const result = await getStaticPathsForRoute(opts, route)
 				.then((_result) => {
 					const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
-					debug(logging, 'build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(`[${_result.staticPaths.length} ${label}]`)}`);
+					debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(`[${_result.staticPaths.length} ${label}]`)}`);
 					return _result;
 				})
 				.catch((err) => {
-					debug(logging, 'build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+					debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
 					throw err;
 				});
 			const rssFn = generateRssFunction(astroConfig.buildOptions.site, route);
