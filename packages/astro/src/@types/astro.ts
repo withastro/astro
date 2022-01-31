@@ -341,8 +341,6 @@ export interface RouteData {
 	type: 'page';
 }
 
-export type RouteCache = Record<string, GetStaticPathsResultKeyed>;
-
 export type RuntimeMode = 'development' | 'production';
 
 /**
@@ -385,7 +383,7 @@ export interface RSS {
 	}[];
 }
 
-export type RSSFunction = (args: RSS) => void;
+export type RSSFunction = (args: RSS) => RSSResult;
 
 export type FeedResult = { url: string; content?: string };
 export type RSSResult = { xml: FeedResult; xsl?: FeedResult };

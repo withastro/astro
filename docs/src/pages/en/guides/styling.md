@@ -355,7 +355,7 @@ const { theme } = Astro.props;
 <style lang="scss">
   .btn {
     /* ✅  <Button> is now back in control of its own styling again! */
-    [data-theme='nav'] {
+    &[data-theme='nav'] {
       // nav-friendly styles here…
     }
   }

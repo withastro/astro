@@ -1,7 +1,7 @@
 import type { TransformResult } from 'rollup';
 import type { Plugin, ResolvedConfig } from '../core/vite';
 import type { AstroConfig, Renderer } from '../@types/astro';
-import type { LogOptions } from '../core/logger';
+import type { LogOptions } from '../core/logger.js';
 
 import babel from '@babel/core';
 import esbuild from 'esbuild';
@@ -98,7 +98,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 	let viteConfig: ResolvedConfig;
 
 	return {
-		name: '@astrojs/vite-plugin-jsx',
+		name: 'astro:jsx',
 		enforce: 'pre', // run transforms before other plugins
 		configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;

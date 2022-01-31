@@ -83,33 +83,29 @@ export function generateRSSStylesheet() {
 }
 
 /** Generated function to be run  */
-export function generateRssFunction(site: string | undefined, route: RouteData): { generator: RSSFunction; rss?: RSSResult[] } {
-	let results: RSSResult[] = [];
-	return {
-		generator: function rssUtility(args: RSS) {
-			if (!site) {
-				throw new Error(`[${route.component}] rss() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
-			}
-			let result: RSSResult = {} as any;
-			const { dest, ...rssData } = args;
-			const feedURL = dest || '/rss.xml';
-			if (rssData.stylesheet === true) {
-				rssData.stylesheet = feedURL.replace(/\.xml$/, '.xsl');
-				result.xsl = {
-					url: rssData.stylesheet,
-					content: generateRSSStylesheet(),
-				};
-			} else if (typeof rssData.stylesheet === 'string') {
-				result.xsl = {
-					url: rssData.stylesheet,
-				};
-			}
-			result.xml = {
-				url: feedURL,
-				content: generateRSS({ rssData, site, srcFile: route.component }),
+export function generateRssFunction(site: string | undefined, route: RouteData): RSSFunction {
+	return function rssUtility(args: RSS): RSSResult {
+		if (!site) {
+			throw new Error(`[${route.component}] rss() tried to generate RSS but "buildOptions.site" missing in astro.config.mjs`);
+		}
+		let result: RSSResult = {} as any;
+		const { dest, ...rssData } = args;
+		const feedURL = dest || '/rss.xml';
+		if (rssData.stylesheet === true) {
+			rssData.stylesheet = feedURL.replace(/\.xml$/, '.xsl');
+			result.xsl = {
+				url: rssData.stylesheet,
+				content: generateRSSStylesheet(),
 			};
-			results.push(result);
-		},
-		rss: results,
+		} else if (typeof rssData.stylesheet === 'string') {
+			result.xsl = {
+				url: rssData.stylesheet,
+			};
+		}
+		result.xml = {
+			url: feedURL,
+			content: generateRSS({ rssData, site, srcFile: route.component }),
+		};
+		return result;
 	};
 }

@@ -9,6 +9,7 @@ import { remarkJsx, loadRemarkJsx } from './remark-jsx.js';
 import rehypeJsx from './rehype-jsx.js';
 import rehypeEscape from './rehype-escape.js';
 import remarkPrism from './remark-prism.js';
+import remarkShiki from './remark-shiki.js';
 import remarkUnwrap from './remark-unwrap.js';
 import { loadPlugins } from './load-plugins.js';
 
@@ -37,6 +38,8 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 	let { remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
 	const scopedClassName = opts?.$?.scopedClassName;
 	const mode = opts?.mode ?? 'mdx';
+	const syntaxHighlight = opts?.syntaxHighlight ?? 'prism';
+	const shikiTheme = opts?.shikiTheme ?? 'github-dark';
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
@@ -64,7 +67,12 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 		parser.use([scopedStyles(scopedClassName)]);
 	}
 
-	parser.use([remarkPrism(scopedClassName)]);
+	if (syntaxHighlight === 'prism') {
+		parser.use([remarkPrism(scopedClassName)]);
+	} else if (syntaxHighlight === 'shiki') {
+		parser.use([await remarkShiki(shikiTheme)]);
+	}
+
 	parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'] }]]);
 
 	loadedRehypePlugins.forEach(([plugin, opts]) => {

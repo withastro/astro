@@ -1,20 +1,7 @@
 import type { BuildResult } from 'esbuild';
 import type vite from '../vite';
-import type {
-	AstroConfig,
-	ComponentInstance,
-	GetStaticPathsResult,
-	GetStaticPathsResultKeyed,
-	Params,
-	Props,
-	Renderer,
-	RouteCache,
-	RouteData,
-	RuntimeMode,
-	SSRElement,
-	SSRError,
-} from '../../@types/astro';
-import type { LogOptions } from '../logger';
+import type { AstroConfig, ComponentInstance, Params, Props, Renderer, RouteData, RuntimeMode, SSRElement, SSRError } from '../../@types/astro';
+import { LogOptions, warn } from '../logger.js';
 
 import eol from 'eol';
 import fs from 'fs';
@@ -24,10 +11,9 @@ import { renderPage } from '../../runtime/server/index.js';
 import { codeFrame, resolveDependency } from '../util.js';
 import { getStylesForURL } from './css.js';
 import { injectTags } from './html.js';
-import { generatePaginateFunction } from './paginate.js';
-import { getParams, validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
+import { getParams, validateGetStaticPathsResult } from './routing.js';
 import { createResult } from './result.js';
-import { assignStaticPaths, ensureRouteCached, findPathItemByKey } from './route-cache.js';
+import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
@@ -139,21 +125,7 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
 	return [renderers, mod];
 }
 
-export async function getParamsAndProps({
-	route,
-	routeCache,
-	logging,
-	pathname,
-	mod,
-	validate = true,
-}: {
-	route: RouteData | undefined;
-	routeCache: RouteCache;
-	pathname: string;
-	mod: ComponentInstance;
-	logging: LogOptions;
-	validate?: boolean;
-}): Promise<[Params, Props]> {
+export async function getParamsAndProps({ route, routeCache, pathname }: { route: RouteData | undefined; routeCache: RouteCache; pathname: string }): Promise<[Params, Props]> {
 	// Handle dynamic routes
 	let params: Params = {};
 	let pageProps: Props;
@@ -164,19 +136,12 @@ export async function getParamsAndProps({
 				params = getParams(route.params)(paramsMatch);
 			}
 		}
-		if (validate) {
-			validateGetStaticPathsModule(mod);
+		const routeCacheEntry = routeCache.get(route);
+		if (!routeCacheEntry) {
+			throw new Error(`[${route.component}] Internal error: route cache was empty, but expected to be full.`);
 		}
-		if (!routeCache[route.component]) {
-			await assignStaticPaths(routeCache, route, mod);
-		}
-		if (validate) {
-			// This validation is expensive so we only want to do it in dev.
-			validateGetStaticPathsResult(routeCache[route.component], logging);
-		}
-		const staticPaths: GetStaticPathsResultKeyed = routeCache[route.component];
 		const paramsKey = JSON.stringify(params);
-		const matchedStaticPath = findPathItemByKey(staticPaths, paramsKey, logging);
+		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, paramsKey);
 		if (!matchedStaticPath) {
 			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
 		}
@@ -203,11 +168,16 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 				params = getParams(route.params)(paramsMatch);
 			}
 		}
-		validateGetStaticPathsModule(mod);
-		await ensureRouteCached(routeCache, route, mod);
-		validateGetStaticPathsResult(routeCache[route.component], logging);
-		const routePathParams: GetStaticPathsResult = routeCache[route.component];
-		const matchedStaticPath = routePathParams.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
+		let routeCacheEntry = routeCache.get(route);
+		// TODO(fks): All of our getStaticPaths logic should live in a single place,
+		// to prevent duplicate runs during the build. This is not expected to run
+		// anymore and we should change this check to thrown an internal error.
+		if (!routeCacheEntry) {
+			warn(logging, 'routeCache', `Internal Warning: getStaticPaths() called twice during the build. (${route.component})`);
+			routeCacheEntry = await callGetStaticPaths(mod, route, true, logging);
+			routeCache.set(route, routeCacheEntry);
+		}
+		const matchedStaticPath = routeCacheEntry.staticPaths.find(({ params: _params }) => JSON.stringify(_params) === JSON.stringify(params));
 		if (!matchedStaticPath) {
 			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
 		}

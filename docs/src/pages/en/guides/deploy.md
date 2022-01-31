@@ -344,13 +344,30 @@ You can also deploy to a [custom domain](http://surge.sh/help/adding-a-custom-do
 
 ## Vercel
 
-To deploy your Astro project with a [Vercel for Git](https://vercel.com/docs/git), make sure it has been pushed to a Git repository.
+You can deploy Astro to [Vercel](http://vercel.com) through the CLI or the Vercel git integrations.
 
-Go to https://vercel.com/import/git and import the project into Vercel using your Git of choice (GitHub, GitLab or BitBucket). Follow the wizard to select the project root with the project's `package.json` and override the build step using `npm run build` and the output dir to be `./dist`
+### CLI
 
-After your project has been imported, all subsequent pushes to branches will generate Preview Deployments, and all changes made to the Production Branch (commonly "main") will result in a Production Deployment.
+1. Install the [Vercel CLI](https://vercel.com/cli) and run `vercel` to deploy.
+2. When asked `Want to override the settings? [y/N]`, choose `Y`.
+3. Update `Output Directory` to `./dist`.
+4. Your application is deployed! (e.g. [astro.vercel.app](https://astro.vercel.app/))
 
-Once deployed, you will get a URL to see your app live, such as the following: https://astro.vercel.app
+```bash
+$ npm i -g vercel
+$ vercel
+```
+
+### Git
+
+1. Push your code to your git repository (GitHub, GitLab, BitBucket).
+2. [Import your project](https://vercel.com/new) into Vercel.
+3. Update `Output Directory` to `./dist`.
+4. Your application is deployed! (e.g. [astro.vercel.app](https://astro.vercel.app/))
+
+After your project has been imported and deployed, all subsequent pushes to branches will generate [Preview Deployments](https://vercel.com/docs/concepts/deployments/environments#preview), and all changes made to the Production Branch (commonly “main”) will result in a [Production Deployment](https://vercel.com/docs/concepts/deployments/environments#production).
+
+Learn more about Vercel’s [Git Integration](https://vercel.com/docs/concepts/git).
 
 ## Azure Static Web Apps
 

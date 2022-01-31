@@ -1,0 +1,20 @@
+---
+const { content } = Astro.props;
+---
+
+<html lang={content.lang || 'en'}>
+	<head>
+		<meta charset="utf-8" />
+
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+
+		<title>{content.title}</title>
+
+		<style global>
+			@import "../styles/global.css";
+		</style>
+	</head>
+	<body>
+		<slot />
+	</body>
+</html>

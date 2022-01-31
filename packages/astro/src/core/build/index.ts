@@ -1,4 +1,4 @@
-import type { AstroConfig, ManifestData, RouteCache } from '../../@types/astro';
+import type { AstroConfig, ManifestData } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import fs from 'fs';
@@ -13,6 +13,7 @@ import { generateSitemap } from '../ssr/sitemap.js';
 import { collectPagesData } from './page-data.js';
 import { build as scanBasedBuild } from './scan-based-build.js';
 import { staticBuild } from './static-build.js';
+import { RouteCache } from '../ssr/route-cache.js';
 
 export interface BuildOptions {
 	mode?: string;
@@ -35,7 +36,7 @@ class AstroBuilder {
 	private logging: LogOptions;
 	private mode = 'production';
 	private origin: string;
-	private routeCache: RouteCache = {};
+	private routeCache: RouteCache;
 	private manifest: ManifestData;
 	private viteServer?: ViteDevServer;
 	private viteConfig?: ViteConfigWithSSR;
@@ -49,6 +50,7 @@ class AstroBuilder {
 		this.config = config;
 		const port = config.devOptions.port; // no need to save this (don’t rely on port in builder)
 		this.logging = options.logging;
+		this.routeCache = new RouteCache(this.logging);
 		this.origin = config.buildOptions.site ? new URL(config.buildOptions.site).origin : `http://localhost:${port}`;
 		this.manifest = createRouteManifest({ config }, this.logging);
 	}
@@ -74,7 +76,7 @@ class AstroBuilder {
 		this.viteConfig = viteConfig;
 		const viteServer = await vite.createServer(viteConfig);
 		this.viteServer = viteServer;
-		debug(logging, 'build', timerMessage('Vite started', timer.viteStart));
+		debug('build', timerMessage('Vite started', timer.viteStart));
 
 		timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
@@ -92,13 +94,13 @@ class AstroBuilder {
 				// TODO: add better type inference to data.preload[1]
 				const frontmatter = (data.preload[1] as any).frontmatter;
 				if (Boolean(frontmatter.draft) && !this.config.buildOptions.drafts) {
-					debug(logging, 'build', timerMessage(`Skipping draft page ${page}`, timer.loadStart));
+					debug('build', timerMessage(`Skipping draft page ${page}`, timer.loadStart));
 					delete allPages[page];
 				}
 			}
 		});
 
-		debug(logging, 'build', timerMessage('All pages loaded', timer.loadStart));
+		debug('build', timerMessage('All pages loaded', timer.loadStart));
 
 		// The names of each pages
 		const pageNames: string[] = [];
@@ -130,7 +132,7 @@ class AstroBuilder {
 				viteServer: this.viteServer,
 			});
 		}
-		debug(logging, 'build', timerMessage('Vite build finished', timer.buildStart));
+		debug('build', timerMessage('Vite build finished', timer.buildStart));
 
 		// Write any additionally generated assets to disk.
 		timer.assetsStart = performance.now();
@@ -141,7 +143,7 @@ class AstroBuilder {
 			fs.writeFileSync(filePath, assets[k], 'utf8');
 			delete assets[k]; // free up memory
 		});
-		debug(logging, 'build', timerMessage('Additional assets copied', timer.assetsStart));
+		debug('build', timerMessage('Additional assets copied', timer.assetsStart));
 
 		// Build your final sitemap.
 		timer.sitemapStart = performance.now();
@@ -151,7 +153,7 @@ class AstroBuilder {
 			await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
 			await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
 		}
-		debug(logging, 'build', timerMessage('Sitemap built', timer.sitemapStart));
+		debug('build', timerMessage('Sitemap built', timer.sitemapStart));
 
 		// You're done! Time to clean up.
 		await viteServer.close();
@@ -162,8 +164,6 @@ class AstroBuilder {
 
 	/** Stats */
 	private async printStats({ logging, timeStart, pageCount }: { logging: LogOptions; timeStart: number; pageCount: number }) {
-		/* eslint-disable no-console */
-		debug(logging, ''); // empty line for debug
 		const buildTime = performance.now() - timeStart;
 		const total = buildTime < 750 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
 		const perPage = `${Math.round(buildTime / pageCount)}ms`;

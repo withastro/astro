@@ -7,9 +7,9 @@ import { performance } from 'perf_hooks';
 import send from 'send';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import * as msg from '../dev/messages.js';
+import * as msg from '../messages.js';
 import { error, info } from '../logger.js';
-import { subpathNotUsedTemplate, notFoundTemplate, default as template } from '../dev/template/4xx.js';
+import { subpathNotUsedTemplate, notFoundTemplate, default as template } from '../../template/4xx.js';
 import { appendForwardSlash, trimSlashes } from '../path.js';
 
 interface PreviewOptions {
@@ -43,7 +43,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 	};
 
 	/** Base request URL. */
-	let baseURL = new URL(appendForwardSlash(config.buildOptions.site || ''), defaultOrigin);
+	let baseURL = new URL(config.buildOptions.site || '/', defaultOrigin);
 
 	// Create the preview server, send static files out of the `dist/` directory.
 	const server = http.createServer((req, res) => {
@@ -126,7 +126,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 				httpServer = server.listen(port, hostname, () => {
 					if (!showedListenMsg) {
 						info(logging, 'astro', msg.devStart({ startupTime: performance.now() - timerStart }));
-						info(logging, 'astro', msg.devHost({ host: `http://${hostname}:${port}${baseURL.pathname}` }));
+						info(logging, 'astro', msg.devHost({ address: { family: 'ipv4', address: hostname, port }, https: false, site: baseURL }));
 					}
 					showedListenMsg = true;
 					resolve();
