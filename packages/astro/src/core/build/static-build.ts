@@ -14,7 +14,7 @@ import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import vite from '../vite.js';
 import { debug, error } from '../../core/logger.js';
-import { prependForwardSlash } from '../../core/path.js';
+import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { getParamsAndProps } from '../ssr/index.js';
@@ -162,7 +162,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		build: {
 			emptyOutDir: false,
 			minify: false,
-			outDir: fileURLToPath(astroConfig.dist),
+			outDir: fileURLToPath(getOutRoot(astroConfig)),
 			ssr: true,
 			rollupOptions: {
 				input: Array.from(input),
@@ -202,7 +202,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		build: {
 			emptyOutDir: false,
 			minify: 'esbuild',
-			outDir: fileURLToPath(astroConfig.dist),
+			outDir: fileURLToPath(getOutRoot(astroConfig)),
 			rollupOptions: {
 				input: Array.from(input),
 				output: {
@@ -224,7 +224,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: appendForwardSlash(astroConfig.buildOptions.site ? (new URL(astroConfig.buildOptions.site)).pathname : '/'),
 	});
 }
 
@@ -273,7 +273,7 @@ async function generatePages(result: RollupOutput, opts: StaticBuildOptions, int
 async function generatePage(output: OutputChunk, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>, renderers: Renderer[]) {
 	const { astroConfig } = opts;
 
-	let url = new URL('./' + output.fileName, astroConfig.dist);
+	let url = new URL('./' + output.fileName, getOutRoot(astroConfig));
 	const facadeId: string = output.facadeModuleId as string;
 	let pageData = getByFacadeId<PageBuildData>(facadeId, facadeIdToPageDataMap);
 
@@ -336,7 +336,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 
 		debug('build', `Generating: ${pathname}`);
 
-		const rootpath = new URL(astroConfig.buildOptions.site || 'http://localhost/').pathname;
+		const rootpath = appendForwardSlash(new URL(astroConfig.buildOptions.site || 'http://localhost/').pathname);
 		const links = new Set<SSRElement>(
 			linkIds.map((href) => ({
 				props: {
@@ -372,12 +372,36 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		};
 
 		let html = await renderPage(result, Component, pageProps, null);
-		const outFolder = new URL('.' + pathname + '/', astroConfig.dist);
-		const outFile = new URL('./index.html', outFolder);
+
+		const outFolder = getOutFolder(astroConfig, pathname);
+		const outFile = getOutFile(astroConfig, outFolder, pathname);
 		await fs.promises.mkdir(outFolder, { recursive: true });
 		await fs.promises.writeFile(outFile, html, 'utf-8');
 	} catch (err) {
 		error(opts.logging, 'build', `Error rendering:`, err);
+	}
+}
+
+function getOutRoot(astroConfig: AstroConfig): URL {
+	const rootPathname = appendForwardSlash(astroConfig.buildOptions.site ?
+		new URL(astroConfig.buildOptions.site).pathname : '/');
+	return new URL('.' + rootPathname, astroConfig.dist);
+}
+
+function getOutFolder(astroConfig: AstroConfig, pathname: string): URL {
+	const outRoot = getOutRoot(astroConfig);
+
+	// This is the root folder to write to.
+	switch(astroConfig.buildOptions.pageUrlFormat) {
+		case 'directory': return new URL('.' + appendForwardSlash(pathname), outRoot);
+		case 'file': return outRoot;
+	}
+}
+
+function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string): URL {
+	switch(astroConfig.buildOptions.pageUrlFormat) {
+		case 'directory': return new URL('./index.html', outFolder);
+		case 'file': return new URL('.' + pathname + '.html', outFolder);
 	}
 }
 
