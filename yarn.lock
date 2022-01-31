@@ -130,10 +130,10 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@astrojs/compiler@^0.9.2":
-  version "0.9.2"
-  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.9.2.tgz#aea226472046cb88c0ff20661be34af84d983feb"
-  integrity sha512-8yxdyokSNmTbcDfW75k5NcPKMBnPTfzLHVxhdiUrII7Zqh/OG9SaOZWFCnvFhU8dkQBUU6B1eh/ABAHwnxZWGw==
+"@astrojs/compiler@^0.10.1":
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.10.1.tgz#69df1a7e4150c1b0b255154ae716dbc8b24c5dd4"
+  integrity sha512-SUp5auq6jcLmxyOx8Ovd3ebvwR5wnuqsbIi77Ze/ua3+GMcR++rOWiyqyql887U2ajZMwJfHatOwQl67P7o5gg==
   dependencies:
     typescript "^4.3.5"
 
@@ -8152,10 +8152,10 @@ shell-quote@^1.6.1:
   resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.7.3.tgz#aa40edac170445b9a431e17bb62c0b881b9c4123"
   integrity sha512-Vpfqwm4EnqGdlsBFNmHhxhElJYrdfcxPThu+ryKS5J8L/fhAwLazFZtq+S+TWZ9ANj2piSQLGj6NQg+lKPmxrw==
 
-shiki@^0.9.10:
-  version "0.9.15"
-  resolved "https://registry.yarnpkg.com/shiki/-/shiki-0.9.15.tgz#2481b46155364f236651319d2c18e329ead6fa44"
-  integrity sha512-/Y0z9IzhJ8nD9nbceORCqu6NgT9X6I8Fk8c3SICHI5NbZRLdZYFaB233gwct9sU0vvSypyaL/qaKvzyQGJBZSw==
+shiki@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/shiki/-/shiki-0.10.0.tgz#85f21ecfa95b377ff64db6c71442c22c220e9540"
+  integrity sha512-iczxaIYeBFHTFrQPb9DVy2SKgYxC4Wo7Iucm7C17cCh2Ge/refnvHscUOxM85u57MfLoNOtjoEFUWt9gBexblA==
   dependencies:
     jsonc-parser "^3.0.0"
     vscode-oniguruma "^1.6.1"

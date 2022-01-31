@@ -55,7 +55,7 @@
     "test:match": "mocha --timeout 15000 -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.9.2",
+    "@astrojs/compiler": "^0.10.1",
     "@astrojs/language-server": "^0.8.6",
     "@astrojs/markdown-remark": "^0.6.0",
     "@astrojs/prism": "0.4.0",
@@ -97,7 +97,7 @@
     "sass": "^1.43.4",
     "semver": "^7.3.5",
     "send": "^0.17.1",
-    "shiki": "^0.9.10",
+    "shiki": "^0.10.0",
     "shorthash": "^0.0.2",
     "slash": "^4.0.0",
     "sourcemap-codec": "^1.4.8",
