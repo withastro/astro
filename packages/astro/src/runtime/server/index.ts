@@ -263,6 +263,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 /** Create the Astro.fetchContent() runtime function. */
 function createFetchContentFn(url: URL, site: URL) {
+	let sitePathname = site.pathname;
 	const fetchContent = (importMetaGlobResult: Record<string, any>) => {
 		let allEntries = [...Object.entries(importMetaGlobResult)];
 		if (allEntries.length === 0) {
@@ -280,7 +281,7 @@ function createFetchContentFn(url: URL, site: URL) {
 					Content: mod.default,
 					content: mod.metadata,
 					file: new URL(spec, url),
-					url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, site.pathname).replace(/(\/index)?\.md$/, '') : undefined,
+					url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '') : undefined,
 				};
 			})
 			.filter(Boolean);

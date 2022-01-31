@@ -48,6 +48,11 @@ export function parseNpmName(spec: string): { scope?: string; name: string; subp
 	};
 }
 
+/** Coalesce any throw variable to an Error instance. */
+export function createSafeError(err: any): Error {
+	return err instanceof Error || (err && err.name && err.message) ? err : new Error(JSON.stringify(err));
+}
+
 /** generate code frame from esbuild error */
 export function codeFrame(src: string, loc: ErrorPayload['err']['loc']): string {
 	if (!loc) return '';

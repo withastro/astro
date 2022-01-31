@@ -1,4 +1,4 @@
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, RouteCache, RouteData, RSSResult } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, ManifestData, RouteData, RSSResult } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteDevServer } from '../vite.js';
@@ -7,10 +7,8 @@ import { fileURLToPath } from 'url';
 import * as colors from 'kleur/colors';
 import { debug } from '../logger.js';
 import { preload as ssrPreload } from '../ssr/index.js';
-import { validateGetStaticPathsModule, validateGetStaticPathsResult } from '../ssr/routing.js';
-import { generatePaginateFunction } from '../ssr/paginate.js';
 import { generateRssFunction } from '../ssr/rss.js';
-import { assignStaticPaths } from '../ssr/route-cache.js';
+import { callGetStaticPaths, RouteCache, RouteCacheEntry } from '../ssr/route-cache.js';
 
 export interface CollectPagesDataOptions {
 	astroConfig: AstroConfig;
@@ -57,11 +55,11 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 					})
 						.then((routes) => {
 							const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
-							debug(logging, 'build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
+							debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
 							return routes;
 						})
 						.catch((err) => {
-							debug(logging, 'build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
+							debug('build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
 							throw err;
 						}),
 				};
@@ -69,50 +67,50 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 			}
 			// dynamic route:
 			const result = await getStaticPathsForRoute(opts, route)
-				.then((routes) => {
-					const label = routes.paths.length === 1 ? 'page' : 'pages';
-					debug(logging, 'build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(`[${routes.paths.length} ${label}]`)}`);
-					return routes;
+				.then((_result) => {
+					const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
+					debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(`[${_result.staticPaths.length} ${label}]`)}`);
+					return _result;
 				})
 				.catch((err) => {
-					debug(logging, 'build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+					debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
 					throw err;
 				});
-			if (result.rss?.length) {
-				for (let i = 0; i < result.rss.length; i++) {
-					const rss = result.rss[i];
-					if (rss.xml) {
-						const { url, content } = rss.xml;
-						if (content) {
-							const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
-							if (assets[fileURLToPath(rssFile)]) {
-								throw new Error(`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
-							}
-							assets[fileURLToPath(rssFile)] = content;
+			const rssFn = generateRssFunction(astroConfig.buildOptions.site, route);
+			for (const rssCallArg of result.rss) {
+				const rssResult = rssFn(rssCallArg);
+				if (rssResult.xml) {
+					const { url, content } = rssResult.xml;
+					if (content) {
+						const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+						if (assets[fileURLToPath(rssFile)]) {
+							throw new Error(`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
 						}
-					}
-					if (rss.xsl?.content) {
-						const { url, content } = rss.xsl;
-						const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
-						if (assets[fileURLToPath(stylesheetFile)]) {
-							throw new Error(
-								`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
-							);
-						}
-						assets[fileURLToPath(stylesheetFile)] = content;
+						assets[fileURLToPath(rssFile)] = content;
 					}
 				}
+				if (rssResult.xsl?.content) {
+					const { url, content } = rssResult.xsl;
+					const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+					if (assets[fileURLToPath(stylesheetFile)]) {
+						throw new Error(
+							`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
+						);
+					}
+					assets[fileURLToPath(stylesheetFile)] = content;
+				}
 			}
+			const finalPaths = result.staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean);
 			allPages[route.component] = {
 				route,
-				paths: result.paths,
+				paths: finalPaths,
 				preload: await ssrPreload({
 					astroConfig,
 					filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
 					logging,
 					mode: 'production',
 					origin,
-					pathname: result.paths[0],
+					pathname: finalPaths[0],
 					route,
 					routeCache,
 					viteServer,
@@ -124,18 +122,12 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 	return { assets, allPages };
 }
 
-async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: RouteData): Promise<{ paths: string[]; rss?: RSSResult[] }> {
+async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: RouteData): Promise<RouteCacheEntry> {
 	const { astroConfig, logging, routeCache, viteServer } = opts;
 	if (!viteServer) throw new Error(`vite.createServer() not called!`);
 	const filePath = new URL(`./${route.component}`, astroConfig.projectRoot);
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-	validateGetStaticPathsModule(mod);
-	const rss = generateRssFunction(astroConfig.buildOptions.site, route);
-	await assignStaticPaths(routeCache, route, mod, rss.generator);
-	const staticPaths = routeCache[route.component];
-	validateGetStaticPathsResult(staticPaths, logging);
-	return {
-		paths: staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean),
-		rss: rss.rss,
-	};
+	const result = await callGetStaticPaths(mod, route, false, logging);
+	routeCache.set(route, result);
+	return result;
 }
