@@ -101,7 +101,7 @@ export default {
         // add custom languages.
         shikiConfig: {
           theme: 'github-dark',
-          langs: [/* ... */],
+          langs: [],
           wrap: false,
         },
       },
@@ -109,6 +109,8 @@ export default {
   },
 };
 ```
+
+You can read more about custom Shiki [themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md#loading-theme) and [languages](https://github.com/shikijs/shiki/blob/main/docs/languages.md#supporting-your-own-languages-with-shiki).
 
 ## Markdown Pages
 
