@@ -19,7 +19,7 @@ const { class: cn } = Astro.props;
 }
 </style>
 
-<div id="class">I’m just used to get the Scoped class</div>
+<div id="class">I'm just used to get the Scoped class</div>
 <div id="dynamic-class" class={blue ? 'blue' : 'notblue'}>I change colors</div>
 {visible && <div id="dynamic-vis" class="visible">I disappear</div>}
 <div id="colon-class" class="color:blue">I am blue</div>

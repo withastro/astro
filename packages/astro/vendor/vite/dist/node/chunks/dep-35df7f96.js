@@ -48429,7 +48429,7 @@ constructor(_opts) {
     this._nodeFsHandler = new NodeFsHandler(this);
   }
 
-  // You’re frozen when your heart’s not open.
+  // You're frozen when your heart's not open.
   Object.freeze(opts);
 }
 
@@ -55234,7 +55234,7 @@ var httpProxy$1 = ProxyServer;
 /*!
  * Caron dimonio, con occhi di bragia
  * loro accennando, tutte le raccoglie;
- * batte col remo qualunque s’adagia
+ * batte col remo qualunque s'adagia
  *
  * Charon the demon, with the eyes of glede,
  * Beckoning to them, collects them all together,
