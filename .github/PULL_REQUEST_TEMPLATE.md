@@ -12,4 +12,4 @@
 ## Docs
 
 <!-- Was public documentation updated? -->
-<!-- DON'T DELETE THIS SECTION! If no docs added, explain why (e.g. "bug fix only") -->
+<!-- DON'T DELETE THIS SECTION! Link any PRs to the docs repo. If no docs added, explain why (e.g. "bug fix only") -->

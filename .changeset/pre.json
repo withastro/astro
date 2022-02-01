@@ -2,7 +2,6 @@
   "mode": "pre",
   "tag": "next",
   "initialVersions": {
-    "docs": "0.0.7",
     "@example/blog": "0.0.1",
     "@example/blog-multiple-authors": "0.0.1",
     "@example/component": "0.0.1",
