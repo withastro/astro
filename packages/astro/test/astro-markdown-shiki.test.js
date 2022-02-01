@@ -14,7 +14,7 @@ describe('Astro Markdown Shiki', () => {
 					markdownRemark,
 					{
 						syntaxHighlight: 'shiki',
-						shikiTheme: 'github-light',
+						shikiConfig: { theme: 'github-light' },
 					},
 				],
 			},

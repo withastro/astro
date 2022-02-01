@@ -15,7 +15,7 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
 			astroRemark,
 			{
 				syntaxHighlight: 'shiki',
-				shikiTheme: 'dracula',
+				shikiConfig: { theme: 'dracula' },
 			},
 		],
 	},
