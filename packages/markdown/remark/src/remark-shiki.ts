@@ -7,13 +7,9 @@ export interface ShikiConfig {
 	 * Supports all languages listed here: https://github.com/shikijs/shiki/blob/main/docs/languages.md#all-languages
 	 * Instructions for loading a custom language: https://github.com/shikijs/shiki/blob/main/docs/languages.md#supporting-your-own-languages-with-shiki
 	 *
-	 * @default shiki.BUNDLED_LANGUAGES
-	 * @example
-	 * {
-	 *   langs: [...shiki.BUNDLED_LANGUAGES, myLang]
-	 * }
+	 * @default []
 	 */
-	langs?: (shiki.Lang | shiki.ILanguageRegistration)[];
+	langs?: shiki.ILanguageRegistration[];
 	/**
 	 * The styling theme.
 	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes
@@ -33,8 +29,12 @@ export interface ShikiConfig {
 	wrap?: boolean | null;
 }
 
-const remarkShiki = async ({ langs = shiki.BUNDLED_LANGUAGES, theme = 'github-dark', wrap = false }: ShikiConfig) => {
-	const highlighter = await shiki.getHighlighter({ theme, langs });
+const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig) => {
+	const highlighter = await shiki.getHighlighter({ theme });
+
+	for (const lang of langs) {
+		await highlighter.loadLanguage(lang);
+	}
 
 	return () => (tree: any) => {
 		visit(tree, 'code', (node) => {

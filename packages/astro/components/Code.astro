@@ -49,19 +49,11 @@ function repairShikiTheme(html: string): string {
 	return html;
 }
 
-let langName: string;
-let langs: shiki.ILanguageRegistration[];
+const highlighter = await shiki.getHighlighter({ theme });
+if(typeof lang !== 'string') await highlighter.loadLanguage(lang)
 
-if (typeof lang === 'string') {
-	langName = lang;
-	langs = shiki.BUNDLED_LANGUAGES;
-} else {
-	langName = lang.name;
-	langs = [lang];
-}
+const _html = highlighter.codeToHtml(code, { lang: typeof lang === 'string' ? lang : lang.id });
 
-const highlighter = await shiki.getHighlighter({ theme, langs });
-const _html = highlighter.codeToHtml(code, { lang: langName });
 const html = repairShikiTheme(_html);
 ---
 
