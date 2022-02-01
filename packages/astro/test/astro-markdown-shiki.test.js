@@ -34,7 +34,7 @@ describe('Astro Markdown Shiki', () => {
 
 		expect($('pre')).to.have.lengthOf(1);
 		expect($('pre').hasClass('astro-code')).to.equal(true);
-		expect($('pre').attr().style).to.equal('background-color: #ffffff');
+		expect($('pre').attr().style).to.equal('background-color: #ffffff; overflow-x: auto;');
 	});
 
 	it('Can render Astro <Markdown> with shiki', async () => {
