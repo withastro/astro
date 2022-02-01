@@ -8,7 +8,7 @@ Astro includes special handling to make writing CSS as easy as possible. Styling
 
 ## Astro component styles
 
-By default, all Astro component styles are **scoped**, meaning they only apply to the current component. This can be very easy to work with, as you only have to worry about what’s in your current document at any given time.
+By default, all Astro component styles are **scoped**, meaning they only apply to the current component. This can be very easy to work with, as you only have to worry about what's in your current document at any given time.
 
 ```html
 <!-- src/components/MyComponent.astro -->
@@ -23,17 +23,17 @@ By default, all Astro component styles are **scoped**, meaning they only apply t
   }
 </style>
 
-<h1>I’m a scoped style and I’m red!</h1>
-<p class="text">I'm a scoped style and I’m cursive!</p>
+<h1>I'm a scoped style and I'm red!</h1>
+<p class="text">I'm a scoped style and I'm cursive!</p>
 ```
 
-Note that the `h1` selector won’t bleed out of the current component! These styles won’t apply any other `h1` tags outside this document. Not even child components.
+Note that the `h1` selector won't bleed out of the current component! These styles won't apply any other `h1` tags outside this document. Not even child components.
 
 _Tip: even though you can use element selectors, using classnames is preferred. This is not only slightly more performant, but is also easier to read, especially in a large document._
 
 ### Global styles
 
-Of course, the real power of CSS is being able to reuse as much as possible! The preferred method of loading global styles is by using a standard `<link>` tag like you’re used to. It can even be used in conjunction with Astro’s scoped `<style>` tag:
+Of course, the real power of CSS is being able to reuse as much as possible! The preferred method of loading global styles is by using a standard `<link>` tag like you're used to. It can even be used in conjunction with Astro's scoped `<style>` tag:
 
 ```html
 <!-- src/pages/index.astro -->
@@ -60,7 +60,7 @@ _Note: `Astro.resolve()` is a handy utility that helps resolve files from anywhe
 
 #### Styling children
 
-If you’d like scoped styles to apply to children, you can use the special `:global()` function borrowed from [CSS Modules][css-modules]:
+If you'd like scoped styles to apply to children, you can use the special `:global()` function borrowed from [CSS Modules][css-modules]:
 
 ```astro
 <!-- src/components/MyComponent.astro -->
@@ -89,7 +89,7 @@ This is a great way to style things like blog posts, or documents with CMS-power
 
 #### Global styles within style tag
 
-If you’d like to use global styles but you don’t want to use a normal `<link>` tag (recommended), there is a `<style global>` escape hatch:
+If you'd like to use global styles but you don't want to use a normal `<link>` tag (recommended), there is a `<style global>` escape hatch:
 
 ```html
 <style global>
@@ -118,7 +118,7 @@ You can achieve the same by using the `:global()` function at the root of a sele
 </style>
 ```
 
-It’s recommended to only use this in scenarios where a `<link>` tag won’t work. It’s harder to track down errant global styles when they’re scattered around and not in a central CSS file.
+It's recommended to only use this in scenarios where a `<link>` tag won't work. It's harder to track down errant global styles when they're scattered around and not in a central CSS file.
 
 📚 Read our full guide on [Astro component syntax][astro-component] to learn more about using the `<style>` tag.
 
@@ -137,7 +137,7 @@ _Note: Astro v0.21 and later requires this manual setup for autoprefixer. Previo
 
 ## PostCSS
 
-You can use any PostCSS plugin by adding a `postcss.config.cjs` file to the root of your project. Follow the documentation for the plugin you’re trying to install for configuration and setup.
+You can use any PostCSS plugin by adding a `postcss.config.cjs` file to the root of your project. Follow the documentation for the plugin you're trying to install for configuration and setup.
 
 ---
 
@@ -264,7 +264,7 @@ Using PostCSS is as simple as placing a [`postcss.config.cjs`](https://github.co
 
 Be aware that this plugin will run on all CSS in your project, including any files that compiled to CSS (like `.scss` Sass files, for example).
 
-_Note: CSS in `public/` **will not be transformed!** Instead, place it within `src/` if you’d like PostCSS to run over your styles._
+_Note: CSS in `public/` **will not be transformed!** Instead, place it within `src/` if you'd like PostCSS to run over your styles._
 
 ## Bundling
 

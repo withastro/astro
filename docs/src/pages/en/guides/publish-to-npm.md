@@ -38,7 +38,7 @@ my-project/
 
 In this example, named `my-project`, we create a project with a single package, named `my-component`, and a `demo` directory for testing and demonstrating the component.
 
-This is configured in the project root’s `package.json` file.
+This is configured in the project root's `package.json` file.
 
 ```json
 {
@@ -53,7 +53,7 @@ In this example, multiple packages can be developed together from the `packages`
 npm init astro demo --template minimal
 ```
 
-Now let’s explore the files that will make up your individual package:
+Now let's explore the files that will make up your individual package:
 
 ### `package.json`
 

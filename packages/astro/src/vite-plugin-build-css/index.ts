@@ -119,7 +119,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				}
 			}
 
-			if (!chunkCSS) return null; // don’t output empty .css files
+			if (!chunkCSS) return null; // don't output empty .css files
 
 			if (isPureCSS) {
 				internals.pureCSSChunks.add(chunk);

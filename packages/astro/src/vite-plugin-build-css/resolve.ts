@@ -3,7 +3,7 @@ import type { ResolvedConfig, Plugin as VitePlugin } from '../core/vite';
 
 export function getVitePluginByName(viteConfig: ResolvedConfig, pluginName: string): VitePlugin {
 	const plugin = viteConfig.plugins.find(({ name }) => name === pluginName);
-	if (!plugin) throw new Error(`${pluginName} plugin couldn’t be found`);
+	if (!plugin) throw new Error(`${pluginName} plugin couldn't be found`);
 	return plugin;
 }
 

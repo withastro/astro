@@ -1,7 +1,7 @@
 /**
  *  CSS is exported as a string so the error pages:
- * 1. don’t need to resolve a deep internal CSS import
- * 2. don’t need external dependencies to render (they may be shown because of a dep!)
+ * 1. don't need to resolve a deep internal CSS import
+ * 2. don't need external dependencies to render (they may be shown because of a dep!)
  */
 
 // Base CSS: shared CSS among pages

@@ -367,7 +367,7 @@ $ vercel
 
 After your project has been imported and deployed, all subsequent pushes to branches will generate [Preview Deployments](https://vercel.com/docs/concepts/deployments/environments#preview), and all changes made to the Production Branch (commonly “main”) will result in a [Production Deployment](https://vercel.com/docs/concepts/deployments/environments#production).
 
-Learn more about Vercel’s [Git Integration](https://vercel.com/docs/concepts/git).
+Learn more about Vercel's [Git Integration](https://vercel.com/docs/concepts/git).
 
 ## Azure Static Web Apps
 
@@ -387,7 +387,7 @@ The action will work to deploy your app (watch its progress in your repo's Actio
 
 You can deploy your Astro project on [Cloudflare Pages](https://pages.cloudflare.com). You need:
 
-- A Cloudflare account. If you don’t already have one, you can create a free Cloudflare account during the process.
+- A Cloudflare account. If you don't already have one, you can create a free Cloudflare account during the process.
 - Your app code pushed to a [GitHub](https://github.com) or a [GitLab](https://about.gitlab.com/) repository.
 
 Then, set up a new project on Cloudflare Pages.
@@ -397,7 +397,7 @@ Use the following build settings:
 - **Framework preset**: `Astro`
 - **Build command:** `npm run build`
 - **Build output directory:** `dist`
-- **Environment variables (advanced)**: Currently, Cloudflare Pages supports `NODE_VERSION = 12.18.0` in the Pages build environment by default. Astro requires `14.15.0`, `v16.0.0`, or higher. You can add an environment variable with the **Variable name** of `NODE_VERSION` and a **Value** of a [Node version that’s compatible with Astro](https://docs.astro.build/installation#prerequisites) or by specifying the node version of your project in a `.nvmrc` or `.node-version` file.
+- **Environment variables (advanced)**: Currently, Cloudflare Pages supports `NODE_VERSION = 12.18.0` in the Pages build environment by default. Astro requires `14.15.0`, `v16.0.0`, or higher. You can add an environment variable with the **Variable name** of `NODE_VERSION` and a **Value** of a [Node version that's compatible with Astro](https://docs.astro.build/installation#prerequisites) or by specifying the node version of your project in a `.nvmrc` or `.node-version` file.
 
 Then click the **Save and Deploy** button.
 
@@ -525,4 +525,4 @@ $ 0 deploy
 
 ## Credits
 
-This guide was originally based off [Vite](https://vitejs.dev/)’s well-documented static deploy guide.
+This guide was originally based off [Vite](https://vitejs.dev/)'s well-documented static deploy guide.

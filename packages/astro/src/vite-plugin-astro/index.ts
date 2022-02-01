@@ -39,7 +39,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		configResolved(resolvedConfig) {
 			viteTransform = getViteTransform(resolvedConfig);
 		},
-		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
+		// note: don't claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
 		async resolveId(id) {
 			// serve sub-part requests (*?astro) as virtual modules
 			const { query } = parseAstroRequest(id);

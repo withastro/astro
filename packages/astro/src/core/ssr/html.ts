@@ -27,7 +27,7 @@ export function injectTags(html: string, tags: vite.HtmlTagDescriptor[]): string
 	const lastToFirst = Object.entries(pos).sort((a, b) => b[1] - a[1]);
 	lastToFirst.forEach(([name, i]) => {
 		if (i === -1) {
-			// if page didn’t generate <head> or <body>, guess
+			// if page didn't generate <head> or <body>, guess
 			if (name === 'head-prepend' || name === 'head') i = 0;
 			if (name === 'body-prepend' || name === 'body') i = html.length;
 		}
@@ -63,7 +63,7 @@ export function collectResources(html: string): Resource[] {
 
 // -------------------------------------------------------------------------------
 // Everything below © Vite. Rather than invent our own tag creating API, we borrow
-// Vite’s `transformIndexHtml()` API for ease-of-use and consistency. But we need
+// Vite's `transformIndexHtml()` API for ease-of-use and consistency. But we need
 // to borrow a few private methods in Vite to make that available here.
 // https://github.com/vitejs/vite/blob/main/packages/vite/src/node/plugins/html.ts
 // -------------------------------------------------------------------------------

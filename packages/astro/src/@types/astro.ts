@@ -326,7 +326,7 @@ export interface Renderer {
 	};
 	/** Return configuration object for Vite ("options" should match https://vitejs.dev/guide/api-plugin.html#config) */
 	viteConfig?: (options: { mode: 'string'; command: 'build' | 'serve' }) => Promise<vite.InlineConfig>;
-	/** @deprecated Don’t try and build these dependencies for client (deprecated in 0.21) */
+	/** @deprecated Don't try and build these dependencies for client (deprecated in 0.21) */
 	external?: string[];
 	/** @deprecated Clientside requirements (deprecated in 0.21) */
 	knownEntrypoints?: string[];

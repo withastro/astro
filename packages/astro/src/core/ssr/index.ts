@@ -32,7 +32,7 @@ interface SSROptions {
 	pathname: string;
 	/** optional, in case we need to render something outside of a dev server */
 	route?: RouteData;
-	/** pass in route cache because SSR can’t manage cache-busting */
+	/** pass in route cache because SSR can't manage cache-busting */
 	routeCache: RouteCache;
 	/** Vite instance */
 	viteServer: vite.ViteDevServer;
@@ -292,7 +292,7 @@ async function getHmrScript() {
 export async function ssr(ssrOpts: SSROptions): Promise<string> {
 	try {
 		const [renderers, mod] = await preload(ssrOpts);
-		return await render(renderers, mod, ssrOpts); // note(drew): without "await", errors won’t get caught by errorHandler()
+		return await render(renderers, mod, ssrOpts); // note(drew): without "await", errors won't get caught by errorHandler()
 	} catch (e: unknown) {
 		await errorHandler(e, { viteServer: ssrOpts.viteServer, filePath: ssrOpts.filePath });
 		throw e;

@@ -10,7 +10,7 @@ import BananaSlug from 'github-slugger';
 const slugs = new BananaSlug();
 
 /**
- * Plugin to add anchors headings using GitHub’s algorithm.
+ * Plugin to add anchors headings using GitHub's algorithm.
  *
  * @type {import('unified').Plugin<void[], Root>}
  */

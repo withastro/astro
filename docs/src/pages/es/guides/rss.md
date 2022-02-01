@@ -21,7 +21,7 @@ export async function getStaticPaths({rss}) {
   // Genera un feed RSS de esta colección
   rss({
     // El título, la descripción y los metadatos personalizados de la fuente RSS.
-    title: 'Don’s Blog',
+    title: 'Don's Blog',
     description: 'An example blog on Astro',
     customData: `<language>en-us</language>`,
     // The list of items for your RSS feed, sorted.

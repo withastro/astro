@@ -63,7 +63,7 @@ export default {
     return {
       plugins: [myVitePlugin()], // tip: usually this will depend on a Vite plugin
       optimizeDeps: {
-        include: ['my-client-dep'], // tip: it’s always a good idea to specify any client-side hydration deps here
+        include: ['my-client-dep'], // tip: it's always a good idea to specify any client-side hydration deps here
       },
       ssr: {
         external: ['my-client-dep/node/server.js'], // tip: use ssr.external in case you encounter code meant only for Node
@@ -101,7 +101,7 @@ This is an `async` function that returns information about how to transform matc
 
 > Keep in mind that this transform doesn't need to handle TSX separately from JSX, Astro handles that for you!
 
-`jsxTransformOptions` receives context about whether it’s running in `development` or `production` mode, as well as whether or not it’s running in SSR or client hydration. These allow you to pass separate Babel configurations for various conditions, like if your files should be compiled differently in SSR mode.
+`jsxTransformOptions` receives context about whether it's running in `development` or `production` mode, as well as whether or not it's running in SSR or client hydration. These allow you to pass separate Babel configurations for various conditions, like if your files should be compiled differently in SSR mode.
 
 ```ts
 export interface JSXTransformOptions {

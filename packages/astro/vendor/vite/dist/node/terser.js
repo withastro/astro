@@ -22084,7 +22084,7 @@ function inline_array_like_spread(elements) {
                 i--;
             }
             // In array-like spread, spreading a non-iterable value is TypeError.
-            // We therefore can’t optimize anything else, unlike with object spread.
+            // We therefore can't optimize anything else, unlike with object spread.
         }
     }
 }

@@ -52,7 +52,7 @@ describe('Preact component', () => {
 		const html = await fixture.readFile('/frag/index.html');
 		const $ = cheerio.load(html);
 
-		// test 1: nothing rendered but it didn’t throw
+		// test 1: nothing rendered but it didn't throw
 		expect($('body').children()).to.have.lengthOf(0);
 	});
 

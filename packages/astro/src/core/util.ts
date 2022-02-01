@@ -10,8 +10,8 @@ import resolve from 'resolve';
 export function canonicalURL(url: string, base?: string): URL {
 	let pathname = url.replace(/\/index.html$/, ''); // index.html is not canonical
 	pathname = pathname.replace(/\/1\/?$/, ''); // neither is a trailing /1/ (impl. detail of collections)
-	if (!path.extname(pathname)) pathname = pathname.replace(/(\/+)?$/, '/'); // add trailing slash if there’s no extension
-	pathname = pathname.replace(/\/+/g, '/'); // remove duplicate slashes (URL() won’t)
+	if (!path.extname(pathname)) pathname = pathname.replace(/(\/+)?$/, '/'); // add trailing slash if there's no extension
+	pathname = pathname.replace(/\/+/g, '/'); // remove duplicate slashes (URL() won't)
 	return new URL(pathname, base);
 }
 
@@ -143,7 +143,7 @@ This file is in BETA. Please test and contribute to the discussion:
             <strong>This is a web feed,</strong> also known as an RSS feed. <strong>Subscribe</strong> by copying the URL from the address bar into your newsreader.
           </p>
           <p class="text-gray">
-            Visit <a href="https://aboutfeeds.com">About Feeds</a> to get started with newsreaders and subscribing. It’s free.
+            Visit <a href="https://aboutfeeds.com">About Feeds</a> to get started with newsreaders and subscribing. It's free.
           </p>
         </nav>
         <div class="container-md px-3 py-3 markdown-body">

@@ -68,7 +68,7 @@ export function generateRSS(args: GenerateRSSArgs): string {
 
 	xml += `</channel></rss>`;
 
-	// validate user’s inputs to see if it’s valid XML
+	// validate user's inputs to see if it's valid XML
 	const isValid = XMLValidator.validate(xml);
 	if (isValid !== true) {
 		// If valid XML, isValid will be `true`. Otherwise, this will be an error object. Throw.

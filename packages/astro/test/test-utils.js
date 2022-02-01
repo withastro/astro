@@ -45,10 +45,10 @@ polyfill(globalThis, {
  *   .fetch(url)       - Async. Returns a URL from the prevew server (must have called .preview() before)
  *
  *   Preview
- *   .preview()        - Async. Starts a preview server. Note this can’t be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
+ *   .preview()        - Async. Starts a preview server. Note this can't be running in same fixture as .dev() as they share ports. Also, you must call `server.close()` before test exit
  *
  *   Clean-up
- *   .clean()          - Async. Removes the project’s dist folder.
+ *   .clean()          - Async. Removes the project's dist folder.
  */
 export async function loadFixture(inlineConfig) {
 	if (!inlineConfig || !inlineConfig.projectRoot) throw new Error("Must provide { projectRoot: './fixtures/...' }");

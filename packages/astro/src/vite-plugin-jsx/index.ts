@@ -201,7 +201,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				return await transformJSX({ code: jsxCode, id, renderer: jsxRenderers.get(importSource) as Renderer, mode, ssr });
 			}
 
-			// if we still can’t tell, throw error
+			// if we still can't tell, throw error
 			const defaultRenderer = [...jsxRenderers.keys()][0];
 			error(
 				logging,

@@ -78,7 +78,7 @@ export const AstroConfigSchema = z.object({
 		})
 		.optional()
 		.default({}),
-	vite: z.any().optional().default({}), // TODO: we don’t need validation, but can we get better type inference?
+	vite: z.any().optional().default({}), // TODO: we don't need validation, but can we get better type inference?
 });
 
 /** Turn raw config values into normalized values */
@@ -115,7 +115,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 	return AstroConfigRelativeSchema.parseAsync(userConfig);
 }
 
-/** Adds '/' to end of string but doesn’t double-up */
+/** Adds '/' to end of string but doesn't double-up */
 function addTrailingSlash(str: string): string {
 	return str.replace(/\/*$/, '/');
 }

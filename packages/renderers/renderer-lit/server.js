@@ -49,7 +49,7 @@ function* render(tagName, attrs, children) {
 		yield* shadowContents;
 		yield '</template>';
 	}
-	yield children || ''; // don’t print “undefined” as string
+	yield children || ''; // don't print “undefined” as string
 	yield `</${tagName}>`;
 }
 

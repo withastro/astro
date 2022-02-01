@@ -30,7 +30,7 @@ before(async () => {
 it('Renderer order', () => {
 	it('JSX renderers can be defined in any order', async () => {
 		if (!Object.values(fixtures).length) {
-			throw new Error(`JSX renderers didn’t build properly`);
+			throw new Error(`JSX renderers didn't build properly`);
 		}
 
 		for (const [name, fixture] of Object.entries(fixtures)) {

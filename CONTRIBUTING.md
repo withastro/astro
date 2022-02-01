@@ -109,11 +109,11 @@ Server-side rendering (SSR) can be complicated. The Astro package (`packages/ast
 - `src/`: Astro source
   - `@types/`: TypeScript types. These are centralized to cut down on circular dependencies
   - `cli/`: Code that powers the `astro` CLI command
-  - `core/`: Code that executes **in the top-level scope** (in Node). Within, you’ll find code that powers the `astro build` and `astro dev` commands, as well as top-level SSR code.
-  - `runtime/`: Code that executes **in different scopes** (i.e. not in a pure Node context). You’ll have to think about code differently here.
-    - `client/`: Code that executes **in the browser.** Astro’s partial hydration code lives here, and only browser-compatible code can be used.
-    - `server/`: Code that executes **inside Vite’s SSR.** Though this is a Node environment inside, this will be executed independently from `core/` and may have to be structured differently.
-  - `vite-plugin-*/`: Any Vite plugins that Astro needs to run. For the most part, these also execute within Vite similar to `src/runtime/server/`, but it’s also helpful to think about them as independent modules. _Note: at the moment these are internal while they’re in development_
+  - `core/`: Code that executes **in the top-level scope** (in Node). Within, you'll find code that powers the `astro build` and `astro dev` commands, as well as top-level SSR code.
+  - `runtime/`: Code that executes **in different scopes** (i.e. not in a pure Node context). You'll have to think about code differently here.
+    - `client/`: Code that executes **in the browser.** Astro's partial hydration code lives here, and only browser-compatible code can be used.
+    - `server/`: Code that executes **inside Vite's SSR.** Though this is a Node environment inside, this will be executed independently from `core/` and may have to be structured differently.
+  - `vite-plugin-*/`: Any Vite plugins that Astro needs to run. For the most part, these also execute within Vite similar to `src/runtime/server/`, but it's also helpful to think about them as independent modules. _Note: at the moment these are internal while they're in development_
 
 ### Thinking about SSR
 
@@ -123,7 +123,7 @@ There are 3 contexts in which code executes:
 - **Inside Vite**: this code lives in `src/runtime/server/`.
 - **In the browser**: this code lives in `src/runtime/client/`.
 
-Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you’re working within `src/core/`, you know that your code isn’t executing within Vite, so you don’t have to debug Vite’s setup. But you will have to debug vite inside `runtime/server/`.
+Understanding in which environment code runs, and at which stage in the process, can help clarify thinking about what Astro is doing. It also helps with debugging, for instance, if you're working within `src/core/`, you know that your code isn't executing within Vite, so you don't have to debug Vite's setup. But you will have to debug vite inside `runtime/server/`.
 
 ## Releasing Astro
 

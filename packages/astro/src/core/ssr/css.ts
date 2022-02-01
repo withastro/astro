@@ -15,7 +15,7 @@ export const isCSSRequest = (request: string): boolean => cssRe.test(request);
 
 /**
  * getStylesForURL
- * Given a filePath URL, crawl Vite’s module graph to find style files
+ * Given a filePath URL, crawl Vite's module graph to find style files
  */
 export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): Set<string> {
 	const css = new Set<string>();

@@ -228,7 +228,7 @@ Some background: I nominated you for the role in the (private) #maintainers chan
 
 Thank you for ${1 SENTENCE DESCRIPTION OF CONTRIBUTIONS}. Your impact has definitely been felt and we would be thrilled to have your help building a healthy future for Astro! There is no required time commitment: you can continue to contribute as often or as little as you'd like. This is mainly a chance to recognize your contributions and give you more privileges in Discord and GitHub.
 
-Please let me know if you’re interested in accepting this invitation. If so, we’ll start getting your roles up to date. And if you have any questions, feel free to let me know.
+Please let me know if you're interested in accepting this invitation. If so, we'll start getting your roles up to date. And if you have any questions, feel free to let me know.
 
 Best,
 ${MY_NAME}
@@ -257,9 +257,9 @@ This process kicks off once a valid nomination has been made. See ["Core Maintai
 ```
 Hey $NAME!
 
-I have some exciting news—you’ve been nominated and accepted as a core maintainer of Astro! The core maintainer group held a vote and overwhelmingly agree that you would be a great addition to the team. Congratulations! Thanks for all of your significant contributions to Astro to date and your continued dedication to this project and our community. We would be thrilled to have your help ensuring a healthy future for Astro!
+I have some exciting news—you've been nominated and accepted as a core maintainer of Astro! The core maintainer group held a vote and overwhelmingly agree that you would be a great addition to the team. Congratulations! Thanks for all of your significant contributions to Astro to date and your continued dedication to this project and our community. We would be thrilled to have your help ensuring a healthy future for Astro!
 
-Please let me know if you’re interested in accepting this invitation. If so, we’ll start getting your roles and permissions up to date.
+Please let me know if you're interested in accepting this invitation. If so, we'll start getting your roles and permissions up to date.
 
 As a reminder, our Governance document describes the following privileges and responsibilities for a **Core Maintainer**:
 
@@ -326,7 +326,7 @@ At request of the reporter and if deemed appropriate by the reviewers, another n
 
 ### Review
 
-If a report doesn’t contain enough information, the reviewers will strive to obtain all relevant data before acting.
+If a report doesn't contain enough information, the reviewers will strive to obtain all relevant data before acting.
 
 The reviewers will then review the incident and determine, to the best of their ability:
 

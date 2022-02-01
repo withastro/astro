@@ -99,7 +99,7 @@ export async function cli(args: string[]) {
 			try {
 				await devServer(config, { logging });
 
-				await new Promise(() => {}); // don’t close dev server
+				await new Promise(() => {}); // don't close dev server
 			} catch (err) {
 				throwAndExit(err);
 			}
