@@ -101,7 +101,8 @@ export default {
         // add custom languages.
         shikiConfig: {
           theme: 'github-dark',
-          langs: [/* ... */]
+          langs: [/* ... */],
+          wrap: false,
         },
       },
     ],
