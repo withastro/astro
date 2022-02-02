@@ -94,17 +94,17 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 	// throw CSS transform errors here if encountered
 	if (cssTransformError) throw cssTransformError;
 
-	const compileResult: CompileResult =  Object.create(transformResult, {
+	const compileResult: CompileResult = Object.create(transformResult, {
 		rawCSSDeps: {
-			value: rawCSSDeps
-		}
+			value: rawCSSDeps,
+		},
 	});
 
 	return compileResult;
 }
 
 export function isCached(config: AstroConfig, filename: string) {
-	return configCache.has(config) && (configCache.get(config)!).has(filename);
+	return configCache.has(config) && configCache.get(config)!.has(filename);
 }
 
 export function invalidateCompilation(config: AstroConfig, filename: string) {
@@ -114,7 +114,13 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 	}
 }
 
-export async function cachedCompilation(config: AstroConfig, filename: string, source: string | null, viteTransform: TransformHook, opts: boolean | undefined): Promise<CompileResult> {
+export async function cachedCompilation(
+	config: AstroConfig,
+	filename: string,
+	source: string | null,
+	viteTransform: TransformHook,
+	opts: boolean | undefined
+): Promise<CompileResult> {
 	let cache: CompilationCache;
 	if (!configCache.has(config)) {
 		cache = new Map();
