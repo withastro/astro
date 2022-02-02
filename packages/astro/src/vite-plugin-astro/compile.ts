@@ -67,7 +67,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 				const result = await transformWithVite({
 					value,
 					lang,
-					id: filename,
+					id: normalizedID,
 					transformHook: viteTransform,
 					ssr: isSSR(opts),
 				});
