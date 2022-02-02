@@ -9,6 +9,7 @@ import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';
 import { cachedCompilation, invalidateCompilation } from './compile.js';
 import ancestor from 'common-ancestor-path';
+import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -28,6 +29,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	}
 
 	let viteTransform: TransformHook;
+	let viteDevServer: vite.ViteDevServer | null = null;
 
 	// Variables for determing if an id starts with /src...
 	const srcRootWeb = config.src.pathname.slice(config.projectRoot.pathname.length - 1);
@@ -38,6 +40,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		enforce: 'pre', // run transforms before other plugins can
 		configResolved(resolvedConfig) {
 			viteTransform = getViteTransform(resolvedConfig);
+		},
+		configureServer(server) {
+			viteDevServer = server;
 		},
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
 		async resolveId(id) {
@@ -64,6 +69,10 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					}
 
 					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
+
+					// Track any CSS dependencies so that HMR is triggered when they change.
+					await trackCSSDependencies.call(this, { viteDevServer, id, filename, deps: transformResult.rawCSSDeps });
+
 					const csses = transformResult.css;
 					const code = csses[query.index];
 
@@ -166,8 +175,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			}
 		},
 		async handleHotUpdate(context) {
-			// Invalidate the compilation cache so it recompiles
-			invalidateCompilation(config, context.file);
+			return handleHotUpdate(context, config);
 		},
 	};
 }

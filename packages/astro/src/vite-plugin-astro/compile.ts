@@ -8,7 +8,7 @@ import { fileURLToPath } from 'url';
 import { transform } from '@astrojs/compiler';
 import { transformWithVite } from './styles.js';
 
-type CompilationCache = Map<string, TransformResult>;
+type CompilationCache = Map<string, CompileResult>;
 
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
@@ -26,7 +26,9 @@ function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
 	return false;
 }
 
-async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: boolean | undefined) {
+type CompileResult = TransformResult & { rawCSSDeps: Set<string> };
+
+async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: boolean | undefined): Promise<CompileResult> {
 	// pages and layouts should be transformed as full documents (implicit <head> <body> etc)
 	// everything else is treated as a fragment
 	const filenameURL = new URL(`file://${filename}`);
@@ -34,6 +36,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 	const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
 	const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
 
+	let rawCSSDeps = new Set<string>();
 	let cssTransformError: Error | undefined;
 
 	// Transform from `.astro` to valid `.ts`
@@ -51,21 +54,20 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 		// TODO add experimental flag here
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
 			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
+
 			try {
-				let prefix = '';
-				// In the static build, strip away at-imports so that they can be resolved
-				// by the pseudo-module that gets created.
+				// In the static build, grab any @import as CSS dependencies for HMR.
 				if (config.buildOptions.experimentalStaticBuild) {
-					value = value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match) => {
-						prefix += match;
-						// Replace with an empty string of the same length, to preserve source maps.
-						return new Array(match.length).fill(' ').join('');
+					value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match, spec) => {
+						rawCSSDeps.add(spec);
+						return match;
 					});
 				}
+
 				const result = await transformWithVite({
 					value,
 					lang,
-					id: filename,
+					id: normalizedID,
 					transformHook: viteTransform,
 					ssr: isSSR(opts),
 				});
@@ -79,7 +81,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 						map = result.map.toString();
 					}
 				}
-				const code = (prefix += result.code);
+				const code = result.code;
 				return { code, map };
 			} catch (err) {
 				// save error to throw in plugin context
@@ -92,7 +94,17 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 	// throw CSS transform errors here if encountered
 	if (cssTransformError) throw cssTransformError;
 
-	return transformResult;
+	const compileResult: CompileResult =  Object.create(transformResult, {
+		rawCSSDeps: {
+			value: rawCSSDeps
+		}
+	});
+
+	return compileResult;
+}
+
+export function isCached(config: AstroConfig, filename: string) {
+	return configCache.has(config) && (configCache.get(config)!).has(filename);
 }
 
 export function invalidateCompilation(config: AstroConfig, filename: string) {
@@ -102,7 +114,7 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 	}
 }
 
-export async function cachedCompilation(config: AstroConfig, filename: string, source: string | null, viteTransform: TransformHook, opts: boolean | undefined) {
+export async function cachedCompilation(config: AstroConfig, filename: string, source: string | null, viteTransform: TransformHook, opts: boolean | undefined): Promise<CompileResult> {
 	let cache: CompilationCache;
 	if (!configCache.has(config)) {
 		cache = new Map();
@@ -118,7 +130,7 @@ export async function cachedCompilation(config: AstroConfig, filename: string, s
 		const fileUrl = new URL(`file://${filename}`);
 		source = await fs.promises.readFile(fileUrl, 'utf-8');
 	}
-	const transformResult = await compile(config, filename, source, viteTransform, opts);
-	cache.set(filename, transformResult);
-	return transformResult;
+	const compileResult = await compile(config, filename, source, viteTransform, opts);
+	cache.set(filename, compileResult);
+	return compileResult;
 }
