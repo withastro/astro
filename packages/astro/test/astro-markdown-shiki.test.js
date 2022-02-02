@@ -16,7 +16,7 @@ describe('Astro Markdown Shiki', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				projectRoot: './fixtures/astro-markdown-shiki/regular/',
+				projectRoot: './fixtures/astro-markdown-shiki/',
 				markdownOptions: {
 					render: [markdownRemark, { syntaxHighlight: 'shiki' }],
 				},
@@ -60,7 +60,7 @@ describe('Astro Markdown Shiki', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/astro-markdown-shiki/themes/',
+					projectRoot: './fixtures/astro-markdown-shiki-themes/',
 					markdownOptions: {
 						render: [markdownRemark, { syntaxHighlight: 'shiki', shikiConfig: { theme: 'github-light' } }],
 					},
@@ -95,7 +95,7 @@ describe('Astro Markdown Shiki', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/astro-markdown-shiki/themes/',
+					projectRoot: './fixtures/astro-markdown-shiki-themes/',
 					markdownOptions: {
 						render: [markdownRemark, { syntaxHighlight: 'shiki', shikiConfig: { theme: serendipity } }],
 					},
@@ -131,7 +131,7 @@ describe('Astro Markdown Shiki', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				projectRoot: './fixtures/astro-markdown-shiki/langs/',
+				projectRoot: './fixtures/astro-markdown-shiki-langs/',
 				markdownOptions: {
 					render: [
 						markdownRemark,
@@ -186,7 +186,7 @@ describe('Astro Markdown Shiki', () => {
 
 			before(async () => {
 				fixture = await loadFixture({
-					projectRoot: './fixtures/astro-markdown-shiki/regular/',
+					projectRoot: './fixtures/astro-markdown-shiki/',
 					markdownOptions: {
 						render: [markdownRemark, { syntaxHighlight: 'shiki', shikiConfig: { wrap: true } }],
 					},
@@ -221,7 +221,7 @@ describe('Astro Markdown Shiki', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				projectRoot: './fixtures/astro-markdown-shiki/regular/',
+				projectRoot: './fixtures/astro-markdown-shiki/',
 				markdownOptions: {
 					render: [markdownRemark, { syntaxHighlight: 'shiki', shikiConfig: { wrap: false } }],
 				},
@@ -255,7 +255,7 @@ describe('Astro Markdown Shiki', () => {
 
 		before(async () => {
 			fixture = await loadFixture({
-				projectRoot: './fixtures/astro-markdown-shiki/regular/',
+				projectRoot: './fixtures/astro-markdown-shiki/',
 				markdownOptions: {
 					render: [markdownRemark, { syntaxHighlight: 'shiki', shikiConfig: { wrap: null } }],
 				},
