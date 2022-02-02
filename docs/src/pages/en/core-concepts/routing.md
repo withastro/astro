@@ -93,6 +93,15 @@ In this example, a request for `/withastro/astro/tree/main/docs/public/favicon.s
 	file: 'docs/public/favicon.svg'
 }
 ```
+#### Default index page
+
+If you want to provide a default index page for rest paramaters, return `undefined`. For example, if you have `pages/[...page].astro`, the following entry in your params will create an index page at the root of your site:
+
+```js
+{
+	page: undefined
+}
+```
 
 ## Caveats
 
