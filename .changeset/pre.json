@@ -42,7 +42,18 @@
     "@astrojs/renderer-solid": "0.3.1",
     "@astrojs/renderer-svelte": "0.3.1",
     "@astrojs/renderer-vue": "0.3.0",
-    "astro-scripts": "0.0.1"
+    "astro-scripts": "0.0.1",
+    "@example/with-markdown-shiki": "0.0.1"
   },
-  "changesets": []
+  "changesets": [
+    "afraid-crabs-heal",
+    "calm-suns-give",
+    "chatty-spies-wink",
+    "empty-snails-allow",
+    "mighty-lamps-drive",
+    "old-parents-obey",
+    "rotten-planets-love",
+    "shaggy-shoes-leave",
+    "tiny-owls-dress"
+  ]
 }
