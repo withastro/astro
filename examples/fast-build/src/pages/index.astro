@@ -17,9 +17,9 @@ import ExternalHoisted from '../components/ExternalHoisted.astro';
 			}
 		</style>
 		<style lang="scss">
-			$color: purple;
+			@import "../styles/_global.scss";
 			h2 {
-				color: purple;
+				color: $color;
 			}
 		</style>
 		<style define:vars={{ color: 'blue' }}>
