@@ -1,5 +1,11 @@
 # astro
 
+## 0.23.0-next.1
+
+### Patch Changes
+
+- [#2522](https://github.com/withastro/astro/pull/2522) [`3e8844fa`](https://github.com/withastro/astro/commit/3e8844fa871fa477026375db6d921beb4b23b0dc) Thanks [@matthewp](https://github.com/matthewp)! - Fix for CSS superset support and HMR in the static build
+
 ## 0.23.0-next.0
 
 ### Minor Changes
@@ -1235,10 +1241,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1258,10 +1264,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
