@@ -6,9 +6,6 @@
 // helpful tooltips, and warnings if your exported object is invalid.
 // You can disable this by removing "@ts-check" and `@type` comments below.
 import astroRemark from '@astrojs/markdown-remark';
-import fs from 'fs';
-
-const riGrammar = JSON.parse(fs.readFileSync('./src/shiki/ri.tmLanguage.json'));
 
 // @ts-check
 export default /** @type {import('astro').AstroUserConfig} */ ({
@@ -20,14 +17,8 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
 				syntaxHighlight: 'shiki',
 				shikiConfig: {
 					theme: 'dracula',
-					langs: [
-						{
-							id: 'rinfo',
-							scopeName: 'source.rinfo',
-							grammar: riGrammar,
-							aliases: ['ri'],
-						},
-					],
+					// Learn more about this configuration here:
+					// https://docs.astro.build/en/guides/markdown-content/#syntax-highlighting
 				},
 			},
 		],
