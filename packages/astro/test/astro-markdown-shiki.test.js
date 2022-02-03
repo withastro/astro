@@ -52,6 +52,8 @@ describe('Astro Markdown Shiki', () => {
 			expect($('span.line').get(0).children).to.have.lengthOf(1);
 			expect($('span.line').get(1).children).to.have.lengthOf(5);
 		});
+
+		after(async () => await fixture.clean());
 	});
 
 	describe('Themes', () => {
@@ -88,6 +90,8 @@ describe('Astro Markdown Shiki', () => {
 				expect($('pre').hasClass('astro-code')).to.equal(true);
 				expect($('pre').attr().style).to.equal('background-color: #ffffff; overflow-x: auto;');
 			});
+
+			after(async () => await fixture.clean());
 		});
 
 		describe('Custom theme', async () => {
@@ -123,6 +127,8 @@ describe('Astro Markdown Shiki', () => {
 				expect($('pre').hasClass('astro-code')).to.equal(true);
 				expect($('pre').attr().style).to.equal('background-color: #FDFDFE; overflow-x: auto;');
 			});
+
+			after(async () => await fixture.clean());
 		});
 	});
 
@@ -177,6 +183,8 @@ describe('Astro Markdown Shiki', () => {
 			expect(segments[0].attribs.style).to.be.equal('color: #79C0FF');
 			expect(segments[1].attribs.style).to.be.equal('color: #C9D1D9');
 		});
+
+		after(async () => await fixture.clean());
 	});
 
 	describe('Wrap', () => {
@@ -212,6 +220,8 @@ describe('Astro Markdown Shiki', () => {
 				expect($('pre').get(0).attribs.style).to.equal(style);
 				expect($('pre').get(1).attribs.style).to.equal(style);
 			});
+
+			after(async () => await fixture.clean());
 		});
 	});
 
@@ -247,6 +257,8 @@ describe('Astro Markdown Shiki', () => {
 			expect($('pre').get(0).attribs.style).to.equal(style);
 			expect($('pre').get(1).attribs.style).to.equal(style);
 		});
+
+		after(async () => await fixture.clean());
 	});
 
 	describe('wrap = null', () => {
@@ -281,5 +293,7 @@ describe('Astro Markdown Shiki', () => {
 			expect($('pre').get(0).attribs.style).to.equal(style);
 			expect($('pre').get(1).attribs.style).to.equal(style);
 		});
+
+		after(async () => await fixture.clean());
 	});
 });
