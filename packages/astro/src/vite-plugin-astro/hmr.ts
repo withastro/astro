@@ -49,7 +49,7 @@ export function handleHotUpdate(ctx: HmrContext, config: AstroConfig) {
 
 	// go through each of these modules importers and invalidate any .astro compilation
 	// that needs to be rerun.
-	const filtered = new Set<ModuleNode>();
+	const filtered = new Set<ModuleNode>(ctx.modules);
 	const files = new Set<string>();
 	for (const mod of ctx.modules) {
 		if (mod.file && isCached(config, mod.file)) {
