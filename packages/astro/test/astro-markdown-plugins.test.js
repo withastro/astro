@@ -16,7 +16,7 @@ describe('Astro Markdown plugins', () => {
 					markdownRemark,
 					{
 						remarkPlugins: ['remark-code-titles', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-						rehypePlugins: [[(await import('rehype-toc')).default, { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }], 'rehype-slug'],
+						rehypePlugins: [['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }], 'rehype-slug'],
 					},
 				],
 			},
