@@ -1,4 +1,4 @@
-import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, Params, RouteData } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, Params, RouteData, SerializedManifestData } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import fs from 'fs';
@@ -206,6 +206,39 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 	return {
 		routes,
 	};
+}
+
+function createRouteData(pattern: RegExp, params: string[], component: string, pathname: string | undefined, distEntry?: string): RouteData {
+	return {
+		type: 'page',
+		pattern,
+		params,
+		component,
+		// TODO bring back
+		generate: () => '',
+		pathname: pathname || undefined,
+		distEntry,
+	}
+}
+
+export function serializeManifestData(manifest: ManifestData): string {
+	return JSON.stringify(manifest, (_key, value) => {
+		// Serialize Regular expressions as their string source
+		if(value instanceof RegExp) {
+			return (value as RegExp).source;
+		}
+		return value;
+	}, '  ');
+}
+
+export function deserializeManifestData(rawData: SerializedManifestData) {
+	const outManifest: ManifestData = { routes: [] };
+	for(const routeData of rawData.routes) {
+		const { component, params, pathname, distEntry } = routeData;
+		const pattern = new RegExp(routeData.pattern);
+		outManifest.routes.push(createRouteData(pattern, params, component, pathname, distEntry));
+	}
+	return outManifest;
 }
 
 function countOccurrences(needle: string, haystack: string) {

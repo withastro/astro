@@ -63,6 +63,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default('directory'),
 			experimentalStaticBuild: z.boolean().optional().default(false),
+			experimentalSsr: z.boolean().optional().default(false),
 			drafts: z.boolean().optional().default(false),
 		})
 		.optional()
@@ -130,6 +131,7 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		config: typeof flags.config === 'string' ? flags.config : undefined,
 		hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
 		experimentalStaticBuild: typeof flags.experimentalStaticBuild === 'boolean' ? flags.experimentalStaticBuild : false,
+		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
 	};
 }
@@ -143,6 +145,12 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
 	if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
 	if (typeof flags.experimentalStaticBuild === 'boolean') astroConfig.buildOptions.experimentalStaticBuild = flags.experimentalStaticBuild;
+	if (typeof flags.experimentalSsr === 'boolean') {
+		astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
+		if(flags.experimentalSsr) {
+			astroConfig.buildOptions.experimentalStaticBuild = true;
+		}
+	}
 	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
 	return astroConfig;
 }

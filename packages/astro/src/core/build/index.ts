@@ -115,6 +115,7 @@ class AstroBuilder {
 				allPages,
 				astroConfig: this.config,
 				logging: this.logging,
+				manifest: this.manifest,
 				origin: this.origin,
 				pageNames,
 				routeCache: this.routeCache,

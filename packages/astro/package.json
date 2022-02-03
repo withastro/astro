@@ -23,6 +23,8 @@
     "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",
     "./runtime/*": "./dist/runtime/*",
+    "./routing": "./dist/core/ssr/routing.js",
+    "./ssr/*": "./dist/core/ssr/*",
     "./server/*": "./dist/runtime/server/*",
     "./vite-plugin-astro": "./dist/vite-plugin-astro/index.js",
     "./vite-plugin-astro/*": "./dist/vite-plugin-astro/*",

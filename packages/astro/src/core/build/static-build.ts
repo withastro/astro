@@ -1,6 +1,6 @@
-import type { OutputChunk, OutputAsset, PreRenderedChunk, RollupOutput } from 'rollup';
-import type { Plugin as VitePlugin, UserConfig } from '../vite';
-import type { AstroConfig, Renderer, SSRElement } from '../../@types/astro';
+import type { OutputChunk, OutputAsset, RollupOutput } from 'rollup';
+import type { Plugin as VitePlugin, UserConfig, Manifest as ViteManifest } from '../vite';
+import type { AstroConfig, ManifestData, Renderer, SSRElement } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -23,11 +23,13 @@ import { renderPage } from '../../runtime/server/index.js';
 import { prepareOutDir } from './fs.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { RouteCache } from '../ssr/route-cache.js';
+import { serializeManifestData } from '../ssr/routing.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
 	astroConfig: AstroConfig;
 	logging: LogOptions;
+	manifest: ManifestData;
 	origin: string;
 	pageNames: string[];
 	routeCache: RouteCache;
@@ -87,6 +89,9 @@ function getByFacadeId<T>(facadeId: string, map: Map<string, T>): T | undefined 
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
+
+	// Basic options
+	const staticMode = !astroConfig.buildOptions.experimentalSsr;
 
 	// The pages to be built for rendering purposes.
 	const pageInput = new Set<string>();
@@ -148,9 +153,14 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Run the SSR build and client build in parallel
 	const [ssrResult] = (await Promise.all([ssrBuild(opts, internals, pageInput), clientBuild(opts, internals, jsInput)])) as RollupOutput[];
 
-	// Generate each of the pages.
-	await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
-	await cleanSsrOutput(opts);
+	// SSG mode, generate pages.
+	if(staticMode) {
+		// Generate each of the pages.
+		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
+		await cleanSsrOutput(opts);
+	} else {
+		await generateManifest(ssrResult, opts);
+	}
 }
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
@@ -161,13 +171,17 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		mode: 'production',
 		build: {
 			emptyOutDir: false,
+			manifest: true,
 			minify: false,
-			outDir: fileURLToPath(getOutRoot(astroConfig)),
+			outDir: fileURLToPath(getServerRoot(astroConfig)),
 			ssr: true,
 			rollupOptions: {
 				input: Array.from(input),
 				output: {
 					format: 'esm',
+					entryFileNames: '[name].[hash].mjs',
+					chunkFileNames: 'chunks/[name].[hash].mjs',
+					assetFileNames: 'assets/[name].[hash][extname]'
 				},
 			},
 			target: 'esnext', // must match an esbuild target
@@ -202,11 +216,15 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		build: {
 			emptyOutDir: false,
 			minify: 'esbuild',
-			outDir: fileURLToPath(getOutRoot(astroConfig)),
+			outDir: fileURLToPath(getClientRoot(astroConfig)),
 			rollupOptions: {
 				input: Array.from(input),
 				output: {
 					format: 'esm',
+					entryFileNames: '[name].[hash].js',
+					chunkFileNames: 'chunks/[name].[hash].js',
+					assetFileNames: 'assets/[name].[hash][extname]'
+					
 				},
 				preserveEntrySignatures: 'exports-only',
 			},
@@ -382,9 +400,37 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	}
 }
 
+async function generateManifest(result: RollupOutput, opts: StaticBuildOptions) {
+	const { astroConfig, manifest } = opts;
+	const manifestFile = new URL('./manifest.json', getServerRoot(astroConfig));
+
+	const inputManifestJSON = await fs.promises.readFile(manifestFile, 'utf-8');
+	const data: ViteManifest = JSON.parse(inputManifestJSON);
+
+	for(const routeData of manifest.routes) {
+		const entry = data[routeData.component];
+		routeData.distEntry = entry?.file;
+	}
+	
+	const outputManifestJSON = serializeManifestData(manifest);
+	await fs.promises.writeFile(manifestFile, outputManifestJSON, 'utf-8');
+}
+
 function getOutRoot(astroConfig: AstroConfig): URL {
 	const rootPathname = appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/');
 	return new URL('.' + rootPathname, astroConfig.dist);
+}
+
+function getServerRoot(astroConfig: AstroConfig): URL {
+	const rootFolder = getOutRoot(astroConfig);
+	const serverFolder = new URL('./server/', rootFolder);
+	return serverFolder;
+}
+
+function getClientRoot(astroConfig: AstroConfig): URL {
+	const rootFolder = getOutRoot(astroConfig);
+	const serverFolder = new URL('./client/', rootFolder);
+	return serverFolder;
 }
 
 function getOutFolder(astroConfig: AstroConfig, pathname: string): URL {
@@ -449,18 +495,6 @@ export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals
 			if (viteAsset) {
 				delete viteAsset.generateBundle;
 			}
-		},
-
-		outputOptions(outputOptions) {
-			Object.assign(outputOptions, {
-				entryFileNames(_chunk: PreRenderedChunk) {
-					return 'assets/[name].[hash].' + ext;
-				},
-				chunkFileNames(_chunk: PreRenderedChunk) {
-					return 'assets/[name].[hash].' + ext;
-				},
-			});
-			return outputOptions;
 		},
 
 		async generateBundle(_options, bundle) {
