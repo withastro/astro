@@ -83,6 +83,14 @@ You can sponsor Astro's development on [Open Collective](https://opencollective.
         <img width="150" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/divriots-dark.svg#gh-dark-mode-only" alt="‹div›RIOTS" />
         </a>
       </td>
+      <td align="center">
+        <a href="https://stackupdigital.co.uk/#gh-light-mode-only" target="_blank">
+        <img width="162" height="40" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/stackup.svg#gh-light-mode-only" alt="StackUp Digital" />
+        </a>
+        <a href="https://stackupdigital.co.uk/#gh-dark-mode-only" target="_blank">
+        <img width="130" height="32" src="https://raw.githubusercontent.com/withastro/astro/main/.github/assets/stackup-dark.svg#gh-dark-mode-only" alt="StackUp Digital" />
+        </a>
+      </td>
     </tr>
   </tbody>
 </table>
