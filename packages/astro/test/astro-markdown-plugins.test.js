@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import markdownRemark from '@astrojs/markdown-remark';
-import addClasses from '../../../examples/with-markdown-plugins/add-classes.mjs';
+import addClasses from './fixtures/astro-markdown-plugins/add-classes.mjs';
 
 describe('Astro Markdown plugins', () => {
 	let fixture;
