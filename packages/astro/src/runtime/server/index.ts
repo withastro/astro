@@ -14,7 +14,7 @@ const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|l
 const htmlBooleanAttributes = /^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
 const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
-const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/;
+const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
 
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
