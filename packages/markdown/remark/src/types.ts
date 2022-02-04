@@ -1,7 +1,6 @@
 import type * as unified from 'unified';
 import type * as shiki from 'shiki';
 
-export type UnifiedPluginImport = Promise<{ default: unified.Plugin }>;
 export type Plugin = string | [string, any] | unified.Plugin | [unified.Plugin, any];
 
 export interface AstroMarkdownOptions {
