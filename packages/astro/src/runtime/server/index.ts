@@ -11,7 +11,8 @@ export { createMetadata } from './metadata.js';
 export { escapeHTML, unescapeHTML } from './escape.js';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
-const htmlBooleanAttributes = /^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
+const htmlBooleanAttributes =
+	/^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
 const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
 // Note: SVG is case-sensitive!
 const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
@@ -339,7 +340,7 @@ export function addAttribute(value: any, key: string) {
 		if (htmlEnumAttributes.test(key) || svgEnumAttributes.test(key)) {
 			return unescapeHTML(` ${key}="false"`);
 		}
-		return ''
+		return '';
 	}
 
 	// compiler directives cannot be applied dynamically, log a warning and ignore.
