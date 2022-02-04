@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger.js';
+import { enableVerboseLogging, LogOptions } from '../core/logger.js';
 
 import * as colors from 'kleur/colors';
 import fs from 'fs';
@@ -83,9 +83,13 @@ export async function cli(args: string[]) {
 		dest: defaultLogDestination,
 		level: 'info',
 	};
+	if (flags.verbose) {
+		logging.level = 'debug';
+		enableVerboseLogging();
+	} else if (flags.silent) {
+		logging.level = 'silent';
+	}
 
-	if (flags.verbose) logging.level = 'debug';
-	if (flags.silent) logging.level = 'silent';
 	let config: AstroConfig;
 	try {
 		config = await loadConfig({ cwd: projectRoot, flags });
