@@ -69,6 +69,8 @@ export default {
 You can provide names of the plugins as well as import them:
 
 ```js
+import autolinkHeadings from 'remark-autolink-headings'
+
 // astro.config.mjs
 export default {
   markdownOptions: {
@@ -76,7 +78,7 @@ export default {
       '@astrojs/markdown-remark',
       {
         remarkPlugins: [
-          [import('remark-autolink-headings'), { behavior: 'prepend' }],
+          [autolinkHeadings, { behavior: 'prepend' }],
         ],
       },
     ],
