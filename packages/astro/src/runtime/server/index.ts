@@ -215,6 +215,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 				// We already know that renderer.ssr.check() has failed
 				// but this will throw a much more descriptive error!
 				renderer = matchingRenderers[0];
+				({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
 			} else {
 				throw new Error(`Unable to render ${metadata.displayName}!
 
