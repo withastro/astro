@@ -24,7 +24,15 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 		exclude: 'window document',
 	});
 	// start the server
-	const viteUserConfig = vite.mergeConfig({ mode: 'development' }, config.vite || {});
+	const viteUserConfig = vite.mergeConfig(
+		{
+			mode: 'development',
+			server: {
+				host: config.devOptions.hostname,
+			},
+		},
+		config.vite || {}
+	);
 	const viteConfig = await createVite(viteUserConfig, { astroConfig: config, logging: options.logging });
 	const viteServer = await vite.createServer(viteConfig);
 	await viteServer.listen(config.devOptions.port);
