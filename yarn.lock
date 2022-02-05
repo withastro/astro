@@ -1574,10 +1574,10 @@
   resolved "https://registry.yarnpkg.com/@polka/url/-/url-1.0.0-next.21.tgz#5de5a2385a35309427f6011992b544514d559aa1"
   integrity sha512-a5Sab1C4/icpTZVzZc5Ghpz88yQtGOyNqYXcZgOssB2uuAr+wF/MvN6bgtW32q7HHrvBki+BsZ0OuNv6EV3K9g==
 
-"@proload/core@^0.2.1":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@proload/core/-/core-0.2.2.tgz#d6de30e06a8864bdd0fbe568f87d0582cf988c1d"
-  integrity sha512-HYQEblYXIpW77kvGyW4penEl9D9e9MouPhTqVaDz9+QVFliYjsq18inTfnfTa81s3oraPVtTk60tqCWOf2fKGQ==
+"@proload/core@^0.2.3-test.0":
+  version "0.2.3-test.0"
+  resolved "https://registry.yarnpkg.com/@proload/core/-/core-0.2.3-test.0.tgz#73995b96ea136ea78a527b157ce379f0399de825"
+  integrity sha512-CGMOX8Fyd+oQNA7PX7Dyghr8ZmwgXi0avKicB12oTW6RJjiVtD+42PKeJuXU8MOuGkxv5JeZfeZJL2+8ZHDFWA==
   dependencies:
     deepmerge "^4.2.2"
     escalade "^3.1.1"

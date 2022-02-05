@@ -66,7 +66,7 @@
     "@astropub/webapi": "^0.10.1",
     "@babel/core": "^7.15.8",
     "@babel/traverse": "^7.15.4",
-    "@proload/core": "^0.2.1",
+    "@proload/core": "^0.2.3-test.0",
     "@proload/plugin-tsm": "^0.1.0",
     "@types/babel__core": "^7.1.15",
     "@types/debug": "^4.1.7",
