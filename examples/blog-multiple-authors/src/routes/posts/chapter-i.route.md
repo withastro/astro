@@ -1,5 +1,5 @@
 ---
-layout: ../../layouts/post.astro
+layout: ./Layout.astro
 title: Chapter I
 tag: movie
 date: 2021-05-17

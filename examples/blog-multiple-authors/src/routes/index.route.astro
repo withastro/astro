@@ -21,7 +21,7 @@ let description = 'An example blog on Astro';
 let canonicalURL = Astro.request.canonicalURL;
 
 // Data Fetching: List all Markdown posts in the repo.
-let allPosts = Astro.fetchContent<MarkdownFrontmatter>('./post/*.md');
+let allPosts = Astro.fetchContent<MarkdownFrontmatter>('./posts/*.md');
 allPosts.sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf());
 let firstPage = allPosts.slice(0, 2);
 

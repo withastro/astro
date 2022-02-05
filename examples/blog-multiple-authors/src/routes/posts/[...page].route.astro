@@ -6,7 +6,7 @@ import Pagination from '../../components/Pagination.astro';
 import authorData from '../../data/authors.json';
 
 export async function getStaticPaths({ paginate, rss }) {
-	const allPosts = Astro.fetchContent<MarkdownFrontmatter>('../post/*.md');
+	const allPosts = Astro.fetchContent<MarkdownFrontmatter>('./*.md');
 	const sortedPosts = allPosts.sort((a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf());
 
 	// Generate an RSS feed from this collection of posts.

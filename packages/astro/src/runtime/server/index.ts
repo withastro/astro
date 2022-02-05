@@ -287,7 +287,7 @@ function createFetchContentFn(url: URL, site: URL) {
 					Content: mod.default,
 					content: mod.metadata,
 					file: new URL(spec, url),
-					url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '') : undefined,
+					url: urlSpec.includes('/routes/') ? urlSpec.replace(/^.*\/routes\//, sitePathname).replace(/(\/index)?\.route\.md$/, '') : undefined,
 				};
 			})
 			.filter(Boolean);

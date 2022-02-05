@@ -6,7 +6,7 @@ import Pagination from '../../components/Pagination.astro';
 import authorData from '../../data/authors.json';
 
 export function getStaticPaths() {
-	const allPosts = Astro.fetchContent<MarkdownFrontmatter>('../post/*.md');
+	const allPosts = Astro.fetchContent<MarkdownFrontmatter>('../posts/*.md');
 	let allAuthorsUnique = [...new Set(allPosts.map((p) => p.author))];
 	return allAuthorsUnique.map((author) => ({ params: { author }, props: { allPosts } }));
 }

@@ -1,12 +1,10 @@
 import type { AstroConfig, ComponentInstance, GetStaticPathsResult, ManifestData, Params, RouteData } from '../../@types/astro';
-import type { LogOptions } from '../logger';
-
-import fs from 'fs';
+import fs from 'fs'; 
 import path from 'path';
 import { compile } from 'path-to-regexp';
 import slash from 'slash';
 import { fileURLToPath } from 'url';
-import { warn } from '../logger.js';
+import { warn, debug, LogOptions } from '../logger.js';
 
 /**
  * given an array of params like `['x', 'y', 'z']` for
@@ -94,10 +92,10 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 			const resolved = path.join(dir, basename);
 			const file = slash(path.relative(cwd || fileURLToPath(config.projectRoot), resolved));
 			const isDir = fs.statSync(resolved).isDirectory();
-
-			const ext = path.extname(basename);
-			const name = ext ? basename.slice(0, -ext.length) : basename;
-
+			const [name, ...extParts] = basename.split(/(?<!\.)\.(?!\.)/);
+			const ext = extParts ? `.${extParts[extParts.length - 1]}` : '';
+			const isRoute = extParts && extParts.length === 2 && extParts[0] === 'route' && validExtensions.has(ext);
+			console.log(basename);
 			if (name[0] === '_') {
 				return;
 			}
@@ -108,10 +106,13 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 			if (!isDir && !validExtensions.has(ext)) {
 				return;
 			}
-			const segment = isDir ? basename : name;
-			if (/^\$/.test(segment)) {
-				throw new Error(`Invalid route ${file} — Astro's Collections API has been replaced by dynamic route params.`);
+			// filter out non-route files
+			if (!isDir && !isRoute) {
+				return;
 			}
+			console.log(basename, extParts, isRoute);
+
+			const segment = isDir ? basename : name;
 			if (/\]\[/.test(segment)) {
 				throw new Error(`Invalid route ${file} — parameters must be separated`);
 			}
@@ -124,8 +125,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 
 			const parts = getParts(segment, file);
 			const isIndex = isDir ? false : basename.startsWith('index.');
-			const routeSuffix = basename.slice(basename.indexOf('.'), -ext.length);
-
+			const routeSuffix = ''; //basename.slice(basename.indexOf('.'), -ext.length);
 			items.push({
 				basename,
 				ext,
@@ -202,6 +202,8 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 
 		warn(logging, 'astro', `Missing pages directory: ${pagesDirRootRelative}`);
 	}
+
+	debug('route', 'route maninfest created:', routes);
 
 	return {
 		routes,
