@@ -91,8 +91,8 @@ export const levels: Record<LoggerLevel, number> = {
 
 export function enableVerboseLogging() {
 	debugPackage.enable('*,-babel'); 
-	debug('cli', '--verbose flag enabled! Enabling DEBUG="*,-babel"');
-	debug('cli', 'Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".');
+	debug('cli', '--verbose flag enabled! Enabling: DEBUG="*,-babel"');
+	debug('cli', 'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".');
 }
 
 /** Full logging API */
