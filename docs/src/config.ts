@@ -185,6 +185,10 @@ export const SIDEBAR = {
 		{ text: 'Impostare', header: true },
 		{ text: 'Come iniziare', link: 'it/getting-started' },
 	],
+	pl: [
+		{ text: 'Konfiguracja', header: true },
+		{ text: 'Na początek', link: 'pl/getting-started' },
+	],
 };
 
 export const SITE = {
