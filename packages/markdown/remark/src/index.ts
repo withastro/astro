@@ -39,7 +39,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 	const scopedClassName = opts?.$?.scopedClassName;
 	const mode = opts?.mode ?? 'mdx';
 	const syntaxHighlight = opts?.syntaxHighlight ?? 'prism';
-	const shikiTheme = opts?.shikiTheme ?? 'github-dark';
+	const shikiConfig = opts?.shikiConfig ?? {};
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
 
@@ -70,7 +70,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 	if (syntaxHighlight === 'prism') {
 		parser.use([remarkPrism(scopedClassName)]);
 	} else if (syntaxHighlight === 'shiki') {
-		parser.use([await remarkShiki(shikiTheme)]);
+		parser.use([await remarkShiki(shikiConfig)]);
 	}
 
 	parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'] }]]);

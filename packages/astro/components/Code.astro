@@ -5,21 +5,28 @@ export interface Props {
 	/** The code to highlight. Required. */
 	code: string;
 	/**
-	 * The language of your code. Defaults to "plaintext".
-	 * Supports all languages listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md
+	 * The language of your code.
+	 * Supports all languages listed here: https://github.com/shikijs/shiki/blob/main/docs/languages.md#all-languages
+	 * Instructions for loading a custom language: https://github.com/shikijs/shiki/blob/main/docs/languages.md#supporting-your-own-languages-with-shiki
+	 *
+	 * @default "plaintext"
 	 */
-	lang?: string;
+	lang?: shiki.Lang | shiki.ILanguageRegistration;
 	/**
-	 * The styling theme. Defaults to "github-dark".
-	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md
+	 * The styling theme.
+	 * Supports all themes listed here: https://github.com/shikijs/shiki/blob/main/docs/themes.md#all-themes
 	 * Instructions for loading a custom theme: https://github.com/shikijs/shiki/blob/main/docs/themes.md#loading-theme
+	 *
+	 * @default "github-dark"
 	 */
-	theme?: string;
+	theme?: shiki.IThemeRegistration;
 	/**
-	 * Enable word wrapping. Defaults to "false".
+	 * Enable word wrapping.
 	 *  - true: enabled.
 	 *  - false: enabled.
 	 *  - null: All overflow styling removed. Code will overflow the element by default.
+	 *
+	 * @default false
 	 */
 	wrap?: boolean | null;
 }
@@ -42,8 +49,12 @@ function repairShikiTheme(html: string): string {
 	return html;
 }
 
-const highlighter = await shiki.getHighlighter({ theme });
-const _html = highlighter.codeToHtml(code, { lang });
+const highlighter = await shiki.getHighlighter({ 
+	theme,
+	// Load custom lang if passed an object, otherwise load the default
+	langs: typeof lang !== 'string' ? [lang] : undefined
+});
+const _html = highlighter.codeToHtml(code, { lang: typeof lang === 'string' ? lang : lang.id });
 const html = repairShikiTheme(_html);
 ---
 

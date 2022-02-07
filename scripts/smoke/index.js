@@ -1,3 +1,5 @@
+/** @todo migrate these to use the independent docs repository at https://github.com/withastro/docs */
+
 import fs from 'fs';
 import { execa } from 'execa';
 import { fileURLToPath } from 'url';

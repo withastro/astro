@@ -6,19 +6,8 @@ example:
 '🚨 action':
 - .github/workflows/**
 
-docs:
-- docs/**
-
 test:
 - packages/**/*.test.js
-
-i18n:
-- any:
-  - 'docs/src/pages/*/**'
-  - '!docs/src/pages/core-concepts/**'
-  - '!docs/src/pages/guides/**'
-  - '!docs/src/pages/migration/**'
-  - '!docs/src/pages/reference/**'
 
 core:
 - packages/astro/**

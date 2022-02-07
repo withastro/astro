@@ -7,7 +7,6 @@ on:
   pull_request:
     paths-ignore:
       - '.vscode/**'
-      - 'docs/**'
       - 'examples/**'
 
 # Automatically cancel in-progress actions on the same branch
