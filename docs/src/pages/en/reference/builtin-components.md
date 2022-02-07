@@ -19,7 +19,7 @@ import { Code } from 'astro/components';
 <Code code={`const foo = 'bar';`} lang="js" wrap />
 ```
 
-This component provides syntax highlighting for code blocks at build time (no client-side JavaScript included). The component is powered internally by shiki and it supports all popular [themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md) and [languages](https://github.com/shikijs/shiki/blob/main/docs/languages.md).
+This component provides syntax highlighting for code blocks at build time (no client-side JavaScript included). The component is powered internally by shiki and it supports all popular [themes](https://github.com/shikijs/shiki/blob/main/docs/themes.md) and [languages](https://github.com/shikijs/shiki/blob/main/docs/languages.md). Plus, you can add your custom themes and languages by passing them to `theme` and `lang` respectively.
 
 You can also use the `<Prism />` component for syntax highlighting powered by the [Prism](https://prismjs.com/) syntax highlighting library. This is the library that Astro's Markdown uses by default. However, we will be transitioning all usage over to `<Code>` as we move towards our v1.0 release.
 
