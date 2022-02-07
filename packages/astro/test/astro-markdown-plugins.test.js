@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import markdownRemark from '@astrojs/markdown-remark';
+import addClasses from './fixtures/astro-markdown-plugins/add-classes.mjs';
 
 describe('Astro Markdown plugins', () => {
 	let fixture;
@@ -15,11 +16,7 @@ describe('Astro Markdown plugins', () => {
 					markdownRemark,
 					{
 						remarkPlugins: ['remark-code-titles', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-						rehypePlugins: [
-							[import('rehype-toc'), { headings: ['h2', 'h3'] }],
-							[import('../../../examples/with-markdown-plugins/add-classes.mjs'), { 'h1,h2,h3': 'title' }],
-							'rehype-slug',
-						],
+						rehypePlugins: [['rehype-toc', { headings: ['h2', 'h3'] }], [addClasses, { 'h1,h2,h3': 'title' }], 'rehype-slug'],
 					},
 				],
 			},

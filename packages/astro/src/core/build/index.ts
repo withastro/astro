@@ -146,14 +146,14 @@ class AstroBuilder {
 		debug('build', timerMessage('Additional assets copied', timer.assetsStart));
 
 		// Build your final sitemap.
-		timer.sitemapStart = performance.now();
 		if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
+			timer.sitemapStart = performance.now();
 			const sitemap = generateSitemap(pageNames.map((pageName) => new URL(pageName, this.config.buildOptions.site).href));
 			const sitemapPath = new URL('./sitemap.xml', this.config.dist);
 			await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
 			await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');
+			debug('build', timerMessage('Sitemap built', timer.sitemapStart));
 		}
-		debug('build', timerMessage('Sitemap built', timer.sitemapStart));
 
 		// You're done! Time to clean up.
 		await viteServer.close();
