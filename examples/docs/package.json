@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "@docsearch/react": "^3.0.0-alpha.42"
+    "@docsearch/react": "^3.0.0-alpha.50"
   },
   "devDependencies": {
     "astro": "^0.23.0-next.1"
