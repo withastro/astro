@@ -89,6 +89,12 @@ export const levels: Record<LoggerLevel, number> = {
 	silent: 90,
 };
 
+export function enableVerboseLogging() {
+	debugPackage.enable('*,-babel'); 
+	debug('cli', '--verbose flag enabled! Enabling: DEBUG="*,-babel"');
+	debug('cli', 'Tip: Set the DEBUG env variable directly for more control. Example: "DEBUG=astro:*,vite:* astro build".');
+}
+
 /** Full logging API */
 export function log(opts: LogOptions = {}, level: LoggerLevel, type: string | null, ...args: Array<any>) {
 	const logLevel = opts.level ?? defaultLogOptions.level;
@@ -118,7 +124,7 @@ const debuggers: Record<string, debugPackage.Debugger['log']> = {};
 export function debug(type: string, ...messages: Array<any>) {
 	const namespace = `astro:${type}`;
 	debuggers[namespace] = debuggers[namespace] || debugPackage(namespace);
-	return debuggers[namespace](messages);
+	return debuggers[namespace](...messages);
 }
 
 /** Emit a user-facing message. Useful for UI and other console messages. */
