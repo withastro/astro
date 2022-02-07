@@ -25,7 +25,7 @@ const ASTRO_PAGE_PREFIX = '@astro-page';
 const ASTRO_SCRIPT_PREFIX = '@astro-script';
 
 const ASTRO_EMPTY = '@astro-empty';
-const STATUS_CODE_RE = /^404$/;
+const STATUS_CODE_REGEXP = /^[0-9]{3}$/;
 
 interface PluginOptions {
 	astroConfig: AstroConfig;
@@ -481,9 +481,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 				const name = pathname.substr(1);
 				let outPath: string;
 
-				// Output directly to 404.html rather than 400/index.html
-				// Supports any other status codes, too
-				if (name.match(STATUS_CODE_RE) || astroConfig.buildOptions.pageUrlFormat === 'file') {
+				// Output directly to 404.html rather than 404/index.html
+				if (astroConfig.buildOptions.pageUrlFormat === 'file' || STATUS_CODE_REGEXP.test(name)) {
 					outPath = `${removeEndingForwardSlash(name || 'index')}.html`;
 				} else {
 					outPath = npath.posix.join(name, 'index.html');
