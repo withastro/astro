@@ -17,7 +17,7 @@ yarn: "^1.22.10"
 
 ### Setting up your local repo
 
-Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, `docs`, and every package in the repo.
+Astro uses yarn workspaces, so you should **always run `yarn install` from the top-level project directory.** running `yarn install` in the top-level project root will install dependencies for `astro`, and every package in the repo.
 
 ```shell
 git clone && cd ...
@@ -76,7 +76,7 @@ yarn lint
 
 ### Making a Pull Request
 
-When making a pull request, be sure to add a changeset when something has changed with Astro. Non-packages (`examples/*`, `docs/*`) do not need changesets.
+When making a pull request, be sure to add a changeset when something has changed with Astro. Non-packages (`examples/*`) do not need changesets.
 
 ```shell
 yarn changeset
@@ -145,7 +145,7 @@ To release a snapshot, run the following locally:
 # 1:
 yarn changeset version --snapshot XXX
 # 2: (Manual) review the diff, and make sure that you're not releasing more than you need to.
-git checkout -- examples/ docs/
+git checkout -- examples/
 # 3:
 yarn release --tag next--XXX
 # 4: (Manual) review the publish, and if you're happy then you can throw out all local changes
@@ -192,7 +192,7 @@ When in prerelease mode, the automatic PR release process will no longer release
 1. Run `yarn changeset version` to create your new release.
 1. Run `yarn release` to publish your new release.
 1. Run `git push && git push --tags` to push your new release to GitHub.
-1. Run `git push release/0.X:latest` to push your release branch to `latest`. This will trigger an update to the docs site, etc.
+1. Run `git push release/0.X:latest` to push your release branch to `latest`. 
 1. Go to https://github.com/withastro/astro/releases/new and create a new release. Copy the new changelog entry from https://github.com/withastro/astro/blob/latest/packages/astro/CHANGELOG.md.
 1. Post in Discord #announcements channel, if needed!
 

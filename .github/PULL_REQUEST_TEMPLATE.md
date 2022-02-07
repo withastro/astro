@@ -11,5 +11,6 @@
 
 ## Docs
 
-<!-- Was public documentation updated? -->
-<!-- DON'T DELETE THIS SECTION! If no docs added, explain why (e.g. "bug fix only") -->
+<!-- Did you make a user-facing change? You probably need to update docs! -->
+<!-- Add a link to your docs PR here. If no docs added, explain why (e.g. "bug fix only") -->
+<!-- Link: https://github.com/withastro/docs -->

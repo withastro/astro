@@ -1,3 +1,5 @@
+/** @todo migrate these to use the independent docs repository at https://github.com/withastro/docs */
+
 import { fileURLToPath } from 'url';
 import { performance } from 'perf_hooks';
 import { build as astroBuild } from '#astro/build';
