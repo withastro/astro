@@ -1,12 +1,13 @@
 import type { OutputChunk, OutputAsset, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig, Manifest as ViteManifest } from '../vite';
-import type { AstroConfig, ManifestData, Renderer, SSRElement } from '../../@types/astro';
+import type { AstroConfig, ManifestData, Renderer } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
 import type { PageBuildData } from './types';
 import type { BuildInternals } from '../../core/build/internal.js';
 import type { AstroComponentFactory } from '../../runtime/server';
+import type { SerializedSSRManifest, SerializedRouteInfo } from '../app/types';
 
 import fs from 'fs';
 import npath from 'path';
@@ -17,13 +18,12 @@ import { debug, error } from '../../core/logger.js';
 import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
-import { getParamsAndProps } from '../ssr/index.js';
-import { createResult } from '../ssr/result.js';
-import { renderPage } from '../../runtime/server/index.js';
 import { prepareOutDir } from './fs.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
-import { RouteCache } from '../ssr/route-cache.js';
-import { serializeManifestData } from '../ssr/routing.js';
+import { RouteCache } from '../render/route-cache.js';
+import { serializeRouteData } from '../routing/index.js';
+import { render } from '../render/core.js';
+import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -43,6 +43,12 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
 }
 
+// Gives back a facadeId that is relative to the root.
+// ie, src/pages/index.astro instead of /Users/name..../src/pages/index.astro
+function rootRelativeFacadeId(facadeId: string, astroConfig: AstroConfig): string {
+	return facadeId.slice(fileURLToPath(astroConfig.projectRoot).length);
+}
+
 // Determines of a Rollup chunk is an entrypoint page.
 function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | OutputChunk, internals: BuildInternals) {
 	if (output.type !== 'chunk') {
@@ -50,7 +56,7 @@ function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | OutputChunk
 	}
 	const chunk = output as OutputChunk;
 	if (chunk.facadeModuleId) {
-		const facadeToEntryId = prependForwardSlash(chunk.facadeModuleId.slice(fileURLToPath(astroConfig.projectRoot).length));
+		const facadeToEntryId = prependForwardSlash(rootRelativeFacadeId(chunk.facadeModuleId, astroConfig));
 		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
 	}
 	return false;
@@ -159,21 +165,23 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
 		await cleanSsrOutput(opts);
 	} else {
-		await generateManifest(ssrResult, opts);
+		await generateManifest(ssrResult, opts, internals);
 	}
 }
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
+	const ssr = astroConfig.buildOptions.experimentalSsr;
+	const out = ssr ? getServerRoot(astroConfig) : getOutRoot(astroConfig);
 
 	return await vite.build({
 		logLevel: 'error',
 		mode: 'production',
 		build: {
 			emptyOutDir: false,
-			manifest: true,
+			manifest: ssr,
 			minify: false,
-			outDir: fileURLToPath(getServerRoot(astroConfig)),
+			outDir: fileURLToPath(out),
 			ssr: true,
 			rollupOptions: {
 				input: Array.from(input),
@@ -210,13 +218,15 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		return null;
 	}
 
+	const out = astroConfig.buildOptions.experimentalSsr ? getServerRoot(astroConfig) : getOutRoot(astroConfig);
+
 	return await vite.build({
 		logLevel: 'error',
 		mode: 'production',
 		build: {
 			emptyOutDir: false,
 			minify: 'esbuild',
-			outDir: fileURLToPath(getClientRoot(astroConfig)),
+			outDir: fileURLToPath(out),
 			rollupOptions: {
 				input: Array.from(input),
 				output: {
@@ -345,51 +355,36 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 
 	const [, mod] = pageData.preload;
 
+	debug('build', `Generating: ${pathname}`);
+
+	const site = astroConfig.buildOptions.site;
+	const links = createLinkStylesheetElementSet(linkIds, site);
+	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
+
 	try {
-		const [params, pageProps] = await getParamsAndProps({
+		const html = await render({
+			experimentalStaticBuild: true,
+			links,
+			logging,
+			markdownRender: astroConfig.markdownOptions.render,
+			mod,
+			origin,
+			pathname,
+			scripts,
+			renderers,
+			async resolve(specifier: string) {
+				const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
+				if (typeof hashedFilePath !== 'string') {
+					throw new Error(`Cannot find the built path for ${specifier}`);
+				}
+				const relPath = npath.posix.relative(pathname, '/' + hashedFilePath);
+				const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
+				return fullyRelativePath;
+			},
 			route: pageData.route,
 			routeCache,
-			pathname,
+			site: astroConfig.buildOptions.site,
 		});
-
-		debug('build', `Generating: ${pathname}`);
-
-		const rootpath = appendForwardSlash(new URL(astroConfig.buildOptions.site || 'http://localhost/').pathname);
-		const links = new Set<SSRElement>(
-			linkIds.map((href) => ({
-				props: {
-					rel: 'stylesheet',
-					href: npath.posix.join(rootpath, href),
-				},
-				children: '',
-			}))
-		);
-		const scripts = hoistedId
-			? new Set<SSRElement>([
-					{
-						props: {
-							type: 'module',
-							src: npath.posix.join(rootpath, hoistedId),
-						},
-						children: '',
-					},
-			  ])
-			: new Set<SSRElement>();
-		const result = createResult({ astroConfig, logging, origin, params, pathname, renderers, links, scripts });
-
-		// Override the `resolve` method so that hydrated components are given the
-		// hashed filepath to the component.
-		result.resolve = async (specifier: string) => {
-			const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
-			if (typeof hashedFilePath !== 'string') {
-				throw new Error(`Cannot find the built path for ${specifier}`);
-			}
-			const relPath = npath.posix.relative(pathname, '/' + hashedFilePath);
-			const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
-			return fullyRelativePath;
-		};
-
-		let html = await renderPage(result, Component, pageProps, null);
 
 		const outFolder = getOutFolder(astroConfig, pathname);
 		const outFile = getOutFile(astroConfig, outFolder, pathname);
@@ -400,19 +395,59 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	}
 }
 
-async function generateManifest(result: RollupOutput, opts: StaticBuildOptions) {
+async function generateManifest(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals) {
 	const { astroConfig, manifest } = opts;
 	const manifestFile = new URL('./manifest.json', getServerRoot(astroConfig));
 
 	const inputManifestJSON = await fs.promises.readFile(manifestFile, 'utf-8');
 	const data: ViteManifest = JSON.parse(inputManifestJSON);
 
-	for(const routeData of manifest.routes) {
-		const entry = data[routeData.component];
-		routeData.distEntry = entry?.file;
+	const rootRelativeIdToChunkMap = new Map<string, OutputChunk>();
+	for(const output of result.output) {
+		if(chunkIsPage(astroConfig, output, internals)) {
+			const chunk = output as OutputChunk;
+			if(chunk.facadeModuleId) {
+				const id = rootRelativeFacadeId(chunk.facadeModuleId, astroConfig);
+				rootRelativeIdToChunkMap.set(id, chunk);
+			}
+		}
 	}
+
+	const routes: SerializedRouteInfo[] = [];
+
+	for(const routeData of manifest.routes) {
+		const componentPath = routeData.component;
+		const entry = data[componentPath];
+
+		if(!rootRelativeIdToChunkMap.has(componentPath)) {
+			throw new Error('Unable to find chunk for ' + componentPath);
+		}
+
+		const chunk = rootRelativeIdToChunkMap.get(componentPath)!;
+		const facadeId = chunk.facadeModuleId!;
+		const links = getByFacadeId<string[]>(facadeId, internals.facadeIdToAssetsMap) || [];
+		const hoistedScript = getByFacadeId<string>(facadeId, internals.facadeIdToHoistedEntryMap);
+		const scripts = hoistedScript ? [hoistedScript] : [];
+
+		routes.push({
+			file: entry?.file,
+			links,
+			scripts,
+			routeData: serializeRouteData(routeData)
+		});
+	}
+
+	const ssrManifest: SerializedSSRManifest = {
+		routes,
+		site: astroConfig.buildOptions.site,
+		markdown: {
+			render: astroConfig.markdownOptions.render
+		},
+		renderers: astroConfig.renderers,
+		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries())
+	};
 	
-	const outputManifestJSON = serializeManifestData(manifest);
+	const outputManifestJSON = JSON.stringify(ssrManifest, null, '  ');
 	await fs.promises.writeFile(manifestFile, outputManifestJSON, 'utf-8');
 }
 

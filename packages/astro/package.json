@@ -15,6 +15,7 @@
   "types": "./dist/types/@types/astro.d.ts",
   "exports": {
     ".": "./astro.js",
+    "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.js",
     "./components/*": "./components/*",

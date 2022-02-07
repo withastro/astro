@@ -103,7 +103,7 @@ export interface AstroUserConfig {
 	renderers?: string[];
 	/** Options for rendering markdown content */
 	markdownOptions?: {
-		render?: [string | MarkdownParser, Record<string, any>];
+		render?: MarkdownRenderOptions;
 	};
 	/** Options specific to `astro build` */
 	buildOptions?: {
@@ -229,10 +229,7 @@ export interface ManifestData {
 	routes: RouteData[];
 }
 
-export type SerializedManifestData = Omit<ManifestData, 'routes'> & {
-	routes: SerializedRouteData[];
-};
-
+export type MarkdownRenderOptions = [string | MarkdownParser, Record<string, any>];
 export type MarkdownParser = (contents: string, options?: Record<string, any>) => MarkdownParserResponse | PromiseLike<MarkdownParserResponse>;
 
 export interface MarkdownParserResponse {
@@ -348,7 +345,6 @@ export interface RouteData {
 	pathname?: string;
 	pattern: RegExp;
 	type: 'page';
-	distEntry?: string;
 }
 
 export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {

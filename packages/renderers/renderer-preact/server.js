@@ -20,6 +20,7 @@ function check(Component, props, children) {
 
 		return !/\<undefined\>/.test(html);
 	} catch (err) {
+		console.log("ERROR", err);
 		return false;
 	}
 }

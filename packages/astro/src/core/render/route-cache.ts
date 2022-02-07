@@ -1,8 +1,8 @@
 import type { ComponentInstance, GetStaticPathsItem, GetStaticPathsResult, GetStaticPathsResultKeyed, RouteData, RSS } from '../../@types/astro';
 import { LogOptions, warn, debug } from '../logger.js';
 
-import { generatePaginateFunction } from '../ssr/paginate.js';
-import { validateGetStaticPathsModule, validateGetStaticPathsResult } from './routing.js';
+import { generatePaginateFunction } from './paginate.js';
+import { validateGetStaticPathsModule, validateGetStaticPathsResult } from '../routing/index.js';
 
 type RSSFn = (...args: any[]) => any;
 

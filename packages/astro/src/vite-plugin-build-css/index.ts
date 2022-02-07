@@ -1,10 +1,9 @@
-import type { RenderedChunk } from 'rollup';
 import type { BuildInternals } from '../core/build/internal';
 
 import * as path from 'path';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from '../core/vite';
-import { isCSSRequest } from '../core/ssr/css.js';
+import { isCSSRequest } from '../core/render/dev/css.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
