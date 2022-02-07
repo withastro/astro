@@ -15,18 +15,25 @@ describe('Attributes', async () => {
 		const $ = cheerio.load(html);
 
 		const attrs = {
-			'false-str': 'false',
-			'true-str': 'true',
-			false: undefined,
-			true: 'true',
-			empty: '',
-			null: undefined,
-			undefined: undefined,
+			'false-str': { attribute: 'attr', value: 'false' },
+			'true-str': { attribute: 'attr', value: 'true' },
+			false: { attribute: 'attr', value: undefined },
+			true: { attribute: 'attr', value: 'true' },
+			empty: { attribute: 'attr', value: '' },
+			null: { attribute: 'attr', value: undefined },
+			undefined: { attribute: 'attr', value: undefined },
+			'html-boolean': { attribute: 'async', value: 'async' },
+			'html-boolean-true': { attribute: 'async', value: 'async' },
+			'html-boolean-false': { attribute: 'async', value: undefined },
+			'html-enum': { attribute: 'draggable', value: 'true' },
+			'html-enum-true': { attribute: 'draggable', value: 'true' },
+			'html-enum-false': { attribute: 'draggable', value: 'false' },
 		};
 
-		for (const [k, v] of Object.entries(attrs)) {
-			const attr = $(`#${k}`).attr('attr');
-			expect(attr).to.equal(v);
+		for (const id of Object.keys(attrs)) {
+			const { attribute, value } = attrs[id]
+			const attr = $(`#${id}`).attr(attribute);
+			expect(attr).to.equal(value);
 		}
 	});
 
