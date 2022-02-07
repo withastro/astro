@@ -1,3 +1,5 @@
+/** @todo migrate these to use the independent docs repository at https://github.com/withastro/docs */
+
 import { performance } from 'perf_hooks';
 import { Benchmark } from './benchmark.js';
 import { runDevServer } from '../helpers.js';

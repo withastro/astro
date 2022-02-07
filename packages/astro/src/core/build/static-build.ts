@@ -1,6 +1,6 @@
 import type { OutputChunk, OutputAsset, PreRenderedChunk, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig } from '../vite';
-import type { AstroConfig, Renderer, RouteCache, SSRElement } from '../../@types/astro';
+import type { AstroConfig, Renderer, SSRElement } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -14,12 +14,15 @@ import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import vite from '../vite.js';
 import { debug, error } from '../../core/logger.js';
+import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { getParamsAndProps } from '../ssr/index.js';
 import { createResult } from '../ssr/result.js';
 import { renderPage } from '../../runtime/server/index.js';
 import { prepareOutDir } from './fs.js';
+import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
+import { RouteCache } from '../ssr/route-cache.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -39,12 +42,16 @@ function addPageName(pathname: string, opts: StaticBuildOptions): void {
 }
 
 // Determines of a Rollup chunk is an entrypoint page.
-function chunkIsPage(output: OutputAsset | OutputChunk, internals: BuildInternals) {
+function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | OutputChunk, internals: BuildInternals) {
 	if (output.type !== 'chunk') {
 		return false;
 	}
 	const chunk = output as OutputChunk;
-	return chunk.facadeModuleId && (internals.entrySpecifierToBundleMap.has(chunk.facadeModuleId) || internals.entrySpecifierToBundleMap.has('/' + chunk.facadeModuleId));
+	if (chunk.facadeModuleId) {
+		const facadeToEntryId = prependForwardSlash(chunk.facadeModuleId.slice(fileURLToPath(astroConfig.projectRoot).length));
+		return internals.entrySpecifierToBundleMap.has(facadeToEntryId);
+	}
+	return false;
 }
 
 // Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
@@ -70,6 +77,14 @@ function* throttle(max: number, inPaths: string[]) {
 	}
 }
 
+function getByFacadeId<T>(facadeId: string, map: Map<string, T>): T | undefined {
+	return (
+		map.get(facadeId) ||
+		// Windows the facadeId has forward slashes, no idea why
+		map.get(facadeId.replace(/\//g, '\\'))
+	);
+}
+
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
 
@@ -91,7 +106,12 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		jsInput.add(polyfill);
 	}
 
+	// Build internals needed by the CSS plugin
+	const internals = createBuildInternals();
+
 	for (const [component, pageData] of Object.entries(allPages)) {
+		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
+		const astroModuleId = prependForwardSlash(component);
 		const [renderers, mod] = pageData.preload;
 		const metadata = mod.$$metadata;
 
@@ -104,17 +124,21 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			...renderers.filter((renderer) => !!renderer.source).map((renderer) => renderer.source!),
 		]);
 
+		// Add hoisted scripts
+		const hoistedScripts = new Set(metadata.hoistedScriptPaths());
+		if (hoistedScripts.size) {
+			const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
+			internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
+			topLevelImports.add(moduleId);
+		}
+
 		for (const specifier of topLevelImports) {
 			jsInput.add(specifier);
 		}
 
-		let astroModuleId = new URL('./' + component, astroConfig.projectRoot).pathname;
 		pageInput.add(astroModuleId);
-		facadeIdToPageDataMap.set(astroModuleId, pageData);
+		facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
 	}
-
-	// Build internals needed by the CSS plugin
-	const internals = createBuildInternals();
 
 	// Empty out the dist folder, if needed. Vite has a config for doing this
 	// but because we are running 2 vite builds in parallel, that would cause a race
@@ -138,7 +162,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		build: {
 			emptyOutDir: false,
 			minify: false,
-			outDir: fileURLToPath(astroConfig.dist),
+			outDir: fileURLToPath(getOutRoot(astroConfig)),
 			ssr: true,
 			rollupOptions: {
 				input: Array.from(input),
@@ -146,7 +170,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					format: 'esm',
 				},
 			},
-			target: 'es2020', // must match an esbuild target
+			target: 'esnext', // must match an esbuild target
 		},
 		plugins: [
 			vitePluginNewBuild(input, internals, 'mjs'),
@@ -160,7 +184,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
 		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
-	});
+		ssr: viteConfig.ssr,
+	} as ViteConfigWithSSR);
 }
 
 async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
@@ -177,7 +202,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		build: {
 			emptyOutDir: false,
 			minify: 'esbuild',
-			outDir: fileURLToPath(astroConfig.dist),
+			outDir: fileURLToPath(getOutRoot(astroConfig)),
 			rollupOptions: {
 				input: Array.from(input),
 				output: {
@@ -185,10 +210,11 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 				},
 				preserveEntrySignatures: 'exports-only',
 			},
-			target: 'es2020', // must match an esbuild target
+			target: 'esnext', // must match an esbuild target
 		},
 		plugins: [
 			vitePluginNewBuild(input, internals, 'js'),
+			vitePluginHoistedScripts(astroConfig, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
 			}),
@@ -198,7 +224,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
-		base: astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/',
+		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
 	});
 }
 
@@ -230,14 +256,14 @@ async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
 }
 
 async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
-	debug(opts.logging, 'generate', 'End build step, now generating');
+	debug('build', 'Finish build. Begin generating.');
 
 	// Get renderers to be shared for each page generation.
 	const renderers = await collectRenderers(opts);
 
 	const generationPromises = [];
 	for (let output of result.output) {
-		if (chunkIsPage(output, internals)) {
+		if (chunkIsPage(opts.astroConfig, output, internals)) {
 			generationPromises.push(generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers));
 		}
 	}
@@ -247,18 +273,16 @@ async function generatePages(result: RollupOutput, opts: StaticBuildOptions, int
 async function generatePage(output: OutputChunk, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>, renderers: Renderer[]) {
 	const { astroConfig } = opts;
 
-	let url = new URL('./' + output.fileName, astroConfig.dist);
+	let url = new URL('./' + output.fileName, getOutRoot(astroConfig));
 	const facadeId: string = output.facadeModuleId as string;
-	let pageData =
-		facadeIdToPageDataMap.get(facadeId) ||
-		// Check with a leading `/` because on Windows it doesn't have one.
-		facadeIdToPageDataMap.get('/' + facadeId);
+	let pageData = getByFacadeId<PageBuildData>(facadeId, facadeIdToPageDataMap);
 
 	if (!pageData) {
-		throw new Error(`Unable to find a PageBuildData for the Astro page: ${facadeId}. There are the PageBuilDatas we have ${Array.from(facadeIdToPageDataMap.keys()).join(', ')}`);
+		throw new Error(`Unable to find a PageBuildData for the Astro page: ${facadeId}. There are the PageBuildDatas we have ${Array.from(facadeIdToPageDataMap.keys()).join(', ')}`);
 	}
 
-	let linkIds = internals.facadeIdToAssetsMap.get(facadeId) || [];
+	const linkIds = getByFacadeId<string[]>(facadeId, internals.facadeIdToAssetsMap) || [];
+	const hoistedId = getByFacadeId<string>(facadeId, internals.facadeIdToHoistedEntryMap) || null;
 
 	let compiledModule = await import(url.toString());
 	let Component = compiledModule.default;
@@ -267,6 +291,7 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 		pageData,
 		internals,
 		linkIds,
+		hoistedId,
 		Component,
 		renderers,
 	};
@@ -288,13 +313,14 @@ interface GeneratePathOptions {
 	pageData: PageBuildData;
 	internals: BuildInternals;
 	linkIds: string[];
+	hoistedId: string | null;
 	Component: AstroComponentFactory;
 	renderers: Renderer[];
 }
 
 async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: GeneratePathOptions) {
-	const { astroConfig, logging, origin, pageNames, routeCache } = opts;
-	const { Component, internals, linkIds, pageData, renderers } = gopts;
+	const { astroConfig, logging, origin, routeCache } = opts;
+	const { Component, internals, linkIds, hoistedId, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	addPageName(pathname, opts);
@@ -305,19 +331,13 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		const [params, pageProps] = await getParamsAndProps({
 			route: pageData.route,
 			routeCache,
-			logging,
 			pathname,
-			mod,
-			// Do not validate as validation already occurred for static routes
-			// and validation is relatively expensive.
-			validate: false,
 		});
 
-		debug(logging, 'generate', `Generating: ${pathname}`);
+		debug('build', `Generating: ${pathname}`);
 
-		const rootpath = new URL(astroConfig.buildOptions.site || 'http://localhost/').pathname;
-		const result = createResult({ astroConfig, logging, origin, params, pathname, renderers });
-		result.links = new Set<SSRElement>(
+		const rootpath = appendForwardSlash(new URL(astroConfig.buildOptions.site || 'http://localhost/').pathname);
+		const links = new Set<SSRElement>(
 			linkIds.map((href) => ({
 				props: {
 					rel: 'stylesheet',
@@ -326,6 +346,18 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 				children: '',
 			}))
 		);
+		const scripts = hoistedId
+			? new Set<SSRElement>([
+					{
+						props: {
+							type: 'module',
+							src: npath.posix.join(rootpath, hoistedId),
+						},
+						children: '',
+					},
+			  ])
+			: new Set<SSRElement>();
+		const result = createResult({ astroConfig, logging, origin, params, pathname, renderers, links, scripts });
 
 		// Override the `resolve` method so that hydrated components are given the
 		// hashed filepath to the component.
@@ -340,8 +372,9 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		};
 
 		let html = await renderPage(result, Component, pageProps, null);
-		const outFolder = new URL('.' + pathname + '/', astroConfig.dist);
-		const outFile = new URL('./index.html', outFolder);
+
+		const outFolder = getOutFolder(astroConfig, pathname);
+		const outFile = getOutFile(astroConfig, outFolder, pathname);
 		await fs.promises.mkdir(outFolder, { recursive: true });
 		await fs.promises.writeFile(outFile, html, 'utf-8');
 	} catch (err) {
@@ -349,10 +382,36 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	}
 }
 
+function getOutRoot(astroConfig: AstroConfig): URL {
+	const rootPathname = appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/');
+	return new URL('.' + rootPathname, astroConfig.dist);
+}
+
+function getOutFolder(astroConfig: AstroConfig, pathname: string): URL {
+	const outRoot = getOutRoot(astroConfig);
+
+	// This is the root folder to write to.
+	switch (astroConfig.buildOptions.pageUrlFormat) {
+		case 'directory':
+			return new URL('.' + appendForwardSlash(pathname), outRoot);
+		case 'file':
+			return outRoot;
+	}
+}
+
+function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string): URL {
+	switch (astroConfig.buildOptions.pageUrlFormat) {
+		case 'directory':
+			return new URL('./index.html', outFolder);
+		case 'file':
+			return new URL('.' + pathname + '.html', outFolder);
+	}
+}
+
 async function cleanSsrOutput(opts: StaticBuildOptions) {
 	// The SSR output is all .mjs files, the client output is not.
 	const files = await glob('**/*.mjs', {
-		cwd: opts.astroConfig.dist.pathname,
+		cwd: fileURLToPath(opts.astroConfig.dist),
 	});
 	await Promise.all(
 		files.map(async (filename) => {

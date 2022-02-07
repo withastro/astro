@@ -9,45 +9,14 @@
   "scripts": {
     "release": "yarn build && changeset publish",
     "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
-    "build:examples": "turbo run build --scope=docs --scope=\"@example/*\"",
+    "build:examples": "turbo run build --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "test": "turbo run test --scope=astro",
+    "test:match": "cd packages/astro && yarn run test:match",
     "test:templates": "turbo run test --scope=create-astro",
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
     "format": "prettier -w ."
-  },
-  "turbo": {
-    "baseBranch": "origin/main",
-    "pipeline": {
-      "build": {
-        "dependsOn": [
-          "^build"
-        ],
-        "outputs": [
-          "**/dist/**",
-          "!**/vendor/**"
-        ]
-      },
-      "dev": {
-        "cache": false
-      },
-      "test": {
-        "outputs": []
-      },
-      "test:templates": {
-        "outputs": []
-      },
-      "benchmark": {
-        "dependsOn": [
-          "^build"
-        ],
-        "outputs": []
-      },
-      "lint": {
-        "outputs": []
-      }
-    }
   },
   "workspaces": [
     "compiled/*",
@@ -58,10 +27,10 @@
     "examples/component/demo",
     "examples/component/packages/*",
     "scripts",
-    "docs",
     "packages/astro/test/fixtures/builtins/packages/*",
     "packages/astro/test/fixtures/builtins-polyfillnode",
-    "packages/astro/test/fixtures/custom-elements/my-component-lib"
+    "packages/astro/test/fixtures/custom-elements/my-component-lib",
+    "packages/astro/test/fixtures/static build/pkg"
   ],
   "volta": {
     "node": "14.17.0",
@@ -87,5 +56,6 @@
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"
-  }
+  },
+  "packageManager": "yarn@1.22.5"
 }

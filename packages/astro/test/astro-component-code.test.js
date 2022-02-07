@@ -9,7 +9,7 @@ before(async () => {
 	await fixture.build();
 });
 
-describe('<Code', () => {
+describe('<Code>', () => {
 	it('<Code> without lang or theme', async () => {
 		let html = await fixture.readFile('/no-lang/index.html');
 		const $ = cheerio.load(html);
@@ -80,5 +80,16 @@ describe('<Code', () => {
 			'color: var(--astro-code-token-string-expression)',
 			'color: var(--astro-code-color-text)',
 		]);
+	});
+
+	it('<Code> with custom theme and lang', async () => {
+		let html = await fixture.readFile('/imported/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#theme > pre')).to.have.lengthOf(1);
+		expect($('#theme > pre').attr('style'), 'background-color: #FDFDFE; overflow-x: auto;');
+
+		expect($('#lang > pre')).to.have.lengthOf(1);
+		expect($('#lang > pre > code span').length).to.equal(3);
 	});
 });

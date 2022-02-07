@@ -4,6 +4,8 @@ import grayscaleUrl from '../images/random.jpg?grayscale=true';
 import Greeting from '../components/Greeting.vue';
 import Counter from '../components/Counter.vue';
 import { Code } from 'astro/components';
+import InlineHoisted from '../components/InlineHoisted.astro';
+import ExternalHoisted from '../components/ExternalHoisted.astro';
 ---
 
 <html>
@@ -12,6 +14,17 @@ import { Code } from 'astro/components';
 		<style>
 			h1 {
 				color: salmon;
+			}
+		</style>
+		<style lang="scss">
+			@import "../styles/_global.scss";
+			h2 {
+				color: $color;
+			}
+		</style>
+		<style define:vars={{ color: 'blue' }}>
+			.define-vars h1 {
+				color: var(--color);
 			}
 		</style>
 	</head>
@@ -44,5 +57,19 @@ import { Code } from 'astro/components';
     <h1>Hydrated component</h1>
     <Counter client:idle />
   </section>
+
+	<section>
+		<h1>Hoisted scripts</h1>
+		<InlineHoisted />
+		<ExternalHoisted />
+	</section>
+
+	<section class="define-vars">
+		<h1>define:vars</h1>
+		<h2></h2>
+		<script define:vars={{ color: 'blue' }}>
+		document.querySelector('.define-vars h2').textContent = `Color: ${color}`;
+		</script>
+	</section>
 </body>
 </html>

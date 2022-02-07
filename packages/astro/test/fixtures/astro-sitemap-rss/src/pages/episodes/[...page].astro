@@ -21,6 +21,26 @@ export function getStaticPaths({paginate, rss}) {
     })),
     dest: '/custom/feed.xml',
   });
+  rss({
+    title: 'MF Doomcast',
+    description: 'The podcast about the things you find on a picnic, or at a picnic table',
+    xmlns: {
+      itunes: 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+      content: 'http://purl.org/rss/1.0/modules/content/',
+    },
+    customData: `<language>en-us</language>` +
+      `<itunes:author>MF Doom</itunes:author>`,
+    items: episodes.map((episode) => ({
+      title: episode.title,
+      link: `https://example.com${episode.url}/`,
+      description: episode.description,
+      pubDate: episode.pubDate + 'Z',
+      customData: `<itunes:episodeType>${episode.type}</itunes:episodeType>` +
+        `<itunes:duration>${episode.duration}</itunes:duration>` +
+        `<itunes:explicit>${episode.explicit || false}</itunes:explicit>`,
+    })),
+    dest: '/custom/feed-pregenerated-urls.xml',
+  });
   return paginate(episodes);
 }
 

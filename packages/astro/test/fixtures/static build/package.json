@@ -1,0 +1,7 @@
+{
+  "name": "@astrojs/test-static-build",
+  "version": "0.0.1",
+  "dependencies": {
+    "@astrojs/test-static-build-pkg": "file:./pkg"
+  }
+}

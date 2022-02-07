@@ -1,35 +1,62 @@
 import type vite from '../core/vite';
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger';
+import type { LogOptions } from '../core/logger.js';
 
 import esbuild from 'esbuild';
+import npath from 'path';
 import { fileURLToPath } from 'url';
-import { AstroDevServer } from '../core/dev/index.js';
 import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';
 import { cachedCompilation, invalidateCompilation } from './compile.js';
 import ancestor from 'common-ancestor-path';
+import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
 	config: AstroConfig;
 	logging: LogOptions;
-	devServer?: AstroDevServer;
 }
 
 /** Transform .astro files for Vite */
 export default function astro({ config, logging }: AstroPluginOptions): vite.Plugin {
+	function normalizeFilename(filename: string) {
+		if (filename.startsWith('/@fs')) {
+			filename = filename.slice('/@fs'.length);
+		} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
+			filename = new URL('.' + filename, config.projectRoot).pathname;
+		}
+		return filename;
+	}
+
 	let viteTransform: TransformHook;
+	let viteDevServer: vite.ViteDevServer | null = null;
+
+	// Variables for determing if an id starts with /src...
+	const srcRootWeb = config.src.pathname.slice(config.projectRoot.pathname.length - 1);
+	const isBrowserPath = (path: string) => path.startsWith(srcRootWeb);
+
 	return {
-		name: '@astrojs/vite-plugin-astro',
+		name: 'astro:build',
 		enforce: 'pre', // run transforms before other plugins can
 		configResolved(resolvedConfig) {
 			viteTransform = getViteTransform(resolvedConfig);
 		},
+		configureServer(server) {
+			viteDevServer = server;
+		},
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
 		async resolveId(id) {
 			// serve sub-part requests (*?astro) as virtual modules
-			if (parseAstroRequest(id).query.astro) {
+			const { query } = parseAstroRequest(id);
+			if (query.astro) {
+				// Convert /src/pages/index.astro?astro&type=style to /Users/name/
+				// Because this needs to be the id for the Vite CSS plugin to property resolve
+				// relative @imports.
+				if (query.type === 'style' && isBrowserPath(id)) {
+					const outId = npath.posix.join(config.projectRoot.pathname, id);
+					return outId;
+				}
+
 				return id;
 			}
 		},
@@ -37,22 +64,36 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			let { filename, query } = parseAstroRequest(id);
 			if (query.astro) {
 				if (query.type === 'style') {
-					if (filename.startsWith('/@fs')) {
-						filename = filename.slice('/@fs'.length);
-					} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
-						filename = new URL('.' + filename, config.projectRoot).pathname;
-					}
-					const transformResult = await cachedCompilation(config, filename, null, viteTransform, opts);
-
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
+
+					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
+
+					// Track any CSS dependencies so that HMR is triggered when they change.
+					await trackCSSDependencies.call(this, { viteDevServer, id, filename, deps: transformResult.rawCSSDeps });
 
 					const csses = transformResult.css;
 					const code = csses[query.index];
 
 					return {
 						code,
+					};
+				} else if (query.type === 'script') {
+					if (typeof query.index === 'undefined') {
+						throw new Error(`Requests for hoisted scripts must include an index`);
+					}
+
+					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
+					const scripts = transformResult.scripts;
+					const hoistedScript = scripts[query.index];
+
+					if (!hoistedScript) {
+						throw new Error(`No hoisted script at index ${query.index}`);
+					}
+
+					return {
+						code: hoistedScript.type === 'inline' ? hoistedScript.code! : `import "${hoistedScript.src!}";`,
 					};
 				}
 			}
@@ -134,8 +175,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			}
 		},
 		async handleHotUpdate(context) {
-			// Invalidate the compilation cache so it recompiles
-			invalidateCompilation(config, context.file);
+			return handleHotUpdate(context, config);
 		},
 	};
 }

@@ -19,6 +19,18 @@ export interface AstroComponentMetadata {
 	componentExport?: { value: string; namespace?: boolean };
 }
 
+/** The flags supported by the Astro CLI */
+export interface CLIFlags {
+	projectRoot?: string;
+	site?: string;
+	sitemap?: boolean;
+	hostname?: string;
+	port?: number;
+	config?: string;
+	experimentalStaticBuild?: boolean;
+	drafts?: boolean;
+}
+
 /**
  * Astro.* available in all components
  * Docs: https://docs.astro.build/reference/api-reference/#astro-global
@@ -115,6 +127,11 @@ export interface AstroUserConfig {
 		 * Default: false
 		 */
 		drafts?: boolean;
+		/**
+		 * Experimental: Enables "static build mode" for faster builds.
+		 * Default: false
+		 */
+		experimentalStaticBuild?: boolean;
 	};
 	/** Options for the development server run with `astro dev`. */
 	devOptions?: {
@@ -324,8 +341,6 @@ export interface RouteData {
 	type: 'page';
 }
 
-export type RouteCache = Record<string, GetStaticPathsResultKeyed>;
-
 export type RuntimeMode = 'development' | 'production';
 
 /**
@@ -368,7 +383,7 @@ export interface RSS {
 	}[];
 }
 
-export type RSSFunction = (args: RSS) => void;
+export type RSSFunction = (args: RSS) => RSSResult;
 
 export type FeedResult = { url: string; content?: string };
 export type RSSResult = { xml: FeedResult; xsl?: FeedResult };

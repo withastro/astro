@@ -3,6 +3,7 @@ import type { AstroConfig, AstroGlobal, AstroGlobalPartial, Params, Renderer, SS
 import { bold } from 'kleur/colors';
 import { canonicalURL as getCanonicalURL } from '../util.js';
 import { isCSSRequest } from './css.js';
+import { isScriptRequest } from './script.js';
 import { renderSlot } from '../../runtime/server/index.js';
 import { warn, LogOptions } from '../logger.js';
 
@@ -13,6 +14,8 @@ export interface CreateResultArgs {
 	params: Params;
 	pathname: string;
 	renderers: Renderer[];
+	links?: Set<SSRElement>;
+	scripts?: Set<SSRElement>;
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
@@ -23,8 +26,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 	// calling the render() function will populate the object with scripts, styles, etc.
 	const result: SSRResult = {
 		styles: new Set<SSRElement>(),
-		scripts: new Set<SSRElement>(),
-		links: new Set<SSRElement>(),
+		scripts: args.scripts ?? new Set<SSRElement>(),
+		links: args.links ?? new Set<SSRElement>(),
 		/** This function returns the `Astro` faux-global */
 		createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
 			const site = new URL(origin);
@@ -47,6 +50,17 @@ export function createResult(args: CreateResultArgs): SSRResult {
 <style global>
 @import "${path}";
 </style>
+`;
+						} else if (isScriptRequest(path)) {
+							extra = `It looks like you are resolving scripts. If you are adding a script tag, replace with this:
+
+<script type="module" src={(await import("${path}?url")).default}></script>
+
+or consider make it a module like so:
+
+<script type="module" hoist>
+	import MyModule from "${path}";
+</script>
 `;
 						}
 

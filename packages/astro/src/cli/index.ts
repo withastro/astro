@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger';
+import { enableVerboseLogging, LogOptions } from '../core/logger.js';
 
 import * as colors from 'kleur/colors';
 import fs from 'fs';
@@ -15,54 +15,7 @@ import { check } from './check.js';
 import { formatConfigError, loadConfig } from '../core/config.js';
 
 type Arguments = yargs.Arguments;
-type cliCommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
-interface CLIState {
-	cmd: cliCommand;
-	options: {
-		projectRoot?: string;
-		site?: string;
-		sitemap?: boolean;
-		hostname?: string;
-		port?: number;
-		config?: string;
-		experimentalStaticBuild?: boolean;
-		drafts?: boolean;
-	};
-}
-
-/** Determine which action the user requested */
-function resolveArgs(flags: Arguments): CLIState {
-	const options: CLIState['options'] = {
-		projectRoot: typeof flags.projectRoot === 'string' ? flags.projectRoot : undefined,
-		site: typeof flags.site === 'string' ? flags.site : undefined,
-		sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
-		port: typeof flags.port === 'number' ? flags.port : undefined,
-		config: typeof flags.config === 'string' ? flags.config : undefined,
-		hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
-		experimentalStaticBuild: typeof flags.experimentalStaticBuild === 'boolean' ? flags.experimentalStaticBuild : false,
-		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
-	};
-
-	if (flags.version) {
-		return { cmd: 'version', options };
-	} else if (flags.help) {
-		return { cmd: 'help', options };
-	}
-
-	const cmd = flags._[2];
-	switch (cmd) {
-		case 'dev':
-			return { cmd: 'dev', options };
-		case 'build':
-			return { cmd: 'build', options };
-		case 'preview':
-			return { cmd: 'preview', options };
-		case 'check':
-			return { cmd: 'check', options };
-		default:
-			return { cmd: 'help', options };
-	}
-}
+type CLICommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
 
 /** Display --help flag */
 function printHelp() {
@@ -95,24 +48,28 @@ async function printVersion() {
 	console.log(pkgVersion);
 }
 
-/** Merge CLI flags & config options (CLI flags take priority) */
-function mergeCLIFlags(astroConfig: AstroConfig, flags: CLIState['options']) {
-	if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
-	if (typeof flags.site === 'string') astroConfig.buildOptions.site = flags.site;
-	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
-	if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
-	if (typeof flags.experimentalStaticBuild === 'boolean') astroConfig.buildOptions.experimentalStaticBuild = flags.experimentalStaticBuild;
-	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
+/** Determine which command the user requested */
+function resolveCommand(flags: Arguments): CLICommand {
+	if (flags.version) {
+		return 'version';
+	} else if (flags.help) {
+		return 'help';
+	}
+	const cmd = flags._[2];
+	const supportedCommands = new Set(['dev', 'build', 'preview', 'check']);
+	if (supportedCommands.has(cmd)) {
+		return cmd as 'dev' | 'build' | 'preview' | 'check';
+	}
+	return 'help';
 }
 
 /** The primary CLI action */
 export async function cli(args: string[]) {
 	const flags = yargs(args);
-	const state = resolveArgs(flags);
-	const options = { ...state.options };
-	const projectRoot = options.projectRoot || flags._[3];
+	const cmd = resolveCommand(flags);
+	const projectRoot = flags.projectRoot || flags._[3];
 
-	switch (state.cmd) {
+	switch (cmd) {
 		case 'help':
 			printHelp();
 			return process.exit(0);
@@ -126,23 +83,22 @@ export async function cli(args: string[]) {
 		dest: defaultLogDestination,
 		level: 'info',
 	};
-
-	if (flags.verbose) logging.level = 'debug';
-	if (flags.silent) logging.level = 'silent';
-	let config: AstroConfig;
-	try {
-		config = await loadConfig({ cwd: projectRoot, filename: options.config });
-		mergeCLIFlags(config, options);
-	} catch (err) {
-		if (err instanceof z.ZodError) {
-			console.error(formatConfigError(err));
-		} else {
-			console.error(colors.red((err as any).toString() || err));
-		}
-		process.exit(1);
+	if (flags.verbose) {
+		logging.level = 'debug';
+		enableVerboseLogging();
+	} else if (flags.silent) {
+		logging.level = 'silent';
 	}
 
-	switch (state.cmd) {
+	let config: AstroConfig;
+	try {
+		config = await loadConfig({ cwd: projectRoot, flags });
+	} catch (err) {
+		throwAndExit(err);
+		return;
+	}
+
+	switch (cmd) {
 		case 'dev': {
 			try {
 				await devServer(config, { logging });
@@ -154,6 +110,7 @@ export async function cli(args: string[]) {
 
 			return;
 		}
+
 		case 'build': {
 			try {
 				await build(config, { logging });
@@ -163,10 +120,12 @@ export async function cli(args: string[]) {
 			}
 			return;
 		}
+
 		case 'check': {
 			const ret = await check(config);
 			return process.exit(ret);
 		}
+
 		case 'preview': {
 			try {
 				await preview(config, { logging }); // this will keep running
@@ -175,14 +134,22 @@ export async function cli(args: string[]) {
 			}
 			return;
 		}
+
 		default: {
-			throw new Error(`Error running ${state.cmd}`);
+			throw new Error(`Error running ${cmd}`);
 		}
 	}
 }
 
 /** Display error and exit */
 function throwAndExit(err: any) {
-	console.error(colors.red(err.toString() || err));
+	if (err instanceof z.ZodError) {
+		console.error(formatConfigError(err));
+	} else if (err.stack) {
+		const [mainMsg, ...stackMsg] = err.stack.split('\n');
+		console.error(colors.red(mainMsg) + '\n' + colors.dim(stackMsg.join('\n')));
+	} else {
+		console.error(colors.red(err.toString() || err));
+	}
 	process.exit(1);
 }

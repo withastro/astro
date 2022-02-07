@@ -15,6 +15,15 @@ export function canonicalURL(url: string, base?: string): URL {
 	return new URL(pathname, base);
 }
 
+/** Check if a URL is already valid */
+export function isValidURL(url: string): boolean {
+	try {
+		new URL(url);
+		return true;
+	} catch (e) {}
+	return false;
+}
+
 /** is a specifier an npm package? */
 export function parseNpmName(spec: string): { scope?: string; name: string; subpath?: string } | undefined {
 	// not an npm package
@@ -37,6 +46,11 @@ export function parseNpmName(spec: string): { scope?: string; name: string; subp
 		name,
 		subpath,
 	};
+}
+
+/** Coalesce any throw variable to an Error instance. */
+export function createSafeError(err: any): Error {
+	return err instanceof Error || (err && err.name && err.message) ? err : new Error(JSON.stringify(err));
 }
 
 /** generate code frame from esbuild error */
