@@ -188,7 +188,7 @@ export type FetchContentResultBase = {
 		source: string;
 		html: string;
 	};
-	url: URL;
+	url: string;
 };
 
 export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: string | null) => void>;
