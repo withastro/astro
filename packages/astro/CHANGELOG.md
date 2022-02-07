@@ -1,5 +1,24 @@
 # astro
 
+## 0.23.0-next.2
+
+### Patch Changes
+
+- [#2532](https://github.com/withastro/astro/pull/2532) [`b210fd00`](https://github.com/withastro/astro/commit/b210fd008b9253f0c755c21e157cd7fb069c8445) Thanks [@matthewp](https://github.com/matthewp)! - Fixes HMR of .astro modules in astro@next
+
+* [#2531](https://github.com/withastro/astro/pull/2531) [`ef1d81ef`](https://github.com/withastro/astro/commit/ef1d81effd4e0c420c6eb2e5e500cfaac3106ea8) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix issue where hostname was not passed to dev server
+
+- [#2537](https://github.com/withastro/astro/pull/2537) [`b0666286`](https://github.com/withastro/astro/commit/b066628693d9d9a526b3e8ab2a2d493aad38a722) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve debug logs
+
+* [#2518](https://github.com/withastro/astro/pull/2518) [`2bc91543`](https://github.com/withastro/astro/commit/2bc91543ceeb5f3dd45e201bf75d79f186e85141) Thanks [@JuanM04](https://github.com/JuanM04)! - Added the ability to use custom themes and langs with Shiki (`<Code />` and `@astrojs/markdown-remark`)
+
+- [#2538](https://github.com/withastro/astro/pull/2538) [`16d532fe`](https://github.com/withastro/astro/commit/16d532fe1772a2c0880beda0f49883efb2469e44) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix rendering of HTML boolean attributes like `open` and `async`.
+
+  Fix rendering of HTML and SVG enumerated attributes like `contenteditable` and `spellcheck`.
+
+- Updated dependencies [[`cfeaa941`](https://github.com/withastro/astro/commit/cfeaa9414acdecec6f5d66ee0e33fe4fde574eee), [`2bc91543`](https://github.com/withastro/astro/commit/2bc91543ceeb5f3dd45e201bf75d79f186e85141), [`2bc91543`](https://github.com/withastro/astro/commit/2bc91543ceeb5f3dd45e201bf75d79f186e85141)]:
+  - @astrojs/markdown-remark@0.6.1-next.1
+
 ## 0.23.0-next.1
 
 ### Patch Changes
@@ -1241,10 +1260,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1264,10 +1283,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
