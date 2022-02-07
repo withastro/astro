@@ -42,6 +42,7 @@ export const AstroConfigSchema = z.object({
 		.default('./dist')
 		.transform((val) => new URL(val)),
 	renderers: z.array(z.string()).optional().default(['@astrojs/renderer-svelte', '@astrojs/renderer-vue', '@astrojs/renderer-react', '@astrojs/renderer-preact']),
+	fonts: z.array(z.string()).optional().default([]),
 	markdownOptions: z
 		.object({
 			footnotes: z.boolean().optional(),

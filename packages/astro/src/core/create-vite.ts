@@ -4,12 +4,15 @@ import type { LogOptions } from './logger';
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
 import vite from './vite.js';
+
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import svgVitePlugin from '../vite-plugin-svg/index.js';
+import fontsVitePlugin from '../vite-plugin-fonts/index.js';
 import { resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
@@ -53,6 +56,8 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 			astroViteServerPlugin({ config: astroConfig, logging }),
 			markdownVitePlugin({ config: astroConfig }),
 			jsxVitePlugin({ config: astroConfig, logging }),
+			svgVitePlugin(),
+			await fontsVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig }),
 		],
 		publicDir: fileURLToPath(astroConfig.public),

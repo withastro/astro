@@ -1,8 +1,32 @@
 ---
 // Component Imports
 import Tour from '../components/Tour.astro';
-// You can import components from any supported Framework here!
-/* ASTRO:COMPONENT_IMPORTS */
+import {Icon, Image, Font} from 'astro/components';
+
+// LOCAL ASSETS:
+import ImageBook from '../assets/book.png';
+	// ImageBook = {url, height, width}
+	// <Image use={ImageBook} />
+import IconBook from '../assets/book.svg';
+	// IconBook = {raw}
+	// <Icon use={IconBook} />
+import robotoFont400 from '../assets/fonts/roboto-slab-v22-latin-regular.woff2';
+	// robotoFont = {url}
+	// <Font use={robotoFont} family={} weight={} style={} />
+
+// REMOTE ASSETS:
+
+// Images: 
+// 		N/A, people can create custom instegrations. (ex: unsplash)
+// Fonts: 
+//		N/A, added via config instead.
+// Icons 1: 
+import {IconRocket} from 'astro/icons';
+// Icons 2 - Fontawesome Free: 
+//    Use astro-icon or https://github.com/antfu/unplugin-icons
+// Icons 3 - Fontawesome Pro, advanced: 
+//		N/A, people can create a custom integration.
+
 
 // Component Script:
 // You can write any JavaScript/TypeScript that you'd like here.
@@ -18,13 +42,11 @@ let title = 'My Astro Site';
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width">
 	<title>{title}</title>
-
 	<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 	<style global>
 		@import "../styles/global.css";
 		@import "../styles/home.css";
 	</style>
-
 	<style>
 		header {
 			display: flex;
@@ -32,7 +54,11 @@ let title = 'My Astro Site';
 			gap: 1em;
 			max-width: min(100%, 68ch);
 		}
+		body {
+			font-family: 'Roboto Slab';
+		}
 	</style>
+	<!-- <Font use={robotoFont400} family="Roboto Slab" weight={400} style="normal" /> -->
 </head>
 <body>
 	<main>
@@ -40,6 +66,10 @@ let title = 'My Astro Site';
 			<div>
 				<img width="60" height="80" src="/assets/logo.svg" alt="Astro logo">
 				<h1>Welcome to <a href="https://astro.build/">Astro</a></h1>
+				<Icon use={IconBook} />
+				<Icon use={IconRocket} />
+				<Image use={ImageBook} />
+				<Font use={robotoFont400} family={'Roboto'} weight={400} /> 
 			</div>
 		</header>
 

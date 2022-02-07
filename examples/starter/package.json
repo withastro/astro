@@ -9,6 +9,11 @@
     "preview": "astro preview"
   },
   "devDependencies": {
+    "@iconify-json/mdi": "^1.0.16",
     "astro": "^0.23.0-next.1"
+  },
+  "dependencies": {
+    "@iconify/json": "^2.0.33",
+    "unplugin-icons": "^0.13.0"
   }
 }

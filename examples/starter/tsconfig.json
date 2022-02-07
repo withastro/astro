@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node"
-  }
+    "moduleResolution": "node",
+    "types": [
+      "unplugin-icons/types/raw"
+    ]
+  },
+  "include": ["./src"]
 }

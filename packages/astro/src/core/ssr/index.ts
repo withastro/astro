@@ -14,6 +14,7 @@ import { injectTags } from './html.js';
 import { getParams, validateGetStaticPathsResult } from './routing.js';
 import { createResult } from './result.js';
 import { callGetStaticPaths, findPathItemByKey, RouteCache } from './route-cache.js';
+import { fontFamilies } from '../../vite-plugin-fonts/index.js';
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
@@ -261,6 +262,13 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 				injectTo: 'head',
 			});
 		}
+	});
+
+	console.log('AHHHH');
+	tags.push({
+		tag: 'style',
+		children: `/*Astro Fonts:*/\n` + fontFamilies.join('\n'),
+		injectTo: 'head',
 	});
 
 	// add injected tags

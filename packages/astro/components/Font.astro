@@ -1,0 +1,20 @@
+---
+export interface Props {
+	use: string;
+	family: string;
+	weight: number;
+	style?: string;
+}
+
+const { use, family, weight, style } = Astro.props;
+---
+<Fragment set:html={`<style>
+/* roboto-slab-regular - latin */
+@font-face {
+  font-family: '${family}';
+  font-style: ${style || 'normal'};
+  font-weight: ${weight};
+  src: local(''),
+       url('${use}') format('woff2');
+}
+</style>`}></Fragment>

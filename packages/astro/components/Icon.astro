@@ -1,0 +1,12 @@
+---
+export interface Props {
+	use: string;
+	size?: number;
+}
+
+let { use, size = 32 } = Astro.props;
+if (!use.startsWith('<svg')) {
+	use = `<svg height="${size}" width="${size}" fill="currentColor">${use}</svg>`;
+}
+---
+<Fragment set:html={use} />
