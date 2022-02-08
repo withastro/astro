@@ -1,11 +1,11 @@
 {
   "name": "@astrojs/test-static-build-pkg",
-  "main": "./oops.js",
-  "version": "0.0.2",
+  "main": "./oops.cjs",
+  "version": "0.0.3",
   "exports": {
     ".": {
-      "import": "./pkg.js",
-      "require": "./oops.js"
+      "import": "./pkg.mjs",
+      "require": "./oops.cjs"
     }
   }
 }
