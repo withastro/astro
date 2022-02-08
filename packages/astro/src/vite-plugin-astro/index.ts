@@ -64,15 +64,20 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			let { filename, query } = parseAstroRequest(id);
 			if (query.astro) {
 				if (query.type === 'style') {
+					if (filename.startsWith('/@fs')) {
+						filename = filename.slice('/@fs'.length);
+					} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
+						filename = new URL('.' + filename, config.projectRoot).pathname;
+					}
+
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
 
-					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
+					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, { ssr: Boolean(opts?.ssr) });
 
 					// Track any CSS dependencies so that HMR is triggered when they change.
 					await trackCSSDependencies.call(this, { viteDevServer, id, filename, deps: transformResult.rawCSSDeps });
-
 					const csses = transformResult.css;
 					const code = csses[query.index];
 
@@ -84,7 +89,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
 
-					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, opts);
+					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, { ssr: Boolean(opts?.ssr) });
 					const scripts = transformResult.scripts;
 					const hoistedScript = scripts[query.index];
 
@@ -106,7 +111,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			}
 
 			try {
-				const transformResult = await cachedCompilation(config, id, source, viteTransform, opts);
+				const transformResult = await cachedCompilation(config, id, source, viteTransform, { ssr: Boolean(opts?.ssr) });
 
 				// Compile all TypeScript to JavaScript.
 				// Also, catches invalid JS/TS in the compiled output before returning.

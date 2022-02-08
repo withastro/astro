@@ -10,7 +10,8 @@ export default {
   viteConfig() {
     return {
       optimizeDeps: {
-        include: ['@astrojs/test-custom-element-renderer/polyfill.js', '@astrojs/test-custom-element-renderer/hydration-polyfill.js']
+        include: ['@astrojs/test-custom-element-renderer/polyfill.js', '@astrojs/test-custom-element-renderer/hydration-polyfill.js'],
+				exclude: ['@astrojs/test-custom-element-renderer/server.js']
       }
     }
   }

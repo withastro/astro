@@ -16,17 +16,14 @@ import { resolveDependency } from './util.js';
 const ALWAYS_EXTERNAL = new Set([
 	...builtinModules.map((name) => `node:${name}`),
 	'@sveltejs/vite-plugin-svelte',
-	'estree-util-value-to-estree',
 	'micromark-util-events-to-acorn',
+	'serialize-javascript',
 	'node-fetch',
 	'prismjs',
 	'shiki',
 	'shorthash',
 	'unified',
 	'whatwg-url',
-]);
-const ALWAYS_NOEXTERNAL = new Set([
-	'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
 ]);
 
 // note: ssr is still an experimental API hence the type omission
@@ -72,7 +69,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {
 			external: [...ALWAYS_EXTERNAL],
-			noExternal: [...ALWAYS_NOEXTERNAL],
+			noExternal: [],
 		},
 	};
 
