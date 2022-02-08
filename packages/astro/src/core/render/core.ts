@@ -1,12 +1,22 @@
 import type { ComponentInstance, MarkdownRenderOptions, Params, Props, Renderer, RouteData, SSRElement } from '../../@types/astro';
-import { LogOptions } from '../logger.js';
+import type { LogOptions } from '../logger.js';
 
 import { renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/index.js';
 import { createResult } from './result.js';
-import { findPathItemByKey, RouteCache } from './route-cache.js';
+import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
+import { warn } from '../logger.js';
 
-export async function getParamsAndProps({ route, routeCache, pathname }: { route: RouteData | undefined; routeCache: RouteCache; pathname: string }): Promise<[Params, Props]> {
+interface GetParamsAndPropsOptions {
+	mod: ComponentInstance;
+	route: RouteData | undefined;
+	routeCache: RouteCache;
+	pathname: string;
+	logging: LogOptions;
+}
+
+async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props]> {
+	const { logging, mod, route, routeCache, pathname } = opts;
 	// Handle dynamic routes
 	let params: Params = {};
 	let pageProps: Props;
@@ -17,9 +27,11 @@ export async function getParamsAndProps({ route, routeCache, pathname }: { route
 				params = getParams(route.params)(paramsMatch);
 			}
 		}
-		const routeCacheEntry = routeCache.get(route);
+		let routeCacheEntry = routeCache.get(route);
 		if (!routeCacheEntry) {
-			throw new Error(`[${route.component}] Internal error: route cache was empty, but expected to be full.`);
+			warn(logging, 'routeCache', `Internal Warning: getStaticPaths() called twice during the build. (${route.component})`);
+			routeCacheEntry = await callGetStaticPaths(mod, route, true, logging);
+			routeCache.set(route, routeCacheEntry);
 		}
 		const paramsKey = JSON.stringify(params);
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, paramsKey);
@@ -69,6 +81,8 @@ export async function render(opts: RenderOptions): Promise<string> {
 	} = opts;
 
 	const [params, pageProps] = await getParamsAndProps({
+		logging,
+		mod,
 		route,
 		routeCache,
 		pathname,

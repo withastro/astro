@@ -49,7 +49,6 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
 export async function render(renderers: Renderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<string> {
 	const { astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer } = ssrOpts;
 
-
 	// Add hoisted script tags
 	const scripts = createModuleScriptElementWithSrcSet(astroConfig.buildOptions.experimentalStaticBuild ?
 		Array.from(mod.$$metadata.hoistedScriptPaths()) :
