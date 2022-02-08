@@ -313,14 +313,13 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 	const hoistedId = getByFacadeId<string>(facadeId, internals.facadeIdToHoistedEntryMap) || null;
 
 	let compiledModule = await import(url.toString());
-	let Component = compiledModule.default;
 
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		internals,
 		linkIds,
 		hoistedId,
-		Component,
+		mod: compiledModule,
 		renderers,
 	};
 
@@ -342,18 +341,16 @@ interface GeneratePathOptions {
 	internals: BuildInternals;
 	linkIds: string[];
 	hoistedId: string | null;
-	Component: AstroComponentFactory;
+	mod: { default: AstroComponentFactory };
 	renderers: Renderer[];
 }
 
 async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: GeneratePathOptions) {
 	const { astroConfig, logging, origin, routeCache } = opts;
-	const { Component, internals, linkIds, hoistedId, pageData, renderers } = gopts;
+	const { mod, internals, linkIds, hoistedId, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
 	addPageName(pathname, opts);
-
-	const [, mod] = pageData.preload;
 
 	debug('build', `Generating: ${pathname}`);
 
