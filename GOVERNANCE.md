@@ -51,10 +51,7 @@ If you're interested in reaching the next level and becoming a Maintainer, you c
 
 #### Nomination Process
 
-_Note: This process is still in progress, and the Discord bot that will power it is not yet built. For now, manually nominate/self-nominate by posting in Discord._
-
-- Self-nominate by running `!contribute` in the `#new-contributors` Discord channel and briefly describe your qualifying contribution (link recommended).
-- Connect your Discord account with GitHub (or Reddit, Twitter, etc.) to automatically get recognized for future contributions.
+- Self-nominate in the `#contributors` Discord channel and briefly describe your qualifying contribution (link recommended).
 
 ### Level 2 (L2) - Maintainer
 
