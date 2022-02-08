@@ -111,7 +111,7 @@ export async function render(opts: RenderOptions): Promise<string> {
 	let html = await renderPage(result, Component, pageProps, null);
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-	if (!/<!doctype html/i.test(html)) {
+	if (experimentalStaticBuild && !/<!doctype html/i.test(html)) {
 		html = '<!DOCTYPE html>\n' + html;
 	}
 

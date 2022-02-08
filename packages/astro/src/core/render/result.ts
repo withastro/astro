@@ -111,6 +111,8 @@ ${extra}`
 					else if (mdRender instanceof Promise) {
 						const mod: { default: MarkdownParser } = await mdRender;
 						parser = mod.default;
+					} else if(typeof mdRender === 'function') {
+						parser = mdRender;
 					} else {
 						throw new Error('No Markdown parser found.');
 					}
