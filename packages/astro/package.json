@@ -66,7 +66,7 @@
     "@astropub/webapi": "^0.10.1",
     "@babel/core": "^7.15.8",
     "@babel/traverse": "^7.15.4",
-    "@proload/core": "^0.2.3-test.0",
+    "@proload/core": "^0.2.2",
     "@proload/plugin-tsm": "^0.1.0",
     "@types/babel__core": "^7.1.15",
     "@types/debug": "^4.1.7",
@@ -105,7 +105,7 @@
     "strip-ansi": "^7.0.1",
     "supports-esm": "^1.0.0",
     "tsconfig-resolver": "^3.0.1",
-    "vite": "^2.8.0-beta.5",
+    "vite": "^2.8.0-beta.7",
     "yargs-parser": "^21.0.0",
     "zod": "^3.8.1"
   },
