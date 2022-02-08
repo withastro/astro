@@ -1,5 +1,13 @@
 # astro
 
+## 0.23.0-next.3
+
+### Patch Changes
+
+- [#2552](https://github.com/withastro/astro/pull/2552) [`e81bc3cf`](https://github.com/withastro/astro/commit/e81bc3cf14d9516a76a3328d277eb2e4db9d7279) Thanks [@matthewp](https://github.com/matthewp)! - Fixes build slowness on large apps
+
+  This fixes slowness on large apps, particularly during the static build. Fix is to prevent the Vite dev server plugin from being run during build, as it is not needed.
+
 ## 0.23.0-next.2
 
 ### Patch Changes
@@ -1260,10 +1268,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1283,10 +1291,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
