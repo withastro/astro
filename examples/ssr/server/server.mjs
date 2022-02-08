@@ -1,6 +1,9 @@
 import { createServer } from 'http';
+import fs from 'fs';
+import mime from 'mime';
 import { loadApp } from 'astro/app/node';
 
+const clientRoot = new URL('../dist/client/', import.meta.url);
 const serverRoot = new URL('../dist/server/', import.meta.url);
 const app = await loadApp(serverRoot);
 
@@ -16,8 +19,19 @@ async function handle(req, res) {
 		});
 		res.end(html)
 	} else {
-		res.writeHead(404);
-		res.end();
+		let local = new URL('.' + req.url, clientRoot);
+		try {
+			const data = await fs.promises.readFile(local);
+			res.writeHead(200, {
+				'Content-Type': mime.getType(req.url)
+			});
+			res.end(data);
+		} catch {
+			res.writeHead(404);
+			res.end();
+		}
+
+
 	}
 }
 

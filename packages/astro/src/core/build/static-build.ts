@@ -18,7 +18,7 @@ import { debug, error } from '../../core/logger.js';
 import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
-import { prepareOutDir } from './fs.js';
+import { emptyDir, prepareOutDir } from './fs.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { RouteCache } from '../render/route-cache.js';
 import { serializeRouteData } from '../routing/index.js';
@@ -166,6 +166,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		await cleanSsrOutput(opts);
 	} else {
 		await generateManifest(ssrResult, opts, internals);
+		await ssrMoveAssets(opts);
 	}
 }
 
@@ -497,6 +498,30 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 			await fs.promises.rm(url);
 		})
 	);
+}
+
+async function ssrMoveAssets(opts: StaticBuildOptions) {
+	const { astroConfig } = opts;
+	const serverRoot = getServerRoot(astroConfig);
+	const clientRoot = getClientRoot(astroConfig);
+	const serverAssets = new URL('./assets/', serverRoot);
+	const clientAssets = new URL('./assets/', clientRoot);
+	const files = await glob('assets/**/*', {
+		cwd: fileURLToPath(serverRoot),
+	});
+
+	// Make the directory
+	await fs.promises.mkdir(clientAssets, { recursive: true });
+
+	await Promise.all(
+		files.map(async (filename) => {
+			const currentUrl = new URL(filename, serverRoot);
+			const clientUrl = new URL(filename, clientRoot);
+			return fs.promises.rename(currentUrl, clientUrl);
+		})
+	);
+
+	await emptyDir(fileURLToPath(serverAssets));
 }
 
 export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals, ext: 'js' | 'mjs'): VitePlugin {

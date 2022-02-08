@@ -9,7 +9,7 @@ import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 import { createRenderer } from '../render/renderer.js';
-import { appendForwardSlash } from '../path';
+import { appendForwardSlash } from '../path.js';
 
 export class App {
 	#manifest: Manifest;
