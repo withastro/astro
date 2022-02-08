@@ -40,8 +40,8 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 		visit(tree, 'code', (node) => {
 			let html = highlighter.codeToHtml(node.value, { lang: node.lang ?? 'plaintext' });
 
-			// Replace "shiki" class naming with "astro".
-			html = html.replace('<pre class="shiki"', '<pre class="astro-code"');
+			// Replace "shiki" class naming with "astro" and add "data-astro-raw".
+			html = html.replace('<pre class="shiki"', '<pre data-astro-raw class="astro-code"');
 			// Replace "shiki" css variable naming with "astro".
 			html = html.replace(/style="(background-)?color: var\(--shiki-/g, 'style="$1color: var(--astro-code-');
 			// Handle code wrapping
