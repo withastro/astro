@@ -11,7 +11,7 @@ import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } f
 import { createRenderer } from '../render/renderer.js';
 import { appendForwardSlash } from '../path.js';
 
-export class App {
+export abstract class BaseApp {
 	#manifest: Manifest;
 	#manifestData: ManifestData;
 	#rootFolder: URL;
@@ -31,12 +31,14 @@ export class App {
 		this.#routeCache = new RouteCache(defaultLogOptions);
 		this.#renderersPromise = this.#loadRenderers();
 	}
-	match({ pathname }: URL): RouteData | undefined {
+	protected abstract match(req: any): RouteData | undefined;
+	matchURL({ pathname }: URL): RouteData | undefined {
 		return matchRoute(pathname, this.#manifestData);
 	}
-	async render(url: URL, routeData?: RouteData): Promise<string> {
+	abstract render(req: any, routeData?: RouteData): Promise<string>;
+	protected async renderURL(url: URL, routeData?: RouteData): Promise<string> {
 		if(!routeData) {
-			routeData = this.match(url);
+			routeData = this.matchURL(url);
 			if(!routeData) {
 				return 'Not found';
 			}

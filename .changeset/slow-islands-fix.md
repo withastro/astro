@@ -17,10 +17,9 @@ Experimental SSR Support
   const app = await loadApp(new URL('./dist/server/', import.meta.url));
 
   createServer((req, res) => {
-    let url = new URL(`http://${req.headers.host}${req.url}`);
-    const route = app.match(url);
+    const route = app.match(req);
     if(route) {
-      let html = await app.render(url, route);
+      let html = await app.render(req, route);
     }
 
   }).listen(8080);

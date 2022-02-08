@@ -8,11 +8,10 @@ const serverRoot = new URL('../dist/server/', import.meta.url);
 const app = await loadApp(serverRoot);
 
 async function handle(req, res) {
-	const url = new URL(`http://${req.headers.host}${req.url}`);
-	const route = app.match(url);
+	const route = app.match(req);
 
 	if(route) {
-		const html = await app.render(url, route);
+		const html = await app.render(req, route);
 
 		res.writeHead(200, {
 			'Content-Type': 'text/html'
