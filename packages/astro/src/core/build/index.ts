@@ -71,7 +71,7 @@ class AstroBuilder {
 				},
 				this.config.vite || {}
 			),
-			{ astroConfig: this.config, logging }
+			{ astroConfig: this.config, logging, mode: 'build' }
 		);
 		this.viteConfig = viteConfig;
 		const viteServer = await vite.createServer(viteConfig);
