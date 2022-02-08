@@ -22,6 +22,8 @@ jobs:
         run: yarn --frozen-lockfile --ignore-engines
         env:
           CI: true
+      - name: Build Packages # Needed for prettier-plugin-astro
+        run: yarn build --force
       - name: Format code
         run: yarn format
       - name: Commit changes
