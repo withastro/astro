@@ -2,20 +2,20 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-	fixture = await loadFixture({
-		projectRoot: './fixtures/astro-pagination/',
-		buildOptions: {
-			site: 'https://mysite.dev/blog/',
-			sitemap: false,
-		},
-	});
-	await fixture.build();
-});
-
 describe('Pagination', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-pagination/',
+			buildOptions: {
+				site: 'https://mysite.dev/blog/',
+				sitemap: false,
+			},
+		});
+		await fixture.build();
+	});
+
 	it('optional root page', async () => {
 		for (const file of ['/posts/optional-root-page/index.html', '/posts/optional-root-page/2/index.html', '/posts/optional-root-page/3/index.html']) {
 			expect(await fixture.readFile(file)).to.be.ok;
