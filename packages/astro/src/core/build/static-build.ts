@@ -1,12 +1,11 @@
 import type { OutputChunk, OutputAsset, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig, Manifest as ViteManifest } from '../vite';
-import type { AstroConfig, ManifestData, Renderer } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, ManifestData, Renderer } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
 import type { PageBuildData } from './types';
 import type { BuildInternals } from '../../core/build/internal.js';
-import type { AstroComponentFactory } from '../../runtime/server';
 import type { SerializedSSRManifest, SerializedRouteInfo } from '../app/types';
 
 import fs from 'fs';
@@ -342,7 +341,7 @@ interface GeneratePathOptions {
 	internals: BuildInternals;
 	linkIds: string[];
 	hoistedId: string | null;
-	mod: { default: AstroComponentFactory };
+	mod: ComponentInstance;
 	renderers: Renderer[];
 }
 
