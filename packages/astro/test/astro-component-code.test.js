@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-	fixture = await loadFixture({ projectRoot: './fixtures/astro-component-code/' });
-	await fixture.build();
-});
-
 describe('<Code>', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-component-code/' });
+		await fixture.build();
+	});
+
 	it('<Code> without lang or theme', async () => {
 		let html = await fixture.readFile('/no-lang/index.html');
 		const $ = cheerio.load(html);

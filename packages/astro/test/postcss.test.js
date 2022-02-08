@@ -3,25 +3,25 @@ import cheerio from 'cheerio';
 import eol from 'eol';
 import { loadFixture } from './test-utils.js';
 
-const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none}`;
-
-let fixture;
-let bundledCSS;
-before(async () => {
-	fixture = await loadFixture({
-		projectRoot: './fixtures/postcss',
-		renderers: ['@astrojs/renderer-solid', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
-	});
-	await fixture.build();
-
-	// get bundled CSS (will be hashed, hence DOM query)
-	const html = await fixture.readFile('/index.html');
-	const $ = cheerio.load(html);
-	const bundledCSSHREF = $('link[rel=stylesheet][href^=./assets/]').attr('href');
-	bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
-});
-
 describe('PostCSS', () => {
+	const PREFIXED_CSS = `{-webkit-appearance:none;appearance:none}`;
+
+	let fixture;
+	let bundledCSS;
+	before(async () => {
+		fixture = await loadFixture({
+			projectRoot: './fixtures/postcss',
+			renderers: ['@astrojs/renderer-solid', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
+		});
+		await fixture.build();
+	
+		// get bundled CSS (will be hashed, hence DOM query)
+		const html = await fixture.readFile('/index.html');
+		const $ = cheerio.load(html);
+		const bundledCSSHREF = $('link[rel=stylesheet][href^=./assets/]').attr('href');
+		bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
+	});
+
 	it('works in Astro page styles', () => {
 		expect(bundledCSS).to.match(new RegExp(`.astro-page.astro-[^{]+${PREFIXED_CSS}`));
 	});

@@ -2,20 +2,20 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-	fixture = await loadFixture({
-		devOptions: {
-			port: 3009,
-		},
-		projectRoot: './fixtures/preact-component/',
-		renderers: ['@astrojs/renderer-preact'],
-	});
-	await fixture.build();
-});
-
 describe('Preact component', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			devOptions: {
+				port: 3009,
+			},
+			projectRoot: './fixtures/preact-component/',
+			renderers: ['@astrojs/renderer-preact'],
+		});
+		await fixture.build();
+	});
+
 	it('Can load class component', async () => {
 		const html = await fixture.readFile('/class/index.html');
 		const $ = cheerio.load(html);
