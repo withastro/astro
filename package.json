@@ -34,6 +34,38 @@
     "packages/astro/test/fixtures/custom-elements/my-component-lib",
     "packages/astro/test/fixtures/static build/pkg"
   ],
+  "turbo": {
+    "baseBranch": "origin/main",
+    "pipeline": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "**/dist/**",
+          "!**/vendor/**"
+        ]
+      },
+      "dev": {
+        "cache": false
+      },
+      "test": {
+        "outputs": []
+      },
+      "test:templates": {
+        "outputs": []
+      },
+      "benchmark": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": []
+      },
+      "lint": {
+        "outputs": []
+      }
+    }
+  },
   "volta": {
     "node": "14.17.0",
     "npm": "7.11.2"
