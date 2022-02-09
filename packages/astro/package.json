@@ -19,6 +19,7 @@
     "./components": "./components/index.js",
     "./components/*": "./components/*",
     "./debug": "./components/Debug.astro",
+    "./icons": "./icons/index.js",
     "./internal": "./dist/runtime/server/index.js",
     "./internal/*": "./dist/runtime/server/*",
     "./package.json": "./package.json",
