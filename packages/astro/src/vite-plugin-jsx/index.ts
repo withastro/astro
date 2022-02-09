@@ -36,7 +36,6 @@ async function importJSXRenderers(config: AstroConfig): Promise<Map<string, Rend
 	await Promise.all(
 		config.renderers.map((name) => {
 			const localRenderer = localRequire.resolve(name);
-			console.log({ projectRoot: config.projectRoot });
 			const rendererFileURL = pathToFileURL(localRenderer).toString();
 			return import(rendererFileURL).then(({ default: renderer }) => {
 				if (!renderer.jsxImportSource) return;
