@@ -118,6 +118,8 @@ Core maintainers are watchdogs over the code, ensuring code quality, correctness
 
 Some contributors will not reach this level, and that's okay! L2 Maintainers still have significant responsibility and privileges in our community.
 
+Core maintainer is a different position than staff member.
+
 #### Privileges
 
 - All privileges of the [Maintainer role](#level-2---maintainer), plus...
@@ -150,6 +152,22 @@ In some rare cases, this role may be revoked by a project Steward. However, unde
 - You can be nominated by any existing Core Maintainer (L3 or above).
 - Once nominated, there will be a vote by existing Core Maintainers (L3 and above).
 - See [vote rules & requirements](#voting) for info on how the vote works.
+
+### Staff member
+
+Staff members are employeed by The Astro Technology Company to contribute to the project. Not all staff members are core members, and not all core members are staff members. In some senses, core is actually a higher tier of permission than staff.
+
+Staff members are except from the Open Collective Community awards.
+
+#### Permissions
+
+- Access to certain internal discussions and votes
+- A steady paycheck
+
+#### Responsibilities
+
+- Being a positive influence on the Astro community
+- Fufilling their responsibilities as a paid contributor.
 
 ### Steward
 
