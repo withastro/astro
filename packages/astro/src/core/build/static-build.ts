@@ -10,12 +10,12 @@ import type { SerializedSSRManifest, SerializedRouteInfo } from '../app/types';
 
 import fs from 'fs';
 import npath from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
-import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
 import * as vite from 'vite';
 import { debug, error } from '../../core/logger.js';
 import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
+import { resolveDependency } from '../../core/util.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { emptyDir, prepareOutDir } from './fs.js';
@@ -270,14 +270,11 @@ function getRenderers(opts: StaticBuildOptions) {
 }
 
 async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
-	const localRequire = createRequire(opts.astroConfig.projectRoot);
 	const viteLoadedRenderers = getRenderers(opts);
 
 	const renderers = await Promise.all(
 		viteLoadedRenderers.map(async (r) => {
-			const localRenderer = localRequire.resolve(r.serverEntry);
-			const rendererServerEntryURL = pathToFileURL(fs.realpathSync(localRenderer)).toString();
-			const mod = await import(rendererServerEntryURL);
+			const mod = await import(resolveDependency(r.name, opts.astroConfig));
 			return Object.create(r, {
 				ssr: {
 					value: mod.default,
