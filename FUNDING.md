@@ -1,7 +1,5 @@
 # Astro Project Funding
 
-_Last Updated: 08-17-2021_
-
 ## Raising Funds
 
 Astro is an MIT licensed open source project and completely free to use. However, the amount of effort needed to maintain and develop new features for Astro is not sustainable without proper financial backing. We need your help to achieve this.
@@ -27,12 +25,13 @@ See all past expenses on our [Open Collective.](https://opencollective.com/astro
 Below is a (non-exhaustive) list of how we plan to distribute raised funds:
 
 - **Swag!** Creating stickers, t-shirts, etc. for sponsors and community members.
-- **Improve documentation.**
-- **Improve translations.**
-- **Improve website.**
+- Improving **documentation.**
+- Improving **translations.**
+- Improving **website.**
 - **User research.**
-- **Sponsoring conferences.**
-- **Sponsoring community members to represent Astro at meetups, conferences, etc.**
-- **Dedicated support for GitHub, Discord, Stack Overflow, etc.**
+- Sponsoring **conferences.**
+- Sponsoring community members to **represent Astro at meetups, conferences, etc.**
+- Sponsoring **contributors to astro**
+- **Dedicated support** for GitHub, Discord, Stack Overflow, etc.
 
-**Maintainers, Core Maintainers, and Project Stewards are not currently eligible to receive funds from the open collective.** One day, we hope to have enough money to begin experimenting with paying contributors for their work, [following in Eslint's footsteps.](https://eslint.org/blog/2020/10/year-paying-contributors-review)
+**Staff members are not currently eligible to receive funds from the open collective.**
