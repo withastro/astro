@@ -7,11 +7,9 @@ import babel from '@babel/core';
 import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import * as eslexer from 'es-module-lexer';
-import { createRequire } from 'module';
 import path from 'path';
-import { pathToFileURL } from 'url';
 import { error } from '../core/logger.js';
-import { parseNpmName } from '../core/util.js';
+import { parseNpmName, resolveDependency } from '../core/util.js';
 
 const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, Renderer>>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx']);
@@ -32,15 +30,12 @@ function getEsbuildLoader(fileExt: string): string {
 
 async function importJSXRenderers(config: AstroConfig): Promise<Map<string, Renderer>> {
 	const renderers = new Map<string, Renderer>();
-	const localRequire = createRequire(config.projectRoot);
 	await Promise.all(
 		config.renderers.map((name) => {
-			const localRenderer = localRequire.resolve(name);
-			const rendererFileURL = pathToFileURL(localRenderer).toString();
-			return import(rendererFileURL).then(({ default: renderer }) => {
+			return import(resolveDependency(name, config)).then(({ default: renderer }) => {
 				if (!renderer.jsxImportSource) return;
 				renderers.set(renderer.jsxImportSource, renderer);
-			});
+			})
 		})
 	);
 	return renderers;
