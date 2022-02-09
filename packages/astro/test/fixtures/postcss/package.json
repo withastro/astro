@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "astro": "workspace:*",
+    "autoprefixer": "^10.4.2",
     "@astrojs/renderer-solid": "workspace:*"
   }
 }
