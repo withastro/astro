@@ -1,7 +1,7 @@
 import type { SSRManifest, SerializedSSRManifest } from './types';
 
 import * as fs from 'fs';
-import { BaseApp } from './index.js';
+import { App } from './index.js';
 import { deserializeManifest } from './common.js';
 import { IncomingMessage } from 'http';
 
@@ -9,12 +9,12 @@ function createURLFromRequest(req: IncomingMessage): URL {
 	return new URL(`http://${req.headers.host}${req.url}`);
 }
 
-class NodeApp extends BaseApp {
-	match(req: IncomingMessage) {
-		return super.matchURL(createURLFromRequest(req));
+class NodeApp extends App {
+	match(req: IncomingMessage | URL) {
+		return super.match(req instanceof URL ? req : createURLFromRequest(req));
 	}
-	render(req: IncomingMessage) {
-		return super.renderURL(createURLFromRequest(req));
+	render(req: IncomingMessage | URL) {
+		return super.render(req instanceof URL ? req : createURLFromRequest(req));
 	}
 }
 

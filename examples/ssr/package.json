@@ -4,15 +4,18 @@
   "private": true,
   "scripts": {
     "dev-api": "node server/dev-api.mjs",
-    "dev": "npm run dev-api & PUBLIC_MODE=dev astro dev --experimental-ssr",
+    "dev": "npm run dev-api & astro dev --experimental-ssr",
     "start": "astro dev",
-    "build": "npm run dev-api & PUBLIC_MODE=build astro build --experimental-ssr",
-    "server": "PUBLIC_MODE=prod node server/server.mjs"
+    "build": "echo 'Run yarn build-ssr instead'",
+    "build-ssr": "node build.mjs",
+    "server": "node server/server.mjs"
   },
   "devDependencies": {
     "astro": "^0.23.0-next.0",
-    "preact": "~10.5.15",
     "unocss": "^0.15.5",
     "vite-imagetools": "^4.0.1"
+  },
+  "dependencies": {
+    "@astropub/webapi": "^0.10.13"
   }
 }

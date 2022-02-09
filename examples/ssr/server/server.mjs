@@ -2,6 +2,10 @@ import { createServer } from 'http';
 import fs from 'fs';
 import mime from 'mime';
 import { loadApp } from 'astro/app/node';
+import { polyfill } from '@astropub/webapi'
+import { apiHandler } from './api.mjs';
+
+polyfill(globalThis);
 
 const clientRoot = new URL('../dist/client/', import.meta.url);
 const serverRoot = new URL('../dist/server/', import.meta.url);
@@ -17,6 +21,8 @@ async function handle(req, res) {
 			'Content-Type': 'text/html'
 		});
 		res.end(html)
+	} else if(/^\/api\//.test(req.url)) {
+		return apiHandler(req, res);
 	} else {
 		let local = new URL('.' + req.url, clientRoot);
 		try {
@@ -29,8 +35,6 @@ async function handle(req, res) {
 			res.writeHead(404);
 			res.end();
 		}
-
-
 	}
 }
 
@@ -44,8 +48,8 @@ const server = createServer((req, res) => {
 	})
 });
 
-server.listen(8080);
-console.log('Serving at http://localhost:8080');
+server.listen(8085);
+console.log('Serving at http://localhost:8085');
 
 // Silence weird <time> warning
 console.error = () => {};

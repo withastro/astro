@@ -201,7 +201,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			...(viteConfig.plugins || []),
 		],
-		publicDir: viteConfig.publicDir,
+		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,
 		envPrefix: 'PUBLIC_',
 		server: viteConfig.server,
@@ -218,7 +218,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		return null;
 	}
 
-	const out = astroConfig.buildOptions.experimentalSsr ? getServerRoot(astroConfig) : getOutRoot(astroConfig);
+	const out = astroConfig.buildOptions.experimentalSsr ? getClientRoot(astroConfig) : getOutRoot(astroConfig);
 
 	return await vite.build({
 		logLevel: 'error',
@@ -521,6 +521,10 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 	);
 
 	await emptyDir(fileURLToPath(serverAssets));
+
+	if(fs.existsSync(serverAssets)) {
+		await fs.promises.rmdir(serverAssets);
+	}
 }
 
 export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals, ext: 'js' | 'mjs'): VitePlugin {

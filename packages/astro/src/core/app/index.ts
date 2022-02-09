@@ -9,9 +9,9 @@ import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 import { createRenderer } from '../render/renderer.js';
-import { appendForwardSlash } from '../path.js';
+import { prependForwardSlash } from '../path.js';
 
-export abstract class BaseApp {
+export class App {
 	#manifest: Manifest;
 	#manifestData: ManifestData;
 	#rootFolder: URL;
@@ -31,14 +31,12 @@ export abstract class BaseApp {
 		this.#routeCache = new RouteCache(defaultLogOptions);
 		this.#renderersPromise = this.#loadRenderers();
 	}
-	protected abstract match(req: any): RouteData | undefined;
-	matchURL({ pathname }: URL): RouteData | undefined {
+	match({ pathname }: URL): RouteData | undefined {
 		return matchRoute(pathname, this.#manifestData);
 	}
-	abstract render(req: any, routeData?: RouteData): Promise<string>;
-	protected async renderURL(url: URL, routeData?: RouteData): Promise<string> {
+	async render(url: URL, routeData?: RouteData): Promise<string> {
 		if(!routeData) {
-			routeData = this.matchURL(url);
+			routeData = this.match(url);
 			if(!routeData) {
 				return 'Not found';
 			}
@@ -69,7 +67,7 @@ export abstract class BaseApp {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
 				const bundlePath = manifest.entryModules[specifier];
-				return new URL(bundlePath, appendForwardSlash(url.toString())).pathname;
+				return prependForwardSlash(bundlePath);
 			},
 			route: routeData,
 			routeCache: this.#routeCache,
