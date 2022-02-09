@@ -55,9 +55,9 @@ If you're interested in reaching the next level and becoming a Maintainer, you c
 
 The **Maintainer** role is available to any contributor who wants to join the team and take part in the long-term maintenance of Astro.
 
-The Maintainer role is critical to the long-term health of Astro. Maintainers act as the first line of defense when it comes to new issues, pull requests and #support channel activity. Maintainers are most likely the first people that a user will interact with on Discord or GitHub.
+The Maintainer role is critical to the long-term health of Astro. Maintainers act as the first line of defense when it comes to new issues, pull requests and discord activity. Maintainers are most likely the first people that a user will interact with on Discord or GitHub.
 
-**A Maintainer is not required to write code!** Some Maintainers spend most of their time inside of Discord, maintaining a healthy community there. Maintainers can also be thought of as **Moderators** on Discord and carry special privileges for moderation.
+**A Maintainer is not required to write code!** Some Maintainers spend most of their time inside of Discord, maintaining a healthy community there.
 
 There is no strict minimum number of contributions needed to reach this level, as long as you can show **sustained** involvement over some amount of time (at least a couple of weeks).
 
@@ -77,7 +77,6 @@ There is no strict minimum number of contributions needed to reach this level, a
 - New name color on Discord: **blue**.
 - Invitation to the private #maintainers channel on Discord.
 - Invitation to the `maintainers` team on GitHub.
-- Ability to moderate Discord.
 - Ability to push branches to the repo (No more personal fork needed).
 - Ability to review GitHub PRs.
 - Ability to merge _some_ GitHub PRs.
@@ -104,6 +103,10 @@ In some rare cases, this role may be revoked by a project Steward. However, unde
 - You can be nominated by any existing Maintainer (L2 or above).
 - Once nominated, there will be a vote by existing Maintainers (L2 and above).
 - See [vote rules & requirements](#voting) for info on how the vote works.
+
+#### Additional Moderation Permissions
+
+Maintainers may opt into moderation permissions on Discord. These permissions allow maintainers to preform maintenance duties like deleting spam and creating channels. All moderators are maintainers, not all maintainers opt to be moderators, but all moderators are maintainers.
 
 ### Level 3 (L3) - Core Maintainer
 
