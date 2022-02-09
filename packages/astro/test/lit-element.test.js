@@ -7,7 +7,7 @@ describe('LitElement test', () => {
 
 	const NODE_VERSION = parseFloat(process.versions.node);
 	const stripExpressionMarkers = (html) => html.replace(/<!--\/?lit-part-->/g, '');
-	
+
 	before(async () => {
 		// @lit-labs/ssr/ requires Node 13.9 or higher
 		if (NODE_VERSION < 13.9) {

@@ -14,7 +14,7 @@ describe('PostCSS', () => {
 			renderers: ['@astrojs/renderer-solid', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
 		});
 		await fixture.build();
-	
+
 		// get bundled CSS (will be hashed, hence DOM query)
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);

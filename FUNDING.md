@@ -1,6 +1,7 @@
 # Astro Project Funding
 
 _Last Updated: 02-09-2022_
+
 ## Raising Funds
 
 Astro is an MIT licensed open source project and completely free to use. However, the amount of effort needed to maintain and develop new features for Astro is not sustainable without proper financial backing. We need your help to achieve this.
