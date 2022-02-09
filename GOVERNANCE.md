@@ -38,6 +38,7 @@ Have you done something (big or small) to contribute to the health, success, or 
 #### Privileges
 
 - New role on [Discord](https://astro.build/chat): `@contributor`
+- Invitation to the private #contributors channel on Discord.
 - New name color on Discord: **light blue**.
 - Invitations to contributor-only events, sticker drops, and the occasional swag drop.
 - Eligibility for [Open Collective Community Awards](https://github.com/withastro/astro/blob/main/FUNDING.md#distributing-funds)
