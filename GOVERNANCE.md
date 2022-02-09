@@ -111,10 +111,6 @@ In some rare cases, this role may be revoked by a project Steward. However, unde
 - Once nominated, there will be a vote by existing Maintainers (L2 and above).
 - See [vote rules & requirements](#voting) for info on how the vote works.
 
-#### Additional Moderation Permissions
-
-Maintainers may opt into moderation permissions on Discord. These permissions allow maintainers to preform maintenance duties like deleting spam and creating channels. All moderators are maintainers, not all maintainers opt to be moderators, but all moderators are maintainers.
-
 ### Level 3 (L3) - Core Maintainer
 
 **Core Maintainers** are community members who have contributed a significant amount of time and energy to the project through issues, bug fixes, implementing enhancements/features, and engagement with the community. A Core Maintainer is considered a trusted leader within the community.
