@@ -21,8 +21,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.16.0",
-    "preact": "~10.5.15",
+    "@babel/plugin-transform-react-jsx": "^7.16.7",
+    "preact": "^10.6.5",
     "preact-render-to-string": "^5.1.19"
   },
   "engines": {
