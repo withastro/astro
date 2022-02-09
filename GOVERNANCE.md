@@ -1,3 +1,5 @@
+> **Note:** Our governance model is extremely new, and is not yet binding. Once merged into the `main` branch, we will go into a trial period where we will follow this governance model but may make changes based on feedback. All changes will go through our existing PR review process. After a period of 1-2 months, this note will be removed and this governance model will become binding.
+
 # Governance
 
 This document outlines the governance model for Astro. This includes detailed descriptions of the contributor levels, nomination process, code review process, pull request merge process, and the consequences of Code of Conduct violations.
@@ -17,7 +19,7 @@ Scroll down to [Playbook](#governance-playbook).
 We recognize different degrees of contribution as **levels**, and most levels can be reached regardless of coding skill or years of experience. The two most important things that we look for in contributors are:
 
 - **Being here** - Everyone's time is valuable, and the fact that you're here and contributing to Astro is amazing! Thank you for being a part of this journey with us.
-- **Being a positive member of our community** - Go above and beyond our Code of Conduct, and commit to healthy communication in pull requests, issue discussions, Discord conversations, and interactions outside of our community (no Twitter bullies allowed!)
+- **Being a positive member of our community** - Go above and beyond our Code of Conduct, and commit to healthy communication in pull requests, issue discussions, Discord conversations, and interactions outside of our community (ex: no Twitter bullies allowed :)
 
 Each level unlocks new privileges and responsibilities on Discord and GitHub. Below is a summary of each contributor level:
 
@@ -41,7 +43,6 @@ Have you done something (big or small) to contribute to the health, success, or 
 - Invitation to the private #contributors channel on Discord.
 - New name color on Discord: **light blue**.
 - Invitations to contributor-only events, sticker drops, and the occasional swag drop.
-- Eligibility for [Open Collective Community Awards](https://github.com/withastro/astro/blob/main/FUNDING.md#distributing-funds)
 
 #### Responsibilities
 
@@ -51,8 +52,7 @@ If you're interested in reaching the next level and becoming a Maintainer, you c
 
 #### Nomination Process
 
-- Self-nominate in the `#contributors` Discord channel and briefly describe your qualifying contribution (link recommended).
-
+- Self-nominate by sending `!contribute` in the Discord `#contribute` channel.
 ### Level 2 (L2) - Maintainer
 
 The **Maintainer** role is available to any contributor who wants to join the team and take part in the long-term maintenance of Astro.
@@ -61,9 +61,12 @@ The Maintainer role is critical to the long-term health of Astro. Maintainers ac
 
 **A Maintainer is not required to write code!** Some Maintainers spend most of their time inside of Discord, maintaining a healthy community there.
 
-There is no strict minimum number of contributions needed to reach this level, as long as you can show **sustained** involvement over some amount of time (at least a couple of weeks).
+**A Maintainer has moderation privileges!** All maintainers are trusted with the ability to help moderate our Discord and GitHub communities for things like spam. There is also a special (optional, opt-in) `@mods` role open to maintainers who are also interested in helping out when a community member reaches out for moderation help.
+
 
 #### Recognized Contributions
+
+There is no strict minimum number of contributions needed to reach this level, as long as you can show **sustained** involvement over some amount of time (at least a couple of weeks).
 
 - **GitHub:** Submitting non-trivial pull requests and RFCs
 - **GitHub:** Reviewing non-trivial pull requests and RFCs
@@ -75,10 +78,12 @@ There is no strict minimum number of contributions needed to reach this level, a
 #### Privileges
 
 - All privileges of the [Contributor role](#level-1---contributor), plus...
-- `@maintainer` role on [Discord](https://astro.build/chat)
+- Invitation to the `@maintainer` role on [Discord](https://astro.build/chat)
+- Invitation to the `@maintainers` team on GitHub.
 - New name color on Discord: **blue**.
 - Invitation to the private #maintainers channel on Discord.
-- Invitation to the `maintainers` team on GitHub.
+- Ability to moderate Discord to remove spam, harmful speech, etc.
+- Ability to join the `@mods` role on Discord (optional, opt-in).
 - Ability to push branches to the repo (No more personal fork needed).
 - Ability to review GitHub PRs.
 - Ability to merge _some_ GitHub PRs.
@@ -120,12 +125,9 @@ Core maintainers are watchdogs over the code, ensuring code quality, correctness
 
 Some contributors will not reach this level, and that's okay! L2 Maintainers still have significant responsibility and privileges in our community.
 
-Core maintainer is a different position than staff member.
-
 #### Privileges
 
 - All privileges of the [Maintainer role](#level-2---maintainer), plus...
-- All of the privileges of L2, including...
 - `@core` role on [Discord](https://astro.build/chat)
 - New name color on Discord: **yellow**.
 - Invitation to the private #core channel on Discord.
@@ -155,22 +157,6 @@ In some rare cases, this role may be revoked by a project Steward. However, unde
 - Once nominated, there will be a vote by existing Core Maintainers (L3 and above).
 - See [vote rules & requirements](#voting) for info on how the vote works.
 
-### Staff member
-
-Staff members are employeed by The Astro Technology Company to contribute to the project. Not all staff members are core members, and not all core members are staff members. In some senses, core is actually a higher tier of permission than staff.
-
-Staff members are except from the Open Collective Community Awards.
-
-#### Permissions
-
-- Access to certain internal discussions and votes
-- A steady paycheck
-
-#### Responsibilities
-
-- Being a positive influence on the Astro community
-- Fufilling their responsibilities as a paid contributor.
-
 ### Steward
 
 Steward is an additional privilege bestowed to 1 (or more) Core Maintainers. The role of Steward is mainly an administrative one. Stewards control and maintain sensitive project assets, and act as tiebreakers in the event of disagreements.
@@ -199,6 +185,35 @@ The project Steward is currently: **@FredKSchott**
 - Only Core Maintainers are eligible.
 - New stewards will be added based on a unanimous vote by the existing Steward(s).
 - In the event that someone is unreachable then the decision will be deferred.
+
+
+## Other Roles
+### Staff
+
+Staff is a special designation for employees of [The Astro Technology Company](https://astro.build/company) that lives outside of our Governance model. The staff role was designed to help those of us working full-time on Astro to work productively without "skipping the line" and circumventing our governance model entirely.
+
+The staff role was designed to offer instant **visibility** and **trust**, but not instant **authority.**
+
+#### Privileges
+
+All privileges of the [Core Maintainer role](#level-3---core-mainainer), except...
+
+- Instead of gaining Discord contributor roles (`@contributor`, `@maintainer`, `@core`) you will receive a special `@staff` role in Discord and GitHub that grants equivalent visibility and permissions as `@core`.
+- No voting abilities for the first 3 months of staff membership. Then, the role grants equivalent voting permissions as `@core` (see [Voting](#voting) below).
+- No longer eligible for additional contributor levels. You are essentially frozen at your current contributor level until you leave staff.
+
+
+#### Responsibilities
+
+Responsibilities will vary. Most often, a staff member will regularly meet the responsibilites of either the [Maintainer (L2)](#level-2---maintainer) or [Core Maintainer (L3)](#level-3---core-mainainer) role.
+#### Nomination
+
+There is no nomination process for this role. The project steward is responsible for granting and revoking the `@staff` role
+#### Leaving Staff
+
+When someone leaves the Astro Technology Company, they lose staff privileges and return to their original membership level in our governance structure (whatever level they were at before joining staff). 
+
+If that person wishes to continue working on Astro after leaving, they may request a nomination to become an official L2 or L3 contributor. This nomination would follow the normal voting rules & procedure for that role (see [Voting](#voting) below).
 
 # Governance Playbook
 
