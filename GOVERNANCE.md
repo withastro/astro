@@ -52,15 +52,15 @@ If you're interested in reaching the next level and becoming a Maintainer, you c
 
 #### Nomination Process
 
-If you contributed to Astro outside of discord, you may self-nominate by sending `!contribute` in the Discord `#contribute` channel, accompanied by a link or description of your contribution.
+If you contributed to Astro outside of Discord, you may self-nominate by sending `!contribute` in the Discord `#contribute` channel, accompanied by a link or description of your contribution.
 
-The contributor role is automatically granted to users active on discord.
+The contributor role is automatically granted to users active on Discord.
 
 ### Level 2 (L2) - Maintainer
 
 The **Maintainer** role is available to any contributor who wants to join the team and take part in the long-term maintenance of Astro.
 
-The Maintainer role is critical to the long-term health of Astro. Maintainers act as the first line of defense when it comes to new issues, pull requests and discord activity. Maintainers are most likely the first people that a user will interact with on Discord or GitHub.
+The Maintainer role is critical to the long-term health of Astro. Maintainers act as the first line of defense when it comes to new issues, pull requests and Discord activity. Maintainers are most likely the first people that a user will interact with on Discord or GitHub.
 
 **A Maintainer is not required to write code!** Some Maintainers spend most of their time inside of Discord, maintaining a healthy community there.
 
