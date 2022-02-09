@@ -274,7 +274,7 @@ async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
 
 	const renderers = await Promise.all(
 		viteLoadedRenderers.map(async (r) => {
-			const mod = await import(resolveDependency(r.name, opts.astroConfig));
+			const mod = await import(resolveDependency(r.serverEntry, opts.astroConfig));
 			return Object.create(r, {
 				ssr: {
 					value: mod.default,
