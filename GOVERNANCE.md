@@ -40,6 +40,7 @@ Have you done something (big or small) to contribute to the health, success, or 
 - New role on [Discord](https://astro.build/chat): `@contributor`
 - New name color on Discord: **light blue**.
 - Invitations to contributor-only events, sticker drops, and the occasional swag drop.
+- Eligibility for Open Collective Community Awards
 
 #### Responsibilities
 
@@ -157,7 +158,7 @@ In some rare cases, this role may be revoked by a project Steward. However, unde
 
 Staff members are employeed by The Astro Technology Company to contribute to the project. Not all staff members are core members, and not all core members are staff members. In some senses, core is actually a higher tier of permission than staff.
 
-Staff members are except from the Open Collective Community awards.
+Staff members are except from the Open Collective Community Awards.
 
 #### Permissions
 
