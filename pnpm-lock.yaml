@@ -292,7 +292,7 @@ importers:
       postcss: ^8.3.8
       prismjs: ^1.25.0
       rehype-slug: ^5.0.0
-      resolve: ^1.20.0
+      resolve: ^1.22.0
       rollup: ^2.64.0
       sass: ^1.49.0
       semver: ^7.3.5
@@ -723,9 +723,11 @@ importers:
     specifiers:
       '@astrojs/renderer-solid': workspace:*
       astro: workspace:*
+      autoprefixer: ^10.4.2
     dependencies:
       '@astrojs/renderer-solid': link:../../../../renderers/renderer-solid
       astro: link:../../..
+      autoprefixer: 10.4.2
 
   packages/astro/test/fixtures/preact-component:
     specifiers:
@@ -3669,7 +3671,6 @@ packages:
       normalize-range: 0.1.2
       picocolors: 1.0.0
       postcss-value-parser: 4.2.0
-    dev: true
 
   /available-typed-arrays/1.0.5:
     resolution: {integrity: sha512-DMD0KiN46eipeziST1LPP/STfDU0sufISXmjSgvVsoU2tqxctQeASejWcfNtxYKqETM1UxQ8sp2OrSBWpHY6sw==}
@@ -5304,7 +5305,6 @@ packages:
 
   /fraction.js/4.1.2:
     resolution: {integrity: sha512-o2RiJQ6DZaR/5+Si0qJUIy637QMRudSi9kU/FFzx9EZazrIdnBgpU+3sEWCxAVhH2RtxW2Oz+T4p2o8uOPVcgA==}
-    dev: true
 
   /fresh/0.5.2:
     resolution: {integrity: sha1-PYyt2Q2XZWn6g1qx+OSyOhBWBac=}
@@ -7115,7 +7115,6 @@ packages:
   /normalize-range/0.1.2:
     resolution: {integrity: sha1-LRDAa9/TEuqXd2laTShDlFa3WUI=}
     engines: {node: '>=0.10.0'}
-    dev: true
 
   /not/0.1.0:
     resolution: {integrity: sha1-yWkcF0bFXc++VMvYvU/wQbwrUZ0=}
@@ -7479,7 +7478,6 @@ packages:
 
   /postcss-value-parser/4.2.0:
     resolution: {integrity: sha512-1NNCs6uurfkVbeXG4S8JFT9t19m45ICnif8zWLd5oPSZ50QnwMfK+H3jv408d4jw/7Bttv5axS5IiHoLaVNHeQ==}
-    dev: true
 
   /postcss/8.4.5:
     resolution: {integrity: sha512-jBDboWM8qpaqwkMwItqTQTiFikhs/67OYVvblFFTM7MrZjt6yMKd6r2kgXizEbTTljacm4NldIlZnhbjr84QYg==}
