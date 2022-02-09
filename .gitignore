@@ -4,6 +4,7 @@ dist/
 .DS_Store
 .vercel
 _site/
+scripts/smoke/*-main/
 *.log
 package-lock.json
 .turbo/
