@@ -1,0 +1,55 @@
+---
+import Header from '../../components/Header.astro';
+import Container from '../../components/Container.astro';
+import AddToCart from '../../components/AddToCart.svelte';
+import { getProducts, getProduct } from '../../api';
+import '../../styles/common.css';
+
+export async function getStaticPaths() {
+	const products = await getProducts();
+	return products.map(product => {
+		return {
+			params: { id: product.id.toString() }
+		}
+	});
+}
+
+const id = Number(Astro.request.params.id);
+const product = await getProduct(id);
+---
+
+<html lang="en">
+<head>
+	<title>{product.name} | Online Store</title>
+	<style>
+		h2 {
+			text-align: center;
+			font-size: 3.5rem;
+		}
+
+		figure {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+		}
+
+		img {
+			width: 400px;
+		}
+	</style>
+</head>
+<body>
+	<Header />
+	
+	<Container tag="article">
+		<h2>{product.name}</h2>
+		<figure>
+				<img src={product.image} />
+			<figcaption>
+				<AddToCart id={id} client:idle />
+				<p>Description here...</p>
+			</figcaption>
+		</figure>
+
+	</Container>
+</body>
+</html>

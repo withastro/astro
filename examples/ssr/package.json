@@ -3,10 +3,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "astro dev --experimental-ssr",
+    "dev-api": "node server/dev-api.mjs",
+    "dev": "npm run dev-api & PUBLIC_MODE=dev astro dev --experimental-ssr",
     "start": "astro dev",
-    "build": "astro build --experimental-ssr",
-    "server": "node server/server.mjs"
+    "build": "npm run dev-api & PUBLIC_MODE=build astro build --experimental-ssr",
+    "server": "PUBLIC_MODE=prod node server/server.mjs"
   },
   "devDependencies": {
     "astro": "^0.23.0-next.0",
