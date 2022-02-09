@@ -53,7 +53,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 		site: config.buildOptions.site,
 		sourcefile: filename,
 		sourcemap: 'both',
-		internalURL: 'astro/internal',
+		internalURL: fileURLToPath(new URL('../runtime/server/index.js', import.meta.url)),
 		experimentalStaticExtraction: config.buildOptions.experimentalStaticBuild,
 		// TODO add experimental flag here
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {

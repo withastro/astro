@@ -7,7 +7,9 @@ import babel from '@babel/core';
 import esbuild from 'esbuild';
 import * as colors from 'kleur/colors';
 import * as eslexer from 'es-module-lexer';
+import { createRequire } from 'module';
 import path from 'path';
+import { pathToFileURL } from 'url';
 import { error } from '../core/logger.js';
 import { parseNpmName } from '../core/util.js';
 
@@ -28,15 +30,19 @@ function getEsbuildLoader(fileExt: string): string {
 	return fileExt.substr(1);
 }
 
-async function importJSXRenderers(rendererNames: string[]): Promise<Map<string, Renderer>> {
+async function importJSXRenderers(config: AstroConfig): Promise<Map<string, Renderer>> {
 	const renderers = new Map<string, Renderer>();
+	const localRequire = createRequire(config.projectRoot);
 	await Promise.all(
-		rendererNames.map((name) =>
-			import(name).then(({ default: renderer }) => {
+		config.renderers.map((name) => {
+			const localRenderer = localRequire.resolve(name);
+			console.log({ projectRoot: config.projectRoot });
+			const rendererFileURL = pathToFileURL(localRenderer).toString();
+			return import(rendererFileURL).then(({ default: renderer }) => {
 				if (!renderer.jsxImportSource) return;
 				renderers.set(renderer.jsxImportSource, renderer);
-			})
-		)
+			});
+		})
 	);
 	return renderers;
 }
@@ -100,7 +106,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 			// load renderers (on first run only)
 			if (!jsxRenderers) {
 				jsxRenderers = new Map();
-				const possibleRenderers = await importJSXRenderers(config.renderers);
+				const possibleRenderers = await importJSXRenderers(config);
 				if (possibleRenderers.size === 0) {
 					// note: we have filtered out all non-JSX files, so this error should only show if a JSX file is loaded with no matching renderers
 					throw new Error(

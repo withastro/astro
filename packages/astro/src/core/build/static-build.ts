@@ -10,7 +10,8 @@ import type { SerializedSSRManifest, SerializedRouteInfo } from '../app/types';
 
 import fs from 'fs';
 import npath from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { createRequire } from 'module';
 import glob from 'fast-glob';
 import * as vite from 'vite';
 import { debug, error } from '../../core/logger.js';
@@ -269,11 +270,14 @@ function getRenderers(opts: StaticBuildOptions) {
 }
 
 async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
+	const localRequire = createRequire(opts.astroConfig.projectRoot);
 	const viteLoadedRenderers = getRenderers(opts);
 
 	const renderers = await Promise.all(
 		viteLoadedRenderers.map(async (r) => {
-			const mod = await import(r.serverEntry);
+			const localRenderer = localRequire.resolve(r.serverEntry);
+			const rendererServerEntryURL = pathToFileURL(fs.realpathSync(localRenderer)).toString();
+			const mod = await import(rendererServerEntryURL);
 			return Object.create(r, {
 				ssr: {
 					value: mod.default,
