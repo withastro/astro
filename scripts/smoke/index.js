@@ -1,9 +1,5 @@
 /** @todo migrate these to use the independent docs repository at https://github.com/withastro/docs */
 
-// NOTE: Only needed for Windows, due to a Turbo bug.
-// Once Turbo works on Windows, we can remove this script
-// and update our CI to run through Turbo.
-
 // @ts-check
 
 import Zip from 'adm-zip';
