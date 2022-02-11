@@ -6,7 +6,7 @@ function addLeadingSlash(path) {
 	return path.startsWith('/') ? path : '/' + path;
 }
 
-describe('Static build - pageUrlFormat: \'file\'', () => {
+describe("Static build - pageUrlFormat: 'file'", () => {
 	let fixture;
 
 	before(async () => {
@@ -16,7 +16,7 @@ describe('Static build - pageUrlFormat: \'file\'', () => {
 			buildOptions: {
 				experimentalStaticBuild: true,
 				site: 'http://example.com/subpath/',
-				pageUrlFormat: 'file'
+				pageUrlFormat: 'file',
 			},
 		});
 		await fixture.build();
