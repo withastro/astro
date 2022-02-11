@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.6.1-next.2
+
+### Patch Changes
+
+- [#2564](https://github.com/withastro/astro/pull/2564) [`d71c4620`](https://github.com/withastro/astro/commit/d71c46207af40de6811596ca4f5e10aa9006377b) Thanks [@JuanM04](https://github.com/JuanM04)! - Fixed curly braces inside Shiki codeblocks
+
 ## 0.6.1-next.1
 
 ### Patch Changes
@@ -121,10 +127,10 @@
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
