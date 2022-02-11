@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.23.0-next.5",
+    "astro": "^0.23.0-next.6",
     "hast-util-select": "5.0.1",
     "rehype-autolink-headings": "^6.1.0",
     "rehype-slug": "^5.0.0",

@@ -1,5 +1,11 @@
 # astro
 
+## 0.23.0-next.6
+
+### Patch Changes
+
+- [#2570](https://github.com/withastro/astro/pull/2570) [`34317bc0`](https://github.com/withastro/astro/commit/34317bc05c707179af0be6c9fe743c1fd1299532) Thanks [@matthewp](https://github.com/matthewp)! - Fixes bug with astro/components not loading in the next release
+
 ## 0.23.0-next.5
 
 ### Patch Changes
@@ -1295,10 +1301,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1318,10 +1324,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
