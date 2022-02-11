@@ -1,5 +1,14 @@
 # astro
 
+## 0.23.0-next.5
+
+### Patch Changes
+
+- [#2569](https://github.com/withastro/astro/pull/2569) [`82544e41`](https://github.com/withastro/astro/commit/82544e413406a62ecf3e408ca1aac5c8c15b7453) Thanks [@matthewp](https://github.com/matthewp)! - Fixes pageUrlFormat: 'file' in the static build
+
+- Updated dependencies [[`d71c4620`](https://github.com/withastro/astro/commit/d71c46207af40de6811596ca4f5e10aa9006377b)]:
+  - @astrojs/markdown-remark@0.6.1-next.2
+
 ## 0.23.0-next.4
 
 ### Minor Changes
@@ -1286,10 +1295,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1309,10 +1318,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
