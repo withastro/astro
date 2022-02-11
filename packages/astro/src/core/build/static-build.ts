@@ -395,7 +395,7 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string): URL {
 		case 'directory':
 			return new URL('.' + appendForwardSlash(pathname), outRoot);
 		case 'file':
-			return outRoot;
+			return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 	}
 }
 
@@ -404,7 +404,7 @@ function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string):
 		case 'directory':
 			return new URL('./index.html', outFolder);
 		case 'file':
-			return new URL('.' + pathname + '.html', outFolder);
+			return new URL('./' + npath.basename(pathname) + '.html', outFolder);
 	}
 }
 
