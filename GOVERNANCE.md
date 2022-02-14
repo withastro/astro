@@ -52,9 +52,7 @@ If you're interested in reaching the next level and becoming a Maintainer, you c
 
 #### Nomination Process
 
-If you contributed to Astro outside of Discord, you may self-nominate by sending `!contribute` in the Discord `#contribute` channel, accompanied by a link or description of your contribution.
-
-The contributor role is automatically granted to users active on Discord.
+If you contributed to Astro outside of Discord, you may self-nominate by sending `!contribute` in any Discord channel, accompanied by a link or description of your contribution. Maintainers may also automatically grant you this role if they see you being active and helpful on Discord.
 
 ### Level 2 (L2) - Maintainer
 
