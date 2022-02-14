@@ -187,6 +187,7 @@ The project Steward is currently: **@FredKSchott**
 
 
 ## Other Roles
+
 ### Staff
 
 Staff is a special designation for employees of [The Astro Technology Company](https://astro.build/company) that lives outside of our Governance model. The staff role was designed to help those of us working full-time on Astro to work productively without "skipping the line" and circumventing our governance model entirely.
@@ -199,15 +200,17 @@ All privileges of the [Core Maintainer role](#level-3---core-mainainer), except.
 
 - Instead of gaining Discord contributor roles (`@contributor`, `@maintainer`, `@core`) you will receive a special `@staff` role in Discord and GitHub that grants equivalent visibility and permissions as `@core`.
 - No voting abilities for the first 3 months of staff membership. Then, the role grants equivalent voting permissions as `@core` (see [Voting](#voting) below).
-- No longer eligible for additional contributor levels. You are essentially frozen at your current contributor level until you leave staff.
+- Not eligible for additional contributor levels while acting as `@staff`. You can retain all current contributor levels and can request a new nomination upon leaving `@staff` (See [Leaving Staff](#leaving-staff) below). This rule is designed to prevent a team of contributors/maintainers that is overwhelmingly ex-staff members.
 
 
 #### Responsibilities
 
 Responsibilities will vary. Most often, a staff member will regularly meet the responsibilites of either the [Maintainer (L2)](#level-2---maintainer) or [Core Maintainer (L3)](#level-3---core-mainainer) role.
+
 #### Nomination
 
-There is no nomination process for this role. The project steward is responsible for granting and revoking the `@staff` role
+There is no nomination process for this role. The project steward is responsible for granting and revoking the `@staff` role.
+
 #### Leaving Staff
 
 When someone leaves the Astro Technology Company, they lose staff privileges and return to their original membership level in our governance structure (whatever level they were at before joining staff). 
