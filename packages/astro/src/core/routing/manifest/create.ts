@@ -170,7 +170,8 @@ function comparator(a: Item, b: Item) {
 export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?: string }, logging: LogOptions): ManifestData {
 	const components: string[] = [];
 	const routes: RouteData[] = [];
-	const validExtensions: Set<string> = new Set(['.astro', '.md']);
+	const validPageExtensions: Set<string> = new Set(['.astro', '.md']);
+	const validEndpointExtensions: Set<string> = new Set(['.js', '.ts']);
 
 	function walk(dir: string, parentSegments: Part[][], parentParams: string[]) {
 		let items: Item[] = [];
@@ -189,7 +190,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 				return;
 			}
 			// filter out "foo.astro_tmp" files, etc
-			if (!isDir && !validExtensions.has(ext)) {
+			if (!isDir && !validPageExtensions.has(ext) && !validEndpointExtensions.has(ext)) {
 				return;
 			}
 			const segment = isDir ? basename : name;
@@ -209,6 +210,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 			const parts = getParts(segment, file);
 			const isIndex = isDir ? false : basename.startsWith('index.');
 			const routeSuffix = basename.slice(basename.indexOf('.'), -ext.length);
+			const isPage = validPageExtensions.has(ext);
 
 			items.push({
 				basename,
@@ -217,7 +219,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 				file: slash(file),
 				isDir,
 				isIndex,
-				isPage: true,
+				isPage,
 				routeSuffix,
 			});
 		});
@@ -263,12 +265,13 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 			} else {
 				components.push(item.file);
 				const component = item.file;
-				const pattern = getPattern(segments, config.devOptions.trailingSlash);
-				const generate = getGenerator(segments, config.devOptions.trailingSlash);
+				const trailingSlash = item.isPage ? config.devOptions.trailingSlash : 'never';
+				const pattern = getPattern(segments, trailingSlash);
+				const generate = getGenerator(segments, trailingSlash);
 				const pathname = segments.every((segment) => segment.length === 1 && !segment[0].dynamic) ? `/${segments.map((segment) => segment[0].content).join('/')}` : null;
 
 				routes.push({
-					type: 'page',
+					type: item.isPage ? 'page' : 'endpoint',
 					pattern,
 					params,
 					component,

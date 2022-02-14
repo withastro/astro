@@ -64,7 +64,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 		});
 	}
 
-	let html = await coreRender({
+	let content = await coreRender({
 		experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
 		links: new Set(),
 		logging,
@@ -90,6 +90,11 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 		routeCache,
 		site: astroConfig.buildOptions.site,
 	});
+
+
+	if (route?.type === 'endpoint') {
+		return content;
+	}
 
 	// inject tags
 	const tags: vite.HtmlTagDescriptor[] = [];
@@ -128,20 +133,20 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	});
 
 	// add injected tags
-	html = injectTags(html, tags);
+	content = injectTags(content, tags);
 
 	// run transformIndexHtml() in dev to run Vite dev transformations
 	if (mode === 'development' && !astroConfig.buildOptions.experimentalStaticBuild) {
 		const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
-		html = await viteServer.transformIndexHtml(relativeURL, html, pathname);
+		content = await viteServer.transformIndexHtml(relativeURL, content, pathname);
 	}
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-	if (!/<!doctype html/i.test(html)) {
-		html = '<!DOCTYPE html>\n' + html;
+	if (!/<!doctype html/i.test(content)) {
+		content = '<!DOCTYPE html>\n' + content;
 	}
 
-	return html;
+	return content;
 }
 
 export async function ssr(ssrOpts: SSROptions): Promise<string> {

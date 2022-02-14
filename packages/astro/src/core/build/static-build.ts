@@ -1,6 +1,6 @@
 import type { OutputChunk, OutputAsset, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig, Manifest as ViteManifest } from '../vite';
-import type { AstroConfig, ComponentInstance, ManifestData, Renderer } from '../../@types/astro';
+import type { AstroConfig, EndpointHandler, ComponentInstance, ManifestData, Renderer, RouteType } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -122,28 +122,31 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
 		const astroModuleId = prependForwardSlash(component);
-		const [renderers, mod] = pageData.preload;
-		const metadata = mod.$$metadata;
 
-		const topLevelImports = new Set([
-			// Any component that gets hydrated
-			...metadata.hydratedComponentPaths(),
-			// Any hydration directive like astro/client/idle.js
-			...metadata.hydrationDirectiveSpecifiers(),
-			// The client path for each renderer
-			...renderers.filter((renderer) => !!renderer.source).map((renderer) => renderer.source!),
-		]);
+		if (pageData.route.type === 'page') {
+			const [renderers, mod] = pageData.preload;
+			const metadata = mod.$$metadata;
 
-		// Add hoisted scripts
-		const hoistedScripts = new Set(metadata.hoistedScriptPaths());
-		if (hoistedScripts.size) {
-			const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
-			internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
-			topLevelImports.add(moduleId);
-		}
+			const topLevelImports = new Set([
+				// Any component that gets hydrated
+				...metadata.hydratedComponentPaths(),
+				// Any hydration directive like astro/client/idle.js
+				...metadata.hydrationDirectiveSpecifiers(),
+				// The client path for each renderer
+				...renderers.filter((renderer) => !!renderer.source).map((renderer) => renderer.source!),
+			]);
 
-		for (const specifier of topLevelImports) {
-			jsInput.add(specifier);
+			// Add hoisted scripts
+			const hoistedScripts = new Set(metadata.hoistedScriptPaths());
+			if (hoistedScripts.size) {
+				const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
+				internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
+				topLevelImports.add(moduleId);
+			}
+
+			for (const specifier of topLevelImports) {
+				jsInput.add(specifier);
+			}
 		}
 
 		pageInput.add(astroModuleId);
@@ -349,7 +352,9 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	const { mod, internals, linkIds, hoistedId, pageData, renderers } = gopts;
 
 	// This adds the page name to the array so it can be shown as part of stats.
-	addPageName(pathname, opts);
+	if (pageData.route.type === 'page') {
+		addPageName(pathname, opts);
+	}
 
 	debug('build', `Generating: ${pathname}`);
 
@@ -382,8 +387,8 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			site: astroConfig.buildOptions.site,
 		});
 
-		const outFolder = getOutFolder(astroConfig, pathname);
-		const outFile = getOutFile(astroConfig, outFolder, pathname);
+		const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
+		const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
 		await fs.promises.mkdir(outFolder, { recursive: true });
 		await fs.promises.writeFile(outFile, html, 'utf-8');
 	} catch (err) {
@@ -464,24 +469,34 @@ function getClientRoot(astroConfig: AstroConfig): URL {
 	return serverFolder;
 }
 
-function getOutFolder(astroConfig: AstroConfig, pathname: string): URL {
+function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: RouteType): URL {
 	const outRoot = getOutRoot(astroConfig);
 
 	// This is the root folder to write to.
-	switch (astroConfig.buildOptions.pageUrlFormat) {
-		case 'directory':
-			return new URL('.' + appendForwardSlash(pathname), outRoot);
-		case 'file':
+	switch (routeType) {
+		case 'endpoint':
 			return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+		case 'page':
+			switch (astroConfig.buildOptions.pageUrlFormat) {
+				case 'directory':
+					return new URL('.' + appendForwardSlash(pathname), outRoot);
+				case 'file':
+					return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+			}
 	}
 }
 
-function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string): URL {
-	switch (astroConfig.buildOptions.pageUrlFormat) {
-		case 'directory':
-			return new URL('./index.html', outFolder);
-		case 'file':
-			return new URL('./' + npath.basename(pathname) + '.html', outFolder);
+function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, routeType: RouteType): URL {
+	switch(routeType) {
+		case 'endpoint':
+			return new URL(npath.basename(pathname), outFolder);
+		case 'page':
+			switch (astroConfig.buildOptions.pageUrlFormat) {
+				case 'directory':
+					return new URL('./index.html', outFolder);
+				case 'file':
+					return new URL('./' + npath.basename(pathname) + '.html', outFolder);
+			}
 	}
 }
 

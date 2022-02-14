@@ -1,7 +1,7 @@
-import type { ComponentInstance, MarkdownRenderOptions, Params, Props, Renderer, RouteData, SSRElement } from '../../@types/astro';
+import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params, Props, Renderer, RouteData, SSRElement } from '../../@types/astro';
 import type { LogOptions } from '../logger.js';
 
-import { renderPage } from '../../runtime/server/index.js';
+import { renderEndpoint, renderPage } from '../../runtime/server/index.js';
 import { getParams } from '../routing/index.js';
 import { createResult } from './result.js';
 import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
@@ -73,6 +73,11 @@ export async function render(opts: RenderOptions): Promise<string> {
 		routeCache,
 		pathname,
 	});
+
+	// For endpoints, render the content immediately without injecting scripts or styles
+	if (route?.type === 'endpoint') {
+		return renderEndpoint(mod as any as EndpointHandler, params);
+	}
 
 	// Validate the page component before rendering the page
 	const Component = await mod.default;
