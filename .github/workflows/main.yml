@@ -20,8 +20,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: setup
+        env:
+          MESSAGE: ${{ github.event.commits[0].message }}
         run:  |
-              TRIMMED=$(echo "${{ github.event.commits[0].message }}" | sed '1!d;q')
+              TRIMMED=$(echo "$MESSAGE" | sed '1!d;q')
               echo "::set-output name=COMMIT_MSG::${TRIMMED}" 
       - name: Send a Discord notification when a PR is merged
         env:
