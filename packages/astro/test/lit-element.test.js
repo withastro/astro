@@ -3,6 +3,8 @@ import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 describe('LitElement test', () => {
+	this.timeout(30000);
+
 	let fixture;
 
 	const NODE_VERSION = parseFloat(process.versions.node);
