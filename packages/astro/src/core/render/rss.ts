@@ -1,4 +1,4 @@
-import type { RSSFunction, RSS, RSSResult, FeedResult, RouteData } from '../../@types/astro';
+import type { RSSFunction, RSS, RSSResult, RouteData } from '../../@types/astro';
 
 import { XMLValidator } from 'fast-xml-parser';
 import { canonicalURL, isValidURL, PRETTY_FEED_V3 } from '../util.js';

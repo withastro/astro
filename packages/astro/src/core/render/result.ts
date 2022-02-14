@@ -1,25 +1,37 @@
-import type { AstroConfig, AstroGlobal, AstroGlobalPartial, Params, Renderer, SSRElement, SSRResult } from '../../@types/astro';
+import type { AstroGlobal, AstroGlobalPartial, MarkdownParser, MarkdownRenderOptions, Params, Renderer, SSRElement, SSRResult } from '../../@types/astro';
 
 import { bold } from 'kleur/colors';
 import { canonicalURL as getCanonicalURL } from '../util.js';
-import { isCSSRequest } from './css.js';
+import { isCSSRequest } from './dev/css.js';
 import { isScriptRequest } from './script.js';
 import { renderSlot } from '../../runtime/server/index.js';
 import { warn, LogOptions } from '../logger.js';
 
 export interface CreateResultArgs {
-	astroConfig: AstroConfig;
+	experimentalStaticBuild: boolean;
 	logging: LogOptions;
 	origin: string;
+	markdownRender: MarkdownRenderOptions;
 	params: Params;
 	pathname: string;
 	renderers: Renderer[];
+	resolve: (s: string) => Promise<string>;
+	site: string | undefined;
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { astroConfig, origin, params, pathname, renderers } = args;
+	const {
+		experimentalStaticBuild,
+		origin,
+		markdownRender,
+		params,
+		pathname,
+		renderers,
+		resolve,
+		site: buildOptionsSite
+	} = args;
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -32,7 +44,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
 			const site = new URL(origin);
 			const url = new URL('.' + pathname, site);
-			const canonicalURL = getCanonicalURL('.' + pathname, astroConfig.buildOptions.site || origin);
+			const canonicalURL = getCanonicalURL('.' + pathname, buildOptionsSite || origin);
 			return {
 				__proto__: astroGlobal,
 				props,
@@ -42,7 +54,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					url,
 				},
 				resolve(path: string) {
-					if (astroConfig.buildOptions.experimentalStaticBuild) {
+					if (experimentalStaticBuild) {
 						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
 						if (isCSSRequest(path)) {
 							extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
@@ -83,33 +95,37 @@ ${extra}`
 				},
 				// <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
 				async privateRenderMarkdownDoNotUse(content: string, opts: any) {
-					let mdRender = astroConfig.markdownOptions.render;
-					let renderOpts = {};
+					let [mdRender, renderOpts] = markdownRender;
+					let parser: MarkdownParser | null = null;
+					//let renderOpts = {};
 					if (Array.isArray(mdRender)) {
 						renderOpts = mdRender[1];
 						mdRender = mdRender[0];
 					}
 					// ['rehype-toc', opts]
 					if (typeof mdRender === 'string') {
-						({ default: mdRender } = await import(mdRender));
+						const mod: { default: MarkdownParser } = await import(mdRender);
+						parser = mod.default;
 					}
 					// [import('rehype-toc'), opts]
 					else if (mdRender instanceof Promise) {
-						({ default: mdRender } = await mdRender);
+						const mod: { default: MarkdownParser } = await mdRender;
+						parser = mod.default;
+					} else if(typeof mdRender === 'function') {
+						parser = mdRender;
+					} else {
+						throw new Error('No Markdown parser found.');
 					}
-					const { code } = await mdRender(content, { ...renderOpts, ...(opts ?? {}) });
+					const { code } = await parser(content, { ...renderOpts, ...(opts ?? {}) });
 					return code;
 				},
 			} as unknown as AstroGlobal;
 		},
-		// This is a stub and will be implemented by dev and build.
-		async resolve(s: string): Promise<string> {
-			return '';
-		},
+		resolve,
 		_metadata: {
 			renderers,
 			pathname,
-			experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
+			experimentalStaticBuild,
 		},
 	};
 

@@ -1,7 +1,7 @@
-import type vite from '../vite';
+import type vite from '../../vite';
 
 import path from 'path';
-import { viteID } from '../util.js';
+import { viteID } from '../../util.js';
 
 // https://vitejs.dev/guide/features.html#css-pre-processors
 export const STYLE_EXTENSIONS = new Set(['.css', '.pcss', '.postcss', '.scss', '.sass', '.styl', '.stylus', '.less']);

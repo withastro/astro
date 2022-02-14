@@ -9,7 +9,7 @@ import vite from '../vite.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
-import { RouteCache } from '../ssr/route-cache.js';
+import { RouteCache } from '../render/route-cache.js';
 
 export interface ScanBasedBuildOptions {
 	allPages: AllPagesData;

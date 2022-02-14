@@ -8,12 +8,12 @@ import { performance } from 'perf_hooks';
 import vite, { ViteDevServer } from '../vite.js';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { debug, defaultLogOptions, info, levels, timerMessage, warn } from '../logger.js';
-import { createRouteManifest } from '../ssr/routing.js';
-import { generateSitemap } from '../ssr/sitemap.js';
+import { createRouteManifest } from '../routing/index.js';
+import { generateSitemap } from '../render/sitemap.js';
 import { collectPagesData } from './page-data.js';
 import { build as scanBasedBuild } from './scan-based-build.js';
 import { staticBuild } from './static-build.js';
-import { RouteCache } from '../ssr/route-cache.js';
+import { RouteCache } from '../render/route-cache.js';
 
 export interface BuildOptions {
 	mode?: string;
@@ -115,6 +115,7 @@ class AstroBuilder {
 				allPages,
 				astroConfig: this.config,
 				logging: this.logging,
+				manifest: this.manifest,
 				origin: this.origin,
 				pageNames,
 				routeCache: this.routeCache,

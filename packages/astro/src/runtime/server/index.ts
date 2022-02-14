@@ -157,7 +157,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 	}
 	const probableRendererNames = guessRenderers(metadata.componentUrl);
 
-	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string' && !HTMLElement.isPrototypeOf(Component as object)) {
+	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string' && !componentIsHTMLElement(Component)) {
 		const message = `Unable to render ${metadata.displayName}!
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
@@ -175,7 +175,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 			}
 		}
 
-		if (!renderer && HTMLElement.isPrototypeOf(Component as object)) {
+		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {
 			const output = renderHTMLElement(result, Component as typeof HTMLElement, _props, slots);
 
 			return output;
@@ -463,6 +463,10 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 	}
 
 	return unescapeHTML(await _render(template));
+}
+
+function componentIsHTMLElement(Component: unknown) {
+	return typeof HTMLElement !== 'undefined' && HTMLElement.isPrototypeOf(Component as object);
 }
 
 export async function renderHTMLElement(result: SSRResult, constructor: typeof HTMLElement, props: any, slots: any) {

@@ -160,6 +160,11 @@
   resolved "https://registry.yarnpkg.com/@astropub/webapi/-/webapi-0.10.11.tgz#7cf3926bb24f474b344025fa437d08fa71d0a6b9"
   integrity sha512-i1Aw6Px3n+x0GGbZxoQc6bY2gxks//rPUwuX4ICuNai8GvK/6j/0OGMVkD3ZlVJ/zfUtds8BDx/k+TJYaAPlKQ==
 
+"@astropub/webapi@^0.10.13":
+  version "0.10.13"
+  resolved "https://registry.yarnpkg.com/@astropub/webapi/-/webapi-0.10.13.tgz#28f95706d1e9041495347465fb347eb78035cdd7"
+  integrity sha512-efUVnq9IWPHYl5nxSLkDZzp1RvNmKpYApcHhgQnN2A+4D8z6dnTYlXo5Ogl0aAJWMMBKN89Q2GJwDF0zy8Lonw==
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.16.7":
   version "7.16.7"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.16.7.tgz#44416b6bd7624b998f5b1af5d470856c40138789"
@@ -6572,15 +6577,10 @@ preact-render-to-string@^5.1.19:
   dependencies:
     pretty-format "^3.8.0"
 
-preact@^10.6.5:
+preact@^10.6.5, preact@~10.6.5:
   version "10.6.5"
   resolved "https://registry.yarnpkg.com/preact/-/preact-10.6.5.tgz#726d8bd12903a0d51cdd17e2e1b90cc539403e0c"
   integrity sha512-i+LXM6JiVjQXSt2jG2vZZFapGpCuk1fl8o6ii3G84MA3xgj686FKjs4JFDkmUVhtxyq21+4ay74zqPykz9hU6w==
-
-preact@~10.5.15:
-  version "10.5.15"
-  resolved "https://registry.yarnpkg.com/preact/-/preact-10.5.15.tgz#6df94d8afecf3f9e10a742fd8c362ddab464225f"
-  integrity sha512-5chK29n6QcJc3m1lVrKQSQ+V7K1Gb8HeQY6FViQ5AxCAEGu3DaHffWNDkC9+miZgsLvbvU9rxbV1qinGHMHzqA==
 
 prebuild-install@^7.0.0:
   version "7.0.1"
