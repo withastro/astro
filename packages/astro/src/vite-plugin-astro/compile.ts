@@ -15,6 +15,10 @@ const configCache = new WeakMap<AstroConfig, CompilationCache>();
 type CompileResult = TransformResult & { rawCSSDeps: Set<string> };
 
 async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: { ssr: boolean }): Promise<CompileResult> {
+	const isWorker = filename.endsWith('?worker_file');
+	if (isWorker) {
+		filename = filename.replace(/\?worker_file$/, '');
+	}
 	// pages and layouts should be transformed as full documents (implicit <head> <body> etc)
 	// everything else is treated as a fragment
 	const filenameURL = new URL(`file://${filename}`);
@@ -35,7 +39,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 		site: config.buildOptions.site,
 		sourcefile: filename,
 		sourcemap: 'both',
-		internalURL: 'astro/internal',
+		internalURL: isWorker ? 'astro/internal/worker.js' : 'astro/internal',
 		experimentalStaticExtraction: config.buildOptions.experimentalStaticBuild,
 		// TODO add experimental flag here
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {

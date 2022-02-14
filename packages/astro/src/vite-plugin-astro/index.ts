@@ -17,6 +17,10 @@ interface AstroPluginOptions {
 	logging: LogOptions;
 }
 
+const isValidAstroFile = (id: string) => id.endsWith('.astro') || id.endsWith('.astro?worker_file') || id.endsWith('.astro?component_script')
+const COMPONENT_SCRIPT = /\<script[^>]*\@component[^>]*\>([\s\S]*)\<\/script\>/mi;
+const EXTRACT_COMPONENT_SCRIPT = /(?<=\<script[^>]*\@component[^>]*\>)[\s\S]+(?=\<\/script\>)/mi;
+
 /** Transform .astro files for Vite */
 export default function astro({ config, logging }: AstroPluginOptions): vite.Plugin {
 	function normalizeFilename(filename: string) {
@@ -106,16 +110,44 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			return null;
 		},
 		async transform(source, id, opts) {
-			if (!id.endsWith('.astro')) {
+			if (!isValidAstroFile(id)) {
 				return;
 			}
 
 			try {
 				const transformResult = await cachedCompilation(config, id, source, viteTransform, { ssr: Boolean(opts?.ssr) });
+				let result = transformResult.code;
+				if (id.endsWith('?worker_file')) {
+					result += `\nimport { renderToString } from 'astro/internal/worker.js';
+let prevResult = '';
+onmessage = async function (e) {
+	if (e.data[0] === 'attributeChangedCallback') {
+		const [_, name, oldValue, newValue] = e.data;
+		if (oldValue === newValue) return;
+		const result = await renderToString({ createAstro(_, props, slots) { return { props, slots } } }, $$Counter, { [name]: JSON.parse(newValue) }, {});
+		if (result !== prevResult) {
+			self.postMessage(['result', result])
+			prevResult = result;
+		}
+	}
+}`
+				}
+				if (id.endsWith('?component_script')) {
+					if (COMPONENT_SCRIPT.test(result)) {
+						const script = result.match(EXTRACT_COMPONENT_SCRIPT)?.[0];
+						result = (script as string);
+					} else {
+						result = 'export class Component extends HTMLElement {}';
+					}
+				} else {
+					if (COMPONENT_SCRIPT.test(result)) {
+						result = result.replace(COMPONENT_SCRIPT, '');
+					}
+				}
 
 				// Compile all TypeScript to JavaScript.
 				// Also, catches invalid JS/TS in the compiled output before returning.
-				const { code, map } = await esbuild.transform(transformResult.code, {
+				const { code, map } = await esbuild.transform(result, {
 					loader: 'ts',
 					sourcemap: 'external',
 					sourcefile: id,

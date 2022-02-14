@@ -1,5 +1,5 @@
 ---
-
+import Counter from '../components/counter.astro'
 ---
 <html lang="en">
 	<head>
@@ -9,5 +9,6 @@
 	</head>
 	<body>
 		<h1>Astro</h1>
+		<Counter count={0} client:load />
 	</body>
 </html>

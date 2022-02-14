@@ -126,6 +126,11 @@ function formatList(values: string[]): string {
 	return `${values.slice(0, -1).join(', ')} or ${values[values.length - 1]}`;
 }
 
+const kebabCase = (str: string) => str
+  .replace(/([a-z])([A-Z])/g, "$1-$2")
+  .replace(/[\s_]+/g, '-')
+  .toLowerCase()
+
 export async function renderComponent(result: SSRResult, displayName: string, Component: unknown, _props: Record<string | number, any>, slots: any = {}) {
 	Component = await Component;
 	const children = await renderSlot(result, slots?.default);
@@ -135,8 +140,65 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 	}
 
 	if (Component && (Component as any).isAstroComponentFactory) {
+		const { hydration, props } = extractDirectives(_props);
+		const metadata: AstroComponentMetadata = { displayName };
+		if (hydration) {
+			metadata.hydrate = hydration.directive as AstroComponentMetadata['hydrate'];
+			metadata.hydrateArgs = hydration.value;
+			metadata.componentExport = hydration.componentExport;
+			metadata.componentUrl = hydration.componentUrl;
+		}
 		const output = await renderToString(result, Component as any, _props, slots);
-		return unescapeHTML(output);
+
+		if (!metadata.hydrate) {
+			return unescapeHTML(output);
+		}
+
+		let component = kebabCase(displayName);
+		if (!component.includes('-')) {
+			component = `my-${component}`;
+		}
+		const observedAttributes = Object.keys(props);
+		// TODO: this should probably be automatically generated based on a query param so we have the full component AST to work with
+		result.scripts.add({
+			props: { type: 'module', 'data-astro-component-hydration': true },
+			// TODO: shared_worker?
+			children: `
+			import { patch } from 'astro/client/client.js';
+			// TODO: fix Vite issue with multiple \`default\` exports
+			import { Component } from "${metadata.componentUrl}?component_script";
+			import ComponentWorker from "${metadata.componentUrl}?worker";
+
+			customElements.define("${component}", class extends Component {
+				// Possibly expose getters and setters for observedAttributes?
+				${observedAttributes.map(attr => {
+					return `
+					get ${attr}() {
+						return JSON.parse(this.getAttribute("${attr}"));
+					}
+					set ${attr}(value) {
+						this.setAttribute("${attr}", JSON.stringify(value));
+					}
+					`
+				})}
+				constructor(...args) {
+					super(...args);
+					this.worker = new ComponentWorker();
+					this.worker.onmessage = (e) => {
+						if (e.data[0] === 'result') {
+							patch(this, e.data[1]);
+						}
+					}
+				}
+				static get observedAttributes() { 
+					return ${JSON.stringify(observedAttributes)};
+				}
+				attributeChangedCallback(name, oldValue, newValue) {
+						this.worker.postMessage(['attributeChangedCallback', name, oldValue, newValue]);
+				}
+			})`,
+		});
+		return unescapeHTML(`<${component} ${spreadAttributes(props)}>${output}</${component}>`);
 	}
 
 	if (Component === null && !_props['client:only']) {

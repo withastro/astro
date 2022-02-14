@@ -1,0 +1,31 @@
+---
+const { count } = Astro.props;
+---
+
+<div>
+	<button>-</button>
+	<p>{count}</p>
+	<button>+</button>
+</div>
+
+<script @component>
+export class Component extends HTMLElement {
+	handleEvent(event) {
+		if (event.type !== 'click') return;
+
+		if (event.target.textContent === '+') {
+				this.count += 1;
+		} else if (event.target.textContent === '-') {
+				this.count -= 1;
+		}
+	}
+	
+	connectedCallback() {
+		this.addEventListener('click', this)
+	}
+
+	disconnectedCallback() {
+		this.removeEventListener('click', this)
+	}
+}
+</script>
