@@ -3,6 +3,7 @@
 import fs from 'fs';
 import { execa } from 'execa';
 import { fileURLToPath } from 'url';
+import path from 'path';
 
 // NOTE: Only needed for Windows, due to a Turbo bug.
 // Once Turbo works on Windows, we can remove this script

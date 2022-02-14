@@ -12,10 +12,10 @@ import { getAttribute, hasAttribute, insertBefore, remove, createScript, createE
 import { addRollupInput } from './add-rollup-input.js';
 import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getTextContent, getAttributes } from './extract-assets.js';
 import { isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory, hasSrcSet } from './util.js';
-import { render as ssrRender } from '../core/ssr/index.js';
+import { render as ssrRender } from '../core/render/dev/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
 import { prependDotSlash, removeEndingForwardSlash } from '../core/path.js';
-import { RouteCache } from '../core/ssr/route-cache.js';
+import { RouteCache } from '../core/render/route-cache.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;

@@ -10,20 +10,6 @@ export default {
 			plugins: [],
 		};
 
-		if (ssr) {
-			options.plugins.push([
-				'babel-plugin-module-resolver',
-				{
-					cwd: process.cwd(),
-					alias: {
-						'solid-js/store': 'solid-js/store/dist/server.js',
-						'solid-js/web': 'solid-js/web/dist/server.js',
-						'solid-js': 'solid-js/dist/server.js',
-					},
-				},
-			]);
-		}
-
 		return options;
 	},
 	viteConfig(options) {
@@ -50,7 +36,7 @@ export default {
 				exclude: ['@astrojs/renderer-solid/server.js'],
 			},
 			ssr: {
-				external: ['solid-js/web/dist/server.js', 'solid-js/store/dist/server.js', 'solid-js/dist/server.js', 'babel-preset-solid'],
+				external: ['babel-preset-solid'],
 			},
 		};
 	},

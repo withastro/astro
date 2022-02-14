@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-	fixture = await loadFixture({ projectRoot: './fixtures/astro-client-only/' });
-	await fixture.build();
-});
-
 describe('Client only components', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-client-only/' });
+		await fixture.build();
+	});
+
 	it('Loads pages using client:only hydrator', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);

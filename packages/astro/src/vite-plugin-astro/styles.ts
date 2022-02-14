@@ -1,6 +1,6 @@
 import type vite from '../core/vite';
 
-import { STYLE_EXTENSIONS } from '../core/ssr/css.js';
+import { STYLE_EXTENSIONS } from '../core/render/dev/css.js';
 
 export type TransformHook = (code: string, id: string, ssr?: boolean) => Promise<vite.TransformResult>;
 

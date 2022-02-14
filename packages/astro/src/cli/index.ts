@@ -31,6 +31,7 @@ function printHelp() {
   --project-root <path>			Specify the path to the project root folder.
   --no-sitemap					Disable sitemap generation (build only).
   --experimental-static-build	A more performant build that expects assets to be define statically.
+	--experimental-ssr		Enable SSR compilation.
   --drafts                      Include markdown draft pages in the build.
   --verbose						Enable verbose logging
   --silent						Disable logging

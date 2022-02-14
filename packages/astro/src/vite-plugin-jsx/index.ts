@@ -24,21 +24,6 @@ const IMPORT_STATEMENTS: Record<string, string> = {
 // be careful about esbuild not treating h, React, Fragment, etc. as unused.
 const PREVENT_UNUSED_IMPORTS = ';;(React,Fragment,h);';
 
-// This check on a flexible "options" object is needed because Vite uses this flexible argument for ssr.
-// More context: https://github.com/vitejs/vite/discussions/5109#discussioncomment-1450726
-function isSSR(options: undefined | boolean | { ssr: boolean }): boolean {
-	if (options === undefined) {
-		return false;
-	}
-	if (typeof options === 'boolean') {
-		return options;
-	}
-	if (typeof options == 'object') {
-		return !!options.ssr;
-	}
-	return false;
-}
-
 function getEsbuildLoader(fileExt: string): string {
 	return fileExt.substr(1);
 }
@@ -103,8 +88,8 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 		configResolved(resolvedConfig) {
 			viteConfig = resolvedConfig;
 		},
-		async transform(code, id, ssrOrOptions) {
-			const ssr = isSSR(ssrOrOptions);
+		async transform(code, id, opts) {
+			const ssr = Boolean(opts?.ssr);
 			if (!JSX_EXTENSIONS.has(path.extname(id))) {
 				return null;
 			}

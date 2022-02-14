@@ -28,6 +28,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	experimentalStaticBuild?: boolean;
+	experimentalSsr?: boolean;
 	drafts?: boolean;
 }
 
@@ -102,7 +103,7 @@ export interface AstroUserConfig {
 	renderers?: string[];
 	/** Options for rendering markdown content */
 	markdownOptions?: {
-		render?: [string | MarkdownParser, Record<string, any>];
+		render?: MarkdownRenderOptions;
 	};
 	/** Options specific to `astro build` */
 	buildOptions?: {
@@ -132,6 +133,10 @@ export interface AstroUserConfig {
 		 * Default: false
 		 */
 		experimentalStaticBuild?: boolean;
+		/**
+		 * Enable a build for SSR support.
+		 */
+		experimentalSsr?: boolean;
 	};
 	/** Options for the development server run with `astro dev`. */
 	devOptions?: {
@@ -224,6 +229,7 @@ export interface ManifestData {
 	routes: RouteData[];
 }
 
+export type MarkdownRenderOptions = [string | MarkdownParser, Record<string, any>];
 export type MarkdownParser = (contents: string, options?: Record<string, any>) => MarkdownParserResponse | PromiseLike<MarkdownParserResponse>;
 
 export interface MarkdownParserResponse {
@@ -340,6 +346,11 @@ export interface RouteData {
 	pattern: RegExp;
 	type: 'page';
 }
+
+export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
+	generate: undefined;
+	pattern: string;
+};
 
 export type RuntimeMode = 'development' | 'production';
 

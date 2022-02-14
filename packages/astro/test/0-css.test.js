@@ -277,8 +277,13 @@ describe('CSS', function () {
 			expect((await fixture.fetch(href)).status).to.equal(200);
 		});
 
-		it('resolved imported CSS with ?url', async () => {
+		// Skipped until upstream fix lands
+		// Our fix: https://github.com/withastro/astro/pull/2106
+		// OG Vite PR: https://github.com/vitejs/vite/pull/5940
+		// Next Vite PR: https://github.com/vitejs/vite/pull/5796
+		it.skip('resolved imported CSS with ?url', async () => {
 			const href = $('link[href$="imported-url.css"]').attr('href');
+			expect(href).to.be.ok;
 			expect((await fixture.fetch(href)).status).to.equal(200);
 		});
 
