@@ -147,7 +147,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	if (typeof flags.experimentalStaticBuild === 'boolean') astroConfig.buildOptions.experimentalStaticBuild = flags.experimentalStaticBuild;
 	if (typeof flags.experimentalSsr === 'boolean') {
 		astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
-		if(flags.experimentalSsr) {
+		if (flags.experimentalSsr) {
 			astroConfig.buildOptions.experimentalStaticBuild = true;
 		}
 	}

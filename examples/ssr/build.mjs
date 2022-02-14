@@ -1,4 +1,4 @@
-import {execa} from 'execa';
+import { execa } from 'execa';
 
 const api = execa('npm', ['run', 'dev-api']);
 api.stdout.pipe(process.stdout);

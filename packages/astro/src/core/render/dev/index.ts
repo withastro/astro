@@ -50,10 +50,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	const { astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer } = ssrOpts;
 
 	// Add hoisted script tags
-	const scripts = createModuleScriptElementWithSrcSet(astroConfig.buildOptions.experimentalStaticBuild ?
-		Array.from(mod.$$metadata.hoistedScriptPaths()) :
-		[]
-	);
+	const scripts = createModuleScriptElementWithSrcSet(astroConfig.buildOptions.experimentalStaticBuild ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []);
 
 	// Inject HMR scripts
 	if (mode === 'development' && astroConfig.buildOptions.experimentalStaticBuild) {

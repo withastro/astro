@@ -5,8 +5,8 @@ export default /** @type {import('astro').AstroUserConfig} */ ({
 	vite: {
 		server: {
 			proxy: {
-				'/api': 'http://localhost:8085'
-			}
-		}
-	}
+				'/api': 'http://localhost:8085',
+			},
+		},
+	},
 });

@@ -1,7 +1,4 @@
-import type {
-	RouteData,
-	SerializedRouteData
-} from '../../../@types/astro';
+import type { RouteData, SerializedRouteData } from '../../../@types/astro';
 
 function createRouteData(pattern: RegExp, params: string[], component: string, pathname: string | undefined): RouteData {
 	return {
@@ -12,7 +9,7 @@ function createRouteData(pattern: RegExp, params: string[], component: string, p
 		// TODO bring back
 		generate: () => '',
 		pathname: pathname || undefined,
-	}
+	};
 }
 
 export function serializeRouteData(routeData: RouteData): SerializedRouteData {

@@ -3,10 +3,10 @@ import { deserializeRouteData } from '../routing/manifest/serialization.js';
 
 export function deserializeManifest(serializedManifest: SerializedSSRManifest): SSRManifest {
 	const routes: RouteInfo[] = [];
-	for(const serializedRoute of serializedManifest.routes) {
+	for (const serializedRoute of serializedManifest.routes) {
 		routes.push({
 			...serializedRoute,
-			routeData: deserializeRouteData(serializedRoute.routeData)
+			routeData: deserializeRouteData(serializedRoute.routeData),
 		});
 
 		const route = serializedRoute as unknown as RouteInfo;
@@ -15,6 +15,6 @@ export function deserializeManifest(serializedManifest: SerializedSSRManifest): 
 
 	return {
 		...serializedManifest,
-		routes
+		routes,
 	};
 }

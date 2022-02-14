@@ -22,16 +22,7 @@ export interface CreateResultArgs {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const {
-		experimentalStaticBuild,
-		origin,
-		markdownRender,
-		params,
-		pathname,
-		renderers,
-		resolve,
-		site: buildOptionsSite
-	} = args;
+	const { experimentalStaticBuild, origin, markdownRender, params, pathname, renderers, resolve, site: buildOptionsSite } = args;
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -111,7 +102,7 @@ ${extra}`
 					else if (mdRender instanceof Promise) {
 						const mod: { default: MarkdownParser } = await mdRender;
 						parser = mod.default;
-					} else if(typeof mdRender === 'function') {
+					} else if (typeof mdRender === 'function') {
 						parser = mdRender;
 					} else {
 						throw new Error('No Markdown parser found.');

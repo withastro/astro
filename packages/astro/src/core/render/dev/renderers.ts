@@ -15,7 +15,7 @@ async function resolveRenderer(viteServer: vite.ViteDevServer, renderer: string,
 			const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(entry);
 			const mod = await viteServer.ssrLoadModule(url);
 			return mod;
-		}
+		},
 	});
 
 	return resolvedRenderer;

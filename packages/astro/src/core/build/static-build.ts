@@ -159,7 +159,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	const [ssrResult] = (await Promise.all([ssrBuild(opts, internals, pageInput), clientBuild(opts, internals, jsInput)])) as RollupOutput[];
 
 	// SSG mode, generate pages.
-	if(staticMode) {
+	if (staticMode) {
 		// Generate each of the pages.
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
 		await cleanSsrOutput(opts);
@@ -189,7 +189,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					format: 'esm',
 					entryFileNames: '[name].[hash].mjs',
 					chunkFileNames: 'chunks/[name].[hash].mjs',
-					assetFileNames: 'assets/[name].[hash][extname]'
+					assetFileNames: 'assets/[name].[hash][extname]',
 				},
 			},
 			target: 'esnext', // must match an esbuild target
@@ -233,8 +233,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 					format: 'esm',
 					entryFileNames: '[name].[hash].js',
 					chunkFileNames: 'chunks/[name].[hash].js',
-					assetFileNames: 'assets/[name].[hash][extname]'
-					
+					assetFileNames: 'assets/[name].[hash][extname]',
 				},
 				preserveEntrySignatures: 'exports-only',
 			},
@@ -400,10 +399,10 @@ async function generateManifest(result: RollupOutput, opts: StaticBuildOptions, 
 	const data: ViteManifest = JSON.parse(inputManifestJSON);
 
 	const rootRelativeIdToChunkMap = new Map<string, OutputChunk>();
-	for(const output of result.output) {
-		if(chunkIsPage(astroConfig, output, internals)) {
+	for (const output of result.output) {
+		if (chunkIsPage(astroConfig, output, internals)) {
 			const chunk = output as OutputChunk;
-			if(chunk.facadeModuleId) {
+			if (chunk.facadeModuleId) {
 				const id = rootRelativeFacadeId(chunk.facadeModuleId, astroConfig);
 				rootRelativeIdToChunkMap.set(id, chunk);
 			}
@@ -412,11 +411,11 @@ async function generateManifest(result: RollupOutput, opts: StaticBuildOptions, 
 
 	const routes: SerializedRouteInfo[] = [];
 
-	for(const routeData of manifest.routes) {
+	for (const routeData of manifest.routes) {
 		const componentPath = routeData.component;
 		const entry = data[componentPath];
 
-		if(!rootRelativeIdToChunkMap.has(componentPath)) {
+		if (!rootRelativeIdToChunkMap.has(componentPath)) {
 			throw new Error('Unable to find chunk for ' + componentPath);
 		}
 
@@ -430,7 +429,7 @@ async function generateManifest(result: RollupOutput, opts: StaticBuildOptions, 
 			file: entry?.file,
 			links,
 			scripts,
-			routeData: serializeRouteData(routeData)
+			routeData: serializeRouteData(routeData),
 		});
 	}
 
@@ -438,12 +437,12 @@ async function generateManifest(result: RollupOutput, opts: StaticBuildOptions, 
 		routes,
 		site: astroConfig.buildOptions.site,
 		markdown: {
-			render: astroConfig.markdownOptions.render
+			render: astroConfig.markdownOptions.render,
 		},
 		renderers: astroConfig.renderers,
-		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries())
+		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 	};
-	
+
 	const outputManifestJSON = JSON.stringify(ssrManifest, null, '  ');
 	await fs.promises.writeFile(manifestFile, outputManifestJSON, 'utf-8');
 }
@@ -522,7 +521,7 @@ async function ssrMoveAssets(opts: StaticBuildOptions) {
 
 	await emptyDir(fileURLToPath(serverAssets));
 
-	if(fs.existsSync(serverAssets)) {
+	if (fs.existsSync(serverAssets)) {
 		await fs.promises.rmdir(serverAssets);
 	}
 }

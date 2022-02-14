@@ -5,7 +5,7 @@ import type { Params } from '../../@types/astro';
  * src/routes/[x]/[y]/[z]/svelte, create a function
  * that turns a RegExpExecArray into ({ x, y, z })
  */
- export function getParams(array: string[]) {
+export function getParams(array: string[]) {
 	const fn = (match: RegExpExecArray) => {
 		const params: Params = {};
 		array.forEach((key, i) => {
@@ -20,4 +20,3 @@ import type { Params } from '../../@types/astro';
 
 	return fn;
 }
-

@@ -4,7 +4,7 @@ import npath from 'path';
 import { appendForwardSlash } from '../../core/path.js';
 
 function getRootPath(site?: string): string {
-	return appendForwardSlash(new URL(site || 'http://localhost/').pathname)
+	return appendForwardSlash(new URL(site || 'http://localhost/').pathname);
 }
 
 function joinToRoot(href: string, site?: string): string {
@@ -15,14 +15,14 @@ export function createLinkStylesheetElement(href: string, site?: string): SSREle
 	return {
 		props: {
 			rel: 'stylesheet',
-			href: joinToRoot(href, site)
+			href: joinToRoot(href, site),
 		},
 		children: '',
 	};
 }
 
 export function createLinkStylesheetElementSet(hrefs: string[], site?: string) {
-	return new Set<SSRElement>(hrefs.map(href => createLinkStylesheetElement(href, site)));
+	return new Set<SSRElement>(hrefs.map((href) => createLinkStylesheetElement(href, site)));
 }
 
 export function createModuleScriptElementWithSrc(src: string, site?: string): SSRElement {
@@ -32,9 +32,9 @@ export function createModuleScriptElementWithSrc(src: string, site?: string): SS
 			src: joinToRoot(src, site),
 		},
 		children: '',
-	}
+	};
 }
 
 export function createModuleScriptElementWithSrcSet(srces: string[], site?: string): Set<SSRElement> {
-	return new Set<SSRElement>(srces.map(src => createModuleScriptElementWithSrc(src, site)));
+	return new Set<SSRElement>(srces.map((src) => createModuleScriptElementWithSrc(src, site)));
 }

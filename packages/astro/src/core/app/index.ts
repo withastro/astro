@@ -1,7 +1,5 @@
 import type { ComponentInstance, ManifestData, RouteData, Renderer } from '../../@types/astro';
-import type {
-	SSRManifest as Manifest, RouteInfo
-} from './types';
+import type { SSRManifest as Manifest, RouteInfo } from './types';
 
 import { defaultLogOptions } from '../logger.js';
 import { matchRoute } from '../routing/match.js';
@@ -22,12 +20,10 @@ export class App {
 	constructor(manifest: Manifest, rootFolder: URL) {
 		this.#manifest = manifest;
 		this.#manifestData = {
-			routes: manifest.routes.map(route => route.routeData)
+			routes: manifest.routes.map((route) => route.routeData),
 		};
 		this.#rootFolder = rootFolder;
-		this.#routeDataToRouteInfo = new Map(
-			manifest.routes.map(route => [route.routeData, route])
-		);
+		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#routeCache = new RouteCache(defaultLogOptions);
 		this.#renderersPromise = this.#loadRenderers();
 	}
@@ -35,19 +31,16 @@ export class App {
 		return matchRoute(pathname, this.#manifestData);
 	}
 	async render(url: URL, routeData?: RouteData): Promise<string> {
-		if(!routeData) {
+		if (!routeData) {
 			routeData = this.match(url);
-			if(!routeData) {
+			if (!routeData) {
 				return 'Not found';
 			}
 		}
 
 		const manifest = this.#manifest;
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
-		const [mod, renderers] = await Promise.all([
-			this.#loadModule(info.file),
-			this.#renderersPromise
-		]);
+		const [mod, renderers] = await Promise.all([this.#loadModule(info.file), this.#renderersPromise]);
 
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
 		const scripts = createModuleScriptElementWithSrcSet(info.scripts, manifest.site);
@@ -63,7 +56,7 @@ export class App {
 			scripts,
 			renderers,
 			async resolve(specifier: string) {
-				if(!(specifier in manifest.entryModules)) {
+				if (!(specifier in manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
 				const bundlePath = manifest.entryModules[specifier];
@@ -71,21 +64,23 @@ export class App {
 			},
 			route: routeData,
 			routeCache: this.#routeCache,
-			site: this.#manifest.site
-		})
+			site: this.#manifest.site,
+		});
 	}
 	async #loadRenderers(): Promise<Renderer[]> {
 		const rendererNames = this.#manifest.renderers;
-		return await Promise.all(rendererNames.map(async (rendererName) => {
-			return createRenderer(rendererName, {
-				renderer(name) {
-					return import(name);
-				},
-				server(entry) {
-					return import(entry);
-				}
+		return await Promise.all(
+			rendererNames.map(async (rendererName) => {
+				return createRenderer(rendererName, {
+					renderer(name) {
+						return import(name);
+					},
+					server(entry) {
+						return import(entry);
+					},
+				});
 			})
-		}));
+		);
 	}
 	async #loadModule(rootRelativePath: string): Promise<ComponentInstance> {
 		let modUrl = new URL(rootRelativePath, this.#rootFolder).toString();
@@ -93,7 +88,7 @@ export class App {
 		try {
 			mod = await import(modUrl);
 			return mod;
-		} catch(err) {
+		} catch (err) {
 			throw new Error(`Unable to import ${modUrl}. Does this file exist?`);
 		}
 	}

@@ -14,7 +14,7 @@ export async function createRenderer(renderer: string, impl: RendererResolverImp
 	// The other entrypoints need to be loaded through Vite.
 	const {
 		default: { name, client, polyfills, hydrationPolyfills, server },
-	} = await impl.renderer(renderer) //await import(resolveDependency(renderer, astroConfig));
+	} = await impl.renderer(renderer); //await import(resolveDependency(renderer, astroConfig));
 
 	resolvedRenderer.name = name;
 	if (client) resolvedRenderer.source = npath.posix.join(renderer, client);

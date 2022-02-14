@@ -1,7 +1,4 @@
-import type { 
-	ComponentInstance,
-	GetStaticPathsResult
-} from '../../@types/astro';
+import type { ComponentInstance, GetStaticPathsResult } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 import { warn } from '../logger.js';
 

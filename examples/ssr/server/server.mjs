@@ -2,7 +2,7 @@ import { createServer } from 'http';
 import fs from 'fs';
 import mime from 'mime';
 import { loadApp } from 'astro/app/node';
-import { polyfill } from '@astropub/webapi'
+import { polyfill } from '@astropub/webapi';
 import { apiHandler } from './api.mjs';
 
 polyfill(globalThis);
@@ -14,21 +14,21 @@ const app = await loadApp(serverRoot);
 async function handle(req, res) {
 	const route = app.match(req);
 
-	if(route) {
+	if (route) {
 		const html = await app.render(req, route);
 
 		res.writeHead(200, {
-			'Content-Type': 'text/html'
+			'Content-Type': 'text/html',
 		});
-		res.end(html)
-	} else if(/^\/api\//.test(req.url)) {
+		res.end(html);
+	} else if (/^\/api\//.test(req.url)) {
 		return apiHandler(req, res);
 	} else {
 		let local = new URL('.' + req.url, clientRoot);
 		try {
 			const data = await fs.promises.readFile(local);
 			res.writeHead(200, {
-				'Content-Type': mime.getType(req.url)
+				'Content-Type': mime.getType(req.url),
 			});
 			res.end(data);
 		} catch {
@@ -39,13 +39,13 @@ async function handle(req, res) {
 }
 
 const server = createServer((req, res) => {
-	handle(req, res).catch(err => {
+	handle(req, res).catch((err) => {
 		console.error(err);
 		res.writeHead(500, {
-			'Content-Type': 'text/plain'
+			'Content-Type': 'text/plain',
 		});
 		res.end(err.toString());
-	})
+	});
 });
 
 server.listen(8085);

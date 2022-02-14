@@ -1,8 +1,4 @@
-import type {
-	AstroConfig,
-	ManifestData, 
-	RouteData
-} from '../../../@types/astro';
+import type { AstroConfig, ManifestData, RouteData } from '../../../@types/astro';
 import type { LogOptions } from '../../logger';
 
 import fs from 'fs';
@@ -85,7 +81,6 @@ function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['devOption
 	const trailing = addTrailingSlash && segments.length ? getTrailingSlashPattern(addTrailingSlash) : '$';
 	return new RegExp(`^${pathname || '\\/'}${trailing}`);
 }
-
 
 function getTrailingSlashPattern(addTrailingSlash: AstroConfig['devOptions']['trailingSlash']): string {
 	if (addTrailingSlash === 'always') {
