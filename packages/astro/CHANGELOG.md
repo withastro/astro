@@ -1,5 +1,20 @@
 # astro
 
+## 0.23.0-next.6
+
+### Patch Changes
+
+- [#2570](https://github.com/withastro/astro/pull/2570) [`34317bc0`](https://github.com/withastro/astro/commit/34317bc05c707179af0be6c9fe743c1fd1299532) Thanks [@matthewp](https://github.com/matthewp)! - Fixes bug with astro/components not loading in the next release
+
+## 0.23.0-next.5
+
+### Patch Changes
+
+- [#2569](https://github.com/withastro/astro/pull/2569) [`82544e41`](https://github.com/withastro/astro/commit/82544e413406a62ecf3e408ca1aac5c8c15b7453) Thanks [@matthewp](https://github.com/matthewp)! - Fixes pageUrlFormat: 'file' in the static build
+
+- Updated dependencies [[`d71c4620`](https://github.com/withastro/astro/commit/d71c46207af40de6811596ca4f5e10aa9006377b)]:
+  - @astrojs/markdown-remark@0.6.1-next.2
+
 ## 0.23.0-next.4
 
 ### Minor Changes
