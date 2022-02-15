@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata, Renderer } from '../../@types/astro';
+import type { AstroComponentMetadata, EndpointHandler, Renderer } from '../../@types/astro';
 import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/astro';
 
 import shorthash from 'shorthash';
@@ -410,6 +410,20 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	const children = item.children;
 	return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
 };
+
+// Renders an endpoint request to completion, returning the body.
+export async function renderEndpoint(mod: EndpointHandler, params: any) {
+	const method = 'get';
+	const handler = mod[method];
+
+	if (!handler || typeof handler !== 'function') {
+		throw new Error(`Endpoint handler not found! Expected an exported function for "${method}"`);
+	}
+
+	const { body } = await mod.get(params);
+
+	return body;
+}
 
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.
