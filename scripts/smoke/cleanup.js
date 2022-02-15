@@ -23,19 +23,19 @@ const rootDir = new URL('../../', import.meta.url);
 
 /** Runs all smoke tests. */
 async function run() {
-	const dirs = await getChildDirectories(scriptDir)
+	const dirs = await getChildDirectories(scriptDir);
 
 	if (dirs.length) {
-		console.log()
+		console.log();
 
 		for (const dir of await getChildDirectories(scriptDir)) {
 			console.log('🤖', 'Removing', dir.pathname.split('/').at(-1));
 
-			fs.rm(dir, { force: true, recursive: true })
+			fs.rm(dir, { force: true, recursive: true });
 		}
 	}
 
-	console.log()
+	console.log();
 
 	console.log('🤖', 'Resetting', 'yarn');
 
