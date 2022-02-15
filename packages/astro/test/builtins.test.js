@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-	fixture = await loadFixture({ projectRoot: './fixtures/builtins/' });
-	await fixture.build();
-});
-
 describe('Node builtins', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({ projectRoot: './fixtures/builtins/' });
+		await fixture.build();
+	});
+
 	it('Can be used with the node: prefix', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);

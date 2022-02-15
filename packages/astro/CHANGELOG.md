@@ -1,5 +1,31 @@
 # astro
 
+## 0.23.0-next.4
+
+### Minor Changes
+
+- [#2424](https://github.com/withastro/astro/pull/2424) [`1abb9ed0`](https://github.com/withastro/astro/commit/1abb9ed0800989f47351cc916f19fd8e0672e2c0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Upgrade `vite` to `2.8.x`, unvendoring `vite` and bringing Astro's dependencies up-to-date.
+
+  This is a low-level change that you shouldn't have to worry about too much, but it should fix many, many issues with CJS/ESM interoperability. It also allows Astro to stay up-to-date with the `vite` ecosystem. If you run into any unexpected problems, please let us know by opening an issue.
+
+### Patch Changes
+
+- [#2424](https://github.com/withastro/astro/pull/2424) [`1abb9ed0`](https://github.com/withastro/astro/commit/1abb9ed0800989f47351cc916f19fd8e0672e2c0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes HMR of CSS that is imported from astro, when using the static build flag
+
+- Updated dependencies [[`a907a73b`](https://github.com/withastro/astro/commit/a907a73b8cd14726d158ea460932f9cd8891923a)]:
+  - @astrojs/renderer-preact@0.5.0-next.0
+  - @astrojs/renderer-react@0.5.0-next.0
+  - @astrojs/renderer-svelte@0.4.0-next.0
+  - @astrojs/renderer-vue@0.4.0-next.0
+
+## 0.23.0-next.3
+
+### Patch Changes
+
+- [#2552](https://github.com/withastro/astro/pull/2552) [`e81bc3cf`](https://github.com/withastro/astro/commit/e81bc3cf14d9516a76a3328d277eb2e4db9d7279) Thanks [@matthewp](https://github.com/matthewp)! - Fixes build slowness on large apps
+
+  This fixes slowness on large apps, particularly during the static build. Fix is to prevent the Vite dev server plugin from being run during build, as it is not needed.
+
 ## 0.23.0-next.2
 
 ### Patch Changes

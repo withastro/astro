@@ -16,17 +16,14 @@ import { resolveDependency } from './util.js';
 const ALWAYS_EXTERNAL = new Set([
 	...builtinModules.map((name) => `node:${name}`),
 	'@sveltejs/vite-plugin-svelte',
-	'estree-util-value-to-estree',
 	'micromark-util-events-to-acorn',
+	'serialize-javascript',
 	'node-fetch',
 	'prismjs',
 	'shiki',
 	'shorthash',
 	'unified',
 	'whatwg-url',
-]);
-const ALWAYS_NOEXTERNAL = new Set([
-	'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
 ]);
 
 // note: ssr is still an experimental API hence the type omission
@@ -35,10 +32,11 @@ export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[
 interface CreateViteOptions {
 	astroConfig: AstroConfig;
 	logging: LogOptions;
+	mode: 'dev' | 'build';
 }
 
 /** Return a common starting point for all Vite actions */
-export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging }: CreateViteOptions): Promise<ViteConfigWithSSR> {
+export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, mode }: CreateViteOptions): Promise<ViteConfigWithSSR> {
 	// First, start with the Vite configuration that Astro core needs
 	let viteConfig: ViteConfigWithSSR = {
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
@@ -50,7 +48,9 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		plugins: [
 			configAliasVitePlugin({ config: astroConfig }),
 			astroVitePlugin({ config: astroConfig, logging }),
-			astroViteServerPlugin({ config: astroConfig, logging }),
+			// The server plugin is for dev only and having it run during the build causes
+			// the build to run very slow as the filewatcher is triggered often.
+			mode === 'dev' && astroViteServerPlugin({ config: astroConfig, logging }),
 			markdownVitePlugin({ config: astroConfig }),
 			jsxVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig }),
@@ -69,7 +69,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {
 			external: [...ALWAYS_EXTERNAL],
-			noExternal: [...ALWAYS_NOEXTERNAL],
+			noExternal: [],
 		},
 	};
 

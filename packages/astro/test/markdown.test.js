@@ -2,20 +2,20 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-	fixture = await loadFixture({
-		projectRoot: './fixtures/markdown/',
-		buildOptions: {
-			sitemap: false,
-		},
-		renderers: ['@astrojs/renderer-preact'],
-	});
-	await fixture.build();
-});
-
 describe('Markdown tests', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({
+			projectRoot: './fixtures/markdown/',
+			buildOptions: {
+				sitemap: false,
+			},
+			renderers: ['@astrojs/renderer-preact'],
+		});
+		await fixture.build();
+	});
+
 	it('Can load a simple markdown page with Astro', async () => {
 		const html = await fixture.readFile('/post/index.html');
 		const $ = cheerio.load(html);
