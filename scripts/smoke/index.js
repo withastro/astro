@@ -11,7 +11,7 @@ import { promises as fs } from 'node:fs';
 polyfill(globalThis, { exclude: 'window document' });
 
 /* Configuration
-/* ========================================================================== */
+/* -------------------------------------------------------------------------- */
 
 /** URL directory containing this current script. */
 const scriptDir = new URL('./', import.meta.url);
@@ -31,8 +31,38 @@ const docGithubConfig = { org: 'withastro', name: 'docs', branch: 'main' };
 /** GitHub configuration for the external "astro.build" Astro project. */
 const wwwGithubConfig = { org: 'withastro', name: 'astro.build', branch: 'main' };
 
+/* Application
+/* -------------------------------------------------------------------------- */
+
+/** Runs all smoke tests. */
+async function run() {
+	console.log('');
+
+	const directories = await getChildDirectories(exampleDir);
+
+	directories.push(await downloadGithubZip(docGithubConfig), await downloadGithubZip(wwwGithubConfig));
+
+	console.log('🤖', 'Preparing', 'yarn');
+
+	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdout: 'inherit', stderr: 'inherit' });
+
+	for (const directory of directories) {
+		console.log('🤖', 'Testing', directory.pathname.split('/').at(-1));
+
+		try {
+			await execa('yarn', ['build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
+		} catch (err) {
+			console.log(err);
+
+			process.exit(1);
+		}
+
+		console.log();
+	}
+}
+
 /* Functionality
-/* ========================================================================== */
+/* -------------------------------------------------------------------------- */
 
 /** Returns the URL to the ZIP of the given GitHub project. */
 const getGithubZipURL = (/** @type {GithubOpts} */ opts) => `https://github.com/${opts.org}/${opts.name}/archive/refs/heads/${opts.branch}.zip`;
@@ -91,7 +121,8 @@ const downloadGithubZip = async (/** @type {GithubOpts} */ opts) => {
 const readDirectoryPackage = async (/** @type {URL} */ dir) => JSON.parse(await fs.readFile(new URL('package.json', dir + '/'), 'utf-8'));
 
 /** Returns upon completion of writing a package.json to the given directory. */
-const writeDirectoryPackage = async (/** @type {URL} */ dir, /** @type {any} */ data) => await fs.writeFile(new URL('package.json', dir + '/'), JSON.stringify(data, null, '  ') + '\n');
+const writeDirectoryPackage = async (/** @type {URL} */ dir, /** @type {any} */ data) =>
+	await fs.writeFile(new URL('package.json', dir + '/'), JSON.stringify(data, null, '  ') + '\n');
 
 /** Returns all child directories of the given directory. */
 const getChildDirectories = async (/** @type {URL} */ dir) => {
@@ -107,35 +138,8 @@ const getChildDirectories = async (/** @type {URL} */ dir) => {
 	return dirs;
 };
 
-/* Application
-/* ========================================================================== */
-
-/** Runs all smoke tests. */
-export default async function run() {
-	console.log('');
-
-	const directories = await getChildDirectories(exampleDir);
-
-	directories.push(await downloadGithubZip(docGithubConfig), await downloadGithubZip(wwwGithubConfig));
-
-	console.log('🤖', 'Preparing', 'yarn');
-
-	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdout: 'inherit', stderr: 'inherit' });
-
-	for (const directory of directories) {
-		console.log('🤖', 'Testing', directory.pathname.split('/').at(-1));
-
-		try {
-			await execa('yarn', ['build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
-		} catch (err) {
-			console.log(err);
-
-			process.exit(1);
-		}
-
-		console.log();
-	}
-}
+/* Execution
+/* -------------------------------------------------------------------------- */
 
 run();
 

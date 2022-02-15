@@ -18,28 +18,11 @@ const scriptDir = new URL('./', import.meta.url);
 /** URL directory containing the entire project. */
 const rootDir = new URL('../../', import.meta.url);
 
-/* Functionality
-/* ========================================================================== */
-
-/** Returns all child directories of the given directory. */
-const getChildDirectories = async (/** @type {URL} */ dir) => {
-	/** @type {URL[]} */
-	const dirs = [];
-
-	for await (const dirent of await fs.opendir(dir)) {
-		if (dirent.isDirectory()) {
-			dirs.push(new URL(dirent.name, dir));
-		}
-	}
-
-	return dirs;
-};
-
 /* Application
 /* ========================================================================== */
 
 /** Runs all smoke tests. */
-export default async function run() {
+async function run() {
 	const dirs = await getChildDirectories(scriptDir)
 
 	if (dirs.length) {
@@ -58,5 +41,25 @@ export default async function run() {
 
 	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdout: 'inherit', stderr: 'inherit' });
 }
+
+/* Functionality
+/* ========================================================================== */
+
+/** Returns all child directories of the given directory. */
+const getChildDirectories = async (/** @type {URL} */ dir) => {
+	/** @type {URL[]} */
+	const dirs = [];
+
+	for await (const dirent of await fs.opendir(dir)) {
+		if (dirent.isDirectory()) {
+			dirs.push(new URL(dirent.name, dir));
+		}
+	}
+
+	return dirs;
+};
+
+/* Execution
+/* -------------------------------------------------------------------------- */
 
 run();
