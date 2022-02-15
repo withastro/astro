@@ -11,13 +11,12 @@ export default async function onVisible(astroId: string, options: HydrateOptions
 		throw new Error(`Unable to find the root for the component ${options.name}`);
 	}
 
-	const root = roots[0];
 	let innerHTML: string | null = null;
-  let fragment = root.querySelector(`astro-fragment`);
+  const fragment = roots[0].querySelector(`astro-fragment`);
   if(fragment == null) {
 		// If there is no child fragment, check to see if there is a template.
 		// This happens if children were passed but the client component did not render any.
-    let template = root.querySelector(`template[data-astro-template]`);
+    const template = roots[0].querySelector(`template[data-astro-template]`);
     if(template) {
       innerHTML = template.innerHTML;
       template.remove();
