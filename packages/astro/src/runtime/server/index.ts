@@ -275,7 +275,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
 	// Render a template if no fragment is provided.
-	const template = /<\/?astro-fragment\>/.test(html) ? '' : `<template data-astro-template>${children}</template>`
+	const template = children ?
+		/<\/?astro-fragment\>/.test(html) ? '' : `<template data-astro-template>${children}</template>` :
+		'';
 
 	return unescapeHTML(`<astro-root uid="${astroId}">${html ?? ''}${template}</astro-root>`);
 }
