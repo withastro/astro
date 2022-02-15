@@ -56,7 +56,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					const resolvedURL = new URL(id, pathToFileURL(filename));
 					const resolved = fileURLToPath(resolvedURL);
 
-					console.log("WINDOWS DEBUG", isBrowserPath(slash(resolved)), resolved, slash(resolved))
+					console.log("WINDOWS DEBUG2", isBrowserPath(slash(resolved)),  filename, from,resolved, slash(resolved))
 					if(isBrowserPath(slash(resolved))) {
 						return fileURLToPath(new URL('.' + slash(resolved), config.projectRoot));
 					}
