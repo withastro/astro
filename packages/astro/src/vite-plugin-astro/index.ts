@@ -51,7 +51,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			// we need to resolve relative paths ourselves.
 			if(from) {
 				const { query: fromQuery, filename } = parseAstroRequest(from);
-				if(fromQuery && isRelativePath(id)) {
+				if(fromQuery.astro && isRelativePath(id)) {
 					const resolvedURL = new URL(id, pathToFileURL(filename));
 					if(isBrowserPath(resolvedURL.pathname)) {
 						return fileURLToPath(new URL('.' + resolvedURL.pathname, config.projectRoot));
