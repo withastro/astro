@@ -91,7 +91,6 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 		site: astroConfig.buildOptions.site,
 	});
 
-
 	if (route?.type === 'endpoint') {
 		return content;
 	}

@@ -487,7 +487,7 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: Rou
 }
 
 function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, routeType: RouteType): URL {
-	switch(routeType) {
+	switch (routeType) {
 		case 'endpoint':
 			return new URL(npath.basename(pathname), outFolder);
 		case 'page':

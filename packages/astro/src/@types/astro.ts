@@ -314,7 +314,6 @@ export interface EndpointHandler {
 	[method: string]: (params: any) => EndpointOutput;
 }
 
-
 /**
  * Astro Renderer
  * Docs: https://docs.astro.build/reference/renderer-reference/
