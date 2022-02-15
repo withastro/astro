@@ -55,8 +55,6 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				if(fromQuery.astro && isRelativePath(id)) {
 					const resolvedURL = new URL(id, `file://${filename}`);
 					const resolved = resolvedURL.pathname;
-
-					console.log("WINDOWS DEBUG2", resolved);
 					if(isBrowserPath(resolved)) {
 						return slash(fileURLToPath(new URL('.' + resolved, config.projectRoot)));
 					}
@@ -71,7 +69,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				// Because this needs to be the id for the Vite CSS plugin to property resolve
 				// relative @imports.
 				if (query.type === 'style' && isBrowserPath(id)) {
-					return fileURLToPath(new URL('.' + id, config.projectRoot));
+					return slash(fileURLToPath(new URL('.' + id, config.projectRoot)));
 				}
 
 				return id;

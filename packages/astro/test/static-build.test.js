@@ -114,7 +114,7 @@ describe('Static build', () => {
 		});
 	});
 
-	describe.only('Hoisted scripts', () => {
+	describe('Hoisted scripts', () => {
 		it('Get bundled together on the page', async () => {
 			const html = await fixture.readFile('/subpath/hoisted/index.html');
 			const $ = cheerio.load(html);
