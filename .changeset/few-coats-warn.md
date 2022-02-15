@@ -2,11 +2,13 @@
 'astro': patch
 ---
 
-RFC 0006: Support for non-HTML pages
+Support for non-HTML pages
 
-This adds support for generating non-HTML pages form `.js` and `.ts` pages during the build.
+> ⚠️ This feature is currently only supported with the `--experimental-static-build` CLI flag. This feature may be refined over the next few weeks/months as SSR support is finalized.
 
-> ⚠️ This API is part of static site generation! Keep an eye out for future releases with SSR support to handle building pages on-demand from an Astro server(less) function.
+This adds support for generating non-HTML pages form `.js` and `.ts` pages during the build. Buitl file and extensions are based on the source file's name, ex: `src/pages/data.json.ts` will be built to `dist/data.json`.
+
+**Is this different from SSR?** Yes! This feature allows JSON, XML, etc. files to be output at build time. Keep an eye out for full SSR support if you need to build similar files when requested, for example as a serverless function in your deployment host.
 
 ## Examples
 
