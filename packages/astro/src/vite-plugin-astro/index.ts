@@ -5,6 +5,7 @@ import type { LogOptions } from '../core/logger.js';
 import esbuild from 'esbuild';
 import npath from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
+import slash from 'slash';
 import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';
 import { cachedCompilation } from './compile.js';
@@ -53,11 +54,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				const { query: fromQuery, filename } = parseAstroRequest(from);
 				if(fromQuery.astro && isRelativePath(id)) {
 					const resolvedURL = new URL(id, pathToFileURL(filename));
-					console.log("DEBUGGING", resolvedURL.pathname, isBrowserPath(resolvedURL.pathname))
-					if(isBrowserPath(resolvedURL.pathname)) {
-						return fileURLToPath(new URL('.' + resolvedURL.pathname, config.projectRoot));
+					const resolved = fileURLToPath(resolvedURL);
+					if(isBrowserPath(slash(resolved))) {
+						return fileURLToPath(new URL('.' + slash(resolved), config.projectRoot));
 					}
-					return fileURLToPath(resolvedURL);
+					return resolved;
 				}
 			}
 
