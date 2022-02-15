@@ -41,7 +41,7 @@ async function run() {
 	const directories = await getChildDirectories(exampleDir);
 
 	// TODO Skipped the docs-main test since it is failing at the moment.
-	directories.push(/*await downloadGithubZip(docGithubConfig), */await downloadGithubZip(wwwGithubConfig));
+	directories.push(/*await downloadGithubZip(docGithubConfig), */ await downloadGithubZip(wwwGithubConfig));
 
 	console.log('🤖', 'Preparing', 'yarn');
 
