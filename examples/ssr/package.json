@@ -1,0 +1,21 @@
+{
+  "name": "@example/ssr",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev-api": "node server/dev-api.mjs",
+    "dev": "npm run dev-api & astro dev --experimental-ssr",
+    "start": "astro dev",
+    "build": "echo 'Run yarn build-ssr instead'",
+    "build-ssr": "node build.mjs",
+    "server": "node server/server.mjs"
+  },
+  "devDependencies": {
+    "astro": "^0.23.0-next.0",
+    "unocss": "^0.15.5",
+    "vite-imagetools": "^4.0.1"
+  },
+  "dependencies": {
+    "@astropub/webapi": "^0.10.13"
+  }
+}
