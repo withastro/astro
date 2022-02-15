@@ -53,6 +53,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				const { query: fromQuery, filename } = parseAstroRequest(from);
 				if(fromQuery.astro && isRelativePath(id)) {
 					const resolvedURL = new URL(id, pathToFileURL(filename));
+					console.log("DEBUGGING", resolvedURL.pathname, isBrowserPath(resolvedURL.pathname))
 					if(isBrowserPath(resolvedURL.pathname)) {
 						return fileURLToPath(new URL('.' + resolvedURL.pathname, config.projectRoot));
 					}
