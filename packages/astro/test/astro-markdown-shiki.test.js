@@ -203,4 +203,51 @@ describe('Astro Markdown Shiki', () => {
 			expect($('pre').get(1).attribs.style).to.equal(style);
 		});
 	});
+
+	describe('highlight a specific line', () => {
+		let fixture;
+		let className = 'line highlighted';
+		before(async () => {
+			fixture = await loadFixture({ projectRoot: './fixtures/astro-markdown-shiki/highlight-line/' });
+			await fixture.build();
+		});
+
+		it('Markdown file', async () => {
+			const html = await fixture.readFile('/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('pre')).to.have.lengthOf(1);
+			const $lines = $('pre').children().children();
+			expect($lines.get(0).attribs.class).to.equal(className);
+			expect($lines.get(1).attribs.class).not.to.equal(className);
+			expect($lines.get(2).attribs.class).not.to.equal(className);
+			expect($lines.get(3).attribs.class).to.equal(className);
+			expect($lines.get(4).attribs.class).to.equal(className);
+			expect($lines.get(5).attribs.class).to.equal(className);
+			expect($lines.get(6).attribs.class).not.to.equal(className);
+			expect($lines.get(7).attribs.class).not.to.equal(className);
+			expect($lines.get(8).attribs.class).not.to.equal(className);
+			expect($lines.get(9).attribs.class).not.to.equal(className);
+			expect($lines.get(10).attribs.class).to.equal(className);
+		});
+
+		it('<Markdown /> component', async () => {
+			const html = await fixture.readFile('/astro/index.html');
+			const $ = cheerio.load(html);
+
+			expect($('pre')).to.have.lengthOf(1);
+			const $lines = $('pre').children().children();
+			expect($lines.get(0).attribs.class).to.equal(className);
+			expect($lines.get(1).attribs.class).not.to.equal(className);
+			expect($lines.get(2).attribs.class).not.to.equal(className);
+			expect($lines.get(3).attribs.class).to.equal(className);
+			expect($lines.get(4).attribs.class).to.equal(className);
+			expect($lines.get(5).attribs.class).to.equal(className);
+			expect($lines.get(6).attribs.class).not.to.equal(className);
+			expect($lines.get(7).attribs.class).not.to.equal(className);
+			expect($lines.get(8).attribs.class).not.to.equal(className);
+			expect($lines.get(9).attribs.class).not.to.equal(className);
+			expect($lines.get(10).attribs.class).to.equal(className);
+		});
+	});
 });
