@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('LitElement test', function() {
+describe('LitElement test', function () {
 	this.timeout(30000);
 
 	let fixture;
