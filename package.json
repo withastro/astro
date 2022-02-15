@@ -27,6 +27,7 @@
     "examples/component/demo",
     "examples/component/packages/*",
     "scripts",
+    "scripts/smoke/*",
     "packages/astro/test/fixtures/builtins/packages/*",
     "packages/astro/test/fixtures/builtins-polyfillnode",
     "packages/astro/test/fixtures/custom-elements/my-component-lib",
