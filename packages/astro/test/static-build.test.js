@@ -48,6 +48,21 @@ describe('Static build', () => {
 		expect(content.url).to.equal('https://astro.build/');
 	});
 
+	it ('Builds out async .json files', async () => {
+		const content = await fixture.readFile('/subpath/posts.json').then((text) => JSON.parse(text));
+		expect(Array.isArray(content)).to.equal(true);
+		expect(content).deep.equal([
+			{
+				filename: './posts/nested/more.md',
+				title: 'More post',
+			},
+			{
+				filename: './posts/thoughts.md',
+				title: 'Thoughts post',
+			},
+		]);
+	});
+
 	it('Builds out dynamic .json files', async () => {
 		const slugs = ['thing1', 'thing2'];
 
