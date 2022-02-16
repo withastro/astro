@@ -52,3 +52,16 @@ body {
 	max-width: 900px;
 	margin: auto;
 }
+
+.highlighted {
+	display: block;
+  background-color: rgb(72, 77, 91);
+  margin: 0 calc(-1 * 0.8rem);
+  padding: 0 0.8rem;
+}
+
+/* If you have a different syntax highlighting theme for dark mode. */
+html[data-theme='dark'] .highlighted {
+  /* Color which works with dark mode syntax highlighting theme */
+  background-color: rgb(100, 100, 100);
+}

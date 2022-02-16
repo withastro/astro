@@ -52,6 +52,13 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 			} else if (wrap === true) {
 				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"');
 			}
+			// Replace line break with br tag to prevent blank space behind the highlight.
+			// if lineOptions=null, do nothing
+			if (lineOptions != null && lineOptions.length > 0) {
+				html = html.replace(/\r?\n/g, '');
+				html = html.replace(/<\/span><\/span><span class="line/g, '</span><br></span><span class="line');
+				html = html.replace(/<span class="line"><\/span>/g, '<span class="line"><br></span>');
+			}
 
 			node.type = 'html';
 			node.value = html;
@@ -85,7 +92,7 @@ function parseLineOptions(string: string): shiki.HtmlRendererOptions['lineOption
 	}
 
 	// Following code is referring to parse-number-range library.
- 	// [parse-number-range](https://github.com/euank/node-parse-numeric-range/blob/6728dcfb8b4681eb6986ce7ca13a2ee190222fcc/index.js) library
+	// [parse-number-range](https://github.com/euank/node-parse-numeric-range/blob/6728dcfb8b4681eb6986ce7ca13a2ee190222fcc/index.js) library
 	let res = [];
 	let m;
 
