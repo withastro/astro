@@ -1,5 +1,11 @@
 # astro
 
+## 0.0.0-next--wasm-20220216221041
+
+### Patch Changes
+
+- Bump
+
 ## 0.0.0-next--wasm-20220216194508
 
 ### Minor Changes
