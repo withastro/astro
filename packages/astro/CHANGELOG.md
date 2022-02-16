@@ -1,5 +1,13 @@
 # astro
 
+## 0.23.0-next.8
+
+### Patch Changes
+
+- [#2588](https://github.com/withastro/astro/pull/2588) [`10216176`](https://github.com/withastro/astro/commit/102161761de629fe1bfee7d151d4956c57ea2f42) Thanks [@matthewp](https://github.com/matthewp)! - Fix for passing children to client component when the component does not render them
+
+* [#2593](https://github.com/withastro/astro/pull/2593) [`40c0e2b3`](https://github.com/withastro/astro/commit/40c0e2b3f69e81cd7bb3fc2d8d0b3448c11b6ed8) Thanks [@tony-sull](https://github.com/tony-sull)! - Dynamic route params should ignore param order when matching paths
+
 ## 0.23.0-next.7
 
 ### Patch Changes
@@ -17,12 +25,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1377,10 +1385,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1400,10 +1408,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
