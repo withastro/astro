@@ -275,11 +275,9 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
 	// Render a template if no fragment is provided.
-	const template = children ?
-		/<\/?astro-fragment\>/.test(html) ? '' : `<template data-astro-template>${children}</template>` :
-		'';
-
-	return unescapeHTML(`<astro-root uid="${astroId}">${html ?? ''}${template}</astro-root>`);
+	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
+	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
+	return unescapeHTML(`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
 }
 
 /** Create the Astro.fetchContent() runtime function. */

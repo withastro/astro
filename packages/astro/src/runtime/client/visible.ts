@@ -12,18 +12,18 @@ export default async function onVisible(astroId: string, options: HydrateOptions
 	}
 
 	let innerHTML: string | null = null;
-  const fragment = roots[0].querySelector(`astro-fragment`);
-  if(fragment == null) {
+	let fragment = roots[0].querySelector(`astro-fragment`);
+	if(fragment == null && roots[0].hasAttribute('tmpl')) {
 		// If there is no child fragment, check to see if there is a template.
 		// This happens if children were passed but the client component did not render any.
-    const template = roots[0].querySelector(`template[data-astro-template]`);
-    if(template) {
-      innerHTML = template.innerHTML;
-      template.remove();
-    }
-  } else {
-    innerHTML = fragment.innerHTML;
-  }
+		let template = roots[0].querySelector(`template[data-astro-template]`);
+		if(template) {
+			innerHTML = template.innerHTML;
+			template.remove();
+		}
+	} else if(fragment) {
+		innerHTML = fragment.innerHTML;
+	}
 
 	const cb = async () => {
 		const hydrate = await getHydrateCallback();
