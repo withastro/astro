@@ -33,8 +33,7 @@ async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Param
 			routeCacheEntry = await callGetStaticPaths(mod, route, true, logging);
 			routeCache.set(route, routeCacheEntry);
 		}
-		const paramsKey = JSON.stringify(params);
-		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, paramsKey);
+		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params);
 		if (!matchedStaticPath) {
 			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
 		}

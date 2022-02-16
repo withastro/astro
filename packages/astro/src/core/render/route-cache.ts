@@ -1,10 +1,15 @@
-import type { ComponentInstance, GetStaticPathsItem, GetStaticPathsResult, GetStaticPathsResultKeyed, RouteData, RSS } from '../../@types/astro';
+import type { ComponentInstance, GetStaticPathsItem, GetStaticPathsResult, GetStaticPathsResultKeyed, Params, RouteData, RSS } from '../../@types/astro';
 import { LogOptions, warn, debug } from '../logger.js';
 
 import { generatePaginateFunction } from './paginate.js';
 import { validateGetStaticPathsModule, validateGetStaticPathsResult } from '../routing/index.js';
 
 type RSSFn = (...args: any[]) => any;
+
+function stringifyParams(params: Params) {
+	// Always sort keys before stringifying to make sure objects match regardless of parameter ordering
+	return JSON.stringify(params, Object.keys(params).sort());
+}
 
 export async function callGetStaticPaths(mod: ComponentInstance, route: RouteData, isValidate: boolean, logging: LogOptions): Promise<RouteCacheEntry> {
 	validateGetStaticPathsModule(mod);
@@ -23,7 +28,7 @@ export async function callGetStaticPaths(mod: ComponentInstance, route: RouteDat
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
 	for (const sp of keyedStaticPaths) {
-		const paramsKey = JSON.stringify(sp.params);
+		const paramsKey = stringifyParams(sp.params);
 		keyedStaticPaths.keyed.set(paramsKey, sp);
 	}
 	if (isValidate) {
@@ -73,7 +78,8 @@ export class RouteCache {
 	}
 }
 
-export function findPathItemByKey(staticPaths: GetStaticPathsResultKeyed, paramsKey: string) {
+export function findPathItemByKey(staticPaths: GetStaticPathsResultKeyed, params: Params) {
+	const paramsKey = stringifyParams(params);
 	let matchedStaticPath = staticPaths.keyed.get(paramsKey);
 	if (matchedStaticPath) {
 		return matchedStaticPath;
