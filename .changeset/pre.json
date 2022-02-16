@@ -42,7 +42,8 @@
     "@astrojs/renderer-svelte": "0.3.1",
     "@astrojs/renderer-vue": "0.3.0",
     "astro-scripts": "0.0.1",
-    "@example/with-markdown-shiki": "0.0.1"
+    "@example/with-markdown-shiki": "0.0.1",
+    "@example/ssr": "0.0.1"
   },
   "changesets": [
     "afraid-crabs-heal",
@@ -53,6 +54,7 @@
     "chatty-spies-wink",
     "curly-wasps-sin",
     "empty-snails-allow",
+    "few-coats-warn",
     "four-mirrors-wonder",
     "fresh-moose-compare",
     "gold-kangaroos-notice",
@@ -67,7 +69,10 @@
     "shaggy-shoes-leave",
     "shy-brooms-tell",
     "six-ants-hunt",
+    "slow-islands-fix",
     "soft-mayflies-warn",
-    "tiny-owls-dress"
+    "sour-rabbits-sing",
+    "tiny-owls-dress",
+    "warm-drinks-design"
   ]
 }
