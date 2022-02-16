@@ -1,0 +1,17 @@
+---
+export async function getStaticPaths() {
+    return [
+        { params: { year: '2022', slug: 'post-1' } },
+        { params: { slug: 'post-2', year: '2022' } },
+    ]
+}
+
+const { year, slug } = Astro.request.params
+---
+
+<html>
+  <head>
+    <title>{year} | {slug}</title>
+  </head>
+  <body></body>
+</html>
