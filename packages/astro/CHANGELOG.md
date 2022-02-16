@@ -1,5 +1,82 @@
 # astro
 
+## 0.23.0-next.7
+
+### Patch Changes
+
+- [#2586](https://github.com/withastro/astro/pull/2586) [`d6d35bca`](https://github.com/withastro/astro/commit/d6d35bcafcbe216caa1d9e8410bf2925a4d57467) Thanks [@tony-sull](https://github.com/tony-sull)! - Support for non-HTML pages
+
+  > ⚠️ This feature is currently only supported with the `--experimental-static-build` CLI flag. This feature may be refined over the next few weeks/months as SSR support is finalized.
+
+  This adds support for generating non-HTML pages form `.js` and `.ts` pages during the build. Built file and extensions are based on the source file's name, ex: `src/pages/data.json.ts` will be built to `dist/data.json`.
+
+  **Is this different from SSR?** Yes! This feature allows JSON, XML, etc. files to be output at build time. Keep an eye out for full SSR support if you need to build similar files when requested, for example as a serverless function in your deployment host.
+
+  ## Examples
+
+  ```typescript
+  // src/pages/company.json.ts
+  export async function get() {
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
+  }
+  ```
+
+  What about `getStaticPaths()`? It **just works**™.
+
+  ```typescript
+  export async function getStaticPaths() {
+      return [
+          { params: { slug: 'thing1' }},
+          { params: { slug: 'thing2' }}
+      ]
+  }
+
+  export async function get(params) {
+      const { slug } = params
+
+      return {
+          body: // ...JSON.stringify()
+      }
+  }
+  ```
+
+* [#2548](https://github.com/withastro/astro/pull/2548) [`ba5e2b5e`](https://github.com/withastro/astro/commit/ba5e2b5e6c20207955991775dc4aa8879331542c) Thanks [@matthewp](https://github.com/matthewp)! - Experimental SSR Support
+
+  > ⚠️ If you are a user of Astro and see this PR and think that you can start deploying your app to a server and get SSR, slow down a second! This is only the initial flag and **very basic support**. Styles are not loading correctly at this point, for example. Like we did with the `--experimental-static-build` flag, this feature will be refined over the next few weeks/months and we'll let you know when its ready for community testing.
+
+  ## Changes
+
+  - This adds a new `--experimental-ssr` flag to `astro build` which will result in `dist/server/` and `dist/client/` directories.
+  - SSR can be used through this API:
+
+    ```js
+    import { createServer } from 'http';
+    import { loadApp } from 'astro/app/node';
+
+    const app = await loadApp(new URL('./dist/server/', import.meta.url));
+
+    createServer((req, res) => {
+      const route = app.match(req);
+      if(route) {
+        let html = await app.render(req, route);
+      }
+
+    }).listen(8080);
+    ```
+
+  - This API will be refined over time.
+  - This only works in Node.js at the moment.
+  - Many features will likely not work correctly, but rendering HTML at least should.
+
+- [#2581](https://github.com/withastro/astro/pull/2581) [`ec6f148f`](https://github.com/withastro/astro/commit/ec6f148fc8623c6549885af70512839c08905fdb) Thanks [@matthewp](https://github.com/matthewp)! - Fix for resolving relative imports from hoisted scripts in the static build.
+
+* [#2594](https://github.com/withastro/astro/pull/2594) [`085468e9`](https://github.com/withastro/astro/commit/085468e949f1d6e9e19bd7039574b586a78e7601) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Upgrade `@astrojs/compiler` to `v0.10.2`
+
 ## 0.23.0-next.6
 
 ### Patch Changes
@@ -1301,10 +1378,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1324,10 +1401,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
