@@ -213,6 +213,7 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 };
 
 export interface HydrateOptions {
+	name: string;
 	value?: string;
 }
 

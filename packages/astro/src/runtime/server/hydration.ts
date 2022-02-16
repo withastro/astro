@@ -116,7 +116,7 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 	const hydrationScript = {
 		props: { type: 'module', 'data-astro-component-hydration': true },
 		children: `import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';
-setup("${astroId}", {${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''}}, async () => {
+setup("${astroId}", {name:"${metadata.displayName}",${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''}}, async () => {
   ${hydrationSource}
 });
 `,

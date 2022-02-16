@@ -274,7 +274,10 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
 	result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
-	return unescapeHTML(`<astro-root uid="${astroId}">${html ?? ''}</astro-root>`);
+	// Render a template if no fragment is provided.
+	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
+	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
+	return unescapeHTML(`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
 }
 
 /** Create the Astro.fetchContent() runtime function. */
