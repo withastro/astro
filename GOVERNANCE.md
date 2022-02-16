@@ -63,7 +63,6 @@ The Maintainer role is critical to the long-term health of Astro. Maintainers ac
 
 **A Maintainer has moderation privileges!** All maintainers are trusted with the ability to help moderate our Discord and GitHub communities for things like spam. There is also a special (optional, opt-in) `@mods` role open to maintainers who are also interested in helping out when a community member reaches out for moderation help.
 
-
 #### Recognized Contributions
 
 There is no strict minimum number of contributions needed to reach this level, as long as you can show **sustained** involvement over some amount of time (at least a couple of weeks).
@@ -182,7 +181,6 @@ The project Steward is currently: **@FredKSchott**
 - New stewards will be added based on a unanimous vote by the existing Steward(s).
 - In the event that someone is unreachable then the decision will be deferred.
 
-
 ## Other Roles
 
 ### Staff
@@ -199,7 +197,6 @@ All privileges of the [Core Maintainer role](#level-3---core-mainainer), except.
 - No voting abilities for the first 3 months of staff membership. Then, the role grants equivalent voting permissions as `@core` (see [Voting](#voting) below).
 - Not eligible for additional contributor levels while acting as `@staff`. You can retain all current contributor levels and can request a new nomination upon leaving `@staff` (See [Leaving Staff](#leaving-staff) below). This rule is designed to prevent a team of contributors/maintainers that is overwhelmingly ex-staff members.
 
-
 #### Responsibilities
 
 Responsibilities will vary. Most often, a staff member will regularly meet the responsibilites of either the [Maintainer (L2)](#level-2---maintainer) or [Core Maintainer (L3)](#level-3---core-mainainer) role.
@@ -210,7 +207,7 @@ There is no nomination process for this role. The project steward is responsible
 
 #### Leaving Staff
 
-When someone leaves the Astro Technology Company, they lose staff privileges and return to their original membership level in our governance structure (whatever level they were at before joining staff). 
+When someone leaves the Astro Technology Company, they lose staff privileges and return to their original membership level in our governance structure (whatever level they were at before joining staff).
 
 If that person wishes to continue working on Astro after leaving, they may request a nomination to become an official L2 or L3 contributor. This nomination would follow the normal voting rules & procedure for that role (see [Voting](#voting) below).
 
