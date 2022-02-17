@@ -10,6 +10,7 @@ import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.j
 import configAliasVitePlugin from '../vite-plugin-config-alias/index.js';
 import markdownVitePlugin from '../vite-plugin-markdown/index.js';
 import jsxVitePlugin from '../vite-plugin-jsx/index.js';
+import envVitePlugin from '../vite-plugin-env/index.js';
 import { resolveDependency } from './util.js';
 
 // Some packages are just external, and that’s the way it goes.
@@ -54,6 +55,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 			// The server plugin is for dev only and having it run during the build causes
 			// the build to run very slow as the filewatcher is triggered often.
 			mode === 'dev' && astroViteServerPlugin({ config: astroConfig, logging }),
+			envVitePlugin({ config: astroConfig }),
 			markdownVitePlugin({ config: astroConfig }),
 			jsxVitePlugin({ config: astroConfig, logging }),
 			astroPostprocessVitePlugin({ config: astroConfig }),
