@@ -23,9 +23,8 @@ export interface PreviewServer {
 /** The primary dev action */
 export default async function preview(config: AstroConfig, { logging }: PreviewOptions): Promise<PreviewServer> {
 	const startServerTime = performance.now();
-
 	const defaultOrigin = 'http://localhost';
-
+	const trailingSlash = config.devOptions.trailingSlash
 	/** Base request URL. */
 	let baseURL = new URL(config.buildOptions.site || '/', defaultOrigin);
 
@@ -45,31 +44,26 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 
 		const isRoot = pathname === '/';
 		const hasTrailingSlash = isRoot || pathname.endsWith('/');
-		const trailingSlash = config.devOptions.trailingSlash;
-		const forceTrailingSlash = trailingSlash === 'always';
-		const blockTrailingSlash = trailingSlash === 'never';
 
-		const onErr = (message: string) => {
+		const err = (message: string) => {
 			res.statusCode = 404;
 			res.end(notFoundTemplate(pathname, message));
 		};
 
-		switch (true) {
-			case hasTrailingSlash && blockTrailingSlash && !isRoot:
-				onErr('Prohibited trailing slash');
-
-			case !hasTrailingSlash && forceTrailingSlash && !isRoot:
-				onErr('Required trailing slash');
-
-			default: {
-				console.log('imagine shipping a console.log into production',hasTrailingSlash,forceTrailingSlash,isRoot)
+		switch(true) {
+			case hasTrailingSlash && trailingSlash == 'never' && !isRoot:
+				err('Prohibited trailing slash');
+				break;
+			case !hasTrailingSlash && trailingSlash == 'always' && !isRoot:
+				err('Required trailing slash');
+				break;
+			default:
 				sirv(fileURLToPath(config.dist), {
 					maxAge: 0,
 					onNoMatch: () => {
-						onErr('Path not found')
+						err('Path not found')
 					}
 				})(req,res)
-			}
 		}
 	});
 
