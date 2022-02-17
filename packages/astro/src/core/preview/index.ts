@@ -57,14 +57,15 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 			case !hasTrailingSlash && trailingSlash == 'always' && !isRoot:
 				err('Required trailing slash');
 				break;
-			default:
+			default: {
+				req.url = '/' + req.url?.replace(baseURL.pathname,'')
 				sirv(fileURLToPath(config.dist), {
 					maxAge: 0,
 					onNoMatch: () => {
 						err('Path not found')
 					}
 				})(req,res)
-		}
+		}}
 	});
 
 	let { hostname, port } = config.devOptions;
