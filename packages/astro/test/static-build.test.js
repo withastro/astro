@@ -91,6 +91,15 @@ describe('Static build', () => {
 		};
 	}
 
+	describe('Page CSS', () => {
+		const findEvidence = createFindEvidence(/height:( )*45vw/);
+
+		it('Page level CSS is added', async () => {
+			const found = await findEvidence('/subpath/index.html');
+			expect(found).to.equal(true, 'Did not find page-level CSS on this page');
+		});
+	});
+
 	describe('Shared CSS', () => {
 		const findEvidence = createFindEvidence(/var\(--c\)/);
 

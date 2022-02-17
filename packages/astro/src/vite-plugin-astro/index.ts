@@ -11,7 +11,7 @@ import { parseAstroRequest } from './query.js';
 import { cachedCompilation } from './compile.js';
 import ancestor from 'common-ancestor-path';
 import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
-import { isRelativePath } from '../core/path.js';
+import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -28,6 +28,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			filename = new URL('.' + filename, config.projectRoot).pathname;
 		}
 		return filename;
+	}
+	function relativeToRoot(pathname: string) {
+		const arg = startsWithForwardSlash(pathname) ? '.' + pathname : pathname;
+		const url = new URL(arg, config.projectRoot);
+		return slash(fileURLToPath(url)) + url.search;
 	}
 
 	let viteTransform: TransformHook;
@@ -52,13 +57,13 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			// we need to resolve relative paths ourselves.
 			if (from) {
 				const { query: fromQuery, filename } = parseAstroRequest(from);
-				if (fromQuery.astro && isRelativePath(id)) {
+				if (fromQuery.astro && isRelativePath(id) && fromQuery.type === 'script') {
 					const resolvedURL = new URL(id, `file://${filename}`);
 					const resolved = resolvedURL.pathname;
 					if (isBrowserPath(resolved)) {
-						return slash(fileURLToPath(new URL('.' + resolved, config.projectRoot)));
+						return relativeToRoot(resolved + resolvedURL.search);
 					}
-					return slash(fileURLToPath(resolvedURL));
+					return slash(fileURLToPath(resolvedURL)) + resolvedURL.search;
 				}
 			}
 
@@ -69,7 +74,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				// Because this needs to be the id for the Vite CSS plugin to property resolve
 				// relative @imports.
 				if (query.type === 'style' && isBrowserPath(id)) {
-					return slash(fileURLToPath(new URL('.' + id, config.projectRoot)));
+					return relativeToRoot(id);
 				}
 
 				return id;
