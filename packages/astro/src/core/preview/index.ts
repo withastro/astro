@@ -43,17 +43,34 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		/** Relative request path. */
 		const pathname = requestURL.pathname.slice(baseURL.pathname.length - 1);
 
-		const notFound = () => {
+		const isRoot = pathname === '/';
+		const hasTrailingSlash = isRoot || pathname.endsWith('/');
+		const trailingSlash = config.devOptions.trailingSlash;
+		const forceTrailingSlash = trailingSlash === 'always';
+		const blockTrailingSlash = trailingSlash === 'never';
+
+		const onErr = (message: string) => {
 			res.statusCode = 404;
-			res.end(notFoundTemplate(pathname, 'Path not found'));
+			res.end(notFoundTemplate(pathname, message));
 		};
 
-		const sirver = sirv(fileURLToPath(config.dist), {
-			maxAge: 0,
-			onNoMatch: notFound
-		})
+		switch (true) {
+			case hasTrailingSlash && blockTrailingSlash && !isRoot:
+				onErr('Prohibited trailing slash');
 
-		sirver(req,res)
+			case !hasTrailingSlash && forceTrailingSlash && !isRoot:
+				onErr('Required trailing slash');
+
+			default: {
+				console.log('imagine shipping a console.log into production',hasTrailingSlash,forceTrailingSlash,isRoot)
+				sirv(fileURLToPath(config.dist), {
+					maxAge: 0,
+					onNoMatch: () => {
+						onErr('Path not found')
+					}
+				})(req,res)
+			}
+		}
 	});
 
 	let { hostname, port } = config.devOptions;
