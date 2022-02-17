@@ -59,7 +59,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 			children: '',
 		});
 		scripts.add({
-			props: { type: 'module', src: new URL('../../runtime/client/hmr.js', import.meta.url).pathname },
+			props: { type: 'module', src: new URL('../../../runtime/client/hmr.js', import.meta.url).pathname },
 			children: '',
 		});
 	}
