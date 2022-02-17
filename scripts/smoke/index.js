@@ -58,6 +58,15 @@ async function run() {
 			process.exit(1);
 		}
 
+		// Run with the static build too
+		try {
+			await execa('yarn', ['build', '--', '--experimental-static-build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
+		} catch (err) {
+			console.log(err);
+
+			process.exit(1);
+		}
+
 		console.log();
 	}
 }
