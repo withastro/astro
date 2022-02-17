@@ -95,5 +95,10 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 	}
 
 	viteConfig = vite.mergeConfig(viteConfig, inlineConfig); // merge in inline Vite config
+
+	if (typeof viteConfig.mergedConfigCallback === "function") {
+		return viteConfig.mergedConfigCallback(viteConfig);
+	}
+
 	return viteConfig;
 }
