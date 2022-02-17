@@ -1,5 +1,13 @@
 # astro
 
+## 0.23.0-next.10
+
+### Patch Changes
+
+- [#2606](https://github.com/withastro/astro/pull/2606) [`96609d4c`](https://github.com/withastro/astro/commit/96609d4c9ef66ef6852e590fa439a2177e9ae847) Thanks [@matthewp](https://github.com/matthewp)! - Fixes 404 to HMR script in the static build
+
+* [#2605](https://github.com/withastro/astro/pull/2605) [`87762410`](https://github.com/withastro/astro/commit/87762410f3c2b887e049422d61a17e9c0fdabd88) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Astro style resolution in the static build
+
 ## 0.23.0-next.9
 
 ### Patch Changes
@@ -31,12 +39,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1391,10 +1399,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1414,10 +1422,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 

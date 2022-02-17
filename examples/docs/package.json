@@ -12,6 +12,6 @@
     "@docsearch/react": "^1.0.0-alpha.28"
   },
   "devDependencies": {
-    "astro": "^0.23.0-next.9"
+    "astro": "^0.23.0-next.10"
   }
 }
