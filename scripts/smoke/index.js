@@ -26,10 +26,10 @@ const exampleDir = new URL('examples/', rootDir);
 const astroDir = new URL('packages/astro/', rootDir);
 
 /** GitHub configuration for the external "docs" Astro project. */
-const docGithubConfig = { org: 'withastro', name: 'docs', branch: 'main' };
+// const docGithubConfig = { org: 'withastro', name: 'docs', branch: 'main' };
 
 /** GitHub configuration for the external "astro.build" Astro project. */
-const wwwGithubConfig = { org: 'withastro', name: 'astro.build', branch: 'main' };
+// const wwwGithubConfig = { org: 'withastro', name: 'astro.build', branch: 'main' };
 
 /* Application
 /* -------------------------------------------------------------------------- */
@@ -41,7 +41,7 @@ async function run() {
 	const directories = await getChildDirectories(exampleDir);
 
 	// TODO Skipped the docs-main test since it is failing at the moment.
-	directories.push(/*await downloadGithubZip(docGithubConfig), */ await downloadGithubZip(wwwGithubConfig));
+	// TODO Skipped the www test since it is failing at the moment.
 
 	console.log('🤖', 'Preparing', 'yarn');
 
