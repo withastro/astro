@@ -68,8 +68,14 @@ let lastThirthy = sizes.slice(sizes.length - 30);
 let averageOfLastThirty = mean(lastThirthy);
 let medianOfAll = median(sizes);
 
+// If the trailing average is higher than the median, see if it's more than 5% higher
 if(averageOfLastThirty > medianOfAll) {
-	throw new Error(`The average towards the end (${prettyBytes(averageOfLastThirty)}) is higher than the median of all runs (${prettyBytes(medianOfAll)}). This tells us that memory continues to grow and a leak is likely.`)
+	let percentage = Math.abs(averageOfLastThirty - medianOfAll) / medianOfAll;
+	if(percentage > .05) {
+		throw new Error(`The average towards the end (${prettyBytes(averageOfLastThirty)}) is more than 5% higher than the median of all runs (${prettyBytes(medianOfAll)}). This tells us that memory continues to grow and a leak is likely.`)
+	}
 }
+
+
 
 await server.stop();
