@@ -56,7 +56,8 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 		async transform(source, id, options) {
 			const ssr = options?.ssr === true;
 			if (!ssr) return source;
-			if (/\bimport\.\s*meta\s*\.env\b/g.test(source)) return source;
+			if (!source.includes('import.meta')) return source;
+			if (!/\benv\b/.test(source)) return source;
 
 			if (typeof privateEnv === 'undefined') {
 				privateEnv = getPrivateEnv(config, astroConfig);
