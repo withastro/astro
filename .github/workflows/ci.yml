@@ -202,14 +202,9 @@ jobs:
         env:
           CI: true
 
-      - name: Test
-        if: ${{ matrix.os != 'windows-latest' }}
-        run: yarn run build:examples --concurrency=1
-
       # Turbo seems to fail on Windows, so run a custom script directly.
-      - name: Test (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: node ./scripts/smoke/index.js
+      - name: Test
+        run: yarn test:smoke
 
       - name: Memory Leak Test
         run: |
