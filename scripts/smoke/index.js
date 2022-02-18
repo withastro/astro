@@ -59,6 +59,11 @@ async function run() {
 		}
 
 		// Run with the static build too
+		if(directory.pathname.includes('astro.build')) {
+			// astro.build uses the static build, so rerunning with the flag actually negates it.
+			continue;
+		}
+
 		try {
 			await execa('yarn', ['build', '--', '--experimental-static-build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
 		} catch (err) {
