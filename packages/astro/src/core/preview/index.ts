@@ -45,7 +45,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		const isRoot = pathname === '/';
 		const hasTrailingSlash = isRoot || pathname.endsWith('/');
 
-		const err = (message: string) => {
+		function err(message: string) {
 			res.statusCode = 404;
 			res.end(notFoundTemplate(pathname, message));
 		};
@@ -58,6 +58,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 				err('Required trailing slash');
 				break;
 			default: {
+				// HACK: rewrite req.url so that sirv finds the file
 				req.url = '/' + req.url?.replace(baseURL.pathname,'')
 				sirv(fileURLToPath(config.dist), {
 					maxAge: 0,
