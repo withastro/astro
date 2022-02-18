@@ -6,4 +6,4 @@
 
 	// PUBLIC_SOME_KEY is available everywhere
 	console.log({ SSR, PUBLIC_SOME_KEY });
-})()
+})();

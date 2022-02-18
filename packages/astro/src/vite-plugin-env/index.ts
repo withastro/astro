@@ -14,7 +14,7 @@ function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig
 		envPrefixes = Array.isArray(viteConfig.envPrefix) ? viteConfig.envPrefix : [viteConfig.envPrefix];
 	}
 	const fullEnv = loadEnv(viteConfig.mode, viteConfig.envDir ?? fileURLToPath(astroConfig.projectRoot), '');
-	const privateKeys = Object.keys(fullEnv).filter(key => {
+	const privateKeys = Object.keys(fullEnv).filter((key) => {
 		// don't expose any variables also on `process.env`
 		// note: this filters out `CLI_ARGS=1` passed to node!
 		if (typeof process.env[key] !== 'undefined') return false;
@@ -26,16 +26,16 @@ function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig
 
 		// Otherwise, this is a private variable defined in an `.env` file
 		return true;
-	})
+	});
 	if (privateKeys.length === 0) {
 		return null;
 	}
-	return Object.fromEntries(privateKeys.map(key => [key, fullEnv[key]]));
+	return Object.fromEntries(privateKeys.map((key) => [key, fullEnv[key]]));
 }
 
 function referencesPrivateKey(source: string, privateEnv: Record<string, any>) {
 	for (const key of Object.keys(privateEnv)) {
-			if (source.includes(key)) return true;
+		if (source.includes(key)) return true;
 	}
 	return false;
 }
