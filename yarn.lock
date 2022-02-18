@@ -130,10 +130,10 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@astrojs/compiler@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.11.0.tgz#8a15b0dcca8fba3343e3c6aad1f58c035aa1aa46"
-  integrity sha512-mCrY+e74YXnPsCERLk7Vgm/XIccalcMsSrEE+LOTRKsTU5R3eHEXrUc32bpsIiWO7Rbspf14uYtFQ6ErrGybsA==
+"@astrojs/compiler@^0.11.3":
+  version "0.11.3"
+  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.11.3.tgz#804de4ce6c073049175ba6e0eec470e8dabee81d"
+  integrity sha512-mg0hRk8uzk5LQjtHpAFtwmkCq7YM40Inev49WPqdxDnDaK056I1dbRCm3E/h2SJhLdUyI3KRML79N6DTmL5wRg==
   dependencies:
     typescript "^4.3.5"
 
@@ -6647,6 +6647,11 @@ pretty-bytes@^5.3.0, pretty-bytes@^5.6.0:
   version "5.6.0"
   resolved "https://registry.yarnpkg.com/pretty-bytes/-/pretty-bytes-5.6.0.tgz#356256f643804773c82f64723fe78c92c62beaeb"
   integrity sha512-FFw039TmrBqFK8ma/7OL3sDz/VytdtJr044/QUJtH0wK9lb9jLq9tJyIxUwtQJHwar2BqtiA4iCWSwo9JLkzFg==
+
+pretty-bytes@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/pretty-bytes/-/pretty-bytes-6.0.0.tgz#928be2ad1f51a2e336add8ba764739f9776a8140"
+  integrity sha512-6UqkYefdogmzqAZWzJ7laYeJnaXDy2/J+ZqiiMtS7t7OfpXWTlaeGMwX8U6EFvPV/YWWEKRkS8hKS4k60WHTOg==
 
 pretty-format@^3.8.0:
   version "3.8.0"

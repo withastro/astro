@@ -211,6 +211,11 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         run: node ./scripts/smoke/index.js
 
+      - name: Memory Leak Test
+        run: |
+          node ./scripts/memory/mk.js
+          node ./scripts/memory/index.js
+
 
   # Changelog can only run _after_ build.
   # We download all `dist/` artifacts from GitHub to skip the build process.
