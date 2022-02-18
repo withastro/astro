@@ -137,10 +137,10 @@
   dependencies:
     typescript "^4.3.5"
 
-"@astrojs/compiler@^0.11.2":
-  version "0.11.2"
-  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.11.2.tgz#382746d0013b5e10294907045151b47a0eee45fa"
-  integrity sha512-lDUhO73CBrJ4IGO/6Q6y+uleQwcPu779VZofKy793TbDnfmvVUIqmXNu8X1gFDC1sJ5N+mLGRmcVmFv6ttu8aw==
+"@astrojs/compiler@^0.11.3":
+  version "0.11.3"
+  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.11.3.tgz#804de4ce6c073049175ba6e0eec470e8dabee81d"
+  integrity sha512-mg0hRk8uzk5LQjtHpAFtwmkCq7YM40Inev49WPqdxDnDaK056I1dbRCm3E/h2SJhLdUyI3KRML79N6DTmL5wRg==
   dependencies:
     typescript "^4.3.5"
 
