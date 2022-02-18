@@ -1,0 +1,102 @@
+---
+const { class: className = '', href } = Astro.props;
+// Wrap in <span> because Houdini is disabled for a[href] for security
+
+const { variant = 'primary' } = Astro.props;
+const { before, after } = Astro.slots;
+---
+
+<span class={`link pixel variant-${variant} ${before ? 'has-before' : ''} ${after ? 'has-after' : ''} ${className}`.trim()}>
+    <a {href}>
+        <slot name="before" />
+        <span><slot /></span>
+        <slot name="after" />
+    </a>
+</span>
+
+<style>
+    .link {
+        --border-radius: 8;
+        --duration: 200ms;
+        --delay: 30ms;
+        --background: linear-gradient(180deg, var(--link-color-stop-a), var(--link-color-stop-b));
+        display: flex;
+        color: white;
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        width: max-content;
+        transition-property: transform, --link-color-stop-a, --link-color-stop-b;
+        transition-duration: var(--duration);
+        transition-delay: var(--delay);
+        transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .link:hover,
+    .link:focus-within {
+        transform: translateY(calc(var(--pixel-size) * -0.5px));
+    }
+    .link:active {
+        transform: translateY(0);
+    }
+    .has-before a :first-child {
+        margin-left: -1rem;
+        margin-right: 0.25rem;
+    }
+    .has-before a :last-child {
+        margin-left: 0.25rem;
+        margin-right: -1rem;
+    }
+    a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.67rem 2.5rem;
+        width: 100%;
+        height: 100%;
+        text-decoration: none;
+        color: inherit !important;
+    }
+    a > :global(* + *) {
+        margin-left: 0.25rem;
+    }
+
+    .variant-primary {
+        --variant: primary;
+        --background: linear-gradient(180deg, var(--link-color-stop-a), var(--link-color-stop-b));
+    }
+    .variant-primary:hover,
+    .variant-primary:focus-within {
+        --link-color-stop-a: #6D39FF;
+        --link-color-stop-b: #AF43FF;
+    }
+    .variant-primary:active {
+        --link-color-stop-a: #5F31E1;
+        --link-color-stop-b: #A740F3;
+    }
+
+    .variant-outline {
+        --variant: outline;
+        --background: none;
+        color: var(--background);
+    }
+    .variant-outline > a::before {
+        position: absolute;
+        top: 0;
+        right: calc(var(--pixel-size) * 1px);
+        bottom: calc(var(--pixel-size) * 1px);
+        left: calc(var(--pixel-size) * 1px);
+        content: "";
+        display: block;
+        transform-origin: bottom center;
+        background: linear-gradient(to top, var(--background), rgba(255, 255, 255, 0));
+        opacity: 0.3;
+        transform: scaleY(0);
+        transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .variant-outline:hover > a::before,
+    .variant-outline:focus-within > a::before {
+        transform: scaleY(1);
+    }
+    .variant-outline:active > a::before {
+        transform: scaleY(1);
+    }
+</style>

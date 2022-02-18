@@ -1,0 +1,28 @@
+---
+export interface Props {
+	code: string;
+}
+const { code } = Astro.props;
+---
+
+<pre><code>{String(code).trim().split('\n').map(
+  line => <span class="line">{
+    line.startsWith('#') ? <span class="comment">{line}</span> : line
+  }</span>)
+}</code></pre>
+
+<style>
+	pre,
+	code {
+		white-space: pre;
+	}
+	.comment {
+		color: var(--color-gray-400);
+	}
+	.line {
+		display: block;
+	}
+	.line:empty::after {
+		content: ' ';
+	}
+</style>

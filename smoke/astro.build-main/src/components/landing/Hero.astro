@@ -1,0 +1,206 @@
+---
+import Grid from './Grid.astro';
+---
+<section class="hero">
+    <div class="background">
+        <div class="blob-a" />
+        <div class="blob-b" />
+        <div class="blob-c" />
+    </div>
+    <Grid />
+    <div class="container content">
+        <h2 class="text-gradient"><slot name="title" /></h2>
+        <p><slot name="tagline" /></p>
+        <div class="cta container">
+            <slot />
+        </div>
+    </div>
+</section>
+
+<style>
+    .hero {
+        position: relative;
+        background: var(--color-tan) linear-gradient(180deg, var(--color-tan), var(--color-tan) 10rem, #E8ADB7 100%);
+        padding: var(--padding, 4rem) 0;
+        padding-bottom: var(--padding-bottom, 16rem);
+        z-index: 0;
+        overflow: hidden;
+        max-height: 95vh;
+        max-height: 95svh;
+        
+    }
+    @supports (padding: clamp(0px, 1vw, 1px)) {
+        .hero {
+            --padding: clamp(4rem, 6vw, 8rem);
+            --padding-bottom: max(calc(var(--padding) * 1.5), 24rem);
+        }
+    }
+
+    @media (min-width: 52rem) and (min-height: 40rem) {
+        .hero {
+            max-height: 80vh;
+        }
+    }
+
+    .content {
+        margin-top: 5rem;
+        text-align: center;
+        color: rgba(34, 34, 34, 0.8);
+    }
+    @media (min-width: 52rem) {
+        .content {
+            margin-top: 3.5rem;
+        }
+    }
+    
+    h2 {
+        --fill: var(--gradient-pop-1);
+        font-size: 4rem;
+        font-size: var(--size-800);
+        font-family: var(--font-display);
+        line-height: 1.1;
+        margin-bottom: 1.25rem;
+    }
+    @media (min-width: 52rem) {
+        h2 {
+            font-size: var(--size-900);
+        }
+    }
+    p {
+        font-size: var(--size-600);
+        max-width: min(48ch, calc(100% - 1rem));
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 1.5em;
+    }
+    .cta {
+        position: relative;
+        left: 0;
+        right: 0;
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        justify-content: center;
+        z-index: 1;
+        gap: 2rem;
+    }
+
+    @media (min-width: 52rem) {
+        .cta {
+            position: absolute;
+            flex-direction: row;
+        }
+    }
+
+    .background {
+        --time: 25s;
+        --blur: 128px;
+        --scale-x: 1.125;
+        --opacity: 0.9;
+        --ty: 0;
+        --aspect-ratio: 16 / 9;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: -1;
+        backface-visibility: hidden;
+        transform: translate3d(0,0,0) scaleX(var(--scale-x, 1));
+        opacity: var(--opacity, 1);
+        filter: blur(var(--blur)) saturate(1.1);
+    }
+
+    @media (min-width: 64rem) {
+        .background {
+            --ty: -5%;
+            /* --opacity: 1; */
+            --scale-x: 1.25;
+        }
+    }
+
+    /* Firefox tweaks */
+    @supports (-moz-appearance: none) {
+        .background {
+            --blur: 1280px;
+            --opacity: 0.7;
+        }
+    }
+
+    /* Safari tweaks */
+    @supports (-webkit-appearance: none) {
+        .background {
+            --blur: 80px;
+            --opacity: 0.8;
+        }
+    }
+
+    .blob-a {
+        display: block;
+        position: absolute;
+        top: 67%;
+        right: -50%;
+        margin-left: -50%;
+        min-width: 1280px;
+        width: 200%;
+        aspect-ratio: var(--aspect-ratio);
+        border-radius: 50%;
+        transform-origin: center center;
+        background: linear-gradient(-170deg, #FF9900 0%, #AD00FF 30.71%, #0029FF 37.67%, #6D39FF 49.54%);
+        z-index: 0;
+    }
+
+    .blob-b {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 67%;
+        right: -50%;
+        margin-left: -50%;
+        min-width: 1280px;
+        width: 200%;
+        aspect-ratio: var(--aspect-ratio);
+        border-radius: 50%;
+        background: red;
+        transform-origin: center center;
+        background: linear-gradient(259deg, #FF9900 0%, #AD00FF 30.71%, #0029FF 37.67%, #6D39FF 49.54%);
+        z-index: -1;
+    }
+
+    .blob-c {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: -50%;
+        margin-left: -50%;
+        min-width: 1280px;
+        width: 200%;
+        aspect-ratio: var(--aspect-ratio);
+        border-radius: 50%;
+        background: red;
+        transform-origin: center center;
+        background: linear-gradient(-180deg, #FF9900 0%, #AD00FF 30.71%, #0029FF 37.67%, #6D39FF 49.54%);
+        z-index: 1;
+    }
+
+    @supports not (aspect-ratio: 1 / 1) {
+        .blob-a::before,
+        .blob-b::before,
+        .blob-c::before {
+            float: left;
+            padding-top: calc(100% * var(--aspect-ratio));
+            content: "";
+        }
+
+        .blob-a::after,
+        .blob-b::after,
+        .blob-c::after {
+            display: block;
+            content: "";
+            clear: both;
+        }
+    }
+</style>

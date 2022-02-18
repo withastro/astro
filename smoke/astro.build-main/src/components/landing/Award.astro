@@ -1,0 +1,34 @@
+---
+import Section from './Section.astro';
+import Title from './Title.astro';
+import Panel from '../Panel.astro';
+---
+
+<Section {...Astro.props}>
+    <Panel background="var(--gradient-pop-4)">
+        <div class="container">
+            <div class="content">
+                <h3 class="head-md"><slot name="title" /></h3>
+                <div class="body">
+                    <slot />
+                </div>
+            </div>
+        </div>
+    </Panel>
+</Section>
+
+<style>
+    .content {
+        color: var(--color-dawn);
+        text-align: center;
+    }
+    .body {
+        max-width: 75ch;
+        margin: 2em auto 0;
+    }
+
+    .body :global(a) {
+        text-decoration: underline;
+        color: white;
+    }
+</style>

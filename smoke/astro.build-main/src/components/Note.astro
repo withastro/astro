@@ -1,0 +1,58 @@
+---
+export interface Props {
+	title?: string;
+	type?: 'tip' | 'warning' | 'error';
+}
+const { type = 'tip', title } = Astro.props;
+---
+
+<aside class={`note type-${type}`}>
+	{title && <h3 class="head-sm">{title}</h3>}
+	<slot />
+</aside>
+
+<style>
+	.note {
+		--padding-block: 2rem;
+		--padding-inline: 2rem;
+
+		display: flex;
+		flex-direction: column;
+
+		padding: var(--padding-block) var(--padding-inline);
+		margin-left: calc(var(--padding-inline) * -1);
+		margin-right: calc(var(--padding-inline) * -1);
+		margin-top: 4rem !important;
+
+		background: var(--color-dawn);
+		color: var(--color-midnight);
+		box-shadow: var(--shadow-md);
+	}
+
+	@media (min-width: 64rem) {
+		.note {
+			border-radius: var(--corner-md);
+		}
+	}
+
+	.note > :global(* + *) {
+		margin-top: 1em;
+	}
+
+	.note h3 {
+		font-weight: 700;
+		font-size: var(--size-500);
+		color: var(--color-accent);
+		margin: 0;
+	}
+
+	.note.type-tip {
+		--color-accent: var(--color-blue);
+	}
+	.note.type-warning {
+		--color-accent: var(--color-yellow);
+	}
+	.note.type-error {
+		--color-accent: var(--color-red);
+	}
+</style>

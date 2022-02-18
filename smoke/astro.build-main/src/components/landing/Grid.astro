@@ -1,0 +1,82 @@
+---
+const { class: className } = Astro.props;
+---
+
+<div class={`grid ${className}`}>
+    <div class="base" />
+    {Array.from({ length: 10 }, (_, i) => <div class="line" style={`--i: ${i};`} />)}
+</div>
+
+<style>
+.grid {
+    --len: 10;
+    --time: 15s;
+    --grid-size-inline: 5em;
+    --grid-size-block: 2.5em;
+    --grid-color: #000;
+    --grid-stroke: 1px;
+    opacity: 0.7;
+    mix-blend-mode: hard-light;
+    position: absolute;
+    bottom: -30%;
+    left: 0;
+    right: 0;
+    height: 100%;
+    z-index: 1;
+    filter: invert(1);
+    pointer-events: none;
+}
+.base {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin-left: -50%;
+    width: 200%;
+    background-position-y: 0px;
+    background-image: repeating-linear-gradient(90deg, var(--grid-color, white) 0%, transparent calc(1px + var(--grid-stroke, 0px)), transparent var(--grid-size-inline), var(--grid-color, white) calc(var(--grid-size-inline) + 1px + var(--grid-stroke, 0px)));
+    transform: perspective(50vh) rotateX(60deg) translateZ(10px) translateY(-1px);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1), rgba(0, 0, 0, 1));
+    mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 1), rgba(0, 0, 0, 1))
+}
+.line {
+    --n-start: calc((var(--i) + 1) / var(--len));
+    --n-end: calc((var(--i) + 2) / var(--len));
+    --ty-start: calc(var(--i) * calc(var(--grid-size-block) * ((var(--i) + 1) / var(--len))));
+    --ty-end: calc((var(--i) + 1) * calc(var(--grid-size-block) * ((var(--i) + 2) / var(--len))));
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 35.5%;
+    height: 1px;
+    width: 100%;
+    border: var(--grid-stroke) solid var(--grid-color);
+    transform: scaleY(var(--sy-start)) translateY(var(--ty-start));
+    animation: move var(--time) infinite linear;
+}
+
+/* Firefox tweaks */
+@supports (-moz-appearance: none) {
+    .line {
+        animation-play-state: paused;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .line {
+        animation-play-state: paused;
+    }
+}
+
+@keyframes move {
+    0% {
+        opacity: calc(var(--n-start));
+        transform: translate3d(0, var(--ty-start), 0);
+    }
+    100%{
+        opacity: calc(var(--n-end));
+        transform: translate3d(0, var(--ty-end), 0);
+    }
+}
+</style>

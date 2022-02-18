@@ -1,0 +1,27 @@
+{
+  "name": "astro.build",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "astro dev --experimental-static-build",
+    "dev": "astro dev",
+    "build": "astro build --experimental-static-build",
+    "preview": "astro preview",
+    "update-contributors": "node ./update-contributors.mjs"
+  },
+  "devDependencies": {
+    "astro": "0.23.0-next.10",
+    "astro-icon": "^0.6.0"
+  },
+  "volta": {
+    "node": "14.18.3"
+  },
+  "dependencies": {
+    "date-fns": "^2.28.0",
+    "quicklink": "^2.2.0",
+    "rehype-autolink-headings": "^6.1.0",
+    "remark-autolink-headings": "^7.0.1",
+    "remark-smartypants": "^2.0.0",
+    "smartypants": "^0.1.6"
+  }
+}

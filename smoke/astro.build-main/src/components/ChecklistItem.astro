@@ -1,0 +1,43 @@
+---
+import { Sprite } from 'astro-icon'
+const { href } = Astro.props;
+const Wrapper = href ? 'a' : Fragment;
+const wrapperProps = href ? { href, target: '_blank', rel: 'noopener noreferrer' } : {};
+---
+
+<li class="checklist-item" role="listitem">
+    <Wrapper {...wrapperProps}>
+        <span class="checklist-marker">
+            <slot name="icon" />
+        </span>
+        <span class="checklist-text"><slot /></span>
+        <Sprite aria-hidden="true" class="arrow" pack="mdi" name="arrow-right" size="1em" />
+    </Wrapper>
+</li>
+
+<style>
+a {
+    display: inline-flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+}
+.checklist-marker {
+    transition: transform 200ms cubic-bezier(0.23, 1, 0.320, 1);
+    transition-property: transform, background, color;
+}
+a:is(:hover, :focus) .checklist-marker {
+    color: var(--color-dawn);
+    background: var(--color-purple);
+    transform: scale(1.10);
+}
+a .arrow {
+    opacity: 0;
+    transition: transform 200ms cubic-bezier(0.23, 1, 0.320, 1);
+    transition-property: transform, opacity;
+}
+a:is(:hover, :focus) .arrow {
+    transform: translateX(0.25em);
+    opacity: 1;
+}
+</style>

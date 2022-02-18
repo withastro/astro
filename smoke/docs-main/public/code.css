@@ -1,0 +1,101 @@
+.language-css > code,
+.language-sass > code,
+.language-scss > code {
+	color: #fd9170;
+}
+
+.language-diff .token.prefix.deleted,
+.language-diff .token.prefix.inserted {
+	user-select: none;
+}
+
+[class*='language-'] .namespace {
+	opacity: 0.7;
+}
+
+.token.plain-text,
+[class*='language-bash'] span.token,
+[class*='language-shell'] span.token {
+	color: hsla(var(--color-gray-90), 1);
+}
+
+[class*='language-bash'] span.token,
+[class*='language-shell'] span.token {
+	font-style: bold;
+}
+
+.token.prolog,
+.token.comment,
+[class*='language-bash'] span.token.comment,
+[class*='language-shell'] span.token.comment {
+	color: hsla(var(--color-gray-70), 1);
+}
+
+.token.selector,
+.token.tag,
+.token.unit,
+.token.url,
+.token.variable,
+.token.entity,
+.token.deleted {
+	color: #fa5e5b;
+}
+
+.token.boolean,
+.token.constant,
+.token.doctype,
+.token.number,
+.token.regex,
+.token.builtin,
+.token.class,
+.token.hexcode,
+.token.class-name,
+.token.attr-name {
+	color: hsla(var(--color-yellow), 1);
+}
+
+.token.atrule,
+.token.attribute,
+.token.attr-value .token.punctuation,
+.token.attr-value,
+.token.pseudo-class,
+.token.pseudo-element,
+.token.string {
+	color: hsla(var(--color-green), 1);
+}
+
+.token.symbol,
+.token.function,
+.token.id,
+.token.important {
+	color: hsla(var(--color-blue), 1);
+}
+
+.token.important,
+.token.id {
+	font-weight: bold;
+}
+
+.token.cdata,
+.token.char,
+.token.property {
+	color: #23b1af;
+}
+
+.token.inserted {
+	color: hsla(var(--color-green), 1);
+}
+
+.token.keyword {
+	color: #ff657c;
+	font-style: italic;
+}
+
+.token.operator {
+	color: hsla(var(--color-gray-70), 1);
+}
+
+.token.attr-value .token.attr-equals,
+.token.punctuation {
+	color: hsla(var(--color-gray-80), 1);
+}

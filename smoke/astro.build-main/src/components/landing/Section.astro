@@ -1,0 +1,19 @@
+---
+const { class: className = '', style: _style, pad = 1, ...props } = Astro.props;
+let style;
+if (_style) {
+    style = `${_style}; --pad: ${pad};`
+} else {
+    style = `--pad: ${pad};`
+}
+---
+<section class={className} style={style} {...props}>
+    <slot />
+</section>
+
+<style>
+    section {
+        background: var(--background, var(--color-tan));
+        padding: 0 0 calc(var(--size-1000) * var(--pad, 1)) 0;
+    }
+</style>

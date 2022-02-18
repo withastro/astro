@@ -1,0 +1,88 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import BaseLayout from '../components/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Wrapper from '../components/Wrapper.astro';
+import Footer from '../components/Footer.astro';
+import Card from '../components/blog/Card.astro';
+import Outro from '../components/blog/Outro.astro';
+import Panel from '../components/Panel.astro';
+
+let { content: { title, publishDate, description, authors, socialImage } } = Astro.props;
+const { canonicalURL } = Astro.request;
+const meta = {
+	title: `${title} | Astro`,
+	description,
+	canonicalURL,
+	image: socialImage,
+}
+
+console.log(Astro.props);
+---
+
+<html lang="en">
+
+<head>
+	<BaseHead {...meta} />
+	<style>
+		:root {
+			scroll-padding-top: 10rem;
+			background: var(--color-tan);
+		}
+		:global(#content) {
+			min-height: 100vh;
+			padding: 4rem 0;
+		}
+		#article {
+			max-width: 48rem;
+			padding-bottom: 2rem;
+			display: flex;
+			flex-flow: column nowrap;
+			font-family: var(--font-body);
+			font-size: var(--size-500);
+			line-height: 1.3;
+			color: var(--color-midnight);
+			z-index: 1;
+		}
+		:where(#article > :global(* + *)) {
+			margin-top: 1em;
+		}
+		#article :is(h2):not([class]) {
+			margin-top: 3em;
+		}
+		#article > :global(.note:last-child) {
+			margin-top: 8rem;
+		}
+		.hero {
+			display: flex;
+			flex-flow: row wrap;
+			padding: 3rem 0 2rem;
+			max-width: 100%;
+		}
+	</style>
+</head>
+
+<body>
+	<BaseLayout wrapper={Wrapper}>
+		<Nav slot="nav" />
+		
+		<Panel size="md" background="white linear-gradient(180deg, #E5DAEE 0%, rgba(255, 255, 255, 0) 24rem)">
+			<div id="article">
+				<header class="hero">
+					<Card post={{ title, description, authors, publishDate }} variant="hero" />
+				</header>
+				
+				<hr>
+
+				<slot />
+
+				<Outro tweet={{ title, href: canonicalURL.toString() }} />
+			</div>
+		</Panel>
+
+
+		<Footer slot="footer" />
+	</BaseLayout>
+</body>
+
+</html>

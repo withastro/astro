@@ -1,0 +1,80 @@
+{
+  "featured": [
+    {
+      "name": "Ink",
+      "description": "Crisp, minimal, personal blog theme for Astro",
+      "github": "https://github.com/one-aalam/astro-ink",
+      "demo": "https://astro-ink.vercel.app/",
+      "sandbox": "https://github.dev/one-aalam/astro-ink",
+      "command": "npm init astro -- --template one-aalam/astro-ink"
+    }
+  ],
+  "official": [
+    {
+      "name": "Starter Kit",
+      "description": "A default starter project for Astro. Flexible enough to handle anything that you might want to build.",
+      "github": "https://github.com/withastro/astro/tree/main/examples/starter",
+      "demo": null,
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/starter",
+      "command": "npm init astro"
+    },
+    {
+      "name": "Docs",
+      "description": "A documentation website theme, complete with i18n, search, dark mode and more.",
+      "github": "https://github.com/withastro/astro/tree/main/examples/docs",
+      "demo": null,
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/docs",
+      "command": "npm init astro -- --template docs"
+    },
+    {
+      "name": "Blog",
+      "description": "A blog theme, perfect for personal and company blogs.",
+      "github": "https://github.com/withastro/astro/tree/main/examples/blog",
+      "demo": null,
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/blog",
+      "command": "npm init astro -- --template blog"
+    },
+    {
+      "name": "Portfolio",
+      "description": "A portfolio theme, perfect for your personal or professional online portfolio.",
+      "github": "https://github.com/withastro/astro/tree/main/examples/portfolio",
+      "demo": null,
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/portfolio",
+      "command": "npm init astro -- --template portfolio"
+    },
+    {
+      "name": "Portfolio-svelte",
+      "description": "A portfolio theme using Svelte components, perfect for your personal or professional online portfolio.",
+      "github": "https://github.com/withastro/astro/tree/main/examples/portfolio-svelte",
+      "demo": null,
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/portfolio-svelte",
+      "command": "npm init astro -- --template portfolio-svelte"
+    },
+    {
+      "name": "Minimal",
+      "description": "A minimal theme, with just the bare minimum needed to get started.",
+      "github": "https://github.com/withastro/astro/tree/main/examples/minimal",
+      "demo": null,
+      "sandbox": "https://github.dev/withastro/astro/tree/main/examples/minimal",
+      "command": "npm init astro -- --template minimal"
+    }
+  ],
+  "community": [
+    {
+      "name": "Accessible Astro Starter",
+      "description": "A starter project with accessible features using Astro static site builder.",
+      "github": "https://github.com/markteekman/accessible-astro-starter",
+      "demo": "https://accessible-astro.markteekman.nl/",
+      "sandbox": "https://github.dev/markteekman/accessible-astro-starter",
+      "command": "npm init astro -- --template markteekman/accessible-astro-starter"
+    },
+    {
+      "name": "Astro Theme Creek",
+      "description": "Creek is an open source blog theme for Astro SSG.",
+      "github": "https://github.com/robertguss/Astro-Theme-Creek",
+      "demo": "https://astro-theme-creek.netlify.app/",
+      "sandbox": "https://github.dev/robertguss/Astro-Theme-Creek",
+      "command": "npm init astro -- --template robertguss/Astro-Theme-Creek"
+    }
+  ]
+}

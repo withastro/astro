@@ -1,0 +1,177 @@
+---
+import Illustration from './DemoIllustration.astro';
+---
+
+<Illustration before="255 kB" after="10.7 kB" name="hydration"> 
+    <Fragment slot="before">
+        <div class="ph-content before">
+            <header>
+                <div class="logo" style="--i: 0" />
+                <div class="cart dynamic" style="--i: 0.5" />
+            </header>
+            <ul role="list">
+                {[0, 1, 2].map((i) => {
+                    return (
+                        <li>
+                            <div class="img" style={`--i: ${(i * 0.5) + 1}`}>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"width="48" height="44" viewBox="0 0 64 59" role="img">
+                                    <path fill="#FAFAFA" d="M13 1h5v1h2v1h2v2h1v3h3v2h1v5h-1v2h-3v2h-1v3h-2v1h-2v1h-5v-1h-2v-1H8v-3H7v-2H5v-2H4v-5h1V8h2V5h1V3h3V2h2V1ZM1 54h3v-4h3v-3h3v-3h3v-3h2v-3h5v3h4v3h2v3h5v-3h2v-4h3v-4h1v-5h2v-3h2v-3h2v-3h2v3h2v3h2v3h2v5h2v4h2v4h2v3h3v4h1v4h2v4H1v-5Z"/>
+                                </svg>
+                            </div>
+                            <span class="group">
+                                <div style={`--i: ${(i * 0.5) + 1.33}`} />
+                                <div class="dynamic" style={`--i: ${(i * 0.5) + 1.67}`} />
+                            </span>
+                        </li>
+                    )
+                })}
+            </ul>
+        </div>
+    </Fragment>
+    <Fragment slot="after">
+        <div class="ph-content after">
+            <header>
+                <div class="logo" />
+                <div class="cart dynamic" style="--i: 0" />
+            </header>
+            <ul role="list">
+                {[0, 1, 2].map((i) => {
+                    return (
+                        <li>
+                            <div class="img">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" width="48" height="44" viewBox="0 0 64 59" role="img">
+                                    <path fill="#FAFAFA" d="M13 1h5v1h2v1h2v2h1v3h3v2h1v5h-1v2h-3v2h-1v3h-2v1h-2v1h-5v-1h-2v-1H8v-3H7v-2H5v-2H4v-5h1V8h2V5h1V3h3V2h2V1ZM1 54h3v-4h3v-3h3v-3h3v-3h2v-3h5v3h4v3h2v3h5v-3h2v-4h3v-4h1v-5h2v-3h2v-3h2v-3h2v3h2v3h2v3h2v5h2v4h2v4h2v3h3v4h1v4h2v4H1v-5Z"/>
+                                </svg>
+                            </div>
+                            <span class="group">
+                                <div />
+                                <div class="dynamic" style={`--i: ${i * 0.5}`} />
+                            </span>
+                        </li>
+                    )
+                })}
+            </ul>
+        </div>
+    </Fragment>
+</Illustration>
+
+
+<style>
+    .before {
+        --accent: 94, 81, 76;
+        --accent-bg: linear-gradient(to bottom, #DFC9C0 0%, #A8938A 100%);
+        --delay: 100ms;
+    }
+    .after {
+        --accent: 175, 67, 255;
+        --accent-bg: var(--gradient-pop-3);
+        --delay: 200ms;
+    }
+    .ph-content {
+        color: var(--color);
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+    }
+    .ph-content > * + * {
+        margin-top: 1rem;
+    }
+    ul {
+        list-style: none;
+        display: grid;
+        grid-template-rows: repeat(3, 1fr);
+        gap: 1rem;
+    }
+    li {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-flow: row nowrap;
+    }
+    .group {
+        margin-left: 1rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .group div {
+        width: 100%;
+        flex-grow: 1;
+        height: 1.5rem;
+    }
+    .group div:last-child {
+        margin-top: 0.5rem;
+        width: 67%;
+    }
+    header {
+        --size: 2rem;
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        height: var(--size);
+    }
+    :where(.ph-content div) {
+        border-radius: 8px;
+        background: var(--color);
+        width: 100%;
+        height: var(--height, var(--size, 1rem));
+        position: relative;
+        z-index: 2;
+    }
+    .img {
+        position: relative;
+        border-radius: 8px;
+        z-index: 2;
+        height: 64px;
+        width: 64px;
+        padding: 0.5rem;
+    }
+    .logo {
+        width: calc(var(--size) * 3);
+        height: var(--size);
+    }
+    .cart {
+        width: var(--size);
+        height: var(--size);
+        border-radius: 50%;
+    }
+    .ph-content .dynamic {
+        background: var(--accent-bg);
+    }
+    .ph-content div[style*="--i"]::after {
+        content: "";
+        position: absolute;
+        display: block;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: -1;
+        border-radius: inherit;
+        opacity: 1;
+    }
+    .ph-content div[style*="--i"]::after {
+        box-shadow: 0 0 0 2px rgba(var(--accent), 1);
+        opacity: 0;
+        animation: hydrate-border 3s calc(var(--delay) + calc(var(--i) * 250ms)) ease-out forwards;
+    }
+    @keyframes hydrate-border {
+        0% {
+            opacity: 0;
+        }
+        50%, 80% {
+            opacity: 1;
+        }
+        100% {
+            opacity: 0;
+        }
+    }
+</style>

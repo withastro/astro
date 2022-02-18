@@ -1,0 +1,187 @@
+---
+// SEE https://developers.google.com/search/docs/advanced/guidelines/qualify-outbound-links for rel="sponsored" info
+import { Icon } from 'astro-icon';
+import Section from './Section.astro';
+
+const exclusive = [
+    { name: 'netlify', title: 'Netlify', href: 'https://netlify.com', width: '240', height: '64' },
+]
+const gold = [
+    { name: 'vercel', title: 'Vercel', href: 'https://vercel.com', width: '180', height: '48' },
+    { name: 'divriots', title: '‹div›RIOTS', href: 'https://divriots.com', width: '192', height: '48' },
+    { name: 'stackup', title: 'StackUp Digital', href: 'https://stackupdigital.co.uk/', width: '162', height: '40' }
+]
+const users = await fetch(`https://opencollective.com/astrodotbuild/members.json`).then(res => res.json());
+
+const skipTier = new Set(['Platinum Sponsor', 'Gold Sponsor']);
+function isUser(user) {
+    return user.role === 'BACKER' && !skipTier.has(user.tier);
+}
+function getUser(user) {
+    return {
+        name: user.name,
+        image: user.image,
+        initials: user.name.split(' ').slice(0, 2).map(word => word[0].toUpperCase()).join(''),
+        href: user.website ?? user.twitter ?? user.github
+    };
+};
+
+const individuals = users.filter(user => isUser(user)).map(user => getUser(user)).sort(() => 0.5 - Math.random());
+---
+
+<Section class="sponsor-section" pad={2} {...Astro.props}>
+    <div class="container">
+        <h3 class="head-sm title"><slot name="title" /></h3>
+        <ul class="sponsors exclusive">
+            {exclusive.map(sponsor => (
+                <li><a href={sponsor.href} title={sponsor.title}><span><Icon name={`sponsors/${sponsor.name}`} width={sponsor.width} height={sponsor.height} aria-hidden="true" /></span></a></li>
+            ))}
+        </ul>
+        <ul class="sponsors gold">
+            {gold.map(sponsor => (
+                <li><a href={sponsor.href} title={sponsor.title} rel="sponsored"><span><Icon name={`sponsors/${sponsor.name}`} width={sponsor.width} height={sponsor.height} aria-hidden="true" /></span></a></li>
+            ))}
+        </ul>
+        <ul class="sponsors individuals">
+            {individuals.map(user => {
+                const Tag = user.href ? 'a' : 'span';
+                const tagProps = user.href ? { href: user.href, rel: 'sponsored' } : {};
+                return (
+                    <li>
+                        <Tag class="individual" title={user.name} {...tagProps}>
+                            <span data-initials={user.initials}>
+                                <img aria-hidden="true" loading="lazy" src={user.image} width="64" height="64" alt={user.name} />
+                            </span>
+                        </Tag>
+                    </li>
+                )
+            })}
+        </ul>
+        <div class="cta"><slot name="cta" /></div>
+    </div>
+</Section>
+
+<style>
+.sponsor-section {
+    padding-top: calc(var(--size-1000) * var(--pad, 1));
+    --background: linear-gradient(to bottom, var(--color-tan) 0%, #E8ADB7 100%);
+}
+.container {
+
+}
+.title {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+.sponsors a {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    color: black;
+}
+.sponsors a > span {
+    display: inline-block;
+}
+.sponsors a > span > svg {
+    pointer-events: none;
+}
+.sponsors + .sponsors {
+    margin-top: 2.5rem;
+}
+.cta {
+    font-family: var(--font-display);
+    text-align: center;
+    color: var(--color-dusk);
+    margin-top: 2rem;
+}
+ul.individuals {
+    list-style: none;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: 40rem;
+}
+.individuals > li {
+    box-sizing: border-box;
+    border: 0.25rem solid rgba(255, 255, 255, 0);
+}
+.individual {
+    position: relative;
+    --size: 3rem;
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+.individual img {
+    pointer-events: none;
+    position: relative;
+    width: var(--size);
+    height: var(--size);
+    aspect-ratio: 1 / 1;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.individual span::before {
+    content: "";
+    content: attr(data-initials);
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 0;
+    background: var(--color-dusk);
+    color: white;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+.individual img:not([src]) {
+    display: none;
+}
+
+.sponsors {
+    margin: 0 auto;
+    padding: 0;
+    max-width: max-content;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-flow: row wrap;
+    gap: 1.5rem;
+    color: var(--color-dusk);
+}
+
+@media (min-width: 52rem) {
+    .sponsors {
+        grid-auto-flow: column;
+        max-width: max-content;
+        margin: 0 auto;
+        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+    }
+}
+@media (min-width: 64rem) {
+    .sponsors {
+        gap: 4rem;
+    }
+}
+.sponsors > li {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+</style>

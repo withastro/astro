@@ -1,0 +1,11 @@
+---
+const { href, items = [] } = Astro.props;
+const Tag = href ? 'a' : 'div';
+---
+
+<not-marquee role="marquee" aria-labelledby="not-marquee-label">
+    <input id="marquee-pause" type="checkbox" aria-label="Toggle marquee">
+    <Tag {href} class="track">
+        {Array.from({ length: 6 }, (_, i) => <span class="group" style={`--i: ${i};`} id={i === 0 ? 'not-marquee-label' : undefined} aria-hidden={i > 0 ? 'true' : undefined}>{items.map(item => <span>{item}</span>)}</span>)}
+    </Tag>
+</not-marquee>
