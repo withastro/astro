@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-svelte",
-  "version": "0.4.0-next.0",
+  "version": "0.4.0",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "author": "withastro",

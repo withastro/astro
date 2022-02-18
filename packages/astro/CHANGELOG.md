@@ -1,5 +1,159 @@
 # astro
 
+## 0.23.0
+
+### Minor Changes
+
+- [#2489](https://github.com/withastro/astro/pull/2489) [`618a16f5`](https://github.com/withastro/astro/commit/618a16f59d4037cff1665110f0ed111a96a96437) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add support for the `set:html` and `set:text` directives.
+
+  With the introduction of these directives, unescaped HTML content in expressions is now deprecated. Please migrate to `set:html` in order to continue injecting unescaped HTML in future versions of Astro—you can use `<Fragment set:html={content}>` to avoid a wrapper element. `set:text` allows you to opt-in to escaping now, but it will soon become the default.
+
+* [#2494](https://github.com/withastro/astro/pull/2494) [`d7149f9b`](https://github.com/withastro/astro/commit/d7149f9b2f9a9092b33fa56cedecc446247faf64) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Refactor dev server to use vite server internally.
+
+  This should be an invisible change, and no breaking changes are expected from this change. However, it is a big enough refactor that some unexpected changes may occur. If you've experienced a regression in the dev server, it is most likely a bug!
+
+- [#2586](https://github.com/withastro/astro/pull/2586) [`d6d35bca`](https://github.com/withastro/astro/commit/d6d35bcafcbe216caa1d9e8410bf2925a4d57467) Thanks [@tony-sull](https://github.com/tony-sull)! - Support for non-HTML pages
+
+  > ⚠️ This feature is currently only supported with the `--experimental-static-build` CLI flag. This feature may be refined over the next few weeks/months as SSR support is finalized.
+
+  This adds support for generating non-HTML pages form `.js` and `.ts` pages during the build. Built file and extensions are based on the source file's name, ex: `src/pages/data.json.ts` will be built to `dist/data.json`.
+
+  **Is this different from SSR?** Yes! This feature allows JSON, XML, etc. files to be output at build time. Keep an eye out for full SSR support if you need to build similar files when requested, for example as a serverless function in your deployment host.
+
+  ## Examples
+
+  ```typescript
+  // src/pages/company.json.ts
+  export async function get() {
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
+  }
+  ```
+
+  What about `getStaticPaths()`? It **just works**™.
+
+  ```typescript
+  export async function getStaticPaths() {
+      return [
+          { params: { slug: 'thing1' }},
+          { params: { slug: 'thing2' }}
+      ]
+  }
+
+  export async function get(params) {
+      const { slug } = params
+
+      return {
+          body: // ...JSON.stringify()
+      }
+  }
+  ```
+
+* [#2424](https://github.com/withastro/astro/pull/2424) [`1abb9ed0`](https://github.com/withastro/astro/commit/1abb9ed0800989f47351cc916f19fd8e0672e2c0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Upgrade `vite` to `2.8.x`, unvendoring `vite` and bringing Astro's dependencies up-to-date.
+
+  This is a low-level change that you shouldn't have to worry about too much, but it should fix many, many issues with CJS/ESM interoperability. It also allows Astro to stay up-to-date with the `vite` ecosystem. If you run into any unexpected problems, please let us know by opening an issue.
+
+- [#2471](https://github.com/withastro/astro/pull/2471) [`c9bb1147`](https://github.com/withastro/astro/commit/c9bb1147cbfae20e3ecdf29ef2866a183b3b18e3) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Standardize trailing subpath behavior in config.
+
+  Most users are not aware of the subtle differences between `/foo` and `/foo/`. Internally, we have to handle both which means that we are constantly worrying about the format of the URL, needing to add/remove trailing slashes when we go to work with this property, etc. This change transforms all `site` values to use a trailing slash internally, which should help reduce bugs for both users and maintainers.
+
+* [#2548](https://github.com/withastro/astro/pull/2548) [`ba5e2b5e`](https://github.com/withastro/astro/commit/ba5e2b5e6c20207955991775dc4aa8879331542c) Thanks [@matthewp](https://github.com/matthewp)! - Experimental SSR Support
+
+  > ⚠️ If you are a user of Astro and see this PR and think that you can start deploying your app to a server and get SSR, slow down a second! This is only the initial flag and **very basic support**. Styles are not loading correctly at this point, for example. Like we did with the `--experimental-static-build` flag, this feature will be refined over the next few weeks/months and we'll let you know when its ready for community testing.
+
+  ## Changes
+
+  - This adds a new `--experimental-ssr` flag to `astro build` which will result in `dist/server/` and `dist/client/` directories.
+  - SSR can be used through this API:
+
+    ```js
+    import { createServer } from 'http';
+    import { loadApp } from 'astro/app/node';
+
+    const app = await loadApp(new URL('./dist/server/', import.meta.url));
+
+    createServer((req, res) => {
+      const route = app.match(req);
+      if(route) {
+        let html = await app.render(req, route);
+      }
+
+    }).listen(8080);
+    ```
+
+  - This API will be refined over time.
+  - This only works in Node.js at the moment.
+  - Many features will likely not work correctly, but rendering HTML at least should.
+
+### Patch Changes
+
+- [#2486](https://github.com/withastro/astro/pull/2486) [`6bd165f8`](https://github.com/withastro/astro/commit/6bd165f84cd3a1550b29fec539af814360c87f54) Thanks [@matthewp](https://github.com/matthewp)! - Fix for the static build when project contains a space
+
+* [#2424](https://github.com/withastro/astro/pull/2424) [`1abb9ed0`](https://github.com/withastro/astro/commit/1abb9ed0800989f47351cc916f19fd8e0672e2c0) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes HMR of CSS that is imported from astro, when using the static build flag
+
+- [#2522](https://github.com/withastro/astro/pull/2522) [`3e8844fa`](https://github.com/withastro/astro/commit/3e8844fa871fa477026375db6d921beb4b23b0dc) Thanks [@matthewp](https://github.com/matthewp)! - Fix for CSS superset support and HMR in the static build
+
+* [#2506](https://github.com/withastro/astro/pull/2506) [`187d5128`](https://github.com/withastro/astro/commit/187d5128af9ea388589f12e7b062b1e6a38ac67a) Thanks [@jonathantneal](https://github.com/jonathantneal)! - Fix an issue rendering content within HTMLElement
+
+- [#2606](https://github.com/withastro/astro/pull/2606) [`96609d4c`](https://github.com/withastro/astro/commit/96609d4c9ef66ef6852e590fa439a2177e9ae847) Thanks [@matthewp](https://github.com/matthewp)! - Fixes 404 to HMR script in the static build
+
+* [#2599](https://github.com/withastro/astro/pull/2599) [`929fae68`](https://github.com/withastro/astro/commit/929fae684f2e375bfae2dd2b69d440abcf944378) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `@astrojs/compiler` to [`v0.11.0`](https://github.com/withastro/compiler/blob/main/lib/compiler/CHANGELOG.md#0110), which moves from TinyGo to Go's built-in WASM output. This will be a significant improvement for stability and memory safety.
+
+- [#2532](https://github.com/withastro/astro/pull/2532) [`b210fd00`](https://github.com/withastro/astro/commit/b210fd008b9253f0c755c21e157cd7fb069c8445) Thanks [@matthewp](https://github.com/matthewp)! - Fixes HMR of .astro modules in astro@next
+
+* [#2552](https://github.com/withastro/astro/pull/2552) [`e81bc3cf`](https://github.com/withastro/astro/commit/e81bc3cf14d9516a76a3328d277eb2e4db9d7279) Thanks [@matthewp](https://github.com/matthewp)! - Fixes build slowness on large apps
+
+  This fixes slowness on large apps, particularly during the static build. Fix is to prevent the Vite dev server plugin from being run during build, as it is not needed.
+
+- [#2605](https://github.com/withastro/astro/pull/2605) [`87762410`](https://github.com/withastro/astro/commit/87762410f3c2b887e049422d61a17e9c0fdabd88) Thanks [@matthewp](https://github.com/matthewp)! - Fixes Astro style resolution in the static build
+
+* [#2569](https://github.com/withastro/astro/pull/2569) [`82544e41`](https://github.com/withastro/astro/commit/82544e413406a62ecf3e408ca1aac5c8c15b7453) Thanks [@matthewp](https://github.com/matthewp)! - Fixes pageUrlFormat: 'file' in the static build
+
+- [#2588](https://github.com/withastro/astro/pull/2588) [`10216176`](https://github.com/withastro/astro/commit/102161761de629fe1bfee7d151d4956c57ea2f42) Thanks [@matthewp](https://github.com/matthewp)! - Fix for passing children to client component when the component does not render them
+
+* [#2531](https://github.com/withastro/astro/pull/2531) [`ef1d81ef`](https://github.com/withastro/astro/commit/ef1d81effd4e0c420c6eb2e5e500cfaac3106ea8) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix issue where hostname was not passed to dev server
+
+- [#2537](https://github.com/withastro/astro/pull/2537) [`b0666286`](https://github.com/withastro/astro/commit/b066628693d9d9a526b3e8ab2a2d493aad38a722) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve debug logs
+
+* [#2511](https://github.com/withastro/astro/pull/2511) [`3d2c1849`](https://github.com/withastro/astro/commit/3d2c184962925300ca75c96b8115f88e68140ec7) Thanks [@matthewp](https://github.com/matthewp)! - Bug fix for `define:vars` with the --experimental-static-build flag
+
+- [#2518](https://github.com/withastro/astro/pull/2518) [`2bc91543`](https://github.com/withastro/astro/commit/2bc91543ceeb5f3dd45e201bf75d79f186e85141) Thanks [@JuanM04](https://github.com/JuanM04)! - Added the ability to use custom themes and langs with Shiki (`<Code />` and `@astrojs/markdown-remark`)
+
+* [#2612](https://github.com/withastro/astro/pull/2612) [`39cbe500`](https://github.com/withastro/astro/commit/39cbe5008549517d9360bc7c473793523c0c9207) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve suppport for `import.meta.env`.
+
+  Prior to this change, all variables defined in `.env` files had to include the `PUBLIC_` prefix, meaning that they could potentially be visible to the client if referenced.
+
+  Now, Astro includes _any_ referenced variables defined in `.env` files on `import.meta.env` during server-side rendering, but only referenced `PUBLIC_` variables on the client.
+
+- [#2471](https://github.com/withastro/astro/pull/2471) [`c9bb1147`](https://github.com/withastro/astro/commit/c9bb1147cbfae20e3ecdf29ef2866a183b3b18e3) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Respect subpath URL paths in the fetchContent url property.
+
+  This fixes an issue where fetchContent() URL property did not include the buildOptions.site path in it.
+
+* [#2538](https://github.com/withastro/astro/pull/2538) [`16d532fe`](https://github.com/withastro/astro/commit/16d532fe1772a2c0880beda0f49883efb2469e44) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix rendering of HTML boolean attributes like `open` and `async`.
+
+  Fix rendering of HTML and SVG enumerated attributes like `contenteditable` and `spellcheck`.
+
+- [#2570](https://github.com/withastro/astro/pull/2570) [`34317bc0`](https://github.com/withastro/astro/commit/34317bc05c707179af0be6c9fe743c1fd1299532) Thanks [@matthewp](https://github.com/matthewp)! - Fixes bug with astro/components not loading in the next release
+
+* [#2581](https://github.com/withastro/astro/pull/2581) [`ec6f148f`](https://github.com/withastro/astro/commit/ec6f148fc8623c6549885af70512839c08905fdb) Thanks [@matthewp](https://github.com/matthewp)! - Fix for resolving relative imports from hoisted scripts in the static build.
+
+- [#2593](https://github.com/withastro/astro/pull/2593) [`40c0e2b3`](https://github.com/withastro/astro/commit/40c0e2b3f69e81cd7bb3fc2d8d0b3448c11b6ed8) Thanks [@tony-sull](https://github.com/tony-sull)! - Dynamic route params should ignore param order when matching paths
+
+* [#2497](https://github.com/withastro/astro/pull/2497) [`6fe1b027`](https://github.com/withastro/astro/commit/6fe1b0279fce5a7a0e90ff79746ea0b641da3e21) Thanks [@JuanM04](https://github.com/JuanM04)! - Bumped Shiki version
+
+- [#2594](https://github.com/withastro/astro/pull/2594) [`085468e9`](https://github.com/withastro/astro/commit/085468e949f1d6e9e19bd7039574b586a78e7601) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Upgrade `@astrojs/compiler` to `v0.10.2`
+
+- Updated dependencies [[`a907a73b`](https://github.com/withastro/astro/commit/a907a73b8cd14726d158ea460932f9cd8891923a), [`cfeaa941`](https://github.com/withastro/astro/commit/cfeaa9414acdecec6f5d66ee0e33fe4fde574eee), [`2bc91543`](https://github.com/withastro/astro/commit/2bc91543ceeb5f3dd45e201bf75d79f186e85141), [`6fe1b027`](https://github.com/withastro/astro/commit/6fe1b0279fce5a7a0e90ff79746ea0b641da3e21), [`2bc91543`](https://github.com/withastro/astro/commit/2bc91543ceeb5f3dd45e201bf75d79f186e85141), [`d71c4620`](https://github.com/withastro/astro/commit/d71c46207af40de6811596ca4f5e10aa9006377b)]:
+  - @astrojs/renderer-preact@0.5.0
+  - @astrojs/renderer-react@0.5.0
+  - @astrojs/renderer-svelte@0.4.0
+  - @astrojs/renderer-vue@0.4.0
+  - @astrojs/markdown-remark@0.6.1
+
 ## 0.23.0-next.10
 
 ### Patch Changes
@@ -39,12 +193,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1399,10 +1553,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1422,10 +1576,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 

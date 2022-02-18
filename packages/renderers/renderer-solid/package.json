@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-solid",
-  "version": "0.4.0-next.0",
+  "version": "0.4.0",
   "description": "Use Solid components within Astro",
   "type": "module",
   "author": "withastro",
