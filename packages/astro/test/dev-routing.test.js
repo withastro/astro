@@ -162,7 +162,7 @@ describe('Development Routing', () => {
 		});
 
 		it('200 when loading dynamic route', async () => {
-			const response = await fixture.fetch('/blog/1/');
+			const response = await fixture.fetch('/blog/0/');
 			expect(response.status).to.equal(200);
 		});
 
