@@ -45,13 +45,13 @@ async function run() {
 
 	console.log('🤖', 'Preparing', 'yarn');
 
-	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdout: 'inherit', stderr: 'inherit' });
+	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
 
 	for (const directory of directories) {
 		console.log('🤖', 'Testing', directory.pathname.split('/').at(-1));
 
 		try {
-			await execa('yarn', ['build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
+			await execa('yarn', ['run', 'build'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
 		} catch (err) {
 			console.log(err);
 

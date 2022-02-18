@@ -14,6 +14,7 @@
     "test": "turbo run test --scope=astro",
     "test:match": "cd packages/astro && yarn run test:match",
     "test:templates": "turbo run test --scope=create-astro",
+    "test:smoke": "node scripts/smoke/index.js",
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
     "format": "prettier -w ."
