@@ -46,7 +46,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'error', // log errors only
 		optimizeDeps: {
-			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
+			entries: mode === 'dev' ? ['src/**/*'] : [], // Try and scan a user’s project (won’t catch everything),
 		},
 		plugins: [
 			configAliasVitePlugin({ config: astroConfig }),
