@@ -21,6 +21,12 @@ describe('Preview Routing', () => {
 				previewServer = await fixture.preview();
 			});
 
+			beforeEach(function (done) {
+				setTimeout(function(){
+					done();
+				}, 250);
+			});
+
 			after(async () => {
 				previewServer && (await previewServer.stop());
 			});
@@ -73,6 +79,12 @@ describe('Preview Routing', () => {
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
+			});
+
+			beforeEach(function (done) {
+				setTimeout(function(){
+					done();
+				}, 250);
 			});
 
 			after(async () => {
@@ -131,6 +143,12 @@ describe('Preview Routing', () => {
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
+			});
+
+			beforeEach(function (done) {
+				setTimeout(function(){
+					done();
+				}, 250);
 			});
 
 			after(async () => {
@@ -196,6 +214,12 @@ describe('Preview Routing', () => {
 				previewServer = await fixture.preview();
 			});
 
+			beforeEach(function (done) {
+				setTimeout(function(){
+					done();
+				}, 250);
+			});
+
 			after(async () => {
 				previewServer && (await previewServer.stop());
 			});
@@ -251,6 +275,12 @@ describe('Preview Routing', () => {
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
+			});
+
+			beforeEach(function (done) {
+				setTimeout(function(){
+					done();
+				}, 250);
 			});
 
 			after(async () => {
@@ -312,6 +342,12 @@ describe('Preview Routing', () => {
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
+			});
+
+			beforeEach(function (done) {
+				setTimeout(function(){
+					done();
+				}, 250);
 			});
 
 			after(async () => {
