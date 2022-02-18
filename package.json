@@ -34,7 +34,7 @@
     "packages/astro/test/fixtures/static build/pkg"
   ],
   "volta": {
-    "node": "14.17.0",
+    "node": "16.14.0",
     "npm": "7.11.2",
     "yarn": "1.22.10"
   },
