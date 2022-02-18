@@ -8,11 +8,41 @@ interface EnvPluginOptions {
 	config: AstroConfig;
 }
 
-export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions): vite.PluginOption {
-	let privateEnv: Record<string, any> | undefined;
-	let privateKeys: string[] = [];
-	let config: vite.ResolvedConfig;
+function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig) {
 	let envPrefixes: string[] = ['PUBLIC_'];
+	if (viteConfig.envPrefix) {
+		envPrefixes = Array.isArray(viteConfig.envPrefix) ? viteConfig.envPrefix : [viteConfig.envPrefix];
+	}
+	const fullEnv = loadEnv(viteConfig.mode, viteConfig.envDir ?? fileURLToPath(astroConfig.projectRoot), '');
+	const privateKeys = Object.keys(fullEnv).filter(key => {
+		// don't expose any variables also on `process.env`
+		// note: this filters out `CLI_ARGS=1` passed to node!
+		if (typeof process.env[key] !== 'undefined') return false;
+
+		// don't inject `PUBLIC_` variables, Vite handles that for us
+		for (const envPrefix of envPrefixes) {
+			if (key.startsWith(envPrefix)) return false;
+		}
+
+		// Otherwise, this is a private variable defined in an `.env` file
+		return true;
+	})
+	if (privateKeys.length === 0) {
+		return null;
+	}
+	return Object.fromEntries(privateKeys.map(key => [key, fullEnv[key]]));
+}
+
+function referencesPrivateKey(source: string, privateEnv: Record<string, any>) {
+	for (const key of Object.keys(privateEnv)) {
+			if (source.includes(key)) return true;
+	}
+	return false;
+}
+
+export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions): vite.PluginOption {
+	let privateEnv: Record<string, any> | null;
+	let config: vite.ResolvedConfig;
 	return {
 		name: 'astro:vite-plugin-env',
 		enforce: 'pre',
@@ -20,49 +50,21 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 		configResolved(resolvedConfig) {
 			config = resolvedConfig;
 			if (config.envPrefix) {
-				envPrefixes = Array.isArray(config.envPrefix) ? config.envPrefix : [config.envPrefix];
 			}
 		},
 
 		async transform(source, id, options) {
 			const ssr = options?.ssr === true;
 			if (!ssr) return source;
-			// Naive!
-			if (!source.includes('import.meta.env')) return source;
+			if (/\bimport\.\s*meta\s*\.env\b/g.test(source)) return source;
 
-			if (!privateEnv) {
-				privateEnv = {};
-				const fullEnv = loadEnv(config.mode, config.envDir ?? fileURLToPath(astroConfig.projectRoot), '');
-				outer: for (const key of Object.keys(fullEnv)) {
-					// don't expose any variables also on `process.env`
-					// note: this filters out `CLI_ARGS=1` passed to node!
-					if (typeof process.env[key] !== 'undefined') {
-						continue;
-					}
-					// don't inject `PUBLIC_` variables, Vite handles that
-					for (const envPrefix of envPrefixes) {
-						if (key.startsWith(envPrefix)) {
-							continue outer;
-						}
-					}
-					privateEnv[key] = fullEnv[key];
-					privateKeys.push(key);
-				}
+			if (typeof privateEnv === 'undefined') {
+				privateEnv = getPrivateEnv(config, astroConfig);
 			}
-
-			if (privateKeys.length === 0) return source;
-
-			let privateKeyAccess = false;
-			for (const key of privateKeys) {
-				if (source.includes(key)) {
-					privateKeyAccess = true;
-					break;
-				}
-			}
-			if (!privateKeyAccess) return source;
+			if (!privateEnv) return source;
+			if (!referencesPrivateKey(source, privateEnv)) return source;
 
 			const s = new MagicString(source);
-
 			// prettier-ignore
 			s.prepend(`import.meta.env = new Proxy(import.meta.env, {` +
 				`get(target, prop, reciever) {` +
