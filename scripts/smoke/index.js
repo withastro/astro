@@ -1,20 +1,51 @@
-/** @file Runs all smoke tests and may add extra smoke-test dependencies to `yarn.lock`. */
+/** @todo migrate these to use the independent docs repository at https://github.com/withastro/docs */
 
-// @ts-check
-
-import Zip from 'adm-zip';
+import fs from 'fs';
 import { execa } from 'execa';
-import { polyfill } from '@astropub/webapi';
-import { fileURLToPath } from 'node:url';
-import { promises as fs } from 'node:fs';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
-polyfill(globalThis, { exclude: 'window document' });
+// NOTE: Only needed for Windows, due to a Turbo bug.
+// Once Turbo works on Windows, we can remove this script
+// and update our CI to run through Turbo.
 
-/* Configuration
-/* -------------------------------------------------------------------------- */
+const astroBinLocation = new URL('../../node_modules/.bin/astro', import.meta.url);
 
-/** URL directory containing this current script. */
-const scriptDir = new URL('./', import.meta.url);
+/** Returns the parsed package.json of the given directory. */
+const readDirectoryPackage = async (/** @type {URL} */ dir) => JSON.parse(await fs.readFileSync(new URL('package.json', dir + '/'), 'utf-8'));
+
+/** Returns upon completion of writing a package.json to the given directory. */
+const writeDirectoryPackage = async (/** @type {URL} */ dir, /** @type {any} */ data) =>
+	await fs.writeFileSync(new URL('package.json', dir + '/'), JSON.stringify(data, null, '  ') + '\n');
+
+
+export default async function run() {
+	const examplesUrl = new URL('../../examples/', import.meta.url);
+	const examplesToTest = fs
+		.readdirSync(examplesUrl)
+		.map((filename) => new URL(filename, examplesUrl))
+		.filter((fileUrl) => fs.statSync(fileUrl).isDirectory());
+	const allProjectsToTest = [/*...examplesToTest,*/ await gitCloneExample('www', `git@github.com:withastro/astro.build.git`),  await gitCloneExample('docs', `git@github.com:withastro/docs.git`),  ];
+
+	console.log('');
+	for (const projectToTest of allProjectsToTest) {
+		const filePath = fileURLToPath(projectToTest);
+		console.log('  🤖 Testing', filePath, '\n');
+		try {
+			if (filePath.includes('examples-smoke')) {
+				await execa('node', [fileURLToPath(astroBinLocation), 'build'], { cwd: fileURLToPath(projectToTest), stdout: 'inherit', stderr: 'inherit' });
+			} else {
+				await execa('yarn', ['build'], { cwd: fileURLToPath(projectToTest), stdout: 'inherit', stderr: 'inherit' });
+			}
+		} catch (err) {
+			console.log(err);
+			process.exit(1);
+		}
+		console.log('\n  🤖 Test complete.');
+	}
+}
+
+run();
 
 /** URL directory containing the entire project. */
 const rootDir = new URL('../../', import.meta.url);
@@ -25,123 +56,32 @@ const exampleDir = new URL('examples/', rootDir);
 /** URL directory containing the Astro package. */
 const astroDir = new URL('packages/astro/', rootDir);
 
-/** GitHub configuration for the external "docs" Astro project. */
-const docGithubConfig = { org: 'withastro', name: 'docs', branch: 'main' };
+async function gitCloneExample(id, cloneUrl) {
+	const smokeExamplesUrl = new URL('../../examples-smoke/', import.meta.url);
+	const clonedRepoUrl = new URL(`../../examples-smoke/${id}`, import.meta.url);
+	console.log('link:'+fileURLToPath(new URL('../../packages/astro', import.meta.url)));
+	// try {
+	// 	fs.statSync(clonedRepoUrl);
+	// } catch (err) {
+	// 	await execa('git', ['clone', cloneUrl, id], { cwd: fileURLToPath(smokeExamplesUrl), stdout: 'inherit', stderr: 'inherit' });
+	// }
+	// await execa('git', ['fetch', 'origin'], { cwd: fileURLToPath(smokeExamplesUrl), stdout: 'inherit', stderr: 'inherit' });
+	// await execa('git', ['checkout', 'main'], { cwd: fileURLToPath(smokeExamplesUrl), stdout: 'inherit', stderr: 'inherit' });
+	// await execa('git', ['reset', 'origin/main', '--hard'], { cwd: fileURLToPath(smokeExamplesUrl), stdout: 'inherit', stderr: 'inherit' });
 
-/** GitHub configuration for the external "astro.build" Astro project. */
-const wwwGithubConfig = { org: 'withastro', name: 'astro.build', branch: 'main' };
+	// const astroPackage = await readDirectoryPackage(astroDir);
+	// const githubPackage = await readDirectoryPackage(clonedRepoUrl);
+	// if ('astro' in Object(githubPackage.dependencies)) { 
+	// 	githubPackage.dependencies['astro'] = astroPackage.version;
+	// }
+	// if ('astro' in Object(githubPackage.devDependencies)) {
+	// 	githubPackage.devDependencies['astro'] = astroPackage.version;
+	// }
+	// if ('astro' in Object(githubPackage.peerDependencies)) {
+	// 	githubPackage.peerDependencies['astro'] = astroPackage.version;
+	// }
+	// await writeDirectoryPackage(clonedRepoUrl, githubPackage);
 
-/* Application
-/* -------------------------------------------------------------------------- */
-
-/** Runs all smoke tests. */
-async function run() {
-	console.log('');
-
-	const directories = await getChildDirectories(exampleDir);
-
-	// TODO Skipped the docs-main test since it is failing at the moment.
-	directories.push(/*await downloadGithubZip(docGithubConfig), */ await downloadGithubZip(wwwGithubConfig));
-
-	console.log('🤖', 'Preparing', 'yarn');
-
-	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdout: 'inherit', stderr: 'inherit' });
-
-	for (const directory of directories) {
-		console.log('🤖', 'Testing', directory.pathname.split('/').at(-1));
-
-		try {
-			await execa('yarn', ['build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
-		} catch (err) {
-			console.log(err);
-
-			process.exit(1);
-		}
-
-		console.log();
-	}
+	// await execa('yarn', [], { cwd: fileURLToPath(clonedRepoUrl), stdout: 'inherit', stderr: 'inherit' });
+	return clonedRepoUrl; 
 }
-
-/* Functionality
-/* -------------------------------------------------------------------------- */
-
-/** Returns the URL to the ZIP of the given GitHub project. */
-const getGithubZipURL = (/** @type {GithubOpts} */ opts) => `https://github.com/${opts.org}/${opts.name}/archive/refs/heads/${opts.branch}.zip`;
-
-/** Returns the awaited ZIP Buffer from the given GitHub project. */
-const fetchGithubZip = (/** @type {GithubOpts} */ opts) =>
-	fetch(getGithubZipURL(opts))
-		.then((response) => response.arrayBuffer())
-		.then((arrayBuffer) => Buffer.from(arrayBuffer));
-
-/** Downloads a ZIP from the given GitHub project. */
-const downloadGithubZip = async (/** @type {GithubOpts} */ opts) => {
-	/** Expected directory when the zip is downloaded. */
-	const githubDir = new URL(`${opts.name}-${opts.branch}`, scriptDir);
-
-	/** Whether the expected directory is already available */
-	const hasGithubDir = await fs.stat(githubDir).then(
-		(stats) => stats.isDirectory(),
-		() => false
-	);
-
-	if (!hasGithubDir) {
-		console.log('🤖', 'Downloading', `${opts.org}/${opts.name}#${opts.branch}`);
-
-		const buffer = await fetchGithubZip(opts);
-
-		console.log('🤖', 'Extracting', `${opts.org}/${opts.name}#${opts.branch}`);
-
-		new Zip(buffer).extractAllTo(fileURLToPath(scriptDir), true);
-
-		console.log('🤖', 'Preparing', `${opts.org}/${opts.name}#${opts.branch}`);
-
-		const astroPackage = await readDirectoryPackage(astroDir);
-
-		const githubPackage = await readDirectoryPackage(githubDir);
-
-		if ('astro' in Object(githubPackage.dependencies)) {
-			githubPackage.dependencies['astro'] = astroPackage.version;
-		}
-
-		if ('astro' in Object(githubPackage.devDependencies)) {
-			githubPackage.devDependencies['astro'] = astroPackage.version;
-		}
-
-		if ('astro' in Object(githubPackage.peerDependencies)) {
-			githubPackage.peerDependencies['astro'] = astroPackage.version;
-		}
-
-		await writeDirectoryPackage(githubDir, githubPackage);
-	}
-
-	return githubDir;
-};
-
-/** Returns the parsed package.json of the given directory. */
-const readDirectoryPackage = async (/** @type {URL} */ dir) => JSON.parse(await fs.readFile(new URL('package.json', dir + '/'), 'utf-8'));
-
-/** Returns upon completion of writing a package.json to the given directory. */
-const writeDirectoryPackage = async (/** @type {URL} */ dir, /** @type {any} */ data) =>
-	await fs.writeFile(new URL('package.json', dir + '/'), JSON.stringify(data, null, '  ') + '\n');
-
-/** Returns all child directories of the given directory. */
-const getChildDirectories = async (/** @type {URL} */ dir) => {
-	/** @type {URL[]} */
-	const dirs = [];
-
-	for await (const dirent of await fs.opendir(dir)) {
-		if (dirent.isDirectory()) {
-			dirs.push(new URL(dirent.name, dir));
-		}
-	}
-
-	return dirs;
-};
-
-/* Execution
-/* -------------------------------------------------------------------------- */
-
-run();
-
-/** @typedef {{ org: string, name: string, branch: string }} GithubOpts */
