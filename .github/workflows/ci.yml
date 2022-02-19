@@ -208,8 +208,8 @@ jobs:
 
       - name: Memory Leak Test
         run: |
-          node ./scripts/memory/mk.js
-          node ./scripts/memory/index.js
+          node ./scripts/memory/mk.js 
+          node --expose-gc ./scripts/memory/index.js --ci
 
 
   # Changelog can only run _after_ build.
