@@ -1,6 +1,6 @@
 <script type="module" hoist>
 	import { h, render } from 'preact';
-
+	import '../scripts/inline-hoist.js';
 
 	const mount = document.querySelector('#inline-hoist');
 
@@ -11,3 +11,4 @@
 	render(h(App), mount);
 </script>
 <div id="inline-hoist"></div>
+<div id="inline-hoist-two"></div>

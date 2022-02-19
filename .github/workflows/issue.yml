@@ -12,8 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     name: Auto-assign new issues to projects
     steps:
-    - run: echo "${{github.event.issue.title}}"
-
     - name: Assign Bugs to the Bug Tracker
       uses: srggrs/assign-one-project-github-action@1.2.1
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '🐛 BUG:')

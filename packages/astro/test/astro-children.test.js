@@ -69,4 +69,24 @@ describe('Component children', () => {
 		expect($svelte.children(':first-child').text().trim()).to.equal('Hello world');
 		expect($svelte.children(':last-child').text().trim()).to.equal('Goodbye world');
 	});
+
+	it('Renders a template when children are not rendered for client components', async () => {
+		const html = await fixture.readFile('/no-render/index.html');
+		const $ = cheerio.load(html);
+
+		// test 1: If SSR only, no children are rendered.
+		expect($('#ssr-only').children()).to.have.lengthOf(0);
+
+		// test 2: If client, and no children are rendered, a template is.
+		expect($('#client').parent().children()).to.have.lengthOf(2, 'rendered the client component and a template');
+		expect($('#client').parent().find('template[data-astro-template]')).to.have.lengthOf(1, 'Found 1 template');
+
+		// test 3: If client, and children are rendered, no template is.
+		expect($('#client-render').parent().children()).to.have.lengthOf(1);
+		expect($('#client-render').parent().find('template')).to.have.lengthOf(0);
+
+		// test 4: If client and no children are provided, no template is.
+		expect($('#client-no-children').parent().children()).to.have.lengthOf(1);
+		expect($('#client-no-children').parent().find('template')).to.have.lengthOf(0);
+	});
 });

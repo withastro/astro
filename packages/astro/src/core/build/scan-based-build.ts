@@ -1,6 +1,6 @@
 import type { ViteDevServer } from '../vite.js';
-import type { AstroConfig } from '../../@types/astro';
-import type { AllPagesData } from './types';
+import type { AstroConfig, RouteType } from '../../@types/astro';
+import type { AllPagesData, PageBuildData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite.js';
 
@@ -9,7 +9,7 @@ import vite from '../vite.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
-import { RouteCache } from '../ssr/route-cache.js';
+import { RouteCache } from '../render/route-cache.js';
 
 export interface ScanBasedBuildOptions {
 	allPages: AllPagesData;
@@ -20,6 +20,24 @@ export interface ScanBasedBuildOptions {
 	routeCache: RouteCache;
 	viteConfig: ViteConfigWithSSR;
 	viteServer: ViteDevServer;
+}
+
+// Returns a filter predicate to filter AllPagesData entries by RouteType
+function entryIsType(type: RouteType) {
+	return function withPage([_, pageData]: [string, PageBuildData]) {
+		return pageData.route.type === type;
+	};
+}
+
+// Reducer to combine AllPageData entries back into an object keyed by filepath
+function reduceEntries<U>(acc: { [key: string]: U }, [key, value]: [string, U]) {
+	acc[key] = value;
+	return acc;
+}
+
+// Filters an AllPagesData object to only include routes of a specific RouteType
+function routesOfType(type: RouteType, allPages: AllPagesData) {
+	return Object.entries(allPages).filter(entryIsType(type)).reduce(reduceEntries, {});
 }
 
 export async function build(opts: ScanBasedBuildOptions) {
@@ -50,7 +68,7 @@ export async function build(opts: ScanBasedBuildOptions) {
 				internals,
 				logging,
 				origin,
-				allPages,
+				allPages: routesOfType('page', allPages),
 				pageNames,
 				routeCache,
 				viteServer,

@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata, Renderer } from '../../@types/astro';
+import type { AstroComponentMetadata, EndpointHandler, Renderer } from '../../@types/astro';
 import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/astro';
 
 import shorthash from 'shorthash';
@@ -157,7 +157,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 	}
 	const probableRendererNames = guessRenderers(metadata.componentUrl);
 
-	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string' && !HTMLElement.isPrototypeOf(Component as object)) {
+	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string' && !componentIsHTMLElement(Component)) {
 		const message = `Unable to render ${metadata.displayName}!
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
@@ -175,7 +175,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 			}
 		}
 
-		if (!renderer && HTMLElement.isPrototypeOf(Component as object)) {
+		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {
 			const output = renderHTMLElement(result, Component as typeof HTMLElement, _props, slots);
 
 			return output;
@@ -274,7 +274,10 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
 	result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
-	return unescapeHTML(`<astro-root uid="${astroId}">${html ?? ''}</astro-root>`);
+	// Render a template if no fragment is provided.
+	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
+	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
+	return unescapeHTML(`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
 }
 
 /** Create the Astro.fetchContent() runtime function. */
@@ -411,6 +414,20 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
 };
 
+// Renders an endpoint request to completion, returning the body.
+export async function renderEndpoint(mod: EndpointHandler, params: any) {
+	const method = 'get';
+	const handler = mod[method];
+
+	if (!handler || typeof handler !== 'function') {
+		throw new Error(`Endpoint handler not found! Expected an exported function for "${method}"`);
+	}
+
+	const { body } = await mod.get(params);
+
+	return body;
+}
+
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.
 export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
@@ -463,6 +480,10 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 	}
 
 	return unescapeHTML(await _render(template));
+}
+
+function componentIsHTMLElement(Component: unknown) {
+	return typeof HTMLElement !== 'undefined' && HTMLElement.isPrototypeOf(Component as object);
 }
 
 export async function renderHTMLElement(result: SSRResult, constructor: typeof HTMLElement, props: any, slots: any) {

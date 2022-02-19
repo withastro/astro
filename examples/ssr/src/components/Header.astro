@@ -1,0 +1,31 @@
+---
+import TextDecorationSkip from './TextDecorationSkip.astro';
+import Cart from './Cart.svelte';
+---
+<style>
+	@import url('https://fonts.googleapis.com/css2?family=Lobster&display=swap');
+
+	header {
+		margin: 1rem 2rem;
+		display: flex;
+		justify-content: space-between;
+	}
+
+	h1 {
+		margin: 0;
+		font-family: 'Lobster', cursive;
+		color: black;
+	}
+
+	a, a:visited {
+		color: inherit;
+		text-decoration: none;
+	}
+</style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<header>
+	<h1><a href="/"><TextDecorationSkip text="Online Store" /></a></h1>
+	<div class="right-pane">
+		<Cart client:idle />
+	</div>
+</header>

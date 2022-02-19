@@ -4,12 +4,14 @@ import type { LogOptions } from '../core/logger.js';
 
 import esbuild from 'esbuild';
 import npath from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
+import slash from 'slash';
 import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';
-import { cachedCompilation, invalidateCompilation } from './compile.js';
+import { cachedCompilation } from './compile.js';
 import ancestor from 'common-ancestor-path';
 import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
+import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -26,6 +28,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			filename = new URL('.' + filename, config.projectRoot).pathname;
 		}
 		return filename;
+	}
+	function relativeToRoot(pathname: string) {
+		const arg = startsWithForwardSlash(pathname) ? '.' + pathname : pathname;
+		const url = new URL(arg, config.projectRoot);
+		return slash(fileURLToPath(url)) + url.search;
 	}
 
 	let viteTransform: TransformHook;
@@ -45,7 +52,21 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			viteDevServer = server;
 		},
 		// note: don’t claim .astro files with resolveId() — it prevents Vite from transpiling the final JS (import.meta.globEager, etc.)
-		async resolveId(id) {
+		async resolveId(id, from) {
+			// If resolving from an astro subresource such as a hoisted script,
+			// we need to resolve relative paths ourselves.
+			if (from) {
+				const { query: fromQuery, filename } = parseAstroRequest(from);
+				if (fromQuery.astro && isRelativePath(id) && fromQuery.type === 'script') {
+					const resolvedURL = new URL(id, `file://${filename}`);
+					const resolved = resolvedURL.pathname;
+					if (isBrowserPath(resolved)) {
+						return relativeToRoot(resolved + resolvedURL.search);
+					}
+					return slash(fileURLToPath(resolvedURL)) + resolvedURL.search;
+				}
+			}
+
 			// serve sub-part requests (*?astro) as virtual modules
 			const { query } = parseAstroRequest(id);
 			if (query.astro) {
@@ -53,8 +74,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				// Because this needs to be the id for the Vite CSS plugin to property resolve
 				// relative @imports.
 				if (query.type === 'style' && isBrowserPath(id)) {
-					const outId = npath.posix.join(config.projectRoot.pathname, id);
-					return outId;
+					return relativeToRoot(id);
 				}
 
 				return id;

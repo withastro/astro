@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { fileURLToPath } from 'url';
-import { createRouteManifest } from '../dist/core/ssr/routing.js';
+import { createRouteManifest } from '../dist/core/routing/index.js';
 
 const cwd = new URL('./fixtures/route-manifest/', import.meta.url);
 

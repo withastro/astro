@@ -10,6 +10,10 @@ export function removeEndingForwardSlash(path: string) {
 	return path.endsWith('/') ? path.slice(0, path.length - 1) : path;
 }
 
+export function startsWithForwardSlash(path: string) {
+	return path[0] === '/';
+}
+
 export function startsWithDotDotSlash(path: string) {
 	const c1 = path[0];
 	const c2 = path[1];
