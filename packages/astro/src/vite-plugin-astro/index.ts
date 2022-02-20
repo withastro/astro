@@ -1,10 +1,9 @@
-import type vite from '../core/vite';
+import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger.js';
 
 import esbuild from 'esbuild';
-import npath from 'path';
-import { fileURLToPath, pathToFileURL } from 'url';
+import { fileURLToPath } from 'url';
 import slash from 'slash';
 import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';

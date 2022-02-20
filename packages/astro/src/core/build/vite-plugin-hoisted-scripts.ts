@@ -1,5 +1,5 @@
 import type { AstroConfig } from '../../@types/astro';
-import type { Plugin as VitePlugin } from '../vite';
+import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../../core/build/internal.js';
 import { fileURLToPath } from 'url';
 

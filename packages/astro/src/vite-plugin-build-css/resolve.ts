@@ -1,5 +1,5 @@
 import type { ResolveIdHook, LoadHook } from 'rollup';
-import type { ResolvedConfig, Plugin as VitePlugin } from '../core/vite';
+import type { ResolvedConfig, Plugin as VitePlugin } from 'vite';
 
 export function getVitePluginByName(viteConfig: ResolvedConfig, pluginName: string): VitePlugin {
 	const plugin = viteConfig.plugins.find(({ name }) => name === pluginName);
