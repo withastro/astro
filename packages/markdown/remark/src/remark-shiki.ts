@@ -1,4 +1,4 @@
-import type shiki from 'shiki';
+import type * as shiki from 'shiki';
 import { getHighlighter } from 'shiki';
 import { visit } from 'unist-util-visit';
 
