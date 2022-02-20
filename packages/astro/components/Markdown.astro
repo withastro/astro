@@ -11,7 +11,7 @@ const dedent = (str: string) => {
 	const trimmedSpace = _str[0].replace(_str[0].trimStart(), '');
 	return str
 		.split('\n')
-		.map((ln) => ln.replace(trimmedSpace, ''))
+		.map((ln) => ln.startsWith(trimmedSpace) ? ln.replace(trimmedSpace, '') : ln)
 		.join('\n');
 }
 
