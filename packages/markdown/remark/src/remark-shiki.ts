@@ -1,4 +1,4 @@
-import shiki from 'shiki';
+import * as shiki from 'shiki';
 import { visit } from 'unist-util-visit';
 
 export interface ShikiConfig {
