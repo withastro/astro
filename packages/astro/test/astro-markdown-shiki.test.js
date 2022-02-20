@@ -118,9 +118,9 @@ describe('Astro Markdown Shiki', () => {
 			const $ = cheerio.load(html);
 
 			const segments = $('.line').get(6).children;
-			expect(segments).to.have.lengthOf(2);
-			expect(segments[0].attribs.style).to.be.equal('color: #79C0FF');
-			expect(segments[1].attribs.style).to.be.equal('color: #C9D1D9');
+			expect(segments).to.have.lengthOf(3);
+			expect(segments[0].attribs.style).to.be.equal('color: #C9D1D9');
+			expect(segments[1].attribs.style).to.be.equal('color: #79C0FF');
 		});
 	});
 
