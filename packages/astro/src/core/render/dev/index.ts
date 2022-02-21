@@ -53,7 +53,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	const scripts = createModuleScriptElementWithSrcSet(astroConfig.buildOptions.experimentalStaticBuild && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []);
 
 	// Inject HMR scripts
-	if (scripts.length > 0 && mode === 'development' && astroConfig.buildOptions.experimentalStaticBuild) {
+	if (mod.hasOwnProperty('$$metadata') > 0 && mode === 'development' && astroConfig.buildOptions.experimentalStaticBuild) {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
