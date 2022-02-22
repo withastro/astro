@@ -1,4 +1,5 @@
-import shiki from 'shiki';
+import type * as shiki from 'shiki';
+import { getHighlighter } from 'shiki';
 import { visit } from 'unist-util-visit';
 
 export interface ShikiConfig {
@@ -30,7 +31,7 @@ export interface ShikiConfig {
 }
 
 const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig) => {
-	const highlighter = await shiki.getHighlighter({ theme });
+	const highlighter = await getHighlighter({ theme });
 
 	for (const lang of langs) {
 		await highlighter.loadLanguage(lang);
