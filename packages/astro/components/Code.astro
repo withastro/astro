@@ -1,5 +1,6 @@
 ---
-import shiki from 'shiki';
+import type * as shiki from 'shiki';
+import { getHighlighter } from 'shiki';
 
 export interface Props {
 	/** The code to highlight. Required. */
@@ -49,10 +50,10 @@ function repairShikiTheme(html: string): string {
 	return html;
 }
 
-const highlighter = await shiki.getHighlighter({ 
+const highlighter = await getHighlighter({
 	theme,
 	// Load custom lang if passed an object, otherwise load the default
-	langs: typeof lang !== 'string' ? [lang] : undefined
+	langs: typeof lang !== 'string' ? [lang] : undefined,
 });
 const _html = highlighter.codeToHtml(code, { lang: typeof lang === 'string' ? lang : lang.id });
 const html = repairShikiTheme(_html);
