@@ -1,0 +1,21 @@
+---
+const { SSR, DB_PASSWORD, PUBLIC_SOME_KEY } = import.meta.env;
+
+// DB_PASSWORD is available because we're running on the server
+console.log({ SSR, DB_PASSWORD });
+
+// PUBLIC_SOME_KEY is available everywhere
+console.log({ SSR, PUBLIC_SOME_KEY });
+---
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>Astro</title>
+	</head>
+	<body>
+		<h1>Hello, Environment Variables!</h1>
+		<script type="module" src="/src/scripts/client.ts"></script>
+	</body>
+</html>

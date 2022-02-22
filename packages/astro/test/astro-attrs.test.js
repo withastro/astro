@@ -31,7 +31,7 @@ describe('Attributes', async () => {
 		};
 
 		for (const id of Object.keys(attrs)) {
-			const { attribute, value } = attrs[id]
+			const { attribute, value } = attrs[id];
 			const attr = $(`#${id}`).attr(attribute);
 			expect(attr).to.equal(value);
 		}

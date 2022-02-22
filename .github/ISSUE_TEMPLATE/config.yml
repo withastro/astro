@@ -3,8 +3,8 @@ contact_links:
   - name: 📘 Documentation
     url: https://github.com/withastro/docs
     about: File an issue or make an improvement to the docs website.
-  - name: 💡 Ideas, Suggestions and RFCs
-    url: https://github.com/withastro/rfcs
+  - name: 💡 Ideas for New Features, Improvements and RFCs
+    url: https://github.com/withastro/rfcs/discussions
     about: Propose and discuss future improvements to Astro
   - name: 👾 Chat
     url: https://astro.build/chat

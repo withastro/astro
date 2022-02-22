@@ -33,7 +33,7 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 		},
 		config.vite || {}
 	);
-	const viteConfig = await createVite(viteUserConfig, { astroConfig: config, logging: options.logging });
+	const viteConfig = await createVite(viteUserConfig, { astroConfig: config, logging: options.logging, mode: 'dev' });
 	const viteServer = await vite.createServer(viteConfig);
 	await viteServer.listen(config.devOptions.port);
 	const address = viteServer.httpServer!.address() as AddressInfo;
