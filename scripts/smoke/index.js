@@ -59,7 +59,7 @@ async function run() {
 		}
 
 		// Run with the static build too
-		if(directory.pathname.includes('astro.build')) {
+		if (directory.pathname.includes('astro.build')) {
 			// astro.build uses the static build, so rerunning with the flag actually negates it.
 			continue;
 		}
