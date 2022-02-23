@@ -1,4 +1,4 @@
-import type vite from '../../vite';
+import type * as vite from 'vite';
 
 import path from 'path';
 import { viteID } from '../../util.js';

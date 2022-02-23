@@ -5,7 +5,7 @@ import fs from 'fs';
 import * as colors from 'kleur/colors';
 import { polyfill } from '@astropub/webapi';
 import { performance } from 'perf_hooks';
-import vite, { ViteDevServer } from '../vite.js';
+import * as vite from 'vite';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
 import { debug, defaultLogOptions, info, levels, timerMessage, warn } from '../logger.js';
 import { createRouteManifest } from '../routing/index.js';
@@ -38,7 +38,7 @@ class AstroBuilder {
 	private origin: string;
 	private routeCache: RouteCache;
 	private manifest: ManifestData;
-	private viteServer?: ViteDevServer;
+	private viteServer?: vite.ViteDevServer;
 	private viteConfig?: ViteConfigWithSSR;
 
 	constructor(config: AstroConfig, options: BuildOptions) {

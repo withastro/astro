@@ -1,4 +1,4 @@
-import type vite from '../../vite';
+import type * as vite from 'vite';
 
 import htmlparser2 from 'htmlparser2';
 

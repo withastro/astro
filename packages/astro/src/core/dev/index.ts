@@ -4,7 +4,7 @@ import { performance } from 'perf_hooks';
 import type { AstroConfig } from '../../@types/astro';
 import { createVite } from '../create-vite.js';
 import { defaultLogOptions, info, LogOptions } from '../logger.js';
-import vite from '../vite.js';
+import * as vite from 'vite';
 import * as msg from '../messages.js';
 
 export interface DevOptions {

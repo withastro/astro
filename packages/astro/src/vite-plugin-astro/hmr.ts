@@ -1,7 +1,7 @@
 import type { AstroConfig } from '../@types/astro';
-import type { ViteDevServer, ModuleNode, HmrContext } from '../core/vite';
+import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
 import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
-import { cachedCompilation, invalidateCompilation, isCached } from './compile.js';
+import { invalidateCompilation, isCached } from './compile.js';
 
 interface TrackCSSDependenciesOptions {
 	viteDevServer: ViteDevServer | null;

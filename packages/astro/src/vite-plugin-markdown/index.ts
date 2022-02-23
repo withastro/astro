@@ -1,4 +1,4 @@
-import type { Plugin } from '../core/vite';
+import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 
 import esbuild from 'esbuild';

@@ -1,7 +1,7 @@
 import type { AstroConfig, ComponentInstance, ManifestData, RouteData } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
-import type { ViteDevServer } from '../vite.js';
+import type { ViteDevServer } from 'vite';
 
 import { fileURLToPath } from 'url';
 import * as colors from 'kleur/colors';
