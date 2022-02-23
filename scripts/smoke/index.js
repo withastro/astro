@@ -58,6 +58,20 @@ async function run() {
 			process.exit(1);
 		}
 
+		// Run with the static build too
+		if(directory.pathname.includes('astro.build')) {
+			// astro.build uses the static build, so rerunning with the flag actually negates it.
+			continue;
+		}
+
+		try {
+			await execa('yarn', ['build', '--', '--experimental-static-build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
+		} catch (err) {
+			console.log(err);
+
+			process.exit(1);
+		}
+
 		console.log();
 	}
 }
@@ -79,41 +93,33 @@ const downloadGithubZip = async (/** @type {GithubOpts} */ opts) => {
 	/** Expected directory when the zip is downloaded. */
 	const githubDir = new URL(`${opts.name}-${opts.branch}`, scriptDir);
 
-	/** Whether the expected directory is already available */
-	const hasGithubDir = await fs.stat(githubDir).then(
-		(stats) => stats.isDirectory(),
-		() => false
-	);
+	console.log('🤖', 'Downloading', `${opts.org}/${opts.name}#${opts.branch}`);
 
-	if (!hasGithubDir) {
-		console.log('🤖', 'Downloading', `${opts.org}/${opts.name}#${opts.branch}`);
+	const buffer = await fetchGithubZip(opts);
 
-		const buffer = await fetchGithubZip(opts);
+	console.log('🤖', 'Extracting', `${opts.org}/${opts.name}#${opts.branch}`);
 
-		console.log('🤖', 'Extracting', `${opts.org}/${opts.name}#${opts.branch}`);
+	new Zip(buffer).extractAllTo(fileURLToPath(scriptDir), true);
 
-		new Zip(buffer).extractAllTo(fileURLToPath(scriptDir), true);
+	console.log('🤖', 'Preparing', `${opts.org}/${opts.name}#${opts.branch}`);
 
-		console.log('🤖', 'Preparing', `${opts.org}/${opts.name}#${opts.branch}`);
+	const astroPackage = await readDirectoryPackage(astroDir);
 
-		const astroPackage = await readDirectoryPackage(astroDir);
+	const githubPackage = await readDirectoryPackage(githubDir);
 
-		const githubPackage = await readDirectoryPackage(githubDir);
-
-		if ('astro' in Object(githubPackage.dependencies)) {
-			githubPackage.dependencies['astro'] = astroPackage.version;
-		}
-
-		if ('astro' in Object(githubPackage.devDependencies)) {
-			githubPackage.devDependencies['astro'] = astroPackage.version;
-		}
-
-		if ('astro' in Object(githubPackage.peerDependencies)) {
-			githubPackage.peerDependencies['astro'] = astroPackage.version;
-		}
-
-		await writeDirectoryPackage(githubDir, githubPackage);
+	if ('astro' in Object(githubPackage.dependencies)) {
+		githubPackage.dependencies['astro'] = astroPackage.version;
 	}
+
+	if ('astro' in Object(githubPackage.devDependencies)) {
+		githubPackage.devDependencies['astro'] = astroPackage.version;
+	}
+
+	if ('astro' in Object(githubPackage.peerDependencies)) {
+		githubPackage.peerDependencies['astro'] = astroPackage.version;
+	}
+
+	await writeDirectoryPackage(githubDir, githubPackage);
 
 	return githubDir;
 };
