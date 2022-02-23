@@ -200,7 +200,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			}
 		},
 		async handleHotUpdate(context) {
-			return handleHotUpdate(context, config);
+			return handleHotUpdate(context, config, logging);
 		},
 	};
 }
