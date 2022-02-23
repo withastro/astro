@@ -51,7 +51,7 @@ ${setup}`.trim();
 					astroResult = `${prelude}\n${astroResult}`;
 				}
 
-				const filenameURL = new URL(`file://${normalizePath(id)}`);
+				const filenameURL = new URL(`file://${id}`);
 				const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
 
 				// Transform from `.astro` to valid `.ts`
@@ -61,7 +61,7 @@ ${setup}`.trim();
 					site: config.buildOptions.site,
 					sourcefile: id,
 					sourcemap: 'inline',
-					internalURL: new URL('../runtime/server/index.js', import.meta.url).toString(),
+					internalURL: 'astro/internal',
 				});
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
