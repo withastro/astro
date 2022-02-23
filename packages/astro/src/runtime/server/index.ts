@@ -113,9 +113,9 @@ function guessRenderers(componentUrl?: string): string[] {
 			return ['@astrojs/renderer-vue'];
 		case 'jsx':
 		case 'tsx':
-			return ['@astrojs/renderer-react', '@astrojs/renderer-preact'];
+			return ['@astrojs/renderer-react', '@astrojs/renderer-preact', '@astrojs/renderer-solid'];
 		default:
-			return ['@astrojs/renderer-react', '@astrojs/renderer-preact', '@astrojs/renderer-vue', '@astrojs/renderer-svelte'];
+			return ['@astrojs/renderer-react', '@astrojs/renderer-preact', '@astrojs/renderer-solid', '@astrojs/renderer-vue', '@astrojs/renderer-svelte'];
 	}
 }
 
