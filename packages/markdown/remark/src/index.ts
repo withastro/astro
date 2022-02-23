@@ -38,7 +38,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 	let { remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
 	const scopedClassName = opts?.$?.scopedClassName;
 	const mode = opts?.mode ?? 'mdx';
-	const syntaxHighlight = opts?.syntaxHighlight ?? 'prism';
+	const syntaxHighlight = opts?.syntaxHighlight ?? 'shiki';
 	const shikiConfig = opts?.shikiConfig ?? {};
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
