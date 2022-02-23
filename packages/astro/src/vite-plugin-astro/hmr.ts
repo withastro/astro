@@ -77,6 +77,7 @@ export function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: L
 		const file = ctx.file.replace(config.projectRoot.pathname, '/');
 		logger.info('astro', green('hmr'), `${file}`)
 		ctx.server.ws.send({ type: "custom", event: "astro:update", data: { file } })
+		return []
 	}
 
 	return Array.from(filtered);
