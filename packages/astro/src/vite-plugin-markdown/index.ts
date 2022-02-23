@@ -1,6 +1,7 @@
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 
+import { normalizePath } from 'vite';
 import esbuild from 'esbuild';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -50,7 +51,7 @@ ${setup}`.trim();
 					astroResult = `${prelude}\n${astroResult}`;
 				}
 
-				const filenameURL = new URL(`file://${id}`);
+				const filenameURL = new URL(`file://${normalizePath(id)}`);
 				const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
 
 				// Transform from `.astro` to valid `.ts`
@@ -60,7 +61,7 @@ ${setup}`.trim();
 					site: config.buildOptions.site,
 					sourcefile: id,
 					sourcemap: 'inline',
-					internalURL: fileURLToPath(new URL('../runtime/server/index.js', import.meta.url)),
+					internalURL: new URL('../runtime/server/index.js', import.meta.url).toString(),
 				});
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
