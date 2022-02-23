@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
-
-before(async () => {
-	fixture = await loadFixture({ projectRoot: './fixtures/astro-doctype/' });
-	await fixture.build();
-});
-
 describe('Doctype', () => {
+	let fixture;
+
+	before(async () => {
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-doctype/' });
+		await fixture.build();
+	});
+
 	it('Automatically prepends the standards mode doctype', async () => {
 		const html = await fixture.readFile('/prepend/index.html');
 

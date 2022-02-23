@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata, Renderer } from '../../@types/astro';
+import type { AstroComponentMetadata, EndpointHandler, Renderer } from '../../@types/astro';
 import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/astro';
 
 import shorthash from 'shorthash';
@@ -11,6 +11,11 @@ export { createMetadata } from './metadata.js';
 export { escapeHTML, unescapeHTML } from './escape.js';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
+const htmlBooleanAttributes =
+	/^(allowfullscreen|async|autofocus|autoplay|controls|default|defer|disabled|disablepictureinpicture|disableremoteplayback|formnovalidate|hidden|loop|nomodule|novalidate|open|playsinline|readonly|required|reversed|scoped|seamless|itemscope)$/i;
+const htmlEnumAttributes = /^(contenteditable|draggable|spellcheck|value)$/i;
+// Note: SVG is case-sensitive!
+const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|preserveAlpha)$/i;
 
 // INVESTIGATE:
 // 2. Less anys when possible and make it well known when they are needed.
@@ -152,7 +157,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 	}
 	const probableRendererNames = guessRenderers(metadata.componentUrl);
 
-	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string' && !HTMLElement.isPrototypeOf(Component as object)) {
+	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string' && !componentIsHTMLElement(Component)) {
 		const message = `Unable to render ${metadata.displayName}!
 
 There are no \`renderers\` set in your \`astro.config.mjs\` file.
@@ -170,7 +175,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 			}
 		}
 
-		if (!renderer && HTMLElement.isPrototypeOf(Component as object)) {
+		if (!renderer && typeof HTMLElement === 'function' && componentIsHTMLElement(Component)) {
 			const output = renderHTMLElement(result, Component as typeof HTMLElement, _props, slots);
 
 			return output;
@@ -211,6 +216,11 @@ There ${plural ? 'are' : 'is'} ${renderers.length} renderer${plural ? 's' : ''} 
 but ${plural ? 'none were' : 'it was not'} able to server-side render ${metadata.displayName}.
 
 Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`);
+			} else if (matchingRenderers.length === 1) {
+				// We already know that renderer.ssr.check() has failed
+				// but this will throw a much more descriptive error!
+				renderer = matchingRenderers[0];
+				({ html } = await renderer.ssr.renderToStaticMarkup(Component, props, children));
 			} else {
 				throw new Error(`Unable to render ${metadata.displayName}!
 
@@ -264,7 +274,10 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
 	result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
-	return unescapeHTML(`<astro-root uid="${astroId}">${html ?? ''}</astro-root>`);
+	// Render a template if no fragment is provided.
+	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
+	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
+	return unescapeHTML(`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
 }
 
 /** Create the Astro.fetchContent() runtime function. */
@@ -327,7 +340,14 @@ const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // A helper used to turn expressions into attribute key/value
 export function addAttribute(value: any, key: string) {
-	if (value == null || value === false) {
+	if (value == null) {
+		return '';
+	}
+
+	if (value === false) {
+		if (htmlEnumAttributes.test(key) || svgEnumAttributes.test(key)) {
+			return unescapeHTML(` ${key}="false"`);
+		}
 		return '';
 	}
 
@@ -345,8 +365,8 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 		return unescapeHTML(` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`);
 	}
 
-	// Boolean only needs the key
-	if (value === true && key.startsWith('data-')) {
+	// Boolean values only need the key
+	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
 		return unescapeHTML(` ${key}`);
 	} else {
 		return unescapeHTML(` ${key}="${toAttributeString(value)}"`);
@@ -393,6 +413,20 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	const children = item.children;
 	return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
 };
+
+// Renders an endpoint request to completion, returning the body.
+export async function renderEndpoint(mod: EndpointHandler, params: any) {
+	const method = 'get';
+	const handler = mod[method];
+
+	if (!handler || typeof handler !== 'function') {
+		throw new Error(`Endpoint handler not found! Expected an exported function for "${method}"`);
+	}
+
+	const { body } = await mod.get(params);
+
+	return body;
+}
 
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.
@@ -446,6 +480,10 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 	}
 
 	return unescapeHTML(await _render(template));
+}
+
+function componentIsHTMLElement(Component: unknown) {
+	return typeof HTMLElement !== 'undefined' && HTMLElement.isPrototypeOf(Component as object);
 }
 
 export async function renderHTMLElement(result: SSRResult, constructor: typeof HTMLElement, props: any, slots: any) {

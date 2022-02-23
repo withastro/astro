@@ -28,6 +28,7 @@ export interface CLIFlags {
 	port?: number;
 	config?: string;
 	experimentalStaticBuild?: boolean;
+	experimentalSsr?: boolean;
 	drafts?: boolean;
 }
 
@@ -102,7 +103,7 @@ export interface AstroUserConfig {
 	renderers?: string[];
 	/** Options for rendering markdown content */
 	markdownOptions?: {
-		render?: [string | MarkdownParser, Record<string, any>];
+		render?: MarkdownRenderOptions;
 	};
 	/** Options specific to `astro build` */
 	buildOptions?: {
@@ -132,6 +133,10 @@ export interface AstroUserConfig {
 		 * Default: false
 		 */
 		experimentalStaticBuild?: boolean;
+		/**
+		 * Enable a build for SSR support.
+		 */
+		experimentalSsr?: boolean;
 	};
 	/** Options for the development server run with `astro dev`. */
 	devOptions?: {
@@ -188,7 +193,7 @@ export type FetchContentResultBase = {
 		source: string;
 		html: string;
 	};
-	url: URL;
+	url: string;
 };
 
 export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: string | null) => void>;
@@ -208,6 +213,7 @@ export type GetStaticPathsResultKeyed = GetStaticPathsResult & {
 };
 
 export interface HydrateOptions {
+	name: string;
 	value?: string;
 }
 
@@ -224,6 +230,7 @@ export interface ManifestData {
 	routes: RouteData[];
 }
 
+export type MarkdownRenderOptions = [string | MarkdownParser, Record<string, any>];
 export type MarkdownParser = (contents: string, options?: Record<string, any>) => MarkdownParserResponse | PromiseLike<MarkdownParserResponse>;
 
 export interface MarkdownParserResponse {
@@ -298,6 +305,16 @@ export interface RenderPageOptions {
 	css?: string[];
 }
 
+type Body = string;
+
+export interface EndpointOutput<Output extends Body = Body> {
+	body: Output;
+}
+
+export interface EndpointHandler {
+	[method: string]: (params: any) => EndpointOutput;
+}
+
 /**
  * Astro Renderer
  * Docs: https://docs.astro.build/reference/renderer-reference/
@@ -332,14 +349,21 @@ export interface Renderer {
 	knownEntrypoints?: string[];
 }
 
+export type RouteType = 'page' | 'endpoint';
+
 export interface RouteData {
 	component: string;
 	generate: (data?: any) => string;
 	params: string[];
 	pathname?: string;
 	pattern: RegExp;
-	type: 'page';
+	type: RouteType;
 }
+
+export type SerializedRouteData = Omit<RouteData, 'generate' | 'pattern'> & {
+	generate: undefined;
+	pattern: string;
+};
 
 export type RuntimeMode = 'development' | 'production';
 

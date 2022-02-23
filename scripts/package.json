@@ -8,6 +8,7 @@
     "astro-scripts": "./index.js"
   },
   "dependencies": {
+    "adm-zip": "^0.5.9",
     "arg": "^5.0.0",
     "esbuild": "0.13.7",
     "globby": "^12.0.2",

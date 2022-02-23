@@ -2,14 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-let fixture;
+describe('<Code>', () => {
+	let fixture;
 
-before(async () => {
-	fixture = await loadFixture({ projectRoot: './fixtures/astro-component-code/' });
-	await fixture.build();
-});
+	before(async () => {
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-component-code/' });
+		await fixture.build();
+	});
 
-describe('<Code', () => {
 	it('<Code> without lang or theme', async () => {
 		let html = await fixture.readFile('/no-lang/index.html');
 		const $ = cheerio.load(html);
@@ -80,5 +80,16 @@ describe('<Code', () => {
 			'color: var(--astro-code-token-string-expression)',
 			'color: var(--astro-code-color-text)',
 		]);
+	});
+
+	it('<Code> with custom theme and lang', async () => {
+		let html = await fixture.readFile('/imported/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#theme > pre')).to.have.lengthOf(1);
+		expect($('#theme > pre').attr('style'), 'background-color: #FDFDFE; overflow-x: auto;');
+
+		expect($('#lang > pre')).to.have.lengthOf(1);
+		expect($('#lang > pre > code span').length).to.equal(3);
 	});
 });

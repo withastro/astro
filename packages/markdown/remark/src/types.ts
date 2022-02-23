@@ -1,13 +1,12 @@
 import type * as unified from 'unified';
-import type * as shiki from 'shiki';
+import type { ShikiConfig } from './remark-shiki';
 
-export type UnifiedPluginImport = Promise<{ default: unified.Plugin }>;
-export type Plugin = string | [string, any] | UnifiedPluginImport | [UnifiedPluginImport, any];
+export type Plugin = string | [string, any] | unified.Plugin | [unified.Plugin, any];
 
 export interface AstroMarkdownOptions {
 	mode?: 'md' | 'mdx';
 	syntaxHighlight?: 'prism' | 'shiki' | false;
-	shikiTheme?: shiki.Theme;
+	shikiConfig?: ShikiConfig;
 	remarkPlugins?: Plugin[];
 	rehypePlugins?: Plugin[];
 }

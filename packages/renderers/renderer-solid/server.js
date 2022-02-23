@@ -1,4 +1,4 @@
-import { renderToString, ssr, createComponent } from 'solid-js/web/dist/server.js';
+import { renderToString, ssr, createComponent } from 'solid-js/web';
 
 function check(Component, props, children) {
 	if (typeof Component !== 'function') return false;

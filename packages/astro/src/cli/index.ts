@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import type { AstroConfig } from '../@types/astro';
-import type { LogOptions } from '../core/logger.js';
+import { enableVerboseLogging, LogOptions } from '../core/logger.js';
 
 import * as colors from 'kleur/colors';
 import fs from 'fs';
@@ -31,6 +31,7 @@ function printHelp() {
   --project-root <path>			Specify the path to the project root folder.
   --no-sitemap					Disable sitemap generation (build only).
   --experimental-static-build	A more performant build that expects assets to be define statically.
+	--experimental-ssr		Enable SSR compilation.
   --drafts                      Include markdown draft pages in the build.
   --verbose						Enable verbose logging
   --silent						Disable logging
@@ -83,9 +84,13 @@ export async function cli(args: string[]) {
 		dest: defaultLogDestination,
 		level: 'info',
 	};
+	if (flags.verbose) {
+		logging.level = 'debug';
+		enableVerboseLogging();
+	} else if (flags.silent) {
+		logging.level = 'silent';
+	}
 
-	if (flags.verbose) logging.level = 'debug';
-	if (flags.silent) logging.level = 'silent';
 	let config: AstroConfig;
 	try {
 		config = await loadConfig({ cwd: projectRoot, flags });

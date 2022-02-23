@@ -12,10 +12,10 @@ import { getAttribute, hasAttribute, insertBefore, remove, createScript, createE
 import { addRollupInput } from './add-rollup-input.js';
 import { findAssets, findExternalScripts, findInlineScripts, findInlineStyles, getTextContent, getAttributes } from './extract-assets.js';
 import { isBuildableImage, isBuildableLink, isHoistedScript, isInSrcDirectory, hasSrcSet } from './util.js';
-import { render as ssrRender } from '../core/ssr/index.js';
+import { render as ssrRender } from '../core/render/dev/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
 import { prependDotSlash, removeEndingForwardSlash } from '../core/path.js';
-import { RouteCache } from '../core/ssr/route-cache.js';
+import { RouteCache } from '../core/render/route-cache.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
@@ -25,7 +25,7 @@ const ASTRO_PAGE_PREFIX = '@astro-page';
 const ASTRO_SCRIPT_PREFIX = '@astro-script';
 
 const ASTRO_EMPTY = '@astro-empty';
-const STATUS_CODE_RE = /^404$/;
+const STATUS_CODE_REGEXP = /^[0-9]{3}$/;
 
 interface PluginOptions {
 	astroConfig: AstroConfig;
@@ -481,9 +481,8 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 				const name = pathname.substr(1);
 				let outPath: string;
 
-				// Output directly to 404.html rather than 400/index.html
-				// Supports any other status codes, too
-				if (name.match(STATUS_CODE_RE) || astroConfig.buildOptions.pageUrlFormat === 'file') {
+				// Output directly to 404.html rather than 404/index.html
+				if (astroConfig.buildOptions.pageUrlFormat === 'file' || STATUS_CODE_REGEXP.test(name)) {
 					outPath = `${removeEndingForwardSlash(name || 'index')}.html`;
 				} else {
 					outPath = npath.posix.join(name, 'index.html');

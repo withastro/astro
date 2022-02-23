@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/renderer-svelte",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Use Svelte components within Astro",
   "type": "module",
   "author": "withastro",
@@ -20,9 +20,10 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@sveltejs/vite-plugin-svelte": "1.0.0-next.30",
-    "svelte": "^3.44.3",
-    "svelte-preprocess": "^4.9.8"
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.37",
+    "postcss-load-config": "^3.1.1",
+    "svelte": "^3.46.4",
+    "svelte-preprocess": "^4.10.2"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"

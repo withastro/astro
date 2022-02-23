@@ -1,6 +1,6 @@
 # Astro Project Funding
 
-_Last Updated: 08-17-2021_
+_Last Updated: 02-09-2022_
 
 ## Raising Funds
 
@@ -35,4 +35,6 @@ Below is a (non-exhaustive) list of how we plan to distribute raised funds:
 - **Sponsoring community members to represent Astro at meetups, conferences, etc.**
 - **Dedicated support for GitHub, Discord, Stack Overflow, etc.**
 
-**Maintainers, Core Maintainers, and Project Stewards are not currently eligible to receive funds from the open collective.** One day, we hope to have enough money to begin experimenting with paying contributors for their work, [following in Eslint's footsteps.](https://eslint.org/blog/2020/10/year-paying-contributors-review)
+## Eligibility
+
+**Employees of The Astro Technology Company are not eligible to receive funds from Open Collective.** These funds exist solely to serve the larger Astro community.
