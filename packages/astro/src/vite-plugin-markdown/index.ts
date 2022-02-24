@@ -1,7 +1,6 @@
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 
-import { normalizePath } from 'vite';
 import esbuild from 'esbuild';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -61,7 +60,7 @@ ${setup}`.trim();
 					site: config.buildOptions.site,
 					sourcefile: id,
 					sourcemap: 'inline',
-					internalURL: 'astro/internal',
+					internalURL: fileURLToPath(new URL('../runtime/server/index.js', import.meta.url)),
 				});
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
