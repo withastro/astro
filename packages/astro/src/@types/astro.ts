@@ -1,8 +1,8 @@
-import type babel from '@babel/core';
+import type * as babel from '@babel/core';
 import type { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
-import type vite from '../core/vite';
+import type * as vite from 'vite';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;

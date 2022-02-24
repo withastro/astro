@@ -1,4 +1,4 @@
-import type vite from '../core/vite';
+import type * as vite from 'vite';
 
 import { STYLE_EXTENSIONS } from '../core/render/dev/css.js';
 

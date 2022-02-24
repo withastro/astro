@@ -1,6 +1,6 @@
 import type { OutputChunk, OutputAsset, RollupOutput } from 'rollup';
-import type { Plugin as VitePlugin, UserConfig, Manifest as ViteManifest } from '../vite';
-import type { AstroConfig, EndpointHandler, ComponentInstance, ManifestData, Renderer, RouteType } from '../../@types/astro';
+import type { Plugin as VitePlugin, UserConfig, Manifest as ViteManifest } from 'vite';
+import type { AstroConfig, ComponentInstance, ManifestData, Renderer, RouteType } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
@@ -12,7 +12,7 @@ import fs from 'fs';
 import npath from 'path';
 import { fileURLToPath } from 'url';
 import glob from 'fast-glob';
-import vite from '../vite.js';
+import * as vite from 'vite';
 import { debug, error } from '../../core/logger.js';
 import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
 import { createBuildInternals } from '../../core/build/internal.js';

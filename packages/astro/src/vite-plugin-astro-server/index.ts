@@ -1,4 +1,4 @@
-import type vite from '../core/vite';
+import type * as vite from 'vite';
 import type http from 'http';
 import type { AstroConfig, ManifestData, RouteData } from '../@types/astro';
 import { info, LogOptions } from '../core/logger.js';

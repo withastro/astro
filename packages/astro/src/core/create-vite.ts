@@ -3,7 +3,7 @@ import type { LogOptions } from './logger';
 
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
-import vite from './vite.js';
+import * as vite from 'vite';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
 import astroPostprocessVitePlugin from '../vite-plugin-astro-postprocess/index.js';

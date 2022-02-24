@@ -1,4 +1,4 @@
-import type vite from '../../vite';
+import type * as vite from 'vite';
 import type { AstroConfig, Renderer } from '../../../@types/astro';
 
 import { resolveDependency } from '../../util.js';
