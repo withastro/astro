@@ -125,10 +125,10 @@ async function addRenderer(args: string[]): Promise<number> {
 			const ast = parse(configRaw, { sourceType: 'unambiguous' });
 			let success = false;
 
-			// @ts-ignore
+			// @ts-expect-error It seems like an ES module, but acts like a CJS
 			if (typeof traverse !== 'function') traverse = traverse.default;
-			// @ts-ignore
-			if (typeof generate !== 'function') generate = traverse.default;
+			// @ts-expect-error It seems like an ES module, but acts like a CJS
+			if (typeof generate !== 'function') generate = generate.default;
 
 			traverse(ast, {
 				ExportDefaultDeclaration: (path) => {
