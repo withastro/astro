@@ -59,11 +59,8 @@ jobs:
           node-version: 16
           cache: 'pnpm'
       
-      - name: Clear lockfile
-        run: rm -rf pnpm-lock.yaml node_modules 
-      
       - name: Install NPM Dependencies
-        run: pnpm install
+        run: pnpm upgrade --recursive
         env:
           CI: true
       
