@@ -1,4 +1,4 @@
-import type vite from '../../vite';
+import type * as vite from 'vite';
 import type { AstroConfig, ComponentInstance, Renderer, RouteData, RuntimeMode } from '../../../@types/astro';
 import { LogOptions } from '../../logger.js';
 import { fileURLToPath } from 'url';

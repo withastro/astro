@@ -1,11 +1,11 @@
-import type { ViteDevServer } from '../vite.js';
+import type { ViteDevServer } from 'vite';
 import type { AstroConfig, RouteType } from '../../@types/astro';
 import type { AllPagesData, PageBuildData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite.js';
 
 import { fileURLToPath } from 'url';
-import vite from '../vite.js';
+import * as vite from 'vite';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';

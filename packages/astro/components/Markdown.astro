@@ -3,11 +3,17 @@ export interface Props {
 	content?: string;
 }
 
-const dedent = (str: string) =>
-	str
+const dedent = (str: string) => {
+	const _str = str.split('\n').filter(s => s.trimStart().length > 0);
+	if (_str.length === 0) {
+		return str.trimStart();
+	}
+	const trimmedSpace = _str[0].replace(_str[0].trimStart(), '');
+	return str
 		.split('\n')
-		.map((ln) => ln.trimStart())
+		.map((ln) => ln.startsWith(trimmedSpace) ? ln.replace(trimmedSpace, '') : ln)
 		.join('\n');
+}
 
 // Internal props that should not be part of the external interface.
 interface InternalProps extends Props {

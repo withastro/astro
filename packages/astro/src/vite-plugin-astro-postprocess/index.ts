@@ -1,5 +1,5 @@
 import type * as t from '@babel/types';
-import type { Plugin } from '../core/vite';
+import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
 
 import * as babelTraverse from '@babel/traverse';

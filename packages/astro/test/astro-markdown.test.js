@@ -146,4 +146,21 @@ describe('Astro Markdown', () => {
 		// render html without error
 		expect(html).to.be.ok;
 	});
+
+	it('can render nested list correctly', async () => {
+		const html = await fixture.readFile('/nested-list/index.html');
+		const $ = cheerio.load(html);
+		/**
+		 * - list
+		 *  - list
+		 */
+		expect($('#target > ul > li').children()).to.have.lengthOf(1);
+		expect($('#target > ul > li > ul > li').text()).to.equal('nested list');
+		/**
+		 * 1. Hello
+		 *  1. nested hello
+		 */
+		expect($('#target > ol > li').children()).to.have.lengthOf(1);
+		expect($('#target > ol > li > ol > li').text()).to.equal('nested hello');
+	});
 });

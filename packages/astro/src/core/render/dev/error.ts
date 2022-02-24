@@ -1,5 +1,5 @@
 import type { BuildResult } from 'esbuild';
-import type vite from '../../vite';
+import type * as vite from 'vite';
 import type { SSRError } from '../../../@types/astro';
 
 import eol from 'eol';

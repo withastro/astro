@@ -1,6 +1,6 @@
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger.js';
-import type { ViteDevServer, Plugin as VitePlugin } from '../core/vite';
+import type { ViteDevServer, Plugin as VitePlugin } from 'vite';
 import type { OutputChunk, PreRenderedChunk } from 'rollup';
 import type { AllPagesData } from '../core/build/types';
 import type { BuildInternals } from '../core/build/internal';
