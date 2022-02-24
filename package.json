@@ -72,7 +72,9 @@
   },
   "pnpm": {
     "peerDependencyRules": {
-      "ignoreMissing": ["@babel/core"]
+      "ignoreMissing": [
+        "@babel/core"
+      ]
     }
   },
   "devDependencies": {
@@ -96,5 +98,8 @@
   "engines": {
     "node": "^14.15.0 || >=16.0.0"
   },
-  "packageManager": "yarn@1.22.5"
+  "packageManager": "yarn@1.22.5",
+  "dependencies": {
+    "@astropub/webapi": "^0.10.14"
+  }
 }
