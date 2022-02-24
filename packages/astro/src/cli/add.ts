@@ -4,7 +4,7 @@ import * as colors from 'kleur/colors';
 import preferredPM from 'preferred-pm';
 import { exec as childProcessExec } from 'child_process';
 import type { Arguments } from 'yargs-parser';
-import { getRawConfig } from '../core/config.js';
+import { loadConfig } from '../core/config.js';
 import fs from 'fs/promises';
 import path from 'path';
 import ora from 'ora';
@@ -66,13 +66,20 @@ async function addRenderer(args: string[]): Promise<number> {
 		{ name: 'svelte', dependencies: ['svelte'] },
 		{ name: 'vue', dependencies: ['vue'] },
 	];
-	const renderersNames = renderersData.map(renderer => renderer.name);
 
 	const renderer = renderersData.find(r => r.name === args[0]);
-
 	if (!renderer) {
-		console.log("You've entered an invalid renderer. It has to be one of the following:\n" + renderersNames.join(', '));
+		console.log("You've entered an invalid renderer. It has to be one of the following:\n" + renderersData.map(renderer => renderer.name).join(', '));
 		return 1;
+	}
+
+	const rendererPackageName = `@astrojs/renderer-${renderer.name}`;
+
+	const config = await loadConfig({});
+
+	if (config.parsed.renderers.includes(rendererPackageName)) {
+		console.log(`${rendererPackageName} already in astro config.`);
+		return 0;
 	}
 
 	const pm = await preferredPM(process.cwd());
@@ -83,7 +90,6 @@ async function addRenderer(args: string[]): Promise<number> {
 	}
 
 	const dependenciesSpinner = ora('Installing dependencies').start();
-	const rendererPackageName = `@astrojs/renderer-${renderer.name}`;
 	const dependencies = renderer.dependencies.concat(rendererPackageName);
 
 	try {
@@ -102,9 +108,7 @@ async function addRenderer(args: string[]): Promise<number> {
 		return 1;
 	}
 
-	const config = await getRawConfig();
-
-	if (!config) {
+	if (!config.filePath) {
 		const creatingFileSpinner = ora('No config file found. Creating astro.config.mjs').start();
 
 		try {
@@ -119,62 +123,52 @@ async function addRenderer(args: string[]): Promise<number> {
 		const updatingConfigSpinner = ora('Updating Astro config').start();
 
 		try {
-			const configRenderers = config.raw?.renderers || [];
+			let success = false;
+			const result = await transformFileAsync(config.filePath, {
+				sourceType: 'unambiguous',
+				plugins: [
+					() => ({
+						visitor: {
+							ExportDefaultDeclaration(path: NodePath<t.ExportDefaultDeclaration>) {
+								if (success) return;
 
-			if (!Array.isArray(configRenderers)) {
-				throw new Error('Invalid `renderers` key in astro config');
-			}
+								if (path.node.declaration.type !== 'ObjectExpression') return;
 
-			if (configRenderers.includes(rendererPackageName)) {
-				updatingConfigSpinner.succeed(`${rendererPackageName} already in astro config.`);
-			} else {
-				let success = false;
-				const result = await transformFileAsync(config.filePath, {
-					sourceType: 'unambiguous',
-					plugins: [
-						() => ({
-							visitor: {
-								ExportDefaultDeclaration(path: NodePath<t.ExportDefaultDeclaration>) {
-									if (success) return;
+								const configObject = path.node.declaration;
 
-									if (path.node.declaration.type !== 'ObjectExpression') return;
-
-									const configObject = path.node.declaration;
-
-									let renderersProp = configObject.properties.find(prop => {
-										if (prop.type !== 'ObjectProperty') return false;
-										if (prop.key.type === 'Identifier') {
-											if (prop.key.name === 'renderers') return true;
-										}
-										if (prop.key.type === 'StringLiteral') {
-											if (prop.key.value === 'renderers') return true;
-										}
-										return false;
-									}) as t.ObjectProperty | undefined;
-
-									if (!renderersProp) {
-										configObject.properties.push(t.objectProperty(t.identifier('renderers'), t.arrayExpression([t.stringLiteral(rendererPackageName)])));
-										success = true;
-										return;
+								let renderersProp = configObject.properties.find(prop => {
+									if (prop.type !== 'ObjectProperty') return false;
+									if (prop.key.type === 'Identifier') {
+										if (prop.key.name === 'renderers') return true;
 									}
+									if (prop.key.type === 'StringLiteral') {
+										if (prop.key.value === 'renderers') return true;
+									}
+									return false;
+								}) as t.ObjectProperty | undefined;
 
-									if (renderersProp.value.type !== 'ArrayExpression') return;
-
-									renderersProp.value.elements.push(t.stringLiteral(rendererPackageName));
+								if (!renderersProp) {
+									configObject.properties.push(t.objectProperty(t.identifier('renderers'), t.arrayExpression([t.stringLiteral(rendererPackageName)])));
 									success = true;
-								},
+									return;
+								}
+
+								if (renderersProp.value.type !== 'ArrayExpression') return;
+
+								renderersProp.value.elements.push(t.stringLiteral(rendererPackageName));
+								success = true;
 							},
-						}),
-					],
-				});
+						},
+					}),
+				],
+			});
 
-				if (!success || !result?.code) {
-					throw new Error("Couldn't find config object");
-				}
-
-				await fs.writeFile(config.filePath, result.code, { encoding: 'utf-8' });
-				updatingConfigSpinner.succeed('Config file updated');
+			if (!success || !result?.code) {
+				throw new Error("Couldn't find config object");
 			}
+
+			await fs.writeFile(config.filePath, result.code, { encoding: 'utf-8' });
+			updatingConfigSpinner.succeed('Config file updated');
 		} catch (error) {
 			updatingConfigSpinner.fail('There was an error updating the config file.\n' + `You can try to add ${rendererPackageName} to your renderers list manually.` + issueMsg);
 			console.error(error);

@@ -103,7 +103,8 @@ export async function cli(args: string[]) {
 
 	let config: AstroConfig;
 	try {
-		config = await loadConfig({ cwd: projectRoot, flags });
+		const result = await loadConfig({ cwd: projectRoot, flags });
+		config = result.parsed
 	} catch (err) {
 		throwAndExit(err);
 		return;

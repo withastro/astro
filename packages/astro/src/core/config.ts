@@ -160,9 +160,11 @@ interface LoadConfigOptions {
 	flags?: Flags;
 }
 
-export async function getRawConfig(configOptions: LoadConfigOptions = {}) {
+/** Attempt to load an `astro.config.mjs` file */
+export async function loadConfig(configOptions: LoadConfigOptions): Promise<{parsed: AstroConfig, raw?: any, filePath?: string}> {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
 	const flags = resolveFlags(configOptions.flags || {});
+	let userConfig: AstroUserConfig = {};
 	let userConfigPath: string | undefined;
 
 	if (flags?.config) {
@@ -171,25 +173,17 @@ export async function getRawConfig(configOptions: LoadConfigOptions = {}) {
 	}
 	// Automatically load config file using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	return await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
-}
-
-/** Attempt to load an `astro.config.mjs` file */
-export async function loadConfig(configOptions: LoadConfigOptions = {}): Promise<AstroConfig> {
-	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
-	const flags = resolveFlags(configOptions.flags || {});
-
-	let userConfig: AstroUserConfig = {};
-
-	const config = await getRawConfig(configOptions);
+	const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
 	if (config) {
 		userConfig = config.value;
 	}
-
 	// normalize, validate, and return
 	const mergedConfig = mergeCLIFlags(userConfig, flags);
 	const validatedConfig = await validateConfig(mergedConfig, root);
-	return validatedConfig;
+	return {
+		...config,
+		parsed: validatedConfig
+	};
 }
 
 export function formatConfigError(err: z.ZodError) {
