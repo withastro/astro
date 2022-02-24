@@ -38,6 +38,16 @@ jobs:
           node-version: 16
           cache: 'pnpm'
 
+      - name: Cache Node Modules
+        id: cache-node
+        uses: actions/cache@v2
+        with:
+          path: ~/.pnpm-store
+          key: cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
+          restore-keys: |
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ github.run_id }}
+            cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-
+
       - name: Install NPM Dependencies
         run: pnpm install
         env:
