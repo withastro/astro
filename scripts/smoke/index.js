@@ -1,4 +1,5 @@
-/** @file Runs all smoke tests and may add extra smoke-test dependencies to `yarn.lock`. */
+/** @file Runs all smoke tests and may add extra smoke-test dependencies to `pnpm-lock.yaml`. */
+
 // @ts-check
 
 import { execa } from 'execa';
@@ -29,6 +30,8 @@ const getChildDirectories = async (/** @type {URL} */ dir) => {
 	return dirs;
 };
 
+const SKIP_STATIC_BUILD = new Set(["astro.build", "with-vite-plugin-pwa"]);
+
 /** Runs all smoke tests. */
 async function run() {
 	console.log('');
@@ -40,7 +43,8 @@ async function run() {
 	await execa('pnpm', ['install'], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
 
 	for (const directory of directories) {
-		console.log('🤖', 'Testing', directory.pathname.split('/').at(-1));
+		const name = directory.pathname.split('/').at(-1) ?? "";
+		console.log('🤖', 'Testing', name);
 
 		try {
 			await execa('pnpm', ['install'], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
