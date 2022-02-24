@@ -321,9 +321,11 @@ importers:
     specifiers:
       astro: ^0.23.0
       vite-plugin-pwa: 0.11.11
+      workbox-window: ^6.5.0
     devDependencies:
       astro: link:../../packages/astro
       vite-plugin-pwa: 0.11.11
+      workbox-window: 6.5.0
 
   packages/astro:
     specifiers:
@@ -9396,7 +9398,7 @@ packages:
       pretty-bytes: 5.6.0
       rollup: 2.66.0
       workbox-build: 6.4.2
-      workbox-window: 6.4.2
+      workbox-window: 6.5.0
     transitivePeerDependencies:
       - '@types/babel__core'
       - acorn
@@ -9691,6 +9693,10 @@ packages:
     resolution: {integrity: sha512-1U6cdEYPcajRXiboSlpJx6U7TvhIKbxRRerfepAJu2hniKwJ3DHILjpU/zx3yvzSBCWcNJDoFalf7Vgd7ey/rw==}
     dev: true
 
+  /workbox-core/6.5.0:
+    resolution: {integrity: sha512-5SPwNipUzYBhrneLVT02JFA0fw3LG82jFAN/G2NzxkIW10t4MVZuML2nU94bbkgjq25u0fkY8+4JXzMfHgxEWQ==}
+    dev: true
+
   /workbox-expiration/6.4.2:
     resolution: {integrity: sha512-0hbpBj0tDnW+DZOUmwZqntB/8xrXOgO34i7s00Si/VlFJvvpRKg1leXdHHU8ykoSBd6+F2KDcMP3swoCi5guLw==}
     dependencies:
@@ -9766,6 +9772,13 @@ packages:
     dependencies:
       '@types/trusted-types': 2.0.2
       workbox-core: 6.4.2
+    dev: true
+
+  /workbox-window/6.5.0:
+    resolution: {integrity: sha512-DOrhiTnWup/CsNstO2uvfdKM4kdStgHd31xGGvBcoCE3Are3DRcy5s3zz3PedcAR1AKskQj3BXz0UhzQiOq8nA==}
+    dependencies:
+      '@types/trusted-types': 2.0.2
+      workbox-core: 6.5.0
     dev: true
 
   /workerpool/6.2.0:
