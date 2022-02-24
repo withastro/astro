@@ -1,5 +1,26 @@
 # astro
 
+## 0.23.1
+
+### Patch Changes
+
+- [`ac6d2e8c`](https://github.com/withastro/astro/commit/ac6d2e8c645e7f6821ace02067ceb4d5402f66ae) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix issue with Non-HTML pages in static build for dev
+
+* [#2628](https://github.com/withastro/astro/pull/2628) [`9b7e2ab2`](https://github.com/withastro/astro/commit/9b7e2ab2516cd36520364490df8e3482008292e3) Thanks [@JuanM04](https://github.com/JuanM04)! - Fixed shiki to work with `{ "type": "module" }`
+
+- [#2630](https://github.com/withastro/astro/pull/2630) [`a2128f8e`](https://github.com/withastro/astro/commit/a2128f8e478cec8f60292206d3d22760c46f4aa9) Thanks [@JuanM04](https://github.com/JuanM04)! - Fixed incorrect types and imports
+
+* [#2653](https://github.com/withastro/astro/pull/2653) [`17032cd0`](https://github.com/withastro/astro/commit/17032cd064ecb4233b66e30b49ca0a12a8afc476) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `@astrojs/compiler`, fixing a bug with self-closing tags that need special consideration like `<title />` and `<script />`
+
+- [#2654](https://github.com/withastro/astro/pull/2654) [`a0fc5cb5`](https://github.com/withastro/astro/commit/a0fc5cb5ff0003e9bb4b54cbf98035b1e0a6b113) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix an issue where utf8 encoding was skipped in the dev server.
+
+* [#2649](https://github.com/withastro/astro/pull/2649) [`5091d788`](https://github.com/withastro/astro/commit/5091d788f624060756d04488506b4f1f4eadcf8e) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add fine-grained HMR support for Astro files
+
+- [#2645](https://github.com/withastro/astro/pull/2645) [`2e5c3b51`](https://github.com/withastro/astro/commit/2e5c3b512638bf06c7eb896fcf5cd8179fe91ca8) Thanks [@xavikortes](https://github.com/xavikortes)! - Fix issue when process.env.LANG was longer than 5 characters
+
+- Updated dependencies [[`9b7e2ab2`](https://github.com/withastro/astro/commit/9b7e2ab2516cd36520364490df8e3482008292e3)]:
+  - @astrojs/markdown-remark@0.6.2
+
 ## 0.23.0
 
 ### Minor Changes
@@ -25,12 +46,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -192,12 +213,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1552,10 +1573,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1575,10 +1596,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
