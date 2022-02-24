@@ -21,7 +21,7 @@
     "@astrojs/renderer-solid": "^0.4.0",
     "@astrojs/renderer-svelte": "^0.4.0",
     "@astrojs/renderer-vue": "^0.4.0",
-    "astro": "^0.23.0",
+    "astro": "^0.23.1",
     "preact": "^10.6.6",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

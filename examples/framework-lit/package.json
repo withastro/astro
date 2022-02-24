@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@astrojs/renderer-lit": "^0.4.0",
-    "astro": "^0.23.0",
+    "astro": "^0.23.1",
     "lit": "^2.2.0"
   }
 }
