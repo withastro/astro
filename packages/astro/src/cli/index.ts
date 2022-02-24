@@ -11,32 +11,37 @@ import { defaultLogDestination } from '../core/logger.js';
 import build from '../core/build/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
+import { add } from './add.js';
 import { check } from './check.js';
 import { formatConfigError, loadConfig } from '../core/config.js';
 
 type Arguments = yargs.Arguments;
-type CLICommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
+type CLICommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload' | 'check' | 'add';
 
 /** Display --help flag */
 function printHelp() {
 	console.log(`  ${colors.bold('astro')} - Futuristic web development tool.
+
   ${colors.bold('Commands:')}
   astro dev             Run Astro in development mode.
   astro build           Build a pre-compiled production version of your site.
   astro preview         Preview your build locally before deploying.
   astro check           Check your project for errors.
+  astro add             Shortcut for extending Astro capabilities.
 
   ${colors.bold('Flags:')}
-  --config <path>				Specify the path to the Astro config file.
-  --project-root <path>			Specify the path to the project root folder.
-  --no-sitemap					Disable sitemap generation (build only).
-  --experimental-static-build	A more performant build that expects assets to be define statically.
-	--experimental-ssr		Enable SSR compilation.
-  --drafts                      Include markdown draft pages in the build.
-  --verbose						Enable verbose logging
-  --silent						Disable logging
-  --version						Show the version number and exit.
-  --help						Show this help message.
+  --config <path>             Specify the path to the Astro config file.
+  --project-root <path>       Specify the path to the project root folder.
+  --no-sitemap                Disable sitemap generation (build only).
+  --experimental-static-build A more performant build that expects assets to be define statically.
+  --experimental-ssr          Enable SSR compilation.
+  --drafts                    Include markdown draft pages in the build.
+  --verbose                   Enable verbose logging
+  --silent                    Disable logging
+  --version                   Show the version number and exit.
+  --help                      Show this help message.
+
+  ${colors.bold('More info at https://docs.astro.build/en/reference/cli-reference')}
 `);
 }
 
@@ -57,7 +62,7 @@ function resolveCommand(flags: Arguments): CLICommand {
 		return 'help';
 	}
 	const cmd = flags._[2];
-	const supportedCommands = new Set(['dev', 'build', 'preview', 'check']);
+	const supportedCommands = new Set(['dev', 'build', 'preview', 'check', 'add']);
 	if (supportedCommands.has(cmd)) {
 		return cmd as 'dev' | 'build' | 'preview' | 'check';
 	}
@@ -89,6 +94,11 @@ export async function cli(args: string[]) {
 		enableVerboseLogging();
 	} else if (flags.silent) {
 		logging.level = 'silent';
+	}
+
+	if (cmd === 'add') {
+		const ret = await add(flags);
+		return process.exit(ret);
 	}
 
 	let config: AstroConfig;

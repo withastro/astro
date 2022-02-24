@@ -160,11 +160,9 @@ interface LoadConfigOptions {
 	flags?: Flags;
 }
 
-/** Attempt to load an `astro.config.mjs` file */
-export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
+export async function getRawConfig(configOptions: LoadConfigOptions = {}) {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
 	const flags = resolveFlags(configOptions.flags || {});
-	let userConfig: AstroUserConfig = {};
 	let userConfigPath: string | undefined;
 
 	if (flags?.config) {
@@ -173,10 +171,21 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	}
 	// Automatically load config file using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
-	const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
+	return await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
+}
+
+/** Attempt to load an `astro.config.mjs` file */
+export async function loadConfig(configOptions: LoadConfigOptions = {}): Promise<AstroConfig> {
+	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const flags = resolveFlags(configOptions.flags || {});
+
+	let userConfig: AstroUserConfig = {};
+
+	const config = await getRawConfig(configOptions);
 	if (config) {
 		userConfig = config.value;
 	}
+
 	// normalize, validate, and return
 	const mergedConfig = mergeCLIFlags(userConfig, flags);
 	const validatedConfig = await validateConfig(mergedConfig, root);
