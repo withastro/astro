@@ -147,10 +147,10 @@
 
   ```js
   export default {
-  	markdownOptions: {
-  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-  	},
+    markdownOptions: {
+      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+    },
   };
   ```
 
