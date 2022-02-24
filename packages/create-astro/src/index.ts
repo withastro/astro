@@ -14,7 +14,7 @@ import { logger, defaultLogLevel } from './logger.js';
 // to no longer require `--` to pass args and instead pass `--` directly to us. This
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
 // fixes the issue so that create-astro now works on all npm version.
-const cleanArgv = process.argv.filter((arg) => arg !== '--');
+const cleanArgv = process.argv.filter(arg => arg !== '--');
 const args = yargs(cleanArgv, { array: ['renderers'] });
 prompts.override(args);
 
@@ -86,28 +86,29 @@ export async function main() {
 		verbose: defaultLogLevel === 'debug' ? true : false,
 	});
 
-	const selectedTemplate = TEMPLATES.find((template) => template.value === options.template);
+	const selectedTemplate = TEMPLATES.find(template => template.value === options.template);
 	let renderers: string[] = [];
 
 	if (selectedTemplate?.renderers === true) {
-		const result = /** @type {import('./types/internal').Options} */ await prompts([
+		const choices = FRAMEWORKS.map(framework => ({ title: framework.name, value: framework.id }));
+		const result = await prompts([
 			{
 				type: 'multiselect',
 				name: 'renderers',
 				message: 'Which frameworks would you like to use?',
-				choices: FRAMEWORKS,
+				choices,
 			},
 		]);
 		renderers = result.renderers;
 	} else if (selectedTemplate?.renderers && Array.isArray(selectedTemplate.renderers) && selectedTemplate.renderers.length) {
 		renderers = selectedTemplate.renderers;
-		const titles = renderers.map((renderer) => FRAMEWORKS.find((item) => item.value === renderer)?.title).join(', ');
+		const titles = renderers.map(renderer => FRAMEWORKS.find(item => item.id === renderer)?.name).join(', ');
 		console.log(`${green(`✔`)} ${bold(`Using template's default renderers`)} ${gray('›')} ${titles}`);
 	}
 
 	// Copy
 	try {
-		emitter.on('info', (info) => {
+		emitter.on('info', info => {
 			logger.debug(info.message);
 		});
 		console.log(`${green(`>`)} ${gray(`Copying project files...`)}`);
@@ -137,7 +138,7 @@ export async function main() {
 
 	// Post-process in parallel
 	await Promise.all(
-		POSTPROCESS_FILES.map(async (file) => {
+		POSTPROCESS_FILES.map(async file => {
 			const fileLoc = path.resolve(path.join(cwd, file));
 
 			switch (file) {
@@ -159,11 +160,14 @@ export async function main() {
 					delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
 					// Fetch latest versions of selected renderers
 					const rendererEntries = (await Promise.all(
-						['astro', ...renderers].map((renderer: string) =>
-							fetch(`https://registry.npmjs.org/${renderer}/latest`)
-								.then((res: any) => res.json())
-								.then((res: any) => [renderer, `^${res['version']}`])
-						)
+						FRAMEWORKS.filter(renderer => renderers.includes(renderer.id))
+							.reduce<string[]>((accum, renderer) => [...accum, renderer.id, ...renderer.dependencies], ['astro'])
+							.sort()
+							.map((renderer: string) =>
+								fetch(`https://registry.npmjs.org/${renderer}/latest`)
+									.then((res: any) => res.json())
+									.then((res: any) => [renderer, `^${res['version']}`])
+							)
 					)) as any;
 					packageJSON.devDependencies = { ...(packageJSON.devDependencies ?? {}), ...Object.fromEntries(rendererEntries) };
 					await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
@@ -178,7 +182,7 @@ export async function main() {
 		let importStatements: string[] = [];
 		let components: string[] = [];
 		await Promise.all(
-			renderers.map(async (renderer) => {
+			renderers.map(async renderer => {
 				const component = COUNTER_COMPONENTS[renderer as keyof typeof COUNTER_COMPONENTS];
 				const componentName = path.basename(component.filename, path.extname(component.filename));
 				const absFileLoc = path.resolve(cwd, component.filename);
@@ -195,7 +199,7 @@ export async function main() {
 				return indent + importStatements.join('\n');
 			})
 			.replace(/^(\s*)<!-- ASTRO:COMPONENT_MARKUP -->/gm, (_, indent) => {
-				return components.map((ln) => indent + ln).join('\n');
+				return components.map(ln => indent + ln).join('\n');
 			});
 		await fs.promises.writeFile(pageFileLoc, newContent);
 	}
