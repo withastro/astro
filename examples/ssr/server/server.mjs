@@ -18,7 +18,8 @@ async function handle(req, res) {
 		const html = await app.render(req, route);
 
 		res.writeHead(200, {
-			'Content-Type': 'text/html',
+			'Content-Type': 'text/html; charset=utf-8',
+			'Content-Length': Buffer.byteLength(html, 'utf-8'),
 		});
 		res.end(html);
 	} else if (/^\/api\//.test(req.url)) {

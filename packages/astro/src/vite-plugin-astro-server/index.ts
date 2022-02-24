@@ -3,7 +3,6 @@ import type http from 'http';
 import type { AstroConfig, ManifestData, RouteData } from '../@types/astro';
 import { info, LogOptions } from '../core/logger.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
-import mime from 'mime';
 import stripAnsi from 'strip-ansi';
 import { createSafeError } from '../core/util.js';
 import { ssr } from '../core/render/dev/index.js';
@@ -30,8 +29,8 @@ function removeViteHttpMiddleware(server: vite.Connect.Server) {
 
 function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: string) {
 	res.writeHead(statusCode, {
-		'Content-Type': mime.getType('.html') as string,
-		'Content-Length': Buffer.byteLength(html, 'utf8'),
+		'Content-Type': 'text/html; charset=utf-8',
+		'Content-Length': Buffer.byteLength(html, 'utf-8'),
 	});
 	res.write(html);
 	res.end();
