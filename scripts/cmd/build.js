@@ -1,5 +1,4 @@
 import esbuild from 'esbuild';
-import svelte from '../utils/svelte-plugin.js';
 import del from 'del';
 import { promises as fs } from 'fs';
 import { dim, green, red, yellow } from 'kleur/colors';
@@ -24,11 +23,11 @@ export default async function build(...args) {
 	const config = Object.assign({}, defaultConfig);
 	const isDev = args.slice(-1)[0] === 'IS_DEV';
 	const patterns = args
-		.filter((f) => !!f) // remove empty args
-		.map((f) => f.replace(/^'/, '').replace(/'$/, '')); // Needed for Windows: glob strings contain surrounding string chars??? remove these
-	let entryPoints = [].concat(...(await Promise.all(patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true })))));
+		.filter(f => !!f) // remove empty args
+		.map(f => f.replace(/^'/, '').replace(/'$/, '')); // Needed for Windows: glob strings contain surrounding string chars??? remove these
+	let entryPoints = [].concat(...(await Promise.all(patterns.map(pattern => glob(pattern, { filesOnly: true, absolute: true })))));
 
-	const { type = 'module', dependencies = {} } = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
+	const { type = 'module', dependencies = {} } = await fs.readFile('./package.json').then(res => JSON.parse(res.toString()));
 	const format = type === 'module' ? 'esm' : 'cjs';
 	const outdir = 'dist';
 	await clean(outdir);
@@ -40,7 +39,6 @@ export default async function build(...args) {
 			entryPoints,
 			outdir,
 			format,
-			plugins: [svelte({ isDev })],
 		});
 		return;
 	}
@@ -63,7 +61,6 @@ export default async function build(...args) {
 		entryPoints,
 		outdir,
 		format,
-		plugins: [svelte({ isDev })],
 	});
 
 	process.on('beforeExit', () => {
