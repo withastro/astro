@@ -19,10 +19,12 @@
     "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
+  "peerDependencies": {
+    "svelte": "^3.46.4"
+  },
   "dependencies": {
     "@sveltejs/vite-plugin-svelte": "^1.0.0-next.37",
     "postcss-load-config": "^3.1.1",
-    "svelte": "^3.46.4",
     "svelte-preprocess": "^4.10.2"
   },
   "engines": {

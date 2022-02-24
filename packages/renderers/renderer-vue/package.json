@@ -19,9 +19,11 @@
     "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
+  "peerDependencies": {
+    "vue": "^3.2.31"
+  },
   "dependencies": {
-    "@vitejs/plugin-vue": "^2.2.0",
-    "vue": "^3.2.30"
+    "@vitejs/plugin-vue": "^2.2.0"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"

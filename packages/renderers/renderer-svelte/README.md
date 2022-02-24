@@ -4,10 +4,20 @@ This is a plugin for [Astro][astro] apps that enables server-side rendering of S
 
 ## Installation
 
+### `astro add`
+
+You can install this renderer automatically by running:
+
+```bash
+astro add renderer svelte
+```
+
+### Manually
+
 Install `@astrojs/renderer-svelte` and then add it to your `astro.config.mjs` in the `renderers` property:
 
-```
-npm install @astrojs/renderer-svelte
+```bash
+npm install --save-dev svelte @astrojs/renderer-svelte
 ```
 
 __astro.config.mjs__

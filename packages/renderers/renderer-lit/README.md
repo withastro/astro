@@ -6,10 +6,20 @@ Server-side rendering uses [Declarative Shadow DOM](https://web.dev/declarative-
 
 ## Installation
 
+### `astro add`
+
+You can install this renderer automatically by running:
+
+```bash
+astro add renderer lit
+```
+
+### Manually
+
 Install `@astrojs/renderer-lit` and then add it to your `astro.config.mjs` in the `renderers` property:
 
-```
-npm install @astrojs/renderer-lit
+```bash
+npm install --save-dev lit @astrojs/renderer-lit
 ```
 
 __astro.config.mjs__

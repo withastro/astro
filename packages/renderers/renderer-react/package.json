@@ -20,10 +20,12 @@
     "./package.json": "./package.json",
     "./jsx-runtime": "./jsx-runtime.js"
   },
-  "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.16.7",
+  "peerDependencies": {
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
+  },
+  "dependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.16.7"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"

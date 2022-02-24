@@ -4,10 +4,20 @@ This is a plugin for [Astro][astro] apps that enables server-side rendering of S
 
 ## Installation
 
+### `astro add`
+
+You can install this renderer automatically by running:
+
+```bash
+astro add renderer solid
+```
+
+### Manually
+
 Install `@astrojs/renderer-solid` and then add it to your `astro.config.mjs` in the `renderers` property:
 
-```
-npm install @astrojs/renderer-solid
+```bash
+npm install --save-dev solid @astrojs/renderer-solid
 ```
 
 __astro.config.mjs__

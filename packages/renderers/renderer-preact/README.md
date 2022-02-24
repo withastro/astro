@@ -4,10 +4,20 @@ This is a plugin for [Astro][astro] apps that enables server-side rendering of P
 
 ## Installation
 
+### `astro add`
+
+You can install this renderer automatically by running:
+
+```bash
+astro add renderer preact
+```
+
+### Manually
+
 Install `@astrojs/renderer-preact` and then add it to your `astro.config.mjs` in the `renderers` property:
 
-```
-npm install @astrojs/renderer-preact
+```bash
+npm install --save-dev preact @astrojs/renderer-preact
 ```
 
 __astro.config.mjs__

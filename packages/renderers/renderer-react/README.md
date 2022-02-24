@@ -4,10 +4,20 @@ This is a plugin for [Astro][astro] apps that enables server-side rendering of R
 
 ## Installation
 
+### `astro add`
+
+You can install this renderer automatically by running:
+
+```bash
+astro add renderer react
+```
+
+### Manually
+
 Install `@astrojs/renderer-react` and then add it to your `astro.config.mjs` in the `renderers` property:
 
-```
-npm install @astrojs/renderer-react
+```bash
+npm install --save-dev react @astrojs/renderer-react
 ```
 
 __astro.config.mjs__

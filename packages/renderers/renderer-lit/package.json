@@ -19,9 +19,11 @@
     "./client-shim.js": "./client-shim.js",
     "./package.json": "./package.json"
   },
+  "peerDependencies": {
+    "lit": "^2.2.0"
+  },
   "dependencies": {
     "@lit-labs/ssr": "^2.0.2",
-    "@webcomponents/template-shadowroot": "^0.1.0",
-    "lit": "^2.1.3"
+    "@webcomponents/template-shadowroot": "^0.1.0"
   }
 }

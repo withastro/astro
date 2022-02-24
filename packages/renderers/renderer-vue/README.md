@@ -4,10 +4,20 @@ This is a plugin for [Astro][astro] apps that enables server-side rendering of V
 
 ## Installation
 
+### `astro add`
+
+You can install this renderer automatically by running:
+
+```bash
+astro add renderer vue
+```
+
+### Manually
+
 Install `@astrojs/renderer-vue` and then add it to your `astro.config.mjs` in the `renderers` property:
 
-```
-npm install @astrojs/renderer-vue
+```bash
+npm install --save-dev vue @astrojs/renderer-vue
 ```
 
 __astro.config.mjs__

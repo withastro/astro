@@ -20,9 +20,11 @@
     "./server.js": "./server.js",
     "./package.json": "./package.json"
   },
+  "peerDependencies": {
+    "preact": "^10.6.6"
+  },
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.16.7",
-    "preact": "^10.6.5",
     "preact-render-to-string": "^5.1.19"
   },
   "engines": {
