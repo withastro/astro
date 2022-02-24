@@ -320,10 +320,10 @@ importers:
   examples/with-vite-plugin-pwa:
     specifiers:
       astro: ^0.23.0
-      vite-plugin-pwa: ^0.11.13
+      vite-plugin-pwa: 0.11.11
     devDependencies:
       astro: link:../../packages/astro
-      vite-plugin-pwa: 0.11.13
+      vite-plugin-pwa: 0.11.11
 
   packages/astro:
     specifiers:
@@ -9386,8 +9386,8 @@ packages:
       magic-string: 0.25.7
     dev: true
 
-  /vite-plugin-pwa/0.11.13:
-    resolution: {integrity: sha512-Ssj14m3TRVLfkFEAWSMcFE2d1cSdEZyrVTzfY2lSL+umHYvcIFHVDAY143sygtBCb44OPczsAOmWwBTxwOvh7g==}
+  /vite-plugin-pwa/0.11.11:
+    resolution: {integrity: sha512-/nSLS7VfGN5UrL4a1ALGEQAyga/H0hYZjEkwPehiEFW1PM1DTi1A8GkPCsmevKwR6vt10P+5wS1wrvSgwQemzw==}
     peerDependencies:
       vite: ^2.0.0
     dependencies:
