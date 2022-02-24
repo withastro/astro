@@ -14,7 +14,7 @@ const isCI = process.argv.includes('--ci');
 /** URL directory containing the entire project. */
 const projDir = new URL('./project/', import.meta.url);
 
-let config = await loadConfig({
+let { parsed: config } = await loadConfig({
 	cwd: fileURLToPath(projDir),
 });
 

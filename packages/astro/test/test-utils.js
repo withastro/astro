@@ -67,7 +67,7 @@ export async function loadFixture(inlineConfig) {
 	if (!inlineConfig.buildOptions) inlineConfig.buildOptions = {};
 	if (inlineConfig.buildOptions.sitemap === undefined) inlineConfig.buildOptions.sitemap = false;
 	if (!inlineConfig.devOptions) inlineConfig.devOptions = {};
-	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
+	let { parsed: config } = await loadConfig({ cwd: fileURLToPath(cwd) });
 	config = merge(config, { ...inlineConfig, projectRoot: cwd });
 
 	return {
@@ -85,8 +85,8 @@ export async function loadFixture(inlineConfig) {
 			inlineConfig.devOptions.port = previewServer.port; // update port for fetch
 			return previewServer;
 		},
-		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
-		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
+		readFile: filePath => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
+		readdir: fp => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
 		clean: () => fs.promises.rm(config.dist, { maxRetries: 10, recursive: true, force: true }),
 	};
 }

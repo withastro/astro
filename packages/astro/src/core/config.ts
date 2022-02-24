@@ -180,10 +180,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<{par
 	// normalize, validate, and return
 	const mergedConfig = mergeCLIFlags(userConfig, flags);
 	const validatedConfig = await validateConfig(mergedConfig, root);
-	return {
-		...config,
-		parsed: validatedConfig
-	};
+	return { ...config, parsed: validatedConfig };
 }
 
 export function formatConfigError(err: z.ZodError) {

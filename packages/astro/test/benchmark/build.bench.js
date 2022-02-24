@@ -24,7 +24,7 @@ export const errorWritable = new Writable({
 
 let build;
 async function setupBuild() {
-	const astroConfig = await loadConfig(fileURLToPath(snowpackExampleRoot));
+	const { parsed: astroConfig } = await loadConfig(fileURLToPath(snowpackExampleRoot));
 
 	const logging = {
 		level: 'error',
@@ -79,7 +79,7 @@ async function run() {
 	}
 }
 
-run().catch((err) => {
+run().catch(err => {
 	console.error(err);
 	process.exit(1);
 });
