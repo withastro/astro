@@ -36,14 +36,14 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: 'astro/internal',
-		experimentalStaticExtraction: config.buildOptions.experimentalStaticBuild,
+		experimentalStaticExtraction: !config.buildOptions.legacyBuild,
 		// TODO add experimental flag here
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
 			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 
 			try {
 				// In the static build, grab any @import as CSS dependencies for HMR.
-				if (config.buildOptions.experimentalStaticBuild) {
+				if (!config.buildOptions.legacyBuild) {
 					value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match, spec) => {
 						rawCSSDeps.add(spec);
 						return match;
