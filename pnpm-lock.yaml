@@ -1036,6 +1036,7 @@ importers:
 
   scripts:
     specifiers:
+      '@astrojs/renderer-svelte': workspace:*
       '@astropub/webapi': ^0.10.14
       adm-zip: ^0.5.9
       arg: ^5.0.0
@@ -1045,6 +1046,7 @@ importers:
       svelte: ^3.46.2
       tar: ^6.1.0
     dependencies:
+      '@astrojs/renderer-svelte': link:../packages/renderers/renderer-svelte
       '@astropub/webapi': 0.10.14
       adm-zip: 0.5.9
       arg: 5.0.1
