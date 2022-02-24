@@ -7,7 +7,7 @@ describe('Partial HTML ', async () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-partial-html/' });
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-partial-html/', renderers: ['@astrojs/renderer-react'] });
 		devServer = await fixture.startDevServer();
 	});
 
@@ -16,7 +16,7 @@ describe('Partial HTML ', async () => {
 	});
 
 	it('injects Astro styles and scripts', async () => {
-		const html = await fixture.fetch('/astro').then((res) => res.text());
+		const html = await fixture.fetch('/astro').then(res => res.text());
 		const $ = cheerio.load(html);
 
 		// test 1: Doctype first
@@ -28,7 +28,7 @@ describe('Partial HTML ', async () => {
 	});
 
 	it('injects framework styles', async () => {
-		const html = await fixture.fetch('/jsx').then((res) => res.text());
+		const html = await fixture.fetch('/jsx').then(res => res.text());
 		const $ = cheerio.load(html);
 
 		// test 1: Doctype first

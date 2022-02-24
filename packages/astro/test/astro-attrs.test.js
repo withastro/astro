@@ -6,7 +6,7 @@ describe('Attributes', async () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-attrs/' });
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-attrs/', renderers: ['@astrojs/renderer-react'] });
 		await fixture.build();
 	});
 

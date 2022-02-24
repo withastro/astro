@@ -5,7 +5,7 @@ describe('Environment Variables', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-envs/' });
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-envs/', renderers: ['@astrojs/renderer-vue'] });
 
 		await fixture.build();
 	});
@@ -29,7 +29,7 @@ describe('Environment Variables', () => {
 		// Testing this way prevents hardcoding expected js files.
 		// If we find it in any of them that's good enough to know its working.
 		await Promise.all(
-			dirs.map(async (path) => {
+			dirs.map(async path => {
 				if (path.endsWith('.js')) {
 					let js = await fixture.readFile(`/assets/${path}`);
 					if (js.includes('BLUE_BAYOU')) {
@@ -50,7 +50,7 @@ describe('Environment Variables', () => {
 		// Testing this way prevents hardcoding expected js files.
 		// If we find it in any of them that's good enough to know its NOT working.
 		await Promise.all(
-			dirs.map(async (path) => {
+			dirs.map(async path => {
 				if (path.endsWith('.js')) {
 					let js = await fixture.readFile(`/assets/${path}`);
 					if (js.includes('CLUB_33')) {

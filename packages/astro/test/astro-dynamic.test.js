@@ -6,7 +6,7 @@ describe('Dynamic components', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-dynamic/' });
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-dynamic/', renderers: ['@astrojs/renderer-react', '@astrojs/renderer-svelte'] });
 		await fixture.build();
 	});
 

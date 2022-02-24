@@ -6,7 +6,7 @@ describe('Global Fetch', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/fetch/' });
+		fixture = await loadFixture({ projectRoot: './fixtures/fetch/', renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'] });
 		await fixture.build();
 	});
 
