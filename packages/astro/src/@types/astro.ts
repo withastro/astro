@@ -93,12 +93,7 @@ export interface AstroUserConfig {
 	/**
 	 * Framework component renderers enable UI framework rendering (static and dynamic).
 	 * When you define this in your configuration, all other defaults are disabled.
-	 * Default: [
-	 *  '@astrojs/renderer-svelte',
-	 *  '@astrojs/renderer-vue',
-	 *  '@astrojs/renderer-react',
-	 *  '@astrojs/renderer-preact',
-	 * ],
+	 * Default: [],
 	 */
 	renderers?: string[];
 	/** Options for rendering markdown content */
