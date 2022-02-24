@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.6.2
+
+### Patch Changes
+
+- [#2628](https://github.com/withastro/astro/pull/2628) [`9b7e2ab2`](https://github.com/withastro/astro/commit/9b7e2ab2516cd36520364490df8e3482008292e3) Thanks [@JuanM04](https://github.com/JuanM04)! - Fixed shiki to work with `{ "type": "module" }`
+
 ## 0.6.1
 
 ### Patch Changes
@@ -141,10 +147,10 @@
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
