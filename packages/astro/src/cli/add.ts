@@ -13,9 +13,9 @@ import { transformFileAsync, NodePath } from '@babel/core';
 
 const issueMsg = '\nIf you think this is an error, feel free to open an issue in our GitHub repo: https://github.com/withastro/astro/issues/new';
 
-const exec = (command: string | string[]) =>
+const exec = (...command: string[]) =>
 	new Promise((resolve, reject) => {
-		childProcessExec(typeof command === 'string' ? command : command.join(' '), (err, stdout, stderr) => {
+		childProcessExec(command.join(' '), (err, stdout, stderr) => {
 			if (err) {
 				reject(stderr);
 			} else {
@@ -84,12 +84,12 @@ async function addRenderer(args: string[]): Promise<number> {
 
 	const dependenciesSpinner = ora('Installing dependencies').start();
 	const rendererPackageName = `@astrojs/renderer-${renderer.name}`;
-	const dependencies = [rendererPackageName, ...renderer.dependencies];
+	const dependencies = renderer.dependencies.concat(rendererPackageName);
 
 	try {
-		if (pm.name === 'yarn') await exec(['yarn', 'add', '--dev', ...dependencies]);
-		else if (pm.name === 'pnpm') await exec(['pnpm', 'add', '--dev', ...dependencies]);
-		else await exec(['npm', 'install', '--save-dev', ...dependencies]);
+		if (pm.name === 'yarn') await exec('yarn', 'add', '--dev', ...dependencies);
+		else if (pm.name === 'pnpm') await exec('pnpm', 'add', '--save-dev', ...dependencies);
+		else await exec('npm', 'install', '--save-dev', ...dependencies);
 
 		dependenciesSpinner.succeed('Dependencies installed');
 	} catch (error) {
