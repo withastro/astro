@@ -63,7 +63,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default('directory'),
 			legacyBuild: z.boolean().optional().default(false),
-			experimentalStaticBuild: z.boolean().optional().default(false),
+			experimentalStaticBuild: z.boolean().optional().default(true),
 			experimentalSsr: z.boolean().optional().default(false),
 			drafts: z.boolean().optional().default(false),
 		})
@@ -149,9 +149,9 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	if (typeof flags.experimentalStaticBuild === 'boolean') astroConfig.buildOptions.experimentalStaticBuild = flags.experimentalStaticBuild;
 	if (typeof flags.experimentalSsr === 'boolean') {
 		astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
-		astroConfig.buildOptions.legacyBuild = !astroConfig.buildOptions.experimentalSsr;
 		if (flags.experimentalSsr) {
 			astroConfig.buildOptions.experimentalStaticBuild = true;
+			astroConfig.buildOptions.legacyBuild = false;
 		}
 	}
 	if (typeof flags.drafts === 'boolean') astroConfig.buildOptions.drafts = flags.drafts;
