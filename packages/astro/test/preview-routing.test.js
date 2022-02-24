@@ -16,6 +16,7 @@ describe('Preview Routing', () => {
 						trailingSlash: 'never',
 						port: 4000,
 					},
+					buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();

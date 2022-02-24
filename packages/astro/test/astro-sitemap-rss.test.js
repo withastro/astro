@@ -10,6 +10,7 @@ describe('Sitemaps', () => {
 			buildOptions: {
 				site: 'https://astro.build/',
 				sitemap: true,
+				legacyBuild: true,
 			},
 		});
 		await fixture.build();

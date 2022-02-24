@@ -5,7 +5,10 @@ describe('Environment Variables', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-envs/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-envs/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		});
 
 		await fixture.build();
 	});
