@@ -4,7 +4,7 @@ if (import.meta.hot) {
 		const { default: diff } = await import('micromorph');
 		// eslint-disable-next-line no-console
 		console.log(`[vite] hot updated: ${file}`);
-		const html = await fetch(`${window.location}`).then(res => res.text());
+		const html = await fetch(`${window.location}`).then((res) => res.text());
 		const doc = parser.parseFromString(html, 'text/html');
 
 		// Match incoming islands to current state

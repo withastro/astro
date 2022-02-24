@@ -3,7 +3,7 @@ import type { LogOptions } from '../core/logger.js';
 import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
 import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
 import { invalidateCompilation, isCached } from './compile.js';
-import { logger } from '../core/logger.js'
+import { logger } from '../core/logger.js';
 import { green } from 'kleur/colors';
 
 interface TrackCSSDependenciesOptions {
@@ -75,9 +75,9 @@ export function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: L
 
 	if (ctx.file.endsWith('.astro')) {
 		const file = ctx.file.replace(config.projectRoot.pathname, '/');
-		logger.info('astro', green('hmr'), `${file}`)
-		ctx.server.ws.send({ type: "custom", event: "astro:update", data: { file } })
-		return []
+		logger.info('astro', green('hmr'), `${file}`);
+		ctx.server.ws.send({ type: 'custom', event: 'astro:update', data: { file } });
+		return [];
 	}
 
 	return Array.from(filtered);
