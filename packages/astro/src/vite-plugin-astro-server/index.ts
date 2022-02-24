@@ -112,7 +112,6 @@ async function handleRequest(
 			routeCache: routeCache,
 			viteServer: viteServer,
 		});
-		info(logging, 'astro', msg.req({ url: pathname, statusCode, reqTime: performance.now() - reqStart }));
 		writeHtmlResponse(res, statusCode, html);
 	} catch (_err: any) {
 		info(logging, 'astro', msg.req({ url: pathname, statusCode: 500 }));
