@@ -320,10 +320,10 @@ importers:
   examples/with-vite-plugin-pwa:
     specifiers:
       astro: ^0.23.0
-      vite-plugin-pwa: 0.11.5
+      vite-plugin-pwa: ^0.11.13
     devDependencies:
       astro: link:../../packages/astro
-      vite-plugin-pwa: 0.11.5
+      vite-plugin-pwa: 0.11.13
 
   packages/astro:
     specifiers:
@@ -3176,7 +3176,6 @@ packages:
 
   /@types/node/16.11.22:
     resolution: {integrity: sha512-DYNtJWauMQ9RNpesl4aVothr97/tIJM8HbyOXJ0AYT1Z2bEjLHyfjOBPAQQVMLf8h3kSShYfNk8Wnto8B2zHUA==}
-    dev: false
 
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
@@ -3206,7 +3205,7 @@ packages:
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 15.14.9
+      '@types/node': 16.11.22
     dev: true
 
   /@types/resolve/1.20.1:
@@ -6234,7 +6233,7 @@ packages:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 15.14.9
+      '@types/node': 16.11.22
       merge-stream: 2.0.0
       supports-color: 7.2.0
     dev: true
@@ -9387,12 +9386,11 @@ packages:
       magic-string: 0.25.7
     dev: true
 
-  /vite-plugin-pwa/0.11.5:
-    resolution: {integrity: sha512-qn79L7008ZMn9GS0ClxypOBRA3Ft8/a8saIQ03SC2R1QndbZVW+YQVHTlFno33Wp6fu5UJacoHWuZYCuKZKaOA==}
+  /vite-plugin-pwa/0.11.13:
+    resolution: {integrity: sha512-Ssj14m3TRVLfkFEAWSMcFE2d1cSdEZyrVTzfY2lSL+umHYvcIFHVDAY143sygtBCb44OPczsAOmWwBTxwOvh7g==}
     peerDependencies:
       vite: ^2.0.0
     dependencies:
-      chalk: 4.1.2
       debug: 4.3.3
       fast-glob: 3.2.11
       pretty-bytes: 5.6.0
