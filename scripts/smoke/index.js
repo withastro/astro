@@ -35,15 +35,16 @@ async function run() {
 
 	const directories = [...(await getChildDirectories(exampleDir)), ...(await getChildDirectories(smokeDir))];
 
-	console.log('🤖', 'Preparing', 'yarn');
+	console.log('🤖', 'Preparing', 'pnpm');
 
-	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
+	await execa('pnpm', ['install'], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
 
 	for (const directory of directories) {
 		console.log('🤖', 'Testing', directory.pathname.split('/').at(-1));
 
 		try {
-			await execa('yarn', ['run', 'build'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
+			await execa('pnpm', ['install'], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
+			await execa('pnpm', ['run', 'build'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
 		} catch (err) {
 			console.log(err);
 			process.exit(1);
@@ -55,7 +56,7 @@ async function run() {
 		}
 
 		try {
-			await execa('yarn', ['build', '--', '--experimental-static-build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
+			await execa('pnpm', ['run', 'build', '--', '--experimental-static-build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
 		} catch (err) {
 			console.log(err);
 			process.exit(1);

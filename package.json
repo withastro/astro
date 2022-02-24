@@ -73,7 +73,8 @@
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": [
-        "@babel/core"
+        "@babel/core",
+        "@babel/plugin-transform-react-jsx"
       ]
     }
   },

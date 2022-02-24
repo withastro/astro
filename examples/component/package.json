@@ -2,10 +2,6 @@
   "name": "@example/component",
   "version": "0.0.1",
   "private": true,
-  "workspaces": [
-    "demo",
-    "packages/*"
-  ],
   "scripts": {
     "start": "astro --project-root demo dev",
     "build": "astro --project-root demo build",

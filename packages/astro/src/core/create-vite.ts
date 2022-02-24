@@ -29,7 +29,6 @@ const ALWAYS_EXTERNAL = new Set([
 ]);
 const ALWAYS_NOEXTERNAL = new Set([
 	'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
-	'astro/internal',
 ]);
 
 // note: ssr is still an experimental API hence the type omission from `vite`
@@ -52,7 +51,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		clearScreen: false, // we want to control the output, not Vite
 		logLevel: 'error', // log errors only
 		optimizeDeps: {
-			entries: ['src/**/*', 'astro/internal'], // Try and scan a user’s project (won’t catch everything),
+			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
 		},
 		plugins: [
 			configAliasVitePlugin({ config: astroConfig }),

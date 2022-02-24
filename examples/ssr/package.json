@@ -11,6 +11,7 @@
     "server": "node server/server.mjs"
   },
   "devDependencies": {
+    "@astrojs/renderer-svelte": "^0.4.0",
     "astro": "^0.23.7",
     "unocss": "^0.15.5",
     "vite-imagetools": "^4.0.1",

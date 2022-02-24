@@ -10,6 +10,7 @@ import astroRemark from '@astrojs/markdown-remark';
 // @ts-check
 export default /** @type {import('astro').AstroUserConfig} */ ({
 	// Enable Custom Markdown options, plugins, etc.
+	renderers: [],
 	markdownOptions: {
 		render: [
 			astroRemark,

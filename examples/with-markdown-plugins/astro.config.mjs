@@ -11,6 +11,7 @@ import addClasses from './add-classes.mjs';
 // @ts-check
 export default /** @type {import('astro').AstroUserConfig} */ ({
 	// Enable Custom Markdown options, plugins, etc.
+	renderers: [],
 	markdownOptions: {
 		render: [
 			astroRemark,
