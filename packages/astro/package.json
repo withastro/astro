@@ -114,6 +114,8 @@
   },
   "devDependencies": {
     "@astrojs/parser": "^0.22.1",
+    "@types/babel__generator": "^7.6.4",
+    "@types/babel__traverse": "^7.14.2",
     "@types/chai": "^4.2.22",
     "@types/common-ancestor-path": "^1.0.0",
     "@types/connect": "^3.4.35",
