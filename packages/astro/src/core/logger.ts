@@ -18,7 +18,7 @@ function getLoggerLocale(): string {
 		// Check if language code is atleast two characters long (ie. en, es).
 		// NOTE: if "c" locale is encountered, the default locale will be returned.
 		if (extractedLocale.length < 2) return defaultLocale;
-		else return extractedLocale;
+		else return extractedLocale.substring(0, 5);
 	} else return defaultLocale;
 }
 
