@@ -137,10 +137,10 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@astrojs/compiler@^0.11.3":
-  version "0.11.3"
-  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.11.3.tgz#804de4ce6c073049175ba6e0eec470e8dabee81d"
-  integrity sha512-mg0hRk8uzk5LQjtHpAFtwmkCq7YM40Inev49WPqdxDnDaK056I1dbRCm3E/h2SJhLdUyI3KRML79N6DTmL5wRg==
+"@astrojs/compiler@^0.11.4":
+  version "0.11.4"
+  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.11.4.tgz#933853cf37ba2cbf0213a88463fd48c3a4329a07"
+  integrity sha512-T598FTCgBFjjPLPClvn+lc2SFGAJkjaF+lbxvHNjzmUpOYdz7YyH1apd3XAZvDp5r5WBBhicB6693GhQRpf3oQ==
   dependencies:
     typescript "^4.3.5"
 
@@ -5997,11 +5997,6 @@ mocha@^9.1.3:
     yargs-parser "20.2.4"
     yargs-unparser "2.0.0"
 
-morphdom@^2.6.1:
-  version "2.6.1"
-  resolved "https://registry.yarnpkg.com/morphdom/-/morphdom-2.6.1.tgz#e868e24f989fa3183004b159aed643e628b4306e"
-  integrity sha512-Y8YRbAEP3eKykroIBWrjcfMw7mmwJfjhqdpSvoqinu8Y702nAwikpXcNFDiIkyvfCLxLM9Wu95RZqo4a9jFBaA==
-
 mri@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/mri/-/mri-1.2.0.tgz#6721480fec2a11a4889861115a48b6cbe7cc8f0b"
@@ -7100,7 +7095,7 @@ sander@^0.5.0:
     mkdirp "^0.5.1"
     rimraf "^2.5.2"
 
-sass@^1.49.0:
+sass@^1.49.0, sass@^1.49.8:
   version "1.49.8"
   resolved "https://registry.yarnpkg.com/sass/-/sass-1.49.8.tgz#9bbbc5d43d14862db07f1c04b786c9da9b641828"
   integrity sha512-NoGOjvDDOU9og9oAxhRnap71QaTjjlzrvLnKecUJ3GxhaQBrV6e7gPuSPF28u1OcVAArVojPAe4ZhOXwwC4tGw==
