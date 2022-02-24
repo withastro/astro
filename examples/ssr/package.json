@@ -6,7 +6,7 @@
     "dev-api": "node server/dev-api.mjs",
     "dev": "npm run dev-api & astro dev --experimental-ssr",
     "start": "astro dev",
-    "build": "echo 'Run yarn build-ssr instead'",
+    "build": "echo 'Run pnpm run build-ssr instead'",
     "build-ssr": "node build.mjs",
     "server": "node server/server.mjs"
   },
