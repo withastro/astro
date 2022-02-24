@@ -60,7 +60,7 @@ ${setup}`.trim();
 					site: config.buildOptions.site,
 					sourcefile: id,
 					sourcemap: 'inline',
-					internalURL: `/@fs${new URL('../runtime/server/index.js', import.meta.url).href}`,
+					internalURL: `/@fs${new URL('../runtime/server/index.js', import.meta.url).pathname}`,
 				});
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};
