@@ -9,6 +9,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import ora from 'ora';
 import * as t from '@babel/types';
+import { transformFileAsync, NodePath } from '@babel/core';
 
 const issueMsg = '\nIf you think this is an error, feel free to open an issue in our GitHub repo: https://github.com/withastro/astro/issues/new';
 
@@ -65,9 +66,9 @@ async function addRenderer(args: string[]): Promise<number> {
 		{ name: 'svelte', dependencies: ['svelte'] },
 		{ name: 'vue', dependencies: ['vue'] },
 	];
-	const renderersNames = renderersData.map((renderer) => renderer.name);
+	const renderersNames = renderersData.map(renderer => renderer.name);
 
-	const renderer = renderersData.find((r) => r.name === args[0]);
+	const renderer = renderersData.find(r => r.name === args[0]);
 
 	if (!renderer) {
 		console.log("You've entered an invalid renderer. It has to be one of the following:\n" + renderersNames.join(', '));
@@ -118,79 +119,62 @@ async function addRenderer(args: string[]): Promise<number> {
 		const updatingConfigSpinner = ora('Updating Astro config').start();
 
 		try {
-			const configRaw = await fs.readFile(config.filePath, { encoding: 'utf-8' });
+			const configRenderers = config.raw?.renderers || [];
 
-			let [{ default: generate }, { parse }, { default: traverse }] = await Promise.all([import('@babel/generator'), import('@babel/parser'), import('@babel/traverse')]);
-
-			const ast = parse(configRaw, { sourceType: 'unambiguous' });
-			let success = false;
-
-			// @ts-expect-error It seems like an ES module, but acts like a CJS
-			if (typeof traverse !== 'function') traverse = traverse.default;
-			// @ts-expect-error It seems like an ES module, but acts like a CJS
-			if (typeof generate !== 'function') generate = generate.default;
-
-			traverse(ast, {
-				ExportDefaultDeclaration: (path) => {
-					if (success) return;
-					let configObject: t.ObjectExpression | null = null;
-
-					if (path.node.declaration.type === 'ObjectExpression') {
-						configObject = path.node.declaration;
-					} else if (path.node.declaration.type === 'Identifier') {
-						const identifierName = path.node.declaration.name;
-						traverse(ast, {
-							VariableDeclaration: (path) => {
-								for (const declaration of path.node.declarations) {
-									if (declaration.id.type === 'Identifier' && declaration.id.name === identifierName && declaration.init?.type === 'ObjectExpression') {
-										configObject = declaration.init;
-										break;
-									}
-								}
-							},
-						});
-					}
-
-					if (!configObject) return;
-
-					let renderersProp = configObject.properties.find((prop) => {
-						if (prop.type !== 'ObjectProperty') return false;
-						if (prop.key.type === 'Identifier') {
-							if (prop.key.name === 'renderers') return true;
-						}
-						if (prop.key.type === 'StringLiteral') {
-							if (prop.key.value === 'renderers') return true;
-						}
-						return false;
-					}) as t.ObjectProperty | undefined;
-
-					if (!renderersProp) {
-						configObject.properties.push(t.objectProperty(t.identifier('renderers'), t.arrayExpression([t.stringLiteral(rendererPackageName)])));
-						success = true;
-						return;
-					}
-
-					if (renderersProp.value.type !== 'ArrayExpression') return;
-
-					const rendererElement = renderersProp.value.elements.find((el) => el?.type === 'StringLiteral' && el.value === rendererPackageName);
-					if (rendererElement) {
-						success = true;
-						return;
-					}
-
-					renderersProp.value.elements.push(t.stringLiteral(rendererPackageName));
-					success = true;
-				},
-			});
-
-			if (!success) {
-				throw new Error("Couldn't find config object");
+			if (!Array.isArray(configRenderers)) {
+				throw new Error('Invalid `renderers` key in astro config');
 			}
 
-			const output = generate(ast, {}, configRaw);
+			if (configRenderers.includes(rendererPackageName)) {
+				updatingConfigSpinner.succeed(`${rendererPackageName} already in astro config.`);
+			} else {
+				let success = false;
+				const result = await transformFileAsync(config.filePath, {
+					sourceType: 'unambiguous',
+					plugins: [
+						() => ({
+							visitor: {
+								ExportDefaultDeclaration(path: NodePath<t.ExportDefaultDeclaration>) {
+									if (success) return;
 
-			await fs.writeFile(config.filePath, output.code, { encoding: 'utf-8' });
-			updatingConfigSpinner.succeed('Config file updated');
+									if (path.node.declaration.type !== 'ObjectExpression') return;
+
+									const configObject = path.node.declaration;
+
+									let renderersProp = configObject.properties.find(prop => {
+										if (prop.type !== 'ObjectProperty') return false;
+										if (prop.key.type === 'Identifier') {
+											if (prop.key.name === 'renderers') return true;
+										}
+										if (prop.key.type === 'StringLiteral') {
+											if (prop.key.value === 'renderers') return true;
+										}
+										return false;
+									}) as t.ObjectProperty | undefined;
+
+									if (!renderersProp) {
+										configObject.properties.push(t.objectProperty(t.identifier('renderers'), t.arrayExpression([t.stringLiteral(rendererPackageName)])));
+										success = true;
+										return;
+									}
+
+									if (renderersProp.value.type !== 'ArrayExpression') return;
+
+									renderersProp.value.elements.push(t.stringLiteral(rendererPackageName));
+									success = true;
+								},
+							},
+						}),
+					],
+				});
+
+				if (!success || !result?.code) {
+					throw new Error("Couldn't find config object");
+				}
+
+				await fs.writeFile(config.filePath, result.code, { encoding: 'utf-8' });
+				updatingConfigSpinner.succeed('Config file updated');
+			}
 		} catch (error) {
 			updatingConfigSpinner.fail('There was an error updating the config file.\n' + `You can try to add ${rendererPackageName} to your renderers list manually.` + issueMsg);
 			console.error(error);
@@ -198,6 +182,6 @@ async function addRenderer(args: string[]): Promise<number> {
 		}
 	}
 
-	console.log(`${renderer.name} added successfully!`);
+	console.log(`${rendererPackageName} added successfully!`);
 	return 0;
 }
