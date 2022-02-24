@@ -5867,6 +5867,11 @@ micromatch@^4.0.2, micromatch@^4.0.4:
     braces "^3.0.1"
     picomatch "^2.2.3"
 
+micromorph@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/micromorph/-/micromorph-0.0.2.tgz#5cfbaea66ae5fb8629c8041897e88d9e827afc2f"
+  integrity sha512-hfy/OA8rtwI/vPRm4L6a3/u6uDvqsPmTok7pPmtfv2a7YfaTVfxd9HX2Kdn/SZ8rGMKkKVJ9A0WcBnzs0bjLXw==
+
 mime@1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/mime/-/mime-1.6.0.tgz#32cd9e5c64553bd58d19a568af452acff04981b1"

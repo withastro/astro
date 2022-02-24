@@ -1,7 +1,10 @@
 import type { AstroConfig } from '../@types/astro';
+import type { LogOptions } from '../core/logger.js';
 import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
 import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
 import { invalidateCompilation, isCached } from './compile.js';
+import { logger } from '../core/logger.js'
+import { green } from 'kleur/colors';
 
 interface TrackCSSDependenciesOptions {
 	viteDevServer: ViteDevServer | null;
@@ -43,7 +46,7 @@ export async function trackCSSDependencies(this: RollupPluginContext, opts: Trac
 	}
 }
 
-export function handleHotUpdate(ctx: HmrContext, config: AstroConfig) {
+export function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: LogOptions) {
 	// Invalidate the compilation cache so it recompiles
 	invalidateCompilation(config, ctx.file);
 
@@ -68,6 +71,13 @@ export function handleHotUpdate(ctx: HmrContext, config: AstroConfig) {
 	// produces multiple CSS modules and we want to return all of those.
 	for (const file of files) {
 		invalidateCompilation(config, file);
+	}
+
+	if (ctx.file.endsWith('.astro')) {
+		const file = ctx.file.replace(config.projectRoot.pathname, '/');
+		logger.info('astro', green('hmr'), `${file}`)
+		ctx.server.ws.send({ type: "custom", event: "astro:update", data: { file } })
+		return []
 	}
 
 	return Array.from(filtered);
