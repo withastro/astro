@@ -10,7 +10,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "astro": "^0.23.1",
+    "astro": "^0.23.2",
     "preact": "~10.6.5",
     "unocss": "^0.15.5",
     "vite-imagetools": "^4.0.1"
