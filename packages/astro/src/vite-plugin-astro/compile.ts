@@ -64,7 +64,13 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 				if (config.buildOptions.experimentalStaticBuild) {
 					value = value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match, spec) => {
 						rawCSSDeps.add(spec);
-						return createImportPlaceholder(spec);
+						// If the language is CSS: prevent `@import` inlining to prevent scoping of imports.
+						// Otherwise: Sass, etc. need to see imports for variables, so leave in for their compiler to handle.
+						if (lang === '.css') {
+							return createImportPlaceholder(spec);
+						} else {
+							return match;
+						}
 					});
 				}
 
