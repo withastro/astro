@@ -364,7 +364,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 
 	try {
 		const html = await render({
-			experimentalStaticBuild: true,
+			legacyBuild: false,
 			links,
 			logging,
 			markdownRender: astroConfig.markdownOptions.render,

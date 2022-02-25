@@ -7,7 +7,10 @@ describe('Partial HTML ', async () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-partial-html/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-partial-html/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		});
 		devServer = await fixture.startDevServer();
 	});
 

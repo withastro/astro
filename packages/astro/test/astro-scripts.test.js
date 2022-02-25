@@ -7,7 +7,10 @@ describe('Scripts (hoisted and not)', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-scripts/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-scripts/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		});
 		await fixture.build();
 	});
 
