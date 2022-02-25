@@ -40,7 +40,8 @@ describe('astro cli', () => {
 	it('astro build', async () => {
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 
-		const proc = await cli('build', '--project-root', fileURLToPath(projectRootURL));
+		const proc = await cli('build', '--project-root', fileURLToPath(projectRootURL),
+			'--legacy-build');
 
 		expect(proc.stdout).to.include('Done');
 	});

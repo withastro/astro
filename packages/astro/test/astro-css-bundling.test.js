@@ -17,7 +17,10 @@ describe('CSS Bundling', function () {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-css-bundling/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-css-bundling/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		});
 		await fixture.build({ mode: 'production' });
 	});
 

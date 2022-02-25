@@ -6,7 +6,10 @@ describe('Node builtins', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/builtins/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/builtins/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		});
 		await fixture.build();
 	});
 
