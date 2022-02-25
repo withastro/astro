@@ -8,6 +8,7 @@ describe('Remote CSS', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/remote-css/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 		await fixture.build();
 	});

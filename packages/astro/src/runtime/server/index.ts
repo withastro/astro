@@ -438,7 +438,7 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => {
-			const styleChildren = result._metadata.experimentalStaticBuild ? '' : style.children;
+			const styleChildren = !result._metadata.legacyBuild ? '' : style.children;
 
 			return renderElement('style', {
 				children: styleChildren,

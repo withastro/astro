@@ -11,6 +11,7 @@ describe('Astro.*', () => {
 			buildOptions: {
 				site: 'https://mysite.dev/blog/',
 				sitemap: false,
+				legacyBuild: true
 			},
 		});
 		await fixture.build();

@@ -46,7 +46,7 @@ export class App {
 		const scripts = createModuleScriptElementWithSrcSet(info.scripts, manifest.site);
 
 		return render({
-			experimentalStaticBuild: true,
+			legacyBuild: false,
 			links,
 			logging: defaultLogOptions,
 			markdownRender: manifest.markdown.render,
