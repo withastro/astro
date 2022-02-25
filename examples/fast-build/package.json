@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "astro dev --experimental-static-build",
-    "start": "astro dev",
+    "start": "astro dev --experimental-static-build",
     "build": "astro build --experimental-static-build",
     "scan-build": "astro build",
     "preview": "astro preview"
