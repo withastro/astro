@@ -14,7 +14,7 @@ type CompileResult = TransformResult & { rawCSSDeps: Set<string> };
 /**
  * Note: this is currently needed because Astro is directly using a Vite internal CSS transform. This gives us
  * some nice features out of the box, but at the expense of also running Vite's CSS postprocessing build step,
- * which does some things that we don't like, like resolving/handling `@import` too early. This function pulls 
+ * which does some things that we don't like, like resolving/handling `@import` too early. This function pulls
  * out the `@import` tags to be added back later, and then finally handled correctly by Vite.
  *
  * In the future, we should remove this workaround and most likely implement our own Astro style handling without

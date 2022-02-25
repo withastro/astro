@@ -44,7 +44,7 @@ interface CreateViteOptions {
 export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, mode }: CreateViteOptions): Promise<ViteConfigWithSSR> {
 	// Scan for any third-party Astro packages. Vite needs these to be passed to `ssr.noExternal`.
 	const astroPackages = await getAstroPackages(astroConfig);
-	
+
 	// Start with the Vite configuration that Astro core needs
 	let viteConfig: ViteConfigWithSSR = {
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
@@ -78,10 +78,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {
 			external: [...ALWAYS_EXTERNAL],
-			noExternal: [
-				...ALWAYS_NOEXTERNAL,
-				...astroPackages
-			],
+			noExternal: [...ALWAYS_NOEXTERNAL, ...astroPackages],
 		},
 	};
 
@@ -156,7 +153,7 @@ const COMMON_DEPENDENCIES_NOT_ASTRO = [
 	'astro',
 	'tslib',
 	'typescript',
-	'vite'
+	'vite',
 ];
 
 const COMMON_PREFIXES_NOT_ASTRO = [
@@ -174,17 +171,14 @@ const COMMON_PREFIXES_NOT_ASTRO = [
 	'remark-',
 	'rehype-',
 	'rollup-plugin-',
-	'vite-plugin-'
+	'vite-plugin-',
 ];
 
 function isCommonNotAstro(dep: string): boolean {
 	return (
 		COMMON_DEPENDENCIES_NOT_ASTRO.includes(dep) ||
 		COMMON_PREFIXES_NOT_ASTRO.some(
-			(prefix) =>
-				prefix.startsWith('@')
-					? dep.startsWith(prefix)
-					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
+			(prefix) => (prefix.startsWith('@') ? dep.startsWith(prefix) : dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix)) // check prefix omitting @scope/
 		)
 	);
 }
