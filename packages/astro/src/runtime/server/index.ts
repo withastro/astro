@@ -296,11 +296,17 @@ function createFetchContentFn(url: URL, site: URL) {
 				}
 				const urlSpec = new URL(spec, url).pathname;
 				return {
-					...mod.frontmatter,
-					Content: mod.default,
-					content: mod.metadata,
 					file: new URL(spec, url),
 					url: urlSpec.includes('/pages/') ? urlSpec.replace(/^.*\/pages\//, sitePathname).replace(/(\/index)?\.md$/, '') : undefined,
+					data: mod.frontmatter,
+					getContent: () => mod.default().then((m: any) => m.default),
+					getHeaders: () => mod.default().then((m: any) => m.metadata.headers),
+					Content: () => {
+						throw new Error('Astro.fetchContent() ".Content" property is no longer supported. Use `.getContent()` instead.');
+					},
+					content: () => {
+						throw new Error('Astro.fetchContent() ".content" property is no longer supported. Use `.getMetadata()` instead.');
+					},
 				};
 			})
 			.filter(Boolean);
