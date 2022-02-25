@@ -8,7 +8,7 @@ import { renderSlot } from '../../runtime/server/index.js';
 import { warn, LogOptions } from '../logger.js';
 
 export interface CreateResultArgs {
-	experimentalStaticBuild: boolean;
+	legacyBuild: boolean;
 	logging: LogOptions;
 	origin: string;
 	markdownRender: MarkdownRenderOptions;
@@ -22,7 +22,7 @@ export interface CreateResultArgs {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { experimentalStaticBuild, origin, markdownRender, params, pathname, renderers, resolve, site: buildOptionsSite } = args;
+	const { legacyBuild, origin, markdownRender, params, pathname, renderers, resolve, site: buildOptionsSite } = args;
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -45,7 +45,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					url,
 				},
 				resolve(path: string) {
-					if (experimentalStaticBuild) {
+					if (!legacyBuild) {
 						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;
 						if (isCSSRequest(path)) {
 							extra = `It looks like you are resolving styles. If you are adding a link tag, replace with this:
@@ -116,7 +116,7 @@ ${extra}`
 		_metadata: {
 			renderers,
 			pathname,
-			experimentalStaticBuild,
+			legacyBuild
 		},
 	};
 

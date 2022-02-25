@@ -2,11 +2,14 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('nested layouts', () => {
+describe('CSS bundling - nested layouts', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-css-bundling-nested-layouts/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-css-bundling-nested-layouts/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		});
 		await fixture.build();
 	});
 

@@ -50,7 +50,7 @@ async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Param
 }
 
 interface RenderOptions {
-	experimentalStaticBuild: boolean;
+	legacyBuild: boolean;
 	logging: LogOptions;
 	links: Set<SSRElement>;
 	markdownRender: MarkdownRenderOptions;
@@ -66,7 +66,7 @@ interface RenderOptions {
 }
 
 export async function render(opts: RenderOptions): Promise<string> {
-	const { experimentalStaticBuild, links, logging, origin, markdownRender, mod, pathname, scripts, renderers, resolve, route, routeCache, site } = opts;
+	const { legacyBuild, links, logging, origin, markdownRender, mod, pathname, scripts, renderers, resolve, route, routeCache, site } = opts;
 
 	const [params, pageProps] = await getParamsAndProps({
 		logging,
@@ -87,7 +87,7 @@ export async function render(opts: RenderOptions): Promise<string> {
 	if (!Component.isAstroComponentFactory) throw new Error(`Unable to SSR non-Astro component (${route?.component})`);
 
 	const result = createResult({
-		experimentalStaticBuild,
+		legacyBuild,
 		links,
 		logging,
 		markdownRender,
@@ -103,7 +103,7 @@ export async function render(opts: RenderOptions): Promise<string> {
 	let html = await renderPage(result, Component, pageProps, null);
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
-	if (experimentalStaticBuild && !/<!doctype html/i.test(html)) {
+	if (!legacyBuild && !/<!doctype html/i.test(html)) {
 		html = '<!DOCTYPE html>\n' + html;
 	}
 
