@@ -6,7 +6,10 @@ describe('CSS Bundling (ESM import)', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-css-bundling-import/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-css-bundling-import/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		});
 		await fixture.build();
 	});
 

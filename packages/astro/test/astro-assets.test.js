@@ -11,7 +11,10 @@ describe('Assets', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-assets/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-assets/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		});
 		await fixture.build();
 	});
 

@@ -6,7 +6,10 @@ describe('Dynamic components', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-dynamic/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-dynamic/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		});
 		await fixture.build();
 	});
 

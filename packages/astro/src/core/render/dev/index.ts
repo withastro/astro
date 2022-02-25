@@ -51,11 +51,11 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
 	// Add hoisted script tags
 	const scripts = createModuleScriptElementWithSrcSet(
-		astroConfig.buildOptions.experimentalStaticBuild && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []
+		!astroConfig.buildOptions.legacyBuild && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []
 	);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && astroConfig.buildOptions.experimentalStaticBuild) {
+	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && !astroConfig.buildOptions.legacyBuild) {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -67,7 +67,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	}
 
 	let content = await coreRender({
-		experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
+		legacyBuild: astroConfig.buildOptions.legacyBuild,
 		links: new Set(),
 		logging,
 		markdownRender: astroConfig.markdownOptions.render,
@@ -80,7 +80,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 			// The legacy build needs these to remain unresolved so that vite HTML
 			// Can do the resolution. Without this condition the build output will be
 			// broken in the legacy build. This can be removed once the legacy build is removed.
-			if (astroConfig.buildOptions.experimentalStaticBuild) {
+			if (!astroConfig.buildOptions.legacyBuild) {
 				const [, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
 				return resolvedPath;
 			} else {
@@ -101,7 +101,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	const tags: vite.HtmlTagDescriptor[] = [];
 
 	// dev only: inject Astro HMR client
-	if (mode === 'development' && !astroConfig.buildOptions.experimentalStaticBuild) {
+	if (mode === 'development' && astroConfig.buildOptions.legacyBuild) {
 		tags.push({
 			tag: 'script',
 			attrs: { type: 'module' },
@@ -137,7 +137,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	content = injectTags(content, tags);
 
 	// run transformIndexHtml() in dev to run Vite dev transformations
-	if (mode === 'development' && !astroConfig.buildOptions.experimentalStaticBuild) {
+	if (mode === 'development' && astroConfig.buildOptions.legacyBuild) {
 		const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
 		content = await viteServer.transformIndexHtml(relativeURL, content, pathname);
 	}

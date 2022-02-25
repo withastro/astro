@@ -15,6 +15,7 @@ describe('CSS', function () {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/0-css/',
 			renderers: ['@astrojs/renderer-react', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 	});
 

@@ -12,6 +12,7 @@ describe('PostCSS', () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/postcss',
 			renderers: ['@astrojs/renderer-solid', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 		await fixture.build();
 
