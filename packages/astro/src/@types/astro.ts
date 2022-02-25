@@ -27,9 +27,7 @@ export interface CLIFlags {
 	hostname?: string;
 	port?: number;
 	config?: string;
-	/**
-	 * @deprecated
-	 */
+	/** @deprecated */
 	experimentalStaticBuild?: boolean;
 	experimentalSsr?: boolean;
 	legacyBuild?: boolean;
