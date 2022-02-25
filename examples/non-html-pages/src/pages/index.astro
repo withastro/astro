@@ -1,8 +1,4 @@
----
-const url = `${Astro.request.canonicalURL.origin}/company.json`;
-const response = await fetch(url);
-const data = await response.json();
----
+
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
@@ -10,7 +6,13 @@ const data = await response.json();
 		<title>Astro</title>
 	</head>
 	<body>
-		<h1>Astro</h1>
-		<div>{JSON.stringify(data)}</div>
+		<h1 id="result">Loading...</h1>
+		<script type="module">
+			// Non-HTML files will be included in your final build, so you
+			// can fetch them directly in the browser.
+			const response = await fetch(`/about.json`);
+			const data = await response.json();
+			document.getElementById('result').innerHTML = `Load complete!<br/>Built with: <a href="${data.url}">${data.name}!</a>`;
+		</script>
 	</body>
 </html>

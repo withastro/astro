@@ -22,7 +22,7 @@ Inside of your Astro project, you'll see the following folders and files:
 ├── src/
 │   └── pages/
 │       └── index.astro
-│       └── company.json.ts
+│       └── about.json.ts
 └── package.json
 ```
 
