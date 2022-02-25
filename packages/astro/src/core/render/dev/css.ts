@@ -29,10 +29,15 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 			: // Otherwise, you are following an import in the module import tree.
 			  // You are safe to use getModuleById() here because Vite has already
 			  // resolved the correct `id` for you, by creating the import you followed here.
-			  new Set([viteServer.moduleGraph.getModuleById(id)!]);
+			  new Set([viteServer.moduleGraph.getModuleById(id)]);
 
 		// Collect all imported modules for the module(s).
 		for (const entry of moduleEntriesForId) {
+			// Handle this in case an module entries weren't found for ID
+			// This seems possible with some virtual IDs (ex: `astro:markdown/*.md`)
+			if (!entry) {
+				continue;
+			}
 			if (id === entry.id) {
 				scanned.add(id);
 				for (const importedModule of entry.importedModules) {

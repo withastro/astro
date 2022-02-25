@@ -1,7 +1,7 @@
 import type { AddressInfo } from 'net';
 import type * as babel from '@babel/core';
 import type * as vite from 'vite';
-import type { z } from 'zod';
+import { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { AstroRequest } from '../core/render/request';
@@ -59,11 +59,13 @@ export interface AstroGlobal extends AstroGlobalPartial {
 }
 
 export interface AstroGlobalPartial {
-	fetchContent<T = any>(globStr: string): Promise<FetchContentResult<T>[]>;
 	/**
 	 * @deprecated since version 0.24. See the {@link https://astro.build/deprecated/resolve upgrade guide} for more details.
 	 */
 	resolve: (path: string) => string;
+	/** @deprecated Use `Astro.glob()` instead. */
+	fetchContent(globStr: string): Promise<any[]>;
+	glob<T = any>(globStr: string): Promise<T[]>;
 	site: URL;
 }
 
@@ -501,20 +503,13 @@ export interface ComponentInstance {
 	getStaticPaths?: (options: GetStaticPathsOptions) => GetStaticPathsResult;
 }
 
-/**
- * Astro.fetchContent() result
- * Docs: https://docs.astro.build/reference/api-reference/#astrofetchcontent
- */
-export type FetchContentResult<T> = FetchContentResultBase & T;
-
-export type FetchContentResultBase = {
-	astro: {
-		headers: string[];
-		source: string;
-		html: string;
-	};
-	url: string;
-};
+export interface MarkdownInstance {
+	frontmatter: Record<string, any>;
+	file: string;
+	url: string | undefined;
+	getContent(): Promise<AstroComponentFactory>;
+	getHeaders(): Promise<{ depth: number, slug: string, text: string }[]>;
+}
 
 export type GetHydrateCallback = () => Promise<(element: Element, innerHTML: string | null) => void>;
 

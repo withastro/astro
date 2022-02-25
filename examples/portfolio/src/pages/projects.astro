@@ -5,12 +5,12 @@ import Nav from '../components/Nav/index.jsx';
 import PortfolioPreview from '../components/PortfolioPreview/index.jsx';
 
 interface MarkdownFrontmatter {
-	publishDate: number;
+	frontmatter: {publishDate: number};
 }
 
-const projects = Astro.fetchContent<MarkdownFrontmatter>('./project/**/*.md')
-	.filter(({ publishDate }) => !!publishDate)
-	.sort((a, b) => new Date(b.publishDate).valueOf() - new Date(a.publishDate).valueOf());
+const projects = (await Astro.glob<MarkdownFrontmatter>('./project/**/*.md'))
+	.filter(({ frontmatter }) => !!frontmatter.publishDate)
+	.sort((a, b) => new Date(b.frontmatter.publishDate).valueOf() - new Date(a.frontmatter.publishDate).valueOf());
 ---
 
 <html lang="en">
