@@ -33,11 +33,8 @@ function safelyReplaceImportPlaceholder(code: string) {
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
 async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: { ssr: boolean }): Promise<CompileResult> {
-	// pages and layouts should be transformed as full documents (implicit <head> <body> etc)
-	// everything else is treated as a fragment
 	const filenameURL = new URL(`file://${filename}`);
 	const normalizedID = fileURLToPath(filenameURL);
-	const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
 	const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
 
 	let rawCSSDeps = new Set<string>();
@@ -47,7 +44,6 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 	// use `sourcemap: "both"` so that sourcemap is included in the code
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
-		as: isPage ? 'document' : 'fragment',
 		pathname,
 		projectRoot: config.projectRoot.toString(),
 		site: config.buildOptions.site,

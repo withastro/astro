@@ -441,7 +441,6 @@ export async function renderHead(result: SSRResult) {
 		.filter(uniqueElements)
 		.map((style) => {
 			const styleChildren = !result._metadata.legacyBuild ? '' : style.children;
-
 			return renderElement('style', {
 				children: styleChildren,
 				props: { ...style.props, 'astro-style': true },
