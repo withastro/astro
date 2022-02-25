@@ -110,7 +110,7 @@ class AstroBuilder {
 		timer.buildStart = performance.now();
 
 		// Use the new faster static based build.
-		if (this.config.buildOptions.experimentalStaticBuild) {
+		if (!this.config.buildOptions.legacyBuild) {
 			await staticBuild({
 				allPages,
 				astroConfig: this.config,

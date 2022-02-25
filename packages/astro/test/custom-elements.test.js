@@ -9,6 +9,7 @@ describe('Custom Elements', () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/custom-elements/',
 			renderers: ['@astrojs/test-custom-element-renderer'],
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 		await fixture.build();
 	});
