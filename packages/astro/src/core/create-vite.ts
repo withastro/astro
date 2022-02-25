@@ -3,6 +3,7 @@ import type { LogOptions } from './logger';
 
 import { builtinModules } from 'module';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import * as vite from 'vite';
 import astroVitePlugin from '../vite-plugin-astro/index.js';
 import astroViteServerPlugin from '../vite-plugin-astro-server/index.js';
@@ -30,8 +31,8 @@ const ALWAYS_NOEXTERNAL = new Set([
 	'astro', // This is only because Vite's native ESM doesn't resolve "exports" correctly.
 ]);
 
-// note: ssr is still an experimental API hence the type omission
-export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: { external?: string[]; noExternal?: string[] } };
+// note: ssr is still an experimental API hence the type omission from `vite`
+export type ViteConfigWithSSR = vite.InlineConfig & { ssr?: vite.SSROptions };
 
 interface CreateViteOptions {
 	astroConfig: AstroConfig;
@@ -41,7 +42,10 @@ interface CreateViteOptions {
 
 /** Return a common starting point for all Vite actions */
 export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig, logging, mode }: CreateViteOptions): Promise<ViteConfigWithSSR> {
-	// First, start with the Vite configuration that Astro core needs
+	// Scan for any third-party Astro packages. Vite needs these to be passed to `ssr.noExternal`.
+	const astroPackages = await getAstroPackages(astroConfig);
+	
+	// Start with the Vite configuration that Astro core needs
 	let viteConfig: ViteConfigWithSSR = {
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
@@ -74,7 +78,10 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 		// Note: SSR API is in beta (https://vitejs.dev/guide/ssr.html)
 		ssr: {
 			external: [...ALWAYS_EXTERNAL],
-			noExternal: [...ALWAYS_NOEXTERNAL],
+			noExternal: [
+				...ALWAYS_NOEXTERNAL,
+				...astroPackages
+			],
 		},
 	};
 
@@ -89,7 +96,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 					throw new Error(`${name}: viteConfig(options) must be a function! Got ${typeof renderer.viteConfig}.`);
 				}
 				const rendererConfig = await renderer.viteConfig({ mode: inlineConfig.mode, command: inlineConfig.mode === 'production' ? 'build' : 'serve' }); // is this command true?
-				viteConfig = vite.mergeConfig(viteConfig, rendererConfig) as vite.InlineConfig;
+				viteConfig = vite.mergeConfig(viteConfig, rendererConfig) as ViteConfigWithSSR;
 			}
 		} catch (err) {
 			throw new Error(`${name}: ${err}`);
@@ -98,4 +105,86 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 
 	viteConfig = vite.mergeConfig(viteConfig, inlineConfig); // merge in inline Vite config
 	return viteConfig;
+}
+
+// Scans `projectRoot` for third-party Astro packages that could export an `.astro` file
+// `.astro` files need to be built by Vite, so these should use `noExternal`
+async function getAstroPackages({ projectRoot }: AstroConfig): Promise<string[]> {
+	const pkgUrl = new URL('./package.json', projectRoot);
+	const pkgPath = fileURLToPath(pkgUrl);
+	if (!fs.existsSync(pkgPath)) return [];
+
+	const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+
+	const deps = [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.devDependencies || {})];
+
+	return deps.filter((dep) => {
+		// Attempt: package is common and not Astro. ❌ Skip these for perf
+		if (isCommonNotAstro(dep)) return false;
+		// Attempt: package is named `astro-something`. ✅ Likely a community package
+		if (/^astro\-/.test(dep)) return true;
+		const depPkgUrl = new URL(`./node_modules/${dep}/package.json`, projectRoot);
+		const depPkgPath = fileURLToPath(depPkgUrl);
+		if (!fs.existsSync(depPkgPath)) return false;
+
+		const { dependencies = {}, peerDependencies = {}, keywords = [] } = JSON.parse(fs.readFileSync(depPkgPath, 'utf-8'));
+		// Attempt: package relies on `astro`. ✅ Definitely an Astro package
+		if (peerDependencies.astro || dependencies.astro) return true;
+		// Attempt: package is tagged with `astro` or `astro-component`. ✅ Likely a community package
+		if (keywords.includes('astro') || keywords.includes('astro-component')) return true;
+		return false;
+	});
+}
+
+const COMMON_DEPENDENCIES_NOT_ASTRO = [
+	'autoprefixer',
+	'react',
+	'react-dom',
+	'preact',
+	'preact-render-to-string',
+	'vue',
+	'svelte',
+	'solid-js',
+	'lit',
+	'cookie',
+	'dotenv',
+	'esbuild',
+	'eslint',
+	'jest',
+	'postcss',
+	'prettier',
+	'astro',
+	'tslib',
+	'typescript',
+	'vite'
+];
+
+const COMMON_PREFIXES_NOT_ASTRO = [
+	'@webcomponents/',
+	'@fontsource/',
+	'@postcss-plugins/',
+	'@rollup/',
+	'@astrojs/renderer-',
+	'@types/',
+	'@typescript-eslint/',
+	'eslint-',
+	'jest-',
+	'postcss-plugin-',
+	'prettier-plugin-',
+	'remark-',
+	'rehype-',
+	'rollup-plugin-',
+	'vite-plugin-'
+];
+
+function isCommonNotAstro(dep: string): boolean {
+	return (
+		COMMON_DEPENDENCIES_NOT_ASTRO.includes(dep) ||
+		COMMON_PREFIXES_NOT_ASTRO.some(
+			(prefix) =>
+				prefix.startsWith('@')
+					? dep.startsWith(prefix)
+					: dep.substring(dep.lastIndexOf('/') + 1).startsWith(prefix) // check prefix omitting @scope/
+		)
+	);
 }
