@@ -1,5 +1,13 @@
 # astro
 
+## 0.23.2
+
+### Patch Changes
+
+- [#2665](https://github.com/withastro/astro/pull/2665) [`0494f74e`](https://github.com/withastro/astro/commit/0494f74e4e95e0840a6cb05d3fd0eea785d8db90) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve compatability with third-party Astro packages
+
+* [#2656](https://github.com/withastro/astro/pull/2656) [`fca64073`](https://github.com/withastro/astro/commit/fca6407318f7f189fb65f096f8166b85a322efda) Thanks [@FredKSchott](https://github.com/FredKSchott)! - fix astro scoping of "@import" inside of style tags
+
 ## 0.23.1
 
 ### Patch Changes
@@ -46,12 +54,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -213,12 +221,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1573,10 +1581,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1596,10 +1604,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
