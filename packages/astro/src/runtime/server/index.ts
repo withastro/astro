@@ -131,6 +131,9 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 	const children = await renderSlot(result, slots?.default);
 
 	if (Component === Fragment) {
+		if (children == null) {
+			return children;
+		}
 		return unescapeHTML(children);
 	}
 
