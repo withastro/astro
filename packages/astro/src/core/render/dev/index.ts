@@ -66,6 +66,13 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 		});
 	}
 
+	if (mod.hasOwnProperty('$$metadata') && astroConfig.buildOptions.mode === 'spa') {
+		scripts.add({
+			props: { type: 'module', src: new URL('../../../runtime/client/spa.js', import.meta.url).pathname },
+			children: '',
+		})
+	}
+
 	let content = await coreRender({
 		experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
 		links: new Set(),

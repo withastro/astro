@@ -277,7 +277,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// Render a template if no fragment is provided.
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
-	return unescapeHTML(`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
+	return unescapeHTML(`<astro-root ssr uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
 }
 
 /** Create the Astro.fetchContent() runtime function. */
@@ -439,7 +439,7 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
 
 			return renderElement('style', {
 				children: styleChildren,
-				props: { ...style.props, 'astro-style': true },
+				props: { ...style.props, 'astro-style': result._metadata.experimentalStaticBuild ? undefined : true },
 			});
 		});
 	let needsHydrationStyles = false;
@@ -448,14 +448,15 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
 		.map((script, i) => {
 			if ('data-astro-component-hydration' in script.props) {
 				needsHydrationStyles = true;
+				delete script.props['data-astro-component-hydration']
 			}
 			return renderElement('script', {
 				...script,
-				props: { ...script.props, 'astro-script': result._metadata.pathname + '/script-' + i },
+				props: { ...script.props, 'astro-script': result._metadata.experimentalStaticBuild ? undefined : result._metadata.pathname + '/script-' + i },
 			});
 		});
 	if (needsHydrationStyles) {
-		styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
+		styles.push(renderElement('style', { props: { 'astro-style': result._metadata.experimentalStaticBuild ? undefined : true }, children: 'astro-root, astro-fragment { display: contents; }' }));
 	}
 
 	const links = Array.from(result.links)

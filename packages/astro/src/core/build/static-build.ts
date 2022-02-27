@@ -138,6 +138,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 			// Add hoisted scripts
 			const hoistedScripts = new Set(metadata.hoistedScriptPaths());
+			if (astroConfig.buildOptions.mode === 'spa') {
+				hoistedScripts.add(new URL('../../runtime/client/spa.js', import.meta.url).toString().replace('file://', '/@fs'))
+			}
 			if (hoistedScripts.size) {
 				const moduleId = npath.posix.join(astroModuleId, 'hoisted.js');
 				internals.hoistedScriptIdToHoistedMap.set(moduleId, hoistedScripts);
