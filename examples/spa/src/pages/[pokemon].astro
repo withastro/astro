@@ -1,0 +1,31 @@
+---
+import Counter from '../components/Counter.vue';
+
+export async function getStaticPaths() {
+  const { results: allPokemon } = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=2000`).then(res => res.json());
+  return allPokemon.map((pokemon, i, all) => ({
+		params: { pokemon: pokemon.name },
+		props: {
+			pos: Math.random() > 0.5 ? Math.random() > 0.5 ? 'top' : 'bottom' : null,
+			prev: `/${all[i - 1]?.name ?? ''}`,
+			pokemon,
+			next: `/${all[i + 1]?.name ?? ''}`,
+		}
+	}));
+}
+
+const { pos, pokemon, prev, next } = Astro.props;
+---
+<html lang="en">
+  <head>
+    <title>{pokemon.name}</title>
+  </head>
+
+  <body>
+		{pos === 'top' && <Counter client:visible />}
+    <h1>{pokemon.name}</h1>
+		{pos === 'bottom' && <Counter client:visible />}
+
+		<p><a href={prev}>Previous</a> / <a href={next}>Next</a></p>
+  </body>
+</html>
