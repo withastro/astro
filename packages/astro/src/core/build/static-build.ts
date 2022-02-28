@@ -181,6 +181,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		logLevel: 'error',
 		mode: 'production',
 		build: {
+			...viteConfig.build,
 			emptyOutDir: false,
 			manifest: ssr,
 			minify: false,
