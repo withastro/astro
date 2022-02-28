@@ -34,6 +34,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		return slash(fileURLToPath(url)) + url.search;
 	}
 
+	let isProduction: boolean;
 	let viteTransform: TransformHook;
 	let viteDevServer: vite.ViteDevServer | null = null;
 
@@ -46,6 +47,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		enforce: 'pre', // run transforms before other plugins can
 		configResolved(resolvedConfig) {
 			viteTransform = getViteTransform(resolvedConfig);
+			isProduction = resolvedConfig.isProduction;
 		},
 		configureServer(server) {
 			viteDevServer = server;
@@ -140,8 +142,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					sourcefile: id,
 				});
 
+				// Signal to Vite that we accept HMR updates
+				const SUFFIX = isProduction ? '' : `\nif (import.meta.hot) import.meta.hot.accept((mod) => mod);`;
+
 				return {
-					code,
+					code: `${code}${SUFFIX}`,
 					map,
 				};
 			} catch (err: any) {

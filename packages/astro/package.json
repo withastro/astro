@@ -85,7 +85,7 @@
     "htmlparser2": "^7.1.2",
     "kleur": "^4.1.4",
     "magic-string": "^0.25.7",
-    "micromorph": "^0.0.2",
+    "micromorph": "^0.1.1",
     "mime": "^3.0.0",
     "parse5": "^6.0.1",
     "path-to-regexp": "^6.2.0",
