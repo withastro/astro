@@ -9,7 +9,11 @@ describe('Scripts (hoisted and not)', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-scripts/',
-			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+			vite: {
+				build: {
+					assetsInlineLimit: 0
+				}
+			}
 		});
 		await fixture.build();
 	});
@@ -41,8 +45,8 @@ describe('Scripts (hoisted and not)', () => {
 		// test 2: attr removed
 		expect($('script').attr('data-astro')).to.equal(undefined);
 
-		let entryURL = path.join('inline', $('script').attr('src'));
-		let inlineEntryJS = await fixture.readFile(entryURL);
+		const entryURL =  $('script').attr('src');
+		const inlineEntryJS = await fixture.readFile(entryURL);
 
 		// test 3: the JS exists
 		expect(inlineEntryJS).to.be.ok;
@@ -56,7 +60,7 @@ describe('Scripts (hoisted and not)', () => {
 		expect($('script')).to.have.lengthOf(2);
 
 		let el = $('script').get(1);
-		let entryURL = path.join('external', $(el).attr('src'));
+		let entryURL = $(el).attr('src');
 		let externalEntryJS = await fixture.readFile(entryURL);
 
 		// test 2: the JS exists
