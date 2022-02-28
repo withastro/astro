@@ -154,6 +154,7 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 		metadata.hydrateArgs = hydration.value;
 		metadata.componentExport = hydration.componentExport;
 		metadata.componentUrl = hydration.componentUrl;
+		metadata.mode = hydration.mode;
 	}
 	const probableRendererNames = guessRenderers(metadata.componentUrl);
 
@@ -277,7 +278,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// Render a template if no fragment is provided.
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
-	return unescapeHTML(`<astro-root ssr uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
+	return unescapeHTML(`<astro-root ssr uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}${metadata.mode === 'persistent' ? ' data-persist' : ''}>${html ?? ''}${template}</astro-root>`);
 }
 
 /** Create the Astro.fetchContent() runtime function. */

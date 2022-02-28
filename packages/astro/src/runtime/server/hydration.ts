@@ -15,6 +15,7 @@ interface ExtractedProps {
 	hydration: {
 		directive: string;
 		value: string;
+		mode: 'persistent'|'ephemeral';
 		componentUrl: string;
 		componentExport: { value: string };
 	} | null;
@@ -34,9 +35,13 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 				extracted.hydration = {
 					directive: '',
 					value: '',
+					mode: inputProps['use:mode'],
 					componentUrl: '',
 					componentExport: { value: '' },
 				};
+				if (extracted.hydration.mode != null) {
+					delete inputProps['use:mode'];
+				}
 			}
 			switch (key) {
 				case 'client:component-path': {

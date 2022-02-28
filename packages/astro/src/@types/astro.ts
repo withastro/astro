@@ -15,6 +15,7 @@ export interface AstroComponentMetadata {
 	displayName: string;
 	hydrate?: 'load' | 'idle' | 'visible' | 'media' | 'only';
 	hydrateArgs?: any;
+	mode?: 'persistent'|'ephemeral';
 	componentUrl?: string;
 	componentExport?: { value: string; namespace?: boolean };
 }

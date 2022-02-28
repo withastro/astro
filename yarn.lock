@@ -5867,10 +5867,10 @@ micromatch@^4.0.2, micromatch@^4.0.4:
     braces "^3.0.1"
     picomatch "^2.2.3"
 
-micromorph@^0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/micromorph/-/micromorph-0.0.9.tgz#6599ecbc62b7cd590a8abe94911c8a3ccf9dccd6"
-  integrity sha512-TOlmJcAoAsEWx3awnQUPPVGSZp0URiOxi61phmZcHApAVX43+eoywyvxgenhl/TkXUCnEpb0UbMn3NuP3QbkDg==
+micromorph@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/micromorph/-/micromorph-0.1.1.tgz#1772b07f1be6cae10b3210a0f84fe5364987f029"
+  integrity sha512-VIAYxW6D9yOkcMJK/G6xS1fh8r1gD+mmD4VLPKki7Xqzfrq1qlCfQAA6ITIbUnLDAHv8UpPPhCWzFJ29fiUjZQ==
 
 mime@1.6.0:
   version "1.6.0"

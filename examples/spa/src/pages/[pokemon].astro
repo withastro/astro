@@ -6,25 +6,38 @@ export async function getStaticPaths() {
   return allPokemon.map((pokemon, i, all) => ({
 		params: { pokemon: pokemon.name },
 		props: {
-			pos: Math.random() > 0.5 ? Math.random() > 0.5 ? 'top' : 'bottom' : null,
 			prev: `/${all[i - 1]?.name ?? ''}`,
+			index: i,
 			pokemon,
 			next: `/${all[i + 1]?.name ?? ''}`,
 		}
 	}));
 }
 
-const { pos, pokemon, prev, next } = Astro.props;
+const { pokemon, prev, next } = Astro.props;
 ---
 <html lang="en">
   <head>
     <title>{pokemon.name}</title>
+		<style>
+			main {
+				display: flex;
+			}
+		</style>
   </head>
 
   <body>
-		{pos === 'top' && <Counter client:visible />}
     <h1>{pokemon.name}</h1>
-		{pos === 'bottom' && <Counter client:visible />}
+
+		<main>
+			<Counter client:visible use:mode="persistent">
+				Persistent!
+			</Counter>
+
+			<Counter client:visible>
+				Not Persistent!
+			</Counter>
+		</main>
 
 		<p><a href={prev}>Previous</a> / <a href={next}>Next</a></p>
   </body>
