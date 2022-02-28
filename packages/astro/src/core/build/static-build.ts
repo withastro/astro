@@ -130,6 +130,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			const topLevelImports = new Set([
 				// Any component that gets hydrated
 				...metadata.hydratedComponentPaths(),
+				// Client-only components
+				...metadata.clientOnlyComponentPaths(),
 				// Any hydration directive like astro/client/idle.js
 				...metadata.hydrationDirectiveSpecifiers(),
 				// The client path for each renderer

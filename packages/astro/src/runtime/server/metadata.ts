@@ -13,6 +13,7 @@ interface ComponentMetadata {
 interface CreateMetadataOptions {
 	modules: ModuleInfo[];
 	hydratedComponents: any[];
+	clientOnlyComponents: any[];
 	hydrationDirectives: Set<string>;
 	hoisted: any[];
 }
@@ -22,6 +23,7 @@ export class Metadata {
 	public modules: ModuleInfo[];
 	public hoisted: any[];
 	public hydratedComponents: any[];
+	public clientOnlyComponents: any[];
 	public hydrationDirectives: Set<string>;
 
 	private metadataCache: Map<any, ComponentMetadata | null>;
@@ -30,6 +32,7 @@ export class Metadata {
 		this.modules = opts.modules;
 		this.hoisted = opts.hoisted;
 		this.hydratedComponents = opts.hydratedComponents;
+		this.clientOnlyComponents = opts.clientOnlyComponents;
 		this.hydrationDirectives = opts.hydrationDirectives;
 		this.mockURL = new URL(filePathname, 'http://example.com');
 		this.metadataCache = new Map<any, ComponentMetadata | null>();
@@ -58,6 +61,19 @@ export class Metadata {
 		for (const metadata of this.deepMetadata()) {
 			for (const component of metadata.hydratedComponents) {
 				const path = metadata.getPath(component);
+				if (path && !found.has(path)) {
+					found.add(path);
+					yield path;
+				}
+			}
+		}
+	}
+
+	*clientOnlyComponentPaths() {
+		const found = new Set<string>();
+		for (const metadata of this.deepMetadata()) {
+			for (const component of metadata.clientOnlyComponents) {
+				const path = metadata.resolvePath(component);
 				if (path && !found.has(path)) {
 					found.add(path);
 					yield path;
