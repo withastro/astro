@@ -495,7 +495,7 @@ export async function renderHTMLElement(result: SSRResult, constructor: typeof H
 		attrHTML += ` ${attr}="${toAttributeString(await props[attr])}"`;
 	}
 
-	return `<${name}${attrHTML}>${await renderSlot(result, slots?.default)}</${name}>`;
+	return unescapeHTML(`<${name}${attrHTML}>${await renderSlot(result, slots?.default)}</${name}>`);
 }
 
 function getHTMLElementName(constructor: typeof HTMLElement) {
