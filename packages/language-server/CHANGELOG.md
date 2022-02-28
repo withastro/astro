@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.8.9
+
+### Patch Changes
+
+- d0485a2: Only apply content transformations for TSX generation in relevant places
+
 ## 0.8.8
 
 ### Patch Changes
