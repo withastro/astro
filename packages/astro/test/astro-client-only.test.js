@@ -8,6 +8,7 @@ describe('Client only components', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-client-only/',
+			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 		await fixture.build();
 	});
