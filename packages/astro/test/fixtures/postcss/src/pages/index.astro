@@ -4,9 +4,12 @@ import JSX from '../components/Solid.jsx';
 import Svelte from '../components/Svelte.svelte';
 import Vue from '../components/Vue.vue';
 ---
+<html>
 <head>
   <link rel="stylesheet" type="text/css" href="/global.css">
-  <link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/linked.css')}>
+	<style>
+		@import '../styles/linked.css';
+	</style>
   <style>
     .astro-page {
       appearance: none;
@@ -22,3 +25,5 @@ import Vue from '../components/Vue.vue';
     <Vue />
   </div>
 </body>
+
+</html>

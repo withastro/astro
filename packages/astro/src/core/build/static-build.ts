@@ -131,6 +131,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			const topLevelImports = new Set([
 				// Any component that gets hydrated
 				...metadata.hydratedComponentPaths(),
+				// Client-only components
+				...metadata.clientOnlyComponentPaths(),
 				// Any hydration directive like astro/client/idle.js
 				...metadata.hydrationDirectiveSpecifiers(),
 				// The client path for each renderer
@@ -182,6 +184,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		logLevel: 'error',
 		mode: 'production',
 		build: {
+			...viteConfig.build,
 			emptyOutDir: false,
 			manifest: ssr,
 			minify: false,
