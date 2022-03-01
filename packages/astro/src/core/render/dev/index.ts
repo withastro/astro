@@ -69,23 +69,25 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
 	// Pass framework CSS in as link tags to be appended to the page.
 	let links = new Set<SSRElement>();
-	[...getStylesForURL(filePath, viteServer)].forEach((href) => {
-		if (mode === 'development' && svelteStylesRE.test(href)) {
-			scripts.add({
-				props: { type: 'module', src: href },
-				children: '',
-			});
-		} else {
-			links.add({
-				props: {
-					rel: 'stylesheet',
-					href,
-					'data-astro-injected': true,
-				},
-				children: '',
-			});
-		}
-	});
+	if(!legacy) {
+		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
+			if (mode === 'development' && svelteStylesRE.test(href)) {
+				scripts.add({
+					props: { type: 'module', src: href },
+					children: '',
+				});
+			} else {
+				links.add({
+					props: {
+						rel: 'stylesheet',
+						href,
+						'data-astro-injected': true,
+					},
+					children: '',
+				});
+			}
+		});
+	}
 
 	let content = await coreRender({
 		legacyBuild: astroConfig.buildOptions.legacyBuild,
