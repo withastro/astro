@@ -71,7 +71,7 @@ export class AstroComponent {
 			const html = htmlParts[i];
 			const expression = expressions[i];
 
-			yield _render(unescapeHTML(html));
+			yield unescapeHTML(html);
 			yield _render(expression);
 		}
 	}
@@ -423,7 +423,13 @@ export async function renderEndpoint(mod: EndpointHandler, params: any) {
 export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any) {
 	const Component = await componentFactory(result, props, children);
 	let template = await renderAstroComponent(Component);
-	return unescapeHTML(template);
+
+	// <!--astro:head--> injected by compiler
+	// Must be handled at the end of the rendering process
+	if (template.indexOf('<!--astro:head-->') > -1) {
+		template = template.replace('<!--astro:head-->', await renderHead(result));
+	}
+	return template;
 }
 
 // Filter out duplicate elements in our set
@@ -464,7 +470,7 @@ export async function renderHead(result: SSRResult) {
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link));
-	return links.join('\n') + styles.join('\n') + scripts.join('\n');
+	return unescapeHTML(links.join('\n') + styles.join('\n') + scripts.join('\n') + '\n' + '<!--astro:head:injected-->');
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {

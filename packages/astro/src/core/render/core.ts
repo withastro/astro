@@ -1,7 +1,7 @@
 import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params, Props, Renderer, RouteData, SSRElement } from '../../@types/astro';
 import type { LogOptions } from '../logger.js';
 
-import { renderEndpoint, renderToString } from '../../runtime/server/index.js';
+import { renderEndpoint, renderHead, renderToString } from '../../runtime/server/index.js';
 import { getParams } from '../routing/index.js';
 import { createResult } from './result.js';
 import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
@@ -98,6 +98,13 @@ export async function render(opts: RenderOptions): Promise<string> {
 	});
 
 	let html = await renderToString(result, Component, pageProps, null);
+
+	// handle final head injection if it hasn't happened already
+	if (html.indexOf("<!--astro:head:injected-->") == -1) {
+		html = await renderHead(result) + html;
+	}
+	// cleanup internal state flags
+	html = html.replace("<!--astro:head:injected-->", '');
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
 	if (!legacyBuild && !/<!doctype html/i.test(html)) {
