@@ -8,11 +8,9 @@ Astro is a modern static site builder. Learn what Astro is all about from [our h
 
 ## Try Astro
 
-The easiest way to try Astro is to run `npm init astro` in a new directory on your machine. Our CLI wizard will assist you in starting a new Astro project.
+The easiest way to install Astro is to run `npm init astro` in a new directory on your machine. Our CLI wizard will assist you in starting a new Astro project.
 
-To get started with Astro in 5 quick and easy steps, visit our [Quick-Start guide](/en/quick-start).
-
-Alternatively, read our [Installation Guide](/en/installation) for a full walk-through on getting set up with Astro.
+ 📚 Read our [Installation Guide](/en/installation) for detailed instructions.
 
 ### Example Projects
 
