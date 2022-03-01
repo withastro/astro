@@ -216,7 +216,7 @@ export function createRouteManifest({ config, cwd }: { config: AstroConfig; cwd?
 				basename,
 				ext,
 				parts,
-				file: slash(file),
+				file: file.replace(/\\/g, '/'),
 				isDir,
 				isIndex,
 				isPage,
