@@ -93,7 +93,7 @@ If you have followed the steps above, your project directory should now look lik
 - public/
   - robots.txt
 - package.json
-- package-lock.json (or: yarn.lock, pnpm-lock.json, etc.)
+- package-lock.json (or: yarn.lock, pnpm-lock.yaml, etc.)
 - node_modules/
 ```
 
