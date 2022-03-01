@@ -38,8 +38,7 @@ export interface StaticBuildOptions {
 const MAX_CONCURRENT_RENDERS = 10;
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	const pathrepl = opts.astroConfig.buildOptions.pageUrlFormat === 'directory' ? '/index.html' : pathname === '/' ? 'index.html' : '.html';
-	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
+	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
 }
 
 // Gives back a facadeId that is relative to the root.

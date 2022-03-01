@@ -9,7 +9,7 @@ describe('Custom Elements', () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/custom-elements/',
 			renderers: ['@astrojs/test-custom-element-renderer'],
-			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+		//	buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 		await fixture.build();
 	});
@@ -36,7 +36,7 @@ describe('Custom Elements', () => {
 		expect($('my-element template[shadowroot=open]')).to.have.lengthOf(1);
 	});
 
-	it('Hydration works with exported tagName', async () => {
+	it.only('Hydration works with exported tagName', async () => {
 		const html = await fixture.readFile('/load/index.html');
 		const $ = cheerio.load(html);
 
@@ -48,8 +48,8 @@ describe('Custom Elements', () => {
 		expect($('my-element template[shadowroot=open]')).to.have.lengthOf(1);
 
 		// Hydration
-		// test 3: Component and polyfill scripts bundled together
-		expect($('script[type=module]')).to.have.lengthOf(1);
+		// test 3: Component and polyfill scripts bundled separately
+		expect($('script[type=module]')).to.have.lengthOf(2);
 	});
 
 	it('Polyfills are added even if not hydrating', async () => {
