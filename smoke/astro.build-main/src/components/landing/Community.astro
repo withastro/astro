@@ -1,0 +1,71 @@
+---
+import Section from './Section.astro';
+import Title from './Title.astro';
+import ArrowLink from '../ArrowLink.astro';
+import Panel from '../Panel.astro';
+import { social } from '../../config.ts';
+
+const { style } = Astro.props;
+---
+
+<Section class="community" style={style} pad={1.0}>
+    <Panel size="md" background="var(--color-dawn)">
+        <Fragment slot="title">
+            <h3 class="head-md"><Title id="community"><slot name="title">Connect with Astro</slot></Title></h3>
+            <div class="description">
+                <slot>
+                    <p>Learn more about Astro, get support, and meet thousands of other devs in our Discord community!</p>
+                </slot>
+            </div>
+        </Fragment>
+
+        <ul class="links">
+            <li class="social">
+                <ArrowLink icon="mdi:book" href="https://docs.astro.build">
+                    Documentation
+                </ArrowLink>
+            </li>
+            {social.map(item => (
+                <li class="social">
+                    <ArrowLink icon={item.icon} href={item.href}>
+                        {item.title}
+                    </ArrowLink>
+                </li>
+            ))}
+        </ul>
+    </Panel>
+</Section>
+
+<style>
+.community {
+    padding-top: var(--size-1000);
+    background: var(--background, rgba(255, 255, 255, 0));
+}
+.description {
+    margin-top: 1rem;
+    max-width: 48ch;
+}
+.links {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    list-style: none;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 0.5rem;
+}
+.links > :global(li) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+}
+@media (min-width: 52rem) {
+    .links > :global(li) {
+        width: auto;
+    }
+}
+</style>

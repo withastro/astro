@@ -1,0 +1,206 @@
+---
+import Illustration from './DemoIllustration.astro';
+---
+
+<Illustration before="4.0s TTI" after="2.3s TTI" name="tti"> 
+    <Fragment slot="before">
+        <div class="spinner-container before">
+            <svg class="spinner" viewBox="0 0 100 100" width="128" height="128" fill="none" role="status">
+                <circle cx="50" cy="50" r="25" stroke="currentColor" stroke-width="8" />
+            </svg>
+        </div>
+        <div class="tti-content before">
+            <svg class="img" xmlns="http://www.w3.org/2000/svg" fill="none" width="188" height="148" role="img" viewBox="0 0 198 156">
+                <path fill="url(#tti-before-a)" fill-rule="evenodd" d="M7 0C3 0 0 3 0 7v141c0 4 3 7 7 7h183c4 0 7-3 7-7V7c0-4-3-7-7-7H7Zm65 19h-9v2h-5v2h-5v5h-2v5h-5v5h-2v9h2v5h5v5h2v4h5v3h5v2h9v-2h5v-3h5v-4h2v-5h5v-5h2v-9h-2v-5h-5v-5h-2v-5h-5v-2h-5v-2ZM45 128h-7v9h128v-8h-4v-8h-3v-7h-5v-7h-4v-9h-4v-7h-5V81h-4v-7h-4v-5h-3v-7h-6v7h-4v5h-3v7h-4v10h-3v7h-5v9h-6v7h-9v-7h-5v-6h-7v-7H67v7h-5v6h-5v7h-6v6h-6v8Z" clip-rule="evenodd"/>
+                <defs>
+                    <linearGradient id="tti-before-a" x1="98.7" x2="98.7" y1="0" y2="155.2" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#DFC9C0"/>
+                    <stop offset="1" stop-color="#A8938A"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div />
+            <div />
+            <div />
+        </div>
+    </Fragment>
+    <Fragment slot="after">
+        <div class="spinner-container after">
+            <svg class="spinner" viewBox="0 0 100 100" width="128" height="128" fill="none" role="status">
+                <circle cx="50" cy="50" r="25" stroke="currentColor" stroke-width="8" />
+            </svg>
+        </div>
+        <div class="tti-content after">
+            <svg class="img" xmlns="http://www.w3.org/2000/svg" fill="none" width="188" height="148" viewBox="0 0 198 156" role="img">
+                <path fill="url(#tti-after-a)" fill-rule="evenodd" d="M8 1C4 1 0 4 0 8v140c0 5 4 8 8 8h182c5 0 8-3 8-8V8c0-4-3-7-8-7H8Zm65 18H63v3h-5v2h-4v5h-3v5h-4v4h-3v10h3v5h4v4h3v5h4v2h5v3h10v-3h4v-2h5v-5h3v-4h4v-5h3V38h-3v-4h-4v-5h-3v-5h-5v-2h-4v-3ZM45 129h-6v9h128v-8h-4v-8h-4v-8h-4v-6h-5v-9h-4v-8h-4V81h-5v-6h-3v-6h-4v-6h-5v6h-4v6h-4v6h-3v10h-4v8h-5v9h-5v6h-9v-6h-6v-7h-7v-6H67v6h-5v7h-5v6h-6v7h-6v8Z" clip-rule="evenodd"/>
+                <defs>
+                    <linearGradient id="tti-after-a" x1="70.4" x2="70.4" y1=".6" y2="155.8" gradientUnits="userSpaceOnUse">
+                    <stop stop-color="#FFB4B4"/>
+                    <stop offset="1" stop-color="#C487F0"/>
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div />
+            <div />
+            <div />
+        </div>
+    </Fragment>
+</Illustration>
+
+
+<style>
+    .spinner {
+        --size: 8rem;
+        --len: 156px;
+        --rot: 360deg;
+        transform-origin: center center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: var(--size);
+        height: var(--size);
+        margin: auto;
+        color: var(--color);
+        stroke-dasharray: var(--len);
+        stroke-dashoffset: calc(var(--len) * 0.25);
+        animation: spin 1.5s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite;
+    }
+    @media (min-width: 40rem) {
+        .spinner {
+            --size: 12rem;
+        }
+    }
+    .spinner > circle {
+        transform-origin: center center;
+        animation: rotate 6s linear infinite;
+    }
+    .spinner-container {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    .before,
+    .after {
+        animation: fade-out 10s linear infinite both;
+    }
+    .spinner-container.before {
+       animation-name: fade-out-before;
+    }
+    .tti-content.before {
+       animation-name: fade-in-before;
+    }
+    .spinner-container.after {
+       animation-name: fade-out-after;
+    }
+    .tti-content.after {
+       animation-name: fade-in-after;
+    }
+    .tti-content {
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+    }
+    .img {
+        width: 100%;
+    }
+    .tti-content > * + * {
+        margin-top: 1rem;
+    }
+        
+    
+    .tti-content > div {
+        height: var(--height, 1rem);
+        width: var(--width, 100%);
+        border-radius: 8px;
+        background: var(--color);
+    }
+    .tti-content > :nth-child(2) {
+        --height: 1.5rem;
+        --width: 67%;
+    }
+    .tti-content > :nth-child(4) {
+        --width: 80%;
+    }
+    @media (min-width: 40rem) {
+        .tti-content > :nth-child(2) {
+            --height: 2rem;
+            --width: 67%;
+        }
+    }
+    @keyframes rotate {
+        from {
+            transform: rotate(calc(var(--rot) * 0));
+        }
+        to {
+            transform: rotate(calc(var(--rot) * 1));
+        }
+    }
+    @keyframes spin {
+        0% {
+            transform: rotate(calc(var(--rot) * 0));
+            stroke-dashoffset: calc(var(--len) * 0.25);
+        }
+        25% {
+            transform: rotate(calc(var(--rot) * 0.25));
+            stroke-dashoffset: calc(var(--len) * 0.5);
+        }
+        50% {
+            transform: rotate(calc(var(--rot) * 0.5));
+            stroke-dashoffset: calc(var(--len) * 0.25);
+        }
+        75% {
+            transform: rotate(calc(var(--rot) * 0.75));
+            stroke-dashoffset: calc(var(--len) * 0.5);
+        }
+        100% {
+            transform: rotate(calc(var(--rot) * 1));
+            stroke-dashoffset: calc(var(--len) * 0.25);
+        }
+    }
+    @keyframes fade-in-before {
+        0%, 39.9%, 100% {
+            opacity: 0;
+        }
+        40%, 85% {
+            opacity: 1;
+        }
+    }
+    @keyframes fade-out-before {
+        0%, 39.9%, 100% {
+            opacity: 1;
+        }
+        40%, 99.9% {
+            opacity: 0;
+        }
+    }
+    @keyframes fade-in-after {
+        0%, 22.9%, 100% {
+            opacity: 0;
+        }
+        23%, 85% {
+            opacity: 1;
+        }
+    }
+    @keyframes fade-out-after {
+        0%, 22.9%, 100% {
+            opacity: 1;
+        }
+        23%, 99.9% {
+            opacity: 0;
+        }
+    }
+</style>

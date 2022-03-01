@@ -1,5 +1,11 @@
 # astro
 
+## 0.23.3
+
+### Patch Changes
+
+- [#2681](https://github.com/withastro/astro/pull/2681) [`046af364`](https://github.com/withastro/astro/commit/046af364750ffc29c68a93c024045228aa16a5ab) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix HMR regression related to fine-grained `.astro` HMR. This fixes HMR for Tailwind and CSS styles when `.astro` files are edited.
+
 ## 0.23.2
 
 ### Patch Changes

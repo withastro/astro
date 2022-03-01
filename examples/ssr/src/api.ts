@@ -7,7 +7,7 @@ interface Product {
 
 //let origin: string;
 const { mode } = import.meta.env;
-const origin = mode === 'develeopment' ? `http://localhost:3000` : `http://localhost:8085`;
+const origin = mode === 'develepment' ? `http://localhost:3000` : `http://localhost:8085`;
 
 async function get<T>(endpoint: string, cb: (response: Response) => Promise<T>): Promise<T> {
 	const response = await fetch(`${origin}${endpoint}`);

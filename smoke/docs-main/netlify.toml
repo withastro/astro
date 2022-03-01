@@ -1,0 +1,2 @@
+[build]
+  ignore = "git diff --quiet $COMMIT_REF $CACHED_COMMIT_REF -- /"

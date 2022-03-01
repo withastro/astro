@@ -1,4 +1,6 @@
 if (import.meta.hot) {
+	// signal to Vite that we accept HMR
+	import.meta.hot.accept((mod) => mod);
 	const parser = new DOMParser();
 	import.meta.hot.on('astro:update', async ({ file }) => {
 		const { default: diff } = await import('micromorph');

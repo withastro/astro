@@ -1,0 +1,88 @@
+---
+import { smartypants } from 'smartypants';
+
+const { career = {}, variant = 'summary' } = Astro.props;
+const Title = variant === 'summary' ? 'h2' : 'h1';
+---
+
+<div class="wrapper">
+    <Title class="title text-gradient">{smartypants(career.title, 1)}</Title>
+    <div class="description">
+        <p>{career.description}</p>
+    </div>
+</div>
+
+<style>
+.wrapper {
+    width: 100%;
+    max-width: 48rem;
+    margin: 0 auto;
+    display: flex;
+    flex-flow: row wrap;
+}
+.title {
+    font-family: var(--font-display);
+    margin: 0 auto;
+    flex-grow: 1;
+    width: 100%;
+    line-height: 1.1;
+}
+h1.title {
+    font-size: var(--size-800);
+}
+h2.title {
+    --fill: var(--color-dusk);
+    font-size: var(--size-600);
+}
+.description {
+    flex-grow: 1;
+    width: 100%;
+    margin-top: 0.5em;
+}
+.description > p {
+    max-width: 48ch;
+    color: #999;
+}
+.post > div {
+    margin-top: 2em;
+}
+.authors {
+    flex-grow: 2;
+    width: 100%;
+}
+@media (min-width: 52rem) {
+    .authors {
+        width: initial;
+    }
+}
+.authors ul {
+    display: flex;
+    flex-flow: column nowrap;
+    list-style: none;
+}
+.authors ul > li + li {
+    margin-top: 0.5rem;
+}
+.date {
+    flex-grow: 1;
+}
+h3 {
+    margin: 0;
+    margin-bottom: var(--size-300);
+    font-family: var(--font-display);
+    font-size: var(--size-300);
+    font-weight: 700;
+    color: var(--color-dusk);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.date, .authors {
+    margin-top: 2rem;
+    font-size: var(--size-400);
+}
+:is(.date, .authors) p {
+    margin: 0;
+    font-size: inherit;
+    height: 2rem;
+}
+</style>

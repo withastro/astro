@@ -55,6 +55,12 @@ export function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: L
 	const filtered = new Set<ModuleNode>(ctx.modules);
 	const files = new Set<string>();
 	for (const mod of ctx.modules) {
+		// This is always the HMR script, we skip it to avoid spamming
+		// the browser console with HMR updates about this file
+		if (mod.id?.endsWith('.astro?html-proxy&index=0.js')) {
+			filtered.delete(mod);
+			continue;
+		}
 		if (mod.file && isCached(config, mod.file)) {
 			filtered.add(mod);
 			files.add(mod.file);
@@ -77,7 +83,6 @@ export function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: L
 		const file = ctx.file.replace(config.projectRoot.pathname, '/');
 		logger.info('astro', green('hmr'), `${file}`);
 		ctx.server.ws.send({ type: 'custom', event: 'astro:update', data: { file } });
-		return [];
 	}
 
 	return Array.from(filtered);

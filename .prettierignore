@@ -1,4 +1,10 @@
+# To be removed with ".astro" parsing is ready
+# Also, be sure to remove "pluginSearchDirs" from config
+**/*.astro
+
+# Config
 **/dist
+**/smoke
 **/node_modules
 **/fixtures
 **/vendor
