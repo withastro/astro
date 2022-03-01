@@ -44,8 +44,6 @@ export const AstroConfigSchema = z.object({
 	renderers: z.array(z.string()).optional().default(['@astrojs/renderer-svelte', '@astrojs/renderer-vue', '@astrojs/renderer-react', '@astrojs/renderer-preact']),
 	markdownOptions: z
 		.object({
-			footnotes: z.boolean().optional(),
-			gfm: z.boolean().optional(),
 			render: z.any().optional().default(['@astrojs/markdown-remark', {}]),
 		})
 		.strict()
