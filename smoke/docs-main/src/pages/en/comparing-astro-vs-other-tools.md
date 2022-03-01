@@ -1,6 +1,6 @@
 ---
 layout: ~/layouts/MainLayout.astro
-title: Comparing Astro
+title: Astro vs. X
 description: Comparing Astro with other static site generators like Gatsby, Next.js, Nuxt, Hugo, Eleventy, and more.
 ---
 

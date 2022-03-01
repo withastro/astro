@@ -1,5 +1,5 @@
 ---
-import Page from '../layouts/Page.astro';
+import Layout from '../layouts/Page.astro';
 import Card from '../components/careers/Card.astro';
 
 const posts = [{
@@ -15,9 +15,14 @@ const posts = [{
   title: 'Product Designer',
   description: 'Full Time • Remote • United States, Canada'
 }]
+
+const meta = {
+    title: 'The Astro Technology Company',
+    description: "We're hiring! The Astro Technology Company was formed to support the long-term success of the Astro project and grow Astro into the best possible platform for web development. Learn more."
+}
 ---
 
-<Page title="The Astro Technology Company" description="We're hiring! The Astro Technology Company was formed to support the long-term success of the Astro project and grow Astro into the best possible platform for web development. Learn more.">
+<Layout meta={meta}>
     <header>
         <h1 class="title text-gradient">The Astro Technology Company</h1>
     </header>
@@ -43,7 +48,7 @@ const posts = [{
         })}
     </ul>
     </section>
-</Page>
+</Layout>
 
 <style>
     header {

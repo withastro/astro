@@ -5,7 +5,7 @@ const { tweet: { title, href } } = Astro.props;
 ---
 
 <section class="outro">
-    <div class="container">
+    <div class="astro-container container">
         <div class="content">
             <a class="return" href="/blog">
                 <Sprite pack="mdi" name="arrow-left" size="32" aria-hidden="true" />
@@ -21,7 +21,7 @@ const { tweet: { title, href } } = Astro.props;
 
 <style>
     .outro {
-        padding: 8rem 0 2rem;
+        padding: 4rem 0 0;
         width: 100%;
     }
     .content {
@@ -49,5 +49,10 @@ const { tweet: { title, href } } = Astro.props;
         justify-content: center;
         padding: 0.25em 0.5em;
         gap: 0.25em;
+    }
+    @media (min-width: 52rem) {
+        .outro {
+            padding: 8rem 0 0;
+        }
     }
 </style>

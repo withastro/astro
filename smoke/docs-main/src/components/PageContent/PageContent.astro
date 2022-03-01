@@ -18,13 +18,13 @@ const previous = index !== -1 ? (index === 0 ? null : links[index - 1]) : null;
 	<section class="main-section">
 		<h1 class="content-title" id="overview">{title}</h1>
 		{headers && (
-			<nav class="block sm:hidden">
+			<nav class="block sm-hidden">
 				<TableOfContents client:media="(max-width: 50em)" headers={headers} />
 			</nav>
 		)}
 		<slot />
 	</section>
-	<nav class="block sm:hidden">
+	<nav class="block sm-hidden">
 		<MoreMenu editHref={githubEditUrl} />
 	</nav>
 	{(previous || next) && (
@@ -66,7 +66,7 @@ const previous = index !== -1 ? (index === 0 ? null : links[index - 1]) : null;
 	}
 
 	@media (min-width: 50em) {
-		.sm\:hidden {
+		.sm-hidden {
 			display: none;
 		}
 	}

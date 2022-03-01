@@ -3,7 +3,7 @@ import Section from './Section.astro';
 const { reverse, gradient = false } = Astro.props;
 ---
 <Section pad={2} class={"demo" + (gradient ? ' gradient' : '')}>
-    <div class="container">
+    <div class="astro-container">
         <div class="content">
             <h3 class="head-md title"><slot name="title" /></h3>
             <slot />
@@ -25,7 +25,7 @@ const { reverse, gradient = false } = Astro.props;
 .gradient {
     background: var(--color-tan) linear-gradient(180deg, #E5DAEE 0%, rgba(255, 255, 255, 0) 100%);
 }
-.container {
+.astro-container {
     display: grid;
     gap: 4rem;
 }
@@ -53,7 +53,7 @@ const { reverse, gradient = false } = Astro.props;
     .title {
         margin-top: -2.5ex;
     }
-    .container {
+    .astro-container {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .content {

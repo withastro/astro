@@ -1,0 +1,61 @@
+---
+import { Sprite } from 'astro-icon';
+import BaseHead from '../components/BaseHead.astro';
+import SkipLink from '../components/SkipLink.astro';
+import type { Props as BaseHeadProps } from '../components/BaseHead.astro';
+import '../styles/fonts.css';
+import '../styles/variables.css';
+import '../styles/tailwind.css';
+
+export interface Props {
+    meta: BaseHeadProps;
+    invert?: boolean;
+    fullscreen?: boolean;
+}
+
+const { meta, invert = false, fullscreen = false } = Astro.props;
+---
+
+<html lang="en" class={`${fullscreen ? 'fullscreen' : ''} ${invert ? 'dark text-white' : 'bg-tan text-midnight'}`}>
+  <head>
+    <BaseHead {...meta} />
+
+    <slot name="head" />
+
+    <script>
+        document.body.classList.add('js');
+    </script>
+  </head>
+  <body>
+    <Sprite.Provider>
+        <SkipLink />
+        <slot name="nav" />
+
+          <slot name="start" />
+          <main id="content" class="container mx-auto px-4 text-base font-base">
+              <slot />
+          </main>
+
+        <slot name="footer" />
+    </Sprite.Provider>
+
+    <script type="module" hoist>
+        import "/src/scripts/defer.ts";
+    </script>
+  </body>
+</html>
+
+<style>
+  .fullscreen, .fullscreen body {
+    @apply h-full overflow-hidden;
+  }
+  .fullscreen :global(nav) {
+		margin-top: 0 !important;
+  }
+  .dark {
+    background-image: var(--gradient-pop-4);
+  }
+  html:not(.fullscreen) main {
+    @apply pt-16 pb-16 sm:pb-24 lg:pb-32;
+  }
+</style>

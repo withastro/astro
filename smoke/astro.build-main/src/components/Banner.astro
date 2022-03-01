@@ -9,3 +9,162 @@ const Tag = href ? 'a' : 'div';
         {Array.from({ length: 6 }, (_, i) => <span class="group" style={`--i: ${i};`} id={i === 0 ? 'not-marquee-label' : undefined} aria-hidden={i > 0 ? 'true' : undefined}>{items.map(item => <span>{item}</span>)}</span>)}
     </Tag>
 </not-marquee>
+
+<!-- Blocking, rehydrate from localStorage immediately -->
+<script global>
+    document.getElementById('marquee-pause').checked = (localStorage.getItem('astro:marquee-paused') || 'false') === 'true';
+</script>
+
+<script type="module" hoist>
+    import "/src/scripts/marquee.ts";
+</script>
+
+<style>
+    not-marquee {
+        --color: var(--color-midnight);
+        --height: 2rem;
+        --speed: 25;
+        --gap: var(--size-1000);
+        display: flex;
+        position: relative;
+        width: 100vw;
+        height: var(--height);
+        overflow: hidden;
+
+        border-top: 1px solid var(--color);
+        margin-top: -1px;
+        border-bottom: 1px solid var(--color);
+        font-family: var(--font-display);
+        text-transform: uppercase;
+        font-size: 0.75em;
+        font-weight: 700;
+        letter-spacing: 1px;
+        background: white;
+        z-index: 3;
+        
+    }
+
+    not-marquee::before,
+    not-marquee::after {
+        content: "";
+        width: var(--gap);
+        height: var(--height);
+        position: absolute;
+        top: 0;
+        right: var(--right, auto);
+        bottom: 0;
+        left: var(--left, auto);
+        background: linear-gradient(var(--dir, to right), white, white 5%, rgba(255, 255, 255, 0));
+        z-index: 2;
+    }
+
+    not-marquee::before {
+        --left: calc(var(--height) - 4px);
+        --dir: to right;
+    }
+    not-marquee::after {
+        --right: 0;
+        --dir: to left;
+    }
+
+    input[type="checkbox"] {
+        --size: var(--height);
+        -webkit-appearance: none;
+        appearance: none;
+        width: var(--size);
+        height: var(--size);
+        border-radius: 0;
+        z-index: 2;
+        background: white;
+        margin-top: -1px;
+        margin-left: -1px;
+        border: 1px solid var(--color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    input[type="checkbox"]:hover,
+    input[type="checkbox"]:focus {
+        background: var(--color-dusk);
+    }
+
+    input[type="checkbox"]:active {
+        background: var(--color-purple);
+    }
+
+    input[type="checkbox"]:hover::before,
+    input[type="checkbox"]:focus::before,
+    input[type="checkbox"]:active::before {
+        filter: saturate(0) brightness(0) invert(1);
+    }
+
+    input[type="checkbox"]::before {
+        content: "";
+        width: calc(var(--size) * 0.75);
+        height: calc(var(--size) * 0.75);
+    }
+
+    input[type="checkbox"]::before {
+        /* Pause */
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M14 19h4V5h-4M6 19h4V5H6v14z' fill='%2331274a'%3E%3C/path%3E%3C/svg%3E");
+    }
+
+    input[type="checkbox"]:checked::before {
+        /* Play */
+        background-position: -1px center;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M8 5.14v14l11-7l-11-7z' fill='%2331274a'%3E%3C/path%3E%3C/svg%3E");
+    }
+
+    input[type="checkbox"]:checked ~ .track,
+    .track:hover {
+        animation-play-state: paused;
+    }
+
+    .track {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+
+        position: relative;
+        white-space: nowrap;
+        text-decoration: none;
+        color: var(--color);
+        transition: color 300ms cubic-bezier(0.23, 1, 0.320, 1);
+    }
+
+    a.track:hover,
+    a.track:focus {
+        color: var(--color-purple);
+    }
+
+    a.track:active {
+        color: var(--color-blue);
+    }
+
+    .group {
+        position: absolute;
+        display: block;
+        animation: marquee calc(var(--speed) * 1s) linear infinite;
+        animation-play-state: inherit;
+        user-select: none;
+        padding-left: var(--gap);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .track {
+            animation-play-state: paused;
+            justify-content: flex-start;
+        }
+    }
+
+    .group > span + span {
+        padding-left: var(--gap);
+    }
+
+    @keyframes marquee {
+        from { transform: translateX(calc(100% * var(--i, 0))) }
+        to { transform: translateX(calc(100% * calc(var(--i, 0) - 1))) }
+    }
+</style>

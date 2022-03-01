@@ -1,7 +1,7 @@
 ---
 setup: |
     import Layout from '../layouts/Legal.astro'
-    import Panel from '../components/Panel.astro'
+    import PanelBlock from '../components/blocks/PanelBlock.astro'
 title: Privacy Policy
 updated_date: Jan 6, 2022
 description: Astro's privacy policy
@@ -53,15 +53,15 @@ As a user you may also request a copy of your data and that your data be updated
 
 ### We may share your information with
 
-<Panel background="var(--color-dawn)">
+<PanelBlock>
     
-### Google Analytics (Google, Inc.)
+#### Google Analytics (Google, Inc.)
     
 Google Inc. utilizes the Data collected to track and examine the use of this Application, to prepare reports on its activities and share them with other Google services.
 
 US – [Privacy Policy](https://www.google.com/intl/en/policies/privacy/)
 
-</Panel>
+</PanelBlock>
 
 ### EU/EEA - US Data Transfers
 

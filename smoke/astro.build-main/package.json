@@ -4,14 +4,20 @@
   "private": true,
   "scripts": {
     "start": "astro dev --experimental-static-build",
-    "dev": "astro dev",
+    "dev": "astro dev --experimental-static-build",
+    "debug": "DEBUG=* astro dev --experimental-static-build",
     "build": "astro build --experimental-static-build",
     "preview": "astro preview",
     "update-contributors": "node ./update-contributors.mjs"
   },
   "devDependencies": {
-    "astro": "0.23.0-next.10",
-    "astro-icon": "^0.6.0"
+    "@tailwindcss/aspect-ratio": "^0.4.0",
+    "@tailwindcss/typography": "^0.5.2",
+    "astro": "0.23.3",
+    "astro-icon": "^0.6.0",
+    "autoprefixer": "^10.4.2",
+    "postcss": "^8.4.7",
+    "tailwindcss": "^3.0.23"
   },
   "volta": {
     "node": "14.18.3"
@@ -19,7 +25,7 @@
   "dependencies": {
     "date-fns": "^2.28.0",
     "quicklink": "^2.2.0",
-    "rehype-autolink-headings": "^6.1.0",
+    "rehype-autolink-headings": "^6.1.1",
     "remark-autolink-headings": "^7.0.1",
     "remark-smartypants": "^2.0.0",
     "smartypants": "^0.1.6"

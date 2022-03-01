@@ -1,28 +1,20 @@
 ---
+import { smartypants } from 'smartypants';
+
 export interface Props {
-  title: string;
-  description: string;
-  canonicalURL: URL | string,
+  title?: string;
+  description?: string;
+  canonicalURL?: URL | string
   image?: string;
 }
-const { title, description, canonicalURL } = Astro.props;
+const { canonicalURL = Astro.request.canonicalURL } = Astro.props;
 const image = new URL(Astro.props.image || './social.png', Astro.site);
----
+const description = Astro.props.description || 'Astro is a new kind of static site builder for the modern web. Powerful developer experience meets lightweight output.';
 
-<!-- Blocking script -->
-<script>
-  const marqueePaused = (localStorage.getItem('astro:marquee-paused') || 'false') === 'true';
-  window.addEventListener('DOMContentLoaded', () => {
-    const checkbox = document.querySelector('#marquee-pause');
-    if(checkbox) {
-      checkbox.checked = marqueePaused;
-      document.body.classList.add('js');
-    }
-  });
-  if ('paintWorklet' in CSS) {
-    CSS.paintWorklet.addModule('/pixel.worklet.js');
-  }
-</script>
+const title = [Astro.props.title, 'Astro']
+  .filter(Boolean)
+  .join(' | ')
+---
 
 <!-- Global Metadata -->
 <meta charset="utf-8" />
@@ -34,11 +26,10 @@ const image = new URL(Astro.props.image || './social.png', Astro.site);
 <link rel="alternate" type="application/rss+xml" href="/rss.xml" title="RSS" />
 
 <!-- Preload -->
-<link rel="preload" as="style" href="/styles/sanitize.css">
-<link rel="preload" as="style" href="/styles/main.css">
+<slot name="preload" />
 
 <!-- Primary Meta Tags -->
-<title>{title}</title>
+<title set:html={smartypants(title, 1)}></title>
 <meta name="title" content={title} />
 <meta name="description" content={description} />
 <link rel="canonical" href={canonicalURL}/>
@@ -58,5 +49,4 @@ const image = new URL(Astro.props.image || './social.png', Astro.site);
 <meta property="twitter:image" content={image} />
 
 <!-- Assets -->
-<link rel="stylesheet" href="/styles/sanitize.css" />
-<link rel="stylesheet" href="/styles/main.css" />
+<slot name="assets" />

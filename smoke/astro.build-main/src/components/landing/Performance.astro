@@ -11,7 +11,7 @@ const tweet = {
 
 <Section class="performance" style="--background: var(--gradient-pop-4);">
     <Starfield height={48} />
-    <div class="container">
+    <div class="astro-container">
         <div class="content">
             <h3 class="head-md"><slot name="title" /></h3>
             <div class="body">
@@ -59,7 +59,7 @@ const tweet = {
     .content {
         color: white;
     }
-    .container {
+    .astro-container {
         display: grid;
         gap: 4rem;
         padding: 0;
@@ -141,7 +141,7 @@ const tweet = {
         .data {
             order: initial;
         }
-        .container {
+        .astro-container {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
     }

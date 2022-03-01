@@ -3,9 +3,9 @@
   "version": "0.0.7",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
-    "start": "astro dev",
-    "build": "astro build",
+    "dev": "astro dev --experimental-static-build",
+    "start": "astro dev --experimental-static-build",
+    "build": "astro build --experimental-static-build",
     "preview": "astro preview",
     "format": "prettier -w .",
     "lint": "run-p --aggregate-output lint:linkcheck",
@@ -17,7 +17,7 @@
     "lint:linkcheck:remote": "blc -ro --user-agent 'broken-link-checker/0.7.8' 'https://docs.astro.build/'"
   },
   "devDependencies": {
-    "astro": "0.23.0-next.10",
+    "astro": "0.23.3",
     "broken-link-checker": "^0.7.8",
     "npm-run-all": "^4.1.5",
     "pa11y-ci": "^3.0.1",
@@ -25,7 +25,8 @@
     "prettier-plugin-astro": "^0.0.12"
   },
   "dependencies": {
-    "@docsearch/react": "^3.0.0-alpha.50"
+    "@docsearch/react": "^3.0.0-alpha.50",
+    "sass": "^1.49.8"
   },
   "volta": {
     "node": "14.18.1"

@@ -26,7 +26,7 @@ You can add import aliases from either `tsconfig.json` or `jsconfig.json`.
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["src/components/*"]
+      "@components/*": ["src/components/*"]
     }
   }
 }
@@ -38,8 +38,8 @@ With this change, you can now import using the aliases anywhere in your project:
 ---
 // my-project/src/pages/about/company.astro
 
-import Button from 'component:Button';
-import logoUrl from 'asset:logo.png';
+import Button from '@components/Button';
+import logoUrl from '@assets/logo.png';
 ---
 ```
 

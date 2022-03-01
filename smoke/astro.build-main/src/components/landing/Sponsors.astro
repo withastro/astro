@@ -30,7 +30,7 @@ const individuals = users.filter(user => isUser(user)).map(user => getUser(user)
 ---
 
 <Section class="sponsor-section" pad={2} {...Astro.props}>
-    <div class="container">
+    <div class="astro-container">
         <h3 class="head-sm title"><slot name="title" /></h3>
         <ul class="sponsors exclusive">
             {exclusive.map(sponsor => (
@@ -65,9 +65,6 @@ const individuals = users.filter(user => isUser(user)).map(user => getUser(user)
 .sponsor-section {
     padding-top: calc(var(--size-1000) * var(--pad, 1));
     --background: linear-gradient(to bottom, var(--color-tan) 0%, #E8ADB7 100%);
-}
-.container {
-
 }
 .title {
     text-align: center;
