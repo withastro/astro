@@ -2,4 +2,4 @@
 'astro': patch
 ---
 
-Upgraded Vite to v2.8.5
+Upgraded Vite to v2.8.6
