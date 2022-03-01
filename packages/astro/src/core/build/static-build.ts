@@ -455,8 +455,7 @@ async function generateManifest(result: RollupOutput, opts: StaticBuildOptions, 
 }
 
 function getOutRoot(astroConfig: AstroConfig): URL {
-	const rootPathname = appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/');
-	return new URL('.' + rootPathname, astroConfig.dist);
+	return new URL('./', astroConfig.dist);
 }
 
 function getServerRoot(astroConfig: AstroConfig): URL {
