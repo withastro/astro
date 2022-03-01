@@ -1,0 +1,69 @@
+---
+import Page from './Page.astro';
+import Date from '../components/Date.astro';
+import Panel from '../components/Panel.astro';
+import { Markdown } from 'astro/components';
+
+const { content: { header = '', title = '', description = '', updated_date } = {} } = Astro.props;
+---
+
+<Page {...{ title, description }}>
+    <Panel size="md" background="white linear-gradient(180deg, #E5DAEE 0%, rgba(255, 255, 255, 0) 24rem)">
+        <div id="article">
+            <header>
+                <h1 class="head-md text-gradient">{title}</h1>
+                <p>Last updated on <Date value={updated_date} />.</p>
+                {header && <Markdown content={header} />}
+            </header>
+            
+            <hr>
+        
+            <slot />
+        </div>
+    </Panel>
+</Page>
+
+
+<style>
+    #article {
+        max-width: 48rem;
+        padding-bottom: 4rem;
+        display: flex;
+        flex-flow: column nowrap;
+        font-family: var(--font-body);
+        font-size: var(--size-500);
+        line-height: 1.3;
+        color: var(--color-midnight);
+    }
+    :where(#article > :global(* + *)) {
+        margin-top: 1em;
+    }
+    #article :global(h3) {
+        margin-top: 2em;
+        margin-bottom: -0.5em;
+    }
+    #article :global(.panel h3) {
+        margin-top: 0;
+        margin-bottom: 0.5em;
+    }
+    #article :global(h3:nth-child(2)) {
+        margin-top: 0;
+    }
+    header {
+        padding: 3rem 0 2rem;
+    }
+    header h1 {
+        margin-bottom: 0.5rem;
+    }
+    header > p {
+        font-family: var(--font-display);
+    }
+    header > p + p {
+        margin-top: 1em;
+        font-family: var(--font-body);
+    }
+    :global(.panel) {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+</style>

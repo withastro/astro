@@ -1,0 +1,33 @@
+---
+const { height = 50 } = Astro.props;
+---
+
+<div class="starfield" style={`--height: ${height}%;`} />
+
+<style>
+.starfield {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: calc(100% - var(--height));
+    left: 0;
+    background-image: url(/stars.png);
+    background-repeat: repeat;
+    -webkit-mask-image: url(/stars-mask.png);
+    -webkit-mask-repeat: repeat;
+    mask-image: url(/stars-mask.png);
+    mask-repeat: repeat;
+    animation: sparkle 10s linear infinite alternate-reverse;
+    pointer-events: none;
+}
+@keyframes sparkle {
+    from {
+        -webkit-mask-position: top right;
+        mask-position: top right;
+    }
+    to {
+        -webkit-mask-position: bottom left;
+        mask-position: bottom left;
+    }
+}
+</style>

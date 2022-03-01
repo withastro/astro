@@ -1,0 +1,84 @@
+---
+import Page from '../../layouts/Page.astro';
+import Card from '../../components/blog/Card.astro';
+import { getAllPosts } from '../../posts';
+
+const posts = await getAllPosts();
+---
+
+<Page title="Blog">
+    <header>
+        <h1 class="title text-gradient">Blog</h1>
+        <p></p>
+    </header>
+
+    <ul role="list" class="posts">
+        {posts.map(post => {
+            return (
+                <li class="post">
+                    <a class="overlay" href={post.href}></a>
+                    <Card post={post} variant="summary" />
+                </li>
+            )
+        })}
+    </ul>
+</Page>
+
+<style>
+    header {
+        padding: 3rem 2rem 2rem;
+        width: 100%;
+        max-width: 64rem;
+        flex-grow: 1;
+    }
+    h1.title {
+        font-family: var(--font-display);
+        --fill: var(--gradient-pop-1);
+        font-size: var(--size-900);
+    }
+    .posts {
+        width: 100%;
+        max-width: 64rem;
+        padding: 2rem;
+        padding-bottom: 4rem;
+        display: flex;
+        flex-flow: column nowrap;
+        font-family: var(--font-body);
+        font-size: var(--size-500);
+        line-height: 1.3;
+        color: var(--color-midnight);
+    }
+    .post + .post {
+        margin-top: 1rem;
+    }
+    .post {
+        position: relative;
+        display: flex;
+        flex-flow: row wrap;
+        padding: 3rem 2rem;
+        margin-left: -2rem;
+        margin-right: -2rem;
+        background: white;
+        box-shadow: var(--shadow-md);
+        border-radius: var(--corner-md);
+        font-family: var(--font-body);
+        font-size: var(--size-500);
+        line-height: 1.3;
+        color: var(--color-midnight);
+    }
+    :is(.post:hover, .post:focus-within) .title {
+        --fill: var(--gradient-pop-1);
+    }
+    .post :global(a) {
+        z-index: 1;
+    }
+    .overlay {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: block;
+        z-index: 0;
+    }
+</style>

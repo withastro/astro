@@ -1,0 +1,62 @@
+---
+export interface Props {
+  title: string;
+  description: string;
+  canonicalURL: URL | string,
+  image?: string;
+}
+const { title, description, canonicalURL } = Astro.props;
+const image = new URL(Astro.props.image || './social.png', Astro.site);
+---
+
+<!-- Blocking script -->
+<script>
+  const marqueePaused = (localStorage.getItem('astro:marquee-paused') || 'false') === 'true';
+  window.addEventListener('DOMContentLoaded', () => {
+    const checkbox = document.querySelector('#marquee-pause');
+    if(checkbox) {
+      checkbox.checked = marqueePaused;
+      document.body.classList.add('js');
+    }
+  });
+  if ('paintWorklet' in CSS) {
+    CSS.paintWorklet.addModule('/pixel.worklet.js');
+  }
+</script>
+
+<!-- Global Metadata -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width" />
+<meta name="theme-color" content="#8D46E7">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="mask-icon" href="/favicon.svg" color="#8D46E7">
+<link rel="sitemap" href="/sitemap.xml">
+<link rel="alternate" type="application/rss+xml" href="/rss.xml" title="RSS" />
+
+<!-- Preload -->
+<link rel="preload" as="style" href="/styles/sanitize.css">
+<link rel="preload" as="style" href="/styles/main.css">
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalURL}/>
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website" />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={image} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={canonicalURL} />
+<meta property="twitter:title" content={title} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={image} />
+
+<!-- Assets -->
+<link rel="stylesheet" href="/styles/sanitize.css" />
+<link rel="stylesheet" href="/styles/main.css" />

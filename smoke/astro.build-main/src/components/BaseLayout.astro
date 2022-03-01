@@ -1,0 +1,26 @@
+---
+import { Sprite } from 'astro-icon';
+import Header from '../components/Header.astro';
+import Scripts from '../components/Scripts.astro';
+
+const { wrapper: Wrapper = Fragment, container = false } = Astro.props;
+---
+
+<Sprite.Provider>
+    <Header>
+        <slot name="nav" />
+    </Header>
+
+    <div id="root">
+        <Wrapper>
+            <slot name="start" />
+            <main id="content" class:list={{ container }}>
+                <slot />
+            </main>
+        </Wrapper>
+
+        <slot name="footer" />
+    </div>
+</Sprite.Provider>
+
+<Scripts />

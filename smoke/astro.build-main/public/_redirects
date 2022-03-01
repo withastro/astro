@@ -1,0 +1,4 @@
+# Netlify Redirects
+/chat     https://discord.gg/grF4GTXXYm
+/play/*   https://play.astro.build/play/:splat  200
+/v0.21    /blog/astro-021-release/  301

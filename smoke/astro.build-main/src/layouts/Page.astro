@@ -1,0 +1,49 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import BaseLayout from '../components/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+
+import { smartypants } from 'smartypants';
+
+let { title, description } = Astro.props;
+title = smartypants(title, 1);
+const meta = {
+	title: `${title} | Astro`,
+	description,
+	canonicalURL: Astro.request.canonicalURL
+}
+---
+
+<html lang="en">
+
+<head>
+	<BaseHead {...meta} />
+	<slot name="head" />
+
+	<style>
+		:root {
+			scroll-padding-top: 10rem;
+			background: var(--color-tan);
+		}
+		:global(main) {
+			padding-bottom: 8rem;
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+	</style>
+</head>
+
+<body>
+	<BaseLayout container>
+		<Nav slot="nav" />
+
+		<slot />
+
+		<Footer slot="footer" />
+	</BaseLayout>
+</body>
+
+</html>

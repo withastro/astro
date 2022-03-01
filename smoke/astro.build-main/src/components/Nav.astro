@@ -1,0 +1,40 @@
+---
+import { Sprite } from 'astro-icon';
+import { social } from '../config.ts';
+
+const { invert = false, marginBottom = false } = Astro.props;
+
+const items = [
+    { href: '/blog', title: 'Blog' },
+    { href: 'https://docs.astro.build', title: 'Docs' },
+    { href: '/play', title: 'Playground', hiddenMobile: true }
+]
+---
+
+<nav id="nav" class={`main ${invert ? 'invert' : ''} ${marginBottom ? 'margin-bottom' : ''}`.trim()} style={`--offset: 2.5;`}>
+    <ul class="container" role="list">
+        <li class="logo">
+            <a href="/">
+                <h1 class="visually-hidden">Astro</h1>
+                <Sprite class="logomark" name="logo" size="3em" />
+                <Sprite class="wordmark" name="wordmark" height="3.5em" width="6em" />
+            </a>
+        </li>
+
+        {items.map(item => (
+            <li class={`${item.hiddenMobile ? 'hidden-mobile' : ''}`}>
+                <a aria-current={Astro.request.url.pathname.startsWith(item.href) ? 'page' : undefined} href={item.href}>
+                    {item.title}
+                </a>
+            </li>
+        ))}
+
+        {social.map(item => (
+            <li class="icon">
+                <a href={item.href} title={item.title}>
+                    <Sprite name={item.icon} size="1.5em" role="presentation" />
+                </a>
+            </li>
+        ))}
+    </ul>
+</nav>

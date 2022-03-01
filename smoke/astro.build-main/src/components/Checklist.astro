@@ -1,0 +1,7 @@
+---
+const { cols = 2 } = Astro.props;
+---
+
+<ul class="checklist" style={`--cols: ${cols};`} role="list">
+    <slot />
+</ul>
