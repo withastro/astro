@@ -1,12 +1,14 @@
 ---
-import Page from '../../layouts/Page.astro';
+import Layout from '../../layouts/Page.astro';
 import Card from '../../components/blog/Card.astro';
 import { getAllPosts } from '../../posts';
 
 const posts = await getAllPosts();
+
+const meta = { title: 'Blog' };
 ---
 
-<Page title="Blog">
+<Layout meta={meta}>
     <header>
         <h1 class="title text-gradient">Blog</h1>
         <p></p>
@@ -22,7 +24,7 @@ const posts = await getAllPosts();
             )
         })}
     </ul>
-</Page>
+</Layout>
 
 <style>
     header {
@@ -59,7 +61,7 @@ const posts = await getAllPosts();
         margin-left: -2rem;
         margin-right: -2rem;
         background: white;
-        box-shadow: var(--shadow-md);
+        box-shadow: var(--shadow-sm);
         border-radius: var(--corner-md);
         font-family: var(--font-body);
         font-size: var(--size-500);

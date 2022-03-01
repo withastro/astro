@@ -1,97 +1,28 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import BaseLayout from '../components/BaseLayout.astro';
 import Nav from '../components/Nav.astro';
 import PixelLink from '../components/PixelLink.astro';
 import Starfield from '../components/Starfield.astro';
+import Layout from '../layouts/Content.astro';
 
 const meta = {
-	title: 'Page Not Found | Astro',
+	title: 'Page Not Found',
 	description: 'Astro is a new kind of static site builder for the modern web. Powerful developer experience meets lightweight output.',
 	canonicalURL: new URL('./404', Astro.site)
 }
 ---
 
-<html lang="en">
+<Layout fullscreen invert meta={meta}>
+	<Fragment slot="head">
+		<base href="/404" />
+	</Fragment>
 
-<head>
-	<BaseHead {...meta} />
-	<style>
-		:root {
-			scroll-padding-top: 10rem;
-		}
-		:global(main) {
-			min-height: calc(100vh - 32px);
-			max-width: 100vw;
-			overflow: hidden;
-			color: white;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			text-align: center;
-			background-image: var(--gradient-pop-4);
-		}
-		:global(nav) {
-			margin-top: 0 !important;
-		}
-		.text {
-			z-index: 1;
-			padding: 1rem;
-			margin-top: -4rem;
-		}
-		h2 {
-			--fill: white;
-			font-size: 4rem;
-			font-size: var(--size-900);
-			font-family: var(--font-display);
-			line-height: 1.1;
-			margin-bottom: 1.25rem;
-		}
-		p {
-			font-size: var(--size-500);
-			max-width: min(64ch, calc(100% - 1rem));
-			margin-left: auto;
-			margin-right: auto;
-			margin-bottom: 1.5em;
-		}
-		.cta {
-			position: relative;
-			left: 0;
-			right: 0;
-			display: flex;
-			flex-flow: row wrap;
-			align-items: center;
-			justify-content: center;
-			z-index: 1;
-		}
+	<Nav invert slot="nav" />
 
-		@media (min-width: 52rem) {
-			.cta {
-				position: absolute;
-			}
-		}
-		.cta > :global(*) {
-			box-sizing: border-box;
-			margin: 0.5rem;
-		}
-	</style>
-	<base href="/404" />
-</head>
+	<Starfield height={64} />
 
-<body>
-	<BaseLayout>
-		<Nav invert marginBottom slot="nav" />
-
-		<Starfield height={64} />
-
-		<div class="container text">
-			<h2 class="text-gradient">Lost in space there, astronaut?</h2>
-			<p>We couldn&rsquo;t find the page you were looking for&mdash;let&rsquo;s get you back to HQ.</p>
-			<div class="cta container">
-				<PixelLink href="/">Return Home</PixelLink>
-			</div>
-		</div>
-	</BaseLayout>
-</body>
-
-</html>
+	<div class="h-full flex flex-col justify-center items-center text-center pt-[25vh]">
+		<h2 class="font-display text-3xl font-bold pb-6">Lost in space there, astronaut?</h2>
+		<p class="pb-8">We couldn&rsquo;t find the page you were looking for&mdash;let&rsquo;s get you back to HQ.</p>
+		<PixelLink href="/">Return Home</PixelLink>
+	</div>
+</Layout>

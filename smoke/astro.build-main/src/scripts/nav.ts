@@ -1,4 +1,5 @@
 const nav = document.querySelector("nav.main") as HTMLElement;
+const logo = document.getElementById("navlogo") as HTMLAnchorElement;
 
 window.addEventListener("DOMContentLoaded", () => {
   let isStuck = false;
@@ -16,3 +17,10 @@ window.addEventListener("DOMContentLoaded", () => {
   updateStuck();
   window.addEventListener("scroll", updateStuck);
 });
+
+if (matchMedia("(pointer:fine)").matches) {
+  logo.addEventListener("contextmenu", (event) => {
+    event.preventDefault();
+    window.location.href = "/press";
+  })
+}

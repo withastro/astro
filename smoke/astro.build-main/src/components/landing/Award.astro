@@ -1,12 +1,11 @@
 ---
 import Section from './Section.astro';
-import Title from './Title.astro';
 import Panel from '../Panel.astro';
 ---
 
 <Section {...Astro.props}>
     <Panel background="var(--gradient-pop-4)">
-        <div class="container">
+        <div class="astro-container container">
             <div class="content">
                 <h3 class="head-md"><slot name="title" /></h3>
                 <div class="body">

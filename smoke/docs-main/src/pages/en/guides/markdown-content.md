@@ -190,18 +190,23 @@ Using images or videos follows Astro’s normal import rules:
 
 ### Components
 
-You can import any component into your markdown file and use it along the markdown syntax.
+You can import components from any framework into your markdown file and use it along the markdown syntax. Front matter variables are available to your components from the `frontmatter` object.
 
 ```markdown
 ---
+layout: ../layouts/BaseLayout.astro
 setup: | 
   import Author from '../../components/Author.astro'
-  import Button from '../../components/Button.svelte'
+  import MyReactComponent from '../components/MyReactComponent.jsx'
 author: Leon
 ---
-# Blog post title
+# Hydrating on Visibility
+
+<MyReactComponent client:visible >
+# Hello world!
+</MyReactComponent>
+
 <Author name={frontmatter.author}/>
-<Button>Label</Button>
 ```
 
 

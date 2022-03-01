@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    /** sanitize.css makes the line-height 1.5 globally, fix this for headers */
+    h1,h2,h3,h4,h5,h6 {
+        line-height: 1.11;
+    }
+
+    a {
+        color: var(--color-blue);
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    .prose :is(h2, h3, h4, h5, h6) a {
+        font: inherit;
+        color: inherit;
+        text-decoration: none !important;
+        display: inline-flex;
+    }
+    .prose :is(h2, h3, h4, h5, h6) a:after {
+        content: "#";
+        width: 1em;
+        margin-left: .25em;
+        color: inherit;
+        opacity: 0;
+        transition: opacity .2s cubic-bezier(.23,1,.32,1);
+        order: 999
+    }
+    .prose :is(h2, h3, h4, h5, h6) a:is(:active, :visited, :hover, :focus) {
+        color: var(--color-dusk)
+    }
+    .prose :is(h2, h3, h4, h5, h6) a:active:after,
+    .prose :is(h2, h3, h4, h5, h6) a:hover:after,
+    .prose :is(h2, h3, h4, h5, h6) a:focus:after {
+        opacity:.6 !important;
+    }
+
+    .text-gradient {
+        background: var(--fill, var(--gradient-pop-1));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+}

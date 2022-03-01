@@ -122,6 +122,28 @@ It’s recommended to only use this in scenarios where a `<link>` tag won’t wo
 
 📚 Read our full guide on [Astro component syntax][astro-component] to learn more about using the `<style>` tag.
 
+### Variables in Scripts & Styles
+
+In Astro v0.21+, _serializable_ server-side variables can be passed into client-side `<style>` or `<script>`.
+
+```astro
+---
+// tick.astro
+const foregroundColor = "rgb(221 243 228)";
+const backgroundColor = "rgb(24 121 78)";
+---
+<style define:vars={{ foregroundColor, backgroundColor }}>
+h-tick {
+  background-color: var(--backgroundColor);
+  border-radius: 50%;
+  color: var(--foregroundColor);
+  height: 15px;
+  width: 15px;
+}
+</style>
+<h-tick>✓</h-tick>
+```
+
 ## Autoprefixer
 
 [Autoprefixer][autoprefixer] takes care of cross-browser CSS compatibility for you. Use it in astro by installing it (`npm install --save-dev autoprefixer`) and adding a `postcss.config.cjs` file to the root of your project:
@@ -129,7 +151,9 @@ It’s recommended to only use this in scenarios where a `<link>` tag won’t wo
 ```js
 // postcss.config.cjs
 module.exports = {
-  plugins: [require('autoprefixer')],
+  plugins: {
+    autoprefixer: {},
+  },
 };
 ```
 
@@ -200,10 +224,11 @@ _Note: CSS inside `public/` will **not** be transformed! Place it within `src/` 
 
 ### 🍃 Tailwind
 
-Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies:
+Astro can be configured to use [Tailwind][tailwind] easily! Install the dependencies, and ensure you have PostCSS installed. (This second step was optional in previous releases, but is required now):
 
 ```
 npm install --save-dev tailwindcss
+npm install --save-dev postcss
 ```
 
 And create 2 files in your project root: `tailwind.config.cjs` and `postcss.config.cjs`:
@@ -222,7 +247,9 @@ module.exports = {
 ```js
 // postcss.config.cjs
 module.exports = {
-  plugins: [require('tailwindcss')],
+  plugins: {
+    tailwindcss: {},
+  },
 };
 ```
 

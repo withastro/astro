@@ -1,0 +1,99 @@
+---
+import { smartypants } from 'smartypants';
+import Footer from '../components/Footer.astro';
+import Nav from '../components/Nav.astro';
+import Layout from '../layouts/Content.astro';
+
+const meta = {
+	title: 'Press',
+}
+
+const assets = [
+    {
+        title: 'Full Logo Light',
+        description: 'Please use this logo in most circumstances on light backgrounds.',
+        background: 'light',
+        svg: '/assets/press/full-logo-light.svg',
+        png: '/assets/press/full-logo-light.png'
+    },
+    {
+        title: 'Full Logo Dark',
+        description: 'Please use this logo in most circumstances on dark backgrounds.',
+        background: 'dark',
+        svg: '/assets/press/full-logo-dark.svg',
+        png: '/assets/press/full-logo-dark.png'
+    },
+    {
+        title: 'Simple Full Logo Light',
+        description: "Please use this logo in cases where the Full Logo Light won't work.",
+        background: 'light',
+        svg: '/assets/press/simple-full-logo-light.svg',
+        png: '/assets/press/simple-full-logo-light.png'
+    },
+    {
+        title: 'Simple Full Logo Dark',
+        description: "Please use this logo in cases where the Full Logo Dark won't work.",
+        background: 'dark',
+        svg: '/assets/press/simple-full-logo-dark.svg',
+        png: '/assets/press/simple-full-logo-dark.png'
+    },
+    {
+        title: 'Logomark Light',
+        description: 'Please only use the logomark for very small representations of Astro and in illustrations with written consent by Astro.',
+        background: 'light',
+        svg: '/assets/press/logomark-light.svg',
+        png: '/assets/press/logomark-light.png'
+    },
+    {
+        title: 'Logomark Dark',
+        description: 'Please only use the logomark for very small representations of Astro and in illustrations with written consent by Astro.',
+        background: 'dark',
+        svg: '/assets/press/logomark-dark.svg',
+        png: '/assets/press/logomark-dark.png'
+    },
+    {
+        title: 'Simple Logomark Light',
+        description: "Please only use this logomark if the full-color logomark won't work and be sure to abide by the same rules as outlined in the full-color logomark's brief description.",
+        background: 'light',
+        svg: '/assets/press/simple-logomark-light.svg',
+        png: '/assets/press/simple-logomark-light.png'
+    },
+    {
+        title: 'Simple Logomark Dark',
+        description: 'Please only use this logomark in cases where there is a busy dark/colored/photo background and abide by the same rules as the full-color logomark.',
+        background: 'dark',
+        svg: '/assets/press/simple-logomark-dark.svg',
+        png: '/assets/press/simple-logomark-dark.png'
+    }
+]
+---
+
+<Layout meta={meta}>
+	<Nav slot="nav" />
+
+    <header class="text-center max-w-4xl mx-auto pb-24 lg:pb-32">
+        <h1 class="font-display text-3xl font-bold mb-6 text-gradient">Astro Logos</h1>
+        <p>Feel free to download and use the logo assets below. Please do not modify or change the resources below. Be sure to abide by the usage rules noted under each asset.</p>
+    </header>
+
+    <div class="grid gap-x-4 gap-y-16 sm:grid-cols-2 md:grid-col-3 lg:grid-cols-4">
+        {assets.map(asset => (
+            <article class="flex flex-col">
+                <div class={`aspect-w-16 aspect-h-9 ${asset.background === 'light' ? 'bg-white' : 'bg-black'}`}>
+                    <div class="flex items-center justify-center">
+                        <img class="w-3/4 h-auto max-h-16" src={asset.svg} />
+                    </div>
+                </div>
+                <h2 class="text-md font-bold mt-4 mb-6">{asset.title}</h2>
+                <p class="text-sm flex-1" set:html={smartypants(asset.description)}></p>
+
+                <footer class="pt-6">
+                    <a class="text-sm font-semibold px-4 py-2 bg-dusk text-white rounded inline-block" href={asset.svg}>SVG</a>
+                    <a class="text-sm font-semibold px-4 py-2 bg-dusk text-white rounded inline-block" href={asset.png}>PNG</a>
+                </footer>
+            </article>
+        ))}
+    </div>
+
+    <Footer slot="footer" />
+</Layout>

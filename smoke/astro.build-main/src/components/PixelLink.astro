@@ -6,6 +6,13 @@ const { variant = 'primary' } = Astro.props;
 const { before, after } = Astro.slots;
 ---
 
+<!-- Blocking script -->
+<script hoist>
+  if ('paintWorklet' in CSS) {
+    CSS.paintWorklet.addModule('/pixel.worklet.js');
+  }
+</script>
+
 <span class={`link pixel variant-${variant} ${before ? 'has-before' : ''} ${after ? 'has-after' : ''} ${className}`.trim()}>
     <a {href}>
         <slot name="before" />
@@ -15,6 +22,72 @@ const { before, after } = Astro.slots;
 </span>
 
 <style>
+    .pixel {
+        --border-radius: 8;
+        --pixel-size: 4;
+        --background: var(--gradient-pop-1);
+        position: relative;
+        border-radius: calc(var(--border-radius) * 1px);
+    }
+    .pixel::before {
+        content: '';
+        position: absolute;
+        top: calc(var(--pixel-size) * 1px);
+        right: 0;
+        bottom: calc(var(--pixel-size) * 1px);
+        left: 0;
+        background: var(--background);
+        z-index: -1;
+    }
+    .pixel::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: calc(var(--pixel-size) * 1px);
+        bottom: 0;
+        left: calc(var(--pixel-size) * 1px);
+        background: var(--background);
+        z-index: -1;
+    }
+    .pixel.variant-outline {
+        background: rgba(255, 255, 255, 0);
+        border-radius: 0;
+    }
+    .pixel.variant-outline::before {
+        background: rgba(255, 255, 255, 0);
+        border: calc(var(--pixel-size) * 1px) solid var(--background);
+        border-top: 0;
+        border-bottom: 0;
+    }
+    .pixel.variant-outline::after {
+        background: rgba(255, 255, 255, 0);
+        border: calc(var(--pixel-size) * 1px) solid var(--background);
+        border-right: 0;
+        border-left: 0;
+    }
+    @supports (background: paint(pixel)) {
+        :global(.js) .pixel {
+            background: none !important;
+        }
+        :global(.js) .pixel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            display: block;
+            z-index: -1;
+            overflow: hidden;
+            border-radius: 0;
+            background: var(--background);
+            -webkit-mask-image: paint(pixel);
+            mask-image: paint(pixel);
+        }
+       :global(.js) .pixel::after {
+            content: none;
+        }
+    }
     .link {
         --border-radius: 8;
         --duration: 200ms;

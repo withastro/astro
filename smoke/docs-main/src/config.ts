@@ -2,19 +2,19 @@ export const SIDEBAR = {
 	en: [
 		{ text: 'Setup', header: true },
 		{ text: 'Getting Started', link: 'en/getting-started' },
-		{ text: 'Quickstart', link: 'en/quick-start' },
 		{ text: 'Installation', link: 'en/installation' },
 		{ text: 'Migration Guide', link: 'en/migrate' },
 		{ text: 'Themes', link: 'en/themes' },
-		{ text: 'Astro vs. X', link: 'en/comparing-astro-vs-other-tools' },
+		{ text: 'Integrations', link: `en/integrations/integrations`},
 
 		{ text: 'Basics', header: true },
 		{ text: 'Project Structure', link: 'en/core-concepts/project-structure' },
-		{ text: 'Component Syntax', link: 'en/core-concepts/astro-components' },
+		{ text: 'Components', link: 'en/core-concepts/astro-components' },
 		{ text: 'Pages', link: 'en/core-concepts/astro-pages' },
 		{ text: 'Layouts', link: 'en/core-concepts/layouts' },
 		{ text: 'Routing', link: 'en/core-concepts/routing' },
 		{ text: 'Partial Hydration', link: 'en/core-concepts/component-hydration' },
+		{ text: 'Astro vs. X', link: 'en/comparing-astro-vs-other-tools' },
 
 		{ text: 'Guides', header: true },
 		{ text: 'Styling & CSS', link: 'en/guides/styling' },
@@ -26,6 +26,7 @@ export const SIDEBAR = {
 		{ text: 'Supported Imports', link: 'en/guides/imports' },
 		{ text: 'Aliases', link: 'en/guides/aliases' },
 		{ text: 'Environment Variables', link: 'en/guides/environment-variables' },
+		{ text: 'Manual Setup', link: 'en/guides/manual-setup' },
 		{ text: 'Deploy to the web', link: 'en/guides/deploy' },
 		{ text: 'Publish to npm', link: 'en/guides/publish-to-npm' },
 

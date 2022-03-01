@@ -3,9 +3,15 @@ import ContributorAvatar from './ContributorAvatar.astro';
 import ArrowLink from '../components/ArrowLink.astro'; 
 import contributors from '../data/contributors.json';
 
+export interface Props {
+    id?: string;
+}
+
+const { id } = Astro.props as Props;
+
 const {staff, l3, l2, l1} = contributors;
 ---
-<ul class="avatar-list">
+<ul class="avatar-list" {id}>
     {staff.map(obj => <li><ContributorAvatar size={72} obj={obj} type="staff" /></li>)}
     {l3.map(obj => <li><ContributorAvatar size={72} obj={obj} type="l3" /></li>)}
     {l2.map(obj => <li><ContributorAvatar size={72} obj={obj} type="l2" /></li>)}

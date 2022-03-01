@@ -1,134 +1,84 @@
 ---
 layout: ~/layouts/MainLayout.astro
 title: Pages
-description: An intro to Astro pages, components that function as full pages.
+description: An introduction to Astro pages
 ---
 
-**Pages** are a special type of [Astro Component](/en/core-concepts/astro-components) that handle routing, data loading, and templating for each page of your website. You can think of them like any other Astro component, just with extra responsibilities.
+**Pages** are a special type of [Astro component](/en/core-concepts/astro-components) that live in the `src/pages/` subdirectory. They are responsible for handling routing, data loading, and overall page layout for every HTML page in your website.
 
-Astro also supports Markdown for content-heavy pages, like blog posts and documentation. See [Markdown Content](/en/guides/markdown-content) for more information on writing pages with Markdown.
+### File-based routing
 
-## File-based Routing
+Astro leverages a routing strategy called **file-based routing.** Every `.astro` file in your `src/pages` directory becomes a page on your site, creating a URL route based on the file path inside of the directory.
 
-Astro uses Pages to do something called **file-based routing.** Every file in your `src/pages` directory becomes a page on your site, using the file name to decide the final route.
+📚 Read more about [Routing in Astro](/en/core-concepts/routing)
 
-Astro Components (`.astro`) and Markdown Files (`.md`) are the only supported formats for pages. Other page types (like a `.jsx` React component) are not supported, but you can use anything as a UI component inside of an `.astro` page to achieve a similar result.
+### Page HTML
 
-```
-src/pages/index.astro       -> mysite.com/
-src/pages/about.astro       -> mysite.com/about
-src/pages/about/index.astro -> mysite.com/about
-src/pages/about/me.astro    -> mysite.com/about/me
-src/pages/posts/1.md        -> mysite.com/posts/1
-```
-
-## Page Templating
-
-All Astro components are responsible for returning HTML. Astro Pages return HTML as well, but have the unique responsibility of returning a full `<html>...</html>` page response, including `<head>` ([MDN<span class="sr-only">- head</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/head)) and `<body>` ([MDN<span class="sr-only">- body</span>](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/body)).
-
-`<!doctype html>` is optional, and will be added automatically.
+Astro Pages must return a full `<html>...</html>` page response, including `<head>` and `<body>`. (`<!doctype html>` is optional, and will be added automatically.)
 
 ```astro
 ---
-// Example: HTML page skeleton
+// Example: src/pages/index.astro
 ---
-<!doctype html>
 <html>
   <head>
-    <title>Document title</title>
+    <title>My Homepage</title>
   </head>
   <body>
-    <h1>Hello, world!</h1>
+    <h1>Welcome to my website!</h1>
   </body>
 </html>
 ```
 
-## Data Loading
+### Leveraging Page Layouts
 
-Astro pages can fetch data to help generate your pages. Astro provides two different tools to pages to help you do this: **fetch()** and **top-level await.**
-
-📚 Read our [full guide](/en/guides/data-fetching) on data-fetching to learn more.
+To avoid repeating the same HTML elements on every page, you can move common `<head>` and `<body>` elements into your own [layout components](/en/core-components/layouts). You can use as many or as few layout components as you'd like.
 
 ```astro
 ---
-// Example: Astro component scripts run at build time
-const response = await fetch('http://example.com/movies.json');
-const data = await response.json();
-console.log(data);
+// Example: src/pages/index.astro
+import MySiteLayout from '../layouts/MySiteLayout.astro';
 ---
-<!-- Output the result to the page -->
-<div>{JSON.stringify(data)}</div>
+<MySiteLayout>
+  <p>My page content, wrapped in a layout!</p>
+</MySiteLayout>
 ```
 
-## Custom 404 Error Page
+📚 Read more about [layout components](/en/core-concepts/layouts) in Astro.
 
-For a custom 404 error page create a `404.astro` file in `/src/pages`. That builds to a `404.html` page. Most [deploy services](/en/guides/deploy) will find and use it.
-This is special and different to the default behavior building `page.astro` (or `page/index.astro`) to `page/index.html`.
+
+## Markdown Pages
+
+Astro also treats any Markdown (`.md`) files inside of `/src/pages/` as pages in your final website. These are commonly used for text-heavy pages like blog posts and documentation. 
+
+Page layouts are especially useful for [Markdown files.](#markdown-pages) Markdown files can use the special `layout` front matter property to specify a [layout component](/en/core-concepts/layout) that will wrap their Markdown content in a full `<html>...</html>` page document. 
+
+```md
+---
+# Example: src/pages/page.md
+layout: '../layouts/MySiteLayout.astro'
+title: 'My Markdown page'
+---
+# Title
+
+This is my page, written in **Markdown.**
+```
+
+📚 Read more about [Markdown](/en/guides/markdown-content) in Astro.
+
 
 ## Non-HTML Pages
 
 > ⚠️ This feature is currently only supported with the `--experimental-static-build` CLI flag. This feature may be refined over the next few weeks/months as SSR support is finalized.
 
-Non-HTML pages, like `.json` or `.xml`, can be built from `.js` and `.ts`. All that's needed is to export a `get()` function that returns a string `body` with the rendered file contents.
+Non-HTML pages, like `.json` or `.xml`, can be built from `.js` and `.ts`. 
 
 Built filenames and extensions are based on the source file's name, ex: `src/pages/data.json.ts` will be built to match the `/data.json` route in your final build.
 
-```js
-// src/pages/company.json.ts
-export async function get() {
-  return {
-    body: JSON.stringify({
-      name: 'Astro',
-      url: 'https://astro.build/',
-    }),
-  };
-}
-```
+📚 Read more about generating [non-HTML pages](https://docs.astro.build/en/core-concepts/astro-pages/#non-html-pages) in Astro.
 
-**Is this different from SSR?** Yes! This feature allows JSON, XML, etc. files to be output at build time. Keep an eye out for full SSR support if you need to build similar files when requested, for example as a serverless function in your deployment host.
+## Custom 404 Error Page
 
-### Routing
+For a custom 404 error page, you can create a `404.astro` file in `/src/pages`. 
 
-File-based routing works the same as HTML pages, including dynamic routes with `getStaticPaths()`. See the [routing](/en/core-concepts/routing/) docs for more details.
-
-### Data Loading
-
-The [`Astro` global](/en/reference/api-reference/#astro-global) is only available in `.astro` files. Instead, [`import.meta.glob`](/en/reference/api-reference/#importmeta) can be used to load local `.md` files.
-
-Similar to `.astro` pages, **fetch()** can be used to fetch data. 📚 Read our [full guide](/en/guides/data-fetching) on data-fetching to learn more.
-
-### Examples
-
-```typescript
-// src/pages/company.json.ts
-export async function get() {
-  return {
-    body: JSON.stringify({
-      name: 'Astro Technology Company',
-      url: 'https://astro.build/',
-    }),
-  };
-}
-```
-
-#### Example with dynamic routes
-
-What about `getStaticPaths()`? It **just works**™.
-
-```typescript
-// src/pages/[slug].json.ts
-export async function getStaticPaths() {
-    return [
-        { params: { slug: 'thing1' }},
-        { params: { slug: 'thing2' }}
-    ]
-}
-
-export async function get(params) {
-    const { slug } = params
-
-    return {
-        body: // ...JSON.stringify()
-    }
-}
-```
+This will build to a `404.html` page. Most [deploy services](/en/guides/deploy) will find and use it.

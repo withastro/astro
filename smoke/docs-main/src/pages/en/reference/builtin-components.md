@@ -55,7 +55,7 @@ See the [list of languages supported by Prism](https://prismjs.com/#supported-la
 
 ```astro
 ---
-import Debug from 'astro/debug';
+import { Debug } from 'astro/components';
 const serverObject = {
   a: 0,
   b: "string",

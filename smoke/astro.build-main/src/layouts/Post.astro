@@ -1,88 +1,226 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import BaseLayout from '../components/BaseLayout.astro';
-import Nav from '../components/Nav.astro';
-import Wrapper from '../components/Wrapper.astro';
-import Footer from '../components/Footer.astro';
+import Layout from './Page.astro';
 import Card from '../components/blog/Card.astro';
 import Outro from '../components/blog/Outro.astro';
 import Panel from '../components/Panel.astro';
 
-let { content: { title, publishDate, description, authors, socialImage } } = Astro.props;
+export interface Props {
+	content: {
+		title: string;
+		description: string;
+		authors: string[];
+		publishDate: string | Date;
+		socialImage: string;
+	}
+}
+
+const { content: { title, publishDate, description, authors, socialImage } } = Astro.props as Props;
 const { canonicalURL } = Astro.request;
 const meta = {
-	title: `${title} | Astro`,
+	title,
 	description,
 	canonicalURL,
 	image: socialImage,
 }
-
-console.log(Astro.props);
 ---
 
-<html lang="en">
+<Layout meta={meta}>
+	<Panel size="md" elevation="sm" class="post-header" background="white">
+		<Card post={{ title, description, authors, publishDate }} variant="hero" />
+	</Panel>
 
-<head>
-	<BaseHead {...meta} />
-	<style>
-		:root {
-			scroll-padding-top: 10rem;
-			background: var(--color-tan);
-		}
-		:global(#content) {
-			min-height: 100vh;
-			padding: 4rem 0;
-		}
-		#article {
-			max-width: 48rem;
-			padding-bottom: 2rem;
-			display: flex;
-			flex-flow: column nowrap;
-			font-family: var(--font-body);
-			font-size: var(--size-500);
-			line-height: 1.3;
-			color: var(--color-midnight);
-			z-index: 1;
-		}
-		:where(#article > :global(* + *)) {
-			margin-top: 1em;
-		}
-		#article :is(h2):not([class]) {
-			margin-top: 3em;
-		}
-		#article > :global(.note:last-child) {
-			margin-top: 8rem;
-		}
-		.hero {
-			display: flex;
-			flex-flow: row wrap;
-			padding: 3rem 0 2rem;
-			max-width: 100%;
-		}
-	</style>
-</head>
+	<div id="article">
+		<slot />
 
-<body>
-	<BaseLayout wrapper={Wrapper}>
-		<Nav slot="nav" />
-		
-		<Panel size="md" background="white linear-gradient(180deg, #E5DAEE 0%, rgba(255, 255, 255, 0) 24rem)">
-			<div id="article">
-				<header class="hero">
-					<Card post={{ title, description, authors, publishDate }} variant="hero" />
-				</header>
-				
-				<hr>
+		<Outro tweet={{ title, href: Astro.request.canonicalURL.toString() }} />
+	</div>
+</Layout>
 
-				<slot />
+<style global>
+	#content {
+		min-height: 100vh;
+		padding-top: 2rem;
+		padding-left: 0.5rem;
+		padding-right: 0.5rem;
+	}
+	.post-header {
+		margin: 1rem auto 3rem;
+	}
+	@media (min-width: 40rem) {
+		.post-header {
+			margin: 4rem auto;
+			padding: 0;
+		}
+	}
+	#article {
+		max-width: 48rem;
+		display: flex;
+		flex-flow: column nowrap;
+		font-family: var(--font-body);
+		font-size: var(--size-500);
+		line-height: 1.3;
+		color: var(--color-midnight);
+		z-index: 1;
+	}
+	:where(#article > * + *) {
+		margin-top: 1em;
+	}
+	#article :is(h1, h2, h3, h4, h5, h6) {
+		font-family: var(--font-display);
+		line-height: 1.1;
+		margin-bottom: 1.25rem;
+		color: var(--color-dusk);
+	}
+	#article hr {
+		border: 0;
+		border-top: 1px solid var(--color-dawn);
+		margin-left: -2rem;
+		margin-right: -2rem;
+		margin-top: 1rem;
+		margin-bottom: 2rem;
+	}
+	#article h1 {
+		--fill: var(--gradient-pop-1);
+		font-size: 3rem;
+		font-size: var(--size-800);
+	}
+	#article h2 {
+		font-size: 2rem;
+		font-size: var(--size-600);
+		margin-top: 2em;
+		margin-bottom: -0.25em;
+	}
+	#article :is(h2):not([class]) {
+		margin-top: 3em;
+	}
+	#article > .note:last-child {
+		margin-top: 8rem;
+	}
+	#article code {
+		font-family: var(--font-mono);
+		font-weight: 400;
+		white-space: pre-wrap;
+		word-break: break-word;
+	}
+	#article code:not([class]) {
+		font-size: 0.85em;
+		color: var(--color-purple);
+	}
+	#article code:not([class])::before {
+		content: "`";
+	}
+	#article code:not([class])::after {
+		content: "`";
+	}
+	#article img {
+		max-width: 100%;
+	}
+	#article :is(h2, h3, h4, h5, h6) a {
+		font: inherit;
+		color: inherit;
+		text-decoration: none !important;
+		display: flex;
+		flex-wrap: wrap;
+	}
 
-				<Outro tweet={{ title, href: canonicalURL.toString() }} />
-			</div>
-		</Panel>
+	#article :is(h2, h3, h4, h5, h6) a::before {
+		content: "#";
+		width: 1em;
+		margin-left: 0.25em;
+		color: inherit;
+		opacity: 0;
+		transition: opacity 200ms cubic-bezier(0.23, 1, 0.32, 1);
+		order: 999;
+	}
 
+	#article :is(h2, h3, h4, h5, h6) a:is(:active, :visited, :hover, :focus) {
+		color: var(--color-dusk);
+	}
 
-		<Footer slot="footer" />
-	</BaseLayout>
-</body>
+	#article :is(h2, h3, h4, h5, h6) a:active::before,
+	#article :is(h2, h3, h4, h5, h6) a:hover::before,
+	#article :is(h2, h3, h4, h5, h6) a:focus::before {
+		opacity: 0.6 !important;
+	}
 
-</html>
+	#article :is(strong, b) {
+		font-family: inherit;
+		font-weight: 600;
+	}
+
+	#article :is(em, i) {
+		font-weight: 400;
+		font-style: normal;
+	}
+
+	#article :is(ul:not([role="list"]), ol:not([role="list"])) {
+		padding-left: 1.5em;
+	}
+
+	#article :where(ul:not([role="list"])) {
+		list-style-type: square;
+	}
+
+	#article :where(ul:not([role="list"]) > li + li) {
+		margin-top: 0.25em;
+	}
+
+	#article ::marker {
+		color: rgba(var(--color-midnight-rgb), 0.5);
+	}
+
+	#article pre > code:not([class*="language"]) {
+		background-color: transparent;
+		padding: 0;
+		margin: 0;
+		border-radius: 0;
+		color: inherit;
+	}
+
+	#article pre > code {
+		font-size: 1em;
+	}
+
+	#article pre {
+		position: relative;
+		--padding-block: 1rem;
+		--padding-inline: 2rem;
+		padding: var(--padding-block) var(--padding-inline);
+		padding-right: calc(var(--padding-inline) * 2);
+		margin-left: calc(var(--padding-inline) * -1);
+		margin-right: calc(var(--padding-inline) * -1);
+		font-family: var(--font-mono);
+
+		line-height: 1.5;
+		font-size: 0.85em;
+		overflow-y: hidden;
+		overflow-x: auto;
+	}
+
+	#article pre {
+		background: linear-gradient(to bottom, var(--color-midnight), #1f1638);
+		color: white;
+	}
+
+	#article table {
+		width: 100%;
+		padding: var(--padding-block) 0;
+		margin: 0;
+		border-collapse: collapse;
+	}
+
+	/* Zebra striping */
+	#article tr:nth-of-type(odd) {
+		background: var(--theme-bg-hover);
+	}
+	#article th {
+		background: var(--color-black);
+		color: var(--theme-color);
+		font-weight: bold;
+	}
+	#article td,
+	#article th {
+		padding: 6px;
+		text-align: left;
+	}
+</style>
