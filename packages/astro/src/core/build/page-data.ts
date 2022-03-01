@@ -35,89 +35,87 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 	// NOTE: This enforces that `getStaticPaths()` is only called once per route,
 	// and is then cached across all future SSR builds. In the past, we've had trouble
 	// with parallelized builds without guaranteeing that this is called first.
-	await Promise.all(
-		manifest.routes.map(async (route) => {
-			// static route:
-			if (route.pathname) {
-				allPages[route.component] = {
-					route,
-					paths: [route.pathname],
-					preload: await ssrPreload({
-						astroConfig,
-						filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
-						logging,
-						mode: 'production',
-						origin,
-						pathname: route.pathname,
-						route,
-						routeCache,
-						viteServer,
-					})
-						.then((routes) => {
-							const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
-							debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
-							return routes;
-						})
-						.catch((err) => {
-							debug('build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
-							throw err;
-						}),
-				};
-				return;
-			}
-			// dynamic route:
-			const result = await getStaticPathsForRoute(opts, route)
-				.then((_result) => {
-					const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
-					debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(`[${_result.staticPaths.length} ${label}]`)}`);
-					return _result;
-				})
-				.catch((err) => {
-					debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
-					throw err;
-				});
-			const rssFn = generateRssFunction(astroConfig.buildOptions.site, route);
-			for (const rssCallArg of result.rss) {
-				const rssResult = rssFn(rssCallArg);
-				if (rssResult.xml) {
-					const { url, content } = rssResult.xml;
-					if (content) {
-						const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
-						if (assets[fileURLToPath(rssFile)]) {
-							throw new Error(`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
-						}
-						assets[fileURLToPath(rssFile)] = content;
-					}
-				}
-				if (rssResult.xsl?.content) {
-					const { url, content } = rssResult.xsl;
-					const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
-					if (assets[fileURLToPath(stylesheetFile)]) {
-						throw new Error(
-							`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
-						);
-					}
-					assets[fileURLToPath(stylesheetFile)] = content;
-				}
-			}
-			const finalPaths = result.staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean);
+	for (const route of manifest.routes) {
+		// static route:
+		if (route.pathname) {
 			allPages[route.component] = {
 				route,
-				paths: finalPaths,
+				paths: [route.pathname],
 				preload: await ssrPreload({
 					astroConfig,
 					filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
 					logging,
 					mode: 'production',
 					origin,
-					pathname: finalPaths[0],
+					pathname: route.pathname,
 					route,
 					routeCache,
 					viteServer,
-				}),
+				})
+					.then((routes) => {
+						const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
+						debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
+						return routes;
+					})
+					.catch((err) => {
+						debug('build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
+						throw err;
+					}),
 			};
-		})
-	);
+			continue;
+		}
+		// dynamic route:
+		const result = await getStaticPathsForRoute(opts, route)
+			.then((_result) => {
+				const label = _result.staticPaths.length === 1 ? 'page' : 'pages';
+				debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.magenta(`[${_result.staticPaths.length} ${label}]`)}`);
+				return _result;
+			})
+			.catch((err) => {
+				debug('build', `├── ${colors.bold(colors.red('✗'))} ${route.component}`);
+				throw err;
+			});
+		const rssFn = generateRssFunction(astroConfig.buildOptions.site, route);
+		for (const rssCallArg of result.rss) {
+			const rssResult = rssFn(rssCallArg);
+			if (rssResult.xml) {
+				const { url, content } = rssResult.xml;
+				if (content) {
+					const rssFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+					if (assets[fileURLToPath(rssFile)]) {
+						throw new Error(`[getStaticPaths] RSS feed ${url} already exists.\nUse \`rss(data, {url: '...'})\` to choose a unique, custom URL. (${route.component})`);
+					}
+					assets[fileURLToPath(rssFile)] = content;
+				}
+			}
+			if (rssResult.xsl?.content) {
+				const { url, content } = rssResult.xsl;
+				const stylesheetFile = new URL(url.replace(/^\/?/, './'), astroConfig.dist);
+				if (assets[fileURLToPath(stylesheetFile)]) {
+					throw new Error(
+						`[getStaticPaths] RSS feed stylesheet ${url} already exists.\nUse \`rss(data, {stylesheet: '...'})\` to choose a unique, custom URL. (${route.component})`
+					);
+				}
+				assets[fileURLToPath(stylesheetFile)] = content;
+			}
+		}
+		const finalPaths = result.staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean);
+		allPages[route.component] = {
+			route,
+			paths: finalPaths,
+			preload: await ssrPreload({
+				astroConfig,
+				filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
+				logging,
+				mode: 'production',
+				origin,
+				pathname: finalPaths[0],
+				route,
+				routeCache,
+				viteServer,
+			}),
+		};
+	}
 
 	return { assets, allPages };
 }
