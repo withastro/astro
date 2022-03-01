@@ -39,7 +39,7 @@ const wwwGithubConfig = { org: 'withastro', name: 'astro.build', branch: 'main' 
 /** Runs all smoke tests. */
 async function run() {
 	await downloadGithubZip(docGithubConfig);
-  await downloadGithubZip(wwwGithubConfig);
+	await downloadGithubZip(wwwGithubConfig);
 	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdout: 'inherit', stderr: 'inherit' });
 }
 
@@ -60,26 +60,26 @@ const downloadGithubZip = async (/** @type {GithubOpts} */ opts) => {
 	/** Expected directory when the zip is downloaded. */
 	const githubDir = new URL(`${opts.name}-${opts.branch}`, smokeDir);
 	/** Whether the expected directory is already available */
-  rimraf.sync(fileURLToPath(githubDir));
-  console.log('🤖', 'Downloading', `${opts.org}/${opts.name}#${opts.branch}`);
-  const buffer = await fetchGithubZip(opts);
-  console.log('🤖', 'Extracting', `${opts.org}/${opts.name}#${opts.branch}`);
-  new Zip(buffer).extractAllTo(fileURLToPath(smokeDir), true);
-  console.log('🤖', 'Preparing', `${opts.org}/${opts.name}#${opts.branch}`);
-  const astroPackage = await readDirectoryPackage(astroDir);
-  const githubPackage = await readDirectoryPackage(githubDir);
-  if ('astro' in Object(githubPackage.dependencies)) {
-    githubPackage.dependencies['astro'] = astroPackage.version;
-  }
-  if ('astro' in Object(githubPackage.devDependencies)) {
-    githubPackage.devDependencies['astro'] = astroPackage.version;
-  }
-  if ('astro' in Object(githubPackage.peerDependencies)) {
-    githubPackage.peerDependencies['astro'] = astroPackage.version;
-  }
-  await writeDirectoryPackage(githubDir, githubPackage);
-  rimraf.sync(fileURLToPath(new URL(`yarn.lock`, githubDir)));
-  rimraf.sync(fileURLToPath(new URL(`package-lock.json`, githubDir)));
+	rimraf.sync(fileURLToPath(githubDir));
+	console.log('🤖', 'Downloading', `${opts.org}/${opts.name}#${opts.branch}`);
+	const buffer = await fetchGithubZip(opts);
+	console.log('🤖', 'Extracting', `${opts.org}/${opts.name}#${opts.branch}`);
+	new Zip(buffer).extractAllTo(fileURLToPath(smokeDir), true);
+	console.log('🤖', 'Preparing', `${opts.org}/${opts.name}#${opts.branch}`);
+	const astroPackage = await readDirectoryPackage(astroDir);
+	const githubPackage = await readDirectoryPackage(githubDir);
+	if ('astro' in Object(githubPackage.dependencies)) {
+		githubPackage.dependencies['astro'] = astroPackage.version;
+	}
+	if ('astro' in Object(githubPackage.devDependencies)) {
+		githubPackage.devDependencies['astro'] = astroPackage.version;
+	}
+	if ('astro' in Object(githubPackage.peerDependencies)) {
+		githubPackage.peerDependencies['astro'] = astroPackage.version;
+	}
+	await writeDirectoryPackage(githubDir, githubPackage);
+	rimraf.sync(fileURLToPath(new URL(`yarn.lock`, githubDir)));
+	rimraf.sync(fileURLToPath(new URL(`package-lock.json`, githubDir)));
 };
 
 /** Returns the parsed package.json of the given directory. */

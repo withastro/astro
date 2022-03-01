@@ -33,7 +33,7 @@ const getChildDirectories = async (/** @type {URL} */ dir) => {
 async function run() {
 	console.log('');
 
-	const directories = [...await getChildDirectories(exampleDir), ...await getChildDirectories(smokeDir)];
+	const directories = [...(await getChildDirectories(exampleDir)), ...(await getChildDirectories(smokeDir))];
 
 	console.log('🤖', 'Preparing', 'yarn');
 
