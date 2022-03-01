@@ -54,6 +54,7 @@ jobs:
         id: createpr
         uses: peter-evans/create-pull-request@v3
         with:
+          branch: ci/lockfile
           token: ${{ secrets.NIGHTLY_PERSONAL_GITHUB_TOKEN }}
           commit-message: '[ci] update lockfile'
           title: '[ci] update lockfile'
@@ -82,6 +83,7 @@ jobs:
         id: createpr
         uses: peter-evans/create-pull-request@v3
         with:
+          branch: ci/smoke-sync
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: '[ci] update smoke tests (remote)'
           title: '[ci] update smoke tests (remote)'
