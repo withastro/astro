@@ -274,7 +274,7 @@ describe('CSS', function () {
 			devServer && (await devServer.stop());
 		});
 
-		it.only('resolves CSS in public/', async () => {
+		it('resolves CSS in public/', async () => {
 			const href = $('link[href="/global.css"]').attr('href');
 			expect((await fixture.fetch(href)).status).to.equal(200);
 		});
