@@ -21,6 +21,47 @@ export interface CreateResultArgs {
 	scripts?: Set<SSRElement>;
 }
 
+class Slots {
+	#cache = new Map<string, string>();
+	#result: SSRResult;
+	#slots: Record<string, any> | null;
+	
+	constructor(result: SSRResult, slots: Record<string, any> | null) {
+		this.#result = result;
+		this.#slots = slots;
+		if (slots) {
+			for (const key of Object.keys(slots)) {
+				if ((this as any)[key] !== undefined) {
+					throw new Error(`Unable to create a slot named "${key}". "${key}" is a reserved slot name!\nPlease update the name of this slot.`)
+				}
+				Object.defineProperty(this, key, {
+					get() {
+						return true;
+					},
+					enumerable: true
+				})
+			}
+		}
+	}
+
+	public has(name: string) {
+		if (!this.#slots) return false;
+		return Boolean(this.#slots[name]);
+	}
+
+	public async render(name: string) {
+		if (!this.#slots) return undefined;
+		if (this.#cache.has(name)) {
+			const result = this.#cache.get(name)
+			return result;
+		};
+		if (!this.has(name)) return undefined;
+		const content = await renderSlot(this.#result, this.#slots[name]).then(res => res != null ? res.toString() : res);
+		this.#cache.set(name, content);
+		return content;
+	}
+}
+
 export function createResult(args: CreateResultArgs): SSRResult {
 	const { legacyBuild, origin, markdownRender, params, pathname, renderers, resolve, site: buildOptionsSite } = args;
 
@@ -36,6 +77,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 			const site = new URL(origin);
 			const url = new URL('.' + pathname, site);
 			const canonicalURL = getCanonicalURL('.' + pathname, buildOptionsSite || origin);
+			const astroSlots = new Slots(result, slots);
+
 			return {
 				__proto__: astroGlobal,
 				props,
@@ -79,11 +122,7 @@ ${extra}`
 
 					return astroGlobal.resolve(path);
 				},
-				slots: Object.fromEntries(Object.entries(slots || {}).map(([slotName]) => [slotName, true])),
-				// This is used for <Markdown> but shouldn't be used publicly
-				privateRenderSlotDoNotUse(slotName: string) {
-					return renderSlot(result, slots ? slots[slotName] : null);
-				},
+				slots: astroSlots,
 				// <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
 				async privateRenderMarkdownDoNotUse(content: string, opts: any) {
 					let [mdRender, renderOpts] = markdownRender;
