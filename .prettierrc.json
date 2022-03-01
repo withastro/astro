@@ -12,5 +12,6 @@
         "useTabs": false
       }
     }
-  ]
+  ],
+  "pluginSearchDirs": ["./assets"]
 }
