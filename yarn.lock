@@ -137,10 +137,10 @@
     jsonpointer "^5.0.0"
     leven "^3.1.0"
 
-"@astrojs/compiler@^0.11.4":
-  version "0.11.4"
-  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.11.4.tgz#933853cf37ba2cbf0213a88463fd48c3a4329a07"
-  integrity sha512-T598FTCgBFjjPLPClvn+lc2SFGAJkjaF+lbxvHNjzmUpOYdz7YyH1apd3XAZvDp5r5WBBhicB6693GhQRpf3oQ==
+"@astrojs/compiler@^0.12.0-next.5":
+  version "0.12.0-next.5"
+  resolved "https://registry.yarnpkg.com/@astrojs/compiler/-/compiler-0.12.0-next.5.tgz#4e6d27c74787777522395018f2497dab4a032c77"
+  integrity sha512-4YVPRrB9JJhxoNC9PWN2zpGE7SXRAXcyCouawbd24iyBl4g9aRoQN12XA0qQZkbea9/NNLe9f2yhFMubM2CrJQ==
   dependencies:
     typescript "^4.3.5"
 
@@ -7096,15 +7096,6 @@ sander@^0.5.0:
     rimraf "^2.5.2"
 
 sass@^1.49.0, sass@^1.49.8:
-  version "1.49.9"
-  resolved "https://registry.yarnpkg.com/sass/-/sass-1.49.9.tgz#b15a189ecb0ca9e24634bae5d1ebc191809712f9"
-  integrity sha512-YlYWkkHP9fbwaFRZQRXgDi3mXZShslVmmo+FVK3kHLUELHHEYrCmL1x6IUjC7wLS6VuJSAFXRQS/DxdsC4xL1A==
-  dependencies:
-    chokidar ">=3.0.0 <4.0.0"
-    immutable "^4.0.0"
-    source-map-js ">=0.6.2 <2.0.0"
-
-sass@^1.49.8:
   version "1.49.9"
   resolved "https://registry.yarnpkg.com/sass/-/sass-1.49.9.tgz#b15a189ecb0ca9e24634bae5d1ebc191809712f9"
   integrity sha512-YlYWkkHP9fbwaFRZQRXgDi3mXZShslVmmo+FVK3kHLUELHHEYrCmL1x6IUjC7wLS6VuJSAFXRQS/DxdsC4xL1A==
