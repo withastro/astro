@@ -361,7 +361,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	debug('build', `Generating: ${pathname}`);
 
 	const site = astroConfig.buildOptions.site;
-	const links = createLinkStylesheetElementSet(linkIds, site);
+	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
 	try {
