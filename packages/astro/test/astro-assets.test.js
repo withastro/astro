@@ -13,7 +13,11 @@ describe('Assets', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-assets/',
-			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
+			vite: {
+				build: {
+					assetsInlineLimit: 0
+				}
+			}
 		});
 		await fixture.build();
 	});
@@ -22,7 +26,7 @@ describe('Assets', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const imgPath = $('img').attr('src');
-		const data = await fixture.readFile('/' + imgPath);
+		const data = await fixture.readFile( imgPath);
 		expect(!!data).to.equal(true);
 	});
 
@@ -32,7 +36,7 @@ describe('Assets', () => {
 		const srcset = $('img').attr('srcset');
 		const candidates = matchSrcset(srcset);
 		const match = candidates.find((a) => a.density === 2);
-		const data = await fixture.readFile('/' + match.url);
+		const data = await fixture.readFile(match.url);
 		expect(!!data).to.equal(true);
 	});
 
@@ -42,14 +46,14 @@ describe('Assets', () => {
 		const srcset = $('img').attr('srcset');
 		const candidates = matchSrcset(srcset);
 		const match = candidates.find((a) => a.density === 3);
-		const data = await fixture.readFile('/' + match.url);
+		const data = await fixture.readFile(match.url);
 		expect(!!data).to.equal(true);
 	});
 
 	it('built image from an import specifier', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		const src = '/' + $('#import-no-url').attr('src');
+		const src = $('#import-no-url').attr('src');
 		const data = await fixture.readFile(src);
 		expect(!!data).to.equal(true);
 	});
@@ -57,7 +61,7 @@ describe('Assets', () => {
 	it('built image from an import specifier using ?url', async () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
-		const src = '/' + $('#import-url').attr('src');
+		const src = $('#import-url').attr('src');
 		const data = await fixture.readFile(src);
 		expect(!!data).to.equal(true);
 	});
