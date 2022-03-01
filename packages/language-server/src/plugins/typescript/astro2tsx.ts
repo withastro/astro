@@ -44,8 +44,9 @@ export default function (content: string): Astro2TSXResult {
 	}
 
 	// Content replacement
+	const htmlBegin = astroDocument.frontmatter.endOffset ? astroDocument.frontmatter.endOffset + 3 : 0
 	let htmlRaw = content
-		.substring(astroDocument.content.firstNonWhitespaceOffset ?? 0)
+		.substring(htmlBegin)
 		// Turn comments into JS comments
 		.replace(/<\s*!--([^-->]*)(.*?)-->/gs, (whole) => {
 			return `{/*${whole}*/}`;
@@ -86,7 +87,6 @@ export default function (content: string): Astro2TSXResult {
 
 	result.code =
 		frontMatterRaw +
-		'\n' +
 		htmlRaw +
 		EOL +
 		// Add TypeScript definitions
