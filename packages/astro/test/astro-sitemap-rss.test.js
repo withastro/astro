@@ -53,7 +53,6 @@ describe('Sitemaps served from subdirectory', () => {
 			buildOptions: {
 				site: 'https://astro.build/base-directory/',
 				sitemap: true,
-				legacyBuild: true
 			},
 		});
 		await fixture.build();
