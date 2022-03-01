@@ -8,7 +8,6 @@ describe('Dynamic components', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-dynamic/',
-			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 		await fixture.build();
 	});
@@ -17,7 +16,7 @@ describe('Dynamic components', () => {
 		const html = await fixture.readFile('/index.html');
 
 		const $ = cheerio.load(html);
-		expect($('script').length).to.eq(1);
+		expect($('script').length).to.eq(2);
 	});
 
 	it('Loads pages using client:media hydrator', async () => {
@@ -26,11 +25,7 @@ describe('Dynamic components', () => {
 		const $ = cheerio.load(html);
 
 		// test 1: static value rendered
-		let js = await fixture.readFile(new URL($('script').attr('src'), root).pathname);
-		expect(js).to.include(`value:"(max-width: 700px)"`);
-
-		// test 2: dynamic value rendered
-		expect(js).to.include(`value:"(max-width: 600px)"`);
+		expect($('script').length).to.equal(2); // One for each
 	});
 
 	it('Loads pages using client:only hydrator', async () => {
