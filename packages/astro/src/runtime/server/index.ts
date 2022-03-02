@@ -469,7 +469,7 @@ export async function renderHead(result: SSRResult) {
 	}
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
-		.map((link) => renderElement('link', link));
+		.map((link) => renderElement('link', link, false));
 	return unescapeHTML(links.join('\n') + styles.join('\n') + scripts.join('\n') + '\n' + '<!--astro:head:injected-->');
 }
 
