@@ -44,7 +44,7 @@ importers:
   examples/blog:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -52,7 +52,7 @@ importers:
   examples/blog-multiple-authors:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.0
+      astro: ^0.23.3
       sass: ^1.49.8
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
@@ -61,14 +61,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       astro: link:../../packages/astro
 
   examples/component/demo:
     specifiers:
       '@example/my-component': workspace:*
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@example/my-component': link:../packages/my-component
       astro: link:../../../packages/astro
@@ -82,7 +82,7 @@ importers:
       '@astrojs/renderer-react': ^0.5.0
       '@docsearch/css': ^3.0.0
       '@docsearch/react': ^1.0.0-alpha.28
-      astro: ^0.23.0
+      astro: ^0.23.3
     dependencies:
       '@docsearch/css': 3.0.0
       '@docsearch/react': 1.0.0-alpha.28
@@ -93,7 +93,7 @@ importers:
 
   examples/env-vars:
     specifiers:
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       astro: link:../../packages/astro
 
@@ -101,7 +101,7 @@ importers:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.23.0
+      astro: ^0.23.3
       sass: ^1.49.8
       unocss: ^0.15.5
       vite-imagetools: ^4.0.1
@@ -115,14 +115,14 @@ importers:
 
   examples/framework-alpine:
     specifiers:
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       astro: link:../../packages/astro
 
   examples/framework-lit:
     specifiers:
       '@astrojs/renderer-lit': ^0.4.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-lit': link:../../packages/renderers/renderer-lit
       astro: link:../../packages/astro
@@ -135,7 +135,7 @@ importers:
       '@astrojs/renderer-solid': ^0.4.0
       '@astrojs/renderer-svelte': ^0.4.0
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-lit': link:../../packages/renderers/renderer-lit
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
@@ -148,7 +148,7 @@ importers:
   examples/framework-preact:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -156,7 +156,7 @@ importers:
   examples/framework-react:
     specifiers:
       '@astrojs/renderer-react': ^0.5.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
       astro: link:../../packages/astro
@@ -164,7 +164,7 @@ importers:
   examples/framework-solid:
     specifiers:
       '@astrojs/renderer-solid': ^0.4.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-solid': link:../../packages/renderers/renderer-solid
       astro: link:../../packages/astro
@@ -172,7 +172,7 @@ importers:
   examples/framework-svelte:
     specifiers:
       '@astrojs/renderer-svelte': ^0.4.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
       astro: link:../../packages/astro
@@ -180,21 +180,27 @@ importers:
   examples/framework-vue:
     specifiers:
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-vue': link:../../packages/renderers/renderer-vue
       astro: link:../../packages/astro
 
   examples/minimal:
     specifiers:
-      astro: ^0.23.0
+      astro: ^0.23.3
+    devDependencies:
+      astro: link:../../packages/astro
+
+  examples/non-html-pages:
+    specifiers:
+      astro: ^0.23.3
     devDependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -202,7 +208,7 @@ importers:
   examples/portfolio-svelte:
     specifiers:
       '@astrojs/renderer-svelte': ^0.4.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
       astro: link:../../packages/astro
@@ -211,7 +217,7 @@ importers:
     specifiers:
       '@astrojs/renderer-svelte': ^0.4.0
       '@astropub/webapi': ^0.10.13
-      astro: ^0.23.0
+      astro: ^0.23.3
       unocss: ^0.15.5
       vite-imagetools: ^4.0.1
     dependencies:
@@ -224,14 +230,14 @@ importers:
 
   examples/starter:
     specifiers:
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       astro: link:../../packages/astro
 
   examples/subpath:
     specifiers:
       '@astrojs/renderer-react': ^0.5.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
       astro: link:../../packages/astro
@@ -243,7 +249,7 @@ importers:
       '@astrojs/renderer-react': ^0.5.0
       '@astrojs/renderer-svelte': ^0.4.0
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
@@ -255,7 +261,7 @@ importers:
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^0.6.1
-      astro: ^0.23.0
+      astro: ^0.23.3
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.0
       rehype-slug: ^5.0.0
@@ -273,7 +279,7 @@ importers:
   examples/with-markdown-shiki:
     specifiers:
       '@astrojs/markdown-remark': ^0.6.1
-      astro: ^0.23.0
+      astro: ^0.23.3
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       astro: link:../../packages/astro
@@ -288,7 +294,7 @@ importers:
       '@nanostores/preact': ^0.1.2
       '@nanostores/react': ^0.1.5
       '@nanostores/vue': ^0.4.1
-      astro: ^0.23.0
+      astro: ^0.23.3
       nanostores: ^0.5.7
       solid-nanostores: 0.0.6
     dependencies:
@@ -308,7 +314,7 @@ importers:
   examples/with-tailwindcss:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.0
+      astro: ^0.23.3
       autoprefixer: ^10.4.0
       tailwindcss: ^3.0.5
     devDependencies:
@@ -319,7 +325,7 @@ importers:
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      astro: ^0.23.0
+      astro: ^0.23.3
       vite-plugin-pwa: 0.11.11
       workbox-window: ^6.5.0
     devDependencies:
@@ -329,9 +335,9 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.11.3
+      '@astrojs/compiler': ^0.11.4
       '@astrojs/language-server': ^0.8.6
-      '@astrojs/markdown-remark': ^0.6.1
+      '@astrojs/markdown-remark': ^0.6.2
       '@astrojs/parser': ^0.22.1
       '@astrojs/prism': 0.4.0
       '@astrojs/renderer-preact': ^0.5.0
@@ -376,9 +382,9 @@ importers:
       htmlparser2: ^7.1.2
       kleur: ^4.1.4
       magic-string: ^0.25.7
+      micromorph: ^0.1.1
       mime: ^3.0.0
       mocha: ^9.1.3
-      morphdom: ^2.6.1
       parse5: ^6.0.1
       path-to-regexp: ^6.2.0
       postcss: ^8.3.8
@@ -399,11 +405,11 @@ importers:
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
-      vite: ^2.8.4
+      vite: ^2.8.6
       yargs-parser: ^21.0.0
       zod: ^3.8.1
     dependencies:
-      '@astrojs/compiler': 0.11.3
+      '@astrojs/compiler': 0.11.4
       '@astrojs/language-server': 0.8.8
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/prism': link:../astro-prism
@@ -430,8 +436,8 @@ importers:
       htmlparser2: 7.2.0
       kleur: 4.1.4
       magic-string: 0.25.7
+      micromorph: 0.1.2
       mime: 3.0.0
-      morphdom: 2.6.1
       parse5: 6.0.1
       path-to-regexp: 6.2.0
       postcss: 8.4.5
@@ -451,7 +457,7 @@ importers:
       strip-ansi: 7.0.1
       supports-esm: 1.0.0
       tsconfig-resolver: 3.0.1
-      vite: 2.8.4_sass@1.49.0
+      vite: 2.8.6_sass@1.49.0
       yargs-parser: 21.0.0
       zod: 3.11.6
     devDependencies:
@@ -1239,8 +1245,8 @@ packages:
       leven: 3.1.0
     dev: true
 
-  /@astrojs/compiler/0.11.3:
-    resolution: {integrity: sha512-mg0hRk8uzk5LQjtHpAFtwmkCq7YM40Inev49WPqdxDnDaK056I1dbRCm3E/h2SJhLdUyI3KRML79N6DTmL5wRg==}
+  /@astrojs/compiler/0.11.4:
+    resolution: {integrity: sha512-T598FTCgBFjjPLPClvn+lc2SFGAJkjaF+lbxvHNjzmUpOYdz7YyH1apd3XAZvDp5r5WBBhicB6693GhQRpf3oQ==}
     dependencies:
       typescript: 4.5.5
     dev: false
@@ -6970,6 +6976,10 @@ packages:
       braces: 3.0.2
       picomatch: 2.3.1
 
+  /micromorph/0.1.2:
+    resolution: {integrity: sha512-pDEgWjUoCMBwME8z8UiCOO6FKH0It1LASFh8hFSk8uSyfyw6rqY4PBk2LiIEPaVHwtLDhozp4Pr0I+yAUfCpiA==}
+    dev: false
+
   /mime/1.6.0:
     resolution: {integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==}
     engines: {node: '>=4'}
@@ -7085,10 +7095,6 @@ packages:
       yargs-parser: 20.2.4
       yargs-unparser: 2.0.0
     dev: true
-
-  /morphdom/2.6.1:
-    resolution: {integrity: sha512-Y8YRbAEP3eKykroIBWrjcfMw7mmwJfjhqdpSvoqinu8Y702nAwikpXcNFDiIkyvfCLxLM9Wu95RZqo4a9jFBaA==}
-    dev: false
 
   /mri/1.2.0:
     resolution: {integrity: sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA==}
@@ -9405,8 +9411,8 @@ packages:
       - supports-color
     dev: true
 
-  /vite/2.8.4_sass@1.49.0:
-    resolution: {integrity: sha512-GwtOkkaT2LDI82uWZKcrpRQxP5tymLnC7hVHHqNkhFNknYr0hJUlDLfhVRgngJvAy3RwypkDCWtTKn1BjO96Dw==}
+  /vite/2.8.6_sass@1.49.0:
+    resolution: {integrity: sha512-e4H0QpludOVKkmOsRyqQ7LTcMUDF3mcgyNU4lmi0B5JUbe0ZxeBBl8VoZ8Y6Rfn9eFKYtdXNPcYK97ZwH+K2ug==}
     engines: {node: '>=12.2.0'}
     hasBin: true
     peerDependencies:
