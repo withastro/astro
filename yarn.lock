@@ -1708,9 +1708,9 @@
     string.prototype.matchall "^4.0.6"
 
 "@sveltejs/vite-plugin-svelte@^1.0.0-next.37":
-  version "1.0.0-next.38"
-  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-1.0.0-next.38.tgz#5fb7e911a27e866de5c24d5e5541afefd5ced4bc"
-  integrity sha512-epYAVZvfpiDZwB4Whe5AALk3zF5odKFf8Vx4q2tth+QuXmr0GLZ13ri02zINS6pHRCx+GjtOqCEEwMaPAfPcgQ==
+  version "1.0.0-next.39"
+  resolved "https://registry.yarnpkg.com/@sveltejs/vite-plugin-svelte/-/vite-plugin-svelte-1.0.0-next.39.tgz#b9437de18d13a475f76cf603511174cdf905b8d4"
+  integrity sha512-gnvvcAW2LK+KnUn8lKb2ypcXKwSp2K57mem5C4VNKfjxdRpM6+XwNavWwVf6otnDhz3qPYl/TKKW6/dRr6eeAw==
   dependencies:
     "@rollup/pluginutils" "^4.1.2"
     debug "^4.3.3"
@@ -4818,9 +4818,9 @@ has-package-exports@^1.1.0:
     "@ljharb/has-package-exports-patterns" "0.0.1"
 
 has-symbols@^1.0.1, has-symbols@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/has-symbols/-/has-symbols-1.0.2.tgz#165d3070c00309752a1236a479331e3ac56f1423"
-  integrity sha512-chXa79rL/UC2KlX17jo3vRGz0azaWEx5tGqZg5pO3NUyEJVB17dMruQlzCCOfUvElghKcm5194+BCRvi2Rv/Gw==
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/has-symbols/-/has-symbols-1.0.3.tgz#bb7b2c4349251dce87b125f7bdf874aa7c8b39f8"
+  integrity sha512-l3LCuF6MgDNwTDKkdYGEihYjt5pRPbEg46rtlmnSPlUbgmB8LOIrKJbYYFBSbnPaJexMKtiPO8hmeRjRz2Td+A==
 
 has-tostringtag@^1.0.0:
   version "1.0.0"
@@ -9928,9 +9928,9 @@ yocto-queue@^0.1.0:
   integrity sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==
 
 zod@^3.8.1:
-  version "3.12.1"
-  resolved "https://registry.yarnpkg.com/zod/-/zod-3.12.1.tgz#803adcc72bc4a6b8351f53f78ba4ac6c6fa12886"
-  integrity sha512-wm4Gm6ACayAagHRDIGyDS0H4dRI4gGVqOJ9M4X2UjwgN/rv+QPRUjcvGqZRHiVYVuvQTOszRSkZ074I1dzEy9A==
+  version "3.13.2"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.13.2.tgz#08850b7d17bea78cd61eb4a525604dc3e51c7327"
+  integrity sha512-xN+PKyFQEs4t/j4V6pAwYwglR2aXNcGc6T825dpVfVdlSZg58Bb3i90YAl5V6ItZIxO5HzceJ6bmvmmlPcclVw==
 
 zwitch@^2.0.0:
   version "2.0.2"
