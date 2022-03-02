@@ -8,7 +8,6 @@ describe('Remote CSS', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/remote-css/',
-			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 		await fixture.build();
 	});
@@ -18,7 +17,7 @@ describe('Remote CSS', () => {
 		const $ = cheerio.load(html);
 
 		const relPath = $('link').attr('href');
-		const css = await fixture.readFile('/' + relPath);
+		const css = await fixture.readFile(relPath);
 
 		expect(css).to.match(/https:\/\/unpkg.com\/open-props/);
 		expect(css).to.match(/body/);

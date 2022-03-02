@@ -337,12 +337,14 @@ export function createAstro(filePathname: string, _site: string, projectRootStr:
 	};
 }
 
-const toAttributeString = (value: any) => String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;');
+const toAttributeString = (value: any, shouldEscape = true) => shouldEscape ?
+	String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;') :
+	value;
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
 // A helper used to turn expressions into attribute key/value
-export function addAttribute(value: any, key: string) {
+export function addAttribute(value: any, key: string, shouldEscape = true) {
 	if (value == null) {
 		return '';
 	}
@@ -372,15 +374,15 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
 		return unescapeHTML(` ${key}`);
 	} else {
-		return unescapeHTML(` ${key}="${toAttributeString(value)}"`);
+		return unescapeHTML(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 	}
 }
 
 // Adds support for `<Component {...value} />
-export function spreadAttributes(values: Record<any, any>) {
+export function spreadAttributes(values: Record<any, any>, shouldEscape = true) {
 	let output = '';
 	for (const [key, value] of Object.entries(values)) {
-		output += addAttribute(value, key);
+		output += addAttribute(value, key, shouldEscape);
 	}
 	return unescapeHTML(output);
 }
@@ -463,7 +465,7 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
 
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
-		.map((link) => renderElement('link', link));
+		.map((link) => renderElement('link', link, false));
 
 	// inject styles & scripts at end of <head>
 	let headPos = template.indexOf('</head>');
@@ -513,7 +515,7 @@ function getHTMLElementName(constructor: typeof HTMLElement) {
 	return assignedName;
 }
 
-function renderElement(name: string, { props: _props, children = '' }: SSRElement) {
+function renderElement(name: string, { props: _props, children = '' }: SSRElement, shouldEscape = true) {
 	// Do not print `hoist`, `lang`, `global`
 	const { lang: _, 'data-astro-id': astroId, 'define:vars': defineVars, ...props } = _props;
 	if (defineVars) {
@@ -530,5 +532,5 @@ function renderElement(name: string, { props: _props, children = '' }: SSRElemen
 			children = defineScriptVars(defineVars) + '\n' + children;
 		}
 	}
-	return `<${name}${spreadAttributes(props)}>${children}</${name}>`;
+	return `<${name}${spreadAttributes(props, shouldEscape)}>${children}</${name}>`;
 }

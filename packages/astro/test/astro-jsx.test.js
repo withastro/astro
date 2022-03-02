@@ -20,9 +20,6 @@ describe('JSX', () => {
 					projectRoot: cwd,
 					renderers: renderers.map((name) => `@astrojs/renderer-${name}`),
 					dist: new URL(`${cwd}dist-${n}/`, import.meta.url),
-					buildOptions: {
-						legacyBuild: true
-					}
 				}).then((fixture) => {
 					fixtures[renderers.toString()] = fixture;
 					return fixture.build();
