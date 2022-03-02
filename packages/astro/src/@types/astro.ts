@@ -207,7 +207,7 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name buildOptions.sitemap
 		 * @type {boolean}
-		   * @default `true`
+		 * @default `true`
 		 * @description
 		 * Generate a sitemap for your build. Set to false to disable.
 		 *
@@ -282,7 +282,6 @@ export interface AstroUserConfig {
 	 * @name Dev Options
 	 */
 	devOptions?: {
-
 		/**
 		 * @docs
 		 * @name devOptions.hostname
