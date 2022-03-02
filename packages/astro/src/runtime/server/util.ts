@@ -43,3 +43,17 @@ export function serializeListValue(value: any) {
 export function hydrationSpecifier(hydrate: string) {
 	return `astro/client/${hydrate}.js`;
 }
+
+/**
+ * Minifies JS without parsing, just replacing whitespace and passed identifiers.
+ * @param source a string of JS
+ * @param identifiers any specific identifiers that should be replaced
+ * @returns a minified source string
+ */
+export function naiveMinify(source: string, identifiers: Record<string, string> = {}): string {
+	source = source.trim().replace(/\s+/g, ' ').replace(/([^a-z])\s+/g, '$1').replace(/\s+([^a-zA-Z])/g, '$1');
+	for (const [identifier, char] of Object.entries(identifiers)) {
+		source = source.replaceAll(identifier, char);
+	}
+	return source;
+}

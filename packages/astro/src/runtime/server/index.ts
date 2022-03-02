@@ -460,7 +460,7 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
 			});
 		});
 	if (needsHydrationStyles) {
-		styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
+		styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root,astro-fragment{display:contents;}' }));
 	}
 
 	const links = Array.from(result.links)

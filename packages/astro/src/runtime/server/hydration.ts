@@ -1,6 +1,6 @@
 import type { AstroComponentMetadata } from '../../@types/astro';
 import type { SSRElement, SSRResult } from '../../@types/astro';
-import { hydrationSpecifier, serializeListValue } from './util.js';
+import { hydrationSpecifier, serializeListValue, naiveMinify } from './util.js';
 import serializeJavaScript from 'serialize-javascript';
 
 // Serializes props passed into a component so that they can be reused during hydration.
@@ -91,7 +91,8 @@ interface HydrateScriptOptions {
 export async function generateHydrateScript(scriptOptions: HydrateScriptOptions, metadata: Required<AstroComponentMetadata>): Promise<SSRElement> {
 	const { renderer, result, astroId, props } = scriptOptions;
 	const { hydrate, componentUrl, componentExport } = metadata;
-
+	const PROPS_PLACEHOLDER = `/*astro:PROPS*/`;
+	const HYDRATE_ARGS_PLACEHOLDER = `/*astro:HYDRATE_ARGS*/`;
 	if (!componentExport) {
 		throw new Error(`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`);
 	}
@@ -107,19 +108,32 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 		? `const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(componentUrl)}"), import("${await result.resolve(
 				renderer.source
 		  )}")]);
-  return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
+  return (el, children) => hydrate(el)(Component, ${PROPS_PLACEHOLDER}, children);
 `
 		: `await import("${await result.resolve(componentUrl)}");
   return () => {};
 `;
-
+	hydrationSource = `
+		import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';
+		setup("${astroId}", {name:"${metadata.displayName}",${metadata.hydrateArgs ? `value:${HYDRATE_ARGS_PLACEHOLDER}` : ''}}, async () => {
+			${hydrationSource}
+		});
+	`;
+	// Minify output (we know all these identifiers)
+	// Important! Use placeholder comments to avoid
+	// minifying user content inside of strings
+	hydrationSource = naiveMinify(hydrationSource, {
+		setup: 'a',
+		hydrate: 'b',
+		Component: 'c',
+		children: 'd',
+		el: 'e',
+	})
+		.replace(PROPS_PLACEHOLDER, serializeProps(props))
+		.replace(HYDRATE_ARGS_PLACEHOLDER, JSON.stringify(metadata.hydrateArgs));
 	const hydrationScript = {
 		props: { type: 'module', 'data-astro-component-hydration': true },
-		children: `import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';
-setup("${astroId}", {name:"${metadata.displayName}",${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''}}, async () => {
-  ${hydrationSource}
-});
-`,
+		children: hydrationSource,
 	};
 
 	return hydrationScript;
