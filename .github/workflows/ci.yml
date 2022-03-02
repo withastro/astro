@@ -178,7 +178,8 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        submodules: 'recursive'
 
       - name: Setup Node
         uses: actions/setup-node@v2
@@ -207,7 +208,6 @@ jobs:
         env:
           CI: true
 
-      # Turbo seems to fail on Windows, so run a custom script directly.
       - name: Test
         run: yarn test:smoke
 
