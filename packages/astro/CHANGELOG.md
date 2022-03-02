@@ -1,5 +1,18 @@
 # astro
 
+## 0.23.4
+
+### Patch Changes
+
+- [#2678](https://github.com/withastro/astro/pull/2678) [`caf9135c`](https://github.com/withastro/astro/commit/caf9135c4843889c2773667d591d72d796e14c7b) Thanks [@JuanM04](https://github.com/JuanM04)! - Upgraded Vite to v2.8.6
+
+* [#2697](https://github.com/withastro/astro/pull/2697) [`91765d79`](https://github.com/withastro/astro/commit/91765d79b1ec1181417fb6a4604a9e20564bb10e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve build performance by processing `ssrPreload` in serial rather than in parallel
+
+- [#2684](https://github.com/withastro/astro/pull/2684) [`c7bbb112`](https://github.com/withastro/astro/commit/c7bbb1128936207164cb5ac0c0ad9b1af86d861e) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix issue where HMR could be triggered during `astro build`
+
+- Updated dependencies [[`91765d79`](https://github.com/withastro/astro/commit/91765d79b1ec1181417fb6a4604a9e20564bb10e)]:
+  - @astrojs/markdown-remark@0.6.3
+
 ## 0.23.3
 
 ### Patch Changes
@@ -60,12 +73,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -227,12 +240,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1587,10 +1600,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1610,10 +1623,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
