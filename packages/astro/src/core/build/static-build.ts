@@ -38,8 +38,7 @@ export interface StaticBuildOptions {
 const MAX_CONCURRENT_RENDERS = 10;
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	const pathrepl = opts.astroConfig.buildOptions.pageUrlFormat === 'directory' ? '/index.html' : pathname === '/' ? 'index.html' : '.html';
-	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
+	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
 }
 
 // Gives back a facadeId that is relative to the root.
@@ -362,7 +361,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	debug('build', `Generating: ${pathname}`);
 
 	const site = astroConfig.buildOptions.site;
-	const links = createLinkStylesheetElementSet(linkIds, site);
+	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
 	try {
@@ -456,8 +455,7 @@ async function generateManifest(result: RollupOutput, opts: StaticBuildOptions, 
 }
 
 function getOutRoot(astroConfig: AstroConfig): URL {
-	const rootPathname = appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/');
-	return new URL('.' + rootPathname, astroConfig.dist);
+	return new URL('./', astroConfig.dist);
 }
 
 function getServerRoot(astroConfig: AstroConfig): URL {
@@ -483,8 +481,10 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: Rou
 			switch (astroConfig.buildOptions.pageUrlFormat) {
 				case 'directory':
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
-				case 'file':
+				case 'file': {
 					return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+				}
+					
 			}
 	}
 }
@@ -497,8 +497,10 @@ function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, 
 			switch (astroConfig.buildOptions.pageUrlFormat) {
 				case 'directory':
 					return new URL('./index.html', outFolder);
-				case 'file':
-					return new URL('./' + npath.basename(pathname) + '.html', outFolder);
+				case 'file': {
+					const baseName = npath.basename(pathname);
+					return new URL('./' + (baseName || 'index') + '.html', outFolder);
+				}
 			}
 	}
 }
