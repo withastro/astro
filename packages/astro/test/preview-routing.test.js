@@ -16,7 +16,6 @@ describe('Preview Routing', () => {
 						trailingSlash: 'never',
 						port: 4000,
 					},
-					buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -71,7 +70,6 @@ describe('Preview Routing', () => {
 						trailingSlash: 'always',
 						port: 4001,
 					},
-					buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -130,7 +128,6 @@ describe('Preview Routing', () => {
 						trailingSlash: 'ignore',
 						port: 4002,
 					},
-					buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 				});
 				await fixture.build();
 				previewServer = await fixture.preview();
@@ -189,7 +186,6 @@ describe('Preview Routing', () => {
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					buildOptions: {
 						pageUrlFormat: 'file',
-						legacyBuild: true
 					},
 					devOptions: {
 						trailingSlash: 'never',
@@ -247,7 +243,6 @@ describe('Preview Routing', () => {
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					buildOptions: {
 						pageUrlFormat: 'file',
-						legacyBuild: true
 					},
 					devOptions: {
 						trailingSlash: 'always',
@@ -309,7 +304,6 @@ describe('Preview Routing', () => {
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					buildOptions: {
 						pageUrlFormat: 'file',
-						legacyBuild: true
 					},
 					devOptions: {
 						trailingSlash: 'ignore',
@@ -371,7 +365,6 @@ describe('Preview Routing', () => {
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					buildOptions: {
 						pageUrlFormat: 'file',
-						legacyBuild: true
 					},
 					devOptions: {
 						trailingSlash: 'ignore',

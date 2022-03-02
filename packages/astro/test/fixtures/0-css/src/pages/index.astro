@@ -19,7 +19,7 @@ import VueScoped from '../components/VueScoped.vue';
 import VueScss from '../components/VueScss.vue';
 import ReactDynamic from '../components/ReactDynamic.jsx';
 
-import importedUrl from '../styles/imported-url.css?url';
+import '../styles/imported-url.css';
 ---
 
 <html>
@@ -36,10 +36,15 @@ import importedUrl from '../styles/imported-url.css?url';
       }
     </style>
     <link rel="stylesheet" type="text/css" href="/global.css">
-    <link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/linked.css')}>
-    <link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/linked.scss')}>
-    <link rel="stylesheet" type="text/css" href={Astro.resolve('../styles/linked.sass')}>
-    <link rel="stylesheet" type="text/css" href={importedUrl}>
+		<style>
+			@import '../styles/linked.css';
+		</style>
+		<style lang="scss">
+			@import '../styles/linked.scss';
+		</style>
+		<style lang="sass">
+			@import '../styles/linked.sass'
+		</style>
   </head>
   <body>
     <div class="wrapper">
