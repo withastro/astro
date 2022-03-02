@@ -9,7 +9,6 @@ describe('Partial HTML ', async () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-partial-html/',
-			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 		devServer = await fixture.startDevServer();
 	});
@@ -26,7 +25,12 @@ describe('Partial HTML ', async () => {
 		expect(html).to.match(/^<!DOCTYPE html/);
 
 		// test 2: correct CSS present
-		const css = $('style[astro-style]').html();
+		const link = $('link').attr('href');
+		const css = await fixture.fetch(link, {
+			headers: {
+				accept: 'text/css'
+			}
+		}).then(res => res.text());
 		expect(css).to.match(/\.astro-[^{]+{color:red;}/);
 	});
 
