@@ -13,7 +13,7 @@ module.exports = {
     "@typescript-eslint/no-use-before-define": "off",
     "@typescript-eslint/no-var-requires": "off",
     "@typescript-eslint/no-this-alias": "off",
-    "no-console": "warn",
+    "no-console": ["error", { allow: ["warn", "error"] }],
     "no-shadow": "error",
     "prefer-const": "off",
     // 'require-jsdoc': 'error', // re-enable this to enforce JSDoc for all functions

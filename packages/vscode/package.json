@@ -53,6 +53,12 @@
         "enableForWorkspaceTypeScriptVersions": true
       }
     ],
+    "commands": [
+      {
+        "command": "astro.restartLanguageServer",
+        "title": "Astro: Restart Language Server"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "Astro configuration",
