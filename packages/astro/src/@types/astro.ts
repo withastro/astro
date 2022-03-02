@@ -309,8 +309,8 @@ export interface AstroUserConfig {
 		 * @name devOptions.trailingSlash
 		 * @type {('always' | 'never' | 'ignore')}
 		 * @default `'always'`
-		 * @description
 		 * @see buildOptions.pageUrlFormat
+		 * @description
 		 *
 		 * Set the route matching behavior of the dev server. Choose from the following options:
 		 *   - 'always' - Only match URLs that include a trailing slash (ex: "/foo/")
