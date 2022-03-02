@@ -1,5 +1,6 @@
 ---
 import MoreMenu from '../RightSidebar/MoreMenu.astro';
+import ArticleNavigationButton from './ArticleNavigationButton.astro';
 import TableOfContents from '../RightSidebar/TableOfContents.tsx';
 import { getLanguageFromURL } from '../../util.ts';
 import { SIDEBAR } from '../../config.ts';
@@ -18,33 +19,17 @@ const previous = index !== -1 ? (index === 0 ? null : links[index - 1]) : null;
 	<section class="main-section">
 		<h1 class="content-title" id="overview">{title}</h1>
 		{headers && (
-			<nav class="block sm-hidden">
+			<nav class="block lg-hidden">
 				<TableOfContents client:media="(max-width: 50em)" headers={headers} />
+				<MoreMenu editHref={githubEditUrl} />
 			</nav>
 		)}
 		<slot />
 	</section>
-	<nav class="block sm-hidden">
-		<MoreMenu editHref={githubEditUrl} />
-	</nav>
 	{(previous || next) && (
-		<aside>
-			{previous && (
-				<div>
-					Previous Article:{' '}
-					<a rel="prev" href={new URL(previous.link, Astro.site).pathname}>
-						{previous.text}
-					</a>
-				</div>
-			)}
-			{next && (
-				<div>
-					Next Article:{' '}
-					<a rel="next" href={new URL(next.link, Astro.site).pathname}>
-						{next.text}
-					</a>
-				</div>
-			)}
+		<aside class="next-previous-nav">
+			{previous && <ArticleNavigationButton rel="prev" item={previous} />}
+			{next && <ArticleNavigationButton rel="next" item={next} />}
 		</aside>
 	)}
 </article>
@@ -57,6 +42,7 @@ const previous = index !== -1 ? (index === 0 ? null : links[index - 1]) : null;
 		height: 100%;
 		display: flex;
 		flex-direction: column;
+		margin: auto;
 	}
 	.content > section {
 		margin-bottom: 4rem;
@@ -64,9 +50,16 @@ const previous = index !== -1 ? (index === 0 ? null : links[index - 1]) : null;
 	.block {
 		display: block;
 	}
+	.next-previous-nav {
+		display: flex;
+		flex-wrap: wrap;
+		width: auto;
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+	}
 
-	@media (min-width: 50em) {
-		.sm-hidden {
+	@media (min-width: 72em) {
+		.lg-hidden {
 			display: none;
 		}
 	}

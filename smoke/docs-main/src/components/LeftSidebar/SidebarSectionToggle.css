@@ -1,0 +1,18 @@
+.SidebarSectionToggle {
+	display: flex;
+}
+.SidebarSectionToggle button {
+	flex-grow: 1;
+	justify-content: center;
+	border-radius: 0;
+	cursor: pointer;
+	padding: 0.6rem;
+	border-bottom: 4px solid var(--theme-divider);
+}
+.SidebarSectionToggle button.is-icon {
+	flex-grow: 0;
+}
+.SidebarSectionToggle button.active {
+	color: var(--theme-accent);
+	border-bottom-color: var(--theme-accent);
+}

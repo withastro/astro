@@ -181,6 +181,11 @@
     vscode-languageserver-types "^3.16.0"
     vscode-uri "^3.0.2"
 
+"@astropub/icons@^0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@astropub/icons/-/icons-0.1.1.tgz#3f9600cc8e2f242fc745d7622e15d837a4968845"
+  integrity sha512-UhKb1KpeV7dvXsZi+m9LV/lg1muVILAARODCDabynNHP0iIqFRLYAio6pmnbh72aPv/P58wck/GeatM/PgPqZw==
+
 "@astropub/webapi@^0.10.1", "@astropub/webapi@^0.10.13":
   version "0.10.14"
   resolved "https://registry.yarnpkg.com/@astropub/webapi/-/webapi-0.10.14.tgz#f3e118718d1353170ec9ea0adc4a725796717a77"
