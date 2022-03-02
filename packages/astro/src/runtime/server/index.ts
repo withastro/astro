@@ -71,7 +71,7 @@ export class AstroComponent {
 			const html = htmlParts[i];
 			const expression = expressions[i];
 
-			yield _render(unescapeHTML(html));
+			yield unescapeHTML(html);
 			yield _render(expression);
 		}
 	}
@@ -405,20 +405,6 @@ export function defineScriptVars(vars: Record<any, any>) {
 	return output;
 }
 
-// Calls a component and renders it into a string of HTML
-export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any) {
-	const Component = await componentFactory(result, props, children);
-	let template = await renderAstroComponent(Component);
-	return unescapeHTML(template);
-}
-
-// Filter out duplicate elements in our set
-const uniqueElements = (item: any, index: number, all: any[]) => {
-	const props = JSON.stringify(item.props);
-	const children = item.children;
-	return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
-};
-
 // Renders an endpoint request to completion, returning the body.
 export async function renderEndpoint(mod: EndpointHandler, params: any) {
 	const method = 'get';
@@ -433,15 +419,34 @@ export async function renderEndpoint(mod: EndpointHandler, params: any) {
 	return body;
 }
 
+// Calls a component and renders it into a string of HTML
+export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any) {
+	const Component = await componentFactory(result, props, children);
+	let template = await renderAstroComponent(Component);
+
+	// <!--astro:head--> injected by compiler
+	// Must be handled at the end of the rendering process
+	if (template.indexOf('<!--astro:head-->') > -1) {
+		template = template.replace('<!--astro:head-->', await renderHead(result));
+	}
+	return template;
+}
+
+// Filter out duplicate elements in our set
+const uniqueElements = (item: any, index: number, all: any[]) => {
+	const props = JSON.stringify(item.props);
+	const children = item.children;
+	return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
+};
+
+
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.
-export async function renderPage(result: SSRResult, Component: AstroComponentFactory, props: any, children: any) {
-	const template = await renderToString(result, Component, props, children);
+export async function renderHead(result: SSRResult) {
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => {
 			const styleChildren = !result._metadata.legacyBuild ? '' : style.children;
-
 			return renderElement('style', {
 				children: styleChildren,
 				props: { ...style.props, 'astro-style': true },
@@ -462,17 +467,10 @@ export async function renderPage(result: SSRResult, Component: AstroComponentFac
 	if (needsHydrationStyles) {
 		styles.push(renderElement('style', { props: { 'astro-style': true }, children: 'astro-root, astro-fragment { display: contents; }' }));
 	}
-
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
-
-	// inject styles & scripts at end of <head>
-	let headPos = template.indexOf('</head>');
-	if (headPos === -1) {
-		return links.join('\n') + styles.join('\n') + scripts.join('\n') + template; // if no </head>, prepend styles & scripts
-	}
-	return template.substring(0, headPos) + links.join('\n') + styles.join('\n') + scripts.join('\n') + template.substring(headPos);
+	return unescapeHTML(links.join('\n') + styles.join('\n') + scripts.join('\n') + '\n' + '<!--astro:head:injected-->');
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
