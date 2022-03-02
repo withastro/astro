@@ -340,6 +340,15 @@ async function generatePage(output: OutputChunk, opts: StaticBuildOptions, inter
 	}
 }
 
+async function minifyHTML(html: string) {
+	const minifier = await import('html-minifier-terser');
+	return minifier.minify(html, {
+		removeComments: false,
+		collapseWhitespace: true,
+		caseSensitive: true,
+	});
+}
+
 interface GeneratePathOptions {
 	pageData: PageBuildData;
 	internals: BuildInternals;
@@ -365,7 +374,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
 	try {
-		const html = await render({
+		let html: string | Buffer = await render({
 			legacyBuild: false,
 			links,
 			logging,
@@ -388,6 +397,10 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			routeCache,
 			site: astroConfig.buildOptions.site,
 		});
+
+		if (opts.astroConfig.buildOptions.minifyHTML) {
+			html = await minifyHTML(html)
+		}
 
 		const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
 		const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);

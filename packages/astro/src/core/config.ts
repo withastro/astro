@@ -63,6 +63,7 @@ export const AstroConfigSchema = z.object({
 				.optional()
 				.default('directory'),
 			legacyBuild: z.boolean().optional().default(false),
+			minifyHTML: z.boolean().optional().default(false),
 			experimentalStaticBuild: z.boolean().optional().default(true),
 			experimentalSsr: z.boolean().optional().default(false),
 			drafts: z.boolean().optional().default(false),
