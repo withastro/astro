@@ -1,6 +1,0 @@
-# I, for one, welcome our new robotic overlords
-
-User-agent: *
-Allow: /
-
-Sitemap: https://astro.build/sitemap.xml
