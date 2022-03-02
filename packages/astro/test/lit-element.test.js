@@ -18,9 +18,6 @@ describe('LitElement test', function () {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/lit-element/',
 			renderers: ['@astrojs/renderer-lit'],
-			buildOptions: {
-				legacyBuild: true
-			}
 		});
 		await fixture.build();
 	});
