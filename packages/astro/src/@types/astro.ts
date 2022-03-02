@@ -126,7 +126,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
-	 public?: string;
+	public?: string;
 
 	/**
 	 * @docs
@@ -188,13 +188,16 @@ export interface AstroUserConfig {
 		 * @name buildOptions.site
 		 * @type {string}
 		 * @description
-		 * Your final, deployed URL. Astro uses this full URL to generate your sitemap and canonical URLs in your final build.
+		 * Your final, deployed URL. Astro uses this full URL to generate your sitemap and canonical URLs in your final build. It is strongly recommended that you set this configuration to get the most out of Astro.
 		 *
 		 * Astro will match the site pathname during development so that your development experience matches your build environment as closely as possible. In the example below, `astro dev` will start your server at `http://localhost:3000/docs`.
 		 *
 		 * ```js
 		 * {
-		 *   site: 'https://my-site.dev/docs'
+		 *   buildOptions: {
+		 *     // Example: Tell Astro the final URL of your deployed website.
+		 * 	   site: 'https://www.my-site.dev/docs'
+		 *   }
 		 * }
 		 * ```
 		 */
@@ -204,8 +207,20 @@ export interface AstroUserConfig {
 		 * @docs
 		 * @name buildOptions.sitemap
 		 * @type {boolean}
+		   * @default `true`
 		 * @description
-		 * Generate a sitemap for your build, based on the generated output.
+		 * Generate a sitemap for your build. Set to false to disable.
+		 *
+		 * Astro will automatically generate a sitemap including all generated pages on your site. If you need more control over your sitemap, consider generating it yourself using a [Non-HTML Page](/en/core-concepts/astro-pages/#non-html-pages).
+		 *
+		 * ```js
+		 * {
+		 *   buildOptions: {
+		 *     // Example: Disable automatic sitemap generation
+		 * 	   sitemap: false
+		 *   }
+		 * }
+		 * ```
 		 */
 		sitemap?: boolean;
 
@@ -218,6 +233,15 @@ export interface AstroUserConfig {
 		 * Control the output file format of each page.
 		 *   - If 'file', Astro will generate an HTML file (ex: "/foo.html") for each page.
 		 *   - If 'directory', Astro will generate a directory with a nested `index.html` file (ex: "/foo/index.html") for each page.
+		 *
+		 * ```js
+		 * {
+		 *   buildOptions: {
+		 *     // Example: Generate `page.html` instead of `page/index.html` during build.
+		 * 	   pageUrlFormat: 'file'
+		 *   }
+		 * }
+		 * ```
 		 */
 		pageUrlFormat?: 'file' | 'directory';
 
@@ -227,9 +251,18 @@ export interface AstroUserConfig {
 		 * @type {boolean}
 		 * @default `false`
 		 * @description
-		 * Control if markdown draft pages should be included in the build. A markdown is considered a draft if it includes `draft: true` in its frontmatter.
+		 * Control if markdown draft pages should be included in the build.
 		 *
-		 * By default, draft pages are served during development but then not included in your final build.
+		 * A markdown page is considered a draft if it includes `draft: true` in its front matter. Draft pages are always included & visible during development (`astro dev`) but by default they will not be included in your final build.
+		 *
+		 * ```js
+		 * {
+		 *   buildOptions: {
+		 *     // Example: Include all drafts in your final build
+		 * 	   drafts: true,
+		 *   }
+		 * }
+		 * ```
 		 */
 		drafts?: boolean;
 		/**
@@ -266,7 +299,9 @@ export interface AstroUserConfig {
 		 * @type {number}
 		 * @default `3000`
 		 * @description
-		 * Set which port the dev server should listen on. Note that if the port is already being used, Astro will automatically try the next available port.
+		 * Set which port the dev server should listen on.
+		 *
+		 * If the given port is already in use, Astro will automatically try the next available port.
 		 */
 		port?: number;
 
@@ -276,11 +311,25 @@ export interface AstroUserConfig {
 		 * @type {('always' | 'never' | 'ignore')}
 		 * @default `'always'`
 		 * @description
+		 * @see buildOptions.pageUrlFormat
 		 *
-		 * Set the trailing slash behavior of how the dev server matches routes:
+		 * Set the route matching behavior of the dev server. Choose from the following options:
 		 *   - 'always' - Only match URLs that include a trailing slash (ex: "/foo/")
 		 *   - 'never' - Never match URLs that include a trailing slash (ex: "/foo")
 		 *   - 'ignore' - Match URLs regardless of whether a trailing "/" exists
+		 *
+		 * Use this configuration option if your production host has strict handling of how trailing slashes work or do not work.
+		 *
+		 * You can also set this if you prefer to be more strict yourself, so that URLs with or without trailing slashes won't work during development.
+		 *
+		 * ```js
+		 * {
+		 *   devOptions: {
+		 *     // Example: Require a trailing slash during development
+		 * 	   trailingSlash: 'always'
+		 *   }
+		 * }
+		 * ```
 		 */
 		trailingSlash?: 'always' | 'never' | 'ignore';
 	};
@@ -291,9 +340,31 @@ export interface AstroUserConfig {
 	 * @type {vite.UserConfig}
 	 * @description
 	 *
-	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need. 
-	 * 
+	 * Pass additional configuration options to Vite. Useful when Astro doesn't support some advanced configuration that you may need.
+	 *
 	 * View the full `vite` configuration object documentation on [vitejs.dev](https://vitejs.dev/config/).
+	 *
+	 * #### Examples
+	 *
+	 * ```js
+	 * {
+	 *   vite: {
+	 * 	   ssr: {
+	 *      // Example: Force a broken package to skip SSR processing, if needed
+	 * 		external: ['broken-npm-package'],
+	 *     }
+	 *   }
+	 * }
+	 * ```
+	 *
+	 * ```js
+	 * {
+	 *   vite: {
+	 *     // Example: Add custom vite plugins directly to your Astro project
+	 * 	   plugins: [myPlugin()],
+	 *   }
+	 * }
+	 * ```
 	 */
 	vite?: vite.UserConfig & { ssr?: vite.SSROptions };
 }
