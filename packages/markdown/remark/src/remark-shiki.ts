@@ -30,16 +30,25 @@ export interface ShikiConfig {
 	wrap?: boolean | null;
 }
 
-const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig) => {
-	const highlighter = await getHighlighter({ theme });
+/**
+ * getHighlighter() is the most expensive step of Shiki. Instead of calling it on every page,
+ * cache it here as much as possible. Make sure that your highlighters can be cached, state-free.
+ */
+const highlighterCache = new Map<string, shiki.Highlighter>();
 
+const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig) => {
+	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
+	let highlighter = highlighterCache.get(cacheID);
+	if (!highlighter) {
+		highlighter = await getHighlighter({ theme });
+		highlighterCache.set(cacheID, highlighter);
+	}
 	for (const lang of langs) {
 		await highlighter.loadLanguage(lang);
 	}
-
 	return () => (tree: any) => {
 		visit(tree, 'code', (node) => {
-			let html = highlighter.codeToHtml(node.value, { lang: node.lang ?? 'plaintext' });
+			let html = highlighter!.codeToHtml(node.value, { lang: node.lang ?? 'plaintext' });
 
 			// Replace "shiki" class naming with "astro" and add "data-astro-raw".
 			html = html.replace('<pre class="shiki"', '<pre data-astro-raw class="astro-code"');
