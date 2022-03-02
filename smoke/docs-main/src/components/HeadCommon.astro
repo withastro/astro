@@ -30,6 +30,22 @@
 	}
 </script>
 
+<!-- Double-click to highlight code blocks (inline only). -->
+<script>
+	document.addEventListener('dblclick', (el) => {
+		if (el.target.nodeName !== 'CODE') {
+			return;
+		}
+		if (el.target.parentElement.nodeName === 'PRE') {
+			return;
+		}
+		let range = new Range();
+		range.setStart(el.target, 0);
+		range.setEnd(el.target, 1);
+		document.getSelection().removeAllRanges();
+		document.getSelection().addRange(range);
+	});
+</script>
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-130280175-15"></script>
 <script>

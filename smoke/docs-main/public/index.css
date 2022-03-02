@@ -315,18 +315,23 @@ h2.heading {
 	padding: 0.1rem 1rem;
 	text-transform: uppercase;
 	margin-bottom: 0.5rem;
+	margin-top: 1.5rem;
 }
 
 .header-link {
 	font-size: 1rem;
-	padding: 0.1rem 0 0.1rem 1rem;
+	padding: 1px 0 1px 1rem;
 	border-left: 4px solid var(--theme-divider);
 }
 
 .header-link:hover,
 .header-link:focus {
 	border-left-color: var(--theme-accent);
+}
+.header-link:hover a,
+.header-link:focus a {
 	color: var(--theme-accent);
+	text-decoration: underline;
 }
 .header-link:focus-within {
 	color: var(--theme-text-light);
@@ -342,7 +347,6 @@ h2.heading {
 	display: inline-flex;
 	gap: 0.5em;
 	width: 100%;
-	padding: 0.15em 0 0.15em 0;
 }
 
 .header-link.depth-3 {
@@ -354,7 +358,7 @@ h2.heading {
 
 .header-link a {
 	font: inherit;
-	color: inherit;
+	color: var(--theme-text-light);
 	text-decoration: none;
 }
 

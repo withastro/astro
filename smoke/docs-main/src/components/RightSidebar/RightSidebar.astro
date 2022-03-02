@@ -1,5 +1,6 @@
 ---
 import TableOfContents from './TableOfContents.tsx';
+import ThemeToggleButton from './ThemeToggleButton.tsx';
 import MoreMenu from './MoreMenu.astro';
 const { content, githubEditUrl } = Astro.props;
 const headers = content.astro?.headers;
@@ -9,6 +10,9 @@ const headers = content.astro?.headers;
 	<div class="sidebar-nav-inner">
 		{headers && <TableOfContents client:media="(min-width: 50em)" headers={headers} />}
 		<MoreMenu editHref={githubEditUrl} />
+		<div style="margin: 2rem 0; text-align: center;">
+			<ThemeToggleButton client:visible />
+		</div>
 	</div>
 </nav>
 

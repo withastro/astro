@@ -60,6 +60,7 @@ const lang = getLanguageFromURL(Astro.request.url.pathname);
 				display: flex;
 				flex-direction: column;
 				height: 100%;
+				min-width: 0;
 			}
 			#grid-right {
 				display: none;
@@ -91,11 +92,10 @@ const lang = getLanguageFromURL(Astro.request.url.pathname);
 				.layout {
 					grid-template-columns:
 						20rem
-						minmax(0, var(--max-width))
+						1fr
 						18rem;
 					padding-left: 0;
 					padding-right: 0;
-					margin: 0 auto;
 				}
 				#grid-right {
 					grid-column: 3;

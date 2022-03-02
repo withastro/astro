@@ -45,6 +45,8 @@ Here are some production sites, repositories, blog posts and videos from the com
 
 [Chris Bongers](https://aviyel.com/post/1006/adding-typesense-search-to-an-astro-static-generated-website) - **Post**: Adding Typesense Search to an Astro Website
 
+[The Net Ninja](https://www.youtube.com/playlist?list=PL4cUxeGkcC9hZm9NYpd4G-jhoeEk0ls--) - **Video**: Figma and Astro Static Site Build
+
 ## Repositories / Starter Templates
 
 [delucis/astro-netlify-cms](https://github.com/delucis/astro-netlify-cms/) - Astro Starter Template with Netlify CMS

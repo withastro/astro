@@ -1,2 +1,6 @@
 [build]
   ignore = "git diff --quiet $COMMIT_REF $CACHED_COMMIT_REF -- /"
+
+ [[redirects]]
+  from = "/en/quick-start"
+  to = "/en/installation"

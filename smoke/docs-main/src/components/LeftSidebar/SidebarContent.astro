@@ -1,0 +1,84 @@
+---
+const { type, defaultActiveTab, sidebarSections, currentPageMatch } = Astro.props;
+---
+
+{sidebarSections.length === 0 && (
+	<li class={`nav-group ${type}`}>
+		<div class="placeholder sm-hidden">No Translations Found</div>
+		<a class="placeholder" href="/">
+			View in English
+		</a>
+	</li>
+)}
+{sidebarSections.map((section) => (
+	<li class={`nav-group ${type} ${defaultActiveTab === type ? 'active' : ''}`}>
+		<div>
+			<h2 class="nav-group-title">{section.text}</h2>
+			<ul>
+				{section.children.map((child) => (
+					<li class="nav-link">
+						<a href={`${Astro.site.pathname}${child.link}`} aria-current={`${currentPageMatch === child.link ? 'page' : 'false'}`}>
+							{child.text}
+						</a>
+					</li>
+				))}
+			</ul>
+		</div>
+	</li>
+))}
+
+<style lang="scss">
+	.nav-group {
+		margin-top: 1.75rem;
+	}
+	.nav-group .placeholder {
+		opacity: 0.6;
+		text-align: center;
+		display: block;
+	}
+	@media (max-width: 50em) {
+		.sm-hidden {
+			display: none !important;
+		}
+	}
+	@media (min-width: 50em) {
+		.nav-group {
+			display: none;
+		}
+	}
+	.nav-group.active {
+		display: block;
+	}
+	.nav-group-title {
+		font-size: 1rem;
+		font-weight: 700;
+		padding: 0.1rem 1rem;
+		text-transform: uppercase;
+		margin-bottom: 0.5rem;
+	}
+
+	.nav-link a {
+		font-size: 1rem;
+		margin: 1px;
+		padding: 0.3rem 1rem;
+		font: inherit;
+		color: inherit;
+		text-decoration: none;
+		display: block;
+
+		&:hover,
+		&:focus {
+			background-color: var(--theme-bg-hover);
+		}
+
+		&[aria-current='page'] {
+			color: var(--theme-text-accent);
+			background-color: var(--theme-bg-accent);
+			font-weight: 600;
+		}
+	}
+
+	:global(:root.theme-dark) .nav-link a[aria-current='page'] {
+		color: hsla(var(--color-base-white), 100%, 1);
+	}
+</style>
