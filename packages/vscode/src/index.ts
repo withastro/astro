@@ -57,7 +57,7 @@ export async function activate(context: ExtensionContext) {
 
 	// Restart the language server if any critical files that are outside our jurisdiction got changed (tsconfig, jsconfig etc)
 	workspace.onDidSaveTextDocument(async (doc: TextDocument) => {
-		const fileName = doc.fileName.split('/').pop() ?? doc.fileName;
+		const fileName = doc.fileName.split(/\/|\\/).pop() ?? doc.fileName;
 		if ([/^tsconfig\.json$/, /^jsconfig\.json$/, /^astro\.config\.(js|cjs|mjs|ts)$/].some((regex) => regex.test(fileName))) {
 			await restartClient(false);
 		}
