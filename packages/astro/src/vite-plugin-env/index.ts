@@ -44,32 +44,19 @@ function referencesPrivateKey(source: string, privateEnv: Record<string, any>) {
 export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions): vite.PluginOption {
 	let privateEnv: Record<string, any> | null;
 	let config: vite.ResolvedConfig;
-	let viteDefine: vite.Plugin | undefined;
 	let replacements: Record<string, string>;
 	let pattern: RegExp | undefined;
-	function callViteDefine(thisValue:TransformPluginContext, source: string, id: string, options: {
-    ssr?: boolean | undefined;
-} | undefined) {
-	return viteDefine?.transform?.call(thisValue, source, id, options) || source;
-}
 	return {
 		name: 'astro:vite-plugin-env',
 		enforce: 'pre',
-
 		configResolved(resolvedConfig) {
 			config = resolvedConfig;
-			viteDefine = config.plugins.find(plugin => plugin.name === 'vite:define');
-			if(viteDefine) {
-				const index = config.plugins.indexOf(viteDefine);
-				(config.plugins as vite.Plugin[]).splice(index, 1);
-			}
 		},
-
 		async transform(source, id, options) {
 			const ssr = options?.ssr === true;
 
 			if(!ssr) {
-				return callViteDefine(this, source, id, options);
+				return source;
 			}
 
 			if(!source.includes('import.meta') || !/\benv\b/.test(source)) {
@@ -92,27 +79,23 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 								// prevent trailing assignments
 								')\\b(?!\\s*?=[^=])', 'g');
 				}
-
 			}
-			if (!privateEnv || !pattern) return callViteDefine(this, source, id, options);
-			if (!referencesPrivateKey(source, privateEnv)) return callViteDefine(this, source, id, options);
+
+			if (!privateEnv || !pattern) return source;
+			if (!referencesPrivateKey(source, privateEnv)) return source;
 
 			// Find matches for *private* env and do our own replacement.
 			const s = new MagicString(source);
-			let hasReplaced = false
-      let match: RegExpExecArray | null
+			let match: RegExpExecArray | null
 
-      while ((match = pattern.exec(source))) {
-        hasReplaced = true
-        const start = match.index
-        const end = start + match[0].length
-        const replacement = '' + replacements[match[1]]
-        s.overwrite(start, end, replacement)
-      }
+			while ((match = pattern.exec(source))) {
+				const start = match.index
+				const end = start + match[0].length
+				const replacement = '' + replacements[match[1]]
+				s.overwrite(start, end, replacement)
+			}
 
-			let code = s.toString();
-			// Call back to vite:define to do public replacements.
-			return callViteDefine(this, code, id, options);
+			return s.toString();
 		},
 	};
 }
