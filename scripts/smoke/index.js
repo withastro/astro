@@ -30,8 +30,6 @@ const getChildDirectories = async (/** @type {URL} */ dir) => {
 	return dirs;
 };
 
-const SKIP_STATIC_BUILD = new Set(["astro.build", "with-vite-plugin-pwa"]);
-
 /** Runs all smoke tests. */
 async function run() {
 	console.log('');
