@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.9.0
+
+### Minor Changes
+
+- 6b6b47a: Remove internal astro.d.ts files, instead prefer the one provided by Astro itself
+
 ## 0.8.10
 
 ### Patch Changes

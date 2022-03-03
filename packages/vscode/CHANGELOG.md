@@ -1,5 +1,17 @@
 # astro-vscode
 
+## 0.9.0
+
+### Minor Changes
+
+- 6b6b47a: Remove internal astro.d.ts files, instead prefer the one provided by Astro itself
+
+### Patch Changes
+
+- Updated dependencies [6b6b47a]
+  - @astrojs/language-server@0.9.0
+  - @astrojs/ts-plugin@0.2.0
+
 ## 0.8.10
 
 ### Patch Changes
