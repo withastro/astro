@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.8.10
+
+### Patch Changes
+
+- 5b16fb4: Fix errors showing on wrong line due to an error in TSX generation
+
 ## 0.8.9
 
 ### Patch Changes

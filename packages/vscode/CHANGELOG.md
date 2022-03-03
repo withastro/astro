@@ -1,5 +1,13 @@
 # astro-vscode
 
+## 0.8.10
+
+### Patch Changes
+
+- 8878324: Add feature to reload language server on ts/jsconfig change
+- Updated dependencies [5b16fb4]
+  - @astrojs/language-server@0.8.10
+
 ## 0.8.9
 
 ### Patch Changes
