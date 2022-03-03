@@ -7,7 +7,6 @@ describe('Environment Variables', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-envs/',
-			buildOptions: { legacyBuild: true } // TODO make this test work without legacyBuild
 		});
 
 		await fixture.build();
@@ -25,7 +24,7 @@ describe('Environment Variables', () => {
 	});
 
 	it('includes public env in client-side JS', async () => {
-		let dirs = await fixture.readdir('/assets');
+		let dirs = await fixture.readdir('/');
 		let found = false;
 
 		// Look in all of the .js files to see if the public env is inlined.
@@ -34,7 +33,7 @@ describe('Environment Variables', () => {
 		await Promise.all(
 			dirs.map(async (path) => {
 				if (path.endsWith('.js')) {
-					let js = await fixture.readFile(`/assets/${path}`);
+					let js = await fixture.readFile(`/${path}`);
 					if (js.includes('BLUE_BAYOU')) {
 						found = true;
 					}
@@ -46,7 +45,7 @@ describe('Environment Variables', () => {
 	});
 
 	it('does not include private env in client-side JS', async () => {
-		let dirs = await fixture.readdir('/assets');
+		let dirs = await fixture.readdir('/');
 		let found = false;
 
 		// Look in all of the .js files to see if the public env is inlined.
@@ -55,7 +54,7 @@ describe('Environment Variables', () => {
 		await Promise.all(
 			dirs.map(async (path) => {
 				if (path.endsWith('.js')) {
-					let js = await fixture.readFile(`/assets/${path}`);
+					let js = await fixture.readFile(`/${path}`);
 					if (js.includes('CLUB_33')) {
 						found = true;
 					}

@@ -1,5 +1,6 @@
 import type * as vite from 'vite';
 import type { AstroConfig } from '../@types/astro';
+import type { TransformPluginContext } from 'rollup';
 import MagicString from 'magic-string';
 import { fileURLToPath } from 'url';
 import { loadEnv } from 'vite';
@@ -30,7 +31,7 @@ function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig
 	if (privateKeys.length === 0) {
 		return null;
 	}
-	return Object.fromEntries(privateKeys.map((key) => [key, fullEnv[key]]));
+	return Object.fromEntries(privateKeys.map((key) => [key, JSON.stringify(fullEnv[key])]));
 }
 
 function referencesPrivateKey(source: string, privateEnv: Record<string, any>) {
@@ -43,39 +44,56 @@ function referencesPrivateKey(source: string, privateEnv: Record<string, any>) {
 export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions): vite.PluginOption {
 	let privateEnv: Record<string, any> | null;
 	let config: vite.ResolvedConfig;
+	let replacements: Record<string, string>;
+	let pattern: RegExp | undefined;
 	return {
 		name: 'astro:vite-plugin-env',
 		enforce: 'pre',
-
 		configResolved(resolvedConfig) {
 			config = resolvedConfig;
-			if (config.envPrefix) {
-			}
 		},
-
 		async transform(source, id, options) {
 			const ssr = options?.ssr === true;
-			if (!ssr) return source;
-			if (!source.includes('import.meta')) return source;
-			if (!/\benv\b/.test(source)) return source;
+
+			if(!ssr) {
+				return source;
+			}
+
+			if(!source.includes('import.meta') || !/\benv\b/.test(source)) {
+				return source;
+			}
 
 			if (typeof privateEnv === 'undefined') {
 				privateEnv = getPrivateEnv(config, astroConfig);
+				if(privateEnv) {
+					const entries = Object.entries(privateEnv).map(([key, value]) => ([`import.meta.env.${key}`, value]));
+					replacements = Object.fromEntries(entries);
+					pattern = new RegExp(
+						// Do not allow preceding '.', but do allow preceding '...' for spread operations
+						'(?<!(?<!\\.\\.)\\.)\\b(' +
+								Object.keys(replacements)
+										.map((str) => {
+										return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
+								})
+										.join('|') +
+								// prevent trailing assignments
+								')\\b(?!\\s*?=[^=])', 'g');
+				}
 			}
-			if (!privateEnv) return source;
+
+			if (!privateEnv || !pattern) return source;
 			if (!referencesPrivateKey(source, privateEnv)) return source;
 
+			// Find matches for *private* env and do our own replacement.
 			const s = new MagicString(source);
-			// prettier-ignore
-			s.prepend(`import.meta.env = new Proxy(import.meta.env, {` +
-				`get(target, prop, reciever) {` +
-					`const PRIVATE = ${JSON.stringify(privateEnv)};` +
-					`if (typeof PRIVATE[prop] !== 'undefined') {` +
-						`return PRIVATE[prop];` +
-					`}` +
-					`return Reflect.get(target, prop, reciever);` +
-				`}` +
-			`});\n`);
+			let match: RegExpExecArray | null
+
+			while ((match = pattern.exec(source))) {
+				const start = match.index
+				const end = start + match[0].length
+				const replacement = '' + replacements[match[1]]
+				s.overwrite(start, end, replacement)
+			}
 
 			return s.toString();
 		},
