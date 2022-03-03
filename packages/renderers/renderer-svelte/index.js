@@ -1,5 +1,4 @@
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import preprocess from 'svelte-preprocess';
 
 export default {
 	name: '@astrojs/renderer-svelte',
@@ -15,16 +14,9 @@ export default {
 				svelte({
 					emitCss: true,
 					compilerOptions: { dev: mode === 'development', hydratable: true },
-					preprocess: [
-						preprocess({
-							less: true,
-							sass: { renderSync: true },
-							scss: { renderSync: true },
-							postcss: true,
-							stylus: true,
-							typescript: true,
-						}),
-					],
+					experimental: {
+						useVitePreprocess: true,
+					}
 				}),
 			],
 		};
