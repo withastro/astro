@@ -1,18 +1,14 @@
-import { readFileSync } from 'fs';
 import { EOL } from 'os';
 import { parseAstro } from '../../core/documents/parseAstro';
 
-const ASTRO_DEFINITION_BYTES = readFileSync(require.resolve('../../../astro.d.ts'));
-const ASTRO_DEFINITION_STR = ASTRO_DEFINITION_BYTES.toString('utf-8');
+function addProps(content: string): string {
+  let defaultExportType = 'Record<string, any>';
 
-function addProps(content: string, dtsContent: string): string {
-  let defaultExportType = 'AstroBuiltinProps & Record<string, any>';
-  // Using TypeScript to parse here would cause a double-parse, slowing down the extension
-  // This needs to be done a different way when the new compiler is added.
-  if(/(interface|type) Props/.test(content)) {
-    defaultExportType = 'AstroBuiltinProps & Props';
+	if(/(interface|type) Props/.test(content)) {
+    defaultExportType = 'Props';
   }
-  return dtsContent + EOL + `export default function (_props: ${defaultExportType}) { return <div></div>; }`
+
+  return EOL + `export default function (_props: ${defaultExportType}) { return <div></div>; }`
 }
 
 function escapeTemplateLiteralContent(content: string) {
@@ -90,7 +86,7 @@ export default function (content: string): Astro2TSXResult {
 		htmlRaw +
 		EOL +
 		// Add TypeScript definitions
-		addProps(frontMatterRaw, ASTRO_DEFINITION_STR);
+		addProps(frontMatterRaw);
 
 	return result;
 }

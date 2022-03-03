@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@types/lodash": "^4.14.116",
-    "astro": "0.19.1",
+    "astro": "0.23.5",
     "astro-scripts": "0.0.1",
     "tap": "^15.0.9"
   }

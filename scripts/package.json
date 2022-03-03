@@ -12,5 +12,9 @@
     "esbuild": "^0.11.16",
     "globby": "^11.0.3",
     "tar": "^6.1.0"
+  },
+  "devDependencies": {
+    "del": "^6.0.0",
+    "tiny-glob": "^0.2.9"
   }
 }

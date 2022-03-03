@@ -57,12 +57,12 @@ async function createLanguageService(tsconfigPath: string, workspaceRoot: string
 
   let configJson = (tsconfigPath && ts.readConfigFile(tsconfigPath, ts.sys.readFile).config) || {};
 
-  // If our user has types in their config but it doesn't include the types for ImportMeta, let's add them for them
+  // If our user has types in their config but it doesn't include the types needed for Astro, add them to the config
   if (
     configJson.compilerOptions?.types &&
-    !configJson.compilerOptions?.types.includes("vite/client")
+    !configJson.compilerOptions?.types.includes("astro/env")
   ) {
-    configJson.compilerOptions.types.push("vite/client");
+    configJson.compilerOptions.types.push("astro/env");
   }
 
   configJson.compilerOptions = Object.assign(
@@ -189,8 +189,7 @@ function getDefaultCompilerOptions(): ts.CompilerOptions {
      maxNodeModuleJsDepth: 2,
      allowSyntheticDefaultImports: true,
      allowJs: true,
-     // By providing vite/client here, our users get proper typing on import.meta in .astro files
-     types: ["vite/client"],
+		 types: ["astro/env"]
    };
 }
 

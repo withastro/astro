@@ -1,9 +1,5 @@
 import type { FileMapping } from './source-mapper';
-import { readFileSync } from 'fs';
 import { Project } from 'ts-morph';
-
-
-const ASTRO_DEFINITION = readFileSync(require.resolve('../astro.d.ts'));
 
 // Note that this is a bit of a hack until the new compiler with proper
 // source map support.
@@ -21,7 +17,7 @@ interface Astro2TSXResult {
 }
 
 export function astro2tsx(code: string, options: Astro2TSXOptions): Astro2TSXResult {
-  const compiled =  transformContent(code);
+  const compiled = transformContent(code);
 
   const result: Astro2TSXResult = {
     code: compiled,
@@ -29,12 +25,12 @@ export function astro2tsx(code: string, options: Astro2TSXOptions): Astro2TSXRes
       mappings: []
     }
   };
-  
+
   return result;
 }
 
 // This is hacky but it works for now
-function addProps(content: string, dtsContent: string): string {
+function addProps(content: string): string {
   let defaultExportType = 'Record<string, any>';
 
   // See if this has an interface already
@@ -44,7 +40,7 @@ function addProps(content: string, dtsContent: string): string {
   if(declarations.has('Props')) {
     defaultExportType = 'Props';
   }
-  return dtsContent + '\n' + `export default function (props: ${defaultExportType}): string;`
+  return '\n' + `export default function (props: ${defaultExportType}): string;`
 }
 
 function transformContent(content: string) {
@@ -52,6 +48,6 @@ function transformContent(content: string) {
   return (
     ts +
     // Add TypeScript definitions
-    addProps(ts, ASTRO_DEFINITION.toString('utf-8'))
+    addProps(ts)
   );
 }
