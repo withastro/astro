@@ -9,8 +9,6 @@ scripts/memory/project/src/pages/
 *.log
 package-lock.json
 .turbo/
-pnpm-lock.yaml
-.nvmrc
 
 # .vscode files other than at top-level
 **/.vscode
