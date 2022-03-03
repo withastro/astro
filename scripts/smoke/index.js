@@ -38,7 +38,7 @@ async function run() {
 
 	console.log('🤖', 'Preparing', 'pnpm');
 
-	await execa('pnpm', ['install'], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
+	await execa('pnpm', ['install', '--frozen-lockfile=false'], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
 
 	for (const directory of directories) {
 		const name = directory.pathname.split('/').at(-1) ?? "";

@@ -233,9 +233,7 @@ jobs:
             cache-node_modules-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}-
 
       - name: Install NPM Dependencies
-        run: pnpm install
-        env:
-          CI: true
+        run: pnpm install --frozen-lockfile=false
 
       - name: Test
         run: pnpm run test:smoke
