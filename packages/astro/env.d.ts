@@ -7,6 +7,6 @@ type Astro = import('./dist/types/@types/astro').AstroGlobal;
  * Astro.* available in all components
  * Docs: https://docs.astro.build/reference/api-reference/#astro-global
  */
-declare let Astro: Astro;
+declare const Astro: Readonly<Astro>;
 
-declare let Fragment: any;
+declare const Fragment: any;
