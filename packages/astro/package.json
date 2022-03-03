@@ -15,6 +15,7 @@
   "types": "./dist/types/@types/astro.d.ts",
   "exports": {
     ".": "./astro.js",
+    "./env": "./env.d.ts",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.js",
@@ -44,6 +45,7 @@
     "components",
     "dist",
     "astro.js",
+    "env.d.ts",
     "README.md",
     "vendor"
   ],
