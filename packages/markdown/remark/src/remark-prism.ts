@@ -56,7 +56,7 @@ function transformer(className: MaybeString) {
 			if (className) {
 				classes.push(className);
 			}
-			node.value = `<pre class="${classes.join(' ')}"><code data-astro-raw class="${classLanguage}">${html}</code></pre>`;
+			node.value = `<pre class="${classes.join(' ')}"><code is:raw class="${classLanguage}">${html}</code></pre>`;
 			return node;
 		};
 		return visit(tree, 'code', visitor);
