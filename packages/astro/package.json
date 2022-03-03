@@ -44,6 +44,7 @@
     "components",
     "dist",
     "astro.js",
+    "app.d.ts",
     "README.md",
     "vendor"
   ],
