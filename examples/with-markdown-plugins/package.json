@@ -10,7 +10,11 @@
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^0.6.1",
+<<<<<<< HEAD
     "astro": "^0.23.7",
+=======
+    "astro": "^0.23.5",
+>>>>>>> faf1013c (chore: bump version)
     "hast-util-select": "5.0.1",
     "rehype-autolink-headings": "^6.1.0",
     "rehype-slug": "^5.0.0",

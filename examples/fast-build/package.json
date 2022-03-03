@@ -12,7 +12,11 @@
   "devDependencies": {
     "@astrojs/renderer-vue": "^0.4.0",
     "@astrojs/renderer-preact": "^0.5.0",
+<<<<<<< HEAD
     "astro": "^0.23.7",
+=======
+    "astro": "^0.23.5",
+>>>>>>> faf1013c (chore: bump version)
     "sass": "^1.49.8",
     "unocss": "^0.15.5",
     "vite-imagetools": "^4.0.1",

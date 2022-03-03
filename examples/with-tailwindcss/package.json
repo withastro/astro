@@ -10,7 +10,11 @@
   },
   "devDependencies": {
     "@astrojs/renderer-preact": "^0.5.0",
+<<<<<<< HEAD
     "astro": "^0.23.7",
+=======
+    "astro": "^0.23.5",
+>>>>>>> faf1013c (chore: bump version)
     "autoprefixer": "^10.4.0",
     "tailwindcss": "^3.0.5",
     "@astrojs/renderer-preact": "^0.5.0"
