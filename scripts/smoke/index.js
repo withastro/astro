@@ -42,10 +42,11 @@ async function run() {
 
 	for (const directory of directories) {
 		const name = directory.pathname.split('/').at(-1) ?? "";
+		const isExternal = directory.pathname.includes(smokeDir.pathname);
 		console.log('🤖', 'Testing', name);
 
 		try {
-			await execa('pnpm', ['install', '--ignore-scripts'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
+			await execa('pnpm', ['install', '--ignore-scripts', isExternal ? '--shamefully-hoist' : ''], { cwd: fileURLToPath(directory), stdio: 'inherit' });
 			await execa('pnpm', ['run', 'build'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
 		} catch (err) {
 			console.log(err);
@@ -53,7 +54,7 @@ async function run() {
 		}
 
 		// Run with the static build too (skip for remote repos)
-		if (directory.pathname.includes(smokeDir.pathname)) {
+		if (isExternal) {
 			continue;
 		}
 
