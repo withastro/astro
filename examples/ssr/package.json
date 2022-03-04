@@ -11,7 +11,7 @@
     "server": "node server/server.mjs"
   },
   "devDependencies": {
-    "astro": "^0.23.5",
+    "astro": "^0.23.6",
     "unocss": "^0.15.5",
     "vite-imagetools": "^4.0.1"
   },
