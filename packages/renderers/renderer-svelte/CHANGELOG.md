@@ -1,5 +1,11 @@
 # @astrojs/renderer-svelte
 
+## 0.5.1
+
+### Patch Changes
+
+- [#2722](https://github.com/withastro/astro/pull/2722) [`0d37f8e0`](https://github.com/withastro/astro/commit/0d37f8e0a51ac7bcf9e108151828b733bbba6e94) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Temporarily revert [#2715](https://github.com/withastro/astro/pull/2715) to fix `.svelte` files breaking in the static build.
+
 ## 0.5.0
 
 ### Minor Changes
