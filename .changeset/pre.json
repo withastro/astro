@@ -48,5 +48,9 @@
     "astro.build": "0.0.1",
     "docs": "0.0.7"
   },
-  "changesets": []
+  "changesets": [
+    "fresh-ladybugs-think",
+    "modern-elephants-burn",
+    "thick-ravens-chew"
+  ]
 }
