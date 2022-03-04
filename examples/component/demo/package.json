@@ -9,11 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-<<<<<<< HEAD
     "astro": "^0.23.7",
-=======
-    "astro": "^0.23.5",
->>>>>>> faf1013c (chore: bump version)
     "@example/my-component": "workspace:*"
   }
 }
