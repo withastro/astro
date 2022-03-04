@@ -16,7 +16,7 @@ export default {
 					compilerOptions: { dev: mode === 'development', hydratable: true },
 					experimental: {
 						useVitePreprocess: true,
-					}
+					},
 				}),
 			],
 		};
