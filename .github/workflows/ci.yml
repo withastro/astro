@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - next
   pull_request:
     paths-ignore:
       - '.vscode/**'
@@ -224,7 +223,7 @@ jobs:
   # We download all `dist/` artifacts from GitHub to skip the build process.
   changelog:
     name: Changelog PR or Release
-    if: ${{ github.ref_name == 'main' && github.repository_owner == 'withastro' }}
+    if: ${{ (github.ref_name == 'main' || github.ref_name == 'next') && github.repository_owner == 'withastro' }}
     needs: [build]
     runs-on: ubuntu-latest
     steps:
