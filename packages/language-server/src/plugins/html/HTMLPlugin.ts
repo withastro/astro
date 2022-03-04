@@ -1,9 +1,9 @@
 import { CompletionsProvider, FoldingRangeProvider } from '../interfaces';
-import { getEmmetCompletionParticipants, VSCodeEmmetConfig } from 'vscode-emmet-helper';
-import { getLanguageService, HTMLDocument, CompletionItem as HtmlCompletionItem, Node, FoldingRange } from 'vscode-html-languageservice';
+import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
+import { getLanguageService, HTMLDocument, CompletionItem as HtmlCompletionItem, FoldingRange } from 'vscode-html-languageservice';
 import { CompletionList, Position, CompletionItem, CompletionItemKind, TextEdit } from 'vscode-languageserver';
 import type { Document, DocumentManager } from '../../core/documents';
-import { isInsideExpression, isInsideFrontmatter } from '../../core/documents/utils';
+import { isInsideExpression, isInsideFrontmatter, isInComponentStartTag } from '../../core/documents/utils';
 import type { ConfigManager } from '../../core/config';
 
 export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
@@ -31,20 +31,19 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
       return null;
     }
 
-    const offset = document.offsetAt(position);
-    const node = html.findNodeAt(offset);
-
-    if (this.isComponentTag(node)) {
-      return null;
-    }
-
-    const emmetResults: CompletionList = {
+    let emmetResults: CompletionList = {
       isIncomplete: true,
       items: [],
     };
-    this.lang.setCompletionParticipants([getEmmetCompletionParticipants(document, position, 'html', this.configManager.getEmmetConfig(), emmetResults)]);
 
-    const results = this.lang.doComplete(document, position, html);
+		this.lang.setCompletionParticipants([
+			{
+				onHtmlContent: () => (emmetResults = getEmmetCompletions(document, position, 'html', this.configManager.getEmmetConfig()) || emmetResults),
+			},
+		]);
+
+		// For components, we only want Emmet completions inside the component (aka slots) because HTML properties are not necessarily valid for a component
+		const results = isInComponentStartTag(html, document.offsetAt(position)) ? CompletionList.create([]) : this.lang.doComplete(document, position, html);
     const items = this.toCompletionItems(results.items);
 
     return CompletionList.create(
@@ -130,13 +129,5 @@ export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
 
   private isInsideFrontmatter(document: Document, position: Position) {
     return isInsideFrontmatter(document.getText(), document.offsetAt(position));
-  }
-
-  private isComponentTag(node: Node): boolean {
-    if (!node.tag) {
-      return false;
-    }
-    const firstChar = node.tag[0];
-    return /[A-Z]/.test(firstChar);
   }
 }

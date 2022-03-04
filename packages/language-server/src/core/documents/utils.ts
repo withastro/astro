@@ -89,6 +89,19 @@ export function isInTag(position: Position, tagInfo: TagInformation | null): tag
   return !!tagInfo && isInRange(position, Range.create(tagInfo.startPos, tagInfo.endPos));
 }
 
+export function isComponentTag(node: Node) {
+	if (!node.tag) {
+		return false;
+	}
+	const firstChar = node.tag[0];
+	return /[A-Z]/.test(firstChar);
+}
+
+export function isInComponentStartTag(html: HTMLDocument, offset: number): boolean {
+	const node = html.findNodeAt(offset);
+	return (isComponentTag(node) && (!node.startTagEnd || offset < node.startTagEnd))
+}
+
 /**
  * Get the line and character based on the offset
  * @param offset The index of the position

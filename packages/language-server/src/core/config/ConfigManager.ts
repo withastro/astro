@@ -1,4 +1,4 @@
-import { VSCodeEmmetConfig } from 'vscode-emmet-helper';
+import { VSCodeEmmetConfig } from '@vscode/emmet-helper';
 import { UserPreferences } from 'typescript';
 import { merge, get } from 'lodash';
 

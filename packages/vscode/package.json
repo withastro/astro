@@ -26,8 +26,6 @@
   "dependencies": {
     "@astrojs/language-server": "0.9.0",
     "@astrojs/ts-plugin": "0.2.0",
-    "vscode-emmet-helper": "2.1.2",
-    "vscode-html-languageservice": "^3.0.3",
     "vscode-languageclient": "~7.0.0"
   },
   "devDependencies": {

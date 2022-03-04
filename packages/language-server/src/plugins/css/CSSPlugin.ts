@@ -1,7 +1,7 @@
 import type { CompletionsProvider } from '../interfaces';
 import type { Document, DocumentManager } from '../../core/documents';
 import type { ConfigManager } from '../../core/config';
-import { getEmmetCompletionParticipants, doComplete as doEmmetComplete } from 'vscode-emmet-helper';
+import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
 import { CompletionContext, CompletionList, CompletionTriggerKind, Position } from 'vscode-languageserver';
 import { isInsideFrontmatter } from '../../core/documents/utils';
 import { CSSDocument, CSSDocumentBase } from './CSSDocument';
@@ -63,7 +63,7 @@ export class CSSPlugin implements CompletionsProvider {
     if (isSASS(cssDocument)) {
       // the css language service does not support sass, still we can use
       // the emmet helper directly to at least get emmet completions
-      return doEmmetComplete(document, position, 'sass', this.configManager.getEmmetConfig());
+      return getEmmetCompletions(document, position, 'sass', this.configManager.getEmmetConfig()) || null;
     }
 
     const type = extractLanguage(cssDocument);
@@ -73,11 +73,7 @@ export class CSSPlugin implements CompletionsProvider {
       isIncomplete: true,
       items: [],
     };
-    if (false /* this.configManager.getConfig().css.completions.emmet */) {
-      lang.setCompletionParticipants([
-        getEmmetCompletionParticipants(cssDocument, cssDocument.getGeneratedPosition(position), getLanguage(type), this.configManager.getEmmetConfig(), emmetResults),
-      ]);
-    }
+
     const results = lang.doComplete(cssDocument, cssDocument.getGeneratedPosition(position), cssDocument.stylesheet);
     return CompletionList.create(
       [...(results ? results.items : []), ...emmetResults.items].map((completionItem) => mapCompletionItemToOriginal(cssDocument, completionItem)),
