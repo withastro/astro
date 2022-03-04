@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.9.1
+
+### Patch Changes
+
+- 7dc85cc: Add support for Emmet inside components, upgrade Emmet version
+
 ## 0.9.0
 
 ### Minor Changes
