@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - next
   pull_request:
     paths-ignore:
       - '.vscode/**'
