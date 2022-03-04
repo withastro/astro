@@ -10,6 +10,6 @@
   },
   "devDependencies": {
     "@astrojs/renderer-vue": "^0.4.0",
-    "astro": "^0.23.7"
+    "astro": "^0.24.0-next.0"
   }
 }
