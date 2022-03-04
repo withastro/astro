@@ -27,8 +27,10 @@ export interface CLIFlags {
 	hostname?: string;
 	port?: number;
 	config?: string;
+	/** @deprecated */
 	experimentalStaticBuild?: boolean;
 	experimentalSsr?: boolean;
+	legacyBuild?: boolean;
 	drafts?: boolean;
 }
 
@@ -266,12 +268,19 @@ export interface AstroUserConfig {
 		 */
 		drafts?: boolean;
 		/**
-		 * Experimental: Enables "static build mode" for faster builds.
+		 * Enables "legacy build mode" for compatibility with older Astro versions.
 		 * Default: false
+		 */
+		legacyBuild?: boolean;
+		/**
+		 * @deprecated
+		 * Experimental: Enables "static build mode" for faster builds.
+		 * Default: true
 		 */
 		experimentalStaticBuild?: boolean;
 		/**
 		 * Enable a build for SSR support.
+		 * Default: false
 		 */
 		experimentalSsr?: boolean;
 	};
@@ -506,17 +515,6 @@ export type Params = Record<string, string | undefined>;
 
 export type Props = Record<string, unknown>;
 
-export interface RenderPageOptions {
-	request: {
-		params?: Params;
-		url: URL;
-		canonicalURL: URL;
-	};
-	children: any[];
-	props: Props;
-	css?: string[];
-}
-
 type Body = string;
 
 export interface EndpointOutput<Output extends Body = Body> {
@@ -634,7 +632,7 @@ export interface SSRElement {
 export interface SSRMetadata {
 	renderers: Renderer[];
 	pathname: string;
-	experimentalStaticBuild: boolean;
+	legacyBuild: boolean;
 }
 
 export interface SSRResult {

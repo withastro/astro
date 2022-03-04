@@ -47,8 +47,8 @@ describe('Custom Elements', () => {
 		expect($('my-element template[shadowroot=open]')).to.have.lengthOf(1);
 
 		// Hydration
-		// test 3: Component and polyfill scripts bundled together
-		expect($('script[type=module]')).to.have.lengthOf(1);
+		// test 3: Component and polyfill scripts bundled separately
+		expect($('script[type=module]')).to.have.lengthOf(2);
 	});
 
 	it('Polyfills are added even if not hydrating', async () => {

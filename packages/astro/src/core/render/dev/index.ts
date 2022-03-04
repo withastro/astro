@@ -1,5 +1,5 @@
 import type * as vite from 'vite';
-import type { AstroConfig, ComponentInstance, Renderer, RouteData, RuntimeMode } from '../../../@types/astro';
+import type { AstroConfig, ComponentInstance, Renderer, RouteData, RuntimeMode, SSRElement } from '../../../@types/astro';
 import { LogOptions } from '../../logger.js';
 import { fileURLToPath } from 'url';
 import { getStylesForURL } from './css.js';
@@ -48,14 +48,15 @@ export async function preload({ astroConfig, filePath, viteServer }: SSROptions)
 /** use Vite to SSR */
 export async function render(renderers: Renderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<string> {
 	const { astroConfig, filePath, logging, mode, origin, pathname, route, routeCache, viteServer } = ssrOpts;
+	const legacy = astroConfig.buildOptions.legacyBuild;
 
 	// Add hoisted script tags
 	const scripts = createModuleScriptElementWithSrcSet(
-		astroConfig.buildOptions.experimentalStaticBuild && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []
+		!legacy && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []
 	);
 
 	// Inject HMR scripts
-	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && astroConfig.buildOptions.experimentalStaticBuild) {
+	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && !legacy) {
 		scripts.add({
 			props: { type: 'module', src: '/@vite/client' },
 			children: '',
@@ -66,9 +67,31 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 		});
 	}
 
+	// Pass framework CSS in as link tags to be appended to the page.
+	let links = new Set<SSRElement>();
+	if(!legacy) {
+		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
+			if (mode === 'development' && svelteStylesRE.test(href)) {
+				scripts.add({
+					props: { type: 'module', src: href },
+					children: '',
+				});
+			} else {
+				links.add({
+					props: {
+						rel: 'stylesheet',
+						href,
+						'data-astro-injected': true,
+					},
+					children: '',
+				});
+			}
+		});
+	}
+
 	let content = await coreRender({
-		experimentalStaticBuild: astroConfig.buildOptions.experimentalStaticBuild,
-		links: new Set(),
+		legacyBuild: astroConfig.buildOptions.legacyBuild,
+		links,
 		logging,
 		markdownRender: astroConfig.markdownOptions.render,
 		mod,
@@ -80,7 +103,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 			// The legacy build needs these to remain unresolved so that vite HTML
 			// Can do the resolution. Without this condition the build output will be
 			// broken in the legacy build. This can be removed once the legacy build is removed.
-			if (astroConfig.buildOptions.experimentalStaticBuild) {
+			if (!astroConfig.buildOptions.legacyBuild) {
 				const [, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
 				return resolvedPath;
 			} else {
@@ -101,7 +124,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	const tags: vite.HtmlTagDescriptor[] = [];
 
 	// dev only: inject Astro HMR client
-	if (mode === 'development' && !astroConfig.buildOptions.experimentalStaticBuild) {
+	if (mode === 'development' && legacy) {
 		tags.push({
 			tag: 'script',
 			attrs: { type: 'module' },
@@ -113,31 +136,34 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	}
 
 	// inject CSS
-	[...getStylesForURL(filePath, viteServer)].forEach((href) => {
-		if (mode === 'development' && svelteStylesRE.test(href)) {
-			tags.push({
-				tag: 'script',
-				attrs: { type: 'module', src: href },
-				injectTo: 'head',
-			});
-		} else {
-			tags.push({
-				tag: 'link',
-				attrs: {
-					rel: 'stylesheet',
-					href,
-					'data-astro-injected': true,
-				},
-				injectTo: 'head',
-			});
-		}
-	});
+	if(legacy) {
+		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
+			if (mode === 'development' && svelteStylesRE.test(href)) {
+				tags.push({
+					tag: 'script',
+					attrs: { type: 'module', src: href },
+					injectTo: 'head',
+				});
+			} else {
+				tags.push({
+					tag: 'link',
+					attrs: {
+						rel: 'stylesheet',
+						href,
+						'data-astro-injected': true,
+					},
+					injectTo: 'head',
+				});
+			}
+		});
+	}
+
 
 	// add injected tags
 	content = injectTags(content, tags);
 
 	// run transformIndexHtml() in dev to run Vite dev transformations
-	if (mode === 'development' && !astroConfig.buildOptions.experimentalStaticBuild) {
+	if (mode === 'development' && astroConfig.buildOptions.legacyBuild) {
 		const relativeURL = filePath.href.replace(astroConfig.projectRoot.href, '/');
 		content = await viteServer.transformIndexHtml(relativeURL, content, pathname);
 	}
