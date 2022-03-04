@@ -20,12 +20,15 @@
 
   Note that the legacy build _is_ deprecated and will be removed in a future version. You should only use this flag until you have the time to migration your code.
 
+  - **Updated `<head>` and `<body>` behavior**
+
+  Since `astro@0.21`, Astro placed certain restrictions on what files could use `<head>` or `<body>` tags. In `astro@0.24`, the restrictions have been lifted. Astro will be able to correctly handle `<head>` and `<body>` tags in _any_ component, not just those in `src/pages/` or `src/layouts/`.
+
 ### Patch Changes
 
 - [#2705](https://github.com/withastro/astro/pull/2705) [`176d4082`](https://github.com/withastro/astro/commit/176d4082ca642e3d7b996529f1efed7048b4d04f) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes use of private .env variables with the static build
 
 * [#2705](https://github.com/withastro/astro/pull/2705) [`a483c044`](https://github.com/withastro/astro/commit/a483c0446ba222edf4258f4683cd918ea209b8f4) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Replace `send` dependency with `sirv`
-
 
 ## 0.23.7
 
