@@ -44,7 +44,7 @@ importers:
   examples/blog:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -52,7 +52,7 @@ importers:
   examples/blog-multiple-authors:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.5
+      astro: ^0.23.7
       sass: ^1.49.8
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
@@ -61,14 +61,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       astro: link:../../packages/astro
 
   examples/component/demo:
     specifiers:
       '@example/my-component': workspace:*
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@example/my-component': link:../packages/my-component
       astro: link:../../../packages/astro
@@ -82,7 +82,7 @@ importers:
       '@astrojs/renderer-react': ^0.5.0
       '@docsearch/css': ^3.0.0
       '@docsearch/react': ^1.0.0-alpha.28
-      astro: ^0.23.5
+      astro: ^0.23.7
     dependencies:
       '@docsearch/css': 3.0.0
       '@docsearch/react': 1.0.0-alpha.28
@@ -93,7 +93,7 @@ importers:
 
   examples/env-vars:
     specifiers:
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       astro: link:../../packages/astro
 
@@ -101,7 +101,7 @@ importers:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.23.5
+      astro: ^0.23.7
       sass: ^1.49.8
       unocss: ^0.15.5
       vite-imagetools: ^4.0.1
@@ -115,14 +115,14 @@ importers:
 
   examples/framework-alpine:
     specifiers:
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       astro: link:../../packages/astro
 
   examples/framework-lit:
     specifiers:
       '@astrojs/renderer-lit': ^0.4.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/renderer-lit': link:../../packages/renderers/renderer-lit
       astro: link:../../packages/astro
@@ -135,20 +135,20 @@ importers:
       '@astrojs/renderer-solid': ^0.4.0
       '@astrojs/renderer-svelte': ^0.4.0
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/renderer-lit': link:../../packages/renderers/renderer-lit
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
       '@astrojs/renderer-solid': link:../../packages/renderers/renderer-solid
-      '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
+      '@astrojs/renderer-svelte': 0.4.0_typescript@4.5.2
       '@astrojs/renderer-vue': link:../../packages/renderers/renderer-vue
       astro: link:../../packages/astro
 
   examples/framework-preact:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -156,7 +156,7 @@ importers:
   examples/framework-react:
     specifiers:
       '@astrojs/renderer-react': ^0.5.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
       astro: link:../../packages/astro
@@ -164,7 +164,7 @@ importers:
   examples/framework-solid:
     specifiers:
       '@astrojs/renderer-solid': ^0.4.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/renderer-solid': link:../../packages/renderers/renderer-solid
       astro: link:../../packages/astro
@@ -172,35 +172,35 @@ importers:
   examples/framework-svelte:
     specifiers:
       '@astrojs/renderer-svelte': ^0.4.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
-      '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
+      '@astrojs/renderer-svelte': 0.4.0_typescript@4.5.2
       astro: link:../../packages/astro
 
   examples/framework-vue:
     specifiers:
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/renderer-vue': link:../../packages/renderers/renderer-vue
       astro: link:../../packages/astro
 
   examples/minimal:
     specifiers:
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       astro: link:../../packages/astro
 
   examples/non-html-pages:
     specifiers:
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -208,36 +208,36 @@ importers:
   examples/portfolio-svelte:
     specifiers:
       '@astrojs/renderer-svelte': ^0.4.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
-      '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
+      '@astrojs/renderer-svelte': 0.4.0_typescript@4.5.2
       astro: link:../../packages/astro
 
   examples/ssr:
     specifiers:
       '@astrojs/renderer-svelte': ^0.4.0
       '@astropub/webapi': ^0.10.13
-      astro: ^0.23.5
+      astro: ^0.23.7
       unocss: ^0.15.5
       vite-imagetools: ^4.0.1
     dependencies:
       '@astropub/webapi': 0.10.14
     devDependencies:
-      '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
+      '@astrojs/renderer-svelte': 0.4.0_typescript@4.5.2
       astro: link:../../packages/astro
       unocss: 0.15.6
       vite-imagetools: 4.0.3
 
   examples/starter:
     specifiers:
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       astro: link:../../packages/astro
 
   examples/subpath:
     specifiers:
       '@astrojs/renderer-react': ^0.5.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
       astro: link:../../packages/astro
@@ -249,19 +249,19 @@ importers:
       '@astrojs/renderer-react': ^0.5.0
       '@astrojs/renderer-svelte': ^0.4.0
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
-      '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
+      '@astrojs/renderer-svelte': 0.4.0_typescript@4.5.2
       '@astrojs/renderer-vue': link:../../packages/renderers/renderer-vue
       astro: link:../../packages/astro
 
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^0.6.1
-      astro: ^0.23.5
+      astro: ^0.23.7
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.0
       rehype-slug: ^5.0.0
@@ -279,7 +279,7 @@ importers:
   examples/with-markdown-shiki:
     specifiers:
       '@astrojs/markdown-remark': ^0.6.1
-      astro: ^0.23.5
+      astro: ^0.23.7
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       astro: link:../../packages/astro
@@ -294,7 +294,7 @@ importers:
       '@nanostores/preact': ^0.1.2
       '@nanostores/react': ^0.1.5
       '@nanostores/vue': ^0.4.1
-      astro: ^0.23.5
+      astro: ^0.23.7
       nanostores: ^0.5.7
       solid-nanostores: 0.0.6
     dependencies:
@@ -307,14 +307,14 @@ importers:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
       '@astrojs/renderer-solid': link:../../packages/renderers/renderer-solid
-      '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
+      '@astrojs/renderer-svelte': 0.4.0_typescript@4.5.2
       '@astrojs/renderer-vue': link:../../packages/renderers/renderer-vue
       astro: link:../../packages/astro
 
   examples/with-tailwindcss:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.23.5
+      astro: ^0.23.7
       autoprefixer: ^10.4.0
       tailwindcss: ^3.0.5
     devDependencies:
@@ -325,7 +325,7 @@ importers:
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      astro: ^0.23.5
+      astro: ^0.23.7
       vite-plugin-pwa: 0.11.11
       workbox-window: ^6.5.0
     devDependencies:
@@ -342,7 +342,7 @@ importers:
       '@astrojs/prism': 0.4.0
       '@astrojs/renderer-preact': ^0.5.0
       '@astrojs/renderer-react': 0.5.0
-      '@astrojs/renderer-svelte': 0.4.0
+      '@astrojs/renderer-svelte': 0.5.1
       '@astrojs/renderer-vue': 0.4.0
       '@astropub/webapi': ^0.10.1
       '@babel/core': ^7.15.8
@@ -1090,15 +1090,13 @@ importers:
 
   packages/renderers/renderer-svelte:
     specifiers:
-      '@sveltejs/vite-plugin-svelte': ^1.0.0-next.37
-      postcss-load-config: ^3.1.1
+      '@sveltejs/vite-plugin-svelte': ^1.0.0-next.39
       svelte: ^3.46.4
-      svelte-preprocess: ^4.10.2
+      svelte-preprocess: ^4.9.8
     dependencies:
-      '@sveltejs/vite-plugin-svelte': 1.0.0-next.37_svelte@3.46.4
-      postcss-load-config: 3.1.1
+      '@sveltejs/vite-plugin-svelte': 1.0.0-next.39_svelte@3.46.4
       svelte: 3.46.4
-      svelte-preprocess: 4.10.2_b31cd9aadcc6de5a8be34988b4b1d763
+      svelte-preprocess: 4.10.2_svelte@3.46.4+typescript@4.5.2
 
   packages/renderers/renderer-vue:
     specifiers:
@@ -1267,6 +1265,31 @@ packages:
       vscode-languageserver-types: 3.16.0
       vscode-uri: 3.0.3
     dev: false
+
+  /@astrojs/renderer-svelte/0.4.0_typescript@4.5.2:
+    resolution: {integrity: sha512-YP6e6qPMEx5Pr6tCiD+GTyT7Bl+aA1biTX9Yg8Sd7bjXHOiqfMH28d8Bo0CXHiqUXli/CTp6pRtR0WN44a4gUg==}
+    engines: {node: ^14.15.0 || >=16.0.0}
+    dependencies:
+      '@sveltejs/vite-plugin-svelte': 1.0.0-next.39_svelte@3.46.4
+      postcss-load-config: 3.1.1
+      svelte: 3.46.4
+      svelte-preprocess: 4.10.2_b31cd9aadcc6de5a8be34988b4b1d763
+    transitivePeerDependencies:
+      - '@babel/core'
+      - coffeescript
+      - diff-match-patch
+      - less
+      - node-sass
+      - postcss
+      - pug
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - ts-node
+      - typescript
+      - vite
+    dev: true
 
   /@astropub/webapi/0.10.14:
     resolution: {integrity: sha512-/o0XdOZLSD3PcZEMm/gRGx5XTFmMzJOCgbBYw//cmHWwpLn6H+9xWBe68r9ToUQ1Ns4GVkfwZlyKVMBNTTXn/g==}
@@ -2997,8 +3020,8 @@ packages:
       string.prototype.matchall: 4.0.6
     dev: true
 
-  /@sveltejs/vite-plugin-svelte/1.0.0-next.37_svelte@3.46.4:
-    resolution: {integrity: sha512-EdSXw2rXeOahNrQfMJVZxa/NxZxW1a0TiBI3s+pVxnxU14hEQtnkLtdbTFhnceu22gJpNPFSIJRcIwRBBDQIeA==}
+  /@sveltejs/vite-plugin-svelte/1.0.0-next.39_svelte@3.46.4:
+    resolution: {integrity: sha512-gnvvcAW2LK+KnUn8lKb2ypcXKwSp2K57mem5C4VNKfjxdRpM6+XwNavWwVf6otnDhz3qPYl/TKKW6/dRr6eeAw==}
     engines: {node: ^14.13.1 || >= 16}
     peerDependencies:
       diff-match-patch: ^1.0.5
@@ -3013,10 +3036,9 @@ packages:
       kleur: 4.1.4
       magic-string: 0.25.7
       svelte: 3.46.4
-      svelte-hmr: 0.14.9
+      svelte-hmr: 0.14.9_svelte@3.46.4
     transitivePeerDependencies:
       - supports-color
-    dev: false
 
   /@tootallnate/once/1.1.2:
     resolution: {integrity: sha512-RbzJvlNzmRq5c3O09UipeuXno4tA1FE6ikOjxZK0tuxVv3412l64l5t1W5pj4+rJq9vpkm/kwiR07aZXnsKPxw==}
@@ -3205,7 +3227,6 @@ packages:
 
   /@types/pug/2.0.6:
     resolution: {integrity: sha512-SnHmG9wN1UVmagJOnyo/qkk0Z7gejYxOYYmaAwr5u2yFYfsupN3sg10kyzN8Hep/2zbHxCnsumxOoRIRMBwKCg==}
-    dev: false
 
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
@@ -3226,8 +3247,7 @@ packages:
   /@types/sass/1.43.1:
     resolution: {integrity: sha512-BPdoIt1lfJ6B7rw35ncdwBZrAssjcwzI5LByIrYs+tpXlj/CAkuVdRsgZDdP4lq5EjyWzwxZCqAoFyHKFwp32g==}
     dependencies:
-      '@types/node': 15.14.9
-    dev: false
+      '@types/node': 16.11.22
 
   /@types/semver/6.2.3:
     resolution: {integrity: sha512-KQf+QAMWKMrtBMsB8/24w53tEsxllMj6TuA80TT/5igJalLI/zm0L3oXRbIAl4Ohfc85gyHX/jhMwsVkmhLU4A==}
@@ -3929,7 +3949,6 @@ packages:
 
   /buffer-crc32/0.2.13:
     resolution: {integrity: sha1-DTM+PwDqxQqhRUq9MO+MKl2ackI=}
-    dev: false
 
   /buffer-from/1.1.2:
     resolution: {integrity: sha512-E+XQCRwSbaaiChtv6k6Dwgc+bx+Bs6vuKJHHl5kox/BaKbhiXzqQOwK4cO22yElGp2OCmjwVhT3HmxgyPGnJfQ==}
@@ -4659,7 +4678,6 @@ packages:
 
   /es6-promise/3.3.1:
     resolution: {integrity: sha1-oIzd6EzNvzTQJ6FFG8kdS80ophM=}
-    dev: false
 
   /esbuild-android-arm64/0.13.7:
     resolution: {integrity: sha512-yqCTKzmm3jiUXgi0yeKhvwZCZTqClUXwwMRAntcM9u/xvXhmpw0V0Z4qDEpnkmF2NCMzmJRH+DAAQ5whuf3CYA==}
@@ -6341,6 +6359,7 @@ packages:
   /lilconfig/2.0.4:
     resolution: {integrity: sha512-bfTIN7lEsiooCocSISTWXkiWJkRqtL9wYtYy+8EK3Y41qh3mpwPU0ycTOgjdY9ErwXCc8QyrQp82bdL0Xkm9yA==}
     engines: {node: '>=10'}
+    dev: true
 
   /lines-and-columns/1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
@@ -7019,9 +7038,9 @@ packages:
 
   /mkdirp/0.5.5:
     resolution: {integrity: sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==}
+    hasBin: true
     dependencies:
       minimist: 1.2.5
-    dev: false
 
   /mkdirp/1.0.4:
     resolution: {integrity: sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==}
@@ -7499,6 +7518,7 @@ packages:
     dependencies:
       lilconfig: 2.0.4
       yaml: 1.10.2
+    dev: true
 
   /postcss-nested/5.0.6:
     resolution: {integrity: sha512-rKqm2Fk0KbA8Vt3AdGN0FB9OBOMDVajMG6ZCf/GoHgdxUJ4sBFp0A/uMIRm+MJUdo33YXEtjqIz8u7DAp8B7DA==}
@@ -8027,9 +8047,9 @@ packages:
 
   /rimraf/2.7.1:
     resolution: {integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==}
+    hasBin: true
     dependencies:
       glob: 7.2.0
-    dev: false
 
   /rimraf/3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
@@ -8085,7 +8105,6 @@ packages:
       graceful-fs: 4.2.9
       mkdirp: 0.5.5
       rimraf: 2.7.1
-    dev: false
 
   /sass/1.49.0:
     resolution: {integrity: sha512-TVwVdNDj6p6b4QymJtNtRS2YtLJ/CqZriGg0eIAbAKMlN8Xy6kbv33FsEZSF7FufFFM705SQviHjjThfaQ4VNw==}
@@ -8327,12 +8346,12 @@ packages:
 
   /sorcery/0.10.0:
     resolution: {integrity: sha1-iukK19fLBfxZ8asMY3hF1cFaUrc=}
+    hasBin: true
     dependencies:
       buffer-crc32: 0.2.13
       minimist: 1.2.5
       sander: 0.5.1
       sourcemap-codec: 1.4.8
-    dev: false
 
   /source-map-js/1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
@@ -8611,11 +8630,12 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /svelte-hmr/0.14.9:
+  /svelte-hmr/0.14.9_svelte@3.46.4:
     resolution: {integrity: sha512-bKE9+4qb4sAnA+TKHiYurUl970rjA0XmlP9TEP7K/ncyWz3m81kA4HOgmlZK/7irGK7gzZlaPDI3cmf8fp/+tg==}
+    peerDependencies:
+      svelte: '>=3.19.0'
     dependencies:
       svelte: 3.46.4
-    dev: false
 
   /svelte-preprocess/4.10.2_b31cd9aadcc6de5a8be34988b4b1d763:
     resolution: {integrity: sha512-aPpkCreSo8EL/y8kJSa1trhiX0oyAtTjlNNM7BNjRAsMJ8Yy2LtqHt0zyd4pQPXt+D4PzbO3qTjjio3kwOxDlA==}
@@ -8667,6 +8687,57 @@ packages:
       strip-indent: 3.0.0
       svelte: 3.46.4
       typescript: 4.5.2
+    dev: true
+
+  /svelte-preprocess/4.10.2_svelte@3.46.4+typescript@4.5.2:
+    resolution: {integrity: sha512-aPpkCreSo8EL/y8kJSa1trhiX0oyAtTjlNNM7BNjRAsMJ8Yy2LtqHt0zyd4pQPXt+D4PzbO3qTjjio3kwOxDlA==}
+    engines: {node: '>= 9.11.2'}
+    requiresBuild: true
+    peerDependencies:
+      '@babel/core': ^7.10.2
+      coffeescript: ^2.5.1
+      less: ^3.11.3 || ^4.0.0
+      node-sass: '*'
+      postcss: ^7 || ^8
+      postcss-load-config: ^2.1.0 || ^3.0.0
+      pug: ^3.0.0
+      sass: ^1.26.8
+      stylus: ^0.55.0
+      sugarss: ^2.0.0
+      svelte: ^3.23.0
+      typescript: ^4.5.2
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      coffeescript:
+        optional: true
+      less:
+        optional: true
+      node-sass:
+        optional: true
+      postcss:
+        optional: true
+      postcss-load-config:
+        optional: true
+      pug:
+        optional: true
+      sass:
+        optional: true
+      stylus:
+        optional: true
+      sugarss:
+        optional: true
+      typescript:
+        optional: true
+    dependencies:
+      '@types/pug': 2.0.6
+      '@types/sass': 1.43.1
+      detect-indent: 6.1.0
+      magic-string: 0.25.7
+      sorcery: 0.10.0
+      strip-indent: 3.0.0
+      svelte: 3.46.4
+      typescript: 4.5.2
     dev: false
 
   /svelte/3.46.2:
@@ -8677,7 +8748,6 @@ packages:
   /svelte/3.46.4:
     resolution: {integrity: sha512-qKJzw6DpA33CIa+C/rGp4AUdSfii0DOTCzj/2YpSKKayw5WGSS624Et9L1nU1k2OVRS9vaENQXp2CVZNU+xvIg==}
     engines: {node: '>= 8'}
-    dev: false
 
   /tailwindcss/3.0.16_autoprefixer@10.4.2:
     resolution: {integrity: sha512-1L8E5Wr+o1c4kxxObNz2owJe94a7BLEMV+2Lz6wzprJdcs3ENSRR9t4OZf2OqtRNS/q/zFPuOKoLtQoy3Lrhhw==}
@@ -9772,6 +9842,7 @@ packages:
   /yaml/1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
+    dev: true
 
   /yargs-parser/18.1.3:
     resolution: {integrity: sha512-o50j0JeToy/4K6OZcaQmW6lyXXKhq7csREXcDwk2omFPJEwUNOVtJKvmDr9EI1fAJZUyZcRF7kxGBWmRXudrCQ==}
