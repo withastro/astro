@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.9.3
+
+### Patch Changes
+
+- c4d43b4: Deploy to OpenVSX
+
 ## 0.9.2
 
 ### Patch Changes
