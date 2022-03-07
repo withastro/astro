@@ -50,6 +50,7 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://github.com/withastro/astro/tree/main/packages/webapi#readme",
   "devDependencies": {
+    "@types/mocha": "^9.0.0",
     "@rollup/plugin-alias": "^3.1.9",
     "@rollup/plugin-inject": "^4.0.4",
     "@rollup/plugin-node-resolve": "^13.1.3",
@@ -64,12 +65,13 @@
     "rollup": "^2.67.2",
     "rollup-plugin-terser": "^7.0.2",
     "urlpattern-polyfill": "^1.0.0-rc5",
-    "web-streams-polyfill": "^3.2.0"
+    "web-streams-polyfill": "^3.2.0",
+    "mocha": "^9.1.3"
   },
   "scripts": {
     "build": "node run/build.js",
     "release": "node run/build.js && npm publish --access public",
-    "test": "node run/test.js"
+    "test": "mocha --parallel --timeout 15000"
   },
   "prettier": {
     "semi": false,
