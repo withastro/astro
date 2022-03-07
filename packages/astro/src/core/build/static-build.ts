@@ -37,6 +37,8 @@ export interface StaticBuildOptions {
 
 const MAX_CONCURRENT_RENDERS = 10;
 
+const STATUS_CODE_PAGES = new Set(['/404', '/500']);
+
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
 }
@@ -479,8 +481,12 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: Rou
 			return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 		case 'page':
 			switch (astroConfig.buildOptions.pageUrlFormat) {
-				case 'directory':
+				case 'directory': {
+					if(STATUS_CODE_PAGES.has(pathname)) {
+						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+					}
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
+				}
 				case 'file': {
 					return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 				}
@@ -495,8 +501,13 @@ function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, 
 			return new URL(npath.basename(pathname), outFolder);
 		case 'page':
 			switch (astroConfig.buildOptions.pageUrlFormat) {
-				case 'directory':
+				case 'directory': {
+					if(STATUS_CODE_PAGES.has(pathname)) {
+						const baseName = npath.basename(pathname);
+						return new URL('./' + (baseName || 'index') + '.html', outFolder);
+					}
 					return new URL('./index.html', outFolder);
+				}
 				case 'file': {
 					const baseName = npath.basename(pathname);
 					return new URL('./' + (baseName || 'index') + '.html', outFolder);
