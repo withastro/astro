@@ -46,7 +46,7 @@ async function run() {
 		console.log('🤖', 'Testing', name);
 
 		try {
-			await execa('pnpm', ['install', '--ignore-scripts', isExternal ? '--shamefully-hoist' : ''], { cwd: fileURLToPath(directory), stdio: 'inherit' });
+			await execa('pnpm', ['install', '--ignore-scripts', isExternal ? '--shamefully-hoist' : ''].filter(x => x), { cwd: fileURLToPath(directory), stdio: 'inherit' });
 			await execa('pnpm', ['run', 'build'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
 		} catch (err) {
 			console.log(err);
