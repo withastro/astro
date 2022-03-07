@@ -7,7 +7,7 @@ test(() => {
 			name: 'Includes polyfill.internals functionality',
 			test() {
 				const target = {}
-	
+
 				polyfill(target, { exclude: 'window document' })
 
 				const pseudo = { ...target }
@@ -22,8 +22,13 @@ test(() => {
 
 				assert.equal(Reflect.has(pseudo, 'document'), true)
 
-				assert.equal(CustomElement.prototype.isPrototypeOf(pseudo.document.createElement('custom-element')), true)
+				assert.equal(
+					CustomElement.prototype.isPrototypeOf(
+						pseudo.document.createElement('custom-element')
+					),
+					true
+				)
 			},
-		}
+		},
 	]
 })

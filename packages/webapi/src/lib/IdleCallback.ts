@@ -1,9 +1,15 @@
-import { setTimeout as nodeSetTimeout, clearTimeout as nodeClearTimeout } from 'node:timers'
+import {
+	setTimeout as nodeSetTimeout,
+	clearTimeout as nodeClearTimeout,
+} from 'node:timers'
 import * as _ from './utils.js'
 
-const INTERNAL = { tick: 0, pool: new Map }
+const INTERNAL = { tick: 0, pool: new Map() }
 
-export function requestIdleCallback<TArgs extends any[], TFunc extends (...args: TArgs) => any>(callback: TFunc): number {
+export function requestIdleCallback<
+	TArgs extends any[],
+	TFunc extends (...args: TArgs) => any
+>(callback: TFunc): number {
 	if (!INTERNAL.pool.size) {
 		nodeSetTimeout(() => {
 			const next = _.__performance_now()

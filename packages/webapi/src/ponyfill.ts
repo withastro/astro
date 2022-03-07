@@ -1,7 +1,13 @@
 // @ts-check
 
-import { AbortController, AbortSignal } from 'abort-controller/dist/abort-controller.mjs'
-import { requestAnimationFrame, cancelAnimationFrame } from './lib/AnimationFrame'
+import {
+	AbortController,
+	AbortSignal,
+} from 'abort-controller/dist/abort-controller.mjs'
+import {
+	requestAnimationFrame,
+	cancelAnimationFrame,
+} from './lib/AnimationFrame'
 import { atob, btoa } from './lib/Base64'
 import { CharacterData, Comment, Text } from './lib/CharacterData'
 import { File, Blob } from 'fetch-blob/from.js'
@@ -12,22 +18,59 @@ import { cancelIdleCallback, requestIdleCallback } from './lib/IdleCallback'
 import { Event, EventTarget } from 'event-target-shim'
 import { fetch, Headers, Request, Response } from './lib/fetch'
 import { FormData } from 'formdata-polyfill/esm.min.js'
-import { ByteLengthQueuingStrategy, CountQueuingStrategy, ReadableByteStreamController, ReadableStream, ReadableStreamBYOBReader, ReadableStreamBYOBRequest, ReadableStreamDefaultController, ReadableStreamDefaultReader, TransformStream, WritableStream, WritableStreamDefaultController, WritableStreamDefaultWriter } from 'web-streams-polyfill/dist/ponyfill.es6.mjs'
+import {
+	ByteLengthQueuingStrategy,
+	CountQueuingStrategy,
+	ReadableByteStreamController,
+	ReadableStream,
+	ReadableStreamBYOBReader,
+	ReadableStreamBYOBRequest,
+	ReadableStreamDefaultController,
+	ReadableStreamDefaultReader,
+	TransformStream,
+	WritableStream,
+	WritableStreamDefaultController,
+	WritableStreamDefaultWriter,
+} from 'web-streams-polyfill/dist/ponyfill.es6.mjs'
 import { URLPattern } from 'urlpattern-polyfill'
 import { setTimeout, clearTimeout } from './lib/Timeout'
 import structuredClone from './lib/structuredClone'
 
 import { CanvasRenderingContext2D } from './lib/CanvasRenderingContext2D'
 import { CSSStyleSheet, StyleSheet } from './lib/StyleSheet'
-import { CustomElementRegistry, initCustomElementRegistry } from './lib/CustomElementRegistry'
+import {
+	CustomElementRegistry,
+	initCustomElementRegistry,
+} from './lib/CustomElementRegistry'
 import { Document, HTMLDocument, initDocument } from './lib/Document'
-import { DocumentFragment, Node, NodeFilter, NodeIterator, ShadowRoot } from './lib/Node'
-import { Element, HTMLElement, HTMLBodyElement, HTMLDivElement, HTMLHeadElement, HTMLHtmlElement, HTMLSpanElement, HTMLStyleElement, HTMLTemplateElement, HTMLUnknownElement } from './lib/Element'
+import {
+	DocumentFragment,
+	Node,
+	NodeFilter,
+	NodeIterator,
+	ShadowRoot,
+} from './lib/Node'
+import {
+	Element,
+	HTMLElement,
+	HTMLBodyElement,
+	HTMLDivElement,
+	HTMLHeadElement,
+	HTMLHtmlElement,
+	HTMLSpanElement,
+	HTMLStyleElement,
+	HTMLTemplateElement,
+	HTMLUnknownElement,
+} from './lib/Element'
 import { HTMLCanvasElement } from './lib/HTMLCanvasElement'
 import { HTMLImageElement } from './lib/HTMLImageElement'
 import { Image } from './lib/Image'
 import { ImageData } from './lib/ImageData'
-import { IntersectionObserver, MutationObserver, ResizeObserver } from './lib/Observer'
+import {
+	IntersectionObserver,
+	MutationObserver,
+	ResizeObserver,
+} from './lib/Observer'
 import { MediaQueryList, initMediaQueryList } from './lib/MediaQueryList'
 import { OffscreenCanvas } from './lib/OffscreenCanvas'
 import { Storage, initStorage } from './lib/Storage'
@@ -102,7 +145,6 @@ export {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 	Window,
-
 	alert,
 	atob,
 	btoa,
@@ -114,7 +156,6 @@ export {
 	requestIdleCallback,
 	setTimeout,
 	structuredClone,
-
 	initCustomElementRegistry,
 	initDocument,
 	initMediaQueryList,

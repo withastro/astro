@@ -7,9 +7,9 @@ test(() => {
 			name: 'Fetch functionality',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
-	
+
 				assert.equal(Reflect.has(target, 'fetch'), true)
 				assert.equal(typeof target.fetch, 'function')
 			},
@@ -18,7 +18,7 @@ test(() => {
 			name: 'Fetch with https',
 			async test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const { fetch } = target
@@ -36,7 +36,7 @@ test(() => {
 			name: 'Fetch with file',
 			async test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const { fetch } = target
@@ -62,7 +62,7 @@ test(() => {
 			name: 'Fetch with missing file',
 			async test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const { fetch } = target
@@ -84,7 +84,7 @@ test(() => {
 			name: 'Fetch with (file) Request',
 			async test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const { Request, fetch } = target
@@ -104,7 +104,7 @@ test(() => {
 			name: 'Fetch with relative file',
 			async test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const { fetch } = target
@@ -120,14 +120,16 @@ test(() => {
 			name: 'Fetch with data',
 			async test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const { fetch } = target
 
-				const jsonURI = `data:application/json,${encodeURIComponent(JSON.stringify({
-					name: '@astrojs/webapi'
-				}))}`
+				const jsonURI = `data:application/json,${encodeURIComponent(
+					JSON.stringify({
+						name: '@astrojs/webapi',
+					})
+				)}`
 
 				const response = await fetch(jsonURI)
 

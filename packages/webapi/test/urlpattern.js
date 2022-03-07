@@ -9,7 +9,7 @@ test(() => {
 				const target = {}
 
 				polyfill(target)
-	
+
 				assert.equal(Reflect.has(target, 'URLPattern'), true)
 				assert.equal(typeof target.URLPattern, 'function')
 			},

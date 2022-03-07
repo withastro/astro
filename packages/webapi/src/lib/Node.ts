@@ -71,8 +71,11 @@ export class Node extends EventTarget {
 		return null
 	}
 
-	[Symbol.for('nodejs.util.inspect.custom')](depth: number, options: Record<string, any>) {
-		return `${this.constructor.name}`;
+	[Symbol.for('nodejs.util.inspect.custom')](
+		depth: number,
+		options: Record<string, any>
+	) {
+		return `${this.constructor.name}`
 	}
 }
 
@@ -88,28 +91,31 @@ export class ShadowRoot extends DocumentFragment {
 	}
 }
 
-export const NodeFilter = Object.assign({
-	NodeFilter() {
-		throw new TypeError('Illegal constructor')
+export const NodeFilter = Object.assign(
+	{
+		NodeFilter() {
+			throw new TypeError('Illegal constructor')
+		},
+	}.NodeFilter,
+	{
+		FILTER_ACCEPT: 1,
+		FILTER_REJECT: 2,
+		FILTER_SKIP: 3,
+		SHOW_ALL: 4294967295,
+		SHOW_ELEMENT: 1,
+		SHOW_ATTRIBUTE: 2,
+		SHOW_TEXT: 4,
+		SHOW_CDATA_SECTION: 8,
+		SHOW_ENTITY_REFERENCE: 16,
+		SHOW_ENTITY: 32,
+		SHOW_PROCESSING_INSTRUCTION: 64,
+		SHOW_COMMENT: 128,
+		SHOW_DOCUMENT: 256,
+		SHOW_DOCUMENT_TYPE: 512,
+		SHOW_DOCUMENT_FRAGMENT: 1024,
+		SHOW_NOTATION: 2048,
 	}
-}.NodeFilter, {
-	FILTER_ACCEPT: 1,
-	FILTER_REJECT: 2,
-	FILTER_SKIP: 3,
-	SHOW_ALL: 4294967295,
-	SHOW_ELEMENT: 1,
-	SHOW_ATTRIBUTE: 2,
-	SHOW_TEXT: 4,
-	SHOW_CDATA_SECTION: 8,
-	SHOW_ENTITY_REFERENCE: 16,
-	SHOW_ENTITY: 32,
-	SHOW_PROCESSING_INSTRUCTION: 64,
-	SHOW_COMMENT: 128,
-	SHOW_DOCUMENT: 256,
-	SHOW_DOCUMENT_TYPE: 512,
-	SHOW_DOCUMENT_FRAGMENT: 1024,
-	SHOW_NOTATION: 2048,
-})
+)
 
 export class NodeIterator {
 	nextNode(): Node | null {
@@ -121,27 +127,47 @@ export class NodeIterator {
 	}
 
 	get filter(): NodeFilter {
-		const internals = _.internalsOf<NodeIteratorInternals>(this, 'NodeIterator', 'filter')
+		const internals = _.internalsOf<NodeIteratorInternals>(
+			this,
+			'NodeIterator',
+			'filter'
+		)
 		return internals.filter
 	}
 
 	get pointerBeforeReferenceNode(): boolean {
-		const internals = _.internalsOf<NodeIteratorInternals>(this, 'NodeIterator', 'pointerBeforeReferenceNode')
+		const internals = _.internalsOf<NodeIteratorInternals>(
+			this,
+			'NodeIterator',
+			'pointerBeforeReferenceNode'
+		)
 		return internals.pointerBeforeReferenceNode
 	}
 
 	get referenceNode(): Node {
-		const internals = _.internalsOf<NodeIteratorInternals>(this, 'NodeIterator', 'referenceNode')
+		const internals = _.internalsOf<NodeIteratorInternals>(
+			this,
+			'NodeIterator',
+			'referenceNode'
+		)
 		return internals.referenceNode
 	}
 
 	get root(): Node {
-		const internals = _.internalsOf<NodeIteratorInternals>(this, 'NodeIterator', 'root')
+		const internals = _.internalsOf<NodeIteratorInternals>(
+			this,
+			'NodeIterator',
+			'root'
+		)
 		return internals.root
 	}
 
 	get whatToShow(): number {
-		const internals = _.internalsOf<NodeIteratorInternals>(this, 'NodeIterator', 'whatToShow')
+		const internals = _.internalsOf<NodeIteratorInternals>(
+			this,
+			'NodeIterator',
+			'whatToShow'
+		)
 		return internals.whatToShow
 	}
 }

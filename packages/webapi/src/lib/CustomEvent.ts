@@ -1,7 +1,9 @@
 import * as _ from './utils'
 import { Event } from 'event-target-shim'
 
-class CustomEvent<TEventType extends string = string> extends Event<TEventType> {
+class CustomEvent<
+	TEventType extends string = string
+> extends Event<TEventType> {
 	constructor(type: TEventType, params?: CustomEventInit) {
 		params = Object(params) as Required<CustomEventInit>
 

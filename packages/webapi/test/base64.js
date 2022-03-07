@@ -7,9 +7,9 @@ test(() => {
 			name: 'Supports Base64 Methods',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
-	
+
 				assert.equal('atob' in target, true)
 				assert.equal('btoa' in target, true)
 				assert.equal(typeof target['atob'], 'function')
@@ -20,7 +20,7 @@ test(() => {
 			name: 'Supports atob(data)',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const a = 'SGVsbG8sIHdvcmxk'
@@ -34,7 +34,7 @@ test(() => {
 			name: 'Supports btoa(data)',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const b = 'Hello, world'

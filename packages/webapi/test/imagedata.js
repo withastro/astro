@@ -7,9 +7,9 @@ test(() => {
 			name: 'Supports ImageData',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
-	
+
 				assert.equal('ImageData' in target, true)
 				assert.equal(typeof target['ImageData'], 'function')
 			},
@@ -18,7 +18,7 @@ test(() => {
 			name: 'Supports new (data: Uint8ClampedArray, width: number, height: number): ImageData',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const w = 640
@@ -36,7 +36,7 @@ test(() => {
 			name: 'Supports new (data: Uint8ClampedArray, width: number): ImageData',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const w = 640
@@ -54,7 +54,7 @@ test(() => {
 			name: 'Supports new (width: number, height: number): ImageData',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const w = 640
@@ -71,7 +71,7 @@ test(() => {
 			name: 'Supports Object.keys(new ImageData(640, 480))',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const keys = Object.keys(new target.ImageData(640, 480))

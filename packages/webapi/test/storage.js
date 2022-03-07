@@ -9,7 +9,7 @@ test(() => {
 				const target = {}
 
 				polyfill(target)
-	
+
 				assert.equal(Reflect.has(target, 'Storage'), true)
 				assert.equal(Reflect.has(target, 'localStorage'), true)
 				assert.equal(typeof target.Storage, 'function')

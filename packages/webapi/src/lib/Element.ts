@@ -21,13 +21,26 @@ export class Element extends Node {
 	}
 
 	attachShadow(init: Partial<ShadowRootInit>) {
-		if (arguments.length < 1) throw new TypeError(`Failed to execute 'attachShadow' on 'Element': 1 argument required, but only 0 present.`)
+		if (arguments.length < 1)
+			throw new TypeError(
+				`Failed to execute 'attachShadow' on 'Element': 1 argument required, but only 0 present.`
+			)
 
-		if (init !== Object(init)) throw new TypeError(`Failed to execute 'attachShadow' on 'Element': The provided value is not of type 'ShadowRootInit'.`)
+		if (init !== Object(init))
+			throw new TypeError(
+				`Failed to execute 'attachShadow' on 'Element': The provided value is not of type 'ShadowRootInit'.`
+			)
 
-		if (init.mode !== 'open' && init.mode !== 'closed') throw new TypeError(`Failed to execute 'attachShadow' on 'Element': Failed to read the 'mode' property from 'ShadowRootInit': The provided value '${init.mode}' is not a valid enum value of type ShadowRootMode.`)
+		if (init.mode !== 'open' && init.mode !== 'closed')
+			throw new TypeError(
+				`Failed to execute 'attachShadow' on 'Element': Failed to read the 'mode' property from 'ShadowRootInit': The provided value '${init.mode}' is not a valid enum value of type ShadowRootMode.`
+			)
 
-		const internals = _.internalsOf<ElementInternals>(this, 'Element', 'attachShadow')
+		const internals = _.internalsOf<ElementInternals>(
+			this,
+			'Element',
+			'attachShadow'
+		)
 
 		if (internals.shadowRoot) throw new Error('The operation is not supported.')
 
@@ -36,7 +49,14 @@ export class Element extends Node {
 			delegatesFocus: Boolean(init.delegatesFocus),
 		}
 
-		internals.shadowRoot = internals.shadowRoot || (/^open$/.test(internals.shadowInit.mode as string) ? Object.setPrototypeOf(new EventTarget(), ShadowRoot.prototype) as ShadowRoot : null)
+		internals.shadowRoot =
+			internals.shadowRoot ||
+			(/^open$/.test(internals.shadowInit.mode as string)
+				? (Object.setPrototypeOf(
+						new EventTarget(),
+						ShadowRoot.prototype
+				  ) as ShadowRoot)
+				: null)
 
 		return internals.shadowRoot
 	}
@@ -58,21 +78,34 @@ export class Element extends Node {
 	}
 
 	get shadowRoot(): ShadowRoot | null {
-		const internals = _.internalsOf<ElementInternals>(this, 'Element', 'shadowRoot')
+		const internals = _.internalsOf<ElementInternals>(
+			this,
+			'Element',
+			'shadowRoot'
+		)
 
-		return Object(internals.shadowInit).mode === 'open' ? internals.shadowRoot : null
+		return Object(internals.shadowInit).mode === 'open'
+			? internals.shadowRoot
+			: null
 	}
 
 	get localName(): string {
-		return _.internalsOf<ElementInternals>(this, 'Element', 'localName').localName as string
+		return _.internalsOf<ElementInternals>(this, 'Element', 'localName')
+			.localName as string
 	}
 
 	get nodeName(): string {
-		return (_.internalsOf<ElementInternals>(this, 'Element', 'nodeName').localName as string).toUpperCase()
+		return (
+			_.internalsOf<ElementInternals>(this, 'Element', 'nodeName')
+				.localName as string
+		).toUpperCase()
 	}
 
 	get tagName(): string {
-		return (_.internalsOf<ElementInternals>(this, 'Element', 'tagName').localName as string).toUpperCase()
+		return (
+			_.internalsOf<ElementInternals>(this, 'Element', 'tagName')
+				.localName as string
+		).toUpperCase()
 	}
 }
 
@@ -106,7 +139,7 @@ _.allowStringTag(HTMLTemplateElement)
 _.allowStringTag(HTMLUnknownElement)
 
 export interface ElementInternals {
-	attributes: { [name: string]: string },
+	attributes: { [name: string]: string }
 	localName?: string
 	shadowRoot: ShadowRoot | null
 	shadowInit: ShadowRootInit | void

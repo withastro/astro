@@ -9,7 +9,8 @@ export class HTMLCanvasElement extends HTMLElement {
 	}
 
 	set height(value) {
-		_.internalsOf(this, 'HTMLCanvasElement', 'height').height = Number(value) || 0
+		_.internalsOf(this, 'HTMLCanvasElement', 'height').height =
+			Number(value) || 0
 	}
 
 	get width(): number {
@@ -24,8 +25,14 @@ export class HTMLCanvasElement extends HTMLElement {
 		return null
 	}
 
-	getContext(contextType: PredefinedContextId): CanvasRenderingContext2D | null {
-		const internals = _.internalsOf<HTMLCanvasElementInternals>(this, 'HTMLCanvasElement', 'getContext')
+	getContext(
+		contextType: PredefinedContextId
+	): CanvasRenderingContext2D | null {
+		const internals = _.internalsOf<HTMLCanvasElementInternals>(
+			this,
+			'HTMLCanvasElement',
+			'getContext'
+		)
 
 		switch (contextType) {
 			case '2d':
@@ -54,4 +61,9 @@ interface HTMLCanvasElementInternals {
 	renderingContext2D: CanvasRenderingContext2D
 }
 
-type PredefinedContextId = '2d' | 'bitmaprenderer' | 'webgl' | 'webgl2' | 'webgpu'
+type PredefinedContextId =
+	| '2d'
+	| 'bitmaprenderer'
+	| 'webgl'
+	| 'webgl2'
+	| 'webgpu'

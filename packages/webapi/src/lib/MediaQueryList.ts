@@ -19,7 +19,10 @@ export const initMediaQueryList = (target: Target, exclude: Set<string>) => {
 	const MediaQueryList = target.MediaQueryList || globalThis.MediaQueryList
 
 	target.matchMedia = function matchMedia(media: string) {
-		const mql = Object.setPrototypeOf(new EventTarget(), MediaQueryList.prototype) as MediaQueryList
+		const mql = Object.setPrototypeOf(
+			new EventTarget(),
+			MediaQueryList.prototype
+		) as MediaQueryList
 
 		_.INTERNALS.set(mql, {
 			matches: false,

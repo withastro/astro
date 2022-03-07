@@ -60,7 +60,6 @@ import {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 	Window,
-
 	alert,
 	atob,
 	btoa,
@@ -72,7 +71,6 @@ import {
 	requestIdleCallback,
 	setTimeout,
 	structuredClone,
-
 	initCustomElementRegistry,
 	initDocument,
 	initMediaQueryList,
@@ -148,7 +146,6 @@ export {
 	WritableStreamDefaultController,
 	WritableStreamDefaultWriter,
 	Window,
-
 	alert,
 	atob,
 	btoa,
@@ -245,18 +242,25 @@ export const polyfill = (target: any, options?: PolyfillOptions) => {
 	const excludeOptions = new Set(
 		typeof Object(options).exclude === 'string'
 			? String(Object(options).exclude).trim().split(/\s+/)
-		: Array.isArray(Object(options).exclude)
+			: Array.isArray(Object(options).exclude)
 			? Object(options).exclude.reduce(
-				(array: string[], entry: unknown) => array.splice(array.length, 0, ...(typeof entry === 'string' ? entry.trim().split(/\s+/) : [])) && array,
-				[]
-			)
-		: []
+					(array: string[], entry: unknown) =>
+						array.splice(
+							array.length,
+							0,
+							...(typeof entry === 'string' ? entry.trim().split(/\s+/) : [])
+						) && array,
+					[]
+			  )
+			: []
 	) as Set<string>
 
 	// expand exclude options using exclusion shorthands
 	for (const excludeOption of excludeOptions) {
 		if (excludeOption in exclusions) {
-			for (const exclusion of exclusions[excludeOption as keyof typeof exclusions]) {
+			for (const exclusion of exclusions[
+				excludeOption as keyof typeof exclusions
+			]) {
 				excludeOptions.add(exclusion)
 			}
 		}
@@ -267,11 +271,16 @@ export const polyfill = (target: any, options?: PolyfillOptions) => {
 		// skip WebAPIs that are excluded
 		if (excludeOptions.has(name)) continue
 
-		// skip WebAPIs that are built-in 
+		// skip WebAPIs that are built-in
 		if (Object.hasOwnProperty.call(target, name)) continue
 
 		// define WebAPIs on the target
-		Object.defineProperty(target, name, { configurable: true, enumerable: true, writable: true, value: webAPIs[name as keyof typeof webAPIs] })
+		Object.defineProperty(target, name, {
+			configurable: true,
+			enumerable: true,
+			writable: true,
+			value: webAPIs[name as keyof typeof webAPIs],
+		})
 	}
 
 	// ensure WebAPIs correctly inherit other WebAPIs
@@ -288,14 +297,17 @@ export const polyfill = (target: any, options?: PolyfillOptions) => {
 		// skip WebAPIs that are not available
 		if (!Class || !Super) continue
 
-		// skip WebAPIs that are already inherited correctly 
+		// skip WebAPIs that are already inherited correctly
 		if (Object.getPrototypeOf(Class.prototype) === Super.prototype) continue
 
 		// define WebAPIs inheritence
 		Object.setPrototypeOf(Class.prototype, Super.prototype)
 	}
 
-	if (!excludeOptions.has('HTMLDocument') && !excludeOptions.has('HTMLElement')) {
+	if (
+		!excludeOptions.has('HTMLDocument') &&
+		!excludeOptions.has('HTMLElement')
+	) {
 		initDocument(target, excludeOptions)
 
 		if (!excludeOptions.has('CustomElementRegistry')) {

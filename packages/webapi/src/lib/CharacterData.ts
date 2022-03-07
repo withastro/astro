@@ -7,11 +7,16 @@ export class CharacterData extends Node {
 		} as CharacterDataInternals)
 	}
 	get data(): string {
-		return _.internalsOf<CharacterDataInternals>(this, 'CharacterData', 'data').data
+		return _.internalsOf<CharacterDataInternals>(this, 'CharacterData', 'data')
+			.data
 	}
 
 	get textContent(): string {
-		return _.internalsOf<CharacterDataInternals>(this, 'CharacterData', 'textContent').data
+		return _.internalsOf<CharacterDataInternals>(
+			this,
+			'CharacterData',
+			'textContent'
+		).data
 	}
 }
 
@@ -23,7 +28,11 @@ export class Text extends CharacterData {
 	}
 
 	get wholeText(): string {
-		return _.internalsOf<CharacterDataInternals>(this, 'CharacterData', 'textContent').data
+		return _.internalsOf<CharacterDataInternals>(
+			this,
+			'CharacterData',
+			'textContent'
+		).data
 	}
 }
 

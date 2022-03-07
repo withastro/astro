@@ -4,15 +4,27 @@ import { TreeWalker } from './TreeWalker'
 
 export class Document extends Node {
 	createElement(name: string) {
-		const internals = _.internalsOf<DocumentInternals>(this, 'Document', 'createElement')
+		const internals = _.internalsOf<DocumentInternals>(
+			this,
+			'Document',
+			'createElement'
+		)
 
-		const customElementInternals: CustomElementRegistryInternals = _.INTERNALS.get(internals.target.customElements)
+		const customElementInternals: CustomElementRegistryInternals =
+			_.INTERNALS.get(internals.target.customElements)
 
 		name = String(name).toLowerCase()
 
-		const TypeOfHTMLElement = internals.constructorByName.get(name) || (customElementInternals && customElementInternals.constructorByName.get(name)) || HTMLUnknownElement
+		const TypeOfHTMLElement =
+			internals.constructorByName.get(name) ||
+			(customElementInternals &&
+				customElementInternals.constructorByName.get(name)) ||
+			HTMLUnknownElement
 
-		const element = Object.setPrototypeOf(new EventTarget(), TypeOfHTMLElement.prototype) as HTMLElement
+		const element = Object.setPrototypeOf(
+			new EventTarget(),
+			TypeOfHTMLElement.prototype
+		) as HTMLElement
 
 		_.INTERNALS.set(element, {
 			attributes: {},
@@ -25,10 +37,20 @@ export class Document extends Node {
 		return element
 	}
 
-	createNodeIterator(root: Node, whatToShow: number = NodeFilter.SHOW_ALL, filter?: NodeIteratorInternals['filter']) {
+	createNodeIterator(
+		root: Node,
+		whatToShow: number = NodeFilter.SHOW_ALL,
+		filter?: NodeIteratorInternals['filter']
+	) {
 		const target = Object.create(NodeIterator.prototype)
 
-		_.INTERNALS.set(target, { filter, pointerBeforeReferenceNode: false, referenceNode: root, root, whatToShow } as NodeIteratorInternals)
+		_.INTERNALS.set(target, {
+			filter,
+			pointerBeforeReferenceNode: false,
+			referenceNode: root,
+			root,
+			whatToShow,
+		} as NodeIteratorInternals)
 
 		return target
 	}
@@ -37,10 +59,20 @@ export class Document extends Node {
 		return new Text(data)
 	}
 
-	createTreeWalker(root: Node, whatToShow: number = NodeFilter.SHOW_ALL, filter?: NodeFilter, expandEntityReferences?: boolean) {
+	createTreeWalker(
+		root: Node,
+		whatToShow: number = NodeFilter.SHOW_ALL,
+		filter?: NodeFilter,
+		expandEntityReferences?: boolean
+	) {
 		const target = Object.create(TreeWalker.prototype)
 
-		_.INTERNALS.set(target, { filter, currentNode: root, root, whatToShow } as TreeWalkerInternals)
+		_.INTERNALS.set(target, {
+			filter,
+			currentNode: root,
+			root,
+			whatToShow,
+		} as TreeWalkerInternals)
 
 		return target
 	}
@@ -69,7 +101,10 @@ export const initDocument = (target: Target, exclude: Set<string>) => {
 	const EventTarget = target.EventTarget || globalThis.EventTarget
 	const HTMLDocument = target.HTMLDocument || globalThis.HTMLDocument
 
-	const document: HTMLDocument = target.document = Object.setPrototypeOf(new EventTarget(), HTMLDocument.prototype)
+	const document: HTMLDocument = (target.document = Object.setPrototypeOf(
+		new EventTarget(),
+		HTMLDocument.prototype
+	))
 
 	_.INTERNALS.set(document, {
 		target,
@@ -83,7 +118,7 @@ export const initDocument = (target: Target, exclude: Set<string>) => {
 			['span', target.HTMLSpanElement],
 			['style', target.HTMLStyleElement],
 		]),
-		nameByConstructor: new Map,
+		nameByConstructor: new Map(),
 	} as DocumentInternals)
 
 	const initElement = (name: string, Class: Function) => {
@@ -102,7 +137,10 @@ export const initDocument = (target: Target, exclude: Set<string>) => {
 
 	document.body = initElement('body', target.HTMLBodyElement) as HTMLBodyElement
 	document.head = initElement('head', target.HTMLHeadElement) as HTMLHeadElement
-	document.documentElement = initElement('html', target.HTMLHtmlElement) as HTMLHtmlElement
+	document.documentElement = initElement(
+		'html',
+		target.HTMLHtmlElement
+	) as HTMLHtmlElement
 }
 
 interface DocumentInternals {
@@ -120,7 +158,7 @@ interface CustomElementRegistryInternals {
 }
 
 interface ElementInternals {
-	attributes: { [name: string]: string },
+	attributes: { [name: string]: string }
 	localName: string
 	ownerDocument: Document
 	shadowRoot: ShadowRoot

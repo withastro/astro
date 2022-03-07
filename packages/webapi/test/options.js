@@ -7,11 +7,11 @@ test(() => {
 			name: 'Can exclude HTMLElement+',
 			test() {
 				const target = {}
-	
+
 				polyfill(target, {
-					exclude: 'HTMLElement+'
+					exclude: 'HTMLElement+',
 				})
-	
+
 				assert.equal(Reflect.has(target, 'Event'), true)
 				assert.equal(Reflect.has(target, 'EventTarget'), true)
 				assert.equal(Reflect.has(target, 'Element'), true)
@@ -23,11 +23,11 @@ test(() => {
 			name: 'Can exclude Event+',
 			test() {
 				const target = {}
-	
+
 				polyfill(target, {
-					exclude: 'Event+'
+					exclude: 'Event+',
 				})
-	
+
 				assert.equal(Reflect.has(target, 'Event'), false)
 				assert.equal(Reflect.has(target, 'EventTarget'), false)
 				assert.equal(Reflect.has(target, 'Element'), false)
@@ -39,11 +39,11 @@ test(() => {
 			name: 'Can exclude document',
 			test() {
 				const target = {}
-	
+
 				polyfill(target, {
-					exclude: 'document'
+					exclude: 'document',
 				})
-	
+
 				assert.equal(Reflect.has(target, 'Document'), true)
 				assert.equal(Reflect.has(target, 'HTMLDocument'), true)
 				assert.equal(Reflect.has(target, 'document'), false)

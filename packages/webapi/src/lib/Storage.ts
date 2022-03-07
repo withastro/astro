@@ -7,20 +7,35 @@ export class Storage {
 
 	getItem(key: string): string | null {
 		return getStringOrNull(
-			_.internalsOf<StorageInternals>(this, 'Storage', 'getItem').storage.get(String(key))
+			_.internalsOf<StorageInternals>(this, 'Storage', 'getItem').storage.get(
+				String(key)
+			)
 		)
 	}
 
 	key(index: number): string | null {
-		return getStringOrNull([ ..._.internalsOf<StorageInternals>(this, 'Storage', 'key').storage.keys() ][Number(index) || 0])
+		return getStringOrNull(
+			[
+				..._.internalsOf<StorageInternals>(
+					this,
+					'Storage',
+					'key'
+				).storage.keys(),
+			][Number(index) || 0]
+		)
 	}
 
 	removeItem(key: string): void {
-		_.internalsOf<StorageInternals>(this, 'Storage', 'getItem').storage.delete(String(key))
+		_.internalsOf<StorageInternals>(this, 'Storage', 'getItem').storage.delete(
+			String(key)
+		)
 	}
 
 	setItem(key: string, value: any): void {
-		_.internalsOf<StorageInternals>(this, 'Storage', 'getItem').storage.set(String(key), String(value))
+		_.internalsOf<StorageInternals>(this, 'Storage', 'getItem').storage.set(
+			String(key),
+			String(value)
+		)
 	}
 
 	get length() {
@@ -28,7 +43,8 @@ export class Storage {
 	}
 }
 
-const getStringOrNull = (value: string | void) => typeof value === 'string' ? value : null
+const getStringOrNull = (value: string | void) =>
+	typeof value === 'string' ? value : null
 
 export const initStorage = (target: Target, exclude: Set<string>) => {
 	if (exclude.has('Storage') || exclude.has('localStorage')) return
@@ -38,7 +54,7 @@ export const initStorage = (target: Target, exclude: Set<string>) => {
 	const storageInternals = new Map<string, string>()
 
 	_.INTERNALS.set(target.localStorage, {
-		storage: storageInternals
+		storage: storageInternals,
 	} as StorageInternals)
 }
 

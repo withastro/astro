@@ -7,9 +7,9 @@ test(() => {
 			name: 'Supports OffscreenCanvas',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
-	
+
 				assert.equal('OffscreenCanvas' in target, true)
 				assert.equal(typeof target['OffscreenCanvas'], 'function')
 			},
@@ -18,7 +18,7 @@ test(() => {
 			name: 'Supports new (width: number, height: number): OffscreenCanvas',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const w = 640
@@ -34,7 +34,7 @@ test(() => {
 			name: 'Supports OffscreenCanvas#getContext',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const w = 640

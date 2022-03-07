@@ -7,9 +7,9 @@ test(() => {
 			name: 'Includes MediaQueryList functionality',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
-	
+
 				assert.equal(Reflect.has(target, 'MediaQueryList'), true)
 				assert.equal(Reflect.has(target, 'matchMedia'), true)
 			},
@@ -18,7 +18,7 @@ test(() => {
 			name: 'Supports matchMedia creation',
 			test() {
 				const target = {}
-	
+
 				polyfill(target)
 
 				const mql = target.matchMedia('(min-width: 640px)')

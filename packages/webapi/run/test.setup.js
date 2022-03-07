@@ -2,7 +2,8 @@ import { fileURLToPath } from 'url'
 
 export { strict as assert } from 'assert'
 
-export const pathFrom = (...args) => fileURLToPath(args.reduce((url, bit) => new URL(bit, url), new URL('file:')))
+export const pathFrom = (...args) =>
+	fileURLToPath(args.reduce((url, bit) => new URL(bit, url), new URL('file:')))
 
 export const test = async (setup) => {
 	console.log(`Testing Node ${process.version}:`)

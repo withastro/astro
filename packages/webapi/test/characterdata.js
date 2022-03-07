@@ -33,7 +33,10 @@ test(() => {
 				})
 
 				assert.equal(new target.Comment().constructor.name, 'Comment')
-				assert.equal(Object.prototype.toString.call(new target.Comment()), '[object Comment]')
+				assert.equal(
+					Object.prototype.toString.call(new target.Comment()),
+					'[object Comment]'
+				)
 
 				assert.equal(new target.Comment('hello').data, 'hello')
 				assert.equal(new target.Comment('hello').textContent, 'hello')
@@ -49,7 +52,10 @@ test(() => {
 				})
 
 				assert.equal(new target.Text().constructor.name, 'Text')
-				assert.equal(Object.prototype.toString.call(new target.Text()), '[object Text]')
+				assert.equal(
+					Object.prototype.toString.call(new target.Text()),
+					'[object Text]'
+				)
 
 				assert.equal(new target.Text('hello').data, 'hello')
 				assert.equal(new target.Text('hello').textContent, 'hello')

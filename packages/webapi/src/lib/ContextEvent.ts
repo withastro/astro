@@ -28,10 +28,15 @@ export type Context<T = unknown> = {
 }
 
 /** A helper type which can extract a Context value type from a Context type. */
-export type ContextType<T extends Context> = T extends Context<infer Y> ? Y : never
+export type ContextType<T extends Context> = T extends Context<infer Y>
+	? Y
+	: never
 
 /** A function which creates a Context value object */
-export function createContext<T>(name: string, initialValue?: T): Readonly<Context<T>> {
+export function createContext<T>(
+	name: string,
+	initialValue?: T
+): Readonly<Context<T>> {
 	return {
 		name,
 		initialValue,

@@ -9,7 +9,7 @@ test(() => {
 				const target = {}
 
 				polyfill(target)
-	
+
 				assert.equal(Reflect.has(target, 'structuredClone'), true)
 				assert.equal(typeof target.structuredClone, 'function')
 			},
@@ -22,9 +22,9 @@ test(() => {
 				polyfill(target)
 
 				const obj = {
-					foo: "bar",
+					foo: 'bar',
 					baz: {
-						qux: "quux",
+						qux: 'quux',
 					},
 				}
 

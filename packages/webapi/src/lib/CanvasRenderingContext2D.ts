@@ -10,11 +10,13 @@ export class CanvasRenderingContext2D {
 	}
 
 	get direction(): 'ltr' | 'rtl' | 'inherit' {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'direction').direction
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'direction')
+			.direction
 	}
 
 	get fillStyle(): string {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'fillStyle').fillStyle
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'fillStyle')
+			.fillStyle
 	}
 
 	get filter(): string {
@@ -22,11 +24,16 @@ export class CanvasRenderingContext2D {
 	}
 
 	get globalAlpha(): number {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'globalAlpha').globalAlpha
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'globalAlpha')
+			.globalAlpha
 	}
 
 	get globalCompositeOperation(): string {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'globalCompositeOperation').globalCompositeOperation
+		return _.internalsOf(
+			this,
+			'CanvasRenderingContext2D',
+			'globalCompositeOperation'
+		).globalCompositeOperation
 	}
 
 	get font(): string {
@@ -34,11 +41,19 @@ export class CanvasRenderingContext2D {
 	}
 
 	get imageSmoothingEnabled(): boolean {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'imageSmoothingEnabled').imageSmoothingEnabled
+		return _.internalsOf(
+			this,
+			'CanvasRenderingContext2D',
+			'imageSmoothingEnabled'
+		).imageSmoothingEnabled
 	}
 
 	get imageSmoothingQuality(): 'low' | 'medium' | 'high' {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'imageSmoothingQuality').imageSmoothingQuality
+		return _.internalsOf(
+			this,
+			'CanvasRenderingContext2D',
+			'imageSmoothingQuality'
+		).imageSmoothingQuality
 	}
 
 	get lineCap(): 'butt' | 'round' | 'square' {
@@ -46,7 +61,8 @@ export class CanvasRenderingContext2D {
 	}
 
 	get lineDashOffset(): number {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'lineDashOffset').lineDashOffset
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'lineDashOffset')
+			.lineDashOffset
 	}
 
 	get lineJoin(): 'bevel' | 'round' | 'miter' {
@@ -54,39 +70,54 @@ export class CanvasRenderingContext2D {
 	}
 
 	get lineWidth(): number {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'lineWidth').lineWidth
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'lineWidth')
+			.lineWidth
 	}
 
 	get miterLimit(): number {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'miterLimit').miterLimit
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'miterLimit')
+			.miterLimit
 	}
 
 	get strokeStyle(): string {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'strokeStyle').strokeStyle
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'strokeStyle')
+			.strokeStyle
 	}
 
 	get shadowOffsetX(): number {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'shadowOffsetX').shadowOffsetX
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'shadowOffsetX')
+			.shadowOffsetX
 	}
 
 	get shadowOffsetY(): number {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'shadowOffsetY').shadowOffsetY
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'shadowOffsetY')
+			.shadowOffsetY
 	}
 
 	get shadowBlur(): number {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'shadowBlur').shadowBlur
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'shadowBlur')
+			.shadowBlur
 	}
 
 	get shadowColor(): string {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'shadowColor').shadowColor
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'shadowColor')
+			.shadowColor
 	}
 
 	get textAlign(): 'left' | 'right' | 'center' | 'start' | 'end' {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'textAlign').textAlign
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'textAlign')
+			.textAlign
 	}
 
-	get textBaseline(): 'top' | 'hanging' | 'middle' | 'alphabetic' | 'ideographic' | 'bottom' {
-		return _.internalsOf(this, 'CanvasRenderingContext2D', 'textBaseline').textBaseline
+	get textBaseline():
+		| 'top'
+		| 'hanging'
+		| 'middle'
+		| 'alphabetic'
+		| 'ideographic'
+		| 'bottom' {
+		return _.internalsOf(this, 'CanvasRenderingContext2D', 'textBaseline')
+			.textBaseline
 	}
 
 	arc() {}
@@ -104,9 +135,11 @@ export class CanvasRenderingContext2D {
 		/** Whether ImageData is provided. */
 		const hasData = _.__object_isPrototypeOf(ImageData.prototype, arg0)
 
-		const w = hasData ? (arg0 as ImageData).width : arg0 as number
-		const h = hasData ? (arg0 as ImageData).height : arg1 as number
-		const d = hasData ? (arg0 as ImageData).data : new Uint8ClampedArray(w * h * 4)
+		const w = hasData ? (arg0 as ImageData).width : (arg0 as number)
+		const h = hasData ? (arg0 as ImageData).height : (arg1 as number)
+		const d = hasData
+			? (arg0 as ImageData).data
+			: new Uint8ClampedArray(w * h * 4)
 
 		return new ImageData(d, w, h)
 	}
@@ -148,8 +181,12 @@ export class CanvasRenderingContext2D {
 
 _.allowStringTag(CanvasRenderingContext2D)
 
-export const __createCanvasRenderingContext2D = (canvas: EventTarget): CanvasRenderingContext2D => {
-	const renderingContext2D = Object.create(CanvasRenderingContext2D.prototype) as CanvasRenderingContext2D
+export const __createCanvasRenderingContext2D = (
+	canvas: EventTarget
+): CanvasRenderingContext2D => {
+	const renderingContext2D = Object.create(
+		CanvasRenderingContext2D.prototype
+	) as CanvasRenderingContext2D
 
 	_.INTERNALS.set(renderingContext2D, {
 		canvas,
@@ -179,4 +216,7 @@ export const __createCanvasRenderingContext2D = (canvas: EventTarget): CanvasRen
 }
 
 /** Returns whether the value is an instance of ImageData. */
-const isImageData = <T>(value: T) => (Object(value).data instanceof Uint8ClampedArray) as T extends ImageData ? true : false
+const isImageData = <T>(value: T) =>
+	(Object(value).data instanceof Uint8ClampedArray) as T extends ImageData
+		? true
+		: false

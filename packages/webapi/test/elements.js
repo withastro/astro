@@ -27,7 +27,10 @@ test(() => {
 				target.customElements.define('custom-element', CustomElement)
 
 				assert.equal(target.customElements.get('custom-element'), CustomElement)
-				assert.equal(target.customElements.getName(CustomElement), 'custom-element')
+				assert.equal(
+					target.customElements.getName(CustomElement),
+					'custom-element'
+				)
 			},
 		},
 		{
@@ -40,13 +43,19 @@ test(() => {
 				assert.equal(target.document.body.localName, 'body')
 				assert.equal(target.document.body.tagName, 'BODY')
 
-				assert.equal(target.document.createElement('custom-element').constructor.name, 'HTMLUnknownElement')
+				assert.equal(
+					target.document.createElement('custom-element').constructor.name,
+					'HTMLUnknownElement'
+				)
 
 				const CustomElement = class HTMLCustomElement extends target.HTMLElement {}
 
 				target.customElements.define('custom-element', CustomElement)
 
-				assert.equal(target.document.createElement('custom-element').constructor.name, 'HTMLCustomElement')
+				assert.equal(
+					target.document.createElement('custom-element').constructor.name,
+					'HTMLCustomElement'
+				)
 			},
 		},
 		{

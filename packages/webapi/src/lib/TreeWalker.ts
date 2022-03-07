@@ -30,17 +30,29 @@ export class TreeWalker {
 	}
 
 	get currentNode(): Node {
-		const internals = _.internalsOf<TreeWalkerInternals>(this, 'TreeWalker', 'currentNode')
+		const internals = _.internalsOf<TreeWalkerInternals>(
+			this,
+			'TreeWalker',
+			'currentNode'
+		)
 		return internals.currentNode
 	}
 
 	get root(): Node {
-		const internals = _.internalsOf<TreeWalkerInternals>(this, 'TreeWalker', 'root')
+		const internals = _.internalsOf<TreeWalkerInternals>(
+			this,
+			'TreeWalker',
+			'root'
+		)
 		return internals.root
 	}
 
 	get whatToShow(): number {
-		const internals = _.internalsOf<TreeWalkerInternals>(this, 'TreeWalker', 'whatToShow')
+		const internals = _.internalsOf<TreeWalkerInternals>(
+			this,
+			'TreeWalker',
+			'whatToShow'
+		)
 		return internals.whatToShow
 	}
 }
