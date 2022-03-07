@@ -206,7 +206,7 @@ jobs:
           submodules: 'recursive'
 
       - name: Update submodules
-        run: git submodule update --remote --merge
+        run: git submodule update --remote
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.0.1
