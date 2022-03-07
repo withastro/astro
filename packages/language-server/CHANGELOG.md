@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.9.2
+
+### Patch Changes
+
+- 91404d1: Enable publishing to OpenVSX
+
 ## 0.9.1
 
 ### Patch Changes
