@@ -41,12 +41,12 @@ jobs:
           npm i
           npx vsce publish -p ${{ secrets.VSCE_TOKEN }}
 
-      # - name: Publish to OpenVSX
-      #   if: steps.changesets.outputs.published == 'true'
-      #   working-directory: ./packages/vscode
-      #   run: |
-      #     npm i
-      #     npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
+      - name: Publish to OpenVSX
+        if: steps.changesets.outputs.published == 'true'
+        working-directory: ./packages/vscode
+        run: |
+          npm i
+          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
 
       - name: Send a Discord notification if a publish happens
         if: steps.changesets.outputs.published == 'true'
