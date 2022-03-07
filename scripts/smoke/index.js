@@ -2,7 +2,7 @@
 // @ts-check
 
 import { execa } from 'execa';
-import { polyfill } from '@astropub/webapi';
+import { polyfill } from '@astrojs/webapi';
 import { fileURLToPath } from 'node:url';
 import { promises as fs } from 'node:fs';
 

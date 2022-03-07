@@ -11,7 +11,7 @@
     "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:examples": "turbo run build --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
-    "test": "turbo run test --scope=astro",
+    "test": "turbo run test --scope=astro --scope=\"@astrojs/*\"",
     "test:match": "cd packages/astro && yarn run test:match",
     "test:templates": "turbo run test --scope=create-astro",
     "test:smoke": "node scripts/smoke/index.js",
@@ -36,7 +36,6 @@
   ],
   "volta": {
     "node": "14.17.0",
-    "npm": "7.11.2",
     "yarn": "1.22.10"
   },
   "devDependencies": {

@@ -2,7 +2,7 @@ import { createServer } from 'http';
 import fs from 'fs';
 import mime from 'mime';
 import { loadApp } from 'astro/app/node';
-import { polyfill } from '@astropub/webapi';
+import { polyfill } from '@astrojs/webapi';
 import { apiHandler } from './api.mjs';
 
 polyfill(globalThis);

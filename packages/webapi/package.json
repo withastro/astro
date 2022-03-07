@@ -1,0 +1,93 @@
+{
+  "name": "@astrojs/webapi",
+  "description": "Use Web APIs in Node",
+  "version": "0.11.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./mod.js",
+      "types": "./mod.d.ts"
+    },
+    "./apply": {
+      "import": "./apply.js"
+    }
+  },
+  "main": "mod.js",
+  "types": "mod.d.ts",
+  "files": [
+    "apply.js",
+    "mod.d.ts",
+    "mod.js",
+    "mod.js.map"
+  ],
+  "keywords": [
+    "astro",
+    "api",
+    "cancelAnimationFrame",
+    "clearImmediate",
+    "clearInterval",
+    "fetch",
+    "requestAnimationFrame",
+    "setImmediate",
+    "setInterval",
+    "web"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/webapi"
+  },
+  "author": "withastro",
+  "license": "MIT",
+  "contributors": [
+    "Jonathan Neal (https://github.com/jonathantneal)",
+    "Toru Nagashima (https://github.com/mysticatea)",
+    "Jimmy Wärting (https://github.com/jimmywarting)",
+    "David Frank (https://github.com/bitinn)",
+    "Mattias Buelens (https://github.com/MattiasBuelens)",
+    "Diwank Singh (https://github.com/creatorrr)"
+  ],
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://github.com/withastro/astro/tree/main/packages/webapi#readme",
+  "devDependencies": {
+    "@types/mocha": "^9.0.0",
+    "@rollup/plugin-alias": "^3.1.9",
+    "@rollup/plugin-inject": "^4.0.4",
+    "@rollup/plugin-node-resolve": "^13.1.3",
+    "@rollup/plugin-typescript": "^8.3.0",
+    "@ungap/structured-clone": "^0.3.4",
+    "abort-controller": "^3.0.0",
+    "event-target-shim": "^6.0.2",
+    "fetch-blob": "^3.1.4",
+    "formdata-polyfill": "^4.0.10",
+    "magic-string": "^0.25.7",
+    "node-fetch": "^3.2.0",
+    "rollup": "^2.67.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "urlpattern-polyfill": "^1.0.0-rc5",
+    "web-streams-polyfill": "^3.2.0",
+    "mocha": "^9.1.3"
+  },
+  "scripts": {
+    "build": "node run/build.js",
+    "release": "node run/build.js && npm publish --access public",
+    "test": "mocha --parallel --timeout 15000"
+  },
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "useTabs": true,
+    "overrides": [
+      {
+        "files": [
+          ".stackblitzrc",
+          "*.json"
+        ],
+        "options": {
+          "useTabs": false
+        }
+      }
+    ]
+  }
+}

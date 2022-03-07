@@ -1,4 +1,4 @@
-import { polyfill } from '@astropub/webapi';
+import { polyfill } from '@astrojs/webapi';
 import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import type { AstroConfig } from '../../@types/astro';
