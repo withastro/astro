@@ -1,5 +1,5 @@
 import { execa } from 'execa';
-import { polyfill } from '@astropub/webapi';
+import { polyfill } from '@astrojs/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { loadConfig } from '../dist/core/config.js';
