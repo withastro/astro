@@ -64,7 +64,7 @@ const packageMap = new Map([
 	['@astrojs/renderer-svelte', './packages/renderers/renderer-svelte'],
 	['@astrojs/renderer-vue', './packages/renderers/renderer-vue'],
 	['@astrojs/webapi', './packages/webapi'],
-])
+]);
 
 async function run() {
 	const releases = process.argv.slice(2)[0];
