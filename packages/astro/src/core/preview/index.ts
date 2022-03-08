@@ -1,15 +1,16 @@
 import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../logger';
+import type { Stats } from 'fs';
 import type { AddressInfo } from 'net';
-
 import http from 'http';
 import sirv from 'sirv';
 import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 import * as msg from '../messages.js';
 import { error, info } from '../logger.js';
-import { subpathNotUsedTemplate, notFoundTemplate } from '../../template/4xx.js';
+import { appendForwardSlash, trimSlashes } from '../path.js';
 import { getLocalAddress } from '../dev/util.js';
+import { subpathNotUsedTemplate, notFoundTemplate } from '../../template/4xx.js';
 
 interface PreviewOptions {
 	logging: LogOptions;

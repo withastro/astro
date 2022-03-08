@@ -26,6 +26,7 @@ export const KNOWN_LANGUAGES = {
 // See "Algolia" section of the README for more information.
 // export const ALGOLIA = {
 //   indexName: 'XXXXXXXXXX',
+//   appId: 'XXXXXXXXXX',
 //   apiKey: 'XXXXXXXXXX',
 // }
 

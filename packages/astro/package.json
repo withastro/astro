@@ -125,6 +125,7 @@
     "@types/parse5": "^6.0.3",
     "@types/resolve": "^1.20.1",
     "@types/rimraf": "^3.0.2",
+    "@types/send": "^0.17.1",
     "@types/yargs-parser": "^20.2.1",
     "astro-scripts": "workspace:*",
     "chai": "^4.3.4",

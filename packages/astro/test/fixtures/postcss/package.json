@@ -5,6 +5,7 @@
   "dependencies": {
     "astro": "workspace:*",
     "autoprefixer": "^10.4.2",
-    "@astrojs/renderer-solid": "workspace:*"
+    "@astrojs/renderer-solid": "workspace:*",
+    "postcss": "^8.3.8"
   }
 }
