@@ -28,8 +28,11 @@ async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Param
 			}
 		}
 		let routeCacheEntry = routeCache.get(route);
+		// During build, the route cache should already be populated.
+		// During development, the route cache is filled on-demand and may be empty.
+		// TODO(fks): Can we refactor getParamsAndProps() to receive routeCacheEntry
+		// as a prop, and not do a live lookup/populate inside this lower function call.
 		if (!routeCacheEntry) {
-			warn(logging, 'routeCache', `Internal Warning: getStaticPaths() called twice during the build. (${route.component})`);
 			routeCacheEntry = await callGetStaticPaths(mod, route, true, logging);
 			routeCache.set(route, routeCacheEntry);
 		}
