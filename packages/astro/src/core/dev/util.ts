@@ -6,3 +6,7 @@ export function pad(input: string, minLength: number, dir?: 'left' | 'right'): s
 	}
 	return output;
 }
+
+export function emoji(char: string, fallback: string) {
+	return process.platform !== 'win32' ? char + ' ' : fallback;
+}
