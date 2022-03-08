@@ -156,96 +156,36 @@
           "Astro"
         ],
         "configuration": "./languages/astro-language-configuration.json"
-      },
-      {
-        "id": "astro-markdown",
-        "aliases": [
-          "Astro Markdown"
-        ],
-        "configuration": "./languages/astro-markdown-language-configuration.json"
       }
     ],
     "grammars": [
       {
         "language": "astro",
-        "scopeName": "text.html.astro",
+        "scopeName": "source.astro",
         "path": "./syntaxes/astro.tmLanguage.json",
         "embeddedLanguages": {
+          "text.html": "html",
+          "text.html.markdown": "markdown",
           "source.css": "css",
+          "source.css.less": "less",
+          "source.css.scss": "scss",
           "source.sass": "sass",
-          "source.scss": "scss",
+          "source.stylus": "stylus",
+          "source.js": "javascript",
           "source.ts": "typescript",
-          "source.tsx": "typescriptreact",
-          "text.html.astro": "astro",
-          "text.html.markdown.astro": "astro-markdown",
-          "text.html": "html"
+          "source.tsx": "typescriptreact"
         }
       },
       {
-        "language": "astro-markdown",
         "scopeName": "text.html.markdown.astro",
-        "path": "./syntaxes/astro-markdown.tmLanguage.json",
+        "path": "./syntaxes/markdown.astro.tmLanguage.json",
         "injectTo": [
-          "text.html.astro"
+          "text.html.markdown",
+          "source.astro"
         ],
         "embeddedLanguages": {
           "meta.embedded.block.astro": "astro",
-          "meta.embedded.block.c": "c",
-          "meta.embedded.block.clojure": "clojure",
-          "meta.embedded.block.coffee": "coffee",
-          "meta.embedded.block.cpp": "cpp",
-          "meta.embedded.block.csharp": "csharp",
-          "meta.embedded.block.css": "css",
-          "meta.embedded.block.diff": "diff",
-          "meta.embedded.block.dockerfile": "dockerfile",
-          "meta.embedded.block.dosbatch": "dosbatch",
-          "meta.embedded.block.fsharp": "fsharp",
-          "meta.embedded.block.go": "go",
-          "meta.embedded.block.groovy": "groovy",
-          "meta.embedded.block.ini": "ini",
-          "meta.embedded.block.java": "java",
-          "meta.embedded.block.javascript": "javascript",
-          "meta.embedded.block.json": "json",
-          "meta.embedded.block.less": "less",
-          "meta.embedded.block.lua": "lua",
-          "meta.embedded.block.makefile": "makefile",
-          "meta.embedded.block.objc": "objc",
-          "meta.embedded.block.perl": "perl",
-          "meta.embedded.block.perl6": "perl6",
-          "meta.embedded.block.php": "php",
-          "meta.embedded.block.powershell": "powershell",
-          "meta.embedded.block.pug": "jade",
-          "meta.embedded.block.python": "python",
-          "meta.embedded.block.r": "r",
-          "meta.embedded.block.ruby": "ruby",
-          "meta.embedded.block.rust": "rust",
-          "meta.embedded.block.scala": "scala",
-          "meta.embedded.block.scss": "scss",
-          "meta.embedded.block.shellscript": "shellscript",
-          "meta.embedded.block.sql": "sql",
-          "meta.embedded.block.typescript": "typescript",
-          "meta.embedded.block.typescriptreact": "typescriptreact",
-          "meta.embedded.block.vs_net": "vs_net",
-          "meta.embedded.block.xml": "xml",
-          "meta.embedded.block.xsl": "xsl",
-          "meta.embedded.block.yaml": "yaml",
-          "source.css": "css",
-          "source.js": "javascript",
-          "source.ts": "typescript",
-          "source.tsx": "typescriptreact",
-          "text.html.astro": "astro",
-          "text.html.markdown.astro": "astro-markdown",
-          "text.html.markdown": "markdown"
-        }
-      },
-      {
-        "scopeName": "text.html.markdown.astro",
-        "path": "./syntaxes/astro.inject-to-markdown.tmLanguage.json",
-        "injectTo": [
-          "text.html.markdown"
-        ],
-        "embeddedLanguages": {
-          "meta.embedded.block.astro": "astro"
+          "meta.embedded.block.astro.frontmatter": "typescriptreact"
         }
       }
     ]

@@ -5,7 +5,7 @@
   "foldingStopMarker": "(?x)\n(</(?i:head|body|table|thead|tbody|tfoot|tr|div|select|fieldset|style|script|ul|ol|li|form|dl)>\n|^(?!.*?<!--).*?--\\s*>\n|^<!--\\ end\\ tminclude\\ -->$\n|<\\?(?:php)?.*\\bend(if|for(each)?|while)\\b\n|\\{\\{?/(if|foreach|capture|literal|foreach|php|section|strip)\n|^[^{]*\\}\n)",
   "keyEquivalent": "^~H",
   "name": "Astro",
-  "scopeName": "text.html.astro",
+  "scopeName": "source.astro",
   "patterns": [
     {
       "include": "#astro:markdown"
@@ -26,7 +26,10 @@
       "include": "#astro:fragment"
     },
     {
-      "include": "#astro:lang"
+      "include": "#astro:lang-scripts"
+    },
+    {
+      "include": "#astro:lang-styles"
     },
     {
       "include": "#astro:component"
@@ -102,35 +105,26 @@
         }
       }
     },
-    "astro:lang": {
-      "begin": "(<)(?:(S(?i:cript|tyle))|((?i:script|style)))(?![\\w:-])",
+    "astro:lang-scripts": {
+      "begin": "(<)(script)",
+      "end": "(</)(script)\\s*(>)|(/>)",
       "beginCaptures": {
-        "0": {
-          "name": "meta.tag.metadata.$2$3.start.html"
-        },
         "1": {
           "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.astro support.class.component.astro"
-        },
-        "3": {
           "name": "entity.name.tag.html"
         }
       },
-      "end": "(</)(?:(S(?i:cript|tyle))|((?i:script|style)))(?![\\w:-])\\s*(>)",
       "endCaptures": {
-        "0": {
-          "name": "meta.tag.metadata.$2$3.end.html"
-        },
         "1": {
           "name": "punctuation.definition.tag.begin.html"
         },
         "2": {
-          "name": "entity.name.tag.astro support.class.component.astro"
+          "name": "entity.name.tag.html"
         },
         "3": {
-          "name": "entity.name.tag.html"
+          "name": "punctuation.definition.tag.end.html"
         },
         "4": {
           "name": "punctuation.definition.tag.end.html"
@@ -138,119 +132,151 @@
       },
       "patterns": [
         {
-          "begin": "\\G",
-          "end": "(>)",
-          "endCaptures": {
-            "1": {
-              "name": "punctuation.definition.tag.end.html"
-            }
-          },
+          "begin": "\\G(?=\\s*[^>]*?lang\\s*=\\s*(['\"]|)(?i:jsx?|javascript)\\1)",
+          "end": "(?=</|/>)",
           "patterns": [
             {
-              "include": "#astro:attribute"
-            }
+              "begin": "(?<=>)(?!</)",
+              "end": "(?=</)",
+              "contentName": "source.js",
+              "patterns": [{ "include": "source.js" }]
+            },
+            { "include": "#html:tag-attributes" }
           ]
         },
         {
-          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:css)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</[\\w:-])",
-          "contentName": "source.css",
+          "begin": "\\G(?=\\s*[^>]*?lang\\s*=\\s*(['\"]|)(?i:ts|typescript)\\1)",
+          "end": "(?=</|/>)",
           "patterns": [
             {
-              "include": "source.css"
-            }
+              "begin": "(?<=>)(?!</)",
+              "end": "(?=</)",
+              "contentName": "source.ts",
+              "patterns": [{ "include": "source.ts" }]
+            },
+            { "include": "#html:tag-attributes" }
           ]
         },
         {
-          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:jsx?)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</[\\w:-])",
+          "begin": "\\G(?=\\s*[^>]*?lang\\s*=\\s*(['\"]|)(?i:tsx)\\1)",
+          "end": "(?=</|/>)",
+          "patterns": [
+            {
+              "begin": "(?<=>)(?!</)",
+              "end": "(?=</)",
+              "contentName": "source.tsx",
+              "patterns": [{ "include": "source.tsx" }]
+            },
+            { "include": "#html:tag-attributes" }
+          ]
+        },
+        {
+          "begin": "(?<=>)(?!</)",
+          "end": "(?=</)",
           "contentName": "source.js",
-          "patterns": [
-            {
-              "include": "source.js"
-            }
-          ]
+          "patterns": [{ "include": "source.js" }]
         },
-        {
-          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:less)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</[\\w:-])",
-          "contentName": "source.css.css",
-          "patterns": [
-            {
-              "include": "source.css.less"
-            }
-          ]
+        { "include": "#html:tag-attributes" }
+      ]
+    },
+    "astro:lang-styles": {
+      "begin": "(<)(style)",
+      "end": "(</)(style)\\s*(>)|(/>)",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
         },
-        {
-          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:sass)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</[\\w:-])",
-          "contentName": "source.sass",
-          "patterns": [
-            {
-              "include": "source.sass"
-            }
-          ]
-        },
-        {
-          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:scss)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</[\\w:-])",
-          "contentName": "source.css.scss",
-          "patterns": [
-            {
-              "include": "source.css.scss"
-            }
-          ]
-        },
-        {
-          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:styl(?:us)?)\\1[^>]*>)(?!\\G)",
-           "end": "(?=</[\\w:-])",
-          "contentName": "source.stylus",
-          "patterns": [
-            {
-              "include": "source.stylus"
-            }
-          ]
-        },
-        {
-          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:ts)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</[\\w:-])",
-          "contentName": "source.ts",
-          "patterns": [
-            {
-              "include": "source.ts"
-            }
-          ]
-        },
-        {
-          "begin": "(?<=(?i:lang)=(['\"`]?)(?i:tsx)\\1[^>]*>)(?!\\G)",
-          "end": "(?=</[\\w:-])",
-          "contentName": "source.tsx",
-          "patterns": [
-            {
-              "include": "source.tsx"
-            }
-          ]
-        },
-        {
-          "begin": "(?<=<(?i:script)[^>]*>)(?!\\G)",
-          "end": "(?=</[\\w:-])",
-          "contentName": "source.js",
-          "patterns": [
-            {
-              "include": "source.js"
-            }
-          ]
-        },
-        {
-          "begin": "(?<=<(?i:style)[^>]*>)(?!\\G)",
-          "end": "(?=</[\\w:-])",
-          "contentName": "source.css",
-          "patterns": [
-            {
-              "include": "source.css"
-            }
-          ]
+        "2": {
+          "name": "entity.name.tag.html"
         }
+      },
+      "endCaptures": {
+        "1": {
+          "name": "punctuation.definition.tag.begin.html"
+        },
+        "2": {
+          "name": "entity.name.tag.html"
+        },
+        "3": {
+          "name": "punctuation.definition.tag.end.html"
+        },
+        "4": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "patterns": [
+        {
+          "begin": "\\G(?=\\s*[^>]*?lang\\s*=\\s*(['\"]|)(?i:css)\\1)",
+          "end": "(?=</|/>)",
+          "patterns": [
+            {
+              "begin": "(?<=>)(?!</)",
+              "end": "(?=</)",
+              "contentName": "source.css",
+              "patterns": [{ "include": "source.css" }]
+            },
+            { "include": "#html:tag-attributes" }
+          ]
+        },
+        {
+          "begin": "\\G(?=\\s*[^>]*?lang\\s*=\\s*(['\"]|)(?i:less)\\1)",
+          "end": "(?=</|/>)",
+          "patterns": [
+            {
+              "begin": "(?<=>)(?!</)",
+              "end": "(?=</)",
+              "contentName": "source.css.less",
+              "patterns": [{ "include": "source.css.less" }]
+            },
+            { "include": "#html:tag-attributes" }
+          ]
+        },
+        {
+          "begin": "\\G(?=\\s*[^>]*?lang\\s*=\\s*(['\"]|)(?i:sass)\\1)",
+          "end": "(?=</|/>)",
+          "patterns": [
+            {
+              "begin": "(?<=>)(?!</)",
+              "end": "(?=</)",
+              "contentName": "source.sass",
+              "patterns": [{ "include": "source.sass" }]
+            },
+            { "include": "#html:tag-attributes" }
+          ]
+        },
+        {
+          "begin": "\\G(?=\\s*[^>]*?lang\\s*=\\s*(['\"]|)(?i:scss)\\1)",
+          "end": "(?=</|/>)",
+          "patterns": [
+            {
+              "begin": "(?<=>)(?!</)",
+              "end": "(?=</)",
+              "contentName": "source.css.scss",
+              "patterns": [{ "include": "source.css.scss" }]
+            },
+            { "include": "#html:tag-attributes" }
+          ]
+        },
+        {
+          "begin": "\\G(?=\\s*[^>]*?lang\\s*=\\s*(['\"]|)(?i:styl(?:us)?)\\1)",
+          "end": "(?=</|/>)",
+          "patterns": [
+            {
+              "begin": "(?<=>)(?!</)",
+              "end": "(?=</)",
+              "contentName": "source.stylus",
+              "patterns": [{ "include": "source.stylus" }]
+            },
+            { "include": "#html:tag-attributes" }
+          ]
+        },
+        {
+          "begin": "(?<=>)(?!</)",
+          "end": "(?=</)",
+          "contentName": "source.css",
+          "patterns": [{ "include": "source.css" }]
+        },
+        { "include": "#html:tag-attributes" }
       ]
     },
     "html:attribute": {
@@ -264,6 +290,16 @@
           "name": "punctuation.separator.key-value.html"
         }
       }
+    },
+    "html:tag-attributes": {
+      "begin": "\\G",
+      "end": "(?=/>)|>",
+      "endCaptures": {
+        "0": {
+          "name": "punctuation.definition.tag.end.html"
+        }
+      },
+      "patterns": [{ "include": "#astro:attribute" }]
     },
     "html:comment": {
       "name": "comment.block.html",
@@ -429,7 +465,6 @@
       ]
     },
     "astro:markdown": {
-      "name": "text.html.astro.markdown",
       "begin": "(<)(Markdown)(>)",
       "beginCaptures": {
         "1": {
@@ -456,7 +491,7 @@
       },
       "patterns": [
         {
-          "include": "text.html.markdown.astro"
+          "include": "text.html.markdown"
         }
       ]
     },
