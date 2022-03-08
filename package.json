@@ -101,6 +101,6 @@
   },
   "packageManager": "pnpm@6.23.6",
   "dependencies": {
-    "@astropub/webapi": "^0.10.14"
+    "@astrojs/webapi": "workspace:*"
   }
 }

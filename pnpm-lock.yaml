@@ -4,7 +4,7 @@ importers:
 
   .:
     specifiers:
-      '@astropub/webapi': ^0.10.14
+      '@astrojs/webapi': workspace:*
       '@changesets/changelog-github': ^0.4.2
       '@changesets/cli': ^2.16.0
       '@octokit/action': ^3.15.4
@@ -22,7 +22,7 @@ importers:
       turbo: ^1.0.0
       typescript: 4.5.2
     dependencies:
-      '@astropub/webapi': 0.10.14
+      '@astrojs/webapi': link:packages/webapi
     devDependencies:
       '@changesets/changelog-github': 0.4.2
       '@changesets/cli': 2.20.0
@@ -1145,7 +1145,7 @@ importers:
 
   scripts:
     specifiers:
-      '@astropub/webapi': ^0.10.14
+      '@astrojs/webapi': workspace:*
       adm-zip: ^0.5.9
       arg: ^5.0.0
       esbuild: 0.13.7
@@ -1154,7 +1154,7 @@ importers:
       svelte: ^3.46.2
       tar: ^6.1.0
     dependencies:
-      '@astropub/webapi': 0.10.14
+      '@astrojs/webapi': link:../packages/webapi
       adm-zip: 0.5.9
       arg: 5.0.1
       esbuild: 0.13.7
@@ -1327,10 +1327,6 @@ packages:
       - typescript
       - vite
     dev: true
-
-  /@astropub/webapi/0.10.14:
-    resolution: {integrity: sha512-/o0XdOZLSD3PcZEMm/gRGx5XTFmMzJOCgbBYw//cmHWwpLn6H+9xWBe68r9ToUQ1Ns4GVkfwZlyKVMBNTTXn/g==}
-    dev: false
 
   /@babel/code-frame/7.16.7:
     resolution: {integrity: sha512-iAXqUn8IIeBTNd72xsFlgaXHkMBMt6y4HJp1tIaK465CWLT/fG1aqB7ykr95gHHmlBdGbFeWWfyB4NJJ0nmeIg==}
