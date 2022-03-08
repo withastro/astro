@@ -1,0 +1,9 @@
+{
+  "name": "@astrojs/test-static-build-frameworks",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/renderer-lit": "workspace:*"
+  }
+}

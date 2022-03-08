@@ -20,22 +20,8 @@ const readFile = (/** @type {string} */ id) =>
 	readFileCache[id] || (readFileCache[id] = nodeReadFile(id, 'utf8'))
 
 const pathToDOMException = path.resolve('src', 'lib', 'DOMException.js')
-const pathToEventTargetShim = path.join(
-	'..',
-	'..',
-	'node_modules',
-	'event-target-shim',
-	'index.mjs'
-)
-const pathToStructuredClone = path.join(
-	'..',
-	'..',
-	'node_modules',
-	'@ungap',
-	'structured-clone',
-	'esm',
-	'index.js'
-)
+const pathToEventTargetShim = path.resolve('node_modules', 'event-target-shim', 'index.mjs')
+const pathToStructuredClone = path.resolve('node_modules', '@ungap', 'structured-clone', 'esm', 'index.js')
 
 const plugins = [
 	typescript({

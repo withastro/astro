@@ -15,6 +15,7 @@ import glob from 'fast-glob';
 import * as vite from 'vite';
 import { debug, error } from '../../core/logger.js';
 import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
+import { resolveDependency } from '../../core/util.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { emptyDir, prepareOutDir } from './fs.js';
@@ -273,7 +274,7 @@ async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
 
 	const renderers = await Promise.all(
 		viteLoadedRenderers.map(async (r) => {
-			const mod = await import(r.serverEntry);
+			const mod = await import(resolveDependency(r.serverEntry, opts.astroConfig));
 			return Object.create(r, {
 				ssr: {
 					value: mod.default,

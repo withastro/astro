@@ -2,8 +2,13 @@
   "baseBranch": "origin/main",
   "pipeline": {
     "build": {
-      "dependsOn": ["^build"],
-      "outputs": ["**/dist/**", "!**/vendor/**"]
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "**/dist/**",
+        "!**/vendor/**"
+      ]
     },
     "dev": {
       "cache": false
@@ -15,7 +20,9 @@
       "outputs": []
     },
     "benchmark": {
-      "dependsOn": ["^build"],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": []
     },
     "lint": {

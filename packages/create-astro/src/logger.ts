@@ -25,7 +25,7 @@ const dt = new Intl.DateTimeFormat(getLoggerLocale(), {
 export const defaultLogDestination = new Writable({
 	objectMode: true,
 	write(event: LogMessage, _, callback) {
-		let dest: ConsoleStream = process.stderr;
+		let dest: Writable = process.stderr;
 		if (levels[event.level] < levels['error']) dest = process.stdout;
 
 		dest.write(dim(dt.format(new Date()) + ' '));

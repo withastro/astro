@@ -1,0 +1,9 @@
+{
+  "name": "@astrojs/test-astro-jsx",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "@astrojs/renderer-solid": "workspace:*"
+  }
+}

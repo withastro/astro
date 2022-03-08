@@ -1,0 +1,9 @@
+{
+  "name": "@astrojs/test-sass",
+  "version": "0.0.0",
+  "private": true,
+  "dependencies": {
+    "astro": "workspace:*",
+    "sass": "^1.49.8"
+  }
+}

@@ -1,4 +1,5 @@
-/** @file Runs all smoke tests and may add extra smoke-test dependencies to `yarn.lock`. */
+/** @file Runs all smoke tests and may add extra smoke-test dependencies to `pnpm-lock.yaml`. */
+
 // @ts-check
 
 import { execa } from 'execa';
@@ -33,29 +34,32 @@ const getChildDirectories = async (/** @type {URL} */ dir) => {
 async function run() {
 	console.log('');
 
-	const directories = [...(await getChildDirectories(exampleDir)), ...(await getChildDirectories(smokeDir))];
+	const directories = [...(await getChildDirectories(smokeDir)), ...(await getChildDirectories(exampleDir))];
 
-	console.log('🤖', 'Preparing', 'yarn');
+	console.log('🤖', 'Preparing', 'pnpm');
 
-	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
+	await execa('pnpm', ['install', '--frozen-lockfile=false'], { cwd: fileURLToPath(rootDir), stdio: 'inherit' });
 
 	for (const directory of directories) {
-		console.log('🤖', 'Testing', directory.pathname.split('/').at(-1));
+		const name = directory.pathname.split('/').at(-1) ?? "";
+		const isExternal = directory.pathname.includes(smokeDir.pathname);
+		console.log('🤖', 'Testing', name);
 
 		try {
-			await execa('yarn', ['run', 'build'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
+			await execa('pnpm', ['install', '--ignore-scripts', '--frozen-lockfile=false', isExternal ? '--shamefully-hoist' : ''].filter(x => x), { cwd: fileURLToPath(directory), stdio: 'inherit' });
+			await execa('pnpm', ['run', 'build'], { cwd: fileURLToPath(directory), stdio: 'inherit' });
 		} catch (err) {
 			console.log(err);
 			process.exit(1);
 		}
 
 		// Run with the static build too (skip for remote repos)
-		if (directory.pathname.includes(smokeDir.pathname)) {
+		if (isExternal) {
 			continue;
 		}
 
 		try {
-			await execa('yarn', ['build', '--', '--experimental-static-build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
+			await execa('pnpm', ['run', 'build', '--', '--experimental-static-build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
 		} catch (err) {
 			console.log(err);
 			process.exit(1);

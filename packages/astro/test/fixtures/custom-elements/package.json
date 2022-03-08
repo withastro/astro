@@ -1,8 +1,9 @@
 {
   "name": "@astrojs/test-custom-elements",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/test-custom-element-renderer": "0.0.1"
+    "astro": "workspace:*",
+    "@astrojs/test-custom-element-renderer": "workspace:*"
   }
 }

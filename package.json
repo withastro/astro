@@ -7,13 +7,13 @@
     "url": "https://github.com/withastro/astro.git"
   },
   "scripts": {
-    "release": "yarn build && changeset publish",
+    "release": "pnpm run build && changeset publish",
     "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:examples": "turbo run build --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
-    "test": "turbo run test --scope=astro --scope=\"@astrojs/*\"",
-    "test:match": "cd packages/astro && yarn run test:match",
-    "test:templates": "turbo run test --scope=create-astro",
+    "test": "pnpm run test --filter astro --filter @astrojs/webapi",
+    "test:match": "cd packages/astro && pnpm run test:match",
+    "test:templates": "pnpm run test --filter create-astro",
     "test:smoke": "node scripts/smoke/index.js",
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
@@ -36,7 +36,15 @@
   ],
   "volta": {
     "node": "14.17.0",
-    "yarn": "1.22.10"
+    "npm": "7.11.2"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "@babel/core",
+        "@babel/plugin-transform-react-jsx"
+      ]
+    }
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.2",
@@ -53,11 +61,14 @@
     "prettier": "^2.4.1",
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.8",
-    "turbo": "^1.0.0",
+    "turbo": "^1.1.5",
     "typescript": "4.5.2"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"
   },
-  "packageManager": "yarn@1.22.5"
+  "packageManager": "pnpm@6.23.6",
+  "dependencies": {
+    "@astrojs/webapi": "workspace:*"
+  }
 }

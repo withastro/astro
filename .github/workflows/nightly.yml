@@ -13,13 +13,23 @@ jobs:
     steps:
       - name: Check out code using Git
         uses: actions/checkout@v2
-      - name: Set Node version to 16
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.23.6
+
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'yarn'
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --ignore-scripts
+          cache: 'pnpm'
+
+      - name: Install NPM Dependencies
+        run: pnpm install
+        env:
+          CI: true
+
       - name: Collect stats
         run: node scripts/stats/index.js
         env:
@@ -38,17 +48,21 @@ jobs:
       - name: Check out code using Git
         uses: actions/checkout@v2
       
-      - name: Set Node version to 16
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2.0.1
+        with:
+          version: 6.23.6
+
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
           node-version: 16
-          cache: 'yarn'
+          cache: 'pnpm'
       
-      - name: Clear lockfile
-        run: rm -rf yarn.lock node_modules 
-      
-      - name: Install dependencies
-        run: yarn install --ignore-engines --ignore-scripts
+      - name: Install NPM Dependencies
+        run: pnpm upgrade --recursive
+        env:
+          CI: true
       
       - name: Create Pull Request
         id: createpr

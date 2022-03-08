@@ -20,7 +20,6 @@
   "scripts": {
     "build": "astro-scripts build \"src/**/*.ts\" && tsc",
     "dev": "astro-scripts dev \"src/**/*.ts\"",
-    "prepare": "yarn build",
     "test": "rm -rf test/fixtures && mkdir test/fixtures && node --unhandled-rejections=strict test/create-astro.test.js"
   },
   "files": [
@@ -29,7 +28,6 @@
   ],
   "dependencies": {
     "@types/degit": "^2.8.2",
-    "@types/node-fetch": "^3.0.0",
     "@types/prompts": "^2.0.12",
     "degit": "^2.8.4",
     "kleur": "^4.1.1",
@@ -38,6 +36,8 @@
     "yargs-parser": "^21.0.0"
   },
   "devDependencies": {
+    "@types/yargs-parser": "^20.2.1",
+    "astro-scripts": "workspace:*",
     "uvu": "^0.5.1"
   },
   "engines": {

@@ -17,17 +17,18 @@
     "dist"
   ],
   "scripts": {
-    "prepublish": "yarn build",
+    "prepublish": "pnpm run build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
+    "@types/node": "^15.12.2",
     "acorn": "^8.6.0",
     "locate-character": "^2.0.5",
     "magic-string": "^0.25.3"
   },
   "devDependencies": {
-    "astro-scripts": "0.0.1"
+    "astro-scripts": "workspace:*"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0",

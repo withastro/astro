@@ -9,11 +9,12 @@
     "preview": "astro preview"
   },
   "dependencies": {
+    "@docsearch/css": "^3.0.0",
     "@docsearch/react": "^1.0.0-alpha.28"
   },
   "devDependencies": {
-    "astro": "^0.23.7",
+    "@astrojs/renderer-react": "^0.5.0",
     "@astrojs/renderer-preact": "^0.5.0",
-    "@astrojs/renderer-react": "^0.5.0"
+    "astro": "^0.23.7"
   }
 }

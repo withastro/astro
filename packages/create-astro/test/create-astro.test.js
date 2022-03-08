@@ -111,8 +111,8 @@ async function testAll() {
 			await execa('../../create-astro.mjs', [template, '--template', template, '--commit', GITHUB_SHA, '--force-overwrite'], {
 				cwd: FIXTURES_DIR,
 			});
-			// setup: `npm install` (note: running multiple `yarn`s in parallel in CI will conflict)
-			await execa('npm', ['install', '--no-package-lock', '--silent'], { cwd: path.join(FIXTURES_DIR, template) });
+			// setup: `pnpm install` (note: running multiple `pnpm`s in parallel in CI will conflict)
+			await execa('pnpm', ['install', '--no-package-lock', '--silent'], { cwd: path.join(FIXTURES_DIR, template) });
 		})
 	);
 

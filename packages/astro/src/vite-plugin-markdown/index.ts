@@ -3,6 +3,7 @@ import type { AstroConfig } from '../@types/astro';
 
 import esbuild from 'esbuild';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { transform } from '@astrojs/compiler';
 
 interface AstroPluginOptions {
@@ -59,7 +60,7 @@ ${setup}`.trim();
 					site: config.buildOptions.site,
 					sourcefile: id,
 					sourcemap: 'inline',
-					internalURL: 'astro/internal',
+					internalURL: `/@fs${new URL('../runtime/server/index.js', import.meta.url).pathname}`,
 				});
 
 				tsResult = `\nexport const metadata = ${JSON.stringify(metadata)};

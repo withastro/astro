@@ -1,4 +1,4 @@
-/** @file Remove all smoke tests and may remove extra smoke-test dependencies from `yarn.lock`. */
+/** @file Remove all smoke tests and may remove extra smoke-test dependencies from `pnpm-lock.yaml`. */
 
 // @ts-check
 
@@ -37,9 +37,9 @@ async function run() {
 
 	console.log();
 
-	console.log('🤖', 'Resetting', 'yarn');
+	console.log('🤖', 'Resetting', 'pnpm');
 
-	await execa('yarn', [], { cwd: fileURLToPath(rootDir), stdout: 'inherit', stderr: 'inherit' });
+	await execa('pnpm', ['install'], { cwd: fileURLToPath(rootDir), stdout: 'inherit', stderr: 'inherit' });
 }
 
 /* Functionality
