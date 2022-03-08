@@ -11,9 +11,9 @@
     "build": "turbo run build --no-deps --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
     "build:examples": "turbo run build --scope=\"@example/*\"",
     "dev": "turbo run dev --no-deps --no-cache --parallel --scope=astro --scope=create-astro --scope=\"@astrojs/*\"",
-    "test": "turbo run test --scope=\"astro\" --scope=\"@astrojs/*\" --ignore=\"create-astro\"",
+    "test": "pnpm run test --filter astro --filter @astrojs/webapi",
     "test:match": "cd packages/astro && pnpm run test:match",
-    "test:templates": "turbo run test --scope=create-astro",
+    "test:templates": "pnpm run test --filter create-astro",
     "test:smoke": "node scripts/smoke/index.js",
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
@@ -34,38 +34,6 @@
     "packages/astro/test/fixtures/custom-elements/my-component-lib",
     "packages/astro/test/fixtures/static build/pkg"
   ],
-  "turbo": {
-    "baseBranch": "origin/main",
-    "pipeline": {
-      "build": {
-        "dependsOn": [
-          "^build"
-        ],
-        "outputs": [
-          "**/dist/**",
-          "!**/vendor/**"
-        ]
-      },
-      "dev": {
-        "cache": false
-      },
-      "test": {
-        "outputs": []
-      },
-      "test:templates": {
-        "outputs": []
-      },
-      "benchmark": {
-        "dependsOn": [
-          "^build"
-        ],
-        "outputs": []
-      },
-      "lint": {
-        "outputs": []
-      }
-    }
-  },
   "volta": {
     "node": "14.17.0",
     "npm": "7.11.2"

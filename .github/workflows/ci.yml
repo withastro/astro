@@ -156,13 +156,7 @@ jobs:
           CI: true
 
       - name: Test
-        if: ${{ matrix.os != 'windows-latest' }}
         run: pnpm run test
-
-      # Turbo seems to make the tests hang on Windows, just run them directly
-      - name: Test (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
-        run: pnpm run test --filter astro
 
   smoke:
     name: 'Test (Smoke) ${{ matrix.os }}'
