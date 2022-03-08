@@ -5,7 +5,6 @@
 import type { AddressInfo } from 'net';
 import { bold, dim, green, magenta, yellow, cyan } from 'kleur/colors';
 import { pad, emoji } from './dev/util.js';
-import fs from 'fs';
 
 /** Display  */
 export function req({ url, statusCode, reqTime }: { url: string; statusCode: number; reqTime?: number }): string {
@@ -24,10 +23,9 @@ export function reload({ url, reqTime }: { url: string; reqTime: number }): stri
 }
 
 /** Display dev server host and startup time */
-export async function devStart({ startupTime, port, localAddress, networkAddress, https, site }: { startupTime: number; port: number; localAddress: string; networkAddress: string; https: boolean; site: URL | undefined }): Promise<string> {
-	const pkgURL = new URL('../../package.json', import.meta.url);
-	const pkg = JSON.parse(await fs.promises.readFile(pkgURL, 'utf8'));
-	const pkgVersion = pkg.version;
+export function devStart({ startupTime, port, localAddress, networkAddress, https, site }: { startupTime: number; port: number; localAddress: string; networkAddress: string; https: boolean; site: URL | undefined }): string {
+	// PACAKGE_VERSION is injected at build-time
+	const pkgVersion = process.env.PACKAGE_VERSION;
 
 	const rootPath = site ? site.pathname : '/';
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`

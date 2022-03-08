@@ -130,7 +130,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 						const { address: networkAddress } = server.address() as AddressInfo;
 						const localAddress = getLocalAddress(networkAddress, hostname)
 
-						info(logging, null, await msg.devStart({ startupTime: performance.now() - timerStart, port, localAddress, networkAddress, https: false, site: baseURL }));
+						info(logging, null, msg.devStart({ startupTime: performance.now() - timerStart, port, localAddress, networkAddress, https: false, site: baseURL }));
 					}
 					showedListenMsg = true;
 					resolve();
