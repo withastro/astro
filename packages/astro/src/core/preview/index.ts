@@ -1,6 +1,7 @@
 import type { AstroConfig } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 import type { Stats } from 'fs';
+import type { AddressInfo } from 'net';
 
 import http from 'http';
 import { performance } from 'perf_hooks';
@@ -11,6 +12,7 @@ import * as msg from '../messages.js';
 import { error, info } from '../logger.js';
 import { subpathNotUsedTemplate, notFoundTemplate, default as template } from '../../template/4xx.js';
 import { appendForwardSlash, trimSlashes } from '../path.js';
+import { getLocalAddress } from '../dev/util.js';
 
 interface PreviewOptions {
 	logging: LogOptions;
@@ -123,10 +125,12 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		let showedListenMsg = false;
 		return new Promise<void>((resolve, reject) => {
 			const listen = () => {
-				httpServer = server.listen(port, hostname, () => {
+				httpServer = server.listen(port, hostname, async () => {
 					if (!showedListenMsg) {
-						info(logging, 'astro', msg.devStart({ startupTime: performance.now() - timerStart }));
-						info(logging, 'astro', msg.devHost({ address: { family: 'ipv4', address: hostname, port }, https: false, site: baseURL }));
+						const { address: networkAddress } = server.address() as AddressInfo;
+						const localAddress = getLocalAddress(networkAddress, hostname)
+
+						info(logging, null, msg.devStart({ startupTime: performance.now() - timerStart, port, localAddress, networkAddress, https: false, site: baseURL }));
 					}
 					showedListenMsg = true;
 					resolve();
