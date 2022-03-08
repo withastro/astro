@@ -1,87 +1,12 @@
-export {
-	AbortController,
-	AbortSignal,
-	Blob,
-	ByteLengthQueuingStrategy,
-	CanvasRenderingContext2D,
-	CharacterData,
-	Comment,
-	CountQueuingStrategy,
-	CSSStyleSheet,
-	CustomElementRegistry,
-	CustomEvent,
-	DOMException,
-	Document,
-	DocumentFragment,
-	Element,
-	Event,
-	EventTarget,
-	File,
-	FormData,
-	HTMLDocument,
-	HTMLElement,
-	HTMLBodyElement,
-	HTMLCanvasElement,
-	HTMLDivElement,
-	HTMLHeadElement,
-	HTMLHtmlElement,
-	HTMLImageElement,
-	HTMLSpanElement,
-	HTMLStyleElement,
-	HTMLTemplateElement,
-	HTMLUnknownElement,
-	Headers,
-	IntersectionObserver,
-	Image,
-	ImageData,
-	MediaQueryList,
-	MutationObserver,
-	Node,
-	NodeFilter,
-	NodeIterator,
-	OffscreenCanvas,
-	ReadableByteStreamController,
-	ReadableStream,
-	ReadableStreamBYOBReader,
-	ReadableStreamBYOBRequest,
-	ReadableStreamDefaultController,
-	ReadableStreamDefaultReader,
-	Request,
-	ResizeObserver,
-	Response,
-	ShadowRoot,
-	StyleSheet,
-	Text,
-	TransformStream,
-	TreeWalker,
-	URLPattern,
-	WritableStream,
-	WritableStreamDefaultController,
-	WritableStreamDefaultWriter,
-	Window,
-	alert,
-	atob,
-	btoa,
-	cancelAnimationFrame,
-	cancelIdleCallback,
-	clearTimeout,
-	fetch,
-	requestAnimationFrame,
-	requestIdleCallback,
-	setTimeout,
-	structuredClone,
-} from './mod.js'
-export { pathToPosix } from './lib/utils'
+export { AbortController, AbortSignal, Blob, ByteLengthQueuingStrategy, CanvasRenderingContext2D, CharacterData, Comment, CountQueuingStrategy, CSSStyleSheet, CustomElementRegistry, CustomEvent, DOMException, Document, DocumentFragment, Element, Event, EventTarget, File, FormData, HTMLDocument, HTMLElement, HTMLBodyElement, HTMLCanvasElement, HTMLDivElement, HTMLHeadElement, HTMLHtmlElement, HTMLImageElement, HTMLSpanElement, HTMLStyleElement, HTMLTemplateElement, HTMLUnknownElement, Headers, IntersectionObserver, Image, ImageData, MediaQueryList, MutationObserver, Node, NodeFilter, NodeIterator, OffscreenCanvas, ReadableByteStreamController, ReadableStream, ReadableStreamBYOBReader, ReadableStreamBYOBRequest, ReadableStreamDefaultController, ReadableStreamDefaultReader, Request, ResizeObserver, Response, ShadowRoot, StyleSheet, Text, TransformStream, TreeWalker, URLPattern, WritableStream, WritableStreamDefaultController, WritableStreamDefaultWriter, Window, alert, atob, btoa, cancelAnimationFrame, cancelIdleCallback, clearTimeout, fetch, requestAnimationFrame, requestIdleCallback, setTimeout, structuredClone, } from './mod.js';
+export { pathToPosix } from './lib/utils';
 export declare const polyfill: {
-	(target: any, options?: PolyfillOptions | undefined): any
-	internals(target: any, name: string): any
-}
+    (target: any, options?: PolyfillOptions | undefined): any;
+    internals(target: any, name: string): any;
+};
 interface PolyfillOptions {
-	exclude?: string | string[]
-	override?: Record<
-		string,
-		{
-			(...args: any[]): any
-		}
-	>
+    exclude?: string | string[];
+    override?: Record<string, {
+        (...args: any[]): any;
+    }>;
 }

@@ -7,9 +7,7 @@
 // You can disable this by removing "@ts-check" and `@type` comments below.
 
 // @ts-check
-export default /** @type {import('astro').AstroUserConfig} */ (
-	{
-		// Set "renderers" to "[]" to disable all default, builtin component support.
-		renderers: [],
-	}
-);
+export default /** @type {import('astro').AstroUserConfig} */ ({
+	// Set "renderers" to "[]" to disable all default, builtin component support.
+	renderers: [],
+});

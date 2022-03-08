@@ -35,7 +35,7 @@ async function importJSXRenderers(config: AstroConfig): Promise<Map<string, Rend
 			return import(resolveDependency(name, config)).then(({ default: renderer }) => {
 				if (!renderer.jsxImportSource) return;
 				renderers.set(renderer.jsxImportSource, renderer);
-			})
+			});
 		})
 	);
 	return renderers;
