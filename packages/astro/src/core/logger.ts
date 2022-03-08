@@ -35,10 +35,11 @@ export const defaultLogDestination = new Writable({
 			dest = process.stdout;
 		}
 
-		dest.write(dim(dt.format(new Date()) + ' '));
 
 		let type = event.type;
 		if (type) {
+			// hide timestamp when type is undefined
+			dest.write(dim(dt.format(new Date()) + ' '));
 			if (event.level === 'info') {
 				type = bold(blue(type));
 			} else if (event.level === 'warn') {
