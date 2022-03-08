@@ -62,7 +62,7 @@ interface RenderOptions {
 	site?: string;
 }
 
-export async function render(opts: RenderOptions): Promise<string> {
+export async function render(opts: RenderOptions): Promise<string | { location: string }> {
 	const { legacyBuild, links, logging, origin, markdownRender, mod, pathname, scripts, renderers, resolve, route, routeCache, site } = opts;
 
 	const [params, pageProps] = await getParamsAndProps({
@@ -98,6 +98,10 @@ export async function render(opts: RenderOptions): Promise<string> {
 	});
 
 	let html = await renderToString(result, Component, pageProps, null);
+
+	if(typeof html === 'object') {
+		return html;
+	}
 
 	// handle final head injection if it hasn't happened already
 	if (html.indexOf("<!--astro:head:injected-->") == -1) {

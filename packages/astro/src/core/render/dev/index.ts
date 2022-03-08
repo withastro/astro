@@ -116,7 +116,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 		site: astroConfig.buildOptions.site,
 	});
 
-	if (route?.type === 'endpoint') {
+	if (route?.type === 'endpoint' || typeof content === 'object') {
 		return content;
 	}
 

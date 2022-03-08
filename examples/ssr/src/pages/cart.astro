@@ -1,0 +1,22 @@
+---
+import { getUser } from '../api';
+
+const isLoggedIn = false;
+
+if(!isLoggedIn) {
+	return Astro.redirect('/');
+}
+
+// This person is logged in
+const user = { name: 'test'} // await getUser();
+---
+
+<html>
+	<head>
+		<title>Logged in Page</title>
+	</head>
+	<body>
+		<h1>Logged in page</h1>
+		<h2>User: {user.name}</h2>
+	</body>
+</html>

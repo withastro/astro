@@ -130,6 +130,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 			const topLevelImports = new Set([
 				// Any component that gets hydrated
+				// 'components/Counter.jsx'
+				// { 'components/Counter.jsx': 'counter.hash.js' }
 				...metadata.hydratedComponentPaths(),
 				// Client-only components
 				...metadata.clientOnlyComponentPaths(),

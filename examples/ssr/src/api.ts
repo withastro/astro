@@ -5,6 +5,10 @@ interface Product {
 	image: string;
 }
 
+interface User {
+	id: number;
+}
+
 //let origin: string;
 const { mode } = import.meta.env;
 const origin = mode === 'develepment' ? `http://localhost:3000` : `http://localhost:8085`;
@@ -29,5 +33,12 @@ export async function getProduct(id: number): Promise<Product> {
 	return get<Product>(`/api/products/${id}`, async (response) => {
 		const product: Product = await response.json();
 		return product;
+	});
+}
+
+export async function getUser(): Promise<User> {
+	return get<User>(`/api/user`, async response => {
+		const user: User = await response.json();
+		return user;
 	});
 }

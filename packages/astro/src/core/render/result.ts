@@ -44,6 +44,15 @@ export function createResult(args: CreateResultArgs): SSRResult {
 					params,
 					url,
 				},
+				redirect(path: string) {
+					// TOOD property response
+					return {
+						status: 301,
+						headers: {
+							Location: path
+						}
+					};
+				},
 				resolve(path: string) {
 					if (!legacyBuild) {
 						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;

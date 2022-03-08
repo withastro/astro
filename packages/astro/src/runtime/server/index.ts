@@ -420,16 +420,27 @@ export async function renderEndpoint(mod: EndpointHandler, params: any) {
 }
 
 // Calls a component and renders it into a string of HTML
-export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any) {
+export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory,
+	props: any, children: any): Promise<string | any> {
 	const Component = await componentFactory(result, props, children);
-	let template = await renderAstroComponent(Component);
 
-	// <!--astro:head--> injected by compiler
-	// Must be handled at the end of the rendering process
-	if (template.indexOf('<!--astro:head-->') > -1) {
-		template = template.replace('<!--astro:head-->', await renderHead(result));
+	if(Object.prototype.toString.call(Component) === '[object AstroComponent]') {
+		let template = await renderAstroComponent(Component);
+
+		// HACK
+		if(typeof template === 'object') {
+			return template;
+		}
+	
+		// <!--astro:head--> injected by compiler
+		// Must be handled at the end of the rendering process
+		if (template.indexOf('<!--astro:head-->') > -1) {
+			template = template.replace('<!--astro:head-->', await renderHead(result));
+		}
+		return template;
+	} else {
+		return Component;
 	}
-	return template;
 }
 
 // Filter out duplicate elements in our set
@@ -482,7 +493,8 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 		}
 	}
 
-	return unescapeHTML(await _render(template));
+	let html = await _render(template);
+	return unescapeHTML(html);
 }
 
 function componentIsHTMLElement(Component: unknown) {
