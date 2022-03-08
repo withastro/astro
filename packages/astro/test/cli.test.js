@@ -19,22 +19,26 @@ describe('astro cli', () => {
 		expect(proc.stdout).to.equal(pkgVersion);
 	});
 
-	it('astro dev', async () => {
-		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+	[undefined, '0.0.0.0', '127.0.0.1'].forEach(hostname => {
+		it(`astro dev --hostname=${hostname}`, async () => {
+			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 
-		const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL));
+			const hostnameArgs = hostname ? ['--hostname', hostname] : []
+			const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), ...hostnameArgs);
 
-		let stdout = '';
+			let stdout = '';
 
-		for await (const chunk of proc.stdout) {
-			stdout += chunk;
+			for await (const chunk of proc.stdout) {
+				stdout += chunk;
 
-			if (chunk.includes('Local:')) break;
-		}
+				if (chunk.includes('Local:')) break;
+			}
 
-		proc.kill();
+			proc.kill();
 
-		expect(stdout).to.include('Server started');
+			expect(stdout).to.include('Local:   http://localhost:3000');
+			expect(stdout).to.include(`Network: http://${hostname ?? '127.0.0.1'}:3000`);
+		});
 	});
 
 	it('astro build', async () => {
