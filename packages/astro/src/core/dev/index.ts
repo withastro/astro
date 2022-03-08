@@ -44,7 +44,7 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	const localAddress = isLocalHost(address.address, config.devOptions.hostname) ? 'localhost' : address.address
 	// Log to console
 	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
-	info(options.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, networkAddress: address.address, site, https: !!viteUserConfig.server?.https }));
+	info(options.logging, null, msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, networkAddress: address.address, site, https: !!viteUserConfig.server?.https }));
 
 	return {
 		address,

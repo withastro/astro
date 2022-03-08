@@ -3,8 +3,8 @@
  */
 
 import type { AddressInfo } from 'net';
-import { bold, dim, green, magenta, yellow } from 'kleur/colors';
-import { pad } from './dev/util.js';
+import { bold, dim, green, magenta, yellow, cyan } from 'kleur/colors';
+import { pad, emoji } from './dev/util.js';
 
 /** Display  */
 export function req({ url, statusCode, reqTime }: { url: string; statusCode: number; reqTime?: number }): string {
@@ -26,11 +26,15 @@ export function reload({ url, reqTime }: { url: string; reqTime: number }): stri
 export function devStart({ startupTime, port, localAddress, networkAddress, https, site }: { startupTime: number; port: number; localAddress: string; networkAddress: string; https: boolean; site: URL | undefined }): string {
 	const rootPath = site ? site.pathname : '/';
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`
-	const addressMessages = [
-		`> Local: ${bold(magenta(toDisplayUrl(localAddress)))}`,
-		`> Network: ${bold(magenta(toDisplayUrl(networkAddress)))}`,
+	const messages = [
+		``,
+		`${emoji('🚀', ' ')} ${magenta('astro v0.23.1')} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
+		``,
+		`${emoji('👉', '>')} Local:   ${bold(cyan(toDisplayUrl(localAddress)))}`,
+		`${emoji('👉', '>')} Network: ${bold(cyan(toDisplayUrl(networkAddress)))}`,
+		``,
 	]
-	return `${pad(`Server started`, 44)} ${dim(`${Math.round(startupTime)}ms`)}\n\n${addressMessages.join('\n')}\n`;
+	return messages.join('\n')
 }
 
 /** Display dev server host */
