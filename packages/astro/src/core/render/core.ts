@@ -6,6 +6,8 @@ import { getParams } from '../routing/index.js';
 import { createResult } from './result.js';
 import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
 import { warn } from '../logger.js';
+import { NotFoundError } from '../dev/util.js';
+
 
 interface GetParamsAndPropsOptions {
 	mod: ComponentInstance;
@@ -38,11 +40,13 @@ async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Param
 		}
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params);
 		if (!matchedStaticPath) {
-			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
+			warn(logging, 'getStaticPaths', `route pattern matched, but no matching static path found. (${pathname})`);
+			throw new NotFoundError();
+		} else {
+			// This is written this way for performance; instead of spreading the props
+			// which is O(n), create a new object that extends props.
+			pageProps = Object.create(matchedStaticPath.props || Object.prototype);
 		}
-		// This is written this way for performance; instead of spreading the props
-		// which is O(n), create a new object that extends props.
-		pageProps = Object.create(matchedStaticPath.props || Object.prototype);
 	} else {
 		pageProps = {};
 	}
