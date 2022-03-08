@@ -1145,6 +1145,10 @@ importers:
 
   scripts:
     specifiers:
+      '@astrojs/renderer-preact': workspace:*
+      '@astrojs/renderer-react': workspace:*
+      '@astrojs/renderer-svelte': workspace:*
+      '@astrojs/renderer-vue': workspace:*
       '@astrojs/webapi': workspace:*
       adm-zip: ^0.5.9
       arg: ^5.0.0
@@ -1154,6 +1158,10 @@ importers:
       svelte: ^3.46.2
       tar: ^6.1.0
     dependencies:
+      '@astrojs/renderer-preact': link:../packages/renderers/renderer-preact
+      '@astrojs/renderer-react': link:../packages/renderers/renderer-react
+      '@astrojs/renderer-svelte': link:../packages/renderers/renderer-svelte
+      '@astrojs/renderer-vue': link:../packages/renderers/renderer-vue
       '@astrojs/webapi': link:../packages/webapi
       adm-zip: 0.5.9
       arg: 5.0.1
