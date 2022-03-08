@@ -127,7 +127,10 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
-          path: packages/**/dist/**
+          path: |
+            packages/**/dist/**
+            packages/webapi/mod.js
+            packages/webapi/mod.js.map
           if-no-files-found: error
   
   # Test depends on Build's output, which allows us to skip any build process!
