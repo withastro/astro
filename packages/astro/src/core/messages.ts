@@ -34,6 +34,20 @@ export function devHost({ address, https, site }: { address: AddressInfo; https:
 	return `Local: ${bold(magenta(displayUrl))}`;
 }
 
+/** Display local server host */
+export function devLocalHost({ port, hostname, https, site }: { port: number; hostname: string; https: boolean; site: URL | undefined }): string {
+	const rootPath = site ? site.pathname : '/';
+	const displayUrl = `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
+	return `Local: ${bold(magenta(displayUrl))}`;
+}
+
+/** Display local server host */
+export function devNetworkHost({ port, hostname, https, site }: { port: number; hostname: string; https: boolean; site: URL | undefined }): string {
+	const rootPath = site ? site.pathname : '/';
+	const displayUrl = `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
+	return `Network: ${bold(magenta(displayUrl))}`;
+}
+
 /** Display port in use */
 export function portInUse({ port }: { port: number }): string {
 	return `Port ${port} in use. Trying a new one…`;

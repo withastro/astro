@@ -16,6 +16,10 @@ export interface DevServer {
 	stop(): Promise<void>;
 }
 
+function isLocalHost(serverAddress: string, configHostname: string): boolean {
+	return configHostname === 'localhost' || serverAddress === '127.0.0.1' || serverAddress === '0.0.0.0'
+}
+
 /** `astro dev` */
 export default async function dev(config: AstroConfig, options: DevOptions = { logging: defaultLogOptions }): Promise<DevServer> {
 	const devStart = performance.now();
@@ -37,10 +41,12 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	const viteServer = await vite.createServer(viteConfig);
 	await viteServer.listen(config.devOptions.port);
 	const address = viteServer.httpServer!.address() as AddressInfo;
+	const localHostname = isLocalHost(address.address, config.devOptions.hostname) ? 'localhost' : address.address
 	// Log to console
 	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
 	info(options.logging, 'astro', msg.devStart({ startupTime: performance.now() - devStart }));
-	info(options.logging, 'astro', msg.devHost({ address, site, https: !!viteUserConfig.server?.https }));
+	info(options.logging, 'astro', msg.devLocalHost({ port: address.port, hostname: localHostname, site, https: !!viteUserConfig.server?.https }));
+	info(options.logging, 'astro', msg.devNetworkHost({ port: address.port, hostname: address.address, site, https: !!viteUserConfig.server?.https }));
 
 	return {
 		address,
