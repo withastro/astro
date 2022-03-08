@@ -23,8 +23,14 @@ export function reload({ url, reqTime }: { url: string; reqTime: number }): stri
 }
 
 /** Display dev server host and startup time */
-export function devStart({ startupTime }: { startupTime: number }): string {
-	return `${pad(`Server started`, 44)} ${dim(`${Math.round(startupTime)}ms`)}`;
+export function devStart({ startupTime, port, localAddress, networkAddress, https, site }: { startupTime: number; port: number; localAddress: string; networkAddress: string; https: boolean; site: URL | undefined }): string {
+	const rootPath = site ? site.pathname : '/';
+	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`
+	const addressMessages = [
+		`> Local: ${bold(magenta(toDisplayUrl(localAddress)))}`,
+		`> Network: ${bold(magenta(toDisplayUrl(networkAddress)))}`,
+	]
+	return `${pad(`Server started`, 44)} ${dim(`${Math.round(startupTime)}ms`)}\n\n${addressMessages.join('\n')}\n`;
 }
 
 /** Display dev server host */
@@ -32,20 +38,6 @@ export function devHost({ address, https, site }: { address: AddressInfo; https:
 	const rootPath = site ? site.pathname : '/';
 	const displayUrl = `${https ? 'https' : 'http'}://${address.address}:${address.port}${rootPath}`;
 	return `Local: ${bold(magenta(displayUrl))}`;
-}
-
-/** Display local server host */
-export function devLocalHost({ port, hostname, https, site }: { port: number; hostname: string; https: boolean; site: URL | undefined }): string {
-	const rootPath = site ? site.pathname : '/';
-	const displayUrl = `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
-	return `Local: ${bold(magenta(displayUrl))}`;
-}
-
-/** Display local server host */
-export function devNetworkHost({ port, hostname, https, site }: { port: number; hostname: string; https: boolean; site: URL | undefined }): string {
-	const rootPath = site ? site.pathname : '/';
-	const displayUrl = `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
-	return `Network: ${bold(magenta(displayUrl))}`;
 }
 
 /** Display port in use */
