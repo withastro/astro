@@ -27,6 +27,8 @@ const dt = new Intl.DateTimeFormat(getLoggerLocale(), {
 	minute: '2-digit',
 });
 
+let lastMessage: string;
+let lastMessageCount = 1;
 export const defaultLogDestination = new Writable({
 	objectMode: true,
 	write(event: LogMessage, _, callback) {
@@ -35,22 +37,41 @@ export const defaultLogDestination = new Writable({
 			dest = process.stdout;
 		}
 
-		let type = event.type;
-		if (type) {
-			// hide timestamp when type is undefined
-			dest.write(dim(dt.format(new Date()) + ' '));
-			if (event.level === 'info') {
-				type = bold(blue(type));
-			} else if (event.level === 'warn') {
-				type = bold(yellow(type));
-			} else if (event.level === 'error') {
-				type = bold(red(type));
-			}
+		function getPrefix() {
+			let prefix = '';
+			let type = event.type;
+			if (type) {
+				// hide timestamp when type is undefined
+				prefix += dim(dt.format(new Date()) + ' ');
+				if (event.level === 'info') {
+					type = bold(blue(type));
+				} else if (event.level === 'warn') {
+					type = bold(yellow(type));
+				} else if (event.level === 'error') {
+					type = bold(red(type));
+				}
 
-			dest.write(`[${type}] `);
+				prefix += `[${type}] `;
+			}
+			return prefix;
 		}
 
-		dest.write(utilFormat(...event.args));
+		let message = utilFormat(...event.args);
+		// For repeat messages, only update the message counter
+		if (message === lastMessage) {
+			lastMessageCount++;
+			if (levels[event.level] < levels['error']) {
+				(dest as typeof process.stdout).clearLine(0);
+				(dest as typeof process.stdout).cursorTo(0);
+				(dest as typeof process.stdout).moveCursor(0, -1);
+			}
+			message = `${message} ${yellow(`(x${lastMessageCount})`)}`
+		} else {
+			lastMessage = message;
+			lastMessageCount = 1;
+		}
+		dest.write(getPrefix())
+		dest.write(message);
 		dest.write('\n');
 
 		callback();
