@@ -8,7 +8,7 @@ export function pad(input: string, minLength: number, dir?: 'left' | 'right'): s
 }
 
 export function emoji(char: string, fallback: string) {
-	return process.platform !== 'win32' ? char + ' ' : fallback;
+	return process.platform !== 'win32' ? char : fallback;
 }
 
 export function getLocalAddress(serverAddress: string, configHostname: string): string {

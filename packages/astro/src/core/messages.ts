@@ -33,10 +33,10 @@ export async function devStart({ startupTime, port, localAddress, networkAddress
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`
 	const messages = [
 		``,
-		`${emoji('🚀', ' ')} ${magenta('astro v0.23.1')} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
+		`${emoji('🚀 ', '')}${magenta(`astro ${pkgVersion}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
 		``,
-		`${emoji('👉', '>')} Local:   ${bold(cyan(toDisplayUrl(localAddress)))}`,
-		`${emoji('👉', '>')} Network: ${bold(cyan(toDisplayUrl(networkAddress)))}`,
+		`Local:   ${bold(cyan(toDisplayUrl(localAddress)))}`,
+		`Network: ${bold(cyan(toDisplayUrl(networkAddress)))}`,
 		``,
 	]
 	return messages.join('\n')
