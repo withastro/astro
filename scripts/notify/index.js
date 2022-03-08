@@ -1,6 +1,3 @@
-import path from 'path';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
 const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
 
 const emojis = ['🎉', '🥳', '🚀', '🧑‍🚀', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
@@ -53,12 +50,31 @@ function singularlize(text) {
 	return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) => `${match}`);
 }
 
+const packageMap = new Map([
+	['astro', './packages/astro'],
+	['@astrojs/parser', './packages/astro-parser'],
+	['@astrojs/prism', './packages/astro-prism'],
+	['create-astro', './packages/create-astro'],
+	['@astrojs/markdown-remark', './packages/markdown/remark'],
+	['@astrojs/renderer-lit', './packages/renderers/renderer-lit'],
+	['@astrojs/renderer-preact', './packages/renderers/renderer-preact'],
+	['@astrojs/renderer-react', './packages/renderers/renderer-react'],
+	['@astrojs/renderer-solid', './packages/renderers/renderer-solid'],
+	['@astrojs/renderer-solid', './packages/renderers/renderer-solid'],
+	['@astrojs/renderer-svelte', './packages/renderers/renderer-svelte'],
+	['@astrojs/renderer-vue', './packages/renderers/renderer-vue'],
+	['@astrojs/webapi', './packages/webapi'],
+])
+
 async function run() {
 	const releases = process.argv.slice(2)[0];
 	const data = JSON.parse(releases);
 	const packages = await Promise.all(
 		data.map(({ name, version }) => {
-			const p = path.relative('./', path.dirname(require.resolve(name))).replace(path.sep, '/');
+			const p = packageMap.get(name);
+			if (!p) {
+				throw new Error(`Unable to find entrypoint for "${name}"!`);
+			}
 			return { name, version, url: new URL(`${p}/CHANGELOG.md#${version.replace(/\./g, '')}`, baseUrl).toString() };
 		})
 	);
