@@ -29,7 +29,7 @@ export default async function build(...args) {
 	let entryPoints = [].concat(...(await Promise.all(patterns.map((pattern) => glob(pattern, { filesOnly: true, absolute: true })))));
 
 	const { type = 'module', version, dependencies = {} } = await fs.readFile('./package.json').then((res) => JSON.parse(res.toString()));
-	// expose PACKAGE_VERSION on process.env for CLI utils 
+	// expose PACKAGE_VERSION on process.env for CLI utils
 	config.define = { 'process.env.PACKAGE_VERSION': JSON.stringify(version) };
 	const format = type === 'module' ? 'esm' : 'cjs';
 	const outdir = 'dist';

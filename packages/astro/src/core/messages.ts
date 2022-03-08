@@ -23,12 +23,26 @@ export function reload({ url, reqTime }: { url: string; reqTime: number }): stri
 }
 
 /** Display dev server host and startup time */
-export function devStart({ startupTime, port, localAddress, networkAddress, https, site }: { startupTime: number; port: number; localAddress: string; networkAddress: string; https: boolean; site: URL | undefined }): string {
+export function devStart({
+	startupTime,
+	port,
+	localAddress,
+	networkAddress,
+	https,
+	site,
+}: {
+	startupTime: number;
+	port: number;
+	localAddress: string;
+	networkAddress: string;
+	https: boolean;
+	site: URL | undefined;
+}): string {
 	// PACAKGE_VERSION is injected at build-time
 	const pkgVersion = process.env.PACKAGE_VERSION;
 
 	const rootPath = site ? site.pathname : '/';
-	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`
+	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
 	const messages = [
 		``,
 		`${emoji('🚀 ', '')}${magenta(`astro ${pkgVersion}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
@@ -36,8 +50,8 @@ export function devStart({ startupTime, port, localAddress, networkAddress, http
 		`Local:   ${bold(cyan(toDisplayUrl(localAddress)))}`,
 		`Network: ${bold(cyan(toDisplayUrl(networkAddress)))}`,
 		``,
-	]
-	return messages.join('\n')
+	];
+	return messages.join('\n');
 }
 
 /** Display dev server host */

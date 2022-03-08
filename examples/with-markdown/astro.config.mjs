@@ -7,13 +7,6 @@
 // You can disable this by removing "@ts-check" and `@type` comments below.
 
 // @ts-check
-export default /** @type {import('astro').AstroUserConfig} */ (
-	{
-		renderers: [
-			"@astrojs/renderer-preact",
-			"@astrojs/renderer-react",
-			"@astrojs/renderer-svelte",
-			"@astrojs/renderer-vue",
-		],
-	}
-);
+export default /** @type {import('astro').AstroUserConfig} */ ({
+	renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-react', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
+});

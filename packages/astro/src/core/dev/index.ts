@@ -38,10 +38,14 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	const viteServer = await vite.createServer(viteConfig);
 	await viteServer.listen(config.devOptions.port);
 	const address = viteServer.httpServer!.address() as AddressInfo;
-	const localAddress = getLocalAddress(address.address, config.devOptions.hostname)
+	const localAddress = getLocalAddress(address.address, config.devOptions.hostname);
 	// Log to console
 	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
-	info(options.logging, null, msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, networkAddress: address.address, site, https: !!viteUserConfig.server?.https }));
+	info(
+		options.logging,
+		null,
+		msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, networkAddress: address.address, site, https: !!viteUserConfig.server?.https })
+	);
 
 	return {
 		address,

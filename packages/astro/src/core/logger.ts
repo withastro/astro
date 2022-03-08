@@ -35,7 +35,6 @@ export const defaultLogDestination = new Writable({
 			dest = process.stdout;
 		}
 
-
 		let type = event.type;
 		if (type) {
 			// hide timestamp when type is undefined

@@ -13,8 +13,8 @@ export function emoji(char: string, fallback: string) {
 
 export function getLocalAddress(serverAddress: string, configHostname: string): string {
 	if (configHostname === 'localhost' || serverAddress === '127.0.0.1' || serverAddress === '0.0.0.0') {
-		return 'localhost'
+		return 'localhost';
 	} else {
-		return serverAddress
+		return serverAddress;
 	}
 }

@@ -2,7 +2,7 @@
 # Also, be sure to remove "pluginSearchDirs" from config
 **/*.astro
 
-# Config
+# Deep Directories
 **/dist
 **/smoke
 **/node_modules
@@ -11,6 +11,11 @@
 **/.vercel
 examples/docs/**/*.md
 examples/blog/**/*.md
+
+# Directories
 .github
 .changeset
+
+# Files
 README.md
+packages/webapi/mod.d.ts

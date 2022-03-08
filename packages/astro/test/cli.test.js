@@ -19,11 +19,11 @@ describe('astro cli', () => {
 		expect(proc.stdout).to.equal(pkgVersion);
 	});
 
-	[undefined, '0.0.0.0', '127.0.0.1'].forEach(hostname => {
+	[undefined, '0.0.0.0', '127.0.0.1'].forEach((hostname) => {
 		it(`astro dev --hostname=${hostname}`, async () => {
 			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 
-			const hostnameArgs = hostname ? ['--hostname', hostname] : []
+			const hostnameArgs = hostname ? ['--hostname', hostname] : [];
 			const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), ...hostnameArgs);
 
 			let stdout = '';
