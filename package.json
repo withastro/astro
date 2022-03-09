@@ -34,10 +34,11 @@
     "packages/astro/test/fixtures/custom-elements/my-component-lib",
     "packages/astro/test/fixtures/static build/pkg"
   ],
-  "volta": {
-    "node": "14.17.0",
-    "npm": "7.11.2"
+  "engines": {
+    "node": "^14.15.0 || >=16.0.0",
+    "pnpm": ">=6.32.3"
   },
+  "packageManager": "pnpm@6.32.3",
   "pnpm": {
     "peerDependencyRules": {
       "ignoreMissing": [
@@ -45,6 +46,9 @@
         "@babel/plugin-transform-react-jsx"
       ]
     }
+  },
+  "dependencies": {
+    "@astrojs/webapi": "workspace:*"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.2",
@@ -63,12 +67,5 @@
     "tiny-glob": "^0.2.8",
     "turbo": "^1.1.5",
     "typescript": "4.5.2"
-  },
-  "engines": {
-    "node": "^14.15.0 || >=16.0.0"
-  },
-  "packageManager": "pnpm@6.32.3",
-  "dependencies": {
-    "@astrojs/webapi": "workspace:*"
   }
 }

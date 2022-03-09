@@ -19,3 +19,4 @@ examples/blog/**/*.md
 # Files
 README.md
 packages/webapi/mod.d.ts
+pnpm-lock.yaml
