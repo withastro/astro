@@ -24,7 +24,7 @@ describe('config', () => {
 			for await (const chunk of proc.stdout) {
 				stdout += chunk;
 
-				if (chunk.includes('Local:')) break;
+				if (chunk.includes('Local')) break;
 			}
 
 			proc.kill();
@@ -44,7 +44,7 @@ describe('config', () => {
 			for await (const chunk of proc.stdout) {
 				stdout += chunk;
 
-				if (chunk.includes('Local:')) break;
+				if (chunk.includes('Local')) break;
 			}
 
 			proc.kill();

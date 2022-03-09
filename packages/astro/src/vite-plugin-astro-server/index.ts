@@ -1,7 +1,7 @@
 import type * as vite from 'vite';
 import type http from 'http';
-import type { AstroConfig, ManifestData, RouteData } from '../@types/astro';
-import { info, LogOptions } from '../core/logger.js';
+import type { AstroConfig, ManifestData } from '../@types/astro';
+import { info, error, LogOptions } from '../core/logger.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
 import { createSafeError } from '../core/util.js';
@@ -81,7 +81,7 @@ async function handleRequest(
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
 	try {
 		if (!pathname.startsWith(devRoot)) {
-			info(logging, 'astro', msg.req({ url: pathname, statusCode: 404 }));
+			info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
 			return handle404Response(origin, config, req, res);
 		}
 		// Attempt to match the URL to a valid page route.
@@ -95,7 +95,7 @@ async function handleRequest(
 		}
 		// If still no match is found, respond with a generic 404 page.
 		if (!route) {
-			info(logging, 'astro', msg.req({ url: pathname, statusCode: 404 }));
+			info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
 			handle404Response(origin, config, req, res);
 			return;
 		}
@@ -113,8 +113,9 @@ async function handleRequest(
 		});
 		writeHtmlResponse(res, statusCode, html);
 	} catch (_err: any) {
-		info(logging, 'astro', msg.req({ url: pathname, statusCode: 500 }));
+		info(logging, 'serve', msg.req({ url: pathname, statusCode: 500 }));
 		const err = createSafeError(_err);
+		error(logging, 'error', msg.err(err))
 		handle500Response(viteServer, origin, req, res, err);
 	}
 }

@@ -1,6 +1,6 @@
 import type { CompileError } from '@astrojs/parser';
 
-import { bold, blue, dim, red, grey, underline, yellow } from 'kleur/colors';
+import { bold, cyan, dim, red, grey, underline, yellow, reset } from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import { Writable } from 'stream';
 import stringWidth from 'string-width';
@@ -25,8 +25,11 @@ function getLoggerLocale(): string {
 const dt = new Intl.DateTimeFormat(getLoggerLocale(), {
 	hour: '2-digit',
 	minute: '2-digit',
+	second: '2-digit'
 });
 
+let lastMessage: string;
+let lastMessageCount = 1;
 export const defaultLogDestination = new Writable({
 	objectMode: true,
 	write(event: LogMessage, _, callback) {
@@ -35,22 +38,49 @@ export const defaultLogDestination = new Writable({
 			dest = process.stdout;
 		}
 
-		let type = event.type;
-		if (type) {
-			// hide timestamp when type is undefined
-			dest.write(dim(dt.format(new Date()) + ' '));
-			if (event.level === 'info') {
-				type = bold(blue(type));
-			} else if (event.level === 'warn') {
-				type = bold(yellow(type));
-			} else if (event.level === 'error') {
-				type = bold(red(type));
-			}
+		function getPrefix() {
+			let prefix = '';
+			let type = event.type;
+			if (type) {
+				// hide timestamp when type is undefined
+				prefix += dim(dt.format(new Date()) + ' ');
+				if (event.level === 'info') {
+					type = bold(cyan(`[${type}]`));
+				} else if (event.level === 'warn') {
+					type = bold(yellow(`[${type}]`));
+				} else if (event.level === 'error') {
+					type = bold(red(`[${type}]`));
+				}
 
-			dest.write(`[${type}] `);
+				prefix += `${type} `;
+			}
+			return reset(prefix);
 		}
 
-		dest.write(utilFormat(...event.args));
+		let message = utilFormat(...event.args);
+		// For repeat messages, only update the message counter
+		if (message === lastMessage) {
+			lastMessageCount++;
+			if (levels[event.level] < levels['error']) {
+				let lines = 1;
+				let len = stringWidth(`${getPrefix()}${message}`);
+				let cols = (dest as typeof process.stdout).columns;
+				if (len > cols) {
+					lines = Math.ceil(len / cols);
+				}
+				for (let i = 0; i < lines; i++) {
+					(dest as typeof process.stdout).clearLine(0);
+					(dest as typeof process.stdout).cursorTo(0);
+					(dest as typeof process.stdout).moveCursor(0, -1);
+				}
+			}
+			message = `${message} ${yellow(`(x${lastMessageCount})`)}`
+		} else {
+			lastMessage = message;
+			lastMessageCount = 1;
+		}
+		dest.write(getPrefix())
+		dest.write(message);
 		dest.write('\n');
 
 		callback();

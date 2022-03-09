@@ -3,8 +3,8 @@ import type { LogOptions } from '../core/logger.js';
 import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
 import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
 import { invalidateCompilation, isCached } from './compile.js';
-import { logger } from '../core/logger.js';
-import { green } from 'kleur/colors';
+import { info } from '../core/logger.js';
+import * as msg from '../core/messages.js';
 
 interface TrackCSSDependenciesOptions {
 	viteDevServer: ViteDevServer | null;
@@ -46,7 +46,7 @@ export async function trackCSSDependencies(this: RollupPluginContext, opts: Trac
 	}
 }
 
-export function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: LogOptions) {
+export async function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: LogOptions) {
 	// Invalidate the compilation cache so it recompiles
 	invalidateCompilation(config, ctx.file);
 
@@ -79,11 +79,15 @@ export function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: L
 		invalidateCompilation(config, file);
 	}
 
+	const mod = ctx.modules.find(m => m.file === ctx.file);
+	const file = ctx.file.replace(config.projectRoot.pathname, '/');
 	if (ctx.file.endsWith('.astro')) {
-		const file = ctx.file.replace(config.projectRoot.pathname, '/');
-		logger.info('astro', green('hmr'), `${file}`);
 		ctx.server.ws.send({ type: 'custom', event: 'astro:update', data: { file } });
 	}
-
+	if (mod?.isSelfAccepting) {
+		info(logging, 'astro', msg.hmr({ file }));
+	} else {
+		info(logging, 'astro', msg.reload({ file }));
+	}
 	return Array.from(filtered);
 }
