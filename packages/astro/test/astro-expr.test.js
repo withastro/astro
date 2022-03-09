@@ -105,7 +105,7 @@ describe('Expressions', () => {
 		const $ = cheerio.load(html);
 
 		expect($('body').children()).to.have.lengthOf(1);
-		expect($('body').text()).to.include('&lt;script&gt;console.log(&quot;pwnd&quot;)&lt;/script&gt;')
+		expect($('body').text()).to.include('&lt;script&gt;console.log(&quot;pwnd&quot;)&lt;/script&gt;');
 		expect($('#trusted')).to.have.lengthOf(1);
 	});
 });
