@@ -4,11 +4,11 @@
 
 ## Setup
 
-All Astro projects use Yarn and [Turbo](https://turborepo.org/) to enable development in a monorepo. Once you've cloned the project install dependencies and do an initial build:
+All Astro projects use PNPM and [Turbo](https://turborepo.org/) to enable development in a monorepo. Once you've cloned the project install dependencies and do an initial build:
 
 ```shell
-yarn
-yarn build
+pnpm install
+pnpm build
 ```
 
 ## Debugging
@@ -16,7 +16,7 @@ yarn build
 During the normal course of development on the VSCode extension you'll want to run the debugger. First run the build in watch mode with:
 
 ```shell
-yarn dev
+pnpm dev
 ```
 
 ### Turn Off Extension

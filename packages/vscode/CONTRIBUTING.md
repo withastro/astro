@@ -5,14 +5,14 @@
 In the monorepo first install and build Astro:
 
 ```shell
-yarn install
-yarn build
+pnpm install
+pnpm build
 ```
 
 To start the development server run:
 
 ```shell
-yarn dev:vscode
+pnpm dev:vscode
 ```
 
 Then in the **Debug** panel select **Launch Extension** from the dropdown and click the run button.

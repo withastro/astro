@@ -13,7 +13,7 @@
   "license": "MIT",
   "publisher": "astro-build",
   "scripts": {
-    "vscode:prepublish": "yarn build",
+    "vscode:prepublish": "pnpm build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
@@ -29,8 +29,10 @@
     "vscode-languageclient": "~7.0.0"
   },
   "devDependencies": {
-    "@types/vscode": "^1.52.0",
-    "astro-scripts": "file:../../scripts"
+    "@types/vscode": "^1.65.0",
+    "astro-scripts": "workspace:*",
+    "typescript": "~4.5.5",
+    "vscode-languageserver-protocol": "^3.16.0"
   },
   "main": "./dist/index.js",
   "browser": "./dist/index.js",
