@@ -3,7 +3,7 @@
  */
 
 import type { AddressInfo } from 'net';
-import { bold, dim, green, magenta, yellow, cyan } from 'kleur/colors';
+import { bold, dim, green, magenta, yellow, cyan, bgGreen, black } from 'kleur/colors';
 import { pad, emoji } from './dev/util.js';
 
 /** Display  */
@@ -39,19 +39,17 @@ export function devStart({
 	site: URL | undefined;
 }): string {
 	// PACAKGE_VERSION is injected at build-time
-	const pkgVersion = process.env.PACKAGE_VERSION;
-
+	const version = process.env.PACKAGE_VERSION;
 	const rootPath = site ? site.pathname : '/';
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
 	const messages = [
+		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
 		``,
-		`${emoji('🚀 ', '')}${magenta(`astro ${pkgVersion}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
-		``,
-		`Local:   ${bold(cyan(toDisplayUrl(localAddress)))}`,
-		`Network: ${bold(cyan(toDisplayUrl(networkAddress)))}`,
-		``,
+		`${dim('| ')} Local    ${bold(cyan(toDisplayUrl(localAddress)))}`,
+		`${dim('| ')} Network  ${bold(cyan(toDisplayUrl(networkAddress)))}`,
+		``
 	];
-	return messages.join('\n');
+	return messages.map(msg => `  ${msg}`).join('\n');
 }
 
 /** Display dev server host */
