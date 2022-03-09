@@ -33,11 +33,8 @@ function safelyReplaceImportPlaceholder(code: string) {
 const configCache = new WeakMap<AstroConfig, CompilationCache>();
 
 async function compile(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: { ssr: boolean }): Promise<CompileResult> {
-	// pages and layouts should be transformed as full documents (implicit <head> <body> etc)
-	// everything else is treated as a fragment
 	const filenameURL = new URL(`file://${filename}`);
 	const normalizedID = fileURLToPath(filenameURL);
-	const isPage = normalizedID.startsWith(fileURLToPath(config.pages)) || normalizedID.startsWith(fileURLToPath(config.layouts));
 	const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
 
 	let rawCSSDeps = new Set<string>();
@@ -47,22 +44,21 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 	// use `sourcemap: "both"` so that sourcemap is included in the code
 	// result passed to esbuild, but also available in the catch handler.
 	const transformResult = await transform(source, {
-		as: isPage ? 'document' : 'fragment',
 		pathname,
 		projectRoot: config.projectRoot.toString(),
 		site: config.buildOptions.site,
 		sourcefile: filename,
 		sourcemap: 'both',
 		internalURL: `/@fs${new URL('../runtime/server/index.js', import.meta.url).pathname}`,
-		experimentalStaticExtraction: config.buildOptions.experimentalStaticBuild,
+		experimentalStaticExtraction: !config.buildOptions.legacyBuild,
 		// TODO add experimental flag here
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
 			const lang = `.${attrs?.lang || 'css'}`.toLowerCase();
 
 			try {
 				// In the static build, grab any @import as CSS dependencies for HMR.
-				if (config.buildOptions.experimentalStaticBuild) {
-					value = value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match, spec) => {
+				if (!config.buildOptions.legacyBuild) {
+					value.replace(/(?:@import)\s(?:url\()?\s?["\'](.*?)["\']\s?\)?(?:[^;]*);?/gi, (match, spec) => {
 						rawCSSDeps.add(spec);
 						// If the language is CSS: prevent `@import` inlining to prevent scoping of imports.
 						// Otherwise: Sass, etc. need to see imports for variables, so leave in for their compiler to handle.

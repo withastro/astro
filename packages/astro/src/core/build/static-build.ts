@@ -38,9 +38,10 @@ export interface StaticBuildOptions {
 
 const MAX_CONCURRENT_RENDERS = 10;
 
+const STATUS_CODE_PAGES = new Set(['/404', '/500']);
+
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
-	const pathrepl = opts.astroConfig.buildOptions.pageUrlFormat === 'directory' ? '/index.html' : pathname === '/' ? 'index.html' : '.html';
-	opts.pageNames.push(pathname.replace(/\/?$/, pathrepl).replace(/^\//, ''));
+	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
 }
 
 // Gives back a facadeId that is relative to the root.
@@ -131,6 +132,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 			const topLevelImports = new Set([
 				// Any component that gets hydrated
 				...metadata.hydratedComponentPaths(),
+				// Client-only components
+				...metadata.clientOnlyComponentPaths(),
 				// Any hydration directive like astro/client/idle.js
 				...metadata.hydrationDirectiveSpecifiers(),
 				// The client path for each renderer
@@ -182,6 +185,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		logLevel: 'error',
 		mode: 'production',
 		build: {
+			...viteConfig.build,
 			emptyOutDir: false,
 			manifest: ssr,
 			minify: false,
@@ -360,12 +364,12 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	debug('build', `Generating: ${pathname}`);
 
 	const site = astroConfig.buildOptions.site;
-	const links = createLinkStylesheetElementSet(linkIds, site);
+	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
 	try {
 		const html = await render({
-			experimentalStaticBuild: true,
+			legacyBuild: false,
 			links,
 			logging,
 			markdownRender: astroConfig.markdownOptions.render,
@@ -454,8 +458,7 @@ async function generateManifest(result: RollupOutput, opts: StaticBuildOptions, 
 }
 
 function getOutRoot(astroConfig: AstroConfig): URL {
-	const rootPathname = appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/');
-	return new URL('.' + rootPathname, astroConfig.dist);
+	return new URL('./', astroConfig.dist);
 }
 
 function getServerRoot(astroConfig: AstroConfig): URL {
@@ -479,10 +482,16 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: Rou
 			return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 		case 'page':
 			switch (astroConfig.buildOptions.pageUrlFormat) {
-				case 'directory':
+				case 'directory': {
+					if(STATUS_CODE_PAGES.has(pathname)) {
+						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+					}
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
-				case 'file':
+				}
+				case 'file': {
 					return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
+				}
+					
 			}
 	}
 }
@@ -493,10 +502,17 @@ function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, 
 			return new URL(npath.basename(pathname), outFolder);
 		case 'page':
 			switch (astroConfig.buildOptions.pageUrlFormat) {
-				case 'directory':
+				case 'directory': {
+					if(STATUS_CODE_PAGES.has(pathname)) {
+						const baseName = npath.basename(pathname);
+						return new URL('./' + (baseName || 'index') + '.html', outFolder);
+					}
 					return new URL('./index.html', outFolder);
-				case 'file':
-					return new URL('./' + npath.basename(pathname) + '.html', outFolder);
+				}
+				case 'file': {
+					const baseName = npath.basename(pathname);
+					return new URL('./' + (baseName || 'index') + '.html', outFolder);
+				}
 			}
 	}
 }

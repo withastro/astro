@@ -15,12 +15,17 @@ describe('CSS', function () {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/0-css/',
 			renderers: ['@astrojs/renderer-react', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
+			vite: {
+				build: {
+					assetsInlineLimit: 0
+				}
+			}
 		});
 	});
 
 	// test HTML and CSS contents for accuracy
 	describe('build', () => {
-		this.timeout(30000); // test needs a little more time in CI
+		this.timeout(45000); // test needs a little more time in CI
 
 		let $;
 		let bundledCSS;
@@ -31,7 +36,7 @@ describe('CSS', function () {
 			// get bundled CSS (will be hashed, hence DOM query)
 			const html = await fixture.readFile('/index.html');
 			$ = cheerio.load(html);
-			const bundledCSSHREF = $('link[rel=stylesheet][href^=./assets/]').attr('href');
+			const bundledCSSHREF = $('link[rel=stylesheet][href^=/assets/]').attr('href');
 			bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
 		});
 
@@ -47,7 +52,8 @@ describe('CSS', function () {
 				expect(el2.attr('class')).to.equal(`visible ${scopedClass}`);
 
 				// 2. check CSS
-				expect(bundledCSS).to.include(`.blue.${scopedClass}{color:#b0e0e6}.color\\:blue.${scopedClass}{color:#b0e0e6}.visible.${scopedClass}{display:block}`);
+				const expected = `.blue.${scopedClass}{color:#b0e0e6}.color\\\\:blue.${scopedClass}{color:#b0e0e6}.visible.${scopedClass}{display:block}`;
+				expect(bundledCSS).to.include(expected);
 			});
 
 			it('No <style> skips scoping', async () => {
@@ -60,7 +66,8 @@ describe('CSS', function () {
 			});
 
 			it('Using hydrated components adds astro-root styles', async () => {
-				expect(bundledCSS).to.include('display:contents');
+				const inline = $('style').html();
+				expect(inline).to.include('display: contents');
 			});
 
 			it('<style lang="sass">', async () => {
@@ -217,7 +224,7 @@ describe('CSS', function () {
 			it('<style>', async () => {
 				const el = $('#svelte-css');
 				const classes = el.attr('class').split(' ');
-				const scopedClass = classes.find((name) => /^s-[A-Za-z0-9-]+/.test(name));
+				const scopedClass = classes.find((name) => name !== 'svelte-css' && /^svelte-[A-Za-z0-9-]+/.test(name));
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include('svelte-css');
@@ -229,7 +236,7 @@ describe('CSS', function () {
 			it('<style lang="sass">', async () => {
 				const el = $('#svelte-sass');
 				const classes = el.attr('class').split(' ');
-				const scopedClass = classes.find((name) => /^s-[A-Za-z0-9-]+/.test(name));
+				const scopedClass = classes.find((name) => name !== 'svelte-sass' && /^svelte-[A-Za-z0-9-]+/.test(name));
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include('svelte-sass');
@@ -241,7 +248,7 @@ describe('CSS', function () {
 			it('<style lang="scss">', async () => {
 				const el = $('#svelte-scss');
 				const classes = el.attr('class').split(' ');
-				const scopedClass = classes.find((name) => /^s-[A-Za-z0-9-]+/.test(name));
+				const scopedClass = classes.find((name) => name !== 'svelte-scss' && /^svelte-[A-Za-z0-9-]+/.test(name));
 
 				// 1. check HTML
 				expect(el.attr('class')).to.include('svelte-scss');
@@ -269,11 +276,6 @@ describe('CSS', function () {
 
 		it('resolves CSS in public/', async () => {
 			const href = $('link[href="/global.css"]').attr('href');
-			expect((await fixture.fetch(href)).status).to.equal(200);
-		});
-
-		it('resolves CSS in src/', async () => {
-			const href = $('link[href$="linked.css"]').attr('href');
 			expect((await fixture.fetch(href)).status).to.equal(200);
 		});
 

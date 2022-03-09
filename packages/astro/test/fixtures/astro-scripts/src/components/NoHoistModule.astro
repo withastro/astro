@@ -1,1 +1,4 @@
-<script type="module" src={Astro.resolve("../scripts/no_hoist_module.js")}></script>
+---
+import url from '../scripts/no_hoist_module.js?url';
+---
+<script type="module" src={url}></script>

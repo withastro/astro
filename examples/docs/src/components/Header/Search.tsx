@@ -57,6 +57,7 @@ export default function Search() {
 						initialScrollY={window.scrollY}
 						onClose={onClose}
 						indexName={(CONFIG as any).ALGOLIA.indexName}
+						appId={(CONFIG as any).ALGOLIA.appId}
 						apiKey={(CONFIG as any).ALGOLIA.apiKey}
 						transformItems={(items) => {
 							return items.map((item) => {
