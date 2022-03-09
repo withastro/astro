@@ -926,10 +926,8 @@ importers:
 
   packages/astro/test/fixtures/static-build-frameworks:
     specifiers:
-      '@astrojs/renderer-lit': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/renderer-lit': link:../../../../renderers/renderer-lit
       astro: link:../../..
 
   packages/astro/test/fixtures/static-build-page-url-format:
