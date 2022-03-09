@@ -63,6 +63,11 @@ async function handle500Response(viteServer: vite.ViteDevServer, origin: string,
 	writeHtmlResponse(res, 500, transformedHtml);
 }
 
+function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
+	const relPages = config.pages.href.replace(config.projectRoot.href, '');
+	return manifest.routes.find((r) => r.component === relPages + '404.astro');
+}
+
 /** The main logic to route dev server requests to pages in Astro. */
 async function handleRequest(
 	routeCache: RouteCache,
@@ -79,6 +84,12 @@ async function handleRequest(
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const pathname = decodeURI(new URL(origin + req.url).pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
+
+	function handle404() {
+		info(logging, 'astro', msg.req({ url: pathname, statusCode: 404 }));
+		handle404Response(origin, config, req, res);
+	}
+
 	try {
 		if (!pathname.startsWith(devRoot)) {
 			info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
@@ -88,16 +99,35 @@ async function handleRequest(
 		// If that fails, switch the response to a 404 response.
 		let route = matchRoute(rootRelativeUrl, manifest);
 		const statusCode = route ? 200 : 404;
-		// If no match found, lookup a custom 404 page to render, if one exists.
+
 		if (!route) {
-			const relPages = config.pages.href.replace(config.projectRoot.href, '');
-			route = manifest.routes.find((r) => r.component === relPages + '404.astro');
+			const custom404 = getCustom404Route(config, manifest);
+			if (custom404) {
+				route = custom404;
+			} else {
+				handle404();
+				return;
+			}
 		}
-		// If still no match is found, respond with a generic 404 page.
-		if (!route) {
-			info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
-			handle404Response(origin, config, req, res);
-			return;
+		const cachedRouteInfo = routeCache.get(route)
+		if (cachedRouteInfo?.staticPaths) {
+			const match = rootRelativeUrl.match(route.pattern)
+			const groups = match?.groups || {}
+
+			const { keyed, ...staticPaths } = cachedRouteInfo.staticPaths
+
+			const isMatchingStaticPath = Object.values(staticPaths).some(staticPath => {
+				return Object.entries(groups).every(([param, value]) => staticPath.params[param] === value)
+			})
+			if (!isMatchingStaticPath) {
+				const custom404 = getCustom404Route(config, manifest);
+				if (custom404) {
+					route = custom404;
+				} else {
+					handle404();
+					return;
+				}
+			}
 		}
 		// Route successfully matched! Render it.
 		const html = await ssr({
