@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@types/vscode": "^1.65.0",
-    "astro-scripts": "workspace:*",
+    "astro-scripts": "*",
     "typescript": "~4.5.5",
     "vscode-languageserver-protocol": "^3.16.0"
   },

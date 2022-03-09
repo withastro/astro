@@ -85,7 +85,7 @@ importers:
       '@astrojs/language-server': 0.9.3
       '@astrojs/ts-plugin': 0.2.0
       '@types/vscode': ^1.65.0
-      astro-scripts: workspace:*
+      astro-scripts: '*'
       typescript: ~4.5.5
       vscode-languageclient: ~7.0.0
       vscode-languageserver-protocol: ^3.16.0
