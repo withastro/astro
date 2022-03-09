@@ -32,7 +32,6 @@ describe('astro cli', () => {
 		expect(messages[0]).to.contain('started in');
 	});
 
-
 	const hostnames = [undefined, '0.0.0.0', '127.0.0.1'];
 
 	hostnames.forEach((hostname) => {
@@ -51,10 +50,10 @@ describe('astro cli', () => {
 			const localURL = new URL(local);
 			const networkURL = new URL(network);
 
-			expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`)
+			expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`);
 			// Note: our tests run in parallel so this could be 3000+!
-			expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(3000, `Expected Port to be >= 3000`)
-			expect(networkURL.hostname).to.be.equal(hostname ?? '127.0.0.1', `Expected Network URL to use passed hostname`)
+			expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(3000, `Expected Port to be >= 3000`);
+			expect(networkURL.hostname).to.be.equal(hostname ?? '127.0.0.1', `Expected Network URL to use passed hostname`);
 		});
 	});
 

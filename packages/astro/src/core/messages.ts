@@ -54,7 +54,7 @@ export function devStart({
 		`${dim('┃')} Network  ${bold(cyan(toDisplayUrl(networkAddress)))}`,
 		'',
 	];
-	return messages.map(msg => `  ${msg}`).join('\n');
+	return messages.map((msg) => `  ${msg}`).join('\n');
 }
 
 /** Display port in use */

@@ -136,7 +136,10 @@ export async function parseCliDevStart(proc) {
 
 	proc.kill();
 	stdout = stripAnsi(stdout);
-	const messages = stdout.split('\n').filter(ln => !!ln.trim()).map(ln => ln.replace(/[🚀┃]/g, '').replace(/\s+/g, ' ').trim());
+	const messages = stdout
+		.split('\n')
+		.filter((ln) => !!ln.trim())
+		.map((ln) => ln.replace(/[🚀┃]/g, '').replace(/\s+/g, ' ').trim());
 	return { messages };
 }
 

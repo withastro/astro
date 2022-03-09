@@ -115,7 +115,7 @@ async function handleRequest(
 	} catch (_err: any) {
 		info(logging, 'serve', msg.req({ url: pathname, statusCode: 500 }));
 		const err = createSafeError(_err);
-		error(logging, 'error', msg.err(err))
+		error(logging, 'error', msg.err(err));
 		handle500Response(viteServer, origin, req, res, err);
 	}
 }

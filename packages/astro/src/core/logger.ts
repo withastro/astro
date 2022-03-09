@@ -25,7 +25,7 @@ function getLoggerLocale(): string {
 const dt = new Intl.DateTimeFormat(getLoggerLocale(), {
 	hour: '2-digit',
 	minute: '2-digit',
-	second: '2-digit'
+	second: '2-digit',
 });
 
 let lastMessage: string;
@@ -74,12 +74,12 @@ export const defaultLogDestination = new Writable({
 					(dest as typeof process.stdout).moveCursor(0, -1);
 				}
 			}
-			message = `${message} ${yellow(`(x${lastMessageCount})`)}`
+			message = `${message} ${yellow(`(x${lastMessageCount})`)}`;
 		} else {
 			lastMessage = message;
 			lastMessageCount = 1;
 		}
-		dest.write(getPrefix())
+		dest.write(getPrefix());
 		dest.write(message);
 		dest.write('\n');
 
