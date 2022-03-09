@@ -1,4 +1,6 @@
 ---
+// Style Imports
+import '../styles/global.css';
 // Component Imports
 import { A, B as Renamed } from '../components';
 import * as react from '../components/ReactCounter.jsx';
@@ -17,9 +19,6 @@ import SvelteCounter from '../components/SvelteCounter.svelte';
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
-		<style global>
-			@import "../styles/global.css";
-		</style>
 	</head>
 	<body>
 		<main>
