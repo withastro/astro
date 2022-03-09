@@ -99,4 +99,13 @@ describe('Expressions', () => {
 		// test 9: Expected {undefined && <span id="undefined" />} not to render
 		expect($('#frag-undefined')).to.have.lengthOf(0);
 	});
+
+	it('Escapes HTML by default', async () => {
+		const html = await fixture.readFile('/escape/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('body').children()).to.have.lengthOf(1);
+		expect($('body').text()).to.include('&lt;script&gt;console.log(&quot;pwnd&quot;)&lt;/script&gt;')
+		expect($('#trusted')).to.have.lengthOf(1);
+	});
 });

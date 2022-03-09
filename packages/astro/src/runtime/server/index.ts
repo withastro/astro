@@ -8,7 +8,7 @@ import { escapeHTML, UnescapedString, unescapeHTML } from './escape.js';
 
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
-export { escapeHTML, unescapeHTML } from './escape.js';
+export { unescapeHTML } from './escape.js';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
@@ -36,7 +36,7 @@ async function _render(child: any): Promise<any> {
 		// of wrapping it in a function and calling it.
 		return _render(child());
 	} else if (typeof child === 'string') {
-		return escapeHTML(child, { deprecated: true });
+		return escapeHTML(child);
 	} else if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 	}
