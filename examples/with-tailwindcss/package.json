@@ -9,10 +9,9 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/renderer-preact": "^0.5.0",
-    "astro": "^0.23.7",
-    "autoprefixer": "^10.4.0",
-    "tailwindcss": "^3.0.5",
-    "@astrojs/renderer-preact": "^0.5.0"
+    "@astrojs/renderer-preact": "workspace:^0.5.0",
+    "astro": "workspace:^0.23.7",
+    "autoprefixer": "^10.4.2",
+    "tailwindcss": "^3.0.23"
   }
 }

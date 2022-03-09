@@ -11,10 +11,9 @@
     "server": "node server/server.mjs"
   },
   "devDependencies": {
-    "@astrojs/renderer-svelte": "^0.4.0",
-    "astro": "^0.23.7",
-    "unocss": "^0.15.5",
-    "vite-imagetools": "^4.0.1",
-    "@astrojs/renderer-svelte": "^0.5.1"
+    "@astrojs/renderer-svelte": "workspace:^0.5.1",
+    "astro": "workspace:^0.23.7",
+    "unocss": "^0.15.6",
+    "vite-imagetools": "^4.0.3"
   }
 }
