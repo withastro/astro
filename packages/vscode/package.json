@@ -29,7 +29,7 @@
     "vscode-languageclient": "~7.0.0"
   },
   "devDependencies": {
-    "@types/vscode": "^1.65.0",
+    "@types/vscode": "^1.52.0",
     "astro-scripts": "*",
     "typescript": "~4.5.5",
     "vscode-languageserver-protocol": "^3.16.0"
