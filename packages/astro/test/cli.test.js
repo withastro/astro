@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { cli } from './test-utils.js';
+import { cli, parseCliDevStart } from './test-utils.js';
 import { promises as fs } from 'fs';
 import { fileURLToPath } from 'url';
 
@@ -19,25 +19,42 @@ describe('astro cli', () => {
 		expect(proc.stdout).to.include(pkgVersion);
 	});
 
-	[undefined, '0.0.0.0', '127.0.0.1'].forEach((hostname) => {
-		it(`astro dev --hostname=${hostname}`, async () => {
-			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+	it('astro dev welcome', async () => {
+		const pkgURL = new URL('../package.json', import.meta.url);
+		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
 
-			const hostnameArgs = hostname ? ['--hostname', hostname] : [];
+		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+		const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL));
+		const { messages } = await parseCliDevStart(proc);
+
+		expect(messages[0]).to.contain('astro');
+		expect(messages[0]).to.contain(pkgVersion);
+		expect(messages[0]).to.contain('started in');
+	});
+
+
+	const hostnames = [undefined, '0.0.0.0', '127.0.0.1'];
+
+	hostnames.forEach((hostname) => {
+		const hostnameArgs = hostname ? ['--hostname', hostname] : [];
+		it(`astro dev ${hostnameArgs.join(' ') || '(no --hostname)'}`, async () => {
+			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 			const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), ...hostnameArgs);
 
-			let stdout = '';
+			const { messages } = await parseCliDevStart(proc);
 
-			for await (const chunk of proc.stdout) {
-				stdout += chunk;
+			const local = messages[1].replace(/Local\s*/g, '');
+			const network = messages[2].replace(/Network\s*/g, '');
 
-				if (chunk.includes('Local')) break;
-			}
+			expect(local).to.not.be.undefined;
+			expect(network).to.not.be.undefined;
+			const localURL = new URL(local);
+			const networkURL = new URL(network);
 
-			proc.kill();
-
-			expect(stdout).to.include('Local    http://localhost:3000');
-			expect(stdout).to.include(`Network  http://${hostname ?? '127.0.0.1'}:3000`);
+			expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`)
+			// Note: our tests run in parallel so this could be 3000+!
+			expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(3000, `Expected Port to be >= 3000`)
+			expect(networkURL.hostname).to.be.equal(hostname ?? '127.0.0.1', `Expected Network URL to use passed hostname`)
 		});
 	});
 

@@ -63,7 +63,7 @@ function printHelp() {
 		for (const row of rows) {
 			row.forEach((col, i) => {
 				if (i === 0) {
-					process.stdout.write(`${opts.prefix}${colors.bold(pad(`${col}`, opts.padding))}`)
+					process.stdout.write(`${opts.prefix}${colors.bold(pad(`${col}`, opts.padding - opts.prefix.length))}`)
 				} else {
 					if (split) {
 						process.stdout.write('\n    ');
