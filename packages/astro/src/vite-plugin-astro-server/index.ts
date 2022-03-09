@@ -2,7 +2,7 @@ import type * as vite from 'vite';
 import type http from 'http';
 import type { AstroConfig, ManifestData } from '../@types/astro';
 import { info, warn, error, LogOptions } from '../core/logger.js';
-import { getParamsAndProps } from '../core/render/core.js';
+import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
 import { createSafeError } from '../core/util.js';
@@ -114,29 +114,26 @@ async function handleRequest(
 		let filePath = new URL(`./${route.component}`, config.projectRoot);
 		// Note: may re-assign preloaded component to custom 404 on error
 		let preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
-		try {
-			const [, mod] = preloadedComponent;
-			// attempt to get static paths
-			// if this fails, we have a bad URL match!
-			await getParamsAndProps({
-				mod,
-				route,
-				routeCache,
-				pathname: rootRelativeUrl,
-				logging,
-			});
-		} catch (_err: any) {
-			if (_err instanceof Error) {
-				warn(logging, 'getStaticPaths', _err.message);
-				log404(logging, pathname);
-				const custom404 = getCustom404Route(config, manifest);
-				if (custom404) {
-					route = custom404;
-					filePath = new URL(`./${route.component}`, config.projectRoot);
-					preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
-				} else {
-					return handle404Response(origin, config, req, res);
-				}
+		const [, mod] = preloadedComponent;
+		// attempt to get static paths
+		// if this fails, we have a bad URL match!
+		const paramsAndPropsRes = await getParamsAndProps({
+			mod,
+			route,
+			routeCache,
+			pathname: rootRelativeUrl,
+			logging,
+		});
+		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
+			warn(logging, 'getStaticPaths', `Route pattern matched, but no matching static path found. (${pathname})`);
+			log404(logging, pathname);
+			const custom404 = getCustom404Route(config, manifest);
+			if (custom404) {
+				route = custom404;
+				filePath = new URL(`./${route.component}`, config.projectRoot);
+				preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+			} else {
+				return handle404Response(origin, config, req, res);
 			}
 		}
 
