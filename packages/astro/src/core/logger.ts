@@ -1,6 +1,6 @@
 import type { CompileError } from '@astrojs/parser';
 
-import { bold, cyan, dim, red, grey, underline, yellow } from 'kleur/colors';
+import { bold, cyan, dim, red, grey, underline, yellow, reset } from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import { Writable } from 'stream';
 import stringWidth from 'string-width';
@@ -54,7 +54,7 @@ export const defaultLogDestination = new Writable({
 
 				prefix += `${type} `;
 			}
-			return prefix;
+			return reset(prefix);
 		}
 
 		let message = utilFormat(...event.args);
