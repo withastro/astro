@@ -15,7 +15,7 @@ interface GetParamsAndPropsOptions {
 	logging: LogOptions;
 }
 
-async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props]> {
+export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props]> {
 	const { logging, mod, route, routeCache, pathname } = opts;
 	// Handle dynamic routes
 	let params: Params = {};
@@ -38,7 +38,7 @@ async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Param
 		}
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params);
 		if (!matchedStaticPath) {
-			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
+			throw new Error(`Route pattern matched, but no matching static path found. (${pathname})`);
 		}
 		// This is written this way for performance; instead of spreading the props
 		// which is O(n), create a new object that extends props.

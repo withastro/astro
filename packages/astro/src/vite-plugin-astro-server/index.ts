@@ -1,11 +1,12 @@
 import type * as vite from 'vite';
 import type http from 'http';
 import type { AstroConfig, ManifestData } from '../@types/astro';
-import { info, error, LogOptions } from '../core/logger.js';
+import { info, warn, error, LogOptions } from '../core/logger.js';
+import { getParamsAndProps } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
 import { createSafeError } from '../core/util.js';
-import { ssr } from '../core/render/dev/index.js';
+import { ssr, preload } from '../core/render/dev/index.js';
 import * as msg from '../core/messages.js';
 
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
@@ -130,16 +131,42 @@ async function handleRequest(
 			}
 		}
 		// Route successfully matched! Render it.
-		const html = await ssr({
+		const filePath = new URL(`./${route.component}`, config.projectRoot);
+		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer })
+		const [, mod] = preloadedComponent
+		try {
+			// attempt to get static paths
+			// if this fails, we have a bad URL match!
+			await getParamsAndProps({
+				mod,
+				route,
+				routeCache,
+				pathname,
+				logging,
+			})
+		} catch (_err: any) {
+			if (_err instanceof Error) {
+				warn(logging, 'getStaticPaths', _err.message)
+				const custom404 = getCustom404Route(config, manifest);
+				if (custom404) {
+					route = custom404;
+				} else {
+					handle404();
+					return;
+				}
+			}
+		}
+
+		const html = await ssr(preloadedComponent, {
 			astroConfig: config,
-			filePath: new URL(`./${route.component}`, config.projectRoot),
+			filePath,
 			logging,
 			mode: 'development',
 			origin,
 			pathname: rootRelativeUrl,
 			route,
-			routeCache: routeCache,
-			viteServer: viteServer,
+			routeCache,
+			viteServer,
 		});
 		writeHtmlResponse(res, statusCode, html);
 	} catch (_err: any) {
