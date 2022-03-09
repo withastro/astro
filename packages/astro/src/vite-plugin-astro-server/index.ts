@@ -122,7 +122,7 @@ async function handleRequest(
 				mod,
 				route,
 				routeCache,
-				pathname,
+				pathname: rootRelativeUrl,
 				logging,
 			});
 		} catch (_err: any) {
