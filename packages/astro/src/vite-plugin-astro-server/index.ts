@@ -69,6 +69,10 @@ function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
 	return manifest.routes.find((r) => r.component === relPages + '404.astro');
 }
 
+function log404(logging: LogOptions, pathname: string) {
+	info(logging, 'astro', msg.req({ url: pathname, statusCode: 404 }));
+}
+
 /** The main logic to route dev server requests to pages in Astro. */
 async function handleRequest(
 	routeCache: RouteCache,
@@ -86,14 +90,9 @@ async function handleRequest(
 	const pathname = decodeURI(new URL(origin + req.url).pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
 
-	function handle404() {
-		info(logging, 'astro', msg.req({ url: pathname, statusCode: 404 }));
-		handle404Response(origin, config, req, res);
-	}
-
 	try {
 		if (!pathname.startsWith(devRoot)) {
-			info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
+			log404(logging, pathname);
 			return handle404Response(origin, config, req, res);
 		}
 		// Attempt to match the URL to a valid page route.
@@ -102,12 +101,12 @@ async function handleRequest(
 		const statusCode = route ? 200 : 404;
 
 		if (!route) {
+			log404(logging, pathname);
 			const custom404 = getCustom404Route(config, manifest);
 			if (custom404) {
 				route = custom404;
 			} else {
-				handle404();
-				return;
+				return handle404Response(origin, config, req, res);
 			}
 		}
 
@@ -128,15 +127,15 @@ async function handleRequest(
 			});
 		} catch (_err: any) {
 			if (_err instanceof Error) {
-				warn(logging, 'getStaticPaths', _err.message)
+				warn(logging, 'getStaticPaths', _err.message);
+				log404(logging, pathname);
 				const custom404 = getCustom404Route(config, manifest);
 				if (custom404) {
 					route = custom404;
 					filePath = new URL(`./${route.component}`, config.projectRoot);
 					preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
 				} else {
-					handle404();
-					return;
+					return handle404Response(origin, config, req, res);
 				}
 			}
 		}
