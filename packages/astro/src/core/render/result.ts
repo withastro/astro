@@ -116,7 +116,7 @@ ${extra}`
 		_metadata: {
 			renderers,
 			pathname,
-			legacyBuild
+			legacyBuild,
 		},
 	};
 

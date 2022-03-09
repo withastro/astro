@@ -29,13 +29,13 @@ const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
 export default async function preview(config: AstroConfig, { logging }: PreviewOptions): Promise<PreviewServer> {
 	const startServerTime = performance.now();
 	const defaultOrigin = 'http://localhost';
-	const trailingSlash = config.devOptions.trailingSlash
+	const trailingSlash = config.devOptions.trailingSlash;
 	/** Base request URL. */
 	let baseURL = new URL(config.buildOptions.site || '/', defaultOrigin);
 	const staticFileServer = sirv(fileURLToPath(config.dist), {
 		etag: true,
 		maxAge: 0,
-	})
+	});
 	// Create the preview server, send static files out of the `dist/` directory.
 	const server = http.createServer((req, res) => {
 		const requestURL = new URL(req.url as string, defaultOrigin);
@@ -56,7 +56,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		function sendError(message: string) {
 			res.statusCode = 404;
 			res.end(notFoundTemplate(pathname, message));
-		};
+		}
 
 		switch (true) {
 			case hasTrailingSlash && trailingSlash == 'never' && !isRoot:
@@ -67,7 +67,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 				return;
 			default: {
 				// HACK: rewrite req.url so that sirv finds the file
-				req.url = '/' + req.url?.replace(baseURL.pathname, '')
+				req.url = '/' + req.url?.replace(baseURL.pathname, '');
 				staticFileServer(req, res, () => sendError('Not Found'));
 				return;
 			}
@@ -125,7 +125,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		server: httpServer!,
 		stop: async () => {
 			await new Promise((resolve, reject) => {
-				httpServer.close((err) => err ? reject(err) : resolve(undefined));
+				httpServer.close((err) => (err ? reject(err) : resolve(undefined)));
 			});
 		},
 	};

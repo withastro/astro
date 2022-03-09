@@ -17,9 +17,9 @@ describe('CSS', function () {
 			renderers: ['@astrojs/renderer-react', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
 			vite: {
 				build: {
-					assetsInlineLimit: 0
-				}
-			}
+					assetsInlineLimit: 0,
+				},
+			},
 		});
 	});
 

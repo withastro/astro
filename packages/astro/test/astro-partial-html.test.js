@@ -26,11 +26,13 @@ describe('Partial HTML ', async () => {
 
 		// test 2: correct CSS present
 		const link = $('link').attr('href');
-		const css = await fixture.fetch(link, {
-			headers: {
-				accept: 'text/css'
-			}
-		}).then(res => res.text());
+		const css = await fixture
+			.fetch(link, {
+				headers: {
+					accept: 'text/css',
+				},
+			})
+			.then((res) => res.text());
 		expect(css).to.match(/\.astro-[^{]+{color:red;}/);
 	});
 

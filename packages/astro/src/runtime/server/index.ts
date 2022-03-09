@@ -337,9 +337,7 @@ export function createAstro(filePathname: string, _site: string, projectRootStr:
 	};
 }
 
-const toAttributeString = (value: any, shouldEscape = true) => shouldEscape ?
-	String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;') :
-	value;
+const toAttributeString = (value: any, shouldEscape = true) => (shouldEscape ? String(value).replace(/&/g, '&#38;').replace(/"/g, '&#34;') : value);
 
 const STATIC_DIRECTIVES = new Set(['set:html', 'set:text']);
 
@@ -438,7 +436,6 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 	const children = item.children;
 	return index === all.findIndex((i) => JSON.stringify(i.props) === props && i.children == children);
 };
-
 
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.

@@ -15,9 +15,9 @@ describe('Assets', () => {
 			projectRoot: './fixtures/astro-assets/',
 			vite: {
 				build: {
-					assetsInlineLimit: 0
-				}
-			}
+					assetsInlineLimit: 0,
+				},
+			},
 		});
 		await fixture.build();
 	});
@@ -26,7 +26,7 @@ describe('Assets', () => {
 		const html = await fixture.readFile('/index.html');
 		const $ = cheerio.load(html);
 		const imgPath = $('img').attr('src');
-		const data = await fixture.readFile( imgPath);
+		const data = await fixture.readFile(imgPath);
 		expect(!!data).to.equal(true);
 	});
 

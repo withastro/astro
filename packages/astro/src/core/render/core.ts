@@ -103,11 +103,11 @@ export async function render(opts: RenderOptions): Promise<string> {
 	let html = await renderToString(result, Component, pageProps, null);
 
 	// handle final head injection if it hasn't happened already
-	if (html.indexOf("<!--astro:head:injected-->") == -1) {
-		html = await renderHead(result) + html;
+	if (html.indexOf('<!--astro:head:injected-->') == -1) {
+		html = (await renderHead(result)) + html;
 	}
 	// cleanup internal state flags
-	html = html.replace("<!--astro:head:injected-->", '');
+	html = html.replace('<!--astro:head:injected-->', '');
 
 	// inject <!doctype html> if missing (TODO: is a more robust check needed for comments, etc.?)
 	if (!legacyBuild && !/<!doctype html/i.test(html)) {

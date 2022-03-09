@@ -11,9 +11,9 @@ describe('Scripts (hoisted and not)', () => {
 			projectRoot: './fixtures/astro-scripts/',
 			vite: {
 				build: {
-					assetsInlineLimit: 0
-				}
-			}
+					assetsInlineLimit: 0,
+				},
+			},
 		});
 		await fixture.build();
 	});
@@ -45,7 +45,7 @@ describe('Scripts (hoisted and not)', () => {
 		// test 2: attr removed
 		expect($('script').attr('data-astro')).to.equal(undefined);
 
-		const entryURL =  $('script').attr('src');
+		const entryURL = $('script').attr('src');
 		const inlineEntryJS = await fixture.readFile(entryURL);
 
 		// test 3: the JS exists

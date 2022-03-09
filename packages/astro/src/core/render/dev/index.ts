@@ -51,9 +51,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	const legacy = astroConfig.buildOptions.legacyBuild;
 
 	// Add hoisted script tags
-	const scripts = createModuleScriptElementWithSrcSet(
-		!legacy && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []
-	);
+	const scripts = createModuleScriptElementWithSrcSet(!legacy && mod.hasOwnProperty('$$metadata') ? Array.from(mod.$$metadata.hoistedScriptPaths()) : []);
 
 	// Inject HMR scripts
 	if (mod.hasOwnProperty('$$metadata') && mode === 'development' && !legacy) {
@@ -69,7 +67,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
 	// Pass framework CSS in as link tags to be appended to the page.
 	let links = new Set<SSRElement>();
-	if(!legacy) {
+	if (!legacy) {
 		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
 			if (mode === 'development' && svelteStylesRE.test(href)) {
 				scripts.add({
@@ -136,7 +134,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	}
 
 	// inject CSS
-	if(legacy) {
+	if (legacy) {
 		[...getStylesForURL(filePath, viteServer)].forEach((href) => {
 			if (mode === 'development' && svelteStylesRE.test(href)) {
 				tags.push({
@@ -157,7 +155,6 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 			}
 		});
 	}
-
 
 	// add injected tags
 	content = injectTags(content, tags);

@@ -10,7 +10,7 @@ describe('Astro.*', () => {
 			projectRoot: './fixtures/astro-global/',
 			buildOptions: {
 				site: 'https://mysite.dev/blog/',
-				sitemap: false
+				sitemap: false,
 			},
 		});
 		await fixture.build();

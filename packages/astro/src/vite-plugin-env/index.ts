@@ -55,29 +55,31 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 		async transform(source, id, options) {
 			const ssr = options?.ssr === true;
 
-			if(!ssr) {
+			if (!ssr) {
 				return source;
 			}
 
-			if(!source.includes('import.meta') || !/\benv\b/.test(source)) {
+			if (!source.includes('import.meta') || !/\benv\b/.test(source)) {
 				return source;
 			}
 
 			if (typeof privateEnv === 'undefined') {
 				privateEnv = getPrivateEnv(config, astroConfig);
-				if(privateEnv) {
-					const entries = Object.entries(privateEnv).map(([key, value]) => ([`import.meta.env.${key}`, value]));
+				if (privateEnv) {
+					const entries = Object.entries(privateEnv).map(([key, value]) => [`import.meta.env.${key}`, value]);
 					replacements = Object.fromEntries(entries);
 					pattern = new RegExp(
 						// Do not allow preceding '.', but do allow preceding '...' for spread operations
 						'(?<!(?<!\\.\\.)\\.)\\b(' +
-								Object.keys(replacements)
-										.map((str) => {
-										return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
+							Object.keys(replacements)
+								.map((str) => {
+									return str.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
 								})
-										.join('|') +
-								// prevent trailing assignments
-								')\\b(?!\\s*?=[^=])', 'g');
+								.join('|') +
+							// prevent trailing assignments
+							')\\b(?!\\s*?=[^=])',
+						'g'
+					);
 				}
 			}
 
@@ -86,13 +88,13 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 
 			// Find matches for *private* env and do our own replacement.
 			const s = new MagicString(source);
-			let match: RegExpExecArray | null
+			let match: RegExpExecArray | null;
 
 			while ((match = pattern.exec(source))) {
-				const start = match.index
-				const end = start + match[0].length
-				const replacement = '' + replacements[match[1]]
-				s.overwrite(start, end, replacement)
+				const start = match.index;
+				const end = start + match[0].length;
+				const replacement = '' + replacements[match[1]];
+				s.overwrite(start, end, replacement);
 			}
 
 			return s.toString();

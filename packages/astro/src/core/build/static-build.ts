@@ -483,7 +483,7 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: Rou
 		case 'page':
 			switch (astroConfig.buildOptions.pageUrlFormat) {
 				case 'directory': {
-					if(STATUS_CODE_PAGES.has(pathname)) {
+					if (STATUS_CODE_PAGES.has(pathname)) {
 						return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 					}
 					return new URL('.' + appendForwardSlash(pathname), outRoot);
@@ -491,7 +491,6 @@ function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: Rou
 				case 'file': {
 					return new URL('.' + appendForwardSlash(npath.dirname(pathname)), outRoot);
 				}
-					
 			}
 	}
 }
@@ -503,7 +502,7 @@ function getOutFile(astroConfig: AstroConfig, outFolder: URL, pathname: string, 
 		case 'page':
 			switch (astroConfig.buildOptions.pageUrlFormat) {
 				case 'directory': {
-					if(STATUS_CODE_PAGES.has(pathname)) {
+					if (STATUS_CODE_PAGES.has(pathname)) {
 						const baseName = npath.basename(pathname);
 						return new URL('./' + (baseName || 'index') + '.html', outFolder);
 					}
