@@ -77,6 +77,10 @@ export class AstroComponent {
 	}
 }
 
+function isAstroComponent(obj: any): boolean {
+	return typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object AstroComponent]';
+}
+
 export async function render(htmlParts: TemplateStringsArray, ...expressions: any[]) {
 	return new AstroComponent(htmlParts, expressions);
 }
@@ -419,25 +423,38 @@ export async function renderEndpoint(mod: EndpointHandler, params: any) {
 	return body;
 }
 
+async function replaceHeadInjection(result: SSRResult, html: string): Promise<string> {
+	let template = html;
+	// <!--astro:head--> injected by compiler
+	// Must be handled at the end of the rendering process
+	if (template.indexOf('<!--astro:head-->') > -1) {
+		template = template.replace('<!--astro:head-->', await renderHead(result));
+	}
+	return template;
+}
+
 // Calls a component and renders it into a string of HTML
 export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory,
-	props: any, children: any): Promise<string | any> {
+	props: any, children: any): Promise<string> {
 	const Component = await componentFactory(result, props, children);
 
-	if(Object.prototype.toString.call(Component) === '[object AstroComponent]') {
-		let template = await renderAstroComponent(Component);
+	let template = await renderAstroComponent(Component);
+	return replaceHeadInjection(result, template);
+}
 
-		// HACK
-		if(typeof template === 'object') {
-			return template;
-		}
-	
-		// <!--astro:head--> injected by compiler
-		// Must be handled at the end of the rendering process
-		if (template.indexOf('<!--astro:head-->') > -1) {
-			template = template.replace('<!--astro:head-->', await renderHead(result));
-		}
-		return template;
+export async function renderToResponse(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any
+): Promise<any> {
+	const Component = await componentFactory(result, props, children);
+
+	console.log("COMPONENT", Component);
+
+	if(isAstroComponent(Component)) {
+		let template = await renderAstroComponent(Component);
+		return replaceHeadInjection(result, template);
 	} else {
 		return Component;
 	}

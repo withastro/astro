@@ -1,7 +1,7 @@
 import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params, Props, Renderer, RouteData, SSRElement } from '../../@types/astro';
 import type { LogOptions } from '../logger.js';
 
-import { renderEndpoint, renderHead, renderToString } from '../../runtime/server/index.js';
+import { renderEndpoint, renderHead, renderToResponse } from '../../runtime/server/index.js';
 import { getParams } from '../routing/index.js';
 import { createResult } from './result.js';
 import { findPathItemByKey, RouteCache, callGetStaticPaths } from './route-cache.js';
@@ -97,7 +97,7 @@ export async function render(opts: RenderOptions): Promise<string | { location: 
 		scripts,
 	});
 
-	let html = await renderToString(result, Component, pageProps, null);
+	let html = await renderToResponse(result, Component, pageProps, null);
 
 	if(typeof html === 'object') {
 		return html;
