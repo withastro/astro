@@ -10,8 +10,6 @@ import { errorHandler } from './error.js';
 import { getHmrScript } from './hmr.js';
 import { render as coreRender } from '../core.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
-import { notFoundTemplate } from '../../../template/4xx.js';
-import { NotFoundError } from '../../dev/util.js';
 
 interface SSROptions {
 	/** an instance of the AstroConfig */
@@ -180,13 +178,6 @@ export async function ssr(ssrOpts: SSROptions): Promise<string> {
 		const [renderers, mod] = await preload(ssrOpts);
 		return await render(renderers, mod, ssrOpts); // note(drew): without "await", errors won’t get caught by errorHandler()
 	} catch (e: unknown) {
-		if (e instanceof NotFoundError) {
-			const relPages = ssrOpts.astroConfig.pages.href.replace(ssrOpts.astroConfig.projectRoot.href, '');
-			// TODO: find out how to get user 404.astro page from manifest
-			// If found, return ssr(THE_404_PAGE)?
-			// Otherwise, return built-in 404 response 👇
-			return notFoundTemplate(ssrOpts.pathname, 'Not Found')
-		}
 		await errorHandler(e, { viteServer: ssrOpts.viteServer, filePath: ssrOpts.filePath });
 		throw e;
 	}
