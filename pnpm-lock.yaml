@@ -211,17 +211,21 @@ importers:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
       astro: ^0.24.0-next.0
+      sass: ^1.49.9
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
+      sass: 1.49.9
 
   examples/portfolio-svelte:
     specifiers:
       '@astrojs/renderer-svelte': ^0.5.1
       astro: ^0.24.0-next.0
+      sass: ^1.49.9
     devDependencies:
       '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
       astro: link:../../packages/astro
+      sass: 1.49.9
 
   examples/ssr:
     specifiers:
@@ -245,9 +249,11 @@ importers:
     specifiers:
       '@astrojs/renderer-react': ^0.5.0
       astro: ^0.24.0-next.0
+      sass: ^1.49.9
     devDependencies:
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
       astro: link:../../packages/astro
+      sass: 1.49.9
 
   examples/with-markdown:
     specifiers:
@@ -8546,6 +8552,16 @@ packages:
       chokidar: 3.5.3
       immutable: 4.0.0
       source-map-js: 1.0.2
+
+  /sass/1.49.9:
+    resolution: {integrity: sha512-YlYWkkHP9fbwaFRZQRXgDi3mXZShslVmmo+FVK3kHLUELHHEYrCmL1x6IUjC7wLS6VuJSAFXRQS/DxdsC4xL1A==}
+    engines: {node: '>=12.0.0'}
+    hasBin: true
+    dependencies:
+      chokidar: 3.5.3
+      immutable: 4.0.0
+      source-map-js: 1.0.2
+    dev: true
 
   /scheduler/0.20.2:
     resolution: {integrity: sha512-2eWfGgAqqWFGqtdMmcL5zCMK1U8KlXv8SQFGglL3CEtd0aDVDWgeF/YoCmvln55m5zSk3J/20hTaSBeSObsQDQ==}
