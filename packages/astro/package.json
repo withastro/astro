@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.23.7",
+  "version": "0.24.0-next.0",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -54,11 +54,11 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "mocha --parallel --timeout 15000 --ignore **/lit-element.test.js && mocha **/lit-element.test.js",
-    "test:match": "mocha --timeout 15000 -g"
+    "test": "mocha --parallel --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
+    "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.11.4",
+    "@astrojs/compiler": "^0.12.0-next.8",
     "@astrojs/language-server": "^0.8.6",
     "@astrojs/markdown-remark": "^0.6.4",
     "@astrojs/prism": "0.4.0",
@@ -95,7 +95,7 @@
     "resolve": "^1.20.0",
     "rollup": "^2.64.0",
     "semver": "^7.3.5",
-    "send": "^0.17.1",
+    "sirv": "^2.0.2",
     "serialize-javascript": "^6.0.0",
     "shiki": "^0.10.0",
     "shorthash": "^0.0.2",

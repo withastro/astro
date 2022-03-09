@@ -12,10 +12,10 @@
   "devDependencies": {
     "@astrojs/renderer-vue": "^0.4.0",
     "@astrojs/renderer-preact": "^0.5.0",
-    "astro": "^0.23.7",
     "sass": "^1.49.8",
+    "astro": "^0.24.0-next.0",
+    "preact": "~10.6.5",
     "unocss": "^0.15.5",
-    "vite-imagetools": "^4.0.1",
-    "@astrojs/renderer-vue": "^0.4.0"
+    "vite-imagetools": "^4.0.1"
   }
 }

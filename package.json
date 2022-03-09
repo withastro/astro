@@ -43,7 +43,8 @@
     "peerDependencyRules": {
       "ignoreMissing": [
         "@babel/core",
-        "@babel/plugin-transform-react-jsx"
+        "@babel/plugin-transform-react-jsx",
+        "vite"
       ]
     }
   },
@@ -51,20 +52,20 @@
     "@astrojs/webapi": "workspace:*"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.4.2",
-    "@changesets/cli": "^2.16.0",
-    "@octokit/action": "^3.15.4",
-    "@typescript-eslint/eslint-plugin": "^5.0.0",
-    "@typescript-eslint/parser": "^5.0.0",
+    "@changesets/changelog-github": "^0.4.3",
+    "@changesets/cli": "^2.21.1",
+    "@octokit/action": "^3.18.0",
+    "@typescript-eslint/eslint-plugin": "^5.14.0",
+    "@typescript-eslint/parser": "^5.14.0",
     "del": "^6.0.0",
     "esbuild": "0.13.7",
-    "eslint": "^8.0.1",
-    "eslint-config-prettier": "^8.3.0",
+    "eslint": "^8.10.0",
+    "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "execa": "^6.0.0",
-    "prettier": "^2.4.1",
+    "execa": "^6.1.0",
+    "prettier": "^2.5.1",
     "pretty-bytes": "^6.0.0",
-    "tiny-glob": "^0.2.8",
+    "tiny-glob": "^0.2.9",
     "turbo": "^1.1.5",
     "typescript": "4.5.2"
   }

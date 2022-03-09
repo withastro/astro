@@ -12,6 +12,9 @@ describe('Preview Routing', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+					buildOptions: {
+						pageUrlFormat: 'directory',
+					},
 					devOptions: {
 						trailingSlash: 'never',
 						port: 4000,

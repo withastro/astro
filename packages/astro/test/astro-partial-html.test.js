@@ -7,7 +7,9 @@ describe('Partial HTML ', async () => {
 	let devServer;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/astro-partial-html/' });
+		fixture = await loadFixture({
+			projectRoot: './fixtures/astro-partial-html/',
+		});
 		devServer = await fixture.startDevServer();
 	});
 
@@ -23,7 +25,12 @@ describe('Partial HTML ', async () => {
 		expect(html).to.match(/^<!DOCTYPE html/);
 
 		// test 2: correct CSS present
-		const css = $('style[astro-style]').html();
+		const link = $('link').attr('href');
+		const css = await fixture.fetch(link, {
+			headers: {
+				accept: 'text/css'
+			}
+		}).then(res => res.text());
 		expect(css).to.match(/\.astro-[^{]+{color:red;}/);
 	});
 
