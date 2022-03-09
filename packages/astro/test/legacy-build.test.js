@@ -9,7 +9,7 @@ describe('Legacy Build', () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/legacy-build/',
 		});
-		await fixture.build({buildOptions: {legacyBuild: true}});
+		await fixture.build({ buildOptions: { legacyBuild: true } });
 	});
 
 	describe('build', () => {
@@ -18,6 +18,5 @@ describe('Legacy Build', () => {
 			const $ = cheerio.load(html);
 			expect($('title').text()).to.equal('Demo app');
 		});
-
 	});
 });
