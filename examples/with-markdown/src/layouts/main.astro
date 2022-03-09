@@ -1,4 +1,6 @@
 ---
+import '../styles/global.css';
+
 const { content } = Astro.props;
 ---
 
@@ -9,9 +11,6 @@ const { content } = Astro.props;
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
 		<title>{content.title}</title>
-		<style global>
-			@import "../styles/global.css";
-		</style>
 	</head>
 	<body>
 		<slot />
