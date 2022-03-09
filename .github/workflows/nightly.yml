@@ -53,9 +53,6 @@ jobs:
           node-version: 16
           cache: 'pnpm'
 
-      - name: Install dependencies
-        run: pnpm install
-
       - name: Upgrade recursive
         run: pnpm upgrade --recursive
 
