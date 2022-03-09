@@ -110,10 +110,8 @@ async function handleRequest(
 			}
 		}
 
-		// Note: may re-assign filePath to custom 404 on error
-		let filePath = new URL(`./${route.component}`, config.projectRoot);
-		// Note: may re-assign preloaded component to custom 404 on error
-		let preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+		const filePath = new URL(`./${route.component}`, config.projectRoot);
+		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
 		const [, mod] = preloadedComponent;
 		// attempt to get static paths
 		// if this fails, we have a bad URL match!
@@ -127,11 +125,22 @@ async function handleRequest(
 		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
 			warn(logging, 'getStaticPaths', `Route pattern matched, but no matching static path found. (${pathname})`);
 			log404(logging, pathname);
-			const custom404 = getCustom404Route(config, manifest);
-			if (custom404) {
-				route = custom404;
-				filePath = new URL(`./${route.component}`, config.projectRoot);
-				preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+			const routeCustom404 = getCustom404Route(config, manifest);
+			if (routeCustom404) {
+				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.projectRoot);
+				const preloadedCompCustom404 = await preload({ astroConfig: config, filePath: filePathCustom404, viteServer });
+				const html = await ssr(preloadedCompCustom404, {
+					astroConfig: config,
+					filePath: filePathCustom404,
+					logging,
+					mode: 'development',
+					origin,
+					pathname: rootRelativeUrl,
+					route: routeCustom404,
+					routeCache,
+					viteServer,
+				});
+				return writeHtmlResponse(res, statusCode, html);
 			} else {
 				return handle404Response(origin, config, req, res);
 			}
