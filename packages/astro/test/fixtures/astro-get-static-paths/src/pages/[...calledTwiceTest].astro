@@ -5,9 +5,9 @@ export function getStaticPaths({ paginate }) {
   }
   globalThis.isCalledOnce = true;
   return [
-    {params: {test: 'a'}},
-    {params: {test: 'b'}},
-    {params: {test: 'c'}},
+    {params: {calledTwiceTest: 'a'}},
+    {params: {calledTwiceTest: 'b'}},
+    {params: {calledTwiceTest: 'c'}},
   ];
 }
 const { params } = Astro.request;
@@ -15,7 +15,7 @@ const { params } = Astro.request;
 
 <html>
   <head>
-    <title>Page {params.test}</title>
+    <title>Page {params.calledTwiceTest}</title>
   </head>
   <body></body>
 </html>
