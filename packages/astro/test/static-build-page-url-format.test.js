@@ -14,7 +14,6 @@ describe("Static build - pageUrlFormat: 'file'", () => {
 			projectRoot: './fixtures/static-build-page-url-format/',
 			renderers: [],
 			buildOptions: {
-				experimentalStaticBuild: true,
 				site: 'http://example.com/subpath/',
 				pageUrlFormat: 'file',
 			},

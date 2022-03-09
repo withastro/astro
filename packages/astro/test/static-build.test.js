@@ -14,7 +14,6 @@ describe('Static build', () => {
 			projectRoot: './fixtures/static build/',
 			renderers: ['@astrojs/renderer-preact'],
 			buildOptions: {
-				experimentalStaticBuild: true,
 				site: 'http://example.com/subpath/',
 			},
 			ssr: {
