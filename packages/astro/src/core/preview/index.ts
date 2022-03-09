@@ -30,7 +30,10 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 	const trailingSlash = config.devOptions.trailingSlash
 	/** Base request URL. */
 	let baseURL = new URL(config.buildOptions.site || '/', defaultOrigin);
-
+	const staticFileServer = sirv(fileURLToPath(config.dist), {
+		etag: true,
+		maxAge: 0,
+	})
 	// Create the preview server, send static files out of the `dist/` directory.
 	const server = http.createServer((req, res) => {
 		const requestURL = new URL(req.url as string, defaultOrigin);
@@ -48,28 +51,22 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		const isRoot = pathname === '/';
 		const hasTrailingSlash = isRoot || pathname.endsWith('/');
 
-		function err(message: string) {
+		function sendError(message: string) {
 			res.statusCode = 404;
 			res.end(notFoundTemplate(pathname, message));
 		};
 
-		switch(true) {
+		switch (true) {
 			case hasTrailingSlash && trailingSlash == 'never' && !isRoot:
-				err('Prohibited trailing slash');
-				break;
-			case !hasTrailingSlash && trailingSlash == 'always' && !isRoot:
-				err('Required trailing slash');
-				break;
+				sendError('Not Found (devOptions.trailingSlash is set to "never")');
+				return;
 			default: {
 				// HACK: rewrite req.url so that sirv finds the file
-				req.url = '/' + req.url?.replace(baseURL.pathname,'')
-				sirv(fileURLToPath(config.dist), {
-					maxAge: 0,
-					onNoMatch: () => {
-						err('Path not found')
-					}
-				})(req,res)
-		}}
+				req.url = '/' + req.url?.replace(baseURL.pathname, '')
+				staticFileServer(req, res, () => sendError('Not Found'));
+				return;
+			}
+		}
 	});
 
 	let { hostname, port } = config.devOptions;
@@ -122,7 +119,9 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		port,
 		server: httpServer!,
 		stop: async () => {
-			httpServer.close();
+			await new Promise((resolve, reject) => {
+				httpServer.close((err) => err ? reject(err) : resolve(undefined));
+			});
 		},
 	};
 }

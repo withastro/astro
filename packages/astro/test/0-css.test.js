@@ -25,7 +25,7 @@ describe('CSS', function () {
 
 	// test HTML and CSS contents for accuracy
 	describe('build', () => {
-		this.timeout(30000); // test needs a little more time in CI
+		this.timeout(45000); // test needs a little more time in CI
 
 		let $;
 		let bundledCSS;
