@@ -23,6 +23,8 @@ export interface PreviewServer {
 	stop(): Promise<void>;
 }
 
+const HAS_FILE_EXTENSION_REGEXP = /^.*\.[^\\]+$/;
+
 /** The primary dev action */
 export default async function preview(config: AstroConfig, { logging }: PreviewOptions): Promise<PreviewServer> {
 	const startServerTime = performance.now();
@@ -59,6 +61,9 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 		switch (true) {
 			case hasTrailingSlash && trailingSlash == 'never' && !isRoot:
 				sendError('Not Found (devOptions.trailingSlash is set to "never")');
+				return;
+			case !hasTrailingSlash && trailingSlash == 'always' && !isRoot && !HAS_FILE_EXTENSION_REGEXP.test(pathname):
+				sendError('Not Found (devOptions.trailingSlash is set to "always")');
 				return;
 			default: {
 				// HACK: rewrite req.url so that sirv finds the file
