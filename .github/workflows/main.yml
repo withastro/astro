@@ -24,7 +24,7 @@ jobs:
           MESSAGE: ${{ github.event.commits[0].message }}
         run:  |
               TRIMMED=$(echo "$MESSAGE" | sed '1!d;q')
-              echo "::set-output name=COMMIT_MSG::${TRIMMED}" 
+              echo "::set-output name=COMMIT_MSG::${TRIMMED}"
       - name: Send a Discord notification when a PR is merged
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK_CONGRATS }}
@@ -40,7 +40,7 @@ jobs:
       run_job: ${{ steps.check_files.outputs.run_job }}
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup PNPM
         uses: pnpm/action-setup@v2.2.1
 
@@ -50,17 +50,15 @@ jobs:
           node-version: 16
           cache: 'pnpm'
 
-      - name: Install NPM Dependencies
+      - name: Install dependencies
         run: pnpm install
-        env:
-          CI: true
-      
+
       - name: Check Modified
         run: pnpm exec changeset status --output ./status.json
 
       - name: Check Output
         id: check_files
-        run: | 
+        run: |
           output=`echo $(cat status.json)`
           if [[ $output = '{ "changesets": [], "releases": [] }' ]]
           then
@@ -70,7 +68,7 @@ jobs:
             echo 'changes found, push to latest skipped'
             echo "::set-output name=run_job::false"
           fi
-  
+
   update:
     name: Update the latest branch
     needs: check_for_update

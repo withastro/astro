@@ -20,10 +20,8 @@ jobs:
         with:
           node-version: 16
           cache: 'pnpm'
-      - name: Install NPM Dependencies
+      - name: Install dependencies
         run: pnpm install
-        env:
-          CI: true
       - name: Format code
         run: pnpm run format
       - name: Commit changes
