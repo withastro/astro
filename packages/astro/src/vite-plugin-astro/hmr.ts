@@ -4,7 +4,7 @@ import type { ViteDevServer, ModuleNode, HmrContext } from 'vite';
 import type { PluginContext as RollupPluginContext, ResolvedId } from 'rollup';
 import { invalidateCompilation, isCached } from './compile.js';
 import { logger } from '../core/logger.js';
-import { dim } from 'kleur/colors';
+import { green } from 'kleur/colors';
 
 interface TrackCSSDependenciesOptions {
 	viteDevServer: ViteDevServer | null;
@@ -81,7 +81,7 @@ export function handleHotUpdate(ctx: HmrContext, config: AstroConfig, logging: L
 
 	if (ctx.file.endsWith('.astro')) {
 		const file = ctx.file.replace(config.projectRoot.pathname, '/');
-		logger.info('hmr', `${dim('updated')} ${file}`);
+		logger.info('astro', `${green('hmr')} ${file}`);
 		ctx.server.ws.send({ type: 'custom', event: 'astro:update', data: { file } });
 	}
 
