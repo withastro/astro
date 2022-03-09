@@ -1,5 +1,11 @@
 # astro-vscode
 
+## 0.10.3
+
+### Patch Changes
+
+- 2debae9: Fixed build command
+
 ## 0.10.2
 
 ### Patch Changes
