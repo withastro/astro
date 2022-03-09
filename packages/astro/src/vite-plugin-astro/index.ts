@@ -4,8 +4,6 @@ import type { LogOptions } from '../core/logger.js';
 
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
-import { createReadStream } from 'fs';
-import { createHash } from 'crypto'
 import slash from 'slash';
 import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';
@@ -18,17 +16,6 @@ const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
 	config: AstroConfig;
 	logging: LogOptions;
-}
-
-const checksums = new Map();
-function checksum(path: string) {
-  return new Promise((resolve, reject) => {
-    const hash = createHash('sha1');
-    const stream = createReadStream(path);
-    stream.on('error', err => reject(err));
-    stream.on('data', chunk => hash.update(chunk));
-    stream.on('end', () => resolve(hash.digest('hex')));
-  });
 }
 
 /** Transform .astro files for Vite */
@@ -218,22 +205,6 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		},
 		async handleHotUpdate(context) {
 			if (context.server.config.isProduction) return;
-			// Check if any of the modules have new content
-			let changes = false;
-			for (const mod of context.modules) {
-				if (changes) break;
-				const path = mod.file ?? fileURLToPath(mod.url.replace('/@fs', 'file:/'));
-				if (!mod.meta) {
-					mod.meta = {};
-				}
-				mod.meta.checksum = await checksum(path)
-				if (checksums.get(path) !== mod.meta.checksum) {
-					changes = true
-					checksums.set(path, mod.meta.checksum)
-				}
-			}
-			// If all the checksums match, skip sending an HMR update
-			if (!changes) return;
 			return handleHotUpdate(context, config, logging);
 		},
 	};
