@@ -1,5 +1,15 @@
 # astro-vscode
 
+## 0.10.0
+
+### Minor Changes
+
+- 7a21a36: Updated grammars and removed `astro-markdown` language
+
+### Patch Changes
+
+- 2f87d79: Added icon to language
+
 ## 0.9.3
 
 ### Patch Changes
