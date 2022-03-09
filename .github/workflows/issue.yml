@@ -3,7 +3,7 @@ name: Auto Assign Issues to Project
 on:
   issues:
     types: [opened]
-    
+
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -13,21 +13,21 @@ jobs:
     name: Auto-assign new issues to projects
     steps:
     - name: Assign Bugs to the Bug Tracker
-      uses: srggrs/assign-one-project-github-action@1.2.1
+      uses: srggrs/assign-one-project-github-action@1.3.1
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '🐛 BUG:')
       with:
         project: 'https://github.com/withastro/astro/projects/2'
         column_name: 'Needs Triage'
 
     - name: Assign RFCs to the RFC Tracker
-      uses: srggrs/assign-one-project-github-action@1.2.1
+      uses: srggrs/assign-one-project-github-action@1.3.1
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '💡 RFC:')
       with:
         project: 'https://github.com/withastro/astro/projects/3'
         column_name: 'Discussing'
 
     - name: Assign RFCs to the Docs Tracker
-      uses: srggrs/assign-one-project-github-action@1.2.1
+      uses: srggrs/assign-one-project-github-action@1.3.1
       if: github.event.action == 'opened' && startsWith(github.event.issue.title, '📘 DOC:')
       with:
         project: 'https://github.com/withastro/astro/projects/5'

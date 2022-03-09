@@ -67,7 +67,7 @@
   "engines": {
     "node": "^14.15.0 || >=16.0.0"
   },
-  "packageManager": "pnpm@6.23.6",
+  "packageManager": "pnpm@6.32.3",
   "dependencies": {
     "@astrojs/webapi": "workspace:*"
   }

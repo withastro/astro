@@ -10,22 +10,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code using Git
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           ref: ${{ github.head_ref }}
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6.23.6
+        uses: pnpm/action-setup@v2.2.1
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'pnpm'
-      - name: Install NPM Dependencies
+      - name: Install dependencies
         run: pnpm install
-        env:
-          CI: true
       - name: Format code
         run: pnpm run format
       - name: Commit changes

@@ -25,24 +25,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6.23.6
+        uses: pnpm/action-setup@v2.2.1
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'pnpm'
 
-      - name: Install NPM Dependencies
+      - name: Install dependencies
         run: pnpm install
-        env:
-          CI: true
-      
+
       - name: Status
         run: git status
 
@@ -50,11 +46,11 @@ jobs:
       - name: Lint (External)
         if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.owner.login != github.repository_owner }}
         run: pnpm run lint
-        
+
       # Otherwise, run lint autofixer
       - name: Lint
         if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.owner.login == github.repository_owner }}
-        uses: wearerequired/lint-action@v1.10.0
+        uses: wearerequired/lint-action@v1.11.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -82,29 +78,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6.23.6
+        uses: pnpm/action-setup@v2.2.1
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'pnpm'
 
-      - name: Install NPM Dependencies
+      - name: Install dependencies
         run: pnpm install
-        env:
-          CI: true
 
       - name: Build Packages
         run: pnpm run build
 
       - name: Upload Package Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: artifacts
           path: |
@@ -112,7 +104,7 @@ jobs:
             packages/webapi/mod.js
             packages/webapi/mod.js.map
           if-no-files-found: error
-  
+
   # Test depends on Build's output, which allows us to skip any build process!
   test:
     name: 'Test: ${{ matrix.os }} (node@${{ matrix.node_version }})'
@@ -131,29 +123,25 @@ jobs:
       - build
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6.23.6
-      
+        uses: pnpm/action-setup@v2.2.1
+
       - name: Setup node@${{ matrix.node_version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
           cache: 'pnpm'
 
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
 
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
-      - name: Install NPM Dependencies
+      - name: Install dependencies
         run: pnpm install
-        env:
-          CI: true
 
       - name: Test
         run: pnpm run test
@@ -176,31 +164,29 @@ jobs:
         run: git submodule update --remote
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6.23.6
+        uses: pnpm/action-setup@v2.2.1
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 14
           cache: 'pnpm'
 
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
 
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
-      - name: Install NPM Dependencies
-        run: pnpm install --frozen-lockfile=false
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
 
       - name: Test
         run: pnpm run test:smoke
 
       - name: Memory Leak Test
         run: |
-          node ./scripts/memory/mk.js 
+          node ./scripts/memory/mk.js
           node --expose-gc ./scripts/memory/index.js --ci
 
 
@@ -212,32 +198,28 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6.23.6
+        uses: pnpm/action-setup@v2.2.1
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'pnpm'
-      
+
       - name: Download Build Artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
 
       - name: Extract Artifacts
         run: ./.github/extract-artifacts.sh
 
-      - name: Install NPM Dependencies
+      - name: Install dependencies
         run: pnpm install
-        env:
-          CI: true
-      
+
       - name: Create Release Pull Request or Publish
         id: changesets
         uses: changesets/action@v1
