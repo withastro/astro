@@ -13,21 +13,24 @@ export function emptyDir(dir: string, skip?: Set<string>): void {
 		}
 		const abs = npath.resolve(dir, file);
 		// baseline is Node 12 so can't use rmSync :(
+		let isDir = false;
 		try {
-			const isDir = fs.lstatSync(abs).isDirectory();
-
-			if (isDir) {
-				emptyDir(abs);
-				fs.rmdirSync(abs);
-			} else {
-				fs.unlinkSync(abs);
-			}
+			isDir = fs.lstatSync(abs).isDirectory();
 		} catch (err: any) {
 			// Taken from:
 			// https://github.com/isaacs/rimraf/blob/9219c937be159edbdf1efa961f2904e863c3ce2d/rimraf.js#L293-L296
 			if (err.code === 'EPERM' && isWindows) {
 				fixWinEPERMSync(abs, err);
+			} else {
+				throw err;
 			}
+		}
+
+		if (isDir) {
+			emptyDir(abs);
+			fs.rmdirSync(abs);
+		} else {
+			fs.unlinkSync(abs);
 		}
 	}
 }
