@@ -46,12 +46,16 @@
     "@astrojs/renderer-vue": "0.4.0",
     "astro-scripts": "0.0.1",
     "astro.build": "0.0.1",
-    "docs": "0.0.7"
+    "docs": "0.0.7",
+    "@astrojs/webapi": "0.11.0"
   },
   "changesets": [
+    "five-stingrays-collect",
     "fresh-ladybugs-think",
     "modern-elephants-burn",
     "new-pianos-boil",
-    "thick-ravens-chew"
+    "silver-foxes-bathe",
+    "thick-ravens-chew",
+    "yellow-trees-clean"
   ]
 }

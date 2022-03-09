@@ -1,5 +1,15 @@
 # astro
 
+## 0.24.0-next.1
+
+### Patch Changes
+
+- [#2705](https://github.com/withastro/astro/pull/2705) [`7fe4af44`](https://github.com/withastro/astro/commit/7fe4af44e6f077995d7965a6c7b2eb10afeb8709) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes the static build to write to 404.html
+
+* [#2733](https://github.com/withastro/astro/pull/2733) [`6bf124fb`](https://github.com/withastro/astro/commit/6bf124fb2f8ffd3909148ccc0e253c1f72f364cb) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Remove a bad dev warning
+
+- [#2732](https://github.com/withastro/astro/pull/2732) [`0ae96bb7`](https://github.com/withastro/astro/commit/0ae96bb7491a60eb2032bab23377ca54951a67a7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update server start message to use localhost for local hostnames
+
 ## 0.24.0-next.0
 
 ### Minor Changes
