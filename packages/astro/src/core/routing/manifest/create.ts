@@ -65,7 +65,7 @@ function getPattern(segments: Part[][], addTrailingSlash: AstroConfig['devOption
 					.map((part) => {
 						if (part)
 							return part.dynamic
-								? `(?<${part.content}>[^/]+?)`
+								? '([^/]+?)'
 								: part.content
 									.normalize()
 									.replace(/\?/g, '%3F')
