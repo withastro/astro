@@ -12,15 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out code using Git
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6.23.6
+        uses: pnpm/action-setup@v2.2.1
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'pnpm'
@@ -46,15 +44,13 @@ jobs:
     steps:
       
       - name: Check out code using Git
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       
       - name: Setup PNPM
-        uses: pnpm/action-setup@v2.0.1
-        with:
-          version: 6.23.6
+        uses: pnpm/action-setup@v2.2.1
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
           cache: 'pnpm'
