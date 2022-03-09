@@ -21,7 +21,7 @@ describe('getStaticPaths()', () => {
 		});
 	});
 
-	describe('dynamic', () => {
+	describe('dynamic routes', () => {
 		let fixture;
 		let devServer;
 
@@ -33,7 +33,7 @@ describe('getStaticPaths()', () => {
 		after(async () => {
 			devServer && devServer.stop();
 		});
-		describe('[plain]', () => {
+		describe('without spread on dynamic params', () => {
 			it('resolves 200 on matching static path', async () => {
 				const res = await fixture.fetch('/pizza/provolone-sausage');
 				expect(res.status).to.equal(200);
@@ -45,7 +45,7 @@ describe('getStaticPaths()', () => {
 			});
 		});
 
-		describe('[...spread]', () => {
+		describe('with spread on dynamic params', () => {
 			it('resolves 200 on matching static path', async () => {
 				const res = await fixture.fetch('/pizza/grimaldis/new-york');
 				expect(res.status).to.equal(200);
