@@ -9,7 +9,6 @@
     "@example/my-component": "0.0.1",
     "@example/docs": "0.0.1",
     "@example/env-vars": "0.0.1",
-    "@example/fast-build": "0.0.1",
     "@example/framework-alpine": "0.0.1",
     "@example/framework-lit": "0.0.1",
     "@example/framework-multiple": "0.0.1",

@@ -1,11 +1,7 @@
 ---
-import imgUrl from '../images/penguin.jpg';
-import grayscaleUrl from '../images/random.jpg?grayscale=true';
 import Greeting from '../components/Greeting.vue';
 import Counter from '../components/Counter.vue';
-// import { Code } from 'astro/components';
 import InlineHoisted from '../components/InlineHoisted.astro';
-import ExternalHoisted from '../components/ExternalHoisted.astro';
 ---
 
 <html>
@@ -29,12 +25,6 @@ import ExternalHoisted from '../components/ExternalHoisted.astro';
 		</style>
 	</head>
 	<body>
-		<section>
-			<h1>Images</h1>
-
-			<h2>Imported in JS</h2>
-			<img src={imgUrl} />
-		</section>
 
 		<section>
 			<h1>Component CSS</h1>
@@ -43,14 +33,10 @@ import ExternalHoisted from '../components/ExternalHoisted.astro';
 
   <section>
     <h1>ImageTools</h1>
-    <img src={grayscaleUrl} />
   </section>
 
 	<section>
 		<h1>Astro components</h1>
-		<!-- <Code lang="css" code={`body {
-	color: salmon;
-}`} /> -->
 	</section>
 
   <section>
@@ -61,7 +47,6 @@ import ExternalHoisted from '../components/ExternalHoisted.astro';
 	<section>
 		<h1>Hoisted scripts</h1>
 		<InlineHoisted />
-		<ExternalHoisted />
 	</section>
 
 	<section class="define-vars">

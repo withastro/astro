@@ -105,24 +105,6 @@ importers:
     devDependencies:
       astro: link:../../packages/astro
 
-  examples/fast-build:
-    specifiers:
-      '@astrojs/renderer-preact': ^0.5.0
-      '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.24.0-next.0
-      preact: ~10.6.5
-      sass: ^1.49.8
-      unocss: ^0.15.5
-      vite-imagetools: ^4.0.1
-    devDependencies:
-      '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
-      '@astrojs/renderer-vue': link:../../packages/renderers/renderer-vue
-      astro: link:../../packages/astro
-      preact: 10.6.6
-      sass: 1.49.9
-      unocss: 0.15.6
-      vite-imagetools: 4.0.3
-
   examples/framework-alpine:
     specifiers:
       astro: ^0.24.0-next.0
@@ -814,6 +796,16 @@ importers:
       astro: workspace:*
     dependencies:
       astro: link:../../..
+
+  packages/astro/test/fixtures/legacy-build:
+    specifiers:
+      '@astrojs/renderer-vue': ^0.4.0
+      astro: workspace:*
+      preact: ~10.6.5
+    dependencies:
+      '@astrojs/renderer-vue': link:../../../../renderers/renderer-vue
+      astro: link:../../..
+      preact: 10.6.6
 
   packages/astro/test/fixtures/lit-element:
     specifiers:
@@ -8005,6 +7997,7 @@ packages:
 
   /preact/10.6.6:
     resolution: {integrity: sha512-dgxpTFV2vs4vizwKohYKkk7g7rmp1wOOcfd4Tz3IB3Wi+ivZzsn/SpeKJhRENSE+n8sUfsAl4S3HiCVT923ABw==}
+    dev: false
 
   /prebuild-install/7.0.1:
     resolution: {integrity: sha512-QBSab31WqkyxpnMWQxubYAHR5S9B2+r81ucocew34Fkl98FhvKIF50jIJnNOBmAZfyNV7vE5T6gd3hTVWgY6tg==}
