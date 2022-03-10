@@ -115,16 +115,6 @@ export function emptyDir(_dir: URL, skip?: Set<string>): void {
   }
 }
 
-(async () => {
-  const foo = import('slash');
-  type Joe = Awaited<(typeof foo)>['default'];
-  type FOO = Parameters<Joe>[0];
-
-  type Final<T> = [Promise<T>, ]
-})
-
-
-
 // Vendored from https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl
 /** Basic stylesheet for RSS feeds */
 export const PRETTY_FEED_V3 = `<?xml version="1.0" encoding="utf-8"?>
