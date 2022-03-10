@@ -62,7 +62,7 @@ export function prerelease({ currentVersion }: { currentVersion: string }) {
 	const tag = currentVersion.split('-').slice(1).join('-').replace(/\..*$/, '');
 	const badge = bgYellow(black(` ${tag} `));
 	const headline = yellow(`▶ This is a ${badge} prerelease build`);
-	const warning = `  Feedback? ${underline('https://astro.build/issues')}`
+	const warning = `  Feedback? ${underline('https://astro.build/issues')}`;
 	return [headline, warning, ''].map((msg) => `  ${msg}`).join('\n');
 }
 

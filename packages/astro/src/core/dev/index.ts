@@ -50,13 +50,9 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
 	if (currentVersion.includes('-')) {
-		warn(
-			options.logging,
-			null,
-			msg.prerelease({ currentVersion })
-		);
-	} 
-	
+		warn(options.logging, null, msg.prerelease({ currentVersion }));
+	}
+
 	return {
 		address,
 		stop: () => viteServer.close(),
