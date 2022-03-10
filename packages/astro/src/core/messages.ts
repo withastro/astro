@@ -4,7 +4,7 @@
 
 import type { AddressInfo } from 'net';
 import stripAnsi from 'strip-ansi';
-import { bold, dim, red, green, magenta, yellow, cyan, bgGreen, black } from 'kleur/colors';
+import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black } from 'kleur/colors';
 import { pad, emoji } from './dev/util.js';
 
 const PREFIX_PADDING = 6;
@@ -47,6 +47,7 @@ export function devStart({
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
 	const rootPath = site ? site.pathname : '/';
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
+
 	const messages = [
 		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
 		'',
@@ -55,6 +56,14 @@ export function devStart({
 		'',
 	];
 	return messages.map((msg) => `  ${msg}`).join('\n');
+}
+
+export function prerelease({ currentVersion }: { currentVersion: string }) {
+	const tag = currentVersion.split('-').slice(1).join('-').replace(/\..*$/, '');
+	const badge = bgYellow(black(` ${tag} `));
+	const headline = yellow(`▶ This is a ${badge} prerelease build`);
+	const warning = `  Feedback? ${underline('https://astro.build/issues')}`
+	return [headline, warning, ''].map((msg) => `  ${msg}`).join('\n');
 }
 
 /** Display port in use */
