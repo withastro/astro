@@ -2,6 +2,19 @@ import { expect } from 'chai';
 import { cli, parseCliDevStart } from './test-utils.js';
 import { promises as fs } from 'fs';
 import { fileURLToPath } from 'url';
+import { isIPv4 } from 'net';
+
+async function astroDevLogSetup(flags = []) {
+	const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+	const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), ...flags);
+
+	const { messages } = await parseCliDevStart(proc);
+
+	const local = messages[1].replace(/Local\s*/g, '');
+	const network = messages[2].replace(/Network\s*/g, '');
+
+	return { local, network };
+}
 
 describe('astro cli', () => {
 	it('astro', async () => {
@@ -32,18 +45,27 @@ describe('astro cli', () => {
 		expect(messages[0]).to.contain('started in');
 	});
 
-	const hostnames = [undefined, '0.0.0.0', '127.0.0.1'];
+	it ('astro dev (no --host)', async () => {
+		const { local, network } = await astroDevLogSetup();
 
-	hostnames.forEach((hostname) => {
-		const hostnameArgs = hostname ? ['--hostname', hostname] : [];
-		it(`astro dev ${hostnameArgs.join(' ') || '(no --hostname)'}`, async () => {
-			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-			const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), ...hostnameArgs);
+		expect(local).to.not.be.undefined;
+		expect(network).to.not.be.undefined;
 
-			const { messages } = await parseCliDevStart(proc);
+		const localURL = new URL(local);
+		expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`);
+		// should not print a network URL when --host is missing!
+		expect(() => new URL(network)).to.throw();
+	})
 
-			const local = messages[1].replace(/Local\s*/g, '');
-			const network = messages[2].replace(/Network\s*/g, '');
+	const hostnameFlags = [
+		['--hostname', '0.0.0.0'],
+		['--hostname', '127.0.0.1'],
+	];
+
+	// TODO: remove once --hostname is baselined
+	hostnameFlags.forEach((flags) => {
+		it(`astro dev ${flags.join(' ')}`, async () => {
+			const { local, network } = await astroDevLogSetup(flags);
 
 			expect(local).to.not.be.undefined;
 			expect(network).to.not.be.undefined;
@@ -53,7 +75,32 @@ describe('astro cli', () => {
 			expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`);
 			// Note: our tests run in parallel so this could be 3000+!
 			expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(3000, `Expected Port to be >= 3000`);
-			expect(networkURL.hostname).to.be.equal(hostname ?? '127.0.0.1', `Expected Network URL to use passed hostname`);
+			const [, hostname] = flags;
+			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --hostname flag`);
+		});
+	});
+
+	const hostFlags = [
+		['--host'],
+		['--host', '0.0.0.0'],
+		['--host', '127.0.0.1'],
+	];
+
+	hostFlags.forEach((flags) => {
+		it(`astro dev ${flags.join(' ')}`, async () => {
+			const { local, network } = await astroDevLogSetup(flags);
+
+			expect(local).to.not.be.undefined;
+			expect(network).to.not.be.undefined;
+
+			const localURL = new URL(local);
+			const networkURL = new URL(network);
+
+			expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`);
+			// Note: our tests run in parallel so this could be 3000+!
+			expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(3000, `Expected Port to be >= 3000`);
+			expect(networkURL.port).to.be.equal(localURL.port, `Expected local and network ports to be equal`);
+			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --host flag`);
 		});
 	});
 
