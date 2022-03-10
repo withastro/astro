@@ -6,7 +6,7 @@ import { createVite } from '../create-vite.js';
 import { defaultLogOptions, info, warn, LogOptions } from '../logger.js';
 import * as vite from 'vite';
 import * as msg from '../messages.js';
-import { getLocalAddress, getLatestVersion } from './util.js';
+import { getLocalAddress } from './util.js';
 
 export interface DevOptions {
 	logging: LogOptions;
@@ -55,16 +55,7 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 			null,
 			msg.prerelease({ currentVersion })
 		);
-	} else {
-		const latestVersion = await getLatestVersion();
-		if (latestVersion && currentVersion !== latestVersion) {
-			warn(
-				options.logging,
-				null,
-				msg.outdated({ currentVersion, latestVersion })
-			);
-		}
-	}
+	} 
 	
 	return {
 		address,
