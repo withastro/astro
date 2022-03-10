@@ -52,20 +52,6 @@ async function run() {
 			console.log(err);
 			process.exit(1);
 		}
-
-		// Run with the static build too (skip for remote repos)
-		if (isExternal) {
-			continue;
-		}
-
-		try {
-			await execa('pnpm', ['run', 'build', '--', '--experimental-static-build'], { cwd: fileURLToPath(directory), stdout: 'inherit', stderr: 'inherit' });
-		} catch (err) {
-			console.log(err);
-			process.exit(1);
-		}
-
-		console.log();
 	}
 }
 
