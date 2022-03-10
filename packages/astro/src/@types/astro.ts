@@ -320,8 +320,12 @@ export interface AstroUserConfig {
 		 * @name devOptions.hostname
 		 * @type {string | boolean}
 		 * @default `false`
+		 * @version 0.24.0
 		 * @description
-		 * Set which IP addresses the dev server should listen on. Set this to "true" to expose a default local network, or 0.0.0.0 to listen on all addresses (including LAN and public addresses).
+		 * Set which network IP addresses the dev server should listen on (i.e. 	non-localhost IPs).
+		 * - `false` - do not expose on a network IP address
+		 * - `true` - listen on all addresses, including LAN and public addresses
+		 * - `[custom-address]` - expose on a network IP address at `[custom-address]`
 		 */
 		host?: string | boolean;
 
