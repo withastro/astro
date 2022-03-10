@@ -53,7 +53,7 @@ export function devStart({
 	let addresses = [];
 
 	if (!isNetworkExposed) {
-		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`, `${networkPrefix}${dim('use --hostname to expose')}`];
+		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`, `${networkPrefix}${dim('use --host to expose')}`];
 	} else {
 		addresses = Object.values(os.networkInterfaces())
 			.flatMap((networkInterface) => networkInterface ?? [])
