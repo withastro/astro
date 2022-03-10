@@ -39,7 +39,7 @@ export async function main() {
 	console.log(`${green(`>`)} ${gray(`Prepare for liftoff.`)}`);
 	console.log(`${green(`>`)} ${gray(`Gathering mission details...`)}`);
 
-	const cwd = args['_'][2] || '.';
+	const cwd = args['_'][2] as string || '.';
 	if (fs.existsSync(cwd)) {
 		if (fs.readdirSync(cwd).length > 0) {
 			const response = await prompts({

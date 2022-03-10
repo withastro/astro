@@ -980,7 +980,7 @@ importers:
     specifiers:
       '@types/degit': ^2.8.2
       '@types/prompts': ^2.0.12
-      '@types/yargs-parser': ^20.2.1
+      '@types/yargs-parser': ^21.0.0
       astro-scripts: workspace:*
       degit: ^2.8.4
       kleur: ^4.1.1
@@ -997,7 +997,7 @@ importers:
       prompts: 2.4.2
       yargs-parser: 21.0.1
     devDependencies:
-      '@types/yargs-parser': 20.2.2
+      '@types/yargs-parser': 21.0.0
       astro-scripts: link:../../scripts
       uvu: 0.5.3
 
@@ -3639,10 +3639,6 @@ packages:
 
   /@types/unist/2.0.6:
     resolution: {integrity: sha512-PBjIUxZHOuj0R15/xuwJYjFi+KZdNFrehocChv4g5hu6aFroHue8m0lBP0POdK2nKzbw0cgV1mws8+V/JAcEkQ==}
-
-  /@types/yargs-parser/20.2.2:
-    resolution: {integrity: sha512-sUWMriymrSqTvxCmCkf+7k392TNDcMJBHI1/rysWJxKnWAan/Zk4gZ/GEieSRo4EqIEPpbGU3Sd/0KTRoIA3pA==}
-    dev: true
 
   /@types/yargs-parser/21.0.0:
     resolution: {integrity: sha512-iO9ZQHkZxHn4mSakYV0vFHAVDyEOIJQrV2uZ06HxEPcx+mt8swXoZHIbaaJ2crJYFfErySgktuTZ3BeLz+XmFA==}
