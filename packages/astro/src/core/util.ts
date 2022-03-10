@@ -101,7 +101,7 @@ export function viteID(filePath: URL): string {
 /** An fs utility, similar to `rimraf` or `rm -rf` */
 export function removeDir(_dir: URL): void {
 	const dir = fileURLToPath(_dir);
-	fs.rmSync(dir, { recursive: true, force: true });
+	fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
 }
 
 export function emptyDir(_dir: URL, skip?: Set<string>): void {
@@ -111,7 +111,7 @@ export function emptyDir(_dir: URL, skip?: Set<string>): void {
 		if (skip?.has(file)) {
 			continue;
 		}
-		fs.rmSync(path.resolve(dir, file), { recursive: true, force: true });
+		fs.rmSync(path.resolve(dir, file), { recursive: true, force: true, maxRetries: 3 });
 	}
 }
 
