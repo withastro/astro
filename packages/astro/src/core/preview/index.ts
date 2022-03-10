@@ -33,6 +33,7 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 	/** Base request URL. */
 	let baseURL = new URL(config.buildOptions.site || '/', defaultOrigin);
 	const staticFileServer = sirv(fileURLToPath(config.dist), {
+		dev: true,
 		etag: true,
 		maxAge: 0,
 	});
