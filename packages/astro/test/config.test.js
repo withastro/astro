@@ -49,19 +49,10 @@ describe('config', () => {
 		it('can be passed via --config', async () => {
 			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
 			const configFileURL = new URL('./fixtures/config-path/config/my-config.mjs', import.meta.url);
-			const proc = cli('dev', '--project-root', fileURLToPath(projectRootURL), '--config', configFileURL.pathname);
+			const { network } = await cliServerLogSetup(['--project-root', fileURLToPath(projectRootURL), '--config', configFileURL.pathname]);
 
-			let stdout = '';
-
-			for await (const chunk of proc.stdout) {
-				stdout += chunk;
-
-				if (chunk.includes('Local')) break;
-			}
-
-			proc.kill();
-
-			expect(stdout).to.include('127.0.0.1');
+			const networkURL = new URL(network);
+			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --hostname flag`);
 		});
 	});
 
