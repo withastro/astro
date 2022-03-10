@@ -3,7 +3,7 @@ import type { AddressInfo } from 'net';
 import { performance } from 'perf_hooks';
 import type { AstroConfig } from '../../@types/astro';
 import { createVite } from '../create-vite.js';
-import { defaultLogOptions, info, LogOptions } from '../logger.js';
+import { defaultLogOptions, info, warn, LogOptions } from '../logger.js';
 import * as vite from 'vite';
 import * as msg from '../messages.js';
 import { getLocalAddress, getLatestVersion } from './util.js';
@@ -38,7 +38,6 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	const viteServer = await vite.createServer(viteConfig);
 	await viteServer.listen(config.devOptions.port);
 
-	const latestVersion = await getLatestVersion();
 	const address = viteServer.httpServer!.address() as AddressInfo;
 	const localAddress = getLocalAddress(address.address, config.devOptions.hostname);
 	// Log to console
@@ -46,9 +45,27 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	info(
 		options.logging,
 		null,
-		msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, networkAddress: address.address, site, https: !!viteUserConfig.server?.https, latestVersion })
+		msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, networkAddress: address.address, site, https: !!viteUserConfig.server?.https })
 	);
 
+	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
+	if (currentVersion.includes('-')) {
+		warn(
+			options.logging,
+			null,
+			msg.prerelease({ currentVersion })
+		);
+	} else {
+		const latestVersion = await getLatestVersion();
+		if (latestVersion && currentVersion !== latestVersion) {
+			warn(
+				options.logging,
+				null,
+				msg.outdated({ currentVersion, latestVersion })
+			);
+		}
+	}
+	
 	return {
 		address,
 		stop: () => viteServer.close(),
