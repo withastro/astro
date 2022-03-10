@@ -99,9 +99,30 @@ export function viteID(filePath: URL): string {
 }
 
 /** An fs utility, similar to `rimraf` or `rm -rf` */
-export function removeDir(dir: URL): void {
-	fs.rmSync(fileURLToPath(dir), {recursive: true, force: true});
+export function removeDir(_dir: URL): void {
+  const dir = fileURLToPath(_dir);
+	fs.rmSync(dir, {recursive: true, force: true});
 }
+
+export function emptyDir(_dir: URL, skip?: Set<string>): void {
+  const dir = fileURLToPath(_dir);
+	for (const file of fs.readdirSync(dir)) {		
+    if (skip?.has(file)) {
+      continue;
+    }		
+	  fs.rmSync(path.resolve(dir, file), {recursive: true, force: true});
+  }
+}
+
+(async () => {
+  const foo = import('slash');
+  type Joe = Awaited<(typeof foo)>['default'];
+  type FOO = Parameters<Joe>[0];
+
+  type Final<T> = [Promise<T>, ]
+})
+
+
 
 // Vendored from https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl
 /** Basic stylesheet for RSS feeds */
