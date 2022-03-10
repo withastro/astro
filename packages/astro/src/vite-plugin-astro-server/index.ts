@@ -70,7 +70,7 @@ function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
 }
 
 function log404(logging: LogOptions, pathname: string) {
-	info(logging, 'astro', msg.req({ url: pathname, statusCode: 404 }));
+	info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
 }
 
 /** The main logic to route dev server requests to pages in Astro. */
