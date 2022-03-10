@@ -1,0 +1,12 @@
+---
+let foo = 'bar'
+---
+
+<html>
+  <head></head>
+  <body>
+    <script id="inline" define:vars={{ foo }}>
+			console.log(foo);
+		</script>
+  </body>
+</html>
