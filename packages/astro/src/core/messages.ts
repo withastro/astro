@@ -47,20 +47,18 @@ export function devStart({
 }): string {
 	// PACAKGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
-	const isPre = Boolean(version.split('-')[1]);
-	const bg = bgGreen;
-	const fg = green;
+	const isPrerelease = version.includes('-');
 	const rootPath = site ? site.pathname : '/';
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
 
 	const messages = [
-		`${emoji('🚀 ', '')}${bg(black(` astro `))} ${fg(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
+		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
 		'',
 		`${dim('┃')} Local    ${bold(cyan(toDisplayUrl(localAddress)))}`,
 		`${dim('┃')} Network  ${bold(cyan(toDisplayUrl(networkAddress)))}`,
 		'',
 	];
-	if (isPre) {
+	if (isPrerelease) {
 		messages.push(yellow('▶ This is a prerelease build.'), yellow('  Undocumented changes may happen at any time!'), '');
 	} else if (latestVersion && version !== latestVersion) {
 		messages.push(`${yellow('▶ Update available!')} ${dim(pad(version, 12, 'left'))} → ${green(latestVersion)}`, `  See ${underline(`https://astro.build/releases/${latestVersion}`)}`, '');
