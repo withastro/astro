@@ -106,6 +106,7 @@ export function removeDir(_dir: URL): void {
 
 export function emptyDir(_dir: URL, skip?: Set<string>): void {
   const dir = fileURLToPath(_dir);
+  if (!fs.existsSync(dir)) return undefined;
 	for (const file of fs.readdirSync(dir)) {		
     if (skip?.has(file)) {
       continue;
