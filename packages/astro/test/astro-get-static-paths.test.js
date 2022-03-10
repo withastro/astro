@@ -16,7 +16,7 @@ describe('getStaticPaths - build calls', () => {
 		// useless expect; if build() throws in setup then this test fails
 		expect(true).to.equal(true);
 	});
-})
+});
 
 describe('getStaticPaths - 404 behavior', () => {
 	let fixture;
@@ -50,4 +50,4 @@ describe('getStaticPaths - 404 behavior', () => {
 		const res = await fixture.fetch('/pizza/pizza-hut');
 		expect(res.status).to.equal(404);
 	});
-})
+});
