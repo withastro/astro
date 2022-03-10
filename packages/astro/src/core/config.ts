@@ -65,7 +65,7 @@ export const AstroConfigSchema = z.object({
 		.default({}),
 	devOptions: z
 		.object({
-			hostname: z.string().optional().default('localhost'),
+			hostname: z.union([z.string(), z.boolean()]).optional().default(false),
 			port: z.number().optional().default(3000),
 			trailingSlash: z
 				.union([z.literal('always'), z.literal('never'), z.literal('ignore')])
@@ -124,7 +124,7 @@ function resolveFlags(flags: Partial<Flags>): CLIFlags {
 		sitemap: typeof flags.sitemap === 'boolean' ? flags.sitemap : undefined,
 		port: typeof flags.port === 'number' ? flags.port : undefined,
 		config: typeof flags.config === 'string' ? flags.config : undefined,
-		hostname: typeof flags.hostname === 'string' ? flags.hostname : undefined,
+		hostname: typeof flags.hostname === 'string' || typeof flags.hostname === 'boolean' ? flags.hostname : undefined,
 		legacyBuild: typeof flags.legacyBuild === 'boolean' ? flags.legacyBuild : false,
 		experimentalSsr: typeof flags.experimentalSsr === 'boolean' ? flags.experimentalSsr : false,
 		drafts: typeof flags.drafts === 'boolean' ? flags.drafts : false,
@@ -138,7 +138,7 @@ function mergeCLIFlags(astroConfig: AstroUserConfig, flags: CLIFlags) {
 	if (typeof flags.sitemap === 'boolean') astroConfig.buildOptions.sitemap = flags.sitemap;
 	if (typeof flags.site === 'string') astroConfig.buildOptions.site = flags.site;
 	if (typeof flags.port === 'number') astroConfig.devOptions.port = flags.port;
-	if (typeof flags.hostname === 'string') astroConfig.devOptions.hostname = flags.hostname;
+	if (typeof flags.hostname === 'string' || typeof flags.hostname === 'boolean') astroConfig.devOptions.hostname = flags.hostname;
 	if (typeof flags.legacyBuild === 'boolean') astroConfig.buildOptions.legacyBuild = flags.legacyBuild;
 	if (typeof flags.experimentalSsr === 'boolean') {
 		astroConfig.buildOptions.experimentalSsr = flags.experimentalSsr;
