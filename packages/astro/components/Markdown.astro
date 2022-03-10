@@ -28,8 +28,7 @@ const { privateRenderMarkdownDoNotUse: renderMarkdown } = Astro as any;
 
 // If no content prop provided, use the slot.
 if (!content) {
-	const { privateRenderSlotDoNotUse: renderSlot } = Astro as any;
-	content = await renderSlot('default');
+	content = await Astro.slots.render('default');
 	if (content !== undefined && content !== null) {
 		content = dedent(content);
 	}

@@ -51,7 +51,7 @@ export interface AstroGlobal extends AstroGlobalPartial {
 		params: Params;
 	};
 	/** see if slots are used */
-	slots: Record<string, true | undefined>;
+	slots: Record<string, true | undefined> & { has(slotName: string): boolean; render(slotName: string): Promise<string> };
 }
 
 export interface AstroGlobalPartial {
