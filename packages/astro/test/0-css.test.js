@@ -96,12 +96,10 @@ describe('CSS', function () {
 		describe('JSX', () => {
 			it('.css', async () => {
 				const el = $('#react-css');
-
 				// 1. check HTML
 				expect(el.attr('class')).to.include('react-title');
-
 				// 2. check CSS
-				expect(bundledCSS).to.include('.react-title{');
+				expect(bundledCSS).to.include('.react-title');
 			});
 
 			it('.module.css', async () => {
@@ -196,7 +194,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include(moduleClass);
 
 				// 2. check CSS
-				expect(bundledCSS).to.include(`${moduleClass}{`);
+				expect(bundledCSS).to.match(new RegExp(`.${moduleClass}[^{]*{font-family:cursive}`));
 			});
 
 			it('<style lang="sass">', async () => {
@@ -230,7 +228,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('svelte-css');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:"Comic Sans MS"`));
+				expect(bundledCSS).to.match(new RegExp(`.svelte-css.${scopedClass}[^{]*{font-family:Comic Sans MS`));
 			});
 
 			it('<style lang="sass">', async () => {
@@ -242,7 +240,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('svelte-sass');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:"Comic Sans MS"`));
+				expect(bundledCSS).to.match(new RegExp(`.svelte-sass.${scopedClass}[^{]*{font-family:Comic Sans MS`));
 			});
 
 			it('<style lang="scss">', async () => {
@@ -254,7 +252,7 @@ describe('CSS', function () {
 				expect(el.attr('class')).to.include('svelte-scss');
 
 				// 2. check CSS
-				expect(bundledCSS).to.match(new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:"Comic Sans MS"`));
+				expect(bundledCSS).to.match(new RegExp(`.svelte-scss.${scopedClass}[^{]*{font-family:Comic Sans MS`));
 			});
 		});
 	});
