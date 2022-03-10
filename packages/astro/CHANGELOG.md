@@ -10,13 +10,13 @@
 
   ```ts
   // astro.config.ts
-  import type { AstroUserConfig } from 'astro'
+  import type { AstroUserConfig } from 'astro';
 
   const config: AstroUserConfig = {
     sitemap: true,
-    sitemapFilter: (page: string) => !page.includes('secret-page')
-  }
-  export default config
+    sitemapFilter: (page: string) => !page.includes('secret-page'),
+  };
+  export default config;
   ```
 
 * [#2750](https://github.com/withastro/astro/pull/2750) [`79fc3204`](https://github.com/withastro/astro/commit/79fc320480b2a638ef707079a624519bd54f1550) Thanks [@FredKSchott](https://github.com/FredKSchott)! - update esbuild@0.14.25
@@ -43,7 +43,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-  	const content = await Astro.slots.render('default');
+    const content = await Astro.slots.render('default');
   }
   ```
 
@@ -67,9 +67,9 @@
 
   ```json
   {
-  	"scripts": {
-  		"build": "astro build --legacy-build"
-  	}
+    "scripts": {
+      "build": "astro build --legacy-build"
+    }
   }
   ```
 
@@ -181,12 +181,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-  	return {
-  		body: JSON.stringify({
-  			name: 'Astro Technology Company',
-  			url: 'https://astro.build/',
-  		}),
-  	};
+    return {
+      body: JSON.stringify({
+        name: 'Astro Technology Company',
+        url: 'https://astro.build/',
+      }),
+    };
   }
   ```
 
@@ -348,12 +348,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-  	return {
-  		body: JSON.stringify({
-  			name: 'Astro Technology Company',
-  			url: 'https://astro.build/',
-  		}),
-  	};
+    return {
+      body: JSON.stringify({
+        name: 'Astro Technology Company',
+        url: 'https://astro.build/',
+      }),
+    };
   }
   ```
 
@@ -1708,10 +1708,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-  	markdownOptions: {
-  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-  	},
+    markdownOptions: {
+      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+    },
   };
   ```
 
@@ -1731,10 +1731,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-  	name: '@matthewp/my-renderer',
-  	server: './server.js',
-  	client: './client.js',
-  	hydrationPolyfills: ['./my-polyfill.js'],
+    name: '@matthewp/my-renderer',
+    server: './server.js',
+    client: './client.js',
+    hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
