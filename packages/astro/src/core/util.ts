@@ -3,6 +3,7 @@ import type { ErrorPayload } from 'vite';
 import eol from 'eol';
 import path from 'path';
 import slash from 'slash';
+import fs from 'fs';
 import { fileURLToPath, pathToFileURL } from 'url';
 import resolve from 'resolve';
 
@@ -95,6 +96,23 @@ export function resolveDependency(dep: string, astroConfig: AstroConfig) {
  */
 export function viteID(filePath: URL): string {
 	return slash(fileURLToPath(filePath));
+}
+
+/** An fs utility, similar to `rimraf` or `rm -rf` */
+export function removeDir(_dir: URL): void {
+  const dir = fileURLToPath(_dir);
+	fs.rmSync(dir, {recursive: true, force: true});
+}
+
+export function emptyDir(_dir: URL, skip?: Set<string>): void {
+  const dir = fileURLToPath(_dir);
+  if (!fs.existsSync(dir)) return undefined;
+	for (const file of fs.readdirSync(dir)) {		
+    if (skip?.has(file)) {
+      continue;
+    }		
+	  fs.rmSync(path.resolve(dir, file), {recursive: true, force: true});
+  }
 }
 
 // Vendored from https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl
