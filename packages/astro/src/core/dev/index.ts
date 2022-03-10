@@ -6,7 +6,7 @@ import { createVite } from '../create-vite.js';
 import { defaultLogOptions, info, LogOptions } from '../logger.js';
 import * as vite from 'vite';
 import * as msg from '../messages.js';
-import { getLocalAddress } from './util.js';
+import { getLocalAddress, getLatestVersion } from './util.js';
 
 export interface DevOptions {
 	logging: LogOptions;
@@ -24,6 +24,8 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	polyfill(globalThis, {
 		exclude: 'window document',
 	});
+	// Checks for a new version of Astro, but do NOT block with `await`
+	let latestVersionPromise = getLatestVersion();
 	// start the server
 	const viteUserConfig = vite.mergeConfig(
 		{
@@ -37,6 +39,8 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	const viteConfig = await createVite(viteUserConfig, { astroConfig: config, logging: options.logging, mode: 'dev' });
 	const viteServer = await vite.createServer(viteConfig);
 	await viteServer.listen(config.devOptions.port);
+	// Now we should wait for a response
+	const latestVersion = await latestVersionPromise;
 	const address = viteServer.httpServer!.address() as AddressInfo;
 	const localAddress = getLocalAddress(address.address, config.devOptions.hostname);
 	// Log to console
@@ -44,7 +48,7 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	info(
 		options.logging,
 		null,
-		msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, networkAddress: address.address, site, https: !!viteUserConfig.server?.https })
+		msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, networkAddress: address.address, site, https: !!viteUserConfig.server?.https, latestVersion })
 	);
 
 	return {

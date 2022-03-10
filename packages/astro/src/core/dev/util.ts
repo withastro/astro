@@ -18,3 +18,10 @@ export function getLocalAddress(serverAddress: string, configHostname: string): 
 		return serverAddress;
 	}
 }
+
+export async function getLatestVersion(): Promise<string|undefined> {
+	try {
+		const pkg = await fetch(`https://registry.npmjs.org/astro/latest`).then(res => res.json())
+		return pkg.version;
+	} catch (e) {}
+}
