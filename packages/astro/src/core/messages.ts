@@ -47,11 +47,13 @@ export function devStart({
 	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
 	const rootPath = site ? site.pathname : '/';
+	const localPrefix = `${dim('┃')} Local    `;
+	const networkPrefix = `${dim('┃')} Network  `;
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
 	let addresses = [];
 
 	if (!isNetworkExposed) {
-		addresses = [`${dim('┃')} Local    ${bold(cyan(toDisplayUrl(localAddress)))}`, `${dim('┃')} Network  ${dim('use --hostname to expose')}`];
+		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`, `${networkPrefix}${dim('use --hostname to expose')}`];
 	} else {
 		addresses = Object.values(os.networkInterfaces())
 			.flatMap((networkInterface) => networkInterface ?? [])
@@ -59,9 +61,9 @@ export function devStart({
 			.map(({ address }) => {
 				if (address.includes('127.0.0.1')) {
 					const displayAddress = address.replace('127.0.0.1', localAddress);
-					return `${dim('┃')} Local    ${bold(cyan(toDisplayUrl(displayAddress)))}`;
+					return `${localPrefix}${bold(cyan(toDisplayUrl(displayAddress)))}`;
 				} else {
-					return `${dim('┃')} Network  ${bold(cyan(toDisplayUrl(address)))}`;
+					return `${networkPrefix}${bold(cyan(toDisplayUrl(address)))}`;
 				}
 			});
 	}
