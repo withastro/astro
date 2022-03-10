@@ -99,8 +99,8 @@ export function viteID(filePath: URL): string {
 }
 
 /** An fs utility, similar to `rimraf` or `rm -rf` */
-export function removeDir(dir: string | URL): void {
-	fs.rmSync(dir, {recursive: true, force: true});
+export function removeDir(dir: URL): void {
+	fs.rmSync(fileURLToPath(dir), {recursive: true, force: true});
 }
 
 // Vendored from https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl
