@@ -377,7 +377,7 @@ importers:
       common-ancestor-path: ^1.0.1
       debug: ^4.3.3
       eol: ^0.9.1
-      es-module-lexer: ^0.9.3
+      es-module-lexer: ^0.10.0
       esbuild: 0.14.25
       estree-walker: ^3.0.0
       execa: ^6.0.0
@@ -432,7 +432,7 @@ importers:
       common-ancestor-path: 1.0.1
       debug: 4.3.3
       eol: 0.9.1
-      es-module-lexer: 0.9.3
+      es-module-lexer: 0.10.0
       esbuild: 0.14.25
       estree-walker: 3.0.1
       fast-glob: 3.2.11
@@ -5065,8 +5065,8 @@ packages:
       string.prototype.trimstart: 1.0.4
       unbox-primitive: 1.0.1
 
-  /es-module-lexer/0.9.3:
-    resolution: {integrity: sha512-1HQ2M2sPtxwnvOvT1ZClHyQDiggdNjURWpY2we6aMKCQiUVxTmVs2UYPLIrD84sS+kMdUwfBSylbJPwNnBrnHQ==}
+  /es-module-lexer/0.10.0:
+    resolution: {integrity: sha512-0fHYovx7ETE13wPL8zG/V+ElEgSeSwsgRVOvNZ+g/Y/2YyJq75+IEY4ZBr59vUZ3Voci1jBIktwpj8oODaWa+g==}
     dev: false
 
   /es-to-primitive/1.2.1:
