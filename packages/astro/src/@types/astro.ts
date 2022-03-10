@@ -317,7 +317,7 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name devOptions.hostname
-		 * @type {string}
+		 * @type {string | boolean}
 		 * @default `false`
 		 * @description
 		 * Set which IP addresses the dev server should listen on. Set this to "true" to expose a default local network, or 0.0.0.0 to listen on all addresses (including LAN and public addresses).
