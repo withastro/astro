@@ -149,7 +149,8 @@ class AstroBuilder {
 		// Build your final sitemap.
 		if (this.config.buildOptions.sitemap && this.config.buildOptions.site) {
 			timer.sitemapStart = performance.now();
-			const sitemap = generateSitemap(pageNames.map((pageName) => new URL(pageName, this.config.buildOptions.site).href));
+			const sitemapFilter = this.config.buildOptions.sitemapFilter ? (this.config.buildOptions.sitemapFilter as (page: string) => boolean) : undefined;
+			const sitemap = generateSitemap(pageNames.map((pageName) => new URL(pageName, this.config.buildOptions.site).href), sitemapFilter);
 			const sitemapPath = new URL('./sitemap.xml', this.config.dist);
 			await fs.promises.mkdir(new URL('./', sitemapPath), { recursive: true });
 			await fs.promises.writeFile(sitemapPath, sitemap, 'utf8');

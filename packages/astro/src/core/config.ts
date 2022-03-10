@@ -50,6 +50,7 @@ export const AstroConfigSchema = z.object({
 				.string()
 				.optional()
 				.transform((val) => (val ? addTrailingSlash(val) : val)),
+			sitemapFilter: z.function().optional(),
 			sitemap: z.boolean().optional().default(true),
 			pageUrlFormat: z
 				.union([z.literal('file'), z.literal('directory')])

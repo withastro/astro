@@ -228,6 +228,25 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
+		 * @name buildOptions.sitemapFilter
+		 * @type {undefined|((page: string) => boolean)}
+		 * @default `undefined`
+		 * @description
+		 * Customize sitemap generation for your build by excluding certain pages.
+		 *
+		 * ```js
+		 * {
+		 *   buildOptions: {
+		 * 	   sitemap: true
+		 * 	   sitemapFilter: (page) => !page.includes('secret-page')
+		 *   }
+		 * }
+		 * ```
+		 */
+		sitemapFilter?: (page: string) => boolean
+
+		/**
+		 * @docs
 		 * @name buildOptions.pageUrlFormat
 		 * @type {('file' | 'directory')}
 		 * @default `'directory'`
