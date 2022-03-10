@@ -1,5 +1,30 @@
 # astro
 
+## 0.24.0-next.2
+
+### Patch Changes
+
+- [#2755](https://github.com/withastro/astro/pull/2755) [`10843aba`](https://github.com/withastro/astro/commit/10843aba634c9cae663d8181b9d90d3213cb9142) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add user-configurable `sitemapFilter` option.
+
+  This option can be used to ensure certain pages are excluded from your final sitemap.
+
+  ```ts
+  // astro.config.ts
+  import type { AstroUserConfig } from 'astro'
+
+  const config: AstroUserConfig = {
+    sitemap: true,
+    sitemapFilter: (page: string) => !page.includes('secret-page')
+  }
+  export default config
+  ```
+
+* [#2750](https://github.com/withastro/astro/pull/2750) [`79fc3204`](https://github.com/withastro/astro/commit/79fc320480b2a638ef707079a624519bd54f1550) Thanks [@FredKSchott](https://github.com/FredKSchott)! - update esbuild@0.14.25
+
+- [#2758](https://github.com/withastro/astro/pull/2758) [`499fb6a3`](https://github.com/withastro/astro/commit/499fb6a3356967123a7cb9b28f94d9a3bf1dff91) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add CLI warnings when running a prerelease or outdated version of Astro
+
+* [#2743](https://github.com/withastro/astro/pull/2743) [`a14075e2`](https://github.com/withastro/astro/commit/a14075e2a4d8897e24e2928318e653b63637ebe3) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix - show 404 for bad static paths with console message, rather than a 500
+
 ## 0.24.0-next.1
 
 ### Minor Changes
@@ -18,7 +43,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -42,9 +67,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -156,12 +181,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -323,12 +348,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1683,10 +1708,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1706,10 +1731,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
