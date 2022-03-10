@@ -25,21 +25,21 @@ class Slots {
 	#cache = new Map<string, string>();
 	#result: SSRResult;
 	#slots: Record<string, any> | null;
-	
+
 	constructor(result: SSRResult, slots: Record<string, any> | null) {
 		this.#result = result;
 		this.#slots = slots;
 		if (slots) {
 			for (const key of Object.keys(slots)) {
 				if ((this as any)[key] !== undefined) {
-					throw new Error(`Unable to create a slot named "${key}". "${key}" is a reserved slot name!\nPlease update the name of this slot.`)
+					throw new Error(`Unable to create a slot named "${key}". "${key}" is a reserved slot name!\nPlease update the name of this slot.`);
 				}
 				Object.defineProperty(this, key, {
 					get() {
 						return true;
 					},
-					enumerable: true
-				})
+					enumerable: true,
+				});
 			}
 		}
 	}
@@ -52,11 +52,11 @@ class Slots {
 	public async render(name: string) {
 		if (!this.#slots) return undefined;
 		if (this.#cache.has(name)) {
-			const result = this.#cache.get(name)
+			const result = this.#cache.get(name);
 			return result;
-		};
+		}
 		if (!this.has(name)) return undefined;
-		const content = await renderSlot(this.#result, this.#slots[name]).then(res => res != null ? res.toString() : res);
+		const content = await renderSlot(this.#result, this.#slots[name]).then((res) => (res != null ? res.toString() : res));
 		this.#cache.set(name, content);
 		return content;
 	}
