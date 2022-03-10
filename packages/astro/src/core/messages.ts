@@ -62,16 +62,8 @@ export function prerelease({ currentVersion }: { currentVersion: string }) {
 	const tag = currentVersion.split('-').slice(1).join('-').replace(/\..*$/, '');
 	const badge = bgYellow(black(` ${tag} `));
 	const headline = yellow(`▶ This is a ${badge} prerelease build`);
-	const warning = dim(yellow(`  Undocumented changes may happen at any time!`))
+	const warning = dim(`  Leave feedback/report bugs at ${underline('https://astro.build/issues')}`)
 	return [headline, warning, ''].map((msg) => `  ${msg}`).join('\n');
-}
-
-export function outdated({ currentVersion, latestVersion }: { currentVersion: string, latestVersion: string }) {
-	return [
-			`${yellow('▶ Update available!')} ${dim(pad(currentVersion, 12, 'left'))} → ${green(latestVersion)}`,
-			`  See ${underline(`https://astro.build/releases/${latestVersion}`)}`,
-			''
-	].map((msg) => `  ${msg}`).join('\n')
 }
 
 /** Display port in use */
