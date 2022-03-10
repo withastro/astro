@@ -24,8 +24,6 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	polyfill(globalThis, {
 		exclude: 'window document',
 	});
-	// Checks for a new version of Astro, but do NOT block with `await`
-	let latestVersionPromise = getLatestVersion();
 	// start the server
 	const viteUserConfig = vite.mergeConfig(
 		{
@@ -39,8 +37,8 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	const viteConfig = await createVite(viteUserConfig, { astroConfig: config, logging: options.logging, mode: 'dev' });
 	const viteServer = await vite.createServer(viteConfig);
 	await viteServer.listen(config.devOptions.port);
-	// Now we should wait for a response
-	const latestVersion = await latestVersionPromise;
+
+	const latestVersion = await getLatestVersion();
 	const address = viteServer.httpServer!.address() as AddressInfo;
 	const localAddress = getLocalAddress(address.address, config.devOptions.hostname);
 	// Log to console
