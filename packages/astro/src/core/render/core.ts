@@ -15,7 +15,7 @@ interface GetParamsAndPropsOptions {
 	logging: LogOptions;
 }
 
-export enum GetParamsAndPropsError {
+export const enum GetParamsAndPropsError {
 	NoMatchingStaticPath,
 }
 
