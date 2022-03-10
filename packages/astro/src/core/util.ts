@@ -100,16 +100,16 @@ export function viteID(filePath: URL): string {
 
 /** An fs utility, similar to `rimraf` or `rm -rf` */
 export function removeDir(dir: URL): void {
-	fs.rmSync(`${dir}`, { recursive: true, force: true, maxRetries: 3 });
+	fs.rmSync(dir.toString(), { recursive: true, force: true, maxRetries: 3 });
 }
 
 export function emptyDir(dir: URL, skip?: Set<string>): void {
-	if (!fs.existsSync(`${dir}`)) return undefined;
-	for (const file of fs.readdirSync(`${dir}`)) {
+	if (!fs.existsSync(dir.toString())) return undefined;
+	for (const file of fs.readdirSync(dir.toString())) {
 		if (skip?.has(file)) {
 			continue;
 		}
-		fs.rmSync(new URL(file, `${dir}`), { recursive: true, force: true, maxRetries: 3 });
+		fs.rmSync(new URL(file, dir).toString(), { recursive: true, force: true, maxRetries: 3 });
 	}
 }
 
