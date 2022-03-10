@@ -97,7 +97,7 @@ function resolveCommand(flags: Arguments): CLICommand {
 	} else if (flags.help) {
 		return 'help';
 	}
-	const cmd = flags._[2];
+	const cmd = flags._[2] as string;
 	const supportedCommands = new Set(['dev', 'build', 'preview', 'check']);
 	if (supportedCommands.has(cmd)) {
 		return cmd as 'dev' | 'build' | 'preview' | 'check';
