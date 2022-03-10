@@ -6,7 +6,7 @@ import { createVite } from '../create-vite.js';
 import { defaultLogOptions, info, warn, LogOptions } from '../logger.js';
 import * as vite from 'vite';
 import * as msg from '../messages.js';
-import { getLocalAddress } from './util.js';
+import { getLocalAddress, getResolvedHostForVite } from './util.js';
 
 export interface DevOptions {
 	logging: LogOptions;
@@ -25,13 +25,8 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 		exclude: 'window document',
 	});
 
-	let host: string | boolean = '';
-	// TODO: remove "hostname" check once flag is baselined
-	if (config.devOptions.host === false && config.devOptions.hostname !== 'localhost') {
-		host = config.devOptions.hostname;
-	} else {
-		host = config.devOptions.host;
-	}
+	// TODO: remove call once --hostname is baselined
+	const host = getResolvedHostForVite(config);
 	const viteUserConfig = vite.mergeConfig(
 		{
 			mode: 'development',
@@ -44,7 +39,7 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	await viteServer.listen(config.devOptions.port);
 
 	const address = viteServer.httpServer!.address() as AddressInfo;
-	const localAddress = getLocalAddress(address.address, host);
+	const localAddress = getLocalAddress(address.address, config);
 	// true - Vite exposes server on default network
 	// string - Vite exposes server on specified network
 	const isNetworkExposed = host === true || typeof host === 'string';
