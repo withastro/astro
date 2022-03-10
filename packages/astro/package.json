@@ -77,7 +77,7 @@
     "debug": "^4.3.3",
     "eol": "^0.9.1",
     "es-module-lexer": "^0.9.3",
-    "esbuild": "0.13.7",
+    "esbuild": "0.14.25",
     "estree-walker": "^3.0.0",
     "fast-glob": "^3.2.7",
     "fast-xml-parser": "^4.0.0-beta.3",
