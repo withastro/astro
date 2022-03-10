@@ -1,11 +1,12 @@
 import type * as vite from 'vite';
 import type http from 'http';
 import type { AstroConfig, ManifestData } from '../@types/astro';
-import { info, error, LogOptions } from '../core/logger.js';
+import { info, warn, error, LogOptions } from '../core/logger.js';
+import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
 import { createSafeError } from '../core/util.js';
-import { ssr } from '../core/render/dev/index.js';
+import { ssr, preload } from '../core/render/dev/index.js';
 import * as msg from '../core/messages.js';
 
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
@@ -63,6 +64,15 @@ async function handle500Response(viteServer: vite.ViteDevServer, origin: string,
 	writeHtmlResponse(res, 500, transformedHtml);
 }
 
+function getCustom404Route(config: AstroConfig, manifest: ManifestData) {
+	const relPages = config.pages.href.replace(config.projectRoot.href, '');
+	return manifest.routes.find((r) => r.component === relPages + '404.astro');
+}
+
+function log404(logging: LogOptions, pathname: string) {
+	info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
+}
+
 /** The main logic to route dev server requests to pages in Astro. */
 async function handleRequest(
 	routeCache: RouteCache,
@@ -79,37 +89,73 @@ async function handleRequest(
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
 	const pathname = decodeURI(new URL(origin + req.url).pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
+
 	try {
 		if (!pathname.startsWith(devRoot)) {
-			info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
+			log404(logging, pathname);
 			return handle404Response(origin, config, req, res);
 		}
 		// Attempt to match the URL to a valid page route.
 		// If that fails, switch the response to a 404 response.
 		let route = matchRoute(rootRelativeUrl, manifest);
 		const statusCode = route ? 200 : 404;
-		// If no match found, lookup a custom 404 page to render, if one exists.
+
 		if (!route) {
-			const relPages = config.pages.href.replace(config.projectRoot.href, '');
-			route = manifest.routes.find((r) => r.component === relPages + '404.astro');
+			log404(logging, pathname);
+			const custom404 = getCustom404Route(config, manifest);
+			if (custom404) {
+				route = custom404;
+			} else {
+				return handle404Response(origin, config, req, res);
+			}
 		}
-		// If still no match is found, respond with a generic 404 page.
-		if (!route) {
-			info(logging, 'serve', msg.req({ url: pathname, statusCode: 404 }));
-			handle404Response(origin, config, req, res);
-			return;
+
+		const filePath = new URL(`./${route.component}`, config.projectRoot);
+		const preloadedComponent = await preload({ astroConfig: config, filePath, viteServer });
+		const [, mod] = preloadedComponent;
+		// attempt to get static paths
+		// if this fails, we have a bad URL match!
+		const paramsAndPropsRes = await getParamsAndProps({
+			mod,
+			route,
+			routeCache,
+			pathname: rootRelativeUrl,
+			logging,
+		});
+		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
+			warn(logging, 'getStaticPaths', `Route pattern matched, but no matching static path found. (${pathname})`);
+			log404(logging, pathname);
+			const routeCustom404 = getCustom404Route(config, manifest);
+			if (routeCustom404) {
+				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.projectRoot);
+				const preloadedCompCustom404 = await preload({ astroConfig: config, filePath: filePathCustom404, viteServer });
+				const html = await ssr(preloadedCompCustom404, {
+					astroConfig: config,
+					filePath: filePathCustom404,
+					logging,
+					mode: 'development',
+					origin,
+					pathname: rootRelativeUrl,
+					route: routeCustom404,
+					routeCache,
+					viteServer,
+				});
+				return writeHtmlResponse(res, statusCode, html);
+			} else {
+				return handle404Response(origin, config, req, res);
+			}
 		}
-		// Route successfully matched! Render it.
-		const html = await ssr({
+
+		const html = await ssr(preloadedComponent, {
 			astroConfig: config,
-			filePath: new URL(`./${route.component}`, config.projectRoot),
+			filePath,
 			logging,
 			mode: 'development',
 			origin,
 			pathname: rootRelativeUrl,
 			route,
-			routeCache: routeCache,
-			viteServer: viteServer,
+			routeCache,
+			viteServer,
 		});
 		writeHtmlResponse(res, statusCode, html);
 	} catch (_err: any) {

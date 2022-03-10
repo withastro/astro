@@ -15,7 +15,11 @@ interface GetParamsAndPropsOptions {
 	logging: LogOptions;
 }
 
-async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props]> {
+export const enum GetParamsAndPropsError {
+	NoMatchingStaticPath,
+}
+
+export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props] | GetParamsAndPropsError> {
 	const { logging, mod, route, routeCache, pathname } = opts;
 	// Handle dynamic routes
 	let params: Params = {};
@@ -38,7 +42,7 @@ async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Param
 		}
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params);
 		if (!matchedStaticPath) {
-			throw new Error(`[getStaticPaths] route pattern matched, but no matching static path found. (${pathname})`);
+			return GetParamsAndPropsError.NoMatchingStaticPath;
 		}
 		// This is written this way for performance; instead of spreading the props
 		// which is O(n), create a new object that extends props.
@@ -68,13 +72,18 @@ interface RenderOptions {
 export async function render(opts: RenderOptions): Promise<string> {
 	const { legacyBuild, links, logging, origin, markdownRender, mod, pathname, scripts, renderers, resolve, route, routeCache, site } = opts;
 
-	const [params, pageProps] = await getParamsAndProps({
+	const paramsAndPropsRes = await getParamsAndProps({
 		logging,
 		mod,
 		route,
 		routeCache,
 		pathname,
 	});
+
+	if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
+		throw new Error(`[getStaticPath] route pattern matched, but no matching static path found. (${pathname})`);
+	}
+	const [params, pageProps] = paramsAndPropsRes;
 
 	// For endpoints, render the content immediately without injecting scripts or styles
 	if (route?.type === 'endpoint') {

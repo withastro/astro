@@ -14,8 +14,9 @@ module.exports = {
     '@typescript-eslint/no-var-requires': 'off',
     '@typescript-eslint/no-this-alias': 'off',
     'no-console': 'warn',
-    'no-shadow': 'error',
     'prefer-const': 'off',
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
     // 'require-jsdoc': 'error', // re-enable this to enforce JSDoc for all functions
   },
 };

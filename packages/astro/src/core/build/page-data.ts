@@ -44,12 +44,6 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 				preload: await ssrPreload({
 					astroConfig,
 					filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
-					logging,
-					mode: 'production',
-					origin,
-					pathname: route.pathname,
-					route,
-					routeCache,
 					viteServer,
 				})
 					.then((routes) => {
@@ -106,12 +100,6 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 			preload: await ssrPreload({
 				astroConfig,
 				filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
-				logging,
-				mode: 'production',
-				origin,
-				pathname: finalPaths[0],
-				route,
-				routeCache,
 				viteServer,
 			}),
 		};

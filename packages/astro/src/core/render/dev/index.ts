@@ -36,7 +36,7 @@ export type ComponentPreload = [Renderer[], ComponentInstance];
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
-export async function preload({ astroConfig, filePath, viteServer }: SSROptions): Promise<ComponentPreload> {
+export async function preload({ astroConfig, filePath, viteServer }: Pick<SSROptions, 'astroConfig' | 'filePath' | 'viteServer'>): Promise<ComponentPreload> {
 	// Important: This needs to happen first, in case a renderer provides polyfills.
 	const renderers = await resolveRenderers(viteServer, astroConfig);
 	// Load the module from the Vite SSR Runtime.
@@ -173,9 +173,9 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 	return content;
 }
 
-export async function ssr(ssrOpts: SSROptions): Promise<string> {
+export async function ssr(preloadedComponent: ComponentPreload, ssrOpts: SSROptions): Promise<string> {
 	try {
-		const [renderers, mod] = await preload(ssrOpts);
+		const [renderers, mod] = preloadedComponent;
 		return await render(renderers, mod, ssrOpts); // note(drew): without "await", errors won’t get caught by errorHandler()
 	} catch (e: unknown) {
 		await errorHandler(e, { viteServer: ssrOpts.viteServer, filePath: ssrOpts.filePath });
