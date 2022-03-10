@@ -1,5 +1,35 @@
 # astro
 
+## 0.24.0-next.1
+
+### Minor Changes
+
+- [`af075d81`](https://github.com/withastro/astro/commit/af075d81579d0a77f773435bbce391e42f9dff21) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Visual redesign of the `astro dev` CLI, including new `astro --help` and `astro --version` outputs.
+
+  These changes introduce a new startup screen, make it more obvious when a file triggers in-place HMR (`update`) or a full reload (`reload`), and improve the way Astro surfaces errors during dev.
+
+* [#2747](https://github.com/withastro/astro/pull/2747) [`05b66bd6`](https://github.com/withastro/astro/commit/05b66bd68b173d30921c9f0565b3dc2379039fcd) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Escape HTML inside of expressions by default. Please see [our migration guide](https://docs.astro.build/en/migrate/#deprecated-unescaped-html) for more details.
+
+### Patch Changes
+
+- [#2695](https://github.com/withastro/astro/pull/2695) [`ae8d9256`](https://github.com/withastro/astro/commit/ae8d925666dac0008d8a607afa5f6223f95689a4) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Update `Astro.slots` API with new public `has` and `render` methods.
+
+  This is a backwards-compatible change—`Astro.slots.default` will still be `true` if the component has been passed a `default` slot.
+
+  ```ts
+  if (Astro.slots.has('default')) {
+  	const content = await Astro.slots.render('default');
+  }
+  ```
+
+* [#2705](https://github.com/withastro/astro/pull/2705) [`72c2c86e`](https://github.com/withastro/astro/commit/72c2c86e9d7c9b2ce6be13ddb273d4b0b11a5723) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fixes the static build to write to 404.html
+
+- [#2737](https://github.com/withastro/astro/pull/2737) [`e8d4e568`](https://github.com/withastro/astro/commit/e8d4e56803d21cd187bd7d72899ba5d545522786) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Astro's logger has been redesigned for an improved experience! In addition to deduping identical messages, we've surfaced more error details and exposed new events like `update` (for in-place HMR) and `reload` (for full-reload HMR).
+
+* [#2733](https://github.com/withastro/astro/pull/2733) [`6bf124fb`](https://github.com/withastro/astro/commit/6bf124fb2f8ffd3909148ccc0e253c1f72f364cb) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Remove a bad dev warning
+
+- [#2732](https://github.com/withastro/astro/pull/2732) [`0ae96bb7`](https://github.com/withastro/astro/commit/0ae96bb7491a60eb2032bab23377ca54951a67a7) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update server start message to use localhost for local hostnames
+
 ## 0.24.0-next.0
 
 ### Minor Changes
@@ -12,9 +42,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -126,12 +156,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -293,12 +323,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1653,10 +1683,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1676,10 +1706,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
