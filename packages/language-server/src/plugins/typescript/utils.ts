@@ -147,7 +147,7 @@ export function convertToLocationRange(defDoc: SnapshotFragment, textSpan: ts.Te
   return range;
 }
 
-type FrameworkExt = 'astro' | 'vue' | 'jsx' | 'tsx' | 'svelte';
+type FrameworkExt = 'astro' | 'vue' | 'jsx' | 'tsx' | 'svelte' | 'ts';
 type FrameworkVirtualExt = 'ts' | 'tsx';
 
 const VirtualExtension: Record<FrameworkVirtualExt, FrameworkVirtualExt> = {
@@ -168,12 +168,16 @@ export function isAstroFilePath(filePath: string) {
   return filePath.endsWith('.astro');
 }
 
+export function isFrameworkFilePath(filePath: string) {
+	return filePath.endsWith('.svelte') || filePath.endsWith('.vue')
+}
+
 export function isVirtualAstroFilePath(filePath: string) {
   return isVirtualFrameworkFilePath('astro', VirtualExtension.tsx, filePath);
 }
 
 export function isVirtualVueFilePath(filePath: string) {
-  return isVirtualFrameworkFilePath('vue', VirtualExtension.ts, filePath);
+  return isVirtualFrameworkFilePath('vue', VirtualExtension.tsx, filePath);
 }
 
 export function isVirtualJsxFilePath(filePath: string) {
@@ -181,11 +185,15 @@ export function isVirtualJsxFilePath(filePath: string) {
 }
 
 export function isVirtualSvelteFilePath(filePath: string) {
-  return isVirtualFrameworkFilePath('svelte', VirtualExtension.ts, filePath);
+  return isVirtualFrameworkFilePath('svelte', VirtualExtension.tsx, filePath);
+}
+
+export function isVirtualTsFilePath(filePath: string) {
+	return isVirtualFrameworkFilePath('ts', VirtualExtension.tsx, filePath);
 }
 
 export function isVirtualFilePath(filePath: string) {
-  return isVirtualAstroFilePath(filePath) || isVirtualVueFilePath(filePath) || isVirtualSvelteFilePath(filePath) || isVirtualJsxFilePath(filePath);
+  return isVirtualAstroFilePath(filePath) || isVirtualVueFilePath(filePath) || isVirtualSvelteFilePath(filePath) || isVirtualJsxFilePath(filePath) || isVirtualTsFilePath(filePath);
 }
 
 export function toVirtualAstroFilePath(filePath: string) {
@@ -196,6 +204,16 @@ export function toVirtualAstroFilePath(filePath: string) {
   } else {
     return filePath;
   }
+}
+
+export function toVirtualFilePath(filePath: string) {
+	if (isVirtualFilePath(filePath)) {
+		return filePath;
+	} else if (isFrameworkFilePath(filePath) || isAstroFilePath(filePath) || filePath.endsWith('.ts')) {
+		return `${filePath}.tsx`;
+	} else {
+		return filePath;
+	}
 }
 
 export function toRealAstroFilePath(filePath: string) {

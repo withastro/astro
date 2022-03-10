@@ -10,7 +10,6 @@
   },
   "files": [
     "dist",
-    "astro.d.ts",
     "bin",
     "types"
   ],
@@ -20,6 +19,7 @@
     "test": "tap --no-coverage test/**"
   },
   "dependencies": {
+    "@astrojs/svelte-language-integration": "^0.1.0",
     "@vscode/emmet-helper": "^2.8.4",
     "lodash": "^4.17.21",
     "source-map": "^0.7.3",

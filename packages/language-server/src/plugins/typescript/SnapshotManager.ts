@@ -1,6 +1,6 @@
 import * as ts from 'typescript';
 import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
-import { toVirtualAstroFilePath } from './utils';
+import { toVirtualFilePath } from './utils';
 import { DocumentSnapshot, TypeScriptDocumentSnapshot, createDocumentSnapshot } from './DocumentSnapshot';
 
 export interface TsFilesSpec {
@@ -66,11 +66,13 @@ export class SnapshotManager {
   }
 
   getFileNames() {
-    return Array.from(this.documents.keys()).map((fileName) => toVirtualAstroFilePath(fileName));
+    return Array.from(this.documents.keys()).map((fileName) => toVirtualFilePath(fileName));
   }
 
   getProjectFileNames() {
-    return [...this.projectFiles];
+    return this.projectFiles.map((file) => {
+			return toVirtualFilePath(file)
+		});
   }
 
   private logStatistics() {

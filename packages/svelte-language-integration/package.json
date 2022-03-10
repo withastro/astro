@@ -1,0 +1,16 @@
+{
+  "name": "@astrojs/svelte-language-integration",
+  "version": "0.1.0",
+  "description": "",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "svelte2tsx": "^0.5.5"
+  }
+}
