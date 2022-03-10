@@ -3,9 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/renderer-solid": "workspace:*",
     "astro": "workspace:*",
     "autoprefixer": "^10.4.2",
-    "@astrojs/renderer-solid": "workspace:*",
-    "postcss": "^8.3.8"
+    "postcss": "^8.4.8"
   }
 }

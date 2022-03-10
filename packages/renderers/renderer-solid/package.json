@@ -20,8 +20,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "babel-preset-solid": "^1.3.6",
-    "solid-js": "^1.3.6"
+    "babel-preset-solid": "^1.3.12",
+    "solid-js": "^1.3.12"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"

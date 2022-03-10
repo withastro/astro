@@ -20,9 +20,9 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "^2.2.0",
+    "@vitejs/plugin-vue": "^2.2.4",
     "vite": "^2.8.6",
-    "vue": "^3.2.30"
+    "vue": "^3.2.31"
   },
   "engines": {
     "node": "^14.15.0 || >=16.0.0"
