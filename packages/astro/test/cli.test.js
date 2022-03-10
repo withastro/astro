@@ -7,12 +7,8 @@ import { isIPv4 } from 'net';
 describe('astro cli', () => {
 	const cliServerLogSetupWithFixture = (flags, cmd) => {
 		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-		return cliServerLogSetup([
-			'--project-root',
-			fileURLToPath(projectRootURL),
-			...flags,
-		], cmd);
-	}
+		return cliServerLogSetup(['--project-root', fileURLToPath(projectRootURL), ...flags], cmd);
+	};
 
 	it('astro', async () => {
 		const proc = await cli();
@@ -43,12 +39,12 @@ describe('astro cli', () => {
 	});
 
 	['dev', 'preview'].forEach((cmd) => {
-		it (`astro ${cmd} (no --host)`, async () => {
+		it(`astro ${cmd} (no --host)`, async () => {
 			const { local, network } = await cliServerLogSetupWithFixture([], cmd);
-	
+
 			expect(local).to.not.be.undefined;
 			expect(network).to.not.be.undefined;
-	
+
 			const localURL = new URL(local);
 			expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`);
 			// should not print a network URL when --host is missing!
@@ -80,11 +76,7 @@ describe('astro cli', () => {
 		});
 	});
 
-	const hostFlags = [
-		['--host'],
-		['--host', '0.0.0.0'],
-		['--host', '127.0.0.1'],
-	];
+	const hostFlags = [['--host'], ['--host', '0.0.0.0'], ['--host', '127.0.0.1']];
 
 	hostFlags.forEach((flags) => {
 		['dev', 'preview'].forEach((cmd) => {
