@@ -232,7 +232,7 @@ pre {
 	padding: var(--padding-block) var(--padding-inline);
 	padding-right: calc(var(--padding-inline) * 2);
 	margin-left: calc(50vw - var(--padding-inline));
-	transform: translateX(-50vw);
+	transform: translateX(-50);
 
 	line-height: 1.414;
 	width: calc(100vw + (var(--padding-inline) * 2));
