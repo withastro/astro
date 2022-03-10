@@ -391,7 +391,7 @@ export function defineStyleVars(selector: string, vars: Record<any, any>) {
 	for (const [key, value] of Object.entries(vars)) {
 		output += `  --${key}: ${value};\n`;
 	}
-	return `${selector} {${output}}`;
+	return unescapeHTML(`${selector} {${output}}`);
 }
 
 // Adds variables to an inline script.
@@ -400,7 +400,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 	for (const [key, value] of Object.entries(vars)) {
 		output += `let ${key} = ${JSON.stringify(value)};\n`;
 	}
-	return output;
+	return unescapeHTML(output);
 }
 
 // Renders an endpoint request to completion, returning the body.
