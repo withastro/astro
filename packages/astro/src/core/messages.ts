@@ -43,7 +43,7 @@ export function devStart({
 	networkAddress: string;
 	https: boolean;
 	site: URL | undefined;
-	latestVersion: string | undefined;
+	latestVersion?: string;
 }): string {
 	// PACAKGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
