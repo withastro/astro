@@ -24,13 +24,18 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	polyfill(globalThis, {
 		exclude: 'window document',
 	});
-	// start the server
+
+	let host: string | boolean = '';
+	// TODO: remove "hostname" check once flag is baselined
+	if (config.devOptions.host === false && config.devOptions.hostname !== 'localhost') {
+		host = config.devOptions.hostname;
+	} else {
+		host = config.devOptions.host;
+	}
 	const viteUserConfig = vite.mergeConfig(
 		{
 			mode: 'development',
-			server: {
-				host: config.devOptions.hostname,
-			},
+			server: { host },
 		},
 		config.vite || {}
 	);
@@ -39,10 +44,11 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	await viteServer.listen(config.devOptions.port);
 
 	const address = viteServer.httpServer!.address() as AddressInfo;
-	const localAddress = getLocalAddress(address.address, config.devOptions.hostname);
-	// Log to console
+	const localAddress = getLocalAddress(address.address, host);
+	// true - Vite exposes server on default network
+	// string - Vite exposes server on specified network
+	const isNetworkExposed = host === true || typeof host === 'string';
 	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
-	const isNetworkExposed = config.devOptions.hostname === true || typeof config.devOptions.hostname === 'string';
 	info(
 		options.logging,
 		null,
