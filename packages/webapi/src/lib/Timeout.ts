@@ -12,7 +12,7 @@ export function setTimeout<
 >(callback: TFunc, delay = 0, ...args: TArgs): number {
 	const func = _.__function_bind(callback, globalThis)
 	const tick = ++INTERNAL.tick
-	const timeout = nodeSetTimeout(func, delay, ...args)
+	const timeout = nodeSetTimeout(func as any, delay, ...args)
 
 	INTERNAL.pool.set(tick, timeout)
 
