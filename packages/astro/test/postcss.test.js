@@ -31,11 +31,11 @@ describe('PostCSS', () => {
 	});
 
 	it('works in JSX', () => {
-		expect(bundledCSS).to.match(new RegExp(`.solid${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`.solid[^{]*${PREFIXED_CSS}`));
 	});
 
 	it('works in Vue', () => {
-		expect(bundledCSS).to.match(new RegExp(`.vue${PREFIXED_CSS}`));
+		expect(bundledCSS).to.match(new RegExp(`.vue[^{]*${PREFIXED_CSS}`));
 	});
 
 	it('works in Svelte', () => {

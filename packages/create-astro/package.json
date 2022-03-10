@@ -36,7 +36,7 @@
     "yargs-parser": "^21.0.0"
   },
   "devDependencies": {
-    "@types/yargs-parser": "^20.2.1",
+    "@types/yargs-parser": "^21.0.0",
     "astro-scripts": "workspace:*",
     "uvu": "^0.5.1"
   },
