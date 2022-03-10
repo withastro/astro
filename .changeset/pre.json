@@ -50,15 +50,19 @@
   },
   "changesets": [
     "clean-bottles-drive",
+    "cool-ravens-occur",
     "five-stingrays-collect",
     "fresh-ladybugs-think",
     "giant-cycles-search",
+    "khaki-humans-sort",
     "modern-elephants-burn",
     "neat-snakes-know",
     "new-pianos-boil",
     "silver-foxes-bathe",
     "sour-socks-enjoy",
+    "stupid-pots-give",
     "thick-ravens-chew",
-    "yellow-trees-clean"
+    "yellow-trees-clean",
+    "young-rules-draw"
   ]
 }
