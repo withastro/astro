@@ -1,4 +1,3 @@
-
 const STATUS_CODE_PAGE_REGEXP = /\/[0-9]{3}\/?$/;
 
 /** Construct sitemap.xml given a set of URLs */
@@ -11,7 +10,7 @@ export function generateSitemap(pages: string[], filter?: (page: string) => bool
 	let urls = [...pages].filter((url) => !STATUS_CODE_PAGE_REGEXP.test(url));
 
 	if (filter) {
-		urls = urls.filter(url => filter(url));
+		urls = urls.filter((url) => filter(url));
 	}
 
 	urls.sort((a, b) => a.localeCompare(b, 'en', { numeric: true })); // sort alphabetically so sitemap is same each time

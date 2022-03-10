@@ -243,7 +243,7 @@ export interface AstroUserConfig {
 		 * }
 		 * ```
 		 */
-		sitemapFilter?: (page: string) => boolean
+		sitemapFilter?: (page: string) => boolean;
 
 		/**
 		 * @docs
