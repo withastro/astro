@@ -6,6 +6,7 @@ import type { AddressInfo } from 'net';
 import stripAnsi from 'strip-ansi';
 import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black } from 'kleur/colors';
 import { pad, emoji } from './dev/util.js';
+import os from 'os';
 
 const PREFIX_PADDING = 6;
 
@@ -32,29 +33,40 @@ export function devStart({
 	startupTime,
 	port,
 	localAddress,
-	networkAddress,
+	isNetworkExposed,
 	https,
 	site,
 }: {
 	startupTime: number;
 	port: number;
 	localAddress: string;
-	networkAddress: string;
+	isNetworkExposed: boolean;
 	https: boolean;
 	site: URL | undefined;
 }): string {
-	// PACAKGE_VERSION is injected at build-time
+	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
 	const rootPath = site ? site.pathname : '/';
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
+	let addresses = [];
 
-	const messages = [
-		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
-		'',
-		`${dim('┃')} Local    ${bold(cyan(toDisplayUrl(localAddress)))}`,
-		`${dim('┃')} Network  ${bold(cyan(toDisplayUrl(networkAddress)))}`,
-		'',
-	];
+	if (!isNetworkExposed) {
+		addresses = [`${dim('┃')} Local    ${bold(cyan(toDisplayUrl(localAddress)))}`, `${dim('┃')} Network  ${dim('use --hostname to expose')}`];
+	} else {
+		addresses = Object.values(os.networkInterfaces())
+			.flatMap((networkInterface) => networkInterface ?? [])
+			.filter((networkInterface) => networkInterface?.address && networkInterface?.family === 'IPv4')
+			.map(({ address }) => {
+				if (address.includes('127.0.0.1')) {
+					const displayAddress = address.replace('127.0.0.1', localAddress);
+					return `${dim('┃')} Local    ${bold(cyan(toDisplayUrl(displayAddress)))}`;
+				} else {
+					return `${dim('┃')} Network  ${bold(cyan(toDisplayUrl(address)))}`;
+				}
+			});
+	}
+
+	const messages = [`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`, '', ...addresses, ''];
 	return messages.map((msg) => `  ${msg}`).join('\n');
 }
 

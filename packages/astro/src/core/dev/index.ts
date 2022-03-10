@@ -42,10 +42,11 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 	const localAddress = getLocalAddress(address.address, config.devOptions.hostname);
 	// Log to console
 	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
+	const isNetworkExposed = config.devOptions.hostname === true || typeof config.devOptions.hostname === 'string';
 	info(
 		options.logging,
 		null,
-		msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, networkAddress: address.address, site, https: !!viteUserConfig.server?.https })
+		msg.devStart({ startupTime: performance.now() - devStart, port: address.port, localAddress, isNetworkExposed, site, https: !!viteUserConfig.server?.https })
 	);
 
 	const currentVersion = process.env.PACKAGE_VERSION ?? '0.0.0';
