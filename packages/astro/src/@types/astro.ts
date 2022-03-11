@@ -24,6 +24,7 @@ export interface CLIFlags {
 	projectRoot?: string;
 	site?: string;
 	sitemap?: boolean;
+	host?: string | boolean;
 	hostname?: string;
 	port?: number;
 	config?: string;
@@ -316,10 +317,27 @@ export interface AstroUserConfig {
 	devOptions?: {
 		/**
 		 * @docs
+		 * @name devOptions.host
+		 * @type {string | boolean}
+		 * @default `false`
+		 * @version 0.24.0
+		 * @description
+		 * Set which network IP addresses the dev server should listen on (i.e. 	non-localhost IPs).
+		 * - `false` - do not expose on a network IP address
+		 * - `true` - listen on all addresses, including LAN and public addresses
+		 * - `[custom-address]` - expose on a network IP address at `[custom-address]`
+		 */
+		host?: string | boolean;
+
+		/**
+		 * @docs
 		 * @name devOptions.hostname
 		 * @type {string}
 		 * @default `'localhost'`
+		 * @deprecated Use `host` instead
 		 * @description
+		 * > **This option is deprecated.** Consider using `host` instead.
+		 *
 		 * Set which IP addresses the dev server should listen on. Set this to 0.0.0.0 to listen on all addresses, including LAN and public addresses.
 		 */
 		hostname?: string;

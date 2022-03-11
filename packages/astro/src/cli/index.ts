@@ -38,6 +38,7 @@ function printHelp() {
 	title('Flags');
 	table(
 		[
+			['--host [optional IP]', 'Expose server on network'],
 			['--config <path>', 'Specify the path to the Astro config file.'],
 			['--project-root <path>', 'Specify the path to the project root folder.'],
 			['--no-sitemap', 'Disable sitemap generation (build only).'],

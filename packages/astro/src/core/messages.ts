@@ -2,10 +2,12 @@
  * Dev server messages (organized here to prevent clutter)
  */
 
-import type { AddressInfo } from 'net';
 import stripAnsi from 'strip-ansi';
 import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black } from 'kleur/colors';
-import { pad, emoji } from './dev/util.js';
+import { pad, emoji, getLocalAddress, getNetworkLogging } from './dev/util.js';
+import os from 'os';
+import type { AddressInfo } from 'net';
+import type { AstroConfig } from '../@types/astro';
 
 const PREFIX_PADDING = 6;
 
@@ -30,31 +32,50 @@ export function hmr({ file }: { file: string }): string {
 /** Display dev server host and startup time */
 export function devStart({
 	startupTime,
-	port,
-	localAddress,
-	networkAddress,
+	devServerAddressInfo,
+	config,
 	https,
 	site,
 }: {
 	startupTime: number;
-	port: number;
-	localAddress: string;
-	networkAddress: string;
+	devServerAddressInfo: AddressInfo;
+	config: AstroConfig;
 	https: boolean;
 	site: URL | undefined;
 }): string {
-	// PACAKGE_VERSION is injected at build-time
+	// PACKAGE_VERSION is injected at build-time
 	const version = process.env.PACKAGE_VERSION ?? '0.0.0';
 	const rootPath = site ? site.pathname : '/';
-	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
+	const localPrefix = `${dim('┃')} Local    `;
+	const networkPrefix = `${dim('┃')} Network  `;
 
-	const messages = [
-		`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`,
-		'',
-		`${dim('┃')} Local    ${bold(cyan(toDisplayUrl(localAddress)))}`,
-		`${dim('┃')} Network  ${bold(cyan(toDisplayUrl(networkAddress)))}`,
-		'',
-	];
+	const { address: networkAddress, port } = devServerAddressInfo;
+	const localAddress = getLocalAddress(networkAddress, config);
+	const networkLogging = getNetworkLogging(config);
+	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
+	let addresses = [];
+
+	if (networkLogging === 'none') {
+		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`];
+	} else if (networkLogging === 'host-to-expose') {
+		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`, `${networkPrefix}${dim('use --host to expose')}`];
+	} else {
+		addresses = Object.values(os.networkInterfaces())
+			.flatMap((networkInterface) => networkInterface ?? [])
+			.filter((networkInterface) => networkInterface?.address && networkInterface?.family === 'IPv4')
+			.map(({ address }) => {
+				if (address.includes('127.0.0.1')) {
+					const displayAddress = address.replace('127.0.0.1', localAddress);
+					return `${localPrefix}${bold(cyan(toDisplayUrl(displayAddress)))}`;
+				} else {
+					return `${networkPrefix}${bold(cyan(toDisplayUrl(address)))}`;
+				}
+			})
+			// ensure Local logs come before Network
+			.sort((msg) => (msg.startsWith(localPrefix) ? -1 : 1));
+	}
+
+	const messages = [`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`, '', ...addresses, ''];
 	return messages.map((msg) => `  ${msg}`).join('\n');
 }
 

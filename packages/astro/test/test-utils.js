@@ -143,4 +143,18 @@ export async function parseCliDevStart(proc) {
 	return { messages };
 }
 
+export async function cliServerLogSetup(flags = [], cmd = 'dev') {
+	const proc = cli(cmd, ...flags);
+
+	const { messages } = await parseCliDevStart(proc);
+
+	const localRaw = (messages[1] ?? '').includes('Local') ? messages[1] : undefined;
+	const networkRaw = (messages[2] ?? '').includes('Network') ? messages[2] : undefined;
+
+	const local = localRaw?.replace(/Local\s*/g, '');
+	const network = networkRaw?.replace(/Network\s*/g, '');
+
+	return { local, network };
+}
+
 export const isWindows = os.platform() === 'win32';

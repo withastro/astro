@@ -754,6 +754,12 @@ importers:
     dependencies:
       astro: link:../../..
 
+  packages/astro/test/fixtures/config-host:
+    specifiers:
+      astro: workspace:*
+    dependencies:
+      astro: link:../../..
+
   packages/astro/test/fixtures/config-hostname:
     specifiers:
       astro: workspace:*
