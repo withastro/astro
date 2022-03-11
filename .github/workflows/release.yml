@@ -11,46 +11,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0 # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
-      
-      - name: Setup pnpm 
-        uses: pnpm/action-setup@v2.2.1
 
-      - name: Set up Node.js 16.x
-        uses: actions/setup-node@v3
+      - name: Set up Node.js 14.x
+        uses: actions/setup-node@v2
         with:
-          node-version: 16.x
+          node-version: 14.x
           
       - name: Install dependencies
-        run: pnpm install
+        run: yarn --frozen-lockfile --ignore-engines
+        env:
+          CI: true
 
       - name: Create Release Pull Request or Publish to npm
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@master
         with:
-          publish: pnpm release
+          publish: yarn release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Package VSCode extension
-        if: steps.changesets.outputs.published == 'true'
-        working-directory: ./packages/vscode
-        run: |
-          pnpm build
-          pnpx -y vsce package --no-dependencies --out astro.vsix
-
       - name: Publish to VSCode Marketplace
         if: steps.changesets.outputs.published == 'true'
         working-directory: ./packages/vscode
-        run: pnpx -y vsce publish --packagePath astro.vsix -p ${{ secrets.VSCE_TOKEN }}
+        run: |
+          npm i
+          npx vsce publish -p ${{ secrets.VSCE_TOKEN }}
 
       - name: Publish to OpenVSX
         if: steps.changesets.outputs.published == 'true'
         working-directory: ./packages/vscode
-        run: pnpx -y ovsx publish --packagePath astro.vsix -p ${{ secrets.OVSX_TOKEN }}
+        run: |
+          npm i
+          npx ovsx publish -p ${{ secrets.OVSX_TOKEN }}
 
       - name: Send a Discord notification if a publish happens
         if: steps.changesets.outputs.published == 'true'

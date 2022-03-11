@@ -20,23 +20,23 @@
   },
   "dependencies": {
     "@astrojs/svelte-language-integration": "^0.1.0",
-    "@vscode/emmet-helper": "^2.8.4",
     "lodash": "^4.17.21",
     "source-map": "^0.7.3",
-    "ts-morph": "^12.2.0",
-    "typescript": "~4.5.5",
-    "vscode-css-languageservice": "^5.1.13",
-    "vscode-html-languageservice": "^3.2.0",
+    "ts-morph": "^12.0.0",
+    "typescript": "^4.5.4",
+    "vscode-css-languageservice": "^5.1.1",
+    "@vscode/emmet-helper": "^2.8.4",
+    "vscode-html-languageservice": "^3.0.3",
     "vscode-languageserver": "6.1.1",
     "vscode-languageserver-protocol": "^3.16.0",
-    "vscode-languageserver-textdocument": "^1.0.4",
+    "vscode-languageserver-textdocument": "^1.0.1",
     "vscode-languageserver-types": "^3.16.0",
-    "vscode-uri": "^3.0.3"
+    "vscode-uri": "^3.0.2"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.179",
-    "astro": "^0.23.7",
-    "astro-scripts": "workspace:*",
-    "tap": "^15.2.3"
+    "@types/lodash": "^4.14.116",
+    "astro": "^0.23.5",
+    "astro-scripts": "0.0.1",
+    "tap": "^15.0.9"
   }
 }

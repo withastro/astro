@@ -8,7 +8,7 @@
 
 import { window, workspace, Disposable, TextDocument, Position, SnippetString } from 'vscode';
 
-import type { TextDocumentContentChangeEvent } from 'vscode-languageserver-protocol';
+import { TextDocumentContentChangeEvent } from 'vscode-languageserver-protocol';
 
 /**  */
 export function activateTagClosing(

@@ -23,22 +23,34 @@ jobs:
     name: 'Test: node-${{ matrix.node_version }}, ${{ matrix.os }}'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup pnpm 
-        uses: pnpm/action-setup@v2.2.1
+        uses: actions/checkout@v2
 
       - name: Set node version to ${{ matrix.node_version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node_version }}
-          cache: 'pnpm'
+
+      - name: Get yarn cache directory
+        id: yarn-cache
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Set dependencies cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache.outputs.dir }}
+          key: ${{ runner.os }}-${{ matrix.node_version }}-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.node_version }}-${{ hashFiles('yarn.lock') }}
+            ${{ runner.os }}-${{ matrix.node_version }}-
+
+      - name: Debug
+        run: yarn versions
 
       - name: Install dependencies
-        run: pnpm install
+        run: yarn install --frozen-lockfile --ignore-engines
 
       - name: Build the packages
-        run: pnpm build
+        run: yarn build
 
       - name: Test
-        run: pnpm test
+        run: yarn test

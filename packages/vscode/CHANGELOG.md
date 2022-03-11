@@ -1,46 +1,5 @@
 # astro-vscode
 
-## 0.10.5
-
-### Patch Changes
-
-- bd0836d: - Added license
-  - Package extension before publishing
-
-## 0.10.4
-
-### Patch Changes
-
-- f48fa90: Fixed build command (again)
-
-## 0.10.3
-
-### Patch Changes
-
-- 2debae9: Fixed build command
-
-## 0.10.2
-
-### Patch Changes
-
-- 08269d1: Downgraded @types/vscode
-
-## 0.10.1
-
-### Patch Changes
-
-- 72cf8b1: trigger release
-
-## 0.10.0
-
-### Minor Changes
-
-- 7a21a36: Updated grammars and removed `astro-markdown` language
-
-### Patch Changes
-
-- 2f87d79: Added icon to language
-
 ## 0.9.3
 
 ### Patch Changes
