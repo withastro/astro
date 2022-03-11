@@ -317,7 +317,7 @@ export interface AstroUserConfig {
 	devOptions?: {
 		/**
 		 * @docs
-		 * @name devOptions.hostname
+		 * @name devOptions.host
 		 * @type {string | boolean}
 		 * @default `false`
 		 * @version 0.24.0
@@ -331,11 +331,13 @@ export interface AstroUserConfig {
 
 		/**
 		 * @docs
-		 * @name devOptions.host
+		 * @name devOptions.hostname
 		 * @type {string}
-		 * @default `localhost`
-		 * @deprecated Use --host instead
+		 * @default `'localhost'`
+		 * @deprecated Use `host` instead
 		 * @description
+		 * > **This option is deprecated.** Consider using `host` instead.
+		 *
 		 * Set which IP addresses the dev server should listen on. Set this to 0.0.0.0 to listen on all addresses, including LAN and public addresses.
 		 */
 		hostname?: string;
