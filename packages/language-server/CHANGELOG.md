@@ -1,5 +1,15 @@
 # @astrojs/language-server
 
+## 0.11.0
+
+### Minor Changes
+
+- fd92a85: Add support for loading files from non-JSX frameworks such as Vue and Svelte
+
+### Patch Changes
+
+- d056cd5: Fixes production bugs in extension
+
 ## 0.9.3
 
 ### Patch Changes

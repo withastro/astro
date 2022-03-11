@@ -1,5 +1,15 @@
 # astro-vscode
 
+## 0.11.0
+
+### Patch Changes
+
+- d056cd5: Fixes production bugs in extension
+- Updated dependencies [d056cd5]
+- Updated dependencies [fd92a85]
+  - @astrojs/language-server@0.11.0
+  - @astrojs/ts-plugin@0.2.1
+
 ## 0.9.3
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @astrojs/ts-plugin
 
+## 0.2.1
+
+### Patch Changes
+
+- d056cd5: Fixes production bugs in extension
+
 ## 0.2.0
 
 ### Minor Changes
