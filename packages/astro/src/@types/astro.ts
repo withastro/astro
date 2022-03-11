@@ -234,7 +234,7 @@ export interface AstroUserConfig {
 		 * @description
 		 * By default, all pages are included in your generated sitemap.
 		 * You can filter included pages by URL using `buildOptions.sitemapFilter`.
-		 * 
+		 *
 		 * The `page` function parameter is the full URL of your rendered page, including your `buildOptions.site` domain.
 		 * Return `true` to include a page in your sitemap, and `false` to remove it.
 		 *
