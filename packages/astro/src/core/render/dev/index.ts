@@ -8,6 +8,7 @@ import { RouteCache } from '../route-cache.js';
 import { resolveRenderers } from './renderers.js';
 import { errorHandler } from './error.js';
 import { getHmrScript } from './hmr.js';
+import { prependForwardSlash } from '../../path.js';
 import { render as coreRender } from '../core.js';
 import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
 
@@ -103,7 +104,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 			// broken in the legacy build. This can be removed once the legacy build is removed.
 			if (!astroConfig.buildOptions.legacyBuild) {
 				const [, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
-				return resolvedPath;
+				return '/@fs' + prependForwardSlash(resolvedPath);
 			} else {
 				return s;
 			}
