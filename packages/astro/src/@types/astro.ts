@@ -229,16 +229,20 @@ export interface AstroUserConfig {
 		/**
 		 * @docs
 		 * @name buildOptions.sitemapFilter
-		 * @type {undefined|((page: string) => boolean)}
-		 * @default `undefined`
+		 * @typeraw {(page: string) => boolean}
+		 * @see buildOptions.sitemap
 		 * @description
-		 * Customize sitemap generation for your build by excluding certain pages.
+		 * By default, all pages are included in your generated sitemap.
+		 * You can filter included pages by URL using `buildOptions.sitemapFilter`.
+		 * 
+		 * The `page` function parameter is the full URL of your rendered page, including your `buildOptions.site` domain.
+		 * Return `true` to include a page in your sitemap, and `false` to remove it.
 		 *
 		 * ```js
 		 * {
 		 *   buildOptions: {
 		 * 	   sitemap: true
-		 * 	   sitemapFilter: (page) => !page.includes('secret-page')
+		 * 	   sitemapFilter: (page) => page !== 'http://example.com/secret-page')
 		 *   }
 		 * }
 		 * ```
