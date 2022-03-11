@@ -4,8 +4,10 @@
 
 import stripAnsi from 'strip-ansi';
 import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black } from 'kleur/colors';
-import { pad, emoji } from './dev/util.js';
+import { pad, emoji, getLocalAddress, getNetworkLogging } from './dev/util.js';
 import os from 'os';
+import type { AddressInfo } from 'net';
+import type { AstroConfig } from '../@types/astro';
 
 const PREFIX_PADDING = 6;
 
@@ -30,16 +32,14 @@ export function hmr({ file }: { file: string }): string {
 /** Display dev server host and startup time */
 export function devStart({
 	startupTime,
-	port,
-	localAddress,
-	isNetworkExposed,
+	devServerAddressInfo,
+	config,
 	https,
 	site,
 }: {
 	startupTime: number;
-	port: number;
-	localAddress: string;
-	isNetworkExposed: boolean;
+	devServerAddressInfo: AddressInfo;
+	config: AstroConfig;
 	https: boolean;
 	site: URL | undefined;
 }): string {
@@ -48,10 +48,16 @@ export function devStart({
 	const rootPath = site ? site.pathname : '/';
 	const localPrefix = `${dim('┃')} Local    `;
 	const networkPrefix = `${dim('┃')} Network  `;
+
+	const { address: networkAddress, port } = devServerAddressInfo;
+	const localAddress = getLocalAddress(networkAddress, config);
+	const networkLogging = getNetworkLogging(config);
 	const toDisplayUrl = (hostname: string) => `${https ? 'https' : 'http'}://${hostname}:${port}${rootPath}`;
 	let addresses = [];
 
-	if (!isNetworkExposed) {
+	if (networkLogging === 'none') {
+		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`];
+	} else if (networkLogging === 'host-to-expose') {
 		addresses = [`${localPrefix}${bold(cyan(toDisplayUrl(localAddress)))}`, `${networkPrefix}${dim('use --host to expose')}`];
 	} else {
 		addresses = Object.values(os.networkInterfaces())

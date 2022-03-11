@@ -7,7 +7,6 @@ import { performance } from 'perf_hooks';
 import { fileURLToPath } from 'url';
 import * as msg from '../messages.js';
 import { error, info } from '../logger.js';
-import { getLocalAddress, shouldNetworkBeExposed } from '../dev/util.js';
 import { subpathNotUsedTemplate, notFoundTemplate } from '../../template/4xx.js';
 import { getResolvedHostForHttpServer } from './util.js';
 
@@ -87,11 +86,8 @@ export default async function preview(config: AstroConfig, { logging }: PreviewO
 			const listen = () => {
 				httpServer = server.listen(port, host, async () => {
 					if (!showedListenMsg) {
-						const { address: networkAddress } = server.address() as AddressInfo;
-						const localAddress = getLocalAddress(networkAddress, config);
-						const isNetworkExposed = shouldNetworkBeExposed(config);
-
-						info(logging, null, msg.devStart({ startupTime: performance.now() - timerStart, port, localAddress, isNetworkExposed, https: false, site: baseURL }));
+						const devServerAddressInfo = server.address() as AddressInfo;
+						info(logging, null, msg.devStart({ startupTime: performance.now() - timerStart, config, devServerAddressInfo, https: false, site: baseURL }));
 					}
 					showedListenMsg = true;
 					resolve();
