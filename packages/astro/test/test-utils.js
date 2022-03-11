@@ -148,8 +148,11 @@ export async function cliServerLogSetup(flags = [], cmd = 'dev') {
 
 	const { messages } = await parseCliDevStart(proc);
 
-	const local = messages[1]?.replace(/Local\s*/g, '');
-	const network = messages[2]?.replace(/Network\s*/g, '');
+	const localRaw = (messages[1] ?? '').includes('Local') ? messages[1] : undefined;
+	const networkRaw = (messages[2] ?? '').includes('Network') ? messages[2] : undefined;
+
+	const local = localRaw?.replace(/Local\s*/g, '');
+	const network = networkRaw?.replace(/Network\s*/g, '');
 
 	return { local, network };
 }
