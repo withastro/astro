@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "svelte2tsx": "^0.5.5"
+    "svelte2tsx": "^0.5.5",
+    "svelte": "^3.24.0"
   }
 }
