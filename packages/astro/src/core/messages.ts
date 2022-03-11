@@ -2,7 +2,6 @@
  * Dev server messages (organized here to prevent clutter)
  */
 
-import type { AddressInfo } from 'net';
 import stripAnsi from 'strip-ansi';
 import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black } from 'kleur/colors';
 import { pad, emoji } from './dev/util.js';
