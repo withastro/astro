@@ -64,7 +64,9 @@ export function devStart({
 				} else {
 					return `${networkPrefix}${bold(cyan(toDisplayUrl(address)))}`;
 				}
-			});
+			})
+			// ensure Local logs come before Network
+			.sort((msg) => (msg.startsWith(localPrefix) ? -1 : 1));
 	}
 
 	const messages = [`${emoji('🚀 ', '')}${bgGreen(black(` astro `))} ${green(`v${version}`)} ${dim(`started in ${Math.round(startupTime)}ms`)}`, '', ...addresses, ''];
