@@ -38,28 +38,12 @@ describe('astro cli', () => {
 		expect(messages[0]).to.contain('started in');
 	});
 
-	['dev', 'preview'].forEach((cmd) => {
-		it(`astro ${cmd} (no --host)`, async () => {
-			const { local, network } = await cliServerLogSetupWithFixture([], cmd);
-
-			expect(local).to.not.be.undefined;
-			expect(network).to.not.be.undefined;
-
-			const localURL = new URL(local);
-			expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`);
-			// should not print a network URL when --host is missing!
-			expect(() => new URL(network)).to.throw();
-		});
-	});
-
-	const hostnameFlags = [
-		['--hostname', '0.0.0.0'],
-		['--hostname', '127.0.0.1'],
-	];
-
 	// TODO: remove once --hostname is baselined
-	hostnameFlags.forEach((flags) => {
-		['dev', 'preview'].forEach((cmd) => {
+	['dev', 'preview'].forEach((cmd) => {
+		const hostnameFlags = [
+			['--hostname', '0.0.0.0'],
+		];
+		hostnameFlags.forEach((flags) => {
 			it(`astro ${cmd} ${flags.join(' ')}`, async () => {
 				const { local, network } = await cliServerLogSetupWithFixture(flags, cmd);
 
@@ -76,10 +60,9 @@ describe('astro cli', () => {
 		});
 	});
 
-	const hostFlags = [['--host'], ['--host', '0.0.0.0'], ['--host', '127.0.0.1']];
-
-	hostFlags.forEach((flags) => {
-		['dev', 'preview'].forEach((cmd) => {
+	['dev', 'preview'].forEach((cmd) => {
+		const hostFlags = [['--host'], ['--host', '0.0.0.0']];
+		hostFlags.forEach((flags) => {
 			it(`astro ${cmd} ${flags.join(' ')}`, async () => {
 				const { local, network } = await cliServerLogSetupWithFixture(flags);
 
@@ -94,6 +77,25 @@ describe('astro cli', () => {
 				expect(Number.parseInt(localURL.port)).to.be.greaterThanOrEqual(3000, `Expected Port to be >= 3000`);
 				expect(networkURL.port).to.be.equal(localURL.port, `Expected local and network ports to be equal`);
 				expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --host flag`);
+			});
+		});
+
+		const localFlags = [
+			[],
+			['--host', 'localhost'],
+			['--host', '127.0.0.1'],
+		];
+		localFlags.forEach((flags) => {
+			it(`astro ${cmd} ${flags.length ? flags.join(' ') : '(no --host)'}`, async () => {
+				const { local, network } = await cliServerLogSetupWithFixture([], cmd);
+
+				expect(local).to.not.be.undefined;
+				expect(network).to.not.be.undefined;
+
+				const localURL = new URL(local);
+				expect(localURL.hostname).to.be.equal('localhost', `Expected local URL to be on localhost`);
+				// should not print a network URL
+				expect(() => new URL(network)).to.throw();
 			});
 		});
 	});

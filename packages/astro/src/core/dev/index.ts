@@ -6,7 +6,7 @@ import { createVite } from '../create-vite.js';
 import { defaultLogOptions, info, warn, LogOptions } from '../logger.js';
 import * as vite from 'vite';
 import * as msg from '../messages.js';
-import { getLocalAddress, getResolvedHostForVite } from './util.js';
+import { getLocalAddress, getResolvedHostForVite, shouldNetworkBeExposed } from './util.js';
 
 export interface DevOptions {
 	logging: LogOptions;
@@ -40,9 +40,7 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 
 	const address = viteServer.httpServer!.address() as AddressInfo;
 	const localAddress = getLocalAddress(address.address, config);
-	// true - Vite exposes server on default network
-	// string - Vite exposes server on specified network
-	const isNetworkExposed = host === true || typeof host === 'string';
+	const isNetworkExposed = shouldNetworkBeExposed(config);
 	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
 	info(
 		options.logging,

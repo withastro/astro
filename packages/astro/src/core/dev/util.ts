@@ -1,5 +1,7 @@
 import type { AstroConfig } from '../../@types/astro';
 
+const localIps = new Set(['localhost', '127.0.0.1']);
+
 /** Pad string () */
 export function pad(input: string, minLength: number, dir?: 'left' | 'right'): string {
 	let output = input;
@@ -25,7 +27,7 @@ export function getResolvedHostForVite(config: AstroConfig) {
 export function getLocalAddress(serverAddress: string, config: AstroConfig): string {
 	// TODO: remove once --hostname is baselined
 	const host = getResolvedHostForVite(config);
-	if (typeof host === 'boolean' || host === 'localhost' || serverAddress === '127.0.0.1' || serverAddress === '0.0.0.0') {
+	if (typeof host === 'boolean' || localIps.has(host) || serverAddress === '0.0.0.0') {
 		return 'localhost';
 	} else {
 		return serverAddress;
@@ -35,5 +37,7 @@ export function getLocalAddress(serverAddress: string, config: AstroConfig): str
 export function shouldNetworkBeExposed(config: AstroConfig) {
 	// TODO: remove once --hostname is baselined
 	const host = getResolvedHostForVite(config);
-	return host === true || typeof host === 'string';
+	// true - Vite exposes server on default network
+	// non-local string - Vite exposes server on specified network
+	return host === true || (typeof host === 'string' && !localIps.has(host));
 }

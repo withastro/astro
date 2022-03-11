@@ -24,7 +24,7 @@ describe('config', () => {
 
 		it('can be specified via --hostname flag', async () => {
 			const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-			const { network } = await cliServerLogSetup(['--project-root', fileURLToPath(projectRootURL), '--hostname', '127.0.0.1']);
+			const { network } = await cliServerLogSetup(['--project-root', fileURLToPath(projectRootURL), '--hostname', '0.0.0.0']);
 
 			const networkURL = new URL(network);
 			expect(isIPv4(networkURL.hostname)).to.be.equal(true, `Expected network URL to respect --hostname flag`);
