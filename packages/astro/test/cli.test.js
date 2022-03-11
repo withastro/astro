@@ -40,9 +40,7 @@ describe('astro cli', () => {
 
 	// TODO: remove once --hostname is baselined
 	['dev', 'preview'].forEach((cmd) => {
-		const hostnameFlags = [
-			['--hostname', '0.0.0.0'],
-		];
+		const hostnameFlags = [['--hostname', '0.0.0.0']];
 		hostnameFlags.forEach((flags) => {
 			it(`astro ${cmd} ${flags.join(' ')}`, async () => {
 				const { local, network } = await cliServerLogSetupWithFixture(flags, cmd);
@@ -80,11 +78,7 @@ describe('astro cli', () => {
 			});
 		});
 
-		const localFlags = [
-			[],
-			['--host', 'localhost'],
-			['--host', '127.0.0.1'],
-		];
+		const localFlags = [[], ['--host', 'localhost'], ['--host', '127.0.0.1']];
 		localFlags.forEach((flags) => {
 			it(`astro ${cmd} ${flags.length ? flags.join(' ') : '(no --host)'}`, async () => {
 				const { local, network } = await cliServerLogSetupWithFixture([], cmd);
