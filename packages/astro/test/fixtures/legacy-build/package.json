@@ -5,6 +5,6 @@
   "dependencies": {
     "@astrojs/renderer-vue": "^0.4.0",
     "astro": "workspace:*",
-    "preact": "~10.6.5"
+    "preact": "~10.6.6"
   }
 }

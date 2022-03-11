@@ -9,11 +9,11 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "^0.6.1",
+    "@astrojs/markdown-remark": "^0.6.4",
     "astro": "^0.24.0-next.2",
     "hast-util-select": "5.0.1",
-    "rehype-autolink-headings": "^6.1.0",
-    "rehype-slug": "^5.0.0",
+    "rehype-autolink-headings": "^6.1.1",
+    "rehype-slug": "^5.0.1",
     "rehype-toc": "^3.0.2",
     "remark-code-titles": "^0.1.2"
   }

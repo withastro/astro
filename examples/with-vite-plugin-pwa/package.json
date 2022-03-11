@@ -11,6 +11,6 @@
   "devDependencies": {
     "astro": "^0.24.0-next.2",
     "vite-plugin-pwa": "0.11.11",
-    "workbox-window": "^6.5.0"
+    "workbox-window": "^6.5.1"
   }
 }

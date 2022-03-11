@@ -8,17 +8,17 @@
     "astro-scripts": "./index.js"
   },
   "dependencies": {
-    "@astrojs/webapi": "workspace:*",
     "@astrojs/renderer-preact": "workspace:*",
     "@astrojs/renderer-react": "workspace:*",
-    "@astrojs/renderer-vue": "workspace:*",
     "@astrojs/renderer-svelte": "workspace:*",
+    "@astrojs/renderer-vue": "workspace:*",
+    "@astrojs/webapi": "workspace:*",
     "adm-zip": "^0.5.9",
-    "arg": "^5.0.0",
+    "arg": "^5.0.1",
     "esbuild": "0.14.25",
-    "globby": "^12.0.2",
+    "globby": "^12.2.0",
     "kleur": "^4.1.4",
-    "svelte": "^3.46.2",
-    "tar": "^6.1.0"
+    "svelte": "^3.46.4",
+    "tar": "^6.1.11"
   }
 }

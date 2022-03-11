@@ -19,7 +19,7 @@ importers:
       prettier: ^2.5.1
       pretty-bytes: ^6.0.0
       tiny-glob: ^0.2.9
-      turbo: ^1.1.5
+      turbo: ^1.1.6
       typescript: ~4.6.2
     dependencies:
       '@astrojs/webapi': link:packages/webapi
@@ -53,7 +53,7 @@ importers:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
       astro: ^0.24.0-next.2
-      sass: ^1.49.8
+      sass: ^1.49.9
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -78,20 +78,20 @@ importers:
 
   examples/docs:
     specifiers:
-      '@algolia/client-search': ^4.12.0
+      '@algolia/client-search': ^4.12.2
       '@astrojs/renderer-preact': ^0.5.0
       '@astrojs/renderer-react': ^0.5.0
       '@docsearch/css': ^3.0.0
       '@docsearch/react': ^3.0.0
-      '@types/react': ^17.0.39
+      '@types/react': ^17.0.40
       astro: ^0.24.0-next.2
       react: ^17.0.2
       react-dom: ^17.0.2
     dependencies:
       '@algolia/client-search': 4.12.2
       '@docsearch/css': 3.0.0
-      '@docsearch/react': 3.0.0_1ab644842aa339c93b6df62741455ef8
-      '@types/react': 17.0.39
+      '@docsearch/react': 3.0.0_b7370fe379365cb66d103ab107c4222a
+      '@types/react': 17.0.40
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
@@ -213,8 +213,8 @@ importers:
     specifiers:
       '@astrojs/renderer-svelte': ^0.5.1
       astro: ^0.24.0-next.2
-      unocss: ^0.15.5
-      vite-imagetools: ^4.0.1
+      unocss: ^0.15.6
+      vite-imagetools: ^4.0.3
     devDependencies:
       '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
       astro: link:../../packages/astro
@@ -239,7 +239,7 @@ importers:
 
   examples/with-markdown:
     specifiers:
-      '@astrojs/markdown-remark': ^0.6.1
+      '@astrojs/markdown-remark': ^0.6.4
       '@astrojs/renderer-preact': ^0.5.0
       '@astrojs/renderer-react': ^0.5.0
       '@astrojs/renderer-svelte': ^0.5.1
@@ -255,11 +255,11 @@ importers:
 
   examples/with-markdown-plugins:
     specifiers:
-      '@astrojs/markdown-remark': ^0.6.1
+      '@astrojs/markdown-remark': ^0.6.4
       astro: ^0.24.0-next.2
       hast-util-select: 5.0.1
-      rehype-autolink-headings: ^6.1.0
-      rehype-slug: ^5.0.0
+      rehype-autolink-headings: ^6.1.1
+      rehype-slug: ^5.0.1
       rehype-toc: ^3.0.2
       remark-code-titles: ^0.1.2
     devDependencies:
@@ -273,7 +273,7 @@ importers:
 
   examples/with-markdown-shiki:
     specifiers:
-      '@astrojs/markdown-remark': ^0.6.1
+      '@astrojs/markdown-remark': ^0.6.4
       astro: ^0.24.0-next.2
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
@@ -286,21 +286,21 @@ importers:
       '@astrojs/renderer-solid': ^0.4.0
       '@astrojs/renderer-svelte': ^0.5.1
       '@astrojs/renderer-vue': ^0.4.0
-      '@nanostores/preact': ^0.1.2
+      '@nanostores/preact': ^0.1.3
       '@nanostores/react': ^0.1.5
       '@nanostores/vue': ^0.4.1
       astro: ^0.24.0-next.2
-      nanostores: ^0.5.7
-      preact: ^10.6.5
+      nanostores: ^0.5.11
+      preact: ^10.6.6
       react: ^17.0.2
       react-dom: ^17.0.2
       solid-nanostores: 0.0.6
-      vue: ^3.2.0
+      vue: ^3.2.31
     dependencies:
-      '@nanostores/preact': 0.1.3_nanostores@0.5.10+preact@10.6.6
-      '@nanostores/react': 0.1.5_28944fdc6a7501a7aa1d05fb530ec188
-      '@nanostores/vue': 0.4.1_nanostores@0.5.10+vue@3.2.31
-      nanostores: 0.5.10
+      '@nanostores/preact': 0.1.3_nanostores@0.5.11+preact@10.6.6
+      '@nanostores/react': 0.1.5_efa0b688c1fb20e4e2512c00f32ff2aa
+      '@nanostores/vue': 0.4.1_nanostores@0.5.11+vue@3.2.31
+      nanostores: 0.5.11
       preact: 10.6.6
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -318,9 +318,9 @@ importers:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
       astro: ^0.24.0-next.2
-      autoprefixer: ^10.4.0
-      postcss: ^8.3.8
-      tailwindcss: ^3.0.5
+      autoprefixer: ^10.4.2
+      postcss: ^8.4.8
+      tailwindcss: ^3.0.23
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -332,7 +332,7 @@ importers:
     specifiers:
       astro: ^0.24.0-next.2
       vite-plugin-pwa: 0.11.11
-      workbox-window: ^6.5.0
+      workbox-window: ^6.5.1
     devDependencies:
       astro: link:../../packages/astro
       vite-plugin-pwa: 0.11.11
@@ -341,7 +341,7 @@ importers:
   packages/astro:
     specifiers:
       '@astrojs/compiler': ^0.12.0
-      '@astrojs/language-server': ^0.8.6
+      '@astrojs/language-server': ^0.8.10
       '@astrojs/markdown-remark': ^0.6.4
       '@astrojs/parser': ^0.22.1
       '@astrojs/prism': 0.4.0
@@ -350,20 +350,20 @@ importers:
       '@astrojs/renderer-svelte': 0.5.1
       '@astrojs/renderer-vue': 0.4.0
       '@astrojs/webapi': ^0.11.0
-      '@babel/core': ^7.15.8
-      '@babel/traverse': ^7.15.4
-      '@babel/types': ^7.15.6
+      '@babel/core': ^7.17.5
+      '@babel/traverse': ^7.17.3
+      '@babel/types': ^7.17.0
       '@proload/core': ^0.2.2
-      '@proload/plugin-tsm': ^0.1.0
-      '@types/babel__core': ^7.1.15
+      '@proload/plugin-tsm': ^0.1.1
+      '@types/babel__core': ^7.1.18
       '@types/babel__traverse': ^7.14.2
-      '@types/chai': ^4.2.22
+      '@types/chai': ^4.3.0
       '@types/common-ancestor-path': ^1.0.0
       '@types/connect': ^3.4.35
       '@types/debug': ^4.1.7
       '@types/estree': ^0.0.51
       '@types/mime': ^2.0.3
-      '@types/mocha': ^9.0.0
+      '@types/mocha': ^9.1.0
       '@types/parse5': ^6.0.3
       '@types/resolve': ^1.20.1
       '@types/rimraf': ^3.0.2
@@ -371,48 +371,48 @@ importers:
       '@types/yargs-parser': ^21.0.0
       '@web/parse5-utils': ^1.3.0
       astro-scripts: workspace:*
-      chai: ^4.3.4
+      chai: ^4.3.6
       cheerio: ^1.0.0-rc.10
-      ci-info: ^3.2.0
+      ci-info: ^3.3.0
       common-ancestor-path: ^1.0.1
       debug: ^4.3.3
       eol: ^0.9.1
       es-module-lexer: ^0.10.0
       esbuild: 0.14.25
-      estree-walker: ^3.0.0
-      execa: ^6.0.0
-      fast-glob: ^3.2.7
-      fast-xml-parser: ^4.0.0-beta.3
+      estree-walker: ^3.0.1
+      execa: ^6.1.0
+      fast-glob: ^3.2.11
+      fast-xml-parser: ^4.0.6
       html-entities: ^2.3.2
-      htmlparser2: ^7.1.2
+      htmlparser2: ^7.2.0
       kleur: ^4.1.4
-      magic-string: ^0.25.7
-      micromorph: ^0.1.1
+      magic-string: ^0.25.9
+      micromorph: ^0.1.2
       mime: ^3.0.0
-      mocha: ^9.1.3
+      mocha: ^9.2.1
       parse5: ^6.0.1
       path-to-regexp: ^6.2.0
-      postcss: ^8.3.8
-      prismjs: ^1.25.0
-      rehype-slug: ^5.0.0
-      resolve: ^1.20.0
-      rollup: ^2.64.0
-      sass: ^1.49.0
+      postcss: ^8.4.8
+      prismjs: ^1.27.0
+      rehype-slug: ^5.0.1
+      resolve: ^1.22.0
+      rollup: ^2.70.0
+      sass: ^1.49.9
       semver: ^7.3.5
       serialize-javascript: ^6.0.0
-      shiki: ^0.10.0
+      shiki: ^0.10.1
       shorthash: ^0.0.2
       sirv: ^2.0.2
       slash: ^4.0.0
       sourcemap-codec: ^1.4.8
       srcset-parse: ^1.1.0
-      string-width: ^5.0.0
+      string-width: ^5.1.2
       strip-ansi: ^7.0.1
       supports-esm: ^1.0.0
       tsconfig-resolver: ^3.0.1
       vite: ^2.8.6
-      yargs-parser: ^21.0.0
-      zod: ^3.8.1
+      yargs-parser: ^21.0.1
+      zod: ^3.13.4
     dependencies:
       '@astrojs/compiler': 0.12.0
       '@astrojs/language-server': 0.8.10
@@ -491,11 +491,11 @@ importers:
 
   packages/astro-parser:
     specifiers:
-      '@types/node': ^14.0.0
-      acorn: ^8.6.0
+      '@types/node': ^14.18.12
+      acorn: ^8.7.0
       astro-scripts: workspace:*
       locate-character: ^2.0.5
-      magic-string: ^0.25.3
+      magic-string: ^0.25.9
     dependencies:
       '@types/node': 14.18.12
       acorn: 8.7.0
@@ -506,7 +506,7 @@ importers:
 
   packages/astro-prism:
     specifiers:
-      prismjs: ^1.23.0
+      prismjs: ^1.27.0
     devDependencies:
       prismjs: 1.27.0
 
@@ -813,7 +813,7 @@ importers:
     specifiers:
       '@astrojs/renderer-vue': ^0.4.0
       astro: workspace:*
-      preact: ~10.6.5
+      preact: ~10.6.6
     dependencies:
       '@astrojs/renderer-vue': link:../../../../renderers/renderer-vue
       astro: link:../../..
@@ -838,7 +838,7 @@ importers:
       '@astrojs/renderer-solid': workspace:*
       astro: workspace:*
       autoprefixer: ^10.4.2
-      postcss: ^8.3.8
+      postcss: ^8.4.8
     dependencies:
       '@astrojs/renderer-solid': link:../../../../renderers/renderer-solid
       astro: link:../../..
@@ -872,7 +872,7 @@ importers:
   packages/astro/test/fixtures/sass:
     specifiers:
       astro: workspace:*
-      sass: ^1.49.8
+      sass: ^1.49.9
     dependencies:
       astro: link:../../..
       sass: 1.49.9
@@ -919,7 +919,7 @@ importers:
 
   packages/astro/test/fixtures/static build:
     specifiers:
-      '@astrojs/test-static-build-pkg': file:./pkg
+      '@astrojs/test-static-build-pkg': link:pkg
       astro: workspace:*
     dependencies:
       '@astrojs/test-static-build-pkg': link:pkg
@@ -990,16 +990,16 @@ importers:
 
   packages/create-astro:
     specifiers:
-      '@types/degit': ^2.8.2
-      '@types/prompts': ^2.0.12
+      '@types/degit': ^2.8.3
+      '@types/prompts': ^2.0.14
       '@types/yargs-parser': ^21.0.0
       astro-scripts: workspace:*
       degit: ^2.8.4
-      kleur: ^4.1.1
-      node-fetch: ^3.0.0
-      prompts: ^2.4.1
-      uvu: ^0.5.1
-      yargs-parser: ^21.0.0
+      kleur: ^4.1.4
+      node-fetch: ^3.2.2
+      prompts: ^2.4.2
+      uvu: ^0.5.3
+      yargs-parser: ^21.0.1
     dependencies:
       '@types/degit': 2.8.3
       '@types/prompts': 2.0.14
@@ -1017,26 +1017,26 @@ importers:
     specifiers:
       '@astrojs/prism': ^0.4.0
       '@types/github-slugger': ^1.3.0
-      '@types/prismjs': ^1.16.6
+      '@types/prismjs': ^1.26.0
       assert: ^2.0.0
       astro-scripts: workspace:*
       github-slugger: ^1.4.0
       gray-matter: ^4.0.3
-      mdast-util-mdx-expression: ^1.1.1
-      mdast-util-mdx-jsx: ^1.1.3
+      mdast-util-mdx-expression: ^1.2.0
+      mdast-util-mdx-jsx: ^1.2.0
       mdast-util-to-string: ^3.1.0
       micromark-extension-mdx-expression: ^1.0.3
-      micromark-extension-mdx-jsx: ^1.0.2
-      prismjs: ^1.25.0
-      rehype-raw: ^6.1.0
-      rehype-slug: ^5.0.0
-      rehype-stringify: ^9.0.2
+      micromark-extension-mdx-jsx: ^1.0.3
+      prismjs: ^1.27.0
+      rehype-raw: ^6.1.1
+      rehype-slug: ^5.0.1
+      rehype-stringify: ^9.0.3
       remark-gfm: ^3.0.1
       remark-parse: ^10.0.1
-      remark-rehype: ^10.0.1
+      remark-rehype: ^10.1.0
       remark-smartypants: ^2.0.0
-      shiki: ^0.10.0
-      unified: ^10.1.1
+      shiki: ^0.10.1
+      unified: ^10.1.2
       unist-util-map: ^3.0.0
       unist-util-visit: ^4.1.0
     dependencies:
@@ -1068,19 +1068,19 @@ importers:
 
   packages/renderers/renderer-lit:
     specifiers:
-      '@lit-labs/ssr': ^2.0.2
+      '@lit-labs/ssr': ^2.0.4
       '@webcomponents/template-shadowroot': ^0.1.0
-      lit: ^2.1.3
+      lit: ^2.2.0
     dependencies:
-      '@lit-labs/ssr': 2.0.3
+      '@lit-labs/ssr': 2.0.4
       '@webcomponents/template-shadowroot': 0.1.0
       lit: 2.2.0
 
   packages/renderers/renderer-preact:
     specifiers:
-      '@babel/plugin-transform-react-jsx': ^7.16.7
-      preact: ^10.6.5
-      preact-render-to-string: ^5.1.19
+      '@babel/plugin-transform-react-jsx': ^7.17.3
+      preact: ^10.6.6
+      preact-render-to-string: ^5.1.20
     dependencies:
       '@babel/plugin-transform-react-jsx': 7.17.3
       preact: 10.6.6
@@ -1088,7 +1088,7 @@ importers:
 
   packages/renderers/renderer-react:
     specifiers:
-      '@babel/plugin-transform-react-jsx': ^7.16.7
+      '@babel/plugin-transform-react-jsx': ^7.17.3
       react: ^17.0.2
       react-dom: ^17.0.2
     dependencies:
@@ -1098,17 +1098,17 @@ importers:
 
   packages/renderers/renderer-solid:
     specifiers:
-      babel-preset-solid: ^1.3.6
-      solid-js: ^1.3.6
+      babel-preset-solid: ^1.3.12
+      solid-js: ^1.3.12
     dependencies:
-      babel-preset-solid: 1.3.11
-      solid-js: 1.3.11
+      babel-preset-solid: 1.3.12
+      solid-js: 1.3.12
 
   packages/renderers/renderer-svelte:
     specifiers:
       '@sveltejs/vite-plugin-svelte': ^1.0.0-next.39
       svelte: ^3.46.4
-      svelte-preprocess: ^4.9.8
+      svelte-preprocess: ^4.10.4
       vite: ^2.8.6
     dependencies:
       '@sveltejs/vite-plugin-svelte': 1.0.0-next.39_svelte@3.46.4+vite@2.8.6
@@ -1118,9 +1118,9 @@ importers:
 
   packages/renderers/renderer-vue:
     specifiers:
-      '@vitejs/plugin-vue': ^2.2.0
+      '@vitejs/plugin-vue': ^2.2.4
       vite: ^2.8.6
-      vue: ^3.2.30
+      vue: ^3.2.31
     dependencies:
       '@vitejs/plugin-vue': 2.2.4_vite@2.8.6+vue@3.2.31
       vite: 2.8.6
@@ -1131,18 +1131,18 @@ importers:
       '@rollup/plugin-alias': ^3.1.9
       '@rollup/plugin-inject': ^4.0.4
       '@rollup/plugin-node-resolve': ^13.1.3
-      '@rollup/plugin-typescript': ^8.3.0
-      '@types/mocha': ^9.0.0
-      '@types/node': ^14.0.0
+      '@rollup/plugin-typescript': ^8.3.1
+      '@types/mocha': ^9.1.0
+      '@types/node': ^14.18.12
       '@ungap/structured-clone': ^0.3.4
       abort-controller: ^3.0.0
       event-target-shim: ^6.0.2
       fetch-blob: ^3.1.4
       formdata-polyfill: ^4.0.10
-      magic-string: ^0.25.7
-      mocha: ^9.1.3
-      node-fetch: ^3.2.0
-      rollup: ^2.67.2
+      magic-string: ^0.25.9
+      mocha: ^9.2.1
+      node-fetch: ^3.2.2
+      rollup: ^2.70.0
       rollup-plugin-terser: ^7.0.2
       tslib: ^2.3.1
       urlpattern-polyfill: ^1.0.0-rc5
@@ -1176,12 +1176,12 @@ importers:
       '@astrojs/renderer-vue': workspace:*
       '@astrojs/webapi': workspace:*
       adm-zip: ^0.5.9
-      arg: ^5.0.0
+      arg: ^5.0.1
       esbuild: 0.14.25
-      globby: ^12.0.2
+      globby: ^12.2.0
       kleur: ^4.1.4
-      svelte: ^3.46.2
-      tar: ^6.1.0
+      svelte: ^3.46.4
+      tar: ^6.1.11
     dependencies:
       '@astrojs/renderer-preact': link:../packages/renderers/renderer-preact
       '@astrojs/renderer-react': link:../packages/renderers/renderer-react
@@ -2909,7 +2909,7 @@ packages:
     resolution: {integrity: sha512-1kkV7tkAsiuEd0shunYRByKJe3xQDG2q7wYg24SOw1nV9/2lwEd4WrUYRJC/ukGTl2/kHeFxsaUvtiOy0y6fFA==}
     dev: false
 
-  /@docsearch/react/3.0.0_1ab644842aa339c93b6df62741455ef8:
+  /@docsearch/react/3.0.0_b7370fe379365cb66d103ab107c4222a:
     resolution: {integrity: sha512-yhMacqS6TVQYoBh/o603zszIb5Bl8MIXuOc6Vy617I74pirisDzzcNh0NEaYQt50fVVR3khUbeEhUEWEWipESg==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 18.0.0'
@@ -2919,7 +2919,7 @@ packages:
       '@algolia/autocomplete-core': 1.5.2
       '@algolia/autocomplete-preset-algolia': 1.5.2_14692054139f70b780ac93b62be8ffd8
       '@docsearch/css': 3.0.0
-      '@types/react': 17.0.39
+      '@types/react': 17.0.40
       algoliasearch: 4.12.2
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
@@ -3018,8 +3018,8 @@ packages:
       lit-html: 2.2.0
     dev: false
 
-  /@lit-labs/ssr/2.0.3:
-    resolution: {integrity: sha512-SdsnFyRGPQXNPViiyqy2yjRc+pLmb/7wUVzaNj+pbflVi3w/z82ApOjiDWnYSC112sOv2PIBRqyyQDq/J+jWwg==}
+  /@lit-labs/ssr/2.0.4:
+    resolution: {integrity: sha512-8DzMXAGJ6eGJg/Pa9Va6//pW2LGpF8FNz6z/kDX5cAcsZ4BLJRkVUkAoM1Sc9TXaNu04hAxpw6j5sY1tz7zpfg==}
     engines: {node: '>=13.9.0'}
     dependencies:
       '@lit-labs/ssr-client': 1.0.1
@@ -3063,18 +3063,18 @@ packages:
       read-yaml-file: 1.1.0
     dev: true
 
-  /@nanostores/preact/0.1.3_nanostores@0.5.10+preact@10.6.6:
+  /@nanostores/preact/0.1.3_nanostores@0.5.11+preact@10.6.6:
     resolution: {integrity: sha512-uiX1ned0LrzASot+sPUjyJzr8Js3pX075omazgsSdLf0zPp4ss8xwTiuNh5FSKigTSQEVqZFiS+W8CnHIrX62A==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
       nanostores: ^0.5.2
       preact: '>=10.0.0'
     dependencies:
-      nanostores: 0.5.10
+      nanostores: 0.5.11
       preact: 10.6.6
     dev: false
 
-  /@nanostores/react/0.1.5_28944fdc6a7501a7aa1d05fb530ec188:
+  /@nanostores/react/0.1.5_efa0b688c1fb20e4e2512c00f32ff2aa:
     resolution: {integrity: sha512-1XEsszpCDcxNeX21QJ+4mFROdn45ulahJ9oLJEo0IA2HZPkwfjSzG+iSXImqFU5nzo0earvlD09z4C9olf8Sxw==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
@@ -3082,12 +3082,12 @@ packages:
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
-      nanostores: 0.5.10
+      nanostores: 0.5.11
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     dev: false
 
-  /@nanostores/vue/0.4.1_nanostores@0.5.10+vue@3.2.31:
+  /@nanostores/vue/0.4.1_nanostores@0.5.11+vue@3.2.31:
     resolution: {integrity: sha512-b0nNzKD2fTi8R48Jrlg6j+/InPH9r1HOl0iOnpNmL84BOxl+jQnbgyzNlf+3VWAEQSD955hJ/HTl/N1bjJSz5g==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     peerDependencies:
@@ -3098,7 +3098,7 @@ packages:
       '@vue/devtools-api':
         optional: true
     dependencies:
-      nanostores: 0.5.10
+      nanostores: 0.5.11
       vue: 3.2.31
     dev: false
 
@@ -3596,8 +3596,8 @@ packages:
     resolution: {integrity: sha512-SnHmG9wN1UVmagJOnyo/qkk0Z7gejYxOYYmaAwr5u2yFYfsupN3sg10kyzN8Hep/2zbHxCnsumxOoRIRMBwKCg==}
     dev: false
 
-  /@types/react/17.0.39:
-    resolution: {integrity: sha512-UVavlfAxDd/AgAacMa60Azl7ygyQNRwC/DsHZmKgNvPmRR5p70AJ5Q9EAmL2NWOJmeV+vVUI4IAP7GZrN8h8Ug==}
+  /@types/react/17.0.40:
+    resolution: {integrity: sha512-UrXhD/JyLH+W70nNSufXqMZNuUD2cXHu6UjCllC6pmOQgBX4SGXOH8fjRka0O0Ee0HrFxapDD8Bwn81Kmiz6jQ==}
     dependencies:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
@@ -3607,7 +3607,7 @@ packages:
   /@types/resolve/1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==}
     dependencies:
-      '@types/node': 17.0.21
+      '@types/node': 14.18.12
     dev: true
 
   /@types/resolve/1.20.1:
@@ -4228,8 +4228,8 @@ packages:
       object.assign: 4.1.2
     dev: true
 
-  /babel-plugin-jsx-dom-expressions/0.32.7:
-    resolution: {integrity: sha512-X4jZ+iGEql9ajziRHAidFtIcr17dHdxPJpfox3afZK52OJs2ROnqTEkp+PaFl5pcVTeZnlsu9ADz1cWq/CDOnA==}
+  /babel-plugin-jsx-dom-expressions/0.32.8:
+    resolution: {integrity: sha512-fhEWXD29PqvI60yMr4cJ57dKxkQzCNKmT2qT3mgRv5y8h2lPRY5Sc+Q6yDRDlEwCvOnIwhJ/32XMuYghZ0steQ==}
     dependencies:
       '@babel/helper-module-imports': 7.16.0
       '@babel/plugin-syntax-jsx': 7.16.7
@@ -4284,10 +4284,10 @@ packages:
       - supports-color
     dev: true
 
-  /babel-preset-solid/1.3.11:
-    resolution: {integrity: sha512-GhHYEVadjUdeaBfcYliIGkx4kozp5yDQwzkcI/cAkph1CGYfCh4PutImR8cXfsmrVJ3gALdt/AXhTRj/W4hRXg==}
+  /babel-preset-solid/1.3.12:
+    resolution: {integrity: sha512-2/ggNVrYoZ/XMGB5ap9G5qoCXfYxm6GJ9NDhPz3+G4f4kSNQ1CMqZbQAfuKpUqEmtvcOM2riIgNsgeAdUiiGMw==}
     dependencies:
-      babel-plugin-jsx-dom-expressions: 0.32.7
+      babel-plugin-jsx-dom-expressions: 0.32.8
     transitivePeerDependencies:
       - '@babel/core'
     dev: false
@@ -4359,7 +4359,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001314
-      electron-to-chromium: 1.4.79
+      electron-to-chromium: 1.4.81
       escalade: 3.1.1
       node-releases: 2.0.2
       picocolors: 1.0.0
@@ -5002,8 +5002,8 @@ packages:
       jake: 10.8.2
     dev: true
 
-  /electron-to-chromium/1.4.79:
-    resolution: {integrity: sha512-nWfAxof87mGHkbORCwVRPst4FlSVdprOKS6dBMrcwn3sjwf8iHXEhsu1+FU5Psd7Ps3KKeBufAdfsPK5BmbSUg==}
+  /electron-to-chromium/1.4.81:
+    resolution: {integrity: sha512-Gs7xVpIZ7tYYSDA+WgpzwpPvfGwUk3KSIjJ0akuj5XQHFdyQnsUoM76EA4CIHXNLPiVwTwOFay9RMb0ChG3OBw==}
 
   /emmet/2.3.6:
     resolution: {integrity: sha512-pLS4PBPDdxuUAmw7Me7+TcHbykTsBKN/S9XJbUOMFQrNv9MoshzyMFK/R57JBm94/6HSL4vHnDeEmxlC82NQ4A==}
@@ -6503,7 +6503,7 @@ packages:
     resolution: {integrity: sha512-KWYVV1c4i+jbMpaBC+U++4Va0cp8OisU185o73T1vo99hqi7w8tSJfUXYswwqqrjzwxa6KpRK54WhPvwf5w6PQ==}
     engines: {node: '>= 10.13.0'}
     dependencies:
-      '@types/node': 17.0.21
+      '@types/node': 14.18.12
       merge-stream: 2.0.0
       supports-color: 7.2.0
     dev: true
@@ -7395,8 +7395,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  /nanostores/0.5.10:
-    resolution: {integrity: sha512-8Y7C8sF8PsHGpLVJochWT+ytEY34XrNRDA30hDqgvLcl5Ih4d/IFb7gUSFIwmgFAaht1pLwKZHTeFoJrNz88RQ==}
+  /nanostores/0.5.11:
+    resolution: {integrity: sha512-WGhFLTz7WEfWO+oC6y7OnCeuD8BB4ml5sx6WS8iR7ERYznLNIA0eJAqMl5mpVK/+dhw4liCcyz3yoEufcB+M9A==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
     dev: false
 
@@ -8599,15 +8599,15 @@ packages:
       smart-buffer: 4.2.0
     dev: true
 
-  /solid-js/1.3.11:
-    resolution: {integrity: sha512-0QPvct06GKUD6ip9LnMm/kfQ3VkciJVMMFt879BaJuGZc6c5VrPfFMhAJDH4CTfwEHvp4s6kHtbSO7WZFCRepw==}
+  /solid-js/1.3.12:
+    resolution: {integrity: sha512-JnIoF5f40WR8LTEU1McFz/xVnXT3bGyBIme7gFbGj2ch6wXg+vcfbbhc2mz6YaLJIt8NEU+wAg8v+6SX3ZP9mA==}
     dev: false
 
   /solid-nanostores/0.0.6:
     resolution: {integrity: sha512-iwbgdBzQSxBKoxkzaZgC9MGGUsHWJ74at9i7FF0naoqtwGuKdLYOgOJ9QRlA353DHDS/ttH2e0SRS6s3gz8NLQ==}
     dependencies:
-      nanostores: 0.5.10
-      solid-js: 1.3.11
+      nanostores: 0.5.11
+      solid-js: 1.3.12
     dev: false
 
   /sorcery/0.10.0:
