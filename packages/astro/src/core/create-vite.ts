@@ -49,7 +49,7 @@ export async function createVite(inlineConfig: ViteConfigWithSSR, { astroConfig,
 	let viteConfig: ViteConfigWithSSR = {
 		cacheDir: fileURLToPath(new URL('./node_modules/.vite/', astroConfig.projectRoot)), // using local caches allows Astro to be used in monorepos, etc.
 		clearScreen: false, // we want to control the output, not Vite
-		logLevel: 'error', // log errors only
+		logLevel: 'warn', // log warnings and errors only
 		optimizeDeps: {
 			entries: ['src/**/*'], // Try and scan a user’s project (won’t catch everything),
 		},

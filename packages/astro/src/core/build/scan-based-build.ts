@@ -47,7 +47,7 @@ export async function build(opts: ScanBasedBuildOptions) {
 	const internals = createBuildInternals();
 
 	return await vite.build({
-		logLevel: 'error',
+		logLevel: 'warn',
 		mode: 'production',
 		build: {
 			emptyOutDir: true,
