@@ -36,5 +36,11 @@ describe('Directives', async () => {
 
 		expect($('#null')).to.have.lengthOf(1);
 		expect($('#null').text()).to.equal('');
+
+		expect($('#false')).to.have.lengthOf(1);
+		expect($('#false').text()).to.equal('');
+
+		expect($('#true')).to.have.lengthOf(1);
+		expect($('#true').text()).to.equal('true');
 	});
 });
