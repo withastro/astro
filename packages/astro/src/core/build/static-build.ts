@@ -35,7 +35,11 @@ export interface StaticBuildOptions {
 	viteConfig: ViteConfigWithSSR;
 }
 
-const MAX_CONCURRENT_RENDERS = 10;
+// Render is usually compute, which Node.js can't parallelize well.
+// In real world testing, dropping from 10->1 showed a notiable perf
+// improvement. In the future, we can revisit a smarter parallel
+// system, possibly one that parallelizes if async IO is detected.
+const MAX_CONCURRENT_RENDERS = 1;
 
 const STATUS_CODE_PAGES = new Set(['/404', '/500']);
 
@@ -161,8 +165,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// condition, so we are doing it ourselves
 	emptyDir(astroConfig.dist, new Set('.git'));
 
-	// Run the SSR build and client build in parallel
-	const [ssrResult] = (await Promise.all([ssrBuild(opts, internals, pageInput), clientBuild(opts, internals, jsInput)])) as RollupOutput[];
+	// Build your project (SSR application code, assets, client JS, etc.)
+	const ssrResult = await ssrBuild(opts, internals, pageInput) as RollupOutput;
+	await clientBuild(opts, internals, jsInput);
 
 	// SSG mode, generate pages.
 	if (staticMode) {
@@ -181,13 +186,12 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 	const out = ssr ? getServerRoot(astroConfig) : getOutRoot(astroConfig);
 
 	return await vite.build({
-		logLevel: 'error',
+		logLevel: 'warn',
 		mode: 'production',
 		build: {
 			...viteConfig.build,
 			emptyOutDir: false,
 			manifest: ssr,
-			minify: false,
 			outDir: fileURLToPath(out),
 			ssr: true,
 			rollupOptions: {
@@ -199,7 +203,12 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 					assetFileNames: 'assets/[name].[hash][extname]',
 				},
 			},
-			target: 'esnext', // must match an esbuild target
+			// must match an esbuild target
+			target: 'esnext', 
+			// improve build performance
+			minify: false,
+			polyfillModulePreload: false,
+			reportCompressedSize: false,
 		},
 		plugins: [
 			vitePluginNewBuild(input, internals, 'mjs'),
@@ -226,9 +235,8 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	}
 
 	const out = astroConfig.buildOptions.experimentalSsr ? getClientRoot(astroConfig) : getOutRoot(astroConfig);
-
 	return await vite.build({
-		logLevel: 'error',
+		logLevel: 'warn',
 		mode: 'production',
 		build: {
 			emptyOutDir: false,
@@ -295,13 +303,11 @@ async function generatePages(result: RollupOutput, opts: StaticBuildOptions, int
 	// Get renderers to be shared for each page generation.
 	const renderers = await collectRenderers(opts);
 
-	const generationPromises = [];
 	for (let output of result.output) {
 		if (chunkIsPage(opts.astroConfig, output, internals)) {
-			generationPromises.push(generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers));
+			await (generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers));
 		}
 	}
-	await Promise.all(generationPromises);
 }
 
 async function generatePage(output: OutputChunk, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>, renderers: Renderer[]) {

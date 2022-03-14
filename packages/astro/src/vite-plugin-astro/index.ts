@@ -5,6 +5,7 @@ import type { LogOptions } from '../core/logger.js';
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
 import slash from 'slash';
+import fs from 'fs';
 import { getViteTransform, TransformHook } from './styles.js';
 import { parseAstroRequest } from './query.js';
 import { cachedCompilation } from './compile.js';
@@ -124,13 +125,11 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				}
 			}
 
-			return null;
-		},
-		async transform(source, id, opts) {
 			if (!id.endsWith('.astro')) {
-				return;
+				return null;
 			}
 
+			const source = await fs.promises.readFile(id, {encoding: 'utf-8'});
 			try {
 				const transformResult = await cachedCompilation(config, id, source, viteTransform, { ssr: Boolean(opts?.ssr) });
 
@@ -140,6 +139,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					loader: 'ts',
 					sourcemap: 'external',
 					sourcefile: id,
+					// Pass relevant Vite options, if needed:
+					define: config.vite.define,
 				});
 
 				// Signal to Vite that we accept HMR updates

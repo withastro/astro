@@ -65,7 +65,7 @@ class AstroBuilder {
 				{
 					mode: this.mode,
 					server: {
-						hmr: { overlay: false },
+						hmr: false,
 						middlewareMode: 'ssr',
 					},
 				},
