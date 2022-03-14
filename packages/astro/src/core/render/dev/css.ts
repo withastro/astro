@@ -29,8 +29,8 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 
 		scanned.add(moduleName.id);
 
-		// scan importedModules
-		for (const importedModule of moduleName.importedModules) {
+		// scan importers and importedModules
+		for (const importedModule of [...moduleName.importers, ...moduleName.importedModules]) {
 			if (!importedModule.id || scanned.has(importedModule.id)) continue;
 			const ext = path.extname(importedModule.url.toLowerCase());
 			if (STYLE_EXTENSIONS.has(ext)) {
