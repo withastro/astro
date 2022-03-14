@@ -25,8 +25,14 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 		// note: use .getModulesByFile() to get all related nodes of the same URL
 		// using .getModuleById() could cause missing style imports on initial server load
 		const matchingMods = viteServer.moduleGraph.getModulesByFile(id) ?? new Set();
+		const importedModules = new Set<vite.ModuleNode>();
 
-		const importedModules = new Set([...matchingMods].flatMap((mod) => [...mod.importedModules]));
+		for (const mod of matchingMods) {
+			for (const subMod of mod.importedModules) {
+				importedModules.add(subMod);
+			}
+		}
+
 		if (!importedModules.size) return;
 
 		scanned.add(id);
