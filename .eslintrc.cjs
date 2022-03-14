@@ -17,6 +17,5 @@ module.exports = {
     'prefer-const': 'off',
     'no-shadow': 'off',
     '@typescript-eslint/no-shadow': ['error'],
-    // 'require-jsdoc': 'error', // re-enable this to enforce JSDoc for all functions
   },
 };
