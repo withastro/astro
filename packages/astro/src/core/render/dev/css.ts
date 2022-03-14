@@ -22,8 +22,8 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 
 	// recursively crawl module graph to get all style files imported by parent id
 	function crawlCSS(id: string, scanned = new Set<string>()) {
-		// note: use .idToModuleMap() for lookups (.urlToModuleMap() may produce different
-		// URLs for modules depending on conditions, making resolution difficult)
+		// note: use .urlToModuleMap() for lookups to ensure up-to-date module info
+		// using .idToModuleMap() could cause missing style imports on initial server load
 		const moduleName = viteServer.moduleGraph.urlToModuleMap.get(id);
 		if (!moduleName || !moduleName.id) return;
 
