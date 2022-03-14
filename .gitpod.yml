@@ -10,6 +10,9 @@ vscode:
     - astro-build.astro-vscode
     - esbenp.prettier-vscode
     - dbaeumer.vscode-eslint
+ports:
+  - port: 3000
+    onOpen: open-preview
 github:
   prebuilds:
     # enable for the master/default branch (defaults to true)
