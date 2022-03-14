@@ -199,16 +199,6 @@ importers:
       astro: link:../../packages/astro
       sass: 1.49.9
 
-  examples/portfolio-svelte:
-    specifiers:
-      '@astrojs/renderer-svelte': ^0.5.1
-      astro: ^0.24.0
-      sass: ^1.49.9
-    devDependencies:
-      '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
-      astro: link:../../packages/astro
-      sass: 1.49.9
-
   examples/ssr:
     specifiers:
       '@astrojs/renderer-svelte': ^0.5.1
