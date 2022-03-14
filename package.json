@@ -59,7 +59,7 @@
     "@typescript-eslint/parser": "^5.14.0",
     "del": "^6.0.0",
     "esbuild": "0.14.25",
-    "eslint": "^8.10.0",
+    "eslint": "^8.11.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
     "execa": "^6.1.0",

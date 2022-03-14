@@ -12,7 +12,7 @@
     "@nanostores/preact": "^0.1.3",
     "@nanostores/react": "^0.1.5",
     "@nanostores/vue": "^0.4.1",
-    "nanostores": "^0.5.11",
+    "nanostores": "^0.5.12",
     "preact": "^10.6.6",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
