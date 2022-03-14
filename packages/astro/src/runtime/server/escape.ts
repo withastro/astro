@@ -21,5 +21,5 @@ export const unescapeHTML = (value: any) => {
 	}
 	// Just return values that are `number`, `null`, `undefined` etc
 	// The compiler will recursively stringify these correctly
-	return value
-}
+	return value;
+};
