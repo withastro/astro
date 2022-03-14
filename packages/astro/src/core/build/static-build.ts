@@ -15,7 +15,7 @@ import glob from 'fast-glob';
 import * as vite from 'vite';
 import { debug, error } from '../../core/logger.js';
 import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
-import { emptyDir, removeDir, resolveDependency } from '../../core/util.js';
+import { removeDir, resolveDependency } from '../../core/util.js';
 import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
@@ -159,11 +159,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		pageInput.add(astroModuleId);
 		facadeIdToPageDataMap.set(fileURLToPath(astroModuleURL), pageData);
 	}
-
-	// Empty out the dist folder, if needed. Vite has a config for doing this
-	// but because we are running 2 vite builds in parallel, that would cause a race
-	// condition, so we are doing it ourselves
-	emptyDir(astroConfig.dist, new Set('.git'));
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;

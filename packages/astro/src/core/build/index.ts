@@ -14,6 +14,7 @@ import { collectPagesData } from './page-data.js';
 import { build as scanBasedBuild } from './scan-based-build.js';
 import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
+import { emptyDir } from '../util.js';
 
 export interface BuildOptions {
 	mode?: string;
@@ -56,10 +57,16 @@ class AstroBuilder {
 	}
 
 	async build() {
-		const { logging, origin } = this;
+		const { logging, config, origin } = this;
 		const timer: Record<string, number> = {};
 		timer.init = performance.now();
 		timer.viteStart = performance.now();
+
+		// Empty out the dist folder, if needed. Vite has a config for doing this
+		// but because we are running 2 vite builds in parallel, that would cause a race
+		// condition, so we are doing it ourselves.
+		await emptyDir(config.dist, new Set('.git'));
+
 		const viteConfig = await createVite(
 			vite.mergeConfig(
 				{

@@ -104,15 +104,23 @@ export function removeDir(_dir: URL): void {
 	fs.rmSync(dir, { recursive: true, force: true, maxRetries: 3 });
 }
 
-export function emptyDir(_dir: URL, skip?: Set<string>): void {
+export async function emptyDir(_dir: URL, skip?: Set<string>): Promise<void> {
 	const dir = fileURLToPath(_dir);
-	if (!fs.existsSync(dir)) return undefined;
-	for (const file of fs.readdirSync(dir)) {
-		if (skip?.has(file)) {
-			continue;
-		}
-		fs.rmSync(path.resolve(dir, file), { recursive: true, force: true, maxRetries: 3 });
-	}
+	// If there is an error, we can't empty the directory. Return an empty
+	// array to delete nothing in the next stage.
+	const files = await fs.promises.readdir(dir).catch(() => []);
+	await Promise.all(
+		files.map((file) => {
+			if (skip?.has(file)) {
+				return;
+			}
+			return fs.promises.rm(path.resolve(dir, file), {
+				recursive: true,
+				force: true,
+				maxRetries: 3,
+			});
+		})
+	);
 }
 
 // Vendored from https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl
