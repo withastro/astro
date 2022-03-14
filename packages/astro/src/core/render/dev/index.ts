@@ -79,7 +79,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 				links.add({
 					props: {
 						rel: 'stylesheet',
-						href,
+						href: `${href}?t=${Date.now()}`,
 						'data-astro-injected': true,
 					},
 					children: '',
