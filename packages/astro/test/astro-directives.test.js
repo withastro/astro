@@ -17,4 +17,30 @@ describe('Directives', async () => {
 		expect($('script#inline')).to.have.lengthOf(1);
 		expect($('script#inline').toString()).to.include('let foo = "bar"');
 	});
+
+	it('set:html', async () => {
+		const html = await fixture.readFile('/set-html/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#text')).to.have.lengthOf(1);
+		expect($('#text').text()).to.equal('a');
+
+		expect($('#zero')).to.have.lengthOf(1);
+		expect($('#zero').text()).to.equal('0');
+
+		expect($('#number')).to.have.lengthOf(1);
+		expect($('#number').text()).to.equal('1');
+
+		expect($('#undefined')).to.have.lengthOf(1);
+		expect($('#undefined').text()).to.equal('');
+
+		expect($('#null')).to.have.lengthOf(1);
+		expect($('#null').text()).to.equal('');
+
+		expect($('#false')).to.have.lengthOf(1);
+		expect($('#false').text()).to.equal('');
+
+		expect($('#true')).to.have.lengthOf(1);
+		expect($('#true').text()).to.equal('true');
+	});
 });

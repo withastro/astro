@@ -418,7 +418,7 @@ export async function renderEndpoint(mod: EndpointHandler, params: any) {
 }
 
 // Calls a component and renders it into a string of HTML
-export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any) {
+export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any): Promise<string> {
 	const Component = await componentFactory(result, props, children);
 	let template = await renderAstroComponent(Component);
 
@@ -439,7 +439,7 @@ const uniqueElements = (item: any, index: number, all: any[]) => {
 
 // Renders a page to completion by first calling the factory callback, waiting for its result, and then appending
 // styles and scripts into the head.
-export async function renderHead(result: SSRResult) {
+export async function renderHead(result: SSRResult): Promise<string> {
 	const styles = Array.from(result.styles)
 		.filter(uniqueElements)
 		.map((style) => {
