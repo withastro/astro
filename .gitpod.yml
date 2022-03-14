@@ -7,7 +7,7 @@ tasks:
       pnpm install
       pnpm run build
     command: |
-      cd examples/starter && pnpm start
+      [[ ! -z "$ASTRO_NEW" ]] && cd "$GITPOD_REPO_ROOT"/examples/"$ASTRO_NEW" && pnpm start
 vscode:
   extensions:
     - astro-build.astro-vscode
