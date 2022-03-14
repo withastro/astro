@@ -166,7 +166,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	emptyDir(astroConfig.dist, new Set('.git'));
 
 	// Build your project (SSR application code, assets, client JS, etc.)
-	const ssrResult = await ssrBuild(opts, internals, pageInput) as RollupOutput;
+	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 	await clientBuild(opts, internals, jsInput);
 
 	// SSG mode, generate pages.
@@ -204,7 +204,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				},
 			},
 			// must match an esbuild target
-			target: 'esnext', 
+			target: 'esnext',
 			// improve build performance
 			minify: false,
 			polyfillModulePreload: false,
@@ -305,7 +305,7 @@ async function generatePages(result: RollupOutput, opts: StaticBuildOptions, int
 
 	for (let output of result.output) {
 		if (chunkIsPage(opts.astroConfig, output, internals)) {
-			await (generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers));
+			await generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers);
 		}
 	}
 }

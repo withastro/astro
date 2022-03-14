@@ -129,7 +129,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				return null;
 			}
 
-			const source = await fs.promises.readFile(id, {encoding: 'utf-8'});
+			const source = await fs.promises.readFile(id, { encoding: 'utf-8' });
 			try {
 				const transformResult = await cachedCompilation(config, id, source, viteTransform, { ssr: Boolean(opts?.ssr) });
 
