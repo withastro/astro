@@ -1,6 +1,6 @@
 const entities = { '"': 'quot', '&': 'amp', "'": 'apos', '<': 'lt', '>': 'gt' } as const;
 
-export const escapeHTML = (string: any) => string.replace(/["'&<>]/g, (char: keyof typeof entities) => '&' + entities[char] + ';');
+export const escapeHTML = (str: any) => str != null ? String(str).replace(/["'&<>]/g, (char: string) => '&' + entities[char as keyof typeof entities] + ';') : str;
 
 /**
  * RawString is a "blessed" version of String
@@ -14,4 +14,4 @@ export class UnescapedString extends String {}
  *
  * Need to cast the return value `as unknown as string` so TS doesn't yell at us.
  */
-export const unescapeHTML = (str: any) => new UnescapedString(str) as unknown as string;
+export const unescapeHTML = (str: any) => str != null ? new UnescapedString(String(str)) as unknown as string : str;
