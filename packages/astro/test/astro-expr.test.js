@@ -104,8 +104,15 @@ describe('Expressions', () => {
 		const html = await fixture.readFile('/escape/index.html');
 		const $ = cheerio.load(html);
 
-		expect($('body').children()).to.have.lengthOf(1);
-		expect($('body').text()).to.include('&lt;script&gt;console.log(&quot;pwnd&quot;)&lt;/script&gt;');
+		expect($('body').children()).to.have.lengthOf(2);
+		expect($('body').html()).to.include('&lt;script&gt;console.log("pwnd")&lt;/script&gt;');
 		expect($('#trusted')).to.have.lengthOf(1);
+	});
+
+	it('Does not double-escape HTML', async () => {
+		const html = await fixture.readFile('/escape/index.html');
+		const $ = cheerio.load(html);
+
+		expect($('#single-escape').html()).to.equal('Astro &amp; Vite');
 	});
 });
