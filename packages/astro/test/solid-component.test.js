@@ -39,7 +39,7 @@ describe('Solid component', () => {
 		});
 
 		after(async () => {
-			devServer & devServer.stop();
+			await devServer.stop();
 		});
 
 		it('scripts proxy correctly', async () => {

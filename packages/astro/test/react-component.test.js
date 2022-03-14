@@ -85,7 +85,7 @@ describe('React Components', () => {
 		});
 
 		after(async () => {
-			devServer && (await devServer.stop());
+			(await devServer.stop());
 		});
 
 		it('scripts proxy correctly', async () => {

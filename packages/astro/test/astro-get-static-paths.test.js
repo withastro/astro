@@ -28,7 +28,7 @@ describe('getStaticPaths - 404 behavior', () => {
 	});
 
 	after(async () => {
-		devServer && devServer.stop();
+		devServer.stop();
 	});
 
 	it('resolves 200 on matching static path - named params', async () => {

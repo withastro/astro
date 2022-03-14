@@ -16,7 +16,7 @@ describe('Astro basics', () => {
 
 	// important: close preview server (free up port and connection)
 	after(async () => {
-		if (previewServer) await previewServer.stop();
+		await previewServer.stop();
 	});
 
 	describe('build', () => {
