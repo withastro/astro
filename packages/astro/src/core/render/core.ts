@@ -44,9 +44,11 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 		if (!matchedStaticPath) {
 			return GetParamsAndPropsError.NoMatchingStaticPath;
 		}
-		// This is written this way for performance; instead of spreading the props
-		// which is O(n), create a new object that extends props.
-		pageProps = Object.create(matchedStaticPath.props || Object.prototype);
+		// Note: considered using Object.create(...) for performance
+		// Since this doesn't inherit an object's properties, this caused some odd user-facing behavior.
+		// Ex. console.log(Astro.props) -> {}, but console.log(Astro.props.property) -> 'expected value'
+		// Replaced with a simple spread as a compromise
+		pageProps = matchedStaticPath.props ? { ...matchedStaticPath.props } : {};
 	} else {
 		pageProps = {};
 	}
