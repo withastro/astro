@@ -6,6 +6,8 @@ tasks:
   - init: |
       pnpm install
       pnpm run build
+    command: |
+      cd examples/starter && pnpm start
 vscode:
   extensions:
     - astro-build.astro-vscode
