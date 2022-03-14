@@ -93,7 +93,7 @@
     "prismjs": "^1.27.0",
     "rehype-slug": "^5.0.1",
     "resolve": "^1.22.0",
-    "rollup": "^2.70.0",
+    "rollup": "^2.70.1",
     "semver": "^7.3.5",
     "serialize-javascript": "^6.0.0",
     "shiki": "^0.10.1",
@@ -131,7 +131,7 @@
     "chai": "^4.3.6",
     "cheerio": "^1.0.0-rc.10",
     "execa": "^6.1.0",
-    "mocha": "^9.2.1",
+    "mocha": "^9.2.2",
     "sass": "^1.49.9"
   },
   "engines": {
