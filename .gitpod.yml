@@ -3,8 +3,9 @@ image:
   file: .gitpod.Dockerfile
 # Commands to start on workspace startup
 tasks:
-  - init: pnpm install
-    command: pnpm run build
+  - init: |
+      pnpm install
+      pnpm run build
 vscode:
   extensions:
     - astro-build.astro-vscode
