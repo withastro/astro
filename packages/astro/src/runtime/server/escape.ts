@@ -13,7 +13,7 @@ export class UnescapedString extends String {}
  * unescapeHTML marks a string as raw, unescaped HTML.
  * This should only be generated internally, not a public API.
  */
-export const unescapeHTML = (value: unknown) => {
+export const unescapeHTML = (value: any) => {
 	// Cast any `string` values to `UnescapedString` to mark them as ignored
 	// The `as unknown as string` is necessary for TypeScript to treat this as `string`
 	if (typeof value === 'string') {
