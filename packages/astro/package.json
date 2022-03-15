@@ -58,7 +58,7 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.12.0",
+    "@astrojs/compiler": "^0.12.1",
     "@astrojs/language-server": "^0.8.10",
     "@astrojs/markdown-remark": "^0.6.4",
     "@astrojs/prism": "0.4.0",
@@ -67,7 +67,7 @@
     "@astrojs/renderer-svelte": "0.5.1",
     "@astrojs/renderer-vue": "0.4.0",
     "@astrojs/webapi": "^0.11.0",
-    "@babel/core": "^7.17.5",
+    "@babel/core": "^7.17.7",
     "@babel/traverse": "^7.17.3",
     "@proload/core": "^0.2.2",
     "@proload/plugin-tsm": "^0.1.1",
