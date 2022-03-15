@@ -294,16 +294,26 @@ describe('CSS', function () {
 
 		it('resolves Styles from React', async () => {
 			const styles = ['ReactCSS.css', 'ReactModules.module.css', 'ReactModules.module.scss', 'ReactModules.module.sass', 'ReactSass.sass', 'ReactScss.scss'];
+			const allHrefs = [];
+			$('link[href]').each((_, elem) => {
+				allHrefs.push($(elem).attr('href'));
+			});
 			for (const style of styles) {
-				const href = $(`link[href$="/src/components/${style}"]`).attr('href');
+				const href = allHrefs.find(val => val.endsWith(style));
+				expect(href).to.not.be.undefined;
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
 		});
 
 		it('resolves CSS from Svelte', async () => {
 			const scripts = ['SvelteCSS.svelte?svelte&type=style&lang.css', 'SvelteSass.svelte?svelte&type=style&lang.css', 'SvelteScss.svelte?svelte&type=style&lang.css'];
+			const allSrcs = [];
+			$('script[src]').each((_, elem) => {
+				allSrcs.push($(elem).attr('src'));
+			});
 			for (const script of scripts) {
-				const src = $(`script[src$="/src/components/${script}"]`).attr('src');
+				const src = allSrcs.find(val => val.endsWith(script));
+				expect(src).to.not.be.undefined;
 				expect((await fixture.fetch(src)).status, script).to.equal(200);
 			}
 		});
@@ -316,8 +326,13 @@ describe('CSS', function () {
 				'VueScoped.vue?vue&type=style&index=0&scoped=true&lang.css',
 				'VueScss.vue?vue&type=style&index=0&lang.scss',
 			];
+			const allHrefs = [];
+			$('link[href]').each((_, elem) => {
+				allHrefs.push($(elem).attr('href'));
+			});
 			for (const style of styles) {
-				const href = $(`link[href$="/src/components/${style}"]`).attr('href');
+				const href = allHrefs.find(val => val.endsWith(style));
+				expect(href).to.not.be.undefined;
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
 		});
