@@ -1,4 +1,5 @@
 import type { AstroGlobal, AstroGlobalPartial, MarkdownParser, MarkdownRenderOptions, Params, Renderer, SSRElement, SSRResult } from '../../@types/astro';
+import type { AstroRequest } from './request';
 
 import { bold } from 'kleur/colors';
 import { canonicalURL as getCanonicalURL } from '../util.js';
@@ -7,13 +8,22 @@ import { isScriptRequest } from './script.js';
 import { renderSlot } from '../../runtime/server/index.js';
 import { warn, LogOptions } from '../logger.js';
 
+function onlyAvailableInSSR(name: string) {
+	return function() {
+		// TODO add more guidance when we have docs and adapters.
+		throw new Error(`Oops, you are trying to use ${name}, which is only available with SSR.`)
+	};
+}
+
 export interface CreateResultArgs {
+	ssr: boolean;
 	legacyBuild: boolean;
 	logging: LogOptions;
 	origin: string;
 	markdownRender: MarkdownRenderOptions;
 	params: Params;
 	pathname: string;
+	request: AstroRequest,
 	renderers: Renderer[];
 	resolve: (s: string) => Promise<string>;
 	site: string | undefined;
@@ -63,7 +73,8 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { legacyBuild, origin, markdownRender, params, pathname, renderers, resolve, site: buildOptionsSite } = args;
+	const { legacyBuild, markdownRender, params, pathname, request, renderers, resolve } = args;
+	request.params = params;
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -74,19 +85,20 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		links: args.links ?? new Set<SSRElement>(),
 		/** This function returns the `Astro` faux-global */
 		createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
-			const site = new URL(origin);
-			const url = new URL('.' + pathname, site);
-			const canonicalURL = getCanonicalURL('.' + pathname, buildOptionsSite || origin);
 			const astroSlots = new Slots(result, slots);
 
 			return {
 				__proto__: astroGlobal,
 				props,
-				request: {
-					canonicalURL,
-					params,
-					url,
-				},
+				request,
+				redirect: args.ssr ? (path: string) => {
+					return new Response(null, {
+						status: 301,
+						headers: {
+							Location: path
+						}
+					});
+				} : onlyAvailableInSSR('Astro.redirect'),
 				resolve(path: string) {
 					if (!legacyBuild) {
 						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;

@@ -12,6 +12,8 @@
 	.cart {
 		display: flex;
 		align-items: center;
+		text-decoration: none;
+		color: inherit;
 	}
 	.cart :first-child {
 		margin-right: 5px;
@@ -26,7 +28,7 @@
 	}
 </style>
 <svelte:window on:add-to-cart={onAddToCart}/>
-<div class="cart">
+<a href="/cart" class="cart">
 	<span class="material-icons cart-icon">shopping_cart</span>
 	<span class="count">{count}</span>
-</div>
+</a>

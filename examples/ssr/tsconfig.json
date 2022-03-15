@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "lib": ["ES2015", "DOM"],
+    "module": "ES2022",
+    "moduleResolution": "node",
+    "types": ["astro/env"]
+  }
+}

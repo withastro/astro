@@ -23,6 +23,7 @@ import { RouteCache } from '../render/route-cache.js';
 import { serializeRouteData } from '../routing/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
+import { AstroRequest } from '../render/request.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -134,6 +135,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 			const topLevelImports = new Set([
 				// Any component that gets hydrated
+				// 'components/Counter.jsx'
+				// { 'components/Counter.jsx': 'counter.hash.js' }
 				...metadata.hydratedComponentPaths(),
 				// Client-only components
 				...metadata.clientOnlyComponentPaths(),
@@ -373,7 +376,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
 	try {
-		const html = await render({
+		const response = await render({
 			legacyBuild: false,
 			links,
 			logging,
@@ -392,11 +395,22 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 				const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
 				return fullyRelativePath;
 			},
+			request: new AstroRequest({
+				input: `http://${origin}${pathname}`,
+				site: site ? new URL(site) : undefined,
+			}),
 			route: pageData.route,
 			routeCache,
 			site: astroConfig.buildOptions.site,
+			ssr: opts.astroConfig.buildOptions.experimentalSsr
 		});
 
+		// If there's a redirect or something, just do nothing.
+		if(response.type !== 'html') {
+			return;
+		}
+
+		const html = response.html;
 		const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
 		const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
 		await fs.promises.mkdir(outFolder, { recursive: true });

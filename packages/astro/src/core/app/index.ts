@@ -7,6 +7,7 @@ import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 import { createRenderer } from '../render/renderer.js';
+import { AstroRequest } from '../render/request.js';
 import { prependForwardSlash } from '../path.js';
 
 export class App {
@@ -45,7 +46,7 @@ export class App {
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
 		const scripts = createModuleScriptElementWithSrcSet(info.scripts, manifest.site);
 
-		return render({
+		const response = render({
 			legacyBuild: false,
 			links,
 			logging: defaultLogOptions,
@@ -55,6 +56,10 @@ export class App {
 			pathname: url.pathname,
 			scripts,
 			renderers,
+			request: new AstroRequest({
+				input: url.toString(),
+				site: this.#manifest.site ? new URL(this.#manifest.site) : undefined
+			}),
 			async resolve(specifier: string) {
 				if (!(specifier in manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
@@ -65,7 +70,12 @@ export class App {
 			route: routeData,
 			routeCache: this.#routeCache,
 			site: this.#manifest.site,
+			ssr: true,
 		});
+
+
+
+		return '';
 	}
 	async #loadRenderers(): Promise<Renderer[]> {
 		const rendererNames = this.#manifest.renderers;

@@ -45,7 +45,7 @@ const product = await getProduct(id);
 		<figure>
 				<img src={product.image} />
 			<figcaption>
-				<AddToCart id={id} client:idle />
+				<AddToCart client:idle id={id} name={product.name} />
 				<p>Description here...</p>
 			</figcaption>
 		</figure>

@@ -16,6 +16,7 @@ import { render as ssrRender } from '../core/render/dev/index.js';
 import { getAstroStyleId, getAstroPageStyleId } from '../vite-plugin-build-css/index.js';
 import { prependDotSlash, removeEndingForwardSlash } from '../core/path.js';
 import { RouteCache } from '../core/render/route-cache.js';
+import { AstroRequest } from '../core/render/request.js';
 
 // This package isn't real ESM, so have to coerce it
 const matchSrcset: typeof srcsetParse = (srcsetParse as any).default;
@@ -83,17 +84,24 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 				for (const pathname of pageData.paths) {
 					pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
 					const id = ASTRO_PAGE_PREFIX + pathname;
-					const html = await ssrRender(renderers, mod, {
+					const response = await ssrRender(renderers, mod, {
 						astroConfig,
 						filePath: new URL(`./${component}`, astroConfig.projectRoot),
 						logging,
 						mode: 'production',
 						origin,
 						pathname,
+						request: {} as any,
 						route: pageData.route,
 						routeCache,
 						viteServer,
 					});
+
+					if(response.type !== 'html') {
+						continue;
+					}
+
+					const html = response.html;
 					renderedPageMap.set(id, html);
 
 					const document = parse5.parse(html, {

@@ -1,10 +1,17 @@
 <script>
+	import { addToUserCart } from '../api';
 	export let id = 0;
+	export let name = '';
 
-	function addToCart() {
+	function notifyCartItem(id) {
 		window.dispatchEvent(new CustomEvent('add-to-cart', {
 			detail: id
 		}));
+	}
+
+	async function addToCart() {
+		await addToUserCart(id, name);
+		notifyCartItem(id);
 	}
 </script>
 <style>
