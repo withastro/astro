@@ -913,7 +913,7 @@ importers:
 
   packages/astro/test/fixtures/static build:
     specifiers:
-      '@test/static-build-pkg': link:pkg
+      '@test/static-build-pkg': workspace:*
       astro: workspace:*
     dependencies:
       '@test/static-build-pkg': link:pkg

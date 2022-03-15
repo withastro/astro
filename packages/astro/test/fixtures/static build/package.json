@@ -2,7 +2,7 @@
   "name": "@test/static-build",
   "version": "0.0.0",
   "dependencies": {
-    "@test/static-build-pkg": "link:pkg",
+    "@test/static-build-pkg": "workspace:*",
     "astro": "workspace:*"
   }
 }
