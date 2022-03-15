@@ -44,7 +44,7 @@ importers:
   examples/blog:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -52,7 +52,7 @@ importers:
   examples/blog-multiple-authors:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.24.0
+      astro: ^0.24.1
       sass: ^1.49.9
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
@@ -61,14 +61,14 @@ importers:
 
   examples/component:
     specifiers:
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       astro: link:../../packages/astro
 
   examples/component/demo:
     specifiers:
       '@example/my-component': workspace:*
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@example/my-component': link:../packages/my-component
       astro: link:../../../packages/astro
@@ -84,7 +84,7 @@ importers:
       '@docsearch/css': ^3.0.0
       '@docsearch/react': ^3.0.0
       '@types/react': ^17.0.40
-      astro: ^0.24.0
+      astro: ^0.24.1
       react: ^17.0.2
       react-dom: ^17.0.2
     dependencies:
@@ -101,20 +101,20 @@ importers:
 
   examples/env-vars:
     specifiers:
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       astro: link:../../packages/astro
 
   examples/framework-alpine:
     specifiers:
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       astro: link:../../packages/astro
 
   examples/framework-lit:
     specifiers:
       '@astrojs/renderer-lit': ^0.4.0
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/renderer-lit': link:../../packages/renderers/renderer-lit
       astro: link:../../packages/astro
@@ -127,7 +127,7 @@ importers:
       '@astrojs/renderer-solid': ^0.4.0
       '@astrojs/renderer-svelte': ^0.5.1
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/renderer-lit': link:../../packages/renderers/renderer-lit
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
@@ -140,7 +140,7 @@ importers:
   examples/framework-preact:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
       astro: link:../../packages/astro
@@ -148,7 +148,7 @@ importers:
   examples/framework-react:
     specifiers:
       '@astrojs/renderer-react': ^0.5.0
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
       astro: link:../../packages/astro
@@ -156,7 +156,7 @@ importers:
   examples/framework-solid:
     specifiers:
       '@astrojs/renderer-solid': ^0.4.0
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/renderer-solid': link:../../packages/renderers/renderer-solid
       astro: link:../../packages/astro
@@ -164,7 +164,7 @@ importers:
   examples/framework-svelte:
     specifiers:
       '@astrojs/renderer-svelte': ^0.5.1
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/renderer-svelte': link:../../packages/renderers/renderer-svelte
       astro: link:../../packages/astro
@@ -172,27 +172,27 @@ importers:
   examples/framework-vue:
     specifiers:
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/renderer-vue': link:../../packages/renderers/renderer-vue
       astro: link:../../packages/astro
 
   examples/minimal:
     specifiers:
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       astro: link:../../packages/astro
 
   examples/non-html-pages:
     specifiers:
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       astro: link:../../packages/astro
 
   examples/portfolio:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.24.0
+      astro: ^0.24.1
       sass: ^1.49.9
     devDependencies:
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
@@ -202,7 +202,7 @@ importers:
   examples/ssr:
     specifiers:
       '@astrojs/renderer-svelte': ^0.5.1
-      astro: ^0.24.0
+      astro: ^0.24.1
       unocss: ^0.15.6
       vite-imagetools: ^4.0.3
     devDependencies:
@@ -213,14 +213,14 @@ importers:
 
   examples/starter:
     specifiers:
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       astro: link:../../packages/astro
 
   examples/subpath:
     specifiers:
       '@astrojs/renderer-react': ^0.5.0
-      astro: ^0.24.0
+      astro: ^0.24.1
       sass: ^1.49.9
     devDependencies:
       '@astrojs/renderer-react': link:../../packages/renderers/renderer-react
@@ -234,7 +234,7 @@ importers:
       '@astrojs/renderer-react': ^0.5.0
       '@astrojs/renderer-svelte': ^0.5.1
       '@astrojs/renderer-vue': ^0.4.0
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       '@astrojs/renderer-preact': link:../../packages/renderers/renderer-preact
@@ -246,7 +246,7 @@ importers:
   examples/with-markdown-plugins:
     specifiers:
       '@astrojs/markdown-remark': ^0.6.4
-      astro: ^0.24.0
+      astro: ^0.24.1
       hast-util-select: 5.0.1
       rehype-autolink-headings: ^6.1.1
       rehype-slug: ^5.0.1
@@ -264,7 +264,7 @@ importers:
   examples/with-markdown-shiki:
     specifiers:
       '@astrojs/markdown-remark': ^0.6.4
-      astro: ^0.24.0
+      astro: ^0.24.1
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       astro: link:../../packages/astro
@@ -279,7 +279,7 @@ importers:
       '@nanostores/preact': ^0.1.3
       '@nanostores/react': ^0.1.5
       '@nanostores/vue': ^0.4.1
-      astro: ^0.24.0
+      astro: ^0.24.1
       nanostores: ^0.5.12
       preact: ^10.6.6
       react: ^17.0.2
@@ -307,7 +307,7 @@ importers:
   examples/with-tailwindcss:
     specifiers:
       '@astrojs/renderer-preact': ^0.5.0
-      astro: ^0.24.0
+      astro: ^0.24.1
       autoprefixer: ^10.4.2
       postcss: ^8.4.8
       tailwindcss: ^3.0.23
@@ -320,7 +320,7 @@ importers:
 
   examples/with-vite-plugin-pwa:
     specifiers:
-      astro: ^0.24.0
+      astro: ^0.24.1
       vite-plugin-pwa: 0.11.11
       workbox-window: ^6.5.1
     devDependencies:
