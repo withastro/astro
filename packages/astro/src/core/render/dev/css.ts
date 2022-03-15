@@ -24,19 +24,21 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 	function crawlCSS(id: string, scanned = new Set<string>()) {
 		// note: use .getModulesByFile() to get all related nodes of the same URL
 		// using .getModuleById() could cause missing style imports on initial server load
-		const matchingMods = viteServer.moduleGraph.getModulesByFile(id) ?? new Set();
+		const relatedMods = viteServer.moduleGraph.getModulesByFile(id) ?? new Set();
 		const importedModules = new Set<vite.ModuleNode>();
 
-		for (const mod of matchingMods) {
-			for (const subMod of mod.importedModules) {
-				importedModules.add(subMod);
+		for (const relatedMod of relatedMods) {
+			if (id === relatedMod.id) {
+				scanned.add(id);
+				for (const importedMod of relatedMod.importedModules) {
+					importedModules.add(importedMod);
+				}
 			}
 		}
 
 		// scan importedModules
 		for (const importedModule of importedModules) {
 			if (!importedModule.id || scanned.has(importedModule.id)) continue;
-			scanned.add(importedModule.id);
 			const ext = path.extname(importedModule.url.toLowerCase());
 			if (STYLE_EXTENSIONS.has(ext)) {
 				css.add(importedModule.url); // note: return `url`s for HTML (not .id, which will break Windows)
