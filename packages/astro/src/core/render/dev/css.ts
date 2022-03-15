@@ -21,10 +21,10 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 	const css = new Set<string>();
 
 	// recursively crawl module graph to get all style files imported by parent id
-	function crawlCSS(id: string, scanned = new Set<string>()) {
+	function crawlCSS(pathname: string, scanned = new Set<string>()) {
 		// note: use .idToModuleMap() for lookups (.urlToModuleMap() may produce different
 		// URLs for modules depending on conditions, making resolution difficult)
-		const moduleName = viteServer.moduleGraph.idToModuleMap.get(id);
+		const moduleName = viteServer.moduleGraph.urlToModuleMap.get(pathname);
 		if (!moduleName || !moduleName.id) return;
 
 		scanned.add(moduleName.id);
@@ -40,7 +40,7 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 		}
 	}
 
-	crawlCSS(viteID(filePath));
+	crawlCSS(filePath.pathname);
 
 	return css;
 }
