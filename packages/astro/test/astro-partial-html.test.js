@@ -14,7 +14,7 @@ describe('Partial HTML ', async () => {
 	});
 
 	after(async () => {
-		devServer && devServer.stop();
+		await devServer.stop();
 	});
 
 	it('injects Astro styles and scripts', async () => {

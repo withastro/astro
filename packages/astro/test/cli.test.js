@@ -25,6 +25,12 @@ describe('astro cli', () => {
 		expect(proc.stdout).to.include(pkgVersion);
 	});
 
+	it('astro build', async () => {
+		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
+		const proc = await cli('build', '--project-root', fileURLToPath(projectRootURL));
+		expect(proc.stdout).to.include('Done');
+	});
+
 	it('astro dev welcome', async () => {
 		const pkgURL = new URL('../package.json', import.meta.url);
 		const pkgVersion = await fs.readFile(pkgURL, 'utf8').then((data) => JSON.parse(data).version);
@@ -93,11 +99,4 @@ describe('astro cli', () => {
 		});
 	});
 
-	it('astro build', async () => {
-		const projectRootURL = new URL('./fixtures/astro-basic/', import.meta.url);
-
-		const proc = await cli('build', '--project-root', fileURLToPath(projectRootURL));
-
-		expect(proc.stdout).to.include('Done');
-	});
 });

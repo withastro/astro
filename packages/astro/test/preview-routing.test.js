@@ -12,6 +12,7 @@ describe('Preview Routing', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4000/', import.meta.url),
 					buildOptions: {
 						pageUrlFormat: 'directory',
 					},
@@ -25,7 +26,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				previewServer && (await previewServer.stop());
+				(await previewServer.stop());
 			});
 
 			it('404 when loading /', async () => {
@@ -69,6 +70,7 @@ describe('Preview Routing', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4001/', import.meta.url),
 					devOptions: {
 						trailingSlash: 'always',
 						port: 4001,
@@ -79,7 +81,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				previewServer && (await previewServer.stop());
+				(await previewServer.stop());
 			});
 
 			it('404 when loading /', async () => {
@@ -127,6 +129,7 @@ describe('Preview Routing', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4002//', import.meta.url),
 					devOptions: {
 						trailingSlash: 'ignore',
 						port: 4002,
@@ -137,7 +140,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				previewServer && (await previewServer.stop());
+				(await previewServer.stop());
 			});
 
 			it('404 when loading /', async () => {
@@ -187,6 +190,7 @@ describe('Preview Routing', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4003/', import.meta.url),
 					buildOptions: {
 						pageUrlFormat: 'file',
 					},
@@ -200,7 +204,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				previewServer && (await previewServer.stop());
+				(await previewServer.stop());
 			});
 
 			it('404 when loading /', async () => {
@@ -244,6 +248,7 @@ describe('Preview Routing', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4004/', import.meta.url),
 					buildOptions: {
 						pageUrlFormat: 'file',
 					},
@@ -257,7 +262,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				previewServer && (await previewServer.stop());
+				(await previewServer.stop());
 			});
 
 			it('404 when loading /', async () => {
@@ -305,6 +310,7 @@ describe('Preview Routing', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4005/', import.meta.url),
 					buildOptions: {
 						pageUrlFormat: 'file',
 					},
@@ -318,7 +324,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				previewServer && (await previewServer.stop());
+				(await previewServer.stop());
 			});
 
 			it('404 when loading /', async () => {
@@ -366,6 +372,7 @@ describe('Preview Routing', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
+					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4006/', import.meta.url),
 					buildOptions: {
 						pageUrlFormat: 'file',
 					},
@@ -379,7 +386,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				previewServer && (await previewServer.stop());
+				(await previewServer.stop());
 			});
 
 			it('404 when loading /', async () => {
