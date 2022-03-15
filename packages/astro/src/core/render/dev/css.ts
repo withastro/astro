@@ -28,14 +28,13 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 		const importedModules = new Set<vite.ModuleNode>();
 
 		for (const mod of matchingMods) {
-			for (const subMod of mod.importedModules) {
-				importedModules.add(subMod);
+			if (mod.id) {
+				scanned.add(mod.id);
+				for (const subMod of mod.importedModules) {
+					importedModules.add(subMod);
+				}
 			}
 		}
-
-		if (!importedModules.size) return;
-
-		scanned.add(id);
 
 		// scan importedModules
 		for (const importedModule of importedModules) {
