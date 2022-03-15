@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-svelte-component",
+  "name": "@test/svelte-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

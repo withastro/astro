@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-slots-react",
+  "name": "@test/slots-react",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

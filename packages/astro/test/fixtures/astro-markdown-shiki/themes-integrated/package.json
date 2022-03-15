@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-markdown-skiki-themes-integrated",
+  "name": "@test/astro-markdown-skiki-themes-integrated",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

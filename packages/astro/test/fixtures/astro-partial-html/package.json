@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-partial-html",
+  "name": "@test/astro-partial-html",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

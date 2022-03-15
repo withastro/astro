@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-sass",
+  "name": "@test/sass",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

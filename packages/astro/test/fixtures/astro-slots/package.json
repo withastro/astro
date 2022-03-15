@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-slots",
+  "name": "@test/astro-slots",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

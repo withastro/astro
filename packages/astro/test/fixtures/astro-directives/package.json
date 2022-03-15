@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-directives",
+  "name": "@test/astro-directives",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

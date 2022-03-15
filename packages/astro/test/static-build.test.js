@@ -17,7 +17,7 @@ describe('Static build', () => {
 				site: 'http://example.com/subpath/',
 			},
 			ssr: {
-				noExternal: ['@astrojs/test-static-build-pkg'],
+				noExternal: ['@test/static-build-pkg'],
 			},
 		});
 		await fixture.build();

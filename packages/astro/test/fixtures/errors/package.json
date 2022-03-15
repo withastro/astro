@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-errors",
+  "name": "@test/errors",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

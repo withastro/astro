@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-vue-component",
+  "name": "@test/vue-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

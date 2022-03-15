@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-external-files",
+  "name": "@test/astro-external-files",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

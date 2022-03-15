@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-config-hostname",
+  "name": "@test/config-hostname",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

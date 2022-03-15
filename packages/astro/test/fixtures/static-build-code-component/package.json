@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-static-build-code-component",
+  "name": "@test/static-build-code-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

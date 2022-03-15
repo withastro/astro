@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-expr",
+  "name": "@test/astro-expr",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

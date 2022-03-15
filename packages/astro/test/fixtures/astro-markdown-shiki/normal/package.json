@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-markdown-skiki-normal",
+  "name": "@test/astro-markdown-skiki-normal",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

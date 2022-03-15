@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-sitemap-rss",
+  "name": "@test/astro-sitemap-rss",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

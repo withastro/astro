@@ -1,5 +1,5 @@
 export default {
-  name: '@astrojs/test-custom-element-renderer',
+  name: '@test/custom-element-renderer',
   server: './server.js',
   polyfills: [
     './polyfill.js'
@@ -10,8 +10,8 @@ export default {
   viteConfig() {
     return {
       optimizeDeps: {
-        include: ['@astrojs/test-custom-element-renderer/polyfill.js', '@astrojs/test-custom-element-renderer/hydration-polyfill.js'],
-				exclude: ['@astrojs/test-custom-element-renderer/server.js']
+        include: ['@test/custom-element-renderer/polyfill.js', '@test/custom-element-renderer/hydration-polyfill.js'],
+				exclude: ['@test/custom-element-renderer/server.js']
       }
     }
   }

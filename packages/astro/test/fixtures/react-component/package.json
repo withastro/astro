@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-react-component",
+  "name": "@test/react-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

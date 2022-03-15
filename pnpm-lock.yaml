@@ -774,10 +774,10 @@ importers:
 
   packages/astro/test/fixtures/custom-elements:
     specifiers:
-      '@astrojs/test-custom-element-renderer': workspace:*
+      '@test/custom-element-renderer': workspace:*
       astro: workspace:*
     dependencies:
-      '@astrojs/test-custom-element-renderer': link:my-component-lib
+      '@test/custom-element-renderer': link:my-component-lib
       astro: link:../../..
 
   packages/astro/test/fixtures/custom-elements/my-component-lib:
@@ -913,10 +913,10 @@ importers:
 
   packages/astro/test/fixtures/static build:
     specifiers:
-      '@astrojs/test-static-build-pkg': link:pkg
+      '@test/static-build-pkg': link:pkg
       astro: workspace:*
     dependencies:
-      '@astrojs/test-static-build-pkg': link:pkg
+      '@test/static-build-pkg': link:pkg
       astro: link:../../..
 
   packages/astro/test/fixtures/static build/pkg:

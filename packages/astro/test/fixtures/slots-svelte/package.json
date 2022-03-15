@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-slots-svelte",
+  "name": "@test/slots-svelte",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
