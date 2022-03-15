@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-preact-component",
+  "name": "@test/preact-component",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

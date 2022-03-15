@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-with-subpath-trailing-slash",
+  "name": "@test/with-subpath-trailing-slash",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

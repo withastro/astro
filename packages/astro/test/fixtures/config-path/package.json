@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-config-path",
+  "name": "@test/config-path",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

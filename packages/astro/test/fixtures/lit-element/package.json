@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-lit-element",
+  "name": "@test/lit-element",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-static-build-page-url-format",
+  "name": "@test/static-build-page-url-format",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-without-subpath",
+  "name": "@test/without-subpath",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

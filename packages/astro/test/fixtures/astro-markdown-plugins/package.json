@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-markdown-plugins",
+  "name": "@test/astro-markdown-plugins",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
