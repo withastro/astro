@@ -1,11 +1,12 @@
 import type { OutputChunk, OutputAsset, RollupOutput } from 'rollup';
 import type { Plugin as VitePlugin, UserConfig, Manifest as ViteManifest } from 'vite';
-import type { AstroConfig, ComponentInstance, ManifestData, Renderer, RouteType } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, EndpointHandler, ManifestData, Renderer, RouteType } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
 import type { ViteConfigWithSSR } from '../create-vite';
 import type { PageBuildData } from './types';
 import type { BuildInternals } from '../../core/build/internal.js';
+import type { RenderOptions } from '../../core/render/core';
 import type { SerializedSSRManifest, SerializedRouteInfo } from '../app/types';
 
 import fs from 'fs';
@@ -20,9 +21,11 @@ import { createBuildInternals } from '../../core/build/internal.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { RouteCache } from '../render/route-cache.js';
+import { call as callEndpoint } from '../endpoint/index.js';
 import { serializeRouteData } from '../routing/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
+import { createRequest } from '../render/request.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -375,7 +378,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
 	try {
-		const response = await render({
+		const options: RenderOptions = {
 			legacyBuild: false,
 			links,
 			logging,
@@ -400,18 +403,31 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			routeCache,
 			site: astroConfig.buildOptions.site,
 			ssr: opts.astroConfig.buildOptions.experimentalSsr
-		});
-
-		// If there's a redirect or something, just do nothing.
-		if(response.type !== 'html') {
-			return;
 		}
 
-		const html = response.html;
+		let body: string;
+		if(pageData.route.type === 'endpoint') {
+
+			const result = await callEndpoint(mod as unknown as EndpointHandler, options);
+
+			if(result.type === 'response') {
+				throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`)
+			}
+			body = result.body;
+		} else {
+			const result = await render(options);
+
+			// If there's a redirect or something, just do nothing.
+			if(result.type !== 'html') {
+				return;
+			}
+			body = result.html;
+		}
+
 		const outFolder = getOutFolder(astroConfig, pathname, pageData.route.type);
 		const outFile = getOutFile(astroConfig, outFolder, pathname, pageData.route.type);
 		await fs.promises.mkdir(outFolder, { recursive: true });
-		await fs.promises.writeFile(outFile, html, 'utf-8');
+		await fs.promises.writeFile(outFile, body, 'utf-8');
 	} catch (err) {
 		error(opts.logging, 'build', `Error rendering:`, err);
 	}

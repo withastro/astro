@@ -21,7 +21,8 @@ export interface AstroRequest {
 
 export interface AstroRequestSSR extends AstroRequest {}
 
-export function createRequest(method: string, pathname: string, headers: Headers, origin: string, site: Site, ssr: boolean): AstroRequest {
+export function createRequest(method: string, pathname: string, headers: Headers,
+	origin: string, site: Site, ssr: boolean): AstroRequest {
 	const url = new URL('.' + pathname, new URL(origin));
 
 	const canonicalURL = utilCanonicalURL('.' + pathname, site ?? url.origin);

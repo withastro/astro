@@ -76,9 +76,6 @@ class Slots {
 export function createResult(args: CreateResultArgs): SSRResult {
 	const { legacyBuild, markdownRender, method, origin, headers, params, pathname, renderers, resolve, site } = args;
 
-	//const url = new URL('.' + pathname, site);
-	//const canonicalURL = getCanonicalURL('.' + pathname, site || origin);
-
 	const request = createRequest(method, pathname, headers, origin, site, args.ssr);
 	request.params = params;
 

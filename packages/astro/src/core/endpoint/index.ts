@@ -1,18 +1,21 @@
 import type { EndpointHandler } from '../../@types/astro';
 import type { RenderOptions } from '../render/core';
-import type { AstroRequest } from '../render/request';
 import { renderEndpoint } from '../../runtime/server/index.js';
-import { getParamsAndProps } from '../render/core.js';
+import { getParamsAndProps, GetParamsAndPropsError } from '../render/core.js';
+import { createRequest } from '../render/request.js';
 
-type EndpointOptions = Pick<RenderOptions,
-	'logging' |
+export type EndpointOptions = Pick<RenderOptions,
+	'logging' | 
+	'headers' |
+	'method' |
+	'origin' |
 	'route' |
 	'routeCache' |
 	'pathname' |
-	'route'
-> & {
-	request: AstroRequest
-};
+	'route' |
+	'site' |
+	'ssr'
+>;
 
 type EndpointCallResult = {
 	type: 'simple',
@@ -23,10 +26,16 @@ type EndpointCallResult = {
 };
 
 export async function call(mod: EndpointHandler, opts: EndpointOptions): Promise<EndpointCallResult> {
-	const params = getParamsAndProps({ ...opts, mod: (mod as any) });
+	const paramsAndPropsResp = await getParamsAndProps({ ...opts, mod: (mod as any) });
 
-	// TODO mod is not typed properly
-	const response = await renderEndpoint(mod, opts.request, params);
+	if (paramsAndPropsResp === GetParamsAndPropsError.NoMatchingStaticPath) {
+		throw new Error(`[getStaticPath] route pattern matched, but no matching static path found. (${opts.pathname})`);
+	}
+	const [params] = paramsAndPropsResp;
+	const request = createRequest(opts.method, opts.pathname, opts.headers, opts.origin,
+		opts.site, opts.ssr);
+
+	const response = await renderEndpoint(mod, request, params);
 
 	if(response instanceof Response) {
 		return {

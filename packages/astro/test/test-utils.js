@@ -80,7 +80,7 @@ export async function loadFixture(inlineConfig) {
 			return devResult;
 		},
 		config,
-		fetch: (url, init) => fetch(`http://${config.devOptions.hostname}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
+		fetch: (url, init) => fetch(`http://${'127.0.0.1'}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
 		preview: async (opts = {}) => {
 			const previewServer = await preview(config, { logging: 'error', ...opts });
 			inlineConfig.devOptions.port = previewServer.port; // update port for fetch
