@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@astrojs/renderer-react": "^0.5.0",
-    "astro": "^0.24.0",
+    "astro": "^0.24.1",
     "sass": "^1.49.9"
   }
 }

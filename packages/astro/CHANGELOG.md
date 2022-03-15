@@ -1,5 +1,19 @@
 # astro
 
+## 0.24.1
+
+### Patch Changes
+
+- [#2797](https://github.com/withastro/astro/pull/2797) [`58d8686e`](https://github.com/withastro/astro/commit/58d8686e94816da649b0210f5288173fb4b9a483) Thanks [@matthewp](https://github.com/matthewp)! - Fix for projects with a folder name containing a space
+
+* [#2785](https://github.com/withastro/astro/pull/2785) [`2c4fd919`](https://github.com/withastro/astro/commit/2c4fd919faa887df659d756ed3d095e0e83ed87d) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Update Astro.props to show object properties on console.log(Astro.props), interating over properties, and anything else outside direct key access
+
+- [#2790](https://github.com/withastro/astro/pull/2790) [`6b34840d`](https://github.com/withastro/astro/commit/6b34840d3d082d6491515ff96976f603947316d3) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Improve `set:html` behavior for `null` and `undefined` values
+
+* [#2772](https://github.com/withastro/astro/pull/2772) [`b4d34e2d`](https://github.com/withastro/astro/commit/b4d34e2d2c1429a9938074cd30ed13d9bb741a8b) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Improve build performance, especially on large sites
+
+- [#2772](https://github.com/withastro/astro/pull/2772) [`b4d34e2d`](https://github.com/withastro/astro/commit/b4d34e2d2c1429a9938074cd30ed13d9bb741a8b) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Surface vite warnings to the user
+
 ## 0.24.0
 
 ### Minor Changes
@@ -18,9 +32,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -40,7 +54,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -124,7 +138,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -148,9 +162,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -262,12 +276,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -429,12 +443,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1789,10 +1803,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1812,10 +1826,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
