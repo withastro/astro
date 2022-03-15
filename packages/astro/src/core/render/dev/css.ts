@@ -28,17 +28,15 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 		const importedModules = new Set<vite.ModuleNode>();
 
 		for (const mod of matchingMods) {
-			if (mod.id) {
-				scanned.add(mod.id);
-				for (const subMod of mod.importedModules) {
-					importedModules.add(subMod);
-				}
+			for (const subMod of mod.importedModules) {
+				importedModules.add(subMod);
 			}
 		}
 
 		// scan importedModules
 		for (const importedModule of importedModules) {
 			if (!importedModule.id || scanned.has(importedModule.id)) continue;
+			scanned.add(importedModule.id);
 			const ext = path.extname(importedModule.url.toLowerCase());
 			if (STYLE_EXTENSIONS.has(ext)) {
 				css.add(importedModule.url); // note: return `url`s for HTML (not .id, which will break Windows)
