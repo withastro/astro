@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@astrojs/renderer-svelte": "^0.5.1",
-    "astro": "^0.24.0",
+    "astro": "^0.24.1",
     "unocss": "^0.15.6",
     "vite-imagetools": "^4.0.3"
   }

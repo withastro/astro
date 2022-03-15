@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.24.0",
+  "version": "0.24.1",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
