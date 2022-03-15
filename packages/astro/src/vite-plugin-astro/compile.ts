@@ -7,6 +7,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import { transform } from '@astrojs/compiler';
 import { transformWithVite } from './styles.js';
+import { viteID } from '../core/util.js';
 
 type CompilationCache = Map<string, CompileResult>;
 type CompileResult = TransformResult & { rawCSSDeps: Set<string> };
@@ -49,7 +50,7 @@ async function compile(config: AstroConfig, filename: string, source: string, vi
 		site: config.buildOptions.site,
 		sourcefile: filename,
 		sourcemap: 'both',
-		internalURL: `/@fs${new URL('../runtime/server/index.js', import.meta.url).pathname}`,
+		internalURL: `/@fs${viteID(new URL('../runtime/server/index.js', import.meta.url))}`,
 		experimentalStaticExtraction: !config.buildOptions.legacyBuild,
 		// TODO add experimental flag here
 		preprocessStyle: async (value: string, attrs: Record<string, string>) => {
