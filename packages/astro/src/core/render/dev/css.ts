@@ -22,15 +22,22 @@ export function getStylesForURL(filePath: URL, viteServer: vite.ViteDevServer): 
 
 	// recursively crawl module graph to get all style files imported by parent id
 	function crawlCSS(id: string, scanned = new Set<string>()) {
-		// note: use .idToModuleMap() for lookups (.urlToModuleMap() may produce different
-		// URLs for modules depending on conditions, making resolution difficult)
-		const moduleName = viteServer.moduleGraph.idToModuleMap.get(id);
-		if (!moduleName || !moduleName.id) return;
+		// note: use .getModulesByFile() to get all related nodes of the same URL
+		// using .getModuleById() could cause missing style imports on initial server load
+		const relatedMods = viteServer.moduleGraph.getModulesByFile(id) ?? new Set();
+		const importedModules = new Set<vite.ModuleNode>();
 
-		scanned.add(moduleName.id);
+		for (const relatedMod of relatedMods) {
+			if (id === relatedMod.id) {
+				scanned.add(id);
+				for (const importedMod of relatedMod.importedModules) {
+					importedModules.add(importedMod);
+				}
+			}
+		}
 
 		// scan importedModules
-		for (const importedModule of moduleName.importedModules) {
+		for (const importedModule of importedModules) {
 			if (!importedModule.id || scanned.has(importedModule.id)) continue;
 			const ext = path.extname(importedModule.url.toLowerCase());
 			if (STYLE_EXTENSIONS.has(ext)) {
