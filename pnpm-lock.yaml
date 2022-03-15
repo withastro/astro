@@ -352,6 +352,7 @@ importers:
       '@types/connect': ^3.4.35
       '@types/debug': ^4.1.7
       '@types/estree': ^0.0.51
+      '@types/html-escaper': ^3.0.0
       '@types/mime': ^2.0.3
       '@types/mocha': ^9.1.0
       '@types/parse5': ^6.0.3
@@ -374,6 +375,7 @@ importers:
       fast-glob: ^3.2.11
       fast-xml-parser: ^4.0.6
       html-entities: ^2.3.2
+      html-escaper: ^3.0.3
       htmlparser2: ^7.2.0
       kleur: ^4.1.4
       magic-string: ^0.25.9
@@ -428,6 +430,7 @@ importers:
       fast-glob: 3.2.11
       fast-xml-parser: 4.0.6
       html-entities: 2.3.2
+      html-escaper: 3.0.3
       htmlparser2: 7.2.0
       kleur: 4.1.4
       magic-string: 0.25.9
@@ -465,6 +468,7 @@ importers:
       '@types/connect': 3.4.35
       '@types/debug': 4.1.7
       '@types/estree': 0.0.51
+      '@types/html-escaper': 3.0.0
       '@types/mime': 2.0.3
       '@types/mocha': 9.1.0
       '@types/parse5': 6.0.3
@@ -3490,6 +3494,10 @@ packages:
     dependencies:
       '@types/unist': 2.0.6
 
+  /@types/html-escaper/3.0.0:
+    resolution: {integrity: sha512-OcJcvP3Yk8mjYwf/IdXZtTE1tb/u0WF0qa29ER07ZHCYUBZXSN29Z1mBS+/96+kNMGTFUAbSz9X+pHmHpZrTCw==}
+    dev: true
+
   /@types/is-ci/3.0.0:
     resolution: {integrity: sha512-Q0Op0hdWbYd1iahB+IFNQcWXFq4O0Q5MwQP7uN0souuQ4rPg1vEYcnIOfr1gY+M+6rc8FGoRaBO1mOOvL29sEQ==}
     dependencies:
@@ -6281,6 +6289,10 @@ packages:
 
   /html-entities/2.3.2:
     resolution: {integrity: sha512-c3Ab/url5ksaT0WyleslpBEthOzWhrjQbg75y7XUsfSzi3Dgzt0l8w5e7DylRn15MTlMMD58dTfzddNS2kcAjQ==}
+    dev: false
+
+  /html-escaper/3.0.3:
+    resolution: {integrity: sha512-RuMffC89BOWQoY0WKGpIhn5gX3iI54O6nRA0yC124NYVtzjmFWBIiFd8M0x+ZdX0P9R4lADg1mgP8C7PxGOWuQ==}
     dev: false
 
   /html-void-elements/2.0.1:
