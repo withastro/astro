@@ -19,7 +19,7 @@ export interface AstroRequest {
 	method: string;
 }
 
-export interface AstroRequestSSR extends AstroRequest {}
+export type AstroRequestSSR = AstroRequest
 
 export function createRequest(method: string, pathname: string, headers: Headers,
 	origin: string, site: Site, ssr: boolean): AstroRequest {
