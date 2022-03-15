@@ -38,6 +38,7 @@ export default async function build(...args) {
 	if (!isDev) {
 		await esbuild.build({
 			...config,
+			sourcemap: false,
 			bundle: entryPoints.length === 1, // Note: only use `bundle` with a single entrypoint!
 			entryPoints,
 			outdir,
