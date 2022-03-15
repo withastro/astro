@@ -7,7 +7,6 @@ import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 import { createRenderer } from '../render/renderer.js';
-import { AstroRequest } from '../render/request.js';
 import { prependForwardSlash } from '../path.js';
 
 export class App {
@@ -28,14 +27,18 @@ export class App {
 		this.#routeCache = new RouteCache(defaultLogOptions);
 		this.#renderersPromise = this.#loadRenderers();
 	}
-	match({ pathname }: URL): RouteData | undefined {
-		return matchRoute(pathname, this.#manifestData);
+	match(request: Request): RouteData | undefined {
+		const url = new URL(request.url);
+		return matchRoute(url.pathname, this.#manifestData);
 	}
-	async render(url: URL, routeData?: RouteData): Promise<string> {
+	async render(request: Request, routeData?: RouteData): Promise<Response> {
 		if (!routeData) {
-			routeData = this.match(url);
+			routeData = this.match(request);
 			if (!routeData) {
-				return 'Not found';
+				return new Response(null, {
+					status: 404,
+					statusText: 'Not found'
+				});
 			}
 		}
 
@@ -43,10 +46,11 @@ export class App {
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
 		const [mod, renderers] = await Promise.all([this.#loadModule(info.file), this.#renderersPromise]);
 
+		const url = new URL(request.url);
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
 		const scripts = createModuleScriptElementWithSrcSet(info.scripts, manifest.site);
 
-		const response = render({
+		const result = await render({
 			legacyBuild: false,
 			links,
 			logging: defaultLogOptions,
@@ -56,10 +60,6 @@ export class App {
 			pathname: url.pathname,
 			scripts,
 			renderers,
-			request: new AstroRequest({
-				input: url.toString(),
-				site: this.#manifest.site ? new URL(this.#manifest.site) : undefined
-			}),
 			async resolve(specifier: string) {
 				if (!(specifier in manifest.entryModules)) {
 					throw new Error(`Unable to resolve [${specifier}]`);
@@ -71,11 +71,18 @@ export class App {
 			routeCache: this.#routeCache,
 			site: this.#manifest.site,
 			ssr: true,
+			method: info.routeData.type === 'endpoint' ? '' : 'GET',
+			headers: request.headers,
 		});
 
+		if(result.type === 'response') {
+			return result.response;
+		}
 
-
-		return '';
+		let html = result.html;
+		return new Response(html, {
+			status: 200
+		});
 	}
 	async #loadRenderers(): Promise<Renderer[]> {
 		const rendererNames = this.#manifest.renderers;

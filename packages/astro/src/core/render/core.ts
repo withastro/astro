@@ -64,17 +64,18 @@ export interface RenderOptions {
 	origin: string;
 	pathname: string;
 	scripts: Set<SSRElement>;
-	request: AstroRequest,
 	resolve: (s: string) => Promise<string>;
 	renderers: Renderer[];
 	route?: RouteData;
 	routeCache: RouteCache;
 	site?: string;
 	ssr: boolean;
+	method: string;
+	headers: Headers;
 }
 
 export async function render(opts: RenderOptions): Promise<{ type: 'html', html: string } | { type: 'response', response: Response }> {
-	const { legacyBuild, links, logging, origin, markdownRender, mod, pathname, scripts, request, renderers, resolve, route, routeCache, site, ssr } = opts;
+	const { headers, legacyBuild, links, logging, origin, markdownRender, method, mod, pathname, scripts, renderers, resolve, route, routeCache, site, ssr } = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
 		logging,
@@ -102,12 +103,13 @@ export async function render(opts: RenderOptions): Promise<{ type: 'html', html:
 		origin,
 		params,
 		pathname,
-		request,
 		resolve,
 		renderers,
 		site,
 		scripts,
 		ssr,
+		method,
+		headers
 	});
 
 	let page = await renderPage(result, Component, pageProps, null);

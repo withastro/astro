@@ -15,9 +15,10 @@ async function handle(req, res) {
 	const route = app.match(req);
 
 	if (route) {
-		const html = await app.render(req, route);
-
-		res.writeHead(200, {
+		/** @type {Response} */
+		const response = await app.render(req, route);
+		const html = await response.text();
+		res.writeHead(response.status, {
 			'Content-Type': 'text/html; charset=utf-8',
 			'Content-Length': Buffer.byteLength(html, 'utf-8'),
 		});

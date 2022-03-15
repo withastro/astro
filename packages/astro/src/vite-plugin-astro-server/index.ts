@@ -165,12 +165,10 @@ async function handleRequest(
 					filePath: filePathCustom404,
 					logging,
 					mode: 'development',
+					method: 'GET',
+					headers: new Headers(Object.entries(req.headers as Record<string, any>)),
 					origin,
 					pathname: rootRelativeUrl,
-					request: new AstroRequest({
-						input: new URL(rootRelativeUrl, url).toString(),
-						site
-					}),
 					route: routeCustom404,
 					routeCache,
 					viteServer,
@@ -181,17 +179,6 @@ async function handleRequest(
 			}
 		}
 
-
-		const webRequest = new AstroRequest({
-			input: url.toString(),
-			init: {
-				method: req.method,
-				headers: req.headers as any
-			},
-			site: site,
-			params: undefined,
-		});
-
 		const options: SSROptions = {
 			astroConfig: config,
 			filePath,
@@ -199,10 +186,11 @@ async function handleRequest(
 			mode: 'development',
 			origin,
 			pathname: rootRelativeUrl,
-			request: webRequest,
 			route,
 			routeCache,
 			viteServer,
+			method: req.method || 'GET',
+			headers: new Headers(Object.entries(req.headers as Record<string, any>)),
 		};
 
 		// Route successfully matched! Render it.

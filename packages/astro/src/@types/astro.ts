@@ -557,7 +557,7 @@ export interface EndpointOutput<Output extends Body = Body> {
 }
 
 export interface EndpointHandler {
-	[method: string]: (params: any, request: Request) => EndpointOutput | Response;
+	[method: string]: (params: any, request: AstroRequest) => EndpointOutput | Response;
 }
 
 /**

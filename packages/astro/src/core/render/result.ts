@@ -2,7 +2,7 @@ import type { AstroGlobal, AstroGlobalPartial, MarkdownParser, MarkdownRenderOpt
 import type { AstroRequest } from './request';
 
 import { bold } from 'kleur/colors';
-import { canonicalURL as getCanonicalURL } from '../util.js';
+import { createRequest } from './request.js';
 import { isCSSRequest } from './dev/css.js';
 import { isScriptRequest } from './script.js';
 import { renderSlot } from '../../runtime/server/index.js';
@@ -23,12 +23,13 @@ export interface CreateResultArgs {
 	markdownRender: MarkdownRenderOptions;
 	params: Params;
 	pathname: string;
-	request: AstroRequest,
 	renderers: Renderer[];
 	resolve: (s: string) => Promise<string>;
 	site: string | undefined;
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
+	headers: Headers;
+	method: string;
 }
 
 class Slots {
@@ -73,7 +74,12 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { legacyBuild, markdownRender, params, pathname, request, renderers, resolve } = args;
+	const { legacyBuild, markdownRender, method, origin, headers, params, pathname, renderers, resolve, site } = args;
+
+	//const url = new URL('.' + pathname, site);
+	//const canonicalURL = getCanonicalURL('.' + pathname, site || origin);
+
+	const request = createRequest(method, pathname, headers, origin, site, args.ssr);
 	request.params = params;
 
 	// Create the result object that will be passed into the render function.

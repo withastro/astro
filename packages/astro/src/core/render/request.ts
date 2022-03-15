@@ -1,29 +1,51 @@
 import type { Params } from '../../@types/astro';
 import '../polyfill.js';
-import { canonicalURL as getCanonicalURL } from '../util.js';
+import { canonicalURL as utilCanonicalURL } from '../util.js';
 
-type Site = URL | undefined;
+type Site = string | undefined;
 
-interface RequestOptions {
-	input: RequestInfo;
-	init?: RequestInit;
-	site: Site;
-	params?: Params | undefined;
+export interface AstroRequest {
+	/** get the current page URL */
+	url: URL;
+
+	/** get the current canonical URL */
+	canonicalURL: URL;
+
+	/** get page params (dynamic pages only) */
+	params: Params;
+
+	headers: Headers;
+
+	method: string;
 }
 
-export class AstroRequest extends Request {
-	public site: Site;
-	public params: Params | undefined;
+export interface AstroRequestSSR extends AstroRequest {}
 
-	constructor(opts: RequestOptions) {
-		super(opts.input, opts.init);
-		this.site = opts.site;
-		this.params = opts.params;
+export function createRequest(method: string, pathname: string, headers: Headers, origin: string, site: Site, ssr: boolean): AstroRequest {
+	const url = new URL('.' + pathname, new URL(origin));
+
+	const canonicalURL = utilCanonicalURL('.' + pathname, site ?? url.origin);
+
+	const request: AstroRequest = {
+		url,
+		canonicalURL,
+		params: {},
+		headers,
+		method
+	};
+
+	if(!ssr) {
+		// Headers are only readable if using SSR-mode. If not, make it an empty headers
+		// object, so you can't do something bad.
+		request.headers = new Headers();
+
+		// Disallow using query params.
+		request.url = new URL(request.url);
+
+		for(const [key] of request.url.searchParams) {
+			request.url.searchParams.delete(key);
+		}
 	}
 
-	get canonicalURL(): URL {
-		let url = new URL(this.url);
-		let { pathname, origin } = url;
-		return getCanonicalURL('.' + pathname, this.site?.toString() ?? origin);
-	}
+	return request;
 }

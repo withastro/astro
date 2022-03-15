@@ -1,5 +1,6 @@
-import type { AstroConfig, ComponentInstance, EndpointHandler, Renderer, RouteData, RuntimeMode, SSRElement } from '../../@types/astro';
+import type { EndpointHandler } from '../../@types/astro';
 import type { RenderOptions } from '../render/core';
+import type { AstroRequest } from '../render/request';
 import { renderEndpoint } from '../../runtime/server/index.js';
 import { getParamsAndProps } from '../render/core.js';
 
@@ -8,9 +9,10 @@ type EndpointOptions = Pick<RenderOptions,
 	'route' |
 	'routeCache' |
 	'pathname' |
-	'route' |
-	'request'
->;
+	'route'
+> & {
+	request: AstroRequest
+};
 
 type EndpointCallResult = {
 	type: 'simple',

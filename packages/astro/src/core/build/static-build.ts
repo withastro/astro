@@ -23,7 +23,6 @@ import { RouteCache } from '../render/route-cache.js';
 import { serializeRouteData } from '../routing/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
-import { AstroRequest } from '../render/request.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -395,10 +394,8 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 				const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
 				return fullyRelativePath;
 			},
-			request: new AstroRequest({
-				input: `http://${origin}${pathname}`,
-				site: site ? new URL(site) : undefined,
-			}),
+			method: 'GET',
+			headers: new Headers(),
 			route: pageData.route,
 			routeCache,
 			site: astroConfig.buildOptions.site,
