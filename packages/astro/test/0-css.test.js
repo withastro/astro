@@ -269,7 +269,7 @@ describe('CSS', function () {
 		});
 
 		after(async () => {
-			(await devServer.stop());
+			await devServer.stop();
 		});
 
 		it('resolves CSS in public/', async () => {

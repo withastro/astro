@@ -98,5 +98,4 @@ describe('astro cli', () => {
 			});
 		});
 	});
-
 });

@@ -19,7 +19,7 @@ describe('<Debug />', () => {
 	});
 
 	after(async () => {
-		(await devServer.stop());
+		await devServer.stop();
 	});
 
 	it('Works in markdown pages', async () => {

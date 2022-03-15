@@ -14,7 +14,7 @@ describe('Sass', () => {
 	});
 
 	after(async () => {
-		(await devServer.stop());
+		await devServer.stop();
 	});
 
 	// TODO: Sass cannot be found on macOS for some reason... Vite issue?

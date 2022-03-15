@@ -53,7 +53,7 @@ describe('Vue component', () => {
 		});
 
 		after(async () => {
-			(await devServer.stop());
+			await devServer.stop();
 		});
 
 		it('scripts proxy correctly', async () => {

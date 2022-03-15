@@ -15,7 +15,7 @@ describe('Development Routing', () => {
 		});
 
 		after(async () => {
-			(await devServer.stop());
+			await devServer.stop();
 		});
 
 		it('200 when loading /', async () => {
@@ -56,7 +56,7 @@ describe('Development Routing', () => {
 		});
 
 		after(async () => {
-			(await devServer.stop());
+			await devServer.stop();
 		});
 
 		it('200 when loading /', async () => {
@@ -92,7 +92,7 @@ describe('Development Routing', () => {
 		});
 
 		after(async () => {
-			(await devServer.stop());
+			await devServer.stop();
 		});
 
 		it('404 when loading /', async () => {
@@ -138,7 +138,7 @@ describe('Development Routing', () => {
 		});
 
 		after(async () => {
-			(await devServer.stop());
+			await devServer.stop();
 		});
 
 		it('404 when loading /', async () => {
@@ -184,7 +184,7 @@ describe('Development Routing', () => {
 		});
 
 		after(async () => {
-			(await devServer.stop());
+			await devServer.stop();
 		});
 
 		it('200 when loading /home.json', async () => {

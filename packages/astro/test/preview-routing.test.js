@@ -26,7 +26,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				(await previewServer.stop());
+				await previewServer.stop();
 			});
 
 			it('404 when loading /', async () => {
@@ -81,7 +81,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				(await previewServer.stop());
+				await previewServer.stop();
 			});
 
 			it('404 when loading /', async () => {
@@ -140,7 +140,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				(await previewServer.stop());
+				await previewServer.stop();
 			});
 
 			it('404 when loading /', async () => {
@@ -204,7 +204,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				(await previewServer.stop());
+				await previewServer.stop();
 			});
 
 			it('404 when loading /', async () => {
@@ -262,7 +262,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				(await previewServer.stop());
+				await previewServer.stop();
 			});
 
 			it('404 when loading /', async () => {
@@ -324,7 +324,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				(await previewServer.stop());
+				await previewServer.stop();
 			});
 
 			it('404 when loading /', async () => {
@@ -386,7 +386,7 @@ describe('Preview Routing', () => {
 			});
 
 			after(async () => {
-				(await previewServer.stop());
+				await previewServer.stop();
 			});
 
 			it('404 when loading /', async () => {
