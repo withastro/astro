@@ -5,11 +5,14 @@ import type { AstroRequest } from '../../core/render/request';
 import shorthash from 'shorthash';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
 import { serializeListValue } from './util.js';
-import { escapeHTML, UnescapedString, unescapeHTML } from './escape.js';
+import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
-export { unescapeHTML } from './escape.js';
+
+export { markHTMLString } from './escape.js';
+// TODO(deprecated): This name has been updated in Astro runtime but not yet in the Astro compiler.
+export { markHTMLString as unescapeHTML } from './escape.js';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
@@ -27,24 +30,24 @@ const svgEnumAttributes = /^(autoReverse|externalResourcesRequired|focusable|pre
 // Or maybe type UserValue = any; ?
 async function _render(child: any): Promise<any> {
 	child = await child;
-	if (child instanceof UnescapedString) {
+	if (child instanceof HTMLString) {
 		return child;
 	} else if (Array.isArray(child)) {
-		return unescapeHTML((await Promise.all(child.map((value) => _render(value)))).join(''));
+		return markHTMLString((await Promise.all(child.map((value) => _render(value)))).join(''));
 	} else if (typeof child === 'function') {
 		// Special: If a child is a function, call it automatically.
 		// This lets you do {() => ...} without the extra boilerplate
 		// of wrapping it in a function and calling it.
 		return _render(child());
 	} else if (typeof child === 'string') {
-		return escapeHTML(child);
+		return markHTMLString(escapeHTML(child));
 	} else if (!child && child !== 0) {
 		// do nothing, safe to ignore falsey values.
 	}
 	// Add a comment explaining why each of these are needed.
 	// Maybe create clearly named function for what this is doing.
 	else if (child instanceof AstroComponent || Object.prototype.toString.call(child) === '[object AstroComponent]') {
-		return unescapeHTML(await renderAstroComponent(child));
+		return markHTMLString(await renderAstroComponent(child));
 	} else {
 		return child;
 	}
@@ -72,7 +75,7 @@ export class AstroComponent {
 			const html = htmlParts[i];
 			const expression = expressions[i];
 
-			yield unescapeHTML(html);
+			yield markHTMLString(html);
 			yield _render(expression);
 		}
 	}
@@ -139,12 +142,12 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 		if (children == null) {
 			return children;
 		}
-		return unescapeHTML(children);
+		return markHTMLString(children);
 	}
 
 	if (Component && (Component as any).isAstroComponentFactory) {
 		const output = await renderToString(result, Component as any, _props, slots);
-		return unescapeHTML(output);
+		return markHTMLString(output);
 	}
 
 	if (Component === null && !_props['client:only']) {
@@ -255,7 +258,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// as a string and the user is responsible for adding a script tag for the component definition.
 	if (!html && typeof Component === 'string') {
 		html = await renderAstroComponent(
-			await render`<${Component}${spreadAttributes(props)}${unescapeHTML(
+			await render`<${Component}${spreadAttributes(props)}${markHTMLString(
 				(children == null || children == '') && voidElementNames.test(Component) ? `/>` : `>${children}</${Component}>`
 			)}`
 		);
@@ -272,7 +275,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	if (!hydration) {
-		return unescapeHTML(html.replace(/\<\/?astro-fragment\>/g, ''));
+		return markHTMLString(html.replace(/\<\/?astro-fragment\>/g, ''));
 	}
 
 	// Include componentExport name and componentUrl in hash to dedupe identical islands
@@ -285,7 +288,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	// Render a template if no fragment is provided.
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);
 	const template = needsAstroTemplate ? `<template data-astro-template>${children}</template>` : '';
-	return unescapeHTML(`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
+	return markHTMLString(`<astro-root uid="${astroId}"${needsAstroTemplate ? ' tmpl' : ''}>${html ?? ''}${template}</astro-root>`);
 }
 
 /** Create the Astro.fetchContent() runtime function. */
@@ -354,7 +357,7 @@ export function addAttribute(value: any, key: string, shouldEscape = true) {
 
 	if (value === false) {
 		if (htmlEnumAttributes.test(key) || svgEnumAttributes.test(key)) {
-			return unescapeHTML(` ${key}="false"`);
+			return markHTMLString(` ${key}="false"`);
 		}
 		return '';
 	}
@@ -370,14 +373,14 @@ Make sure to use the static attribute syntax (\`${key}={value}\`) instead of the
 
 	// support "class" from an expression passed into an element (#782)
 	if (key === 'class:list') {
-		return unescapeHTML(` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`);
+		return markHTMLString(` ${key.slice(0, -5)}="${toAttributeString(serializeListValue(value))}"`);
 	}
 
 	// Boolean values only need the key
 	if (value === true && (key.startsWith('data-') || htmlBooleanAttributes.test(key))) {
-		return unescapeHTML(` ${key}`);
+		return markHTMLString(` ${key}`);
 	} else {
-		return unescapeHTML(` ${key}="${toAttributeString(value, shouldEscape)}"`);
+		return markHTMLString(` ${key}="${toAttributeString(value, shouldEscape)}"`);
 	}
 }
 
@@ -387,7 +390,7 @@ export function spreadAttributes(values: Record<any, any>, shouldEscape = true) 
 	for (const [key, value] of Object.entries(values)) {
 		output += addAttribute(value, key, shouldEscape);
 	}
-	return unescapeHTML(output);
+	return markHTMLString(output);
 }
 
 // Adds CSS variables to an inline style tag
@@ -396,7 +399,7 @@ export function defineStyleVars(selector: string, vars: Record<any, any>) {
 	for (const [key, value] of Object.entries(vars)) {
 		output += `  --${key}: ${value};\n`;
 	}
-	return unescapeHTML(`${selector} {${output}}`);
+	return markHTMLString(`${selector} {${output}}`);
 }
 
 // Adds variables to an inline script.
@@ -405,7 +408,7 @@ export function defineScriptVars(vars: Record<any, any>) {
 	for (const [key, value] of Object.entries(vars)) {
 		output += `let ${key} = ${JSON.stringify(value)};\n`;
 	}
-	return unescapeHTML(output);
+	return markHTMLString(output);
 }
 
 // Renders an endpoint request to completion, returning the body.
@@ -502,7 +505,7 @@ export async function renderHead(result: SSRResult): Promise<string> {
 	const links = Array.from(result.links)
 		.filter(uniqueElements)
 		.map((link) => renderElement('link', link, false));
-	return unescapeHTML(links.join('\n') + styles.join('\n') + scripts.join('\n') + '\n' + '<!--astro:head:injected-->');
+	return markHTMLString(links.join('\n') + styles.join('\n') + scripts.join('\n') + '\n' + '<!--astro:head:injected-->');
 }
 
 export async function renderAstroComponent(component: InstanceType<typeof AstroComponent>) {
@@ -514,8 +517,7 @@ export async function renderAstroComponent(component: InstanceType<typeof AstroC
 		}
 	}
 
-	let html = await _render(template);
-	return unescapeHTML(html);
+	return markHTMLString(await _render(template));
 }
 
 function componentIsHTMLElement(Component: unknown) {
@@ -531,7 +533,7 @@ export async function renderHTMLElement(result: SSRResult, constructor: typeof H
 		attrHTML += ` ${attr}="${toAttributeString(await props[attr])}"`;
 	}
 
-	return unescapeHTML(`<${name}${attrHTML}>${await renderSlot(result, slots?.default)}</${name}>`);
+	return markHTMLString(`<${name}${attrHTML}>${await renderSlot(result, slots?.default)}</${name}>`);
 }
 
 function getHTMLElementName(constructor: typeof HTMLElement) {
