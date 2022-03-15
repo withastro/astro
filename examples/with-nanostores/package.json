@@ -25,6 +25,6 @@
     "@astrojs/renderer-solid": "^0.4.0",
     "@astrojs/renderer-svelte": "^0.5.1",
     "@astrojs/renderer-vue": "^0.4.0",
-    "astro": "^0.24.1"
+    "astro": "^0.24.2"
   }
 }
