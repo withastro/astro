@@ -1,6 +1,6 @@
 // @ts-check
 
-export default /** @type {import('astro').AstroUserConfig} */ ({
+export default defineConfig({
 	renderers: ['@astrojs/renderer-svelte'],
 	vite: {
 		server: {
