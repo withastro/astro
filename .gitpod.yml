@@ -1,15 +1,21 @@
 ---
+image:
+  file: .gitpod.Dockerfile
 # Commands to start on workspace startup
 tasks:
-  - init: pnpm install
-    command: pnpm run build
+  - init: |
+      pnpm install
+      pnpm run build
+    command: |
+      [[ ! -z "$ASTRO_NEW" ]] && gp await-port 23000 && cd "$GITPOD_REPO_ROOT"/examples/"$ASTRO_NEW" && code src/pages/index.astro && pnpm start
 vscode:
   extensions:
-    # TODO Once astro is on [vsx](https://open-vsx.org/), we should be able to specify it as an extension as well!
-    # https://www.gitpod.io/docs/vscode-extensions
-    - https://marketplace.visualstudio.com/_apis/public/gallery/publishers/astro-build/vsextensions/astro-vscode/0.7.13/vspackage
+    - astro-build.astro-vscode
     - esbenp.prettier-vscode
     - dbaeumer.vscode-eslint
+ports:
+  - port: 3000
+    onOpen: open-preview
 github:
   prebuilds:
     # enable for the master/default branch (defaults to true)
