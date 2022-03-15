@@ -4,6 +4,7 @@ import { bold, cyan, dim, red, grey, underline, yellow, reset } from 'kleur/colo
 import { performance } from 'perf_hooks';
 import { Writable } from 'stream';
 import stringWidth from 'string-width';
+import * as readline from 'readline';
 import debugPackage from 'debug';
 import { format as utilFormat } from 'util';
 
@@ -69,9 +70,9 @@ export const defaultLogDestination = new Writable({
 					lines = Math.ceil(len / cols);
 				}
 				for (let i = 0; i < lines; i++) {
-					(dest as typeof process.stdout).clearLine(0);
-					(dest as typeof process.stdout).cursorTo(0);
-					(dest as typeof process.stdout).moveCursor(0, -1);
+					readline.clearLine(dest, 0);
+					readline.cursorTo(dest, 0);
+					readline.moveCursor(dest, 0, -1);
 				}
 			}
 			message = `${message} ${yellow(`(x${lastMessageCount})`)}`;
