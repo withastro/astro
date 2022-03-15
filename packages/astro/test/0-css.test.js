@@ -295,7 +295,7 @@ describe('CSS', function () {
 		it('resolves Styles from React', async () => {
 			const styles = ['ReactCSS.css', 'ReactModules.module.css', 'ReactModules.module.scss', 'ReactModules.module.sass', 'ReactSass.sass', 'ReactScss.scss'];
 			for (const style of styles) {
-				const href = $(`link[href$="${style}"]`).attr('href');
+				const href = $(`link[href$="/src/components/${style}"]`).attr('href');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
 		});
@@ -303,7 +303,7 @@ describe('CSS', function () {
 		it('resolves CSS from Svelte', async () => {
 			const scripts = ['SvelteCSS.svelte?svelte&type=style&lang.css', 'SvelteSass.svelte?svelte&type=style&lang.css', 'SvelteScss.svelte?svelte&type=style&lang.css'];
 			for (const script of scripts) {
-				const src = $(`script[src$="${script}"]`).attr('src');
+				const src = $(`script[src$="/src/components/${script}"]`).attr('src');
 				expect((await fixture.fetch(src)).status, script).to.equal(200);
 			}
 		});
@@ -317,7 +317,7 @@ describe('CSS', function () {
 				'VueScss.vue?vue&type=style&index=0&lang.scss',
 			];
 			for (const style of styles) {
-				const href = $(`link[href$="${style}"]`).attr('href');
+				const href = $(`link[href$="/src/components/${style}"]`).attr('href');
 				expect((await fixture.fetch(href)).status, style).to.equal(200);
 			}
 		});
