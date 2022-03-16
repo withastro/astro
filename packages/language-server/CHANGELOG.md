@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.12.0
+
+### Minor Changes
+
+- 8a58a56: Refactor the language-server, fixes many issues related to imports, add support for completions in multiple style tags
+
 ## 0.11.0
 
 ### Minor Changes

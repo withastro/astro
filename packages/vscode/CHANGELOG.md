@@ -1,5 +1,16 @@
 # astro-vscode
 
+## 0.12.0
+
+### Minor Changes
+
+- 8a58a56: Refactor the language-server, fixes many issues related to imports, add support for completions in multiple style tags
+
+### Patch Changes
+
+- Updated dependencies [8a58a56]
+  - @astrojs/language-server@0.12.0
+
 ## 0.11.0
 
 ### Patch Changes
