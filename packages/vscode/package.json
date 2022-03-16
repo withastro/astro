@@ -15,7 +15,8 @@
   "scripts": {
     "vscode:prepublish": "yarn build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
-    "dev": "astro-scripts dev \"src/**/*.ts\""
+    "dev": "astro-scripts dev \"src/**/*.ts\"",
+    "test": "node ./test/runTest.js"
   },
   "engines": {
     "vscode": "^1.52.0"
@@ -29,8 +30,11 @@
     "vscode-languageclient": "~7.0.0"
   },
   "devDependencies": {
+    "@types/glob": "^7.2.0",
     "@types/vscode": "^1.52.0",
-    "astro-scripts": "file:../../scripts"
+    "@vscode/test-electron": "^2.1.3",
+    "astro-scripts": "file:../../scripts",
+    "glob": "^7.2.0"
   },
   "main": "./dist/index.js",
   "browser": "./dist/index.js",

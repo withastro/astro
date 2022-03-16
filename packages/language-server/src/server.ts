@@ -1,160 +1,178 @@
-import { RequestType, TextDocumentPositionParams, createConnection, ProposedFeatures, TextDocumentSyncKind, TextDocumentIdentifier } from 'vscode-languageserver';
-import { Document, DocumentManager } from './core/documents';
-import { ConfigManager } from './core/config';
-import { PluginHost, CSSPlugin, HTMLPlugin, TypeScriptPlugin, AppCompletionItem, AstroPlugin } from './plugins';
+import * as vscode from 'vscode-languageserver';
+import { TextDocumentIdentifier } from 'vscode-languageserver';
+import { ConfigManager } from './core/config/ConfigManager';
+import { DocumentManager } from './core/documents/DocumentManager';
 import { DiagnosticsManager } from './core/DiagnosticsManager';
+import { AstroPlugin } from './plugins/astro/AstroPlugin';
+import { CSSPlugin } from './plugins/css/CSSPlugin';
+import { HTMLPlugin } from './plugins/html/HTMLPlugin';
+import { AppCompletionItem } from './plugins/interfaces';
+import { PluginHost } from './plugins/PluginHost';
+import { TypeScriptPlugin } from './plugins/typescript/TypeScriptPlugin';
 import { debounceThrottle, urlToPath } from './utils';
+import { AstroDocument } from './core/documents';
 
-const TagCloseRequest: RequestType<TextDocumentPositionParams, string | null, any> = new RequestType('html/tag');
+const TagCloseRequest: vscode.RequestType<vscode.TextDocumentPositionParams, string | null, any> =
+	new vscode.RequestType('html/tag');
 
-/**
- * Starts `astro-languageservice`
- */
-export function startServer() {
-  let connection = createConnection(ProposedFeatures.all);
+// Start the language server
+export function startLanguageServer(connection: vscode.Connection) {
+	// Create our managers
+	const configManager = new ConfigManager();
+	const documentManager = new DocumentManager();
+	const pluginHost = new PluginHost(documentManager);
 
-  const docManager = DocumentManager.newInstance();
-  const configManager = new ConfigManager();
-  const pluginHost = new PluginHost(docManager);
+	connection.onInitialize((params: vscode.InitializeParams) => {
+		const workspaceUris = params.workspaceFolders?.map((folder) => folder.uri.toString()) ?? [params.rootUri ?? ''];
 
-  connection.onInitialize((evt) => {
-    const workspaceUris = evt.workspaceFolders?.map((folder) => folder.uri.toString()) ?? [evt.rootUri ?? ''];
+		pluginHost.initialize({
+			filterIncompleteCompletions: !params.initializationOptions?.dontFilterIncompleteCompletions,
+			definitionLinkSupport: !!params.capabilities.textDocument?.definition?.linkSupport,
+		});
 
-    pluginHost.initialize({
-      filterIncompleteCompletions: !evt.initializationOptions?.dontFilterIncompleteCompletions,
-      definitionLinkSupport: !!evt.capabilities.textDocument?.definition?.linkSupport,
-    });
-    pluginHost.register(new HTMLPlugin(docManager, configManager));
-    pluginHost.register(new CSSPlugin(docManager, configManager));
-    pluginHost.register(new TypeScriptPlugin(docManager, configManager, workspaceUris));
-    pluginHost.register(new AstroPlugin(docManager, configManager, workspaceUris));
-    configManager.update(
-      evt.initializationOptions?.configuration?.astro?.plugin ||
-          evt.initializationOptions?.config ||
-          {}
-    );
-    configManager.updateTsJsUserPreferences(
-      evt.initializationOptions?.configuration ||
-          evt.initializationOptions?.typescriptConfig ||
-          {}
-    );
-    configManager.updateEmmetConfig(evt.initializationOptions?.configuration?.emmet || evt.initializationOptions?.emmetConfig || {});
+		// Register plugins
+		pluginHost.registerPlugin(new HTMLPlugin(configManager));
+		pluginHost.registerPlugin(new CSSPlugin(configManager));
 
-    return {
-      capabilities: {
-        textDocumentSync: TextDocumentSyncKind.Incremental,
-        foldingRangeProvider: true,
-        definitionProvider: true,
-        renameProvider: true,
-        completionProvider: {
-          resolveProvider: true,
-          triggerCharacters: [
-            '.',
-            '"',
-            "'",
-            '`',
-            '/',
-            '@',
-            '<',
-            ' ',
+		// We don't currently support running the TypeScript and Astro plugin in the browser
+		if (params.initializationOptions.environment !== 'browser') {
+			pluginHost.registerPlugin(new AstroPlugin(documentManager, configManager, workspaceUris));
+			pluginHost.registerPlugin(new TypeScriptPlugin(documentManager, configManager, workspaceUris));
+		}
 
-            // Emmet
-            '>',
-            '*',
-            '#',
-            '$',
-            '+',
-            '^',
-            '(',
-            '[',
-            '@',
-            '-',
-            // No whitespace because
-            // it makes for weird/too many completions
-            // of other completion providers
+		// Update language-server config with what the user supplied to us at launch
+		configManager.updateConfig(params.initializationOptions.configuration.astro);
+		configManager.updateEmmetConfig(params.initializationOptions.configuration.emmet);
 
-            // Astro
-            ':',
-          ],
-        },
-        hoverProvider: true,
-        signatureHelpProvider: {
-          triggerCharacters: ['(', ',', '<'],
-          retriggerCharacters: [')'],
-        },
-      },
-    };
-  });
+		return {
+			capabilities: {
+				textDocumentSync: vscode.TextDocumentSyncKind.Incremental,
+				foldingRangeProvider: true,
+				definitionProvider: true,
+				renameProvider: true,
+				completionProvider: {
+					resolveProvider: true,
+					triggerCharacters: [
+						'.',
+						'"',
+						"'",
+						'`',
+						'/',
+						'@',
+						'<',
+						' ',
 
-  // Documents
-  connection.onDidOpenTextDocument((evt) => {
-    docManager.openDocument(Object.assign({ overrideText: true }, evt.textDocument));
-    docManager.markAsOpenedInClient(evt.textDocument.uri);
-  });
+						// Emmet
+						'>',
+						'*',
+						'#',
+						'$',
+						'+',
+						'^',
+						'(',
+						'[',
+						'@',
+						'-',
+						// No whitespace because
+						// it makes for weird/too many completions
+						// of other completion providers
 
-  connection.onDidCloseTextDocument((evt) => docManager.closeDocument(evt.textDocument.uri));
+						// Astro
+						':',
+					],
+				},
+				hoverProvider: true,
+				signatureHelpProvider: {
+					triggerCharacters: ['(', ',', '<'],
+					retriggerCharacters: [')'],
+				},
+			},
+		};
+	});
 
-  const diagnosticsManager = new DiagnosticsManager(
-      connection.sendDiagnostics,
-      docManager,
-      pluginHost.getDiagnostics.bind(pluginHost)
-  );
+	// On update of the user configuration of the language-server
+	connection.onDidChangeConfiguration(({ settings }: vscode.DidChangeConfigurationParams) => {
+		configManager.updateConfig(settings.astro);
+		configManager.updateEmmetConfig(settings.emmet);
+	});
 
-  const updateAllDiagnostics = debounceThrottle(() => diagnosticsManager.updateAll(), 1000);
+	// Documents
+	connection.onDidOpenTextDocument((params: vscode.DidOpenTextDocumentParams) => {
+		documentManager.openDocument(params.textDocument);
+		documentManager.markAsOpenedInClient(params.textDocument.uri);
+	});
+	connection.onDidCloseTextDocument((params: vscode.DidCloseTextDocumentParams) =>
+		documentManager.closeDocument(params.textDocument.uri)
+	);
+	connection.onDidChangeTextDocument((params: vscode.DidChangeTextDocumentParams) => {
+		documentManager.updateDocument(params.textDocument, params.contentChanges);
+	});
 
-  connection.onDidChangeTextDocument((evt) => {
-    docManager.updateDocument(evt.textDocument.uri, evt.contentChanges);
-  });
+	const diagnosticsManager = new DiagnosticsManager(
+		connection.sendDiagnostics,
+		documentManager,
+		pluginHost.getDiagnostics.bind(pluginHost)
+	);
 
-  connection.onDidChangeWatchedFiles((evt) => {
-    const params = evt.changes
-      .map((change) => ({
-        fileName: urlToPath(change.uri),
-        changeType: change.type,
-      }))
-      .filter((change) => !!change.fileName);
+	const updateAllDiagnostics = debounceThrottle(() => diagnosticsManager.updateAll(), 1000);
 
-    pluginHost.onWatchFileChanges(params);
-    updateAllDiagnostics();
-  });
+	connection.onDidChangeWatchedFiles((evt) => {
+		const params = evt.changes
+			.map((change) => ({
+				fileName: urlToPath(change.uri),
+				changeType: change.type,
+			}))
+			.filter((change) => !!change.fileName);
 
-  //connection.onDidChangeTextDocument(updateAllDiagnostics);
+		pluginHost.onWatchFileChanges(params);
+		updateAllDiagnostics();
+	});
 
-  // Config
-  connection.onDidChangeConfiguration(({ settings }) => {
-    configManager.update(settings.astro?.plugin);
-    configManager.updateEmmetConfig(settings.emmet);
-    configManager.updateTsJsUserPreferences(settings);
-  });
+	// Features
+	connection.onHover((params: vscode.HoverParams) => pluginHost.doHover(params.textDocument, params.position));
 
-  // Features
-  connection.onCompletion(async (evt) => {
-    const promise = pluginHost.getCompletions(evt.textDocument, evt.position, evt.context);
-    return promise;
-  });
-  connection.onCompletionResolve((completionItem) => {
-    const data = (completionItem as AppCompletionItem).data as TextDocumentIdentifier;
+	connection.onDefinition((evt) => pluginHost.getDefinitions(evt.textDocument, evt.position));
+	connection.onFoldingRanges((evt) => pluginHost.getFoldingRanges(evt.textDocument));
 
-    if (!data) {
-      return completionItem;
-    }
+	connection.onCompletion(async (evt) => {
+		const promise = pluginHost.getCompletions(evt.textDocument, evt.position, evt.context);
+		return promise;
+	});
 
-    return pluginHost.resolveCompletion(data, completionItem);
-  });
-  connection.onHover((evt) => pluginHost.doHover(evt.textDocument, evt.position));
-  connection.onDefinition((evt) => pluginHost.getDefinitions(evt.textDocument, evt.position));
-  connection.onFoldingRanges((evt) => pluginHost.getFoldingRanges(evt.textDocument));
-  connection.onRequest(TagCloseRequest, (evt: any) => pluginHost.doTagComplete(evt.textDocument, evt.position));
-  connection.onSignatureHelp((evt, cancellationToken) => pluginHost.getSignatureHelp(evt.textDocument, evt.position, evt.context, cancellationToken));
-  connection.onRenameRequest(evt => pluginHost.rename(evt.textDocument, evt.position, evt.newName));
+	connection.onCompletionResolve((completionItem) => {
+		const data = (completionItem as AppCompletionItem).data as TextDocumentIdentifier;
 
-  docManager.on(
-      'documentChange',
-      debounceThrottle(async (document: Document) => diagnosticsManager.update(document), 1000)
-  );
-  docManager.on('documentClose', (document: Document) =>
-      diagnosticsManager.removeDiagnostics(document)
-  );
+		if (!data) {
+			return completionItem;
+		}
+		return pluginHost.resolveCompletion(data, completionItem);
+	});
 
-  connection.listen();
+	connection.onRequest(TagCloseRequest, (evt: any) => pluginHost.doTagComplete(evt.textDocument, evt.position));
+	connection.onSignatureHelp((evt, cancellationToken) =>
+		pluginHost.getSignatureHelp(evt.textDocument, evt.position, evt.context, cancellationToken)
+	);
+	connection.onRenameRequest((evt) => pluginHost.rename(evt.textDocument, evt.position, evt.newName));
+
+	connection.onDidSaveTextDocument(updateAllDiagnostics);
+	connection.onNotification('$/onDidChangeNonAstroFile', async (e: any) => {
+		const path = urlToPath(e.uri);
+		if (path) {
+			pluginHost.updateNonAstroFile(path, e.changes);
+		}
+		updateAllDiagnostics();
+	});
+
+	documentManager.on(
+		'documentChange',
+		debounceThrottle(async (document: AstroDocument) => diagnosticsManager.update(document), 1000)
+	);
+	documentManager.on('documentClose', (document: AstroDocument) => diagnosticsManager.removeDiagnostics(document));
+
+	// Taking off 🚀
+	connection.onInitialized(() => {
+		connection.console.log('Successfully initialized! 🚀');
+	});
+
+	connection.listen();
 }

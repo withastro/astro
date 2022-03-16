@@ -1,153 +1,157 @@
-import { DefinitionLink } from 'vscode-languageserver';
-import type { Document, DocumentManager } from '../../core/documents';
-import type { ConfigManager } from '../../core/config';
-import type { CompletionsProvider, AppCompletionList, FoldingRangeProvider } from '../interfaces';
+import ts from 'typescript';
 import {
-  CompletionContext,
-  Position,
-  LocationLink,
-  FoldingRange,
-  Range
+	CompletionContext,
+	DefinitionLink,
+	FoldingRange,
+	FoldingRangeKind,
+	LocationLink,
+	Position,
+	Range,
 } from 'vscode-languageserver';
-import { Node } from 'vscode-html-languageservice';
+import { ConfigManager } from '../../core/config';
+import { AstroDocument, DocumentManager, isInsideFrontmatter } from '../../core/documents';
 import { pathToUrl, urlToPath } from '../../utils';
-import { toVirtualAstroFilePath } from '../typescript/utils';
-import { isInsideFrontmatter } from '../../core/documents/utils';
-import * as ts from 'typescript';
-import { LanguageServiceManager as TypeScriptLanguageServiceManager } from '../typescript/LanguageServiceManager';
-import { ensureRealFilePath } from '../typescript/utils';
-import { FoldingRangeKind } from 'vscode-languageserver-types';
-import { CompletionProvider } from './features/CompletionProvider';
+import { AppCompletionList, Plugin } from '../interfaces';
+import { LanguageServiceManager } from '../typescript/LanguageServiceManager';
+import { ensureRealFilePath, toVirtualAstroFilePath } from '../typescript/utils';
+import { CompletionsProviderImpl } from './features/CompletionsProvider';
+import { Node } from 'vscode-html-languageservice';
 
-export class AstroPlugin implements CompletionsProvider, FoldingRangeProvider {
-  private readonly configManager: ConfigManager;
-  private readonly tsLanguageServiceManager: TypeScriptLanguageServiceManager;
-  private readonly completionProvider: CompletionProvider;
-  public pluginName = 'Astro';
+export class AstroPlugin implements Plugin {
+	__name = 'astro';
 
-  constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
-    this.configManager = configManager;
-    this.tsLanguageServiceManager = new TypeScriptLanguageServiceManager(docManager, configManager, workspaceUris);
-    this.completionProvider = new CompletionProvider(docManager, this.tsLanguageServiceManager);
-  }
+	private configManager: ConfigManager;
+	private readonly languageServiceManager: LanguageServiceManager;
 
-  async getCompletions(document: Document, position: Position, completionContext?: CompletionContext): Promise<AppCompletionList | null> {
-    const completions = this.completionProvider.getCompletions(document, position, completionContext);
-    return completions;
-  }
+	private readonly completionProvider: CompletionsProviderImpl;
 
-  async getFoldingRanges(document: Document): Promise<FoldingRange[]> {
-    const foldingRanges: FoldingRange[] = [];
-    const { frontmatter } = document.astro;
+	constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
+		this.configManager = configManager;
+		this.languageServiceManager = new LanguageServiceManager(docManager, workspaceUris, configManager);
 
-    // Currently editing frontmatter, don't fold
-    if (frontmatter.state !== 'closed') return foldingRanges;
+		this.completionProvider = new CompletionsProviderImpl(docManager, this.languageServiceManager);
+	}
 
-    const start = document.positionAt(frontmatter.startOffset as number);
-    const end = document.positionAt((frontmatter.endOffset as number) - 3);
-    return [
-      {
-        startLine: start.line,
-        startCharacter: start.character,
-        endLine: end.line,
-        endCharacter: end.character,
-        kind: FoldingRangeKind.Imports,
-      },
-    ];
-  }
+	async getCompletions(
+		document: AstroDocument,
+		position: Position,
+		completionContext?: CompletionContext
+	): Promise<AppCompletionList | null> {
+		const completions = this.completionProvider.getCompletions(document, position, completionContext);
+		return completions;
+	}
 
-  async getDefinitions(document: Document, position: Position): Promise<DefinitionLink[]> {
-    if (this.isInsideFrontmatter(document, position)) {
-      return [];
-    }
+	async getFoldingRanges(document: AstroDocument): Promise<FoldingRange[]> {
+		const foldingRanges: FoldingRange[] = [];
+		const { frontmatter } = document.astroMeta;
 
-    const offset = document.offsetAt(position);
-    const html = document.html;
+		// Currently editing frontmatter, don't fold
+		if (frontmatter.state !== 'closed') return foldingRanges;
 
-    const node = html.findNodeAt(offset);
-    if (!this.isComponentTag(node)) {
-      return [];
-    }
+		const start = document.positionAt(frontmatter.startOffset as number);
+		const end = document.positionAt((frontmatter.endOffset as number) - 3);
+		return [
+			{
+				startLine: start.line,
+				startCharacter: start.character,
+				endLine: end.line,
+				endCharacter: end.character,
+				kind: FoldingRangeKind.Imports,
+			},
+		];
+	}
 
-    const [componentName] = node.tag!.split(':');
+	async getDefinitions(document: AstroDocument, position: Position): Promise<DefinitionLink[]> {
+		if (this.isInsideFrontmatter(document, position)) {
+			return [];
+		}
 
-    const { lang } = await this.tsLanguageServiceManager.getTypeScriptDoc(document);
-    const defs = this.getDefinitionsForComponentName(document, lang, componentName);
+		const offset = document.offsetAt(position);
+		const html = document.html;
 
-    if (!defs || !defs.length) {
-      return [];
-    }
+		const node = html.findNodeAt(offset);
+		if (!this.isComponentTag(node)) {
+			return [];
+		}
 
-    const startRange: Range = Range.create(Position.create(0, 0), Position.create(0, 0));
-    const links = defs.map((def) => {
-      const defFilePath = ensureRealFilePath(def.fileName);
-      return LocationLink.create(pathToUrl(defFilePath), startRange, startRange);
-    });
+		const [componentName] = node.tag!.split(':');
 
-    return links;
-  }
+		const { lang, tsDoc } = await this.languageServiceManager.getLSAndTSDoc(document);
+		const defs = this.getDefinitionsForComponentName(document, lang, componentName);
 
-  private isInsideFrontmatter(document: Document, position: Position) {
-    return isInsideFrontmatter(document.getText(), document.offsetAt(position));
-  }
+		if (!defs || !defs.length) {
+			return [];
+		}
 
-  private isComponentTag(node: Node): boolean {
-    if (!node.tag) {
-      return false;
-    }
-    const firstChar = node.tag[0];
-    return /[A-Z]/.test(firstChar);
-  }
+		const startRange: Range = Range.create(Position.create(0, 0), Position.create(0, 0));
+		const links = defs.map((def) => {
+			const defFilePath = ensureRealFilePath(def.fileName);
+			return LocationLink.create(pathToUrl(defFilePath), startRange, startRange);
+		});
 
-  private getDefinitionsForComponentName(document: Document, lang: ts.LanguageService, componentName: string): readonly ts.DefinitionInfo[] | undefined {
-    const filePath = urlToPath(document.uri);
-    const tsFilePath = toVirtualAstroFilePath(filePath!);
+		return links;
+	}
 
-    const program = lang.getProgram();
-    const sourceFile = program?.getSourceFile(tsFilePath);
-    if (!sourceFile) {
-      return undefined;
-    }
+	private isInsideFrontmatter(document: AstroDocument, position: Position) {
+		return isInsideFrontmatter(document.getText(), document.offsetAt(position));
+	}
 
-    const specifier = this.getImportSpecifierForIdentifier(sourceFile, componentName);
-    if (!specifier) {
-      return [];
-    }
+	private isComponentTag(node: Node): boolean {
+		if (!node.tag) {
+			return false;
+		}
+		const firstChar = node.tag[0];
+		return /[A-Z]/.test(firstChar);
+	}
 
-    const defs = lang.getDefinitionAtPosition(tsFilePath, specifier.getStart());
-    if (!defs) {
-      return undefined;
-    }
+	private getDefinitionsForComponentName(
+		document: AstroDocument,
+		lang: ts.LanguageService,
+		componentName: string
+	): readonly ts.DefinitionInfo[] | undefined {
+		const filePath = urlToPath(document.uri);
+		const tsFilePath = toVirtualAstroFilePath(filePath!);
 
-    return defs;
-  }
+		const program = lang.getProgram();
+		const sourceFile = program?.getSourceFile(tsFilePath);
+		if (!sourceFile) {
+			return undefined;
+		}
 
+		const specifier = this.getImportSpecifierForIdentifier(sourceFile, componentName);
+		if (!specifier) {
+			return [];
+		}
 
-  private getImportSpecifierForIdentifier(sourceFile: ts.SourceFile, identifier: string): ts.Expression | undefined {
-    let importSpecifier: ts.Expression | undefined = undefined;
-    ts.forEachChild(sourceFile, (tsNode) => {
-      if (ts.isImportDeclaration(tsNode)) {
-        if (tsNode.importClause) {
-          const { name, namedBindings } = tsNode.importClause;
-          if (name && name.getText() === identifier) {
-            importSpecifier = tsNode.moduleSpecifier;
-            return true;
-          } else if(namedBindings && namedBindings.kind === ts.SyntaxKind.NamedImports) {
-            const elements = (namedBindings as ts.NamedImports).elements;
-            for(let elem of elements) {
-              if(elem.name.getText() === identifier) {
-                importSpecifier = tsNode.moduleSpecifier;
-                return true;
-              }
-            }
-          }
-        }
-      }
-    });
-    return importSpecifier;
-  }
-}
+		const defs = lang.getDefinitionAtPosition(tsFilePath, specifier.getStart());
+		if (!defs) {
+			return undefined;
+		}
 
-function isNodeExported(node: ts.Node): boolean {
-  return (ts.getCombinedModifierFlags(node as ts.Declaration) & ts.ModifierFlags.Export) !== 0 || (!!node.parent && node.parent.kind === ts.SyntaxKind.SourceFile);
+		return defs;
+	}
+
+	private getImportSpecifierForIdentifier(sourceFile: ts.SourceFile, identifier: string): ts.Expression | undefined {
+		let importSpecifier: ts.Expression | undefined = undefined;
+		ts.forEachChild(sourceFile, (tsNode) => {
+			if (ts.isImportDeclaration(tsNode)) {
+				if (tsNode.importClause) {
+					const { name, namedBindings } = tsNode.importClause;
+					if (name && name.getText() === identifier) {
+						importSpecifier = tsNode.moduleSpecifier;
+						return true;
+					} else if (namedBindings && namedBindings.kind === ts.SyntaxKind.NamedImports) {
+						const elements = (namedBindings as ts.NamedImports).elements;
+						for (let elem of elements) {
+							if (elem.name.getText() === identifier) {
+								importSpecifier = tsNode.moduleSpecifier;
+								return true;
+							}
+						}
+					}
+				}
+			}
+		});
+		return importSpecifier;
+	}
 }

@@ -1,141 +1,109 @@
-import { clamp } from '../../utils';
-import { Position, TextDocument } from 'vscode-languageserver';
+import { Position } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
+import { getLineOffsets, offsetAt, positionAt } from './utils';
 
 /**
  * Represents a textual document.
  */
 export abstract class ReadableDocument implements TextDocument {
-  /**
-   * Get the text content of the document
-   */
-  abstract getText(): string;
+	/**
+	 * Get the text content of the document
+	 */
+	abstract getText(): string;
 
-  /**
-   * Returns the url of the document
-   */
-  abstract getURL(): string;
+	/**
+	 * Returns the url of the document
+	 */
+	abstract getURL(): string;
 
-  /**
-   * Returns the file path if the url scheme is file
-   */
-  abstract getFilePath(): string | null;
+	/**
+	 * Returns the file path if the url scheme is file
+	 */
+	abstract getFilePath(): string | null;
 
-  /**
-   * Current version of the document.
-   */
-  public version = 0;
+	/**
+	 * Current version of the document.
+	 */
+	public version = 0;
 
-  /**
-   * Get the length of the document's content
-   */
-  getTextLength(): number {
-    return this.getText().length;
-  }
+	/**
+	 * Should be cleared when there's an update to the text
+	 */
+	protected lineOffsets?: number[];
 
-  /**
-   * Get the line and character based on the offset
-   * @param offset The index of the position
-   */
-  positionAt(offset: number): Position {
-    offset = clamp(offset, 0, this.getTextLength());
+	/**
+	 * Get the length of the document's content
+	 */
+	getTextLength(): number {
+		return this.getText().length;
+	}
 
-    const lineOffsets = this.getLineOffsets();
-    let low = 0;
-    let high = lineOffsets.length;
-    if (high === 0) {
-      return Position.create(0, offset);
-    }
+	/**
+	 * Get the line and character based on the offset
+	 * @param offset The index of the position
+	 */
+	positionAt(offset: number): Position {
+		return positionAt(offset, this.getText(), this.getLineOffsets());
+	}
 
-    while (low < high) {
-      const mid = Math.floor((low + high) / 2);
-      if (lineOffsets[mid] > offset) {
-        high = mid;
-      } else {
-        low = mid + 1;
-      }
-    }
+	/**
+	 * Get the index of the line and character position
+	 * @param position Line and character position
+	 */
+	offsetAt(position: Position): number {
+		return offsetAt(position, this.getText(), this.getLineOffsets());
+	}
 
-    // low is the least x for which the line offset is larger than the current offset
-    // or array.length if no line offset is larger than the current offset
-    const line = low - 1;
-    return Position.create(line, offset - lineOffsets[line]);
-  }
+	getLineUntilOffset(offset: number): string {
+		const { line, character } = this.positionAt(offset);
+		return this.lines[line].slice(0, character);
+	}
 
-  /**
-   * Get the index of the line and character position
-   * @param position Line and character position
-   */
-  offsetAt(position: Position): number {
-    const lineOffsets = this.getLineOffsets();
+	private getLineOffsets() {
+		if (!this.lineOffsets) {
+			this.lineOffsets = getLineOffsets(this.getText());
+		}
+		return this.lineOffsets;
+	}
 
-    if (position.line >= lineOffsets.length) {
-      return this.getTextLength();
-    } else if (position.line < 0) {
-      return 0;
-    }
+	/**
+	 * Implements TextDocument
+	 */
+	get uri(): string {
+		return this.getURL();
+	}
 
-    const lineOffset = lineOffsets[position.line];
-    const nextLineOffset = position.line + 1 < lineOffsets.length ? lineOffsets[position.line + 1] : this.getTextLength();
+	get lines(): string[] {
+		return this.getText().split(/\r?\n/);
+	}
 
-    return clamp(nextLineOffset, lineOffset, lineOffset + position.character);
-  }
+	get lineCount(): number {
+		return this.lines.length;
+	}
 
-  private getLineOffsets() {
-    const lineOffsets = [];
-    const text = this.getText();
-    let isLineStart = true;
-
-    for (let i = 0; i < text.length; i++) {
-      if (isLineStart) {
-        lineOffsets.push(i);
-        isLineStart = false;
-      }
-      const ch = text.charAt(i);
-      isLineStart = ch === '\r' || ch === '\n';
-      if (ch === '\r' && i + 1 < text.length && text.charAt(i + 1) === '\n') {
-        i++;
-      }
-    }
-
-    if (isLineStart && text.length > 0) {
-      lineOffsets.push(text.length);
-    }
-
-    return lineOffsets;
-  }
-
-  /**
-   * Implements TextDocument
-   */
-  get uri(): string {
-    return this.getURL();
-  }
-
-  get lineCount(): number {
-    return this.getText().split(/\r?\n/).length;
-  }
-
-  abstract languageId: string;
+	abstract languageId: string;
 }
 
 /**
  * Represents a textual document that can be manipulated.
  */
 export abstract class WritableDocument extends ReadableDocument {
-  /**
-   * Set the text content of the document
-   * @param text The new text content
-   */
-  abstract setText(text: string): void;
+	/**
+	 * Set the text content of the document.
+	 * Implementers should set `lineOffsets` to `undefined` here.
+	 * @param text The new text content
+	 */
+	abstract setText(text: string): void;
 
-  /**
-   * Update the text between two positions.
-   * @param text The new text slice
-   * @param start Start offset of the new text
-   * @param end End offset of the new text
-   */
-  update(text: string, start: number, end: number): void {
-    const content = this.getText();
-    this.setText(content.slice(0, start) + text + content.slice(end));
-  }
+	/**
+	 * Update the text between two positions.
+	 * @param text The new text slice
+	 * @param start Start offset of the new text
+	 * @param end End offset of the new text
+	 */
+	update(text: string, start: number, end: number): void {
+		this.lineOffsets = undefined;
+		const content = this.getText();
+		this.setText(content.slice(0, start) + text + content.slice(end));
+	}
 }

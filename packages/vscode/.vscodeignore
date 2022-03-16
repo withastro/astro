@@ -2,3 +2,4 @@ src/
 tsconfig.base.json
 tsconfig.json
 CONTRIBUTING.md
+test/

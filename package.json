@@ -12,7 +12,7 @@
     "dev": "turbo run dev --scope=\"@astrojs/**\" --scope=\"astro-vscode\" --parallel --no-cache",
     "format": "prettier -w .",
     "lint": "eslint \"packages/**/*.ts\"",
-    "test": "yarn workspace @astrojs/language-server test"
+    "test": "turbo run test --scope=@astrojs/language-server --scope=astro-vscode"
   },
   "workspaces": [
     "packages/*",

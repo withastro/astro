@@ -2,21 +2,21 @@ import { EOL } from 'os';
 import { parseAstro } from '../../core/documents/parseAstro';
 
 function addProps(content: string): string {
-  let defaultExportType = 'Record<string, any>';
+	let defaultExportType = 'Record<string, any>';
 
-	if(/(interface|type) Props/.test(content)) {
-    defaultExportType = 'Props';
-  }
+	if (/(interface|type) Props/.test(content)) {
+		defaultExportType = 'Props';
+	}
 
-  return EOL + `export default function (_props: ${defaultExportType}) { return <div></div>; }`
+	return EOL + `export default function (_props: ${defaultExportType}) { return <div></div>; }`;
 }
 
 function escapeTemplateLiteralContent(content: string) {
-  return content.replace(/`/g, '\\`');
+	return content.replace(/`/g, '\\`');
 }
 
 interface Astro2TSXResult {
-  code: string;
+	code: string;
 }
 
 export default function (content: string): Astro2TSXResult {
@@ -40,7 +40,7 @@ export default function (content: string): Astro2TSXResult {
 	}
 
 	// Content replacement
-	const htmlBegin = astroDocument.frontmatter.endOffset ? astroDocument.frontmatter.endOffset + 3 : 0
+	const htmlBegin = astroDocument.frontmatter.endOffset ? astroDocument.frontmatter.endOffset + 3 : 0;
 	let htmlRaw = content
 		.substring(htmlBegin)
 		// Turn comments into JS comments
@@ -56,10 +56,13 @@ export default function (content: string): Astro2TSXResult {
 			return `<script${attrs}>{()=>{${children}}}</script>`;
 		})
 		// Close void elements
-		.replace(/<(\s*(meta|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)([^>]*))>/g, (whole, inner) => {
-			if (whole.endsWith('/>')) return whole;
-			return `<${inner} />`;
-		})
+		.replace(
+			/<(\s*(meta|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)([^>]*))>/g,
+			(whole, inner) => {
+				if (whole.endsWith('/>')) return whole;
+				return `<${inner} />`;
+			}
+		)
 		// Replace `@` prefixed attributes with `_` prefix
 		.replace(/<([$A-Z_a-z][^\s\/>]*)([^\/>]*)>/g, (whole: string, tag: string, attrs: string) => {
 			if (attrs.includes('@')) {

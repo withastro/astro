@@ -1,12 +1,18 @@
-import { window, commands, workspace, ExtensionContext, TextDocument, Position } from 'vscode';
-import { LanguageClient, RequestType, TextDocumentPositionParams, ServerOptions, TransportKind } from 'vscode-languageclient/node';
+import { window, commands, workspace, ExtensionContext, TextDocument, Position, TextDocumentChangeEvent } from 'vscode';
+import {
+	LanguageClient,
+	RequestType,
+	TextDocumentPositionParams,
+	ServerOptions,
+	TransportKind,
+} from 'vscode-languageclient/node';
 import { LanguageClientOptions } from 'vscode-languageclient';
 import { activateTagClosing } from './html/autoClose.js';
 
 const TagCloseRequest: RequestType<TextDocumentPositionParams, string, any> = new RequestType('html/tag');
 
 export async function activate(context: ExtensionContext) {
-	const serverModule = require.resolve('@astrojs/language-server/bin/server.js');
+	const serverModule = require.resolve('@astrojs/language-server/bin/nodeServer.js');
 
 	const port = 6040;
 	const debugOptions = { execArgv: ['--nolazy', '--inspect=' + port] };
@@ -34,7 +40,9 @@ export async function activate(context: ExtensionContext) {
 				typescript: workspace.getConfiguration('typescript'),
 				javascript: workspace.getConfiguration('javascript'),
 			},
+			environment: 'node',
 			dontFilterIncompleteCompletions: true, // VSCode filters client side and is smarter at it than us
+			isTrusted: workspace.isTrusted,
 		},
 	};
 
@@ -58,8 +66,32 @@ export async function activate(context: ExtensionContext) {
 	// Restart the language server if any critical files that are outside our jurisdiction got changed (tsconfig, jsconfig etc)
 	workspace.onDidSaveTextDocument(async (doc: TextDocument) => {
 		const fileName = doc.fileName.split(/\/|\\/).pop() ?? doc.fileName;
-		if ([/^tsconfig\.json$/, /^jsconfig\.json$/, /^astro\.config\.(js|cjs|mjs|ts)$/].some((regex) => regex.test(fileName))) {
+		if (
+			[/^tsconfig\.json$/, /^jsconfig\.json$/, /^astro\.config\.(js|cjs|mjs|ts)$/].some((regex) => regex.test(fileName))
+		) {
 			await restartClient(false);
+		}
+	});
+
+	workspace.onDidChangeTextDocument((params: TextDocumentChangeEvent) => {
+		if (
+			['vue', 'svelte', 'javascript', 'typescript', 'javascriptreact', 'typescriptreact'].includes(
+				params.document.languageId
+			)
+		) {
+			getLSClient().sendNotification('$/onDidChangeNonAstroFile', {
+				uri: params.document.uri.toString(true),
+				// We only support partial changes for JS/TS files
+				changes: ['vue', 'svelte'].includes(params.document.languageId)
+					? undefined
+					: params.contentChanges.map((c) => ({
+							range: {
+								start: { line: c.range.start.line, character: c.range.start.character },
+								end: { line: c.range.end.line, character: c.range.end.character },
+							},
+							text: c.text,
+					  })),
+			});
 		}
 	});
 

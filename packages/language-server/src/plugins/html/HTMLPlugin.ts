@@ -1,133 +1,141 @@
-import { CompletionsProvider, FoldingRangeProvider } from '../interfaces';
+import {
+	CompletionItem,
+	CompletionList,
+	Position,
+	TextEdit,
+	CompletionItemKind,
+	FoldingRange,
+} from 'vscode-languageserver';
 import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
-import { getLanguageService, HTMLDocument, CompletionItem as HtmlCompletionItem, FoldingRange } from 'vscode-html-languageservice';
-import { CompletionList, Position, CompletionItem, CompletionItemKind, TextEdit } from 'vscode-languageserver';
-import type { Document, DocumentManager } from '../../core/documents';
-import { isInsideExpression, isInsideFrontmatter, isInComponentStartTag } from '../../core/documents/utils';
-import type { ConfigManager } from '../../core/config';
+import { getLanguageService } from 'vscode-html-languageservice';
+import type { Plugin } from '../interfaces';
+import { ConfigManager } from '../../core/config/ConfigManager';
+import { AstroDocument } from '../../core/documents/AstroDocument';
+import { isInComponentStartTag, isInsideExpression, isInsideFrontmatter } from '../../core/documents/utils';
+import { LSHTMLConfig } from '../../core/config/interfaces';
 
-export class HTMLPlugin implements CompletionsProvider, FoldingRangeProvider {
-  private lang = getLanguageService();
-  private documents = new WeakMap<Document, HTMLDocument>();
-  private styleScriptTemplate = new Set(['template', 'style', 'script']);
-  private configManager: ConfigManager;
-  public pluginName = 'HTML';
+export class HTMLPlugin implements Plugin {
+	__name = 'html';
 
-  constructor(docManager: DocumentManager, configManager: ConfigManager) {
-    docManager.on('documentChange', (document) => {
-      this.documents.set(document, document.html);
-    });
-    this.configManager = configManager;
-  }
+	private lang = getLanguageService();
+	private styleScriptTemplate = new Set(['style']);
+	private configManager: ConfigManager;
 
-  getCompletions(document: Document, position: Position): CompletionList | null {
-    const html = this.documents.get(document);
+	constructor(configManager: ConfigManager) {
+		this.configManager = configManager;
+	}
 
-    if (!html) {
-      return null;
-    }
+	/**
+	 * Get HTML completions
+	 */
+	getCompletions(document: AstroDocument, position: Position): CompletionList | null {
+		if (!this.featureEnabled('completions')) {
+			return null;
+		}
 
-    if (this.isInsideFrontmatter(document, position) || this.isInsideExpression(html, document, position)) {
-      return null;
-    }
+		const html = document.html;
+		const offset = document.offsetAt(position);
 
-    let emmetResults: CompletionList = {
-      isIncomplete: true,
-      items: [],
-    };
+		if (
+			!html ||
+			isInsideFrontmatter(document.getText(), offset) ||
+			isInsideExpression(document.getText(), html.findNodeAt(offset).start, offset)
+		) {
+			return null;
+		}
+
+		// Get Emmet completions
+		let emmetResults: CompletionList = {
+			isIncomplete: true,
+			items: [],
+		};
 
 		this.lang.setCompletionParticipants([
 			{
-				onHtmlContent: () => (emmetResults = getEmmetCompletions(document, position, 'html', this.configManager.getEmmetConfig()) || emmetResults),
+				onHtmlContent: () =>
+					(emmetResults =
+						getEmmetCompletions(document, position, 'html', this.configManager.getEmmetConfig()) || emmetResults),
 			},
 		]);
 
-		// For components, we only want Emmet completions inside the component (aka slots) because HTML properties are not necessarily valid for a component
-		const results = isInComponentStartTag(html, document.offsetAt(position)) ? CompletionList.create([]) : this.lang.doComplete(document, position, html);
-    const items = this.toCompletionItems(results.items);
+		// If we're in a component starting tag, we do not want HTML language completions
+		// as HTML attributes are not valid for components
+		const results = isInComponentStartTag(html, document.offsetAt(position))
+			? CompletionList.create([])
+			: this.lang.doComplete(document, position, html);
 
-    return CompletionList.create(
-      [...this.toCompletionItems(items), ...this.getLangCompletions(items), ...emmetResults.items],
-      // Emmet completions change on every keystroke, so they are never complete
-      emmetResults.items.length > 0
-    );
-  }
+		return CompletionList.create(
+			[...results.items, ...this.getLangCompletions(results.items), ...emmetResults.items],
+			// Emmet completions change on every keystroke, so they are never complete
+			emmetResults.items.length > 0
+		);
+	}
 
-  getFoldingRanges(document: Document): FoldingRange[] | null {
-    const html = this.documents.get(document);
-    if (!html) {
-      return null;
-    }
+	getFoldingRanges(document: AstroDocument): FoldingRange[] | null {
+		const html = document.html;
 
-    return this.lang.getFoldingRanges(document);
-  }
+		if (!html) {
+			return null;
+		}
 
-  doTagComplete(document: Document, position: Position): string | null {
-    const html = this.documents.get(document);
-    if (!html) {
-      return null;
-    }
+		return this.lang.getFoldingRanges(document);
+	}
 
-    if (this.isInsideFrontmatter(document, position) || this.isInsideExpression(html, document, position)) {
-      return null;
-    }
+	doTagComplete(document: AstroDocument, position: Position): string | null {
+		if (!this.featureEnabled('tagComplete')) {
+			return null;
+		}
 
-    return this.lang.doTagComplete(document, position, html);
-  }
+		const html = document.html;
+		const offset = document.offsetAt(position);
 
-  /**
-   * The HTML language service uses newer types which clash
-   * without the stable ones. Transform to the stable types.
-   */
-  private toCompletionItems(items: HtmlCompletionItem[]): CompletionItem[] {
-    return items.map((item) => {
-      if (!item.textEdit || TextEdit.is(item.textEdit)) {
-        return item as CompletionItem;
-      }
-      return {
-        ...item,
-        textEdit: TextEdit.replace(item.textEdit.replace, item.textEdit.newText),
-      };
-    });
-  }
+		if (
+			!html ||
+			isInsideFrontmatter(document.getText(), offset) ||
+			isInsideExpression(document.getText(), html.findNodeAt(offset).start, offset)
+		) {
+			return null;
+		}
 
-  private getLangCompletions(completions: CompletionItem[]): CompletionItem[] {
-    const styleScriptTemplateCompletions = completions.filter((completion) => completion.kind === CompletionItemKind.Property && this.styleScriptTemplate.has(completion.label));
-    const langCompletions: CompletionItem[] = [];
-    addLangCompletion('style', ['scss', 'sass']);
-    return langCompletions;
+		return this.lang.doTagComplete(document, position, html);
+	}
 
-    /** Add language completions */
-    function addLangCompletion(tag: string, languages: string[]) {
-      const existingCompletion = styleScriptTemplateCompletions.find((completion) => completion.label === tag);
-      if (!existingCompletion) {
-        return;
-      }
+	/**
+	 * Get lang completions for style tags (ex: `<style lang="scss">`)
+	 */
+	private getLangCompletions(completions: CompletionItem[]): CompletionItem[] {
+		const styleScriptTemplateCompletions = completions.filter(
+			(completion) => completion.kind === CompletionItemKind.Property && this.styleScriptTemplate.has(completion.label)
+		);
+		const langCompletions: CompletionItem[] = [];
+		addLangCompletion('style', ['scss', 'sass', 'less', 'styl', 'stylus']);
+		return langCompletions;
 
-      languages.forEach((lang) =>
-        langCompletions.push({
-          ...existingCompletion,
-          label: `${tag} (lang="${lang}")`,
-          insertText: existingCompletion.insertText && `${existingCompletion.insertText} lang="${lang}"`,
-          textEdit:
-            existingCompletion.textEdit && TextEdit.is(existingCompletion.textEdit)
-              ? {
-                  range: existingCompletion.textEdit.range,
-                  newText: `${existingCompletion.textEdit.newText} lang="${lang}"`,
-                }
-              : undefined,
-        })
-      );
-    }
-  }
+		/** Add language completions */
+		function addLangCompletion(tag: string, languages: string[]) {
+			const existingCompletion = styleScriptTemplateCompletions.find((completion) => completion.label === tag);
+			if (!existingCompletion) {
+				return;
+			}
 
-  private isInsideExpression(html: HTMLDocument, document: Document, position: Position) {
-    const offset = document.offsetAt(position);
-    const node = html.findNodeAt(offset);
-    return isInsideExpression(document.getText(), node.start, offset);
-  }
+			languages.forEach((lang) =>
+				langCompletions.push({
+					...existingCompletion,
+					label: `${tag} (lang="${lang}")`,
+					insertText: existingCompletion.insertText && `${existingCompletion.insertText} lang="${lang}"`,
+					textEdit:
+						existingCompletion.textEdit && TextEdit.is(existingCompletion.textEdit)
+							? {
+									range: existingCompletion.textEdit.range,
+									newText: `${existingCompletion.textEdit.newText} lang="${lang}"`,
+							  }
+							: undefined,
+				})
+			);
+		}
+	}
 
-  private isInsideFrontmatter(document: Document, position: Position) {
-    return isInsideFrontmatter(document.getText(), document.offsetAt(position));
-  }
+	private featureEnabled(feature: keyof LSHTMLConfig) {
+		return this.configManager.enabled('html.enabled') && this.configManager.enabled(`html.${feature}.enabled`);
+	}
 }

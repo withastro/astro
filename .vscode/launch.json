@@ -18,6 +18,17 @@
       "restart": true,
       "outFiles": ["${workspaceRoot}/packages/language-server/dist/**/*.js"],
       "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Run extension tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceRoot}/packages/vscode",
+        "--extensionTestsPath=${workspaceRoot}/packages/vscode/test/suite/index.js"
+      ]
     }
   ],
   "compounds": [

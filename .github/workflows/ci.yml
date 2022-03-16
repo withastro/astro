@@ -52,5 +52,10 @@ jobs:
       - name: Build the packages
         run: yarn build
 
+      - name: Test (Linux)
+        run: xvfb-run -a yarn test
+        if: runner.os == 'Linux'
+
       - name: Test
         run: yarn test
+        if: runner.os != 'Linux'
