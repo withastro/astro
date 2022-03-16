@@ -59,7 +59,7 @@
     "@ungap/structured-clone": "^0.3.4",
     "abort-controller": "^3.0.0",
     "event-target-shim": "^6.0.2",
-    "fetch-blob": "^3.1.4",
+    "fetch-blob": "^3.1.5",
     "formdata-polyfill": "^4.0.10",
     "magic-string": "^0.25.9",
     "mocha": "^9.2.2",

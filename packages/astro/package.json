@@ -61,7 +61,7 @@
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
-    "@astrojs/compiler": "^0.12.0",
+    "@astrojs/compiler": "^0.12.1",
     "@astrojs/language-server": "^0.8.10",
     "@astrojs/markdown-remark": "^0.6.4",
     "@astrojs/prism": "0.4.0",
@@ -70,7 +70,7 @@
     "@astrojs/renderer-svelte": "0.5.2",
     "@astrojs/renderer-vue": "0.4.0",
     "@astrojs/webapi": "^0.11.0",
-    "@babel/core": "^7.17.5",
+    "@babel/core": "^7.17.7",
     "@babel/traverse": "^7.17.3",
     "@proload/core": "^0.2.2",
     "@proload/plugin-tsm": "^0.1.1",
@@ -93,7 +93,7 @@
     "mime": "^3.0.0",
     "parse5": "^6.0.1",
     "path-to-regexp": "^6.2.0",
-    "postcss": "^8.4.8",
+    "postcss": "^8.4.12",
     "prismjs": "^1.27.0",
     "rehype-slug": "^5.0.1",
     "resolve": "^1.22.0",

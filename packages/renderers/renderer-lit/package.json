@@ -22,6 +22,6 @@
   "dependencies": {
     "@lit-labs/ssr": "^2.0.4",
     "@webcomponents/template-shadowroot": "^0.1.0",
-    "lit": "^2.2.0"
+    "lit": "^2.2.1"
   }
 }
