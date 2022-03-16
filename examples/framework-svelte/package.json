@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/renderer-svelte": "^0.5.1",
-    "astro": "^0.24.2"
+    "@astrojs/renderer-svelte": "^0.5.2",
+    "astro": "^0.24.3"
   }
 }
