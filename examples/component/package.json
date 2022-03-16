@@ -8,6 +8,6 @@
     "serve": "astro --project-root demo preview"
   },
   "devDependencies": {
-    "astro": "^0.24.2"
+    "astro": "^0.24.3"
   }
 }

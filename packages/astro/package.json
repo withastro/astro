@@ -1,6 +1,6 @@
 {
   "name": "astro",
-  "version": "0.24.2",
+  "version": "0.24.3",
   "description": "Astro is a modern site builder with web best practices, performance, and DX front-of-mind.",
   "type": "module",
   "author": "withastro",
@@ -67,7 +67,7 @@
     "@astrojs/prism": "0.4.0",
     "@astrojs/renderer-preact": "^0.5.0",
     "@astrojs/renderer-react": "0.5.0",
-    "@astrojs/renderer-svelte": "0.5.1",
+    "@astrojs/renderer-svelte": "0.5.2",
     "@astrojs/renderer-vue": "0.4.0",
     "@astrojs/webapi": "^0.11.0",
     "@babel/core": "^7.17.5",
