@@ -1,5 +1,36 @@
 # astro
 
+## 0.24.3
+
+### Patch Changes
+
+- [#2806](https://github.com/withastro/astro/pull/2806) [`9e59ec92`](https://github.com/withastro/astro/commit/9e59ec921fe539233a1a22b9f0c34ca3cfd05247) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Fix a warning from Vite regarding internal sourcemaps
+
+- Updated dependencies [[`79282163`](https://github.com/withastro/astro/commit/79282163e229bfe332b1221be3099f751b05807b)]:
+  - @astrojs/renderer-svelte@0.5.2
+
+## 0.24.2
+
+### Patch Changes
+
+- [#2801](https://github.com/withastro/astro/pull/2801) [`11fb3745`](https://github.com/withastro/astro/commit/11fb3745dd548c6a8fa94c6a29e0ee89bac591aa) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix: Handle CLI output in a cross-compat way
+
+* [#2793](https://github.com/withastro/astro/pull/2793) [`6eb49479`](https://github.com/withastro/astro/commit/6eb494796e5144a4f2c12a6cce3fb2345c9b4e4e) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix HTML double-escaping issue
+
+- [#2803](https://github.com/withastro/astro/pull/2803) [`2b76ee8d`](https://github.com/withastro/astro/commit/2b76ee8d75d44492af18b9ead35293da7178930a) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Add an `astro/config` entrypoint with a `defineConfig` utility.
+
+  Config files can now be easily benefit from Intellisense using the following approach:
+
+  ```js
+  import { defineConfig } from 'astro/config';
+
+  export default defineConfig({
+    renderers: [],
+  });
+  ```
+
+* [#2791](https://github.com/withastro/astro/pull/2791) [`2d95541b`](https://github.com/withastro/astro/commit/2d95541b52118f787144720cb28cdd64644b903a) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix missing styles on initial dev server load (ex. Tailwind styles)
+
 ## 0.24.1
 
 ### Patch Changes

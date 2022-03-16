@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-slots-preact",
+  "name": "@test/slots-preact",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

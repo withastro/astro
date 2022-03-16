@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-page-directory-url",
+  "name": "@test/astro-page-directory-url",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-doctype",
+  "name": "@test/astro-doctype",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

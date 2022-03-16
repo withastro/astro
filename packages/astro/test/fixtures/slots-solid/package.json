@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-slots-solid",
+  "name": "@test/slots-solid",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

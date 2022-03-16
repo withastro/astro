@@ -20,7 +20,6 @@ export default {
 							less: true,
 							sass: { renderSync: true },
 							scss: { renderSync: true },
-							postcss: true,
 							stylus: true,
 							typescript: true,
 						}),

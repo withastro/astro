@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-markdown-skiki-langs",
+  "name": "@test/astro-markdown-skiki-langs",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

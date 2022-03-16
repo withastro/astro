@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-class-list",
+  "name": "@test/astro-class-list",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

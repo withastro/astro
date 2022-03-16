@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-css-bundling-import",
+  "name": "@test/astro-css-bundling-import",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-slots-vue",
+  "name": "@test/slots-vue",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

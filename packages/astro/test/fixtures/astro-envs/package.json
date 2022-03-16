@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-envs",
+  "name": "@test/astro-envs",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

@@ -1,5 +1,11 @@
 # @astrojs/renderer-svelte
 
+## 0.5.2
+
+### Patch Changes
+
+- [#2807](https://github.com/withastro/astro/pull/2807) [`79282163`](https://github.com/withastro/astro/commit/79282163e229bfe332b1221be3099f751b05807b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Remove "PostCSS configuration was not passed or is invalid" error when using the Svelte renderer
+
 ## 0.5.1
 
 ### Patch Changes

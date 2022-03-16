@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-markdown-skiki-wrap-true",
+  "name": "@test/astro-markdown-skiki-wrap-true",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

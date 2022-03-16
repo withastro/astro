@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-config-port",
+  "name": "@test/config-port",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

@@ -8,7 +8,7 @@ describe('Custom Elements', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/custom-elements/',
-			renderers: ['@astrojs/test-custom-element-renderer'],
+			renderers: ['@test/custom-element-renderer'],
 		});
 		await fixture.build();
 	});

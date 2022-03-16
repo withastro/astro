@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-without-site-config",
+  "name": "@test/without-site-config",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

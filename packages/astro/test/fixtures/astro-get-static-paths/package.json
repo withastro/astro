@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-get-static-paths",
+  "name": "@test/astro-get-static-paths",
   "version": "0.0.0",
   "private": true,
   "dependencies": {

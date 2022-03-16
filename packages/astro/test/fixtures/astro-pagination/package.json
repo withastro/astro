@@ -1,5 +1,5 @@
 {
-  "name": "@astrojs/test-astro-pagination",
+  "name": "@test/astro-pagination",
   "version": "0.0.0",
   "private": true,
   "dependencies": {
