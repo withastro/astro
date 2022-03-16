@@ -83,6 +83,7 @@ class AstroBuilder {
 			origin,
 			routeCache: this.routeCache,
 			viteServer: this.viteServer,
+			ssr: this.config.buildOptions.experimentalSsr,
 		});
 
 		// Filter pages by using conditions based on their frontmatter.

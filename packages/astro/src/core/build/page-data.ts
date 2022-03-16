@@ -17,6 +17,7 @@ export interface CollectPagesDataOptions {
 	origin: string;
 	routeCache: RouteCache;
 	viteServer: ViteDevServer;
+	ssr: boolean;
 }
 
 export interface CollectPagesDataResult {
@@ -113,7 +114,7 @@ async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: Rout
 	if (!viteServer) throw new Error(`vite.createServer() not called!`);
 	const filePath = new URL(`./${route.component}`, astroConfig.projectRoot);
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-	const result = await callGetStaticPaths(mod, route, false, logging);
+	const result = await callGetStaticPaths(mod, route, false, logging, opts.ssr);
 	routeCache.set(route, result);
 	return result;
 }

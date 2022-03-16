@@ -2,17 +2,8 @@
 import Header from '../../components/Header.astro';
 import Container from '../../components/Container.astro';
 import AddToCart from '../../components/AddToCart.svelte';
-import { getProducts, getProduct } from '../../api';
+import { getProduct } from '../../api';
 import '../../styles/common.css';
-
-export async function getStaticPaths() {
-	const products = await getProducts();
-	return products.map(product => {
-		return {
-			params: { id: product.id.toString() }
-		}
-	});
-}
 
 const id = Number(Astro.request.params.id);
 const product = await getProduct(id);

@@ -11,18 +11,18 @@ function stringifyParams(params: Params) {
 	return JSON.stringify(params, Object.keys(params).sort());
 }
 
-export async function callGetStaticPaths(mod: ComponentInstance, route: RouteData, isValidate: boolean, logging: LogOptions): Promise<RouteCacheEntry> {
-	validateGetStaticPathsModule(mod);
+export async function callGetStaticPaths(mod: ComponentInstance, route: RouteData, isValidate: boolean, logging: LogOptions, ssr: boolean): Promise<RouteCacheEntry> {
+	validateGetStaticPathsModule(mod, ssr);
 	const resultInProgress = {
 		rss: [] as RSS[],
 	};
 	const staticPaths: GetStaticPathsResult = await (
-		await mod.getStaticPaths!({
+		await (mod.getStaticPaths ? mod.getStaticPaths({
 			paginate: generatePaginateFunction(route),
 			rss: (data) => {
 				resultInProgress.rss.push(data);
 			},
-		})
+		}) : [])
 	).flat();
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;

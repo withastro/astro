@@ -152,6 +152,7 @@ async function handleRequest(
 			routeCache,
 			pathname: rootRelativeUrl,
 			logging,
+			ssr: config.buildOptions.experimentalSsr,
 		});
 		if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {
 			warn(logging, 'getStaticPaths', `Route pattern matched, but no matching static path found. (${pathname})`);

@@ -3,11 +3,11 @@ import type { LogOptions } from '../logger';
 import { warn } from '../logger.js';
 
 /** Throw error for deprecated/malformed APIs */
-export function validateGetStaticPathsModule(mod: ComponentInstance) {
+export function validateGetStaticPathsModule(mod: ComponentInstance, ssr: boolean) {
 	if ((mod as any).createCollection) {
 		throw new Error(`[createCollection] deprecated. Please use getStaticPaths() instead.`);
 	}
-	if (!mod.getStaticPaths) {
+	if (!mod.getStaticPaths && !ssr) {
 		throw new Error(`[getStaticPaths] getStaticPaths() function is required. Make sure that you \`export\` the function from your component.`);
 	}
 }
