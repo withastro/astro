@@ -97,7 +97,7 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 						viteServer,
 					});
 
-					if(response.type !== 'html') {
+					if (response.type !== 'html') {
 						continue;
 					}
 

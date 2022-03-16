@@ -74,7 +74,7 @@ export interface RenderOptions {
 	headers: Headers;
 }
 
-export async function render(opts: RenderOptions): Promise<{ type: 'html', html: string } | { type: 'response', response: Response }> {
+export async function render(opts: RenderOptions): Promise<{ type: 'html'; html: string } | { type: 'response'; response: Response }> {
 	const { headers, legacyBuild, links, logging, origin, markdownRender, method, mod, pathname, scripts, renderers, resolve, route, routeCache, site, ssr } = opts;
 
 	const paramsAndPropsRes = await getParamsAndProps({
@@ -109,12 +109,12 @@ export async function render(opts: RenderOptions): Promise<{ type: 'html', html:
 		scripts,
 		ssr,
 		method,
-		headers
+		headers,
 	});
 
 	let page = await renderPage(result, Component, pageProps, null);
 
-	if(page.type === 'response') {
+	if (page.type === 'response') {
 		return page;
 	}
 
@@ -130,9 +130,9 @@ export async function render(opts: RenderOptions): Promise<{ type: 'html', html:
 	if (!legacyBuild && !/<!doctype html/i.test(html)) {
 		html = '<!DOCTYPE html>\n' + html;
 	}
-	
+
 	return {
 		type: 'html',
-		html
+		html,
 	};
 }

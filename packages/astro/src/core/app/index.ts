@@ -37,7 +37,7 @@ export class App {
 			if (!routeData) {
 				return new Response(null, {
 					status: 404,
-					statusText: 'Not found'
+					statusText: 'Not found',
 				});
 			}
 		}
@@ -75,13 +75,13 @@ export class App {
 			headers: request.headers,
 		});
 
-		if(result.type === 'response') {
+		if (result.type === 'response') {
 			return result.response;
 		}
 
 		let html = result.html;
 		return new Response(html, {
-			status: 200
+			status: 200,
 		});
 	}
 	async #loadRenderers(): Promise<Renderer[]> {

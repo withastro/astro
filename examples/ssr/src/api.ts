@@ -22,7 +22,7 @@ const origin = MODE === 'development' ? `http://127.0.0.1:3000` : `http://127.0.
 
 async function get<T>(endpoint: string, cb: (response: Response) => Promise<T>): Promise<T> {
 	const response = await fetch(`${origin}${endpoint}`, {
-		credentials: 'same-origin'
+		credentials: 'same-origin',
 	});
 	if (!response.ok) {
 		// TODO make this better...
@@ -46,14 +46,14 @@ export async function getProduct(id: number): Promise<Product> {
 }
 
 export async function getUser(): Promise<User> {
-	return get<User>(`/api/user`, async response => {
+	return get<User>(`/api/user`, async (response) => {
 		const user: User = await response.json();
 		return user;
 	});
 }
 
 export async function getCart(): Promise<Cart> {
-	return get<Cart>(`/api/cart`, async response => {
+	return get<Cart>(`/api/cart`, async (response) => {
 		const cart: Cart = await response.json();
 		return cart;
 	});
@@ -66,11 +66,11 @@ export async function addToUserCart(id: number | string, name: string): Promise<
 		mode: 'no-cors',
 		headers: {
 			'Content-Type': 'application/json',
-			'Cache': 'no-cache'
+			Cache: 'no-cache',
 		},
 		body: JSON.stringify({
 			id,
-			name
-		})
+			name,
+		}),
 	});
 }

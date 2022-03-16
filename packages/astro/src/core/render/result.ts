@@ -9,9 +9,9 @@ import { renderSlot } from '../../runtime/server/index.js';
 import { warn, LogOptions } from '../logger.js';
 
 function onlyAvailableInSSR(name: string) {
-	return function() {
+	return function () {
 		// TODO add more guidance when we have docs and adapters.
-		throw new Error(`Oops, you are trying to use ${name}, which is only available with SSR.`)
+		throw new Error(`Oops, you are trying to use ${name}, which is only available with SSR.`);
 	};
 }
 
@@ -94,14 +94,16 @@ export function createResult(args: CreateResultArgs): SSRResult {
 				__proto__: astroGlobal,
 				props,
 				request,
-				redirect: args.ssr ? (path: string) => {
-					return new Response(null, {
-						status: 301,
-						headers: {
-							Location: path
-						}
-					});
-				} : onlyAvailableInSSR('Astro.redirect'),
+				redirect: args.ssr
+					? (path: string) => {
+							return new Response(null, {
+								status: 301,
+								headers: {
+									Location: path,
+								},
+							});
+					  }
+					: onlyAvailableInSSR('Astro.redirect'),
 				resolve(path: string) {
 					if (!legacyBuild) {
 						let extra = `This can be replaced with a dynamic import like so: await import("${path}")`;

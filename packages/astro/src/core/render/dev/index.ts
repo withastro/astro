@@ -41,9 +41,7 @@ export interface SSROptions {
 
 export type ComponentPreload = [Renderer[], ComponentInstance];
 
-export type RenderResponse =
-	{ type: 'html', html: string } |
-	{ type: 'response', response: Response };
+export type RenderResponse = { type: 'html'; html: string } | { type: 'response'; response: Response };
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
@@ -186,7 +184,7 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 
 	return {
 		type: 'html',
-		html
+		html,
 	};
 }
 

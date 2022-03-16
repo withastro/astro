@@ -402,23 +402,22 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			route: pageData.route,
 			routeCache,
 			site: astroConfig.buildOptions.site,
-			ssr: opts.astroConfig.buildOptions.experimentalSsr
-		}
+			ssr: opts.astroConfig.buildOptions.experimentalSsr,
+		};
 
 		let body: string;
-		if(pageData.route.type === 'endpoint') {
-
+		if (pageData.route.type === 'endpoint') {
 			const result = await callEndpoint(mod as unknown as EndpointHandler, options);
 
-			if(result.type === 'response') {
-				throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`)
+			if (result.type === 'response') {
+				throw new Error(`Returning a Response from an endpoint is not supported in SSG mode.`);
 			}
 			body = result.body;
 		} else {
 			const result = await render(options);
 
 			// If there's a redirect or something, just do nothing.
-			if(result.type !== 'html') {
+			if (result.type !== 'html') {
 				return;
 			}
 			body = result.html;

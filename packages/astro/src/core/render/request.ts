@@ -18,10 +18,9 @@ export interface AstroRequest {
 	method: string;
 }
 
-export type AstroRequestSSR = AstroRequest
+export type AstroRequestSSR = AstroRequest;
 
-export function createRequest(method: string, pathname: string, headers: Headers,
-	origin: string, site: Site, ssr: boolean): AstroRequest {
+export function createRequest(method: string, pathname: string, headers: Headers, origin: string, site: Site, ssr: boolean): AstroRequest {
 	const url = new URL('.' + pathname, new URL(origin));
 
 	const canonicalURL = utilCanonicalURL('.' + pathname, site ?? url.origin);
@@ -31,10 +30,10 @@ export function createRequest(method: string, pathname: string, headers: Headers
 		canonicalURL,
 		params: {},
 		headers,
-		method
+		method,
 	};
 
-	if(!ssr) {
+	if (!ssr) {
 		// Headers are only readable if using SSR-mode. If not, make it an empty headers
 		// object, so you can't do something bad.
 		request.headers = new Headers();
@@ -42,7 +41,7 @@ export function createRequest(method: string, pathname: string, headers: Headers
 		// Disallow using query params.
 		request.url = new URL(request.url);
 
-		for(const [key] of request.url.searchParams) {
+		for (const [key] of request.url.searchParams) {
 			request.url.searchParams.delete(key);
 		}
 	}

@@ -11,7 +11,7 @@ function createRequestFromNodeRequest(req: IncomingMessage): Request {
 	const entries = Object.entries(req.headers as Record<string, any>);
 	let request = new Request(url, {
 		method: req.method || 'GET',
-		headers: new Headers(entries)
+		headers: new Headers(entries),
 	});
 	return request;
 }

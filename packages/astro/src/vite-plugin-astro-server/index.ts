@@ -43,12 +43,12 @@ function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: s
 async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
 	const { status, headers, body } = webResponse;
 	res.writeHead(status, Object.fromEntries(headers.entries()));
-	if(body) {
+	if (body) {
 		const reader = body.getReader();
-		while(true) {
+		while (true) {
 			const { done, value } = await reader.read();
-			if(done) break;
-			if(value) {
+			if (done) break;
+			if (value) {
 				res.write(value);
 			}
 		}
@@ -57,7 +57,7 @@ async function writeWebResponse(res: http.ServerResponse, webResponse: Response)
 }
 
 async function writeSSRResult(result: RenderResponse, res: http.ServerResponse, statusCode: 200 | 404) {
-	if(result.type === 'response') {
+	if (result.type === 'response') {
 		const { response } = result;
 		await writeWebResponse(res, response);
 		return;
@@ -194,9 +194,9 @@ async function handleRequest(
 		};
 
 		// Route successfully matched! Render it.
-		if(route.type === 'endpoint') {
+		if (route.type === 'endpoint') {
 			const result = await callEndpoint(options);
-			if(result.type === 'response') {
+			if (result.type === 'response') {
 				await writeWebResponse(res, result.response);
 			} else {
 				res.writeHead(200);
