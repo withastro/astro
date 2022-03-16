@@ -6,7 +6,6 @@ let fixture;
 
 describe('Tailwind', () => {
 	let fixture;
-	let devServer;
 
     before(async () => {
 		fixture = await loadFixture({
@@ -35,24 +34,26 @@ describe('Tailwind', () => {
 			bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
 		});
 
-        it('includes used component classes', async () => {
-            expect(bundledCSS).to.match(/\.bg-purple-600{/);
-        });
+		it('resolves CSS in src/styles', async () => {
+			expect(bundledCSS, 'includes used component classes').to.match(/\.bg-purple-600{/);
 
-        it('purges unused classes', async () => {
             // tests a random tailwind class that isn't used on the page
-            expect(bundledCSS).not.to.match(/\.bg-blue-600{/);
-        });
+            expect(bundledCSS, 'purges unused classes').not.to.match(/\.bg-blue-600{/);
 
-        it('includes responsive classes', async () => {
             // tailwind escapes colons, `lg:py-3` compiles to `lg\:py-3`
-            expect(bundledCSS).to.match(/\.lg\\:py-3{/)
-        })
+            expect(bundledCSS, 'includes responsive classes').to.match(/\.lg\\:py-3{/);
 
-        it('supports arbitrary value classes', async () => {
             // tailwind escapes brackets, `font-[900]` compiles to `font-\[900\]`
-            expect(bundledCSS).to.match(/\.font-\\\[900\\\]{font-weight:900}/)
-        })
+            expect(bundledCSS, 'supports arbitrary value classes').to.match(/\.font-\\\[900\\\]{font-weight:900}/)
+		});
+
+		it('maintains classes in HTML', async () => {
+			const button = $('button');
+
+			expect(button.hasClass('text-white'), 'basic class').to.be.true;
+			expect(button.hasClass('lg:py-3'), 'responsive class').to.be.true;
+			expect(button.hasClass('font-[900]', 'arbitrary value')).to.be.true;
+		});
     });
 
     // with "build" handling CSS checking, the dev tests are mostly testing the paths resolve in dev
@@ -78,9 +79,23 @@ describe('Tailwind', () => {
             const text = await res.text()
             
             expect(text, 'includes used component classes').to.match(/\.bg-purple-600/);
+
+			// tests a random tailwind class that isn't used on the page
             expect(text, 'purges unused classes').not.to.match(/\.bg-blue-600/);
+
+			// tailwind escapes colons, `lg:py-3` compiles to `lg\:py-3`
             expect(text, 'includes responsive classes').to.match(/\.lg\\\\:py-3/);
+
+			// tailwind escapes brackets, `font-[900]` compiles to `font-\[900\]`
             expect(text, 'supports arbitrary value classes').to.match(/.font-\\[900\\]/)
+		});
+
+		it('maintains classes in HTML', async () => {
+			const button = $('button');
+
+			expect(button.hasClass('text-white'), 'basic class').to.be.true;
+			expect(button.hasClass('lg:py-3'), 'responsive class').to.be.true;
+			expect(button.hasClass('font-[900]', 'arbitrary value')).to.be.true;
 		});
     })
 });

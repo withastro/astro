@@ -953,12 +953,14 @@ importers:
   packages/astro/test/fixtures/tailwindcss:
     specifiers:
       astro: workspace:*
+      autoprefixer: ^10.4.2
       postcss: ^8.4.8
       tailwindcss: ^3.0.23
     dependencies:
       astro: link:../../..
+      autoprefixer: 10.4.2_postcss@8.4.8
       postcss: 8.4.8
-      tailwindcss: 3.0.23
+      tailwindcss: 3.0.23_autoprefixer@10.4.2
 
   packages/astro/test/fixtures/vue-component:
     specifiers:
@@ -9217,7 +9219,6 @@ packages:
       resolve: 1.22.0
     transitivePeerDependencies:
       - ts-node
-    dev: true
 
   /tar-fs/2.1.1:
     resolution: {integrity: sha512-V0r2Y9scmbDRLCNex/+hYzvp/zyYjvFbHPNgVTKfQvVrb6guiE/fxP+XblDNR011utopbkex2nM4dHNV6GDsng==}
