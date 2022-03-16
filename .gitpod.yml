@@ -7,7 +7,7 @@ tasks:
       pnpm install
       pnpm run build
     command: |
-      [[ ! -z "$ASTRO_NEW" ]] && gp await-port 23000 && cd "$GITPOD_REPO_ROOT"/examples/"$ASTRO_NEW" && code src/pages/index.astro && pnpm start
+      .gitpod/gitpod-setup.sh
 vscode:
   extensions:
     - astro-build.astro-vscode
