@@ -1,5 +1,4 @@
 import type { Params } from '../../@types/astro';
-import '../polyfill.js';
 import { canonicalURL as utilCanonicalURL } from '../util.js';
 
 type Site = string | undefined;

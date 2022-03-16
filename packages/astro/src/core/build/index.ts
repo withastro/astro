@@ -3,7 +3,7 @@ import type { LogOptions } from '../logger';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
-import '../polyfill.js';
+import { apply as applyPolyfill } from '../polyfill.js';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
@@ -37,6 +37,8 @@ class AstroBuilder {
 	private viteConfig?: ViteConfigWithSSR;
 
 	constructor(config: AstroConfig, options: BuildOptions) {
+		applyPolyfill();
+
 		if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
 			warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
 		}

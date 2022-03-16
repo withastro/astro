@@ -2,7 +2,7 @@ import type { AstroConfig } from '../../@types/astro';
 import type { AddressInfo } from 'net';
 
 import { performance } from 'perf_hooks';
-import '../polyfill.js';
+import { apply as applyPolyfill } from '../polyfill.js';
 import { createVite } from '../create-vite.js';
 import { defaultLogOptions, info, warn, LogOptions } from '../logger.js';
 import * as vite from 'vite';
@@ -21,6 +21,7 @@ export interface DevServer {
 /** `astro dev` */
 export default async function dev(config: AstroConfig, options: DevOptions = { logging: defaultLogOptions }): Promise<DevServer> {
 	const devStart = performance.now();
+	applyPolyfill();
 
 	// TODO: remove call once --hostname is baselined
 	const host = getResolvedHostForVite(config);
