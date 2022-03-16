@@ -3,7 +3,7 @@ import type { LogOptions } from '../logger';
 
 import fs from 'fs';
 import * as colors from 'kleur/colors';
-import { polyfill } from '@astrojs/webapi';
+import { apply as applyPolyfill } from '../polyfill.js';
 import { performance } from 'perf_hooks';
 import * as vite from 'vite';
 import { createVite, ViteConfigWithSSR } from '../create-vite.js';
@@ -22,11 +22,6 @@ export interface BuildOptions {
 
 /** `astro build` */
 export default async function build(config: AstroConfig, options: BuildOptions = { logging: defaultLogOptions }): Promise<void> {
-	// polyfill WebAPIs to globalThis for Node v12, Node v14, and Node v16
-	polyfill(globalThis, {
-		exclude: 'window document',
-	});
-
 	const builder = new AstroBuilder(config, options);
 	await builder.build();
 }
@@ -42,6 +37,8 @@ class AstroBuilder {
 	private viteConfig?: ViteConfigWithSSR;
 
 	constructor(config: AstroConfig, options: BuildOptions) {
+		applyPolyfill();
+
 		if (!config.buildOptions.site && config.buildOptions.sitemap !== false) {
 			warn(options.logging, 'config', `Set "buildOptions.site" to generate correct canonical URLs and sitemap`);
 		}

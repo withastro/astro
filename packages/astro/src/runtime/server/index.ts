@@ -1,5 +1,6 @@
-import type { AstroComponentMetadata, EndpointHandler, Renderer } from '../../@types/astro';
+import type { AstroComponentMetadata, EndpointHandler, Renderer, Params } from '../../@types/astro';
 import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/astro';
+import type { AstroRequest } from '../../core/render/request';
 
 import shorthash from 'shorthash';
 import { extractDirectives, generateHydrateScript } from './hydration.js';
@@ -80,13 +81,17 @@ export class AstroComponent {
 	}
 }
 
+function isAstroComponent(obj: any): obj is AstroComponent {
+	return typeof obj === 'object' && Object.prototype.toString.call(obj) === '[object AstroComponent]';
+}
+
 export async function render(htmlParts: TemplateStringsArray, ...expressions: any[]) {
 	return new AstroComponent(htmlParts, expressions);
 }
 
 // The callback passed to to $$createComponent
 export interface AstroComponentFactory {
-	(result: any, props: any, slots: any): ReturnType<typeof render>;
+	(result: any, props: any, slots: any): ReturnType<typeof render> | Response;
 	isAstroComponentFactory?: boolean;
 }
 
@@ -407,30 +412,60 @@ export function defineScriptVars(vars: Record<any, any>) {
 }
 
 // Renders an endpoint request to completion, returning the body.
-export async function renderEndpoint(mod: EndpointHandler, params: any) {
-	const method = 'get';
-	const handler = mod[method];
+export async function renderEndpoint(mod: EndpointHandler, request: AstroRequest, params: Params) {
+	const chosenMethod = request.method?.toLowerCase() ?? 'get';
+	const handler = mod[chosenMethod];
 
 	if (!handler || typeof handler !== 'function') {
-		throw new Error(`Endpoint handler not found! Expected an exported function for "${method}"`);
+		throw new Error(`Endpoint handler not found! Expected an exported function for "${chosenMethod}"`);
 	}
 
-	const { body } = await mod.get(params);
-
-	return body;
+	return await handler.call(mod, params, request);
 }
 
-// Calls a component and renders it into a string of HTML
-export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory, props: any, children: any): Promise<string> {
-	const Component = await componentFactory(result, props, children);
-	let template = await renderAstroComponent(Component);
-
+async function replaceHeadInjection(result: SSRResult, html: string): Promise<string> {
+	let template = html;
 	// <!--astro:head--> injected by compiler
 	// Must be handled at the end of the rendering process
 	if (template.indexOf('<!--astro:head-->') > -1) {
 		template = template.replace('<!--astro:head-->', await renderHead(result));
 	}
 	return template;
+}
+
+// Calls a component and renders it into a string of HTML
+export async function renderToString(result: SSRResult, componentFactory: AstroComponentFactory,
+	props: any, children: any): Promise<string> {
+	const Component = await componentFactory(result, props, children);
+	if(!isAstroComponent(Component)) {
+		throw new Error('Cannot return a Response from a nested component.');
+	}
+
+	let template = await renderAstroComponent(Component);
+	return replaceHeadInjection(result, template);
+}
+
+export async function renderPage(
+	result: SSRResult,
+	componentFactory: AstroComponentFactory,
+	props: any,
+	children: any
+): Promise<{ type: 'html', html: string } | { type: 'response', response: Response }> {
+	const response = await componentFactory(result, props, children);
+
+	if(isAstroComponent(response)) {
+		let template = await renderAstroComponent(response);
+		const html = await replaceHeadInjection(result, template);
+		return {
+			type: 'html',
+			html
+		};
+	} else {
+		return {
+			type: 'response',
+			response
+		};
+	}
 }
 
 // Filter out duplicate elements in our set

@@ -83,10 +83,12 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 				for (const pathname of pageData.paths) {
 					pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));
 					const id = ASTRO_PAGE_PREFIX + pathname;
-					const html = await ssrRender(renderers, mod, {
+					const response = await ssrRender(renderers, mod, {
 						astroConfig,
 						filePath: new URL(`./${component}`, astroConfig.projectRoot),
 						logging,
+						headers: new Headers(),
+						method: 'GET',
 						mode: 'production',
 						origin,
 						pathname,
@@ -94,6 +96,12 @@ export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
 						routeCache,
 						viteServer,
 					});
+
+					if(response.type !== 'html') {
+						continue;
+					}
+
+					const html = response.html;
 					renderedPageMap.set(id, html);
 
 					const document = parse5.parse(html, {

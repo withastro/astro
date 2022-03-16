@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev-api": "node server/dev-api.mjs",
-    "dev": "npm run dev-api & astro dev --experimental-ssr",
+    "dev-server": "astro dev --experimental-ssr",
+    "dev": "concurrently \"npm run dev-api\" \"astro dev --experimental-ssr\"",
     "start": "astro dev",
     "build": "echo 'Run pnpm run build-ssr instead'",
     "build-ssr": "node build.mjs",
@@ -13,6 +14,8 @@
   "devDependencies": {
     "@astrojs/renderer-svelte": "^0.5.2",
     "astro": "^0.24.3",
+    "concurrently": "^7.0.0",
+    "lightcookie": "^1.0.25",
     "unocss": "^0.15.6",
     "vite-imagetools": "^4.0.3"
   }

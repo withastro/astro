@@ -1,17 +1,20 @@
 import type * as vite from 'vite';
 import type http from 'http';
 import type { AstroConfig, ManifestData } from '../@types/astro';
+import type { RenderResponse, SSROptions } from '../core/render/dev/index';
 import { info, warn, error, LogOptions } from '../core/logger.js';
 import { getParamsAndProps, GetParamsAndPropsError } from '../core/render/core.js';
 import { createRouteManifest, matchRoute } from '../core/routing/index.js';
 import stripAnsi from 'strip-ansi';
 import { createSafeError } from '../core/util.js';
 import { ssr, preload } from '../core/render/dev/index.js';
+import { call as callEndpoint } from '../core/endpoint/dev/index.js';
 import * as msg from '../core/messages.js';
 
 import notFoundTemplate, { subpathNotUsedTemplate } from '../template/4xx.js';
 import serverErrorTemplate from '../template/5xx.js';
 import { RouteCache } from '../core/render/route-cache.js';
+import { AstroRequest } from '../core/render/request.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -35,6 +38,33 @@ function writeHtmlResponse(res: http.ServerResponse, statusCode: number, html: s
 	});
 	res.write(html);
 	res.end();
+}
+
+async function writeWebResponse(res: http.ServerResponse, webResponse: Response) {
+	const { status, headers, body } = webResponse;
+	res.writeHead(status, Object.fromEntries(headers.entries()));
+	if(body) {
+		const reader = body.getReader();
+		while(true) {
+			const { done, value } = await reader.read();
+			if(done) break;
+			if(value) {
+				res.write(value);
+			}
+		}
+	}
+	res.end();
+}
+
+async function writeSSRResult(result: RenderResponse, res: http.ServerResponse, statusCode: 200 | 404) {
+	if(result.type === 'response') {
+		const { response } = result;
+		await writeWebResponse(res, response);
+		return;
+	}
+
+	const { html } = result;
+	writeHtmlResponse(res, statusCode, html);
 }
 
 async function handle404Response(origin: string, config: AstroConfig, req: http.IncomingMessage, res: http.ServerResponse) {
@@ -87,7 +117,8 @@ async function handleRequest(
 	const site = config.buildOptions.site ? new URL(config.buildOptions.site) : undefined;
 	const devRoot = site ? site.pathname : '/';
 	const origin = `${viteServer.config.server.https ? 'https' : 'http'}://${req.headers.host}`;
-	const pathname = decodeURI(new URL(origin + req.url).pathname);
+	const url = new URL(origin + req.url);
+	const pathname = decodeURI(url.pathname);
 	const rootRelativeUrl = pathname.substring(devRoot.length - 1);
 
 	try {
@@ -129,24 +160,26 @@ async function handleRequest(
 			if (routeCustom404) {
 				const filePathCustom404 = new URL(`./${routeCustom404.component}`, config.projectRoot);
 				const preloadedCompCustom404 = await preload({ astroConfig: config, filePath: filePathCustom404, viteServer });
-				const html = await ssr(preloadedCompCustom404, {
+				const result = await ssr(preloadedCompCustom404, {
 					astroConfig: config,
 					filePath: filePathCustom404,
 					logging,
 					mode: 'development',
+					method: 'GET',
+					headers: new Headers(Object.entries(req.headers as Record<string, any>)),
 					origin,
 					pathname: rootRelativeUrl,
 					route: routeCustom404,
 					routeCache,
 					viteServer,
 				});
-				return writeHtmlResponse(res, statusCode, html);
+				return await writeSSRResult(result, res, statusCode);
 			} else {
 				return handle404Response(origin, config, req, res);
 			}
 		}
 
-		const html = await ssr(preloadedComponent, {
+		const options: SSROptions = {
 			astroConfig: config,
 			filePath,
 			logging,
@@ -156,9 +189,25 @@ async function handleRequest(
 			route,
 			routeCache,
 			viteServer,
-		});
-		writeHtmlResponse(res, statusCode, html);
+			method: req.method || 'GET',
+			headers: new Headers(Object.entries(req.headers as Record<string, any>)),
+		};
+
+		// Route successfully matched! Render it.
+		if(route.type === 'endpoint') {
+			const result = await callEndpoint(options);
+			if(result.type === 'response') {
+				await writeWebResponse(res, result.response);
+			} else {
+				res.writeHead(200);
+				res.end(result.body);
+			}
+		} else {
+			const result = await ssr(preloadedComponent, options);
+			return await writeSSRResult(result, res, statusCode);
+		}
 	} catch (_err: any) {
+		debugger;
 		info(logging, 'serve', msg.req({ url: pathname, statusCode: 500 }));
 		const err = createSafeError(_err);
 		error(logging, 'error', msg.err(err));
