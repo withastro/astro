@@ -21,7 +21,7 @@ export const enum GetParamsAndPropsError {
 }
 
 export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props] | GetParamsAndPropsError> {
-	const { logging, mod, route, routeCache, pathname, ssr} = opts;
+	const { logging, mod, route, routeCache, pathname, ssr } = opts;
 	// Handle dynamic routes
 	let params: Params = {};
 	let pageProps: Props;

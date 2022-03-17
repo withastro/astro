@@ -11,14 +11,14 @@ describe('Dynamic pages in SSR', () => {
 			projectRoot: './fixtures/ssr-dynamic/',
 			buildOptions: {
 				experimentalSsr: true,
-			}
+			},
 		});
 		await fixture.build();
 	});
 
 	it('Do not have to implement getStaticPaths', async () => {
 		const app = await fixture.loadSSRApp();
-		const request = new Request("http://example.com/123");
+		const request = new Request('http://example.com/123');
 		const route = app.match(request);
 		const response = await app.render(request, route);
 		const html = await response.text();

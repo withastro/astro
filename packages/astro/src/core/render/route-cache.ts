@@ -19,20 +19,22 @@ interface CallGetStaticPathsOptions {
 	ssr: boolean;
 }
 
-export async function callGetStaticPaths({ isValidate, logging, mod, route, ssr}: CallGetStaticPathsOptions): Promise<RouteCacheEntry> {
+export async function callGetStaticPaths({ isValidate, logging, mod, route, ssr }: CallGetStaticPathsOptions): Promise<RouteCacheEntry> {
 	validateGetStaticPathsModule(mod, { ssr });
 	const resultInProgress = {
 		rss: [] as RSS[],
 	};
 
 	let staticPaths: GetStaticPathsResult = [];
-	if(mod.getStaticPaths) {
-		staticPaths = (await mod.getStaticPaths({
-			paginate: generatePaginateFunction(route),
-			rss: (data) => {
-				resultInProgress.rss.push(data);
-			},
-		})).flat();
+	if (mod.getStaticPaths) {
+		staticPaths = (
+			await mod.getStaticPaths({
+				paginate: generatePaginateFunction(route),
+				rss: (data) => {
+					resultInProgress.rss.push(data);
+				},
+			})
+		).flat();
 	}
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
