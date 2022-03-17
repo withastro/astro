@@ -54,6 +54,13 @@ describe('Tailwind', () => {
 			expect(button.hasClass('lg:py-3'), 'responsive class').to.be.true;
 			expect(button.hasClass('font-[900]', 'arbitrary value')).to.be.true;
 		});
+
+		it('handles complex classes in HTML', async () => {
+			const button = $('#complex');
+
+			expect(button.hasClass('w-10/12'), 'solidus').to.be.true;
+			expect(button.hasClass('2xl:w-[80%]'), 'complex class').to.be.true;
+		});
 	});
 
 	// with "build" handling CSS checking, the dev tests are mostly testing the paths resolve in dev
