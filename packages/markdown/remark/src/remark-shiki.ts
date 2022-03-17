@@ -48,10 +48,18 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 	}
 	return () => (tree: any) => {
 		visit(tree, 'code', (node) => {
+			const className: string | undefined = node.data?.hProperties?.class;
+
 			let html = highlighter!.codeToHtml(node.value, { lang: node.lang ?? 'plaintext' });
 
+			// Q: Couldn't these regexes match on a user's inputted code blocks?
+			// A: Nope! All rendered HTML is properly escaped.
+			// Ex. If a user typed `<span class="line"` into a code block,
+			// It would become this before hitting our regexes:
+			// &lt;span class=&quot;line&quot;
+
 			// Replace "shiki" class naming with "astro" and add "is:raw".
-			html = html.replace('<pre class="shiki"', '<pre is:raw class="astro-code"');
+			html = html.replace('<pre class="shiki"', `<pre is:raw class="astro-code${className ? ' ' + className : ''}"`);
 			// Replace "shiki" css variable naming with "astro".
 			html = html.replace(/style="(background-)?color: var\(--shiki-/g, 'style="$1color: var(--astro-code-');
 			// Handle code wrapping
@@ -60,6 +68,11 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
 			} else if (wrap === true) {
 				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"');
+			}
+
+			// Apply scoped className to all nested lines
+			if (className) {
+				html = html.replace(/\<span class="line"\>/g, `<span class="line ${className}"`);
 			}
 
 			node.type = 'html';
