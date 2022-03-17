@@ -110,11 +110,11 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 }
 
 async function getStaticPathsForRoute(opts: CollectPagesDataOptions, route: RouteData): Promise<RouteCacheEntry> {
-	const { astroConfig, logging, routeCache, viteServer } = opts;
+	const { astroConfig, logging, routeCache, ssr, viteServer } = opts;
 	if (!viteServer) throw new Error(`vite.createServer() not called!`);
 	const filePath = new URL(`./${route.component}`, astroConfig.projectRoot);
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
-	const result = await callGetStaticPaths(mod, route, false, logging, opts.ssr);
+	const result = await callGetStaticPaths({ mod, route, isValidate: false, logging, ssr });
 	routeCache.set(route, result);
 	return result;
 }

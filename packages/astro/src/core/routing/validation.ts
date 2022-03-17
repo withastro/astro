@@ -2,8 +2,12 @@ import type { ComponentInstance, GetStaticPathsResult } from '../../@types/astro
 import type { LogOptions } from '../logger';
 import { warn } from '../logger.js';
 
+interface ValidationOptions {
+	ssr: boolean;
+}
+
 /** Throw error for deprecated/malformed APIs */
-export function validateGetStaticPathsModule(mod: ComponentInstance, ssr: boolean) {
+export function validateGetStaticPathsModule(mod: ComponentInstance, { ssr }: ValidationOptions) {
 	if ((mod as any).createCollection) {
 		throw new Error(`[createCollection] deprecated. Please use getStaticPaths() instead.`);
 	}

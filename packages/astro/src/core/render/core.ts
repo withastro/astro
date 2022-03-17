@@ -38,7 +38,7 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 		// TODO(fks): Can we refactor getParamsAndProps() to receive routeCacheEntry
 		// as a prop, and not do a live lookup/populate inside this lower function call.
 		if (!routeCacheEntry) {
-			routeCacheEntry = await callGetStaticPaths(mod, route, true, logging, ssr);
+			routeCacheEntry = await callGetStaticPaths({ mod, route, isValidate: true, logging, ssr });
 			routeCache.set(route, routeCacheEntry);
 		}
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params);
