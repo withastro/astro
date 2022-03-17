@@ -1,5 +1,5 @@
 import React from 'react';
 
-export default function ({ name }) {
-  return <h2 id="react-h2">Hello {name}!</h2>;
+export default function ({ name, unused }) {
+  return <h2 id={`react-${name}`}>Hello {name}!</h2>;
 }
