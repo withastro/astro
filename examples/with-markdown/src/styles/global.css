@@ -65,20 +65,6 @@ pre > code {
 	z-index: 1;
 }
 
-.line-highlight {
-	position: absolute;
-	right: 0;
-	left: 0;
-	z-index: 0;
-	margin-top: 1em;
-	padding: inherit 0;
-	line-height: inherit;
-	white-space: pre;
-	background: #f7ebc6;
-	box-shadow: inset 5px 0 0 #f7d87c;
-	pointer-events: none;
-}
-
 body {
 	max-width: 900px;
 	margin: auto;
