@@ -1,11 +1,23 @@
-import { CompletionContext, CompletionList, CompletionTriggerKind, Position } from 'vscode-languageserver';
+import {
+	Color,
+	ColorInformation,
+	ColorPresentation,
+	CompletionContext,
+	CompletionList,
+	CompletionTriggerKind,
+	Position,
+	Range,
+} from 'vscode-languageserver';
 import { ConfigManager } from '../../core/config/ConfigManager';
 import { LSCSSConfig } from '../../core/config/interfaces';
 import {
 	AstroDocument,
 	isInsideFrontmatter,
 	isInTag,
+	mapColorPresentationToOriginal,
 	mapCompletionItemToOriginal,
+	mapObjWithRangeToOriginal,
+	mapRangeToGenerated,
 	TagInformation,
 } from '../../core/documents';
 import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
@@ -15,6 +27,7 @@ import { getLanguageService } from './language-service';
 import { AttributeContext, getAttributeContextAtPosition } from '../../core/documents/parseHtml';
 import { StyleAttributeDocument } from './StyleAttributeDocument';
 import { getIdClassCompletion } from './features/getIdClassCompletions';
+import { flatten } from 'lodash';
 
 export class CSSPlugin implements Plugin {
 	__name = 'css';
@@ -104,6 +117,48 @@ export class CSSPlugin implements Plugin {
 		);
 	}
 
+	getDocumentColors(document: AstroDocument): ColorInformation[] {
+		if (!this.featureEnabled('documentColors')) {
+			return [];
+		}
+
+		const allColorInfo = this.getCSSDocumentsForDocument(document).map((cssDoc) => {
+			const cssLang = extractLanguage(cssDoc);
+			const langService = getLanguageService(cssLang);
+
+			if (shouldExcludeColor(cssLang)) {
+				return [];
+			}
+
+			return langService
+				.findDocumentColors(cssDoc, cssDoc.stylesheet)
+				.map((colorInfo) => mapObjWithRangeToOriginal(cssDoc, colorInfo));
+		});
+
+		return flatten(allColorInfo);
+	}
+
+	getColorPresentations(document: AstroDocument, range: Range, color: Color): ColorPresentation[] {
+		if (!this.featureEnabled('colorPresentations')) {
+			return [];
+		}
+
+		const allColorPres = this.getCSSDocumentsForDocument(document).map((cssDoc) => {
+			const cssLang = extractLanguage(cssDoc);
+			const langService = getLanguageService(cssLang);
+
+			if ((!cssDoc.isInGenerated(range.start) && !cssDoc.isInGenerated(range.end)) || shouldExcludeColor(cssLang)) {
+				return [];
+			}
+
+			return langService
+				.getColorPresentations(cssDoc, cssDoc.stylesheet, color, mapRangeToGenerated(cssDoc, range))
+				.map((colorPres) => mapColorPresentationToOriginal(cssDoc, colorPres));
+		});
+
+		return flatten(allColorPres);
+	}
+
 	private inStyleAttributeWithoutInterpolation(
 		attrContext: AttributeContext,
 		text: string
@@ -147,6 +202,23 @@ export class CSSPlugin implements Plugin {
 
 	private featureEnabled(feature: keyof LSCSSConfig) {
 		return this.configManager.enabled('css.enabled') && this.configManager.enabled(`css.${feature}.enabled`);
+	}
+}
+
+/**
+ * Exclude certain language when getting colors
+ * The CSS language service only supports CSS, LESS and SCSS,
+ * which mean that we cannot support colors in other languages
+ */
+function shouldExcludeColor(document: CSSDocument | string) {
+	const language = typeof document === 'string' ? document : extractLanguage(document);
+	switch (language) {
+		case 'sass':
+		case 'stylus':
+		case 'styl':
+			return true;
+		default:
+			return false;
 	}
 }
 

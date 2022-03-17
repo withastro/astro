@@ -60,4 +60,86 @@ describe('CSS Plugin', () => {
 			expect(completions, 'Expected completions to be null').to.be.null;
 		});
 	});
+
+	describe('provide document colors', () => {
+		it('for normal css', () => {
+			const { plugin, document } = setup('<style>h1 {color:blue;}</style>');
+
+			const colors = plugin.getColorPresentations(
+				document,
+				{
+					start: { line: 0, character: 17 },
+					end: { line: 0, character: 21 },
+				},
+				{ alpha: 1, blue: 255, green: 0, red: 0 }
+			);
+
+			expect(colors).to.deep.equal([
+				{
+					label: 'rgb(0, 0, 65025)',
+					textEdit: {
+						range: {
+							end: {
+								character: 21,
+								line: 0,
+							},
+							start: {
+								character: 17,
+								line: 0,
+							},
+						},
+						newText: 'rgb(0, 0, 65025)',
+					},
+				},
+				{
+					label: '#00000fe01',
+					textEdit: {
+						range: {
+							end: {
+								character: 21,
+								line: 0,
+							},
+							start: {
+								character: 17,
+								line: 0,
+							},
+						},
+						newText: '#00000fe01',
+					},
+				},
+				{
+					label: 'hsl(240, -101%, 12750%)',
+					textEdit: {
+						range: {
+							end: {
+								character: 21,
+								line: 0,
+							},
+							start: {
+								character: 17,
+								line: 0,
+							},
+						},
+						newText: 'hsl(240, -101%, 12750%)',
+					},
+				},
+				{
+					label: 'hwb(240 0% -25400%)',
+					textEdit: {
+						newText: 'hwb(240 0% -25400%)',
+						range: {
+							end: {
+								character: 21,
+								line: 0,
+							},
+							start: {
+								character: 17,
+								line: 0,
+							},
+						},
+					},
+				},
+			]);
+		});
+	});
 });

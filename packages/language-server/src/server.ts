@@ -81,6 +81,7 @@ export function startLanguageServer(connection: vscode.Connection) {
 						':',
 					],
 				},
+				colorProvider: true,
 				hoverProvider: true,
 				signatureHelpProvider: {
 					triggerCharacters: ['(', ',', '<'],
@@ -147,6 +148,11 @@ export function startLanguageServer(connection: vscode.Connection) {
 		}
 		return pluginHost.resolveCompletion(data, completionItem);
 	});
+
+	connection.onDocumentColor((params: vscode.DocumentColorParams) => pluginHost.getDocumentColors(params.textDocument));
+	connection.onColorPresentation((params: vscode.ColorPresentationParams) =>
+		pluginHost.getColorPresentations(params.textDocument, params.range, params.color)
+	);
 
 	connection.onRequest(TagCloseRequest, (evt: any) => pluginHost.doTagComplete(evt.textDocument, evt.position));
 	connection.onSignatureHelp((evt, cancellationToken) =>
