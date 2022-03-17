@@ -3,7 +3,7 @@ import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/ast
 import type { AstroRequest } from '../../core/render/request';
 
 import shorthash from 'shorthash';
-import { extractDirectives, generateHydrateScript } from './hydration.js';
+import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
 import { serializeListValue } from './util.js';
 import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 
@@ -279,8 +279,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 	}
 
 	// Include componentExport name, componentUrl, and props in hash to dedupe identical islands
-	const stringifiedProps = JSON.stringify(props);
-	const astroId = shorthash.unique(`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${stringifiedProps}`);
+	const astroId = shorthash.unique(`<!--${metadata.componentExport!.value}:${metadata.componentUrl}-->\n${html}\n${serializeProps(props)}`);
 
 	// Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
 	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
