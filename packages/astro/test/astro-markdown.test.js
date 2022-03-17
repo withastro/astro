@@ -57,18 +57,15 @@ describe('Astro Markdown', () => {
 		const html = await fixture.readFile('/scopedStyles-code/index.html');
 		const $ = cheerio.load(html);
 
-		// test 1: <pre> tag has scopedStyle class passed down
-		expect($('pre').is('[class]')).to.equal(true);
-		expect($('pre').attr('class').split(' ').length).to.equal(2);
+		// test 1: <pre> tag has correct shiki class
+		expect($('pre').hasClass('astro-code')).to.equal(true);
 
-		// test 2: <pre> tag has correct language
-		expect($('pre').hasClass('language-js')).to.equal(true);
-
-		// test 3: <code> tag has correct language
-		expect($('code').hasClass('language-js')).to.equal(true);
-
-		// test 4: There are child spans in code blocks
-		expect($('code span').length).to.be.greaterThan(0);
+		// test 2: inline styles are still applied
+		expect($('pre').is('[style]')).to.equal(true);
+		
+		// test 3: There are styled child spans in code blocks
+		expect($('pre code span').length).to.be.greaterThan(0);
+		expect($('pre code span').is('[style]')).to.equal(true);
 	});
 
 	it('Renders correctly when deeply nested on a page', async () => {
