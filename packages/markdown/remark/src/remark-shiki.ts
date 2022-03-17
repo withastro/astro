@@ -36,7 +36,7 @@ export interface ShikiConfig {
  */
 const highlighterCache = new Map<string, shiki.Highlighter>();
 
-const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig) => {
+const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig, scopedClassName?: string | null) => {
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
 	let highlighter = highlighterCache.get(cacheID);
 	if (!highlighter) {
@@ -48,8 +48,6 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 	}
 	return () => (tree: any) => {
 		visit(tree, 'code', (node) => {
-			const className: string | undefined = node.data?.hProperties?.class;
-
 			let html = highlighter!.codeToHtml(node.value, { lang: node.lang ?? 'plaintext' });
 
 			// Q: Couldn't these regexes match on a user's inputted code blocks?
@@ -59,7 +57,7 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 			// &lt;span class=&quot;line&quot;
 
 			// Replace "shiki" class naming with "astro" and add "is:raw".
-			html = html.replace('<pre class="shiki"', `<pre is:raw class="astro-code${className ? ' ' + className : ''}"`);
+			html = html.replace('<pre class="shiki"', `<pre is:raw class="astro-code${scopedClassName ? ' ' + scopedClassName : ''}"`);
 			// Replace "shiki" css variable naming with "astro".
 			html = html.replace(/style="(background-)?color: var\(--shiki-/g, 'style="$1color: var(--astro-code-');
 			// Handle code wrapping
@@ -70,9 +68,9 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"');
 			}
 
-			// Apply scoped className to all nested lines
-			if (className) {
-				html = html.replace(/\<span class="line"\>/g, `<span class="line ${className}"`);
+			// Apply scopedClassName to all nested lines
+			if (scopedClassName) {
+				html = html.replace(/\<span class="line"\>/g, `<span class="line ${scopedClassName}"`);
 			}
 
 			node.type = 'html';

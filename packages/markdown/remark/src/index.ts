@@ -68,7 +68,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 	}
 
 	if (syntaxHighlight === 'shiki') {
-		parser.use([await remarkShiki(shikiConfig)]);
+		parser.use([await remarkShiki(shikiConfig, scopedClassName)]);
 	} else if (syntaxHighlight === 'prism') {
 		parser.use([remarkPrism(scopedClassName)]);
 	}
