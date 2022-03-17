@@ -6,6 +6,7 @@ import { loadConfig } from '../dist/core/config.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
+import { loadApp } from '../dist/core/app/node.js';
 import os from 'os';
 import stripAnsi from 'strip-ansi';
 
@@ -86,6 +87,7 @@ export async function loadFixture(inlineConfig) {
 			inlineConfig.devOptions.port = previewServer.port; // update port for fetch
 			return previewServer;
 		},
+		loadSSRApp: () => loadApp(new URL('./server/', config.dist)),
 		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
 		clean: () => fs.promises.rm(config.dist, { maxRetries: 10, recursive: true, force: true }),

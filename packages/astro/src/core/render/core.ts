@@ -13,6 +13,7 @@ interface GetParamsAndPropsOptions {
 	routeCache: RouteCache;
 	pathname: string;
 	logging: LogOptions;
+	ssr: boolean;
 }
 
 export const enum GetParamsAndPropsError {
@@ -20,7 +21,7 @@ export const enum GetParamsAndPropsError {
 }
 
 export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise<[Params, Props] | GetParamsAndPropsError> {
-	const { logging, mod, route, routeCache, pathname } = opts;
+	const { logging, mod, route, routeCache, pathname, ssr} = opts;
 	// Handle dynamic routes
 	let params: Params = {};
 	let pageProps: Props;
@@ -37,18 +38,18 @@ export async function getParamsAndProps(opts: GetParamsAndPropsOptions): Promise
 		// TODO(fks): Can we refactor getParamsAndProps() to receive routeCacheEntry
 		// as a prop, and not do a live lookup/populate inside this lower function call.
 		if (!routeCacheEntry) {
-			routeCacheEntry = await callGetStaticPaths(mod, route, true, logging);
+			routeCacheEntry = await callGetStaticPaths({ mod, route, isValidate: true, logging, ssr });
 			routeCache.set(route, routeCacheEntry);
 		}
 		const matchedStaticPath = findPathItemByKey(routeCacheEntry.staticPaths, params);
-		if (!matchedStaticPath) {
+		if (!matchedStaticPath && !ssr) {
 			return GetParamsAndPropsError.NoMatchingStaticPath;
 		}
 		// Note: considered using Object.create(...) for performance
 		// Since this doesn't inherit an object's properties, this caused some odd user-facing behavior.
 		// Ex. console.log(Astro.props) -> {}, but console.log(Astro.props.property) -> 'expected value'
 		// Replaced with a simple spread as a compromise
-		pageProps = matchedStaticPath.props ? { ...matchedStaticPath.props } : {};
+		pageProps = matchedStaticPath?.props ? { ...matchedStaticPath.props } : {};
 	} else {
 		pageProps = {};
 	}
@@ -83,6 +84,7 @@ export async function render(opts: RenderOptions): Promise<{ type: 'html'; html:
 		route,
 		routeCache,
 		pathname,
+		ssr,
 	});
 
 	if (paramsAndPropsRes === GetParamsAndPropsError.NoMatchingStaticPath) {

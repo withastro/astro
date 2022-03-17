@@ -11,19 +11,29 @@ function stringifyParams(params: Params) {
 	return JSON.stringify(params, Object.keys(params).sort());
 }
 
-export async function callGetStaticPaths(mod: ComponentInstance, route: RouteData, isValidate: boolean, logging: LogOptions): Promise<RouteCacheEntry> {
-	validateGetStaticPathsModule(mod);
+interface CallGetStaticPathsOptions {
+	mod: ComponentInstance;
+	route: RouteData;
+	isValidate: boolean;
+	logging: LogOptions;
+	ssr: boolean;
+}
+
+export async function callGetStaticPaths({ isValidate, logging, mod, route, ssr}: CallGetStaticPathsOptions): Promise<RouteCacheEntry> {
+	validateGetStaticPathsModule(mod, { ssr });
 	const resultInProgress = {
 		rss: [] as RSS[],
 	};
-	const staticPaths: GetStaticPathsResult = await (
-		await mod.getStaticPaths!({
+
+	let staticPaths: GetStaticPathsResult = [];
+	if(mod.getStaticPaths) {
+		staticPaths = (await mod.getStaticPaths({
 			paginate: generatePaginateFunction(route),
 			rss: (data) => {
 				resultInProgress.rss.push(data);
 			},
-		})
-	).flat();
+		})).flat();
+	}
 
 	const keyedStaticPaths = staticPaths as GetStaticPathsResultKeyed;
 	keyedStaticPaths.keyed = new Map<string, GetStaticPathsItem>();
