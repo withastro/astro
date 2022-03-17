@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.12.1
+
+### Patch Changes
+
+- 49955c6: Add support for colors indicators and color picker
+
 ## 0.12.0
 
 ### Minor Changes
