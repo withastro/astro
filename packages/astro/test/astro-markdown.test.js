@@ -68,6 +68,27 @@ describe('Astro Markdown', () => {
 		expect($('pre code span').is('[style]')).to.equal(true);
 	});
 
+	function isAstroScopedClass(cls) {
+		return /^astro-.*/.test(cls)
+	}
+
+	it('Scoped styles should be applied to syntax highlighted lines', async () => {
+		const html = await fixture.readFile('/scopedStyles-code/index.html');
+		const $ = cheerio.load(html);
+
+		// test 1: the "pre" tag receives scoped style
+		const preClassList = $('pre').attr('class').split(/\s+/);
+		expect(preClassList.length).to.equal(2);
+		const preAstroClass = preClassList.find(isAstroScopedClass);
+		expect(Boolean(preAstroClass)).to.equal(true);
+		
+		// test 2: each "span" line receives scoped style
+		const spanClassList = $('pre code span').attr('class').split(/\s+/);
+		expect(spanClassList.length).to.equal(2);
+		const spanAstroClass = spanClassList.find(isAstroScopedClass);
+		expect(Boolean(spanAstroClass)).to.equal(true);
+	});
+
 	it('Renders correctly when deeply nested on a page', async () => {
 		const html = await fixture.readFile('/deep/index.html');
 		const $ = cheerio.load(html);
