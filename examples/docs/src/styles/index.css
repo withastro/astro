@@ -204,12 +204,7 @@ code {
 }
 
 pre.astro-code > code {
-	font-size: inherit;
-	background-color: initial;
-	padding: initial;
-	margin: initial;
-	border-radius: initial;
-	word-break: initial;
+	all: unset;
 }
 
 pre > code {
