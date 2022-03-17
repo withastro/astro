@@ -222,9 +222,6 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 
 		configJson.compilerOptions = Object.assign(getDefaultCompilerOptions(), configJson.compilerOptions);
 
-		// If the user supplied exclude, let's use theirs
-		configJson.exclude ?? (configJson.exclude = getDefaultExclude());
-
 		// Delete include so that .astro files don't get mistakenly excluded by the user
 		delete configJson.include;
 
@@ -235,9 +232,6 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 		const forcedCompilerOptions: ts.CompilerOptions = {
 			// Our TSX is currently not typed, which unfortunately means that we can't support `noImplicitAny`
 			noImplicitAny: false,
-			// Most of the code people write in an .astro file is in the frontmatter which is executed server side
-			// Thus, we don't want the DOM lib. We'll need to overwrite this for script tags however
-			lib: ['ESNext'],
 
 			noEmit: true,
 			declaration: false,

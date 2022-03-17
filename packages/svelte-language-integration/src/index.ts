@@ -4,14 +4,20 @@ export const languageId = 'svelte';
 export const extension = '.svelte';
 
 export function toTSX(code: string): string {
-	const result = `${svelte2tsx(code).code}
+	let result = 'export default function() {}';
 
-	let Props = render().props;
+	try {
+		result = `${svelte2tsx(code).code}
 
-	export default function(props: typeof Props) {
-		<></>
+		let Props = render().props;
+
+		export default function(props: typeof Props) {
+			<></>
+		}
+	`;
+	} catch(e: any) {
+		return result
 	}
-`;
 
 	return result;
 }
