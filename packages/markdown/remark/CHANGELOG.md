@@ -1,5 +1,11 @@
 # @astrojs/markdown-remark
 
+## 0.7.0-next.0
+
+### Minor Changes
+
+- [#2824](https://github.com/withastro/astro/pull/2824) [`0a3d3e51`](https://github.com/withastro/astro/commit/0a3d3e51a66af80fa949ba0f5e2104439d2be634) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Change shiki to our default markdown syntax highlighter. This includes updates to all relevant starter projects that used Prism-specific styles.
+
 ## 0.6.4
 
 ### Patch Changes
@@ -159,10 +165,10 @@
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 

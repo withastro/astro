@@ -56,5 +56,11 @@
     "@astrojs/webapi": "0.11.0",
     "astro-scripts": "0.0.2"
   },
-  "changesets": []
+  "changesets": [
+    "eighty-trees-thank",
+    "fuzzy-lies-nail",
+    "lemon-needles-count",
+    "silent-walls-tan",
+    "spotty-houses-stare"
+  ]
 }

@@ -1,5 +1,26 @@
 # astro
 
+## 0.25.0-next.0
+
+### Minor Changes
+
+- [#2833](https://github.com/withastro/astro/pull/2833) [`79545412`](https://github.com/withastro/astro/commit/7954541291a3dd7adbc1d5610e0c2e615d3dde46) Thanks [@natemoo-re](https://github.com/natemoo-re)! - This PR introduces a new internal CSS parser for `@astrojs/compiler`. See [`withastro/compiler#329`](https://github.com/withastro/compiler/pull/329) for more details.
+
+  This fixes Astro's support for modern CSS syntax like `@container`, `@layer`, and nesting. **Note** While Astro now correctly parses this modern syntax, it does not automatically compile features for browser compatability purposes.
+
+* [#2824](https://github.com/withastro/astro/pull/2824) [`0a3d3e51`](https://github.com/withastro/astro/commit/0a3d3e51a66af80fa949ba0f5e2104439d2be634) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Change shiki to our default markdown syntax highlighter. This includes updates to all relevant starter projects that used Prism-specific styles.
+
+### Patch Changes
+
+- [#2798](https://github.com/withastro/astro/pull/2798) [`4c25a1c2`](https://github.com/withastro/astro/commit/4c25a1c2eacf897427a7d6dac3bf476ef56799de) Thanks [@matthewp](https://github.com/matthewp)! - Implement APIs for headers for SSR flag
+
+* [#2825](https://github.com/withastro/astro/pull/2825) [`1cd7184c`](https://github.com/withastro/astro/commit/1cd7184ca6fa6e60a69918e461f42c055e8a795e) Thanks [@hlynursmari1](https://github.com/hlynursmari1)! - Fix island deduplication ignoring props.Re-resolves an issue initially patched in https://github.com/withastro/astro/pull/846 but seemingly lost in the 0.21.0 mega-merge (https://github.com/withastro/astro/commit/d84bfe719a546ad855640338d5ed49ad3aa4ccb4).This change makes the component render step account for all props, even if they don't affect the generated HTML, when deduplicating island mounts.
+
+- [#2815](https://github.com/withastro/astro/pull/2815) [`7b9d042d`](https://github.com/withastro/astro/commit/7b9d042dde0c6ae74225de208222e0addf5f4989) Thanks [@matthewp](https://github.com/matthewp)! - Allows dynamic routes in SSR to avoid implementing getStaticPaths
+
+- Updated dependencies [[`0a3d3e51`](https://github.com/withastro/astro/commit/0a3d3e51a66af80fa949ba0f5e2104439d2be634)]:
+  - @astrojs/markdown-remark@0.7.0-next.0
+
 ## 0.24.3
 
 ### Patch Changes
@@ -25,7 +46,7 @@
   import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-    renderers: [],
+  	renderers: [],
   });
   ```
 
@@ -63,9 +84,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -85,7 +106,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -169,7 +190,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -193,9 +214,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -307,12 +328,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -474,12 +495,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1834,10 +1855,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1857,10 +1878,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
