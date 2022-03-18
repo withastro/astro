@@ -626,7 +626,10 @@ export interface AstroIntegration {
 			updateConfig: (newConfig: Record<string, any>) => void;
 			addRenderer: (renderer: AstroRenderer) => void;
 			injectScript: (stage: InjectedScriptStage, content: string) => void;
-			injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
+			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
+			// This may require some refactoring of `scripts`, `styles`, and `links` into something
+			// more generalized. Consider the SSR use-case as well.
+			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
 		}) => void;
 		'astro:config:done'?: (options: { config: AstroConfig }) => void | Promise<void>;
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
