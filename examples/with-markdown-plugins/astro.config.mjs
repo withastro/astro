@@ -4,7 +4,6 @@ import addClasses from './add-classes.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [],
 	// Enable Custom Markdown options, plugins, etc.
 	markdownOptions: {
 		render: [

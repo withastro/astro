@@ -3,7 +3,6 @@ import astroRemark from '@astrojs/markdown-remark';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [],
 	// Enable Custom Markdown options, plugins, etc.
 	markdownOptions: {
 		render: [

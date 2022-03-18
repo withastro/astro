@@ -140,7 +140,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
 	// Manual deprecation checks
 	/* eslint-disable no-console */
-	if (userConfig.renderers) {
+	if (userConfig.hasOwnProperty('renderers')) {
 		console.error('Astro "renderers" are now "integrations"!');
 		console.error('Update your configuration and install new dependencies:');
 		try {

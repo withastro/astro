@@ -1,6 +1,6 @@
 ---
 import Lorem from '../components/Lorem.astro';
-import Button from '../components/Button.jsx';
+import Link from '../components/Link.jsx';
 import '../components/Test.js';
 import '../components/Counter.js'; 
 ---
@@ -13,25 +13,36 @@ import '../components/Counter.js';
 	</head>
 	<body>
 		<h1 class="px-4 py-4">Test app</h1>
-		<h2 >Test app</h2>
+		<h2 class="partytown-status">
+      <strong>Party Mode!</strong> 
+      Colors changing = partytown is enabled
+    </h2>
 		<my-counter client:load></my-counter>
-    <Button to="/foo" text="Go to Page 2" />
+    <Link to="/foo" text="Go to Page 2" />
 		<Lorem />
 		<calc-add num={33}></calc-add>
 
 
     <script type="text/partytown">
-      console.log('start to block')
-      console.log(`Nah. you won't be blocked`)
+      // Remove `type="text/partytown"` to see this block the page
+      // and cause the page to become unresponsive
+      console.log('start partytown blocking script')
       const now = Date.now() 
       let count = 1;
       while (Date.now() - now < 10000) {
         if (Date.now() - now > count * 1000) {
-          console.log('blocking');
+          console.log('blocking', count);
           count += 1;
         }
       }
-      console.log('end block')
+      console.log('end partytown blocking script')
+    </script>
+
+    <script>
+      setInterval(() => {
+        const randomColor = Math.floor(Math.random()*16777215).toString(16);
+        document.querySelector('.partytown-status').style.color = "#" + randomColor;
+      }, 100);
     </script>
     <style>
 h1, h2 {
