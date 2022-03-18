@@ -32,24 +32,11 @@ describe('Dynamic components', () => {
 		const html = await fixture.readFile('/client-only/index.html');
 		const $ = cheerio.load(html);
 
-		// test 1: <astro-root> is empty
+		// test 1: <astro-root> is empty.
 		expect($('<astro-root>').html()).to.equal('');
-		const script = $('script').text();
-
-		// Grab the svelte import
-		// const exp = /import\("(.+?)"\)/g;
-		// let match, svelteRenderer;
-		// while ((match = exp.exec(result.contents))) {
-		//   if (match[1].includes('renderers/renderer-svelte/client.js')) {
-		//     svelteRenderer = match[1];
-		//   }
-		// }
-
-		// test 2: Svelte renderer is on the page
-		// expect(svelteRenderer).to.be.ok;
-
-		// test 3: Can load svelte renderer
-		// const result = await fixture.fetch(svelteRenderer);
-		// expect(result.status).to.equal(200);
+		// test 2: correct script is being loaded.
+		// because of bundling, we don't have access to the source import,
+		// only the bundled import.
+		expect($('script').html()).to.include(`import setup from '../only`);
 	});
 });

@@ -3,7 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "astro": "workspace:*",
-    "@astrojs/renderer-solid": "workspace:*"
+    "@astrojs/react": "workspace:*",
+    "@astrojs/preact": "workspace:*",
+    "@astrojs/solid-js": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
+    "astro": "workspace:*"
   }
 }

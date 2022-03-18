@@ -10,12 +10,6 @@ describe('Tailwind', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/tailwindcss/',
-			renderers: [],
-			vite: {
-				build: {
-					assetsInlineLimit: 0,
-				},
-			},
 		});
 	});
 

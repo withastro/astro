@@ -12,13 +12,6 @@ describe('Static build', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/static build/',
-			renderers: ['@astrojs/renderer-preact'],
-			buildOptions: {
-				site: 'http://example.com/subpath/',
-			},
-			ssr: {
-				noExternal: ['@test/static-build-pkg'],
-			},
 		});
 		await fixture.build();
 	});

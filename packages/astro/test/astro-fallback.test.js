@@ -8,7 +8,6 @@ describe('Dynamic component fallback', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-fallback',
-			renderers: ['@astrojs/renderer-preact'],
 		});
 		await fixture.build();
 	});

@@ -8,7 +8,6 @@ describe('Expressions', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-expr/',
-			renderers: ['@astrojs/renderer-preact'],
 		});
 		await fixture.build();
 	});

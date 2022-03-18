@@ -6,7 +6,7 @@ describe('Slots: Svelte', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/slots-svelte/', renderers: ['@astrojs/renderer-svelte'] });
+		fixture = await loadFixture({ projectRoot: './fixtures/slots-svelte/' });
 		await fixture.build();
 	});
 

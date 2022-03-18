@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
+    "@astrojs/tailwind": "workspace:*",
     "astro": "workspace:*",
     "autoprefixer": "^10.4.4",
     "postcss": "^8.4.12",

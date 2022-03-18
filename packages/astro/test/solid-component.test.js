@@ -7,11 +7,7 @@ describe('Solid component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			devOptions: {
-				port: 3006,
-			},
 			projectRoot: './fixtures/solid-component/',
-			renderers: ['@astrojs/renderer-solid'],
 		});
 	});
 

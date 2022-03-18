@@ -6,7 +6,7 @@ describe('Slots: Preact', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({ projectRoot: './fixtures/slots-preact/', renderers: ['@astrojs/renderer-preact'] });
+		fixture = await loadFixture({ projectRoot: './fixtures/slots-preact/' });
 		await fixture.build();
 	});
 

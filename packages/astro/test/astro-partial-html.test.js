@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('Partial HTML ', async () => {
+describe('Partial HTML', async () => {
 	let fixture;
 	let devServer;
 
