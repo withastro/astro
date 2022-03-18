@@ -5,6 +5,7 @@ import tailwindPlugin from 'tailwindcss';
 import type { TailwindConfig } from 'tailwindcss/tailwind-config';
 import autoprefixerPlugin from 'autoprefixer';
 import fs from 'fs';
+import load from '@proload/core';
 
 function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	return {
@@ -18,18 +19,18 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 
 type IntegrationConfig =
 	| {
-			config: {
+			config?: {
 				/**
 				 * Path to your tailwind config file
 				 * @default 'tailwind.config.js'
 				 */
-				path: string;
+				path?: string;
 				/**
 				 * Apply Astro's default Tailwind config as a preset to your config
 				 * This is recommended to enable Tailwind across all components and Astro files
 				 * @default true
 				 */
-				mergeWithDefaults: boolean;
+				mergeWithDefaults?: boolean;
 			};
 	  }
 	| undefined;
