@@ -25,7 +25,7 @@ type IntegrationConfig =
 				 */
 				path?: string;
 				/**
-				 * Apply Astro's default Tailwind config as a preset to your config
+				 * Apply Astro's default Tailwind config as a preset
 				 * This is recommended to enable Tailwind across all components and Astro files
 				 * @default true
 				 */
