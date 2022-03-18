@@ -354,7 +354,7 @@ importers:
 
   packages/astro:
     specifiers:
-      '@astrojs/compiler': ^0.12.1
+      '@astrojs/compiler': ^0.13.0
       '@astrojs/language-server': ^0.8.10
       '@astrojs/markdown-remark': ^0.6.4
       '@astrojs/parser': ^0.22.2
@@ -426,7 +426,7 @@ importers:
       yargs-parser: ^21.0.1
       zod: ^3.13.4
     dependencies:
-      '@astrojs/compiler': 0.12.1
+      '@astrojs/compiler': 0.13.0
       '@astrojs/language-server': 0.8.10
       '@astrojs/markdown-remark': link:../markdown/remark
       '@astrojs/prism': link:../astro-prism
@@ -1554,8 +1554,8 @@ packages:
       leven: 3.1.0
     dev: true
 
-  /@astrojs/compiler/0.12.1:
-    resolution: {integrity: sha512-XpKZyJlnDhszulwwse/1uV+ZiyTpg6xNH5TrriYDVdzB8dUbQLdE7tX4Cxhdw5QrJpV57AaPrPXvJKi1jnIkxw==}
+  /@astrojs/compiler/0.13.0:
+    resolution: {integrity: sha512-omPv8V2OG05Nx7cV1PiYKV2GewsVf91kZDRUajPsjAHVEorIDMNV8ekv1gjjgAt8UVKbQYev2hzGhmdyHdo06Q==}
     dependencies:
       tsm: 2.2.1
       uvu: 0.5.3
@@ -9126,6 +9126,7 @@ packages:
   /source-map/0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
 
   /source-map/0.7.3:
     resolution: {integrity: sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==}
