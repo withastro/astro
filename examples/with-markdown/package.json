@@ -9,11 +9,11 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/markdown-remark": "^0.6.4",
+    "@astrojs/markdown-remark": "^0.7.0-next.0",
     "@astrojs/preact": "^0.0.1",
     "@astrojs/react": "^0.0.1",
     "@astrojs/svelte": "^0.0.1",
     "@astrojs/vue": "^0.0.1",
-    "astro": "^0.24.3"
+    "astro": "^0.25.0-next.0"
   }
 }
