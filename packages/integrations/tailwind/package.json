@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@types/tailwindcss": "^3.0.9",
+    "@proload/core": "^0.2.2",
     "astro": "workspace:*",
     "astro-scripts": "workspace:*"
   },
