@@ -1,11 +1,13 @@
 import { defineConfig } from 'astro/config';
+import preact from '@astrojs/preact';
+import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
-	renderers: [
-		// Enable the Preact renderer to support Preact JSX components.
-		'@astrojs/renderer-preact',
-		// Enable the React renderer, for the Algolia search component
-		'@astrojs/renderer-react',
+	integrations: [
+		// Enable Preact to support Preact JSX components.
+		preact(),
+		// Enable React for the Algolia search component.
+		react(),
 	],
 });

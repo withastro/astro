@@ -1,7 +1,8 @@
 import { defineConfig } from 'astro/config';
+import solid from '@astrojs/solid-js';
 
 // https://astro.build/config
 export default defineConfig({
-	// Enable the Solid renderer to support Solid JSX components.
-	renderers: ['@astrojs/renderer-solid'],
+	// Enable Solid to support Solid JSX components.
+	integrations: [solid()],
 });

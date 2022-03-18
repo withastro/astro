@@ -10,10 +10,10 @@
   },
   "devDependencies": {
     "@astrojs/markdown-remark": "^0.6.4",
-    "@astrojs/renderer-preact": "^0.5.0",
-    "@astrojs/renderer-react": "^0.5.0",
-    "@astrojs/renderer-svelte": "^0.5.2",
-    "@astrojs/renderer-vue": "^0.4.0",
+    "@astrojs/preact": "^0.0.1",
+    "@astrojs/react": "^0.0.1",
+    "@astrojs/svelte": "^0.0.1",
+    "@astrojs/vue": "^0.0.1",
     "astro": "^0.24.3"
   }
 }

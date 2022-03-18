@@ -12,7 +12,7 @@
     "server": "node server/server.mjs"
   },
   "devDependencies": {
-    "@astrojs/renderer-svelte": "^0.5.2",
+    "@astrojs/svelte": "^0.0.1",
     "astro": "^0.24.3",
     "concurrently": "^7.0.0",
     "lightcookie": "^1.0.25",

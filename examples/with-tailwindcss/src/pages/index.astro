@@ -1,7 +1,6 @@
 ---
 // Component Imports
 import Button from '../components/Button.astro';
-import '../styles/global.css';
 
 // Full Astro Component Syntax:
 // https://docs.astro.build/core-concepts/astro-components/
@@ -15,6 +14,8 @@ import '../styles/global.css';
 	</head>
 
 	<body>
-		<Button>I’m a Tailwind Button!</Button>
+		<div class="grid place-items-center h-screen">
+			<Button>Click Me!</Button>
+		</div>
 	</body>
 </html>

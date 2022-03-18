@@ -1,0 +1,42 @@
+---
+import Lorem from '../components/Lorem.astro';
+import Button from '../components/Button.jsx';
+import '../components/Test.js';
+import '../components/Counter.js'; 
+---
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<title>Demo</title>
+	</head>
+	<body>
+		<h1 class="px-4 py-4">Test app</h1>
+		<h2 >Test app</h2>
+		<my-counter client:load></my-counter>
+    <Button to="/foo" text="Go to Page 2" />
+		<Lorem />
+		<calc-add num={33}></calc-add>
+
+
+    <script type="text/partytown">
+      console.log('start to block')
+      console.log(`Nah. you won't be blocked`)
+      const now = Date.now() 
+      let count = 1;
+      while (Date.now() - now < 10000) {
+        if (Date.now() - now > count * 1000) {
+          console.log('blocking');
+          count += 1;
+        }
+      }
+      console.log('end block')
+    </script>
+    <style>
+h1, h2 {
+	color: blue; 
+}
+</style>
+	</body>
+</html>
