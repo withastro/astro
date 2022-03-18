@@ -62,14 +62,14 @@ describe('Astro Markdown', () => {
 
 		// test 2: inline styles are still applied
 		expect($('pre').is('[style]')).to.equal(true);
-		
+
 		// test 3: There are styled child spans in code blocks
 		expect($('pre code span').length).to.be.greaterThan(0);
 		expect($('pre code span').is('[style]')).to.equal(true);
 	});
 
 	function isAstroScopedClass(cls) {
-		return /^astro-.*/.test(cls)
+		return /^astro-.*/.test(cls);
 	}
 
 	it('Scoped styles should be applied to syntax highlighted lines', async () => {
@@ -81,7 +81,7 @@ describe('Astro Markdown', () => {
 		expect(preClassList.length).to.equal(2);
 		const preAstroClass = preClassList.find(isAstroScopedClass);
 		expect(Boolean(preAstroClass)).to.equal(true);
-		
+
 		// test 2: each "span" line receives scoped style
 		const spanClassList = $('pre code span').attr('class').split(/\s+/);
 		expect(spanClassList.length).to.equal(2);
