@@ -130,7 +130,7 @@ export interface AstroUserConfig {
 	 * @docs
 	 * @name integrations
 	 * @type {AstroIntegration[]}
-	 * @default `["react", "preact", "svelte", "vue"]`
+	 * @default `[]`
 	 * @description
 	 * Add Integrations to your project to extend Astro.
 	 *

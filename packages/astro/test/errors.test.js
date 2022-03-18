@@ -10,7 +10,6 @@ describe('Error display', () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/errors',
 		});
-		console.log(fixture.config);
 	});
 
 	describe('Astro', () => {
