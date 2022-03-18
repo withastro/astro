@@ -33,7 +33,7 @@ describe('Partial HTML', async () => {
 				},
 			})
 			.then((res) => res.text());
-		expect(css).to.match(/\.astro-[^{]+{color:red;}/);
+		expect(css).to.match(/\.astro-[^{]+{color:red}/);
 	});
 
 	it('injects framework styles', async () => {
