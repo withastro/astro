@@ -16,6 +16,18 @@ function getDefaultTailwindConfig(srcUrl: URL): TailwindConfig {
 	};
 }
 
+async function getUserConfig(projectRoot: URL, configPath?: string) {
+	const resolvedProjectRoot = fileURLToPath(projectRoot);
+	let userConfigPath: string | undefined;
+
+	if (configPath) {
+		const configPathWithLeadingSlash = /^\.*\//.test(configPath) ? configPath : `./${configPath}`;
+		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, `file://${resolvedProjectRoot}/`));
+	}
+
+	return await load('tailwind', { mustExist: false, cwd: resolvedProjectRoot, filePath: userConfigPath });
+}
+
 type IntegrationConfig =
 	| {
 			config?: {
@@ -41,24 +53,17 @@ export default function (integrationConfig: IntegrationConfig): AstroIntegration
 		hooks: {
 			'astro:config:setup': async ({ config, injectScript }) => {
 				// Inject the Tailwind postcss plugin
-				const projectRoot = fileURLToPath(config.projectRoot);
-				let userConfigPath: string | undefined;
-				if (integrationConfig?.config?.path) {
-					const configPath = integrationConfig?.config?.path;
-					const configPathWithLeadingSlash = /^\.*\//.test(configPath) ? configPath : `./${configPath}`;
-					userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, `file://${projectRoot}/`));
-				}
-				const customConfig = await load('tailwind', { mustExist: false, cwd: projectRoot, filePath: userConfigPath });
+				const userConfig = await getUserConfig(config.projectRoot, integrationConfig?.config?.path);
 
 				let tailwindConfig: TailwindConfig;
-				if (typeof customConfig?.value === 'object' && customConfig.value !== null) {
+				if (typeof userConfig?.value === 'object' && userConfig.value !== null) {
 					if (applyAstroConfigPreset) {
 						tailwindConfig = {
-							presets: [getDefaultTailwindConfig(config.src), ...(customConfig.value.presets || [])],
-							...(customConfig.value as TailwindConfig),
+							presets: [getDefaultTailwindConfig(config.src), ...(userConfig.value.presets || [])],
+							...(userConfig.value as TailwindConfig),
 						};
 					} else {
-						tailwindConfig = customConfig.value as TailwindConfig;
+						tailwindConfig = userConfig.value as TailwindConfig;
 					}
 				} else {
 					tailwindConfig = getDefaultTailwindConfig(config.src);
