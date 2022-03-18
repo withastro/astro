@@ -1,9 +1,10 @@
+import type { AddressInfo } from 'net';
 import type * as babel from '@babel/core';
+import type * as vite from 'vite';
 import type { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { AstroRequest } from '../core/render/request';
-import type * as vite from 'vite';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
@@ -127,21 +128,30 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name renderers
-	 * @type {string[]}
-	 * @default `['@astrojs/renderer-svelte','@astrojs/renderer-vue','@astrojs/renderer-react','@astrojs/renderer-preact']`
+	 * @name integrations
+	 * @type {AstroIntegration[]}
+	 * @default `[]`
 	 * @description
-	 * Set the UI framework renderers for your project. Framework renderers are what power Astro's ability to use other frameworks inside of your project, like React, Svelte, and Vue.
+	 * Add Integrations to your project to extend Astro.
 	 *
-	 * Setting this configuration will disable Astro's default framework support, so you will need to provide a renderer for every framework that you want to use.
+	 * Integrations are your one-stop shop to add new frameworks (like Solid.js), new features (like sitemaps), and new libraries (like Partytown and Turbolinks).
+	 *
+	 * Setting this configuration will disable Astro's default integration, so it is recommended to provide a renderer for every framework that you use:
+	 *
+	 * Note: Integrations are currently under active development, and only first-party integrations are supported. In the future, 3rd-party integrations will be allowed.
 	 *
 	 * ```js
+	 * import react from '@astrojs/react';
+	 * import vue from '@astrojs/vue';
 	 * {
-	 *   // Use Astro + React, with no other frameworks.
-	 *   renderers: ['@astrojs/renderer-react']
+	 *   // Example: Use Astro with Vue + React, and no other frameworks.
+	 *   integrations: [react(), vue()]
 	 * }
 	 * ```
 	 */
+	integrations?: AstroIntegration[];
+
+	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
 	renderers?: string[];
 
 	/**
@@ -170,6 +180,7 @@ export interface AstroUserConfig {
 	 * }
 	 * ```
 	 */
+	/** Options for rendering markdown content */
 	markdownOptions?: {
 		render?: MarkdownRenderOptions;
 	};
@@ -379,7 +390,7 @@ export interface AstroUserConfig {
 
 	/**
 	 * @docs
-	 * @name devOptions.vite
+	 * @name vite
 	 * @type {vite.UserConfig}
 	 * @description
 	 *
@@ -422,10 +433,32 @@ export interface AstroUserConfig {
 // }
 
 /**
+ * IDs for different stages of JS script injection:
+ * - "before-hydration": Imported client-side, before the hydration script runs. Processed & resolved by Vite.
+ * - "head-inline": Injected into a script tag in the `<head>` of every page. Not processed or resolved by Vite.
+ * - "page": Injected into the JavaScript bundle of every page. Processed & resolved by Vite.
+ * - "page-ssr": Injected into the frontmatter of every Astro page. Processed & resolved by Vite.
+ */
+type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
+
+/**
  * Resolved Astro Config
  * Config with user settings along with all defaults filled in.
  */
-export type AstroConfig = z.output<typeof AstroConfigSchema>;
+export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
+	// Public:
+	// This is a more detailed type than zod validation gives us.
+	// TypeScript still confirms zod validation matches this type.
+	integrations: AstroIntegration[];
+	// Private:
+	// We have a need to pass context based on configured state,
+	// that is different from the user-exposed configuration.
+	// TODO: Create an AstroConfig class to manage this, long-term.
+	_ctx: {
+		renderers: AstroRenderer[];
+		scripts: { stage: InjectedScriptStage; content: string }[];
+	};
+}
 
 export type AsyncRendererComponentFn<U> = (Component: any, props: any, children: string | undefined, metadata?: AstroComponentMetadata) => Promise<U>;
 
@@ -560,38 +593,51 @@ export interface EndpointHandler {
 	[method: string]: (params: any, request: AstroRequest) => EndpointOutput | Response;
 }
 
-/**
- * Astro Renderer
- * Docs: https://docs.astro.build/reference/renderer-reference/
- */
-export interface Renderer {
-	/** Name of the renderer (required) */
+export interface AstroRenderer {
+	/** Name of the renderer. */
 	name: string;
-	/** Import statement for renderer */
-	source?: string;
-	/** Import statement for the server renderer */
-	serverEntry: string;
-	/** Scripts to be injected before component */
-	polyfills?: string[];
-	/** Polyfills that need to run before hydration ever occurs */
-	hydrationPolyfills?: string[];
+	/** Import entrypoint for the client/browser renderer. */
+	clientEntrypoint?: string;
+	/** Import entrypoint for the server/build/ssr renderer. */
+	serverEntrypoint: string;
 	/** JSX identifier (e.g. 'react' or 'solid-js') */
 	jsxImportSource?: string;
 	/** Babel transform options */
 	jsxTransformOptions?: JSXTransformFn;
-	/** Utilies for server-side rendering */
+}
+
+export interface SSRLoadedRenderer extends AstroRenderer {
 	ssr: {
 		check: AsyncRendererComponentFn<boolean>;
 		renderToStaticMarkup: AsyncRendererComponentFn<{
 			html: string;
 		}>;
 	};
-	/** Return configuration object for Vite ("options" should match https://vitejs.dev/guide/api-plugin.html#config) */
-	viteConfig?: (options: { mode: 'string'; command: 'build' | 'serve' }) => Promise<vite.InlineConfig>;
-	/** @deprecated Don’t try and build these dependencies for client (deprecated in 0.21) */
-	external?: string[];
-	/** @deprecated Clientside requirements (deprecated in 0.21) */
-	knownEntrypoints?: string[];
+}
+
+export interface AstroIntegration {
+	/** The name of the integration. */
+	name: string;
+	/** The different hooks available to extend. */
+	hooks: {
+		'astro:config:setup'?: (options: {
+			config: AstroConfig;
+			command: 'dev' | 'build';
+			updateConfig: (newConfig: Record<string, any>) => void;
+			addRenderer: (renderer: AstroRenderer) => void;
+			injectScript: (stage: InjectedScriptStage, content: string) => void;
+			// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
+			// This may require some refactoring of `scripts`, `styles`, and `links` into something
+			// more generalized. Consider the SSR use-case as well.
+			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
+		}) => void;
+		'astro:config:done'?: (options: { config: AstroConfig }) => void | Promise<void>;
+		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
+		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
+		'astro:server:done'?: () => void | Promise<void>;
+		'astro:build:start'?: () => void | Promise<void>;
+		'astro:build:done'?: (options: { pages: { pathname: string }[]; dir: URL }) => void | Promise<void>;
+	};
 }
 
 export type RouteType = 'page' | 'endpoint';
@@ -665,7 +711,7 @@ export interface SSRElement {
 }
 
 export interface SSRMetadata {
-	renderers: Renderer[];
+	renderers: SSRLoadedRenderer[];
 	pathname: string;
 	legacyBuild: boolean;
 }

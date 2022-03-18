@@ -71,6 +71,7 @@ describe('Preview Routing', () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
 					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4001/', import.meta.url),
+					buildOptions: {},
 					devOptions: {
 						trailingSlash: 'always',
 						port: 4001,
@@ -129,7 +130,8 @@ describe('Preview Routing', () => {
 			before(async () => {
 				fixture = await loadFixture({
 					projectRoot: './fixtures/with-subpath-no-trailing-slash/',
-					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4002//', import.meta.url),
+					dist: new URL('./fixtures/with-subpath-no-trailing-slash/dist-4002/', import.meta.url),
+					buildOptions: {},
 					devOptions: {
 						trailingSlash: 'ignore',
 						port: 4002,

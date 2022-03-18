@@ -1,0 +1,42 @@
+{
+  "name": "@astrojs/tailwind",
+  "description": "Tailwind + Astro Integrations",
+  "version": "0.0.1",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/tailwind"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./base.css": "./base.css",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "tailwindcss": "^3.0.23",
+    "autoprefixer": "^10.4.4",
+    "postcss": "^8.4.12"
+  },
+  "devDependencies": {
+    "@types/tailwindcss": "^3.0.9",
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "postcss"
+      ]
+    }
+  }
+}

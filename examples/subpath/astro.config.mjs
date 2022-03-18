@@ -1,10 +1,10 @@
 import { defineConfig } from 'astro/config';
+import react from '@astrojs/react';
 
 // https://astro.build/config
 export default defineConfig({
-	// Comment out "renderers: []" to enable Astro's default component support.
+	integrations: [react()],
 	buildOptions: {
 		site: 'http://example.com/blog',
 	},
-	renderers: ['@astrojs/renderer-react'],
 });

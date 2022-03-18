@@ -1,0 +1,20 @@
+{
+  "name": "@example/integrations-playground",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "devDependencies": {
+    "@astrojs/lit": "^0.0.1",
+    "@astrojs/react": "^0.0.1",
+    "@astrojs/partytown": "^0.0.1",
+    "@astrojs/sitemap": "^0.0.1",
+    "@astrojs/tailwind": "^0.0.1",
+    "@astrojs/turbolinks": "^0.0.1",
+    "astro": "^0.24.3"
+  }
+}

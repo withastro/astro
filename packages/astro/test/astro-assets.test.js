@@ -13,11 +13,6 @@ describe('Assets', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-assets/',
-			vite: {
-				build: {
-					assetsInlineLimit: 0,
-				},
-			},
 		});
 		await fixture.build();
 	});

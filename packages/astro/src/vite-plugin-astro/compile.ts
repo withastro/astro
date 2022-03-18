@@ -122,13 +122,7 @@ export function invalidateCompilation(config: AstroConfig, filename: string) {
 	}
 }
 
-export async function cachedCompilation(
-	config: AstroConfig,
-	filename: string,
-	source: string | null,
-	viteTransform: TransformHook,
-	opts: { ssr: boolean }
-): Promise<CompileResult> {
+export async function cachedCompilation(config: AstroConfig, filename: string, source: string, viteTransform: TransformHook, opts: { ssr: boolean }): Promise<CompileResult> {
 	let cache: CompilationCache;
 	if (!configCache.has(config)) {
 		cache = new Map();
@@ -138,11 +132,6 @@ export async function cachedCompilation(
 	}
 	if (cache.has(filename)) {
 		return cache.get(filename)!;
-	}
-
-	if (source === null) {
-		const fileUrl = new URL(`file://${filename}`);
-		source = await fs.promises.readFile(fileUrl, 'utf-8');
 	}
 	const compileResult = await compile(config, filename, source, viteTransform, opts);
 	cache.set(filename, compileResult);

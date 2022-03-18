@@ -60,7 +60,7 @@ const endSize = v8.getHeapStatistics().used_heap_size;
 
 // If the trailing average is higher than the median, see if it's more than 5% higher
 let percentage = endSize / startSize;
-const TEST_THRESHOLD = 1.2;
+const TEST_THRESHOLD = 1.5;
 const isPass = percentage < TEST_THRESHOLD;
 console.log(``);
 console.log(`Result: ${isPass ? 'PASS' : 'FAIL'} (${percentage * 100}%)`);

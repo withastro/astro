@@ -8,10 +8,6 @@ describe('Astro Markdown', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-markdown/',
-			renderers: ['@astrojs/renderer-preact'],
-			buildOptions: {
-				sitemap: false,
-			},
 		});
 		await fixture.build();
 	});

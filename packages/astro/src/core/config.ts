@@ -1,14 +1,47 @@
 import type { AstroConfig, AstroUserConfig, CLIFlags } from '../@types/astro';
 import type { Arguments as Flags } from 'yargs-parser';
+import type * as Postcss from 'postcss';
 
 import * as colors from 'kleur/colors';
 import path from 'path';
 import { pathToFileURL, fileURLToPath } from 'url';
+import { mergeConfig as mergeViteConfig } from 'vite';
 import { z } from 'zod';
 import load from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
+import postcssrc from 'postcss-load-config';
+import { arraify, isObject } from './util.js';
 
 load.use([loadTypeScript]);
+
+interface PostCSSConfigResult {
+	options: Postcss.ProcessOptions;
+	plugins: Postcss.Plugin[];
+}
+
+async function resolvePostcssConfig(inlineOptions: any, root: URL): Promise<PostCSSConfigResult> {
+	if (isObject(inlineOptions)) {
+		const options = { ...inlineOptions };
+		delete options.plugins;
+		return {
+			options,
+			plugins: inlineOptions.plugins || [],
+		};
+	}
+	const searchPath = typeof inlineOptions === 'string' ? inlineOptions : fileURLToPath(root);
+	try {
+		// @ts-ignore
+		return await postcssrc({}, searchPath);
+	} catch (err: any) {
+		if (!/No PostCSS Config found/.test(err.message)) {
+			throw err;
+		}
+		return {
+			options: {},
+			plugins: [],
+		};
+	}
+}
 
 export const AstroConfigSchema = z.object({
 	projectRoot: z
@@ -36,7 +69,31 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default('./dist')
 		.transform((val) => new URL(val)),
-	renderers: z.array(z.string()).optional().default(['@astrojs/renderer-svelte', '@astrojs/renderer-vue', '@astrojs/renderer-react', '@astrojs/renderer-preact']),
+	integrations: z.preprocess(
+		// preprocess
+		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
+		// validate
+		z
+			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
+			.default([])
+			// validate: first-party integrations only
+			// TODO: Add `To use 3rd-party integrations or to create your own, use the --experimental-integrations flag.`,
+			.refine((arr) => arr.every((integration) => integration.name.startsWith('@astrojs/')), {
+				message: `Astro integrations are still experimental, and only official integrations are currently supported`,
+			})
+	),
+	styleOptions: z
+		.object({
+			postcss: z
+				.object({
+					options: z.any(),
+					plugins: z.array(z.any()),
+				})
+				.optional()
+				.default({ options: {}, plugins: [] }),
+		})
+		.optional()
+		.default({}),
 	markdownOptions: z
 		.object({
 			render: z.any().optional().default(['@astrojs/markdown-remark', {}]),
@@ -81,6 +138,37 @@ export const AstroConfigSchema = z.object({
 /** Turn raw config values into normalized values */
 export async function validateConfig(userConfig: any, root: string): Promise<AstroConfig> {
 	const fileProtocolRoot = pathToFileURL(root + path.sep);
+	// Manual deprecation checks
+	/* eslint-disable no-console */
+	if (userConfig.hasOwnProperty('renderers')) {
+		console.error('Astro "renderers" are now "integrations"!');
+		console.error('Update your configuration and install new dependencies:');
+		try {
+			const rendererKeywords = userConfig.renderers.map((r: string) => r.replace('@astrojs/renderer-', ''));
+			const rendererImports = rendererKeywords.map((r: string) => `  import ${r} from '@astrojs/${r}';`).join('\n');
+			const rendererIntegrations = rendererKeywords.map((r: string) => `    ${r}(),`).join('\n');
+			console.error('');
+			console.error(colors.dim('  // astro.config.js'));
+			if (rendererImports.length > 0) {
+				console.error(colors.green(rendererImports));
+			}
+			console.error('');
+			console.error(colors.dim('  // ...'));
+			if (rendererIntegrations.length > 0) {
+				console.error(colors.green('  integrations: ['));
+				console.error(colors.green(rendererIntegrations));
+				console.error(colors.green('  ],'));
+			} else {
+				console.error(colors.green('  integrations: [],'));
+			}
+			console.error('');
+		} catch (err) {
+			// We tried, better to just exit.
+		}
+		process.exit(1);
+	}
+	/* eslint-enable no-console */
+
 	// We need to extend the global schema to add transforms that are relative to root.
 	// This is type checked against the global schema to make sure we still match.
 	const AstroConfigRelativeSchema = AstroConfigSchema.extend({
@@ -104,8 +192,26 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 			.string()
 			.default('./dist')
 			.transform((val) => new URL(addTrailingSlash(val), fileProtocolRoot)),
+		styleOptions: z
+			.object({
+				postcss: z.preprocess(
+					(val) => resolvePostcssConfig(val, fileProtocolRoot),
+					z
+						.object({
+							options: z.any(),
+							plugins: z.array(z.any()),
+						})
+						.optional()
+						.default({ options: {}, plugins: [] })
+				),
+			})
+			.optional()
+			.default({}),
 	});
-	return AstroConfigRelativeSchema.parseAsync(userConfig);
+	return {
+		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
+		_ctx: { scripts: [], renderers: [] },
+	};
 }
 
 /** Adds '/' to end of string but doesn’t double-up */
@@ -175,7 +281,11 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 	if (config) {
 		userConfig = config.value;
 	}
-	// normalize, validate, and return
+	return resolveConfig(userConfig, root, flags);
+}
+
+/** Attempt to resolve an Astro configuration object. Normalize, validate, and return. */
+export async function resolveConfig(userConfig: AstroUserConfig, root: string, flags: CLIFlags = {}): Promise<AstroConfig> {
 	const mergedConfig = mergeCLIFlags(userConfig, flags);
 	const validatedConfig = await validateConfig(mergedConfig, root);
 	return validatedConfig;
@@ -184,4 +294,43 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 export function formatConfigError(err: z.ZodError) {
 	const errorList = err.issues.map((issue) => `  ! ${colors.bold(issue.path.join('.'))}  ${colors.red(issue.message + '.')}`);
 	return `${colors.red('[config]')} Astro found issue(s) with your configuration:\n${errorList.join('\n')}`;
+}
+
+function mergeConfigRecursively(defaults: Record<string, any>, overrides: Record<string, any>, rootPath: string) {
+	const merged: Record<string, any> = { ...defaults };
+	for (const key in overrides) {
+		const value = overrides[key];
+		if (value == null) {
+			continue;
+		}
+
+		const existing = merged[key];
+
+		if (existing == null) {
+			merged[key] = value;
+			continue;
+		}
+
+		// fields that require special handling:
+		if (key === 'vite' && rootPath === '') {
+			merged[key] = mergeViteConfig(existing, value);
+			continue;
+		}
+
+		if (Array.isArray(existing) || Array.isArray(value)) {
+			merged[key] = [...arraify(existing ?? []), ...arraify(value ?? [])];
+			continue;
+		}
+		if (isObject(existing) && isObject(value)) {
+			merged[key] = mergeConfigRecursively(existing, value, rootPath ? `${rootPath}.${key}` : key);
+			continue;
+		}
+
+		merged[key] = value;
+	}
+	return merged;
+}
+
+export function mergeConfig(defaults: Record<string, any>, overrides: Record<string, any>, isRoot = true): Record<string, any> {
+	return mergeConfigRecursively(defaults, overrides, isRoot ? '' : '.');
 }

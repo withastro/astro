@@ -10,7 +10,6 @@ describe('Astro Markdown plugins', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/astro-markdown-plugins/',
-			renderers: ['@astrojs/renderer-preact'],
 			markdownOptions: {
 				render: [
 					markdownRemark,

@@ -10,12 +10,6 @@ describe('Tailwind', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/tailwindcss/',
-			renderers: [],
-			vite: {
-				build: {
-					assetsInlineLimit: 0,
-				},
-			},
 		});
 	});
 
@@ -84,7 +78,6 @@ describe('Tailwind', () => {
 			expect(res.status).to.equal(200);
 
 			const text = await res.text();
-
 			expect(text, 'includes used component classes').to.match(/\.bg-purple-600/);
 
 			// tests a random tailwind class that isn't used on the page

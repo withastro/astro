@@ -1,4 +1,4 @@
-import type { RouteData, SerializedRouteData, MarkdownRenderOptions } from '../../@types/astro';
+import type { RouteData, SerializedRouteData, MarkdownRenderOptions, AstroRenderer } from '../../@types/astro';
 
 export interface RouteInfo {
 	routeData: RouteData;
@@ -17,7 +17,7 @@ export interface SSRManifest {
 	markdown: {
 		render: MarkdownRenderOptions;
 	};
-	renderers: string[];
+	renderers: AstroRenderer[];
 	entryModules: Record<string, string>;
 }
 

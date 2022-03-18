@@ -1,7 +1,8 @@
 import { defineConfig } from 'astro/config';
+import svelte from '@astrojs/svelte';
 
 // https://astro.build/config
 export default defineConfig({
-	// Enable the Svelte renderer to support Svelte components.
-	renderers: ['@astrojs/renderer-svelte'],
+	// Enable Svelte to support Svelte components.
+	integrations: [svelte()],
 });

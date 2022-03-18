@@ -1,4 +1,4 @@
-import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params, Props, Renderer, RouteData, SSRElement } from '../../@types/astro';
+import type { ComponentInstance, EndpointHandler, MarkdownRenderOptions, Params, Props, SSRLoadedRenderer, RouteData, SSRElement } from '../../@types/astro';
 import type { LogOptions } from '../logger.js';
 import type { AstroRequest } from './request';
 
@@ -66,7 +66,7 @@ export interface RenderOptions {
 	pathname: string;
 	scripts: Set<SSRElement>;
 	resolve: (s: string) => Promise<string>;
-	renderers: Renderer[];
+	renderers: SSRLoadedRenderer[];
 	route?: RouteData;
 	routeCache: RouteCache;
 	site?: string;

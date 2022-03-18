@@ -1,31 +1,28 @@
-import type { OutputChunk, OutputAsset, RollupOutput } from 'rollup';
-import type { Plugin as VitePlugin, UserConfig, Manifest as ViteManifest } from 'vite';
-import type { AstroConfig, ComponentInstance, EndpointHandler, ManifestData, Renderer, RouteType } from '../../@types/astro';
-import type { AllPagesData } from './types';
-import type { LogOptions } from '../logger';
-import type { ViteConfigWithSSR } from '../create-vite';
-import type { PageBuildData } from './types';
-import type { BuildInternals } from '../../core/build/internal.js';
-import type { RenderOptions } from '../../core/render/core';
-import type { SerializedSSRManifest, SerializedRouteInfo } from '../app/types';
-
+import glob from 'fast-glob';
 import fs from 'fs';
 import npath from 'path';
+import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
-import glob from 'fast-glob';
+import type { Manifest as ViteManifest, Plugin as VitePlugin, UserConfig } from 'vite';
 import * as vite from 'vite';
-import { debug, error } from '../../core/logger.js';
-import { prependForwardSlash, appendForwardSlash } from '../../core/path.js';
-import { emptyDir, removeDir, resolveDependency } from '../../core/util.js';
+import type { AstroConfig, AstroRenderer, ComponentInstance, EndpointHandler, ManifestData, RouteType, SSRLoadedRenderer } from '../../@types/astro';
+import type { BuildInternals } from '../../core/build/internal.js';
 import { createBuildInternals } from '../../core/build/internal.js';
+import { debug, error } from '../../core/logger.js';
+import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
+import type { RenderOptions } from '../../core/render/core';
+import { emptyDir, removeDir, resolveDependency } from '../../core/util.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
-import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
-import { RouteCache } from '../render/route-cache.js';
+import type { SerializedRouteInfo, SerializedSSRManifest } from '../app/types';
+import type { ViteConfigWithSSR } from '../create-vite';
 import { call as callEndpoint } from '../endpoint/index.js';
-import { serializeRouteData } from '../routing/index.js';
+import type { LogOptions } from '../logger';
 import { render } from '../render/core.js';
+import { RouteCache } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
-import { createRequest } from '../render/request.js';
+import { serializeRouteData } from '../routing/index.js';
+import type { AllPagesData, PageBuildData } from './types';
+import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 
 export interface StaticBuildOptions {
 	allPages: AllPagesData;
@@ -116,17 +113,8 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// about that page, such as its paths.
 	const facadeIdToPageDataMap = new Map<string, PageBuildData>();
 
-	// Collects polyfills and passes them as top-level inputs
-	const polyfills = getRenderers(opts).flatMap((renderer) => {
-		return (renderer.polyfills || []).concat(renderer.hydrationPolyfills || []);
-	});
-	for (const polyfill of polyfills) {
-		jsInput.add(polyfill);
-	}
-
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
-
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
 		const astroModuleId = prependForwardSlash(component);
@@ -145,7 +133,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 				// Any hydration directive like astro/client/idle.js
 				...metadata.hydrationDirectiveSpecifiers(),
 				// The client path for each renderer
-				...renderers.filter((renderer) => !!renderer.source).map((renderer) => renderer.source!),
+				...renderers.filter((renderer) => !!renderer.clientEntrypoint).map((renderer) => renderer.clientEntrypoint!),
 			]);
 
 			// Add hoisted scripts
@@ -172,6 +160,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
+
 	await clientBuild(opts, internals, jsInput);
 
 	// SSG mode, generate pages.
@@ -189,10 +178,11 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 	const { astroConfig, viteConfig } = opts;
 	const ssr = astroConfig.buildOptions.experimentalSsr;
 	const out = ssr ? getServerRoot(astroConfig) : getOutRoot(astroConfig);
-
+	// TODO: use vite.mergeConfig() here?
 	return await vite.build({
-		logLevel: 'warn',
+		logLevel: 'error',
 		mode: 'production',
+		css: viteConfig.css,
 		build: {
 			...viteConfig.build,
 			emptyOutDir: false,
@@ -200,6 +190,9 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			outDir: fileURLToPath(out),
 			ssr: true,
 			rollupOptions: {
+				// onwarn(warn) {
+				// 	console.log(warn);
+				// },
 				input: Array.from(input),
 				output: {
 					format: 'esm',
@@ -240,9 +233,12 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	}
 
 	const out = astroConfig.buildOptions.experimentalSsr ? getClientRoot(astroConfig) : getOutRoot(astroConfig);
+
+	// TODO: use vite.mergeConfig() here?
 	return await vite.build({
-		logLevel: 'warn',
+		logLevel: 'error',
 		mode: 'production',
+		css: viteConfig.css,
 		build: {
 			emptyOutDir: false,
 			minify: 'esbuild',
@@ -275,38 +271,20 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	});
 }
 
-function getRenderers(opts: StaticBuildOptions) {
-	// All of the PageDatas have the same renderers, so just grab one.
-	const pageData = Object.values(opts.allPages)[0];
-	// These renderers have been loaded through Vite. To generate pages
-	// we need the ESM loaded version. This creates that.
-	const viteLoadedRenderers = pageData.preload[0];
-
-	return viteLoadedRenderers;
+async function loadRenderer(renderer: AstroRenderer, config: AstroConfig): Promise<SSRLoadedRenderer> {
+	const mod = (await import(resolveDependency(renderer.serverEntrypoint, config))) as { default: SSRLoadedRenderer['ssr'] };
+	return { ...renderer, ssr: mod.default };
 }
 
-async function collectRenderers(opts: StaticBuildOptions): Promise<Renderer[]> {
-	const viteLoadedRenderers = getRenderers(opts);
-
-	const renderers = await Promise.all(
-		viteLoadedRenderers.map(async (r) => {
-			const mod = await import(resolveDependency(r.serverEntry, opts.astroConfig));
-			return Object.create(r, {
-				ssr: {
-					value: mod.default,
-				},
-			}) as Renderer;
-		})
-	);
-
-	return renderers;
+async function loadRenderers(config: AstroConfig): Promise<SSRLoadedRenderer[]> {
+	return Promise.all(config._ctx.renderers.map((r) => loadRenderer(r, config)));
 }
 
 async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
 	debug('build', 'Finish build. Begin generating.');
 
 	// Get renderers to be shared for each page generation.
-	const renderers = await collectRenderers(opts);
+	const renderers = await loadRenderers(opts.astroConfig);
 
 	for (let output of result.output) {
 		if (chunkIsPage(opts.astroConfig, output, internals)) {
@@ -315,7 +293,13 @@ async function generatePages(result: RollupOutput, opts: StaticBuildOptions, int
 	}
 }
 
-async function generatePage(output: OutputChunk, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>, renderers: Renderer[]) {
+async function generatePage(
+	output: OutputChunk,
+	opts: StaticBuildOptions,
+	internals: BuildInternals,
+	facadeIdToPageDataMap: Map<string, PageBuildData>,
+	renderers: SSRLoadedRenderer[]
+) {
 	const { astroConfig } = opts;
 
 	let url = new URL('./' + output.fileName, getOutRoot(astroConfig));
@@ -359,7 +343,7 @@ interface GeneratePathOptions {
 	linkIds: string[];
 	hoistedId: string | null;
 	mod: ComponentInstance;
-	renderers: Renderer[];
+	renderers: SSRLoadedRenderer[];
 }
 
 async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: GeneratePathOptions) {
@@ -377,6 +361,16 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	const links = createLinkStylesheetElementSet(linkIds.reverse(), site);
 	const scripts = createModuleScriptElementWithSrcSet(hoistedId ? [hoistedId] : [], site);
 
+	// Add all injected scripts to the page.
+	for (const script of astroConfig._ctx.scripts) {
+		if (script.stage === 'head-inline') {
+			scripts.add({
+				props: {},
+				children: script.content,
+			});
+		}
+	}
+
 	try {
 		const options: RenderOptions = {
 			legacyBuild: false,
@@ -391,6 +385,14 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 			async resolve(specifier: string) {
 				const hashedFilePath = internals.entrySpecifierToBundleMap.get(specifier);
 				if (typeof hashedFilePath !== 'string') {
+					// If no "astro:scripts/before-hydration.js" script exists in the build,
+					// then we can assume that no before-hydration scripts are needed.
+					// Return this as placeholder, which will be ignored by the browser.
+					// TODO: In the future, we hope to run this entire script through Vite,
+					// removing the need to maintain our own custom Vite-mimic resolve logic.
+					if (specifier === 'astro:scripts/before-hydration.js') {
+						return 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+					}
 					throw new Error(`Cannot find the built path for ${specifier}`);
 				}
 				const relPath = npath.posix.relative(pathname, '/' + hashedFilePath);
@@ -480,7 +482,7 @@ async function generateManifest(result: RollupOutput, opts: StaticBuildOptions, 
 		markdown: {
 			render: astroConfig.markdownOptions.render,
 		},
-		renderers: astroConfig.renderers,
+		renderers: astroConfig._ctx.renderers,
 		entryModules: Object.fromEntries(internals.entrySpecifierToBundleMap.entries()),
 	};
 
@@ -628,8 +630,8 @@ export function vitePluginNewBuild(input: Set<string>, internals: BuildInternals
 			}
 			await Promise.all(promises);
 			for (const [, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'chunk' && chunk.facadeModuleId && mapping.has(chunk.facadeModuleId)) {
-					const specifier = mapping.get(chunk.facadeModuleId)!;
+				if (chunk.type === 'chunk' && chunk.facadeModuleId) {
+					const specifier = mapping.get(chunk.facadeModuleId) || chunk.facadeModuleId;
 					internals.entrySpecifierToBundleMap.set(specifier, chunk.fileName);
 				}
 			}

@@ -1,6 +1,6 @@
 import type { TransformResult } from 'rollup';
 import type { Plugin, ResolvedConfig } from 'vite';
-import type { AstroConfig, Renderer } from '../@types/astro';
+import type { AstroConfig, AstroRenderer } from '../@types/astro';
 import type { LogOptions } from '../core/logger.js';
 
 import babel from '@babel/core';
@@ -9,9 +9,9 @@ import * as colors from 'kleur/colors';
 import * as eslexer from 'es-module-lexer';
 import path from 'path';
 import { error } from '../core/logger.js';
-import { parseNpmName, resolveDependency } from '../core/util.js';
+import { parseNpmName } from '../core/util.js';
 
-const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, Renderer>>();
+const JSX_RENDERER_CACHE = new WeakMap<AstroConfig, Map<string, AstroRenderer>>();
 const JSX_EXTENSIONS = new Set(['.jsx', '.tsx']);
 const IMPORT_STATEMENTS: Record<string, string> = {
 	react: "import React from 'react'",
@@ -28,24 +28,16 @@ function getEsbuildLoader(fileExt: string): string {
 	return fileExt.substr(1);
 }
 
-async function importJSXRenderers(config: AstroConfig): Promise<Map<string, Renderer>> {
-	const renderers = new Map<string, Renderer>();
-	await Promise.all(
-		config.renderers.map((name) => {
-			return import(resolveDependency(name, config)).then(({ default: renderer }) => {
-				if (!renderer.jsxImportSource) return;
-				renderers.set(renderer.jsxImportSource, renderer);
-			});
-		})
-	);
-	return renderers;
+function collectJSXRenderers(renderers: AstroRenderer[]): Map<string, AstroRenderer> {
+	const renderersWithJSXSupport = renderers.filter((r) => r.jsxImportSource);
+	return new Map(renderersWithJSXSupport.map((r) => [r.jsxImportSource, r] as [string, AstroRenderer]));
 }
 
 interface TransformJSXOptions {
 	code: string;
 	id: string;
 	mode: string;
-	renderer: Renderer;
+	renderer: AstroRenderer;
 	ssr: boolean;
 }
 
@@ -100,13 +92,13 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 			// load renderers (on first run only)
 			if (!jsxRenderers) {
 				jsxRenderers = new Map();
-				const possibleRenderers = await importJSXRenderers(config);
+				const possibleRenderers = await collectJSXRenderers(config._ctx.renderers);
 				if (possibleRenderers.size === 0) {
 					// note: we have filtered out all non-JSX files, so this error should only show if a JSX file is loaded with no matching renderers
 					throw new Error(
 						`${colors.yellow(
 							id
-						)}\nUnable to resolve a renderer that handles JSX transforms! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`
+						)}\nUnable to resolve a JSX renderer! Did you forget to include one? Add a JSX integration like \`@astrojs/react\` to your \`astro.config.mjs\` file.`
 					);
 				}
 				for (const [importSource, renderer] of possibleRenderers) {
@@ -173,7 +165,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 				const jsxRenderer = jsxRenderers.get(importSource);
 				// if renderer not installed for this JSX source, throw error
 				if (!jsxRenderer) {
-					error(logging, 'renderer', `${colors.yellow(id)} No renderer installed for ${importSource}. Try adding \`@astrojs/renderer-${importSource}\` to your dependencies.`);
+					error(logging, 'renderer', `${colors.yellow(id)} No renderer installed for ${importSource}. Try adding \`@astrojs/${importSource}\` to your project.`);
 					return null;
 				}
 				// downlevel any non-standard syntax, but preserve JSX
@@ -183,7 +175,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 					sourcefile: id,
 					sourcemap: 'inline',
 				});
-				return await transformJSX({ code: jsxCode, id, renderer: jsxRenderers.get(importSource) as Renderer, mode, ssr });
+				return await transformJSX({ code: jsxCode, id, renderer: jsxRenderers.get(importSource) as AstroRenderer, mode, ssr });
 			}
 
 			// if we still can’t tell, throw error

@@ -10,9 +10,24 @@ describe('config', () => {
 
 	before(async () => {
 		[hostnameFixture, hostFixture, portFixture] = await Promise.all([
-			loadFixture({ projectRoot: './fixtures/config-hostname/' }),
-			loadFixture({ projectRoot: './fixtures/config-host/' }),
-			loadFixture({ projectRoot: './fixtures/config-port/' }),
+			loadFixture({
+				projectRoot: './fixtures/config-host/',
+				devOptions: {
+					hostname: '0.0.0.0',
+				},
+			}),
+			loadFixture({
+				projectRoot: './fixtures/config-host/',
+				devOptions: {
+					host: true,
+				},
+			}),
+			loadFixture({
+				projectRoot: './fixtures/config-host/',
+				devOptions: {
+					port: 5006,
+				},
+			}),
 		]);
 	});
 

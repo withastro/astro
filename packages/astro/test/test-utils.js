@@ -2,7 +2,7 @@ import { execa } from 'execa';
 import { polyfill } from '@astrojs/webapi';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { loadConfig } from '../dist/core/config.js';
+import { resolveConfig, loadConfig } from '../dist/core/config.js';
 import dev from '../dist/core/dev/index.js';
 import build from '../dist/core/build/index.js';
 import preview from '../dist/core/preview/index.js';
@@ -57,6 +57,7 @@ export async function loadFixture(inlineConfig) {
 
 	// load config
 	let cwd = inlineConfig.projectRoot;
+	delete inlineConfig.projectRoot;
 	if (typeof cwd === 'string') {
 		try {
 			cwd = new URL(cwd.replace(/\/?$/, '/'));
@@ -64,11 +65,7 @@ export async function loadFixture(inlineConfig) {
 			cwd = new URL(cwd.replace(/\/?$/, '/'), import.meta.url);
 		}
 	}
-
-	// merge configs
-	if (!inlineConfig.buildOptions) inlineConfig.buildOptions = {};
-	if (inlineConfig.buildOptions.sitemap === undefined) inlineConfig.buildOptions.sitemap = false;
-	if (!inlineConfig.devOptions) inlineConfig.devOptions = {};
+	// Load the config.
 	let config = await loadConfig({ cwd: fileURLToPath(cwd) });
 	config = merge(config, { ...inlineConfig, projectRoot: cwd });
 
@@ -77,14 +74,12 @@ export async function loadFixture(inlineConfig) {
 		startDevServer: async (opts = {}) => {
 			const devResult = await dev(config, { logging: 'error', ...opts });
 			config.devOptions.port = devResult.address.port; // update port
-			inlineConfig.devOptions.port = devResult.address.port;
 			return devResult;
 		},
 		config,
 		fetch: (url, init) => fetch(`http://${'127.0.0.1'}:${config.devOptions.port}${url.replace(/^\/?/, '/')}`, init),
 		preview: async (opts = {}) => {
 			const previewServer = await preview(config, { logging: 'error', ...opts });
-			inlineConfig.devOptions.port = previewServer.port; // update port for fetch
 			return previewServer;
 		},
 		loadSSRApp: () => loadApp(new URL('./server/', config.dist)),

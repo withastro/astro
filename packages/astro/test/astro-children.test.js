@@ -6,10 +6,7 @@ describe('Component children', () => {
 	let fixture;
 
 	before(async () => {
-		fixture = await loadFixture({
-			projectRoot: './fixtures/astro-children/',
-			renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-vue', '@astrojs/renderer-svelte'],
-		});
+		fixture = await loadFixture({ projectRoot: './fixtures/astro-children/' });
 		await fixture.build();
 	});
 

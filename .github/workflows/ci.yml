@@ -99,7 +99,8 @@ jobs:
         with:
           name: artifacts
           path: |
-            packages/**/dist/**
+            packages/*/dist/**
+            packages/*/*/dist/**
             packages/webapi/mod.js
             packages/webapi/mod.js.map
           if-no-files-found: error

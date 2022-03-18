@@ -1,0 +1,43 @@
+{
+  "name": "@astrojs/react",
+  "description": "Use React components within Astro",
+  "version": "0.0.1",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/react"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./client.js": "./client.js",
+    "./server.js": "./server.js",
+    "./package.json": "./package.json",
+    "./jsx-runtime": "./jsx-runtime.js"
+  },
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@babel/plugin-transform-react-jsx": "^7.16.7"
+  },
+  "devDependencies": {
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "peerDependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "engines": {
+    "node": "^14.15.0 || >=16.0.0"
+  }
+}

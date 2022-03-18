@@ -1,12 +1,10 @@
-import type { AstroGlobal, AstroGlobalPartial, MarkdownParser, MarkdownRenderOptions, Params, Renderer, SSRElement, SSRResult } from '../../@types/astro';
-import type { AstroRequest } from './request';
-
 import { bold } from 'kleur/colors';
-import { createRequest } from './request.js';
-import { isCSSRequest } from './dev/css.js';
-import { isScriptRequest } from './script.js';
+import type { AstroGlobal, AstroGlobalPartial, MarkdownParser, MarkdownRenderOptions, Params, SSRElement, SSRLoadedRenderer, SSRResult } from '../../@types/astro';
 import { renderSlot } from '../../runtime/server/index.js';
-import { warn, LogOptions } from '../logger.js';
+import { LogOptions, warn } from '../logger.js';
+import { isCSSRequest } from './dev/css.js';
+import { createRequest } from './request.js';
+import { isScriptRequest } from './script.js';
 
 function onlyAvailableInSSR(name: string) {
 	return function () {
@@ -23,7 +21,7 @@ export interface CreateResultArgs {
 	markdownRender: MarkdownRenderOptions;
 	params: Params;
 	pathname: string;
-	renderers: Renderer[];
+	renderers: SSRLoadedRenderer[];
 	resolve: (s: string) => Promise<string>;
 	site: string | undefined;
 	links?: Set<SSRElement>;
