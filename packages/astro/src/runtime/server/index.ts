@@ -1,18 +1,13 @@
-import type { AstroComponentMetadata, EndpointHandler, Renderer, Params } from '../../@types/astro';
-import type { AstroGlobalPartial, SSRResult, SSRElement } from '../../@types/astro';
-import type { AstroRequest } from '../../core/render/request';
-
 import shorthash from 'shorthash';
+import type { AstroComponentMetadata, AstroGlobalPartial, EndpointHandler, Params, SSRElement, SSRLoadedRenderer, SSRResult } from '../../@types/astro';
+import type { AstroRequest } from '../../core/render/request';
+import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 import { extractDirectives, generateHydrateScript, serializeProps } from './hydration.js';
 import { serializeListValue } from './util.js';
-import { escapeHTML, HTMLString, markHTMLString } from './escape.js';
 
+export { markHTMLString, markHTMLString as unescapeHTML } from './escape.js';
 export type { Metadata } from './metadata';
 export { createMetadata } from './metadata.js';
-
-export { markHTMLString } from './escape.js';
-// TODO(deprecated): This name has been updated in Astro runtime but not yet in the Astro compiler.
-export { markHTMLString as unescapeHTML } from './escape.js';
 
 const voidElementNames = /^(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/i;
 const htmlBooleanAttributes =
@@ -116,14 +111,14 @@ function guessRenderers(componentUrl?: string): string[] {
 	const extname = componentUrl?.split('.').pop();
 	switch (extname) {
 		case 'svelte':
-			return ['@astrojs/renderer-svelte'];
+			return ['@astrojs/svelte'];
 		case 'vue':
-			return ['@astrojs/renderer-vue'];
+			return ['@astrojs/vue'];
 		case 'jsx':
 		case 'tsx':
-			return ['@astrojs/renderer-react', '@astrojs/renderer-preact'];
+			return ['@astrojs/react', '@astrojs/preact'];
 		default:
-			return ['@astrojs/renderer-react', '@astrojs/renderer-preact', '@astrojs/renderer-vue', '@astrojs/renderer-svelte'];
+			return ['@astrojs/react', '@astrojs/preact', '@astrojs/vue', '@astrojs/svelte'];
 	}
 }
 
@@ -171,13 +166,13 @@ export async function renderComponent(result: SSRResult, displayName: string, Co
 	if (Array.isArray(renderers) && renderers.length === 0 && typeof Component !== 'string' && !componentIsHTMLElement(Component)) {
 		const message = `Unable to render ${metadata.displayName}!
 
-There are no \`renderers\` set in your \`astro.config.mjs\` file.
-Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`;
+There are no \`integrations\` set in your \`astro.config.mjs\` file.
+Did you mean to add ${formatList(probableRendererNames.map((r) => '`' + r + '`'))}?`;
 		throw new Error(message);
 	}
 
 	// Call the renderers `check` hook to see if any claim this component.
-	let renderer: Renderer | undefined;
+	let renderer: SSRLoadedRenderer | undefined;
 	if (metadata.hydrate !== 'only') {
 		for (const r of renderers) {
 			if (await r.ssr.check(Component, props, children)) {
@@ -195,7 +190,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 		// Attempt: use explicitly passed renderer name
 		if (metadata.hydrateArgs) {
 			const rendererName = metadata.hydrateArgs;
-			renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${rendererName}` || name === rendererName)[0];
+			renderer = renderers.filter(({ name }) => name === `@astrojs/${rendererName}` || name === rendererName)[0];
 		}
 		// Attempt: user only has a single renderer, default to that
 		if (!renderer && renderers.length === 1) {
@@ -204,7 +199,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 		// Attempt: can we guess the renderer from the export extension?
 		if (!renderer) {
 			const extname = metadata.componentUrl?.split('.').pop();
-			renderer = renderers.filter(({ name }) => name === `@astrojs/renderer-${extname}` || name === extname)[0];
+			renderer = renderers.filter(({ name }) => name === `@astrojs/${extname}` || name === extname)[0];
 		}
 	}
 
@@ -215,7 +210,7 @@ Did you mean to enable ${formatList(probableRendererNames.map((r) => '`' + r + '
 			throw new Error(`Unable to render ${metadata.displayName}!
 
 Using the \`client:only\` hydration strategy, Astro needs a hint to use the correct renderer.
-Did you mean to pass <${metadata.displayName} client:only="${probableRendererNames.map((r) => r.replace('@astrojs/renderer-', '')).join('|')}" />
+Did you mean to pass <${metadata.displayName} client:only="${probableRendererNames.map((r) => r.replace('@astrojs/', '')).join('|')}" />
 `);
 		} else if (typeof Component !== 'string') {
 			const matchingRenderers = renderers.filter((r) => probableRendererNames.includes(r.name));
@@ -264,16 +259,6 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 		);
 	}
 
-	// This is used to add polyfill scripts to the page, if the renderer needs them.
-	if (renderer?.polyfills?.length) {
-		for (const src of renderer.polyfills) {
-			result.scripts.add({
-				props: { type: 'module' },
-				children: `import "${await result.resolve(src)}";`,
-			});
-		}
-	}
-
 	if (!hydration) {
 		return markHTMLString(html.replace(/\<\/?astro-fragment\>/g, ''));
 	}
@@ -283,7 +268,7 @@ If you're still stuck, please open an issue on GitHub or join us at https://astr
 
 	// Rather than appending this inline in the page, puts this into the `result.scripts` set that will be appended to the head.
 	// INVESTIGATE: This will likely be a problem in streaming because the `<head>` will be gone at this point.
-	result.scripts.add(await generateHydrateScript({ renderer, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
+	result.scripts.add(await generateHydrateScript({ renderer: renderer!, result, astroId, props }, metadata as Required<AstroComponentMetadata>));
 
 	// Render a template if no fragment is provided.
 	const needsAstroTemplate = children && !/<\/?astro-fragment\>/.test(html);

@@ -57,7 +57,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.astro\"",
     "benchmark": "node test/benchmark/dev.bench.js && node test/benchmark/build.bench.js",
-    "test": "mocha --parallel --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
+    "test": "mocha --exit --timeout 20000 --ignore **/lit-element.test.js && mocha --timeout 20000 **/lit-element.test.js",
     "test:match": "mocha --timeout 20000 -g"
   },
   "dependencies": {
@@ -65,10 +65,6 @@
     "@astrojs/language-server": "^0.8.10",
     "@astrojs/markdown-remark": "^0.6.4",
     "@astrojs/prism": "0.4.0",
-    "@astrojs/renderer-preact": "^0.5.0",
-    "@astrojs/renderer-react": "0.5.0",
-    "@astrojs/renderer-svelte": "0.5.2",
-    "@astrojs/renderer-vue": "0.4.0",
     "@astrojs/webapi": "^0.11.0",
     "@babel/core": "^7.17.7",
     "@babel/traverse": "^7.17.3",

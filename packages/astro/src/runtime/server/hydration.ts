@@ -1,4 +1,4 @@
-import type { AstroComponentMetadata } from '../../@types/astro';
+import type { AstroComponentMetadata, SSRLoadedRenderer } from '../../@types/astro';
 import type { SSRElement, SSRResult } from '../../@types/astro';
 import { hydrationSpecifier, serializeListValue } from './util.js';
 import serializeJavaScript from 'serialize-javascript';
@@ -81,7 +81,7 @@ export function extractDirectives(inputProps: Record<string | number, any>): Ext
 }
 
 interface HydrateScriptOptions {
-	renderer: any;
+	renderer: SSRLoadedRenderer;
 	result: SSRResult;
 	astroId: string;
 	props: Record<string | number, any>;
@@ -96,16 +96,11 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 		throw new Error(`Unable to resolve a componentExport for "${metadata.displayName}"! Please open an issue.`);
 	}
 
-	let hydrationSource = '';
-	if (renderer.hydrationPolyfills) {
-		hydrationSource += `await Promise.all([${(await Promise.all(renderer.hydrationPolyfills.map(async (src: string) => `\n  import("${await result.resolve(src)}")`))).join(
-			', '
-		)}]);\n`;
-	}
+	let hydrationSource = ``;
 
-	hydrationSource += renderer.source
+	hydrationSource += renderer.clientEntrypoint
 		? `const [{ ${componentExport.value}: Component }, { default: hydrate }] = await Promise.all([import("${await result.resolve(componentUrl)}"), import("${await result.resolve(
-				renderer.source
+				renderer.clientEntrypoint
 		  )}")]);
   return (el, children) => hydrate(el)(Component, ${serializeProps(props)}, children);
 `
@@ -116,6 +111,7 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 	const hydrationScript = {
 		props: { type: 'module', 'data-astro-component-hydration': true },
 		children: `import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';
+${`import '${await result.resolve('astro:scripts/before-hydration.js')}';`}
 setup("${astroId}", {name:"${metadata.displayName}",${metadata.hydrateArgs ? `value: ${JSON.stringify(metadata.hydrateArgs)}` : ''}}, async () => {
   ${hydrationSource}
 });

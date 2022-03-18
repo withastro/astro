@@ -15,7 +15,7 @@ import { logger, defaultLogLevel } from './logger.js';
 // broke our arg parser, since `--` is a special kind of flag. Filtering for `--` here
 // fixes the issue so that create-astro now works on all npm version.
 const cleanArgv = process.argv.filter((arg) => arg !== '--');
-const args = yargs(cleanArgv, { array: ['renderers'] });
+const args = yargs(cleanArgv);
 prompts.override(args);
 
 export function mkdirp(dir: string) {
@@ -87,22 +87,18 @@ export async function main() {
 	});
 
 	const selectedTemplate = TEMPLATES.find((template) => template.value === options.template);
-	let renderers: string[] = [];
+	let integrations: string[] = [];
 
-	if (selectedTemplate?.renderers === true) {
+	if (selectedTemplate?.integrations === true) {
 		const result = /** @type {import('./types/internal').Options} */ await prompts([
 			{
 				type: 'multiselect',
-				name: 'renderers',
+				name: 'integrations',
 				message: 'Which frameworks would you like to use?',
 				choices: FRAMEWORKS,
 			},
 		]);
-		renderers = result.renderers;
-	} else if (selectedTemplate?.renderers && Array.isArray(selectedTemplate.renderers) && selectedTemplate.renderers.length) {
-		renderers = selectedTemplate.renderers;
-		const titles = renderers.map((renderer) => FRAMEWORKS.find((item) => item.value === renderer)?.title).join(', ');
-		console.log(`${green(`✔`)} ${bold(`Using template's default renderers`)} ${gray('›')} ${titles}`);
+		integrations = result.integrations;
 	}
 
 	// Copy
@@ -148,24 +144,24 @@ export async function main() {
 					break;
 				}
 				case 'astro.config.mjs': {
-					if (selectedTemplate?.renderers !== true) {
+					if (selectedTemplate?.integrations !== true) {
 						break;
 					}
-					await fs.promises.writeFile(fileLoc, createConfig({ renderers }));
+					await fs.promises.writeFile(fileLoc, createConfig({ integrations }));
 					break;
 				}
 				case 'package.json': {
 					const packageJSON = JSON.parse(await fs.promises.readFile(fileLoc, 'utf8'));
 					delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
-					// Fetch latest versions of selected renderers
-					const rendererEntries = (await Promise.all(
-						['astro', ...renderers].map((renderer: string) =>
-							fetch(`https://registry.npmjs.org/${renderer}/latest`)
+					// Fetch latest versions of selected integrations
+					const integrationEntries = (await Promise.all(
+						['astro', ...integrations].map((integration: string) =>
+							fetch(`https://registry.npmjs.org/@astrojs/${integration === 'solid' ? 'solid-js' : integration}/latest`)
 								.then((res: any) => res.json())
-								.then((res: any) => [renderer, `^${res['version']}`])
+								.then((res: any) => [res['name'], `^${res['version']}`])
 						)
 					)) as any;
-					packageJSON.devDependencies = { ...(packageJSON.devDependencies ?? {}), ...Object.fromEntries(rendererEntries) };
+					packageJSON.devDependencies = { ...(packageJSON.devDependencies ?? {}), ...Object.fromEntries(integrationEntries) };
 					await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
 					break;
 				}
@@ -178,8 +174,8 @@ export async function main() {
 		let importStatements: string[] = [];
 		let components: string[] = [];
 		await Promise.all(
-			renderers.map(async (renderer) => {
-				const component = COUNTER_COMPONENTS[renderer as keyof typeof COUNTER_COMPONENTS];
+			integrations.map(async (integrations) => {
+				const component = COUNTER_COMPONENTS[integrations as keyof typeof COUNTER_COMPONENTS];
 				const componentName = path.basename(component.filename, path.extname(component.filename));
 				const absFileLoc = path.resolve(cwd, component.filename);
 				importStatements.push(`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`);
