@@ -5,7 +5,7 @@ export type Plugin = string | [string, any] | unified.Plugin | [unified.Plugin, 
 
 export interface AstroMarkdownOptions {
 	mode?: 'md' | 'mdx';
-	syntaxHighlight?: 'prism' | 'shiki' | false;
+	syntaxHighlight?: 'shiki' | 'prism' | false;
 	shikiConfig?: ShikiConfig;
 	remarkPlugins?: Plugin[];
 	rehypePlugins?: Plugin[];

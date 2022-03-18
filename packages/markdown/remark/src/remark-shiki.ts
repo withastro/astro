@@ -36,7 +36,7 @@ export interface ShikiConfig {
  */
 const highlighterCache = new Map<string, shiki.Highlighter>();
 
-const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig) => {
+const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig, scopedClassName?: string | null) => {
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
 	let highlighter = highlighterCache.get(cacheID);
 	if (!highlighter) {
@@ -50,8 +50,14 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 		visit(tree, 'code', (node) => {
 			let html = highlighter!.codeToHtml(node.value, { lang: node.lang ?? 'plaintext' });
 
+			// Q: Couldn't these regexes match on a user's inputted code blocks?
+			// A: Nope! All rendered HTML is properly escaped.
+			// Ex. If a user typed `<span class="line"` into a code block,
+			// It would become this before hitting our regexes:
+			// &lt;span class=&quot;line&quot;
+
 			// Replace "shiki" class naming with "astro" and add "is:raw".
-			html = html.replace('<pre class="shiki"', '<pre is:raw class="astro-code"');
+			html = html.replace('<pre class="shiki"', `<pre is:raw class="astro-code${scopedClassName ? ' ' + scopedClassName : ''}"`);
 			// Replace "shiki" css variable naming with "astro".
 			html = html.replace(/style="(background-)?color: var\(--shiki-/g, 'style="$1color: var(--astro-code-');
 			// Handle code wrapping
@@ -60,6 +66,11 @@ const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: 
 				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto;"');
 			} else if (wrap === true) {
 				html = html.replace(/style="(.*?)"/, 'style="$1; overflow-x: auto; white-space: pre-wrap; word-wrap: break-word;"');
+			}
+
+			// Apply scopedClassName to all nested lines
+			if (scopedClassName) {
+				html = html.replace(/\<span class="line"\>/g, `<span class="line ${scopedClassName}"`);
 			}
 
 			node.type = 'html';

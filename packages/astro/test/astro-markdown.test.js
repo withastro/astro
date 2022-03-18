@@ -57,18 +57,36 @@ describe('Astro Markdown', () => {
 		const html = await fixture.readFile('/scopedStyles-code/index.html');
 		const $ = cheerio.load(html);
 
-		// test 1: <pre> tag has scopedStyle class passed down
-		expect($('pre').is('[class]')).to.equal(true);
-		expect($('pre').attr('class').split(' ').length).to.equal(2);
+		// test 1: <pre> tag has correct shiki class
+		expect($('pre').hasClass('astro-code')).to.equal(true);
 
-		// test 2: <pre> tag has correct language
-		expect($('pre').hasClass('language-js')).to.equal(true);
+		// test 2: inline styles are still applied
+		expect($('pre').is('[style]')).to.equal(true);
+		
+		// test 3: There are styled child spans in code blocks
+		expect($('pre code span').length).to.be.greaterThan(0);
+		expect($('pre code span').is('[style]')).to.equal(true);
+	});
 
-		// test 3: <code> tag has correct language
-		expect($('code').hasClass('language-js')).to.equal(true);
+	function isAstroScopedClass(cls) {
+		return /^astro-.*/.test(cls)
+	}
 
-		// test 4: There are child spans in code blocks
-		expect($('code span').length).to.be.greaterThan(0);
+	it('Scoped styles should be applied to syntax highlighted lines', async () => {
+		const html = await fixture.readFile('/scopedStyles-code/index.html');
+		const $ = cheerio.load(html);
+
+		// test 1: the "pre" tag receives scoped style
+		const preClassList = $('pre').attr('class').split(/\s+/);
+		expect(preClassList.length).to.equal(2);
+		const preAstroClass = preClassList.find(isAstroScopedClass);
+		expect(Boolean(preAstroClass)).to.equal(true);
+		
+		// test 2: each "span" line receives scoped style
+		const spanClassList = $('pre code span').attr('class').split(/\s+/);
+		expect(spanClassList.length).to.equal(2);
+		const spanAstroClass = spanClassList.find(isAstroScopedClass);
+		expect(Boolean(spanAstroClass)).to.equal(true);
 	});
 
 	it('Renders correctly when deeply nested on a page', async () => {

@@ -151,14 +151,14 @@ article > section iframe {
 	aspect-ratio: 16 / 9;
 }
 
-a > code:not([class*='language']) {
+a > code {
 	position: relative;
 	color: var(--theme-text-accent);
 	background: transparent;
 	text-underline-offset: var(--padding-block);
 }
 
-a > code:not([class*='language'])::before {
+a > code::before {
 	content: '';
 	position: absolute;
 	top: 0;
@@ -187,30 +187,24 @@ strong {
 }
 
 /* Supporting Content */
-code {
-	font-family: var(--font-mono);
-	font-size: 0.85em;
-}
 
-code:not([class*='language']) {
+code {
 	--border-radius: 3px;
 	--padding-block: 0.2rem;
-	--padding-inline: 0.4rem;
-	color: var(--theme-code-inline-text);
+	--padding-inline: 0.33rem;
+
+	font-family: var(--font-mono);
+	font-size: 0.85em;
+	color: inherit;
 	background-color: var(--theme-code-inline-bg);
 	padding: var(--padding-block) var(--padding-inline);
 	margin: calc(var(--padding-block) * -1) -0.125em;
 	border-radius: var(--border-radius);
-	box-shadow: 0 2px 1px 0 rgba(0, 0, 0, 0.08);
 	word-break: break-word;
 }
 
-pre > code:not([class*='language']) {
-	background-color: transparent;
-	padding: 0;
-	margin: 0;
-	border-radius: 0;
-	color: inherit;
+pre.astro-code > code {
+	all: unset;
 }
 
 pre > code {
@@ -261,7 +255,7 @@ pre {
 	color: var(--theme-code-text);
 }
 
-blockquote code:not([class*='language']) {
+blockquote code {
 	background-color: var(--theme-bg);
 }
 
