@@ -17,7 +17,12 @@ const someProps = {
     <!-- Head Stuff -->
   </head>
   <body>
-    <Hello name="world" />
+    <Hello name="static" />
+    <Hello name="load" client:load />
+    <!-- Test island deduplication, i.e. same UID as the component above. -->
+    <Hello name="load" client:load />
+    <!-- Test island deduplication account for non-render affecting props. -->
+    <Hello name="load" unused="" client:load />
     <Later name="baby" />
     <ArrowFunction />
     <PropsSpread {...someProps}/>

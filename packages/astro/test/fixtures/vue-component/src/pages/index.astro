@@ -20,6 +20,10 @@ import Counter from '../components/Counter.vue'
     <main>
       <Counter start="0">SSR Rendered, No Client</Counter>
       <Counter start="1" client:load>SSR Rendered, client:load</Counter>
+      <!-- Test island deduplication, i.e. same UID as the component above. -->
+      <Counter start="1" client:load>SSR Rendered, client:load</Counter>
+      <!-- Test island deduplication account for non-render affecting props. -->
+      <Counter start="1" step-size="2" client:load>SSR Rendered, client:load</Counter>
       <Counter start="10" client:idle>SSR Rendered, client:idle</Counter>
       <!-- Test that two client:visibles have unique uids -->
       <Counter start="100" client:visible>SSR Rendered, client:visible</Counter>

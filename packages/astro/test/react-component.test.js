@@ -25,10 +25,10 @@ describe('React Components', () => {
 			const $ = cheerio.load(html);
 
 			// test 1: basic component renders
-			expect($('#react-h2').text()).to.equal('Hello world!');
+			expect($('#react-static').text()).to.equal('Hello static!');
 
 			// test 2: no reactroot
-			expect($('#react-h2').attr('data-reactroot')).to.equal(undefined);
+			expect($('#react-static').attr('data-reactroot')).to.equal(undefined);
 
 			// test 3: Can use function components
 			expect($('#arrow-fn-component')).to.have.lengthOf(1);
@@ -44,6 +44,13 @@ describe('React Components', () => {
 
 			// test 7: Can use Pure components
 			expect($('#pure')).to.have.lengthOf(1);
+
+			// test 8: Check number of islands
+			expect($('astro-root[uid]')).to.have.lengthOf(5);
+
+			// test 9: Check island deduplication
+			const uniqueRootUIDs = new Set($('astro-root').map((i, el) => $(el).attr('uid')));
+			expect(uniqueRootUIDs.size).to.equal(4);
 		});
 
 		it('Can load Vue', async () => {
