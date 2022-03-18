@@ -371,10 +371,6 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 		}
 	}
 
-	// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
-	// This will probably require some refactoring of `scripts`, `styles`, and `links` into something
-	// more generalized.
-
 	try {
 		const options: RenderOptions = {
 			legacyBuild: false,
@@ -396,7 +392,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 					// removing the need to maintain our own custom Vite-mimic resolve logic.
 					if (specifier === 'astro:scripts/before-hydration.js') {
 						return 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
-					  }
+					}
 					throw new Error(`Cannot find the built path for ${specifier}`);
 				}
 				const relPath = npath.posix.relative(pathname, '/' + hashedFilePath);

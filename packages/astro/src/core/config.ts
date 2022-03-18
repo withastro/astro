@@ -69,7 +69,19 @@ export const AstroConfigSchema = z.object({
 		.optional()
 		.default('./dist')
 		.transform((val) => new URL(val)),
-	integrations: z.array(z.any()).default([]),
+	integrations: z.preprocess(
+		// preprocess
+		(val) => (Array.isArray(val) ? val.flat(Infinity).filter(Boolean) : val),
+		// validate
+		z
+			.array(z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }))
+			.default([])
+			// validate: first-party integrations only
+			// TODO: Add `To use 3rd-party integrations or to create your own, use the --experimental-integrations flag.`,
+			.refine((arr) => arr.every((integration) => integration.name.startsWith('@astrojs/')), {
+				message: `Astro integrations are still experimental, and only official integrations are currently supported`,
+			})
+	),
 	styleOptions: z
 		.object({
 			postcss: z

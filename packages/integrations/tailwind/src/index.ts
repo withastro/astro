@@ -1,4 +1,6 @@
 import type { AstroIntegration } from 'astro';
+import { fileURLToPath } from 'url';
+import path from 'path';
 import tailwindPlugin from 'tailwindcss';
 import autoprefixerPlugin from 'autoprefixer';
 
@@ -8,7 +10,7 @@ function getDefaultTailwindConfig(srcUrl: URL) {
 			extend: {},
 		},
 		plugins: [],
-		content: [`${srcUrl.pathname}/**/*.{astro,html,js,jsx,svelte,ts,tsx,vue}`],
+		content: [path.join(fileURLToPath(srcUrl), `**`, `*.{astro,html,js,jsx,svelte,ts,tsx,vue}`)],
 	};
 }
 

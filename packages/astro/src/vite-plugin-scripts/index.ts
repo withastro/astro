@@ -21,7 +21,7 @@ export default function astroScriptsPlugin({ config }: { config: AstroConfig }):
 
 		async load(id) {
 			if (id === BEFORE_HYDRATION_SCRIPT_ID) {
-					return config._ctx.scripts
+				return config._ctx.scripts
 					.filter((s) => s.stage === 'before-hydration')
 					.map((s) => s.content)
 					.join('\n');

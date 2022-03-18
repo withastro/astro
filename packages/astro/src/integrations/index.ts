@@ -13,6 +13,9 @@ export async function runHookConfigSetup({ config: _config, command }: { config:
 				addRenderer(renderer: AstroRenderer) {
 					updatedConfig._ctx.renderers.push(renderer);
 				},
+				// TODO: Add support for `injectElement()` for full HTML element injection, not just scripts.
+				// This may require some refactoring of `scripts`, `styles`, and `links` into something
+				// more generalized. Consider the SSR use-case as well.
 				injectElement: () => {
 					throw new Error('TODO: Implement');
 				},

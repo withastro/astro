@@ -98,7 +98,7 @@ export default function jsx({ config, logging }: AstroPluginJSXOptions): Plugin 
 					throw new Error(
 						`${colors.yellow(
 							id
-						)}\nUnable to resolve a renderer that handles JSX transforms! Please include a \`renderer\` plugin which supports JSX in your \`astro.config.mjs\` file.`
+						)}\nUnable to resolve a JSX renderer! Did you forget to include one? Add a JSX integration like \`@astrojs/react\` to your \`astro.config.mjs\` file.`
 					);
 				}
 				for (const [importSource, renderer] of possibleRenderers) {
