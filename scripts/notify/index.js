@@ -1,3 +1,7 @@
+import { globby as glob } from 'globby';
+import { fileURLToPath } from 'node:url';
+import { readFile } from 'node:fs/promises'
+
 const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
 
 const emojis = ['🎉', '🥳', '🚀', '🧑‍🚀', '🎊', '🏆', '✅', '🤩', '🤖', '🙌'];
@@ -50,23 +54,19 @@ function singularlize(text) {
 	return text.replace(/(\[([^\]]+)\])/gm, (_, _full, match) => `${match}`);
 }
 
-const packageMap = new Map([
-	['astro', './packages/astro'],
-	['@astrojs/parser', './packages/astro-parser'],
-	['@astrojs/prism', './packages/astro-prism'],
-	['create-astro', './packages/create-astro'],
-	['@astrojs/markdown-remark', './packages/markdown/remark'],
-	['@astrojs/renderer-lit', './packages/renderers/renderer-lit'],
-	['@astrojs/renderer-preact', './packages/renderers/renderer-preact'],
-	['@astrojs/renderer-react', './packages/renderers/renderer-react'],
-	['@astrojs/renderer-solid', './packages/renderers/renderer-solid'],
-	['@astrojs/renderer-solid', './packages/renderers/renderer-solid'],
-	['@astrojs/renderer-svelte', './packages/renderers/renderer-svelte'],
-	['@astrojs/renderer-vue', './packages/renderers/renderer-vue'],
-	['@astrojs/webapi', './packages/webapi'],
-]);
+const packageMap = new Map();
+async function generatePackageMap() {
+	const packageRoot = new URL('../../packages/', import.meta.url);
+	const packages = await glob(['*/package.json', '*/*/package.json'], { cwd: fileURLToPath(packageRoot) })
+	await Promise.all(packages.map(async (pkg) => {
+		const pkgFile = fileURLToPath(new URL(pkg, packageRoot));
+		const content = await readFile(pkgFile).then(res => JSON.parse(res.toString()))
+		packageMap.set(content.name, `./packages/${pkg.replace('/package.json', '')}`);
+	}))
+}
 
 async function run() {
+	await generatePackageMap();
 	const releases = process.argv.slice(2)[0];
 	const data = JSON.parse(releases);
 	const packages = await Promise.all(
