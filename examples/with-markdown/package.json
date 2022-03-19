@@ -15,5 +15,12 @@
     "@astrojs/svelte": "^0.0.1",
     "@astrojs/vue": "^0.0.1",
     "astro": "^0.25.0-next.0"
+  },
+  "dependencies": {
+    "preact": "^10.6.6",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "svelte": "^3.46.4",
+    "vue": "^3.2.31"
   }
 }

@@ -12,5 +12,8 @@
     "@astrojs/preact": "^0.0.1",
     "astro": "^0.25.0-next.0",
     "sass": "^1.49.9"
+  },
+  "dependencies": {
+    "preact": "^10.6.6"
   }
 }

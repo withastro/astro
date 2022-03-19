@@ -45,6 +45,9 @@ importers:
     specifiers:
       '@astrojs/preact': ^0.0.1
       astro: ^0.25.0-next.0
+      preact: ^10.6.6
+    dependencies:
+      preact: 10.6.6
     devDependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
@@ -53,7 +56,10 @@ importers:
     specifiers:
       '@astrojs/preact': ^0.0.1
       astro: ^0.25.0-next.0
+      preact: ^10.6.6
       sass: ^1.49.9
+    dependencies:
+      preact: 10.6.6
     devDependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
@@ -85,6 +91,7 @@ importers:
       '@docsearch/react': ^3.0.0
       '@types/react': ^17.0.40
       astro: ^0.25.0-next.0
+      preact: ^10.6.6
       react: ^17.0.2
       react-dom: ^17.0.2
     dependencies:
@@ -92,6 +99,7 @@ importers:
       '@docsearch/css': 3.0.0
       '@docsearch/react': 3.0.0_480a8db74f6ad30acbb587f476cf6f4e
       '@types/react': 17.0.40
+      preact: 10.6.6
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     devDependencies:
@@ -114,7 +122,12 @@ importers:
   examples/framework-lit:
     specifiers:
       '@astrojs/lit': ^0.0.1
+      '@webcomponents/template-shadowroot': ^0.1.0
       astro: ^0.25.0-next.0
+      lit: ^2.1.3
+    dependencies:
+      '@webcomponents/template-shadowroot': 0.1.0
+      lit: 2.2.1
     devDependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
       astro: link:../../packages/astro
@@ -127,7 +140,24 @@ importers:
       '@astrojs/solid-js': ^0.0.1
       '@astrojs/svelte': ^0.0.1
       '@astrojs/vue': ^0.0.1
+      '@webcomponents/template-shadowroot': ^0.1.0
       astro: ^0.25.0-next.0
+      lit: ^2.1.3
+      preact: ^10.6.6
+      react: ^17.0.2
+      react-dom: ^17.0.2
+      solid-js: ^1.3.13
+      svelte: ^3.46.4
+      vue: ^3.2.31
+    dependencies:
+      '@webcomponents/template-shadowroot': 0.1.0
+      lit: 2.2.1
+      preact: 10.6.6
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      solid-js: 1.3.13
+      svelte: 3.46.4
+      vue: 3.2.31
     devDependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
       '@astrojs/preact': link:../../packages/integrations/preact
@@ -141,6 +171,9 @@ importers:
     specifiers:
       '@astrojs/preact': ^0.0.1
       astro: ^0.25.0-next.0
+      preact: ^10.6.6
+    dependencies:
+      preact: 10.6.6
     devDependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
@@ -149,6 +182,11 @@ importers:
     specifiers:
       '@astrojs/react': ^0.0.1
       astro: ^0.25.0-next.0
+      react: ^17.0.2
+      react-dom: ^17.0.2
+    dependencies:
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
     devDependencies:
       '@astrojs/react': link:../../packages/integrations/react
       astro: link:../../packages/astro
@@ -157,6 +195,9 @@ importers:
     specifiers:
       '@astrojs/solid-js': ^0.0.1
       astro: ^0.25.0-next.0
+      solid-js: ^1.3.6
+    dependencies:
+      solid-js: 1.3.13
     devDependencies:
       '@astrojs/solid-js': link:../../packages/integrations/solid
       astro: link:../../packages/astro
@@ -165,6 +206,9 @@ importers:
     specifiers:
       '@astrojs/svelte': ^0.0.1
       astro: ^0.25.0-next.0
+      svelte: ^3.46.4
+    dependencies:
+      svelte: 3.46.4
     devDependencies:
       '@astrojs/svelte': link:../../packages/integrations/svelte
       astro: link:../../packages/astro
@@ -173,6 +217,9 @@ importers:
     specifiers:
       '@astrojs/vue': ^0.0.1
       astro: ^0.25.0-next.0
+      vue: ^3.2.30
+    dependencies:
+      vue: 3.2.31
     devDependencies:
       '@astrojs/vue': link:../../packages/integrations/vue
       astro: link:../../packages/astro
@@ -185,7 +232,24 @@ importers:
       '@astrojs/sitemap': ^0.0.1
       '@astrojs/tailwind': ^0.0.1
       '@astrojs/turbolinks': ^0.0.1
+      '@webcomponents/template-shadowroot': ^0.1.0
       astro: ^0.25.0-next.0
+      lit: ^2.1.3
+      preact: ^10.6.6
+      react: ^17.0.2
+      react-dom: ^17.0.2
+      solid-js: ^1.3.13
+      svelte: ^3.46.4
+      vue: ^3.2.31
+    dependencies:
+      '@webcomponents/template-shadowroot': 0.1.0
+      lit: 2.2.1
+      preact: 10.6.6
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      solid-js: 1.3.13
+      svelte: 3.46.4
+      vue: 3.2.31
     devDependencies:
       '@astrojs/lit': link:../../packages/integrations/lit
       '@astrojs/partytown': link:../../packages/integrations/partytown
@@ -211,7 +275,10 @@ importers:
     specifiers:
       '@astrojs/preact': ^0.0.1
       astro: ^0.25.0-next.0
+      preact: ^10.6.6
       sass: ^1.49.9
+    dependencies:
+      preact: 10.6.6
     devDependencies:
       '@astrojs/preact': link:../../packages/integrations/preact
       astro: link:../../packages/astro
@@ -223,8 +290,11 @@ importers:
       astro: ^0.25.0-next.0
       concurrently: ^7.0.0
       lightcookie: ^1.0.25
+      svelte: ^3.46.4
       unocss: ^0.15.6
       vite-imagetools: ^4.0.3
+    dependencies:
+      svelte: 3.46.4
     devDependencies:
       '@astrojs/svelte': link:../../packages/integrations/svelte
       astro: link:../../packages/astro
@@ -243,7 +313,12 @@ importers:
     specifiers:
       '@astrojs/react': ^0.0.1
       astro: ^0.25.0-next.0
+      react: ^17.0.2
+      react-dom: ^17.0.2
       sass: ^1.49.9
+    dependencies:
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
     devDependencies:
       '@astrojs/react': link:../../packages/integrations/react
       astro: link:../../packages/astro
@@ -257,6 +332,17 @@ importers:
       '@astrojs/svelte': ^0.0.1
       '@astrojs/vue': ^0.0.1
       astro: ^0.25.0-next.0
+      preact: ^10.6.6
+      react: ^17.0.2
+      react-dom: ^17.0.2
+      svelte: ^3.46.4
+      vue: ^3.2.31
+    dependencies:
+      preact: 10.6.6
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+      svelte: 3.46.4
+      vue: 3.2.31
     devDependencies:
       '@astrojs/markdown-remark': link:../../packages/markdown/remark
       '@astrojs/preact': link:../../packages/integrations/preact
