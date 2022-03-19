@@ -1,6 +1,6 @@
 import { globby as glob } from 'globby';
 import { fileURLToPath } from 'node:url';
-import { readFile } from 'node:fs/promises'
+import { readFile } from 'node:fs/promises';
 
 const baseUrl = new URL('https://github.com/withastro/astro/blob/main/');
 
@@ -57,12 +57,14 @@ function singularlize(text) {
 const packageMap = new Map();
 async function generatePackageMap() {
 	const packageRoot = new URL('../../packages/', import.meta.url);
-	const packages = await glob(['*/package.json', '*/*/package.json'], { cwd: fileURLToPath(packageRoot) })
-	await Promise.all(packages.map(async (pkg) => {
-		const pkgFile = fileURLToPath(new URL(pkg, packageRoot));
-		const content = await readFile(pkgFile).then(res => JSON.parse(res.toString()))
-		packageMap.set(content.name, `./packages/${pkg.replace('/package.json', '')}`);
-	}))
+	const packages = await glob(['*/package.json', '*/*/package.json'], { cwd: fileURLToPath(packageRoot) });
+	await Promise.all(
+		packages.map(async (pkg) => {
+			const pkgFile = fileURLToPath(new URL(pkg, packageRoot));
+			const content = await readFile(pkgFile).then((res) => JSON.parse(res.toString()));
+			packageMap.set(content.name, `./packages/${pkg.replace('/package.json', '')}`);
+		})
+	);
 }
 
 async function run() {
