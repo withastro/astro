@@ -1,0 +1,27 @@
+{
+  "name": "@astrojs/codemod",
+  "type": "module",
+  "version": "0.0.1",
+  "bin": {
+    "astro-codemod": "./index.js"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "config",
+    "index.js"
+  ],
+  "scripts": {
+    "demo": "node ./index.js"
+  },
+  "dependencies": {
+    "@babel/parser": "^7.17.8",
+    "@proload/core": "^0.2.2",
+    "@proload/plugin-tsm": "^0.1.1",
+    "kleur": "^4.1.4",
+    "prettier": "^2.6.0",
+    "recast": "^0.20.5"
+  }
+}
