@@ -11,7 +11,6 @@ describe('PostCSS', () => {
 	before(async () => {
 		fixture = await loadFixture({
 			projectRoot: './fixtures/postcss',
-			renderers: ['@astrojs/renderer-solid', '@astrojs/renderer-svelte', '@astrojs/renderer-vue'],
 		});
 		await fixture.build();
 

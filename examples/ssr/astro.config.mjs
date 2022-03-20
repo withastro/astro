@@ -1,7 +1,9 @@
 import { defineConfig } from 'astro/config';
+import svelte from '@astrojs/svelte';
 
+// https://astro.build/config
 export default defineConfig({
-	renderers: ['@astrojs/renderer-svelte'],
+	integrations: [svelte()],
 	vite: {
 		server: {
 			cors: {

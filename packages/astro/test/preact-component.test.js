@@ -7,11 +7,7 @@ describe('Preact component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			devOptions: {
-				port: 3009,
-			},
 			projectRoot: './fixtures/preact-component/',
-			renderers: ['@astrojs/renderer-preact'],
 		});
 		await fixture.build();
 	});

@@ -23,6 +23,7 @@
     "compiled/*",
     "packages/markdown/*",
     "packages/renderers/*",
+    "packages/integrations/*",
     "packages/*",
     "examples/*",
     "examples/component/demo",

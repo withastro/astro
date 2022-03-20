@@ -38,7 +38,7 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 	let { remarkPlugins = [], rehypePlugins = [] } = opts ?? {};
 	const scopedClassName = opts?.$?.scopedClassName;
 	const mode = opts?.mode ?? 'mdx';
-	const syntaxHighlight = opts?.syntaxHighlight ?? 'prism';
+	const syntaxHighlight = opts?.syntaxHighlight ?? 'shiki';
 	const shikiConfig = opts?.shikiConfig ?? {};
 	const isMDX = mode === 'mdx';
 	const { headers, rehypeCollectHeaders } = createCollectHeaders();
@@ -67,10 +67,10 @@ export async function renderMarkdown(content: string, opts?: MarkdownRenderingOp
 		parser.use([scopedStyles(scopedClassName)]);
 	}
 
-	if (syntaxHighlight === 'prism') {
+	if (syntaxHighlight === 'shiki') {
+		parser.use([await remarkShiki(shikiConfig, scopedClassName)]);
+	} else if (syntaxHighlight === 'prism') {
 		parser.use([remarkPrism(scopedClassName)]);
-	} else if (syntaxHighlight === 'shiki') {
-		parser.use([await remarkShiki(shikiConfig)]);
 	}
 
 	parser.use([[markdownToHtml as any, { allowDangerousHtml: true, passThrough: ['raw', 'mdxTextExpression', 'mdxJsxTextElement', 'mdxJsxFlowElement'] }]]);

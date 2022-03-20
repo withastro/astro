@@ -1,19 +1,15 @@
-import type * as vite from 'vite';
-import type { AstroConfig, ComponentInstance, Renderer, RouteData, RuntimeMode, SSRElement } from '../../../@types/astro';
-import type { AstroRequest } from '../request';
-
-import { LogOptions } from '../../logger.js';
 import { fileURLToPath } from 'url';
-import { getStylesForURL } from './css.js';
-import { injectTags } from './html.js';
+import type * as vite from 'vite';
+import type { AstroConfig, AstroRenderer, ComponentInstance, RouteData, RuntimeMode, SSRElement, SSRLoadedRenderer } from '../../../@types/astro';
+import { LogOptions } from '../../logger.js';
+import { render as coreRender } from '../core.js';
+import { prependForwardSlash } from '../../../core/path.js';
 import { RouteCache } from '../route-cache.js';
-import { resolveRenderers } from './renderers.js';
+import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
+import { getStylesForURL } from './css.js';
 import { errorHandler } from './error.js';
 import { getHmrScript } from './hmr.js';
-import { prependForwardSlash } from '../../path.js';
-import { render as coreRender } from '../core.js';
-import { createModuleScriptElementWithSrcSet } from '../ssr-element.js';
-
+import { injectTags } from './html.js';
 export interface SSROptions {
 	/** an instance of the AstroConfig */
 	astroConfig: AstroConfig;
@@ -39,15 +35,25 @@ export interface SSROptions {
 	headers: Headers;
 }
 
-export type ComponentPreload = [Renderer[], ComponentInstance];
+export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
 
 export type RenderResponse = { type: 'html'; html: string } | { type: 'response'; response: Response };
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
 
+async function loadRenderer(viteServer: vite.ViteDevServer, renderer: AstroRenderer): Promise<SSRLoadedRenderer> {
+	const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(renderer.serverEntrypoint);
+	const mod = (await viteServer.ssrLoadModule(url)) as { default: SSRLoadedRenderer['ssr'] };
+	return { ...renderer, ssr: mod.default };
+}
+
+export async function loadRenderers(viteServer: vite.ViteDevServer, astroConfig: AstroConfig): Promise<SSRLoadedRenderer[]> {
+	return Promise.all(astroConfig._ctx.renderers.map((r) => loadRenderer(viteServer, r)));
+}
+
 export async function preload({ astroConfig, filePath, viteServer }: Pick<SSROptions, 'astroConfig' | 'filePath' | 'viteServer'>): Promise<ComponentPreload> {
 	// Important: This needs to happen first, in case a renderer provides polyfills.
-	const renderers = await resolveRenderers(viteServer, astroConfig);
+	const renderers = await loadRenderers(viteServer, astroConfig);
 	// Load the module from the Vite SSR Runtime.
 	const mod = (await viteServer.ssrLoadModule(fileURLToPath(filePath))) as ComponentInstance;
 
@@ -55,7 +61,7 @@ export async function preload({ astroConfig, filePath, viteServer }: Pick<SSROpt
 }
 
 /** use Vite to SSR */
-export async function render(renderers: Renderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<RenderResponse> {
+export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInstance, ssrOpts: SSROptions): Promise<RenderResponse> {
 	const { astroConfig, filePath, logging, mode, origin, pathname, method, headers, route, routeCache, viteServer } = ssrOpts;
 	const legacy = astroConfig.buildOptions.legacyBuild;
 
@@ -69,9 +75,18 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 			children: '',
 		});
 		scripts.add({
-			props: { type: 'module', src: new URL('../../../runtime/client/hmr.js', import.meta.url).pathname },
+			props: { type: 'module', src: '/@id/astro/client/hmr.js' },
 			children: '',
 		});
+	}
+	// TODO: We should allow adding generic HTML elements to the head, not just scripts
+	for (const script of astroConfig._ctx.scripts) {
+		if (script.stage === 'head-inline') {
+			scripts.add({
+				props: {},
+				children: script.content,
+			});
+		}
 	}
 
 	// Pass framework CSS in as link tags to be appended to the page.
@@ -105,13 +120,22 @@ export async function render(renderers: Renderer[], mod: ComponentInstance, ssrO
 		origin,
 		pathname,
 		scripts,
-		// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/renderer-preact/client.js"
+		// Resolves specifiers in the inline hydrated scripts, such as "@astrojs/preact/client.js"
+		// TODO: Can we pass the hydration code more directly through Vite, so that we
+		// don't need to copy-paste and maintain Vite's import resolution here?
 		async resolve(s: string) {
 			// The legacy build needs these to remain unresolved so that vite HTML
 			// Can do the resolution. Without this condition the build output will be
 			// broken in the legacy build. This can be removed once the legacy build is removed.
 			if (!astroConfig.buildOptions.legacyBuild) {
-				const [, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
+				const [resolvedUrl, resolvedPath] = await viteServer.moduleGraph.resolveUrl(s);
+				if (resolvedPath.includes('node_modules/.vite')) {
+					return resolvedPath.replace(/.*?node_modules\/\.vite/, '/node_modules/.vite');
+				}
+				// NOTE: This matches the same logic that Vite uses to add the `/@id/` prefix.
+				if (!resolvedUrl.startsWith('.') && !resolvedUrl.startsWith('/')) {
+					return '/@id' + prependForwardSlash(resolvedUrl);
+				}
 				return '/@fs' + prependForwardSlash(resolvedPath);
 			} else {
 				return s;

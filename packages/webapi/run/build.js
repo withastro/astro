@@ -1,6 +1,6 @@
 import { rollup } from 'rollup'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
-import { posix as path } from 'node:path'
+import path from 'node:path'
 import { createRequire } from 'node:module'
 import {
 	readFile as nodeReadFile,

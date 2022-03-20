@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import cheerio from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
-describe('Partial HTML ', async () => {
+describe('Partial HTML', async () => {
 	let fixture;
 	let devServer;
 
@@ -33,7 +33,7 @@ describe('Partial HTML ', async () => {
 				},
 			})
 			.then((res) => res.text());
-		expect(css).to.match(/\.astro-[^{]+{color:red;}/);
+		expect(css).to.match(/\.astro-[^{]+{color:red}/);
 	});
 
 	it('injects framework styles', async () => {

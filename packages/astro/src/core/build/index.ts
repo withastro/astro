@@ -14,6 +14,7 @@ import { collectPagesData } from './page-data.js';
 import { build as scanBasedBuild } from './scan-based-build.js';
 import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
+import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 
 export interface BuildOptions {
 	mode?: string;
@@ -57,23 +58,23 @@ class AstroBuilder {
 		const timer: Record<string, number> = {};
 		timer.init = performance.now();
 		timer.viteStart = performance.now();
+		this.config = await runHookConfigSetup({ config: this.config, command: 'build' });
 		const viteConfig = await createVite(
-			vite.mergeConfig(
-				{
-					mode: this.mode,
-					server: {
-						hmr: false,
-						middlewareMode: 'ssr',
-					},
+			{
+				mode: this.mode,
+				server: {
+					hmr: false,
+					middlewareMode: 'ssr',
 				},
-				this.config.vite || {}
-			),
+			},
 			{ astroConfig: this.config, logging, mode: 'build' }
 		);
+		await runHookConfigDone({ config: this.config });
 		this.viteConfig = viteConfig;
 		const viteServer = await vite.createServer(viteConfig);
 		this.viteServer = viteServer;
 		debug('build', timerMessage('Vite started', timer.viteStart));
+		await runHookBuildStart({ config: this.config });
 
 		timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
@@ -160,6 +161,8 @@ class AstroBuilder {
 
 		// You're done! Time to clean up.
 		await viteServer.close();
+		await runHookBuildDone({ config: this.config, pages: pageNames });
+
 		if (logging.level && levels[logging.level] <= levels['info']) {
 			await this.printStats({ logging, timeStart: timer.init, pageCount: pageNames.length });
 		}

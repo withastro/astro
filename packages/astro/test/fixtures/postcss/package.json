@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@astrojs/renderer-solid": "workspace:*",
+    "@astrojs/solid-js": "workspace:*",
+    "@astrojs/svelte": "workspace:*",
+    "@astrojs/vue": "workspace:*",
     "astro": "workspace:*",
     "autoprefixer": "^10.4.4",
     "postcss": "^8.4.12"

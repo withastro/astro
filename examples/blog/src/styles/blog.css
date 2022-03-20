@@ -163,14 +163,14 @@ a {
 	gap: 0.5rem;
 }
 
-a > code:not([class*='language']) {
+a > code {
 	position: relative;
 	color: var(--theme-accent);
 	background: transparent;
 	text-underline-offset: var(--padding-block);
 }
 
-a > code:not([class*='language'])::before {
+a > code::before {
 	content: '';
 	position: absolute;
 	top: 0;
@@ -200,7 +200,7 @@ strong {
 
 /* Supporting Content */
 
-code:not([class*='language']) {
+code {
 	--border-radius: 3px;
 	--padding-block: 0.2rem;
 	--padding-inline: 0.33rem;
@@ -215,28 +215,17 @@ code:not([class*='language']) {
 	word-break: break-word;
 }
 
-pre > code:not([class*='language']) {
-	background-color: transparent;
-	padding: 0;
-	margin: 0;
-	border-radius: 0;
-	color: inherit;
+pre.astro-code > code {
+	all: unset;
 }
 
 pre {
 	position: relative;
-	background-color: var(--theme-code-bg);
-	color: var(--theme-code-text);
 	--padding-block: 1rem;
 	--padding-inline: 2rem;
 	padding: var(--padding-block) var(--padding-inline);
 	padding-right: calc(var(--padding-inline) * 2);
-	margin-left: calc(50vw - var(--padding-inline));
-	transform: translateX(-50);
 
-	line-height: 1.414;
-	width: calc(100vw + (var(--padding-inline) * 2));
-	max-width: calc(100% + (var(--padding-inline) * 2));
 	overflow-y: hidden;
 	overflow-x: auto;
 }

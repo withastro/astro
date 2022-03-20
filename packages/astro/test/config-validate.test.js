@@ -31,7 +31,7 @@ describe('Config Validation', () => {
 
 	it('Multiple validation errors can be formatted correctly', async () => {
 		const veryBadConfig = {
-			renderers: [42],
+			integrations: [42],
 			buildOptions: { pageUrlFormat: 'invalid' },
 			pages: {},
 		};
@@ -41,8 +41,34 @@ describe('Config Validation', () => {
 		expect(formattedError).to.equal(
 			`[config] Astro found issue(s) with your configuration:
   ! pages  Expected string, received object.
-  ! renderers.0  Expected string, received number.
+  ! integrations.0  Expected object, received number.
   ! buildOptions.pageUrlFormat  Invalid input.`
+		);
+	});
+
+	it('ignores falsey "integration" values', async () => {
+		const result = await validateConfig({ integrations: [0, false, null, undefined] }, process.cwd());
+		expect(result.integrations).to.deep.equal([]);
+	});
+	it('normalizes "integration" values', async () => {
+		const result = await validateConfig({ integrations: [{ name: '@astrojs/a' }] }, process.cwd());
+		expect(result.integrations).to.deep.equal([{ name: '@astrojs/a', hooks: {} }]);
+	});
+	it('flattens array "integration" values', async () => {
+		const result = await validateConfig({ integrations: [{ name: '@astrojs/a' }, [{ name: '@astrojs/b' }, { name: '@astrojs/c' }]] }, process.cwd());
+		expect(result.integrations).to.deep.equal([
+			{ name: '@astrojs/a', hooks: {} },
+			{ name: '@astrojs/b', hooks: {} },
+			{ name: '@astrojs/c', hooks: {} },
+		]);
+	});
+	it('blocks third-party "integration" values', async () => {
+		const configError = await validateConfig({ integrations: [{ name: '@my-plugin/a' }] }, process.cwd()).catch((err) => err);
+		expect(configError instanceof z.ZodError).to.equal(true);
+		const formattedError = stripAnsi(formatConfigError(configError));
+		expect(formattedError).to.equal(
+			`[config] Astro found issue(s) with your configuration:
+  ! integrations  Astro integrations are still experimental, and only official integrations are currently supported.`
 		);
 	});
 });

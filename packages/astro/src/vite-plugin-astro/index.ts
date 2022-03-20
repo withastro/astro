@@ -35,7 +35,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 		return slash(fileURLToPath(url)) + url.search;
 	}
 
-	let isProduction: boolean;
+	let resolvedConfig: vite.ResolvedConfig;
 	let viteTransform: TransformHook;
 	let viteDevServer: vite.ViteDevServer | null = null;
 
@@ -46,9 +46,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 	return {
 		name: 'astro:build',
 		enforce: 'pre', // run transforms before other plugins can
-		configResolved(resolvedConfig) {
+		configResolved(_resolvedConfig) {
+			resolvedConfig = _resolvedConfig;
 			viteTransform = getViteTransform(resolvedConfig);
-			isProduction = resolvedConfig.isProduction;
 		},
 		configureServer(server) {
 			viteDevServer = server;
@@ -83,20 +83,26 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			}
 		},
 		async load(id, opts) {
-			let { filename, query } = parseAstroRequest(id);
+			const parsedId = parseAstroRequest(id);
+			const query = parsedId.query;
+			if (!id.endsWith('.astro') && !query.astro) {
+				return null;
+			}
+
+			const filename = normalizeFilename(parsedId.filename);
+			const fileUrl = new URL(`file://${filename}`);
+			let source = await fs.promises.readFile(fileUrl, 'utf-8');
+			const isPage = filename.startsWith(config.pages.pathname);
+			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
+				source += `\n<script hoist src="astro:scripts/page.js" />`;
+			}
 			if (query.astro) {
 				if (query.type === 'style') {
-					if (filename.startsWith('/@fs')) {
-						filename = filename.slice('/@fs'.length);
-					} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
-						filename = new URL('.' + filename, config.projectRoot).pathname;
-					}
-
 					if (typeof query.index === 'undefined') {
 						throw new Error(`Requests for Astro CSS must include an index.`);
 					}
 
-					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, { ssr: Boolean(opts?.ssr) });
+					const transformResult = await cachedCompilation(config, filename, source, viteTransform, { ssr: Boolean(opts?.ssr) });
 
 					// Track any CSS dependencies so that HMR is triggered when they change.
 					await trackCSSDependencies.call(this, { viteDevServer, id, filename, deps: transformResult.rawCSSDeps });
@@ -111,7 +117,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 						throw new Error(`Requests for hoisted scripts must include an index`);
 					}
 
-					const transformResult = await cachedCompilation(config, normalizeFilename(filename), null, viteTransform, { ssr: Boolean(opts?.ssr) });
+					const transformResult = await cachedCompilation(config, filename, source, viteTransform, { ssr: Boolean(opts?.ssr) });
 					const scripts = transformResult.scripts;
 					const hoistedScript = scripts[query.index];
 
@@ -125,13 +131,8 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				}
 			}
 
-			if (!id.endsWith('.astro')) {
-				return null;
-			}
-
-			const source = await fs.promises.readFile(id, { encoding: 'utf-8' });
 			try {
-				const transformResult = await cachedCompilation(config, id, source, viteTransform, { ssr: Boolean(opts?.ssr) });
+				const transformResult = await cachedCompilation(config, filename, source, viteTransform, { ssr: Boolean(opts?.ssr) });
 
 				// Compile all TypeScript to JavaScript.
 				// Also, catches invalid JS/TS in the compiled output before returning.
@@ -143,9 +144,15 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 					define: config.vite.define,
 				});
 
-				// Signal to Vite that we accept HMR updates
-				const SUFFIX = isProduction ? '' : `\nif (import.meta.hot) import.meta.hot.accept((mod) => mod);`;
-
+				let SUFFIX = '';
+				// Add HMR handling in dev mode.
+				if (!resolvedConfig.isProduction) {
+					SUFFIX += `\nif (import.meta.hot) import.meta.hot.accept((mod) => mod);`;
+				}
+				// Add handling to inject scripts into each page JS bundle, if needed.
+				if (isPage) {
+					SUFFIX += `\nimport "astro:scripts/page-ssr.js";`;
+				}
 				return {
 					code: `${code}${SUFFIX}`,
 					map,

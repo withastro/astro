@@ -1,7 +1,12 @@
 import { defineConfig } from 'astro/config';
+import preact from '@astrojs/preact';
+import react from '@astrojs/react';
+import svelte from '@astrojs/svelte';
+import vue from '@astrojs/vue';
+import solid from '@astrojs/solid-js';
 
 // https://astro.build/config
 export default defineConfig({
-	// Enable many renderers to support all different kinds of components.
-	renderers: ['@astrojs/renderer-preact', '@astrojs/renderer-react', '@astrojs/renderer-svelte', '@astrojs/renderer-vue', '@astrojs/renderer-solid'],
+	// Enable many frameworks to support all different kinds of components.
+	integrations: [preact(), react(), svelte(), vue(), solid()],
 });

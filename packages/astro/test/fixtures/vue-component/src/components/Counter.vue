@@ -20,12 +20,17 @@ export default {
     start: {
       type: String,
       required: true
+    },
+    stepSize: {
+      type: String,
+      default: "1"
     }
   },
   setup(props) {
     const count = ref(parseInt(props.start))
-    const add = () => (count.value = count.value + 1);
-    const subtract = () => (count.value = count.value - 1);
+    const stepSize = ref(parseInt(props.stepSize))
+    const add = () => (count.value = count.value + stepSize.value);
+    const subtract = () => (count.value = count.value - stepSize.value);
     return {
       count,
       add,

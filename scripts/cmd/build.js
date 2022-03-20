@@ -39,11 +39,10 @@ export default async function build(...args) {
 		await esbuild.build({
 			...config,
 			sourcemap: false,
-			bundle: entryPoints.length === 1, // Note: only use `bundle` with a single entrypoint!
+			bundle: false,
 			entryPoints,
 			outdir,
 			format,
-			plugins: [svelte({ isDev })],
 		});
 		return;
 	}

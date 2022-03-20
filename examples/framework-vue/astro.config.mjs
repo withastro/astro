@@ -1,7 +1,8 @@
 import { defineConfig } from 'astro/config';
+import vue from '@astrojs/vue';
 
 // https://astro.build/config
 export default defineConfig({
-	// Enable the Vue renderer to support Vue components.
-	renderers: ['@astrojs/renderer-vue'],
+	// Enable Vue to support Vue components.
+	integrations: [vue()],
 });

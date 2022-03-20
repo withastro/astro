@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "astro": "workspace:*",
-    "@astrojs/renderer-lit": "workspace:*"
+    "@astrojs/lit": "workspace:*",
+    "astro": "workspace:*"
   }
 }

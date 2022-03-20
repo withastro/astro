@@ -7,11 +7,7 @@ describe('Svelte component', () => {
 
 	before(async () => {
 		fixture = await loadFixture({
-			devOptions: {
-				port: 3007,
-			},
 			projectRoot: './fixtures/svelte-component/',
-			renderers: ['@astrojs/renderer-svelte'],
 		});
 	});
 
