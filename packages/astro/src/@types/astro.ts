@@ -180,7 +180,6 @@ export interface AstroUserConfig {
    *         // Add a Rehype plugin to your project.
    *         rehypePlugins: [
    *           "rehype-slug",
-   *           ["rehype-toc", { headings: ["h2", "h3"] }],
    *           [customRehypePlugin, { configKey: "value" }],
    *           ["rehype-autolink-headings", { behavior: "prepend" }],
    *         ],
