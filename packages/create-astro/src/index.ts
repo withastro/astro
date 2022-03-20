@@ -53,8 +53,9 @@ export async function main() {
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
 	console.log(`If you encounter a problem, visit ${cyan('https://github.com/withastro/astro/issues')} to search or file a new issue.\n`);
 
-	console.log(`${green(`>`)} ${gray(`Prepare for liftoff.`)}`);
-	console.log(`${green(`>`)} ${gray(`Gathering mission details...`)}`);
+	let spinner = ora({ color: 'green', text: 'Prepare for liftoff.' });
+
+	spinner.succeed();
 
 	const cwd = (args['_'][2] as string) || '.';
 	if (fs.existsSync(cwd)) {
@@ -118,12 +119,13 @@ export async function main() {
 		integrations = result.integrations;
 	}
 
+	spinner = ora({ color: 'green', text: 'Copying project files...' }).start();
+
 	// Copy
 	try {
 		emitter.on('info', (info) => {
 			logger.debug(info.message);
 		});
-		console.log(`${green(`>`)} ${gray(`Copying project files...`)}`);
 		await emitter.clone(cwd);
 	} catch (err: any) {
 		// degit is compiled, so the stacktrace is pretty noisy. Only report the stacktrace when using verbose mode.
@@ -145,6 +147,7 @@ export async function main() {
 				)
 			);
 		}
+		spinner.fail();
 		process.exit(1);
 	}
 
@@ -225,33 +228,37 @@ export async function main() {
 		await fs.promises.writeFile(pageFileLoc, newContent);
 	}
 
-	console.log(bold(green('✔') + ' Done!'));
+	spinner.succeed();
 
 	const { name: pm } = whichPM() || { name: 'not_found' };
 	const supportedPM = ['npm', 'yarn', 'pnpm'].includes(pm);
 
 	if (supportedPM) {
-		const dependenciesSpinner = ora('Installing dependencies').start();
+		spinner = ora({ color: 'green', text: 'Installing dependencies...' }).start();
 		try {
 			if (pm === 'yarn') await exec(['yarn'], { cwd });
 			else if (pm === 'pnpm') await exec(['pnpm', 'install'], { cwd });
 			else await exec(['npm', 'install'], { cwd });
 
-			dependenciesSpinner.succeed('Dependencies installed');
+			spinner.succeed();
 		} catch (error) {
-			dependenciesSpinner.fail('There was an error installing the dependencies.\n' + `You can try to run ${bold(cyan(`${pm} install`))} manually.` + issueMsg);
+			spinner.fail('There was an error installing the dependencies.\n' + `You can try to run ${bold(cyan(`${pm} install`))} manually.` + issueMsg);
 			console.error(error);
 		}
 	}
 
 	try {
-		console.log(`${green(`>`)} ${gray(`Initializating git...`)}`);
+		spinner = ora({ color: 'green', text: 'Initializating git...' }).start();
 		await exec(['git', 'init'], { cwd });
 		await exec(['git', 'add', '-A'], { cwd });
 		await exec(['git', 'commit', '-m', '"Initial commit"'], { cwd });
+		spinner.succeed();
 	} catch (error) {
+		spinner.fail();
 		logger.debug('Error with git init', error);
 	}
+
+	console.log(bold(green('✔') + ' Done!'));
 
 	console.log('\nNext steps:');
 	let i = 1;
