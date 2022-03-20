@@ -63,9 +63,9 @@
   "dependencies": {
     "@astrojs/compiler": "^0.13.0",
     "@astrojs/language-server": "^0.8.10",
-    "@astrojs/markdown-remark": "^0.7.0-next.0",
-    "@astrojs/prism": "0.4.0",
-    "@astrojs/webapi": "^0.11.0",
+    "@astrojs/markdown-remark": "workspace:^0.7.0-next.0",
+    "@astrojs/prism": "workspace:^0.4.0",
+    "@astrojs/webapi": "workspace:^0.11.0",
     "@babel/core": "^7.17.7",
     "@babel/traverse": "^7.17.3",
     "@proload/core": "^0.2.2",
@@ -112,7 +112,6 @@
     "zod": "^3.13.4"
   },
   "devDependencies": {
-    "@astrojs/parser": "^0.22.2",
     "@babel/types": "^7.17.0",
     "@types/babel__core": "^7.1.18",
     "@types/babel__traverse": "^7.14.2",
