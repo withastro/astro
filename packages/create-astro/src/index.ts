@@ -1,11 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import { exec as childProcessExec, ExecOptions } from 'child_process';
 import { bold, cyan, gray, green, red, yellow } from 'kleur/colors';
 import fetch from 'node-fetch';
 import prompts from 'prompts';
 import degit from 'degit';
 import yargs from 'yargs-parser';
-import { FRAMEWORKS, COUNTER_COMPONENTS } from './frameworks.js';
+import ora from 'ora';
+import whichPM from 'which-pm-runs';
+import { FRAMEWORKS, COUNTER_COMPONENTS, Integration } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
 import { createConfig } from './config.js';
 import { logger, defaultLogLevel } from './logger.js';
@@ -27,9 +30,23 @@ export function mkdirp(dir: string) {
 	}
 }
 
+function exec(command: string[], options: ExecOptions = {}) {
+	return new Promise((resolve, reject) => {
+		childProcessExec(command.join(' '), options, (err, stdout, stderr) => {
+			if (err) {
+				reject(stderr);
+			} else {
+				resolve(stdout);
+			}
+		});
+	});
+}
+
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 
 const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
+
+const issueMsg = '\nIf you think this is an error, feel free to open an issue in our GitHub repo: https://github.com/withastro/astro/issues/new';
 
 export async function main() {
 	logger.debug('Verbose logging turned on');
@@ -57,7 +74,7 @@ export async function main() {
 		mkdirp(cwd);
 	}
 
-	const options = /** @type {import('./types/internal').Options} */ await prompts([
+	const options = await prompts([
 		{
 			type: 'select',
 			name: 'template',
@@ -87,10 +104,10 @@ export async function main() {
 	});
 
 	const selectedTemplate = TEMPLATES.find((template) => template.value === options.template);
-	let integrations: string[] = [];
+	let integrations: Integration[] = [];
 
 	if (selectedTemplate?.integrations === true) {
-		const result = /** @type {import('./types/internal').Options} */ await prompts([
+		const result = await prompts([
 			{
 				type: 'multiselect',
 				name: 'integrations',
@@ -154,13 +171,25 @@ export async function main() {
 					const packageJSON = JSON.parse(await fs.promises.readFile(fileLoc, 'utf8'));
 					delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
 					// Fetch latest versions of selected integrations
-					const integrationEntries = (await Promise.all(
-						['astro', ...integrations].map((integration: string) =>
-							fetch(`https://registry.npmjs.org/@astrojs/${integration === 'solid' ? 'solid-js' : integration}/latest`)
-								.then((res: any) => res.json())
-								.then((res: any) => [res['name'], `^${res['version']}`])
+					const integrationEntries = (
+						await Promise.all(
+							integrations.map((integration) =>
+								fetch(`https://registry.npmjs.org/${integration.packageName}/latest`)
+									.then((res) => res.json())
+									.then((res: any) => {
+										let dependencies = [[res['name'], `^${res['version']}`]];
+
+										if (res['peerDependencies']) {
+											for (const peer in res['peerDependencies']) {
+												dependencies.push([peer, res['peerDependencies'][peer]]);
+											}
+										}
+
+										return dependencies;
+									})
+							)
 						)
-					)) as any;
+					).flat(1);
 					packageJSON.devDependencies = { ...(packageJSON.devDependencies ?? {}), ...Object.fromEntries(integrationEntries) };
 					await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
 					break;
@@ -174,8 +203,8 @@ export async function main() {
 		let importStatements: string[] = [];
 		let components: string[] = [];
 		await Promise.all(
-			integrations.map(async (integrations) => {
-				const component = COUNTER_COMPONENTS[integrations as keyof typeof COUNTER_COMPONENTS];
+			integrations.map(async (integration) => {
+				const component = COUNTER_COMPONENTS[integration.id as keyof typeof COUNTER_COMPONENTS];
 				const componentName = path.basename(component.filename, path.extname(component.filename));
 				const absFileLoc = path.resolve(cwd, component.filename);
 				importStatements.push(`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`);
@@ -198,6 +227,32 @@ export async function main() {
 
 	console.log(bold(green('✔') + ' Done!'));
 
+	const { name: pm } = whichPM() || { name: 'not_found' };
+	const supportedPM = ['npm', 'yarn', 'pnpm'].includes(pm);
+
+	if (supportedPM) {
+		const dependenciesSpinner = ora('Installing dependencies').start();
+		try {
+			if (pm === 'yarn') await exec(['yarn'], { cwd });
+			else if (pm === 'pnpm') await exec(['pnpm', 'install'], { cwd });
+			else await exec(['npm', 'install'], { cwd });
+
+			dependenciesSpinner.succeed('Dependencies installed');
+		} catch (error) {
+			dependenciesSpinner.fail('There was an error installing the dependencies.\n' + `You can try to run ${bold(cyan(`${pm} install`))} manually.` + issueMsg);
+			console.error(error);
+		}
+	}
+
+	try {
+		console.log(`${green(`>`)} ${gray(`Initializating git...`)}`);
+		await exec(['git', 'init'], { cwd });
+		await exec(['git', 'add', '-A'], { cwd });
+		await exec(['git', 'commit', '-m', '"Initial commit"'], { cwd });
+	} catch (error) {
+		logger.debug('Error with git init', error);
+	}
+
 	console.log('\nNext steps:');
 	let i = 1;
 
@@ -206,9 +261,14 @@ export async function main() {
 		console.log(`  ${i++}: ${bold(cyan(`cd ${relative}`))}`);
 	}
 
-	console.log(`  ${i++}: ${bold(cyan('npm install'))} (or pnpm install, yarn, etc)`);
-	console.log(`  ${i++}: ${bold(cyan('git init && git add -A && git commit -m "Initial commit"'))} (optional step)`);
-	console.log(`  ${i++}: ${bold(cyan('npm run dev'))} (or pnpm, yarn, etc)`);
+	if (!supportedPM) {
+		console.log(`  ${i++}: ${bold(cyan('npm install'))} (or pnpm install, yarn, etc)`);
+		console.log(`  ${i++}: ${bold(cyan('npm run dev'))} (or pnpm, yarn, etc)`);
+	} else {
+		if (pm === 'yarn') console.log(`  ${i++}: ${bold(cyan('yarn dev'))}`);
+		else if (pm === 'pnpm') console.log(`  ${i++}: ${bold(cyan('pnpm run dev'))}`);
+		else console.log(`  ${i++}: ${bold(cyan('npm run dev'))}`);
+	}
 
 	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
 	console.log(`\nStuck? Visit us at ${cyan('https://astro.build/chat')}\n`);

@@ -32,10 +32,13 @@
     "degit": "^2.8.4",
     "kleur": "^4.1.4",
     "node-fetch": "^3.2.3",
+    "ora": "^6.1.0",
     "prompts": "^2.4.2",
+    "which-pm-runs": "^1.1.0",
     "yargs-parser": "^21.0.1"
   },
   "devDependencies": {
+    "@types/which-pm-runs": "^1.0.0",
     "@types/yargs-parser": "^21.0.0",
     "astro-scripts": "workspace:*",
     "uvu": "^0.5.3"
