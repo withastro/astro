@@ -61,7 +61,9 @@ export default function tailwindIntegration(options: TailwindOptions): AstroInte
 				}
 
 				const tailwindConfig: TailwindConfig = (userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.src);
-				if (applyAstroConfigPreset) {
+				if (applyAstroConfigPreset && userConfig?.value) {
+					// apply Astro config as a preset to user config
+					// this avoids merging or applying nested spread operators ourselves
 					tailwindConfig.presets = [...(tailwindConfig.presets || []), getDefaultTailwindConfig(config.src)];
 				}
 
