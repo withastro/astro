@@ -1,0 +1,31 @@
+{
+  "name": "@astrojs/ssg",
+  "description": "Statically generate pages for an Astro site",
+  "version": "0.0.1",
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "author": "withastro",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/withastro/astro.git",
+    "directory": "packages/integrations/ssg"
+  },
+  "bugs": "https://github.com/withastro/astro/issues",
+  "homepage": "https://astro.build",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "astro-scripts build \"src/**/*.ts\" && tsc",
+    "dev": "astro-scripts dev \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "sitemap": "*"
+  },
+  "devDependencies": {
+    "astro": "workspace:*",
+    "astro-scripts": "workspace:*"
+  }
+}

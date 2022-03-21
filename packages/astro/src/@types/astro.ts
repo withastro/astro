@@ -585,6 +585,12 @@ export type Props = Record<string, unknown>;
 
 type Body = string;
 
+export interface AstroAdapter {
+	name: string;
+	serverEntrypoint?: URL;
+	integration?: AstroIntegration;
+}
+
 export interface EndpointOutput<Output extends Body = Body> {
 	body: Output;
 }
