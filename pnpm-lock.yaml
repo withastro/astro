@@ -1196,11 +1196,11 @@ importers:
       postcss: ^8.4.12
       tailwindcss: ^3.0.23
     dependencies:
+      '@proload/core': 0.2.2
       autoprefixer: 10.4.4_postcss@8.4.12
       postcss: 8.4.12
       tailwindcss: 3.0.23_autoprefixer@10.4.4
     devDependencies:
-      '@proload/core': 0.2.2
       '@types/tailwindcss': 3.0.9
       astro: link:../../astro
       astro-scripts: link:../../../scripts
@@ -3458,6 +3458,7 @@ packages:
     dependencies:
       deepmerge: 4.2.2
       escalade: 3.1.1
+    dev: false
 
   /@proload/plugin-tsm/0.1.1_@proload+core@0.2.2:
     resolution: {integrity: sha512-qfGegg6I3YBCZDjYR9xb41MTc2EfL0sQQmw49Z/yi9OstIpUa/67MBy4AuNhoyG9FuOXia9gPoeBk5pGnBOGtA==}
