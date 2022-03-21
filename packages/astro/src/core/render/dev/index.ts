@@ -40,11 +40,19 @@ export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
 export type RenderResponse = { type: 'html'; html: string } | { type: 'response'; response: Response };
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
+const rendererCache = new Map<string, SSRLoadedRenderer['ssr']>();
 
 async function loadRenderer(viteServer: vite.ViteDevServer, renderer: AstroRenderer): Promise<SSRLoadedRenderer> {
 	const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(renderer.serverEntrypoint);
-	const mod = (await viteServer.ssrLoadModule(url)) as { default: SSRLoadedRenderer['ssr'] };
-	return { ...renderer, ssr: mod.default };
+
+	const cachedRenderer = rendererCache.get(url);
+	if (cachedRenderer) {
+		return { ...renderer, ssr: cachedRenderer };
+	} else {
+		const mod = (await viteServer.ssrLoadModule(url)) as { default: SSRLoadedRenderer['ssr'] };
+		rendererCache.set(url, mod.default);
+		return { ...renderer, ssr: mod.default };
+	}
 }
 
 export async function loadRenderers(viteServer: vite.ViteDevServer, astroConfig: AstroConfig): Promise<SSRLoadedRenderer[]> {
