@@ -28,6 +28,7 @@
   "dependencies": {
     "tailwindcss": "^3.0.23",
     "autoprefixer": "^10.4.4",
+    "@proload/core": "^0.2.2",
     "postcss": "^8.4.12"
   },
   "devDependencies": {
