@@ -443,7 +443,6 @@ importers:
       '@astrojs/compiler': ^0.13.0
       '@astrojs/language-server': ^0.8.10
       '@astrojs/markdown-remark': ^0.7.0-next.0
-      '@astrojs/parser': ^0.22.2
       '@astrojs/prism': 0.4.0
       '@astrojs/webapi': ^0.11.0
       '@babel/core': ^7.17.8
@@ -563,7 +562,6 @@ importers:
       yargs-parser: 21.0.1
       zod: 3.14.2
     devDependencies:
-      '@astrojs/parser': link:../astro-parser
       '@babel/types': 7.17.0
       '@types/babel__core': 7.1.19
       '@types/babel__traverse': 7.14.2
@@ -586,21 +584,6 @@ importers:
       execa: 6.1.0
       mocha: 9.2.2
       sass: 1.49.9
-
-  packages/astro-parser:
-    specifiers:
-      '@types/node': ^14.18.12
-      acorn: ^8.7.0
-      astro-scripts: workspace:*
-      locate-character: ^2.0.5
-      magic-string: ^0.25.9
-    dependencies:
-      '@types/node': 14.18.12
-      acorn: 8.7.0
-      locate-character: 2.0.5
-      magic-string: 0.25.9
-    devDependencies:
-      astro-scripts: link:../../scripts
 
   packages/astro-prism:
     specifiers:
@@ -3893,6 +3876,7 @@ packages:
 
   /@types/node/14.18.12:
     resolution: {integrity: sha512-q4jlIR71hUpWTnGhXWcakgkZeHa3CCjcQcnuzU8M891BAWA2jHiziiWEPEkdS5pFsz7H9HJiy8BrK7tBRNrY7A==}
+    dev: true
 
   /@types/node/16.11.26:
     resolution: {integrity: sha512-GZ7bu5A6+4DtG7q9GsoHXy3ALcgeIHP4NnL0Vv2wu0uUB/yQex26v0tf6/na1mm0+bS9Uw+0DFex7aaKr2qawQ==}
@@ -4374,6 +4358,7 @@ packages:
     resolution: {integrity: sha512-V/LGr1APy+PXIwKebEWrkZPwoeoF+w1jiOBUmuxuiUIaOHtob8Qc9BTrYo7VuI5fR8tqsy+buA2WFooR5olqvQ==}
     engines: {node: '>=0.4.0'}
     hasBin: true
+    dev: true
 
   /adm-zip/0.5.9:
     resolution: {integrity: sha512-s+3fXLkeeLjZ2kLjCBwQufpI5fuN+kIGBxu6530nVQZGVol0d7Y/M88/xw9HGGUcJjKf8LutN3VPRUBq6N7Ajg==}
@@ -7234,10 +7219,6 @@ packages:
     resolution: {integrity: sha512-lL87ytIGP2FU5PWwNDo0w3WhIo2gopIAxPg9RxDYF7m4rr5ahuZxP22xnJHIvaLTe4Z9P6uKKY2UHiwyB4pcrw==}
     engines: {node: '>=14'}
     dev: true
-
-  /locate-character/2.0.5:
-    resolution: {integrity: sha512-n2GmejDXtOPBAZdIiEFy5dJ5N38xBCXLNOtw2WpB9kGh6pnrEuKlwYI+Tkpofc4wDtVXHtoAOJaMRlYG/oYaxg==}
-    dev: false
 
   /locate-path/5.0.0:
     resolution: {integrity: sha512-t7hw9pI+WvuwNJXwk5zVHpyhIqzg2qTlklJOf0mVxGSbe3Fp2VieZcduNYjaLDoy6p9uGpQEGWG87WpMKlNq8g==}

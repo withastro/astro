@@ -112,7 +112,6 @@
     "zod": "^3.14.2"
   },
   "devDependencies": {
-    "@astrojs/parser": "^0.22.2",
     "@babel/types": "^7.17.0",
     "@types/babel__core": "^7.1.19",
     "@types/babel__traverse": "^7.14.2",
