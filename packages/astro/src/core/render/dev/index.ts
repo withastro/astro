@@ -40,6 +40,9 @@ export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
 export type RenderResponse = { type: 'html'; html: string } | { type: 'response'; response: Response };
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
+// Cache renderers to avoid re-resolving the module using Vite's `ssrLoadModule`
+// This prevents an odd exception trying to resolve the same server-side module
+// Multiple times. See `isSelfAccepting` issue: https://github.com/withastro/astro/pull/2852
 const rendererCache = new Map<string, SSRLoadedRenderer['ssr']>();
 
 async function loadRenderer(viteServer: vite.ViteDevServer, renderer: AstroRenderer): Promise<SSRLoadedRenderer> {
