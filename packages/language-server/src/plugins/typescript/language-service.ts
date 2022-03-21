@@ -1,5 +1,5 @@
 import { AstroDocument } from '../../core/documents';
-import { dirname } from 'path';
+import { dirname, resolve } from 'path';
 import ts from 'typescript';
 import { TextDocumentContentChangeEvent } from 'vscode-languageserver';
 import { normalizePath } from '../../utils';
@@ -91,6 +91,14 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 
 	const astroModuleLoader = createAstroModuleLoader(getScriptSnapshot, compilerOptions);
 
+	let languageServerDirectory: string;
+	try {
+		languageServerDirectory = dirname(require.resolve('@astrojs/language-server'));
+	} catch (e) {
+		languageServerDirectory = __dirname;
+	}
+	const astroTSXFile = ts.sys.resolvePath(resolve(languageServerDirectory, '../types/astro-jsx.d.ts'));
+
 	const host: ts.LanguageServiceHost = {
 		getNewLine: () => ts.sys.newLine,
 		useCaseSensitiveFileNames: () => ts.sys.useCaseSensitiveFileNames,
@@ -106,7 +114,7 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 
 		getProjectVersion: () => projectVersion.toString(),
 		getScriptFileNames: () =>
-			Array.from(new Set([...snapshotManager.getProjectFileNames(), ...snapshotManager.getFileNames()])),
+			Array.from(new Set([...snapshotManager.getProjectFileNames(), ...snapshotManager.getFileNames(), astroTSXFile])),
 		getScriptSnapshot,
 		getScriptVersion: (fileName: string) => getScriptSnapshot(fileName).version.toString(),
 	};
@@ -239,6 +247,8 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 			allowNonTsExtensions: true,
 			allowJs: true,
 			jsx: ts.JsxEmit.Preserve,
+			jsxImportSource: undefined,
+			jsxFactory: 'astroHTML',
 			module: ts.ModuleKind.ESNext,
 			target: ts.ScriptTarget.ESNext,
 			moduleResolution: ts.ModuleResolutionKind.NodeJs,

@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Position } from 'vscode-languageserver-types';
+import { Hover, Position, Range } from 'vscode-languageserver-types';
 import { ConfigManager } from '../../../src/core/config';
 import { AstroDocument, DocumentManager } from '../../../src/core/documents';
 import { HTMLPlugin } from '../../../src/plugins';
@@ -32,7 +32,7 @@ describe('HTML Plugin', () => {
 			expect(completions!.items.find((item) => item.label === 'style (lang="less")')).to.not.be.undefined;
 		});
 
-		it('does not provide completions inside of moustache tag', () => {
+		it('should not provide completions inside of an expression', () => {
 			const { plugin, document } = setup('<div class={');
 
 			const completions = plugin.getCompletions(document, Position.create(0, 12));
@@ -59,6 +59,54 @@ describe('HTML Plugin', () => {
 			expect(configManager.enabled(`html.completions.enabled`), 'Expected completions to be disabled in configManager')
 				.to.be.false;
 			expect(completions, 'Expected completions to be null').to.be.null;
+		});
+	});
+
+	describe('provide hover info', () => {
+		it('for HTML elements', () => {
+			const { plugin, document } = setup('<p>Build fast websites, faster.</p>');
+
+			expect(plugin.doHover(document, Position.create(0, 1))).to.deep.equal(<Hover>{
+				contents: {
+					kind: 'markdown',
+					value:
+						'The p element represents a paragraph.\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/HTML/Element/p)',
+				},
+
+				range: Range.create(0, 1, 0, 2),
+			});
+		});
+
+		it('for HTML attributes', () => {
+			const { plugin, document } = setup('<p class="motto">Build fast websites, faster.</p>');
+
+			expect(plugin.doHover(document, Position.create(0, 4))).to.deep.equal(<Hover>{
+				contents: {
+					kind: 'markdown',
+					value:
+						'A space-separated list of the classes of the element. Classes allows CSS and JavaScript to select and access specific elements via the [class selectors](/en-US/docs/Web/CSS/Class_selectors) or functions like the method [`Document.getElementsByClassName()`](/en-US/docs/Web/API/Document/getElementsByClassName "returns an array-like object of all child elements which have all of the given class names.").\n\n[MDN Reference](https://developer.mozilla.org/docs/Web/HTML/Global_attributes/class)',
+				},
+
+				range: Range.create(0, 3, 0, 8),
+			});
+		});
+
+		it('should not provide hover info if feature is disabled', () => {
+			const { plugin, document, configManager } = setup('<p>Build fast websites, faster.</p>');
+
+			// Disable hover info
+			configManager.updateConfig(<any>{
+				html: {
+					hover: {
+						enabled: false,
+					},
+				},
+			});
+
+			const hoverInfo = plugin.doHover(document, Position.create(0, 1));
+
+			expect(configManager.enabled(`html.hover.enabled`), 'Expected hover to be disabled in configManager').to.be.false;
+			expect(hoverInfo, 'Expected hoverInfo to be null').to.be.null;
 		});
 	});
 });

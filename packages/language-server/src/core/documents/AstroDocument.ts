@@ -1,4 +1,4 @@
-import { HTMLDocument } from 'vscode-html-languageservice';
+import { HTMLDocument, Range } from 'vscode-html-languageservice';
 import { urlToPath } from '../../utils';
 import { WritableDocument } from './DocumentBase';
 import { AstroMetadata, parseAstro } from './parseAstro';
@@ -29,7 +29,12 @@ export class AstroDocument extends WritableDocument {
 		this.updateDocInfo();
 	}
 
-	getText(): string {
+	getText(range?: Range | undefined): string {
+		if (range) {
+			const start = this.offsetAt(range.start);
+			const end = this.offsetAt(range.end);
+			return this.content.substring(start, end);
+		}
 		return this.content;
 	}
 

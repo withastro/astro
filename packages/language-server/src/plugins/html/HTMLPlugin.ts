@@ -5,6 +5,7 @@ import {
 	TextEdit,
 	CompletionItemKind,
 	FoldingRange,
+	Hover,
 } from 'vscode-languageserver';
 import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
 import { getLanguageService } from 'vscode-html-languageservice';
@@ -13,16 +14,47 @@ import { ConfigManager } from '../../core/config/ConfigManager';
 import { AstroDocument } from '../../core/documents/AstroDocument';
 import { isInComponentStartTag, isInsideExpression, isInsideFrontmatter } from '../../core/documents/utils';
 import { LSHTMLConfig } from '../../core/config/interfaces';
+import { isPossibleComponent } from '../../utils';
+import { astroAttributes, astroDirectives } from './features/astro-attributes';
 
 export class HTMLPlugin implements Plugin {
 	__name = 'html';
 
-	private lang = getLanguageService();
+	private lang = getLanguageService({
+		customDataProviders: [astroAttributes],
+	});
+	private componentLang = getLanguageService({
+		customDataProviders: [astroAttributes, astroDirectives],
+		useDefaultDataProvider: false,
+	});
 	private styleScriptTemplate = new Set(['style']);
 	private configManager: ConfigManager;
 
 	constructor(configManager: ConfigManager) {
 		this.configManager = configManager;
+	}
+
+	doHover(document: AstroDocument, position: Position): Hover | null {
+		if (!this.featureEnabled('hover')) {
+			return null;
+		}
+
+		const html = document.html;
+		if (!html) {
+			return null;
+		}
+
+		const node = html.findNodeAt(document.offsetAt(position));
+		if (!node) {
+			return null;
+		}
+
+		// If the node we're hovering on is a component, instead only provide astro-specific hover info
+		if (isPossibleComponent(node)) {
+			return this.componentLang.doHover(document, position, html);
+		}
+
+		return this.lang.doHover(document, position, html);
 	}
 
 	/**

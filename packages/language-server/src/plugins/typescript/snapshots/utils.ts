@@ -13,7 +13,6 @@ import { AstroSnapshot, TypeScriptDocumentSnapshot } from './DocumentSnapshot';
 import { toTSX as svelte2tsx } from '@astrojs/svelte-language-integration';
 
 // Utilities to create Snapshots from different contexts
-
 export function createFromDocument(document: AstroDocument) {
 	const { code } = astro2tsx(document.getText());
 
@@ -82,7 +81,7 @@ export function createFromFrameworkFilePath(filePath: string, framework: Framewo
 	if (framework === 'svelte') {
 		code = svelte2tsx(originalText);
 	} else {
-		code = 'export default function() {}';
+		code = 'export default function(props: Record<string, any>): any {<div></div>}';
 	}
 
 	return new TypeScriptDocumentSnapshot(0, filePath, code, ts.ScriptKind.TSX);

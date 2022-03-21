@@ -38,20 +38,16 @@ export function getLastPartOfPath(path: string): string {
 }
 
 /**
- *
- * The language service is case insensitive, and would provide
- * hover info for Svelte components like `Option` which have
- * the same name like a html tag.
+ * Return true if a specific node could be a component.
+ * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
  */
 export function isPossibleComponent(node: Node): boolean {
-	return !!node.tag?.[0].match(/[A-Z]/);
+	return !!node.tag?.[0].match(/[A-Z]/) || !!node.tag?.match(/.+[.][A-Z]/);
 }
 
 /**
- *
- * The language service is case insensitive, and would provide
- * hover info for Svelte components like `Option` which have
- * the same name like a html tag.
+ * Return true if a specific node could be a component with a client directive on it.
+ * This is not a 100% sure test as it'll return false for any component that does not match the standard format for a component
  */
 export function isPossibleClientComponent(node: Node): boolean {
 	if (isPossibleComponent(node) && node.attributes) {
