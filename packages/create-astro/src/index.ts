@@ -180,7 +180,7 @@ export async function main() {
 								fetch(`https://registry.npmjs.org/${integration.packageName}/latest`)
 									.then((res) => res.json())
 									.then((res: any) => {
-										let dependencies = [[res['name'], `^${res['version']}`]];
+										let dependencies: [string, string][] = [[res['name'], `^${res['version']}`]];
 
 										if (res['peerDependencies']) {
 											for (const peer in res['peerDependencies']) {
@@ -193,7 +193,9 @@ export async function main() {
 							)
 						)
 					).flat(1);
+					// merge and sort dependencies
 					packageJSON.devDependencies = { ...(packageJSON.devDependencies ?? {}), ...Object.fromEntries(integrationEntries) };
+					packageJSON.devDependencies = Object.fromEntries(Object.entries(packageJSON.devDependencies).sort((a, b) => a[0].localeCompare(b[0])));
 					await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
 					break;
 				}
