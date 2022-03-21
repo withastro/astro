@@ -1,13 +1,11 @@
 import fs from 'fs';
 import path from 'path';
-import { exec as childProcessExec, ExecOptions } from 'child_process';
 import { bold, cyan, gray, green, red, yellow } from 'kleur/colors';
 import fetch from 'node-fetch';
 import prompts from 'prompts';
 import degit from 'degit';
 import yargs from 'yargs-parser';
 import ora from 'ora';
-import whichPM from 'which-pm-runs';
 import { FRAMEWORKS, COUNTER_COMPONENTS, Integration } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
 import { createConfig } from './config.js';
@@ -30,23 +28,9 @@ export function mkdirp(dir: string) {
 	}
 }
 
-function exec(command: string[], options: ExecOptions = {}) {
-	return new Promise((resolve, reject) => {
-		childProcessExec(command.join(' '), options, (err, stdout, stderr) => {
-			if (err) {
-				reject(stderr);
-			} else {
-				resolve(stdout);
-			}
-		});
-	});
-}
-
 const { version } = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
 
 const POSTPROCESS_FILES = ['package.json', 'astro.config.mjs', 'CHANGELOG.md']; // some files need processing after copying.
-
-const issueMsg = '\nIf you think this is an error, feel free to open an issue in our GitHub repo: https://github.com/withastro/astro/issues/new';
 
 export async function main() {
 	logger.debug('Verbose logging turned on');
@@ -231,53 +215,18 @@ export async function main() {
 	}
 
 	spinner.succeed();
-
-	const { name: pm } = whichPM() || { name: 'not_found' };
-	const supportedPM = ['npm', 'yarn', 'pnpm'].includes(pm);
-
-	if (supportedPM) {
-		spinner = ora({ color: 'green', text: 'Installing dependencies...' }).start();
-		try {
-			if (pm === 'yarn') await exec(['yarn'], { cwd });
-			else if (pm === 'pnpm') await exec(['pnpm', 'install'], { cwd });
-			else await exec(['npm', 'install'], { cwd });
-
-			spinner.succeed();
-		} catch (error) {
-			spinner.fail('There was an error installing the dependencies.\n' + `You can try to run ${bold(cyan(`${pm} install`))} manually.` + issueMsg);
-			console.error(error);
-		}
-	}
-
-	try {
-		spinner = ora({ color: 'green', text: 'Initializating git...' }).start();
-		await exec(['git', 'init'], { cwd });
-		await exec(['git', 'add', '-A'], { cwd });
-		await exec(['git', 'commit', '-m', '"Initial commit"'], { cwd });
-		spinner.succeed();
-	} catch (error) {
-		spinner.fail();
-		logger.debug('Error with git init', error);
-	}
-
 	console.log(bold(green('✔') + ' Done!'));
 
 	console.log('\nNext steps:');
 	let i = 1;
-
 	const relative = path.relative(process.cwd(), cwd);
 	if (relative !== '') {
 		console.log(`  ${i++}: ${bold(cyan(`cd ${relative}`))}`);
 	}
 
-	if (!supportedPM) {
-		console.log(`  ${i++}: ${bold(cyan('npm install'))} (or pnpm install, yarn, etc)`);
-		console.log(`  ${i++}: ${bold(cyan('npm run dev'))} (or pnpm, yarn, etc)`);
-	} else {
-		if (pm === 'yarn') console.log(`  ${i++}: ${bold(cyan('yarn dev'))}`);
-		else if (pm === 'pnpm') console.log(`  ${i++}: ${bold(cyan('pnpm run dev'))}`);
-		else console.log(`  ${i++}: ${bold(cyan('npm run dev'))}`);
-	}
+	console.log(`  ${i++}: ${bold(cyan('npm install'))} (or pnpm install, yarn, etc)`);
+	console.log(`  ${i++}: ${bold(cyan('git init && git add -A && git commit -m "Initial commit"'))} (optional step)`);
+	console.log(`  ${i++}: ${bold(cyan('npm run dev'))} (or pnpm, yarn, etc)`);
 
 	console.log(`\nTo close the dev server, hit ${bold(cyan('Ctrl-C'))}`);
 	console.log(`\nStuck? Visit us at ${cyan('https://astro.build/chat')}\n`);
