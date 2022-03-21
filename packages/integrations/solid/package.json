@@ -25,12 +25,12 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "babel-preset-solid": "^1.3.6"
+    "babel-preset-solid": "^1.3.13"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "solid-js": "^1.3.6"
+    "solid-js": "^1.3.13"
   },
   "peerDependencies": {
     "solid-js": "^1.3.6"

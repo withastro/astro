@@ -25,7 +25,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.16.7"
+    "@babel/plugin-transform-react-jsx": "^7.17.3"
   },
   "devDependencies": {
     "astro": "workspace:*",
