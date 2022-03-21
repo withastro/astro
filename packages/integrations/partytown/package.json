@@ -11,6 +11,11 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/partytown"
   },
+  "keywords": [
+    "astro-component",
+    "analytics",
+    "performance"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
