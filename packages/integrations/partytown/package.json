@@ -22,7 +22,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@builder.io/partytown": "^0.4.0",
+    "@builder.io/partytown": "^0.4.5",
     "mrmime": "^1.0.0"
   },
   "devDependencies": {

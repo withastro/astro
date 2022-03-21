@@ -13,6 +13,6 @@
     "astro": "^0.25.0-next.1"
   },
   "dependencies": {
-    "solid-js": "^1.3.6"
+    "solid-js": "^1.3.13"
   }
 }
