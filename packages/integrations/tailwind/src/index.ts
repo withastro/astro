@@ -3,6 +3,7 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import tailwindPlugin from 'tailwindcss';
 import type { TailwindConfig } from 'tailwindcss/tailwind-config';
+import resolveConfig from 'tailwindcss/resolveConfig.js';
 import autoprefixerPlugin from 'autoprefixer';
 import load from '@proload/core';
 
@@ -28,7 +29,7 @@ async function getUserConfig(projectRoot: URL, configPath?: string) {
 	return await load('tailwind', { mustExist: false, cwd: resolvedProjectRoot, filePath: userConfigPath });
 }
 
-type IntegrationConfig =
+type TailwindOptions =
 	| {
 			config?: {
 				/**
@@ -46,14 +47,14 @@ type IntegrationConfig =
 	  }
 	| undefined;
 
-export default function (integrationConfig: IntegrationConfig): AstroIntegration {
-	const applyAstroConfigPreset = integrationConfig?.config?.applyAstroPreset ?? true;
+export default function (options: TailwindOptions): AstroIntegration {
+	const applyAstroConfigPreset = options?.config?.applyAstroPreset ?? true;
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
 			'astro:config:setup': async ({ config, injectScript }) => {
 				// Inject the Tailwind postcss plugin
-				const userConfig = await getUserConfig(config.projectRoot, integrationConfig?.config?.path);
+				const userConfig = await getUserConfig(config.projectRoot, options?.config?.path);
 
 				let tailwindConfig: TailwindConfig;
 				if (typeof userConfig?.value === 'object' && userConfig.value !== null) {
