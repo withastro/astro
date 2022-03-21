@@ -17,7 +17,8 @@
     "test:smoke": "node scripts/smoke/index.js",
     "benchmark": "turbo run benchmark --scope=astro",
     "lint": "eslint \"packages/**/*.ts\"",
-    "format": "prettier -w ."
+    "format": "prettier -w .",
+    "version": "changeset version && pnpm install"
   },
   "workspaces": [
     "compiled/*",
