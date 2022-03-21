@@ -1,5 +1,5 @@
 ---
-'create-astro': minor
+'create-astro': patch
 ---
 
-Install dependencies automatically
+Add peer dependencies to package.json
