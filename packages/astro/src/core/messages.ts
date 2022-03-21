@@ -87,6 +87,13 @@ export function prerelease({ currentVersion }: { currentVersion: string }) {
 	return [headline, warning, ''].map((msg) => `  ${msg}`).join('\n');
 }
 
+export function success(message: string, tip?: string) {
+	const badge = bgGreen(black(` success `));
+	const headline = green(message);
+	const footer = tip ? `\n  ▶ ${tip}` : ''
+	return ['', badge, headline, footer].map((msg) => `  ${msg}`).join('\n');
+}
+
 /** Display port in use */
 export function portInUse({ port }: { port: number }): string {
 	return `Port ${port} in use. Trying a new one…`;

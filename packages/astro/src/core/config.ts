@@ -266,6 +266,24 @@ interface LoadConfigOptions {
 	flags?: Flags;
 }
 
+/** Resolve the file URL of the user's `astro.config.js|cjs|mjs|ts` file */
+export async function resolveConfigURL(configOptions: LoadConfigOptions): Promise<URL|undefined> {
+	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();
+	const flags = resolveFlags(configOptions.flags || {});
+	let userConfigPath: string | undefined;
+
+	if (flags?.config) {
+		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
+		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
+	}
+	// Automatically load config file using Proload
+	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`
+	const config = await load('astro', { mustExist: false, cwd: root, filePath: userConfigPath });
+	if (config) {
+		return pathToFileURL(config.filePath);
+	}
+}
+
 /** Attempt to load an `astro.config.mjs` file */
 export async function loadConfig(configOptions: LoadConfigOptions): Promise<AstroConfig> {
 	const root = configOptions.cwd ? path.resolve(configOptions.cwd) : process.cwd();

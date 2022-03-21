@@ -11,11 +11,12 @@ import build from '../core/build/index.js';
 import devServer from '../core/dev/index.js';
 import preview from '../core/preview/index.js';
 import { check } from './check.js';
+import { add } from './add.js';
 import { formatConfigError, loadConfig } from '../core/config.js';
 import { pad } from '../core/dev/util.js';
 
 type Arguments = yargs.Arguments;
-type CLICommand = 'help' | 'version' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
+type CLICommand = 'help' | 'version' | 'add' | 'dev' | 'build' | 'preview' | 'reload' | 'check';
 
 /** Display --help flag */
 function printHelp() {
@@ -25,6 +26,7 @@ function printHelp() {
 	title('Commands');
 	table(
 		[
+			['add', 'Add an integration to your configuration.'],
 			['dev', 'Run Astro in development mode.'],
 			['build', 'Build a pre-compiled production-ready site.'],
 			['preview', 'Preview your build locally before deploying.'],
@@ -99,9 +101,9 @@ function resolveCommand(flags: Arguments): CLICommand {
 		return 'help';
 	}
 	const cmd = flags._[2] as string;
-	const supportedCommands = new Set(['dev', 'build', 'preview', 'check']);
+	const supportedCommands = new Set(['add', 'dev', 'build', 'preview', 'check']);
 	if (supportedCommands.has(cmd)) {
-		return cmd as 'dev' | 'build' | 'preview' | 'check';
+		return cmd as 'add' | 'dev' | 'build' | 'preview' | 'check';
 	}
 	return 'help';
 }
@@ -110,7 +112,10 @@ function resolveCommand(flags: Arguments): CLICommand {
 export async function cli(args: string[]) {
 	const flags = yargs(args);
 	const cmd = resolveCommand(flags);
-	const projectRoot = flags.projectRoot || flags._[3];
+	let projectRoot = flags.projectRoot;
+	if (!projectRoot && cmd !== 'add') {
+		projectRoot = flags._[3];
+	}
 
 	switch (cmd) {
 		case 'help':
@@ -131,6 +136,16 @@ export async function cli(args: string[]) {
 		enableVerboseLogging();
 	} else if (flags.silent) {
 		logging.level = 'silent';
+	}
+
+	if (cmd === 'add') {
+			try {
+				const packages = flags._.slice(3) as string[];
+				await add(packages, { cwd: projectRoot, flags, logging });
+				process.exit(0);
+			} catch (err) {
+				throwAndExit(err);
+			}
 	}
 
 	let config: AstroConfig;
