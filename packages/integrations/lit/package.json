@@ -25,7 +25,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@lit-labs/ssr": "^2.0.2"
+    "@lit-labs/ssr": "^2.0.4"
   },
   "devDependencies": {
     "astro": "workspace:*",
