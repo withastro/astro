@@ -1,11 +1,6 @@
 {
   "recommendations": [
-    "astro-build.astro-vscode",
-    "eamodio.gitlens",
-    "mgmcdermott.vscode-language-babel",
-    "wix.vscode-import-cost",
-    "pflannery.vscode-versionlens",
-    "editorconfig.editorconfig"
+    "astro-build.astro-vscode"
   ],
   "unwantedRecommendations": []
 }
