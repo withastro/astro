@@ -11,6 +11,9 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/tailwind"
   },
+  "keywords": [
+    "astro-component"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {

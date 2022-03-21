@@ -11,6 +11,10 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/sitemap"
   },
+  "keywords": [
+    "astro-component",
+    "seo"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
