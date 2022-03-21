@@ -107,25 +107,30 @@ export default {
 	},
 };
 
-export const FRAMEWORKS = [
+export interface Integration {
+	id: string;
+	packageName: string;
+}
+
+export const FRAMEWORKS: { title: string; value: Integration }[] = [
 	{
-		title: 'preact',
-		value: '@astrojs/preact',
+		title: 'Preact',
+		value: { id: 'preact', packageName: '@astrojs/preact' },
 	},
 	{
-		title: 'react',
-		value: 'react',
+		title: 'React',
+		value: { id: 'react', packageName: '@astrojs/react' },
 	},
 	{
-		title: 'solid',
-		value: 'solid',
+		title: 'Solid.js',
+		value: { id: 'solid', packageName: '@astrojs/solid-js' },
 	},
 	{
-		title: 'svelte',
-		value: 'svelte',
+		title: 'Svelte',
+		value: { id: 'svelte', packageName: '@astrojs/svelte' },
 	},
 	{
-		title: 'vue',
-		value: 'vue',
+		title: 'Vue',
+		value: { id: 'vue', packageName: '@astrojs/vue' },
 	},
 ];

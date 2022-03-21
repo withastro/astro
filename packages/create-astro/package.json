@@ -32,6 +32,7 @@
     "degit": "^2.8.4",
     "kleur": "^4.1.4",
     "node-fetch": "^3.2.3",
+    "ora": "^6.1.0",
     "prompts": "^2.4.2",
     "yargs-parser": "^21.0.1"
   },
