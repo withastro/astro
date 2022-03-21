@@ -3,7 +3,6 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import tailwindPlugin from 'tailwindcss';
 import type { TailwindConfig } from 'tailwindcss/tailwind-config';
-import resolveConfig from 'tailwindcss/resolveConfig.js';
 import autoprefixerPlugin from 'autoprefixer';
 import load from '@proload/core';
 
@@ -23,7 +22,7 @@ async function getUserConfig(projectRoot: URL, configPath?: string) {
 
 	if (configPath) {
 		const configPathWithLeadingSlash = /^\.*\//.test(configPath) ? configPath : `./${configPath}`;
-		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, `file://${resolvedProjectRoot}/`));
+		userConfigPath = fileURLToPath(new URL(configPathWithLeadingSlash, projectRoot));
 	}
 
 	return await load('tailwind', { mustExist: false, cwd: resolvedProjectRoot, filePath: userConfigPath });
@@ -47,28 +46,25 @@ type TailwindOptions =
 	  }
 	| undefined;
 
-export default function (options: TailwindOptions): AstroIntegration {
+export default function tailwindIntegration(options: TailwindOptions): AstroIntegration {
 	const applyAstroConfigPreset = options?.config?.applyAstroPreset ?? true;
+	const customConfigPath = options?.config?.path;
 	return {
 		name: '@astrojs/tailwind',
 		hooks: {
 			'astro:config:setup': async ({ config, injectScript }) => {
 				// Inject the Tailwind postcss plugin
-				const userConfig = await getUserConfig(config.projectRoot, options?.config?.path);
+				const userConfig = await getUserConfig(config.projectRoot, customConfigPath);
 
-				let tailwindConfig: TailwindConfig;
-				if (typeof userConfig?.value === 'object' && userConfig.value !== null) {
-					if (applyAstroConfigPreset) {
-						tailwindConfig = {
-							presets: [getDefaultTailwindConfig(config.src), ...(userConfig.value.presets || [])],
-							...(userConfig.value as TailwindConfig),
-						};
-					} else {
-						tailwindConfig = userConfig.value as TailwindConfig;
-					}
-				} else {
-					tailwindConfig = getDefaultTailwindConfig(config.src);
+				if (customConfigPath && !userConfig?.value) {
+					throw new Error(`Could not find a Tailwind config at ${JSON.stringify(customConfigPath)}. Does the file exist?`);
 				}
+
+				const tailwindConfig: TailwindConfig = (userConfig?.value as TailwindConfig) ?? getDefaultTailwindConfig(config.src);
+				if (applyAstroConfigPreset) {
+					tailwindConfig.presets = [...(tailwindConfig.presets || []), getDefaultTailwindConfig(config.src)];
+				}
+
 				config.styleOptions.postcss.plugins.push(tailwindPlugin(tailwindConfig));
 				config.styleOptions.postcss.plugins.push(autoprefixerPlugin);
 
