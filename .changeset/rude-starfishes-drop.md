@@ -1,5 +1,5 @@
 ---
-'create-astro': patch
+'create-astro': minor
 ---
 
-Add peer dependencies to package.json
+Automatically add integration `peerDependencies` to scaffolded `package.json` files
