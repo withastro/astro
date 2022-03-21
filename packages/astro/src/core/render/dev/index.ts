@@ -83,7 +83,7 @@ export async function render(renderers: SSRLoadedRenderer[], mod: ComponentInsta
 			children: '',
 		});
 		scripts.add({
-			props: { type: 'module', src: '/@id/astro/client/hmr.js' },
+			props: { type: 'module', src: new URL('../../../runtime/client/hmr.js', import.meta.url).pathname },
 			children: '',
 		});
 	}
