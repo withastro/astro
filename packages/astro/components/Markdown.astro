@@ -24,8 +24,6 @@ let { content, class: className } = Astro.props as InternalProps;
 let html = null;
 let htmlContent = '';
 
-const { privateRenderMarkdownDoNotUse: renderMarkdown } = Astro as any;
-
 // If no content prop provided, use the slot.
 if (!content) {
 	content = await Astro.slots.render('default');
@@ -35,7 +33,7 @@ if (!content) {
 }
 
 if (content) {
-	htmlContent = await renderMarkdown(content, {
+	htmlContent = await (Astro as any).__renderMarkdown(content, {
 		mode: 'md',
 		$: {
 			scopedClassName: className,
