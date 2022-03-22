@@ -1,28 +1,43 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
-import { AstroConfig, AstroRenderer, BuildConfig } from '../@types/astro.js';
+import { AstroConfig, AstroIntegration, AstroRenderer, BuildConfig } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
+import ssgAdapter from '../adapter-ssg/index.js';
 
 export async function runHookConfigSetup({ config: _config, command }: { config: AstroConfig; command: 'dev' | 'build' }): Promise<AstroConfig> {
 	let updatedConfig: AstroConfig = { ..._config };
 	for (const integration of _config.integrations) {
 		if (integration.hooks['astro:config:setup']) {
-			await integration.hooks['astro:config:setup']({
-				config: updatedConfig,
-				command,
-				addRenderer(renderer: AstroRenderer) {
-					updatedConfig._ctx.renderers.push(renderer);
-				},
-				injectScript: (stage, content) => {
-					updatedConfig._ctx.scripts.push({ stage, content });
-				},
-				updateConfig: (newConfig) => {
-					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
-				},
-			});
+			await callConfigSetup(integration, updatedConfig, command);
+		}
+	}
+	// Call the default adapter
+	if(!updatedConfig._ctx.adapter) {
+		const integration = ssgAdapter();
+		updatedConfig.integrations.push(integration);
+		if(integration.hooks['astro:config:setup']) {
+			await callConfigSetup(integration, updatedConfig, command);
 		}
 	}
 	return updatedConfig;
+}
+
+export async function callConfigSetup(integration: AstroIntegration, updatedConfig: AstroConfig, command: 'dev' | 'build') {
+	if(integration.hooks['astro:config:setup']) {
+		await integration.hooks['astro:config:setup']({
+			config: updatedConfig,
+			command,
+			addRenderer(renderer: AstroRenderer) {
+				updatedConfig._ctx.renderers.push(renderer);
+			},
+			injectScript: (stage, content) => {
+				updatedConfig._ctx.scripts.push({ stage, content });
+			},
+			updateConfig: (newConfig) => {
+				updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
+			},
+		});
+	}
 }
 
 export async function runHookConfigDone({ config }: { config: AstroConfig }) {

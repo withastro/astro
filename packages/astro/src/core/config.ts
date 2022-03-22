@@ -211,7 +211,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 	});
 	return {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
-		_ctx: { scripts: [], renderers: [], adapter: ssgAdapter() },
+		_ctx: { scripts: [], renderers: [], adapter: undefined },
 	};
 }
 
