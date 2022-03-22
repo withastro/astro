@@ -32,6 +32,9 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 			await integration.hooks['astro:config:done']({
 				config,
 				setAdapter(adapter) {
+					if(config._ctx.adapter) {
+						throw new Error(`Adapter already set to ${config._ctx.adapter.name}. You can only have one adapter.`);
+					}
 					config._ctx.adapter = adapter;
 				}
 			});

@@ -23,8 +23,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "sitemap": "*",
-    "@astrojs/webapi": "workspace:*"
+    "@astrojs/webapi": "^0.11.0"
   },
   "devDependencies": {
     "astro": "workspace:*",
