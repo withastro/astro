@@ -1179,10 +1179,12 @@ importers:
 
   packages/integrations/node:
     specifiers:
+      '@astrojs/webapi': workspace:*
       astro: workspace:*
       astro-scripts: workspace:*
       sitemap: '*'
     dependencies:
+      '@astrojs/webapi': link:../../webapi
       sitemap: 7.1.1
     devDependencies:
       astro: link:../../astro
