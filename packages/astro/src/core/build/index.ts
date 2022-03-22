@@ -14,7 +14,7 @@ import { collectPagesData } from './page-data.js';
 import { build as scanBasedBuild } from './scan-based-build.js';
 import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
-import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup, callConfigSetup } from '../../integrations/index.js';
+import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
 
 export interface BuildOptions {
 	mode?: string;
