@@ -9,13 +9,13 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/lit": "^0.0.1",
-    "@astrojs/partytown": "^0.0.1",
-    "@astrojs/react": "^0.0.1",
-    "@astrojs/sitemap": "^0.0.1",
-    "@astrojs/tailwind": "^0.0.1",
-    "@astrojs/turbolinks": "^0.0.1",
-    "astro": "^0.25.0-next.1"
+    "@astrojs/lit": "^0.0.2-next.0",
+    "@astrojs/partytown": "^0.0.2-next.0",
+    "@astrojs/react": "^0.0.2-next.0",
+    "@astrojs/sitemap": "^0.0.2-next.0",
+    "@astrojs/tailwind": "^0.0.2-next.0",
+    "@astrojs/turbolinks": "^0.0.2-next.0",
+    "astro": "^0.25.0-next.2"
   },
   "dependencies": {
     "@webcomponents/template-shadowroot": "^0.1.0",
