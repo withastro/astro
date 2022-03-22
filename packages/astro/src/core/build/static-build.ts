@@ -2,13 +2,14 @@ import type { RollupOutput } from 'rollup';
 import type { BuildInternals } from '../../core/build/internal.js';
 import type { ViteConfigWithSSR } from '../create-vite';
 import type { PageBuildData, StaticBuildOptions } from './types';
-
 import glob from 'fast-glob';
 import fs from 'fs';
+import { bgGreen, bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
 import npath from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { createBuildInternals } from '../../core/build/internal.js';
+import { info } from '../../core/logger.js';
 import { appendForwardSlash, prependForwardSlash } from '../../core/path.js';
 import { emptyDir, removeDir } from '../../core/util.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
@@ -17,6 +18,7 @@ import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginSSR } from './vite-plugin-ssr.js';
 import { generatePages } from './generate.js';
 import { getClientRoot, getServerRoot, getOutRoot } from './common.js';
+import { getTimeStat } from './util.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
@@ -33,6 +35,12 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	// Build internals needed by the CSS plugin
 	const internals = createBuildInternals();
+
+	const timer: Record<string, number> = {};
+
+	timer.buildStart = performance.now();
+	info(opts.logging, 'build', 'Discovering entrypoints...');
+
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
 		const astroModuleId = prependForwardSlash(component);
@@ -76,18 +84,25 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// condition, so we are doing it ourselves
 	emptyDir(astroConfig.dist, new Set('.git'));
 
+	timer.clientBuild = performance.now();
 	// Run client build first, so the assets can be fed into the SSR rendered version.
 	await clientBuild(opts, internals, jsInput);
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.clientBuild, performance.now())}`));
 
 	// Build your project (SSR application code, assets, client JS, etc.)
+	info(opts.logging, 'build', 'Building for SSR...');
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.buildStart, performance.now())}`));
 
+	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
 		await cleanSsrOutput(opts);
 	} else {
 		await ssrMoveAssets(opts);
 	}
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.generate, performance.now())}`));
+	info(opts.logging, null, '\n');
 }
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
@@ -150,8 +165,11 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 	const out = astroConfig.buildOptions.experimentalSsr ? getClientRoot(astroConfig) : getOutRoot(astroConfig);
 
 	// TODO: use vite.mergeConfig() here?
+
+	info(opts.logging, null, `\n${bgGreen(black(' building resources '))}\n`);
+
 	return await vite.build({
-		logLevel: 'error',
+		logLevel: 'info',
 		mode: 'production',
 		css: viteConfig.css,
 		build: {

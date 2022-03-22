@@ -15,6 +15,7 @@ import { build as scanBasedBuild } from './scan-based-build.js';
 import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
 import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
+import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
 	mode?: string;
@@ -54,6 +55,8 @@ class AstroBuilder {
 	}
 
 	async build() {
+		info(this.logging, 'build', 'Initial setup...');
+
 		const { logging, origin } = this;
 		const timer: Record<string, number> = {};
 		timer.init = performance.now();
@@ -108,6 +111,7 @@ class AstroBuilder {
 		// Bundle the assets in your final build: This currently takes the HTML output
 		// of every page (stored in memory) and bundles the assets pointed to on those pages.
 		timer.buildStart = performance.now();
+		info(this.logging, null, colors.dim(`Completed in ${getTimeStat(timer.init, performance.now())}`));
 
 		// Use the new faster static based build.
 		if (!this.config.buildOptions.legacyBuild) {
@@ -173,9 +177,9 @@ class AstroBuilder {
 	/** Stats */
 	private async printStats({ logging, timeStart, pageCount }: { logging: LogOptions; timeStart: number; pageCount: number }) {
 		const buildTime = performance.now() - timeStart;
-		const total = buildTime < 750 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
+		const total = getTimeStat(timeStart, performance.now());
 		const perPage = `${Math.round(buildTime / pageCount)}ms`;
-		info(logging, 'build', `${pageCount} pages built in ${colors.bold(total)} ${colors.dim(`(${perPage}/page)`)}`);
+		info(logging, 'build', `${pageCount} pages built in ${colors.bold(total)} ${colors.dim(`(${colors.bold(perPage)} avg per page + resources)`)}`);
 		info(logging, 'build', `🚀 ${colors.cyan(colors.bold('Done'))}`);
 	}
 }
