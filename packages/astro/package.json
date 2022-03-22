@@ -13,11 +13,15 @@
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "types": "./dist/types/@types/astro.d.ts",
+  "typesVersions": {
+    "*": { "app/*": ["./dist/types/core/app/*"] }
+  },
   "exports": {
     ".": "./astro.js",
     "./env": "./env.d.ts",
     "./config": "./config.mjs",
     "./internal": "./internal.js",
+    "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.js",

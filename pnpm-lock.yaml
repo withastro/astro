@@ -286,6 +286,7 @@ importers:
 
   examples/ssr:
     specifiers:
+      '@astrojs/node': ^0.0.1
       '@astrojs/svelte': ^0.0.1
       astro: ^0.25.0-next.1
       concurrently: ^7.0.0
@@ -296,6 +297,7 @@ importers:
     dependencies:
       svelte: 3.46.4
     devDependencies:
+      '@astrojs/node': link:../../packages/integrations/node
       '@astrojs/svelte': link:../../packages/integrations/svelte
       astro: link:../../packages/astro
       concurrently: 7.0.0
@@ -1190,6 +1192,17 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
+  packages/integrations/node:
+    specifiers:
+      astro: workspace:*
+      astro-scripts: workspace:*
+      sitemap: '*'
+    dependencies:
+      sitemap: 7.1.1
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
   packages/integrations/partytown:
     specifiers:
       '@builder.io/partytown': ^0.4.0
@@ -1256,17 +1269,6 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
       solid-js: 1.3.13
-
-  packages/integrations/ssg:
-    specifiers:
-      astro: workspace:*
-      astro-scripts: workspace:*
-      sitemap: '*'
-    dependencies:
-      sitemap: 7.1.1
-    devDependencies:
-      astro: link:../../astro
-      astro-scripts: link:../../../scripts
 
   packages/integrations/svelte:
     specifiers:

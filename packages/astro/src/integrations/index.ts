@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
-import { AstroConfig, AstroRenderer } from '../@types/astro.js';
+import { AstroConfig, AstroRenderer, BuildConfig } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
 
 export async function runHookConfigSetup({ config: _config, command }: { config: AstroConfig; command: 'dev' | 'build' }): Promise<AstroConfig> {
@@ -30,6 +30,9 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 		if (integration.hooks['astro:config:done']) {
 			await integration.hooks['astro:config:done']({
 				config,
+				setAdapter(adapter) {
+					config._ctx.adapter = adapter;
+				}
 			});
 		}
 	}
@@ -59,10 +62,10 @@ export async function runHookServerDone({ config }: { config: AstroConfig }) {
 	}
 }
 
-export async function runHookBuildStart({ config }: { config: AstroConfig }) {
+export async function runHookBuildStart({ config, buildConfig }: { config: AstroConfig, buildConfig: BuildConfig }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:start']) {
-			await integration.hooks['astro:build:start']();
+			await integration.hooks['astro:build:start']({ buildConfig });
 		}
 	}
 }

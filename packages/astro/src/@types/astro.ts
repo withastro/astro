@@ -5,6 +5,7 @@ import type { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { AstroRequest } from '../core/render/request';
+export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
@@ -35,6 +36,10 @@ export interface CLIFlags {
 	experimentalSsr?: boolean;
 	legacyBuild?: boolean;
 	drafts?: boolean;
+}
+
+export interface BuildConfig {
+	staticMode: boolean | undefined;
 }
 
 /**
@@ -455,6 +460,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		adapter: AstroAdapter;
 		renderers: AstroRenderer[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
 	};
@@ -587,8 +593,8 @@ type Body = string;
 
 export interface AstroAdapter {
 	name: string;
-	serverEntrypoint?: URL;
-	integration?: AstroIntegration;
+	serverEntrypoint?: string;
+	exports?: string[];
 }
 
 export interface EndpointOutput<Output extends Body = Body> {
@@ -637,11 +643,11 @@ export interface AstroIntegration {
 			// more generalized. Consider the SSR use-case as well.
 			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
 		}) => void;
-		'astro:config:done'?: (options: { config: AstroConfig }) => void | Promise<void>;
+		'astro:config:done'?: (options: {config: AstroConfig, setAdapter: (adapter: AstroAdapter) => void; }) => void | Promise<void>;
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
-		'astro:build:start'?: () => void | Promise<void>;
+		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
 		'astro:build:done'?: (options: { pages: { pathname: string }[]; dir: URL }) => void | Promise<void>;
 	};
 }

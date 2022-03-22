@@ -2,6 +2,7 @@ import type { ComponentInstance, ManifestData, RouteData, SSRLoadedRenderer } fr
 import type { SSRManifest as Manifest, RouteInfo } from './types';
 
 import { defaultLogOptions } from '../logger.js';
+export { deserializeManifest } from './common.js';
 import { matchRoute } from '../routing/match.js';
 import { render } from '../render/core.js';
 import { RouteCache } from '../render/route-cache.js';
@@ -64,7 +65,7 @@ export class App {
 					throw new Error(`Unable to resolve [${specifier}]`);
 				}
 				const bundlePath = manifest.entryModules[specifier];
-				return prependForwardSlash(bundlePath);
+				return bundlePath.startsWith('data:') ? bundlePath : prependForwardSlash(bundlePath);
 			},
 			route: routeData,
 			routeCache: this.#routeCache,

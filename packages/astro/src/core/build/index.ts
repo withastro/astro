@@ -1,4 +1,4 @@
-import type { AstroConfig, ManifestData } from '../../@types/astro';
+import type { AstroConfig, BuildConfig, ManifestData } from '../../@types/astro';
 import type { LogOptions } from '../logger';
 
 import fs from 'fs';
@@ -74,7 +74,8 @@ class AstroBuilder {
 		const viteServer = await vite.createServer(viteConfig);
 		this.viteServer = viteServer;
 		debug('build', timerMessage('Vite started', timer.viteStart));
-		await runHookBuildStart({ config: this.config });
+		const buildConfig: BuildConfig = { staticMode: undefined };
+		await runHookBuildStart({ config: this.config, buildConfig });
 
 		timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
@@ -119,6 +120,7 @@ class AstroBuilder {
 				pageNames,
 				routeCache: this.routeCache,
 				viteConfig: this.viteConfig,
+				buildConfig,
 			});
 		} else {
 			await scanBasedBuild({
