@@ -88,7 +88,7 @@ export function createResult(args: CreateResultArgs): SSRResult {
 		createAstro(astroGlobal: AstroGlobalPartial, props: Record<string, any>, slots: Record<string, any> | null) {
 			const astroSlots = new Slots(result, slots);
 
-			return {
+			const Astro = {
 				__proto__: astroGlobal,
 				props,
 				request,
@@ -138,8 +138,14 @@ ${extra}`
 					return astroGlobal.resolve(path);
 				},
 				slots: astroSlots,
+			} as unknown as AstroGlobal;
+
+			Object.defineProperty(Astro, '__renderMarkdown', {
+				// Ensure this API is not exposed to users
+				enumerable: false,
+				writable: false,
 				// <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
-				async privateRenderMarkdownDoNotUse(content: string, opts: any) {
+				value: async function(content: string, opts: any) {
 					let [mdRender, renderOpts] = markdownRender;
 					let parser: MarkdownParser | null = null;
 					//let renderOpts = {};
@@ -164,7 +170,9 @@ ${extra}`
 					const { code } = await parser(content, { ...renderOpts, ...(opts ?? {}) });
 					return code;
 				},
-			} as unknown as AstroGlobal;
+			});
+
+			return Astro;
 		},
 		resolve,
 		_metadata: {
