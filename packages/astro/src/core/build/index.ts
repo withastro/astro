@@ -111,7 +111,7 @@ class AstroBuilder {
 		// Bundle the assets in your final build: This currently takes the HTML output
 		// of every page (stored in memory) and bundles the assets pointed to on those pages.
 		timer.buildStart = performance.now();
-		info(this.logging, null, colors.dim(`Completed in ${getTimeStat(timer.init, performance.now())}`));
+		info(this.logging, 'build', colors.dim(`Completed in ${getTimeStat(timer.init, performance.now())}`));
 
 		// Use the new faster static based build.
 		if (!this.config.buildOptions.legacyBuild) {

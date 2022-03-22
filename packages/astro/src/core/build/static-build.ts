@@ -90,9 +90,10 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.clientBuild, performance.now())}`));
 
 	// Build your project (SSR application code, assets, client JS, etc.)
+	timer.ssr = performance.now();
 	info(opts.logging, 'build', 'Building for SSR...');
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.buildStart, performance.now())}`));
+	info(opts.logging, 'build', dim(`Completed in ${getTimeStat(timer.ssr, performance.now())}`));
 
 	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
