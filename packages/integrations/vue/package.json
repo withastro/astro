@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/vue",
-  "version": "0.0.1",
+  "version": "0.0.2-next.0",
   "description": "Use Vue components within Astro",
   "type": "module",
   "types": "./dist/index.d.ts",
@@ -11,6 +11,11 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/vue"
   },
+  "keywords": [
+    "astro-component",
+    "renderer",
+    "vue"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {
@@ -25,12 +30,12 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@vitejs/plugin-vue": "^2.2.0"
+    "@vitejs/plugin-vue": "^2.2.4"
   },
   "devDependencies": {
     "astro": "workspace:*",
     "astro-scripts": "workspace:*",
-    "vue": "^3.2.30"
+    "vue": "^3.2.31"
   },
   "peerDependencies": {
     "vue": "^3.2.30"

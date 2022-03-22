@@ -1,6 +1,4 @@
-import type { CompileError } from '@astrojs/parser';
-
-import { bold, cyan, dim, red, grey, underline, yellow, reset } from 'kleur/colors';
+import { bold, cyan, dim, red, yellow, reset } from 'kleur/colors';
 import { performance } from 'perf_hooks';
 import { Writable } from 'stream';
 import stringWidth from 'string-width';
@@ -180,31 +178,6 @@ export function table(opts: LogOptions, columns: number[]) {
 		const messages = columns.map((len, i) => padStr(input[i].toString(), len));
 		logFn(opts, null, ...messages);
 	};
-}
-
-/** Pretty format error for display */
-export function parseError(opts: LogOptions, err: CompileError) {
-	if (!err.frame) {
-		return error(opts, 'parse-error', err.message || err);
-	}
-
-	let frame = err.frame
-		// Switch colons for pipes
-		.replace(/^([0-9]+)(:)/gm, `${bold('$1')} │`)
-		// Make the caret red.
-		.replace(/(?<=^\s+)(\^)/gm, bold(red(' ^')))
-		// Add identation
-		.replace(/^/gm, '   ');
-
-	error(
-		opts,
-		'parse-error',
-		`
- ${underline(bold(grey(`${err.filename || ''}:${err.start.line}:${err.start.column}`)))}
- ${bold(red(`𝘅 ${err.message}`))}
-${frame}
-`
-	);
 }
 
 // A default logger for when too lazy to pass LogOptions around.

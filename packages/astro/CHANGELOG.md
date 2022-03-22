@@ -1,5 +1,13 @@
 # astro
 
+## 0.25.0-next.2
+
+### Patch Changes
+
+- [#2852](https://github.com/withastro/astro/pull/2852) [`96372e6b`](https://github.com/withastro/astro/commit/96372e6beb976b57a8c52fd7c65f126899325160) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix "isSelfAccepting" exception when using the new @astrojs/react integration in development
+
+* [#2848](https://github.com/withastro/astro/pull/2848) [`981e2a83`](https://github.com/withastro/astro/commit/981e2a839b5a0292513bf2009216250f2a8730eb) Thanks [@FredKSchott](https://github.com/FredKSchott)! - add missing injected "page" scripts into markdown pages
+
 ## 0.25.0-next.1
 
 ### Patch Changes
