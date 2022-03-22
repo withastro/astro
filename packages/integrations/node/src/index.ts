@@ -3,7 +3,6 @@ import type { AstroAdapter, AstroIntegration } from 'astro';
 export function getAdapter(): AstroAdapter {
 	return {
 		name: '@astrojs/node',
-		// This one has no server entrypoint and is mostly just an integration
 		serverEntrypoint: '@astrojs/node/server.js',
 		exports: ['handler'],
 	};
@@ -11,7 +10,7 @@ export function getAdapter(): AstroAdapter {
 
 export default function createIntegration(): AstroIntegration {
 	return {
-		name: '@astrojs/ssg',
+		name: '@astrojs/node',
 		hooks: {
 			'astro:config:done': ({ setAdapter }) => {
 				setAdapter(getAdapter());
