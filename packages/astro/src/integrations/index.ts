@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
-import { AstroConfig, AstroIntegration, AstroRenderer, BuildConfig } from '../@types/astro.js';
+import { AstroConfig, AstroRenderer, BuildConfig } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
 import ssgAdapter from '../adapter-ssg/index.js';
 
@@ -24,12 +24,6 @@ export async function runHookConfigSetup({ config: _config, command }: { config:
 		}
 	}
 	return updatedConfig;
-}
-
-export async function callConfigSetup(integration: AstroIntegration, updatedConfig: AstroConfig, command: 'dev' | 'build') {
-	if(integration.hooks['astro:config:setup']) {
-
-	}
 }
 
 export async function runHookConfigDone({ config }: { config: AstroConfig }) {
