@@ -9,8 +9,8 @@
     "preview": "astro preview"
   },
   "devDependencies": {
-    "@astrojs/solid-js": "^0.0.1",
-    "astro": "^0.25.0-next.1"
+    "@astrojs/solid-js": "^0.0.2-next.0",
+    "astro": "^0.25.0-next.2"
   },
   "dependencies": {
     "solid-js": "^1.3.13"
