@@ -54,7 +54,7 @@ if(_start in adapter) {
 				if(chunk.modules[resolvedVirtualModuleId]) {
 					const exp = new RegExp(`['"]${manifestReplace}['"]`);
 					const code = chunk.code;
-					chunk.code = code.replace(exp, code => {
+					chunk.code = code.replace(exp, () => {
 						return JSON.stringify(manifest);
 					});
 					chunk.fileName = 'entry.mjs';
