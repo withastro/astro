@@ -145,7 +145,7 @@ ${extra}`
 				enumerable: false,
 				writable: false,
 				// <Markdown> also needs the same `astroConfig.markdownOptions.render` as `.md` pages
-				value: async function(content: string, opts: any) {
+				value: async function (content: string, opts: any) {
 					let [mdRender, renderOpts] = markdownRender;
 					let parser: MarkdownParser | null = null;
 					//let renderOpts = {};
