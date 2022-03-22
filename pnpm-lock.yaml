@@ -448,11 +448,15 @@ importers:
       '@astrojs/prism': 0.4.1-next.0
       '@astrojs/webapi': ^0.11.0
       '@babel/core': ^7.17.8
+      '@babel/generator': ^7.17.7
+      '@babel/parser': ^7.17.8
+      '@babel/template': ^7.16.7
       '@babel/traverse': ^7.17.3
       '@babel/types': ^7.17.0
       '@proload/core': ^0.2.2
       '@proload/plugin-tsm': ^0.1.1
       '@types/babel__core': ^7.1.19
+      '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.14.2
       '@types/chai': ^4.3.0
       '@types/common-ancestor-path': ^1.0.0
@@ -520,6 +524,9 @@ importers:
       '@astrojs/prism': link:../astro-prism
       '@astrojs/webapi': link:../webapi
       '@babel/core': 7.17.8
+      '@babel/generator': 7.17.7
+      '@babel/parser': 7.17.8
+      '@babel/template': 7.16.7
       '@babel/traverse': 7.17.3
       '@proload/core': 0.2.2
       '@proload/plugin-tsm': 0.1.1_@proload+core@0.2.2
@@ -566,6 +573,7 @@ importers:
     devDependencies:
       '@babel/types': 7.17.0
       '@types/babel__core': 7.1.19
+      '@types/babel__generator': 7.6.4
       '@types/babel__traverse': 7.14.2
       '@types/chai': 4.3.0
       '@types/common-ancestor-path': 1.0.0
