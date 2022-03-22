@@ -5,6 +5,7 @@ import {
 	CompletionContext,
 	CompletionList,
 	CompletionTriggerKind,
+	Hover,
 	Position,
 	Range,
 } from 'vscode-languageserver';
@@ -16,6 +17,7 @@ import {
 	isInTag,
 	mapColorPresentationToOriginal,
 	mapCompletionItemToOriginal,
+	mapHoverToParent,
 	mapObjWithRangeToOriginal,
 	mapRangeToGenerated,
 	TagInformation,
@@ -38,6 +40,50 @@ export class CSSPlugin implements Plugin {
 
 	constructor(configManager: ConfigManager) {
 		this.configManager = configManager;
+	}
+
+	doHover(document: AstroDocument, position: Position): Hover | null {
+		if (!this.featureEnabled('hover')) {
+			return null;
+		}
+
+		if (isInsideFrontmatter(document.getText(), document.offsetAt(position))) {
+			return null;
+		}
+
+		const styleTag = this.getStyleTagForPosition(document, position);
+
+		if (!styleTag) {
+			const attributeContext = getAttributeContextAtPosition(document, position);
+
+			if (!attributeContext) {
+				return null;
+			}
+
+			if (this.inStyleAttributeWithoutInterpolation(attributeContext, document.getText())) {
+				const [start, end] = attributeContext.valueRange;
+				return this.doHoverInternal(new StyleAttributeDocument(document, start, end), position);
+			}
+
+			return null;
+		}
+
+		const cssDocument = this.getCSSDocumentForStyleTag(styleTag, document);
+
+		if (shouldExcludeHover(cssDocument)) {
+			return null;
+		}
+
+		return this.doHoverInternal(cssDocument, position);
+	}
+
+	private doHoverInternal(cssDocument: CSSDocumentBase, position: Position) {
+		const hoverInfo = getLanguageService(extractLanguage(cssDocument)).doHover(
+			cssDocument,
+			cssDocument.getGeneratedPosition(position),
+			cssDocument.stylesheet
+		);
+		return hoverInfo ? mapHoverToParent(cssDocument, hoverInfo) : hoverInfo;
 	}
 
 	getCompletions(
@@ -183,10 +229,16 @@ export class CSSPlugin implements Plugin {
 		return cssDoc;
 	}
 
+	/**
+	 * Get all the CSSDocuments in a document
+	 */
 	private getCSSDocumentsForDocument(document: AstroDocument) {
 		return document.styleTags.map((tag) => this.getCSSDocumentForStyleTag(tag, document));
 	}
 
+	/**
+	 * Get all the stylesheets (Stylesheet type) in a document
+	 */
 	private getStylesheetsForDocument(document: AstroDocument) {
 		return this.getCSSDocumentsForDocument(document).map((cssDoc) => cssDoc.stylesheet);
 	}
@@ -202,6 +254,23 @@ export class CSSPlugin implements Plugin {
 
 	private featureEnabled(feature: keyof LSCSSConfig) {
 		return this.configManager.enabled('css.enabled') && this.configManager.enabled(`css.${feature}.enabled`);
+	}
+}
+
+/**
+ * Exclude certain language when getting hover info
+ * The CSS language service only supports CSS, LESS and SCSS,
+ * which mean that we cannot support hover info in other languages
+ */
+function shouldExcludeHover(document: CSSDocument | string) {
+	const language = typeof document === 'string' ? document : extractLanguage(document);
+	switch (language) {
+		case 'sass':
+		case 'stylus':
+		case 'styl':
+			return true;
+		default:
+			return false;
 	}
 }
 
