@@ -8,15 +8,19 @@ export async function runHookConfigSetup({ config: _config, command }: { config:
 	let updatedConfig: AstroConfig = { ..._config };
 	for (const integration of _config.integrations) {
 		if (integration.hooks['astro:config:setup']) {
-			await callConfigSetup(integration, updatedConfig, command);
-		}
-	}
-	// Call the default adapter
-	if(!updatedConfig._ctx.adapter) {
-		const integration = ssgAdapter();
-		updatedConfig.integrations.push(integration);
-		if(integration.hooks['astro:config:setup']) {
-			await callConfigSetup(integration, updatedConfig, command);
+			await integration.hooks['astro:config:setup']({
+				config: updatedConfig,
+				command,
+				addRenderer(renderer: AstroRenderer) {
+					updatedConfig._ctx.renderers.push(renderer);
+				},
+				injectScript: (stage, content) => {
+					updatedConfig._ctx.scripts.push({ stage, content });
+				},
+				updateConfig: (newConfig) => {
+					updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
+				},
+			});
 		}
 	}
 	return updatedConfig;
@@ -24,25 +28,26 @@ export async function runHookConfigSetup({ config: _config, command }: { config:
 
 export async function callConfigSetup(integration: AstroIntegration, updatedConfig: AstroConfig, command: 'dev' | 'build') {
 	if(integration.hooks['astro:config:setup']) {
-		await integration.hooks['astro:config:setup']({
-			config: updatedConfig,
-			command,
-			addRenderer(renderer: AstroRenderer) {
-				updatedConfig._ctx.renderers.push(renderer);
-			},
-			injectScript: (stage, content) => {
-				updatedConfig._ctx.scripts.push({ stage, content });
-			},
-			updateConfig: (newConfig) => {
-				updatedConfig = mergeConfig(updatedConfig, newConfig) as AstroConfig;
-			},
-		});
+
 	}
 }
 
 export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:config:done']) {
+			await integration.hooks['astro:config:done']({
+				config,
+				setAdapter(adapter) {
+					config._ctx.adapter = adapter;
+				}
+			});
+		}
+	}
+	// Call the default adapter
+	if(!config._ctx.adapter) {
+		const integration = ssgAdapter();
+		config.integrations.push(integration);
+		if(integration.hooks['astro:config:done']) {
 			await integration.hooks['astro:config:done']({
 				config,
 				setAdapter(adapter) {
