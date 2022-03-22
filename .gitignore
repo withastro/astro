@@ -10,8 +10,8 @@ scripts/memory/project/src/pages/
 package-lock.json
 .turbo/
 
-# .vscode files other than at top-level
-**/.vscode
+# ignore top-level vscode settings
+/.vscode/settings.json
 
 # do not commit .env files or any files that end with `.env`
 *.env
