@@ -1,4 +1,5 @@
 import type * as vite from 'vite';
+import type { PluginContext } from 'rollup';
 import type { AstroConfig } from '../@types/astro';
 import type { LogOptions } from '../core/logger.js';
 
@@ -82,7 +83,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				return id;
 			}
 		},
-		async load(id, opts) {
+		async load(this: PluginContext, id, opts) {
 			const parsedId = parseAstroRequest(id);
 			const query = parsedId.query;
 			if (!id.endsWith('.astro') && !query.astro) {

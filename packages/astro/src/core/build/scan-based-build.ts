@@ -1,4 +1,5 @@
 import type { ViteDevServer } from 'vite';
+import type { RollupOutput, RollupWatcher } from 'rollup';
 import type { AstroConfig, RouteType } from '../../@types/astro';
 import type { AllPagesData, PageBuildData } from './types';
 import type { LogOptions } from '../logger';
@@ -40,7 +41,7 @@ function routesOfType(type: RouteType, allPages: AllPagesData) {
 	return Object.entries(allPages).filter(entryIsType(type)).reduce(reduceEntries, {});
 }
 
-export async function build(opts: ScanBasedBuildOptions) {
+export async function build(opts: ScanBasedBuildOptions): Promise<RollupOutput | RollupOutput[] | RollupWatcher> {
 	const { allPages, astroConfig, logging, origin, pageNames, routeCache, viteConfig, viteServer } = opts;
 
 	// Internal maps used to coordinate the HTML and CSS plugins.
