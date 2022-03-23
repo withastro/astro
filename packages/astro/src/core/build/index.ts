@@ -80,6 +80,7 @@ class AstroBuilder {
 		const buildConfig: BuildConfig = { staticMode: undefined };
 		await runHookBuildStart({ config: this.config, buildConfig });
 
+		info(this.logging, 'build', 'Collecting page data...');
 		timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
 			astroConfig: this.config,
