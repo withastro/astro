@@ -157,41 +157,41 @@ export interface AstroUserConfig {
 	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
 	renderers?: string[];
 
-  /**
-   * @docs
-   * @name markdownOptions
-   * @type {{render: MarkdownRenderOptions}}
-   * @see [Markdown guide](/en/guides/markdown-content/)
-   * @description
-   * Configure how markdown files (`.md`) are rendered.
-   *
-   * ```js
-   * import { defineConfig } from "astro/config";
-   * import astroRemark from "@astrojs/markdown-remark";
-   * import customRehypePlugin from "/path/to/rehypePlugin.mjs";
-   *
-   * export default defineConfig({
-   *   // Enable Custom Markdown options, plugins, etc.
-   *   markdownOptions: {
-   *     render: [
-   *       // The Remark parser to parse Markdown content
-   *       astroRemark,
-   *       {
-   *         // Add a Remark plugin to your project.
-   *         remarkPlugins: ["remark-code-titles"],
-   *
-   *         // Add a Rehype plugin to your project.
-   *         rehypePlugins: [
-   *           "rehype-slug",
-   *           [customRehypePlugin, { configKey: "value" }],
-   *           ["rehype-autolink-headings", { behavior: "prepend" }],
-   *         ],
-   *       },
-   *     ],
-   *   },
-   * });
-   * ```
-   */
+	/**
+	 * @docs
+	 * @name markdownOptions
+	 * @type {{render: MarkdownRenderOptions}}
+	 * @see [Markdown guide](/en/guides/markdown-content/)
+	 * @description
+	 * Configure how markdown files (`.md`) are rendered.
+	 *
+	 * ```js
+	 * import { defineConfig } from "astro/config";
+	 * import astroRemark from "@astrojs/markdown-remark";
+	 * import customRehypePlugin from "/path/to/rehypePlugin.mjs";
+	 *
+	 * export default defineConfig({
+	 *   // Enable Custom Markdown options, plugins, etc.
+	 *   markdownOptions: {
+	 *     render: [
+	 *       // The Remark parser to parse Markdown content
+	 *       astroRemark,
+	 *       {
+	 *         // Add a Remark plugin to your project.
+	 *         remarkPlugins: ["remark-code-titles"],
+	 *
+	 *         // Add a Rehype plugin to your project.
+	 *         rehypePlugins: [
+	 *           "rehype-slug",
+	 *           [customRehypePlugin, { configKey: "value" }],
+	 *           ["rehype-autolink-headings", { behavior: "prepend" }],
+	 *         ],
+	 *       },
+	 *     ],
+	 *   },
+	 * });
+	 * ```
+	 */
 	markdownOptions?: {
 		render?: MarkdownRenderOptions;
 	};
