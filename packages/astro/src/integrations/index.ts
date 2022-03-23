@@ -5,6 +5,10 @@ import { mergeConfig } from '../core/config.js';
 import ssgAdapter from '../adapter-ssg/index.js';
 
 export async function runHookConfigSetup({ config: _config, command }: { config: AstroConfig; command: 'dev' | 'build' }): Promise<AstroConfig> {
+	if(_config.adapter) {
+		_config.integrations.push(_config.adapter);
+	}
+
 	let updatedConfig: AstroConfig = { ..._config };
 	for (const integration of _config.integrations) {
 		if (integration.hooks['astro:config:setup']) {

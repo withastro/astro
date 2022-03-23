@@ -83,6 +83,7 @@ export const AstroConfigSchema = z.object({
 				message: `Astro integrations are still experimental, and only official integrations are currently supported`,
 			})
 	),
+	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	styleOptions: z
 		.object({
 			postcss: z

@@ -156,6 +156,16 @@ export interface AstroUserConfig {
 	 */
 	integrations?: AstroIntegration[];
 
+	/**
+	 * @docs
+	 * @name adapter
+	 * @type {AstroIntegration}
+	 * @default `undefined`
+	 * @description
+	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
+	 */
+	adapter?: AstroIntegration;
+
 	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
 	renderers?: string[];
 
@@ -455,6 +465,7 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
+	adapter: AstroIntegration;
 	// Private:
 	// We have a need to pass context based on configured state,
 	// that is different from the user-exposed configuration.

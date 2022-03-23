@@ -14,9 +14,7 @@ describe('Dynamic pages in SSR', () => {
 			buildOptions: {
 				experimentalSsr: true,
 			},
-			integrations: [
-				testAdapter()
-			]
+			adapter: testAdapter()
 		});
 		await fixture.build();
 	});

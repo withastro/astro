@@ -4,7 +4,8 @@ import nodejs from '@astrojs/node';
 
 // https://astro.build/config
 export default defineConfig({
-	integrations: [svelte(), nodejs()],
+	adapter: nodejs(),
+	integrations: [svelte()],
 	vite: {
 		server: {
 			cors: {
