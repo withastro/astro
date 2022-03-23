@@ -1,5 +1,18 @@
 # astro-vscode
 
+## 0.13.0
+
+### Minor Changes
+
+- 82b8891: Add HTML hover info, fix Astro directives producing errors, fix missing children property for JSX based frameworks
+
+### Patch Changes
+
+- Updated dependencies [9f4f907]
+- Updated dependencies [82b8891]
+- Updated dependencies [c09116f]
+  - @astrojs/language-server@0.13.0
+
 ## 0.12.1
 
 ### Patch Changes

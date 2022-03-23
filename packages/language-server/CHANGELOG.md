@@ -1,5 +1,16 @@
 # @astrojs/language-server
 
+## 0.13.0
+
+### Minor Changes
+
+- 82b8891: Add HTML hover info, fix Astro directives producing errors, fix missing children property for JSX based frameworks
+
+### Patch Changes
+
+- 9f4f907: Add CSS hover info
+- c09116f: Add support for Document Symbols (Outline tab, breadcrumb navigation)
+
 ## 0.12.1
 
 ### Patch Changes
