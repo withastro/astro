@@ -15,7 +15,9 @@ import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js'
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginSSR } from './vite-plugin-ssr.js';
+import { vitePluginPages } from './vite-plugin-pages.js';
 import { generatePages } from './generate.js';
+import { trackPageData } from './internal.js';
 import { getClientRoot, getServerRoot, getOutRoot } from './common.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -36,6 +38,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
 		const astroModuleId = prependForwardSlash(component);
+
+		// Track the page data in internals
+		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
 
 		if (pageData.route.type === 'page') {
 			const [renderers, mod] = pageData.preload;
@@ -84,7 +89,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	if(opts.buildConfig.staticMode) {
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
-		await cleanSsrOutput(opts);
+		//await cleanSsrOutput(opts);
 	} else {
 		await ssrMoveAssets(opts);
 	}
@@ -106,11 +111,11 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			outDir: fileURLToPath(out),
 			ssr: true,
 			rollupOptions: {
-				input: Array.from(input),
+				input: [],// TODO can we remove this? Array.from(input),
 				output: {
 					format: 'esm',
-					entryFileNames: '[name].[hash].mjs',
-					chunkFileNames: 'chunks/[name].[hash].mjs',
+					entryFileNames: 'astro-entry.mjs',
+					//chunkFileNames: 'chunks/[name].[hash].mjs',
 					assetFileNames: 'assets/[name].[hash][extname]',
 				},
 			},
@@ -123,6 +128,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		},
 		plugins: [
 			vitePluginInternals(input, internals),
+			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
 			}),

@@ -7,8 +7,11 @@ import type { SerializedRouteInfo, SerializedSSRManifest } from '../app/types';
 
 import { chunkIsPage, rootRelativeFacadeId, getByFacadeId } from './generate.js';
 import { serializeRouteData } from '../routing/index.js';
+import { getPageDataByComponent } from './internal.js';
+import { addRollupInput } from './add-rollup-input.js';
+import { virtualModuleId as pagesVirtualModuleId } from './vite-plugin-pages.js';
 
-const virtualModuleId = '@astrojs-ssr-virtual-entry';
+export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 
@@ -16,13 +19,7 @@ export function vitePluginSSR(buildOpts: StaticBuildOptions, internals: BuildInt
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
 		options(opts) {
-			if(Array.isArray(opts.input)) {
-				opts.input.push(virtualModuleId);
-			} else {
-				return {
-					input: [virtualModuleId]
-				};
-			}
+			return addRollupInput(opts, [virtualModuleId]);
 		},
 		resolveId(id) {
 			if(id === virtualModuleId) {
@@ -32,6 +29,7 @@ export function vitePluginSSR(buildOpts: StaticBuildOptions, internals: BuildInt
 		load(id) {
 			if(id === resolvedVirtualModuleId) {
 				return `import * as adapter from '${adapter.serverEntrypoint}';
+import _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
 const _manifest = _deserializeManifest('${manifestReplace}');
 
@@ -88,9 +86,9 @@ function buildManifest(bundle: OutputBundle, opts: StaticBuildOptions, internals
 		}
 
 		const chunk = rootRelativeIdToChunkMap.get(componentPath)!;
-		const facadeId = chunk.facadeModuleId!;
-		const links = getByFacadeId<string[]>(facadeId, internals.facadeIdToAssetsMap) || [];
-		const hoistedScript = getByFacadeId<string>(facadeId, internals.facadeIdToHoistedEntryMap);
+		const pageData = getPageDataByComponent(internals, routeData.component);
+		const links: string[] = Array.from(pageData?.css ?? []);
+		const hoistedScript = pageData?.hoistedScript ?? null;
 		const scripts = hoistedScript ? [hoistedScript] : [];
 
 		routes.push({

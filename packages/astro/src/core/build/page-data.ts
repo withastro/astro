@@ -40,8 +40,13 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 		// static route:
 		if (route.pathname) {
 			allPages[route.component] = {
+				component: route.component,
 				route,
 				paths: [route.pathname],
+				moduleSpecifier: '',
+				css: new Set(),
+				hoistedScript: undefined,
+				scripts: new Set(),
 				preload: await ssrPreload({
 					astroConfig,
 					filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
@@ -96,8 +101,13 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 		}
 		const finalPaths = result.staticPaths.map((staticPath) => staticPath.params && route.generate(staticPath.params)).filter(Boolean);
 		allPages[route.component] = {
+			component: route.component,
 			route,
 			paths: finalPaths,
+			moduleSpecifier: '',
+			css: new Set(),
+			hoistedScript: undefined,
+			scripts: new Set(),
 			preload: await ssrPreload({
 				astroConfig,
 				filePath: new URL(`./${route.component}`, astroConfig.projectRoot),
