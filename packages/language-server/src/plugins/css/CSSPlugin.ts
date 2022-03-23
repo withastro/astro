@@ -8,6 +8,7 @@ import {
 	Hover,
 	Position,
 	Range,
+	SymbolInformation,
 } from 'vscode-languageserver';
 import { ConfigManager } from '../../core/config/ConfigManager';
 import { LSCSSConfig } from '../../core/config/interfaces';
@@ -20,6 +21,7 @@ import {
 	mapHoverToParent,
 	mapObjWithRangeToOriginal,
 	mapRangeToGenerated,
+	mapSymbolInformationToOriginal,
 	TagInformation,
 } from '../../core/documents';
 import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
@@ -203,6 +205,20 @@ export class CSSPlugin implements Plugin {
 		});
 
 		return flatten(allColorPres);
+	}
+
+	getDocumentSymbols(document: AstroDocument): SymbolInformation[] {
+		if (!this.featureEnabled('documentSymbols')) {
+			return [];
+		}
+
+		const allDocumentSymbols = this.getCSSDocumentsForDocument(document).map((cssDoc) => {
+			return getLanguageService(extractLanguage(cssDoc))
+				.findDocumentSymbols(cssDoc, cssDoc.stylesheet)
+				.map((symbol) => mapSymbolInformationToOriginal(cssDoc, symbol));
+		});
+
+		return flatten(allDocumentSymbols);
 	}
 
 	private inStyleAttributeWithoutInterpolation(

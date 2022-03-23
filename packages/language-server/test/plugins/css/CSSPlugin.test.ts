@@ -1,19 +1,18 @@
 import { expect } from 'chai';
-import { ConfigManager } from '../../../src/core/config';
 import { CSSPlugin } from '../../../src/plugins';
-import { Hover, Position, Range } from 'vscode-languageserver-types';
+import { Hover, Position, Range, SymbolKind } from 'vscode-languageserver-types';
 import { CompletionContext } from 'vscode-languageserver-protocol';
-import { AstroDocument, DocumentManager } from '../../../src/core/documents';
+import { createEnvironment } from '../../utils';
 
 describe('CSS Plugin', () => {
 	function setup(content: string) {
-		const document = new AstroDocument('file:///hello.astro', content);
-		const docManager = new DocumentManager(() => document);
-		const configManager = new ConfigManager();
-		const plugin = new CSSPlugin(configManager);
-		docManager.openDocument(<any>'some doc');
+		const env = createEnvironment(content);
+		const plugin = new CSSPlugin(env.configManager);
 
-		return { plugin, document, configManager };
+		return {
+			...env,
+			plugin,
+		};
 	}
 
 	describe('provide completions', () => {
@@ -42,6 +41,15 @@ describe('CSS Plugin', () => {
 			expect(completions1, 'Expected completions1 to not be empty').to.not.be.null;
 			expect(completions2.items, 'Expected completions2 to be an array').to.be.an('array');
 			expect(completions2, 'Expected completions2 to not be empty').to.not.be.null;
+		});
+
+		it('in style attributes', () => {
+			const { plugin, document } = setup('<div style=""></div>');
+
+			const completions = plugin.getCompletions(document, Position.create(0, 12));
+
+			expect(completions.items, 'Expected completions to be an array').to.be.an('array');
+			expect(completions, 'Expected completions to not be empty').to.not.be.null;
 		});
 
 		it('for :global modifier', () => {
@@ -128,6 +136,44 @@ describe('CSS Plugin', () => {
 
 			expect(configManager.enabled(`css.hover.enabled`), 'Expected hover to be disabled in configManager').to.be.false;
 			expect(hoverInfo, 'Expected hoverInfo to be null').to.be.null;
+		});
+	});
+
+	describe('provides document symbols', () => {
+		it('for normal CSS', () => {
+			const { plugin, document } = setup('<style>h1 {color: red;}</style>');
+
+			const symbols = plugin.getDocumentSymbols(document);
+
+			expect(symbols).to.deep.equal([
+				{
+					name: 'h1',
+					kind: SymbolKind.Class,
+					location: {
+						range: Range.create(0, 7, 0, 23),
+						uri: 'file:///hello.astro',
+					},
+				},
+			]);
+		});
+
+		it('for multiple style tags', () => {
+			const { plugin, document } = setup('<style>h1 {color: red;}</style><style>h2 {color: blue;}</style>');
+
+			const symbols = plugin.getDocumentSymbols(document);
+
+			expect(symbols).to.deep.equal([
+				{
+					name: 'h1',
+					kind: SymbolKind.Class,
+					location: { uri: 'file:///hello.astro', range: Range.create(0, 7, 0, 23) },
+				},
+				{
+					name: 'h2',
+					kind: SymbolKind.Class,
+					location: { uri: 'file:///hello.astro', range: Range.create(0, 38, 0, 55) },
+				},
+			]);
 		});
 	});
 

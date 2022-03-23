@@ -6,6 +6,7 @@ import {
 	CompletionItemKind,
 	FoldingRange,
 	Hover,
+	SymbolInformation,
 } from 'vscode-languageserver';
 import { doComplete as getEmmetCompletions } from '@vscode/emmet-helper';
 import { getLanguageService } from 'vscode-html-languageservice';
@@ -130,6 +131,19 @@ export class HTMLPlugin implements Plugin {
 		}
 
 		return this.lang.doTagComplete(document, position, html);
+	}
+
+	getDocumentSymbols(document: AstroDocument): SymbolInformation[] {
+		if (!this.featureEnabled('documentSymbols')) {
+			return [];
+		}
+
+		const html = document.html;
+		if (!html) {
+			return [];
+		}
+
+		return this.lang.findDocumentSymbols(document, html);
 	}
 
 	/**

@@ -1,18 +1,17 @@
 import { expect } from 'chai';
 import { Hover, Position, Range } from 'vscode-languageserver-types';
-import { ConfigManager } from '../../../src/core/config';
-import { AstroDocument, DocumentManager } from '../../../src/core/documents';
+import { createEnvironment } from '../../utils';
 import { HTMLPlugin } from '../../../src/plugins';
 
 describe('HTML Plugin', () => {
 	function setup(content: string) {
-		const document = new AstroDocument('file:///hello.astro', content);
-		const docManager = new DocumentManager(() => document);
-		const configManager = new ConfigManager();
-		const plugin = new HTMLPlugin(configManager);
-		docManager.openDocument(<any>'some doc');
+		const env = createEnvironment(content);
+		const plugin = new HTMLPlugin(env.configManager);
 
-		return { plugin, document, configManager };
+		return {
+			...env,
+			plugin,
+		};
 	}
 
 	describe('provide completions', () => {
@@ -107,6 +106,29 @@ describe('HTML Plugin', () => {
 
 			expect(configManager.enabled(`html.hover.enabled`), 'Expected hover to be disabled in configManager').to.be.false;
 			expect(hoverInfo, 'Expected hoverInfo to be null').to.be.null;
+		});
+	});
+
+	describe('provides document symbols', () => {
+		it('for html', () => {
+			const { plugin, document } = setup('<div><p>Astro</p></div>');
+
+			const symbols = plugin.getDocumentSymbols(document);
+
+			expect(symbols).to.deep.equal([
+				{
+					name: 'div',
+					location: { uri: 'file:///hello.astro', range: Range.create(0, 0, 0, 23) },
+					containerName: '',
+					kind: 8,
+				},
+				{
+					name: 'p',
+					location: { uri: 'file:///hello.astro', range: Range.create(0, 5, 0, 17) },
+					containerName: 'div',
+					kind: 8,
+				},
+			]);
 		});
 	});
 });

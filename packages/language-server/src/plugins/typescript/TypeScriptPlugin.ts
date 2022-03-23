@@ -10,6 +10,7 @@ import {
 	Position,
 	SignatureHelp,
 	SignatureHelpContext,
+	SymbolInformation,
 	TextDocumentContentChangeEvent,
 	WorkspaceEdit,
 } from 'vscode-languageserver';
@@ -31,6 +32,7 @@ import {
 	isVirtualFilePath,
 	toVirtualAstroFilePath,
 } from './utils';
+import { DocumentSymbolsProviderImpl } from './features/DocumentSymbolsProvider';
 
 type BetterTS = typeof ts & {
 	getTouchingPropertyName(sourceFile: SourceFile, pos: number): Node;
@@ -46,6 +48,7 @@ export class TypeScriptPlugin implements Plugin {
 	private readonly hoverProvider: HoverProviderImpl;
 	private readonly signatureHelpProvider: SignatureHelpProviderImpl;
 	private readonly diagnosticsProvider: DiagnosticsProviderImpl;
+	private readonly documentSymbolsProvider: DocumentSymbolsProviderImpl;
 
 	constructor(docManager: DocumentManager, configManager: ConfigManager, workspaceUris: string[]) {
 		this.configManager = configManager;
@@ -55,9 +58,14 @@ export class TypeScriptPlugin implements Plugin {
 		this.hoverProvider = new HoverProviderImpl(this.languageServiceManager);
 		this.signatureHelpProvider = new SignatureHelpProviderImpl(this.languageServiceManager);
 		this.diagnosticsProvider = new DiagnosticsProviderImpl(this.languageServiceManager);
+		this.documentSymbolsProvider = new DocumentSymbolsProviderImpl(this.languageServiceManager);
 	}
 
 	async doHover(document: AstroDocument, position: Position): Promise<Hover | null> {
+		if (!this.featureEnabled('hover')) {
+			return null;
+		}
+
 		return this.hoverProvider.doHover(document, position);
 	}
 
@@ -91,11 +99,25 @@ export class TypeScriptPlugin implements Plugin {
 		return edit;
 	}
 
+	async getDocumentSymbols(document: AstroDocument): Promise<SymbolInformation[]> {
+		if (!this.featureEnabled('documentSymbols')) {
+			return [];
+		}
+
+		const symbols = await this.documentSymbolsProvider.getDocumentSymbols(document);
+
+		return symbols;
+	}
+
 	async getCompletions(
 		document: AstroDocument,
 		position: Position,
 		completionContext?: CompletionContext
 	): Promise<AppCompletionList<CompletionEntryWithIdentifer> | null> {
+		if (!this.featureEnabled('completions')) {
+			return null;
+		}
+
 		const completions = await this.completionProvider.getCompletions(document, position, completionContext);
 
 		return completions;

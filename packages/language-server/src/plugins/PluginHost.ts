@@ -18,6 +18,7 @@ import {
 	TextDocumentContentChangeEvent,
 	TextDocumentIdentifier,
 	WorkspaceEdit,
+	SymbolInformation,
 } from 'vscode-languageserver';
 import type { AppCompletionItem, Plugin, LSProvider } from './interfaces';
 import { flatten } from 'lodash';
@@ -112,6 +113,17 @@ export class PluginHost {
 		).filter((completion) => completion != null);
 
 		return foldingRanges;
+	}
+
+	async getDocumentSymbols(
+		textDocument: TextDocumentIdentifier,
+		cancellationToken: CancellationToken
+	): Promise<SymbolInformation[]> {
+		const document = this.getDocument(textDocument.uri);
+
+		return flatten(
+			await this.execute<SymbolInformation[]>('getDocumentSymbols', [document, cancellationToken], ExecuteMode.Collect)
+		);
 	}
 
 	async getDefinitions(

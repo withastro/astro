@@ -35,7 +35,7 @@ export class CompletionsProviderImpl implements CompletionsProvider<CompletionEn
 		position: Position,
 		_completionContext?: CompletionContext
 	): Promise<AppCompletionList<CompletionEntryWithIdentifer> | null> {
-		// TODO: handle inside expression
+		// TODO: handle inside expression and script tags
 		if (!isInsideFrontmatter(document.getText(), document.offsetAt(position))) {
 			return null;
 		}

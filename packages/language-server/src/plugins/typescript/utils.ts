@@ -1,9 +1,58 @@
 import ts from 'typescript';
 import { dirname, extname } from 'path';
 import { pathToUrl } from '../../utils';
-import { CompletionItemKind, DiagnosticSeverity, Position, Range } from 'vscode-languageserver';
+import { CompletionItemKind, DiagnosticSeverity, Position, Range, SymbolKind } from 'vscode-languageserver';
 import { mapRangeToOriginal } from '../../core/documents';
 import { SnapshotFragment } from './snapshots/DocumentSnapshot';
+
+export function symbolKindFromString(kind: string): SymbolKind {
+	switch (kind) {
+		case 'module':
+			return SymbolKind.Module;
+		case 'class':
+			return SymbolKind.Class;
+		case 'local class':
+			return SymbolKind.Class;
+		case 'interface':
+			return SymbolKind.Interface;
+		case 'enum':
+			return SymbolKind.Enum;
+		case 'enum member':
+			return SymbolKind.Constant;
+		case 'var':
+			return SymbolKind.Variable;
+		case 'local var':
+			return SymbolKind.Variable;
+		case 'function':
+			return SymbolKind.Function;
+		case 'local function':
+			return SymbolKind.Function;
+		case 'method':
+			return SymbolKind.Method;
+		case 'getter':
+			return SymbolKind.Method;
+		case 'setter':
+			return SymbolKind.Method;
+		case 'property':
+			return SymbolKind.Property;
+		case 'constructor':
+			return SymbolKind.Constructor;
+		case 'parameter':
+			return SymbolKind.Variable;
+		case 'type parameter':
+			return SymbolKind.Variable;
+		case 'alias':
+			return SymbolKind.Variable;
+		case 'let':
+			return SymbolKind.Variable;
+		case 'const':
+			return SymbolKind.Constant;
+		case 'JSX attribute':
+			return SymbolKind.Property;
+		default:
+			return SymbolKind.Variable;
+	}
+}
 
 export function scriptElementKindToCompletionItemKind(kind: ts.ScriptElementKind): CompletionItemKind {
 	switch (kind) {
