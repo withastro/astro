@@ -238,9 +238,6 @@ async function createLanguageService(tsconfigPath: string, docContext: LanguageS
 
 		// Everything here will always, unconditionally, be in the resulting config
 		const forcedCompilerOptions: ts.CompilerOptions = {
-			// Our TSX is currently not typed, which unfortunately means that we can't support `noImplicitAny`
-			noImplicitAny: false,
-
 			noEmit: true,
 			declaration: false,
 

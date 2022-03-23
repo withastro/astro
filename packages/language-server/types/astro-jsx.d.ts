@@ -447,7 +447,7 @@ declare namespace astroHTML.JSX {
 		classid?: string | undefined | null;
 		cols?: number | undefined | null;
 		colspan?: number | undefined | null;
-		content?: string | undefined | null;
+		content?: string | URL | undefined | null;
 		contenteditable?: 'true' | 'false' | boolean | undefined | null;
 
 		// Doesn't work when used as HTML attribute
@@ -566,6 +566,7 @@ declare namespace astroHTML.JSX {
 		tabindex?: number | undefined | null;
 		target?: string | undefined | null;
 		title?: string | undefined | null;
+		translate?: 'yes' | 'no' | '' | undefined | null;
 		type?: string | undefined | null;
 		usemap?: string | undefined | null;
 		value?: any | undefined | null;
@@ -873,18 +874,18 @@ declare namespace astroHTML.JSX {
 		x?: number | string | undefined | null;
 		xChannelSelector?: string | undefined | null;
 		'x-height'?: number | string | undefined | null;
-		xlinkActuate?: string | undefined | null;
-		xlinkArcrole?: string | undefined | null;
-		xlinkHref?: string | undefined | null;
-		xlinkRole?: string | undefined | null;
-		xlinkShow?: string | undefined | null;
-		xlinkTitle?: string | undefined | null;
-		xlinkType?: string | undefined | null;
-		xmlBase?: string | undefined | null;
-		xmlLang?: string | undefined | null;
+		'xlink:actuate'?: string | undefined | null;
+		'xlink:arcrole'?: string | undefined | null;
+		'xlink:href'?: string | undefined | null;
+		'xlink:role'?: string | undefined | null;
+		'xlink:show'?: string | undefined | null;
+		'xlink:title'?: string | undefined | null;
+		'xlink:type'?: string | undefined | null;
+		'xml:base'?: string | undefined | null;
+		'xml:lang'?: string | undefined | null;
 		xmlns?: string | undefined | null;
-		xmlnsXlink?: string | undefined | null;
-		xmlSpace?: string | undefined | null;
+		'xmlns:xlink'?: string | undefined | null;
+		'xml:space'?: string | undefined | null;
 		y1?: number | string | undefined | null;
 		y2?: number | string | undefined | null;
 		y?: number | string | undefined | null;
@@ -1000,10 +1001,10 @@ declare namespace astroHTML.JSX {
 		sup: HTMLProps<HTMLElement>;
 		table: HTMLProps<HTMLTableElement>;
 		tbody: HTMLProps<HTMLTableSectionElement>;
-		td: HTMLProps<HTMLTableDataCellElement>;
+		td: HTMLProps<HTMLTableCellElement>;
 		textarea: HTMLProps<HTMLTextAreaElement>;
 		tfoot: HTMLProps<HTMLTableSectionElement>;
-		th: HTMLProps<HTMLTableHeaderCellElement>;
+		th: HTMLProps<HTMLTableCellElement>;
 		thead: HTMLProps<HTMLTableSectionElement>;
 		time: HTMLProps<HTMLElement>;
 		title: HTMLProps<HTMLTitleElement>;
@@ -1017,7 +1018,7 @@ declare namespace astroHTML.JSX {
 
 		svg: SVGProps<SVGSVGElement>;
 
-		animate: SVGProps<SVGElement>; // @TODO: It is SVGAnimateElement but not in dom.d.ts for now.
+		animate: SVGProps<SVGAnimateElement>;
 		circle: SVGProps<SVGCircleElement>;
 		clipPath: SVGProps<SVGClipPathElement>;
 		defs: SVGProps<SVGDefsElement>;
