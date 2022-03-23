@@ -8,13 +8,14 @@ import type { RenderOptions } from '../../core/render/core';
 import fs from 'fs';
 import npath from 'path';
 import { fileURLToPath } from 'url';
-import { debug, error } from '../../core/logger.js';
+import { debug, error, info } from '../../core/logger.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { resolveDependency } from '../../core/util.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 import { getOutRoot, getOutFolder, getOutFile } from './common.js';
+import { bgMagenta, black, cyan, magenta } from 'kleur/colors';
 
 // Render is usually compute, which Node.js can't parallelize well.
 // In real world testing, dropping from 10->1 showed a notiable perf
@@ -103,6 +104,7 @@ async function generatePage(
 	renderers: SSRLoadedRenderer[]
 ) {
 	const { astroConfig } = opts;
+	info(opts.logging, null, `\n${bgMagenta(black(' generating static routes '))}\n`);
 
 	let url = new URL('./' + output.fileName, getOutRoot(astroConfig));
 	const facadeId: string = output.facadeModuleId as string;
@@ -125,6 +127,9 @@ async function generatePage(
 		mod: compiledModule,
 		renderers,
 	};
+
+	const icon = pageData.route.type === 'page' ? cyan('</>') : magenta('{-}');
+	info(opts.logging, null, `${icon} ${pageData.route.component}`);
 
 	const renderPromises = [];
 	// Throttle the paths to avoid overloading the CPU with too many tasks.

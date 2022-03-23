@@ -102,7 +102,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	} else {
 		await ssrMoveAssets(opts);
 	}
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.generate, performance.now())}`));
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.generate, performance.now())} (includes setup + teardown)`));
 	info(opts.logging, null, '\n');
 }
 
