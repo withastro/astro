@@ -1,5 +1,6 @@
 import type { SSRManifest } from 'astro';
 import type { IncomingMessage, ServerResponse } from 'http';
+import type { Readable } from 'stream';
 import { NodeApp } from 'astro/app/node';
 import { polyfill } from '@astrojs/webapi';
 
@@ -35,13 +36,8 @@ async function writeWebResponse(res: ServerResponse, webResponse: Response) {
 	const { status, headers, body } = webResponse;
 	res.writeHead(status, Object.fromEntries(headers.entries()));
 	if (body) {
-		const reader = body.getReader();
-		while (true) {
-			const { done, value } = await reader.read();
-			if (done) break;
-			if (value) {
-				res.write(value);
-			}
+		for await(const chunk of (body as unknown as Readable)) {
+			res.write(chunk);
 		}
 	}
 	res.end();

@@ -20,6 +20,7 @@ polyfill(globalThis, {
  * @typedef {import('../src/core/dev/index').DevServer} DevServer
  * @typedef {import('../src/@types/astro').AstroConfig} AstroConfig
  * @typedef {import('../src/core/preview/index').PreviewServer} PreviewServer
+ * @typedef {import('../src/core/app/index').App} App
  *
  *
  * @typedef {Object} Fixture
@@ -30,6 +31,7 @@ polyfill(globalThis, {
  * @property {() => Promise<DevServer>} startDevServer
  * @property {() => Promise<PreviewServer>} preview
  * @property {() => Promise<void>} clean
+ * @property {() => Promise<App>} loadTestAdapterApp
  */
 
 /**
@@ -85,6 +87,11 @@ export async function loadFixture(inlineConfig) {
 		readFile: (filePath) => fs.promises.readFile(new URL(filePath.replace(/^\//, ''), config.dist), 'utf8'),
 		readdir: (fp) => fs.promises.readdir(new URL(fp.replace(/^\//, ''), config.dist)),
 		clean: () => fs.promises.rm(config.dist, { maxRetries: 10, recursive: true, force: true }),
+		loadTestAdapterApp: async () => {
+			const url = new URL('./server/entry.mjs', config.dist);
+			const {createApp} = await import(url);
+			return createApp();
+		}
 	};
 }
 

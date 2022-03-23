@@ -7,8 +7,11 @@ import type { SerializedRouteInfo, SerializedSSRManifest } from '../app/types';
 
 import { chunkIsPage, rootRelativeFacadeId, getByFacadeId } from './generate.js';
 import { serializeRouteData } from '../routing/index.js';
+import { getPageDataByComponent, eachPageData } from './internal.js';
+import { addRollupInput } from './add-rollup-input.js';
+import { virtualModuleId as pagesVirtualModuleId } from './vite-plugin-pages.js';
 
-const virtualModuleId = '@astrojs-ssr-virtual-entry';
+export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
 const manifestReplace = '@@ASTRO_MANIFEST_REPLACE@@';
 
@@ -16,13 +19,7 @@ export function vitePluginSSR(buildOpts: StaticBuildOptions, internals: BuildInt
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
 		options(opts) {
-			if (Array.isArray(opts.input)) {
-				opts.input.push(virtualModuleId);
-			} else {
-				return {
-					input: [virtualModuleId],
-				};
-			}
+			return addRollupInput(opts, [virtualModuleId]);
 		},
 		resolveId(id) {
 			if (id === virtualModuleId) {
@@ -32,8 +29,12 @@ export function vitePluginSSR(buildOpts: StaticBuildOptions, internals: BuildInt
 		load(id) {
 			if (id === resolvedVirtualModuleId) {
 				return `import * as adapter from '${adapter.serverEntrypoint}';
+import * as _main from '${pagesVirtualModuleId}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
-const _manifest = _deserializeManifest('${manifestReplace}');
+const _manifest = Object.assign(_deserializeManifest('${manifestReplace}'), {
+	pageMap: _main.pageMap,
+	renderers: _main.renderers
+});
 
 ${
 	adapter.exports
@@ -51,11 +52,11 @@ if(_start in adapter) {
 		},
 
 		generateBundle(opts, bundle) {
-			const manifest = buildManifest(bundle, buildOpts, internals);
-
-			for (const [_chunkName, chunk] of Object.entries(bundle)) {
-				if (chunk.type === 'asset') continue;
-				if (chunk.modules[resolvedVirtualModuleId]) {
+			const manifest = buildManifest(buildOpts, internals);
+			
+			for(const [_chunkName, chunk] of Object.entries(bundle)) {
+				if(chunk.type === 'asset') continue;
+				if(chunk.modules[resolvedVirtualModuleId]) {
 					const exp = new RegExp(`['"]${manifestReplace}['"]`);
 					const code = chunk.code;
 					chunk.code = code.replace(exp, () => {
@@ -68,40 +69,22 @@ if(_start in adapter) {
 	};
 }
 
-function buildManifest(bundle: OutputBundle, opts: StaticBuildOptions, internals: BuildInternals): SerializedSSRManifest {
-	const { astroConfig, manifest } = opts;
-
-	const rootRelativeIdToChunkMap = new Map<string, OutputChunk>();
-	for (const [_outputName, output] of Object.entries(bundle)) {
-		if (chunkIsPage(astroConfig, output, internals)) {
-			const chunk = output as OutputChunk;
-			if (chunk.facadeModuleId) {
-				const id = rootRelativeFacadeId(chunk.facadeModuleId, astroConfig);
-				rootRelativeIdToChunkMap.set(id, chunk);
-			}
-		}
-	}
+function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): SerializedSSRManifest {
+	const { astroConfig } = opts;
 
 	const routes: SerializedRouteInfo[] = [];
 
-	for (const routeData of manifest.routes) {
-		const componentPath = routeData.component;
-
-		if (!rootRelativeIdToChunkMap.has(componentPath)) {
-			throw new Error('Unable to find chunk for ' + componentPath);
+	for(const pageData of eachPageData(internals)) {
+		const scripts = Array.from(pageData.scripts);
+		if(pageData.hoistedScript) {
+			scripts.unshift(pageData.hoistedScript);
 		}
 
-		const chunk = rootRelativeIdToChunkMap.get(componentPath)!;
-		const facadeId = chunk.facadeModuleId!;
-		const links = getByFacadeId<string[]>(facadeId, internals.facadeIdToAssetsMap) || [];
-		const hoistedScript = getByFacadeId<string>(facadeId, internals.facadeIdToHoistedEntryMap);
-		const scripts = hoistedScript ? [hoistedScript] : [];
-
 		routes.push({
-			file: chunk.fileName,
-			links,
+			file: '',
+			links: Array.from(pageData.css),
 			scripts,
-			routeData: serializeRouteData(routeData),
+			routeData: serializeRouteData(pageData.route),
 		});
 	}
 
@@ -115,7 +98,8 @@ function buildManifest(bundle: OutputBundle, opts: StaticBuildOptions, internals
 		markdown: {
 			render: astroConfig.markdownOptions.render,
 		},
-		renderers: astroConfig._ctx.renderers,
+		pageMap: null as any,
+		renderers: [],
 		entryModules,
 	};
 

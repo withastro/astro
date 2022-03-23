@@ -1,4 +1,5 @@
 import type { AstroConfig, RouteType } from '../../@types/astro';
+import type { StaticBuildOptions } from './types';
 import npath from 'path';
 import { appendForwardSlash } from '../../core/path.js';
 

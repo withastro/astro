@@ -133,6 +133,10 @@ export function emptyDir(_dir: URL, skip?: Set<string>): void {
 	}
 }
 
+export function isBuildingToSSR(config: AstroConfig): boolean {
+	return !!config._ctx.adapter?.serverEntrypoint;
+}
+
 // Vendored from https://github.com/genmon/aboutfeeds/blob/main/tools/pretty-feed-v3.xsl
 /** Basic stylesheet for RSS feeds */
 export const PRETTY_FEED_V3 = `<?xml version="1.0" encoding="utf-8"?>
@@ -235,3 +239,4 @@ This file is in BETA. Please test and contribute to the discussion:
     </html>
   </xsl:template>
 </xsl:stylesheet>`;
+
