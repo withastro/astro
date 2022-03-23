@@ -94,7 +94,7 @@
     "prismjs": "^1.27.0",
     "rehype-slug": "^5.0.1",
     "resolve": "^1.22.0",
-    "rollup": "~2.62.0",
+    "rollup": "^2.70.1",
     "semver": "^7.3.5",
     "serialize-javascript": "^6.0.0",
     "shiki": "^0.10.1",
