@@ -1,5 +1,11 @@
 # @astrojs/language-server
 
+## 0.13.1
+
+### Patch Changes
+
+- ea74fdb: Publish failed
+
 ## 0.13.0
 
 ### Minor Changes
