@@ -585,6 +585,23 @@ importers:
       mocha: 9.2.2
       sass: 1.49.9
 
+  packages/astro-check:
+    specifiers:
+      '@astrojs/language-server': ^0.12.1
+      astro: 0.25.0-next.2
+      astro-scripts: workspace:*
+      kleur: ^4.1.4
+      yargs-parser: ^21.0.1
+      zod: ^3.14.2
+    dependencies:
+      '@astrojs/language-server': 0.12.1
+      astro: link:../astro
+      kleur: 4.1.4
+      yargs-parser: 21.0.1
+      zod: 3.14.2
+    devDependencies:
+      astro-scripts: link:../../scripts
+
   packages/astro-prism:
     specifiers:
       prismjs: ^1.27.0
@@ -1636,6 +1653,24 @@ packages:
       uvu: 0.5.3
     dev: false
 
+  /@astrojs/language-server/0.12.1:
+    resolution: {integrity: sha512-LgU0pORDTYzAbxXS85ZyLs1MR5txF2Uj9wZZv4PyoHU5K2QIPhyghYn9Rh6NmlDMI7Q2aWotB8c/UbuNy9e8pA==}
+    hasBin: true
+    dependencies:
+      '@astrojs/svelte-language-integration': 0.1.1_typescript@4.6.2
+      '@vscode/emmet-helper': 2.8.4
+      lodash: 4.17.21
+      source-map: 0.7.3
+      typescript: 4.6.2
+      vscode-css-languageservice: 5.2.0
+      vscode-html-languageservice: 4.2.4
+      vscode-languageserver: 7.0.0
+      vscode-languageserver-protocol: 3.16.0
+      vscode-languageserver-textdocument: 1.0.4
+      vscode-languageserver-types: 3.16.0
+      vscode-uri: 3.0.3
+    dev: false
+
   /@astrojs/language-server/0.8.10:
     resolution: {integrity: sha512-F3ceZrBKywnNkDq9mK/6RgRDAGUAv9Z45oljpBx9dlMQHnWOnPdJFWncw1jVItAT57SEflLJqTuFaDphKQAFtQ==}
     hasBin: true
@@ -1652,6 +1687,15 @@ packages:
       vscode-languageserver-textdocument: 1.0.4
       vscode-languageserver-types: 3.16.0
       vscode-uri: 3.0.3
+    dev: false
+
+  /@astrojs/svelte-language-integration/0.1.1_typescript@4.6.2:
+    resolution: {integrity: sha512-npUDO0bitzUC9oTDqVuup0yZObOF45GQ0IkaMf5wxe6XW30SIeyl1j8mdyjOv90vlJeothCKqnQ91qMudpq3Vg==}
+    dependencies:
+      svelte: 3.46.4
+      svelte2tsx: 0.5.6_svelte@3.46.4+typescript@4.6.2
+    transitivePeerDependencies:
+      - typescript
     dev: false
 
   /@babel/code-frame/7.16.7:
@@ -4237,6 +4281,17 @@ packages:
       vue: 3.2.31
     dev: false
 
+  /@vscode/emmet-helper/2.8.4:
+    resolution: {integrity: sha512-lUki5QLS47bz/U8IlG9VQ+1lfxMtxMZENmU5nu4Z71eOD5j9FK0SmYGL5NiVJg9WBWeAU0VxRADMY2Qpq7BfVg==}
+    dependencies:
+      emmet: 2.3.6
+      jsonc-parser: 2.3.1
+      vscode-languageserver-textdocument: 1.0.4
+      vscode-languageserver-types: 3.16.0
+      vscode-nls: 5.0.0
+      vscode-uri: 2.1.2
+    dev: false
+
   /@vue/compiler-core/3.2.31:
     resolution: {integrity: sha512-aKno00qoA4o+V/kR6i/pE+aP+esng5siNAVQ422TkBNM6qA4veXiZbSe8OTXHXquEi/f6Akc+nLfB4JGfe4/WQ==}
     dependencies:
@@ -5193,6 +5248,10 @@ packages:
     dependencies:
       mimic-response: 3.1.0
     dev: true
+
+  /dedent-js/1.0.1:
+    resolution: {integrity: sha1-vuX7fJ5yfYXf+iRZDRDsGrElUwU=}
+    dev: false
 
   /deep-eql/3.0.1:
     resolution: {integrity: sha512-+QeIQyN5ZuO+3Uk5DYh6/1eKO0m0YmJFGNmFHGACpf1ClL1nmlV/p4gNgbl2pJGxgXb4faqo6UE+M5ACEMyVcw==}
@@ -7327,6 +7386,12 @@ packages:
       get-func-name: 2.0.0
     dev: true
 
+  /lower-case/2.0.2:
+    resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
+    dependencies:
+      tslib: 2.3.1
+    dev: false
+
   /lru-cache/4.1.5:
     resolution: {integrity: sha512-sWZlbEP2OsHNkXrMl5GYk/jKk70MBng6UU4YI/qGDYbgf6YbP4EvmqISbXCoJiRKs+1bSpFHVgQxvJ17F2li5g==}
     dependencies:
@@ -8020,6 +8085,13 @@ packages:
       '@types/nlcst': 1.0.0
     dev: false
 
+  /no-case/3.0.4:
+    resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
+    dependencies:
+      lower-case: 2.0.2
+      tslib: 2.3.1
+    dev: false
+
   /node-abi/3.8.0:
     resolution: {integrity: sha512-tzua9qWWi7iW4I42vUPKM+SfaF0vQSLAm4yO5J83mSwB7GeoWrDKC/K+8YCnYNwqP5duwazbw2X9l4m8SC2cUw==}
     engines: {node: '>=10'}
@@ -8330,6 +8402,13 @@ packages:
 
   /parse5/6.0.1:
     resolution: {integrity: sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==}
+
+  /pascal-case/3.1.2:
+    resolution: {integrity: sha512-uWlGT3YSnK9x3BQJaOdcZwrnV6hPpd8jFH1/ucpiLRPh/2zCVJKS19E4GvYHvaCcACn3foXZ0cLB9Wrx1KGe5g==}
+    dependencies:
+      no-case: 3.0.4
+      tslib: 2.3.1
+    dev: false
 
   /path-browserify/1.0.1:
     resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
@@ -9640,6 +9719,18 @@ packages:
     resolution: {integrity: sha512-qKJzw6DpA33CIa+C/rGp4AUdSfii0DOTCzj/2YpSKKayw5WGSS624Et9L1nU1k2OVRS9vaENQXp2CVZNU+xvIg==}
     engines: {node: '>= 8'}
 
+  /svelte2tsx/0.5.6_svelte@3.46.4+typescript@4.6.2:
+    resolution: {integrity: sha512-B4WZUtoTdVD+F73H1RQEH3Hrv7m2/ahThmAUkjT5CTWRigQaJqYQpSjisCH1Pzfi9B37YikDnAi4u4uxwYM+iw==}
+    peerDependencies:
+      svelte: ^3.24
+      typescript: ^4.1.2
+    dependencies:
+      dedent-js: 1.0.1
+      pascal-case: 3.1.2
+      svelte: 3.46.4
+      typescript: 4.6.2
+    dev: false
+
   /tailwindcss/3.0.23_autoprefixer@10.4.4:
     resolution: {integrity: sha512-+OZOV9ubyQ6oI2BXEhzw4HrqvgcARY38xv3zKcjnWtMIZstEsXdI9xftd1iB7+RbOnj2HOEzkA0OyB5BaSxPQA==}
     engines: {node: '>=12.13.0'}
@@ -9824,7 +9915,6 @@ packages:
 
   /tslib/2.3.1:
     resolution: {integrity: sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==}
-    dev: true
 
   /tsm/2.2.1:
     resolution: {integrity: sha512-qvJB0baPnxQJolZru11mRgGTdNlx17WqgJnle7eht3Vhb+VUR4/zFA5hFl6NqRe7m8BD9w/6yu0B2XciRrdoJA==}
@@ -10409,6 +10499,15 @@ packages:
       vscode-uri: 2.1.2
     dev: false
 
+  /vscode-html-languageservice/4.2.4:
+    resolution: {integrity: sha512-1HqvXKOq9WlZyW4HTD+0XzrjZoZ/YFrgQY2PZqktbRloHXVAUKm6+cAcvZi4YqKPVn05/CK7do+KBHfuSaEdbg==}
+    dependencies:
+      vscode-languageserver-textdocument: 1.0.4
+      vscode-languageserver-types: 3.16.0
+      vscode-nls: 5.0.0
+      vscode-uri: 3.0.3
+    dev: false
+
   /vscode-jsonrpc/6.0.0:
     resolution: {integrity: sha512-wnJA4BnEjOSyFMvjZdpiOwhSq9uDoK8e/kpRJDTaMYzwlkrhG1fwDIZI94CLsLzlCK5cIbMMtFlJlfR57Lavmg==}
     engines: {node: '>=8.0.0 || >=10.0.0'}
@@ -10435,6 +10534,13 @@ packages:
 
   /vscode-languageserver/6.1.1:
     resolution: {integrity: sha512-DueEpkUAkD5XTR4MLYNr6bQIp/UFR0/IPApgXU3YfCBCB08u2sm9hRCs6DxYZELkk++STPjpcjksR2H8qI3cDQ==}
+    hasBin: true
+    dependencies:
+      vscode-languageserver-protocol: 3.16.0
+    dev: false
+
+  /vscode-languageserver/7.0.0:
+    resolution: {integrity: sha512-60HTx5ID+fLRcgdHfmz0LDZAXYEV68fzwG0JWwEPBode9NuMYTIxuYXPg4ngO8i8+Ou0lM7y6GzaYWbiDL0drw==}
     hasBin: true
     dependencies:
       vscode-languageserver-protocol: 3.16.0

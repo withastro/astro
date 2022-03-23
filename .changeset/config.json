@@ -2,7 +2,7 @@
   "$schema": "https://unpkg.com/@changesets/config@1.7.0/schema.json",
   "changelog": ["@changesets/changelog-github", { "repo": "withastro/astro" }],
   "commit": false,
-  "linked": [],
+  "linked": [["astro", "astro-check"]],
   "access": "public",
   "baseBranch": "main",
   "updateInternalDependencies": "patch",

@@ -19,6 +19,7 @@
     "./config": "./config.mjs",
     "./internal": "./internal.js",
     "./app/node": "./dist/core/app/node.js",
+    "./core/config": "./dist/core/config.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.js",
     "./components/*": "./components/*",
