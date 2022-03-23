@@ -169,16 +169,26 @@ class AstroBuilder {
 		await runHookBuildDone({ config: this.config, pages: pageNames });
 
 		if (logging.level && levels[logging.level] <= levels['info']) {
-			await this.printStats({ logging, timeStart: timer.init, pageCount: pageNames.length });
+			const buildMode = this.config.buildOptions.experimentalSsr ? 'ssr' : 'static';
+			await this.printStats({ logging, timeStart: timer.init, pageCount: pageNames.length, buildMode });
 		}
 	}
 
 	/** Stats */
-	private async printStats({ logging, timeStart, pageCount }: { logging: LogOptions; timeStart: number; pageCount: number }) {
+	private async printStats({ logging, timeStart, pageCount, buildMode }: { logging: LogOptions; timeStart: number; pageCount: number; buildMode: 'static' | 'ssr' }) {
 		const buildTime = performance.now() - timeStart;
 		const total = getTimeStat(timeStart, performance.now());
-		const perPage = `${Math.round(buildTime / pageCount)}ms`;
-		info(logging, 'build', `${pageCount} pages built in ${colors.bold(total)} ${colors.dim(`(${colors.bold(perPage)} avg per page + resources)`)}`);
+
+		let messages: string[] = [];
+		if (buildMode === 'static') {
+			const timePerPage = Math.round(buildTime / pageCount);
+			const perPageMsg = colors.dim(`(${colors.bold(`${timePerPage}ms`)} avg per page + resources)`);
+			messages = [`${pageCount} pages built in`, colors.bold(total), perPageMsg];
+		} else {
+			messages = ['Server built in', colors.bold(total)];
+		}
+
+		info(logging, 'build', messages.join(' '));
 		info(logging, 'build', `🚀 ${colors.cyan(colors.bold('Done'))}`);
 	}
 }
