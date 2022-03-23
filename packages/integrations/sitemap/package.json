@@ -1,7 +1,7 @@
 {
   "name": "@astrojs/sitemap",
   "description": "Generate a sitemap for Astro",
-  "version": "0.0.1",
+  "version": "0.0.2-next.0",
   "type": "module",
   "types": "./dist/index.d.ts",
   "author": "withastro",
@@ -11,6 +11,10 @@
     "url": "https://github.com/withastro/astro.git",
     "directory": "packages/integrations/sitemap"
   },
+  "keywords": [
+    "astro-component",
+    "seo"
+  ],
   "bugs": "https://github.com/withastro/astro/issues",
   "homepage": "https://astro.build",
   "exports": {

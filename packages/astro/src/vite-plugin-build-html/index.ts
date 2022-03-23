@@ -43,7 +43,7 @@ function relativePath(from: string, to: string): string {
 	return prependDotSlash(rel);
 }
 
-export function rollupPluginAstroBuildHTML(options: PluginOptions): VitePlugin {
+export function rollupPluginAstroScanHTML(options: PluginOptions): VitePlugin {
 	const { astroConfig, internals, logging, origin, allPages, routeCache, viteServer, pageNames } = options;
 
 	// The filepath root of the src folder

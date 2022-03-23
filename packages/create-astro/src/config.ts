@@ -1,4 +1,6 @@
-export const createConfig = ({ integrations }: { integrations: string[] }) => {
+import type { Integration } from './frameworks';
+
+export const createConfig = ({ integrations }: { integrations: Integration[] }) => {
 	if (integrations.length === 0) {
 		return `import { defineConfig } from 'astro/config';
 // https://astro.build/config
@@ -6,8 +8,8 @@ export default defineConfig({});
 `;
 	}
 
-	const rendererImports = integrations.map((r: string) => `  import ${r} from '@astrojs/${r === 'solid' ? 'solid-js' : r}';`);
-	const rendererIntegrations = integrations.map((r: string) => `    ${r}(),`);
+	const rendererImports = integrations.map((r) => `  import ${r.id} from '${r.packageName}';`);
+	const rendererIntegrations = integrations.map((r) => `    ${r.id}(),`);
 	return [
 		`import { defineConfig } from 'astro/config';`,
 		...rendererImports,

@@ -1,17 +1,27 @@
-import type { Plugin } from 'vite';
-import type { AstroConfig } from '../@types/astro';
-
+import { transform } from '@astrojs/compiler';
+import ancestor from 'common-ancestor-path';
 import esbuild from 'esbuild';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { transform } from '@astrojs/compiler';
+import type { Plugin } from 'vite';
+import type { AstroConfig } from '../@types/astro';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
 }
 
-/** Transform .astro files for Vite */
+// TODO: Clean up some of the shared logic between this Markdown plugin and the Astro plugin.
+// Both end up connecting a `load()` hook to the Astro compiler, and share some copy-paste
+// logic in how that is done.
 export default function markdown({ config }: AstroPluginOptions): Plugin {
+	function normalizeFilename(filename: string) {
+		if (filename.startsWith('/@fs')) {
+			filename = filename.slice('/@fs'.length);
+		} else if (filename.startsWith('/') && !ancestor(filename, config.projectRoot.pathname)) {
+			filename = new URL('.' + filename, config.projectRoot).pathname;
+		}
+		return filename;
+	}
+
 	return {
 		name: 'astro:markdown',
 		enforce: 'pre', // run transforms before other plugins can
@@ -50,12 +60,16 @@ ${setup}`.trim();
 					astroResult = `${prelude}\n${astroResult}`;
 				}
 
-				const filenameURL = new URL(`file://${id}`);
-				const pathname = filenameURL.pathname.substr(config.projectRoot.pathname.length - 1);
+				const filename = normalizeFilename(id);
+				const fileUrl = new URL(`file://${filename}`);
+				const isPage = filename.startsWith(config.pages.pathname);
+				if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
+					source += `\n<script hoist src="astro:scripts/page.js" />`;
+				}
 
 				// Transform from `.astro` to valid `.ts`
 				let { code: tsResult } = await transform(astroResult, {
-					pathname,
+					pathname: fileUrl.pathname.substr(config.projectRoot.pathname.length - 1),
 					projectRoot: config.projectRoot.toString(),
 					site: config.buildOptions.site,
 					sourcefile: id,

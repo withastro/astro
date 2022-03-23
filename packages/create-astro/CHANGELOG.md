@@ -1,5 +1,11 @@
 # create-astro
 
+## 0.8.0-next.0
+
+### Minor Changes
+
+- [#2843](https://github.com/withastro/astro/pull/2843) [`1fdb63b5`](https://github.com/withastro/astro/commit/1fdb63b5d000d17edca77e870ce721e616a9c64a) Thanks [@JuanM04](https://github.com/JuanM04)! - Automatically add integration `peerDependencies` to scaffolded `package.json` files
+
 ## 0.7.1
 
 ### Patch Changes

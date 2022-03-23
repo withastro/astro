@@ -273,7 +273,7 @@ export async function loadConfig(configOptions: LoadConfigOptions): Promise<Astr
 
 	if (flags?.config) {
 		userConfigPath = /^\.*\//.test(flags.config) ? flags.config : `./${flags.config}`;
-		userConfigPath = fileURLToPath(new URL(userConfigPath, `file://${root}/`));
+		userConfigPath = fileURLToPath(new URL(userConfigPath, pathToFileURL(root)));
 	}
 	// Automatically load config file using Proload
 	// If `userConfigPath` is `undefined`, Proload will search for `astro.config.[cm]?[jt]s`

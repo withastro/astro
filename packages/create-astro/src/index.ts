@@ -5,7 +5,8 @@ import fetch from 'node-fetch';
 import prompts from 'prompts';
 import degit from 'degit';
 import yargs from 'yargs-parser';
-import { FRAMEWORKS, COUNTER_COMPONENTS } from './frameworks.js';
+import ora from 'ora';
+import { FRAMEWORKS, COUNTER_COMPONENTS, Integration } from './frameworks.js';
 import { TEMPLATES } from './templates.js';
 import { createConfig } from './config.js';
 import { logger, defaultLogLevel } from './logger.js';
@@ -36,8 +37,9 @@ export async function main() {
 	console.log(`\n${bold('Welcome to Astro!')} ${gray(`(create-astro v${version})`)}`);
 	console.log(`If you encounter a problem, visit ${cyan('https://github.com/withastro/astro/issues')} to search or file a new issue.\n`);
 
-	console.log(`${green(`>`)} ${gray(`Prepare for liftoff.`)}`);
-	console.log(`${green(`>`)} ${gray(`Gathering mission details...`)}`);
+	let spinner = ora({ color: 'green', text: 'Prepare for liftoff.' });
+
+	spinner.succeed();
 
 	const cwd = (args['_'][2] as string) || '.';
 	if (fs.existsSync(cwd)) {
@@ -57,7 +59,7 @@ export async function main() {
 		mkdirp(cwd);
 	}
 
-	const options = /** @type {import('./types/internal').Options} */ await prompts([
+	const options = await prompts([
 		{
 			type: 'select',
 			name: 'template',
@@ -87,10 +89,10 @@ export async function main() {
 	});
 
 	const selectedTemplate = TEMPLATES.find((template) => template.value === options.template);
-	let integrations: string[] = [];
+	let integrations: Integration[] = [];
 
 	if (selectedTemplate?.integrations === true) {
-		const result = /** @type {import('./types/internal').Options} */ await prompts([
+		const result = await prompts([
 			{
 				type: 'multiselect',
 				name: 'integrations',
@@ -101,12 +103,13 @@ export async function main() {
 		integrations = result.integrations;
 	}
 
+	spinner = ora({ color: 'green', text: 'Copying project files...' }).start();
+
 	// Copy
 	try {
 		emitter.on('info', (info) => {
 			logger.debug(info.message);
 		});
-		console.log(`${green(`>`)} ${gray(`Copying project files...`)}`);
 		await emitter.clone(cwd);
 	} catch (err: any) {
 		// degit is compiled, so the stacktrace is pretty noisy. Only report the stacktrace when using verbose mode.
@@ -128,6 +131,7 @@ export async function main() {
 				)
 			);
 		}
+		spinner.fail();
 		process.exit(1);
 	}
 
@@ -154,14 +158,28 @@ export async function main() {
 					const packageJSON = JSON.parse(await fs.promises.readFile(fileLoc, 'utf8'));
 					delete packageJSON.snowpack; // delete snowpack config only needed in monorepo (can mess up projects)
 					// Fetch latest versions of selected integrations
-					const integrationEntries = (await Promise.all(
-						['astro', ...integrations].map((integration: string) =>
-							fetch(`https://registry.npmjs.org/@astrojs/${integration === 'solid' ? 'solid-js' : integration}/latest`)
-								.then((res: any) => res.json())
-								.then((res: any) => [res['name'], `^${res['version']}`])
+					const integrationEntries = (
+						await Promise.all(
+							integrations.map((integration) =>
+								fetch(`https://registry.npmjs.org/${integration.packageName}/latest`)
+									.then((res) => res.json())
+									.then((res: any) => {
+										let dependencies: [string, string][] = [[res['name'], `^${res['version']}`]];
+
+										if (res['peerDependencies']) {
+											for (const peer in res['peerDependencies']) {
+												dependencies.push([peer, res['peerDependencies'][peer]]);
+											}
+										}
+
+										return dependencies;
+									})
+							)
 						)
-					)) as any;
+					).flat(1);
+					// merge and sort dependencies
 					packageJSON.devDependencies = { ...(packageJSON.devDependencies ?? {}), ...Object.fromEntries(integrationEntries) };
+					packageJSON.devDependencies = Object.fromEntries(Object.entries(packageJSON.devDependencies).sort((a, b) => a[0].localeCompare(b[0])));
 					await fs.promises.writeFile(fileLoc, JSON.stringify(packageJSON, undefined, 2));
 					break;
 				}
@@ -174,8 +192,8 @@ export async function main() {
 		let importStatements: string[] = [];
 		let components: string[] = [];
 		await Promise.all(
-			integrations.map(async (integrations) => {
-				const component = COUNTER_COMPONENTS[integrations as keyof typeof COUNTER_COMPONENTS];
+			integrations.map(async (integration) => {
+				const component = COUNTER_COMPONENTS[integration.id as keyof typeof COUNTER_COMPONENTS];
 				const componentName = path.basename(component.filename, path.extname(component.filename));
 				const absFileLoc = path.resolve(cwd, component.filename);
 				importStatements.push(`import ${componentName} from '${component.filename.replace(/^src/, '..')}';`);
@@ -196,11 +214,11 @@ export async function main() {
 		await fs.promises.writeFile(pageFileLoc, newContent);
 	}
 
+	spinner.succeed();
 	console.log(bold(green('✔') + ' Done!'));
 
 	console.log('\nNext steps:');
 	let i = 1;
-
 	const relative = path.relative(process.cwd(), cwd);
 	if (relative !== '') {
 		console.log(`  ${i++}: ${bold(cyan(`cd ${relative}`))}`);

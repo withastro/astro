@@ -52,6 +52,9 @@ export interface AstroGlobal extends AstroGlobalPartial {
 
 export interface AstroGlobalPartial {
 	fetchContent<T = any>(globStr: string): Promise<FetchContentResult<T>[]>;
+	/**
+	 * @deprecated since version 0.24. See the {@link https://astro.build/deprecated/resolve upgrade guide} for more details.
+	 */
 	resolve: (path: string) => string;
 	site: URL;
 }

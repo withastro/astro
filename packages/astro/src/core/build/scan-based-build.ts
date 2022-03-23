@@ -7,7 +7,7 @@ import type { ViteConfigWithSSR } from '../create-vite.js';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
 import { createBuildInternals } from '../../core/build/internal.js';
-import { rollupPluginAstroBuildHTML } from '../../vite-plugin-build-html/index.js';
+import { rollupPluginAstroScanHTML } from '../../vite-plugin-build-html/index.js';
 import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js';
 import { RouteCache } from '../render/route-cache.js';
 
@@ -63,7 +63,7 @@ export async function build(opts: ScanBasedBuildOptions) {
 			target: 'es2020', // must match an esbuild target
 		},
 		plugins: [
-			rollupPluginAstroBuildHTML({
+			rollupPluginAstroScanHTML({
 				astroConfig,
 				internals,
 				logging,
