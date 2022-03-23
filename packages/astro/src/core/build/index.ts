@@ -138,7 +138,6 @@ class AstroBuilder {
 				viteServer: this.viteServer,
 			});
 		}
-		debug('build', timerMessage('Vite build finished', timer.buildStart));
 
 		// Write any additionally generated assets to disk.
 		timer.assetsStart = performance.now();
