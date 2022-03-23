@@ -12,7 +12,7 @@ In your astro.config.mjs use:
 import nodejs from '@astrojs/node';
 
 export default {
-  integrations: [nodejs()]
+  adapter: nodejs()
 }
 ```
 
