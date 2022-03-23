@@ -32,6 +32,8 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
 
+	const buildMode = astroConfig.buildOptions.experimentalSsr ? 'ssr' : 'static';
+
 	// Collect all routes ahead-of-time, before we start the build.
 	// NOTE: This enforces that `getStaticPaths()` is only called once per route,
 	// and is then cached across all future SSR builds. In the past, we've had trouble
@@ -48,8 +50,12 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 					viteServer,
 				})
 					.then((routes) => {
-						const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
-						debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
+						if (buildMode === 'static') {
+							const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
+							debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
+						} else {
+							debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component}`);
+						}
 						return routes;
 					})
 					.catch((err) => {
