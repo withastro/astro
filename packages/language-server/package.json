@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/language-server",
-  "version": "0.13.1",
+  "version": "0.13.2",
   "author": "withastro",
   "license": "MIT",
   "type": "commonjs",
@@ -19,7 +19,7 @@
     "test": "cross-env TS_NODE_TRANSPILE_ONLY=true mocha --require ts-node/register \"test/**/*.ts\" --exclude \"test/**/*.d.ts\""
   },
   "dependencies": {
-    "@astrojs/svelte-language-integration": "^0.1.0",
+    "@astrojs/svelte-language-integration": "^0.1.2",
     "@vscode/emmet-helper": "^2.8.4",
     "lodash": "^4.17.21",
     "source-map": "^0.7.3",

@@ -1,5 +1,12 @@
 # astro-vscode
 
+## 0.13.2
+
+### Patch Changes
+
+- Updated dependencies [aff8b76]
+  - @astrojs/language-server@0.13.2
+
 ## 0.13.1
 
 ### Patch Changes
