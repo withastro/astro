@@ -12,20 +12,18 @@ import { prependForwardSlash } from '../path.js';
 export class App {
 	#manifest: Manifest;
 	#manifestData: ManifestData;
-	#rootFolder: URL;
 	#routeDataToRouteInfo: Map<RouteData, RouteInfo>;
 	#routeCache: RouteCache;
-	#renderersPromise: Promise<SSRLoadedRenderer[]>;
+	#encoder = new TextEncoder();
 
-	constructor(manifest: Manifest, rootFolder: URL) {
+	constructor(manifest: Manifest) {
 		this.#manifest = manifest;
 		this.#manifestData = {
 			routes: manifest.routes.map((route) => route.routeData),
 		};
-		this.#rootFolder = rootFolder;
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#routeCache = new RouteCache(defaultLogOptions);
-		this.#renderersPromise = this.#loadRenderers();
+		this
 	}
 	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
@@ -44,7 +42,8 @@ export class App {
 
 		const manifest = this.#manifest;
 		const info = this.#routeDataToRouteInfo.get(routeData!)!;
-		const [mod, renderers] = await Promise.all([this.#loadModule(info.file), this.#renderersPromise]);
+		const mod = this.#manifest.pageMap.get(routeData.component)!;
+		const renderers = this.#manifest.renderers;
 
 		const url = new URL(request.url);
 		const links = createLinkStylesheetElementSet(info.links, manifest.site);
@@ -80,26 +79,13 @@ export class App {
 		}
 
 		let html = result.html;
-		return new Response(html, {
+		let bytes = this.#encoder.encode(html);
+		return new Response(bytes, {
 			status: 200,
+			headers: {
+				'Content-Type': 'text/html',
+				'Content-Length': bytes.byteLength.toString()
+			}
 		});
-	}
-	async #loadRenderers(): Promise<SSRLoadedRenderer[]> {
-		return await Promise.all(
-			this.#manifest.renderers.map(async (renderer) => {
-				const mod = (await import(renderer.serverEntrypoint)) as { default: SSRLoadedRenderer['ssr'] };
-				return { ...renderer, ssr: mod.default };
-			})
-		);
-	}
-	async #loadModule(rootRelativePath: string): Promise<ComponentInstance> {
-		let modUrl = new URL(rootRelativePath, this.#rootFolder).toString();
-		let mod: ComponentInstance;
-		try {
-			mod = await import(modUrl);
-			return mod;
-		} catch (err) {
-			throw new Error(`Unable to import ${modUrl}. Does this file exist?`);
-		}
 	}
 }
