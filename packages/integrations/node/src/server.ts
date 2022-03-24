@@ -36,7 +36,7 @@ async function writeWebResponse(res: ServerResponse, webResponse: Response) {
 	const { status, headers, body } = webResponse;
 	res.writeHead(status, Object.fromEntries(headers.entries()));
 	if (body) {
-		for await(const chunk of (body as unknown as Readable)) {
+		for await (const chunk of body as unknown as Readable) {
 			res.write(chunk);
 		}
 	}

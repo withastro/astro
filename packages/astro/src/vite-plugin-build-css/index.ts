@@ -138,7 +138,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
 			if (chunk.type === 'chunk') {
 				const fileName = this.getFileName(referenceId);
-				for(const pageData of getPageDatasByChunk(internals, chunk)) {
+				for (const pageData of getPageDatasByChunk(internals, chunk)) {
 					pageData.css.add(fileName);
 				}
 			}
@@ -160,7 +160,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				if (chunk.type === 'chunk') {
 					// This find shared chunks of CSS and adds them to the main CSS chunks,
 					// so that shared CSS is added to the page.
-					for(const { css: cssSet } of getPageDatasByChunk(internals, chunk)) {
+					for (const { css: cssSet } of getPageDatasByChunk(internals, chunk)) {
 						for (const imp of chunk.imports) {
 							if (internals.chunkToReferenceIdMap.has(imp) && !pureChunkFilenames.has(imp)) {
 								const referenceId = internals.chunkToReferenceIdMap.get(imp)!;

@@ -1,4 +1,3 @@
-
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from './internal.js';
 import type { StaticBuildOptions } from './types';
@@ -14,23 +13,23 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 		name: '@astro/plugin-build-pages',
 
 		options(options) {
-			if(!isBuildingToSSR(opts.astroConfig)) {
+			if (!isBuildingToSSR(opts.astroConfig)) {
 				return addRollupInput(options, [virtualModuleId]);
 			}
 		},
 
 		resolveId(id) {
-			if(id === virtualModuleId) {
+			if (id === virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
 		},
 
 		load(id) {
-			if(id === resolvedVirtualModuleId) {
+			if (id === resolvedVirtualModuleId) {
 				let importMap = '';
 				let imports = [];
 				let i = 0;
-				for(const pageData of eachPageData(internals)) {
+				for (const pageData of eachPageData(internals)) {
 					const variable = `_page${i}`;
 					imports.push(`import * as ${variable} from '${pageData.moduleSpecifier}';`);
 					importMap += `['${pageData.component}', ${variable}],`;
@@ -39,10 +38,10 @@ export function vitePluginPages(opts: StaticBuildOptions, internals: BuildIntern
 
 				i = 0;
 				let rendererItems = '';
-				for(const renderer of opts.astroConfig._ctx.renderers) {
+				for (const renderer of opts.astroConfig._ctx.renderers) {
 					const variable = `_renderer${i}`;
 					imports.push(`import ${variable} from '${renderer.serverEntrypoint}';`);
-					rendererItems += `Object.assign(${JSON.stringify(renderer)}, { ssr: ${variable} }),`
+					rendererItems += `Object.assign(${JSON.stringify(renderer)}, { ssr: ${variable} }),`;
 					i++;
 				}
 
@@ -53,6 +52,6 @@ export const renderers = [${rendererItems}];`;
 
 				return def;
 			}
-		}
+		},
 	};
 }

@@ -89,9 +89,9 @@ export async function loadFixture(inlineConfig) {
 		clean: () => fs.promises.rm(config.dist, { maxRetries: 10, recursive: true, force: true }),
 		loadTestAdapterApp: async () => {
 			const url = new URL('./server/entry.mjs', config.dist);
-			const {createApp} = await import(url);
+			const { createApp } = await import(url);
 			return createApp();
-		}
+		},
 	};
 }
 

@@ -54,10 +54,10 @@ if(_start in adapter) {
 
 		generateBundle(_opts, bundle) {
 			const manifest = buildManifest(buildOpts, internals);
-			
-			for(const [_chunkName, chunk] of Object.entries(bundle)) {
-				if(chunk.type === 'asset') continue;
-				if(chunk.modules[resolvedVirtualModuleId]) {
+
+			for (const [_chunkName, chunk] of Object.entries(bundle)) {
+				if (chunk.type === 'asset') continue;
+				if (chunk.modules[resolvedVirtualModuleId]) {
 					const exp = new RegExp(`['"]${manifestReplace}['"]`);
 					const code = chunk.code;
 					chunk.code = code.replace(exp, () => {
@@ -74,9 +74,9 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 
 	const routes: SerializedRouteInfo[] = [];
 
-	for(const pageData of eachPageData(internals)) {
+	for (const pageData of eachPageData(internals)) {
 		const scripts = Array.from(pageData.scripts);
-		if(pageData.hoistedScript) {
+		if (pageData.hoistedScript) {
 			scripts.unshift(pageData.hoistedScript);
 		}
 

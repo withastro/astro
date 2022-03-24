@@ -32,15 +32,15 @@ export interface BuildInternals {
 	chunkToReferenceIdMap: Map<string, string>;
 
 	/**
-	* This is a mapping of pathname to the string source of all collected inline <style> for a page.
-	* @deprecated This Map is only used for the legacy build.
-	*/
+	 * This is a mapping of pathname to the string source of all collected inline <style> for a page.
+	 * @deprecated This Map is only used for the legacy build.
+	 */
 	astroStyleMap: Map<string, string>;
-	
+
 	/**
-	* This is a virtual JS module that imports all dependent styles for a page.
-	* @deprecated This Map is only used for the legacy build.
-	*/
+	 * This is a virtual JS module that imports all dependent styles for a page.
+	 * @deprecated This Map is only used for the legacy build.
+	 */
 	astroPageStyleMap: Map<string, string>;
 }
 
@@ -82,30 +82,29 @@ export function trackPageData(internals: BuildInternals, component: string, page
 	internals.pagesByViteID.set(viteID(componentURL), pageData);
 }
 
-
-export function * getPageDatasByChunk(internals: BuildInternals, chunk: RenderedChunk): Generator<PageBuildData, void, unknown> {
+export function* getPageDatasByChunk(internals: BuildInternals, chunk: RenderedChunk): Generator<PageBuildData, void, unknown> {
 	const pagesByViteID = internals.pagesByViteID;
-	for(const [modulePath] of Object.entries(chunk.modules)) {
-		if(pagesByViteID.has(modulePath)) {
+	for (const [modulePath] of Object.entries(chunk.modules)) {
+		if (pagesByViteID.has(modulePath)) {
 			yield pagesByViteID.get(modulePath)!;
 		}
 	}
 }
 
 export function getPageDataByComponent(internals: BuildInternals, component: string): PageBuildData | undefined {
-	if(internals.pagesByComponent.has(component)) {
+	if (internals.pagesByComponent.has(component)) {
 		return internals.pagesByComponent.get(component);
 	}
 	return undefined;
 }
 
 export function getPageDataByViteID(internals: BuildInternals, viteid: ViteID): PageBuildData | undefined {
-	if(internals.pagesByViteID.has(viteid)) {
+	if (internals.pagesByViteID.has(viteid)) {
 		return internals.pagesByViteID.get(viteid);
 	}
 	return undefined;
 }
 
-export function * eachPageData(internals: BuildInternals) {
-	yield * internals.pagesByComponent.values();
+export function* eachPageData(internals: BuildInternals) {
+	yield* internals.pagesByComponent.values();
 }
