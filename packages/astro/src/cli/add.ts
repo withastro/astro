@@ -9,9 +9,9 @@ import prompts from 'prompts';
 import preferredPM from 'preferred-pm';
 import { resolveConfigURL } from '../core/config.js';
 import { apply as applyPolyfill } from '../core/polyfill.js';
-import { error, info, debug, LogOptions, warn } from '../core/logger.js';
+import { error, info, debug, LogOptions } from '../core/logger.js';
 import * as msg from '../core/messages.js';
-import { dim, red, cyan, green, bold } from 'kleur/colors';
+import { dim, red, cyan, green, bold, magenta } from 'kleur/colors';
 import { parseNpmName } from '../core/util.js';
 import { t, parse, visit, ensureImport, wrapDefaultExport, generate } from '../transform/index.js';
 
@@ -103,6 +103,16 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 	switch (installResult) {
 		case UpdateResult.updated: {
 			const len = integrations.length;
+			if (integrations.find(integration => integration.id === 'tailwind')) {
+					const DEFAULT_TAILWIND_CONFIG = `module.exports = {
+	content: [],
+	theme: {
+		extend: {},
+	},
+	plugins: [],
+}\n`
+					await fs.writeFile(fileURLToPath(new URL('./tailwind.config.mjs', configURL)), DEFAULT_TAILWIND_CONFIG);
+			}
 			info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project`));
 			return
 		}
@@ -201,12 +211,12 @@ async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOpti
 		{ margin: 0.5, padding: 0.5, borderStyle: 'round', title: configURL.pathname.split('/').pop() }
 	)}\n`;
 
-	info(logging, null, message);
+	info(logging, null, `\n  ${magenta('Astro will update your configuration with these changes...')}\n${message}`);
 
 	const response = await prompts({
 		type: 'confirm',
 		name: 'updateConfig',
-		message: 'These changes will be written to your configuration file.\n  Continue?',
+		message: 'Continue?',
 		initial: true,
 	});
 
@@ -251,11 +261,11 @@ async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), log
 		info(logging, null);
 	} else {
 		const message = `\n${boxen(cyan(cmd), { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
-		info(logging, null, `\n  Astro will install these integrations with the following command:${message}`);
+		info(logging, null, `\n  ${magenta('Astro will run the following command to install...')}\n${message}`);
 		const response = await prompts({
 			type: 'confirm',
 			name: 'installDependencies',
-			message: 'Run command?',
+			message: 'Continue?',
 			initial: true,
 		});
 
