@@ -5,7 +5,7 @@ import AddToCart from '../../components/AddToCart.svelte';
 import { getProduct } from '../../api';
 import '../../styles/common.css';
 
-const id = Number(Astro.request.params.id);
+const id = Number(Astro.params.id);
 const product = await getProduct(id);
 ---
 
