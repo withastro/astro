@@ -8,7 +8,7 @@ import type { RenderOptions } from '../../core/render/core';
 import fs from 'fs';
 import npath from 'path';
 import { fileURLToPath } from 'url';
-import { debug, error } from '../../core/logger.js';
+import { debug, error, info } from '../../core/logger.js';
 import { prependForwardSlash } from '../../core/path.js';
 import { resolveDependency } from '../../core/util.js';
 import { call as callEndpoint } from '../endpoint/index.js';
@@ -16,6 +16,8 @@ import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 import { getOutRoot, getOutFolder, getOutFile, getServerRoot } from './common.js';
 import { getPageDataByComponent, eachPageData } from './internal.js';
+import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
+import { getTimeStat } from './util.js';
 
 // Render is usually compute, which Node.js can't parallelize well.
 // In real world testing, dropping from 10->1 showed a notiable perf
@@ -66,7 +68,7 @@ export function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | Outp
 }
 
 export async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
-	debug('build', 'Finish build. Begin generating.');
+	info(opts.logging, null, `\n${bgMagenta(black(' generating static routes '))}\n`);
 
 	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
 	const outFolder = ssr ? getServerRoot(opts.astroConfig) : getOutRoot(opts.astroConfig);
@@ -85,6 +87,7 @@ async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SingleFileBuiltModule
 ) {
+  let timeStart = performance.now();
 	const renderers = ssrEntry.renderers;
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
@@ -106,14 +109,29 @@ async function generatePage(
 		renderers,
 	};
 
-	const renderPromises = [];
+	const icon = pageData.route.type === 'page' ? cyan('</>') : magenta('{-}');
+	info(opts.logging, null, `${icon} ${pageData.route.component}`);
+
 	// Throttle the paths to avoid overloading the CPU with too many tasks.
+	const renderPromises = [];
 	for (const paths of throttle(MAX_CONCURRENT_RENDERS, pageData.paths)) {
 		for (const path of paths) {
 			renderPromises.push(generatePath(path, opts, generationOptions));
 		}
 		// This blocks generating more paths until these 10 complete.
 		await Promise.all(renderPromises);
+		const timeEnd = performance.now();
+		const timeChange = getTimeStat(timeStart, timeEnd);
+		let shouldLogTimeChange = !getTimeStat(timeStart, timeEnd).startsWith('0');
+		for (const path of paths) {
+			const timeIncrease = shouldLogTimeChange ? ` ${dim(`+${timeChange}`)}` : '';
+			info(opts.logging, null, `    ${dim('┃')} ${path}${timeIncrease}`);
+			// Should only log build time on the first generated path
+			// Logging for all generated paths adds extra noise
+			shouldLogTimeChange = false;
+		}
+		// Reset timeStart for the next batch of rendered paths
+		timeStart = performance.now();
 		// This empties the array without allocating a new one.
 		renderPromises.length = 0;
 	}
