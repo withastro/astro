@@ -4,7 +4,7 @@ import * as vite from 'vite';
 import type { AstroConfig } from '../../@types/astro';
 import { runHookConfigDone, runHookConfigSetup, runHookServerDone, runHookServerSetup, runHookServerStart } from '../../integrations/index.js';
 import { createVite } from '../create-vite.js';
-import { defaultLogOptions, info, LogOptions, warn } from '../logger.js';
+import { defaultLogOptions, info, LogOptions, warn, warnIfUsingExperimentalSSR } from '../logger.js';
 import * as msg from '../messages.js';
 import { apply as applyPolyfill } from '../polyfill.js';
 import { getResolvedHostForVite } from './util.js';
@@ -32,6 +32,7 @@ export default async function dev(config: AstroConfig, options: DevOptions = { l
 		{ astroConfig: config, logging: options.logging, mode: 'dev' }
 	);
 	await runHookConfigDone({ config });
+	warnIfUsingExperimentalSSR(options.logging, config);
 	const viteServer = await vite.createServer(viteConfig);
 	runHookServerSetup({ config, server: viteServer });
 	await viteServer.listen(config.devOptions.port);

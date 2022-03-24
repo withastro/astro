@@ -1,6 +1,6 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
-import { AstroConfig, AstroRenderer, BuildConfig } from '../@types/astro.js';
+import { AstroConfig, AstroRenderer, BuildConfig, RouteData } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
 import ssgAdapter from '../adapter-ssg/index.js';
 
@@ -91,10 +91,10 @@ export async function runHookBuildStart({ config, buildConfig }: { config: Astro
 	}
 }
 
-export async function runHookBuildDone({ config, pages }: { config: AstroConfig; pages: string[] }) {
+export async function runHookBuildDone({ config, pages, routes }: { config: AstroConfig; pages: string[], routes: RouteData[] }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:done']) {
-			await integration.hooks['astro:build:done']({ pages: pages.map((p) => ({ pathname: p })), dir: config.dist });
+			await integration.hooks['astro:build:done']({ pages: pages.map((p) => ({ pathname: p })), dir: config.dist, routes });
 		}
 	}
 }

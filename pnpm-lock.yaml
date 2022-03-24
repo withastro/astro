@@ -1177,6 +1177,19 @@ importers:
       astro: link:../../astro
       astro-scripts: link:../../../scripts
 
+  packages/integrations/netlify:
+    specifiers:
+      '@astrojs/webapi': ^0.11.0
+      '@netlify/functions': ^1.0.0
+      astro: workspace:*
+      astro-scripts: workspace:*
+    dependencies:
+      '@astrojs/webapi': link:../../webapi
+    devDependencies:
+      '@netlify/functions': 1.0.0
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
   packages/integrations/node:
     specifiers:
       '@astrojs/webapi': ^0.11.0
@@ -3412,6 +3425,13 @@ packages:
       nanostores: 0.5.12
       vue: 3.2.31
     dev: false
+
+  /@netlify/functions/1.0.0:
+    resolution: {integrity: sha512-7fnJv3vr8uyyyOYPChwoec6MjzsCw1CoRUO2DhQ1BD6bOyJRlD4DUaOOGlMILB2LCT8P24p5LexEGx8AJb7xdA==}
+    engines: {node: '>=8.3.0'}
+    dependencies:
+      is-promise: 4.0.0
+    dev: true
 
   /@nodelib/fs.scandir/2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -7000,6 +7020,10 @@ packages:
   /is-plain-object/5.0.0:
     resolution: {integrity: sha512-VRSzKkbMm5jMDoKLbltAkFQ5Qr7VDiTFGXxYFXXowVj387GeGNOCsOH6Msy00SGZ3Fp84b1Naa1psqgcCIEP5Q==}
     engines: {node: '>=0.10.0'}
+    dev: true
+
+  /is-promise/4.0.0:
+    resolution: {integrity: sha512-hvpoI6korhJMnej285dSg6nu1+e6uxs7zG3BYAm5byqDsgJNWwxzM6z6iZiAgQR4TJ30JmBTOwqZUw3WlyH3AQ==}
     dev: true
 
   /is-regex/1.1.4:

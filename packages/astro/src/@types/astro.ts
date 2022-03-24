@@ -39,6 +39,9 @@ export interface CLIFlags {
 }
 
 export interface BuildConfig {
+	client: URL;
+	server: URL;
+	serverEntry: string;
 	staticMode: boolean | undefined;
 }
 
@@ -617,6 +620,7 @@ export interface AstroAdapter {
 	name: string;
 	serverEntrypoint?: string;
 	exports?: string[];
+	args?: any;
 }
 
 export interface EndpointOutput<Output extends Body = Body> {
@@ -670,7 +674,7 @@ export interface AstroIntegration {
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
 		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
-		'astro:build:done'?: (options: { pages: { pathname: string }[]; dir: URL }) => void | Promise<void>;
+		'astro:build:done'?: (options: { pages: { pathname: string }[]; dir: URL; routes: RouteData[] }) => void | Promise<void>;
 	};
 }
 
