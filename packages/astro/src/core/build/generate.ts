@@ -85,7 +85,7 @@ export function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | Outp
 }
 
 export async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
-	debug('build', 'Finish build. Begin generating.');
+	info(opts.logging, null, `\n${bgMagenta(black(' generating static routes '))}\n`);
 
 	// Get renderers to be shared for each page generation.
 	const renderers = await loadRenderers(opts.astroConfig);
@@ -106,7 +106,6 @@ async function generatePage(
 ) {
 	let timeStart = performance.now();
 	const { astroConfig } = opts;
-	info(opts.logging, null, `\n${bgMagenta(black(' generating static routes '))}\n`);
 
 	let url = new URL('./' + output.fileName, getOutRoot(astroConfig));
 	const facadeId: string = output.facadeModuleId as string;
