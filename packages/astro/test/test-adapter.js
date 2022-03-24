@@ -22,7 +22,7 @@ export default function () {
 									}
 								},
 								load(id) {
-									if(id === '@my-ssr') {
+									if (id === '@my-ssr') {
 										return `import { App } from 'astro/app';export function createExports(manifest) { return { manifest, createApp: () => new App(manifest) }; }`;
 									}
 								},

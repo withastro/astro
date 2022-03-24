@@ -150,8 +150,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			isBuildingToSSR(opts.astroConfig) &&
-			vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
+			isBuildingToSSR(opts.astroConfig) && vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,

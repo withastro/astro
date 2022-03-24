@@ -239,4 +239,3 @@ This file is in BETA. Please test and contribute to the discussion:
     </html>
   </xsl:template>
 </xsl:stylesheet>`;
-

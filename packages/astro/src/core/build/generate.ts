@@ -74,7 +74,7 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 	const ssrEntryURL = new URL(`./entry.mjs?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 
-	for(const pageData of eachPageData(internals)) {
+	for (const pageData of eachPageData(internals)) {
 		await generatePage(opts, internals, pageData, ssrEntry);
 	}
 }
@@ -86,7 +86,7 @@ async function generatePage(
 	pageData: PageBuildData,
 	ssrEntry: SingleFileBuiltModule
 ) {
-  let timeStart = performance.now();
+	let timeStart = performance.now();
 	const renderers = ssrEntry.renderers;
 
 	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
@@ -95,7 +95,7 @@ async function generatePage(
 
 	const pageModule = ssrEntry.pageMap.get(pageData.component);
 
-	if(!pageModule) {
+	if (!pageModule) {
 		throw new Error(`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`);
 	}
 

@@ -13,7 +13,7 @@ describe('API routes in SSR', () => {
 			buildOptions: {
 				experimentalSsr: true,
 			},
-			adapter: testAdapter()
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 	});

@@ -43,9 +43,9 @@ export class App {
 
 		const mod = this.#manifest.pageMap.get(routeData.component)!;
 
-		if(routeData.type === 'page') {
+		if (routeData.type === 'page') {
 			return this.#renderPage(request, routeData, mod);
-		} else if(routeData.type === 'endpoint') {
+		} else if (routeData.type === 'endpoint') {
 			return this.#callEndpoint(request, routeData, mod);
 		} else {
 			throw new Error(`Unsupported route type [${routeData.type}].`);
@@ -95,8 +95,8 @@ export class App {
 			status: 200,
 			headers: {
 				'Content-Type': 'text/html',
-				'Content-Length': bytes.byteLength.toString()
-			}
+				'Content-Length': bytes.byteLength.toString(),
+			},
 		});
 	}
 
@@ -113,20 +113,20 @@ export class App {
 			ssr: true,
 		});
 
-		if(result.type === 'response') {
+		if (result.type === 'response') {
 			return result.response;
 		} else {
 			const body = result.body;
 			const headers = new Headers();
 			const mimeType = mime.getType(url.pathname);
-			if(mimeType) {
+			if (mimeType) {
 				headers.set('Content-Type', mimeType);
 			}
 			const bytes = this.#encoder.encode(body);
 			headers.set('Content-Length', bytes.byteLength.toString());
 			return new Response(bytes, {
 				status: 200,
-				headers
+				headers,
 			});
 		}
 	}
