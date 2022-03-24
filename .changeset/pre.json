@@ -53,19 +53,29 @@
     "@astrojs/renderer-svelte": "0.5.2",
     "@astrojs/renderer-vue": "0.4.0",
     "@astrojs/webapi": "0.11.0",
-    "astro-scripts": "0.0.2"
+    "astro-scripts": "0.0.2",
+    "@astrojs/node": "0.0.1"
   },
   "changesets": [
+    "cyan-pigs-ring",
     "eighty-trees-thank",
     "forty-badgers-relate",
     "fuzzy-lies-nail",
+    "hot-plants-help",
     "lemon-needles-count",
+    "modern-adults-dance",
     "moody-trees-allow",
+    "perfect-ravens-count",
     "rude-panthers-tease",
     "rude-starfishes-drop",
+    "rude-trainers-repeat",
     "silent-walls-tan",
+    "silly-sloths-hammer",
+    "small-horses-protect",
     "spotty-houses-stare",
+    "strong-bears-knock",
     "tidy-jobs-beg",
-    "twenty-kiwis-tease"
+    "twenty-kiwis-tease",
+    "wise-garlics-bathe"
   ]
 }
