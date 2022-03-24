@@ -1,26 +1,19 @@
 import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
-import type { PageBuildData } from './types';
-import type { AstroConfig, AstroRenderer, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
 import type { PageBuildData, StaticBuildOptions, SingleFileBuiltModule } from './types';
 import type { BuildInternals } from '../../core/build/internal.js';
 import type { RenderOptions } from '../../core/render/core';
 
 import fs from 'fs';
-import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
 import npath from 'path';
-import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
-import type { AstroConfig, AstroRenderer, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
-import type { BuildInternals } from '../../core/build/internal.js';
 import { debug, error, info } from '../../core/logger.js';
 import { prependForwardSlash } from '../../core/path.js';
-import type { RenderOptions } from '../../core/render/core';
-import { resolveDependency } from '../../core/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
-import { getOutFile, getOutRoot, getOutFolder, getOutFile, getServerRoot } from './common.js';
+import { getOutFile, getOutRoot, getOutFolder, getServerRoot } from './common.js';
 import { getPageDataByComponent, eachPageData } from './internal.js';
 import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
 import { getTimeStat } from './util.js';
