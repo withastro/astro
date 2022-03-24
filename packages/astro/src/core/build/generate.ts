@@ -132,19 +132,8 @@ async function generatePage(
 	const icon = pageData.route.type === 'page' ? cyan('</>') : magenta('{-}');
 	info(opts.logging, null, `${icon} ${pageData.route.component}`);
 
+	// Throttle the paths to avoid overloading the CPU with too many tasks.
 	const renderPromises = [];
-	// Throttle the paths to avoid overloading the CPU with too many tasks.
-	for (const paths of throttle(MAX_CONCURRENT_RENDERS, pageData.paths)) {
-		for (const path of paths) {
-			renderPromises.push(generatePath(path, opts, generationOptions));
-		}
-		// This blocks generating more paths until these 10 complete.
-		await Promise.all(renderPromises);
-		// This empties the array without allocating a new one.
-		renderPromises.length = 0;
-	}
-
-	// Throttle the paths to avoid overloading the CPU with too many tasks.
 	for (const paths of throttle(MAX_CONCURRENT_RENDERS, pageData.paths)) {
 		for (const path of paths) {
 			renderPromises.push(generatePath(path, opts, generationOptions));
