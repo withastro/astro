@@ -103,7 +103,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 		info(opts.logging, null, `\n${bgMagenta(black(' finalizing server assets '))}\n`);
 		await ssrMoveAssets(opts);
 	}
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.generate, performance.now())} (includes setup + teardown)\n`));
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.generate, performance.now())}\n`));
 }
 
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
