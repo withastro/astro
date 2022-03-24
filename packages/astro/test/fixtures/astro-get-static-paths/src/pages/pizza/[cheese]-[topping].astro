@@ -6,7 +6,7 @@ export function getStaticPaths() {
 		params: { cheese: 'provolone', topping: 'sausage' },
   }]
 }
-const { cheese, topping } = Astro.request.params
+const { cheese, topping } = Astro.params
 ---
 <html lang="en">
 	<head>

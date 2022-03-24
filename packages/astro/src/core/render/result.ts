@@ -3,7 +3,7 @@ import type { AstroGlobal, AstroGlobalPartial, MarkdownParser, MarkdownRenderOpt
 import { renderSlot } from '../../runtime/server/index.js';
 import { LogOptions, warn } from '../logger.js';
 import { isCSSRequest } from './dev/css.js';
-import { createRequest } from './request.js';
+import { canonicalURL as utilCanonicalURL } from '../util.js';
 import { isScriptRequest } from './script.js';
 
 function onlyAvailableInSSR(name: string) {
@@ -26,8 +26,7 @@ export interface CreateResultArgs {
 	site: string | undefined;
 	links?: Set<SSRElement>;
 	scripts?: Set<SSRElement>;
-	headers: Headers;
-	method: string;
+	request: Request;
 }
 
 class Slots {
@@ -72,10 +71,10 @@ class Slots {
 }
 
 export function createResult(args: CreateResultArgs): SSRResult {
-	const { legacyBuild, markdownRender, method, origin, headers, params, pathname, renderers, resolve, site } = args;
+	const { legacyBuild, markdownRender, origin, params, pathname, renderers, request, resolve, site } = args;
 
-	const request = createRequest(method, pathname, headers, origin, site, args.ssr);
-	request.params = params;
+	const url = new URL(request.url);
+	const canonicalURL = utilCanonicalURL('.' + pathname, site ?? url.origin);
 
 	// Create the result object that will be passed into the render function.
 	// This object starts here as an empty shell (not yet the result) but then
@@ -90,6 +89,8 @@ export function createResult(args: CreateResultArgs): SSRResult {
 
 			const Astro = {
 				__proto__: astroGlobal,
+				canonicalURL,
+				params,
 				props,
 				request,
 				redirect: args.ssr

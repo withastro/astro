@@ -17,6 +17,7 @@ import { getOutFile, getOutRoot, getOutFolder } from './common.js';
 import { getPageDataByComponent, eachPageData } from './internal.js';
 import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
 import { getTimeStat } from './util.js';
+import { createRequest } from '../request.js';
 
 // Render is usually compute, which Node.js can't parallelize well.
 // In real world testing, dropping from 10->1 showed a notiable perf
@@ -176,6 +177,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 	}
 
 	try {
+		const url = new URL(origin + pathname);
 		const options: RenderOptions = {
 			legacyBuild: false,
 			links,
@@ -203,8 +205,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 				const fullyRelativePath = relPath[0] === '.' ? relPath : './' + relPath;
 				return fullyRelativePath;
 			},
-			method: 'GET',
-			headers: new Headers(),
+			request: createRequest(url, new Headers()),
 			route: pageData.route,
 			routeCache,
 			site: astroConfig.buildOptions.site,
