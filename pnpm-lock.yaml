@@ -453,8 +453,8 @@ importers:
       '@babel/template': ^7.16.7
       '@babel/traverse': ^7.17.3
       '@babel/types': ^7.17.0
-      '@proload/core': ^0.2.0
-      '@proload/plugin-tsm': ^0.1.0
+      '@proload/core': ^0.2.2
+      '@proload/plugin-tsm': ^0.1.1
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
       '@types/babel__traverse': ^7.14.2
