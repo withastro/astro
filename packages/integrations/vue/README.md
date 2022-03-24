@@ -52,8 +52,14 @@ export default {
 }
 ```
 
-## Integration Documentation
+## Getting started
 
-[Astro Integration Documentation][astro-integration]
+To use your first Vue component in Astro, head to our [UI framework documentation][astro-ui-frameworks]. You'll explore:
+- 📦 how framework components are loaded,
+- 💧 client-side hydration options, and
+- 🪆 opportunities to mix and nest frameworks together
+
+Also check our [Astro Integration Documentation][astro-integration] for more on integrations.
 
 [astro-integration]: https://docs.astro.build/en/guides/integrations-guide/
+[astro-ui-frameworks]: https://docs.astro.build/en/core-concepts/framework-components/#using-framework-components
