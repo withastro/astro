@@ -9,18 +9,6 @@ export function getOutRoot(astroConfig: AstroConfig): URL {
 	return new URL('./', astroConfig.dist);
 }
 
-export function getServerRoot(astroConfig: AstroConfig): URL {
-	const rootFolder = getOutRoot(astroConfig);
-	const serverFolder = new URL('./server/', rootFolder);
-	return serverFolder;
-}
-
-export function getClientRoot(astroConfig: AstroConfig): URL {
-	const rootFolder = getOutRoot(astroConfig);
-	const serverFolder = new URL('./client/', rootFolder);
-	return serverFolder;
-}
-
 export function getOutFolder(astroConfig: AstroConfig, pathname: string, routeType: RouteType): URL {
 	const outRoot = getOutRoot(astroConfig);
 

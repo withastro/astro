@@ -18,7 +18,7 @@ import { vitePluginSSR } from './vite-plugin-ssr.js';
 import { vitePluginPages } from './vite-plugin-pages.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
-import { getClientRoot, getServerRoot, getOutRoot } from './common.js';
+import { getOutRoot } from './common.js';
 import { isBuildingToSSR } from '../util.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -99,7 +99,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
 	const ssr = astroConfig.buildOptions.experimentalSsr;
-	const out = ssr ? getServerRoot(astroConfig) : getOutRoot(astroConfig);
+	const out = ssr ? opts.buildConfig.server : opts.buildConfig.client;
 	// TODO: use vite.mergeConfig() here?
 	return await vite.build({
 		logLevel: 'error',
@@ -115,7 +115,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				input: [],
 				output: {
 					format: 'esm',
-					entryFileNames: 'entry.mjs',
+					entryFileNames: opts.buildConfig.serverEntry,
 					assetFileNames: 'assets/[name].[hash][extname]',
 				},
 			},
@@ -154,8 +154,6 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		return null;
 	}
 
-	const out = astroConfig.buildOptions.experimentalSsr ? getClientRoot(astroConfig) : getOutRoot(astroConfig);
-
 	// TODO: use vite.mergeConfig() here?
 	return await vite.build({
 		logLevel: 'error',
@@ -164,7 +162,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		build: {
 			emptyOutDir: false,
 			minify: 'esbuild',
-			outDir: fileURLToPath(out),
+			outDir: fileURLToPath(opts.buildConfig.client),
 			rollupOptions: {
 				input: Array.from(input),
 				output: {
@@ -208,8 +206,8 @@ async function cleanSsrOutput(opts: StaticBuildOptions) {
 
 async function ssrMoveAssets(opts: StaticBuildOptions) {
 	const { astroConfig } = opts;
-	const serverRoot = getServerRoot(astroConfig);
-	const clientRoot = getClientRoot(astroConfig);
+	const serverRoot = opts.buildConfig.staticMode ? opts.buildConfig.client : opts.buildConfig.server;
+	const clientRoot = opts.buildConfig.client;
 	const serverAssets = new URL('./assets/', serverRoot);
 	const clientAssets = new URL('./assets/', clientRoot);
 	const files = await glob('assets/**/*', {

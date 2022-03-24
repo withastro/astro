@@ -14,7 +14,7 @@ import { resolveDependency } from '../../core/util.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
-import { getOutRoot, getOutFolder, getOutFile, getServerRoot } from './common.js';
+import { getOutRoot, getOutFolder, getOutFile } from './common.js';
 import { getPageDataByComponent, eachPageData } from './internal.js';
 
 // Render is usually compute, which Node.js can't parallelize well.
@@ -87,8 +87,9 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 	debug('build', 'Finish build. Begin generating.');
 
 	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
-	const outFolder = ssr ? getServerRoot(opts.astroConfig) : getOutRoot(opts.astroConfig);
-	const ssrEntryURL = new URL('./entry.mjs', outFolder);
+	const serverEntry = opts.buildConfig.serverEntry;
+	const outFolder = ssr ? opts.buildConfig.server : opts.buildConfig.client;
+	const ssrEntryURL = new URL('./' + serverEntry, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 
 	for(const pageData of eachPageData(internals)) {
