@@ -1,7 +1,7 @@
 ---
-title: "Markdown + Tailwind"
+title: 'Markdown + Tailwind'
 setup: |
-    import Button from '../components/Button.astro';
+  import Button from '../components/Button.astro';
 ---
 
 <div class="grid place-items-center h-screen content-center">

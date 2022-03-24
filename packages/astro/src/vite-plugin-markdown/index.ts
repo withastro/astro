@@ -46,7 +46,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				const filename = normalizeFilename(id);
 				const fileUrl = new URL(`file://${filename}`);
 				const isPage = fileUrl.pathname.startsWith(config.pages.pathname);
-				const hasInjectedScript = (isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr'));
+				const hasInjectedScript = isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr');
 
 				// Extract special frontmatter keys
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
@@ -67,7 +67,6 @@ ${setup}`.trim();
 				} else {
 					astroResult = `${prelude}\n${astroResult}`;
 				}
-
 
 				// Transform from `.astro` to valid `.ts`
 				let { code: tsResult } = await transform(astroResult, {

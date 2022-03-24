@@ -17,7 +17,6 @@ import { getOutFile, getOutFolder, getOutRoot } from './common.js';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import { getTimeStat } from './util.js';
 
-
 // Render is usually compute, which Node.js can't parallelize well.
 // In real world testing, dropping from 10->1 showed a notiable perf
 // improvement. In the future, we can revisit a smarter parallel
