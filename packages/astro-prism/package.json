@@ -14,11 +14,11 @@
   "main": "index.mjs",
   "scripts": {},
   "files": [
-    "components"
+    "component"
   ],
   "exports": {
     ".": "./index.mjs",
-    "./component": "./component/index.js"
+    "./component": "./component/Prism.astro"
   },
   "types": "./index.d.ts",
   "keywords": [],
