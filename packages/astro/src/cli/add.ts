@@ -191,7 +191,7 @@ const enum UpdateResult {
 
 async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOptions; configURL: URL; ast: t.File }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
-	const output = await generate(ast, fileURLToPath(configURL));
+	const output = await generate(ast);
 
 	if (input === output) {
 		return UpdateResult.none;
