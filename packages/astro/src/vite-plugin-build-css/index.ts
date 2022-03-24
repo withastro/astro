@@ -4,7 +4,7 @@ import * as path from 'path';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from '../core/render/dev/css.js';
-import { getPageDataByChunk } from '../core/build/internal.js';
+import { getPageDatasByChunk } from '../core/build/internal.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -138,7 +138,9 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
 			if (chunk.type === 'chunk') {
 				const fileName = this.getFileName(referenceId);
-				getPageDataByChunk(internals, chunk)?.css.add(fileName);
+				for(const pageData of getPageDatasByChunk(internals, chunk)) {
+					pageData.css.add(fileName);
+				}
 			}
 
 			return null;
@@ -158,9 +160,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 				if (chunk.type === 'chunk') {
 					// This find shared chunks of CSS and adds them to the main CSS chunks,
 					// so that shared CSS is added to the page.
-					const pageInfo = getPageDataByChunk(internals, chunk);
-					if(pageInfo) {
-						const cssSet = pageInfo.css;
+					for(const { css: cssSet } of getPageDatasByChunk(internals, chunk)) {
 						for (const imp of chunk.imports) {
 							if (internals.chunkToReferenceIdMap.has(imp) && !pureChunkFilenames.has(imp)) {
 								const referenceId = internals.chunkToReferenceIdMap.get(imp)!;

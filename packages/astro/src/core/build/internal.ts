@@ -83,14 +83,13 @@ export function trackPageData(internals: BuildInternals, component: string, page
 }
 
 
-export function getPageDataByChunk(internals: BuildInternals, chunk: RenderedChunk): PageBuildData | undefined {
+export function * getPageDatasByChunk(internals: BuildInternals, chunk: RenderedChunk): Generator<PageBuildData, void, unknown> {
 	const pagesByViteID = internals.pagesByViteID;
 	for(const [modulePath] of Object.entries(chunk.modules)) {
 		if(pagesByViteID.has(modulePath)) {
-			return pagesByViteID.get(modulePath);
+			yield pagesByViteID.get(modulePath)!;
 		}
 	}
-	return undefined;
 }
 
 export function getPageDataByComponent(internals: BuildInternals, component: string): PageBuildData | undefined {
