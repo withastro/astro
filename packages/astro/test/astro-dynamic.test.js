@@ -37,6 +37,6 @@ describe('Dynamic components', () => {
 		// test 2: correct script is being loaded.
 		// because of bundling, we don't have access to the source import,
 		// only the bundled import.
-		expect($('script').html()).to.include(`import setup from '../only`);
+		expect($('script').html()).to.include(`import setup from '../entry`);
 	});
 });
