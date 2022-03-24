@@ -3,7 +3,7 @@
  */
 
 import stripAnsi from 'strip-ansi';
-import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black } from 'kleur/colors';
+import { bold, dim, red, green, underline, yellow, bgYellow, cyan, bgGreen, black, bgRed } from 'kleur/colors';
 import { pad, emoji, getLocalAddress, getNetworkLogging } from './dev/util.js';
 import os from 'os';
 import type { AddressInfo } from 'net';
@@ -90,8 +90,22 @@ export function prerelease({ currentVersion }: { currentVersion: string }) {
 export function success(message: string, tip?: string) {
 	const badge = bgGreen(black(` success `));
 	const headline = green(message);
-	const footer = tip ? `\n  ▶ ${tip}` : ''
-	return ['', badge, headline, footer].map((msg) => `  ${msg}`).join('\n');
+	const footer = tip ? `\n  ▶ ${tip}` : undefined;
+	return ['', badge, headline, footer].filter(v => v !== undefined).map((msg) => `  ${msg}`).join('\n');
+}
+
+export function failure(message: string, tip?: string) {
+	const badge = bgRed(black(` error `));
+	const headline = red(message);
+	const footer = tip ? `\n  ▶ ${tip}` : undefined;
+	return ['', badge, headline, footer].filter(v => v !== undefined).map((msg) => `  ${msg}`).join('\n');
+}
+
+export function cancelled(message: string, tip?: string) {
+	const badge = bgYellow(black(` cancelled `));
+	const headline = yellow(message);
+	const footer = tip ? `\n  ▶ ${tip}` : undefined;
+	return ['', badge, headline, footer].filter(v => v !== undefined).map((msg) => `  ${msg}`).join('\n');
 }
 
 /** Display port in use */

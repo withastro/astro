@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { diffLines } from 'diff';
+import boxen from 'boxen';
 import prompts from 'prompts';
 import preferredPM from 'preferred-pm';
 import { resolveConfigURL } from '../core/config.js';
@@ -73,9 +74,12 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 		);
 	}
 
+	let configResult: UpdateResult|undefined;
+	let installResult: UpdateResult|undefined;
+
 	if (ast) {
 		try {
-			await updateAstroConfig({ configURL, ast, logging });
+			configResult = await updateAstroConfig({ configURL, ast, logging });
 		} catch (err) {
 			debug('add', 'Error updating astro config', err);
 			error(logging, null, 'There has been an error updating the astro config. You might need to update it manually.');
@@ -83,10 +87,34 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 		}
 	}
 
-	await tryToInstallIntegrations({ integrations, cwd, logging });
+	switch (configResult) {
+		case UpdateResult.cancelled: {
+			info(logging, null, msg.cancelled(`Your configuration has not been updated.`));
+			return;
+		}
+		case UpdateResult.none: {
+			info(logging, null, msg.success(`Configuration up-to-date. No changes needed!`));
+			break;
+		}
+	}
 
-	const len = integrations.length;
-	info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project.`));
+	installResult = await tryToInstallIntegrations({ integrations, cwd, logging });
+
+	switch (installResult) {
+		case UpdateResult.updated: {
+			const len = integrations.length;
+			info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project`));
+			return
+		}
+		case UpdateResult.cancelled: {
+			info(logging, null, msg.cancelled(`No dependencies installed.`, `Be sure to install them manually before continuing!`));
+			return;
+		}
+		case UpdateResult.failure: {
+			info(logging, null, msg.failure(`There was a problem installing dependencies.`, `Be sure to install them manually before continuing!`))
+			process.exit(1);
+		}
+	}
 }
 
 async function parseAstroConfig(configURL: URL): Promise<t.File> {
@@ -130,44 +158,64 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 				return;
 			}
 
-			if (integrationsProp.value.type !== 'ArrayExpression') return;
+			if (integrationsProp.value.type !== 'ArrayExpression') throw new Error('Unable to parse integrations');
+
+			const existingIntegrationCall = integrationsProp.value.elements.find(
+				(expr) => t.isCallExpression(expr) && t.isIdentifier(expr.callee) && expr.callee.name === integrationId.name
+			);
+
+			if (existingIntegrationCall) return;
 
 			integrationsProp.value.elements.push(integrationCall);
 		},
 	});
 }
 
-async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOptions; configURL: URL; ast: t.File }) {
+const enum UpdateResult {
+	none,
+	updated,
+	cancelled,
+	failure,
+}
+
+async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOptions; configURL: URL; ast: t.File }): Promise<UpdateResult> {
 	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
 	const output = await generate(ast, fileURLToPath(configURL));
-	info(
-		logging,
-		null,
+
+	if (input === output) {
+		return UpdateResult.none;
+	}
+
+	const message = `\n${boxen(
 		diffLines(input, output)
 			.map((change) => {
 				let lines = change.value.split('\n').slice(0, -1); // remove latest \n
 
 				if (change.added) lines = lines.map((line) => green(`+ ${line}`));
 				else if (change.removed) lines = lines.map((line) => red(`- ${line}`));
-				else lines = lines.map((line) => `  ${line}`);
+				else lines = lines.map((line) => dim(`  ${line}`));
 
 				return lines.join('\n');
 			})
-			.join('\n')
-	);
+			.join('\n'),
+		{ margin: 0.5, padding: 0.5, borderStyle: 'round', title: configURL.pathname.split('/').pop() }
+	)}\n`;
+
+	info(logging, null, message);
 
 	const response = await prompts({
 		type: 'confirm',
 		name: 'updateConfig',
-		message: 'This changes will be made to your configuration. Continue?',
+		message: 'These changes will be written to your configuration file.\n  Continue?',
 		initial: true,
 	});
 
 	if (response.updateConfig) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
 		debug('add', `Updated astro config`);
+		return UpdateResult.updated;
 	} else {
-		info(logging, null, 'No changes were made to the configuration file.');
+		return UpdateResult.cancelled;
 	}
 }
 
@@ -190,23 +238,24 @@ async function getInstallIntegrationsCommand({ integrations, cwd = process.cwd()
 		case 'yarn':
 			return 'yarn add --dev ' + dependenciesList;
 		case 'pnpm':
-			return 'pnpm add --save-dev ' + dependenciesList;
+			return 'pnpm install --save-dev ' + dependenciesList;
 		default:
 			return null;
 	}
 }
 
-async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), logging }: { integrations: IntegrationInfo[]; cwd?: string; logging: LogOptions }) {
+async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), logging }: { integrations: IntegrationInfo[]; cwd?: string; logging: LogOptions }): Promise<UpdateResult> {
 	const cmd = await getInstallIntegrationsCommand({ integrations, cwd });
 
 	if (cmd === null) {
 		info(logging, null);
 	} else {
-		info(logging, null, `In order to install the integrations, the following command will be run: \n${bold(cyan(cmd))}`);
+		const message = `\n${boxen(cyan(cmd), { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
+		info(logging, null, `\n  Astro will install these integrations with the following command:${message}`);
 		const response = await prompts({
 			type: 'confirm',
 			name: 'installDependencies',
-			message: 'Is this the right command?',
+			message: 'Run command?',
 			initial: true,
 		});
 
@@ -221,13 +270,13 @@ async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), log
 						}
 					});
 				});
-				info(logging, null, 'Dependnecies installed!');
+				return UpdateResult.updated;
 			} catch (err) {
 				debug('add', 'Error installing dependencies', err);
-				warn(logging, null, 'There was an error installing the dependencies. Be sure to install them manually before continuing!');
+				return UpdateResult.failure;
 			}
 		} else {
-			info(logging, null, 'Be sure to install the dependencies before continuing!');
+			return UpdateResult.cancelled;
 		}
 	}
 }
