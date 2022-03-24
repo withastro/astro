@@ -1,6 +1,7 @@
 import type { AstroConfig, ComponentInstance, ManifestData, RouteData } from '../../@types/astro';
 import type { AllPagesData } from './types';
 import type { LogOptions } from '../logger';
+import { info } from '../logger.js';
 import type { ViteDevServer } from 'vite';
 
 import { fileURLToPath } from 'url';
@@ -32,6 +33,13 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 	const assets: Record<string, string> = {};
 	const allPages: AllPagesData = {};
 
+	const buildMode = astroConfig.buildOptions.experimentalSsr ? 'ssr' : 'static';
+
+	const dataCollectionLogTimeout = setInterval(() => {
+		info(opts.logging, 'build', 'The data collection step may take longer for larger projects...');
+		clearInterval(dataCollectionLogTimeout);
+	}, 30000);
+
 	// Collect all routes ahead-of-time, before we start the build.
 	// NOTE: This enforces that `getStaticPaths()` is only called once per route,
 	// and is then cached across all future SSR builds. In the past, we've had trouble
@@ -39,6 +47,16 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 	for (const route of manifest.routes) {
 		// static route:
 		if (route.pathname) {
+			const routeCollectionLogTimeout = setInterval(() => {
+				info(
+					opts.logging,
+					'build',
+					`${colors.bold(
+						route.component
+					)} is taking a bit longer to import. This is common for larger "Astro.glob(...)" or "import.meta.globEager(...)" calls, for instance. Hang tight!`
+				);
+				clearInterval(routeCollectionLogTimeout);
+			}, 10000);
 			allPages[route.component] = {
 				route,
 				paths: [route.pathname],
@@ -48,11 +66,17 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 					viteServer,
 				})
 					.then((routes) => {
-						const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
-						debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
+						clearInterval(routeCollectionLogTimeout);
+						if (buildMode === 'static') {
+							const html = `${route.pathname}`.replace(/\/?$/, '/index.html');
+							debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component} → ${colors.yellow(html)}`);
+						} else {
+							debug('build', `├── ${colors.bold(colors.green('✔'))} ${route.component}`);
+						}
 						return routes;
 					})
 					.catch((err) => {
+						clearInterval(routeCollectionLogTimeout);
 						debug('build', `├── ${colors.bold(colors.red('✘'))} ${route.component}`);
 						throw err;
 					}),
@@ -105,6 +129,8 @@ export async function collectPagesData(opts: CollectPagesDataOptions): Promise<C
 			}),
 		};
 	}
+
+	clearInterval(dataCollectionLogTimeout);
 
 	return { assets, allPages };
 }

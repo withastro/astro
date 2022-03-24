@@ -15,6 +15,7 @@ import { build as scanBasedBuild } from './scan-based-build.js';
 import { staticBuild } from './static-build.js';
 import { RouteCache } from '../render/route-cache.js';
 import { runHookBuildDone, runHookBuildStart, runHookConfigDone, runHookConfigSetup } from '../../integrations/index.js';
+import { getTimeStat } from './util.js';
 
 export interface BuildOptions {
 	mode?: string;
@@ -54,6 +55,8 @@ class AstroBuilder {
 	}
 
 	async build() {
+		info(this.logging, 'build', 'Initial setup...');
+
 		const { logging, origin } = this;
 		const timer: Record<string, number> = {};
 		timer.init = performance.now();
@@ -77,6 +80,7 @@ class AstroBuilder {
 		const buildConfig: BuildConfig = { staticMode: undefined };
 		await runHookBuildStart({ config: this.config, buildConfig });
 
+		info(this.logging, 'build', 'Collecting page data...');
 		timer.loadStart = performance.now();
 		const { assets, allPages } = await collectPagesData({
 			astroConfig: this.config,
@@ -108,6 +112,7 @@ class AstroBuilder {
 		// Bundle the assets in your final build: This currently takes the HTML output
 		// of every page (stored in memory) and bundles the assets pointed to on those pages.
 		timer.buildStart = performance.now();
+		info(this.logging, 'build', colors.dim(`Completed in ${getTimeStat(timer.init, performance.now())}`));
 
 		// Use the new faster static based build.
 		if (!this.config.buildOptions.legacyBuild) {
@@ -134,7 +139,6 @@ class AstroBuilder {
 				viteServer: this.viteServer,
 			});
 		}
-		debug('build', timerMessage('Vite build finished', timer.buildStart));
 
 		// Write any additionally generated assets to disk.
 		timer.assetsStart = performance.now();
@@ -166,16 +170,26 @@ class AstroBuilder {
 		await runHookBuildDone({ config: this.config, pages: pageNames });
 
 		if (logging.level && levels[logging.level] <= levels['info']) {
-			await this.printStats({ logging, timeStart: timer.init, pageCount: pageNames.length });
+			const buildMode = this.config.buildOptions.experimentalSsr ? 'ssr' : 'static';
+			await this.printStats({ logging, timeStart: timer.init, pageCount: pageNames.length, buildMode });
 		}
 	}
 
 	/** Stats */
-	private async printStats({ logging, timeStart, pageCount }: { logging: LogOptions; timeStart: number; pageCount: number }) {
+	private async printStats({ logging, timeStart, pageCount, buildMode }: { logging: LogOptions; timeStart: number; pageCount: number; buildMode: 'static' | 'ssr' }) {
 		const buildTime = performance.now() - timeStart;
-		const total = buildTime < 750 ? `${Math.round(buildTime)}ms` : `${(buildTime / 1000).toFixed(2)}s`;
-		const perPage = `${Math.round(buildTime / pageCount)}ms`;
-		info(logging, 'build', `${pageCount} pages built in ${colors.bold(total)} ${colors.dim(`(${perPage}/page)`)}`);
+		const total = getTimeStat(timeStart, performance.now());
+
+		let messages: string[] = [];
+		if (buildMode === 'static') {
+			const timePerPage = Math.round(buildTime / pageCount);
+			const perPageMsg = colors.dim(`(${colors.bold(`${timePerPage}ms`)} avg per page + resources)`);
+			messages = [`${pageCount} pages built in`, colors.bold(total), perPageMsg];
+		} else {
+			messages = ['Server built in', colors.bold(total)];
+		}
+
+		info(logging, 'build', messages.join(' '));
 		info(logging, 'build', `🚀 ${colors.cyan(colors.bold('Done'))}`);
 	}
 }
