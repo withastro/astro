@@ -1,7 +1,7 @@
 import type yargs from 'yargs-parser';
 import path from 'path';
 import fs from 'fs/promises';
-import { exec } from 'child_process';
+import { execaCommand } from 'execa';
 import { fileURLToPath } from 'url';
 import { diffLines } from 'diff';
 import boxen from 'boxen';
@@ -255,22 +255,14 @@ async function getInstallIntegrationsCommand({ integrations, cwd = process.cwd()
 	}
 }
 
-async function tryToInstallIntegrations({
-	integrations,
-	cwd = process.cwd(),
-	logging,
-}: {
-	integrations: IntegrationInfo[];
-	cwd?: string;
-	logging: LogOptions;
-}): Promise<UpdateResult> {
-	const cmd = await getInstallIntegrationsCommand({ integrations, cwd });
+async function tryToInstallIntegrations({ integrations, cwd, logging }: { integrations: IntegrationInfo[]; cwd?: string; logging: LogOptions }): Promise<UpdateResult> {
+	const installCommand = await getInstallIntegrationsCommand({ integrations, cwd });
 
-	if (cmd === null) {
+	if (installCommand === null) {
 		info(logging, null);
 		return UpdateResult.none;
 	} else {
-		const message = `\n${boxen(cyan(cmd), { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
+		const message = `\n${boxen(cyan(installCommand), { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
 		info(logging, null, `\n  ${magenta('Astro will run the following command to install...')}\n${message}`);
 		const response = await prompts({
 			type: 'confirm',
@@ -282,15 +274,7 @@ async function tryToInstallIntegrations({
 		if (response.installDependencies) {
 			const spinner = ora('Installing dependencies...').start();
 			try {
-				await new Promise((resolve, reject) => {
-					exec(cmd, (err, stdout, stderr) => {
-						if (err) {
-							reject(stderr);
-						} else {
-							resolve(stdout);
-						}
-					});
-				});
+				await execaCommand(installCommand, { cwd });
 				spinner.succeed();
 				return UpdateResult.updated;
 			} catch (err) {
