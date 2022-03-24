@@ -3,8 +3,8 @@ import { AstroIntegration } from 'astro';
 function getRenderer() {
 	return {
 		name: '@astrojs/preact',
-		clientEntrypoint: '@astrojs/preact/client',
-		serverEntrypoint: '@astrojs/preact/server',
+		clientEntrypoint: '@astrojs/preact/client.js',
+		serverEntrypoint: '@astrojs/preact/server.js',
 		jsxImportSource: 'preact',
 		jsxTransformOptions: async () => {
 			const {
@@ -21,8 +21,8 @@ function getRenderer() {
 function getViteConfiguration() {
 	return {
 		optimizeDeps: {
-			include: ['@astrojs/preact/client', 'preact', 'preact/jsx-runtime', 'preact-render-to-string'],
-			exclude: ['@astrojs/preact/server'],
+			include: ['@astrojs/preact/client.js', 'preact', 'preact/jsx-runtime', 'preact-render-to-string'],
+			exclude: ['@astrojs/preact/server.js'],
 		},
 		ssr: {
 			external: ['preact-render-to-string'],

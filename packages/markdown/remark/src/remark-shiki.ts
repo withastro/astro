@@ -33,19 +33,25 @@ export interface ShikiConfig {
 /**
  * getHighlighter() is the most expensive step of Shiki. Instead of calling it on every page,
  * cache it here as much as possible. Make sure that your highlighters can be cached, state-free.
+ * We make this async, so that multiple calls to parse markdown still share the same highlighter.
  */
-const highlighterCache = new Map<string, shiki.Highlighter>();
+const highlighterCacheAsync = new Map<string, Promise<shiki.Highlighter>>();
 
 const remarkShiki = async ({ langs = [], theme = 'github-dark', wrap = false }: ShikiConfig, scopedClassName?: string | null) => {
 	const cacheID: string = typeof theme === 'string' ? theme : theme.name;
-	let highlighter = highlighterCache.get(cacheID);
-	if (!highlighter) {
-		highlighter = await getHighlighter({ theme });
-		highlighterCache.set(cacheID, highlighter);
+	let highlighterAsync = highlighterCacheAsync.get(cacheID);
+	if (!highlighterAsync) {
+		highlighterAsync = getHighlighter({ theme });
+		highlighterCacheAsync.set(cacheID, highlighterAsync);
 	}
+	const highlighter = await highlighterAsync;
+
+	// NOTE: There may be a performance issue here for large sites that use `lang`.
+	// Since this will be called on every page load. Unclear how to fix this.
 	for (const lang of langs) {
 		await highlighter.loadLanguage(lang);
 	}
+
 	return () => (tree: any) => {
 		visit(tree, 'code', (node) => {
 			let html = highlighter!.codeToHtml(node.value, { lang: node.lang ?? 'plaintext' });
