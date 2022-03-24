@@ -13,8 +13,12 @@
   "homepage": "https://astro.build",
   "main": "index.mjs",
   "scripts": {},
+  "files": [
+    "component"
+  ],
   "exports": {
-    ".": "./index.mjs"
+    ".": "./index.mjs",
+    "./component": "./component/Prism.astro"
   },
   "types": "./index.d.ts",
   "keywords": [],
