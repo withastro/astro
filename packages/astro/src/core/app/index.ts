@@ -1,7 +1,7 @@
 import type { ComponentInstance, EndpointHandler, ManifestData, RouteData } from '../../@types/astro';
 import type { SSRManifest as Manifest, RouteInfo } from './types';
 
-import { getType as getMimeType } from 'mime';
+import mime from 'mime';
 import { defaultLogOptions } from '../logger.js';
 export { deserializeManifest } from './common.js';
 import { matchRoute } from '../routing/match.js';
@@ -118,7 +118,7 @@ export class App {
 		} else {
 			const body = result.body;
 			const headers = new Headers();
-			const mimeType = getMimeType(url.pathname);
+			const mimeType = mime.getType(url.pathname);
 			if(mimeType) {
 				headers.set('Content-Type', mimeType);
 			}
