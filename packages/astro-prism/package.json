@@ -18,8 +18,7 @@
   ],
   "exports": {
     ".": "./index.mjs",
-    "./components": "./components/index.js",
-    "./components/*": "./components/*"
+    "./component": "./component/index.js"
   },
   "types": "./index.d.ts",
   "keywords": [],
