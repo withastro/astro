@@ -108,8 +108,8 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 				// If we match exactly `import.meta.env`, define _only_ referenced private variables
 				if (match[0] === 'import.meta.env') {
 					replacement = `(Object.assign(import.meta.env,{`
-					for (const [key, value] of Object.entries(privateEnv)) {
-						replacement += `${key}:${value},`
+					for (const key of references.values()) {
+						replacement += `${key}:${privateEnv[key]},`
 					}
 					replacement += '}))'
 				}
