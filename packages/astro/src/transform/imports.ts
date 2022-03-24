@@ -1,6 +1,6 @@
 import { t, visit } from './babel.js';
 
-export function ensureImport(root: t.Program, importDeclaration: t.ImportDeclaration) {
+export function ensureImport(root: t.File, importDeclaration: t.ImportDeclaration) {
 	let specifiersToFind = [...importDeclaration.specifiers];
 
 	visit(root, {
@@ -20,5 +20,17 @@ export function ensureImport(root: t.Program, importDeclaration: t.ImportDeclara
 
 	if (specifiersToFind.length === 0) return;
 
-	root.body.unshift(t.importDeclaration(specifiersToFind, importDeclaration.source));
+	visit(root, {
+		Program(path) {
+			const declaration = t.importDeclaration(specifiersToFind, importDeclaration.source);
+			const latestImport = path
+				.get('body')
+				.filter((statement) => statement.isImportDeclaration())
+				.pop();
+
+			// It's inserted before because of formatting issues
+			if (latestImport) latestImport.insertBefore(declaration);
+			else path.unshiftContainer('body', declaration);
+		},
+	});
 }

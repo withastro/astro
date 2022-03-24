@@ -51,17 +51,17 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 	info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project.`, `Be sure to re-install your dependencies before continuing!`));
 }
 
-async function parseAstroConfig(configURL: URL): Promise<t.Program> {
+async function parseAstroConfig(configURL: URL): Promise<t.File> {
 	const source = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
-	const result = parse(source, { sourceType: 'unambiguous', plugins: ['typescript'] });
+	const result = parse(source);
 
 	if (!result) throw new Error('Unknown error parsing astro config');
 	if (result.errors.length > 0) throw new Error('Error parsing astro config: ' + JSON.stringify(result.errors));
 
-	return result.program;
+	return result;
 }
 
-async function addIntegration(ast: t.Program, integration: IntegrationInfo, { logging }: { logging: LogOptions }) {
+async function addIntegration(ast: t.File, integration: IntegrationInfo, { logging }: { logging: LogOptions }) {
 	const integrationId = t.identifier(integration.id);
 
 	ensureImport(ast, t.importDeclaration([t.importDefaultSpecifier(integrationId)], t.stringLiteral(integration.packageName)));
@@ -99,10 +99,9 @@ async function addIntegration(ast: t.Program, integration: IntegrationInfo, { lo
 	});
 }
 
-async function updateAstroConfig(configURL: URL, ast: t.Program) {
-	const source = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
-	const output = generate(ast, {}, source);
-	await fs.writeFile(fileURLToPath(configURL), output.code, { encoding: 'utf-8' });
+async function updateAstroConfig(configURL: URL, ast: t.File) {
+	const output = await generate(ast, fileURLToPath(configURL));
+	await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
 }
 
 interface IntegrationInfo {

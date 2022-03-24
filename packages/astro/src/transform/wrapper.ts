@@ -1,6 +1,6 @@
 import { t, visit } from './babel.js';
 
-export function wrapDefaultExport(ast: t.Program, functionIdentifier: t.Identifier) {
+export function wrapDefaultExport(ast: t.File, functionIdentifier: t.Identifier) {
 	visit(ast, {
 		ExportDefaultDeclaration(path) {
 			if (!t.isExpression(path.node.declaration)) return;

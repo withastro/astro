@@ -467,6 +467,7 @@ importers:
       '@types/mime': ^2.0.3
       '@types/mocha': ^9.1.0
       '@types/parse5': ^6.0.3
+      '@types/prettier': ^2.4.4
       '@types/resolve': ^1.20.1
       '@types/rimraf': ^3.0.2
       '@types/send': ^0.17.1
@@ -497,6 +498,7 @@ importers:
       path-to-regexp: ^6.2.0
       postcss: ^8.4.12
       postcss-load-config: ^3.1.3
+      prettier: ^2.6.0
       prismjs: ^1.27.0
       rehype-slug: ^5.0.1
       resolve: ^1.22.0
@@ -551,6 +553,7 @@ importers:
       path-to-regexp: 6.2.0
       postcss: 8.4.12
       postcss-load-config: 3.1.3
+      prettier: 2.6.0
       prismjs: 1.27.0
       rehype-slug: 5.0.1
       resolve: 1.22.0
@@ -584,6 +587,7 @@ importers:
       '@types/mime': 2.0.3
       '@types/mocha': 9.1.0
       '@types/parse5': 6.0.3
+      '@types/prettier': 2.4.4
       '@types/resolve': 1.20.1
       '@types/rimraf': 3.0.2
       '@types/send': 0.17.1
@@ -3943,6 +3947,10 @@ packages:
 
   /@types/parse5/6.0.3:
     resolution: {integrity: sha512-SuT16Q1K51EAVPz1K29DJ/sXjhSQ0zjvsypYJ6tlwVsRV9jwW5Adq2ch8Dq8kDBCkYnELS7N7VNCSB5nC56t/g==}
+
+  /@types/prettier/2.4.4:
+    resolution: {integrity: sha512-ReVR2rLTV1kvtlWFyuot+d1pkpG2Fw/XKE3PDAdj57rbM97ttSp9JZ2UsP+2EHTylra9cUf6JA7tGwW1INzUrA==}
+    dev: true
 
   /@types/prismjs/1.26.0:
     resolution: {integrity: sha512-ZTaqn/qSqUuAq1YwvOFQfVW1AR/oQJlLSZVustdjwI+GZ8kr0MSHBj0tsXPW1EqHubx50gtBEjbPGsdZwQwCjQ==}
@@ -8557,7 +8565,6 @@ packages:
     resolution: {integrity: sha512-8UVbTBYGwN37Bs9LERmxCPjdvPxlEowx2urIL6urHzdb3SDq4B/Z6xLFCblrSnE4iKWcS6ziJ3aOYrc1kz/E2A==}
     engines: {node: '>=10.13.0'}
     hasBin: true
-    dev: true
 
   /pretty-bytes/5.6.0:
     resolution: {integrity: sha512-FFw039TmrBqFK8ma/7OL3sDz/VytdtJr044/QUJtH0wK9lb9jLq9tJyIxUwtQJHwar2BqtiA4iCWSwo9JLkzFg==}
