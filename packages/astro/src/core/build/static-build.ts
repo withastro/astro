@@ -4,7 +4,7 @@ import type { ViteConfigWithSSR } from '../create-vite';
 import type { PageBuildData, StaticBuildOptions } from './types';
 import glob from 'fast-glob';
 import fs from 'fs';
-import { bgGreen, bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
+import { bgGreen, bgMagenta, black, dim } from 'kleur/colors';
 import npath from 'path';
 import { fileURLToPath } from 'url';
 import * as vite from 'vite';
@@ -96,6 +96,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
+		console.log('huh?');
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
 		await cleanSsrOutput(opts);
 	} else {
