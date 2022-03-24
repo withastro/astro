@@ -40,21 +40,13 @@ export type ComponentPreload = [SSRLoadedRenderer[], ComponentInstance];
 export type RenderResponse = { type: 'html'; html: string } | { type: 'response'; response: Response };
 
 const svelteStylesRE = /svelte\?svelte&type=style/;
-// Cache renderers to avoid re-resolving the module using Vite's `ssrLoadModule`
-// This prevents an odd exception trying to resolve the same server-side module
-// Multiple times. See `isSelfAccepting` issue: https://github.com/withastro/astro/pull/2852
-const rendererCache = new Map<string, SSRLoadedRenderer['ssr']>();
 
 async function loadRenderer(viteServer: vite.ViteDevServer, renderer: AstroRenderer): Promise<SSRLoadedRenderer> {
-	const { url } = await viteServer.moduleGraph.ensureEntryFromUrl(renderer.serverEntrypoint);
-
-	const cachedRenderer = rendererCache.get(url);
-	if (cachedRenderer) {
-		return { ...renderer, ssr: cachedRenderer };
-	}
-
-	const mod = (await viteServer.ssrLoadModule(url)) as { default: SSRLoadedRenderer['ssr'] };
-	rendererCache.set(url, mod.default);
+	// Vite modules can be out-of-date when using an un-resolved url
+	// We also encountered inconsistencies when using the resolveUrl and resolveId helpers
+	// We've found that pulling the ID directly from the urlToModuleMap is the most stable!
+	const id = viteServer.moduleGraph.urlToModuleMap.get(renderer.serverEntrypoint)?.id ?? renderer.serverEntrypoint;
+	const mod = (await viteServer.ssrLoadModule(id)) as { default: SSRLoadedRenderer['ssr'] };
 	return { ...renderer, ssr: mod.default };
 }
 
