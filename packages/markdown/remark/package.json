@@ -18,6 +18,7 @@
   "scripts": {
     "prepublish": "pnpm build",
     "build": "astro-scripts build \"src/**/*.ts\" && tsc -p tsconfig.json",
+    "build:ci": "astro-scripts build \"src/**/*.ts\"",
     "postbuild": "astro-scripts copy \"src/**/*.js\"",
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },

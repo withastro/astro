@@ -5,6 +5,10 @@
       "dependsOn": ["^build"],
       "outputs": ["**/dist/**", "!**/vendor/**"]
     },
+    "build:ci": {
+      "dependsOn": ["^build:ci"],
+      "outputs": ["**/dist/**", "!**/vendor/**"]
+    },
     "dev": {
       "cache": false
     },

@@ -72,6 +72,7 @@
   },
   "scripts": {
     "build": "node run/build.js",
+    "build:ci": "node run/build.js",
     "dev": "node run/build.js",
     "release": "node run/build.js && npm publish --access public",
     "test": "mocha --parallel --timeout 15000"
