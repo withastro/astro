@@ -37,20 +37,45 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 	}
 
 	const integrations = await validateIntegrations(names);
-	let ast = await parseAstroConfig(configURL);
 
-	const defineConfig = t.identifier('defineConfig');
-	ensureImport(ast, t.importDeclaration([t.importSpecifier(defineConfig, defineConfig)], t.stringLiteral('astro/config')));
-	wrapDefaultExport(ast, defineConfig);
+	// Add integrations to astro config
+	// TODO: At the moment, nearly nothing throws an error. We need more errors!
+	let ast: t.File | null = null;
+	try {
+		ast = await parseAstroConfig(configURL);
 
-	for (const integration of integrations) {
-		await addIntegration(ast, integration);
+		debug('add', 'Parsed astro config');
+
+		const defineConfig = t.identifier('defineConfig');
+		ensureImport(ast, t.importDeclaration([t.importSpecifier(defineConfig, defineConfig)], t.stringLiteral('astro/config')));
+		wrapDefaultExport(ast, defineConfig);
+
+		debug('add', 'Astro config ensured `defineConfig`');
+
+		for (const integration of integrations) {
+			await addIntegration(ast, integration);
+			debug('add', `Astro config added integration ${integration.id}`);
+		}
+	} catch (err) {
+		debug('add', 'Error parsing/modifying astro config: ', err);
+		info(
+			logging,
+			null,
+			"Sorry, we couldn't update your configuration automatically. [INSERT HOW TO DO IT MANUALLY --- this link might help: https://next--astro-docs-2.netlify.app/en/guides/integrations-guide/]"
+		);
 	}
 
-	await updateAstroConfig({ configURL, ast, logging });
+	if (ast) {
+		try {
+			await updateAstroConfig({ configURL, ast, logging });
 
-	const len = integrations.length;
-	info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project.`, `Be sure to re-install your dependencies before continuing!`));
+			const len = integrations.length;
+			info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project.`, `Be sure to re-install your dependencies before continuing!`));
+		} catch (err) {
+			debug('add', 'Error updating astro config', err);
+			error(logging, null, 'There has been an error updating the astro config. You might need to update it manually.');
+		}
+	}
 }
 
 async function parseAstroConfig(configURL: URL): Promise<t.File> {
@@ -129,6 +154,7 @@ async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOpti
 
 	if (response.updateConfig) {
 		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
+		debug('add', `Updated astro config`);
 	} else {
 		info(logging, null, 'No changes were made to the configuration file.');
 	}
