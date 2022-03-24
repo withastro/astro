@@ -34,11 +34,14 @@ function getPrivateEnv(viteConfig: vite.ResolvedConfig, astroConfig: AstroConfig
 	return Object.fromEntries(privateKeys.map((key) => [key, JSON.stringify(fullEnv[key])]));
 }
 
-function referencesPrivateKey(source: string, privateEnv: Record<string, any>) {
+function getReferencedPrivateKeys(source: string, privateEnv: Record<string, any>): Set<string> {
+	const references = new Set<string>();
 	for (const key of Object.keys(privateEnv)) {
-		if (source.includes(key)) return true;
+		if (source.includes(key)) {
+			references.add(key);
+		}
 	}
-	return false;
+	return references;
 }
 
 export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions): vite.PluginOption {
@@ -68,6 +71,13 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 				if (privateEnv) {
 					const entries = Object.entries(privateEnv).map(([key, value]) => [`import.meta.env.${key}`, value]);
 					replacements = Object.fromEntries(entries);
+					// These additional replacements are needed to match Vite
+					replacements = Object.assign(replacements, {
+						// This catches destructed `import.meta.env` calls,
+						// BUT we only want to inject private keys referenced in the file.
+						// We overwrite this value on a per-file basis.
+						'import.meta.env': `({})`,
+					})
 					pattern = new RegExp(
 						// Do not allow preceding '.', but do allow preceding '...' for spread operations
 						'(?<!(?<!\\.\\.)\\.)\\b(' +
@@ -84,7 +94,8 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 			}
 
 			if (!privateEnv || !pattern) return source;
-			if (!referencesPrivateKey(source, privateEnv)) return source;
+			const references = getReferencedPrivateKeys(source, privateEnv);
+			if (references.size === 0) return source;
 
 			// Find matches for *private* env and do our own replacement.
 			const s = new MagicString(source);
@@ -93,7 +104,15 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 			while ((match = pattern.exec(source))) {
 				const start = match.index;
 				const end = start + match[0].length;
-				const replacement = '' + replacements[match[1]];
+				let replacement = '' + replacements[match[1]];
+				// If we match exactly `import.meta.env`, define _only_ referenced private variables
+				if (match[0] === 'import.meta.env') {
+					replacement = `(Object.assign(import.meta.env,{`
+					for (const key of references.values()) {
+						replacement += `${key}:${privateEnv[key]},`
+					}
+					replacement += '}))'
+				}
 				s.overwrite(start, end, replacement);
 			}
 

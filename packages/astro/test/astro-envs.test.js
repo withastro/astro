@@ -23,6 +23,13 @@ describe('Environment Variables', () => {
 		expect(indexHtml).to.include('BLUE_BAYOU');
 	});
 
+	it('does render destructured public env and private env', async () => {
+		let indexHtml = await fixture.readFile('/destructured/index.html');
+
+		expect(indexHtml).to.include('CLUB_33');
+		expect(indexHtml).to.include('BLUE_BAYOU');
+	});
+
 	it('includes public env in client-side JS', async () => {
 		let dirs = await fixture.readdir('/');
 		let found = false;
