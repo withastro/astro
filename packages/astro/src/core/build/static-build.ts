@@ -87,7 +87,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	timer.clientBuild = performance.now();
 	// Run client build first, so the assets can be fed into the SSR rendered version.
 	await clientBuild(opts, internals, jsInput);
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.clientBuild, performance.now())}`));
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.clientBuild, performance.now())}\n`));
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	timer.ssr = performance.now();
