@@ -77,7 +77,7 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 						// BUT we only want to inject private keys referenced in the file.
 						// We overwrite this value on a per-file basis.
 						'import.meta.env': `({})`,
-					})
+					});
 					pattern = new RegExp(
 						// Do not allow preceding '.', but do allow preceding '...' for spread operations
 						'(?<!(?<!\\.\\.)\\.)\\b(' +
@@ -107,11 +107,11 @@ export default function envVitePlugin({ config: astroConfig }: EnvPluginOptions)
 				let replacement = '' + replacements[match[1]];
 				// If we match exactly `import.meta.env`, define _only_ referenced private variables
 				if (match[0] === 'import.meta.env') {
-					replacement = `(Object.assign(import.meta.env,{`
+					replacement = `(Object.assign(import.meta.env,{`;
 					for (const key of references.values()) {
-						replacement += `${key}:${privateEnv[key]},`
+						replacement += `${key}:${privateEnv[key]},`;
 					}
-					replacement += '}))'
+					replacement += '}))';
 				}
 				s.overwrite(start, end, replacement);
 			}
