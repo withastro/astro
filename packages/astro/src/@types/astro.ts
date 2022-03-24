@@ -465,7 +465,7 @@ export interface AstroUserConfig {
  * - "page": Injected into the JavaScript bundle of every page. Processed & resolved by Vite.
  * - "page-ssr": Injected into the frontmatter of every Astro page. Processed & resolved by Vite.
  */
-type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
+export type InjectedScriptStage = 'before-hydration' | 'head-inline' | 'page' | 'page-ssr';
 
 /**
  * Resolved Astro Config

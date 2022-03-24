@@ -13,6 +13,7 @@ import { cachedCompilation } from './compile.js';
 import ancestor from 'common-ancestor-path';
 import { trackCSSDependencies, handleHotUpdate } from './hmr.js';
 import { isRelativePath, startsWithForwardSlash } from '../core/path.js';
+import { PAGE_SCRIPT_ID, PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 const FRONTMATTER_PARSE_REGEXP = /^\-\-\-(.*)^\-\-\-/ms;
 interface AstroPluginOptions {
@@ -93,9 +94,9 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 			const filename = normalizeFilename(parsedId.filename);
 			const fileUrl = new URL(`file://${filename}`);
 			let source = await fs.promises.readFile(fileUrl, 'utf-8');
-			const isPage = filename.startsWith(config.pages.pathname);
+			const isPage = fileUrl.pathname.startsWith(config.pages.pathname);
 			if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
-				source += `\n<script hoist src="astro:scripts/page.js" />`;
+				source += `\n<script hoist src="${PAGE_SCRIPT_ID}" />`;
 			}
 			if (query.astro) {
 				if (query.type === 'style') {
@@ -152,7 +153,7 @@ export default function astro({ config, logging }: AstroPluginOptions): vite.Plu
 				}
 				// Add handling to inject scripts into each page JS bundle, if needed.
 				if (isPage) {
-					SUFFIX += `\nimport "astro:scripts/page-ssr.js";`;
+					SUFFIX += `\nimport "${PAGE_SSR_SCRIPT_ID}";`;
 				}
 				return {
 					code: `${code}${SUFFIX}`,

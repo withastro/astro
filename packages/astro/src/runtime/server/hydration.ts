@@ -107,7 +107,8 @@ export async function generateHydrateScript(scriptOptions: HydrateScriptOptions,
 		: `await import("${await result.resolve(componentUrl)}");
   return () => {};
 `;
-
+	// TODO: If we can figure out tree-shaking in the final SSR build, we could safely
+	// use BEFORE_HYDRATION_SCRIPT_ID instead of 'astro:scripts/before-hydration.js'.
 	const hydrationScript = {
 		props: { type: 'module', 'data-astro-component-hydration': true },
 		children: `import setup from '${await result.resolve(hydrationSpecifier(hydrate))}';

@@ -55,6 +55,14 @@ describe('Tailwind', () => {
 			expect(button.hasClass('w-10/12'), 'solidus').to.be.true;
 			expect(button.hasClass('2xl:w-[80%]'), 'complex class').to.be.true;
 		});
+
+		it('handles Markdown pages', async () => {
+			const html = await fixture.readFile('/markdown-page/index.html');
+			const $ = cheerio.load(html);
+			const bundledCSSHREF = $('link[rel=stylesheet][href^=/assets/]').attr('href');
+			const bundledCSS = await fixture.readFile(bundledCSSHREF.replace(/^\/?/, '/'));
+			expect(bundledCSS, 'includes used component classes').to.match(/\.bg-purple-600{/);
+		});
 	});
 
 	// with "build" handling CSS checking, the dev tests are mostly testing the paths resolve in dev
@@ -73,8 +81,8 @@ describe('Tailwind', () => {
 		});
 
 		it('resolves CSS in src/styles', async () => {
-			const href = $(`link[href$="/src/styles/global.css"]`).attr('href');
-			const res = await fixture.fetch(href);
+			const bundledCSSHREF = $('link[rel=stylesheet]').attr('href');
+			const res = await fixture.fetch(bundledCSSHREF);
 			expect(res.status).to.equal(200);
 
 			const text = await res.text();

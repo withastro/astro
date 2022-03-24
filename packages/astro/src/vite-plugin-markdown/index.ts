@@ -4,6 +4,7 @@ import esbuild from 'esbuild';
 import fs from 'fs';
 import type { Plugin } from 'vite';
 import type { AstroConfig } from '../@types/astro';
+import { PAGE_SSR_SCRIPT_ID } from '../vite-plugin-scripts/index.js';
 
 interface AstroPluginOptions {
 	config: AstroConfig;
@@ -27,7 +28,7 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 		enforce: 'pre', // run transforms before other plugins can
 		async load(id) {
 			if (id.endsWith('.md')) {
-				let source = await fs.promises.readFile(id, 'utf8');
+				const source = await fs.promises.readFile(id, 'utf8');
 
 				// Transform from `.md` to valid `.astro`
 				let render = config.markdownOptions.render;
@@ -42,13 +43,20 @@ export default function markdown({ config }: AstroPluginOptions): Plugin {
 				let renderResult = await render(source, renderOpts);
 				let { frontmatter, metadata, code: astroResult } = renderResult;
 
+				const filename = normalizeFilename(id);
+				const fileUrl = new URL(`file://${filename}`);
+				const isPage = fileUrl.pathname.startsWith(config.pages.pathname);
+				const hasInjectedScript = (isPage && config._ctx.scripts.some((s) => s.stage === 'page-ssr'));
+
 				// Extract special frontmatter keys
 				const { layout = '', components = '', setup = '', ...content } = frontmatter;
 				content.astro = metadata;
 				const prelude = `---
 ${layout ? `import Layout from '${layout}';` : ''}
 ${components ? `import * from '${components}';` : ''}
+${hasInjectedScript ? `import '${PAGE_SSR_SCRIPT_ID}';` : ''}
 ${setup}
+
 const $$content = ${JSON.stringify(content)}
 ---`;
 				const imports = `${layout ? `import Layout from '${layout}';` : ''}
@@ -60,12 +68,6 @@ ${setup}`.trim();
 					astroResult = `${prelude}\n${astroResult}`;
 				}
 
-				const filename = normalizeFilename(id);
-				const fileUrl = new URL(`file://${filename}`);
-				const isPage = filename.startsWith(config.pages.pathname);
-				if (isPage && config._ctx.scripts.some((s) => s.stage === 'page')) {
-					source += `\n<script hoist src="astro:scripts/page.js" />`;
-				}
 
 				// Transform from `.astro` to valid `.ts`
 				let { code: tsResult } = await transform(astroResult, {
