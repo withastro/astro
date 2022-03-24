@@ -102,7 +102,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
-		console.log('huh?');
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
 		await cleanSsrOutput(opts);
 	} else {
