@@ -1,6 +1,6 @@
-# @astrojs/vue 💚
+# @astrojs/preact ⚛️
 
-This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [Vue 3](https://vuejs.org/) components.
+This **[Astro integration][astro-integration]** enables server-side rendering and client-side hydration for your [Preact](https://preactjs.com/) components.
 
 ## Installation
 
@@ -12,31 +12,31 @@ Astro includes a CLI tool for adding first party integrations: `astro add`. This
 1. (Optionally) Install all necessary dependencies and peer dependencies
 2. (Also optionally) Update your `astro.config.*` file to apply this integration
 
-To install `@astrojs/vue`, run the following from your project directory and follow the prompts:
+To install `@astrojs/preact`, run the following from your project directory and follow the prompts:
 
 ```sh
 # Using NPM
-npx astro add vue
+npx astro add preact
 # Using Yarn
-yarn astro add vue
+yarn astro add preact
 # Using PNPM
-pnpx astro add vue
+pnpx astro add preact
 ```
 
 If you run into any hiccups, [feel free to log an issue on our GitHub](https://github.com/withastro/astro/issues) and try the manual installation steps below.
 
 ### Install dependencies manually
 
-First, install the `@astrojs/vue` integration like so:
+First, install the `@astrojs/preact` integration like so:
 
 ```
-npm install @astrojs/vue
+npm install @astrojs/preact
 ```
 
-Most package managers will install associated peer dependencies as well. Still, if you see a "Cannot find package 'vue'" (or similar) warning when you start up Astro, you'll need to install Vue:
+Most package managers will install associated peer dependencies as well. Still, if you see a "Cannot find package 'preact'" (or similar) warning when you start up Astro, you'll need to install Preact:
 
 ```sh
-npm install vue
+npm install preact
 ```
 
 Now, apply this integration to your `astro.config.*` file using the `integrations` property:
@@ -44,11 +44,11 @@ Now, apply this integration to your `astro.config.*` file using the `integration
 __astro.config.mjs__
 
 ```js
-import vue from '@astrojs/vue';
+import preact from '@astrojs/preact';
 
 export default {
   // ...
-  integrations: [vue()],
+  integrations: [preact()],
 }
 ```
 
