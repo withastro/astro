@@ -92,7 +92,7 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 	const ssrEntry = await import(ssrEntryURL.toString());
 
 	for(const pageData of eachPageData(internals)) {
-		generatePage(opts, internals, pageData, ssrEntry);
+		await generatePage(opts, internals, pageData, ssrEntry);
 	}
 }
 

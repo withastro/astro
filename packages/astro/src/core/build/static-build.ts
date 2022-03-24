@@ -116,7 +116,9 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 				output: {
 					format: 'esm',
 					entryFileNames: 'entry.mjs',
+					chunkFileNames: 'chunks/[name].[hash].mjs',
 					assetFileNames: 'assets/[name].[hash][extname]',
+					inlineDynamicImports: true,
 				},
 			},
 			// must match an esbuild target
