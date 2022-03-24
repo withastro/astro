@@ -2,11 +2,13 @@ import type yargs from 'yargs-parser';
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
+import { diffLines } from 'diff';
+import prompts from 'prompts';
 import { resolveConfigURL } from '../core/config.js';
 import { apply as applyPolyfill } from '../core/polyfill.js';
 import { defaultLogOptions, error, info, debug, LogOptions, warn } from '../core/logger.js';
 import * as msg from '../core/messages.js';
-import { dim, red, cyan } from 'kleur/colors';
+import { dim, red, cyan, green } from 'kleur/colors';
 import { parseNpmName } from '../core/util.js';
 import { t, parse, visit, ensureImport, wrapDefaultExport, generate } from '../transform/index.js';
 
@@ -42,10 +44,10 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 	wrapDefaultExport(ast, defineConfig);
 
 	for (const integration of integrations) {
-		await addIntegration(ast, integration, { logging });
+		await addIntegration(ast, integration);
 	}
 
-	await updateAstroConfig(configURL, ast);
+	await updateAstroConfig({ configURL, ast, logging });
 
 	const len = integrations.length;
 	info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project.`, `Be sure to re-install your dependencies before continuing!`));
@@ -61,7 +63,7 @@ async function parseAstroConfig(configURL: URL): Promise<t.File> {
 	return result;
 }
 
-async function addIntegration(ast: t.File, integration: IntegrationInfo, { logging }: { logging: LogOptions }) {
+async function addIntegration(ast: t.File, integration: IntegrationInfo) {
 	const integrationId = t.identifier(integration.id);
 
 	ensureImport(ast, t.importDeclaration([t.importDefaultSpecifier(integrationId)], t.stringLiteral(integration.packageName)));
@@ -99,9 +101,37 @@ async function addIntegration(ast: t.File, integration: IntegrationInfo, { loggi
 	});
 }
 
-async function updateAstroConfig(configURL: URL, ast: t.File) {
+async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOptions; configURL: URL; ast: t.File }) {
+	const input = await fs.readFile(fileURLToPath(configURL), { encoding: 'utf-8' });
 	const output = await generate(ast, fileURLToPath(configURL));
-	await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
+	info(
+		logging,
+		null,
+		diffLines(input, output)
+			.map((change) => {
+				let lines = change.value.split('\n').slice(0, -1); // remove latest \n
+
+				if (change.added) lines = lines.map((line) => green(`+ ${line}`));
+				else if (change.removed) lines = lines.map((line) => red(`- ${line}`));
+				else lines = lines.map((line) => `  ${line}`);
+
+				return lines.join('\n');
+			})
+			.join('\n')
+	);
+
+	const response = await prompts({
+		type: 'confirm',
+		name: 'updateConfig',
+		message: 'This changes will be made to your configuration. Continue?',
+		initial: true,
+	});
+
+	if (response.updateConfig) {
+		await fs.writeFile(fileURLToPath(configURL), output, { encoding: 'utf-8' });
+	} else {
+		info(logging, null, 'No changes were made to the configuration file.');
+	}
 }
 
 interface IntegrationInfo {

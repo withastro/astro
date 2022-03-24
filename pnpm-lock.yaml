@@ -462,6 +462,7 @@ importers:
       '@types/common-ancestor-path': ^1.0.0
       '@types/connect': ^3.4.35
       '@types/debug': ^4.1.7
+      '@types/diff': ^5.0.2
       '@types/estree': ^0.0.51
       '@types/html-escaper': ^3.0.0
       '@types/mime': ^2.0.3
@@ -479,6 +480,7 @@ importers:
       ci-info: ^3.3.0
       common-ancestor-path: ^1.0.1
       debug: ^4.3.4
+      diff: ^5.0.0
       eol: ^0.9.1
       es-module-lexer: ^0.10.4
       esbuild: 0.14.25
@@ -500,6 +502,7 @@ importers:
       postcss-load-config: ^3.1.3
       prettier: ^2.6.0
       prismjs: ^1.27.0
+      prompts: ^2.4.2
       rehype-slug: ^5.0.1
       resolve: ^1.22.0
       rollup: ^2.70.1
@@ -536,6 +539,7 @@ importers:
       ci-info: 3.3.0
       common-ancestor-path: 1.0.1
       debug: 4.3.4
+      diff: 5.0.0
       eol: 0.9.1
       es-module-lexer: 0.10.4
       esbuild: 0.14.25
@@ -555,6 +559,7 @@ importers:
       postcss-load-config: 3.1.3
       prettier: 2.6.0
       prismjs: 1.27.0
+      prompts: 2.4.2
       rehype-slug: 5.0.1
       resolve: 1.22.0
       rollup: 2.70.1
@@ -582,6 +587,7 @@ importers:
       '@types/common-ancestor-path': 1.0.0
       '@types/connect': 3.4.35
       '@types/debug': 4.1.7
+      '@types/diff': 5.0.2
       '@types/estree': 0.0.51
       '@types/html-escaper': 3.0.0
       '@types/mime': 2.0.3
@@ -3832,6 +3838,10 @@ packages:
   /@types/degit/2.8.3:
     resolution: {integrity: sha512-CL7y71j2zaDmtPLD5Xq5S1Gv2dFoHl0/GBZm6s39Mj/ls28L3NzAOqf7H4H0/2TNVMgMjMVf9CAFYSjmXhi3bw==}
     dev: false
+
+  /@types/diff/5.0.2:
+    resolution: {integrity: sha512-uw8eYMIReOwstQ0QKF0sICefSy8cNO/v7gOTiIy9SbwuHyEecJUm7qlgueOO5S1udZ5I/irVydHVwMchgzbKTg==}
+    dev: true
 
   /@types/estree-jsx/0.0.1:
     resolution: {integrity: sha512-gcLAYiMfQklDCPjQegGn0TBAn9it05ISEsEhlKQUddIk7o2XDokOcTN7HBO8tznM0D9dGezvHEfRZBfZf6me0A==}
