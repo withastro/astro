@@ -5,9 +5,8 @@ import type { AstroAdapter } from '../../@types/astro';
 import type { StaticBuildOptions } from './types';
 import type { SerializedRouteInfo, SerializedSSRManifest } from '../app/types';
 
-import { chunkIsPage, rootRelativeFacadeId, getByFacadeId } from './generate.js';
 import { serializeRouteData } from '../routing/index.js';
-import { getPageDataByComponent, eachPageData } from './internal.js';
+import { eachPageData } from './internal.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { virtualModuleId as pagesVirtualModuleId } from './vite-plugin-pages.js';
 

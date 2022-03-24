@@ -23,24 +23,6 @@ import { getPageDataByComponent, eachPageData } from './internal.js';
 // system, possibly one that parallelizes if async IO is detected.
 const MAX_CONCURRENT_RENDERS = 1;
 
-// Utility functions
-async function loadRenderer(renderer: AstroRenderer, config: AstroConfig): Promise<SSRLoadedRenderer> {
-	const mod = (await import(resolveDependency(renderer.serverEntrypoint, config))) as { default: SSRLoadedRenderer['ssr'] };
-	return { ...renderer, ssr: mod.default };
-}
-
-async function loadRenderers(config: AstroConfig): Promise<SSRLoadedRenderer[]> {
-	return Promise.all(config._ctx.renderers.map((r) => loadRenderer(r, config)));
-}
-
-export function getByFacadeId<T>(facadeId: string, map: Map<string, T>): T | undefined {
-	return (
-		map.get(facadeId) ||
-		// Windows the facadeId has forward slashes, no idea why
-		map.get(facadeId.replace(/\//g, '\\'))
-	);
-}
-
 // Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
 function* throttle(max: number, inPaths: string[]) {
 	let tmp = [];
@@ -88,7 +70,7 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 
 	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
 	const outFolder = ssr ? getServerRoot(opts.astroConfig) : getOutRoot(opts.astroConfig);
-	const ssrEntryURL = new URL('./entry.mjs', outFolder);
+	const ssrEntryURL = new URL(`./entry.mjs?time=${Date.now()}`, outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 
 	for(const pageData of eachPageData(internals)) {
