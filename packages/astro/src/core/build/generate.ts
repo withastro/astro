@@ -16,7 +16,6 @@ import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 import { getOutRoot, getOutFolder, getOutFile } from './common.js';
 
-
 // Render is usually compute, which Node.js can't parallelize well.
 // In real world testing, dropping from 10->1 showed a notiable perf
 // improvement. In the future, we can revisit a smarter parallel
@@ -40,7 +39,6 @@ export function getByFacadeId<T>(facadeId: string, map: Map<string, T>): T | und
 		map.get(facadeId.replace(/\//g, '\\'))
 	);
 }
-
 
 // Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
 function* throttle(max: number, inPaths: string[]) {
@@ -149,7 +147,6 @@ interface GeneratePathOptions {
 	mod: ComponentInstance;
 	renderers: SSRLoadedRenderer[];
 }
-
 
 function addPageName(pathname: string, opts: StaticBuildOptions): void {
 	opts.pageNames.push(pathname.replace(/\/?$/, '/').replace(/^\//, ''));

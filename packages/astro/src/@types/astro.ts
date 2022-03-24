@@ -665,7 +665,7 @@ export interface AstroIntegration {
 			// more generalized. Consider the SSR use-case as well.
 			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
 		}) => void;
-		'astro:config:done'?: (options: {config: AstroConfig, setAdapter: (adapter: AstroAdapter) => void; }) => void | Promise<void>;
+		'astro:config:done'?: (options: { config: AstroConfig; setAdapter: (adapter: AstroAdapter) => void }) => void | Promise<void>;
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;

@@ -82,7 +82,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	// Build your project (SSR application code, assets, client JS, etc.)
 	const ssrResult = (await ssrBuild(opts, internals, pageInput)) as RollupOutput;
 
-	if(opts.buildConfig.staticMode) {
+	if (opts.buildConfig.staticMode) {
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
 		await cleanSsrOutput(opts);
 	} else {
@@ -128,8 +128,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			opts.astroConfig._ctx.adapter?.serverEntrypoint &&
-			vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter),
+			opts.astroConfig._ctx.adapter?.serverEntrypoint && vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,
@@ -186,7 +185,6 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
 	});
 }
-
 
 async function cleanSsrOutput(opts: StaticBuildOptions) {
 	// The SSR output is all .mjs files, the client output is not.

@@ -5,7 +5,7 @@ import { mergeConfig } from '../core/config.js';
 import ssgAdapter from '../adapter-ssg/index.js';
 
 export async function runHookConfigSetup({ config: _config, command }: { config: AstroConfig; command: 'dev' | 'build' }): Promise<AstroConfig> {
-	if(_config.adapter) {
+	if (_config.adapter) {
 		_config.integrations.push(_config.adapter);
 	}
 
@@ -36,24 +36,24 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 			await integration.hooks['astro:config:done']({
 				config,
 				setAdapter(adapter) {
-					if(config._ctx.adapter && config._ctx.adapter.name !== adapter.name) {
+					if (config._ctx.adapter && config._ctx.adapter.name !== adapter.name) {
 						throw new Error(`Adapter already set to ${config._ctx.adapter.name}. You can only have one adapter.`);
 					}
 					config._ctx.adapter = adapter;
-				}
+				},
 			});
 		}
 	}
 	// Call the default adapter
-	if(!config._ctx.adapter) {
+	if (!config._ctx.adapter) {
 		const integration = ssgAdapter();
 		config.integrations.push(integration);
-		if(integration.hooks['astro:config:done']) {
+		if (integration.hooks['astro:config:done']) {
 			await integration.hooks['astro:config:done']({
 				config,
 				setAdapter(adapter) {
 					config._ctx.adapter = adapter;
-				}
+				},
 			});
 		}
 	}
@@ -83,7 +83,7 @@ export async function runHookServerDone({ config }: { config: AstroConfig }) {
 	}
 }
 
-export async function runHookBuildStart({ config, buildConfig }: { config: AstroConfig, buildConfig: BuildConfig }) {
+export async function runHookBuildStart({ config, buildConfig }: { config: AstroConfig; buildConfig: BuildConfig }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:start']) {
 			await integration.hooks['astro:build:start']({ buildConfig });

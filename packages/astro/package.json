@@ -14,7 +14,11 @@
   "homepage": "https://astro.build",
   "types": "./dist/types/@types/astro.d.ts",
   "typesVersions": {
-    "*": { "app/*": ["./dist/types/core/app/*"] }
+    "*": {
+      "app/*": [
+        "./dist/types/core/app/*"
+      ]
+    }
   },
   "exports": {
     ".": "./astro.js",

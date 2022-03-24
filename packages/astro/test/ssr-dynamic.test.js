@@ -14,13 +14,13 @@ describe('Dynamic pages in SSR', () => {
 			buildOptions: {
 				experimentalSsr: true,
 			},
-			adapter: testAdapter()
+			adapter: testAdapter(),
 		});
 		await fixture.build();
 	});
 
 	it('Do not have to implement getStaticPaths', async () => {
-		const {createApp} = await import('./fixtures/ssr-dynamic/dist/server/entry.mjs');
+		const { createApp } = await import('./fixtures/ssr-dynamic/dist/server/entry.mjs');
 		const app = createApp(new URL('./fixtures/ssr-dynamic/dist/server/', import.meta.url));
 		const request = new Request('http://example.com/123');
 		const response = await app.render(request);

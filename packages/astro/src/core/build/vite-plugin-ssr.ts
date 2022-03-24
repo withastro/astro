@@ -16,28 +16,32 @@ export function vitePluginSSR(buildOpts: StaticBuildOptions, internals: BuildInt
 	return {
 		name: '@astrojs/vite-plugin-astro-ssr',
 		options(opts) {
-			if(Array.isArray(opts.input)) {
+			if (Array.isArray(opts.input)) {
 				opts.input.push(virtualModuleId);
 			} else {
 				return {
-					input: [virtualModuleId]
+					input: [virtualModuleId],
 				};
 			}
 		},
 		resolveId(id) {
-			if(id === virtualModuleId) {
+			if (id === virtualModuleId) {
 				return resolvedVirtualModuleId;
 			}
 		},
 		load(id) {
-			if(id === resolvedVirtualModuleId) {
+			if (id === resolvedVirtualModuleId) {
 				return `import * as adapter from '${adapter.serverEntrypoint}';
 import { deserializeManifest as _deserializeManifest } from 'astro/app';
 const _manifest = _deserializeManifest('${manifestReplace}');
 
-${adapter.exports ? `const _exports = adapter.createExports(_manifest);
-${adapter.exports.map(name => `export const ${name} = _exports['${name}'];`).join('\n')}
-` : ''}
+${
+	adapter.exports
+		? `const _exports = adapter.createExports(_manifest);
+${adapter.exports.map((name) => `export const ${name} = _exports['${name}'];`).join('\n')}
+`
+		: ''
+}
 const _start = 'start';
 if(_start in adapter) {
 	adapter[_start](_manifest);
@@ -45,13 +49,13 @@ if(_start in adapter) {
 			}
 			return void 0;
 		},
-		
+
 		generateBundle(opts, bundle) {
 			const manifest = buildManifest(bundle, buildOpts, internals);
-			
-			for(const [_chunkName, chunk] of Object.entries(bundle)) {
-				if(chunk.type === 'asset') continue;
-				if(chunk.modules[resolvedVirtualModuleId]) {
+
+			for (const [_chunkName, chunk] of Object.entries(bundle)) {
+				if (chunk.type === 'asset') continue;
+				if (chunk.modules[resolvedVirtualModuleId]) {
 					const exp = new RegExp(`['"]${manifestReplace}['"]`);
 					const code = chunk.code;
 					chunk.code = code.replace(exp, () => {
@@ -60,8 +64,8 @@ if(_start in adapter) {
 					chunk.fileName = 'entry.mjs';
 				}
 			}
-		}
-	}
+		},
+	};
 }
 
 function buildManifest(bundle: OutputBundle, opts: StaticBuildOptions, internals: BuildInternals): SerializedSSRManifest {

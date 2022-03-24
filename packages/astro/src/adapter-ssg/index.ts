@@ -17,7 +17,7 @@ export default function createIntegration(): AstroIntegration {
 			},
 			'astro:build:start': ({ buildConfig }) => {
 				buildConfig.staticMode = true;
-			}
-		}
+			},
+		},
 	};
 }
