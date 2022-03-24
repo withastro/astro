@@ -1,14 +1,16 @@
 import type yargs from 'yargs-parser';
 import path from 'path';
 import fs from 'fs/promises';
+import { exec } from 'child_process';
 import { fileURLToPath } from 'url';
 import { diffLines } from 'diff';
 import prompts from 'prompts';
+import preferredPM from 'preferred-pm';
 import { resolveConfigURL } from '../core/config.js';
 import { apply as applyPolyfill } from '../core/polyfill.js';
-import { defaultLogOptions, error, info, debug, LogOptions, warn } from '../core/logger.js';
+import { error, info, debug, LogOptions, warn } from '../core/logger.js';
 import * as msg from '../core/messages.js';
-import { dim, red, cyan, green } from 'kleur/colors';
+import { dim, red, cyan, green, bold } from 'kleur/colors';
 import { parseNpmName } from '../core/util.js';
 import { t, parse, visit, ensureImport, wrapDefaultExport, generate } from '../transform/index.js';
 
@@ -16,6 +18,12 @@ export interface AddOptions {
 	logging: LogOptions;
 	cwd?: string;
 	flags: yargs.Arguments;
+}
+
+export interface IntegrationInfo {
+	id: string;
+	packageName: string;
+	dependencies: [name: string, version: string][];
 }
 
 const DEFAULT_CONFIG_STUB = `import { defineConfig } from 'astro/config';\n\nexport default defineConfig({});`;
@@ -68,14 +76,17 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 	if (ast) {
 		try {
 			await updateAstroConfig({ configURL, ast, logging });
-
-			const len = integrations.length;
-			info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project.`, `Be sure to re-install your dependencies before continuing!`));
 		} catch (err) {
 			debug('add', 'Error updating astro config', err);
 			error(logging, null, 'There has been an error updating the astro config. You might need to update it manually.');
+			return;
 		}
 	}
+
+	await tryToInstallIntegrations({ integrations, cwd, logging });
+
+	const len = integrations.length;
+	info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project.`));
 }
 
 async function parseAstroConfig(configURL: URL): Promise<t.File> {
@@ -160,15 +171,70 @@ async function updateAstroConfig({ configURL, ast, logging }: { logging: LogOpti
 	}
 }
 
-interface IntegrationInfo {
-	id: string;
-	packageName: string;
-	dependencies: string[];
+async function getInstallIntegrationsCommand({ integrations, cwd = process.cwd() }: { integrations: IntegrationInfo[]; cwd?: string }): Promise<string | null> {
+	const pm = await preferredPM(cwd);
+	debug('add', `package manager: ${JSON.stringify(pm)}`);
+	if (!pm) return null;
+
+	let dependenciesList = integrations
+		.map<[string, string | null][]>((i) => [[i.packageName, null], ...i.dependencies])
+		.flat(1)
+		.filter((dep, i, arr) => arr.findIndex((d) => d[0] === dep[0]) === i)
+		.map(([name, version]) => (version === null ? name : `${name}@${version}`))
+		.sort()
+		.join(' ');
+
+	switch (pm.name) {
+		case 'npm':
+			return 'npm install --save-dev ' + dependenciesList;
+		case 'yarn':
+			return 'yarn add --dev ' + dependenciesList;
+		case 'pnpm':
+			return 'pnpm add --save-dev ' + dependenciesList;
+		default:
+			return null;
+	}
+}
+
+async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), logging }: { integrations: IntegrationInfo[]; cwd?: string; logging: LogOptions }) {
+	const cmd = await getInstallIntegrationsCommand({ integrations, cwd });
+
+	if (cmd === null) {
+		info(logging, null);
+	} else {
+		info(logging, null, `In order to install the integrations, the following command will be run: \n${bold(cyan(cmd))}`);
+		const response = await prompts({
+			type: 'confirm',
+			name: 'installDependencies',
+			message: 'Is this the right command?',
+			initial: true,
+		});
+
+		if (response.installDependencies) {
+			try {
+				await new Promise((resolve, reject) => {
+					exec(cmd, (err, stdout, stderr) => {
+						if (err) {
+							reject(stderr);
+						} else {
+							resolve(stdout);
+						}
+					});
+				});
+				info(logging, null, 'Dependnecies installed!');
+			} catch (err) {
+				debug('add', 'Error installing dependencies', err);
+				warn(logging, null, 'There was an error installing the dependencies. Be sure to install them manually before continuing!');
+			}
+		} else {
+			info(logging, null, 'Be sure to install the dependencies before continuing!');
+		}
+	}
 }
 
 export async function validateIntegrations(integrations: string[]): Promise<IntegrationInfo[]> {
 	const integrationEntries = await Promise.all(
-		integrations.map((integration) => {
+		integrations.map(async (integration): Promise<IntegrationInfo> => {
 			const parsed = parseIntegrationName(integration);
 			if (!parsed) {
 				throw new Error(`${integration} does not appear to be a valid package name!`);
@@ -180,24 +246,23 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 				scope = `astrojs`;
 			}
 			const packageName = `${scope ? `@${scope}/` : ''}${name}`;
-			return fetch(`https://registry.npmjs.org/${packageName}/${tag}`)
-				.then((res) => {
-					if (res.status === 404) {
-						throw new Error(`Unable to fetch ${packageName}. Does this package exist?`);
-					}
-					return res.json();
-				})
-				.then((res: any) => {
-					let dependencies: [string, string][] = [[res['name'], `^${res['version']}`]];
 
-					if (res['peerDependencies']) {
-						for (const peer in res['peerDependencies']) {
-							dependencies.push([peer, res['peerDependencies'][peer]]);
-						}
-					}
+			const result = await fetch(`https://registry.npmjs.org/${packageName}/${tag}`).then((res) => {
+				if (res.status === 404) {
+					throw new Error(`Unable to fetch ${packageName}. Does this package exist?`);
+				}
+				return res.json();
+			});
 
-					return { id: integration, packageName, dependencies: dependencies.flat(1) };
-				});
+			let dependencies: IntegrationInfo['dependencies'] = [[result['name'], `^${result['version']}`]];
+
+			if (result['peerDependencies']) {
+				for (const peer in result['peerDependencies']) {
+					dependencies.push([peer, result['peerDependencies'][peer]]);
+				}
+			}
+
+			return { id: integration, packageName, dependencies };
 		})
 	);
 	return integrationEntries;
