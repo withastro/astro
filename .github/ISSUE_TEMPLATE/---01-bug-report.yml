@@ -39,7 +39,13 @@ body:
   - type: input
     attributes:
       label: Link to Minimal Reproducible Example
-      description: 'Please use the following link to create a reproduction: https://astro.new'
+      description: 'Use [astro.new](https://astro.new) to create a minimal reproduction of the problem. **A minimal reproduction is required** so that others can help debug your issue. If a report is vague (e.g. just a generic error message) and has no reproduction, it may be auto-closed.'
       placeholder: 'https://stackblitz.com/abcd1234'
     validations:
       required: true
+  - type: checkboxes
+    attributes:
+      label: Participation
+      options:
+        - label:  I am willing to submit a pull request for this issue.
+          required: false
