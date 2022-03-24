@@ -1,5 +1,11 @@
 # @astrojs/preact
 
+## 0.0.2-next.1
+
+### Patch Changes
+
+- [#2872](https://github.com/withastro/astro/pull/2872) [`098f6f6b`](https://github.com/withastro/astro/commit/098f6f6b06396441c576dc689d8552629ef260e1) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `isSelfAccepting` errors when using the Preact integration with the Astro dev server
+
 ## 0.0.2-next.0
 
 ### Patch Changes

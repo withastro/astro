@@ -1,6 +1,6 @@
 {
   "name": "@astrojs/markdown-remark",
-  "version": "0.7.0-next.0",
+  "version": "0.7.0-next.1",
   "type": "module",
   "author": "withastro",
   "license": "MIT",
@@ -23,7 +23,7 @@
     "dev": "astro-scripts dev \"src/**/*.ts\""
   },
   "dependencies": {
-    "@astrojs/prism": "^0.4.0",
+    "@astrojs/prism": "^0.4.1-next.0",
     "assert": "^2.0.0",
     "github-slugger": "^1.4.0",
     "gray-matter": "^4.0.3",

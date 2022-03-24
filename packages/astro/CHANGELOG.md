@@ -1,5 +1,57 @@
 # astro
 
+## 0.25.0-next.3
+
+### Patch Changes
+
+- [#2871](https://github.com/withastro/astro/pull/2871) [`5029382a`](https://github.com/withastro/astro/commit/5029382a8cab17f048372ee878d0778c89998009) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Fix a bug where tailwind integration wouldn't apply to markdown pages
+
+* [#2855](https://github.com/withastro/astro/pull/2855) [`5e52814d`](https://github.com/withastro/astro/commit/5e52814d97a5723dbe7ebb32fbe040a7a4c0ea77) Thanks [@matthewp](https://github.com/matthewp)! - Adds support for the Node adapter (SSR)
+
+  This provides the first SSR adapter available using the `integrations` API. It is a Node.js adapter that can be used with the `http` module or any framework that wraps it, like Express.
+
+  In your astro.config.mjs use:
+
+  ```js
+  import nodejs from '@astrojs/node';
+
+  export default {
+  	adapter: nodejs(),
+  };
+  ```
+
+  After performing a build there will be a `dist/server/entry.mjs` module that works like a middleware function. You can use with any framework that supports the Node `request` and `response` objects. For example, with Express you can do:
+
+  ```js
+  import express from 'express';
+  import { handler as ssrHandler } from '@astrojs/node';
+
+  const app = express();
+  app.use(handler);
+
+  app.listen(8080);
+  ```
+
+- [#2859](https://github.com/withastro/astro/pull/2859) [`c781b12f`](https://github.com/withastro/astro/commit/c781b12f87398d51a6ecf5dcb8b35afb08591c29) Thanks [@natemoo-re](https://github.com/natemoo-re)! - Ensure private, internal APIs are not enumerable
+
+* [#2878](https://github.com/withastro/astro/pull/2878) [`2db97f10`](https://github.com/withastro/astro/commit/2db97f10dc50f9498413181b78c477fe8833895b) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Move the built-in `Prism` component from `astro/components` to `@astrojs/prism/component`.
+
+- [#2857](https://github.com/withastro/astro/pull/2857) [`1061d647`](https://github.com/withastro/astro/commit/1061d6477af328e93c9a727e70900ae20c0116c8) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Improve granularity of production build logs. This now lists:
+  - the "data collection" build step, with timeout warnings for larger imports. This is useful for understanding large `import.meta.glob` calls.
+  - the Vite client bundling step. This logs all Vite production build info to clarify what assets are built alongside your HTML.
+  - the route generation step, complete with all output HTML files for a given input file. This is especially useful when debugging `getStaticPaths`.
+  - fixes "0 pages in Infinityms" log when building to SSR
+
+* [#2873](https://github.com/withastro/astro/pull/2873) [`e4025d1f`](https://github.com/withastro/astro/commit/e4025d1f530310d6ab951109f4f53878a307471a) Thanks [@matthewp](https://github.com/matthewp)! - Improves the build by building to a single file for rendering
+
+- [#2875](https://github.com/withastro/astro/pull/2875) [`55712277`](https://github.com/withastro/astro/commit/5571227718442e1ec38f4553863b6160b74df722) Thanks [@FredKSchott](https://github.com/FredKSchott)! - Generalize output assets to avoid adblocker false positives
+
+* [#2872](https://github.com/withastro/astro/pull/2872) [`098f6f6b`](https://github.com/withastro/astro/commit/098f6f6b06396441c576dc689d8552629ef260e1) Thanks [@bholmesdev](https://github.com/bholmesdev)! - Fix `isSelfAccepting` errors when using the Preact integration with the Astro dev server
+
+* Updated dependencies [[`2db97f10`](https://github.com/withastro/astro/commit/2db97f10dc50f9498413181b78c477fe8833895b), [`d763ec18`](https://github.com/withastro/astro/commit/d763ec183ea391ad79ca16bf2b2e76848fc1180c)]:
+  - @astrojs/prism@0.4.1-next.0
+  - @astrojs/markdown-remark@0.7.0-next.1
+
 ## 0.25.0-next.2
 
 ### Patch Changes
@@ -60,7 +112,7 @@
   import { defineConfig } from 'astro/config';
 
   export default defineConfig({
-    renderers: [],
+  	renderers: [],
   });
   ```
 
@@ -98,9 +150,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -120,7 +172,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -204,7 +256,7 @@
 
   ```ts
   if (Astro.slots.has('default')) {
-    const content = await Astro.slots.render('default');
+  	const content = await Astro.slots.render('default');
   }
   ```
 
@@ -228,9 +280,9 @@
 
   ```json
   {
-    "scripts": {
-      "build": "astro build --legacy-build"
-    }
+  	"scripts": {
+  		"build": "astro build --legacy-build"
+  	}
   }
   ```
 
@@ -342,12 +394,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -509,12 +561,12 @@
   ```typescript
   // src/pages/company.json.ts
   export async function get() {
-    return {
-      body: JSON.stringify({
-        name: 'Astro Technology Company',
-        url: 'https://astro.build/',
-      }),
-    };
+  	return {
+  		body: JSON.stringify({
+  			name: 'Astro Technology Company',
+  			url: 'https://astro.build/',
+  		}),
+  	};
   }
   ```
 
@@ -1869,10 +1921,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    markdownOptions: {
-      remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
-      rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
-    },
+  	markdownOptions: {
+  		remarkPlugins: ['remark-slug', ['remark-autolink-headings', { behavior: 'prepend' }]],
+  		rehypePlugins: ['rehype-slug', ['rehype-autolink-headings', { behavior: 'prepend' }]],
+  	},
   };
   ```
 
@@ -1892,10 +1944,10 @@ For convenience, you may now also move your `astro.config.js` file to a top-leve
 
   ```js
   export default {
-    name: '@matthewp/my-renderer',
-    server: './server.js',
-    client: './client.js',
-    hydrationPolyfills: ['./my-polyfill.js'],
+  	name: '@matthewp/my-renderer',
+  	server: './server.js',
+  	client: './client.js',
+  	hydrationPolyfills: ['./my-polyfill.js'],
   };
   ```
 
