@@ -1,20 +1,26 @@
 import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import type { PageBuildData } from './types';
 import type { AstroConfig, AstroRenderer, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
-import type { StaticBuildOptions, SingleFileBuiltModule } from './types';
+import type { PageBuildData, StaticBuildOptions, SingleFileBuiltModule } from './types';
 import type { BuildInternals } from '../../core/build/internal.js';
 import type { RenderOptions } from '../../core/render/core';
 
 import fs from 'fs';
+import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
 import npath from 'path';
+import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
 import { fileURLToPath } from 'url';
+import type { AstroConfig, AstroRenderer, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
+import type { BuildInternals } from '../../core/build/internal.js';
 import { debug, error, info } from '../../core/logger.js';
 import { prependForwardSlash } from '../../core/path.js';
+import type { RenderOptions } from '../../core/render/core';
 import { resolveDependency } from '../../core/util.js';
+import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
-import { getOutRoot, getOutFolder, getOutFile, getServerRoot } from './common.js';
+import { getOutFile, getOutRoot, getOutFolder, getOutFile, getServerRoot } from './common.js';
 import { getPageDataByComponent, eachPageData } from './internal.js';
 import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
 import { getTimeStat } from './util.js';
@@ -194,7 +200,7 @@ async function generatePath(pathname: string, opts: StaticBuildOptions, gopts: G
 					// Return this as placeholder, which will be ignored by the browser.
 					// TODO: In the future, we hope to run this entire script through Vite,
 					// removing the need to maintain our own custom Vite-mimic resolve logic.
-					if (specifier === 'astro:scripts/before-hydration.js') {
+					if (specifier === BEFORE_HYDRATION_SCRIPT_ID) {
 						return 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
 					}
 					throw new Error(`Cannot find the built path for ${specifier}`);

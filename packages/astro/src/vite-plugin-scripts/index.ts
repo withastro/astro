@@ -1,13 +1,13 @@
 import { Plugin as VitePlugin } from 'vite';
-import { AstroConfig } from '../@types/astro.js';
+import { AstroConfig, InjectedScriptStage } from '../@types/astro.js';
 
 // NOTE: We can't use the virtual "\0" ID convention because we need to
 // inject these as ESM imports into actual code, where they would not
 // resolve correctly.
 const SCRIPT_ID_PREFIX = `astro:scripts/`;
-const BEFORE_HYDRATION_SCRIPT_ID = `${SCRIPT_ID_PREFIX}before-hydration.js`;
-const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}page.js`;
-const PAGE_SSR_SCRIPT_ID = `${SCRIPT_ID_PREFIX}page-ssr.js`;
+export const BEFORE_HYDRATION_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'before-hydration' as InjectedScriptStage}.js`;
+export const PAGE_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page' as InjectedScriptStage}.js`;
+export const PAGE_SSR_SCRIPT_ID = `${SCRIPT_ID_PREFIX}${'page-ssr' as InjectedScriptStage}.js`;
 
 export default function astroScriptsPlugin({ config }: { config: AstroConfig }): VitePlugin {
 	return {

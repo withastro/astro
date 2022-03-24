@@ -9,6 +9,7 @@ import { serializeRouteData } from '../routing/index.js';
 import { eachPageData } from './internal.js';
 import { addRollupInput } from './add-rollup-input.js';
 import { virtualModuleId as pagesVirtualModuleId } from './vite-plugin-pages.js';
+import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 
 export const virtualModuleId = '@astrojs-ssr-virtual-entry';
 const resolvedVirtualModuleId = '\0' + virtualModuleId;
@@ -88,7 +89,7 @@ function buildManifest(opts: StaticBuildOptions, internals: BuildInternals): Ser
 
 	// HACK! Patch this special one.
 	const entryModules = Object.fromEntries(internals.entrySpecifierToBundleMap.entries());
-	entryModules['astro:scripts/before-hydration.js'] = 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
+	entryModules[BEFORE_HYDRATION_SCRIPT_ID] = 'data:text/javascript;charset=utf-8,//[no before-hydration script]';
 
 	const ssrManifest: SerializedSSRManifest = {
 		routes,
