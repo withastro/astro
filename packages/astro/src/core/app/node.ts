@@ -33,5 +33,5 @@ export async function loadManifest(rootFolder: URL): Promise<SSRManifest> {
 
 export async function loadApp(rootFolder: URL): Promise<NodeApp> {
 	const manifest = await loadManifest(rootFolder);
-	return new NodeApp(manifest, rootFolder);
+	return new NodeApp(manifest);
 }

@@ -1,7 +1,8 @@
 import type { AstroConfig } from '../../@types/astro';
 import type { Plugin as VitePlugin } from 'vite';
 import type { BuildInternals } from '../../core/build/internal.js';
-import { fileURLToPath } from 'url';
+import { viteID } from '../util.js';
+import { getPageDataByViteID } from './internal.js';
 
 function virtualHoistedEntry(id: string) {
 	return id.endsWith('.astro/hoisted.js') || id.endsWith('.md/hoisted.js');
@@ -37,8 +38,12 @@ export function vitePluginHoistedScripts(astroConfig: AstroConfig, internals: Bu
 				if (output.type === 'chunk' && output.facadeModuleId && virtualHoistedEntry(output.facadeModuleId)) {
 					const facadeId = output.facadeModuleId!;
 					const pathname = facadeId.slice(0, facadeId.length - '/hoisted.js'.length);
-					const filename = fileURLToPath(new URL('.' + pathname, astroConfig.projectRoot));
-					internals.facadeIdToHoistedEntryMap.set(filename, id);
+
+					const vid = viteID(new URL('.' + pathname, astroConfig.projectRoot));
+					const pageInfo = getPageDataByViteID(internals, vid);
+					if(pageInfo) {
+						pageInfo.hoistedScript = id;
+					}
 				}
 			}
 		},

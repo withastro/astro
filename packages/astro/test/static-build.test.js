@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import cheerio from 'cheerio';
+import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 
 function addLeadingSlash(path) {
@@ -23,7 +23,7 @@ describe('Static build', () => {
 
 	it('can build pages using fetchContent', async () => {
 		const html = await fixture.readFile('/index.html');
-		const $ = cheerio.load(html);
+		const $ = cheerioLoad(html);
 		const link = $('.posts a');
 		const href = link.attr('href');
 		expect(href).to.be.equal('/subpath/posts/thoughts');
@@ -69,7 +69,7 @@ describe('Static build', () => {
 	function createFindEvidence(expected, prefix) {
 		return async function findEvidence(pathname) {
 			const html = await fixture.readFile(pathname);
-			const $ = cheerio.load(html);
+			const $ = cheerioLoad(html);
 			const links = $('link[rel=stylesheet]');
 			for (const link of links) {
 				const href = $(link).attr('href').slice('/subpath'.length);
@@ -118,23 +118,23 @@ describe('Static build', () => {
 	describe('Hoisted scripts', () => {
 		it('Get bundled together on the page', async () => {
 			const html = await fixture.readFile('/hoisted/index.html');
-			const $ = cheerio.load(html);
+			const $ = cheerioLoad(html);
 			expect($('script[type="module"]').length).to.equal(1, 'hoisted script added');
 		});
 
 		it('Do not get added to the wrong page', async () => {
 			const hoistedHTML = await fixture.readFile('/hoisted/index.html');
-			const $ = cheerio.load(hoistedHTML);
+			const $ = cheerioLoad(hoistedHTML);
 			const href = $('script[type="module"]').attr('src');
 			const indexHTML = await fixture.readFile('/index.html');
-			const $$ = cheerio.load(indexHTML);
+			const $$ = cheerioLoad(indexHTML);
 			expect($$(`script[src="${href}"]`).length).to.equal(0, 'no script added to different page');
 		});
 	});
 
 	it('honors ssr config', async () => {
 		const html = await fixture.readFile('/index.html');
-		const $ = cheerio.load(html);
+		const $ = cheerioLoad(html);
 		expect($('#ssr-config').text()).to.equal('testing');
 	});
 });

@@ -1,20 +1,21 @@
-import fs from 'fs';
-import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
-import npath from 'path';
 import type { OutputAsset, OutputChunk, RollupOutput } from 'rollup';
-import { fileURLToPath } from 'url';
-import type { AstroConfig, AstroRenderer, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
+import type { AstroConfig, ComponentInstance, EndpointHandler, SSRLoadedRenderer } from '../../@types/astro';
+import type { PageBuildData, StaticBuildOptions, SingleFileBuiltModule } from './types';
 import type { BuildInternals } from '../../core/build/internal.js';
+import type { RenderOptions } from '../../core/render/core';
+
+import fs from 'fs';
+import npath from 'path';
+import { fileURLToPath } from 'url';
 import { debug, error, info } from '../../core/logger.js';
 import { prependForwardSlash } from '../../core/path.js';
-import type { RenderOptions } from '../../core/render/core';
-import { resolveDependency } from '../../core/util.js';
 import { BEFORE_HYDRATION_SCRIPT_ID } from '../../vite-plugin-scripts/index.js';
 import { call as callEndpoint } from '../endpoint/index.js';
 import { render } from '../render/core.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
-import { getOutFile, getOutFolder, getOutRoot } from './common.js';
-import type { PageBuildData, StaticBuildOptions } from './types';
+import { getOutFile, getOutRoot, getOutFolder, getServerRoot } from './common.js';
+import { getPageDataByComponent, eachPageData } from './internal.js';
+import { bgMagenta, black, cyan, dim, magenta } from 'kleur/colors';
 import { getTimeStat } from './util.js';
 
 // Render is usually compute, which Node.js can't parallelize well.
@@ -22,24 +23,6 @@ import { getTimeStat } from './util.js';
 // improvement. In the future, we can revisit a smarter parallel
 // system, possibly one that parallelizes if async IO is detected.
 const MAX_CONCURRENT_RENDERS = 1;
-
-// Utility functions
-async function loadRenderer(renderer: AstroRenderer, config: AstroConfig): Promise<SSRLoadedRenderer> {
-	const mod = (await import(resolveDependency(renderer.serverEntrypoint, config))) as { default: SSRLoadedRenderer['ssr'] };
-	return { ...renderer, ssr: mod.default };
-}
-
-async function loadRenderers(config: AstroConfig): Promise<SSRLoadedRenderer[]> {
-	return Promise.all(config._ctx.renderers.map((r) => loadRenderer(r, config)));
-}
-
-export function getByFacadeId<T>(facadeId: string, map: Map<string, T>): T | undefined {
-	return (
-		map.get(facadeId) ||
-		// Windows the facadeId has forward slashes, no idea why
-		map.get(facadeId.replace(/\//g, '\\'))
-	);
-}
 
 // Throttle the rendering a paths to prevents creating too many Promises on the microtask queue.
 function* throttle(max: number, inPaths: string[]) {
@@ -86,45 +69,42 @@ export function chunkIsPage(astroConfig: AstroConfig, output: OutputAsset | Outp
 export async function generatePages(result: RollupOutput, opts: StaticBuildOptions, internals: BuildInternals, facadeIdToPageDataMap: Map<string, PageBuildData>) {
 	info(opts.logging, null, `\n${bgMagenta(black(' generating static routes '))}\n`);
 
-	// Get renderers to be shared for each page generation.
-	const renderers = await loadRenderers(opts.astroConfig);
+	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
+	const outFolder = ssr ? getServerRoot(opts.astroConfig) : getOutRoot(opts.astroConfig);
+	const ssrEntryURL = new URL(`./entry.mjs?time=${Date.now()}`, outFolder);
+	const ssrEntry = await import(ssrEntryURL.toString());
 
-	for (let output of result.output) {
-		if (chunkIsPage(opts.astroConfig, output, internals)) {
-			await generatePage(output as OutputChunk, opts, internals, facadeIdToPageDataMap, renderers);
-		}
+	for(const pageData of eachPageData(internals)) {
+		await generatePage(opts, internals, pageData, ssrEntry);
 	}
 }
 
 async function generatePage(
-	output: OutputChunk,
+	//output: OutputChunk,
 	opts: StaticBuildOptions,
 	internals: BuildInternals,
-	facadeIdToPageDataMap: Map<string, PageBuildData>,
-	renderers: SSRLoadedRenderer[]
+	pageData: PageBuildData,
+	ssrEntry: SingleFileBuiltModule
 ) {
-	let timeStart = performance.now();
-	const { astroConfig } = opts;
+  let timeStart = performance.now();
+	const renderers = ssrEntry.renderers;
 
-	let url = new URL('./' + output.fileName, getOutRoot(astroConfig));
-	const facadeId: string = output.facadeModuleId as string;
-	let pageData = getByFacadeId<PageBuildData>(facadeId, facadeIdToPageDataMap);
+	const pageInfo = getPageDataByComponent(internals, pageData.route.component);
+	const linkIds: string[] = Array.from(pageInfo?.css ?? []);
+	const hoistedId = pageInfo?.hoistedScript ?? null;
 
-	if (!pageData) {
-		throw new Error(`Unable to find a PageBuildData for the Astro page: ${facadeId}. There are the PageBuildDatas we have ${Array.from(facadeIdToPageDataMap.keys()).join(', ')}`);
+	const pageModule = ssrEntry.pageMap.get(pageData.component);
+
+	if(!pageModule) {
+		throw new Error(`Unable to find the module for ${pageData.component}. This is unexpected and likely a bug in Astro, please report.`);
 	}
-
-	const linkIds = getByFacadeId<string[]>(facadeId, internals.facadeIdToAssetsMap) || [];
-	const hoistedId = getByFacadeId<string>(facadeId, internals.facadeIdToHoistedEntryMap) || null;
-
-	let compiledModule = await import(url.toString());
 
 	const generationOptions: Readonly<GeneratePathOptions> = {
 		pageData,
 		internals,
 		linkIds,
 		hoistedId,
-		mod: compiledModule,
+		mod: pageModule,
 		renderers,
 	};
 

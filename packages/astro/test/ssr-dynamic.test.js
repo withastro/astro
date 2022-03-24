@@ -2,10 +2,10 @@ import { expect } from 'chai';
 import { load as cheerioLoad } from 'cheerio';
 import { loadFixture } from './test-utils.js';
 import testAdapter from './test-adapter.js';
-import { App } from '../dist/core/app/index.js';
 
 // Asset bundling
 describe('Dynamic pages in SSR', () => {
+	/** @type {import('./test-utils').Fixture} */
 	let fixture;
 
 	before(async () => {
@@ -20,8 +20,7 @@ describe('Dynamic pages in SSR', () => {
 	});
 
 	it('Do not have to implement getStaticPaths', async () => {
-		const { createApp } = await import('./fixtures/ssr-dynamic/dist/server/entry.mjs');
-		const app = createApp(new URL('./fixtures/ssr-dynamic/dist/server/', import.meta.url));
+		const app = await fixture.loadTestAdapterApp();
 		const request = new Request('http://example.com/123');
 		const response = await app.render(request);
 		const html = await response.text();

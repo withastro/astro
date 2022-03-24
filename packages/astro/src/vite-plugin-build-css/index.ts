@@ -4,6 +4,7 @@ import * as path from 'path';
 import esbuild from 'esbuild';
 import { Plugin as VitePlugin } from 'vite';
 import { isCSSRequest } from '../core/render/dev/css.js';
+import { getPageDatasByChunk } from '../core/build/internal.js';
 
 const PLUGIN_NAME = '@astrojs/rollup-plugin-build-css';
 
@@ -137,12 +138,8 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 			internals.chunkToReferenceIdMap.set(chunk.fileName, referenceId);
 			if (chunk.type === 'chunk') {
 				const fileName = this.getFileName(referenceId);
-				if (chunk.facadeModuleId) {
-					const facadeId = chunk.facadeModuleId!;
-					if (!internals.facadeIdToAssetsMap.has(facadeId)) {
-						internals.facadeIdToAssetsMap.set(facadeId, []);
-					}
-					internals.facadeIdToAssetsMap.get(facadeId)!.push(fileName);
+				for(const pageData of getPageDatasByChunk(internals, chunk)) {
+					pageData.css.add(fileName);
 				}
 			}
 
@@ -161,22 +158,15 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 			for (const [chunkId, chunk] of Object.entries(bundle)) {
 				if (chunk.type === 'chunk') {
-					// If the chunk has a facadeModuleId it is an entrypoint chunk.
 					// This find shared chunks of CSS and adds them to the main CSS chunks,
 					// so that shared CSS is added to the page.
-					if (chunk.facadeModuleId) {
-						if (!internals.facadeIdToAssetsMap.has(chunk.facadeModuleId)) {
-							internals.facadeIdToAssetsMap.set(chunk.facadeModuleId, []);
-						}
-						const assets = internals.facadeIdToAssetsMap.get(chunk.facadeModuleId)!;
-						const assetSet = new Set(assets);
+					for(const { css: cssSet } of getPageDatasByChunk(internals, chunk)) {
 						for (const imp of chunk.imports) {
 							if (internals.chunkToReferenceIdMap.has(imp) && !pureChunkFilenames.has(imp)) {
 								const referenceId = internals.chunkToReferenceIdMap.get(imp)!;
 								const fileName = this.getFileName(referenceId);
-								if (!assetSet.has(fileName)) {
-									assetSet.add(fileName);
-									assets.push(fileName);
+								if (!cssSet.has(fileName)) {
+									cssSet.add(fileName);
 								}
 							}
 						}

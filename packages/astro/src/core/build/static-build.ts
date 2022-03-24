@@ -16,8 +16,11 @@ import { rollupPluginAstroBuildCSS } from '../../vite-plugin-build-css/index.js'
 import { vitePluginHoistedScripts } from './vite-plugin-hoisted-scripts.js';
 import { vitePluginInternals } from './vite-plugin-internals.js';
 import { vitePluginSSR } from './vite-plugin-ssr.js';
+import { vitePluginPages } from './vite-plugin-pages.js';
 import { generatePages } from './generate.js';
+import { trackPageData } from './internal.js';
 import { getClientRoot, getServerRoot, getOutRoot } from './common.js';
+import { isBuildingToSSR } from '../util.js';
 import { getTimeStat } from './util.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
@@ -44,6 +47,9 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	for (const [component, pageData] of Object.entries(allPages)) {
 		const astroModuleURL = new URL('./' + component, astroConfig.projectRoot);
 		const astroModuleId = prependForwardSlash(component);
+
+		// Track the page data in internals
+		trackPageData(internals, component, pageData, astroModuleId, astroModuleURL);
 
 		if (pageData.route.type === 'page') {
 			const [renderers, mod] = pageData.preload;
@@ -96,7 +102,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	timer.generate = performance.now();
 	if (opts.buildConfig.staticMode) {
-		console.log('huh?');
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
 		await cleanSsrOutput(opts);
 	} else {
@@ -122,10 +127,10 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			outDir: fileURLToPath(out),
 			ssr: true,
 			rollupOptions: {
-				input: Array.from(input),
+				input: [],
 				output: {
 					format: 'esm',
-					entryFileNames: 'entry.[hash].mjs',
+					entryFileNames: 'entry.mjs',
 					chunkFileNames: 'chunks/chunk.[hash].mjs',
 					assetFileNames: 'assets/asset.[hash][extname]',
 				},
@@ -139,12 +144,14 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 		},
 		plugins: [
 			vitePluginInternals(input, internals),
+			vitePluginPages(opts, internals),
 			rollupPluginAstroBuildCSS({
 				internals,
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			opts.astroConfig._ctx.adapter?.serverEntrypoint && vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter),
+			isBuildingToSSR(opts.astroConfig) &&
+			vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,
