@@ -38,8 +38,9 @@ export function vitePluginHoistedScripts(astroConfig: AstroConfig, internals: Bu
 				if (output.type === 'chunk' && output.facadeModuleId && virtualHoistedEntry(output.facadeModuleId)) {
 					const facadeId = output.facadeModuleId!;
 					const pathname = facadeId.slice(0, facadeId.length - '/hoisted.js'.length);
-					const id = viteID(new URL('.' + pathname, astroConfig.projectRoot));
-					const pageInfo = getPageDataByViteID(internals, id);
+
+					const vid = viteID(new URL('.' + pathname, astroConfig.projectRoot));
+					const pageInfo = getPageDataByViteID(internals, vid);
 					if(pageInfo) {
 						pageInfo.hoistedScript = id;
 					}
