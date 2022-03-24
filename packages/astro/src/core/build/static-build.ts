@@ -87,7 +87,6 @@ export async function staticBuild(opts: StaticBuildOptions) {
 	timer.clientBuild = performance.now();
 	// Run client build first, so the assets can be fed into the SSR rendered version.
 	await clientBuild(opts, internals, jsInput);
-	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer.clientBuild, performance.now())}\n`));
 
 	// Build your project (SSR application code, assets, client JS, etc.)
 	timer.ssr = performance.now();
@@ -157,6 +156,7 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 
 async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, input: Set<string>) {
 	const { astroConfig, viteConfig } = opts;
+	const timer = performance.now();
 
 	// Nothing to do if there is no client-side JS.
 	if (!input.size) {
@@ -169,7 +169,7 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 
 	info(opts.logging, null, `\n${bgGreen(black(' building resources '))}\n`);
 
-	return await vite.build({
+	const buildResult = await vite.build({
 		logLevel: 'info',
 		mode: 'production',
 		css: viteConfig.css,
@@ -203,6 +203,8 @@ async function clientBuild(opts: StaticBuildOptions, internals: BuildInternals, 
 		server: viteConfig.server,
 		base: appendForwardSlash(astroConfig.buildOptions.site ? new URL(astroConfig.buildOptions.site).pathname : '/'),
 	});
+	info(opts.logging, null, dim(`Completed in ${getTimeStat(timer, performance.now())}\n`));
+	return buildResult;
 }
 
 async function cleanSsrOutput(opts: StaticBuildOptions) {
