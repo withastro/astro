@@ -259,6 +259,7 @@ async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), log
 
 	if (cmd === null) {
 		info(logging, null);
+		return UpdateResult.none;
 	} else {
 		const message = `\n${boxen(cyan(cmd), { margin: 0.5, padding: 0.5, borderStyle: 'round' })}\n`;
 		info(logging, null, `\n  ${magenta('Astro will run the following command to install...')}\n${message}`);
