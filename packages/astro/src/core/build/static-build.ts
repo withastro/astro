@@ -19,6 +19,7 @@ import { vitePluginPages } from './vite-plugin-pages.js';
 import { generatePages } from './generate.js';
 import { trackPageData } from './internal.js';
 import { getClientRoot, getServerRoot, getOutRoot } from './common.js';
+import { isBuildingToSSR } from '../util.js';
 
 export async function staticBuild(opts: StaticBuildOptions) {
 	const { allPages, astroConfig } = opts;
@@ -111,11 +112,10 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			outDir: fileURLToPath(out),
 			ssr: true,
 			rollupOptions: {
-				input: [],// TODO can we remove this? Array.from(input),
+				input: [],
 				output: {
 					format: 'esm',
-					entryFileNames: 'astro-entry.mjs',
-					//chunkFileNames: 'chunks/[name].[hash].mjs',
+					entryFileNames: 'entry.mjs',
 					assetFileNames: 'assets/[name].[hash][extname]',
 				},
 			},
@@ -134,8 +134,8 @@ async function ssrBuild(opts: StaticBuildOptions, internals: BuildInternals, inp
 			}),
 			...(viteConfig.plugins || []),
 			// SSR needs to be last
-			opts.astroConfig._ctx.adapter?.serverEntrypoint &&
-			vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter),
+			isBuildingToSSR(opts.astroConfig) &&
+			vitePluginSSR(opts, internals, opts.astroConfig._ctx.adapter!),
 		],
 		publicDir: ssr ? false : viteConfig.publicDir,
 		root: viteConfig.root,

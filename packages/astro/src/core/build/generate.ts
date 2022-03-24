@@ -90,7 +90,7 @@ export async function generatePages(result: RollupOutput, opts: StaticBuildOptio
 
 	const ssr = !!opts.astroConfig._ctx.adapter?.serverEntrypoint;
 	const outFolder = ssr ? getServerRoot(opts.astroConfig) : getOutRoot(opts.astroConfig);
-	const ssrEntryURL = new URL('./astro-entry.mjs', outFolder);
+	const ssrEntryURL = new URL('./entry.mjs', outFolder);
 	const ssrEntry = await import(ssrEntryURL.toString());
 
 	for(const pageData of eachPageData(internals)) {
