@@ -18,16 +18,16 @@ describe('Error display', () => {
 		// TODO: unskip test once vite@2.9.x lands
 		// See pre-integration system test: https://github.com/withastro/astro/blob/0f376a7c52d3a22ff32b33e0afc34dd306ed70c4/packages/astro/test/errors.test.js
 		it.skip('properly detect syntax errors in template', async () => {
-				try {
-					devServer = await fixture.startDevServer();
-				} catch (err) {
-					return;
-				}
+			try {
+				devServer = await fixture.startDevServer();
+			} catch (err) {
+				return;
+			}
 
-				// This is new behavior in vite@2.9.x, previously the server would throw on startup
-				const res = await fixture.fetch('/astro-syntax-error');
-				await devServer.stop();
-				expect(res.status).to.equal(500, `Successfully responded with 500 Error for invalid file`);
-			});
+			// This is new behavior in vite@2.9.x, previously the server would throw on startup
+			const res = await fixture.fetch('/astro-syntax-error');
+			await devServer.stop();
+			expect(res.status).to.equal(500, `Successfully responded with 500 Error for invalid file`);
+		});
 	});
 });
