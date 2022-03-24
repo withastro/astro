@@ -9,7 +9,7 @@ polyfill(globalThis, {
 });
 
 export function createExports(manifest: SSRManifest) {
-	const app = new NodeApp(manifest, new URL(import.meta.url));
+	const app = new NodeApp(manifest);
 	return {
 		async handler(req: IncomingMessage, res: ServerResponse, next?: (err?: unknown) => void) {
 			const route = app.match(req);

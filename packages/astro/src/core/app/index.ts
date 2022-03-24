@@ -1,6 +1,7 @@
 import type { ComponentInstance, EndpointHandler, ManifestData, RouteData } from '../../@types/astro';
 import type { SSRManifest as Manifest, RouteInfo } from './types';
 
+import { getType as getMimeType } from 'mime';
 import { defaultLogOptions } from '../logger.js';
 export { deserializeManifest } from './common.js';
 import { matchRoute } from '../routing/match.js';
@@ -9,10 +10,6 @@ import { call as callEndpoint } from '../endpoint/index.js';
 import { RouteCache } from '../render/route-cache.js';
 import { createLinkStylesheetElementSet, createModuleScriptElementWithSrcSet } from '../render/ssr-element.js';
 import { prependForwardSlash } from '../path.js';
-
-const supportedFileNameToMimeTypes = new Map<string, string>([
-	['json', 'application/json']
-]);
 
 export class App {
 	#manifest: Manifest;
@@ -28,7 +25,6 @@ export class App {
 		};
 		this.#routeDataToRouteInfo = new Map(manifest.routes.map((route) => [route.routeData, route]));
 		this.#routeCache = new RouteCache(defaultLogOptions);
-		this
 	}
 	match(request: Request): RouteData | undefined {
 		const url = new URL(request.url);
@@ -121,13 +117,10 @@ export class App {
 			return result.response;
 		} else {
 			const body = result.body;
-			const ext = /\.([a-z]+)/.exec(url.pathname);
 			const headers = new Headers();
-			if(ext) {
-				const mime = supportedFileNameToMimeTypes.get(ext[1]);
-				if(mime) {
-					headers.set('Content-Type', mime);
-				}
+			const mimeType = getMimeType(url.pathname);
+			if(mimeType) {
+				headers.set('Content-Type', mimeType);
 			}
 			const bytes = this.#encoder.encode(body);
 			headers.set('Content-Length', bytes.byteLength.toString());

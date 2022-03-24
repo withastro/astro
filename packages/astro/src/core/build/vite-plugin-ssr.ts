@@ -62,7 +62,6 @@ if(_start in adapter) {
 					chunk.code = code.replace(exp, () => {
 						return JSON.stringify(manifest);
 					});
-					chunk.fileName = 'entry.mjs';
 				}
 			}
 		},

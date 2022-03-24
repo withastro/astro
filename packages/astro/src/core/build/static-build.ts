@@ -90,7 +90,7 @@ export async function staticBuild(opts: StaticBuildOptions) {
 
 	if (opts.buildConfig.staticMode) {
 		await generatePages(ssrResult, opts, internals, facadeIdToPageDataMap);
-		//await cleanSsrOutput(opts);
+		await cleanSsrOutput(opts);
 	} else {
 		await ssrMoveAssets(opts);
 	}
