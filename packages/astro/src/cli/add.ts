@@ -7,6 +7,7 @@ import { diffLines } from 'diff';
 import boxen from 'boxen';
 import prompts from 'prompts';
 import preferredPM from 'preferred-pm';
+import ora from 'ora';
 import { resolveConfigURL } from '../core/config.js';
 import { apply as applyPolyfill } from '../core/polyfill.js';
 import { error, info, debug, LogOptions } from '../core/logger.js';
@@ -74,8 +75,8 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 		);
 	}
 
-	let configResult: UpdateResult|undefined;
-	let installResult: UpdateResult|undefined;
+	let configResult: UpdateResult | undefined;
+	let installResult: UpdateResult | undefined;
 
 	if (ast) {
 		try {
@@ -103,25 +104,25 @@ export async function add(names: string[], { cwd, flags, logging }: AddOptions) 
 	switch (installResult) {
 		case UpdateResult.updated: {
 			const len = integrations.length;
-			if (integrations.find(integration => integration.id === 'tailwind')) {
-					const DEFAULT_TAILWIND_CONFIG = `module.exports = {
+			if (integrations.find((integration) => integration.id === 'tailwind')) {
+				const DEFAULT_TAILWIND_CONFIG = `module.exports = {
 	content: [],
 	theme: {
 		extend: {},
 	},
 	plugins: [],
-}\n`
-					await fs.writeFile(fileURLToPath(new URL('./tailwind.config.mjs', configURL)), DEFAULT_TAILWIND_CONFIG);
+}\n`;
+				await fs.writeFile(fileURLToPath(new URL('./tailwind.config.mjs', configURL)), DEFAULT_TAILWIND_CONFIG);
 			}
 			info(logging, null, msg.success(`Added ${len} integration${len === 1 ? '' : 's'} to your project`));
-			return
+			return;
 		}
 		case UpdateResult.cancelled: {
 			info(logging, null, msg.cancelled(`No dependencies installed.`, `Be sure to install them manually before continuing!`));
 			return;
 		}
 		case UpdateResult.failure: {
-			info(logging, null, msg.failure(`There was a problem installing dependencies.`, `Be sure to install them manually before continuing!`))
+			info(logging, null, msg.failure(`There was a problem installing dependencies.`, `Be sure to install them manually before continuing!`));
 			process.exit(1);
 		}
 	}
@@ -254,7 +255,15 @@ async function getInstallIntegrationsCommand({ integrations, cwd = process.cwd()
 	}
 }
 
-async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), logging }: { integrations: IntegrationInfo[]; cwd?: string; logging: LogOptions }): Promise<UpdateResult> {
+async function tryToInstallIntegrations({
+	integrations,
+	cwd = process.cwd(),
+	logging,
+}: {
+	integrations: IntegrationInfo[];
+	cwd?: string;
+	logging: LogOptions;
+}): Promise<UpdateResult> {
 	const cmd = await getInstallIntegrationsCommand({ integrations, cwd });
 
 	if (cmd === null) {
@@ -271,6 +280,7 @@ async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), log
 		});
 
 		if (response.installDependencies) {
+			const spinner = ora('Installing dependencies...').start();
 			try {
 				await new Promise((resolve, reject) => {
 					exec(cmd, (err, stdout, stderr) => {
@@ -281,9 +291,11 @@ async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), log
 						}
 					});
 				});
+				spinner.succeed();
 				return UpdateResult.updated;
 			} catch (err) {
 				debug('add', 'Error installing dependencies', err);
+				spinner.fail();
 				return UpdateResult.failure;
 			}
 		} else {
@@ -293,10 +305,12 @@ async function tryToInstallIntegrations({ integrations, cwd = process.cwd(), log
 }
 
 export async function validateIntegrations(integrations: string[]): Promise<IntegrationInfo[]> {
+	const spinner = ora('Resolving integrations...').start();
 	const integrationEntries = await Promise.all(
 		integrations.map(async (integration): Promise<IntegrationInfo> => {
 			const parsed = parseIntegrationName(integration);
 			if (!parsed) {
+				spinner.fail();
 				throw new Error(`${integration} does not appear to be a valid package name!`);
 			}
 
@@ -309,6 +323,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 
 			const result = await fetch(`https://registry.npmjs.org/${packageName}/${tag}`).then((res) => {
 				if (res.status === 404) {
+					spinner.fail();
 					throw new Error(`Unable to fetch ${packageName}. Does this package exist?`);
 				}
 				return res.json();
@@ -325,6 +340,7 @@ export async function validateIntegrations(integrations: string[]): Promise<Inte
 			return { id: integration, packageName, dependencies };
 		})
 	);
+	spinner.succeed();
 	return integrationEntries;
 }
 

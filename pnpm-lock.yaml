@@ -497,6 +497,7 @@ importers:
       micromorph: ^0.1.2
       mime: ^3.0.0
       mocha: ^9.2.2
+      ora: ^6.1.0
       parse5: ^6.0.1
       path-to-regexp: ^6.2.0
       postcss: ^8.4.12
@@ -556,6 +557,7 @@ importers:
       magic-string: 0.25.9
       micromorph: 0.1.2
       mime: 3.0.0
+      ora: 6.1.0
       parse5: 6.0.1
       path-to-regexp: 6.2.0
       postcss: 8.4.12
