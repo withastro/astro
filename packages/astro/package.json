@@ -30,7 +30,6 @@
     "./internal": "./internal.js",
     "./app": "./dist/core/app/index.js",
     "./app/node": "./dist/core/app/node.js",
-    "./adapter": "./dist/core/adapter/index.js",
     "./client/*": "./dist/runtime/client/*",
     "./components": "./components/index.js",
     "./components/*": "./components/*",
