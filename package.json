@@ -58,8 +58,8 @@
     "@changesets/changelog-github": "^0.4.3",
     "@changesets/cli": "^2.21.1",
     "@octokit/action": "^3.18.0",
-    "@typescript-eslint/eslint-plugin": "^5.15.0",
-    "@typescript-eslint/parser": "^5.15.0",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
     "del": "^6.0.0",
     "esbuild": "0.14.25",
     "eslint": "^8.11.0",
@@ -69,7 +69,7 @@
     "prettier": "^2.6.0",
     "pretty-bytes": "^6.0.0",
     "tiny-glob": "^0.2.9",
-    "turbo": "^1.1.6",
+    "turbo": "^1.1.10",
     "typescript": "~4.6.2"
   }
 }
