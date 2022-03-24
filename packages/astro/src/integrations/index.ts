@@ -1,9 +1,14 @@
 import type { AddressInfo } from 'net';
 import type { ViteDevServer } from 'vite';
-import { AstroConfig, AstroRenderer } from '../@types/astro.js';
+import { AstroConfig, AstroRenderer, BuildConfig } from '../@types/astro.js';
 import { mergeConfig } from '../core/config.js';
+import ssgAdapter from '../adapter-ssg/index.js';
 
 export async function runHookConfigSetup({ config: _config, command }: { config: AstroConfig; command: 'dev' | 'build' }): Promise<AstroConfig> {
+	if(_config.adapter) {
+		_config.integrations.push(_config.adapter);
+	}
+
 	let updatedConfig: AstroConfig = { ..._config };
 	for (const integration of _config.integrations) {
 		if (integration.hooks['astro:config:setup']) {
@@ -30,6 +35,25 @@ export async function runHookConfigDone({ config }: { config: AstroConfig }) {
 		if (integration.hooks['astro:config:done']) {
 			await integration.hooks['astro:config:done']({
 				config,
+				setAdapter(adapter) {
+					if(config._ctx.adapter && config._ctx.adapter.name !== adapter.name) {
+						throw new Error(`Adapter already set to ${config._ctx.adapter.name}. You can only have one adapter.`);
+					}
+					config._ctx.adapter = adapter;
+				}
+			});
+		}
+	}
+	// Call the default adapter
+	if(!config._ctx.adapter) {
+		const integration = ssgAdapter();
+		config.integrations.push(integration);
+		if(integration.hooks['astro:config:done']) {
+			await integration.hooks['astro:config:done']({
+				config,
+				setAdapter(adapter) {
+					config._ctx.adapter = adapter;
+				}
 			});
 		}
 	}
@@ -59,10 +83,10 @@ export async function runHookServerDone({ config }: { config: AstroConfig }) {
 	}
 }
 
-export async function runHookBuildStart({ config }: { config: AstroConfig }) {
+export async function runHookBuildStart({ config, buildConfig }: { config: AstroConfig, buildConfig: BuildConfig }) {
 	for (const integration of config.integrations) {
 		if (integration.hooks['astro:build:start']) {
-			await integration.hooks['astro:build:start']();
+			await integration.hooks['astro:build:start']({ buildConfig });
 		}
 	}
 }

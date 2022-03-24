@@ -184,7 +184,7 @@ export function rollupPluginAstroBuildCSS(options: PluginOptions): VitePlugin {
 
 					// Removes imports for pure CSS chunks.
 					if (hasPureCSSChunks) {
-						if (internals.pureCSSChunks.has(chunk)) {
+						if (internals.pureCSSChunks.has(chunk) && !chunk.exports.length) {
 							// Delete pure CSS chunks, these are JavaScript chunks that only import
 							// other CSS files, so are empty at the end of bundling.
 							delete bundle[chunkId];

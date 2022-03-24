@@ -11,6 +11,7 @@ import load from '@proload/core';
 import loadTypeScript from '@proload/plugin-tsm';
 import postcssrc from 'postcss-load-config';
 import { arraify, isObject } from './util.js';
+import ssgAdapter from '../adapter-ssg/index.js';
 
 load.use([loadTypeScript]);
 
@@ -82,6 +83,7 @@ export const AstroConfigSchema = z.object({
 				message: `Astro integrations are still experimental, and only official integrations are currently supported`,
 			})
 	),
+	adapter: z.object({ name: z.string(), hooks: z.object({}).passthrough().default({}) }).optional(),
 	styleOptions: z
 		.object({
 			postcss: z
@@ -210,7 +212,7 @@ export async function validateConfig(userConfig: any, root: string): Promise<Ast
 	});
 	return {
 		...(await AstroConfigRelativeSchema.parseAsync(userConfig)),
-		_ctx: { scripts: [], renderers: [] },
+		_ctx: { scripts: [], renderers: [], adapter: undefined },
 	};
 }
 

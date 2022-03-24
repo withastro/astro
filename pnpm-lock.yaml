@@ -286,6 +286,7 @@ importers:
 
   examples/ssr:
     specifiers:
+      '@astrojs/node': ^0.0.1
       '@astrojs/svelte': ^0.0.2-next.0
       astro: ^0.25.0-next.2
       concurrently: ^7.0.0
@@ -296,6 +297,7 @@ importers:
     dependencies:
       svelte: 3.46.4
     devDependencies:
+      '@astrojs/node': link:../../packages/integrations/node
       '@astrojs/svelte': link:../../packages/integrations/svelte
       astro: link:../../packages/astro
       concurrently: 7.0.0
@@ -1171,6 +1173,17 @@ importers:
       astro-scripts: workspace:*
     dependencies:
       '@lit-labs/ssr': 2.0.4
+    devDependencies:
+      astro: link:../../astro
+      astro-scripts: link:../../../scripts
+
+  packages/integrations/node:
+    specifiers:
+      '@astrojs/webapi': ^0.11.0
+      astro: workspace:*
+      astro-scripts: workspace:*
+    dependencies:
+      '@astrojs/webapi': link:../../webapi
     devDependencies:
       astro: link:../../astro
       astro-scripts: link:../../../scripts

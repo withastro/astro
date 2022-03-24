@@ -1,5 +1,4 @@
 import type { SSRManifest, SerializedSSRManifest } from './types';
-import type { IncomingHttpHeaders } from 'http';
 
 import * as fs from 'fs';
 import { App } from './index.js';
@@ -16,7 +15,7 @@ function createRequestFromNodeRequest(req: IncomingMessage): Request {
 	return request;
 }
 
-class NodeApp extends App {
+export class NodeApp extends App {
 	match(req: IncomingMessage | Request) {
 		return super.match(req instanceof Request ? req : createRequestFromNodeRequest(req));
 	}

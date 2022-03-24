@@ -7,12 +7,12 @@
     "dev-server": "astro dev --experimental-ssr",
     "dev": "concurrently \"npm run dev-api\" \"astro dev --experimental-ssr\"",
     "start": "astro dev",
-    "build": "echo 'Run pnpm run build-ssr instead'",
-    "build-ssr": "node build.mjs",
+    "build": "astro build --experimental-ssr",
     "server": "node server/server.mjs"
   },
   "devDependencies": {
     "@astrojs/svelte": "^0.0.2-next.0",
+    "@astrojs/node": "^0.0.1",
     "astro": "^0.25.0-next.2",
     "concurrently": "^7.0.0",
     "lightcookie": "^1.0.25",

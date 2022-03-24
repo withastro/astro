@@ -5,6 +5,7 @@ import type { z } from 'zod';
 import type { AstroConfigSchema } from '../core/config';
 import type { AstroComponentFactory, Metadata } from '../runtime/server';
 import type { AstroRequest } from '../core/render/request';
+export type { SSRManifest } from '../core/app/types';
 
 export interface AstroBuiltinProps {
 	'client:load'?: boolean;
@@ -35,6 +36,10 @@ export interface CLIFlags {
 	experimentalSsr?: boolean;
 	legacyBuild?: boolean;
 	drafts?: boolean;
+}
+
+export interface BuildConfig {
+	staticMode: boolean | undefined;
 }
 
 /**
@@ -153,6 +158,16 @@ export interface AstroUserConfig {
 	 * ```
 	 */
 	integrations?: AstroIntegration[];
+
+	/**
+	 * @docs
+	 * @name adapter
+	 * @type {AstroIntegration}
+	 * @default `undefined`
+	 * @description
+	 * Add an adapter to build for SSR (server-side rendering). An adapter makes it easy to connect a deployed Astro app to a hosting provider or runtime environment.
+	 */
+	adapter?: AstroIntegration;
 
 	/** @deprecated - Use "integrations" instead. Run Astro to learn more about migrating. */
 	renderers?: string[];
@@ -461,11 +476,13 @@ export interface AstroConfig extends z.output<typeof AstroConfigSchema> {
 	// This is a more detailed type than zod validation gives us.
 	// TypeScript still confirms zod validation matches this type.
 	integrations: AstroIntegration[];
+	adapter?: AstroIntegration;
 	// Private:
 	// We have a need to pass context based on configured state,
 	// that is different from the user-exposed configuration.
 	// TODO: Create an AstroConfig class to manage this, long-term.
 	_ctx: {
+		adapter: AstroAdapter | undefined;
 		renderers: AstroRenderer[];
 		scripts: { stage: InjectedScriptStage; content: string }[];
 	};
@@ -596,6 +613,12 @@ export type Props = Record<string, unknown>;
 
 type Body = string;
 
+export interface AstroAdapter {
+	name: string;
+	serverEntrypoint?: string;
+	exports?: string[];
+}
+
 export interface EndpointOutput<Output extends Body = Body> {
 	body: Output;
 }
@@ -642,11 +665,11 @@ export interface AstroIntegration {
 			// more generalized. Consider the SSR use-case as well.
 			// injectElement: (stage: vite.HtmlTagDescriptor, element: string) => void;
 		}) => void;
-		'astro:config:done'?: (options: { config: AstroConfig }) => void | Promise<void>;
+		'astro:config:done'?: (options: {config: AstroConfig, setAdapter: (adapter: AstroAdapter) => void; }) => void | Promise<void>;
 		'astro:server:setup'?: (options: { server: vite.ViteDevServer }) => void | Promise<void>;
 		'astro:server:start'?: (options: { address: AddressInfo }) => void | Promise<void>;
 		'astro:server:done'?: () => void | Promise<void>;
-		'astro:build:start'?: () => void | Promise<void>;
+		'astro:build:start'?: (options: { buildConfig: BuildConfig }) => void | Promise<void>;
 		'astro:build:done'?: (options: { pages: { pathname: string }[]; dir: URL }) => void | Promise<void>;
 	};
 }
