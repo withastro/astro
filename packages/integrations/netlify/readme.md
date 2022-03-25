@@ -6,10 +6,10 @@ Use this adapter in your Astro configuration file:
 
 ```js
 import { defineConfig } from 'astro/config';
-import { netlifyFunctions } from '@astrojs/netlify';
+import netlify from '@astrojs/netlify';
 
 export default defineConfig({
-	adapter: netlifyFunctions()
+	adapter: netlify()
 });
 ```
 

@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroIntegration, AstroConfig, BuildConfig } from 'astro';
+import type { AstroAdapter, AstroIntegration, AstroConfig } from 'astro';
 import fs from 'fs';
 
 export function getAdapter(site: string | undefined): AstroAdapter {
@@ -10,7 +10,7 @@ export function getAdapter(site: string | undefined): AstroAdapter {
 	};
 }
 
-export function netlifyFunctions(): AstroIntegration {
+function netlifyFunctions(): AstroIntegration {
 	let _config: AstroConfig;
 	let entryFile: string;
 	return {
@@ -26,10 +26,10 @@ export function netlifyFunctions(): AstroIntegration {
 				buildConfig.server = new URL('./functions/', _config.dist);
 			},
 			'astro:build:done': async ({ routes, dir }) => {
+				// Create the redirects file that is used for routing.
 				let _redirects = '';
 				for(const route of routes) {
 					if(route.pathname) {
-						// TODO don't hardcode this, I think.
 						_redirects += `
 ${route.pathname}    /.netlify/functions/${entryFile}    200`
 					}
@@ -40,3 +40,8 @@ ${route.pathname}    /.netlify/functions/${entryFile}    200`
 		},
 	};
 }
+
+export {
+	netlifyFunctions,
+	netlifyFunctions as default
+};
