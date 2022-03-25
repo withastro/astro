@@ -11,16 +11,13 @@
     "directory": "packages/astro-prism"
   },
   "homepage": "https://astro.build",
-  "main": "index.mjs",
+  "main": "index.js",
   "scripts": {},
-  "files": [
-    "component"
-  ],
   "exports": {
-    ".": "./index.mjs",
-    "./component": "./component/Prism.astro"
+    ".": "./index.js",
+    "./internal": "./internal.mjs"
   },
-  "types": "./index.d.ts",
+  "types": "./internal.d.ts",
   "keywords": [],
   "devDependencies": {
     "prismjs": "^1.27.0"
