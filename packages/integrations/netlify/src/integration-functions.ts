@@ -1,3 +1,1 @@
-export {
-	netlifyFunctions as default
-} from './index.js';
+export { netlifyFunctions as default } from './index.js';

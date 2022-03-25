@@ -1,5 +1,5 @@
 import { SSRManifest } from 'astro';
-import type { Handler } from "@netlify/functions";
+import type { Handler } from '@netlify/functions';
 import { App } from 'astro/app';
 import { polyfill } from '@astrojs/webapi';
 
@@ -19,13 +19,13 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		const headers = new Headers(event.headers as any);
 		const request = new Request(new URL(event.path, site).toString(), {
 			method: event.httpMethod,
-			headers
+			headers,
 		});
 
-		if(!app.match(request)) {
+		if (!app.match(request)) {
 			return {
 				statusCode: 404,
-				body: 'Not found'
+				body: 'Not found',
 			};
 		}
 
@@ -35,9 +35,9 @@ export const createExports = (manifest: SSRManifest, args: Args) => {
 		return {
 			statusCode: 200,
 			headers: Object.fromEntries(response.headers.entries()),
-			body
+			body,
 		};
-	}
+	};
 
 	return { handler };
 };
