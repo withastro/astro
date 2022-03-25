@@ -1,7 +1,8 @@
 import type yargs from 'yargs-parser';
+import path from 'path';
 import { existsSync, promises as fs } from 'fs';
 import { execa } from 'execa';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { diffWords } from 'diff';
 import boxen from 'boxen';
 import prompts from 'prompts';
@@ -44,6 +45,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		return;
 	}
 	let configURL: URL | undefined;
+	const root = pathToFileURL(cwd ? path.resolve(cwd) : process.cwd());
 	// TODO: improve error handling for invalid configs
 	configURL = await resolveConfigURL({ cwd, flags });
 
@@ -89,7 +91,7 @@ export default async function add(names: string[], { cwd, flags, logging }: AddO
 		debug('add', `Found config at ${configURL}`);
 	} else {
 		info(logging, 'add', `Unable to locate a config file, generating one for you.`);
-		configURL = new URL('./astro.config.mjs', cwd);
+		configURL = new URL('./astro.config.mjs', root);
 		await fs.writeFile(fileURLToPath(configURL), CONSTS.CONFIG_STUB, { encoding: 'utf-8' });
 	}
 
